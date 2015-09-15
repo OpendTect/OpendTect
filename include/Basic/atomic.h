@@ -42,8 +42,9 @@ public:
 
 		operator T() const { return get(); }
     T		get() const;
-    
+
     T		operator=(T v);
+    T		operator=(const Atomic<T>& v) { return operator=(v.get()); }
 
     inline T	operator+=(T);
     inline T	operator-=(T);
@@ -63,7 +64,8 @@ public:
     */
       
 private:
-    			Atomic( const Atomic<T>& )	{}
+			Atomic(const Atomic<T>&)
+			{ }
     
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
@@ -76,8 +78,10 @@ private:
 #else
     volatile T		val_;
 #endif
+public:
+    const void*		getStorage() const;
+			//!<Only for debugging
 };
-
 
 
 /*!>
@@ -140,6 +144,8 @@ public:
         change 'ptr_', it will return false, and update 'curptr' to the current
         value of 'ptr'.
  */
+    AtomicPointer<T>&		operator=(T* ptr);
+    AtomicPointer<T>&		operator=(const AtomicPointer<T>&);
 
     inline T*	setToNull();
     /*!<Returns the last value of the ptr. */
@@ -158,10 +164,18 @@ public:
     inline T*	operator++(int);
     inline T*	operator--(int);
     
-protected:
-    
+private:
+    inline	AtomicPointer(const AtomicPointer<T>&)
+    { }
     
     Atomic<mAtomicPointerType>	ptr_;
+
+public:
+    const void* getStorage() const
+    {
+	return (void*) ptr_.getStorage();
+    }
+    //!<Only for debugging.
 };
 
 
@@ -217,6 +231,13 @@ template <class T> inline
 Atomic<T>::Atomic( const Atomic<T>& val )
     : val_( val.get() )
 {}
+
+
+template <class T> inline
+const void* Atomic<T>::getStorage() const
+{
+    return (const void*) &val_;
+}
 
 
 template <class T> inline
@@ -372,6 +393,15 @@ T Atomic<T>::exchange( T newval )
 {
     return __sync_lock_test_and_set( &val_, newval );
 }
+
+
+template <class T> inline
+const void* Atomic<T>::getStorage() const
+{
+    return (const void*) &val_;
+}
+
+
 #endif //__GCCATOMICS__
 
 
@@ -385,6 +415,12 @@ Atomic<T>::Atomic( T val )
     , valptr_( values_ )
 {
     *valptr_ = val;
+}
+
+template <class T> inline
+const void* Atomic<T>::getStorage() const
+{
+    return (const void*) valptr_;
 }
 
 
@@ -712,7 +748,7 @@ long Atomic<long>::operator -- (int)
 /* AtomicPointer implementations. */
 template <class T> inline
 AtomicPointer<T>::AtomicPointer(T* newptr )
-: ptr_( (mAtomicPointerType) newptr )
+    : ptr_( (mAtomicPointerType) newptr )
 {}
 
 
@@ -739,6 +775,21 @@ T* AtomicPointer<T>::setToNull()
     {}
     
     return (T*) oldptr;
+}
+
+
+template <class T> inline
+AtomicPointer<T>& AtomicPointer<T>::operator=(T* ptr)
+{
+    ptr_ = (mAtomicPointerType)ptr;
+    return *this;
+}
+
+
+template <class T> inline
+AtomicPointer<T>& AtomicPointer<T>::operator=(const AtomicPointer<T>& ptr)
+{
+    return operator=((T*)ptr);
 }
 
 
