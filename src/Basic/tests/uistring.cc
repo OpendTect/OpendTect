@@ -200,6 +200,23 @@ bool testNumberStrings()
 }
 
 
+bool testToLower()
+{
+    uiString string = uiStrings::phrJoinStrings( uiStrings::sInput(),
+					    uiStrings::sHorizon().toLower() );
+    BufferString bstr = string.getFullString();
+    mRunStandardTest( bstr=="Input horizon", "To lower" );
+
+    uiString string2 = uiStrings::phrJoinStrings( uiStrings::sInput(),
+						 uiStrings::sHorizon() );
+    bstr = string2.getFullString();
+    mRunStandardTest( bstr=="Input Horizon", "To lower does not affect orig" );
+
+
+    return true;
+}
+
+
 bool testOptionStrings()
 {
     uiStringSet options;
@@ -252,7 +269,7 @@ int main( int argc, char** argv )
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
-	 !testSetEmpty() || !testNumberStrings() ||
+	 !testSetEmpty() || !testNumberStrings() || !testToLower() ||
 	 !TestTranslator::testTranslation() )
 	ExitProgram( 1 );
 

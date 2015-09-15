@@ -891,9 +891,7 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
     BufferString formatstr = "%1-%2 / %3-%4 / %5-%6";
     if ( !compact )
     {
-	formatstr = "Inl: %1-%2, Crl: %3-%4, ";
-	formatstr += scene_ ? scene_->zDomainInfo().userName() : "Z";
-	formatstr += ": %5-%6";
+	formatstr = "Inl: %1-%2, Crl: %3-%4, %7: %5-%6";
     }
 
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
@@ -907,8 +905,11 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 	.arg( cs.hsamp_.stop_.inl() )
 	.arg( cs.hsamp_.start_.crl() )
 	.arg( cs.hsamp_.stop_.crl() )
-	.arg(mNINT32(cs.zsamp_.start*userfactor) )
-	.arg(mNINT32(cs.zsamp_.stop*userfactor));
+	.arg( mNINT32(cs.zsamp_.start*userfactor) )
+	.arg( mNINT32(cs.zsamp_.stop*userfactor) );
+
+    if ( !compact )
+	info.arg( scene_->zDomainInfo().userName() );
 }
 
 

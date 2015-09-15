@@ -133,8 +133,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     gradienttypefld_->attach( rightOf, usegradientfld_ );
     gradienttypefld_->display( false ); //!SI().zIsTime() );
 
-    BufferString labl = "Reference ";
-    labl += SI().zIsTime() ? "time" : "depth";
+    uiString labl = tr("Reference %1")
+	.arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
     userefdepthfld_ = new uiGenInput( this, labl,
 	    BoolInpSpec(surfacefiller_->usesRefZValue(),constantstr,
 	    uiStrings::sHorizon()));
@@ -142,12 +142,9 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
     userefdepthfld_->attach( alignedBelow, gradientfld_ );
 
-    BufferString refdepthlabel = ZDomain::SI().userName();
-    refdepthlabel += " ";
-    refdepthlabel += SI().getZUnitString( true );
     float refdepth = surfacefiller_->getRefZValue();
     if ( !mIsUdf(refdepth) ) refdepth *= SI().zDomain().userFactor();
-    refdepthfld_ = new uiGenInput( this, refdepthlabel.buf(),
+    refdepthfld_ = new uiGenInput( this, ZDomain::SI().getLabel(),
 	    FloatInpSpec( refdepth ) );
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );
 

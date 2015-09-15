@@ -65,6 +65,7 @@ public:
 	, application_( application )
 	, contentlock_( true )
 	, changecount_( mForceUpdate )
+	, tolower_( false )
     {
     }
 
@@ -78,6 +79,7 @@ public:
 	arguments_ = d.arguments_;
 	application_ = d.application_;
 	changecount_ = mForceUpdate;
+	tolower_ = d.tolower_;
     }
 
     void addLegacyVersion( const uiString& legacy )
@@ -116,6 +118,7 @@ public:
     const char*			application_;
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
+    bool			tolower_;
 
     int				changecount_;
 };
@@ -132,6 +135,7 @@ void uiStringData::set( const char* orig )
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
     changecount_ = mForceUpdate;
+    tolower_ = false;
 #ifndef OD_NO_QT
     qstring_ = sKey::EmptyString().buf();
 #endif
@@ -151,16 +155,19 @@ void uiStringData::getFullString( BufferString& ret ) const
 	}
 	else
 	    ret = originalstring_;
-
-	return;
     }
-
-    QString qres;
-    fillQString( qres, 0, true );
-    ret = qres;
+    else
+    {
+	QString qres;
+	fillQString( qres, 0, true );
+	ret = qres;
+    }
 #else
     ret = originalstring_;
 #endif
+
+    if ( tolower_ )
+	ret.toLower();
 }
 
 
@@ -227,6 +234,9 @@ bool uiStringData::fillQString( QString& res,
     {
 	res = originalstring_;
     }
+
+    if ( tolower_ )
+	res = res.toLower();
 
     for ( int idx=0; idx<arguments_.size(); idx++ )
     {
@@ -331,6 +341,19 @@ bool uiString::isEmpty() const
 void uiString::setEmpty()
 {
     set( sKey::EmptyString() );
+}
+
+
+uiString& uiString::toLower(bool yn)
+{
+    Threads::Locker datalocker( datalock_ );
+    makeIndependent();
+    Threads::Locker contentlocker( data_->contentlock_ );
+    data_->tolower_ = true;
+    data_->changecount_ = mForceUpdate;
+    mSetDBGStr;
+
+    return *this;
 }
 
 

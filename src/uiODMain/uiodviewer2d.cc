@@ -678,31 +678,48 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 
 void uiODViewer2D::setWinTitle( bool fromcs )
 {
-    BufferString info;
+    uiString info;
     if ( !fromcs )
     {
-	appl_.applMgr().visServer()->getObjectInfo( visid_, info );
-	if ( info.isEmpty() )
+	BufferString objectinfo;
+	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
+	if ( objectinfo.isEmpty() )
 	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
+	else
+	{
+	    info = mToUiStringTodo( objectinfo );
+	}
     }
     else
     {
+	info = toUiString("%1: %2");
 	if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	    { info = "Line: "; info += Survey::GM().getName( geomID() ); }
+	{
+	    info.arg( tr("Line") )
+		.arg( mToUiStringTodo( Survey::GM().getName( geomID()) ) );
+	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-	    { info = "In-line: "; info += tkzs_.hsamp_.start_.inl(); }
+	{
+	    info.arg( uiStrings::sInline() )
+		.arg( tkzs_.hsamp_.start_.inl() );
+	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-	    { info = "Cross-line: "; info += tkzs_.hsamp_.start_.crl(); }
+	{
+	    info.arg( uiStrings::sCrossline() )
+		.arg( tkzs_.hsamp_.start_.crl() );
+	}
 	else
 	{
-	    info = zDomain().userName(); info += ": ";
-	    info += mNINT32(tkzs_.zsamp_.start * zDomain().userFactor());
+	    info.arg( zDomain().userName() )
+		.arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
 	}
     }
 
-    info.insertAt( 0, basetxt_ );
+    uiString title = toUiString("%1%2").arg( mToUiStringTodo(basetxt_) )
+				       .arg( info );
+
     if ( viewwin() )
-	viewwin()->setWinTitle( info );
+	viewwin()->setWinTitle( title );
 }
 
 

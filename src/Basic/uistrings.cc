@@ -102,6 +102,10 @@ uiString uiStrings::phrInvalid( const uiString& string )
 uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
 { return toUiString(joinstring).arg( a ).arg( b ); }
 
+uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b,
+				    const uiString& c)
+{ return toUiString("%1 %2 %3").arg( a ).arg( b ).arg( c ); }
+
 uiString uiStrings::phrModify( const uiString& string )
 { return toUiString(joinstring).arg(sModify()).arg(string); }
 

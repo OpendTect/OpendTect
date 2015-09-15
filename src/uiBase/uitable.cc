@@ -1013,17 +1013,17 @@ const char* uiTable::columnLabel( int col ) const
 }
 
 
-void uiTable::setColumnLabel( int col, const char* label )
+void uiTable::setColumnLabel( int col, const uiString& label )
 {
     QTableWidgetItem& itm = body_->getRCItem( col, false );
-    itm.setText( label );
-    itm.setToolTip( label );
+    itm.setText( label.getQString() );
+    itm.setToolTip( label.getQString() );
 }
 
 
-void uiTable::setColumnToolTip( int col, const char* tt )
+void uiTable::setColumnToolTip( int col, const uiString& tt )
 {
-    body_->getRCItem(col,false).setToolTip( tt );
+    body_->getRCItem(col,false).setToolTip( tt.getQString() );
 }
 
 
@@ -1055,13 +1055,13 @@ void uiTable::setLabelAlignment( Alignment::HPos hal, bool col )
 }
 
 
-void uiTable::setCellToolTip( const RowCol& rc, const char* tt )
+void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
 {
     uiObject* cellobj = getCellObject( rc );
     if ( !cellobj )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
-	itm->setToolTip( tt );
+	itm->setToolTip( tt.getQString() );
     }
     else
 	cellobj->setToolTip( tt );

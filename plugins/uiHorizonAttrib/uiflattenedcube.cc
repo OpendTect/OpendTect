@@ -58,7 +58,8 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     uiSeisSel::Setup su( Seis::Vol );
     seisselin_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true), su);
 
-    BufferString txt( SI().zIsTime() ? "Time" : "Depth", " value of horizon" );
+    uiString txt = tr("%1 value of horizon")
+	.arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
     MouseCursorManager::setOverride( MouseCursor::Wait );
     pp_.getZRange( horzrg_ );
     MouseCursorManager::restoreOverride();

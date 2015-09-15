@@ -151,11 +151,14 @@ protected:
 
     bool                needInputUpdate() const		{ return needinpupd_; }
 
-    BufferString	zDepLabel(const char* pre,const char* post) const;
-    BufferString	gateLabel() const
-			{ return zDepLabel( 0, "gate" ); }
-    BufferString	shiftLabel() const
-			{ return zDepLabel( 0, "shift" ); }
+    uiString		zDepLabel(const uiString& pre,
+				  const uiString& post) const;
+    uiString		gateLabel() const
+			{ return zDepLabel( uiString::emptyString(),
+					    tr("gate")); }
+    uiString		shiftLabel() const
+			{ return zDepLabel( uiString::emptyString(),
+					    tr("shift"));}
     bool		zIsTime() const;
 
     ChangeTracker	chtr_;

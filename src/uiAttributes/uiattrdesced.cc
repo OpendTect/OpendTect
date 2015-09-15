@@ -259,17 +259,32 @@ void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 }
 
 
-BufferString uiAttrDescEd::zDepLabel( const char* pre, const char* post ) const
+uiString uiAttrDescEd::zDepLabel( const uiString& pre,
+				  const uiString& post ) const
 {
-    BufferString lbl, zstr( zIsTime() ? "Time" : "Depth" );
-    if ( pre )
-	{ lbl += pre; lbl += " "; zstr[0] = (char)tolower(zstr[0]); }
+    BufferString lbl;
+    uiString zstr( zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
+    uiString ret;
+    if ( !pre.isEmpty() && !post.isEmpty() )
+    {
+	return toUiString( "%1 %2 %3 %4" )
+	    .arg( pre )
+	    .arg( zstr.toLower() )
+	    .arg( post )
+	    .arg( SI().getUiZUnitString() );
+    }
 
-    lbl += zstr;
-    if ( post )
-	{ lbl += " "; lbl += post; }
-    lbl += " "; lbl += SI().getZUnitString();
-    return lbl;
+    if ( !pre.isEmpty() )
+    {
+	zstr.toLower( true );
+	return uiStrings::phrJoinStrings( pre, zstr, SI().getUiZUnitString() );
+    }
+
+    if ( !post.isEmpty() )
+	return uiStrings::phrJoinStrings( zstr, post, SI().getUiZUnitString());
+
+
+    return uiStrings::phrJoinStrings( zstr, SI().getUiZUnitString() );
 }
 
 

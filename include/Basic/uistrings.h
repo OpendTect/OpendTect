@@ -77,6 +77,9 @@ public:
     //!<"Invalid <string>"
     static uiString phrJoinStrings(const uiString& a,const uiString& b);
     //!<"<a> <b>
+    static uiString phrJoinStrings(const uiString& a,const uiString& b,
+				   const uiString& c);
+    //!<"<a> <b> <c>
     static uiString phrLoad(const uiString&);
     //!"Load <string>"
     static uiString phrMerge(const uiString&);

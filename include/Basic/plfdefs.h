@@ -217,7 +217,11 @@ Always defined:
 #  define mStopAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic pop" )
 # else
-#  define mDeprecated
+#  ifdef __clang__
+#   define mDeprecated __attribute__ ((deprecated))
+#  else
+#   define mDeprecated
+#  endif
 #  define mStartAllowDeprecatedSection
 #  define mStopAllowDeprecatedSection
 # endif

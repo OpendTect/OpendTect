@@ -52,7 +52,7 @@ protected:
     const bool		cansnap_;
 
     void		valChg(CallBacker*);
-    void		makeInpFields(const char*,bool,
+    void		makeInpFields(const uiString&,bool,
 	    			      const StepInterval<float>*);
 
 };

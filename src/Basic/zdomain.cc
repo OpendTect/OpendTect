@@ -31,8 +31,10 @@ ObjectSet<ZDomain::Def>& DEFS()
     {
         ManagedObjectSet<ZDomain::Def>* newdefs =
         				new ManagedObjectSet<ZDomain::Def>;
-        *newdefs += new ZDomain::Def( ZDomain::sKeyTime(), "Time", "ms", 1000 );
-	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(), "Depth", "", 1 );
+	*newdefs += new ZDomain::Def( ZDomain::sKeyTime(),
+				      uiStrings::sTime(), "ms", 1000 );
+	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(),
+				      uiStrings::sDepth(), "", 1 );
 
         if ( !defs.setIfNull( newdefs ) )
             delete newdefs;
@@ -130,6 +132,14 @@ void ZDomain::Def::set( IOPar& iop ) const
 {
     iop.set( sKey(), key_ );
 }
+
+
+uiString ZDomain::Def::getLabel() const
+{ return uiStrings::phrJoinStrings( userName(), uiUnitStr(true) ); }
+
+
+uiString ZDomain::Def::getRange() const
+{ return uiStrings::phrJoinStrings( userName(), uiStrings::sRange() ); }
 
 
 const char* ZDomain::Def::unitStr( bool withparens ) const

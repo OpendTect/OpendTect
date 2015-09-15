@@ -1043,7 +1043,7 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 	if ( !scene_ ) { info = val; return; }
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
-	info = zdinf.userName(); info += ": ";
+	info = mFromUiStringTodo(zdinf.userName()); info += ": ";
 	info += mNINT32(val * zdinf.userFactor());
     }
 }

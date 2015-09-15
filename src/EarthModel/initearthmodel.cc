@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "horizongridder.h"
 #include "lmkemfaulttransl.h"
+#include "uistrings.h"
 #include "zdomain.h"
 
 mDefModInitFn(EarthModel)
@@ -67,6 +68,8 @@ mDefModInitFn(EarthModel)
     ExtensionHor3DGridder::initClass();
     ContinuousCurvatureHor3DGridder::initClass();
 
-    ZDomain::Def::add( new ZDomain::Def("Time-Flattened","Time","ms",1000) );
-    ZDomain::Def::add( new ZDomain::Def("Depth-Flattened","Depth","",1) );
+    ZDomain::Def::add( new ZDomain::Def("Time-Flattened",uiStrings::sTime(),
+					"ms",1000) );
+    ZDomain::Def::add( new ZDomain::Def("Depth-Flattened",uiStrings::sDepth(),
+					"",1) );
 }

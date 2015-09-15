@@ -31,13 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
-
-#define mCapt \
-    is2d ? tr("Manage 2D Prestack Seismics") : tr("Manage 3D Prestack Seismics")
 #define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
                        mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
+    : uiObjFileMan(p,uiDialog::Setup(createCaption(is2d),mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1).modal(false),
 		   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
@@ -65,6 +62,15 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 
 uiSeisPreStackMan::~uiSeisPreStackMan()
 {
+}
+
+
+
+uiString uiSeisPreStackMan::createCaption( bool is2d )
+{
+    return is2d
+	? tr("Manage 2D Prestack Seismics")
+	: tr("Manage 3D Prestack Seismics");
 }
 
 
@@ -142,7 +148,7 @@ void uiSeisPreStackMan::mkFileInfo()
 	    const bool zistm = objinf.isTime();
 	    const ZDomain::Def& zddef = objinf.zDomainDef();
 #	    define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
-	    txt.add(zddef.userName()).add(" range ")
+	    txt.add(zddef.userName().getFullString()).add(" range ")
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
 		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
 		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]\n");
