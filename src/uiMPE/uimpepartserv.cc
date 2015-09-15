@@ -849,7 +849,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( !seedpicker ) return false;
 
     uiDialog* setupdlg  = new uiDialog( parent(),
-		uiDialog::Setup(tr("Horizon Tracking Setup"),0,
+		uiDialog::Setup(tr("Horizon Tracking Settings"),0,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->showAlwaysOnTop();
