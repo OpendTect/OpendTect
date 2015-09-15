@@ -162,11 +162,12 @@ void uiMPEMan::keyEventCB( CallBacker* )
 }
 
 
-#define mAddAction(txt,sc,id,enab) \
+#define mAddAction(txt,sc,id,icon,enab) \
 { \
     uiAction* action = new uiAction( txt ); \
     mnu.insertAction( action, id ); \
     action->setEnabled( enab ); \
+    action->setIcon( icon ); \
 }
 
 void uiMPEMan::mouseEventCB( CallBacker* )
@@ -195,33 +196,38 @@ int uiMPEMan::popupMenu()
     uiMenu mnu( tr("Tracking Menu") );
     const bool istracking = MPE::engine().trackingInProgress();
     if ( istracking )
-	mAddAction( tr("Stop Auto Tracking"), "k", sStop, true )
+	mAddAction( tr("Stop Auto Tracking"), "k", sStop, "stop", true )
     else
     {
 	const Coord3& clickedpos = scene->getMousePos( true );
 	const bool haspos = !clickedpos.isUdf();
-	mAddAction( tr("Start Auto Tracking"), "k", sStart, true )
-	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack, true )
-	mAddAction( tr("Define Polygon"), "y", sPoly, true )
+	mAddAction( tr("Start Auto Tracking"), "k", sStart, "autotrack", true )
+	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack,
+		    "retrackhorizon", true )
+	mAddAction( tr("Select With Polygon"), "y", sPoly,
+		    "polygonselect", true )
 	if ( haspos )
 	{
-	    mAddAction( tr("Select Parents"), "", sParent, true )
-	    mAddAction( tr("Show Parents Path"), "", sParPath, true )
-	    mAddAction( tr("Select Children"), "", sChild, true )
+	    mAddAction( tr("Select Parents"), "", sParent, 0, true )
+	    mAddAction( tr("Show Parents Path"), "", sParPath, 0, true )
+	    mAddAction( tr("Select Children"), "", sChild, 0, true )
 	}
-	mAddAction( tr("Clear Selection"), "a", sClear, true )
-	mAddAction( tr("Delete Selected"), "d", sDelete, true )
-	mAddAction( tr("Undo"), "ctrl+z", sUndo, EM::EMM().undo().canUnDo())
-	mAddAction( tr("Redo"), "ctrl+y", sRedo, EM::EMM().undo().canReDo())
-	mAddAction( tr("Lock"), "l", sLock, true )
-	mAddAction( tr("Unlock"), "u", sUnlock, true )
-	mAddAction( tr("Save"), "ctrl+s", sSave, hor3d->isChanged() )
-	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, true )
+	mAddAction( tr("Clear Selection"), "a", sClear, "clear", true )
+	mAddAction( tr("Delete Selected"), "d", sDelete, "trashcan", true )
+	mAddAction( tr("Undo"), "ctrl+z", sUndo, "undo",
+		    EM::EMM().undo().canUnDo())
+	mAddAction( tr("Redo"), "ctrl+y", sRedo, "redo",
+		    EM::EMM().undo().canReDo())
+	mAddAction( tr("Lock"), "l", sLock, "lock", true )
+	mAddAction( tr("Unlock"), "u", sUnlock, "unlock", true )
+	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
+	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
 	if ( !hd->getOnlyAtSectionsDisplay() )
-	    mAddAction( tr("Display Only at Sections"), "r", sRest, true )
+	    mAddAction( tr("Display Only at Sections"), "r", sRest,
+			"sectiononly", true )
 	else
-	    mAddAction( tr("Display in Full"), "r", sFull, true )
-	mAddAction( tr("Show Settings ..."), "", sSett, true )
+	    mAddAction( tr("Display in Full"), "r", sFull, "sectionoff", true )
+	mAddAction( tr("Show Settings ..."), "", sSett, "tools", true )
     }
 
     return mnu.exec();
