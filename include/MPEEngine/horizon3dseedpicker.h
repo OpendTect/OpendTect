@@ -131,7 +131,7 @@ protected:
 
     int			seedconmode_;
     bool		blockpicking_;
-    bool    		endseedpicking_;
+    bool		endseedpicking_;
 
     Notifier<Horizon3DSeedPicker>	addrmseed_;
     Notifier<Horizon3DSeedPicker>	seedadded_;
