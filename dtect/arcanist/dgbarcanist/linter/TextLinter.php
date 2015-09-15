@@ -248,7 +248,12 @@ final class TextLinter extends ArcanistLinter {
   protected function lintForbiddenStrings($path) {
 
     $badstrings = array( 'sqrt(', 'atan2(' );
-    $badregexps = array( '/[\n[:blank:]]+small+[^a-zA-Z0-9\s]+/' );
+    $badregexps = array( '/[\n[:blank:]]+small+[^a-zA-Z0-9\s]+/',
+			 '/[;]+[\n[:blank:]]+detachAllNotifiers/' );
+    $regexpmsgs = array( 'Variables are not allowed to be called '.
+			 'small as it interferes with types on some compliers',
+			 'detachAllNotifiers() must be the first call in the '.
+			 'destructor' );
     //$bad = array( 'sqrt', 'std::ostream', 'std::istream' );
 
     $data = $this->emptyDoubleQuotes( $this->getData( $path ) );
@@ -268,7 +273,7 @@ final class TextLinter extends ArcanistLinter {
       }
     }
 
-    foreach ( $badregexps as $keyword ) {
+    foreach ( $badregexps as $index => $keyword ) {
       $matches = null;
       $preg = preg_match_all(
 	$keyword,
@@ -282,11 +287,19 @@ final class TextLinter extends ArcanistLinter {
 
       foreach ($matches[0] as $match) {
 	list($string, $offset) = $match;
+	if ( $regexpmsgs[$index]== '' )
+	{
+	    $message =
+	      'This file contains the string "'.$string.'", which is on the '.
+	      'list of words not allowed in the code';
+	}
+	else
+	{
+	   $message = $regexpmsgs[$index];
+        }
 	$this->raiseLintAtOffset(
 	  $offset,
-	  self::LINT_FORBIDDEN_WORD,
-	  'This file contains the string "'.$string.'", which is on the '.
-	  'list of words not allowed in the code' );
+	   self::LINT_FORBIDDEN_WORD, $message );
       }
 
       if ($this->isMessageEnabled(self::LINT_FORBIDDEN_WORD) ) {
