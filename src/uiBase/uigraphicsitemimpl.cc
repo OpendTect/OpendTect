@@ -663,7 +663,6 @@ uiAdvancedTextItem::uiAdvancedTextItem()
     : uiGraphicsItem( mkQtObj() )
     , al_(Alignment::Left,Alignment::Top)
 {
-    setAlignment( al_ );
 }
 
 
@@ -673,7 +672,6 @@ uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt,
     , al_(al)
 {
     setPlainText( txt );
-    setAlignment( al_ );
 }
 
 
