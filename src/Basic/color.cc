@@ -102,6 +102,10 @@ void Color::setTransparency( unsigned char t_ )
 { set( r(), g(), b(), t_ ); }
 
 
+void Color::setTransparencyF( float tf )
+{ setTransparency( mCast(unsigned char,(tf*255.0f)) ); }
+
+
 unsigned char Color::getUChar( float v )
 { return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5)); }
 

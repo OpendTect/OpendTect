@@ -59,6 +59,7 @@ public:
 
     void		setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );
+    void		setTransparencyF( float tf ); //!< should be from 0 to 1
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);
     void		getHSV(unsigned char&,unsigned char&,
 			       unsigned char&) const;

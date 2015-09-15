@@ -179,8 +179,7 @@ void Material::setTransparency( float n, int idx, bool update )
     mGetWriteLock( lckr );
     if ( !osgcolorarray_ )
     {
-	const unsigned char trasp = mCast(unsigned char,(n*255.0f));
-	color_.set( color_.r(), color_.g(), color_.b(), trasp );
+	color_.setTransparencyF( n );
 	updateOsgMaterial();
     }
 
