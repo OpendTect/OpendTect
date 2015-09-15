@@ -85,6 +85,8 @@ EMObjectDisplay::EMObjectDisplay()
 
 EMObjectDisplay::~EMObjectDisplay()
 {
+    setSelectionMode( false );
+
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = 0;
 
@@ -760,8 +762,6 @@ void EMObjectDisplay::setPixelDensity( float dpi )
 	posattribmarkers_[idx]->setPixelDensity( dpi );
 
 }
-
-
 
 
 void EMObjectDisplay::setSelectionMode( bool yn )
