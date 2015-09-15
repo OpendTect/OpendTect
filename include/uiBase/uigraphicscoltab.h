@@ -50,9 +50,12 @@ public:
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
-    void		adjustLabel();
+    void		setupChanged(); // Call this function whenever the setup
+					// has been changed
 
 protected:
+    void		adjustLabel();
+    void		setPixmap();
 
     Setup		setup_;
     ColTab::Sequence	ctseq_;

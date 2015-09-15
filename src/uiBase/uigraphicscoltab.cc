@@ -49,7 +49,7 @@ uiColTabItem::~uiColTabItem()
 
 void uiColTabItem::adjustLabel()
 {
-    const uiRect rect = borderitm_->boundingRect();
+    const uiRect rect = uiRect( 0, 0, setup_.sz_.width(), setup_.sz_.height() );
     Alignment al;
 
     if ( setup_.hor_ )
@@ -106,6 +106,12 @@ void uiColTabItem::setColTab( const char* nm )
 void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 {
     ctseq_ = ctseq;
+    setPixmap();
+}
+
+
+void uiColTabItem::setPixmap()
+{
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
     pm.fill( ctseq_, setup_.hor_ );
     ctseqitm_->setPixmap( pm );
@@ -117,4 +123,12 @@ void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
     BufferString precision;
     minvalitm_->setPlainText( precision.set(ms.range_.start,2) );
     maxvalitm_->setPlainText( precision.set(ms.range_.stop,2) );
+    adjustLabel();
+}
+
+
+void uiColTabItem::setupChanged()
+{
+    setPixmap();
+    adjustLabel();
 }
