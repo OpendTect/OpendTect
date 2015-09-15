@@ -37,7 +37,7 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     ctseqitm_->setPos( 0.f, 0.f );
     borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
 
-    ajustLabel();
+    adjustLabel();
 }
 
 
@@ -47,7 +47,7 @@ uiColTabItem::~uiColTabItem()
 }
 
 
-void uiColTabItem::ajustLabel()
+void uiColTabItem::adjustLabel()
 {
     const uiRect rect = borderitm_->boundingRect();
     Alignment al;

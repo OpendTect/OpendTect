@@ -50,9 +50,7 @@ public:
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
-    void		ajustLabel();// When setup changes, this function should
-				     // be called. Make a CallBacker mechanims
-				     // would be a good idea.
+    void		adjustLabel();
 
 protected:
 
