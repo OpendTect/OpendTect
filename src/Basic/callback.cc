@@ -140,6 +140,7 @@ static QEventLoopReceiver* getQELR()
 
 
 
+// CallBacker
 CallBacker::CallBacker()
 {}
 
@@ -177,7 +178,7 @@ CallBacker::~CallBacker()
            you have to call the removeFromMainThread. */
     }
 # else
-    CallBack::removeFromMainThread( this );		
+    CallBack::removeFromMainThread( this );
 # endif
 #endif
 }
@@ -311,6 +312,8 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 }
 
 
+
+// CallBack
 void CallBack::initClass()
 {
 #ifndef OD_NO_QT
@@ -368,15 +371,15 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 
 void CallBack::removeFromMainThread( const CallBacker* cber )
 {
-#ifdef OD_NO_QT
-    return false;
-#else
+#ifndef OD_NO_QT
     QEventLoopReceiver* rec = getQELR();
     rec->removeBy( cber );
 #endif
 }
 
 
+
+// CallBackSet
 CallBackSet::CallBackSet()
     : lock_(true)
     , enabled_(true)
@@ -467,6 +470,8 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 }
 
 
+
+// NotifierAccess
 NotifierAccess::NotifierAccess( const NotifierAccess& na )
     : cber_( na.cber_ )
     , cbs_(*new CallBackSet(na.cbs_) )
@@ -590,6 +595,8 @@ void NotifierAccess::doTrigger( CallBackSet& cbs, CallBacker* c,
 }
 
 
+
+// NotifyStopper
 NotifyStopper::NotifyStopper( NotifierAccess& na )
     : oldst_(na.disable())
     , thenotif_(na)
