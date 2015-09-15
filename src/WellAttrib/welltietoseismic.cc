@@ -681,5 +681,5 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 	log->addValue( dah[idx], vals[idx] );
 }
 
-}; //namespace WellTie
+} // namespace WellTie
 

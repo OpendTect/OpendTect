@@ -34,8 +34,8 @@ void PickSetMgr::setEventType( const char* ev )
     if ( !VSEvent::parseEnum(ev, evtype_) )
         evtype_ = VSEvent::None;
 }
-    
-    
+
+
 const char* PickSetMgr::getEventType() const
 {
     return VSEvent::toString( evtype_ );
@@ -45,15 +45,15 @@ const char* PickSetMgr::getEventType() const
 void PickSetMgr::getEventTypes( BufferStringSet& bss ) const
 {
     bss.erase();
-    
+
     bss.add( VSEvent::toString(VSEvent::None) );
     bss.add( VSEvent::toString(VSEvent::Extr) );
     bss.add( VSEvent::toString(VSEvent::Max) );
     bss.add( VSEvent::toString(VSEvent::Min) );
     bss.add( VSEvent::toString(VSEvent::ZC) );
 }
-    
-    
+
+
 void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 {
     TypeSet<Marker>& curpickset = issynth ? synthpickset_ : seispickset_;
@@ -161,7 +161,7 @@ void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
     const int sz = pickset.size();
     TypeSet<float> zvals;
     for ( int idx=0; idx<sz; idx++ )
-	zvals += pickset[idx].zpos_; 
+	zvals += pickset[idx].zpos_;
 
     mAllocVarLenArr( int, zidxs, sz );
     for ( int idx=0; idx<sz; idx++ )
@@ -173,4 +173,5 @@ void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
 	pickset[idx].zpos_ = zvals[idx];
 }
 
-}; //namespace WellTie
+} // namespace WellTie
+

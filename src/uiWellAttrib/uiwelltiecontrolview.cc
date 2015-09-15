@@ -105,7 +105,7 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
     const Interval<double> xrg( bbox.left(), bbox.right() ),
 			   zrg( bbox.bottom(), bbox.top() );
     if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) )
-	{ 
+	{
 	mErrRet(tr("Please select your pick inside the work area"),
 	    return false);
 	}
@@ -314,4 +314,4 @@ void uiControlView::applyProperties(CallBacker*)
     setSelView( true, true );
 }
 
-}; //namespace
+} // namespace WellTie

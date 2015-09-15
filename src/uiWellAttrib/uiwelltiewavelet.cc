@@ -228,6 +228,5 @@ void uiWavelet::drawWavelet()
     viewer_->handleChange( mCast(unsigned int,uiFlatViewer::All) );
 }
 
-
-}; //namespace WellTie
+} // namespace WellTie
 
