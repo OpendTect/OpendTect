@@ -83,7 +83,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
 {
     removemnuitem_.iconfnm = "trashcan";
     histogrammnuitem_.iconfnm = "histogram";
-    lockmnuitem_.iconfnm = "lock_small";
+    lockmnuitem_.iconfnm = "lock";
     addattribmnuitem_.iconfnm = "attributes";
     addvolprocmnuitem_.iconfnm = "volproc";
 }
@@ -192,11 +192,11 @@ void uiODDisplayTreeItem::updateCheckStatus()
 
 void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 {
-    const char* iconname = islocked ? "lock_small" : uiIcon::None();
+    const char* iconname = islocked ? "lock" : uiIcon::None();
     uitreeviewitem_->setIcon( 0, iconname );
 
     lockmnuitem_.text = getLockMenuText();
-    lockmnuitem_.iconfnm = islocked ? "unlock" : "lock_small";
+    lockmnuitem_.iconfnm = islocked ? "unlock" : "lock";
 }
 
 
@@ -458,6 +458,5 @@ void uiODDisplayTreeItem::prepareForShutdown()
     if ( ODMainWin()->colTabEd().getSurvObj() == so )
 	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
 
-    visserv_->turnSeedPickingOn( false );
     visserv_->removeObject( displayid_, sceneID() );
 }
