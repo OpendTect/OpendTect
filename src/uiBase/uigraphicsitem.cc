@@ -223,7 +223,10 @@ Geom::Point2D<float> uiGraphicsItem::getPos() const
 
 uiRect uiGraphicsItem::boundingRect() const
 {
-    QRectF qr( qgraphicsitem_->sceneBoundingRect() );
+    QRectF qpr( qgraphicsitem_->sceneBoundingRect() );
+    QRectF qcr( qgraphicsitem_->mapRectToScene(
+		    qgraphicsitem_->childrenBoundingRect()) );
+    QRectF qr = qpr | qcr;
     return uiRect( mNINT32(qr.left()), mNINT32(qr.top()),
 	    	   mNINT32(qr.right()), mNINT32(qr.bottom()) );
 }

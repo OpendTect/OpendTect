@@ -23,7 +23,7 @@ class uiAdvancedTextItem;
 namespace ColTab { class MapperSetup; }
 
 
-mExpClass(uiBase) uiColTabItem : public uiGraphicsItemGroup
+mExpClass(uiBase) uiColTabItem : public uiGraphicsItem
 {
 public:
 

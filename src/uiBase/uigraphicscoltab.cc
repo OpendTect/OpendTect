@@ -19,14 +19,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 
 uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
-    : uiGraphicsItemGroup()
+    : uiGraphicsItem()
     , setup_(su)
 {
     ctseqitm_ = new uiPixmapItem();
     borderitm_ = new uiRectItem();
     minvalitm_ = new uiAdvancedTextItem( toUiString("0") );
     maxvalitm_ = new uiAdvancedTextItem( toUiString("1") );
-    add( borderitm_ ); add( ctseqitm_ ); add( minvalitm_ ); add( maxvalitm_ );
+    addChild( borderitm_ );
+    addChild( ctseqitm_ );
+    addChild( minvalitm_ );
+    addChild( maxvalitm_ );
 
     setColTabSequence( ColTab::Sequence("") );
 
