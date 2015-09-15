@@ -30,13 +30,14 @@ class uiWellDisplayControl;
 
 namespace WellTie
 {
-    class Server;
+
+class Server;
 
 mExpClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
 { mODTextTranslationClass(DahObjUndoEvent);
 public:
-    			DahObjUndoEvent( float dah, float val, 
-					Well::DahObj&, bool isadd);
+			DahObjUndoEvent(float dah,float val,
+					Well::DahObj&,bool isadd);
 
     const char*         getStandardDesc() const;
     bool                unDo();
@@ -45,7 +46,7 @@ public:
 protected:
 
     bool		isadd_;
-    Well::DahObj& 	dahobj_;
+    Well::DahObj&	dahobj_;
     float		dah_;
     float		val_;
 };
@@ -63,16 +64,16 @@ public:
 			DriftCurve() : DahObj("Drift Curve") {}
 
 	void		add( float dh, float val )  { dah_ += dh; val_ += val; }
-	float  		value( int idx ) const      { return val_[idx]; }
+	float		value( int idx ) const      { return val_[idx]; }
 	bool		insertAtDah(float dh,float v);
 
-	int 		indexOfCurrentPoint(float dah,float val) const;
+	int		indexOfCurrentPoint(float dah,float val) const;
 
     protected:
 	TypeSet<float>	val_;
 
-	void 		removeAux(int idx)	{ val_.removeSingle( idx ); }
-	void		eraseAux()		{ val_.erase(); } 
+	void		removeAux(int idx)	{ val_.removeSingle( idx ); }
+	void		eraseAux()		{ val_.erase(); }
     };
 
 protected:
@@ -124,9 +125,7 @@ protected:
     bool			rejectOK(CallBacker*);
 };
 
-
-}; //namespace WellTie
+} // namespace WellTie
 
 #endif
-
 

@@ -35,58 +35,57 @@ mExpClass(uiWellAttrib) uiWaveletView : public uiGroup
 { mODTextTranslationClass(uiWaveletView);
 public:
 
-	    			uiWaveletView(uiParent*,ObjectSet<Wavelet>&); 
-	    			~uiWaveletView();
+				uiWaveletView(uiParent*,ObjectSet<Wavelet>&);
+				~uiWaveletView();
 
-    void 			redrawWavelets();
+    void			redrawWavelets();
     void			setActiveWavelet(bool initial);
     bool			isInitialWvltActive() const;
 
-    Notifier<uiWaveletView> 	activeWvltChged;
-    void 			activeWvltChanged(CallBacker*);
+    Notifier<uiWaveletView>	activeWvltChged;
+    void			activeWvltChanged(CallBacker*);
 
 protected:
 
-    ObjectSet<Wavelet>& 	wvltset_;
-    CtxtIOObj&          	wvltctio_;
+    ObjectSet<Wavelet>&		wvltset_;
+    CtxtIOObj&			wvltctio_;
 
     uiGenInput*			activewvltfld_;
-    ObjectSet<uiWavelet> 	uiwvlts_;
+    ObjectSet<uiWavelet>	uiwvlts_;
 
-    void 			createWaveletFields(uiGroup*);	   
+    void			createWaveletFields(uiGroup*);
 };
 
 
 mClass(uiWellAttrib) uiWavelet : public uiGroup
 { mODTextTranslationClass(uiWavelet);
 
-public: 
-    				uiWavelet(uiParent*,Wavelet*,bool);
+public:
+				uiWavelet(uiParent*,Wavelet*,bool);
 				~uiWavelet();
-    
-    Notifier<uiWavelet> 	wvltChged;
+
+    Notifier<uiWavelet>		wvltChged;
     void			drawWavelet();
     void			setAsActive(bool);
 
-protected:				    
+protected:
 
     bool			isactive_;
-  
-    Wavelet*			wvlt_; 	
+
+    Wavelet*			wvlt_;
     ObjectSet<uiToolButton>     wvltbuts_;
     uiFlatViewer*               viewer_;
-    uiWaveletDispPropDlg*  	wvltpropdlg_;
+    uiWaveletDispPropDlg*	wvltpropdlg_;
 
     void			initWaveletViewer();
 
-    void 			dispProperties(CallBacker*);
+    void			dispProperties(CallBacker*);
     void			rotatePhase(CallBacker*);
     void			taper(CallBacker*);
-    void 			wvltChanged(CallBacker*);
-};				
+    void			wvltChanged(CallBacker*);
+};
 
+} // namespace WellTie
 
-}; //namespace WellTie
 #endif
-
 

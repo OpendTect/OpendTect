@@ -50,11 +50,11 @@ public:
     void		setAsCurrent(Well::D2TModel*);
     void		setFromData(float* dah,float* time,int sz);
 
-    uiString	errMsg() const { return errmsg_; }
+    uiString		errMsg() const { return errmsg_; }
 
 protected:
 
-    Well::Data* wd_;
+    Well::Data*		wd_;
 
     Well::D2TModel*	d2T();
     Well::D2TModel*	prvd2t_;
@@ -67,7 +67,7 @@ protected:
 
 };
 
-}; //namespace WellTie
+} // namespace WellTie
 
 #endif
 

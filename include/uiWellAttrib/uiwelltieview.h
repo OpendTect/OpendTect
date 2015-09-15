@@ -37,25 +37,26 @@ namespace Well
 
 namespace WellTie
 {
-    class Setup; 
+
+class Setup;
 
 mExpClass(uiWellAttrib) uiTieView : public CallBacker
 { mODTextTranslationClass(uiTieView);
 public:
-			    	uiTieView(uiParent*,uiFlatViewer*,const Data&);
-			    	~uiTieView();
+				uiTieView(uiParent*,uiFlatViewer*,const Data&);
+				~uiTieView();
 
-    void        		fullRedraw();
-    void        		drawUserPicks();
-    void 			redrawViewer();
-    void 			redrawViewerAuxDatas();
-    void 			redrawLogsAuxDatas();
+    void			fullRedraw();
+    void			drawUserPicks();
+    void			redrawViewer();
+    void			redrawViewerAuxDatas();
+    void			redrawLogsAuxDatas();
 
     void			enableCtrlNotifiers(bool);
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
 
-    Notifier<uiTieView> 	infoMsgChanged;
+    Notifier<uiTieView>	infoMsgChanged;
 
 protected:
 
@@ -75,28 +76,27 @@ protected:
     ObjectSet<FlatView::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::AuxData> wellmarkerauxdatas_;
     ObjectSet<FlatView::AuxData> horauxdatas_;
-    ObjectSet<uiTextItem> 	hortxtnms_;
-    ObjectSet<uiTextItem> 	mrktxtnms_;
+    ObjectSet<uiTextItem>	hortxtnms_;
+    ObjectSet<uiTextItem>	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
 
-    void        		drawLog(const char*,bool,int,bool);
-    void        		drawTraces();
-    void			drawUserPicks(const TypeSet<Marker>&,bool);
-    void        		drawMarker(FlatView::AuxData*,
-					    bool,float);
-    void        		drawViewerWellMarkers();
-    void        		drawLogDispWellMarkers();
-    void        		initFlatViewer();
-    void        		initLogViewers();
-    void        		initWellControl();
-    void			loadHorizons();
-    void			drawHorizons();
-    void 			setLogsRanges(Interval<float>);
-    void 			setLogsParams();
-    void			setUdfTrc(SeisTrc&) const;
-    void        		setDataPack();
-    void 			setInfoMsg(CallBacker*);
-    void			zoomChg(CallBacker*);
+    void		drawLog(const char*,bool,int,bool);
+    void		drawTraces();
+    void		drawUserPicks(const TypeSet<Marker>&,bool);
+    void		drawMarker(FlatView::AuxData*,bool,float);
+    void		drawViewerWellMarkers();
+    void		drawLogDispWellMarkers();
+    void		initFlatViewer();
+    void		initLogViewers();
+    void		initWellControl();
+    void		loadHorizons();
+    void		drawHorizons();
+    void		setLogsRanges(Interval<float>);
+    void		setLogsParams();
+    void		setUdfTrc(SeisTrc&) const;
+    void		setDataPack();
+    void		setInfoMsg(CallBacker*);
+    void		zoomChg(CallBacker*);
 };
 
 
@@ -105,22 +105,22 @@ mExpClass(uiWellAttrib) uiCrossCorrView : uiGroup
 { mODTextTranslationClass(uiCrossCorrView);
 public:
 
-				uiCrossCorrView(uiParent*,const Data&);
+			uiCrossCorrView(uiParent*,const Data&);
 
-    void                	set(const Data::CorrelData&);
-    void                	draw();
+    void		set(const Data::CorrelData&);
+    void		draw();
 
 protected:
 
-    uiLabel* 			lbl_;
-    uiFunctionDisplay* 		disp_;
-    TypeSet<float>		vals_;
-    float			lag_;
-    float			coeff_;
-    const Data& 		data_;
+    uiLabel*		lbl_;
+    uiFunctionDisplay*	disp_;
+    TypeSet<float>	vals_;
+    float		lag_;
+    float		coeff_;
+    const Data&		data_;
 };
 
-}; //namespace WellTie
-#endif
+} // namespace WellTie
 
+#endif
 

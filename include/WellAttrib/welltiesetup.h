@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 
 #define mIsUnvalidD2TM(wd) ( !wd.haveD2TModel() || wd.d2TModel()->size()<2 )
+
 namespace WellTie
 {
 
@@ -71,7 +72,7 @@ public:
     void			fillPar(IOPar&) const;
 
     static Setup&		defaults();
-    static void                 commitDefaults();
+    static void			commitDefaults();
 
     static const char*		sKeyCSCorrType()
 				{ return "CheckShot Corrections"; }
@@ -130,6 +131,6 @@ protected:
 
 };
 
+} // namespace WellTie
 
-}; //namespace WellTie
 #endif

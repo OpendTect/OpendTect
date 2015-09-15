@@ -38,10 +38,11 @@ public :
 //others
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;
     double		crossCorr(const float*,const float*,float*,int) const;
-    void		deconvolve(const float*,const float_complex*,float*,
-				   int) const;
+    void		deconvolve(const float*,const float_complex*,
+				   float*,int) const;
 };
 
-}; //namespace WellTie
+} // namespace WellTie
+
 #endif
 

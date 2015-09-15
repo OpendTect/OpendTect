@@ -30,7 +30,7 @@ mExpClass(uiWellAttrib) EventStretch : public CallBacker
 public:
 					EventStretch(PickSetMgr&,D2TModelMgr&);
 
-    void 				doWork(CallBacker*); 
+    void				doWork(CallBacker*);
     void				setD2TModel(const Well::D2TModel* d2t)
 					{ d2t_ = d2t; }
     void				setTrack(const Well::Track* track)
@@ -42,15 +42,15 @@ protected:
     const Well::D2TModel*		d2t_;
     const Well::Track*			track_;
 
-    const TypeSet<Marker>&      	synthpickset_;
-    const TypeSet<Marker>&      	seispickset_;
+    const TypeSet<Marker>&		synthpickset_;
+    const TypeSet<Marker>&		seispickset_;
 
-    void 				doStretchWork();
+    void				doStretchWork();
     void				doStaticShift();
     void				doStretchSqueeze();
 };
 
-}; //namespace WellTie
+} // namespace WellTie
 
 #endif
 

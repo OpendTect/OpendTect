@@ -63,7 +63,7 @@ protected:
     bool		collectTracesAroundPath();
 };
 
-};//namespace WellTie
+} // namespace WellTie
 
 #endif
 

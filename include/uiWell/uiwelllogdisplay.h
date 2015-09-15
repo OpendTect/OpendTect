@@ -29,8 +29,8 @@ mExpClass(uiWell) uiWellLogDisplay : public uiWellDahDisplay
 {
 public:
 
-		    uiWellLogDisplay(uiParent*,const Setup&);
-		    ~uiWellLogDisplay();
+			uiWellLogDisplay(uiParent*,const Setup&);
+			~uiWellLogDisplay();
 
     mStruct(uiWell) LogData : public uiWellDahDisplay::DahObjData
     {
