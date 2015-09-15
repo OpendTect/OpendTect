@@ -625,25 +625,24 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	return;
 
     uiMenu mnu( parent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(
-		    m3Dots( uiStrings::sProperties() ), 0 ));
-    mnu.insertItem( new uiAction("Remove layer ..."), 1 );
-    mnu.insertItem( new uiAction("Remove this Well"), 2 );
-    mnu.insertItem( new uiAction("Dump all wells to file ..."), 3 );
-    mnu.insertItem( new uiAction("Add dumped wells from file ..."), 4 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sProperties())), 1 );
+    mnu.insertAction( new uiAction("Remove layer ..."), 2 );
+    mnu.insertAction( new uiAction("Remove this Well"), 3 );
+    mnu.insertAction( new uiAction("Dump all wells to file ..."), 4 );
+    mnu.insertAction( new uiAction("Add dumped wells from file ..."), 5 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 
     Strat::Layer& lay = *ls.layers()[layidx];
-    if ( mnuid == 0 )
+    if ( mnuid == 1 )
     {
 	uiStratEditLayer dlg( this, lay, ls, true );
 	if ( dlg.go() && dlg.isChanged() )
 	    forceRedispAll( true );
     }
-    else if ( mnuid == 3 || mnuid == 4 )
-	doLayModIO( mnuid == 4 );
-    else if ( mnuid == 2 )
+    else if ( mnuid == 4 || mnuid == 5 )
+	doLayModIO( mnuid == 5 );
+    else if ( mnuid == 3 )
     {
 	const_cast<Strat::LayerModel&>(layerModel()).removeSequence( selidx );
 	forceRedispAll( true );
