@@ -114,7 +114,7 @@ void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 
 void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
-    Interval<float> rg = ms.range_;
-    minvalitm_->setPlainText( toUiString(rg.start) );
-    maxvalitm_->setPlainText( toUiString(rg.stop) );
+    BufferString precision;
+    minvalitm_->setPlainText( precision.set(ms.range_.start,2) );
+    maxvalitm_->setPlainText( precision.set(ms.range_.stop,2) );
 }

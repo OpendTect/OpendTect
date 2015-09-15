@@ -670,6 +670,7 @@ uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt )
     , al_(Alignment::HCenter,Alignment::VCenter)
 {
     setPlainText( txt );
+    setAlignment( al_ );
 }
 
 
