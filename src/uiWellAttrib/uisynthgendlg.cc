@@ -39,7 +39,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthDisabled(this)
 {
     setOkText( uiStrings::sApply() );
-    setCancelText( tr("Dismiss") );
+    setCancelText( uiStrings::sClose() );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Synthetics"),
 			 uiListBox::AboveMid );
@@ -187,7 +187,7 @@ void uiSynthGenDlg::parsChanged( CallBacker* )
 }
 
 
-bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved ) 
+bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 {
     if ( synthnmlb_->size()==1 && toberemoved )
 	mErrRet( tr("Cannot remove all synthetics"), return false );
@@ -228,7 +228,7 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 	    continue;
 	}
 
-	if ( sgptorem.isPreStack() && sgp.isPSBased() && 
+	if ( sgptorem.isPreStack() && sgp.isPSBased() &&
 	     sgp.inpsynthnm_ == sgptorem.name_ )
 	    synthstobedisabled.add( sgp.name_ );
     }
@@ -238,7 +238,7 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 	mErrRet( tr("Cannot remove %1 as there should be "
 		    "at least one 0 offset synthetic")
 		 .arg(sgptorem.name_.buf()), return false );
-    
+
     if ( !synthstobedisabled.isEmpty() )
     {
 	uiString chgstr = toberemoved ? tr( "remove" ) : tr( "change" );
@@ -248,7 +248,7 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 			  .arg(sgptorem.name_.buf()).arg(chgstr);
 	if ( !uiMSG().askGoOn(msg) )
 	    return false;
-	
+
 	for ( int idx=0; idx<synthstobedisabled.size(); idx++ )
 	{
 	    const BufferString& synthnm = synthstobedisabled.get( idx );
@@ -353,12 +353,12 @@ bool uiSynthGenDlg::getFromScreen()
 	if ( psselfld_->box()->isEmpty() )
 	    mErrRet( tr("Cannot generate an angle stack synthetics without any "
 		        "NMO corrected PreStack."), return false );
-	
+
 	if ( !psselfld_->box()->sensitive() )
 	    mErrRet( tr("Cannot change synthetic data as the dependent prestack"
 		        " synthetic data has already been removed"),
 			return false );
-	
+
 	SyntheticData* inppssd = stratsynth_.getSynthetic(
 		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()) );
 	if ( !inppssd )
