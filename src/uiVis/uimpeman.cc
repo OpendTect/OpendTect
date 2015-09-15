@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispreload.h"
 #include "selector.h"
 #include "survinfo.h"
-#include "keyboardevent.h"
 
 #include "uicombobox.h"
 #include "uimenu.h"
@@ -37,8 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
-#include "uimain.h"
-#include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
@@ -62,6 +59,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 {
     engine().trackeraddremove.notify(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
+    engine().actionCalled.notify(
+			mCB(this,uiMPEMan,mpeActionCB) );
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
     si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.notify(
@@ -82,6 +81,18 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
+}
+
+
+void uiMPEMan::mpeActionCB( CallBacker* )
+{
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    if ( !hd ) return;
+
+    if ( engine().getState() == Engine::Started )
+    {
+	hd->setOnlyAtSectionsDisplay( false );
+    }
 }
 
 

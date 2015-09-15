@@ -193,6 +193,7 @@ public:
     void			showSelections(bool);
     void			showLocked(bool);
     virtual void		clearSelections();
+    void			updateAuxData();
 
 protected:
 				~HorizonDisplay();
@@ -206,7 +207,6 @@ protected:
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
     bool			addSection(const EM::SectionID&,TaskRunner*);
     void			emChangeCB(CallBacker*);
-    void			updateAuxData();
     int				getChannelIndex(const char* nm) const;
     void			updateIntersectionLines(
 				    const ObjectSet<const SurveyObject>&,

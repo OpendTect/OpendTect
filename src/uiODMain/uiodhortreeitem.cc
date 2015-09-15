@@ -382,6 +382,12 @@ bool uiODHorizonTreeItem::init()
 	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
 	    if ( emitm ) emitm->setDataPointSet( vals );
 	}
+
+	if ( MPE::engine().getTrackerByObject(hor3d->id()) != -1 )
+	{
+	    for ( int idx=0; idx<nrChildren(); idx++ )
+		getChild(idx)->setChecked( false, true );
+	}
     }
 
     return res;
