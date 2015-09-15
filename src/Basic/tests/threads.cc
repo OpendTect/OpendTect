@@ -185,6 +185,21 @@ bool testAtomicSetIfValueIs()
 }
 
 
+bool testAtomicPointer()
+{
+    Threads::AtomicPointer<const void> curthread;
+    const void* storage = curthread.getStorage();
+    curthread = Threads::currentThread();
+
+    mRunStandardTest(storage==curthread.getStorage(), "Atomic pointer sanity");
+    mRunStandardTest(curthread==Threads::currentThread(),
+		     "Atomic Pointer assignment");
+
+
+    return true;
+}
+
+
 /* Locker class that
 1. Starts a thread that does a trylock
 2. Waits for the new thread has tried to do the trylock.
@@ -400,6 +415,7 @@ int main( int argc, char** argv )
     mRunTestWithType(unsigned short);
 
     if ( !testAtomicSetIfValueIs()
+      || !testAtomicPointer()
       || !testSimpleSpinLock()
       || !testConditionVarTimeout()
       || !testLock<Threads::Mutex>( false, "Mutex" )
