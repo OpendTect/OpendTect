@@ -687,7 +687,11 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	DataColDef* dtcd = new DataColDef( targetdesc->userRef() );
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
-	DataPointSet posvals( rgprov3d, dtcoldefset );
+	uiTaskRunner taskrunner( parent() );
+	DataPointSet posvals( rgprov3d.is2D() );
+	if ( !posvals.extractPositions(rgprov3d,dtcoldefset,0,&taskrunner) )
+	    return 0;
+
 	const int firstcolidx = 0;
 
 	uiString errmsg;
@@ -695,7 +699,6 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	if ( !process )
 	    { uiMSG().error(errmsg); return 0; }
 
-	uiTaskRunner taskrunner( parent() );
 	if ( !TaskRunner::execute( &taskrunner, *process ) )
 	    return 0;
 

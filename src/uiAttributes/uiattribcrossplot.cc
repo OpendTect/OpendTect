@@ -78,7 +78,8 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     uiGroup* provgrp = new uiGroup( this, "Attribute group" );
     provgrp->attach( leftAlignedBelow, attrgrp );
     uiPosProvider::Setup psu( ads_.is2D(), true, true );
-    psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
+    psu.seltxt( "Select locations by" )
+       .choicetype( uiPosProvider::Setup::OnlySeisTypes );
     posprovfld_ = new uiPosProvider( provgrp, psu );
     posprovfld_->setExtractionDefaults();
 
@@ -327,7 +328,13 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    dps = new DataPointSet( *prov, dcds, filt );
+    dps = new DataPointSet( prov->is2D() );
+    if ( !dps->extractPositions(*prov,dcds,filt,&taskrunner) )
+    {
+	delete dps;
+	return false;
+    }
+
     MouseCursorManager::restoreOverride();
     if ( dps->isEmpty() )
 	mErrRet(tr("No positions selected"))

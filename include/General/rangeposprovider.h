@@ -52,10 +52,10 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
 
-    TrcKeyZSampling&	sampling()		{ return tkzs_; }
     const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
-    void		setSampling( const TrcKeyZSampling& tkzs ) const
-						{ tkzs_ = tkzs; }
+    void		setSampling( const TrcKeyZSampling& tkzs );
+    void		setHSampling( const TrcKeySampling& tks ) 
+						{ tkzs_.hsamp_ = tks; }
 
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }
@@ -65,6 +65,7 @@ protected:
     TrcKeyZSampling&	tkzs_;
     BinID		curbid_;
     int			curzidx_;
+    int			zsampsz_;
 
 public:
 
@@ -111,13 +112,11 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
 
-    StepInterval<int>&		trcRange(int lidx)
-    				{ return trcrgs_[lidx];}
+    void			setTrcRange(const StepInterval<int>&,int idx=0);
     const StepInterval<int>&	trcRange(int lidx) const
     				{return trcrgs_[lidx];}
     
-    StepInterval<float>&	zRange(int lidx=0)
-    				{ return zrgs_[lidx]; }
+    void			setZRange(const StepInterval<float>&,int idx=0);
     const StepInterval<float>&	zRange(int lidx=0) const
     				{return zrgs_[lidx];}
 
@@ -128,6 +127,9 @@ protected:
     int			curtrcidx_;
     int			curlineidx_;
     int			curzidx_;
+    mutable int		curlinezsampsz_;
+    mutable StepInterval<int>	curtrcrg_;
+    mutable StepInterval<float>	curzrg_;
 
     const Survey::Geometry2D*	curgeom_;
 
@@ -135,6 +137,7 @@ protected:
     const Survey::Geometry2D*	curGeom() const;
     StepInterval<float>		curZRange() const;
     StepInterval<int>		curTrcRange() const;
+    void			getCurRanges() const;
 
 public:
 

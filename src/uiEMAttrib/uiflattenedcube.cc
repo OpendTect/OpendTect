@@ -189,7 +189,11 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
 					float zval )
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    DataPointSet dps( pp_, ObjectSet<DataColDef>(), 0, true );
+    uiTaskRunner taskrunner( this );
+    DataPointSet dps( pp_.is2D(), true );
+    if ( !dps.extractPositions(pp_,ObjectSet<DataColDef>(),0,&taskrunner) )
+	return false;
+
     const float zwdth = SI().zRange(false).width();
     const Interval<float> maxzrg( -zwdth, zwdth );
     Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
@@ -197,7 +201,6 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
     rdr.setSelData( tsd );
     SeisTrcWriter wrr( &outioobj );
     uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
-    uiTaskRunner taskrunner( this );
     MouseCursorManager::restoreOverride();
     return TaskRunner::execute( &taskrunner, cm );
 }

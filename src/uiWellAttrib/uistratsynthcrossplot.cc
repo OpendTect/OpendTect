@@ -417,7 +417,7 @@ bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 }
 
 
-bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
+void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 					     const Strat::Level& lvl,
 					     const Strat::Level* stoplvl,
 					     const Interval<float>& extrwin,
@@ -484,7 +484,6 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 
     seisattrfld_->descSet().fillPar( uidps->storePars() );
     uidps->show();
-    return false;
 }
 
 
@@ -542,11 +541,11 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     const Strat::Level* stoplvl = evfld_->event().downToLevel();
     DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin, zstep,
 				 stoplvl );
-    const bool res = dps ? launchCrossPlot( *dps, lvl, stoplvl, extrwin, zstep )
-			 : false;
-
-    if ( res && !handleUnsaved() )
+    if ( !dps )
 	return false;
 
-    return res;
+    DPM(DataPackMgr::PointID()).addAndObtain( dps );
+    launchCrossPlot( *dps, lvl, stoplvl, extrwin, zstep ); 
+    DPM(DataPackMgr::PointID()).release( dps->id() );
+    return false;
 }

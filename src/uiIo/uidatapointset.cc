@@ -998,6 +998,7 @@ void uiDataPointSet::reDoTable()
 
 void uiDataPointSet::redoAll()
 {
+    MouseCursorChanger mc( MouseCursor::Wait );
     reDoTable();
 
     if ( statswin_ )
@@ -1329,6 +1330,7 @@ void uiDataPointSet::retrieve( CallBacker* )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
     if ( newdps->isEmpty() )
@@ -1336,9 +1338,9 @@ void uiDataPointSet::retrieve( CallBacker* )
 
     setCaption( seldlg.ioObj()->name() );
     removeSelPts( 0 );
-    MouseCursorManager::setOverride( MouseCursor::Wait );
     tbl_->clearTable();
     dps_ = *newdps;
+    delete newdps;
     grpnames_.erase();
     dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
 

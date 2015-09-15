@@ -144,7 +144,15 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( filt && !filt->initialize(&taskrunner) )
 	{ mRestorCursor(); return false; }
 
-    dps_ = new DataPointSet( *prov, ObjectSet<DataColDef>(), filt );
+    dps_ = new DataPointSet( prov->is2D() );
+    if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
+				 &taskrunner) )
+    {
+	delete dps_;
+	dps_ = 0;
+	return false;
+    }
+
     mRestorCursor();
 
     const int dpssize = dps_->size();
