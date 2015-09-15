@@ -1829,6 +1829,8 @@ void uiODApplMgr::storeEMObject()
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const bool saveas = mid.isEmpty() || !ioobj;
     emserv_->storeObject( emid, saveas );
+    BufferString auxdatanm;
+    emserv_->storeAuxData( emid, auxdatanm );
 
     TypeSet<int> ids;
     mid = emserv_->getStorageID( emid );
