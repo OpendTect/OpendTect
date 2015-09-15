@@ -528,64 +528,14 @@ void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 // ODGraphicsAdvancedTextItem
 ODGraphicsAdvancedTextItem::ODGraphicsAdvancedTextItem()
     : QGraphicsTextItem()
-    , al_(Alignment::HCenter,Alignment::VCenter)
 {}
-
-
-void ODGraphicsAdvancedTextItem::paint( QPainter* painter,
-					const QStyleOptionGraphicsItem* option,
-					QWidget* widget )
-{
-    QRectF boundrec = boundingRect();
-
-    switch( al_.hPos() )
-    {
-    case Alignment::Left:
-	boundrec.translate( 0., 0. );
-	break;
-    case Alignment::HCenter:
-	boundrec.translate( -boundrec.width()/2., 0. );
-	break;
-    case Alignment::Right:
-	boundrec.translate( -boundrec.width(), 0. );
-	break;
-    }
-
-    switch( al_.vPos() )
-    {
-    case Alignment::Top:
-	boundrec.translate( 0., 0. );
-	break;
-    case Alignment::VCenter:
-	boundrec.translate( 0., -boundingRect().height()/2. );
-	break;
-    case Alignment::Bottom:
-	boundrec.translate( 0., -boundingRect().height() );
-	break;
-    }
-
-    painter->translate( boundrec.topLeft() );
-    QGraphicsTextItem::paint( painter, option, widget );
-}
-
-
-void ODGraphicsAdvancedTextItem::setAlignment( const Alignment& al )
-{
-    al_ = al;
-}
-
-
-Alignment ODGraphicsAdvancedTextItem::getAlignment() const
-{
-    return al_;
-}
 
 
 void ODGraphicsAdvancedTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* ev )
 {
     QGraphicsTextItem::mouseMoveEvent( ev );
 
-    snapToSceneRect ( this );
+    snapToSceneRect( this );
 }
 
 

@@ -667,8 +667,10 @@ uiAdvancedTextItem::uiAdvancedTextItem()
 
 uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt )
     : uiGraphicsItem( mkQtObj() )
+    , al_(Alignment::HCenter,Alignment::VCenter)
 {
     setPlainText( txt );
+    setAlignment( al_ );
 }
 
 
@@ -679,7 +681,7 @@ uiAdvancedTextItem::~uiAdvancedTextItem()
 
 Alignment uiAdvancedTextItem::getAlignment() const
 {
-    return qtextitem_->getAlignment();
+    return al_;
 }
 
 
@@ -711,7 +713,7 @@ float uiAdvancedTextItem::getTextWidth() const
 
 void uiAdvancedTextItem::setAlignment( const Alignment& al )
 {
-    qtextitem_->setAlignment( al );
+    al_ = al;
 }
 
 
@@ -755,7 +757,35 @@ QGraphicsItem* uiAdvancedTextItem::mkQtObj()
 
 void uiAdvancedTextItem::stPos( float x, float y )
 {
-    qtextitem_->setPos( x, y );
+    QRectF boundrec = qtextitem_->boundingRect();
+
+    switch( al_.hPos() )
+    {
+    case Alignment::Left:
+	boundrec.translate( 0., 0. );
+	break;
+    case Alignment::HCenter:
+	boundrec.translate( -boundrec.width()/2., 0. );
+	break;
+    case Alignment::Right:
+	boundrec.translate( -boundrec.width(), 0. );
+	break;
+    }
+
+    switch( al_.vPos() )
+    {
+    case Alignment::Top:
+	boundrec.translate( 0., 0. );
+	break;
+    case Alignment::VCenter:
+	boundrec.translate( 0., -boundrec.height()/2. );
+	break;
+    case Alignment::Bottom:
+	boundrec.translate( 0., -boundrec.height() );
+	break;
+    }
+
+    qtextitem_->setPos( x + boundrec.left(), y + boundrec.top() );
 }
 
 

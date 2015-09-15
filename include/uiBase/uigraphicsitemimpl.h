@@ -299,7 +299,7 @@ public:
     void		setTextIteraction(bool);
 
 protected:
-
+    Alignment		al_;
     QGraphicsItem*	mkQtObj();
     ODGraphicsAdvancedTextItem* qtextitem_;
 

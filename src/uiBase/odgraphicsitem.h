@@ -164,7 +164,6 @@ public:
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    void			updateRect();
     QPointF			getAlignment() const;
 
     QFont			font_;
@@ -178,14 +177,9 @@ class ODGraphicsAdvancedTextItem : public QGraphicsTextItem
 {
 public:
 				ODGraphicsAdvancedTextItem();
-    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
 
-    void			setAlignment( const Alignment& al );
-    Alignment			getAlignment() const;
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    Alignment			al_;
 };
 
 
