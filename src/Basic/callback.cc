@@ -170,7 +170,6 @@ CallBacker::~CallBacker()
 	detachAllNotifiers();
     }
 # endif
-#endif
 }
 
 
