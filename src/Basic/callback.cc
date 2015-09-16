@@ -164,7 +164,7 @@ CallBacker::~CallBacker()
 	detachAllNotifiers();
     }
 #ifndef OD_NO_QT
-# if __debug__
+# ifdef __debug__
     QEventLoopReceiver* rec = getQELR();
     if ( rec->isPresent(this) )
     {
