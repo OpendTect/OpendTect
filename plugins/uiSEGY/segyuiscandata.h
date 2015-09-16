@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "datachar.h"
 
+class SeisTrcInfo;
 class DataClipSampler;
 class uiParent;
 namespace PosInfo { class Detector; }
@@ -55,7 +56,7 @@ public:
 			{ return sampling_.interval(ns_); }
 
     int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
-    void		goToTrace(od_istream&,od_stream_Pos,int) const;
+    bool		goToTrace(od_istream&,od_stream_Pos,int) const;
 
 };
 
@@ -79,6 +80,9 @@ public:
     TrcHeader*		getTrcHdr(od_istream&) const;
     bool		getData(od_istream&,char*,float* vals=0) const;
     TrcHeader*		getTrace(od_istream&,char*,float*) const;
+    bool		skipData(od_istream&) const;
+
+    bool		findRev0Bytes(od_istream&);
 
 };
 
@@ -110,7 +114,7 @@ public:
     BasicFileInfo	basicinfo_;
 
     void		getFromSEGYBody(od_istream&,const LoadDef&,
-				    bool isfirst,bool is2d,DataClipSampler&,
+				    bool ismulti,bool is2d,DataClipSampler&,
 				    bool full,PosInfo::Detector*,uiParent*);
     void		merge(const ScanInfo&);
 
@@ -118,12 +122,14 @@ public:
 
 protected:
 
-    float		curoffs_;
+    od_stream_Pos	startpos_;
 
-    bool		addTrace(od_istream&,bool,char*,float*,const LoadDef&,
-				 DataClipSampler&,const OffsetCalculator&,
-				 PosInfo::Detector*);
-    void		addValues(DataClipSampler&,const float*, int);
+    void		addPositions(const SeisTrcInfo&,PosInfo::Detector*);
+    void		addValues(DataClipSampler&,const float*,int);
+    void		addTraces(od_istream&,int trcidx,bool is2d,
+				  char*,float*,const LoadDef&,DataClipSampler&,
+				  const OffsetCalculator&,PosInfo::Detector*,
+				  bool rev=false);
 
     friend class	FullUIScanner;
 

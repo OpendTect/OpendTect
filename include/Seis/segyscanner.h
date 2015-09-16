@@ -34,8 +34,8 @@ mExpClass(Seis) Scanner : public Executor
 { mODTextTranslationClass(Scanner);
 public:
 
-    			Scanner(const IOPar&,Seis::GeomType);
-    			Scanner(const FileSpec&,Seis::GeomType,const IOPar&);
+			Scanner(const IOPar&,Seis::GeomType);
+			Scanner(const FileSpec&,Seis::GeomType,const IOPar&);
 			~Scanner();
 
     Seis::GeomType	geomType() const	{ return geom_; }
@@ -60,7 +60,7 @@ public:
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
     uiStringSet	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
-    void			getReport(IOPar&) const;
+    void			getReport(IOPar&,const IOPar* inppars=0) const;
     StepInterval<float>		zRange() const;
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
 

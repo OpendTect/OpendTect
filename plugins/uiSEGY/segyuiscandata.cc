@@ -66,12 +66,19 @@ int SEGY::BasicFileInfo::nrTracesIn( const od_istream& strm,
 }
 
 
-void SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
+bool SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
 				 int trcidx ) const
 {
+    if ( trcidx < 0 )
+	return false;
+
     const int trcbytes = SegyTrcHeaderLength + traceDataBytes();
     startpos += trcidx * trcbytes;
+    if ( startpos >= strm.endPosition() )
+	return false;
+
     strm.setPosition( startpos );
+    return true;
 }
 
 
@@ -136,6 +143,13 @@ bool SEGY::LoadDef::getData( od_istream& strm, char* buf, float* vals ) const
 }
 
 
+bool SEGY::LoadDef::skipData( od_istream& strm ) const
+{
+    strm.ignore( traceDataBytes() );
+    return strm.isOK();
+}
+
+
 SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 					    char* buf, float* vals ) const
 {
@@ -143,6 +157,24 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
     if ( !thdr || !getData(strm,buf,vals) )
 	{ delete thdr; return 0; }
     return thdr;
+}
+
+
+bool SEGY::LoadDef::findRev0Bytes( od_istream& strm )
+{
+    if ( strm.position() == 0 )
+	strm.setPosition( 3600 );
+    const od_stream::Pos firsttrcpos = strm.position();
+
+    // const SEGY::HdrDef& hdrdef = SEGY::TrcHeader::hdrDef();
+    do
+    {
+	PtrMan<TrcHeader> thdr = getTrcHdr( strm );
+
+    } while ( skipData(strm) );
+
+    strm.setPosition( firsttrcpos );
+    return true;
 }
 
 
@@ -202,18 +234,28 @@ virtual int nextStep()
 {
     for ( int idx=0; idx<10; idx++ )
     {
-	if ( !si_.addTrace(strm_,true,buf_,vals_,def_,cs_,offscalc_,dtctr_) )
+	PtrMan<TrcHeader> thdr = def_.getTrace( strm_, buf_, vals_ );
+	if ( !thdr )
 	{
 	    if ( dtctr_ )
 		dtctr_->finish();
 	    return Finished();
 	}
+	if ( !thdr->isusable )
+	    continue;
+
+	thdr->fill( ti_, def_.coordscale_ );
+	offscalc_.setOffset( ti_, *thdr );
+	si_.addPositions( ti_, dtctr_ );
+	si_.addValues( cs_, vals_, def_.ns_ );
 	nrdone_++;
     }
+
     return MoreToDo();
 }
 
     ScanInfo&		si_;
+    SeisTrcInfo		ti_;
     od_istream&		strm_;
     const LoadDef&	def_;
     char*		buf_;
@@ -234,12 +276,12 @@ virtual int nextStep()
 
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
-				bool isfirst, bool is2d, DataClipSampler& cs,
+				bool ismulti, bool is2d, DataClipSampler& cs,
 				bool full, PosInfo::Detector* dtctr,
 				uiParent* uiparent )
 {
-    const od_istream::Pos startpos = strm.position();
-    nrtrcs_ = def.nrTracesIn( strm, startpos );
+    startpos_ = strm.position();
+    nrtrcs_ = def.nrTracesIn( strm, startpos_ );
     if ( !def.isValid() )
 	return;
 
@@ -283,59 +325,72 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 	return;
     }
 
-    if ( isfirst )
-    {
-	while ( true )
-	{
-	    if ( !addTrace(strm,true,buf,vals,def,cs,offscalc,dtctr) )
-		break;
+    addTraces( strm, 1, is2d, buf, vals, def, cs, offscalc, dtctr );
+    if ( !ismulti )
+	addTraces( strm, nrtrcs_/2, is2d, buf, vals, def, cs, offscalc, dtctr );
 
-	    const bool foundranges = is2d ? trcnrs_.start != trcnrs_.stop
-				   : (inls_.start != inls_.stop &&
-				      crls_.start != crls_.stop);
-	    const bool founddata = cs.nrVals() > 1000;
-	    if ( foundranges && founddata )
-		break;
+    addTraces( strm, nrtrcs_-1, is2d, buf, vals, def, cs, offscalc, dtctr,true);
 
-	}
-    }
-
-    // first 10 traces
-    for ( int idx=0; idx<9; idx++ )
-	if ( !addTrace(strm,true,buf,vals,def,cs,offscalc,dtctr) )
-	    break;
-
-    // 10 in the middle
-    def.goToTrace( strm, startpos, nrtrcs_ / 2 );
-    for ( int idx=0; idx<10; idx++ )
-	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc,dtctr) )
-	    break;
-
-    // last 10 traces
-    for ( int idx=0; idx<10; idx++ )
-    {
-	def.goToTrace( strm, startpos, nrtrcs_ - 1 - idx );
-	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc,dtctr) )
-	    break;
-    }
     if ( dtctr )
 	dtctr->finish();
 }
 
 
-bool SEGY::ScanInfo::addTrace( od_istream& strm, bool wstep,
-				 char* buf, float* vals,
-				 const LoadDef& def, DataClipSampler& cs,
-				 const SEGY::OffsetCalculator& offscalc,
-				 PosInfo::Detector* dtctr )
+void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx, bool is2d,
+				char* buf, float* vals,
+				const LoadDef& def, DataClipSampler& cs,
+				const SEGY::OffsetCalculator& offscalc,
+				PosInfo::Detector* dtctr, bool rev )
 {
-    PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
-    if ( !thdr || !thdr->isusable )
-	return false;
+    if ( !def.goToTrace(strm,startpos_,trcidx) )
+	return;
 
-    SeisTrcInfo ti;
-    thdr->fill( ti, def.coordscale_ );
-    offscalc.setOffset( ti, *thdr );
+    const int minnrtrcs = 10; const int maxnrtrcs = 10000;
+    SeisTrcInfo ti; int previnl, prevcrl, prevnr;
+    bool haveinlchg = false, havecrlchg = false, havenrchg = false;
+    for ( int itrc=0; itrc<maxnrtrcs; itrc++ )
+    {
+	PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
+	if ( !thdr )
+	    break;
+	if ( !thdr->isusable )
+	    continue;
+
+	thdr->fill( ti, def.coordscale_ );
+	offscalc.setOffset( ti, *thdr );
+	addPositions( ti, dtctr );
+	addValues( cs, vals, def.ns_ );
+
+	int curinl = ti.binid.inl();
+	int curcrl = ti.binid.crl();
+	int curnr = ti.nr;
+	if ( itrc == 0 )
+	    { previnl = curinl; prevcrl = curcrl; prevnr = curnr; }
+	else
+	{
+	    if ( is2d )
+		havenrchg = havenrchg || curnr != prevnr;
+	    else
+	    {
+		haveinlchg = haveinlchg || curinl != previnl;
+		havecrlchg = havecrlchg || curcrl != prevcrl;
+	    }
+	}
+
+	const bool foundranges = is2d ? havenrchg : haveinlchg && havecrlchg;
+	const bool founddata = cs.nrVals() > 1000;
+	if ( foundranges && founddata && itrc >= minnrtrcs )
+	    break;
+
+	if ( rev && !def.goToTrace(strm,startpos_,nrtrcs_-trcidx-2) )
+	    break;
+    }
+}
+
+
+void SEGY::ScanInfo::addPositions( const SeisTrcInfo& ti,
+				   PosInfo::Detector* dtctr )
+{
     mAdd2Dtector( dtctr, ti );
 
     inls_.include( ti.binid.inl(), false );
@@ -345,10 +400,6 @@ bool SEGY::ScanInfo::addTrace( od_istream& strm, bool wstep,
     yrg_.include( ti.coord.y, false );
     refnrs_.include( ti.refnr, false );
     offsrg_.include( ti.offset, false );
-
-    addValues( cs, vals, def.ns_ );
-
-    return true;
 }
 
 
