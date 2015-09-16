@@ -526,7 +526,7 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
     {
 	getMaterial()->setColor( emsurface_->preferredColor() );
 	if ( !emsurface_->name().isEmpty() )
-	    setName( emsurface_->name() );
+	    setName( emsurface_->uiName() );
 	else setName( "<New body>" );
 
 	if ( !displaysurface_ )

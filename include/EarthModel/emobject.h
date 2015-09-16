@@ -120,6 +120,7 @@ public:
     void			setName( const char* nm )  { objname_ = nm; }
     				/*!<The IOObj name overrules this */
     BufferString		name() const;
+    uiString			uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
     virtual int			nrSections() const 			= 0;

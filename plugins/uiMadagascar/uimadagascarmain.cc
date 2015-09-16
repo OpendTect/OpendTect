@@ -153,7 +153,7 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
 
     if ( bldfld_->isAdd() )
     {
-	procsfld_->addItem( mkUiString(proc->getSummary()) );
+	procsfld_->addItem( toUiString(proc->getSummary()) );
 	procflow_ += proc;
 	needsave_ = true;
 	procsfld_->setCurrentItem( procsfld_->size() - 1 );
@@ -163,7 +163,7 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
 	const int curidx = procsfld_->currentItem();
 	if ( curidx < 0 ) return;
 	needsave_ = true;
-	procsfld_->setItemText( curidx, mkUiString(proc->getSummary()) );
+	procsfld_->setItemText( curidx, toUiString(proc->getSummary()) );
 	ODMad::Proc* prevproc = procflow_.replace( curidx, proc );
 	delete prevproc;
     }
@@ -202,7 +202,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	if ( newcur >= 0 && newcur < sz )
 	{
 	    BufferString tmp( procsfld_->textOfItem(newcur) );
-	    procsfld_->setItemText( newcur, mkUiString(procsfld_->getText()) );
+	    procsfld_->setItemText( newcur, toUiString(procsfld_->getText()) );
 	    procsfld_->setItemText( curidx, tmp );
 	    procflow_.swap( curidx, newcur );
 	    curidx = newcur;
@@ -270,7 +270,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
 	    infld_->usePar( procflow_.input() );
 	    outfld_->usePar( procflow_.output() );
 	    for ( int idx=0; idx<procflow_.size(); idx++ )
-		procsfld_->addItem( mkUiString(procflow_[idx]->getSummary()) );
+		procsfld_->addItem( toUiString(procflow_[idx]->getSummary()) );
 
 	    procsfld_->setCurrentItem( procsfld_->size() - 1 );
 	    needsave_ = false;

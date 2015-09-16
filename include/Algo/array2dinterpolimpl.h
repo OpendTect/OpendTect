@@ -138,7 +138,7 @@ mExpClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol,
 			TriangulationArray2DInterpol,
-			"Triangulation", toUiString(sFactoryKeyword()))
+			 "Triangulation", ::toUiString(sFactoryKeyword()))
 
     		TriangulationArray2DInterpol();
     		~TriangulationArray2DInterpol();
@@ -196,7 +196,7 @@ mExpClass(Algo) ExtensionArray2DInterpol : public Array2DInterpol
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol,
 		    ExtensionArray2DInterpol, "Extension", 
-		    toUiString(sFactoryKeyword()))
+		     ::toUiString(sFactoryKeyword()))
 
     		ExtensionArray2DInterpol();
     		~ExtensionArray2DInterpol();

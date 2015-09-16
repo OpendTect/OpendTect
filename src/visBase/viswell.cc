@@ -295,7 +295,8 @@ void Well::updateText( Text* tx, const uiString& chr, const Coord3* pos,
 
 void Well::setWellName( const TrackParams& tp )
 {
-    BufferString label( tp.name_, " track" );
+    uiString label =
+	uiStrings::phrJoinStrings( tp.name_, uiStrings::sTrack().toLower() );
     track_->setName( label );
 
     if ( welltoptxt_->nrTexts()<1 )
@@ -311,11 +312,11 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdbot );
 
     updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
-		mkUiString( tp.name_ ) : uiString::emptyString(), &crdtop,
+		tp.name_ : uiString::emptyString(), &crdtop,
 		tp.font_ );
 
     updateText( wellbottxt_->text(0),tp.isdispbelow_ ? 
-		mkUiString( tp.name_ ) : uiString::emptyString(), &crdbot,
+		tp.name_ : uiString::emptyString(), &crdbot,
 		tp.font_ );
 
 }
@@ -881,12 +882,12 @@ bool Well::hasLog( Side side ) const
 }
 
 
-BufferString Well::getLogName( Side side ) const 
+uiString Well::getLogName( Side side ) const
 {
     if ( displaylog_[(int)side] )
 	return lognames_[(int)side];
     
-    return BufferString();
+    return uiString::emptyString();
 }
 
 void Well::showLogName( bool yn )

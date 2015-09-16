@@ -190,7 +190,7 @@ void WellDisplay::fillLogParams(
     lp.issinglcol_	= mGetLogPar( side, issinglecol_);
     lp.islogarithmic_	= mGetLogPar( side, islogarithmic_ );
     lp.logwidth_	= mGetLogPar( side, logwidth_ );
-    lp.name_		= mGetLogPar( side, name_ );
+    lp.name_		= mToUiStringTodo(mGetLogPar( side, name_ ));
     lp.ovlap_		= mGetLogPar( side, repeatovlap_ );
     lp.range_		= mGetLogPar( side, range_ );
     lp.repeat_		= mGetLogPar( side, repeat_);
@@ -221,7 +221,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
-    tp.name_ = wd->name();
+    tp.name_ = mToUiStringTodo(wd->name());
     updateMarkers(0);
 
     well_->setTrack( trackpos );
@@ -273,7 +273,7 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 			       TypeSet<Coord3>& trackpos )
 {
     trackpos.erase();
-    setName( wd->name() );
+    setName(  mToUiStringTodo(wd->name()) );
 
     if ( wd->track().size() < 1 )
 	return;
@@ -323,7 +323,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 	if ( pos.isUdf() )
 	    continue;
 
-	mp.pos_ = &pos;	mp.name_ = wellmarker->name();
+	mp.pos_ = &pos;
+	mp.name_ = mToUiStringTodo(wellmarker->name());
 
 	if ( !mGetDispPar( markers_.issinglecol_ ) )
 	    mp.col_ = wellmarker->color();
@@ -910,7 +911,7 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
-    setName( wd->name() );
+    setName( mToUiStringTodo(wd->name()) );
     if ( !pseudotrack_ )
 	return;
 

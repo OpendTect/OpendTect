@@ -19,6 +19,7 @@ data/ModDeps.dgb
 data/SequenceModels
 data/dgbAttribs/
 data/localizations/*.qm
+data/localizations/generated
 test/
 Contents/
 plugins/lux64

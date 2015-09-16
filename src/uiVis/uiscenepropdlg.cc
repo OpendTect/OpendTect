@@ -287,9 +287,9 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
     {
 	ObjectSet<uiGenInputDlgEntry>* entries =
 	    new ObjectSet<uiGenInputDlgEntry>;
-	(*entries) += new uiGenInputDlgEntry( visBase::Scene::sKeyFactor(),
+	(*entries) += new uiGenInputDlgEntry( uiStrings::sFactor(),
 		new FloatInpSpec( scene_->getPolygonOffset()->getFactor() ));
-	(*entries) += new uiGenInputDlgEntry( visBase::Scene::sKeyUnits(),
+	(*entries) += new uiGenInputDlgEntry( uiStrings::sUnit(mPlural),
 		new FloatInpSpec( scene_->getPolygonOffset()->getUnits() ));
 
 	separationdlg_ =

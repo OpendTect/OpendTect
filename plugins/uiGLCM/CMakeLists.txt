@@ -8,7 +8,7 @@
 set(OD_MODULE_DEPS uiODMain GLCM)
 set(OD_MODULE_NAME uiGLCM)
 set(OD_IS_PLUGIN yes )
-set(OD_MODULE_SOURCES 
+set(OD_MODULE_SOURCES
 	uiGLCM_attrib.cc
 	uiGLCM_pi.cc)
 set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )

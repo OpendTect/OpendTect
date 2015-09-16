@@ -900,7 +900,7 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 	? scene_->zDomainInfo().userFactor()
 	: 1;
 
-    info = uiString( formatstr.buf() )
+    info = toUiString( formatstr.buf() )
 	.arg( cs.hsamp_.start_.inl() )
 	.arg( cs.hsamp_.stop_.inl() )
 	.arg( cs.hsamp_.start_.crl() )

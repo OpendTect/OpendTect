@@ -95,7 +95,7 @@ public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
 				TriangulationHor3DGridder, "Triangulation",
-				toUiString(sFactoryKeyword()))
+				 ::toUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -118,7 +118,7 @@ public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
 				ExtensionHor3DGridder,
-				"Extension", toUiString(sFactoryKeyword()))
+				 "Extension", ::toUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);

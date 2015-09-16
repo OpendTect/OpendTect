@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fixedstring.h"
 #include "staticsdesc.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
@@ -123,18 +124,15 @@ bool VelocityDesc::usePar( const IOPar& par )
 }
 
 
-const char* VelocityDesc::getVelUnit( bool wp )
+uiString VelocityDesc::getVelUnit( bool wp )
 {
-    if ( SI().depthsInFeet() )
-	return wp ? "(ft/s)" : "ft/s";
-
-    return wp ? "(m/s)" : "m/s";
+    return ::toUiString( wp ? "(%1/%2)" : "%1/%2")
+	.arg( uiStrings::sDistUnitString( SI().depthsInFeet(), true, false ))
+	.arg( uiStrings::sTimeUnitString(true));
 }
 
 
-const char* VelocityDesc::getVelVolumeLabel()
+uiString VelocityDesc::getVelVolumeLabel()
 {
-    return SI().depthsInFeet()
-	? "Velocity model (ft/s)"
-	: "Velocity model (m/s)";
+    return tr( "Velocity model (%1/s)").arg( SI().getUiZUnitString(false) );
 }

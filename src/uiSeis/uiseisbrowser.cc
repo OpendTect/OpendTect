@@ -839,15 +839,14 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     uiGroup* valgrp = new uiGroup( this, "Values group" );
 
     PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) );
-    coordfld_ = new uiGenInput( valgrp, tr("Coordinate"),
+    coordfld_ = new uiGenInput( valgrp, uiStrings::sCoordinate(),
 				coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
-    BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position() );
+    uiString label( is2d_ ? tr("Trace/Ref number") : uiStrings::sPosition() );
     IntInpSpec iis; FloatInpSpec fis;
     DataInpSpec* pdis = &iis; if ( is2d_ ) pdis = &fis;
-    trcnrbinidfld_ = new uiGenInput( valgrp, mkUiString(label.buf()), iis,
-				     *pdis );
+    trcnrbinidfld_ = new uiGenInput( valgrp, label, iis, *pdis );
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
@@ -860,7 +859,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     minamplatfld_->attach( rightOf, minamplfld_ );
     minamplatfld_->setElemSzPol( uiObject::Small );
     minamplatfld_->setReadOnly();
-    uiLabel* lbl = new uiLabel( valgrp, mkUiString(zdomdef_.unitStr(true)) );
+    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.uiUnitStr(true) );
     lbl->attach( rightOf, minamplatfld_ );
 
     maxamplfld_ = new uiGenInput( valgrp, tr("Maximum amplitude"),
@@ -872,7 +871,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     maxamplatfld_->attach( rightOf, maxamplfld_ );
     maxamplatfld_->setElemSzPol( uiObject::Small );
     maxamplatfld_->setReadOnly();
-    lbl = new uiLabel( valgrp, mkUiString(zdomdef_.unitStr(true)) );
+    lbl = new uiLabel( valgrp, zdomdef_.uiUnitStr(true) );
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );

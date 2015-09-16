@@ -305,7 +305,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	{
 	    BufferString bs;
 	    if ( !PickSetTranslator::store( pickset, ctio->ioobj, bs ) )
-	    uiMSG().error(bs);
+	    uiMSG().error(mToUiStringTodo(bs));
 	}
     }
     else if ( mnuid == removemnuitem_.id )

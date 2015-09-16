@@ -5,6 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+add_definitions( -DmNoAutoUiString )
+
 set(OD_MODULE_DEPS uiOSG uiMPE )
 set(OD_MODULE_SOURCES
 	inituivis.cc

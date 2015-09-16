@@ -24,11 +24,11 @@ class uiGenInput;
 mExpClass(uiTools) uiGenInputDlgEntry
 { mODTextTranslationClass(uiGenInputDlgEntry);
 public:
-    			uiGenInputDlgEntry( uiString t,
+			uiGenInputDlgEntry( const uiString& t,
 					    DataInpSpec* s )
 			    //!< DataInpSpec becomes mine
-			: txt(t), spec(s?s:new StringInpSpec)
-			, allowundef(false)			{}
+			    : txt(t), spec(s?s:new StringInpSpec)
+			    , allowundef(false)			{}
 			~uiGenInputDlgEntry()			{ delete spec; }
 
     uiString		txt;

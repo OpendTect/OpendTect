@@ -81,7 +81,7 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 void uiImportFault::createUI()
 {
     infld_ = new uiFileInput( this, 
-		uiStrings::phrInput(uiStrings::phrASCII(uiStrings::sFile())),
+		uiStrings::sInputASCIIFile(),
 		uiFileInput::Setup().withexamine(true)
 		.defseldir(GetDataDir()) );
     infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );

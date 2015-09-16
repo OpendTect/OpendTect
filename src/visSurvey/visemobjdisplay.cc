@@ -310,7 +310,7 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
 {
     if ( !emobject_ ) return false;
 
-    setName( emobject_->name() );
+    setName( emobject_->uiName() );
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {

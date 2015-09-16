@@ -61,7 +61,7 @@ public:
 
 protected:
 			uiFlatViewDataDispPropTab(uiParent*,FlatView::Viewer&,
-				const char*,bool showdisplayfield=true);
+				const uiString&,bool showdisplayfield=true);
 
     FlatView::DataDispPars&	ddpars_;
     virtual FlatView::DataDispPars::Common& commonPars()	= 0;

@@ -146,7 +146,8 @@ public:
     static uiString sColorTable();
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sContinue()		{ return tr("Continue"); }
-    static uiString sCopy();		
+    static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
+    static uiString sCopy();
     static uiString sCreateGroup()	{ return tr("Create Group"); }
     static uiString sCreate();
     static uiString sCreateProbDesFunc();
@@ -168,11 +169,12 @@ public:
     static uiString sExport();
     static uiString sFaultStickSet(int num=1);
     static uiString sFeet()		{ return tr("Feet"); }
+    static uiString sFactor(int num=1)	{ return tr("Factor",0,num); }
     static uiString sFault(int num=1);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiString sFilter()		{ return tr("Filter"); }
-    static uiString sFrequency(bool smallcase=false, bool plural=false);
+    static uiString sFrequency(int num=1);
     static uiString sGo()	        { return tr("Go"); }
     static uiString sHelp();
     static uiString sHide()		{ return tr("Hide"); }
@@ -185,7 +187,8 @@ public:
     static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
     static uiString sInputParamsMissing();
     static uiString sInput();
-    static uiString sInputSelection()	{ return phrInput( sSelection(true) ); }
+    static uiString sInputFile();
+    static uiString sInputSelection();
     static uiString sInputASCIIFile();
     static uiString sInputData()	{ return tr("Input Data"); }
     static uiString sInvalid();
@@ -220,12 +223,13 @@ public:
     static uiString sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
     static uiString sOutputFileExistsOverwrite();
     static uiString sOutput();
-    static uiString sOutputSelection()	{ return phrOutput(sSelection(true)); }
+    static uiString sOutputSelection();
     static uiString sOutputASCIIFile();
     static uiString sOverwrite()        { return tr("Overwrite"); }
     static uiString sPause()            { return tr("Pause"); }
     static uiString sPickSet()		{ return tr("PickSet"); }
     static uiString sPolygon()		{ return tr("Polygon"); }
+    static uiString sPosition(int num=1){ return tr("Position",0,num); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProbDensFunc(bool abbrevation=false);
@@ -254,7 +258,7 @@ public:
     static uiString sSeismics()		{ return sSeismic(mPlural); }
     static uiString sSeismics(bool is2d,bool isps,int num);
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
-    static uiString sSelection(bool smallletters);
+    static uiString sSelection();
     static uiString sSelect();
     static uiString sSelOutpFile();
     static uiString sSetting(int num=1);
@@ -283,6 +287,7 @@ public:
     static uiString sTransparency()     { return tr("Transparency"); }
     static uiString sType()             { return tr("Type"); }
     static uiString sUndo()		{ return tr("Undo"); }
+    static uiString sUnit(int num=1)	{ return tr("Unit",0,num); }
     static uiString sUp()		{ return tr("Up"); }
     static uiString sUse()		{ return tr("Use"); }
     static uiString sUtilities()	{ return tr("Utilities"); }
@@ -293,7 +298,7 @@ public:
     static uiString sView()		{ return tr("View"); }
     static uiString sWarning()		{ return tr("Warning"); }
     static uiString sWavelet(int num=1);
-    static uiString sWaveNumber(bool smallcase=false, bool plural=false);
+    static uiString sWaveNumber(int num=1);
     static uiString sWell(int num=1);
     static uiString sWells()		{ return sWell(mPlural); }
     static uiString sWellLog(int num=1);
@@ -312,6 +317,8 @@ public:
     static uiString sDistUnitString(bool isfeet,bool abbrevated,
 				    bool withparentheses);
     /*!< returns "m", "ft", "meter", or "feet" */
+    static uiString sTimeUnitString(bool abbrevated=true);
+    /*!< returns "s" or "seconds" */
     static uiString sVolDataName(bool is2d,bool is3d,bool isprestack,
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);

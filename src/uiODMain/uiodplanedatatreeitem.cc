@@ -137,6 +137,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
 
 uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 {
+    detachAllNotifiers();
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_));
     if ( pdd )

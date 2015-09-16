@@ -432,13 +432,13 @@ uiViewer3DPositionDlg*
 
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
-uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
+uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
 						int dpid )
 {
     uiFlatViewMainWin* viewwin = new uiFlatViewMainWin(
 	ODMainWin(), uiFlatViewMainWin::Setup(title) );
 
-    viewwin->setWinTitle( mkUiString(title) );
+    viewwin->setWinTitle( title );
     viewwin->setDarkBG( false );
 
     uiFlatViewer& vwr = viewwin->viewer();
@@ -678,9 +678,9 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	DPM(DataPackMgr::FlatID()).add( gather );
 	DPM(DataPackMgr::FlatID()).obtain( dpid );
 
-	BufferString title;
+	uiString title;
 	if ( is3d )
-	    getSeis3DTitle( bid, ioobj->name(), title );
+	    getSeis3DTitle( bid, ioobj->uiName(), title );
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
@@ -700,21 +700,17 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::getSeis2DTitle( int tracenr, const char* nm,
-				    BufferString& title )
+void uiViewer3DMgr::getSeis2DTitle( int tracenr, const uiString& nm,
+				    uiString& title )
 {
-    title = "Gather from [";
-    title += nm;
-    title += "] at trace " ;
-    title += tracenr;
+    title = tr("Gather from [%1] at trace %2").arg( nm ).arg( tracenr );
 }
 
 
-void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const char* name,
-				    BufferString& title )
+void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const uiString& name,
+				    uiString& title )
 {
-    title.set( "Gather from [" ).add( name ).add( "] at " )
-	 .add( bid.toString() );
+    title = tr("Gather from [%1] at %2" ).arg( name ).arg( bid.toString() );
 }
 
 

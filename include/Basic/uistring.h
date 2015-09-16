@@ -145,13 +145,13 @@ public:
 private:
 
 #ifdef __debug__
-    char*	str_;		//!< Contains getFullString() for easy debugging
+    char*	debugstr_;	//!< Contains getFullString() for easy debugging
 #endif
     bool			isCacheValid() const;
     const mQtclass(QString)& 	getQStringInternal() const;
 
     friend class		uiStringData;
-    uiStringData*		data_;
+    mutable uiStringData*	data_;
     mutable Threads::Lock	datalock_;	//!< Protects data_ variable
     static const uiString	emptystring_;
 
@@ -239,12 +239,12 @@ mGlobal(Basic) uiString toUiString(double,int nrdec);
 
 
 //User when string should be revisited later
-#define mToUiStringTodo(i) toUiString(i)
+#define mToUiStringTodo(i) ::toUiString(i)
 #define mFromUiStringTodo(i) i.getFullString()
 
 
 //Legacy Will be removed
-mGlobal(Basic) inline uiString mkUiString(const char* var)
+mGlobal(Basic) mDeprecated inline uiString mkUiString(const char* var)
 { return toUiString(var); }
 
 /*!Adds translation of strings outside of classes for the "od" application. It
