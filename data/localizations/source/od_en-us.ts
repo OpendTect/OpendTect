@@ -4,7 +4,17 @@
 <context>
     <name>TextTranslateMgr</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+277"/>
+        <source>Language Name</source>
+        <translation type="obsolete">
+            <numerusform>English</numerusform>
+            <numerusform>English</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>TextTranslatorLanguage</name>
+    <message numerus="yes">
+        <location filename="../../../src/Basic/texttranslator.cc" line="+58"/>
         <source>Language Name</source>
         <translation>
             <numerusform>English</numerusform>
@@ -38,7 +48,7 @@
 <context>
     <name>uiSaveDataDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+168"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+169"/>
         <source>Cannot write log(s)</source>
         <translation>
             <numerusform>Cannot write log</numerusform>
@@ -49,7 +59,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+27"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+36"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -57,7 +67,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+91"/>
+        <location line="+155"/>
         <source>input file</source>
         <translation>
             <numerusform>input file</numerusform>
@@ -65,7 +75,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+3"/>
+        <location line="+6"/>
         <source>output file</source>
         <translation>
             <numerusform>output file</numerusform>
@@ -73,7 +83,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+12"/>
+        <location line="+18"/>
         <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
@@ -81,7 +91,23 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+12"/>
+        <location line="+3"/>
+        <source>FaultStickSet</source>
+        <translation>
+            <numerusform>FaultStickSet</numerusform>
+            <numerusform>FaultStickSets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+4"/>
+        <source>Frequency</source>
+        <translation>
+            <numerusform>Frequency</numerusform>
+            <numerusform>Frequencies</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+10"/>
         <source>Horizon</source>
         <translation>
             <numerusform>Horizon</numerusform>
@@ -89,7 +115,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+15"/>
+        <location line="+29"/>
         <source>Marker</source>
         <translation>
             <numerusform>Marker</numerusform>
@@ -97,7 +123,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+81"/>
+        <location line="+84"/>
+        <source>Wavenumber</source>
+        <translation>
+            <numerusform>Wavenumber</numerusform>
+            <numerusform>Wavenumbers</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+9"/>
         <source>Well log</source>
         <translation>
             <numerusform>Well log</numerusform>
@@ -112,9 +146,8 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="-105"/>
         <source>Fault Stick Set</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Fault Stick Set</numerusform>
             <numerusform>Fault Stick Sets</numerusform>
         </translation>
@@ -134,7 +167,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+61"/>
+        <location line="-47"/>
         <source>Seismic</source>
         <translation>
             <numerusform>Seismic</numerusform>
@@ -150,7 +183,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+18"/>
+        <location line="+21"/>
         <source>Wavelet</source>
         <translation>
             <numerusform>Wavelet</numerusform>
