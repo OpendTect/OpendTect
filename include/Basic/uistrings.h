@@ -262,6 +262,7 @@ public:
     static uiString sSelection();
     static uiString sSelect();
     static uiString sSelOutpFile();
+    static uiString sSet()		{ return tr("Set"); }
     static uiString sSetting(int num=1);
     static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
@@ -309,7 +310,6 @@ public:
 
     static uiString sWriting()		{ return tr("Writing"); }
     static uiString sYes()		{ return tr("Yes"); }
-    static uiString sSet()		{ return tr("Set"); }
     static uiString sZUnit()		{ return tr("Z-unit"); }
     static uiString sZSlice(int num=1)	{ return tr("Z-slice",0,num); }
     static uiString sZValue(int num=1)	{ return tr("Z value",0,num); }
