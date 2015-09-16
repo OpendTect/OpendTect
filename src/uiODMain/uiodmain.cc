@@ -546,10 +546,12 @@ void uiODMain::memTimerCB( CallBacker* )
     OD::getSystemMemory( tot, free );
     NrBytesToStringCreator converter;
     converter.setUnitFrom( tot );
-    uiString txt = tr( "[free mem] %1/%2%3" )
-	.arg( converter.getString( free, 1, false ) )
-	.arg( converter.getString( tot,1,true ))
-	.arg( cputxt_.isEmpty() ? cputxt_ : toUiString(" | %1").arg(cputxt_));
+    uiString txt = tr( "[free mem] %1/%2%3" );
+
+    //Use separate calls to avoid the reuse of the converter's buffer
+    txt.arg( converter.getString( free, 1, false ) );
+    txt.arg( converter.getString( tot,1,true ));
+    txt.arg( cputxt_.isEmpty() ? cputxt_ : toUiString(" | %1").arg(cputxt_));
 
     statusBar()->message( txt, mMemStatusFld );
 }
