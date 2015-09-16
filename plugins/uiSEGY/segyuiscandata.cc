@@ -346,7 +346,7 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx, bool is2d,
 	return;
 
     const int minnrtrcs = 10; const int maxnrtrcs = 10000;
-    SeisTrcInfo ti; int previnl, prevcrl, prevnr;
+    SeisTrcInfo ti; int previnl = 0, prevcrl = 0, prevnr = 0;
     bool haveinlchg = false, havecrlchg = false, havenrchg = false;
     for ( int itrc=0; itrc<maxnrtrcs; itrc++ )
     {
