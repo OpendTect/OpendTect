@@ -1,6 +1,24 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.10: September 16, 2015
+ * Fix for crash while shifting horizon after loading faults
+ * Fix for crash while importing horizon with horizon data
+ * Fix for erroneous Log depth values after changing the depth
+   unit for the survey
+ * Fix for displaying wrong error message after selecting
+   'Well Log Interpolation' option in 'Volume Builder: Setup' window
+ * Fix for creating volume output with user defined Z range sampling
+ * Fix for displaying values in status bar in interactive mode
+ * Fix for cursor synchronization between normal scene and flattened scene
+ * Fix for some more overwrite problems for Horizon Interpolation window
+ * Fix for lateral shift in data on 2D lines in horizon flattened scene
+ * Fix for Random line texture if default resolution high
+ * Fix for displaying available logs in 'Create Log Cube' window
+ * Fix for renaming Body if the body is displayed in the tree
+ * Fix for displaying 'TwoDDataSet' as an output option in Velocity conversion
+   and Time-Depth Conversion windows
+
 v5.0.9: August 11, 2015
  * Fix for crash while duplicating an already existing volume in the tree
  * Fix for crash while creating Multicube Prestack 3D data
