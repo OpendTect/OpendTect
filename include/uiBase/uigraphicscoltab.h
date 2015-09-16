@@ -51,7 +51,7 @@ public:
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
     void		setupChanged(); // Call this function whenever the setup
-					// has been changed
+					// is changed
 
 protected:
     void		adjustLabel();
