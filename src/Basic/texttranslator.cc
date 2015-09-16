@@ -179,10 +179,10 @@ int TextTranslateMgr::nrSupportedLanguages() const
 }
 
 
-void TextTranslateMgr::addLanguage( TextTranslatorLanguage* language )
+bool TextTranslateMgr::addLanguage( TextTranslatorLanguage* language )
 {
     if ( !language )
-	return;
+	return false;
 
     language->ref();
 
@@ -192,14 +192,14 @@ void TextTranslateMgr::addLanguage( TextTranslatorLanguage* language )
     {
 	if ( languages_[idx]->getLocaleName()==newlocale )
 	{
-	    pErrMsg("Language refused as it does already exist");
 	    language->unRef();
-	    return;
+	    return false;
 	}
     }
 
     languages_ += language;
     languageChange.trigger();
+    return true;
 }
 
 
