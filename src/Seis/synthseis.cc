@@ -643,8 +643,9 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
     {
 	synthgen.setModel( *(*models_)[idx] );
 
-	synthgen.setWavelet( wavelet_, OD::UsePtr );
 	IOPar par; fillPar( par ); synthgen.usePar( par );
+	if ( wavelet_ )
+	    synthgen.setWavelet( wavelet_, OD::UsePtr );
 	synthgen.setOutSampling( outputsampling_ );
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg(), false );
@@ -809,9 +810,10 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 
 	MultiTraceSynthGenerator multitracegen;
 	multitracegen.setModels( rm.refmodels_ );
-	multitracegen.setWavelet( wavelet_, OD::UsePtr );
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
+	if ( wavelet_ )
+	    multitracegen.setWavelet( wavelet_, OD::UsePtr );
 
 	if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg(), false )

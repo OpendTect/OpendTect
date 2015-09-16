@@ -908,9 +908,10 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
 {
     BufferString capt( "Generating ", synthgenpar.name_ );
     synthgen.setName( capt.buf() );
-    synthgen.setWavelet( wvlt_, OD::UsePtr );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
+    if ( wvlt_ )
+	synthgen.setWavelet( wvlt_, OD::UsePtr );
     synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
 
     return TaskRunner::execute( taskr_, synthgen );
