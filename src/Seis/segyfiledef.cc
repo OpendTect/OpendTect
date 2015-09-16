@@ -287,19 +287,19 @@ static void reportHdrEntry( IOPar& iop, const char* nm,
 }
 
 
-void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
+void SEGY::FileReadOpts::getReport( IOPar& iop, bool isrev0 ) const
 {
     if ( !mIsUdf(coordscale_) )
 	iop.set( sKeyCoordScale(), coordscale_ );
     if ( !mIsUdf(timeshift_) )
-	iop.set( sKeyTimeShift(), timeshift_ );
+	iop.set( "Data starts at", timeshift_ );
     if ( !mIsUdf(sampleintv_) )
-	iop.set( sKeySampleIntv(), sampleintv_ );
+	iop.set( "Sample interval used", sampleintv_ );
 
     const bool is2d = Seis::is2D( geom_ );
     const bool isps = Seis::isPS( geom_ );
 
-    if ( !rev1 )
+    if ( isrev0 )
     {
 	if ( is2d )
 	    reportHdrEntry( iop, sKey::TraceNr(), thdef_.trnr_ );

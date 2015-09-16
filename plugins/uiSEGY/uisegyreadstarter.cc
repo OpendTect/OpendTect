@@ -686,7 +686,7 @@ bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
     if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
 	return false;
 
-    si.getFromSEGYBody( strm, loaddef_, isfirst, impType().is2D(),
+    si.getFromSEGYBody( strm, loaddef_, filespec_.nrFiles()>1, impType().is2D(),
 			clipsampler_, full, pidetector_, this );
     return true;
 }
@@ -730,15 +730,11 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
 void uiSEGYReadStarter::completeLoadDef( od_istream& strm )
 {
-    if ( !veryfirstscan_ )
+    if ( !veryfirstscan_ || !loaddef_.isRev0() )
 	return;
 
     veryfirstscan_ = false;
-    const od_stream::Pos firsttrcpos = strm.position();
-
-    //TODO do magic things to find byte positions
-
-    strm.setPosition( firsttrcpos );
+    loaddef_.findRev0Bytes( strm );
     infofld_->useLoadDef();
 }
 

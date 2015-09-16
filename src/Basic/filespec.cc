@@ -202,7 +202,10 @@ bool FileSpec::usePar( const IOPar& iop )
 
 void FileSpec::getReport( IOPar& iop ) const
 {
-    iop.set( sKey::FileName(), usrStr() );
+    BufferString usrstr = usrStr();
+    if ( usrstr.isEmpty() )
+	usrstr = fileName( 0 );
+    iop.set( sKey::FileName(), usrstr );
     const int nrfnms = fnames_.size();
     const bool hasmultinrs = !mIsUdf(nrs_.start);
     if ( nrfnms < 2 && !hasmultinrs )
