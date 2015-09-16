@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinegeom.h"
 #include "mousecursor.h"
 #include "settings.h"
+#include "uistrings.h"
 
 #include "visevent.h"
 #include "vishorizondisplay.h"
@@ -86,8 +87,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     }
 
     namenr_ = highestnamenr+1;
-    BufferString nm( "Random Line "); nm += namenr_;
-    setName( nm );
+    setName( uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
+					toUiString(namenr_)) );
 
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
@@ -202,7 +203,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->ref();
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
-    setName( rl_->name() );
+    setName( mToUiStringTodo(rl_->name()) );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids );

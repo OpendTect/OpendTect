@@ -25,7 +25,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     : uiDialog(p,Setup(tr("Arrow properties"),mNoDlgTitle,mTODOHelpKey))
     , propertyChange(this)
 {
-    setCancelText(0);
+    setCancelText(uiString::emptyString());
     typefld_ = new uiLabeledComboBox( this, uiStrings::sType() );
     typefld_->box()->addItems( arrowtypes );
     typefld_->box()->selectionChanged.notify(

@@ -253,6 +253,7 @@ public:
     static uiString sScene(int num=1)	{ return tr("Scene",0,1); }
     static uiString sScenes()		{ return sScene(mPlural); }
     static uiString sSec()		{ return tr("sec"); }
+    static uiString sSize()		{ return tr("Size"); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismic(int num);
     static uiString sSeismics()		{ return sSeismic(mPlural); }

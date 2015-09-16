@@ -536,7 +536,7 @@ bool Scene::isAnnotShown() const
 { return annot_->isOn(); }
 
 
-void Scene::setAnnotText( int dim, const char* txt )
+void Scene::setAnnotText( int dim, const uiString& txt )
 {
     if ( (dim==0 && SI().inlRange(true).width()) ||
 	 (dim==1 && SI().crlRange(true).width()) ||
@@ -1147,7 +1147,7 @@ void Scene::createTopBotImage( bool istop )
     if ( istop && !topimg_ )
     {
 	topimg_ = visBase::TopBotImage::create();
-	topimg_->setName( "TopImage" );
+	topimg_->setName( toUiString("TopImage") );
 	addUTMObject( topimg_ );
 	topimg_->turnOn( false );
     }
@@ -1155,7 +1155,7 @@ void Scene::createTopBotImage( bool istop )
     if ( !istop && !botimg_ )
     {
 	botimg_ = visBase::TopBotImage::create();
-	botimg_->setName( "BottomImage" );
+	botimg_->setName( toUiString("BottomImage") );
 	addUTMObject( botimg_ );
 	botimg_->turnOn( false );
     }

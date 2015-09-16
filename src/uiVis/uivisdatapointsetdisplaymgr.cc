@@ -72,12 +72,13 @@ class uiSetSizeDlg : public uiDialog
 { mODTextTranslationClass(uiSetSizeDlg);
 public:
 uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
-    : uiDialog( p, uiDialog::Setup("Set size of points", 0, mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Set size of points"),
+		mNoDlgTitle, mNoHelpKey) )
     , pointsetdisp_(disp)
 {
     setCtrlStyle( uiDialog::CloseOnly );
     const float fsz = (float)pointsetdisp_->getPointSize();
-    slider_ = new uiSlider( this, uiSlider::Setup("Size"), "Size" );
+    slider_ = new uiSlider( this, uiSlider::Setup(uiStrings::sSize()), "Size" );
     slider_->setInterval( StepInterval<float>(fsz-10.0f,
 							   fsz+10.0f, 1.0f) );
     slider_->setMinValue( 1 );
@@ -136,7 +137,7 @@ class uiCreateBodyDlg : public uiDialog
 { mODTextTranslationClass(uiCreateBodyDlg);
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiDialog(p,uiDialog::Setup("Body Creation",tr("Create new Body"),
+    : uiDialog(p,uiDialog::Setup(tr("Body Creation"),tr("Create new Body"),
 				 mNoHelpKey))
     , selfld_( 0 )
     , rgfld_( 0 )
@@ -150,7 +151,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
-	    selfld_->addItem( selgrpnms[0]->buf() );
+	    selfld_->addItem( mToUiStringTodo(selgrpnms[0]->buf()) );
 	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
@@ -197,7 +198,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
-	    selfld_->addItem( selgrpnms[0]->buf() );
+	    selfld_->addItem( mToUiStringTodo(selgrpnms[0]->buf()) );
 	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );

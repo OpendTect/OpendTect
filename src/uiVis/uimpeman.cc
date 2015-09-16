@@ -352,11 +352,11 @@ void uiMPEMan::seedClick( CallBacker* )
 	else if ( !tracker->is2D() && clickcatcher_->info().getObjLineName() )
 	    uiMSG().error( tr("3D tracking cannot handle picks on 2D lines.") );
 	else if ( randomdisp )
-	    uiMSG().error( emobj->getTypeStr(),
+	    uiMSG().error( emobj->getUserTypeStr(),
 			   tr("Tracking cannot handle picks on random lines."));
 	else if ( clickcatcher_->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher_->info().getObjCS().isEmpty() )
-	    uiMSG().error( emobj->getTypeStr(),
+	    uiMSG().error( emobj->getUserTypeStr(),
 			   tr("Tracking cannot handle picks on time slices.") );
 	mSeedClickReturn();
     }

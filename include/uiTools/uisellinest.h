@@ -32,7 +32,7 @@ public:
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const uiString& lbltxt=0 )
+			Setup( const uiString& lbltxt=uiString::emptyString() )
 			    // lbltxt null or "" => "Line style"
 			    // lbltxt "-" => no label
 			    : txt_(lbltxt)
@@ -49,22 +49,22 @@ public:
 
     };
 
-				uiSelLineStyle(uiParent*,const LineStyle&,
-					       const uiString& lbltxt=0);
-				uiSelLineStyle(uiParent*,const LineStyle&,
+			uiSelLineStyle(uiParent*,const LineStyle&,
+			 const uiString& lbltxt=uiString::emptyString());
+			uiSelLineStyle(uiParent*,const LineStyle&,
 					       const Setup&);
-				~uiSelLineStyle();
+			~uiSelLineStyle();
 
-    void			setStyle(const LineStyle&);
-    const LineStyle&		getStyle() const;
+    void		setStyle(const LineStyle&);
+    const LineStyle&	getStyle() const;
 
-    void			setColor(const Color&);
-    const Color&		getColor() const;
-    void			setWidth(int);
-    int				getWidth() const;
-    void			setLineWidthBounds( int min, int max );
-    void			setType(int);
-    int				getType() const;
+    void		setColor(const Color&);
+    const Color&	getColor() const;
+    void		setWidth(int);
+    int			getWidth() const;
+    void		setLineWidthBounds( int min, int max );
+    void		setType(int);
+    int			getType() const;
 
     Notifier<uiSelLineStyle>	changed;
 

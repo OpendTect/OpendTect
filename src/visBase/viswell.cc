@@ -102,7 +102,7 @@ Well::Well()
     {
 	displaytube_[idx]= false;
 	displaylog_[idx] = false;
-	lognames_ += BufferString();
+	lognames_ += uiString::emptyString();
     }
     markerset_->addPolygonOffsetNodeState();
 }

@@ -176,9 +176,10 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 
 
 struct uiScaleDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiScaleDlg);
+public:
 uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey )
-    : uiDialog(p,Setup("Set Annotation Scale",mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Set Annotation Scale"),mNoDlgTitle,mNoHelpKey))
 {
     rangefld_ = new uiSelSubvol( this, true, zdomkey );
     rangefld_->setSampling( scale );

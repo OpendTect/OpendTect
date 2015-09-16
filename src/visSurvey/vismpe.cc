@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
+#include "uistrings.h"
 
 #include "arrayndimpl.h"
 
@@ -1005,9 +1006,10 @@ void MPEDisplay::setSliceDimension( int sliceidx, int dim )
     if ( slices_.validIdx(sliceidx) && dim>=0 && dim<3 )
     {
 	slices_[sliceidx]->setDim( dim );
-	slices_[sliceidx]->setName( dim==cTimeSlice() ? sKeyTime() :
-				    dim==cCrossLine() ? sKeyCrossLine() :
-							sKeyInline() );
+	slices_[sliceidx]->setName( dim==cTimeSlice() ? uiStrings::sTime() :
+				    dim==cCrossLine()
+				    	? uiStrings::sCrossline()
+					: uiStrings::sInline() );
     }
 }
 

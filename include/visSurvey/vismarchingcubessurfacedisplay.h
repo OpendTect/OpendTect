@@ -32,7 +32,7 @@ namespace visSurvey
 
 mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(MarchingCubesDisplay);
 public:
 			    MarchingCubesDisplay();
 			    mDefaultFactoryInstantiation( 

@@ -110,7 +110,7 @@ void LocationDisplay::setSet( Pick::Set* ps )
     }
 
     set_ = ps;
-    setName( set_->name() );
+    setName( mToUiStringTodo(set_->name()) );
 
     if ( picksetmgr_ )
     {

@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
 
@@ -419,8 +420,10 @@ int VolumeDisplay::addSlice( int dim )
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
 
-    slice->setName( dim==cTimeSlice() ? sKeyTime() :
-		   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
+    slice->setName( dim==cTimeSlice() ? uiStrings::sTime() :
+		   (dim==cCrossLine()
+		    ? uiStrings::sCrossline()
+		    : uiStrings::sInline()) );
 
     addChild( slice->osgNode() );
     const TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
@@ -517,7 +520,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
 			 MarchingCubesSurface() );
     isosurface->setSurface( *surface, tr );
-    isosurface->setName( "Iso surface" );
+    isosurface->setName( toUiString("Iso surface") );
 
     isosurfaces_ += isosurface;
     IsosurfaceSetting setting;
