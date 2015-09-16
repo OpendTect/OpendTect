@@ -786,7 +786,17 @@ void uiAdvancedTextItem::stPos( float x, float y )
 	break;
     }
 
-    qtextitem_->setPos( x + boundrec.left(), y + boundrec.top() );
+    const QPointF p00 = qtextitem_->mapToParent( QPointF(0,0) );
+    const QPointF d01 = qtextitem_->mapToParent( QPointF(0,1) )-p00;
+    const QPointF d10 = qtextitem_->mapToParent( QPointF(1,0) )-p00;
+
+    const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
+    const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
+
+    const float xlin = x+mCast(float,boundrec.left())*xdist;
+    const float ylin = y+mCast(float,boundrec.top())*ydist;
+
+    uiGraphicsItem::stPos( xlin, ylin );
 }
 
 

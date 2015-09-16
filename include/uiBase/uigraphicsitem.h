@@ -119,6 +119,8 @@ protected:
     ObjectSet<uiGraphicsItem> children_;
     uiGraphicsItem*	parent_;
 
+    virtual void	stPos(float,float);
+
 private:
 
     void		updateTransform();
@@ -127,8 +129,6 @@ private:
     const int		id_;
 
     uiString		tooltip_;
-
-    virtual void	stPos(float,float);
 
     uiWorldPoint	translation_;
     uiWorldPoint	scale_;
