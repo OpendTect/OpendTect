@@ -133,8 +133,8 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 
 uiODViewer2DPosGrp::~uiODViewer2DPosGrp()
 {
-    delete posdatasel_;
     detachAllNotifiers();
+    delete posdatasel_;
 }
 
 

@@ -85,8 +85,8 @@ MPEDisplay::MPEDisplay()
 
 MPEDisplay::~MPEDisplay()
 {
-    setSceneEventCatcher( 0 );
     detachAllNotifiers();
+    setSceneEventCatcher( 0 );
 
     DPM( DataPackMgr::SeisID() ).release( cacheid_ );
     if ( volumecache_ )

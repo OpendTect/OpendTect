@@ -589,13 +589,13 @@ RandomTrackDragger::RandomTrackDragger()
 
 RandomTrackDragger::~RandomTrackDragger()
 {
+    detachAllNotifiers();
     deepErase( dragcontrols_ );
 
     panels_->unref();
     planedraggers_->unref();
     rotationaxis_->unref();
 
-    detachAllNotifiers();
     deepUnRef( draggers_ );
 
     while ( !planedraghandlers_.isEmpty() )

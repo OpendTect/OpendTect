@@ -224,6 +224,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 
 ui3DViewerBody::~ui3DViewerBody()
 {
+    detachAllNotifiers();
     delete &keybindman_;
 
     manipmessenger_->detach();
@@ -240,7 +241,6 @@ ui3DViewerBody::~ui3DViewerBody()
     viewport_->unref();
     offscreenrenderswitch_->unref();
     offscreenrenderhudswitch_->unref();
-    detachAllNotifiers();
 }
 
 #define mMainCameraOrder    0

@@ -131,6 +131,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 
 uiAttribPartServer::~uiAttribPartServer()
 {
+    detachAllNotifiers();
+
     delete attrsetdlg_;
 
     deepErase( attrxplotset_ );
@@ -140,7 +142,6 @@ uiAttribPartServer::~uiAttribPartServer()
     delete volattrdlg_;
     delete multiattrdlg_;
     delete dataattrdlg_;
-    detachAllNotifiers();
 }
 
 

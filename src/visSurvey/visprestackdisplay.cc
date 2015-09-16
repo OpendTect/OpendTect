@@ -96,8 +96,8 @@ PreStackDisplay::PreStackDisplay()
 
 PreStackDisplay::~PreStackDisplay()
 {
-    setSceneEventCatcher( 0 );
     detachAllNotifiers();
+    setSceneEventCatcher( 0 );
 
     flatviewer_->unRef();
 
