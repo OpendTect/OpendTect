@@ -206,67 +206,9 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 }
 
 
-bool SeisTrc::getWriteReady( SamplingData<float>& sampling, int& ns, bool inw )
+void SeisTrc::convertToFPs( bool pres )
 {
-    const float nz0 = sampling.start / sampling.step;
-    float newstart = sampling.step * mNINT32( nz0 );
-    if ( mIsEqual(sampling.start,newstart,1e-6) )
-	return false;
-
-    if ( inw && newstart < sampling.start )
-    {
-	if ( newstart < sampling.start )
-	    newstart += sampling.step;
-	ns--;
-    }
-    sampling.start = newstart;
-    return true;
-}
-
-
-bool SeisTrc::isWriteReady( const SamplingData<float>& sampling, int ns ) const
-{
-    if ( !mIsUdf(ns) && ns != size() )
-	return false;
-
-    if ( mIsUdf(sampling.start) )
-    {
-	// sampling start must be N * sample rate
-	const float nz0 = info_.sampling.start / info_.sampling.step;
-	const float intnz0 = (float)( mNINT32(nz0) );
-	return mIsEqual( nz0, intnz0, 0.0001 );
-    }
-
-    // sampling must be an almost exact match
-    const float dstart = info_.sampling.start - sampling.start;
-    const float dstep = info_.sampling.step - sampling.step;
-    return mIsZero(dstart,1e-6) && mIsZero(dstep,1e-8);
-}
-
-
-void SeisTrc::getWriteReady( SeisTrc& trc, SamplingData<float>& sampling,
-			     int& ns ) const
-{
-    if ( mIsUdf(ns) )
-	ns = size();
-    if ( mIsUdf(sampling.start) )
-    {
-	sampling = info_.sampling;
-	getWriteReady( sampling, ns, true );
-    }
-
-    trc = *this;
-    trc.info_.sampling = sampling;
-    trc.reSize( ns, false ); trc.zero();
-    const int nrcomps = nrComponents();
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
-    {
-	for ( int isamp=0; isamp<ns; isamp++ )
-	{
-	    const float z = sampling.atIndex( isamp );
-	    trc.set( isamp, getValue(z,icomp), icomp );
-	}
-    }
+    data_.convertToFPs( pres );
 }
 
 

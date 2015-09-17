@@ -32,15 +32,12 @@ static const char* rcsID mUsedVar = "$Id$";
     ? gidp_->geomID() \
     : (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID()))
 
-const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
-
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 	: SeisStoreAccess(ioob)
 	, auxpars_(*new IOPar)
 	, gidp_(l)
 	, worktrc_(*new SeisTrc)
-	, makewrready_(false)
 	, linedata_(0)
 {
     init();
@@ -52,7 +49,6 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	, auxpars_(*new IOPar)
 	, gidp_(0)
 	, worktrc_(*new SeisTrc)
-	, makewrready_(false)
 	, linedata_(0)
 {
     init();
@@ -317,27 +313,17 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
 
 
-bool SeisTrcWriter::put( const SeisTrc& intrc )
+bool SeisTrcWriter::put( const SeisTrc& trc )
 {
-    const SeisTrc* trc = &intrc;
-    if ( makewrready_ )
-    {
-	const bool isfirst = mIsUdf(firstns_);
-	if ( isfirst || !intrc.isWriteReady(firstsampling_,firstns_) )
-	{
-	    intrc.getWriteReady( worktrc_, firstsampling_, firstns_ );
-	    trc = &worktrc_;
-	}
-    }
-    if ( !prepared_ && !prepareWork(*trc) )
+    if ( !prepared_ && !prepareWork(trc) )
 	return false;
 
     nrtrcs_++;
     if ( seldata_ )
     {
-	BinID selbid = trc->info().binid;
+	BinID selbid = trc.info().binid;
 	if ( is2d_ )
-	    selbid = BinID( seldata_->inlRange().start, trc->info().nr );
+	    selbid = BinID( seldata_->inlRange().start, trc.info().nr );
 
 	if ( seldata_->selRes(selbid) )
 	    return true;
@@ -347,29 +333,29 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
     {
 	if ( !pswriter_ )
 	    return false;
-	if ( !pswriter_->put(*trc) )
+	if ( !pswriter_->put(trc) )
 	{
 	    errmsg_ = pswriter_->errMsg();
 	    return false;
 	}
 
-	if ( is2d_ && linedata_ && linedata_->indexOf(trc->info().nr) < 0 )
+	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().nr) < 0 )
 	{
-	    PosInfo::Line2DPos pos( trc->info().nr );
-	    pos.coord_ = trc->info().coord;
+	    PosInfo::Line2DPos pos( trc.info().nr );
+	    pos.coord_ = trc.info().coord;
 	    linedata_->add( pos );
 	}
     }
     else if ( is2d_ )
     {
-	if ( !put2D(*trc) )
+	if ( !put2D(trc) )
 	    return false;
     }
     else
     {
-	if ( !ensureRightConn(*trc,false) )
+	if ( !ensureRightConn(trc,false) )
 	    return false;
-	else if ( !strl()->write(*trc) )
+	else if ( !strl()->write(trc) )
 	{
 	    errmsg_ = strl()->errMsg();
 	    strl()->close(); delete trl_; trl_ = 0;
@@ -379,22 +365,6 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 
     nrwritten_++;
     return true;
-}
-
-
-void SeisTrcWriter::usePar( const IOPar& iop )
-{
-    SeisStoreAccess::usePar( iop );
-    bool wrbl = !makewrready_;
-    iop.getYN( sKeyWriteBluntly(), wrbl );
-    makewrready_ = !wrbl;
-}
-
-
-void SeisTrcWriter::fillPar( IOPar& iop ) const
-{
-    SeisStoreAccess::fillPar( iop );
-    iop.setYN( sKeyWriteBluntly(), !makewrready_ );
 }
 
 

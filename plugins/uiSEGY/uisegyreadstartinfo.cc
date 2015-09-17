@@ -108,7 +108,9 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     , ycoordbytefld_(0)
     , key1bytefld_(0)
     , key2bytefld_(0)
+    , psoffsrcfld_(0)
     , offsetbytefld_(0)
+    , offsgengrp_(0)
     , inptypfixed_(imptyp)
 {
     nrrows_ = mNrInfoRows;
@@ -148,14 +150,14 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
 }
 
 
-#   define mAddToTbl(fld,row) \
+#   define mAdd2Tbl(fld,row,col) \
     fld->setStretch( 2, 1 ); \
-    tbl_->setCellObject( RowCol(row,mUseCol), fld );
+    tbl_->setCellObject( RowCol(row,col), fld );
 
-#   define mRemoveFromTable(fld,row) { \
+#   define mRemoveFromTable(fld,row,col) { \
     if ( fld ) \
     { \
-	tbl_->clearCellObject( RowCol(row,mUseCol) ); \
+	tbl_->clearCellObject( RowCol(row,col) ); \
 	fld = 0; \
     } }
 
@@ -167,22 +169,22 @@ void uiSEGYReadStartInfo::mkCommonLoadDefFields()
     const char* revstrs[] = { "0", "1", "2", 0 };
     revfld_ = new uiComboBox( 0, revstrs, "Revision" );
     revfld_->selectionChanged.notify( mCB(this,uiSEGYReadStartInfo,revChg) );
-    mAddToTbl( revfld_, mRevRow );
+    mAdd2Tbl( revfld_, mRevRow, mUseCol );
 
     fmtfld_ = new uiComboBox( 0, SEGY::FilePars::getFmts(false), "Format" );
     fmtfld_->selectionChanged.notify( parchgcb );
-    mAddToTbl( fmtfld_, mDataFormatRow );
+    mAdd2Tbl( fmtfld_, mDataFormatRow, mUseCol );
 
     nsfld_ = new uiSpinBox( 0, 0, "Samples" );
     nsfld_->setInterval( 1, mMaxReasonableNS, 1 );
     nsfld_->valueChanged.notify( parchgcb );
-    mAddToTbl( nsfld_, mNrSamplesRow );
+    mAdd2Tbl( nsfld_, mNrSamplesRow, mUseCol );
 
     uiGroup* grp = new uiGroup( 0, "Z Range" );
     zstartfld_ = new uiLineEdit( grp, FloatInpSpec(0.f), "Z Start" );
     zstartfld_->editingFinished.notify( parchgcb );
     zstartfld_->setStretch( 2, 1 );
-    srfld_ = new uiLineEdit( grp, FloatInpSpec(0.f,0.f), "Z Interval" );
+    srfld_ = new uiLineEdit( grp, FloatInpSpec(1.f,0.f), "Z Interval" );
     srfld_->editingFinished.notify( parchgcb );
     srfld_->setStretch( 2, 1 );
     srfld_->attach( rightOf, zstartfld_ );
@@ -198,30 +200,30 @@ void uiSEGYReadStartInfo::manRev0Rows()
 
     if ( isVSP() || !isrev0 )
     {
-	mRemoveFromTable( xcoordbytefld_, mXRow )
-	mRemoveFromTable( ycoordbytefld_, mYRow )
-	mRemoveFromTable( key2bytefld_, mKey2Row )
+	mRemoveFromTable( xcoordbytefld_, mXRow, mUseCol )
+	mRemoveFromTable( ycoordbytefld_, mYRow, mUseCol )
+	mRemoveFromTable( key2bytefld_, mKey2Row, mUseCol )
     }
     else if ( !xcoordbytefld_ )
     {
 	xcoordbytefld_ = new uiSEGYByteNr( 0, "X-coord byte" );
 	xcoordbytefld_->selectionChanged.notify( parchgcb );
-	mAddToTbl( xcoordbytefld_, mXRow );
+	mAdd2Tbl( xcoordbytefld_, mXRow, mUseCol );
 	ycoordbytefld_ = new uiSEGYByteNr( 0, "Y-coord byte" );
 	ycoordbytefld_->selectionChanged.notify( parchgcb );
-	mAddToTbl( ycoordbytefld_, mYRow );
+	mAdd2Tbl( ycoordbytefld_, mYRow, mUseCol );
 	key2bytefld_ = new uiSEGYByteNr( 0, "Key2 byte" );
 	key2bytefld_->selectionChanged.notify( parchgcb );
-	mAddToTbl( key2bytefld_, mKey2Row );
+	mAdd2Tbl( key2bytefld_, mKey2Row, mUseCol );
     }
 
     if ( isVSP() || (!isrev0 && !Seis::is2D(gt)) )
-	mRemoveFromTable( key1bytefld_, mKey1Row )
+	mRemoveFromTable( key1bytefld_, mKey1Row, mUseCol )
     else if ( !key1bytefld_ )
     {
 	key1bytefld_ = new uiSEGYByteNr( 0, "Key1 byte" );
 	key1bytefld_->selectionChanged.notify( parchgcb );
-	mAddToTbl( key1bytefld_, mKey1Row );
+	mAdd2Tbl( key1bytefld_, mKey1Row, mUseCol );
     }
 }
 
@@ -230,15 +232,68 @@ void uiSEGYReadStartInfo::manPSRow()
     mGetGeomType( gt );
     mGetParChgCB( parchgcb );
 
+#define mRemoveOffsByteFld() \
+	mRemoveFromTable( offsetbytefld_, mPSRow, mUseCol )
+#define mRemoveOffsGenGrp() \
+	mRemoveFromTable( offsgengrp_, mPSRow, mUseCol ); \
+	offsgenstartfld_ = offsgenstepfld_ = 0
+
     if ( isVSP() || !Seis::isPS(gt) )
     {
-	mRemoveFromTable( offsetbytefld_, mPSRow )
+	mRemoveFromTable( psoffsrcfld_, mPSRow, mUseTxtCol );
+	mRemoveOffsByteFld();
+	mRemoveOffsGenGrp();
     }
-    else if ( !offsetbytefld_ )
+    else
     {
-	offsetbytefld_ = new uiSEGYByteNr( 0, "Offset byte" );
-	offsetbytefld_->selectionChanged.notify( parchgcb );
-	mAddToTbl( offsetbytefld_, mPSRow );
+	if ( !psoffsrcfld_ )
+	{
+	    psoffsrcfld_ = new uiComboBox( 0, "Offset source" );
+	    psoffsrcfld_->addItem( "In file" );
+	    psoffsrcfld_->addItem( "From Src/Rcv (X,Y)" );
+	    psoffsrcfld_->addItem( "Generate" );
+	    psoffsrcfld_->selectionChanged.notify( parchgcb );
+	    mAdd2Tbl( psoffsrcfld_, mPSRow, mUseTxtCol );
+	}
+	switch ( loaddef_.psoffssrc_ )
+	{
+	    case SEGY::FileReadOpts::InFile:
+	    {
+		mRemoveOffsGenGrp();
+		if ( !offsetbytefld_ )
+		{
+		    offsetbytefld_ = new uiSEGYByteNr( 0, "Offset byte" );
+		    offsetbytefld_->selectionChanged.notify( parchgcb );
+		    mAdd2Tbl( offsetbytefld_, mPSRow, mUseCol );
+		}
+	    }
+	    break;
+	    case SEGY::FileReadOpts::UsrDef:
+	    {
+		mRemoveOffsByteFld();
+		if ( !offsgengrp_ )
+		{
+		    offsgengrp_ = new uiGroup( 0, "Offset Generation" );
+		    offsgenstartfld_ = new uiLineEdit( offsgengrp_,
+			    FloatInpSpec(0.f), "Offset Start" );
+		    offsgenstartfld_->editingFinished.notify( parchgcb );
+		    offsgenstartfld_->setStretch( 2, 1 );
+		    offsgenstepfld_ = new uiLineEdit( offsgengrp_,
+			    FloatInpSpec(100.f,0.f), "Offset Step" );
+		    offsgenstepfld_->editingFinished.notify( parchgcb );
+		    offsgenstepfld_->setStretch( 2, 1 );
+		    offsgenstepfld_->attach( rightOf, offsgenstartfld_ );
+		    tbl_->setCellGroup( RowCol(mPSRow,mUseCol), offsgengrp_ );
+		}
+	    }
+	    break;
+	    case SEGY::FileReadOpts::SrcRcvCoords:
+	    {
+		mRemoveOffsByteFld();
+		mRemoveOffsGenGrp();
+	    }
+	    break;
+	}
     }
 }
 
@@ -252,9 +307,9 @@ void uiSEGYReadStartInfo::updateCellTexts()
     const char* xittxt; const char* yittxt;
     const char* ky1ittxt; const char* ky2ittxt; const char* offsittxt;
     const char* xustxt; const char* yustxt;
-    const char* ky1ustxt; const char* ky2ustxt; const char* offsustxt;
+    const char* ky1ustxt; const char* ky2ustxt;
     xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt =
-    xustxt = yustxt = ky1ustxt = ky2ustxt = offsustxt = "";
+    xustxt = yustxt = ky1ustxt = ky2ustxt = "";
     const char* nrtrcsusrtxt = "";
     if ( isVSP() )
 	nrtrcsusrtxt = "(1 trace used)";
@@ -264,7 +319,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	ky1ittxt = is2d ? "Trace number range" : "Inline range";
 	ky2ittxt = is2d ? "Ref/SP number range" : "Crossline range";
 	if ( isps )
-	    { offsittxt = "Offset range"; offsustxt = sBytePos; }
+	    offsittxt = "Offset range";
 
 	if ( loaddef_.isRev0() )
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
@@ -289,8 +344,6 @@ void uiSEGYReadStartInfo::updateCellTexts()
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
     setCellTxt( mUseTxtCol, mXRow, xustxt );
     setCellTxt( mUseTxtCol, mYRow, yustxt );
-    if ( mHavePSRow )
-	setCellTxt( mUseTxtCol, mPSRow, offsustxt );
 }
 
 
@@ -445,7 +498,6 @@ void uiSEGYReadStartInfo::useLoadDef()
 
     mSetToByteNr( xcoordbytefld_, xcoord_  );
     mSetToByteNr( ycoordbytefld_, ycoord_  );
-    mSetToByteNr( offsetbytefld_, offs_  );
 
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
@@ -457,6 +509,17 @@ void uiSEGYReadStartInfo::useLoadDef()
     {
 	mSetToByteNr( key1bytefld_, inl_  );
 	mSetToByteNr( key2bytefld_, crl_  );
+    }
+
+    if ( Seis::isPS(gt) )
+    {
+	psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
+	mSetToByteNr( offsetbytefld_, offs_  );
+	if ( offsgengrp_ )
+	{
+	    offsgenstartfld_->setValue( loaddef_.psoffsdef_.start );
+	    offsgenstepfld_->setValue( loaddef_.psoffsdef_.step );
+	}
     }
 
     parsbeingset_ = false;
@@ -479,7 +542,6 @@ void uiSEGYReadStartInfo::fillLoadDef()
 
     mSetByteNr( xcoordbytefld_, xcoord_  );
     mSetByteNr( ycoordbytefld_, ycoord_  );
-    mSetByteNr( offsetbytefld_, offs_  );
 
     if ( Seis::is2D(imptype_.geomType()) )
     {
@@ -490,5 +552,17 @@ void uiSEGYReadStartInfo::fillLoadDef()
     {
 	mSetByteNr( key1bytefld_, inl_  );
 	mSetByteNr( key2bytefld_, crl_  );
+    }
+
+    if ( Seis::isPS(imptype_.geomType()) )
+    {
+	loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
+				    psoffsrcfld_->currentItem();
+	mSetByteNr( offsetbytefld_, offs_  );
+	if ( offsgengrp_ )
+	{
+	    loaddef_.psoffsdef_.start = offsgenstartfld_->getFValue();
+	    loaddef_.psoffsdef_.step = offsgenstepfld_->getFValue();
+	}
     }
 }

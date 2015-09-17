@@ -57,7 +57,11 @@ protected:
     uiSEGYByteNr*	ycoordbytefld_;
     uiSEGYByteNr*	key1bytefld_;
     uiSEGYByteNr*	key2bytefld_;
+    uiComboBox*		psoffsrcfld_;
     uiSEGYByteNr*	offsetbytefld_;
+    uiGroup*		offsgengrp_;
+    uiLineEdit*		offsgenstartfld_;
+    uiLineEdit*		offsgenstepfld_;
 
     SEGY::LoadDef&	loaddef_;
     SEGY::ImpType	imptype_;
