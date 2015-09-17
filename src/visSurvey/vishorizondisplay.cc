@@ -1604,7 +1604,7 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		    continue;
 		}
 	    }
-	    else if ( idxps.size()>1 )
+	    else if ( idxps.size()>0 )
 	    {
 		mAddLinePrimitiveSet;
 		idxps.erase();
