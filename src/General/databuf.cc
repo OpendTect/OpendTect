@@ -192,6 +192,38 @@ void TraceData::copyFrom( const TraceData& td, int icfrom, int icto )
 }
 
 
+void TraceData::convertToFPs( bool pres )
+{
+    bool allfloat = true;
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+    {
+	const TraceDataInterpreter* di = getInterpreter( icomp );
+	if ( di && (di->nrBytes() < 4 || di->dataChar().isInteger()) )
+	    { allfloat = false; break; }
+    }
+    if ( allfloat )
+	return;
+
+    const int sz = size();
+    TraceData oldtd( *this );
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	setComponent( DataCharacteristics(), icomp );
+    reSize( sz );
+
+    if ( pres )
+    {
+	for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const float val = oldtd.getValue( idx, icomp );
+		setValue( idx, val, icomp );
+	    }
+	}
+    }
+}
+
+
 bool TraceData::isValidComp( int icomp ) const 
 {
     return ( icomp>=0 && icomp<nrcomp_ && data_[icomp]->isOk() );
@@ -291,7 +323,11 @@ void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 
 void TraceData::scale( const Scaler& sclr, int compnr )
 {
-    if ( compnr < -1 || compnr >= nrcomp_ ) return;
+    if ( sclr.isEmpty() || compnr < -1 || compnr >= nrcomp_ )
+	return;
+
+    convertToFPs( true );
+
     const int endcomp = compnr < 0 ? nrcomp_-1 : compnr;
     for ( int icomp=(compnr>=0?compnr:0); icomp<=endcomp; icomp++ )
     {
@@ -299,7 +335,7 @@ void TraceData::scale( const Scaler& sclr, int compnr )
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    float val = getValue( isamp, icomp );
-	    setValue( isamp, ( float ) sclr.scale(val), icomp );
+	    setValue( isamp, (float)sclr.scale(val), icomp );
 	}
     }
 }

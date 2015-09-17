@@ -57,7 +57,11 @@ protected:
     uiSEGYByteNr*	ycoordbytefld_;
     uiSEGYByteNr*	key1bytefld_;
     uiSEGYByteNr*	key2bytefld_;
+    uiComboBox*		psoffsrcfld_;
     uiSEGYByteNr*	offsetbytefld_;
+    uiGroup*		offsgengrp_;
+    uiLineEdit*		offsgenstartfld_;
+    uiLineEdit*		offsgenstepfld_;
 
     SEGY::LoadDef&	loaddef_;
     SEGY::ImpType	imptype_;
@@ -72,13 +76,17 @@ protected:
     BufferString	refnrinfotxt_;
     BufferString	offsetinfotxt_;
 
+    void		mkCommonLoadDefFields();
+    void		manRev0Rows();
+    void		manPSRow();
+    void		updateCellTexts();
+    void		showRelevantInfo();
+
+    bool		isVSP() const		{ return imptype_.isVSP(); }
+    void		setCellTxt(int col,int row,const char*);
+
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);
-
-    void		mkCommonLoadDefFields();
-    void		manSpecificLoadDefFields();
-    void		showRelevantInfo();
-    void		setCellTxt(int col,int row,const char*);
 
 };
 

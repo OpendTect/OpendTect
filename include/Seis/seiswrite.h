@@ -60,8 +60,6 @@ public:
     bool		isMultiConn() const;
     IOPar&		auxPars()			{ return auxpars_; }
 
-    void		writeBluntly( bool yn=true )	{ makewrready_ = !yn; }
-
     Seis2DLinePutter*	linePutter()			{ return putter_; }
     const Seis2DLinePutter* linePutter() const		{ return putter_; }
 
@@ -78,10 +76,6 @@ public:
 				//!< if set, overrules attrib in linekey
     void		setDataType( const char* dt )	{ datatype_ = dt; }
 
-    static const char*	sKeyWriteBluntly();
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-
     void		setCrFrom( const char* str )	{ crfrom_ = str; }
     void		setCrUserInfo( const char* str ) { crusrinfo_ = str; }
 
@@ -91,7 +85,6 @@ protected:
     int			nrtrcs_;
     int			nrwritten_;
     SeisTrc&		worktrc_;
-    bool		makewrready_;
     int			firstns_;
     SamplingData<float>	firstsampling_;
     IOPar&		auxpars_;

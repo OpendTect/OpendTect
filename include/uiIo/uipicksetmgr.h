@@ -28,6 +28,7 @@ mExpClass(uiIo) uiPickSetMgr : public CallBacker
 { mODTextTranslationClass(uiPickSetMgr);
 public:
 			uiPickSetMgr(uiParent*,Pick::SetMgr&);
+			~uiPickSetMgr();
 
     bool		storeSets();	//!< Stores all changed sets
     bool		storeSet(const Pick::Set&);

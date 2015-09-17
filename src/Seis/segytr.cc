@@ -810,6 +810,7 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
 
     if ( curtrcscale_ )
     {
+	trc.convertToFPs();
 	const int tsz = trc.size();
 	for ( int idx=0; idx<tsz; idx++ )
 	    trc.set( idx, (float)curtrcscale_->scale(trc.get(idx,curcomp)),
