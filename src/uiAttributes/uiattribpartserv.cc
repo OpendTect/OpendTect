@@ -87,7 +87,7 @@ static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
     if ( is2d )
 	menutext = issteering ? "Steering 2D Data" : "Stored 2D Data";
     else
-	menutext = issteering ? "SteeringCubes" : "Stored Cubes";
+	menutext = issteering ? "Steering Cubes" : "Stored Cubes";
 
     if ( endmenu ) menutext.add( " ..." );
 
@@ -1089,17 +1089,26 @@ bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod,
 }
 
 
-#define mInsertItems(list,mnu,correcttype) \
-(mnu)->removeItems(); \
-(mnu)->enabled = attrinf.list.size(); \
-for ( int idx=start; idx<stop; idx++ ) \
-{ \
-    const BufferString& nm = attrinf.list.get(idx); \
-    MenuItem* itm = new MenuItem( nm ); \
-    itm->checkable = true; \
-    const bool docheck = correcttype && nm == as.userRef(); \
-    mAddMenuItem( mnu, itm, true, docheck );\
-    if ( docheck ) (mnu)->checked = true; \
+static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
+	const BufferStringSet* ids, const char* cursel,
+	int start, int stop, bool correcttype )
+{
+    mnu.removeItems();
+    mnu.enabled = !nms.isEmpty();
+    bool checkparent = false;
+    for ( int idx=start; idx<stop; idx++ )
+    {
+	const BufferString& nm = nms.get( idx );
+	MenuItem* itm = new MenuItem( nm );
+	itm->checkable = true;
+	if ( ids && Seis::PLDM().isPresent(MultiID(ids->get(idx))) )
+	    itm->iconfnm = "preloaded";
+	const bool docheck = correcttype && nm == cursel;
+	if ( docheck ) checkparent = true;
+	mAddMenuItem( &mnu, itm, true, docheck );
+    }
+
+    if ( checkparent ) mnu.checked = true;
 }
 
 
@@ -1141,9 +1150,11 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     {
 	const int start = 0; const int stop = nritems;
 	if ( issteer )
-	{ mInsertItems(steernms_,mnu,isstored); }
+	    insertItems( *mnu, attrinf.steernms_, &attrinf.steerids_,
+			 as.userRef(), start, stop, isstored );
 	else
-	{ mInsertItems(ioobjnms_,mnu,isstored); }
+	    insertItems( *mnu, attrinf.ioobjnms_, &attrinf.ioobjids_,
+			 as.userRef(), start, stop, isstored );
     }
 
     menu->text = getMenuText( is2d, issteer, nritems>cMaxMenuSize );
@@ -1172,9 +1183,11 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	    SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
 			     DescID::undef() );
 	    if ( issteer )
-	    { mInsertItems(steernms_,submnu,correcttype); }
+		insertItems( *submnu, attrinf.steernms_, &attrinf.steerids_,
+			     as.userRef(), start, stop, correcttype );
 	    else
-	    { mInsertItems(ioobjnms_,submnu,correcttype); }
+		insertItems( *submnu, attrinf.ioobjnms_, &attrinf.ioobjids_,
+			     as.userRef(), start, stop, correcttype );
 
 	MenuItem* storedmnuitem = is2d ? issteer ? &steering2dmnuitem_
 						 : &stored2dmnuitem_
@@ -1194,10 +1207,11 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
     const int start = 0; const int stop = attrinf.attrnms_.size();
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     uiString txt = useext ? ( is2d ? tr("Attributes 2D")
-                                   : tr("Attributes 3D") )
-				   : uiStrings::sAttributes();
+				   : tr("Attributes 3D") )
+			  : uiStrings::sAttributes();
     calcmnuitem->text = txt;
-    mInsertItems(attrnms_,calcmnuitem,isattrib);
+    insertItems( *calcmnuitem, attrinf.attrnms_, 0, as.userRef(),
+		 start, stop, isattrib );
 
     calcmnuitem->enabled = calcmnuitem->nrItems();
     return calcmnuitem;
@@ -1223,7 +1237,8 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 	SelInfo attrinf( dset, nlamodel, is2d );
 	const bool isnla = as.isNLA();
 	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
-	mInsertItems(nlaoutnms_,nlamnuitem,isnla);
+	insertItems( *nlamnuitem, attrinf.nlaoutnms_, 0, as.userRef(),
+		     start, stop, isnla );
     }
 
     nlamnuitem->enabled = nlamnuitem->nrItems();
