@@ -43,10 +43,10 @@ const char* Seis2DTo3D::sKeyPow()	{ return "Operator decay"; }
 const char* Seis2DTo3D::sKeyTaper()	{ return "Operator taper"; }
 const char* Seis2DTo3D::sKeySmrtScale() { return "Smart scaling"; }
 
-Seis2DTo3D::Seis2DTo3D( od_ostream& strm, TaskRunner* tr)
+Seis2DTo3D::Seis2DTo3D( od_ostream& strm, TaskRunner* taskr )
     : Executor("Generating a 3D cube from a 2DDataSet")
     , strm_(strm)
-    , tr_(tr)
+    , tr_(taskr)
     , inioobj_(0)
     , outioobj_(0)
     , tkzs_(true)
