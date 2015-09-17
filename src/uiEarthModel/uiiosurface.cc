@@ -287,8 +287,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
 	mkObjFld( uiStrings::phrOutput(uiStrings::sFaultStickSet()) );
     else
-	mkObjFld( uiStrings::phrOutput(uiStrings::sBody()) );
-
+	mkObjFld( uiStrings::phrOutput(setup.typname_) );
 
     if ( rgfld_ )
 	objfld_->attach( alignedBelow, rgfld_ );
