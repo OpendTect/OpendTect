@@ -72,13 +72,17 @@ protected:
     BufferString	refnrinfotxt_;
     BufferString	offsetinfotxt_;
 
+    void		mkCommonLoadDefFields();
+    void		manRev0Rows();
+    void		manPSRow();
+    void		updateCellTexts();
+    void		showRelevantInfo();
+
+    bool		isVSP() const		{ return imptype_.isVSP(); }
+    void		setCellTxt(int col,int row,const char*);
+
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);
-
-    void		mkCommonLoadDefFields();
-    void		manSpecificLoadDefFields();
-    void		showRelevantInfo();
-    void		setCellTxt(int col,int row,const char*);
 
 };
 
