@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "seisbuf.h"
 #include "uistring.h"
+#include "od_ostream.h"
 
 class IOObj;
 class Seis2DDataSet;
@@ -29,13 +30,15 @@ class SeisScaler;
 class SeisTrc;
 class SeisTrcWriter;
 class SeisTrcBuf;
+class od_ostream;
+
 
 
 mExpClass(Seis) Seis2DTo3D : public Executor
 { mODTextTranslationClass(Seis2DTo3D)
 public:
 
-			Seis2DTo3D();
+			Seis2DTo3D( od_ostream&, TaskRunner* );
 			~Seis2DTo3D();
 
     uiString		uiMessage() const
@@ -78,9 +81,11 @@ protected:
     bool		read();
 
     //everything below added by Dirk
-    Array3DImpl<float_complex>*		trcarr_;
-    Array3DImpl<float_complex>*		butterfly_;
-    Array3DImpl<float_complex>*		geom_;
+    Array3D<float_complex>*		trcarr_;
+    Array3D<float_complex>*		butterfly_;
+    Array3D<float_complex>*		geom_;
+
+    od_ostream&		strm_;
 
     Fourier::CC*	fft_;
 
@@ -88,6 +93,8 @@ protected:
 
     float		rmsmax_;
     float		pow_;
+    TaskRunner*		tr_;
+
     float		taperangle_;
     bool		readData();
     void		readInputCube(const int szfastx,

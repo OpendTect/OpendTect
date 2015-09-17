@@ -40,7 +40,6 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 
     inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
 			     sssu );
-
     powfld_ = new uiGenInput( this, tr("Operator decay"));
     powfld_->attach( alignedBelow , inpfld_);
     powfld_->setValue(2);

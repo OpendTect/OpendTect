@@ -117,7 +117,9 @@ bool BatchProgram::go( od_ostream& strm )
 	mRetJobErr("Cannot find necessary information in parameter file")
 
     TextStreamProgressMeter progressmeter(strm);
-    proc = new Seis2DTo3D;
+    TextTaskRunner taskr( strm );
+
+    proc = new Seis2DTo3D( strm, &taskr);
     if ( !proc->init(pars()) )
 	mRetJobErr("Invalid set of input parameters")
 
@@ -154,7 +156,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    {
 		strm << od_newline << "Number of components";
 		strm << " to be processed: " << proc->totalNr() << od_newline;
-		strm << "Loading data ..." << od_endl;
+		strm << "Computing results ..." << od_endl;
 		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 
