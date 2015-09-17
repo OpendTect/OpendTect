@@ -150,40 +150,32 @@ CallBacker::CallBacker( const CallBacker& )
 
 CallBacker::~CallBacker()
 {
-    if ( attachednotifiers_.size() )
+#ifndef OD_NO_QT
+    QEventLoopReceiver* rec = getQELR();
+    if ( attachednotifiers_.size() || rec->isPresent(this) )
     {
-	pErrMsg("Notifiers not detached.");
+	pErrMsg("Notifiers not disconnected.");
 	/* Notifiers should be removed in the class where they were attached,
 	   normally by calling detachAllNotifiers in the destructor of that
 	   class.
 	   If not done, they may still get callbacks after the destuctor
 	   is called, but before this destructor is called.
+
+	   If you end up here, go up in the debugger and find the destructor
+	   where you should insert detachAllNotifiers().
 	 */
 
 	//Remove them now.
 	detachAllNotifiers();
     }
-#ifndef OD_NO_QT
-# ifdef __debug__
-    QEventLoopReceiver* rec = getQELR();
-    if ( rec->isPresent(this) )
-    {
-        CallBack::removeFromMainThread( this );
-
-        pErrMsg("Main thread execution not removed");
-        /* The inhetriting class (probably a ui-class) has called
-           the execute in main-thread functionality. If so,
-           you have to call the removeFromMainThread. */
-    }
-# else
-    CallBack::removeFromMainThread( this );		
-# endif
 #endif
 }
 
 
 void CallBacker::detachAllNotifiers()
 {
+    CallBack::removeFromMainThread( this );
+
     /*Avoid deadlocks (will happen if one thread deletes the notifier while
      the other thread deletes the callbacker at the same time) by using
      try-locks and retry after releasing own lock. */

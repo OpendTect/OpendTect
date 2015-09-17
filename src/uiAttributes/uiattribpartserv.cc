@@ -128,13 +128,14 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 
 uiAttribPartServer::~uiAttribPartServer()
 {
+    detachAllNotifiers();
+
     delete attrsetdlg_;
 
     deepErase( attrxplotset_ );
     delete &eDSHolder();
     delete manattribsetdlg_;
     delete impattrsetdlg_;
-    detachAllNotifiers();
 }
 
 

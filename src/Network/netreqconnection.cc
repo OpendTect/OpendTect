@@ -80,6 +80,8 @@ RequestConnection::RequestConnection( Network::Socket* sock )
 
 RequestConnection::~RequestConnection()
 {
+    detachAllNotifiers();
+
     if ( socketthread_ )
     {
 	lock_.lock();
@@ -94,8 +96,6 @@ RequestConnection::~RequestConnection()
     {
 	deleteAndZeroPtr( socket_, ownssocket_ );
     }
-
-    detachAllNotifiers();
 
     deepErase( receivedpackets_ );
 }

@@ -459,8 +459,8 @@ void uiMultiWellLogSel::onFinalise( CallBacker* )
 
 uiMultiWellLogSel::~uiMultiWellLogSel()
 {
-    deepErase( wellobjs_ );
     detachAllNotifiers();
+    deepErase( wellobjs_ );
 }
 
 

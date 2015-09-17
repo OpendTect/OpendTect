@@ -108,8 +108,8 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
 uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 {
-    if ( horizon_ ) horizon_->unRef();
     detachAllNotifiers();
+    if ( horizon_ ) horizon_->unRef();
 }
 
 
