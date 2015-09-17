@@ -16,14 +16,14 @@ ________________________________________________________________________
 #include "uigraphicsitem.h"
 
 class uiRectItem;
-class uiTextItem;
+class uiAdvancedTextItem;
 class SurveyInfo;
 
 /*!
 \brief It adds a graphic scale made from polygons
 */
 
-mExpClass(uiBase) uiScaleBarItem : public uiGraphicsItemGroup
+mExpClass(uiBase) uiScaleBarItem : public uiGraphicsItem
 {
 public:
 			uiScaleBarItem(int pxwidth=100,int pxheight=6);
@@ -49,9 +49,9 @@ protected:
     uiRectItem*		lowerright_;
     uiRectItem*		lowermid_;
     uiRectItem*		lowerleft_;
-    uiTextItem*		startnr_;
-    uiTextItem*		midnr_;
-    uiTextItem*		stopnr_;
+    uiAdvancedTextItem*	startnr_;
+    uiAdvancedTextItem*	midnr_;
+    uiAdvancedTextItem*	stopnr_;
 
 private:
     void		initDefaultScale();
