@@ -48,7 +48,7 @@ EMObject::EMObject( EMManager& emm )
     , selremoving_( false )
     , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
     , preferredmarkerstyle_(
-	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::White()))
+	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::Green()))
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
