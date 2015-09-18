@@ -41,6 +41,9 @@ public:
     virtual void	setMessage(const uiString&)	{}
 
     virtual void	operator++()			= 0;
+
+			/*!Force to skip progress info. */
+    virtual void	skipProgress(bool yn)		{}
 };
 
 
@@ -64,6 +67,9 @@ public:
     void		setTotalNr(od_int64 t)		{ totalnr_ = t; }
     void		setMessage(const uiString&);
 
+			/*!<This setting will not reset unless you call it.*/
+    void		skipProgress(bool yn)		{ skipprog_ = yn; }
+
     void		operator++();
     od_int64		nrDone() const			{ return nrdone_; }
 
@@ -80,14 +86,15 @@ protected:
     od_int64		nrdone_;
     od_int64		lastannotatednrdone_;
     od_int64		totalnr_;
-    int 		oldtime_; 
-    int 		nrdotsonline_; 
+    int			oldtime_;
+    int			nrdotsonline_;
     bool		inited_;
     bool		finished_;
     Threads::Lock	lock_;
+    bool		skipprog_;
 
     void		annotate(bool);
-}; 
+};
 
 
 #endif

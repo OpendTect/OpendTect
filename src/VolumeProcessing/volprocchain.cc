@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 
 #include "bufstring.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "simpnumer.h"
 #include "keystrs.h"
@@ -28,7 +30,7 @@ class BinIDWiseTask : public ParallelTask
 { mODTextTranslationClass(BinIDWiseTask);
 public:
 		BinIDWiseTask( Step& ro )
-		    : step_( ro ), totalnr_( -1 )	{}
+		    : step_( ro ), totalnr_( -1 ) { setName(ro.userName()); }
 
     uiString	uiMessage() const	{ return errmsg_; }
     uiString	uiNrDoneText() const	{ return tr("Positions done"); }
@@ -109,6 +111,7 @@ ChainExecutor::ChainExecutor( Chain& vr )
     , totalnrepochs_( 1 )
     , curepoch_( 0 )
 {
+    setName( vr.name().getFullString() );
     web_ = chain_.getWeb();
     //Todo: Optimize connections, check for indentical steps using same inputs
 }
@@ -412,7 +415,9 @@ int ChainExecutor::nextStep()
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
+    progressmeter_->skipProgress( false );
     curtask.setProgressMeter( progressmeter_ );
+
     curtask.enableWorkControl( true );
 
     //curtasklock_.unLock();
@@ -422,6 +427,8 @@ int ChainExecutor::nextStep()
 
     if ( epochs_.isEmpty() )		//we just executed the last one
 	outputvolume_ = curepoch_->getOutput();
+
+    progressmeter_->skipProgress( true );
 
     return epochs_.isEmpty() ? Finished() : MoreToDo();
 }
@@ -462,7 +469,7 @@ od_int64 ChainExecutor::nrDone() const
     //Threads::Locker lckr( curtasklock_ );
     const float percentperepoch = 100.f/totalnrepochs_;
     const int epochsdone =
-	epochs_.isEmpty() ? 0 : totalnrepochs_-(epochs_.size()-1);
+	epochs_.isEmpty() ? 0 : totalnrepochs_-epochs_.size();
     float percentagedone = percentperepoch*epochsdone;
 
     if ( curepoch_ )
@@ -871,6 +878,14 @@ bool Chain::usePar( const IOPar& par )
 
 void Chain::setStorageID( const MultiID& mid )
 { storageid_ = mid; }
+
+
+uiString Chain::name() const
+{
+    PtrMan<IOObj>  ioobj = IOM().get( storageid_ );
+    return !ioobj ? uiString::emptyString() :
+	tr("Executing volume builder chain \'%1\'").arg(ioobj->name());
+}
 
 
 bool Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )

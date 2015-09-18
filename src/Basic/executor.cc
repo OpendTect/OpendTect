@@ -41,6 +41,7 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	*strm << GetProjectVersionName() << "\n\n";
 
     TextStreamProgressMeter progressmeter( *strm );
+    progressmeter.setName( name() );
     setProgressMeter( &progressmeter );
 
     bool res = SequentialTask::execute();
