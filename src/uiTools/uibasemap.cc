@@ -40,6 +40,13 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 
 uiBaseMapObject::~uiBaseMapObject()
 {
+    if ( bmobject_ )
+    {
+	bmobject_->changed.remove( mCB(this,uiBaseMapObject,changedCB) );
+	bmobject_->stylechanged.remove(
+		    mCB(this,uiBaseMapObject,changedStyleCB) );
+    }
+
     delete &graphitem_;
 }
 
