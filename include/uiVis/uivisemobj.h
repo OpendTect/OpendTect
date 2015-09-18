@@ -98,7 +98,7 @@ public:
 				uiHorizonSettings,
 				uiParent*,Settings&,
 				"Horizons",
-				sFactoryKeyword())
+				toUiString(sFactoryKeyword()))
 
 			uiHorizonSettings(uiParent*,Settings&);
     bool		acceptOK();

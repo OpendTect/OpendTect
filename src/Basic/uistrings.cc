@@ -217,23 +217,9 @@ uiString uiStrings::sFault( int num )
 uiString uiStrings::sFaultStickSet( int num )
 { return tr( "Fault Stick Set", 0, num ); }
 
-uiString uiStrings::sFrequency(bool smallcase, bool plural)
-{ 
-    if ( smallcase )
-    {
-	if( plural )
-	    return tr("frequencies");
-	
-	else
-	    return tr("frequency");
-    }
-    else
-    {
-	if( plural )
-	    return tr("Frequencies");
-	else
-	    return tr("Frequency");
-    }
+uiString uiStrings::sFrequency( int num )
+{
+    return tr( "Frequency", 0, num );
 }
 
 uiString uiStrings::sHelp()
@@ -250,6 +236,12 @@ uiString uiStrings::sImport()
 
 uiString uiStrings::sInput()
 { return tr("Input"); }
+
+uiString uiStrings::sInputFile()
+{ return phrInput( sFile().toLower() ); }
+
+uiString uiStrings::sInputSelection()
+{ return phrInput( sSelection().toLower() ); }
 
 uiString uiStrings::sInputASCIIFile()
 { return phrInput( phrASCII( sFile() )); }
@@ -282,6 +274,9 @@ uiString uiStrings::sOpen()
 
 uiString uiStrings::sOptions()
 { return tr("Options"); }
+
+uiString uiStrings::sOutputSelection()
+{ return phrOutput(sSelection().toLower()); }
 
 uiString uiStrings::sOutputASCIIFile()
 { return phrOutput( phrASCII( sFile() )); }
@@ -325,8 +320,8 @@ uiString uiStrings::sSelect()
 uiString uiStrings::sSelOutpFile()
 { return tr("Please select output file"); }
 
-uiString uiStrings::sSelection(bool smallletters)
-{ return smallletters ? tr("selection") : tr("Selection"); }
+uiString uiStrings::sSelection()
+{ return tr("Selection"); }
 
 uiString uiStrings::sSetting( int num )
 { return tr("Setting", 0, num ); }
@@ -346,24 +341,8 @@ uiString uiStrings::sTrack()
 uiString uiStrings::sVolume()
 { return tr("Volume"); }
 
-uiString uiStrings::sWaveNumber(bool smallcase, bool plural)
-{ 
-    if ( smallcase )
-    {
-	if( plural )
-	    return tr("wavenumbers");
-	
-	else
-	    return tr("wavenumber");
-    }
-    else
-    {
-	if( plural )
-	    return tr("Wavenumbers");
-	else
-	    return tr("Wavenumber");
-    }
-}
+uiString uiStrings::sWaveNumber( int num )
+{ return tr("Wavenumber", 0, num ); }
 
 uiString uiStrings::sWavelet( int num )
 { return tr("Wavelet", 0, num ); }
@@ -382,6 +361,9 @@ uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 	    ? abb ? tr("ft") : tr("feet" )
 	    : abb ? tr("m") : tr("meter");
 }
+
+uiString uiStrings::sTimeUnitString( bool abb )
+{ return abb ? tr( "s" ) : uiStrings::sSec(); }
 
 uiString uiStrings::sZRange()
 { return tr("Z Range"); }

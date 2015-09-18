@@ -239,9 +239,9 @@ bool uiDirLightDlg::updateSceneSelector()
 	return false;
     }
 
-    BufferStringSet scenenms;
+    uiStringSet scenenms;
     if ( initinfo_.size()>1 )
-	scenenms.add( "All" );
+	scenenms.add( uiStrings::sAll() );
 
     for ( int idx=0; idx<initinfo_.size(); idx++ )
     {

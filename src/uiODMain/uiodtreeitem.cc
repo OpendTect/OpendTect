@@ -261,7 +261,7 @@ void uiODTreeTop::addFactoryCB( CallBacker* cb )
 	    continue;
 
 	PtrMan<uiTreeItem> itm = tfs->getFactory(idx)->create();
-	itmbefore = findChild( itm->name() );
+	itmbefore = findChild( itm->name().getFullString() );
 	break;
     }
 
@@ -276,7 +276,7 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
-    const uiTreeItem* child = findChild( dummy->name() );
+    const uiTreeItem* child = findChild( dummy->name().getFullString() );
     if ( !children_.isPresent(child) ) return;
     removeChild( const_cast<uiTreeItem*>(child) );
 }
@@ -284,7 +284,7 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
 
 // uiODSceneTreeItem
 
-uiODSceneTreeItem::uiODSceneTreeItem( const char* nm, int id )
+uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, int id )
     : uiODTreeItem(nm)
     , displayid_(id)
     , menu_(0)

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "multiid.h"
 #include "staticsdesc.h"
+#include "uistring.h"
 
 
 /*!
@@ -35,7 +36,7 @@ To tag a velocity volume as a velocity, this class can be used to do the work:
 */
 
 mExpClass(Algo) VelocityDesc
-{
+{ mODTextTranslationClass(VelocityDesc);
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
     			DeclareEnumUtils(Type);
@@ -67,8 +68,8 @@ public:
     static const char*	sKeyIsVelocity();
     static const char*	sKeyVelocityVolume();
 
-    static const char*	getVelUnit(bool withparens=true);
-    static const char*	getVelVolumeLabel();
+    static uiString	getVelUnit(bool withparens=true);
+    static uiString	getVelVolumeLabel();
 };
 
 

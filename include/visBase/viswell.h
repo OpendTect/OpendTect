@@ -62,7 +62,7 @@ public:
     mStruct(visBase) BasicParams
     {
 				BasicParams(){}
-	const char*		name_;
+	uiString		name_;
 	Color			col_;
 	int			size_;
     };
@@ -72,8 +72,8 @@ public:
     {
 				TrackParams()
 				{}
-	Coord3*		toppos_;
-	Coord3*		botpos_;
+	Coord3*			toppos_;
+	Coord3*			botpos_;
 	bool			isdispabove_;
 	bool			isdispbelow_;
 	FontData		font_;
@@ -205,7 +205,7 @@ public:
     /// for pdf3d
     const visBase::MarkerSet*	getMarkerSet() const { return markerset_; }
     bool			hasLog(Side side) const;
-    BufferString		getLogName(Side side) const;
+    uiString			getLogName(Side side) const;
     bool			getLogOsgData(LogStyle style,Side side,
 					      TypeSet<Coord3>&coords,
 					      TypeSet<Color>& colors,
@@ -242,7 +242,7 @@ protected:
     int				voiidx_;
     bool			displaytube_[2];
     bool			displaylog_[2];
-    TypeSet<BufferString>	lognames_;
+    uiStringSet			lognames_;
 
 private:
 

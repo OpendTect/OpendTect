@@ -51,8 +51,8 @@ public:
     int				addScene(bool maximized,ZAxisTransform* =0,
 					 const char* nm=0);
 				//!<Returns scene id
-    void			setSceneName(int sceneid,const char*);
-    const char*			getSceneName(int sceneid) const;
+    void			setSceneName(int sceneid,const uiString&);
+    uiString			getSceneName(int sceneid) const;
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
 

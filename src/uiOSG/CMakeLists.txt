@@ -5,9 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS visSurvey uiTools )
-SET(OD_USEQT OpenGL)
-SET(OD_USEOSG 1)
+add_definitions( -DmNoAutoUiString )
+set(OD_MODULE_DEPS visSurvey uiTools )
+set(OD_USEQT OpenGL)
+set(OD_USEOSG 1)
 
 SET(OD_MODULE_SOURCES
 		inituiosg.cc

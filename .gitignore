@@ -18,6 +18,11 @@ data/SequenceModels
 data/ModDeps.od
 data/ModDeps.dgb
 data/dgbAttribs
+data/SequenceModels
+data/dgbAttribs/
+data/localizations/*.qm
+data/localizations/generated
+>>>>>>> c95088e... [od] Numerous small changes.
 test/
 Contents/
 plugins/lux64

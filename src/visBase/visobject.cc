@@ -213,7 +213,7 @@ bool VisualObjectImpl::usePar( const IOPar& iopar )
     const FixedString nm = iopar.find( sKey::Name() );
     
     if ( !nm.isEmpty() )
-	setName( nm );
+	setName( toUiString(nm) );
 
     return true;
 }
@@ -231,9 +231,9 @@ void VisualObjectImpl::fillPar( IOPar& iopar ) const
 
     iopar.setYN( sKeyIsOn(), isOn() );
 
-    const FixedString nm = name();
+  /*  const FixedString nm = name();
     if ( !nm.isEmpty() )
-	iopar.set( sKey::Name(),nm );
+	iopar.set( sKey::Name(),nm );*/
 
 }
 

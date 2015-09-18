@@ -35,7 +35,8 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     , zrng_(zrng)
 {
     uiFileInput::Setup su( uiFileDialog::Img ); su.defseldir( GetDataDir() );
-    fnmfld_ = new uiFileInput( this, istop_ ? "Top image" : "Bottom image", su);
+    fnmfld_ = new uiFileInput( this,
+	    istop_ ? tr("Top image") : tr("Bottom image"), su);
     fnmfld_->setWithCheck( true );
     fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
     mAttachCB( fnmfld_->checked,uiSurvTopBotImageGrp::onOff );

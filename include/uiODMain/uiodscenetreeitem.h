@@ -21,7 +21,7 @@ class uiMenuHandler;
 mExpClass(uiODMain) uiODSceneTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODSceneTreeItem);
 public:
-    			uiODSceneTreeItem(const char*,int);
+			uiODSceneTreeItem(const uiString&,int);
 			~uiODSceneTreeItem();
 
     void		updateColumnText(int);

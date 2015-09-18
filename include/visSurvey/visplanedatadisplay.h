@@ -60,7 +60,7 @@ public:
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,
 				    PlaneDataDisplay, "PlaneDataDisplay",
-				    toUiString(sFactoryKeyword()));
+				     ::toUiString(sFactoryKeyword()));
 
     bool			isInlCrl() const { return true; }
 

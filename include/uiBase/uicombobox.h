@@ -130,6 +130,8 @@ public:
 				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const char**,
 				  const uiString& lbl,const char* nm=0);
+		uiLabeledComboBox(uiParent*,const uiStringSet&,
+				  const uiString& lbl,const char* nm=0);
 
     uiComboBox*	box()		{ return cb_; }
     uiLabel*	label()		{ return labl_; }

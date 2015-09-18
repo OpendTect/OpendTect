@@ -54,7 +54,8 @@ public:
 				VolumeDisplay();
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,VolumeDisplay,
-				    "VolumeDisplay", sFactoryKeyword() );
+				    "VolumeDisplay",
+				    toUiString(sFactoryKeyword()));
 
     bool			isInlCrl() const { return true; }
 

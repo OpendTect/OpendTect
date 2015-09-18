@@ -36,8 +36,8 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 
 
 uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
-		FlatView::Viewer& vwr, const char* tablbl, bool show )
-    : uiFlatViewPropTab(p,vwr,mkUiString(tablbl))
+		FlatView::Viewer& vwr, const uiString& tablbl, bool show )
+    : uiFlatViewPropTab(p,vwr,tablbl)
     , ddpars_(app_.ddpars_)
     , showdisplayfield_( show )
     , blockyfld_( 0 )

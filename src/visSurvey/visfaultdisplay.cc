@@ -251,7 +251,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     fault_->ref();
 
     if ( !emfault->name().isEmpty() )
-	setName( emfault->name() );
+	setName( emfault->uiName() );
 
     if ( !paneldisplay_ )
     {

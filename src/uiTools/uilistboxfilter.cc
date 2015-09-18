@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
-    : uiGenInput(&lb,"Filter",StringInpSpec("*"))
+    : uiGenInput(&lb,uiStrings::sFilter(),StringInpSpec("*"))
     , lb_(lb)
     , newFilter(this)
 {

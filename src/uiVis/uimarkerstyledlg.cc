@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 
 
-uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
+uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
 	: uiDialog(p,
 		   uiDialog::Setup(title,tr("Specify marker style properties"),
 				   mNoHelpKey)

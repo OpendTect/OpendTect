@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "iopar.h"
+#include "uistring.h"
 
 #include "namedobj.h"
 
@@ -106,6 +107,7 @@ protected:
       static bool                 parseEnum(const IOPar&,const char*key,State&);
       static int                  parseEnumState(const char*);
       static const char*          toString(State);
+      static uiString		  toUiString(State);
 
   protected:
 
@@ -185,6 +187,7 @@ public: \
     static bool parseEnum(const IOPar&,const char*,enm&); \
     static enm parseEnum##enm(const char*);  \
     static const char* toString(enm); \
+    static uiString toUiString(enm); \
     static const char* get##enm##String(enm); /*legacy */ \
 protected: \
     static const char* enm##Names_[];\
@@ -201,6 +204,7 @@ public:
     mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
     mExtern(mod) enm parseEnum##enm(const char*); \
     mExtern(mod) const char* toString(enm); \
+    mExtern(mod) uiString toUiString(enm); \
     mExtern(mod) const char* get##enm##String(enm); /*legacy */ 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
@@ -243,6 +247,8 @@ const char* clss::toString( enm theenum ) \
  \
     return enm##Names_[idx]; \
 } \
+uiString clss::toUiString( enm theenum ) \
+{ return mToUiStringTodo(clss::toString(theenum)); } \
 const char* clss::enm##Names_[] =
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
@@ -288,6 +294,8 @@ const char* nmspc::toString( enm theenum ) \
  \
     return enm##Names_[idx]; \
 } \
+uiString nmspc::toUiString( enm theenum ) \
+{ return mToUiStringTodo(nmspc::toString(theenum)); } \
 const char* nmspc::enm##Names_[] =
 
 #endif

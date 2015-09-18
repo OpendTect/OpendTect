@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiOSG uiMPE )
-SET(OD_MODULE_SOURCES
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS uiOSG uiMPE )
+set(OD_MODULE_SOURCES
 	inituivis.cc
 	uiarrowdlg.cc
 	uiattribtransdlg.cc

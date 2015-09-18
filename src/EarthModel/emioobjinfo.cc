@@ -295,7 +295,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
     {
 	pErrMsg("getSurfaceData called on non-surface");
 	mErrRet(
-	  toUiString("Internal: Trying to get surface data from a non-surface"))
+	::toUiString("Internal: Trying to get surface data from a non-surface"))
     }
 
     Translator* trans = ioobj_->createTranslator();
@@ -307,7 +307,8 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 	    { pErrMsg("No Translator for IOObj" ); }
 	else
 	    { pErrMsg("Created Translator is not a EMSurfaceTranslator"); }
-	mErrRet(toUiString("Internal: Unknown Surface interpreter encountered"))
+	mErrRet(
+	    ::toUiString("Internal: Unknown Surface interpreter encountered"))
     }
 
     if ( !str->startRead(*ioobj_) )

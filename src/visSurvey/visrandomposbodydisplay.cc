@@ -122,7 +122,7 @@ bool RandomPosBodyDisplay::updateVisFromEM()
 {
     if ( !embody_ ) return false;
     getMaterial()->setColor( embody_->preferredColor() );
-    setName( embody_->name().isEmpty() ? "<New body>" : embody_->name() );
+    setName( embody_->uiName().isEmpty() ? tr("<New body>") :embody_->uiName());
 
     if ( !displaybody_ )
     {

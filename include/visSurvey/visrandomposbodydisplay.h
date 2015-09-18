@@ -30,12 +30,13 @@ class Scene;
 
 mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
        			      public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(RandomPosBodyDisplay);
 public:
 				RandomPosBodyDisplay();
 				mDefaultFactoryInstantiation( 
 				 visSurvey::SurveyObject,RandomPosBodyDisplay,
-				 "RandomPosBodyDisplay", sFactoryKeyword() );
+				 "RandomPosBodyDisplay",
+				 toUiString(sFactoryKeyword()));
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }

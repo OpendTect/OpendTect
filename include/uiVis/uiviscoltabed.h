@@ -76,7 +76,8 @@ protected:
 mExpClass(uiVis) uiColorBarDialog : public uiDialog
 { mODTextTranslationClass(uiColorBarDialog);
 public:
-    				uiColorBarDialog(uiParent*,const char* title);
+				uiColorBarDialog(uiParent*,
+						 const uiString& title);
 
     uiVisColTabEd&		editor()	{ return *coltabed_; }
 

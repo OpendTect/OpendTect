@@ -50,7 +50,8 @@ public:
 				PolygonBodyDisplay();
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PolygonBodyDisplay,
-				    "PolygonBodyDisplay", sFactoryKeyword() );
+				    "PolygonBodyDisplay",
+				     toUiString(sFactoryKeyword()));
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
 

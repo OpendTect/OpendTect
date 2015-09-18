@@ -32,12 +32,13 @@ namespace visSurvey
 
 mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(MarchingCubesDisplay);
 public:
 			    MarchingCubesDisplay();
 			    mDefaultFactoryInstantiation( 
 				visSurvey::SurveyObject,MarchingCubesDisplay,
-				"MarchingCubesDisplay", sFactoryKeyword() );
+				 "MarchingCubesDisplay",
+				 ::toUiString(sFactoryKeyword()) );
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return true; }

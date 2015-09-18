@@ -108,7 +108,7 @@ public:
     bool			isAnnotGridShown() const;
     void			showAnnot(bool);
     bool			isAnnotShown() const;
-    void			setAnnotText(int dim,const char*);
+    void			setAnnotText(int dim,const uiString&);
     void			setAnnotFont(const FontData&);
     const FontData&		getAnnotFont() const;
     void			setAnnotScale(const TrcKeyZSampling&);

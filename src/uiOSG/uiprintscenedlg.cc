@@ -53,7 +53,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     uiObject* fldabove = 0;
     if ( viewers_.size() > 1 )
     {
-	BufferStringSet scenenms;
+	uiStringSet scenenms;
 	for ( int idx=0; idx<viewers_.size(); idx++ )
 	    scenenms.add( viewers_[idx]->getScene()->name() );
 

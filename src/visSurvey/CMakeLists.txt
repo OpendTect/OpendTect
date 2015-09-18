@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
-SET(OD_MODULE_SOURCES
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
+set(OD_MODULE_SOURCES
 		initvissurvey.cc
 		visarrowdisplay.cc
 		visemobjdisplay.cc

@@ -42,6 +42,7 @@ protected:
     float		uifactor_;
     bool		valchgd_;
 
+    static uiString	sZStretch() { return tr( "Z stretch" ); }
     void		setZStretch(float,bool permanent);
     void		updateSliderValues();
 

@@ -39,7 +39,8 @@ public:
 				PSEventDisplay();
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PSEventDisplay,
-				    "PSEventDisplay", sFactoryKeyword() );
+				    "PSEventDisplay",
+				     ::toUiString(sFactoryKeyword()) );
 
     bool			isInlCrl() const { return true; }
 

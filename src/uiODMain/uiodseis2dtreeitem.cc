@@ -515,7 +515,7 @@ bool uiOD2DLineTreeItem::init()
 
 uiString uiOD2DLineTreeItem::createDisplayName() const
 {
-    return BufferString( visserv_->getObjectName(displayid_) );
+    return visserv_->getObjectName(displayid_);
 }
 
 
@@ -672,7 +672,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 
     uiTaskRunner uitr( ODMainWin() );
     DataPack::ID dpid = DataPack::cNoID();
-    LineKey lk( s2d->name() );
+    LineKey lk( mFromUiStringTodo(s2d->name()) );
     if ( as.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
@@ -754,7 +754,7 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
     {
 	mDynamicCastGet(uiODDataTreeItem*,dataitem,children_[idx]);
 	mDynamicCastGet(uiOD2DLineSetAttribItem*,attribitem,children_[idx]);
-	if ( !dataitem || itemnm!=dataitem->name() ) continue;
+	if ( !dataitem || itemnm!=dataitem->name().getFullString() ) continue;
 
 	if ( attribitem && nrattribitms<=1 )
 	{
@@ -792,7 +792,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
     as.set2DFlag();
-    const char* objnm = visserv_->getObjectName( displayID() );
+    BufferString objnm =
+	mFromUiStringTodo(visserv_->getObjectName( displayID() ));
 
     BufferStringSet datasets;
     seisserv->get2DStoredAttribs( objnm, datasets, 0 );

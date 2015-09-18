@@ -53,7 +53,8 @@ public:
     const mQtclass(QTranslator)* getQTranslator(const char* appl) const;
     const mQtclass(QLocale)*	getQLocale() const;
 
-    void				addLanguage(TextTranslatorLanguage*);
+    bool			addLanguage(TextTranslatorLanguage*);
+				//!<Returns false if it was not added.
 
 protected:
     friend class				TextTranslatorLanguage;

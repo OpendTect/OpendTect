@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiColorInput;
 
 mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
-{
+{ mODTextTranslationClass(uiSeedPropDlg);
 public:
 			uiSeedPropDlg(uiParent*,EM::EMObject*);
 

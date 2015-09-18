@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set, 
 			      visSurvey::PickSetDisplay* psd )
-    : uiMarkerStyleDlg( p, "Pick properties" )
+    : uiMarkerStyleDlg( p, tr("Pick properties") )
     , set_( set )
     , psd_( psd )
 {

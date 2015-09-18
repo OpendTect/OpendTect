@@ -167,7 +167,7 @@ BufferString uiD2TModelGroup::dataSourceName() const
     else
     {
 	ret.set( "[V=" ).add( velfld_->getfValue() ).add( " " );
-	ret.add( VelocityDesc::getVelUnit(true) ).add( "]" );
+	ret.add( VelocityDesc::getVelUnit(true).getFullString() ).add( "]" );
     }
     return ret;
 }

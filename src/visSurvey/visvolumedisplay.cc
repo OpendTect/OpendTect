@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
 
@@ -419,8 +420,10 @@ int VolumeDisplay::addSlice( int dim )
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
 
-    slice->setName( dim==cTimeSlice() ? sKeyTime() :
-		   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
+    slice->setName( dim==cTimeSlice() ? uiStrings::sTime() :
+		   (dim==cCrossLine()
+		    ? uiStrings::sCrossline()
+		    : uiStrings::sInline()) );
 
     addChild( slice->osgNode() );
     const TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
@@ -517,7 +520,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
 			 MarchingCubesSurface() );
     isosurface->setSurface( *surface, tr );
-    isosurface->setName( "Iso surface" );
+    isosurface->setName( toUiString("Iso surface") );
 
     isosurfaces_ += isosurface;
     IsosurfaceSetting setting;
@@ -900,7 +903,7 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 	? scene_->zDomainInfo().userFactor()
 	: 1;
 
-    info = uiString( formatstr )
+    info = toUiString( formatstr.buf() )
 	.arg( cs.hsamp_.start_.inl() )
 	.arg( cs.hsamp_.stop_.inl() )
 	.arg( cs.hsamp_.start_.crl() )
@@ -930,7 +933,7 @@ void VolumeDisplay::sliceMoving( CallBacker* cb )
     mDynamicCastGet( visBase::OrthogonalSlice*, slice, cb );
     if ( !slice ) return;
 
-    slicename_ = slice->name();
+    slicename_ = mFromUiStringTodo(slice->name());
     sliceposition_ = slicePosition( slice );
 }
 
@@ -1466,11 +1469,11 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	slices_ += os;
 	addChild( os->osgNode() );
 	// set correct dimensions ...
-	if ( os->name()==sKeyInline() )
+	if ( mFromUiStringTodo(os->name())==sKeyInline() )
 	    os->setDim( cInLine() );
-	else if ( os->name()==sKeyCrossLine() )
+	else if ( mFromUiStringTodo(os->name())==sKeyCrossLine() )
 	    os->setDim( cCrossLine() );
-	else if ( os->name()==sKeyTime() )
+	else if ( mFromUiStringTodo(os->name())==sKeyTime() )
 	    os->setDim( cTimeSlice() );
     }
 

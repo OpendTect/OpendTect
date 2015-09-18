@@ -51,7 +51,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
     typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
 
     sliderfld_ = new uiSlider( this,
-	uiSlider::Setup(tr("Size")).withedit(true), "Slider Size" );
+	uiSlider::Setup(uiStrings::sSize()).withedit(true), "Slider Size" );
     sliderfld_->setInterval( rg );
     sliderfld_->attach( alignedBelow, typefld_ );
 

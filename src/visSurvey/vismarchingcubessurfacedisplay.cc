@@ -183,7 +183,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
     emsurface_->setPreferredColor( getColor() );
-    emsurface_->setName( name() );
+    emsurface_->setName( mFromUiStringTodo(name()) );
 
     materialChangeCB( 0 );
     return true;
@@ -224,10 +224,10 @@ MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
 
 
 void MarchingCubesDisplay::setColTabMapperSetup( int attrib,
-	const ColTab::MapperSetup& setup, TaskRunner* tr )
+	const ColTab::MapperSetup& setup, TaskRunner* taskrunner )
 {
     if ( !attrib && displaysurface_ )
-	displaysurface_->getShape()->setDataMapper( setup, tr );
+	displaysurface_->getShape()->setDataMapper( setup, taskrunner );
 }
 
 
@@ -375,7 +375,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 
 
 void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
-					 TaskRunner* tr ) const
+					 TaskRunner* runner ) const
 {
     if ( displaysurface_ )
     {
@@ -391,14 +391,15 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 	toincrltransf->setTranslation(
 	    Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
 
-	displaysurface_->getShape()->getAttribPositions(dps, toincrltransf,tr);
+	displaysurface_->getShape()->getAttribPositions(dps, toincrltransf,
+							runner);
 	toincrltransf->unRef();
     }
 }
 
 
 void MarchingCubesDisplay::setRandomPosData( int attrib,
-				 const DataPointSet* dps, TaskRunner* tr )
+				 const DataPointSet* dps, TaskRunner* runner )
 {
     if ( attrib<0 )
 	return;
@@ -406,7 +407,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     DataPointSet* ndps = dps ? new DataPointSet( *dps ) : 0;
     if ( !attrib && dps && displaysurface_ )
     {
-	displaysurface_->getShape()->setAttribData( *ndps, tr );
+	displaysurface_->getShape()->setAttribData( *ndps, runner );
 	materialChangeCB( 0 );
     }
 
@@ -446,7 +447,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 {
     val = sKey::EmptyString();
     info = "Body: ";
-    info += name();
+    info += mFromUiStringTodo(name());
 
     int valididx = -1;
     for ( int idx=0; idx<cache_.size(); idx++ )
@@ -497,7 +498,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
-       TaskRunner* tr )
+       TaskRunner* runner )
 {
     if ( emsurface_ )
 	emsurface_->unRef();
@@ -516,18 +517,18 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
     emsurface_ = emmcsurf;
     emsurface_->ref();
 
-   return updateVisFromEM( false, tr );
+   return updateVisFromEM( false, runner );
 }
 
 
-bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
+bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 {
     if ( !onlyshape || !displaysurface_ )
     {
 	getMaterial()->setColor( emsurface_->preferredColor() );
 	if ( !emsurface_->name().isEmpty() )
-	    setName( emsurface_->name() );
-	else setName( "<New body>" );
+	    setName( emsurface_->uiName() );
+	else setName( tr("<New body>") );
 
 	if ( !displaysurface_ )
 	{
@@ -545,7 +546,7 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 	    SamplingData<float>(emsurface_->crlSampling()),
 	    emsurface_->zSampling() );
 
-	if ( !displaysurface_->setSurface( emsurface_->surface(), tr ) )
+	if ( !displaysurface_->setSurface( emsurface_->surface(), runner ) )
 	{
 	    removeChild( displaysurface_->osgNode() );
 	    displaysurface_->unRef();
@@ -556,7 +557,7 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* tr )
 	displaysurface_->turnOn( true );
     }
 
-    return displaysurface_->touch( !onlyshape, tr );
+    return displaysurface_->touch( !onlyshape, runner );
 }
 
 
@@ -721,7 +722,7 @@ void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 
 
 void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
-	TaskRunner* tr )
+	TaskRunner* runner )
 {
     return; //TODO
     /*

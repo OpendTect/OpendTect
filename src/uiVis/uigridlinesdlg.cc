@@ -25,8 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mCreateGridFld( name, lbl ) \
-    label = "Show"; label += " "; label += lbl; label += " "; \
-    label += "Grid"; \
+    label.arg( lbl ); \
     name##fld_ = new uiCheckBox( this, label ); \
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
     name##spacingfld_ = new uiGenInput( this, spacingstr, \
@@ -47,14 +46,14 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 {
     const uiString spacingstr = tr("Spacing (Start/Stop)");
 
-    BufferString label;
+    uiString label = tr("Show %1 Grid");
     TrcKeyZSampling cs( pdd->getTrcKeyZSampling(true,true) );
     if ( cs.nrInl()>1 )
-	{ mCreateGridFld( inl, "In-line" ) }
+    { mCreateGridFld( inl, uiStrings::sInline() ) }
     if ( cs.nrCrl()>1 )
-	{ mCreateGridFld( crl, "Cross-line" ) }
+    { mCreateGridFld( crl, uiStrings::sCrossline() ) }
     if ( cs.nrZ()>1 )
-	{ mCreateGridFld( z, "Z" ) }
+    { mCreateGridFld( z, toUiString("Z") ); }
 
     if ( inlfld_ && crlfld_ )
 	crlfld_->attach( leftAlignedBelow, inlspacingfld_ );

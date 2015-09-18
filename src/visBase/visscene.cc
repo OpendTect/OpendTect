@@ -200,7 +200,7 @@ Light* Scene::getDirectionalLight() const
 }
 
 
-void Scene::setName( const char* newname )
+void Scene::setName( const uiString& newname )
 {
     DataObjectGroup::setName( newname );
     nameChanged.trigger();

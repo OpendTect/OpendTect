@@ -28,13 +28,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <typeinfo>
 
-#define mZStretchStr "Z stretch"
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
     : uiDialog(p,
 	       uiDialog::Setup(tr("Z Scaling"),tr("Set scaling factor"),
                                 mODHelpKey(mZScaleDlgHelpID) )
-	       .canceltext(""))
+	       .canceltext(uiString::emptyString()))
     , valchgd_(false)
     , vwallbut_(0)
     , scenefld_(0)
@@ -49,8 +48,8 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 
     if ( sceneids_.size() > 1 )
     {
-	BufferStringSet scenenms;
-	scenenms.add( "All" );
+	uiStringSet scenenms;
+	scenenms.add( uiStrings::sAll() );
 	for ( int idx=0; idx<sceneids_.size(); idx++ )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,scene,
@@ -64,7 +63,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	mAttachCB( scenefld_->box()->selectionChanged, uiZStretchDlg::sceneSel);
     }
 
-    sliderfld_ = new uiSlider( this, uiSlider::Setup(mZStretchStr)
+    sliderfld_ = new uiSlider( this, uiSlider::Setup(sZStretch())
 				     .withedit(true).nrdec(3).logscale(true),
 					"Z stretch slider" );
     mAttachCB( sliderfld_->valueChanged,uiZStretchDlg::sliderMove );
@@ -115,7 +114,7 @@ void uiZStretchDlg::updateSliderValues()
 {
     initslval_ = 1.0f;
     uifactor_ = 1.0f;
-    BufferString label = mZStretchStr;
+    uiString label = sZStretch();
     if ( sceneids_.size() )
     {
         int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
@@ -128,12 +127,12 @@ void uiZStretchDlg::updateSliderValues()
         uifactor_ = scene->getApparentVelocity( initslval_ )/initslval_;
         if ( scene->zDomainInfo().def_.isTime() )
         {
-            label = "Apparent velocity ";
-            label.add( VelocityDesc::getVelUnit( true ) );
+	    label = tr( "Apparent velocity %1")
+			.arg( VelocityDesc::getVelUnit( true ) );
         }
     }
 
-    sliderfld_->label()->setText( label.buf() );
+    sliderfld_->label()->setText( label );
 
     sliderfld_->setMinValue( 0.04f*initslval_*uifactor_ );
     sliderfld_->setMaxValue( 25*initslval_*uifactor_ );

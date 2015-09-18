@@ -5,10 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_NAME uiTut)
-SET(OD_IS_PLUGIN 1 )
-SET(OD_MODULE_DEPS uiODMain Tut)
-SET(OD_MODULE_SOURCES 
+set(OD_MODULE_NAME uiTut)
+set(OD_IS_PLUGIN 1 )
+set(OD_MODULE_DEPS uiODMain Tut)
+set(OD_MODULE_SOURCES
 	uitutseistools.cc
 	uituthortools.cc
 	uitutorialattrib.cc

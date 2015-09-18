@@ -34,7 +34,8 @@ public:
 				PointSetDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PointSetDisplay,
-				    "PointSetDisplay", sFactoryKeyword() );
+				    "PointSetDisplay",
+				    toUiString(sFactoryKeyword()) );
 
     void			setPointSize(int);
     int				getPointSize() const;

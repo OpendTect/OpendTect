@@ -50,7 +50,7 @@ public:
 		    MPEDisplay();
 		    mDefaultFactoryInstantiation( 
 			visSurvey::SurveyObject,MPEDisplay,
-			"MPEDisplay", sFactoryKeyword() );
+			     "MPEDisplay", ::toUiString(sFactoryKeyword()));
 
     bool            isInlCrl() const	{ return true; }
     bool            isOn() const;

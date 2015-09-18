@@ -129,8 +129,8 @@ void uiVisColTabEd::fillPar( IOPar& par )
 
 
 // ----- uiColorBarDialog -----
-uiColorBarDialog::uiColorBarDialog( uiParent* p, const char* title )
-    : uiDialog(p, uiDialog::Setup(title,0,
+uiColorBarDialog::uiColorBarDialog( uiParent* p, const uiString& title )
+    : uiDialog(p, uiDialog::Setup(title,mNoDlgTitle,
                                   mODHelpKey(mColorBarDialog) ).modal(false)
 	       .oktext(uiStrings::sExit()).dlgtitle(uiString::emptyString())
 	       .canceltext(uiString::emptyString()))

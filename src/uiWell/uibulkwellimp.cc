@@ -53,7 +53,9 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
-    inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
+    inpfld_ = new uiFileInput( this,
+		      uiStrings::sInputFile(),
+		      uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
@@ -62,8 +64,8 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	const BufferString vellbl( "Temporary model velocity ",
-				   VelocityDesc::getVelUnit( true ));
+	const uiString vellbl = tr("Temporary model velocity %1" )
+				  .arg( VelocityDesc::getVelUnit( true ));
 	const float vel = getGUIDefaultVelocity();
 	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
 	velocityfld_->attach( alignedBelow, dataselfld_ );

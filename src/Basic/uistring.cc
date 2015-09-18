@@ -45,11 +45,15 @@ static char* getNewDebugStr( char* strvar, const OD::String& newstr )
     return strvar;
 }
 
-# define mSetDBGStr str_ = getNewDebugStr( str_, getFullString() )
+# define mSetDBGStr debugstr_ = getNewDebugStr( debugstr_, getFullString() )
 
 #endif
 
 const uiString uiString::emptystring_( toUiString(sKey::EmptyString()) );
+
+#ifndef OD_NO_QT
+static const QString emptyqstring;
+#endif
 
 class uiStringData
 { mRefCountImplNoDestructor(uiStringData)
@@ -258,24 +262,31 @@ bool uiStringData::fillQString( QString& res,
 }
 
 
-#ifndef __debug__
-# define mInitImpl(var,acts) var->ref(); acts
-#else
-# define mInitImpl(var,acts) str_ = 0; var->ref(); acts; mSetDBGStr
-#endif
+#define mEnsureData \
+if ( !data_ ) \
+{ \
+    data_=new uiStringData( 0, 0, 0, 0, -1 ); \
+    data_->ref(); \
+}
 
 uiString::uiString()
-    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    : data_( 0 )
     , datalock_( true )
+#ifdef __debug__
+    , debugstr_( 0 )
+#endif
 {
-    mInitImpl( data_,  );
+    mSetDBGStr;
 }
 
 uiString::uiString( const char* str )
-    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    : data_( 0	)
     , datalock_( true )
+#ifdef __debug__
+    , debugstr_( 0 )
+#endif
 {
-    mInitImpl( data_, set(str) );
+    set(str);
 }
 
 
@@ -285,32 +296,44 @@ uiString::uiString( const char* originaltext, const char* context,
     : data_( new uiStringData(originaltext, context, application,
 			      disambiguation, pluralnr ))
     , datalock_( true )
+#ifdef __debug__
+    , debugstr_( 0 )
+#endif
 {
-    mInitImpl( data_, );
+    refPtr( data_ );
+    mSetDBGStr;
 }
 
 
 uiString::uiString( const uiString& str )
     : data_( str.data_ )
     , datalock_( true )
+#ifdef __debug__
+    , debugstr_( 0 )
+#endif
 {
-    mInitImpl( data_, );
+    refPtr( data_ );
+    mSetDBGStr;
 }
 
 
 uiString::uiString( const OD::String& str )
-    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    : data_( 0 )
     , datalock_( true )
+#ifdef __debug__
+    , debugstr_( 0 )
+#endif
 {
-    mInitImpl( data_, set(str) );
+    set(str);
 }
 
 
 uiString::~uiString()
 {
-    data_->unRef();
+    unRefAndZeroPtr(data_);
+
 #ifdef __debug__
-    delete [] str_;
+    delete [] debugstr_;
 #endif
 }
 
@@ -319,6 +342,7 @@ void uiString::addLegacyVersion( const uiString& legacy )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    mEnsureData;
     data_->addLegacyVersion( legacy );
 }
 
@@ -326,6 +350,9 @@ void uiString::addLegacyVersion( const uiString& legacy )
 bool uiString::isEmpty() const
 {
     Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+	return true;
+
     Threads::Locker contentlocker( data_->contentlock_ );
     if ( !data_->originalstring_.isEmpty() )
 	return false;
@@ -340,7 +367,8 @@ bool uiString::isEmpty() const
 
 void uiString::setEmpty()
 {
-    set( sKey::EmptyString() );
+    unRefAndZeroPtr(data_);
+    mSetDBGStr;
 }
 
 
@@ -348,6 +376,7 @@ uiString& uiString::toLower(bool yn)
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    mEnsureData;
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->tolower_ = true;
     data_->changecount_ = mForceUpdate;
@@ -360,6 +389,9 @@ uiString& uiString::toLower(bool yn)
 const char* uiString::getOriginalString() const
 {
     Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+	return 0;
+
     Threads::Locker contentlocker( data_->contentlock_ );
     /* This is safe because if anyone else changes originalstring,
        it should be made independent, and we can live with our
@@ -372,7 +404,10 @@ const OD::String& uiString::getFullString() const
 {
     mDeclStaticString( res );
     Threads::Locker datalocker( datalock_ );
-    data_->getFullString( res );
+    if ( !data_ )
+	res = sKey::EmptyString();
+    else
+	data_->getFullString( res );
     return res;
 }
 
@@ -396,6 +431,16 @@ bool uiString::isCacheValid() const
 const QString& uiString::getQString() const
 {
     Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+    {
+#ifndef OD_NO_QT
+	return emptyqstring;
+#else
+	QString* ptr = 0;
+	return *ptr;
+#endif
+    }
+
     Threads::Locker contentlocker( data_->contentlock_ );
 
     return getQStringInternal();
@@ -415,6 +460,7 @@ const QString& uiString::fillQString( QString& res ) const
 const QString& uiString::getQStringInternal() const
 {
 #ifndef OD_NO_QT
+    mEnsureData;
     if ( !isCacheValid() )
     {
 	data_->fillQString( data_->qstring_, 0, false );
@@ -436,6 +482,9 @@ wchar_t* uiString::createWCharString() const
 {
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+	return 0;
+
     Threads::Locker contentlocker( data_->contentlock_ );
 
     const QString qstr = getQStringInternal();
@@ -461,8 +510,8 @@ wchar_t* uiString::createWCharString() const
 uiString& uiString::operator=( const uiString& str )
 {
     Threads::Locker datalocker( datalock_ );
-    str.data_->ref();
-    data_->unRef();
+    refPtr( str.data_ );
+    unRefAndZeroPtr( data_ );
     data_ = str.data_;
     return *this;
 }
@@ -472,6 +521,7 @@ void uiString::setFrom( const QString& qstr )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    mEnsureData;
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->setFrom( qstr );
     mSetDBGStr;
@@ -493,9 +543,17 @@ uiString& uiString::operator=( const char* str )
 uiString& uiString::set( const char* str )
 {
     Threads::Locker datalocker( datalock_ );
-    makeIndependent();
-    Threads::Locker contentlocker( data_->contentlock_ );
-    data_->set( str );
+    if ( str && *str )
+    {
+	makeIndependent();
+	mEnsureData;
+	Threads::Locker contentlocker( data_->contentlock_ );
+	data_->set( str );
+    }
+    else
+    {
+	unRefAndZeroPtr( data_ );
+    }
     mSetDBGStr;
     return *this;
 }
@@ -504,6 +562,10 @@ uiString& uiString::set( const char* str )
 bool uiString::operator>(const uiString& b ) const
 {
 #ifndef OD_NO_QT
+    Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+	return false;
+
     const QString& aqstr = getQString();
     const QString& bqstr = b.getQString();
     return aqstr > bqstr;
@@ -516,6 +578,10 @@ bool uiString::operator>(const uiString& b ) const
 bool uiString::operator<(const uiString& b ) const
 {
 #ifndef OD_NO_QT
+    Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+	return true;
+
     const QString& aqstr = getQString();
     const QString& bqstr = b.getQString();
     return aqstr < bqstr;
@@ -529,6 +595,7 @@ uiString& uiString::arg( const uiString& newarg )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    mEnsureData;
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->arguments_ += newarg;
     data_->changecount_ = mForceUpdate;
@@ -573,6 +640,9 @@ bool uiString::translate( const QTranslator& qtr , QString& res ) const
 {
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
+    if ( !data_ )
+	return false;
+
     Threads::Locker contentlocker( data_->contentlock_ );
     return data_->fillQString( res, &qtr, false );
 #else
@@ -617,7 +687,7 @@ uiString uiString::getOrderString( int val )
 void uiString::makeIndependent()
 {
     Threads::Locker datalocker( datalock_ );
-    if ( data_->refcount_.count()==1 )
+    if ( !data_ || data_->refcount_.count()==1 )
 	return;
 
     RefMan<uiStringData> olddata = data_;

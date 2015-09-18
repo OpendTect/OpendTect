@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
-		const TypeSet<Coord>& crds, const char* nm )
+		const TypeSet<Coord>& crds, const uiString& nm )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(tr("Random Line to KML")),
 				 tr("Specify how to export"),
                                  mODHelpKey(mGoogleExportRandomLineHelpID) ) )
@@ -38,7 +38,8 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     putlnmfld_->valuechanged.notify(
 	    			mCB(this,uiGoogleExportRandomLine,putSel) );
 
-    lnmfld_ = new uiGenInput( this, tr("Line annotation"), StringInpSpec(nm) );
+    lnmfld_ = new uiGenInput( this, tr("Line annotation"),
+			      StringInpSpec(mFromUiStringTodo(nm)) );
     lnmfld_->attach( alignedBelow, putlnmfld_ );
 
     LineStyle ls( LineStyle::Solid, 20, Color(200,0,200) );
@@ -46,7 +47,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, lnmfld_ );
 
-    mImplFileNameFld(nm);
+    mImplFileNameFld(mFromUiStringTodo(nm));
     fnmfld_->attach( alignedBelow, lsfld_ );
 }
 

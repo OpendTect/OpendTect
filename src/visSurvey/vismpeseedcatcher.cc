@@ -333,7 +333,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 			? *as : newas );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
 	    info().setGeomID( seis2ddisp->getGeomID() );
-	    info().setObjLineName( seis2ddisp->name() );
+	    info().setObjLineName( seis2ddisp->name().getFullString() );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;

@@ -162,9 +162,9 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
-    BufferString lnm = Survey::GM().getName( geomid_ );
+    uiString lnm = mToUiStringTodo(Survey::GM().getName( geomid_ ));
     if ( lnm.isEmpty() )
-	lnm = geomid;
+	lnm = toUiString(geomid);
 
     setName( lnm );
     linename_->text()->setText( lnm );
@@ -181,7 +181,7 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 const char* Seis2DDisplay::getLineName() const
 {
     if ( !Survey::GM().getName(geomid_) )
-	return name().buf();
+	return mFromUiStringTodo(name()).buf();
 
     return Survey::GM().getName(geomid_);
 }

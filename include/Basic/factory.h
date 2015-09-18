@@ -421,7 +421,7 @@ mGlobal(mod) ::Factory<T>& funcname()
 #define mDefineFactoryInClasswKW( T, funcname, kw ) \
 static ::Factory<T>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return toUiString( factoryKeyword() ); } \
+{ return ::toUiString( factoryKeyword() ); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactoryInClass( T, funcname ) \
     mDefineFactoryInClasswKW( T, funcname, 0 )
@@ -442,7 +442,7 @@ mGlobal(mod) ::Factory1Param<T,P>& funcname()
 #define mDefineFactory1ParamInClasswKW( T, P, funcname, kw ) \
 static ::Factory1Param<T,P>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return toUiString(factoryKeyword()); } \
+{ return ::toUiString(factoryKeyword()); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
     mDefineFactory1ParamInClasswKW( T, P, funcname, 0 )
@@ -466,7 +466,7 @@ mGlobal(mod) ::Factory2Param<T,P0,P1>& funcname()
 #define mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, kw ) \
 static ::Factory2Param<T,P0,P1>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return toUiString( factoryKeyword() ); } \
+{ return ::toUiString( factoryKeyword() ); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
     mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, 0 )
@@ -491,7 +491,7 @@ mGlobal(mod) ::Factory3Param<T,P0,P1,P2>& funcname()
 #define mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, kw ) \
 static ::Factory3Param<T,P0,P1,P2>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return toUiString( factoryKeyword() ); } \
+{ return ::toUiString( factoryKeyword() ); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
     mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, 0 )

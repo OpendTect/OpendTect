@@ -227,7 +227,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     empolygonsurf_->ref();
 
     if ( !empolygonsurf_->name().isEmpty() )
-	setName( empolygonsurf_->name() );
+	setName( empolygonsurf_->uiName() );
 
     if ( !bodydisplay_ )
     {

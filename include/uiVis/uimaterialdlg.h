@@ -41,7 +41,7 @@ public:
 					      bool color=false);
 
 protected:
-    void			createSlider(bool,uiSlider*&,const char*);
+    void			createSlider(bool,uiSlider*&,const uiString&);
 
     visBase::Material*		material_;
     visSurvey::SurveyObject*	survobj_;

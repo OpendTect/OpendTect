@@ -37,8 +37,8 @@ uiTreeItem::~uiTreeItem()
 }
 
 
-const char* uiTreeItem::name() const
-{ return name_.getFullString(); }
+uiString uiTreeItem::name() const
+{ return name_; }
 
 
 bool uiTreeItem::areAllParentsChecked()

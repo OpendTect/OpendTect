@@ -119,7 +119,7 @@ public:
 				uiGeneralSettingsGroup,
 				uiParent*,Settings&,
 				"General",
-				sFactoryKeyword())
+				toUiString(sFactoryKeyword()))
 
 			uiGeneralSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();
@@ -148,7 +148,7 @@ public:
 				uiVisSettingsGroup,
 				uiParent*,Settings&,
 				"Visualization",
-				sFactoryKeyword())
+				toUiString(sFactoryKeyword()))
 
 			uiVisSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();
