@@ -448,7 +448,8 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      !islocked, false );
     insertnodemnuitem_.removeItems();
 
-    for ( int idx=0; !islocked && idx<=rtd->nrNodes(); idx++ )
+    const bool enab = !islocked && rtd->nrNodes()>1;
+    for ( int idx=0; enab && idx<=rtd->nrNodes(); idx++ )
     {
 	BufferString nodename;
 	if ( idx==rtd->nrNodes() )
