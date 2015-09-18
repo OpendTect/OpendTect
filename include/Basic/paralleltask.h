@@ -64,7 +64,7 @@ class ParallelTaskRunner;
 */
 
 mExpClass(Basic) ParallelTask : public Task
-{
+{ mODTextTranslationClass(ParallelTask);
 public:
     virtual		~ParallelTask();
 
