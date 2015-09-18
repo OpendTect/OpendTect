@@ -289,13 +289,17 @@ void uiGraphicsItem::setScale( float sx, float sy )
 
 void uiGraphicsItem::updateTransform()
 {
-    QTransform transform;
-    transform.translate( translation_.x, translation_.y );
-    transform.scale( scale_.x, scale_.y );
-    transform.rotate( angle_ );
-
-    qgraphicsitem_->setTransform( transform );
-    qgraphicsitem_->update();
+    if ( !isItemIgnoresTransformationsEnabled() )
+    {
+	QTransform transform;
+	transform.translate( translation_.x, translation_.y );
+	transform.scale( scale_.x, scale_.y );
+	transform.rotate( angle_ );
+	qgraphicsitem_->setTransform( transform );
+	qgraphicsitem_->update();
+    }
+    else
+	qgraphicsitem_->setPos( translation_.x, translation_.y );
 }
 
 /*
@@ -364,7 +368,16 @@ uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 
 
 void uiGraphicsItem::setItemIgnoresTransformations( bool yn )
-{ qgraphicsitem_->setFlag( QGraphicsItem::ItemIgnoresTransformations, yn ); }
+{
+    qgraphicsitem_->setFlag(QGraphicsItem::ItemIgnoresTransformations, yn );
+}
+
+
+bool uiGraphicsItem::isItemIgnoresTransformationsEnabled() const
+{
+    return qgraphicsitem_->flags().testFlag(
+				    QGraphicsItem::ItemIgnoresTransformations );
+}
 
 
 void uiGraphicsItem::setPenColor( const Color& col, bool usetransparency )

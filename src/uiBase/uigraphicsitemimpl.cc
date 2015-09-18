@@ -758,45 +758,48 @@ QGraphicsItem* uiAdvancedTextItem::mkQtObj()
 
 void uiAdvancedTextItem::stPos( float x, float y )
 {
-    QRectF boundrec = qtextitem_->boundingRect();
-
-    switch( al_.hPos() )
+    if ( !isItemIgnoresTransformationsEnabled() )
     {
-    case Alignment::Left:
-	boundrec.translate( 0., 0. );
-	break;
-    case Alignment::HCenter:
-	boundrec.translate( -boundrec.width()/2., 0. );
-	break;
-    case Alignment::Right:
-	boundrec.translate( -boundrec.width(), 0. );
-	break;
+	QRectF boundrec = qtextitem_->boundingRect();
+	switch( al_.hPos() )
+	{
+	case Alignment::Left:
+	    boundrec.translate( 0., 0. );
+	    break;
+	case Alignment::HCenter:
+	    boundrec.translate( -boundrec.width()/2., 0. );
+	    break;
+	case Alignment::Right:
+	    boundrec.translate( -boundrec.width(), 0. );
+	    break;
+	}
+
+	switch( al_.vPos() )
+	{
+	case Alignment::Top:
+	    boundrec.translate( 0., 0. );
+	    break;
+	case Alignment::VCenter:
+	    boundrec.translate( 0., -boundrec.height()/2. );
+	    break;
+	case Alignment::Bottom:
+	    boundrec.translate( 0., -boundrec.height() );
+	    break;
+	}
+
+	const QPointF p00 = qtextitem_->mapToParent( QPointF(0,0) );
+	const QPointF d01 = qtextitem_->mapToParent( QPointF(0,1) )-p00;
+	const QPointF d10 = qtextitem_->mapToParent( QPointF(1,0) )-p00;
+
+	const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
+	const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
+
+	const float xlin = x+mCast(float,boundrec.left())*xdist;
+	const float ylin = y+mCast(float,boundrec.top())*ydist;
+	uiGraphicsItem::stPos( xlin, ylin );
     }
-
-    switch( al_.vPos() )
-    {
-    case Alignment::Top:
-	boundrec.translate( 0., 0. );
-	break;
-    case Alignment::VCenter:
-	boundrec.translate( 0., -boundrec.height()/2. );
-	break;
-    case Alignment::Bottom:
-	boundrec.translate( 0., -boundrec.height() );
-	break;
-    }
-
-    const QPointF p00 = qtextitem_->mapToParent( QPointF(0,0) );
-    const QPointF d01 = qtextitem_->mapToParent( QPointF(0,1) )-p00;
-    const QPointF d10 = qtextitem_->mapToParent( QPointF(1,0) )-p00;
-
-    const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
-    const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
-
-    const float xlin = x+mCast(float,boundrec.left())*xdist;
-    const float ylin = y+mCast(float,boundrec.top())*ydist;
-
-    uiGraphicsItem::stPos( xlin, ylin );
+    else
+	uiGraphicsItem::stPos( x, y );
 }
 
 
