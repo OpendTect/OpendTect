@@ -34,7 +34,7 @@ public:
 	float		getMaximumError() const		{ return emax_; }
 	float		getMaximumFrequency() const	{ return fmax_; }
 	int		getMaximumLength() const	{ return lmax_; }
-	long		getTableBytes() const;
+	od_int64	getTableBytes() const;
 	int		getLength() const;  // length of sinc approximations
 	int		getNumbers() const; // number of sinc approximations
 	int		getShift() const;
