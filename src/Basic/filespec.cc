@@ -80,7 +80,7 @@ const char* FileSpec::fullDirName() const
 
 const char* FileSpec::usrStr() const
 {
-    return fnames_.isEmpty() ? "" : fnames_.get(0).buf();
+    return usrstr_.isEmpty() ? fileName( 0 ) : usrstr_.buf();
 }
 
 
@@ -97,7 +97,7 @@ const char* FileSpec::fileName( int fidx ) const
     if ( fidx >= nrfiles )
 	return "";
     else if ( mIsUdf(nrs_.start) )
-	return usrStr();
+	return nrfnms < 1 ? "" : fnames_.get(fidx).buf();
 
     const int nr = nrs_.atIndex( fidx );
     BufferString replstr;

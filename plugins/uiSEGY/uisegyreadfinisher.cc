@@ -504,14 +504,29 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 
 BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
 {
-    // objname_ holds wildcard expression
     FilePath fp( fs_.spec_.fileName( iln ) );
-    const BufferString expandedname = fp.baseName();
-    // const BufferString dirnm = fp.pathOnly();
+    BufferString expandedname = fp.baseName();
 
-    //TODO
-    BufferString ret = expandedname;
-    return ret;
+    const char* pwc = objname_.buf(); // objname_ holds wildcard expression
+    char* psubst = expandedname.getCStr();
+
+	// find start of substitution (left to right)
+    while ( *pwc && *psubst && *pwc == *psubst )
+	{ pwc++; psubst++; }
+    const char* lnm = psubst;
+
+	// find end of substitution (right to left)
+    while ( *pwc ) pwc++; while ( *psubst ) psubst++;
+    while ( psubst != lnm && *pwc == *psubst )
+	{ pwc--; psubst--; }
+	// psubst is at end of substitution, close string
+    if ( *psubst ) *(psubst+1) = '\0';
+
+    if ( *lnm )
+	return BufferString( lnm );
+
+    pErrMsg( "Something went wrong with wildcard substitution" );
+    return fp.baseName();
 }
 
 

@@ -576,6 +576,8 @@ bool uiSEGYReadStarter::getFileSpec()
 
 	if ( filespec_.isEmpty() )
 	    mErrRet( tr("No file names matching your wildcard(s).") )
+
+	filespec_.setUsrStr( userfilename_ );
     }
 
     return true;
