@@ -58,7 +58,7 @@ set projectdir=${tmpoddir}/data/localizations/source
 mkdir -p ${projectdir}
 
 #Copy existing ts-files ot project dir
-cp -a ${binarydir}/data/localizations/source/*.ts ${projectdir}
+cp -a ${binarydir}/data/localizations/source/${application}*.ts ${projectdir}
 
 set profnm=${projectdir}/normaltrans.pro
 
