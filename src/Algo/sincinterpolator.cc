@@ -9,11 +9,21 @@
 
 SincTableManager::Table::Table( int lsinc ,int nsinc, float emax,
 				float fmax, int lmax )
-    : asinc_(lsinc,nsinc)
+    : asinc_(0)
     , emax_(emax)
     , fmax_(fmax)
     , lmax_(lmax)
-{}
+    , nsinc_(nsinc)
+    , lsinc_(lsinc)
+{
+    asinc_ = SincTableManager::makeArray( lsinc, nsinc );
+}
+
+
+SincTableManager::Table::~Table()
+{
+    deleteArray( asinc_, lsinc_ );
+}
 
 
 bool SincTableManager::Table::hasSameDesign( float fmax, int lmax ) const
@@ -22,14 +32,14 @@ bool SincTableManager::Table::hasSameDesign( float fmax, int lmax ) const
 }
 
 
-long SincTableManager::Table::getTableBytes() const
-{ return mCast(long, sizeof(float) * asinc_.get1DDim() ); }
+od_int64 SincTableManager::Table::getTableBytes() const
+{ return mCast(od_int64, sizeof(float) * (nsinc_*lsinc_) ); }
 
 int SincTableManager::Table::getLength() const
-{ return asinc_.info().getSize(0); }
+{ return lsinc_; }
 
 int SincTableManager::Table::getNumbers() const
-{ return asinc_.info().getSize(1); }
+{ return nsinc_; }
 
 int SincTableManager::Table::getShift() const
 { return - getLength()/2+1; }
@@ -44,6 +54,9 @@ const SincTableManager::Table* SincTableManager::getTable( float fmax,
     {
 	lock.unLock();
 	const Table* newtab = makeTable( fmax, lmax );
+	if ( !newtab )
+	    return 0;
+
 	lock.lock();
 	tabidx = getTableIdx( fmax, lmax );
 	if ( !tables_.validIdx(tabidx) )
@@ -104,16 +117,17 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
 
     SincTableManager::Table* table =
 		new SincTableManager::Table( lsinc, nsinc, emax, fmax, lmax);
+    if ( !table || !table->isOK() )
+	return 0;
 
-    Array2D<float>& asinc = table->asinc_;
     for ( int j=0; j<lsinc; ++j )
     {
-	asinc.set( j, 0, 0.0f );
-	asinc.set( j, nsinc-1, 0.0f );
+	table->setValue( j, 0, 0.0f );
+	table->setValue( j, nsinc-1, 0.0f );
     }
 
-    asinc.set( lsinc/2-1, 0, 1.0f );
-    asinc.set( lsinc/2, nsinc-1, 1.0f );
+    table->setValue( lsinc/2-1, 0, 1.0f );
+    table->setValue( lsinc/2, nsinc-1, 1.0f );
 
     dsinc = 1.f / mCast(float,nsinc-1);
     const float lsinc2 = mCast(float,lsinc/2.0f);
@@ -122,7 +136,7 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
     {
 	float x = xvals.atIndex( isinc );
 	for ( int i=0; i<lsinc; ++i,x+=1.0f )
-	    asinc.set( i, isinc, sinc(x) * kwin.getValue(x/lsinc2) );
+	    table->setValue( i, isinc, sinc(x) * kwin.getValue(x/lsinc2) );
     }
 
     return table;
@@ -131,6 +145,43 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
 
 float SincTableManager::sinc( float x )
 { return mIsZero(x,mDefEpsF) ? 1.f : sin(M_PIf*x)/(M_PIf*x); }
+
+
+float** SincTableManager::makeArray( int n1, int n2 )
+{
+    mDeclareAndTryAlloc(float**,arr,float*[n1])
+    if ( !arr ) return 0;
+
+    for ( int idx=0; idx<n1; idx++ )
+    {
+	mDeclareAndTryAlloc(float*,arrrow,float[n2])
+	if ( !arrrow )
+	{
+	    for ( int idy=idx-1; idy>=0; idy-- )
+		delete [] arr[idy];
+
+	    delete [] arr;
+	    return 0;
+	}
+
+	arr[idx] = arrrow;
+    }
+
+    return arr;
+}
+
+
+void SincTableManager::deleteArray( float** arr, int n1 )
+{
+    if ( !arr )
+	return;
+
+    for ( int idx=0; idx<n1; idx++ )
+	delete [] arr[idx];
+
+    delete [] arr;
+}
+
 
 
 SincTableManager& SincTableManager::STM()
@@ -144,12 +195,40 @@ SincTableManager& SincTableManager::STM()
 
 SincInterpolator::SincInterpolator()
     : table_(0)
+    , isudfarr_(0)
     , lsinc_(0)
     , ishift_(0)
+    , extrapcst_(false)
+    , extrapzero_(false)
 {}
 
 
+SincInterpolator::~SincInterpolator()
+{
+    delete [] isudfarr_;
+}
+
+
 const float SincInterpolator::snapdist = 1e-4f;
+
+
+SincInterpolator::Extrapolation SincInterpolator::getExtrapolation()
+{
+    if ( extrapcst_ )
+	return CONSTANT;
+
+    if ( extrapzero_ )
+	return ZERO;
+
+    return NONE;
+}
+
+
+void SincInterpolator::setExtrapolation( Extrapolation et )
+{
+    extrapcst_ = et == CONSTANT;
+    extrapzero_ = et == ZERO;
+}
 
 
 bool SincInterpolator::initTable( float fmax, int lmax )
