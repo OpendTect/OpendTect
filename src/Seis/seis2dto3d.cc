@@ -373,11 +373,11 @@ tf->setOutput(arr->getData());\
 TaskRunner::execute(tr, *fft_);\
 }
 
-mDefParallelCalc2Pars( ArrayMultiplierExec,
+mDefParallelCalc2Pars( ArrayMultiplierExec, tr("Array multiplication"),
 			const float_complex*, a, float_complex*, b )
 mDefParallelCalcBody(,b_[idx] *= a_[idx];,)
 
-mDefParallelCalc2Pars( ArrayDivideExec,
+mDefParallelCalc2Pars( ArrayDivideExec, tr("Array division"),
 			const float_complex*, a, float_complex*, b )
 mDefParallelCalcBody(,(a_[idx].real()  > 1e-40f) ? b_[idx] /= a_[idx]:
 		     b_[idx] = float_complex(mUdf(float),mUdf(float));,)

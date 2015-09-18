@@ -86,8 +86,10 @@ public:
 			//!<May be -1, i.e. class does not report nrdone.
 
     od_int64		totalNr() const	{ return nrIterations(); }
+    static uiString	sPosFinished()	{ return tr("Positions finished"); }
 
 protected:
+
     virtual od_int64	nrIterations() const				= 0;
 			/*!<\returns the number of times the process should be
 			    run. */
@@ -96,7 +98,7 @@ protected:
 			/*!<\returns the minimum number of computations that
 			     effectively can be run in a separate thread.
 			     A small number will give a large overhead for when
-			     each step is quick and nrIterations is small. */
+			     each step is quick and nrIterations is not big. */
     virtual bool	stopAllOnFailure() const	{ return true; }
 			/*!<If one thread fails, should an attempt be made to
 			    stop the others? If true, enableWorkControl will
@@ -153,9 +155,11 @@ for ( int isamp=0; isamp<outnrsamples; isamp++ )
     trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
 
     There are 4 parameters (trc, curcomp, blockbuf_ and storinterp_) to
-    pass to the executing object, thus:
+    pass to the executing object. You also need to pass a uiString giving
+    the uiMessage if the execution is done with a taskrunner, thus:
 
-mDefParallelCalc4Pars( SEGYSampleInterpreter,
+
+mDefParallelCalc4Pars( SEGYSampleInterpreter, tr("Copying trace information"),
 		   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
 		   const TraceDataInterpreter*,storinterp)
 mDefParallelCalcBody( \* No initializations *\,
@@ -167,38 +171,44 @@ interp.execute();
 
  */
 
-#define mDefParallelCalcNoPars(clss) \
+#define mDefParallelCalcNoPars(clss,uimsg) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    clss( od_int64 _sz_ ) : sz_(_sz_)		{} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
-#define mDefParallelCalc1Par(clss,T1,v1) \
+#define mDefParallelCalc1Par(clss,uimsg,T1,v1) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    T1		v1##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_ ) \
 		: sz_(_sz_), v1##_(_##v1##_)		{} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
-#define mDefParallelCalc2Pars(clss,T1,v1,T2,v2) \
+#define mDefParallelCalc2Pars(clss,uimsg,T1,v1,T2,v2) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    T1 v1##_; T2 v2##_; \
 	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_ ) \
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_)			{} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
-#define mDefParallelCalc3Pars(clss,T1,v1,T2,v2,T3,v3) \
+#define mDefParallelCalc3Pars(clss,uimsg,T1,v1,T2,v2,T3,v3) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    T1 v1##_; T2 v2##_; T3 v3##_; \
@@ -206,11 +216,13 @@ interp.execute();
 		    T1 _##v1##_, T2 _##v2##_, T3 _##v3##_ ) \
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) , v3##_(_##v3##_)	{} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
-#define mDefParallelCalc4Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4) \
+#define mDefParallelCalc4Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \
@@ -219,11 +231,14 @@ interp.execute();
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_), v4##_(_##v4##_)		{} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
-#define mDefParallelCalc5Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5) \
+
+#define mDefParallelCalc5Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_;\
@@ -232,11 +247,13 @@ interp.execute();
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_), v4##_(_##v4##_), v5##_(_##v5##_) {} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
-#define mDefParallelCalc6Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5,T6,v6) \
+#define mDefParallelCalc6Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5,T6,v6) \
 	class clss : public ParallelTask \
-	{ \
+	{ mODTextTranslationClass(clss); \
 	public: \
 	    od_int64	sz_; \
 	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_; T6 v6##_;\
@@ -246,14 +263,34 @@ interp.execute();
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_), v4##_(_##v4##_) \
 		, v5##_(_##v5##_), v6##_(_##v6##_)	    {} \
-	    od_int64 nrIterations() const { return sz_; }
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
+
+#define mDefParallelCalc7Pars(clss,uimsg,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5, \
+			      T6,v6,T7,v7) \
+	class clss : public ParallelTask \
+	{ mODTextTranslationClass(clss); \
+	public: \
+	    od_int64	sz_; \
+	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; \
+	    T5 v5##_; T6 v6##_; T7 v7##_; \
+	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, \
+		    T4 _##v4##_, T5 _##v5##_, T6 _##v6##_, T7 _##v7##_ ) \
+		: sz_(_sz_) \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_), v4##_(_##v4##_) \
+		, v5##_(_##v5##_), v6##_(_##v6##_), v7##_(_##v7##_)    {} \
+	    od_int64 nrIterations() const { return sz_; } \
+	    uiString uiMessage() const	{ return uimsg; } \
+	    uiString uiNrDoneText() const { return sPosFinished(); }
 
 #define mDefParallelCalcBody(preop,impl,postop) \
 	    bool doWork( od_int64 start, od_int64 stop, int ) \
 	    { \
 		preop; \
 		for ( int idx=(int) start; idx<=stop; idx++ ) \
-		    { impl; } \
+		    { impl; addToNrDone(1); } \
 		postop; \
 		return true; \
 	    } \
