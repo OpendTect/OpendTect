@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "trckeyzsampling.h"
 #include "executor.h"
-#include "multiid.h" 
+#include "multiid.h"
 
 class RegularSeisDataPack;
 class SeisTrcWriter;
@@ -25,7 +25,7 @@ class SeisTrc;
 mExpClass(Seis) SeisDataPackWriter : public Executor
 { mODTextTranslationClass(SeisDataPackWriter);
 public:
-    			SeisDataPackWriter(const MultiID&,
+			SeisDataPackWriter(const MultiID&,
 					   const RegularSeisDataPack&,
 					   const TypeSet<int>& cubeindices);
 			~SeisDataPackWriter();
@@ -34,16 +34,15 @@ public:
 				     const Interval<int>&);
 
     od_int64		nrDone() const;
-    od_int64		totalNr() const;		
-    uiString		uiMessage() const
-			{ return tr("Writing out data!"); }
-    uiString		uiNrDoneText() const	
+    od_int64		totalNr() const;
+    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const
 			{ return tr("Traces written:"); }
     int			nextStep();
 
 private:
 
-   int				nrdone_;    
+   int				nrdone_;
    int				totalnr_;
    const RegularSeisDataPack&	cube_;
    TrcKeySamplingIterator	iterator_;

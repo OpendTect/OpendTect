@@ -88,7 +88,10 @@ uiString ParallelReader::uiNrDoneText() const
 
 
 uiString ParallelReader::uiMessage() const
-{ return errmsg_.isEmpty() ? tr("Reading") : errmsg_; }
+{
+    return errmsg_.isEmpty() ? tr("Reading volume \'%1\'").arg(ioobj_->name())
+			     : errmsg_;
+}
 
 
 bool ParallelReader::doPrepare( int nrthreads )

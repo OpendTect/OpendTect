@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 template <class T>
 mClass(Algo) Convolver3D : public ParallelTask
-{
+{ mODTextTranslationClass(Convolver3D);
 public:
     inline		Convolver3D();
 
@@ -42,6 +42,9 @@ public:
 			//!<Default is false
 
     virtual bool	executeParallel(bool);
+
+    uiString		uiMessage() const { return tr("Convolving 3D volume"); }
+    uiString		uiNrDoneText() const { return tr("Positions done"); }
 
 protected:
     inline bool		shouldFFT() const;
