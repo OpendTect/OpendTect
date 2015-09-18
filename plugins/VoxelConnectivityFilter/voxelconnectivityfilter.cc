@@ -38,7 +38,7 @@ DefineEnumNames( VoxelConnectivityFilter, Connectivity, 0, "Connectivity")
 
 
 class VoxelConnectivityFilterTask : public ParallelTask
-{
+{mODTextTranslationClass(VoxelConnectivityFilterTask)
 public:
     VoxelConnectivityFilterTask( VoxelConnectivityFilter& step,
 				const Array3D<float>& input,
@@ -59,6 +59,10 @@ public:
     }
 
     ~VoxelConnectivityFilterTask() { releaseData(); }
+
+    uiString	uiNrDoneText() const { return tr("Positions done"); }
+    uiString	uiMessage() const
+		{ return tr("Computing voxel connectivity"); }
 
     od_int64	nrIterations() const { return input_.info().getTotalSz(); }
     int		maxNrThreads() const { return 1; } //Todo: remove
@@ -340,7 +344,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 		mDoCorner( ++, ++, ++ );
 	    }
 
-	    od_int64 cursize = 0; 
+	    od_int64 cursize = 0;
 	    bodysize.get( curbodyid, cursize );
 	    bodysize.set( curbodyid, cursize + nradded );
 

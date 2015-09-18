@@ -31,13 +31,15 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , cube_( dp )
     , iterator_( dp.sampling().hsamp_ )
     , mid_( mid )
-    , writer_( 0 )
     , trc_( 0 )
     , cubeindices_( cubeindices )
 {
     const int startz =
 	mNINT32(dp.sampling().zsamp_.start/dp.sampling().zsamp_.step);
     zrg_ = Interval<int>( startz, startz+dp.sampling().nrZ()-1 );
+
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
 }
 
 
@@ -50,6 +52,13 @@ SeisDataPackWriter::~SeisDataPackWriter()
 
 od_int64 SeisDataPackWriter::nrDone() const
 { return nrdone_; }
+
+
+uiString SeisDataPackWriter::uiMessage() const
+{
+    return !writer_ ? tr("Could not write the output, check permission?") :
+	tr("Writing out seismic volume \'%1\'").arg(writer_->ioObj()->name());
+}
 
 
 void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
@@ -73,15 +82,10 @@ int SeisDataPackWriter::nextStep()
 	mNINT32(cube_.sampling().zsamp_.start/cube_.sampling().zsamp_.step);
     const Interval<int> cubezrg( cubestartz,
 				 cubestartz+cube_.sampling().nrZ()-1 );
-
-    if ( !writer_ )
+    if ( !trc_ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( mid_ );
-	if ( !ioobj || cube_.isEmpty() )
+	if ( !writer_ || cube_.isEmpty() )
 	    return ErrorOccurred();
-
-	writer_ = new SeisTrcWriter( ioobj );
-
 
 	const int trcsz = zrg_.width()+1;
 	trc_ = new SeisTrc( trcsz );
