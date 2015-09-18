@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "survinfo.h"
 
 uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
-    : uiGraphicsItemGroup()
+    : uiGraphicsItem()
     , length_(pxwidth)
     , pxwidth_(pxwidth)
     , pxheight_(pxheight)
@@ -33,17 +33,17 @@ uiScaleBarItem::~uiScaleBarItem()
 
 void uiScaleBarItem::initDefaultScale()
 {
-    upperleft_ = new uiRectItem; add( upperleft_ );
-    uppermid_ = new uiRectItem; add( uppermid_ );
-    upperright_ = new uiRectItem; add( upperright_ );
-    lowerleft_ = new uiRectItem; add( lowerleft_ );
-    lowermid_ = new uiRectItem; add( lowermid_ );
-    lowerright_ = new uiRectItem; add( lowerright_ );
+    upperleft_ = new uiRectItem;    addChild( upperleft_ );
+    uppermid_ = new uiRectItem;	    addChild( uppermid_ );
+    upperright_ = new uiRectItem;   addChild( upperright_ );
+    lowerleft_ = new uiRectItem;    addChild( lowerleft_ );
+    lowermid_ = new uiRectItem;	    addChild( lowermid_ );
+    lowerright_ = new uiRectItem;   addChild( lowerright_ );
 
-    const Alignment cenbot = Alignment(Alignment::HCenter,Alignment::Bottom);
-    startnr_ = new uiTextItem( "", cenbot ); add( startnr_ );
-    midnr_ = new uiTextItem( "", cenbot ); add( midnr_ );
-    stopnr_ = new uiTextItem( "", cenbot ); add( stopnr_ );
+    const Alignment cenbot = Alignment( Alignment::HCenter, Alignment::Bottom );
+    startnr_ = new uiAdvancedTextItem( "", cenbot );addChild( startnr_ );
+    midnr_ = new uiAdvancedTextItem( "", cenbot );  addChild( midnr_ );
+    stopnr_ = new uiAdvancedTextItem( "", cenbot ); addChild( stopnr_ );
 
     // filling with color
     upperleft_->setFillColor( Color::Black(), true );
@@ -61,11 +61,10 @@ void uiScaleBarItem::update()
 {
     setPolygons( pxwidth_/4, pxheight_ );
 
-    // TODO: Remove this hack [String("   ")] when OD Text alignment is fixed
     uiString unit = SI().getXYUnitString( false );
-    startnr_->setText( uiString("   ").append("0") );
-    midnr_->setText( uiString("   ").append(toString(length_/2)) );
-    stopnr_->setText( uiString("   ").append(toString(length_)).append(unit) );
+    startnr_->setPlainText( "0" );
+    midnr_->setPlainText( toString(length_/2) );
+    stopnr_->setPlainText( uiString(toString(length_)).append(unit) );
 }
 
 

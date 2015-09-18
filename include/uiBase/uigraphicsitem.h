@@ -78,6 +78,7 @@ public:
 
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
     void		setItemIgnoresTransformations(bool);
+    bool		isItemIgnoresTransformationsEnabled() const;
     virtual uiRect	boundingRect() const;
 
     virtual void	setPenStyle(const LineStyle&,bool usetransp=false);
