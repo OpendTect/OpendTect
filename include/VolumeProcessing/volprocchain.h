@@ -222,6 +222,7 @@ public:
 
     void			setStorageID(const MultiID& mid);
     const MultiID&		storageID() const { return storageid_; }
+    uiString			name() const;
 
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
@@ -281,7 +282,10 @@ private:
 				Epoch(const ChainExecutor& c)
 				    : taskgroup_( *new TaskGroup )
 				    , chainexec_( c )
-				{ taskgroup_.setParallel(true); }
+				{
+				    taskgroup_.setParallel(true);
+				    taskgroup_.setName( c.name() );
+				}
 
 				~Epoch()		{ delete &taskgroup_; }
 

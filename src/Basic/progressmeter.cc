@@ -20,7 +20,10 @@ TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
     , rowlen_(rowlen)
     , finished_(true)
     , totalnr_(0)
-{ reset(); }
+{
+    skipprog_ = false;
+    reset();
+}
 
 
 TextStreamProgressMeter::~TextStreamProgressMeter()
@@ -61,9 +64,12 @@ void TextStreamProgressMeter::setStarted()
     if ( !inited_ )
     {
 	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
-	strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
 	if ( !message_.isEmpty() )
+	{
+	    strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
 	    strm_ << '\t' << message_.getFullString() << od_endl;
+	}
+
         oldtime_ = Time::getMilliSeconds();
 	finished_ = false;
 	inited_ = true;
@@ -73,6 +79,8 @@ void TextStreamProgressMeter::setStarted()
 
 void TextStreamProgressMeter::addProgress( int nr )
 {
+    if ( skipprog_ ) return;
+
     if ( !inited_ )
 	setStarted();
 
@@ -125,7 +133,7 @@ void TextStreamProgressMeter::setMessage( const uiString& message )
 
 void TextStreamProgressMeter::setName( const char* newname )
 {
-    if ( name_==newname )
+    if ( !name_.isEmpty() && name_==newname )
 	return;
 
     name_ = newname;
