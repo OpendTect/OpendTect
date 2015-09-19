@@ -350,7 +350,6 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return;
-	return;
 
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
