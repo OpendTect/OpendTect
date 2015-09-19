@@ -29,7 +29,8 @@ namespace OD
 
 namespace OD
 {
-    template <class T> mGlobal(Basic) void memValueSet(T*,T,od_int64);
+    template <class T> mGlobal(Basic) void memValueSet(T*,T,od_int64,
+						       TaskRunner* taskrun=0);
 }
 
 /*!\brief Sets large amounts of values to a constant using multiple threads.
@@ -39,7 +40,7 @@ namespace OD
 
 template <class T>
 mClass(Basic) MemSetter : public ParallelTask
-{
+{ mODTextTranslationClass(MemSetter);
 public:
 
 		MemSetter();
@@ -53,20 +54,27 @@ public:
     void	setTarget( ValueSeries<T>& vs )	{ ptr_ = vs.arr(); vs_ = &vs; }
     void	setSize( od_int64 sz )		{ sz_ = sz; }
 
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
-    od_int64	nrIterations() const		{ return sz_; }
-    int		minThreadSize() const		{ return mODMemMinThreadSize; }
+    uiString	uiMessage() const	{ return tr("Value setter"); }
+    uiString	uiNrDoneText() const	{ return tr("Positions finished"); }
+
 
 protected:
 
-    bool		setPtr(od_int64 start,od_int64 size);
+    od_int64	nrIterations() const		{ return sz_; }
+    int		minThreadSize() const		{ return mODMemMinThreadSize; }
+    bool	setPtr(od_int64 start,od_int64 size);
 
     ValueSeries<T>*	vs_;
     T*			ptr_;
     od_int64		sz_;
     T			val_;
     ValueFunc		valfunc_;
+
+private:
+
+    bool	doPrepare(int);
+    bool	doWork(od_int64,od_int64,int);
+
 };
 
 
@@ -79,7 +87,7 @@ protected:
 
 template <class T>
 mClass(Basic) MemCopier : public ParallelTask
-{
+{ mODTextTranslationClass(MemCopier);
 public:
 
 		MemCopier();
@@ -96,20 +104,27 @@ public:
 						  outvs_ = &vs; }
     void	setSize(od_int64 sz)		{ sz_ = sz; }
 
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
-    od_int64	nrIterations() const		{ return sz_; }
-    int		minThreadSize() const		{ return mODMemMinThreadSize; }
+    uiString	uiMessage() const	{ return tr("Value copier"); }
+    uiString	uiNrDoneText() const	{ return tr("Positions finished"); }
+
 
 protected:
 
-    inline bool		setPtr(od_int64 start,od_int64 size);
+    od_int64	nrIterations() const		{ return sz_; }
+    int		minThreadSize() const		{ return mODMemMinThreadSize; }
+    inline bool setPtr(od_int64 start,od_int64 size);
 
     const T*		inptr_;
     const ValueSeries<T>* invs_;
     T*			outptr_;
     ValueSeries<T>*	outvs_;
     od_int64		sz_;
+
+private:
+
+    bool	doPrepare(int);
+    bool	doWork(od_int64,od_int64,int);
+
 };
 
 
@@ -119,7 +134,7 @@ protected:
 
 template <class T>
 mClass(Basic) MemValReplacer : public ParallelTask
-{
+{ mODTextTranslationClass(MemValReplacer);
 public:
 		MemValReplacer();
 		MemValReplacer(T*,const T& fromval,const T& toval,od_int64 sz);
@@ -132,13 +147,14 @@ public:
     void        setPtr(ValueSeries<T>& vs)	{ ptr_ = vs.arr(); vs_ = &vs; }
     void        setSize(od_int64 sz)		{ sz_ = sz; }
 
-    bool        doPrepare(int);
-    bool        doWork(od_int64,od_int64,int);
-    od_int64    nrIterations() const            { return sz_; }
-    int         minThreadSize() const           { return mODMemMinThreadSize; }
+    uiString	uiMessage() const	{ return tr("Value replacer"); }
+    uiString	uiNrDoneText() const	{ return tr("Positions finished"); }
+
 
 protected:
 
+    od_int64		nrIterations() const	{ return sz_; }
+    int			minThreadSize() const	{ return mODMemMinThreadSize; }
     bool                setPtr(od_int64 start,od_int64 size);
 
     ValueSeries<T>*     vs_;
@@ -146,6 +162,12 @@ protected:
     od_int64            sz_;
     T                   toval_;
     T                   fromval_;
+
+private:
+
+    bool	doPrepare(int);
+    bool	doWork(od_int64,od_int64,int);
+
 };
 
 
@@ -213,12 +235,12 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( valfunc_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    vs_->setValue( idx, valfunc_() );
+	    { vs_->setValue( idx, valfunc_() ); addToNrDone(1); }
     }
     else
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    vs_->setValue( idx, val_ );
+	    { vs_->setValue( idx, val_ ); addToNrDone(1); }
     }
 
     return true;
@@ -329,17 +351,17 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( outptr_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    outptr_[idx] = invs_->value( idx );
+	    { outptr_[idx] = invs_->value( idx ); addToNrDone(1); }
     }
     else if ( inptr_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    outvs_->setValue( idx, inptr_[idx] );
+	    { outvs_->setValue( idx, inptr_[idx] ); addToNrDone(1); }
     }
     else
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    outvs_->setValue( idx, invs_->value(idx) );
+	    { outvs_->setValue( idx, invs_->value(idx) ); addToNrDone(1); }
     }
     return true;
 }
@@ -393,6 +415,8 @@ bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
     {
 	if ( vs_->value(idx)==fromval_ )
 	    vs_->setValue( idx, toval_ );
+
+	addToNrDone(1);
     }
 
     return true;
@@ -415,14 +439,14 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 }
 
 
-//! size determined exprimentally on different Linux and Windows systems
+//! size determined experimentally on different Linux and Windows systems
 #define cMinMemValSetParallelSize 400
 
 namespace OD
 {
 
 template <class T>
-inline void memValueSet( T* arr, T val , od_int64 sz )
+inline void memValueSet( T* arr, T val , od_int64 sz, TaskRunner* taskrun )
 {
     if ( !arr || sz<=0 )
 	return;
@@ -430,7 +454,8 @@ inline void memValueSet( T* arr, T val , od_int64 sz )
     if ( sz > cMinMemValSetParallelSize )
     {
 	MemSetter<T> msetter( arr, val, sz );
-	msetter.execute();
+	taskrun ? taskrun->execute( msetter )
+		: msetter.execute();
     }
     else
     {

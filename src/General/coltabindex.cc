@@ -28,8 +28,8 @@ void ColTab::IndexedLookUpTable::update()
     cols_.erase();
     cols_.setSize( nrcols_, seq_.undefColor() );
 
-    mDefParallelCalc2Pars( ColTabIndexAppl,
-	    		   TypeSet<Color>&,cols, const Sequence&,seq )
+    mDefParallelCalc2Pars( ColTabIndexAppl, tr("Update of color lookup table"),
+			   TypeSet<Color>&,cols, const Sequence&,seq )
     mDefParallelCalcBody(
 	const float dx = 1.f/(sz_-1)
 ,

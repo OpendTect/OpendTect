@@ -195,7 +195,7 @@ void SceneColTab::updateSequence()
     ColTab::IndexedLookUpTable table( sequence_, nrcols );
     std::vector<osg::Vec4> colors(nrcols);
 
-    mDefParallelCalc4Pars( ColorUpdator,
+    mDefParallelCalc4Pars( ColorUpdator, tr("Color update"),
 			   std::vector<osg::Vec4>&, colors,
 			   const ColTab::IndexedLookUpTable&,table,
 			   bool, flipseq,

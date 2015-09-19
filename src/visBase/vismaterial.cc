@@ -169,7 +169,7 @@ void Material::removeOsgColor( int idx )
 	pErrMsg("Removing invalid index or last color.");
 	return;
     }
-    
+
     colarr->erase( colarr->begin() + idx );
 }
 
@@ -211,7 +211,7 @@ void Material::setAllTransparencies( float n )
 	setTransparency( n );
 	return;
     }
-    
+
     for ( int idx=0; idx<osgcolorarray_->getNumElements(); idx++ )
 	setTransparency( n, idx, true );
 
@@ -245,7 +245,7 @@ const TypeSet<Color> Material::getColors()
     TypeSet<Color> colors;
     if ( osgcolorarray_ )
     {
-	mDefParallelCalc2Pars( ColorUpdator,
+	mDefParallelCalc2Pars( ColorUpdator, tr("Updating colors"),
 			       osg::Vec4Array&, osgclrs,
 			       TypeSet<Color>&, colors )
 	mDefParallelCalcBody
@@ -299,7 +299,7 @@ float Material::getRescaledTransparency() const
    float res = getTransparency( 0 );
    if ( transparencybendpower_ == 1.0 )
        return res;
-   
+
    return pow( res, transparencybendpower_ );
 }
 
