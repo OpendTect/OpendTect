@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include "emseedpicker.h"
 
 #include "attribsel.h"
-#include "coord.h"
+#include "trckeyzsampling.h"
+#include "uistring.h"
 
 class FaultTrcDataProvider;
 namespace Attrib { class SelSpec; }
@@ -26,70 +27,26 @@ namespace MPE
 {
 
 /*!
-\brief EMSeedPicker to pick seeds in EM::Horizon3D.
+\brief SeedPicker to pick seeds in EM::Horizon3D.
 */
 
 mExpClass(MPEEngine) Horizon3DSeedPicker : public EMSeedPicker
 { mODTextTranslationClass(Horizon3DSeedPicker)
 public:
-    			Horizon3DSeedPicker(MPE::EMTracker&);
+			Horizon3DSeedPicker(EMTracker&);
+			~Horizon3DSeedPicker();
 
-    bool		canSetSectionID() const		{ return true; }
-    bool		setSectionID(const EM::SectionID&);
-    EM::SectionID	getSectionID() const		{ return sectionid_; }
+    bool		addSeed(const TrcKeyValue& seedcrd,bool drop,
+				const TrcKeyValue& seedkey);
+    bool		removeSeed(const TrcKey&,bool environment,bool retrack);
+    TrcKey		replaceSeed(const TrcKey& oldpos,
+				    const TrcKeyValue& newpos);
 
-    bool		startSeedPick();
-    bool		stopSeedPick(bool iscancel=false);
-
-    bool		addSeed(const Coord3&,bool drop);
-    bool		addSeed(const Coord3& seedcrd,bool drop,
-				const Coord3& seedkey);
-    Coord3		getAddedSeed() const		{ return addedseed_; }
-    bool		removeSeed(const EM::PosID&,
-	    			   bool environment,
-	    			   bool retrack);
-    EM::PosID		replaceSeed(const EM::PosID& oldpos,
-	    			    const Coord3& newpos);
-    bool		canAddSeed() const		{ return true; }
-    bool		canRemoveSeed() const		{ return true; }
-
-    void		setSelSpec(const Attrib::SelSpec*);
-    const Attrib::SelSpec* getSelSpec() const		{ return &selspec_; }
     bool		reTrack();
-    int			nrSeeds() const;
-    int			minSeedsToLeaveInitStage() const;
-
-    NotifierAccess*	aboutToAddRmSeedNotifier()	{ return &addrmseed_; }
-    NotifierAccess*	seedAddedNotifier()		{ return &seedadded_; }
-    NotifierAccess*	madeSurfChangeNotifier()	{ return &surfchange_; }
-
-    static int		nrSeedConnectModes()		{ return 3; }
-    static int		defaultSeedConMode()		{return TrackFromSeeds;}
-    int			defaultSeedConMode(
-				    bool gotsetup) const;
-    static uiString	seedConModeText(int mode,
-				    bool abbrev=false);
-
-    int			getSeedConnectMode() const	{ return seedconmode_; }
-    void		setSeedConnectMode(int scm)	{ seedconmode_ = scm; }
-    void		blockSeedPick(bool yn)		{ blockpicking_ = yn; }
-    bool		isSeedPickBlocked() const	{ return blockpicking_;}
     bool		doesModeUseVolume() const;
-    bool		doesModeUseSetup() const;
 
-    void		endSeedPick(bool yn)		{ endseedpicking_ = yn;}
-    bool		isSeedPickEnded()	    { return endseedpicking_; }
-
-    void		setSowerMode(bool yn)		{ sowermode_ = yn; }
-
-    void		setSeedPickArea(const TrcKeySampling& hs)
-    							{ seedpickarea_ = hs; }
-    const TrcKeySampling*	getSeedPickArea() const {return &seedpickarea_;}
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
-
-    void		getSeeds(TypeSet<TrcKey>&) const;
-    int			indexOf(const TrcKey&) const;
 
 protected:
     bool		retrackOnActiveLine(const BinID& startbid,
@@ -99,43 +56,16 @@ protected:
     void		processJunctions();
     bool		lineTrackDirection(BinID& dir,
 					   bool perptotrackdir=false) const;
-    int 		nrLateralNeighbors(const EM::PosID& pid) const;
-    int 		nrLineNeighbors(const EM::PosID& pid,
-	    				bool perptotrackdir=false) const;
+    int			nrLateralNeighbors(const BinID& pid) const;
+    int			nrLineNeighbors(const BinID& pid,
+					bool perptotrackdir=false) const;
 
     bool		interpolateSeeds();
     TrcKeyZSampling	getTrackBox() const;
-    bool		getNextSeed(BinID seedbid,const BinID& dir,
-	    			    BinID& nextseedbid) const;
+    bool		getNextSeed(const BinID& seedbid,const BinID& dir,
+				    BinID& nextseedbid) const;
 
-    TypeSet<EM::PosID>	propagatelist_;
-    TypeSet<EM::PosID>	seedlist_;
-    TypeSet<Coord3>	seedpos_;
-    TypeSet<BinID>	trackbounds_;
-    TypeSet<EM::PosID>	junctions_;
-    TypeSet<EM::PosID>	eraselist_;
-
-    Coord3		addedseed_;
-    EM::PosID		lastseedpid_;
-    EM::PosID		lastsowseedpid_;
-    Coord3		lastseedkey_;
-    bool		sowermode_;
-    TrcKeySampling	seedpickarea_;
-
-    bool		didchecksupport_;
-    EM::SectionID	sectionid_;
-    MPE::EMTracker&	tracker_;
-
-    Attrib::SelSpec	selspec_;
     const FaultTrcDataProvider* fltdataprov_;
-
-    int			seedconmode_;
-    bool		blockpicking_;
-    bool		endseedpicking_;
-
-    Notifier<Horizon3DSeedPicker>	addrmseed_;
-    Notifier<Horizon3DSeedPicker>	seedadded_;
-    Notifier<Horizon3DSeedPicker>	surfchange_;
 
 private:
     void		extendSeedListEraseInBetween(

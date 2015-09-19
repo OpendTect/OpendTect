@@ -50,7 +50,7 @@ public:
 protected:
 
     void			addNeighbor(bool upwards,
-					    const EM::SubID& sourcesid);
+					    const TrcKey& sourcesid);
     virtual float		getDepth(const TrcKey& src,
 					 const TrcKey& target) const;
     virtual void		prepareDataIfRequired()		{}
@@ -59,7 +59,7 @@ protected:
     bool			alldirs_;
     Coord			xydirection_;
     TrcKeyValue			direction_;
-    EM::Horizon2D&		surface_;
+    EM::Horizon2D&		hor2d_;
     Pos::GeomID			geomid_;
 };
 

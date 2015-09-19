@@ -23,7 +23,7 @@ namespace MPE
 Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
 				      EM::SectionID sid )
     : SectionExtender( sid )
-    , surface_( hor )
+    , hor2d_( hor )
     , anglethreshold_( 0.5 )
 {
 }
@@ -85,14 +85,13 @@ int Horizon2DExtender::nextStep()
 }
 
 
-void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
+void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
 {
-    BinID srcbid = BinID::fromInt64( srcsubid );
     const StepInterval<int> colrange =
-	surface_.geometry().colRange( sid_, geomid_ );
-    EM::SubID neighborsubid;
-    Coord3 neighborpos;
-    BinID neighbrbid = srcbid;
+	hor2d_.geometry().colRange( sid_, geomid_ );
+    TrcKey neighbor = src;
+    float neighborz;
+    BinID neighbrbid = src.pos();
     const TrcKeyZSampling& boundary = getExtBoundary();
 
     do
@@ -105,15 +104,16 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
 		!boundary.hsamp_.includes(BinID(neighbrbid)) )
 	    return;
 
-	neighborsubid = neighbrbid.toInt64();
-	neighborpos = surface_.getPos( sid_, neighborsubid );
+	neighbor.setPos( neighbrbid );
+	neighborz = hor2d_.getZ( neighbor );
     }
-    while ( !Coord(neighborpos).isDefined() );
+    while ( mIsUdf(neighborz) );
 
-    if ( neighborpos.isDefined() )
+    if ( !mIsUdf(neighborz) )
 	return;
 
-    const Coord3 sourcepos = surface_.getPos( sid_, srcsubid );
+/*
+    const Coord3 sourcepos = hor2d_.getPos( sid_, srcsubid );
 
     if ( !alldirs_ )
     {
@@ -127,18 +127,16 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
 		return;
 	}
     }
+*/
 
-    Coord3 refpos = surface_.getPos( sid_, neighborsubid );
-    refpos.z = getDepth( srcbid, neighbrbid );
-    surface_.setPos( sid_, neighborsubid, refpos, true );
-
-    addTarget( neighborsubid, srcsubid );
+    hor2d_.setZ( neighbor, hor2d_.getZ(src), true );
+    addTarget( neighbor, src );
 }
 
 
 float Horizon2DExtender::getDepth( const TrcKey& src, const TrcKey& ) const
 {
-    return surface_.getZ( src );
+    return hor2d_.getZ( src );
 }
 
 }  // namespace MPE

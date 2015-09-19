@@ -402,13 +402,7 @@ Horizon2D::~Horizon2D()
 
 float Horizon2D::getZ( const TrcKey& tk ) const
 {
-    const Geometry::Horizon2DLine* line =
-		geometry().sectionGeometry( SectionID(0) );
-    const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
-    if ( rowidx < 0 )
-	return mUdf(float);
-
-    const Coord3 pos = line->getKnot( RowCol(rowidx,tk.trcNr()) );
+    const Coord3 pos = getCoord( tk );
     return pos.isDefined() ? mCast(float,pos.z) : mUdf(float);
 }
 
@@ -426,6 +420,34 @@ bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
 
 bool Horizon2D::hasZ( const TrcKey& tk ) const
 { return !mIsUdf(getZ(tk)); }
+
+
+Coord3 Horizon2D::getCoord( const TrcKey& tk ) const
+{
+    const Geometry::Horizon2DLine* line =
+		geometry().sectionGeometry( SectionID(0) );
+    const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
+    if ( rowidx < 0 )
+	return Coord3::udf();
+
+    return line->getKnot( RowCol(rowidx,tk.trcNr()) );
+}
+
+
+void Horizon2D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
+{
+    const BinID bid( tk.geomID(), tk.trcNr() );
+    const PosID pid( id(), sectionID(0), bid.toInt64() );
+    setPosAttrib( pid, attr, yn, addtohist );
+}
+
+
+bool Horizon2D::isAttrib( const TrcKey& tk, int attr ) const
+{
+    const BinID bid( tk.geomID(), tk.trcNr() );
+    const PosID pid( id(), sectionID(0), bid.toInt64() );
+    return isPosAttrib( pid, attr );
+}
 
 
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const

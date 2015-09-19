@@ -154,17 +154,17 @@ int HorizonAdjuster::nextStep()
 	return ErrorOccurred();
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_)
-    for ( int idx=0; idx<pids_.size(); idx++ )
+    for ( int idx=0; idx<tks_.size(); idx++ )
     {
-	BinID targetbid = BinID::fromInt64( pids_[idx] );
-	float targetz;
-	bool res;
-	if ( pidsrc_.size() > idx )
+	const TrcKey& target = tks_[idx];
+	float targetz = mUdf(float);
+	bool res = false;
+	if ( tksrc_.size() > idx )
 	{
-	    BinID refbid = BinID::fromInt64( pidsrc_[idx] );
-	    res = track( refbid, targetbid, targetz );
+	    const TrcKey& ref = tksrc_[idx];
+	    res = track( ref, target, targetz );
 	    if ( res && hor3d )
-		hor3d->setParent( targetbid, refbid );
+		hor3d->setParent( target, ref );
 	}
 	else // adjust picked seed
 	{
@@ -176,19 +176,19 @@ int HorizonAdjuster::nextStep()
 				evtracker_.getCompareMethod();
 	    evtracker_.setCompareMethod( EventTracker::None );
 
-	    res = track( BinID(-1,-1), targetbid, targetz );
+	    res = track( BinID(-1,-1), target, targetz );
 
 	    evtracker_.useSimilarity( wasusingsim );
 	    evtracker_.setCompareMethod( curmethod );
 
 	    if ( res )
-		setSeedPosition( targetbid );
+		setSeedPosition( target );
 	}
 
 	if ( res || removeonfailure_ )
 	{
 	    const float newz = res ? targetz : mUdf(float);
-	    setHorizonPick( targetbid, newz );
+	    setHorizonPick( target, newz );
 	}
     }
 
@@ -196,7 +196,7 @@ int HorizonAdjuster::nextStep()
 }
 
 
-bool HorizonAdjuster::track( const BinID& from, const BinID& to,
+bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 			     float& targetz ) const
 {
     ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
@@ -206,14 +206,14 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     const Array3D<float>& array = sdp->data( 0 );
     if ( !array.getStorage() ) return false;
 
-    if ( !horizon_.isDefined(sectionid_,to.toInt64()) )
+    if ( !horizon_.hasZ(to) )
 	return false;
 
-    const int totrcidx = sdp->getGlobalIdx( getTrcKey(to) );
+    const int totrcidx = sdp->getGlobalIdx( to );
     if ( totrcidx < 0 ) return false;
 
     const OffsetValueSeries<float> tovs = sdp->getTrcStorage( 0, totrcidx );
-    const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
+    const float startz = horizon_.getZ( to );
     if ( mIsUdf(startz) )
 	return false;
 
@@ -223,9 +223,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     evtracker_.setRangeStep( sd.step );
     evtracker_.setTarget( &tovs, nrz, sd.getfIndex(startz) );
 
-    if ( from.inl()!=-1 && from.crl()!=-1 )
+    if ( from.lineNr()!=-1 && from.trcNr()!=-1 )
     {
-	if ( !horizon_.isDefined(sectionid_,from.toInt64()) )
+	if ( !horizon_.hasZ(from) )
 	    return false;
 
 	const int seedtrcidx = sdp->getGlobalIdx( seedtk_ );
@@ -240,12 +240,12 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	else
 	    evtracker_.setSeed( 0, -1, mUdf(float) );
 
-	const int fromtrcidx = sdp->getGlobalIdx( getTrcKey(from) );
+	const int fromtrcidx = sdp->getGlobalIdx( from );
 	if ( fromtrcidx < 0 ) return false;
 
 	const OffsetValueSeries<float> fromvs =
 			sdp->getTrcStorage( 0, fromtrcidx );
-	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
+	const float fromz = horizon_.getZ( from );
 	evtracker_.setSource( &fromvs, nrz, sd.getfIndex(fromz) );
 	if ( !evtracker_.isOK() )
 	    return false;
@@ -309,25 +309,14 @@ TrcKeyZSampling
 }
 
 
-const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
+void HorizonAdjuster::setHorizonPick( const TrcKey& tk, float val )
 {
-    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
-    if ( !sdp ) return TrcKey::udf();
-
-    return sdp->is2D() ?
-      Survey::GM().traceKey(sdp->getTrcKey(0).geomID(),bid.crl()) :
-      Survey::GM().traceKey(Survey::GM().default3DSurvID(),bid.inl(),bid.crl());
-}
-
-
-void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
-{
-    horizon_.setZ( bid, val, setundo_ );
+    horizon_.setZ( tk, val, setundo_ );
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
     if ( !hor3d ) return;
 
-    EM::PosID posid( horizon_.id(), sectionid_, bid.toInt64() );
+    EM::PosID posid( horizon_.id(), sectionid_, tk.pos().toInt64() );
     hor3d->auxdata.setAuxDataVal( 0, posid, evtracker_.targetValue() );
     hor3d->auxdata.setAuxDataVal( 1, posid, evtracker_.quality() );
     hor3d->auxdata.setAuxDataVal( 2, posid, (float)seedtk_.trcNr() );

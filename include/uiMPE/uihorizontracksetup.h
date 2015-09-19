@@ -50,9 +50,9 @@ public:
 
     void			setSectionTracker(SectionTracker*);
 
-    void			setMode(const EMSeedPicker::SeedModeOrder);
-    int				getMode();
-    void			setSeedPos(const Coord3&);
+    void			setMode(EMSeedPicker::TrackMode);
+    EMSeedPicker::TrackMode	getMode() const;
+    void			setSeedPos(const TrcKeyValue&);
     void			setColor(const Color&);
     const Color&		getColor();
     int				getLineWidth() const;
@@ -148,7 +148,7 @@ protected:
 
 
     bool			is2d_;
-    EMSeedPicker::SeedModeOrder	mode_;
+    EMSeedPicker::TrackMode	mode_;
     MarkerStyle3D		markerstyle_;
 
     HorizonTrackerMgr*		trackmgr_;

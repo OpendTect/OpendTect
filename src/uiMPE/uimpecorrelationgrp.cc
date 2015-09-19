@@ -39,7 +39,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     , sectiontracker_(0)
     , adjuster_(0)
     , changed_(this)
-    , seedpos_(Coord3::udf())
+    , seedpos_(TrcKeyValue::udf())
 {
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
@@ -170,10 +170,10 @@ void uiCorrelationGroup::init()
 }
 
 
-void uiCorrelationGroup::setSeedPos( const Coord3& crd )
+void uiCorrelationGroup::setSeedPos( const TrcKeyValue& tkv )
 {
-    seedpos_ = crd;
-    previewgrp_->setSeedPos( crd );
+    seedpos_ = tkv;
+    previewgrp_->setSeedPos( tkv );
 }
 
 

@@ -131,9 +131,9 @@ void ObjectEditor::finishEdit()
 
     if ( snapafterthisedit )
     {
-	const int trackeridx = MPE::engine().getTrackerByObject(emobject.id());
-	EMTracker* tracker = MPE::engine().getTracker(trackeridx);
-	tracker->snapPositions(alongmovingnodes);
+//	const int trackeridx = MPE::engine().getTrackerByObject(emobject.id());
+//	EMTracker* tracker = MPE::engine().getTracker(trackeridx);
+//	tracker->snapPositions(alongmovingnodes);
     }
 
     EM::EMM().undo().setUserInteractionEnd(

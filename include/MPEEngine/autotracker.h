@@ -85,7 +85,7 @@ protected:
 };
 
 
-
+/*
 mExpClass(MPEEngine) AutoTracker : public Executor
 { mODTextTranslationClass(AutoTracker)
 public:
@@ -128,6 +128,7 @@ protected:
 
     uiString			execmsg_;
 };
+*/
 
 } // namespace MPE
 

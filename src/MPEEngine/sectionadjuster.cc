@@ -35,14 +35,14 @@ SectionAdjuster::SectionAdjuster( EM::SectionID sid )
 EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
 
 
-void SectionAdjuster::setPositions( const TypeSet<EM::SubID>& p,
-				    const TypeSet<EM::SubID>* src )
+void SectionAdjuster::setPositions( const TypeSet<TrcKey>& p,
+				    const TypeSet<TrcKey>* src )
 {
-    pids_ = p;
+    tks_ = p;
     if ( src )
-	pidsrc_ = *src;
+	tksrc_ = *src;
     else
-	pidsrc_.erase();
+	tksrc_.erase();
 }
 
 

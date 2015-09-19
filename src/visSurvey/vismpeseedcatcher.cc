@@ -186,7 +186,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	     OD::leftMouseButton(eventinfo.buttonstate_) )
 	{
 	    //mouse released/end seed drag
-	    info().setPickedNode( EM::PosID::udf() ); 
+	    info().setPickedNode( TrcKey::udf() );
 	    return;
 	}
 
@@ -201,7 +201,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
-       const bool doubleclick = eventinfo.type==visBase::MouseDoubleClick 
+       const bool doubleclick = eventinfo.type==visBase::MouseDoubleClick
 		             && eventinfo.pressed == false;
     info().setDoubleClicked( doubleclick );
     info().setPos( eventinfo.displaypickedpos );
@@ -321,18 +321,18 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    const Attrib::SelSpec* as = seis2ddisp->getSelSpec( attrib );
 	    Attrib::SelSpec newas;
 	    if ( as )
-	    {
 		newas = *as;
-		PtrMan<IOObj> lsioobj = IOM().get( seis2ddisp->lineSetID() );
-		BufferString lsnm = lsioobj ? lsioobj->name().str() : 0;
-		newas.setUserRef( LineKey(lsnm,as->userRef()) );
-	    }
+
 	    info().setObjDataSelSpec(
 		   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
 			? *as : newas );
-	    info().setObjLineSet( seis2ddisp->lineSetID() );
 	    info().setGeomID( seis2ddisp->getGeomID() );
 	    info().setObjLineName( seis2ddisp->name().getFullString() );
+
+	    const TrcKey tk( seis2ddisp->getGeomID(),
+			     seis2ddisp->getNearestTraceNr(
+				eventinfo.worldpickedpos) );
+	    info().setNode( tk );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
@@ -348,20 +348,18 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 				const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
-    if ( !emobj )
+    mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
+    if ( !hor2d ) return;
 	return;
 
     const Coord3 clickedpos = eventinfo.displaypickedpos;
 
     EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
-					    eventinfo.pickedobjids,clickedpos );
-    info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
-
-    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
-    if ( !hor2d ) return;
-
+					eventinfo.pickedobjids,clickedpos );
     const int lineidx = nodepid.getRowCol().row();
     const Pos::GeomID geomid = hor2d->geometry().geomID( lineidx );
+    const TrcKey tk( geomid, nodepid.getRowCol().col() );
+    info().setNode( sequentSowing() ? TrcKey::udf() : tk );
 
     Seis2DDisplay* seis2dclosest = 0;
     bool legalclickclosest = false;
@@ -449,37 +447,11 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     const EM::PosID nodepid = emod->getPosAttribPosID(EM::EMObject::sSeedNode(),
 					    eventinfo.pickedobjids,clickedpos);
     Coord3 nodepos = emobj->getPos( nodepid );
-    info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
-
     if ( !nodepos.isDefined() )
 	 nodepos = eventinfo.worldpickedpos;
 
     const BinID nodebid = SI().transform( nodepos );
-
-    TypeSet<int> mpedisplays;
-    visBase::DM().getIDs( typeid(visSurvey::MPEDisplay), mpedisplays );
-
-    TrcKeyZSampling trkplanecs(false);
-    for ( int idx=0; idx<mpedisplays.size(); idx++ )
-    {
-	visBase::DataObject* dataobj =
-				visBase::DM().getObject( mpedisplays[idx] );
-	if ( !dataobj )
-	    continue;
-
-	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick );
-	if ( mpedisplay && cs.hsamp_.includes(nodebid) &&
-	     cs.zsamp_.includes(nodepos.z,false) )
-	{
-	    info().setLegalClick( legalclick );
-	    info().setObjID( mpedisplay->id() );
-	    info().setObjCS( cs );
-	    info().setObjDataSelSpec( *mpedisplay->getSelSpec(0) );
-	    click.trigger();
-	    trkplanecs = cs;
-	    break;
-	}
-    }
+    info().setNode( sequentSowing() ? TrcKey::udf() : nodebid );
 
     TypeSet<int> planesinscene;
     visBase::DM().getIDs( typeid(visSurvey::PlaneDataDisplay), planesinscene );
@@ -496,8 +468,6 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    continue;
 
 	const TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
-	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
-	    continue;
 
 	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false))
 	{
@@ -607,7 +577,7 @@ void MPEClickCatcher::allowPickBasedReselection()
 
 
 MPEClickInfo::MPEClickInfo()
-    : pickednode_(EM::PosID(-1,-1,-1))
+    : pickednode_(TrcKey::udf())
 { clear(); }
 
 
@@ -627,15 +597,15 @@ bool MPEClickInfo::isAltClicked() const
 { return altclicked_; }
 
 
-const EM::PosID& MPEClickInfo::getPickedNode() const
-{ return pickednode_; }
-
-
 bool MPEClickInfo::isDoubleClicked() const
 { return doubleclicked_; }
 
 
-const EM::PosID& MPEClickInfo::getNode() const
+const TrcKey& MPEClickInfo::getPickedNode() const
+{ return pickednode_; }
+
+
+const TrcKey& MPEClickInfo::getNode() const
 { return clickednode_; }
 
 
@@ -668,9 +638,6 @@ const Attrib::SelSpec* MPEClickInfo::getObjDataSelSpec() const
 }
 
 
-const MultiID& MPEClickInfo::getObjLineSet() const
-{ return lineset_; }
-
 Pos::GeomID MPEClickInfo::getGeomID() const
 { return geomid_; }
 
@@ -689,15 +656,15 @@ void MPEClickInfo::clear()
     ctrlclicked_ = false;
     shiftclicked_ = false;
     altclicked_ = false;
-    clickednode_ = EM::PosID( -1, -1, -1 );
+    clickednode_ = TrcKey::udf();
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
     clickedcs_.init( false);
     attrsel_ = 0;
     attrdata_ = 0;
     linedata_ = 0;
-    lineset_ = MultiID( -1 );
     linename_ = "";
+    geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
 }
 
@@ -722,11 +689,11 @@ void MPEClickInfo::setDoubleClicked(bool yn)
 { doubleclicked_ = yn; }
 
 
-void MPEClickInfo::setPickedNode( const EM::PosID& pid )
+void MPEClickInfo::setPickedNode( const TrcKey& pid )
 { pickednode_ = pid; }
 
 
-void MPEClickInfo::setNode( const EM::PosID& pid )
+void MPEClickInfo::setNode( const TrcKey& pid )
 { clickednode_ = pid; }
 
 
@@ -752,10 +719,6 @@ void MPEClickInfo::setObjData( const RegularSeisDataPack* ad )
 
 void MPEClickInfo::setObjDataSelSpec( const Attrib::SelSpec& as )
 { attrsel_ = as; }
-
-
-void MPEClickInfo::setObjLineSet( const MultiID& mid )
-{ lineset_ = mid; }
 
 
 void MPEClickInfo::setGeomID( Pos::GeomID geomid )

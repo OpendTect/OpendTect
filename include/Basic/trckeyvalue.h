@@ -45,6 +45,8 @@ public:
 			{ return !(*this==oth); }
 
     inline bool		isDefined() const;
+    inline bool		isUdf() const		{ return !isDefined(); }
+    static const TrcKeyValue& udf();
 
     TrcKey		tk_;
     float		val_;

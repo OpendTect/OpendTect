@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
+#include "emtracker.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -32,23 +33,15 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace MPE
 {
 
-Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
-    : tracker_( t )
-    , sectionid_( -1 )
-    , addrmseed_( this )
-    , surfchange_( this )
-    , seedconmode_( defaultSeedConMode() )
-    , blockpicking_( false )
-    , selspec_(0)
+Horizon2DSeedPicker::Horizon2DSeedPicker( EMTracker& tracker )
+    : EMSeedPicker(tracker)
     , geomid_(Survey::GeometryManager::cUndefGeomID())
-    , sowermode_( false )
-    , lastseedpid_( EM::PosID::udf() )
-    , lastseedkey_( Coord3::udf() )
 {
-    mDynamicCastGet(EM::Horizon2D*,hor,EM::EMM().getObject(tracker_.objectID()))
-    if ( hor && hor->nrSections()>0 )
-	sectionid_ = hor->sectionID(0);
 }
+
+
+Horizon2DSeedPicker::~Horizon2DSeedPicker()
+{}
 
 
 void Horizon2DSeedPicker::setLine( Pos::GeomID geomid )
@@ -57,27 +50,12 @@ void Horizon2DSeedPicker::setLine( Pos::GeomID geomid )
 }
 
 
-bool Horizon2DSeedPicker::canSetSectionID() const
-{ return true; }
-
-
-bool Horizon2DSeedPicker::setSectionID( const EM::SectionID& sid )
-{
-    sectionid_ = sid;
-    return true;
-}
-
-
-EM::SectionID Horizon2DSeedPicker::getSectionID() const
-{ return sectionid_; }
-
-
 bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
 {
-    if ( seedconmode_ == DrawBetweenSeeds )
+    if ( trackmode_ == DrawBetweenSeeds )
 	return true;
 
-    addrmseed_.trigger();
+    seedToBeAddedRemoved.trigger();
     TypeSet<Attrib::SelSpec> neededattribs;
     tracker_.getNeededAttribs( neededattribs );
     for ( int idx=0; idx<neededattribs.size(); idx++ )
@@ -98,8 +76,10 @@ bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
 
 bool Horizon2DSeedPicker::startSeedPick()
 {
+    if ( !EMSeedPicker::startSeedPick() )
+	return false;
+
     mGetHorizon(hor,false);
-    didchecksupport_ = hor->enableGeometryChecks( false );
 
     if ( geomid_ == Survey::GeometryManager::cUndefGeomID() )
 	return false;
@@ -133,10 +113,6 @@ bool Horizon2DSeedPicker::startSeedPick()
 }
 
 
-bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
-{ return addSeed( seedcrd, drop, seedcrd ); }
-
-
 #define mGetHorAndColrg(hor,colrg,escval) \
     mGetHorizon(hor,escval); \
     if ( sectionid_<0 || geomid_==Survey::GeometryManager::cUndefGeomID() ) \
@@ -145,64 +121,62 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
 	hor->geometry().colRange( sectionid_, geomid_ );
 
 
-bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
-				   const Coord3& seedkey )
+bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
+				   const TrcKeyValue& seedkey )
 {
+    addedseed_ = seed;
     if ( !sowermode_ )
-	addrmseed_.trigger();
+	seedToBeAddedRemoved.trigger();
 
     if ( blockpicking_ )
 	return true;
 
-    mGetHorAndColrg(hor,colrg,false);
+    mGetHorizon(hor2d,false);
     const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
     if ( !geom2d )
 	return false;
 
-    TrcKey trckey = geom2d->nearestTrace( seedcrd, 0 );
-    RowCol rc( hor->geometry().lineIndex(geomid_), trckey.pos().crl() );
-    const EM::PosID pid( hor->id(), sectionid_, rc.toInt64() );
-    bool res = true;
-
-    Coord3 newpos = hor->getPos( pid );
-    newpos.z = seedcrd.z;
     seedlist_.erase();
-    seedlist_ += pid;
+    seedlist_ += seed.tk_;
 
+    bool res = true;
     if ( sowermode_ )
     {
 	// Duplicate promotes hidden seed to visual seed in sower mode
-	const bool isvisualseed = lastseedkey_==seedkey;
+	const bool isvisualseed = lastseed_==seed;
 
-	if ( isvisualseed || lastseedpid_!=pid )
+	if ( isvisualseed || lastseed_!=seed )
 	{
-	    hor->setPos( pid, newpos, true );
-	    hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), isvisualseed );
-	    if ( seedconmode_ != DrawBetweenSeeds )
+	    hor2d->setZ( seed.tk_, seed.val_, true );
+	    hor2d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(),
+			      isvisualseed, true );
+	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( seedlist_ );
 
-	    seedlist_ += lastseedpid_;
+	    seedlist_ += lastseed_.tk_;
 	    interpolateSeeds();
 	}
     }
     else
     {
-	const bool pickedposwasdef = hor->isDefined( pid );
+	const bool pickedposwasdef = hor2d->hasZ( seed.tk_ );
 	if ( !drop || !pickedposwasdef )
 	{
-	    hor->setPos( pid, newpos, true );
-	    if ( seedconmode_ != DrawBetweenSeeds )
+	    hor2d->setZ( seed.tk_, seed.val_, true );
+	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( seedlist_ );
+
+	    addedseed_.val_ = hor2d->getZ( seed.tk_ );
+	    seedAdded.trigger();
 	}
 
-	hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
+	hor2d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(), true, true );
 
-	res = drop ? true : retrackOnActiveLine(rc.col(),pickedposwasdef);
+	res = drop ? true
+		   : retrackOnActiveLine( seed.tk_.trcNr(), pickedposwasdef );
     }
 
-    surfchange_.trigger();
-    lastseedpid_ = pid;
-    lastseedkey_ = seedkey;
+    lastseed_ = seed;
     return res;
 }
 
@@ -233,29 +207,26 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 }
 
 
-bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
+bool Horizon2DSeedPicker::removeSeed( const TrcKey& tk, bool environment,
 				      bool retrack )
 {
-    addrmseed_.trigger();
+    seedToBeAddedRemoved.trigger();
 
     if ( blockpicking_ )
 	return true;
 
-    mGetHorizon(hor,false);
-    RowCol rc = RowCol::fromInt64( pid.subID() );
-    if ( rc.row() != hor->geometry().lineIndex(geomid_) )
+    if ( tk.geomID() != geomid_ )
 	return false;
 
-    hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
-    if ( environment || !nrLineNeighbors(rc.col()) )
-	hor->unSetPos( pid, true );
+    mGetHorizon(hor,false);
+    hor->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
+    if ( environment || !nrLineNeighbors(tk.trcNr()) )
+	hor->setZ( tk, mUdf(float), true );
 
     seedlist_.erase();
-    const bool res = environment ?
-		     retrackOnActiveLine(rc.col(),true,!retrack) : true;
-
-    surfchange_.trigger();
-    return res;
+    seedRemoved.trigger();
+    return
+	environment ? retrackOnActiveLine(tk.trcNr(),true,!retrack) : true;
 }
 
 
@@ -281,43 +252,38 @@ bool Horizon2DSeedPicker::getNextSeedPos( int seedpos, int dirstep,
 }
 
 
-EM::PosID Horizon2DSeedPicker::replaceSeed( const EM::PosID& oldpid,
-					    const Coord3& newpos )
+TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
+					 const TrcKeyValue& newseedin )
 {
-    EM::PosID newpospid = EM::PosID::udf();
-    if ( seedconmode_ != DrawBetweenSeeds )
-	return newpospid;
+    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
+    if ( !geom2d || trackmode_ != DrawBetweenSeeds )
+	return TrcKey::udf();
 
     sowermode_ = false;
-    mGetHorAndColrg(hor,colrg,EM::PosID::udf());
-    hor->setBurstAlert( true );
-    RowCol oldseedrc = RowCol::fromInt64( oldpid.subID() );
+
+    mGetHorAndColrg(hor2d,colrg,TrcKey::udf());
+    hor2d->setBurstAlert( true );
     int prevseedpos = mUdf(int);
     int nextseedpos = mUdf(int);
-    getNextSeedPos( oldseedrc.col(), -colrg.step, prevseedpos );
-    getNextSeedPos( oldseedrc.col(), colrg.step, nextseedpos );
+    getNextSeedPos( oldseed.trcNr(), -colrg.step, prevseedpos );
+    getNextSeedPos( oldseed.trcNr(), colrg.step, nextseedpos );
     if ( mIsUdf(prevseedpos) && mIsUdf(nextseedpos) )
-	return newpospid;
+    {
+	hor2d->setBurstAlert( false );
+	return TrcKey::udf();
+    }
 
-    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
-    if ( !geom2d )
-	return newpospid;
+    TrcKeyValue newseed = newseedin;
+    TrcKey& newtk = newseed.tk_;
+    if ( !mIsUdf(prevseedpos) && newtk.trcNr()<=prevseedpos )
+	newtk.trcNr() = prevseedpos + colrg.step;
+    else if ( !mIsUdf(nextseedpos) && newtk.trcNr()>=nextseedpos )
+	newtk.trcNr() = nextseedpos - colrg.step;
 
-    TrcKey trckey = geom2d->nearestTrace( newpos, 0 );
-    RowCol newseedrc( hor->geometry().lineIndex(geomid_), trckey.pos().crl() );
-    if ( !mIsUdf(prevseedpos) && newseedrc.col()<=prevseedpos )
-	newseedrc.col() = prevseedpos + colrg.step;
-    else if ( !mIsUdf(nextseedpos) && newseedrc.col()>=nextseedpos )
-	newseedrc.col() = nextseedpos - colrg.step;
-
-    removeSeed( oldpid, true, false );
-    const Coord3 adjustednewposcrd( geom2d->toCoord(geomid_,newseedrc.col()),
-	    			    newpos.z );
-    addSeed( adjustednewposcrd, false );
-    newpospid = EM::PosID( hor->id(), sectionid_, newseedrc.toInt64() );
-    hor->setBurstAlert( false );
-    surfchange_.trigger();
-    return newpospid;
+    removeSeed( oldseed, true, false );
+    addSeed( newseed, false, newseed );
+    hor2d->setBurstAlert( false );
+    return newseed.tk_;
 }
 
 
@@ -325,7 +291,7 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 					       bool startwasdefined,
 					       bool eraseonly )
 {
-    mGetHorAndColrg(hor,colrg,false);
+    mGetHorAndColrg(hor2d,colrg,false);
 
     trackbounds_.erase();
     junctions_.erase();
@@ -344,7 +310,7 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 	extendSeedListEraseInBetween( true, colrg.start-colrg.step, false,
 				      colrg.step );
 
-	if ( seedconmode_ != DrawBetweenSeeds )
+	if ( trackmode_ != DrawBetweenSeeds )
 	    tracker_.snapPositions( seedlist_ );
     }
 
@@ -363,52 +329,47 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 					    bool wholeline, int startcol,
 					    bool startwasdefined, int step )
 {
-    mGetHorAndColrg(hor,colrg, );
+    mGetHorAndColrg(hor2d,colrg, );
     eraselist_.erase();
 
-    RowCol currc( hor->geometry().lineIndex(geomid_), startcol );
-    EM::PosID curpid = EM::PosID( hor->id(), sectionid_, currc.toInt64());
+    TrcKey curtk( geomid_, startcol );
 
-    bool seedwasadded = hor->isDefined( curpid ) && !wholeline;
+    bool seedwasadded = hor2d->hasZ( curtk ) && !wholeline;
     bool curdefined = startwasdefined;
 
     while ( true )
     {
-	const EM::PosID prevpid = curpid;
+	const TrcKey prevtk = curtk;
 	const bool prevdefined = curdefined;
 
-	currc.col() += step;
+	curtk.trcNr() += step;
 
 	// reaching end of line
-	if ( !colrg.includes(currc.col(),false) )
+	if ( !colrg.includes(curtk.trcNr(),false) )
 	{
-	    if  ( seedconmode_ == TrackFromSeeds )
-		trackbounds_ += prevpid;
+	    if	( trackmode_ == TrackFromSeeds )
+		trackbounds_ += prevtk;
 
-	    if ( seedwasadded && seedconmode_!=TrackFromSeeds )
+	    if ( seedwasadded && trackmode_!=TrackFromSeeds )
 		return;
 
 	    break;
 	}
 
-	const EM::PosID pid( hor->id(), sectionid_, currc.toInt64() );
-
-	// Skip if survey coordinates undefined
-	if ( !Coord(hor->getPos(pid)).isDefined() )
+	if ( !hor2d->hasZ(curtk) )
 	    continue;
 
-	curpid = pid;
-	curdefined = hor->isDefined(curpid);
+	curdefined = true;
 
 	// running into a seed point
-	if ( hor->isPosAttrib( curpid, EM::EMObject::sSeedNode() ) )
+	if ( hor2d->isAttrib(curtk,EM::EMObject::sSeedNode()) )
 	{
 	    const bool onewaytracking = seedwasadded && !prevdefined &&
-					seedconmode_==TrackFromSeeds;
+					trackmode_==TrackFromSeeds;
 	    if ( onewaytracking )
-		trackbounds_ += curpid;
+		trackbounds_ += curtk;
 	    else
-		seedlist_ += curpid;
+		seedlist_ += curtk;
 
 	    if ( wholeline )
 		continue;
@@ -419,23 +380,23 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	// running into a loose end
 	if ( !wholeline && !prevdefined && curdefined )
 	{
-	    if  ( seedconmode_==TrackFromSeeds )
-		trackbounds_ += curpid;
+	    if	( trackmode_==TrackFromSeeds )
+		trackbounds_ += curtk;
 	    else
-		seedlist_ += curpid;
+		seedlist_ += curtk;
 
-	    junctions_ += prevpid;
-	    junctions_ += curpid;
+	    junctions_ += prevtk;
+	    junctions_ += curtk;
 	    break;
 	}
 
 	// to erase points attached to start
 	if ( curdefined )
-	    eraselist_ += curpid;
+	    eraselist_ += curtk;
     }
 
     for ( int idx=0; idx<eraselist_.size(); idx++ )
-	hor->unSetPos( eraselist_[idx], true );
+	hor2d->setZ( eraselist_[idx], mUdf(float), true );
 }
 
 
@@ -445,7 +406,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
 	return true;
     if ( blockpicking_ )
 	return true;
-    if ( seedconmode_ == DrawBetweenSeeds )
+    if ( trackmode_ == DrawBetweenSeeds )
 	return interpolateSeeds();
 
     mGetHorizon(hor,false);
@@ -461,11 +422,11 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     extender->setExtBoundary( getTrackBox() );
     extender2d->setGeomID( geomid_ );
 
-    TypeSet<EM::SubID> addedpos;
-    TypeSet<EM::SubID> addedpossrc;
+    TypeSet<TrcKey> addedpos;
+    TypeSet<TrcKey> addedpossrc;
 
     for ( int idx=0; idx<seedlist_.size(); idx++ )
-	addedpos += seedlist_[idx].subID();
+	addedpos += seedlist_[idx];
 
     while ( addedpos.size() )
     {
@@ -477,12 +438,12 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
 	addedpossrc = extender->getAddedPositionsSource();
 
 	adjuster->reset();
-	adjuster->setPositions(addedpos, &addedpossrc);
+	adjuster->setPositions( addedpos, &addedpossrc );
 	while ( adjuster->nextStep()>0 ) ;
 
 	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
 	{
-	    if ( !hor->isDefined(sectionid_,addedpos[idx]) )
+	    if ( !hor->hasZ(addedpos[idx]) )
 		addedpos.removeSingle(idx);
 	}
     }
@@ -493,88 +454,12 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
 }
 
 
-bool Horizon2DSeedPicker::doesModeUseSetup() const
-{ return seedconmode_ != DrawBetweenSeeds; }
-
-
 bool Horizon2DSeedPicker::reTrack()
 {
     seedlist_.erase();
     const bool res = retrackOnActiveLine( Values::Undef<int>::val() , false );
-    surfchange_.trigger();
     return res;
 }
-
-
-int Horizon2DSeedPicker::getSeedConnectMode() const
-{ return seedconmode_; }
-
-
-void Horizon2DSeedPicker::blockSeedPick( bool yn )
-{ blockpicking_ = yn; }
-
-
-int Horizon2DSeedPicker::minSeedsToLeaveInitStage() const
-{
-    if ( seedconmode_==TrackFromSeeds )
-	return 1;
-    else if ( seedconmode_==TrackBetweenSeeds )
-	return 2;
-    else
-	return 0 ;
-}
-
-
-void Horizon2DSeedPicker::setSeedConnectMode( int scm )
-{ seedconmode_ = scm; }
-
-
-bool Horizon2DSeedPicker::isSeedPickBlocked() const
-{ return blockpicking_; }
-
-
-bool Horizon2DSeedPicker::doesModeUseVolume() const
-{ return false; }
-
-
-bool Horizon2DSeedPicker::stopSeedPick(bool)
-{
-    mGetHorizon(hor,false);
-    hor->enableGeometryChecks( didchecksupport_ );
-    return true;
-}
-
-
-int MPE::Horizon2DSeedPicker::nrSeeds() const
-{
-    mGetHorizon(hor,false);
-    const TypeSet<EM::PosID>* seednodelist =
-			hor->getPosAttribList( EM::EMObject::sSeedNode() );
-    return seednodelist ? seednodelist->size() : 0;
-}
-
-
-uiString Horizon2DSeedPicker::seedConModeText( int mode, bool abbrev )
-{
-    if ( mode==TrackFromSeeds && !abbrev )
-	return tr("Track from seed(s)");
-    else if ( mode==TrackFromSeeds && abbrev )
-	return tr("Track from");
-    else if ( mode==TrackBetweenSeeds && !abbrev )
-	return tr("Track between seeds");
-    else if ( mode==TrackBetweenSeeds && abbrev )
-	return tr("Track between");
-    else if ( mode==DrawBetweenSeeds && !abbrev )
-	return tr("Draw between seeds");
-    else if ( mode==DrawBetweenSeeds && abbrev )
-	return tr("Draw between");
-    else
-	return tr("Unknown mode");
-}
-
-
-int Horizon2DSeedPicker::defaultSeedConMode( bool gotsetup ) const
-{ return gotsetup ? defaultSeedConMode() : DrawBetweenSeeds; }
 
 
 bool Horizon2DSeedPicker::interpolateSeeds()
@@ -588,94 +473,77 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     mAllocVarLenArr( int, sortval, nrseeds );
     mAllocVarLenArr( int, sortidx, nrseeds );
 
-    RowCol rc;
     for ( int idx=0; idx<nrseeds; idx++ )
     {
-	RowCol tmprc = RowCol::fromInt64( seedlist_[idx].subID() );
-	if ( tmprc.row() != hor->geometry().lineIndex(geomid_) )
-	    return false;
+	if ( seedlist_[idx].geomID() != geomid_ )
+	    continue;
 
-	rc = tmprc;
-	sortval[idx] = rc.col();
+	sortval[idx] = seedlist_[idx].trcNr();
 	sortidx[idx] = idx;
     }
 
     sort_coupled( mVarLenArr(sortval), mVarLenArr(sortidx), nrseeds );
 
-    TypeSet<EM::PosID> snaplist;
-
+    TypeSet<TrcKey> snaplist;
+    TrcKey tk( geomid_, -1 );
     for ( int vtx=0; vtx<nrseeds-1; vtx++ )
     {
-	const Coord3 startpos = hor->getPos( seedlist_[ sortidx[vtx] ] );
-	const Coord3 endpos = hor->getPos( seedlist_[ sortidx[vtx+1] ] );
+	const Coord3 startpos = hor->getCoord( seedlist_[ sortidx[vtx] ] );
+	const Coord3 endpos = hor->getCoord( seedlist_[ sortidx[vtx+1] ] );
 
 	double totarclen = 0.0;
 	Coord prevpos = startpos;
-	rc.col() = sortval[vtx];
-	while ( rc.col()<sortval[vtx+1] )
+	tk.trcNr() = sortval[vtx];
+	while ( tk.trcNr()<sortval[vtx+1] )
 	{
-	    rc.col() += colrg.step;
-	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
+	    tk.trcNr() += colrg.step;
+	    const Coord curpos = hor->getCoord( tk );
 	    if ( !curpos.isDefined() )
 		continue;
+
 	    totarclen += prevpos.distTo( curpos );
 	    prevpos = curpos;
 	}
 
 	double arclen = 0.0;
 	prevpos = startpos;
-	rc.col() = sortval[vtx] + colrg.step;
-	for ( ; rc.col()<sortval[vtx+1]; rc.col() += colrg.step  )
+	tk.trcNr() = sortval[vtx] + colrg.step;
+	for ( ; tk.trcNr()<sortval[vtx+1]; tk.trcNr() += colrg.step  )
 	{
-	    const Coord curpos = hor->getPos( sectionid_, rc.toInt64() );
+	    const Coord curpos = hor->getCoord( tk );
 	    if ( !curpos.isDefined() )
 		continue;
+
 	    arclen += prevpos.distTo( curpos );
 	    prevpos = curpos;
 
 	    const double frac = arclen / totarclen;
 	    const double curz = (1-frac) * startpos.z + frac * endpos.z;
-	    const Coord3 interpos( curpos, curz );
-	    const EM::PosID interpid( hor->id(), sectionid_, rc.toInt64() );
-	    hor->setPos( interpid, interpos, true );
-	    hor->setPosAttrib( interpid, EM::EMObject::sSeedNode(), false );
+	    hor->setZ( tk, (float)curz, true );
+	    hor->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
-	    if ( seedconmode_ != DrawBetweenSeeds )
-		snaplist += interpid;
+	    if ( trackmode_ != DrawBetweenSeeds )
+		snaplist += tk;
 	}
     }
+
     tracker_.snapPositions( snaplist );
     return true;
 }
 
-#define mAddToBox(pidlist) \
-    for ( int idx=0; idx<pidlist.size(); idx++ ) \
-    { \
-	RowCol rc = RowCol::fromInt64( pidlist[idx].subID() ); \
-	trackbox.hsamp_.include( BinID(rc) ); \
-    }
 
 TrcKeyZSampling Horizon2DSeedPicker::getTrackBox() const
 {
     TrcKeyZSampling trackbox( true );
     trackbox.hsamp_.init( false );
-    mAddToBox(seedlist_);
-    mAddToBox(trackbounds_);
+
+    for ( int idx=0; idx<seedlist_.size(); idx++ )
+	trackbox.hsamp_.include( seedlist_[idx] );
+    for ( int idx=0; idx<trackbounds_.size(); idx++ )
+	trackbox.hsamp_.include( trackbounds_[idx] );
 
     return trackbox;
 }
 
-
-void Horizon2DSeedPicker::setSelSpec( const Attrib::SelSpec* as )
-{
-    selspec_ = as ? *as : Attrib::SelSpec();
-
-    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
-    mDynamicCastGet(HorizonAdjuster*,adjuster,
-		    sectracker?sectracker->adjuster():0);
-    if ( adjuster )
-	adjuster->setAttributeSel( 0, selspec_ );
-}
-
-}; // namespace MPE
+} // namespace MPE
 

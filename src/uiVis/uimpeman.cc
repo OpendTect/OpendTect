@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "emtracker.h"
 #include "emundo.h"
 #include "executor.h"
 #include "horizon2dseedpicker.h"
@@ -329,7 +330,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     emobj = EM::EMM().getObject( tracker->objectID() );
-    if ( !emobj )
+    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    if ( !hor )
 	mSeedClickReturn();
 
     while ( emobj->hasBurstAlert() )
@@ -342,9 +344,12 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
+    visBase::DataObject* dataobj = visserv_->getObject( clickedobject );
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,dataobj)
+    const bool clickedonhorizon = emod;
+
     if ( !clickcatcher_->info().isLegalClick() )
     {
-	visBase::DataObject* dataobj = visserv_->getObject( clickedobject );
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
 
 	if ( tracker->is2D() && !clickcatcher_->info().getObjLineName() )
@@ -361,26 +366,19 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
     }
 
-    const EM::PosID pid = clickcatcher_->info().getNode();
-    TrcKeyZSampling newvolume;
-    if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
-	mSeedClickReturn();
-
     const Attrib::SelSpec* clickedas =
 	clickcatcher_->info().getObjDataSelSpec();
     if ( !clickedas )
 	mSeedClickReturn();
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-    if ( !seedpicker || !seedpicker->canSetSectionID() ||
-	 !seedpicker->setSectionID(emobj->sectionID(0)) )
-    {
+    if ( !seedpicker )
 	mSeedClickReturn();
-    }
 
+    seedpicker->setSectionID( emobj->sectionID(0) );
     if ( clickcatcher_->info().isDoubleClicked() )
     {
-	seedpicker->endSeedPick( true );
+	seedpicker->endPatch( true );
 	mSeedClickReturn();
     }
 
@@ -393,7 +391,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()==0) )
     {
 	if ( trackedatsel &&
-	     (seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds) )
+	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) )
 	{
 	    bool chanceoferror = false;
 	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
@@ -415,7 +413,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( seedpicker->nrSeeds() > 0 )
     {
 	if ( trackedatsel &&
-	     (seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds) )
+	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) )
 	{
 	    bool chanceoferror = false;
 	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
@@ -439,31 +437,36 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
     }
 
-    Coord3 seedpos;
-    if ( pid.objectID() == -1 )
+    const TrcKey node = clickcatcher_->info().getNode();
+    Coord3 seedcrd;
+    if ( !clickedonhorizon )
     {
 	visSurvey::Scene* scene = visSurvey::STM().currentScene();
-	seedpos = clickcatcher_->info().getPos();
-	scene->getTempZStretchTransform()->transformBack( seedpos );
-	scene->getUTM2DisplayTransform()->transformBack( seedpos );
+	seedcrd = clickcatcher_->info().getPos();
+	scene->getTempZStretchTransform()->transformBack( seedcrd );
+	scene->getUTM2DisplayTransform()->transformBack( seedcrd );
     }
     else
     {
-	seedpos = emobj->getPos(pid);
+	seedcrd = hor->getCoord( node );
     }
 
+    const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
+    const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
+    TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
+			 (float)seedcrd.z );
     bool shiftclicked = clickcatcher_->info().isShiftClicked();
 
-    if ( pid.objectID()==-1 && !shiftclicked &&
+    if ( !clickedonhorizon && !shiftclicked &&
 	 clickcatcher_->activateSower(emobj->preferredColor(),
-				     seedpicker->getSeedPickArea()) )
+				      &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
     }
 
+    TrcKeyZSampling newvolume;
     if ( tracker->is2D() )
     {
-	Pos::GeomID geomid = clickcatcher_->info().getGeomID();
 	engine.setActive2DLine( geomid );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
@@ -527,30 +530,30 @@ void uiMPEMan::seedClick( CallBacker* )
 
     beginSeedClickEvent( emobj );
 
-    if ( pid.objectID()!=-1 || !clickcatcher_->info().getPickedNode().isUdf() )
+    if ( !clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
 	const bool ctrlclicked = clickcatcher_->info().isCtrlClicked();
 	if ( !clickcatcher_->info().getPickedNode().isUdf() )
 	{
-	    const EM::PosID nextpid =
+	    const TrcKey nexttk =
 		seedpicker->replaceSeed( clickcatcher_->info().getPickedNode(),
 					 seedpos );
-	    clickcatcher_->info().setPickedNode( nextpid );
+	    clickcatcher_->info().setPickedNode( nexttk );
 	}
 	if ( !shiftclicked && !ctrlclicked &&
-	     seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds )
+	     seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds )
 	{
 	    if ( clickcatcher_->info().getPickedNode().isUdf() )
-		clickcatcher_->info().setPickedNode( pid );
+		clickcatcher_->info().setPickedNode( node );
 	}
 	else if ( shiftclicked && ctrlclicked )
 	{
-	    if ( seedpicker->removeSeed( pid, true, false ) )
+	    if ( seedpicker->removeSeed( node, true, false ) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, false );
 	}
 	else if ( shiftclicked || ctrlclicked )
 	{
-	    if ( seedpicker->removeSeed( pid, true, true ) )
+	    if ( seedpicker->removeSeed( node, true, true ) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, false );
 	}
 	else
@@ -569,8 +572,8 @@ void uiMPEMan::seedClick( CallBacker* )
     // below is for double click event.
     // after double click we do return on line 251. next click reaches here, we
     // need tell seedpicker to prepare to start new trick line.
-    if ( seedpicker->isSeedPickEnded() )
-	seedpicker->endSeedPick( false );
+    if ( seedpicker->isPatchEnded() )
+	seedpicker->endPatch( false );
 }
 
 
@@ -781,11 +784,10 @@ void uiMPEMan::validateSeedConMode()
 			tracker->getSectionTracker( emobj->sectionID(0), true );
     const bool setupavailable = sectiontracker &&
 				sectiontracker->hasInitializedSetup();
-    if ( setupavailable || !seedpicker->doesModeUseSetup() )
+    if ( setupavailable )
 	return;
 
-    const int defaultmode = seedpicker->defaultSeedConMode( false );
-    seedpicker->setSeedConnectMode( defaultmode );
+    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
 }
 
 
@@ -848,20 +850,6 @@ EM::Horizon3D* uiMPEMan::getSelectedHorizon3D()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     return hor3d;
 }
-
-
-#define mAddSeedConModeItems( seedconmodefld_, typ ) \
-    if ( emobj && EM##typ##TranslatorGroup::keyword() == emobj->getTypeStr() ) \
-    { \
-	seedconmodefld_->setEmpty(); \
-	for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
-	{ \
-	    seedconmodefld_-> \
-		    addItem( typ##SeedPicker::seedConModeText(idx,true) ); \
-	} \
-	if ( typ##SeedPicker::nrSeedConnectModes()<=0 ) \
-	    seedconmodefld_->addItem("No seed mode"); \
-    }
 
 
 void uiMPEMan::updateSeedPickState()

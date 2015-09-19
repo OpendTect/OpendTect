@@ -39,8 +39,8 @@ public:
 
     virtual void		reset() {}
 
-    void			setPositions(const TypeSet<EM::SubID>& targets,
-	   				     const TypeSet<EM::SubID>* src=0 );
+    void			setPositions(const TypeSet<TrcKey>& targets,
+					     const TypeSet<TrcKey>* src=0 );
     void			setSeedPosition(const TrcKey&);
 
     int				nextStep();
@@ -77,8 +77,8 @@ public:
 protected:
 				SectionAdjuster(EM::SectionID sid=-1);
 
-    TypeSet<EM::SubID>		pids_;
-    TypeSet<EM::SubID>		pidsrc_;
+    TypeSet<TrcKey>		tks_;
+    TypeSet<TrcKey>		tksrc_;
     BufferString		errmsg_;
     EM::SectionID		sectionid_;
     float			thresholdval_;

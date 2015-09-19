@@ -55,9 +55,12 @@ public:
     virtual float	getZ(const TrcKey&) const			= 0;
     virtual bool	setZ(const TrcKey&,float z,bool addtohist)	= 0;
     virtual bool	hasZ(const TrcKey&) const			= 0;
+    virtual Coord3	getCoord(const TrcKey&) const			= 0;
 
     virtual float	getZValue(const Coord&,bool allow_udf=true,
 				  int nr=0) const			= 0;
+    virtual void	setAttrib(const TrcKey&,int attr,int yn,bool undo) = 0;
+    virtual bool	isAttrib(const TrcKey&,int attr) const = 0;
 
     void		setStratLevelID( int lvlid )
 			{ stratlevelid_ = lvlid; }

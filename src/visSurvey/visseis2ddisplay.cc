@@ -1175,8 +1175,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
     {
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
-	if (s2dd && lineset==s2dd->lineSetID() && linenm &&
-	    linenm==s2dd->getLineName() )
+	if (s2dd && !linenm.isEmpty() && linenm==s2dd->getLineName() )
 	    return s2dd;
     }
 

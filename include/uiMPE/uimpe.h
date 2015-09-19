@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
+class TrcKeyValue;
 class uiMPEPartServer;
 class uiParent;
 
@@ -43,9 +44,9 @@ mExpClass(uiMPE) uiSetupGroup : public uiGroup
 public:
 			uiSetupGroup(uiParent*,const char* helpref);
     virtual void	setSectionTracker(SectionTracker*)	{}
-    virtual void	setMode(const EMSeedPicker::SeedModeOrder) {}
-    virtual int		getMode()				=0;
-    virtual void	setSeedPos(const Coord3&)		{}
+    virtual void	setMode(EMSeedPicker::TrackMode)	{}
+    virtual EMSeedPicker::TrackMode getMode() const		=0;
+    virtual void	setSeedPos(const TrcKeyValue&)		{}
     virtual void	setColor(const Color&)			{}
     virtual const Color& getColor()				=0;
     virtual void	setLineWidth(int)			{}

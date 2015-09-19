@@ -68,7 +68,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     , adjuster_(0)
     , changed_(this)
     , is2d_(is2d)
-    , seedpos_(Coord3::udf())
+    , seedpos_(TrcKeyValue::udf())
 {
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
@@ -298,10 +298,10 @@ void uiEventGroup::init()
 }
 
 
-void uiEventGroup::setSeedPos( const Coord3& crd )
+void uiEventGroup::setSeedPos( const TrcKeyValue& tkv )
 {
-    seedpos_ = crd;
-    previewgrp_->setSeedPos( crd );
+    seedpos_ = tkv;
+    previewgrp_->setSeedPos( tkv );
 }
 
 

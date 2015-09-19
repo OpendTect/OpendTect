@@ -39,7 +39,7 @@ public:
 
     void			setSectionTracker(SectionTracker*);
 
-    void			setSeedPos(const Coord3&);
+    void			setSeedPos(const TrcKeyValue&);
 
     NotifierAccess*		changeNotifier()
 				{ return &changed_; }
@@ -70,7 +70,7 @@ protected:
     void			previewChgCB(CallBacker*);
 
     bool			is2d_;
-    Coord3			seedpos_;
+    TrcKeyValue			seedpos_;
     SectionTracker*		sectiontracker_;
     HorizonAdjuster*		adjuster_;
 

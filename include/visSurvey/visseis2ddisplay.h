@@ -43,7 +43,7 @@ public:
 				Seis2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Seis2DDisplay,
-				    "Seis2DDisplay", 
+				    "Seis2DDisplay",
 				    toUiString(sFactoryKeyword()))
 
     void			setGeomID(Pos::GeomID geomid);
@@ -104,7 +104,7 @@ public:
 				{ return getTrcKeyZSampling( false, attrib ); }
     TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
 						   int attrib=-1) const;
-    Pol2D3D                     getAllowedDataType() const	{return Only2D;}
+    Pol2D3D			getAllowedDataType() const	{return Only2D;}
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
@@ -200,6 +200,7 @@ protected:
 	int			size_;
 	StepInterval<float>	zrg_;
     };
+
     TraceDisplayInfo		trcdisplayinfo_;
     StepInterval<int>		maxtrcnrrg_;
 
@@ -232,7 +233,7 @@ protected:
 public:
 // old stuff, only here to keep other code compiling
     MultiID			getMultiID() const	{ return datasetid_; }
-    const MultiID&		lineSetID() const	{ return datasetid_; }
+//    const MultiID&		lineSetID() const	{ return datasetid_; }
 };
 
 } // namespace visSurvey
