@@ -316,10 +316,9 @@ void HorizonAdjuster::setHorizonPick( const TrcKey& tk, float val )
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
     if ( !hor3d ) return;
 
-    EM::PosID posid( horizon_.id(), sectionid_, tk.pos().toInt64() );
-    hor3d->auxdata.setAuxDataVal( 0, posid, evtracker_.targetValue() );
-    hor3d->auxdata.setAuxDataVal( 1, posid, evtracker_.quality() );
-    hor3d->auxdata.setAuxDataVal( 2, posid, (float)seedtk_.trcNr() );
+    hor3d->auxdata.setAuxDataVal( 0, tk, evtracker_.targetValue() );
+    hor3d->auxdata.setAuxDataVal( 1, tk, evtracker_.quality() );
+    hor3d->auxdata.setAuxDataVal( 2, tk, (float)seedtk_.trcNr() );
 }
 
 
