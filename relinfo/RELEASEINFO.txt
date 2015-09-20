@@ -1,8 +1,7 @@
-Opendtect 5.0 release info
+Opendtect 6.0 release info
 
 Build platforms/distributions:
 
-Linux 32   : CentOS release 5 (Final)
 Linux 64   : CentOS release 5 (Final)
 Mac	   : Mac OS X 10.6.8 (Snow Leopard, Intel)
 Windows 32 : Windows Server 2012
