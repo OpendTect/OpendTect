@@ -385,6 +385,19 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 #endif
 
     QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
+
+    BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
+    if ( qssfnm.isEmpty() )
+	qssfnm = GetEnvVar( "OD_STYLESHEET" );
+
+    if ( File::exists(qssfnm) )
+    {
+	QFile file( qssfnm );
+	file.open( QFile::ReadOnly );
+	QString sheet = QLatin1String( file.readAll() );
+	app_->setStyleSheet( sheet );
+    }
+
     font_ = 0;
     setFont( *font() , true );
 }
