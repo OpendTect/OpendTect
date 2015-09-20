@@ -90,44 +90,18 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
     const StepInterval<int> colrange =
 	hor2d_.geometry().colRange( sid_, geomid_ );
     TrcKey neighbor = src;
-    float neighborz;
-    BinID neighbrbid = src.pos();
-    const TrcKeyZSampling& boundary = getExtBoundary();
-
-    do
-    {
-	neighbrbid += BinID( 0, upwards ? colrange.step : -colrange.step );
-	if ( !colrange.includes(neighbrbid.crl(),false) )
-	    return;
-
-	if ( !boundary.isEmpty() &&
-		!boundary.hsamp_.includes(BinID(neighbrbid)) )
-	    return;
-
-	neighbor.setPos( neighbrbid );
-	neighborz = hor2d_.getZ( neighbor );
-    }
-    while ( mIsUdf(neighborz) );
-
-    if ( !mIsUdf(neighborz) )
+    neighbor.trcNr() += upwards ? colrange.step : -colrange.step;
+    if ( !colrange.includes(neighbor.trcNr(),false) )
 	return;
 
-/*
-    const Coord3 sourcepos = hor2d_.getPos( sid_, srcsubid );
+    const TrcKeyZSampling& boundary = getExtBoundary();
+    if ( !boundary.isEmpty() &&
+	    !boundary.hsamp_.includes(neighbor.pos()) )
+	return;
 
-    if ( !alldirs_ )
-    {
-	const Coord dir = neighborpos - sourcepos;
-	const double dirabs = dir.abs();
-	if ( !mIsZero(dirabs,1e-3) )
-	{
-	    const Coord normdir = dir/dirabs;
-	    const double cosangle = normdir.dot(xydirection_);
-	    if ( cosangle<anglethreshold_ )
-		return;
-	}
-    }
-*/
+    float neighborz = hor2d_.getZ( neighbor );
+    if ( !mIsUdf(neighborz) )
+	return;
 
     hor2d_.setZ( neighbor, hor2d_.getZ(src), true );
     addTarget( neighbor, src );
