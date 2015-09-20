@@ -76,8 +76,6 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    virtual void		erasePositions(EM::SectionID,
-					       const TypeSet<EM::SubID>&);
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;

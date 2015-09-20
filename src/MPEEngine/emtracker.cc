@@ -199,18 +199,6 @@ void EMTracker::applySetupAsDefault( const EM::SectionID sid )
 }
 
 
-void EMTracker::erasePositions( EM::SectionID sectionid,
-				const TypeSet<EM::SubID>& pos )
-{
-    EM::PosID posid( emobject_->id(), sectionid );
-    for ( int idx=0; idx<pos.size(); idx++ )
-    {
-	posid.setSubID( pos[idx] );
-	emobject_->unSetPos( posid, true );
-    }
-}
-
-
 void EMTracker::fillPar( IOPar& iopar ) const
 {
     for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
