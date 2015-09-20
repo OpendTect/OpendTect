@@ -98,6 +98,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , adsman_(0)
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
+    , zdomaininfo_(0)
 {
     setOkCancelText( uiStrings::sClose(), uiString::emptyString() );
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
@@ -110,6 +111,18 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 
     init();
 }
+
+
+void uiAttribDescSetEd::setZDomainInfo( const ZDomain::Info& info )
+{
+    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info(info);
+    for ( int idx=0; idx<desceds_.size(); idx++ )
+	if ( desceds_[idx] ) desceds_[idx]->setZDomainInfo( zdomaininfo_ );
+}
+
+
+const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
+{ return zdomaininfo_; }
 
 
 #define mInsertMnuItem( mnu, txt, func, fnm ) \
@@ -230,6 +243,9 @@ void uiAttribDescSetEd::createGroups()
 	const char* attrnm = uiAF().getDisplayName(idx);
 	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
 	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d, true );
+	if ( zdomaininfo_ )
+	    de->setZDomainInfo( zdomaininfo_ );
+
 	desceds_ += de;
 	de->attach( alignedBelow, attrtypefld_ );
     }
