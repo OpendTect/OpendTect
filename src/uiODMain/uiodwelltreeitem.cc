@@ -55,7 +55,7 @@ static const int cLogDispSize = 4;
 bool uiODWellParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), cAddIdx );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), cAddIdx );
     if ( SI().zIsTime() )
     {
 	mnu.insertItem(
