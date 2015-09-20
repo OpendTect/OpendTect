@@ -112,6 +112,7 @@ EMObjectDisplay::~EMObjectDisplay()
 	posattribmarkers_.removeSingle(idx)->unRef();
     }
 
+    clearSelections();
 }
 
 
