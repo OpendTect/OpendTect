@@ -392,7 +392,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     if ( File::exists(qssfnm) )
     {
-	QFile file( qssfnm );
+	QFile file( qssfnm.buf() );
 	file.open( QFile::ReadOnly );
 	QString sheet = QLatin1String( file.readAll() );
 	app_->setStyleSheet( sheet );
