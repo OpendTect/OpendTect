@@ -36,9 +36,9 @@ public:
     enum DataType	{ SInt, UInt, Float };
 			//!< Note that Float is against the standard
 
-			HdrEntry( BytePos bp=udfBP(), bool issmall=false,
+			HdrEntry( BytePos bp=udfBP(), bool issmll=false,
 				  DataType dt=SInt )
-			    : bytepos_(bp), small_(issmall), type_(dt)
+			    : bytepos_(bp), issmall_(issmll), type_(dt)
 			    , desc_(0), name_(0)	{}
 			HdrEntry( const HdrEntry& he )
 			    : desc_(0), name_(0)	{ *this = he; }
@@ -51,11 +51,11 @@ public:
     void		setName(const char*);
 
     BytePos		bytepos_;
-    bool		small_;
+    bool		issmall_;
     DataType		type_;
 
     bool		isInternal() const	{ return bytepos_%2 == 0; }
-    int			byteSize() const	{ return small_ ? 2 : 4; }
+    int			byteSize() const	{ return issmall_ ? 2 : 4; }
     inline bool		isUdf() const		{ return bytepos_ < 0; }
     inline void		setUdf()		{ bytepos_ = udfBP(); }
     inline bool		usesByte( BytePos b ) const

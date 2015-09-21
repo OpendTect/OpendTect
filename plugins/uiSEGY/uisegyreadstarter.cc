@@ -53,6 +53,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 				  mTODOHelpKey ).nrstatusflds(1) )
     , filereadopts_(0)
     , typfld_(0)
+    , icvsxybut_(0)
     , ampldisp_(0)
     , survmap_(0)
     , veryfirstscan_(false)
@@ -62,11 +63,18 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , survinfook_(false)
     , pidetector_(0)
     , timer_(0)
+    , usexytooltip_(tr("Click to use Inline/Crossline for positioning."
+	"\nX and Y will then be calculated using the survey setup."))
+    , useictooltip_(tr( "Click to use (X,Y) for positioning."
+	"\nInline/Crossline will then be calculated using the survey setup."))
 {
-    if ( !mForSurvSetup )
+    if ( mForSurvSetup )
+	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
+    else
     {
 	setCtrlStyle( RunAndClose );
 	setOkText( tr("Next >>") );
+	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
 
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
@@ -106,15 +114,18 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     infofld_->attach( ensureBelow, sep );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
-    createTools();
-
     if ( mForSurvSetup )
 	createSurvMap();
     createHist();
+    createTools();
 
     setButtonStatuses();
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
 }
+
+
+#undef mForSurvSetup
+#define mForSurvSetup survmap_
 
 
 void uiSEGYReadStarter::createTools()
@@ -137,6 +148,18 @@ void uiSEGYReadStarter::createTools()
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
     examinegrp->attach( alignedBelow, fullscanbut_ );
+
+    bool needicvsxy = !mForSurvSetup;
+    if ( imptypeFixed() && (fixedimptype_.isVSP() || fixedimptype_.is2D()) )
+	needicvsxy = false;
+    if ( needicvsxy )
+    {
+	uiLabel* emptyln = new uiLabel( this, uiString::emptyString() );
+	emptyln->attach( alignedBelow, examinegrp );
+	icvsxybut_ = new uiToolButton( this, "useic", useictooltip_,
+		mCB(this,uiSEGYReadStarter,icxyCB) );
+	icvsxybut_->attach( alignedBelow, emptyln );
+    }
 }
 
 
@@ -148,10 +171,6 @@ void uiSEGYReadStarter::createSurvMap()
     survmap_->setPrefHeight( 350 );
     survmap_->attach( ensureBelow, infofld_ );
 }
-
-
-#undef mForSurvSetup
-#define mForSurvSetup survmap_
 
 
 void uiSEGYReadStarter::createHist()
@@ -222,11 +241,8 @@ void uiSEGYReadStarter::clearDisplay()
 
 void uiSEGYReadStarter::setImpTypIdx( int tidx )
 {
-    if ( !typfld_ )
-    {
-	pErrMsg( "Cannot set type if fixed" );
-	return;
-    }
+    if ( imptypeFixed() )
+	{ pErrMsg( "Cannot set type if fixed" ); return; }
 
     typfld_->setTypIdx( tidx ); // should trigger its callback
 }
@@ -267,6 +283,13 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
 }
 
 
+bool uiSEGYReadStarter::needICvsXY() const
+{
+    const SEGY::ImpType imptyp = impType();
+    return !imptyp.is2D() && !imptyp.isVSP();
+}
+
+
 void uiSEGYReadStarter::setButtonStatuses()
 {
     const int nrfiles = scaninfo_.size();
@@ -275,6 +298,14 @@ void uiSEGYReadStarter::setButtonStatuses()
     editbut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
+    if ( icvsxybut_ )
+    {
+	const bool isneeded = needICvsXY();
+	icvsxybut_->display( isneeded );
+	if ( isneeded )
+	    icvsxybut_->setIcon( loaddef_.icvsxytype_ ==
+		    SEGY::FileReadOpts::XYOnly ? "usexy" : "useic" );
+    }
 }
 
 
@@ -291,7 +322,7 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	timer_->start( 1, true );
     }
 
-    if ( mForSurvSetup || (!typfld_ && fixedimptype_.isVSP()) )
+    if ( mForSurvSetup || (imptypeFixed() && fixedimptype_.isVSP()) )
 	return;
 
     uiButton* okbut = button( OK );
@@ -341,6 +372,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 	userfilename_.setEmpty();
 	inpChg( 0 );
     }
+    setButtonStatuses();
 }
 
 
@@ -362,11 +394,8 @@ void uiSEGYReadStarter::runClassic( bool imp )
     uiSEGYRead::Setup su( mForSurvSetup ? uiSEGYRead::SurvSetup
 				 : (imp ? uiSEGYRead::Import
 					: uiSEGYRead::DirectDef) );
-    if ( !typfld_ )
-    {
-	su.geoms_.erase();
-	su.geoms_ += gt;
-    }
+    if ( imptypeFixed() )
+	{ su.geoms_.erase(); su.geoms_ += gt; }
     else if ( !imp )
 	su.geoms_ -= Seis::Line;
 
@@ -430,6 +459,27 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
     uiSEGYExamine* dlg = new uiSEGYExamine( this, su );
     dlg->setDeleteOnClose( true );
     dlg->go();
+}
+
+
+void uiSEGYReadStarter::icxyCB( CallBacker* )
+{
+    if ( !icvsxybut_ ) return;
+
+    if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
+    {
+	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
+	icvsxybut_->setIcon( "usexy" );
+	icvsxybut_->setToolTip( usexytooltip_ );
+    }
+    else
+    {
+	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
+	icvsxybut_->setIcon( "useic" );
+	icvsxybut_->setToolTip( useictooltip_ );
+    }
+
+    infofld_->updateDisplay();
 }
 
 
@@ -576,6 +626,8 @@ bool uiSEGYReadStarter::getFileSpec()
 
 	if ( filespec_.isEmpty() )
 	    mErrRet( tr("No file names matching your wildcard(s).") )
+
+	filespec_.setUsrStr( userfilename_ );
     }
 
     return true;
@@ -775,9 +827,9 @@ bool uiSEGYReadStarter::commit()
     filereadopts_->sampleintv_ = loaddef_.sampling_.step;
     filereadopts_->psdef_ = loaddef_.psoffssrc_;
     filereadopts_->offsdef_ = loaddef_.psoffsdef_;
+    filereadopts_->icdef_ = loaddef_.icvsxytype_;
 
     //TODO handle:
-    // filereadopts_->icdef_ ? XYOnly, ICOnly, in next window, 3D only
     // filereadopts_->coorddef_ in next window, 2D only
 
     return true;

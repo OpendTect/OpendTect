@@ -468,7 +468,7 @@ uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
 
     if ( wsz )
     {
-	BoolInpSpec bszspec( !he_.small_, "4", "2" );
+	BoolInpSpec bszspec( !he_.issmall_, "4", "2" );
 	issmallfld_ = new uiCheckBox( this, tr(" 2 bytes") );
 	issmallfld_->attach( rightOf, bytefld_ );
     }
@@ -501,7 +501,7 @@ void usePar( const IOPar& iop )
 	    isselbox_->setChecked( true );
 	bytefld_->setValue( he_.bytepos_+1 );
 	if ( issmallfld_ )
-	    issmallfld_->setChecked( he_.small_ );
+	    issmallfld_->setChecked( he_.issmall_ );
     }
 }
 
@@ -567,7 +567,7 @@ bool getVals()
     else
     {
 	he_.bytepos_ = (SEGY::HdrEntry::BytePos)(bytenr + 1);
-	he_.small_ = isSmall();
+	he_.issmall_ = isSmall();
     }
 
     return true;

@@ -5,9 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiODMain)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiODMain)
+set(OD_IS_PLUGIN yes)
+set(OD_MODULE_SOURCES
     segyuiscandata.cc
     uisegycommon.cc
     uisegydef.cc
@@ -32,6 +32,6 @@ SET(OD_MODULE_SOURCES
     uiwellimpsegyvsp.cc
 )
 
-SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
-SET( OD_MODULE_PROGS od_SEGYExaminer.cc )
+set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+set( OD_MODULE_PROGS od_SEGYExaminer.cc )
 OD_INIT_MODULE()

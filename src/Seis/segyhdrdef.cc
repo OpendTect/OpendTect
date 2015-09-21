@@ -36,7 +36,7 @@ SEGY::HdrEntry& SEGY::HdrEntry::operator =( const SEGY::HdrEntry& he )
     if ( this != &he )
     {
 	bytepos_ = he.bytepos_;
-	small_ = he.small_;
+	issmall_ = he.issmall_;
 	type_ = he.type_;
 	setDescription( he.desc_ );
 	setName( he.name_ );
@@ -111,7 +111,7 @@ int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
     if ( !isInternal() )
 	byteposition--;
 
-    if ( small_ )
+    if ( issmall_ )
 	return type_ == UInt ? IbmFormat::asUnsignedShort( mGetBytes() )
 			     : IbmFormat::asShort( mGetBytes() );
     else if ( type_ == UInt )
@@ -134,7 +134,7 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
 	byteposition--;
 
     unsigned char* ptr = ((unsigned char*)buf) + byteposition;
-    if ( small_ )
+    if ( issmall_ )
     {
 	if ( type_ == UInt )
 	    IbmFormat::putUnsignedShort( (unsigned short)val, ptr );
@@ -162,7 +162,7 @@ void SEGY::HdrEntry::fillPar( IOPar& iop, const char* ky ) const
 	short byteposition = bytepos_;
 	byteposition -= byteposition % 2; // make sure we are 'internal'
 	iop.set( ky, byteposition );
-	iop.set( BufferString(sKeyBytesFor,ky), small_ ? 2 : 4 );
+	iop.set( BufferString(sKeyBytesFor,ky), issmall_ ? 2 : 4 );
     }
 }
 
@@ -172,9 +172,9 @@ void SEGY::HdrEntry::usePar( const IOPar& iop, const char* ky )
     int byteposition = bytepos_; iop.get( ky, byteposition );
     byteposition -= byteposition % 2; // make sure we are 'internal'
     bytepos_ = (HdrEntry::BytePos)byteposition;
-    int nb = small_ ? 2 : 4;
+    int nb = issmall_ ? 2 : 4;
     iop.get( BufferString(sKeyBytesFor,ky), nb );
-    small_ = nb < 4;
+    issmall_ = nb < 4;
 }
 
 

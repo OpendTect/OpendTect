@@ -50,6 +50,7 @@ public:
 
     const char*		dispName() const;	//!< for titles etc
     const char*		usrStr() const;		//!< a user-typed filename
+    void		setUsrStr( const char* str ) { usrstr_ = str; }
 
     void		setEmpty()
 			{ fnames_.setEmpty(); mSetUdf(nrs_.start); }
@@ -65,6 +66,10 @@ public:
 			//< default is survey directory
 
     void		getMultiFromString(const char*);
+
+protected:
+
+    BufferString	usrstr_;
 
 };
 

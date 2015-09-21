@@ -42,6 +42,8 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 static const char* sBytePos = "from header";
 static const Color qscellcolor = Color( 255, 255, 225 ); // palish yellow
+static const Color optqscellcolor = Color( 255, 255, 245 ); // even paler yellow
+static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
 
 #define mGetGeomType(varnm) const Seis::GeomType varnm = imptype_.geomType()
 #define mGetParChgCB(varnm) \
@@ -325,20 +327,25 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
     }
 
-    setCellTxt( mItemCol, mXRow, xittxt );
-    setCellTxt( mItemCol, mYRow, yittxt );
-    setCellTxt( mItemCol, mKey1Row, ky1ittxt );
-    setCellTxt( mItemCol, mKey2Row, ky2ittxt );
+    const bool coordsopt = !is2d
+		&& loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly;
+    const bool icopt = loaddef_.icvsxytype_ == SEGY::FileReadOpts::XYOnly;
+    const bool key1opt = !is2d && icopt;
+    const bool key2opt = !is2d && icopt;
+    setCellTxt( mItemCol, mXRow, xittxt, coordsopt );
+    setCellTxt( mItemCol, mYRow, yittxt, coordsopt );
+    setCellTxt( mItemCol, mKey1Row, ky1ittxt, key1opt );
+    setCellTxt( mItemCol, mKey2Row, ky2ittxt, key2opt );
     if ( mHavePSRow )
 	setCellTxt( mItemCol, mPSRow, offsittxt );
-    setCellTxt( mQSResCol, mKey1Row,
-		isVSP() ? "" : (is2d ? trcnrinfotxt_ : inlinfotxt_).buf() );
-    setCellTxt( mQSResCol, mKey2Row,
-		isVSP() ? "" : (is2d ? refnrinfotxt_ : crlinfotxt_).buf() );
-    setCellTxt( mQSResCol, mXRow, isVSP() ? "" : xinfotxt_ );
-    setCellTxt( mQSResCol, mYRow, isVSP() ? "" : yinfotxt_ );
+    setCellTxt( mQSResCol, mKey1Row, isVSP() ? ""
+		: (is2d ? trcnrinfotxt_ : inlinfotxt_).buf(), key1opt );
+    setCellTxt( mQSResCol, mKey2Row, isVSP() ? ""
+		: (is2d ? refnrinfotxt_ : crlinfotxt_).buf(), key2opt );
+    setCellTxt( mQSResCol, mXRow, isVSP() ? "" : xinfotxt_, coordsopt );
+    setCellTxt( mQSResCol, mYRow, isVSP() ? "" : yinfotxt_, coordsopt );
     setCellTxt( mQSResCol, mPSRow, isVSP() || !isps ? ""
-	    					    : offsetinfotxt_.buf() );
+						    : offsetinfotxt_.buf() );
     setCellTxt( mUseTxtCol, mNrSamplesRow, nrtrcsusrtxt );
     setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
@@ -376,14 +383,18 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 }
 
 
-void uiSEGYReadStartInfo::setCellTxt( int col, int row, const char* txt )
+void uiSEGYReadStartInfo::setCellTxt( int col, int row, const char* txt,
+					bool isopt )
 {
-    tbl_->setText( RowCol(row,col), txt );
+    const RowCol rc( row, col );
+    tbl_->setText( rc, txt );
     if ( col == mItemCol || col == mUseTxtCol )
 	tbl_->resizeColumnToContents( col );
     if ( col == mQSResCol )
-	tbl_->setColor( RowCol(row,mQSResCol), *txt ? qscellcolor
-						    : Color::White() );
+	tbl_->setColor( rc, *txt ? (isopt?optqscellcolor:qscellcolor)
+				 : Color::White() );
+    else
+	tbl_->setColor( rc, isopt ? optcellcolor : Color::White() );
 }
 
 
