@@ -159,6 +159,28 @@ StepInterval<int> TrcKeySampling::trcRange() const
 { return StepInterval<int>( start_.trcNr(), stop_.trcNr(), step_.trcNr() ); }
 
 
+float TrcKeySampling::lineDistance() const
+{
+    BinID bid( start_ );
+    Coord startpos( toCoord( bid ) );
+    bid.inl() += step_.inl();
+    Coord stoppos( toCoord( bid ) );
+
+    return mCast(float, stoppos.distTo(startpos) );
+}
+
+
+float TrcKeySampling::trcDistance() const
+{
+    BinID bid( start_ );
+    Coord startpos( toCoord( bid ) );
+    bid.crl() += step_.crl();
+    Coord stoppos( toCoord( bid ) );
+
+    return mCast(float, stoppos.distTo(startpos) );
+}
+
+
 bool TrcKeySampling::includes( const TrcKeySampling& tks,
 			       bool ignoresteps ) const
 {
