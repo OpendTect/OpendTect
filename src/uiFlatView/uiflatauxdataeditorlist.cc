@@ -84,7 +84,8 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 		 !ad->enabled_ || ad->name_.isEmpty() )
 		continue;
 
-	    listbox_->insertItem( ad->name_, ad->markerstyles_[0].color_,
+	    listbox_->insertItem( mToUiStringTodo(ad->name_),
+		    		  ad->markerstyles_[0].color_,
 				  listbox_->size() );
 
 	    listboxids_ += ids[idy];
