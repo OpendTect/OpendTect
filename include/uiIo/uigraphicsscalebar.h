@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
+#include "uiiomod.h"
 #include "uigraphicsitem.h"
 
 class uiRectItem;
@@ -23,7 +23,7 @@ class SurveyInfo;
 \brief It adds a graphic scale made from polygons
 */
 
-mExpClass(uiBase) uiScaleBarItem : public uiGraphicsItem
+mExpClass(uiIo) uiScaleBarItem : public uiGraphicsItem
 {
 public:
 			uiScaleBarItem(int pxwidth=100,int pxheight=6);
