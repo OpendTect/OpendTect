@@ -70,13 +70,13 @@ uiGroup* uiRegionFiller::createVelGrp()
 
     uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
     const bool hasauxdata = auxdatainfo.mids_.size();
-    const char* constantstr = "Constant";
-    const char* fromhorattribstr = "From Horizon Data";
+    const uiString fromhorattribstr = tr("From Horizon Data");
 
     const MultiID& starthorid = regionfiller_->getStartValueHorizonID();
     const bool conststartval = starthorid==MultiID::udf();
     startvalselfld_ = new uiGenInput( grp, tr("Start value"),
-	    BoolInpSpec(conststartval,constantstr,fromhorattribstr) );
+        BoolInpSpec(conststartval,uiStrings::sConstant(),
+                        fromhorattribstr) );
     startvalselfld_->setSensitive( hasauxdata );
     startvalselfld_->valuechanged.notify( mCB(this,uiRegionFiller,startvalCB) );
     startvalselfld_->attach( ensureBelow, regiongrp_ );
@@ -95,19 +95,15 @@ uiGroup* uiRegionFiller::createVelGrp()
     const MultiID& gradhorid = regionfiller_->getGradientHorizonID();
     const bool constgrad = gradhorid==MultiID::udf();
     gradvalselfld_ = new uiGenInput( grp, tr("Gradient"),
-		BoolInpSpec(constgrad,constantstr,fromhorattribstr) );
+        BoolInpSpec(constgrad,uiStrings::sConstant(),fromhorattribstr) );
     gradvalselfld_->setSensitive( hasauxdata );
     gradvalselfld_->valuechanged.notify( mCB(this,uiRegionFiller,gradientCB) );
     gradvalselfld_->attach( alignedBelow, startvalfld_ );
 
-    BufferString gradientlabel = "Gradient constant ";
-    gradientlabel += "[/";
-    gradientlabel += SI().getZUnitString( false );
-    gradientlabel += "]";
     float gradient = regionfiller_->getGradientValue();
     if ( !mIsUdf(gradient) )
 	gradient /= SI().zDomain().userFactor();
-    gradvalfld_ = new uiGenInput( grp, gradientlabel.buf(),
+    gradvalfld_ = new uiGenInput( grp, sGradientLabel(),
 				  FloatInpSpec(gradient) );
     gradvalfld_->attach( alignedBelow, gradvalselfld_ );
 
@@ -119,6 +115,11 @@ uiGroup* uiRegionFiller::createVelGrp()
     return grp;
 }
 
+
+uiString uiRegionFiller::sGradientLabel()
+{
+    return tr("Gradient constant (/%1)").arg( SI().getUiZUnitString(false));
+}
 
 uiRegionFiller::~uiRegionFiller()
 {

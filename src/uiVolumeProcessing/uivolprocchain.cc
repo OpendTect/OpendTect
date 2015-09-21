@@ -59,7 +59,7 @@ void uiStepDialog::addMultiInputFld()
     const int nrrows = nrinp==-1 ? 2 : nrinp;
     uiTable::Setup ts( nrrows, 1 );
     multiinpfld_ = new uiTable( this, ts, "Step inputs" );
-    multiinpfld_->setColumnLabel( 0, "Input" );
+    multiinpfld_->setColumnLabel( 0, uiStrings::sInput() );
     initInputTable( nrinp );
 }
 

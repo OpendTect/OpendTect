@@ -57,10 +57,9 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     algosel_ = new uiGenInput( this, tr("Algorithm"), StringListInpSpec(algos));
     algosel_->attach( alignedBelow, welllogsel_ );
 
-    BufferString radiustxt = "Search radius [";
-    radiustxt += (SI().xyInFeet() ? "ft" : "m" );
-    radiustxt += "]";
-    radiusfld_ = new uiGenInput( this, radiustxt.buf(), FloatInpSpec() );
+    const uiString radiustxt = tr("Search radius %1")
+            .arg( uiStrings::sDistUnitString(SI().xyInFeet(),true, true));
+    radiusfld_ = new uiGenInput( this, radiustxt, FloatInpSpec() );
     radiusfld_->attach( alignedBelow, algosel_ );
     radiusfld_->setWithCheck( true );
 

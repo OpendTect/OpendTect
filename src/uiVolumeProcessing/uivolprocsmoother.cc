@@ -58,10 +58,9 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     crllenfld_->attach( alignedBelow, inllenfld_ );
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    BufferString zlabel = "Vertical ";
-    zlabel += SI().getZUnitString(true);
+    uiString zlabel = tr("Vertical %1").arg( SI().getUiZUnitString(true) );
 
-    zlenfld_ = new uiLabeledSpinBox( stepoutgroup, zlabel.buf(), 0,
+    zlenfld_ = new uiLabeledSpinBox( stepoutgroup, zlabel, 0,
 	    			     "Z_spinbox" );
     zlenfld_->box()->setInterval( (float) 0, (mMaxNrSteps/2)*zstep, zstep );
     zlenfld_->box()->setValue( zstep*(smoother_->zSz()/2) );

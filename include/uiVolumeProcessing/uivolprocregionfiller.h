@@ -31,7 +31,9 @@ public:
     mDefaultFactoryInstanciationBase(
 		RegionFiller::sFactoryKeyword(),
 		RegionFiller::sFactoryDisplayName())
-		mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
+        mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
+
+    static uiString		sGradientLabel();
 
 protected:
 				uiRegionFiller(uiParent*,RegionFiller*);

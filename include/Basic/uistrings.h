@@ -158,6 +158,7 @@ public:
     static uiString sAxis()		{ return tr("Axis"); }
     static uiString sAzimuth()		{ return tr("Azimuth"); }
     static uiString sAttribute(int num=1) { return tr("Attribute",0,num); }
+    static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
     static uiString sBelow()		{ return tr("Below"); }
@@ -190,6 +191,7 @@ public:
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(int num=1);
     static uiString sComponent()	{ return tr("Component"); }
+    static uiString sConstant()		{ return tr("Constant"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
     static uiString sCopy();
@@ -269,6 +271,7 @@ public:
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
     static uiString sMarker(int num=1);
+    static uiString sMedian()		{ return tr("Median"); }
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMerge();
     static uiString sModify();

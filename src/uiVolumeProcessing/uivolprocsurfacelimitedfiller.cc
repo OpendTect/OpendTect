@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivolprocchain.h"
 #include "volprocchain.h"
 #include "zdomain.h"
+#include "uivolprocregionfiller.h"
 #include "od_helpids.h"
 
 namespace VolProc
@@ -82,12 +83,11 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 
     uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
     const bool hasauxdata = auxdatainfo.mids_.size();
-    const char* constantstr = "Constant";
-    const char* fromhorattribstr = "From Horizon Data";
+    const uiString fromhorattribstr = tr("From Horizon Data");
 
     usestartvalfld_ = new uiGenInput( this, tr("Start value"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
-			 constantstr, fromhorattribstr ) );
+                     uiStrings::sConstant(), fromhorattribstr ) );
     usestartvalfld_->setSensitive( hasauxdata );
     usestartvalfld_->valuechanged.notify(
 	    mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
@@ -104,19 +104,15 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 
     usegradientfld_ = new uiGenInput( this, tr("Gradient"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
-			 constantstr, fromhorattribstr ) );
+                     uiStrings::sConstant(), fromhorattribstr ) );
     usegradientfld_->setSensitive( hasauxdata );
     usegradientfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
     usegradientfld_->attach( alignedBelow, startvalfld_ );
-    BufferString gradientlabel = "Gradient constant ";
-    gradientlabel += "[/";
-    gradientlabel += SI().getZUnitString( false );
-    gradientlabel += "]";
     float gradient = surfacefiller_->getGradient();
     if ( !mIsUdf(gradient) )
 	gradient /= SI().zDomain().userFactor();
-    gradientfld_ = new uiGenInput( this, gradientlabel.buf(),
+    gradientfld_ = new uiGenInput( this, uiRegionFiller::sGradientLabel(),
 	    FloatInpSpec( gradient ) );
     gradientfld_->attach( alignedBelow, usegradientfld_ );
 
@@ -136,7 +132,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     uiString labl = tr("Reference %1")
 	.arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
     userefdepthfld_ = new uiGenInput( this, labl,
-	    BoolInpSpec(surfacefiller_->usesRefZValue(),constantstr,
+                                      BoolInpSpec(surfacefiller_->usesRefZValue(),uiStrings::sConstant(),
 	    uiStrings::sHorizon()));
     userefdepthfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
