@@ -763,7 +763,9 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 	PickSetKnotUndoEvent::UnDoType undotype = 
 	    (PickSetKnotUndoEvent::UnDoType) type; 
 
-	const Pick::Location pos = type == Insert ? Coord3::udf() : loc;
+	const Pick::Location pos = type == Insert
+				   ? Coord3::udf()
+				   : loc;
 	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent( 
 	undotype, mid, idx, pos );
 	Pick::Mgr().undo().addEvent( undo, 0 );

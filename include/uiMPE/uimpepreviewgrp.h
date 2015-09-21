@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "position.h"
+#include "trckeyvalue.h"
 
 class uiCheckList;
 class uiFlatViewer;
@@ -34,7 +35,7 @@ public:
 				uiPreviewGroup(uiParent*);
 				~uiPreviewGroup();
 
-    void			setSeedPos(const Coord3&);
+    void			setSeedPos(const TrcKeyValue&);
     void			setDisplaySize(int nrtrcs,
 					       const Interval<int>& zintv);
     void			setWindow(const Interval<int>&);
@@ -64,7 +65,7 @@ protected:
     FlatView::AuxData*		minline_;
     FlatView::AuxData*		maxline_;
 
-    Coord3			seedpos_;
+    TrcKeyValue			seedpos_;
     int				nrtrcs_;
     Interval<int>		zintv_;
     Interval<int>		winintv_;

@@ -45,11 +45,20 @@ public:
 			{ return !(*this==oth); }
     inline bool		isDefined() const;
 
+    inline bool		isDefined() const;
+    inline bool		isUdf() const		{ return !isDefined(); }
+    static const TrcKeyValue& udf();
+
     TrcKey		tk_;
     float		val_;
 };
 
 inline bool TrcKeyValue::isDefined() const
 { return !tk_.isUdf() && !mIsUdf(val_); }
+
+inline bool TrcKeyValue::isDefined() const
+{ return !tk_.isUdf() && !mIsUdf(val_); }
+
+
 
 #endif

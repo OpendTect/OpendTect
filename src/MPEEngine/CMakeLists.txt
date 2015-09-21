@@ -13,6 +13,7 @@ SET(OD_MODULE_DEPS EarthModel AttributeEngine )
 SET(OD_MODULE_SOURCES
 	autotracker.cc
 	emeditor.cc
+	emseedpicker.cc
 	emtracker.cc
 	faulteditor.cc
 	faultstickseteditor.cc

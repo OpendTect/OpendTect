@@ -97,12 +97,16 @@ mExpClass(EarthModel) Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
-    float			getZ(const TrcKey&) const;
+    virtual float		getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
-    bool			setZ(const TrcKey&,float z,bool addtohist);
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
 				//!< Fast: writes to the first section
-    bool			hasZ(const TrcKey&) const;
+    virtual bool		hasZ(const TrcKey&) const;
 				//!< Fast: checks only the first section
+    virtual Coord3		getCoord(const TrcKey&) const;
+    virtual void		setAttrib(const TrcKey&,int attr,int yn,
+					  bool addtohist);
+    virtual bool		isAttrib(const TrcKey&,int attr) const;
 
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;

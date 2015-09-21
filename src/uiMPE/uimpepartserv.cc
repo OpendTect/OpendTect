@@ -263,7 +263,7 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
     if ( !seedpicker) return;
 
     if ( setupgrp_ )
-	seedpicker->setSeedConnectMode( setupgrp_->getMode() );
+	seedpicker->setTrackMode( setupgrp_->getMode() );
 
     sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
 }
@@ -360,8 +360,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     if ( setupbeingupdated_ )
     {
-	if ( seedpicker->doesModeUseSetup() )
-	    saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
+	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
 
 	trackercurrentobject_ = -1;
 	setupbeingupdated_ = false;
@@ -388,22 +387,16 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	    mCloseReturn;
 	}
 
-    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
-    if ( addrmseednotifier )
-	addrmseednotifier->remove(
+    seedpicker->seedToBeAddedRemoved.remove(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
-
-    NotifierAccess* seedaddednotif = seedpicker->seedAddedNotifier();
-    if ( seedaddednotif )
-	seedaddednotif->remove( mCB(this,uiMPEPartServer,seedAddedCB) );
+    seedpicker->seedAdded.remove( mCB(this,uiMPEPartServer,seedAddedCB) );
 
     setupgrp_ = 0;
 
     if ( !seedhasbeenpicked_ || !seedpicker->doesModeUseVolume() )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
 
-    if ( seedpicker->doesModeUseSetup() )
-	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
+    saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
 
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
 
@@ -685,7 +678,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     if ( !seedpicker ) return false;
 
     IOPar iopar;
-    iopar.set( "Seed Connection mode", seedpicker->getSeedConnectMode() );
+    iopar.set( "Seed Connection mode", seedpicker->getTrackMode() );
     tracker->fillPar( iopar );
 
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
@@ -759,7 +752,7 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     iopar.read( setupfilenm, "Tracking Setup", true );
     int connectmode = 0;
     iopar.get( "Seed Connection mode", connectmode );
-    seedpicker->setSeedConnectMode( connectmode );
+    seedpicker->setTrackMode( (MPE::EMSeedPicker::TrackMode)connectmode );
     tracker->usePar( iopar );
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
@@ -849,7 +842,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( !seedpicker ) return false;
 
     uiDialog* setupdlg  = new uiDialog( parent(),
-		uiDialog::Setup(tr("Horizon Tracking Setup"),0,
+		uiDialog::Setup(tr("Horizon Tracking Settings"),0,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->showAlwaysOnTop();
@@ -865,7 +858,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 
     if ( freshdlg )
     {
-	seedpicker->setSeedConnectMode( 0 );
+	seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
 
 	if ( cursceneid_ != -1 )
 	    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
@@ -875,12 +868,10 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	const bool setupavailable = sectracker &&
 				    sectracker->hasInitializedSetup();
 	if ( !setupavailable )
-	    seedpicker->setSeedConnectMode(
-					seedpicker->defaultSeedConMode(false));
+	    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
     }
 
-    setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
-				seedpicker->getSeedConnectMode() );
+    setupgrp_->setMode( seedpicker->getTrackMode() );
     setupgrp_->setColor( emobj->preferredColor() );
     setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
@@ -910,14 +901,10 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( cursceneid_ != -1 )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
 
-    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
-    if ( addrmseednotifier )
-	addrmseednotifier->notify(
+    seedpicker->seedToBeAddedRemoved.notify(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
-    NotifierAccess* seedaddednotif = seedpicker->seedAddedNotifier();
-    if ( seedaddednotif )
-	seedaddednotif->notify( mCB(this,uiMPEPartServer,seedAddedCB) );
+    seedpicker->seedAdded.notify( mCB(this,uiMPEPartServer,seedAddedCB) );
 
     setupdlg->windowClosed.notify(
 			   mCB(this,uiMPEPartServer,trackerWinClosedCB) );

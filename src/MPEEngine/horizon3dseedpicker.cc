@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "autotracker.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emtracker.h"
 #include "executor.h"
 #include "faulttrace.h"
 #include "mpeengine.h"
@@ -29,208 +30,149 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace MPE
 {
 
-Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
-    : tracker_(t)
-    , addrmseed_(this)
-    , seedadded_(this)
-    , surfchange_(this)
-    , seedconmode_(defaultSeedConMode())
-    , blockpicking_(false)
-    , sectionid_(-1)
-    , sowermode_(false)
-    , lastseedpid_(EM::PosID::udf())
-    , lastsowseedpid_(EM::PosID::udf())
-    , lastseedkey_(Coord3::udf())
-    , seedpickarea_(false)
-    , addedseed_(Coord3::udf())
+Horizon3DSeedPicker::Horizon3DSeedPicker( EMTracker& tracker )
+    : EMSeedPicker(tracker)
     , fltdataprov_(0)
-    , endseedpicking_(false)
 {
-    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
-    if ( hor && hor->nrSections()>0 )
-	sectionid_ = hor->sectionID(0);
 }
 
 
-bool Horizon3DSeedPicker::setSectionID( const EM::SectionID& sid )
+Horizon3DSeedPicker::~Horizon3DSeedPicker()
+{}
+
+
+#define mGetHorizon(hor,retval) \
+    mDynamicCastGet(EM::Horizon3D*,hor,tracker_.emObject())\
+    if ( !hor ) return retval;
+
+bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
+				   const TrcKeyValue& seedkey )
 {
-    sectionid_ = sid;
-    return true;
-}
-
-
-#define mGetHorizon(hor) \
-    const EM::ObjectID emobjid = tracker_.objectID(); \
-    mDynamicCastGet( EM::Horizon3D*, hor, EM::EMM().getObject(emobjid) ); \
-    if ( !hor ) \
-	return false;\
-
-bool Horizon3DSeedPicker::startSeedPick()
-{
-    mGetHorizon(hor);
-    didchecksupport_ = hor->enableGeometryChecks( false );
-    return true;
-}
-
-
-bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
-{ return addSeed( seedcrd, drop, seedcrd ); }
-
-
-bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
-       				   const Coord3& seedkey )
-{
-    addedseed_ = seedcrd;
+    addedseed_ = seed;
     if ( !sowermode_ )
-	addrmseed_.trigger();
+	seedToBeAddedRemoved.trigger();
 
     if ( blockpicking_ )
 	return true;
 
-    const BinID seedbid = SI().transform( seedcrd );
+    mGetHorizon( hor3d, false )
+
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;
     const StepInterval<float> zrg = engine().activeVolume().zsamp_;
-    if ( !zrg.includes(seedcrd.z,false) || !hrg.includes(seedbid) )
+    if ( !zrg.includes(seed.val_,false) || !hrg.includes(seed.tk_) )
 	return false;
 
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    BinID lastsowseedbid = BinID::fromInt64( lastsowseedpid_.subID() );
-
-    if ( fltdataprov_ && hrg.includes(lastsowseedbid) )
+    if ( fltdataprov_ && hrg.includes(lastsowseed_.tk_) )
     {
-	Coord3 lastseedcrd = emobj->getPos( lastsowseedpid_ );
 	if ( sowermode_ &&
-	     fltdataprov_->isCrossingFault(seedbid,(float)seedcrd.z,
-					   lastsowseedbid,
-					   (float)lastseedcrd.z) )
+	     fltdataprov_->isCrossingFault(seed.tk_.pos(),seed.val_,
+					   lastsowseed_.tk_.pos(),
+					   lastsowseed_.val_) )
 	{
-	    lastseedkey_ = seedkey;
+	    lastseed_ = seed;
 	    return false;
 	}
     }
 
-    const EM::PosID pid( emobj->id(), sectionid_, seedbid.toInt64() );
     bool res = true;
-
     if ( sowermode_ )
     {
-	lastsowseedpid_ = pid;
+	lastsowseed_ = seed;
 	// Duplicate promotes hidden seed to visual seed in sower mode
-	const bool isvisualseed = lastseedkey_==seedkey;
+	const bool isvisualseed = lastseed_==seed;
 
-	if ( isvisualseed || lastseedpid_!=pid )
+	if ( isvisualseed || lastseed_!=seed )
 	{
-	    emobj->setPos( pid, seedcrd, true );
-	    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), isvisualseed );
+	    hor3d->setZ( seed.tk_, seed.val_, true );
+	    hor3d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(),
+			      isvisualseed, true );
 	    seedlist_.erase();
-	    seedlist_ += pid;
-	    if ( seedconmode_ != DrawBetweenSeeds )
+	    seedlist_ += seed.tk_;
+	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( seedlist_ );
 
-	    seedpos_.erase();
-	    seedpos_ += emobj->getPos( pid );
-	    seedpos_ += emobj->getPos( lastseedpid_ );
-
-	    seedlist_ += lastseedpid_;
+	    seedlist_ += lastseed_.tk_;
 	    interpolateSeeds();
 	}
     }
     else
     {
-	lastsowseedpid_ = EM::PosID::udf();
+	lastsowseed_ = TrcKeyValue::udf();
 	propagatelist_.erase();
-	propagatelist_ += pid;
+	propagatelist_ += seed.tk_;
 
-	const bool pickedposwasdef = emobj->isDefined( pid );
+	const bool pickedposwasdef = hor3d->hasZ( seed.tk_ );
 	if ( !drop || !pickedposwasdef )
 	{
-	    emobj->setPos( pid, seedcrd, true );
-	    if ( seedconmode_ != DrawBetweenSeeds )
+	    hor3d->setZ( seed.tk_, seed.val_, true );
+	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( propagatelist_ );
 
-	    addedseed_ = emobj->getPos( pid );
-	    seedadded_.trigger();
+	    addedseed_.val_ = hor3d->getZ( seed.tk_ );
+	    seedAdded.trigger();
 	}
 
-	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
+	hor3d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(), true, true );
 
 	// Loop may add new items to the tail of the propagate list.
 	for ( int idx=0; idx<propagatelist_.size() && !drop; idx++ )
 	{
-	    seedlist_.erase(); seedpos_.erase();
+	    seedlist_.erase();
 	    seedlist_ += propagatelist_[idx];
-	    const Coord3 pos = emobj->getPos( propagatelist_[idx] );
-	    seedpos_ += pos;
 
 	    const bool startwasdef = idx ? true : pickedposwasdef;
-	    res = retrackOnActiveLine(SI().transform(pos), startwasdef) && res;
+	    res = retrackOnActiveLine( propagatelist_[idx].pos(), startwasdef)
+			&& res;
 	}
     }
 
-    surfchange_.trigger();
-    lastseedpid_ = pid;
-    lastseedkey_ = seedkey;
+    lastseed_ = seed;
     return res;
 }
 
 
-bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
-				    bool retrack )
+bool Horizon3DSeedPicker::removeSeed( const TrcKey& seed, bool environment,
+				      bool retrack )
 {
-    addrmseed_.trigger();
+    seedToBeAddedRemoved.trigger();
 
     if ( blockpicking_ )
 	return true;
 
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    const Coord3 oldpos = emobj->getPos(pid);
-    BinID seedbid = SI().transform( oldpos );
+    mGetHorizon( hor3d, false );
 
-//  const bool attribwasdef = emobj->isPosAttrib(pid,EM::EMObject::sSeedNode());
-    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
+    hor3d->setAttrib( seed, EM::EMObject::sSeedNode(), false, true );
 
-    if ( environment || nrLineNeighbors(pid)+nrLateralNeighbors(pid)==0 )
-	emobj->unSetPos( pid, true );
+    if ( environment ||
+	 nrLineNeighbors(seed.pos())+nrLateralNeighbors(seed.pos())==0 )
+	hor3d->setZ( seed, mUdf(float), true );
 
-//    const bool repairbridge = retrack || nrLineNeighbors(pid);
     int res = true;
-
     if ( environment )
     {
-	propagatelist_.erase(); seedlist_.erase(); seedpos_.erase();
-
-	res = retrackOnActiveLine( seedbid, true, !retrack );
-/*
-	if ( repairbridge && nrLateralNeighbors(pid) )
-	{
-	    if ( !emobj->isDefined( pid ) )
-		emobj->setPos( pid, oldpos, true );
-
-	    if  ( attribwasdef )
-	    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
-	}
-*/
+	propagatelist_.erase(); seedlist_.erase();
+	res = retrackOnActiveLine( seed.pos(), true, !retrack );
     }
 
-    surfchange_.trigger();
     return res;
 }
 
 
-bool Horizon3DSeedPicker::getNextSeed( BinID seedbid,
+bool Horizon3DSeedPicker::getNextSeed( const BinID& seed,
 				       const BinID& dir,
-       				       BinID& nextseedbid ) const
+				       BinID& nextseed ) const
 {
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    mGetHorizon( hor3d, false );
+    BinID bid = seed;
     while ( true )
     {
-	seedbid += dir;
-	if ( !engine().activeVolume().hsamp_.includes(seedbid) )
+	bid += dir;
+	if ( !engine().activeVolume().hsamp_.includes(bid) )
 	    return false;
-	EM::PosID pid = EM::PosID( emobj->id(), sectionid_, seedbid.toInt64() );
-	if ( emobj->isPosAttrib( pid, EM::EMObject::sSeedNode() ) )
+
+	if ( hor3d->isAttrib(bid,EM::EMObject::sSeedNode()) )
 	{
-	    nextseedbid = seedbid;
+	    nextseed = bid;
 	    return true;
 	}
     }
@@ -239,92 +181,62 @@ bool Horizon3DSeedPicker::getNextSeed( BinID seedbid,
 }
 
 
-EM::PosID Horizon3DSeedPicker::replaceSeed( const EM::PosID& oldpid,
-					    const Coord3& newpos )
+TrcKey Horizon3DSeedPicker::replaceSeed( const TrcKey& oldseed,
+					 const TrcKeyValue& newseedin )
 {
-    EM::PosID newpospid = EM::PosID::udf();
-    if ( seedconmode_ != DrawBetweenSeeds )
-	return newpospid;
+    mGetHorizon( hor3d, TrcKey::udf() );
+    if ( trackmode_ != DrawBetweenSeeds )
+	return TrcKey::udf();
 
     sowermode_ = false;
+
     BinID dir;
     if ( !lineTrackDirection(dir) )
-	return newpospid; //TODO implement for RandomLine
+	return TrcKey::udf(); //TODO implement for RandomLine
 
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    emobj->setBurstAlert( true );
-    const Coord3 oldpos = emobj->getPos( oldpid );
-    const BinID oldseedbid = SI().transform( oldpos );
-    BinID newseedbid = SI().transform( newpos );
-    BinID prevseedbid = BinID::udf();
-    BinID nextseedbid = BinID::udf();
-    getNextSeed( oldseedbid, -dir, prevseedbid );
-    getNextSeed( oldseedbid, dir, nextseedbid );
-    if ( prevseedbid.isUdf() && nextseedbid.isUdf() )
+    hor3d->setBurstAlert( true );
+    BinID prevseed=BinID::udf(), nextseed=BinID::udf();
+    getNextSeed( oldseed.pos(), -dir, prevseed );
+    getNextSeed( oldseed.pos(), dir, nextseed );
+    if ( prevseed.isUdf() && nextseed.isUdf() )
     {
-	emobj->setBurstAlert( false );
-	return newpospid;
+	hor3d->setBurstAlert( false );
+	return TrcKey::udf();
     }
 
-    const bool inltracking = dir.inl()==0;
-    const int dirlength = inltracking ? dir.crl() : dir.inl();
-    int& adjustednewpos = inltracking ? newseedbid.crl() : newseedbid.inl();
-    const int prevseedpos = inltracking ? prevseedbid.crl() : prevseedbid.inl();
-    const int nextseedpos = inltracking ? nextseedbid.crl() : nextseedbid.inl();
+    TrcKeyValue newseed = newseedin;
+    TrcKey& newtk = newseed.tk_;
+    const bool inltracking = dir.lineNr()==0;
+    const int dirlength = inltracking ? dir.trcNr() : dir.lineNr();
+    int& adjustednewpos = inltracking ? newtk.trcNr() : newtk.lineNr();
+    const int prevseedpos = inltracking ? prevseed.trcNr() : prevseed.lineNr();
+    const int nextseedpos = inltracking ? nextseed.trcNr() : nextseed.lineNr();
     if ( !mIsUdf(prevseedpos) && adjustednewpos<=prevseedpos )
 	adjustednewpos = prevseedpos + dirlength;
     else if ( !mIsUdf(nextseedpos) && adjustednewpos>=nextseedpos )
 	adjustednewpos = nextseedpos - dirlength;
 
-    removeSeed( oldpid, true, false );
-    const Coord3 adjustednewposcrd( SI().transform(newseedbid), newpos.z );;
-    addSeed( adjustednewposcrd, false );
-    emobj->setBurstAlert( false );
-    newpospid = EM::PosID( emobj->id(), sectionid_, newseedbid.toInt64() );
-    surfchange_.trigger();
-    return newpospid;
-}
-
-
-void Horizon3DSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
-{
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    if ( !emobj ) return;
-
-    const TypeSet<EM::PosID>* seednodelist =
-			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
-    if ( !seednodelist ) return;
-
-    for ( int idx=0; idx<seednodelist->size(); idx++ )
-    {
-	const BinID bid = BinID::fromInt64( (*seednodelist)[idx].subID() );
-	seeds += TrcKey( bid );
-    }
-}
-
-
-int Horizon3DSeedPicker::indexOf( const TrcKey& tk ) const
-{
-    TypeSet<TrcKey> seeds; getSeeds( seeds );
-    return seeds.indexOf( tk );
+    removeSeed( oldseed, true, false );
+    addSeed( newseed, false, newseed );
+    hor3d->setBurstAlert( false );
+    return newseed.tk_;
 }
 
 
 bool Horizon3DSeedPicker::reTrack()
 {
-    propagatelist_.erase(); seedlist_.erase(); seedpos_.erase();
+    propagatelist_.erase(); seedlist_.erase();
 
     const bool res = retrackOnActiveLine( BinID(-1,-1), false );
-    surfchange_.trigger();
     return res;
 }
 
 
-bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
+bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& start,
 					     bool startwasdefined,
 					     bool eraseonly )
 {
-   if ( endseedpicking_ )
+   if ( endpatch_ )
 	return true;
 
     BinID dir;
@@ -334,19 +246,19 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
     trackbounds_.erase();
     junctions_.erase();
 
-    if ( engine().activeVolume().hsamp_.includes(startbid) )
+    if ( engine().activeVolume().hsamp_.includes(start) )
     {
-	extendSeedListEraseInBetween( false, startbid, startwasdefined, -dir );
-	extendSeedListEraseInBetween( false, startbid, startwasdefined, dir );
+	extendSeedListEraseInBetween( false, start, startwasdefined, -dir );
+	extendSeedListEraseInBetween( false, start, startwasdefined, dir );
     }
     else
     {
 	// traverse whole active line
-	const BinID dummystartbid = engine().activeVolume().hsamp_.start_;
-	extendSeedListEraseInBetween( true, dummystartbid, false, -dir );
-	extendSeedListEraseInBetween( true, dummystartbid-dir, false, dir );
+	const BinID dummystart = engine().activeVolume().hsamp_.start_;
+	extendSeedListEraseInBetween( true, dummystart, false, -dir );
+	extendSeedListEraseInBetween( true, dummystart, false, dir );
 
-	if ( seedconmode_ != DrawBetweenSeeds )
+	if ( trackmode_ != DrawBetweenSeeds )
 	    tracker_.snapPositions( seedlist_ );
     }
 
@@ -362,37 +274,36 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
 
 void Horizon3DSeedPicker::processJunctions()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    mGetHorizon( hor3d, );
 
     for ( int idx=0; idx<junctions_.size(); idx+=3 )
     {
-	const EM::PosID prevpid = junctions_[idx];
-	if ( !emobj->isDefined(prevpid) )
+	const TrcKey& prevtk = junctions_[idx];
+	if ( !hor3d->hasZ(prevtk) )
 	    continue;
 
-	const EM::PosID curpid = junctions_[idx+1];
+	const TrcKey& curtk = junctions_[idx+1];
 	//emobj->setPosAttrib( curpid, EM::EMObject::sSeedNode(), true );
 
-	const EM::PosID nextpid = junctions_[idx+2];
-	if ( seedconmode_!=TrackFromSeeds || emobj->isDefined(nextpid) )
+	const TrcKey& nexttk = junctions_[idx+2];
+	if ( trackmode_!=TrackFromSeeds || hor3d->hasZ(nexttk) )
 	    continue;
 
-	const Coord3 oldcurpos = emobj->getPos( curpid );
-	TypeSet<EM::PosID> curpidlisted;
-	curpidlisted += curpid;
-	tracker_.snapPositions( curpidlisted );
-	const Coord3 snappedoldpos = emobj->getPos( curpid );
+	const float oldz = hor3d->getZ( curtk );
+	TypeSet<TrcKey> curtklisted;
+	curtklisted += curtk;
+	tracker_.snapPositions( curtklisted );
+	const float snappedoldz = hor3d->getZ( curtk );
 
-	Coord3 newcurpos = oldcurpos;
-	newcurpos.z = emobj->getPos(prevpid).z;
-	emobj->setPos( curpid, newcurpos , false );
-	tracker_.snapPositions( curpidlisted );
-	const Coord3 snappednewpos = emobj->getPos( curpid );
+	hor3d->setZ( curtk, hor3d->getZ(prevtk), true );
+	tracker_.snapPositions( curtklisted );
+	const float snappednewz = hor3d->getZ( curtk );
 
-	if ( snappednewpos==snappedoldpos && !propagatelist_.isPresent(curpid) )
-	    propagatelist_ += curpid;
+	if ( mIsEqual(snappednewz,snappedoldz,mDefEps) &&
+		!propagatelist_.isPresent(curtk) )
+	    propagatelist_ += curtk;
 
-	emobj->setPos( curpid, oldcurpos , true );
+	hor3d->setZ( curtk, oldz, true );
     }
 }
 
@@ -402,28 +313,26 @@ void Horizon3DSeedPicker::processJunctions()
 	trackbounds_ += curbid; \
     else \
     { \
-	seedlist_ += curpid; \
-	seedpos_ += emobj->getPos( curpid ); \
+	seedlist_ += curbid; \
     }
 
 #define mStoreJunction() \
 { \
-    junctions_ += prevpid; \
-    junctions_ += curpid; \
+    junctions_ += prevbid; \
+    junctions_ += curbid; \
     const BinID nextbid = curbid + dir; \
-    junctions_ += EM::PosID(emobj->id(),sectionid_,nextbid.toInt64()); \
+    junctions_ += nextbid; \
 }
 
+
 void Horizon3DSeedPicker::extendSeedListEraseInBetween(
-				    bool wholeline, const BinID& startbid,
-				    bool startwasdefined, const BinID& dir )
+				bool wholeline, const BinID& startbid,
+				bool startwasdefined, const BinID& dir )
 {
     eraselist_.erase();
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    EM::PosID curpid = EM::PosID( emobj->id(), sectionid_,
-				  startbid.toInt64() );
 
-    bool seedwasadded = emobj->isDefined( curpid ) && !wholeline;
+    mGetHorizon( hor3d, );
+    const bool seedwasadded = hor3d->hasZ(startbid) && !wholeline;
 
     BinID curbid = startbid;
     bool curdefined = startwasdefined;
@@ -431,31 +340,29 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
     while ( true )
     {
 	const BinID prevbid = curbid;
-	const EM::PosID prevpid = curpid;
 	const bool prevdefined = curdefined;
 
-    	curbid += dir;
+	curbid += dir;
 
 	// reaching end of survey
 	if ( !engine().activeVolume().hsamp_.includes(curbid) )
 	{
-	    if ( seedconmode_==TrackFromSeeds )
+	    if ( trackmode_==TrackFromSeeds )
 		trackbounds_ += prevbid;
 
-	    if ( seedwasadded && seedconmode_!=TrackFromSeeds )
+	    if ( seedwasadded && trackmode_!=TrackFromSeeds )
 		return;
 
 	    break;
 	}
 
-	curpid = EM::PosID( emobj->id(), sectionid_, curbid.toInt64() );
-	curdefined = emobj->isDefined( curpid );
+	curdefined = hor3d->hasZ( curbid );
 
 	// running into a seed point
-	if ( emobj->isPosAttrib( curpid, EM::EMObject::sSeedNode() ) )
+	if ( hor3d->isAttrib(curbid,EM::EMObject::sSeedNode()) )
 	{
 	    const bool onewaytracking = seedwasadded && !prevdefined &&
-					seedconmode_==TrackFromSeeds;
+					trackmode_==TrackFromSeeds;
 	    mStoreSeed( onewaytracking );
 
 	    if ( onewaytracking )
@@ -470,33 +377,30 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
 	// running into a loose end
 	if ( !wholeline && !prevdefined && curdefined )
 	{
-	    mStoreSeed( seedconmode_==TrackFromSeeds );
+	    mStoreSeed( trackmode_==TrackFromSeeds );
 	    mStoreJunction();
 	    break;
 	}
 
 	// to erase points attached to start
 	if ( curdefined )
-	    eraselist_ += curpid;
+	    eraselist_ += curbid;
     }
 
     for ( int idx=0; idx<eraselist_.size(); idx++ )
-	emobj->unSetPos( eraselist_[idx], true );
+	hor3d->setZ( eraselist_[idx], mUdf(float), true );
 }
 
 
 bool Horizon3DSeedPicker::retrackFromSeedList()
 {
-    if ( seedlist_.isEmpty() )
+    if ( seedlist_.isEmpty() || blockpicking_ )
 	return true;
-    if ( blockpicking_ )
-	return true;
-    if ( seedconmode_ == DrawBetweenSeeds )
+
+    if ( trackmode_ == DrawBetweenSeeds )
 	return interpolateSeeds();
 
-    const EM::ObjectID emobjid = tracker_.objectID();
-    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emobjid));
-    if ( !hor ) return false;
+    mGetHorizon( hor3d, false );
 
     SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
     SectionExtender* extender = sectracker->extender();
@@ -512,13 +416,13 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
 	extender->setDirection( TrcKeyValue(TrcKey(1,0),mUdf(float)) );
 
-    TypeSet<EM::SubID> addedpos;
-    TypeSet<EM::SubID> addedpossrc;
+    TypeSet<TrcKey> addedpos;
+    TypeSet<TrcKey> addedpossrc;
 
     for ( int idx=0; idx<seedlist_.size(); idx++ )
-	addedpos += seedlist_[idx].subID();
+	addedpos += seedlist_[idx];
 
-    hor->setBurstAlert( true );
+    hor3d->setBurstAlert( true );
     while ( addedpos.size() )
     {
 	extender->reset();
@@ -529,77 +433,25 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	addedpossrc = extender->getAddedPositionsSource();
 
 	adjuster->reset();
-	adjuster->setPositions(addedpos,&addedpossrc);
+	adjuster->setPositions( addedpos, &addedpossrc );
 	while ( adjuster->nextStep()>0 ) ;
 
 	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
 	{
-	    if ( !hor->isDefined(sectionid_,addedpos[idx]) )
+	    if ( !hor3d->hasZ(addedpos[idx]) )
 		addedpos.removeSingle(idx);
 	}
     }
 
-    hor->setBurstAlert( false );
+    hor3d->setBurstAlert( false );
     extender->unsetExtBoundary();
 
     return true;
 }
 
 
-int Horizon3DSeedPicker::nrSeeds() const
-{
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    if ( !emobj ) return 0;
-
-    const TypeSet<EM::PosID>* seednodelist =
-			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
-    return seednodelist ? seednodelist->size() : 0;
-}
-
-
-uiString Horizon3DSeedPicker::seedConModeText( int mode, bool abbrev )
-{
-    if ( mode==TrackFromSeeds && !abbrev )
-	return tr("Tracking in volume");
-    else if ( mode==TrackFromSeeds && abbrev )
-	return tr("Volume track");
-    else if ( mode==TrackBetweenSeeds )
-	return tr("Line tracking");
-    else if ( mode==DrawBetweenSeeds )
-	return tr("Line manual");
-    else
-	return tr("Unknown mode");
-}
-
-int Horizon3DSeedPicker::minSeedsToLeaveInitStage() const
-{
-    if ( seedconmode_==TrackFromSeeds )
-	return 1;
-    else if ( seedconmode_==TrackBetweenSeeds )
-	return 2;
-    else
-	return 0 ;
-}
-
-
 bool Horizon3DSeedPicker::doesModeUseVolume() const
-{ return seedconmode_==TrackFromSeeds; }
-
-
-bool Horizon3DSeedPicker::doesModeUseSetup() const
-{ return seedconmode_!=DrawBetweenSeeds; }
-
-
-int Horizon3DSeedPicker::defaultSeedConMode( bool gotsetup ) const
-{ return gotsetup ? defaultSeedConMode() : DrawBetweenSeeds; }
-
-
-bool Horizon3DSeedPicker::stopSeedPick( bool iscancel )
-{
-    mGetHorizon(hor);
-    hor->enableGeometryChecks( didchecksupport_ );
-    return true;
-}
+{ return trackmode_==TrackFromSeeds; }
 
 
 bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
@@ -623,21 +475,20 @@ bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
 }
 
 
-int Horizon3DSeedPicker::nrLateralNeighbors( const EM::PosID& pid ) const
+int Horizon3DSeedPicker::nrLateralNeighbors( const BinID& bid ) const
 {
-    return nrLineNeighbors( pid, true );
+    return nrLineNeighbors( bid, true );
 }
 
 
-int Horizon3DSeedPicker::nrLineNeighbors( const EM::PosID& pid,
-				        bool perptotrackdir ) const
+int Horizon3DSeedPicker::nrLineNeighbors( const BinID& bid,
+					  bool perptotrackdir ) const
 {
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    BinID bid = SI().transform( emobj->getPos(pid) );
+    mGetHorizon(hor3d,-1);
 
     TypeSet<EM::PosID> neighpid;
-    mGetHorizon(hor);
-    hor->geometry().getConnectedPos( pid, &neighpid );
+    EM::PosID pid( hor3d->id(), hor3d->sectionID(0), bid.toInt64() );
+    hor3d->geometry().getConnectedPos( pid, &neighpid );
 
     BinID dir;
     if ( !lineTrackDirection(dir,perptotrackdir) )
@@ -646,7 +497,7 @@ int Horizon3DSeedPicker::nrLineNeighbors( const EM::PosID& pid,
     int total = 0;
     for ( int idx=0; idx<neighpid.size(); idx++ )
     {
-	BinID neighbid = SI().transform( emobj->getPos(neighpid[idx]) );
+	BinID neighbid = SI().transform( hor3d->getPos(neighpid[idx]) );
 	if ( bid.isNeighborTo(neighbid,dir) )
 	    total++;
     }
@@ -656,10 +507,10 @@ int Horizon3DSeedPicker::nrLineNeighbors( const EM::PosID& pid,
 
 bool Horizon3DSeedPicker::interpolateSeeds()
 {
+    mGetHorizon( hor3d, false )
+
     BinID dir;
     if ( !lineTrackDirection(dir) ) return false;
-
-    const int step = dir.inl() ? dir.inl() : dir.crl();
 
     const int nrseeds = seedlist_.size();
     if ( nrseeds<2 )
@@ -670,46 +521,46 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 
     for ( int idx=0; idx<nrseeds; idx++ )
     {
-	const BinID seedbid = SI().transform( seedpos_[idx] );
-	sortval[idx] = dir.inl() ? seedbid.inl() : seedbid.crl();
+	const TrcKey& seed = seedlist_[idx];
+	sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
 	sortidx[idx] = idx;
     }
 
     sort_coupled( mVarLenArr(sortval), mVarLenArr(sortidx), nrseeds );
 
-    TypeSet<EM::PosID> snaplist;
-
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    TypeSet<TrcKey> snaplist;
+    const int step = dir.inl() ? dir.inl() : dir.crl();
     for ( int vtx=0; vtx<nrseeds-1; vtx++ )
     {
 	const int diff = sortval[vtx+1] - sortval[vtx];
 	if ( fltdataprov_ )
 	{
-	    Coord3 seed1 = emobj->getPos( seedlist_[vtx+1] );
-	    Coord3 seed2 = emobj->getPos( seedlist_[vtx] );
-	    BinID seed1bid = SI().transform( seed1 );
-	    BinID seed2bid = SI().transform( seed2 );
+	    const float z1 = hor3d->getZ( seedlist_[vtx+1] );
+	    const float z2 = hor3d->getZ( seedlist_[vtx] );
+	    const BinID seed1bid = seedlist_[vtx+1].pos();
+	    const BinID seed2bid = seedlist_[vtx].pos();
 	    if ( seed1bid!=seed2bid && (
-		 fltdataprov_->isOnFault(seed1bid,(float) seed1.z,1.0f) ||
-		 fltdataprov_->isOnFault(seed2bid,(float) seed2.z,1.0f) ||
-		 fltdataprov_->isCrossingFault(seed1bid,(float) seed1.z,
-					       seed2bid,(float) seed2.z) ) )
+		 fltdataprov_->isOnFault(seed1bid,z1,1.0f) ||
+		 fltdataprov_->isOnFault(seed2bid,z2,1.0f) ||
+		 fltdataprov_->isCrossingFault(seed1bid,z1,seed2bid,z2) ) )
 		continue;
 	}
+
 	for ( int idx=step; idx<diff; idx+=step )
 	{
+	    const Coord3 seed1 = hor3d->getCoord( seedlist_[ sortidx[vtx] ] );
+	    const Coord3 seed2 = hor3d->getCoord( seedlist_[ sortidx[vtx+1] ] );
 	    const double frac = (double) idx / diff;
-	    const Coord3 interpos = (1-frac) * seedpos_[ sortidx[vtx] ] +
-				       frac  * seedpos_[ sortidx[vtx+1] ];
-	    const EM::PosID interpid( emobj->id(), sectionid_,
-				      SI().transform(interpos).toInt64() );
-	    emobj->setPos( interpid, interpos, true );
-	    emobj->setPosAttrib( interpid, EM::EMObject::sSeedNode(), false );
+	    const Coord3 interpos = (1-frac) * seed1 + frac  * seed2;
+	    const TrcKey tk = SI().transform( interpos );
+	    hor3d->setZ( tk, (float)interpos.z, true );
+	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
-	    if ( seedconmode_ != DrawBetweenSeeds )
-		snaplist += interpid;
+	    if ( trackmode_ != DrawBetweenSeeds )
+		snaplist += tk;
 	}
     }
+
     tracker_.snapPositions( snaplist );
     return true;
 }
@@ -719,29 +570,17 @@ TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 {
     TrcKeyZSampling trackbox( true );
     trackbox.hsamp_.init( false );
-    for ( int idx=0; idx<seedpos_.size(); idx++ )
+    for ( int idx=0; idx<seedlist_.size(); idx++ )
     {
-	const BinID seedbid = SI().transform( seedpos_[idx] );
-	if ( engine().activeVolume().hsamp_.includes(seedbid) )
-	    trackbox.hsamp_.include( seedbid );
+	const TrcKeyValue& seed = seedlist_[idx];
+	if ( engine().activeVolume().hsamp_.includes(seed.tk_) )
+	    trackbox.hsamp_.include( seed.tk_ );
     }
 
     for ( int idx=0; idx<trackbounds_.size(); idx++ )
 	trackbox.hsamp_.include( trackbounds_[idx] );
 
     return trackbox;
-}
-
-
-void Horizon3DSeedPicker::setSelSpec( const Attrib::SelSpec* as )
-{
-    selspec_ = as ? *as : Attrib::SelSpec();
-
-    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
-    mDynamicCastGet(HorizonAdjuster*,adjuster,
-		    sectracker?sectracker->adjuster():0);
-    if ( adjuster )
-	adjuster->setAttributeSel( 0, selspec_ );
 }
 
 } // namespace MPE

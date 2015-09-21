@@ -1343,8 +1343,12 @@ void uiMainWin::saveAsPDF_PS( const char* filename, bool aspdf, int w,
 {
     QString fileName( filename );
     QPrinter* pdfprinter = new QPrinter();
+#if QT_VERSION >= 0x050000
+    pdfprinter->setOutputFormat( QPrinter::PdfFormat );
+#else
     pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
 				       : QPrinter::PostScriptFormat );
+#endif
     pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
@@ -1517,13 +1521,7 @@ void uiDialogBody::setTitleText( const uiString& txt )
 {
     setup_.dlgtitle_ = txt;
     if ( titlelbl_ )
-    {
 	titlelbl_->setText(txt);
-	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( titlelbl_->body() );
-	if ( tb && !tb->itemInited() )
-	    titlelbl_->setPrefWidthInChar(
-	    mMAX( tb->prefWidthInCharSet(), strlen(txt.getFullString()) + 2 ));
-    }
 }
 
 
@@ -1758,6 +1756,7 @@ uiObject* uiDialogBody::createChildren()
     if ( !setup_.menubar_ && !setup_.dlgtitle_.isEmpty() )
     {
 	titlelbl_ = new uiLabel( centralwidget_, setup_.dlgtitle_ );
+	titlelbl_->setHSzPol( uiObject::WideVar );
 	uiObject* obj = setup_.separator_
 			    ? (uiObject*) new uiSeparator(centralwidget_)
 			    : (uiObject*) titlelbl_;

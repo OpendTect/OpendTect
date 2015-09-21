@@ -132,7 +132,6 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     gridlinesmnuitem_.iconfnm = "gridlines";
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	uiODPlaneDataTreeItem::keyUnReDoPressedCB );
-
 }
 
 
@@ -541,11 +540,15 @@ void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
 { visserv_->movePlaneAndCalcAttribs( displayid_, tkzs ); }
 
 
+
 void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*,pdd,
 	visserv_->getObject(displayid_) )
 	if ( !pdd )
+	    return;
+
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
 	    return;
 
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();

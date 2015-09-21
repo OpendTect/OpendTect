@@ -33,7 +33,7 @@ class EMTracker;
 class EMSeedPicker;
 
 mExpClass(uiMPE) HorizonFlatViewEditor2D : public CallBacker
-{ mODTextTranslationClass(HorizonFlatViewEditor2D);
+{ mODTextTranslationClass(HorizonFlatViewEditor2D)
 public:
     			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
 						const EM::ObjectID&);
@@ -41,7 +41,7 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
-    
+
     FlatView::AuxDataEditor* getEditor()		{ return editor_; }
     EM::HorizonPainter2D* getPainter() const 		{ return horpainter_; }
 
@@ -54,7 +54,7 @@ public:
 
     void		setMouseEventHandler(MouseEventHandler*);
     void		setSeedPicking(bool);
-    void		setTrackerSetupActive(bool yn)
+    void		setTrackerSetupActive( bool yn )
 			{ trackersetupactive_ = yn; }
 
 
@@ -73,15 +73,15 @@ protected:
     void		doubleClickedCB(CallBacker*);
 
     void		handleMouseClicked(bool dbl);
-    bool                checkSanity(EMTracker&,const EMSeedPicker&,
-	    			    bool& pickinvd) const;
+    bool		checkSanity(EMTracker&,const EMSeedPicker&,
+				    bool& pickinvd) const;
     bool		prepareTracking(bool pickinvd,const EMTracker&,
-	    			       EMSeedPicker&,const FlatDataPack&) const;
+				       EMSeedPicker&,const FlatDataPack&) const;
     bool		getPosID(const Coord3&, EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
-	    			  const MouseEvent&) const;
+				  const MouseEvent&) const;
 
-    	mStruct(uiMPE) Hor2DMarkerIdInfo
+	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{
 	    FlatView::AuxData*	marker_;
 	    int			markerid_;
@@ -93,7 +93,7 @@ protected:
     FlatView::AuxData*		getAuxData(int markerid);
     EM::SectionID		getSectionID(int markerid);
 
-    EM::ObjectID        	emid_;
+    EM::ObjectID		emid_;
     EM::HorizonPainter2D*	horpainter_;
 
     FlatView::AuxDataEditor*	editor_;
@@ -106,12 +106,12 @@ protected:
     Pos::GeomID 		geomid_;
 
     bool			seedpickingon_;
-    bool			trackersetupactive_;    
-    EM::PosID			pickedpid_;
+    bool			trackersetupactive_;
+    TrcKey			pickedpos_;
     mutable bool		dodropnext_;
 };
 
-}; // namepace 
+} // namepace
 
 
 #endif

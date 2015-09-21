@@ -15,14 +15,19 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "callback.h"
-#include "emtracker.h"
+
+#include "attribsel.h"
+#include "emposid.h"
 #include "position.h"
 #include "sets.h"
-
-namespace Attrib { class SelSpec; }
+#include "trckeysampling.h"
+#include "trckeyvalue.h"
+#include "uistring.h"
 
 namespace MPE
 {
+
+class EMTracker;
 
 /*!
 \brief Handles adding of seeds and retracking of events based on new seeds. An
@@ -30,62 +35,84 @@ instance of the class is usually available from each EMTracker.
 */
 
 mExpClass(MPEEngine) EMSeedPicker: public CallBacker
-{
+{ mODTextTranslationClass(EMSeedPicker)
 public:
     virtual		~EMSeedPicker() {}
 
 
-    virtual bool	canSetSectionID() const			{ return false;}
-    virtual bool	setSectionID(const EM::SectionID&)	{ return false;}
+    virtual void	setSectionID(EM::SectionID);
+    virtual EM::SectionID getSectionID() const;
 
-    virtual EM::SectionID getSectionID() const			{ return -1; }
+    virtual bool	startSeedPick();
+			/*!<Should be set when seedpicking is about to start. */
+    virtual void	endPatch(bool);
+    virtual bool	isPatchEnded() const;
+    bool		stopSeedPick();
 
-    virtual bool	startSeedPick()				{ return false;}
-    			/*!<Should be set when seedpicking
-			    is about to start. */
-    virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
+    bool		addSeed(const TrcKeyValue&,bool drop=false);
+    virtual bool	addSeed(const TrcKeyValue& seedcrd,bool drop,
+				const TrcKeyValue& seedkey)	{ return false;}
+    TrcKeyValue		getAddedSeed() const;
+    void		getSeeds(TypeSet<TrcKey>&) const;
+    int			indexOf(const TrcKey&) const;
 
-    virtual bool	canAddSeed() const			{ return false;}
-    virtual bool	addSeed(const Coord3&,bool drop=false)	{ return false;}
-    virtual bool	addSeed(const Coord3& seedcrd,bool drop,
-				const Coord3& seedkey)		{ return false;}
-    virtual Coord3	getAddedSeed() const		{ return Coord3::udf();}
-    virtual bool	canRemoveSeed() const			{ return false;}
-    virtual bool	removeSeed(const EM::PosID&,
+    virtual bool	removeSeed(const TrcKey&,
 	    			   bool enviromment=true,
 	    			   bool retrack=true)		{ return false;}
-    virtual EM::PosID	replaceSeed(const EM::PosID&,const Coord3&)
-    			{ return EM::PosID::udf(); }
-    virtual void	getSeeds(TypeSet<TrcKey>&) const	{}
+    virtual TrcKey	replaceSeed(const TrcKey&,const TrcKeyValue&)
+			{ return TrcKey::udf(); }
 
-    virtual void	setSelSpec(const Attrib::SelSpec*)	{}
-    virtual const Attrib::SelSpec* getSelSpec() const		{ return 0; }
+    virtual void	setSelSpec(const Attrib::SelSpec*);
+    virtual const Attrib::SelSpec* getSelSpec() const;
     virtual bool	reTrack()				{ return false;}
-    virtual int		nrSeeds() const				{ return 0; }
-    virtual int		minSeedsToLeaveInitStage() const	{ return 1; }
+    virtual int		nrSeeds() const;
 
-    virtual NotifierAccess* aboutToAddRmSeedNotifier()		{ return 0; }
-    virtual NotifierAccess* seedAddedNotifier()			{ return 0; }
-    virtual NotifierAccess* madeSurfChangeNotifier()		{ return 0; }
+    void		blockSeedPick(bool);
+    bool		isSeedPickBlocked() const;
+    void		setSowerMode(bool);
+    bool		getSowerMode() const;
 
-    virtual void	setSeedConnectMode(int)			{ return; }
-    virtual int		getSeedConnectMode() const		{ return -1; }
-    virtual void	blockSeedPick(bool)			{ return; }
-    virtual bool	isSeedPickBlocked() const		{ return false;}
-    virtual bool	doesModeUseVolume() const		{ return true; }
-    virtual bool	doesModeUseSetup() const		{ return true; }
-    virtual int		defaultSeedConMode(bool gotsetup) const { return -1; }
+    enum TrackMode	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
+    static int		nrTrackModes(bool is2d);
+    static uiString	getTrackModeText(TrackMode,bool is2d);
+
+    void		setTrackMode(TrackMode);
+    TrackMode		getTrackMode() const;
+    bool		doesModeUseVolume() const		{ return false;}
 
     virtual const char*	errMsg() const				{ return 0; }
-    virtual void	endSeedPick(bool)			{ return; }
-    virtual bool	isSeedPickEnded()			{ return false;}
 
-    enum SeedModeOrder  { TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
 
-    virtual void	setSowerMode(bool)			{}
-    virtual void	setSeedPickArea(const TrcKeySampling&)	{}
+    void		setSeedPickArea(const TrcKeySampling&);
+    const TrcKeySampling& getSeedPickArea() const;
 
-    virtual const TrcKeySampling* getSeedPickArea() const	{ return 0; }
+    Notifier<EMSeedPicker>	seedAdded;
+    Notifier<EMSeedPicker>	seedRemoved;
+    Notifier<EMSeedPicker>	seedToBeAddedRemoved;
+
+protected:
+			EMSeedPicker(EMTracker&);
+
+    EMTracker&		tracker_;
+    Attrib::SelSpec	selspec_;
+
+    TrcKeyValue		addedseed_;
+    TrcKeyValue		lastseed_;
+    TrcKeyValue		lastsowseed_;
+
+    TypeSet<TrcKey>	propagatelist_;
+    TypeSet<TrcKey>	seedlist_;
+    TypeSet<TrcKey>	trackbounds_;
+    TypeSet<TrcKey>	junctions_;
+    TypeSet<TrcKey>	eraselist_;
+
+    bool		blockpicking_;
+    bool		didchecksupport_;
+    bool		endpatch_;
+    EM::SectionID	sectionid_;
+    TrackMode		trackmode_;
+    TrcKeySampling	seedpickarea_;
+    bool		sowermode_;
 };
 
 } // namespace MPE

@@ -20,8 +20,8 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
-#include "emposid.h"
 #include "geomelement.h"
+#include "trckey.h"
 
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
@@ -50,18 +50,19 @@ public:
     bool			isShiftClicked() const;
     bool			isAltClicked() const;
     bool			isDoubleClicked() const;
-    const EM::PosID&		getNode() const;
-    const EM::PosID&		getPickedNode() const;
-    void			setPickedNode(const EM::PosID&);
+
+    const TrcKey&		getNode() const;
+    const TrcKey&		getPickedNode() const;
+    void			setPickedNode(const TrcKey&);
+
     const Coord3&		getPos() const;
     int				getObjID() const;
-    const TrcKeyZSampling&		getObjCS() const;
+    const TrcKeyZSampling&	getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
     Pos::GeomID 		getGeomID() const;
-    const MultiID&		getObjLineSet() const;
     const char*			getObjLineName() const;
     const Attrib::Data2DHolder*	getObjLineData() const;
 
@@ -70,11 +71,11 @@ protected:
 
     void			setLegalClick(bool);
 
-    void			setCtrlClicked(bool); 
+    void			setCtrlClicked(bool);
     void			setShiftClicked(bool);
     void			setAltClicked(bool);
     void			setDoubleClicked(bool);
-    void			setNode(const EM::PosID&);
+    void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
@@ -82,7 +83,6 @@ protected:
     void			setObjData(const RegularSeisDataPack*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
 
-    void			setObjLineSet(const MultiID&);
     void			setGeomID(Pos::GeomID);
     void			setObjLineName(const char*);
     void			setObjLineData(const Attrib::Data2DHolder*);
@@ -92,9 +92,11 @@ protected:
     bool				shiftclicked_;
     bool				altclicked_;
     bool				doubleclicked_;
-    EM::PosID				pickednode_;
-    EM::PosID				clickednode_;
+
+    TrcKey				pickednode_;
+    TrcKey				clickednode_;
     Coord3				clickedpos_;
+
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
@@ -102,7 +104,6 @@ protected:
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID 			geomid_;
-    MultiID				lineset_;
     BufferString			linename_;
     DataPack::ID			datapackid_;
 };
@@ -146,7 +147,6 @@ protected:
 					const visBase::EventInfo&);
 
     void			allowPickBasedReselection();
-    const Coord3		getNormal();
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;

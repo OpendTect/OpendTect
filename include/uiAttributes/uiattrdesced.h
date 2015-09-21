@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "helpview.h"
 
 namespace Attrib { class Desc; class DescSet; class DescSetMan; };
+namespace ZDomain { class Info; }
 
 class uiAttrDescEd;
 class uiAttrSel;
@@ -89,6 +90,9 @@ public:
     void		setDescSet( DescSet* ds )	{ ads_ = ds; }
     Desc*		curDesc()			{ return desc_; }
     const Desc*		curDesc() const			{ return desc_; }
+
+    void		setZDomainInfo(const ZDomain::Info*);
+    const ZDomain::Info* getZDomainInfo() const;
 
     uiString		errMsgStr(Desc* desc);
     virtual uiString	commit(Desc* desc=0);
@@ -176,6 +180,7 @@ protected:
     DescSet*		ads_;
     bool		is2d_;
     bool		needinpupd_;
+    const ZDomain::Info* zdomaininfo_;
 
     TypeSet<DataPack::FullID> dpfids_;
 

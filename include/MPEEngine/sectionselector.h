@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "emposid.h"
 #include "sets.h"
+#include "trckey.h"
 
 
 namespace MPE
@@ -42,11 +43,11 @@ public:
     virtual void		fillPar(IOPar&) const {}
     virtual bool		usePar(const IOPar&) { return true; }
 
-    const TypeSet<EM::SubID>&	selectedPositions() const;
+    const TypeSet<TrcKey>&	selectedPositions() const;
 
 protected:
     EM::SectionID		sectionid_;
-    TypeSet<EM::SubID>		selpos_;
+    TypeSet<TrcKey>		selpos_;
     BufferString		errmsg_;
 };
 

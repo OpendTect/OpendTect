@@ -199,6 +199,7 @@ public:
     void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
+    void			addMPEParentPath(int visid,const TrcKey&);
 
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);

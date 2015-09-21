@@ -161,7 +161,7 @@ void FaultStickSetDisplay::setScene( Scene* scene )
 }
 
 
-EM::ObjectID FaultStickSetDisplay::getEMID() const
+EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
 { return fault_ ? fault_->id() : -1; }
 
 
@@ -170,7 +170,7 @@ EM::ObjectID FaultStickSetDisplay::getEMID() const
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
+bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( fault_ )
     {
@@ -1206,7 +1206,7 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
 	    emobject = EM::EMM().getObject( emid );
 	}
 
-	if ( emobject ) setEMID( emobject->id() );
+	if ( emobject ) setEMObjectID( emobject->id() );
     }
 
     par.getYN(  sKeyDisplayOnlyAtSections(), displayonlyatsections_ );

@@ -1079,6 +1079,58 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 }
 
 
+int HorizonDisplay::getChannelIndex( const char* nm ) const
+{
+    for ( int idx=0; idx<as_.size(); idx++ )
+    {
+	const FixedString usrref = as_[idx]->userRef();
+	if ( usrref == nm ) return idx;
+    }
+
+    return -1;
+}
+
+
+void HorizonDisplay::updateAuxData()
+{
+    const int depthidx = getChannelIndex( sKeyZValues() );
+    if ( depthidx != -1 )
+	setDepthAsAttrib( depthidx );
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+    if ( !hor3d ) return;
+
+    const ObjectSet<BinIDValueSet>& auxdata =
+	hor3d->auxdata.getData();
+    if ( auxdata.isEmpty() ) return;
+
+    float auxvals[3];
+    auxvals[0] = mUdf(float);
+    auxvals[1] = hor3d->sectionID( 0 );
+    for ( int idx=0; idx<auxdata[0]->nrVals(); idx++ )
+    {
+	const char* auxdatanm = hor3d->auxdata.auxDataName( idx );
+	const int cidx = getChannelIndex( auxdatanm );
+	if ( cidx==-1 ) continue;
+
+	DataPointSet dps( false, true );
+	dps.dataSet().add( new DataColDef(sKeySectionID()) );
+	dps.dataSet().add( new DataColDef(auxdatanm) );
+
+	BinIDValueSet::SPos pos;
+	while ( auxdata[0]->next(pos) )
+	{
+	    auxvals[2] = auxdata[0]->getVal( pos, idx );
+	    dps.bivSet().add( auxdata[0]->getIdxPair(pos), auxvals );
+	}
+
+	dps.dataChanged();
+	setRandomPosData( cidx, &dps, 0 );
+	selectTexture( cidx, 0 );
+    }
+}
+
+
 int HorizonDisplay::nrResolutions() const
 {
     return sections_.size() ? sections_[0]->nrResolutions()+1 : 1;

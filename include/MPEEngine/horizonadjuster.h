@@ -90,9 +90,8 @@ private:
     DataPackMgr&	dpm_;
     DataPack::ID	datapackid_;
 
-    bool		track(const BinID&,const BinID&,float&) const;
-    const TrcKey	getTrcKey(const BinID&) const;
-    void		setHorizonPick(const BinID&,float val);
+    bool		track(const TrcKey&,const TrcKey&,float&) const;
+    void		setHorizonPick(const TrcKey&,float val);
 
     static const char*	sKeyTracker()		{ return "Tracker"; }
     static const char*	sKeyAttribID()		{ return "Attribute"; }

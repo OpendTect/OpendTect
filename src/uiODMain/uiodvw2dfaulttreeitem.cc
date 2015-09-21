@@ -46,7 +46,7 @@ bool uiODVw2DFaultParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
-    uiMenu* loadmenu = new uiMenu( m3Dots(uiStrings::sLoad()) );
+    uiMenu* loadmenu = new uiMenu( m3Dots(uiStrings::sAdd()) );
     loadmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
     loadmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
     mnu.insertItem( loadmenu );

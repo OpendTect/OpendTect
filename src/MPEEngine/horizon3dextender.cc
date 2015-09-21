@@ -74,10 +74,7 @@ int BaseHorizon3DExtender::nextStep()
     TypeSet<BinID> sourcenodes;
 
     for ( int idx=0; idx<startpos_.size(); idx++ )
-    {
-	BinID dummy = BinID::fromInt64( startpos_[idx] );
-	sourcenodes += dummy;
-    }
+	sourcenodes += startpos_[idx].pos();
 
     if ( sourcenodes.size() == 0 )
 	return 0;
@@ -88,10 +85,7 @@ int BaseHorizon3DExtender::nextStep()
 	change = false;
 	for ( int idx=0; idx<sourcenodes.size(); idx++ )
 	{
-	    const BinID& srcbid = sourcenodes[idx];
-
 	    TypeSet<RowCol> directions;
-	    
 	    if ( fourdirs || eightdirs )
 	    {
 		directions += RowCol( 0, 1 );
@@ -113,6 +107,7 @@ int BaseHorizon3DExtender::nextStep()
 				      direction_.trcNr()*-1 );
 	    }
 
+	    const BinID& srcbid = sourcenodes[idx];
 	    const EM::PosID pid( horizon_.id(), sid_, srcbid.toInt64() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
@@ -129,7 +124,8 @@ int BaseHorizon3DExtender::nextStep()
 		//If this is a better route to a node that is already
 		//added, replace the route with this one
 
-		const int previndex = addedpos_.indexOf( neighbor.subID() );
+/*
+		const int previndex = addedpos_.indexOf( neighbor );
 		if ( previndex!=-1 )
 		{
 		    const RowCol step( horizon_.geometry().step() );
@@ -141,22 +137,23 @@ int BaseHorizon3DExtender::nextStep()
 		    const int olddist = (int)oldsrc.sqDistTo(dst);
 		    if ( cursrc.sqDistTo(dst) < olddist )
 		    {
-			addedpossrc_[previndex] = srcbid.toInt64();
+			addedpossrc_[previndex] = srcbid;
 			const float depth = getDepth( srcbid, neighbbid );
 			horizon_.setZ( neighbbid, depth, setundo_ );
 		    }
 		    continue;
 		}
-
+*/
 		if ( horizon_.isDefined(neighbor) )
 		    continue;
 
-		if ( !isExcludedPos(neighbor.subID()) )
+		if ( !isExcludedPos(neighbbid) )
 		{
 		    const float depth = getDepth( srcbid, neighbbid );
-		    if ( horizon_.setZ(neighbbid,depth,setundo_) )
+		    if ( !mIsUdf(depth) &&
+				horizon_.setZ(neighbbid,depth,setundo_) )
 		    {
-			addTarget( neighbor.subID(), srcbid.toInt64() );
+			addTarget( neighbbid, srcbid );
 			change = true;
 		    }
 		}

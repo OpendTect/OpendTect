@@ -85,6 +85,8 @@ EMObjectDisplay::EMObjectDisplay()
 
 EMObjectDisplay::~EMObjectDisplay()
 {
+    setSelectionMode( false );
+
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = 0;
 

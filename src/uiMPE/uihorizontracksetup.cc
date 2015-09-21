@@ -252,31 +252,15 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     modeselgrp_->setExclusive( true );
     grp->setHAlignObj( modeselgrp_ );
 
-    if ( !is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0 )
+    const int nrmodes = EMSeedPicker::nrTrackModes( is2d_ );
+    for ( int idx=0; idx<nrmodes; idx++ )
     {
-	for ( int idx=0; idx<Horizon3DSeedPicker::nrSeedConnectModes(); idx++ )
-	{
-	    uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
-			Horizon3DSeedPicker::seedConModeText(idx,false) );
-	    butptr->activated.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
-
-	    mode_ = (EMSeedPicker::SeedModeOrder)
-				Horizon3DSeedPicker::defaultSeedConMode();
-	}
-    }
-    else if ( is2d_ && Horizon2DSeedPicker::nrSeedConnectModes()>0 )
-    {
-	for ( int idx=0; idx<Horizon2DSeedPicker::nrSeedConnectModes(); idx++ )
-	{
-	    uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
-			Horizon2DSeedPicker::seedConModeText(idx,false) );
-	    butptr->activated.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
-
-	    mode_ = (EMSeedPicker::SeedModeOrder)
-				Horizon2DSeedPicker::defaultSeedConMode();
-	}
+	EMSeedPicker::TrackMode md = (EMSeedPicker::TrackMode)idx;
+	uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
+		    EMSeedPicker::getTrackModeText(md,is2d_) );
+	butptr->activated.notify(
+		    mCB(this,uiHorizonSetupGroup,seedModeChange) );
+	mode_ =  EMSeedPicker::TrackBetweenSeeds;
     }
 
     uiSeparator* sep = new uiSeparator( grp );
@@ -399,7 +383,7 @@ void uiHorizonSetupGroup::selUseVariance( CallBacker* )
 
 void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
-    mode_ = (EMSeedPicker::SeedModeOrder) modeselgrp_->selectedId();
+    mode_ = (EMSeedPicker::TrackMode)modeselgrp_->selectedId();
     modeChanged_.trigger();
 
     const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
@@ -486,8 +470,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 
 void uiHorizonSetupGroup::initModeGroup()
 {
-    if ( (!is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0) ||
-	 (is2d_ && Horizon2DSeedPicker::nrSeedConnectModes()>0) )
+    if ( EMSeedPicker::nrTrackModes(is2d_) > 0 )
 	modeselgrp_->selectButton( mode_ );
 
     methodfld_->setValue(
@@ -517,23 +500,24 @@ void uiHorizonSetupGroup::initPropertyGroup()
 }
 
 
-void uiHorizonSetupGroup::setMode( EMSeedPicker::SeedModeOrder mode )
+void uiHorizonSetupGroup::setMode( EMSeedPicker::TrackMode mode )
 {
     mode_ = mode;
-    modeselgrp_->selectButton( mode_ );
+    modeselgrp_->selectButton( (int)mode_ );
 }
 
 
-int uiHorizonSetupGroup::getMode()
+EMSeedPicker::TrackMode uiHorizonSetupGroup::getMode() const
 {
-    return modeselgrp_ ? modeselgrp_->selectedId() : -1;
+    return (EMSeedPicker::TrackMode)
+	(modeselgrp_ ? modeselgrp_->selectedId() : 0);
 }
 
 
-void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
+void uiHorizonSetupGroup::setSeedPos( const TrcKeyValue& tkv )
 {
-    eventgrp_->setSeedPos( crd );
-    correlationgrp_->setSeedPos( crd );
+    eventgrp_->setSeedPos( tkv );
+    correlationgrp_->setSeedPos( tkv );
     updateButtonSensitivity();
 }
 

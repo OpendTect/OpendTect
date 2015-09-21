@@ -47,16 +47,16 @@ public:
     virtual const TrcKeyValue*	getDirection() const;
 
     void			setStartPosition(const TrcKey&);
-    void			setStartPositions(const TypeSet<EM::SubID> ns);
-    void			excludePositions(const TypeSet<EM::SubID>*);
-    bool			isExcludedPos(const EM::SubID&) const;
+    void			setStartPositions(const TypeSet<TrcKey>&);
+    void			excludePositions(const TypeSet<TrcKey>*);
+    bool			isExcludedPos(const TrcKey&) const;
     int				nextStep();
 
     void			extendInVolume(const BinID& bidstep,
     					       float zstep);
 
-    const TypeSet<EM::SubID>&	getAddedPositions() const;
-    const TypeSet<EM::SubID>&	getAddedPositionsSource() const;
+    const TypeSet<TrcKey>&	getAddedPositions() const;
+    const TypeSet<TrcKey>&	getAddedPositionsSource() const;
 
     virtual const TrcKeyZSampling& getExtBoundary() const;
     void			setExtBoundary(const TrcKeyZSampling&);
@@ -72,18 +72,17 @@ public:
     void			setUndo(bool yn)	{ setundo_ = yn; }
 
 protected:
-    void			addTarget(const EM::SubID& target,
-	    				  const EM::SubID& src );
+    void			addTarget(const TrcKey& target,
+					  const TrcKey& src);
     virtual float		getDepth(const TrcKey& src,
 					 const TrcKey& target) const;
     virtual void		prepareDataIfRequired()	{ return; }
 
-    SortedList<EM::SubID>	sortedaddedpos_;
-    TypeSet<EM::SubID>		addedpos_;
-    TypeSet<EM::SubID>		addedpossrc_;
-    TypeSet<EM::SubID>		startpos_;
+    TypeSet<TrcKey>		addedpos_;
+    TypeSet<TrcKey>		addedpossrc_;
+    TypeSet<TrcKey>		startpos_;
 
-    const TypeSet<EM::SubID>*	excludedpos_;
+    const TypeSet<TrcKey>*	excludedpos_;
 
     TrcKeyZSampling		extboundary_;
 

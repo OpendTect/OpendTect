@@ -28,7 +28,7 @@ static const char* nms[] =
 	0
 };
 
-const int transtbl[] =
+const unsigned int transtbl[] =
 { 0x00000000, 0x00000001, 0x00000002, 0x00000004, 0x000000ff, 0x02000000,
   0x04000000, 0x08000000, 0x10000000, 0xfe000000, 0x20000000 };
 

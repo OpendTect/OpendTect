@@ -70,6 +70,7 @@ uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const HelpKey& helpkey )
     , is2d_(is2d)
     , helpkey_(helpkey)
     , needinpupd_(false)
+    , zdomaininfo_(0)
 {
 }
 
@@ -91,6 +92,13 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 	setOutput( *desc );
     }
 }
+
+
+void uiAttrDescEd::setZDomainInfo( const ZDomain::Info* info )
+{ zdomaininfo_ = info; }
+
+const ZDomain::Info* uiAttrDescEd::getZDomainInfo() const
+{ return zdomaininfo_; }
 
 
 void uiAttrDescEd::setDataPackInp( const TypeSet<DataPack::FullID>& ids )

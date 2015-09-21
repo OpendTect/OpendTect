@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
-#include "horflatvieweditor.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
@@ -44,7 +43,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     , trackersetupactive_(false)
     , updseedpkingstatus_(this)
     , dodropnext_(false)
-    , pickedpid_(EM::PosID::udf())
+    , pickedpos_(TrcKey::udf())
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
@@ -173,12 +172,13 @@ void HorizonFlatViewEditor3D::paint()
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
-    if ( !pickedpid_.isUdf() )
+    if ( !pickedpos_.isUdf() )
     {
 	const Geom::Point2D<int>& mousepos = mouseevent.pos();
 	mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
 	if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
 	    return;
+
 	const Geom::Point2D<double>* markerpos = editor_->markerPosAt(mousepos);
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
@@ -186,10 +186,13 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
 	    return;
+
 	MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-	if ( !seedpicker || !seedpicker->canAddSeed() )
+	if ( !seedpicker )
 	    return;
-	pickedpid_ = seedpicker->replaceSeed( pickedpid_, coord );
+
+	const TrcKeyValue tkv( SI().transform(coord), (float)coord.z );
+	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
 
@@ -226,11 +229,10 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-
-    if ( !seedpicker || !seedpicker->canAddSeed() ||
-	 !seedpicker->canSetSectionID() ||
-	 !seedpicker->setSectionID(emobj->sectionID(0)) )
+    if ( !seedpicker )
 	return;
+
+    seedpicker->setSectionID( emobj->sectionID(0) );
 
     bool pickinvd = true;
     if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
@@ -241,7 +243,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
-    if ( seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds &&
+    if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds &&
 	 markerpos && !ctrlorshifclicked )
     {
 	mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
@@ -250,7 +252,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
-	getPosID( vwr->getCoord(wp), pickedpid_ );
+	pickedpos_ = SI().transform( vwr->getCoord(wp) );
 	return;
     }
 
@@ -273,9 +275,9 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	 || editor_->isSelActive() )
 	return;
 
-    if ( !dbl && !pickedpid_.isUdf() )
+    if ( !dbl && !pickedpos_.isUdf() )
     {
-	pickedpid_ = EM::PosID::udf();
+	pickedpos_ = TrcKey::udf();
 	return;
     }
 
@@ -287,13 +289,10 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-
-    if ( !seedpicker || !seedpicker->canAddSeed() ) return;
-
-    if ( !seedpicker->canSetSectionID() ||
-	 !seedpicker->setSectionID(emobj->sectionID(0)) )
+    if ( !seedpicker )
 	return;
 
+    seedpicker->setSectionID( emobj->sectionID(0) );
     const MouseEvent& mouseevent = mehandler_->event();
 
     if ( !dbl && editor_ )
@@ -331,7 +330,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	emobj->setBurstAlert( false );
 
     if ( dbl &&
-	 seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds )
+	 seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds )
 	dodropnext_ = true;
 
     MouseCursorManager::restoreOverride();
@@ -353,6 +352,32 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* )
 void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 {
     handleMouseClicked( false );
+}
+
+
+static bool selectSeedData(
+		const FlatView::AuxDataEditor* editor, bool& pickinvd )
+{
+    if ( !editor )
+	return false;
+
+    const bool vdvisible = editor->viewer().isVisible(false);
+    const bool wvavisible = editor->viewer().isVisible(true);
+
+    if ( vdvisible && wvavisible )
+	pickinvd = uiMSG().question( "Which one is your seed data?",
+				     "VD", "Wiggle" );
+    else if ( vdvisible )
+	pickinvd = true;
+    else if ( wvavisible )
+	pickinvd = false;
+    else
+    {
+	uiMSG().error( "No data to choose from" );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -379,14 +404,14 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 
     if ( spk.nrSeeds() < 1 )
     {
-	if ( !HorizonFlatViewEditor::selectSeedData(editor_, pickinvd ) )
+	if ( !selectSeedData(editor_,pickinvd) )
 	    return false;
 
 	atsel = pickinvd ? vdselspec_ : wvaselspec_;
 
 	if ( !trackersetupactive_ && atsel && trackedatsel &&
 	     (newatsel!=*atsel) &&
-	     (spk.getSeedConnectMode()!=spk.DrawBetweenSeeds) )
+	     (spk.getTrackMode()!=spk.DrawBetweenSeeds) )
 	{
 	    uiMSG().error( tr("Saved setup has different attribute. \n"
 		    	      "Either change setup attribute or change\n"
@@ -400,7 +425,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 	    pickinvd = true;
 	else if ( wvaselspec_ && trackedatsel && (newatsel==*wvaselspec_) )
 	    pickinvd = false;
-	else if ( spk.getSeedConnectMode() !=spk.DrawBetweenSeeds )
+	else if ( spk.getTrackMode() !=spk.DrawBetweenSeeds )
 	{
 	    uiString warnmsg = tr("Setup suggests tracking is done on '%1.\n"
 				  "But what you see is: '%2'.\n"
@@ -475,11 +500,8 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 					 const MouseEvent& mev ) const
 {
-    EM::PosID pid;
-    getPosID( crd, pid );
-
+    const TrcKeyValue tkv( SI().transform(crd), (float)crd.z );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
-
     if ( !ismarker )
     {
 	bool drop = ismarker ? false : mev.shiftStatus();
@@ -489,13 +511,14 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 
-	if ( spk.addSeed(crd, drop, Coord3(mev.x(),mev.y(),0)) )
+	const TrcKeyValue tkv2( SI().transform(Coord(mev.x(),mev.y())), 0.f );
+	if ( spk.addSeed(tkv,drop,tkv2) )
 	    return true;
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {
 	const bool ctrlshifclicked = mev.shiftStatus() && mev.ctrlStatus();
-	if ( spk.removeSeed(pid,true,!ctrlshifclicked) )
+	if ( spk.removeSeed(tkv.tk_,true,!ctrlshifclicked) )
 	    return false;
     }
 

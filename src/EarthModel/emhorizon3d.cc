@@ -374,6 +374,23 @@ float Horizon3D::getZ( const BinID& bid ) const
 bool Horizon3D::hasZ( const TrcKey& tk ) const
 { return isDefined( sectionID(0), tk.pos().toInt64() ); }
 
+Coord3 Horizon3D::getCoord( const TrcKey& tk ) const
+{ return getPos( sectionID(0), tk.pos().toInt64() ); }
+
+
+void Horizon3D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
+{
+    const PosID pid( id(), sectionID(0), tk.pos().toInt64() );
+    setPosAttrib( pid, attr, yn, addtohist );
+}
+
+
+bool Horizon3D::isAttrib( const TrcKey& tk, int attr ) const
+{
+    const PosID pid( id(), sectionID(0), tk.pos().toInt64() );
+    return isPosAttrib( pid, attr );
+}
+
 
 float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {

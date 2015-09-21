@@ -112,15 +112,19 @@ public:
     virtual float		getZ(const TrcKey&) const;
     virtual bool		setZ(const TrcKey&,float z,bool addtohist);
     virtual bool		hasZ(const TrcKey&) const;
+    virtual Coord3		getCoord(const TrcKey&) const;
+    virtual void		setAttrib(const TrcKey&,int attr,int yn,
+					  bool addtohist);
+    virtual bool		isAttrib(const TrcKey&,int attr) const;
 
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Convenience function. If you need speed,
 				//!< don't use it.
 
-    bool			unSetPos(const EM::PosID&,bool addtohistory);
+    bool			unSetPos(const EM::PosID&,bool addtohist);
     bool			unSetPos(const EM::SectionID&,const EM::SubID&,
-					 bool addtohistory);
+					 bool addtohist);
     Coord3			getPos(const EM::PosID&) const;
     Coord3			getPos(const EM::SectionID&,
 				       const EM::SubID&) const;
@@ -131,11 +135,11 @@ public:
     Coord3			getPos(EM::SectionID,Pos::GeomID,int trc) const;
 
     bool			setPos(EM::SectionID,Pos::GeomID geomid,
-				       int trcnr,float z,bool addtohistory);
+				       int trcnr,float z,bool addtohist);
 
     bool			setPos(const EM::PosID&,const Coord3&,bool);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory);
+				       const Coord3&,bool addtohist);
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }

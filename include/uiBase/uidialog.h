@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 class uiButton;
 
-/*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
+/*!\brief Stand-alone dialog window with optional 'OK', 'Cancel' and
 'Save defaults' button.
 
 It is meant to be the base class for 'normal' dialog windows. The Setup class
@@ -145,7 +145,7 @@ public:
     bool		saveButtonChecked() const;
 
     void		setSeparator(bool yn);
-			//!< Separator between central dialog and Ok/Cancel bar?
+			//!< Separator between central dialog and OK/Cancel bar?
     bool		separator() const;
     void		setHelpKey(const HelpKey&);
     virtual HelpKey	helpKey() const;

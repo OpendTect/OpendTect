@@ -356,7 +356,6 @@ const EM::PosID FaultEditor::getNearstStick( EM::SectionID& sid,
     const Coord3& mousepos, const Coord3* posnormal )const
 {
     EM::PosID pid = EM::PosID::udf();
-
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 

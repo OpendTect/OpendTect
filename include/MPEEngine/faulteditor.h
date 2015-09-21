@@ -51,7 +51,8 @@ public:
 
     bool			removeSelection(const Selector<Coord3>&);
     const EM::PosID		getNearstStick(EM::SectionID& sid,
-				const Coord3& pos,const Coord3* posnormal)const;
+					       const Coord3& pos,
+					       const Coord3* posnormal)const;
 
 protected:
     float		distToStick(const Geometry::FaultStickSurface&,

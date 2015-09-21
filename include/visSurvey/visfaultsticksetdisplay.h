@@ -79,8 +79,8 @@ public:
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool			setEMObjectID(const EM::ObjectID&);
+    EM::ObjectID		getEMObjectID() const;
 
     void			setScene(Scene*);
 
@@ -112,6 +112,7 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;
+
     virtual void		setPixelDensity(float dpi);
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -149,6 +150,7 @@ protected:
 					TypeSet<Coord3>& intersectpoints);
     EM::FaultStickSet*		emFaultStickSet();
     void			sowingFinishedCB(CallBacker*);
+
 
     MPE::FaultStickSetEditor*	fsseditor_;
     visSurvey::MPEEditor*	viseditor_;

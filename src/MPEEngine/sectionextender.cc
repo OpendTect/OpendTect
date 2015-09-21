@@ -27,7 +27,6 @@ SectionExtender::SectionExtender( EM::SectionID sid )
     : sid_(sid)
     , extboundary_(false)
     , excludedpos_(0)
-    , sortedaddedpos_(false)
     , setundo_(true)
 {}
 
@@ -38,7 +37,6 @@ EM::SectionID SectionExtender::sectionID() const { return sid_; }
 void SectionExtender::reset()
 {
     addedpos_.erase();
-    sortedaddedpos_.erase();
     addedpossrc_.erase();
     excludedpos_ = 0;
 }
@@ -53,23 +51,23 @@ const TrcKeyValue* SectionExtender::getDirection() const { return 0; }
 void SectionExtender::setStartPosition( const TrcKey& tk )
 {
     startpos_.erase();
-    startpos_ += tk.pos().toInt64();
+    startpos_ += tk;
     prepareDataIfRequired();
 }
 
 
-void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
+void SectionExtender::setStartPositions( const TypeSet<TrcKey>& ns )
 {
     startpos_ = ns;
     prepareDataIfRequired();
 }
 
 
-void SectionExtender::excludePositions( const TypeSet<EM::SubID>* exclpos )
+void SectionExtender::excludePositions( const TypeSet<TrcKey>* exclpos )
 { excludedpos_ = exclpos; }
 
 
-bool SectionExtender::isExcludedPos( const EM::SubID& pos ) const
+bool SectionExtender::isExcludedPos( const TrcKey& pos ) const
 {
     return excludedpos_ && excludedpos_->isPresent(pos);
 }
@@ -104,11 +102,11 @@ void SectionExtender::extendInVolume(const BinID& bidstep, float zstep)
 const char* SectionExtender::errMsg() const { return errmsg.str(); }
 
 
-const TypeSet<EM::SubID>& SectionExtender::getAddedPositions() const
+const TypeSet<TrcKey>& SectionExtender::getAddedPositions() const
 { return addedpos_; }
 
 
-const TypeSet<EM::SubID>& SectionExtender::getAddedPositionsSource() const
+const TypeSet<TrcKey>& SectionExtender::getAddedPositionsSource() const
 { return addedpossrc_; }
 
 
@@ -124,15 +122,13 @@ void SectionExtender::unsetExtBoundary()
 { extboundary_.setEmpty(); }
 
 
-void SectionExtender::addTarget( const EM::SubID& target,
-			         const EM::SubID& src )
+void SectionExtender::addTarget( const TrcKey& target, const TrcKey& src )
 {
-    if ( sortedaddedpos_.indexOf(target)!=-1 || isExcludedPos(target) )
+    if ( addedpos_.indexOf(target)!=-1 || isExcludedPos(target) )
 	return;
 
     addedpossrc_ += src;
     addedpos_ += target;
-    sortedaddedpos_ += target;
 }
 
 

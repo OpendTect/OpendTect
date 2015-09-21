@@ -29,7 +29,7 @@ int SectionSourceSelector::nextStep() { return 0; }
 const char* SectionSourceSelector::errMsg() const
 { return errmsg_.str(); }
 
-const TypeSet<EM::SubID>& SectionSourceSelector::selectedPositions() const
+const TypeSet<TrcKey>& SectionSourceSelector::selectedPositions() const
 { return selpos_;}
 
 } // namespace MPE

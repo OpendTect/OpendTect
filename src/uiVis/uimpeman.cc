@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "emtracker.h"
 #include "emundo.h"
 #include "executor.h"
 #include "horizon2dseedpicker.h"
@@ -59,6 +60,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 {
     engine().trackeraddremove.notify(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
+    engine().actionCalled.notify(
+			mCB(this,uiMPEMan,mpeActionCB) );
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
     si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.notify(
@@ -79,6 +82,18 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
+}
+
+
+void uiMPEMan::mpeActionCB( CallBacker* )
+{
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    if ( !hd ) return;
+
+    if ( engine().getState() == Engine::Started )
+    {
+	hd->setOnlyAtSectionsDisplay( false );
+    }
 }
 
 
@@ -127,7 +142,7 @@ void uiMPEMan::keyEventCB( CallBacker* )
     }
     else if ( kev.key_ == OD::Y )
     {
-	    action = sPoly;
+	action = sPoly;
     }
     else if ( kev.key_ == OD::A )
 	action = sClear;
@@ -148,11 +163,12 @@ void uiMPEMan::keyEventCB( CallBacker* )
 }
 
 
-#define mAddAction(txt,sc,id,enab) \
+#define mAddAction(txt,sc,id,icon,enab) \
 { \
     uiAction* action = new uiAction( txt ); \
     mnu.insertAction( action, id ); \
     action->setEnabled( enab ); \
+    action->setIcon( icon ); \
 }
 
 void uiMPEMan::mouseEventCB( CallBacker* )
@@ -181,33 +197,38 @@ int uiMPEMan::popupMenu()
     uiMenu mnu( tr("Tracking Menu") );
     const bool istracking = MPE::engine().trackingInProgress();
     if ( istracking )
-	mAddAction( tr("Stop Tracking"), "k", sStop, true )
+	mAddAction( tr("Stop Auto Tracking"), "k", sStop, "stop", true )
     else
     {
 	const Coord3& clickedpos = scene->getMousePos( true );
 	const bool haspos = !clickedpos.isUdf();
-	mAddAction( tr("Start Tracking"), "k", sStart, true )
-	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack, true )
-	mAddAction( tr("Define Polygon"), "y", sPoly, true )
+	mAddAction( tr("Start Auto Tracking"), "k", sStart, "autotrack", true )
+	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack,
+		    "retrackhorizon", true )
+	mAddAction( tr("Select With Polygon"), "y", sPoly,
+		    "polygonselect", true )
 	if ( haspos )
 	{
-	    mAddAction( tr("Select Children"), "", sChild, true )
-	    mAddAction( tr("Select Parents"), "", sParent, true )
-	    mAddAction( tr("Show Parents Path"), "", sParPath, true )
+	    mAddAction( tr("Select Parents"), "", sParent, 0, true )
+	    mAddAction( tr("Show Parents Path"), "", sParPath, 0, true )
+	    mAddAction( tr("Select Children"), "", sChild, 0, true )
 	}
-	mAddAction( tr("Clear Selection"), "a", sClear, true )
-	mAddAction( tr("Delete Selected"), "d", sDelete, true )
-	mAddAction( tr("Undo"), "ctrl+z", sUndo, EM::EMM().undo().canUnDo())
-	mAddAction( tr("Redo"), "ctrl+y", sRedo, EM::EMM().undo().canReDo())
-	mAddAction( tr("Lock"), "l", sLock, true )
-	mAddAction( tr("Unlock"), "u", sUnlock, true )
-	mAddAction( tr("Save"), "ctrl+s", sSave, hor3d->isChanged() )
-	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, true )
+	mAddAction( tr("Clear Selection"), "a", sClear, "clear", true )
+	mAddAction( tr("Delete Selected"), "d", sDelete, "trashcan", true )
+	mAddAction( tr("Undo"), "ctrl+z", sUndo, "undo",
+		    EM::EMM().undo().canUnDo())
+	mAddAction( tr("Redo"), "ctrl+y", sRedo, "redo",
+		    EM::EMM().undo().canReDo())
+	mAddAction( tr("Lock"), "l", sLock, "lock", true )
+	mAddAction( tr("Unlock"), "u", sUnlock, "unlock", true )
+	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
+	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
 	if ( !hd->getOnlyAtSectionsDisplay() )
-	    mAddAction( tr("Display Only at Sections"), "r", sRest, true )
+	    mAddAction( tr("Display Only at Sections"), "r", sRest,
+			"sectiononly", true )
 	else
-	    mAddAction( tr("Display in Full"), "r", sFull, true )
-	mAddAction( tr("Show Settings ..."), "", sSett, true )
+	    mAddAction( tr("Display in Full"), "r", sFull, "sectionoff", true )
+	mAddAction( tr("Show Settings ..."), "", sSett, "tools", true )
     }
 
     return mnu.exec();
@@ -225,7 +246,6 @@ void uiMPEMan::handleAction( int res )
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     visSurvey::Scene* scene = hd ? hd->getScene() : 0;
     if ( !scene ) return;
-
 
     const Coord3& clickedpos = scene->getMousePos( true );
     const TrcKey tk = SI().transform( clickedpos.coord() );
@@ -310,7 +330,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     emobj = EM::EMM().getObject( tracker->objectID() );
-    if ( !emobj )
+    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    if ( !hor )
 	mSeedClickReturn();
 
     while ( emobj->hasBurstAlert() )
@@ -323,9 +344,12 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
+    visBase::DataObject* dataobj = visserv_->getObject( clickedobject );
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,dataobj)
+    const bool clickedonhorizon = emod;
+
     if ( !clickcatcher_->info().isLegalClick() )
     {
-	visBase::DataObject* dataobj = visserv_->getObject( clickedobject );
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
 
 	if ( tracker->is2D() && !clickcatcher_->info().getObjLineName() )
@@ -342,26 +366,19 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
     }
 
-    const EM::PosID pid = clickcatcher_->info().getNode();
-    TrcKeyZSampling newvolume;
-    if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
-	mSeedClickReturn();
-
     const Attrib::SelSpec* clickedas =
 	clickcatcher_->info().getObjDataSelSpec();
     if ( !clickedas )
 	mSeedClickReturn();
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-    if ( !seedpicker || !seedpicker->canSetSectionID() ||
-	 !seedpicker->setSectionID(emobj->sectionID(0)) )
-    {
+    if ( !seedpicker )
 	mSeedClickReturn();
-    }
 
+    seedpicker->setSectionID( emobj->sectionID(0) );
     if ( clickcatcher_->info().isDoubleClicked() )
     {
-	seedpicker->endSeedPick( true );
+	seedpicker->endPatch( true );
 	mSeedClickReturn();
     }
 
@@ -374,7 +391,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()==0) )
     {
 	if ( trackedatsel &&
-	     (seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds) )
+	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) )
 	{
 	    bool chanceoferror = false;
 	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
@@ -386,8 +403,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    if ( chanceoferror )
 	    {
 		uiMSG().error(tr("Saved setup has different attribute. \n"
-			         "Either change setup attribute or change\n"
-			         "display attribute you want to track on"));
+				 "Either change setup attribute or change\n"
+				 "display attribute you want to track on"));
 		mSeedClickReturn();
 	    }
 	}
@@ -396,7 +413,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( seedpicker->nrSeeds() > 0 )
     {
 	if ( trackedatsel &&
-	     (seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds) )
+	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) )
 	{
 	    bool chanceoferror = false;
 	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
@@ -420,31 +437,36 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
     }
 
-    Coord3 seedpos;
-    if ( pid.objectID() == -1 )
+    const TrcKey node = clickcatcher_->info().getNode();
+    Coord3 seedcrd;
+    if ( !clickedonhorizon )
     {
 	visSurvey::Scene* scene = visSurvey::STM().currentScene();
-	seedpos = clickcatcher_->info().getPos();
-	scene->getTempZStretchTransform()->transformBack( seedpos );
-	scene->getUTM2DisplayTransform()->transformBack( seedpos );
+	seedcrd = clickcatcher_->info().getPos();
+	scene->getTempZStretchTransform()->transformBack( seedcrd );
+	scene->getUTM2DisplayTransform()->transformBack( seedcrd );
     }
     else
     {
-	seedpos = emobj->getPos(pid);
+	seedcrd = hor->getCoord( node );
     }
 
+    const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
+    const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
+    TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
+			 (float)seedcrd.z );
     bool shiftclicked = clickcatcher_->info().isShiftClicked();
 
-    if ( pid.objectID()==-1 && !shiftclicked &&
+    if ( !clickedonhorizon && !shiftclicked &&
 	 clickcatcher_->activateSower(emobj->preferredColor(),
-				     seedpicker->getSeedPickArea()) )
+				      &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
     }
 
+    TrcKeyZSampling newvolume;
     if ( tracker->is2D() )
     {
-	Pos::GeomID geomid = clickcatcher_->info().getGeomID();
 	engine.setActive2DLine( geomid );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
@@ -508,30 +530,30 @@ void uiMPEMan::seedClick( CallBacker* )
 
     beginSeedClickEvent( emobj );
 
-    if ( pid.objectID()!=-1 || !clickcatcher_->info().getPickedNode().isUdf() )
+    if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
 	const bool ctrlclicked = clickcatcher_->info().isCtrlClicked();
 	if ( !clickcatcher_->info().getPickedNode().isUdf() )
 	{
-	    const EM::PosID nextpid =
+	    const TrcKey nexttk =
 		seedpicker->replaceSeed( clickcatcher_->info().getPickedNode(),
 					 seedpos );
-	    clickcatcher_->info().setPickedNode( nextpid );
+	    clickcatcher_->info().setPickedNode( nexttk );
 	}
 	if ( !shiftclicked && !ctrlclicked &&
-	     seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds )
+	     seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds )
 	{
 	    if ( clickcatcher_->info().getPickedNode().isUdf() )
-		clickcatcher_->info().setPickedNode( pid );
+		clickcatcher_->info().setPickedNode( seedpos.tk_ );
 	}
 	else if ( shiftclicked && ctrlclicked )
 	{
-	    if ( seedpicker->removeSeed( pid, true, false ) )
+	    if ( seedpicker->removeSeed( node, true, false ) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, false );
 	}
 	else if ( shiftclicked || ctrlclicked )
 	{
-	    if ( seedpicker->removeSeed( pid, true, true ) )
+	    if ( seedpicker->removeSeed( node, true, true ) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, false );
 	}
 	else
@@ -550,8 +572,8 @@ void uiMPEMan::seedClick( CallBacker* )
     // below is for double click event.
     // after double click we do return on line 251. next click reaches here, we
     // need tell seedpicker to prepare to start new trick line.
-    if ( seedpicker->isSeedPickEnded() )
-	seedpicker->endSeedPick( false );
+    if ( seedpicker->isPatchEnded() )
+	seedpicker->endPatch( false );
 }
 
 
@@ -587,9 +609,9 @@ void uiMPEMan::changePolySelectionMode()
 {
     const bool topolymode = !visserv_->isSelectionModeOn();
     if ( topolymode )
-{
-    visserv_->setViewMode( false );
-    visserv_->setSelectionMode( uiVisPartServer::Polygon );
+    {
+	visserv_->setViewMode( false );
+	visserv_->setSelectionMode( uiVisPartServer::Polygon );
     }
 
     visserv_->turnSelectionModeOn( topolymode );
@@ -673,7 +695,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
     if ( yn )
     {
-	visserv_->setViewMode(false);
+	visserv_->setViewMode( false );
 
 	updateClickCatcher();
 	clickcatcher_->turnOn( true );
@@ -762,11 +784,10 @@ void uiMPEMan::validateSeedConMode()
 			tracker->getSectionTracker( emobj->sectionID(0), true );
     const bool setupavailable = sectiontracker &&
 				sectiontracker->hasInitializedSetup();
-    if ( setupavailable || !seedpicker->doesModeUseSetup() )
+    if ( setupavailable )
 	return;
 
-    const int defaultmode = seedpicker->defaultSeedConMode( false );
-    seedpicker->setSeedConnectMode( defaultmode );
+    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
 }
 
 
@@ -829,20 +850,6 @@ EM::Horizon3D* uiMPEMan::getSelectedHorizon3D()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     return hor3d;
 }
-
-
-#define mAddSeedConModeItems( seedconmodefld_, typ ) \
-    if ( emobj && EM##typ##TranslatorGroup::keyword() == emobj->getTypeStr() ) \
-    { \
-	seedconmodefld_->setEmpty(); \
-	for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
-	{ \
-	    seedconmodefld_-> \
-		    addItem( typ##SeedPicker::seedConModeText(idx,true) ); \
-	} \
-	if ( typ##SeedPicker::nrSeedConnectModes()<=0 ) \
-	    seedconmodefld_->addItem("No seed mode"); \
-    }
 
 
 void uiMPEMan::updateSeedPickState()

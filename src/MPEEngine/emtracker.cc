@@ -60,56 +60,14 @@ EM::ObjectID EMTracker::objectID() const
 { return emobject_ ? emobject_->id() : -1; }
 
 
-Executor* EMTracker::trackInVolume()
-{
-    ExecutorGroup* res = 0;
-    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
-    {
-	const EM::SectionID sid = emobject_->sectionID( idx );
-	SectionTracker* sectiontracker = getSectionTracker( sid, true );
-	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
-	    continue;
-
-	// check whether data loading was cancelled by user
-	TypeSet<Attrib::SelSpec> attrselset;
-	sectiontracker->getNeededAttribs( attrselset );
-	if ( attrselset.isEmpty() || !engine().hasAttribCache(attrselset[0]) )
-	    continue;
-
-	if ( !res )
-	{
-	    res = new ExecutorGroup("Autotracker", true );
-	    res->setNrDoneText(tr("seeds processed"));
-	}
-
-	res->add( new AutoTracker( *this, sid ) );
-    }
-
-    return res;
-}
-
-
-bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
+bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )
 {
     if ( !emobject_ ) return false;
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
 	const EM::SectionID sid = emobject_->sectionID(idx);
-
-	TypeSet<EM::SubID> subids;
-	for ( int idy=0; idy<pids.size(); idy++ )
-	{
-	    const EM::PosID& pid = pids[idy];
-	    if ( pid.objectID()!= emobject_->id() )
-		continue;
-	    if ( pid.sectionID()!=sid )
-		continue;
-
-	    subids += pid.subID();
-	}
-
-	SectionTracker* sectiontracker = getSectionTracker(sid,true);
+	SectionTracker* sectiontracker = getSectionTracker( sid, true );
 	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
 	    continue;
 
@@ -117,7 +75,7 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 	if ( !adjuster ) continue;
 
 	adjuster->reset();
-	adjuster->setPositions( subids );
+	adjuster->setPositions( list );
 
 	while ( int res=adjuster->nextStep() )
 	{
@@ -237,18 +195,6 @@ void EMTracker::applySetupAsDefault( const EM::SectionID sid )
     {
 	if ( !sectiontrackers_[idx]->hasInitializedSetup() )
 	    sectiontrackers_[idx]->usePar( par );
-    }
-}
-
-
-void EMTracker::erasePositions( EM::SectionID sectionid,
-				const TypeSet<EM::SubID>& pos )
-{
-    EM::PosID posid( emobject_->id(), sectionid );
-    for ( int idx=0; idx<pos.size(); idx++ )
-    {
-	posid.setSubID( pos[idx] );
-	emobject_->unSetPos( posid, true );
     }
 }
 

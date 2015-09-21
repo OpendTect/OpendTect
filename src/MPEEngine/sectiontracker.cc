@@ -74,59 +74,6 @@ void SectionTracker::reset()
 }
 
 
-void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
-{
-    if ( !emobject_.isGeometryChecksEnabled() )
-	return;
-
-    mDynamicCastGet(const Geometry::ParametricSurface*, gesurf,
-	const_cast<const EM::EMObject&>(emobject_).sectionGeometry(sid_) );
-    bool change = true;
-    while ( gesurf && change )
-    {
-	change = false;
-	for ( int idx=0; idx<subids.size(); idx++ )
-	{
-	    if ( !gesurf->hasSupport(RowCol::fromInt64(subids[idx])) )
-	    {
-		const EM::PosID pid( emobject_.id(), sid_, subids[idx] );
-		emobject_.unSetPos(pid,false);
-		subids.removeSingle(idx);
-		idx--;
-		change = true;
-	    }
-	}
-    }
-}
-
-
-bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
-				     const TypeSet<EM::SubID>& excludedpos,
-				     bool addtoundo ) const
-{
-    TypeSet<EM::SubID> subids( origsubids );
-    EM::PosID pid(emobject_.id(),sid_,0 );
-
-    bool change = true;
-    while ( change )
-    {
-	change = false;
-	for ( int idx=0; idx<subids.size(); idx++ )
-	{
-	    pid.setSubID(subids[idx]);
-	    if ( excludedpos.isPresent(subids[idx]) ||
-		 emobject_.unSetPos(pid,addtoundo) )
-	    {
-		subids.removeSingle(idx--);
-		change = true;
-	    }
-	}
-    }
-
-    return subids.size() ? false : true;
-}
-
-
 void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
 {
     lockedseeds.erase();
@@ -149,23 +96,6 @@ void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
     }
 }
 
-
-#define mAction(function, actionobj ) \
-bool SectionTracker::function() \
-{ \
-    if ( !actionobj ) return true; \
- \
-    while ( int res = actionobj->nextStep() ) \
-    { \
-	if ( res==-1 ) \
-	{ \
-	    errmsg = actionobj->errMsg(); \
-	    return false; \
-	} \
-    }  \
- \
-    return true; \
-}
 
 bool SectionTracker::select()
 {
@@ -255,35 +185,29 @@ void SectionTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 }
 
 
-void SectionTracker::useAdjuster(bool yn) { useadjuster_=yn; }
+void SectionTracker::useAdjuster(bool yn)
+{ useadjuster_=yn; }
 
+bool SectionTracker::adjusterUsed() const
+{ return useadjuster_; }
 
-bool SectionTracker::adjusterUsed()  const { return useadjuster_; }
+void SectionTracker::setSetupID( const MultiID& id )
+{ setupid_ = id; }
 
-
-void SectionTracker::setSetupID( const MultiID& id ) { setupid_=id; }
-
-
-const MultiID& SectionTracker::setupID() const { return setupid_; }
-
+const MultiID& SectionTracker::setupID() const
+{ return setupid_; }
 
 bool SectionTracker::hasInitializedSetup() const
-{
-    return ( !adjuster_ || adjuster_->hasInitializedSetup() );
-}
-
+{ return ( !adjuster_ || adjuster_->hasInitializedSetup() ); }
 
 void SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
 { displayas_ = as; }
 
-
 const Attrib::SelSpec& SectionTracker::getDisplaySpec() const
 { return displayas_; }
 
-
 void SectionTracker::setSeedOnlyPropagation( bool yn )
 { seedonlypropagation_ = yn; }
-
 
 bool SectionTracker::propagatingFromSeedOnly() const
 { return seedonlypropagation_; }

@@ -83,13 +83,8 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    void			removeUnSupported(TypeSet<EM::SubID>&) const;
 protected:
 
-    bool			erasePositions(
-	    				const TypeSet<EM::SubID>& selectedpos,
-					const TypeSet<EM::SubID>& excludedpos,
-	    				bool addtohistory) const;
     void			getLockedSeeds(TypeSet<EM::SubID>& lockedseeds);
 
     EM::EMObject&		emobject_;
@@ -106,7 +101,6 @@ protected:
     SectionAdjuster*		adjuster_;
 
 
-
     static const char*		trackerstr;
     static const char*		useadjusterstr;
     static const char*		seedonlypropstr;
@@ -115,5 +109,4 @@ protected:
 } // namespace MPE
 
 #endif
-
 

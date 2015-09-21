@@ -542,11 +542,9 @@ void Seis2DDisplay::createTransformedDataPack( int attrib )
 	tkzs.zsamp_.setFrom( trcdisplayinfo_.zrg_ );
 	// use survey step here?
 	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest2D(
-					getLineName(), tkzs, true );
+	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	else
-	    datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
-					tkzs, true );
+	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
 	datatransform_->loadDataIfMissing( voiidx_ );
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
@@ -1175,8 +1173,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
     {
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
-	if (s2dd && lineset==s2dd->lineSetID() && linenm &&
-	    linenm==s2dd->getLineName() )
+	if (s2dd && !linenm.isEmpty() && linenm==s2dd->getLineName() )
 	    return s2dd;
     }
 

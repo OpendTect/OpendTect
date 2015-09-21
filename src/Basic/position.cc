@@ -396,12 +396,23 @@ double TrcKey::distTo( const TrcKey& trckey ) const
 }
 
 
+
+// TrcKeyValue
 TrcKeyValue::TrcKeyValue( const BinIDValue& bidv )
     : tk_( bidv )
     , val_( bidv.val() )
 {}
 
 
+const TrcKeyValue& TrcKeyValue::udf()
+{
+    mDefineStaticLocalObject( const TrcKeyValue, udfkey, );
+    return udfkey;
+}
+
+
+
+// Pos::IdxPair2Coord
 bool Pos::IdxPair2Coord::operator==( const Pos::IdxPair2Coord& oth ) const
 {
     return mIsEqual(xtr.a,oth.xtr.a,1.) && mIsEqual(ytr.a,oth.ytr.a,1.)

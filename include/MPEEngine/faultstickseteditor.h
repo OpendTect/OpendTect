@@ -52,10 +52,9 @@ public:
 				    const Coord3* posnorm=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
-    const EM::PosID		getNearestStick(const Coord3& pos, 
-						Pos::GeomID pickedgeomid, 
+    const EM::PosID		getNearestStick(const Coord3& pos,
+						Pos::GeomID pickedgeomid,
 						const Coord3* normal) const;
-
 protected:
     float		distToStick(int sticknr,const EM::SectionID& sid,
 				    const MultiID* pickedmid,

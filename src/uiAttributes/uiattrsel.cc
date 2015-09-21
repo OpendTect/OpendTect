@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "linekey.h"
 #include "trckeyzsampling.h"
+#include "seispreload.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zdomain.h"
@@ -316,6 +317,13 @@ void uiAttrSelDlg::createSelectionFields()
     storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
+    for ( int idx=0; idx<attrinf_->ioobjids_.size(); idx++ )
+    {
+	const MultiID mid( attrinf_->ioobjids_.get(idx) );
+	const char* iconnm =
+		Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
+	storoutfld_->setIcon( idx, iconnm );
+    }
 
     steeroutfld_ = new uiListBox( this, "Steered output" );
     steeroutfld_->addItems( attrinf_->steernms_ );

@@ -134,7 +134,6 @@ FaultDisplay::~FaultDisplay()
     if ( viseditor_ ) viseditor_->unRef();
 
     if ( faulteditor_ ) faulteditor_->unRef();
-    
     if ( fault_ ) MPE::engine().removeEditor( fault_->id() );
     faulteditor_ = 0;
 
@@ -200,10 +199,8 @@ void FaultDisplay::setScene( Scene* scene )
 }
 
 
-EM::ObjectID FaultDisplay::getEMID() const
-{ 
-    return fault_ ? fault_->id() : -1;
-}
+EM::ObjectID FaultDisplay::getEMObjectID() const
+{ return fault_ ? fault_->id() : -1; }
 
 
 #define mSetStickIntersectPointColor( color ) \
@@ -219,7 +216,7 @@ EM::Fault3D* FaultDisplay::emFault()
 }
 
 
-bool FaultDisplay::setEMID( const EM::ObjectID& emid )
+bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( fault_ )
     {
@@ -228,7 +225,6 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     fault_ = 0;
-
     if ( faulteditor_ ) faulteditor_->unRef();
     faulteditor_ = 0;
     if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
@@ -249,6 +245,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     fault_ = (EM::Fault*)(emfault);
     mAttachCB( fault_->change,FaultDisplay::emChangeCB );
     fault_->ref();
+
 
     if ( !emfault->name().isEmpty() )
 	setName( emfault->uiName() );
@@ -700,7 +697,7 @@ bool FaultDisplay::usePar( const IOPar& par )
 	    emobject = EM::EMM().getObject( emid );
 	}
 
-	if ( emobject ) setEMID( emobject->id() );
+	if ( emobject ) setEMObjectID( emobject->id() );
     }
 
     int tp;
@@ -1024,8 +1021,8 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
 
     EM::Fault3D* fault3d = emFault();
-
     if ( !fault3d ) return;
+
     if ( cbdata.event == EM::EMObjectCallbackData::SectionChange )
     {
 	if ( fault3d && fault3d->nrSections() )
@@ -1589,9 +1586,7 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 
 
 bool FaultDisplay::isInStickSelectMode() const
-{
-    return stickselectmode_;
-}
+{ return stickselectmode_; }
 
 
 void FaultDisplay::updateEditorMarkers()

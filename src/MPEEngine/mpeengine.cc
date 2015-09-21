@@ -255,7 +255,7 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
 
     EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
     if ( !seedpicker ||
-	 seedpicker->getSeedConnectMode()!=EMSeedPicker::TrackFromSeeds )
+	 seedpicker->getTrackMode()!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
     const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
@@ -860,7 +860,7 @@ void Engine::fillPar( IOPar& iopar ) const
 	EMSeedPicker* seedpicker =
 			const_cast<EMTracker*>(tracker)->getSeedPicker(false);
 	if ( seedpicker )
-	    localpar.set( sKeySeedConMode(), seedpicker->getSeedConnectMode() );
+	    localpar.set( sKeySeedConMode(), seedpicker->getTrackMode() );
 
 //	tracker->fillPar( localpar );
 
@@ -930,7 +930,7 @@ bool Engine::usePar( const IOPar& iopar )
 	localpar->get( sKeySeedConMode(), seedconmode );
 	EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
 	if ( seedpicker && seedconmode!=-1 )
-	    seedpicker->setSeedConnectMode( seedconmode );
+	    seedpicker->setTrackMode( (EMSeedPicker::TrackMode)seedconmode );
 
 	// old restore session policy without separate tracking setup file
 	tracker->usePar( *localpar );

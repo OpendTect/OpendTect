@@ -72,7 +72,8 @@ Executor* EMStickSetTranslator::reader( EM::StickSet& hor, const IOObj* ioobj,
 }
 
 
-Executor* EMStickSetTranslator::writer( const EM::StickSet& hor, const IOObj* ioobj,
+Executor* EMStickSetTranslator::writer( const EM::StickSet& hor,
+					const IOObj* ioobj,
 				     BufferString& errmsg )
 {
     if ( !ioobj )

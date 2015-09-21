@@ -187,10 +187,11 @@ IOPar& ODSession::attrpars( bool is2d, bool isstored )
 }
 
 
-void ODSession::getStartupData( bool& douse, MultiID& id )
+void ODSession::getStartupData( bool& douse, MultiID& mid )
 {
     Settings::common().getYN( sKeyUseStartup(), douse );
-    id = SI().pars().find( sKeyStartupID() );
+    mid.setUdf();
+    SI().pars().get( sKeyStartupID(), mid );
 }
 
 

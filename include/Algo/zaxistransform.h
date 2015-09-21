@@ -53,13 +53,6 @@ public:
     virtual void		setVolumeOfInterest(int volid,
 						    const TrcKeyZSampling&,
 	    					    bool zistrans=false);
-    virtual int			addVolumeOfInterest2D(const char* linenm,
-						    const TrcKeyZSampling&,
-						    bool zistrans=false);
-				/*!<\returns id of new Volume of Interest.*/
-    virtual void		setVolumeOfInterest2D(int,const char* linenm,
-						    const TrcKeyZSampling&,
-						    bool zistrans=false);
     virtual void		removeVolumeOfInterest(int volid);
 
     virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
@@ -88,7 +81,7 @@ public:
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
 
-    ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }	
+    ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }
     ZDomain::Info&		toZDomainInfo()	  { return tozdomaininfo_; }
     const ZDomain::Info&	fromZDomainInfo() const;
     const ZDomain::Info&	toZDomainInfo() const;

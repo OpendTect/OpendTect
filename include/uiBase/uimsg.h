@@ -66,7 +66,7 @@ public:
 		//!<\retval 0=Abort 1=Overwrite
 
     bool	askGoOn(const uiString&,bool withyesno=true);
-    		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
+		//!< withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno);
     int		askGoOnAfter(const uiString&,

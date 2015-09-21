@@ -47,7 +47,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), 1 );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), 1 );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }

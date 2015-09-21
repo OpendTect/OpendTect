@@ -145,6 +145,9 @@ bool uiTreeItem::isChecked() const
 NotifierAccess* uiTreeItem::checkStatusChange()
 { return uitreeviewitem_ ? &uitreeviewitem_->stateChanged : 0; }
 
+NotifierAccess* uiTreeItem::keyPressed()
+{ return uitreeviewitem_ ? &uitreeviewitem_->keyPressed : 0; }
+
 void uiTreeItem::expand()
 { if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(true); }
 

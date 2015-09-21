@@ -38,13 +38,13 @@ public:
     			HorizonFlatViewEditor3D(FlatView::AuxDataEditor*,
 						const EM::ObjectID&);
 			~HorizonFlatViewEditor3D();
-    
+
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setPath(const TrcKeyPath&);
     void		setFlatPosData(const FlatPosData*);
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
 
-    FlatView::AuxDataEditor* getEditor()                { return editor_; }
+    FlatView::AuxDataEditor* getEditor()		{ return editor_; }
     EM::HorizonPainter3D* getPainter() const		{ return horpainter_; }
     void		setMouseEventHandler(MouseEventHandler*);
 
@@ -79,7 +79,7 @@ protected:
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 	    			  const MouseEvent&) const;
 
-    	mStruct(uiMPE) Hor3DMarkerIdInfo
+	mStruct(uiMPE) Hor3DMarkerIdInfo
 	{
 	    FlatView::AuxData*	marker_;
 	    int			markerid_;
@@ -102,7 +102,7 @@ protected:
     const Attrib::SelSpec*	wvaselspec_;
 
     bool			trackersetupactive_;
-    EM::PosID			pickedpid_;
+    TrcKey			pickedpos_;
     mutable bool		dodropnext_;
 };
 

@@ -70,8 +70,8 @@ bool execute()
     while ( (res=ext->nextStep())>0 )
 	;
 
-    TypeSet<EM::SubID> addedpos = ext->getAddedPositions();
-    TypeSet<EM::SubID> addedpossrc = ext->getAddedPositionsSource();
+    TypeSet<TrcKey> addedpos = ext->getAddedPositions();
+    TypeSet<TrcKey> addedpossrc = ext->getAddedPositionsSource();
     adj->setSeedPosition( seed_.tk_ );
     adj->setPositions( addedpos, &addedpossrc );
     while ( (res=adj->nextStep())>0 )
@@ -81,7 +81,7 @@ bool execute()
 
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	const TrcKey src( BinID::fromInt64(addedpos[idx]) );
+	const TrcKey src = addedpos[idx];
 	mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
 	if ( hor3d )
 	    hor3d->auxdata.setAuxDataVal( 3, src, (float)mgr_.tasknr_ );
@@ -257,7 +257,7 @@ void HorizonTrackerMgr::addUndoEvent()
 
 
 
-
+/*
 AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     : Executor("Autotracker")
     , emobject_(*EM::EMM().getObject(et.objectID()))
@@ -629,6 +629,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
 
 uiString AutoTracker::uiMessage() const
 { return execmsg_; }
+*/
 
 
 } // namespace MPE

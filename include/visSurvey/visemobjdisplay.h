@@ -182,6 +182,7 @@ protected:
     static const char*			sKeySections();
     static const char*			sKeyPosAttrShown();
 
+
 private:
     void				unSelectAll();
     const TypeSet<int>			findOverlapSelectors(

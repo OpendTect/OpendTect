@@ -16,7 +16,6 @@ SET(OD_MODULE_SOURCES
 	uimpeeventgrp.cc
 	uimpepartserv.cc
 	uimpepreviewgrp.cc
-	horflatvieweditor.cc
 	horflatvieweditor2d.cc
 	horflatvieweditor3d.cc
 )

@@ -68,12 +68,12 @@ SectionTracker* Horizon2DTracker::createSectionTracker( EM::SectionID sid )
 }
 
 
-EMSeedPicker*  Horizon2DTracker::getSeedPicker(bool createifnotpresent)
+EMSeedPicker*  Horizon2DTracker::getSeedPicker( bool createnew )
 {
     if ( seedpicker_ )
 	return seedpicker_;
 
-    if ( !createifnotpresent )
+    if ( !createnew )
 	return 0;
 
     seedpicker_ = new Horizon2DSeedPicker(*this);

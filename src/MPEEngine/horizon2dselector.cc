@@ -28,35 +28,7 @@ Horizon2DSelector::Horizon2DSelector( const EM::Horizon2D& hor,
 
 int Horizon2DSelector::nextStep()
 {
-    pErrMsg( "Fix inlrg, crlrg and zrg" );
-    StepInterval<int> inlrg;
-    StepInterval<int> crlrg;
-    const StepInterval<float > zrg;
-
-//    inlrg.include( inlrg.start+trackplane_.motion().inl() );
-//    crlrg.include( crlrg.start+trackplane_.motion().crl() );
-
-    PtrMan<EM::EMObjectIterator> iterator =
-				horizon_.createIterator( sectionid_ );
-    while ( iterator )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
-	const EM::SubID subid = pid.subID();
-
-	const Coord3 pos = horizon_.getPos( sectionid_, subid );
-	const BinID bid = SI().transform( pos );
-	if ( !inlrg.includes( bid.inl(),true ) ||
-	     !crlrg.includes( bid.crl(),true ) ||
-	     !zrg.includes( pos.z,true ) )
-	    continue;
-
-	if ( horizon_.isAtEdge(pid) )
-	    selpos_ += subid;
-    }
-
+    pErrMsg( "Implement" );
     return 0;
 }
 

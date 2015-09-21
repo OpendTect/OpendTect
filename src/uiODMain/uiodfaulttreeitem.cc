@@ -251,7 +251,7 @@ bool uiODFaultTreeItem::init()
 	faultdisplay_ = fd;
 	faultdisplay_->ref();
 
-	fd->setEMID( emid_ );
+	fd->setEMObjectID( emid_ );
 	visserv_->addObject( fd, sceneID(), true );
     }
     else
@@ -263,7 +263,7 @@ bool uiODFaultTreeItem::init()
 
 	faultdisplay_ = fd;
 	faultdisplay_->ref();
-	emid_ = fd->getEMID();
+	emid_ = fd->getEMObjectID();
     }
 
     faultdisplay_->materialChange()->notify(
@@ -554,7 +554,7 @@ bool uiODFaultStickSetTreeItem::init()
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();
 
-	fd->setEMID( emid_ );
+	fd->setEMObjectID( emid_ );
 	visserv_->addObject( fd, sceneID(), true );
     }
     else
@@ -566,7 +566,7 @@ bool uiODFaultStickSetTreeItem::init()
 
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();
-	emid_ = fd->getEMID();
+	emid_ = fd->getEMObjectID();
     }
 
     faultsticksetdisplay_->materialChange()->notify(

@@ -23,7 +23,7 @@ namespace MPE
 Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
 				      EM::SectionID sid )
     : SectionExtender( sid )
-    , surface_( hor )
+    , hor2d_( hor )
     , anglethreshold_( 0.5 )
 {
 }
@@ -85,60 +85,32 @@ int Horizon2DExtender::nextStep()
 }
 
 
-void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
+void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
 {
-    BinID srcbid = BinID::fromInt64( srcsubid );
     const StepInterval<int> colrange =
-	surface_.geometry().colRange( sid_, geomid_ );
-    EM::SubID neighborsubid;
-    Coord3 neighborpos;
-    BinID neighbrbid = srcbid;
-    const TrcKeyZSampling& boundary = getExtBoundary();
-
-    do
-    {
-	neighbrbid += BinID( 0, upwards ? colrange.step : -colrange.step );
-	if ( !colrange.includes(neighbrbid.crl(),false) )
-	    return;
-
-	if ( !boundary.isEmpty() &&
-		!boundary.hsamp_.includes(BinID(neighbrbid)) )
-	    return;
-
-	neighborsubid = neighbrbid.toInt64();
-	neighborpos = surface_.getPos( sid_, neighborsubid );
-    }
-    while ( !Coord(neighborpos).isDefined() );
-
-    if ( neighborpos.isDefined() )
+	hor2d_.geometry().colRange( sid_, geomid_ );
+    TrcKey neighbor = src;
+    neighbor.trcNr() += upwards ? colrange.step : -colrange.step;
+    if ( !colrange.includes(neighbor.trcNr(),false) )
 	return;
 
-    const Coord3 sourcepos = surface_.getPos( sid_, srcsubid );
+    const TrcKeyZSampling& boundary = getExtBoundary();
+    if ( !boundary.isEmpty() &&
+	    !boundary.hsamp_.includes(neighbor.pos()) )
+	return;
 
-    if ( !alldirs_ )
-    {
-	const Coord dir = neighborpos - sourcepos;
-	const double dirabs = dir.abs();
-	if ( !mIsZero(dirabs,1e-3) )
-	{
-	    const Coord normdir = dir/dirabs;
-	    const double cosangle = normdir.dot(xydirection_);
-	    if ( cosangle<anglethreshold_ )
-		return;
-	}
-    }
+    float neighborz = hor2d_.getZ( neighbor );
+    if ( !mIsUdf(neighborz) )
+	return;
 
-    Coord3 refpos = surface_.getPos( sid_, neighborsubid );
-    refpos.z = getDepth( srcbid, neighbrbid );
-    surface_.setPos( sid_, neighborsubid, refpos, true );
-
-    addTarget( neighborsubid, srcsubid );
+    hor2d_.setZ( neighbor, hor2d_.getZ(src), true );
+    addTarget( neighbor, src );
 }
 
 
 float Horizon2DExtender::getDepth( const TrcKey& src, const TrcKey& ) const
 {
-    return surface_.getZ( src );
+    return hor2d_.getZ( src );
 }
 
 }  // namespace MPE

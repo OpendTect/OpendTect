@@ -26,18 +26,21 @@ namespace Attrib
 };
 
 namespace Pick { class Set; }
+namespace ZDomain { class Info; }
+
 class AttribParamGroup;
+class BufferStringSet;
+class CtxtIOObj;
 class EvalParam;
+class IOObj;
 class uiAttrDescEd;
 class uiAttrTypeSel;
 class uiGenInput;
 class uiListBox;
 class uiPushButton;
 class uiToolBar;
-class BufferStringSet;
-class CtxtIOObj;
-class IOObj;
 class uiToolButton;
+
 
 /*!
 \brief Editor for Attribute sets.
@@ -51,6 +54,9 @@ public:
 					  const char* prefgrp =0,
 					  bool attrsneedupdt =false);
 			~uiAttribDescSetEd();
+
+    void		setZDomainInfo(const ZDomain::Info&);
+    const ZDomain::Info* getZDomainInfo() const;
 
     void		setDescSetMan(Attrib::DescSetMan*);
     Attrib::DescSet*	getSet()		{ return attrset_; }
@@ -98,6 +104,7 @@ protected:
     bool			updating_fields_;
     bool			attrsneedupdt_;
     static BufferString		nmprefgrp_;
+    ZDomain::Info*		zdomaininfo_;
 
     uiToolBar*			toolbar_;
     uiListBox*			attrlistfld_;

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvolproctreeitem.h"
+#include "uishortcutsmgr.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
@@ -78,7 +79,6 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , histogrammnuitem_(m3Dots(uiStrings::sHistogram()),cHistogramIdx)
     , lockmnuitem_(uiStrings::sLock(),cLockIdx)
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
-    , deletemnuitem_(tr("Delete from Database"), cRemoveIdx+1)
     , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {
     removemnuitem_.iconfnm = "trashcan";
@@ -163,7 +163,8 @@ bool uiODDisplayTreeItem::init()
 
     visserv_->setSelObjectId( displayid_ );
     setChecked( visserv_->isOn(displayid_) );
-    checkStatusChange()->notify(mCB(this,uiODDisplayTreeItem,checkCB));
+    checkStatusChange()->notify( mCB(this,uiODDisplayTreeItem,checkCB) );
+    keyPressed()->notify( mCB(this,uiODDisplayTreeItem,keyPressCB) );
 
     name_ = createDisplayName();
 
@@ -196,7 +197,7 @@ void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
     uitreeviewitem_->setIcon( 0, iconname );
 
     lockmnuitem_.text = getLockMenuText();
-    lockmnuitem_.iconfnm = islocked ? "unlock" : "lock";
+    lockmnuitem_.iconfnm = islocked ? "lock" : "unlock";
 }
 
 
@@ -237,6 +238,15 @@ void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
     if ( !visserv_->isSoloMode() )
 	visserv_->turnOn( displayid_, isChecked() );
+}
+
+
+void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(uiKeyDesc,kd,cb);
+
+    if ( kd.state()==OD::ShiftButton && kd.key()==OD::Delete )
+	deleteObject();
 }
 
 
@@ -336,8 +346,6 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
     const bool islocked = visserv_->isLocked( displayid_ );
-    const MultiID mid = visserv_->getMultiID( displayid_ );
-    mAddMenuItemCond( menu, &deletemnuitem_, !islocked, false, !mid.isUdf() );
     mAddMenuItem( menu, &removemnuitem_, !islocked, false );
 }
 
@@ -363,26 +371,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	int newid =visserv_->duplicateObject(displayid_,sceneID());
 	if ( newid!=-1 )
 	    uiODDisplayTreeItem::create( this, applMgr(), newid );
-    }
-    else if ( mnuid==deletemnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	const MultiID mid = visserv_->getMultiID( displayid_ );
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	if ( !ioobj ) return;
-
-	if ( ioobj->implReadOnly() )
-	{
-	    uiMSG().message( tr("Data is read-only, can not delete") );
-	    return;
-	}
-
-	if ( !uiIOObj(*ioobj).removeImpl(true,true) )
-	    return;
-
-	Threads::WorkManager::twm().addWork(
-	    Threads::Work( *new uiTreeItemRemover(parent_,this), true ), 0,
-	    menu->queueID(), false );
     }
     else if ( mnuid==removemnuitem_.id )
     {
@@ -430,6 +418,32 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	visserv_->turnOn( displayid_, false );
 	updateCheckStatus();
     }
+}
+
+
+void uiODDisplayTreeItem::deleteObject()
+{
+    const MultiID mid = visserv_->getMultiID( displayid_ );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return;
+
+    if ( visserv_->isLocked(displayid_) )
+    {
+	uiMSG().message( tr("Treeitem is locked, can not delete") );
+	return;
+    }
+
+    if ( ioobj->implReadOnly() )
+    {
+	uiMSG().message( tr("Data is read-only, can not delete") );
+	return;
+    }
+
+    if ( !uiIOObj(*ioobj).removeImpl(true,true) )
+	return;
+
+    visserv_->removeObject( displayid_, sceneID() );
+    parent_->removeChild( this );
 }
 
 

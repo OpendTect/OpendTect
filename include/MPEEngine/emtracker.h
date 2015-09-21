@@ -14,10 +14,11 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "factory.h"
-#include "sets.h"
 #include "emposid.h"
-#include "trckeyzsampling.h"
 #include "refcount.h"
+#include "sets.h"
+#include "trckeyzsampling.h"
+#include "trckeyvalue.h"
 #include "uistring.h"
 
 class Executor;
@@ -29,8 +30,8 @@ namespace Attrib { class SelSpec; }
 namespace MPE
 {
 
-class SectionTracker;
 class EMSeedPicker;
+class SectionTracker;
 
 /*!
 \brief Tracks EM objects.
@@ -40,7 +41,7 @@ mExpClass(MPEEngine) EMTracker
 { mRefCountImpl(EMTracker)
 mODTextTranslationClass(EMTracker)
 public:
-    				EMTracker( EM::EMObject* );
+				EMTracker(EM::EMObject*);
 
     BufferString		objectName() const;
     EM::EMObject*		emObject()		{ return emobject_; }
@@ -55,10 +56,9 @@ public:
     virtual bool		isEnabled() const	{ return isenabled_; }
     virtual void		enable(bool yn)		{ isenabled_=yn; }
 
-    virtual Executor*		trackInVolume();
-    virtual bool		snapPositions( const TypeSet<EM::PosID>& );
+    virtual bool		snapPositions(const TypeSet<TrcKey>&);
 
-    virtual TrcKeyZSampling	getAttribCube( const Attrib::SelSpec& ) const;
+    virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
     void			getNeededAttribs(
 					TypeSet<Attrib::SelSpec>&) const;
 
@@ -76,8 +76,6 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    virtual void		erasePositions(EM::SectionID,
-					       const TypeSet<EM::SubID>&);
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;

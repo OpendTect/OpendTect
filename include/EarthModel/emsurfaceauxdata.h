@@ -92,6 +92,8 @@ public:
     Array2D<float>*	createArray2D(int dataidx,SectionID) const;
     void		setArray2D(int dataidx,SectionID,const Array2D<float>&);
 
+    const ObjectSet<BinIDValueSet>& getData() const	{ return auxdata_; }
+
     bool		usePar( const IOPar& );
     void		fillPar( IOPar& ) const;
 
