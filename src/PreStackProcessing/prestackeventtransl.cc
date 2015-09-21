@@ -11,11 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackeventio.h"
 #include "prestackevents.h"
 #include "ioman.h"
+#include "uistrings.h"
 
-defineTranslatorGroup(PSEvent, PSEventTranslatorGroup::sKeyword());
+defineTranslatorGroup(PSEvent, "PreStack Event" );
 defineTranslator(dgb,PSEvent,mDGBKey);
+mDefSimpleTranslatorSelector(PSEvent);
 
-mDefSimpleTranslatorSelector(PSEvent,sKeyword());
+uiString PSEventTranslatorGroup::sTypeName()
+{ return uiStrings::sPreStackEvents(); }
 
 const IOObjContext& PSEventTranslatorGroup::ioContext()
 {
@@ -23,13 +26,13 @@ const IOObjContext& PSEventTranslatorGroup::ioContext()
     if ( !ctxt )
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
-	newctxt->stdseltype = IOObjContext::Surf;
+	newctxt->stdseltype_ = IOObjContext::Surf;
 
 	if ( !ctxt.setIfNull(newctxt) )
 	    delete newctxt;
     }
 
-    ctxt->trgroup = &theInst();
+    ctxt->trgroup_ = &theInst();
     return *ctxt;
 }
 

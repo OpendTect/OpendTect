@@ -81,7 +81,7 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	if ( choice == 0 )
 	{
 	    CtxtIOObj ctio( ctxt_ );
-	    ctio.ctxt.forread = false;
+	    ctio.ctxt_.forread_ = false;
 	    uiIOObjSelDlg seldlg( this, ctio, uiStrings::sSaveAs() );
 	    if ( !seldlg.go() || !seldlg.ioObj() ) return;
 	    saveioobj = seldlg.ioObj()->clone();

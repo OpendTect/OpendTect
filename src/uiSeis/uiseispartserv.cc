@@ -430,7 +430,7 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {
     const IODir iodir(
-	MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+	MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
 
     for ( int idx=0; idx<ioobjs.size(); idx++ )

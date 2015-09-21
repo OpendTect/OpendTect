@@ -272,14 +272,14 @@ bool uiODAnnotTreeItem::showSubMenu()
     return true;
 }
 
-#define mDelCtioRet { delete ctio->ioobj; delete ctio; return false; }
+#define mDelCtioRet { delete ctio->ioobj_; delete ctio; return false; }
 
 
 bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
-    ctio->ctxt.forread = true;
-    ctio->ctxt.toselect.require_.set( sKey::Type(), managerName(), oldSelKey());
+    ctio->ctxt_.forread_ = true;
+    ctio->ctxt_.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
@@ -455,15 +455,15 @@ char uiODAnnotSubItem::createIOEntry( const char* nm, bool overwrite,
 	return 0;
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
-    ctio.ctxt.toselect.require_.set( sKey::Type(), mannm );
+    ctio.ctxt_.forread_ = false;
+    ctio.ctxt_.toselect_.require_.set( sKey::Type(), mannm );
     ctio.setName( nm );
     ctio.fillObj();
-    if ( !ctio.ioobj )
+    if ( !ctio.ioobj_ )
 	return -1;
 
-    mid = ctio.ioobj->key();
-    delete ctio.ioobj;
+    mid = ctio.ioobj_->key();
+    delete ctio.ioobj_;
     return 1;
 }
 
@@ -490,12 +490,12 @@ void uiODAnnotSubItem::storeAs( bool trywitoutdlg ) const
     else
     {
 	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-	ctio.ctxt.forread = false;
-	ctio.ctxt.toselect.require_.set( sKey::Type(), managerName() );
+	ctio.ctxt_.forread_ = false;
+	ctio.ctxt_.toselect_.require_.set( sKey::Type(), managerName() );
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )
-	    { delete ctio.ioobj; return; }
+	    { delete ctio.ioobj_; return; }
 	mid = dlg.chosenID( 0 );
     }
 

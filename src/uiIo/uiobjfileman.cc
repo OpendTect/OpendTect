@@ -40,7 +40,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     , ctxt_(*new IOObjContext(ctxt))
     , curimplexists_(false)
 {
-    ctxt_.toselect.allownonuserselectable_ = true;
+    ctxt_.toselect_.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
     preFinalise().notify( mCB(this,uiObjFileMan,finaliseStartCB) );
 }

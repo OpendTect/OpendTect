@@ -36,21 +36,37 @@ DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 	0
 
 };
+#define mStdDirD IOObjContext::StdDirData
 
 static const IOObjContext::StdDirData stddirdata[] = {
-	{ "100010", "Seismics", IOObjContext::StdSelTypeNames()[0] },
-	{ "100020", "Surfaces", IOObjContext::StdSelTypeNames()[1] },
-	{ "100030", "Locations", IOObjContext::StdSelTypeNames()[2] },
-	{ "100040", "Features", IOObjContext::StdSelTypeNames()[3] },
-	{ "100050", "WellInfo", IOObjContext::StdSelTypeNames()[4] },
-	{ "100060", "NLAs", IOObjContext::StdSelTypeNames()[5] },
-	{ "100070", "Misc", IOObjContext::StdSelTypeNames()[6] },
-	{ "100080", "Attribs", IOObjContext::StdSelTypeNames()[7] },
-	{ "100090", "Models", IOObjContext::StdSelTypeNames()[8] },
-	{ "100100", "Geometry", IOObjContext::StdSelTypeNames()[9] },
-	{ "", "None", IOObjContext::StdSelTypeNames()[10] },
-	{ 0, 0, 0 }
+    mStdDirD( "100010", "Seismics", IOObjContext::StdSelTypeNames()[0] ),
+    mStdDirD( "100020", "Surfaces", IOObjContext::StdSelTypeNames()[1] ),
+    mStdDirD( "100030", "Locations", IOObjContext::StdSelTypeNames()[2] ),
+    mStdDirD( "100040", "Features", IOObjContext::StdSelTypeNames()[3] ),
+    mStdDirD( "100050", "WellInfo", IOObjContext::StdSelTypeNames()[4] ),
+    mStdDirD( "100060", "NLAs", IOObjContext::StdSelTypeNames()[5] ),
+    mStdDirD( "100070", "Misc", IOObjContext::StdSelTypeNames()[6] ),
+    mStdDirD( "100080", "Attribs", IOObjContext::StdSelTypeNames()[7] ),
+    mStdDirD( "100090", "Models", IOObjContext::StdSelTypeNames()[8] ),
+    mStdDirD( "100100", "Geometry", IOObjContext::StdSelTypeNames()[9] ),
+    mStdDirD( "", "None", IOObjContext::StdSelTypeNames()[10] ),
+    mStdDirD( 0, 0, 0 )
 };
+
+
+mStartAllowDeprecatedSection
+IOObjContext::StdDirData::StdDirData( const char* theid, const char* thedirnm,
+				      const char* thedesc )
+    : id_( theid )
+    , dirnm_( thedirnm )
+    , desc_( thedesc )
+    , id( id_ )
+    , dirnm( dirnm_ )
+    , desc( desc_ )
+{
+}
+mStopAllowDeprecatedSection
+
 
 int IOObjContext::totalNrStdDirs() { return 10; }
 const IOObjContext::StdDirData* IOObjContext::getStdDirData(
@@ -198,24 +214,38 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     return true;
 }
 
+#define mInitRefs \
+  stdseltype( stdseltype_ ) \
+, trgroup( trgroup_ ) \
+, newonlevel( newonlevel_ ) \
+, multi( multi_ )\
+, forread( forread_ ) \
+, selkey( selkey_ ) \
+, maydooper( maydooper_ ) \
+, deftransl( deftransl_ ) \
+, toselect( toselect_ )
+
+mStartAllowDeprecatedSection
 
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 	: NamedObject(prefname)
-	, trgroup(trg)
-	, newonlevel(1)
-	, stdseltype(None)
+	, trgroup_(trg)
+	, newonlevel_(1)
+	, stdseltype_(None)
+	, mInitRefs
 {
-    multi = false;
-    forread = maydooper = true;
+    multi_ = false;
+    forread_ = maydooper_ = true;
 }
 
 
 IOObjContext::IOObjContext( const IOObjContext& oth )
     : NamedObject(oth.name())
+    , mInitRefs
 {
     *this = oth;
 }
-
+mStopAllowDeprecatedSection
 
 #define mCpMemb(nm) nm = oth.nm
 
@@ -223,10 +253,10 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 {
     if ( this != &oth )
     {
-	mCpMemb(stdseltype); mCpMemb(trgroup); mCpMemb(newonlevel);
-	mCpMemb(multi); mCpMemb(forread);
-	mCpMemb(selkey); mCpMemb(maydooper); mCpMemb(deftransl);
-	mCpMemb(toselect);
+	mCpMemb(stdseltype_); mCpMemb(trgroup_); mCpMemb(newonlevel_);
+	mCpMemb(multi_); mCpMemb(forread_);
+	mCpMemb(selkey_); mCpMemb(maydooper_); mCpMemb(deftransl_);
+	mCpMemb(toselect_);
     }
     return *this;
 }
@@ -235,7 +265,7 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 BufferString IOObjContext::getDataDirName( StdSelType sst )
 {
     const IOObjContext::StdDirData* sdd = getStdDirData( sst );
-    FilePath fp( GetDataDir(), sdd->dirnm );
+    FilePath fp( GetDataDir(), sdd->dirnm_ );
     BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
     {	// Try legacy names
@@ -258,24 +288,26 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
 
 MultiID IOObjContext::getSelKey() const
 {
-    return selkey.isEmpty()
-	? MultiID( stdseltype == None ? "" : getStdDirData(stdseltype)->id )
-	: selkey;
+    return selkey_.isEmpty()
+	? MultiID( stdseltype_ == None ? "" : getStdDirData(stdseltype_)->id_ )
+	: selkey_;
 }
 
 
 void IOObjContext::fillTrGroup() const
 {
-    if ( trgroup ) return;
+    if ( trgroup_ ) return;
+
+    pErrMsg("We should never be here");
 
     IOObjContext& self = *const_cast<IOObjContext*>( this );
 
 #define mCase(typ,str) \
     case IOObjContext::typ: \
-	self.trgroup = &TranslatorGroup::getGroup( str, true ); \
+	self.trgroup_ = &TranslatorGroup::getGroup( str ); \
     break
 
-    switch ( stdseltype )
+    switch ( stdseltype_ )
     {
 	mCase(Surf,"Horizon");
 	mCase(Loc,"PickSet Group");
@@ -285,13 +317,11 @@ void IOObjContext::fillTrGroup() const
 	mCase(Misc,"Session setup");
 	mCase(Mdl,"EarthModel");
 	case IOObjContext::NLA:
-	    self.trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis",
-							true );
-	    if ( trgroup->userName().isEmpty() )
-		self.trgroup = &TranslatorGroup::getGroup( "Neural network",
-							   true );
+	    self.trgroup_ = &TranslatorGroup::getGroup( "NonLinear Analysis" );
+	    if ( trgroup_->groupName().isEmpty() )
+		self.trgroup_ = &TranslatorGroup::getGroup( "Neural network" );
 	default:
-	    self.trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
+	    self.trgroup_ = &TranslatorGroup::getGroup( "Seismic Data" );
 	break;
     }
 }
@@ -300,19 +330,19 @@ void IOObjContext::fillTrGroup() const
 const char* IOObjContext::objectTypeName() const
 {
     const_cast<IOObjContext*>(this)->fillTrGroup(); // just to be safe
-    return trgroup->userName();
+    return trgroup_->groupName();
 }
 
 
 bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 {
-    if ( trgroup )
+    if ( trgroup_ )
     {
-	if ( !trgroup->objSelector(ioobj.group()) )
+	if ( !trgroup_->objSelector(ioobj.group()) )
 	    return false;
 
 	// check if the translator is present at all
-	const ObjectSet<const Translator>& trs = trgroup->templates();
+	const ObjectSet<const Translator>& trs = trgroup_->templates();
 	for ( int idx=0; idx<trs.size(); idx++ )
 	{
 	    if ( trs[idx]->userName() == ioobj.translator() )
@@ -322,7 +352,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	}
     }
 
-    return toselect.isGood( ioobj, forread );
+    return toselect_.isGood( ioobj, forread_ );
 }
 
 
@@ -333,11 +363,11 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
     fillTrGroup();
 
     IOStream* iostrm = new IOStream( name(), ky, false );
-    iostrm->setGroup( trgroup->userName() );
+    iostrm->setGroup( trgroup_->groupName() );
     iostrm->setTranslator( transl.userName() );
 
-    const StdDirData* sdd = getStdDirData( stdseltype );
-    const char* dirnm = sdd ? sdd->dirnm : 0;
+    const StdDirData* sdd = getStdDirData( stdseltype_ );
+    const char* dirnm = sdd ? sdd->dirnm_ : 0;
     if ( dirnm )
 	iostrm->setDirName( dirnm );
     iostrm->setExt( transl.defExtension() );
@@ -363,13 +393,13 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 
 void CtxtIOObj::fillIfOnlyOne()
 {
-    ctxt.fillTrGroup();
+    ctxt_.fillTrGroup();
 
-    const IODir iodir( ctxt.getSelKey() );
+    const IODir iodir( ctxt_.getSelKey() );
     int ivalid = -1;
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
-	if ( ctxt.validIOObj(*iodir.get(idx)) )
+	if ( ctxt_.validIOObj(*iodir.get(idx)) )
 	{
 	    if ( ivalid >= 0 )
 		return;
@@ -385,11 +415,11 @@ void CtxtIOObj::fillIfOnlyOne()
 
 void CtxtIOObj::fillDefault( bool oone2 )
 {
-    ctxt.fillTrGroup();
+    ctxt_.fillTrGroup();
 
-    BufferString keystr( ctxt.trgroup->getSurveyDefaultKey(0) );
+    BufferString keystr( ctxt_.trgroup_->getSurveyDefaultKey(0) );
 
-    const FixedString typestr = ctxt.toselect.require_.find( sKey::Type() );
+    const FixedString typestr = ctxt_.toselect_.require_.find( sKey::Type() );
     if ( !typestr.isEmpty() )
 	    keystr = IOPar::compKey( keystr, typestr );
 
@@ -403,51 +433,53 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
     if ( kystr && *kystr )
 	setObj( IOM().get(MultiID(kystr)) );
 
-    if ( !ioobj && oone2 )
+    if ( !ioobj_ && oone2 )
 	fillIfOnlyOne();
 }
 
 
 void CtxtIOObj::setObj( IOObj* obj )
 {
-    if ( obj == ioobj ) return;
+    if ( obj == ioobj_ ) return;
 
-    delete ioobj; ioobj = obj;
-    if ( ioobj )
-	ctxt.selkey = ctxt.hasStdSelKey() ? "" : ioobj->key().upLevel().buf();
+    delete ioobj_; ioobj_ = obj;
+    if ( ioobj_ )
+	ctxt_.selkey_ = ctxt_.hasStdSelKey()
+	    ? ""
+	    : ioobj_->key().upLevel().buf();
 }
 
 
 void CtxtIOObj::setObj( const MultiID& id )
 {
-    delete ioobj; ioobj = IOM().get( id );
+    delete ioobj_; ioobj_ = IOM().get( id );
 }
 
 
 void CtxtIOObj::setPar( IOPar* iop )
 {
-    if ( iop == iopar ) return;
+    if ( iop == iopar_ ) return;
 
-    delete iopar; iopar = iop;
+    delete iopar_; iopar_ = iop;
 }
 
 
 void CtxtIOObj::destroyAll()
 {
-    delete ioobj; ioobj = 0;
-    delete iopar; iopar = 0;
+    deleteAndZeroPtr( ioobj_ );
+    deleteAndZeroPtr( iopar_ );
 }
 
 
 int CtxtIOObj::fillObj( bool mktmp, int translidxfornew )
 {
-    const bool emptynm = ctxt.name().isEmpty();
-    if ( !ioobj && emptynm )
+    const bool emptynm = ctxt_.name().isEmpty();
+    if ( !ioobj_ && emptynm )
 	return 0;
 
-    if ( ioobj && (ctxt.name() == ioobj->name() || emptynm) )
+    if ( ioobj_ && (ctxt_.name() == ioobj_->name() || emptynm) )
 	return 1;
 
     IOM().getEntry( *this, mktmp, translidxfornew );
-    return ioobj ? 2 : 0;
+    return ioobj_ ? 2 : 0;
 }

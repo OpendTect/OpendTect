@@ -258,7 +258,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 			BoolInpSpec(true,"Replace if possible","Keep") );
     overwritefld_->attach( alignedBelow, rlcbox );
 
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctio_, "Output Cross-plot" );
     outfld_->attach( alignedBelow, overwritefld_ ); 
 

@@ -249,8 +249,8 @@ MultiID SeisJobExecProv::tempStorID() const
     FilePath fp( iopar_.find(sKey::TmpStor()) );
 
     // Is there already an entry?
-    const IODir iodir( ctio_.ctxt.getSelKey() );
-    const IODirEntryList el( iodir, ctio_.ctxt );
+    const IODir iodir( ctio_.ctxt_.getSelKey() );
+    const IODirEntryList el( iodir, ctio_.ctxt_ );
     const BufferString fnm( fp.fullPath() );
     for ( int idx=0; idx<el.size(); idx++ )
     {
@@ -268,13 +268,13 @@ MultiID SeisJobExecProv::tempStorID() const
     objnm += fp.fileName();
     ctio_.setName( objnm );
     IOM().getEntry( ctio_ );
-    if ( !ctio_.ioobj )
+    if ( !ctio_.ioobj_ )
 	errmsg_ = uiStrings::phrCannotCreateDBEntryFor(tr("temporary storage"));
     else
     {
-	ret = ctio_.ioobj->key();
-	ctio_.ioobj->pars() = outioobjpars_;
-	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj)
+	ret = ctio_.ioobj_->key();
+	ctio_.ioobj_->pars() = outioobjpars_;
+	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj_)
 	fp.add( "i.*" );
 	StepInterval<int> inls( todoinls_ );
 	if ( inls.start == 0 && inls.stop == 0 )

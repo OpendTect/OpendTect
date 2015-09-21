@@ -47,7 +47,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf )
     setHelpKey( mODHelpKey(mBodyFillerHelpID) );
 
     IOObjContext ctxt = mIOObjContext( EMBody );
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     bodyfld_ = new uiIOObjSel( this, ctxt, tr("Input body") );
     bodyfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
     if ( bf )

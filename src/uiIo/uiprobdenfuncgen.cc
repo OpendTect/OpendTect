@@ -208,7 +208,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     sep->attach( stretchedBelow, alfld );
 
     IOObjContext ctxt( ProbDenFuncTranslatorGroup::ioContext() );
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt );
     outfld_->attach( alignedBelow, alfld );
     outfld_->attach( ensureBelow, sep );
@@ -451,7 +451,7 @@ uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
     }
 
     IOObjContext ctxt( ProbDenFuncTranslatorGroup::ioContext() );
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt );
     if ( !sep )
 	outfld_->attach( ensureBelow, pdffld_ );

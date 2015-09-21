@@ -121,8 +121,8 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
-    const IODir iodir( allhorio->ctxt.getSelKey() );
-    const IODirEntryList horlist( iodir, allhorio->ctxt );
+    const IODir iodir( allhorio->ctxt_.getSelKey() );
+    const IODirEntryList horlist( iodir, allhorio->ctxt_ );
 
     for ( int idx=0; idx<horlist.size(); idx++ )
     {

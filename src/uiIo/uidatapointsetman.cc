@@ -77,7 +77,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     if ( !dps ) return;
 
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
 
     BufferString lbl( "Select CrossPlot data to merge with '" );
     lbl += dps->name(); lbl += "'";

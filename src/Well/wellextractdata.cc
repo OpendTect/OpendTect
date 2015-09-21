@@ -75,8 +75,8 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    iodir_ = new IODir( ctio->ctxt.getSelKey() );
-    direntries_ = new IODirEntryList( *iodir_, ctio->ctxt );
+    iodir_ = new IODir( ctio->ctxt_.getSelKey() );
+    direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
     totalnr_ = direntries_->size();
     curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
 }

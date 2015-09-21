@@ -101,7 +101,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , zdomaininfo_(0)
 {
     setOkCancelText( uiStrings::sClose(), uiString::emptyString() );
-    setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
+    setctio_.ctxt_.toselect_.dontallow_.set( sKey::Type(),
 					   adsm->is2D() ? "3D" : "2D" );
 
     createMenuBar();
@@ -156,7 +156,7 @@ void uiAttribDescSetEd::createMenuBar()
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), defaultSet, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")), importSet, "impset" );
+    mInsertMnuItem(impmnu,m3Dots(tr("From other Survey")), importSet,"impset" );
     mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFile );
     mInsertItem( m3Dots(tr("Reconstruct from job file")), job2Set, "job2set" );
     mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
@@ -290,7 +290,7 @@ void uiAttribDescSetEd::init()
     adsman_->setSaved( inoutadsman_->isSaved() );
 
     setid_ = inoutadsman_->attrsetid_;
-    IOM().to( setctio_.ctxt.getSelKey() );
+    IOM().to( setctio_.ctxt_.getSelKey() );
     setctio_.setObj( IOM().get(setid_) );
     bool autoset = false;
     MultiID autoid;
@@ -347,7 +347,7 @@ void uiAttribDescSetEd::init()
     }
     else
     {
-	const BufferString txt = setctio_.ioobj ? setctio_.ioobj->name().buf()
+	const BufferString txt = setctio_.ioobj_ ? setctio_.ioobj_->name().buf()
 						: sKeyNotSaved;
 	attrsetfld_->setText( txt );
     }
@@ -425,30 +425,30 @@ void uiAttribDescSetEd::saveAsPush( CallBacker* )
 bool uiAttribDescSetEd::doSave( bool endsave )
 {
     doCommit();
-    setctio_.ctxt.forread = false;
-    IOObj* oldioobj = setctio_.ioobj;
+    setctio_.ctxt_.forread_ = false;
+    IOObj* oldioobj = setctio_.ioobj_;
     bool needpopup = !oldioobj || !endsave;
     if ( needpopup )
     {
 	uiIOObjSelDlg dlg( this, setctio_ );
 	if ( !dlg.go() || !dlg.ioObj() ) return false;
 
-	setctio_.ioobj = 0;
+	setctio_.ioobj_ = 0;
 	setctio_.setObj( dlg.ioObj()->clone() );
     }
 
     if ( !doSetIO( false ) )
     {
-	if ( oldioobj != setctio_.ioobj )
+	if ( oldioobj != setctio_.ioobj_ )
 	    setctio_.setObj( oldioobj );
 	return false;
     }
 
-    if ( oldioobj != setctio_.ioobj )
+    if ( oldioobj != setctio_.ioobj_ )
 	delete oldioobj;
-    setid_ = setctio_.ioobj->key();
+    setid_ = setctio_.ioobj_->key();
     if ( !endsave )
-	attrsetfld_->setText( setctio_.ioobj->name() );
+	attrsetfld_->setText( setctio_.ioobj_->name() );
     adsman_->setSaved( true );
     return true;
 }
@@ -907,12 +907,12 @@ void uiAttribDescSetEd::updateAttrName()
 
 bool uiAttribDescSetEd::doSetIO( bool forread )
 {
-    if ( !setctio_.ioobj )
+    if ( !setctio_.ioobj_ )
     {
 	if ( setid_.isEmpty() ) return false;
 
-	setctio_.ioobj = IOM().get( setid_ );
-	if ( !setctio_.ioobj )
+	setctio_.ioobj_ = IOM().get( setid_ );
+	if ( !setctio_.ioobj_ )
 	    mErrRetFalse(tr("Cannot find attribute set in data base"))
     }
 
@@ -920,13 +920,13 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
     if ( forread )
     {
 	Attrib::DescSet attrset( is2D() );
-	if ( !AttribDescSetTranslator::retrieve(attrset,setctio_.ioobj,bs) )
+	if ( !AttribDescSetTranslator::retrieve(attrset,setctio_.ioobj_,bs) )
 	    mErrRetFalse(bs)
 
 	if ( attrset.is2D() != is2D() )
 	{
 	    bs = tr("Attribute Set %1 is of type %2")
-	       .arg(setctio_.ioobj->name())
+	       .arg(setctio_.ioobj_->name())
 	       .arg(attrset.is2D() ? uiStrings::s2D()
 				   : uiStrings::s3D());
 	    mErrRetFalse(bs)
@@ -936,13 +936,13 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	adsman_->setDescSet( attrset_ );
 	adsman_->fillHist();
     }
-    else if ( !AttribDescSetTranslator::store(*attrset_,setctio_.ioobj,bs) )
+    else if ( !AttribDescSetTranslator::store(*attrset_,setctio_.ioobj_,bs) )
 	mErrRetFalse(bs)
 
     if ( !bs.isEmpty() )
 	{ pErrMsg( bs.getFullString() ); }
 
-    setid_ = setctio_.ioobj->key();
+    setid_ = setctio_.ioobj_->key();
     return true;
 }
 
@@ -954,7 +954,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
     updateFields();
 
     attrset_->removeAll( true );
-    setctio_.ioobj = 0;
+    setctio_.ioobj_ = 0;
     setid_ = -1;
     updateUserRefs();
     newList( -1 );
@@ -966,7 +966,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
 void uiAttribDescSetEd::openSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
-    setctio_.ctxt.forread = true;
+    setctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, setctio_ );
     if ( dlg.go() && dlg.ioObj() )
 	openAttribSet( dlg.ioObj() );
@@ -976,19 +976,19 @@ void uiAttribDescSetEd::openSet( CallBacker* )
 void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 {
     if ( !ioobj ) return;
-    IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
+    IOObj* oldioobj = setctio_.ioobj_; setctio_.ioobj_ = 0;
     setctio_.setObj( ioobj->clone() );
     if ( !doSetIO( true ) )
 	setctio_.setObj( oldioobj );
     else
     {
 	delete oldioobj;
-	setid_ = setctio_.ioobj->key();
+	setid_ = setctio_.ioobj_->key();
 	if ( attrset_->couldBeUsedInAnyDimension() )
 	    replaceStoredAttr();
 
 	newList( -1 );
-	attrsetfld_->setText( setctio_.ioobj->name() );
+	attrsetfld_->setText( setctio_.ioobj_->name() );
 	adsman_->setSaved( true );
 	TypeSet<DescID> ids;
 	attrset_->getIds( ids );
@@ -1089,7 +1089,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     // TODO: Only display files with have saved attributes
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     IOObjContext ctxt( uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,true) );
-    ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
+    ctxt.toselect_.require_.set( sKey::Type(), sKey::Attribute() );
 
     uiSeisSelDlg dlg( this, ctxt, uiSeisSel::Setup(is2d,false) );
     if ( !dlg.go() )
@@ -1118,7 +1118,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     attrset_->usePar( *attrpars );
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );
-    setctio_.ioobj = 0;
+    setctio_.ioobj_ = 0;
     applycb.trigger();
 }
 
@@ -1132,7 +1132,7 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
     attrset_->usePar( iopar );
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );
-    setctio_.ioobj = 0;
+    setctio_.ioobj_ = 0;
     applycb.trigger();
 }
 
@@ -1143,19 +1143,19 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 
     uiSelObjFromOtherSurvey objdlg( this, setctio_ );
     objdlg.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
-    IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
-    if ( objdlg.go() && setctio_.ioobj )
+    IOObj* oldioobj = setctio_.ioobj_; setctio_.ioobj_ = 0;
+    if ( objdlg.go() && setctio_.ioobj_ )
     {
 	if ( !doSetIO( true ) )
 	    setctio_.setObj( oldioobj );
 	else
 	{
 	    delete oldioobj;
-	    setid_ = setctio_.ioobj->key();
+	    setid_ = setctio_.ioobj_->key();
 	    replaceStoredAttr();
 	    newList( -1 );
 	    attrsetfld_->setText( sKeyNotSaved );
-	    setctio_.ioobj = 0;
+	    setctio_.ioobj_ = 0;
 	    applycb.trigger();
 	}
     }

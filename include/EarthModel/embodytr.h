@@ -31,7 +31,6 @@ public:
 
     const char*		defExtension() const    { return "body"; }
     static FixedString	sKeyExtension()		{ return "body"; }
-    static FixedString	keyword()		{ return "Body"; }
     static FixedString	sKeyUserWord()		{ return "od"; }
 };
 

@@ -48,7 +48,7 @@ IOObjContext& StoredFunctionSource::ioContext()
 	IOObjContext* newret = 
 		    new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "RMO picks" );
-	newret->toselect.require_.set( sKey::Type(), sKeyVelocityFunction() );
+	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction() );
 
 	if ( !ret.setIfNull(newret) )
 	    delete newret;

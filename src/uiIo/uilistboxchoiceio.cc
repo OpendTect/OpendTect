@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
 
-#define mCtioObjTypeName() ctio_.ctxt.objectTypeName()
+#define mCtioObjTypeName() ctio_.ctxt_.objectTypeName()
 
 
 uiListBoxChoiceIO::uiListBoxChoiceIO( uiListBox& lb, const char* omftypekey )
@@ -30,7 +30,7 @@ uiListBoxChoiceIO::uiListBoxChoiceIO( uiListBox& lb, const char* omftypekey )
     , readDone(this)
 {
     if ( omftypekey && *omftypekey )
-	ctio_.ctxt.toselect.require_.add( sKey::Type(), omftypekey );
+	ctio_.ctxt_.toselect_.require_.add( sKey::Type(), omftypekey );
 
     lb_.offerReadWriteSelection( mCB(this,uiListBoxChoiceIO,readReqCB),
 			         mCB(this,uiListBoxChoiceIO,storeReqCB));
@@ -39,7 +39,7 @@ uiListBoxChoiceIO::uiListBoxChoiceIO( uiListBox& lb, const char* omftypekey )
 
 uiListBoxChoiceIO::~uiListBoxChoiceIO()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
 }
 
@@ -53,7 +53,7 @@ void uiListBoxChoiceIO::setChosen( const BufferStringSet& itemnms )
 void uiListBoxChoiceIO::readReqCB( CallBacker* )
 {
     chosennames_.setEmpty(); keys_.setEmpty();
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( lb_.parent(), ctio_ );
     if ( !dlg.go() ) return;
     const IOObj* ioobj = dlg.ioObj();
@@ -89,7 +89,7 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
 
 void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 {
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( lb_.parent(), ctio_ );
     if ( !dlg.go() ) return;
     const IOObj* ioobj = dlg.ioObj();

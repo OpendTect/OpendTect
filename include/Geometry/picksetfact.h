@@ -13,8 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "picksettr.h"
+#include "uistrings.h"
 
 defineTranslatorGroup(PickSet,"PickSet Group");
 defineTranslator(dgb,PickSet,mDGBKey);
+
+uiString PickSetTranslatorGroup::sTypeName()
+{ return uiStrings::sPickSet(); }
 
 #endif

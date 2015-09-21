@@ -286,7 +286,8 @@ bool uiEMPartServer::importFault()
     else
     {
 	impfltdlg_ =
-	    new uiImportFault3D( parent(), EMFault3DTranslatorGroup::keyword());
+	    new uiImportFault3D( parent(),
+				 EMFault3DTranslatorGroup::sGroupName());
 	impfltdlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB));
     }
 
@@ -302,7 +303,7 @@ bool uiEMPartServer::importFaultStickSet()
     {
 	impfltstickdlg_ =
 	    new uiImportFault3D( parent(),
-				 EMFaultStickSetTranslatorGroup::keyword() );
+				 EMFaultStickSetTranslatorGroup::sGroupName() );
 	impfltstickdlg_->importReady.notify(
 				mCB(this,uiEMPartServer,importReadyCB));
     }
@@ -321,7 +322,7 @@ void uiEMPartServer::import2DFaultStickset()
     }
 
     impfss2ddlg_ = new uiImportFaultStickSet2D( parent(),
-				EMFaultStickSetTranslatorGroup::keyword() );
+				EMFaultStickSetTranslatorGroup::sGroupName() );
     impfss2ddlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
     impfss2ddlg_->show();
 }
@@ -333,7 +334,7 @@ bool uiEMPartServer::exportFault()
 	expfltdlg_->raise();
     else
 	expfltdlg_ = new uiExportFault( parent(),
-					EMFault3DTranslatorGroup::keyword() );
+					EMFault3DTranslatorGroup::sGroupName());
     return expfltdlg_->go();
 }
 
@@ -345,7 +346,7 @@ bool uiEMPartServer::exportFaultStickSet()
     else
 	expfltstickdlg_ =
 	    new uiExportFault( parent(),
-			       EMFaultStickSetTranslatorGroup::keyword() );
+			       EMFaultStickSetTranslatorGroup::sGroupName() );
     return expfltstickdlg_->go();
 }
 
@@ -532,26 +533,26 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 
 void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d )
 {
-    selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::keyword()
-			      : EMHorizon3DTranslatorGroup::keyword() );
+    selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
+			      : EMHorizon3DTranslatorGroup::sGroupName() );
 }
 
 
 void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d )
 {
     if ( !is2d )
-	selectSurfaces( objs, EMFault3DTranslatorGroup::keyword() );
+	selectSurfaces( objs, EMFault3DTranslatorGroup::sGroupName() );
 }
 
 
 void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs )
-{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::keyword() ); }
+{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::sGroupName() ); }
 
 
 void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 {
     CtxtIOObj ctio( EMBodyTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, ctio );
@@ -607,7 +608,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     EM::SurfaceIODataSelection sel( sd ), orisel( sd );
     dlg.iogrp()->getSurfaceSelection( sel );
 
-    const bool hor3d = EMHorizon3DTranslatorGroup::keyword() == typ;
+    const bool hor3d = EMHorizon3DTranslatorGroup::sGroupName() == typ;
 
     if ( hor3d )
 	selectedrg_ = sel.rg;
@@ -853,10 +854,10 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 				 : object->getIOObjContext(),
 				 IOM().get(object->multiID()) );
 
-	    ctio.ctxt.forread = false;
+	    ctio.ctxt_.forread_ = false;
 
 	    uiIOObjSelDlg dlg( parent(), ctio );
-	    if ( !ctio.ioobj )
+	    if ( !ctio.ioobj_ )
 		dlg.selGrp()->getNameField()->setText( object->name() );
 
 	    if ( !dlg.go() )
@@ -1413,10 +1414,10 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
     const IODir iodir(
-	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
     FixedString groupstr = is2d
-	? EMHorizon2DTranslatorGroup::keyword()
-        : EMHorizon3DTranslatorGroup::keyword();
+	? EMHorizon2DTranslatorGroup::sGroupName()
+	: EMHorizon3DTranslatorGroup::sGroupName();
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

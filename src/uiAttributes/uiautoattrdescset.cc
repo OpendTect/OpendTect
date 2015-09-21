@@ -57,7 +57,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     usefld_->setValue( douse );
     usefld_->valuechanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 
-    ctio_.setObj( id ); ctio_.ctxt.forread = true;
+    ctio_.setObj( id ); ctio_.ctxt_.forread_ = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, usefld_ );
     lbl_ = new uiLabel( this, tr("Attribute Set to use") );
@@ -72,13 +72,13 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
 
 uiAutoAttrSelDlg::~uiAutoAttrSelDlg()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
 IOObj* uiAutoAttrSelDlg::getObj()
 {
-    return ctio_.ioobj;
+    return ctio_.ioobj_;
 }
 
 
@@ -115,14 +115,14 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
     ctio_.setObj( selgrp_->chosenID() );
     Attrib::DescSet attrset( is2d_ );
     uiString bs;
-    if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj,bs) )
+    if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj_,bs) )
 	mErrRet(tr("Cannot read selected attribute set"))
 
     if ( attrset.is2D() != is2d_ )
     {
 	bs = tr("Attribute Set %1 is fo type %2 "
 		"Please select another attribute set")
-	   .arg(ctio_.ioobj->name())
+	   .arg(ctio_.ioobj_->name())
 	   .arg(attrset.is2D() ? uiStrings::s2D()
 			       : uiStrings::s3D());
 	uiMSG().error( bs );
@@ -151,7 +151,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
                                 "Disable Auto-load") );
     autoloadfld_->attach( alignedBelow, defselfld_ );
 
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, autoloadfld_ );
 
@@ -169,13 +169,13 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 
 uiAutoAttrSetOpen::~uiAutoAttrSetOpen()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
 IOObj* uiAutoAttrSetOpen::getObj()
 {
-    return usrdef_ ? ctio_.ioobj : 0;
+    return usrdef_ ? ctio_.ioobj_ : 0;
 }
 
 

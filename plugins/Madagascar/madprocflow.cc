@@ -20,10 +20,15 @@ const char* ODMad::ProcFlow::sKeyOutp()		{ return sKey::Output(); }
 const char* ODMad::ProcFlow::sKeyProc()		{ return "Proc"; }
 const char* ODMad::ProcFlow::sKeyNrProcs()	{ return "Nr Procs"; }
 
-defineTranslatorGroup(ODMadProcFlow,"Madagascar process flow");
+defineTranslatorGroup(ODMadProcFlow, "Madagascar process flow" );
+
+
+uiString ODMadProcFlowTranslatorGroup::sTypeName()
+{ return tr("Madagascar process flow"); }
+
 defineTranslator(dgb,ODMadProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODMadProcFlow,None,
-					ctxt->selkey = ODMad::sKeyMadSelKey())
+					ctxt->selkey_ = ODMad::sKeyMadSelKey())
 
 
 ODMad::ProcFlow::ProcFlow( const char* nm )
@@ -159,7 +164,7 @@ void ODMad::ProcFlow::usePar( const IOPar& iop )
 
 int ODMadProcFlowTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( theInst().userName(), key );
+    int retval = defaultSelector( sGroupName(), key );
     if ( retval ) return retval;
     return defaultSelector("Madagascar data",key) ? 1 : 0;
 }

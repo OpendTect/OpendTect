@@ -172,7 +172,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     , zrgfld_(0)
     , stepfld_(0)
 {
-    ctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon() );
 
     uiGroup* attachobj = polyfld_;
@@ -195,7 +195,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
 uiPolyPosProvGroup::~uiPolyPosProvGroup()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -254,9 +254,9 @@ void uiPolyPosProvGroup::setExtractionDefaults()
 
 bool uiPolyPosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !polyfld_->commitInput() || !ctio_.ioobj )
+    if ( !polyfld_->commitInput() || !ctio_.ioobj_ )
 	return false;
-    ky = ctio_.ioobj->key();
+    ky = ctio_.ioobj_->key();
     return true;
 }
 
@@ -348,7 +348,7 @@ bool uiTablePosProvGroup::getID( MultiID& ky ) const
 {
     if ( !selfld_->getBoolValue() || !psfld_->commitInput() )
 	return false;
-    ky = ctio_.ioobj->key();
+    ky = ctio_.ioobj_->key();
     return true;
 }
 

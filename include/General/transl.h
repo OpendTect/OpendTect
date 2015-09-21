@@ -57,12 +57,11 @@ mExpClass(General) TranslatorGroup
 { mRefCountImpl(TranslatorGroup);
 public:
 
-				TranslatorGroup( const char* clssnm,
-						 const char* usrnm );
+				TranslatorGroup( const char* clssnm );
 
-    const OD::String&		clssName() const	{ return clssname_; }
-    const OD::String&		userName() const	{ return usrname_; }
-    virtual Translator*		make(const char*,bool usrnm=true) const;
+    virtual FixedString		groupName() const = 0;
+    virtual uiString		typeName() const = 0;
+    virtual Translator*		make(const char*,bool usrnm) const;
     const Translator*		getTemplate(const char*,bool usrnm) const;
 
     const ObjectSet<const Translator>& templates() const { return templs_; }
@@ -77,8 +76,8 @@ public:
     void			clearSelHist();
 
     static const ObjectSet<TranslatorGroup>& groups()	{ return getGroups(); }
-    static TranslatorGroup&	getGroup(const char* nm,bool usr=true);
-    static bool			hasGroup(const char* nm,bool usr=true);
+    static TranslatorGroup&	getGroup(const char* nm);
+    static bool			hasGroup(const char* nm);
     static void			clearSelHists();
 
 				// Called from macros
@@ -90,10 +89,13 @@ public:
 
     virtual const char*		getSurveyDefaultKey(const IOObj* = 0) const;
 
+    virtual const char*		translationApplication() const;
+
 protected:
 
+    const OD::String&		clssName() const	{ return clssname_; }
+
     BufferString		clssname_;
-    BufferString		usrname_;
     ObjectSet<const Translator>	templs_;
     int				deftridx_;
     IOPar*			selhist_;
@@ -171,23 +173,19 @@ public:
 // Essential macros for implementing the concept
 #define mImplTranslatorInitClass( spec, clss, usrnm ) \
 { \
-    if ( !TranslatorGroup::hasGroup( #clss , false ) )\
-	clss##TranslatorGroup::initClass(); \
-\
     spec##clss##Translator* tr = new spec##clss##Translator( #spec, usrnm ); \
-    TranslatorGroup::getGroup(#clss,false).add( tr ); \
+    clss##TranslatorGroup::theInst().add( tr ); \
 }
 
-#define mImplTranslatorGroupTheInst( clss, usrnm ) \
+#define mImplTranslatorGroupTheInst( clss ) \
 { \
-    static RefMan<TranslatorGroup> inst = \
-	&TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );\
+    mDefineStaticLocalObject(RefMan<TranslatorGroup>, inst, \
+	= &TranslatorGroup::addGroup( new clss##TranslatorGroup ));\
     return *inst; \
 }
 
 
-
-  //! In the class definition of a TranslatorGroup class
+//! In the class definition of a TranslatorGroup class
 #define isTranslatorGroupBody(clss) \
 protected: \
     ~clss##TranslatorGroup() {} \
@@ -195,18 +193,23 @@ public: \
     static int selector(const char*); \
     static void initClass() { theInst(); } \
     static const IOObjContext& ioContext(); \
+    static FixedString sGroupName(); \
+    static uiString sTypeName(); \
+    virtual FixedString groupName() const { return sGroupName(); } \
+    virtual uiString typeName() const { return sTypeName(); } \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
     static TranslatorGroup& theInst()
 
 
 #define isTranslatorGroup( clss ) \
-mODTextTranslationClass( clss##TranslatorGroup ); \
+mTextTranslationClass( clss##TranslatorGroup, \
+	       clss##TranslatorGroup::theInst().translationApplication() ) \
 isTranslatorGroupBody(clss);
 
-#define isTranslatorGroupWithInst( clss, usrnm ) \
+#define isTranslatorGroupWithInst( clss ) \
 isTranslatorGroupBody( clss ) \
-mImplTranslatorGroupTheInst( clss, usrnm )
+mImplTranslatorGroupTheInst( clss )
 
 
   //! In the class definition of a Translator class
@@ -231,9 +234,11 @@ isTranslatorBody(spec, clss) \
 mImplTranslatorInitClass(spec, clss, usrnm )
 
   //! In the source file of a TranslatorGroup class
-#define defineTranslatorGroup(clss,usrnm) \
+#define defineTranslatorGroup(clss,groupname) \
+FixedString clss##TranslatorGroup::sGroupName() \
+{ return groupname; } \
 TranslatorGroup& clss##TranslatorGroup::theInst() \
-mImplTranslatorGroupTheInst( clss, usrnm )
+mImplTranslatorGroupTheInst( clss )
 
 //! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
@@ -247,8 +252,8 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Convenience when the TranslatorGroup is not interesting 4 u.
   //! Defines a simple empty TranslatorGroup class body
 #define mDefEmptyTranslatorGroupConstructor(clss) \
-	clss##TranslatorGroup( const char* nm, const char* unm ) \
-	: TranslatorGroup(nm,unm)		{}
+	clss##TranslatorGroup() \
+	: TranslatorGroup(#clss)		{}
 
   //! Convenience when the Translator base class is not interesting 4 u.
   //! Defines a simple empty Translator class body
@@ -287,13 +292,14 @@ mExpClass(mod) fmt##clss##Translator : public clss##Translator \
   //! This one can be convenient when a group has only one Translator
 #define mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
 defineTranslatorGroup(clss,usrnm) \
+uiString clss##TranslatorGroup::sTypeName() { return toUiString(usrnm); } \
 defineTranslator(fmt,clss,#fmt)
 
   //! Definitions for .cc file:
   //! This particular macro defines a simple object selection definition
-#define mDefSimpleTranslatorSelector(clss,usrnm) \
+#define mDefSimpleTranslatorSelector(clss) \
 int clss##TranslatorGroup::selector( const char* s ) \
-{ return defaultSelector(usrnm,s); }
+{ return defaultSelector(clss##TranslatorGroup::sGroupName(),s); }
 
   //! Definitions for .cc file:
   //! Defines the function providing the IOObj context
@@ -305,10 +311,10 @@ const IOObjContext& clss##TranslatorGroup::ioContext() \
     if ( !ctxt ) \
     { \
 	ctxt = new IOObjContext( 0 ); \
-	ctxt->stdseltype = IOObjContext::stdtyp; \
+	ctxt->stdseltype_ = IOObjContext::stdtyp; \
 	extra; \
     } \
-    ctxt->trgroup = &theInst(); \
+    ctxt->trgroup_ = &theInst(); \
     return *ctxt; \
 }
 
@@ -321,8 +327,8 @@ const IOObjContext& clss##TranslatorGroup::ioContext() \
   //! Defines all necessary functions to implement
   //! This is the 'basic' one
 #define mDefSimpleTranslators(clss,usrnm,fmt,stdtyp) \
+mDefSimpleTranslatorSelector(clss)\
 mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
-mDefSimpleTranslatorSelector(clss,usrnm) \
 mDefSimpleTranslatorioContext(clss,stdtyp)
 
   //! Definitions for .cc file:
@@ -330,7 +336,7 @@ mDefSimpleTranslatorioContext(clss,stdtyp)
   //! This one allows adding code to set IOObjContext members
 #define mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp,extra) \
 mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
-mDefSimpleTranslatorSelector(clss,usrnm) \
+mDefSimpleTranslatorSelector(clss) \
 mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
   //! Definitions for .cc file:
@@ -339,7 +345,7 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
   //! Therefore it's the one you want to use if you have your own data sub-dir.
 #define mDefSimpleTranslatorsWithSelKey(clss,usrnm,fmt,stdtyp,selky) \
     mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp, \
-		ctxt->selkey = selky)
+		ctxt->selkey_ = selky)
 
 
 // Convenience macros when using Translator(Group)-related classes
@@ -348,7 +354,7 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 	trgrp##TranslatorGroup::ioContext()
 
 #define mTranslGroupName(trgrp) \
-	trgrp##TranslatorGroup::theInst().userName()
+	trgrp##TranslatorGroup::sGroupName()
 
 #define mTranslTemplInstance(trgrp,tr) \
 	(*trgrp##TranslatorGroup::theInst() \

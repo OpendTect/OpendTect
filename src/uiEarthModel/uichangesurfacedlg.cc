@@ -47,7 +47,7 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
     {
 	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 	    			 : EMHorizon3DTranslatorGroup::ioContext();
-	ctxt.forread = true;
+	ctxt.forread_ = true;
 	inputfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrInvalid(
 				    uiStrings::sHorizon(1)) );
     }
@@ -83,10 +83,10 @@ uiChangeHorizonDlg::~uiChangeHorizonDlg()
 
 bool uiChangeHorizonDlg::readHorizon()
 {
-    if ( !inputfld_->ctxtIOObj().ioobj )
+    if ( !inputfld_->ctxtIOObj().ioobj_ )
 	return false;
 
-    const MultiID& mid = inputfld_->ctxtIOObj().ioobj->key();
+    const MultiID& mid = inputfld_->ctxtIOObj().ioobj_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
     if ( !hor ) return false;
 

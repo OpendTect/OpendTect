@@ -194,7 +194,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 
 uiFingerPrintAttrib::~uiFingerPrintAttrib()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
     pickretriever_->finished()->remove(
 			mCB(this,uiFingerPrintAttrib,pickRetrieved) );
@@ -667,7 +667,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
 uiFPAdvancedDlg::~uiFPAdvancedDlg()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
 }
 

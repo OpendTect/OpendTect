@@ -22,9 +22,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
 
+uiString SeisTrcTranslatorGroup::sTypeName()
+{ return tr("Seismic Data"); }
 
-#define sKeySeisTrcTranslatorGroup "Seismic Data"
-defineTranslatorGroup(SeisTrc,sKeySeisTrcTranslatorGroup);
+defineTranslatorGroup(SeisTrc,"Seismic Data");
 defineTranslator(CBVS,SeisTrc,"CBVS");
 defineTranslator(SEGY,SeisTrc,"SEG-Y");
 defineTranslator(TwoD,SeisTrc,"2D");
@@ -32,17 +33,18 @@ defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
 defineTranslator(SEGYDirect,SeisTrc,mSEGYDirectTranslNm);
 defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 
-mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisTrc,Seis)
+mDefSimpleTranslatorSelector(SeisTrc);
 
-#define sKeySeisTrc2DTranslatorGroup "2D Seismic Data"
-defineTranslatorGroup(SeisTrc2D,sKeySeisTrc2DTranslatorGroup);
+uiString SeisTrc2DTranslatorGroup::sTypeName()
+{ return tr("2D Seismic Data"); }
+
+defineTranslatorGroup(SeisTrc2D,"2D Seismic Data");
 defineTranslator(CBVS,SeisTrc2D,"CBVS");
 defineTranslator(SEGYDirect,SeisTrc2D,mSEGYDirectTranslNm);
 defineTranslator(SEGYDirect,SurvGeom2D,mSEGYDirectTranslNm);
-
-mDefSimpleTranslatorSelector(SeisTrc2D,sKeySeisTrc2DTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisTrc2D,Seis)
+mDefSimpleTranslatorSelector(SeisTrc2D);
 
 mDefModInitFn(Seis)
 {

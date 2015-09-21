@@ -310,21 +310,20 @@ const char* uiClusterJobProv::getOutPutIDKey() const
 
 MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
 {
-    CtxtIOObj ctio( IOObjContext(&TranslatorGroup::getGroup("Seismic Data",
-							     true)) );
-    ctio.ctxt.stdseltype = IOObjContext::Seis;
+    CtxtIOObj ctio( IOObjContext(&TranslatorGroup::getGroup("Seismic Data")) );
+    ctio.ctxt_.stdseltype_ = IOObjContext::Seis;
     FilePath fp( tmpdir );
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio.setName( objnm );
-    IOM().to( ctio.ctxt.getSelKey() );
+    IOM().to( ctio.ctxt_.getSelKey() );
     IOM().getEntry( ctio );
-    if ( !ctio.ioobj )
+    if ( !ctio.ioobj_ )
 	return MultiID(-1);
 
     fp.add( "i.*");
-    MultiID ret = ctio.ioobj->key();
-    mDynamicCastGet(IOStream*,iostrm,ctio.ioobj)
+    MultiID ret = ctio.ioobj_->key();
+    mDynamicCastGet(IOStream*,iostrm,ctio.ioobj_)
     if ( !iostrm ) return MultiID(-1);
 
     StepInterval<int> fnrs;

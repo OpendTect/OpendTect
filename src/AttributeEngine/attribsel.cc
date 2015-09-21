@@ -300,7 +300,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
     BufferStringSet ioobjnmscopy;
     BufferStringSet ioobjidscopy;
 
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
@@ -430,7 +430,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 			       BufferStringSet& nms )
 {
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )

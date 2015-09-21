@@ -168,9 +168,9 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 
 #define mGet( ioobj, hor2d, hor3d, emfss, flt3d ) \
-    (ioobj.group() == EMHorizon2DTranslatorGroup::keyword() ? hor2d : \
-    (ioobj.group() == EMHorizon3DTranslatorGroup::keyword() ? hor3d : \
-    (ioobj.group() == EMFaultStickSetTranslatorGroup::keyword()? emfss\
+    (ioobj.group() == EMHorizon2DTranslatorGroup::sGroupName() ? hor2d : \
+    (ioobj.group() == EMHorizon3DTranslatorGroup::sGroupName() ? hor3d : \
+    (ioobj.group() == EMFaultStickSetTranslatorGroup::sGroupName()? emfss\
 							    : flt3d )))
 
 #define mGetHelpID(ioobj) \
@@ -197,10 +197,10 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
     inpfld = new uiSurfaceRead( this, su );
     inpfld->setIOObj( ioobj.key() );
 
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     ctio_.setObj( 0 );
 
-    if ( ioobj.group() == EMFault3DTranslatorGroup::keyword() )
+    if ( ioobj.group() == EMFault3DTranslatorGroup::sGroupName() )
 	outfld = new uiIOObjSel( this, ctio_, 
 				 uiStrings::phrOutput(uiStrings::sFault()) );
     else if ( ioobj.group() != EM::FaultStickSet::typeStr() )
@@ -216,7 +216,7 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
 
 uiCopySurface::~uiCopySurface()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
 }
 
@@ -277,7 +277,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     if ( rp3d )
 	outsdsel.rg = rp3d->sampling().hsamp_;
 
-    IOObj* newioobj = outfld->ctxtIOObj().ioobj;
+    IOObj* newioobj = outfld->ctxtIOObj().ioobj_;
     const MultiID& mid = newioobj->key();
     emobj->setMultiID( mid );
     PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );

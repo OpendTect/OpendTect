@@ -35,9 +35,8 @@ mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
 
 
-TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
+TranslatorGroup::TranslatorGroup( const char* clssnm )
     : clssname_(clssnm)
-    , usrname_(usrnm)
     , selhist_(0)
     , deftridx_(0)
 {
@@ -104,9 +103,11 @@ class EmptyTrGroup : public TranslatorGroup
 {
 public:
 
-   EmptyTrGroup() : TranslatorGroup("",""), ctxt(0,"")	{}
-   const IOObjContext& ioCtxt() const		{ return ctxt; }
-   int objSelector( const char* ) const		{ return mObjSelUnrelated; }
+    EmptyTrGroup() : TranslatorGroup(""), ctxt(0,"")	{}
+    const IOObjContext& ioCtxt() const		{ return ctxt; }
+    int objSelector( const char* ) const	{ return mObjSelUnrelated; }
+    FixedString groupName() const	{ return FixedString::empty(); }
+    uiString typeName() const		{ return uiString::emptyString(); }
 
    IOObjContext ctxt;
 
@@ -114,15 +115,14 @@ public:
 
 
 static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
-				   const char* nm, bool user, bool iserr )
+				   const char* nm, bool iserr )
 {
     if ( !nm || !*nm )
 	return 0;
 
     for ( int idx=0; idx<grps.size(); idx++ )
     {
-	if ( ( user && grps[idx]->userName() == nm)
-	  || (!user && grps[idx]->clssName() == nm) )
+	if ( grps[idx]->groupName() == nm )
 	    return const_cast<TranslatorGroup*>( grps[idx] );
     }
 
@@ -139,17 +139,17 @@ static EmptyTrGroup* emptytrgroup = 0;
 #define mRetEG \
 { if ( !emptytrgroup ) emptytrgroup = new EmptyTrGroup; return *emptytrgroup; }
 
-TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
+TranslatorGroup& TranslatorGroup::getGroup( const char* nm )
 {
-    TranslatorGroup* ret = findGroup( groups(), nm, user, true );
+    TranslatorGroup* ret = findGroup( groups(), nm, true );
     if ( !ret ) mRetEG
     return *ret;
 }
 
 
-bool TranslatorGroup::hasGroup( const char* nm, bool user )
+bool TranslatorGroup::hasGroup( const char* nm )
 {
-    return findGroup( groups(), nm, user, false );
+    return findGroup( groups(), nm, false );
 }
 
 
@@ -170,7 +170,7 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 	    msg += "(null)' . Major problem!";
 	else
 	{
-	    msg += newgrp->userName();
+	    msg += newgrp->groupName();
 	    msg += "' = class ";
 	    msg += newgrp->clssName();
 	}
@@ -179,13 +179,12 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 
     if ( !newgrp ) mRetEG
 
-    TranslatorGroup* grp = findGroup( getGroups(), newgrp->clssName(),
-					false, false );
+    TranslatorGroup* grp = findGroup( getGroups(), newgrp->groupName(), false );
     if ( grp )
     {
 	if ( DBG::isOn(DBG_IO) )
 	{
-	    BufferString msg( "Not adding '" ); msg += newgrp->userName();
+	    BufferString msg( "Not adding '" ); msg += newgrp->groupName();
 	    msg += "' again";
 	    DBG::message( msg );
 	}
@@ -255,8 +254,11 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 
 const char* TranslatorGroup::getSurveyDefaultKey(const IOObj*) const
 {
-    return IOPar::compKey( sKey::Default(), userName() );
+    return IOPar::compKey( sKey::Default(), groupName() );
 }
+
+const char* TranslatorGroup::translationApplication() const
+{ return uiString::sODLocalizationApplication(); }
 
 
 extern "C" void od_Basic_initStdClasses();
@@ -291,7 +293,7 @@ IOObj* Translator::createWriteIOObj( const IOObjContext& ctxt,
 const char* Translator::getDisplayName() const
 {
     mDeclStaticString( ret );
-    ret.set( userName() ).add( " [" ).add( group()->userName() ).add( "]" );
+    ret.set( userName() ).add( " [" ).add( group()->groupName() ).add( "]" );
     return ret.str();
 }
 
@@ -313,7 +315,7 @@ const Translator* Translator::getTemplateInstance( const char* displayname )
     const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
     const TranslatorGroup* trgrp = 0;
     for ( int idx=0; idx<grps.size(); idx++ )
-	if ( grpnm == grps[idx]->userName() )
+	if ( grpnm == grps[idx]->groupName() )
 	    { trgrp = grps[idx]; break; }
     if ( !trgrp )
 	return 0;
@@ -331,7 +333,7 @@ IOPar& TranslatorGroup::selHist()
 {
     if ( !selhist_ )
     {
-	BufferString parnm = userName();
+	BufferString parnm = groupName();
 	parnm += " selection history";
 	selhist_ = new IOPar( parnm );
     }

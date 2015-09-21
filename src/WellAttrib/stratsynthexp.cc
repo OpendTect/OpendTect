@@ -105,19 +105,19 @@ bool StratSynthExporter::prepareWriter()
     if ( isps )
     {
 	ctxt = mMkCtxtIOObj( SeisPS2D );
-	ctxt->ctxt.deftransl = CBVSSeisPS2DTranslator::translKey();
+	ctxt->ctxt_.deftransl_ = CBVSSeisPS2DTranslator::translKey();
     }
     else
     {
 	ctxt = mMkCtxtIOObj( SeisTrc2D );
-	ctxt->ctxt.deftransl = CBVSSeisTrc2DTranslator::translKey();
+	ctxt->ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     }
 
     ctxt->setName( synthnm.buf() );
     NotifyStopper stopaddentrynot( IOM().entryAdded );
     IOM().getEntry( *ctxt, false );
     delete writer_;
-    writer_ = new SeisTrcWriter( ctxt->ioobj );
+    writer_ = new SeisTrcWriter( ctxt->ioobj_ );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
     Survey::Geometry::ID newgeomid =
 	Survey::GM().getGeomID( linegeom_->lineName() );

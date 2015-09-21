@@ -63,7 +63,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 
 uiAttribDescSetBuild::~uiAttribDescSetBuild()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &descset_;
     delete &ctio_;
 }
@@ -260,7 +260,7 @@ bool uiAttribDescSetBuild::ioReq( bool forsave )
 
 bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 {
-    ctio_.ctxt.forread = forread;
+    ctio_.ctxt_.forread_ = forread;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;

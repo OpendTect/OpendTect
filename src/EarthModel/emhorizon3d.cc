@@ -337,7 +337,7 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
-mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() )
+mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::sGroupName() )
 
 
 Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )

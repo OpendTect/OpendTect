@@ -298,15 +298,15 @@ void uiSEGYRead::preScanReq( CallBacker* cb )
 CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
 {
     CtxtIOObj* ret = mMkCtxtIOObj( SeisTrc );
-    IOObjContext& ctxt = ret->ctxt;
-    ctxt.forread = forread;
-    ctxt.toselect.allownonuserselectable_ = true;
+    IOObjContext& ctxt = ret->ctxt_;
+    ctxt.forread_ = forread;
+    ctxt.toselect_.allownonuserselectable_ = true;
     ctxt.fixTranslator( "SEG-Y" );
-    IOPar* cnstr = Seis::is2D(gt) ? &ctxt.toselect.require_
-				  : &ctxt.toselect.dontallow_;
+    IOPar* cnstr = Seis::is2D(gt) ? &ctxt.toselect_.require_
+				  : &ctxt.toselect_.dontallow_;
     cnstr->setYN( SeisTrcTranslator::sKeyIs2D(), true );
-    cnstr = Seis::isPS(gt) ? &ctxt.toselect.require_
-			   : &ctxt.toselect.dontallow_;
+    cnstr = Seis::isPS(gt) ? &ctxt.toselect_.require_
+			   : &ctxt.toselect_.dontallow_;
     cnstr->setYN( SeisTrcTranslator::sKeyIsPS(), true );
     return ret;
 }

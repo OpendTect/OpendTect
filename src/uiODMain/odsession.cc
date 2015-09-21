@@ -212,16 +212,7 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
     }
 }
 
-
-int ODSessionTranslatorGroup::selector( const char* key )
-{
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector(ODSessionTranslator::keyword(),key) ) return 1;
-    return 0;
-}
-
+mDefSimpleTranslatorSelector(ODSession);
 mDefSimpleTranslatorioContext(ODSession,Misc)
 
 

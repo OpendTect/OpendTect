@@ -149,7 +149,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
     if ( !surfacefiller_->usesRefZValue() && surfacefiller_->getRefHorizonID() )
@@ -187,7 +187,7 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 	}
     }
 
-    delete allhorio->ioobj;
+    delete allhorio->ioobj_;
 }
 
 

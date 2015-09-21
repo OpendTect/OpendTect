@@ -132,7 +132,7 @@ void uiCreateDPSPDF::createDefaultUI()
     }
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
-    ioobjctxt.forread = false;
+    ioobjctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
     outputfld_->setLabelText(
 			 uiStrings::phrOutput( uiStrings::sProbDensFunc(true)));

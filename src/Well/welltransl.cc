@@ -15,12 +15,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filepath.h"
+#include "uistrings.h"
 
-#define sKeyWellTranslatorGroup "Well"
-defineTranslatorGroup(Well,sKeyWellTranslatorGroup);
+defineTranslatorGroup(Well,"Well");
 defineTranslator(od,Well,"dGB");
+mDefSimpleTranslatorSelector(Well);
 
-mDefSimpleTranslatorSelector(Well,sKeyWellTranslatorGroup)
+uiString WellTranslatorGroup::sTypeName()
+{ return uiStrings::sWell(); }
+
 mDefSimpleTranslatorioContext(Well,WllInf)
 
 

@@ -218,9 +218,7 @@ StepInterval<float> SeisPSReader::getZRange() const
 }
 
 
-mDefSimpleTranslatorSelector(SeisPS3D,sKeySeisPS3DTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisPS3D,Seis)
-mDefSimpleTranslatorSelector(SeisPS2D,sKeySeisPS2DTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisPS2D,Seis)
 
 

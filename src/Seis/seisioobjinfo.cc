@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mGoToSeisDir() \
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) )
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) )
 
 #define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
@@ -432,7 +432,7 @@ void SeisIOObjInfo::initDefault( const char* typ )
     if ( typs.isPresent(typ) ) return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    ctxt.toselect.require_.set( sKey::Type(), typ );
+    ctxt.toselect_.require_.set( sKey::Type(), typ );
     int nrpresent = 0;
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )
@@ -554,7 +554,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )

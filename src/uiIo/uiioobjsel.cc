@@ -81,7 +81,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 	return;
 
     const ObjectSet<const Translator>& tpls
-			= ctio.ctxt.trgroup->templates();
+			= ctio.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
@@ -104,7 +104,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 
 #define mConstructorInitListStart(c) \
-	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread), \
+	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread_), \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
@@ -130,19 +130,19 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
-    : mConstructorInitListStart(ctio.ctxt)
+    : mConstructorInitListStart(ctio.ctxt_)
     , setup_( ttxt )
 {
-    init( ctio.ctxt );
+    init( ctio.ctxt_ );
 }
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
-    : mConstructorInitListStart(ctio.ctxt)
+    : mConstructorInitListStart(ctio.ctxt_)
     , setup_( su )
 {
-    init( ctio.ctxt );
+    init( ctio.ctxt_ );
 }
 
 
@@ -156,7 +156,7 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 
 void uiIOObjSelDlg::init( const IOObjContext& ctxt )
 {
-    uiIOObjSelGrp::Setup sgsu( ctxt.forread && setup_.multisel_
+    uiIOObjSelGrp::Setup sgsu( ctxt.forread_ && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
     sgsu.withwriteopts( setup_.withwriteopts_ );
@@ -169,13 +169,13 @@ void uiIOObjSelDlg::init( const IOObjContext& ctxt )
     uiString titletext( setup_.titletext_ );
     if ( titletext.isEmpty() )
     {
-	if ( selgrp_->getContext().forread )
+	if ( selgrp_->getContext().forread_ )
 	    titletext = tr("Select input %1%2");
 	else
 	    titletext = tr("Select output %1%2");
 
 	if ( selgrp_->getContext().name().isEmpty() )
-	    titletext = titletext.arg( uiString(ctxt.trgroup->userName()) );
+	    titletext = titletext.arg( ctxt.trgroup_->typeName() );
 	else
 	    titletext = titletext.arg( uiString( ctxt.name() ) );
 
@@ -186,7 +186,7 @@ void uiIOObjSelDlg::init( const IOObjContext& ctxt )
     setTitleText( titletext );
 
     uiString captn;
-    if ( !selgrp_->getContext().forread )
+    if ( !selgrp_->getContext().forread_ )
 	captn = tr("Save %1 as" );
     else
     {
@@ -197,7 +197,7 @@ void uiIOObjSelDlg::init( const IOObjContext& ctxt )
     }
 
     if ( selgrp_->getContext().name().isEmpty() )
-	captn = captn.arg( uiString( ctxt.trgroup->userName() ) );
+	captn = captn.arg( uiString( ctxt.trgroup_->groupName() ) );
     else
 	captn = captn.arg( uiString( ctxt.name() ) );
     setCaption( captn );
@@ -210,7 +210,7 @@ void uiIOObjSelDlg::init( const IOObjContext& ctxt )
 const IOObj* uiIOObjSelDlg::ioObj() const
 {
     selgrp_->updateCtxtIOObj();
-    return selgrp_->getCtxtIOObj().ioobj;
+    return selgrp_->getCtxtIOObj().ioobj_;
 }
 
 
@@ -231,7 +231,7 @@ void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
 #define mSelTxt(txt,ct) \
     !txt.isEmpty() ? txt \
 	: toUiString(ct.name().isEmpty() \
-	    ? ct.trgroup->userName().buf() \
+	    ? ct.trgroup_->groupName().buf() \
 	    : ct.name().buf())
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const uiString& txt)
@@ -255,11 +255,11 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiString& txt )
-    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt)),
+    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt_)),
 		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))
-    , setup_(mSelTxt(txt,c.ctxt))
+    , setup_(mSelTxt(txt,c.ctxt_))
     , inctiomine_(false)
 { init(); }
 
@@ -275,9 +275,9 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 
 void uiIOObjSel::init()
 {
-    workctio_.ctxt.fillTrGroup();
+    workctio_.ctxt_.fillTrGroup();
     wrtrselfld_ = 0;
-    if ( workctio_.ctxt.forread && setup_.withinserters_ )
+    if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
 					    extselbuts_ );
@@ -298,8 +298,8 @@ uiIOObjSel::~uiIOObjSel()
 {
     deepErase( inserters_ );
     if ( inctiomine_ )
-	{ delete inctio_.ioobj; delete &inctio_; }
-    delete workctio_.ioobj; delete &workctio_;
+	{ delete inctio_.ioobj_; delete &inctio_; }
+    delete workctio_.ioobj_; delete &workctio_;
 }
 
 
@@ -325,20 +325,20 @@ uiObject* uiIOObjSel::endObj( bool left )
 
 void uiIOObjSel::fillDefault()
 {
-    if ( setup_.filldef_ && !workctio_.ioobj && workctio_.ctxt.forread )
+    if ( setup_.filldef_ && !workctio_.ioobj_ && workctio_.ctxt_.forread_ )
 	workctio_.fillDefault();
 }
 
 
 void uiIOObjSel::fillEntries()
 {
-    if ( !inctio_.ctxt.forread )
+    if ( !inctio_.ctxt_.forread_ )
 	return;
 
-    const bool hadselioobj = workctio_.ioobj;
+    const bool hadselioobj = workctio_.ioobj_;
 
-    const IODir iodir ( inctio_.ctxt.getSelKey() );
-    IODirEntryList del( iodir, inctio_.ctxt );
+    const IODir iodir ( inctio_.ctxt_.getSelKey() );
+    IODirEntryList del( iodir, inctio_.ctxt_ );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
     {
@@ -363,7 +363,7 @@ void uiIOObjSel::fillEntries()
 
 IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
 {
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     return ctxt;
 }
 
@@ -371,7 +371,7 @@ IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKey::ID(),
-	       workctio_.ioobj ? workctio_.ioobj->key() : MultiID() );
+	       workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID() );
     return true;
 }
 
@@ -427,7 +427,7 @@ void uiIOObjSel::setInput( const IOObj& ioob )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj ? workctio_.ioobj->key() : MultiID("") );
+    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID("") );
 }
 
 
@@ -452,15 +452,15 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj
-			      && workctio_.ioobj->name()==inp.buf() )
+	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj_
+			      && workctio_.ioobj_->name()==inp.buf() )
 	    return;
     }
 
-    const IODir iodir( workctio_.ctxt.getSelKey() );
+    const IODir iodir( workctio_.ctxt_.getSelKey() );
     const IOObj* ioob = iodir.get( inp.buf(),
-				   workctio_.ctxt.trgroup->userName() );
-    workctio_.setObj( ioob && workctio_.ctxt.validIOObj(*ioob)
+				   workctio_.ctxt_.trgroup_->groupName() );
+    workctio_.setObj( ioob && workctio_.ctxt_.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
 }
 
@@ -468,25 +468,25 @@ void uiIOObjSel::obtainIOObj()
 void uiIOObjSel::processInput()
 {
     obtainIOObj();
-    if ( workctio_.ioobj || workctio_.ctxt.forread )
+    if ( workctio_.ioobj_ || workctio_.ctxt_.forread_ )
 	updateInput();
 }
 
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    const IODir iodir ( workctio_.ctxt.getSelKey() );
-    return iodir.get( nm, workctio_.ctxt.trgroup->userName() );
+    const IODir iodir ( workctio_.ctxt_.getSelKey() );
+    return iodir.get( nm, workctio_.ctxt_.trgroup_->groupName() );
 }
 
 
 MultiID uiIOObjSel::validKey() const
 {
-    const IODir iodir( workctio_.ctxt.getSelKey() );
+    const IODir iodir( workctio_.ctxt_.getSelKey() );
     const IOObj* ioob = iodir.get( getInput(),
-				   workctio_.ctxt.trgroup->userName() );
+				   workctio_.ctxt_.trgroup_->groupName() );
 
-    if ( ioob && workctio_.ctxt.validIOObj(*ioob) )
+    if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )
 	return ioob->key();
 
     return MultiID();
@@ -497,12 +497,12 @@ void uiIOObjSel::doCommit( bool noerr ) const
 {
     bool alreadyerr = noerr;
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr);
-    if ( !setup_.optional_ && !inctio_.ioobj && !alreadyerr )
+    if ( !setup_.optional_ && !inctio_.ioobj_ && !alreadyerr )
     {
-	uiString txt( inctio_.ctxt.forread
+	uiString txt( inctio_.ctxt_.forread_
 			 ? tr( "Please select the %1")
 			 : tr( "Please enter a valid name for the %1" ) );
-	uiMSG().error( txt.arg( workctio_.ctxt.objectTypeName() ) );
+	uiMSG().error( txt.arg( workctio_.ctxt_.objectTypeName() ) );
     }
 }
 
@@ -510,21 +510,21 @@ void uiIOObjSel::doCommit( bool noerr ) const
 MultiID uiIOObjSel::key( bool noerr ) const
 {
     doCommit(noerr);
-    return inctio_.ioobj ? inctio_.ioobj->key() : MultiID::udf();
+    return inctio_.ioobj_ ? inctio_.ioobj_->key() : MultiID::udf();
 }
 
 
 const IOObj* uiIOObjSel::ioobj( bool noerr ) const
 {
     doCommit( noerr );
-    return inctio_.ioobj;
+    return inctio_.ioobj_;
 }
 
 
 IOObj* uiIOObjSel::getIOObj( bool noerr )
 {
     doCommit( noerr );
-    IOObj* ret = inctio_.ioobj; inctio_.ioobj = 0;
+    IOObj* ret = inctio_.ioobj_; inctio_.ioobj_ = 0;
     return ret;
 }
 
@@ -555,22 +555,22 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     processInput();
     if ( existingTyped() )
     {
-	if ( workctio_.ioobj )
+	if ( workctio_.ioobj_ )
 	{
-	    if ( !workctio_.ctxt.forread && wrtrselfld_
+	    if ( !workctio_.ctxt_.forread_ && wrtrselfld_
 		&& !wrtrselfld_->isEmpty()
-		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj) )
+		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj_) )
 		mErrRet( "Cannot change the output format "
 			 "for an already existing entry" )
 
-	    const bool isalreadyok = inctio_.ioobj
-			    && inctio_.ioobj->key() == workctio_.ioobj->key();
-	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt.forread )
+	    const bool isalreadyok = inctio_.ioobj_
+			    && inctio_.ioobj_->key() == workctio_.ioobj_->key();
+	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt_.forread_ )
 	    {
-		const bool exists = workctio_.ioobj->implExists( false );
+		const bool exists = workctio_.ioobj_->implExists( false );
 		if ( exists )
 		{
-		    if ( workctio_.ioobj->implReadOnly() )
+		    if ( workctio_.ioobj_->implReadOnly() )
 			mErrRet(BufferString("'",getInput(),
 					     "' exists and is read-only"))
 		    if ( setup_.confirmoverwr_ && !uiMSG().askGoOn(
@@ -580,7 +580,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		}
 	    }
 
-	    inctio_.setObj( workctio_.ioobj->clone() );
+	    inctio_.setObj( workctio_.ioobj_->clone() );
 	    commitSucceeded(); return true;
 	}
 
@@ -588,12 +588,12 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		    "' already exists as another object type."
 		    "\nPlease enter another name.") )
     }
-    if ( workctio_.ctxt.forread )
+    if ( workctio_.ctxt_.forread_ )
 	return false;
 
     workctio_.setObj( createEntry( getInput() ) );
-    inctio_.setObj( workctio_.ioobj ? workctio_.ioobj->clone() : 0 );
-    if ( !inctio_.ioobj ) return false;
+    inctio_.setObj( workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0 );
+    if ( !inctio_.ioobj_ ) return false;
 
     commitSucceeded();
     return true;
@@ -602,7 +602,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
-    if ( !workctio_.ctxt.forread )
+    if ( !workctio_.ctxt_.forread_ )
 	workctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg )
@@ -614,7 +614,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	updateInput();
 	newSelection( dlg );
 	if ( wrtrselfld_ )
-	    wrtrselfld_->use( *workctio_.ioobj );
+	    wrtrselfld_->use( *workctio_.ioobj_ );
 	selok_ = true;
     }
 
@@ -672,5 +672,5 @@ IOObj* uiIOObjSel::createEntry( const char* nm )
 
     workctio_.setName( nm );
     workctio_.fillObj( false );
-    return workctio_.ioobj ? workctio_.ioobj->clone() : 0;
+    return workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0;
 }

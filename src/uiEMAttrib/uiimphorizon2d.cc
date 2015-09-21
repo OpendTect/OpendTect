@@ -279,7 +279,7 @@ void uiImportHorizon2D::addHor( CallBacker* )
     if ( !dlg.go() ) return;
 
     const char* hornm = dlg.text();
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
     if ( IOM().getLocal(hornm,0) )
     {
 	uiMSG().error(tr("Failed to add: a surface already "
@@ -357,12 +357,13 @@ bool uiImportHorizon2D::doImport()
     BufferStringSet hornms;
     horselfld_->getChosen( hornms );
     ObjectSet<EM::Horizon2D> horizons;
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString nm = hornms.get( idx );
-	PtrMan<IOObj> ioobj = IOM().getLocal( nm, "2D Horizon" );
+	PtrMan<IOObj> ioobj = IOM().getLocal( nm,
+				EMHorizon2DTranslatorGroup::sGroupName() );
 	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
 	EM::EMObject* emobj = em.getObject(id);
 	if ( emobj )

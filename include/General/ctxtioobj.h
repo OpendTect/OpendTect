@@ -65,33 +65,42 @@ public:
 
     enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
 			  Geom, None };
-			DeclareEnumUtils(StdSelType)
+			DeclareEnumUtils(StdSelType);
 
 			IOObjContext(const TranslatorGroup*,
 				     const char* prefname=0);
 			IOObjContext(const IOObjContext&);
+
     IOObjContext&	operator =(const IOObjContext&);
 
     //! intrinsics
-    StdSelType		stdseltype;
-    const TranslatorGroup* trgroup;	//!< Mandatory, must never be 0
-    int			newonlevel;	//!< level 0 is survey dir
-    bool		multi;		//!< If true, multi allowed
+    StdSelType		stdseltype_;
+    const TranslatorGroup* trgroup_;	//!< Mandatory, must never be 0
+    int			newonlevel_;	//!< level 0 is survey dir
+    bool		multi_;		//!< If true, multi allowed
 
     //! this selection only
-    bool		forread;
-    MultiID		selkey;		//!< If set, overrules the 'standard'
-    bool		maydooper;	//!< Will we allow add/remove etc?
-    BufferString	deftransl;	//!< Translator to use for new entry
-    IOObjSelConstraints	toselect;
+    bool		forread_;
+    MultiID		selkey_;	//!< If set, overrules the 'standard'
+    bool		maydooper_;	//!< Will we allow add/remove etc?
+    BufferString	deftransl_;	//!< Translator to use for new entry
+    IOObjSelConstraints toselect_;
 
     bool		validIOObj(const IOObj&) const;
 
     struct StdDirData
     {
-	const char*	id;
-	const char*	dirnm;
-	const char*	desc; //!< Can be converted to StdSelType
+					StdDirData(const char*,const char*,
+						   const char*);
+
+	const char*			id_;
+	const char*			dirnm_;
+	const char*			desc_;
+					//!< Can be converted to StdSelType
+
+	mDeprecated const char*&	id;
+	mDeprecated const char*&	dirnm;
+	mDeprecated const char*&	desc;
     };
 
     static int			totalNrStdDirs();
@@ -100,15 +109,25 @@ public:
 				//!< Including legacy names - smart
 
     const char*		objectTypeName() const;
-    inline bool		hasStdSelKey() const	{ return stdseltype != None; }
+    inline bool		hasStdSelKey() const	{ return stdseltype_ != None; }
     MultiID		getSelKey() const;
     IOStream*		crDefaultWriteObj(const Translator&,
 					  const MultiID&) const;
     void		fillTrGroup() const;
-			//!< Uses stdseltype to make a trgroup
+			//!< Uses stdseltype_ to make a trgroup_
 			//!< Should never be necessary
     void		fixTranslator( const char* trusrnm )
-			{ deftransl = toselect.allowtransls_ = trusrnm; }
+			{ deftransl_ = toselect_.allowtransls_ = trusrnm; }
+
+    mDeprecated StdSelType&		stdseltype;
+    mDeprecated const TranslatorGroup*& trgroup;
+    mDeprecated int&			newonlevel;
+    mDeprecated bool&			multi;
+    mDeprecated bool&			forread;
+    mDeprecated MultiID&		selkey;
+    mDeprecated bool&			maydooper;
+    mDeprecated BufferString&		deftransl;
+    mDeprecated IOObjSelConstraints&	toselect;
 };
 
 
@@ -123,14 +142,18 @@ public:
 mExpClass(General) CtxtIOObj : public NamedObject
 {
 public:
+    mStartAllowDeprecatedSection
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
-			: NamedObject(""), ctxt(ct), ioobj(o), iopar(0)
-			{ setLinkedTo(&ctxt); }
+			    : NamedObject(""), ctxt_(ct), ioobj_(o), iopar_(0)
+			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
+			{ setLinkedTo(&ctxt_); }
 			CtxtIOObj( const CtxtIOObj& ct )
-			: NamedObject(""), ctxt(ct.ctxt)
-			, ioobj(ct.ioobj?ct.ioobj->clone():0)
-			, iopar(ct.iopar?new IOPar(*ct.iopar):0)
-			{ setLinkedTo(&ctxt); }
+			    : NamedObject(""), ctxt_(ct.ctxt_)
+			    , ioobj_(ct.ioobj_?ct.ioobj_->clone():0)
+			    , iopar_(ct.iopar_?new IOPar(*ct.iopar_):0)
+			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
+			{ setLinkedTo(&ctxt_); }
+    mStopAllowDeprecatedSection
     void		destroyAll();
 
     void		setObj(IOObj*); //!< destroys previous
@@ -147,10 +170,14 @@ public:
     void		fillDefaultWithKey(const char*,bool alsoifonlyone=true);
 				//!< With alternate key
 
-    IOObjContext	ctxt;
-    IOObj*		ioobj;
-    IOPar*		iopar;
+    IOObjContext		ctxt_;
+    IOObj*			ioobj_;
+    IOPar*			iopar_;
 
+    //Legacy
+    mDeprecated IOObjContext&	ctxt;
+    mDeprecated IOObj*&		ioobj;
+    mDeprecated IOPar*&		iopar;
 };
 
 

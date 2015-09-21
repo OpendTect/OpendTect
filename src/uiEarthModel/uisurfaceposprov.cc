@@ -86,8 +86,8 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 
 uiSurfacePosProvGroup::~uiSurfacePosProvGroup()
 {
-    delete ctio1_.ioobj; delete &ctio1_;
-    delete ctio2_.ioobj; delete &ctio2_;
+    delete ctio1_.ioobj_; delete &ctio1_;
+    delete ctio2_.ioobj_; delete &ctio2_;
 }
 
 
@@ -144,7 +144,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 
     if ( !surf1fld_->commitInput() )
 	mErrRet(tr("Please select the surface"))
-    iop.set( mGetSurfKey(id1), ctio1_.ioobj->key() );
+    iop.set( mGetSurfKey(id1), ctio1_.ioobj_->key() );
 
     Interval<float> ez( 0, 0 );
     if ( issingfld_->getBoolValue() )
@@ -153,9 +153,9 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     {
 	if ( !surf2fld_->commitInput() )
 	    mErrRet(tr("Please select the bottom horizon"))
-	 if (  ctio2_.ioobj->key() ==  ctio1_.ioobj->key() )
+	 if (  ctio2_.ioobj_->key() ==	ctio1_.ioobj_->key() )
 	     mErrRet(tr("Please select two different horizons"))
-	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
+	iop.set( mGetSurfKey(id2), ctio2_.ioobj_->key() );
     }
 
     const float zstep = zstepfld_ ? zstepfld_->getFValue() / zfac_

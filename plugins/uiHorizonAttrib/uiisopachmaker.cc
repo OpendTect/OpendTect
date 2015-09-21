@@ -45,11 +45,11 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     baseemobj_ = EM::EMM().getObject( horid_ );
     if ( !baseemobj_ )
     {
-	basectio_.ctxt.forread = true;
+	basectio_.ctxt_.forread_ = true;
 	basesel_ = new uiIOObjSel( this, basectio_, uiStrings::sHorizon() );
     }
 
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
@@ -84,8 +84,8 @@ BufferString uiIsochronMakerGrp::getHorNm( EM::ObjectID horid )
 
 uiIsochronMakerGrp::~uiIsochronMakerGrp()
 {
-    delete ctio_.ioobj; delete &ctio_;
-    delete basectio_.ioobj; delete &basectio_;
+    delete ctio_.ioobj_; delete &ctio_;
+    delete basectio_.ioobj_; delete &basectio_;
 }
 
 

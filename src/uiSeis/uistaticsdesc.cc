@@ -30,7 +30,7 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
     : uiGroup( p, "Statics editor" )
 {
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     horfld_ = new uiIOObjSel( this, ctxt, tr("Statics elevation") );
     horfld_->selectionDone.notify( mCB(this,uiStaticsDesc,updateFlds));
 

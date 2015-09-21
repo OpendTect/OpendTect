@@ -50,7 +50,7 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
     ctio->setName( ps->name() );
     if ( uiIOObj::fillCtio(*ctio,true) )
     {
-	PtrMan<IOObj> ioobj = ctio->ioobj;
+	PtrMan<IOObj> ioobj = ctio->ioobj_;
 	if ( ps->disp_.connect_ == Pick::Set::Disp::None )
 	    ioobj->pars().set( sKey::Type(),
 			       PickSetTranslatorGroup::sKeyPickSet() );
@@ -127,10 +127,10 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
     const bool ispoly = ps.disp_.connect_ != Pick::Set::Disp::None;
     const BufferString oldname = ps.name();
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( PickSet );
-    ctio->ctxt.forread = false;
+    ctio->ctxt_.forread_ = false;
 
     if ( ispoly )
-	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+	ctio->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     ctio->setName( oldname );
     uiIOObjSelDlg dlg( parent_, *ctio );
     if ( !dlg.go() )
@@ -174,7 +174,7 @@ uiMergePickSets( uiParent* p, MultiID& mid )
     ctioin_.setObj( IOM().get(mid_) );
     selfld = new uiIOObjSelGrp( this, ctioin_, "Select Pick Sets to merge",
 			uiIOObjSelGrp::Setup(OD::ChooseZeroOrMore) );
-    ctioout_.ctxt.forread = false;
+    ctioout_.ctxt_.forread_ = false;
     outfld = new uiIOObjSel( this, ctioout_, "Output merged set" );
     outfld->attach( alignedBelow, selfld );
 }
@@ -197,8 +197,8 @@ bool acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( ctioout_.ioobj )
-	mid_ = ctioout_.ioobj->key();
+    if ( ctioout_.ioobj_ )
+	mid_ = ctioout_.ioobj_->key();
     return true;
 }
 
@@ -249,17 +249,17 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
     }
 
     Pick::Set resset( *pss[0] );
-    resset.setName( dlg.ctioout_.ioobj->name() );
+    resset.setName( dlg.ctioout_.ioobj_->name() );
     for ( int idx=1; idx<pss.size(); idx ++ )
 	resset.append( *pss[idx] );
 
     BufferString msg;
-    if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj,msg) )
+    if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj_,msg) )
 	uiMSG().error( msg );
 
-    dlg.ctioout_.ioobj->pars().set( sKey::Type(),
+    dlg.ctioout_.ioobj_->pars().set( sKey::Type(),
 	    PickSetTranslatorGroup::sKeyPickSet() );
-    IOM().commitChanges( *dlg.ctioout_.ioobj );
+    IOM().commitChanges( *dlg.ctioout_.ioobj_);
     deepErase( pssread );
 }
 

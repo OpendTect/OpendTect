@@ -194,7 +194,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     convertSeis2DTranslators();
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
-    oldctxt.toselect.allownonuserselectable_ = true;
+    oldctxt.toselect_.allownonuserselectable_ = true;
     const IODir oldiodir( oldctxt.getSelKey() );
     if ( !oldiodir.isBad() )
     {
@@ -221,7 +221,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
 
     IOObjContext newctxt( mIOObjContext(SeisTrc2D) );
-    newctxt.toselect.allowtransls_ = CBVSSeisTrc2DTranslator::translKey();
+    newctxt.toselect_.allowtransls_ = CBVSSeisTrc2DTranslator::translKey();
     const IODir newiodir( newctxt.getSelKey() );
     const IODirEntryList newdel( newiodir, newctxt );
     return hasold2d && newdel.isEmpty() ? 1 : 2;
@@ -267,7 +267,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
 {
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
-    oldctxt.toselect.allownonuserselectable_ = true;
+    oldctxt.toselect_.allownonuserselectable_ = true;
     const IODir oldiodir( oldctxt.getSelKey() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     if ( olddel.isEmpty() )
@@ -344,29 +344,29 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     const IOObjContext& iocontext = mIOObjContext(SeisTrc2D);
     if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
     CtxtIOObj ctio( iocontext );
-    ctio.ctxt.deftransl = CBVSSeisTrc2DTranslator::translKey();
+    ctio.ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     if ( iop.find(sKey::DataType()) )
     {
 	BufferString datatype, zdomain;
 	iop.get( sKey::DataType(), datatype );
 	iop.get( ZDomain::sKey(), zdomain );
-	ctio.ctxt.toselect.require_.set( sKey::Type(), datatype );
-	ctio.ctxt.toselect.require_.set( ZDomain::sKey(), zdomain );
+	ctio.ctxt_.toselect_.require_.set( sKey::Type(), datatype );
+	ctio.ctxt_.toselect_.require_.set( ZDomain::sKey(), zdomain );
     }
 
     FixedString attribnm = iop.find( sKey::Attribute() );
     if ( attribnm.isEmpty() ) attribnm = "Seis";
-    ctio.ctxt.setName( attribnm );
+    ctio.ctxt_.setName( attribnm );
     if ( ctio.fillObj() == 0 ) return BufferString::empty();
-    IOObj* ioobj = ctio.ioobj;
+    IOObj* ioobj = ctio.ioobj_;
     if ( ioobj->group() != mTranslGroupName(SeisTrc2D) )
     {
 	BufferString nm = ioobj->name();
 	nm.add( "[2D]" );
-	ctio.ioobj = 0;
-	ctio.ctxt.setName( nm );
+	ctio.ioobj_ = 0;
+	ctio.ctxt_.setName( nm );
 	if ( ctio.fillObj() == 0 ) return BufferString::empty();
-	FilePath fp( ctio.ioobj->fullUserExpr() );
+	FilePath fp( ctio.ioobj_->fullUserExpr() );
 	nm = fp.fileName();
 	iop.set( sKey::Attribute(), nm.buf() );
     }
@@ -374,10 +374,10 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     const FixedString survdefattr( getSurvDefAttrName() );
     const bool issurvdefset = SI().pars().find( IOPar::compKey(sKey::Default(),
 				SeisTrc2DTranslatorGroup::sKeyDefault()) );
-    if ( !issurvdefset && ctio.ioobj && survdefattr == attribnm )
-	ctio.ioobj->setSurveyDefault();
+    if ( !issurvdefset && ctio.ioobj_ && survdefattr == attribnm )
+	ctio.ioobj_->setSurveyDefault();
 
-    return BufferString( ctio.ioobj ? ctio.ioobj->fullUserExpr() : "" );
+    return BufferString( ctio.ioobj_ ? ctio.ioobj_->fullUserExpr() : "" );
 }
 
 

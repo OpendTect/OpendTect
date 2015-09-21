@@ -363,7 +363,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 
 uiElasticPropSelDlg::~uiElasticPropSelDlg()
 {
-   delete ctio_.ioobj; delete &ctio_;
+   delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -423,8 +423,8 @@ bool uiElasticPropSelDlg::acceptOK( CallBacker* )
     if ( !screenSelectionChanged(0) )
 	return false;
 
-    if( ctio_.ioobj )
-	doStore( *ctio_.ioobj );
+    if( ctio_.ioobj_ )
+	doStore( *ctio_.ioobj_ );
 
     BufferString msg;
     if ( !elpropsel_.isValidInput( &msg ) )
@@ -436,13 +436,13 @@ bool uiElasticPropSelDlg::acceptOK( CallBacker* )
 
 bool uiElasticPropSelDlg::savePropSel()
 {
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    return doStore( *ctio_.ioobj );
+    return doStore( *ctio_.ioobj_ );
 }
 
 
@@ -467,19 +467,19 @@ bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
 
 bool uiElasticPropSelDlg::openPropSel()
 {
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    const BufferString fnm( ctio_.ioobj->fullUserExpr(true) );
+    const BufferString fnm( ctio_.ioobj_->fullUserExpr(true) );
     StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
 	mErrRet( uiStrings::sCantOpenInpFile(), return false; )
     sd.close();
 
-    if ( !doRead( ctio_.ioobj->key() ) )
+    if ( !doRead( ctio_.ioobj_->key() ) )
 	mErrRet( tr("Unable to read elastic property selection"), 
 		 return false; );
     return true;

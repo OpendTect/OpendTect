@@ -33,7 +33,6 @@ public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
     const char*			defExtension() const { return sDefExtension(); }
     static const char*		sDefExtension()	     { return "psevent"; }
-    static const char*		sKeyword()	     { return "PreStack Event";}
 };
 
 
@@ -54,7 +53,7 @@ public:
     virtual Executor*	createOptimizer(IOObj*)				= 0;
 
     static Executor*	reader(PreStack::EventManager&, const BinIDValueSet*,
-				     const TrcKeySampling*, IOObj*, bool trigger );
+			       const TrcKeySampling*, IOObj*, bool trigger );
     static Executor*	writer(PreStack::EventManager&,IOObj*);
     static Executor*	writeAs(PreStack::EventManager&,IOObj*);
 };

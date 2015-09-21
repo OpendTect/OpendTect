@@ -53,13 +53,13 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     , objfld_(0)
 {
     const FixedString typ( tp );
-    if ( typ == EMHorizon2DTranslatorGroup::keyword() )
+    if ( typ == EMHorizon2DTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMHorizon2D);
-    else if ( typ == EMHorizon3DTranslatorGroup::keyword() )
+    else if ( typ == EMHorizon3DTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMHorizon3D);
-    else if ( typ == EMFaultStickSetTranslatorGroup::keyword() )
+    else if ( typ == EMFaultStickSetTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMFaultStickSet);
-    else if ( typ == EMFault3DTranslatorGroup::keyword() )
+    else if ( typ == EMFault3DTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
     else
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
@@ -70,7 +70,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
 
 uiIOSurface::~uiIOSurface()
 {
-    delete ctio_->ioobj; delete ctio_;
+    delete ctio_->ioobj_; delete ctio_;
 }
 
 
@@ -98,8 +98,8 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 
 void uiIOSurface::mkRangeFld( bool multisubsel )
 {
-    BufferString username = ctio_->ctxt.trgroup->userName();
-    const bool is2d = username == EMHorizon2DTranslatorGroup::keyword();
+    BufferString username = ctio_->ctxt_.trgroup_->groupName();
+    const bool is2d = username == EMHorizon2DTranslatorGroup::sGroupName();
 
     uiPosSubSel::Setup su( is2d, false );
     if ( multisubsel )
@@ -112,7 +112,7 @@ void uiIOSurface::mkRangeFld( bool multisubsel )
 
 void uiIOSurface::mkObjFld( const uiString& lbl )
 {
-    ctio_->ctxt.forread = forread_;
+    ctio_->ctxt_.forread_ = forread_;
     objfld_ = new uiIOObjSel( this, *ctio_, lbl );
     if ( forread_ )
 	objfld_->selectionDone.notify( mCB(this,uiIOSurface,objSel) );
@@ -253,7 +253,7 @@ void uiIOSurface::objSel( CallBacker* )
     if ( !objfld_ ) return;
 
     objfld_->commitInput();
-    IOObj* ioobj = objfld_->ctxtIOObj().ioobj;
+    IOObj* ioobj = objfld_->ctxtIOObj().ioobj_;
     if ( !ioobj ) return;
 
     fillFields( ioobj->key() );
@@ -276,7 +276,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 {
     surfrange_.init( false );
 
-    if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword() )
+    if ( setup.typ_ != EMHorizon2DTranslatorGroup::sGroupName() )
     {
 	if ( setup.withsubsel_ )
 	    mkRangeFld();
@@ -284,7 +284,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
 
-    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
 	mkObjFld( uiStrings::phrOutput(uiStrings::sFaultStickSet()) );
     else
 	mkObjFld( uiStrings::phrOutput(setup.typname_) );
@@ -330,10 +330,10 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 {
     surfrange_.init( false );
 
-    if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword() &&
-	 setup.typ_!=EMFaultStickSetTranslatorGroup::keyword() &&
-	 setup.typ_!=EMFault3DTranslatorGroup::keyword() &&
-	 setup.typ_!=EMBodyTranslatorGroup::keyword() )
+    if ( setup.typ_!=EMHorizon2DTranslatorGroup::sGroupName() &&
+	 setup.typ_!=EMFaultStickSetTranslatorGroup::sGroupName() &&
+	 setup.typ_!=EMFault3DTranslatorGroup::sGroupName() &&
+	 setup.typ_!=EMBodyTranslatorGroup::sGroupName() )
     {
 	if ( surf.nrSections() > 1 )
 	    mkSectionFld( false );
@@ -350,7 +350,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
 
-    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
 	mkObjFld( uiStrings::phrOutput( uiStrings::sFaultStickSet() ) );
     else
 	mkObjFld( uiStrings::phrOutput( setup.typname_ ) );
@@ -445,9 +445,9 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     : uiIOSurface(p,true,setup.typ_)
     , inpChange(this)
 {
-    if ( setup.typ_ == EMFault3DTranslatorGroup::keyword() )
+    if ( setup.typ_ == EMFault3DTranslatorGroup::sGroupName() )
 	mkObjFld( uiStrings::phrInput(uiStrings::sFault()));
-    else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+    else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
 	mkObjFld( uiStrings::phrInput(uiStrings::sFaultStickSet()));
     else
 	mkObjFld( uiStrings::phrInput(mToUiStringTodo(setup.typ_)) );
@@ -457,7 +457,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     if ( setup.withsectionfld_ )
 	mkSectionFld( setup.withattribfld_ );
 
-    if ( objfld_->ctxtIOObj().ioobj )
+    if ( objfld_->ctxtIOObj().ioobj_ )
 	objSel(0);
 
     if ( setup.withattribfld_ )
@@ -609,8 +609,8 @@ public:
 		    tr("Available for 2D lines"),mNoHelpKey))
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
-	const IODir iodir( ctio->ctxt.getSelKey() );
-	const IODirEntryList entlst( iodir, ctio->ctxt );
+	const IODir iodir( ctio->ctxt_.getSelKey() );
+	const IODirEntryList entlst( iodir, ctio->ctxt_ );
 
 	for ( int idx=0; idx<entlst.size(); idx++ )
 	{

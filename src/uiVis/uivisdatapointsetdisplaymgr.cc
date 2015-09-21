@@ -305,7 +305,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	if ( uiIOObj::fillCtio(*ctio,true) )
 	{
 	    BufferString bs;
-	    if ( !PickSetTranslator::store( pickset, ctio->ioobj, bs ) )
+	    if ( !PickSetTranslator::store( pickset, ctio->ioobj_, bs ) )
 	    uiMSG().error(mToUiStringTodo(bs));
 	}
     }

@@ -17,4 +17,7 @@ ________________________________________________________________________
 defineTranslatorGroup(PosVecDataSet,"Positioned Vector Data");
 defineTranslator(od,PosVecDataSet,mdTectKey);
 
+uiString PosVecDataSetTranslatorGroup::sTypeName()
+{ return tr( "Positioned Vector Data" ); }
+
 #endif

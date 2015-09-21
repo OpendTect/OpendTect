@@ -45,7 +45,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Polyline")
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    ctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     inpfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
@@ -78,7 +78,7 @@ void uiGMTPolylineGrp::objSel( CallBacker* )
     if ( !inpfld_->commitInput() )
 	return;
 
-    IOObj* ioobj = ctio_.ioobj;
+    IOObj* ioobj = ctio_.ioobj_;
     if ( ioobj )
 	namefld_->setText( ioobj->name() );
 }
@@ -88,7 +88,7 @@ void uiGMTPolylineGrp::objSel( CallBacker* )
 
 bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
 	mErrRet(tr("Please select a polygon"))
 
     inpfld_->fillPar( par );

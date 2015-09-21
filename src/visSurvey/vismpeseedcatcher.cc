@@ -91,7 +91,7 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 
 
 #define mCheckTracker( typestr, typekey, legalclick, condition ) \
-    if ( EM##typekey##TranslatorGroup::keyword()==typestr ) \
+    if ( EM##typekey##TranslatorGroup::sGroupName()==typestr ) \
 	legalclick = legalclick || (condition);
 
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \

@@ -57,14 +57,14 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     inpsourceelfld_->attach( alignedBelow, inptypefld_ );
 
     IOObjContext pwctxt = uiVelSel::ioContext();
-    pwctxt.forread = true;
+    pwctxt.forread_ = true;
     uiSeisSel::Setup pwsu( false, false );
     pwsu.seltxt( tr("P-wave Velocity cube") );
     pwavefld_ = new uiVelSel( this, pwctxt, pwsu, true );
     pwavefld_->attach( alignedBelow, inpsourceacfld_ );
 
     IOObjContext swctxt = uiVelSel::ioContext();
-    swctxt.forread = true;
+    swctxt.forread_ = true;
     uiSeisSel::Setup swsu( false, false );
     swsu.seltxt( tr("S-wave Velocity cube") );
     swavefld_ = new uiVelSel( this, swctxt, swsu, true );
@@ -72,7 +72,7 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 
     IOObjContext aictxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    aictxt.forread = true;
+    aictxt.forread_ = true;
     uiSeisSel::Setup aisu( is2d, false );
     aisu.seltxt( tr("Acoustic Impedance") );
     aifld_ = new uiSeisSel( this, aictxt, aisu );
@@ -80,7 +80,7 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 
     IOObjContext sictxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    sictxt.forread = true;
+    sictxt.forread_ = true;
     uiSeisSel::Setup sisu( is2d, false );
     sisu.seltxt( tr("Shear Impedance") );
     sifld_ = new uiSeisSel( this, sictxt, sisu );
@@ -88,7 +88,7 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 
     IOObjContext denctxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    denctxt.forread = true;
+    denctxt.forread_ = true;
     uiSeisSel::Setup su1( is2d, false );
     su1.seltxt( tr("Density") );
     densityfld_ = new uiSeisSel( this, denctxt, su1 );
@@ -96,7 +96,7 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 
     IOObjContext optdenctxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    optdenctxt.forread = true;
+    optdenctxt.forread_ = true;
     uiSeisSel::Setup su2( is2d, false );
     su2.optional_= true;
     su2.seltxt( tr("Density") );

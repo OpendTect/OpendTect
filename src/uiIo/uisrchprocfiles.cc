@@ -32,7 +32,7 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
     , ctio_(c)
     , iopkey_(iopky)
 {
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
 
     dirfld = new uiFileInput( this, "Directory to search in",
 	    	 uiFileInput::Setup(GetProcFileName(0)).directories(true) );
@@ -66,7 +66,7 @@ const char* uiSrchProcFiles::fileName() const
 void uiSrchProcFiles::srchDir( CallBacker* )
 {
     objfld->commitInput();
-    const BufferString key( ctio_.ioobj ? ctio_.ioobj->key().buf() : "" );
+    const BufferString key( ctio_.ioobj_ ? ctio_.ioobj_->key().buf() : "" );
     if ( key.isEmpty() ) return;
 
     uiMsgMainWinSetter msgwinsetter( this );

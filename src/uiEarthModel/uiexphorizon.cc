@@ -60,7 +60,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     setDeleteOnClose( false );
 
     infld_ = new uiSurfaceRead( this,
-		uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
+		uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::sGroupName())
 		.withsubsel(true).withsectionfld(false) );
     infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
     infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );

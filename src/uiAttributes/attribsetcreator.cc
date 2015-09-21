@@ -77,7 +77,7 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 {
     for ( int idx=0; idx<sels.size(); idx++ )
     {
-	delete sels[idx]->ctxtIOObj().ioobj;
+	delete sels[idx]->ctxtIOObj().ioobj_;
 	delete &sels[idx]->ctxtIOObj();
     }
 }
@@ -100,7 +100,7 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
     for ( int idx=0; idx<inps.size(); idx++ )
     {
 	CtxtIOObj* newctio = mMkCtxtIOObj(SeisTrc);
-	newctio->ctxt.forread = true;
+	newctio->ctxt_.forread_ = true;
 	if ( neednewgrp )
 	{
 	    uiGroup* newgrp = new uiGroup( fldgrp, "selsN" );
@@ -127,7 +127,7 @@ void cubeSel( CallBacker* cb )
     if ( !cursel ) { pErrMsg("Huh"); return; }
 
     cursel->commitInput();
-    const IOObj* ioobj = cursel->ctxtIOObj().ioobj;
+    const IOObj* ioobj = cursel->ctxtIOObj().ioobj_;
     if ( !ioobj ) return;
     int curidx = indexOf( sels, cursel );
     if ( curidx >= nrindir ) return;
@@ -139,7 +139,7 @@ void cubeSel( CallBacker* cb )
 	uiIOObjSel& sel = *sels[idx];
 	if ( &sel == cursel ) continue;
 	sel.getHistory( iopar );
-	if ( !sel.ctxtIOObj().ioobj )
+	if ( !sel.ctxtIOObj().ioobj_ )
 	{
 	    sel.ctxtIOObj().setObj( ioobj->clone() );
 	    sel.updateInput();
@@ -154,7 +154,7 @@ bool acceptOK( CallBacker* )
     {
 	uiIOObjSel& sel = *sels[isel];
 	sel.commitInput();
-	const IOObj* ioobj = sel.ctxtIOObj().ioobj;
+	const IOObj* ioobj = sel.ctxtIOObj().ioobj_;
 	if ( !ioobj )
 	{
 	    uiMSG().error(

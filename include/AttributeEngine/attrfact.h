@@ -13,11 +13,16 @@ ________________________________________________________________________
 -*/
 
 #include "attribdescsettr.h"
+#include "uistrings.h"
 
-#define sKeyAttribDescSetTranslatorGroup "Attribute definitions"
-
-defineTranslatorGroup(AttribDescSet,sKeyAttribDescSetTranslatorGroup);
+defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 defineTranslator(dgb,AttribDescSet,mDGBKey);
+
+mDefSimpleTranslatorSelector(AttribDescSet);
+mDefSimpleTranslatorioContext(AttribDescSet, Attr );
+
+uiString AttribDescSetTranslatorGroup::sTypeName()
+{ return uiStrings::sAttributes(); }
 
 
 #endif

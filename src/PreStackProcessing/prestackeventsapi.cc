@@ -168,7 +168,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
     int res = 0;
     while ( ids_.isPresent(res) ) res++;
 
-    if ( ioobj->group() == PSEventTranslatorGroup::sKeyword() )
+    if ( ioobj->group() == PSEventTranslatorGroup::sGroupName() )
     {
 	PreStack::EventManager* picks = new PreStack::EventManager;
 	picks->ref();

@@ -454,7 +454,7 @@ void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
 void uiODApplMgrDispatcher::openXPlot()
 {
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg seldlg( par_, ctio );
     seldlg.setHelpKey( mODHelpKey(mOpenCossplotHelpID) );
     if ( !seldlg.go() || !seldlg.ioObj() ) return;

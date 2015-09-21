@@ -53,7 +53,7 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
 	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Delta]);
 	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Epsilon]);
 	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Eta]);
-	context.toselect.require_.set( StoredFunctionSource::sKeyVelocityType(),
+	context.toselect_.require_.set(StoredFunctionSource::sKeyVelocityType(),
 				       typnms );
     }
     else
@@ -64,11 +64,11 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
 	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Delta]);
 	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Epsilon]);
 	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Eta]);
-	context.toselect.require_.set( StoredFunctionSource::sKeyVelocityType(),
+	context.toselect_.require_.set(StoredFunctionSource::sKeyVelocityType(),
 				       typnms );
     }
 
-    context.forread = true;
+    context.forread_ = true;
 
     funcsel_ = new uiIOObjSel( this, context, uiStrings::sInput() );
 

@@ -25,7 +25,6 @@ mExpClass(General) SurvGeom2DTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(SurvGeom2D);
     const char*		defExtension() const	{ return "geom"; }
-    static FixedString	keyword();
 };
 
 

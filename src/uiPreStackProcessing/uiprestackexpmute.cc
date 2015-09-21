@@ -52,7 +52,7 @@ uiExportMute::uiExportMute( uiParent* p )
 
 uiExportMute::~uiExportMute()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -64,12 +64,12 @@ bool uiExportMute::writeAscii()
 	return false;
 
     PtrMan<MuteDefTranslator> trans =
-	(MuteDefTranslator*)ctio_.ioobj->createTranslator();
+	(MuteDefTranslator*)ctio_.ioobj_->createTranslator();
     if ( !trans ) return false;
 
     MuteDef mutedef;
     uiString errstr;
-    const bool retval = trans->retrieve( mutedef, ctio_.ioobj, errstr );
+    const bool retval = trans->retrieve( mutedef, ctio_.ioobj_, errstr );
     if ( !retval ) mErrRet( errstr );
 
     const BufferString fname = outfld_->fileName();

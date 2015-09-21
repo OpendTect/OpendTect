@@ -554,15 +554,15 @@ IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
     IOObjContext* ret = new IOObjContext( Seis::isPS(gt) ?
 	 (Seis::is2D(gt) ? mIOObjContext(SeisPS2D) : mIOObjContext(SeisPS3D))
        : (Seis::is2D(gt) ? mIOObjContext(SeisTrc2D) : mIOObjContext(SeisTrc)) );
-    ret->forread = forread;
+    ret->forread_ = forread;
     if ( gt == Seis::Line )
-	ret->deftransl = CBVSSeisTrc2DTranslator::translKey();
+	ret->deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     else if ( gt == Seis::Vol )
-	ret->deftransl = CBVSSeisTrcTranslator::translKey();
+	ret->deftransl_ = CBVSSeisTrcTranslator::translKey();
     else if ( gt == Seis::VolPS )
-	ret->deftransl = CBVSSeisPS3DTranslator::translKey();
+	ret->deftransl_ = CBVSSeisPS3DTranslator::translKey();
     else
-	ret->deftransl = CBVSSeisPS2DTranslator::translKey();
+	ret->deftransl_ = CBVSSeisPS2DTranslator::translKey();
 
     return ret;
 }
