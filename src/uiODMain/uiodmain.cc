@@ -118,7 +118,7 @@ int ODMain( int argc, char** argv )
 static BufferString cputxt_;
 
 uiODMain::uiODMain( uiMain& a )
-    : uiMainWin(0,uiString::emptyString(),5,true)
+    : uiMainWin(0,"OpendTect Main Window",5,true)
     , uiapp_(a)
     , failed_(true)
     , applmgr_(0)
