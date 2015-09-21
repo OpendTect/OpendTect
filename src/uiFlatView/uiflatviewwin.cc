@@ -193,7 +193,7 @@ uiFlatViewDockWin::uiFlatViewDockWin( uiParent* p,
 				      const uiFlatViewDockWin::Setup& setup )
     : uiDockWin(p,setup.name_)
 {
-    setDockName( setup.name_ );
+    setDockName( mToUiStringTodo(setup.name_) );
     createViewers( setup.nrviewers_ );
 }
 
