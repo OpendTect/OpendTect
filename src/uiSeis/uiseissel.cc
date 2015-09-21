@@ -76,7 +76,7 @@ static CtxtIOObj adaptCtio4Steering( const CtxtIOObj& ct,
 				const uiSeisSel::Setup& su )
 {
     CtxtIOObj ctio( ct );
-    ctio.ctxt = adaptCtxt4Steering( ctio.ctxt, su );
+    ctio.ctxt_ = adaptCtxt4Steering( ctio.ctxt_, su );
     return ctio;
 }
 
@@ -92,7 +92,7 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
-    : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtxt4Steering(c.ctxt_,sssu))
+    : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtio4Steering(c,sssu))
     , compfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)

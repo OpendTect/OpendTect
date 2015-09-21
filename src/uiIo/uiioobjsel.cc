@@ -115,7 +115,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
     : mConstructorInitListStart(ctio.ctxt_)
     , setup_( ttxt )
 {
-    init( ctio.ctxt_ );
+    init( ctio );
 }
 
 
@@ -124,7 +124,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
     : mConstructorInitListStart(ctio.ctxt_)
     , setup_( su )
 {
-    init( ctio.ctxt_ );
+    init( ctio );
 }
 
 
@@ -138,7 +138,7 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 
 void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 {
-    uiIOObjSelGrp::Setup sgsu( ctxt.forread_ && setup_.multisel_
+    uiIOObjSelGrp::Setup sgsu( ctio.ctxt_.forread_ && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
     sgsu.withwriteopts( setup_.withwriteopts_ );
@@ -157,9 +157,9 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	    titletext = tr("Select output %1%2");
 
 	if ( selgrp_->getContext().name().isEmpty() )
-	    titletext = titletext.arg( ctxt.trgroup_->typeName() );
+	    titletext = titletext.arg( ctio.ctxt_.trgroup_->typeName() );
 	else
-	    titletext = titletext.arg( uiString( ctio.ctxt.name() ) );
+	    titletext = titletext.arg( uiString( ctio.ctxt_.name() ) );
 
 	titletext = titletext.arg( setup_.multisel_ ? "(s)"
 					: uiString::emptyString() );
@@ -179,9 +179,9 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     }
 
     if ( selgrp_->getContext().name().isEmpty() )
-	captn = captn.arg( uiString( ctxt.trgroup_->groupName() ) );
+	captn = captn.arg( uiString( ctio.ctxt_.trgroup_->groupName() ) );
     else
-	captn = captn.arg( uiString( ctio.ctxt.name() ) );
+	captn = captn.arg( uiString( ctio.ctxt_.name() ) );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(
