@@ -199,7 +199,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
 		dpm_.obtain( vwr_.availablePacks()[idx]);
 	if ( dp )
 	{
-	    dispfld_->addItem( dp->name() );
+	    dispfld_->addItem( mToUiStringTodo(dp->name()) );
 	    if ( dp->name() == dataName() )
 		dispfld_->setCurrentItem( dispfld_->size() - 1 );
 	}
@@ -315,7 +315,7 @@ bool uiFlatViewDataDispPropTab::acceptOK()
 
 
 uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
-    : uiFlatViewDataDispPropTab(p,vwr,"Wiggle Variable Area",
+    : uiFlatViewDataDispPropTab(p,vwr,tr("Wiggle Variable Area"),
       vwr.appearance().ddpars_.wva_.allowuserchangedata_)
     , pars_(ddpars_.wva_)
 {
@@ -449,7 +449,7 @@ bool uiFVWVAPropTab::acceptOK()
 
 
 uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
-    : uiFlatViewDataDispPropTab(p,vwr,"Variable Density",
+    : uiFlatViewDataDispPropTab(p,vwr,tr("Variable Density"),
       vwr.appearance().ddpars_.vd_.allowuserchangedata_)
     , pars_(ddpars_.vd_)
     , ctab_(ddpars_.vd_.ctab_.buf())
@@ -530,7 +530,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     , annotselfld_(0)
     , reversedfld_(0)
 {
-    BufferString lbltxt( "Axis '" ); lbltxt += ad_.name_; lbltxt += "'";
+    uiString lbltxt = tr("Axis '%1'").arg(mToUiStringTodo(ad_.name_));
     uiLabel* lbl;
     const bool haveannotchoices = annotnms && annotnms->size() > 1;
     if ( !haveannotchoices )
@@ -562,7 +562,8 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 
     auxlblfld_ = new uiLabel( this, ad_.auxlabel_ );
     showauxannotfld_ =
-	new uiCheckBox( this, "Show Annotation",
+	new uiCheckBox( this, uiStrings::phrJoinStrings(uiStrings::sShow(),
+							tr("Annotation")),
 			mCB(this,uiFVAnnotPropTab::AxesGroup,showAuxCheckedCB));
     showauxannotfld_->attach( alignedBelow, showannotfld_ );
     auxlblfld_->attach( leftTo, showauxannotfld_ );

@@ -154,9 +154,10 @@ void AxesDrawer::updateViewRect()
     	
     	if ( !axis1nm_ )
 	    axis1nm_ = view_.scene().addItem(
-		    new uiTextItem(ad1.name_,mAlignment(Right,Top)) );
+		    new uiTextItem(mToUiStringTodo(ad1.name_),
+				  mAlignment(Right,Top)) );
     	else
-    	    axis1nm_->setText( ad1.name_ );
+    	    axis1nm_->setText( mToUiStringTodo(ad1.name_) );
 
 	axis1nm_->setVisible( true );
 	axis1nm_->setTextColor( annot.color_ );
@@ -185,9 +186,10 @@ void AxesDrawer::updateViewRect()
 	
 	if ( !axis2nm_ )
 	    axis2nm_ = view_.scene().addItem(
-		    new uiTextItem(ad2.name_,mAlignment(Left,Top)) );
+		    new uiTextItem(mToUiStringTodo(ad2.name_),
+				   mAlignment(Left,Top)) );
 	else
-	    axis2nm_->setText( ad2.name_ );
+	    axis2nm_->setText( mToUiStringTodo(ad2.name_) );
 
 	axis2nm_->setVisible( true );
 	axis2nm_->setTextColor( annot.color_ );
@@ -204,11 +206,12 @@ void AxesDrawer::updateViewRect()
 	if ( !titletxt_ )
 	{
 	    titletxt_ = view_.scene().addItem(
-		    new uiTextItem(annot.title_,mAlignment(HCenter,Top)) );
+		    new uiTextItem(mToUiStringTodo(annot.title_),
+				   mAlignment(HCenter,Top)) );
 	    titletxt_->setTextColor( annot.color_ );
 	}
 	else
-	    titletxt_->setText( annot.title_ );
+	    titletxt_->setText( mToUiStringTodo(annot.title_) );
 	
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();
