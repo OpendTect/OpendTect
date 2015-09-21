@@ -210,7 +210,7 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
     }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     pssel_ = new uiIOObjSel( this, ctxt, uiStrings::phrCalculateFrom(
 			     uiStrings::sPolygon()));
     pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );

@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 defineTranslatorGroup(AttribDescSet,"Attribute definitions");
+mDefSimpleTranslatorSelector(AttribDescSet);
 
 #define mDestroyWorkers \
 { delete proc; proc = 0; }

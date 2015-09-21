@@ -508,18 +508,18 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
 void uiAttribPartServer::saveSet( bool is2d )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(AttribDescSet);
-    ctio->ctxt.forread = false;
+    ctio->ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( parent(), *ctio );
     if ( dlg.go() && dlg.ioObj() )
     {
-	ctio->ioobj = 0;
+	ctio->ioobj_ = 0;
 	ctio->setObj( dlg.ioObj()->clone() );
 	uiString bs;
-	if ( !ctio->ioobj )
+	if ( !ctio->ioobj_ )
 	    uiMSG().error(tr("Cannot find attribute set in data base"));
 	else if (
 	    !AttribDescSetTranslator::store(*DSHolder().getDescSet(is2d,false),
-					      ctio->ioobj,bs) )
+					      ctio->ioobj_,bs) )
 	    uiMSG().error(bs);
     }
     ctio->setObj( 0 );
@@ -1304,7 +1304,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	if ( is2d )
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
-	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	PtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(), 0 );
 	if ( ioobj )
 	{

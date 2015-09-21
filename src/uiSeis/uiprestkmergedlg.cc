@@ -66,7 +66,7 @@ uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
 uiPreStackMergeDlg::~uiPreStackMergeDlg()
 {
     deepErase( selobjs_ );
-    delete inctio_.ioobj; delete outctio_.ioobj;
+    delete inctio_.ioobj_; delete outctio_.ioobj_;
     delete &inctio_; delete &outctio_;
 }
 
@@ -76,8 +76,8 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     volsbox_ = new uiListBox( topgrp, "Available Stores",
 				OD::ChooseAtLeastOne );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
-    outctio_.ctxt.forread = false;
-    outctio_.ctxt.deftransl = CBVSSeisPS3DTranslator::translKey();
+    outctio_.ctxt_.forread_ = false;
+    outctio_.ctxt_.deftransl_ = CBVSSeisPS3DTranslator::translKey();
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
@@ -184,8 +184,8 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 
 void uiPreStackMergeDlg::fillListBox()
 {
-    const IODir iodir( inctio_.ctxt.getSelKey() );
-    IODirEntryList entrylist( iodir, inctio_.ctxt );
+    const IODir iodir( inctio_.ctxt_.getSelKey() );
+    IODirEntryList entrylist( iodir, inctio_.ctxt_ );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
@@ -244,8 +244,8 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	return false;
     }
 
-    outctio_.ioobj->pars().set( storagekey, storage );
-    IOM().commitChanges( *outctio_.ioobj );
+    outctio_.ioobj_->pars().set( storagekey, storage );
+    IOM().commitChanges( *outctio_.ioobj_ );
     return true;
 }
 
@@ -290,7 +290,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
     const bool dostack = stackfld_->getBoolValue();
     ObjectSet<const IOObj>* selobjs
 		= reinterpret_cast<ObjectSet<const IOObj>*>(&selobjs_);
-    PtrMan<SeisPSMerger> exec = new SeisPSMerger( *selobjs, *outctio_.ioobj,
+    PtrMan<SeisPSMerger> exec = new SeisPSMerger( *selobjs, *outctio_.ioobj_,
 						  dostack, sd );
     exec->setName( "Merge Prestack Data Stores" );
     uiTaskRunner dlg( this );
@@ -314,8 +314,8 @@ uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
     offsrgfld_->attach( alignedBelow, subselfld_ );
 
     IOObjContext ctxt( mIOObjContext(SeisPS3D) );
-    ctxt.forread = false;
-    ctxt.deftransl = CBVSSeisPS3DTranslator::translKey();
+    ctxt.forread_ = false;
+    ctxt.deftransl_ = CBVSSeisPS3DTranslator::translKey();
     outpfld_ = new uiIOObjSel( this, ctxt, uiStrings::sOutpDataStore() );
     outpfld_->attach( alignedBelow, offsrgfld_ );
 

@@ -11,12 +11,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
+#include "uistrings.h"
 
-
-#define sKeyRandomLineSetTranslatorGroup "RandomLine Geometry"
-
-defineTranslatorGroup(RandomLineSet,sKeyRandomLineSetTranslatorGroup);
+defineTranslatorGroup(RandomLineSet,"RandomLine Geometry");
 defineTranslator(dgb,RandomLineSet,mDGBKey);
+
+uiString RandomLineSetTranslatorGroup::sTypeName()
+{ return uiStrings::sRandomLine(); }
 
 
 #endif

@@ -285,7 +285,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
     }
 
     displayMutes();
-    delete ctio->ioobj;
+    delete ctio->ioobj_;
 }
 
 

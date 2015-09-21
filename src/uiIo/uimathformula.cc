@@ -48,7 +48,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 {
     bool wantio = !setup_.stortype_.isEmpty();
     if ( wantio )
-	ctio_.ctxt.toselect.require_.set( sKey::Type(), setup_.stortype_ );
+	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), setup_.stortype_ );
     const CallBack formsetcb( mCB(this,uiMathFormula,formSetCB) );
     const CallBack inpsetcb( mCB(this,uiMathFormula,inpSetCB) );
     const CallBack subinpsetcb( mCB(this,uiMathFormula,subInpSetCB) );
@@ -121,7 +121,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
 uiMathFormula::~uiMathFormula()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
 }
 
@@ -405,7 +405,7 @@ void uiMathFormula::recButPush( CallBacker* )
 BufferString uiMathFormula::getIOFileName( bool forread )
 {
     BufferString fnm;
-    ctio_.ctxt.forread = forread;
+    ctio_.ctxt_.forread_ = forread;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() )
 	return fnm;

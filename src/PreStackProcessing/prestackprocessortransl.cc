@@ -16,19 +16,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 
 defineTranslatorGroup(PreStackProc,"Prestack Processor");
+uiString PreStackProcTranslatorGroup::sTypeName()
+{ return tr("Prestack Processor"); }
+
 defineTranslator(dgb,PreStackProc,mDGBKey);
 
-mDefSimpleTranslatorioContext(PreStackProc,Misc)
+mDefSimpleTranslatorioContext(PreStackProc,Misc);
+mDefSimpleTranslatorSelector(PreStackProc);
 
 uiString PreStackProcTranslator::sSelObjNotPreStackProc()
 {
     return tr("Selected object is not a Prestack Processing setup");
-}
-
-
-int PreStackProcTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
 }
 
 

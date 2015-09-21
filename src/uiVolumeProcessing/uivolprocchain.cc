@@ -261,7 +261,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     flowgrp->setHAlignObj( steplist_ );
 
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
-    ctxt.forread = false;
+    ctxt.forread_ = false;
 
     objfld_ = new uiIOObjSel( this, ctxt, tr("On OK, store As") );
     objfld_->setInput( chain_.storageID() );
@@ -362,7 +362,7 @@ bool uiChain::doSave()
 bool uiChain::doSaveAs()
 {
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     uiIOObjSelDlg dlg( this, ctxt, tr("Volume Builder Setup") );
     if ( !dlg.go() || !dlg.nrChosen() )
 	 return false;
@@ -452,7 +452,7 @@ bool uiChain::showPropDialog( int idx )
 void uiChain::readPush( CallBacker* )
 {
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     uiIOObjSelDlg dlg( this, ctxt );
     dlg.selGrp()->setConfirmOverwrite( false );
     if ( !dlg.go() || !dlg.nrChosen() )

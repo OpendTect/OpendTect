@@ -288,10 +288,10 @@ uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet* ads,
 DescID uiSteerAttrSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();
-    if ( !workctio_.ioobj )
+    if ( !workctio_.ioobj_ )
 	return DescID::undef();
 
-    LineKey linekey( workctio_.ioobj->key() );
+    LineKey linekey( workctio_.ioobj_->key() );
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
@@ -311,7 +311,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 
-    BufferString userref = workctio_.ioobj->name();
+    BufferString userref = workctio_.ioobj_->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
     desc->setUserRef( userref );
     desc->updateParams();

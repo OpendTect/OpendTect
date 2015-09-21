@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "od_helpids.h"
 
-#define mObjTypeName ctio_.ctxt.objectTypeName()
+#define mObjTypeName ctio_.ctxt_.objectTypeName()
 
 static const MultiID udfmid( "-1" );
 
@@ -74,7 +74,7 @@ void getChosenNames( BufferStringSet& nms ) const
 
 const char* defExt() const
 {
-    return selgrp_->ctio_.ctxt.trgroup->defExtension();
+    return selgrp_->ctio_.ctxt_.trgroup_->defExtension();
 }
 
 const BufferStringSet& names() const
@@ -157,17 +157,17 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
     iconnms_.allowNull( true );
-    ctio_.ctxt.fillTrGroup();
+    ctio_.ctxt_.fillTrGroup();
     nmfld_ = 0; wrtrselfld_ = 0;
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
-    if ( !ctio_.ctxt.forread )
+    if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
-    IOM().to( ctio_.ctxt.getSelKey() );
+    IOM().to( ctio_.ctxt_.getSelKey() );
 
     mkTopFlds( seltxt );
-    if ( !ctio_.ctxt.forread )
+    if ( !ctio_.ctxt_.forread_ )
 	mkWriteFlds();
-    if ( ctio_.ctxt.maydooper )
+    if ( ctio_.ctxt_.maydooper_ )
 	mkManipulators();
 
     setHAlignObj( topgrp_ );
@@ -201,8 +201,8 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
     fullUpdate( -1 );
 
-    if ( ctio_.ioobj )
-	listfld_->setCurrentItem( ctio_.ioobj->name() );
+    if ( ctio_.ioobj_ )
+	listfld_->setCurrentItem( ctio_.ioobj_->name() );
 }
 
 
@@ -253,17 +253,17 @@ void uiIOObjSelGrp::mkManipulators()
     if ( !setup_.withinserters_ || uiIOObjInserter::allDisabled() )
 	return;
 
-    if ( !ctio_.ctxt.forread
-      || !uiIOObjInserter::isPresent(*ctio_.ctxt.trgroup) )
+    if ( !ctio_.ctxt_.forread_
+      || !uiIOObjInserter::isPresent(*ctio_.ctxt_.trgroup_) )
 	return;
 
     uiGroup* insbutgrp = new uiGroup( listfld_->parent(),
 					"IOObj insert buttons" );
-    const ObjectSet<const Translator>& tpls = ctio_.ctxt.trgroup->templates();
+    const ObjectSet<const Translator>& tpls = ctio_.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
-					ctio_.ctxt.toselect.allowtransls_) )
+					ctio_.ctxt_.toselect_.allowtransls_) )
 	    continue;
 
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
@@ -297,7 +297,7 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 	delete manipgrpsubj->manipgrp_;
 	delete manipgrpsubj;
     }
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
     delete lbchoiceio_;
 }
@@ -398,7 +398,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 {
     const int curitm = listfld_->currentItem();
     const int sz = listfld_->size();
-    if ( ctio_.ctxt.forread )
+    if ( ctio_.ctxt_.forread_ )
     {
 	if ( isMultiChoice() )
 	    return true;
@@ -468,10 +468,10 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 
     ctio_.setObj( ioobj.release() );
 
-    if ( ctio_.ioobj && wrtrselfld_ && !wrtrselfld_->isEmpty() )
+    if ( ctio_.ioobj_ && wrtrselfld_ && !wrtrselfld_->isEmpty() )
     {
-	wrtrselfld_->updatePars( *ctio_.ioobj );
-	IOM().commitChanges( *ctio_.ioobj );
+	wrtrselfld_->updatePars( *ctio_.ioobj_ );
+	IOM().commitChanges( *ctio_.ioobj_ );
     }
 
     return true;
@@ -487,14 +487,14 @@ void uiIOObjSelGrp::setDefTranslator( const Translator* trl )
 
 void uiIOObjSelGrp::setContext( const IOObjContext& c )
 {
-    ctio_.ctxt = c; ctio_.setObj( 0 );
+    ctio_.ctxt_ = c; ctio_.setObj( 0 );
     fullUpdate( -1 );
 }
 
 
 const IOObjContext& uiIOObjSelGrp::getContext() const
 {
-    return ctio_.ctxt;
+    return ctio_.ctxt_;
 }
 
 
@@ -512,11 +512,11 @@ void uiIOObjSelGrp::setSurveyDefaultSubsel( const char* subsel )
 
 bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 {
-    if ( !const_cast<uiIOObjSelGrp*>(this)->updateCtxtIOObj() || !ctio_.ioobj )
+    if ( !const_cast<uiIOObjSelGrp*>(this)->updateCtxtIOObj() || !ctio_.ioobj_ )
 	return false;
 
     if ( !isMultiChoice() )
-	iop.set( sKey::ID(), ctio_.ioobj->key() );
+	iop.set( sKey::ID(), ctio_.ioobj_->key() );
     else
     {
 	TypeSet<MultiID> mids; getChosen( mids );
@@ -573,8 +573,8 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    const IODir iodir ( ctio_.ctxt.getSelKey() );
-    IODirEntryList del( iodir, ctio_.ctxt );
+    const IODir iodir ( ctio_.ctxt_.getSelKey() );
+    IODirEntryList del( iodir, ctio_.ctxt_ );
     BufferString nmflt = filtfld_->text();
     if ( !nmflt.isEmpty() && nmflt != "*" )
 	del.fill( iodir, nmflt );
@@ -600,7 +600,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	else
 	{
 	    objid = del[idx]->ioobj_->key();
-	    const bool issel = ctio_.ioobj && ctio_.ioobj->key() == objid;
+	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
 	    const bool isdef = IOObj::isSurveyDefault( objid );
 	    const bool ispl = StreamProvider::isPreLoaded( objid.buf(), true );
 
@@ -614,7 +614,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
 	    if ( curidx < 0 )
 	    {
-		if ( issel || (isdef && !ctio_.ioobj && ctio_.ctxt.forread) )
+		if ( issel || (isdef && !ctio_.ioobj_ && ctio_.ctxt_.forread_) )
 		curidx = idx;
 	    }
 
@@ -671,8 +671,8 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 	ioobj = wrtrselfld_->mkEntry( seltxt );
     else
     {
-	CtxtIOObj ctio( ctio_.ctxt ); ctio.setName( seltxt );
-	ctio.fillObj( false ); ioobj = ctio.ioobj;
+	CtxtIOObj ctio( ctio_.ctxt_ ); ctio.setName( seltxt );
+	ctio.fillObj( false ); ioobj = ctio.ioobj_;
     }
     if ( !ioobj )
     {
@@ -712,7 +712,7 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
 	if ( setnmfld && nmfld_ )
 	    nmfld_->setText( ret ? ret->name().buf() : "" );
 	info = getLimitedDisplayString( !ret ? "" :
-			 ret->fullUserExpr(ctio_.ctxt.forread), 40, false );
+			 ret->fullUserExpr(ctio_.ctxt_.forread_), 40, false );
     }
 
     triggerStatusMsg( info );
@@ -729,11 +729,11 @@ void uiIOObjSelGrp::triggerStatusMsg( const char* txt )
 
 void uiIOObjSelGrp::setInitial( CallBacker* )
 {
-    if ( !ctio_.ctxt.forread )
+    if ( !ctio_.ctxt_.forread_ )
     {
 	PtrMan<IOObj> ioobj = 0;
-	if ( ctio_.ioobj )
-	    nmfld_->setText( ctio_.ioobj->name() );
+	if ( ctio_.ioobj_ )
+	    nmfld_->setText( ctio_.ioobj_->name() );
 
 	FixedString presetnm = nmfld_->text();
 	if ( !presetnm.isEmpty() && listfld_->isPresent(presetnm) )
@@ -753,7 +753,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,choiceChg) );
     listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
 
-    if ( ctio_.ctxt.forread )
+    if ( ctio_.ctxt_.forread_ )
 	selChg( 0 );
 }
 

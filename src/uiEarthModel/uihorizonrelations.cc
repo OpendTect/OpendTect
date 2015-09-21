@@ -141,7 +141,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     savefld_->attach( alignedBelow, modefld_ );
     savefld_->setSensitive( EM::canOverwrite(mid1) );
 
-    ctio_->ctxt.forread = false;
+    ctio_->ctxt_.forread_ = false;
     objfld_ = new uiIOObjSel( this, *ctio_, uiStrings::sHorizon() );
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
@@ -153,7 +153,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 
 ~HorizonModifyDlg()
 {
-    delete ctio_->ioobj;
+    delete ctio_->ioobj_;
     delete ctio_;
 }
 
@@ -195,9 +195,9 @@ bool acceptOK( CallBacker* )
 	    mErrRet((objfld_->isEmpty() ? uiStrings::phrSelect(
 		    uiStrings::phrOutput(uiStrings::sSurface())) :
 		    uiStrings::sEmptyString()))
-	outmid = ctio_->ioobj->key();
+	outmid = ctio_->ioobj_->key();
 	EM::ObjectID outemobjid =
-	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj->name());
+	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj_->name());
 	outemobj = EM::EMM().getObject( outemobjid );
 
 	if ( !is2d_ )

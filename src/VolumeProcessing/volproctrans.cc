@@ -17,13 +17,11 @@ static const char* rcsID mUsedVar = "$Id$";
 defineTranslatorGroup(VolProcessing,"Volume Processing Setup");
 defineTranslator(dgb,VolProcessing,mDGBKey);
 
+uiString VolProcessingTranslatorGroup::sTypeName()
+{ return tr("Volume Processing Setup"); }
+
 mDefSimpleTranslatorioContext(VolProcessing,Misc)
-
-
-int VolProcessingTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
-}
+mDefSimpleTranslatorSelector(VolProcessing);
 
 
 bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,

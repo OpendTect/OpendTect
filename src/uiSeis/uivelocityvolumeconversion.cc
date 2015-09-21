@@ -28,7 +28,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
                         mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
     IOObjContext velctxt = uiVelSel::ioContext();
-    velctxt.forread = true;
+    velctxt.forread_ = true;
     uiSeisSel::Setup velsetup( Seis::Vol );
     velsetup.seltxt( tr("Input velocity model") );
     input_ = new uiVelSel( this, velctxt, velsetup );
@@ -42,7 +42,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     outputveltype_->attach( alignedBelow, possubsel_ );
 
     IOObjContext outputctxt = SeisTrcTranslatorGroup::ioContext();
-    outputctxt.forread = false;
+    outputctxt.forread_ = false;
     outputsel_ = new uiSeisSel(this, outputctxt,uiSeisSel::Setup(Seis::Vol));
     outputsel_->attach( alignedBelow, outputveltype_ );
 

@@ -447,7 +447,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !wellfld_->commitInput() )
 	mErrRet("Please select a valid well")
 
-    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj->key();
+    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj_->key();
     if ( wd_ )
 	wd_->unRef();
 

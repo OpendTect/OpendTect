@@ -326,7 +326,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
-    descctio_.ctxt.toselect.require_.set( sKey::Type(), edtyp );
+    descctio_.ctxt_.toselect_.require_.set( sKey::Type(), edtyp );
 
     uiGroup* gengrp = new uiGroup( this, "Gen group" );
     seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
@@ -433,7 +433,7 @@ uiStratLayerModel::~uiStratLayerModel()
 {
     delete &desc_;
     delete &lmp_;
-    delete descctio_.ioobj; delete &descctio_;
+    delete descctio_.ioobj_; delete &descctio_;
     delete elpropsel_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
@@ -450,8 +450,8 @@ void uiStratLayerModel::snapshotCB( CallBacker* )
 void uiStratLayerModel::setWinTitle()
 {
     BufferString txt( "Layer modeling" );
-    if ( descctio_.ioobj )
-	txt.add( " [" ).add( descctio_.ioobj->name() ).add( "]" );
+    if ( descctio_.ioobj_ )
+	txt.add( " [" ).add( descctio_.ioobj_->name() ).add( "]" );
     setCaption( txt );
 }
 
@@ -720,13 +720,13 @@ bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 
 bool uiStratLayerModel::saveGenDesc() const
 {
-    descctio_.ctxt.forread = false;
+    descctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( const_cast<uiStratLayerModel*>(this), descctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
     descctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( descctio_.ioobj->fullUserExpr(false) );
+    const BufferString fnm( descctio_.ioobj_->fullUserExpr(false) );
     bool rv = false;
 
     MouseCursorChanger mcch( MouseCursor::Wait );
@@ -754,13 +754,13 @@ bool uiStratLayerModel::openGenDesc()
     if ( !saveGenDescIfNecessary() )
 	return false;
 
-    descctio_.ctxt.forread = true;
+    descctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, descctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
     descctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( descctio_.ioobj->fullUserExpr(true) );
+    const BufferString fnm( descctio_.ioobj_->fullUserExpr(true) );
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }
@@ -790,7 +790,7 @@ bool uiStratLayerModel::openGenDesc()
     synthdisp_->resetRelativeViewRect();
     synthdisp_->setForceUpdate( true );
     BufferString edtyp;
-    descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
+    descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
     if ( seqdisp_->separateDisplay() )
     {
 	needtoretrievefrpars_ = true;
@@ -816,8 +816,8 @@ bool uiStratLayerModel::openGenDesc()
 MultiID uiStratLayerModel::genDescID() const
 {
     MultiID ret;
-    if ( descctio_.ioobj )
-	ret = descctio_.ioobj->key();
+    if ( descctio_.ioobj_ )
+	ret = descctio_.ioobj_->key();
     return ret;
 }
 
@@ -917,7 +917,7 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 {
     const bool isgo = cb==gentools_;
     BufferString edtyp;
-    descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
+    descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
     doGenModels( isgo, isgo && seqdisp_->separateDisplay() );
 }
 

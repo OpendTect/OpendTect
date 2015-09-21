@@ -37,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 #define mGet( tp, fss, f3d ) \
-    FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d
+    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
@@ -128,9 +128,8 @@ void uiImportFault::createUI()
     else
 	dataselfld_->attach( alignedBelow, infld_ );
 
-    ctio_.ctxt.forread = false;
-    BufferString labl( "Output " );
-    labl += type_;
+    ctio_.ctxt_.forread_ = false;
+    uiString labl( tr("Output %1").arg(type_));
     outfld_ = new uiIOObjSel( this, ctio_, labl );
     outfld_->attach( alignedBelow, dataselfld_ );
     typeSel( 0 );
@@ -140,7 +139,7 @@ void uiImportFault::createUI()
 
 uiImportFault::~uiImportFault()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -342,7 +341,7 @@ bool uiImportFault::checkInpFlds()
 
 MultiID uiImportFault::getSelID() const
 {
-    MultiID mid = ctio_.ioobj ? ctio_.ioobj->key() : -1;
+    MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
     return mid;
 }
 

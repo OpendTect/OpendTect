@@ -280,7 +280,7 @@ void uiBodyOperatorDlg::itemClick( CallBacker* )
 void uiBodyOperatorDlg::bodySel( CallBacker* )
 {
     CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
-    context.ctxt.forread = true;
+    context.ctxt_.forread_ = true;
 
     uiIOObjSelDlg dlg( parent(), context );
     if ( !dlg.go() || !dlg.ioObj() )
@@ -507,12 +507,12 @@ const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
 {
     const char* inpstr = inputfld_->getInput();
     const CtxtIOObj workctio = mIOObjContext( EMBody );
-    const IODir iodir( workctio.ctxt.getSelKey() );
+    const IODir iodir( workctio.ctxt_.getSelKey() );
     const IOObj* inpiobj = iodir.get( inpstr );
     if ( !inpiobj )
 	return 0;
 
-    const int res = workctio.ctxt.trgroup->objSelector( inpiobj->group() );
+    const int res = workctio.ctxt_.trgroup_->objSelector( inpiobj->group() );
     if ( res == mObjSelUnrelated )
 	return 0;
 

@@ -78,7 +78,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 
 uiMadagascarMain::~uiMadagascarMain()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
     delete &procflow_;
 }
 
@@ -255,7 +255,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
 {
     if ( !askSave() ) return;
 
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( dlg.go() )
     {
@@ -263,7 +263,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
 	BufferString emsg;
 	deepErase( procflow_ );
 	procsfld_->setEmpty();
-	if ( !ODMadProcFlowTranslator::retrieve(procflow_,ctio_.ioobj,emsg) )
+	if ( !ODMadProcFlowTranslator::retrieve(procflow_,ctio_.ioobj_,emsg) )
 	    uiMSG().error( emsg );
 	else
 	{
@@ -274,7 +274,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
 
 	    procsfld_->setCurrentItem( procsfld_->size() - 1 );
 	    needsave_ = false;
-	    procflow_.setName( ctio_.ioobj->name() );
+	    procflow_.setName( ctio_.ioobj_->name() );
 	    updateCaption();
 	}
     }
@@ -283,18 +283,18 @@ void uiMadagascarMain::openFlow( CallBacker* )
 
 bool uiMadagascarMain::saveFlow( CallBacker* )
 {
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
     BufferString emsg;
-    if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj,emsg) )
+    if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj_,emsg) )
 	mErrRet( emsg )
 
     needsave_ = false;
-    procflow_.setName( ctio_.ioobj->name() );
+    procflow_.setName( ctio_.ioobj_->name() );
     updateCaption();
     return true;
 }

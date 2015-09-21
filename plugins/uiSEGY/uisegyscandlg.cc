@@ -65,7 +65,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     else
     {
 	IOObjContext ctxt = uiSeisSel::ioContext( su.geom_, false );
-	ctxt.toselect.allownonuserselectable_ = true;
+	ctxt.toselect_.allownonuserselectable_ = true;
 	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
 	uiSeisSel::Setup sssu( setup_.geom_ );
 	sssu.withwriteopts( false );

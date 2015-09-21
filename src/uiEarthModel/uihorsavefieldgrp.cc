@@ -49,7 +49,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 			     : EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt, 
 				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );

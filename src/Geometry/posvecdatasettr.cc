@@ -11,12 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 
 mDefSimpleTranslatorioContext(PosVecDataSet,Feat)
-
-
-int PosVecDataSetTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
-}
+mDefSimpleTranslatorSelector(PosVecDataSet)
 
 
 bool odPosVecDataSetTranslator::read( const IOObj& ioobj, PosVecDataSet& vds )

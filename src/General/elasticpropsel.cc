@@ -25,10 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rockphysics.h"
 #include "unitofmeasure.h"
 
-
-#define mFileType "Elastic Property Selection"
-
-
 static const char* sKeyElasticsSize	= "Nr of Elastic Properties";
 static const char* sKeyElasticProp	= "Elastic Properties";
 static const char* sKeyElastic		= "Elastic";
@@ -39,7 +35,8 @@ static const char* sKeyUnits		= "Units";
 static const char* sKeyType		= "Type";
 static const char* sKeyPropertyName	= "Property name";
 
-mDefSimpleTranslators(ElasticPropSelection,mFileType,od,Seis);
+mDefSimpleTranslators(ElasticPropSelection,
+		      "Elastic Property Selection",od,Seis);
 
 DefineEnumNames(ElasticFormula,Type,0,"Elastic Property")
 { "Density", "PWave", "SWave", 0 };

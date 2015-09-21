@@ -19,10 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gaussianprobdenfunc.h"
 #include "uistrings.h"
 
-defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
+defineTranslatorGroup(ProbDenFunc, "Probability Density Function");
 defineTranslator(od,ProbDenFunc,mdTectKey);
 
-mDefSimpleTranslatorSelector(ProbDenFunc,ProbDenFuncTranslator::key())
+mDefSimpleTranslatorSelector(ProbDenFunc)
 mDefSimpleTranslatorioContext(ProbDenFunc,Feat)
 
 ProbDenFuncTranslator::ProbDenFuncTranslator( const char* nm, const char* unm )
@@ -31,8 +31,8 @@ ProbDenFuncTranslator::ProbDenFuncTranslator( const char* nm, const char* unm )
 {}
 
 
-const char* ProbDenFuncTranslator::key()
-{ return "Probability Density Function"; }
+uiString ProbDenFuncTranslatorGroup::sTypeName()
+{ return tr( "Probability Density Function" ); }
 
 
 ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,

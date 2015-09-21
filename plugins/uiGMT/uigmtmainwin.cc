@@ -182,13 +182,13 @@ void uiGMTMainWin::openFlow( CallBacker* )
 	 !uiMSG().askContinue(tr("Current flow has not been saved, continue?")))
 	return;
 
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
 	BufferString emsg; ODGMT::ProcFlow pf;
-	if ( !ODGMTProcFlowTranslator::retrieve(pf,ctio_.ioobj,emsg) )
+	if ( !ODGMTProcFlowTranslator::retrieve(pf,ctio_.ioobj_,emsg) )
 	    uiMSG().error( emsg );
 	else
 	{
@@ -201,7 +201,7 @@ void uiGMTMainWin::openFlow( CallBacker* )
 
 void uiGMTMainWin::saveFlow( CallBacker* )
 {
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() ) return;
 
@@ -226,7 +226,7 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 	par.mergeComp( *pars_[ldx], numkey );
     }
 
-    if ( !ODGMTProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
+    if ( !ODGMTProcFlowTranslator::store(pf,ctio_.ioobj_,emsg) )
 	uiMSG().error( emsg );
     else
 	needsave_ = false;

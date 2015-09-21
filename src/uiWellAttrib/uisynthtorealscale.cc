@@ -174,7 +174,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     horfld_->attach( alignedBelow, seisfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    polyctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, horfld_ );
@@ -214,7 +214,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     new uiLabel( this, tr("Scaling factor"), finalscalefld_ );
 
     IOObjContext wvltctxt( mIOObjContext(Wavelet) );
-    wvltctxt.forread = false;
+    wvltctxt.forread_ = false;
     wvltfld_ = new uiIOObjSel( this, wvltctxt, tr("Save scaled Wavelet as") );
     wvltfld_->attach( alignedBelow, finalscalefld_ );
 

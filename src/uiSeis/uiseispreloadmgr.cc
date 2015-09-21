@@ -367,7 +367,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS3D);
-    ctio->ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    ctio->ctxt_.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiIOObjSelDlg dlg( this, *ctio, tr("Select data store/part to load") );
     dlg.setCaption( tr("Select data store") );
     uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
@@ -447,7 +447,7 @@ bool acceptOK( CallBacker* )
 void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS2D);
-    ctio->ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    ctio->ctxt_.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiSeisPreLoadMgrPS2DSel dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
@@ -493,13 +493,13 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 void uiSeisPreLoadMgr::openPush( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
     ctio.fillDefault();
     uiIOObjSelDlg dlg( this, ctio, tr("Open pre-load settings") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
-    delete ctio.ioobj;
+    delete ctio.ioobj_;
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( tr("Cannot open input file:\n%1").arg(fnm) )
@@ -521,12 +521,12 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
     if ( entries.isEmpty() ) return;
 
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
+    ctio.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio, tr("Save pre-load settings") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
-    delete ctio.ioobj;
+    delete ctio.ioobj_;
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( tr("Cannot open output file:\n%1").arg(fnm) )

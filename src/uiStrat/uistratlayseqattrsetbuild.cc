@@ -62,7 +62,7 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 
 uiStratLaySeqAttribSetBuild::~uiStratLaySeqAttribSetBuild()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     if ( setismine_ )
 	delete &attrset_;
     delete &ctio_;
@@ -143,13 +143,13 @@ void uiStratLaySeqAttribSetBuild::removeReq()
 
 bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 {
-    ctio_.ctxt.forread = !forsave;
+    ctio_.ctxt_.forread_ = !forsave;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
     ctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( ctio_.ioobj->fullUserExpr(!forsave) );
+    const BufferString fnm( ctio_.ioobj_->fullUserExpr(!forsave) );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     bool rv = false;
     if ( forsave )

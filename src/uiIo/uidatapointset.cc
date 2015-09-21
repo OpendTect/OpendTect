@@ -1312,7 +1312,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( !saveOK() ) return;
 
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
 		"Manage Cross-plot Data", mCB(this,uiDataPointSet,manage) );
@@ -1365,9 +1365,9 @@ uiDataPointSetSave( uiParent* p, const char* typ )
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
     , type_(typ)
 {
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     if ( !type_.isEmpty() )
-	ctio_.ctxt.toselect.require_.set( sKey::Type(), typ );
+	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",
@@ -1385,7 +1385,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 
 ~uiDataPointSetSave()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
 }
 
 void outTypChg( CallBacker* )
@@ -1409,13 +1409,13 @@ bool acceptOK( CallBacker* )
     {
 	if ( !selgrp_->updateCtxtIOObj() )
 	    mErrRet(tr("Please enter a name for the output"))
-	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj->clone() );
+	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj_->clone() );
 	if ( !type_.isEmpty() )
 	{
-	    ctio_.ioobj->pars().set( sKey::Type(), type_ );
-	    IOM().commitChanges( *ctio_.ioobj );
+	    ctio_.ioobj_->pars().set( sKey::Type(), type_ );
+	    IOM().commitChanges( *ctio_.ioobj_ );
 	}
-	fname_ = ctio_.ioobj->fullUserExpr(false);
+	fname_ = ctio_.ioobj_->fullUserExpr(false);
     }
 
     return true;
@@ -1459,8 +1459,8 @@ bool uiDataPointSet::doSave()
     else
     {
 	unsavedchgs_ = false;
-	if ( uidpss.ctio_.ioobj && !uidpss.istab_ )
-	    setCaption( uidpss.ctio_.ioobj->name() );
+	if ( uidpss.ctio_.ioobj_ && !uidpss.istab_ )
+	    setCaption( uidpss.ctio_.ioobj_->name() );
     }
 
     return ret;

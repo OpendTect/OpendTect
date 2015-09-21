@@ -135,13 +135,13 @@ ObjectID EMManager::createObject( const char* type, const char* name )
     if ( !object ) return -1;
 
     CtxtIOObj ctio( object->getIOObjContext() );
-    ctio.ctxt.forread = false;
-    ctio.ioobj = 0;
+    ctio.ctxt_.forread_ = false;
+    ctio.ioobj_ = 0;
     ctio.setName( name );
     if ( ctio.fillObj() )
     {
-	object->setMultiID( ctio.ioobj->key() );
-	delete ctio.ioobj;
+	object->setMultiID( ctio.ioobj_->key() );
+	delete ctio.ioobj_;
     }
 
     object->setFullyLoaded( true );

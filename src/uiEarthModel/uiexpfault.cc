@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 #define mGet( tp, fss, f3d ) \
-    FixedString(tp) == EMFaultStickSetTranslatorGroup::keyword() ? fss : f3d
+    FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
@@ -106,7 +106,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
 uiExportFault::~uiExportFault()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -146,7 +146,7 @@ static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
 
 bool uiExportFault::writeAscii()
 {
-    const IOObj* ioobj = ctio_.ioobj;
+    const IOObj* ioobj = ctio_.ioobj_;
     if ( !ioobj ) mErrRet(tr("Cannot find fault in database"));
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
@@ -251,14 +251,14 @@ bool uiExportFault::acceptOK( CallBacker* )
 
     if ( !res )	return false;
     
-    const IOObj* ioobj = ctio_.ioobj;
+    const IOObj* ioobj = ctio_.ioobj_;
     
     const uiString tp =
-      EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
+      EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
 	? uiStrings::sFaultStickSet()
 	: uiStrings::sFault();
     const uiString tps =
-     EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
+     EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
 	? uiStrings::sFaultStickSet(mPlural)
 	: uiStrings::sFault(mPlural);
     uiString msg = tr( "%1 successfully exported\n"

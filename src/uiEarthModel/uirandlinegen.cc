@@ -52,9 +52,9 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     , polyctio_(*mMkCtxtIOObj(PickSet))
     , rlsctio_(*mMkCtxtIOObj(RandomLineSet))
 {
-    IOM().to( horctio_.ctxt.getSelKey() );
-    rlsctio_.ctxt.forread = false;
-    polyctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    IOM().to( horctio_.ctxt_.getSelKey() );
+    rlsctio_.ctxt_.forread_ = false;
+    polyctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
     infld_ = new uiIOObjSel( this, horctio_, 
 			     uiStrings::phrInput(uiStrings::sHorizon(1)));
@@ -112,9 +112,9 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 
 uiGenRanLinesByContour::~uiGenRanLinesByContour()
 {
-    delete horctio_.ioobj; delete &horctio_;
-    delete polyctio_.ioobj; delete &polyctio_;
-    delete rlsctio_.ioobj; delete &rlsctio_;
+    delete horctio_.ioobj_; delete &horctio_;
+    delete polyctio_.ioobj_; delete &polyctio_;
+    delete rlsctio_.ioobj_; delete &rlsctio_;
 }
 
 
@@ -126,8 +126,8 @@ bool uiGenRanLinesByContour::dispOnCreation()
 
 const char* uiGenRanLinesByContour::getNewSetID() const
 {
-    BufferString* multid = new BufferString( rlsctio_.ioobj->key().buf() );
-    return rlsctio_.ioobj ? multid->buf() : 0;
+    BufferString* multid = new BufferString( rlsctio_.ioobj_->key().buf() );
+    return rlsctio_.ioobj_ ? multid->buf() : 0;
 }
 
 
@@ -161,8 +161,8 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     {
 	polyfld_->commitInput();
 	BufferString msg;
-	if ( polyctio_.ioobj )
-	    poly = PickSetTranslator::getPolygon( *polyctio_.ioobj, msg );
+	if ( polyctio_.ioobj_ )
+	    poly = PickSetTranslator::getPolygon( *polyctio_.ioobj_, msg );
 	else
 	    msg = "Please select the polygon, or uncheck";
 	if ( !poly )
@@ -170,7 +170,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     }
 
     uiTaskRunner taskrunner( this ); EM::EMManager& em = EM::EMM();
-    EM::EMObject* emobj = em.loadIfNotFullyLoaded( horctio_.ioobj->key(),
+    EM::EMObject* emobj = em.loadIfNotFullyLoaded( horctio_.ioobj_->key(),
 	    					   &taskrunner );
     mDynamicCastGet( EM::Horizon3D*, hor, emobj )
     if ( !hor ) return false;
@@ -199,7 +199,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     else
     {
 	BufferString emsg;
-	if ( !RandomLineSetTranslator::store(rls,rlsctio_.ioobj,emsg) )
+	if ( !RandomLineSetTranslator::store(rls,rlsctio_.ioobj_,emsg) )
 	   mErrRet(mToUiStringTodo(emsg))
     }
 
@@ -216,7 +216,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     , inctio_(*mMkCtxtIOObj(RandomLineSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
-    outctio_.ctxt.forread = false;
+    outctio_.ctxt_.forread_ = false;
 
     infld_ = new uiIOObjSel( this, inctio_, 
 			     uiStrings::phrInput(uiStrings::sRandomLine()));
@@ -247,8 +247,8 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 
 uiGenRanLinesByShift::~uiGenRanLinesByShift()
 {
-    delete inctio_.ioobj; delete &inctio_;
-    delete outctio_.ioobj; delete &outctio_;
+    delete inctio_.ioobj_; delete &inctio_;
+    delete outctio_.ioobj_; delete &outctio_;
 }
 
 
@@ -260,8 +260,8 @@ bool uiGenRanLinesByShift::dispOnCreation()
 
 const char* uiGenRanLinesByShift::getNewSetID() const
 {
-    BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
-    return outctio_.ioobj ? multid->buf() : 0;
+    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
+    return outctio_.ioobj_ ? multid->buf() : 0;
 }
 
 
@@ -277,7 +277,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	       : uiStrings::sEmptyString()) )
 
     Geometry::RandomLineSet inprls; BufferString msg;
-    if ( !RandomLineSetTranslator::retrieve(inprls,inctio_.ioobj,msg) )
+    if ( !RandomLineSetTranslator::retrieve(inprls,inctio_.ioobj_,msg) )
 	mErrRet(mToUiStringTodo(msg))
 
     int lnr = 0;
@@ -300,7 +300,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     if ( outrls.isEmpty() )
 	mErrRet(tr("Not enough input points to create output"))
 
-    if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
+    if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg) )
 	mErrRet(mToUiStringTodo(msg))
 
     return true;
@@ -314,8 +314,8 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     , inctio_(*mMkCtxtIOObj(PickSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
-    outctio_.ctxt.forread = false;
-    inctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+    outctio_.ctxt_.forread_ = false;
+    inctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
     infld_ = new uiIOObjSel( this, inctio_, 
 			     uiStrings::phrInput(uiStrings::sPolygon()) );
@@ -333,15 +333,15 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
 
 uiGenRanLineFromPolygon::~uiGenRanLineFromPolygon()
 {
-    delete inctio_.ioobj; delete &inctio_;
-    delete outctio_.ioobj; delete &outctio_;
+    delete inctio_.ioobj_; delete &inctio_;
+    delete outctio_.ioobj_; delete &outctio_;
 }
 
 
 const char* uiGenRanLineFromPolygon::getNewSetID() const
 {
-    BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
-    return outctio_.ioobj ? multid->buf() : 0;
+    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
+    return outctio_.ioobj_ ? multid->buf() : 0;
 }
 
 
@@ -364,7 +364,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 
     PtrMan< ODPolygon<float> > poly = 0;
     BufferString msg;
-    poly = PickSetTranslator::getPolygon( *inctio_.ioobj, msg );
+    poly = PickSetTranslator::getPolygon( *inctio_.ioobj_, msg );
     if ( !poly )
        mErrRet(mToUiStringTodo(msg))
 
@@ -381,7 +381,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
-    if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
+    if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg) )
 	mErrRet(mToUiStringTodo(msg))
 
     return true;

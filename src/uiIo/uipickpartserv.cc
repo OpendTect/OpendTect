@@ -164,9 +164,9 @@ void uiPickPartServer::fetchHors( bool is2d )
 bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-    ctio->ctxt.forread = true;
+    ctio->ctxt_.forread_ = true;
     if ( poly )
-	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
+	ctio->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );

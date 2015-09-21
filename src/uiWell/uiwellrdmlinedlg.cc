@@ -210,9 +210,9 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 void uiWellSelGrp::fillListBox()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt.forread = true;
-    const IODir iodir ( ctio->ctxt.getSelKey() );
-    IODirEntryList entrylist( iodir, ctio->ctxt );
+    ctio->ctxt_.forread_ = true;
+    const IODir iodir ( ctio->ctxt_.getSelKey() );
+    IODirEntryList entrylist( iodir, ctio->ctxt_ );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
@@ -358,7 +358,7 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
     , dispfld_(0)
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
-    outctio_.ctxt.forread = false;
+    outctio_.ctxt_.forread_ = false;
     selgrp_ = new uiWellSelGrp( this );
 
     createFields();
@@ -368,7 +368,7 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
 
 uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
 {
-    delete outctio_.ioobj; delete &outctio_;
+    delete outctio_.ioobj_; delete &outctio_;
 }
 
 
@@ -473,7 +473,7 @@ void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 
 bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 {
-    if ( !outfld_->commitInput() || !outctio_.ioobj )
+    if ( !outfld_->commitInput() || !outctio_.ioobj_ )
     {
 	if ( outfld_->isEmpty() )
 	    uiMSG().error( tr("Please specify the output") );
@@ -502,7 +502,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
     BufferString msg;
-    const bool  res = RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg);
+    const bool res = RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg);
     if ( !res )
 	uiMSG().error(msg);
 
@@ -512,9 +512,9 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 
 const char* uiWell2RandomLineDlg::getRandLineID() const
 {
-    if ( !outctio_.ioobj )
+    if ( !outctio_.ioobj_ )
 	return 0;
-    BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
+    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
     return multid->buf();
 }
 

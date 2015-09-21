@@ -150,7 +150,7 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     scalefld_ = new uiScaler( this, "Scale values", true );
     scalefld_->attach( alignedBelow, subselfld_ );
 
-    ioctxt.forread = false;
+    ioctxt.forread_ = false;
     if ( fixedoutputtransl )
 	ioctxt.fixTranslator( fixedoutputtransl );
 

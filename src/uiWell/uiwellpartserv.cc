@@ -163,7 +163,7 @@ void uiWellPartServer::importLogs()
 void uiWellPartServer::importMarkers()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt.forread = true;
+    ctio->ctxt_.forread_ = true;
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( false );
     uiIOObjSelDlg wellseldlg( parent(), sdsu, *ctio  );
     wellseldlg.setCaption( tr("Import Markers") );
@@ -204,7 +204,7 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
 bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt.forread = true;
+    ctio->ctxt_.forread_ = true;
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio  );
     if ( !dlg.go() ) return false;
@@ -540,15 +540,15 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 	well->setD2TModel( d2t );
     }
 
-    Well::Writer wwr( *ctio->ioobj, *well );
+    Well::Writer wwr( *ctio->ioobj_, *well );
     if ( !wwr.put() )
 	mErrRet( wwr.errMsg() )
 
-    mid = ctio->ioobj->key();
+    mid = ctio->ioobj_->key();
     if ( manwelldlg_ )
 	manwelldlg_->selGroup()->fullUpdate( -1 );
 
-    delete ctio->ioobj;
+    delete ctio->ioobj_;
     return true;
 }
 

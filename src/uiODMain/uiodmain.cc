@@ -269,15 +269,15 @@ IOPar& uiODMain::sessionPars()
 CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(ODSession);
-    ctio->ctxt.forread = restore;
+    ctio->ctxt_.forread_ = restore;
     ctio->setObj( cursessid_ );
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() )
-	{ delete ctio->ioobj; delete ctio; ctio = 0; }
+	{ delete ctio->ioobj_; delete ctio; ctio = 0; }
     else
     {
-	delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone();
-        const MultiID id( ctio->ioobj ? ctio->ioobj->key() : MultiID("") );
+	delete ctio->ioobj_; ctio->ioobj_ = dlg.ioObj()->clone();
+	const MultiID id( ctio->ioobj_ ? ctio->ioobj_->key() : MultiID("") );
 	cursessid_ = id;
     }
 
@@ -316,7 +316,7 @@ bool uiODMain::hasSessionChanged()
 }
 
 
-#define mDelCtioRet()	{ delete ctio->ioobj; delete ctio; return; }
+#define mDelCtioRet()	{ delete ctio->ioobj_; delete ctio; return; }
 
 void uiODMain::saveSession()
 {
@@ -325,7 +325,7 @@ void uiODMain::saveSession()
     ODSession sess; cursession_ = &sess;
     if ( !updateSession() ) mDelCtioRet()
     uiString bs;
-    if ( !ODSessionTranslator::store(sess,ctio->ioobj,bs) )
+    if ( !ODSessionTranslator::store(sess,ctio->ioobj_,bs) )
 	{ uiMSG().error( bs ); mDelCtioRet() }
 
     lastsession_ = sess; cursession_ = &lastsession_;
@@ -337,7 +337,7 @@ void uiODMain::restoreSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( true );
     if ( !ctio ) { delete ctio; return; }
-    restoreSession( ctio->ioobj );
+    restoreSession( ctio->ioobj_ );
     mDelCtioRet()
 }
 
@@ -362,7 +362,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
     doselfld_->attach( alignedBelow, usefld_ );
 
     IOObjContext ctxt = mIOObjContext( ODSession );
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     sessionfld_ = new uiIOObjSel( this, ctxt );
     sessionfld_->setInput( id );
     sessionfld_->attach( alignedBelow, doselfld_ );

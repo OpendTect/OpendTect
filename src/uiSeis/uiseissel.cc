@@ -59,10 +59,10 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
 {
     IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
-	ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+	ctxt.toselect_.dontallow_.set( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
     {
-	ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
+	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
 	ctxt.fixTranslator(
 		Seis::is2D(su.geom_) ? CBVSSeisTrc2DTranslator::translKey()
 				     : CBVSSeisTrcTranslator::translKey() );
@@ -76,7 +76,7 @@ static CtxtIOObj adaptCtio4Steering( const CtxtIOObj& ct,
 				const uiSeisSel::Setup& su )
 {
     CtxtIOObj ctio( ct );
-    ctio.ctxt = adaptCtxt4Steering( ctio.ctxt, su );
+    ctio.ctxt_ = adaptCtxt4Steering( ctio.ctxt_, su );
     return ctio;
 }
 
@@ -111,10 +111,10 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	if ( selgrp_->getListField() )
 	    selgrp_->getListField()->display( true, true );
 
-	if ( c.ioobj )
+	if ( c.ioobj_)
 	{
 	    TypeSet<MultiID> selmids;
-	    selmids += c.ioobj->key();
+	    selmids += c.ioobj_->key();
 	    selgrp_->setChosen( selmids );
 	}
     }
@@ -132,11 +132,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     selgrp_->getListField()->selectionChanged.notify(
 					    mCB(this,uiSeisSelDlg,entrySel) );
 
-    if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(sssu.geom_) )
+    if ( !selgrp_->getCtxtIOObj().ctxt_.forread_ && Seis::is2D(sssu.geom_) )
 	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
 
-    if ( selgrp_->getCtxtIOObj().ctxt.forread && sssu.selectcomp_ )
+    if ( selgrp_->getCtxtIOObj().ctxt_.forread_ && sssu.selectcomp_ )
     {
 	compfld_ = new uiLabeledComboBox( selgrp_, uiStrings::sComponent(),
                                           "Compfld" );
@@ -152,8 +152,8 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !compfld_ )
 	return;
 
-    const IOObjContext& ctxt = selgrp_->getCtxtIOObj().ctxt;
-    if ( !ctxt.forread )
+    const IOObjContext& ctxt = selgrp_->getCtxtIOObj().ctxt_;
+    if ( !ctxt.forread_ )
 	return;
 
     const IOObj* ioobj = ioObj(); // do NOT call this function when for write
@@ -247,13 +247,13 @@ static IOObjContext getIOObjCtxt( const IOObjContext& c,
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread))
-	, seissetup_(mkSetup(su,ctxt.forread))
+	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread_))
+	, seissetup_(mkSetup(su,ctxt.forread_))
 	, othdombox_(0)
         , compnr_(0)
 {
-    workctio_.ctxt = inctio_.ctxt;
-    if ( !ctxt.forread && Seis::is2D(seissetup_.geom_) )
+    workctio_.ctxt_ = inctio_.ctxt_;
+    if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
@@ -262,7 +262,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 
 void uiSeisSel::mkOthDomBox()
 {
-    if ( !inctio_.ctxt.forread && seissetup_.enabotherdomain_ )
+    if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
     {
 	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? uiStrings::sDepth()
                                                           : uiStrings::sTime());
@@ -296,7 +296,7 @@ const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
 
 void uiSeisSel::fillDefault()
 {
-    if ( !setup_.filldef_ || workctio_.ioobj || !workctio_.ctxt.forread )
+    if ( !setup_.filldef_ || workctio_.ioobj_ || !workctio_.ctxt_.forread_ )
 	return;
 
     workctio_.destroyAll();
@@ -384,15 +384,15 @@ void uiSeisSel::usePar( const IOPar& iop )
 void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
-    if ( workctio_.ioobj )
-	ioobjkey = workctio_.ioobj->key();
+    if ( workctio_.ioobj_ )
+	ioobjkey = workctio_.ioobj_->key();
 
     if ( !ioobjkey.isEmpty() )
 	uiIOSelect::setInput( ioobjkey );
 
     if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
     {
-	SeisTrcReader rdr( workctio_.ioobj );
+	SeisTrcReader rdr( workctio_.ioobj_ );
 	if ( !rdr.prepareWork(Seis::PreScan) ) return;
 	SeisTrcTranslator* transl = rdr.seisTranslator();
 	if ( !transl ) return;
@@ -415,10 +415,10 @@ void uiSeisSel::commitSucceeded()
     const ZDomain::Def* def = SI().zIsTime() ? &ZDomain::Depth()
 					     : &ZDomain::Time();
     def->set( dlgiopar_ );
-    if ( inctio_.ioobj )
+    if ( inctio_.ioobj_ )
     {
-	def->set( inctio_.ioobj->pars() );
-	IOM().commitChanges( *inctio_.ioobj );
+	def->set( inctio_.ioobj_->pars() );
+	IOM().commitChanges( *inctio_.ioobj_ );
     }
 }
 
@@ -426,7 +426,7 @@ void uiSeisSel::commitSucceeded()
 void uiSeisSel::processInput()
 {
     obtainIOObj();
-    if ( !workctio_.ioobj && !workctio_.ctxt.forread )
+    if ( !workctio_.ioobj_ && !workctio_.ctxt_.forread_ )
 	return;
 
     uiIOObjSel::fillPar( dlgiopar_ );

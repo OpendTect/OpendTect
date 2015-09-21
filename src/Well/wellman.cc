@@ -146,7 +146,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
 
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
-    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id );
+    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
     const IODir iodir( mid );
     if ( nm && *nm )
     {
@@ -157,7 +157,7 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     if ( uwi && *uwi )
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
-	const IODirEntryList del( iodir, ctio->ctxt );
+	const IODirEntryList del( iodir, ctio->ctxt_ );
 	RefMan<Well::Data> data = new Well::Data;
 	for ( int idx=0; idx<del.size(); idx++ )
 	{

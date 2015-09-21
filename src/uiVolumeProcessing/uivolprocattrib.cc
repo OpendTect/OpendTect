@@ -29,7 +29,7 @@ uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
 
 {
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     setupfld_ = new uiIOObjSel( this, ctxt, tr("Volume Builder setup") );
 
     setHAlignObj( setupfld_ );

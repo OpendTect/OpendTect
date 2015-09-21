@@ -95,9 +95,9 @@ static int getWellIdx( ObjectSet<Well::Data>& wells, const char* nm )
 static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 {
     CtxtIOObj newctio( ctio );
-    newctio.ioobj = 0; newctio.setName( nm );
+    newctio.ioobj_ = 0; newctio.setName( nm );
     newctio.fillObj();
-    return newctio.ioobj;
+    return newctio.ioobj_;
 }
 
 
@@ -168,8 +168,8 @@ void uiBulkTrackImport::write( uiStringSet& errors )
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
 	RefMan<Well::Data> wd = wells_[idx];
-	PtrMan<IOObj> ioobj = IOM().getLocal( wd->name(),
-					      ctio->ctxt.trgroup->userName() );
+	PtrMan<IOObj> ioobj = IOM().getLocal(wd->name(),
+					     ctio->ctxt_.trgroup_->groupName());
 	if ( !ioobj )
 	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )

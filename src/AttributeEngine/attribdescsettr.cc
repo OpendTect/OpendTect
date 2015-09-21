@@ -21,10 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "uistrings.h"
 
-mDefSimpleTranslatorSelector(AttribDescSet, sKeyAttribDescSetTranslatorGroup)
-mDefSimpleTranslatorioContext(AttribDescSet, Attr)
-
-
 static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
 				uiString& warningmsg )
 {

@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpesetup.h"
-defineTranslatorGroup(MPESetup,MPESetupTranslator::keyword);
+defineTranslatorGroup(MPESetup,"Tracking setup");
 defineTranslator(dgb,MPESetup,mDGBKey);
 
 #endif

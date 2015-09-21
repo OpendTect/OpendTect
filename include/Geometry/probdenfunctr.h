@@ -35,8 +35,6 @@ mExpClass(Geometry) ProbDenFuncTranslator : public Translator
 public:
     			ProbDenFuncTranslator(const char* nm,const char* unm);
 
-    static const char*	key();
-
     static ProbDenFunc* read(const IOObj&,uiString* emsg=0);
     static bool		write(const ProbDenFunc&,const IOObj&,
 	    		      uiString* emsg=0);

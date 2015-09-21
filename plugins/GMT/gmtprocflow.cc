@@ -13,9 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
+uiString ODGMTProcFlowTranslatorGroup::sTypeName()
+{ return tr("GMT process flow"); }
+
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,
-					ctxt->selkey = ODGMT::sKeyGMTSelKey())
+					ctxt->selkey_ = ODGMT::sKeyGMTSelKey())
 
 
 ODGMT::ProcFlow::ProcFlow( const char* nm )
@@ -31,7 +34,7 @@ ODGMT::ProcFlow::~ProcFlow()
 
 int ODGMTProcFlowTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( theInst().userName(), key );
+    int retval = defaultSelector( sGroupName(), key );
     if ( retval ) return retval;
     return defaultSelector("GMT data",key) ? 1 : 0;
 }

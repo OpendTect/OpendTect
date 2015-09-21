@@ -270,7 +270,7 @@ const IOObjContext& uiVelSel::ioContext()
 
 	IOObjContext* newvelctxt =
 		new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
-	newvelctxt->toselect.require_.setYN(
+	newvelctxt->toselect_.require_.setYN(
 		VelocityDesc::sKeyIsVelocity(), true );
 
 	if ( !velctxt.setIfNull(newvelctxt) )
@@ -283,7 +283,7 @@ const IOObjContext& uiVelSel::ioContext()
 
 void uiVelSel::editCB(CallBacker*)
 {
-    uiVelocityDescDlg dlg( this, workctio_.ioobj );
+    uiVelocityDescDlg dlg( this, workctio_.ioobj_ );
     if ( dlg.go() )
     {
 	PtrMan<IOObj> sel = dlg.getSelection();
@@ -310,7 +310,7 @@ void uiVelSel::setInput( const MultiID& mid )
 void uiVelSel::fillDefault()
 {
     workctio_.destroyAll();
-    if ( !setup_.filldef_ || !workctio_.ctxt.forread )
+    if ( !setup_.filldef_ || !workctio_.ctxt_.forread_ )
         return;
 
     workctio_.fillDefaultWithKey( sKeyDefVelCube );
@@ -351,7 +351,7 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
     , transform_ ( 0 )
 {
     IOObjContext ctxt = uiVelSel::ioContext();
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     uiSeisSel::Setup su( false, false );
 
     su.seltxt( VelocityDesc::getVelVolumeLabel() );

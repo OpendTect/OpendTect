@@ -60,7 +60,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     scalefld_->attach( alignedBelow, dataselfld_ );
     scalefld_->attach( ensureBelow, sep );
 
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     wvltfld_ = new uiIOObjSel( this, ctio_ );
     wvltfld_->attach( alignedBelow, scalefld_ );
 }
@@ -68,7 +68,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 
 uiSeisWvltImp::~uiSeisWvltImp()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
@@ -123,7 +123,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 
-    if ( !wvlt->put(ctio_.ioobj) )
+    if ( !wvlt->put(ctio_.ioobj_) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
     uiString msg = tr("Wavelet successfully imported\n"
@@ -136,7 +136,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 
 MultiID uiSeisWvltImp::selKey() const
 {
-    return ctio_.ioobj ? ctio_.ioobj->key() : MultiID("");
+    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID("");
 }
 
 

@@ -16,14 +16,20 @@ ________________________________________________________________________
 #include "seismulticubeps.h"
 #include "segydirecttr.h"
 
-#define sKeySeisPS3DTranslatorGroup "Pre-Stack Seismics"
-defineTranslatorGroup(SeisPS3D,sKeySeisPS3DTranslatorGroup);
+defineTranslatorGroup(SeisPS3D,"Pre-Stack Seismics");
+mDefSimpleTranslatorSelector(SeisPS3D);
+uiString SeisPS3DTranslatorGroup::sTypeName()
+{ return tr("Pre-Stack Seismics"); }
+
 defineTranslator(CBVS,SeisPS3D,"CBVS");
 defineTranslator(MultiCube,SeisPS3D,"MultiCube");
 defineTranslator(SEGYDirect,SeisPS3D,mSEGYDirectTranslNm);
 
-#define sKeySeisPS2DTranslatorGroup "2D Pre-Stack Seismics"
-defineTranslatorGroup(SeisPS2D,sKeySeisPS2DTranslatorGroup);
+defineTranslatorGroup(SeisPS2D,"2D Pre-Stack Seismics");
+mDefSimpleTranslatorSelector(SeisPS2D);
+uiString SeisPS2DTranslatorGroup::sTypeName()
+{ return tr("2D Pre-Stack Seismics"); }
+
 defineTranslator(CBVS,SeisPS2D,"CBVS");
 defineTranslator(SEGYDirect,SeisPS2D,mSEGYDirectTranslNm);
 

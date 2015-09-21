@@ -55,7 +55,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt,
 			    uiStrings::phrOutput( uiStrings::sHorizon() ) );
     outfld_->attach( alignedBelow, inpfld_ );

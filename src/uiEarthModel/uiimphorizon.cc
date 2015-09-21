@@ -86,7 +86,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 			 arg(uiStrings::sData()) );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     setDeleteOnClose( false );
-    ctio_.ctxt.forread = !isgeom_;
+    ctio_.ctxt_.forread_ = !isgeom_;
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
@@ -182,7 +182,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 uiImportHorizon::~uiImportHorizon()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
     delete interpol_;
 }
 
@@ -390,7 +390,7 @@ bool uiImportHorizon::doDisplay() const
 
 MultiID uiImportHorizon::getSelID() const
 {
-    MultiID mid = ctio_.ioobj ? ctio_.ioobj->key() : -1;
+    MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
     return mid;
 }
 
@@ -652,7 +652,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 {
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
-    emobj->setMultiID( ctio_.ioobj->key() );
+    emobj->setMultiID( ctio_.ioobj_->key() );
     Executor* loader = emobj->loader();
     if ( !loader ) mErrRet( uiStrings::sCantReadHor());
 

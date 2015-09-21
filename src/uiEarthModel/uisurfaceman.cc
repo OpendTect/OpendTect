@@ -55,12 +55,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 DefineEnumNames(uiSurfaceMan,Type,0,"Surface type")
 {
-    EMHorizon2DTranslatorGroup::keyword(),
-    EMHorizon3DTranslatorGroup::keyword(),
-    EMAnyHorizonTranslatorGroup::keyword(),
-    EMFaultStickSetTranslatorGroup::keyword(),
-    EMFault3DTranslatorGroup::keyword(),
-    EMBodyTranslatorGroup::keyword(),
+    EMHorizon2DTranslatorGroup::sGroupName(),
+    EMHorizon3DTranslatorGroup::sGroupName(),
+    EMAnyHorizonTranslatorGroup::sGroupName(),
+    EMFaultStickSetTranslatorGroup::sGroupName(),
+    EMFault3DTranslatorGroup::sGroupName(),
+    EMBodyTranslatorGroup::sGroupName(),
     0
 };
 
@@ -312,15 +312,15 @@ void uiSurfaceMan::setToolButtonProperties()
 bool uiSurfaceMan::isCur2D() const
 {
     return curioobj_ &&
-	   curioobj_->group() == EMHorizon2DTranslatorGroup::keyword();
+	   curioobj_->group() == EMHorizon2DTranslatorGroup::sGroupName();
 }
 
 
 bool uiSurfaceMan::isCurFault() const
 {
     const BufferString grp = curioobj_ ? curioobj_->group().buf() : "";
-    return grp==EMFaultStickSetTranslatorGroup::keyword() ||
-	   grp==EMFault3DTranslatorGroup::keyword();
+    return grp==EMFaultStickSetTranslatorGroup::sGroupName() ||
+	   grp==EMFault3DTranslatorGroup::sGroupName();
 }
 
 
@@ -424,7 +424,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     if ( !uiMSG().askRemove(msg) )
 	return;
 
-    if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
+    if ( curioobj_->group()==EMFault3DTranslatorGroup::sGroupName() )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
 	for ( int ida=0; ida<attrnms.size(); ida++ )
@@ -455,7 +455,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     if ( attribfld_->isPresent(newnm) )
 	mErrRet( tr("Name is already in use") )
 
-    if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
+    if ( curioobj_->group()==EMFault3DTranslatorGroup::sGroupName() )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
 	fad.setDataName( attribnm, newnm );

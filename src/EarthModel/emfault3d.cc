@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM {
 
-mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword() ) 
+mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::sGroupName() )
 
     
 Fault3D::Fault3D( EMManager& em )
@@ -68,7 +68,7 @@ const IOObjContext& Fault3D::getIOObjContext() const
 
 
 uiString Fault3D::getUserTypeStr() const
-{ return EMFault3DTranslatorGroup::userType(); }
+{ return EMFault3DTranslatorGroup::sTypeName(); }
 
 
 void Fault3D::apply( const Pos::Filter& pf )
@@ -132,7 +132,7 @@ Geometry::FaultStickSurface* Fault3DGeometry::createSectionGeometry() const
 
 
 EMObjectIterator* Fault3DGeometry::createIterator( const SectionID& sid,
-						 const TrcKeyZSampling* cs) const
+					 const TrcKeyZSampling* cs) const
 { return new RowColIterator( surface_, sid, cs ); }
 
 

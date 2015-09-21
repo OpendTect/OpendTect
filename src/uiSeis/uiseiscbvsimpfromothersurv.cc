@@ -87,10 +87,10 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
     CtxtIOObj inctio( uiSeisSel::ioContext( Seis::Vol, true ) );
     uiSelObjFromOtherSurvey objdlg( this, inctio );
-    if ( objdlg.go() && inctio.ioobj )
+    if ( objdlg.go() && inctio.ioobj_ )
     {
 	if ( import_ ) delete import_;
-	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj );
+	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
 	if ( import_->prepareRead( fusrexp ) )
 	{

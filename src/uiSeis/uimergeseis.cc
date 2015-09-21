@@ -41,7 +41,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     IOObjContext ctxt( uiSeisSel::ioContext( Seis::Vol, true ) );
     uiIOObjSelGrp::Setup sgsu( OD::ChooseZeroOrMore );
     sgsu.allowremove( false );
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     inpfld_ = new uiIOObjSelGrp( this, ctxt, tr("Input Cubes"), sgsu );
 
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
@@ -53,7 +53,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     transffld_ = new uiSeisTransfer( this, stsu );
     transffld_->attach( alignedBelow, stackfld_ );
 
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     outfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
     outfld_->attach( alignedBelow, transffld_ );
 }

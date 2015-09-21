@@ -67,7 +67,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     }
 
     iostrm->fileSpec() = *this;
-    iostrm->setGroup( "Seismic Data" );
+    iostrm->setGroup( SeisTrcTranslatorGroup::sGroupName() );
     iostrm->setTranslator( "SEG-Y" );
     iostrm->setDirName( "Seismics" );
 
