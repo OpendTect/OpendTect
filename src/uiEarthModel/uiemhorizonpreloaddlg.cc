@@ -190,7 +190,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
 void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadSurfacesTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrJoinStrings(
 				uiStrings::sOpen(),tr("pre-loaded settings")) );
     if ( !hordlg.go() || !hordlg.ioObj() )
@@ -245,7 +245,7 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& savedmids )
 void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadSurfacesTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
+    ctio.ctxt_.forread_ = false;
     uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrJoinStrings(
 			  uiStrings::sSave(), tr("pre-loaded settings")) );
     if ( !hordlg.go() || !hordlg.ioObj() )

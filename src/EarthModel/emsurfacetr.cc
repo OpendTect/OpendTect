@@ -29,9 +29,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 
 
-FixedString EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }
+uiString EMHorizon3DTranslatorGroup::sTypeName()
+{ return uiStrings::sHorizon(); }
 
-mDefSimpleTranslatorSelector(EMHorizon3D,keyword())
+mDefSimpleTranslatorSelector(EMHorizon3D)
 
 const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 {
@@ -39,8 +40,8 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
     if ( !ctxt )
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
-	newctxt->stdseltype = IOObjContext::Surf;
-        newctxt->trgroup = &theInst();
+	newctxt->stdseltype_ = IOObjContext::Surf;
+	newctxt->trgroup_ = &theInst();
 
         if ( !ctxt.setIfNull( newctxt ) )
             delete newctxt;
@@ -50,9 +51,10 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMHorizon2DTranslatorGroup::keyword()	{ return "2D Horizon"; }
+uiString EMHorizon2DTranslatorGroup::sTypeName()
+{ return mJoinUiStrs(s2D(), sHorizon()); }
 
-mDefSimpleTranslatorSelector(EMHorizon2D,keyword())
+mDefSimpleTranslatorSelector(EMHorizon2D)
 
 const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 {
@@ -60,8 +62,8 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
     if ( !ctxt )
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
-	newctxt->stdseltype = IOObjContext::Surf;
-        newctxt->trgroup = &theInst();
+	newctxt->stdseltype_ = IOObjContext::Surf;
+	newctxt->trgroup_ = &theInst();
 
         if ( !ctxt.setIfNull( newctxt ) )
             delete newctxt;
@@ -71,28 +73,27 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 }
 
 
-FixedString EMAnyHorizonTranslatorGroup::keyword()     { return "Any Horizon"; }
+uiString EMAnyHorizonTranslatorGroup::sTypeName() { return tr("Any Horizon"); }
 mDefSimpleTranslatorioContext(EMAnyHorizon,Surf)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
 {
-    int retval3d = defaultSelector( EMHorizon3DTranslatorGroup::keyword(), s );
-    int retval2d = defaultSelector( EMHorizon2DTranslatorGroup::keyword(), s );
+    int retval3d = defaultSelector(EMHorizon3DTranslatorGroup::sGroupName(), s);
+    int retval2d = defaultSelector(EMHorizon2DTranslatorGroup::sGroupName(), s);
     return retval3d ? retval3d : retval2d;
 }
 
 
-FixedString EMFault3DTranslatorGroup::keyword() { return "Fault"; }
-uiString EMFault3DTranslatorGroup::userType()
-{ return uiStrings::sFault(); }
-mDefSimpleTranslatorSelector(EMFault3D,keyword())
+uiString EMFault3DTranslatorGroup::sTypeName() { return uiStrings::sFault(); }
+
+mDefSimpleTranslatorSelector(EMFault3D)
+
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-FixedString EMFaultStickSetTranslatorGroup::keyword(){ return "FaultStickSet"; }
-uiString EMFaultStickSetTranslatorGroup::userType()
+uiString EMFaultStickSetTranslatorGroup::sTypeName()
 { return uiStrings::sFaultStickSet(); }
 
-mDefSimpleTranslatorSelector(EMFaultStickSet,keyword())
+mDefSimpleTranslatorSelector(EMFaultStickSet)
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 
 
@@ -276,7 +277,7 @@ dgbEMSurfaceTranslator::~dgbEMSurfaceTranslator()
 bool dgbEMSurfaceTranslator::prepRead()
 {
     if ( reader_ ) delete reader_;
-    BufferString unm( group() ? group()->userName().buf() : 0 );
+    BufferString unm( group() ? group()->groupName().buf() : 0 );
     reader_ = new EM::dgbSurfaceReader( *ioobj_, unm.buf() );
     if ( !reader_->isOK() )
     {
@@ -374,7 +375,7 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 
 Executor* dgbEMSurfaceTranslator::getWriter()
 {
-    BufferString unm( group() ? group()->userName().buf() : 0 );
+    BufferString unm( group() ? group()->groupName().buf() : 0 );
     EM::dgbSurfaceWriter* res =
 	new EM::dgbSurfaceWriter(ioobj_,unm.buf(),
 				 *surface_,getBinarySetting());

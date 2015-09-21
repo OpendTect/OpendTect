@@ -49,13 +49,14 @@ void Setup::fillPar( IOPar& par ) const
 
 // MPESetupTranslatorGroup --------------------------------------------------
 
-mDefSimpleTranslatorSelector(MPESetup,MPESetupTranslator::keyword)
+mDefSimpleTranslatorSelector(MPESetup)
 mDefSimpleTranslatorioContext(MPESetup,Mdl)
+uiString MPESetupTranslatorGroup::sTypeName()
+{ return tr("Tracking setup" ); }
 
 
 // MPESetupTranslator ---------------------------------------------------- 
 
-const char* MPESetupTranslator::keyword = "Tracking setup";
 
 bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 				   BufferString& err )

@@ -50,8 +50,6 @@ public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
     const char*			defExtension() const	{ return "hor"; }
-
-    static FixedString		keyword();
 };
 
 
@@ -65,8 +63,6 @@ public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
     const char*			defExtension() const	{ return "2dh"; }
-
-    static FixedString		keyword();
 };
 
 
@@ -78,8 +74,6 @@ mExpClass(EarthModel) EMAnyHorizonTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(EMAnyHorizon)
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
-
-    static FixedString	    keyword();
 };
 
 
@@ -93,9 +87,6 @@ public:
 			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
-
-    static FixedString	keyword();
-    static uiString	userType();
 };
 
 
@@ -109,9 +100,6 @@ public:
 			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
     const char*		defExtension() const { return "fss"; }
-
-    static FixedString	keyword();
-    static uiString	userType();
 };
 
 

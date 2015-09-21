@@ -32,7 +32,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 defineTranslatorGroup(Wavelet,"Wavelet");
 defineTranslator(dgb,Wavelet,mDGBKey);
+mDefSimpleTranslatorSelector(Wavelet);
 
+uiString WaveletTranslatorGroup::sTypeName() { return uiStrings::sWavelet(); }
 
 static const char* sKeyScaled = "Scaled";
 #define mDefaultSnapdist (1e-4f);
@@ -572,11 +574,6 @@ float* WaveletValueSeries::arr()
 const float* WaveletValueSeries::arr() const
 { return const_cast<WaveletValueSeries*>( this )->arr(); }
 
-
-int WaveletTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
-}
 
 mDefSimpleTranslatorioContext(Wavelet,Seis)
 

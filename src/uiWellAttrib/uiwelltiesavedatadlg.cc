@@ -84,7 +84,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     wvltchk_->activated.notify( mCB(this,uiSaveDataDlg,saveWvltSelCB) );
 
     IOObjContext ctxt = mIOObjContext(Wavelet);
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     uiIOObjSel::Setup su( tr("Initial wavelet") ); su.optional( true );
 
     initwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );

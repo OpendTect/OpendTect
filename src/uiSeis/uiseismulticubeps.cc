@@ -58,8 +58,8 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	, offsfld_(0)
 	, compfld_(0)
 {
-    ctio_.ctxt.forread = false;
-    ctio_.ctxt.fixTranslator( "MultiCube" );
+    ctio_.ctxt_.forread_ = false;
+    ctio_.ctxt_.fixTranslator( "MultiCube" );
     if ( ky && *ky )
 	ctio_.setObj( MultiID(ky) );
     else
@@ -115,18 +115,18 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     offsfld_->attach( alignedBelow, bgrp );
     offsfld_->attach( ensureBelow, sep );
 
-    ctio_.ctxt.toselect.allownonuserselectable_ = true;
+    ctio_.ctxt_.toselect_.allownonuserselectable_ = true;
     outfld_ = new uiIOObjSel( this, ctio_, uiStrings::sOutpDataStore() );
     outfld_->attach( alignedBelow, offsfld_ );
 
-    if ( ctio_.ioobj )
+    if ( ctio_.ioobj_ )
 	afterPopup.notify( mCB(this,uiSeisMultiCubePS,setInitial) );
 }
 
 
 uiSeisMultiCubePS::~uiSeisMultiCubePS()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     deepErase( entries_ );
     deepErase( selentries_ );
     delete &ctio_;
@@ -135,13 +135,13 @@ uiSeisMultiCubePS::~uiSeisMultiCubePS()
 
 const IOObj* uiSeisMultiCubePS::createdIOObj() const
 {
-    return ctio_.ioobj;
+    return ctio_.ioobj_;
 }
 
 
 void uiSeisMultiCubePS::fillEntries()
 {
-    const IODir iodir( ctio_.ctxt.getSelKey() );
+    const IODir iodir( ctio_.ctxt_.getSelKey() );
     PtrMan<IOObjContext> ctxt = Seis::getIOObjContext( Seis::Vol, true );
     const IODirEntryList del( iodir, *ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
@@ -169,12 +169,12 @@ void uiSeisMultiCubePS::recordEntryData()
 
 void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 {
-    if ( !ctio_.ioobj )
+    if ( !ctio_.ioobj_ )
 	return;
 
     uiString emsg;
     ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
-    if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj->fullUserExpr(false),
+    if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj_->fullUserExpr(false),
 		keys,offs,comps,emsg) )
 	{ uiMSG().error( emsg ); return; }
 
@@ -360,7 +360,7 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 
     uiString emsg;
     const bool ret = MultiCubeSeisPSReader::writeData(
-		ctio_.ioobj->fullUserExpr(false), keys, offs, comps, emsg );
+		ctio_.ioobj_->fullUserExpr(false), keys, offs, comps, emsg );
     deepErase( keys );
     if ( !ret )
 	mErrRet(emsg)

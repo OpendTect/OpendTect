@@ -25,13 +25,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 
 mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
-	ctxt->toselect.require_.set( sKey::Type(), "PickSet``Polygon" )	)
+	ctxt->toselect_.require_.set( sKey::Type(), "PickSet``Polygon" ) )
 
-int PickSetTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
-}
-
+mDefSimpleTranslatorSelector( PickSet );
 
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  bool checkdir, BufferString& bs )

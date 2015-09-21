@@ -68,7 +68,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     sep = new uiSeparator( this, "H sep" );
     sep->attach( alignedBelow, dataselfld_ );
 
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctio_,
 			      uiStrings::phrOutput( uiStrings::sVelocity() ) );
     outfld_->attach( alignedBelow, dataselfld_ );
@@ -81,7 +81,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 
 uiImportVelFunc::~uiImportVelFunc()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
@@ -140,7 +140,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
     functions->setData( bidvalset, desc, true ); //set ZisT
-    if ( !functions->store( ctio_.ioobj->key() ) )
+    if ( !functions->store( ctio_.ioobj_->key() ) )
 	mErrRet( "Cannot store velocity functions" );
 
     uiString msg = tr("Velocity Function successfully imported\n"

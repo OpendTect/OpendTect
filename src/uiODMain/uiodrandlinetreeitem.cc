@@ -190,7 +190,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 bool uiODRandomLineParentTreeItem::addStored( int mnuid )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
-    ctio->ctxt.forread = true;
+    ctio->ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 
@@ -509,7 +509,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	if ( mnuid == saveasmnuitem_.id )
 	{
 	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
-	    ctio->ctxt.forread = false;
+	    ctio->ctxt_.forread_ = false;
 	    uiIOObjSelDlg dlg( getUiParent(), *ctio );
 	    if ( !dlg.go() ) return;
 

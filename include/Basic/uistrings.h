@@ -262,6 +262,7 @@ public:
     static uiString sSelection();
     static uiString sSelect();
     static uiString sSelOutpFile();
+    static uiString sSession()		{ return tr("Session"); }
     static uiString sSet()		{ return tr("Set"); }
     static uiString sSetting(int num=1);
     static uiString sSettings()		{ return sSetting(mPlural); }

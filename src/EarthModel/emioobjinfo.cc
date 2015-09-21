@@ -25,11 +25,11 @@ namespace EM
 DefineEnumNames( IOObjInfo, ObjectType, 0, "Object Type" )
 {
   "Unknown",
-  EMHorizon3DTranslatorGroup::keyword(),
-  EMHorizon2DTranslatorGroup::keyword(),
-  EMFaultStickSetTranslatorGroup::keyword(),
-  EMFault3DTranslatorGroup::keyword(),
-  EMBodyTranslatorGroup::keyword(),
+  EMHorizon3DTranslatorGroup::sGroupName(),
+  EMHorizon2DTranslatorGroup::sGroupName(),
+  EMFaultStickSetTranslatorGroup::sGroupName(),
+  EMFault3DTranslatorGroup::sGroupName(),
+  EMBodyTranslatorGroup::sGroupName(),
   0
 };
 
@@ -342,7 +342,7 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 
 void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
 {
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     const IODir iodir( mid );
     for ( int idx=0; idx<iodir.size(); idx++ )
     {

@@ -296,14 +296,14 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
     CtxtIOObj ctio( mIOObjContext(Wavelet) );
-    ctio.ctxt.forread = true;
+    ctio.ctxt_.forread_ = true;
 
     uiSelObjFromOtherSurvey dlg( this, ctio );
     dlg.setHelpKey(mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
     Wavelet* wvlt = 0;
     bool didsel = true;
     if ( dlg.go() )
-	wvlt = Wavelet::get( ctio.ioobj );
+	wvlt = Wavelet::get( ctio.ioobj_ );
     else
 	didsel = false;
 
@@ -311,12 +311,12 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     if ( !wvlt )
 	mRet((didsel ? "Could not read wavelet" : 0))
     IOM().getEntry( ctio );
-    if ( !ctio.ioobj )
+    if ( !ctio.ioobj_ )
 	mRet("Cannot create new entry in Object Management")
-    else if ( !wvlt->put(ctio.ioobj) )
+    else if ( !wvlt->put(ctio.ioobj_) )
 	mRet("Cannot write wavelet to disk")
 
-    selgrp_->fullUpdate( ctio.ioobj->key() );
+    selgrp_->fullUpdate( ctio.ioobj_->key() );
     mRet( 0 )
 }
 

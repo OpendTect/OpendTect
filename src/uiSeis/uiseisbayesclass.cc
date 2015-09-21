@@ -107,7 +107,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 {
     rmbuts_.allowNull(); addbuts_.allowNull();
     IOObjContext ctxt( mIOObjContext(ProbDenFunc) );
-    ctxt.forread = true;
+    ctxt.forread_ = true;
 
     const CallBack pushcb = mCB(this,uiSeisBayesPDFInp,butPush);
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
@@ -558,7 +558,7 @@ void addOut( const char* nm, bool ispdf )
     uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
     const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(curidx) );
     fld->setInput( MultiID(id) );
-    if ( fld->ctxtIOObj(true).ioobj )
+    if ( fld->ctxtIOObj(true).ioobj_ )
 	fld->setChecked( true );
     if ( nrflds > 0 )
 	fld->attach( alignedBelow, flds3d_[nrflds-1] );

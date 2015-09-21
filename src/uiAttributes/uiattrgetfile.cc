@@ -143,8 +143,8 @@ CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
 {
     ctioptr_ = new CtxtIOObj(
 		uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,true) );
-    ctioptr_->ctxt.forread = true;
-    ctioptr_->ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
+    ctioptr_->ctxt_.forread_ = true;
+    ctioptr_->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Attribute() );
     return *ctioptr_;
 }
 
@@ -173,7 +173,7 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
 	uiFileInput::Setup().defseldir(sImportDir).forread(true).filter(fltr) );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     attrsetfld_ = new uiIOObjSel( this, ctxt, tr("Output Attribute Set") );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }

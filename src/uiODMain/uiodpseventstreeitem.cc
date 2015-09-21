@@ -71,7 +71,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 					      BufferString& eventname )
 {
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
-    context.ctxt.forread = true;
+    context.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( getUiParent(), context );
     if ( !dlg.go() )
 	return false;

@@ -103,8 +103,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
 uiStratAmpCalc::~uiStratAmpCalc()
 {
-    delete horctio1_.ioobj; delete &horctio1_;
-    delete horctio2_.ioobj; delete &horctio2_;
+    delete horctio1_.ioobj_; delete &horctio1_;
+    delete horctio2_.ioobj_; delete &horctio2_;
 }
 
 
@@ -154,7 +154,7 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 
     if ( horfld1_->commitInput() )
     {
-	EM::IOObjInfo eminfo( horctio1_.ioobj->key() );
+	EM::IOObjInfo eminfo( horctio1_.ioobj_->key() );
 	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
@@ -162,7 +162,7 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 
     if ( horfld2_->commitInput() )
     {
-	EM::IOObjInfo eminfo( horctio2_.ioobj->key() );
+	EM::IOObjInfo eminfo( horctio2_.ioobj_->key() );
 	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
@@ -186,7 +186,7 @@ mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
 	    mErrRet( tr("Missing Input\nPlease Check Top / Bottom Horizon") );
     }
 
-    if ( !usesingle_ && horctio1_.ioobj->key() == horctio2_.ioobj->key() )
+    if ( !usesingle_ && horctio1_.ioobj_->key() == horctio2_.ioobj_->key() )
 	      mErrRet( tr("Select Two Different Horizons") );
 
     return true;
@@ -198,8 +198,8 @@ bool uiStratAmpCalc::prepareProcessing()
     if ( !checkInpFlds() ) return false;
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
-    EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj->key()
-	    			   : horctio2_.ioobj->key() );
+    EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj_->key()
+				   : horctio2_.ioobj_->key() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
@@ -222,9 +222,9 @@ bool uiStratAmpCalc::fillPar()
 {
     IOPar& iop = batchfld_->jobSpec().pars_;
     iop.setYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle_ );
-    iop.set( StratAmpCalc::sKeyTopHorizonID() , horctio1_.ioobj->key() );
+    iop.set( StratAmpCalc::sKeyTopHorizonID() , horctio1_.ioobj_->key() );
     if ( !usesingle_ )
-	iop.set( StratAmpCalc::sKeyBottomHorizonID(), horctio2_.ioobj->key() );
+	iop.set( StratAmpCalc::sKeyBottomHorizonID(), horctio2_.ioobj_->key() );
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
     iop.setYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );

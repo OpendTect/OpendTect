@@ -46,7 +46,7 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
 
 uiBodyPosProvGroup::~uiBodyPosProvGroup()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -116,10 +116,10 @@ void uiBodyPosProvGroup::getSummary( BufferString& txt ) const
 
 bool uiBodyPosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !bodyfld_->commitInput() || !ctio_.ioobj )
+    if ( !bodyfld_->commitInput() || !ctio_.ioobj_ )
 	return false;
 
-    ky = ctio_.ioobj->key();
+    ky = ctio_.ioobj_->key();
     return true;
 }
 

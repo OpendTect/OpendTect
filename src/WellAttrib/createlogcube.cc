@@ -50,23 +50,23 @@ bool LogCubeCreator::LogCube::makeWriteReady()
 bool LogCubeCreator::LogCube::mkIOObj()
 {
     IOObjContext ctxt = mIOObjContext(SeisTrc);
-    ctxt.forread = false;
-    ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+    ctxt.forread_ = false;
+    ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
     IOM().to( ctxt.getSelKey() );
     CtxtIOObj ctio( ctxt );
     ctio.setName( fnm_ );
     IOM().getEntry( ctio );
-    if ( !ctio.ioobj )
+    if ( !ctio.ioobj_ )
 	return false;
 
-    if ( !IOM().commitChanges(*ctio.ioobj) )
+    if ( !IOM().commitChanges(*ctio.ioobj_) )
     {
-	errmsg_ = uiStrings::phrCannotWriteDBEntry( ctio.ioobj->uiName() );
+	errmsg_ = uiStrings::phrCannotWriteDBEntry( ctio.ioobj_->uiName() );
 	return false;
     }
 
-    seisioobj_ = ctio.ioobj;
+    seisioobj_ = ctio.ioobj_;
     return true;
 }
 
@@ -209,9 +209,9 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
     }
 
     IOObjContext ctxt = mIOObjContext(SeisTrc);
-    ctxt.deftransl = "3D";
-    ctxt.forread = false;
-    ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+    ctxt.deftransl_ = "3D";
+    ctxt.forread_ = false;
+    ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
     BufferString wellnmsuffix;
     if ( withwllnm )
@@ -235,13 +235,13 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	    fnm.addSpace().add( wellnmsuffix );
 
 	const IOObj* presentobj = IOM().getLocal( fnm.buf(),
-						  ctxt.trgroup->userName() );
+						  ctxt.trgroup_->groupName() );
 	if ( !presentobj )
 	    continue;
 
 	msg.append( tr( "Volume: '%1' is already present as another type"
 			" and won't be created" ).arg( fnm ), true );
-	if ( ctxt.deftransl != presentobj->translator() )
+	if ( ctxt.deftransl_ != presentobj->translator() )
 	    mErrRet( msg, errmsg_.isEmpty(), continue )
 
 	msg.append( tr( "Volume: '%1' is already present" ).arg( fnm ), true );

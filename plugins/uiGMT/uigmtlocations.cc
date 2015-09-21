@@ -68,7 +68,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
     if ( !inpfld_->commitInput() )
 	return;
 
-    IOObj* ioobj = ctio_.ioobj;
+    IOObj* ioobj = ctio_.ioobj_;
     if ( ioobj )
 	namefld_->setText( ioobj->name() );
 }
@@ -78,7 +78,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
 
 bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
 	mErrRet(tr("Please select a pickset"))
 
     inpfld_->fillPar( par );

@@ -43,19 +43,19 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 
     IOObjContext inputtimectxt = SeisTrcTranslatorGroup::ioContext();
     IOObjContext inputdepthctxt = SeisTrcTranslatorGroup::ioContext();
-    inputtimectxt.forread = inputdepthctxt.forread = true;
+    inputtimectxt.forread_ = inputdepthctxt.forread_ = true;
     if ( SI().zIsTime() )
     {
-	inputdepthctxt.toselect.require_.set( ZDomain::sKey(),
+	inputdepthctxt.toselect_.require_.set( ZDomain::sKey(),
 					      ZDomain::sKeyDepth() );
-	inputtimectxt.toselect.dontallow_.set( ZDomain::sKey(),
+	inputtimectxt.toselect_.dontallow_.set( ZDomain::sKey(),
 						ZDomain::sKeyDepth() );
     }
     else
     {
-	inputtimectxt.toselect.require_.set( ZDomain::sKey(),
+	inputtimectxt.toselect_.require_.set( ZDomain::sKey(),
 					     ZDomain::sKeyTime() );
-	inputdepthctxt.toselect.dontallow_.set( ZDomain::sKey(),
+	inputdepthctxt.toselect_.dontallow_.set( ZDomain::sKey(),
 						ZDomain::sKeyTime() );
     }
 
@@ -74,7 +74,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     possubsel_->attach( alignedBelow, inputtimesel_ );
 
     IOObjContext outputtimectxt = inputtimectxt;
-    outputtimectxt.forread = false;
+    outputtimectxt.forread_ = false;
     sssu.seltxt( uiStrings::phrOutput( timevol ) );
     outputtimesel_ = new uiSeisSel( this, outputtimectxt, sssu );
     outputtimesel_->selectionDone.notify(
@@ -82,7 +82,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     outputtimesel_->attach( alignedBelow, possubsel_ );
 
     IOObjContext outputdepthctxt = inputdepthctxt;
-    outputdepthctxt.forread = false;
+    outputdepthctxt.forread_ = false;
     sssu.seltxt( uiStrings::phrOutput( depthvol ) );
     outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, sssu );
     outputdepthsel_->selectionDone.notify(

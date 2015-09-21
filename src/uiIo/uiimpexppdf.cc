@@ -78,7 +78,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     extendbut_->attach( centeredRightOf, grp );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
-    ioobjctxt.forread = false;
+    ioobjctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
     outputfld_->setLabelText(
 			uiStrings::phrOutput( uiStrings::sProbDensFunc(true)) );
@@ -470,7 +470,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     setOkText( uiStrings::sExport() );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
-    ioobjctxt.forread = true;
+    ioobjctxt.forread_ = true;
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
     inpfld_->setLabelText( "Input PDF" );
 

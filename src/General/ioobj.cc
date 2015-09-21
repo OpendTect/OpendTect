@@ -120,10 +120,10 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     BufferString objtyp( fms[1] );
     if ( objtyp.isEmpty() )
     {
-	TranslatorGroup& grp = TranslatorGroup::getGroup( groupnm, true );
-	if ( grp.userName() != groupnm )
+	TranslatorGroup& grp = TranslatorGroup::getGroup( groupnm );
+	if ( grp.groupName() != groupnm )
 	    return 0;
-	Translator* tr = grp.make( trlnm );
+	Translator* tr = grp.make( trlnm, true );
 	if ( !tr )
 	    return 0;
 
@@ -186,11 +186,11 @@ Translator* IOObj::createTranslator() const
 {
     if ( isSubdir() ) return 0;
 
-    TranslatorGroup& grp = TranslatorGroup::getGroup( group(), true );
-    if ( grp.userName() != group() )
+    TranslatorGroup& grp = TranslatorGroup::getGroup( group() );
+    if ( grp.groupName() != group() )
 	return 0;
 
-    Translator* tr = grp.make( translator() );
+    Translator* tr = grp.make( translator(), true );
     if ( !tr ) return 0;
 
     if ( pars_.size() ) tr->usePar( pars_ );

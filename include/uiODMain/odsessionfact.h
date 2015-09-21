@@ -13,9 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "odsession.h"
+#include "uistrings.h"
 
-defineTranslatorGroup(ODSession,ODSessionTranslator::keyword());
+defineTranslatorGroup(ODSession,"Session setup");
 defineTranslator(dgb,ODSession,mDGBKey);
+
+uiString ODSessionTranslatorGroup::sTypeName()
+{ return uiStrings::sSession(); }
 
 
 #endif

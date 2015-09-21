@@ -100,8 +100,8 @@ void readParsReq( CallBacker* cb )
     if ( !dd ) return;
 
     PtrMan<CtxtIOObj> ctio = uiSEGYRead::getCtio( true, Seis::Line );
-    ctio->ctxt.toselect.require_.setEmpty();
-    ctio->ctxt.toselect.dontallow_.setEmpty();
+    ctio->ctxt_.toselect_.require_.setEmpty();
+    ctio->ctxt_.toselect_.dontallow_.setEmpty();
     uiIOObjSelDlg dlg( dd, *ctio, tr("Select SEG-Y setup") );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;

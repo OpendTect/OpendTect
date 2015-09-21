@@ -188,7 +188,7 @@ void uiSeisWaveletSel::rebuildList()
     if ( curwvlt.isEmpty() || newidx < 0 )
     {
 	const char* res = SI().pars().find(
-		IOPar::compKey(sKey::Default(),ctxt.trgroup->userName()) );
+		IOPar::compKey(sKey::Default(),ctxt.trgroup_->groupName()) );
 	if ( res && *res )
 	{
 	    IOObj* ioobj = IOM().get( MultiID(res) );

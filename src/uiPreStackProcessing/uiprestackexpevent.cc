@@ -35,7 +35,7 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     setOkText( uiStrings::sExport() );
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     eventsel_ = new uiIOObjSel( this, ctxt, uiStrings::sPreStackEvents()  );
     if ( mid )
 	eventsel_->setInput( *mid );

@@ -52,18 +52,18 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
     }
 
     setDirToOtherSurvey();
-    bool prevctiostate = ctio_.ctxt.forread;
-    ctio_.ctxt.forread = true;
+    bool prevctiostate = ctio_.ctxt_.forread_;
+    ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg objdlg( this, ctio_ );
     bool success = false;
     if ( objdlg.go() && objdlg.ioObj() )
     {
 	ctio_.setObj( objdlg.ioObj()->clone() );
-	ctio_.setName( ctio_.ioobj->name() );
-	fulluserexpression_ = ctio_.ioobj->fullUserExpr();
+	ctio_.setName( ctio_.ioobj_->name() );
+	fulluserexpression_ = ctio_.ioobj_->fullUserExpr();
 	success = true;
     }
-    ctio_.ctxt.forread = prevctiostate;
+    ctio_.ctxt_.forread_ = prevctiostate;
     return success;
 }
 

@@ -151,8 +151,8 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
     MultiID mid( 0 );
     mid.setEmpty();
     if ( !fullmode && seedselfld_->commitInput() && 
-	  seedselfld_->ctxtIOObj().ioobj )
-	mid = seedselfld_->ctxtIOObj().ioobj->key();
+	  seedselfld_->ctxtIOObj().ioobj_ )
+	mid = seedselfld_->ctxtIOObj().ioobj_->key();
 
     if ( isosurfacedisplay_->getSurface() && 
 	!isosurfacedisplay_->getSurface()->isEmpty() )
@@ -186,7 +186,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 	}
 
 	vd_->setSeedAboveIsovalue( isosurfacedisplay_, aboveisoval );
-	if ( seedselfld_->ctxtIOObj().ioobj )
+	if ( seedselfld_->ctxtIOObj().ioobj_ )
     	    vd_->setSeedsID( isosurfacedisplay_, mid );
     }
     

@@ -288,7 +288,7 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 	CtxtIOObj ctio( mIOObjContext(Well) );
 	ctio.setName( wellnm );
 	ctio.fillObj();
-	ioobj = ctio.ioobj;
+	ioobj = ctio.ioobj_;
     }
     return ioobj;
 }

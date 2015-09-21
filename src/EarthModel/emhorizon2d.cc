@@ -385,7 +385,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 }
 
 
-mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::keyword() )
+mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 
 
 Horizon2D::Horizon2D( EMManager& emm )

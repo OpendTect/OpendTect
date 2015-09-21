@@ -35,14 +35,14 @@ uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su )
 	: uiDialog(p,su)
 	, ctio_(*mMkCtxtIOObj(Wavelet))
 {
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     wvltfld_ = new uiIOObjSel( this, ctio_ );
 }
 
 
 uiSeisWvltCreate::~uiSeisWvltCreate()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -53,7 +53,7 @@ bool uiSeisWvltCreate::putWvlt( const Wavelet& wvlt )
     if ( !wvltfld_->commitInput() )
 	mErrRet( tr("Please enter a name for the new Wavelet") );
 
-    if ( !wvlt.put(ctio_.ioobj) )
+    if ( !wvlt.put(ctio_.ioobj_) )
 	mErrRet( tr("Cannot write wavelet") )
 
     return true;
@@ -62,7 +62,7 @@ bool uiSeisWvltCreate::putWvlt( const Wavelet& wvlt )
 
 MultiID uiSeisWvltCreate::storeKey() const
 {
-    return ctio_.ioobj ? ctio_.ioobj->key() : MultiID("");
+    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID("");
 }
 
 
@@ -270,8 +270,8 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 void uiSeisWvltMerge::reloadWvlts()
 {
     deepErase( wvltset_ ); deepErase( namelist_ ); stackedwvlt_ = 0;
-    const IODir iodir( ctio_.ctxt.getSelKey() );
-    const IODirEntryList del( iodir, ctio_.ctxt );
+    const IODir iodir( ctio_.ctxt_.getSelKey() );
+    const IODirEntryList del( iodir, ctio_.ctxt_ );
     if ( del.size() < 2 )
     { uiMSG().error( tr("not enough wavelets available") ); return; }
 

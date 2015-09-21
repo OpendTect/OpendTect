@@ -102,7 +102,7 @@ void IOMan::init()
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd
 			    = IOObjContext::getStdDirData( stdseltyp );
-	const IOObj* dirioobj = dirptr_->get( MultiID(dd->id) );
+	const IOObj* dirioobj = dirptr_->get( MultiID(dd->id_) );
 	if ( dirioobj )
 	{
 	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
@@ -139,14 +139,14 @@ void IOMan::init()
 	// We'll try to recover by using the 'Basic Survey' in the app
 	FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
 			  "X" );
-	basicfp.setFileName( dd->dirnm );
+	basicfp.setFileName( dd->dirnm_ );
 	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File::exists(basicdirnm) )
 	    // Oh? So this is removed from the Basic Survey
 	    // Let's hope they know what they're doing
 	    { prevdd = dd; continue; }
 
-	rootfp.setFileName( dd->dirnm );
+	rootfp.setFileName( dd->dirnm_ );
 	BufferString dirnm = rootfp.fullPath();
 
 #define mErrMsgRet(s) ErrMsg(s); msg_ = s; state_ = Bad; return
@@ -170,10 +170,10 @@ void IOMan::init()
 
 	// So, we have copied the directory.
 	// Now create an entry in the root omf
-	IOSubDir* iosd = new IOSubDir( dd->dirnm );
-	iosd->key_ = dd->id;
+	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
+	iosd->key_ = dd->id_;
 	iosd->dirnm_ = rootdir_;
-	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id) )
+	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id_) )
 					: dirptr_->main();
 	int idxof = dirptr_->objs_.indexOf( (IOObj*)previoobj );
 	dirptr_->objs_.insertAfter( iosd, idxof );
@@ -527,7 +527,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 {
     Threads::Locker lock( lock_ );
-    if ( !ctxt.trgroup ) return 0;
+    if ( !ctxt.trgroup_ ) return 0;
 
     IOM().to( ctxt.getSelKey() );
 
@@ -574,7 +574,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	if ( !IOObj::isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
-	    IOM().to( ctio.ctxt.getSelKey() );
+	    IOM().to( ctio.ctxt_.getSelKey() );
 	    const IOObj* ioob = dirptr_->get( res.buf(), 0 );
 	    if ( ioob )
 		res = ioob->key();
@@ -582,10 +582,10 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	    {
 		ctio.setName( res );
 		IOM().getEntry( ctio );
-		if ( ctio.ioobj )
+		if ( ctio.ioobj_ )
 		{
-		    IOM().commitChanges( *ctio.ioobj );
-		    return ctio.ioobj;
+		    IOM().commitChanges( *ctio.ioobj_ );
+		    return ctio.ioobj_;
 		}
 	    }
 	}
@@ -682,29 +682,29 @@ bool IOMan::setDir( const char* dirname )
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 {
     ctio.setObj( 0 );
-    if ( ctio.ctxt.name().isEmpty() )
+    if ( ctio.ctxt_.name().isEmpty() )
 	return;
 
     Threads::Locker lock( lock_ );
-    to( ctio.ctxt.getSelKey() );
+    to( ctio.ctxt_.getSelKey() );
 
-    const IOObj* ioobj = dirptr_->get( ctio.ctxt.name(),
-					ctio.ctxt.trgroup->userName() );
-    ctio.ctxt.fillTrGroup();
-    if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
+    const IOObj* ioobj = dirptr_->get( ctio.ctxt_.name(),
+					ctio.ctxt_.trgroup_->groupName() );
+    ctio.ctxt_.fillTrGroup();
+    if ( ioobj && ctio.ctxt_.trgroup_->groupName() != ioobj->group() )
 	ioobj = 0;
 
     bool needstrigger = false;
     if ( !ioobj )
     {
-	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr_->newKey() );
+	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );
 	if ( mktmp )
 	    newkey.add( IOObj::tmpID() );
 
 	ioobj = crWriteIOObj( ctio, newkey, translidx );
 	if ( ioobj )
 	{
-	    ioobj->pars().merge( ctio.ctxt.toselect.require_ );
+	    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
 	    dirptr_->addObj( (IOObj*)ioobj );
 	    needstrigger = true;
 	}
@@ -723,32 +723,33 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 
 #define mIsValidTransl(transl) \
     IOObjSelConstraints::isAllowedTranslator( \
-	    transl->userName(),ctio.ctxt.toselect.allowtransls_) \
+	    transl->userName(),ctio.ctxt_.toselect_.allowtransls_) \
 	    && transl->isUserSelectable(false)
 
 IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 			    int translidx ) const
 {
-    const ObjectSet<const Translator>& templs = ctio.ctxt.trgroup->templates();
+    const ObjectSet<const Translator>& templs =
+	ctio.ctxt_.trgroup_->templates();
 
     if ( templs.isEmpty() )
     {
-	BufferString msg( "Translator Group '", ctio.ctxt.trgroup->userName(),
+	BufferString msg( "Translator Group '",ctio.ctxt_.trgroup_->groupName(),
 			  "is empty." );
 	msg.add( ".\nCannot create a default write IOObj for " )
-	   .add( ctio.ctxt.name() );
+	   .add( ctio.ctxt_.name() );
 	pErrMsg( msg ); return 0;
     }
 
     const Translator* templtr = 0;
 
     if ( templs.validIdx(translidx) )
-	templtr = ctio.ctxt.trgroup->templates()[translidx];
-    else if ( !ctio.ctxt.deftransl.isEmpty() )
-	templtr = ctio.ctxt.trgroup->getTemplate(ctio.ctxt.deftransl,true);
+	templtr = ctio.ctxt_.trgroup_->templates()[translidx];
+    else if ( !ctio.ctxt_.deftransl_.isEmpty() )
+	templtr = ctio.ctxt_.trgroup_->getTemplate(ctio.ctxt_.deftransl_,true);
     if ( !templtr )
     {
-	translidx = ctio.ctxt.trgroup->defTranslIdx();
+	translidx = ctio.ctxt_.trgroup_->defTranslIdx();
 	if ( mIsValidTransl(templs[translidx]) )
 	templtr = templs[translidx];
 	else
@@ -764,7 +765,7 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 	}
     }
 
-    return templtr ? templtr->createWriteIOObj( ctio.ctxt, newkey ) : 0;
+    return templtr ? templtr->createWriteIOObj( ctio.ctxt_, newkey ) : 0;
 }
 
 

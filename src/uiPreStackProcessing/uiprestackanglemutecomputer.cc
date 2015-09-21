@@ -46,7 +46,7 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     subsel_->attach( alignedBelow, anglecompgrp_ );
     subsel_->attach( ensureBelow, sep );
 
-    outctio_.ctxt.forread = false;
+    outctio_.ctxt_.forread_ = false;
     mutedeffld_ = new uiIOObjSel( this, outctio_ );
     mutedeffld_->attach( alignedBelow, subsel_ );
 }
@@ -64,7 +64,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
-    if ( !mutedeffld_->commitInput() || !outctio_.ioobj )
+    if ( !mutedeffld_->commitInput() || !outctio_.ioobj_ )
     {
 	uiMSG().error(tr("Please select a valid output mute function"));
 	return false;

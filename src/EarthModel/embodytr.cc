@@ -17,11 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
 #include "ioman.h"
+#include "uistrings.h"
+
+uiString EMBodyTranslatorGroup::sTypeName() { return uiStrings::sBody(); }
 
 
 int EMBodyTranslatorGroup::selector( const char* s )
 {
-    int res = defaultSelector( EMBodyTranslatorGroup::keyword(), s );
+    int res = defaultSelector( EMBodyTranslatorGroup::sGroupName(), s );
     if ( res==mObjSelUnrelated )
 	res = defaultSelector( "MarchingCubesSurface", s );
 
@@ -36,13 +39,13 @@ const IOObjContext& EMBodyTranslatorGroup::ioContext()
     if ( !ctxt )
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
-	newctxt->stdseltype = IOObjContext::Surf;
+	newctxt->stdseltype_ = IOObjContext::Surf;
 
 	if ( !ctxt.setIfNull(newctxt) )
 	    delete newctxt;
     }
 
-    ctxt->trgroup = &theInst();
+    ctxt->trgroup_ = &theInst();
     return *ctxt;
 }
 

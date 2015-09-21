@@ -66,9 +66,9 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
     const FixedString type( typ );
-    if ( type == EMHorizon2DTranslatorGroup::keyword() ||
-	 type == EMFaultStickSetTranslatorGroup::keyword() ||
-         type == EMFault3DTranslatorGroup::keyword() )
+    if ( type == EMHorizon2DTranslatorGroup::sGroupName() ||
+	 type == EMFaultStickSetTranslatorGroup::sGroupName() ||
+	 type == EMFault3DTranslatorGroup::sGroupName() )
     {
 	rgfld_->display( false, true );
     }

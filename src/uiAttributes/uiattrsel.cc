@@ -457,7 +457,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	if ( nms.validIdx(selidx) )
 	{
 	    IOM().to(
-		 MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+		 MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	    if ( ioobj ) ioobjkey = ioobj->key();
 	}
@@ -524,7 +524,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
-	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	if ( !ioobj ) return false;
 

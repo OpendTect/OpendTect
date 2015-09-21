@@ -26,18 +26,15 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyPBMFSetup = "PBMF setup";
 
 defineTranslatorGroup(MuteDef,"Mute Definition");
+uiString MuteDefTranslatorGroup::sTypeName() { return uiStrings::sMute(); }
 defineTranslator(dgb,MuteDef,mDGBKey);
 
 mDefSimpleTranslatorioContext(MuteDef,Misc)
+mDefSimpleTranslatorSelector(MuteDef);
 
 uiString MuteDefTranslator::sSelObjNotMuteDef()
 {
     return tr("Selected object is not a Mute Definition");
-}
-
-int MuteDefTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
 }
 
 

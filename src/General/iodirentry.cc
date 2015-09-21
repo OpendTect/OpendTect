@@ -33,7 +33,7 @@ IODirEntryList::IODirEntryList( const IODir& id, const TranslatorGroup* tr,
     , cur_(-1)
     , maycd_(maycd)
 {
-    ctxt.toselect.allowtransls_ = f;
+    ctxt.toselect_.allowtransls_ = f;
     fill( id );
 }
 
@@ -82,9 +82,9 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 	    continue;
 
 	int selres = 2;
-	if ( ctxt.trgroup )
+	if ( ctxt.trgroup_ )
 	{
-	    selres = ctxt.trgroup->objSelector( ioobj->group() );
+	    selres = ctxt.trgroup_->objSelector( ioobj->group() );
 	    if ( selres == mObjSelUnrelated )
 		continue;
 	}

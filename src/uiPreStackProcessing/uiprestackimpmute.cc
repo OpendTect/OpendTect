@@ -61,7 +61,7 @@ uiImportMute::uiImportMute( uiParent* p )
                       mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt_.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
     outfld_->attach( alignedBelow, dataselfld_ );
 
@@ -71,7 +71,7 @@ uiImportMute::uiImportMute( uiParent* p )
 
 uiImportMute::~uiImportMute()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
@@ -133,11 +133,11 @@ bool uiImportMute::acceptOK( CallBacker* )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0 )
 
    PtrMan<MuteDefTranslator> trans =
-	    (MuteDefTranslator*)ctio_.ioobj->createTranslator();
+	    (MuteDefTranslator*)ctio_.ioobj_->createTranslator();
     if ( !trans ) return false;
 
     uiString str;
-    const bool retval = trans->store( mutedef, ctio_.ioobj, str );
+    const bool retval = trans->store( mutedef, ctio_.ioobj_, str );
     if ( !retval )
     {
 	if ( str.isSet() )

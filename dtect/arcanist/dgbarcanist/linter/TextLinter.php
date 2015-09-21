@@ -408,7 +408,7 @@ final class TextLinter extends ArcanistLinter {
   private function emptyDoubleQuotes($data) { 
     //Remove everything inside double-quotes
     $preg = preg_match_all(
-      "/[\"]+[^\"]+[\"]+/",
+      '/"[^"]*["]+/',
       $data,
       $matches,
       PREG_OFFSET_CAPTURE);

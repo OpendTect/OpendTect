@@ -83,7 +83,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     objfld_ = new uiIOObjSel( pargrp_, ctio_, "Calculate along Horizon" );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -110,12 +110,12 @@ void uiAttrTrcSelOut::createTwoHorUI()
 
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
     su.filldef(false);
-    ctio_.ctxt.forread = true;
+    ctio_.ctxt_.forread_ = true;
     objfld_ = new uiIOObjSel( pargrp_, ctio_, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
     su.seltxt( tr("and bottom Horizon") );
-    ctio2_.ctxt.forread = true;
+    ctio2_.ctxt_.forread_ = true;
     obj2fld_ = new uiIOObjSel( pargrp_, ctio2_, su );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
@@ -151,12 +151,12 @@ void uiAttrTrcSelOut::createTwoHorUI()
 
 uiAttrTrcSelOut::~uiAttrTrcSelOut()
 {
-    delete ctio_.ioobj;
+    delete ctio_.ioobj_;
     delete &ctio_;
 
     if ( !usesinglehor_ )
     {
-	delete ctio2_.ioobj;
+	delete ctio2_.ioobj_;
 	delete &ctio2_;
     }
 }
@@ -340,7 +340,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
 	EM::SurfaceIOData data;
 	uiString errmsg;
-	if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),data,errmsg) )
+	if ( !EM::EMM().getSurfaceData(ctio_.ioobj_->key(),data,errmsg) )
 	{
 	    uiMSG().error( errmsg );
 	    return false;
@@ -376,13 +376,13 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
     BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );
-    iopar.set( key, ctio_.ioobj->key() );
+    iopar.set( key, ctio_.ioobj_->key() );
 
     if ( !usesinglehor_ )
     {
 	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1);
 	key = IOPar::compKey( sKey::Geometry(), tmpkey );
-	iopar.set( key, ctio2_.ioobj->key() );
+	iopar.set( key, ctio2_.ioobj_->key() );
     }
 
     PtrMan<IOPar> subselpar = new IOPar;
@@ -476,7 +476,7 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
 {
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),sd,errmsg) )
+    if ( !EM::EMM().getSurfaceData(ctio_.ioobj_->key(),sd,errmsg) )
 	return;
 
     Interval<int> inlrg(sd.rg.start_.inl(), sd.rg.stop_.inl());
@@ -485,7 +485,7 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
     if ( !usesinglehor_ )
     {
 	EM::SurfaceIOData sd2;
-	if ( !EM::EMM().getSurfaceData(ctio2_.ioobj->key(),sd2,errmsg) )
+	if ( !EM::EMM().getSurfaceData(ctio2_.ioobj_->key(),sd2,errmsg) )
 	    return;
 
 	Interval<int> inlrg2(sd2.rg.start_.inl(), sd2.rg.stop_.inl());
@@ -542,12 +542,12 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 
     if ( ads_->is2D() )
     {
-	EM::IOObjInfo info( ctio_.ioobj->key() );
+	EM::IOObjInfo info( ctio_.ioobj_->key() );
 	TypeSet<Pos::GeomID> geomids;
 	info.getGeomIDs( geomids );
 	if ( !usesinglehor_ )
 	{
-	    EM::IOObjInfo info2( ctio2_.ioobj->key() );
+	    EM::IOObjInfo info2( ctio2_.ioobj_->key() );
 	    TypeSet<Pos::GeomID> geomids2;
 	    info2.getGeomIDs( geomids2 );
 	    for ( int idx=geomids.size()-1; idx>=0; idx-- )

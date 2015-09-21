@@ -77,9 +77,6 @@ public:
     static bool		store(const MPESetup&,const IOObj*,BufferString&);
     			//!< BufferString has errmsg, if any
     			//!< If true returned, errmsg contains warnings
-
-    static const char*	keyword;
-
 };
     
 

@@ -114,7 +114,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 
     IOObjContext wvltctxt( mIOObjContext(Wavelet) );
-    wvltctxt.forread = false;
+    wvltctxt.forread_ = false;
     outputwvltfld_ = new uiIOObjSel( this, wvltctxt );
     outputwvltfld_->attach( alignedBelow, wvltphasefld_ );
 

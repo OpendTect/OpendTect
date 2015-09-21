@@ -59,7 +59,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     {
 	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 				 : EMHorizon3DTranslatorGroup::ioContext();
-	ctxt.forread = true;
+	ctxt.forread_ = true;
 	inputhorsel_ = new uiIOObjSel( this, ctxt );
 	mAttachCB( inputhorsel_->selectionDone,
 		    uiHorizonInterpolDlg::selChangeCB );

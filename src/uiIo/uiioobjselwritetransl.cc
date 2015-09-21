@@ -39,19 +39,19 @@ uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
 uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 				const CtxtIOObj& ctio, bool withopts )
     : uiGroup(p,"Write Translator selector")
-    , ctxt_(*new IOObjContext(ctio.ctxt))
+    , ctxt_(*new IOObjContext(ctio.ctxt_))
     , selfld_(0)
     , lbl_(0)
     , suggestedNameAvailble(this)
 {
     optflds_.allowNull( true );
-    const TranslatorGroup& trgrp = *ctio.ctxt.trgroup;
+    const TranslatorGroup& trgrp = *ctio.ctxt_.trgroup_;
     const ObjectSet<const Translator>& alltrs = trgrp.templates();
     for ( int idx=0; idx<alltrs.size(); idx++ )
     {
 	const Translator* trl = alltrs[idx];
 	if ( IOObjSelConstraints::isAllowedTranslator(
-		    trl->userName(),ctio.ctxt.toselect.allowtransls_)
+		    trl->userName(),ctio.ctxt_.toselect_.allowtransls_)
 	  && trl->isUserSelectable( false ) )
 	    trs_ += trl;
     }
@@ -59,7 +59,7 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     {
 	if ( alltrs.isEmpty() )
 	{
-	    pErrMsg(BufferString("No translator for",trgrp.userName()));
+	    pErrMsg(BufferString("No translator for",trgrp.groupName()));
 	}
 	return;
     }
@@ -105,7 +105,7 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
     {
 	const Translator& trl = *trs_[idx];
 	const BufferString trnm( trl.userName() );
-	if ( ctio.ioobj && trnm == ctio.ioobj->translator() )
+	if ( ctio.ioobj_ && trnm == ctio.ioobj_->translator() )
 	    cur = idx;
 
 	selfld_->addItem( trnm );
@@ -155,7 +155,7 @@ int uiIOObjSelWriteTranslator::translIdx() const
     {
 	const int selidx = selfld_->currentItem();
 	if ( selidx >= 0 )
-	    translidx = ctxt_.trgroup->templates().indexOf( trs_[selidx] );
+	    translidx = ctxt_.trgroup_->templates().indexOf( trs_[selidx] );
     }
     return translidx;
 }
@@ -175,22 +175,22 @@ void uiIOObjSelWriteTranslator::setTranslator( const Translator* trl )
 const Translator* uiIOObjSelWriteTranslator::selectedTranslator() const
 {
     int translidx = translIdx();
-    if ( translidx < 0 && !ctxt_.deftransl.isEmpty() )
+    if ( translidx < 0 && !ctxt_.deftransl_.isEmpty() )
     {
-	const Translator* trl = ctxt_.trgroup->getTemplate(
-					    ctxt_.deftransl, true );
+	const Translator* trl = ctxt_.trgroup_->getTemplate(
+					    ctxt_.deftransl_, true );
 	if ( trl )
 	    return trl;
     }
 
     if ( translidx < 0 )
     {
-	translidx = ctxt_.trgroup->defTranslIdx();
+	translidx = ctxt_.trgroup_->defTranslIdx();
 	if ( translidx < 0 )
 	    { pErrMsg( "Huh" ); translidx = 0; }
     }
 
-    return ctxt_.trgroup->templates()[ translidx ];
+    return ctxt_.trgroup_->templates()[ translidx ];
 }
 
 
@@ -201,7 +201,7 @@ bool uiIOObjSelWriteTranslator::hasSelectedTranslator( const IOObj& ioobj) const
 	return ioobj.translator().isEmpty();
 
     return ioobj.translator() == trl->userName()
-	&& ioobj.group() == trl->group()->userName();
+	&& ioobj.group() == trl->group()->groupName();
 }
 
 
@@ -241,11 +241,11 @@ void uiIOObjSelWriteTranslator::selChg( CallBacker* )
 IOObj* uiIOObjSelWriteTranslator::mkEntry( const char* nm ) const
 {
     CtxtIOObj ctio( ctxt_ );
-    ctio.ioobj = 0; ctio.setName( nm );
+    ctio.ioobj_ = 0; ctio.setName( nm );
     ctio.fillObj( false, translIdx() );
-    if ( ctio.ioobj )
-	updatePars( *ctio.ioobj );
-    return ctio.ioobj;
+    if ( ctio.ioobj_ )
+	updatePars( *ctio.ioobj_ );
+    return ctio.ioobj_;
 }
 
 

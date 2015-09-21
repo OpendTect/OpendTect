@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyNrLines = "Nr Lines";
 
-mDefSimpleTranslatorSelector(RandomLineSet,sKeyRandomLineSetTranslatorGroup)
+mDefSimpleTranslatorSelector(RandomLineSet)
 mDefSimpleTranslatorioContext(RandomLineSet,Loc)
 
 

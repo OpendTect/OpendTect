@@ -105,19 +105,19 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
 {
     if ( ctio.name().isEmpty() )
     {
-	if ( !ctio.ioobj )
+	if ( !ctio.ioobj_ )
 	    return false;
-	ctio.setName( ctio.ioobj->name() );
+	ctio.setName( ctio.ioobj_->name() );
     }
     const char* nm = ctio.name().buf();
 
-    const IODir iodir( ctio.ctxt.getSelKey() );
-    const IOObj* existioobj = iodir.get( nm, ctio.ctxt.trgroup->userName() );
+    const IODir iodir( ctio.ctxt_.getSelKey() );
+    const IOObj* existioobj = iodir.get( nm, ctio.ctxt_.trgroup_->groupName() );
     if ( !existioobj )
     {
 	ctio.setObj( 0 );
 	IOM().getEntry( ctio );
-	return ctio.ioobj;
+	return ctio.ioobj_;
     }
 
     if ( warnifexist )

@@ -91,12 +91,12 @@ void uiGMTRandLinesGrp::reset()
 
 void uiGMTRandLinesGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
 	return;
 
-    namefld_->setText( ctio_.ioobj->name() );
+    namefld_->setText( ctio_.ioobj_->name() );
     Geometry::RandomLineSet inprls; BufferString msg;
-    if ( !RandomLineSetTranslator::retrieve(inprls,ctio_.ioobj,msg) )
+    if ( !RandomLineSetTranslator::retrieve(inprls,ctio_.ioobj_,msg) )
 	return;
 
     linenms_.erase();
@@ -127,7 +127,7 @@ void uiGMTRandLinesGrp::labelSel( CallBacker* )
 
 bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
 	mErrRet(tr("Please select the Random line(set)"))
 
     inpfld_->fillPar( par );

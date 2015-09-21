@@ -106,9 +106,6 @@ public:
     static bool		store(const ODSession&,const IOObj*,uiString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-
-    static const char*	keyword();
-
 };
 
 

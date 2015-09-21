@@ -18,8 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 defineTranslatorGroup(SurvGeom2D,"Geometry");
 defineTranslator(dgb,SurvGeom2D,"2D Geometry");
-mDefSimpleTranslatorSelector(SurvGeom2D,"Geometry");
+mDefSimpleTranslatorSelector(SurvGeom2D);
 mDefSimpleTranslatorioContext(SurvGeom2D,Geom);
+
+uiString SurvGeom2DTranslatorGroup::sTypeName()
+{ return tr( "Geometry" ); }
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
@@ -44,11 +47,11 @@ IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 	iocontext.fixTranslator( trkey );
 
     CtxtIOObj ctio( iocontext );
-    ctio.ctxt.setName( name );
+    ctio.ctxt_.setName( name );
     if ( ctio.fillObj() == 0 )
 	return 0;
 
-    return ctio.ioobj;
+    return ctio.ioobj_;
 }
 
 

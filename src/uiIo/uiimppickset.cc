@@ -81,7 +81,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.forread = !import_;
+    ctxt.forread_ = !import_;
     label = import_
 	? uiStrings::phrOutput( sPicksetPolygon() )
 	: uiStrings::phrInput( sPicksetPolygon() );

@@ -35,7 +35,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     setHelpKey( mODHelpKey(mHorInterFillerHelpID) );
 
     const char* hortxt = "Horizon";
-    topctio_->ctxt.forread = bottomctio_->ctxt.forread = true;
+    topctio_->ctxt_.forread_ = bottomctio_->ctxt_.forread_ = true;
 
     usetophorfld_ = new uiGenInput( this, tr("Top boundary"),
 		    BoolInpSpec(hf->getTopHorizonID(),hortxt, 
@@ -88,8 +88,8 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
 
 uiHorInterFiller::~uiHorInterFiller()
 {
-    delete topctio_->ioobj; delete topctio_;
-    delete bottomctio_->ioobj; delete bottomctio_;
+    delete topctio_->ioobj_; delete topctio_;
+    delete bottomctio_->ioobj_; delete bottomctio_;
 }
 
 
@@ -136,15 +136,15 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
     if ( (usebothor && !bottomhorfld_->commitInput()) )
 	mErrRet(tr("Please select the bottom horizon"))
 
-    if ( usetophor && usebothor && tophorfld_->ctxtIOObj().ioobj->key()
-			        == bottomhorfld_->ctxtIOObj().ioobj->key() )
+    if ( usetophor && usebothor && tophorfld_->ctxtIOObj().ioobj_->key()
+				== bottomhorfld_->ctxtIOObj().ioobj_->key() )
 	mErrRet(tr("Top and bottom horizons cannot be the same"))
 
     if ( !usetophor )
 	horinterfiller_->setTopHorizon( 0 );
     else
     {
-	const MultiID mid = tophorfld_->ctxtIOObj().ioobj->key();
+	const MultiID mid = tophorfld_->ctxtIOObj().ioobj_->key();
 	if ( !horinterfiller_->setTopHorizon( &mid ) )
 	    mErrRet(tr("Cannot use top horizon"))
     }
@@ -153,7 +153,7 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 	horinterfiller_->setBottomHorizon( 0 );
     else
     {
-	const MultiID mid = bottomhorfld_->ctxtIOObj().ioobj->key();
+	const MultiID mid = bottomhorfld_->ctxtIOObj().ioobj_->key();
 	if ( !horinterfiller_->setBottomHorizon( &mid ) )
 	    mErrRet(tr("Cannot use bottom horizon"))
     }

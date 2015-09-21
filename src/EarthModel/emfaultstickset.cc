@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM {
 
-mImplementEMObjFuncs(FaultStickSet,EMFaultStickSetTranslatorGroup::keyword())
+mImplementEMObjFuncs(FaultStickSet,EMFaultStickSetTranslatorGroup::sGroupName())
     
 FaultStickSet::FaultStickSet( EMManager& em )
     : Fault(em)
@@ -38,7 +38,7 @@ FaultStickSet::~FaultStickSet()
 
 
 uiString FaultStickSet::getUserTypeStr() const
-{ return EMFaultStickSetTranslatorGroup::userType(); }
+{ return EMFaultStickSetTranslatorGroup::sTypeName(); }
 
 
 void FaultStickSet::apply( const Pos::Filter& pf )
@@ -124,7 +124,7 @@ Geometry::FaultStickSet* FaultStickSetGeometry::createSectionGeometry() const
 
 
 EMObjectIterator* FaultStickSetGeometry::createIterator( const SectionID& sid,
-						const TrcKeyZSampling* cs ) const
+					const TrcKeyZSampling* cs ) const
 { return new RowColIterator( surface_, sid, cs ); }
 
 

@@ -296,7 +296,7 @@ void uiProcessorManager::propertiesCB( CallBacker* )
 void uiProcessorManager::loadCB( CallBacker* )
 {
     CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
-    selcontext.ctxt.forread = true;
+    selcontext.ctxt_.forread_ = true;
 
     uiIOObjSelDlg dlg( this, selcontext );
     if ( dlg.go() && dlg.ioObj() )
@@ -311,7 +311,7 @@ void uiProcessorManager::loadCB( CallBacker* )
 	}
     }
 
-    delete selcontext.ioobj;
+    delete selcontext.ioobj_;
     changed_ = false;
     updateButtons();
     change.trigger();
@@ -331,7 +331,7 @@ bool uiProcessorManager::save()
 bool uiProcessorManager::doSaveAs()
 {
     CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
-    selcontext.ctxt.forread = false;
+    selcontext.ctxt_.forread_ = false;
 
     uiIOObjSelDlg dlg( this, selcontext );
     if ( dlg.go() && dlg.ioObj() )
@@ -339,12 +339,12 @@ bool uiProcessorManager::doSaveAs()
 	if ( doSave( *dlg.ioObj() ) )
 	{
 	    lastmid_ = dlg.ioObj()->key();
-	    delete selcontext.ioobj;
+	    delete selcontext.ioobj_;
 	    return true;
 	}
     }
 
-    delete selcontext.ioobj;
+    delete selcontext.ioobj_;
     return false;
 }
 

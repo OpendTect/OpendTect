@@ -43,7 +43,7 @@ uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
     if ( source_ ) source_->ref();
 
     IOObjContext ctxt = uiVelSel::ioContext();
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     volumesel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
     if ( source_ ) volumesel_->setInput( source_->multiID() );
 
