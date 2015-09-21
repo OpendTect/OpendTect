@@ -39,6 +39,12 @@ public:
 
     StepInterval<int>	lineRange() const;
     StepInterval<int>	trcRange() const;
+    float		lineDistance() const;
+			/*!< real world distance between 2 lines incremented by
+			     one times the step_ */
+    float		trcDistance() const;
+			/*!< real world distance between 2 traces incremented by
+			     one times the step_ */
     void		setLineRange(const Interval<int>&);
     void		setTrcRange(const Interval<int>&);
 
