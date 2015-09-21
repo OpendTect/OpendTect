@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uifont.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uimain.h"
 #include "od_helpids.h"
 #include "settings.h"
@@ -32,6 +33,7 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
     addButton( FontData::Graphics2D, tr("Used by 2D Graphics") );
     addButton( FontData::Graphics3D, tr("Used in 3D Scenes") );
     addButton( FontData::Fixed, tr("Information, Notes and Progress") );
+    addResetButton();
 }
 
 
@@ -48,6 +50,17 @@ void uiFontSettingsGroup::addButton( FontData::StdSz tp, uiString infotxt )
     lbls_ += lbl;
 
     types_ += tp;
+}
+
+
+void uiFontSettingsGroup::addResetButton()
+{
+    uiButton* but = new uiPushButton( this,
+				    tr("Reset to default fonts"),
+				    true );
+    but->setPrefWidthInChar( 25 );
+    but->activated.notify( mCB(this,uiFontSettingsGroup,resetCB) );
+    but->attach( centeredBelow, butgrp_ );
 }
 
 
@@ -83,6 +96,13 @@ void uiFontSettingsGroup::butPushed( CallBacker* obj )
     FontList().update( Settings::common() );
     if ( !idx ) uiMain::theMain().setFont( FontList().get(), true );
     lbls_[idx]->setFont( selfont );
+}
+
+
+void uiFontSettingsGroup::resetCB( CallBacker* )
+{
+    if ( uiMSG().askGoOn(tr("Reset to application defaults?")) )
+	FontList().setDefaults();
 }
 
 

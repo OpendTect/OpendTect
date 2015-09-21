@@ -48,7 +48,9 @@ protected:
     TypeSet<FontData::StdSz> types_;
 
     void		addButton(FontData::StdSz,uiString infotxt);
+    void		addResetButton();
     void		butPushed(CallBacker*);
+    void		resetCB(CallBacker*);
 };
 
 
