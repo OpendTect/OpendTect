@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uigraphicsitemimpl.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     : uiGraphicsItem()
@@ -41,9 +42,12 @@ void uiScaleBarItem::initDefaultScale()
     lowerright_ = new uiRectItem;   addChild( lowerright_ );
 
     const Alignment cenbot = Alignment( Alignment::HCenter, Alignment::Bottom );
-    startnr_ = new uiAdvancedTextItem( "", cenbot );addChild( startnr_ );
-    midnr_ = new uiAdvancedTextItem( "", cenbot );  addChild( midnr_ );
-    stopnr_ = new uiAdvancedTextItem( "", cenbot ); addChild( stopnr_ );
+    startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    ( startnr_ );
+    midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    ( midnr_ );
+    stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    ( stopnr_ );
 
     // filling with color
     upperleft_->setFillColor( Color::Black(), true );
@@ -61,10 +65,10 @@ void uiScaleBarItem::update()
 {
     setPolygons( pxwidth_/4, pxheight_ );
 
-    uiString unit = SI().getXYUnitString( false );
-    startnr_->setPlainText( "0" );
-    midnr_->setPlainText( toString(length_/2) );
-    stopnr_->setPlainText( uiString(toString(length_)).append(unit) );
+    uiString unit = SI().getUiXYUnitString( false );
+    startnr_->setPlainText( toUiString("0") );
+    midnr_->setPlainText( toUiString(length_/2) );
+    stopnr_->setPlainText( toUiString(length_).append(unit) );
 }
 
 

@@ -57,7 +57,8 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 {
     if ( !grp ) return;
 
-    const uiString tabcaption = !txt.isEmpty() ? txt : (const char*)grp->name();
+    const uiString tabcaption = !txt.isEmpty() ? txt 
+						: mToUiStringTodo(grp->name());
     uiTab* tab = new uiTab( *grp, tabcaption );
     tabbar_->addTab( tab );
 

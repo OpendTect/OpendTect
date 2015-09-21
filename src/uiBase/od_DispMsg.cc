@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 #include "uimsg.h"
 #include "uimain.h"
+#include "uistrings.h"
 #include "commandlineparser.h"
 
 #ifdef __msvc__
@@ -48,23 +49,23 @@ int main( int argc, char** argv )
 	if ( idx<normalargs.size()-1 )
 	    msg += " ";
     }
-
+    uiString msgout;
     if ( msg.isEmpty() )
-	msg = typ == 1 ? "Be careful!"
-	    : (typ ==2 ? "Problem found!"
-		       : "Your answer:");
+	msgout = typ == 1 ? od_static_tr("main", "Be careful!")
+	    : (typ ==2 ? od_static_tr("main", "Problem found!")
+		       : od_static_tr("main", "Your answer:"));
 
     uiMain app( argc, argv );
     if ( typ == 0 )
-	uiMSG().message( msg );
+	uiMSG().message( msgout );
     else if ( typ == 1 )
-	uiMSG().warning( msg );
+	uiMSG().warning( msgout );
     else if ( typ == 2 )
-	uiMSG().error( msg );
+	uiMSG().error( msgout );
     else if ( typ == 3 )
     {
-	msg = getYesNoString( uiMSG().askGoOn(msg) );
-	od_cout() << msg << od_endl;
+	msgout = mToUiStringTodo(getYesNoString(uiMSG().askGoOn( msgout )));
+	od_cout() << msgout << od_endl;
     }
 
     return ExitProgram( 0 );

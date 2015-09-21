@@ -65,8 +65,8 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     if ( x>=0 && y>=0 && !mIsUdf(x) && !mIsUdf(y) )
 	setCornerPos( x, y );
 
-    BufferString wintitle( "Virtual Keyboard  [" );
-    wintitle += inputobj_.name(); wintitle += "]";
+    uiString wintitle = tr("Virtual Keyboard [%1]").
+					arg(mToUiStringTodo(inputobj_.name()));
     setCaption( wintitle );
 
     const BufferString pmfnm = mGetSetupFileName( "virtualkeyboard.png" );

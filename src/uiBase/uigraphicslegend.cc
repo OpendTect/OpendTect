@@ -32,16 +32,16 @@ uiLegendItem::~uiLegendItem()
 
 void uiLegendItem::buildLayout()
 {
-    uiAdvancedTextItem* country = new uiAdvancedTextItem( "Country" );
-    uiAdvancedTextItem* block = new uiAdvancedTextItem( "Block" );
-    uiAdvancedTextItem* license = new uiAdvancedTextItem( "License" );
-    uiAdvancedTextItem* modelname = new uiAdvancedTextItem( "Model Name" );
-    uiAdvancedTextItem* horizonname = new uiAdvancedTextItem( "Horizon Name" );
-    uiAdvancedTextItem* mapscale = new uiAdvancedTextItem( "Scale" );
-    uiAdvancedTextItem* contourinc = new uiAdvancedTextItem( "Contour Inc" );
-    uiAdvancedTextItem* username = new uiAdvancedTextItem( "User Name" );
-    uiAdvancedTextItem* date = new uiAdvancedTextItem( "Date" );
-    uiAdvancedTextItem* sign = new uiAdvancedTextItem( "Signature" );
+    uiAdvancedTextItem* country = new uiAdvancedTextItem( sCountry() );
+    uiAdvancedTextItem* block = new uiAdvancedTextItem( sBlock() );
+    uiAdvancedTextItem* license = new uiAdvancedTextItem( sLicense() );
+    uiAdvancedTextItem* modelname = new uiAdvancedTextItem( sModelNm() );
+    uiAdvancedTextItem* horizonname = new uiAdvancedTextItem( sHorNm() );
+    uiAdvancedTextItem* mapscale = new uiAdvancedTextItem( sScale() );
+    uiAdvancedTextItem* contourinc = new uiAdvancedTextItem( sContourInc() );
+    uiAdvancedTextItem* username = new uiAdvancedTextItem( sUserNm() );
+    uiAdvancedTextItem* date = new uiAdvancedTextItem( sDate() );
+    uiAdvancedTextItem* sign = new uiAdvancedTextItem( sSignature() );
 
     uiRectItem* rec0 = new uiRectItem( 0, 0, 200, 30 );
     uiRectItem* separator = new uiRectItem( 0, 0, 200, 3 );
@@ -114,17 +114,17 @@ void uiLegendItem::setProperties()
 
 void uiLegendItem::init()
 {
-    title_ = new uiAdvancedTextItem( "Map" );
-    country_ = new uiAdvancedTextItem( "Country" );
-    block_ = new uiAdvancedTextItem( "Block" );
-    license_ = new uiAdvancedTextItem( "License" );
-    modelname_ = new uiAdvancedTextItem( "Model_Name" );
-    horizonname_ = new uiAdvancedTextItem( "Horizon Name" );
-    mapscale_ = new uiAdvancedTextItem( "Scale" );
-    contourinc_ = new uiAdvancedTextItem( "Contour Inc" );
-    username_ = new uiAdvancedTextItem( "User Name" );
-    date_ = new uiAdvancedTextItem( "Date" );
-    sign_ = new uiAdvancedTextItem( "Signature" );
+    title_ = new uiAdvancedTextItem( sMap() );
+    country_ = new uiAdvancedTextItem( sCountry() );
+    block_ = new uiAdvancedTextItem( sBlock() );
+    license_ = new uiAdvancedTextItem( sLicense() );
+    modelname_ = new uiAdvancedTextItem( sModelNm() );
+    horizonname_ = new uiAdvancedTextItem( sHorNm() );
+    mapscale_ = new uiAdvancedTextItem( sScale() );
+    contourinc_ = new uiAdvancedTextItem( sContourInc() );
+    username_ = new uiAdvancedTextItem( sUserNm() );
+    date_ = new uiAdvancedTextItem( sDate() );
+    sign_ = new uiAdvancedTextItem( sSignature() );
 
     addChild( title_ );
     addChild( country_ );

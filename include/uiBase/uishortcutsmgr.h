@@ -99,7 +99,7 @@ protected:
 	    			     BufferString&,BufferString&) const;
     bool		getSCNames(const IOPar&,int,BufferString&) const;
     bool		getSCProperties(const IOPar&,int,
-	    				BufferString&,int&) const;
+	    				uiString&,int&) const;
 };
 
 

@@ -66,7 +66,7 @@ uiString uiStrings::phrCannotRead( const uiString& string )
 { return tr("Cannot read %1").arg( string ); }
 
 uiString uiStrings::phrCannotWrite( const uiString& string )
-{ return tr("Cannot write %1").arg( string ); }
+{ return toUiString(joinstring).arg(sCannotWrite()).arg( string ); }
 
 uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
 { return phrCannotWrite( tr("database entry for %1").arg(string) ); }
@@ -74,11 +74,29 @@ uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
 uiString uiStrings::phrCannotSave( const uiString& string )
 { return toUiString(joinstring).arg(sCannotSave()).arg(string); }
 
+uiString uiStrings::phrCannotStart( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotStart()).arg(string); }
+
+uiString uiStrings::phrCannotUnZip( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotUnZip()).arg(string); }
+
+uiString uiStrings::phrCannotZip( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotZip()).arg(string); }
+
 uiString uiStrings::phrCopy( const uiString& string )
 { return toUiString(joinstring).arg(sCopy()).arg(string); }
 
 uiString uiStrings::phrCreate( const uiString& string )
-{ return toUiString(joinstring).arg( sCreate() ).arg( string ); }
+{ return toUiString(joinstring).arg(sCreate()).arg(string); }
+
+uiString uiStrings::phrCreateNew( const uiString& string )
+{ return toUiString(joinstring).arg(sCreateNew()).arg(string); }
+
+uiString uiStrings::phrCrossPlot( const uiString& string )
+{ return toUiString(joinstring).arg(sCrossPlot()).arg(string); }
+
+uiString uiStrings::phrData( const uiString& string )
+{ return toUiString(joinstring).arg(sData()).arg(string); }
 
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
@@ -96,6 +114,9 @@ uiString uiStrings::phrInline( const uiString& string )
 uiString uiStrings::phrInput( const uiString& string )
 { return toUiString(joinstring).arg( sInput() ).arg( string ); }
 
+uiString uiStrings::phrInsert( const uiString& string )
+{ return phrJoinStrings( sInsert(), string ); }
+
 uiString uiStrings::phrInvalid( const uiString& string )
 { return toUiString(joinstring).arg(sInvalid()).arg(string); }
 
@@ -105,6 +126,9 @@ uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
 uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b,
 				    const uiString& c)
 { return toUiString("%1 %2 %3").arg( a ).arg( b ).arg( c ); }
+
+uiString uiStrings::phrManage( const uiString& string )
+{ return toUiString(joinstring).arg(sManage()).arg(string); }
 
 uiString uiStrings::phrModify( const uiString& string )
 { return toUiString(joinstring).arg(sModify()).arg(string); }
@@ -118,6 +142,21 @@ uiString uiStrings::phrOutput( const uiString& string )
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
 
+uiString uiStrings::phrRemove( const uiString& string )
+{ return toUiString(joinstring).arg(sRemove()).arg(string); }
+
+uiString uiStrings::phrRemoveSelected( const uiString& string )
+{ return toUiString(joinstring).arg(sRemoveSelected()).arg(string); }
+
+uiString uiStrings::phrRename( const uiString& string )
+{ return toUiString(joinstring).arg(sRename()).arg(string); }
+
+uiString uiStrings::phrSelectPos( const uiString& string )
+{ return toUiString(joinstring).arg(sSelectPos()).arg(string); }
+
+uiString uiStrings::phrSetAs( const uiString& string )
+{ return toUiString(joinstring).arg(sSetAs()).arg(string); }
+
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
@@ -130,8 +169,20 @@ uiString uiStrings::phrWriting( const uiString& string )
 uiString uiStrings::phrSave( const uiString& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }
 
+uiString uiStrings::phrSpecify( const uiString& string )
+{ return toUiString(joinstring).arg(sSpecify()).arg(string); }
+
+uiString uiStrings::phrStorageDir( const uiString& string )
+{ return toUiString(joinstring).arg(sStorageDir()).arg(string); }
+
 uiString uiStrings::phrLoad( const uiString& string )
 { return toUiString(joinstring).arg(sLoad()).arg(string); }
+
+uiString uiStrings::phrXcoordinate( const uiString& string )
+{ return toUiString(joinstring).arg(sXcoordinate()).arg(string); }
+
+uiString uiStrings::phrYcoordinate( const uiString& string )
+{ return toUiString(joinstring).arg(sYcoordinate()).arg(string); }
 
 uiString uiStrings::phrZRange( const uiString& string )
 { return toUiString(joinstring).arg(sZRange()).arg(string); }
@@ -151,6 +202,9 @@ uiString uiStrings::sASCII()
 uiString uiStrings::sAttributes()
 { return tr("Attributes"); }
 
+uiString uiStrings::sBatchProgram()
+{return mJoinUiStrs(sBatch(),sProgram()); }
+
 uiString uiStrings::sColorTable()
 { return tr("ColorTable"); }
 
@@ -165,6 +219,15 @@ uiString uiStrings::sCannotImport()
 
 uiString uiStrings::sCannotSave()
 { return tr("Cannot Save"); }
+
+uiString uiStrings::sCannotWrite()
+{ return tr("Cannot Write"); }
+
+uiString uiStrings::sCannotUnZip()
+{ return tr("Cannot UnZip"); }
+
+uiString uiStrings::sCannotZip()
+{ return tr("Cannot Zip"); }
 
 uiString uiStrings::sCantCreateHor()
 { return phrCannotCreate( tr("horizon") ); }
@@ -190,6 +253,9 @@ uiString uiStrings::sCantWriteSettings()
 uiString uiStrings::sCantOpenInpFile( int num )
 { return phrCannotOpen( tr("input file", 0, num ) ); }
 
+uiString uiStrings::sCannotStart()
+{ return tr("Cannot Start"); }
+
 uiString uiStrings::sOutput()
 { return tr("Output"); }
 
@@ -199,8 +265,19 @@ uiString uiStrings::sCantOpenOutpFile( int num )
 uiString uiStrings::sCopy()
 { return tr("Copy"); }
 
+uiString uiStrings::sCreateNew()
+{ return mJoinUiStrs(sCreate(),sNew()); }
+
+uiString uiStrings::sCreateOutput()
+{ return mJoinUiStrs(sCreate(),sOutput()); }
+
 uiString uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc() ); }
+uiString uiStrings::sCrossPlot()
+{ return tr("Cross Plot"); }
+
+uiString uiStrings::sData()
+{ return tr("Data"); }
 
 uiString uiStrings::sEdit()
 { return tr("Edit"); }
@@ -249,13 +326,20 @@ uiString uiStrings::sInputASCIIFile()
 uiString uiStrings::sInputParamsMissing()
 { return tr("Input parameters missing"); }
 
+uiString uiStrings::sInsert()
+{ return tr("Insert"); }
+
 uiString uiStrings::sInvalid()
 { return tr("Invalid"); }
+
 uiString uiStrings::sLoad()
 { return tr("Load"); }
 
 uiString uiStrings::sLogs()
-{ return tr("Logs"); }
+{ return sLog(mPlural); }
+
+uiString uiStrings::sManage()
+{ return tr("Manage"); }
 
 uiString uiStrings::sMarker( int num )
 { return tr("Marker", 0, num); }
@@ -297,6 +381,12 @@ uiString uiStrings::sProperties()
 uiString uiStrings::sRemove()
 { return tr("Remove"); }
 
+uiString uiStrings::sRemoveSelected()
+{ return tr("Remove Selected"); }
+
+uiString uiStrings::sRename()
+{ return tr("Rename"); }
+
 uiString uiStrings::sSave()
 { return tr("Save"); }
 
@@ -317,6 +407,9 @@ uiString uiStrings::sSeismics( bool is2d, bool isps, int num )
 uiString uiStrings::sSelect()
 { return tr("Select"); }
 
+uiString uiStrings::sSelectPos()
+{ return tr("Select Position"); }
+
 uiString uiStrings::sSelOutpFile()
 { return tr("Please select output file"); }
 
@@ -326,8 +419,21 @@ uiString uiStrings::sSelection()
 uiString uiStrings::sSetting( int num )
 { return tr("Setting", 0, num ); }
 
+uiString uiStrings::sSetAs()
+{ return tr("Set As"); }
+
 uiString uiStrings::sShift()
 { return tr("Shift" ); }
+
+uiString uiStrings::sSpecify()
+{ return tr("Specify"); }
+
+uiString uiStrings::sSpecifyOut()   
+{ return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
+
+
+uiString uiStrings::sStorageDir()
+{ return tr("Storage Directory"); }
 
 uiString uiStrings::sStored()
 { return tr("Stored" ); }
@@ -365,7 +471,11 @@ uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 uiString uiStrings::sTimeUnitString( bool abb )
 { return abb ? tr( "s" ) : uiStrings::sSec(); }
 
-uiString uiStrings::sZRange()
+uiString uiStrings::sXcoordinate()
+{ return tr("X-coordinate"); }
+
+uiString uiStrings::sYcoordinate()
+{ return tr("Y-coordinate"); }uiString uiStrings::sZRange()
 { return tr("Z Range"); }
 
 

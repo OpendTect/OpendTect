@@ -121,8 +121,8 @@ void uiColTabItem::setPixmap()
 void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
     BufferString precision;
-    minvalitm_->setPlainText( precision.set(ms.range_.start,2) );
-    maxvalitm_->setPlainText( precision.set(ms.range_.stop,2) );
+    minvalitm_->setPlainText( toUiString(precision.set(ms.range_.start,2)) );
+    maxvalitm_->setPlainText( toUiString(precision.set(ms.range_.stop,2)) );
     adjustLabel();
 }
 

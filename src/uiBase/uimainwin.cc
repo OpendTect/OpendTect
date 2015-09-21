@@ -586,7 +586,8 @@ void uiMainWinBody::renewToolbarsMenu()
     {
 	uiToolBar& tb = *toolbars_[idx];
 	uiAction* itm =
-	    new uiAction( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
+	    new uiAction( mToUiStringTodo(tb.name()), 
+	    mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm );
 	itm->setCheckable( true );
@@ -1726,7 +1727,7 @@ uiObject* uiDialogBody::createChildren()
     {
 	if ( setup_.savebutispush_ )
 	    savebuttb_ = new uiToolButton( centralwidget_, "save",
-			  setup_.savetext_.getFullString(), CallBack() );
+			  setup_.savetext_, CallBack() );
 	else
 	{
 	    savebutcb_ = new uiCheckBox( centralwidget_, setup_.savetext_ );
@@ -1745,8 +1746,9 @@ uiObject* uiDialogBody::createChildren()
 	helpbut_ = uiButton::getStd( centralwidget_, uiButton::Help,
 				mCB(this,uiDialogBody,provideHelp), true );
 	if ( shwhid )
-	    helpbut_->setToolTip( BufferString(dlg.helpKey().providername_,
-					       dlg.helpKey().argument_) );
+	    helpbut_->setToolTip( uiStrings::phrJoinStrings(
+	    mToUiStringTodo(dlg.helpKey().providername_),
+	    mToUiStringTodo(dlg.helpKey().argument_)) );
 	else
 	    helpbut_->setToolTip( tr("Help on this window") );
     }
@@ -1917,7 +1919,7 @@ void uiDialogBody::applyCB( CallBacker* cb )
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
-    : uiMainWin( s.wintitle_.getFullString(), p )
+    : uiMainWin( s.wintitle_, p )
     , cancelpushed_(false)
     , applyPushed(this)
 {
@@ -1953,7 +1955,7 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
     {
 	oktext = uiStrings::sGo();
-	canceltext = "Dismiss";
+	canceltext = uiStrings::sCancel();
     }
 
     switch ( cs )

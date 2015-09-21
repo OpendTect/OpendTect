@@ -293,7 +293,7 @@ void uiTreeView::itemChangedCB( CallBacker* )
 		lastitemnotified_->qtreeitem_->text( column_ );
 	if ( oldnm != newnm )
 	{
-	    lastitemnotified_->texts_[column_] = newnm;
+	    lastitemnotified_->texts_[column_] = toUiString(newnm);
 	    itemRenamed.trigger();
 	}
     }
@@ -438,7 +438,7 @@ void uiTreeView::setColumnText( int col, const uiString& label )
 
 uiString uiTreeView::getColumnText( int col ) const
 {
-    if ( !labels_.validIdx(col) ) return sKey::EmptyString();
+    if ( !labels_.validIdx(col) ) return uiStrings::sEmptyString();
 
     return labels_[col];
 }

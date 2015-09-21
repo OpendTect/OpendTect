@@ -91,7 +91,7 @@ uiAction::uiAction( const MenuItem& itm )
     : mInit
 {
     init( itm.text );
-    setToolTip( itm.tooltip );
+    setToolTip( mToUiStringTodo(itm.tooltip) );
     setCheckable( itm.checkable );
     setChecked( itm.checked );
     setEnabled( itm.enabled );

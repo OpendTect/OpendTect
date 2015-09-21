@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uibutton.h"
+#include "uistrings.h"
 
 class uiToolButtonBody;
 class uiToolButtonSetup;
@@ -73,7 +74,8 @@ mExpClass(uiBase) uiToolButtonSetup
 {
 public:
 			uiToolButtonSetup( const char* ic, const uiString& tt,
-					   const CallBack& c, const char* nm=0 )
+					   const CallBack& c , const uiString& 
+					   nm = uiStrings::sEmptyString() )
 			    : icid_(ic)
 			    , cb_(c)
 			    , tooltip_(tt)
@@ -81,7 +83,7 @@ public:
 			    , ison_(false)
 			    , isimmediate_(false)
 			    , arrowtype_(uiToolButton::NoArrow)
-			    , name_(nm && *nm ? nm : tt.getFullString().buf()){}
+			    , name_(!nm.isEmpty() ? nm : tt){}
 
     mDefuiTBSUMemb(BufferString,icid);
     mDefuiTBSUMemb(uiString,tooltip);
@@ -92,7 +94,7 @@ public:
     mDefuiTBSUMemb(bool,isimmediate);
     mDefuiTBSUMemb(uiToolButton::ArrowType,arrowtype);
     mDefuiTBSUMemb(BufferString,shortcut);
-    mDefuiTBSUMemb(BufferString,name);
+    mDefuiTBSUMemb(uiString,name);
 
     uiButton*		getButton(uiParent*,bool forcetoolbutton=false) const;
 			//!< pushbutton if name_ != tooltip_ and !istoggle_

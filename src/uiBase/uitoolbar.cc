@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaction.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
+#include "uistrings.h"
 #include "uitoolbutton.h"
 
 #include "bufstringset.h"
@@ -74,7 +75,7 @@ uiToolBar::~uiToolBar()
 int uiToolBar::addButton( const char* fnm, const uiString& tt,
 			  const CallBack& cb, bool toggle, int id )
 {
-    uiAction* action = new uiAction( 0, cb, fnm );
+    uiAction* action = new uiAction( uiStrings::sEmptyString(), cb, fnm );
     action->setToolTip( tt );
     action->setCheckable( toggle );
     return insertAction( action, id );

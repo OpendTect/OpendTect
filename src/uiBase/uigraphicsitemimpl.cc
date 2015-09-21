@@ -704,7 +704,9 @@ uiFont& uiAdvancedTextItem::getFont() const
 uiString uiAdvancedTextItem::getPlainText() const
 {
     QString str = qtextitem_->toPlainText();
-    return uiString( str.toStdString().c_str() );
+    uiString ret;
+    ret.setFrom( str );
+    return ret;
 }
 
 

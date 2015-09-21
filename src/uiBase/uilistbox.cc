@@ -452,7 +452,7 @@ void uiListBox::mkCheckGroup()
     checkgrp_ = new uiGroup( this, "CheckGroup" );
     checkgrp_->attach( alignedAbove, lb_ );
 
-    uiPushButton* pb = new uiPushButton( checkgrp_, "",
+    uiPushButton* pb = new uiPushButton( checkgrp_, uiStrings::sEmptyString(),
 					 mCB(this,uiListBox,menuCB), true );
     pb->setIcon( "menu-arrow" );
     pb->setMaximumWidth( 40 );
@@ -462,7 +462,8 @@ void uiListBox::mkCheckGroup()
 #else
     pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
 #endif
-    cb_ = new uiCheckBox( checkgrp_, "", mCB(this,uiListBox,checkCB) );
+    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(), 
+						mCB(this,uiListBox,checkCB) );
     cb_->setMaximumWidth( 20 );
     checkgrp_->display( isMultiChoice(), true );
 }
@@ -510,7 +511,7 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
     bool last1st = pos > RightTop && pos < BelowLeft;
     ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
 
-    uiLabel* labl = new uiLabel( this, ptr );
+    uiLabel* labl = new uiLabel( this, mToUiStringTodo(ptr) );
     lbls_ += labl;
     constraintType lblct = alignedBelow;
     switch ( pos )
@@ -550,8 +551,8 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
     int nrleft = txts.size() - 1;
     while ( nrleft )
     {
-	uiLabel* cur = new uiLabel( this, (last1st
-			? txts[nrleft-1] : txts[txts.size()-nrleft])->buf() );
+	uiLabel* cur = new uiLabel( this, mToUiStringTodo((last1st
+		  ? txts[nrleft-1]->buf() : txts[txts.size()-nrleft]->buf())) );
 	cur->attach( lblct, labl );
 	lbls_ += cur;
 	labl = cur;
@@ -795,7 +796,7 @@ void uiListBox::addItems( const char** textList )
     const char** pt_cur = textList;
     scrollingblocked_ = true;
     while ( *pt_cur )
-	addItem( *pt_cur++ );
+	addItem( mToUiStringTodo(*pt_cur++) );
     scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
@@ -808,7 +809,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
     int curidx = currentItem();
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
-	addItem( strs.get(idx) );
+	addItem( mToUiStringTodo(strs.get(idx)) );
 
     scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
