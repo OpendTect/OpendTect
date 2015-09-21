@@ -374,7 +374,7 @@ public:
     static uiString sType()             { return tr("Type"); }
     static uiString sUndefVal()		{ return tr("Undefined Value"); }
     static uiString sUndo()		{ return tr("Undo"); }
-    static uiString sUnit()		{ return tr("Unit"); }
+    static uiString sUnit(int num=1) { return tr("Unit",0,num); }
     static uiString sUp()		{ return tr("Up"); }
     static uiString sUse()		{ return tr("Use"); }
     static uiString sUtilities()	{ return tr("Utilities"); }
