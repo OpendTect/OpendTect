@@ -259,9 +259,6 @@ bool ODSessionTranslator::store( const ODSession& session,
 }
 
 
-const char* ODSessionTranslator::keyword() { return "Session setup"; }
-
-
 const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 {
     warningmsg = "";
@@ -289,7 +286,7 @@ const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOPar iop( ODSessionTranslator::keyword() );
+    IOPar iop( ODSessionTranslatorGroup::sGroupName() );
     session.fillPar( iop );
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(ODSession)) )
 	return "Cannot write d-Tect session to file";

@@ -158,7 +158,7 @@ void uiDataPointSetPickDlg::pickModeCB( CallBacker* )
 void uiDataPointSetPickDlg::openCB( CallBacker* )
 {
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread_ = true;
+    ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, ctio );
     if ( !dlg.go() ) return;
 
@@ -209,7 +209,7 @@ void uiDataPointSetPickDlg::saveasCB( CallBacker* )
 void uiDataPointSetPickDlg::doSave( bool saveas )
 {
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread_ = false;
+    ctio.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio );
     if ( !dlg.go() ) return;
 
