@@ -95,6 +95,7 @@ void SEGY::LoadDef::reInit( bool alsohdef )
 
     coordscale_ = mUdf(float);
     psoffssrc_ = FileReadOpts::InFile;
+    icvsxytype_ = FileReadOpts::ICOnly;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }

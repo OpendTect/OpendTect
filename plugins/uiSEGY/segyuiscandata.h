@@ -73,6 +73,7 @@ public:
 
     float		coordscale_;
     FileReadOpts::PSDefType psoffssrc_;
+    FileReadOpts::ICvsXYType icvsxytype_;
     SamplingData<float>	psoffsdef_;
 
     TrcHeaderDef*	hdrdef_;

@@ -40,6 +40,7 @@ public:
 
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
+    void		updateDisplay()		{ showRelevantInfo(); }
 
     Notifier<uiSEGYReadStartInfo> loaddefChanged; //!< when I have changed it
 
@@ -83,7 +84,8 @@ protected:
     void		showRelevantInfo();
 
     bool		isVSP() const		{ return imptype_.isVSP(); }
-    void		setCellTxt(int col,int row,const char*);
+    void		setCellTxt(int col,int row,const char*,
+				   bool isoptional=false);
 
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);
