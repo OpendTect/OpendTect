@@ -666,7 +666,7 @@ void uiTreeView::selectAll()
     mBlockCmdRec;
     body_->selectAll();
     for ( int idx=0; idx<nrItems(); idx++ )
-	getItem( idx )->checkAll( true );
+	getItem( idx )->checkAll( true, true );
 }
 
 
@@ -675,7 +675,7 @@ void uiTreeView::clearSelection()
     mBlockCmdRec;
     body_->clearSelection();
     for ( int idx=0; idx<nrItems(); idx++ )
-	getItem( idx )->checkAll( false );
+	getItem( idx )->checkAll( false, true );
 }
 
 

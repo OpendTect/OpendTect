@@ -105,7 +105,6 @@ public:
     bool		showToolTips() const;
 
     void		clear();
-    void		invertSelection();
     void		selectAll();
 
     void		expandAll();

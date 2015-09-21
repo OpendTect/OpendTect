@@ -56,6 +56,7 @@ public:
     void			setChecked(bool yn,bool trigger=false);
     virtual bool		isChecked() const;
     NotifierAccess*		checkStatusChange();
+    NotifierAccess*		keyPressed();
     void			expand();
     void			collapse();
 

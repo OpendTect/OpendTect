@@ -53,6 +53,7 @@ protected:
     int			selectionKey() const;
     int			uiTreeViewItemType() const;
     virtual void	checkCB(CallBacker*);
+    virtual void	keyPressCB(CallBacker*);
     virtual bool	init();
 
     bool		isSelectable() const		{ return true; }
@@ -69,6 +70,7 @@ protected:
     void		createMenuCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
+    virtual void	deleteObject();
 
     uiVisPartServer*	visserv_;
     int			displayid_;
@@ -78,7 +80,6 @@ protected:
     MenuItem		addattribmnuitem_;
     MenuItem		addvolprocmnuitem_;
     MenuItem		duplicatemnuitem_;
-    MenuItem		deletemnuitem_;
     MenuItem		removemnuitem_;
     MenuItem		lockmnuitem_;
     MenuItem		hidemnuitem_;
