@@ -104,45 +104,27 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 
 #define mConstructorInitListStart(c) \
-	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread), \
+	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.ctxt.forread), \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
 
 
-uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
-				const uiString& ttxt )
-    : mConstructorInitListStart(ctxt)
-    , setup_( ttxt )
-{
-    init( ctxt );
-}
-
-
-uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
-				const IOObjContext& ctxt )
-    : mConstructorInitListStart(ctxt)
-    , setup_( su )
-{
-    init( ctxt );
-}
-
-
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
-    : mConstructorInitListStart(ctio.ctxt)
+    : mConstructorInitListStart(ctio)
     , setup_( ttxt )
 {
-    init( ctio.ctxt );
+    init( ctio );
 }
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
-    : mConstructorInitListStart(ctio.ctxt)
+    : mConstructorInitListStart(ctio)
     , setup_( su )
 {
-    init( ctio.ctxt );
+    init( ctio );
 }
 
 
@@ -154,14 +136,14 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 }
 
 
-void uiIOObjSelDlg::init( const IOObjContext& ctxt )
+void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 {
-    uiIOObjSelGrp::Setup sgsu( ctxt.forread && setup_.multisel_
+    uiIOObjSelGrp::Setup sgsu( ctio.ctxt.forread && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
-    selgrp_ = new uiIOObjSelGrp( this, ctxt, sgsu );
+    selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
@@ -175,9 +157,9 @@ void uiIOObjSelDlg::init( const IOObjContext& ctxt )
 	    titletext = tr("Select output %1%2");
 
 	if ( selgrp_->getContext().name().isEmpty() )
-	    titletext = titletext.arg( uiString(ctxt.trgroup->userName()) );
+	    titletext = titletext.arg( uiString(ctio.ctxt.trgroup->userName()));
 	else
-	    titletext = titletext.arg( uiString( ctxt.name() ) );
+	    titletext = titletext.arg( uiString( ctio.ctxt.name() ) );
 
 	titletext = titletext.arg( setup_.multisel_ ? "(s)"
 					: uiString::emptyString() );
@@ -197,9 +179,9 @@ void uiIOObjSelDlg::init( const IOObjContext& ctxt )
     }
 
     if ( selgrp_->getContext().name().isEmpty() )
-	captn = captn.arg( uiString( ctxt.trgroup->userName() ) );
+	captn = captn.arg( uiString( ctio.ctxt.trgroup->userName() ) );
     else
-	captn = captn.arg( uiString( ctxt.name() ) );
+	captn = captn.arg( uiString( ctio.ctxt.name() ) );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(
