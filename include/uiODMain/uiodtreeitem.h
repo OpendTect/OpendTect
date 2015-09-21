@@ -64,7 +64,6 @@ public:
 
 protected:
 
-    void		keyPressCB(CallBacker*);
     void		addFactoryCB(CallBacker*);
     void		removeFactoryCB(CallBacker*);
 
