@@ -27,6 +27,7 @@ class uiSpinBox;
 class uiCheckBox;
 class uiFileInput;
 class uiSurveyMap;
+class uiToolButton;
 class uiHistogramDisplay;
 class uiSEGYRead;
 class uiSEGYImpType;
@@ -74,6 +75,7 @@ protected:
     uiButton*		examinebut_;
     uiButton*		fullscanbut_;
     uiButton*		editbut_;
+    uiToolButton*	icvsxybut_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
     uiCheckBox*		inc0sbox_;
@@ -91,7 +93,10 @@ protected:
     SurveyInfo*		survinfo_;
     bool		survinfook_;
     uiSEGYRead*		classicrdr_;
+    const uiString	usexytooltip_;
+    const uiString	useictooltip_;
 
+    bool		imptypeFixed() const	{ return !typfld_; }
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
     void		execNewScan(bool,bool full=false);
@@ -110,6 +115,7 @@ protected:
     void		setButtonStatuses();
     void		displayScanResults();
     void		updateSurvMap(const SEGY::ScanInfo&);
+    bool		needICvsXY() const;
 
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);
@@ -121,6 +127,7 @@ protected:
     void		runClassicLink(CallBacker*)	{ runClassic( false ); }
     void		defChg( CallBacker* )		{ execNewScan( true ); }
     void		examineCB(CallBacker*);
+    void		icxyCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
     bool		acceptOK(CallBacker*);
