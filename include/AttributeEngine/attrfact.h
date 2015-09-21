@@ -22,7 +22,7 @@ mDefSimpleTranslatorSelector(AttribDescSet);
 mDefSimpleTranslatorioContext(AttribDescSet, Attr );
 
 uiString AttribDescSetTranslatorGroup::sTypeName()
-{ return uiStrings::sAttributes(); }
+{ return uiStrings::sAttribute(mPlural); }
 
 
 #endif

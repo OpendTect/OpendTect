@@ -515,7 +515,7 @@ void uiODMenuMgr::fillProcMenu()
     csoitm_ = new uiMenu( &appl_, tr("Create Seismic Output") );
 
 // Attributes
-    uiMenu* attritm = new uiMenu( uiStrings::sAttributes() );
+    uiMenu* attritm = new uiMenu( uiStrings::sAttribute(mPlural) );
     csoitm_->insertItem( attritm );
 
     add2D3DMenuItem( *attritm, "seisout", tr("Single Attribute"),
@@ -596,7 +596,7 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->insertItem( csoitm_ );
 
     uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
-    add2D3DMenuItem( *grditm, "ongrid", uiStrings::sAttributes(),
+    add2D3DMenuItem( *grditm, "ongrid", uiStrings::sAttribute(mPlural),
 		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 
@@ -612,7 +612,7 @@ void uiODMenuMgr::fillAnalMenu()
     const char* attrpm = "attributes";
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
-	uiMenu* aitm = new uiMenu( &appl_, uiStrings::sAttributes(),
+	uiMenu* aitm = new uiMenu( &appl_, uiStrings::sAttribute(mPlural),
 				   attrpm );
 	mInsertPixmapItem( aitm, m3Dots(uiStrings::s2D()), mEdit2DAttrMnuItm,
 			   "attributes_2d" );
@@ -624,7 +624,7 @@ void uiODMenuMgr::fillAnalMenu()
     }
     else
     {
-	mInsertPixmapItem( analmnu_, m3Dots(uiStrings::sAttributes()),
+	mInsertPixmapItem( analmnu_, m3Dots(uiStrings::sAttribute(mPlural)),
 			   mEditAttrMnuItm, attrpm)
 	analmnu_->insertSeparator();
     }

@@ -127,8 +127,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     gradgridfld_->attach( alignedBelow, usegradientfld_ );
 
     StringListInpSpec str;
-    str.addString( "Vertical" );
-    //str.addString( "Normal" ); TODO
+    str.addString( uiStrings::sVertical() );
+    //str.addString( uiStrings::sNormal() ); TODO
     gradienttypefld_ = new uiGenInput( this, uiStrings::sType(), str );
     gradienttypefld_->attach( rightOf, usegradientfld_ );
     gradienttypefld_->display( false ); //!SI().zIsTime() );
@@ -201,16 +201,16 @@ void uiSurfaceLimitedFiller::addSurfaceTableEntry( const IOObj& ioobj,
     if ( row==table_->nrRows() )
 	table_->insertRows( row, 1 );
 
-    BufferStringSet sidenms;
+    uiStringSet sidenms;
     if ( isfault )
     {
-	sidenms.add("Right");
-	sidenms.add("Left");
+	sidenms.add(uiStrings::sRight());
+	sidenms.add(uiStrings::sLeft());
     }
     else
     {
-	sidenms.add("Above");
-	sidenms.add("Below");
+	sidenms.add(uiStrings::sAbove());
+	sidenms.add(uiStrings::sBelow());
     }
 
     uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );

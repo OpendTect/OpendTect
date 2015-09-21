@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id: emregion.cc 38690 2015-03-30 18:00:30Z
 #include "emmanager.h"
 #include "faulttrace.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 
 namespace EM
@@ -139,7 +140,8 @@ bool RegionZBoundary::onRightSide( const TrcKey& tk, float z ) const
 
 void RegionZBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add( tr("Above") ); strs.add( tr("Below") );
+    strs.add( uiStrings::sAbove() );
+    strs.add( uiStrings::sBelow() );
 }
 
 
@@ -208,7 +210,8 @@ bool RegionHor3DBoundary::onRightSide( const TrcKey& tk, float z ) const
 
 void RegionHor3DBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add( tr("Above") ); strs.add( tr("Below") );
+    strs.add( uiStrings::sAbove() );
+    strs.add( uiStrings::sBelow() );
 }
 
 

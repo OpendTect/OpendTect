@@ -1208,7 +1208,7 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     uiString txt = useext ? ( is2d ? tr("Attributes 2D")
 				   : tr("Attributes 3D") )
-			  : uiStrings::sAttributes();
+			  : uiStrings::sAttribute(mPlural);
     calcmnuitem->text = txt;
     insertItems( *calcmnuitem, attrinf.attrnms_, 0, as.userRef(),
 		 start, stop, isattrib );

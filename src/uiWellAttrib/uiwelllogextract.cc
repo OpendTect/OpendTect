@@ -61,7 +61,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
-    uiListBox::Setup asu( OD::ChooseOnlyOne, uiStrings::sAttributes() );
+    uiListBox::Setup asu( OD::ChooseOnlyOne, uiStrings::sAttribute(mPlural) );
     attrsfld_ = new uiListBox( this, asu );
     attrsfld_->display( setup.withattrib_, true );
     attrsfld_->setChoiceMode( OD::ChooseZeroOrMore );

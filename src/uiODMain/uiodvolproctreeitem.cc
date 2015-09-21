@@ -128,7 +128,7 @@ bool uiDataTreeItem::selectSetup()
 	return false;
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
-    BufferString str;
+    uiString str;
     if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
     {
 	if ( !chain->areSamplesIndependent() )

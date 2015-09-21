@@ -548,7 +548,7 @@ void uiWellMan::editLogPush( CallBacker* )
     Well::LogSet& wls = curwds_[0]->logs();
     const int curlogidx = wls.indexOf( lognm );
     if ( curlogidx < 0 )
-	mErrRet(tr("Cannot read selected log"))
+	mErrRet(uiStrings::phrCannotRead(uiStrings::sWellLog()))
 
     Well::Log& wl = wls.getLog( curlogidx );
     uiWellLogEditor dlg( this, wl );
@@ -626,7 +626,7 @@ void uiWellMan::viewLogPush( CallBacker* )
     const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() );
     const Well::Log* wl = wls.getLog( lognm );
     if ( !wl )
-	mErrRet( tr("Cannot read selected log") )
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sWellLog() ) )
 
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );

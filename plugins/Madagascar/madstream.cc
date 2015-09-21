@@ -183,7 +183,8 @@ void MadStream::initRead( IOPar* par )
 	if ( insrc == "" || insrc == sKeyStdIn ) return;
 
 	StreamData sd = StreamProvider(insrc).makeIStream();
-	if (!sd.usable()) mErrRet(tr("Cannot read RSF data file"));;
+	if (!sd.usable())
+	    mErrRet( uiStrings::phrCannotRead(tr("RSF data file")));
 
         deleteAndZeroPtr( istrm_ );
 

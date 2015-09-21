@@ -49,12 +49,12 @@ void uiVolProcPartServer::doVolProc( const MultiID* mid )
     PtrMan<IOObj> ioobj = mid ? IOM().get( *mid ) : 0;
     if ( ioobj )
     {
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !VolProcessingTranslator::retrieve( *volprocchain_, ioobj,
 		errmsg ) )
 	{
-	    uiString fms( tr("Cannot read volume builder setup") );
-	    if ( errmsg.buf() )
+	    uiString fms( uiStrings::phrCannotRead( ioobj->uiName() ) );
+	    if ( !errmsg.isEmpty() )
 		fms.append(errmsg);
 
 	    uiMSG().error( fms );

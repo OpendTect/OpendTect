@@ -26,8 +26,9 @@ mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Attribute Sets"),mNoDlgTitle,
-					mODHelpKey(mAttrSetManHelpID) )
+    : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(tr("Attribute Sets")),
+				     mNoDlgTitle,
+				     mODHelpKey(mAttrSetManHelpID) )
 			       .nrstatusflds(1).modal(false),
 	           AttribDescSetTranslatorGroup::ioContext())
 {

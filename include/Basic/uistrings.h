@@ -95,13 +95,13 @@ public:
 				   const uiString& c);
     //!<"<a> <b> <c>
     static uiString phrLoad(const uiString&);
-    //!"Load <string>"
+    //!<"Load <string>"
     static uiString phrManage(const uiString&);
-    //!"Manage <string>"
+    //!<"Manage <string>"
     static uiString phrMerge(const uiString&);
-    //!"Merge <string>"
+    //!<"Merge <string>"
     static uiString phrModify(const uiString&);
-    //!"Modify <string>"
+    //!<"Modify <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
     static uiString phrReading(const uiString&);
@@ -135,15 +135,16 @@ public:
     static uiString phrYcoordinate(const uiString&);
     //!<"Y-coordinate <string>"
     static uiString phrZIn(const uiString&);
-    //!"Z in <string>"
+    //!<"Z in <string>"
     static uiString phrZRange(const uiString&);
-    //!"Z Range <string>"
+    //!<"Z Range <string>"
     
 
 //Words	 
     static uiString s2D();
     static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
+    static uiString sAbove()		{ return tr("Above"); }
     static uiString sAction()		{ return tr("Action"); }
     static uiString sAdd();
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
@@ -154,12 +155,12 @@ public:
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sASCII();
     static uiString sAttribName()	{ return tr("Attribute Name"); }
-    static uiString sAttribute()	{ return tr("Attribute"); }
-    static uiString sAttributes();
     static uiString sAxis()		{ return tr("Axis"); }
     static uiString sAzimuth()		{ return tr("Azimuth"); }
+    static uiString sAttribute(int num=1) { return tr("Attribute",0,num); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
+    static uiString sBelow()		{ return tr("Below"); }
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
@@ -187,7 +188,7 @@ public:
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
     static uiString sColor()		{ return tr("Color"); }
-    static uiString sColorTable();
+    static uiString sColorTable(int num=1);
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
@@ -257,6 +258,7 @@ public:
     static uiString sLat()		{ return tr("Latitude"); }
     static uiString sLayer()		{ return tr("Layer"); }
     static uiString sLine()		{ return tr("Line"); }
+    static uiString sLeft()		{ return tr("Left"); }
     static uiString sLoad();
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLog(int num=1)	{ return tr("Log",0,num); }
@@ -316,6 +318,7 @@ public:
     static uiString sRename();		
     static uiString sReset()		{ return tr("Reset"); }
     static uiString sResume()		{ return tr("Resume"); }
+    static uiString sRight()		{ return tr("Right"); }
     static uiString sRightClick()	{ return tr("<right-click>"); }
     static uiString sReversed()		{ return tr("Reversed"); }
     static uiString sRMS()		{ return tr("RMS"); }
@@ -333,7 +336,7 @@ public:
     static uiString sSeismics()		{ return sSeismic(mPlural); }
     static uiString sSeismics(bool is2d,bool isps,int num);
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
-    static uiString sSelection();
+    static uiString sSelection(int num=1);
     static uiString sSelect();
     static uiString sSelectPos();
     static uiString sSelOutpFile();

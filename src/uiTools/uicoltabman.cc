@@ -50,7 +50,8 @@ static const char* sKeyOwn = "Own";
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
-    : uiDialog(p,uiDialog::Setup(tr("Manage Color Tables"),
+: uiDialog(p,
+	uiDialog::Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
 				 tr("Add, remove, change color tables"),
 				 mODHelpKey(mColorTableManHelpID) ))
     , ctab_(ctab)

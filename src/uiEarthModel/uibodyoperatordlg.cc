@@ -438,7 +438,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &taskrunner );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
-	mRetErr( tr("Cannot read input body") );
+	mRetErr( uiStrings::phrCannotRead( uiStrings::sBody()) );
 
     PtrMan<EM::ImplicitBody> impbd =
 				emb->createImplicitBody( &taskrunner, false );
