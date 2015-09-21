@@ -194,6 +194,7 @@ protected:
 
     int				edittbid_;
     int				polyseltbid_;
+    int				picksettingstbid_;
     bool			ispolyselect_;
     bool			isvertical_;
 
@@ -211,7 +212,9 @@ protected:
 
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
+    void			itmSelectionChangedCB(CallBacker*);
     void			selectionMode(CallBacker*);
+    void			trackSetupCB(CallBacker*);
     void			handleToolClick(CallBacker*);
     void			removeSelected(CallBacker*);
     void			mouseCursorCB(CallBacker*);

@@ -201,7 +201,7 @@ uiTreeItem* uiTreeItem::findChild( const char* nm )
 
 void uiTreeItem::findChildren( const char* nm, ObjectSet<uiTreeItem>& set )
 {
-    if ( name_ == nm )
+    if ( name_.getFullString() == nm )
 	set += this;
 
     for ( int idx=0; idx<children_.size(); idx++ )

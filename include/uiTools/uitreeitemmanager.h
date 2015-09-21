@@ -147,6 +147,8 @@ public:
     virtual void		updateCheckStatus();
 
     virtual void		translateText() { updateColumnText( 0 ); }
+    uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
+    const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
 
 protected:
 
@@ -177,8 +179,6 @@ protected:
     virtual void		setTreeViewItem(uiTreeViewItem*);
     virtual void		removeItem(uiTreeViewItem*);
     virtual void		renameItem(uiTreeViewItem*);
-    uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
-    const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
 
     virtual bool		showSubMenu() { return true; }
     virtual bool		selectWithKey(int selkey);
