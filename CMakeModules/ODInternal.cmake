@@ -148,9 +148,11 @@ if( APPLE )
 	     DESTINATION .
 	     PATTERN ".svn" EXCLUDE )
     OD_CURRENT_YEAR( YEAR )
-    set( BUNDLEEXEC start_dtect )
+    set( BUNDLEEXEC od_main )
     set( BUNDLEICON "od.icns" )
     set( BUNDLEID "com.dgbes.opendtect" )
+    set( BUNDLESTRING "OpendTect" )
+    set( BUNDLENAME "${BUNDLESTRING}" )
     set ( INFOFILE CMakeModules/Info.plist )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
 		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
@@ -194,7 +196,7 @@ if( WIN32 )
     set( LMHOSTID "lmhostid.exe" )
 endif()
 
-install( PROGRAMS ${QJPEG} DESTINATION ${OD_EXEC_RELPATH_RELEASE} )
+install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
 if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
