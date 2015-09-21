@@ -82,7 +82,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddMnuID );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
     mnu.insertItem( new uiAction(uiStrings::sNew()), mNewMnuID );
 
     if ( children_.size() )
@@ -434,7 +434,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddMnuID );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
     mnu.insertItem( new uiAction(uiStrings::sNew()), mNewMnuID );
 
     if ( children_.size() )

@@ -104,7 +104,7 @@ const char* uiODLine2DParentTreeItem::iconName() const
 bool uiODLine2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAdd );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAdd );
     if ( SI().has3D() )
     {
 	mnu.insertItem( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),

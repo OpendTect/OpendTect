@@ -99,7 +99,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddIdx );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
     mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),
                     mAddAtSectIdx);
     mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
@@ -658,7 +658,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction( m3Dots(uiStrings::sLoad()) ), 0 );
+    mnu.insertItem( new uiAction( m3Dots(uiStrings::sAdd()) ), 0 );
     uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
     mnu.insertItem( newmenu, 1 );
     mnu.insertItem( new uiAction(m3Dots(tr("Create from 3D"))), 2 );

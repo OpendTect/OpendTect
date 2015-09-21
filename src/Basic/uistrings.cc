@@ -292,7 +292,7 @@ uiString uiStrings::sFault( int num )
 { return tr("Fault", 0, num ); }
 
 uiString uiStrings::sFaultStickSet( int num )
-{ return tr( "Fault Stick Set", 0, num ); }
+{ return tr( "FaultStickSet", 0, num ); }
 
 uiString uiStrings::sFrequency( int num )
 {
@@ -428,7 +428,7 @@ uiString uiStrings::sShift()
 uiString uiStrings::sSpecify()
 { return tr("Specify"); }
 
-uiString uiStrings::sSpecifyOut()   
+uiString uiStrings::sSpecifyOut()
 { return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
 
 
