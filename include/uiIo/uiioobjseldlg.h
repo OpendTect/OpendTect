@@ -53,10 +53,9 @@ public:
 	mDefSetupMemb(bool,withinserters)
     };
 
-			uiIOObjSelDlg(uiParent*,const IOObjContext&,
+			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
 			const uiString& titletxt=uiString::emptyString());
-			uiIOObjSelDlg(uiParent*,const Setup&,
-				      const IOObjContext&);
+			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
     const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
@@ -74,11 +73,6 @@ public:
 
     void		setSurveyDefaultSubsel(const char*);
 
-			//Deprecated
-			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-			const uiString& titletxt=uiString::emptyString());
-			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
-
 protected:
 
     bool		acceptOK(CallBacker*)
@@ -90,7 +84,7 @@ protected:
 
 private:
 
-    void		init(const IOObjContext&);
+    void		init(const CtxtIOObj&);
     static uiString	selTxt(bool forread);
 
 };
