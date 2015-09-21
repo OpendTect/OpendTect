@@ -99,13 +99,14 @@ protected:
 				    const ObjectSet<const SurveyObject>&,int);
     virtual void		updateDragger();
     visBase::MarkerSet*		createOneMarker() const;
-    const Coord3		getPlaneDataNormal();
     
     void			setSelectionMode(bool);
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
 					    const visBase::PolygonSelection*);
     bool			removeSelections();
+    virtual bool		draggerNormal() const;
+    virtual void		setDraggerNormal(const Coord3&);
 
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;

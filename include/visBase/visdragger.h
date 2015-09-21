@@ -94,6 +94,7 @@ public:
 
     void			setRotation(const Coord3&, const float);
     void			setDefaultRotation();
+    bool			defaultRotation() const;
 
     void			setOwnShape(DataObject*,bool activeshape);
     				/*!< Sets a shape on the dragger. */

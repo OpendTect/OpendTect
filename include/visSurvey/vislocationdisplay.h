@@ -104,6 +104,8 @@ protected:
     virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
     virtual void		updateDragger() {};
+    virtual void		setDraggerNormal(const Coord3&) {};
+    virtual bool		draggerNormal() const {return true;}
     virtual bool		removeSelections() { return false; }
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
@@ -119,6 +121,8 @@ protected:
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
     bool			transformPos(Pick::Location&) const;
+    const Coord3		getActivePlaneNormal(
+					     const visBase::EventInfo&) const;
 
     void			pickCB(CallBacker* cb);
     virtual void		locChg(CallBacker* cb);
@@ -156,9 +160,6 @@ protected:
     Coord3			undoloccoord_;
     bool			undomove_;
     bool			selectionmodel_;
-
-private:
-    bool			removePicks(const Selector<Coord3>&);
 
 };
 
