@@ -530,7 +530,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     beginSeedClickEvent( emobj );
 
-    if ( !clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
+    if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
 	const bool ctrlclicked = clickcatcher_->info().isCtrlClicked();
 	if ( !clickcatcher_->info().getPickedNode().isUdf() )
@@ -544,7 +544,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	     seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds )
 	{
 	    if ( clickcatcher_->info().getPickedNode().isUdf() )
-		clickcatcher_->info().setPickedNode( node );
+		clickcatcher_->info().setPickedNode( seedpos.tk_ );
 	}
 	else if ( shiftclicked && ctrlclicked )
 	{

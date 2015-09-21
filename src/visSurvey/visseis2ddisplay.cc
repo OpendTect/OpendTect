@@ -542,11 +542,9 @@ void Seis2DDisplay::createTransformedDataPack( int attrib )
 	tkzs.zsamp_.setFrom( trcdisplayinfo_.zrg_ );
 	// use survey step here?
 	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest2D(
-					getLineName(), tkzs, true );
+	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	else
-	    datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
-					tkzs, true );
+	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
 	datatransform_->loadDataIfMissing( voiidx_ );
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );

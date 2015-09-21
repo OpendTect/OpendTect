@@ -57,21 +57,10 @@ ZAxisTransform::~ZAxisTransform()
 int ZAxisTransform::addVolumeOfInterest( const TrcKeyZSampling&, bool )
 { return -1; }
 
-
 void ZAxisTransform::setVolumeOfInterest( int, const TrcKeyZSampling&, bool )
 {}
 
-int ZAxisTransform::addVolumeOfInterest2D( const char*, const TrcKeyZSampling&,
-					   bool )
-{ return -1; }
-
-void ZAxisTransform::setVolumeOfInterest2D( int, const char*,
-					    const TrcKeyZSampling&, bool )
-{}
-
-
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
-
 
 bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 { return !needsVolumeOfInterest(); }
@@ -211,7 +200,7 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 
 
 float ZAxisTransform::toZScale() const
-{    
+{
     if ( toZDomainInfo().def_.isDepth() )
     {
 	return SI().defaultXYtoZScale(
@@ -222,7 +211,7 @@ float ZAxisTransform::toZScale() const
     {
 	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
     }
-    
+
     return SI().zScale();
 }
 

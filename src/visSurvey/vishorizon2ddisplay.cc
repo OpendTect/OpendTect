@@ -208,7 +208,7 @@ public:
 Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		const Horizon2DDisplay::LineRanges* lr,
 		visBase::VertexShape* shape, visBase::PointSet* points,
-		ZAxisTransform* zaxt, const BufferStringSet& linenames,
+		ZAxisTransform* zaxt, const TypeSet<Pos::GeomID>& geomids,
 		TypeSet<int>& volumeofinterestids)
     : surf_( rcs )
     , lines_( shape )
@@ -216,7 +216,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , lineranges_( lr )
     , scale_( 1, 1, SI().zScale() )
     , zaxt_( zaxt )
-    , linenames_(linenames)
+    , geomids_(geomids)
     , crdidx_(0)
     , volumeofinterestids_( volumeofinterestids )
 {
@@ -242,21 +242,20 @@ int getNextRow()
 }
 
 
-void prepareForTransform( int rowidx, const char* linenm,
-    const StepInterval<int>& colrg )
+void prepareForTransform( int rowidx, Pos::GeomID geomid,
+			  const StepInterval<int>& colrg )
 {
     Threads::MutexLocker lock( lock_ );
     TrcKeyZSampling cs;
-    const Pos::GeomID geomid = Survey::GM().getGeomID(linenm);
     cs.hsamp_.start_ = BinID( geomid, colrg.start );
     cs.hsamp_.step_ = BinID( colrg.step, colrg.step );
     cs.hsamp_.stop_ = BinID( geomid , colrg.stop );
 
     int& voiid = volumeofinterestids_[rowidx];
     if ( voiid==-1 && zaxt_->needsVolumeOfInterest() )
-	voiid = zaxt_->addVolumeOfInterest2D( linenm,cs );
+	voiid = zaxt_->addVolumeOfInterest( cs );
     else if ( voiid>=0 )
-	zaxt_->setVolumeOfInterest2D( voiid, linenm,cs );
+	zaxt_->setVolumeOfInterest( voiid, cs );
 
     zaxt_->loadDataIfMissing( voiid );
 }
@@ -283,18 +282,17 @@ bool doWork( od_int64 start, od_int64 stop, int )
     RowCol rc;
     while ( true )
     {
-	rc.row() = getNextRow();
-	if ( mIsUdf(rc.row()) )
+	const int rowidx = getNextRow();
+	if ( !geomids_.validIdx(rowidx) || mIsUdf(rc.row()) )
 	    break;
 
-	const int rowidx = rowrg_.getIndex( rc.row() );
-	const char* linenm =
-	    linenames_.validIdx(rowidx) ? linenames_.get(rowidx).buf() : 0;
+	rc.row() = rowidx;
+	const Pos::GeomID geomid = geomids_[rowidx];
 	TypeSet<Coord3> positions;
-	const StepInterval<int> colrg = surf_->colRange( rc.row() );
+	const StepInterval<int> colrg = surf_->colRange( rowidx );
 
 	if ( zaxt_ )
-	    prepareForTransform( rowidx, linenm, colrg );
+	    prepareForTransform( rowidx, geomid, colrg );
 
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
@@ -310,9 +308,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		if ( zaxt_ )
-		    pos.z = zaxt_->transform2D( linenm, rc.col(), zval );
+		    pos.z = zaxt_->transformTrc( TrcKey(geomid,rc.col()), zval);
+
 		if ( !mIsUdf(pos.z) )
-		positions += pos;
+		    positions += pos;
 		else if ( positions.size() )
 		    sendPositions( positions );
 	    }
@@ -350,6 +349,7 @@ void sendPositions( TypeSet<Coord3>& positions )
 		const Coord3& pos = positions[ bendpoints[idy] ];
 		if ( !pos.isDefined() )
 		    continue;
+
 		lines_->getCoordinates()->setPos( crdidx_, pos );
 		indices += crdidx_++;
 	    }
@@ -373,7 +373,7 @@ protected:
     visBase::VertexShape*		lines_;
     visBase::PointSet*			points_;
     ZAxisTransform*			zaxt_;
-    const BufferStringSet&		linenames_;
+    const TypeSet<Pos::GeomID>&		geomids_;
     Threads::Mutex			lock_;
     int					nrthreads_;
     const Coord3			scale_;
@@ -401,20 +401,20 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	addChild( ps->osgNode() );
     }
 
-    BufferStringSet linenames;
+    TypeSet<Pos::GeomID> geomids;
     EM::IOObjInfo info( emobject_->multiID() );
-    info.getLineNames( linenames );
+    info.getGeomIDs( geomids );
 
     LineRanges linergs;
     mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
-    const bool redo = h2d && zaxistransform_ && linenames.isEmpty();
+    const bool redo = h2d && geomids.isEmpty();
     if ( redo )
     {
 	const EM::Horizon2DGeometry& emgeo = h2d->geometry();
 	for ( int lnidx=0; lnidx<emgeo.nrLines(); lnidx++ )
 	{
-	    linenames.add( emgeo.lineName(lnidx) );
 	    const Pos::GeomID geomid = emgeo.geomID( lnidx );
+	    geomids += geomid;
 
 	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
 	    {
@@ -440,14 +440,13 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
 
     if ( volumeofinterestids_.isEmpty() )
-	volumeofinterestids_.setSize( linenames.size(), -1 );
+	volumeofinterestids_.setSize( geomids.size(), -1 );
 
     if ( !rcs || !pl )
 	return;
 
     Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
-				     zaxistransform_, linenames,
-				     volumeofinterestids_ );
+			zaxistransform_, geomids, volumeofinterestids_ );
     updater.execute();
 }
 
@@ -524,20 +523,20 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	visBase::MarkerSet* markerset = posattribmarkers_[idx];
 	for ( int idy=0; idy<markerset->getCoordinates()->size(); idy++ )
 	{
-	    markerset->turnMarkerOn( idy,!displayonlyatsections_ );
+	    markerset->turnMarkerOn( idy, !displayonlyatsections_ );
 	    const visBase::Coordinates* markercoords =
 		markerset->getCoordinates();
 	    if ( markercoords->size() )
 	    {
 		Coord3 markerpos = markercoords->getPos( idy, true );
-	         if ( zaxistransform_ )
+		if ( zaxistransform_ )
 		    markerpos.z = zaxistransform_->transform( markerpos );
 		for ( int idz=0; idz<seis2dlist.size(); idz++ )
 		{
 		    const float dist = seis2dlist[idz]->calcDist( markerpos );
 		    if ( dist < seis2dlist[idz]->maxDist() )
 		    {
-			 markerset->turnMarkerOn( idy,true );
+			markerset->turnMarkerOn( idy, true );
 			break;
 		    }
 		}
@@ -573,7 +572,7 @@ void Horizon2DDisplay::otherObjectsMoved(
 }
 
 
-bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, 
+bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
 				    TaskRunner* taskr )
 {
     if ( !EMObjectDisplay::setEMObject( newid, taskr ) )
@@ -584,7 +583,7 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
 }
 
 
-bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, 
+bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat,
 					  TaskRunner* taskr )
 {
     CallBack cb = mCB(this,Horizon2DDisplay,zAxisTransformChg);
@@ -658,4 +657,4 @@ void Horizon2DDisplay::removeVolumesOfInterest()
     volumeofinterestids_.setAll( -1 );
 }
 
-}; // namespace visSurvey
+} // namespace visSurvey
