@@ -24,7 +24,7 @@ class uiAdvancedTextItem;
 */
 
 mExpClass(uiBase) uiLegendItem : public uiRectItem
-{
+{ mODTextTranslationClass(uiLegendItem)
 public:
 			uiLegendItem();
 			~uiLegendItem();
@@ -46,6 +46,19 @@ protected:
     void		setProperties();
     void		init();
 
+private:
+
+    const uiString	sCountry()	    { return tr("Country"); }
+    const uiString	sBlock()	    { return tr("Block"); }
+    const uiString	sLicense()	    { return tr("License"); }
+    const uiString	sModelNm()	    { return tr("Model Name"); }
+    const uiString	sHorNm()	    { return tr("Horizon Name"); }
+    const uiString	sScale()	    { return tr("Scale"); }
+    const uiString	sContourInc()	    { return tr("Contour Inc"); }
+    const uiString	sUserNm()	    { return tr("User Name"); }
+    const uiString	sDate()		    { return tr("Date"); }
+    const uiString	sSignature()	    { return tr("Signature"); }
+    const uiString	sMap()		    { return tr("Map"); }
 };
 
 #endif

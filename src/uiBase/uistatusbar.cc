@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uimain.h"
 #include "uiparentbody.h"
+#include "uistrings.h"
 
 #include "uibody.h"
 
@@ -158,7 +159,7 @@ void uiStatusBar::setEmpty( int startat )
 {
     const int nrflds = nrFields();
     for ( int idx=startat; idx<nrflds; idx++ )
-	body_->message( "", idx, -1 );
+	body_->message( uiStrings::sEmptyString(), idx, -1 );
 }
 
 
@@ -197,7 +198,7 @@ int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
 int uiStatusBar::addMsgFld( const uiString& tooltip,
 			    Alignment::HPos al, int stretch )
 {
-    int idx = body_->addMsgFld( 0, stretch );
+    int idx = body_->addMsgFld( uiStrings::sEmptyString(), stretch );
 
     setToolTip( idx, tooltip );
     setTxtAlign( idx, al );

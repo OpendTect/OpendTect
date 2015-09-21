@@ -181,13 +181,13 @@ uiShortcutsList::uiShortcutsList( const char* selkey )
 	    return;
 
 	names_.add( name );
-	BufferString proplbl;
+	uiString proplbl;
 	int propval;
-	if ( getSCProperties( *pars, index, proplbl, propval ) )
+	if ( getSCProperties(*pars, index, proplbl, propval) )
 	{
 	    uiExtraIntKeyDesc* uieikd =
 				new uiExtraIntKeyDesc( val1, val2, propval );
-	    uieikd->setIntLabel( proplbl.buf() );
+	    uieikd->setIntLabel( proplbl );
 	    keydescs_ += uieikd;
 	}
 	else
@@ -267,7 +267,7 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 
 
 bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
-				       BufferString& proplbl,
+				       uiString& proplbl,
 				       int& propval) const
 {
     BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property() );

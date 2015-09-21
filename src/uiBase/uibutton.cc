@@ -535,7 +535,7 @@ void uiCheckBox::click()
 
 uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 {
-    if ( forcetb || istoggle_ || name_ == tooltip_.getFullString() )
+    if ( forcetb || istoggle_ || name_ == tooltip_ )
 	return new uiToolButton( p, *this );
 
     return getPushButton( p, true );
@@ -571,7 +571,8 @@ uiPushButton* uiToolButtonSetup::getPushButton( uiParent* p, bool wic ) const
     id_(-1), uimenu_(0)
 
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
-    : uiButton( parnt, su.name_, &su.cb_, mkbody(parnt,su.icid_,su.name_) )
+    : uiButton( parnt, su.name_, &su.cb_, mkbody(parnt,su.icid_,
+		su.name_) )
     , mInitTBList
 {
     setToolTip( su.tooltip_ );
@@ -596,7 +597,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
     , mInitTBList
 {
     mSetDefPrefSzs();
-    setToolTip( tt.getFullString() );
+    setToolTip( tt );
 }
 
 
@@ -608,7 +609,7 @@ uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 {
     mSetDefPrefSzs();
     setArrowType( at );
-    setToolTip( tt.getFullString() );
+    setToolTip( tt );
 }
 
 

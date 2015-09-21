@@ -127,7 +127,7 @@ uiString getCaptn( const uiString& s )
 	return s;
 
     uiString oldcaptn = gtCaptn();
-    gtCaptn() = "";
+    gtCaptn() = uiStrings::sEmptyString();
 
     return oldcaptn;
 }
@@ -303,7 +303,7 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
     uiStringSet strings;
     for ( int idx=0; idx<fms.size(); idx++ )
-	strings.add( fms[idx] );
+	strings.add( mToUiStringTodo(fms[idx]) );
 
     errorWithDetails( strings );
 }

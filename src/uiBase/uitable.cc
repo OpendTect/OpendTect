@@ -474,8 +474,8 @@ void uiTable::setDefaultColLabels()
     const int nrcols = nrCols();
     for ( int idx=0; idx<nrcols; idx++ )
     {
-	BufferString lbl( setup_.coldesc_ ); lbl += " ";
-	lbl += idx+1;
+	uiString lbl = toUiString("%1 %2").arg(mToUiStringTodo(setup_.coldesc_))
+					  .arg(idx+1);
 	setColumnLabel( idx, lbl );
     }
 }
@@ -1039,7 +1039,7 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
     body_->setColumnCount( labels.size() );
 
     for ( int i=0; i<labels.size(); i++ )
-        setColumnLabel( i, labels[i]->buf() );
+        setColumnLabel( i, mToUiStringTodo(labels[i]->buf()) );
 }
 
 
@@ -1064,7 +1064,7 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
 	itm->setToolTip( tt.getQString() );
     }
     else
-	cellobj->setToolTip( tt );
+	cellobj->setToolTip( mToUiStringTodo(tt) );
 }
 
 
@@ -1177,8 +1177,7 @@ void uiTable::popupMenu( CallBacker* )
     }
 
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
-    BufferString itmtxt;
-
+    uiString itmtxt;
     const RowCol cur = notifiedCell();
     if ( setup_.removeselallowed_ )
 	getSelected();
@@ -1191,21 +1190,24 @@ void uiTable::popupMenu( CallBacker* )
     {
 	if ( setup_.insertcolallowed_ )
 	{
-	    itmtxt =  BufferString( "Insert ", setup_.coldesc_, " before" );
+	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
+				    toUiString(setup_.coldesc_), tr("before")));
 	    inscolbef = mnu->insertItem( new uiAction(itmtxt), 0 );
-	    itmtxt =  BufferString( "Insert ", setup_.coldesc_, " after" );
+	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
+				    toUiString(setup_.coldesc_), tr("after")));
 	    inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
 	}
 
 	if ( setup_.removecolallowed_ && notifcols_.size() < 2 )
 	{
-	    itmtxt = "Remove "; itmtxt += setup_.coldesc_;
+	    itmtxt = uiStrings::phrRemove(toUiString(setup_.coldesc_));
 	    delcol = mnu->insertItem( new uiAction(itmtxt), 4 );
 	}
 
 	if ( notifcols_.size() > 1 )
 	{
-	    itmtxt = BufferString( "Remove selected ", setup_.coldesc_, "s" );
+	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2%3")
+		     .arg(setup_.coldesc_).arg(tr("s")));
 	    delcols = mnu->insertItem( new uiAction(itmtxt), 6 );
 	}
     }
@@ -1218,21 +1220,25 @@ void uiTable::popupMenu( CallBacker* )
     {
 	if ( setup_.insertrowallowed_ )
 	{
-	    itmtxt = BufferString( "Insert ", setup_.rowdesc_, " before" );
+	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
+				    toUiString(setup_.rowdesc_), tr("before")));
 	    insrowbef = mnu->insertItem( new uiAction(itmtxt), 1 );
-	    itmtxt = BufferString( "Insert ", setup_.rowdesc_, " after" );
+	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
+				    toUiString(setup_.rowdesc_), tr("after")));
 	    insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
 	}
 
 	if ( setup_.removerowallowed_ && notifrows_.size() < 2 )
 	{
-	    itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
+	    itmtxt = toUiString("%1 %2").arg(tr("Remove")).
+					    arg(setup_.rowdesc_);
 	    delrow = mnu->insertItem( new uiAction(itmtxt), 5 );
 	}
 
 	if ( notifrows_.size() > 1 )
 	{
-	    itmtxt = BufferString( "Remove selected ", setup_.rowdesc_, "s" );
+	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2%3")
+		     .arg(setup_.rowdesc_).arg(tr("s")));
 	    delrows = mnu->insertItem( new uiAction(itmtxt), 7 );
 	}
     }
@@ -1240,7 +1246,7 @@ void uiTable::popupMenu( CallBacker* )
     int cptxt = 0;
     if ( isTableReadOnly() && setup_.enablecopytext_ )
     {
-	itmtxt = "Copy text";
+	itmtxt = uiStrings::phrJoinStrings(uiStrings::sCopy(),tr("text"));
 	cptxt = mnu->insertItem( new uiAction(itmtxt), 8 );
     }
 
@@ -1248,7 +1254,7 @@ void uiTable::popupMenu( CallBacker* )
     if ( needOfVirtualKeyboard() )
     {
 	mnu->insertSeparator();
-	itmtxt = "Virtual Keyboard";
+	itmtxt = tr("Virtual Keyboard");
 	virkeyboardid = mnu->insertItem( new uiAction(itmtxt), 100 );
     }
 
@@ -1262,7 +1268,7 @@ void uiTable::popupMenu( CallBacker* )
 	insertColumns( newcell_, 1 );
 
 	if ( !setup_.defcollbl_ )
-	    setColumnLabel( newcell_, toString(newcell_.col()) );
+	    setColumnLabel( newcell_, toUiString(newcell_.col()) );
 
 	colInserted.trigger();
     }
