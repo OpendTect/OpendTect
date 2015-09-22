@@ -193,7 +193,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     BufferString cmd( "'", fp.fullPath() );
     cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-    OS::ExecCommand( cmd );
+    system( cmd );
 #endif
 
     BufferString cmakefile =
