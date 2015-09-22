@@ -122,6 +122,19 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrcHdr( od_istream& strm ) const
 }
 
 
+
+void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
+				const SEGY::OffsetCalculator& offscalc ) const
+{
+    thdr.fill( ti, coordscale_ );
+    offscalc.setOffset( ti, thdr );
+    if ( icvsxytype_ == FileReadOpts::ICOnly )
+	ti.coord = SI().transform( ti.binid );
+    else if ( icvsxytype_ == FileReadOpts::XYOnly )
+	ti.binid = SI().transform( ti.coord );
+}
+
+
 bool SEGY::LoadDef::getData( od_istream& strm, char* buf, float* vals ) const
 {
     const int trcbytes = traceDataBytes();
@@ -245,8 +258,7 @@ virtual int nextStep()
 	if ( !thdr->isusable )
 	    continue;
 
-	thdr->fill( ti_, def_.coordscale_ );
-	offscalc_.setOffset( ti_, *thdr );
+	def_.getTrcInfo( *thdr, ti_, offscalc_ );
 	si_.addPositions( ti_, dtctr_ );
 	si_.addValues( cs_, vals_, def_.ns_ );
 	nrdone_++;
@@ -303,10 +315,8 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     SEGY::OffsetCalculator offscalc;
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
     offscalc.is2d_ = is2d; offscalc.coordscale_ = def.coordscale_;
-
     SeisTrcInfo ti;
-    thdr->fill( ti, def.coordscale_ );
-    offscalc.setOffset( ti, *thdr );
+    def.getTrcInfo( *thdr, ti, offscalc );
 
     inls_.start = inls_.stop = ti.binid.inl();
     crls_.start = crls_.stop = ti.binid.crl();
@@ -357,8 +367,7 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx, bool is2d,
 	if ( !thdr->isusable )
 	    continue;
 
-	thdr->fill( ti, def.coordscale_ );
-	offscalc.setOffset( ti, *thdr );
+	def.getTrcInfo( *thdr, ti, offscalc );
 	addPositions( ti, dtctr );
 	addValues( cs, vals, def.ns_ );
 

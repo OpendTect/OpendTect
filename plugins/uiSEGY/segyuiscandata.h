@@ -82,6 +82,8 @@ public:
     bool		getData(od_istream&,char*,float* vals=0) const;
     TrcHeader*		getTrace(od_istream&,char*,float*) const;
     bool		skipData(od_istream&) const;
+    void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
+	    			   const OffsetCalculator&) const;
 
     bool		findRev0Bytes(od_istream&);
 
