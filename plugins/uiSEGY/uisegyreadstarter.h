@@ -124,9 +124,9 @@ protected:
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);
     void		fullScanReq(CallBacker*);
-    void		runClassicImp(CallBacker*)  { runClassic( true ); }
-    void		runClassicLink(CallBacker*) { runClassic( false ); }
-    void		defChg( CallBacker* )	    { forceRescan(true,false); }
+    void		runClassicImp(CallBacker*)	{ runClassic( true ); }
+    void		runClassicLink(CallBacker*)	{ runClassic( false ); }
+    void		defChg( CallBacker* )		{ forceRescan(); }
     void		examineCB(CallBacker*);
     void		icxyCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);

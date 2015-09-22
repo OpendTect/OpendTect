@@ -690,12 +690,24 @@ const char* uiTable::text( const RowCol& rc ) const
 
 void uiTable::setText( const RowCol& rc, const char* txt )
 {
+    setText( rc, toUiString(txt) );
+}
+
+
+void uiTable::setText( const RowCol& rc, const OD::String& txt )
+{
+    setText( rc, toUiString(txt) );
+}
+
+
+void uiTable::setText( const RowCol& rc, const uiString& txt )
+{
     mBlockCmdRec;
     uiObject* cellobj = getCellObject( rc );
     if ( !cellobj )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
-	itm->setText( txt );
+	itm->setText( txt.getQString() );
     }
     else
     {
@@ -703,7 +715,7 @@ void uiTable::setText( const RowCol& rc, const char* txt )
 	if ( !cb )
 	    pErrMsg("TODO: unknown table cell obj: add it!");
 	else
-	    cb->setText( txt );
+	    cb->setText( txt.getFullString() );
     }
 }
 

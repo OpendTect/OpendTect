@@ -40,7 +40,6 @@ static const char* rcsID mUsedVar = "$Id:$";
 #define mUseTxtCol 2
 #define mUseCol 3
 
-static const char* sBytePos = "from header";
 static const Color qscellcolor = Color( 255, 255, 225 ); // palish yellow
 static const Color optqscellcolor = Color( 255, 255, 245 ); // even paler yellow
 static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
@@ -48,6 +47,8 @@ static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
 #define mGetGeomType(varnm) const Seis::GeomType varnm = imptype_.geomType()
 #define mGetParChgCB(varnm) \
     const CallBack varnm( mCB(this,uiSEGYReadStartInfo,parChg) )
+
+#define sEmpty uiString::emptyString()
 
 
 class uiSEGYByteNr : public uiComboBox
@@ -114,6 +115,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     , offsetbytefld_(0)
     , offsgengrp_(0)
     , inptypfixed_(imptyp)
+    , sBytePos(tr("from header"))
 {
     nrrows_ = mNrInfoRows;
     if ( inptypfixed_ )
@@ -127,9 +129,9 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
 
     tbl_ = new uiTable( this, uiTable::Setup(nrrows_,mNrInfoCols)
 				  .manualresize(true), "Info table" );
-    tbl_->setColumnLabel( mItemCol, "" );
+    tbl_->setColumnLabel( mItemCol, sEmpty );
     tbl_->setColumnLabel( mQSResCol, "Quick scan result" );
-    tbl_->setColumnLabel( mUseTxtCol, "" );
+    tbl_->setColumnLabel( mUseTxtCol, sEmpty );
     tbl_->setColumnLabel( mUseCol, "Actually use" );
     tbl_->setColumnStretchable( mItemCol, false );
     tbl_->setColumnStretchable( mQSResCol, true );
@@ -139,14 +141,14 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     tbl_->setPrefHeightInRows( nrrows_ );
     tbl_->setTableReadOnly( true );
     tbl_->setLeftHeaderHidden( true );
-    setCellTxt( mItemCol, mRevRow, "SEG-Y Revision" );
-    setCellTxt( mUseTxtCol, mRevRow, "" );
-    setCellTxt( mItemCol, mDataFormatRow, "Data format" );
-    setCellTxt( mUseTxtCol, mDataFormatRow, "" );
-    setCellTxt( mItemCol, mNrSamplesRow, "Number of samples" );
-    setCellTxt( mUseTxtCol, mNrSamplesRow, "" );
-    setCellTxt( mItemCol, mZRangeRow, "Z Range" );
-    setCellTxt( mUseTxtCol, mZRangeRow, "start / interval" );
+    setCellTxt( mItemCol, mRevRow, tr("SEG-Y Revision") );
+    setCellTxt( mUseTxtCol, mRevRow, sEmpty );
+    setCellTxt( mItemCol, mDataFormatRow, tr("Data format") );
+    setCellTxt( mUseTxtCol, mDataFormatRow, sEmpty );
+    setCellTxt( mItemCol, mNrSamplesRow, tr("Number of samples") );
+    setCellTxt( mUseTxtCol, mNrSamplesRow, sEmpty );
+    setCellTxt( mItemCol, mZRangeRow, tr("Z Range") );
+    setCellTxt( mUseTxtCol, mZRangeRow, tr("start / interval") );
 
     mkCommonLoadDefFields();
 }
@@ -198,6 +200,7 @@ void uiSEGYReadStartInfo::manRev0Rows()
 {
     mGetGeomType( gt );
     mGetParChgCB( parchgcb );
+    const bool is2d = Seis::is2D( gt );
     const bool isrev0 = loaddef_.isRev0();
 
     if ( isVSP() || !isrev0 )
@@ -219,13 +222,27 @@ void uiSEGYReadStartInfo::manRev0Rows()
 	mAdd2Tbl( key2bytefld_, mKey2Row, mUseCol );
     }
 
-    if ( isVSP() || (!isrev0 && !Seis::is2D(gt)) )
+    if ( isVSP() || (!isrev0 && !is2d) )
 	mRemoveFromTable( key1bytefld_, mKey1Row, mUseCol )
     else if ( !key1bytefld_ )
     {
 	key1bytefld_ = new uiSEGYByteNr( 0, "Key1 byte" );
 	key1bytefld_->selectionChanged.notify( parchgcb );
 	mAdd2Tbl( key1bytefld_, mKey1Row, mUseCol );
+    }
+
+    if ( !is2d )
+    {
+	const bool isic = loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly;
+	const bool isxy = loaddef_.icvsxytype_ == SEGY::FileReadOpts::XYOnly;
+	if ( xcoordbytefld_ )
+	    xcoordbytefld_->display( !isic );
+	if ( ycoordbytefld_ )
+	    ycoordbytefld_->display( !isic );
+	if ( key1bytefld_ )
+	    key1bytefld_->display( !isxy );
+	if ( key2bytefld_ )
+	    key2bytefld_->display( !isxy );
     }
 }
 
@@ -305,26 +322,37 @@ void uiSEGYReadStartInfo::updateCellTexts()
     mGetGeomType( gt );
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
+    const bool isvsp = isVSP();
 
-    const char* xittxt; const char* yittxt;
-    const char* ky1ittxt; const char* ky2ittxt; const char* offsittxt;
-    const char* xustxt; const char* yustxt;
-    const char* ky1ustxt; const char* ky2ustxt;
+    uiString xittxt; uiString yittxt;
+    uiString ky1ittxt; uiString ky2ittxt; uiString offsittxt;
+    uiString xustxt; uiString yustxt;
+    uiString ky1ustxt; uiString ky2ustxt;
+    uiString nrtrcsusrtxt;
     xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt =
-    xustxt = yustxt = ky1ustxt = ky2ustxt = "";
-    const char* nrtrcsusrtxt = "";
-    if ( isVSP() )
-	nrtrcsusrtxt = "(1 trace used)";
+    xustxt = yustxt = ky1ustxt = ky2ustxt = nrtrcsusrtxt = sEmpty;
+    if ( isvsp )
+	nrtrcsusrtxt = tr("(1 trace used)");
     else
     {
-	xittxt = "X-Coordinate range"; yittxt = "Y-Coordinate range";
-	ky1ittxt = is2d ? "Trace number range" : "Inline range";
-	ky2ittxt = is2d ? "Ref/SP number range" : "Crossline range";
+	xittxt = tr("X-Coordinate range"); yittxt = tr("Y-Coordinate range");
+	ky1ittxt = is2d ? tr("Trace number range") : tr("Inline range");
+	ky2ittxt = is2d ? tr("Ref/SP number range") : tr("Crossline range");
 	if ( isps )
-	    offsittxt = "Offset range";
+	    offsittxt = tr("Offset range");
 
 	if ( loaddef_.isRev0() )
+	{
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
+	    const uiString iscalcstr = tr( "[Calculated]" );
+	    if ( !is2d )
+	    {
+		if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
+		    xustxt = yustxt = iscalcstr;
+		else if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::XYOnly )
+		    ky1ustxt = ky2ustxt = iscalcstr;
+	    }
+	}
     }
 
     const bool coordsopt = !is2d
@@ -338,14 +366,13 @@ void uiSEGYReadStartInfo::updateCellTexts()
     setCellTxt( mItemCol, mKey2Row, ky2ittxt, key2opt );
     if ( mHavePSRow )
 	setCellTxt( mItemCol, mPSRow, offsittxt );
-    setCellTxt( mQSResCol, mKey1Row, isVSP() ? ""
-		: (is2d ? trcnrinfotxt_ : inlinfotxt_).buf(), key1opt );
-    setCellTxt( mQSResCol, mKey2Row, isVSP() ? ""
-		: (is2d ? refnrinfotxt_ : crlinfotxt_).buf(), key2opt );
-    setCellTxt( mQSResCol, mXRow, isVSP() ? "" : xinfotxt_, coordsopt );
-    setCellTxt( mQSResCol, mYRow, isVSP() ? "" : yinfotxt_, coordsopt );
-    setCellTxt( mQSResCol, mPSRow, isVSP() || !isps ? ""
-						    : offsetinfotxt_.buf() );
+    setCellTxt( mQSResCol, mKey1Row, isvsp ? sEmpty
+		: (is2d ? trcnrinfotxt_ : inlinfotxt_), key1opt );
+    setCellTxt( mQSResCol, mKey2Row, isvsp ? sEmpty
+		: (is2d ? refnrinfotxt_ : crlinfotxt_), key2opt );
+    setCellTxt( mQSResCol, mXRow, isvsp ? sEmpty : xinfotxt_, coordsopt );
+    setCellTxt( mQSResCol, mYRow, isvsp ? sEmpty : yinfotxt_, coordsopt );
+    setCellTxt( mQSResCol, mPSRow, isvsp || isps ? offsetinfotxt_ : sEmpty );
     setCellTxt( mUseTxtCol, mNrSamplesRow, nrtrcsusrtxt );
     setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
@@ -364,7 +391,7 @@ void uiSEGYReadStartInfo::clearInfo()
     showRelevantInfo();
 
     for ( int irow=0; irow<mKey1Row; irow++ )
-	setCellTxt( mQSResCol, irow, "" );
+	setCellTxt( mQSResCol, irow, sEmpty );
 }
 
 
@@ -383,7 +410,7 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 }
 
 
-void uiSEGYReadStartInfo::setCellTxt( int col, int row, const char* txt,
+void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt,
 					bool isopt )
 {
     const RowCol rc( row, col );
@@ -391,8 +418,8 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const char* txt,
     if ( col == mItemCol || col == mUseTxtCol )
 	tbl_->resizeColumnToContents( col );
     if ( col == mQSResCol )
-	tbl_->setColor( rc, *txt ? (isopt?optqscellcolor:qscellcolor)
-				 : Color::White() );
+	tbl_->setColor( rc, txt.isEmpty()
+		? Color::White() : (isopt ? optqscellcolor : qscellcolor) );
     else
 	tbl_->setColor( rc, isopt ? optcellcolor : Color::White() );
 }
@@ -433,48 +460,55 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
     if ( !si.isUsable() )
 	return;
 
-    BufferString txt;
+    uiString txt;
     const SEGY::BasicFileInfo& bi = si.basicinfo_;
 
-    txt.set( bi.revision_ );
+    txt.set( "%1" );
+    txt.arg( bi.revision_ );
     setCellTxt( mQSResCol, mRevRow, txt );
 
     const char** fmts = SEGY::FilePars::getFmts(false);
-    txt.set( bi.format_ < 4 ? fmts[bi.format_-1]
-	    : (bi.format_==8 ? fmts[4] : fmts[3]) );
+    txt.set( "%1%2" );
+    txt.arg( bi.format_ < 4 ? fmts[bi.format_-1]
+			    : (bi.format_==8 ? fmts[4] : fmts[3]) );
     if ( bi.hdrsswapped_ && bi.dataswapped_ )
-	txt.add( " (all bytes swapped)" );
+	txt.arg( tr(" (all bytes swapped)") );
     else if ( bi.hdrsswapped_ )
-	txt.add( " (header bytes swapped)" );
+	txt.arg( tr(" (header bytes swapped)") );
     else if ( bi.dataswapped_ )
-	txt.add( " (data bytes swapped)" );
+	txt.arg( tr(" (data bytes swapped)") );
+    else
+	txt.arg( sEmpty  );
     setCellTxt( mQSResCol, mDataFormatRow, txt );
 
-    txt.set( bi.ns_ ).add( " (" ).add( si.nrtrcs_ )
-	.add( si.nrtrcs_ == 1 ? " trace)" : " traces)" );
+    txt.set( "%1 (%2 %3)" );
+    txt.arg( bi.ns_ ).arg( si.nrtrcs_ )
+	.arg( si.nrtrcs_ == 1 ? tr("trace") : tr("traces") );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
 
     if ( mIsUdf(bi.sampling_.step) )
-	txt.set( "" );
+	txt = sEmpty;
     else
     {
+	txt.set( "%1 - %2 (s or %3)" );
 	const float endz = loaddef_.sampling_.start
 			 + (bi.ns_-1) * loaddef_.sampling_.step;
-	txt.set( loaddef_.sampling_.start ).add( " - " ).add( endz )
-	    .add( " (s or " ).add( si.infeet_ ? "ft)" : "m)" );
+	txt.arg( loaddef_.sampling_.start ).arg( endz )
+	    	 .arg( si.infeet_ ? "ft" : "m" );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
-    inlinfotxt_.set( si.inls_.start ).add( " - " ).add( si.inls_.stop );
-    crlinfotxt_.set( si.crls_.start ).add( " - " ).add( si.crls_.stop );
-    trcnrinfotxt_.set( si.trcnrs_.start ).add( " - " ).add( si.trcnrs_.stop );
-    xinfotxt_.set( si.xrg_.start ).add( " - " ).add( si.xrg_.stop );
-    yinfotxt_.set( si.yrg_.start ).add( " - " ).add( si.yrg_.stop );
-    offsetinfotxt_.set( si.offsrg_.start ).add( " - " ).add( si.offsrg_.stop );
+    const char* rgstr = "%1 - %2";
+    inlinfotxt_.set( rgstr ).arg( si.inls_.start ).arg( si.inls_.stop );
+    crlinfotxt_.set( rgstr ).arg( si.crls_.start ).arg( si.crls_.stop );
+    trcnrinfotxt_.set( rgstr ).arg( si.trcnrs_.start ).arg( si.trcnrs_.stop );
+    xinfotxt_.set( rgstr ).arg( si.xrg_.start ).arg( si.xrg_.stop );
+    yinfotxt_.set( rgstr ).arg( si.yrg_.start ).arg( si.yrg_.stop );
+    offsetinfotxt_.set( rgstr ).arg( si.offsrg_.start ).arg( si.offsrg_.stop );
     if ( mIsUdf(si.refnrs_.start) )
-	refnrinfotxt_.set( "<no data>" );
+	refnrinfotxt_ =  tr( "<no data>" );
     else
-	refnrinfotxt_.set(si.refnrs_.start).add(" - ").add(si.refnrs_.stop);
+	refnrinfotxt_.set(rgstr).arg( si.refnrs_.start ).arg( si.refnrs_.stop );
 
     useLoadDef();
     showRelevantInfo();
