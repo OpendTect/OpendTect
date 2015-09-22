@@ -100,7 +100,7 @@ protected:
     BufferString	edittext_;
 mEndDeclComposerClass
 
-mStartDeclComposerClassWithInit( uiCmdDriver, List, CmdComposer, uiListBox )
+mStartDeclComposerClassWithInit( uiCmdDriver, List, CmdComposer, uiListBoxObj )
 public:
     virtual void	updateInternalState();
 

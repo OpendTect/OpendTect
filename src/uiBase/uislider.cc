@@ -139,6 +139,9 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
 }
 
 
+#define mSliderBlockCmdRec	CmdRecStopper cmdrecstopper( slider_ );
+
+
 void uiSlider::processInput()
 { if ( editfld_ ) setValue( editfld_->getFValue() ); }
 
@@ -156,7 +159,7 @@ float uiSlider::getLinearFraction() const
 
 void uiSlider::setLinearFraction( float frac )
 {
-    mBlockCmdRec;
+    mSliderBlockCmdRec;
     if ( frac>=0.0 && frac<=1.0 )
     {
 	const float val = (1-frac)*slider_->body().minimum() +
@@ -202,7 +205,7 @@ void uiSlider::setValue( int ival )
 
 void uiSlider::setValue( float fval )
 {
-    mBlockCmdRec;
+    mSliderBlockCmdRec;
     int val = sliderValue( fval );
     slider_->body().setValue( val );
 }
@@ -254,14 +257,14 @@ bool uiSlider::hasInvertedControls() const
 
 void uiSlider::setMinValue( float minval )
 {
-    mBlockCmdRec;
+    mSliderBlockCmdRec;
     slider_->body().setMinimum( sliderValue(minval) );
 }
 
 
 void uiSlider::setMaxValue( float maxval )
 {
-    mBlockCmdRec;
+    mSliderBlockCmdRec;
     slider_->body().setMaximum( sliderValue(maxval) );
 }
 
@@ -280,7 +283,7 @@ float uiSlider::maxValue() const
 
 void uiSlider::setStep( float stp )
 {
-    mBlockCmdRec;
+    mSliderBlockCmdRec;
     int istep = (int)stp;
     if ( scaler_ )
     {

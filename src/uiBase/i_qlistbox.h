@@ -73,9 +73,9 @@ private:
 	QListWidgetItem* qlwi = itm; \
 	msg += " "; msg += qlwi->listWidget()->row( qlwi ); \
     } \
-    const int refnr = receiver_->beginCmdRecEvent( msg ); \
+    const int refnr = receiver_->box()->beginCmdRecEvent( msg ); \
     receiver_->notifier.trigger( *receiver_ ); \
-    receiver_->endCmdRecEvent( refnr, msg ); \
+    receiver_->box()->endCmdRecEvent( refnr, msg ); \
 }
 
 private slots:
@@ -100,8 +100,8 @@ void itemSelectionChanged()
 
 void itemEntered( QListWidgetItem* itm )
 {
-    const int refnr = receiver_->beginCmdRecEvent( "itemEntered" );
-    receiver_->endCmdRecEvent( refnr, "itemEntered" );
+    const int refnr = receiver_->box()->beginCmdRecEvent( "itemEntered" );
+    receiver_->box()->endCmdRecEvent( refnr, "itemEntered" );
 }
 
 

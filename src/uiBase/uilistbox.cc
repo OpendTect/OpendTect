@@ -442,6 +442,9 @@ uiListBox::~uiListBox()
 }
 
 
+#define mListBoxBlockCmdRec	CmdRecStopper cmdrecstopper( lb_ );
+
+
 void uiListBox::setLabelText( const uiString& txt, int nr )
 {
     if ( nr >= lbls_.size() ) return;
@@ -456,6 +459,7 @@ void uiListBox::mkCheckGroup()
 
     uiPushButton* pb = new uiPushButton( checkgrp_, uiStrings::sEmptyString(),
 					 mCB(this,uiListBox,menuCB), true );
+    pb->setName( "Selection menu" );
     pb->setIcon( "menu-arrow" );
     pb->setMaximumWidth( 40 );
     pb->setFlat( true );
@@ -466,6 +470,7 @@ void uiListBox::mkCheckGroup()
 #endif
     cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(), 
 						mCB(this,uiListBox,checkCB) );
+    cb_->setName( "Check-all box" );
     cb_->setMaximumWidth( 20 );
     checkgrp_->display( isMultiChoice(), true );
 }
@@ -481,6 +486,8 @@ void uiListBox::checkCB( CallBacker* )
 void uiListBox::updateCheckState()
 {
     NotifyStopper ns( cb_->activated );
+    CmdRecStopper cmdrecstopper( cb_ );
+
     const int nrchecked = nrChecked();
     if ( nrchecked==0 )
 	cb_->setCheckState( OD::Unchecked );
@@ -689,7 +696,7 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
     const int itmidx = lb_->body().indexOf( lbitm );
 
     NotifyStopper nsic( itemChosen );
-    mBlockCmdRec;
+    mListBoxBlockCmdRec;
     lb_->body().setCurrentRow( itmidx );
     nsic.restore();
 
@@ -762,7 +769,7 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
     if ( !allowduplicates_ && isPresent( text.getFullString() ) )
 	return;
 
-    mBlockCmdRec;
+    mListBoxBlockCmdRec;
     if ( !scrollingblocked_ )
 	mStartScrolling;
     lb_->body().addItem( text, mark, id );
@@ -835,7 +842,7 @@ void uiListBox::addItems( const uiStringSet& strs )
 
 void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 {
-    mBlockCmdRec;
+    mListBoxBlockCmdRec;
     if ( index<0 )
 	addItem( text, mark );
     else
@@ -941,7 +948,7 @@ Color uiListBox::getColor( int index ) const
 
 void uiListBox::setEmpty()
 {
-    mBlockCmdRec;
+    mListBoxBlockCmdRec;
     lb_->body().removeAll();
 }
 
@@ -986,7 +993,7 @@ void uiListBox::removeItem( const char* txt )
 
 void uiListBox::removeItem( int idx )
 {
-    mBlockCmdRec;
+    mListBoxBlockCmdRec;
     lb_->body().removeItem( idx );
     updateCheckState();
 }
@@ -1063,7 +1070,7 @@ void uiListBox::setCurrentItem( int idx )
 	return;
     }
 
-    mBlockCmdRec;
+    mListBoxBlockCmdRec;
 
     if ( !scrollingblocked_ )
 	mStartScrolling;
@@ -1164,9 +1171,9 @@ bool uiListBox::handleLongTabletPress()
 {
     BufferString msg = "rightButtonClicked ";
     msg += currentItem();
-    const int refnr = beginCmdRecEvent( msg );
+    const int refnr = lb_->beginCmdRecEvent( msg );
     rightButtonClicked.trigger();
-    endCmdRecEvent( refnr, msg );
+    lb_->endCmdRecEvent( refnr, msg );
     return true;
 }
 
@@ -1340,9 +1347,9 @@ void uiListBox::setChosen( const BufferStringSet& nms )
 
 void uiListBox::usrChooseAll( bool yn )
 {
-    const int refnr = beginCmdRecEvent( "selectionChanged" );
+    const int refnr = lb_->beginCmdRecEvent( "selectionChanged" );
     chooseAll( yn );
-    endCmdRecEvent( refnr, "selectionChanged" );
+    lb_->endCmdRecEvent( refnr, "selectionChanged" );
 }
 
 
@@ -1372,7 +1379,7 @@ void uiListBox::setItemChecked( int idx, bool yn )
 {
     if ( isMultiChoice() && yn != isItemChecked(idx) )
     {
-	mBlockCmdRec;
+	mListBoxBlockCmdRec;
 	mSetChecked( idx, yn );
     }
 }
