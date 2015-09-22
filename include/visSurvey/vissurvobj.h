@@ -243,7 +243,7 @@ public:
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						IOPar&) const	{}
+						IOPar&) const;	
     virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
 
 				/*!<Returns a mouse cursor that will

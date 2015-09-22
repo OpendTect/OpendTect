@@ -226,7 +226,7 @@ void uiVisPartServer::mouseCursorCB( CallBacker* cb )
     if ( caller==this )
 	return;
 
-    setMarkerPos( info.surveypos_, -1 );
+    setMarkerPos( info.trkv_, -1 );
 }
 
 
@@ -865,8 +865,8 @@ Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 }
 
 
-Coord3 uiVisPartServer::getMousePos(bool xyt) const
-{ return xyt ? xytmousepos_ : inlcrlmousepos_; }
+Coord3 uiVisPartServer::getMousePos() const
+{ return xytmousepos_; }
 
 
 BufferString uiVisPartServer::getMousePosVal() const
@@ -1993,7 +1993,8 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::setMarkerPos( const Coord3& worldpos, int dontsetscene )
+void uiVisPartServer::setMarkerPos( const TrcKeyValue& worldpos,
+                                    int dontsetscene )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	scenes_[idx]->setMarkerPos( worldpos, dontsetscene );
@@ -2005,16 +2006,15 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
     if ( !sceneeventsrc_ ) return;
 
-    xytmousepos_ = sceneeventsrc_->getMousePos( true, true );
+    const TrcKeyValue worldpos = sceneeventsrc_->getMousePos();
 
-    const Coord3 worldpos = sceneeventsrc_->getMousePos( true, false );
+    xytmousepos_ = sceneeventsrc_->getMousePos( true );
     setMarkerPos( worldpos, sceneeventsrc_->id() );
 
     MouseCursorExchange::Info info( worldpos );
     mousecursorexchange_->notifier.trigger( info, this );
 
     eventmutex_.lock();
-    inlcrlmousepos_ = sceneeventsrc_->getMousePos( false, true );
     mouseposval_ = sceneeventsrc_->getMousePosValue();
     mouseposstr_ = sceneeventsrc_->getMousePosString();
     zfactor_ = sceneeventsrc_->zDomainUserFactor();

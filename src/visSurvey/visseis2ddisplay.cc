@@ -864,6 +864,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 				     IOPar& par ) const
 {
     par.setEmpty();
+    SurveyObject::getMousePosInfo( evinfo, par );
     par.set( sKey::XCoord(), evinfo.worldpickedpos.x );
     par.set( sKey::YCoord(), evinfo.worldpickedpos.y );
     par.set( sKey::LineKey(), name() );

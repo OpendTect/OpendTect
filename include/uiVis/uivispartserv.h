@@ -253,8 +253,7 @@ public:
     int			selectedTexture(int id,int attrib) const;
 
     static int		evMouseMove();
-    Coord3		getMousePos(bool xyt) const;
-			/*!< If !xyt mouse pos will be in inl, crl, t */
+    Coord3		getMousePos() const;
     int			zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;
     BufferString	getMousePosString() const	{ return mouseposstr_; }
@@ -393,8 +392,8 @@ protected:
     void			updateManipulatorStatus(visBase::DataObject*,
 							bool issel) const;
 
-    void			setMarkerPos(const Coord3&,int dontsetscene);
-
+    void			setMarkerPos(const TrcKeyValue&,
+					     int dontsetscene);
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);
@@ -418,7 +417,6 @@ protected:
     bool			mapperrgeditinact_;
 
     Coord3			xytmousepos_;
-    Coord3			inlcrlmousepos_;
     int				zfactor_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;

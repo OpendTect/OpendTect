@@ -493,7 +493,7 @@ void uiODSceneMgr::updateStatusBar()
 				   appl_.statusBar()->getBGColor(mPosField) );
     }
 
-    const Coord3 xytpos = visServ().getMousePos( true );
+    const Coord3 xytpos = visServ().getMousePos();
     const bool haspos = xytpos.isDefined();
 
     BufferString msg;

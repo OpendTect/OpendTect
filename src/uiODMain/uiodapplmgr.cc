@@ -1430,7 +1430,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	    return false;
 
 	const TrcKey tk =
-		SI().transform( hd->getScene()->getMousePos(true,true) );
+		SI().transform( hd->getScene()->getMousePos(true) );
 	TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
 	if ( trcs.isEmpty() ) return false;
 

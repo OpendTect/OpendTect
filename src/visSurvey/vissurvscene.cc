@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
+#include "trckeyvalue.h"
 #include "uistring.h"
 #include "visannot.h"
 #include "visdataman.h"
@@ -184,7 +185,6 @@ Scene::~Scene()
     }
 
     mRemoveSelector;
-    delete &infopar_;
     delete zdomaininfo_;
 }
 
@@ -591,30 +591,20 @@ const Selector<Coord3>* Scene::getSelector() const
 }
 
 
-Coord3 Scene::getMousePos( bool xyt, bool displayspace ) const
+Coord3 Scene::getMousePos( bool displayspace ) const
 {
-    if ( xyt && displayspace ) return xytmousepos_;
+    if ( displayspace ) return xytmousepos_;
 
     Coord3 res = xytmousepos_;
-    if ( !displayspace && datatransform_ && res.isDefined() )
-    {
-	BufferString linenm; int trcnr = -1;
-	infopar_.get( sKey::LineKey(), linenm );
-	infopar_.get( sKey::TraceNr(), trcnr );
-	if ( !linenm.isEmpty() && trcnr>=0 )
-	    res.z = datatransform_->transformBack2D( linenm, trcnr,
-						     (float)xytmousepos_.z );
-	else
-	    res.z = datatransform_->transformBack( xytmousepos_ );
-    }
-
-    if ( xyt ) return res;
-
-    BinID binid = SI().transform( Coord(res.x,res.y) );
-    res.x = binid.inl();
-    res.y = binid.crl();
+    if ( datatransform_ && !mousetrckey_.isUdf() )
+        res.z = datatransform_->transformTrcBack( 
+	mousetrckey_, (float)xytmousepos_.z );
     return res;
 }
+
+
+TrcKeyValue Scene::getMousePos() const
+{ return TrcKeyValue(mousetrckey_,(float)getMousePos(false).z); }
 
 
 BufferString Scene::getMousePosValue() const
@@ -687,6 +677,7 @@ void Scene::mouseCB( CallBacker* cb )
     mouseposval_ = "";
     mouseposstr_ = "";
     xytmousepos_ = Coord3::udf();
+    mousetrckey_ = TrcKey::udf();
 
     const int sz = eventinfo.pickedobjids.size();
     if ( sz )
@@ -706,7 +697,11 @@ void Scene::mouseCB( CallBacker* cb )
 		    BufferString newstr;
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
 					 newmouseposval, newstr );
-		    so->getMousePosInfo( eventinfo, infopar_ );
+		    IOPar infopar;
+		    so->getMousePosInfo( eventinfo ,infopar );
+		    if ( !infopar.get(sKey::TraceKey(),mousetrckey_) )
+			mousetrckey_ = TrcKey::udf();
+
 		    if ( !newstr.isEmpty() )
 			mouseposstr_ = newstr;
 
@@ -716,6 +711,9 @@ void Scene::mouseCB( CallBacker* cb )
 
 		break;
 	    }
+	    if ( mousetrckey_.isUdf() )
+		mousetrckey_ = 
+		SI().transform( Coord(xytmousepos_.x,xytmousepos_.y) );
 	}
     }
 
@@ -799,14 +797,14 @@ const ZAxisTransform* Scene::getZAxisTransform() const
 { return datatransform_; }
 
 
-void Scene::setMarkerPos( const Coord3& coord, int sceneid )
+void Scene::setMarkerPos( const TrcKeyValue& trkv, int sceneid )
 {
-    Coord3 displaypos = coord;
+    Coord3 displaypos( Survey::GM().toCoord( trkv.tk_ ), trkv.val_ );
     if ( sceneid==id() )
 	displaypos = Coord3::udf();
 
-    if ( datatransform_ && coord.isDefined() )
-        displaypos.z = datatransform_->transform( coord );
+    if ( datatransform_ )
+        displaypos.z = datatransform_->transformTrc( trkv.tk_, trkv.val_ );
 
     const bool defined = displaypos.isDefined();
     if ( !defined )

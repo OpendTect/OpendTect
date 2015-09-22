@@ -43,10 +43,13 @@ public:
 			{ return oth.tk_==tk_ && mIsEqual(oth.val_,val_,1e-5); }
     inline bool		operator!=( const TrcKeyValue& oth ) const
 			{ return !(*this==oth); }
+    inline bool		isDefined() const;
 
     TrcKey		tk_;
     float		val_;
 };
 
+inline bool TrcKeyValue::isDefined() const
+{ return !tk_.isUdf() && !mIsUdf(val_); }
 
 #endif

@@ -195,8 +195,8 @@ MouseCursorExchange::MouseCursorExchange()
 {}
 
 
-MouseCursorExchange::Info::Info( const Coord3& pos, float offset )
-    : surveypos_( pos )
+MouseCursorExchange::Info::Info( const TrcKeyValue& pos, float offset )
+    : trkv_( pos )
     , offset_( offset ) 
 {}
 

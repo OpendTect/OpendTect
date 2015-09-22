@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "geometry.h"
 #include "position.h"
-
+#include "trckeyvalue.h"
 
 mExpClass(General) TabletInfo
 {
@@ -202,9 +202,10 @@ public:
     mExpClass(General) Info
     {
     public:
-				Info(const Coord3&,float offset=mUdf(float));
+				Info(const TrcKeyValue&,
+				     float offset = mUdf(float));
 
-	Coord3			surveypos_;
+	TrcKeyValue             trkv_;
 	float			offset_;
     };
 

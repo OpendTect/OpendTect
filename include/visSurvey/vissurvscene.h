@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "trckeyzsampling.h"
+#include "trckeyvalue.h"
 #include "position.h"
 
 class MouseCursor;
@@ -126,8 +127,8 @@ public:
     Notifier<Scene>		keypressed;
     Notifier<Scene>		mouseclicked;
     Notifier<Scene>		sceneboundingboxupdated;
-    Coord3			getMousePos(bool xyt,bool displayspace) const;
-				/*! If not xyt it is inlcrlt */
+    Coord3			getMousePos(bool displayspace) const;
+    TrcKeyValue                 getMousePos() const;
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
@@ -183,7 +184,7 @@ public:
 
     void			setAnnotColor(const Color&);
     const Color			getAnnotColor() const;
-    void			setMarkerPos(const Coord3&,int sceneid);
+    void			setMarkerPos(const TrcKeyValue&,int sceneid);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
     const Color&		getMarkerColor() const;
@@ -230,6 +231,7 @@ protected:
 						visBase::TopBotImage*&);
 
     Coord3			xytmousepos_;
+    TrcKey			mousetrckey_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     const MouseCursor*		mousecursor_;

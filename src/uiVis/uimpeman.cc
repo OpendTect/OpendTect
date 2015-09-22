@@ -184,7 +184,7 @@ int uiMPEMan::popupMenu()
 	mAddAction( tr("Stop Tracking"), "k", sStop, true )
     else
     {
-	const Coord3& clickedpos = scene->getMousePos( true, true );
+	const Coord3& clickedpos = scene->getMousePos( true );
 	const bool haspos = !clickedpos.isUdf();
 	mAddAction( tr("Start Tracking"), "k", sStart, true )
 	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack, true )
@@ -227,7 +227,7 @@ void uiMPEMan::handleAction( int res )
     if ( !scene ) return;
 
 
-    const Coord3& clickedpos = scene->getMousePos( true, true );
+    const Coord3& clickedpos = scene->getMousePos( true );
     const TrcKey tk = SI().transform( clickedpos.coord() );
 
     switch ( res )
