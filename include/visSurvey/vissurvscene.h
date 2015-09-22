@@ -132,6 +132,7 @@ public:
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
+    void			passMouseCursor(const MouseCursor&);
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
     const MouseEvent&		getMouseEvent() const	 { return mouseevent_; }
     void			setEventHandled();

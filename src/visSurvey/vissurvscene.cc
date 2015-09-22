@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
+#include "visselman.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
@@ -739,8 +740,42 @@ void Scene::mouseCursorCB( CallBacker* cb )
 	}
     }
 
+    mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
+    bool needmousecursorcall = false;
+
+    if ( !mousecursor_ || mousecursor_->shape_==MouseCursor::NotSet )
+    {
+	const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+	for ( int idx=size()-1; idx>=0; idx-- )
+	{
+	    const visBase::DataObject* dataobj = getObject( idx );
+	    mDynamicCastGet( const visSurvey::SurveyObject*, so, dataobj );
+	    if ( !so || !selectedids.isPresent(dataobj->id()) )
+		continue;
+
+	    needmousecursorcall = true;
+
+	    if ( so->isPicking() )
+	    {
+		mousecursor_ = &pickcursor;
+		needmousecursorcall = false;
+		break;
+	    }
+	}
+    }
+
+    if ( needmousecursorcall )
+    {
+	STM().setCurrentScene( this );
+	STM().mouseCursorCall.trigger();
+    }
+
     mousecursorchange.trigger();
 }
+
+
+void Scene::passMouseCursor( const MouseCursor& mc )
+{ mousecursor_ = &mc; }
 
 
 const MouseCursor* Scene::getMouseCursor() const

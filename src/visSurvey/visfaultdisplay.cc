@@ -784,6 +784,13 @@ void FaultDisplay::dataTransformCB( CallBacker* )
 }
 
 
+bool FaultDisplay::isPicking() const
+{
+    return !stickselectmode_ && !locked_ && fault_ && faulteditor_ &&
+	   isOn() && isSelected() && viseditor_ && viseditor_->isOn();
+}
+
+
 Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 {
     Coord3 pos = displaypos;

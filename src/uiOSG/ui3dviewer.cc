@@ -808,6 +808,7 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 	scene_->setPickable( !yn );
 
     setViewModeCursor( HoverCursor );
+    actmodecursor_.shape_ = MouseCursor::NotSet;
 
     if ( trigger )
 	handle_.viewmodechanged.trigger( handle_ );

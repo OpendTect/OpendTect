@@ -199,6 +199,7 @@ protected:
     virtual void		emptyCache(int);
     virtual bool		hasCache(int) const;
 
+    bool			isPicking() const;
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
     void			stickSelectCB(CallBacker*);

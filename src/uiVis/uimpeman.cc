@@ -68,6 +68,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visserv_->mouseEvent.notify( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.notify( mCB(this,uiMPEMan,keyEventCB) );
+    visSurvey::STM().mouseCursorCall.notify(
+	    mCB(this,uiMPEMan,mouseCursorCallCB) );
 }
 
 
@@ -82,6 +84,8 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
+    visSurvey::STM().mouseCursorCall.remove(
+	    mCB(this,uiMPEMan,mouseCursorCallCB) );
 }
 
 
@@ -312,6 +316,26 @@ void uiMPEMan::deleteVisObjects()
 	clickcatcher_ = 0;
 	clickablesceneid_ = -1;
     }
+}
+
+
+void uiMPEMan::mouseCursorCallCB( CallBacker* )
+{
+    visSurvey::Scene* scene = visSurvey::STM().currentScene();
+
+    if ( !scene || scene->id()!=clickablesceneid_ ||
+	 !isSeedPickingOn() || !clickcatcher_->getEditor() ||
+	 MPE::engine().trackingInProgress() )
+	return;
+
+    MPE::EMTracker* tracker = getSelectedTracker();
+
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;;
+    if ( !seedpicker )
+	return;
+
+    mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
+    scene->passMouseCursor( pickcursor );
 }
 
 
