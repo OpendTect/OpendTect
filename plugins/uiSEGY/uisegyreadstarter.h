@@ -105,7 +105,8 @@ protected:
     bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool,bool);
     bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
     void		completeLoadDef(od_istream&);
-    void		handleNewInputSpec(bool);
+    void		handleNewInputSpec(bool fixedld=true,bool full=false);
+    void		forceRescan(bool fixedld=true,bool full=false);
     void		runClassic(bool);
 
     void		createTools();
@@ -123,9 +124,9 @@ protected:
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);
     void		fullScanReq(CallBacker*);
-    void		runClassicImp(CallBacker*)	{ runClassic( true ); }
-    void		runClassicLink(CallBacker*)	{ runClassic( false ); }
-    void		defChg( CallBacker* )		{ execNewScan( true ); }
+    void		runClassicImp(CallBacker*)  { runClassic( true ); }
+    void		runClassicLink(CallBacker*) { runClassic( false ); }
+    void		defChg( CallBacker* )	    { forceRescan(true,false); }
     void		examineCB(CallBacker*);
     void		icxyCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);

@@ -358,7 +358,7 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
     else
     {
 	inpfld_->setFileName( dlg.fileName() );
-	inpChg( 0 );
+	forceRescan( false );
     }
 }
 
@@ -368,10 +368,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
     const SEGY::ImpType& imptyp = impType();
     infofld_->setImpTypIdx( imptyp.tidx_ );
     if ( mForSurvSetup )
-    {
-	userfilename_.setEmpty();
-	inpChg( 0 );
-    }
+	forceRescan();
     setButtonStatuses();
 }
 
@@ -384,7 +381,7 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
 
 void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 {
-    handleNewInputSpec( true );
+    forceRescan( true, true );
 }
 
 
@@ -423,12 +420,19 @@ void uiSEGYReadStarter::editFile( CallBacker* )
     if ( dlg.go() )
     {
 	inpfld_->setFileName( dlg.fileName() );
-	inpChg( 0 );
+	forceRescan( false );
     }
 }
 
 
-void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
+void uiSEGYReadStarter::forceRescan( bool fixedloaddef, bool fullscan )
+{
+    userfilename_.setEmpty();
+    handleNewInputSpec( fixedloaddef, fullscan );
+}
+
+
+void uiSEGYReadStarter::handleNewInputSpec( bool fixedloaddef, bool fullscan )
 {
     const BufferString newusrfnm( inpfld_->fileName() );
     if ( newusrfnm.isEmpty() )
@@ -437,7 +441,7 @@ void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
     if ( fullscan || newusrfnm != userfilename_ )
     {
 	userfilename_ = newusrfnm;
-	execNewScan( false, fullscan );
+	execNewScan( fixedloaddef, fullscan );
     }
 
     uiString txt;
@@ -479,6 +483,8 @@ void uiSEGYReadStarter::icxyCB( CallBacker* )
 	icvsxybut_->setToolTip( useictooltip_ );
     }
 
+    userfilename_.setEmpty();
+    forceRescan();
     infofld_->updateDisplay();
 }
 
@@ -828,9 +834,6 @@ bool uiSEGYReadStarter::commit()
     filereadopts_->psdef_ = loaddef_.psoffssrc_;
     filereadopts_->offsdef_ = loaddef_.psoffsdef_;
     filereadopts_->icdef_ = loaddef_.icvsxytype_;
-
-    //TODO handle:
-    // filereadopts_->coorddef_ in next window, 2D only
 
     return true;
 }
