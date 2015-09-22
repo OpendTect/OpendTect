@@ -609,6 +609,7 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
     Threads::Locker datalocker( datalock_ );
     uiString self( *this );
     self.makeIndependent();
+    mEnsureData;
 
     //To keep it alive if it is replaced in the operator=
     RefMan<uiStringData> tmpptr = data_;
