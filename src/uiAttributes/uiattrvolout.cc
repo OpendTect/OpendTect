@@ -55,12 +55,12 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
-			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup(uiString::emptyString(),mNoDlgTitle,mNoHelpKey))
+			    const NLAModel* model, const MultiID& id )
+    : uiBatchProcDlg(p,uiString::emptyString(),false, Batch::JobSpec::Attrib)
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
-    , ads_(*new Attrib::DescSet(ad))
-    , nlamodel_(n)
+    , ads_(new Attrib::DescSet(ad))
+    , nlamodel_(0)
     , nlaid_(id)
     , todofld_(0)
     , attrselfld_(0)
@@ -76,24 +76,30 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
 		     : mODHelpKey(mAttrVolOutHelpID) );
 
-    uiAttrSelData attrdata( ads_, false );
+    if ( model )
+	nlamodel_ = model->clone();
+
+    uiAttrSelData attrdata( *ads_, false );
     attrdata.nlamodel_ = nlamodel_;
 
     uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( this, "Quantity to output", attrdata );
+	todofld_ = new uiAttrSel( pargrp_, "Quantity to output", attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
     {
-	attrselfld_ = new uiMultiAttribSel( this, attrdata.attrSet() );
-	sep1 = new uiSeparator( this, "Attribute Selection Separator" );
+	attrselfld_ = new uiMultiAttribSel( pargrp_, &attrdata.attrSet() );
+	sep1 = new uiSeparator( pargrp_, "Attribute Selection Separator" );
 	sep1->attach( stretchedBelow, attrselfld_ );
     }
 
-    transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(is2d,false)
-			.fornewentry(true).withstep(!is2d).multiline(true) );
+    transffld_ = new uiSeisTransfer( pargrp_,
+				     uiSeisTransfer::Setup(is2d,false)
+						     .fornewentry(true)
+						     .withstep(!is2d)
+						     .multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
@@ -101,7 +107,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
     if ( sep1 ) transffld_->attach( ensureBelow, sep1 );
 
-    objfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,false),
+    objfld_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,false),
 				uiSeisSel::Setup(is2d,false) );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
     objfld_->attach( alignedBelow, transffld_ );
@@ -111,10 +117,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep3 = 0;
     if ( multioutput && !is2d )
     {
-	uiSeparator* sep2 = new uiSeparator( this, "PS Start Separator" );
+	uiSeparator* sep2 = new uiSeparator( pargrp_, "PS Start Separator" );
 	sep2->attach( stretchedBelow, objfld_ );
 
-	uiCheckBox* cb = new uiCheckBox( this, "Enable Prestack Analysis" );
+	uiCheckBox* cb = new uiCheckBox( pargrp_,"Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 	cb->attach( ensureBelow, sep2 );
@@ -122,30 +128,25 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread_ = false;
 	ctxt.fixTranslator( "MultiCube" );
-	datastorefld_ = new uiIOObjSel( this, ctxt,
+	datastorefld_ = new uiIOObjSel( pargrp_, ctxt,
 					"Output Prestack DataStore" );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
 	const uiString lbl = tr( "Offset (start/step) %1" )
 					.arg( SI().getXYUnitString() );
-	offsetfld_ = new uiGenInput( this, lbl,
+	offsetfld_ = new uiGenInput( pargrp_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
 
-	sep3 = new uiSeparator( this, "PS End Separator" );
+	sep3 = new uiSeparator( pargrp_, "PS End Separator" );
 	sep3->attach( stretchedBelow, offsetfld_ );
 
 	psSelCB( cb );
 	botgrp = offsetfld_;
     }
 
-    batchfld_ = new uiBatchJobDispatcherSel( this, false,
-					     Batch::JobSpec::Attrib );
-    IOPar& iop = jobSpec().pars_;
-    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
-    batchfld_->attach( alignedBelow, botgrp );
-    if ( sep3 ) batchfld_->attach( ensureBelow, sep3 );
+    pargrp_->setHAlignObj( botgrp );
 }
 
 
@@ -153,15 +154,34 @@ uiAttrVolOut::~uiAttrVolOut()
 {
     delete &sel_;
     delete &subselpar_;
-    delete &ads_;
+    delete ads_;
+    delete nlamodel_;
 }
 
 
-Batch::JobSpec& uiAttrVolOut::jobSpec()
+void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
+				     const NLAModel* nlamodel,
+				     const MultiID& nlaid )
 {
-    return batchfld_->jobSpec();
-}
+    delete ads_;
+    ads_ = new Attrib::DescSet( descset );
+    if ( todofld_ )
+    {
+	todofld_->setDescSet( ads_ );
+	todofld_->setNLAModel( nlamodel );
+    }
 
+    if ( attrselfld_ )
+	attrselfld_->setDescSet( ads_ );
+
+    if ( nlamodel )
+    {
+	delete nlamodel_;
+	nlamodel_ = nlamodel->clone();
+    }
+
+    nlaid_ = nlaid;
+}
 
 void uiAttrVolOut::psSelCB( CallBacker* cb )
 {
@@ -187,13 +207,13 @@ void uiAttrVolOut::attrSel( CallBacker* )
     if ( todofld_->getRanges(cs) )
 	transffld_->selfld->setInput( cs );
 
-    Attrib::Desc* desc = ads_.getDesc( todofld_->attribID() );
+    Attrib::Desc* desc = ads_->getDesc( todofld_->attribID() );
     if ( !desc )
     {
 	mSetObjFld("")
 	if ( is2d )	//it could be 2D neural network
 	{
-	    Attrib::Desc* firststoreddsc = ads_.getFirstStored();
+	    Attrib::Desc* firststoreddsc = ads_->getFirstStored();
 	    if ( firststoreddsc )
 	    {
 		const LineKey lk( firststoreddsc->getValParam(
@@ -303,7 +323,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    delete chioobj;
 	}
 
-	Attrib::Desc* seldesc = ads_.getDesc( todofld_->attribID() );
+	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
 	{
 	    uiMultOutSel multoutdlg( this, *seldesc );
@@ -374,27 +394,27 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     Attrib::DescID targetid = nlamodel_id.isValid() ? nlamodel_id
 					    : todofld_->attribID();
 
-    Attrib::Desc* seldesc = ads_.getDesc( targetid );
+    Attrib::Desc* seldesc = ads_->getDesc( targetid );
     if ( seldesc )
     {
 	const bool is2d = todofld_->is2D();
 	Attrib::DescID multoiid = seldesc->getMultiOutputInputID();
 	if ( multoiid != Attrib::DescID::undef() )
 	{
-	    uiAttrSelData attrdata( ads_ );
+	    uiAttrSelData attrdata( *ads_ );
 	    Attrib::SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_,
 				is2d, Attrib::DescID::undef(), false, false );
 	    TypeSet<Attrib::SelSpec> targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
-				is2d, attrinf, &ads_, this, targetspecs ))
+				is2d, attrinf, ads_, this, targetspecs ))
 		return 0;
 	    for ( int idx=0; idx<targetspecs.size(); idx++ )
 		outdescids += targetspecs[idx].id();
 	}
     }
     const int outdescidsz = outdescids.size();
-    Attrib::DescSet* ret = outdescidsz ? ads_.optimizeClone( outdescids )
-			    : ads_.optimizeClone( targetid );
+    Attrib::DescSet* ret = outdescidsz ? ads_->optimizeClone( outdescids )
+			    : ads_->optimizeClone( targetid );
     if ( !ret )
 	return 0;
 
@@ -411,13 +431,12 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 }
 
 
-bool uiAttrVolOut::fillPar()
+bool uiAttrVolOut::fillPar( IOPar& iop )
 {
+    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     const IOObj* outioobj = objfld_->ioobj();
     if ( !outioobj )
 	return false;
-
-    IOPar& iop = jobSpec().pars_;
 
     Attrib::DescSet* clonedset = 0;
     TypeSet<Attrib::DescID> outdescids;
@@ -429,7 +448,7 @@ bool uiAttrVolOut::fillPar()
     {
 	attrselfld_->getSelIds( outdescids );
 	nrseloutputs = outdescids.size();
-	clonedset = ads_.optimizeClone( outdescids );
+	clonedset = ads_->optimizeClone( outdescids );
     }
     if ( !clonedset )
 	return false;
@@ -483,7 +502,7 @@ bool uiAttrVolOut::fillPar()
 	    descset.usePar( nlamodel_->pars() );
 
 	Attrib::Desc* desc = nlamodel_ ? descset.getFirstStored()
-			      : ads_.getDesc( todofld_->attribID() );
+			      : ads_->getDesc( todofld_->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
@@ -507,7 +526,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
     defstr += nlaid_;
 
     uiString errmsg;
-    Attrib::EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
+    Attrib::EngineMan::addNLADesc( defstr, id, *ads_, todofld_->outputNr(),
 			   nlamodel_, errmsg );
 
     if ( !errmsg.isEmpty() )
@@ -515,11 +534,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
 }
 
 
-bool uiAttrVolOut::acceptOK( CallBacker* )
+void uiAttrVolOut::getJobName( BufferString& jobnm ) const
 {
-    if ( !prepareProcessing() || !fillPar() )
-	return false;
-
-    batchfld_->setJobName( objfld_->getInput() );
-    return batchfld_->start();
+    jobnm = objfld_->getInput();
 }

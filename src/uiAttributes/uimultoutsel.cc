@@ -165,7 +165,7 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 
 
 // uiMultiAttribSel
-uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
+uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet* ds )
     : uiGroup(p,"MultiAttrib group")
     , descset_(ds)
 {
@@ -205,41 +205,44 @@ uiMultiAttribSel::~uiMultiAttribSel()
 
 
 bool uiMultiAttribSel::is2D() const
-{ return descset_.is2D(); }
+{ return descset_ && descset_->is2D(); }
 
 
 void uiMultiAttribSel::fillAttribFld()
 {
     attribfld_->setEmpty();
-    const int nrdescs = descset_.size();
+    if ( !descset_ )
+	return;
+
+    const int nrdescs = descset_->size();
     for ( int didx=0; didx<nrdescs; didx++ )
     {
-	const Attrib::Desc& desc = descset_[didx];
-	if ( desc.isHidden() || desc.isStored() )
+	const Attrib::Desc* desc = descset_->desc( didx );
+	if ( desc->isHidden() || desc->isStored() )
 	    continue;
 
-	const int seldescouputidx = desc.selectedOutput();
+	const int seldescouputidx = desc->selectedOutput();
 	BufferStringSet alluserrefs;
-	uiMultOutSel::fillInAvailOutNames( desc, alluserrefs );
-	const BufferString baseusrref = desc.userRef();
+	uiMultOutSel::fillInAvailOutNames( *desc, alluserrefs );
+	const BufferString baseusrref = desc->userRef();
 	for ( int idx=0; idx<alluserrefs.size(); idx++ )
 	{
 	    const BufferString usrref( baseusrref, "_", alluserrefs.get(idx) );
 	    if ( idx == seldescouputidx )
 	    {
 		if ( alluserrefs.size() > 1 )
-		    const_cast<Desc*>(&desc)->setUserRef( usrref );
-		allids_ += desc.id();
-		attribfld_->addItem( desc.userRef() );
+		    const_cast<Desc*>(desc)->setUserRef( usrref );
+		allids_ += desc->id();
+		attribfld_->addItem( desc->userRef() );
 		continue;
 	    }
 
-	    Desc* tmpdesc = new Desc( desc );
+	    Desc* tmpdesc = new Desc( *desc );
 	    tmpdesc->ref();
 	    tmpdesc->selectOutput( idx );
 	    tmpdesc->setUserRef( usrref );
 	    const DescID newid =
-		const_cast<Attrib::DescSet*>(&descset_)->addDesc( tmpdesc );
+		const_cast<Attrib::DescSet*>(descset_)->addDesc( tmpdesc );
 	    allids_ += newid;
 	    attribfld_->addItem( tmpdesc->userRef() );
 	}
@@ -247,12 +250,23 @@ void uiMultiAttribSel::fillAttribFld()
 }
 
 
+void uiMultiAttribSel::setDescSet( const Attrib::DescSet* descset )
+{
+    descset_ = descset;
+    fillAttribFld();
+    updateSelFld();
+}
+
+
 void uiMultiAttribSel::updateSelFld()
 {
     selfld_->setEmpty();
+    if ( !descset_ )
+	return;
+
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	const Attrib::Desc* desc = descset_.getDesc( selids_[idx] );
+	const Attrib::Desc* desc = descset_->getDesc( selids_[idx] );
 	if (!desc ) continue;
 
 	selfld_->addItem( desc->userRef() );

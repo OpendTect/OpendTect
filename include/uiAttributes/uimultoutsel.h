@@ -59,11 +59,12 @@ protected:
 mExpClass(uiAttributes) uiMultiAttribSel : public uiGroup
 { mODTextTranslationClass(uiMultiAttribSel)
 public:
-			uiMultiAttribSel(uiParent*,const Attrib::DescSet&);
+			uiMultiAttribSel(uiParent*,const Attrib::DescSet*);
 			~uiMultiAttribSel();
 
     void		getSelIds(TypeSet<Attrib::DescID>&) const;
     bool		is2D() const;
+    void		setDescSet(const Attrib::DescSet*);
 
 protected:
 
@@ -75,7 +76,7 @@ protected:
     void		moveUp(CallBacker*);
     void		moveDown(CallBacker*);
 
-    const Attrib::DescSet&  descset_;
+    const Attrib::DescSet*  descset_;
     TypeSet<Attrib::DescID> allids_;
     TypeSet<Attrib::DescID> selids_;
 

@@ -108,6 +108,9 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , attrsneedupdt_(true)
     , manattribsetdlg_(0)
     , impattrsetdlg_(0)
+    , volattrdlg_(0)
+    , multiattrdlg_(0)
+    , dataattrdlg_(0)
 {
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -136,6 +139,9 @@ uiAttribPartServer::~uiAttribPartServer()
     delete &eDSHolder();
     delete manattribsetdlg_;
     delete impattrsetdlg_;
+    delete volattrdlg_;
+    delete multiattrdlg_;
+    delete dataattrdlg_;
 }
 
 
@@ -526,14 +532,31 @@ void uiAttribPartServer::saveSet( bool is2d )
 }
 
 
+#define mAttrProcDlg( dlgobj ) \
+    { \
+	if ( !dlgobj ) \
+	    dlgobj = new uiAttrVolOut( parent(), *dset, multiattrib, \
+					   getNLAModel(is2d), nlaid ); \
+	else \
+	    dlgobj->updateAttributes(*dset,getNLAModel(is2d),nlaid ); \
+	dlgobj->show(); \
+    }
+
 void uiAttribPartServer::outputVol( const MultiID& nlaid, bool is2d,
 				    bool multiattrib )
 {
     const DescSet* dset = DSHolder().getDescSet( is2d, false );
     if ( !dset ) { pErrMsg("No attr set"); return; }
 
-    uiAttrVolOut dlg( parent(), *dset, multiattrib, getNLAModel(is2d), nlaid );
-    dlg.go();
+    if ( is2d )
+	mAttrProcDlg(dataattrdlg_)
+    else
+    {
+	if ( multiattrib )
+	    mAttrProcDlg(multiattrdlg_)
+	else
+	    mAttrProcDlg(volattrdlg_)
+    }
 }
 
 
@@ -1726,4 +1749,7 @@ void uiAttribPartServer::survChangedCB( CallBacker* )
 {
     delete manattribsetdlg_; manattribsetdlg_ = 0;
     delete impattrsetdlg_; impattrsetdlg_ = 0;
+    delete volattrdlg_; volattrdlg_ = 0;
+    delete multiattrdlg_; multiattrdlg_ = 0;
+    delete dataattrdlg_; dataattrdlg_ = 0;
 }

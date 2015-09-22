@@ -42,6 +42,7 @@ class TaskRunner;
 class uiAttribDescSetEd;
 class uiAttribCrossPlot;
 class uiAttrSetMan;
+class uiAttrVolOut;
 class uiImpAttrSet;
 namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
@@ -198,6 +199,9 @@ protected:
     bool		attrsneedupdt_;
     uiAttrSetMan*	manattribsetdlg_;
     uiImpAttrSet*	impattrsetdlg_;
+    uiAttrVolOut*	volattrdlg_;
+    uiAttrVolOut*	multiattrdlg_;
+    uiAttrVolOut*	dataattrdlg_;
 
     Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=0,
 			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());

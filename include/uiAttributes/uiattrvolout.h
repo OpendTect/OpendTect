@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uidialog.h"
+#include "uibatchprocdlg.h"
 #include "multiid.h"
 #include "bufstringset.h"
 
@@ -33,7 +33,7 @@ class uiBatchJobDispatcherSel;
 
 /*! \brief Dialog for creating volume output */
 
-mExpClass(uiAttributes) uiAttrVolOut : public uiDialog
+mExpClass(uiAttributes) uiAttrVolOut : public uiBatchProcDlg
 { mODTextTranslationClass(uiAttrVolOut);
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
@@ -46,12 +46,15 @@ public:
 
     static const char*  sKeyMaxCrlRg();
     static const char*  sKeyMaxInlRg();
+    void		updateAttributes(const Attrib::DescSet& descst,
+					 const NLAModel* nlamodel,
+					 const MultiID& nlaid);
 
 protected:
 
     Attrib::CurrentSel&	sel_;
     IOPar&		subselpar_;
-    Attrib::DescSet&	ads_;
+    Attrib::DescSet*	ads_;
     MultiID		nlaid_;
     const NLAModel*	nlamodel_;
 
@@ -61,17 +64,15 @@ protected:
     uiSeisSel*		objfld_;
     uiIOObjSel*		datastorefld_;
     uiGenInput*		offsetfld_;
-    uiBatchJobDispatcherSel* batchfld_;
 
     TypeSet<int>	seloutputs_;
     BufferStringSet	seloutnms_;
 
 
-    Batch::JobSpec&	jobSpec();
+    void		getJobName(BufferString& jobnm) const;
     bool		prepareProcessing();
-    bool		fillPar();
+    bool		fillPar(IOPar&);
     Attrib::DescSet*	getFromToDoFld(TypeSet<Attrib::DescID>&,int&);
-    bool		acceptOK(CallBacker*);
     void		attrSel(CallBacker*);
     void		psSelCB(CallBacker*);
     void		outSelCB(CallBacker*);
