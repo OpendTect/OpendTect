@@ -124,10 +124,7 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 
 void uiHorizonSetupGroup::initToolBar()
 {
-    trackbutid_ = toolbar_->addButton( "seedpickmode",
-				"Enable/Disable Tracking",
-				mCB(this,uiHorizonSetupGroup,enabTrackCB),
-				true );
+    trackbutid_ = -1;
 
     startbutid_ = toolbar_->addButton( "autotrack", "Start Auto Tracking [K]",
 				mCB(this,uiHorizonSetupGroup,startCB) );
@@ -179,8 +176,11 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
     toolbar_->setSensitive( undobutid_, EM::EMM().undo().canUnDo() );
     toolbar_->setSensitive( redobutid_, EM::EMM().undo().canReDo() );
 
-    EMTracker* tracker = engine().getActiveTracker();
-    toolbar_->turnOn( trackbutid_, tracker ? tracker->isEnabled() : false );
+    if ( trackbutid_ != -1 )
+    {
+	EMTracker* tracker = engine().getActiveTracker();
+	toolbar_->turnOn( trackbutid_, tracker ? tracker->isEnabled() : false );
+    }
 }
 
 
