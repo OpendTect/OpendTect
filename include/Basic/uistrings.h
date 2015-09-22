@@ -18,8 +18,9 @@ ________________________________________________________________________
 
 #define mPlural 2
 
-//Common strings. Use these and extend when needed
-
+/*!Common strings that are localized. Using these keeps the translation
+   at a minimum.
+*/
 mExpClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
