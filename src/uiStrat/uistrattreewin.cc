@@ -227,7 +227,7 @@ void uiStratTreeWin::createGroups()
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->treeView()->selectionChanged.notify( selcb );
-    uitree_->treeView()->itemChanged.notify( renmcb );
+    uitree_->treeView()->itemRenamed.notify( renmcb );
     uitree_->treeView()->display( false );
 
     if ( !uitree_->haveTimes() )
@@ -301,6 +301,10 @@ void uiStratTreeWin::setIsLocked( bool yn )
     newbut_->setSensitive( !yn );
     saveasmnuitem_->setEnabled( !yn );
     resetmnuitem_->setEnabled( !yn );
+    moveunitupbut_->setSensitive(
+	    !lockbut_->isOn() && uitree_->canMoveUnit( true ) );
+    moveunitdownbut_->setSensitive(
+	    !lockbut_->isOn()  && uitree_->canMoveUnit( false ) );
 }
 
 
@@ -326,6 +330,8 @@ void uiStratTreeWin::saveCB( CallBacker* )
     if ( uitree_->tree() )
     {
 	repos_.writeTree( *uitree_->tree() );
+	uitree_->setNoChg();
+	lvllist_->setNoChg();
 	needsave_ = false;
     }
     else
@@ -450,8 +456,10 @@ void uiStratTreeWin::moveUnitCB( CallBacker* cb )
     if ( cb)
 	uitree_->moveUnit( cb == moveunitupbut_ );
 
-    moveunitupbut_->setSensitive( uitree_->canMoveUnit( true ) );
-    moveunitdownbut_->setSensitive( uitree_->canMoveUnit( false ) );
+    moveunitupbut_->setSensitive(
+	    !lockbut_->isOn() && uitree_->canMoveUnit( true ) );
+    moveunitdownbut_->setSensitive(
+	    !lockbut_->isOn()  && uitree_->canMoveUnit( false ) );
 }
 
 
