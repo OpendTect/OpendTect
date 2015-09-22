@@ -24,11 +24,12 @@ namespace visSurvey
 
 class Scene;
 
-mExpClass(visSurvey) SceneTransformManager
+mExpClass(visSurvey) SceneTransformManager : public CallBacker
 {
 public:
     			SceneTransformManager()
 			    : scene_(0)
+			    , mouseCursorCall(this)
     			{}
 
     static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
@@ -42,6 +43,8 @@ public:
 
     void		setCurrentScene( Scene* scn ) { scene_ = scn; }
     Scene*		currentScene() const	{ return scene_; }
+
+    Notifier<SceneTransformManager> mouseCursorCall;
 
 protected:
 

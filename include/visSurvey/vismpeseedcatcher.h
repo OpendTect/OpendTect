@@ -129,6 +129,7 @@ public:
     static bool			isClickable(const char* trackertype,int visid);
 
     void			setEditor(MPEEditor*);
+    const MPEEditor*		getEditor() const	{ return editor_; }
     bool			activateSower(const Color&,
 					      const TrcKeySampling* =0);
     bool			sequentSowing() const;

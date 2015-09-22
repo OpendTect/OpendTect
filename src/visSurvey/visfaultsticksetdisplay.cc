@@ -484,6 +484,13 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 }
 
 
+bool FaultStickSetDisplay::isPicking() const
+{
+    return !stickselectmode_ && !locked_ && fault_ && fsseditor_ &&
+	   viseditor_ && viseditor_->isOn() && isOn() && isSelected();
+}
+
+
 Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 {
     Coord3 pos = displaypos;

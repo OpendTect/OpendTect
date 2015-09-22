@@ -108,6 +108,7 @@ protected:
     static const char*		sKeyEMPolygonSurfID()	
     				{ return "EMPolygonsurface ID"; }
 
+    bool			isPicking() const;
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
 

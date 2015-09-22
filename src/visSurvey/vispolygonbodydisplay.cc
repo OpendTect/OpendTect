@@ -512,6 +512,13 @@ const mVisTrans* PolygonBodyDisplay::getDisplayTransformation() const
 { return displaytransform_; }
 
 
+bool PolygonBodyDisplay::isPicking() const
+{
+    return !locked_ && empolygonsurf_ && polygonsurfeditor_ && isOn() &&
+	   viseditor_ && viseditor_->isOn() && isSelected();
+}
+
+
 Coord3 PolygonBodyDisplay::disp2world( const Coord3& displaypos ) const
 {
     Coord3 pos = displaypos;
@@ -529,8 +536,8 @@ Coord3 PolygonBodyDisplay::disp2world( const Coord3& displaypos ) const
 
 void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 {
-    if ( !empolygonsurf_ || !polygonsurfeditor_ || !viseditor_ || !isOn() ||
-	 eventcatcher_->isHandled() || !isSelected() )
+    if ( !empolygonsurf_ || !polygonsurfeditor_ || !isOn() || !viseditor_ ||
+	 !viseditor_->isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);

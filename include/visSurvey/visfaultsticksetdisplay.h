@@ -130,6 +130,7 @@ protected:
     static const char*		sKeyDisplayOnlyAtSections();
 
 
+    bool			isPicking() const;
     void			mouseCB(CallBacker*);
     void			draggingStartedCB(CallBacker*);
     void			stickSelectCB(CallBacker*);

@@ -74,6 +74,7 @@ protected:
     void			workAreaChgCB(CallBacker*);
 
     void			updateSeedPickState();
+    void			mouseCursorCallCB(CallBacker*);
     void			trackerAddedRemovedCB(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
