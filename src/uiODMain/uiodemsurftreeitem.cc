@@ -64,7 +64,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , enabletrackingmnuitem_(tr("Enable Tracking"))
     , changesetupmnuitem_(m3Dots(tr("Change Settings")))
     , reloadmnuitem_(uiStrings::sReload(),-750)
-    , trackmenuitem_(uiVisEMObject::trackingmenutxt())
+    , trackmenuitem_(uiStrings::sTracking())
     , starttrackmnuitem_(m3Dots(tr("Start Tracking")))
     , istrackingallowed_(true)
 {
@@ -308,7 +308,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	ems->storeObject( emid_, true, storedmid,
 		(float) visserv_->getTranslation(displayID()).z);
 	applMgr()->visServer()->setObjectName( displayid_,
-		(const char*) ems->getName(emid_) );
+	    ems->getName(emid_) );
 
 	const MultiID midintree = ems->getStorageID(emid_);
 	EM::EMM().getObject(emid_)->setMultiID( storedmid );
@@ -364,13 +364,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !horizon ) return;
 
-	BufferString scenenm = "Flattened on '";
-	scenenm += horizon->name(); scenenm += "'";
+    const uiString scenenm = tr("Flattened on '%1'").arg( horizon->uiName() );
 
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();
-	ODMainWin()->sceneMgr().addScene( true, transform, scenenm.buf() );
+    ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
     }
 }
 
@@ -388,9 +387,9 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
 	savewithname = !ioobj;
     }
 
-    BufferString str = ems->getType( emid_ );
-    str += " \""; str += ems->getName(emid_).str(); str += "\"";
-    NotSavedPrompter::NSP().addObject( str.str(),
+    const uiString obj = toUiString("%1 \"%2\"")
+	.arg( ems->getType( emid_ ) ).arg(ems->getName(emid_));
+    NotSavedPrompter::NSP().addObject(	obj,
 		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
 	        savewithname, 0 );
 
@@ -427,8 +426,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
-    applMgr()->visServer()->setObjectName( displayid_,
-	    (const char*) ems->getName(emid_) );
+    applMgr()->visServer()->setObjectName( displayid_, ems->getName(emid_) );
     const MultiID mid = ems->getStorageID(emid_);
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -469,8 +467,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 
     const bool islocked = visserv->isLocked( displayID() );
     const int nrsurfdata = applMgr()->EMServer()->nrAttributes( emid_ );
-    BufferString itmtxt = "Horizon Data ("; itmtxt += nrsurfdata;
-    itmtxt += ") ...";
+    uiString itmtxt = m3Dots(tr("Horizon Data (%1)").arg( nrsurfdata ));
     loadsurfacedatamnuitem_.text = itmtxt;
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 		  !islocked && nrsurfdata>0, false );

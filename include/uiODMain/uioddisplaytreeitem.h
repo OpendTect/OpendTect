@@ -58,7 +58,7 @@ protected:
 
     bool		isSelectable() const		{ return true; }
     bool		isExpandable() const		{ return false; }
-    const char*		getLockMenuText();
+    uiString		getLockMenuText() const;
 
     virtual uiString	createDisplayName() const;
     void		updateLockPixmap(bool islocked);

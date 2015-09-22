@@ -38,10 +38,11 @@ ________________________________________________________________________
 #include "visseis2ddisplay.h"
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
+#include "emsurfacetr.h"
 
 
 uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
-    : uiODVw2DTreeItem( "Horizon 2D" )
+    : uiODVw2DTreeItem( EMHorizon2DTranslatorGroup::sTypeName() )
 {
 }
 
@@ -163,7 +164,7 @@ bool uiODVw2DHor2DParentTreeItem::init()
 
 
 uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem( uiString::emptyString() )
     , horview_(0)
     , emid_( emid )
     , trackerefed_(false)
@@ -177,7 +178,7 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
 
 
 uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int dispid, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem( uiString::emptyString() )
     , horview_(0)
     , emid_( -1 )
     , trackerefed_(false)

@@ -73,8 +73,8 @@ public:
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
 
-    BufferString	getName(const EM::ObjectID&) const;
-    const char*		getType(const EM::ObjectID&) const;
+    uiString		getName(const EM::ObjectID&) const;
+    uiString		getType(const EM::ObjectID&) const;
 
     int			nrAttributes(const EM::ObjectID&) const;
     bool		isGeometryChanged(const EM::ObjectID&) const;

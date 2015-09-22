@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 
 uiODVw2DFaultParentTreeItem::uiODVw2DFaultParentTreeItem()
-    : uiODVw2DTreeItem( "Fault" )
+    : uiODVw2DTreeItem( uiStrings::sFault() )
 {
 }
 
@@ -148,14 +148,14 @@ void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , faultview_(0)
 {}
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , faultview_(0)
 {

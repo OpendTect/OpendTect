@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "callback.h"
+#include "uistring.h"
 
 class uiMeasureDlg;
 class uiODMain;
@@ -21,7 +22,7 @@ namespace Pick { class SetMgr; }
 namespace visSurvey { class PickSetDisplay; }
 
 mClass(uiODMain) MeasureToolMan : public CallBacker
-{
+{ mODTextTranslationClass(MeasureToolMan);
 public:
 			MeasureToolMan(uiODMain&);
 			~MeasureToolMan();

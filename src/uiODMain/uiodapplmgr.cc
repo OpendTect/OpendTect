@@ -341,7 +341,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
 
     bool anythingasked = false;
-    if ( !appl_.askStore(anythingasked,"Survey change") )
+    if ( !appl_.askStore(anythingasked,tr("Survey change")) )
 	{ IOM().setChangeSurveyBlocked( true ); return; }
 
     if ( nlaserv_ ) nlaserv_->reset();
@@ -480,7 +480,6 @@ void uiODApplMgr::addTimeDepthScene()
     dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
-    BufferString snm( SI().zIsTime() ? sKey::Depth() : sKey::Time() );
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;
@@ -492,9 +491,9 @@ void uiODApplMgr::addTimeDepthScene()
 	return;
     }
 
-    snm += " (using '";
-    snm += ztrans->factoryDisplayName().getFullString();
-    snm += "')";
+    const uiString snm = tr( "%1 (using '%2'")
+	    .arg( SI().zIsTime() ? sKey::Depth() : sKey::Time() )
+	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
     const int sceneid = sceneMgr().addScene( true, ztrans, snm );
@@ -520,7 +519,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     const BufferString hornm = ioobj
 		? ioobj->name().buf()
 		: transform->factoryDisplayName().getFullString();
-    BufferString scenenm( "Flattened on '", hornm,  "'" );
+    uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
     sceneMgr().addScene( true, transform, scenenm );
 }
@@ -1851,7 +1850,7 @@ void uiODApplMgr::storeEMObject()
     visserv_->findObject( mid, ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
-	visserv_->setObjectName( ids[idx], emserv_->getName(emid).buf() );
+    visserv_->setObjectName( ids[idx], emserv_->getName(emid) );
 
     mpeserv_->saveSetup( mid );
     sceneMgr().updateTrees();

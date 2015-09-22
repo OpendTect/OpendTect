@@ -55,7 +55,7 @@ class uiRandomLinePolyLineDlg : public uiDialog
 { mODTextTranslationClass(uiRandomLinePolyLineDlg)
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
-    : uiDialog(p,Setup("Create Random Line from Polyline",
+    : uiDialog(p,Setup(tr("Create Random Line from Polyline"),
 			uiString::emptyString(),
 			mODHelpKey(mRandomLinePolyLineDlgHelpID) )
 		 .modal(false))
@@ -63,7 +63,7 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 {
     showAlwaysOnTop();
 
-    label_ = new uiLabel( this, "Pick Nodes on Z-Slices or Horizons" );
+    label_ = new uiLabel( this, tr("Pick Nodes on Z-Slices or Horizons") );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, label_ );
@@ -211,7 +211,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
     if ( !rtd )
 	return false;
 
-    rtd->setName( ioobj.name() );
+    rtd->setName( ioobj.uiName() );
     itm->displayDefaultData();
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -451,16 +451,14 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool enab = !islocked && rtd->nrNodes()>1;
     for ( int idx=0; enab && idx<=rtd->nrNodes(); idx++ )
     {
-	BufferString nodename;
+    uiString nodename;
 	if ( idx==rtd->nrNodes() )
 	{
-	    nodename = "after node ";
-	    nodename += idx-1;
+	nodename = tr("after node %1").arg( idx-1 );
 	}
 	else
 	{
-	    nodename = "before node ";
-	    nodename += idx;
+	nodename = tr("before node %1").arg( idx );
 	}
 
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename),
@@ -521,11 +519,11 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,ioobj,bs) )
-		uiMSG().error( bs );
+	uiMSG().error( mToUiStringTodo(bs) );
 	    else
 	    {
 		applMgr()->visServer()->setObjectName( displayID(),
-						       ioobj->name() );
+			       ioobj->uiName() );
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }
 	}
@@ -552,8 +550,9 @@ void uiODRandomLineTreeItem::editNodes()
     TypeSet<BinID> bids;
     rtd->getAllNodePos( bids );
     uiDialog dlg( getUiParent(),
-		  uiDialog::Setup("Random lines","Specify node positions",
-				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
+	  uiDialog::Setup(uiStrings::sRandomLine(mPlural),
+	      tr("Specify node positions"),
+	      mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 

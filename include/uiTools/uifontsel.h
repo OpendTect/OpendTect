@@ -28,12 +28,12 @@ class uiLabeledComboBox;
 mExpClass(uiTools) uiFontSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiFontSettingsGroup);
 public:
-			mDefaultFactoryInstantiation2Param(
-				uiSettingsGroup,
-				uiFontSettingsGroup,
-				uiParent*,Settings&,
-				"Fonts",
-				sFactoryKeyword())
+	    mDefaultFactoryInstantiation2Param(
+		uiSettingsGroup,
+		uiFontSettingsGroup,
+		uiParent*,Settings&,
+		"Fonts",
+		mToUiStringTodo(sFactoryKeyword()))
 
 			uiFontSettingsGroup(uiParent*,Settings&);
 

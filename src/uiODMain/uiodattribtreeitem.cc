@@ -227,14 +227,16 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    uiString dispname( as ? as->userRef() : 0 );
+    uiString dispname( as
+	    ? toUiString(as->userRef())
+	    : uiString::emptyString() );
     if ( as && as->isNLA() )
     {
-	dispname = as->objectRef();
-	uiString nodenm = as->userRef();
+    dispname = toUiString(as->objectRef());
+    uiString nodenm =toUiString( as->userRef());
 	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = IOM().nameOf( as->userRef() );
-        dispname = uiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
+	nodenm = toUiString(IOM().nameOf( as->userRef() ));
+	dispname = toUiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 
     if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )

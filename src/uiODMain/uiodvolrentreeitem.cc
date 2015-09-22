@@ -367,7 +367,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( tr("Iso value selection"), 0,
+	uiDialog::Setup( tr("Iso value selection"), mNoDlgTitle,
                                 mODHelpKey(mVolrenTreeItemHelpID) ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,attribNr()) );
 	if ( dlg.go() )
@@ -485,7 +485,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 	    dispval *= scene->zDomainUserFactor();
 	}
 
-        uitreeviewitem_->setText( toString(mNINT32(dispval)), col );
+	uitreeviewitem_->setText( toUiString(mNINT32(dispval)), col );
     }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
@@ -493,11 +493,10 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     if ( isosurface && isosurface->getSurface() )
     {
 	const float isoval = vd->isoValue(isosurface);
-	BufferString coltext;
-        if ( mIsUdf(isoval) )
-	    coltext = "";
-	else coltext = isoval;
-	uitreeviewitem_->setText( coltext.buf(), col );
+    uiString coltext;
+	if ( !mIsUdf(isoval) )
+	coltext = toUiString(isoval);
+    uitreeviewitem_->setText( coltext, col );
     }
 }
 
@@ -537,7 +536,8 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(getParentDisplayID()));
 
 	uiSingleGroupDlg dlg( getUiParent(),
-		uiDialog::Setup( tr("Iso Value Selection"), 0, mNoHelpKey ) );
+	uiDialog::Setup( tr("Iso Value Selection"), mNoDlgTitle,
+			     mNoHelpKey ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd,
 						      getParentAttribNr()) );
 	if ( dlg.go() )
@@ -556,9 +556,8 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
 	    new visSurvey::MarchingCubesDisplay;
 
-	BufferString newname = "Iso ";
-	newname += vd->isoValue( isosurface );
-	mcdisplay->setName( newname.buf() );
+    uiString newname = tr( "Iso %1").arg( vd->isoValue( isosurface ) );
+    mcdisplay->setName( newname );
 
 	if ( !mcdisplay->setVisSurface( isosurface ) )
 	{

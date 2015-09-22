@@ -33,7 +33,7 @@ ________________________________________________________________________
 
 
 uiODVw2DFaultSSParentTreeItem::uiODVw2DFaultSSParentTreeItem()
-    : uiODVw2DTreeItem( "FaultStickSet" )
+    : uiODVw2DTreeItem( uiStrings::sFaultStickSet())
 {
 }
 
@@ -153,14 +153,14 @@ void uiODVw2DFaultSSParentTreeItem::addNewTempFaultSS( EM::ObjectID emid )
 
 
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , fssview_(0)
 {}
 
 
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( int id, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , fssview_(0)
 {
     displayid_ = id;

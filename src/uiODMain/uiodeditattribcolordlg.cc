@@ -36,8 +36,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 
     if ( attrnm && *attrnm )
     {
-	BufferString titletext = "Color Settings: ";
-	titletext += attrnm;
+	uiString titletext = tr("Color Settings: %1").arg( attrnm );
 	setTitleText( titletext );
     }
 

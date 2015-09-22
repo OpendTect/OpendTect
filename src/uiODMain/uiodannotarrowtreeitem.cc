@@ -41,7 +41,7 @@ bool ArrowSubItem::init()
 	visSurvey::ArrowDisplay* ad = visSurvey::ArrowDisplay::create();
 	visserv_->addObject( ad, sceneID(), true );
 	displayid_ = ad->id();
-	ad->setName( name_.getFullString().buf() );
+    ad->setName( name_ );
     }
 
     mDynamicCastGet(visSurvey::ArrowDisplay*,ad,visserv_->getObject(displayid_))

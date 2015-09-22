@@ -467,7 +467,7 @@ void uiODApplMgrDispatcher::openXPlot()
     MouseCursorManager::restoreOverride();
 
     if ( !rv )
-    { uiMSG().error( errmsg ); return; }
+	{ uiMSG().error(mToUiStringTodo( errmsg ) ); return; }
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
@@ -476,8 +476,8 @@ void uiODApplMgrDispatcher::openXPlot()
     DPM(DataPackMgr::PointID()).addAndObtain( newdps );
     uiDataPointSet* uidps =
 	new uiDataPointSet( ODMainWin(), *newdps,
-			    uiDataPointSet::Setup("CrossPlot from saved data"),
-			    ODMainWin()->applMgr().visDPSDispMgr() );
+	uiDataPointSet::Setup(tr("CrossPlot from saved data")),
+	ODMainWin()->applMgr().visDPSDispMgr() );
     uidps->go();
     uidpsset_ += uidps;
 }

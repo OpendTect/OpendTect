@@ -26,10 +26,10 @@ public:
 
     struct Setup
     {
-					Setup( const char* nm )
+		    Setup( const uiString& nm )
 					    : name_(nm)
 					    , nrviewers_(1)		{}
-	mDefSetupMemb(BufferString,	name)
+	mDefSetupMemb(uiString,		name)
 	mDefSetupMemb(int,		nrviewers)
     };
 

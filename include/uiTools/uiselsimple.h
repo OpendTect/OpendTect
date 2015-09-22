@@ -34,12 +34,12 @@ public:
     public:
 			Setup( const uiString& wintitl,
 			       const uiStringSet& its )
-			    : uiDialog::Setup(wintitl,0,mNoHelpKey)
+		: uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			    , items_(its)
 			    , current_(0)		{}
 			Setup( const uiString& wintitl,
 			       const BufferStringSet& its )
-			    : uiDialog::Setup(wintitl,0,mNoHelpKey)
+		: uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			    , current_(0)		{ its.fill(items_); }
 
 	mDefSetupMemb(int,current);
@@ -86,7 +86,7 @@ public:
     public:
 			Setup( const uiString& wintitl,
 			       const BufferStringSet& its )
-			: uiDialog::Setup(wintitl,0,mNoHelpKey)
+	    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
 			, items_(its)
 			, inptxt_( uiStrings::sName())	{}
 

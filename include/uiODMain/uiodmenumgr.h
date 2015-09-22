@@ -79,7 +79,7 @@ public:
     void		insertNewSceneItem(uiAction*,int id);
     void		updateSceneMenu();
 
-    static int		ask2D3D(const char* txt,int res2d=2,int res3d=3,
+    static int		ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
 				int rescncl=0);
     void		add2D3DToolButton(uiToolBar&,const char* iconnnm,
 				     const uiString& tooltip,

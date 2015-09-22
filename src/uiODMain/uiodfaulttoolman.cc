@@ -216,19 +216,39 @@ protected:
 
 //============================================================================
 
-#define mDefineKey( key, str ) \
-const char* uiODFaultToolMan::key()	{ return str; }
+uiString uiODFaultToolMan::sKeyCopySelection()
+{ return tr( "Copy Selection to" ); }
 
-mDefineKey( sKeyCopySelection,     "Copy Selection to" )
-mDefineKey( sKeyMoveSelection,     "Move Selection to" )
-mDefineKey( sKeyToFault,           "Fault" )
-mDefineKey( sKeyToFaultStickSet,   "FaultStickSet" )
-mDefineKey( sKeyCreateSingleNew,   "Create Single New" )
-mDefineKey( sKeyCreateNewInSeries, "Create New in Series" )
-mDefineKey( sKeyMergeWithExisting, "Merge with Existing" )
-mDefineKey( sKeyReplaceExisting,   "Replace Existing" )
 
-#define mCurItem( combo, key ) ( FixedString(combo->text()) == key() )
+uiString uiODFaultToolMan::sKeyMoveSelection()
+{ return tr( "Move Selection to" ); }
+
+
+uiString uiODFaultToolMan::sKeyToFault()
+{ return uiStrings::sFault(); }
+
+
+uiString uiODFaultToolMan::sKeyToFaultStickSet()
+{ return uiStrings::sFaultStickSet(); }
+
+
+uiString uiODFaultToolMan::sKeyCreateSingleNew()
+{ return tr( "Create Single New" ); }
+
+
+uiString uiODFaultToolMan::sKeyCreateNewInSeries()
+{ return tr( "Create New in Series" ); }
+
+
+uiString uiODFaultToolMan::sKeyMergeWithExisting()
+{ return tr( "Merge with Existing" ); }
+
+
+uiString uiODFaultToolMan::sKeyReplaceExisting()
+{ return tr( "Replace Existing" ); }
+
+#define mCurItem( combo, key ) \
+    ( FixedString(combo->text()) == key().getFullString() )
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
@@ -242,7 +262,8 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , flashcolor_( Color(0,0,0) )
     , curemid_(-1)
 {
-    toolbar_ = new uiToolBar( &appl_, "Fault Stick Control",uiToolBar::Bottom);
+    toolbar_ = new uiToolBar( &appl_,
+	    tr("Fault Stick Control"),uiToolBar::Bottom);
     editbutidx_ = toolbar_->addButton( "editsticks", tr("Edit Sticks"),
 				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
@@ -252,13 +273,13 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addSeparator();
 
     transfercombo_ = new uiComboBox( toolbar_, "Stick transfer action" );
-    transfercombo_->setToolTip( transfercombo_->name() );
+    transfercombo_->setToolTip( tr("Stick transfer action") );
     transfercombo_->addItem( sKeyCopySelection() );
     transfercombo_->addItem( sKeyMoveSelection() );
     toolbar_->addObject( transfercombo_ );
 
     outputtypecombo_ = new uiComboBox( toolbar_, "Output type" );
-    outputtypecombo_->setToolTip( outputtypecombo_->name() );
+    outputtypecombo_->setToolTip( tr("Output type") );
     outputtypecombo_->addItem( sKeyToFault() );
     outputtypecombo_->addItem( sKeyToFaultStickSet() );
     outputtypecombo_->selectionChanged.notify(
@@ -266,7 +287,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addObject( outputtypecombo_ );
 
     outputactcombo_ = new uiComboBox( toolbar_, "Output operation" );
-    outputactcombo_->setToolTip( outputactcombo_->name() );
+    outputactcombo_->setToolTip( tr("Output operation"));
     outputactcombo_->addItem( sKeyCreateSingleNew() );
     outputactcombo_->addItem( sKeyCreateNewInSeries() );
     outputactcombo_->addSeparator();
@@ -277,14 +298,14 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addObject( outputactcombo_ );
 
     outputnamecombo_ = new uiComboBox( toolbar_, "Output name" );
-    outputnamecombo_->setToolTip( outputnamecombo_->name() );
+    outputnamecombo_->setToolTip( tr("Output name"));
     outputnamecombo_->setReadOnly( false );
     outputnamecombo_->setMinimumWidth( 150 );
     outputnamecombo_->editTextChanged.notify(
 				mCB(this,uiODFaultToolMan,outputEditTextChg) );
     outputnamecombo_->selectionChanged.notify(
 				mCB(this,uiODFaultToolMan,outputComboSelChg) );
-    outputnamecombo_->addItem( "" );
+    outputnamecombo_->addItem( uiString::emptyString() );
     toolbar_->addObject( outputnamecombo_ );
 
     auxfaultwrite_ = new uiSurfaceWrite( &appl_,
@@ -308,7 +329,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 
     colorbut_ = new uiToolButton( toolbar_, "empty", tr("Output Color"),
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
-    colorbut_->setToolTip( colorbut_->name() );
+    colorbut_->setToolTip( colorbut_->text() );
     toolbar_->addObject( colorbut_ );
 
     settingsbutidx_ = toolbar_->addButton("tools", tr("More Transfer Settings"),
@@ -653,20 +674,22 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
     mOutputNameComboSetTextColorSensitivityHack( flashcolor_ );
 
     toolbar_->setSensitive( undobutidx_, EM::EMM().undo().canUnDo() );
-    BufferString undotooltip( "Undo" );
+    uiString undotooltip;
     if ( EM::EMM().undo().canUnDo() )
-    {
-	undotooltip += " "; undotooltip += EM::EMM().undo().unDoDesc();
-    }
-    toolbar_->setToolTip( undobutidx_, undotooltip.buf() );
+    undotooltip = tr("Undo %1").arg( EM::EMM().undo().unDoDesc() );
+    else
+	undotooltip = uiStrings::sUndo();
+
+    toolbar_->setToolTip( undobutidx_, undotooltip );
 
     toolbar_->setSensitive( redobutidx_, EM::EMM().undo().canReDo() );
-    BufferString redotooltip( "Redo" );
+    uiString redotooltip;
     if ( EM::EMM().undo().canReDo() )
-    {
-	redotooltip += " "; redotooltip += EM::EMM().undo().reDoDesc();
-    }
-    toolbar_->setToolTip( redobutidx_, redotooltip.buf() );
+	redotooltip = tr( "Redo %1").arg( EM::EMM().undo().reDoDesc() );
+    else
+	redotooltip = uiStrings::sRedo();
+
+    toolbar_->setToolTip( redobutidx_, redotooltip );
 }
 
 
@@ -1228,9 +1251,11 @@ void uiODFaultToolMan::processOutputName()
     {
 	if ( !isOutputNameUsed() )
 	{
-	    BufferString tooltiptext = "Output name [of no existing Fault!]";
-	    if ( !mCurItem(outputtypecombo_, sKeyToFault) )
-		tooltiptext = "Output name [of no existing FaultStickSet!]";
+	    uiString tooltiptext = tr("Output name [of no existing %1!]");
+	    if ( mCurItem(outputtypecombo_, sKeyToFault) )
+		tooltiptext.arg( sKeyToFault() );
+	    else
+		tooltiptext.arg( sKeyToFaultStickSet() );
 	    outputnamecombo_->setToolTip( tooltiptext );
 	    flashOutputName( true );
 	    return;
@@ -1282,9 +1307,9 @@ void uiODFaultToolMan::processOutputName()
 
 	if (  existingfault || existingfss )
 	{
-	    BufferString tooltiptext = "Output name [of existing Fault!]";
+	uiString tooltiptext = tr("Output name [of existing Fault!]");
 	    if ( existingfss )
-		tooltiptext = "Output name [of existing FaultStickSet!]";
+	tooltiptext = tr("Output name [of existing FaultStickSet!]");
 	    outputnamecombo_->setToolTip( tooltiptext );
 	    flashOutputName( true, basenm );
 	    return;
@@ -1365,7 +1390,8 @@ void uiODFaultToolMan::flashReset()
     flashname_.setEmpty();
     flashcolor_ = Color(0,0,0);
     mOutputNameComboSetTextColorSensitivityHack( flashcolor_ );
-    outputnamecombo_->setToolTip( "Output name" );
+    outputnamecombo_->setToolTip(
+	    uiStrings::phrOutput( uiStrings::sName().toLower() ) );
 }
 
 

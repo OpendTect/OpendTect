@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
+#include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emmarchingcubessurface.h"
 #include "emrandomposbody.h"
@@ -80,7 +81,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cWSWidth = 600;
 static const int cWSHeight = 500;
-static const char* scenestr = "Scene ";
 static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
@@ -180,7 +180,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 
 
 int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
-			    const char* name )
+		const uiString& name )
 {
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
@@ -198,7 +198,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 					       toUiString(vwridx_) );
 
     scn.mdiwin_->setTitle( title );
-    visServ().setObjectName( sceneid, title.getFullString() );
+    visServ().setObjectName( sceneid, title );
     scn.vwr3d_->display( true );
     scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
@@ -230,7 +230,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	scn.vwr3d_->showRotAxis( true );
     }
 
-    if ( name ) setSceneName( sceneid, name );
+    if ( name.isSet() ) setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
 
@@ -370,8 +370,8 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
 	visServ().turnSelectionModeOn( false );
 
-	BufferString title( scenestr );
-	title += vwridx_;
+    const uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
+						      toUiString( vwridx_ ));
 	scn.mdiwin_->setTitle( title );
 	visServ().setObjectName( scn.vwr3d_->sceneID(), title );
 
@@ -496,19 +496,18 @@ void uiODSceneMgr::updateStatusBar()
     const Coord3 xytpos = visServ().getMousePos();
     const bool haspos = xytpos.isDefined();
 
-    BufferString msg;
+    uiString msg;
     if ( haspos  )
     {
-	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
-	msg = bid.toString();
-	msg += "   (";
-	msg += mNINT32(xytpos.x); msg += ", ";
-	msg += mNINT32(xytpos.y); msg += ", ";
-
-	const float zfact = mCast(float,visServ().zFactor());
-	float zval = (float) (zfact * xytpos.z);
-	if ( zfact>100 || zval>10 ) zval = mCast( float, mNINT32(zval) );
-	msg += zval; msg += ")";
+    const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
+    const float zfact = mCast(float,visServ().zFactor());
+    float zval = (float) (zfact * xytpos.z);
+    if ( zfact>100 || zval>10 ) zval = mCast( float, mNINT32(zval) );
+    msg = toUiString("%1    (%2, %3, %4)")
+	.arg( bid.toString() )
+	.arg( mNINT32(xytpos.x) )
+	.arg( mNINT32(xytpos.y) )
+	.arg( zval );
     }
 
     appl_.statusBar()->message( msg, mPosField );
@@ -516,24 +515,28 @@ void uiODSceneMgr::updateStatusBar()
     const BufferString valstr = visServ().getMousePosVal();
     if ( haspos )
     {
-	msg = valstr.isEmpty() ? "" : "Value = ";
-	msg += valstr;
+    msg = valstr.isEmpty()
+	    ? uiString::emptyString()
+	    : tr("Value = %1").arg( valstr );
     }
     else
-	msg = "";
+    msg.setEmpty();
 
     appl_.statusBar()->message( msg, mValueField );
 
-    msg = haspos ? visServ().getMousePosString() : "";
+    msg = haspos
+	    ? mToUiStringTodo(visServ().getMousePosString())
+	    : uiString::emptyString();
     if ( msg.isEmpty() )
     {
 	const int selid = visServ().getSelObjectId();
-	msg = visServ().getInteractionMsg( selid );
+    msg = mToUiStringTodo(visServ().getInteractionMsg( selid ) );
     }
     appl_.statusBar()->message( msg, mNameField );
 
-    visServ().getPickingMessage( msg );
-    appl_.statusBar()->message( msg, mStatusField );
+    BufferString bsmsg;
+    visServ().getPickingMessage( bsmsg );
+    appl_.statusBar()->message( mToUiStringTodo(bsmsg), mStatusField );
 
     appl_.statusBar()->setBGColor( mStatusField, visServ().isPicking() ?
 	    Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );
@@ -639,7 +642,7 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
 
 
 class uiSnapshotDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSnapshotDlg);
 public:
 			uiSnapshotDlg(uiParent*);
 
@@ -652,15 +655,15 @@ protected:
 
 
 uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Specify snapshot",
-				   "Select area to take snapshot",
+    : uiDialog( p, uiDialog::Setup(tr("Specify snapshot"),
+		   tr("Select area to take snapshot"),
                                    mODHelpKey(mSnapshotDlgHelpID) ) )
 {
     butgrp_ = new uiButtonGroup( this, "Area type", OD::Vertical );
     butgrp_->setExclusive( true );
-    new uiRadioButton( butgrp_, "Scene" );
-    new uiRadioButton( butgrp_, "Window" );
-    new uiRadioButton( butgrp_, "Desktop" );
+    new uiRadioButton( butgrp_, uiStrings::sScene() );
+    new uiRadioButton( butgrp_, tr("Window") );
+    new uiRadioButton( butgrp_, tr("Desktop") );
     butgrp_->selectButton( 0 );
 }
 
@@ -738,7 +741,7 @@ int uiODSceneMgr::askSelectScene() const
 	return sceneids.isEmpty() ? -1 : sceneids[0];
 
     StringListInpSpec* inpspec = new StringListInpSpec( scenenms );
-    uiGenInputDlg dlg( &appl_, tr("Choose scene"), "", inpspec );
+    uiGenInputDlg dlg( &appl_, tr("Choose scene"), mNoDlgTitle, inpspec );
     const int selidx = dlg.go() ? dlg.getIntValue() : -1;
     return sceneids.validIdx(selidx) ? sceneids[selidx] : -1;
 }
@@ -787,19 +790,21 @@ void uiODSceneMgr::translateText()
 }
 
 
-void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active ) const
+void uiODSceneMgr::getSceneNames( uiStringSet& nms, int& active ) const
 {
-    uiStringSet windownames;
-    mdiarea_->getWindowNames( windownames );
-
-    nms.setEmpty();
-    for ( int idx=0; idx<windownames.size(); idx++ )
-    {
-	nms.add( windownames[idx].getFullString() );
-    }
+    mdiarea_->getWindowNames( nms );
+    active = -1;
 
     const char* activenm = mdiarea_->getActiveWin();
-    active = nms.indexOf( activenm );
+
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	if ( nms[idx].getFullString()==activenm )
+	{
+	    active = idx;
+	    break;
+	}
+    }
 }
 
 
@@ -834,9 +839,13 @@ void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 }
 
 
-void uiODSceneMgr::setActiveScene( const char* scenenm )
+void uiODSceneMgr::setActiveScene( int idx )
 {
-    mdiarea_->setActiveWin( scenenm );
+    uiStringSet nms;
+    int act;
+    getSceneNames( nms, act );
+
+    mdiarea_->setActiveWin( nms[idx].getFullString() );
     activeSceneChanged.trigger();
 }
 
@@ -939,7 +948,8 @@ void uiODSceneMgr::setItemInfo( int id )
     mDoAllScenes(itemmanager_,updateColumnText,cColorColumn());
     appl_.statusBar()->message( uiString::emptyString(), mPosField );
     appl_.statusBar()->message( uiString::emptyString(), mValueField );
-    appl_.statusBar()->message( visServ().getInteractionMsg(id), mNameField );
+    appl_.statusBar()->message(mToUiStringTodo(visServ().getInteractionMsg(id)),
+				mNameField );
     appl_.statusBar()->message( uiString::emptyString(), mStatusField );
     appl_.statusBar()->setBGColor( mStatusField,
 				   appl_.statusBar()->getBGColor(mPosField) );
@@ -1181,9 +1191,11 @@ void uiODSceneMgr::gtLoadedEMIDs( const Scene* scene, TypeSet<int>& emids,
 
 int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
-    mGetOrAskForScene
+    mGetOrAskForScene;
 
-    FixedString type = applMgr().EMServer()->getType( emid );
+    RefMan<EM::EMObject> obj = EM::EMM().getObject( emid );
+
+    FixedString type = obj->getTypeStr();
     uiODDisplayTreeItem* itm;
     if ( type==EM::Horizon3D::typeStr() )
 	itm = new uiODHorizonTreeItem(emid,false,false);

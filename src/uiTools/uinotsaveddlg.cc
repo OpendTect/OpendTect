@@ -21,12 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 class NotSavedPrompterData
 {
 public:
-    NotSavedPrompterData(const char* str,const CallBack& cb,bool issaveas,
+    NotSavedPrompterData(const uiString& str,const CallBack& cb,bool issaveas,
 			 const void* dataptr )
 	: string_(str), cb_(cb), issaveas_(issaveas)
 	, dataptr_( dataptr )
     {}
-    BufferString    string_;
+    uiString	    string_;
     CallBack        cb_;
     bool            issaveas_;
     const void*     dataptr_;
@@ -153,6 +153,11 @@ void NotSavedPrompter::addObject( const char* str,const CallBack& cb,
     objects_ += new NotSavedPrompterData( str, cb, issaveas, dataptr );
 }
 
+void NotSavedPrompter::addObject( const uiString& str,const CallBack& cb,
+    bool issaveas, const void* dataptr )
+{
+    objects_ += new NotSavedPrompterData( str, cb, issaveas, dataptr );
+}
 
 
 void NotSavedPrompter::reportSuccessfullSave()

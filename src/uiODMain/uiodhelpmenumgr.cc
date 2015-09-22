@@ -95,7 +95,7 @@ void uiODHelpMenuMgr::handle( int id )
 }
 
 
-BufferString uiODHelpMenuMgr::getAboutString()
+uiString uiODHelpMenuMgr::getAboutString()
 {
     BufferString str( "<html>" );
     str.set( "<h2>OpendTect v" ).add( GetFullODVersion() ).add("</h2><br>");
@@ -113,5 +113,5 @@ BufferString uiODHelpMenuMgr::getAboutString()
 	     "<a href=\"http://dgbes.com/index.php/products/licenses\">"
 	     "here</a>.<br>" );
     str.add( "</html>" );
-    return str;
+    return mToUiStringTodo(str);
 }

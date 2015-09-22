@@ -32,7 +32,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     , measuredlg_(0)
 {
     butidx_ = appl.menuMgr().viewTB()->addButton( "measure",
-	    "Display Distance", mCB(this,MeasureToolMan,buttonClicked), true );
+	tr("Display Distance"), mCB(this,MeasureToolMan,buttonClicked), true );
 
     TypeSet<int> sceneids;
     appl.applMgr().visServer()->getChildIds( -1, sceneids );

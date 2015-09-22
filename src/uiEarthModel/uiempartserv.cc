@@ -363,21 +363,20 @@ void uiEMPartServer::createHorWithConstZ( bool is2d )
 }
 
 
-BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
+uiString uiEMPartServer::getName( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject( emid );
-    if ( emobj && !emobj->name().isEmpty() )
-	return emobj->name();
+    if ( emobj && !emobj->uiName().isEmpty() )
+    return emobj->uiName();
 
-    BufferString bs;
-    return bs;
+    return uiString::emptyString();
 }
 
 
-const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
+uiString uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject( emid );
-    return emobj ? emobj->getTypeStr() : 0;
+    return emobj ? emobj->getUserTypeStr() : uiString::emptyString();
 }
 
 

@@ -29,7 +29,7 @@ namespace Attrib { class SelSpec; }
 mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODVw2DTreeItem)
 public:
-    			uiODVw2DTreeItem(const char*);
+		uiODVw2DTreeItem(const uiString&);
 			~uiODVw2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);

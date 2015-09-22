@@ -46,8 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvobj.h"
 
 
-const char* uiVisEMObject::trackingmenutxt()	    { return "Tracking"; }
-
 uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     : displayid_(newid)
     , visserv_(vps)
@@ -376,7 +374,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     seedsmenuitem_.removeItems();
 
     mResetMenuItem( &lockseedsmnuitem_ );
-    MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
+    MenuItem* trackmnu =
+	menu->findItem( uiStrings::sTracking().getFullString() );
     if ( trackmnu )
     {
 	const TypeSet<EM::PosID>* seeds =
