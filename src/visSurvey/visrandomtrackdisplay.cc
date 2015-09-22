@@ -257,7 +257,7 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
-
+    cs.hsamp_.survid_ = Survey::GM().default3DSurvID();
     return cs;
 }
 
