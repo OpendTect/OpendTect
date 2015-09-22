@@ -1073,12 +1073,6 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 						hor3d->getSelectionColor() );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
-    {
-	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
-	if ( hor3d && !hor3d->hasBurstAlert() )
-	    updateAuxData();
-    }
 
     updateSingleColor();
 
