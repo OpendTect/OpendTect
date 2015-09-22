@@ -124,6 +124,8 @@ public:
 
     const char*		text(const RowCol&) const;
     void		setText(const RowCol&,const char*);
+    void		setText(const RowCol&,const OD::String&);
+    void		setText(const RowCol&,const uiString&);
     void		clearCell(const RowCol&);
     void		clearTable();
     void		showGrid(bool);

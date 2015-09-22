@@ -69,13 +69,14 @@ protected:
     const bool		inptypfixed_;
     int			nrrows_;
     bool		parsbeingset_;
-    BufferString	xinfotxt_;
-    BufferString	yinfotxt_;
-    BufferString	inlinfotxt_;
-    BufferString	crlinfotxt_;
-    BufferString	trcnrinfotxt_;
-    BufferString	refnrinfotxt_;
-    BufferString	offsetinfotxt_;
+    const uiString	sBytePos;
+    uiString		xinfotxt_;
+    uiString		yinfotxt_;
+    uiString		inlinfotxt_;
+    uiString		crlinfotxt_;
+    uiString		trcnrinfotxt_;
+    uiString		refnrinfotxt_;
+    uiString		offsetinfotxt_;
 
     void		mkCommonLoadDefFields();
     void		manRev0Rows();
@@ -84,7 +85,7 @@ protected:
     void		showRelevantInfo();
 
     bool		isVSP() const		{ return imptype_.isVSP(); }
-    void		setCellTxt(int col,int row,const char*,
+    void		setCellTxt(int col,int row,const uiString&,
 				   bool isoptional=false);
 
     void		revChg(CallBacker*);
