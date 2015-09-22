@@ -146,7 +146,7 @@ TrcKey::SurvID GeometryManager::default3DSurvID() const
 	if ( !geometries_[idx]->is2D() )
 	    return geometries_[idx]->getID();
 
-    return cUndefGeomID();
+    return cSIGeomID;
 }
 
 

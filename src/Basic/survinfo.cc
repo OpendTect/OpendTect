@@ -293,6 +293,7 @@ SurveyInfo::SurveyInfo()
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
+    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
 }
 
 
@@ -611,6 +612,7 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
     else
 	tkzs_ = cs;
 
+    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
     wcs_.limitTo( tkzs_ );
     wcs_.hsamp_.step_ = tkzs_.hsamp_.step_;
     wcs_.zsamp_.step = tkzs_.zsamp_.step;
