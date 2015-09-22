@@ -91,12 +91,7 @@ protected:
     void			seedClick(CallBacker*);
     void			updateClickCatcher();
 
-    int				seedidx_;
-
     bool			seedpickwason_;
-    bool			polyselstoppedseedpick_;
-    bool			mpeintropending_;
-
     TrcKeyZSampling		oldactivevol_;
 };
 

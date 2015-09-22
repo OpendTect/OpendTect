@@ -335,9 +335,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	npsd->setDisplayTransformation( psd->getDisplayTransformation() );
 	addChild( new uiODBodyDisplayTreeItem(npsd->id(),true), false );
 
-        visserv_->addObject( npsd, sceneID(), true );
-	visserv_->turnSeedPickingOn( false );
-	return;
+	visserv_->addObject( npsd, sceneID(), true );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

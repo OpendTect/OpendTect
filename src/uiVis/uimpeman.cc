@@ -54,9 +54,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv_(ps)
     , seedpickwason_(false)
     , oldactivevol_(false)
-    , mpeintropending_(false)
     , cureventnr_(mUdf(int))
-    , polyselstoppedseedpick_(false)
 {
     engine().trackeraddremove.notify(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
@@ -707,13 +705,8 @@ bool uiMPEMan::isPickingWhileSetupUp() const
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
-    polyselstoppedseedpick_ = false;
-
     if ( !yn && clickcatcher_ )
 	clickcatcher_->setEditor( 0 );
-
-    if ( isSeedPickingOn() == yn )
-	return;
 
     MPE::EMTracker* tracker = getSelectedTracker();
 
@@ -726,14 +719,13 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	const EM::EMObject* emobj =
 			tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
-
 	if ( emobj )
 	    clickcatcher_->setTrackerType( emobj->getTypeStr() );
     }
     else
     {
 	MPE::EMSeedPicker* seedpicker =
-		tracker ? tracker->getSeedPicker(true) : 0;
+		tracker ? tracker->getSeedPicker( false ) : 0;
 	if ( seedpicker )
 	    seedpicker->stopSeedPick();
 
@@ -786,23 +778,27 @@ void uiMPEMan::updateClickCatcher()
 
 void uiMPEMan::treeItemSelCB( CallBacker* )
 {
+    if ( !getSelectedDisplay() )
+    {
+	turnSeedPickingOn( false );
+	return;
+    }
+
     validateSeedConMode();
     updateClickCatcher();
+    turnSeedPickingOn( true );
 }
 
 
 void uiMPEMan::validateSeedConMode()
 {
-    if ( visserv_->isTrackingSetupActive() )
-	return;
     MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker )
-	return;
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker ) return;
+
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj )
 	return;
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-    if ( !seedpicker ) return;
 
     const SectionTracker* sectiontracker =
 			tracker->getSectionTracker( emobj->sectionID(0), true );

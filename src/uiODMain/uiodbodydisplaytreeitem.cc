@@ -115,9 +115,6 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	plg->setNewName();
 	plg->setFullyLoaded( true );
 	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
-
-	uiVisPartServer* visserv = applMgr()->visServer();
-	visserv->turnSeedPickingOn( false );
     }
     else if ( mnuid==2 || mnuid==3 )
     {
