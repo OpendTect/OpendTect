@@ -19,6 +19,9 @@ function testExpand( $input, $expected )
 	    echo $desc;
 	echo "FAILED\n";
 
+	print_r( $expected );
+	print_r( tab_expand( $input ) );
+
 	return false;
     }
     else
@@ -60,6 +63,12 @@ if ( !testExpand(      "\tdef",
 //	|	|	|	|	|	|        
 if ( !testExpand(      "12345678\tdef",
 		       "12345678        def" ) )
+    exit( 1 );
+
+if ( !testExpand(      "12345678\n".
+		       "\tdef",
+		       "12345678\n".
+		       "        def" ) )
     exit( 1 );
 
 exit( 0 );
