@@ -555,6 +555,15 @@ void uiStratRefTree::moveUnit( bool up )
 
     curit->setOpen( isexpanded );
     lv_->setCurrentItem(curit);
+
+    Strat::UnitRef* curun = tree_->find( getFullCodeFromLVIt(curit) );
+    Strat::UnitRef* targetun = tree_->find( getFullCodeFromLVIt(targetit) );
+    if ( !curun || !targetun ) return;
+    Strat::NodeUnitRef* upnode = curun->upNode();
+    if ( !upnode ) return;
+
+    upnode->swapChildren( upnode->indexOf(curun), upnode->indexOf(targetun) );
+    anychange_ = true;
     //tree_->move( getFullCodeFromLVIt( curit ).buf(), up );
 }
 
