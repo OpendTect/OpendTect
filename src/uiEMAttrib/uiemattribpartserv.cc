@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
 
+#include "attribdescset.h"
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -41,14 +42,55 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     , attribidx_(0)
     , uiimphor2ddlg_(0)
     , uiseisevsnapdlg_(0)
-{}
+    , aroundhor2ddlg_(0)
+    , aroundhor3ddlg_(0)
+    , betweenhor2ddlg_(0)
+    , betweenhor3ddlg_(0)
+    , surfattr2ddlg_(0)
+    , surfattr3ddlg_(0)
+{
+}
 
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
     if ( horshiftdlg_ )
 	horshiftdlg_->close();
+
+    delete aroundhor2ddlg_;
+    delete aroundhor3ddlg_;
+    delete betweenhor2ddlg_;
+    delete betweenhor3ddlg_;
+    delete surfattr2ddlg_;
+    delete surfattr3ddlg_;
 }
+
+
+#define mEMAttrDlg(dlgobj,caption) \
+    { \
+	if ( !dlgobj ) \
+	{ \
+	    dlgobj = new uiAttrTrcSelOut( parent(), *descset_, nlamodel_, \
+					  nlaid_, type==AroundHor ); \
+	    dlgobj->setCaption( caption ); \
+	} \
+	else \
+	    dlgobj->updateAttributes( *descset_,nlamodel_,nlaid_ ); \
+	dlgobj->show(); \
+    }
+
+#define mSurfAttrDlg(surfdlg,surfdlgcap) \
+    { \
+	if ( !surfdlg ) \
+	{ \
+	    surfdlg = new uiAttrSurfaceOut( parent(), *descset_, \
+						       nlamodel_, nlaid_ ); \
+	    surfdlg->setCaption( surfdlgcap ); \
+	} \
+	else \
+	    surfdlg->updateAttributes( *descset_,nlamodel_,nlaid_ ); \
+	surfdlg->go(); \
+    }
 
 
 void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
@@ -57,14 +99,31 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 
     if ( type==OnHor )
     {
-	uiAttrSurfaceOut dlg( parent(), *descset_, nlamodel_, nlaid_ );
-	dlg.go();
+	if ( descset_->is2D() )
+	    mSurfAttrDlg(surfattr2ddlg_,tr("Calculate Horizon Data from 2D"))
+	else
+	    mSurfAttrDlg(surfattr3ddlg_,tr("Calculate Horizon Data from 3D"))
     }
     else
     {
-	uiAttrTrcSelOut dlg( parent(), *descset_, nlamodel_, nlaid_,
-			     type==AroundHor );
-	dlg.go();
+	if ( descset_->is2D() )
+	{
+	    if ( type==AroundHor )
+		mEMAttrDlg(aroundhor2ddlg_,
+			   tr("Create Attribute Output Along a 2D Horizon"))
+	    else
+		mEMAttrDlg(betweenhor2ddlg_,
+			   tr("Create Attribute Output Between 2D Horizons"))
+	}
+	else
+	{
+	    if ( type==AroundHor )
+		mEMAttrDlg(aroundhor3ddlg_,
+			   tr("Create Attribute Output Along a 3D Horizon"))
+	    else
+		mEMAttrDlg(betweenhor3ddlg_,
+			   tr("Create Attribute Output Between 3D Horizons"))
+	}
     }
 }
 

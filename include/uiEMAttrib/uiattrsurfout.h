@@ -40,11 +40,12 @@ public:
 protected:
 
     bool		prepareProcessing();
-    bool		fillPar();
+    bool		fillPar(IOPar&);
     void		attribSel(CallBacker*);
     void		objSelCB(CallBacker*);
     void		fillUdfSelCB(CallBacker*);
     void		settingsCB(CallBacker*);
+    void		getJobName(BufferString&) const;
 
     uiGenInput*		attrnmfld_;
     uiIOObjSel*		objfld_;

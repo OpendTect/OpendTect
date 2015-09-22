@@ -44,7 +44,7 @@ public:
 protected:
 
     bool		prepareProcessing();
-    bool		fillPar();
+    bool		fillPar(IOPar&);
     void                objSel(CallBacker*);
     void                attribSel(CallBacker*);
     void		interpSel(CallBacker*);
@@ -56,7 +56,6 @@ protected:
 
     void		createSingleHorUI();
     void		createTwoHorUI();
-    void		createAttrFld(uiParent*);
     void		createZIntervalFld(uiParent*);
     void		createExtraZTopFld(uiParent*);
     void		createExtraZBotFld(uiParent*);
@@ -69,6 +68,7 @@ protected:
     void		createMainHorFld(uiParent*);
     void		createCubeBoundsFlds(uiParent*);
     void		createOutputFld(uiParent*);
+    void		getJobName(BufferString&) const;
 
     uiString		createAddWidthLabel();
 

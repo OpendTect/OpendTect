@@ -71,12 +71,12 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     else
 	createTwoHorUI();
 
-    batchfld_->attach( alignedBelow, outpfld_ );
+    pargrp_->setHAlignObj( outpfld_ );
     objSel(0);
-    if ( usesinglehor_ && !ads_.is2D() )
+    if ( usesinglehor_ && !ads_->is2D() )
 	interpSel(0);
 
-    if ( usesinglehor_ || ads_.is2D() )
+    if ( usesinglehor_ || ads_->is2D() )
 	cubeBoundsSel(0);
 }
 
@@ -84,26 +84,26 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 void uiAttrTrcSelOut::createSingleHorUI()
 {
     ctio_.ctxt_.forread_ = true;
-    objfld_ = new uiIOObjSel( this, ctio_, "Calculate along Horizon" );
+    objfld_ = new uiIOObjSel( pargrp_, ctio_, "Calculate along Horizon" );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createSubSelFld( this );
-    createZIntervalFld( this );
-    createOutsideValFld( this );
-    if ( !ads_.is2D() )
+    createSubSelFld( pargrp_ );
+    createZIntervalFld( pargrp_ );
+    createOutsideValFld( pargrp_ );
+    if ( !ads_->is2D() )
     {
-	createInterpFld( this );
-	createNrSampFld( this );
+	createInterpFld( pargrp_ );
+	createNrSampFld( pargrp_ );
     }
-    createCubeBoundsFlds( this );
-    createOutputFld( this );
+    createCubeBoundsFlds( pargrp_ );
+    createOutputFld( pargrp_ );
 }
 
 
 void uiAttrTrcSelOut::createTwoHorUI()
 {
-    xparsdlg_ = new uiDialog( this, uiDialog::Setup(
+    xparsdlg_ = new uiDialog( pargrp_, uiDialog::Setup(
 				tr("Set Extra Options"),mNoDlgTitle,
 				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
@@ -111,21 +111,21 @@ void uiAttrTrcSelOut::createTwoHorUI()
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
     su.filldef(false);
     ctio_.ctxt_.forread_ = true;
-    objfld_ = new uiIOObjSel( this, ctio_, su );
+    objfld_ = new uiIOObjSel( pargrp_, ctio_, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
     su.seltxt( tr("and bottom Horizon") );
     ctio2_.ctxt_.forread_ = true;
-    obj2fld_ = new uiIOObjSel( this, ctio2_, su );
+    obj2fld_ = new uiIOObjSel( pargrp_, ctio2_, su );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createExtraZTopFld( this );
-    createExtraZBotFld( this );
-    createSubSelFld( this );
-    createOutsideValFld( this );
-    if ( !ads_.is2D() )
+    createExtraZTopFld( pargrp_ );
+    createExtraZBotFld( pargrp_ );
+    createSubSelFld( pargrp_ );
+    createOutsideValFld( pargrp_ );
+    if ( !ads_->is2D() )
     {
 	createInterpFld( xparsdlg_ );
 	createNrSampFld( xparsdlg_ );
@@ -134,18 +134,17 @@ void uiAttrTrcSelOut::createTwoHorUI()
 	createMainHorFld( xparsdlg_ );
     }
 
-    createCubeBoundsFlds( ads_.is2D() ? (uiParent*) this
+    createCubeBoundsFlds( ads_->is2D() ? (uiParent*) pargrp_
 				      : (uiParent*) xparsdlg_ );
-    createOutputFld( this );
+    createOutputFld( pargrp_ );
 
-    if ( !ads_.is2D() )
+    if ( !ads_->is2D() )
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
 	uiPushButton* extrabut =
-			new uiPushButton( this, tr("Extra options"),
+			new uiPushButton( pargrp_, tr("Extra options"),
                                           cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
-	batchfld_->attach( alignedBelow, extrabut );
     }
 }
 
@@ -199,7 +198,7 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
     seissubselfld_ = uiSeisSubSel::get( prnt,
-	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true)
+	    Seis::SelSetup(ads_->is2D()).onlyrange(false).multiline(true)
 				       .withoutz(true).withstep(false) );
     seissubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 						       : (uiGroup*)obj2fld_ );
@@ -294,10 +293,10 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
-    const Seis::GeomType gt = Seis::geomTypeOf( ads_.is2D(), false );
+    const Seis::GeomType gt = Seis::geomTypeOf( ads_->is2D(), false );
     outpfld_ = new uiSeisSel( prnt, uiSeisSel::ioContext( gt, false ),
 			      uiSeisSel::Setup(gt) );
-    const bool noadvdlg = usesinglehor_ || ads_.is2D();
+    const bool noadvdlg = usesinglehor_ || ads_->is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
 
@@ -323,7 +322,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	return false;
 
     mDynamicCastGet(uiSeis2DSubSel*,seis2dsubsel,seissubselfld_);
-    if ( ads_.is2D() && seis2dsubsel )
+    if ( ads_->is2D() && seis2dsubsel )
     {
 	bool lkexists = false;
 	Seis2DDataSet dataset( *outioobj );
@@ -348,16 +347,20 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	}
     }
 
-    batchfld_->setJobName( outpfld_->ioobj()->name() );
     return true;
 }
 
 
-bool uiAttrTrcSelOut::fillPar()
+void uiAttrTrcSelOut::getJobName( BufferString& jobnm ) const
 {
-    uiAttrEMOut::fillPar();
-    IOPar& iopar = batchfld_->jobSpec().pars_;
-    const bool is2d = ads_.is2D();
+    jobnm = outpfld_->ioobj()->name();
+}
+
+
+bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
+{
+    uiAttrEMOut::fillPar( iopar );
+    const bool is2d = ads_->is2D();
 
     const IOObj* outioobj = outpfld_->ioobj( true );
     if ( outioobj )
@@ -510,11 +513,11 @@ uiString uiAttrTrcSelOut::createAddWidthLabel()
 
 void uiAttrTrcSelOut::attribSel( CallBacker* )
 {
-    if ( ads_.is2D() )
+    if ( ads_->is2D() )
     {
-	const Desc* desc = ads_.getDesc( attrfld_->attribID() );
+	const Desc* desc = ads_->getDesc( attrfld_->attribID() );
 	if ( !desc )
-	    desc = ads_.getFirstStored();
+	    desc = ads_->getFirstStored();
 	if ( desc )
 	{
 	    LineKey lk( desc->getStoredID(true) );
@@ -537,7 +540,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 	 ( !usesinglehor_ && !obj2fld_->commitInput() ) )
 	return;
 
-    if ( ads_.is2D() )
+    if ( ads_->is2D() )
     {
 	EM::IOObjInfo info( ctio_.ioobj_->key() );
 	TypeSet<Pos::GeomID> geomids;
@@ -605,7 +608,7 @@ void uiAttrTrcSelOut::extraParsCB( CallBacker* cb )
 
 void uiAttrTrcSelOut::extraDlgDone( CallBacker* cb )
 {
-    if ( !ads_.is2D() )
+    if ( !ads_->is2D() )
     {
 	interpSel(0);
 	extraWidthSel(0);
@@ -623,7 +626,7 @@ CtxtIOObj& uiAttrTrcSelOut::mkCtxtIOObjHor( bool is2d )
 
 void uiAttrTrcSelOut::lineSel( CallBacker* )
 {
-    if ( !ads_.is2D() ) return;
+    if ( !ads_->is2D() ) return;
 
-    batchfld_->jobSpecUpdated();
+    batchjobfld_->jobSpecUpdated();
 }

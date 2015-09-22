@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 #include "attribdescid.h"
 #include "datacoldef.h"
 #include "emposid.h"
@@ -25,6 +26,8 @@ class DataPointSet;
 class NLAModel;
 class TaskRunner;
 
+class uiAttrSurfaceOut;
+class uiAttrTrcSelOut;
 class uiHorizonShiftDialog;
 class uiImportHorizon2D;
 class uiSeisEventSnapper;
@@ -35,7 +38,7 @@ class uiSeisEventSnapper;
 */
 
 mExpClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
-{
+{mODTextTranslationClass(uiEMAttribPartServer);
 public:
 				uiEMAttribPartServer(uiApplService&);
 				~uiEMAttribPartServer();
@@ -105,6 +108,13 @@ protected:
     int				shiftidx_;
     Attrib::DescID		attribid_;
     int				attribidx_;
+
+    uiAttrTrcSelOut*		aroundhor2ddlg_;
+    uiAttrTrcSelOut*		aroundhor3ddlg_;
+    uiAttrTrcSelOut*		betweenhor2ddlg_;
+    uiAttrTrcSelOut*		betweenhor3ddlg_;
+    uiAttrSurfaceOut*		surfattr2ddlg_;
+    uiAttrSurfaceOut*		surfattr3ddlg_;
 
     void			calcDPS(CallBacker*);
     void			horShifted(CallBacker*);

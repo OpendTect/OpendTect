@@ -44,27 +44,26 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setHelpKey( mODHelpKey(mAttrSurfaceOutHelpID) );
     setCtrlStyle( RunAndClose );
 
-    attrnmfld_ = new uiGenInput( this, uiStrings::sAttribName(), 
+    attrnmfld_ = new uiGenInput( pargrp_, uiStrings::sAttribName(),
 				 StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, attrfld_ );
 
-    filludffld_ = new uiGenInput( this, tr("Fill undefined parts"),
+    filludffld_ = new uiGenInput( pargrp_, tr("Fill undefined parts"),
 	    			  BoolInpSpec(false) );
     filludffld_->valuechanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
-    settingsbut_ = new uiPushButton( this, uiStrings::sSettings(),
+    settingsbut_ = new uiPushButton( pargrp_, uiStrings::sSettings(),
 	    			 mCB(this,uiAttrSurfaceOut,settingsCB), false);
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    objfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
+    objfld_ = new uiIOObjSel( pargrp_, mIOObjContext(EMHorizon3D),
 			      "Calculate on Horizon" );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
-
-    batchfld_->attach( alignedBelow, objfld_ );
+    pargrp_->setHAlignObj( objfld_ );
 }
 
 
@@ -124,6 +123,18 @@ void uiAttrSurfaceOut::objSelCB( CallBacker* )
 }
 
 
+void uiAttrSurfaceOut::getJobName( BufferString& jobnm ) const
+{
+    const IOObj* ioobj = objfld_->ioobj( true );
+    if ( ioobj )
+	jobnm.add( ioobj->name() );
+
+    const FixedString attrnm = attrnmfld_->text();
+    if ( !attrnm.isEmpty() )
+	jobnm.add( " ").add( attrnm.buf() );
+}
+
+
 bool uiAttrSurfaceOut::prepareProcessing()
 {
     const IOObj* ioobj = objfld_->ioobj();
@@ -136,20 +147,14 @@ bool uiAttrSurfaceOut::prepareProcessing()
 	return false;
     }
 
-    BufferString parnm( ioobj->name() );
-    parnm += " "; parnm += attrnm.buf();
-    batchfld_->setJobName( parnm );
-
     return uiAttrEMOut::prepareProcessing();
 }
 
 
-bool uiAttrSurfaceOut::fillPar()
+bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 {
-    if( !uiAttrEMOut::fillPar() )
+    if ( !uiAttrEMOut::fillPar( iopar ) )
 	return false;
-
-    IOPar& iopar = batchfld_->jobSpec().pars_;
 
     const IOObj* ioobj = objfld_->ioobj();
     if ( !ioobj ) return false;
