@@ -307,7 +307,7 @@ mGlobal(Basic) int getNrProcessors();
 mGlobal(Basic) const void* currentThread();
 
 /*! Causes the current thread to sleep */
-mGlobal(Basic) void sleep(double time); /*!< Time in seconds */
+mGlobal(Basic) void sleep(double seconds);
 
 
 } //namespace

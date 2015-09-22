@@ -443,6 +443,9 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 	delete dirptr_;
     dirptr_ = newdir;
     curlvl_ = levelOf( curDirName() );
+
+    lock.unlockNow();
+
     if ( needtrigger )
 	newIODir.trigger();
 
@@ -666,18 +669,23 @@ bool IOMan::setDir( const char* dirname )
     delete dirptr_;
     dirptr_ = newdirptr;
     curlvl_ = levelOf( curDirName() );
+
+    lock.unlockNow();
+
     if ( needtrigger )
 	newIODir.trigger();
+
     return true;
 }
 
 
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 {
-    Threads::Locker lock( lock_ );
     ctio.setObj( 0 );
     if ( ctio.ctxt.name().isEmpty() )
 	return;
+
+    Threads::Locker lock( lock_ );
     to( ctio.ctxt.getSelKey() );
 
     const IOObj* ioobj = dirptr_->get( ctio.ctxt.name(),
@@ -686,6 +694,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
 	ioobj = 0;
 
+    bool needstrigger = false;
     if ( !ioobj )
     {
 	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr_->newKey() );
@@ -697,12 +706,18 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	{
 	    ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	    dirptr_->addObj( (IOObj*)ioobj );
-	    CBCapsule<MultiID> caps( ioobj->key(), this );
-	    entryAdded.trigger( &caps );
+	    needstrigger = true;
 	}
     }
 
     ctio.setObj( ioobj ? ioobj->clone() : 0 );
+    lock.unlockNow();
+
+    if ( needstrigger )
+    {
+	CBCapsule<MultiID> caps( ioobj->key(), this );
+	entryAdded.trigger( &caps );
+    }
 }
 
 
@@ -787,6 +802,8 @@ bool IOMan::permRemove( const MultiID& ky )
     Threads::Locker lock( lock_ );
     if ( !dirptr_ || !dirptr_->permRemove(ky) )
 	return false;
+
+    lock.unlockNow();
 
     CBCapsule<MultiID> caps( ky, this );
     entryRemoved.trigger( &caps );

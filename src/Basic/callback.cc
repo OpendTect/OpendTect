@@ -24,18 +24,30 @@ public:
     bool event( QEvent* )
     {
 	Threads::Locker locker( receiverlock_ );
-	for ( int idx=0; idx<cbs_.size(); idx++ )
+	if ( queue_.size() )
 	{
-	    cbs_[idx].doCall( cbers_[idx] );
+	    pErrMsg("Queue should be empty");
 	}
+
+	queue_ = cbs_;
+	ObjectSet<CallBacker> cbers( cbers_ );
 
 	cbs_.erase();
 	cbers_.erase();
+	locker.unlockNow();
+
+	for ( int idx=0; idx<queue_.size(); idx++ )
+	{
+	    queue_[idx].doCall( cbers[idx] );
+	}
+
+	locker.reLock();
+	queue_.erase();
 
 	return true;
     }
 
-    void add( CallBack& cb, CallBacker* cber )
+    void add( const CallBack& cb, CallBacker* cber )
     {
 	Threads::Locker locker( receiverlock_ );
 
@@ -44,25 +56,66 @@ public:
 	    QCoreApplication::postEvent( this, new QEvent(QEvent::None) );
 	}
 
+	toremove_.addIfNew( cb.cbObj() );
+
 	cbs_ += cb;
 	cbers_ += cber;
     }
 
-    void remove( CallBack& cb )
+    void removeBy( const CallBacker* cber )
     {
 	Threads::Locker locker( receiverlock_ );
-	const int idx = cbs_.indexOf( cb );
-	if ( idx>=0 )
+
+	for ( int idx=cbs_.size()-1; idx>=0; idx-- )
 	{
-	    cbs_.removeSingle( idx );
-	    cbers_.removeSingle( idx );
+	    if ( cbs_[idx].cbObj()==cber )
+	    {
+		cbs_.removeSingle( idx );
+		cbers_.removeSingle( idx );
+	    }
 	}
+
+	//Check that it is not presently running
+	bool found = true;
+	while ( found )
+	{
+	    found = false;
+
+	    for ( int idx=queue_.size()-1; idx>=0; idx-- )
+	    {
+		if ( queue_[idx].cbObj()==cber )
+		{
+		    found = true;
+		    break;
+		}
+	    }
+
+	    if ( found )
+	    {
+		locker.unlockNow();
+		Threads::sleep( 0.01 );
+		locker.reLock();
+	    }
+	}
+
+	toremove_ -= cber;
+    }
+
+    bool isPresent( const CallBacker* cber )
+    {
+	Threads::Locker locker( receiverlock_ );
+	return toremove_.isPresent( cber );
     }
 
 private:
 
+    TypeSet<CallBack>		queue_;
+
     TypeSet<CallBack>		cbs_;
     ObjectSet<CallBacker>	cbers_;
+
+    ObjectSet<const CallBacker> toremove_;
+
     Threads::Lock		receiverlock_;
 };
 
@@ -97,7 +150,9 @@ CallBacker::CallBacker( const CallBacker& )
 
 CallBacker::~CallBacker()
 {
-    if ( attachednotifiers_.size() )
+#ifndef OD_NO_QT
+    CallBackEventReceiver* rec = getQELR();
+    if ( attachednotifiers_.size() || rec->isPresent(this) )
     {
 	pErrMsg("Notifiers not detached.");
 	/* Notifiers should be removed in the class where they were attached,
@@ -110,6 +165,7 @@ CallBacker::~CallBacker()
 	//Remove them now.
 	detachAllNotifiers();
     }
+#endif
 }
 
 
@@ -118,6 +174,8 @@ void CallBacker::detachAllNotifiers()
     /*Avoid deadlocks (will happen if one thread deletes the notifier while
      the other thread deletes the callbacker at the same time) by using
      try-locks and retry after releasing own lock. */
+
+    CallBack::removeFromMainThread( this );
     
     Threads::Locker lckr( attachednotifierslock_ );
     
@@ -229,6 +287,23 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 }
 
 
+void CallBack::initClass()
+{
+#ifndef OD_NO_QT
+    getQELR(); //Force creation
+#endif
+}
+
+
+void CallBack::doCall( CallBacker* cber )
+{
+    if ( obj_ && fn_ )
+	(obj_->*fn_)( cber );
+    else if ( sfn_ )
+	sfn_( cber );
+}
+
+
 bool CallBack::addToMainThread( CallBack cb, CallBacker* cber )
 {
 #ifndef OD_NO_QT
@@ -267,18 +342,14 @@ bool CallBack::callInMainThread( CallBack cb, CallBacker* cber )
 }
 
 
-
-void CallBack::initClass()
+void CallBack::removeFromMainThread( const CallBacker* cber )
 {
-    getQELR(); //Force creation
-}
-
-void CallBack::doCall( CallBacker* cber )
-{
-    if ( obj_ && fn_ )
-	(obj_->*fn_)( cber );
-    else if ( sfn_ )
-	sfn_( cber );
+#ifdef OD_NO_QT
+    return false;
+#else
+    CallBackEventReceiver* rec = getQELR();
+    rec->removeBy( cber );
+#endif
 }
 
 
