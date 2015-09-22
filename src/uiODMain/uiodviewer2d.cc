@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
+#include "uimpepartserv.h"
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvw2dtreeitem.h"
@@ -33,6 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
+#include "emmanager.h"
+#include "emobject.h"
 #include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
@@ -96,6 +99,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 
 uiODViewer2D::~uiODViewer2D()
 {
+    detachAllNotifiers();
     mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin())
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
@@ -104,7 +108,6 @@ uiODViewer2D::~uiODViewer2D()
     delete datamgr_;
 
     deepErase( auxdataeditors_ );
-    detachAllNotifiers();
 
     if ( datatransform_ )
 	datatransform_->unRef();
@@ -361,7 +364,15 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.initialx2pospercm(initialx2pospercm)
 					.initialcentre(initialcentre_)
 					.managecoltab(!tifs_) );
+
+    
+    picksettingstbid_ =
+	viewstdcontrol_->toolBar()->addButton(
+		"seedpicksettings", tr("Tracking setup"),
+		mCB(this,uiODViewer2D,trackSetupCB), false );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
+    mAttachCB( *viewstdcontrol_->editPushed(),
+	       uiODViewer2D::itmSelectionChangedCB );
     if ( tifs_ )
     {
 	createPolygonSelBut( viewstdcontrol_->toolBar() );
@@ -388,6 +399,8 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     lv->setFixedColumnWidth( uiODViewer2DMgr::cColorColumn(), 40 );
 
     treetp_ = new uiODVw2DTreeTop( lv, &appl_.applMgr(), this, tifs_ );
+    mAttachCB( treetp_->getTreeView()->selectionChanged,
+	       uiODViewer2D::itmSelectionChangedCB );
 
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
@@ -637,6 +650,63 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     }
 
     return true;
+}
+
+
+
+void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
+{
+    const uiTreeViewItem* curitem = treetp_->getTreeView()->currentItem();
+    if ( !curitem )
+    {
+	viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, false );
+	return;
+    }
+
+    BufferString seltxt( curitem->text() );
+    ObjectSet<uiTreeItem> treeitms;
+    treetp_->findChildren( seltxt, treeitms );
+    uiODVw2DHor3DTreeItem* hortreeitm = 0;
+    for ( int idx=0; idx<treeitms.size(); idx++ )
+    {
+	mDynamicCast( uiODVw2DHor3DTreeItem*,hortreeitm,treeitms[idx])
+	if ( hortreeitm )
+	    break;
+    }
+
+    viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, hortreeitm );
+    if ( !hortreeitm )
+	return;
+
+    uiMPEPartServer* mpserv = appl_.applMgr().mpeServer();
+    const int trackerid = mpserv->getTrackerID( hortreeitm->emObjectID() );
+    viewstdcontrol_->toolBar()->setSensitive(
+	    picksettingstbid_, trackerid==mpserv->activeTrackerID() );
+}
+
+
+void uiODViewer2D::trackSetupCB( CallBacker* cb )
+{
+    const uiTreeViewItem* curitem = treetp_->getTreeView()->currentItem();
+    if ( !curitem )
+	return;
+
+    BufferString seltxt( curitem->text() );
+    ObjectSet<uiTreeItem> treeitms;
+    treetp_->findChildren( seltxt, treeitms );
+    uiODVw2DHor3DTreeItem* hortreeitm = 0;
+    for ( int idx=0; idx<treeitms.size(); idx++ )
+    {
+	mDynamicCast( uiODVw2DHor3DTreeItem*,hortreeitm,treeitms[idx])
+	if ( hortreeitm )
+	    break;
+    }
+
+    EM::EMObject* emobj = EM::EMM().getObject( hortreeitm->emObjectID() );
+    if ( !emobj )
+	return;
+
+    appl_.applMgr().mpeServer()->showSetupDlg(emobj->id(),emobj->sectionID(0)); 
 }
 
 
@@ -923,7 +993,12 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
 			treetp_->getChild(idx))
 	if ( hor3dpitem )
+	{
 	    hor3dpitem->addNewTrackingHorizon3D( emid );
+	    viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, true );
+	    treetp_->getTreeView()->setCurrentItem(
+		    hor3dpitem->lastChild()->getItem() );
+	}
     }
 }
 
