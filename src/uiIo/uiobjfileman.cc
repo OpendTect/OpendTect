@@ -370,5 +370,7 @@ void uiObjFileMan::setPrefWidth( int width )
 
 void uiObjFileMan::updateAddRemoveCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiObjFileMan::updateAddRemoveCB );
+
     selgrp_->fullUpdate( -1 );
 }
