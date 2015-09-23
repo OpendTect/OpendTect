@@ -746,7 +746,8 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     if ( !so )
 	return false;
 
-    const bool res = so->setDataPackID( attrib, dpid, 0 );
+    uiTaskRunner taskrunner( appserv().parent() );
+    const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
 
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setDataPackID( attrib, dpid );

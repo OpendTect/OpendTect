@@ -698,7 +698,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, taskr,
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
 				    interactivetexturedisplay_ );
     }
 

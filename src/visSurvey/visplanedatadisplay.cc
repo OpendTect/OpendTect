@@ -36,7 +36,7 @@ namespace visSurvey {
 class PlaneDataMoveUndoEvent: public UndoEvent
 {
 public:
-		    PlaneDataMoveUndoEvent( PlaneDataDisplay* pdd,  
+		    PlaneDataMoveUndoEvent( PlaneDataDisplay* pdd,
 			const TrcKeyZSampling starttkz,
 			const TrcKeyZSampling endtkz )
 			: pdd_( pdd )
@@ -55,7 +55,7 @@ public:
     bool reDo()
     { return pdd_->updatePlanePos( endtkz_ ); }
 
-private: 
+private:
     RefMan<PlaneDataDisplay> pdd_;
     const TrcKeyZSampling starttkz_;
     const TrcKeyZSampling endtkz_;
@@ -418,8 +418,8 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
     }
 
     updateSel();
-    
-    PlaneDataMoveUndoEvent* undoevent =  
+
+    PlaneDataMoveUndoEvent* undoevent =
 	new PlaneDataMoveUndoEvent( this, startmovepos_, snappedcs );
 
     undo_.addEvent( undoevent, 0 );
@@ -962,7 +962,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, taskr );
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
     }
 
     channels_->turnOn( true );
