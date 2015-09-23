@@ -473,7 +473,6 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     SeisIOObjInfo::getCompNames( key, compnms );
     compfld_->box()->setEmpty();
-
     if ( !showsteerdata_ )	//trick to prevent ALL coming to the display
 	compfld_->box()->addItem( uiStrings::sAll() );
 
