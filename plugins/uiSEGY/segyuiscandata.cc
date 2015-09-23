@@ -67,13 +67,14 @@ int SEGY::BasicFileInfo::nrTracesIn( const od_istream& strm,
 
 
 bool SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
-				 int trcidx ) const
+				     int trcidx ) const
 {
     if ( trcidx < 0 )
 	return false;
 
     const int trcbytes = SegyTrcHeaderLength + traceDataBytes();
-    startpos += trcidx * trcbytes;
+    od_stream_Pos offs = trcidx; offs *= trcbytes;
+    startpos += offs;
     if ( startpos >= strm.endPosition() )
 	return false;
 
