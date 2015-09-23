@@ -20,6 +20,7 @@ class uiSeisSel;
 class uiComboBox;
 class uiCheckBox;
 class uiGenInput;
+class uiFileInput;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
 class SeisImporter;
@@ -53,14 +54,21 @@ protected:
     uiGenInput*		inpdomfld_;
     uiCheckBox*		isfeetfld_;
 
-    uiGenInput*		docopyfld_;
     uiSeisSel*		outimpfld_;
     uiSeisSel*		outscanfld_;
     uiSeisTransfer*	transffld_;
+    uiGenInput*		docopyfld_;
+    uiComboBox*		coordsfromfld_;
+    uiGenInput*		coordfileextfld_;
+    uiGenInput*		coordsstartfld_;
+    uiGenInput*		coordsstepfld_;
+    uiFileInput*	coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
 
     void		crVSPFields();
     void		crSeisFields();
+    void		cr2DCoordSrcFields(uiGroup*&,bool);
+
     bool		doVSP();
     bool		do3D(const IOObj&,const IOObj&,bool);
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
@@ -73,10 +81,12 @@ protected:
     bool		handleExistingGeometry(const char*,bool,bool&,bool&);
     bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
     BufferString	getWildcardSubstLineName(int) const;
+    bool		putCoordChoiceInSpec();
 
     void		initWin(CallBacker*);
     void		wllSel(CallBacker*);
     void		inpDomChg(CallBacker*);
+    void		coordsFromChg(CallBacker*);
     void		doScanChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 

@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uiseisioobjinfo.h"
 #include "uibatchjobdispatchersel.h"
 #include "uicombobox.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uichecklist.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "ioman.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
+#include "file.h"
 #include "filepath.h"
 
 #define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
@@ -93,6 +94,9 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     , transffld_(0)
     , batchfld_(0)
     , docopyfld_(0)
+    , coordsfromfld_(0)
+    , coordfilefld_(0)
+    , coordfileextfld_(0)
 {
     objname_ = FilePath( usrspec ).baseName();
     const bool is2d = Seis::is2D( fs_.geomType() );
@@ -112,23 +116,26 @@ void uiSEGYReadFinisher::crSeisFields()
 {
     const Seis::GeomType gt = fs_.geomType();
     const bool is2d = Seis::is2D( gt );
+    const bool ismulti = fs_.spec_.nrFiles() > 1;
 
+    uiGroup* attgrp = 0;
     if ( gt != Seis::Line )
     {
 	docopyfld_ = new uiGenInput( this, "Copy data",
 		BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
 	docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
+	attgrp = docopyfld_;
     }
 
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
     transffld_ = new uiSeisTransfer( this, trsu );
-    if ( docopyfld_ )
-	transffld_->attach( alignedBelow, docopyfld_ );
+    if ( attgrp )
+	transffld_->attach( alignedBelow, attgrp );
     if ( is2d )
     {
 	uiSeis2DSubSel& selfld = *transffld_->selFld2D();
-	if ( fs_.spec_.nrFiles() < 2 )
+	if ( !ismulti )
 	    selfld.setSelectedLine( objname_ );
 	else
 	{
@@ -136,11 +143,17 @@ void uiSEGYReadFinisher::crSeisFields()
 	    selfld.setSensitive( false );
 	}
     }
+    attgrp = transffld_;
+
+    if ( is2d )
+    {
+	cr2DCoordSrcFields( attgrp, ismulti );
+    }
 
     uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
-    outimpfld_->attach( alignedBelow, transffld_ );
+    outimpfld_->attach( alignedBelow, attgrp );
     if ( !is2d )
 	outimpfld_->setInputText( objname_ );
 
@@ -151,7 +164,7 @@ void uiSEGYReadFinisher::crSeisFields()
 	ctxt.toselect_.allownonuserselectable_ = true;
 	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
 	outscanfld_ = new uiSeisSel( this, ctxt, scansu );
-	outscanfld_->attach( alignedBelow, transffld_ );
+	outscanfld_->attach( alignedBelow, attgrp );
 	if ( !is2d )
 	    outscanfld_->setInputText( objname_ );
 
@@ -160,6 +173,49 @@ void uiSEGYReadFinisher::crSeisFields()
 	batchfld_->setJobName( "Read SEG-Y" );
 	batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(gt));
 	batchfld_->attach( alignedBelow, outimpfld_ );
+    }
+}
+
+
+void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
+{
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+					    tr("Coordinate source") );
+    lcb->attach( alignedBelow, attgrp );
+    attgrp = lcb;
+    coordsfromfld_ = lcb->box();
+    coordsfromfld_->selectionChanged.notify(
+			mCB(this,uiSEGYReadFinisher,coordsFromChg) );
+    coordsfromfld_->addItem( tr("The trace headers") );
+
+    coordsfromfld_->addItem( ismulti
+	    ? tr("'Nr X Y' files (bend-points needed)")
+	    : tr("A 'Nr X Y' file (bend-points needed)") );
+    if ( ismulti )
+    {
+	coordfileextfld_ = new uiGenInput( this, tr("File extension"),
+					   StringInpSpec("crd") );
+	coordfileextfld_->attach( rightOf, lcb );
+    }
+    else
+    {
+	coordfilefld_ = new uiFileInput( this, uiStrings::sFileName() );
+	coordfilefld_->attach( alignedBelow, lcb );
+
+	const Coord mincoord( SI().minCoord(true) );
+	coordsfromfld_->addItem( tr("Generate straight line") );
+	coordsstartfld_ = new uiGenInput( this, tr("Start coordinate"),
+			DoubleInpSpec(mNINT64(mincoord.x)),
+			DoubleInpSpec(mNINT64(mincoord.y)) );
+	coordsstartfld_->attach( alignedBelow, lcb );
+	coordsstartfld_->setElemSzPol( uiObject::Small );
+	coordsstepfld_ = new uiGenInput( this, uiStrings::sStep(),
+			DoubleInpSpec(mNINT32(SI().crlDistance())),
+			DoubleInpSpec(0) );
+	coordsstepfld_->attach( rightOf, coordsstartfld_ );
+	coordsstepfld_->setElemSzPol( uiObject::Small );
+
+	attgrp = coordfilefld_;
     }
 }
 
@@ -197,6 +253,7 @@ uiSEGYReadFinisher::~uiSEGYReadFinisher()
 void uiSEGYReadFinisher::initWin( CallBacker* )
 {
     inpDomChg( 0 );
+    coordsFromChg( 0 );
     doScanChg( 0 );
 }
 
@@ -222,6 +279,23 @@ void uiSEGYReadFinisher::inpDomChg( CallBacker* )
 	return;
 
     isfeetfld_->display( inpdomfld_->getIntValue() != 0 );
+}
+
+
+void uiSEGYReadFinisher::coordsFromChg( CallBacker* )
+{
+    if ( !coordsfromfld_ )
+	return;
+
+    const int selidx = coordsfromfld_->currentItem();
+    if ( coordfileextfld_ )
+	coordfileextfld_->display( selidx == 1 );
+    else
+    {
+	coordfilefld_->display( selidx == 1 );
+	coordsstartfld_->display( selidx == 2 );
+	coordsstepfld_->display( selidx == 2 );
+    }
 }
 
 
@@ -530,6 +604,52 @@ BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
 }
 
 
+bool uiSEGYReadFinisher::putCoordChoiceInSpec()
+{
+    const int selidx = coordsfromfld_->currentItem();
+    SEGY::FileReadOpts& opts = fs_.readopts_;
+    opts.coorddef_ = (SEGY::FileReadOpts::CoordDefType)selidx;
+    if ( selidx < 1 )
+	return true;
+
+    if ( selidx == 1 )
+    {
+	if ( coordfileextfld_ )
+	    opts.coordfnm_.set( "ext=" ).add( coordfileextfld_->text() );
+	else
+	{
+	    const BufferString fnm( coordfilefld_->fileName() );
+	    if ( fnm.isEmpty() || !File::exists(fnm) )
+	    {
+		mErrRet(
+		    tr("Please choose an existing file for the coordinates") )
+		return false;
+	    }
+	    opts.coordfnm_.set( fnm );
+	}
+    }
+    else
+    {
+	const Coord startcrd( coordsstartfld_->getCoord() );
+	if ( mIsUdf(startcrd.x) || mIsUdf(startcrd.y) )
+	    mErrRet(tr("Please enter the start coordinate"))
+	else if ( !SI().isReasonable(startcrd) )
+	    mErrRet(tr("The start coordinate is too far from the survey"))
+
+	Coord stepcrd( coordsstartfld_->getCoord() );
+	if ( mIsUdf(stepcrd.x) ) stepcrd.x = 0;
+	if ( mIsUdf(stepcrd.y) ) stepcrd.y = 0;
+	if ( mIsZero(stepcrd.x,0.001) && mIsZero(stepcrd.y,0.001) )
+	    mErrRet(tr("The steps cannot both be zero"))
+
+	opts.startcoord_ = startcrd;
+	opts.stepcoord_ = stepcrd;
+    }
+
+    return true;
+}
+
+
 bool uiSEGYReadFinisher::handleWarnings( bool withstop,
 				SEGY::FileIndexer* indexer, SeisImporter* imp )
 {
@@ -583,6 +703,8 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	lnm = transffld_->selFld2D()->selectedLine();
 	if ( lnm.isEmpty() )
 	    mErrRet( tr("Please enter a line name") )
+	if ( !putCoordChoiceInSpec() )
+	    return false;
     }
 
     if ( doimp && !Seis::isPS(fs_.geomType()) )

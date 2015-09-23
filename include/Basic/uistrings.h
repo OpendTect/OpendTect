@@ -229,6 +229,7 @@ public:
     static uiString sFault(int num=1);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
+    static uiString sFileName()	        { return tr("File name"); }
     static uiString sFinish()		{ return tr("Finish"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }

@@ -111,7 +111,6 @@ protected:
 
     void		createTools();
     void		createHist();
-    void		createSurvMap();
     void		clearDisplay();
     void		setButtonStatuses();
     void		displayScanResults();

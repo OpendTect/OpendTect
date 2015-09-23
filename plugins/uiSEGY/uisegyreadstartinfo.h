@@ -85,8 +85,7 @@ protected:
     void		showRelevantInfo();
 
     bool		isVSP() const		{ return imptype_.isVSP(); }
-    void		setCellTxt(int col,int row,const uiString&,
-				   bool isoptional=false);
+    void		setCellTxt(int col,int row,const uiString&);
 
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);

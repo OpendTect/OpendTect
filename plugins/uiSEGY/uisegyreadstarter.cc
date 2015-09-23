@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uimenu.h"
+#include "uisplitter.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
 #include "posinfodetector.h"
@@ -115,7 +116,10 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
     if ( mForSurvSetup )
-	createSurvMap();
+    {
+	survmap_ = new uiSurveyMap( this, true );
+	survmap_->setSurveyInfo( 0 );
+    }
     createHist();
     createTools();
 
@@ -163,19 +167,9 @@ void uiSEGYReadStarter::createTools()
 }
 
 
-void uiSEGYReadStarter::createSurvMap()
-{
-    survmap_ = new uiSurveyMap( this, true );
-    survmap_->setSurveyInfo( 0 );
-    survmap_->setPrefWidth( 400 );
-    survmap_->setPrefHeight( 350 );
-    survmap_->attach( ensureBelow, infofld_ );
-}
-
-
 void uiSEGYReadStarter::createHist()
 {
-    uiGroup* histgrp = new uiGroup( this, "Histogram group" );
+    uiGroup* histgrp = new uiGroup( this, "Hist grp" );
     const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
@@ -195,11 +189,18 @@ void uiSEGYReadStarter::createHist()
     inc0sbox_->setHSzPol( uiObject::Small );
     inc0sbox_->setToolTip( tr("Include value '0' for histogram display") );
     inc0sbox_->activated.notify( histupdcb );
-    histgrp->setStretch( 2, 1 );
-    if ( mForSurvSetup )
-	histgrp->attach( rightOf, survmap_ );
-    else
+    if ( !mForSurvSetup )
+    {
+	histgrp->setStretch( 2, 1 );
 	histgrp->attach( stretchedBelow, infofld_ );
+    }
+    else
+    {
+	survmap_->setPrefWidth( 400 );
+	survmap_->setPrefHeight( 350 );
+	survmap_->attach( ensureBelow, infofld_ );
+	histgrp->attach( rightOf, survmap_ );
+    }
 }
 
 
@@ -571,10 +572,12 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
 	    stbarmsg = survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
 	}
-	if ( !stbarmsg )
+	if ( stbarmsg )
+	    survinfo_->setName( "<Inadequate data>" );
+	else
 	{
 	    survinfook_ = true;
-	    survinfo_->setName( "Detected survey setup" );
+	    survinfo_->setName( "Resulting survey setup" );
 	}
     }
 

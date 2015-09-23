@@ -313,9 +313,6 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     if ( !mIsUdf(fileopts_.sampleintv_) )
 	ti.sampling.step = fileopts_.sampleintv_;
 
-    if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Present )
-	return;
-
     if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
     {
 	if ( mIsUdf(curcoord_.x) )
@@ -324,7 +321,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    curcoord_ += fileopts_.stepcoord_;
 	ti.coord = curcoord_;
     }
-    else
+    else if ( fileopts_.coorddef_ == SEGY::FileReadOpts::ReadFile )
     {
 	if ( !bp2c_ )
 	{

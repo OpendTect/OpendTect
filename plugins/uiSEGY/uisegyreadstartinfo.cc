@@ -342,37 +342,31 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	    offsittxt = tr("Offset range");
 
 	if ( loaddef_.isRev0() )
-	{
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
-	    const uiString iscalcstr = tr( "[Calculated]" );
-	    if ( !is2d )
-	    {
-		if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
-		    xustxt = yustxt = iscalcstr;
-		else if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::XYOnly )
-		    ky1ustxt = ky2ustxt = iscalcstr;
-	    }
+
+	const uiString iscalcstr = tr( "[Calculated]" );
+	if ( !is2d )
+	{
+	    if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
+		xustxt = yustxt = iscalcstr;
+	    else if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::XYOnly )
+		ky1ustxt = ky2ustxt = iscalcstr;
 	}
     }
 
-    const bool coordsopt = !is2d
-		&& loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly;
-    const bool icopt = loaddef_.icvsxytype_ == SEGY::FileReadOpts::XYOnly;
-    const bool key1opt = !is2d && icopt;
-    const bool key2opt = !is2d && icopt;
-    setCellTxt( mItemCol, mXRow, xittxt, coordsopt );
-    setCellTxt( mItemCol, mYRow, yittxt, coordsopt );
-    setCellTxt( mItemCol, mKey1Row, ky1ittxt, key1opt );
-    setCellTxt( mItemCol, mKey2Row, ky2ittxt, key2opt );
+    setCellTxt( mItemCol, mXRow, xittxt );
+    setCellTxt( mItemCol, mYRow, yittxt );
+    setCellTxt( mItemCol, mKey1Row, ky1ittxt );
+    setCellTxt( mItemCol, mKey2Row, ky2ittxt );
     if ( mHavePSRow )
 	setCellTxt( mItemCol, mPSRow, offsittxt );
     setCellTxt( mQSResCol, mKey1Row, isvsp ? sEmpty
-		: (is2d ? trcnrinfotxt_ : inlinfotxt_), key1opt );
+		: (is2d ? trcnrinfotxt_ : inlinfotxt_) );
     setCellTxt( mQSResCol, mKey2Row, isvsp ? sEmpty
-		: (is2d ? refnrinfotxt_ : crlinfotxt_), key2opt );
-    setCellTxt( mQSResCol, mXRow, isvsp ? sEmpty : xinfotxt_, coordsopt );
-    setCellTxt( mQSResCol, mYRow, isvsp ? sEmpty : yinfotxt_, coordsopt );
-    setCellTxt( mQSResCol, mPSRow, isvsp || isps ? offsetinfotxt_ : sEmpty );
+		: (is2d ? refnrinfotxt_ : crlinfotxt_) );
+    setCellTxt( mQSResCol, mXRow, isvsp ? sEmpty : xinfotxt_ );
+    setCellTxt( mQSResCol, mYRow, isvsp ? sEmpty : yinfotxt_ );
+    setCellTxt( mQSResCol, mPSRow, !isvsp && isps ? offsetinfotxt_ : sEmpty );
     setCellTxt( mUseTxtCol, mNrSamplesRow, nrtrcsusrtxt );
     setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
@@ -410,18 +404,14 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 }
 
 
-void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt,
-					bool isopt )
+void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
 {
     const RowCol rc( row, col );
     tbl_->setText( rc, txt );
     if ( col == mItemCol || col == mUseTxtCol )
 	tbl_->resizeColumnToContents( col );
-    if ( col == mQSResCol )
-	tbl_->setColor( rc, txt.isEmpty()
-		? Color::White() : (isopt ? optqscellcolor : qscellcolor) );
-    else
-	tbl_->setColor( rc, isopt ? optcellcolor : Color::White() );
+    tbl_->setColor( rc, col != mQSResCol || txt.isEmpty()
+			? Color::White() : qscellcolor );
 }
 
 
@@ -494,7 +484,7 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
 	const float endz = loaddef_.sampling_.start
 			 + (bi.ns_-1) * loaddef_.sampling_.step;
 	txt.arg( loaddef_.sampling_.start ).arg( endz )
-	    	 .arg( si.infeet_ ? "ft" : "m" );
+		 .arg( si.infeet_ ? "ft" : "m" );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
