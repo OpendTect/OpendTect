@@ -52,10 +52,7 @@ public:
     float		val_;
 };
 
-
 inline bool TrcKeyValue::isDefined() const
 { return !tk_.isUdf() && !mIsUdf(val_); }
-
-
 
 #endif

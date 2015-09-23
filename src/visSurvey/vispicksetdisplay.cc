@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
 #include "callback.h"
+
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
 namespace visSurvey {
@@ -59,6 +60,7 @@ PickSetDisplay::~PickSetDisplay()
 	dragger_->unRef();
 	dragger_ = 0;
     }
+
     unRefAndZeroPtr( bodydisplay_ );
     removeChild( markerset_->osgNode() );
     unRefAndZeroPtr( markerset_ );
@@ -95,7 +97,6 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     dragger_->ref();
     dragger_->setDisplayTransformation( transformation_ );
     dragger_->setDraggerType( visBase::Dragger::Translate2D );
-
     dragger_->setSize( (float)markerstyle.size_ );
     dragger_->setOwnShape( createOneMarker(), false );
     addChild( dragger_->osgNode() );
@@ -295,7 +296,6 @@ void PickSetDisplay::redrawAll( int drageridx )
     markerset_->forceRedraw( true );
     redrawLine();
 }
-
 
 
 void PickSetDisplay::removeAll()
@@ -499,7 +499,7 @@ int PickSetDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
     if ( !isMarkerClick( evi ) )
 	return -1;
 
-    return  markerset_->findClosestMarker( evi.displaypickedpos, true );
+    return markerset_->findClosestMarker( evi.displaypickedpos, true );
 }
 
 
@@ -814,4 +814,5 @@ bool PickSetDisplay::removeSelections()
     unSelectAll();
     return change;
 }
-}; // namespace visSurvey
+
+} // namespace visSurvey

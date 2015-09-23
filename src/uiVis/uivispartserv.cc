@@ -526,7 +526,6 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
 	if ( ms )
 	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
-
     }
 }
 
@@ -2005,6 +2004,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
     if ( !sceneeventsrc_ ) return;
+
     const TrcKeyValue worldpos = sceneeventsrc_->getMousePos();
 
     xytmousepos_ = sceneeventsrc_->getMousePos( true );

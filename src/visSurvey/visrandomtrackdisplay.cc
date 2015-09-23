@@ -1363,8 +1363,8 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
 	eventcatcher_->eventhappened.notify(
 			    mCB(this,RandomTrackDisplay,updateMouseCursorCB) );
     }
-
 }
+
 
 void RandomTrackDisplay::updateMouseCursorCB( CallBacker* cb )
 {
