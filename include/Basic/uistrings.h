@@ -30,7 +30,7 @@ public:
     static uiString phrASCII(const uiString& string);
     //!<"ASCII <string>"
     static uiString phrCalculateFrom(const uiString& string);
-    //!<"Calculate from <string>" 
+    //!<"Calculate from <string>"
     static uiString phrCannotCreate(const uiString& string);
     //!<"Cannot create <string>"
     static uiString phrCannotCreateDBEntryFor(const uiString& string);
@@ -139,9 +139,9 @@ public:
     //!<"Z in <string>"
     static uiString phrZRange(const uiString&);
     //!<"Z Range <string>"
-    
 
-//Words	 
+
+//Words
     static uiString s2D();
     static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
@@ -206,7 +206,7 @@ public:
     static uiString sCrossPlot();
     static uiString sDimension()	{ return tr("Dimension"); }
     static uiString sDirectory()	{ return tr("Directory"); }
-    static uiString sData();	
+    static uiString sData();
     static uiString sDecimal()		{ return tr("Decimal"); }
     static uiString sDefault()		{ return tr("Default"); }
     static uiString sDelete()		{ return tr("Delete"); }
@@ -235,8 +235,9 @@ public:
     static uiString sFault(int num=1);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
-    static uiString sFinish()		{ return tr("Finish"); }    
-    static uiString sFilter(int num=1)  { return tr("Filter",0,num); } 
+    static uiString sFileName()	        { return tr("File name"); }
+    static uiString sFinish()		{ return tr("Finish"); }
+    static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }
     static uiString sFrequency(int num=1);
     static uiString sGeometry()		{ return tr("Geometry"); }
@@ -247,7 +248,7 @@ public:
     static uiString sHistogram();
     static uiString sHorizon(int num=1);
     static uiString sHorizontal()	{ return tr("Horizontal"); }
-    static uiString sImport();		
+    static uiString sImport();
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }
     static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
@@ -321,9 +322,9 @@ public:
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
-    static uiString sRemove();	
+    static uiString sRemove();
     static uiString sRemoveSelected();
-    static uiString sRename();		
+    static uiString sRename();
     static uiString sReset()		{ return tr("Reset"); }
     static uiString sResume()		{ return tr("Resume"); }
     static uiString sRight()		{ return tr("Right"); }
@@ -358,7 +359,7 @@ public:
     static uiString sShow()             { return tr("Show"); }
     static uiString sSlice()		{ return tr("Slice"); }
     static uiString sSouth(bool abb)	{ return abb ? tr("S"):tr("South"); }
-    static uiString sSpecify();				
+    static uiString sSpecify();
     static uiString sSpecifyOut();
     static uiString sStatistics()	{ return tr("Statistics"); }
     static uiString sSteering()		{ return tr("Steering"); }
