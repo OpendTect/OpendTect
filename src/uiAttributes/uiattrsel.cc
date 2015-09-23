@@ -134,7 +134,7 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
-                            const Setup& stp )
+			    const Setup& stp )
     mImplInitVar
 {
     initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );

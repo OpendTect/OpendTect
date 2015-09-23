@@ -150,8 +150,7 @@ int BaseHorizon3DExtender::nextStep()
 		if ( !isExcludedPos(neighbbid) )
 		{
 		    const float depth = getDepth( srcbid, neighbbid );
-		    if ( !mIsUdf(depth) &&
-				horizon_.setZ(neighbbid,depth,setundo_) )
+		    if ( !mIsUdf(depth) && horizon_.setZ(neighbbid,depth,setundo_) )
 		    {
 			addTarget( neighbbid, srcbid );
 			change = true;
