@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id: initvolumeprocessing.cc 37082 2014-10-
 #include "volproclateralsmoother.h"
 #include "volprocregionfiller.h"
 #include "volprocsmoother.h"
+#include "volprocstatscomputer.h"
 #include "volprocsurfacelimitedfiller.h"
 #include "volproctrans.h"
 #include "volprocvolreader.h"
@@ -38,6 +39,7 @@ mDefModInitFn(VolumeProcessing)
     VolProc::RegionFiller::initClass();
     VolProc::LateralSmoother::initClass();
     VolProc::Smoother::initClass();
+    VolProc::StatsCalculator::initClass();
     VolProc::ExternalAttribCalculator::initClass();
     VolProc::VelocityGridder::initClass();
     VolProc::WellLogInterpolator::initClass();
