@@ -64,6 +64,7 @@ public:
     void		setPos( float x, float y );
     void		moveBy(float x,float y);
     float		getRotation();
+    void		getScale(float& sx,float& sy);
     void		setRotation(float angle);
     void		setScale(float sx,float sy);
     void		setZValue(int); //<! z value decides the stacking order

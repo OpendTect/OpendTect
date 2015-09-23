@@ -18,9 +18,11 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     : uiGraphicsItem()
-    , length_(pxwidth)
+    , preferablepxwidth_(pxwidth)
     , pxwidth_(pxwidth)
     , pxheight_(pxheight)
+    , w2ui_(uiWorld2Ui())
+    , worldwidth_(pxwidth)
 {
     initDefaultScale();
 }
@@ -61,14 +63,22 @@ void uiScaleBarItem::initDefaultScale()
 }
 
 
+void uiScaleBarItem::setWorld2Ui( const uiWorld2Ui& w2ui )
+{
+    w2ui_ = w2ui;
+}
+
+
 void uiScaleBarItem::update()
 {
+    adjustValues();
     setPolygons( pxwidth_/4, pxheight_ );
 
     uiString unit = SI().getUiXYUnitString( true, false );
     startnr_->setPlainText( toString("0") );
-    midnr_->setPlainText( toString(length_/2) );
-    stopnr_->setPlainText( uiString(toString(length_)).append(unit) );
+    midnr_->setPlainText( toString(worldwidth_/2) );
+    stopnr_->setPlainText( uiString(toString(worldwidth_)).append(unit) );
+
 }
 
 
@@ -85,4 +95,21 @@ void uiScaleBarItem::setPolygons( int width, int height )
     startnr_->setPos( -4.0f*width, 0 );
     midnr_->setPos( -2.0f * width, 0 );
     stopnr_->setPos( 0, 0 );
+}
+
+
+void uiScaleBarItem::adjustValues()
+{
+    float scalex, scaley;
+    getScale( scalex, scaley );
+    worldwidth_ = w2ui_.toWorldX(preferablepxwidth_) - w2ui_.toWorldX(0);
+    worldwidth_ *= scalex;
+
+    const float vroundedtotenth = Math::Floor(worldwidth_/100.f+.5f)*100.f;
+    if ( worldwidth_ != vroundedtotenth )
+    {
+	worldwidth_ = vroundedtotenth;
+	pxwidth_ = Math::Abs( w2ui_.toUiX(worldwidth_)-w2ui_.toUiX(0) );
+	pxwidth_ = mCast(int,pxwidth_/scalex);
+    }
 }

@@ -271,6 +271,13 @@ float uiGraphicsItem::getRotation()
 }
 
 
+void uiGraphicsItem::getScale( float &sx, float &sy )
+{
+    sx = scale_.x;
+    sy = scale_.y;
+}
+
+
 void uiGraphicsItem::setRotation( float angle )
 {
     angle_ = angle;
