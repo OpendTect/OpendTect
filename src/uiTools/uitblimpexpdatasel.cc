@@ -397,8 +397,8 @@ protected:
 
 uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 						  const HelpKey& helpkey )
-	: uiDialog(ds,uiDialog::Setup(tr("Format definition"),
-				      tr("Specify necessary information"),
+	: uiDialog(ds,uiDialog::Setup(tr("Format Definition"),
+				      tr("Specify Necessary Information"),
 				      helpkey)
 		      .savebutton(true).savebutispush(true)
 		      .savetext(tr("Save format")))
@@ -526,8 +526,8 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	     .deflt( ds_.fmtname_ )
 	     .dlgtitle( tr("Enter a name for the format") );
     uiGetObjectName dlg( this, listsetup );
-    const char* strs[] = { "All surveys",
-			   "This survey only",
+    const char* strs[] = { "All Surveys",
+			   "This Survey only",
 			   "My user ID only", 0 };
     uiGenInput* srcfld = new uiGenInput( &dlg, "Store for",
 					 StringListInpSpec(strs) );
@@ -555,7 +555,7 @@ class uiTableFmtDescFldsParSel : public uiCompoundParSel
 public:
 
 uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
-    : uiCompoundParSel( p, "Format definition", "Define" )
+    : uiCompoundParSel( p, "Format Definition", "Define" )
     , impsel_(*p)
     , helpkey_(helpkey)
     , descCommitted(this)
@@ -571,7 +571,7 @@ BufferString getSummary() const
     else
     {
 	bool isstor = !impsel_.fmtname_.isEmpty();
-        if ( isstor )
+	if ( isstor )
 	{
 	    IOPar curiop; impsel_.desc().fillPar( curiop );
 	    isstor = impsel_.storediop_ == curiop;
@@ -711,13 +711,14 @@ bool uiTableImpDataSel::commitHdr( bool witherror )
 	BufferString tok = hdrtokfld_->text();
 	if ( tok.isEmpty() && witherror )
 	{
-	    uiMSG().error( tr("Please enter the string"
-                              " marking the end-of-header"));
+	    uiMSG().error(
+		tr("Please enter the string marking the end-of-header"));
 	    return false;
 	}
 	if ( tok.contains(' ') && witherror )
 	{
-	    uiMSG().error(tr("The end-of-header 'word' cannot contain spaces"));
+	    uiMSG().error(
+		tr("The end-of-header 'word' cannot contain spaces") );
 	    return false;
 	}
 	fd_.eohtoken_ = tok;
