@@ -77,7 +77,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , displaymnuitem_(uiStrings::sDisplay(),cDisplayIdx)
     , duplicatemnuitem_(tr("Duplicate"),cDuplicateIdx)
     , histogrammnuitem_(m3Dots(uiStrings::sHistogram()),cHistogramIdx)
-    , lockmnuitem_(uiStrings::sLock(),cLockIdx)
+    , lockmnuitem_(uiStrings::sEmptyString(),cLockIdx)
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
     , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {
@@ -267,8 +267,7 @@ uiString uiODDisplayTreeItem::createDisplayName() const
 uiString uiODDisplayTreeItem::getLockMenuText() const
 {
     return visserv_->isLocked(displayid_)
-	? uiStrings::sUnlock()
-	: uiStrings::sLock();
+	? tr("Unlock Treeitem") : tr("Lock Treeitem");
 }
 
 
