@@ -7,8 +7,6 @@
 
 cmake_minimum_required ( VERSION 2.8.5 )
 
-find_package( OpenGL )
-
 if ( CMAKE_VERSION VERSION_LESS 2.8.11 )
 else()
     cmake_policy( SET CMP0020 OLD )
