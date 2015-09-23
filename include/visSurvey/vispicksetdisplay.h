@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 
 namespace visBase { class MarkerSet; class PolyLine;
-		    class DrawStyle; class RandomPos2Body; 
+		    class DrawStyle; class RandomPos2Body;
 		    class Dragger; }
 
 namespace visSurvey
@@ -66,6 +66,9 @@ public:
     void			redrawLine();
     void			showLine(bool);
     bool			lineShown() const;
+
+    void			showDragger(bool yn);
+    bool			draggerShown() const;
 
     void			redrawAll(int draggeridx=-1);
 
@@ -120,6 +123,7 @@ protected:
     bool			shoulddisplaybody_;
     visBase::Dragger*		dragger_;
     int				draggeridx_;
+    bool			showdragger_;
 
 private:
     void			setPickSelect(int,bool);
