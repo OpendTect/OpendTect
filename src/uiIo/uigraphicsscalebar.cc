@@ -105,7 +105,11 @@ void uiScaleBarItem::adjustValues()
     worldwidth_ = w2ui_.toWorldX(preferablepxwidth_) - w2ui_.toWorldX(0);
     worldwidth_ *= scalex;
 
-    const float vroundedtotenth = Math::Floor(worldwidth_/100.f+.5f)*100.f;
+    float rval = 1.f;
+    while ( worldwidth_/10.f > rval )
+	rval *= 10.f;
+
+    const float vroundedtotenth = Math::Floor(worldwidth_/rval+.5f)*rval;
     if ( worldwidth_ != vroundedtotenth )
     {
 	worldwidth_ = vroundedtotenth;
