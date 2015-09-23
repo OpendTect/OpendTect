@@ -393,7 +393,8 @@ protected:
 							bool issel) const;
 
     void			setMarkerPos(const TrcKeyValue&,
-					     int dontsetscene);
+                                             int dontsetscene);
+
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);

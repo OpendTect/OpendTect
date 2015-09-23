@@ -526,7 +526,6 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
 	if ( ms )
 	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
-	setSelectionMode( selectionmode_ );
     }
 }
 
@@ -746,7 +745,8 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     if ( !so )
 	return false;
 
-    const bool res = so->setDataPackID( attrib, dpid, 0 );
+    uiTaskRunner taskrunner( appserv().parent() );
+    const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
 
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setDataPackID( attrib, dpid );

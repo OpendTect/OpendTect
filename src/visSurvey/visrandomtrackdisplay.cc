@@ -257,7 +257,7 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
-
+    cs.hsamp_.survid_ = Survey::GM().default3DSurvID();
     return cs;
 }
 
@@ -687,7 +687,6 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		slice2d.init();
 
 		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-
 		Array2DReSampler<float,float> resampler(
 				slice2d, tmparr, sz0, sz1, true );
 		resampler.setInterpolate( true );
@@ -699,7 +698,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, taskr,
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
 				    interactivetexturedisplay_ );
     }
 
