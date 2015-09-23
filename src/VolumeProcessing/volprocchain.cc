@@ -415,7 +415,8 @@ int ChainExecutor::nextStep()
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
-    progressmeter_->skipProgress( false );
+    if ( progressmeter_ )
+	progressmeter_->skipProgress( false );
     curtask.setProgressMeter( progressmeter_ );
 
     curtask.enableWorkControl( true );
@@ -428,7 +429,9 @@ int ChainExecutor::nextStep()
     if ( epochs_.isEmpty() )		//we just executed the last one
 	outputvolume_ = curepoch_->getOutput();
 
-    progressmeter_->skipProgress( true );
+    //To prevent the overall chain progress display in between sub-tasks
+    if ( progressmeter_ )
+	progressmeter_->skipProgress( true );
 
     return epochs_.isEmpty() ? Finished() : MoreToDo();
 }
