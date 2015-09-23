@@ -130,6 +130,7 @@ bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
 	return true;
 
     dlg_ = new uiNotSavedDlg( parent, *this, withcancel, actiontype );
+    dlg_->setModal( true );
     bool retval = dlg_->go();
     delete dlg_;
     dlg_ = 0;
