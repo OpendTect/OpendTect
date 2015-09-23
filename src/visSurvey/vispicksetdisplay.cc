@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
 #include "vispolygonselection.h"
-#include "mousecursor.h"
 #include "zaxistransform.h"
 #include "callback.h"
 
@@ -43,9 +42,9 @@ PickSetDisplay::PickSetDisplay()
     , needline_(0)
     , dragger_(0)
     , draggeridx_(-1)
+    , showdragger_(false)
     , unselcorlor_( Color::White() )
     , selcolor_( Color::Green() )
-
 {
     markerset_->ref();
     markerset_->applyRotationToAllMarkers( false );
@@ -102,25 +101,18 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     dragger_->setOwnShape( createOneMarker(), false );
     addChild( dragger_->osgNode() );
     dragger_->turnOn( false );
-
 }
 
 
 void PickSetDisplay::updateDragger()
 {
-    if ( !dragger_ )
-	return;
+    if ( dragger_ )
     dragger_->updateDragger( false );
 }
 
 
 bool PickSetDisplay::draggerNormal() const
-{
-    if ( dragger_ )
-	return !dragger_->defaultRotation();
-
-    return false;
-}
+{ return dragger_ ? !dragger_->defaultRotation() : false; }
 
 
 void PickSetDisplay::setDraggerNormal( const Coord3& normal )
@@ -216,7 +208,7 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
     if ( loc.pos_.isDefined() && dragger_ )
     {
 	dragger_->setPos(loc.pos_);
-	dragger_->turnOn( true );
+	dragger_->turnOn( showdragger_ );
     }
 
     updateDragger();
@@ -295,9 +287,8 @@ void PickSetDisplay::redrawAll( int drageridx )
 	{
 	    dragger_->setPos( pos );
 	    dragger_->updateDragger( false );
-	    dragger_->turnOn( true );
+	    dragger_->turnOn( showdragger_ );
 	}
-
     }
 
     markerset_->forceRedraw( true );
@@ -390,6 +381,13 @@ bool PickSetDisplay::lineShown() const
 }
 
 
+void PickSetDisplay::showDragger( bool yn )
+{ showdragger_ = yn; }
+
+bool PickSetDisplay::draggerShown() const
+{ return showdragger_; }
+
+
 static float getSurveyRotation()
 {
     const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
@@ -479,15 +477,6 @@ bool PickSetDisplay::setBodyDisplay()
 }
 
 
-int PickSetDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
-{
-    if ( !isMarkerClick( evi ) )
-	return -1;
-
-    return  markerset_->findClosestMarker( evi.displaypickedpos, true );
-}
-
-
 visBase::MarkerSet* PickSetDisplay::createOneMarker() const
 {
     visBase::MarkerSet* marker =  visBase::MarkerSet::create();
@@ -500,6 +489,15 @@ visBase::MarkerSet* PickSetDisplay::createOneMarker() const
     marker->addPos( Coord3(0,0,0) );
     refPtr( marker );
     return marker;
+}
+
+
+int PickSetDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
+{
+    if ( !isMarkerClick( evi ) )
+	return -1;
+
+    return markerset_->findClosestMarker( evi.displaypickedpos, true );
 }
 
 
@@ -815,5 +813,4 @@ bool PickSetDisplay::removeSelections()
     return change;
 }
 
-
-}; // namespace visSurvey
+} // namespace visSurvey

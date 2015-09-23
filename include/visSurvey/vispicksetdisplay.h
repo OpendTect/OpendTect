@@ -67,6 +67,9 @@ public:
     void			showLine(bool);
     bool			lineShown() const;
 
+    void			showDragger(bool yn);
+    bool			draggerShown() const;
+
     void			redrawAll(int draggeridx=-1);
 
     void			fillPar(IOPar&) const;
@@ -76,9 +79,9 @@ protected:
 				~PickSetDisplay();
 
     void			setPosition(int loc,const Pick::Location&);
-    Coord3			getPosition(int loc) const;
     void			setPosition(int idx,const Pick::Location&,
 					    bool add=false);
+    Coord3			getPosition(int loc) const;
     void			removePosition(int idx);
     void			removeAll();
 
@@ -120,6 +123,7 @@ protected:
     bool			shoulddisplaybody_;
     visBase::Dragger*		dragger_;
     int				draggeridx_;
+    bool			showdragger_;
 
 private:
     void			setPickSelect(int,bool);
@@ -127,10 +131,8 @@ private:
     Color			unselcorlor_;
     Color			selcolor_;
     BoolTypeSet			pickselstatus_;
-
 };
 
 } // namespace visSurvey
 
 #endif
-
