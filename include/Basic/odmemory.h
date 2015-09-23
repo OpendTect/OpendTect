@@ -55,7 +55,7 @@ public:
     void	setSize( od_int64 sz )		{ sz_ = sz; }
 
     uiString	uiMessage() const	{ return tr("Value setter"); }
-    uiString	uiNrDoneText() const	{ return tr("Positions finished"); }
+    uiString	uiNrDoneText() const	{ return sPosFinished(); }
 
 
 protected:
@@ -105,7 +105,7 @@ public:
     void	setSize(od_int64 sz)		{ sz_ = sz; }
 
     uiString	uiMessage() const	{ return tr("Value copier"); }
-    uiString	uiNrDoneText() const	{ return tr("Positions finished"); }
+    uiString	uiNrDoneText() const	{ return sPosFinished(); }
 
 
 protected:
@@ -148,7 +148,7 @@ public:
     void        setSize(od_int64 sz)		{ sz_ = sz; }
 
     uiString	uiMessage() const	{ return tr("Value replacer"); }
-    uiString	uiNrDoneText() const	{ return tr("Positions finished"); }
+    uiString	uiNrDoneText() const	{ return sPosFinished(); }
 
 
 protected:
@@ -217,11 +217,13 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 	{
 	    T* ptr = ptr_+start;
 	    T* stopptr = ptr_+stop;
+	    od_int64 idx = 0;
 
 	    while ( ptr<=stopptr )
 	    {
 		*ptr = valfunc_();
 		ptr++;
+		quickAddToNrDone( idx++ );
 	    }
 
 	    return true;
@@ -235,12 +237,12 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( valfunc_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { vs_->setValue( idx, valfunc_() ); addToNrDone(1); }
+	    { vs_->setValue( idx, valfunc_() ); quickAddToNrDone( idx ); }
     }
     else
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { vs_->setValue( idx, val_ ); addToNrDone(1); }
+	    { vs_->setValue( idx, val_ ); quickAddToNrDone( idx ); }
     }
 
     return true;
@@ -251,6 +253,7 @@ template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 {
     OD::memSet( ptr_+start, (int)val_, (size_t) size );
+    addToNrDone( size );
     return true;
 }
 
@@ -259,6 +262,7 @@ template <> inline
 bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 {
     OD::memSet( ptr_+start, (int)val_, (size_t) size );
+    addToNrDone( size );
     return true;
 }
 
@@ -267,6 +271,7 @@ template <> inline
 bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 {
     OD::memSet( ptr_+start, (int)val_, (size_t) size );
+    addToNrDone( size );
     return true;
 }
 
@@ -274,10 +279,15 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 #define mODMemSetterFullImpl(Type) \
     Type* ptr = ptr_ + start; \
     const Type* stopptr = ptr + size; \
+    od_int64 idx = 0; \
     while ( ptr != stopptr ) \
-	{ *ptr = val_; ptr++; } \
+    { \
+	*ptr = val_; \
+	ptr++; \
+	quickAddToNrDone( idx++ ); \
+    } \
  \
-    return true
+    return true;
 
 
 #define mODMemSpecialImpl( Type ) \
@@ -287,6 +297,7 @@ bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
     if ( val_==0 ) \
     { \
 	OD::memZero( ptr_+start, size*sizeof(Type) ); \
+	addToNrDone( size ); \
 	return true; \
     } \
  \
@@ -351,20 +362,21 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( outptr_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { outptr_[idx] = invs_->value( idx ); addToNrDone(1); }
+	    { outptr_[idx] = invs_->value( idx ); quickAddToNrDone( idx ); }
     }
     else if ( inptr_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { outvs_->setValue( idx, inptr_[idx] ); addToNrDone(1); }
+	    { outvs_->setValue( idx, inptr_[idx] ); quickAddToNrDone( idx ); }
     }
     else
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { outvs_->setValue( idx, invs_->value(idx) ); addToNrDone(1); }
+	    { outvs_->setValue( idx, invs_->value(idx));quickAddToNrDone(idx); }
     }
     return true;
 }
+
 
 
 namespace OD { mGlobal(Basic) void sysMemCopy(void*,const void*,od_int64); }
@@ -373,6 +385,7 @@ template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 {
     OD::sysMemCopy( outptr_+start, inptr_+start, size * sizeof(T) );
+    addToNrDone( size );
     return true;
 }
 
@@ -416,7 +429,7 @@ bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
 	if ( vs_->value(idx)==fromval_ )
 	    vs_->setValue( idx, toval_ );
 
-	addToNrDone(1);
+	quickAddToNrDone( idx );
     }
 
     return true;
@@ -427,16 +440,19 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 {
     T* ptr = ptr_ + start;
     const T* stopptr = ptr + size;
+    od_int64 idx = 0;
     while ( ptr != stopptr )
     {
 	if ( *ptr==fromval_ )
 	    *ptr = toval_;
 
 	ptr++;
+	quickAddToNrDone( idx++ );
     }
 
     return true;
 }
+
 
 
 //! size determined experimentally on different Linux and Windows systems

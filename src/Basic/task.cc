@@ -338,7 +338,7 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 }
 
 
-void ParallelTask::addToNrDone( int nr )
+void ParallelTask::addToNrDone( od_int64 nr )
 {
     if ( nrdone_.get()!=-1 || !nrdone_.setIfValueIs( -1,  nr, 0 ) )
 	nrdone_ += nr;
@@ -350,6 +350,15 @@ void ParallelTask::addToNrDone( int nr )
 	progressmeter_->setMessage( uiMessage() );
 	progressmeter_->setNrDone( nrDone() );
     }
+}
+
+
+void ParallelTask::quickAddToNrDone( od_int64 idx )
+{
+    if ( idx%nrdonebigchunksz_ || idx == 0 )
+	return;
+
+    addToNrDone( nrdonebigchunksz_ );
 }
 
 
@@ -366,6 +375,7 @@ od_int64 ParallelTask::nrDone() const
     return nrdone_;
 }
 
+#define cBigChunkSz 100000
 
 bool ParallelTask::executeParallel( bool parallel )
 {
@@ -387,6 +397,8 @@ bool ParallelTask::executeParallel( bool parallel )
     }
 
     nrdone_ = -1;
+    nrdonebigchunksz_ = nriterations >= cBigChunkSz ? cBigChunkSz
+		      : nriterations >= 100 ? nriterations / 100 : 1;
     control_ = Task::Run;
 
     const int minthreadsize = minThreadSize();
@@ -401,6 +413,7 @@ bool ParallelTask::executeParallel( bool parallel )
     {
 	if ( !doPrepare( 1 ) ) return false;
 	bool res = doFinish( doWork( 0, nriterations-1, 0 ) );
+	if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
 	if ( progressmeter_ ) progressmeter_->setFinished();
 	return res;
     }
@@ -447,6 +460,7 @@ bool ParallelTask::executeParallel( bool parallel )
     }
 
     res = doFinish( res );
+    if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
     if ( progressmeter_ ) progressmeter_->setFinished();
     return res;
 }

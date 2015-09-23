@@ -87,6 +87,7 @@ public:
 
     od_int64		totalNr() const	{ return nrIterations(); }
     static uiString	sPosFinished()	{ return tr("Positions finished"); }
+    static uiString	sTrcFinished()	{ return tr("Traces finished"); }
 
 protected:
 
@@ -110,9 +111,14 @@ protected:
     od_int64		calculateThreadSize(od_int64 totalnr,int nrthreads,
 					    int thread) const;
 
-    void		addToNrDone(int increment);
+    void		addToNrDone(od_int64 increment);
 			/*!<Call this from within your thread to say
-			    that you have done something. */
+			    that you have done something.
+			    Do NOT call in very fast loops at every idx since
+			    it can impact negatively performance */
+    void		quickAddToNrDone(od_int64 loopidx);
+			/*!<Call this from within your thread to say
+			    that you have done something, but not very often */
 
     void		resetNrDone();
 
@@ -139,6 +145,7 @@ private:
 private:
 
     od_int64				totalnrcache_;
+    od_int64				nrdonebigchunksz_;
 
 };
 
@@ -290,12 +297,10 @@ interp.execute();
 	    { \
 		preop; \
 		for ( int idx=(int) start; idx<=stop; idx++ ) \
-		    { impl; addToNrDone(1); } \
+		    { impl; quickAddToNrDone(idx); } \
 		postop; \
 		return true; \
 	    } \
 	};
-
-
 
 #endif
