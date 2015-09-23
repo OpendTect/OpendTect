@@ -62,7 +62,7 @@ private:
     void		adjustValues();
     void		setPolygons(int,int);
     uiWorld2Ui		w2ui_;
-    float		preferablepxwidth_;
+    int			preferablepxwidth_;
 
 };
 #endif
