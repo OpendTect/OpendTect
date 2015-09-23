@@ -415,7 +415,7 @@ const OD::String& uiString::getFullString() const
 bool uiString::isCacheValid() const
 {
     const int curchange = TrMgr().changeCount();
-    if ( data_->changecount_!=curchange || data_->qstring_.isEmpty() )
+    if ( !data_ || data_->changecount_!=curchange || data_->qstring_.isEmpty() )
 	return false;
 
     for ( int idx=0; idx<data_->arguments_.size(); idx++ )
