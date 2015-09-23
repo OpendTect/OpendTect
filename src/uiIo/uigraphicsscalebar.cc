@@ -18,9 +18,11 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     : uiGraphicsItem()
-    , length_(pxwidth)
+    , preferablepxwidth_(pxwidth)
     , pxwidth_(pxwidth)
     , pxheight_(pxheight)
+    , w2ui_(uiWorld2Ui())
+    , worldwidth_((float)pxwidth)
 {
     initDefaultScale();
 }
@@ -43,11 +45,11 @@ void uiScaleBarItem::initDefaultScale()
 
     const Alignment cenbot = Alignment( Alignment::HCenter, Alignment::Bottom );
     startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
-    ( startnr_ );
+    addChild( startnr_ );
     midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
-    ( midnr_ );
+    addChild( midnr_ );
     stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
-    ( stopnr_ );
+    addChild( stopnr_ );
 
     // filling with color
     upperleft_->setFillColor( Color::Black(), true );
@@ -61,14 +63,22 @@ void uiScaleBarItem::initDefaultScale()
 }
 
 
+void uiScaleBarItem::setWorld2Ui( const uiWorld2Ui& w2ui )
+{
+    w2ui_ = w2ui;
+}
+
+
 void uiScaleBarItem::update()
 {
+    adjustValues();
     setPolygons( pxwidth_/4, pxheight_ );
 
-    uiString unit = SI().getUiXYUnitString( false );
-    startnr_->setPlainText( toUiString("0") );
-    midnr_->setPlainText( toUiString(length_/2) );
-    stopnr_->setPlainText( toUiString(length_).append(unit) );
+    uiString unit = SI().getUiXYUnitString( true, false );
+    startnr_->setPlainText( toString("0") );
+    midnr_->setPlainText( toString(worldwidth_/2) );
+    stopnr_->setPlainText( uiString(toString(worldwidth_)).append(unit) );
+
 }
 
 
@@ -85,4 +95,25 @@ void uiScaleBarItem::setPolygons( int width, int height )
     startnr_->setPos( -4.0f*width, 0 );
     midnr_->setPos( -2.0f * width, 0 );
     stopnr_->setPos( 0, 0 );
+}
+
+
+void uiScaleBarItem::adjustValues()
+{
+    float scalex, scaley;
+    getScale( scalex, scaley );
+    worldwidth_ = w2ui_.toWorldX(preferablepxwidth_) - w2ui_.toWorldX(0);
+    worldwidth_ *= scalex;
+
+    float rval = 1.f;
+    while ( worldwidth_/10.f > rval )
+	rval *= 10.f;
+
+    const float vroundedtotenth = Math::Floor(worldwidth_/rval+.5f)*rval;
+    if ( worldwidth_ != vroundedtotenth )
+    {
+	worldwidth_ = vroundedtotenth;
+	pxwidth_ = Math::Abs( w2ui_.toUiX(worldwidth_)-w2ui_.toUiX(0) );
+	pxwidth_ = mCast(int,pxwidth_/scalex);
+    }
 }

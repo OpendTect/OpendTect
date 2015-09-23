@@ -12,34 +12,38 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
+#include "uiiomod.h"
 #include "uigraphicsitem.h"
+#include "uiworld2ui.h"
 
-class uiRectItem;
 class uiAdvancedTextItem;
+class uiRectItem;
 class SurveyInfo;
 
 /*!
 \brief It adds a graphic scale made from polygons
 */
 
-mExpClass(uiBase) uiScaleBarItem : public uiGraphicsItem
+mExpClass(uiIo) uiScaleBarItem : public uiGraphicsItem
 {
 public:
 			uiScaleBarItem(int pxwidth=100,int pxheight=6);
 			~uiScaleBarItem();
 
-    inline int		getPxHeight() const		{ return pxheight_; }
-    inline int		getLength() const		{ return length_; }
-    inline int		getPxWidth() const		{ return pxwidth_; }
-    inline void		setPxHeight(int pxh)		{ pxheight_ = pxh; }
-    inline void		setLength(int len)		{ length_ = len; }
-    inline void		setPxWidth(int pxwidth)		{ pxwidth_ = pxwidth; }
+    inline int		getPxHeight() const	{ return pxheight_; }
+    inline float	getLength() const	{ return worldwidth_; }
+    inline int		getPxWidth() const	{ return pxwidth_; }
+    inline void		setPxHeight(int pxh)	{ pxheight_ = pxh; }
+    inline void		setLength(float len)	{ worldwidth_ = len; }
+    inline void		setPxWidth(int pxw)	{ pxwidth_ = pxw;
+						  preferablepxwidth_ = pxw; }
+
+    void		setWorld2Ui(const uiWorld2Ui&);
 
     void		update();
 
 protected:
-    int			length_;
+    float		worldwidth_;
     int			pxwidth_;
     int			pxheight_;
 
@@ -55,7 +59,10 @@ protected:
 
 private:
     void		initDefaultScale();
+    void		adjustValues();
     void		setPolygons(int,int);
+    uiWorld2Ui		w2ui_;
+    int			preferablepxwidth_;
 
 };
 #endif

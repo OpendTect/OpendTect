@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
+#include "uiiomod.h"
 #include "uigraphicsitem.h"
 #include "uigraphicsitemimpl.h"
 
@@ -23,7 +23,7 @@ class uiAdvancedTextItem;
 \brief A legend, mainly used in maps
 */
 
-mExpClass(uiBase) uiLegendItem : public uiRectItem
+mExpClass(uiIo) uiLegendItem : public uiRectItem
 { mODTextTranslationClass(uiLegendItem)
 public:
 			uiLegendItem();

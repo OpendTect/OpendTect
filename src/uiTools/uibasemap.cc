@@ -507,10 +507,13 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
     const uiGraphicsItem* itm = view_.scene().itemAt( pt );
     if ( !itm ) return 0;
 
+    mDynamicCastGet(const uiTextItem*,txtitm,itm)
+    if ( txtitm ) return 0;
+
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	const uiGraphicsItem& itmgrp = objects_[idx]->graphItem();
-	if ( !itmgrp.isPresent(*itm) )
+	const uiGraphicsItem& bmitm = objects_[idx]->graphItem();
+	if ( !bmitm.isPresent(*itm) )
 	    continue;
 
 	return objects_[idx]->name();
