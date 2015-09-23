@@ -205,8 +205,8 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 	const Coord mincoord( SI().minCoord(true) );
 	coordsfromfld_->addItem( tr("Generate straight line") );
 	coordsstartfld_ = new uiGenInput( this, tr("Start coordinate"),
-			DoubleInpSpec(mNINT64(mincoord.x)),
-			DoubleInpSpec(mNINT64(mincoord.y)) );
+			DoubleInpSpec((double)mNINT64(mincoord.x)),
+			DoubleInpSpec((double)mNINT64(mincoord.y)) );
 	coordsstartfld_->attach( alignedBelow, lcb );
 	coordsstartfld_->setElemSzPol( uiObject::Small );
 	coordsstepfld_ = new uiGenInput( this, uiStrings::sStep(),
