@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "od_istream.h"
 
-#include <iostream>
 #include <math.h>
 
 

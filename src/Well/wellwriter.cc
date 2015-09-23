@@ -175,14 +175,14 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
 	mErrRetStrmOper("write header (info/track)")
 
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyuwid(), wd_.info().uwid );
-    astrm.put( Well::Info::sKeyoper(), wd_.info().oper );
-    astrm.put( Well::Info::sKeystate(), wd_.info().state );
-    astrm.put( Well::Info::sKeycounty(), wd_.info().county );
+    astrm.put( Well::Info::sKeyUwid(), wd_.info().uwid );
+    astrm.put( Well::Info::sKeyOper(), wd_.info().oper );
+    astrm.put( Well::Info::sKeyState(), wd_.info().state );
+    astrm.put( Well::Info::sKeyCounty(), wd_.info().county );
     if ( wd_.info().surfacecoord != Coord(0,0) )
-	astrm.put( Well::Info::sKeycoord(), wd_.info().surfacecoord.toString());
-    astrm.put( Well::Info::sKeyreplvel(), wd_.info().replvel );
-    astrm.put( Well::Info::sKeygroundelev(), wd_.info().groundelev );
+	astrm.put( Well::Info::sKeyCoord(), wd_.info().surfacecoord.toString());
+    astrm.put( Well::Info::sKeyReplVel(), wd_.info().replvel );
+    astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundelev );
     astrm.newParagraph();
 
     return putTrack( strm );

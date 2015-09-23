@@ -453,7 +453,7 @@ void uiWellMan::defD2T( bool chkshot )
     {
 	if ( !errmsg.isEmpty() )
 	errmsg.append( tr("Cannot write new %1 to disk")
-		       .arg(Well::Info::sKeyreplvel()),true );
+		       .arg(Well::Info::sReplVel()),true );
 	wd->info().replvel = oldreplvel;
     }
 
@@ -738,7 +738,7 @@ void uiWellMan::exportLogs( CallBacker* )
 
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
-    { txt.add( key ).add( colonstr ).add( str ).addNewLine(); }
+    { txt.add( key.getFullString() ).add( colonstr ).add( str ).addNewLine(); }
 
 
 void uiWellMan::mkFileInfo()
@@ -759,7 +759,7 @@ void uiWellMan::mkFileInfo()
     FixedString colonstr( ": " );
     const BufferString posstr( info.surfacecoord.toPrettyString(2), " ",
 		SI().transform(info.surfacecoord).toString() );
-    mAddWellInfo(Well::Info::sKeycoord(),posstr)
+    mAddWellInfo(Well::Info::sCoord(),posstr)
 
     if ( !track.isEmpty() )
     {
@@ -767,7 +767,7 @@ void uiWellMan::mkFileInfo()
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    txt.add( Well::Info::sKeykbelev() ).add( colonstr );
+	    txt.add( Well::Info::sKBElev().getFullString() ).add( colonstr );
 	    txt.add( zun ? zun->userValue(rdelev) : rdelev );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
@@ -776,7 +776,7 @@ void uiWellMan::mkFileInfo()
 	const float td = track.dahRange().stop;
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	{
-	    txt.add( Well::Info::sKeyTD() ).add( colonstr );
+	    txt.add( Well::Info::sTD().getFullString() ).add( colonstr );
 	    txt.add( zun ? zun->userValue(td) : td );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
@@ -794,7 +794,7 @@ void uiWellMan::mkFileInfo()
 	const float replvel = info.replvel;
 	if ( !mIsUdf(replvel) )
 	{
-	     txt.add( Well::Info::sKeyreplvel() ).add( colonstr );
+	     txt.add( Well::Info::sReplVel().getFullString() ).add( colonstr );
 	     txt.add( zun ? zun->userValue(replvel) : replvel );
 	     txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
 		      .getFullString() );
@@ -804,17 +804,17 @@ void uiWellMan::mkFileInfo()
 	const float groundelev = info.groundelev;
 	if ( !mIsUdf(groundelev) )
 	{
-	    txt.add( Well::Info::sKeygroundelev() ).add( colonstr );
+	    txt.add( Well::Info::sGroundElev().getFullString() ).add( colonstr);
 	    txt.add( zun ? zun->userValue(groundelev) : groundelev );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
 	}
     }
 
-    mAddWellInfo(Well::Info::sKeyuwid(),info.uwid)
-    mAddWellInfo(Well::Info::sKeyoper(),info.oper)
-    mAddWellInfo(Well::Info::sKeystate(),info.state)
-    mAddWellInfo(Well::Info::sKeycounty(),info.county)
+    mAddWellInfo(Well::Info::sUwid(),info.uwid)
+    mAddWellInfo(Well::Info::sOper(),info.oper)
+    mAddWellInfo(Well::Info::sState(),info.state)
+    mAddWellInfo(Well::Info::sCounty(),info.county)
 
     if ( txt.isEmpty() )
 	txt.set( "<No specific info available>\n" );

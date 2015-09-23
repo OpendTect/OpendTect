@@ -127,7 +127,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     mAddSetBut( wellheadyfld_, updateYpos )
     if ( !writable_ ) wellheadyfld_-> setReadOnly( true );
 
-    kbelevfld_ = new uiGenInput( actbutgrp, Well::Info::sKeykbelev(),
+    kbelevfld_ = new uiGenInput( actbutgrp, Well::Info::sKBElev(),
 				 FloatInpSpec(mUdf(float)) );
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
@@ -219,7 +219,7 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     wellheadxfld_->setTitleText( BufferString("X", coordlbl) );
     wellheadyfld_->setTitleText( BufferString("Y", coordlbl) );
     kbelevfld_->setTitleText( tr("%1 %2 ")
-			      .arg( Well::Info::sKeykbelev() )
+			      .arg( Well::Info::sKBElev() )
 			      .arg( depthunit ) );
 
     if ( track_.size() > 1 )
@@ -306,14 +306,14 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 
     const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
     uiString kblbl = tr( "%1 %2" )
-		     .arg(Well::Info::sKeykbelev()).arg( zunit );
+		     .arg(Well::Info::sKBElev()).arg( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
     kbelevfld_->attach( alignedBelow, dataselfld_ );
 
     uiString tdlbl = tr( "%1 %2" )
-		     .arg(Well::Info::sKeyTD()).arg( zunit );
+		     .arg(Well::Info::sTD()).arg( zunit );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -560,7 +560,7 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
     if ( mIsUdf(newkbelev) )
     {
 	uiMSG().error( tr("Please enter a valid %1")
-				  .arg(Well::Info::sKeykbelev()) );
+				  .arg(Well::Info::sKBElev()) );
 	kbelevfld_->setValue( mConvertVal(kbelevorig,true) );
 	return;
     }
@@ -733,11 +733,11 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     tbl_->setNrRows( nremptyrows );
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
     tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
-    FixedString kbstr( Well::Info::sKeykbelev() );
+    uiString kbstr = Well::Info::sKBElev();
     tbl_->setColumnToolTip( cMDCol,
-	   BufferString("Measured depth along the borehole, origin at ",kbstr));
+	uiString("Measured depth along the borehole, origin at %1").arg(kbstr));
     tbl_->setColumnToolTip( cTVDCol,
-	    BufferString( "True Vertical Depth, origin at ", kbstr ) );
+	uiString( "True Vertical Depth, origin at %1").arg(kbstr) );
     tbl_->setColumnToolTip( getTVDSSCol(),
 	    "True Vertical Depth Sub-Sea, positive downwards" );
     tbl_->setColumnToolTip( getTimeCol(),
@@ -752,7 +752,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     if ( !cksh_ )
     {
-	replvelfld_ = new uiGenInput( this, Well::Info::sKeyreplvel(),
+	replvelfld_ = new uiGenInput( this, Well::Info::sReplVel(),
 				      FloatInpSpec(mUdf(float)) );
 	if ( !writable_ )
 	    replvelfld_-> setReadOnly( true );
@@ -959,9 +959,9 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 void uiD2TModelDlg::fillReplVel( CallBacker* )
 {
     NotifyStopper ns( replvelfld_->updateRequested );
-    BufferString lbl( Well::Info::sKeyreplvel(), " ",
-		      getVelUnitString(zinftfld_->isChecked(),true) );
-    if ( zinftfld_->isChecked() ) lbl.addSpace();
+    uiString lbl( "%1 %2 " );
+    lbl.arg( Well::Info::sReplVel() )
+       .arg( getVelUnitString(zinftfld_->isChecked(),true) );
     replvelfld_->setTitleText( lbl );
     replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
 }
@@ -1459,7 +1459,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     if ( mIsUdf(replvel) || replvel < 0.001f )
     {
 	uiMSG().error( tr("Please enter a valid %1")
-		       .arg(Well::Info::sKeyreplvel()) );
+		       .arg(Well::Info::sReplVel()) );
 	replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
 	return;
     }

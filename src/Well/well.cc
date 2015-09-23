@@ -19,17 +19,36 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlevel.h"
 #include "wellman.h"
 
-const char* Well::Info::sKeyuwid()	{ return "Unique Well ID"; }
-const char* Well::Info::sKeyoper()	{ return "Operator"; }
-const char* Well::Info::sKeystate()	{ return "State"; }
-const char* Well::Info::sKeycounty()	{ return "County"; }
-const char* Well::Info::sKeycoord()	{ return "Surface coordinate"; }
-const char* Well::Info::sKeykbelev(){ return "Reference Datum elevation [KB]"; }
-const char* Well::Info::sKeyreplvel()
-{ return "Replacement velocity [from KB to SRD]"; }
-const char* Well::Info::sKeygroundelev(){ return "Ground Level elevation [GL]";}
+// Keys for IOPars
+const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
+const char* Well::Info::sKeyOper()	{ return "Operator"; }
+const char* Well::Info::sKeyState()	{ return "State"; }
+const char* Well::Info::sKeyCounty()	{ return "County"; }
+const char* Well::Info::sKeyCoord()	{ return "Surface coordinate"; }
+const char* Well::Info::sKeyWellType()	{ return "WellType"; }
 const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
-const char* Well::Info::sKeywelltype()	{ return "WellType"; }
+const char* Well::Info::sKeyKBElev()
+	{ return "Reference Datum Elevation [KB]"; }
+const char* Well::Info::sKeyReplVel()
+	{ return "Replacement velocity [from KB to SRD]"; }
+const char* Well::Info::sKeyGroundElev()
+	{ return "Ground Level elevation [GL]"; }
+
+// Strings for GUI
+uiString Well::Info::sUwid()	{ return tr("Unique Well ID"); }
+uiString Well::Info::sOper()	{ return tr("Operator"); }
+uiString Well::Info::sState()	{ return tr("State"); }
+uiString Well::Info::sCounty()	{ return tr("County"); }
+uiString Well::Info::sCoord()	{ return tr("Surface coordinate"); }
+uiString Well::Info::sKBElev()
+	{ return tr("Reference Datum Elevation [KB]"); }
+uiString Well::Info::sReplVel()
+	{ return tr("Replacement Velocity [From KB to SRD]"); }
+uiString Well::Info::sGroundElev()
+	{ return tr("Ground Level Elevation [GL]"); }
+uiString Well::Info::sTD()
+	{ return tr("Total Depth [TD]"); }
+
 
 DefineEnumNames( Well::Info, WellType, 0, "Well Type" )
 { "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
@@ -237,34 +256,34 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 
 #define mName "Well name"
 
-void Well::Info::fillPar(IOPar& par) const
+void Well::Info::fillPar( IOPar& par ) const
 {
     par.set( mName, name() );
-    par.set( sKeyuwid(), uwid );
-    par.set( sKeyoper(), oper );
-    par.set( sKeystate(), state );
-    par.set( sKeycounty(), county );
-    par.set( sKeywelltype(), welltype_ );
+    par.set( sKeyUwid(), uwid );
+    par.set( sKeyOper(), oper );
+    par.set( sKeyState(), state );
+    par.set( sKeyCounty(), county );
+    par.set( sKeyWellType(), welltype_ );
 
-    par.set( sKeycoord(), surfacecoord.toString() );
-    par.set( sKeyreplvel(), replvel );
-    par.set( sKeygroundelev(), groundelev );
+    par.set( sKeyCoord(), surfacecoord.toString() );
+    par.set( sKeyReplVel(), replvel );
+    par.set( sKeyGroundElev(), groundelev );
 }
 
 
 void Well::Info::usePar( const IOPar& par )
 {
     setName( par.find(mName) );
-    par.get( sKeyuwid(), uwid );
-    par.get( sKeyoper(), oper );
-    par.get( sKeystate(), state );
-    par.get( sKeycounty(), county );
+    par.get( sKeyUwid(), uwid );
+    par.get( sKeyOper(), oper );
+    par.get( sKeyState(), state );
+    par.get( sKeyCounty(), county );
     int welltype = 0;
-    par.get( sKeywelltype(), welltype ); welltype_ = (WellType)welltype;
+    par.get( sKeyWellType(), welltype ); welltype_ = (WellType)welltype;
 
-    surfacecoord.fromString( par.find(sKeycoord()) );
-    par.get( sKeyreplvel(), replvel );
-    par.get( sKeygroundelev(), groundelev );
+    surfacecoord.fromString( par.find(sKeyCoord()) );
+    par.get( sKeyReplVel(), replvel );
+    par.get( sKeyGroundElev(), groundelev );
 
 }
 

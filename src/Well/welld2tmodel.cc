@@ -612,7 +612,7 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
     if ( mIsUdf(vreplinfile) )
 	return;
 
-    FixedString replvelbl( Well::Info::sKeyreplvel() );
+    uiString replvelbl = Well::Info::sReplVel();
     if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsV) )
     {
 	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsV) )

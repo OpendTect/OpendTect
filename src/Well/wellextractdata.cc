@@ -35,7 +35,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "binidvalue.h"
 
-#include <iostream>
 #include <math.h>
 
 #define mLocalEps 1e-2f;

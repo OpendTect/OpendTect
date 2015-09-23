@@ -79,14 +79,14 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
     const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
     uiString kblbl = tr( "%1 %2" )
-		     .arg(Well::Info::sKeykbelev()).arg( zunit );
+		     .arg(Well::Info::sKBElev()).arg( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
     kbelevfld_->attach( alignedBelow, dataselfld_ );
 
     uiString tdlbl = tr( "%1 %2" )
-		     .arg(Well::Info::sKeyTD()).arg( zunit );
+		     .arg(Well::Info::sTD()).arg( zunit );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -205,7 +205,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( !mIsZero(info.surfacecoord.x,0.1) )
 	possu.coord_ = info.surfacecoord;
     coordfld = new uiGenInput( this,
-	tr("Surface coordinate (if different from first "
+	tr("Surface Coordinate (if different from first "
 	   "coordinate in track file)"),
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
@@ -216,7 +216,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	dispval = zun_->userValue( info.replvel );
 
     uiString lbl = tr("%1 %2")
-		   .arg( Well::Info::sKeyreplvel() )
+		   .arg( Well::Info::sReplVel() )
 		   .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
@@ -224,7 +224,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     dispval = info.groundelev;
     if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
     lbl = tr("%1 %2")
-		  .arg( Well::Info::sKeygroundelev() )
+		  .arg( Well::Info::sGroundElev() )
 	      .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
@@ -232,19 +232,20 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
 
-    idfld = new uiGenInput( this, Well::Info::sKeyuwid(),
+    idfld = new uiGenInput( this, Well::Info::sUwid(),
 			    StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
+    idfld->attach( ensureBelow, horsep );
 
-    operfld = new uiGenInput( this, Well::Info::sKeyoper(),
+    operfld = new uiGenInput( this, Well::Info::sOper(),
 			      StringInpSpec(info.oper) );
-    operfld->attach( alignedBelow, idfld );
+    operfld->attach( rightTo, idfld );
 
-    statefld = new uiGenInput( this, Well::Info::sKeystate(),
+    statefld = new uiGenInput( this, Well::Info::sState(),
 			       StringInpSpec(info.state) );
-    statefld->attach( alignedBelow, operfld );
+    statefld->attach( alignedBelow, idfld );
 
-    countyfld = new uiGenInput( this, Well::Info::sKeycounty(),
+    countyfld = new uiGenInput( this, Well::Info::sCounty(),
 				StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }
@@ -453,10 +454,10 @@ bool uiWellImportAsc::checkInpFlds()
 	}
 
 	if ( !kbelevfld_->isChecked() )
-	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKeykbelev()))
+	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKBElev()))
 
 	if ( !tdfld_->isChecked() )
-	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKeyTD()))
+	    mErrRet(tr("Please specify a %1").arg(Well::Info::sTD()))
     }
 
     if ( !outfld_->commitInput() )
