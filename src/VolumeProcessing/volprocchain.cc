@@ -30,7 +30,7 @@ class BinIDWiseTask : public ParallelTask
 { mODTextTranslationClass(BinIDWiseTask);
 public:
 		BinIDWiseTask( Step& ro )
-		    : step_( ro ), totalnr_( -1 ) { setName(ro.userName());  }
+		    : step_( ro ), totalnr_( -1 ) { setName(ro.userName()); }
 
     uiString	uiMessage() const	{ return errmsg_; }
     uiString	uiNrDoneText() const	{ return tr("Positions done"); }
@@ -417,8 +417,10 @@ int ChainExecutor::nextStep()
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
-    progressmeter_->skipProgress( false );
+    if ( progressmeter_ )
+	progressmeter_->skipProgress( false );
     curtask.setProgressMeter( progressmeter_ );
+
     curtask.enableWorkControl( true );
 
     //curtasklock_.unLock();
@@ -430,7 +432,8 @@ int ChainExecutor::nextStep()
 	outputvolume_ = curepoch_->getOutput();
 
     //To prevent the overall chain progress display in between sub-tasks
-    progressmeter_->skipProgress( true );
+    if ( progressmeter_ )
+	progressmeter_->skipProgress( true );
 
     return epochs_.isEmpty() ? Finished() : MoreToDo();
 }
@@ -489,8 +492,6 @@ od_int64 ChainExecutor::nrDone() const
 
     return mNINT32(percentagedone);
 }
-
-
 
 
 uiString ChainExecutor::uiNrDoneText() const
