@@ -736,7 +736,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    {
 		ObjectSet<const RegularSeisDataPack> cubeset;
 		cubeset += sdp;
-		return aem->getOutput( cubeset );
+		return aem->getDataPackOutput( cubeset );
 	    }
 	}
 
@@ -780,7 +780,8 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    }
 	}
 
-	output = const_cast<RegularSeisDataPack*>( aem->getOutput(*process) );
+	output = const_cast<RegularSeisDataPack*>(
+			aem->getDataPackOutput(*process) );
     }
 
     if ( output && !success )

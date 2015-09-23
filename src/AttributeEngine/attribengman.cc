@@ -291,7 +291,7 @@ const char* EngineMan::getCurUserRef() const
 }
 
 
-const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
+const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
 {
     RegularSeisDataPack* output = 0;
     if ( proc.outputs_.size()==1 && !cache_ )
@@ -334,7 +334,7 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
     }
 
     if ( !packset.isEmpty() )
-	output = const_cast<RegularSeisDataPack*>( getOutput(packset) );
+	output = const_cast<RegularSeisDataPack*>( getDataPackOutput(packset) );
 
     for ( int idx=packset.size()-1; idx>=0; idx-- )
 	dpm_.release( packset[idx] );
@@ -410,7 +410,7 @@ protected:
 };
 
 
-const RegularSeisDataPack* EngineMan::getOutput(
+const RegularSeisDataPack* EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
     const char* category = SeisDataPack::categoryStr(
@@ -802,8 +802,8 @@ uiString uiMessage() const
     return !errmsg_.isEmpty()
 	? errmsg_
 	: (proc_
-	   ? proc_->uiMessage()
-	   : uiStrings::phrCannotCreate(tr("output")) );
+           ? proc_->uiMessage()
+           : uiStrings::phrCannotCreate(tr("output")) );
 }
 
 int haveError( const uiString& msg )
