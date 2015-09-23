@@ -73,7 +73,8 @@ bool SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
 	return false;
 
     const int trcbytes = SegyTrcHeaderLength + traceDataBytes();
-    startpos += trcidx * trcbytes;
+    od_stream_Pos offs = trcidx; offs *= trcbytes;
+    startpos += offs;
     if ( startpos >= strm.endPosition() )
 	return false;
 
