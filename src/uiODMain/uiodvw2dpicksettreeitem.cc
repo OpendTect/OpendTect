@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
-    : uiODVw2DTreeItem( "PickSet" )
+    : uiODVw2DTreeItem( uiStrings::sPickSet() )
     , picksetmgr_(Pick::Mgr())
 {
 }
@@ -127,7 +127,7 @@ void uiODVw2DPickSetParentTreeItem::addPickSets(
 
 
 uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , pickset_(Pick::Mgr().get(picksetid))
     , picksetmgr_(Pick::Mgr())
     , vw2dpickset_(0)
@@ -148,7 +148,7 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 
 bool uiODVw2DPickSetTreeItem::init()
 {
-    name_ = pickset_.name();
+    name_ = mToUiStringTodo(pickset_.name());
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     displayMiniCtab();

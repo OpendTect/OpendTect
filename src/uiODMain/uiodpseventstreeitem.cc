@@ -126,7 +126,7 @@ uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
     , eventdisplay_(0)
     , dir_(Coord(1,0))
     , scalefactor_(1)
-    , coloritem_(new MenuItem("Colors"))
+    , coloritem_(new MenuItem(uiStrings::sColor(mPlural)))
     , coloridx_(0)
     , dispidx_(0)
 {
@@ -234,7 +234,7 @@ void uiODPSEventsTreeItem::updateDisplay()
         uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visserv->addObject( eventdisplay_, sceneID(), false );
 	displayid_ = eventdisplay_->id();
-	eventdisplay_->setName( eventname_ );
+    eventdisplay_->setName( mToUiStringTodo(eventname_) );
 	eventdisplay_->setLineStyle( LineStyle(LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 

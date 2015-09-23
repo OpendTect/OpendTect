@@ -46,7 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODAnnotParentTreeItem::uiODAnnotParentTreeItem()
-    : uiTreeItem("Annotations")
+    : uiTreeItem( tr("Annotations") )
 {}
 
 
@@ -127,9 +127,9 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 
 // Base uiODAnnotTreeItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type_ )
-    : uiODTreeItem(type_)
-    , typestr_(type_.getFullString())
+uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type )
+    : uiODTreeItem(type)
+    , typestr_(type)
 { }
 
 
@@ -220,7 +220,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    BufferString addtxt = "New "; addtxt += typestr_; addtxt += " group ...";
+    const uiString addtxt = m3Dots(tr("New %1 group").arg(typestr_));
     mnu.insertItem( new uiAction(addtxt), 0 );
     mnu.insertItem(new uiAction(m3Dots(uiStrings::sAdd())),1);
     addStandardItems( mnu );
@@ -230,10 +230,10 @@ bool uiODAnnotTreeItem::showSubMenu()
 
     if ( mnusel == 0 )
     {
-	BufferString title = typestr_; title += " Annotations";
-	uiGenInputDlg dlg( getUiParent(), title, "Group name",
+    const uiString title = tr( "%1 Annotations").arg(typestr_);
+    uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
 			   new StringInpSpec );
-	dlg.setCaption( "Annotations" );
+    dlg.setCaption( tr("Annotations") );
 
 	while ( true )
 	{
@@ -289,7 +289,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
     BufferString bs;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,bs) )
-    { uiMSG().error( bs ); mDelCtioRet; }
+    { uiMSG().error( mToUiStringTodo(bs) ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     if ( mgr.indexOf(dlg.ioObj()->key() ) == -1 )
@@ -307,11 +307,11 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     : set_( &set )
     , defscale_(mCast(float,set.disp_.pixsize_))
-    , scalemnuitem_("Size ...")
+    , scalemnuitem_(m3Dots(uiStrings::sSize()))
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
 {
-    name_ = set_->name();
+    name_ = mToUiStringTodo(set_->name());
     displayid_ = displayid;
 
     storemnuitem_.iconfnm = "save";
@@ -433,7 +433,7 @@ void uiODAnnotSubItem::store() const
     fillStoragePar( set_->pars_ );
     BufferString bs;
     if ( !PickSetTranslator::store( *set_, ioobj, bs ) )
-	uiMSG().error(bs);
+    uiMSG().error(mToUiStringTodo(bs));
     else
 	mgr.setUnChanged( setidx );
 }

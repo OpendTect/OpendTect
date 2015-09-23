@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 
 uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
-    : uiODVw2DTreeItem( "VD" )
+    : uiODVw2DTreeItem( tr("VD") )
     , dummyview_(0)
     , menu_(0)
     , coltabinitialized_(false)

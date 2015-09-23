@@ -185,7 +185,7 @@ protected:
     FlatView::AuxData*		marker_;
     ZAxisTransform*		datatransform_;
     TrcKeyZSampling		tkzs_;
-    BufferString		basetxt_;
+    uiString			basetxt_;
     uiODMain&			appl_;
 
     uiWorldPoint		initialcentre_;

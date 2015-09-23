@@ -141,8 +141,8 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 #define mHideAllItemsMenuID 102
 #define mRemoveAllItemsMenuID 103
 
-uiODVw2DTreeItem::uiODVw2DTreeItem( const char* name__ )
-    : uiTreeItem( name__ )
+uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
+    : uiTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
 {}

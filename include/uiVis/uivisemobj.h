@@ -57,8 +57,6 @@ public:
 			     turns on singlecolor and full res if
 			     a tracker if found. */
 
-    static const char*	trackingmenutxt();
-
 protected:
     void		setUpConnections();
     void		addToToolBarCB(CallBacker*);

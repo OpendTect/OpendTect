@@ -209,13 +209,13 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 
 
 #define mCommonInit \
-    , savemnuitem_("Save") \
-    , saveasmnuitem_("Save As") \
-    , volcalmnuitem_("Calculate Volume ...") \
-    , displaybodymnuitem_("Body") \
-    , displaypolygonmnuitem_("Picked Polygons") \
-    , displayintersectionmnuitem_("Only at Sections") \
-    , singlecolormnuitem_("Use Single Color") \
+    , savemnuitem_(uiStrings::sSave()) \
+    , saveasmnuitem_(uiStrings::sSaveAs()) \
+    , volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume())) \
+    , displaybodymnuitem_(uiStrings::sBody()) \
+    , displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons()) \
+    , displayintersectionmnuitem_(uiStrings::sOnlyAtSections()) \
+    , singlecolormnuitem_(uiStrings::sUseSingleColor()) \
     , mcd_(0) \
     , plg_(0) \
     , rpb_(0)
@@ -496,17 +496,18 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
-	const bool notempty = !applMgr()->EMServer()->getName(emid_).isEmpty();
+	const bool notempty =
+	    !applMgr()->EMServer()->getUiName(emid_).isEmpty();
 	if ( saveas && notempty )
 	{
 	    if ( plg_ )
-		plg_->setName( applMgr()->EMServer()->getName(emid_) );
+		plg_->setName( applMgr()->EMServer()->getUiName(emid_) );
 
 	    if ( rpb_ )
-		rpb_->setName( applMgr()->EMServer()->getName(emid_) );
+		rpb_->setName( applMgr()->EMServer()->getUiName(emid_) );
 
 	    if ( mcd_ )
-		mcd_->setName( applMgr()->EMServer()->getName(emid_) );
+		mcd_->setName( applMgr()->EMServer()->getUiName(emid_) );
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
@@ -580,8 +581,8 @@ void uiODBodyDisplayTreeItem::displayAtSections( bool yn )
 // uiODBodyDisplayDataTreeItem
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
-    , depthattribmnuitem_("Z values")
-    , isochronmnuitem_("Z isochron")
+    , depthattribmnuitem_(tr("Z values"))
+    , isochronmnuitem_(tr("Z isochron"))
 {}
 
 

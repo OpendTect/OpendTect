@@ -35,7 +35,7 @@ mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
 		     const char*, uiODDataTreeItem::factory )
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
-    : uiTreeItem("")
+    : uiTreeItem(uiString::emptyString())
     , parenttype_(parenttype)
     , menu_(0)
     , statswin_(0)

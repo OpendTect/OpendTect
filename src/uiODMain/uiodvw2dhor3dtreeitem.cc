@@ -40,7 +40,7 @@ ________________________________________________________________________
 
 
 uiODVw2DHor3DParentTreeItem::uiODVw2DHor3DParentTreeItem()
-    : uiODVw2DTreeItem( "Horizon 3D" )
+    : uiODVw2DTreeItem( tr("Horizon 3D") )
 {
 }
 
@@ -161,7 +161,7 @@ bool uiODVw2DHor3DParentTreeItem::init()
 
 
 uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , horview_(0)
     , oldactivevolupdated_(false)
@@ -176,7 +176,7 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
 
 
 uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( int id, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , horview_(0)
     , oldactivevolupdated_(false)
@@ -251,7 +251,7 @@ bool uiODVw2DHor3DTreeItem::init()
     emobj->change.notify( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
     displayMiniCtab();
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor3DTreeItem,checkCB) );
@@ -370,7 +370,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 	applMgr()->mpeServer()->saveSetup( mid );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 1 )
@@ -380,7 +380,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
 	MultiID storedmid;
 	applMgr()->EMServer()->storeObject( emid_, true, storedmid );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 
 	const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
 	EM::EMM().getObject(emid_)->setMultiID( storedmid);

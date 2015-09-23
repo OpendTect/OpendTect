@@ -220,14 +220,14 @@ protected:
     BufferStringSet		serialfssitems_;
     BufferStringSet		allfssitems_;
 
-    static const char*		sKeyCopySelection();
-    static const char*		sKeyMoveSelection();
-    static const char*		sKeyToFault();
-    static const char*		sKeyToFaultStickSet();
-    static const char*		sKeyCreateSingleNew();
-    static const char*		sKeyCreateNewInSeries();
-    static const char*		sKeyMergeWithExisting();
-    static const char*		sKeyReplaceExisting();
+    static uiString		sKeyCopySelection();
+    static uiString		sKeyMoveSelection();
+    static uiString		sKeyToFault();
+    static uiString		sKeyToFaultStickSet();
+    static uiString		sKeyCreateSingleNew();
+    static uiString		sKeyCreateNewInSeries();
+    static uiString		sKeyMergeWithExisting();
+    static uiString		sKeyReplaceExisting();
 };
 
 

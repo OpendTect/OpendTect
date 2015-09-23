@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 
 uiODVw2DFaultSS2DParentTreeItem::uiODVw2DFaultSS2DParentTreeItem()
-    : uiODVw2DTreeItem( "FaultStickSet" )
+    : uiODVw2DTreeItem( uiStrings::sFaultStickSet() )
 {}
 
 
@@ -104,7 +104,7 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
-    if ( findChild(applMgr()->EMServer()->getName(emid)) )
+    if ( findChild(applMgr()->EMServer()->getUiName(emid).getFullString()) )
 	return;
 
     addChld( new uiODVw2DFaultSS2DTreeItem(emid),false,false);
@@ -113,7 +113,7 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 
 
 uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , fssview_(0)
 {
@@ -121,7 +121,7 @@ uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const EM::ObjectID& emid )
 
 
 uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , fssview_(0)
 {
@@ -167,7 +167,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     emobj->ref();
     mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setChecked( true );
     mAttachCB( checkStatusChange(), uiODVw2DFaultSS2DTreeItem::checkCB );
 
@@ -261,7 +261,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 2 )

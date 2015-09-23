@@ -75,6 +75,8 @@ public:
 
     BufferString	getName(const EM::ObjectID&) const;
     const char*		getType(const EM::ObjectID&) const;
+    uiString		getUiName(const EM::ObjectID&) const;
+    uiString		getUiType(const EM::ObjectID&) const;
 
     int			nrAttributes(const EM::ObjectID&) const;
     bool		isGeometryChanged(const EM::ObjectID&) const;

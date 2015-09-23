@@ -49,7 +49,7 @@ public:
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
-					 const char* nm=0);
+		     const uiString& nm=uiString::emptyString());
 				//!<Returns scene id
     void			setSceneName(int sceneid,const uiString&);
     uiString			getSceneName(int sceneid) const;
@@ -107,8 +107,8 @@ public:
     const ui3DViewer*		get3DViewer(int sceneid) const;
     ui3DViewer*			get3DViewer(int sceneid);
     void			get3DViewers(ObjectSet<ui3DViewer>&);
-    void			getSceneNames(BufferStringSet&,int& act) const;
-    void			setActiveScene(const char* scenenm);
+    void			getSceneNames(uiStringSet&,int& act) const;
+    void			setActiveScene(int idx);
     void			getActiveSceneName(BufferString&) const;
     int				getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
@@ -226,7 +226,7 @@ public:
 				       uiKeyBindingSettingsGroup,
 				       uiParent*,Settings&,
 				       "Mouse interaction",
-				       sFactoryKeyword());
+		       mToUiStringTodo(sFactoryKeyword()));
 
     uiKeyBindingSettingsGroup(uiParent*,Settings&);
 

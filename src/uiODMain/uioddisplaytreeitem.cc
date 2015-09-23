@@ -264,9 +264,11 @@ uiString uiODDisplayTreeItem::createDisplayName() const
 }
 
 
-const char* uiODDisplayTreeItem::getLockMenuText()
+uiString uiODDisplayTreeItem::getLockMenuText() const
 {
-    return visserv_->isLocked(displayid_) ? "Unlock" : "Lock";
+    return visserv_->isLocked(displayid_)
+	? uiStrings::sUnlock()
+	: uiStrings::sLock();
 }
 
 

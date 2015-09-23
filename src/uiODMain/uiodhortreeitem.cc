@@ -305,7 +305,7 @@ void uiODHorizonTreeItem::initMenuItems()
     childrenmnuitem_.text = tr("Select Children");
     delchildrenmnuitem_.text = tr("Delete Selected Children");
     lockmnuitem_.text = uiStrings::sLock();
-    unlockmnuitem_.text = tr("Unlock");
+    unlockmnuitem_.text = uiStrings::sUnlock();
 }
 
 
@@ -327,7 +327,7 @@ uiString uiODHorizonTreeItem::createDisplayName() const
 
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
-        res.append( uiString(" (%1)").arg(
+	res.append( toUiString(" (%1)").arg(
           toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
     }
 
@@ -446,7 +446,8 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &workflowsmnuitem_, true, false );
     mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
 
-    MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
+    MenuItem* trackmnu = menu->findItem(
+	    uiStrings::sTracking().getFullString() );
     if ( trackmnu )
     {
 	const Coord3& crd = uimenu->getPickedPos();
@@ -545,7 +546,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	setup.tkzs_ = maxcs;
 
 	uiDialog dlg( getUiParent(),
-		uiDialog::Setup("Positions","Specify positions",
+	uiDialog::Setup( uiStrings::sPosition(mPlural),
+			    tr("Specify positions"),
 				mODHelpKey(mPosProvSelHelpID) ) );
 	uiPosProvider pp( &dlg, setup );
 

@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 
 uiODVw2DFaultParentTreeItem::uiODVw2DFaultParentTreeItem()
-    : uiODVw2DTreeItem( "Fault" )
+    : uiODVw2DTreeItem( uiStrings::sFault() )
 {
 }
 
@@ -148,14 +148,14 @@ void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , faultview_(0)
 {}
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , faultview_(0)
 {
@@ -197,7 +197,7 @@ bool uiODVw2DFaultTreeItem::init()
     emobj->change.notify( mCB(this,uiODVw2DFaultTreeItem,emobjChangeCB) );
     displayMiniCtab();
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
@@ -292,7 +292,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 2 )

@@ -82,9 +82,8 @@ public:
     mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
-
-		Setup( const uiString& winttl=0 )
-		    : uiDialog::Setup(winttl.isSet() ? winttl : "File viewer",
+	Setup( const uiString& winttl = uiString::emptyString() )
+	    : uiDialog::Setup(winttl.isSet() ? winttl : tr("File viewer"),
 				      mNoDlgTitle,mNoHelpKey)
 		    , scroll2bottom_(false)
 		    , allowopen_(false)

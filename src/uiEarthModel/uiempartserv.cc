@@ -369,8 +369,7 @@ BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
     if ( emobj && !emobj->name().isEmpty() )
 	return emobj->name();
 
-    BufferString bs;
-    return bs;
+    return BufferString();
 }
 
 
@@ -378,6 +377,23 @@ const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject( emid );
     return emobj ? emobj->getTypeStr() : 0;
+}
+
+
+uiString uiEMPartServer::getUiName( const EM::ObjectID& emid ) const
+{
+    const EM::EMObject* emobj = em_.getObject( emid );
+    if ( emobj && !emobj->uiName().isEmpty() )
+    return emobj->uiName();
+
+    return uiString::emptyString();
+}
+
+
+uiString uiEMPartServer::getUiType( const EM::ObjectID& emid ) const
+{
+    const EM::EMObject* emobj = em_.getObject( emid );
+    return emobj ? emobj->getUserTypeStr() : uiString::emptyString();
 }
 
 

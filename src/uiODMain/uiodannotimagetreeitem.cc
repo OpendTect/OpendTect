@@ -40,7 +40,7 @@ bool ImageSubItem::init()
 	id = visSurvey::ImageDisplay::create();
 	visserv_->addObject( id, sceneID(), true );
 	displayid_ = id->id();
-	id->setName( name_.getFullString().buf() );
+    id->setName( name_ );
     }
     else
     {

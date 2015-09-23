@@ -39,7 +39,7 @@ public:
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODBodyDisplayTreeItem);
 public:
     			uiODBodyDisplayTreeItem(int,bool dummy);
     			uiODBodyDisplayTreeItem(const EM::ObjectID&);
@@ -49,6 +49,9 @@ public:
     void		displayAtSections(bool);
 
 protected:
+    static uiString	sCalcVolume() { return tr("Calculate Volume"); }
+    static uiString	sPickedPolygons() { return tr("Picked Polygons"); }
+
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     virtual void	createMenu(MenuHandler*,bool istb);
@@ -77,7 +80,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
-{
+{ mODTextTranslationClass(uiODBodyDisplayDataTreeItem);
 public:
     			uiODBodyDisplayDataTreeItem(const char* parenttype);
 protected:

@@ -38,10 +38,11 @@ ________________________________________________________________________
 #include "visseis2ddisplay.h"
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
+#include "emsurfacetr.h"
 
 
 uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
-    : uiODVw2DTreeItem( "Horizon 2D" )
+    : uiODVw2DTreeItem( EMHorizon2DTranslatorGroup::sTypeName() )
 {
 }
 
@@ -163,7 +164,7 @@ bool uiODVw2DHor2DParentTreeItem::init()
 
 
 uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem( uiString::emptyString() )
     , horview_(0)
     , emid_( emid )
     , trackerefed_(false)
@@ -177,7 +178,7 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
 
 
 uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int dispid, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem( uiString::emptyString() )
     , horview_(0)
     , emid_( -1 )
     , trackerefed_(false)
@@ -253,7 +254,7 @@ bool uiODVw2DHor2DTreeItem::init()
     emobj->change.notify( mCB(this,uiODVw2DHor2DTreeItem,emobjChangeCB) );
     displayMiniCtab();
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor2DTreeItem,checkCB) );
@@ -355,7 +356,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 	applMgr()->mpeServer()->saveSetup( mid );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 1 )
@@ -365,7 +366,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 
 	MultiID storedmid;
 	applMgr()->EMServer()->storeObject( emid_, true, storedmid );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = applMgr()->EMServer()->getUiName( emid_ );
 
 	const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
 	EM::EMM().getObject(emid_)->setMultiID( storedmid);

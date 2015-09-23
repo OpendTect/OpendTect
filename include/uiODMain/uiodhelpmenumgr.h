@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    BufferString	getAboutString();
+    uiString		getAboutString();
 
     uiODMenuMgr*	mnumgr_;
     uiMenu*		helpmnu_;

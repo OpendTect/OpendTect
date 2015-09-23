@@ -72,9 +72,9 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     utilmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sUtilities()) );
     helpmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sHelp()) );
 
-    dtecttb_ = new uiToolBar( &appl_, "OpendTect Tools", uiToolBar::Top );
-    viewtb_ = new uiToolBar( &appl_, "Graphical Tools", uiToolBar::Left );
-    mantb_ = new uiToolBar( &appl_, "Manage Data", uiToolBar::Right );
+    dtecttb_ = new uiToolBar( &appl_, tr("OpendTect Tools"), uiToolBar::Top );
+    viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
+    mantb_ = new uiToolBar( &appl_, tr("Manage Data"), uiToolBar::Right );
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
 
@@ -538,9 +538,10 @@ void uiODMenuMgr::fillProcMenu()
 
 // 2D <-> 3D
     uiMenu* itm2d3d = 0;
+    const uiString menutext = tr("2D <=> 3D");
     if ( SI().has3D() )
     {
-	itm2d3d = new uiMenu( "2D <=> 3D" );
+    itm2d3d = new uiMenu( menutext );
         csoitm_->insertItem( itm2d3d );
 	mInsertItem( itm2d3d, m3Dots(tr("Create 2D from 3D")),
 		     mCreate2DFrom3DMnuItm );
@@ -552,7 +553,7 @@ void uiODMenuMgr::fillProcMenu()
     {
 	if ( !itm2d3d )
 	{
-	    itm2d3d = new uiMenu( "2D <=> 3D" );
+	itm2d3d = new uiMenu( menutext );
 	    csoitm_->insertItem( itm2d3d );
 	}
 	mInsertItem( itm2d3d, m3Dots(tr("Create 3D from 2D")), m3DFrom2DMnuItm);
@@ -671,7 +672,7 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( scenemnu_, uiStrings::sNew(), mAddSceneMnuItm );
     mInsertItem( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
 
-    addtimedepthsceneitm_ = new uiAction( "Dummy",
+    addtimedepthsceneitm_ = new uiAction( ::toUiString("Dummy"),
 					  mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
 
@@ -704,7 +705,7 @@ void uiODMenuMgr::insertNewSceneItem( uiAction* action, int id )
 
 void uiODMenuMgr::updateSceneMenu()
 {
-    BufferStringSet scenenms;
+    uiStringSet scenenms;
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
 
@@ -728,12 +729,12 @@ void uiODMenuMgr::updateSceneMenu()
 	    itm->setCheckable( true );
 	}
 
-	itm->setText( scenenms.get(idx) );
+    itm->setText( scenenms[idx]);
 	itm->setChecked( idx==activescene );
     }
 
-    BufferString itmtxt( "New [" );
-    itmtxt += SI().zIsTime() ? "Depth]" : "Time]";
+    uiString itmtxt = tr( "New [%1]" )
+	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
     addtimedepthsceneitm_->setText( itmtxt );
 }
 
@@ -783,7 +784,7 @@ void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
 	    continue;
 
 	BufferString mnunm( "&" ); mnunm += nm;
-	mInsertItem( iconsmnu, mnunm, mViewIconsMnuItm+nms.size() );
+    mInsertItem( iconsmnu, toUiString(mnunm), mViewIconsMnuItm+nms.size() );
 	nms.add( nm );
     }
 }
@@ -1110,22 +1111,22 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
     }
 
     BufferString pm( "cube_inl" );
-    BufferString tt( "View In-line" );
+    uiString dir = uiStrings::sInline();
     curviewmode_ = ui3DViewer::Inl;
     switch( itmid )
     {
-	case 1: pm = "cube_crl"; tt = "View Cross-line";
+    case 1: pm = "cube_crl"; dir = uiStrings::sCrossline();
 		curviewmode_ = ui3DViewer::Crl; break;
-	case 2: pm = "cube_z"; tt = "View Z";
+    case 2: pm = "cube_z"; dir = uiStrings::sZ();
 		curviewmode_ = ui3DViewer::Z; break;
-	case 3: pm = "view_N"; tt = "View North";
+    case 3: pm = "view_N"; dir = uiStrings::sNorth(false);
 		curviewmode_ = ui3DViewer::Y; break;
-	case 4: pm = "view_NZ"; tt = "View North Z";
+    case 4: pm = "view_NZ"; dir = mJoinUiStrs(sNorth(false),sZ());
 		curviewmode_ = ui3DViewer::YZ; break;
     }
 
     viewtb_->setIcon( viewselectid_, pm );
-    viewtb_->setToolTip( viewselectid_, tt );
+    viewtb_->setToolTip( viewselectid_, tr("View %1").arg( dir ));
     sceneMgr().setViewSelectMode( curviewmode_ );
 }
 
@@ -1328,7 +1329,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
-	const int sceneid = sceneMgr().addScene( true, 0, "Map View" );
+    const int sceneid = sceneMgr().addScene( true, 0, tr("Map View") );
 	ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
 	if ( vwr ) vwr->setMapView( true );
     } break;
@@ -1366,7 +1367,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	     uiDialog::Setup(tr("Memory Information"),mNoDlgTitle,mNoHelpKey) );
 	uiTextBrowser* browser = new uiTextBrowser( &dlg );
 	browser->setText( text.buf() );
-	dlg.setCancelText( 0 );
+    dlg.setCancelText( uiString::emptyString() );
 	dlg.go();
     } break;
 
@@ -1395,10 +1396,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     default:
     {
-	if ( id>=mSceneSelMnuItm && id<=mSceneSelMnuItm +100 )
+    if ( id>=mSceneSelMnuItm && id<=mSceneSelMnuItm +100 )
 	{
-	    const char* scenenm = itm->text().getFullString();
-	    sceneMgr().setActiveScene( scenenm );
+	    sceneMgr().setActiveScene( id-mSceneSelMnuItm );
 	    itm->setChecked( true );
 	}
 
@@ -1419,7 +1419,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 }
 
 
-int uiODMenuMgr::ask2D3D( const char* txt, int res2d, int res3d, int rescncl )
+int uiODMenuMgr::ask2D3D( const uiString& txt, int res2d, int res3d,
+			  int rescncl )
 {
     int res = rescncl;
     if ( !SI().has2D() )
@@ -1439,7 +1440,7 @@ int uiODMenuMgr::ask2D3D( const char* txt, int res2d, int res3d, int rescncl )
 
 void uiODMenuMgr::manHor( CallBacker* )
 {
-    const int opt = ask2D3D( "Manage 2D or 3D Horizons", 1, 2, 0 );
+    const int opt = ask2D3D( tr("Manage 2D or 3D Horizons"), 1, 2, 0 );
     if ( opt == 0 ) return;
 
     mDoOp(Man,Hor,opt);

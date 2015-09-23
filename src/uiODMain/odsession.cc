@@ -226,13 +226,13 @@ bool ODSessionTranslator::retrieve( ODSession& session,
     { err = tr("Selected object is not an Session"); return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ 
+    {
 	err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
 	return false;
-	}
-    err = trans->read( session, *conn );
+    }
+    err = mToUiStringTodo(trans->read( session, *conn ));
     bool rv = err.isEmpty();
-    if ( rv ) err = trans->warningMsg();
+    if ( rv ) err = mToUiStringTodo(trans->warningMsg());
     return rv;
 }
 
@@ -254,7 +254,7 @@ bool ODSessionTranslator::store( const ODSession& session,
        err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
        return false;
     }
-    err = trans->write( session, *conn );
+    err = mToUiStringTodo(trans->write( session, *conn ) );
     return err.isEmpty();
 }
 

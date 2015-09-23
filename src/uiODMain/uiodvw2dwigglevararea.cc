@@ -33,7 +33,7 @@ ________________________________________________________________________
 
 
 uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
-    : uiODVw2DTreeItem( "Wiggle" )
+    : uiODVw2DTreeItem( tr("Wiggle") )
     , dummyview_(0)
     , menu_(0)
     , selattrmnuitem_(uiStrings::sSelAttrib())

@@ -68,11 +68,11 @@ protected:
 
 
 
-   void			setRemovedCB(CallBacker*);
-   void			addPickSet(Pick::Set* ps);
-   void			removePickSet(Pick::Set* ps);
+   void				setRemovedCB(CallBacker*);
+   void				addPickSet(Pick::Set* ps);
+   void				removePickSet(Pick::Set* ps);
 
-   BufferString		typestr_;
+   uiString			typestr_;
 };
 
 
@@ -216,14 +216,14 @@ protected: \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
     		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
-    const char*	oldSelKey() const { return typestr; } \
+    const char* oldSelKey() const { return typestr.getFullString().buf(); } \
     int		defScale() const 	{ return defsz; } \
 }
 
 
-mDefineParentItem(Arrow,"Arrows",1000);
-mDefineParentItem(Image,"Image",1000);
-mDefineParentItem(ScaleBar,"Scale Bar",1000);
+mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000);
+mDefineParentItem(Image,mToUiStringTodo("Image"),1000);
+mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000);
 
 
 #endif

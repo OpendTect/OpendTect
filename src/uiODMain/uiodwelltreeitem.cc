@@ -136,7 +136,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
-	wd->setName( wellname );
+    wd->setName( mToUiStringTodo(wellname));
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
@@ -211,21 +211,21 @@ void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = m3Dots(uiStrings::sProperties());
     propertiesmnuitem_.iconfnm = "disppars";
-    logviewermnuitem_.text = "2D Log Viewer ...";
-    gend2tmmnuitem_.text = "Tie Well to Seismic ...";
+    logviewermnuitem_.text = m3Dots(tr("2D Log Viewer"));
+    gend2tmmnuitem_.text = m3Dots(tr("Tie Well to Seismic"));
     gend2tmmnuitem_.iconfnm = "well_tie";
-    nametopmnuitem_.text = "Well Name (Top)";
-    namebotmnuitem_.text = "Well Name (Bottom)";
+    nametopmnuitem_.text = tr("Well Name (Top)");
+    namebotmnuitem_.text = tr("Well Name (Bottom)");
     markermnuitem_.text = uiStrings::sMarker(mPlural);
-    markernamemnuitem_.text = "Marker Names";
+    markernamemnuitem_.text = tr("Marker Names");
     showlogmnuitem_.text = uiStrings::sLogs() ;
-    attrmnuitem_.text = "Create Attribute Log ...";
-    logcubemnuitem_.text = "Create Log Cube ...";
+    attrmnuitem_.text = m3Dots(tr("Create Attribute Log"));
+    logcubemnuitem_.text = m3Dots(tr("Create Log Cube"));
     showmnuitem_.text = uiStrings::sShow() ;
-    editmnuitem_.text = "Edit Welltrack" ;
+    editmnuitem_.text = tr("Edit Welltrack" );
     storemnuitem_.text = uiStrings::sSave();
     storemnuitem_.iconfnm = "save" ;
-    amplspectrummnuitem_.text = "Show Amplitude Spectrum";
+    amplspectrummnuitem_.text = tr("Show Amplitude Spectrum");
 
     nametopmnuitem_.checkable = true;
     namebotmnuitem_.checkable = true;
@@ -308,7 +308,7 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
-	logmnuitems_ += new MenuItem( lognms.get( logidx ) );
+    logmnuitems_ += new MenuItem( mToUiStringTodo(lognms.get( logidx ) ));
 	mAddMenuItem(&amplspectrummnuitem_,logmnuitems_[logidx],true,false);
     }
 

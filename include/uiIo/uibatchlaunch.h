@@ -26,11 +26,11 @@ mExpClass(uiIo) uiProcSettings : public uiSettingsGroup
 { mODTextTranslationClass(uiProcSettings);
 public:
 			mDefaultFactoryInstantiation2Param(
-				uiSettingsGroup,
-				uiProcSettings,
-				uiParent*,Settings&,
-				"Processing",
-				sFactoryKeyword())
+		uiSettingsGroup,
+		uiProcSettings,
+		uiParent*,Settings&,
+		"Processing",
+		mToUiStringTodo(sFactoryKeyword()))
 
 			uiProcSettings(uiParent*,Settings&);
     bool		acceptOK();

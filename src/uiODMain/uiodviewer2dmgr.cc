@@ -483,7 +483,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	return;
     }
 
-    uiMenu menu( "Menu" );
+    uiMenu menu( uiStrings::sMenu() );
     Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
 					  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
@@ -520,7 +520,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    menu.insertAction( new uiAction(showztxt), 3 );
     }
 
-    menu.insertAction( new uiAction("Properties..."), 4 );
+    menu.insertAction( new uiAction(m3Dots(uiStrings::sProperties())), 4 );
 
     const int menuid = menu.exec();
     if ( menuid>=0 && menuid<4 )
@@ -779,7 +779,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
 	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
-	    newannot.txt_ = Survey::GM().getName( intpos.line );
+	newannot.txt_ = mToUiStringTodo(Survey::GM().getName( intpos.line ));
 	    x1intannots += newannot;
 	}
     }

@@ -76,7 +76,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	topgrp_ = postypefld_;
     }
 
-    static const char* createlinetxt = "Create from Wells";
+    uiString createlinetxt = tr("Create from Wells");
 
     if ( SI().has2D() )
     {

@@ -83,8 +83,19 @@ public:
     int		queueID() const { return queueid_; }
     		/*!<When OK is pressed (i.e. not cancel), a queue is executed.
 		    If you want something to be executed, add it to this queue.
-	        */ 
-		    
+	    */
+
+    void	addObject(const uiString& str,const CallBack& savecb,
+			  bool issaveas, const void* dataptr );
+	    /*!<Lets the object know that you have an object that should
+	    be added to the list of unsaved objects. Normally called
+	    when triggered by promptSaving.
+	    \param str	    Description of the object (e.g. "Horizon A")
+	    \param savecb   Callback that will save the object
+	    \param issaveas true if savecb will prompt user for a name
+	    \param dataptr  Pointer that can be retrieved during savecb
+	*/
+
     void	addObject(const char* str,const CallBack& savecb,bool issaveas,
 			  const void* dataptr );
     		/*!<Lets the object know that you have an object that should

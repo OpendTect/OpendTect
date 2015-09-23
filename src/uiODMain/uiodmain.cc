@@ -115,10 +115,10 @@ int ODMain( int argc, char** argv )
 
 
 #define mMemStatusFld 4
-static BufferString cputxt_;
+static uiString cputxt_;
 
 uiODMain::uiODMain( uiMain& a )
-    : uiMainWin(0,"OpendTect Main Window",5,true)
+    : uiMainWin(0,toUiString("OpendTect Main Window"),5,true)
     , uiapp_(a)
     , failed_(true)
     , applmgr_(0)
@@ -165,9 +165,7 @@ uiODMain::uiODMain( uiMain& a )
     memtimer_.start( 1000 );
 
     if ( !useallcpus )
-	cputxt_.set( "[cpu] " ).add( odnrcpus ).add( "/" ).add( systemnrcpus );
-    else
-	cputxt_.setEmpty();
+    cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
 }
 
 
@@ -216,7 +214,7 @@ bool uiODMain::ensureGoodSurveySetup()
     if ( !IOMan::validSurveySetup(errmsg) )
     {
 	std::cerr << errmsg << std::endl;
-	uiMSG().error( errmsg );
+    uiMSG().error( toUiString(errmsg) );
 	return false;
     }
     else if ( !IOM().isReady() )
@@ -343,20 +341,20 @@ void uiODMain::restoreSession()
 
 
 class uiODMainAutoSessionDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiODMainAutoSessionDlg);
 public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
-    : uiDialog(p,uiDialog::Setup("Auto-load session",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Auto-load session"),mNoDlgTitle,
                                  mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
 
-    usefld_ = new uiGenInput( this, "Auto-load session mode",
-			      BoolInpSpec(douse,"Enabled","Disabled") );
+    usefld_ = new uiGenInput( this, tr("Auto-load session mode"),
+	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
-    doselfld_ = new uiGenInput( this, "Use one for this survey",
+    doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
 			        BoolInpSpec(!id.isEmpty()) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
@@ -367,7 +365,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
     sessionfld_->setInput( id );
     sessionfld_->attach( alignedBelow, doselfld_ );
 
-    loadnowfld_ = new uiGenInput( this, "Load selected session now",
+    loadnowfld_ = new uiGenInput( this, tr("Load selected session now"),
 				  BoolInpSpec(true) );
     loadnowfld_->attach( alignedBelow, sessionfld_ );
 
@@ -636,7 +634,7 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 
 void uiODMain::updateCaption()
 {
-    uiString capt = uiString( "%1/%2" )
+    uiString capt = toUiString( "%1/%2" )
 	.arg( getProgramString() )
 	.arg( OD::Platform::local().shortName() );
 
@@ -662,8 +660,9 @@ bool uiODMain::closeOK()
     saveSettings();
 
     bool askedanything = false;
-    if ( !askStore(askedanything,uiString( "%1 %2")
-		   .arg( uiStrings::sClose() ).arg( programname_ ) ) )
+    if ( !askStore(askedanything,
+	  uiStrings::phrJoinStrings(uiStrings::sClose(),
+				    toUiString(programname_) ) ) )
     {
 	uiMSG().message(tr("Closing cancelled"));
 	return false;
@@ -693,7 +692,7 @@ bool uiODMain::closeOK()
 
 uiString uiODMain::getProgramString() const
 {
-    return uiString( "%1 V%2" ).arg( programname_ ).arg( GetFullODVersion() );
+    return toUiString( "%1 V%2" ).arg( programname_ ).arg( GetFullODVersion() );
 }
 
 

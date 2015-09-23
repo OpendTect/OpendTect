@@ -33,7 +33,7 @@ ________________________________________________________________________
 
 
 uiODVw2DFaultSSParentTreeItem::uiODVw2DFaultSSParentTreeItem()
-    : uiODVw2DTreeItem( "FaultStickSet" )
+    : uiODVw2DTreeItem( uiStrings::sFaultStickSet())
 {
 }
 
@@ -153,14 +153,14 @@ void uiODVw2DFaultSSParentTreeItem::addNewTempFaultSS( EM::ObjectID emid )
 
 
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , fssview_(0)
 {}
 
 
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( int id, bool )
-    : uiODVw2DTreeItem(0)
+    : uiODVw2DTreeItem(uiString::emptyString())
     , fssview_(0)
 {
     displayid_ = id;
@@ -199,7 +199,7 @@ bool uiODVw2DFaultSSTreeItem::init()
 
     emobj->change.notify( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
     displayMiniCtab();
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
@@ -295,7 +295,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 2 )

@@ -53,8 +53,8 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 {
     //setCtrlStyle( LeaveOnly );
 
-    objectfld_ = new uiGenInput( this, "Picked on",
-		BoolInpSpec(true,"Inl/Crl",uiStrings::sZSlice()) );
+    objectfld_ = new uiGenInput( this, tr("Picked on"),
+	BoolInpSpec(true,tr("Inl/Crl"),uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
 
     const BoolInpSpec horverspec( true, uiStrings::sHorizontal(), 
@@ -64,7 +64,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     horverfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
 
     // TODO: Support X, Y, Inl, Crl orientations
-    const BoolInpSpec xyspec( true, "X", "Y" );
+    const BoolInpSpec xyspec( true, uiStrings::sX(), uiStrings::sY() );
     inlcrlfld_= new uiGenInput( this, tr("Orientation"), xyspec );
     inlcrlfld_->attach( alignedBelow, objectfld_ );
     inlcrlfld_->valuechanged.notify( mCB(this,uiScaleBarDialog,changeCB) );
@@ -138,7 +138,7 @@ void changeCB( CallBacker* )
 {
     unitlbl_->setText( !objectfld_->getBoolValue() ||
 		       horverfld_->getBoolValue()
-		? SI().getXYUnitString(true) : zinf_.unitStr(true) );
+	? SI().getUiXYUnitString(true) : zinf_.def_.uiUnitStr(true) );
     propertyChange.trigger();
 }
 
@@ -174,7 +174,7 @@ bool ScaleBarSubItem::init()
 	visserv_->addObject( ad, sceneID(), true );
 	visserv_->setViewMode( false );
 	displayid_ = ad->id();
-	ad->setName( name_.getFullString().buf() );
+    ad->setName( name_ );
     }
 
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,

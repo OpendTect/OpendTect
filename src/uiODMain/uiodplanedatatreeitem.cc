@@ -400,9 +400,9 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zposf );
     const int zpos = mNINT32( zposf * SI().zDomain().userFactor() );
 
-    addinlitem_.text = uiString("Add In-line %1").arg( tk.lineNr() );
-    addcrlitem_.text = uiString("Add Cross-line %1").arg( tk.trcNr() );
-    addzitem_.text = uiString("Add Z-slice %1").arg( zpos );
+    addinlitem_.text = tr("Add In-line %1").arg( tk.lineNr() );
+    addcrlitem_.text = tr("Add Cross-line %1").arg( tk.trcNr() );
+    addzitem_.text = tr("Add Z-slice %1").arg( zpos );
 
     if ( orient_ == OD::InlineSlice )
     {

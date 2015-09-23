@@ -180,13 +180,13 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 
 #define mCommonInit \
-    , savemnuitem_("Save") \
-    , saveasmnuitem_("Save As ...") \
-    , displayplanemnuitem_ ( "Fault Planes" ) \
-    , displaystickmnuitem_ ( "Fault Sticks" ) \
-    , displayintersectionmnuitem_( "Only at Sections" ) \
-    , displayintersecthorizonmnuitem_( "Only at Horizons" ) \
-    , singlecolmnuitem_( "Use Single Color" ) \
+    , savemnuitem_( uiStrings::sSave() ) \
+    , saveasmnuitem_( m3Dots(uiStrings::sSaveAs() )) \
+    , displayplanemnuitem_( uiODFaultTreeItem::sFaultPlanes() ) \
+    , displaystickmnuitem_( uiODFaultTreeItem::sFaultSticks() ) \
+    , displayintersectionmnuitem_( uiODFaultTreeItem::sOnlyAtSections() ) \
+    , displayintersecthorizonmnuitem_( uiODFaultTreeItem::sOnlyAtHorizons() ) \
+    , singlecolmnuitem_( uiStrings::sUseSingleColor() ) \
 
 #define mCommonInit2 \
     displayplanemnuitem_.checkable = true; \
@@ -357,9 +357,9 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
 	if ( saveas && faultdisplay_ &&
-	     !applMgr()->EMServer()->getName(emid_).isEmpty() )
+	     !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
 	{
-	    faultdisplay_->setName( applMgr()->EMServer()->getName(emid_));
+	    faultdisplay_->setName( applMgr()->EMServer()->getUiName(emid_));
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -506,7 +506,7 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
     , faultsticksetdisplay_(0) \
     , savemnuitem_(uiStrings::sSave()) \
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs())) \
-    , onlyatsectmnuitem_("Only at Sections")
+    , onlyatsectmnuitem_( uiODFaultTreeItem::sOnlyAtSections() )
 
 #define mCommonInit2 \
     onlyatsectmnuitem_.checkable = true; \
@@ -655,7 +655,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	const BufferString emname = applMgr()->EMServer()->getName(emid_);
+	const uiString emname = applMgr()->EMServer()->getUiName(emid_);
 	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
 	    faultsticksetdisplay_->setName( emname );
@@ -703,8 +703,7 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( fd && fd->emFault() && fd->emFault()->auxData() )
 	fd->emFault()->auxData()->getAuxDataList( nmlist );
     const int nrsurfdata = nmlist.size();
-    BufferString itmtxt = "Fault Data (";
-    itmtxt += nrsurfdata; itmtxt += ") ...";
+    uiString itmtxt = m3Dots(tr("Fault Data (%1)").arg(nrsurfdata ));
     loadsurfacedatamnuitem_.text = itmtxt;
 
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
