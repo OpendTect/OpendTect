@@ -25,6 +25,10 @@ SET SRC="%3\data\localizations\source\%1.ts"
 SET DST="%4\data\localizations\%1.qm"
 SET LRELEASE=%2
 
+IF NOT EXIST "%4\data\localizations\" (
+    md "%4\data\localizations\"
+)
+
 REM If not done at all, just do it!
 IF NOT EXIST %DST% (
     "%LRELEASE%" -compress "%SRC%" -qm "%DST%"
