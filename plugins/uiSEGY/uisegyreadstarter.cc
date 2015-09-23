@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 #define mForSurvSetup forsurvsetup
 #define mSurvMapHeight 350
+#define mDefSize 250
 
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
@@ -173,9 +174,10 @@ void uiSEGYReadStarter::createHist()
     const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
+    hdsu.canvaswidth(mDefSize)
+	.canvasheight( mForSurvSetup ? mSurvMapHeight : mDefSize );
     ampldisp_ = new uiHistogramDisplay( histgrp, hdsu );
     ampldisp_->setTitle( tr("Amplitudes") );
-    ampldisp_->setPrefHeight( mForSurvSetup ? mSurvMapHeight : 250 );
     clipfld_ = new uiSpinBox( histgrp, 1, "Clipping percentage" );
     clipfld_->setInterval( 0.f, 49.9f, 0.1f );
     clipfld_->setValue( 0.1f );
@@ -196,10 +198,11 @@ void uiSEGYReadStarter::createHist()
     }
     else
     {
-	survmap_->setPrefWidth( 400 );
-	survmap_->setPrefHeight( 350 );
-	survmap_->attach( ensureBelow, infofld_ );
-	histgrp->attach( rightOf, survmap_ );
+	uiSplitter* spl = new uiSplitter( this );
+	survmap_->view().setPrefWidth( mDefSize );
+	spl->addGroup( survmap_ );
+	spl->addGroup( histgrp );
+	spl->attach( ensureBelow, infofld_ );
     }
 }
 
