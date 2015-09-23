@@ -70,20 +70,20 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
 		        "Data Table" );
-    tbl_->setColumnLabel( 0, "Well name" );
+    tbl_->setColumnLabel( 0, tr("Well Name") );
     const char* xunstr = SI().getXYUnitString();
     tbl_->setColumnLabel( 1, BufferString("[X",xunstr,"]") );
     tbl_->setColumnLabel( 2, BufferString("[Y",xunstr,"]") );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    const char* zunstr = zun.getFullString();
+    BufferString zunstr = zun.getFullString();
     tbl_->setColumnLabel( 3, BufferString("[KB",zunstr,"]") );
-    tbl_->setColumnToolTip( 3, Well::Info::sKeykbelev() );
-    tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,")]") );
-    tbl_->setColumnToolTip( 4, Well::Info::sKeyTD() );
-    tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,")]") );
-    tbl_->setColumnToolTip( 5, Well::Info::sKeygroundelev() );
+    tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
+    tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,"]") );
+    tbl_->setColumnToolTip( 4, Well::Info::sTD() );
+    tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,"]") );
+    tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
     tbl_->setColumnLabel( 6, "[UWI]" );
-    tbl_->setColumnToolTip( 6, Well::Info::sKeyuwid() );
+    tbl_->setColumnToolTip( 6, Well::Info::sUwid() );
 
     uiPushButton* pb = new uiPushButton( this, tr("Read file"),
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
@@ -179,16 +179,16 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeykbelev() ); fd_.bodyinfos_ += ti;
+    ti->setName( Well::Info::sKeyKBElev() ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( Well::Info::sKeyTD() ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeygroundelev() ); fd_.bodyinfos_ += ti;
-    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyuwid(),
+    ti->setName( Well::Info::sKeyGroundElev() ); fd_.bodyinfos_ += ti;
+    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
 					     Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                                       mODHelpKey(mTableImpDataSelwellsHelpID));
+				mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
 

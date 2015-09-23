@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "refcount.h"
 #include "sets.h"
+#include "uistring.h"
 #include "welld2tmodel.h"
 
 
@@ -40,7 +41,7 @@ class DisplayProperties;
 */
 
 mExpClass(Well) Info : public ::NamedObject
-{
+{ mODTextTranslationClass(Well::Info)
 public:
 
 			Info( const char* nm )
@@ -55,8 +56,8 @@ public:
 			  InjectDispose };
 			DeclareEnumUtils(WellType);
 
-    void                fillPar(IOPar&) const;
-    void                usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
     BufferString	uwid;
     BufferString	oper;
@@ -69,17 +70,28 @@ public:
     float		replvel;
     float		groundelev;
 
-    static const char*	sKeyuwid();
-    static const char*	sKeyoper();
-    static const char*	sKeystate();
-    static const char*	sKeycounty();
-    static const char*	sKeycoord();
-    static const char*	sKeykbelev();
+    static const char*	sKeyUwid();
+    static const char*	sKeyOper();
+    static const char*	sKeyState();
+    static const char*	sKeyCounty();
+    static const char*	sKeyCoord();
+    static const char*	sKeyKBElev();
     static const char*	sKeyTD();
-    static const char*	sKeyreplvel();
-    static const char*	sKeygroundelev();
-    static const char*  sKeywelltype();
+    static const char*	sKeyReplVel();
+    static const char*	sKeyGroundElev();
+    static const char*	sKeyWellType();
     static int		legacyLogWidthFactor();
+
+
+    static uiString	sUwid();
+    static uiString	sOper();
+    static uiString	sState();
+    static uiString	sCounty();
+    static uiString	sCoord();
+    static uiString	sKBElev();
+    static uiString	sTD();
+    static uiString	sReplVel();
+    static uiString	sGroundElev();
 };
 
 

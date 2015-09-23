@@ -267,7 +267,7 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 
     if ( mIsUdf(kbelev) && mIsUdf(kbelevinfile) )
 	mErrRet( tr( "%1 was not provided and cannot be computed" )
-		     .arg(Well::Info::sKeykbelev()) )
+		     .arg(Well::Info::sKBElev()) )
 
     if ( !computeMissingValues(pos,mdvals,kbelevinfile) )
 	return false;
@@ -475,7 +475,7 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
 				PropertyRef::Dist );
     mdti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += mdti;
-    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyuwid(),
+    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
 					     Table::Optional );
     return fd;
 }

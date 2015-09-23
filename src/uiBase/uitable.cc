@@ -1035,7 +1035,8 @@ void uiTable::setColumnLabel( int col, const uiString& label )
 
 void uiTable::setColumnToolTip( int col, const uiString& tt )
 {
-    body_->getRCItem(col,false).setToolTip( tt.getQString() );
+    QTableWidgetItem& itm = body_->getRCItem( col, false );
+    itm.setToolTip( tt.getQString() );
 }
 
 

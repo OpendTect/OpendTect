@@ -328,21 +328,21 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(Well::Info::sKeyuwid()) )
+	if ( astrm.hasKeyword(Well::Info::sKeyUwid()) )
 	    wd_.info().uwid = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeyoper()) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyOper()) )
 	    wd_.info().oper = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeystate()) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyState()) )
 	    wd_.info().state = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeycounty()) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyCounty()) )
 	    wd_.info().county = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeycoord()) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyCoord()) )
 	    wd_.info().surfacecoord.fromString( astrm.value() );
 	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||
-		  astrm.hasKeyword(Well::Info::sKeyreplvel()) )
+		  astrm.hasKeyword(Well::Info::sKeyReplVel()) )
 	    wd_.info().replvel = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyOldgroundelev()) ||
-		  astrm.hasKeyword(Well::Info::sKeygroundelev()) )
+		  astrm.hasKeyword(Well::Info::sKeyGroundElev()) )
 	    wd_.info().groundelev = astrm.getFValue();
     }
 
