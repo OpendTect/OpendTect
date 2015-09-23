@@ -43,7 +43,6 @@ PickSetDisplay::PickSetDisplay()
     , draggeridx_(-1)
     , unselcorlor_(Color::White())
     , selcolor_(Color::Green())
-//    , rotationaxis_(Coord3::udf())
 {
     markerset_->ref();
     markerset_->applyRotationToAllMarkers( false );
@@ -102,40 +101,42 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     dragger_->turnOn( false );
 }
 
-//
-//const Coord3 PickSetDisplay::calculateDraggerRotation( float& angle )
-//{
-//    const Coord3 defnormal( 0, 0, 1 );
-//    const Coord3 desnormal = getNormal();
-//    const float dotproduct = (float)defnormal.dot( desnormal );
-//
-//    Coord3 rotationaxis(0,0,1);
-//    angle = 0;
-//    if ( !mIsEqual(dotproduct,1,1e-3) )
-//    {
-//	const float zaxisangle =
-//	    mCast(float,Math::Atan2( desnormal.y, desnormal.x) );
-//	Quaternion rotation( defnormal, zaxisangle );
-//	rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
-//	rotation.getRotation( rotationaxis,angle );
-//    }
-//
-//    return rotationaxis;
-//}
-
 
 void PickSetDisplay::updateDragger()
 {
- /*   float angle=0;
-    if ( !rotationaxis_.isDefined() && dragger_ )
-    {
-	rotationaxis_ = calculateDraggerRotation( angle );
-	if ( rotationaxis_.isDefined() )
-	    dragger_->setRotation( rotationaxis_,angle );
-    }*/
 
     if ( dragger_ )
 	dragger_->updateDragger(false);
+}
+
+
+bool PickSetDisplay::draggerNormal() const
+{
+    if ( dragger_ )
+	return !dragger_->defaultRotation();
+
+    return false;
+}
+
+
+void PickSetDisplay::setDraggerNormal( const Coord3& normal )
+{
+    if ( normal.isUdf() )
+	return;
+    const Coord3 defnormal( 0, 0, 1 );
+    const float dotproduct = (float)defnormal.dot( normal );
+    Coord3 rotationaxis(0,0,1);
+    float angle = 0;
+    if ( !mIsEqual(dotproduct,1,1e-3) )
+    {
+	const float zaxisangle =
+	    mCast( float, Math::Atan2(normal.y,normal.x) );
+	Quaternion rotation( defnormal, zaxisangle );
+	rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
+	rotation.getRotation( rotationaxis, angle );
+    }
+
+    dragger_->setRotation( rotationaxis, angle );  
 }
 
 
@@ -680,24 +681,6 @@ bool PickSetDisplay::usePar( const IOPar& par )
 
     return true;
 }
-
-
-
-const Coord3 PickSetDisplay::getPlaneDataNormal()
-{
-    if ( !scene_ ) return Coord3(0,0,0);
-
-    for ( int idx = 0; idx<scene_->size(); idx++ )
-    {
-	visBase::DataObject* dataobj = scene_->getObject(idx);
-	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
-	if ( plane && plane->isOn() ) 
-	    return plane->getNormal(Coord3::udf()).normalize();
-    }
-
-    return Coord3( 0, 0, 0 );
-}
-
 
 
 void PickSetDisplay::setSelectionMode(bool yn)

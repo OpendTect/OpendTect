@@ -100,15 +100,13 @@ protected:
     virtual void		updateDragger();
 
     visBase::MarkerSet*		createOneMarker() const;
-    const Coord3		getPlaneDataNormal();
     void			setSelectionMode(bool);
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
 					    const visBase::PolygonSelection*);
     bool			removeSelections();
-
-
-    //const Coord3		calculateDraggerRotation(float&);
+    virtual bool		draggerNormal() const;
+    virtual void		setDraggerNormal(const Coord3&);
 
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;
@@ -129,11 +127,8 @@ private:
     Color			unselcorlor_;
     Color			selcolor_;
     BoolTypeSet			pickselstatus_;
-
-    //Coord3			rotationaxis_;
 };
 
 } // namespace visSurvey
 
 #endif
-

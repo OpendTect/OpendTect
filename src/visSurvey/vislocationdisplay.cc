@@ -18,6 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vissower.h"
 #include "vistransform.h"
+#include "visplanedatadisplay.h"
+#include "vishorizondisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "zaxistransform.h"
 
 
@@ -223,7 +226,14 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	updateDragger();
 
     if ( eventinfo.type == visBase::MouseClick && !eventinfo.pressed )
+    {
+	if ( !draggerNormal() )
+	{
+	    const Coord3 normal = getActivePlaneNormal( eventinfo );
+	    setDraggerNormal( normal );
+	}
 	updateDragger();
+    }
 
     const bool sowerenabled = set_->disp_.connect_ != Pick::Set::Disp::None;
 
@@ -940,5 +950,36 @@ bool LocationDisplay::usePar( const IOPar& par )
 }
 
 
+const Coord3 LocationDisplay::getActivePlaneNormal( 
+    const visBase::EventInfo& eventinfo ) const
+{
+    Coord3 normal = Coord3::udf();
+    for ( int idx = 0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	visBase::DataObject* dataobj =
+	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	if ( !dataobj ) continue;
+	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+	mDynamicCastGet( RandomTrackDisplay*, sdtd, dataobj );
+	mDynamicCastGet( HorizonDisplay*,hord,dataobj);
+	if ( plane && plane->isOn() )
+	{
+	    normal = plane->getNormal(Coord3::udf()).normalize();
+	    break;
+	}
+	if ( sdtd && sdtd->isOn() )
+	{
+	    normal = sdtd->getNormal(eventinfo.displaypickedpos).normalize();
+	    break;
+	}
+	if ( hord && hord->isOn() )
+	{
+	    normal = hord->getNormal(Coord3::udf()).normalize();
+	    break;
+	}
+    }
+
+    return normal;
+}
 
 }; // namespace visSurvey

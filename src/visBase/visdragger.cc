@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-
+#include "commondefs.h"
 #include "visdragger.h"
 
 #include "visevent.h"
@@ -212,6 +212,12 @@ Dragger::Dragger()
 void Dragger::setDefaultRotation()
 {
     setRotation( Coord3(0,1,0), -M_PI_2 );
+}
+
+
+bool Dragger::defaultRotation() const
+{
+    return rotation_== Coord3(0,1,0) && mIsEqual(rotangle_,-M_PI_2,1e-5);
 }
 
 
