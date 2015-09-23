@@ -82,12 +82,11 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 
     uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
     const bool hasauxdata = auxdatainfo.mids_.size();
-    const char* constantstr = "Constant";
-    const char* fromhorattribstr = "From Horizon Data";
+    const uiString fromhorattribstr = tr("From Horizon Data");
 
     usestartvalfld_ = new uiGenInput( this, tr("Start value"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
-			 constantstr, fromhorattribstr ) );
+		     uiStrings::sConstant(), fromhorattribstr ) );
     usestartvalfld_->setSensitive( hasauxdata );
     usestartvalfld_->valuechanged.notify(
 	    mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
@@ -104,19 +103,18 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 
     usegradientfld_ = new uiGenInput( this, tr("Gradient"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
-			 constantstr, fromhorattribstr ) );
+		     uiStrings::sConstant(), fromhorattribstr ) );
     usegradientfld_->setSensitive( hasauxdata );
     usegradientfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
     usegradientfld_->attach( alignedBelow, startvalfld_ );
-    BufferString gradientlabel = "Gradient constant ";
-    gradientlabel += "[/";
-    gradientlabel += SI().getZUnitString( false );
-    gradientlabel += "]";
     float gradient = surfacefiller_->getGradient();
     if ( !mIsUdf(gradient) )
 	gradient /= SI().zDomain().userFactor();
-    gradientfld_ = new uiGenInput( this, gradientlabel.buf(),
+
+    const uiString gradientlabel = tr( "Gradient constant [/%1]" )
+	.arg( SI().getUiZUnitString( false ) );
+    gradientfld_ = new uiGenInput( this, gradientlabel,
 	    FloatInpSpec( gradient ) );
     gradientfld_->attach( alignedBelow, usegradientfld_ );
 
@@ -127,8 +125,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     gradgridfld_->attach( alignedBelow, usegradientfld_ );
 
     StringListInpSpec str;
-    str.addString( "Vertical" );
-    //str.addString( "Normal" ); TODO
+    str.addString( uiStrings::sVertical() );
+    //str.addString( uiStrings::sNormal() ); TODO
     gradienttypefld_ = new uiGenInput( this, uiStrings::sType(), str );
     gradienttypefld_->attach( rightOf, usegradientfld_ );
     gradienttypefld_->display( false ); //!SI().zIsTime() );
@@ -136,7 +134,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     uiString labl = tr("Reference %1")
 	.arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
     userefdepthfld_ = new uiGenInput( this, labl,
-	    BoolInpSpec(surfacefiller_->usesRefZValue(),constantstr,
+	    BoolInpSpec(surfacefiller_->usesRefZValue(),uiStrings::sConstant(),
 	    uiStrings::sHorizon()));
     userefdepthfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
@@ -201,16 +199,16 @@ void uiSurfaceLimitedFiller::addSurfaceTableEntry( const IOObj& ioobj,
     if ( row==table_->nrRows() )
 	table_->insertRows( row, 1 );
 
-    BufferStringSet sidenms;
+    uiStringSet sidenms;
     if ( isfault )
     {
-	sidenms.add("Right");
-	sidenms.add("Left");
+	sidenms.add(uiStrings::sRight());
+	sidenms.add(uiStrings::sLeft());
     }
     else
     {
-	sidenms.add("Above");
-	sidenms.add("Below");
+	sidenms.add(uiStrings::sAbove());
+	sidenms.add(uiStrings::sBelow());
     }
 
     uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );

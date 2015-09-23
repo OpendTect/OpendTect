@@ -170,7 +170,7 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd )
     {
-	uiMSG().error( tr("Cannot read well data") );
+	uiMSG().error( uiStrings::phrCannotRead( uiStrings::sWell() ));
 	return false;
     }
 

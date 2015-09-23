@@ -36,12 +36,12 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain,ioobj,errmsg) )
     {
 	 chain = 0;
 	 strm << "Could not open volume processing: \"" << ioobj->name() <<
-	     "\". Error description: " << errmsg.buf();
+	     "\". Error description: " << errmsg.getFullString();
 
 	 return false;
     }

@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocchain.h"
 #include "ascstream.h"
+#include "uistrings.h"
 
 defineTranslatorGroup(VolProcessing,"Volume Processing Setup");
 defineTranslator(dgb,VolProcessing,mDGBKey);
@@ -26,21 +27,26 @@ mDefSimpleTranslatorSelector(VolProcessing);
 
 bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 				    const IOObj* ioobj,
-				    BufferString& bs )
+				    uiString& bs )
 {
-    if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
+    if ( !ioobj )
+    {
+	bs = uiStrings::phrCannotFindDBEntry(
+	   mToUiStringTodo(VolProcessingTranslatorGroup::sGroupName()));
+	return false;
+    }
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
     if ( !t )
     {
-	bs = "Selected object is not a Volume Processing Setup";
+	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
 	return false;
     }
     PtrMan<VolProcessingTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
+    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
 
-    bs = tr->read( vr, *conn );
+    bs = mToUiStringTodo(tr->read( vr, *conn ));
     if ( bs.isEmpty() )
     {
 	vr.setStorageID( ioobj->key() );
@@ -52,23 +58,28 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 
 
 bool VolProcessingTranslator::store( const VolProc::Chain& vr,
-				const IOObj* ioobj, BufferString& bs )
+				const IOObj* ioobj, uiString& bs )
 {
-    if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
+    if ( !ioobj )
+    {
+	bs = uiStrings::phrCannotFindDBEntry(
+		 mToUiStringTodo(VolProcessingTranslatorGroup::sGroupName()));
+	return false;
+    }
     mDynamicCast(VolProcessingTranslator*,PtrMan<VolProcessingTranslator> tr,
 		 ioobj->createTranslator())
     if ( !tr )
     {
-	bs = "Selected object is not a Volume Processing Setup";
+	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
 	return false;
     }
 
-    bs = "";
+    bs = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
+    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); }
     else
-	bs = tr->write( vr, *conn );
+	bs = mToUiStringTodo(tr->write( vr, *conn ));
 
     return bs.isEmpty();
 }

@@ -59,7 +59,7 @@ void uiStepDialog::addMultiInputFld()
     const int nrrows = nrinp==-1 ? 2 : nrinp;
     uiTable::Setup ts( nrrows, 1 );
     multiinpfld_ = new uiTable( this, ts, "Step inputs" );
-    multiinpfld_->setColumnLabel( 0, "Input" );
+    multiinpfld_->setColumnLabel( 0, uiStrings::sInput() );
     initInputTable( nrinp );
 }
 
@@ -347,7 +347,7 @@ bool uiChain::doSave()
     if ( !ioobj )
 	return doSaveAs();
 
-    BufferString errmsg;
+    uiString errmsg;
     if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
 	chain_.setStorageID( ioobj->key() );
@@ -367,7 +367,7 @@ bool uiChain::doSaveAs()
     if ( !dlg.go() || !dlg.nrChosen() )
 	 return false;
 
-    BufferString errmsg;
+    uiString errmsg;
     const IOObj* ioobj = dlg.ioObj();
     if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
@@ -394,7 +394,7 @@ void uiChain::updateList()
 	{
 	    displayname = chain_.getStep(idx)->factoryDisplayName();
 	    if ( !displayname )
-		displayname = key;
+		displayname = toUiString(key);
 	}
 
 	if ( idx>=steplist_->size() )
@@ -458,7 +458,7 @@ void uiChain::readPush( CallBacker* )
     if ( !dlg.go() || !dlg.nrChosen() )
 	return;
 
-    BufferString errmsg;
+    uiString errmsg;
     if ( VolProcessingTranslator::retrieve( chain_, dlg.ioObj(), errmsg ) )
     {
 	updObj( *dlg.ioObj() );

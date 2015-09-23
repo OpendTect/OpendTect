@@ -171,7 +171,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 
     PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
     if ( !wvlt )
-	mErrRet( tr("Cannot read wavelet") )
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sWavelet()) )
     if ( wvlt->size() < 1 )
 	mErrRet( tr("Empty wavelet") )
     od_ostream strm( fnm );

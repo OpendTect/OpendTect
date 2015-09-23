@@ -139,7 +139,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     {
 	Well::Reader rdr( wmid, *wd );
 	if ( !rdr.getLogs() )
-	    mErrRet( tr("Cannot read logs for selected well") )
+	    mErrRet( uiStrings::phrCannotRead(uiStrings::sWellLog(mPlural)) )
     }
 
     Well::LASImporter wdai( *wd );

@@ -34,12 +34,9 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
 {
     setHelpKey( mODHelpKey(mHorInterFillerHelpID) );
 
-    const char* hortxt = "Horizon";
-    topctio_->ctxt_.forread_ = bottomctio_->ctxt_.forread_ = true;
-
     usetophorfld_ = new uiGenInput( this, tr("Top boundary"),
-		    BoolInpSpec(hf->getTopHorizonID(),hortxt, 
-				tr("Survey top")) );
+	    BoolInpSpec(hf->getTopHorizonID(),uiStrings::sHorizon(),
+		tr("Survey top")) );
     usetophorfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
     if ( hf->getTopHorizonID() )
 	topctio_->setObj( *hf->getTopHorizonID() );
@@ -50,7 +47,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     topvalfld_->attach( alignedBelow, tophorfld_ );
 
     usebottomhorfld_ = new uiGenInput( this, tr("Bottom boundary"),
-		BoolInpSpec(hf->getBottomHorizonID(),hortxt,
+	BoolInpSpec(hf->getBottomHorizonID(),uiStrings::sHorizon(),
 			    tr("Survey bottom")) );
     usebottomhorfld_->valuechanged.notify(
 	    mCB(this, uiHorInterFiller,updateFlds) );
@@ -68,10 +65,9 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     usegradientfld_->attach( alignedBelow, bottomhorfld_ );
     usegradientfld_->valuechanged.notify(mCB(this,uiHorInterFiller,updateFlds));
 
-    BufferString gradientlabel = "Gradient [/";
-    gradientlabel += SI().getZUnitString( false );
-    gradientlabel += "]";
-    gradientfld_ = new uiGenInput( this, gradientlabel.buf(), FloatInpSpec() );
+    const uiString gradientlabel = tr( "Gradient [/%1]")
+	    .arg( SI().getUiZUnitString( false ) );
+    gradientfld_ = new uiGenInput( this, gradientlabel, FloatInpSpec() );
     const float gradient = hf->getGradient();
     if ( !mIsUdf(gradient) )
 	gradientfld_->setValue( gradient/SI().zDomain().userFactor() );

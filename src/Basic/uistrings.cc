@@ -199,14 +199,11 @@ uiString uiStrings::sAdd()
 uiString uiStrings::sASCII()
 { return tr("ASCII"); }
 
-uiString uiStrings::sAttributes()
-{ return tr("Attributes"); }
-
 uiString uiStrings::sBatchProgram()
 {return mJoinUiStrs(sBatch(),sProgram()); }
 
-uiString uiStrings::sColorTable()
-{ return tr("ColorTable"); }
+uiString uiStrings::sColorTable(int num)
+{ return tr("ColorTable",0,num); }
 
 uiString uiStrings::sCreate()
 { return tr("Create"); }
@@ -413,8 +410,8 @@ uiString uiStrings::sSelectPos()
 uiString uiStrings::sSelOutpFile()
 { return tr("Please select output file"); }
 
-uiString uiStrings::sSelection()
-{ return tr("Selection"); }
+uiString uiStrings::sSelection( int num )
+{ return tr("Selection", 0, num ); }
 
 uiString uiStrings::sSetting( int num )
 { return tr("Setting", 0, num ); }

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "factory.h"
 #include "uigroup.h"
+#include "uistrings.h"
 
 class uiGenInput;
 class InterpolationLayerModel;
@@ -39,12 +40,12 @@ protected:
 
 mExpClass(uiTools) uiZSliceInterpolationModel
 			: public uiInterpolationLayerModelGrp
-{
+{ mODTextTranslationClass(uiZSliceInterpolationModel)
 public:
 			mDefaultFactoryInstantiation1Param(
 				uiInterpolationLayerModelGrp,
 				uiZSliceInterpolationModel,uiParent*,
-				"ZSlices","Z Slices")
+			       "ZSlices",uiStrings::sZSlice(mPlural))
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

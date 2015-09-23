@@ -146,7 +146,7 @@ void uiHorizonAttrib::horSel( CallBacker* )
     const EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	uiString msg = tr("Cannot read '%1'").arg( ioobj->name() );
+	uiString msg = uiStrings::phrCannotRead( ioobj->uiName() );
 	uiMSG().error( msg );
 	return;
     }

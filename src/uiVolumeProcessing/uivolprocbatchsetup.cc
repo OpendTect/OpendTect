@@ -82,7 +82,7 @@ bool uiBatchSetup::retrieveChain()
     if ( !setupioobj || chain_->storageID()==setupioobj->key() )
 	return true;
 
-    BufferString errmsg;
+    uiString errmsg;
     MouseCursorChanger mcc( MouseCursor::Wait );
     const bool res =
 	VolProcessingTranslator::retrieve( *chain_, setupioobj, errmsg );

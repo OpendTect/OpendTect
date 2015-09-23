@@ -112,7 +112,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	return false;
 
     if ( !readHorizon() )
-	mErrRet( tr("Cannot read horizon") );
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) );
 
     if ( !savefldgrp_->acceptOK( cb ) )
 	return false;

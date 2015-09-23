@@ -62,12 +62,12 @@ void VolProcAttrib::prepareForComputeData()
 
     chain_ = new VolProc::Chain();
     chain_->ref();
-    BufferString errmsg;
+    uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_, ioobj, errmsg) )
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = tr("Cannot read processing setup.");
+	errmsg_ = uiStrings::phrCannotRead(tr("processing setup."));
 	if ( !errmsg.isEmpty() )
 	{
 	    errmsg_.append(tr(" Reason given: %1").arg( errmsg ) );
@@ -182,12 +182,12 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
     chain_ = new Chain();
     chain_->ref();
-    BufferString errmsg;
+    uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_, ioobj, errmsg) )
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = tr("Cannot read processing setup.");
+	errmsg_ = uiStrings::phrCannotRead(tr("processing setup.") );
 	if ( !errmsg.isEmpty() )
 	{
 	    errmsg_.append( tr( " Reason given: %1").arg( errmsg ) );

@@ -79,9 +79,9 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 				Well::DisplayProperties::Track& tp )
     : uiWellDispProperties(p,su,tp)
 {
-    dispabovefld_ = new uiCheckBox( this, tr("Above") );
+    dispabovefld_ = new uiCheckBox( this, uiStrings::sAbove() );
     dispabovefld_->attach( alignedBelow, colfld_ );
-    dispbelowfld_ = new uiCheckBox( this, tr("Below") );
+    dispbelowfld_ = new uiCheckBox( this, uiStrings::sBelow() );
     dispbelowfld_->attach( rightOf, dispabovefld_ );
     uiLabel* lbl = new uiLabel( this, tr("Display well name") , dispabovefld_ );
     lbl = new uiLabel( this, uiStrings::sTrack() );

@@ -300,8 +300,8 @@ mDefineInstanceCreatedNotifierAccess(uiSessionMan)
 
 
 uiSessionMan::uiSessionMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Sessions",mNoDlgTitle,
-				     mODHelpKey(mSessionManHelpID))
+: uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(tr("Sessions")),
+		    mNoDlgTitle, mODHelpKey(mSessionManHelpID))
 			       .nrstatusflds(1).modal(false),
 		   ODSessionTranslatorGroup::ioContext())
 {

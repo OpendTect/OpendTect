@@ -282,7 +282,7 @@ void uiAttrSelDlg::createSelectionButtons()
 	steerfld_->setSensitive( havesteered );
     }
 
-    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes() );
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttribute(mPlural) );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 

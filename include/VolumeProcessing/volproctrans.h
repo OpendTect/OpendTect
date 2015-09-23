@@ -23,7 +23,8 @@ namespace VolProc { class Chain; }
 \brief Translator implementation for Volume Processing Setups.
 */
 
-mExpClass(VolumeProcessing) VolProcessingTranslatorGroup : public TranslatorGroup
+mExpClass(VolumeProcessing) VolProcessingTranslatorGroup
+				: public TranslatorGroup
 {				      isTranslatorGroup(VolProcessing)
 public:
     			mDefEmptyTranslatorGroupConstructor(VolProcessing)
@@ -52,9 +53,9 @@ public:
 			//!< returns err msg or null on success
 
     static bool		retrieve(VolProc::Chain&,const IOObj*,
-	    			 BufferString&);
+				 uiString&);
     static bool		store(const VolProc::Chain&,const IOObj*,
-	    		      BufferString&);
+			      uiString&);
 };
 
 
@@ -62,7 +63,8 @@ public:
 \brief dgb Volume Processing Translator
 */
 
-mExpClass(VolumeProcessing) dgbVolProcessingTranslator : public VolProcessingTranslator
+mExpClass(VolumeProcessing) dgbVolProcessingTranslator
+					: public VolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 

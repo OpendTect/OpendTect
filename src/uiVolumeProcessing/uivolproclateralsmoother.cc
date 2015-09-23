@@ -55,10 +55,9 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
 
     stepoutgroup->setHAlignObj( crllenfld_ );
 
-    ismedianfld_ = new uiGenInput( this, sKey::Type(),
+    ismedianfld_ = new uiGenInput( this, uiStrings::sType(),
 	    BoolInpSpec( pars && pars->type_==Stats::Median,
-			 Stats::TypeNames()[(int)Stats::Median],
-			 Stats::TypeNames()[(int)Stats::Average]) );
+	     uiStrings::sMedian(), uiStrings::sAverage()) );
     ismedianfld_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
     ismedianfld_->attach( alignedBelow, stepoutgroup );
 
