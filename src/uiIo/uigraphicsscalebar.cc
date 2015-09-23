@@ -22,7 +22,7 @@ uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     , pxwidth_(pxwidth)
     , pxheight_(pxheight)
     , w2ui_(uiWorld2Ui())
-    , worldwidth_(pxwidth)
+    , worldwidth_((float)pxwidth)
 {
     initDefaultScale();
 }
