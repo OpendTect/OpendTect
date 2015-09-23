@@ -94,7 +94,6 @@ uiMPEPartServer::~uiMPEPartServer()
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
 
-    sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
     {
