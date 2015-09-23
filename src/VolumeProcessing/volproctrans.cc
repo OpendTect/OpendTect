@@ -32,7 +32,7 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
     if ( !ioobj )
     {
 	bs = uiStrings::phrCannotFindDBEntry(
-	   mToUiStringTodo(VolProcessingTranslatorGroup::sGroupName()));
+	   VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
@@ -63,7 +63,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
     if ( !ioobj )
     {
 	bs = uiStrings::phrCannotFindDBEntry(
-                 mToUiStringTodo(VolProcessingTranslatorGroup::sGroupName()));
+                 VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
     mDynamicCast(VolProcessingTranslator*,PtrMan<VolProcessingTranslator> tr,
