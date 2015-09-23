@@ -34,11 +34,11 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    uiString mess;
 	    if ( !ioobj_.isSubdir() )
 	    {
-		mess = tr("Delete '%1'%2");
+		mess = tr("Permanently Delete '%1'%2");
 		mess.arg( ioobj_.name() );
 		mess.arg( isoutside ? tr("\nFile is not in current survey.\n"
-				     "Specify what you would like to remove")
-				    : "?" );
+				     "Specify what you would like to delete")
+				    : " from Database?" );
 	    }
 	    else
 	    {
