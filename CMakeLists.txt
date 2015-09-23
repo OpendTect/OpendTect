@@ -7,10 +7,7 @@
 
 cmake_minimum_required ( VERSION 2.8.5 )
 
-if ( UNIX )
-    add_definitions( "-DGL_HEADER_HAS_GLUINT64" )
-    add_definitions( "-DGL_HEADER_HAS_GLINT64" )
-endif()
+find_package( OpenGL )
 
 if ( CMAKE_VERSION VERSION_LESS 2.8.11 )
 else()
