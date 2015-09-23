@@ -100,7 +100,7 @@ protected:
     virtual void		updateDragger();
     visBase::MarkerSet*		createOneMarker() const;
     
-    void			setSelectionMode(bool);
+    void			turnOnSelectionMode(bool);
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
 					    const visBase::PolygonSelection*);

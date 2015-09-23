@@ -526,7 +526,7 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
 	if ( ms )
 	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
-
+	setSelectionMode( selectionmode_ );
     }
 }
 
@@ -1139,12 +1139,22 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 	    scene->getPolySelection()->setSelectionType(
 	    (visBase::PolygonSelection::SelectionType) seltype_ );
 	}
-
-	const TypeSet<int>& sel = visBase::DM().selMan().selected();
-	if ( sel.size()!=1 ) return;
-	mDynamicCastGet( visSurvey::SurveyObject*,so,getObject(sel[0]) );
-	if ( so )
-	    so->setSelectionMode( isSelectionModeOn() );
+	if ( getEventObjId()>=0 )
+	{
+	    mDynamicCastGet(
+		visSurvey::SurveyObject*, so, getObject(getEventObjId()) );
+	    if ( so )
+	    {
+		for ( int idx=0; idx<scene->size(); idx++ )
+		{
+		    mDynamicCastGet(
+		      visSurvey::SurveyObject*,everyso,scene->getObject(idx) );
+		    if ( everyso )
+			everyso->turnOnSelectionMode( false );
+		}
+		so->turnOnSelectionMode( isSelectionModeOn() );
+	    }
+	}
     }
 
     selectionmode_ = mode;

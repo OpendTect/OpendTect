@@ -132,6 +132,7 @@ public:
     void			updateKnotMarkers();
 
     void			setStickSelectMode(bool yn);
+    void			turnOnSelectionMode(bool);
     bool			isInStickSelectMode() const;
 
     const LineStyle*		lineStyle() const;

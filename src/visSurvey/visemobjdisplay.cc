@@ -85,7 +85,7 @@ EMObjectDisplay::EMObjectDisplay()
 
 EMObjectDisplay::~EMObjectDisplay()
 {
-    setSelectionMode( false );
+    turnOnSelectionMode( false );
 
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = 0;
@@ -765,7 +765,7 @@ void EMObjectDisplay::setPixelDensity( float dpi )
 }
 
 
-void EMObjectDisplay::setSelectionMode( bool yn )
+void EMObjectDisplay::turnOnSelectionMode( bool yn )
 {
     ctrldown_ = false;
 

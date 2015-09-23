@@ -71,7 +71,7 @@ public:
     virtual void		setOnlyAtSectionsDisplay(bool yn);
     virtual bool		getOnlyAtSectionsDisplay() const;
 
-    virtual void		setSelectionMode(bool);
+    virtual void		turnOnSelectionMode(bool);
     bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);

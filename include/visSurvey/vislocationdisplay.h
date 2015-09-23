@@ -77,7 +77,7 @@ public:
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&) const;
     virtual bool                usePar(const IOPar&);
-    virtual void		setSelectionMode(bool){};
+    virtual void		turnOnSelectionMode(bool){};
 
     int				getPickIdx(visBase::DataObject*) const;
 

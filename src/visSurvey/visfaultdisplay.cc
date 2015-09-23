@@ -1579,6 +1579,10 @@ void FaultDisplay::setStickSelectMode( bool yn )
 }
 
 
+void FaultDisplay::turnOnSelectionMode( bool yn )
+{ setStickSelectMode(yn); }
+
+
 void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 {
     if ( !stickselectmode_ || !fault_ || !scene_ || !displaysticks_ ||

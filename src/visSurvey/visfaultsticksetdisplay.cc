@@ -1142,6 +1142,10 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 }
 
 
+void FaultStickSetDisplay::turnOnSelectionMode( bool yn )
+{  setStickSelectMode( yn ); }
+
+
 void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 {
     if ( !stickselectmode_ || !fault_ || !scene_ || !isOn() || !isSelected() )

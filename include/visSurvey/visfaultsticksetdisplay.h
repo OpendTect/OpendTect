@@ -102,6 +102,7 @@ public:
     bool			displayedOnlyAtSections() const;
 
     void			setStickSelectMode(bool yn);
+    void			turnOnSelectionMode(bool);
     bool			isInStickSelectMode() const;
 
     bool			allowsPicks() const		{ return true; }
