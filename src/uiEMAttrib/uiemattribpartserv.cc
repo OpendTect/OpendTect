@@ -54,9 +54,7 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
-    if ( horshiftdlg_ )
-	horshiftdlg_->close();
-
+    delete horshiftdlg_;
     delete aroundhor2ddlg_;
     delete aroundhor3ddlg_;
     delete betweenhor2ddlg_;
