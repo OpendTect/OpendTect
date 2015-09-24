@@ -178,7 +178,7 @@ endif
 rsync --checksum *.ts ${binarydir}/data/localizations/generated
 
 #Remvoe temporary dir
-# \rm -rf  ${tmpoddir}
+\rm -rf  ${tmpoddir}
 
 #Go back to starting dir
 cd ${olddir}
