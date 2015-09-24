@@ -146,7 +146,7 @@ uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
-    batchfld_->jobSpec().prognm_ = "od_isochron";
+    batchfld_->jobSpec().prognm_ = "od_isopach";
 }
 
 
