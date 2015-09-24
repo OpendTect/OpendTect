@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
-        : uiGroup(p,"Create Isochron")
+	: uiGroup(p,"Create Isochron")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
 	, baseemobj_(0)
@@ -58,8 +58,9 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
 	horsel_->attach( alignedBelow, basesel_ );
     }
 
-    attrnmfld_ = new uiGenInput( this, uiStrings::sAttribName(), 
+    attrnmfld_ = new uiGenInput( this, uiStrings::sAttribName(),
 				 StringInpSpec() );
+    attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, horsel_ );
     toHorSel(0);
 
@@ -67,7 +68,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     {
 	msecsfld_ = new uiGenInput( this, tr("Output in"),
 				BoolInpSpec(true,tr("Milliseconds"),
-                                tr("Seconds")) );
+				tr("Seconds")) );
 	msecsfld_->attach( alignedBelow, attrnmfld_ );
     }
 
@@ -120,7 +121,7 @@ bool uiIsochronMakerGrp::chkInputFlds()
 bool uiIsochronMakerGrp::fillPar( IOPar& par )
 {
     par.set( IsochronMaker::sKeyHorizonID(), basesel_ ? basesel_->ioobj()->key()
-	   					     : baseemobj_->multiID() );
+						      : baseemobj_->multiID() );
     par.set( IsochronMaker::sKeyCalculateToHorID(), horsel_->ioobj()->key() );
     par.set( IsochronMaker::sKeyAttribName(), attrnmfld_->text() );
     if ( msecsfld_ )
@@ -197,7 +198,7 @@ bool uiIsochronMakerBatch::acceptOK( CallBacker* )
 //uiIsochronMakerDlg
 uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
     : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
-                        mODHelpKey(mIsopachMakerHelpID) ))
+			mODHelpKey(mIsopachMakerHelpID)))
     , dps_( new DataPointSet(false,true) )
 {
     grp_ = new uiIsochronMakerGrp( this, emid );
