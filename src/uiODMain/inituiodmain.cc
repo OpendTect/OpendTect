@@ -14,12 +14,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsession.h"
 
 #include "uiodscenemgr.h"
+#include "uiodvolproctreeitem.h"
 
 mDefModInitFn(uiODMain)
 {
     mIfNotFirstTime( return );
-    
+
     ODSessionTranslatorGroup::initClass();
     dgbODSessionTranslator::initClass();
     uiKeyBindingSettingsGroup::initClass();
+    VolProc::uiDataTreeItem::initClass();
 }

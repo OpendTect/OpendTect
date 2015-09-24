@@ -23,10 +23,10 @@ mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(uiDataTreeItem);
 public:
    static void			initClass();
+				uiDataTreeItem(const char* parenttype,
+					       const MultiID* setupmid=0);
    				~uiDataTreeItem();
 				
-				uiDataTreeItem(const char* parenttype);
-
     bool			selectSetup();
 
     static const char*		sKeyVolumeProcessing()
@@ -50,7 +50,7 @@ protected:
 
 };
 
-}; //namespace
+} // namespace VolProc
 
 #endif
 
