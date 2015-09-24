@@ -118,6 +118,9 @@ macro ( create_package PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				     ${COPYFROMDATADIR}/rsm
 				     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/rsm )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/od_main_debug.bat
+			     ${COPYTOLIBDIR}/od_main_debug.bat )
 	endif()
     endif()
 
