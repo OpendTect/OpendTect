@@ -22,24 +22,24 @@ ________________________________________________________________________
 
 static const int sBlockSize = 1000;
 
-const char* IsopachMaker::sKeyHorizonID()
+const char* IsochronMaker::sKeyHorizonID()
 { return "Horizon ID"; }
-const char* IsopachMaker::sKeyCalculateToHorID()
+const char* IsochronMaker::sKeyCalculateToHorID()
 { return "Calculate to Horizon"; }
-const char* IsopachMaker::sKeyAttribName()
+const char* IsochronMaker::sKeyAttribName()
 { return "Attribute name"; }
-const char* IsopachMaker::sKeyOutputInMilliSecYN()
+const char* IsochronMaker::sKeyOutputInMilliSecYN()
 { return "Output in milliseconds"; }
-const char* IsopachMaker::sKeyIsOverWriteYN()
+const char* IsochronMaker::sKeyIsOverWriteYN()
 { return "Is overwrite"; }
 
-IsopachMaker::IsopachMaker( const EM::Horizon3D& hor1,
+IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 			    const EM::Horizon3D& hor2,
 			    const char* attrnm, int dataidx, DataPointSet* dps )
-    : Executor("Create isopach")
+    : Executor("Creating Isochron")
     , hor1_(hor1)
     , hor2_(hor2)
-    , msg_(tr("Creating isopach"))
+    , msg_(tr("Creating Isochron"))
     , dataidx_(dataidx)
     , dps_(dps)
     , sectid1_(hor1.sectionID(0))
@@ -65,13 +65,13 @@ IsopachMaker::IsopachMaker( const EM::Horizon3D& hor1,
 }
 
 
-IsopachMaker::~IsopachMaker()
+IsochronMaker::~IsochronMaker()
 {
     delete iter_;
 }
 
 
-int IsopachMaker::nextStep()
+int IsochronMaker::nextStep()
 {
     mAllocVarLenArr( float, vals, dps_ ? dps_->bivSet().nrVals() : 0 );
     int startsourceidx = mUdf(int);
@@ -129,7 +129,7 @@ int IsopachMaker::nextStep()
 }
 
 
-int IsopachMaker::finishWork()
+int IsochronMaker::finishWork()
 {
     if ( dps_ )
     {
@@ -145,7 +145,7 @@ int IsopachMaker::finishWork()
 }
 
 
-bool IsopachMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
+bool IsochronMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 				  bool overwrite, od_ostream* strm )
 {
     PtrMan<Executor> datasaver =

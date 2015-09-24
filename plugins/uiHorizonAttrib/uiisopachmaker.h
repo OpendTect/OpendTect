@@ -24,13 +24,13 @@ class DataPointSet;
 namespace EM { class EMObject; }
 
 
-/*! \brief Create isopach as attribute of horizon */
+/*! \brief Create isochron as attribute of horizon */
 
-mClass(uiHorizonAttrib) uiIsopachMakerGrp : public uiGroup
-{ mODTextTranslationClass(uiIsopachMakerGrp);
+mClass(uiHorizonAttrib) uiIsochronMakerGrp : public uiGroup
+{ mODTextTranslationClass(uiIsochronMakerGrp);
 public:
-			uiIsopachMakerGrp(uiParent*,EM::ObjectID);
-			~uiIsopachMakerGrp();
+			uiIsochronMakerGrp(uiParent*,EM::ObjectID);
+			~uiIsochronMakerGrp();
 
     bool		chkInputFlds();
     bool		fillPar(IOPar&);
@@ -51,36 +51,36 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiIsopachMakerBatch : public uiDialog
-{ mODTextTranslationClass(uiIsopachMakerBatch);
+mClass(uiHorizonAttrib) uiIsochronMakerBatch : public uiDialog
+{ mODTextTranslationClass(uiIsochronMakerBatch);
 public:
 
-			uiIsopachMakerBatch(uiParent*);
+			uiIsochronMakerBatch(uiParent*);
 protected:
     bool		prepareProcessing();
     bool		fillPar();
     bool		acceptOK(CallBacker*);
 
-    uiIsopachMakerGrp*		grp_;
+    uiIsochronMakerGrp*		grp_;
     uiBatchJobDispatcherSel*	batchfld_;
     bool			isoverwrite_;
 };
 
 
-mClass(uiHorizonAttrib) uiIsopachMakerDlg : public uiDialog
-{ mODTextTranslationClass(uiIsopachMakerDlg);
+mClass(uiHorizonAttrib) uiIsochronMakerDlg : public uiDialog
+{ mODTextTranslationClass(uiIsochronMakerDlg);
 public:
-			uiIsopachMakerDlg(uiParent*,EM::ObjectID);
-			~uiIsopachMakerDlg();
+			uiIsochronMakerDlg(uiParent*,EM::ObjectID);
+			~uiIsochronMakerDlg();
 
-    const char*		attrName() const{ return grp_->attrName(); }
+    const char*		attrName() const	{ return grp_->attrName(); }
     const DataPointSet&	getDPS()		{ return *dps_; }
 
 protected:    
     bool		acceptOK(CallBacker*);
     bool		doWork();
 
-    uiIsopachMakerGrp*	grp_;
+    uiIsochronMakerGrp* grp_;
     DataPointSet*	dps_;
 };
 

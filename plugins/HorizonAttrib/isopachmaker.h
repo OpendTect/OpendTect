@@ -20,20 +20,19 @@ class od_ostream;
 class DataPointSet;
 namespace EM{ class Horizon3D; class EMObjectIterator; }
 
-mExpClass(HorizonAttrib) IsopachMaker : public Executor
-{ mODTextTranslationClass(IsopachMaker);
+mExpClass(HorizonAttrib) IsochronMaker : public Executor
+{ mODTextTranslationClass(IsochronMaker)
 public:
-			IsopachMaker(const EM::Horizon3D&,const EM::Horizon3D&,
-			     	     const char* attrnm,int dataidx,
-				     DataPointSet* dps=0);
-			~IsopachMaker();
+			IsochronMaker(const EM::Horizon3D&,const EM::Horizon3D&,
+				      const char* attrnm,int dataidx,
+				      DataPointSet* dps=0);
+			~IsochronMaker();
 
     int			nextStep();
     int			finishWork();
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ 
-						return tr("Positions handled"); 
-						}
+    uiString		uiNrDoneText() const
+			{ return tr("Positions handled"); }
     od_int64 		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totnr_; }
 

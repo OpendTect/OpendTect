@@ -51,8 +51,8 @@ mDefODPluginInfo(uiHorizonAttrib)
 	"The 'Horizon' Attribute allows getting values from horizons.\n"
 	"Not to be confused with calculating attributes on horizons.\n"
 	"It can even be useful to apply the 'Horizon' attribute on horizons.\n"
-	"Also, the Stratal Amplitude is provided by this plugin,\n"
-	"and the writing of flattened cubes" ) );
+	"Also, the Stratal Amplitude and Isochron is provided by this plugin,\n"
+	"as well as the writing of flattened cubes" ) );
     return &retpi;
 }
 
@@ -65,8 +65,8 @@ public:
     void		updateMenu(CallBacker*);
     void		makeStratAmp(CallBacker*);
     void		doFlattened(CallBacker*);
-    void		doIsopach(CallBacker*);
-    void		doIsopachThruMenu(CallBacker*);
+    void		doIsochron(CallBacker*);
+    void		doIsochronThruMenu(CallBacker*);
     void		doContours(CallBacker*);
     void		calcPolyVol(CallBacker*);
     void		calcHorVol(CallBacker*);
@@ -74,7 +74,7 @@ public:
     void		dataReadyCB(CallBacker*);
 
     uiVisMenuItemHandler flattenmnuitemhndlr_;
-    uiVisMenuItemHandler isopachmnuitemhndlr_;
+    uiVisMenuItemHandler isochronmnuitemhndlr_;
     uiVisMenuItemHandler contourmnuitemhndlr_;
     uiVisMenuItemHandler horvolmnuitemhndlr_;
     uiVisMenuItemHandler polyvolmnuitemhndlr_;
@@ -94,8 +94,8 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	, dpspickdlg_(0)
 	, flattenmnuitemhndlr_(
 		mMkPars("Write Flattened cube ...",doFlattened),"Workflows")
-	, isopachmnuitemhndlr_(
-		mMkPars("Calculate Isopach ...",doIsopach),"Workflows")
+	, isochronmnuitemhndlr_(
+		mMkPars("Calculate Isochron ...",doIsochron),"Workflows")
 	, contourmnuitemhndlr_(
 		mMkPars("Contour Display",doContours),"Add",995)
 	, horvolmnuitemhndlr_(
@@ -123,8 +123,8 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 	itm->getMenu()->insertItem( new uiAction("Stratal Amplitude ...",
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    itm->getMenu()->insertItem( new uiAction("Isopach ...",
-			    mCB(this,uiHorAttribPIMgr,doIsopachThruMenu)) );
+    itm->getMenu()->insertItem( new uiAction("Isochron ...",
+			    mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
 }
 
 
@@ -147,9 +147,9 @@ void uiHorAttribPIMgr::doFlattened( CallBacker* )
 }
 
 
-void uiHorAttribPIMgr::doIsopach( CallBacker* )
+void uiHorAttribPIMgr::doIsochron( CallBacker* )
 {
-    const int displayid = isopachmnuitemhndlr_.getDisplayID();
+    const int displayid = isochronmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     if ( !visserv->canAddAttrib(displayid) )
     {
@@ -162,7 +162,7 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
     if ( !parent ) return;
 
-    uiIsopachMakerDlg dlg( appl_, hd->getObjectID() );
+    uiIsochronMakerDlg dlg( appl_, hd->getObjectID() );
     if ( !dlg.go() )
 	return;
 
@@ -179,9 +179,9 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
 }
 
 
-void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
+void uiHorAttribPIMgr::doIsochronThruMenu( CallBacker* )
 {
-    uiIsopachMakerBatch dlg( appl_ );
+    uiIsochronMakerBatch dlg( appl_ );
     if ( !dlg.go() )
 	return;
 }
