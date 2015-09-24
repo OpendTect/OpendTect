@@ -57,11 +57,10 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 }
 
 
-static void adaptCtxt4Steering( const IOObjContext& ct,
+static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
 				const uiSeisSel::Setup& su )
 {
-    IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
-
+    IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
@@ -71,14 +70,24 @@ static void adaptCtxt4Steering( const IOObjContext& ct,
 		Seis::is2D(su.geom_) ? TwoDDataSeisTrcTranslator::translKey()
 				     : CBVSSeisTrcTranslator::translKey() );
     }
+
+    return ctxt;
 }
 
 
-static const CtxtIOObj& getSelDlgCtio( const CtxtIOObj& c,
-					const uiSeisSel::Setup& s )
+static CtxtIOObj& adaptCtio4Steering( CtxtIOObj& ct, const uiSeisSel::Setup& su)
 {
-    adaptCtxt4Steering( c.ctxt, s );
-    return c;
+    ct.ctxt = adaptCtxt4Steering( ct.ctxt, su );
+    return ct;
+}
+
+
+static CtxtIOObj getCtio4Steering( const CtxtIOObj& ct,
+				const uiSeisSel::Setup& su )
+{
+    CtxtIOObj ctio( ct );
+    ctio.ctxt = adaptCtxt4Steering( ctio.ctxt, su );
+    return ctio;
 }
 
 
@@ -93,7 +102,7 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
-    : uiIOObjSelDlg(p,getSelDlgSU(sssu),getSelDlgCtio(c,sssu))
+    : uiIOObjSelDlg(p,getSelDlgSU(sssu),getCtio4Steering(c,sssu))
     , compfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
@@ -238,18 +247,10 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 }
 
 
-static CtxtIOObj& getCtxtIOObj( CtxtIOObj& c, const uiSeisSel::Setup& s )
-{
-    adaptCtxt4Steering( c.ctxt, s );
-    return c;
-}
-
-
-static const IOObjContext& getIOObjCtxt( const IOObjContext& c,
+static IOObjContext getIOObjCtxt( const IOObjContext& c,
 					 const uiSeisSel::Setup& s )
 {
-    adaptCtxt4Steering( c, s );
-    return c;
+    return adaptCtxt4Steering( c, s );
 }
 
 
@@ -269,7 +270,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getCtxtIOObj(c,su),mkSetup(su,c.ctxt.forread))
+	: uiIOObjSel(p,adaptCtio4Steering(c,su),mkSetup(su,c.ctxt.forread))
 	, seissetup_(mkSetup(su,c.ctxt.forread))
 	, othdombox_(0)
 	, compnr_(0)
