@@ -123,6 +123,7 @@ protected:
     void		propChangedCB(CallBacker*);
     void		prepareNewAppearances(BufferStringSet oldgathernms,
 	    				      BufferStringSet newgathernms);
+    bool		getStoredAppearance(PSViewAppearance&) const;
 };
 
 
@@ -194,7 +195,8 @@ protected:
 mClass(uiPreStackProcessing) uiViewer2DControl : public uiFlatViewStdControl
 { mODTextTranslationClass(uiViewer2DControl)
 public:
-			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&);
+			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&,
+					  bool isstored);
 			~uiViewer2DControl();
 
     Notifier<uiViewer2DControl> posdlgcalled_;
@@ -214,6 +216,7 @@ protected:
     uiColorTableSel*		ctabsel_;
     TypeSet<GatherInfo>		gatherinfos_;
     PreStackView::uiPSMultiPropDlg* pspropdlg_;
+    bool			isstored_;
 
     void		doPropertiesDialog(int vieweridx);
 
