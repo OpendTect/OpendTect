@@ -353,11 +353,14 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 }
 
 
-void PolygonBodyDisplay::removeSelection( const Selector<Coord3>& selector,
-	TaskRunner* tr )
+bool PolygonBodyDisplay::removeSelections( TaskRunner* )
 {
-    if ( polygonsurfeditor_ )
-	polygonsurfeditor_->removeSelection( selector );
+    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    if ( !selector || !polygonsurfeditor_ )
+	return false;
+
+    polygonsurfeditor_->removeSelection( *selector );
+    return true;
 }
 
 

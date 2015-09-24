@@ -1,4 +1,3 @@
-
 #ifndef vislocationdisplay_h
 #define vislocationdisplay_h
 
@@ -108,7 +107,7 @@ protected:
     virtual void		updateDragger() {};
     virtual void		setDraggerNormal(const Coord3&) {};
     virtual bool		draggerNormal() const { return true; }
-    virtual bool		removeSelections() { return false; }
+    virtual bool		removeSelections(TaskRunner*);
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();

@@ -87,8 +87,7 @@ public:
     EM::PolygonBody*		getEMPolygonBody() const 
     				{ return empolygonsurf_; }
     bool			canRemoveSelection() const	{ return true; }
-    void			removeSelection(const Selector<Coord3>&,
-						TaskRunner*);
+    bool			removeSelections(TaskRunner*);
 
     const char*			errMsg() const { return errmsg_.str(); }
     virtual void		setPixelDensity(float);

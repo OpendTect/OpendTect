@@ -51,8 +51,7 @@ public:
 
     const char*			errMsg() const { return errmsg_.str(); }
 
-    void			removeSelection(const Selector<Coord3>&,
-						TaskRunner* tr=0);
+    bool			removeSelections(TaskRunner*);
     bool			selectable() const		{ return true; }
     bool			canRemoveSelection() const	{ return true; }
     bool			allowMaterialEdit() const	{ return true; }

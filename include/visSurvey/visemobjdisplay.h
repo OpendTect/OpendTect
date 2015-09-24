@@ -100,9 +100,8 @@ public:
 					 const TypeSet<int>& path,
 					 const Coord3& clickeddisplaypos) const;
 
-    bool			canRemoveSelection() const	{ return true; }
-    void			removeSelection(const Selector<Coord3>&,
-						TaskRunner*);
+    virtual bool		canRemoveSelection() const	{ return true; }
+    virtual bool		removeSelections(TaskRunner*);
 
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*);
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA();

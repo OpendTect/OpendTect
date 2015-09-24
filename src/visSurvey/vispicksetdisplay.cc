@@ -705,7 +705,6 @@ void PickSetDisplay::setSelectionMode(bool yn)
 	    selectionmodel_ = false;
 	}
     }
-
 }
 
 
@@ -791,20 +790,18 @@ void PickSetDisplay::updateSelections(
 }
 
 
-bool PickSetDisplay::removeSelections()
+bool PickSetDisplay::removeSelections( TaskRunner* taskr )
 {
-    Pick::SetMgr& mgr = Pick::Mgr();
-
-    bool change = false;
+    bool changed = false;
     for ( int idx=pickselstatus_.size()-1; idx>=0; idx-- )
     {
 	if ( pickselstatus_[idx] )
 	{
-	    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-		set_,idx );
+	    Pick::SetMgr::ChangeData cd(
+		Pick::SetMgr::ChangeData::ToBeRemoved, set_,idx );
 	    set_->removeSingleWithUndo( idx );
-	    mgr.reportChange( 0, cd );
-	    change = true;
+	    Pick::Mgr().reportChange( 0, cd );
+	    changed = true;
 	}
     }
 
@@ -812,7 +809,7 @@ bool PickSetDisplay::removeSelections()
 	    Pick::Mgr().undo().currentEventID() );
 
     unSelectAll();
-    return change;
+    return changed;
 }
 
 } // namespace visSurvey

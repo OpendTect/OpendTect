@@ -311,10 +311,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == removemnuitem_.id )
     {
-	visSurvey::Scene* scene = display->getScene();
-	if ( !scene || !scene->getSelector() )
-	    return;
-	display->removeSelection( *scene->getSelector() );
+	display->removeSelections( 0 );
     }
     else if ( mnuid == propmenuitem_.id )
     {

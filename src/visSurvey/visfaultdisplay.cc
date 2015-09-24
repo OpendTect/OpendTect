@@ -370,11 +370,14 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 }
 
 
-void FaultDisplay::removeSelection( const Selector<Coord3>& selector,
-				    TaskRunner* taskr )
+bool FaultDisplay::removeSelections( TaskRunner* taskr )
 {
-    if ( faulteditor_ )
-	faulteditor_->removeSelection( selector );
+    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    if ( !selector || !faulteditor_ )
+	return false;
+
+    faulteditor_->removeSelection( *selector );
+    return true;
 }
 
 

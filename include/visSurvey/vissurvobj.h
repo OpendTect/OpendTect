@@ -224,9 +224,8 @@ public:
 
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
 
-    virtual void		removeSelection(const Selector<Coord3>&,
-						TaskRunner*) {}
     virtual bool		canRemoveSelection() const	{ return false;}
+    virtual bool		removeSelections(TaskRunner*)	{ return false;}
 
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }

@@ -107,7 +107,7 @@ protected:
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
 					    const visBase::PolygonSelection*);
-    bool			removeSelections();
+    virtual bool		removeSelections(TaskRunner*);
     virtual bool		draggerNormal() const;
     virtual void		setDraggerNormal(const Coord3&);
 

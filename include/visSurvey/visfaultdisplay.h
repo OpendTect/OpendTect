@@ -115,8 +115,7 @@ public:
 
     void			setScene(Scene*);
 
-    void			removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*);
+    bool			removeSelections(TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }
 
     void			displayIntersections(bool yn);
