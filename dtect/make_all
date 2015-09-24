@@ -9,6 +9,10 @@ set dodoc=no
 set nrcpus=1
 set stoponerr=no
 set cmake_exec=cmake
+set startdate=`date +%a-%d-%b`
+set starttm=`date +%s`
+set starttmstr=`date +%T`
+set allargs=""
 
 if ( $?CMAKE ) then
     set cmake_exec=${CMAKE}
@@ -21,6 +25,9 @@ else
 endif
 
 parse_args:
+
+set allargs="$allargs $1"
+
 if ( "$1" == "--shallow" ) then
     set shallow=yes
 else if ( "$1" == "--askdeep" ) then
@@ -119,5 +126,18 @@ if ( $dodoc == yes ) then
     cdw
 endif
 
+set stoptm=`date +%s`
+@ duration = $stoptm - $starttm
+@ hours = $duration / 3600
+@ seconds = $duration % 3600
+@ mins = $seconds / 60
+@ seconds = $seconds % 60
 echo ""
-echo -n "Build finished at "; date
+echo -n "Finished $0:t${allargs}. Started ${startdate} ${starttmstr}. Took "
+if ( $hours > 0 ) then
+	echo -n "${hours}h "
+endif
+if ( $mins > 0 ) then
+	echo -n "${mins}m "
+endif
+echo "${seconds}s."
