@@ -98,6 +98,13 @@ else
     setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
 endif
 
+set kernel=`uname -a | awk '{print $1}'`
+
+if ( "${kernel}" == "Darwin" ) then
+    set bindir="${wdir}/Contents/MacOS"
+else
+    set bindir="${wdir}/bin/${plf}/${config}"
+endif
 
 if ( "$datadir" != "" ) then
     set args = "${args} --datadir ${datadir}"
@@ -117,14 +124,14 @@ if ( "${valgrind}" != "" ) then
 	"--num-callers=50" \
 	"--track-origins=yes" \
 	"--error-exitcode=1" \
-	"${wdir}/bin/${plf}/${config}/${cmd}" ${args} --quiet
+	"${bindir}/${cmd}" ${args} --quiet
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} failed memory test".
 	exit 1
     endif
 else
-    "${wdir}/bin/${plf}/${config}/${cmd}" ${args}
+    "${bindir}/${cmd}" ${args} --quiet
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
