@@ -28,6 +28,7 @@ namespace SEGY
 
 class TrcHeader;
 class TrcHeaderDef;
+class HdrEntryDataSet;
 class OffsetCalculator;
 
 
@@ -83,9 +84,15 @@ public:
     TrcHeader*		getTrace(od_istream&,char*,float*) const;
     bool		skipData(od_istream&) const;
     void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
-	    			   const OffsetCalculator&) const;
+				   const OffsetCalculator&) const;
 
-    bool		findRev0Bytes(od_istream&);
+    bool		findRev0Bytes(od_istream&,bool usesurvinfo);
+
+protected:
+
+    void		addTrcHdrRecords(const TrcHeader&,HdrEntryDataSet&,
+				HdrEntryDataSet&,HdrEntryDataSet&,
+				HdrEntryDataSet&, HdrEntryDataSet&,bool);
 
 };
 

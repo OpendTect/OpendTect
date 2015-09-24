@@ -42,7 +42,8 @@ public:
     void		fillLoadDef();
     void		updateDisplay()		{ showRelevantInfo(); }
 
-    Notifier<uiSEGYReadStartInfo> loaddefChanged; //!< when I have changed it
+    Notifier<uiSEGYReadStartInfo> loaddefChanged;
+    Notifier<uiSEGYReadStartInfo> revChanged; //!< implies loaddefChanged
 
     void		clearInfo();
 
@@ -78,11 +79,12 @@ protected:
     uiString		refnrinfotxt_;
     uiString		offsetinfotxt_;
 
-    void		mkCommonLoadDefFields();
+    void		mkBasicInfoFlds();
     void		manRev0Rows();
     void		manPSRow();
     void		updateCellTexts();
     void		showRelevantInfo();
+    void		parChanged(bool);
 
     bool		isVSP() const		{ return imptype_.isVSP(); }
     void		setCellTxt(int col,int row,const uiString&);

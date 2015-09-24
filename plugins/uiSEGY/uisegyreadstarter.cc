@@ -58,7 +58,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , icvsxybut_(0)
     , ampldisp_(0)
     , survmap_(0)
-    , veryfirstscan_(false)
+    , dorev0scan_(true)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
     , survinfo_(0)
@@ -115,6 +115,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     infofld_ = new uiSEGYReadStartInfo( this, loaddef_, imptyp );
     infofld_->attach( ensureBelow, sep );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
+    infofld_->revChanged.notify( mCB(this,uiSEGYReadStarter,revChg) );
 
     if ( mForSurvSetup )
     {
@@ -258,7 +259,7 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 }
 
 
-void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
+void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 {
     deepErase( scaninfo_ );
     clipsampler_.reset();
@@ -276,12 +277,12 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
     }
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0),fixedloaddef,full) )
+    if ( !scanFile(filespec_.fileName(0),ct,full) )
 	return;
 
     const int nrfiles = filespec_.nrFiles();
     for ( int idx=1; idx<nrfiles; idx++ )
-	scanFile( filespec_.fileName(idx), true, full );
+	scanFile( filespec_.fileName(idx), KeepAll, full );
 
     displayScanResults();
 }
@@ -362,7 +363,7 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
     else
     {
 	inpfld_->setFileName( dlg.fileName() );
-	forceRescan( false );
+	forceRescan( KeepNone );
     }
 }
 
@@ -379,13 +380,13 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
-    handleNewInputSpec( false );
+    handleNewInputSpec( KeepNone );
 }
 
 
 void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 {
-    forceRescan( true, true );
+    forceRescan( KeepAll, true );
 }
 
 
@@ -424,19 +425,19 @@ void uiSEGYReadStarter::editFile( CallBacker* )
     if ( dlg.go() )
     {
 	inpfld_->setFileName( dlg.fileName() );
-	forceRescan( false );
+	forceRescan( KeepNone );
     }
 }
 
 
-void uiSEGYReadStarter::forceRescan( bool fixedloaddef, bool fullscan )
+void uiSEGYReadStarter::forceRescan( LoadDefChgType ct, bool fullscan )
 {
     userfilename_.setEmpty();
-    handleNewInputSpec( fixedloaddef, fullscan );
+    handleNewInputSpec( ct, fullscan );
 }
 
 
-void uiSEGYReadStarter::handleNewInputSpec( bool fixedloaddef, bool fullscan )
+void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 {
     const BufferString newusrfnm( inpfld_->fileName() );
     if ( newusrfnm.isEmpty() )
@@ -445,7 +446,7 @@ void uiSEGYReadStarter::handleNewInputSpec( bool fixedloaddef, bool fullscan )
     if ( fullscan || newusrfnm != userfilename_ )
     {
 	userfilename_ = newusrfnm;
-	execNewScan( fixedloaddef, fullscan );
+	execNewScan( ct, fullscan );
     }
 
     uiString txt;
@@ -687,7 +688,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
     return false; \
 }
 
-bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef,
+bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 				  bool full )
 {
     const bool isfirst = scaninfo_.isEmpty();
@@ -707,11 +708,12 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef,
     SEGY::BasicFileInfo& bfi = si->basicinfo_;
     bool infeet = false;
 
-    if ( !fixedloaddef )
+    const bool useloaddef = ct != KeepNone;
+    if ( !useloaddef )
 	binhdr.guessIsSwapped();
     bfi.hdrsswapped_ = bfi.dataswapped_ = binhdr.isSwapped();
-    if ( (fixedloaddef && loaddef_.hdrsswapped_)
-	|| (!fixedloaddef && bfi.hdrsswapped_) )
+    if ( (useloaddef && loaddef_.hdrsswapped_)
+	|| (!useloaddef && bfi.hdrsswapped_) )
 	binhdr.unSwap();
     if ( !binhdr.isRev0() )
 	binhdr.skipRev1Stanzas( strm );
@@ -728,9 +730,10 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef,
     if ( !completeFileInfo(strm,bfi,isfirst) )
 	return false;
 
-    if ( isfirst && !fixedloaddef )
+    if ( isfirst && ct != KeepAll )
     {
-	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
+	if ( ct == KeepNone )
+	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
 	completeLoadDef( strm );
     }
 
@@ -794,11 +797,11 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
 void uiSEGYReadStarter::completeLoadDef( od_istream& strm )
 {
-    if ( !veryfirstscan_ || !loaddef_.isRev0() )
+    if ( !dorev0scan_ || !loaddef_.isRev0() )
 	return;
 
-    veryfirstscan_ = false;
-    loaddef_.findRev0Bytes( strm );
+    dorev0scan_ = false;
+    loaddef_.findRev0Bytes( strm, !mForSurvSetup );
     infofld_->useLoadDef();
 }
 

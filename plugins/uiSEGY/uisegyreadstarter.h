@@ -88,7 +88,7 @@ protected:
     ObjectSet<SEGY::ScanInfo> scaninfo_;
     DataClipSampler&	clipsampler_;
     bool		infeet_;
-    bool		veryfirstscan_;
+    bool		dorev0scan_;
     SEGY::ImpType	fixedimptype_;
     SurveyInfo*		survinfo_;
     bool		survinfook_;
@@ -96,18 +96,21 @@ protected:
     const uiString	usexytooltip_;
     const uiString	useictooltip_;
 
+    enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
+
     bool		imptypeFixed() const	{ return !typfld_; }
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
-    void		execNewScan(bool,bool full=false);
+    void		execNewScan(LoadDefChgType,bool full=false);
     void		scanInput();
-    bool		scanFile(const char*,bool,bool);
+    bool		scanFile(const char*,LoadDefChgType,bool);
     bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool,bool);
     bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
     void		completeLoadDef(od_istream&);
-    void		handleNewInputSpec(bool fixedld=true,bool full=false);
-    void		forceRescan(bool fixedld=true,bool full=false);
+    void		handleNewInputSpec(LoadDefChgType ct=KeepAll,
+					   bool full=false);
     void		runClassic(bool);
+    void		forceRescan(LoadDefChgType ct=KeepAll,bool full=false);
 
     void		createTools();
     void		createHist();
@@ -125,7 +128,8 @@ protected:
     void		fullScanReq(CallBacker*);
     void		runClassicImp(CallBacker*)	{ runClassic( true ); }
     void		runClassicLink(CallBacker*)	{ runClassic( false ); }
-    void		defChg( CallBacker* )		{ forceRescan(); }
+    void		defChg( CallBacker* )	{ forceRescan(); }
+    void		revChg( CallBacker* )	{ forceRescan(KeepBasic); }
     void		examineCB(CallBacker*);
     void		icxyCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
