@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodvolproctreeitem.h"
 
+#include "attribdesc.h"
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -32,11 +33,12 @@ void uiDataTreeItem::initClass()
 { uiODDataTreeItem::factory().addCreator( create, 0 ); }
 
 
-uiDataTreeItem::uiDataTreeItem( const char* parenttype )
+uiDataTreeItem::uiDataTreeItem( const char* parenttype, const MultiID* key )
     : uiODDataTreeItem( parenttype )
     , selmenuitem_( m3Dots(tr("Select Setup")), true )
     , reloadmenuitem_( uiStrings::sReload(), true )
     , editmenuitem_( uiStrings::sEdit(), true )
+    , mid_(key ? *key : MultiID::udf())
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
     reloadmenuitem_.iconfnm = "refresh";
@@ -68,12 +70,24 @@ bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
 uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 					  const char* parenttype )
 {
-    if ( as.id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() ||
-	 FixedString(as.defString()) != sKeyVolumeProcessing() )
+    if ( as.id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	return 0;
 
-    return new uiDataTreeItem( parenttype );
+    BufferString attribnm;
+    const char* defstr = as.defString();
+    Attrib::Desc::getAttribName( defstr, attribnm );
+    if ( attribnm != VolProc::ExternalAttribCalculator::sAttribName() )
+	return 0;
+
+    const char* parkey = VolProc::ExternalAttribCalculator::sKeySetup();
+    BufferString setupmidstr;
+    MultiID setupmid = MultiID::udf();
+    if ( Attrib::Desc::getParamString(defstr,parkey,setupmidstr) )
+	setupmid = MultiID( setupmidstr.buf() );
+
+    return new uiDataTreeItem( parenttype, &setupmid );
 }
+
 
 #define mCreateMenu( func ) \
     mDynamicCastGet(MenuHandler*,menu,cb); \

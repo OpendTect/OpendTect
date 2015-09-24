@@ -23,9 +23,9 @@ mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(uiDataTreeItem);
 public:
    static void			initClass();
-   				~uiDataTreeItem();
-				
-				uiDataTreeItem(const char* parenttype);
+				uiDataTreeItem(const char* parenttype,
+					       const MultiID* setupmid=0);
+				~uiDataTreeItem();
 
     bool			selectSetup();
 
@@ -33,14 +33,14 @@ public:
 				{ return "VolumeProcessing"; }
 
 protected:
-    
+
     bool			anyButtonClick(uiTreeViewItem*);
-   
+
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			createMenu(MenuHandler* menu ,bool istoolbar);
     void			handleMenuCB(CallBacker*);
-    uiString    		createDisplayName() const;
-    void			updateColumnText( int col );
+    uiString			createDisplayName() const;
+    void			updateColumnText(int col);
 
     MenuItem			selmenuitem_;
     MenuItem			reloadmenuitem_;
@@ -50,7 +50,7 @@ protected:
 
 };
 
-}; //namespace
+} // namespace VolProc
 
 #endif
 
