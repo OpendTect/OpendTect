@@ -38,7 +38,6 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
 #endif
 {
     translators_.allowNull( true );
-    locale_->setNumberOptions( QLocale::OmitGroupSeparator );
     const BufferString filename = BufferString()
 	.add(uiString::sODLocalizationApplication())
 	.add(TextTranslateMgr::cApplicationEnd())
