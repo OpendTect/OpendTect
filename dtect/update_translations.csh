@@ -120,8 +120,8 @@ echo "" >> ${profnm}
 echo -n "INCLUDEPATH += " >> ${profnm}
 
 foreach dir ( ${dirs} )
-    echo " \" >> ${propfnm}
-    echo -n "	${dir}" >>${propfnm}
+    echo " \" >> ${profnm}
+    echo -n "	${dir}" >>${profnm}
 end
 
 #Create a list of .ts files for plural operations
