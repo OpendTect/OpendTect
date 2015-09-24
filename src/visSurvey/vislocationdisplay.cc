@@ -862,17 +862,16 @@ const SurveyObject* LocationDisplay::getPickedSurveyObject() const
 }
 
 
-void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
-	TaskRunner* tr )
+bool LocationDisplay::removeSelections( TaskRunner* taskr )
 {
-    bool changed = removeSelections();
-
-    if ( selector.isOK() )
+    bool changed = false;
+    const Selector< Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    if ( selector && selector->isOK() )
     {
 	for ( int idx=set_->size()-1; idx>=0; idx-- )
 	{
 	    const Pick::Location& loc = (*set_)[idx];
-	    if ( selector.includes( loc.pos_ ) )
+	    if ( selector->includes(loc.pos_) )
 	    {
 		removePick( idx, false );
 		changed = true;
@@ -883,7 +882,7 @@ void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
     if ( changed )
 	Pick::Mgr().undo().setUserInteractionEnd(
 	    Pick::Mgr().undo().currentEventID() );
-
+    return changed;
 }
 
 
@@ -976,5 +975,4 @@ const Coord3 LocationDisplay::getActivePlaneNormal(
     return normal;
 }
 
-
-}; // namespace visSurvey
+} // namespace visSurvey

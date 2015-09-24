@@ -170,28 +170,33 @@ void PointSetDisplay::update( TaskRunner* tr )
 }
 
 
-void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
-					TaskRunner* tr )
+bool PointSetDisplay::removeSelections( TaskRunner* taskr )
 {
-    if ( !selector.isOK() )
-	return;
+    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    if ( !selector || !selector->isOK() )
+	return false;
 
+    bool changed = false;
     for ( int idy=0; idy<pointset_->getCoordinates()->size(true); idy++ )
     {
 	Coord3 pos = pointset_->getCoordinates()->getPos( idy );
-	if ( selector.includes(pos) )
+	if ( selector->includes(pos) )
 	{
 	    DataPointSet::RowID rid = data_->find( DataPointSet::Pos(pos) );
 	    if ( rid < 0 )
 		continue;
+
 	    if ( dpsdispprop_->showSelected() )
 		data_->setSelected( rid, -1 );
 	    else
 		data_->setValue( dpsdispprop_->dpsColID(), rid, mUdf(float) );
+
+	    changed = true;
 	}
     }
 
-    update( tr );
+    update( taskr );
+    return changed;
 }
 
 

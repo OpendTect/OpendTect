@@ -735,24 +735,21 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 }
 
 
-void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector,
-	TaskRunner* tr)
+bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
 {
-    const int lastid = EM::EMM().undo().currentEventID();
+    Undo& undo = EM::EMM().undo();
+    const int lastid = undo.currentEventID();
     for ( int idx=0; idx<selectors_.size(); idx++ )
     {
 	Selector<Coord3>* sel = selectors_[idx];
-	em_.removeSelected( emobject_->id(), *sel, tr );
+	em_.removeSelected( emobject_->id(), *sel, taskr );
     }
-    em_.removeSelected( emobject_->id(), selector, tr );
 
-    if ( lastid!=EM::EMM().undo().currentEventID() )
-    {
-	EM::EMM().undo().setUserInteractionEnd(
-					EM::EMM().undo().currentEventID() );
-    }
+    if ( lastid!=undo.currentEventID() )
+	undo.setUserInteractionEnd( undo.currentEventID() );
 
     clearSelections();
+    return !selectors_.isEmpty();
 }
 
 
@@ -786,13 +783,13 @@ void EMObjectDisplay::turnOnSelectionMode( bool yn )
 
 void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 {
-      if ( !scene_ || ! scene_->getPolySelection() ) 
+      if ( !scene_ || ! scene_->getPolySelection() )
 	  return;
 
     visBase::PolygonSelection* polysel =  scene_->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
-    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) ) 
+    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
     { 	unSelectAll();  return;  }
 
     if ( !ctrldown_ )
@@ -812,7 +809,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 	copyselection->ref();
 	visBase::PolygonCoord3Selector* selector =
 	    new visBase::PolygonCoord3Selector( *copyselection );
-	if ( selector ) 
+	if ( selector )
 	    selectors_ += selector;
     }
 
@@ -822,7 +819,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 }
 
 
-const TypeSet<int> EMObjectDisplay::findOverlapSelectors( 
+const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
     visBase::PolygonSelection* polysel )
 {
     TypeSet<int> overlapselectors;

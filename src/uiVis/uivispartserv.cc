@@ -1673,7 +1673,7 @@ void uiVisPartServer::removeSelection()
 		if ( uiMSG().askContinue(msg) )
 		{
 		    uiTaskRunner taskrunner( appserv().parent() );
-		    so->removeSelection( *sel, &taskrunner );
+		    so->removeSelections( &taskrunner );
 		}
 	    }
 	}

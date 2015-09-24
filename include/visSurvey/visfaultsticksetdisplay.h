@@ -94,8 +94,7 @@ public:
     Notifier<FaultStickSetDisplay> colorchange;
     Notifier<FaultStickSetDisplay> displaymodechange;
 
-    void			removeSelection(const Selector<Coord3>&,
-						TaskRunner*);
+    bool			removeSelections(TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }
 
     void			setDisplayOnlyAtSections(bool yn);
