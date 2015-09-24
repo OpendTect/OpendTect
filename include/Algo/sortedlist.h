@@ -19,7 +19,7 @@ ________________________________________________________________________
 /*!
 \brief A SortedList is a list where all objects are stored in ascending order.
 The objects should be capable of doing <,> and ==. If allowmultiples is true,
-multiple objects with the same value are allowed in the list. 
+multiple objects with the same value are allowed in the list.
 
   A SortedList can be used together with all other lists that have a []
   operator, such as TypeSets.
@@ -33,16 +33,19 @@ public:
     typedef int		size_type;
     typedef T		object_type;
 
-    			SortedList( bool allowmultiples_ )
-			    : allowmultiples(allowmultiples_) {}
+			SortedList( bool allowmultiples=true )
+			    : allowmultiples_(allowmultiples) {}
 
-    size_type 		size() const			{ return tvec.size(); }
-    const T&		operator[](size_type idx) const { return (T&)tvec[idx];}
+    bool		isEmpty() const			{ return size()<1; }
+    size_type		size() const			{ return vec_.size(); }
+    const T&		operator[](size_type idx) const { return (T&)vec_[idx];}
+    bool		isPresent( const T& t ) const	{ return indexOf(t)>=0;}
     size_type		indexOf(const T&) const;
-    			/*!< Returns -1 if not found */
+			/*!< Returns -1 if not found */
 
     SortedList<T>&	operator +=(const T&);
     SortedList<T>&	operator -=(const T&);
+    SortedList<T>&	add( const T& t )	{ *this += t; return *this; }
 
     // The following functions handle external indexables: classes or
     // arrays - things that support the [] operator.
@@ -55,25 +58,26 @@ public:
 					/*!< Remove all entries not present
 					     in both lists. */
 
-    void		erase();
+    void		erase()		{ vec_.erase(); }
+    void		setEmpty()	{ vec_.erase(); }
     void		removeSingle(size_type);
     void		removeRange(size_type,size_type);
 
-    std::vector<T>&	vec()		{ return tvec.vec(); }
-    const std::vector<T>& vec() const	{ return tvec.vec(); }
+    std::vector<T>&	vec()		{ return vec_.vec(); }
+    const std::vector<T>& vec() const	{ return vec_.vec(); }
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
 protected:
 
     size_type		getPos( const T& ) const;
-    			/*!< If not found, it will return position of the
+			/*!< If not found, it will return position of the
 			     item just above, and size() if val is higher than
 			     highest val
 			 */
 
-    bool		allowmultiples;
-    VectorAccess<T,size_type>	tvec;
+    VectorAccess<T,size_type>	vec_;
+    bool		allowmultiples_;
 
 };
 
@@ -133,14 +137,14 @@ SortedList<T>& SortedList<T>::operator +=( const T& nv )
 
     if ( newpos == size() )
     {
-	tvec.push_back( nv );
+	vec_.push_back( nv );
 	return *this;
     }
 
-    if ( !allowmultiples && (*this)[newpos] == nv )
+    if ( !allowmultiples_ && (*this)[newpos] == nv )
 	return *this;
 
-    tvec.insert( newpos, nv );
+    vec_.insert( newpos, nv );
     return *this;
 }
 
@@ -155,7 +159,7 @@ SortedList<T>& SortedList<T>::operator -=( const T& nv )
 
     if ( pos == -1 ) return *this;
 
-    tvec.removeSingle( pos );
+    vec_.removeSingle( pos );
     return *this;
 }
 
@@ -211,19 +215,15 @@ SortedList<T>&  SortedList<T>::operator -=( const U& array )
 
 
 template <class T> inline
-void SortedList<T>::erase() { tvec.erase(); }
-
-
-template <class T> inline
 void SortedList<T>::removeSingle( size_type pos )
 {
-    tvec.remove( pos );
+    vec_.remove( pos );
 }
 
 template <class T> inline
 void SortedList<T>::removeRange( size_type p1, size_type p2 )
 {
-    tvec.remove( p1, p2 );
+    vec_.remove( p1, p2 );
 }
 
 

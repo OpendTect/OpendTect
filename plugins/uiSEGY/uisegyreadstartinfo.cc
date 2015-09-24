@@ -106,6 +106,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     : uiGroup(p,"SEGY read start info")
     , loaddef_(scd)
     , loaddefChanged(this)
+    , revChanged(this)
     , parsbeingset_(false)
     , xcoordbytefld_(0)
     , ycoordbytefld_(0)
@@ -150,7 +151,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     setCellTxt( mItemCol, mZRangeRow, tr("Z Range") );
     setCellTxt( mUseTxtCol, mZRangeRow, tr("start / interval") );
 
-    mkCommonLoadDefFields();
+    mkBasicInfoFlds();
 }
 
 
@@ -166,13 +167,14 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     } }
 
 
-void uiSEGYReadStartInfo::mkCommonLoadDefFields()
+void uiSEGYReadStartInfo::mkBasicInfoFlds()
 {
+    const CallBack revchgcb( mCB(this,uiSEGYReadStartInfo,revChg) );
     mGetParChgCB( parchgcb );
 
     const char* revstrs[] = { "0", "1", "2", 0 };
     revfld_ = new uiComboBox( 0, revstrs, "Revision" );
-    revfld_->selectionChanged.notify( mCB(this,uiSEGYReadStartInfo,revChg) );
+    revfld_->selectionChanged.notify( revchgcb );
     mAdd2Tbl( revfld_, mRevRow, mUseCol );
 
     fmtfld_ = new uiComboBox( 0, SEGY::FilePars::getFmts(false), "Format" );
@@ -417,18 +419,28 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
 
 void uiSEGYReadStartInfo::revChg( CallBacker* )
 {
-    parChg( 0 );
+    parChanged( true );
 }
 
 
 void uiSEGYReadStartInfo::parChg( CallBacker* )
+{
+    parChanged( false );
+}
+
+
+void uiSEGYReadStartInfo::parChanged( bool revchg )
 {
     if ( parsbeingset_ )
 	return;
 
     fillLoadDef();
     showRelevantInfo();
-    loaddefChanged.trigger();
+
+    if ( revchg )
+	revChanged.trigger();
+    else
+	loaddefChanged.trigger();
 }
 
 

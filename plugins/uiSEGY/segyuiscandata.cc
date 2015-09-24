@@ -17,10 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainterp.h"
 #include "dataclipper.h"
 #include "posinfodetector.h"
+#include "sortedlist.h"
 #include "survinfo.h"
 #include "executor.h"
 
 #include "uitaskrunner.h"
+
+#define mMaxReasOffset 50000
 
 
 void SEGY::BasicFileInfo::init()
@@ -175,23 +178,136 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 }
 
 
-bool SEGY::LoadDef::findRev0Bytes( od_istream& strm )
+namespace SEGY
+{
+
+class HdrEntryRecord
+{
+public:
+
+    TypeSet<int>	idxs_;
+    TypeSet<int>	vals_;
+
+    bool		operator ==( const HdrEntryRecord& oth ) const
+			{ return this == &oth; } // needed for TypeSet
+
+};
+
+
+class HdrEntryDataSet : public TypeSet<HdrEntryRecord>
+{
+public:
+
+    void		addRecord()		{ *this += HdrEntryRecord(); }
+    void		add(int heidx,int val);
+    void		reject(int heidx);
+
+    SortedList<int>	rejectedidxs_;
+};
+
+} // namespace SEGY
+
+
+void SEGY::HdrEntryDataSet::add( int heidx, int val )
+{
+    if ( rejectedidxs_.isPresent(heidx) )
+	return;
+
+    HdrEntryRecord& rec = (*this)[ size()-1 ];
+    rec.idxs_ += heidx; rec.vals_ += val;
+}
+
+
+void SEGY::HdrEntryDataSet::reject( int heidx )
+{
+    if ( rejectedidxs_.isPresent(heidx) )
+	return;
+
+    rejectedidxs_.add( heidx );
+    const int sz = size();
+    if ( sz < 1 )
+	return;
+
+    const int idx = ((*this)[0]).idxs_.indexOf( heidx );
+    if ( idx < 0 )
+	return;
+
+    for ( int irec=0; irec<sz; irec++ )
+    {
+	HdrEntryRecord& rec = (*this)[irec];
+	rec.idxs_.removeSingle( idx );
+	rec.vals_.removeSingle( idx );
+    }
+}
+
+
+bool SEGY::LoadDef::findRev0Bytes( od_istream& strm, bool usesi )
 {
     if ( strm.position() == 0 )
 	strm.setPosition( 3600 );
     const od_stream::Pos firsttrcpos = strm.position();
 
-    // const SEGY::HdrDef& hdrdef = SEGY::TrcHeader::hdrDef();
-    do
+    HdrEntryDataSet inldata, crldata, trcnrdata, refnrdata, offsdata;
+    for ( int itrc=0; itrc<10; itrc++ )
     {
 	PtrMan<TrcHeader> thdr = getTrcHdr( strm );
+	if ( !thdr->isusable )
+	    { itrc--; continue; }
 
-    } while ( skipData(strm) );
+	addTrcHdrRecords( *thdr, inldata, crldata, trcnrdata,
+				 refnrdata, offsdata, usesi );
+
+	if ( !skipData(strm) )
+	    return false; // file has less than 10 valid traces. why bother?
+    }
+
+    //TODO use the HdrEntryDataSets to grok good ones
 
     strm.setPosition( firsttrcpos );
     return true;
 }
 
+
+void SEGY::LoadDef::addTrcHdrRecords( const SEGY::TrcHeader& thdr,
+	SEGY::HdrEntryDataSet& inldata, SEGY::HdrEntryDataSet& crldata,
+	SEGY::HdrEntryDataSet& trcnrdata, SEGY::HdrEntryDataSet& refnrdata,
+	SEGY::HdrEntryDataSet& offsdata, bool usesi )
+{
+    const HdrDef& hdrdef = TrcHeader::hdrDef();
+    const void* buf = thdr.buf_;
+    const int nrhe = hdrdef.size();
+    const StepInterval<int> inlrg = SI().inlRange( false );
+    const StepInterval<int> crlrg = SI().crlRange( false );
+
+    inldata.addRecord(); crldata.addRecord(); trcnrdata.addRecord();
+    refnrdata.addRecord(); offsdata.addRecord();
+
+    for ( int ihe=0; ihe<nrhe; ihe++ )
+    {
+	const HdrEntry& he = *hdrdef[ihe];
+	const int val = he.getValue( buf, hdrsswapped_ );
+	if ( val <= 0 )
+	{
+	    inldata.reject( ihe ); crldata.reject( ihe );
+	    trcnrdata.reject( ihe );
+	    if ( val == 0 )
+		refnrdata.reject( ihe );
+	}
+	if ( val > mMaxReasOffset || val < -mMaxReasOffset )
+	    offsdata.reject( ihe );
+	if ( usesi )
+	{
+	    if ( !inlrg.includes(val,false) )
+		inldata.reject( ihe );
+	    if ( !crlrg.includes(val,false) )
+		crldata.reject( ihe );
+	}
+
+	inldata.add( ihe, val ); crldata.add( ihe, val );
+	trcnrdata.add( ihe, val ); refnrdata.add( ihe, val );
+	offsdata.add( ihe, val < 0 ? -val : val );
+    }
+}
 
 
 SEGY::ScanInfo::ScanInfo( const char* fnm )
