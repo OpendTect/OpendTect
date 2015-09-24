@@ -37,6 +37,7 @@ const char* Material::sKeyTransparency()	{ return "Transparency"; }
 #define mGetReadLock(nm) \
     Threads::Locker nm( lock_, Threads::Locker::ReadLock )
 
+#define mChangeTrigger if ( shouldtrigger_ ) change.trigger();
 
 Material::Material()
     : material_( addAttribute(new osg::Material) )
@@ -49,6 +50,7 @@ Material::Material()
     , change( this )
     , colorbindtype_( 1 )
     , transparencybendpower_ ( 1.0 )
+    , shouldtrigger_( true )
 {
     material_->ref();
     setColorMode( Off );
@@ -77,6 +79,7 @@ void Material::setFrom( const Material& mat, bool trigger )
 
 void Material::setPropertiesFrom( const Material& mat,bool trigger )
 {
+    shouldtrigger_ = trigger;
     mGetWriteLock( lckr );
     mSetProp( diffuseintensity_ );
     mSetProp( ambience_ );
@@ -90,6 +93,7 @@ void Material::setPropertiesFrom( const Material& mat,bool trigger )
 
 void Material::setColors( const TypeSet<Color>& colors, bool synchronizing )
 {
+    shouldtrigger_ = synchronizing;
     //Loop backwards to allocate the memory at first call
     for ( int idx=colors.size()-1; idx>=0; idx-- )
         setColor( colors[idx], idx );
@@ -105,7 +109,7 @@ void Material::setColor( const Color& n, int idx )
 	color_ = n;
 	updateOsgMaterial();
 	lckr.unlockNow();
-	change.trigger();
+	mChangeTrigger
 	return;
     }
 
@@ -123,7 +127,7 @@ void Material::setColor( const Color& n, int idx )
     }
 
     lckr.unlockNow();
-    change.trigger();
+    mChangeTrigger
 }
 
 
@@ -150,7 +154,7 @@ Color Material::getColor( int idx ) const
     if ( !colarr || idx >= colarr->size() )
 	return Color( 0, 0, 0 );
 
-    return Color( (*colarr)[idx].asRGBA() );
+    return Color( Conv::to<Color>( (*colarr)[idx] )  );
 }
 
 
@@ -200,7 +204,7 @@ void Material::setTransparency( float n, int idx, bool update )
     }
 
     lckr.unlockNow();
-    change.trigger();
+    mChangeTrigger
 }
 
 
@@ -261,6 +265,8 @@ const TypeSet<Color> Material::getColors()
 	ColorUpdator updator( sz, *colarr, colors );
 	updator.executeParallel( true );
     }
+    else
+	colors += color_;
 
     return colors;
 }
@@ -273,7 +279,7 @@ void Material::set##func( Type n ) \
     var = n; \
     updateOsgMaterial(); \
     lck.unlockNow();\
-    change.trigger();\
+    mChangeTrigger\
 } \
 Type Material::get##func() const \
 { \
