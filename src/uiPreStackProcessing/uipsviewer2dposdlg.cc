@@ -179,7 +179,7 @@ void uiGatherPosSliceSel::reDoTable()
 						  : ginfo.bid_.inl();
 	    TrcKeyZSampling cs( true );
 	    const int modelnr =
-		(ginfo.bid_.crl() - cs.hsamp_.stop_.crl())/cs.hsamp_.step_.crl();
+		(ginfo.bid_.crl()-cs.hsamp_.stop_.crl())/cs.hsamp_.step_.crl();
 	    const RowCol rc( rowidx, colidx );
 	    const int limitstep =
 		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hsamp_.crlRange().step
@@ -306,12 +306,15 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     BufferString firstgnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
+    int modelidx = 0;
     for ( int gidx=0; gidx<gatherinfos.size(); gidx++ )
     {
 	const GatherInfo& ginfo = gatherinfos[gidx];
-	const int trcnr = issynthetic_ ? gidx+1
+	const int trcnr = issynthetic_ ? modelidx+1
 				       : isinl_ || is2d_ ? ginfo.bid_.crl()
 							 : ginfo.bid_.inl();
+	if ( ginfo.gathernm_ == firstgnm )
+	    modelidx++;
 	if ( (!issynthetic_ || ginfo.isselected_) &&
 	     ginfo.gathernm_ == firstgnm )
 	{
