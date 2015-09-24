@@ -41,13 +41,15 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     , attribidx_(0)
     , uiimphor2ddlg_(0)
     , uiseisevsnapdlg_(0)
-{}
+{
+}
 
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
-    if ( horshiftdlg_ )
-	horshiftdlg_->close();
+    delete horshiftdlg_;
+    delete uiimphor2ddlg_;
+    delete uiseisevsnapdlg_;
 }
 
 
