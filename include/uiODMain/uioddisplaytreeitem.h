@@ -42,8 +42,8 @@ public:
     void		prepareForShutdown();
     void		handleAddAttrib();
 
-    virtual void	setOnlyAtSectionsDisplay(bool)	{}
-    virtual bool	isOnlyAtSections() const	{ return false; }
+    virtual void	setOnlyAtSectionsDisplay(bool);
+    virtual bool	displayedOnlyAtSections() const;
 
 protected:
 

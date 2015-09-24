@@ -60,9 +60,6 @@ public:
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
-    void		setOnlyAtSectionsDisplay(bool);
-    bool		isOnlyAtSections() const;
-
     static uiString	sFaultPlanes() { return tr("Fault Planes" ); }
     static uiString	sFaultSticks() { return tr("Fault Sticks" ); }
     static uiString	sOnlyAtSections() { return tr( "Only at Sections" ); }

@@ -97,7 +97,7 @@ public:
     bool			removeSelections(TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }
 
-    void			setDisplayOnlyAtSections(bool yn);
+    void			setOnlyAtSectionsDisplay(bool yn);
     bool			displayedOnlyAtSections() const;
 
     void			setStickSelectMode(bool yn);

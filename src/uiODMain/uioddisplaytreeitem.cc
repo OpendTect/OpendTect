@@ -247,7 +247,19 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
 
     if ( kd.state()==OD::ShiftButton && kd.key()==OD::Delete )
 	deleteObject();
+    if ( kd.key()==OD::V && kd.state()==OD::NoButton )
+	setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
 }
+
+
+void uiODDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
+{
+    visserv_->setOnlyAtSectionsDisplay( displayid_, yn );
+}
+
+
+bool uiODDisplayTreeItem::displayedOnlyAtSections() const
+{ return visserv_->displayedOnlyAtSections( displayid_ ); }
 
 
 int uiODDisplayTreeItem::uiTreeViewItemType() const

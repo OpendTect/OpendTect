@@ -31,9 +31,6 @@ public:
     EM::ObjectID	emObjectID() const	{ return emid_; }
     int			reloadEMObject();	//Return new display id.
 
-    void		setOnlyAtSectionsDisplay(bool);
-    bool		isOnlyAtSections() const;
-
 protected:
 			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
 			~uiODEarthModelSurfaceTreeItem();
@@ -89,7 +86,7 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     uiString		createDisplayName() const;
-    
+
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;
     MenuItem		loadsurfacedatamnuitem_;

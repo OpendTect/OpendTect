@@ -819,7 +819,7 @@ void uiContourTreeItem::checkCB(CallBacker*)
     if ( !hordisp ) return;
 
     const bool display = newstatus && hordisp &&
-				!hordisp->getOnlyAtSectionsDisplay();
+				!hordisp->displayedOnlyAtSections();
 
     if ( lines_ ) lines_->turnOn( display );
     if ( labels_ ) labels_->turnOn( display && showlabels_ );
@@ -1281,7 +1281,7 @@ void uiContourTreeItem::updateColumnText( int col )
     if ( !hordisp || !lines_ || !labels_ ) return;
 
     const bool solomode = visserv->isSoloMode();
-    const bool turnon = !hordisp->getOnlyAtSectionsDisplay() &&
+    const bool turnon = !hordisp->displayedOnlyAtSections() &&
 			( (solomode && hordisp->isOn())
 			|| (!solomode && hordisp->isOn() && isChecked()) );
     lines_->turnOn( turnon );

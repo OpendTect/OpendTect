@@ -394,7 +394,7 @@ bool HorizonDisplay::usesTexture() const
 
 bool HorizonDisplay::canShowTexture() const
 {
-    return validtexture_ && isAnyAttribEnabled() && !getOnlyAtSectionsDisplay();
+    return validtexture_ && isAnyAttribEnabled() && !displayedOnlyAtSections();
 }
 
 
@@ -404,7 +404,7 @@ bool HorizonDisplay::showsTexture() const
 }
 
 
-bool HorizonDisplay::getOnlyAtSectionsDisplay() const
+bool HorizonDisplay::displayedOnlyAtSections() const
 { return displayonlyatsections_; }
 
 

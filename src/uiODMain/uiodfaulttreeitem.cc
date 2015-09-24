@@ -398,22 +398,8 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODFaultTreeItem::setOnlyAtSectionsDisplay( bool yn )
-{
-    if ( !faultdisplay_ ) return;
 
-    faultdisplay_->displayIntersections( yn );
-    faultdisplay_->displayHorizonIntersections( yn );
-}
-
-
-bool uiODFaultTreeItem::isOnlyAtSections() const
-{
-    return faultdisplay_ && faultdisplay_->areIntersectionsDisplayed();
-}
-
-
-
+// uiODFaultStickSetParentTreeItem
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
     : uiODTreeItem( uiStrings::sFaultStickSet() )
 {}
@@ -481,7 +467,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	    mDynamicCastGet( visSurvey::FaultStickSetDisplay*, fssd,
 			applMgr()->visServer()->getObject(itm->displayID()) );
 	    if ( fssd )
-		fssd->setDisplayOnlyAtSections( mnuid==mDispAtSect );
+		fssd->setOnlyAtSectionsDisplay( mnuid==mDispAtSect );
 	}
     }
     else
@@ -639,7 +625,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	if ( fd )
-	    fd->setDisplayOnlyAtSections( !fd->displayedOnlyAtSections() );
+	    fd->setOnlyAtSectionsDisplay( !fd->displayedOnlyAtSections() );
     }
     else if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
@@ -664,6 +650,9 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
 }
 
+
+
+// uiODFaultSurfaceDataTreeItem
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	const char* parenttype )
     : uiODAttribTreeItem(parenttype)

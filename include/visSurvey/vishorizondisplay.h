@@ -72,7 +72,7 @@ public:
     bool			canShowTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
-    bool			getOnlyAtSectionsDisplay() const;
+    bool			displayedOnlyAtSections() const;
 
     void			displaySurfaceData(int attrib,int auxdatanr);
 

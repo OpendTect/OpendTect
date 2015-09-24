@@ -147,7 +147,6 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 	pdd->unRef();
     }
 
-    getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.remove(
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -196,7 +195,6 @@ bool uiODPlaneDataTreeItem::init()
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
-    getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.notify(
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 

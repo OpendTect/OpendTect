@@ -48,7 +48,7 @@ mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
 {
 public:
 				PolygonBodyDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PolygonBodyDisplay,
 				    "PolygonBodyDisplay",
 				     toUiString(sFactoryKeyword()));
@@ -74,17 +74,14 @@ public:
     void			display(bool polygons,bool body);
     bool			arePolygonsDisplayed() const;
     bool			isBodyDisplayed() const;
-    void			displayIntersections(bool yn);
-    bool			areIntersectionsDisplayed() const;
-
-    virtual void                fillPar(IOPar&) const;
-    virtual bool                usePar(const IOPar&);
+    void			setOnlyAtSectionsDisplay(bool yn);
+    bool			displayedOnlyAtSections() const;
 
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
     void			touchAll(bool,bool updatemarker=false);
-    EM::PolygonBody*		getEMPolygonBody() const 
+    EM::PolygonBody*		getEMPolygonBody() const
     				{ return empolygonsurf_; }
     bool			canRemoveSelection() const	{ return true; }
     bool			removeSelections(TaskRunner*);
@@ -92,9 +89,11 @@ public:
     const char*			errMsg() const { return errmsg_.str(); }
     virtual void		setPixelDensity(float);
 
-protected:
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
+
     virtual			~PolygonBodyDisplay();
     void			otherObjectsMoved(
 	    			    const ObjectSet<const SurveyObject>&,
@@ -104,7 +103,7 @@ protected:
     void			updateSingleColor();
     void			updateManipulator();
 
-    static const char*		sKeyEMPolygonSurfID()	
+    static const char*		sKeyEMPolygonSurfID()
     				{ return "EMPolygonsurface ID"; }
 
     bool			isPicking() const;
@@ -114,8 +113,8 @@ protected:
     void 			updateNearestPolygonMarker();
     void			setNewIntersectingPolygon(const Coord3& normal,
 	    						  const Coord3& pt);
-       				/*<Given a plane3(nomal, pt), calculate the 
-				   intersections of known polygons with the 
+				/*<Given a plane3(nomal, pt), calculate the
+				   intersections of known polygons with the
 				   intersection line between plane3 and polygon
 				   plane. */
 

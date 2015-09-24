@@ -1299,7 +1299,7 @@ void FaultDisplay::setResolution( int res, TaskRunner* taskr )
 
 
 bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
-	                          float& value ) const
+				  float& value ) const
 { return true; }
 
 
@@ -1325,6 +1325,17 @@ void FaultDisplay::emptyCache( int attrib )
 
 bool FaultDisplay::hasCache( int attrib ) const
 { return false; }
+
+
+void FaultDisplay::setOnlyAtSectionsDisplay( bool yn )
+{
+    displayIntersections( yn );
+    displayHorizonIntersections( yn );
+}
+
+
+bool FaultDisplay::displayedOnlyAtSections() const
+{ return areIntersectionsDisplayed(); }
 
 
 void FaultDisplay::displayIntersections( bool yn )
@@ -1402,7 +1413,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
 	if ( !hor || !hor->isOn() || !hor->getSectionIDs().size() )
 	    continue;
-	if ( hor->getOnlyAtSectionsDisplay() )
+	if ( hor->displayedOnlyAtSections() )
 	    continue;
 
 	activehordisps += const_cast<HorizonDisplay*>( hor );

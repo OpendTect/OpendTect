@@ -25,17 +25,15 @@ namespace EM { class MarchingCubesSurface; class ImplicitBody; }
 namespace visBase { class GeomIndexedShape; class MarchingCubesSurface;
 		    class Transformation; };
 
-
 namespace visSurvey
 {
-
 
 mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			      public visSurvey::SurveyObject
 { mODTextTranslationClass(MarchingCubesDisplay);
 public:
 			    MarchingCubesDisplay();
-			    mDefaultFactoryInstantiation( 
+			    mDefaultFactoryInstantiation(
 				visSurvey::SurveyObject,MarchingCubesDisplay,
 				 "MarchingCubesDisplay",
 				 ::toUiString(sFactoryKeyword()) );
@@ -59,7 +57,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
-    				//!<Creates an EMObject for it.
+				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getEMID() const;
 
@@ -73,12 +71,12 @@ public:
     const ColTab::MapperSetup*	getColTabMapperSetup(int,int) const;
 
     void			setColTabMapperSetup(int,
-	    				const ColTab::MapperSetup&,TaskRunner*);
+					const ColTab::MapperSetup&,TaskRunner*);
     const ColTab::Sequence*	getColTabSequence(int) const;
     bool			canSetColTabSequence() const;
-    void                	setColTabSequence(int,const ColTab::Sequence&,
-	    				TaskRunner*);
-    void                   	setSelSpec(int,const Attrib::SelSpec&);
+    void			setColTabSequence(int,const ColTab::Sequence&,
+					TaskRunner*);
+    void			setSelSpec(int,const Attrib::SelSpec&);
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
     void			setDepthAsAttrib(int);
     void			setIsoPatch(int);
@@ -88,14 +86,14 @@ public:
 
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData( int attrib,
-	    				const DataPointSet*, TaskRunner*);
+					const DataPointSet*, TaskRunner*);
 
-    void			displayIntersections(bool yn);
-    bool			areIntersectionsDisplayed() const;
+    void			setOnlyAtSectionsDisplay(bool yn);
+    bool			displayedOnlyAtSections() const;
 
     bool			canRemoveSelection() const	{ return true; }
     void			removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*);
+						TaskRunner*);
     EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
 
 protected:
@@ -107,20 +105,20 @@ protected:
     void			materialChangeCB(CallBacker*);
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    				IOPar& iop ) const;
+					IOPar& iop ) const;
     void			getMousePosInfo(const visBase::EventInfo&,
-	     				Coord3& xyzpos, BufferString& val,
-	     			    	BufferString& info) const;
+					Coord3& xyzpos, BufferString& val,
+					BufferString& info) const;
     void			otherObjectsMoved(
-	    				const ObjectSet<const SurveyObject>&,
+					const ObjectSet<const SurveyObject>&,
 					int whichobj);
     void			updateIntersectionDisplay();
     void			updateSingleColor();
-    
+
     static const char*	sKeyEarthModelID()	{ return "EM ID"; }
     static const char*	sKeyAttribSelSpec()	{ return "Attrib SelSpec"; }
     static const char*	sKeyColTabMapper()	{ return "Coltab mapper"; }
-    static const char*	sKeyColTabSequence()	{ return "Coltab sequence"; }   
+    static const char*	sKeyColTabSequence()	{ return "Coltab sequence"; }
     static const char*	sKeyUseTexture()	{ return "Use texture"; }
 
     visBase::MarchingCubesSurface*		displaysurface_;
@@ -141,7 +139,7 @@ protected:
 						~PlaneIntersectInfo();
 	visBase::GeomIndexedShape*		visshape_;
 	Geometry::ExplicitIndexedShape*		shape_;
-	
+
 	int					planeid_;
 	char					planeorientation_;
 	float					planepos_;
@@ -154,8 +152,7 @@ protected:
     const mVisTrans*				intersectiontransform_;
 };
 
-};
-
+} // namespace visSurvey
 
 #endif
 

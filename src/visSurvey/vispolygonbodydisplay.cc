@@ -170,7 +170,7 @@ void PolygonBodyDisplay::setLineStyle( const LineStyle& lst )
 	drawstyle_->setLineStyle( lst );
 
     setLineRadius( intersectiondisplay_ );
-    if ( areIntersectionsDisplayed() )
+    if ( displayedOnlyAtSections() )
 	intersectiondisplay_->touch( false );
 
     setLineRadius( polygondisplay_ );
@@ -799,7 +799,7 @@ bool  PolygonBodyDisplay::isManipulatorShown() const
 { return showmanipulator_; }
 
 
-void PolygonBodyDisplay::displayIntersections( bool yn )
+void PolygonBodyDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
     if ( !intersectiondisplay_ )
 	return;
@@ -863,7 +863,7 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 }
 
 
-bool PolygonBodyDisplay::areIntersectionsDisplayed() const
+bool PolygonBodyDisplay::displayedOnlyAtSections() const
 { return intersectiondisplay_ ? intersectiondisplay_->isOn() : false; }
 
 
@@ -932,7 +932,7 @@ void PolygonBodyDisplay::otherObjectsMoved(
     intersectionobjs_ = usedobjects;
     planeids_ = planeids;
 
-    if ( areIntersectionsDisplayed() )
+    if ( displayedOnlyAtSections() )
     {
 	intersectiondisplay_->touch( false );
 	reMakeIntersectionSurface();

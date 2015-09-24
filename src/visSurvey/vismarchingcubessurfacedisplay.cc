@@ -93,7 +93,7 @@ void MarchingCubesDisplay::useTexture( bool yn )
 
 bool MarchingCubesDisplay::usesColor() const
 {
-    return !showsTexture() || areIntersectionsDisplayed();
+    return !showsTexture() || displayedOnlyAtSections();
 }
 
 
@@ -119,7 +119,7 @@ bool MarchingCubesDisplay::showsTexture() const
 bool MarchingCubesDisplay::canShowTexture() const
 {
     return validtexture_ && isAnyAttribEnabled() &&
-	   !areIntersectionsDisplayed();
+	   !displayedOnlyAtSections();
 }
 
 
@@ -298,9 +298,9 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
 
-	const int inlidx = 
+	const int inlidx =
 	    impbody_->tkzs_.hsamp_.inlRange().nearestIndex(bid.inl());
-	const int crlidx = 
+	const int crlidx =
 	    impbody_->tkzs_.hsamp_.crlRange().nearestIndex(bid.crl());
 
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
@@ -839,7 +839,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	pi->visshape_->turnOn( displayintersections_ );
 	addChild( pi->visshape_->osgNode() );
 
-	TrcKeyZSampling cs = 
+	TrcKeyZSampling cs =
 	    activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
 
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
@@ -860,11 +860,11 @@ void MarchingCubesDisplay::otherObjectsMoved(
 }
 
 
-bool MarchingCubesDisplay::areIntersectionsDisplayed() const
+bool MarchingCubesDisplay::displayedOnlyAtSections() const
 { return displayintersections_; }
 
 
-void MarchingCubesDisplay::displayIntersections( bool yn )
+void MarchingCubesDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
     if ( displayintersections_==yn )
 	return;

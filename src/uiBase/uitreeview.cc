@@ -171,7 +171,8 @@ void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
     if ( cbc.data.key() != 0 )
     {
 	lvhandle_.unusedKey.trigger();
-	QTreeWidget::keyPressEvent( ev );
+// Disabled for now. Probably need a 'handled' boolean somewhere.
+//	QTreeWidget::keyPressEvent( ev );
     }
 }
 

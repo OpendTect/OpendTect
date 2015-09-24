@@ -59,7 +59,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem(
-        uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() ) )
+	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()) )
 {
 }
 
@@ -258,7 +258,7 @@ uiTreeItem*
     {
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
 			 hd->getChannels2RGBA() );
-	const bool atsection = hd->getOnlyAtSectionsDisplay();
+	const bool atsection = hd->displayedOnlyAtSections();
 	return new uiODHorizonTreeItem( visid, rgba, atsection, true );
     }
 
@@ -633,7 +633,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODTreeItem(
-        uiStrings::phrJoinStrings(uiStrings::s2D(), uiStrings::sHorizon() ) )
+	uiStrings::phrJoinStrings(uiStrings::s2D(),uiStrings::sHorizon()) )
 {}
 
 

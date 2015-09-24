@@ -46,7 +46,7 @@ public:
     			~uiODBodyDisplayTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    void		displayAtSections(bool);
+    void		setOnlyAtSectionsDisplay(bool);
 
 protected:
     static uiString	sCalcVolume() { return tr("Calculate Volume"); }

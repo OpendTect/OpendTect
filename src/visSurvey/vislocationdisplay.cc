@@ -173,7 +173,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     getMaterial()->setColor( set_->disp_.color_ );
     invalidpicks_.erase();
-    
+
     if ( set_->isEmpty() )
     {
 	removeAll();
@@ -213,6 +213,13 @@ void LocationDisplay::showAll( bool yn )
 	return;
     }
 }
+
+
+void LocationDisplay::setOnlyAtSectionsDisplay( bool yn )
+{ showAll( !yn); }
+
+bool LocationDisplay::displayedOnlyAtSections() const
+{ return !allShown(); }
 
 
 void LocationDisplay::pickCB( CallBacker* cb )
@@ -269,16 +276,16 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	eventcatcher_->setHandled();
     }
     else if ( waitsforpositionid_!=-1 ) // dragging
-    { 
-	// when dragging it will receive multi times coords from visevent: 
-	// mouse move and mouse release. we need the last one and the begin 
+    {
+	// when dragging it will receive multi times coords from visevent:
+	// mouse move and mouse release. we need the last one and the begin
 	// one for undo issue
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
 	    if ( eventinfo.type==visBase::MouseClick )
 	    {
-		set_->moveWithUndo( 
+		set_->moveWithUndo(
 		    waitsforpositionid_,Pick::Location(undoloccoord_),
 		    Pick::Location(newpos) );
 		Pick::Mgr().undo().setUserInteractionEnd(
@@ -949,7 +956,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 }
 
 
-const Coord3 LocationDisplay::getActivePlaneNormal( 
+const Coord3 LocationDisplay::getActivePlaneNormal(
     const visBase::EventInfo& eventinfo ) const
 {
     Coord3 normal = Coord3::udf();

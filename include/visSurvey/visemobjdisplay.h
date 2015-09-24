@@ -69,7 +69,7 @@ public:
     BufferStringSet		displayedSections() const;
 
     virtual void		setOnlyAtSectionsDisplay(bool yn);
-    virtual bool		getOnlyAtSectionsDisplay() const;
+    virtual bool		displayedOnlyAtSections() const;
 
     virtual void		setSelectionMode(bool);
     bool			allowMaterialEdit() const { return true; }

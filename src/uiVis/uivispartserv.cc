@@ -1364,6 +1364,20 @@ bool uiVisPartServer::setWorkingArea()
 }
 
 
+void uiVisPartServer::setOnlyAtSectionsDisplay( int id, bool yn )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    if ( so ) so->setOnlyAtSectionsDisplay( yn );
+}
+
+
+bool uiVisPartServer::displayedOnlyAtSections( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    return so && so->displayedOnlyAtSections();
+}
+
+
 bool uiVisPartServer::usePar( const IOPar& par )
 {
     if ( !visBase::DM().usePar( par ) )
@@ -2029,6 +2043,13 @@ void uiVisPartServer::keyEventCB( CallBacker* cb )
 
     eventmutex_.lock();
     kbevent_ = sceneeventsrc_->getKeyboardEvent();
+
+    const int selid = getSelObjectId();
+    if ( kbevent_.key_==OD::V && kbevent_.modifier_==OD::NoButton )
+    {
+	setOnlyAtSectionsDisplay( selid, !displayedOnlyAtSections(selid) );
+    }
+
     sendEvent( evKeyboardEvent() );
     keyEvent.trigger();
     sceneeventsrc_ = 0;

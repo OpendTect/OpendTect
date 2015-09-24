@@ -146,6 +146,8 @@ public:
     virtual bool		hasSpecificLineColor() const { return false; }
 				/*!<Specifies wether setLineStyle takes
 				    regard to the color of the linestyle. */
+    virtual void		setOnlyAtSectionsDisplay(bool)		{}
+    virtual bool		displayedOnlyAtSections() const { return false;}
 
     virtual bool		hasColor() const	{ return false;}
     virtual bool		usesColor() const	{ return hasColor(); }
@@ -325,7 +327,7 @@ public:
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const		{ return false;}
-    virtual void		setSelectionMode(bool) {};
+    virtual void		setSelectionMode(bool) {}
 
     static float		sDefMaxDist();
 
@@ -339,7 +341,7 @@ public:
     static const char*		sKeyTC2RGBA()	{ return "TC2RGBA"; }
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
     static const char*		sKeyAttribs()	{ return "Attrib "; }
-    static const char*          sKeyLocked()    { return "Locked"; }
+    static const char*		sKeyLocked()	{ return "Locked"; }
     static const char*		sKeySurvey()	{ return "Survey"; }
 
     void			setUserRefs( int attrib, BufferStringSet* nms )

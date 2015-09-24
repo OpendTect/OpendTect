@@ -328,22 +328,22 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     else if ( displaymnuitem )
     {
 	mAddMenuItem( displaymnuitem, &singlecolmnuitem_,
-		      !emod->getOnlyAtSectionsDisplay() &&
+		      !emod->displayedOnlyAtSections() &&
 				      (!hordisp || hordisp->canShowTexture()),
 		      !hordisp || !hordisp->showsTexture() );
     }
 
-    const bool atsect = emod->getOnlyAtSectionsDisplay();
+    const bool atsect = emod->displayedOnlyAtSections();
     bool infull, both = false, showgrid = false;
     if ( hor2ddisp )
-	infull = !emod->getOnlyAtSectionsDisplay();
+	infull = !emod->displayedOnlyAtSections();
     else
     {
-	infull = !emod->getOnlyAtSectionsDisplay() &&
+	infull = !emod->displayedOnlyAtSections() &&
 			!hordisp->displaysIntersectionLines();
-	both = !emod->getOnlyAtSectionsDisplay() &&
+	both = !emod->displayedOnlyAtSections() &&
 			hordisp->displaysIntersectionLines();
-	showgrid = !emod->getOnlyAtSectionsDisplay() &&
+	showgrid = !emod->displayedOnlyAtSections() &&
 			hordisp->displaysSurfaceGrid();
     }
 
@@ -381,8 +381,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	const TypeSet<EM::PosID>* seeds =
 	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
 	showseedsmnuitem_.text =
-	   emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? uiStrings::sHide()
-                                                           : uiStrings::sShow();
+	   emod->showsPosAttrib(EM::EMObject::sSeedNode())
+		? uiStrings::sHide() : uiStrings::sShow();
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
@@ -404,9 +404,9 @@ void uiVisEMObject::keyEventCB( CallBacker* )
 	return;
 
     const KeyboardEvent& ke = visserv_->getKeyboardEvent();
-    if ( (ke.key_==OD::R || ke.key_==OD::V) && ke.modifier_==OD::NoButton )
+    if ( ke.key_==OD::R && ke.modifier_==OD::NoButton )
     {
-	const bool oas = hd->getOnlyAtSectionsDisplay();
+	const bool oas = hd->displayedOnlyAtSections();
 	hd->setOnlyAtSectionsDisplay( !oas );
     }
 }
@@ -493,7 +493,7 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 bool uiVisEMObject::isOnlyAtSections() const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    return emod ? emod->getOnlyAtSectionsDisplay() : false;
+    return emod ? emod->displayedOnlyAtSections() : false;
 }
 
 

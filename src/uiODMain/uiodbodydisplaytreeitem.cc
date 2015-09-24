@@ -124,7 +124,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	{
 	    mDynamicCastGet(uiODBodyDisplayTreeItem*,itm,children_[idx])
 	    if ( itm )
-		itm->displayAtSections( displayatsections );
+		itm->setOnlyAtSectionsDisplay( displayatsections );
 	}
     }
     else
@@ -446,7 +446,7 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
     if ( mcd_ )
     {
-	const bool intersectdisplay = mcd_->areIntersectionsDisplayed();
+	const bool intersectdisplay = mcd_->displayedOnlyAtSections();
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		!intersectdisplay );
@@ -463,7 +463,7 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
 		      plg_->arePolygonsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
-		      plg_->areIntersectionsDisplayed() );
+		      plg_->displayedOnlyAtSections() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
     }
 
@@ -533,22 +533,22 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
 	    plg_->display( polygondisplayed, bodydisplay );
-	    plg_->displayIntersections( !polygondisplayed && !bodydisplay );
+	    plg_->setOnlyAtSectionsDisplay( !polygondisplayed && !bodydisplay );
 	}
 	else if ( mcd_ )
-	    mcd_->displayIntersections( !bodydisplay );
+	    mcd_->setOnlyAtSectionsDisplay( !bodydisplay );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
 	const bool polygondisplay = !displaypolygonmnuitem_.checked;
 	const bool bodydisplayed = displaybodymnuitem_.checked;
 	plg_->display( polygondisplay, bodydisplayed );
-	plg_->displayIntersections( !polygondisplay && !bodydisplayed );
+	plg_->setOnlyAtSectionsDisplay( !polygondisplay && !bodydisplayed );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
-	displayAtSections( intersectdisplay );
+	setOnlyAtSectionsDisplay( intersectdisplay );
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
@@ -561,15 +561,15 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODBodyDisplayTreeItem::displayAtSections( bool yn )
+void uiODBodyDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 {
     if ( plg_ )
     {
 	plg_->display( false, !yn );
-	plg_->displayIntersections( yn );
+	plg_->setOnlyAtSectionsDisplay( yn );
     }
     else if ( mcd_ )
-	mcd_->displayIntersections( yn );
+	mcd_->setOnlyAtSectionsDisplay( yn );
 }
 
 
