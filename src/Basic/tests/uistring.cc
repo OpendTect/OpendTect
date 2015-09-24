@@ -195,7 +195,23 @@ bool testNumberStrings()
     qstr = QString::fromWCharArray( wbuf );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="0.9", "Number string from wchar" );
+    
+    return true;
+}
 
+
+bool testLargeNumberStrings()
+{
+    uiString string = toUiString( 12500 );
+    QString qstr = string.getQString();
+    BufferString bstr( qstr );
+    mRunStandardTest( bstr=="12500", "Large number string" );
+
+    ArrPtrMan<wchar_t> wbuf = string.createWCharString();
+    qstr = QString::fromWCharArray( wbuf );
+    bstr = BufferString( qstr );
+    mRunStandardTest( bstr=="12500", "Large number string from wchar" );
+    
     return true;
 }
 
@@ -269,8 +285,8 @@ int main( int argc, char** argv )
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
-	 !testSetEmpty() || !testNumberStrings() || !testToLower() ||
-	 !TestTranslator::testTranslation() )
+	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings()
+	 || !testToLower() || !TestTranslator::testTranslation() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
