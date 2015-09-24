@@ -1375,6 +1375,20 @@ bool uiVisPartServer::setWorkingArea()
 }
 
 
+void uiVisPartServer::setOnlyAtSectionsDisplay( int id, bool yn )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    if ( so ) so->setOnlyAtSectionsDisplay( yn );
+}
+
+
+bool uiVisPartServer::displayedOnlyAtSections( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    return so && so->displayedOnlyAtSections();
+}
+
+
 bool uiVisPartServer::usePar( const IOPar& par )
 {
     if ( !visBase::DM().usePar( par ) )

@@ -146,6 +146,8 @@ public:
     virtual bool		hasSpecificLineColor() const { return false; }
 				/*!<Specifies wether setLineStyle takes
 				    regard to the color of the linestyle. */
+    virtual void		setOnlyAtSectionsDisplay(bool)		{}
+    virtual bool		displayedOnlyAtSections() const { return false;}
 
     virtual bool		hasColor() const	{ return false;}
     virtual bool		usesColor() const	{ return hasColor(); }

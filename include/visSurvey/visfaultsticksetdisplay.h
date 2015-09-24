@@ -97,7 +97,7 @@ public:
     bool			removeSelections(TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }
 
-    void			setDisplayOnlyAtSections(bool yn);
+    void			setOnlyAtSectionsDisplay(bool yn);
     bool			displayedOnlyAtSections() const;
 
     void			setStickSelectMode(bool yn);
@@ -170,6 +170,10 @@ protected:
     bool			displayonlyatsections_;
     bool			makenewstick_;
     EM::PosID			activestickid_;
+
+public:
+    void			setDisplayOnlyAtSections(bool yn)
+				{ setOnlyAtSectionsDisplay(yn); }
 };
 
 } // namespace VisSurvey

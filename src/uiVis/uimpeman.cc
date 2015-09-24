@@ -225,7 +225,7 @@ int uiMPEMan::popupMenu()
 	mAddAction( tr("Unlock"), "u", sUnlock, "unlock", true )
 	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
 	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
-	if ( !hd->getOnlyAtSectionsDisplay() )
+	if ( !hd->displayedOnlyAtSections() )
 	    mAddAction( tr("Display Only at Sections"), "r", sRest,
 			"sectiononly", true )
 	else

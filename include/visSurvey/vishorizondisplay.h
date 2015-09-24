@@ -72,7 +72,7 @@ public:
     bool			canShowTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
-    bool			getOnlyAtSectionsDisplay() const;
+    bool			displayedOnlyAtSections() const;
 
     void			displaySurfaceData(int attrib,int auxdatanr);
 
@@ -290,6 +290,10 @@ protected:
     static const char*			sKeySurfaceGrid();
     static const char*			sKeySectionID();
     static const char*			sKeyZValues();
+
+public:
+    bool				getOnlyAtSectionsDisplay() const
+					{ return displayedOnlyAtSections(); }
 };
 
 } // namespace visSurvey

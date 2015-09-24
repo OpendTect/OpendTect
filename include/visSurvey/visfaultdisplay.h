@@ -117,6 +117,9 @@ public:
     bool			removeSelections(TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }
 
+    void			setOnlyAtSectionsDisplay(bool);
+    bool			displayedOnlyAtSections() const;
+
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
     bool			canDisplayIntersections() const;

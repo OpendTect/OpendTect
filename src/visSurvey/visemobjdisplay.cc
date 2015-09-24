@@ -421,7 +421,7 @@ void EMObjectDisplay::setOnlyAtSectionsDisplay(bool yn)
 }
 
 
-bool EMObjectDisplay::getOnlyAtSectionsDisplay() const
+bool EMObjectDisplay::displayedOnlyAtSections() const
 { return displayonlyatsections_; }
 
 
@@ -602,7 +602,7 @@ void EMObjectDisplay::fillPar( IOPar& par ) const
 
     par.set( sKeyEarthModelID(), getMultiID() );
     par.setYN( sKeyEdit(), isEditingEnabled() );
-    par.setYN( sKeyOnlyAtSections(), getOnlyAtSectionsDisplay() );
+    par.setYN( sKeyOnlyAtSections(), displayedOnlyAtSections() );
     par.set( sKey::Color(), (int)getColor().rgb() );
 
     if ( lineStyle() )

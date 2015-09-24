@@ -215,6 +215,13 @@ void LocationDisplay::showAll( bool yn )
 }
 
 
+void LocationDisplay::setOnlyAtSectionsDisplay( bool yn )
+{ showAll( !yn); }
+
+bool LocationDisplay::displayedOnlyAtSections() const
+{ return !allShown(); }
+
+
 void LocationDisplay::pickCB( CallBacker* cb )
 {
     if ( !isSelected() || !isOn() || isLocked() ) return;

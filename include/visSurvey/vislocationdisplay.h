@@ -52,6 +52,8 @@ public:
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
+    virtual void		setOnlyAtSectionsDisplay(bool);
+    virtual bool		displayedOnlyAtSections() const;
 
 
     virtual BufferString	getManipulationString() const;
@@ -74,8 +76,6 @@ public:
     virtual const mVisTrans*	getDisplayTransformation() const;
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    virtual void                fillPar(IOPar&) const;
-    virtual bool                usePar(const IOPar&);
     virtual void		turnOnSelectionMode(bool){};
 
     int				getPickIdx(visBase::DataObject*) const;
@@ -88,6 +88,9 @@ public:
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
+
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
 				LocationDisplay();
@@ -102,8 +105,8 @@ protected:
 					const visBase::EventInfo& evi)const;
     virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
-    virtual void		updateDragger() {};
-    virtual void		setDraggerNormal(const Coord3&) {};
+    virtual void		updateDragger() {}
+    virtual void		setDraggerNormal(const Coord3&) {}
     virtual bool		draggerNormal() const {return true;}
     virtual bool		removeSelections(TaskRunner*);
 
@@ -162,8 +165,6 @@ protected:
 
 };
 
-};
-
+} // namespace visSurvey
 
 #endif
-

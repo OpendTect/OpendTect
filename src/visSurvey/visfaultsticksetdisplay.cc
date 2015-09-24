@@ -1104,7 +1104,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 }
 
 
-void FaultStickSetDisplay::setDisplayOnlyAtSections( bool yn )
+void FaultStickSetDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
     if ( displayonlyatsections_ == yn ) return;
     displayonlyatsections_ = yn;

@@ -1426,9 +1426,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	if ( !hd || !hd->getScene() )
 	    return false;
 
-	const TrcKey tk =
-		SI().transform( hd->getScene()->getMousePos(true) );
-	addMPEParentPath( visid, tk );
+	const TrcKeyValue tkv = hd->getScene()->getMousePos();
+	addMPEParentPath( visid, tkv.tk_ );
     }
     else if ( evid == uiVisPartServer::evShowMPESetupDlg() )
     {

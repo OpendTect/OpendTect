@@ -156,7 +156,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
 	    if ( !itm ) continue;
 
-	    itm->showAllPicks( showall );
+	    itm->setOnlyAtSectionsDisplay( showall );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
@@ -304,7 +304,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	if ( psd )
-	    showAllPicks( !psd->allShown() );
+	    setOnlyAtSectionsDisplay( !psd->allShown() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
@@ -474,7 +474,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	    mDynamicCastGet(uiODPolygonTreeItem*,itm,children_[idx])
 	    if ( !itm ) continue;
 
-	    itm->showAllPicks( showall );
+	    itm->setOnlyAtSectionsDisplay( showall );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
@@ -623,7 +623,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	if ( psd )
-	    showAllPicks( !psd->allShown() );
+	    setOnlyAtSectionsDisplay( !psd->allShown() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {

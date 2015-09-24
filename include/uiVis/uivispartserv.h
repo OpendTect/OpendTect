@@ -307,6 +307,8 @@ public:
     void			setZStretch();
     void			setDirectionalLight();
     bool			setWorkingArea();
+    void			setOnlyAtSectionsDisplay(int id,bool);
+    bool			displayedOnlyAtSections(int id) const;
     static int			evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
@@ -393,7 +395,7 @@ protected:
 							bool issel) const;
 
     void			setMarkerPos(const TrcKeyValue&,
-                                             int dontsetscene);
+					     int dontsetscene);
 
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);

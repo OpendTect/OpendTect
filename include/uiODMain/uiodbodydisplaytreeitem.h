@@ -46,7 +46,7 @@ public:
     			~uiODBodyDisplayTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    void		displayAtSections(bool);
+    void		setOnlyAtSectionsDisplay(bool);
 
 protected:
     static uiString	sCalcVolume() { return tr("Calculate Volume"); }
@@ -76,6 +76,10 @@ protected:
     MenuItem				displayintersectionmnuitem_;
     MenuItem				singlecolormnuitem_;
     MenuItem				volcalmnuitem_;
+
+public:
+    void		displayAtSections(bool yn)
+			{ setOnlyAtSectionsDisplay( yn ); }
 };
 
 

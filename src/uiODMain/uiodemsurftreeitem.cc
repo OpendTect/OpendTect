@@ -149,16 +149,10 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 
 
 void uiODEarthModelSurfaceTreeItem::setOnlyAtSectionsDisplay( bool yn )
-{
-    if ( visEMObject() )
-	visEMObject()->setOnlyAtSectionsDisplay( yn );
-}
-
+{ uiODDisplayTreeItem::setOnlyAtSectionsDisplay( yn ); }
 
 bool uiODEarthModelSurfaceTreeItem::isOnlyAtSections() const
-{
-    return visEMObject() ? visEMObject()->isOnlyAtSections() : false;
-}
+{ return displayedOnlyAtSections(); }
 
 
 void uiODEarthModelSurfaceTreeItem::selChg( CallBacker* )

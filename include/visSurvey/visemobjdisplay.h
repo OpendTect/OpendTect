@@ -49,7 +49,7 @@ public:
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
 				{ return false; }
     const ZAxisTransform*	getZAxisTransform() const
-    				{ return zaxistransform_; }
+				{ return zaxistransform_; }
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
@@ -69,7 +69,7 @@ public:
     BufferStringSet		displayedSections() const;
 
     virtual void		setOnlyAtSectionsDisplay(bool yn);
-    virtual bool		getOnlyAtSectionsDisplay() const;
+    virtual bool		displayedOnlyAtSections() const;
 
     virtual void		turnOnSelectionMode(bool);
     bool			allowMaterialEdit() const { return true; }
@@ -121,14 +121,14 @@ public:
 
 
 protected:
-    				EMObjectDisplay();
+				EMObjectDisplay();
 				~EMObjectDisplay();
     virtual void		removeEMStuff();
 
     virtual void		removeSectionDisplay(const EM::SectionID&) = 0;
     virtual bool		addSection(const EM::SectionID&,TaskRunner*)=0;
 
-    virtual EM::PosID 		findClosestNode(const Coord3&) const;
+    virtual EM::PosID		findClosestNode(const Coord3&) const;
     virtual void		emChangeCB(CallBacker*);
     virtual void		clickCB(CallBacker*);
     virtual void		updatePosAttrib(int attrib);
@@ -186,7 +186,9 @@ private:
     void				unSelectAll();
     const TypeSet<int>			findOverlapSelectors(
 						    visBase::PolygonSelection*);
-
+public:
+    virtual bool		getOnlyAtSectionsDisplay() const
+				{ return displayedOnlyAtSections(); }
 };
 
 } // namespace visSurvey

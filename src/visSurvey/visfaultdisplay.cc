@@ -1324,6 +1324,17 @@ bool FaultDisplay::hasCache( int attrib ) const
 { return false; }
 
 
+void FaultDisplay::setOnlyAtSectionsDisplay( bool yn )
+{
+    displayIntersections( yn );
+    displayHorizonIntersections( yn );
+}
+
+
+bool FaultDisplay::displayedOnlyAtSections() const
+{ return areIntersectionsDisplayed(); }
+
+
 void FaultDisplay::displayIntersections( bool yn )
 {
     displayintersections_ = yn;
@@ -1400,7 +1411,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
 	if ( !hor || !hor->isOn() || !hor->getSectionIDs().size() )
 	    continue;
-	if ( hor->getOnlyAtSectionsDisplay() )
+	if ( hor->displayedOnlyAtSections() )
 	    continue;
 
 	activehordisps += const_cast<HorizonDisplay*>( hor );
