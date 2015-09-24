@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifndef OD_NO_QT
 # include <QTranslator>
 # include <QLocale>
+#else
+# include "keystrs.h"
 #endif
 
 void TextTranslateMgr::GetLocalizationDir( FilePath& res )
@@ -62,6 +64,8 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
 	name.translate( maintrans, *languagename_ );
 	//Force be a part of the plural setup
     }
+
+    locale_->setNumberOptions( QLocale::OmitGroupSeparator );
 #endif
 }
 
@@ -84,7 +88,11 @@ TextTranslatorLanguage::getTranslator( const char* appl ) const
 
 BufferString TextTranslatorLanguage::getLocaleName() const
 {
+#ifndef OD_NO_QT
     return BufferString( locale_->name() );
+#else
+    return sKey::EmptyString();
+#endif
 }
 
 
