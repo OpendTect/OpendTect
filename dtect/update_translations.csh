@@ -66,6 +66,12 @@ set olddir=`pwd`
 cd ${projectdir}
 
 set headers = `find $tmpoddir -path "*.h"`
+set dirfile = ${tmpoddir}/dirs
+foreach header ( ${headers} )
+    dirname ${header} >> ${dirfile}
+end
+
+set dirs = `sort -u ${dirfile}`
 
 #Create file with all files
 set filelist="filelist.txt"
@@ -110,6 +116,13 @@ end
 
 cat ${filelist} >> ${profnm}
 
+echo "" >> ${profnm}
+echo -n "INCLUDEPATH += " >> ${profnm}
+
+foreach dir ( ${dirs} )
+    echo " \" >> ${propfnm}
+    echo -n "	${dir}" >>${propfnm}
+end
 
 #Create a list of .ts files for plural operations
 set pluralpro=$projectdir/plural.pro
@@ -120,26 +133,39 @@ if ( -e ${application}_en-us.ts ) then
     cat ${filelist} >> ${pluralpro}
 endif
 
+echo "" >> ${pluralpro}
+echo -n "INCLUDEPATH += " >> ${pluralpro}
+
+foreach dir ( ${dirs} )
+	echo " \" >> ${pluralpro}
+	echo -e "	${dir}" >>${pluralpro}
+end
+
 #Remove the filelist
 \rm -rf ${filelist}
 
 #Filter the sources for patterns
-echo ${sources} | xargs -P ${nrcpu} sed -i \
-	-e 's/[^ \t]*_static_tr([ \t]*/static_func___begquote/g' \
-	-e 's/static_func_[^,]*/&__endquote::tr(/g' \
-	-e 's/::tr(,/::tr(/g' \
-	-e 's/__begquote"//g' \
-	-e 's/"__endquote//g'
-
-#Filter the headers for patterns
-echo ${headers} | xargs -P ${nrcpu} sed -i \
-	-e 's/mExpClass(.*)/class/g' \
+echo ${sources} | xargs -P ${nrcpu} sed \
+	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mClass(.*)/class/g' \
 	-e 's/[^ \t]*_static_tr([ \t]*/static_func___begquote/g' \
 	-e 's/static_func_[^,]*/&__endquote::tr(/g' \
 	-e 's/::tr(,/::tr(/g' \
 	-e 's/__begquote"//g' \
-	-e 's/"__endquote//g'
+	-e 's/"__endquote//g' -iTMP
+
+#Filter the headers for patterns
+echo ${headers} | xargs -P ${nrcpu} sed \
+	-e 's/mExpClass(.*)/class/g' \
+	-e 's/mClass(.*)/class/g' \
+	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/[^ \t]*_static_tr([ \t]*/static_func___begquote/g' \
+	-e 's/static_func_[^,]*/&__endquote::tr(/g' \
+	-e 's/::tr(,/::tr(/g' \
+	-e 's/__begquote"//g' \
+	-e 's/"__endquote//g' -iTMP
 
 
 #Run lupdate
@@ -152,7 +178,7 @@ endif
 rsync --checksum *.ts ${binarydir}/data/localizations/generated
 
 #Remvoe temporary dir
-\rm -rf  ${tmpoddir}
+# \rm -rf  ${tmpoddir}
 
 #Go back to starting dir
 cd ${olddir}
