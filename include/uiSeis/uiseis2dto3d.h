@@ -28,11 +28,11 @@ class uiCheckBox;
 mExpClass(uiSeis) uiSeis2DTo3D : public uiDialog
 { mODTextTranslationClass(uiSeis2DTo3D);
 public:
+	mDefineFactoryInClass(uiSeis2DTo3D, factory);
 
-			uiSeis2DTo3D(uiParent*);
+			uiSeis2DTo3D(uiParent*, uiString& );
 
 protected:
-
     uiSeisSel*		inpfld_;
     uiPosSubSel*	possubsel_;
     uiSeisSel*		outfld_;
@@ -46,10 +46,9 @@ protected:
     bool		prepareProcessing();
     bool		fillSeisPar();
 
-    bool		fillPar();
-    bool		acceptOK(CallBacker*);
+    virtual bool	fillPar();
+    virtual bool	acceptOK(CallBacker*);
 };
-
 
 #endif
 

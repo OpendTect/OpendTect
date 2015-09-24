@@ -28,19 +28,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
-uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog( p, Setup( tr("Create 3D cube from to 2DDataSet"),
+uiSeis2DTo3D::uiSeis2DTo3D(uiParent* p, uiString& titletext)
+	: uiDialog( p, Setup( titletext,
 			      mNoDlgTitle,
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
 {
-
-    uiSeisSel::Setup sssu( Seis::Line );
+	uiSeisSel::Setup sssu( Seis::Line );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     sssu.enabotherdomain(true);
-
     inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
 			     sssu );
-    powfld_ = new uiGenInput( this, tr("Operator decay"));
+
+	powfld_ = new uiGenInput( this, tr("Operator decay"));
     powfld_->attach( alignedBelow , inpfld_);
     powfld_->setValue(2);
 
@@ -92,8 +91,9 @@ bool uiSeis2DTo3D::prepareProcessing()
 
 bool uiSeis2DTo3D::fillSeisPar()
 {
-    IOPar& iop = jobSpec().pars_;
-    iop.set( Seis2DTo3D::sKeyInput(), inpfld_->key() );
+	IOPar& iop = jobSpec().pars_;
+
+	iop.set( Seis2DTo3D::sKeyInput(), inpfld_->key() );
     iop.set( SeisJobExecProv::sKeySeisOutIDKey(), outfld_->key() );
 
     IOPar sampling;
@@ -117,6 +117,9 @@ bool uiSeis2DTo3D::fillPar()
 	return false;
 
     IOPar par;
+	BufferString method = Seis2DTo3DImpl::sFactoryKeyword();
+
+	par.set(Seis2DTo3D::sKeyType(), method);
     par.set(Seis2DTo3D::sKeyPow(), powfld_->getfValue() );
     par.set(Seis2DTo3D::sKeyTaper(), taperfld_->getfValue() );
     par.setYN(Seis2DTo3D::sKeySmrtScale(), smrtscalebox_->isChecked() );

@@ -563,7 +563,10 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
     else if ( opt==1 )
     { uiSeis2DFrom3D dlg( par_ ); dlg.go(); }
     else if ( opt==2 )
-    { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
+	{
+		uiString titletext = tr("Create 3D cube from to 2DDataSet");
+		uiSeis2DTo3D dlg( par_ ,titletext); dlg.go(); 
+	}
 }
 
 

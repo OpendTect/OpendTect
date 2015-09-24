@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "waveletio.h"
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
+#include "seis2dto3d.h"
 
 uiString SeisTrcTranslatorGroup::sTypeName()
 { return tr("Seismic Data"); }
@@ -84,4 +85,6 @@ mDefModInitFn(Seis)
     Seis::ODSeqInp::initClass();
     Seis::ODSeqOut::initClass();
     Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
+
+	Seis2DTo3DImpl::initClass();
 }

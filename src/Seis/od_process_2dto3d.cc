@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "seisjobexecprov.h"
 #include "seismod.h"
 #include "separstr.h"
-
+#include "factory.h"
 
 #define mDestroyWorkers \
 { delete proc; proc = 0; }
@@ -118,8 +118,21 @@ bool BatchProgram::go( od_ostream& strm )
 
     TextStreamProgressMeter progressmeter(strm);
     TextTaskRunner taskr( strm );
+	
+	BufferString type;
+	if (!paramspar->get(Seis2DTo3D::sKeyType(), type) || type.isEmpty())
+		mRetJobErr("Cannot determine type of seismic"
+					"interpolator from parameter file")
+	
+	proc = Seis2DTo3D::factory().create(type);
 
-    proc = new Seis2DTo3D( strm, &taskr);
+	if (!proc)
+		mRetJobErr("Cannot create seismic interpolator"
+		 ",perhaps not all plugins are loaded?")
+	
+	proc->setStream(strm);
+	proc->setTaskRunner(&taskr);
+
     if ( !proc->init(pars()) )
 	mRetJobErr("Invalid set of input parameters")
 

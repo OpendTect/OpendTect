@@ -37,16 +37,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "statparallelcalc.h"
 
+mImplFactory(Seis2DTo3D, Seis2DTo3D::factory)
 
 const char* Seis2DTo3D::sKeyInput()	{ return "Input ID"; }
+const char* Seis2DTo3D::sKeyType()	{ return "Interpolation type"; }
 const char* Seis2DTo3D::sKeyPow()	{ return "Operator decay"; }
 const char* Seis2DTo3D::sKeyTaper()	{ return "Operator taper"; }
 const char* Seis2DTo3D::sKeySmrtScale() { return "Smart scaling"; }
 
-Seis2DTo3D::Seis2DTo3D( od_ostream& strm, TaskRunner* taskr )
+Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating a 3D cube from a 2DDataSet")
-    , strm_(strm)
-    , tr_(taskr)
     , inioobj_(0)
     , outioobj_(0)
     , tkzs_(true)
@@ -62,9 +62,20 @@ Seis2DTo3D::Seis2DTo3D( od_ostream& strm, TaskRunner* taskr )
     , geom_(0)
     , taperangle_(0)
     , pow_(2)
+	, strm_(0)
+	, taskrun_(0)
 {
 }
 
+void Seis2DTo3D::setTaskRunner(TaskRunner* taskr)
+{
+	taskrun_ = taskr;
+}
+
+void Seis2DTo3D::setStream(od_ostream& strm)
+{
+	strm_ = &strm;
+}
 
 Seis2DTo3D::~Seis2DTo3D()
 {
@@ -75,7 +86,7 @@ Seis2DTo3D::~Seis2DTo3D()
     delete outioobj_;
     delete trcarr_;
     delete butterfly_;
-    delete geom_;
+    delete geom_; 
 }
 
 
@@ -241,6 +252,7 @@ void Seis2DTo3D::readInputCube(const int szfastx,
 }
 
 
+
 class OperatorComputerExecutor : public ParallelTask
 { mODTextTranslationClass(OperatorComputerExecutor);
 public:
@@ -359,18 +371,16 @@ public:
     const TrcKeyZSampling&  tkzs_;
     const Array3DInfo&	info_;
     float_complex* butterfly_;
-
-
 };
 
-#define mDoTransform(tf,isstraight,arr, tr) \
+#define mDoTransform(tf,isstraight,arr, taskrun) \
 {\
 tf->setInputInfo( arr->info() );\
 tf->setDir(isstraight);\
 tf->setNormalization(!isstraight);\
 tf->setInput(arr->getData());\
 tf->setOutput(arr->getData());\
-TaskRunner::execute(tr, *fft_);\
+TaskRunner::execute(taskrun, *fft_);\
 }
 
 mDefParallelCalc2Pars( ArrayMultiplierExec, tr("Array multiplication"),
@@ -394,30 +404,31 @@ int Seis2DTo3D::nextStep()
     const int szfasty = fft_->getFastSize( tkzs_.nrTrcs() );
     const int szfastz = fft_->getFastSize( tkzs_.nrZ() );
 
-    strm_ << " \nConstructing 3D cube ... \n";
+    *strm_ << " \nConstructing 3D cube ... \n";
     readInputCube( szfastx, szfasty, szfastz );
-
+	*strm_ << " \nFinished constructing 3D cube \n";
+	preProcessArray();
     if( nrdone_ == 0 )
     butterflyOperator();
 
-    mDoTransform( fft_, true, trcarr_ ,tr_);
+    mDoTransform( fft_, true, trcarr_ ,taskrun_);
     if ( nrdone_ == 0 )
-    mDoTransform( fft_, true, butterfly_ ,tr_ );
+    mDoTransform( fft_, true, butterfly_ ,taskrun_ );
 
     if (smartscaling_ && nrdone_ == 0)
     {
-	mDoTransform( fft_, true, geom_ , tr_);
+	mDoTransform( fft_, true, geom_ , taskrun_);
 	ArrayMultiplierExec meexec( butterfly_->info().getTotalSz(),
 				   butterfly_->getData(), geom_->getData() );
-	tr_->execute( meexec );
-	mDoTransform( fft_, false, geom_ , tr_);
+	taskrun_->execute( meexec );
+	mDoTransform( fft_, false, geom_ , taskrun_);
     }
     ArrayMultiplierExec meexec( butterfly_->info().getTotalSz(),
 			       butterfly_->getData(), trcarr_->getData() );
-    tr_->execute( meexec );
-    mDoTransform( fft_, false, trcarr_ , tr_);
+    taskrun_->execute( meexec );
+    mDoTransform( fft_, false, trcarr_ , taskrun_);
 
-    strm_ << " \nScaling results ... \n";
+    *strm_ << " \nScaling results ... \n";
     if (smartscaling_)
     {
     smartScale();
@@ -427,14 +438,15 @@ int Seis2DTo3D::nextStep()
     scaleArray();
     }
 
-    strm_ << " \nWriting component to disk ... \n";
+	unProcessArray();
+    *strm_ << " \nWriting component to disk ... \n";
     writeOutput();
     nrdone_++;
 
     if (nrdone_ == totalNr() )
 	return Finished();
-
-    return MoreToDo();
+  
+	return MoreToDo();
 }
 
 
@@ -447,7 +459,7 @@ void Seis2DTo3D::butterflyOperator()
 
     OperatorComputerExecutor opcompexec(tkzs_, butterfly_->info(),
 				butterfly_->getData(), taperangle_, pow_);
-    tr_->execute(opcompexec);
+    taskrun_->execute(opcompexec);
 }
 
 
@@ -504,7 +516,7 @@ void Seis2DTo3D::smartScale()
 {
     ArrayDivideExec adexec( trcarr_->info().getTotalSz(), geom_->getData(),
 			       trcarr_->getData() );
-    tr_->execute( adexec );
+    taskrun_->execute( adexec );
 }
 
 
