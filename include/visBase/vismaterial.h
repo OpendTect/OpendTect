@@ -145,6 +145,7 @@ private:
     osg::Array*			osgcolorarray_;
     ObjectSet<osg::Geometry>	attachedgeoms_;
     float			transparencybendpower_;
+    bool			shouldtrigger_;
 };
 
 } // namespace visBase
