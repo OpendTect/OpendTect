@@ -96,6 +96,7 @@ static bool testLimitTo()
 bool testIterator()
 {
     TrcKeySampling hrg;
+    hrg.survid_ = TrcKey::std3DSurvID();
     hrg.set( StepInterval<int>( 0, 2, 2 ), StepInterval<int>( 0, 2, 2 ) );
 
     TrcKeySamplingIterator iter( hrg );
