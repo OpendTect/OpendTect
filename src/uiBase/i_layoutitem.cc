@@ -241,6 +241,7 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 	    case stretchedAbove:	msg += " stretchedAbove "; break;
 	    case stretchedLeftTo:	msg += " stretchedLeftTo "; break;
 	    case stretchedRightTo:	msg += " stretchedRightTo "; break;
+	    case atSamePosition:	msg += " atSamePosition "; break;
 	    default:			msg += " .. "; break;
 	}
 
@@ -647,6 +648,15 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    break;
 	}
+	case atSamePosition:
+	{
+	    if ( mPos.topLeft() != otherPos.topLeft() )
+	    {
+		mPos.setTopLeft( otherPos.topLeft() );
+		mUpdated();
+	    }
+	    break;
+	}
 	default:
 	{
 	    pErrMsg("Unknown constraint type");
@@ -754,6 +764,10 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other,
 
 	case stretchedRightTo:
 	    other->constrList += uiConstraint( stretchedLeftTo, this, margn );
+	break;
+
+	case atSamePosition:
+	    other->constrList += uiConstraint( atSamePosition, this, margn );
 	break;
 
 	case leftBorder:

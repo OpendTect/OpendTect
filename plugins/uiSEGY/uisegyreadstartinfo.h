@@ -36,7 +36,7 @@ public:
 					const SEGY::ImpType* fixedimptyp=0);
 
     void		setImpTypIdx(int);
-    void		setScanInfo(const SEGY::ScanInfo&);
+    void		setScanInfo(const SEGY::ScanInfo&,int nrfiles);
 
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();

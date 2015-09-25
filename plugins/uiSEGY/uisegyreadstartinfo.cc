@@ -454,7 +454,7 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx )
 }
 
 
-void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
+void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles )
 {
     tbl_->setColumnLabel( mQSResCol, si.fullscan_ ? "Full scan result"
 						  : "Quick scan result" );
@@ -511,6 +511,11 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
 	refnrinfotxt_ =  tr( "<no data>" );
     else
 	refnrinfotxt_.set(rgstr).arg( si.refnrs_.start ).arg( si.refnrs_.stop );
+
+    txt = nrfiles < 1	? uiString::emptyString()
+	: (nrfiles < 2	? tr( "[1 file]")
+			: tr( "[%1 files]" ).arg( nrfiles ));
+    tbl_->setTopLeftCornerLabel( txt );
 
     useLoadDef();
     showRelevantInfo();

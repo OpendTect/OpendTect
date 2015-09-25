@@ -23,6 +23,7 @@ ________________________________________________________________________
 class BufferStringSet;
 class uiPixmap;
 class uiGroup;
+class uiLabel;
 class uiTableBody;
 
 
@@ -237,6 +238,7 @@ public:
     void		setRowLabel( const RowCol& rc, const char* lbl )
 			    { setRowLabel( rc.row(), lbl ); }
     void		setRowToolTip(int,const char*);
+    void		setTopLeftCornerLabel(const uiString&);
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
@@ -354,6 +356,7 @@ private:
 
     uiTableBody*	body_;
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
+    uiLabel*		cornerlabel_;
 
     mutable uiSize	lastsz;
 
