@@ -25,7 +25,9 @@ link_directories( ${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH} )
 #As backup, link to release
 set ( RELEASE_RELPATH "bin/${OD_PLFSUBDIR}/Release" )
 if ( NOT ( OD_EXEC_OUTPUT_RELPATH STREQUAL RELEASE_RELPATH ) )
-    link_directories( ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
+    if ( EXISTS ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
+	link_directories( ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
+    endif()
 endif()
 unset( RELEASE_RELPATH )
 
