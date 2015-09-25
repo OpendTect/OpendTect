@@ -117,6 +117,7 @@ HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
 HorizonTrackerMgr::~HorizonTrackerMgr()
 {
     twm_.removeQueue( queueid_, false );
+    deepErase( sectiontrackers_ );
 }
 
 
@@ -172,6 +173,7 @@ void HorizonTrackerMgr::taskFinished( CallBacker* )
     {
 	if ( hor3d ) hor3d->setBurstAlert( false );
 	addUndoEvent();
+	deepErase( sectiontrackers_ );
 	finished.trigger();
     }
 }
