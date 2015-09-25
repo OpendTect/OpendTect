@@ -60,8 +60,8 @@ public:
 
     bool		setStartValueHorizon(const MultiID*);
     const MultiID*	getStartValueHorizonID() const;
-    int			getStartAuxdataIdx() const { return startauxdataidx_;}
-    void		setStartAuxdataIdx(int i)  { startauxdataidx_ = i; }
+    int			getStartAuxdataIdx() const {return startauxdataselidx_;}
+    void		setStartAuxdataIdx(int i)  { startauxdataselidx_ = i; }
 
 			//Gradient value/grid stuff
     bool		usesGradientValue() const   { return usegradient_; }
@@ -75,8 +75,8 @@ public:
 
     bool		setGradientHorizon(const MultiID*);
     const MultiID*	getGradientHorizonID() const;
-    int			getGradAuxdataIdx()	{ return gradauxdataidx_; }
-    void		setGradAuxdataIdx(int i){ gradauxdataidx_ = i; }
+    int			getGradAuxdataIdx()	{ return gradauxdataselidx_; }
+    void		setGradAuxdataIdx(int i){ gradauxdataselidx_ = i; }
 
 			//Reference horizon/z stuff
     bool		usesRefZValue() const		{ return userefz_; }
@@ -103,6 +103,8 @@ protected:
     bool		computeBinID(const BinID&, int);
     EM::Horizon*	loadHorizon(const MultiID&) const;
 			//!<\note horizon is reffed on return.
+    int			setDataHorizon(const MultiID&,EM::Horizon3D*&,
+				       int auxdataidx) const;
     bool		prefersBinIDWise() const	{ return true; }
 
     static const char*	sKeySurfaceID()		{ return "Surface MID"; }
@@ -126,14 +128,16 @@ protected:
 
     MultiID		gradhormid_;
     EM::Horizon3D*	gradhorizon_;
-    int			gradauxdataidx_;
+    int			gradauxdataselidx_;
+    int			gradauxidx_;
     float		fixedgradient_;
     bool		usegradient_;
     bool		gradvertical_;
 
     MultiID		starthormid_;
     EM::Horizon3D*	starthorizon_;
-    int			startauxdataidx_;
+    int			startauxdataselidx_;
+    int			startauxidx_;
     float		fixedstartval_;
     bool		usestartval_;
 
