@@ -265,16 +265,18 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 
     PtrMan<EMSurfaceTranslator> transl =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !transl || !transl->startWrite(horizon_)
-		 || !transl->writer(*ioobj,false) )
+    if ( transl && transl->startWrite(horizon_) )
     {
-	horizon_.setErrMsg( transl ? transl->errMsg()
-				   : tr("Cannot find Translator") );
-	return 0;
+	PtrMan<Executor> exec = transl->writer( *ioobj, false );
+	if ( exec )
+	    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
     }
 
-    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
+    horizon_.setErrMsg(
+	transl ? transl->errMsg() : tr("Cannot find Translator") );
+    return 0;
 }
+
 
 void SurfaceAuxData::removeSection( const SectionID& sectionid )
 {
