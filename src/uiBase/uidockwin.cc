@@ -23,7 +23,7 @@ class uiDockWinBody : public uiParentBody, public QDockWidget
 {
 public:
 			uiDockWinBody( uiDockWin& handle, uiParent* parnt,
-				       const char* nm );
+				       const uiString& caption);
 
     virtual		~uiDockWinBody();
     void		construct();
@@ -43,9 +43,9 @@ protected:
 
 
 uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
-			      const char* nm )
-    : uiParentBody( nm )
-    , QDockWidget( nm )
+			      const uiString& nm )
+    : uiParentBody( nm.getFullString() )
+    , QDockWidget( nm.getQString() )
     , handle_( uidw )
     , initing_( true )
     , centralwidget_( 0 )
@@ -53,7 +53,7 @@ uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 {
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable |
 			      QDockWidget::DockWidgetFloatable );
-    setObjectName( nm );
+    setObjectName( nm.getQString() );
 }
 
 
@@ -86,8 +86,8 @@ void uiDockWinBody::finalise()
 
 
 // ----- uiDockWin -----
-uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
-    : uiParent(nm,0)
+uiDockWin::uiDockWin( uiParent* parnt, const uiString& nm )
+    : uiParent(nm.getFullString(),0)
     , body_(0)
     , parent_(parnt)
 {

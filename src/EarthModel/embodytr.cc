@@ -19,7 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "uistrings.h"
 
-uiString EMBodyTranslatorGroup::sTypeName() { return uiStrings::sBody(); }
+uiString EMBodyTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sBody( num ); }
 
 
 int EMBodyTranslatorGroup::selector( const char* s )

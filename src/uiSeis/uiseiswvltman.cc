@@ -44,7 +44,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(uiStrings::sManWav(),mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(
+            uiStrings::phrManage(uiStrings::sWavelet(mPlural)),mNoDlgTitle,
                                      mODHelpKey(mSeisWvltManHelpID) )
 				     .nrstatusflds(1).modal(false),
 		   WaveletTranslatorGroup::ioContext() )

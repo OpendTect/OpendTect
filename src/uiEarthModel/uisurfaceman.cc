@@ -92,8 +92,8 @@ static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
 {
     switch ( typ )
     {			  
-	mCaseRetStr(Hor2D, od_static_tr("getActStr","2D Horizons"));
-	mCaseRetStr(Hor3D, od_static_tr("getActStr","3D Horizons"));
+        mCaseRetStr(Hor2D, EMHorizon2DTranslatorGroup::sTypeName() );
+	mCaseRetStr(Hor3D, EMHorizon2DTranslatorGroup::sTypeName());
 	mCaseRetStr(StickSet, uiStrings::sFaultStickSet());
 	mCaseRetStr(Flt3D, uiStrings::sFault());
 	mCaseRetStr(Body, od_static_tr("getActStr","Bodies"));
@@ -140,8 +140,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 
     if ( type_ == Hor2D || type_ == AnyHor )
     {
-	man2dbut_ = manipgrp->addButton( "man2d", tr("Manage 2D Horizons"),
-					 mCB(this,uiSurfaceMan,man2dCB) );
+	man2dbut_ = manipgrp->addButton( "man2d",
+    	  uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
+                                mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
     if ( type_ == Hor3D )
@@ -780,8 +781,8 @@ public:
 
 uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     :uiDialog(p,uiDialog::Setup(tr("2D Horizons management"),
-				tr("Manage 2D horizons"),
-				mODHelpKey(mSurface2DManHelpID) ))
+        uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
+        mODHelpKey(mSurface2DManHelpID) ))
     , eminfo_(info)
 {
     setCtrlStyle( CloseOnly );

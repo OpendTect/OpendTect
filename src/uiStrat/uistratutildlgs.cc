@@ -254,8 +254,9 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Manage Lithologies"),mNoDlgTitle,
-                                 mODHelpKey(mStratLithoDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(
+             uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
+            mODHelpKey(mStratLithoDlgHelpID) ))
     , prevlith_(0)
     , nmfld_(0)
     , anychg_(false)
@@ -540,7 +541,7 @@ void itemSwitch( bool up )
 
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Manage Contents"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("Contents")),
 		tr("Define special layer contents"),
                 mODHelpKey(mStratContentsDlgHelpID) ))
     , anychg_(false)

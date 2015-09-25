@@ -23,7 +23,7 @@ const char* ODMad::ProcFlow::sKeyNrProcs()	{ return "Nr Procs"; }
 defineTranslatorGroup(ODMadProcFlow, "Madagascar process flow" );
 
 
-uiString ODMadProcFlowTranslatorGroup::sTypeName()
+uiString ODMadProcFlowTranslatorGroup::sTypeName(int)
 { return tr("Madagascar process flow"); }
 
 defineTranslator(dgb,ODMadProcFlow,mDGBKey);

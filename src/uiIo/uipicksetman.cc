@@ -31,9 +31,13 @@ mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(tr("Manage PickSets/Polygons"),mNoDlgTitle,
-				     mODHelpKey(mPickSetManHelpID) )
-				     .nrstatusflds(1).modal(false),
+    : uiObjFileMan(p,uiDialog::Setup(
+             uiStrings::phrManage( toUiString("%1/%2")
+                .arg( uiStrings::sPickSet(mPlural) )
+                .arg( uiStrings::sPolygon(mPlural))),
+             mNoDlgTitle,
+             mODHelpKey(mPickSetManHelpID) )
+                 .nrstatusflds(1).modal(false),
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

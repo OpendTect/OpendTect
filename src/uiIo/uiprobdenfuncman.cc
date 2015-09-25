@@ -30,9 +30,10 @@ static const int cPrefWidth = 75;
 static const float cMaxProbVal = 100.0f;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Probability Density Functions"),
-				     mNoDlgTitle,
-				     mODHelpKey(mProbDenFuncManHelpID) )
+: uiObjFileMan(p,uiDialog::Setup(
+                uiStrings::phrManage( uiStrings::sProbDensFunc(false,mPlural)),
+                 mNoDlgTitle,
+                 mODHelpKey(mProbDenFuncManHelpID) )
 			       .nrstatusflds(1).modal(false),
 	           ProbDenFuncTranslatorGroup::ioContext())
 {

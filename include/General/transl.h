@@ -60,7 +60,7 @@ public:
 				TranslatorGroup( const char* clssnm );
 
     virtual FixedString		groupName() const = 0;
-    virtual uiString		typeName() const = 0;
+    virtual uiString		typeName(int num=1) const = 0;
     virtual Translator*		make(const char*,bool usrnm) const;
     const Translator*		getTemplate(const char*,bool usrnm) const;
 
@@ -194,9 +194,10 @@ public: \
     static void initClass() { theInst(); } \
     static const IOObjContext& ioContext(); \
     static FixedString sGroupName(); \
-    static uiString sTypeName(); \
+    static uiString sTypeName(int num=1); \
     virtual FixedString groupName() const { return sGroupName(); } \
-    virtual uiString typeName() const { return sTypeName(); } \
+    virtual uiString typeName(int num=1) const \
+    { return sTypeName(num); } \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
     static TranslatorGroup& theInst()
@@ -292,7 +293,7 @@ mExpClass(mod) fmt##clss##Translator : public clss##Translator \
   //! This one can be convenient when a group has only one Translator
 #define mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
 defineTranslatorGroup(clss,usrnm) \
-uiString clss##TranslatorGroup::sTypeName() { return toUiString(usrnm); } \
+uiString clss##TranslatorGroup::sTypeName(int) { return toUiString(usrnm); } \
 defineTranslator(fmt,clss,#fmt)
 
   //! Definitions for .cc file:

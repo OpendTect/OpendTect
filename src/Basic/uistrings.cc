@@ -269,7 +269,8 @@ uiString uiStrings::sCreateOutput()
 { return mJoinUiStrs(sCreate(),sOutput()); }
 
 uiString uiStrings::sCreateProbDesFunc()
-{ return phrCreate( sProbDensFunc() ); }
+{ return phrCreate( sProbDensFunc(false) ); }
+
 uiString uiStrings::sCrossPlot()
 { return tr("Cross Plot"); }
 
@@ -365,11 +366,11 @@ uiString uiStrings::sOutputASCIIFile()
 uiString uiStrings::sOutputFileExistsOverwrite()
 { return phrExistsConinue( tr("Output file"), true); }
 
-uiString uiStrings::sProbDensFunc( bool abbrevation )
+uiString uiStrings::sProbDensFunc( bool abbrevation, int num )
 {
     return abbrevation
-       ? tr( "PDF" )
-       : tr("Probability Density Function");
+        ? tr( "PDF", 0, num )
+        : tr("Probability Density Function", 0, num );
 }
 
 uiString uiStrings::sProperties()

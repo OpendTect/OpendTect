@@ -74,7 +74,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     dtecttb_ = new uiToolBar( &appl_, tr("OpendTect Tools"), uiToolBar::Top );
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
-    mantb_ = new uiToolBar( &appl_, tr("Manage Data"), uiToolBar::Right );
+    mantb_ = new uiToolBar( &appl_, uiStrings::phrManage( uiStrings::sData()),
+                            uiToolBar::Right );
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
 
@@ -979,16 +980,25 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 void uiODMenuMgr::fillManTB()
 {
     const int seisid =
-	mAddTB(mantb_,"man_seis",tr("Manage Seismic data"),false,manSeis);
-    const int horid =
-	mAddTB(mantb_,"man_hor",tr("Manage Horizons"),false,manHor);
-    const int fltid =
-	mAddTB(mantb_,"man_flt",tr("Manage Faults"),false,manFlt);
-    mAddTB(mantb_,"man_wll",tr("Manage Well data"),false,manWll);
-    mAddTB(mantb_,"man_picks",tr("Manage PickSets/Polygons"),false,manPick);
-    mAddTB(mantb_,"man_body",tr("Manage Bodies/Regions"),false,manBody);
-    mAddTB(mantb_,"man_wvlt",uiStrings::sManWav(),false,manWvlt);
-    mAddTB(mantb_,"man_strat",tr("Manage Stratigraphy"),false,manStrat);
+	mAddTB(mantb_,"man_seis",
+               uiStrings::phrManage( tr("Seismic data")),false,manSeis);
+    const int horid = mAddTB(mantb_,"man_hor",
+              uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
+    const int fltid = mAddTB(mantb_,"man_flt",
+              uiStrings::phrManage( uiStrings::sFault(mPlural)),false,manFlt);
+    mAddTB(mantb_,"man_wll",
+           uiStrings::phrManage( uiStrings::sWells()),false,manWll);
+    mAddTB(mantb_,"man_picks", uiStrings::phrManage(
+           			toUiString("%1/%2")
+           			   .arg(uiStrings::sPolygon(mPlural))
+           			   .arg(uiStrings::sPolygon(mPlural))),
+                            false,manPick);
+    mAddTB(mantb_,"man_body",
+           uiStrings::phrManage( tr("Bodies/Regions")),false,manBody);
+    mAddTB(mantb_,"man_wvlt",
+           uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
+    mAddTB(mantb_,"man_strat",uiStrings::phrManage( uiStrings::sStratigraphy()),
+           false,manStrat);
 
     uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
     if ( SI().has2D() )
@@ -1010,7 +1020,8 @@ void uiODMenuMgr::fillManTB()
 		   tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
-    mAddPopUp( tr("Fault Menu"),uiStrings::sFault(mPlural),tr("FaultStickSets"),
+    mAddPopUp( tr("Fault Menu"),uiStrings::sFault(mPlural),
+               uiStrings::sFaultStickSet(mPlural),
 	       mManFaultMnuItm, mManFaultStickMnuItm, fltid );
 }
 
@@ -1440,7 +1451,8 @@ int uiODMenuMgr::ask2D3D( const uiString& txt, int res2d, int res3d,
 
 void uiODMenuMgr::manHor( CallBacker* )
 {
-    const int opt = ask2D3D( tr("Manage 2D or 3D Horizons"), 1, 2, 0 );
+    const int opt =
+    	ask2D3D( uiStrings::phrManage( tr("2D or 3D Horizons")), 1, 2, 0 );
     if ( opt == 0 ) return;
 
     mDoOp(Man,Hor,opt);

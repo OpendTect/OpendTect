@@ -22,8 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
 
-uiString SeisTrcTranslatorGroup::sTypeName()
-{ return tr("Seismic Data"); }
+uiString SeisTrcTranslatorGroup::sTypeName( int num )
+{ return tr("Seismic Data", 0, num ); }
 
 defineTranslatorGroup(SeisTrc,"Seismic Data");
 defineTranslator(CBVS,SeisTrc,"CBVS");
@@ -36,8 +36,8 @@ defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefSimpleTranslatorSelector(SeisTrc);
 
-uiString SeisTrc2DTranslatorGroup::sTypeName()
-{ return tr("2D Seismic Data"); }
+uiString SeisTrc2DTranslatorGroup::sTypeName( int num )
+{ return tr("2D Seismic Data", 0, num ); }
 
 defineTranslatorGroup(SeisTrc2D,"2D Seismic Data");
 defineTranslator(CBVS,SeisTrc2D,"CBVS");

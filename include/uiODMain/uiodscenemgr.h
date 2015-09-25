@@ -160,6 +160,8 @@ public:
 
     void			translateText();
 
+    static uiString		sElements() 	{ return tr("Elements"); }
+
 protected:
 
 				uiODSceneMgr(uiODMain*);

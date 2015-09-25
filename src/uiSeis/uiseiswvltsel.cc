@@ -39,8 +39,9 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
 
     if ( withman )
     {
-	uiToolButtonSetup tbsu( "man_wvlt", uiStrings::sManWav(),
-				mCB(this,uiSeisWaveletSel,startMan) );
+	uiToolButtonSetup tbsu( "man_wvlt",
+                            uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
+                            mCB(this,uiSeisWaveletSel,startMan) );
 	uiButton* but;
 	if ( compact )
 	    but = tbsu.getToolButton( this );

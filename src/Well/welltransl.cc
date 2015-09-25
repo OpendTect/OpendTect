@@ -21,8 +21,8 @@ defineTranslatorGroup(Well,"Well");
 defineTranslator(od,Well,"dGB");
 mDefSimpleTranslatorSelector(Well);
 
-uiString WellTranslatorGroup::sTypeName()
-{ return uiStrings::sWell(); }
+uiString WellTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sWell( num ); }
 
 mDefSimpleTranslatorioContext(Well,WllInf)
 

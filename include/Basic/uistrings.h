@@ -264,6 +264,7 @@ public:
     static uiString sLayer()		{ return tr("Layer"); }
     static uiString sLine()		{ return tr("Line"); }
     static uiString sLeft()		{ return tr("Left"); }
+    static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
     static uiString sLoad();
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLog(int num=1)	{ return tr("Log",0,num); }
@@ -272,7 +273,7 @@ public:
     static uiString sLongitude()	{ return tr("Longitude"); }
     static uiString sManage();
     static uiString sManual()		{ return tr("Manual"); }
-    static uiString sManWav()		{ return tr("Manage Wavelets"); }
+    static uiString sManWav(){ return uiStrings::phrManage( sWavelet(mPlural));}
     static uiString sMarker(int num=1);
     static uiString sMedian()		{ return tr("Median"); }
     static uiString sMenu()		{ return tr("Menu"); }
@@ -307,13 +308,13 @@ public:
     static uiString sParFile()		{ return tr("Par File"); }
     static uiString sPause()            { return tr("Pause"); }
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
-    static uiString sPickSet()		{ return tr("PickSet"); }
-    static uiString sPolygon()		{ return tr("Polygon"); }
+    static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
+    static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
     static uiString sProcessing()	{ return tr("Processing"); }
-    static uiString sProbDensFunc(bool abbrevation=false);
+    static uiString sProbDensFunc(bool abbrevation=false, int num=1);
     static uiString sProgram()		{ return tr("Program"); }
     static uiString sProperties();
     static uiString sRange(int num=1)	{ return tr("Range",0,1); }
@@ -348,7 +349,7 @@ public:
     static uiString sSelect();
     static uiString sSelectPos();
     static uiString sSelOutpFile();
-    static uiString sSession()		{ return tr("Session"); }
+    static uiString sSession(int num=1)	{ return tr("Session",0,num); }
     static uiString sSet()		{ return tr("Set"); }
     static uiString sSetAs();
     static uiString sSetting(int num=1);

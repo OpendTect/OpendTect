@@ -18,7 +18,7 @@ ________________________________________________________________________
 defineTranslatorGroup(PickSet,"PickSet Group");
 defineTranslator(dgb,PickSet,mDGBKey);
 
-uiString PickSetTranslatorGroup::sTypeName()
-{ return uiStrings::sPickSet(); }
+uiString PickSetTranslatorGroup::sTypeName( int num)
+{ return uiStrings::sPickSet( num ); }
 
 #endif

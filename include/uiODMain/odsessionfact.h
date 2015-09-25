@@ -18,8 +18,8 @@ ________________________________________________________________________
 defineTranslatorGroup(ODSession,"Session setup");
 defineTranslator(dgb,ODSession,mDGBKey);
 
-uiString ODSessionTranslatorGroup::sTypeName()
-{ return uiStrings::sSession(); }
+uiString ODSessionTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sSession(num); }
 
 
 #endif

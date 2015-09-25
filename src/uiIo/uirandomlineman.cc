@@ -19,9 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefineInstanceCreatedNotifierAccess(uiRandomLineMan)
 
 uiRandomLineMan::uiRandomLineMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(tr("Manage RandomLines"),mNoDlgTitle,
-				     mODHelpKey(mRandomLineManHelpID) )
-				     .nrstatusflds(1).modal(false),
+    : uiObjFileMan(p,uiDialog::Setup(
+             uiStrings::phrManage( uiStrings::sRandomLine(mPlural)),mNoDlgTitle,
+                 mODHelpKey(mRandomLineManHelpID) )
+                 .nrstatusflds(1).modal(false),
 		   RandomLineSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

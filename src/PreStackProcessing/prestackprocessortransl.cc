@@ -16,8 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 
 defineTranslatorGroup(PreStackProc,"Prestack Processor");
-uiString PreStackProcTranslatorGroup::sTypeName()
-{ return tr("Prestack Processor"); }
+uiString PreStackProcTranslatorGroup::sTypeName( int num )
+{ return tr("Prestack Processor", 0, num ); }
 
 defineTranslator(dgb,PreStackProc,mDGBKey);
 

@@ -81,7 +81,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     ioobjctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
     outputfld_->setLabelText(
-			uiStrings::phrOutput( uiStrings::sProbDensFunc(true)) );
+                    uiStrings::phrOutput( uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, grp );
 
     setDisplayedFields( false, false );
@@ -463,7 +463,8 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
-: uiDialog(p,uiDialog::Setup(uiStrings::phrExport( uiStrings::sProbDensFunc() ),
+: uiDialog(p,uiDialog::Setup(uiStrings::phrExport(
+           uiStrings::sProbDensFunc(false,1) ),
 	   mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
 				 .modal(false))
 {
@@ -605,7 +606,7 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
 	 ( s2dpdf && !exp.put2DPDF(*s2dpdf) ) )
     { uiMSG().error(exp.errmsg_); return false; }
 
-    uiMSG().message(
-	    uiStrings::phrSuccessfullyExported( uiStrings::sProbDensFunc() ) );
+    uiMSG().message( uiStrings::phrSuccessfullyExported(
+                                        uiStrings::sProbDensFunc(false,1) ) );
     return false;
 }
