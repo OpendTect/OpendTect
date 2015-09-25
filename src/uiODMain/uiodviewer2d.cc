@@ -388,7 +388,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 {
     if ( !mw || !tifs_ ) return;
 
-    uiDockWin* treedoc = new uiDockWin( mw, "Tree items" );
+    uiDockWin* treedoc = new uiDockWin( mw, tr("Tree items") );
     treedoc->setMinimumWidth( 200 );
     uiTreeView* lv = new uiTreeView( treedoc, "Tree items" );
     treedoc->setObject( lv );
