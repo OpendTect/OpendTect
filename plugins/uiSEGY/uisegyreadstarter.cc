@@ -90,6 +90,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     editbut_->attach( rightOf, inpfld_ );
     editbut_->setSensitive( false );
 
+    uiGroup* attgrp = inpfld_;
     if ( imptyp )
 	fixedimptype_ = *imptyp;
     else
@@ -97,20 +98,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	typfld_ = new uiSEGYImpType( this, !mForSurvSetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
-    }
-    nrfileslbl_ = new uiLabel( this, uiString::emptyString() );
-    nrfileslbl_->setPrefWidthInChar( 10 );
-    nrfileslbl_->setAlignment( Alignment::Right );
-    if ( !typfld_ )
-	nrfileslbl_->attach( rightTo, inpfld_ );
-    else
-    {
-	nrfileslbl_->attach( rightTo, typfld_ );
-	nrfileslbl_->attach( rightBorder );
+	attgrp = typfld_;
     }
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, nrfileslbl_ );
+    sep->attach( stretchedBelow, attgrp );
 
     infofld_ = new uiSEGYReadStartInfo( this, loaddef_, imptyp );
     infofld_->attach( ensureBelow, sep );
@@ -448,12 +440,6 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 	userfilename_ = newusrfnm;
 	execNewScan( ct, fullscan );
     }
-
-    uiString txt;
-    const int nrfiles = scaninfo_.size();
-    if ( nrfiles > 1 )
-	{ txt = tr( "[%1 files]" ); txt.arg( nrfiles ); }
-    nrfileslbl_->setText( txt );
 }
 
 
@@ -820,7 +806,7 @@ void uiSEGYReadStarter::displayScanResults()
     for ( int idx=1; idx<scaninfo_.size(); idx++ )
 	si.merge( *scaninfo_[idx] );
 
-    infofld_->setScanInfo( si );
+    infofld_->setScanInfo( si, scaninfo_.size() );
     if ( mForSurvSetup )
 	updateSurvMap( si );
 }

@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uivirtualkeyboard.h"
+#include "uilabel.h"
 
 #include "bufstringset.h"
 #include "convert.h"
@@ -434,6 +435,10 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 
     QHeaderView* hhdr = body_->horizontalHeader();
     hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWidth()) );
+
+    cornerlabel_ = new uiLabel( parent(), uiString::emptyString() );
+    cornerlabel_->setPrefWidthInChar( 10 );
+    cornerlabel_->attach( atSamePosition, this );
 }
 
 
@@ -982,6 +987,22 @@ void uiTable::setRowLabel( int row, const char* label )
     QTableWidgetItem& itm = body_->getRCItem( row, true );
     itm.setText( label );
     itm.setToolTip( label );
+}
+
+
+void uiTable::setTopLeftCornerLabel( const uiString& txt )
+{
+    /*
+	Searched google, the item there is a button that is a local
+	QAbstractButton (class QTableCornerButton). I could get it using
+	qFindChildren but it's not visible. Tried many things, nothing worked.
+
+	Therefore this hack, but it works.
+    */
+
+
+    uiString todisp( tr("  %1") ); todisp.arg( txt );
+    cornerlabel_->setText( todisp );
 }
 
 

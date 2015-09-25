@@ -31,7 +31,8 @@ enum constraintType
     hCentered,				//!< Centers with respect to parent
     heightSameAs, widthSameAs,
     stretchedBelow, stretchedAbove,   //!< stretches widget to horiz. borders 
-    stretchedLeftTo, stretchedRightTo //!< stretches widget to vertical borders
+    stretchedLeftTo, stretchedRightTo, //!< stretches widget to vertical borders
+    atSamePosition
 };
 
 
