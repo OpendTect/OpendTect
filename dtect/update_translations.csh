@@ -17,8 +17,8 @@
 # - copy the new translations into the work-directory.
 # - remove the temporary copy
 
-if (  $#argv < 4 ) then
-    echo "Usage : $0 <sourcedir> <binarydir> <application> <lupdate>"
+if (  $#argv < 5 ) then
+    echo "Usage : $0 <sourcedir> <tsbasedir> <binarydir> <application> <lupdate>"
     exit 1
 endif
 
@@ -34,9 +34,10 @@ set scriptdir=`dirname $0`
 set nrcpu = `${scriptdir}/GetNrProc`
 
 set sourcedir=$1
-set binarydir=$2
-set application=$3
-set lupdate=$4
+set tsbasedir=$2
+set binarydir=$3
+set application=$4
+set lupdate=$5
 set tmpoddir=/tmp/lupdate_tmp_$$
 
 set kernel=`uname -a | awk '{print $1}'`
@@ -58,7 +59,7 @@ set projectdir=${tmpoddir}/data/localizations/source
 mkdir -p ${projectdir}
 
 #Copy existing ts-files ot project dir
-cp -a ${binarydir}/data/localizations/source/${application}*.ts ${projectdir}
+cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
 
 set profnm=${projectdir}/normaltrans.pro
 
@@ -131,15 +132,15 @@ if ( -e ${application}_en-us.ts ) then
     echo " \" >> ${pluralpro}
     echo -n "    ${application}_en-us.ts" >> ${pluralpro}
     cat ${filelist} >> ${pluralpro}
+
+    echo "" >> ${pluralpro}
+    echo -n "INCLUDEPATH += " >> ${pluralpro}
+
+    foreach dir ( ${dirs} )
+	    echo " \" >> ${pluralpro}
+	    echo -e "	${dir}" >>${pluralpro}
+    end
 endif
-
-echo "" >> ${pluralpro}
-echo -n "INCLUDEPATH += " >> ${pluralpro}
-
-foreach dir ( ${dirs} )
-	echo " \" >> ${pluralpro}
-	echo -e "	${dir}" >>${pluralpro}
-end
 
 #Remove the filelist
 \rm -rf ${filelist}
