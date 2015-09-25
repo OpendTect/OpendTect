@@ -82,7 +82,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
-	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? 
+	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ?
 			uiStrings::sFeet() : uiStrings::sMeter() );
 	if ( inputhorsel_ )
 	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
@@ -117,7 +117,7 @@ void uiHorizonInterpolDlg::selChangeCB( CallBacker* cb )
 {
     if ( !inputhorsel_ || !inputhorsel_->ioobj(true) || !savefldgrp_ )
 	return;
-    
+
     const bool canoverwrt = EM::canOverwrite( inputhorsel_->ioobj()->key() );
     savefldgrp_->allowOverWrite( canoverwrt );
 }
@@ -336,14 +336,14 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     scopes += tr("Only holes");
     scopes += uiStrings::sEmptyString();
     filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
-    filltypefld_->setText( mFromUiStringTodo(scopes[2]) );
+    filltypefld_->setValue( 2 );
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
     stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
     stepfld_->attach( alignedBelow, filltypefld_ );
-     
+
     uiString titletext( tr("Keep holes larger than %1")
 				    .arg(SI().getUiXYUnitString()) );
     maxholeszfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
