@@ -201,8 +201,7 @@ void uiODMenuMgr::fillSurveyMenu()
 		       "survey" )
 
     uiMenu* sessionitm = new uiMenu( &appl_, tr("Session") ) ;
-    mInsertItem( sessionitm, m3Dots(uiStrings::sSave()),
-                 mSessSaveMnuItm );
+    mInsertItem( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm );
     mInsertItem( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm );
     mInsertItem( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm );
     surveymnu_->insertItem( sessionitm );
@@ -222,9 +221,9 @@ void uiODMenuMgr::fillSurveyMenu()
 
     preloadmnu_ = new uiMenu( &appl_, tr("Pre-load") );
     mInsertItem( preloadmnu_, m3Dots(uiStrings::sSeismics()),
-                 mPreLoadSeisMnuItm );
+		 mPreLoadSeisMnuItm );
     mInsertItem( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
-                 mPreLoadHorMnuItm );
+		 mPreLoadHorMnuItm );
     surveymnu_->insertItem( preloadmnu_ );
 
     surveymnu_->insertSeparator();
@@ -252,7 +251,7 @@ void uiODMenuMgr::fillImportMenu()
 
     impmnu_->insertItem( impattr );
     mInsertItem( impmnu_, m3Dots(
-                          uiStrings::sColorTable() ), mImpColTabMnuItm );
+			  uiStrings::sColorTable() ), mImpColTabMnuItm );
     impmnu_->insertItem( impcpd );
     impmnu_->insertItem( impfault );
     impmnu_->insertItem( impfaultstick );
@@ -275,7 +274,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertPixmapItem( impcpd, ascii, mImpPVDSAsciiMnuItm, ascic );
     mInsertPixmapItem( impvelfn, ascii, mImpVelocityAsciiMnuItm, ascic );
     mInsertPixmapItem( imppdf, m3Dots(tr("ASCII (RokDoc)")),
-                       mImpPDFAsciiMnuItm, ascic );
+		       mImpPDFAsciiMnuItm, ascic );
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
     uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
@@ -303,7 +302,7 @@ void uiODMenuMgr::fillImportMenu()
 
     uiMenu* impcbvsseis = new uiMenu( &appl_, tr("CBVS"), "od" );
     mInsertItem( impcbvsseis, m3Dots(tr("From File")),
-                 mImpSeisCBVSMnuItm );
+		 mImpSeisCBVSMnuItm );
     mInsertItem( impcbvsseis, m3Dots(tr("From Other Survey")),
 		 mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
@@ -314,13 +313,13 @@ void uiODMenuMgr::fillImportMenu()
 		     mImpHor2DAsciiMnuItm );
     mInsertItem( imphorasc, have2d ? m3Dots(tr("Geometry 3D"))
 				   : m3Dots(tr("Geometry")),
-                 mImpHorAsciiMnuItm );
+		 mImpHorAsciiMnuItm );
     mInsertItem( imphorasc, have2d ? m3Dots(tr("Attributes 3D"))
 				   : m3Dots(tr("Attributes")),
-                mImpHorAsciiAttribMnuItm );
+		mImpHorAsciiAttribMnuItm );
     mInsertItem( imphorasc, have2d ? m3Dots(tr("Bulk 3D"))
 				   : m3Dots(tr("Bulk")),
-                 mImpBulkHorAsciiMnuIm );
+		 mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
     mInsertPixmapItem( impfault, ascii, mImpFaultMnuItm, ascic );
@@ -333,24 +332,24 @@ void uiODMenuMgr::fillImportMenu()
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( impwellasc, m3Dots(uiStrings::sTrack()),
-                 mImpWellAsciiTrackMnuItm );
+		 mImpWellAsciiTrackMnuItm );
     mInsertItem( impwellasc, m3Dots(uiStrings::sLogs()),
-                 mImpWellAsciiLogsMnuItm );
+		 mImpWellAsciiLogsMnuItm );
     mInsertItem( impwellasc, m3Dots(uiStrings::sMarker(mPlural)),
-                 mImpWellAsciiMarkersMnuItm );
+		 mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
     mInsertItem( impwell, m3Dots(tr("Simple Multi-Well")),
-                 mImpWellSimpleMnuItm );
+		 mImpWellSimpleMnuItm );
 
     uiMenu* impwellbulk = new uiMenu( &appl_, tr("Bulk") );
     mInsertItem( impwellbulk, m3Dots(uiStrings::sTrack()),
-                 mImpBulkWellTrackItm );
+		 mImpBulkWellTrackItm );
     mInsertItem( impwellbulk, m3Dots(uiStrings::sLogs()),
-                 mImpBulkWellLogsItm );
+		 mImpBulkWellLogsItm );
     mInsertItem( impwellbulk, m3Dots(uiStrings::sMarker(mPlural)),
-                 mImpBulkWellMarkersItm );
+		 mImpBulkWellMarkersItm );
     mInsertItem( impwellbulk, m3Dots(tr("Depth/Time Model")),
-                 mImpBulkWellD2TItm );
+		 mImpBulkWellD2TItm );
     impwell->insertItem( impwellbulk );
 
 // Fill impmenus_
@@ -409,7 +408,7 @@ void uiODMenuMgr::fillExportMenu()
     {
 	mInsertPixmapItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
 		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm,
-	           "seismiccube" );
+		   "seismiccube" );
 	mInsertPixmapItem( expseissimple, have2d ? m3Dots(tr("PreStack 3D"))
 		   : m3Dots(tr("Pre-Stack Volume")), mExpSeisSimplePS3DMnuItm
 		   , "prestackdataset" );
@@ -455,20 +454,20 @@ void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
     mInsertPixmapItem( manmnu_, m3Dots(tr("Attribute Sets")),
-                       mManAttrMnuItm, "man_attrs" );
+		       mManAttrMnuItm, "man_attrs" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Bodies")),
-                      mManBodyMnuItm, "man_body" );
+		      mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Color Tables")),
-                       mManColTabMnuItm, "empty" );
+		       mManColTabMnuItm, "empty" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Cross-plot Data")),
-                        mManCrossPlotItm, "manxplot" );
+			mManCrossPlotItm, "manxplot" );
     mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sFault(mPlural)),
-                      mManFaultMnuItm, "man_flt" )
+		      mManFaultMnuItm, "man_flt" )
     mInsertPixmapItem( manmnu_, m3Dots(
 		       uiStrings::sFaultStickSet(mPlural)),mManFaultStickMnuItm,
 			"man_fltss" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Geometry 2D")),
-                       mManGeomItm, "man2dgeom" );
+		       mManGeomItm, "man2dgeom" );
     if ( SI().survDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_,
 			   m3Dots(uiStrings::sHorizon(mPlural)),
@@ -478,9 +477,9 @@ void uiODMenuMgr::fillManMenu()
 	uiMenu* mnu = new uiMenu( &appl_,
 				  uiStrings::sHorizon(mPlural),"man_hor");
 	mInsertItem( mnu, m3Dots(uiStrings::s2D()),
-                     mManHor2DMnuItm );
+		     mManHor2DMnuItm );
 	mInsertItem( mnu, m3Dots(uiStrings::s3D()),
-                     mManHor3DMnuItm );
+		     mManHor3DMnuItm );
 	manmnu_->insertItem( mnu );
     }
 
@@ -543,7 +542,7 @@ void uiODMenuMgr::fillProcMenu()
     if ( SI().has3D() )
     {
     itm2d3d = new uiMenu( menutext );
-        csoitm_->insertItem( itm2d3d );
+	csoitm_->insertItem( itm2d3d );
 	mInsertItem( itm2d3d, m3Dots(tr("Create 2D from 3D")),
 		     mCreate2DFrom3DMnuItm );
 	mInsertItem( itm2d3d, m3Dots(tr("Extract 2D from 3D")),
@@ -690,7 +689,7 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( tileitm, uiStrings::sVertical(), mTileVerMnuItm );
 
     mInsertItem( scenemnu_, m3Dots(uiStrings::sProperties()),
-                 mScenePropMnuItm );
+		 mScenePropMnuItm );
     scenemnu_->insertSeparator();
 
     updateSceneMenu();
@@ -888,9 +887,9 @@ void uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
 	const int butid = tb.addButton( iconnm, tt );
 	uiMenu* popmnu = new uiMenu( tb.parent(), uiStrings::sAction() );
 	popmnu->insertItem( new uiAction(m3Dots(uiStrings::s2D()),cb2d),
-                            itmid2d );
+			    itmid2d );
 	popmnu->insertItem( new uiAction(m3Dots(uiStrings::s3D()),cb3d),
-                            itmid3d );
+			    itmid3d );
 	tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );
     }
 }
@@ -949,11 +948,15 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		tr("Volume Builder"),false,doVolProcCB);
     }
 
-    mAddTB(dtecttb_,"xplot_wells",tr("Cross-plot Attribute vs Well Data"),
-	   false,doWellXPlot);
-    mAddTB(dtecttb_,"xplot_attribs",
-	   tr("Cross-plot Attribute vs Attribute Data"),
-	   false,doAttribXPlot);
+    const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
+    uiMenu* mnu = new uiMenu();
+    mnu->insertItem( new uiAction(tr("Cross-plot Attribute vs Attribute Data"),
+				  mCB(appman,uiODApplMgr,doAttribXPlot),
+				  "xplot_attribs") );
+    mnu->insertItem( new uiAction(tr("Cross-plot Attribute vs Well Data"),
+				  mCB(appman,uiODApplMgr,doWellXPlot),
+				  "xplot_wells") );
+    dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
 			false,launchRockPhysics);
@@ -1009,7 +1012,7 @@ void uiODMenuMgr::fillManTB()
     }
     if ( SI().has3D() )
     {
-        mAddPopupMnu( seispopmnu, tr("3D Seismics"), mManSeis3DMnuItm )
+	mAddPopupMnu( seispopmnu, tr("3D Seismics"), mManSeis3DMnuItm )
 	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
 		      mManSeisPS3DMnuItm )
     }
