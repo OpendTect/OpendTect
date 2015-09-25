@@ -28,7 +28,7 @@ mExpClass(General) WSImportHandler : public ImportHandler
 public:
 
 
-    			WSImportHandler( od_istream& s )
+			WSImportHandler( od_istream& s )
 			    : ImportHandler(s)
 			    , insingqstring_(false)
 			    , indoubqstring_(false)	{}
@@ -50,7 +50,7 @@ protected:
 mExpClass(General) CSVImportHandler : public ImportHandler
 {
 public:
-    			CSVImportHandler( od_istream& s )
+			CSVImportHandler( od_istream& s )
 			    : ImportHandler(s)
 			    , nlreplace_('\n')
 			    , instring_(false)	{}
@@ -62,7 +62,7 @@ public:
     virtual void	newRow()		{ instring_ = false; }
 
     char		nlreplace_;
-    			//!< replace newlines with this char (optional)
+			//!< replace newlines with this char (optional)
 
 protected:
 
@@ -77,12 +77,12 @@ public:
 
     enum ColWSHandl	{ None, Underscores, SingQuot, DoubQuot };
 
-    			WSExportHandler( od_ostream& s,
+			WSExportHandler( od_ostream& s,
 					 ColWSHandl w=Underscores )
 			    : ExportHandler(s)
 			    , colwshanld_(w)	{}
 
-    uiString		putRow(const BufferStringSet&);
+    bool		putRow(const BufferStringSet&,uiString&);
 
     ColWSHandl		colwshanld_;
 
@@ -96,10 +96,10 @@ protected:
 mExpClass(General) CSVExportHandler : public ExportHandler
 {
 public:
-    			CSVExportHandler( od_ostream& s )
+			CSVExportHandler( od_ostream& s )
 			    : ExportHandler(s)		{}
 
-    uiString		putRow(const BufferStringSet&);
+    bool		putRow(const BufferStringSet&,uiString&);
 
 protected:
 
@@ -112,13 +112,13 @@ mExpClass(General) SQLInsertExportHandler : public ExportHandler
 { mODTextTranslationClass(SQLInsertExportHandler);
 public:
 
-    			SQLInsertExportHandler( od_ostream& s )
+			SQLInsertExportHandler( od_ostream& s )
 			    : ExportHandler(s)
 			    , startindex_(1)
 			    , stepindex_(1)
-		    	    , nrrows_(0)	    {}
+			    , nrrows_(0)	    {}
 
-    uiString		putRow(const BufferStringSet&);
+    bool		putRow(const BufferStringSet&,uiString&);
 
     BufferString	tblname_;	//!< name of the table: mandatory
     BufferStringSet	colnms_;	//!< names of the columns: optional
@@ -193,7 +193,7 @@ protected:
 mExpClass(General) RecordMatcher : public Converter::RowManipulator
 {
 public:
-    			RecordMatcher( bool a=true )
+			RecordMatcher( bool a=true )
 			    : any_(a)	{}
 
     bool		accept(BufferStringSet&) const;
@@ -202,7 +202,7 @@ public:
     bool		not_;		//!< If true, matches will not pass
     TypeSet<int>	ckcols_;	//!< Column numbers (mand)
     TypeSet<GlobExpr>	colvals_;	//!< Values associated (opt)
-    					//!< Not filled means check for empty
+					//!< Not filled means check for empty
 
 protected:
 
@@ -222,7 +222,7 @@ protected:
 mExpClass(General) DuplicateKeyRemover : public Converter::RowManipulator
 {
 public:
-    			DuplicateKeyRemover()
+			DuplicateKeyRemover()
 			    : nrdone_(0), nrremoved_(0)	{}
 
     bool		accept(BufferStringSet&) const;

@@ -475,12 +475,12 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     }
 }
 
-uiString putRow( const BufferStringSet& bss )
+bool putRow( const BufferStringSet& bss, uiString& msg )
 {
-    return ishdr_ ? putHdrRow( bss ) : putBodyRow( bss );
+    return ishdr_ ? putHdrRow( bss, msg ) : putBodyRow( bss, msg );
 }
 
-uiString putHdrRow( const BufferStringSet& bss )
+bool putHdrRow( const BufferStringSet& bss, uiString& msg )
 {
     if ( aio_.fd_.needEOHToken() )
     {
@@ -496,7 +496,7 @@ uiString putHdrRow( const BufferStringSet& bss )
 	    }
 	}
 	if ( hdrready_ )
-	    return finishHdr();
+	    return finishHdr( msg );
     }
 
     if ( bss.size() > 0 )
@@ -514,7 +514,10 @@ uiString putHdrRow( const BufferStringSet& bss )
 	    if ( hasrow || hdrinf.keyw_ == bss.get(0) )
 	    {
 		if ( hdrinf.col_ >= bss.size() )
-		    return mkErrMsg( hdrinf, "Data not present in header" );
+		{
+		    msg = mkErrMsg( hdrinf, "Data not present in header" );
+		    return false;
+		}
 
 		hdrinf.found_ = true;
 		hdrinf.val_ = bss.get( hdrinf.col_ );
@@ -524,22 +527,25 @@ uiString putHdrRow( const BufferStringSet& bss )
 
     rownr_++;
     hdrready_ = hdrready_ || rownr_ >= aio_.fd_.nrHdrLines();
-    return hdrready_ ? finishHdr() : uiString::emptyString();
+    return hdrready_ ? finishHdr(msg) : true;
 }
 
 
-uiString finishHdr()
+bool finishHdr( uiString& msg )
 {
     for ( int ihdr=0; ihdr<hdrinfos_.size(); ihdr++ )
     {
 	const HdrInfo& hdrinf = *hdrinfos_[ihdr];
 	if ( !hdrinf.found_ && !hdrinf.tarinf_.isOptional() )
-	    return mkErrMsg( hdrinf, "Required field not found" );
+	{
+	    msg = mkErrMsg( hdrinf, "Required field not found" );
+	    return false;
+	}
 	else
 	    aio_.addVal( hdrinf.val_, hdrinf.sel_.unit_ );
     }
 
-    return uiString::emptyString();
+    return true;
 }
 
 
@@ -577,10 +583,10 @@ uiString mkErrMsg( const HdrInfo& hdrinf, const char* msg ) const
 }
 
 
-uiString putBodyRow( const BufferStringSet& bss )
+bool putBodyRow( const BufferStringSet& bss, uiString& msg )
 {
     aio_.emptyVals();
-    if ( bodyready_ ) return uiString::emptyString();
+    if ( bodyready_ ) return true;
 
     if ( aio_.fd_.haveEOBToken() && !bss.isEmpty() )
     {
@@ -588,7 +594,7 @@ uiString putBodyRow( const BufferStringSet& bss )
 	  || bss.get(bss.size()-1) == aio_.fd_.eobtoken_ )
 	{
 	    bodyready_ = true;
-	    return uiString::emptyString();
+	    return true;
 	}
     }
 
@@ -604,7 +610,7 @@ uiString putBodyRow( const BufferStringSet& bss )
     if ( aio_.needfullline_ )
 	aio_.fullline_ = bss;
     rownr_++;
-    return uiString::emptyString();
+    return true;
 }
 
     const bool		ishdr_;

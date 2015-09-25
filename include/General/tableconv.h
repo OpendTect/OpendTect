@@ -59,7 +59,7 @@ public:
 			    : strm_(strm)		{}
     virtual		~ExportHandler()		{}
 
-    virtual uiString	putRow(const BufferStringSet&)	= 0;
+    virtual bool	putRow(const BufferStringSet&,uiString&)	= 0;
 
     virtual bool	init();
     virtual void	finish();

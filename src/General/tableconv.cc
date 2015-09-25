@@ -148,10 +148,12 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 
 	if ( accepted )
 	{
-	    const uiString msg = exphndlr_.putRow( row_ );
-	    if ( !msg.isEmpty() )
+	    uiString msg;
+	    if ( !exphndlr_.putRow(row_,msg) )
 	    {
-		msg_ = msg;
+		if ( !msg.isEmpty() )
+		    msg_ = msg;
+
 		return false;
 	    }
 	    else
@@ -267,13 +269,14 @@ void Table::WSExportHandler::addVal( int col, const char* inpval )
 }
 
 
-uiString Table::WSExportHandler::putRow( const BufferStringSet& row )
+bool Table::WSExportHandler::putRow( const BufferStringSet& row, uiString& msg )
 {
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
 
     strm_ << od_endl;
-    return getStrmMsg();
+    msg = getStrmMsg();
+    return msg.isEmpty();
 }
 
 
@@ -292,13 +295,14 @@ void Table::CSVExportHandler::addVal( int col, const char* val )
 }
 
 
-uiString Table::CSVExportHandler::putRow( const BufferStringSet& row )
+bool Table::CSVExportHandler::putRow( const BufferStringSet& row, uiString& msg)
 {
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
 
     strm_ << od_endl;
-    return getStrmMsg();
+    msg = getStrmMsg();
+    return msg.isEmpty();
 }
 
 
@@ -317,12 +321,16 @@ void Table::SQLInsertExportHandler::addVal( int col, const char* val )
 }
 
 
-uiString Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
+bool Table::SQLInsertExportHandler::putRow( const BufferStringSet& row,
+					    uiString& msg )
 {
     if ( nrrows_ == 0 )
     {
 	if ( tblname_.isEmpty() )
-	    return tr("No table name provided");
+	{
+	    msg = tr("No table name provided");
+	    return false;
+	}
 
 	addindex_ = !indexcolnm_.isEmpty();
 	nrextracols_ = extracolnms_.size();
@@ -364,7 +372,8 @@ uiString Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
     strm_ << ");" << od_endl;
 
     nrrows_++;
-    return getStrmMsg();
+    msg = getStrmMsg();
+    return msg.isEmpty();
 }
 
 

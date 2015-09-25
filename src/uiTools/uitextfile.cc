@@ -84,7 +84,7 @@ void finish()
     tbl_->setCurrentCell( RowCol(0,0) );
 }
 
-uiString putRow( const BufferStringSet& bss )
+bool putRow( const BufferStringSet& bss, uiString& msg )
 {
     RowCol rc( tbl_->nrRows(), 0 );
     tbl_->insertRows( rc.row(), 1 );
@@ -100,10 +100,10 @@ uiString putRow( const BufferStringSet& bss )
 	rc.row()++; rc.col() = 0;
 	tbl_->insertRows( rc.row(), 1 );
 	tbl_->setText( rc, "[...]" );
-	return uiString::emptyString();
+	return false;
     }
 
-    return uiString::emptyString();
+    return true;
 }
 
     uiTable*	tbl_;
