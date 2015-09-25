@@ -376,7 +376,7 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 		desiredvolume_->zsamp_.start < ndv.zsamp_.start?
 		desiredvolume_->zsamp_.start : ndv.zsamp_.start;
 	    desiredvolume_->zsamp_.stop =
-            	desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
+		desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
 				    ? desiredvolume_->zsamp_.stop
 				    : ndv.zsamp_.stop;
 	}

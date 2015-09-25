@@ -152,9 +152,9 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     }
     else
 	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
-    
+
     return displayIn2DViewer( dpid, posdatasel.selspec_, wva,
-	    		      initialx1pospercm, initialx2pospercm );
+			      initialx1pospercm, initialx2pospercm );
 }
 
 
