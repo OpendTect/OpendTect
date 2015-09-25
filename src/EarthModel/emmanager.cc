@@ -38,7 +38,7 @@ bool EM::canOverwrite( const MultiID& mid )
     const IOObj* ioobj = IOM().get( mid );
     if ( !ioobj )
 	return true;
-    
+
     mDynamicCastGet(const IOStream*,iostream,ioobj)
     return iostream;
 }

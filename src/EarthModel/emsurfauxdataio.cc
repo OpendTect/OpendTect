@@ -92,7 +92,7 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
     chunksize_ = nrnodes/100 + 1;
     if ( chunksize_ < 100 )
 	chunksize_ = 100;
-    
+
     totalnr_ = nrnodes;
 }
 
@@ -234,6 +234,9 @@ od_int64 dgbSurfDataWriter::totalNr() const
 
 uiString dgbSurfDataWriter::uiMessage() const
 { return errmsg_; }
+
+uiString dgbSurfDataWriter::uiNrDoneText() const
+{ return tr("Positions Written"); }
 
 
 
@@ -429,4 +432,8 @@ od_int64 dgbSurfDataReader::totalNr() const
 uiString dgbSurfDataReader::uiMessage() const
 { return errmsg_; }
 
-}; //nsamespace
+uiString dgbSurfDataReader::uiNrDoneText() const
+{ return tr("Positions Read"); }
+
+} // namespace EM
+
