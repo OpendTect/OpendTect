@@ -15,11 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
 #include "separstr.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
 #include "survinfo.h"
+#include "hiddenparam.h"
 
 namespace VolProc
 {
@@ -35,6 +37,8 @@ static const char*	sKeyBotValue()		{ return "Bottom Value"; }
 static const char*	sKeyGradient()		{ return "Gradient"; }
 static const char*	sKeyUseGradient()	{ return "Use Gradient"; }
 static const char*	sKeyHorInterFiller()	{ return "HorInterFiller"; }
+
+HiddenParam<SurfaceLimitedFiller,::IdxPair> auxdataidx(::IdxPair(-1,-1));
 
 
 SurfaceLimitedFiller::SurfaceLimitedFiller()
@@ -52,9 +56,11 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     , usestartval_( true )
     , userefz_( true )
     , gradvertical_( true )
-    , startauxdataidx_( -1 )
-    , gradauxdataidx_( -1 )
+    , startauxdataselidx_( -1 )
+    , gradauxdataselidx_( -1 )
 {
+    auxdataidx.setParam(this,::IdxPair(-1,-1));
+
     hors_.allowNull( true );
     faults_.allowNull( true );
     setInputPrevStep( true );
@@ -75,6 +81,8 @@ void SurfaceLimitedFiller::initClass()
 SurfaceLimitedFiller::~SurfaceLimitedFiller()
 {
     releaseData();
+
+    auxdataidx.removeParam(this);
 }
 
 
@@ -85,13 +93,9 @@ void SurfaceLimitedFiller::releaseData()
     deepUnRef( hors_ );
     deepErase( faults_ );
 
-    if ( starthorizon_ ) starthorizon_->unRef();
-    if ( refhorizon_ ) refhorizon_->unRef();
-    if ( gradhorizon_ ) gradhorizon_->unRef();
-
-    starthorizon_ = 0;
-    refhorizon_ = 0;
-    gradhorizon_ = 0;
+    unRefAndZeroPtr( starthorizon_ );
+    unRefAndZeroPtr( refhorizon_ );
+    unRefAndZeroPtr( gradhorizon_ );;
 }
 
 
@@ -169,24 +173,41 @@ EM::Horizon* SurfaceLimitedFiller::loadHorizon( const MultiID& mid ) const
 }
 
 
-#define mSetDataHorizon( mid, hor3d, auxdataidx ) \
-    if ( mid.isEmpty() ) return false; \
-    EM::Horizon* hor = loadHorizon( mid ); \
-    if ( !hor ) return false; \
-    mDynamicCastGet( EM::Horizon3D*, newhor, hor ); \
-    if ( !newhor ) \
-    { \
-	hor->unRef(); \
-	return false; \
-    } \
-    hor3d = newhor; \
-    EM::SurfaceAuxData surfad( *hor3d ); \
-    Executor* loader = surfad.auxDataLoader( auxdataidx ); \
-    if ( !loader || !loader->execute() ) \
-    { \
-	hor3d->unRef(); \
-	return false; \
-    } \
+int SurfaceLimitedFiller::setDataHorizon( const MultiID& mid,
+			      EM::Horizon3D*& hor3d, int auxdataselidx ) const
+{
+    if ( mid.isEmpty() ) return -1;
+
+    EM::SurfaceIOData surfiod;
+    BufferString emsg;
+    if ( !EM::EMM().getSurfaceData( mid, surfiod, emsg ) ||
+	 !surfiod.valnames.validIdx(auxdataselidx))
+    {
+	return -1;
+    }
+
+    const BufferString auxdataname = surfiod.valnames.get(auxdataselidx);
+
+    EM::Horizon* hor = loadHorizon( mid );
+    if ( !hor ) return -1;
+    mDynamicCastGet( EM::Horizon3D*, newhor, hor );
+    if ( !newhor )
+    {
+	hor->unRef();
+	return -1;
+    }
+
+    hor3d = newhor;
+
+    Executor* loader = hor3d->auxdata.auxDataLoader( auxdataselidx );
+    if ( !loader || !loader->execute() )
+    {
+	unRefAndZeroPtr( hor3d );
+	return -1;
+    }
+
+    return hor3d->auxdata.auxDataIndex( auxdataname );
+}
 
 
 
@@ -197,12 +218,18 @@ bool SurfaceLimitedFiller::prepareComp( int )
 
     if ( !usestartval_ )
     {
-	mSetDataHorizon( starthormid_, starthorizon_, startauxdataidx_ );
+	::IdxPair auxdataindex(
+	    setDataHorizon( starthormid_, starthorizon_, startauxdataselidx_ ),
+	    auxdataidx.getParam(this).second );
+	auxdataidx.setParam(this,auxdataindex);
     }
 
     if ( !usegradient_ )
     {
-	mSetDataHorizon( gradhormid_, gradhorizon_, gradauxdataidx_ );
+	::IdxPair auxdataindex(
+	    auxdataidx.getParam(this).first,
+	    setDataHorizon( gradhormid_, gradhorizon_, gradauxdataselidx_ ));
+	auxdataidx.setParam(this,auxdataindex);
     }
 
     if ( !userefz_ )
@@ -292,7 +319,8 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     if ( !usestartval_ )
     {
 	EM::PosID pid(starthorizon_->id(), starthorizon_->sectionID(0), bidsq);
-	val0 = starthorizon_->auxdata.getAuxDataVal( 0, pid );
+	val0 = starthorizon_->auxdata.getAuxDataVal(
+		auxdataidx.getParam(this).first, pid );
     }
 
     TypeSet<double> horz;
@@ -313,7 +341,8 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     if ( !usegradient_ )
     {
 	EM::PosID pid( gradhorizon_->id(), gradhorizon_->sectionID(0), bidsq );
-	gradient = gradhorizon_->auxdata.getAuxDataVal( 0, pid );
+	gradient = gradhorizon_->auxdata.getAuxDataVal(
+				auxdataidx.getParam(this).second, pid );
     }
     else if ( usebottomval_ )
     {
@@ -387,7 +416,7 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
     else
     {
 	pars.set( sKeyStartValHorID(), starthormid_ );
-	pars.set( sKeyStartAuxDataID(), startauxdataidx_ );
+	pars.set( sKeyStartAuxDataID(), startauxdataselidx_ );
     }
 
     pars.setYN( sKeyUseGradValue(), usegradient_ );
@@ -397,7 +426,7 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
     else
     {
 	pars.set( sKeyGradHorID(), gradhormid_ );
-	pars.set( sKeyGradAuxDataID(), gradauxdataidx_ );
+	pars.set( sKeyGradAuxDataID(), gradauxdataselidx_ );
     }
 
     pars.setYN( sKeyUseRefZ(), userefz_ );
@@ -509,7 +538,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	if ( !setStartValueHorizon( &mid ) )
 	    return false;
 
-	if ( !pars.get(sKeyStartAuxDataID(),startauxdataidx_) )
+	if ( !pars.get(sKeyStartAuxDataID(),startauxdataselidx_) )
 	    return false;
     }
 
@@ -526,7 +555,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	if ( !setGradientHorizon( &mid ) )
 	    return false;
 
-	if ( !pars.get(sKeyGradAuxDataID(),gradauxdataidx_) )
+	if ( !pars.get(sKeyGradAuxDataID(),gradauxdataselidx_) )
 	    return false;
     }
 
