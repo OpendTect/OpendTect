@@ -57,7 +57,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
-	mw->removeToolBar( tb_ );
+	clearToolBar();
     else
 	tb_->display(false);
     toolbar_->addSeparator();
