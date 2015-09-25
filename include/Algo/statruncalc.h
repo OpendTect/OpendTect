@@ -386,7 +386,8 @@ inline double BaseCalc<T>::rms() const
     if ( !setup_.weighted_ )
 	return Math::Sqrt( ((double)sum_xx_) / nrused_ );
 
-    return this->isZero(sum_w_) ? mUdf(double) : Math::Sqrt( ((double)sum_wxx_)/sum_w_ );
+    return this->isZero(sum_w_) ? mUdf(double)
+				: Math::Sqrt( ((double)sum_wxx_)/sum_w_ );
 }
 
 
@@ -639,7 +640,7 @@ RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 	{
 	    idx = medvals_.indexOf( val, false, idx-1 );
 	    if ( idx < 0 ) break;
-	    if ( medwts_[idx] == wt )
+	    if ( setup_.weighted_ && medwts_[idx] == wt )
 	    {
 		medvals_.removeSingle( idx );
 		medwts_.removeSingle( idx );
