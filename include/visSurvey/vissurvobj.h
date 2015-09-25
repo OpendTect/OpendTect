@@ -228,6 +228,7 @@ public:
 
     virtual bool		canRemoveSelection() const	{ return false;}
     virtual bool		removeSelections(TaskRunner*)	{ return false;}
+    virtual void		clearSelections()		{}
 
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }
@@ -244,7 +245,7 @@ public:
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						IOPar&) const;	
+						IOPar&) const;
     virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
 
 				/*!<Returns a mouse cursor that will
@@ -341,7 +342,7 @@ public:
     static const char*		sKeyTC2RGBA()	{ return "TC2RGBA"; }
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
     static const char*		sKeyAttribs()	{ return "Attrib "; }
-    static const char*          sKeyLocked()    { return "Locked"; }
+    static const char*		sKeyLocked()	{ return "Locked"; }
     static const char*		sKeySurvey()	{ return "Survey"; }
 
     void			setUserRefs( int attrib, BufferStringSet* nms )

@@ -102,6 +102,7 @@ public:
 
     virtual bool		canRemoveSelection() const	{ return true; }
     virtual bool		removeSelections(TaskRunner*);
+    virtual void		clearSelections();
 
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*);
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA();
@@ -135,7 +136,6 @@ protected:
     void			polygonFinishedCB(CallBacker*);
 
     virtual void		updateSelections();
-    virtual void		clearSelections();
 
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;

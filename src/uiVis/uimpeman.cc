@@ -63,11 +63,11 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
     si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.notify(
-	    mCB(this,uiMPEMan,treeItemSelCB) );
+			mCB(this,uiMPEMan,treeItemSelCB) );
     visserv_->mouseEvent.notify( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.notify( mCB(this,uiMPEMan,keyEventCB) );
     visSurvey::STM().mouseCursorCall.notify(
-	    mCB(this,uiMPEMan,mouseCursorCallCB) );
+			mCB(this,uiMPEMan,mouseCursorCallCB) );
 }
 
 
@@ -79,11 +79,11 @@ uiMPEMan::~uiMPEMan()
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
     si.workRangeChg.remove( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.remove(
-	    mCB(this,uiMPEMan,treeItemSelCB) );
+			mCB(this,uiMPEMan,treeItemSelCB) );
     visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
     visSurvey::STM().mouseCursorCall.remove(
-	    mCB(this,uiMPEMan,mouseCursorCallCB) );
+			mCB(this,uiMPEMan,mouseCursorCallCB) );
 }
 
 
@@ -321,8 +321,8 @@ void uiMPEMan::mouseCursorCallCB( CallBacker* )
 {
     visSurvey::Scene* scene = visSurvey::STM().currentScene();
 
-    if ( !scene || scene->id()!=clickablesceneid_ || 
-	 !isSeedPickingOn() || !clickcatcher_->getEditor() ||
+    if ( !scene || scene->id()!=clickablesceneid_ ||
+	 !isSeedPickingOn() || !clickcatcher_ || !clickcatcher_->getEditor() ||
 	 MPE::engine().trackingInProgress() )
 	return;
 
@@ -362,7 +362,8 @@ void uiMPEMan::seedClick( CallBacker* )
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 
-    const int clickedobject = clickcatcher_->info().getObjID();
+    const int clickedobject =
+	clickcatcher_ ? clickcatcher_->info().getObjID() : -1;
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
@@ -613,7 +614,8 @@ void uiMPEMan::beginSeedClickEvent( EM::EMObject* emobj )
 
 void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
 {
-    clickcatcher_->stopSowing();
+    if ( clickcatcher_ )
+	clickcatcher_->stopSowing();
 
     if ( !mIsUdf(cureventnr_) )
     {
@@ -670,9 +672,7 @@ void uiMPEMan::deleteSelection()
     if ( visserv_->isSelectionModeOn() )
     {
 	removeInPolygon();
-	visserv_->turnSelectionModeOn( false );
 	turnSeedPickingOn( true );
-	if ( hd ) hd->clearSelections();
     }
     else
     {
@@ -715,11 +715,12 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	visserv_->setViewMode( false );
 
 	updateClickCatcher();
-	clickcatcher_->turnOn( true );
+	if ( clickcatcher_ )
+	    clickcatcher_->turnOn( true );
 
 	const EM::EMObject* emobj =
 			tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
-	if ( emobj )
+	if ( clickcatcher_ && emobj )
 	    clickcatcher_->setTrackerType( emobj->getTypeStr() );
     }
     else
@@ -737,9 +738,12 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 }
 
 
-void uiMPEMan::updateClickCatcher()
+void uiMPEMan::updateClickCatcher( bool create )
 {
-    if ( !clickcatcher_ )
+    if ( !clickcatcher_ && !create )
+	return;
+
+    if ( !clickcatcher_ && create )
     {
 	TypeSet<int> catcherids;
 	visserv_->findObject( typeid(visSurvey::MPEClickCatcher),
@@ -781,6 +785,7 @@ void uiMPEMan::treeItemSelCB( CallBacker* )
     if ( !getSelectedDisplay() )
     {
 	turnSeedPickingOn( false );
+	updateClickCatcher( false );
 	return;
     }
 
@@ -897,18 +902,17 @@ void uiMPEMan::updateSeedPickState()
 
 void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 {
-    if ( !engine().nrTrackersAlive() )
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if ( !tracker )
     {
-	seedpickwason_ = false;
-	engine().setActiveVolume( TrcKeyZSampling() );
+	turnSeedPickingOn( false );
+	updateClickCatcher( false );
     }
 }
 
 
 void uiMPEMan::visObjectLockedCB( CallBacker* )
-{
-}
-
+{}
 
 void uiMPEMan::trackFromSeedsOnly()
 {}

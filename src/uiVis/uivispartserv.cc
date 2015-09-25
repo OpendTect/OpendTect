@@ -84,11 +84,11 @@ int uiVisPartServer::evStoreEMObject()			{ return 19; }
 int uiVisPartServer::evStoreEMObjectAs()		{ return 20; }
 int uiVisPartServer::evShowSetupGroupOnTop()		{ return 21; }
 
-const char* uiVisPartServer::sKeyAppVel()	       { return "AppVel"; }
-const char* uiVisPartServer::sKeyWorkArea()	    { return "Work Area"; }
-static const char* sKeyNumberScenes()	       { return "Number of Scene";}
-static const char* sKeySceneID()	             { return "Scene ID"; }
-static const char* sceneprefix()	                { return "Scene"; }
+const char* uiVisPartServer::sKeyAppVel()	{ return "AppVel"; }
+const char* uiVisPartServer::sKeyWorkArea()	{ return "Work Area"; }
+static const char* sKeyNumberScenes()		{ return "Number of Scene";}
+static const char* sKeySceneID()		{ return "Scene ID"; }
+static const char* sceneprefix()		{ return "Scene"; }
 
 
 static const int cResetManipIdx = 800;
@@ -1169,6 +1169,13 @@ void uiVisPartServer::turnSelectionModeOn( bool yn )
 
     setSelectionMode( selectionmode_ );
     updateDraggers();
+
+    if ( !yn )
+    {
+	const int selid = getSelObjectId();
+	mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selid))
+	if ( so ) so->clearSelections();
+    }
 }
 
 
@@ -1673,25 +1680,25 @@ void uiVisPartServer::removeSelection()
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	const Selector<Coord3>* sel = getCoordSelector( sceneids[idx] );
-	if ( sel )
-	{
-	    int selobjectid = getSelObjectId();
-	    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));
-	    if ( !so ) continue;
-	    if ( so->canRemoveSelection() )
-	    {
-		uiString msg = tr("Are you sure you want to \n"
-				  "remove selected part of %1?")
-			     .arg(getObjectName( selobjectid ));
+	if ( !sel ) continue;
 
-		if ( uiMSG().askContinue(msg) )
-		{
-		    uiTaskRunner taskrunner( appserv().parent() );
-		    so->removeSelections( &taskrunner );
-		}
-	    }
+	int selobjectid = getSelObjectId();
+	mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));
+	if ( !so || !so->canRemoveSelection() )
+	    continue;
+
+	uiString msg = tr("Are you sure you want to \n"
+			  "remove selected part of %1?")
+		     .arg(getObjectName( selobjectid ));
+
+	if ( uiMSG().askContinue(msg) )
+	{
+	    uiTaskRunner taskrunner( appserv().parent() );
+	    so->removeSelections( &taskrunner );
 	}
     }
+
+    turnSelectionModeOn( false );
 }
 
 
@@ -2054,6 +2061,13 @@ void uiVisPartServer::keyEventCB( CallBacker* cb )
 
     eventmutex_.lock();
     kbevent_ = sceneeventsrc_->getKeyboardEvent();
+
+    const int selid = getSelObjectId();
+    if ( kbevent_.key_==OD::V && kbevent_.modifier_==OD::NoButton )
+    {
+	setOnlyAtSectionsDisplay( selid, !displayedOnlyAtSections(selid) );
+    }
+
     sendEvent( evKeyboardEvent() );
     keyEvent.trigger();
     sceneeventsrc_ = 0;

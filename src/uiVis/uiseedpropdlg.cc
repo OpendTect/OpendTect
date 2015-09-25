@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
     : uiMarkerStyleDlg( p, tr("Seed properties") )
     , emobject_( emobj )
-    , markerstyle_( emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
+    , markerstyle_(emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
 {
 }
 

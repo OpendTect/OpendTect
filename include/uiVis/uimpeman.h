@@ -89,7 +89,7 @@ protected:
     void			setUndoLevel(int);
 
     void			seedClick(CallBacker*);
-    void			updateClickCatcher();
+    void			updateClickCatcher(bool create=true);
 
     bool			seedpickwason_;
     TrcKeyZSampling		oldactivevol_;

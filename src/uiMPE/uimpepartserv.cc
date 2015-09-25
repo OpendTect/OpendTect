@@ -310,7 +310,7 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 }
 
 
-void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
+void uiMPEPartServer::nrHorChangeCB( CallBacker* )
 {
     if ( trackercurrentobject_ == -1 ) return;
 
@@ -325,7 +325,6 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
 
-    sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
 	setupgrp_->mainwin()->close();
