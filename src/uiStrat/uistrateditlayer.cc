@@ -38,7 +38,8 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     if ( !editable_ )
 	setCtrlStyle( CloseOnly );
 
-    lithfld_ = new uiGenInput( this, tr("Lithology"), lay_.lithology().name() );
+    lithfld_ = new uiGenInput( this, uiStrings::sLithology(),
+                               lay_.lithology().name() );
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
     float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
