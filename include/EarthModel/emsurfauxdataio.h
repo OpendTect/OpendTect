@@ -33,19 +33,19 @@ class Horizon3D;
 mExpClass(EarthModel) dgbSurfDataWriter : public Executor
 { mODTextTranslationClass(dgbSurfDataWriter);
 public:
-    				dgbSurfDataWriter(const EM::Horizon3D& surf,
+				dgbSurfDataWriter(const EM::Horizon3D& surf,
 						  int dataidx,
 						  const TrcKeySampling*,
 						  bool binary,
 						  const char* filename);
 			/*!<\param surf		The surface with the values
 			    \param dataidx	The index of the data to be
-			    			written
+						written
 			    \param sel		A selection of which data
-			    			that should be written.
+						that should be written.
 						Can be null, i.e. no selection
 			    \param binary	Specify whether the data should
-			    			be written in binary format
+						be written in binary format
 			*/
 
 				~dgbSurfDataWriter();
@@ -54,6 +54,7 @@ public:
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
     virtual uiString		uiMessage() const;
+    virtual uiString		uiNrDoneText() const;
 
     static const char*		sKeyAttrName();
     static const char*		sKeyIntDataChar();
@@ -74,7 +75,7 @@ protected:
     int				dataidx_;
     const EM::Horizon3D&	surf_;
     const TrcKeySampling*		sel_;
-  
+
     TypeSet<EM::SubID>		subids_;
     TypeSet<float>		values_;
     int				sectionindex_;
@@ -97,7 +98,7 @@ protected:
 mExpClass(EarthModel) dgbSurfDataReader : public Executor
 { mODTextTranslationClass(dgbSurfDataReader);
 public:
-    				dgbSurfDataReader(const char* filename);
+				dgbSurfDataReader(const char* filename);
 				~dgbSurfDataReader();
 
     const char*			dataName() const;
@@ -110,6 +111,7 @@ public:
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
     virtual uiString		uiMessage() const;
+    virtual uiString		uiNrDoneText() const;
 
     static uiString		sHorizonData();
 
@@ -124,7 +126,7 @@ protected:
     float			shift_;
     EM::Horizon3D*		surf_;
     const TrcKeySampling*	sel_;
-  
+
     int				sectionindex_;
     int				nrsections_;
     EM::SectionID		currentsection_;
