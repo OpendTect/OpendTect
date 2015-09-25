@@ -68,7 +68,7 @@ public:
 
     const SurfaceIOData&	sd;
 
-    TrcKeySampling			rg;
+    TrcKeySampling		rg;
     TypeSet<int>		selvalues; // Indexes in sd.valnames
     TypeSet<int>		selsections; // Indexes in sd.sections
 
