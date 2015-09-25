@@ -446,9 +446,10 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &workflowsmnuitem_, true, false );
     mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
 
+    const bool hastracker = MPE::engine().getTrackerByObject(emid_) >= 0;
     MenuItem* trackmnu = menu->findItem(
 	    uiStrings::sTracking().getFullString() );
-    if ( trackmnu )
+    if ( hastracker && trackmnu )
     {
 	const Coord3& crd = uimenu->getPickedPos();
 	if ( crd.isDefined() )
@@ -468,6 +469,15 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 	mAddMenuItem( trackmnu, &lockmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &unlockmnuitem_, true, false );
+    }
+    else
+    {
+	mResetMenuItem( &parentsmnuitem_ );
+	mResetMenuItem( &childrenmnuitem_ );
+	mResetMenuItem( &delchildrenmnuitem_ );
+	mResetMenuItem( &parentsrdlmnuitem_ );
+	mResetMenuItem( &lockmnuitem_ );
+	mResetMenuItem( &unlockmnuitem_ );
     }
 }
 
