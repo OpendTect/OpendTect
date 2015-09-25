@@ -672,9 +672,7 @@ void uiMPEMan::deleteSelection()
     if ( visserv_->isSelectionModeOn() )
     {
 	removeInPolygon();
-	visserv_->turnSelectionModeOn( false );
 	turnSeedPickingOn( true );
-	if ( hd ) hd->clearSelections();
     }
     else
     {

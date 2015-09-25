@@ -49,7 +49,7 @@ public:
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
 				{ return false; }
     const ZAxisTransform*	getZAxisTransform() const
-    				{ return zaxistransform_; }
+				{ return zaxistransform_; }
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
@@ -102,6 +102,7 @@ public:
 
     virtual bool		canRemoveSelection() const	{ return true; }
     virtual bool		removeSelections(TaskRunner*);
+    virtual void		clearSelections();
 
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*);
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA();
@@ -121,21 +122,20 @@ public:
 
 
 protected:
-    				EMObjectDisplay();
+				EMObjectDisplay();
 				~EMObjectDisplay();
     virtual void		removeEMStuff();
 
     virtual void		removeSectionDisplay(const EM::SectionID&) = 0;
     virtual bool		addSection(const EM::SectionID&,TaskRunner*)=0;
 
-    virtual EM::PosID 		findClosestNode(const Coord3&) const;
+    virtual EM::PosID		findClosestNode(const Coord3&) const;
     virtual void		emChangeCB(CallBacker*);
     virtual void		clickCB(CallBacker*);
     virtual void		updatePosAttrib(int attrib);
     void			polygonFinishedCB(CallBacker*);
 
     virtual void		updateSelections();
-    virtual void		clearSelections();
 
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;

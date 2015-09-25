@@ -1158,6 +1158,13 @@ void uiVisPartServer::turnSelectionModeOn( bool yn )
 
     setSelectionMode( selectionmode_ );
     updateDraggers();
+
+    if ( !yn )
+    {
+	const int selid = getSelObjectId();
+	mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selid))
+	if ( so ) so->clearSelections();
+    }
 }
 
 
@@ -1662,25 +1669,25 @@ void uiVisPartServer::removeSelection()
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	const Selector<Coord3>* sel = getCoordSelector( sceneids[idx] );
-	if ( sel )
-	{
-	    int selobjectid = getSelObjectId();
-	    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));
-	    if ( !so ) continue;
-	    if ( so->canRemoveSelection() )
-	    {
-		uiString msg = tr("Are you sure you want to \n"
-				  "remove selected part of %1?")
-			     .arg(getObjectName( selobjectid ));
+	if ( !sel ) continue;
 
-		if ( uiMSG().askContinue(msg) )
-		{
-		    uiTaskRunner taskrunner( appserv().parent() );
-		    so->removeSelections( &taskrunner );
-		}
-	    }
+	int selobjectid = getSelObjectId();
+	mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));
+	if ( !so || !so->canRemoveSelection() )
+	    continue;
+
+	uiString msg = tr("Are you sure you want to \n"
+			  "remove selected part of %1?")
+		     .arg(getObjectName( selobjectid ));
+
+	if ( uiMSG().askContinue(msg) )
+	{
+	    uiTaskRunner taskrunner( appserv().parent() );
+	    so->removeSelections( &taskrunner );
 	}
     }
+
+    turnSelectionModeOn( false );
 }
 
 
