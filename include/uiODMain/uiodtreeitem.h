@@ -54,7 +54,6 @@ public:
     static const char*	sceneidkey();
     static const char*	viewerptr();
     static const char*	applmgrstr();
-    static const char*	scenestr();
 
     int			sceneID() const;
     bool		selectWithKey(int selkey);
