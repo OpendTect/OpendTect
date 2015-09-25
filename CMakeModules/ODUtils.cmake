@@ -60,7 +60,7 @@ set ( CMAKE_PDB_OUTPUT_DIRECTORY "${OD_EXEC_OUTPUT_PATH}" )
 set ( OD_BUILD_VERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}")
 set ( OD_API_VERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
 
-set ( OD_MAIN_EXEC od_main )
+set ( OD_MAIN_EXEC od_main od_main_console )
 set ( OD_ATTRIB_EXECS od_process_attrib od_process_attrib_em od_stratamp )
 set ( OD_VOLUME_EXECS od_process_volume )
 set ( OD_PRESTACK_EXECS od_process_prestack )

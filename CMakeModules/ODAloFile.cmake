@@ -36,10 +36,11 @@ macro( OD_ADD_ALO_ENTRIES )
 		  ${OD_ALO_FILE_EXECS_${OD_ALO_NAME}} ${EXEC} PARENT_SCOPE )
 	endif()
 
-	if ( EXEC STREQUAL ${OD_MAIN_EXEC}) 
-	    set( EXEC_IS_MAIN 1 )
-	else()
+	list( FIND OD_MAIN_EXEC ${EXEC} INDEX ) 
+	if( ${INDEX} EQUAL -1 )
 	    set( EXEC_IS_MAIN 0 )
+	else()
+	    set( EXEC_IS_MAIN 1 )
 	endif()
 
 	#Add all dependencies to alo-entry
