@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimpepartserv.h"
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
+#include "uiodscenemgr.h"
 #include "uiodvw2dtreeitem.h"
 #include "uiodvw2dhor3dtreeitem.h"
 #include "uiodvw2dhor2dtreeitem.h"
@@ -392,9 +393,9 @@ void uiODViewer2D::createTree( uiMainWin* mw )
     treedoc->setMinimumWidth( 200 );
     uiTreeView* lv = new uiTreeView( treedoc, "Tree items" );
     treedoc->setObject( lv );
-    BufferStringSet labels;
-    labels.add( "Elements" );
-    labels.add( "Color" );
+    uiStringSet labels;
+    labels.add( uiODSceneMgr::sElements() );
+    labels.add( uiStrings::sColor() );
     lv->addColumns( labels );
     lv->setFixedColumnWidth( uiODViewer2DMgr::cColorColumn(), 40 );
 

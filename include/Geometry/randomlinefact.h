@@ -16,8 +16,8 @@ ________________________________________________________________________
 defineTranslatorGroup(RandomLineSet,"RandomLine Geometry");
 defineTranslator(dgb,RandomLineSet,mDGBKey);
 
-uiString RandomLineSetTranslatorGroup::sTypeName()
-{ return uiStrings::sRandomLine(); }
+uiString RandomLineSetTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sRandomLine( num ); }
 
 
 #endif

@@ -51,7 +51,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,uiDialog::Setup(tr("Manage 2D Seismic Lines"),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Seismic Lines")),
+                                 mNoDlgTitle,
 				 mODHelpKey(mSeis2DManHelpID) ))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))

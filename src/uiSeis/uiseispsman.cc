@@ -69,8 +69,8 @@ uiSeisPreStackMan::~uiSeisPreStackMan()
 uiString uiSeisPreStackMan::createCaption( bool is2d )
 {
     return is2d
-	? tr("Manage 2D Prestack Seismics")
-	: tr("Manage 3D Prestack Seismics");
+        ? uiStrings::phrManage( SeisPS2DTranslatorGroup::sTypeName() )
+        : uiStrings::phrManage( SeisPS3DTranslatorGroup::sTypeName());
 }
 
 

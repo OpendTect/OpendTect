@@ -13,8 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
-uiString ODGMTProcFlowTranslatorGroup::sTypeName()
-{ return tr("GMT process flow"); }
+uiString ODGMTProcFlowTranslatorGroup::sTypeName(int num)
+{ return tr("GMT process flow",0,num); }
 
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,

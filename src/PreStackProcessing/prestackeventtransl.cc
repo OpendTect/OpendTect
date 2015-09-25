@@ -17,7 +17,7 @@ defineTranslatorGroup(PSEvent, "PreStack Event" );
 defineTranslator(dgb,PSEvent,mDGBKey);
 mDefSimpleTranslatorSelector(PSEvent);
 
-uiString PSEventTranslatorGroup::sTypeName()
+uiString PSEventTranslatorGroup::sTypeName(int)
 { return uiStrings::sPreStackEvents(); }
 
 const IOObjContext& PSEventTranslatorGroup::ioContext()

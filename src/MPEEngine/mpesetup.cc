@@ -51,8 +51,8 @@ void Setup::fillPar( IOPar& par ) const
 
 mDefSimpleTranslatorSelector(MPESetup)
 mDefSimpleTranslatorioContext(MPESetup,Mdl)
-uiString MPESetupTranslatorGroup::sTypeName()
-{ return tr("Tracking setup" ); }
+uiString MPESetupTranslatorGroup::sTypeName(int num)
+{ return tr("Tracking setup",0,num ); }
 
 
 // MPESetupTranslator ---------------------------------------------------- 

@@ -64,7 +64,7 @@ uiStratTreeWin& StratTreeWin()
 
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,tr("Manage Stratigraphy"), 0, true)
+    : uiMainWin(p,uiStrings::phrManage( uiStrings::sStratigraphy() ), 0, true)
     , needsave_(false)
     , istreedisp_(false)
     , repos_(*new Strat::RepositoryAccess())
@@ -208,8 +208,10 @@ void uiStratTreeWin::createToolBar()
     mDefBut(uitb,"contexthelp",helpCB,tr("Help on this window"));
     tb_->addSeparator();
     mDefBut( switchviewbut_, "strat_tree", switchViewCB, tr("Switch View") );
-    mDefBut( lithobut_, "lithologies", manLiths, tr("Manage Lithologies") );
-    mDefBut( contentsbut_, "contents", manConts, tr("Manage Content Types") );
+    mDefBut( lithobut_, "lithologies", manLiths,
+            uiStrings::phrManage( uiStrings::sLithology(mPlural) ));
+    mDefBut( contentsbut_, "contents", manConts,
+            uiStrings::phrManage( tr("Content Types") ));
 
     for ( int idx=0; idx<tbsetups_.size(); idx++ )
 	tb_->addButton( *tbsetups_[idx] );

@@ -29,8 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 
 
-uiString EMHorizon3DTranslatorGroup::sTypeName()
-{ return uiStrings::sHorizon(); }
+uiString EMHorizon3DTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sHorizon(num); }
 
 mDefSimpleTranslatorSelector(EMHorizon3D)
 
@@ -51,8 +51,8 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 }
 
 
-uiString EMHorizon2DTranslatorGroup::sTypeName()
-{ return mJoinUiStrs(s2D(), sHorizon()); }
+uiString EMHorizon2DTranslatorGroup::sTypeName(int num)
+{ return mJoinUiStrs(s2D(), sHorizon(num)); }
 
 mDefSimpleTranslatorSelector(EMHorizon2D)
 
@@ -73,7 +73,9 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 }
 
 
-uiString EMAnyHorizonTranslatorGroup::sTypeName() { return tr("Any Horizon"); }
+uiString EMAnyHorizonTranslatorGroup::sTypeName(int)
+{ return tr("Any Horizon"); }
+
 mDefSimpleTranslatorioContext(EMAnyHorizon,Surf)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
@@ -84,14 +86,15 @@ int EMAnyHorizonTranslatorGroup::selector( const char* s )
 }
 
 
-uiString EMFault3DTranslatorGroup::sTypeName() { return uiStrings::sFault(); }
+uiString EMFault3DTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sFault(num); }
 
 mDefSimpleTranslatorSelector(EMFault3D)
 
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-uiString EMFaultStickSetTranslatorGroup::sTypeName()
-{ return uiStrings::sFaultStickSet(); }
+uiString EMFaultStickSetTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sFaultStickSet( num ); }
 
 mDefSimpleTranslatorSelector(EMFaultStickSet)
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)

@@ -21,8 +21,8 @@ defineTranslator(dgb,SurvGeom2D,"2D Geometry");
 mDefSimpleTranslatorSelector(SurvGeom2D);
 mDefSimpleTranslatorioContext(SurvGeom2D,Geom);
 
-uiString SurvGeom2DTranslatorGroup::sTypeName()
-{ return tr( "Geometry" ); }
+uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
+{ return tr( "Geometry", 0, num ); }
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )

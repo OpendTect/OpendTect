@@ -21,8 +21,8 @@ defineTranslator(dgb,AttribDescSet,mDGBKey);
 mDefSimpleTranslatorSelector(AttribDescSet);
 mDefSimpleTranslatorioContext(AttribDescSet, Attr );
 
-uiString AttribDescSetTranslatorGroup::sTypeName()
-{ return uiStrings::sAttribute(mPlural); }
+uiString AttribDescSetTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sAttribute(num); }
 
 
 #endif

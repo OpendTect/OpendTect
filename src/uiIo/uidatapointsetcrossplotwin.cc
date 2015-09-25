@@ -141,7 +141,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     seltabletbid_ = seltb_.addButton( "seltable",tr("Show selections in table"),
 	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel) );
 
-    manseltbid_ = seltb_.addButton( "selsettings", tr("Manage selections"),
+    manseltbid_ = seltb_.addButton( "selsettings",
+           uiStrings::phrManage( uiStrings::sSelection(mPlural).toLower()),
 	    mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
 
     refineseltbid_ = seltb_.addButton( "refinesel", tr("Refine selection"),

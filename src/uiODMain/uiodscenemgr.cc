@@ -88,6 +88,7 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
     for ( int idx=0; idx<scenes_.size(); idx++ ) \
 	scenes_[idx]->memb->fn( arg )
 
+
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     : appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
@@ -850,16 +851,17 @@ void uiODSceneMgr::setActiveScene( int idx )
 }
 
 
+
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
-    BufferString capt( "Tree scene " ); capt += vwridx;
+    const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
     scn.dw_ = new uiDockWin( &appl_, capt );
     scn.dw_->setMinimumWidth( 200 );
-    scn.lv_ = new uiTreeView( scn.dw_, capt );
+    scn.lv_ = new uiTreeView( scn.dw_, capt.getFullString() );
     scn.dw_->setObject( scn.lv_ );
-    BufferStringSet labels;
-    labels.add( "Elements" );
-    labels.add( "Color" );
+    uiStringSet labels;
+    labels.add( sElements() );
+    labels.add( uiStrings::sColor() );
     scn.lv_->addColumns( labels );
     scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
 

@@ -31,8 +31,8 @@ ProbDenFuncTranslator::ProbDenFuncTranslator( const char* nm, const char* unm )
 {}
 
 
-uiString ProbDenFuncTranslatorGroup::sTypeName()
-{ return tr( "Probability Density Function" ); }
+uiString ProbDenFuncTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sProbDensFunc( false, num ); }
 
 
 ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,

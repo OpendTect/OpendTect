@@ -18,8 +18,8 @@ ________________________________________________________________________
 
 defineTranslatorGroup(SeisPS3D,"Pre-Stack Seismics");
 mDefSimpleTranslatorSelector(SeisPS3D);
-uiString SeisPS3DTranslatorGroup::sTypeName()
-{ return tr("Pre-Stack Seismics"); }
+uiString SeisPS3DTranslatorGroup::sTypeName( int num)
+{ return tr("Pre-Stack Seismic", 0, num ); }
 
 defineTranslator(CBVS,SeisPS3D,"CBVS");
 defineTranslator(MultiCube,SeisPS3D,"MultiCube");
@@ -27,8 +27,8 @@ defineTranslator(SEGYDirect,SeisPS3D,mSEGYDirectTranslNm);
 
 defineTranslatorGroup(SeisPS2D,"2D Pre-Stack Seismics");
 mDefSimpleTranslatorSelector(SeisPS2D);
-uiString SeisPS2DTranslatorGroup::sTypeName()
-{ return tr("2D Pre-Stack Seismics"); }
+uiString SeisPS2DTranslatorGroup::sTypeName( int num )
+{ return tr("2D Pre-Stack Seismic", 0, num ); }
 
 defineTranslator(CBVS,SeisPS2D,"CBVS");
 defineTranslator(SEGYDirect,SeisPS2D,mSEGYDirectTranslNm);

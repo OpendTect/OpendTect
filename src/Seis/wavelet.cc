@@ -34,7 +34,8 @@ defineTranslatorGroup(Wavelet,"Wavelet");
 defineTranslator(dgb,Wavelet,mDGBKey);
 mDefSimpleTranslatorSelector(Wavelet);
 
-uiString WaveletTranslatorGroup::sTypeName() { return uiStrings::sWavelet(); }
+uiString WaveletTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sWavelet(num); }
 
 static const char* sKeyScaled = "Scaled";
 #define mDefaultSnapdist (1e-4f);

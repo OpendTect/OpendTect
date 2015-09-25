@@ -26,7 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyPBMFSetup = "PBMF setup";
 
 defineTranslatorGroup(MuteDef,"Mute Definition");
-uiString MuteDefTranslatorGroup::sTypeName() { return uiStrings::sMute(); }
+uiString MuteDefTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sMute(num); }
+
 defineTranslator(dgb,MuteDef,mDGBKey);
 
 mDefSimpleTranslatorioContext(MuteDef,Misc)
