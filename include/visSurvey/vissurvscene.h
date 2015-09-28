@@ -128,7 +128,7 @@ public:
     Notifier<Scene>		mouseclicked;
     Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool displayspace) const;
-    TrcKeyValue                 getMousePos() const;
+    TrcKeyValue			getMousePos() const;
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
@@ -219,7 +219,6 @@ protected:
 
     ZAxisTransform*			datatransform_;
 
-
     visBase::Annotation*	annot_;
     visBase::MarkerSet*		markerset_;
     visBase::PolygonSelection*	polyselector_;
@@ -236,8 +235,8 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     const MouseCursor*		mousecursor_;
-
     IOPar&			infopar_;
+
     float			curzstretch_;
 
     ZDomain::Info*		zdomaininfo_;

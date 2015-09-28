@@ -109,6 +109,7 @@ uiODViewer2D::~uiODViewer2D()
     delete datamgr_;
 
     deepErase( auxdataeditors_ );
+
     if ( datatransform_ )
 	datatransform_->unRef();
 
@@ -904,7 +905,6 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	const Coord pos = Survey::GM().toCoord( trkv.tk_ );
 	pt = FlatView::Point( pos.x, pos.y );
     }
-	
 
     vwr.handleChange( FlatView::Viewer::Auxdata );
 }

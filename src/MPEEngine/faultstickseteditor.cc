@@ -258,7 +258,7 @@ const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
     int sticknr = getLastClickedStick();
     EM::SectionID sid;
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
-	? sowingpivot_ : mousepos;
+			? sowingpivot_ : mousepos;
 
     MultiID pickedmid;
 
