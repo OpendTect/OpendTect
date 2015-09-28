@@ -49,7 +49,7 @@ int ODSysAdmMain( int argc, char** argv )
 }
 
 #define mAddGroup(nm) \
-    groups_ += new GroupEntry( nm ); \
+    groups_ += new GroupEntry( mFromUiStringTodo(nm) ); \
     grpfld->addItem( nm )
 #define mAddTask(grpnr,nm,fn,comm) \
     te = new TaskEntry( nm, mCB(this,uiODSysAdm,fn), comm ); \
@@ -97,23 +97,23 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
     commentfld->setPrefHeightInChar( 2 );
 
     TaskEntry* te;
-    mAddGroup( "Look & Feel" );
+    mAddGroup( tr("Look & Feel") );
     mAddTask(0,"Color bars",doColorTabs,
 	    "Manage standard color bars");
     mAddTask(0,"Shortcuts",doShortcuts,
 	    "Manage standard keyboard shortcut settings");
     mAddTask(0,"Icon sets",doIconSets,"Add/Remove icons sets");
-    mAddGroup( "Batch processing" );
+    mAddGroup( tr("Batch processing") );
     mAddTask(1,"Processing hosts",doBatchHosts,
 	     "Manage hosts available for remote processing");
     mAddTask(1,"Batch programs",doBatchProgs,
 	     "Manage batch programs available to users");
-    mAddGroup( "FlexLM licensing" );
+    mAddGroup( tr("FlexLM licensing") );
     mAddTask(2,"Install license file",doInstLicFile,
 	     "Install a FlexLM license file used by plugin(s)");
     mAddTask(2,"Start license manager daemon",doStartLic,
 	     "Start a FlexLM license manager daemon used by plugin(s)");
-    mAddGroup( "Misc" );
+    mAddGroup( tr("Misc") );
     mAddTask(3,"Attribute sets",doAttribSets,
      "Add/Remove attribute sets to/from the standard default attribute sets" );
 
@@ -176,7 +176,7 @@ void uiODSysAdm::grpChg( CallBacker* )
     if ( !ge ) return;
 
     for ( int idx=0; idx<ge->tasks_.size(); idx++ )
-	taskfld->addItem( ge->tasks_[idx]->name_ );
+	taskfld->addItem( toUiString(ge->tasks_[idx]->name_) );
 
     taskfld->setCurrentItem( 0 );
     taskChg( this );
