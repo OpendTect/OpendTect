@@ -473,7 +473,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
     as = picinvd ? vdselspec_ : wvaselspec_;
 
     MPE::engine().setActive2DLine( geomid_ );
-    mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, &seedpicker );
+    mDynamicCastGet(MPE::Horizon2DSeedPicker*,h2dsp,&seedpicker);
     if ( h2dsp )
 	h2dsp->setSelSpec( as );
 
@@ -494,7 +494,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
 bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 					 const MouseEvent& mev ) const
 {
-    const TrcKeyValue tkv( SI().transform(crd), (float)crd.z );
+    const TrcKeyValue tkv( getTrcKey(crd.coord()), (float)crd.z );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
 
     if ( !ismarker )
@@ -518,6 +518,13 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
     }
 
     return true;
+}
+
+
+TrcKey HorizonFlatViewEditor2D::getTrcKey( const Coord& crd ) const
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    return geom ? geom->nearestTrace( crd ) : TrcKey::udf();
 }
 
 
@@ -667,4 +674,4 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
     hor2d->setBurstAlert( false );
 }
 
-}//namespace MPE
+} // namespace MPE

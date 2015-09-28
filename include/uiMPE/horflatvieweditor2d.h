@@ -35,7 +35,7 @@ class EMSeedPicker;
 mExpClass(uiMPE) HorizonFlatViewEditor2D : public CallBacker
 { mODTextTranslationClass(HorizonFlatViewEditor2D)
 public:
-    			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
+			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
 						const EM::ObjectID&);
 			~HorizonFlatViewEditor2D();
 
@@ -43,7 +43,7 @@ public:
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
 
     FlatView::AuxDataEditor* getEditor()		{ return editor_; }
-    EM::HorizonPainter2D* getPainter() const 		{ return horpainter_; }
+    EM::HorizonPainter2D* getPainter() const		{ return horpainter_; }
 
     void		setGeomID(Pos::GeomID);
     TypeSet<int>&	getPaintingCanvTrcNos();
@@ -80,6 +80,7 @@ protected:
     bool		getPosID(const Coord3&, EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 				  const MouseEvent&) const;
+    TrcKey		getTrcKey(const Coord&) const;
 
 	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{
@@ -103,7 +104,7 @@ protected:
     const Attrib::SelSpec*	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 
-    Pos::GeomID 		geomid_;
+    Pos::GeomID			geomid_;
 
     bool			seedpickingon_;
     bool			trackersetupactive_;
@@ -111,8 +112,7 @@ protected:
     mutable bool		dodropnext_;
 };
 
-} // namepace
-
+} // namepace MPE
 
 #endif
 

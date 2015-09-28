@@ -470,23 +470,23 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     if ( nrseeds<2 )
 	return true;
 
-    mAllocVarLenArr( int, sortval, nrseeds );
-    mAllocVarLenArr( int, sortidx, nrseeds );
-
+    TypeSet<int> sortval;
+    TypeSet<int> sortidx;
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	if ( seedlist_[idx].geomID() != geomid_ )
 	    continue;
 
-	sortval[idx] = seedlist_[idx].trcNr();
-	sortidx[idx] = idx;
+	sortval[idx] += seedlist_[idx].trcNr();
+	sortidx[idx] += idx;
     }
 
-    sort_coupled( mVarLenArr(sortval), mVarLenArr(sortidx), nrseeds );
+    const int nrvalidseeds = sortval.size();
+    sort_coupled( sortval.arr(), sortidx.arr(), nrvalidseeds );
 
     TypeSet<TrcKey> snaplist;
     TrcKey tk( geomid_, -1 );
-    for ( int vtx=0; vtx<nrseeds-1; vtx++ )
+    for ( int vtx=0; vtx<nrvalidseeds-1; vtx++ )
     {
 	const Coord3 startpos = hor->getCoord( seedlist_[ sortidx[vtx] ] );
 	const Coord3 endpos = hor->getCoord( seedlist_[ sortidx[vtx+1] ] );
