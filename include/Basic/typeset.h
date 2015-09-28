@@ -66,8 +66,8 @@ public:
     inline virtual TypeSetBase<T,I>& copy(const TypeSetBase<T,I>&);
     inline virtual bool		append(const T*,size_type);
     inline virtual bool		append(const TypeSetBase<T,I>&);
-    inline bool			add(const T&);
-    inline bool			push(const T& t) { return add(t); }
+    inline TypeSetBase<T,I>&	add(const T& t) { push(t); return *this; }
+    inline bool			push(const T&);
     inline T			pop();
     inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse();
@@ -404,7 +404,7 @@ TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const T* tarr, I sz )
 
 
 template <class T, class I> inline
-bool TypeSetBase<T,I>::add( const T& t )
+bool TypeSetBase<T,I>::push( const T& t )
 {
     return vec_.push_back( t );
 }
