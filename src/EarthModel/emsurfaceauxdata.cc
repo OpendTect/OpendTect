@@ -273,7 +273,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     }
 
     horizon_.setErrMsg(
-	transl ? transl->errMsg() : tr("Cannot find Translator") );
+	transl ? transl->errMsg() : uiStrings::phrCannotFind(tr("Translator")));
     return 0;
 }
 
