@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* uiODTreeTop::sceneidkey()		{ return "Sceneid"; }
 const char* uiODTreeTop::viewerptr()		{ return "Viewer"; }
 const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
-const char* uiODTreeTop::scenestr()		{ return "Scene"; }
 
 
 uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,

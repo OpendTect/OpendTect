@@ -823,57 +823,77 @@ uiString toUiString( const uiString& var ) { return var; }
 
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
 
+
+template <class ODT,class QT> inline
+static uiString toUiStringWithPrecisionImpl( ODT v, int prec )
+{
 #ifndef OD_NO_QT
-#define mToUiStringWithPrecisionImpl( tp, qtp ) \
-uiString toUiString(tp v,int prec) \
-{ \
-    const QLocale* locale = TrMgr().getQLocale(); \
-    if ( locale ) \
-    { \
-        uiString res; \
-        res.setFrom( locale->toString((qtp) v, 'g', prec) ); \
-        return res; \
-    } \
- \
-    return uiString().set( toString(v, prec ) ); \
-}
-
-#define mToUiStringImpl( tp, qtp ) \
-uiString toUiString(tp v) \
-{ \
-    const QLocale* locale = TrMgr().getQLocale(); \
-    if ( locale ) \
-    { \
-        uiString res; \
-        res.setFrom( locale->toString((qtp) v) ); \
-        return res; \
-    } \
- \
-    return uiString().set( toString(v) ); \
-}
-
-#else
-
-#define mToUiStringWithPrecisionImpl( tp, qt ) \
-uiString toUiString(tp v, int prec ) \
-{ \
-    return uiString().set( toString(v,prec) ); \
-}
-#define mToUiStringImpl( tp, qt ) \
-uiString toUiString(tp v) \
-{ \
-    return uiString().set( toString(v) ); \
-}
+    const QLocale* locale = TrMgr().getQLocale();
+    if ( locale && locale->script()==QLocale::ArabicScript )
+    {
+	uiString res;
+	res.setFrom( locale->toString((QT) v, 'g', prec) );
+	return res;
+    }
 #endif
 
-mToUiStringImpl(od_int32,int)
-mToUiStringImpl(od_uint32,uint)
-mToUiStringImpl(od_int64,qlonglong)
-mToUiStringImpl(od_uint64,qulonglong)
-mToUiStringImpl(float,float)
-mToUiStringImpl(double,double)
-mToUiStringWithPrecisionImpl(float,float)
-mToUiStringWithPrecisionImpl(double,double)
+    return uiString().set( toString(v, prec ) );
+}
+
+
+template <class ODT,class QT> inline
+static uiString toUiStringImpl( ODT v )
+{
+#ifndef OD_NO_QT
+    const QLocale* locale = TrMgr().getQLocale();
+    if ( locale && locale->script()==QLocale::ArabicScript )
+    {
+	uiString res;
+	res.setFrom( locale->toString((QT) v ) );
+	return res;
+    }
+#endif
+
+    return uiString().set( toString(v) );
+}
+
+#ifdef OD_NO_QT
+typedef od_uint32 uint;
+typedef od_int64 ulonglong;
+typedef od_uint32 qulonglong;
+#endif
+
+
+uiString toUiString( od_int32 v )
+{ return toUiStringImpl<od_int32,int>( v ); }
+
+
+uiString toUiString( od_uint32 v )
+{ return toUiStringImpl<od_int32,uint>( v ); }
+
+
+uiString toUiString( od_int64 v )
+{ return toUiStringImpl<od_int32,qlonglong>( v ); }
+
+
+uiString toUiString( od_uint64 v )
+{ return toUiStringImpl<od_uint64,qulonglong>( v ); }
+
+
+uiString toUiString( float v )
+{ return toUiStringImpl<float,float>( v ); }
+
+
+uiString toUiString( double v )
+{ return toUiStringImpl<double,double>( v ); }
+
+
+uiString toUiString( float v, int prec )
+{ return toUiStringWithPrecisionImpl<float,float>( v, prec ); }
+
+
+uiString toUiString( double v, int prec )
+{ return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
 
 
 
