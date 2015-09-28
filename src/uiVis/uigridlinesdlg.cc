@@ -24,9 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-#define mCreateGridFld( name, lbl ) \
-    label.arg( lbl ); \
-    name##fld_ = new uiCheckBox( this, label ); \
+#define mCreateGridFld( name, type ) \
+    uiString lbl = label; lbl.arg( type ); \
+    name##fld_ = new uiCheckBox( this, lbl ); \
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
     name##spacingfld_ = new uiGenInput( this, spacingstr, \
 					IntInpIntervalSpec(true) ); \
