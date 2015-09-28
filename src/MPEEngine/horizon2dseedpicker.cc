@@ -477,8 +477,8 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	if ( seedlist_[idx].geomID() != geomid_ )
 	    continue;
 
-	sortval[idx] += seedlist_[idx].trcNr();
-	sortidx[idx] += idx;
+	sortval += seedlist_[idx].trcNr();
+	sortidx += idx;
     }
 
     const int nrvalidseeds = sortval.size();
