@@ -506,7 +506,7 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 
-	const TrcKeyValue tkv2( SI().transform(Coord(mev.x(),mev.y())), 0.f );
+	const TrcKeyValue tkv2( getTrcKey(Coord(mev.x(),mev.y())), 0.f );
 	if ( spk.addSeed(tkv,drop,tkv2) )
 	    return true;
     }
