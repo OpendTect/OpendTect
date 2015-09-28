@@ -56,38 +56,27 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol_(false)
     , cureventnr_(mUdf(int))
 {
-    engine().trackeraddremove.notify(
-			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
-    engine().actionCalled.notify(
-			mCB(this,uiMPEMan,mpeActionCB) );
+    mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
+    mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
+    mAttachCB( engine().actionFinished, uiMPEMan::mpeActionFinishedCB );
+
+    mAttachCB( visBase::DM().selMan().selnotifier, uiMPEMan::treeItemSelCB );
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
-    si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
-    visBase::DM().selMan().selnotifier.notify(
-			mCB(this,uiMPEMan,treeItemSelCB) );
-    visserv_->mouseEvent.notify( mCB(this,uiMPEMan,mouseEventCB) );
-    visserv_->keyEvent.notify( mCB(this,uiMPEMan,keyEventCB) );
-    visSurvey::STM().mouseCursorCall.notify(
-			mCB(this,uiMPEMan,mouseCursorCallCB) );
+    mAttachCB( si.workRangeChg, uiMPEMan::workAreaChgCB );
+    mAttachCB( visserv_->mouseEvent, uiMPEMan::mouseEventCB );
+    mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
+    mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
 }
 
 
 uiMPEMan::~uiMPEMan()
 {
+    detachAllNotifiers();
     deleteVisObjects();
-    engine().trackeraddremove.remove(
-			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
-    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
-    si.workRangeChg.remove( mCB(this,uiMPEMan,workAreaChgCB) );
-    visBase::DM().selMan().selnotifier.remove(
-			mCB(this,uiMPEMan,treeItemSelCB) );
-    visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
-    visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
-    visSurvey::STM().mouseCursorCall.remove(
-			mCB(this,uiMPEMan,mouseCursorCallCB) );
 }
 
 
-void uiMPEMan::mpeActionCB( CallBacker* )
+void uiMPEMan::mpeActionCalledCB( CallBacker* )
 {
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     if ( !hd ) return;
@@ -96,6 +85,15 @@ void uiMPEMan::mpeActionCB( CallBacker* )
     {
 	hd->setOnlyAtSectionsDisplay( false );
     }
+}
+
+
+void uiMPEMan::mpeActionFinishedCB( CallBacker* )
+{
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    if ( !hd ) return;
+
+    hd->updateAuxData();
 }
 
 
@@ -359,29 +357,28 @@ void uiMPEMan::seedClick( CallBacker* )
     while ( emobj->hasBurstAlert() )
 	emobj->setBurstAlert( false );
 
+    if ( !clickcatcher_ )
+	mSeedClickReturn();
+
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 
-    const int clickedobject =
-	clickcatcher_ ? clickcatcher_->info().getObjID() : -1;
+    const int clickedobject = clickcatcher_->info().getObjID();
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
-    visBase::DataObject* dataobj = visserv_->getObject( clickedobject );
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,dataobj)
-    const bool clickedonhorizon = emod;
+    const EM::ObjectID emobjid  = clickcatcher_->info().getEMObjID();
+    mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
+    const bool clickedonhorizon = clickedhor;
+    if ( clickedhor && clickedhor!=hor )
+	mSeedClickReturn();
 
     if ( !clickcatcher_->info().isLegalClick() )
     {
-	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
-
 	if ( tracker->is2D() && !clickcatcher_->info().getObjLineName() )
 	    uiMSG().error( tr("2D tracking cannot handle picks on 3D lines.") );
 	else if ( !tracker->is2D() && clickcatcher_->info().getObjLineName() )
 	    uiMSG().error( tr("3D tracking cannot handle picks on 2D lines.") );
-	else if ( randomdisp )
-	    uiMSG().error( emobj->getUserTypeStr(),
-			   tr("Tracking cannot handle picks on random lines."));
 	else if ( clickcatcher_->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher_->info().getObjCS().isEmpty() )
 	    uiMSG().error( emobj->getUserTypeStr(),
@@ -591,10 +588,6 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
 
-
-    // below is for double click event.
-    // after double click we do return on line 251. next click reaches here, we
-    // need tell seedpicker to prepare to start new trick line.
     if ( seedpicker->isPatchEnded() )
 	seedpicker->endPatch( false );
 }

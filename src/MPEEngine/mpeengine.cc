@@ -51,6 +51,7 @@ Engine::Engine()
     , trackeraddremove(this)
     , loadEMObject(this)
     , actionCalled(this)
+    , actionFinished(this)
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
     , undoeventid_(-1)
@@ -173,6 +174,7 @@ void Engine::stopTracking()
 
     state_ = Stopped;
     actionCalled.trigger();
+    actionFinished.trigger();
 }
 
 
@@ -185,6 +187,7 @@ void Engine::trackingFinishedCB( CallBacker* )
 
     state_ = Stopped;
     actionCalled.trigger();
+    actionFinished.trigger();
 }
 
 
@@ -211,6 +214,7 @@ void Engine::undo( uiString& errmsg )
     }
 
     actionCalled.trigger();
+    actionFinished.trigger();
 }
 
 
@@ -237,6 +241,7 @@ void Engine::redo( uiString& errmsg )
     }
 
     actionCalled.trigger();
+    actionFinished.trigger();
 }
 
 

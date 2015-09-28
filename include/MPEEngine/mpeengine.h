@@ -70,6 +70,7 @@ public:
     void			redo(uiString& errmsg);
     void			enableTracking(bool yn);
     Notifier<Engine>		actionCalled;
+    Notifier<Engine>		actionFinished;
 
     void			removeSelectionInPolygon(
 					const Selector<Coord3>&,

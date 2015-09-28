@@ -748,6 +748,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
     if ( lastid!=undo.currentEventID() )
 	undo.setUserInteractionEnd( undo.currentEventID() );
 
+    updateAuxData();
     clearSelections();
     return !selectors_.isEmpty();
 }
