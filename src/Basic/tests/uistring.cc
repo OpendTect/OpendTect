@@ -189,12 +189,12 @@ bool testNumberStrings()
     uiString string = toUiString( 0.9, 3 );
     QString qstr = string.getQString();
     BufferString bstr( qstr );
-    mRunStandardTest( bstr=="0.9", "Number string" );
+    mRunStandardTest( bstr=="0.900", "Number string" );
 
     ArrPtrMan<wchar_t> wbuf = string.createWCharString();
     qstr = QString::fromWCharArray( wbuf );
     bstr = BufferString( qstr );
-    mRunStandardTest( bstr=="0.9", "Number string from wchar" );
+    mRunStandardTest( bstr=="0.900", "Number string from wchar" );
     
     return true;
 }
