@@ -357,29 +357,28 @@ void uiMPEMan::seedClick( CallBacker* )
     while ( emobj->hasBurstAlert() )
 	emobj->setBurstAlert( false );
 
+    if ( !clickcatcher_ )
+	mSeedClickReturn();
+
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 
-    const int clickedobject =
-	clickcatcher_ ? clickcatcher_->info().getObjID() : -1;
+    const int clickedobject = clickcatcher_->info().getObjID();
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
-    visBase::DataObject* dataobj = visserv_->getObject( clickedobject );
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,dataobj)
-    const bool clickedonhorizon = emod;
+    const EM::ObjectID emobjid  = clickcatcher_->info().getEMObjID();
+    mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
+    const bool clickedonhorizon = clickedhor;
+    if ( clickedhor && clickedhor!=hor )
+	mSeedClickReturn();
 
     if ( !clickcatcher_->info().isLegalClick() )
     {
-	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
-
 	if ( tracker->is2D() && !clickcatcher_->info().getObjLineName() )
 	    uiMSG().error( tr("2D tracking cannot handle picks on 3D lines.") );
 	else if ( !tracker->is2D() && clickcatcher_->info().getObjLineName() )
 	    uiMSG().error( tr("3D tracking cannot handle picks on 2D lines.") );
-	else if ( randomdisp )
-	    uiMSG().error( emobj->getUserTypeStr(),
-			   tr("Tracking cannot handle picks on random lines."));
 	else if ( clickcatcher_->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher_->info().getObjCS().isEmpty() )
 	    uiMSG().error( emobj->getUserTypeStr(),

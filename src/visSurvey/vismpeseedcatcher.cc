@@ -201,8 +201,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
-       const bool doubleclick = eventinfo.type==visBase::MouseDoubleClick
-		             && eventinfo.pressed == false;
+    const bool doubleclick = eventinfo.type==visBase::MouseDoubleClick
+						&& !eventinfo.pressed;
     info().setDoubleClicked( doubleclick );
     info().setPos( eventinfo.displaypickedpos );
 
@@ -219,6 +219,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, dataobj );
 	if ( hor2ddisp )
 	{
+	    info().setEMObjID( hor2ddisp->getObjectID() );
 	    sendUnderlying2DSeis( hor2ddisp, eventinfo );
 	    eventcatcher_->setHandled();
 	    break;
@@ -227,6 +228,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
 	if ( emod )
 	{
+	    info().setEMObjID( emod->getObjectID() );
 	    sendUnderlyingPlanes( emod, eventinfo );
 	    eventcatcher_->setHandled();
 	    break;
@@ -616,6 +618,10 @@ int MPEClickInfo::getObjID() const
 { return clickedobjid_; }
 
 
+EM::ObjectID MPEClickInfo::getEMObjID() const
+{ return clickedemobjid_; }
+
+
 const TrcKeyZSampling& MPEClickInfo::getObjCS() const
 { return clickedcs_; }
 
@@ -658,6 +664,7 @@ void MPEClickInfo::clear()
     clickednode_ = TrcKey::udf();
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
+    clickedemobjid_ = -1;
     clickedcs_.init( false);
     attrsel_ = 0;
     attrdata_ = 0;
@@ -702,6 +709,10 @@ void MPEClickInfo::setPos(const Coord3& pos )
 
 void MPEClickInfo::setObjID( int visid )
 { clickedobjid_ = visid; }
+
+
+void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
+{ clickedemobjid_ = emobjid; }
 
 
 void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )

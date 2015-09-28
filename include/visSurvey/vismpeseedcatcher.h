@@ -20,12 +20,12 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
+#include "emposid.h"
 #include "geomelement.h"
 #include "trckey.h"
 
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
-namespace EM { class EdgeLineSet; }
 namespace Attrib { class SelSpec; }
 namespace visBase { class Dragger; }
 
@@ -57,6 +57,7 @@ public:
 
     const Coord3&		getPos() const;
     int				getObjID() const;
+    EM::ObjectID		getEMObjID() const; // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
@@ -77,6 +78,7 @@ protected:
     void			setDoubleClicked(bool);
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
+    void			setEMObjID(EM::ObjectID);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjDataPackID(DataPack::ID);
@@ -97,6 +99,7 @@ protected:
     TrcKey				clickednode_;
     Coord3				clickedpos_;
 
+    EM::ObjectID			clickedemobjid_;
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
