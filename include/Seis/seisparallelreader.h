@@ -57,6 +57,9 @@ public:
 
 			~ParallelReader();
 
+    void		setComponents( const TypeSet<int>& compnrs )
+			{ components_ = compnrs; }
+
     void		 setDataPack(RegularSeisDataPack*);
     RegularSeisDataPack* getDataPack();
 
