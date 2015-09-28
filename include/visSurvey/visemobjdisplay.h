@@ -103,6 +103,7 @@ public:
     virtual bool		canRemoveSelection() const	{ return true; }
     virtual bool		removeSelections(TaskRunner*);
     virtual void		clearSelections();
+    virtual void		updateAuxData()			{}
 
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*);
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA();

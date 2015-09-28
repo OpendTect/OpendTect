@@ -52,7 +52,8 @@ protected:
 
     void			mouseEventCB(CallBacker*);
     void			keyEventCB(CallBacker*);
-    void			mpeActionCB(CallBacker*);
+    void			mpeActionCalledCB(CallBacker*);
+    void			mpeActionFinishedCB(CallBacker*);
     int				popupMenu();
     void			handleAction(int);
 

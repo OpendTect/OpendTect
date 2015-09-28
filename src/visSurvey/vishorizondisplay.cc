@@ -1073,6 +1073,14 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 						hor3d->getSelectionColor() );
 	}
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+    {
+// TODO: This would be the best solution, but triggers too often at the moment
+/*
+	if ( emobject_ && !emobject_->hasBurstAlert() )
+	    updateAuxData();
+*/
+    }
 
     updateSingleColor();
 
