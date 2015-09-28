@@ -110,7 +110,7 @@ public:
     //If no translator is given, default will be used if needed
 
     mutable Threads::Lock	contentlock_;
-    uiStringSet		arguments_;
+    uiStringSet			arguments_;
 
 #ifndef OD_NO_QT
     QString			qstring_;
@@ -717,6 +717,13 @@ bool uiString::operator==( const uiString& b ) const
     const BufferString myself = getFullString();
     return myself == b.getFullString();
 #endif
+}
+
+
+uiStringSet::uiStringSet( const uiString* strings )
+{
+    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
+	add( strings[idx] );
 }
 
 

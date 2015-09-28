@@ -235,11 +235,10 @@ bool testToLower()
 
 bool testOptionStrings()
 {
-    uiStringSet options;
-    options += toUiString( "One" );
-    options += toUiString( "Two" );
-    options += toUiString( "Three" );
-    options += toUiString( "Four" );
+    uiString strings[] = { toUiString( "One" ), toUiString( "Two" ),
+			    toUiString( "Three" ), toUiString( "Four" ),
+   			    uiString() };
+    uiStringSet options( strings );
 
     mRunStandardTest(
 	    options.createOptionString( true, -1, ' ').getFullString()==

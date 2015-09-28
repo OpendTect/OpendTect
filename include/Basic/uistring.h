@@ -214,6 +214,8 @@ mExpClass(Basic) uiStringSet : public TypeSet<uiString>
 { mODTextTranslationClass(uiStringSet);
 public:
 		uiStringSet()				{}
+		uiStringSet( const uiString* );
+		/*!<Adds list of strings until an empty string is found. */
 		uiStringSet( const uiStringSet& sl )
 		    : TypeSet<uiString>(sl)		{}
 		uiStringSet( const uiString& s )	{ add( s ); }
