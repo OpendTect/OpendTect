@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uimenu.h"
 #include "uisplitter.h"
 #include "segyhdr.h"
+#include "segyhdrkeydata.h"
 #include "seisinfo.h"
 #include "posinfodetector.h"
 #include "dataclipper.h"
@@ -58,12 +59,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , icvsxybut_(0)
     , ampldisp_(0)
     , survmap_(0)
-    , dorev0scan_(true)
+    , setbestrev0candidates_(true)
     , userfilename_("x") // any non-empty
-    , clipsampler_(*new DataClipSampler(100000))
+    , collectors_(0)
     , survinfo_(0)
     , survinfook_(false)
-    , pidetector_(0)
     , timer_(0)
     , usexytooltip_(tr("Click to use Inline/Crossline for positioning."
 	"\nX and Y will then be calculated using the survey setup."))
@@ -205,9 +205,8 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
     delete survinfo_;
     delete timer_;
     delete filereadopts_;
-    delete pidetector_;
+    delete collectors_;
     deepErase( scaninfo_ );
-    delete &clipsampler_;
 }
 
 
@@ -254,19 +253,13 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 {
     deepErase( scaninfo_ );
-    clipsampler_.reset();
+    delete collectors_; collectors_ = 0;
     clearDisplay();
     if ( !getFileSpec() )
 	return;
 
-    if ( mForSurvSetup )
-    {
-	const SEGY::ImpType& imptyp = impType();
-	PosInfo::Detector::Setup pisu( imptyp.is2D() );
-	pisu.isps( true );
-	delete pidetector_;
-	pidetector_ = new PosInfo::Detector( pisu );
-    }
+    const SEGY::ImpType& imptyp = impType();
+    collectors_ = new SEGY::ScanInfoCollectors( imptyp.is2D(), mForSurvSetup );
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     if ( !scanFile(filespec_.fileName(0),ct,full) )
@@ -482,14 +475,15 @@ void uiSEGYReadStarter::icxyCB( CallBacker* )
 
 void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 {
-    if ( !ampldisp_ )
+    if ( !ampldisp_ || !collectors_ )
 	return;
 
-    int nrvals = (int)clipsampler_.nrVals();
+    const DataClipSampler& dcs = collectors_->clipsampler_;
+    int nrvals = (int)dcs.nrVals();
     if ( nrvals < 1 )
 	{ ampldisp_->setEmpty(); return; }
 
-    const float* csvals = clipsampler_.vals();
+    const float* csvals = dcs.vals();
     float clipval = clipfld_->getFValue();
     const bool useclip = !mIsUdf(clipval) && clipval > 0.05;
     const bool rm0 = !inc0sbox_->isChecked();
@@ -547,10 +541,10 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
     survinfo_ = survmap_->getEmptySurvInfo();
     survinfo_->setName( "No valid scan available" );
     const char* stbarmsg = "";
-    if ( pidetector_ )
+    if ( collectors_ && collectors_->pidetector_ )
     {
 	Coord crd[3]; TrcKeyZSampling cs;
-	stbarmsg = pidetector_->getSurvInfo( cs.hsamp_, crd );
+	stbarmsg = collectors_->pidetector_->getSurvInfo( cs.hsamp_, crd );
 	if ( !stbarmsg )
 	{
 	    cs.zsamp_ = scaninf.basicinfo_.getZRange();
@@ -720,7 +714,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     {
 	if ( ct == KeepNone )
 	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
-	completeLoadDef( strm );
+	completeLoadDef();
     }
 
     if ( !obtainScanInfo(*si,strm,isfirst,full) )
@@ -739,8 +733,8 @@ bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
     if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
 	return false;
 
-    si.getFromSEGYBody( strm, loaddef_, filespec_.nrFiles()>1, impType().is2D(),
-			clipsampler_, full, pidetector_, this );
+    si.getFromSEGYBody( strm, loaddef_, filespec_.nrFiles()>1,
+			*collectors_, full, this );
     return true;
 }
 
@@ -781,13 +775,13 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 }
 
 
-void uiSEGYReadStarter::completeLoadDef( od_istream& strm )
+void uiSEGYReadStarter::completeLoadDef()
 {
-    if ( !dorev0scan_ || !loaddef_.isRev0() )
+    if ( !setbestrev0candidates_ || !collectors_ )
 	return;
 
-    dorev0scan_ = false;
-    loaddef_.findRev0Bytes( strm, !mForSurvSetup );
+    setbestrev0candidates_ = false;
+    collectors_->keydata_.setBest( *loaddef_.hdrdef_ );
     infofld_->useLoadDef();
 }
 
@@ -806,7 +800,7 @@ void uiSEGYReadStarter::displayScanResults()
     for ( int idx=1; idx<scaninfo_.size(); idx++ )
 	si.merge( *scaninfo_[idx] );
 
-    infofld_->setScanInfo( si, scaninfo_.size() );
+    infofld_->setScanInfo( si, scaninfo_.size(), collectors_->keydata_ );
     if ( mForSurvSetup )
 	updateSurvMap( si );
 }

@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "segyuiscandata.h"
+#include "segyhdrkeydata.h"
 #include "segyhdr.h"
 #include "segyhdrdef.h"
 #include "seisinfo.h"
@@ -22,8 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 
 #include "uitaskrunner.h"
-
-#define mMaxReasOffset 50000
 
 
 void SEGY::BasicFileInfo::init()
@@ -178,136 +177,36 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 }
 
 
-namespace SEGY
+SEGY::ScanInfoCollectors::ScanInfoCollectors( bool is2d, bool withpidet )
+    : clipsampler_(*new DataClipSampler(100000))
+    , keydata_(*new HdrEntryKeyData)
+    , pidetector_(0)
+    , is2d_(is2d)
 {
-
-class HdrEntryRecord
-{
-public:
-
-    TypeSet<int>	idxs_;
-    TypeSet<int>	vals_;
-
-    bool		operator ==( const HdrEntryRecord& oth ) const
-			{ return this == &oth; } // needed for TypeSet
-
-};
-
-
-class HdrEntryDataSet : public TypeSet<HdrEntryRecord>
-{
-public:
-
-    void		addRecord()		{ *this += HdrEntryRecord(); }
-    void		add(int heidx,int val);
-    void		reject(int heidx);
-
-    SortedList<int>	rejectedidxs_;
-};
-
-} // namespace SEGY
-
-
-void SEGY::HdrEntryDataSet::add( int heidx, int val )
-{
-    if ( rejectedidxs_.isPresent(heidx) )
-	return;
-
-    HdrEntryRecord& rec = (*this)[ size()-1 ];
-    rec.idxs_ += heidx; rec.vals_ += val;
-}
-
-
-void SEGY::HdrEntryDataSet::reject( int heidx )
-{
-    if ( rejectedidxs_.isPresent(heidx) )
-	return;
-
-    rejectedidxs_.add( heidx );
-    const int sz = size();
-    if ( sz < 1 )
-	return;
-
-    const int idx = ((*this)[0]).idxs_.indexOf( heidx );
-    if ( idx < 0 )
-	return;
-
-    for ( int irec=0; irec<sz; irec++ )
+    if ( withpidet )
     {
-	HdrEntryRecord& rec = (*this)[irec];
-	rec.idxs_.removeSingle( idx );
-	rec.vals_.removeSingle( idx );
+	PosInfo::Detector::Setup pisu( is2d_ );
+	pisu.isps( true );
+	pidetector_ = new PosInfo::Detector( pisu );
     }
 }
 
 
-bool SEGY::LoadDef::findRev0Bytes( od_istream& strm, bool usesi )
+SEGY::ScanInfoCollectors::~ScanInfoCollectors()
 {
-    if ( strm.position() == 0 )
-	strm.setPosition( 3600 );
-    const od_stream::Pos firsttrcpos = strm.position();
-
-    HdrEntryDataSet inldata, crldata, trcnrdata, refnrdata, offsdata;
-    for ( int itrc=0; itrc<10; itrc++ )
-    {
-	PtrMan<TrcHeader> thdr = getTrcHdr( strm );
-	if ( !thdr->isusable )
-	    { itrc--; continue; }
-
-	addTrcHdrRecords( *thdr, inldata, crldata, trcnrdata,
-				 refnrdata, offsdata, usesi );
-
-	if ( !skipData(strm) )
-	    return false; // file has less than 10 valid traces. why bother?
-    }
-
-    //TODO use the HdrEntryDataSets to grok good ones
-
-    strm.setPosition( firsttrcpos );
-    return true;
+    delete pidetector_;
+    delete &clipsampler_;
+    delete &keydata_;
 }
 
 
-void SEGY::LoadDef::addTrcHdrRecords( const SEGY::TrcHeader& thdr,
-	SEGY::HdrEntryDataSet& inldata, SEGY::HdrEntryDataSet& crldata,
-	SEGY::HdrEntryDataSet& trcnrdata, SEGY::HdrEntryDataSet& refnrdata,
-	SEGY::HdrEntryDataSet& offsdata, bool usesi )
+void SEGY::ScanInfoCollectors::finish()
 {
-    const HdrDef& hdrdef = TrcHeader::hdrDef();
-    const void* buf = thdr.buf_;
-    const int nrhe = hdrdef.size();
-    const StepInterval<int> inlrg = SI().inlRange( false );
-    const StepInterval<int> crlrg = SI().crlRange( false );
-
-    inldata.addRecord(); crldata.addRecord(); trcnrdata.addRecord();
-    refnrdata.addRecord(); offsdata.addRecord();
-
-    for ( int ihe=0; ihe<nrhe; ihe++ )
-    {
-	const HdrEntry& he = *hdrdef[ihe];
-	const int val = he.getValue( buf, hdrsswapped_ );
-	if ( val <= 0 )
-	{
-	    inldata.reject( ihe ); crldata.reject( ihe );
-	    trcnrdata.reject( ihe );
-	    if ( val == 0 )
-		refnrdata.reject( ihe );
-	}
-	if ( val > mMaxReasOffset || val < -mMaxReasOffset )
-	    offsdata.reject( ihe );
-	if ( usesi )
-	{
-	    if ( !inlrg.includes(val,false) )
-		inldata.reject( ihe );
-	    if ( !crlrg.includes(val,false) )
-		crldata.reject( ihe );
-	}
-
-	inldata.add( ihe, val ); crldata.add( ihe, val );
-	trcnrdata.add( ihe, val ); refnrdata.add( ihe, val );
-	offsdata.add( ihe, val < 0 ? -val : val );
-    }
+    keydata_.finish();
+    if ( pidetector_ )
+	pidetector_->finish();
 }
+
 
 
 SEGY::ScanInfo::ScanInfo( const char* fnm )
@@ -340,11 +239,11 @@ class FullUIScanner : public ::Executor
 public:
 
 FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
-		char* buf, float* vals, DataClipSampler& cs,
-		const SEGY::OffsetCalculator& oc, PosInfo::Detector* dt )
+		char* buf, float* vals, ScanInfoCollectors& colls,
+		const OffsetCalculator& oc )
     : ::Executor("SEG-Y scanner")
     , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals)
-    , cs_(cs), offscalc_(oc), dtctr_(dt)
+    , colls_(colls), offscalc_(oc)
     , nrdone_(1)
 {
     totalnr_ = def_.nrTracesIn( strm );
@@ -368,16 +267,16 @@ virtual int nextStep()
 	PtrMan<TrcHeader> thdr = def_.getTrace( strm_, buf_, vals_ );
 	if ( !thdr )
 	{
-	    if ( dtctr_ )
-		dtctr_->finish();
+	    colls_.finish();
 	    return Finished();
 	}
-	if ( !thdr->isusable )
-	    continue;
+	else if ( !thdr->isusable )
+	    continue; // dead trace
 
 	def_.getTrcInfo( *thdr, ti_, offscalc_ );
-	si_.addPositions( ti_, dtctr_ );
-	si_.addValues( cs_, vals_, def_.ns_ );
+	colls_.keydata_.add( *thdr, def_.hdrsswapped_ );
+	si_.addPositions( ti_, colls_.pidetector_ );
+	si_.addValues( colls_.clipsampler_, vals_, def_.ns_ );
 	nrdone_++;
     }
 
@@ -390,9 +289,8 @@ virtual int nextStep()
     const LoadDef&	def_;
     char*		buf_;
     float*		vals_;
-    DataClipSampler&	cs_;
-    PosInfo::Detector*	dtctr_;
-    const SEGY::OffsetCalculator& offscalc_;
+    ScanInfoCollectors&	colls_;
+    const OffsetCalculator& offscalc_;
     od_int64		nrdone_, totalnr_;
 
 }; // end class FullUIScanner
@@ -405,10 +303,11 @@ virtual int nextStep()
 	dt->add( ti.coord, ti.binid, ti.nr, ti.offset )
 
 
+
+
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
-				bool ismulti, bool is2d, DataClipSampler& cs,
-				bool full, PosInfo::Detector* dtctr,
-				uiParent* uiparent )
+				bool ismulti, ScanInfoCollectors& colls,
+				bool full, uiParent* uiparent )
 {
     startpos_ = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos_ );
@@ -423,6 +322,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 	return;
     while ( !thdr->isusable )
     {
+	// skipping dead traces
 	thdr = def.getTrace( strm, buf, vals );
 	if ( !thdr )
 	    return;
@@ -431,7 +331,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     usable_ = true;
     SEGY::OffsetCalculator offscalc;
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
-    offscalc.is2d_ = is2d; offscalc.coordscale_ = def.coordscale_;
+    offscalc.is2d_ = colls.is2D(); offscalc.coordscale_ = def.coordscale_;
     SeisTrcInfo ti;
     def.getTrcInfo( *thdr, ti, offscalc );
 
@@ -442,37 +342,39 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     yrg_.start = yrg_.stop = ti.coord.y;
     refnrs_.start = refnrs_.stop = ti.refnr;
     offsrg_.start = offsrg_.stop = ti.offset;
-    mAdd2Dtector( dtctr, ti );
-    addValues( cs, vals, def.ns_ );
+
+    mAdd2Dtector( colls.pidetector_, ti );
+    addValues( colls.clipsampler_, vals, def.ns_ );
+    colls.keydata_.add( *thdr, def.hdrsswapped_ );
 
     if ( full )
     {
-	FullUIScanner fscnnr( *this, strm, def, buf, vals, cs, offscalc, dtctr);
+	FullUIScanner fscnnr( *this, strm, def, buf, vals, colls, offscalc );
 	uiTaskRunner tr( uiparent );
 	tr.execute( fscnnr );
 	return;
     }
 
-    addTraces( strm, 1, is2d, buf, vals, def, cs, offscalc, dtctr );
+    addTraces( strm, 1, buf, vals, def, colls, offscalc );
     if ( !ismulti )
-	addTraces( strm, nrtrcs_/2, is2d, buf, vals, def, cs, offscalc, dtctr );
+	addTraces( strm, nrtrcs_/2, buf, vals, def, colls, offscalc );
 
-    addTraces( strm, nrtrcs_-1, is2d, buf, vals, def, cs, offscalc, dtctr,true);
+    addTraces( strm, nrtrcs_-1, buf, vals, def, colls, offscalc, true );
 
-    if ( dtctr )
-	dtctr->finish();
+    colls.finish();
 }
 
 
-void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx, bool is2d,
-				char* buf, float* vals,
-				const LoadDef& def, DataClipSampler& cs,
-				const SEGY::OffsetCalculator& offscalc,
-				PosInfo::Detector* dtctr, bool rev )
+void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx,
+				char* buf, float* vals, const LoadDef& def,
+				ScanInfoCollectors& colls,
+				const OffsetCalculator& offscalc,
+				bool rev )
 {
     if ( !def.goToTrace(strm,startpos_,trcidx) )
 	return;
 
+    const bool is2d = colls.is2D();
     const int minnrtrcs = 10; const int maxnrtrcs = 10000;
     SeisTrcInfo ti; int previnl = 0, prevcrl = 0, prevnr = 0;
     bool haveinlchg = false, havecrlchg = false, havenrchg = false;
@@ -485,8 +387,9 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx, bool is2d,
 	    continue;
 
 	def.getTrcInfo( *thdr, ti, offscalc );
-	addPositions( ti, dtctr );
-	addValues( cs, vals, def.ns_ );
+	colls.keydata_.add( *thdr, def.hdrsswapped_ );
+	addPositions( ti, colls.pidetector_ );
+	addValues( colls.clipsampler_, vals, def.ns_ );
 
 	int curinl = ti.binid.inl();
 	int curcrl = ti.binid.crl();
@@ -505,7 +408,7 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx, bool is2d,
 	}
 
 	const bool foundranges = is2d ? havenrchg : haveinlchg && havecrlchg;
-	const bool founddata = cs.nrVals() > 1000;
+	const bool founddata = colls.clipsampler_.nrVals() > 1000;
 	if ( foundranges && founddata && itrc >= minnrtrcs )
 	    break;
 

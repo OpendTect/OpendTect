@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 #include "uisegyreadstartinfo.h"
 #include "segyuiscandata.h"
+#include "segyhdrkeydata.h"
 #include "segyhdr.h"
 #include "uitable.h"
 #include "uispinbox.h"
@@ -59,23 +60,15 @@ uiSEGYByteNr( uiParent* p, const char* nm )
     : uiComboBox(p,nm)
     , hdef_(SEGY::TrcHeader::hdrDef())
 {
-    for ( int idx=0; idx<hdef_.size(); idx++ )
-    {
-	const SEGY::HdrEntry& he = *hdef_[idx];
-	BufferString txt( he.name(), "(byte " );
-        txt.add( he.bytepos_+1 ).add( ") - \"" );
-        txt.add( he.description() ).add( "\"" );
-	addItem( txt );
-    }
 }
 
 SEGY::HdrEntry hdrEntry() const
 {
     const int selidx = currentItem();
     SEGY::HdrEntry ret;
-    if( selidx >= 0 )
+    if ( selidx >= 0 )
     {
-	ret = *hdef_[selidx];
+	ret = *hdef_[ heidxs_[selidx] ];
 	ret.bytepos_++; // convert to 'user' byte number
     }
     return ret;
@@ -86,9 +79,9 @@ void setByteNr( short bnr )
     bnr--; // input will be 'user' byte number
 
     int selidx = -1;
-    for ( int idx=0; idx<hdef_.size(); idx++ )
+    for ( int idx=0; idx<heidxs_.size(); idx++ )
     {
-	const SEGY::HdrEntry& he = *hdef_[idx];
+	const SEGY::HdrEntry& he = *hdef_[ heidxs_[idx] ];
 	if ( he.bytepos_ == bnr )
 	    { selidx = idx; break; }
     }
@@ -96,7 +89,24 @@ void setByteNr( short bnr )
 	setCurrentItem( selidx );
 }
 
+void setEntries( const SEGY::HdrEntryDataSet& ds )
+{
+    setEmpty(); heidxs_.setEmpty();
+
+    for ( int idx=0; idx<ds.idxs_.size(); idx++ )
+    {
+	const int heidx = ds.idxs_[idx];
+	const SEGY::HdrEntry& he = *hdef_[ heidx ];
+	BufferString txt( he.name(), " (byte " );
+        txt.add( he.bytepos_+1 ).add( ") - \"" );
+        txt.add( he.description() ).add( "\"" );
+
+	addItem( txt ); heidxs_ += heidx;
+    }
+}
+
     const SEGY::HdrDef&	hdef_;
+    TypeSet<int>	heidxs_;
 
 };
 
@@ -406,6 +416,23 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 }
 
 
+void uiSEGYReadStartInfo::setByteFldContents( const SEGY::HdrEntryKeyData& hkd )
+{
+    mGetGeomType( gt );
+    const bool is2d = Seis::is2D( gt );
+
+#define mSetBFCont(nm,cont) \
+    if ( nm##bytefld_ ) \
+	nm##bytefld_->setEntries( cont )
+
+    mSetBFCont( xcoord, hkd.x_ );
+    mSetBFCont( ycoord, hkd.y_ );
+    mSetBFCont( key1, is2d ? hkd.trcnr_ : hkd.inl_ );
+    mSetBFCont( key2, is2d ? hkd.refnr_ : hkd.crl_ );
+    mSetBFCont( offset, hkd.offs_ );
+}
+
+
 void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
 {
     const RowCol rc( row, col );
@@ -454,7 +481,8 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx )
 }
 
 
-void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles )
+void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles,
+					const SEGY::HdrEntryKeyData& hkd )
 {
     tbl_->setColumnLabel( mQSResCol, si.fullscan_ ? "Full scan result"
 						  : "Quick scan result" );
@@ -517,6 +545,7 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles )
 			: tr( "[%1 files]" ).arg( nrfiles ));
     tbl_->setTopLeftCornerLabel( txt );
 
+    setByteFldContents( hkd );
     useLoadDef();
     showRelevantInfo();
 }

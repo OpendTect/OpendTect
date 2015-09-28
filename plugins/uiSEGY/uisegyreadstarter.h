@@ -32,7 +32,7 @@ class uiHistogramDisplay;
 class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
-namespace SEGY { class ImpType; }
+namespace SEGY { class ScanInfoCollectors; }
 namespace PosInfo { class Detector; }
 
 
@@ -86,9 +86,9 @@ protected:
     BufferString	userfilename_;
     SEGY::LoadDef	loaddef_;
     ObjectSet<SEGY::ScanInfo> scaninfo_;
-    DataClipSampler&	clipsampler_;
+    SEGY::ScanInfoCollectors* collectors_;
     bool		infeet_;
-    bool		dorev0scan_;
+    bool		setbestrev0candidates_;
     SEGY::ImpType	fixedimptype_;
     SurveyInfo*		survinfo_;
     bool		survinfook_;
@@ -106,7 +106,7 @@ protected:
     bool		scanFile(const char*,LoadDefChgType,bool);
     bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool,bool);
     bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
-    void		completeLoadDef(od_istream&);
+    void		completeLoadDef();
     void		handleNewInputSpec(LoadDefChgType ct=KeepAll,
 					   bool full=false);
     void		runClassic(bool);

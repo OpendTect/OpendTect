@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uisegyimptype.h"
 
 class DataClipSampler;
-namespace SEGY { class ImpType; class ScanInfo; class LoadDef; }
 class uiTable;
 class uiSpinBox;
 class uiLineEdit;
@@ -24,6 +23,10 @@ class uiFileInput;
 class uiSEGYByteNr;
 class uiSEGYImpType;
 class uiHistogramDisplay;
+namespace SEGY
+{
+    class ImpType; class ScanInfo; class LoadDef; class HdrEntryKeyData;
+}
 
 
 /*!\brief Displays and edits info for the read start process. */
@@ -36,7 +39,8 @@ public:
 					const SEGY::ImpType* fixedimptyp=0);
 
     void		setImpTypIdx(int);
-    void		setScanInfo(const SEGY::ScanInfo&,int nrfiles);
+    void		setScanInfo(const SEGY::ScanInfo&,int nrfiles,
+				    const SEGY::HdrEntryKeyData&);
 
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
@@ -59,8 +63,8 @@ protected:
     uiSEGYByteNr*	ycoordbytefld_;
     uiSEGYByteNr*	key1bytefld_;
     uiSEGYByteNr*	key2bytefld_;
-    uiComboBox*		psoffsrcfld_;
     uiSEGYByteNr*	offsetbytefld_;
+    uiComboBox*		psoffsrcfld_;
     uiGroup*		offsgengrp_;
     uiLineEdit*		offsgenstartfld_;
     uiLineEdit*		offsgenstepfld_;
@@ -84,6 +88,7 @@ protected:
     void		manPSRow();
     void		updateCellTexts();
     void		showRelevantInfo();
+    void		setByteFldContents(const SEGY::HdrEntryKeyData&);
     void		parChanged(bool);
 
     bool		isVSP() const		{ return imptype_.isVSP(); }

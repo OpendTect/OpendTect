@@ -436,8 +436,8 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     QHeaderView* hhdr = body_->horizontalHeader();
     hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWidth()) );
 
-    cornerlabel_ = new uiLabel( parent(), uiString::emptyString() );
-    cornerlabel_->setPrefWidthInChar( 10 );
+    // Horrible ... using setPrefWidthInChar will prevent events to be emitted
+    cornerlabel_ = new uiLabel( parent(), tr("                    ") );
     cornerlabel_->attach( atSamePosition, this );
 }
 
