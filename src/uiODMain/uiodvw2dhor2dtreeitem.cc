@@ -41,6 +41,10 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 
 
+#define mAddInAllIdx	0
+#define mAddIdx		1
+#define mNewIdx		2
+
 uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
     : uiODVw2DTreeItem( EMHorizon2DTranslatorGroup::sTypeName() )
 {
@@ -54,12 +58,18 @@ uiODVw2DHor2DParentTreeItem::~uiODVw2DHor2DParentTreeItem()
 
 bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 {
+    const bool hastransform = false; // TODO: Check for zaxistransform
+
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 0 );
-    uiMenu* loadmenu = new uiMenu( m3Dots(uiStrings::sAdd()) );
-    loadmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
-    loadmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
-    mnu.insertItem( loadmenu );
+    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
+    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), mAddInAllIdx );
+    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), mAddIdx );
+    mnu.insertItem( addmenu );
+
+    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
+    newmenu->setEnabled( !hastransform );
+    mnu.insertItem( newmenu, mNewIdx );
+
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -69,7 +79,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
-    if ( mnuid == 0 )
+    if ( mnuid == mNewIdx )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
@@ -81,14 +91,15 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	const int emid = mps->getEMObjectID( trackid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon2D( emid );
     }
-    else if ( mnuid == 1 || mnuid==2 )
+    else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true );
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
-	if ( mnuid==1 )
+
+	if ( mnuid==mAddInAllIdx )
 	    applMgr()->viewer2DMgr().addHorizon2Ds( emids );
 	else
 	    addHorizon2Ds( emids );
