@@ -28,7 +28,7 @@ namespace SEGY
 
 class TrcHeader;
 class TrcHeaderDef;
-class HdrEntryDataSet;
+class HdrEntryKeyData;
 class OffsetCalculator;
 
 
@@ -85,14 +85,29 @@ public:
     bool		skipData(od_istream&) const;
     void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
 				   const OffsetCalculator&) const;
+};
 
-    bool		findRev0Bytes(od_istream&,bool usesurvinfo);
+
+/*!\brief Bundle of info collectors */
+
+mExpClass(uiSEGY) ScanInfoCollectors
+{
+public:
+
+			ScanInfoCollectors(bool is2d,bool withpidet);
+			~ScanInfoCollectors();
+
+    bool		is2D() const		{ return is2d_; }
+
+    void		finish();
+
+    DataClipSampler&	clipsampler_;
+    HdrEntryKeyData&	keydata_;
+    PosInfo::Detector*	pidetector_;
 
 protected:
 
-    void		addTrcHdrRecords(const TrcHeader&,HdrEntryDataSet&,
-				HdrEntryDataSet&,HdrEntryDataSet&,
-				HdrEntryDataSet&, HdrEntryDataSet&,bool);
+    const bool		is2d_;
 
 };
 
@@ -123,9 +138,8 @@ public:
 
     BasicFileInfo	basicinfo_;
 
-    void		getFromSEGYBody(od_istream&,const LoadDef&,
-				    bool ismulti,bool is2d,DataClipSampler&,
-				    bool full,PosInfo::Detector*,uiParent*);
+    void		getFromSEGYBody(od_istream&,const LoadDef&,bool ismulti,
+				    ScanInfoCollectors&,bool full,uiParent*);
     void		merge(const ScanInfo&);
 
     void		reInit();
@@ -136,10 +150,9 @@ protected:
 
     void		addPositions(const SeisTrcInfo&,PosInfo::Detector*);
     void		addValues(DataClipSampler&,const float*,int);
-    void		addTraces(od_istream&,int trcidx,bool is2d,
-				  char*,float*,const LoadDef&,DataClipSampler&,
-				  const OffsetCalculator&,PosInfo::Detector*,
-				  bool rev=false);
+    void		addTraces(od_istream&,int trcidx,char*,float*,
+				  const LoadDef&,ScanInfoCollectors&,
+				  const OffsetCalculator&,bool rev=false);
 
     friend class	FullUIScanner;
 

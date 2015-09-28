@@ -8,6 +8,7 @@
 set(OD_MODULE_DEPS uiODMain)
 set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES
+    segyhdrkeydata.cc
     segyuiscandata.cc
     uisegycommon.cc
     uisegydef.cc
