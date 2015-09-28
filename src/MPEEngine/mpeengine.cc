@@ -174,6 +174,7 @@ void Engine::stopTracking()
 
     state_ = Stopped;
     actionCalled.trigger();
+    actionFinished.trigger();
 }
 
 
