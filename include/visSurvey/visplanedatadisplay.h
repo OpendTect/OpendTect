@@ -158,6 +158,7 @@ public:
     bool			updatePlanePos(const TrcKeyZSampling&);
     Undo&			undo();
     const Undo&			undo() const;
+
 protected:
 				~PlaneDataDisplay();
 
@@ -181,8 +182,8 @@ protected:
 					     bool resetz=false);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
-    void			draggerMotion(CallBacker*);
     void			draggerStart(CallBacker*);
+    void			draggerMotion(CallBacker*);
     void			draggerFinish(CallBacker*);
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const TrcKeyZSampling&);

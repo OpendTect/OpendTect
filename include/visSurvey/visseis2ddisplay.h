@@ -233,7 +233,6 @@ protected:
 public:
 // old stuff, only here to keep other code compiling
     MultiID			getMultiID() const	{ return datasetid_; }
-//    const MultiID&		lineSetID() const	{ return datasetid_; }
 };
 
 } // namespace visSurvey

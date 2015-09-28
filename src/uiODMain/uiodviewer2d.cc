@@ -366,7 +366,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.initialcentre(initialcentre_)
 					.managecoltab(!tifs_) );
 
-    
+
     picksettingstbid_ =
 	viewstdcontrol_->toolBar()->addButton(
 		"seedpicksettings", tr("Tracking setup"),
@@ -707,7 +707,7 @@ void uiODViewer2D::trackSetupCB( CallBacker* cb )
     if ( !emobj )
 	return;
 
-    appl_.applMgr().mpeServer()->showSetupDlg(emobj->id(),emobj->sectionID(0)); 
+    appl_.applMgr().mpeServer()->showSetupDlg(emobj->id(),emobj->sectionID(0));
 }
 
 
@@ -913,7 +913,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 {
     Coord3 mousepos( Coord3::udf() );
-    mCBCapsuleUnpack( IOPar, pars, cb );
+    mCBCapsuleUnpack(IOPar,pars,cb);
 
     FixedString valstr = pars.find( "X" );
     if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
@@ -939,7 +939,6 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	MouseCursorExchange::Info info( trckval );
 	mousecursorexchange_->notifier.trigger( info, this );
     }
-
 }
 
 

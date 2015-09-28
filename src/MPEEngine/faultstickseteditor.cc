@@ -263,7 +263,7 @@ const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
     MultiID pickedmid;
 
     if ( getNearestStick(sticknr,sid,&pickedmid,"",pickedgeomid,pos, normal) )
-	 getPidsOnStick( pid, sticknr, sid, pos );
+	getPidsOnStick( pid, sticknr, sid, pos );
     
     return pid;
 }

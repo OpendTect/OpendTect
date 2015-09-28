@@ -218,7 +218,7 @@ protected:
     void			draggerMoveFinished(CallBacker*);
     void			updateMouseCursorCB(CallBacker*);
 
-    int			nrgeomchangecbs_;
+    int				nrgeomchangecbs_;
 
     Geometry::RandomLine*	rl_;
     visBase::TexturePanelStrip*	panelstrip_;
