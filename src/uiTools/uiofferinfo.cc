@@ -13,12 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 
 
-uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const char* captn, int nrln )
+uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const uiString& captn, int nrln )
     : uiMainWin(p,captn,0,false,false)
 {
     setDeleteOnClose( true );
 
-    uitb_ = new uiTextBrowser( this, captn, mUdf(int), false );
+    uitb_ = new uiTextBrowser(this, mFromUiStringTodo(captn), mUdf(int), false);
     uitb_->setPrefHeightInChar( nrln );
     uitb_->setPrefWidthInChar( 80 );
 }
@@ -34,9 +34,9 @@ uiOfferInfo::uiOfferInfo( uiParent* p, bool setinsens )
 	: uiToolButton(p,"info",tr("View info"),mCB(this,uiOfferInfo,infoReq) )
 	, insens_(setinsens)
 	, infowin_(0)
-	, caption_("Information")
+	, caption_(uiStrings::sInformation())
 {
-    setInfo( 0, "Information" );
+    setInfo( 0, uiStrings::sInformation() );
 }
 
 
@@ -55,10 +55,10 @@ void uiOfferInfo::updateWin()
 }
 
 
-void uiOfferInfo::setInfo( const char* txt, const char* captn )
+void uiOfferInfo::setInfo( const char* txt, const uiString& captn )
 {
     info_ = txt;
-    if ( captn && *captn )
+    if ( !captn.isEmpty() )
 	caption_ = captn;
 
     const bool isactive = !info_.isEmpty();

@@ -25,8 +25,9 @@ static uiString gtWinTitle( const ODDLSite& dlsite )
 {
     uiString errmsg = dlsite.errMsg();
     const bool iserr = !errmsg.isEmpty();
-    uiString ret( iserr ? "Failure accessing %1" : "Stopped accessing %1" );
-    ret.arg( dlsite.host() );
+    uiString ret( iserr ? od_static_tr("gtWinTitle","Failure accessing %1") : 
+			  od_static_tr("gtWinTitle","Stopped accessing %1") );
+    ret.arg( toUiString(dlsite.host()) );
     return ret;
 }
 
@@ -37,11 +38,12 @@ static uiString gtCaption( const ODDLSite& dlsite, bool isfatal )
     const bool iserr = !errmsg.isEmpty();
 
     const uiString part2 = uiString( isfatal
-			      ? "This access is mandatory"
-			      : "You can try again" );
+			 ? od_static_tr("gtCaption","This access is mandatory")
+			 : od_static_tr("gtCaption","You can try again") );
     uiString ret;
     if ( iserr )
-	ret = uiString( "Error: %1\n%2" ).arg( errmsg ).arg( part2 );
+	ret = od_static_tr("gtCaption","Error: %1\n%2").arg( errmsg )
+	      .arg( part2 );
     else
 	ret = part2;
 

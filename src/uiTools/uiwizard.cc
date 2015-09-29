@@ -137,8 +137,9 @@ void uiWizard::updateButtonText()
 {
     bool firstpage = pageidx == firstPage();
     bool lastpage = pageidx == lastPage();
-    const char* oktxt = firstpage ? "Cancel" : "<< Back";
-    const char* canceltxt = lastpage && !rotatemode ? "Finish" : "Next >>";
+    const uiString oktxt = firstpage ? uiStrings::sCancel() : tr("<< Back");
+    const uiString canceltxt = lastpage && !rotatemode ? uiStrings::sFinish()
+			       : tr("Next >>");
 
     setButtonText( uiDialog::OK, oktxt );
     setButtonText( uiDialog::CANCEL, canceltxt );

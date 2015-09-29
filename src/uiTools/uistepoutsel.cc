@@ -13,11 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistepoutsel.h"
 #include "uispinbox.h"
 #include "uilabel.h"
+#include "uistrings.h"
 
 inline static uiString mkPrefx( const uiString& lbl )
 {
     if ( !lbl.isEmpty() )
-	return uiString( "%1:").arg( lbl );
+	return toUiString( "%1:").arg( lbl );
 
     return uiString();
 }
@@ -153,17 +154,18 @@ uiStepout3DSel::uiStepout3DSel( uiParent* p, const uiStepOutSel::Setup& setup )
 	: uiStepOutSel( p, setup )
 {
     fld3_ = new uiSpinBox( this, 0, "Z" );
-    fld3_->setPrefix( mkPrefx("Z") );
+    fld3_->setPrefix( mkPrefx(uiStrings::sZ()) );
     fld3_->attach( rightOf, setup.single_ ? fld1_ : fld2_ );
     setHAlignObj( fld1_ );
 }
 
 
-uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single, const char* seltxt )  
-    : uiStepOutSel( p, single, seltxt )                                         
+uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single, 
+							const uiString& seltxt )
+    : uiStepOutSel( p, single, seltxt )
 {                                                                               
     fld3_ = new uiSpinBox( this, 0, "Z" );                                      
-    fld3_->setPrefix( mkPrefx("z") );                                           
+    fld3_->setPrefix( mkPrefx(uiStrings::sZ()) );
     fld3_->attach( rightOf, fld2_ ? fld2_ : fld1_ );
 
     setHAlignObj( fld1_ );

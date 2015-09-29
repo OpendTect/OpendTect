@@ -57,16 +57,17 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     const int deffldval = isvert ? 10 : 1000;
     const int deffldstep = isvert ? 1 : 1000;
 
-    BufferString lbl( "Maximum range " );
-    lbl += isvert ? "(ms)" : SI().getXYUnitString();
+    uiString lbl( tr("Maximum range %1").arg(
+    isvert ? tr("(%1)").arg(uiStrings::sMsec()) : SI().getUiXYUnitString()) );
     uiLabeledSpinBox* lblmaxrgfld = new uiLabeledSpinBox( this, lbl, 0 );
     maxrgfld_ = lblmaxrgfld->box();
     maxrgfld_->doSnap( true );
     maxrgfld_->setInterval( minrgval, maxrgval, defstep );
     maxrgfld_->setValue( defrgval );
 
-    BufferString lbl2( "Step " );
-    lbl2 += isvert ? "(ms)" : SI().getXYUnitString();
+    uiString lbl2( uiStrings::phrJoinStrings(uiStrings::sStep(),tr("%1").arg
+		   (isvert ? toUiString("(%1)").arg(uiStrings::sMsec()) : 
+		   SI().getUiXYUnitString())) );
     uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
     stepfld_->setInterval( minstepval, maxstepval, defstep );
@@ -75,8 +76,8 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     lblstepfld->attach( alignedBelow, lblmaxrgfld );
     lblstepfld->display( isvert );
 
-    BufferString lbl3 = isvert ? "Min " : "Max ";
-    lbl3 += "number of pairs per lag distance";
+    uiString lbl3 = tr("%1 number of pairs per lag distance")
+		    .arg(isvert ? tr("Min") : tr("Max"));
     uiLabeledSpinBox* lblfoldfld = new uiLabeledSpinBox( this, lbl3, 0 );
     foldfld_ = lblfoldfld->box();
     foldfld_->setInterval( minfldval, maxfldval, deffldstep );
@@ -153,9 +154,9 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     fdsu.noy2axis( true );
     fdsu.useyscalefory2( true );
     disp_ = new uiFunctionDisplay( this, fdsu );
-    BufferString xnmstr = "Lag distance ";
-    xnmstr += ishor ? SI().getXYUnitString() : "(ms)";
-    disp_->xAxis()->setCaption( xnmstr.buf() );
+    uiString xnmstr = tr("Lag distance %1").arg(ishor ? SI().getUiXYUnitString()
+		      : toUiString("(%1)").arg(uiStrings::sMsec()));
+    disp_->xAxis()->setCaption( xnmstr );
     disp_->yAxis(false)->setCaption( tr("Normalized Variance") );
     disp_->attach( rightOf, sillfld_ );
 

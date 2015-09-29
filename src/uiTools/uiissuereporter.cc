@@ -71,10 +71,11 @@ void uiIssueReporterDlg::viewReportCB( CallBacker* )
     BufferString report;
     getReport( report );
     
-    uiDialog dlg( this, uiDialog::Setup(tr("View report"), 0, mNoHelpKey ) );
+    uiDialog dlg( this, uiDialog::Setup(tr("View report"), 
+				    uiStrings::sEmptyString(), mNoHelpKey ) );
     uiTextBrowser* browser = new uiTextBrowser(&dlg);
     browser->setText( report.buf() );
-    dlg.setCancelText( 0 );
+    dlg.setCancelText( uiStrings::sEmptyString() );
     dlg.go();
 }
 

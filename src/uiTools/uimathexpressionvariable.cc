@@ -46,7 +46,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 {
     inpgrp_ = new uiGroup( this, "Input group" );
     inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
-    const BufferString lblstr( "For input number ", varidx_+1, " use" );
+    const uiString lblstr = tr("For input number %1 use").arg(varidx_+1);
     inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
     inplbl_->setPrefWidthInChar( 35 );
     inplbl_->setAlignment( Alignment::Right );
@@ -66,7 +66,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 
     if ( withunit )
     {
-	uiUnitSel::Setup uussu( PropertyRef::Other, "convert to:" );
+	uiUnitSel::Setup uussu( PropertyRef::Other, tr("convert to:") );
 	uussu.withnone( true );
 	unfld_ = new uiUnitSel( this, uussu );
 	unfld_->attach( rightOf, inpgrp_ );
@@ -86,7 +86,7 @@ uiMathExpressionVariable::~uiMathExpressionVariable()
 void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
 						const CallBack& cb )
 {
-    vwbut_ = new uiToolButton( inpgrp_, icnm, tt, cb );
+    vwbut_ = new uiToolButton( inpgrp_, icnm, mToUiStringTodo(tt), cb );
     vwbut_->attach( rightOf, subinpfld_ ? subinpfld_ : inpfld_ );
     inpSel.notify( mCB(this,uiMathExpressionVariable,showHideVwBut) );
 }

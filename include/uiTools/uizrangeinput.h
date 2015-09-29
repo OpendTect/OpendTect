@@ -18,7 +18,7 @@ ________________________________________________________________________
 /*! Field that takes care of getting a time or a depth range. */
 
 mExpClass(uiTools) uiZRangeInput : public uiGenInput
-{
+{ mODTextTranslationClass(uiZRangeInput)
 public:
     				uiZRangeInput(uiParent*,bool depth,bool wstep);
 

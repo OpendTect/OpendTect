@@ -248,9 +248,9 @@ uiObject* uiTextFile::uiObj()
 
 uiTextFileDlg::uiTextFileDlg( uiParent* p, const char* fnm, bool rdonly,
 				bool tbl )
-	: uiDialog(p,Setup(fnm))
+	: uiDialog(p,Setup(toUiString(fnm)))
 {
-    Setup dlgsetup( fnm );
+    Setup dlgsetup( toUiString(fnm) );
     dlgsetup.allowopen(!rdonly).allowsave(!rdonly);
     uiTextFile::Setup tfsu( tbl ? File::Table : File::Text );
     tfsu.editable_ = !rdonly;
@@ -269,7 +269,7 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 			  const uiTextFile::Setup& tsetup, const char* fnm )
 {
     if ( caption().isEmpty() )
-	setCaption( fnm );
+	setCaption( toUiString(fnm) );
 
     captionisfilename_ = FixedString(caption().getFullString()) == fnm;
 
@@ -300,15 +300,15 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 void uiTextFileDlg::setFileName( const char* fnm )
 {
     if ( captionisfilename_ )
-	setCaption( fnm );
+	setCaption( toUiString(fnm) );
     editor_->open( fnm );
 }
 
 
 void uiTextFileDlg::fileNmChgd( CallBacker* )
 {
-    const BufferString fnm( editor_->fileName() );
-    FilePath fp( fnm );
+    const uiString fnm = toUiString(editor_->fileName());
+    FilePath fp( mFromUiStringTodo(fnm) );
     setName( fp.fileName() );
     if ( captionisfilename_ )
 	setCaption( fnm );
@@ -373,9 +373,9 @@ int uiTextFileDlg::doMsg( const char* msg, bool iserr )
     uiMsgMainWinSetter setter( this );
 
     if ( iserr )
-	uiMSG().error( msg );
+	uiMSG().error( mToUiStringTodo(msg) );
     else
-	ret = uiMSG().askGoOnAfter( msg );
+	ret = uiMSG().askGoOnAfter( mToUiStringTodo(msg) );
 
     return ret;
 }

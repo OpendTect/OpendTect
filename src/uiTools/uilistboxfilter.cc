@@ -50,7 +50,7 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
     {
 	const char* itm = nms.get(idx).buf();
 	if ( ge.matches(itm) )
-	    lb_.addItem( itm );
+	    lb_.addItem( toUiString(itm) );
     }
 
     if ( lb_.isPresent(cursel) )

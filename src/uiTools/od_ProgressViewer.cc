@@ -37,12 +37,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 
-static const char* sStopAndQuit = "Stop process and Quit";
-static const char* sQuitOnly = "Close this window";
+static const uiString sStopAndQuit()
+{ return od_static_tr("sStopAndQuit","Stop process and Quit"); }
+static const uiString sQuitOnly()
+{return od_static_tr("sStopAndQuit","Close this window"); }
 
 
 class uiProgressViewer : public uiMainWin
-{
+{ mODTextTranslationClass(uiProgressViewer)
 public:
 
 		uiProgressViewer(uiParent*,od_istream&,int);
@@ -83,7 +85,7 @@ protected:
     tb_->addButton( fnm, txt, mCB(this,uiProgressViewer,fn), false );
 
 uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
-	: uiMainWin(p,"Progress",1)
+	: uiMainWin(p,tr("Progress"),1)
 	, timer_(0)
 	, strm_(s)
 	, pid_(pid)
@@ -93,10 +95,10 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
-    tb_ = new uiToolBar( this, "ToolBar" );
-    quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit : sQuitOnly,
-			    quitFn );
-    mAddButton( "save", "Save text to a file", saveFn );
+    tb_ = new uiToolBar( this, uiStrings::sToolbar() );
+    quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit() : sQuitOnly()
+			    ,quitFn );
+    mAddButton( "save", tr("Save text to a file"), saveFn );
     mAddButton( "contexthelp", uiStrings::sHelp(), helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
@@ -110,7 +112,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     OD::memSet( str, ' ', nrchars );
     str[nrchars] = '\0';
 
-    int deswidth = fnt.width( (const char*) str );
+    int deswidth = fnt.width( mToUiStringTodo(str) );
     const int desktopwidth = uiMain::theMain().desktopSize().hNrPics();
     if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
 	deswidth = desktopwidth;
@@ -146,8 +148,8 @@ void uiProgressViewer::handleProcessStatus()
 {
     if ( haveProcess() && !isProcessAlive(pid_) )
     {
-	statusBar()->message( "Processing finished" );
-	tb_->setToolTip( quittbid_, sQuitOnly );
+	statusBar()->message( tr("Processing finished") );
+	tb_->setToolTip( quittbid_, sQuitOnly() );
 	pid_ = 0;
     }
 }
@@ -193,7 +195,7 @@ void uiProgressViewer::doWork( CallBacker* )
 	    strm_.getAll( curline_ );
 	    txtfld->setText( curline_ );
 	    txtfld->scrollToBottom();
-	    statusBar()->message( processEnded() ? "Processing ended" 
+	    statusBar()->message( processEnded() ? tr("Processing ended") 
 						 : uiString::emptyString() );
 	    return;
 	}
@@ -204,7 +206,7 @@ void uiProgressViewer::doWork( CallBacker* )
 			// Makes sure we're not re-opening *all* the time
     }
 
-    statusBar()->message( curline_ );
+    statusBar()->message( toUiString(curline_) );
     timer_->start( restartdelay, true );
 }
 
@@ -220,7 +222,7 @@ bool uiProgressViewer::closeOK()
 {
     if ( haveProcess() )
     {
-	if ( !uiMSG().askGoOn("Do you want to terminate the process?") )
+	if ( !uiMSG().askGoOn(tr("Do you want to terminate the process?")) )
 	    return false;
 
 	SignalHandling::stopProcess( pid_ );
@@ -239,7 +241,7 @@ void uiProgressViewer::helpFn( CallBacker* )
 void uiProgressViewer::saveFn( CallBacker* )
 {
     uiFileDialog dlg( this, false, GetProcFileName("log.txt"),
-		      "*.txt", "Save log" );
+		      "*.txt", uiStrings::phrSave(uiStrings::sLogs()) );
     dlg.setAllowAllExts( true );
     if ( dlg.go() )
     {

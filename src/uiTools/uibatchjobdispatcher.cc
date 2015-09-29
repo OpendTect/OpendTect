@@ -71,14 +71,15 @@ void uiBatchJobDispatcherSel::init( bool optional )
     if ( uidispatchers_.isEmpty() )
 	{ pErrMsg("Huh? No dispatcher launchers at all"); return; }
 
-    const char* optionsbuttxt = "Options";
+    uiString optionsbuttxt = uiStrings::sOptions();
     const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
     uiObject* attachobj = 0;
     const bool onlyonechoice = uidispatchers_.size() == 1;
     if ( onlyonechoice )
     {
 	if ( !optional )
-	    optionsbuttxt = "Execution Options";
+	    optionsbuttxt = uiStrings::phrJoinStrings(tr("Execution"),
+					uiStrings::sOptions());
 	else
 	{
 	    dobatchbox_ = new uiCheckBox( this, tr("Execute in Batch") );

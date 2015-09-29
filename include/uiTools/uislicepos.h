@@ -34,9 +34,10 @@ public:
 			DeclareEnumUtils(SliceDir);
 
     uiToolBar*		getToolBar() const		{ return toolbar_; }
-    TrcKeyZSampling	getTrcKeyZSampling() const		{ return curcs_; }
+    TrcKeyZSampling	getTrcKeyZSampling() const	{ return curcs_; }
 
-    void		setLabels(const char* inl,const char* crl,const char*z);
+    void		setLabels(const uiString& inl,const uiString& crl,
+							    const uiString& z);
 
     Notifier<uiSlicePos> positionChg;
 
@@ -51,7 +52,7 @@ protected:
     int			laststeps_[3];
     int			zfactor_;
     TrcKeyZSampling	curcs_;
-    BufferStringSet	boxlabels_;
+    uiStringSet		boxlabels_;
 
     void		setBoxLabel(SliceDir);
     virtual void	setBoxRanges()			=0;

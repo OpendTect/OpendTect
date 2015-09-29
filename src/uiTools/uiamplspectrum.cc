@@ -57,8 +57,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
-    BufferString disptitle( "Display between " );
-    disptitle += SI().zIsTime() ? "frequencies" : "wavenumber" ;
+    uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ? 
+	      uiStrings::sFrequency() : uiStrings::sWaveNumber(true));
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
@@ -69,17 +69,20 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
 
-    BufferString lbl =  SI().zIsTime() ? "Value(frequency, power)" :
-					 "Value(wavenumber, power)";
+    uiString lbl =  SI().zIsTime() ? 
+		    uiStrings::phrJoinStrings(uiStrings::sValue(), 
+		    tr("(%1, power)").arg(uiStrings::sFrequency(true))) :
+		    uiStrings::phrJoinStrings(uiStrings::sValue(), 
+		    tr("(%1, power)").arg(uiStrings::sWaveNumber(true)));
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
 
-    normfld_ = new uiCheckBox( dispparamgrp_, "Normalize" );
+    normfld_ = new uiCheckBox( dispparamgrp_, tr("Normalize") );
     normfld_->attach( rightOf, valfld_ );
     normfld_->setChecked( true );
 
-    powerdbfld_ = new uiCheckBox( dispparamgrp_, "dB scale" );
+    powerdbfld_ = new uiCheckBox( dispparamgrp_, tr("dB scale") );
     powerdbfld_->attach( rightOf, normfld_ );
     powerdbfld_->setChecked( true );
 
@@ -311,10 +314,12 @@ void uiAmplSpectrum::exportCB( CallBacker* )
     if ( !dlg.go() ) return;
 
     od_ostream strm( dlg.fileName() );
-
+    uiString fnm = toUiString(dlg.fileName());
     if ( strm.isBad() )
     {
-        uiMSG().error( "Cannot open output file: ", dlg.fileName() );
+        uiMSG().error( uiStrings::phrCannotOpen(uiStrings::phrOutput(
+		       uiStrings::phrJoinStrings(uiStrings::sFile(),tr("%1")
+		       .arg(fnm)))) );
 	return;
     }
 
@@ -322,11 +327,12 @@ void uiAmplSpectrum::exportCB( CallBacker* )
 
     if ( strm.isBad() )
     {
-        uiMSG().error( "Cannot write values to: ", dlg.fileName() );
+        uiMSG().error( uiStrings::phrCannotWrite(tr("values to: %1")
+				 .arg(fnm)) );
         return;
     }
 
-    uiMSG().message( "Values written to: ", dlg.fileName() );
+    uiMSG().message( tr("Values written to: %1").arg(fnm) );
 }
 
 

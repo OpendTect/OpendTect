@@ -70,9 +70,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
-    BufferString lbltxt( tinf_.isOptional() ? "[" : "" );
-    lbltxt += tinf_.name();
-    if ( tinf_.isOptional() ) lbltxt += "]";
+    uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) : 
+		       tr("%1").arg(tinf_.name());
     uiLabel* lbl = new uiLabel( this, lbltxt );
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );
@@ -82,7 +81,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	rightmostfld_ = rightmostleftfld_;
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
 	if ( formfld_ )
-	    formfld_->addItem( form.name() );
+	    formfld_->addItem( mToUiStringTodo(form.name()) );
 	mkColFlds( iform );
     }
 
@@ -93,7 +92,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     PropertyRef::StdType proptyp = tinf_.propertyType();
     if ( proptyp != PropertyRef::Other )
     {
-	unitfld_ = new uiUnitSel( this, uiUnitSel::Setup(proptyp,"Unit") );
+	unitfld_ = new uiUnitSel( this, uiUnitSel::Setup(proptyp,
+							 uiStrings::sUnit()) );
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
 	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
@@ -142,7 +142,7 @@ void addBoxes( int iform, int ifld )
     {
 	rowspinbox = new uiSpinBox( this );
 	rowspinbox->setInterval( 1, nrhdrlns_ > 0 ? nrhdrlns_ : 999, 1 );
-	rowspinbox->setPrefix( "row:" );
+	rowspinbox->setPrefix( tr("row:") );
 	*rowboxes_[iform] += rowspinbox;
 	ObjectSet<uiLineEdit>& kwinps = *kwinps_[iform];
 	kwinp = new uiLineEdit( this, "keyword" );
@@ -155,7 +155,7 @@ void addBoxes( int iform, int ifld )
     uiSpinBox* colspinbox = new uiSpinBox( this, 0, heading.buf() );
     const int firstcol = tinf_.isOptional() ? 0 : 1;
     colspinbox->setInterval( firstcol, 999, 1 );
-    colspinbox->setPrefix( "col:" );
+    colspinbox->setPrefix( tr("col:") );
     colboxes += colspinbox;
 
     if ( !rowspinbox )
@@ -529,7 +529,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
     const char* strs[] = { "All Surveys",
 			   "This Survey only",
 			   "My user ID only", 0 };
-    uiGenInput* srcfld = new uiGenInput( &dlg, "Store for",
+    uiGenInput* srcfld = new uiGenInput( &dlg, tr("Store for"),
 					 StringListInpSpec(strs) );
     srcfld->attach( alignedBelow, dlg.inpFld() );
     if ( dlg.go() )
@@ -555,7 +555,7 @@ class uiTableFmtDescFldsParSel : public uiCompoundParSel
 public:
 
 uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
-    : uiCompoundParSel( p, "Format Definition", "Define" )
+    : uiCompoundParSel( p, tr("Format definition"), tr("Define") )
     , impsel_(*p)
     , helpkey_(helpkey)
     , descCommitted(this)

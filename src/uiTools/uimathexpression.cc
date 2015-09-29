@@ -54,12 +54,13 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	const ObjectSet<const Math::ExpressionOperatorDescGroup>& grps =
 		    Math::ExpressionOperatorDescGroup::supported();
 	for ( int idx=0; idx<grps.size(); idx++ )
-	    grpfld_->addItem( grps[idx]->name_ );
+	    grpfld_->addItem( mToUiStringTodo(grps[idx]->name_) );
 	if ( setup_.specvars_ )
-	    grpfld_->addItem( "Other" );
+	    grpfld_->addItem( tr("Other") );
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
-	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? "   \\":"   /" );
+	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? 
+				    toUiString("   \\") : toUiString("   /") );
 	lbl->attach( leftOf, grpfld_ );
 	insgrp->setHAlignObj( lbl );
 	grpfld_->setHSzPol( uiObject::Medium );
@@ -142,8 +143,8 @@ void uiMathExpression::grpSel( CallBacker* )
 	for ( int idx=0; idx<setup_.specvars_->size(); idx++ )
 	{
 	    const Math::SpecVar& specvar = (*setup_.specvars_)[idx];
-	    BufferString str( specvar.varnm_ );
-	    str.add( " (" ).add( specvar.dispnm_ ).add( ")" );
+	    uiString str = tr("%1 (%2)").arg(mToUiStringTodo(specvar.varnm_)).
+			   arg(mToUiStringTodo(specvar.dispnm_));
 	    fnfld_->addItem( str );
 	}
     }
@@ -153,8 +154,8 @@ void uiMathExpression::grpSel( CallBacker* )
 	for ( int idx=0; idx<grp.opers_.size(); idx++ )
 	{
 	    const Math::ExpressionOperatorDesc& oper = *grp.opers_[idx];
-	    BufferString str( oper.symbol_ );
-	    str.add( " (" ).add( oper.desc_ ).add( ")" );
+	    uiString str = tr("%1 (%2)").arg(mToUiStringTodo( oper.symbol_)).
+			   arg(mToUiStringTodo(oper.desc_));
 	    fnfld_->addItem( str );
 	}
     }

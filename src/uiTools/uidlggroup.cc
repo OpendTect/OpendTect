@@ -78,7 +78,7 @@ bool uiTabStackDlg::acceptOK(CallBacker*)
 		groups_[idx]->revertChanges();
 
 	    if ( errmsg )
-		 uiMSG().error( errmsg );
+		 uiMSG().error( mToUiStringTodo(errmsg) );
 
 	    return false;
 	}
@@ -97,7 +97,7 @@ bool uiTabStackDlg::rejectOK(CallBacker*)
 	{
 	    const char* errmsg = groups_[idx]->errMsg();
 	    if ( errmsg )
-		 uiMSG().error( errmsg );
+		 uiMSG().error( mToUiStringTodo(errmsg) );
 
 	    return false;
 	}

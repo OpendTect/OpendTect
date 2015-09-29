@@ -50,6 +50,9 @@ protected:
     virtual void	getFromScreen(CallBacker*);
     void		parChgCB(CallBacker*);
     virtual void	typeSel(CallBacker*);
+
+private:
+    const uiString	sMinMax();
 };
 
 

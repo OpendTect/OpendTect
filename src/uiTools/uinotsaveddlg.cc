@@ -43,15 +43,15 @@ public:
 		    tr("The following objects are not saved"), mNoHelpKey ) )
 	, prompter_( prompter )
     {
-	if ( !withcancel ) setCancelText( 0 );
+	if ( !withcancel ) setCancelText( uiStrings::sEmptyString() );
 
 	const uiString txt( tr("%1 now").arg( actiontype ) );
 	setOkText( txt );
 
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
-	    uiLabel* label =
-		new uiLabel( this, prompter_.objects_[idx]->string_ );
+	    uiLabel* label = new uiLabel( this,
+  			    mToUiStringTodo(prompter_.objects_[idx]->string_) );
 
 	    uiButton* curbutton = uiButton::getStd( this, uiButton::Save,
 					mCB(this,uiNotSavedDlg,buttonCB),
@@ -150,7 +150,8 @@ bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
 void NotSavedPrompter::addObject( const char* str,const CallBack& cb,
 	bool issaveas, const void* dataptr )
 {
-    objects_ += new NotSavedPrompterData( str, cb, issaveas, dataptr );
+    objects_ += new NotSavedPrompterData( toUiString(str), cb, issaveas, 
+								    dataptr );
 }
 
 void NotSavedPrompter::addObject( const uiString& str,const CallBack& cb,

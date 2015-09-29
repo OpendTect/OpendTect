@@ -29,6 +29,8 @@ public:
     //!<"Add <string>"
     static uiString phrASCII(const uiString& string);
     //!<"ASCII <string>"
+    static uiString phrCalculate(const uiString&);
+    //!<"Calculate <string>"
     static uiString phrCalculateFrom(const uiString& string);
     //!<"Calculate from <string>"
     static uiString phrCannotCreate(const uiString& string);
@@ -37,6 +39,8 @@ public:
     //!<"Cannot create database entry for <string>"
     static uiString phrCannotCreateDirectory(const uiString& string);
     //!<"Cannot create directory <string>"
+    static uiString phrCannotExtract(const uiString&);
+    //!<"Cannot extract <string>"
     static uiString phrCannotFind(const uiString& string);
     //!<"Cannot find <string>"
     static uiString phrCannotFindDBEntry(const uiString&);
@@ -166,13 +170,15 @@ public:
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
-    static uiString sCalculate()	{ return tr("Calculate"); }
+    static uiString sCalculate();	
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCantCreateHor();
+    static uiString sCannotExtract();
     static uiString sCantFindAttrName();
     static uiString sCantFindODB();
     static uiString sCantFindSurf();
+    static uiString sCannot()		{ return tr("Cannot"); }
     static uiString sCannotImport();
     static uiString sCantReadHor();
     static uiString sCantReadInp();
@@ -204,6 +210,7 @@ public:
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sCrossPlot();
+    static uiString sCube(int num=1)	{ return tr("Cube",0,num); }
     static uiString sDimension()	{ return tr("Dimension"); }
     static uiString sDirectory()	{ return tr("Directory"); }
     static uiString sData();
@@ -251,6 +258,7 @@ public:
     static uiString sImport();
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }
+    static uiString sInformation()	{ return tr("Information"); }
     static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
     static uiString sInputParamsMissing();
     static uiString sInput();
@@ -263,7 +271,7 @@ public:
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
     static uiString sLat()		{ return tr("Latitude"); }
     static uiString sLayer()		{ return tr("Layer"); }
-    static uiString sLine()		{ return tr("Line"); }
+    static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLeft()		{ return tr("Left"); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
     static uiString sLoad();
@@ -281,6 +289,8 @@ public:
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMerge();
     static uiString sModify();
+    static uiString sMoveDown()		{ return tr("Move Down"); }
+    static uiString sMoveUp()		{ return tr("Move Up"); }
     static uiString sMsec()		{ return tr("msec"); }
     static uiString sMute(int num=1)	{ return tr("Mute",0,num); }
     static uiString sName(int num=1)	{ return tr("Name",0,num); }
@@ -312,6 +322,7 @@ public:
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
+    static uiString sPreStack()		{ return tr("PreStack"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
     static uiString sProcessing()	{ return tr("Processing"); }
@@ -331,6 +342,7 @@ public:
     static uiString sRight()		{ return tr("Right"); }
     static uiString sRightClick()	{ return tr("<right-click>"); }
     static uiString sReversed()		{ return tr("Reversed"); }
+    static uiString sRockPhy()		{ return tr("Rock Physics"); }
     static uiString sRMS()		{ return tr("RMS"); }
     static uiString sSave();
     static uiString sSaveAs();
@@ -342,16 +354,17 @@ public:
     static uiString sSec()		{ return tr("sec"); }
     static uiString sSize()		{ return tr("Size"); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
-    static uiString sSeismic(int num);
+    static uiString sSeismic(int num=1);
     static uiString sSeismics()		{ return sSeismic(mPlural); }
     static uiString sSeismics(bool is2d,bool isps,int num);
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelection(int num=1);
     static uiString sSelect();
+    static uiString sSelectedLog(int num =1) {return tr("Selected Log",0,num);}
     static uiString sSelectPos();
     static uiString sSelOutpFile();
     static uiString sSession(int num=1)	{ return tr("Session",0,num); }
-    static uiString sSet()		{ return tr("Set"); }
+    static uiString sSet(int num=1)	{ return tr("Set",0,num); }
     static uiString sSetAs();
     static uiString sSetting(int num=1);
     static uiString sSettings()		{ return sSetting(mPlural); }
@@ -378,6 +391,8 @@ public:
     static uiString sStart()		{ return tr("Start"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
+    static uiString sTmpStor()		{ return tr("Temporary storage "
+							       "location :"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }

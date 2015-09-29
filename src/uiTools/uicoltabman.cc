@@ -43,10 +43,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTransHeight	150
 #define mTransWidth	200
 
-static const char* sKeyDefault = "Default";
-static const char* sKeyEdited = "Edited";
-static const char* sKeyOwn = "Own";
-
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
@@ -176,6 +172,14 @@ uiColorTableMan::~uiColorTableMan()
 }
 
 
+uiString uiColorTableMan::sKeyDefault()
+{ return tr("Default"); }
+uiString uiColorTableMan::sKeyEdited()
+{ return tr("Edited"); }
+uiString uiColorTableMan::sKeyOwn()
+{ return tr("Own"); }
+
+
 void uiColorTableMan::doFinalise( CallBacker* )
 {
     refreshColTabList( ctab_.name() );
@@ -196,16 +200,17 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	if ( seqidx<0 ) continue;
 	const ColTab::Sequence* seq = ColTab::SM().get( seqidx );
 
-	BufferString status;
+	uiString status;
 	if ( seq->type() == ColTab::Sequence::System )
-	    status = sKeyDefault;
+	    status = sKeyDefault();
 	else if ( seq->type() == ColTab::Sequence::Edited )
-	    status = sKeyEdited;
+	    status = sKeyEdited();
 	else
-	    status = sKeyOwn;
+	    status = sKeyOwn();
 
 	uiTreeViewItem* itm mUnusedVar = new uiTreeViewItem( coltablistfld_,
-		uiTreeViewItem::Setup().label(seq->name()).label(status) );
+		uiTreeViewItem::Setup().label(mToUiStringTodo(seq->name()))
+		.label(status) );
     }
 
     uiTreeViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
@@ -224,7 +229,7 @@ void uiColorTableMan::selChg( CallBacker* )
 	return;
 
     selstatus_ = itm->text( 1 );
-    removebut_->setSensitive( selstatus_ != sKeyDefault );
+    removebut_->setSensitive( selstatus_ != sKeyDefault().getFullString() );
 
     markercanvas_->reDrawNeeded.trigger();
     undefcolfld_->setColor( ctab_.undefColor() );
@@ -252,7 +257,7 @@ void uiColorTableMan::selChg( CallBacker* )
 
 void uiColorTableMan::removeCB( CallBacker* )
 {
-    if ( selstatus_ == sKeyDefault )
+    if ( selstatus_ == sKeyDefault().getFullString() )
     {
 	uiMSG().error( tr("This is a default colortable"
                           " and connot be removed") );
@@ -261,9 +266,10 @@ void uiColorTableMan::removeCB( CallBacker* )
 
     const char* ctnm = ctab_.name();
     uiString msg(tr("%1 '%2' will be removed\n%3.\n Do you wish to continue?")
-	       .arg(selstatus_ == sKeyEdited ? tr("Edited colortable")
-					     : tr("Own made colortable"))
-	       .arg(ctnm).arg(selstatus_ == sKeyEdited
+	     .arg(selstatus_ == sKeyEdited().getFullString() ? 
+	     uiStrings::phrJoinStrings(sKeyEdited(),uiStrings::sColorTable()):
+	     uiStrings::phrJoinStrings(tr("Own made"),uiStrings::sColorTable()))
+	     .arg(ctnm).arg(selstatus_ == sKeyEdited().getFullString()
 					 ? tr("and replaced by the default\n")
 					 : uiString::emptyString()));
     if ( !uiMSG().askRemove( msg ) )

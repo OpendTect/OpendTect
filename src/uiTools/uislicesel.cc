@@ -24,9 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "od_helpids.h"
 
-static const char* sButTxtAdvance = "Advance >>";
-static const char* sButTxtPause = "Pause";
-
 
 uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 			bool dogeomcheck )
@@ -83,6 +80,18 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 }
 
 
+uiString uiSliceSel::sButTxtAdvance()
+{ 
+    return tr("Advance >>"); 
+}
+
+
+uiString uiSliceSel::sButTxtPause()
+{ 
+    return tr("Pause"); 
+}
+
+
 void uiSliceSel::setApplyCB( const CallBack& acb )
 {
     delete applycb_;
@@ -93,7 +102,8 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 
 void uiSliceSel::createInlFld()
 {
-    BufferString label( isinl_ ? "In-line nr" : "In-line range" );
+    uiString label = ( isinl_ ? uiStrings::phrInline(tr("nr")) : 
+				uiStrings::phrInline(uiStrings::sRange()));
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
@@ -104,8 +114,10 @@ void uiSliceSel::createInlFld()
 
 void uiSliceSel::createCrlFld()
 {
-    BufferString label = is2d_ ? "Trace range"
-		: ( iscrl_ ? "Cross-line nr" : "Cross-line range" );
+    uiString label = is2d_ ? uiStrings::phrJoinStrings(uiStrings::sTrace(),
+		     uiStrings::sRange()) : 
+		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) : 
+			       uiStrings::phrCrossline(uiStrings::sRange()) );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
     crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
@@ -117,8 +129,8 @@ void uiSliceSel::createCrlFld()
 
 void uiSliceSel::createZFld()
 {
-    BufferString label = istsl_ ? "Z " : "Z range ";
-    label += zdominfo_.unitStr(true);
+    uiString label = tr("%1 %2").arg(istsl_ ? tr("Z ") : uiStrings::sZRange()).
+		     arg(zdominfo_.uiUnitStr(true));
     z0fld_ = new uiLabeledSpinBox( this, label, 0, istsl_ ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );
@@ -141,8 +153,9 @@ class uiSliceScroll : public uiDialog
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup(tr("Scrolling"),getTitle(ss),
-                                        mODHelpKey(mSliceScrollHelpID) )
+	: uiDialog(ss,uiDialog::Setup(tr("Scrolling"),
+				      mToUiStringTodo(getTitle(ss)),
+                                      mODHelpKey(mSliceScrollHelpID) )
 				      .modal(false))
 	, slcsel_(ss)
 	, inauto_(false)
@@ -180,8 +193,7 @@ uiSliceScroll( uiSliceSel* ss )
     typfld_->box()->addItem( tr("Auto") );
     typfld_->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld_->attach( alignedBelow, stepfld_ );
-
-    ctrlbut = new uiPushButton( this, sButTxtAdvance, true );
+    ctrlbut = new uiPushButton( this, uiSliceSel::sButTxtAdvance(), true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld_ );
     backbut = new uiPushButton( this, tr("<< Step Back"), true );
@@ -213,7 +225,8 @@ void typSel( CallBacker* )
 	else
 	    stopAuto( false );
     }
-    ctrlbut->setText( autoreq ? sButTxtPause : sButTxtAdvance );
+    ctrlbut->setText( autoreq ? uiSliceSel::sButTxtPause() : 
+				uiSliceSel::sButTxtAdvance() );
     backbut->display( !autoreq );
     inauto_ = autoreq;
 }
@@ -226,7 +239,8 @@ void butPush( CallBacker* cb )
     else
     {
 	/*new*/paused_ = ctrlbut->text().getOriginalString()[1] == 'P';
-	ctrlbut->setText( paused_ ? uiStrings::sGo() : sButTxtPause );
+	ctrlbut->setText( paused_ ? uiStrings::sGo() : 
+						  uiSliceSel::sButTxtPause() );
     }
 }
 
@@ -235,7 +249,7 @@ void startAuto()
 {
     paused_ = false;
     doAdvance( false );
-    ctrlbut->setText( sButTxtPause );
+    ctrlbut->setText( uiSliceSel::sButTxtPause() );
     setTimer();
 }
 
@@ -246,7 +260,7 @@ void stopAuto( bool setmanual )
     if ( setmanual )
     {
 	typfld_->box()->setCurrentItem( 0 );
-	ctrlbut->setText( sButTxtAdvance );
+	ctrlbut->setText( uiSliceSel::sButTxtAdvance() );
 	backbut->display( true );
     }
 }
@@ -261,7 +275,7 @@ void doAdvance( bool reversed )
     if ( slcsel_->isinl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.inl() + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval))
+	if (slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval))
 	    stopAuto( true );
 	else
 	    slcsel_->inl0fld_->box()->setValue( newval );
@@ -269,7 +283,7 @@ void doAdvance( bool reversed )
     else if ( slcsel_->iscrl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.crl() + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval))
+	if (slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval))
 	    stopAuto( true );
 	else
 	    slcsel_->crl0fld_->box()->setValue( newval );
@@ -632,7 +646,8 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
     , posdlg_(0)
 {
     inlcrlfld_ = new uiGenInput( this, tr("Compute on:"),
-			BoolInpSpec(true,sKey::Inline(),sKey::Crossline()) );
+			BoolInpSpec(true,uiStrings::sInline(), 
+			uiStrings::sCrossline()));
     setOkText( uiStrings::sNext() );
 }
 

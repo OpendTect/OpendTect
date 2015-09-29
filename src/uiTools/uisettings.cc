@@ -62,7 +62,8 @@ static void getGrps( BufferStringSet& grps )
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(nm,tr("Set User Settings value"),
+	: uiDialog(p,uiDialog::Setup(mToUiStringTodo(nm),
+				     tr("Set User Settings value"),
                                      mODHelpKey(mSettingsHelpID)) )
         , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
@@ -83,8 +84,8 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
 				"Settings editor" );
-    tbl_->setColumnLabel( 0, "Keyword" );
-    tbl_->setColumnLabel( 1, "Value" );
+    tbl_->setColumnLabel( 0, tr("Keyword") );
+    tbl_->setColumnLabel( 1, uiStrings::sValue() );
     // tbl_->setColumnResizeMode( uiTable::Interactive );
     tbl_->setStretch( 2, 2 );
     tbl_->setPrefWidth( 400 );
@@ -372,7 +373,7 @@ bool uiGeneralSettingsGroup::acceptOK()
 
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,"Visualization",setts)
+    : uiSettingsGroup(p,tr("Visualization"),setts)
     , textureresindex_(0)
     , usesurfshaders_(true)
     , usevolshaders_(true)

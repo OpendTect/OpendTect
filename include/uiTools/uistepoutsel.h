@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "position.h"
 #include "rowcol.h"
-#include "uistring.h"
+#include "uistrings.h"
 class uiSpinBox;
 
 
@@ -90,12 +90,12 @@ private:
 /*! \brief allows selection of stepouts, extension to third direction (Z). */
 
 mExpClass(uiTools) uiStepout3DSel : public uiStepOutSel
-{
+{ mODTextTranslationClass(uiStepout3DSel)
 public:
 
 			uiStepout3DSel(uiParent*,const uiStepOutSel::Setup&);
 			uiStepout3DSel(uiParent*,bool single=false,
-				       const char* seltxt="Stepout");
+				  const uiString& seltxt=uiStrings::sStepout());
 			~uiStepout3DSel() {}
 
     int 		val(int dir) const;

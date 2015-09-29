@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiGroup;
 
 mExpClass(uiTools) uiWizard : public uiDialog
-{
+{ mODTextTranslationClass(uiWizard)
 public:
 			uiWizard(uiParent*,uiDialog::Setup&);
 

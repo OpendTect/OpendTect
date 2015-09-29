@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifreqfilter.h"
 #include "uigeninput.h"
 
-static const char* minmaxtxt = "Min/max frequency(Hz)";
 
 uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     : uiGroup( p, "Frequency Filter Selection")
@@ -27,7 +26,7 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
-    freqfld_ = new uiGenInput( this, minmaxtxt, 
+    freqfld_ = new uiGenInput( this, sMinMax(), 
 	    FloatInpSpec().setName("Min frequency"),
 	    FloatInpSpec().setName("Max frequency") );
     freqfld_->setElemSzPol( uiObject::Small );
@@ -46,6 +45,12 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
 void uiFreqFilterSelFreq::parChgCB( CallBacker* )
 {
     parchanged.trigger();
+}
+
+
+const uiString uiFreqFilterSelFreq::sMinMax()
+{ 
+    return tr("Min/max %1(Hz)").arg(uiStrings::sFrequency(true)); 
 }
 
 

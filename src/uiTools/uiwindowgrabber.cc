@@ -65,7 +65,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_ = new uiFileInput( this, "Filename",
+    fileinputfld_ = new uiFileInput( this, mJoinUiStrs(sFile(), sName()),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)

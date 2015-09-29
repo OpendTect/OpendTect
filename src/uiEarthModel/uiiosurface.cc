@@ -505,7 +505,7 @@ bool uiSurfaceRead::processInput()
 
 // uiHorizonParSel
 uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
-    : uiCompoundParSel(p,"Horizon")
+    : uiCompoundParSel(p,uiStrings::sHorizon())
     , is2d_(is2d)
 {
     butPush.notify( mCB(this,uiHorizonParSel,doDlg) );
@@ -800,7 +800,7 @@ public:
 
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,"Fault","Select")
+    : uiCompoundParSel(p,uiStrings::sFault(),uiStrings::sSelect())
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)

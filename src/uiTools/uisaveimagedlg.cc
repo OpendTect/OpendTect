@@ -196,7 +196,8 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     heightfld_->attach( rightTo, widthfld_ );
 
     const char* units[] = { "cm", "inches", 0 };
-    unitfld_ = new uiGenInput( this, "", StringListInpSpec(units) );
+    unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+						    StringListInpSpec(units) );
     unitfld_->setElemSzPol( uiObject::Small );
     unitfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
     unitfld_->attach( rightTo, heightfld_ );
@@ -214,7 +215,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_ = new uiFileInput( this, "Select filename",
+    fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)
@@ -546,7 +547,7 @@ void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
-    enableSaveButton( 0 );
+    enableSaveButton( uiStrings::sEmptyString() );
     screendpi_ = mCast(float,uiMain::getDPI());
     mDynamicCastGet(uiMainWin*,mw,p);
     aspectratio_ = 1.0f;

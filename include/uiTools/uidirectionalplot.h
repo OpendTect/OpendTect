@@ -39,7 +39,7 @@ namespace ColTab { class Sequence; }
  */
 
 mExpClass(uiTools) uiDirectionalPlot : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiDirectionalPlot)
 public:
 
     mStruct(uiTools) Setup

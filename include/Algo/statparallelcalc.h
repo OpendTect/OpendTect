@@ -31,7 +31,7 @@ namespace Stats
 
 template <class T>
 mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
-{
+{ mODTextTranslationClass(ParallelCalc)
 public:
 				ParallelCalc(const CalcSetup& s,const T* data,
 					     int sz,const T* weights = 0)
@@ -43,8 +43,7 @@ public:
     inline void			setValues(const T* inp,int sz,const T* wght=0);
     inline void			setEmpty();
 
-    inline const char*		errMsg() const
-				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    const uiString		errMsg() const		{ return errmsg_; }
 
     virtual inline double	variance() const;
 
@@ -58,7 +57,7 @@ protected:
     inline bool                 doWork(od_int64,od_int64,int);
     inline bool                 doFinish(bool);
 
-    BufferString                errmsg_;
+    uiString		        errmsg_;
 
     mutable Threads::Barrier    barrier_;
 
@@ -110,9 +109,15 @@ template <class T>
 inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 {
     if ( !data_ )
-	{ errmsg_ = "No data given to compute statistics"; return false; }
+    { 
+	errmsg_ = tr("No data given to compute statistics"); 
+	return false; 
+    }
     if ( nradded_ < 1 )
-	{ errmsg_ = "Data array is empty"; return false; }
+    { 
+	errmsg_ = tr("Data array is empty");
+	return false; 
+    }
 
     variance_ = variance_w_ =0;
 

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 
 static const char* sNoLevelTxt			= "---";
-const char* uiStratLevelSel::sTiedToTxt()	{ return "Tied to Level"; }
+const uiString uiStratLevelSel::sTiedToTxt()	{ return tr("Tied to Level"); }
 
 
 static void getLvlNms( BufferStringSet& bss, bool withudf )
@@ -26,7 +26,8 @@ static void getLvlNms( BufferStringSet& bss, bool withudf )
 }
 
 
-uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf, const char* lbl )
+uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf, 
+							   const uiString& lbl )
     : uiGroup(p)
     , fld_(0)
     , haveudf_(withudf)
@@ -34,11 +35,11 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf, const char* lbl )
 {
     BufferStringSet bss; getLvlNms( bss, haveudf_ );
 
-    if ( lbl && *lbl )
-	fld_ = (new uiLabeledComboBox( this, bss, lbl ))->box();
+    if ( !lbl.isEmpty() )
+	fld_ = (new uiLabeledComboBox(this, bss, lbl))->box();
     else
     {
-	fld_ = new uiComboBox( this, bss, sTiedToTxt() );
+	fld_ = new uiComboBox( this, bss, mFromUiStringTodo(sTiedToTxt()) );
 	fld_->setStretch( 2, 2 );
     }
     fld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selCB) );

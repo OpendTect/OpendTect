@@ -22,10 +22,10 @@ class uiButtonGroup;
 
 
 /*!\brief Base class for element allowing maintenance of lists of
-		(usually small) objects. */
+		(usually smaller) objects. */
 
 mExpClass(uiTools) uiEditObjectList : public uiGroup
-{
+{ mODTextTranslationClass(uiEditObjectList)
 public:
 
 			uiEditObjectList(uiParent*,const char* itmtyp,

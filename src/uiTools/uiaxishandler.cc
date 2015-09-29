@@ -162,8 +162,8 @@ void uiAHPlotAnnotSet::add( float val, uiAHPlotAnnot::Type type )
 {
     uiAHPlotAnnot pah( type );
     pah.pos_ = val;
-    pah.txt_ = toStringLim( val, val < 0 ? axh_.reqnrchars_+1
-					 : axh_.reqnrchars_ );
+    pah.txt_ = mToUiStringTodo(toStringLim( val, val < 0 ? axh_.reqnrchars_+1
+					 : axh_.reqnrchars_ ));
     pah.txtwdth_ = font().width( pah.txt_ );
     pah.linetype_ = PlotAnnotation::Normal;
     *this += pah;

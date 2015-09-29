@@ -28,21 +28,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
-static const char* getLabel( bool fromusr )
-{ return fromusr ? "User's HOME directory" : "File"; }
+
 
 static BufferString sHomePath;
 static BufferString sFilePath;
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Color Tables"),mNoDlgTitle,
-				 mODHelpKey(mColTabImportHelpID)))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(uiStrings::sColorTable()),
+				  mNoDlgTitle, mODHelpKey(mColTabImportHelpID)))
     , dirfld_(0)
     , dtectusrfld_(0)
 {
     setOkText( uiStrings::sImport() );
 
-    choicefld_ = new uiGenInput( this, tr("Import from"),
+    choicefld_ = new uiGenInput( this, uiStrings::phrImport(tr("from")),
 	BoolInpSpec(true,tr("Other user"),uiStrings::sFile()) );
     choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
 
@@ -98,6 +97,13 @@ void uiColTabImport::choiceSel( CallBacker* )
 }
 
 
+uiString uiColTabImport::getLabel( bool fromusr )
+{  
+    uiString ret = fromusr ? 
+                    tr("User's HOME directory") : uiStrings::sFile();
+    return ret;
+}
+
 #define mErrRet(s1) { uiMSG().error(s1); return; }
 
 void uiColTabImport::usrSel( CallBacker* )
@@ -122,7 +128,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	fp.add( ".od" );
 	if ( !File::exists(fp.fullPath()) )
 	{
-	    showMessage( "No '.od' directory found in directory" );
+	    showMessage( tr("No '.od' directory found in directory") );
 	    return;
 	}
 	else
@@ -133,7 +139,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	ctabiop = Settings::fetchExternal( "coltabs", dtusr, settdir );
 	if ( !ctabiop )
 	{
-	    showMessage( "No user-defined color tables found" );
+	    showMessage( tr("No user-defined color tables found") );
 	    return;
 	}
 	else
@@ -156,7 +162,9 @@ void uiColTabImport::usrSel( CallBacker* )
 	    res = ctabiop->read( fnm, 0 );
 	    if ( !res )
 	    {
-		showMessage( "Cannot read color tables from selected file" );
+		showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
+			   (uiStrings::sColorTable(), tr("from Selected"), 
+			    uiStrings::sFile())));
 		return;
 	    }
 	}
@@ -184,11 +192,13 @@ void uiColTabImport::usrSel( CallBacker* )
 	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );
-	listfld_->addItem( nm, coltabpix );
+	listfld_->addItem( toUiString(nm), coltabpix );
     }
 
     if ( listfld_->isEmpty() )
-	showMessage( "Cannot read color tables from selected file" );
+	showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
+		   (uiStrings::sColorTable(), tr("from Selected"), 
+		    uiStrings::sFile())));
     else
 	showList();
 }
@@ -237,7 +247,7 @@ bool uiColTabImport::acceptOK( CallBacker* )
 }
 
 
-void uiColTabImport::showMessage( const char* msg )
+void uiColTabImport::showMessage( const uiString& msg )
 {
     messagelbl_->setText( msg );
     messagelbl_->display( true );

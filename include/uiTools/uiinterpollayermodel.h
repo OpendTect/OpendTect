@@ -56,7 +56,7 @@ protected:
 
 
 mExpClass(uiTools) uiInterpolationLayerModel : public uiGroup
-{
+{ mODTextTranslationClass(uiInterpolationLayerModel)
 public:
 			uiInterpolationLayerModel(uiParent*);
 

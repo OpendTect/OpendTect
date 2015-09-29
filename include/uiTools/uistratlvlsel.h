@@ -22,11 +22,11 @@ namespace Strat { class Level; }
 /*!\brief Selector for stratigraphic levels */
 
 mExpClass(uiTools) uiStratLevelSel : public uiGroup
-{
+{ mODTextTranslationClass(uiStratLevelSel)
 public:
 
 			uiStratLevelSel(uiParent*,bool withudf,
-					const char* lbltxt=sTiedToTxt());
+					const uiString& lbltxt=sTiedToTxt());
 					//!< pass null for no label
 			~uiStratLevelSel();
 
@@ -41,7 +41,7 @@ public:
 
     Notifier<uiStratLevelSel> selChange;
 
-    static const char*	sTiedToTxt();
+    static const uiString	sTiedToTxt();
 
 protected:
 

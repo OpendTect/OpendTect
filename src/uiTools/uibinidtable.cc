@@ -29,8 +29,8 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 						.selmode(uiTable::Multi),
 			  "BinID Table" );
     table_->setNrCols( 2 );
-    table_->setColumnLabel( 0, sKey::Inline() );
-    table_->setColumnLabel( 1, sKey::Crossline() );
+    table_->setColumnLabel( 0, uiStrings::sInline() );
+    table_->setColumnLabel( 1, uiStrings::sCrossline() );
     table_->setNrRows( 5 );
 
     uiSeparator* hsep = new uiSeparator( this, "Separator" );
@@ -38,7 +38,8 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 
     if ( withz_ )
     {
-	BufferString lbl = "Z range "; lbl += SI().getZUnitString();
+	uiString lbl = uiStrings::phrZRange(tr("%1")
+						.arg(SI().getUiZUnitString()));
 	zfld_ = new uiGenInput( this, lbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->attach( leftAlignedBelow, table_ );

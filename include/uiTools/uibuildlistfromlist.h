@@ -63,7 +63,7 @@ public:
 	mDefSetupMemb(bool,singleuse);		// default: false
 	mDefSetupMemb(BufferString,avitemtype);
 	mDefSetupMemb(BufferString,defitemtype);
-	mDefSetupMemb(BufferString,avtitle);	// titles
+	mDefSetupMemb(BufferString,avtitle);  // titles
 	mDefSetupMemb(BufferString,deftitle);
 	mDefSetupMemb(BufferString,addtt);	// tooltips
 	mDefSetupMemb(BufferString,edtt);
@@ -97,7 +97,7 @@ protected:
     virtual void	removeReq()			= 0;
     virtual const char*	avFromDef(const char*) const	= 0;
     virtual bool	ioReq( bool forsave )		{ return false; }
-    virtual void	itemSwitch(const char*,const char*)	{}
+    virtual void	itemSwitch(const uiString&,const uiString&)	{}
     virtual void	defSelChg();
 
     void		setAvailable(const BufferStringSet&); //!< at start

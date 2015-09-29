@@ -33,7 +33,8 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	funcnames = WINFUNCS().getNames();
     funcnames.insertAt( new BufferString( sNone() ), 0 );
     const StringListInpSpec funclist( funcnames );
-    windowtypefld_ =  new uiGenInput( this, su.label_, funclist );
+    windowtypefld_ =  new uiGenInput( this, mToUiStringTodo(su.label_), 
+				      funclist );
     if ( su.winname_ ) windowtypefld_->setText( su.winname_ );
 
     windowtypefld_->valuechanged.notify(
@@ -49,17 +50,17 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	uiGenInput* varinpfld = 0;
 	if ( winfunc && winfunc->hasVariable() )
 	{
-	    BufferString varname ( winfunc->variableName() );
-	    varname += " (%)";
+	    uiString varname (toUiString("%1%").arg(mToUiStringTodo(
+						    winfunc->variableName())) );
 	    float v = winfunc->getVariable() * 100;
 	    if ( su.with2fldsinput_ )
 	    {
-		BufferString twosidedvarname( su.inpfldtxt_ );
-		varinpfld = new uiGenInput( this, twosidedvarname.buf(),
+		uiString twosidedvarname( mToUiStringTodo(su.inpfldtxt_) );
+		varinpfld = new uiGenInput( this, twosidedvarname,
 					FloatInpSpec(v), FloatInpSpec(v) );
 	    }
 	    else
-		varinpfld = new uiGenInput(this,varname.buf(),FloatInpSpec(v));
+		varinpfld = new uiGenInput(this,varname,FloatInpSpec(v));
 	    if ( FixedString(su.winname_) == winfunc->name() )
 		varinpfld->setValue( su.winparam_ * 100 );
 

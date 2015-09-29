@@ -39,7 +39,8 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
 
 void uiFontSettingsGroup::addButton( FontData::StdSz tp, uiString infotxt )
 {
-    uiButton* but = new uiPushButton( butgrp_, FontData::key(tp), false );
+    uiButton* but = new uiPushButton( butgrp_, 
+				    mToUiStringTodo(FontData::key(tp)), false );
     but->setPrefWidthInChar( 25 );
     but->activated.notify( mCB(this,uiFontSettingsGroup,butPushed) );
     buttons_ += but;
@@ -117,7 +118,7 @@ HelpKey uiFontSettingsGroup::helpKey() const
 // uiSelFonts
 uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
 			const HelpKey& helpkey )
-	: uiDialog(p,uiDialog::Setup("Fonts",title,helpkey))
+	: uiDialog(p,uiDialog::Setup(tr("Fonts"),title,helpkey))
 {
     FontList().listKeys( ids_ );
 }
@@ -130,7 +131,8 @@ uiSelFonts::~uiSelFonts()
 
 void uiSelFonts::add( const char* nm, const char* stdfontkey )
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids_, nm );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids_, 
+							 mToUiStringTodo(nm) );
     if ( !sels_.isEmpty() )
 	lcb->attach( alignedBelow, sels_.last() );
     lcb->box()->setCurrentItem( stdfontkey );

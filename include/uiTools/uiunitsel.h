@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 #include "propertyref.h"
 
 class uiComboBox;
@@ -45,9 +46,10 @@ public:
 	enum Mode		{ SymbolsOnly, NamesOnly, Full };
 
 				Setup( PropertyRef::StdType st,
-					const char* labeltxt=0 )
+				       const uiString labeltxt=
+				       uiStrings::sEmptyString() )
 				    : ptype_(st)
-				    , lbltxt_(labeltxt)
+				    , lbltxt_(mToUiStringTodo(labeltxt))
 				    , mode_(Full)
 				    , selproptype_(false)
 				    , withnone_(false)	{}
@@ -107,7 +109,7 @@ protected:
     void			setPropFld(PropertyRef::StdType);
     void			setUnFld(const UnitOfMeasure*);
     void			update();
-    const char*			getSelTxt(const UnitOfMeasure*) const;
+    uiString			getSelTxt(const UnitOfMeasure*) const;
     const UnitOfMeasure*	gtUnit() const;
 
 private:

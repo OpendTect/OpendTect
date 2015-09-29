@@ -22,7 +22,8 @@ class uiGenInput;
 mExpClass(uiTools) uiButtonStateEdit : public uiGroup
 {
 public:
-    		uiButtonStateEdit(uiParent*,const char* label,int initialstate);
+    		uiButtonStateEdit(uiParent*,const uiString& label,
+				  int initialstate);
     int		getState() const;
 protected:
     static BufferString	createName(int);

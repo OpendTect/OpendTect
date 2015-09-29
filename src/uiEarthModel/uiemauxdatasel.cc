@@ -20,9 +20,9 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ptrman.h"
 
-uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const char* lbl,
+uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 				const MultiID* hormid, const char* auxdatanm )
-    : uiCompoundParSel( p, lbl )
+    : uiCompoundParSel( p, mToUiStringTodo(lbl) )
     , hormid_(hormid ? *hormid : -1)
     , auxdatanm_(auxdatanm)
 {
