@@ -92,7 +92,8 @@ public:
 			PosAttrib(){}
 
     enum Type		{ PermanentControlNode, TemporaryControlNode,
-			  EdgeControlNode, TerminationNode, SeedNode };
+			  EdgeControlNode, TerminationNode, SeedNode,
+			  IntersectionNode };
 
     Type		type_;
     TypeSet<PosID>	posids_;
@@ -238,6 +239,7 @@ public:
 
     static int			sTerminationNode();
     static int			sSeedNode();
+    static int			sIntersectionNode();
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
