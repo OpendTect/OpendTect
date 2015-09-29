@@ -59,7 +59,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
-		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
+		   StringListInpSpec(PreStack::PropCalc::CalcTypeDef()) );
     calctypefld_->attach( alignedBelow, preprocsel_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
@@ -69,7 +69,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
     lsqtypefld_ = new uiGenInput( this, tr("AVO output"),
-		  StringListInpSpec(PreStack::PropCalc::LSQTypeNames()) );
+		  StringListInpSpec(PreStack::PropCalc::LSQTypeDef()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
 
     useanglefld_ = new uiCheckBox( this, tr("Use Angles") );
@@ -77,7 +77,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
 
     gathertypefld_ = new uiGenInput( this, tr("Gather type"),
-			     StringListInpSpec(PSAttrib::GatherTypeNames()) );
+			     StringListInpSpec(PSAttrib::GatherTypeDef()) );
     gathertypefld_->attach( alignedBelow, stattypefld_ );
     gathertypefld_->valuechanged.notify(
 				 mCB(this,uiPreStackAttrib,gatherTypSel) );
@@ -91,17 +91,17 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xrglbl_->attach( rightOf, xrgfld_ );
 
     xunitfld_ = new uiGenInput( this, uiString::emptyString(),
-				StringListInpSpec(PSAttrib::XaxisUnitNames()) );
+				StringListInpSpec(PSAttrib::XaxisUnitDef()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
     xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
 
     xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
-		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
+		    StringListInpSpec(PreStack::PropCalc::AxisTypeDef())
 				      .setName("X") );
     xaxistypefld_->attach( alignedBelow, xrgfld_ );
 
     valaxtypefld_ = new uiGenInput( this, tr("Amplitude transformations"),
-		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
+		     StringListInpSpec(PreStack::PropCalc::AxisTypeDef()) );
     valaxtypefld_->attach( alignedBelow, xaxistypefld_ );
 
     anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, false, false );

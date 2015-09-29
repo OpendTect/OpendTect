@@ -49,7 +49,7 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     logsfld_->attach( alignedBelow, wellfld_ );
 
     sampfld_ = new uiGenInput( this, tr("Log resampling method"),
-			       StringListInpSpec(Stats::UpscaleTypeNames()) );
+			       StringListInpSpec(Stats::UpscaleTypeDef()) );
     sampfld_->setValue( Stats::UseAvg );
     sampfld_->attach( alignedBelow, logsfld_ );
 

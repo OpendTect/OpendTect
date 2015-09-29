@@ -85,7 +85,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     sep->attach( stretchedBelow, cutoffrangefld_ );
 
     connectivityfld_ = new uiGenInput( this, tr("Connectivity"),
-	StringListInpSpec( VoxelConnectivityFilter::ConnectivityNames() ) );
+	StringListInpSpec( VoxelConnectivityFilter::ConnectivityDef() ) );
     connectivityfld_->setValue( (int) step->getConnectivity() );
     connectivityfld_->attach( alignedBelow, cutoffrangefld_ );
     connectivityfld_->attach( ensureBelow, sep );
@@ -98,7 +98,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
 
     acceptoutputfld_ = new uiGenInput( this, tr("Kept output"),
-	StringListInpSpec( VoxelConnectivityFilter::AcceptOutputNames() ) );
+	StringListInpSpec( VoxelConnectivityFilter::AcceptOutputDef() ) );
     acceptoutputfld_->setValue( (int) step->getAcceptOutput() );
     acceptoutputfld_->valuechanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );

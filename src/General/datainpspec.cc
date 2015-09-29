@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ptrman.h"
 #include "perthreadrepos.h"
+#include "enums.h"
 
 
 const char* DataInpSpec::valuestr = "Val";
@@ -322,6 +323,7 @@ StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
+    , enumdef_( 0 )
 {
     for ( int idx=0; idx<bss.size(); idx++ )
 	strings_ += toUiString( bss.get(idx) );
@@ -333,10 +335,34 @@ StringListInpSpec::StringListInpSpec( const char** sl )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
+    , enumdef_( 0 )
 {
     if ( !sl ) return;
     for ( int idx=0; sl[idx]; idx++ )
-	strings_.add( tr(sl[idx] ) );
+	strings_.add( toUiString(sl[idx]) );
+}
+
+StringListInpSpec::StringListInpSpec( const uiString* strs )
+    : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
+    , cur_(0)
+    , defaultval_(0)
+    , isset_(0)
+    , enumdef_( 0 )
+{
+    for ( int idx=0; !strs[idx].isEmpty(); idx++ )
+	strings_.add( strs[idx] );
+}
+
+
+StringListInpSpec::StringListInpSpec( const EnumDef& enums )
+    : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
+    , cur_(0)
+    , defaultval_(0)
+    , isset_(0)
+    , enumdef_( &enums )
+{
+    for ( int idx=0; idx<enums.size(); idx++ )
+	strings_.add( enums.getUiString(idx) );
 }
 
 
@@ -345,6 +371,7 @@ StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
     , cur_(oth.cur_)
     , defaultval_(oth.defaultval_)
     , isset_(oth.isset_)
+    , enumdef_(oth.enumdef_)
 {
     for ( int idx=0; idx<oth.strings_.size(); idx++ )
 	strings_.add( oth.strings_[idx] );
@@ -356,6 +383,7 @@ StringListInpSpec::StringListInpSpec( const uiStringSet& sl )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
+    , enumdef_( 0 )
 {
     for ( int idx=0; idx<sl.size(); idx++ )
 	strings_.add( sl[idx] );
@@ -384,7 +412,15 @@ void StringListInpSpec::addString( uiString txt )
 
 const char* StringListInpSpec::text( int ) const
 {
-    return isUndef() ? "" : strings_[cur_].getFullString().buf();
+    if ( isUndef() )
+	return sKey::EmptyString();
+
+    if ( enumdef_ )
+    {
+	return enumdef_->convert(cur_);
+    }
+
+    return strings_[cur_].getFullString().buf();
 }
 
 
@@ -394,10 +430,22 @@ void StringListInpSpec::setItemText( int idx, const uiString& s )
 
 bool StringListInpSpec::setText( const char* s, int nr )
 {
-    for ( int idx=0; idx<strings_.size(); idx++ )
+    if ( enumdef_ )
     {
-	if ( strings_[idx].getFullString() == s )
-	{ cur_ = idx; isset_ = true; return true; }
+	if ( enumdef_->isValidName( s ) )
+	{
+	    cur_ = enumdef_->convert( s );
+	    isset_ = true;
+	    return true;
+	}
+    }
+    else
+    {
+	for ( int idx=0; idx<strings_.size(); idx++ )
+	{
+	    if ( strings_[idx].getFullString() == s )
+	    { cur_ = idx; isset_ = true; return true; }
+	}
     }
 
     return false;

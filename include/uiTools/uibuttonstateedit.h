@@ -20,13 +20,13 @@ class uiGenInput;
 /*!Simple field to edit OD::ButtonState. */
 
 mExpClass(uiTools) uiButtonStateEdit : public uiGroup
-{
+{ mODTextTranslationClass(uiButtonStateEdit)
 public:
     		uiButtonStateEdit(uiParent*,const uiString& label,
 				  int initialstate);
     int		getState() const;
 protected:
-    static BufferString	createName(int);
+    static uiString	createName(int);
     uiGenInput*		combobox_;
     TypeSet<int>	states_;
 };

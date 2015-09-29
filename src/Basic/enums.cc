@@ -26,5 +26,18 @@ int EnumDef::convert( const char* s ) const
 const char* EnumDef::convert( int i ) const
 { return names_[i]; }
 
+
+uiString EnumDef::getUiString( int i ) const
+{
+    if ( !uistrings_.validIdx(i) )
+    {
+	pErrMsg("Invalid enum");
+	return uiString::emptyString();
+    }
+
+    return uistrings_[i];
+}
+
+
 int EnumDef::size() const
 { int i=0; while ( names_[i] ) i++; return i; }

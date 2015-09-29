@@ -183,7 +183,7 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
     scalerfld_->attach( alignedBelow, subselfld_ );
 
     typefld_ = new uiGenInput( this, tr("Load as"),
-		StringListInpSpec(DataCharacteristics::UserTypeNames()) );
+		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     typefld_->setValue( (int)DataCharacteristics::Auto );
     typefld_->attach( alignedBelow, scalerfld_ );

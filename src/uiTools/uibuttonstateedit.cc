@@ -27,12 +27,12 @@ uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const uiString& label,
     states_ += (int) OD::ControlButton | OD::AltButton;
     states_ += (int) OD::ShiftButton | OD::ControlButton | OD::AltButton;
 
-    BufferStringSet set;
+    uiStringSet set;
     for ( int idx=0; idx<states_.size(); idx++ )
-	set.add( createName(states_[idx]).buf() );
+	set.add( createName(states_[idx]) );
 
     combobox_ = new uiGenInput( this, label, StringListInpSpec( set ) );
-    combobox_->setText( createName(initialstate).buf() );
+    combobox_->setText( createName(initialstate).getFullString() );
     setHAlignObj( combobox_ );
 }
 
@@ -43,31 +43,39 @@ int uiButtonStateEdit::getState() const
 }
 
 
-BufferString uiButtonStateEdit::createName( int status )
+uiString uiButtonStateEdit::createName( int status )
 {
-    BufferString res;
+    uiString res;
     if ( !status )
-	res = sKey::None();
+	res = uiStrings::sNone();
     else
     {
 	bool first = true;
 	if ( status & OD::ShiftButton )
 	{
-	    res += "Shift";
+	    res = tr("Shift");
 	    first = false;
 	}
 
 	if ( status & OD::ControlButton )
 	{
-	    if ( !first ) res += "-";
-	    res += "Control";
+	    const uiString control = tr("Control");
+	    if ( !first )
+		res = toUiString( "%1-%2").arg( res ).arg( control );
+	    else
+		res = control;
 	    first = false;
 	}
 
 	if ( status & OD::AltButton )
 	{
-	    if ( !first ) res += "-";
-	    res += "Alt";
+	    const uiString alt = tr("Alt");
+
+	    if ( !first )
+		res = toUiString( "%1-%2").arg( res ).arg( alt );
+	    else
+		res = alt;
+
 	    first = false;
 	}
     }

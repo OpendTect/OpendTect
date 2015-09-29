@@ -320,7 +320,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     linewidthfld_->attach( alignedBelow, colorfld_ );
 
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
-			StringListInpSpec(MarkerStyle3D::TypeNames()) );
+			StringListInpSpec(MarkerStyle3D::TypeDef()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );

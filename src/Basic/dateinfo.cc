@@ -32,6 +32,18 @@ DefineEnumNames(DateInfo,DayOfWeek,2,"Week day") {
 	0
 };
 
+template <>
+void EnumDefImpl<DateInfo::DayOfWeek>::initUiStrings()
+{
+    uistrings_ += tr("Sunday");
+    uistrings_ += tr("Monday");
+    uistrings_ += tr("Tuesday");
+    uistrings_ += tr("Wednesday");
+    uistrings_ += tr("Thursday");
+    uistrings_ += tr("Friday");
+    uistrings_ += tr("Saturday");
+}
+
 DefineEnumNames(DateInfo,Month,3,"Month") {
 	"jan", "feb", "mar", "apr", "may", "jun",
 	"jul", "aug", "sep", "oct", "nov", "dec",
@@ -424,7 +436,7 @@ void DateInfo::toString( BufferString& str ) const
 	{ str += sKey::Undef(); return; }
 
     str += day(); str += "-";
-    str += DateInfo::getMonthString(month()); str += "-";
+    str += DateInfo::MonthDef().toString(month()); str += "-";
     str += year();
 }
 

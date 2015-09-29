@@ -647,7 +647,7 @@ protected:
 
 
 // Pick::Set
-DefineEnumNames( Set::Disp, Connection, 0, "Connection" )
+    DefineEnumNames( Pick::Set::Disp, Connection, 0, "Connection" )
 { "None", "Open", "Close", 0 };
 
 Set::Set( const char* nm )

@@ -579,10 +579,28 @@ public:
 
     virtual bool	isUndef(int) const		{ return false; }
 
-    virtual const char*	text(int idx) const		{ return cbb_.text();}
-    virtual void	setText( const char* t,int idx)
-			    { cbb_.setCurrentItem(t); }
+    virtual const char* text(int idx) const
+			{
+			    const EnumDef* enumdef = enumDef();
+			    if ( !enumdef )
+				return cbb_.text();
 
+			    const int selidx = cbb_.currentItem();
+			    return enumdef->convert( selidx );
+			}
+    virtual void	setText( const char* t,int idx )
+			{
+			    const EnumDef* enumdef = enumDef();
+			    if ( enumdef &&
+				 enumdef->isValidName(t) )
+			    {
+				const int selidx = enumdef->convert(t);
+				cbb_.setCurrentItem( selidx );
+				return;
+			    }
+
+			    cbb_.setCurrentItem(t);
+			}
     virtual void	setReadOnly( bool yn = true, int idx=0 )
 			{
 			    if ( !yn )
@@ -593,13 +611,22 @@ public:
     virtual uiObject*	mainObj()			{ return &cbb_; }
 
 protected:
+    const EnumDef*	enumDef() const
+			{
+			    mDynamicCastGet(const StringListInpSpec*, strspec,
+					    &spec() );
+			    if ( !strspec )
+				return 0;
 
-    virtual void	setvalue_( int i, int idx )
-			    { cbb_.setCurrentItem(i); }
-    virtual int		getvalue_( int idx )	const
-			    { return cbb_.currentItem(); }
+			    return strspec->enumDef();
+			}
 
-    uiComboBox&		cbb_;
+    virtual void		setvalue_( int i, int idx )
+				   { cbb_.setCurrentItem(i); }
+    virtual int			getvalue_( int idx )	const
+				   { return cbb_.currentItem(); }
+
+    uiComboBox&			cbb_;
 };
 
 typedef uiSimpleInputFld<uiGenInputIntFld>	uiIntInputFld;
@@ -626,7 +653,13 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     case DataType::stringTp:
     {
 	if ( desc.type().form() == DataType::list )
-	    fld = new uiStrLstInpFld( this, desc );
+	{
+	    mDynamicCastGet(const StringListInpSpec*, strlist, &desc );
+	    if ( strlist )
+	    {
+		fld = new uiStrLstInpFld( this, *strlist );
+	    }
+	}
 
 	else if ( desc.type().form() == DataType::filename )
 	    fld = new uiFileInputFld( this, desc );

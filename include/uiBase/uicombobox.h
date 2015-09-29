@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigroup.h"
 #include "userinputobj.h"
+#include "enums.h"
 
 class uiLabel;
 class uiComboBoxBody;
@@ -38,6 +39,10 @@ public:
 			uiComboBox(uiParent*,const uiStringSet&,
 				   const char* nm);
 			uiComboBox(uiParent*,const char**,const char* nm);
+			uiComboBox(uiParent*,const uiString*,const char* nm);
+			/*!<Similar to const char** Adds strings until an empty
+			    string is found. */
+			uiComboBox(uiParent*,const EnumDef&,const char* nm);
     virtual		~uiComboBox();
 
     virtual void        setReadOnly( bool = true );
