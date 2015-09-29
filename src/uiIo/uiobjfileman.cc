@@ -61,7 +61,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
-    selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, 0, sgsu );
+    selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(), 
+									sgsu );
     selgrp_->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->itemChosen.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
@@ -209,7 +210,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     BufferString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
-    toStatusBar( msg );
+    toStatusBar( mToUiStringTodo(msg) );
 }
 
 

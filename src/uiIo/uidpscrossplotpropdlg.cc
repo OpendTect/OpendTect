@@ -44,11 +44,12 @@ class uiDPSCPScalingTab : public uiDlgGroup
 public:
 
 uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),"Scaling")
+    : uiDlgGroup(p->tabParent(),tr("Scaling"))
     , plotter_(p->plotter())
 {
     const char* axnms[] = { "X", "Y", "Y2", 0 };
-    uiLabeledComboBox* axlcb = new uiLabeledComboBox( this, axnms, "Axis" );
+    uiLabeledComboBox* axlcb = new uiLabeledComboBox( this, axnms, 
+							  uiStrings::sAxis() );
     axselfld_ = axlcb->box();
     const CallBack axselcb( mCB(this,uiDPSCPScalingTab,axSel) );
     axselfld_->selectionChanged.notify( axselcb );
@@ -61,16 +62,17 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	if ( !axhndlr ) continue;
 
 	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
-	flds->doclipfld_ = new uiGenInput( this, "Use clipping",
+	flds->doclipfld_ = new uiGenInput( this, tr("Use clipping"),
 				BoolInpSpec(asp.doautoscale_) );
 	flds->doclipfld_->valuechanged.notify(
 				mCB(this,uiDPSCPScalingTab,useClipSel) );
-	flds->percclipfld_ = new uiGenInput( this, "Clipping percentage",
+	flds->percclipfld_ = new uiGenInput( this, tr("Clipping percentage"),
 				FloatInpSpec(asp.clipratio_*100) );
 	flds->doclipfld_->attach( alignedBelow, axlcb );
 	flds->percclipfld_->attach( alignedBelow, flds->doclipfld_ );
 
-	flds->rgfld_ = new uiGenInput( this, "Axis range/step",
+	flds->rgfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
+				uiStrings::sAxis(),tr("range/step")),
 				FloatInpIntervalSpec(axhndlr->range()) );
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
@@ -173,38 +175,38 @@ bool acceptOK()
 
 
 class uiDPSCPStatsTab : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiDPSCPStatsTab)
 public:
 
 uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),"Statistics")
+    : uiDlgGroup(p->tabParent(),uiStrings::sStatistics())
     , plotter_(p->plotter())
 {
-    uiLabel* ylbl = new uiLabel( this, "Y =" );
+    uiLabel* ylbl = new uiLabel( this, toUiString("%1 =").arg(uiStrings::sY()));
     a0fld_ = new uiLineEdit( this, FloatInpSpec(0), "A0" );
     a0fld_->attach( rightOf, ylbl );
-    uiLabel* pluslbl = new uiLabel( this, "+ " );
+    uiLabel* pluslbl = new uiLabel( this, toUiString("+ ") );
     pluslbl->attach( rightOf, a0fld_ );
 
     a1fld_ = new uiLineEdit( this, FloatInpSpec(1), "A1" );
     a1fld_->attach( rightOf, pluslbl );
-    uiLabel* xlbl = new uiLabel( this, "* X" );
+    uiLabel* xlbl = new uiLabel(this, toUiString("* %1").arg(uiStrings::sX()));
     xlbl->attach( rightOf, a1fld_ );
 
     d0fld_ = new uiLineEdit( this, FloatInpSpec(0), "D0" );
     d0fld_->attach( alignedBelow, a0fld_ );
-    uiLabel* dlbl = new uiLabel( this, "Errors" );
+    uiLabel* dlbl = new uiLabel( this, uiStrings::sErrors() );
     dlbl->attach( leftOf, d0fld_ );
     d1fld_ = new uiLineEdit( this, FloatInpSpec(0), "D1" );
     d1fld_->attach( alignedBelow, a1fld_ );
 
     ccfld_ = new uiLineEdit( this, FloatInpSpec(0), "CC" );
     ccfld_->attach( alignedBelow, d0fld_ );
-    uiLabel* cclbl = new uiLabel( this, "Correlation coefficient" );
+    uiLabel* cclbl = new uiLabel( this, uiStrings::sCorrelCoeff());
     cclbl->attach( leftOf, ccfld_ );
-    ccdispbut_ = new uiCheckBox( this, "Put in plot" );
+    ccdispbut_ = new uiCheckBox( this, tr("Put in plot") );
     ccdispbut_->attach( rightOf, ccfld_ );
-    shwregrlnbut_ = new uiCheckBox( this, "Show regression line" );
+    shwregrlnbut_ = new uiCheckBox( this, tr("Show regression line") );
     shwregrlnbut_->attach( alignedBelow, ccfld_ );
 
     a0fld_->setReadOnly( true );
@@ -253,7 +255,7 @@ class uiDPSUserDefTab : public uiDlgGroup
 public:
 
 uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),"User Defined")
+    : uiDlgGroup(p->tabParent(),tr("User Defined"))
     , plotter_(p->plotter())
     , dps_(p->plotter().dps())
     , hasy2_(plotter_.axisHandler(2))
@@ -272,42 +274,43 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , selaxisfld_(0)
     , dragmode_(uiGraphicsView::NoDrag)
 {
-    inpfld_ = new uiGenInput( this, "Equation Y1=" );
+    inpfld_ = new uiGenInput( this, tr("Equation Y1=") );
     inpfld_->setElemSzPol( uiObject::Wide );
     inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
 
-    rmsfld_ = new uiGenInput( this, "rms error" );
+    rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
     rmsfld_->setElemSzPol( uiObject::Small );
     rmsfld_->attach( rightOf, inpfld_);
     rmsfld_->setReadOnly( true );
 
-    shwy1userdefpolyline_ = new uiCheckBox( this,"Show Y1 User Defined Curve" );
+    shwy1userdefpolyline_ = new uiCheckBox( this,
+					    tr("Show Y1 User Defined Curve") );
     shwy1userdefpolyline_->activated.notify(mCB(this,uiDPSUserDefTab,parseExp));
     shwy1userdefpolyline_->attach( alignedBelow, inpfld_ );
 
     if ( hasy2_ )
     {
-	inpfld1_ = new uiGenInput( this, "Equation Y2=" );
+	inpfld1_ = new uiGenInput( this, tr("Equation Y2=") );
 	inpfld1_->setElemSzPol( uiObject::Wide );
 	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
 	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );
 
-	rmsfld1_ = new uiGenInput( this, "rms error" );
+	rmsfld1_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
 	rmsfld1_->setElemSzPol( uiObject::Small );
 	rmsfld1_->attach( rightOf, inpfld1_);
 	rmsfld1_->setReadOnly( true );
 
 	shwy2userdefpolyline_ =
-	    new uiCheckBox( this, "Show Y2 User Defined Curve" );
+	    new uiCheckBox( this, tr("Show Y2 User Defined Curve") );
 	shwy2userdefpolyline_->activated.notify(
 		mCB(this,uiDPSUserDefTab,parseExp) );
 
 	shwy2userdefpolyline_->attach( alignedBelow, inpfld1_ );
     }
 
-    drawlinefld_ = new uiCheckBox( this, "Draw Line" );
+    drawlinefld_ = new uiCheckBox( this, mJoinUiStrs(sDraw(),sLine()) );
     drawlinefld_->attach( alignedBelow, hasy2_ ? shwy2userdefpolyline_
 	    : shwy1userdefpolyline_ );
     drawlinefld_->activated.notify( mCB(this,uiDPSUserDefTab,checkedCB) );
@@ -316,7 +319,9 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     {
 	selaxisfld_ =
 	    new uiGenInput( this, uiString::emptyString(),
-                            BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
+                            BoolInpSpec( true,uiStrings::phrJoinStrings(
+			    uiStrings::sDraw(),tr("Y1")), 
+			    mJoinUiStrs(sDraw(), sY2())) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
@@ -388,7 +393,7 @@ bool parseExp( CallBacker* cb )
     {
 	if ( mep.errMsg() )
 	{
-	    uiMSG().error( mep.errMsg() );
+	    uiMSG().error( mToUiStringTodo(mep.errMsg()) );
 	    chkbox->setChecked( false );
 	}
 	else if ( !mathexpr.isEmpty() )
@@ -719,40 +724,42 @@ class uiDPSCPDisplayPropTab : public uiDlgGroup
 public:
 
 uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),"Display Properties")
+    : uiDlgGroup(p->tabParent(),mJoinUiStrs(sDisplay(), sProperties()))
     , plotter_(p->plotter())
     , hasy2_(p->plotter().axisHandler(2))
 {
     const MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
-    sizefld_ = new uiGenInput( this, "Marker size", IntInpSpec(mstyle.size_));
-    BufferStringSet shapenms;
-    shapenms.add( "Square" );
-    shapenms.add( "Circle" );
-    shapenms.add( "Cross" );
-    shapenms.add( "Plus" );
-    shapenms.add( "Target" );
-    shapenms.add( "HLine" );
-    shapenms.add( "VLine" );
-    shapenms.add( "Plane" );
-    shapenms.add( "Triangle" );
-    shapenms.add( "Arrow" );
+    sizefld_ = new uiGenInput(this,tr("Marker size"),IntInpSpec(mstyle.size_));
+    uiStringSet shapenms;
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Square) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Circle) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Cross) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Plus) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Target) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::HLine) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::VLine) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Plane) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Triangle) );
+    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Arrow) );
 
     uiLabeledComboBox* llb =
-	new uiLabeledComboBox( this, shapenms, "Marker shape" );
+	new uiLabeledComboBox( this, shapenms, tr("Marker shape") );
     shapefld_ = llb->box();
     llb->attach( alignedBelow, sizefld_ );
     shapefld_->setCurrentItem( (int)(mstyle.type_-1) );
 
     Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
     ycolinpfld_ = new uiColorInput( this, uiColorInput::Setup(yaxiscol)
-						.lbltxt("Y Axis Color") );
+		      .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY(), 
+		      mJoinUiStrs(sAxis(), sColor()))));
     ycolinpfld_->attach( alignedBelow, llb );
 
     if ( hasy2_ )
     {
 	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
 	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
-						.lbltxt("Y2 Axis Color") );
+		       .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY2(), 
+		       mJoinUiStrs(sAxis(), sColor()))));
 	y2colinpfld_->attach( alignedBelow, ycolinpfld_ );
     }
 }
@@ -795,7 +802,7 @@ class uiDPSDensPlotSetTab : public uiDlgGroup
 public:
 
 uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),"Density Plot")
+    : uiDlgGroup(p->tabParent(),tr("Density Plot"))
     , plotter_(p->plotter())
 {
     Settings& setts = Settings::common();
@@ -809,12 +816,12 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     const int cellsize = plotter_.cellSize();
     cellsize_ = cellsize;
     minptinpfld_ =
-	new uiGenInput( this, "Threshold minimum points for Density Plot",
+	new uiGenInput( this, tr("Threshold minimum points for Density Plot"),
 	IntInpSpec(minptsfordensity_)
 	.setLimits(StepInterval<int>(1,mCast(int,1e6),100)) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
 
-    cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
+    cellsizefld_ = new uiGenInput(this, tr("Cell Size"), IntInpSpec(cellsize));
     cellsizefld_->attach( alignedBelow, minptinpfld_ );
     cellsizefld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,cellSzChanged) );
@@ -825,13 +832,14 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
 	width = plotter_.axisHandler(0)->pixRange().width();
     if ( plotter_.axisHandler(1) )
 	height = plotter_.axisHandler(1)->pixRange().width();
-    wcellszfld_ = new uiGenInput( this, "Nr of Cells across Width",
-				  IntInpSpec(width/cellsize) );
+    uiString  whcelltxt = tr("Nr of Cells across");
+    wcellszfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(whcelltxt,
+		      uiStrings::sWidth()), IntInpSpec(width/cellsize) );
     wcellszfld_->attach( alignedBelow, cellsizefld_ );
     wcellszfld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,wCellNrChanged) );
-    hcellszfld_ = new uiGenInput( this, "Nr of Cells across Height",
-				  IntInpSpec(height/cellsize) );
+    hcellszfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(whcelltxt,
+		      uiStrings::sHeight()), IntInpSpec(height/cellsize) );
     hcellszfld_->attach( alignedBelow, wcellszfld_ );
     hcellszfld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,hCellNrChanged) );
@@ -914,7 +922,8 @@ bool acceptOK()
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(),
-			 uiDialog::Setup(uiStrings::sSettings(),0,
+			 uiDialog::Setup(uiStrings::sSettings(),
+			 uiStrings::sEmptyString(),
                          mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			 .modal(false) )
 	, plotter_(*p)

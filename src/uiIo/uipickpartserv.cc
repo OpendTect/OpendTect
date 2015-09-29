@@ -200,13 +200,13 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 
 	    if ( idx == 0 )
 	    {
-		uiMSG().error( bs );
+		uiMSG().error( mToUiStringTodo(bs) );
 		return false;
 	    }
 	    else
 	    {
-		BufferString msg( ioobj->name() );
-		msg += ": "; msg += bs;
+		uiString msg = toUiString("%1 : %2").arg(ioobj->uiName()).
+						     arg(mToUiStringTodo(bs));
 		uiMSG().warning( msg );
 	    }
 	}

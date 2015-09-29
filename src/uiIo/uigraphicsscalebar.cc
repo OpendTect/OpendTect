@@ -75,10 +75,10 @@ void uiScaleBarItem::update()
     setPolygons( pxwidth_/4, pxheight_ );
 
     uiString unit = SI().getUiXYUnitString( true, false );
-    startnr_->setPlainText( toString("0") );
-    midnr_->setPlainText( toString(worldwidth_/2) );
-    stopnr_->setPlainText( uiString(toString(worldwidth_)).append(unit) );
-
+    startnr_->setPlainText( toUiString("0") );
+    midnr_->setPlainText( toUiString(worldwidth_/2) );
+    stopnr_->setPlainText( (toUiString("%1 %2")).arg(toUiString(worldwidth_))
+								.arg(unit) );
 }
 
 
