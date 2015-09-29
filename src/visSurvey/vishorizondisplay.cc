@@ -1460,12 +1460,12 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( curline.size()==1 && curline[0].isDefined() ) \
     { \
 	visBase::MarkerSet* markerset = visBase::MarkerSet::create(); \
-	MarkerStyle3D markerstyle;\
-	markerstyle.size_ = ( int )mCast(float,lineStyle()->width_);\
-	markerstyle.type_ = MarkerStyle3D::Sphere;\
+	MarkerStyle3D markerstyle = \
+	emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode());\
 	markerset->setMarkerStyle( markerstyle );\
 	markerset->setDisplayTransformation(transformation_); \
 	markerset->setMaterial( 0 ); \
+	markerset->setMarkersSingleColor(emobject_->preferredColor());\
 	markerset->setMarkerHeightRatio( 1.0f );\
 	markerset->addPos( curline[0] ); \
 	points->addObject( markerset ); \
@@ -1581,7 +1581,7 @@ void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
     }
 
     mEndLine;
-
+    
 }
 
 
