@@ -45,7 +45,8 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "mergeseis", "Merge Cross-plot",
+    manipgrp->addButton( "mergeseis", 
+			 uiStrings::phrMerge(uiStrings::sCrossPlot()),
 			 mCB(this,uiDataPointSetMan,mergePush) );
 
     selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );
@@ -81,8 +82,9 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
 
-    BufferString lbl( "Select CrossPlot data to merge with '" );
-    lbl += dps->name(); lbl += "'";
+    uiString lbl = tr("%1 to merge with '%2'")
+	.arg(uiStrings::phrSelect(uiStrings::phrCrossPlot(uiStrings::sData()))
+	.arg(toUiString(dps->name())));
     uiIOObjSelDlg seldlg( this, ctio, lbl );
     if ( !seldlg.go() )
 	return;
@@ -95,7 +97,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     BufferString errmsg;
     bool rv = spvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     if ( !rv )
-    { uiMSG().error( errmsg ); return; }
+    { uiMSG().error( mToUiStringTodo(errmsg) ); return; }
     if ( spvds.data().isEmpty() )
     { uiMSG().error(sSelDataSetEmpty()); return; }
 

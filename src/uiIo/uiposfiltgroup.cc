@@ -33,7 +33,7 @@ uiRandPosFiltGroup::uiRandPosFiltGroup( uiParent* p,
     : uiPosFiltGroup(p,su)
 {
     FloatInpSpec inpspec( 1 ); inpspec.setLimits( Interval<float>(0,100) );
-    percpassfld_ = new uiGenInput( this, "Percentage to pass", inpspec );
+    percpassfld_ = new uiGenInput( this, tr("Percentage to pass"), inpspec );
     setHAlignObj( percpassfld_ );
 }
 
@@ -76,7 +76,7 @@ uiSubsampPosFiltGroup::uiSubsampPosFiltGroup( uiParent* p,
 {
     eachfld_ = new uiSpinBox( this, 0, "Take each" );
     eachfld_->setInterval( StepInterval<int>(2,999999,1) );
-    new uiLabel( this, "Pass one every", eachfld_ );
+    new uiLabel( this, tr("Pass one every"), eachfld_ );
     setHAlignObj( eachfld_ );
 }
 

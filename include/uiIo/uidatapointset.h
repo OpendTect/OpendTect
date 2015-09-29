@@ -76,7 +76,7 @@ public:
     int				size() const	{ return drowids_.size(); }
 				//!< number of displayable rows
 
-    void			setZFactor( float f, const char* unnm )
+    void			setZFactor( float f, const uiString& unnm )
 				{ zfac_ = f; zunitnm_ = unnm; }
 				//!< Default is SI().zDomain().userFactor()
 
@@ -145,7 +145,7 @@ protected:
     DataPointSet&		dps_;
     Setup			setup_;
     float			zfac_;
-    BufferString		zunitnm_;
+    uiString			zunitnm_;
     IOPar			storepars_;
     BufferStringSet		grpnames_;
     BufferString		grptype_;

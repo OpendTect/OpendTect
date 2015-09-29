@@ -372,7 +372,8 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
     StepInterval<float> xrg, yrg;
     if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg) ||
 	 ( inpdf2d && !getPDFFldRes(yrgfld_,ynrbinfld_,yrg) ) )
-    { uiMSG().error("Invalid output range/size"); return 0; }
+    { uiMSG().error(uiStrings::phrInvalid(uiStrings::phrOutput(
+						tr("Range/Size")))); return 0; }
 
     const int xsz = xrg.nrSteps() + 1;
     const int ysz = inpdf2d ? yrg.nrSteps() + 1 : 1;
@@ -473,7 +474,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread_ = true;
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
-    inpfld_->setLabelText( "Input PDF" );
+    inpfld_->setLabelText( uiStrings::phrInput(tr("PDF")) );
 
     outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 	    uiFileInput::Setup(uiFileDialog::Gen)
@@ -525,7 +526,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = uiStrings::sCannotWrite(); strm_.addErrMsgTo( errmsg_ ); }
 
     return errmsg_.isEmpty();
 }
@@ -573,7 +574,7 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = uiStrings::sCannotWrite(); strm_.addErrMsgTo( errmsg_ ); }
 
     return errmsg_.isEmpty();
 }

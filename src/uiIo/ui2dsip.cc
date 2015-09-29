@@ -33,28 +33,31 @@ class ui2DDefSurvInfoDlg : public uiDialog
 public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
-				 dlgtitle,
+    : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"),
+				 mToUiStringTodo(dlgtitle),
                                  mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
     FloatInpSpec fis;
     DoubleInpSpec dis;
 
     uiGroup* maingrp = new uiGroup( this, "Main parameters" );
-    grdspfld_ = new uiGenInput( maingrp, "Default grid spacing for horizons",
-				fis );
-    xrgfld_ = new uiGenInput( maingrp, "X-coordinate range", dis, dis );
+    grdspfld_ = new uiGenInput( maingrp, tr("Default grid spacing for horizons")
+				,fis );
+    xrgfld_ = new uiGenInput( maingrp, uiStrings::phrXcoordinate(
+				       uiStrings::sRange()), dis, dis );
     xrgfld_->attach( alignedBelow, grdspfld_ );
-    yrgfld_ = new uiGenInput( maingrp, "Y-coordinate range", dis, dis );
+    yrgfld_ = new uiGenInput( maingrp, uiStrings::phrYcoordinate(
+				       uiStrings::sRange()), dis, dis );
     yrgfld_->attach( alignedBelow, xrgfld_ );
-    ismfld_ = new uiGenInput( maingrp, "Above values are in",
-				      BoolInpSpec(true,"Meters","Feet") );
+    ismfld_ = new uiGenInput( maingrp, tr("Above values are in"),
+				      BoolInpSpec(true,uiStrings::sMeter(),
+				      uiStrings::sFeet()) );
     ismfld_->attach( alignedBelow, yrgfld_ );
 
     uiSeparator* optsep = new uiSeparator( this, "Optional" );
     optsep->attach( stretchedBelow, maingrp );
 
-    uiLabel* zrglbl = new uiLabel( this, "Optional:" );
+    uiLabel* zrglbl = new uiLabel( this, tr("Optional:") );
     zrglbl->attach( leftBorder );
     zrglbl->attach( ensureBelow, optsep );
 

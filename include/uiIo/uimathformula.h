@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 #include "mathformula.h"
 #include "propertyref.h"
 class uiButton;
@@ -37,7 +38,7 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-			Setup( const uiString& lbl=0 )
+			Setup( const uiString& lbl=uiStrings::sEmptyString() )
 			    : label_(lbl)
 			    , maxnrinps_(6)
 			    , withsubinps_(false)

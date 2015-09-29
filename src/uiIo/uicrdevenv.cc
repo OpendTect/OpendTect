@@ -47,16 +47,19 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 	, workdirfld(0)
 	, basedirfld(0)
 {
-    const char* titltxt =
-    "For OpendTect development you'll need a $WORK dir\n"
-    "Please specify where this directory should be created.";
+    const uiString titltxt = 
+	tr("For OpendTect development you'll need a %1 dir\n"
+        "Please specify where this directory should be created.")
+	.arg(toUiString("$WORK"));
 
     setTitleText( titltxt );
 
-    basedirfld = new uiFileInput( this, "Parent Directory",
-			  uiFileInput::Setup(basedirnm).directories(true) );
+    basedirfld = new uiFileInput( this, uiStrings::phrJoinStrings(
+			      tr("Parent"),uiStrings::sDirectory()),
+			      uiFileInput::Setup(basedirnm).directories(true) );
 
-    workdirfld = new uiGenInput( this, "Directory name", workdirnm );
+    workdirfld = new uiGenInput( this, mJoinUiStrs(sDirectory(),sName()),
+								    workdirnm );
     workdirfld->attach( alignedBelow, basedirfld );
 
 }
@@ -162,13 +165,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 
     if ( !File::createDir( workdirnm ) )
-	mErrRet( uiStrings::phrCannotCreateDirectory(workdirnm) )
+	mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(workdirnm)) )
 
-    const char* docmsg =
-	"The OpendTect window will FREEZE during this process\n"
-	"- for upto a few minutes.\n\n"
-	"Meanwhile, do you want to take a look at the developers documentation?"
-    ;
+    const uiString docmsg =
+      tr("The OpendTect window will FREEZE during this process\n"
+      "- for upto a few minutes.\n\n"
+      "Meanwhile, do you want to take a look at the developers documentation?");
+    
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 

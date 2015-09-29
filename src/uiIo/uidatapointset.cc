@@ -60,16 +60,17 @@ static const char* sKeyGroups = "Groups";
 mDefineInstanceCreatedNotifierAccess(uiDataPointSet)
 
 class uiDPSDispPropDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiDPSDispPropDlg)
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup("Display Properties", 0,
+    : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()), 
+				    uiStrings::sEmptyString(),
                                     mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
-		      "Selected Points","All points with attribute" );
+		      tr("Selected Points"),tr("All points with attribute") );
     typefld_ = new uiGenInput( this, uiStrings::sDisplay(),binp );
     typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
 
@@ -78,7 +79,8 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
 	colnms.add( dps.colName(colidx) );
 
-    selfld_ = new uiLabeledComboBox( this, colnms, "Attribute to display" );
+    selfld_ = new uiLabeledComboBox(this, colnms, uiStrings::phrJoinStrings(
+				    uiStrings::sAttribute(), tr("to display")));
     selfld_->attach( alignedBelow, typefld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
@@ -160,7 +162,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, dps_(*const_cast<DataPointSet*>(&dps))
 	, setup_(su)
 	, zfac_(mCast(float,SI().zDomain().userFactor()))
-	, zunitnm_(SI().getZUnitString(false))
+	, zunitnm_(SI().getUiZUnitString(false))
 	, tbl_(0)
 	, unsavedchgs_(false)
 	, fillingtable_(true)
@@ -196,7 +198,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     uiLabel* titllbl = 0;
     if ( *dpsnm != '<' )
     {
-	titllbl = new uiLabel( this, dpsnm );
+	titllbl = new uiLabel( this, toUiString(dpsnm) );
 	titllbl->attach( hCentered );
     }
 
@@ -296,35 +298,36 @@ void uiDataPointSet::mkToolBars()
     if ( !setup_.isconst_ )
     {
 	if ( !iotb_ )
-	    iotb_ = new uiToolBar( this, "I/O Tool bar" );
-	mAddButton( "save", save, tr("Save data") );
+	    iotb_ = new uiToolBar( this, toUiString("I/O Tool bar") );
+	mAddButton( "save", save, uiStrings::phrSave(uiStrings::sData()) );
 	if ( setup_.allowretrieve_ )
 	    mAddButton( "open", retrieve, tr("Retrieve stored data") );
     }
 #undef mAddButton
 
     if ( !maniptb_ )
-	maniptb_ = new uiToolBar( this, "Manip Tool bar" );
+	maniptb_ = new uiToolBar( this, toUiString("Manip Toolbar") );
 #define mAddButton(fnm,func,tip) \
     maniptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
     mAddButton( "axis-x", selXCol, tr("Set data for X") );
-    mAddButton( "axis-add-y", selYCol, tr("Select as Y data") );
+    mAddButton( "axis-add-y", selYCol, uiStrings::phrSelect(tr("as Y data")) );
     mAddButton( "axis-rm-y", unSelYCol, tr("UnSelect as Y data") );
-    mAddButton( "delselrows", delSelRows, tr("Remove selected rows") );
+    mAddButton( "delselrows", delSelRows, uiStrings::phrRemove
+							(tr("selected rows")) );
     mAddButton( "axis-prev", colStepL, tr("Set Y one column left") );
     mAddButton( "axis-next", colStepR, tr("Set Y one column right") );
     mAddButton( "sortcol", setSortCol, tr("Set sorted column to current") );
-    mAddButton( "plus", addColumn, m3Dots(tr("Add column")) );
-    mAddButton( "minus", removeColumn, tr("Remove column") );
+    mAddButton( "plus", addColumn, m3Dots(uiStrings::phrAdd(tr("column"))) );
+    mAddButton( "minus", removeColumn, uiStrings::phrRemove(tr("column")) );
 #undef mAddButton
 
     if ( !disptb_ )
-	disptb_ = new uiToolBar( this, "Display Tool bar" );
+	disptb_ = new uiToolBar( this, mJoinUiStrs(sDisplay(), sToolbar()) );
 
     uiLabel* showlbl = new uiLabel( disptb_,uiStrings::sShow() );
     disptb_->addObject( showlbl );
     percfld_ = new uiSpinBox( disptb_, 1, "Each" );
-    percfld_->setSuffix( "%" );
+    percfld_->setSuffix( toUiString("%") );
     percfld_->setInterval( (float)0.1, (float)100, (float)0.1 );
     percfld_->setValue( percentage_ );
     percfld_->setStretch( 0, 0 );
@@ -376,18 +379,20 @@ void uiDataPointSet::updColNames()
     const TColID zcid = 2;
     for ( TColID tid=0; tid<nrcols; tid++ )
     {
-	BufferString axnm;
-	if ( tid == xcol_ ) axnm += "[X]";
-	if ( tid == ycol_ ) axnm += "[Y]";
-	if ( tid == y2col_ ) axnm += "[Y2]";
+	uiString axnm;
+	if ( tid == xcol_ ) axnm = toUiString("[%1]").arg(uiStrings::sX());
+	if ( tid == ycol_ ) axnm = toUiString("[%1]").arg(uiStrings::sY());
+	if ( tid == y2col_ ) axnm = toUiString("[%1]").arg(uiStrings::sY2());
 
-	BufferString colnm( tid == sortcol_ ? "*" : "" );;
-	if ( !axnm.isEmpty() ) colnm += axnm;
+	uiString colnm = ( tid == sortcol_ ? toUiString("*") : 
+						   uiStrings::sEmptyString() );;
+	if ( !axnm.isEmpty() ) colnm = axnm;
 
 	if ( tid == zcid )
-	    colnm += BufferString("Z (",zunitnm_,")");
+	    colnm = tr("%1 Z (%1)").arg(colnm).arg(zunitnm_);
 	else
-	    colnm += userName( dColID(tid) );
+	    colnm = toUiString("%1 %2").arg(colnm).arg(toUiString(
+							userName(dColID(tid))));
 
 	if ( tid > tbl_->nrCols()-1 )
 	    tbl_->insertColumns( tid, 1 );
@@ -701,26 +706,30 @@ class uiSelectPosDlg : public uiDialog
 { mODTextTranslationClass(uiSelectPosDlg);
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
-    : uiDialog( p, uiDialog::Setup("Select Position for new row",
-                                   0, mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(uiStrings::phrSelectPos(tr("for new row")),
+                                   uiStrings::sEmptyString(), mNoHelpKey) )
     , grpfld_(0)
 {
-    seltypefld_ = new uiGenInput( this, "Position type",
-			BoolInpSpec(true,"X/Y","In-line/Cross-Line") );
+    seltypefld_ = new uiGenInput( this, mJoinUiStrs(sPosition(), sType()),
+			BoolInpSpec(true,tr("X/Y"),toUiString("%1/%2").arg(
+			uiStrings::sInline()).arg(uiStrings::sCrossline())) );
     seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
 
-    posinpfld_ = new uiGenInput( this, "Input Position",
-			PositionInpSpec( PositionInpSpec::Setup(true)) );
+    posinpfld_ = new uiGenInput( this, 
+				uiStrings::phrInput(uiStrings::sPosition()),
+			        PositionInpSpec(PositionInpSpec::Setup(true)) );
     posinpfld_->attach( leftAlignedBelow, seltypefld_ );
 
-    BufferString zinptxt( "Z Value in " );
-    SI().zIsTime() ? zinptxt += "sec" : zinptxt += "Metre/Feet";
+    uiString zinptxt = tr("%1 in %2").arg(uiStrings::sZValue()).arg( 
+		       SI().zIsTime() ? uiStrings::sSec() : toUiString("%3/%4")
+		       .arg(uiStrings::sMeter()).arg(uiStrings::sFeet()));
     zinpfld_ = new uiGenInput( this, zinptxt, FloatInpSpec() );
     zinpfld_->attach( leftAlignedBelow, posinpfld_ );
 
     if ( grpnames.size()>1 )
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Select group" );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, 
+					  uiStrings::phrSelect(tr("group" )) );
 	grpfld_ = lcb->box();
 	grpfld_->addItems( grpnames );
 	grpfld_->attach( alignedBelow, zinpfld_ );
@@ -828,7 +837,7 @@ void uiDataPointSet::handleGroupChg( uiDataPointSet::DRowID drid )
 	BufferString txt( grptype_ );
 	if ( !txt.isEmpty() ) txt += ": ";
 	txt += grpnm;
-	statusBar()->message( txt, 0 );
+	statusBar()->message( toUiString(txt), 0 );
     }
 }
 
@@ -982,7 +991,7 @@ void uiDataPointSet::reDoTable()
     {
 	const UnitOfMeasure* mu = dps_.colDef(dcid).unit_;
 	if ( mu )
-	    tbl_->setColumnToolTip( tColID(dcid), mu->name() );
+	    tbl_->setColumnToolTip( tColID(dcid), mToUiStringTodo(mu->name()) );
     }
 
     const int nrrows = tbl_->nrRows();
@@ -1315,7 +1324,8 @@ void uiDataPointSet::retrieve( CallBacker* )
     ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-		"Manage Cross-plot Data", mCB(this,uiDataPointSet,manage) );
+		uiStrings::phrManage(mJoinUiStrs(sCrossPlot(),sData())), 
+		mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();
     curseldlg_ = 0;
@@ -1327,7 +1337,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     MouseCursorManager::restoreOverride();
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
+	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -1336,7 +1346,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( newdps->isEmpty() )
 	{ delete newdps; uiMSG().error(tr("Data set is not suitable"));return; }
 
-    setCaption( seldlg.ioObj()->name() );
+    setCaption( seldlg.ioObj()->uiName() );
     removeSelPts( 0 );
     tbl_->clearTable();
     dps_ = *newdps;
@@ -1360,7 +1370,8 @@ class uiDataPointSetSave : public uiDialog
 public:
 
 uiDataPointSetSave( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Create output","Specify output",
+    : uiDialog(p,uiDialog::Setup(uiStrings::sCreateOutput(),
+				 uiStrings::sSpecifyOut(),
                                  mODHelpKey(mdataPointSetSaveHelpID) ))
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
     , type_(typ)
@@ -1370,12 +1381,13 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), typ );
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
-    tabfld_ = new uiGenInput( this, "Output to",
-			BoolInpSpec(false,"Text file","OpendTect object") );
+    tabfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
+		  uiStrings::sOutput(),tr("to")),
+		  BoolInpSpec(false,tr("Text file"),tr("OpendTect object")) );
     tabfld_->valuechanged.notify( tccb );
     uiFileInput::Setup su;
     su.defseldir(GetDataDir()).forread(false).filter("*.txt");
-    txtfld_ = new uiFileInput( this, "Output file", su );
+    txtfld_ = new uiFileInput( this, uiStrings::sOutputFile(), su );
     txtfld_->attach( alignedBelow, tabfld_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, tabfld_ );
@@ -1455,12 +1467,12 @@ bool uiDataPointSet::doSave()
 			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
     MouseCursorManager::restoreOverride();
     if ( !ret )
-	uiMSG().error( errmsg );
+	uiMSG().error( mToUiStringTodo(errmsg) );
     else
     {
 	unsavedchgs_ = false;
 	if ( uidpss.ctio_.ioobj_ && !uidpss.istab_ )
-	    setCaption( uidpss.ctio_.ioobj_->name() );
+	    setCaption( uidpss.ctio_.ioobj_->uiName() );
     }
 
     return ret;
@@ -1723,7 +1735,8 @@ void uiDataPointSet::addColumn( CallBacker* )
 	unsavedchgs_ = true;
 	dps_.dataChanged();
 	runcalcs_ += 0;
-	tbl_->setColumnLabel( tbl_->nrCols()-1, dlg.newAttribName() );
+	tbl_->setColumnLabel( tbl_->nrCols()-1, 
+					      toUiString(dlg.newAttribName()) );
 	reDoTable();
     }
 }
@@ -1738,9 +1751,9 @@ void uiDataPointSet::removeColumn( CallBacker* )
     if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
     {
 	uiStringSet options;
-	if (tcolid == xcol_) options += uiString("X");
-	if (tcolid == ycol_) options += uiString("Y");
-	if (tcolid == y2col_) options += uiString("Y2");
+	if (tcolid == xcol_) options += uiStrings::sX();
+	if (tcolid == ycol_) options += uiStrings::sY();
+	if (tcolid == y2col_) options += uiStrings::sY2();
 
 	uiString msg = tr("This column is selected as data for %1 "
 			  "axis for the crossplot. Removing the column "
@@ -1795,8 +1808,8 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 			      nrgroups, errmsg, msgiserror );
     if ( !vvc.isOK() )
     {
-	msgiserror ? uiMSG().error( errmsg.buf() )
-		   : uiMSG().warning( errmsg.buf() );
+	msgiserror ? uiMSG().error( mToUiStringTodo(errmsg) )
+		   : uiMSG().warning( mToUiStringTodo(errmsg) );
 	return;
     }
 

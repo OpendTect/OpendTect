@@ -173,8 +173,8 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
-    : uiDialog(p,uiDialog::Setup("Cross-plot data merging",
-				 uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrCrossPlot(uiStrings::phrData(
+				 tr("merging"))), uiString::emptyString(),
                                  mODHelpKey(mDataPointSetMergerHelpID) ) )
     , mdps_(mdps)
     , sdps_(sdps)
@@ -184,27 +184,26 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     DPM( DataPackMgr::PointID() ).addAndObtain( mdps_ );
     DPM( DataPackMgr::PointID() ).addAndObtain( sdps_ );
  
-    BufferString capt( "Merge '" );
-    capt += mdps->name(); 
-    capt += "' with '";
-    capt += sdps_->name(); capt += "'";
+    uiString capt = uiStrings::phrMerge(tr("'%1' with '%2'")
+			       .arg(toUiString(mdps->name()))
+			       .arg(toUiString(sdps_->name())));
     setTitleText( capt );
 
     tbl_ = new uiTable( this,uiTable::Setup(mdps_->nrCols(),1)
 						.insertrowallowed(false)
 						.removerowallowed(false), "" );
     setTable();
-    uiLabel* tbllbl = new uiLabel( this, "Column matching" );
+    uiLabel* tbllbl = new uiLabel( this, tr("Column matching") );
     tbllbl->attach( leftOf, tbl_ );
 
     BufferString addtxt( "Add new column to '" );
     addtxt += mdps_->name(); addtxt += "'";
 
-    BufferString addcolmsg( "Policy for unused columns of '");
-    addcolmsg += sdps_->name(); addcolmsg += "'";
+    uiString addcolmsg = tr("Policy for unused columns of '%1'")
+						.arg(toUiString(sdps_->name()));
     addcoloptfld_ =
-	new uiGenInput( this, addcolmsg, BoolInpSpec(true,"add all",
-		    				     "ignore all") );
+	new uiGenInput(this, addcolmsg, BoolInpSpec(true,uiStrings::phrAdd(
+				         uiStrings::sAll()),tr("ignore all")));
     addcoloptfld_->attach( leftAlignedBelow, tbllbl );
     addcoloptfld_->attach( ensureBelow, tbl_ );
     
@@ -214,7 +213,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     matchopts.add( "Never match, add all new" );
     uiLabeledComboBox* mlcbox =
 	new uiLabeledComboBox( this, matchopts,
-			       "How do you want to match positions?" );
+			       tr("How do you want to match positions?") );
     mlcbox->attach( alignedBelow, addcoloptfld_ );
     matchpolfld_ = mlcbox->box();
     matchpolfld_->setHSzPol( uiObject::MedVar );
@@ -222,17 +221,15 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     matchpolfld_->selectionChanged.notify(
 	    mCB(this,uiDataPointSetMerger,matchPolChangedCB) );
 
-    BufferString maxtxt( "Search within a horizontal radius" );
-    maxtxt += SI().getXYUnitString();
-    maxtxt += " of";
+    uiString maxtxt = tr("Search within a horizontal radius %1 of")
+		      .arg(SI().getUiXYUnitString());
     distfld_ = new uiGenInput( this, maxtxt, FloatInpSpec() );
     distfld_->setElemSzPol( uiObject::Small );
     distfld_->attach( alignedBelow, mlcbox );
     distfld_->setValue( SI().inlDistance() );
     
-    BufferString ztxt( "and vertical distance" );
-    ztxt += SI().getZUnitString();
-    ztxt += " of";
+    uiString ztxt = tr("and vertical distance %1 of")
+						  .arg(SI().getUiZUnitString());
     zgatefld_ = new uiGenInput( this, ztxt, FloatInpSpec() );
     zgatefld_->setElemSzPol( uiObject::Small );
     zgatefld_->attach( rightTo, distfld_ );
@@ -248,18 +245,19 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 
     uiLabeledComboBox* rlcbox =
 	new uiLabeledComboBox( this, replaceopts,
-			       "Replace policy for matching positions" );
+			       tr("Replace policy for matching positions") );
     rlcbox->attach( alignedBelow, distfld_ );
     replacepolfld_ = rlcbox->box();
     replacepolfld_->setHSzPol( uiObject::MedVar );
 
     overwritefld_ =
-	new uiGenInput( this, "Undefined values",
-			BoolInpSpec(true,"Replace if possible","Keep") );
+	new uiGenInput( this, uiStrings::sUndefVal(),
+			BoolInpSpec(true,tr("Replace if possible"),tr("Keep")));
     overwritefld_->attach( alignedBelow, rlcbox );
 
     ctio_.ctxt_.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Cross-plot" );
+    outfld_ = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(
+						    uiStrings::sCrossPlot()) );
     outfld_->attach( alignedBelow, overwritefld_ ); 
 
     matchPolChangedCB( 0 );
@@ -285,7 +283,7 @@ void uiDataPointSetMerger::matchPolChangedCB( CallBacker* )
 
 void uiDataPointSetMerger::setTable()
 {
-    tbl_->setColumnLabel( 0, sdps_->name() );
+    tbl_->setColumnLabel( 0, toUiString(sdps_->name()) );
     BufferStringSet colnames;
     colnames.add( "None" );
     for ( int colnr=0; colnr<sdps_->nrCols(); colnr++ )
@@ -431,7 +429,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
 	merger.getNewDPS()->dataSet().putTo( dpsobj->fullUserExpr(false),
 					     errmsg, false );
     if ( !ret )
-	uiMSG().error( errmsg );
+	uiMSG().error( mToUiStringTodo(errmsg) );
 
     return true;
 }

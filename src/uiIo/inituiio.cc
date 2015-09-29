@@ -19,15 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiMMBatchJobDispatcherLauncher : public uiBatchJobDispatcherLauncher
-{
+{ mODTextTranslationClass(uiMMBatchJobDispatcherLauncher)
 public:
 
 uiMMBatchJobDispatcherLauncher( Batch::JobSpec& js )
     : uiBatchJobDispatcherLauncher(js) {}
 
 mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
-			uiMMBatchJobDispatcherLauncher,
-			Batch::JobSpec&,"Multi-Machine","Multi-Job/Machine");
+		       uiMMBatchJobDispatcherLauncher,
+		       Batch::JobSpec&,"Multi-Machine",tr("Multi-Job/Machine"));
 
     virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
     Batch::MMJobDispatcher		jd_;

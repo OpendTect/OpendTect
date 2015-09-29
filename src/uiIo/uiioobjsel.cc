@@ -152,17 +152,19 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( titletext.isEmpty() )
     {
 	if ( selgrp_->getContext().forread_ )
-	    titletext = tr("Select input %1%2");
+	    titletext = uiStrings::phrSelect(uiStrings::sInput().toLower());
 	else
-	    titletext = tr("Select output %1%2");
+	    titletext = uiStrings::phrSelect(uiStrings::sOutput().toLower());
 
 	if ( selgrp_->getContext().name().isEmpty() )
-	    titletext = titletext.arg( ctio.ctxt_.trgroup_->typeName() );
+	    titletext = toUiString("%1 %2").arg(titletext)
+					.arg( ctio.ctxt_.trgroup_->typeName() );
 	else
-	    titletext = titletext.arg( uiString( ctio.ctxt_.name() ) );
+	    titletext = toUiString("%1 %2").arg(titletext)
+				   .arg( mToUiStringTodo( ctio.ctxt_.name() ) );
 
-	titletext = titletext.arg( setup_.multisel_ ? "(s)"
-					: uiString::emptyString() );
+	titletext = toUiString("%1 %2").arg(titletext)
+	         .arg( setup_.multisel_ ? tr("(s)") : uiString::emptyString() );
     }
 
     setTitleText( titletext );
@@ -181,7 +183,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName() );
     else
-	captn = captn.arg( uiString( ctio.ctxt_.name() ) );
+	captn = captn.arg( mToUiStringTodo(ctio.ctxt_.name()) );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(
@@ -199,7 +201,7 @@ const IOObj* uiIOObjSelDlg::ioObj() const
 void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);
-    toStatusBar( msg );
+    toStatusBar( mToUiStringTodo(msg) );
 }
 
 
@@ -518,7 +520,8 @@ bool uiIOObjSel::commitInput()
 
 
 #define mErrRet(s) \
-{ if ( s && !alreadyerr ) uiMSG().error(s); alreadyerr = true; return false; }
+{ if ( !s.isEmpty() && !alreadyerr ) uiMSG().error(s); alreadyerr = true;  \
+return false; }
 
 
 bool uiIOObjSel::doCommitInput( bool& alreadyerr )
@@ -542,8 +545,8 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    if ( !workctio_.ctxt_.forread_ && wrtrselfld_
 		&& !wrtrselfld_->isEmpty()
 		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj_) )
-		mErrRet( "Cannot change the output format "
-			 "for an already existing entry" )
+		mErrRet( tr("Cannot change the output format "
+			 "for an already existing entry") )
 
 	    const bool isalreadyok = inctio_.ioobj_
 			    && inctio_.ioobj_->key() == workctio_.ioobj_->key();
@@ -553,12 +556,12 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		if ( exists )
 		{
 		    if ( workctio_.ioobj_->implReadOnly() )
-			mErrRet(BufferString("'",getInput(),
-					     "' exists and is read-only"))
+			mErrRet(tr("'%1' exists and is read-only").arg(
+				getInput()))
 		    if ( setup_.confirmoverwr_ && !uiMSG().askGoOn(
-				BufferString("'",getInput(),
-					     "' already exists. Overwrite?")) )
-			mErrRet(0)
+				tr("'%1' already exists. Overwrite?")
+				.arg(getInput())) )
+			mErrRet(uiStrings::sEmptyString())
 		}
 	    }
 
@@ -566,9 +569,9 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    commitSucceeded(); return true;
 	}
 
-	mErrRet(BufferString("'",getInput(),
-		    "' already exists as another object type."
-		    "\nPlease enter another name.") )
+	mErrRet(tr("'%1' already exists as another object type."
+	       "\nPlease enter another name.").arg(getInput()))
+		    
     }
     if ( workctio_.ctxt_.forread_ )
 	return false;

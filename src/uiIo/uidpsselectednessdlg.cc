@@ -35,10 +35,9 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
     , selaxisfld_(0)
     , coltabfld_(0)
 {
-    BufferString capt( "Calculating selectedness of '" );
     const SelectionGrp* curgrp = plotter_.selectionGrps()[plotter_.curSelGrp()];
-    capt += curgrp->name();
-    capt += "'";
+    uiString capt = tr("Calculating selectedness of '%1'")
+					      .arg(toUiString(curgrp->name()));
     setCaption( capt );
     setHelpKey( mODHelpKey(mDPSSelectednessDlgHelpID) );
 

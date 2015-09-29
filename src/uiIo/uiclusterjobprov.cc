@@ -180,13 +180,14 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
-    parfilefld_ = new uiFileInput( this, "Par file",
-		uiFileInput::Setup(uiFileDialog::Gen,parfnm)
-		.forread(false).filter("*.par;;").confirmoverwrite(false) );
+    parfilefld_ = new uiFileInput( this, uiStrings::sParFile(),
+		    uiFileInput::Setup(uiFileDialog::Gen,parfnm)
+		    .forread(false).filter("*.par;;").confirmoverwrite(false) );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
-    tmpstordirfld_ = new uiFileInput( this, "Temporary storage directory",
-				      tempstordir_.buf() );
+    tmpstordirfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
+				    tr("Temporary"), uiStrings::sStorageDir()),
+				    tempstordir_.buf() );
     tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
@@ -197,8 +198,8 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     fp.setFileName( filenm.buf() );
     if ( !File::isDirectory(fp.fullPath()) )
 	File::createDir( fp.fullPath() );
-    scriptdirfld_ = new uiFileInput( this, "Storage directory for scripts",
-				     fp.fullPath() );
+    scriptdirfld_ = new uiFileInput( this, uiStrings::phrStorageDir(
+				     tr("for scripts")), fp.fullPath() );
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
@@ -219,9 +220,8 @@ uiClusterJobProv::~uiClusterJobProv()
 void uiClusterJobProv::nrJobsCB( CallBacker* )
 {
     jobprov_->setNrInlsPerJob( nrinlfld_->getIntValue() );
-    BufferString lbltxt( "Total no. of jobs: " );
-    lbltxt += jobprov_->nrJobs();
-    nrjobsfld_->setText( lbltxt.buf() );
+    uiString lbltxt = tr("Total no. of jobs: %1").arg(jobprov_->nrJobs());
+    nrjobsfld_->setText( lbltxt );
     return;
 }
 
@@ -280,7 +280,8 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	comm += " "; comm += "od_ClusterProc";
 	comm += " --dosubmit "; comm += parfnm;
 	if ( !OS::ExecCommand(comm,OS::RunInBG) )
-	    { uiMSG().error( "Cannot start batch program" ); return false; }
+	    { uiMSG().error( uiStrings::phrCannotStart(
+			     uiStrings::sBatchProgram()) ); return false; }
     }
 
     return true;

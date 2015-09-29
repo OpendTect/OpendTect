@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
+#include "uistrings.h"
 
 #include "angles.h"
 #include "draw.h"
@@ -114,7 +115,7 @@ void uiSurveyBoxObject::update()
 	Alignment al( Alignment::HCenter,
 		      bot ? Alignment::Top : Alignment::Bottom );
 	labels_[idx]->setPos( mapcnr[idx] );
-	labels_[idx]->setText( bid.toString() );
+	labels_[idx]->setText( toUiString(bid.toString()) );
 	labels_[idx]->setAlignment( al );
 	labels_[idx]->setVisible( showlabels_ );
     }
@@ -203,17 +204,17 @@ void uiNorthArrowObject::update()
     float usrang100 = usrang * 100;
     if ( usrang100 < 0 ) usrang100 = -usrang100;
     int iusrang = (int)(usrang100 + .5);
-    BufferString angtxt;
+    uiString angtxt;
     if ( iusrang )
     {
-	angtxt += iusrang / 100;
+	angtxt = toUiString(iusrang / 100);
 	iusrang = iusrang % 100;
 	if ( iusrang )
 	{
-	    angtxt += ".";
-	    angtxt += iusrang / 10; iusrang = iusrang % 10;
+	    angtxt = toUiString("%1.%2").arg(angtxt).arg(iusrang/10);
+	    iusrang = iusrang % 10;
 	    if ( iusrang )
-		angtxt += iusrang;
+		angtxt = toUiString("%1 %2").arg(angtxt).arg(iusrang);
 	}
     }
 
@@ -240,7 +241,8 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     if ( withtitle )
     {
 	title_ = view_.scene().addItem(
-		new uiTextItem(uiPoint(10,10),"Survey name",txtalign) );
+		new uiTextItem(uiPoint(10,10),mJoinUiStrs(sSurvey(),sName()),
+								    txtalign) );
 	title_->setPenColor( Color::Black() );
 	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }
@@ -280,7 +282,7 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	const double diffy = maxcoord.y - mincoord.y;
 	const uiWorldRect wr( mincoord.x-diffx/4, maxcoord.y+diffy/4,
 			      maxcoord.x+diffx/4, mincoord.y-diffy/4 );
-	if ( title_ ) title_->setText( survinfo_->name().buf() );
+	if ( title_ ) title_->setText( toUiString(survinfo_->name()) );
 	setView( wr );
     }
 }

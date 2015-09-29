@@ -1348,10 +1348,10 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 	    txt += r100%10 ? r100 : r100 / 10;
 	}
 
-	yah.annotAtEnd( txt );
+	yah.annotAtEnd( toUiString(txt) );
     }
     else
-	yah.annotAtEnd( 0 );
+	yah.annotAtEnd( uiStrings::sEmptyString() );
 }
 
 

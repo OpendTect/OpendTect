@@ -67,7 +67,8 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
 
-    swfld_ = new uiCheckBox( this, islat_ ? "S" : "W" );
+    swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) : 
+					    uiStrings::sWest(true) );
     swfld_->attach( rightOf, secfld_ );
     swfld_->setHSzPol( uiObject::Small );
 }
@@ -106,15 +107,15 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     uiButtonGroup* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp",
 					     OD::Vertical );
     bgrp->setExclusive( true );
-    isdecbut_ = new uiRadioButton( bgrp, "Decimal" );
+    isdecbut_ = new uiRadioButton( bgrp, uiStrings::sDecimal() );
     isdecbut_->setChecked( true );
     isdecbut_->activated.notify( tscb );
-    uiRadioButton* isdmsbut = new uiRadioButton( bgrp, "DMS" );
+    uiRadioButton* isdmsbut = new uiRadioButton( bgrp, tr("DMS") );
     isdmsbut->activated.notify( tscb );
 
     uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
-    uiLabel* latlbl = new uiLabel( lblgrp, "Latitude" );
-    uiLabel* lnglbl = new uiLabel( lblgrp, "Longitude" );
+    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
+    uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
     lnglbl->attach( alignedBelow, latlbl );
     lblgrp->setHAlignObj( latlbl );
 
@@ -190,24 +191,24 @@ void uiLatLongInp::set( const LatLong& ll, int opt )
 
 uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
 					const SurveyInfo* si )
-    : uiDialog(p,uiDialog::Setup("Lat/Long vs Coordinates",
-	     "Estimation of geographical coordinates from/to "
-	     "the rectangular survey coordinates",
+    : uiDialog(p,uiDialog::Setup(tr("Lat/Long vs Coordinates"),
+	     tr("Estimation of geographical coordinates from/to "
+	     "the rectangular survey coordinates"),
 				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
     , ll2c_(*new LatLong2Coord(l))
     , si_(si?si:&SI())
 {
-    coordfld_ = new uiGenInput( this, "Coordinate in or near survey",
+    coordfld_ = new uiGenInput( this, tr("Coordinate in or near survey"),
 				DoubleInpSpec(), DoubleInpSpec() );
     uiToolButton* tb = new uiToolButton( this, "xy2ll",
-			    "Transform file from/to lat long",
+			    tr("Transform file from/to lat long"),
 			    mCB(this,uiLatLong2CoordDlg,transfFile) );
     tb->attach( rightTo, coordfld_ );
     tb->attach( rightBorder );
 
     latlngfld_ = new uiLatLongInp( this );
     latlngfld_->attach( alignedBelow, coordfld_ );
-    new uiLabel( this, "Corresponds to", latlngfld_ );
+    new uiLabel( this, tr("Corresponds to"), latlngfld_ );
 
     if ( ll2c_.isOK() )
     {
@@ -234,14 +235,16 @@ uiLatLong2CoordFileTransDlg( uiParent* p, const LatLong2Coord& ll2c )
 {
     uiFileInput::Setup fisu( uiFileDialog::Txt );
     fisu.forread( true ).exameditable( true );
-    inpfld_ = new uiFileInput( this, "Input file", fisu );
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()), 
+									fisu );
 
     tollfld_ = new uiGenInput( this, tr("Transform"), BoolInpSpec( true,
 			    tr("X Y to Lat Long"), tr("Lat Long to X Y") ) );
     tollfld_->attach( alignedBelow, inpfld_ );
 
     fisu.forread( false ).withexamine( false );
-    outfld_ = new uiFileInput( this, "Output file", fisu );
+    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()),
+									fisu );
     outfld_->attach( alignedBelow, tollfld_ );
 }
 

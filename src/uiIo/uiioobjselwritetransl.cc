@@ -98,7 +98,7 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
 {
     selfld_ = new uiComboBox( this, "Write translator field" );
     if ( withopts )
-	lbl_ = new uiLabel( this, "Write to", selfld_ );
+	lbl_ = new uiLabel( this, tr("Write to"), selfld_ );
 
     int cur = 0;
     for ( int idx=0; idx<trs_.size(); idx++ )
@@ -108,7 +108,7 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
 	if ( ctio.ioobj_ && trnm == ctio.ioobj_->translator() )
 	    cur = idx;
 
-	selfld_->addItem( trnm );
+	selfld_->addItem( toUiString(trnm) );
 
 	BufferString icnm( trl.iconName() );
 	if ( !icnm.isEmpty() )
@@ -256,7 +256,7 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
     {
 	if ( !fld->fill(ioobj.pars()) )
 	{
-	    uiMSG().error( fld->errMsg() );
+	    uiMSG().error( mToUiStringTodo(fld->errMsg()) );
 	    return;
 	}
 

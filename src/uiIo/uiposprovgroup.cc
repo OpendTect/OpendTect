@@ -173,7 +173,7 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     , stepfld_(0)
 {
     ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon() );
+    polyfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
 
     uiGroup* attachobj = polyfld_;
     if ( su.withstep_ )
@@ -226,7 +226,7 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Polygon() );
     if ( !polyfld_->commitInput() || !polyfld_->fillPar(iop,sKey::Polygon()) )
-	mErrRet("Please select the polygon")
+	mErrRet(uiStrings::phrSelect(uiStrings::sPolygon()))
 
     const BinID stps(
 	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hsamp_.step_ );
@@ -280,12 +280,14 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 {
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
-    selfld_ = new uiGenInput( this, "Data from",
-	    		      BoolInpSpec(true,"Pick Set","Table file") );
+    selfld_ = new uiGenInput(this, uiStrings::phrJoinStrings(uiStrings::sData(),
+	    		     tr("from")), BoolInpSpec(true,uiStrings::sPickSet()
+			     ,uiStrings::phrJoinStrings(tr("Table"),
+			     uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiIOObjSel( this, ctio_ );
     psfld_->attach( alignedBelow, selfld_ );
-    tffld_ = new uiIOFileSelect( this, sKey::FileName(), true,
+    tffld_ = new uiIOFileSelect( this, toUiString(sKey::FileName()), true,
 	    			 GetDataDir(), true );
     tffld_->getHistory( uiIOFileSelect::ixtablehistory() );
     tffld_->attach( alignedBelow, selfld_ );
@@ -321,16 +323,16 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
     if ( selfld_->getBoolValue() )
     {
 	if ( !psfld_->fillPar(iop,sKey::Table()) )
-	    mErrRet("Please select the Pick Set")
+	    mErrRet(uiStrings::phrSelect(uiStrings::sPickSet()))
 	iop.removeWithKey( mGetTableKey(sKey::FileName()) );
     }
     else
     {
 	const BufferString fnm = tffld_->getInput();
 	if ( fnm.isEmpty() )
-	    mErrRet("Please provide the table file name")
+	    mErrRet(tr("Provide the table file name"))
 	else if ( File::isEmpty(fnm.buf()) )
-	    mErrRet("Please select an existing/readable file")
+	    mErrRet(tr("Select an existing/readable file"))
 	iop.set( mGetTableKey(sKey::FileName()), fnm );
 	iop.removeWithKey( mGetTableKey("ID") );
     }

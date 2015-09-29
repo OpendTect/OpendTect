@@ -39,15 +39,18 @@ static IOObjContext mkCtxt()
 }
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Geometry")),mNoDlgTitle,
-				     mODHelpKey(m2DGeomManageDlgHelpID))
+    : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Geometry")),
+			       mNoDlgTitle, mODHelpKey(m2DGeomManageDlgHelpID))
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
-    selgrp_->getManipGroup()->addButton( "trashcan", "Remove this Line",
-			 mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
-    selgrp_->getManipGroup()->addButton( "browse2dgeom", "Manage Line Geometry",
-			 mCB(this,ui2DGeomManageDlg,manLineGeom) );
+    selgrp_->getManipGroup()->addButton( "trashcan", uiStrings::phrRemove(
+		     uiStrings::phrJoinStrings(tr("this"),uiStrings::sLine())),
+		     mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
+    selgrp_->getManipGroup()->addButton( "browse2dgeom", 
+	     mJoinUiStrs(sManage(), phrJoinStrings(uiStrings::sLine(),
+	     uiStrings::sGeometry())),
+	     mCB(this,ui2DGeomManageDlg,manLineGeom) );
 }
 
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
@@ -62,18 +65,21 @@ class uiManageLineGeomDlg : public uiDialog
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
-    : uiDialog(p,uiDialog::Setup("Manage Line Geometry",mNoDlgTitle,
-				 mODHelpKey(mManageLineGeomDlgHelpID)))
+    : uiDialog(p,uiDialog::Setup( mJoinUiStrs(sManage(),
+				  phrJoinStrings(uiStrings::sLine(), 
+			          uiStrings::sGeometry())),mNoDlgTitle,
+				  mODHelpKey(mManageLineGeomDlgHelpID)))
     , linenm_(linenm),readonly_(readonly)
 {
     if ( readonly )
     {
 	setCtrlStyle( CloseOnly );
-	setCaption( "Browse Line Geometry" );
+	setCaption( uiStrings::phrJoinStrings(tr("Browse"), 
+		    mJoinUiStrs(sLine(), sGeometry())) );
     }
 
-    BufferString lbl( "Linename : ");
-    lbl.add( linenm );
+    uiString lbl( tr("%1 : %2").arg(mJoinUiStrs(sLine(),sName()))
+			       .arg(toUiString(linenm)) );
 
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
@@ -97,15 +103,17 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 	table_->setTableReadOnly( true );
 
     FloatInpIntervalSpec spec( true );
-    rgfld_ = new uiGenInput( this, "Z-Range", spec );
+    rgfld_ = new uiGenInput( this, uiStrings::sZRange(), spec );
     rgfld_->attach( leftAlignedBelow, table_ );
     rgfld_->setValue( geom2d->data().zRange() );
     rgfld_->setReadOnly( readonly );
 
     if ( !readonly )
     {
-	readnewbut_ = new uiPushButton( this, "Import New Geometry ...",
-			    mCB(this,uiManageLineGeomDlg,impLineGeom), true );
+	readnewbut_ = new uiPushButton( this, mJoinUiStrs(sImport(),
+			phrJoinStrings(uiStrings::sNew(),
+			uiStrings::sGeometry())),
+			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
 	readnewbut_->attach( centeredBelow, rgfld_ );
     }
 
@@ -120,13 +128,18 @@ class uiGeom2DImpDlg : public uiDialog
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
-    : uiDialog(p,uiDialog::Setup("Import new Line Geometry",linenm,
+    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sImport(),
+				 phrJoinStrings(uiStrings::sNew(), 
+				 uiStrings::phrJoinStrings(uiStrings::sLine(),
+				 uiStrings::sGeometry()))),
+				 toUiString(linenm),
 				 mODHelpKey(mGeom2DImpDlgHelpID)))
 {
     setOkText( uiStrings::sImport() );
     Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
-    geom2dinfld_ = new uiFileInput( this, "2D geometry File",
-				    uiFileInput::Setup().withexamine(true) );
+    geom2dinfld_ = new uiFileInput( this, mJoinUiStrs(s2D(), phrJoinStrings(
+				   uiStrings::sGeometry(), uiStrings::sFile())),
+				   uiFileInput::Setup().withexamine(true) );
     dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
     dataselfld_->attach( alignedBelow, geom2dinfld_ );
 }
@@ -403,10 +416,9 @@ bool Geom2DImpHandler::confirmOverwrite( const BufferStringSet& lnms )
 
 bool Geom2DImpHandler::confirmOverwrite( const char* lnm )
 {
-    uiString msg =
-	tr("The 2D Line '%1' already exists. If you overwrite "
-	   "its geometry, all the associated data will be "
-	   "affected. Do you still want to overwrite?")
-	.arg(lnm);
+    uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
+		      "its geometry, all the associated data will be "
+		      "affected. Do you still want to overwrite?")
+		      .arg(lnm);
     return uiMSG().askOverwrite( msg );
 }

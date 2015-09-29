@@ -28,17 +28,17 @@ ________________________________________________________________________
 
 template <class T>
 mClass(Algo) ArrayNDGentleSmoother : public Executor
-{
+{ mODTextTranslationClass(ArrayNDGentleSmoother)
 public:
 
 			ArrayNDGentleSmoother(const ArrayND<T>&,
 					      ArrayND<T>&);
     virtual		~ArrayNDGentleSmoother()	{}
 
-    uiString		uiMessage() const	{ return "Smoothing"; }
+    uiString		uiMessage() const	{ return tr("Smoothing"); }
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return "Points handled"; }
+    uiString		uiNrDoneText() const	{ return tr("Points handled"); }
 
     int			nextStep();
 

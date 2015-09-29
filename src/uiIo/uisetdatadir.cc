@@ -59,22 +59,22 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 {
     const bool oldok = IOMan::isValidDataRoot( curdatadir_ );
     BufferString oddirnm, basedirnm;
-    const char* titletxt = 0;
+    uiString titletxt;
 
     if ( !curdatadir_.isEmpty() )
     {
 	if ( oldok )
 	{
-	    titletxt =	"Locate an OpendTect Data Root directory\n"
-			"or specify a new directory name to create";
+	    titletxt =	tr("Locate an OpendTect Data Root directory\n"
+			"or specify a new directory name to create");
 	    basedirnm = curdatadir_;
 	}
 	else
 	{
-	    titletxt =	"OpendTect needs a place to store your data files.\n"
+	    titletxt =	tr("OpendTect needs a place to store your data files.\n"
 			"\nThe current OpendTect Data Root is invalid.\n"
 			"* Locate a valid data root directory\n"
-			"* Or specify a new directory name to create";
+			"* Or specify a new directory name to create");
 
 	    FilePath fp( curdatadir_ );
 	    oddirnm = fp.fileName();
@@ -84,7 +84,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     else
     {
 	titletxt =
-	    "OpendTect needs a place to store your data files:"
+	    tr("OpendTect needs a place to store your data files:"
 	    " the OpendTect Data Root.\n\n"
 	    "You have not yet specified a location for it,\n"
 	    "and there is no 'DTECT_DATA' set in your environment.\n\n"
@@ -95,13 +95,13 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	    "individual cubes on other disks;\nbut this is where the "
 	    "'base' data store will be."
 #endif
-	    ;
+	    );
 	oddirnm = "ODData";
 	basedirnm = GetPersonalDir();
     }
     setTitleText( titletxt );
 
-    const char* basetxt = "OpendTect Data Root Directory";
+    const uiString basetxt = tr("OpendTect Data Root Directory");
     basedirfld_ = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
 			      .directories(true) );
@@ -181,7 +181,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 		     "Instead, a directory like 'My Documents' would be OK.") )
 #endif
 	if ( !File::createDir( datadir ) )
-	    mErrRet( uiStrings::phrCannotCreateDirectory(datadir) )
+	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(datadir)) )
     }
 
     while ( !IOMan::isValidDataRoot(datadir) )
@@ -236,7 +236,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 
     retmsg = doSetRootDataDir( datadir );
     if ( retmsg )
-	{ uiMSG().error( retmsg ); return false; }
+	{ uiMSG().error( mToUiStringTodo(retmsg) ); return false; }
 
     return true;
 }
@@ -261,7 +261,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 	    uiDesktopServices::openUrl( "https://opendtect.org/osr" );
 	}
     };
-    uiGetChoice uigc( par, opts, "Please select next action" );
+    uiGetChoice uigc( par, opts, uiStrings::phrSelect(tr("next action")) );
     OSRPageShower ps;
     uiPushButton* pb = new uiPushButton( &uigc,
 				 tr("visit OSR web site (for free surveys)"),

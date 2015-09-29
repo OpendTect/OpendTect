@@ -117,12 +117,13 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
 
     const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
     if ( withreloc )
-	locbut = addButton( FileLocation, "Change location on disk", cb );
-    renbut = addButton( Rename, "Rename this object", cb );
-    robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
-    setAlternative( robut, "unlock", "Toggle Read only : editable" );
+	locbut = addButton( FileLocation, tr("Change location on disk"), cb );
+    renbut = addButton( Rename, uiStrings::phrRename(tr("this object")), cb );
+    robut = addButton( ReadOnly, tr("Toggle Read only : locked"), cb );
+    setAlternative( robut, "unlock", tr("Toggle Read only : editable") );
     if ( withremove )
-	rembut = addButton( Remove, "Delete selected", cb );
+	rembut = addButton( Remove, uiStrings::phrJoinStrings(
+				    uiStrings::sDelete(), tr("Selected")), cb );
     attach( rightOf, subj_.obj_ );
 }
 
@@ -162,13 +163,13 @@ void uiIOObjManipGroup::selChg()
 
     IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
-    BufferString tt;
+    uiString tt;
 #define mSetTBStateAndTT4Cur(tb,cond,oper) \
     tb->setSensitive( cond ); \
     if ( !cond ) \
 	tt.setEmpty(); \
     else \
-	tt.set( oper ).add(" '").add( curioobj->name() ).add("'"); \
+	tt = toUiString("%1 '%2'").arg(oper).arg(curioobj->uiName()); \
     tb->setToolTip( tt )
 
     mDynamicCastGet(IOStream*,curiostrm,curioobj)
@@ -184,7 +185,8 @@ void uiIOObjManipGroup::selChg()
     if ( !cond ) \
 	tt.setEmpty(); \
     else \
-	tt.set( oper ).add(" ").add( chosennames.getDispString(3) ); \
+	tt = toUiString("%1 %2").arg(oper).arg(mToUiStringTodo( \
+						chosennames.getDispString(3)));\
     tb->setToolTip( tt )
 
     mDynamicCastGet(IOStream*,firstchoseniostrm,firstchosenioobj)
@@ -271,9 +273,9 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 
 bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 {
-    BufferString titl( "Rename '" );
-    titl += ioobj.name(); titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name",
+    uiString titl = toUiString("%1Rename '%2'").arg(uiStrings::sRename())
+					       .arg(ioobj.uiName());
+    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(), sName()),
 			new StringInpSpec(ioobj.name()) );
     if ( !dlg.go() ) return false;
 
@@ -384,7 +386,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 
     uiStringSet selnms;
     for (int idx = 0; idx<ioobjs.size(); idx++)
-	selnms += ioobjs[idx]->name();
+	selnms += ioobjs[idx]->uiName();
 
     info.arg( selnms.createOptionString(true,10,'\n') );
     if ( !uiMSG().askRemove( info ) )
@@ -400,8 +402,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 {
     mDynamicCastGet(IOStream&,iostrm,ioobj)
-    BufferString caption( "New file location for '" );
-    caption += ioobj.name(); caption += "'";
+    uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
     BufferString oldfnm( iostrm.fullUserExpr() );
     BufferString filefilt;
     BufferString defext( subj_.defExt() );

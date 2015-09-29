@@ -154,7 +154,7 @@ bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
     IOM().commitChanges( ioobj );
     BufferString bs;
     if ( !PickSetTranslator::store( ps, &ioobj, bs ) )
-	{ uiMSG().error(bs); return false; }
+	{ uiMSG().error(mToUiStringTodo(bs)); return false; }
 
     return true;
 }
@@ -165,17 +165,20 @@ class uiMergePickSets : public uiDialog
 public:
 
 uiMergePickSets( uiParent* p, MultiID& mid )
-    : uiDialog(p,uiDialog::Setup("Merge Pick Sets","Specify sets to merge",
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPickSet()),
+				 tr("Specify sets to merge"),
 				 mODHelpKey(mMergePickSetsHelpID) ))
     , ctioin_( PickSetTranslatorGroup::ioContext() )
     , ctioout_( PickSetTranslatorGroup::ioContext() )
     , mid_(mid)
 {
     ctioin_.setObj( IOM().get(mid_) );
-    selfld = new uiIOObjSelGrp( this, ctioin_, "Select Pick Sets to merge",
-			uiIOObjSelGrp::Setup(OD::ChooseZeroOrMore) );
+    selfld = new uiIOObjSelGrp( this, ctioin_, uiStrings::phrSelect(
+	     uiStrings::phrJoinStrings(uiStrings::sPickSet(), tr("to Merge"))),
+	     uiIOObjSelGrp::Setup(OD::ChooseZeroOrMore) );
     ctioout_.ctxt_.forread_ = false;
-    outfld = new uiIOObjSel( this, ctioout_, "Output merged set" );
+    outfld = new uiIOObjSel( this, ctioout_, uiStrings::phrOutput(
+							    tr("merged set")) );
     outfld->attach( alignedBelow, selfld );
 }
 
@@ -193,7 +196,8 @@ bool acceptOK( CallBacker* )
     { uiMSG().error(tr("Please select at least two sets")); return false; }
     else if (!outfld->commitInput())
     {
-	uiMSG().error(uiStrings::phrCannotCreate( outfld->getInput() ));
+	uiMSG().error(uiStrings::phrCannotCreate( 
+					mToUiStringTodo(outfld->getInput()) ));
 	return false;
     }
 
@@ -237,7 +241,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 	    if ( PickSetTranslator::retrieve(*newset,ioobj,true, msg) )
 		{ pss += newset; pssread += newset; }
 	    else
-		uiMSG().warning( msg );
+		uiMSG().warning( mToUiStringTodo(msg) );
 	    delete ioobj;
 	}
     }
@@ -255,7 +259,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 
     BufferString msg;
     if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj_,msg) )
-	uiMSG().error( msg );
+	uiMSG().error( mToUiStringTodo(msg) );
 
     dlg.ctioout_.ioobj_->pars().set( sKey::Type(),
 	    PickSetTranslatorGroup::sKeyPickSet() );
