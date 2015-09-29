@@ -342,15 +342,15 @@ StringListInpSpec::StringListInpSpec( const char** sl )
 	strings_.add( toUiString(sl[idx]) );
 }
 
-StringListInpSpec::StringListInpSpec( const uiString* strings )
+StringListInpSpec::StringListInpSpec( const uiString* strs )
     : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
     , enumdef_( 0 )
 {
-    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
-	strings_.add( strings[idx] );
+    for ( int idx=0; !strs[idx].isEmpty(); idx++ )
+	strings_.add( strs[idx] );
 }
 
 
