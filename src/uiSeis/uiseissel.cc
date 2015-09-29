@@ -124,8 +124,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	titletxt = titletxt.arg( sssu.seltxt_ );
     else
 	titletxt = titletxt.arg( isps
-                ? tr("Data Store")
-			: (is2d ? tr("Dataset") : uiStrings::sVolume()) );
+		? tr("Data Store")
+		: (is2d ? tr("Dataset") : uiStrings::sVolume()) );
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
@@ -134,14 +134,12 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     if ( !selgrp_->getCtxtIOObj().ctxt_.forread_ && Seis::is2D(sssu.geom_) )
 	selgrp_->setConfirmOverwrite( false );
-    entrySel(0);
 
     if ( selgrp_->getCtxtIOObj().ctxt_.forread_ && sssu.selectcomp_ )
     {
 	compfld_ = new uiLabeledComboBox( selgrp_, uiStrings::sComponent(),
-                                          "Compfld" );
+					  "Compfld" );
 	compfld_->attach( alignedBelow, topgrp );
-
 	entrySel(0);
     }
 }
