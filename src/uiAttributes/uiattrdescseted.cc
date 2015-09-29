@@ -715,7 +715,8 @@ bool uiAttribDescSetEd::doAcceptInputs()
 		const char* attribname = desc->userRef();
 		uiString msg = tr("Input is not correct for attribute '%1'.")
 			       .arg(attribname);
-		uiStringSet messages( errmsg );
+		uiStringSet messages;
+		messages += errmsg;
 		uiMSG().errorWithDetails( messages, msg );
 	    }
 	    return false;

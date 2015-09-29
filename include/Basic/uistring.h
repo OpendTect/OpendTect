@@ -133,22 +133,22 @@ public:
 				    should be deleted using the [] operator. */
     const char*			getOriginalString() const;
     const mQtclass(QString)&	getQString() const;
-                        	/*!<Returns reference, so could be unsafe */
+	/*!<Returns reference, so could be unsafe */
     const mQtclass(QString)&	fillQString(QString&) const;
 				/*!<Fully thread-safe. Returns input*/
 
     void			getHexEncoded(BufferString&) const;
-    				/*!<Encodes translated string into a const char*
-			    	    buffer that can has only 0-9 A-F */
+				/*!<Encodes translated string into a const char*
+				    buffer that can has only 0-9 A-F */
     bool			setFromHexEncoded(const char*);
-    				//!Reads hex-data and sets the translated str.
+				//!Reads hex-data and sets the translated str.
 private:
 
 #ifdef __debug__
     char*	debugstr_;	//!< Contains getFullString() for easy debugging
 #endif
     bool			isCacheValid() const;
-    const mQtclass(QString)& 	getQStringInternal() const;
+    const mQtclass(QString)&	getQStringInternal() const;
 
     friend class		uiStringData;
     mutable uiStringData*	data_;
@@ -218,7 +218,6 @@ public:
 		/*!<Adds list of strings until an empty string is found. */
 		uiStringSet( const uiStringSet& sl )
 		    : TypeSet<uiString>(sl)		{}
-		uiStringSet( const uiString& s )	{ add( s ); }
 
     uiString	createOptionString(bool use_and=true,int maxnritems=-1,
 				   char space = ' ') const;

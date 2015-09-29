@@ -89,8 +89,8 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     uiTaskRunner taskrunner( par, false ); uiString emsg;
     if ( !ZipUtils::unZipArchive(zipfnm,destdir,emsg,&taskrunner) )
     {
-	uiStringSet detailedmsg(uiStrings::phrCannotUnZip(
-						         uiStrings::sSurvey()));
+	uiStringSet detailedmsg;
+	detailedmsg += uiStrings::phrCannotUnZip( uiStrings::sSurvey() );
 	detailedmsg += emsg;
 	uiMSG().errorWithDetails( detailedmsg );
 	return false;
@@ -132,7 +132,7 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     {
 	uiFileDialog fd( par, false, 0,"*.zip",uiStrings::phrSelect(
 			 uiStrings::phrOutput(uiStrings::phrJoinStrings(
-			 uiStrings::sSurvey(), uiStrings::sZip(), 
+			 uiStrings::sSurvey(), uiStrings::sZip(),
 			 uiStrings::sFile()))));
 	if ( !fd.go() )
 	    return false;
@@ -142,7 +142,8 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     uiTaskRunner taskrunner( par, false ); uiString emsg;
     if ( !ZipUtils::makeZip(zipfnm,inpdir,emsg,&taskrunner) )
     {
-	uiStringSet detailedmsg(uiStrings::phrCannotZip(uiStrings::sSurvey()));
+	uiStringSet detailedmsg;
+	detailedmsg += uiStrings::phrCannotZip( uiStrings::sSurvey() );
 	detailedmsg += emsg;
 	uiMSG().errorWithDetails( detailedmsg );
 	return false;
