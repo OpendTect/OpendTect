@@ -526,9 +526,12 @@ void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 
 
 // ODGraphicsAdvancedTextItem
-ODGraphicsAdvancedTextItem::ODGraphicsAdvancedTextItem()
+ODGraphicsAdvancedTextItem::ODGraphicsAdvancedTextItem( bool centered )
     : QGraphicsTextItem()
-{}
+{
+    if ( centered )
+	document()->setDefaultTextOption( QTextOption(Qt::AlignCenter) );
+}
 
 
 void ODGraphicsAdvancedTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* ev )

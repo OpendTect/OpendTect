@@ -659,18 +659,23 @@ void uiTextItem::setTextColor( const Color& col )
 
 
 // uiAdvancedTextItem
-uiAdvancedTextItem::uiAdvancedTextItem()
-    : uiGraphicsItem( mkQtObj() )
+uiAdvancedTextItem::uiAdvancedTextItem( bool centered )
+    : uiGraphicsItem(0)
     , al_(Alignment::Left,Alignment::Top)
+    , textiscentered_(centered)
 {
+    qgraphicsitem_ = mkQtObj();
 }
 
 
 uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt,
-					const Alignment& al )
-    : uiGraphicsItem( mkQtObj() )
+					const Alignment& al,
+					bool centered )
+    : uiGraphicsItem(0)
     , al_(al)
+    , textiscentered_(centered)
 {
+    qgraphicsitem_ = mkQtObj();
     setPlainText( txt );
 }
 
@@ -727,8 +732,12 @@ void uiAdvancedTextItem::setDefaultTextColor( const Color& col )
 }
 
 
-void uiAdvancedTextItem::setFont( const uiFont& font )
-{ qtextitem_->setFont( font.qFont() ); }
+void uiAdvancedTextItem::setFont( const FontData& fd )
+{
+    QFont qfont;
+    uiFont::setFontData( qfont, fd );
+    qtextitem_->setFont( qfont );
+}
 
 
 void uiAdvancedTextItem::setPlainText( const uiString& txt )
@@ -753,7 +762,7 @@ void uiAdvancedTextItem::setTextIteraction( bool yn )
 
 QGraphicsItem* uiAdvancedTextItem::mkQtObj()
 {
-    qtextitem_ = new ODGraphicsAdvancedTextItem();
+    qtextitem_ = new ODGraphicsAdvancedTextItem( textiscentered_ );
     return qtextitem_;
 }
 
