@@ -75,7 +75,7 @@ public:
     			//!< create attributeset from GDI NN
     static int		evCr2DRandomSet();
     			//!< create 2D random pick set
-    static const char*	sKeyUsrCancel();
+    static uiString	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
 
     			// Following should be filled on events
@@ -111,7 +111,7 @@ protected:
     void		writeSets(CallBacker*);
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);
-    const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);
+    const uiString	convertToClasses(const ObjectSet<DataPointSet>&,int);
     bool		doDPSDlg();
 
     struct LithCodeData

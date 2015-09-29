@@ -53,7 +53,7 @@ int uiNLAPartServer::evGetData()		{ return 5; }
 int uiNLAPartServer::evSaveMisclass()		{ return 6; }
 int uiNLAPartServer::evCreateAttrSet()		{ return 7; }
 int uiNLAPartServer::evCr2DRandomSet()		{ return 8; }
-const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
+uiString uiNLAPartServer::sKeyUsrCancel()	{ return tr("User cancel");  }
 
 #define mDPM DPM(DataPackMgr::PointID())
 
@@ -128,8 +128,8 @@ class uiPrepNLAData : public uiDialog
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
-    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps), 
-		mODHelpKey(mPrepNLADataHelpID)))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrData(tr("preparation")),
+	       mToUiStringTodo(gtTitle(dps)), mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -137,7 +137,8 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     if ( datavals.isEmpty() )
     {
 	setCtrlStyle( uiDialog::CloseOnly );
-	new uiLabel( this, "No valid log data values extracted" );
+	new uiLabel( this, uiStrings::phrCannotFind(uiStrings::phrJoinStrings(
+		  uiStrings::sLog(),uiStrings::sData(),uiStrings::sValue(2))) );
 	return;
     }
     sort_array( datavals.arr(), datavals.size() );
@@ -152,20 +153,20 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
-    dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec(true) );
+    dobalfld = new uiGenInput( datagrp, tr("Balance data"), BoolInpSpec(true) );
     dobalfld->valuechanged.notify( mCB(this,uiPrepNLAData,doBalChg) );
 
-    nrptspclssfld = new uiGenInput( datagrp, "Data points per class",
-				IntInpSpec(bsetup_.nrptsperclss) );
+    nrptspclssfld = new uiGenInput( datagrp, uiStrings::phrData(tr(
+			"points per class")),IntInpSpec(bsetup_.nrptsperclss) );
     nrptspclssfld->attach( alignedBelow, dobalfld );
     nrptspclssfld->valuechanged.notify( mCB(this,uiPrepNLAData,cutoffChg) );
-    percnoisefld = new uiGenInput( datagrp, "Percentage noise when adding",
+    percnoisefld = new uiGenInput( datagrp, tr("Percentage noise when adding"),
 				   FloatInpSpec(bsetup_.noiselvl*100) );
     percnoisefld->attach( alignedBelow, nrptspclssfld );
 
     rg_.start = datavals[0];
     rg_.stop = datavals[datavals.size()-1];
-    valrgfld = new uiGenInput( datagrp, "Data range to use",
+    valrgfld = new uiGenInput( datagrp, uiStrings::phrData(tr("range to use")),
 	    			FloatInpIntervalSpec(rg_) );
     valrgfld->attach( alignedBelow, percnoisefld );
     valrgfld->valuechanged.notify( mCB(this,uiPrepNLAData,valrgChg) );
@@ -270,13 +271,14 @@ bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
 
 
 class uiLithCodeMan : public uiDialog
-{
+{ mODTextTranslationClass(uiLithCodeMan)
 public:
 
 uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
        		const char* lognm )
-    	: uiDialog(p,uiDialog::Setup("Manage codes",
-				     "Specify how to handle codes",
+    	: uiDialog(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sCode(2)),
+				     uiStrings::phrSpecify(tr(
+				     "how to handle codes")),
 				     mODHelpKey(mLithCodeManHelpID)))
 	, usrsels(usels)
 {
@@ -286,17 +288,18 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
     for ( int icode=0; icode<codes.size(); icode++ )
     {
 	const int curcode = codes[icode];
-	BufferString txt( "Code '" );
-	txt += curcode; txt += "'";
+	uiString txt = uiStrings::phrJoinStrings(uiStrings::sCode(),
+							   toUiString(curcode));
 	uiLabeledComboBox* optlcb = new uiLabeledComboBox( this, opts, txt );
 	uiComboBox* optbox = optlcb->box();
 	BufferString nm( lognm ); nm += " ["; nm += curcode; nm += "]";
 	uiGenInput* nmfld = new uiGenInput( this, uiStrings::sName(), nm );
-	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, "Code" );
+	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, uiStrings::
+								       sCode());
 	for ( int ic=0; ic<codes.size(); ic++ )
 	{
 	    if ( ic == icode ) continue;
-	    BufferString s; s+= codes[ic];
+	    uiString s = toUiString(codes[ic]);
 	    codelcb->box()->addItem( s );
 	}
 
@@ -355,7 +358,7 @@ bool acceptOK( CallBacker* )
 };
 
 
-const char* uiNLAPartServer::convertToClasses(
+const uiString uiNLAPartServer::convertToClasses(
 					const ObjectSet<DataPointSet>& dpss,
 					const int firstgooddps )
 {
@@ -379,9 +382,9 @@ const char* uiNLAPartServer::convertToClasses(
     }
 
     if ( lcd.codes.size() < 2 )
-	return "Only one lithology found - need at least 2";
+	return tr("Only one lithology found - need at least 2");
     else if ( lcd.codes.size() > 20 )
-	return "More than 20 lithologies found - please group lithologies";
+	return tr("More than 20 lithologies found - please group lithologies");
 
     sort( lcd.codes );
     BufferStringSet usels;
@@ -398,7 +401,7 @@ const char* uiNLAPartServer::convertToClasses(
 	    lcd.fillCols( vds, valnr );
     }
 
-    return 0;
+    return uiStrings::sEmptyString();
 }
 
 
@@ -539,7 +542,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     if ( crdesc.doextraction && crdesc.isdirect )
     {
        if ( !extractDirectData(dpss) )
-	    mErrRet(0)
+	    mErrRet(uiStrings::sEmptyString())
 
 	if ( crdesc.design.classification )
 	{
@@ -554,9 +557,8 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 
 	    const PosVecDataSet& vds = dpss[firstgooddps]->dataSet();
 	    const int orgnrvals = vds.nrCols();
-	    const char* res = convertToClasses( dpss, firstgooddps );
-	    if ( res ) mErrRet(res)
-
+	    const uiString res = convertToClasses( dpss, firstgooddps );
+	    if ( !res.isEmpty() ) mErrRet(res)
 	    // change design output nodes to new nodes
 	    BufferStringSet& outps = const_cast<BufferStringSet&>(
 		    				crdesc.design.outputs );
@@ -569,7 +571,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 
     dps().setEmpty();
     uiString res = crdesc.prepareData( dpss, dps() );
-    if ( res.isSet() ) mErrRet(res.getFullString())
+    if ( res.isSet() ) mErrRet(res)
 
     // allow user to view and edit data
     if ( !doDPSDlg() )
@@ -595,7 +597,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     }
 
     if ( allok )
-	return 0;
+	return uiStrings::sEmptyString();
 
     mErrRet(sKeyUsrCancel())
 }
