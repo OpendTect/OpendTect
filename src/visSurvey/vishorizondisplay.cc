@@ -2212,6 +2212,9 @@ void HorizonDisplay::updateSelections()
 
     TypeSet<int> pidxs;
     const TypeSet<EM::SubID>& selids = posselector.getSelected();
+    if ( selids.size()<=0 )
+	return;
+
     for ( int idx=0; idx<selids.size(); idx++ )
     {
     	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
