@@ -361,11 +361,9 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 {
     if ( curidx >= ioobjnms_.size() )
 	curidx = ioobjnms_.size() - 1;
-    if ( ioobjnms_.validIdx(curidx) )
-    {
-	listfld_->setCurrentItem( curidx );
-	selectionChanged.trigger();
-    }
+
+    listfld_->setCurrentItem( curidx );
+    selectionChanged.trigger();
 }
 
 
@@ -758,7 +756,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 }
 
 
-void uiIOObjSelGrp::selChg( CallBacker* cb )
+void uiIOObjSelGrp::selChg( CallBacker* )
 {
     PtrMan<IOObj> ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
