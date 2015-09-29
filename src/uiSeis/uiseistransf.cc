@@ -38,10 +38,10 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     selfld = uiSeisSubSel::get( this, setup_ );
 
     uiStringSet choices;
-    choices = tr("Discard");
-    choices = tr("Pass");
-    choices = uiStrings::sAdd();
-    choices = uiStrings::sEmptyString();
+    choices += tr("Discard");
+    choices += tr("Pass");
+    choices += uiStrings::sAdd();
+    choices += uiStrings::sEmptyString();
     if ( !setup_.is2d_ && !setup_.isps_ && setup_.withnullfill_ )
 	remnullfld = new uiGenInput( this, tr("Null traces"),
 				     StringListInpSpec(choices) );
