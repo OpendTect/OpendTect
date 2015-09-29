@@ -44,7 +44,7 @@ ________________________________________________________________________
 #define mNewIdx		2
 
 uiODVw2DHor3DParentTreeItem::uiODVw2DHor3DParentTreeItem()
-    : uiODVw2DTreeItem( tr("2D Horizon") )
+    : uiODVw2DTreeItem( tr("3D Horizon") )
 {
 }
 
