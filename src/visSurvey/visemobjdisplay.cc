@@ -85,7 +85,7 @@ EMObjectDisplay::EMObjectDisplay()
 
 EMObjectDisplay::~EMObjectDisplay()
 {
-    setSelectionMode( false );
+    turnOnSelectionMode( false );
 
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = 0;
@@ -346,6 +346,7 @@ void EMObjectDisplay::updateFromMPE()
     {
 	setResolution( 0, 0 );
 	showPosAttrib( EM::EMObject::sSeedNode(), true );
+	showPosAttrib( EM::EMObject::sTerminationNode(), true );
 	enableedit_ = true;
     }
 
@@ -363,7 +364,10 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	    posattribs_ += attr;
 	    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
 	    markerset->ref();
-	    markerset->setMarkersSingleColor( Color::White() );
+	    Color clr = attr == EM::EMObject::sSeedNode() 
+				? Color::White() 
+				: Color::Green();
+	    markerset->setMarkersSingleColor( clr );
 	    addChild( markerset->osgNode() );
 	    posattribmarkers_ += markerset;
 	    markerset->setMaterial( 0 );
@@ -678,12 +682,15 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     if ( !pids ) return;
 
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
-    markerset->setMarkersSingleColor(
-	emobject_->getPosAttrMarkerStyle(attrib).color_ );
+    
+    Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
+
+    markerset->clearMarkers();
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
+    markerset->setMarkersSingleColor(
+	emobject_->getPosAttrMarkerStyle(attrib).color_);
     markerset->setDisplayTransformation(transformation_);
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
-    markerset->clearMarkers();
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {
@@ -693,7 +700,6 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	    pErrMsg("Undefined point.");
 	    continue;
 	}
-
 	markerset->addPos( pos, false );
     }
 
@@ -763,7 +769,7 @@ void EMObjectDisplay::setPixelDensity( float dpi )
 }
 
 
-void EMObjectDisplay::setSelectionMode( bool yn )
+void EMObjectDisplay::turnOnSelectionMode( bool yn )
 {
     ctrldown_ = false;
 

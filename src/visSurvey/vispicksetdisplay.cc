@@ -684,7 +684,7 @@ bool PickSetDisplay::usePar( const IOPar& par )
 }
 
 
-void PickSetDisplay::setSelectionMode(bool yn)
+void PickSetDisplay::turnOnSelectionMode(bool yn)
 {
     ctrldown_ = false;
 
