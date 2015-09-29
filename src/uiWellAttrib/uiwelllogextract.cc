@@ -61,10 +61,10 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
-    uiListBox::Setup asu( OD::ChooseOnlyOne, uiStrings::sAttribute(mPlural) );
+    uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttribute(mPlural));
+    asu.lblpos( uiListBox::AboveMid );
     attrsfld_ = new uiListBox( this, asu );
     attrsfld_->display( setup.withattrib_, true );
-    attrsfld_->setChoiceMode( OD::ChooseZeroOrMore );
     welllogselfld_->attach( ensureBelow, attrsfld_ );
 
     const float inldist = SI().inlDistance();

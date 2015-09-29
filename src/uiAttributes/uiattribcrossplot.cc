@@ -45,9 +45,8 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
-	: uiDialog(p,uiDialog::Setup(tr("Attribute cross-plotting"),
-		     tr("Select attributes and locations for cross-plot")
-		     ,mODHelpKey(mAttribCrossPlotHelpID) ).modal(false))
+	: uiDialog(p,uiDialog::Setup(tr("Attribute Cross-plotting"),mNoDlgTitle,
+			mODHelpKey(mAttribCrossPlotHelpID)).modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
 	, lnmfld_(0)
 	, curdps_(0)

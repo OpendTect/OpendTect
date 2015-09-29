@@ -22,10 +22,10 @@ using namespace Attrib;
 
 uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 					      const Attrib::DescSet* d )
-	: uiDialog(p,uiDialog::Setup(tr("Attribute/Well cross-plotting"),
-		     tr("Select attributes and logs for cross-plot")
-		     ,mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
-    	, dpsdispmgr_(0)
+	: uiDialog(p,uiDialog::Setup(tr("Attribute/Well Cross-plotting"),
+		     mNoDlgTitle,
+		     mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
+	, dpsdispmgr_(0)
 {
     wellextractgrp_ =
 	new uiWellLogExtractGrp( this, uiWellLogExtractGrp::Setup(), d );
