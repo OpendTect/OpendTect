@@ -114,6 +114,32 @@ uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
 }
 
 
+uiComboBox::uiComboBox( uiParent* parnt, const uiString* strings,
+			const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
+    , selectionChanged( this )
+    , editTextChanged( this )
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+    , curwidth_(0)
+{
+    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
+	addItem( strings[idx] );
+}
+
+
+uiComboBox::uiComboBox( uiParent* parnt, const EnumDef& enums,
+			const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
+    , selectionChanged( this )
+    , editTextChanged( this )
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
+    , curwidth_(0)
+{
+    for ( int idx=0; idx<enums.size(); idx++ )
+	addItem( enums.getUiString(idx), idx );
+}
+
+
 uiComboBox::~uiComboBox()
 {}
 

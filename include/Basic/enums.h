@@ -23,20 +23,39 @@ ________________________________________________________________________
 \brief Holds data pertinent to a certain enum.
 */
 
+
 mExpClass(Basic) EnumDef : public NamedObject
 {
 public:
-		EnumDef( const char* nm, const char* s[], short nrs=0 );
-    bool	isValidName( const char* s ) const;
-    int		convert( const char* s ) const;
-    const char*	convert( int i ) const;
+			EnumDef(const char* nm,const char* s[],short nrs=0);
+    bool		isValidName(const char*) const;
+    int			convert(const char* s) const;
+    const char*		convert(int i) const;
+    uiString		getUiString(int i) const;
+    const char**	names() const { return names_; }
+    const uiStringSet&	strings() const;
 
-    int		size() const;
+    int			size() const;
 
 protected:
-
+    uiStringSet		uistrings_;
     const char**	names_;
     short		nrsign_;
+};
+
+template <class ENUM>
+mClass(Basic) EnumDefImpl : public EnumDef
+{ mODTextTranslationClass(EnumDef)
+public:
+		EnumDefImpl(const char* nm,const char* s[],short nrs=0);
+    bool	parse(const char* txt,ENUM& res) const;
+    bool	parse(const IOPar& par,const char* key,ENUM& res) const;
+    ENUM	parse(const char* txt) const;
+    const char* toString(ENUM theenum) const;
+    uiString	toUiString(ENUM theenum) const;
+private:
+    void	initUiStrings();
+
 };
 
 
@@ -176,11 +195,26 @@ protected:
 
   \endcode
 
+  Localization is separated from the selection. Hence, if you wish to add
+  translated enum-strings, you can implement your own initUiStrings() function:
+
+ \code
+ template <>
+ void EnumDefImpl<MyClass::Type>::initUiStrings()
+ {
+     uistrings_ += tr("Yes");
+     uistrings_ += tr("No");
+     uistrings_ += tr("Not sure");
+ }
+ \endcode
+
+ Note that the selection will still be done on the non-translated string.
+
 -*/
 
 #define DeclareEnumUtils(enm) \
 public: \
-    static const EnumDef& enm##Def(); \
+    static const EnumDefImpl<enm>& enm##Def(); \
     static const char** enm##Names();\
     static bool parseEnum##enm(const char*,enm&);  /*legacy */ \
     static bool parseEnum(const char*,enm&); \
@@ -190,113 +224,121 @@ public: \
     static uiString toUiString(enm); \
     static const char* get##enm##String(enm); /*legacy */ \
 protected: \
-    static const char* enm##Names_[];\
-    static const EnumDef enm##Definition_; \
+    static const EnumDefImpl<enm> enm##Definition_; \
+    static const char* enm##Names_[]; \
 public:
 
 #define DeclareNameSpaceEnumUtils(mod,enm) \
-    mExtern(mod) const EnumDef& enm##Def(); \
+    mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
     mExtern(mod) const char** enm##Names();\
-    extern const char* enm##Names_[];\
-    extern const EnumDef enm##Definition_; \
+    extern const EnumDefImpl<enm> enm##Definition_; \
+    extern const char* enm##Names_[]; \
     mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
     mExtern(mod) bool parseEnum(const char*,enm&); \
     mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
     mExtern(mod) enm parseEnum##enm(const char*); \
     mExtern(mod) const char* toString(enm); \
     mExtern(mod) uiString toUiString(enm); \
-    mExtern(mod) const char* get##enm##String(enm); /*legacy */ 
+    mExtern(mod) const char* get##enm##String(enm); /*legacy */
+
+#define _DefineEnumNames(prefix,enm,deflen,prettynm) \
+const EnumDefImpl<prefix::enm> prefix::enm##Definition_ ( prettynm, \
+				prefix::enm##Names_, deflen ); \
+const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
+{ return prefix::enm##Definition_; } \
+const char** prefix::enm##Names() \
+{ return prefix::enm##Def().names(); } \
+bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
+{ \
+    const bool isok = prefix::parseEnum( txt, res ); \
+    if ( !isok ) res = (prefix::enm) 0; \
+    return isok; \
+} \
+bool prefix::parseEnum(const char* txt, prefix::enm& res ) \
+{ return prefix::enm##Def().parse( txt, res ); } \
+bool prefix::parseEnum( const IOPar& par, const char* key, prefix::enm& res ) \
+{ return prefix::enm##Def().parse( par, key, res ); } \
+prefix::enm prefix::parseEnum##enm(const char* txt) \
+{ return prefix::enm##Def().parse( txt ); } \
+const char* prefix::get##enm##String( prefix::enm theenum ) \
+{ return prefix::toString( theenum ); } \
+const char* prefix::toString( prefix::enm theenum ) \
+{ return enm##Def().toString( theenum ); } \
+uiString prefix::toUiString( prefix::enm theenum ) \
+{ return enm##Def().toUiString( theenum ); } \
+const char* prefix::enm##Names_[] =
+
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
-const EnumDef clss::enm##Definition_ \
-	( prettynm, clss::enm##Names_, deflen ); \
-const EnumDef& clss::enm##Def() \
-    { return enm##Definition_; } \
-const char** clss::enm##Names() \
-    { return enm##Names_; }  \
-bool clss::parseEnum##enm(const char* txt, enm& res ) \
-{ \
-    const bool isok = clss::parseEnum( txt, res ); \
-    if ( !isok ) res = (enm) 0; \
-    return isok; \
-} \
-bool clss::parseEnum(const char* txt, enm& res ) \
-{ \
-    const int idx = enm##Def().isValidName( txt ) \
-        ?  enm##Def().convert( txt ) \
-	: -1; \
-    if ( idx<0 ) \
-	return false; \
- \
-    res = (enm) idx; \
-    return true; \
-} \
-bool clss::parseEnum( const IOPar& par, const char* key, enm& res ) \
-{ return parseEnum( par.find( key ), res ); } \
-clss::enm clss::parseEnum##enm(const char* txt) \
-{ \
-    return (clss::enm) enm##Def().convert( txt ); \
-} \
-const char* clss::get##enm##String( enm theenum ) \
-{ return clss::toString( theenum ); } \
-const char* clss::toString( enm theenum ) \
-{ \
-    const int idx = (int) theenum; \
-    if ( idx<0 || idx>=enm##Def().size() ) \
-        return 0; \
- \
-    return enm##Names_[idx]; \
-} \
-uiString clss::toUiString( enm theenum ) \
-{ return mToUiStringTodo(clss::toString(theenum)); } \
-const char* clss::enm##Names_[] =
+_DefineEnumNames( clss, enm, deflen, prettynm )
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
-const EnumDef nmspc::enm##Definition_ \
-	( prettynm, nmspc::enm##Names_, deflen ); \
-const EnumDef& nmspc::enm##Def() \
-    { return nmspc::enm##Definition_; } \
-const char** nmspc::enm##Names() \
-    { return nmspc::enm##Names_; }  \
-bool nmspc::parseEnum##enm(const char* txt, enm& res ) \
-{ \
-    const bool isok = nmspc::parseEnum( txt, res ); \
-    if ( !isok ) res = (nmspc::enm) 0; \
-    return isok; \
-} \
-bool nmspc::parseEnum(const char* txt, enm& res ) \
-{ \
-    const int idx = enm##Def().isValidName( txt ) \
-        ?  enm##Def().convert( txt ) \
-	: -1; \
-    if ( idx<0 ) \
-	return false; \
- \
-    res = (enm) idx; \
-    return true; \
-} \
-bool nmspc::parseEnum( const IOPar& par, const char* key, enm& res ) \
-{ \
-    const char* val = par.find( key ); \
-    return nmspc::parseEnum( val, res ); \
-} \
-nmspc::enm nmspc::parseEnum##enm(const char* txt) \
-{ \
-    return (nmspc::enm) enm##Def().convert( txt ); \
-} \
-const char* nmspc::get##enm##String( enm theenum ) \
-{ return nmspc::toString( theenum ); } \
-const char* nmspc::toString( enm theenum ) \
-{ \
-    const int idx = (int) theenum; \
-    if ( idx<0 || idx>=enm##Def().size() ) \
-        return 0; \
- \
-    return enm##Names_[idx]; \
-} \
-uiString nmspc::toUiString( enm theenum ) \
-{ return mToUiStringTodo(nmspc::toString(theenum)); } \
-const char* nmspc::enm##Names_[] =
+_DefineEnumNames( nmspc, enm, deflen, prettynm )
+
+template <class ENUM> inline
+EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
+    : EnumDef( nm, nms, nrs )
+{
+    initUiStrings();
+    if ( uistrings_.size()!=size() )
+    {
+	pErrMsg( "Wrong number of uistrings" );
+    }
+
+    for ( int idx=uistrings_.size(); idx<size(); idx++ )
+	uistrings_ += ::toUiString(names_[idx]);
+}
+
+template <class ENUM> inline
+bool EnumDefImpl<ENUM>::parse(const char* txt, ENUM& res ) const
+{
+    const int idx = isValidName( txt )
+	?  convert( txt )
+	: -1;
+    if ( idx<0 )
+	return false;
+
+    res = (ENUM) idx;
+    return true;
+}
+
+
+template <class ENUM> inline
+bool EnumDefImpl<ENUM>::parse( const IOPar& par, const char* key,
+			       ENUM& res ) const
+{
+    const char* val = par.find( key );
+    return parse( val, res );
+}
+
+
+template <class ENUM> inline
+ENUM EnumDefImpl<ENUM>::parse(const char* txt) const
+{
+    return (ENUM) convert( txt );
+}
+
+
+template <class ENUM> inline
+const char* EnumDefImpl<ENUM>::toString( ENUM theenum ) const
+{
+    return convert( (int) theenum );
+}
+
+
+template <class ENUM> inline
+uiString EnumDefImpl<ENUM>::toUiString( ENUM theenum ) const
+{ return getUiString((int) theenum ); }
+
+
+template <class ENUM> inline
+void EnumDefImpl<ENUM>::initUiStrings()
+{
+    for ( int idx=0; names_[idx]; idx++ )
+	uistrings_ += ::toUiString(names_[idx]);
+}
+
+
 
 #endif
 

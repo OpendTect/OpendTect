@@ -41,7 +41,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     if ( filltype )
     {
 	filltypefld_ = new uiGenInput( this, tr("Scope"),
-		StringListInpSpec( Array2DInterpol::FillTypeNames() ));
+		StringListInpSpec( Array2DInterpol::FillTypeDef() ));
 	if ( oldvals ) filltypefld_->setValue( (int) oldvals->getFillType() );
 	prevfld = filltypefld_->attachObj();
     }

@@ -38,7 +38,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     : uiGroup( p, "Velocity type selector" )
 {
     typefld_ = new uiGenInput( this, tr("Velocity type"),
-			StringListInpSpec(VelocityDesc::TypeNames()) );
+			StringListInpSpec(VelocityDesc::TypeDef()) );
     typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,updateFlds) );
 
     uiGroup* vigrp = new uiGroup( this, "Vel info grp" );

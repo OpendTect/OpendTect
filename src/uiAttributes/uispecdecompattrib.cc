@@ -85,7 +85,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
 
     waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(), 
-	    			 StringListInpSpec(CWT::WaveletTypeNames()) );
+				 StringListInpSpec(CWT::WaveletTypeDef()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 
     stepChg(0);

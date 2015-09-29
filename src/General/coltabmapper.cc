@@ -199,7 +199,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 bool ColTab::MapperSetup::usePar( const IOPar& par )
 {
     const char* typestr = par.find( sKey::Type() );
-    if ( !parseEnumType( typestr, type_ ) )
+    if ( !TypeDef().parse( typestr, type_ ) )
 	return false;
 
     if ( par.find(sKeyStarWidth()) )

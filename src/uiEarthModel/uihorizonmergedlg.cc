@@ -37,7 +37,7 @@ uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
     horselfld_ = new uiHorizon3DSel( this );
 
     duplicatefld_ = new uiGenInput( this, tr("Duplicate positions"),
-	    StringListInpSpec(EM::HorizonMerger::ModeNames()) );
+	    StringListInpSpec(EM::HorizonMerger::ModeDef()) );
     duplicatefld_->attach( alignedBelow, horselfld_ );
 
     const char* typestr = is2d ? EM::Horizon2D::typeStr()

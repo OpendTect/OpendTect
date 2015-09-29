@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "uistrings.h"
 
+class EnumDef;
+
 /*!
 \brief Data type.
 */
@@ -677,7 +679,12 @@ mExpClass(General) StringListInpSpec : public DataInpSpec
 public:
 			StringListInpSpec(const BufferStringSet&);
 			StringListInpSpec(const uiStringSet&);
-		StringListInpSpec(const char** sl=0);
+			StringListInpSpec(const char** sl=0);
+			StringListInpSpec(const uiString*);
+			/*!<Similar to const char** Adds strings until an empty
+			 string is found. */
+			StringListInpSpec(const EnumDef&);
+			//!<EnumDef is assumed to remain in mem
 			StringListInpSpec(const StringListInpSpec&);
 			~StringListInpSpec();
 
@@ -686,6 +693,8 @@ public:
     virtual DataInpSpec* clone() const;
 
     const uiStringSet& strings() const;
+
+    const EnumDef*	enumDef() const		{ return enumdef_ ; }
 
     void		addString(uiString txt);
     virtual const char*	text(int idx=0) const;
@@ -713,11 +722,11 @@ public:
 
 protected:
 
-    uiStringSet	strings_;
+    uiStringSet		strings_;
     int			cur_;
     int			defaultval_;
     bool		isset_;
-
+    const EnumDef*	enumdef_;
 };
 
 

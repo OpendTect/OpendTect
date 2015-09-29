@@ -28,7 +28,7 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSVolTranslInstance)
 {
     stortypfld_ = new uiGenInput( this, tr("Storage"),
-		StringListInpSpec(DataCharacteristics::UserTypeNames()) );
+		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     stortypfld_->setValue( (int)DataCharacteristics::Auto );
 
     optimdirfld_ =
@@ -73,7 +73,7 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSPS3DTranslInstance)
 {
     stortypfld_ = new uiGenInput( this, tr("Storage"),
-		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
+		 StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     stortypfld_->setValue( (int)DataCharacteristics::Auto );
     setHAlignObj( stortypfld_ );
 }
