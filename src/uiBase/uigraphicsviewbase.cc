@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QApplication>
 #include <QGesture>
+#include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QPrinter>
 #include <QPrintDialog>
@@ -233,10 +234,15 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
 {
     if ( !ev ) return;
 
-    // TODO: impl modifier
-    KeyboardEvent ke;
-    ke.key_ = (OD::KeyboardKey)ev->key();
-    keyboardhandler_.triggerKeyPressed( ke );
+    QGraphicsItem* itm = scene()->focusItem();
+    if ( !itm )
+    {
+	// TODO: impl modifier
+	KeyboardEvent ke;
+	ke.key_ = (OD::KeyboardKey)ev->key();
+	keyboardhandler_.triggerKeyPressed( ke );
+    }
+
     QGraphicsView::keyPressEvent( ev );
 }
 
