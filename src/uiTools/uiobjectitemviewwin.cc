@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
-    : uiMainWin(p,su.wintitle_)
+    : uiMainWin(p,mToUiStringTodo(su.wintitle_))
     , startwidth_(su.startwidth_)
     , startheight_(su.startheight_)
     , infoheight_(su.infoheight_)
@@ -110,7 +110,7 @@ void uiObjectItemViewWin::insertItem( int idx,
 
 void uiObjectItemViewWin::makeSliders()
 {
-    uiLabel* dummylbl = new uiLabel( this, "" );
+    uiLabel* dummylbl = new uiLabel( this, uiStrings::sEmptyString() );
     dummylbl->attach( rightOf, mainviewer_ );
     dummylbl->setStretch( 0, 2 );
     dummylbl->attach( ensureRightOf, infobar_ );
@@ -450,7 +450,8 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     , toolbar_(0)
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
-    toolbar_ = new uiToolBar( mw.parent(), "ObjectItemView tools", tba );
+    toolbar_ = new uiToolBar( mw.parent(), uiStrings::phrJoinStrings(
+			      tr("ObjectItemView"),uiStrings::sTools()), tba );
     setToolButtons();
 
     mainviewer_.disableScrollZoom();

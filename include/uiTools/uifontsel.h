@@ -55,7 +55,7 @@ protected:
 
 
 mExpClass(uiTools) uiSelFonts : public uiDialog
-{
+{ mODTextTranslationClass(uiSelFonts)
 public:
 
 			uiSelFonts(uiParent*,const uiString& title,
