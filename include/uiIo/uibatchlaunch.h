@@ -43,6 +43,7 @@ protected:
 
     int			nrinl_;
     bool		enabclusterproc_;
+
 };
 
 
@@ -74,6 +75,9 @@ protected:
     bool			canRun() const;
     void			setButSens();
 
+private:
+
+    static const uiString	sKeyNoParFiles();
 };
 
 

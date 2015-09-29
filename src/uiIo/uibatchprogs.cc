@@ -188,7 +188,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Batch program") );
     progfld_ = lcc->box();
     for ( int idx=0; idx<pil_.size(); idx++ )
-	progfld_->addItem( pil_[idx]->name );
+	progfld_->addItem( toUiString(pil_[idx]->name) );
     progfld_->setCurrentItem( 0 );
     progfld_->selectionChanged.notify(
 			mCB(this,uiBatchProgLaunch,progSel) );
@@ -206,11 +206,12 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	inps_ += inplst;
 	for ( int iarg=0; iarg<bpi.args.size(); iarg++ )
 	{
-	    BufferString txt;
+	    uiString txt;
 	    const BatchProgPar& bpp = *bpi.args[iarg];
-	    if ( !bpp.mandatory ) txt += "[";
-	    txt += bpp.desc;
-	    if ( !bpp.mandatory ) txt += "]";
+	    if ( !bpp.mandatory ) 
+		txt = toUiString("[%1]").arg(mToUiStringTodo(bpp.desc));
+	    else
+		txt = mToUiStringTodo(bpp.desc);
 
 	    uiGenInput* newinp;
 	    if ( bpp.type == BatchProgPar::Words ||

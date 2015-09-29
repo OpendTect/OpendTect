@@ -25,10 +25,13 @@ static const char* rcsID mUsedVar = "";
 
 uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
-    : uiDialog( p.parent(), uiDialog::Setup(tr("Selection Settings"),0, 
+    : uiDialog( p.parent(), uiDialog::Setup(uiStrings::phrJoinStrings(
+				     uiStrings::sSelection(),tr("Settings")),
+				     uiStrings::sEmptyString(), 
                                      mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
-				    .savetext(tr("Select on OK")).modal(false) )
+				    .savetext(uiStrings::phrSelect(tr("on OK")))
+				    .modal(false) )
     , plotter_( p )
     , selgrps_(p.selectionGrps())
 {
@@ -43,8 +46,8 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     tbl_->rowInserted.notify( mCB(this,uiDPSSelGrpDlg,addSelGrp) );
     tbl_->valueChanged.notify( mCB(this,uiDPSSelGrpDlg,changeSelGrbNm) );
     tbl_->selectionChanged.notify( mCB(this,uiDPSSelGrpDlg,setCurSelGrp) );
-    tbl_->setColumnLabel( 0, "Name" );
-    tbl_->setColumnLabel( 1, "Color" );
+    tbl_->setColumnLabel( 0, uiStrings::sName() );
+    tbl_->setColumnLabel( 1, uiStrings::sColor() );
 
     for ( int idx=0; idx<selgrps_.size(); idx++ )
     {

@@ -48,8 +48,9 @@ static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds )
     : uiDialog(p,uiDialog::Setup(
-			aspoly ? "Create new Polygon" : "Create new PickSet",
-			mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
+			aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
+			       : uiStrings::phrCreateNew(uiStrings::sPickSet()),
+			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
 {
     if ( addstdflds )
@@ -60,8 +61,8 @@ uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds )
 void uiCreatePicks::addStdFields( uiObject* lastobject )
 {
     nmfld_ = new uiGenInput( this,
-		BufferString("Name for new ",aspolygon_ ? "Polygon"
-							: "PickSet") );
+		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
+						       uiStrings::sPickSet()) );
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(getRandStdDrawColor()).
 			      lbltxt(uiStrings::sColor()) );
@@ -96,17 +97,17 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
     , dps_(0)
 {
     uiPosProvider::Setup psu( false, true, true );
-    psu .seltxt( "Generate locations by" )
+    psu .seltxt( tr("Generate locations by") )
 	.choicetype( uiPosProvider::Setup::All );
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
-    maxnrpickfld_ = new uiGenInput( this, "Maximum number of Picks",
+    maxnrpickfld_ = new uiGenInput( this, tr("Maximum number of Picks"),
 				    IntInpSpec(100) );
     maxnrpickfld_->attach( alignedBelow, posprovfld_ );
 
     uiPosFilterSet::Setup fsu( false );
-    fsu.seltxt( "Remove locations" ).incprovs( true );
+    fsu.seltxt( uiStrings::phrRemove(tr("locations")) ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, maxnrpickfld_ );
 
@@ -132,7 +133,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
-	mErrRet("Internal: no Pos::Provider")
+	mErrRet(toUiString("Internal: no Pos::Provider"))
 
     uiTaskRunner taskrunner( this );
     if ( !prov->initialize( &taskrunner ) )
@@ -213,12 +214,13 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     , hornms_(hornms)
     , linenms_(lnms)
 {
-    nrfld_ = new uiGenInput( this, "Number of picks to generate",
+    nrfld_ = new uiGenInput( this, tr("Number of picks to generate"),
 		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
 
     if ( hornms_.size() )
     {
-	horselfld_ = new uiLabeledComboBox( this, "Horizon selection" );
+	horselfld_ = new uiLabeledComboBox( this, mJoinUiStrs(sHorizon(), 
+							    sSelection()) );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
@@ -237,7 +239,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 
     if ( hornms.size() )
     {
-	geomfld_ = new uiGenInput( this, "Geometry",
+	geomfld_ = new uiGenInput( this, uiStrings::sGeometry(),
 				     StringListInpSpec(sGeoms2D) );
 	geomfld_->attach( alignedBelow, linenmfld_ );
 	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,geomSel) );
@@ -245,8 +247,8 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 	horsel2fld_->attach( rightOf, horselfld_ );
     }
 
-    BufferString zlbl = "Z Range";
-    zlbl += SI().getZUnitString();
+    uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(), 
+						       SI().getUiZUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
     inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );

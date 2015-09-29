@@ -23,8 +23,8 @@ static const char* rcsID mUsedVar = "";
 #include "mathexpression.h"
 
 uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
-    : uiDialog(p,uiDialog::Setup(tr("Add Column"), sKey::EmptyString(),
-                                 mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrAdd(tr("Column")), 
+				 mNoDlgTitle, mNoHelpKey))
     , mathobj_(0)
     , withmathop_(withmathop)
     , inpfld_(0)
@@ -98,7 +98,7 @@ void uiDPSAddColumnDlg::parsePush( CallBacker* )
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
-	if ( mep.errMsg() ) uiMSG().error( mep.errMsg() );
+	if ( mep.errMsg() ) uiMSG().error( mToUiStringTodo(mep.errMsg()) );
 	vartable_->display( false );
 	return;
     }

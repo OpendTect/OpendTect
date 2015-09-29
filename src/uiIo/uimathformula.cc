@@ -78,7 +78,8 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     {
 	const bool haveproptype = setup_.proptype_ != PropertyRef::Other;
 	uiUnitSel::Setup uussu( PropertyRef::Other,
-		haveproptype ? "Formula output unit" : "Formula result is" );
+		haveproptype ? tr("Formula output unit") : 
+			       tr("Formula result is") );
 	uussu.selproptype( !haveproptype ).withnone( true );
 	unitfld_ = new uiUnitSel( this, uussu );
 	unitfld_->attach( alignedBelow,
@@ -354,15 +355,15 @@ class uiMathFormulaEdRec : public uiDialog
 public:
 
 uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
-    : uiDialog( this, Setup(
-	BufferString("Recursion start value",s_if_2),
-	BufferString("Recursive formula: Starting value",s_if_2),
+    : uiDialog( this, Setup( 
+	tr("Recursion start value %1").arg(toUiString(s_if_2)),
+	tr("Recursive formula: Starting value %1").arg(toUiString(s_if_2)),
 	mNoHelpKey) )
     , form_(form)
 {
     for ( int idx=0; idx<form_.maxRecShift(); idx++ )
     {
-	inpflds_ += new uiGenInput( this, BufferString("Value at ",-1-idx),
+	inpflds_ += new uiGenInput( this, tr("Value at %1").arg(-1-idx),
 				    DoubleInpSpec(form_.recStartVals()[idx]) );
 	if ( idx > 0 )
 	    inpflds_[idx]->attach( alignedBelow, inpflds_[idx-1] );

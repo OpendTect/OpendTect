@@ -246,7 +246,7 @@ void uiIOObjSelGrp::mkManipulators()
     if ( setup_.allowsetdefault_ )
     {
 	mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
-	    "makedefault", "Set as default",
+	    "makedefault", uiStrings::phrSetAs(uiStrings::sDefault()),
 	    mCB(this,uiIOObjSelGrp,makeDefaultCB) );
     }
 
@@ -767,16 +767,16 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 	const bool isdef = ioobj && IOObj::isSurveyDefault( ioobj->key() );
 	if ( ioobj && !isdef )
 	{
-	    BufferString tt( "Set '", ioobj->name(), "' as default" );
+	    uiString tt = tr( "Set '%1' as default").arg(ioobj->uiName());
 	    mkdefbut_->setToolTip( tt );
 	}
 	else if ( isdef )
 	{
-	    BufferString deftt( "'",ioobj->name(), "' is default object" );
+	    uiString deftt = tr("'%1' is default object").arg(ioobj->uiName());
 	    mkdefbut_->setToolTip( deftt );
 	}
 	else
-	    mkdefbut_->setToolTip( "Set as dafault" );
+	    mkdefbut_->setToolTip( uiStrings::phrSetAs(uiStrings::sDefault()) );
     }
 
     if ( wrtrselfld_ && ioobj )

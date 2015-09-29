@@ -34,11 +34,12 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
 {
     ctio_.ctxt_.forread_ = true;
 
-    dirfld = new uiFileInput( this, "Directory to search in",
+    dirfld = new uiFileInput( this, tr("Directory to search in"),
 	    	 uiFileInput::Setup(GetProcFileName(0)).directories(true) );
     maskfld = new uiGenInput( this, tr("Filename subselection"), "*.par" );
     maskfld->attach( alignedBelow, dirfld );
-    objfld = new uiIOObjSel( this, ctio_, "Output data to find" );
+    objfld = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(tr(
+							    "data to find")) );
     objfld->attach( alignedBelow, maskfld );
     objfld->selectionDone.notify( mCB(this,uiSrchProcFiles,srchDir) );
     uiSeparator* sep = new uiSeparator( this, "sep" );
@@ -59,7 +60,7 @@ const char* uiSrchProcFiles::fileName() const
 #define mRet(s) \
 { \
     if ( s.isSet() ) uiMSG().error(s); \
-    toStatusBar(""); \
+    toStatusBar(uiStrings::sEmptyString()); \
     return; \
 }
 
@@ -72,12 +73,12 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     uiMsgMainWinSetter msgwinsetter( this );
     	// Otherwise the error box pulls up OD main win. No idea why.
 
-    toStatusBar( "Scanning directory" );
+    toStatusBar( mJoinUiStrs(sScanning(),sDirectory()));
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );
     DirList dl( dirnm, DirList::FilesOnly, msk.isEmpty() ? 0 : msk.buf() );
     if ( dl.size() == 0 )
-	mRet(tr("No matching files found"))
+	mRet(uiStrings::phrCannotFind(uiStrings::sFile()))
 
     BufferStringSet fnms;
     for ( int idx=0; idx<dl.size(); idx++ )
@@ -95,17 +96,17 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     int sel = 0;
     if ( fnms.size() > 1 )
     {
-	toStatusBar( "Multiple files found; select one ..." );
+	toStatusBar( tr("Multiple files found; select one ...") );
 	uiSelectFromList::Setup sflsu( tr("Select the apropriate file"), fnms );
 	sflsu.dlgtitle( tr("Pick one of the matches") );
 	uiSelectFromList dlg( this, sflsu );
 	if ( !dlg.go() || dlg.selection() < 0 )
-	    mRet(uiString::emptyString())
+	    mRet(uiStrings::sEmptyString())
 	sel = dlg.selection();
     }
 
     fnamefld->setText( fnms.get(sel) );
-    mRet(uiString::emptyString())
+    mRet(uiStrings::sEmptyString())
 }
 
 

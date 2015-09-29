@@ -85,7 +85,7 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
 
 uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 						const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,helpkey)
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,helpkey)
 		.nrstatusflds(-1)
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))
@@ -99,7 +99,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     , jobrunner_(0)
     , timer_(0)
     , nrcyclesdone_(0)
-    , basecaption_("Job management")
+    , basecaption_(tr("Job management"))
 {
     setCaption( basecaption_ );
 
@@ -110,10 +110,10 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	maxhostdisp = nrhosts>7 ? 8 : (nrhosts<3 ? 3 : nrhosts);
     const int hostnmwdth = 30;
 
-    statusBar()->addMsgFld( "Message", Alignment::Left, 20 );
-    statusBar()->addMsgFld( "DoneTxt", Alignment::Right, 20 );
-    statusBar()->addMsgFld( "NrDone", Alignment::Left, 10 );
-    statusBar()->addMsgFld( "Activity", Alignment::Left, 1 );
+    statusBar()->addMsgFld( toUiString("Message"), Alignment::Left, 20 );
+    statusBar()->addMsgFld( toUiString("DoneTxt"), Alignment::Right, 20 );
+    statusBar()->addMsgFld( toUiString("NrDone"), Alignment::Left, 10 );
+    statusBar()->addMsgFld( toUiString("Activity"), Alignment::Left, 1 );
 
     specparsgroup_ = new uiGroup( this, "Specific parameters group" );
     uiSeparator* sep = new uiSeparator( this, "Hor sep 1" );
@@ -133,7 +133,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	    const int nraliases = hd.nrAliases();
 	    for ( int aliasidx=0; aliasidx<nraliases; aliasidx++ )
 		{ nm += " / "; nm += hd.alias(aliasidx); }
-	    avmachfld_->addItem( nm );
+	    avmachfld_->addItem( toUiString(nm) );
 	}
 
 	avmachfld_->setPrefWidthInChar( hostnmwdth );
@@ -276,10 +276,17 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 
 #define mRetFullFail \
 { \
-    if (uiMSG().askGoOn("Do you want to (try to) remove all temporary data?"\
-		 "If you don't, you may be able to re-start the job later") ) \
+    if ( retFullFailGoOnMsg() ) \
 	removeTempResults(); \
     return; \
+}
+
+
+bool uiMMBatchJobDispatcher::retFullFailGoOnMsg()
+{
+    return uiMSG().askGoOn(tr("Do you want to (try to) remove all "
+			    "temporary data?\nIf you don't, you may be able to" 
+			    "re-start the job later"));
 }
 
 
@@ -366,7 +373,7 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
     delete logvwer_;
     const BufferString fnm( logfp.fullPath() );
     logvwer_ = new uiTextFileDlg( this, uiTextFile::Setup(File::Log),
-				  uiTextFileDlg::Setup(fnm), fnm );
+			      uiTextFileDlg::Setup(toUiString(fnm)), fnm );
     logvwer_->go();
 }
 
@@ -465,7 +472,7 @@ void uiMMBatchJobDispatcher::updateAliveDisp()
     const int nrdispstrs = 6;
     const char* dispstrs[]
 	= { ">..", ".>.", "..>", "..<", ".<.", "<.." };
-    statusBar()->message( dispstrs[ nrcyclesdone_ % nrdispstrs ], 3 );
+    statusBar()->message(toUiString(dispstrs[ nrcyclesdone_ % nrdispstrs ]), 3);
 
     const int totsteps = mCast( int, jobrunner_->totalNr() );
     const int nrdone = mCast( int, jobrunner_->nrDone() );
@@ -478,8 +485,7 @@ void uiMMBatchJobDispatcher::updateAliveDisp()
 
 	const float fpct = 100.f * ((float)nrdone) / totsteps;
 	int pct = (int)fpct; if ( pct > 100 ) pct = 100;
-	BufferString newcap( "[" ); newcap += pct; newcap += "%] ";
-	newcap += basecaption_;
+	uiString newcap = toUiString("[%1%] %2").arg(pct).arg(basecaption_);
 	setCaption( newcap );
     }
 }
@@ -501,8 +507,8 @@ bool uiMMBatchJobDispatcher::ready4WrapUp( bool& havefails ) const
 	return true;
 
     havefails = true;
-    BufferString msg( "Failed ", jobrunner_->descProv()->objType(),
-		      nrfailed > 1 ? "s:\n" : ": " );
+    uiString msg = tr("Failed %1%2").arg(jobrunner_->descProv()->objType()).
+	arg(nrfailed > 1 ? toUiString(":\n") : toUiString(": "));
     BufferString newpart;
     bool needspace = false;
     for ( int idx=0; idx<nrfailed; idx++ )
@@ -515,11 +521,12 @@ bool uiMMBatchJobDispatcher::ready4WrapUp( bool& havefails ) const
 	    needspace = true;
 	else
 	{
-	    msg.add( newpart );
+	    msg = toUiString("%1 %2").arg(msg).arg(toUiString(newpart));
 	    newpart.addNewLine(); needspace = false;
 	}
     }
-    msg.add( newpart ).add( "\n\nDo you want to re-try?" );
+    msg= tr("%1 %2 %3").arg(msg).arg(toUiString(newpart)).
+			arg(tr("\n\nDo you want to re-try?"));
     return !uiMSG().askGoOn(msg);
 }
 

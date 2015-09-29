@@ -345,8 +345,9 @@ void uiPosProvSel::setToAll()
 
 void uiPosProvSel::doDlg( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Positions","Specify positions",
-					mODHelpKey(mPosProvSelHelpID) ) );
+    uiDialog dlg( this, uiDialog::Setup(uiStrings::sPosition(mPlural), 
+			   uiStrings::phrSpecify(uiStrings::sPosition(mPlural)),
+			   mODHelpKey(mPosProvSelHelpID) ) );
     uiPosProvider* pp = new uiPosProvider( &dlg, setup_ );
     pp->usePar( iop_ );
     if ( dlg.go() )
@@ -377,7 +378,7 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     , selChange(this)
 {
     uiPosProvider::Setup ppsu( su.is2d_, su.withstep_, su.withz_ );
-    ppsu.seltxt( su.seltxt_ )
+    ppsu.seltxt( mToUiStringTodo(su.seltxt_) )
 	.allownone( true )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
     ppsu.zdomkey( su.zdomkey_ );

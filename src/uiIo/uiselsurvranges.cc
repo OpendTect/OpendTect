@@ -41,7 +41,8 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 	: mDefConstrList(isrel)
 {
     const StepInterval<float> limitrg( SI().zRange(false) );
-    makeInpFields( lbltxt, wstep, !othdom_ && !isrel_ ? &limitrg : 0 );
+    makeInpFields( mToUiStringTodo(lbltxt), wstep, !othdom_ && 
+						       !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
     else if ( !othdom_ )
@@ -53,7 +54,7 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 			  const char* lbltxt, const char* domky )
 	: mDefConstrList(false)
 {
-    makeInpFields( lbltxt, wstep, &limitrg );
+    makeInpFields( mToUiStringTodo(lbltxt), wstep, &limitrg );
     setRange( limitrg );
 }
 
@@ -79,12 +80,12 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 	    			  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
-    uiString ltxt( lbltxt );
+    uiString ltxt( mToUiStringTodo(lbltxt) );
     if ( ltxt.isEmpty() )
 	ltxt = zddef_.getRange();
 
     uiLabel* lbl = new uiLabel( this,
-		uiStrings::phrJoinStrings( ltxt, zddef_.unitStr(true)),
+		uiStrings::phrJoinStrings( ltxt, zddef_.uiUnitStr(true)),
 		startfld_ );
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
@@ -364,14 +365,16 @@ void uiSelNrRange::doFinalise( CallBacker* )
 
     if ( withchk_ )
     {
-	cbox_ = new uiCheckBox( this, BufferString(lbltxt_," range") );
+	cbox_ = new uiCheckBox( this, toUiString("%1 %2")
+		      .arg(mToUiStringTodo(lbltxt_)).arg(uiStrings::sRange()) );
 	cbox_->attach( leftTo, startfld_ );
 	cbox_->activated.notify( mCB(this,uiSelNrRange,checkBoxSel) );
 	setChecked( checked_ );
 	checkBoxSel(0);
     }
     else
-	new uiLabel( this, BufferString(lbltxt_," range"), startfld_ );
+	new uiLabel( this,  toUiString("%1 %2").arg(mToUiStringTodo(lbltxt_))
+					.arg(uiStrings::sRange()), startfld_ );
 
     finalised_ = true;
 }
@@ -446,7 +449,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	, inlfld_(0)
 {
     BinID stp( 0, 1 );
-    const char* lbl = "Trace number step";
+    uiString lbl = tr("Trace number step");
     uiSpinBox* firstbox = 0;
     if ( !is2d )
     {
@@ -454,7 +457,9 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
 	inlfld_->setInterval( StepInterval<int>(stp.inl(),cUnLim,stp.inl()) );
 	inlfld_->doSnap( true );
-	lbl = "In-line/Cross-line steps";
+	lbl = toUiString("%1/%2 %3")
+	      .arg(uiStrings::sInline()).arg(uiStrings::sCrossline())
+	      .arg(uiStrings::sSteps());
     }
     crlfld_ = new uiSpinBox( this, 0, "crossline step" );
     crlfld_->setInterval( StepInterval<int>(stp.crl(),cUnLim,stp.crl()) );

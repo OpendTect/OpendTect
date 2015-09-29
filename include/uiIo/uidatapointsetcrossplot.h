@@ -238,7 +238,7 @@ public:
     int				getNewSelAreaID() const;
     bool			isSelAreaValid(int id) const;
     int				getSelGrpIdx(int selareaid) const;
-    void			setTRMsg( const char* msg )
+    void			setTRMsg( const uiString& msg )
 				{ trmsg_ = msg; }
     int				totalNrItems() const;
     void			getRandRowids();

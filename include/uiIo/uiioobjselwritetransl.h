@@ -78,7 +78,7 @@ public:
 /*!\brief Group for selecting output translator */
 
 mExpClass(uiIo) uiIOObjSelWriteTranslator : public uiGroup
-{
+{ mODTextTranslationClass(uiIOObjSelWriteTranslator)
 public:
 			uiIOObjSelWriteTranslator(uiParent*,const CtxtIOObj&,
 					    bool withopts=false);

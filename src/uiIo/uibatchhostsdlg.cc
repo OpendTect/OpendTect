@@ -86,19 +86,20 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->attach( leftAlignedBelow, filefld );
 
     autobox_ = new uiCheckBox( this,
-	"Automatically fill in IP address or Hostname" );
+	tr("Automatically fill in IP address or Hostname") );
     autobox_->setChecked( true );
     autobox_->attach( alignedBelow, table_ );
 
     uiButtonGroup* buttons = new uiButtonGroup( this, "", OD::Vertical );
-    new uiToolButton( buttons, "addnew", tr("Add Host"),
+    new uiToolButton( buttons, "addnew", uiStrings::phrAdd(tr("Host")),
 			mCB(this,uiBatchHostsDlg,addHostCB) );
-    new uiToolButton( buttons, "stop", tr("Remove Host"),
+    new uiToolButton( buttons, "stop", uiStrings::phrRemove(tr("Host")),
 			mCB(this,uiBatchHostsDlg,rmHostCB) );
-    upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow, tr("Move up"),
+    upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow, 
+			uiStrings::sMoveUp(),
 			mCB(this,uiBatchHostsDlg,moveUpCB) );
     downbut_ = new uiToolButton( buttons, uiToolButton::DownArrow,
-			tr("Move down"),
+			uiStrings::sMoveDown(),
 			mCB(this,uiBatchHostsDlg,moveDownCB) );
     new uiToolButton( buttons, "checkgreen", tr("Test Hosts"),
 			mCB(this,uiBatchHostsDlg,testHostsCB) );
@@ -133,7 +134,10 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     ulbl->attach( leftBorder );
     ulbl->attach( ensureBelow, sep );
 
-    const char* cmds[] = { "ssh", "rsh", 0 };
+    uiStringSet cmds;
+    cmds += toUiString("ssh");
+    cmds += toUiString("rsh");
+    cmds += uiStrings::sEmptyString();
     uiGenInput* remoteshellfld = new uiGenInput( &dlg,
 				tr("Remote shell command"),
 				BoolInpSpec(true,cmds[0],cmds[1]) );
@@ -168,7 +172,7 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     if ( !dlg.go() ) return;
 
     const int cmdres = (int)(!remoteshellfld->getBoolValue());
-    hostdatalist_.setLoginCmd( cmds[cmdres] );
+    hostdatalist_.setLoginCmd( mFromUiStringTodo(cmds[cmdres]) );
     hostdatalist_.setNiceLevel( nicelvlfld->getIntValue() );
     hostdatalist_.setFirstPort( portnrfld->getIntValue() );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
@@ -278,7 +282,7 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
     if ( !hostname.isEmpty() )
 	msgtxt = tr( "Host %1" ).arg( hostname );
     else
-	msgtxt = ( table_->rowLabel(row) );
+	msgtxt = ( toUiString(table_->rowLabel(row)) );
 
     const uiString msg(tr("%1 will be removed from this list").arg(msgtxt));
     const bool res = uiMSG().askContinue( msg );
@@ -328,7 +332,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 
     const BufferString endmsg = msgs.cat();
     if ( !endmsg.isEmpty() )
-	uiMSG().message( endmsg );
+	uiMSG().message( mToUiStringTodo(endmsg) );
 }
 
 

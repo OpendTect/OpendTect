@@ -52,7 +52,7 @@ protected:
     const HostDataList& hdl_;
     Timer*		timer_;
     int			nrcyclesdone_;
-    BufferString	basecaption_;
+    uiString		basecaption_;
     JobRunner*		jobrunner_;
     mutable uiString	errmsg_;
 
@@ -73,7 +73,8 @@ private:
     uiGenInput*		jrpstartfld_;
     uiGenInput*		jrpstopfld_;
     uiLabel*		jrpworklbl_;
-
+    
+    bool		retFullFailGoOnMsg();
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 

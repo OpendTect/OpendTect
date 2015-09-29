@@ -43,10 +43,10 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     manipgrp->addButton( "editprdf",
-			 "Browse/edit this Probability Density Function",
+			 tr("Browse/edit this Probability Density Function"),
 			 mCB(this,uiProbDenFuncMan,browsePush) );
     manipgrp->addButton( "genprdf",
-			 "Generate Probability Density Function",
+			 tr("Generate Probability Density Function"),
 			 mCB(this,uiProbDenFuncMan,genPush) );
 
     selgrp_->setPrefWidthInChar( mCast(float,cPrefWidth) );

@@ -128,7 +128,8 @@ bool createBaseDir()
 	if  ( !File::createDir(basefp_.fullPath()) )
 	{
 	    const uiString msg =
-		uiStrings::phrCannotCreateDirectory(basefp_.fullPath());
+		uiStrings::phrCannotCreateDirectory(
+		toUiString(basefp_.fullPath()));
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -237,17 +238,18 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 	nmfld_->setElemSzPol( uiObject::SmallMax );
 	nmfld_->setStretch( 2, 0 );
     }
-
+    uiString trselgrp = tr("Selection-Groups");
     infobut_ = new uiToolButton( this, "info", uiStrings::sInfo(),
 				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 
-    delbut_ = new uiToolButton( this, "trashcan", "Delete Selection-Groups",
+    delbut_ = new uiToolButton( this, "trashcan", uiStrings::phrJoinStrings(
+				uiStrings::sDelete(), trselgrp),
 			        mCB(this,uiSGSelGrp,delSelGrps) );
     delbut_->attach( alignedBelow, infobut_ );
 
-    renamebut_ = new uiToolButton( this, "renameobj", "Rename Selection-Groups",
-				   mCB(this,uiSGSelGrp,renameSelGrps) );
+    renamebut_ = new uiToolButton( this, "renameobj", uiStrings::phrRename(
+			        trselgrp), mCB(this,uiSGSelGrp,renameSelGrps) );
     renamebut_->attach( alignedBelow, delbut_ );
 
     fillListBox();
@@ -277,7 +279,7 @@ void uiSGSelGrp::showInfo( CallBacker* )
 	selgrpset[idx]->getInfo( info );
 
     deepErase( selgrpset );
-    uiMSG().message( info );
+    uiMSG().message( mToUiStringTodo(info) );
 }
 
 
@@ -298,12 +300,14 @@ void uiSGSelGrp::delSelGrps( CallBacker* )
 class uiRenameDlg : public uiDialog
 { mODTextTranslationClass(uiRenameDlg);
 public:
-
+uiString selGrpSet_ = tr("Selection Group Set");
 uiRenameDlg( uiParent* p, const char* nm )
-    : uiDialog(p,uiDialog::Setup("Rename Selection Group Set",
-                                 0, mNoHelpKey) )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrRename(selGrpSet_),
+                                 uiStrings::sEmptyString(), 
+				 mNoHelpKey) )
 {
-    namefld_ = new uiGenInput( this, "Selection Group Set Name" );
+    namefld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
+				    uiStrings::sSelection(), selGrpSet_) );
     namefld_->setText( nm );
 }
 
@@ -486,12 +490,13 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 
 
 class uiSGSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSGSelDlg)
 public:
 
 uiSGSelDlg( uiParent* p, bool forread )
-    : uiDialog(p,uiDialog::Setup("Select Cross-plot Selection Groups",
-                                 0, mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(uiStrings::phrCrossPlot(
+	uiStrings::phrJoinStrings(uiStrings::sSelection(), tr("Groups")))),
+        uiStrings::sEmptyString(), mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );
@@ -601,8 +606,9 @@ const char* uiSGSel::selGrpFileNm()
 
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
-    : uiDialog(p,uiDialog::Setup("Open Cross-plot Selection",mNoDlgTitle,
-				mODHelpKey(mReadSelGrpHelpID) ))
+    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sOpen(), phrCrossPlot(
+				 uiStrings::sSelection())),mNoDlgTitle,
+				 mODHelpKey(mReadSelGrpHelpID) ))
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
     , y2selfld_(0)
@@ -619,19 +625,19 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
 
     uiLabeledComboBox* xselfld =
 	new uiLabeledComboBox( this,
-		    plotter.axisHandler(0)->getCaption().getFullString() );
+		    plotter.axisHandler(0)->getCaption() );
     xselfld_ = xselfld->box();
     xselfld->attach( centeredBelow, inpfld_ );
     xselfld_->display( false, false );
 
     uiLabeledComboBox* yselfld =
 	new uiLabeledComboBox( this,
-		    plotter.axisHandler(1)->getCaption().getFullString() );
+		    plotter.axisHandler(1)->getCaption() );
     yselfld_ = yselfld->box();
     yselfld->attach( alignedBelow, xselfld );
     yselfld_->display( false, false );
 
-    ychkfld_ = new uiCheckBox( this, "Import Y1",
+    ychkfld_ = new uiCheckBox( this, uiStrings::phrImport(uiStrings::sY1()),
 			       mCB(this,uiReadSelGrp,fldCheckedCB) );
     ychkfld_->attach( rightTo, yselfld );
     ychkfld_->display( false, false );
@@ -640,11 +646,11 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     {
 	uiLabeledComboBox* y2selfld =
 	    new uiLabeledComboBox( this,
-			plotter.axisHandler(2)->getCaption().getFullString() );
+			plotter.axisHandler(2)->getCaption() );
 	y2selfld_ = y2selfld->box();
 	y2selfld->attach( alignedBelow, yselfld );
 	y2selfld_->display( false, false );
-	y2chkfld_ = new uiCheckBox( this, "Import Y2",
+	y2chkfld_ = new uiCheckBox( this, uiStrings::sY2(),
 				    mCB(this,uiReadSelGrp,fldCheckedCB) );
 	y2chkfld_->attach( rightTo, y2selfld );
 	y2chkfld_->display( false, false );
@@ -974,8 +980,9 @@ bool uiReadSelGrp::acceptOK( CallBacker* )
 uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
-    : uiDialog(p,uiDialog::Setup("Save Selection Area",
-				 "Specify parameters",
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSave(uiStrings::phrJoinStrings(
+				 uiStrings::sSelection(), tr("Area"))),
+				 mJoinUiStrs(sSpecify(), sParameter(mPlural)),
                                  mODHelpKey(mExpSelectionAreaHelpID) ))
     , selgrps_(selgrps)
     , setup_(su)

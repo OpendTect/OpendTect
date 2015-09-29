@@ -152,8 +152,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     uiLabel* crdlbl = new uiLabel( this, tr("Coordinate settings:") );
     crdlbl->attach( leftBorder );
     crdlbl->attach( ensureBelow, horsep2 );
-    coordset = new uiGenInput( this, "", BoolInpSpec(true,tr("Easy"),
-                                                     uiStrings::sAdvanced()) );
+    coordset = new uiGenInput( this, uiStrings::sEmptyString(), 
+                         BoolInpSpec(true,tr("Easy"), uiStrings::sAdvanced()) );
     coordset->attach( alignedBelow, rangegrp_ );
     coordset->attach( rightTo, crdlbl );
     coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
@@ -210,7 +210,7 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     for ( int idx=0; idx<nrprovs; idx++ )
     {
 	uiSurvInfoProvider& sip = *sips_[idx];
-	sipfld_->addItem( sip.usrText() );
+	sipfld_->addItem( mToUiStringTodo(sip.usrText()) );
 	const char* icnm = sip.iconName();
 	if ( icnm && *icnm )
 	    sipfld_->setIcon( sipfld_->size()-1, icnm );
@@ -302,15 +302,16 @@ void uiSurveyInfoEditor::mkCoordGrp()
 		      PositionInpSpec(psetup).setName("Inl Position3",0)
 					     .setName("Crl Position3",1) );
     psetup.wantcoords_ = true;
-    xy0fld_ = new uiGenInput( crdgrp_, "= (X,Y)",
+    uiString xystr = tr("= (X,Y)");
+    xy0fld_ = new uiGenInput( crdgrp_, xystr,
 				PositionInpSpec(psetup).setName("X1",0)
 						       .setName("Y1",1) );
     xy0fld_->setElemSzPol( uiObject::SmallVar );
-    xy1fld_ = new uiGenInput( crdgrp_, "= (X,Y)",
+    xy1fld_ = new uiGenInput( crdgrp_, xystr,
 				PositionInpSpec(psetup).setName("X2",0)
 						       .setName("Y2",1) );
     xy1fld_->setElemSzPol( uiObject::SmallVar );
-    xy2fld_ = new uiGenInput( crdgrp_, "= (X,Y)",
+    xy2fld_ = new uiGenInput( crdgrp_, xystr,
 				PositionInpSpec(psetup).setName("X3",0)
 						       .setName("Y3",1) );
     xy2fld_->setElemSzPol( uiObject::SmallVar );
@@ -712,7 +713,7 @@ bool uiSurveyInfoEditor::setCoords()
     c[2] = xy1fld_->getCoord();
 
     const char* msg = si_.set3Pts( c, b, xline );
-    if ( msg ) { uiMSG().error( msg ); return false; }
+    if ( msg ) { uiMSG().error( mToUiStringTodo(msg) ); return false; }
     else if ( mUseAdvanced() )
 	si_.gen3Pts();
 
@@ -836,7 +837,7 @@ void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
 {
     BufferString msg;
     System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(dirnm), msg );
-    toStatusBar( msg );
+    toStatusBar( mToUiStringTodo(msg) );
 }
 
 
@@ -913,8 +914,8 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
     uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
-    uiSelectFromList::Setup setup( "Surveys", survlist_ );
-    setup.dlgtitle( "Select survey" );
+    uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
+    setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
     dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
     return dlg;

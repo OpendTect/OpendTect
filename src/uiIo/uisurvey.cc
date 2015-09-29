@@ -77,11 +77,12 @@ static ObjectSet<uiSurvey::Util>& getUtils()
     {
 	ManagedObjectSet<uiSurvey::Util>* newutils =
 				    new ManagedObjectSet<uiSurvey::Util>;
-	*newutils += new uiSurvey::Util( "xy2ic",
-		"Convert (X,Y) to/from (In-line,Cross-line)", CallBack() );
-	*newutils += new uiSurvey::Util( "spherewire",
-				"Setup geographical coordinates",
-				      CallBack() );
+	*newutils += new uiSurvey::Util( "xy2ic",od_static_tr("getUtils",
+		"Convert (X,Y) to/from (%1,%2)").arg(uiStrings::sInline())
+		.arg(uiStrings::sCrossline()), CallBack() );
+	*newutils += new uiSurvey::Util( "spherewire", od_static_tr("getUtils",
+				"Setup geographical coordinates"), CallBack() );
+				      
 
 	if ( !utils.setIfNull(newutils) )
 	    delete newutils;
@@ -120,7 +121,8 @@ class uiNewSurveyByCopy : public uiDialog
 public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
-	: uiDialog(p,uiDialog::Setup("Copy survey",mNoDlgTitle,mTODOHelpKey))
+	: uiDialog(p,uiDialog::Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
+						    mNoDlgTitle,mTODOHelpKey))
 	, dataroot_(dataroot)
 {
     BufferString curfnm;
@@ -351,7 +353,7 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 	    }
 	}
 
-	sipfld_->addItem( sip.usrText() );
+	sipfld_->addItem( toUiString(sip.usrText()) );
 	const char* icnm = sip.iconName();
 	if ( !icnm || !*icnm )
 	    icnm = "empty";
@@ -443,7 +445,7 @@ uiSurvey::uiSurvey( uiParent* p )
     infofld_->attach( ensureBelow, rightgrp );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
-    uiLabel* notelbl = new uiLabel( botgrp, "" );
+    uiLabel* notelbl = new uiLabel( botgrp, uiStrings::sEmptyString() );
     notelbl->setPixmap( uiPixmap("notes") );
     notelbl->setToolTip( tr("Notes") );
     notelbl->setMaximumWidth( 32 );
@@ -489,8 +491,8 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     uiButtonGroup* butgrp =
 	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
-    new uiToolButton( butgrp, "addnew",
-	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
+    new uiToolButton( butgrp, "addnew", uiStrings::phrCreate(mJoinUiStrs(sNew(),
+				sSurvey())), mCB(this,uiSurvey,newButPushed) );
     editbut_ = new uiToolButton( butgrp, "edit", tr("Edit Survey Parameters"),
 				 mCB(this,uiSurvey,editButPushed) );
     new uiToolButton( butgrp, "copyobj",
@@ -666,7 +668,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 	    const bool isblocked = IOM().message().isEmpty();
 	    if ( !isblocked )
-		uiMSG().error( IOM().message() );
+		uiMSG().error( mToUiStringTodo(IOM().message()) );
 	    return false;
 	}
     }
@@ -676,7 +678,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     {
 	readSurvInfoFromFile();
 	const char* askq = impsip_->importAskQuestion();
-	if ( askq && *askq && uiMSG().askGoOn(askq) )
+	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
 	{
 	    IOM().to( "100010" );
 	    impsip_->startImport( parent(), *impiop_ );
@@ -708,7 +710,7 @@ void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
 }
 
 
-void uiSurvey::rollbackNewSurvey( const char* errmsg )
+void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
 {
     if ( !cursurvinfo_ )
 	return;
@@ -717,10 +719,12 @@ void uiSurvey::rollbackNewSurvey( const char* errmsg )
     const bool haverem = File::removeDir( fp.fullPath() );
     setCurrentSurvInfo( 0, false );
     readSurvInfoFromFile();
-    if ( errmsg && *errmsg )
+    if ( !errmsg.isEmpty()  )
     {
-	const BufferString tousr( haverem ? "New survey removed because:\n"
-		: "New survey directory is invalid because:\n", errmsg );
+	const uiString tousr = haverem ? tr("New survey removed because:\n%1")
+		.arg(mToUiStringTodo(errmsg))
+		: tr("New survey directory is invalid because:\n%1")
+		.arg(mToUiStringTodo(errmsg) );
 	uiMSG().error( tousr );
     }
 }
@@ -759,13 +763,15 @@ void uiSurvey::newButPushed( CallBacker* )
 
     cursurvinfo_->datadir_ = dataroot_;
     if ( !File::makeWritable(storagedir,true,true) )
-	mRetRollBackNewSurvey("Cannot set the permissions for the new survey")
+	mRetRollBackNewSurvey(tr("Cannot set the permissions" 
+							"for the new survey"))
 
     if ( !cursurvinfo_->write(dataroot_) )
-	mRetRollBackNewSurvey( "Failed to write survey info" )
+	mRetRollBackNewSurvey( tr("%1 Info").
+			  arg(uiStrings::phrCannotWrite(uiStrings::sSurvey())) )
 
     if ( !doSurvInfoDialog(true) )
-	mRetRollBackNewSurvey( 0 )
+	mRetRollBackNewSurvey( uiStrings::sEmptyString() )
     else
     {
 	readSurvInfoFromFile(); // essential
@@ -856,12 +862,14 @@ void uiSurvey::importButPushed( CallBacker* )
 
 void uiSurvey::exportButPushed( CallBacker* )
 {
-    const BufferString survnm( selectedSurveyName() );
-    const BufferString title( "Compress ", survnm, " survey as zip archive" );
+    const char* survnm( selectedSurveyName() );
+    const uiString title = tr("Compress %1 survey as zip archive")
+						.arg(survnm);
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,
                     mODHelpKey(mSurveyexportButPushedHelpID) ));
-    uiFileInput* fnmfld = new uiFileInput( &dlg,"Select output destination",
+    uiFileInput* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
+		    uiStrings::phrOutput(tr("Destination"))),
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
     fnmfld->setDefaultExtension( "zip" );
@@ -938,7 +946,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 
 void uiSurvey::updateDataRootLabel()
 {
-    datarootlbl_->setText( dataroot_.buf() );
+    datarootlbl_->setText( toUiString(dataroot_) );
 }
 
 

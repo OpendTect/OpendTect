@@ -121,10 +121,10 @@ public:
 
 uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 				bool supportform )
-    : uiDialog(p,uiDialog::Setup("Property definition",
-		                 BufferString(isadd?"Add '":"Edit '",
-		                 PropertyRef::toString(pr.stdType()),
-                                 "' property"),
+    : uiDialog(p,uiDialog::Setup(tr("Property definition"),
+		                 toUiString("%1 '%2' property").arg(isadd ? 
+				 uiStrings::sAdd():uiStrings::sEdit()).
+				 arg( PropertyRef::toString(pr.stdType())),
 		                 mODHelpKey(mEditPropRefHelpID) ))
     , pr_(pr)
     , defaultmathprop_(pr)
@@ -137,14 +137,15 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     SeparString ss;
     for ( int idx=0; idx<pr_.aliases().size(); idx++ )
 	ss += pr_.aliases().get(idx);
-    aliasfld_ = new uiGenInput( this, "Aliases (e.g. 'abc, uvw*xyz')",
+    aliasfld_ = new uiGenInput( this, tr("Aliases (e.g. 'abc, uvw*xyz')"),
 				StringInpSpec(ss.buf()) );
     aliasfld_->attach( alignedBelow, namefld_ );
 
     colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
-					.lbltxt("Default display color") );
+			.lbltxt(uiStrings::phrJoinStrings(uiStrings::sDefault(),
+			mJoinUiStrs(sDisplay(),sColor()))));
     colfld_->attach( alignedBelow, aliasfld_ );
-    rgfld_ = new uiGenInput( this, "Typical value range",
+    rgfld_ = new uiGenInput( this, tr("Typical value range"),
 			     FloatInpIntervalSpec() );
     rgfld_->attach( alignedBelow, colfld_ );
     unfld_ = new uiUnitSel( this, pr_.stdType() );
@@ -163,7 +164,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     }
     rgfld_->setValue( vintv );
 
-    defaultfld_ = new uiGenInput( this, "Default value" );
+    defaultfld_ = new uiGenInput( this, mJoinUiStrs(sDefault(), sValue()) );;
     defaultfld_->attach( alignedBelow, rgfld_ );
     if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
     {
@@ -178,11 +179,11 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	defaultmathprop_.setDef( pr_.disp_.defval_->def() );
 	defaultfld_->setText( defaultmathprop_.formText(true) );
     }
-    defaultformbut_ = new uiPushButton( this, "Formula",
+    defaultformbut_ = new uiPushButton( this, tr("Formula"),
 				mCB(this,uiEditPropRef,setDefaultForm), false );
     defaultformbut_->attach( rightOf, defaultfld_ );
 
-    definitionfld_ = new uiGenInput( this, "Fixed definition" );
+    definitionfld_ = new uiGenInput( this, tr("Fixed definition") );
     definitionfld_->attach( alignedBelow, defaultfld_ );
     definitionfld_->setWithCheck( true );
     definitionfld_->setChecked( pr_.hasFixedDef() );
@@ -191,7 +192,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	definitionmathprop_.setDef( pr_.fixedDef().def() );
 	definitionfld_->setText( definitionmathprop_.formText(true) );
     }
-    definitionformbut_ = new uiPushButton( this, "Formula",
+    definitionformbut_ = new uiPushButton( this, tr("Formula"),
 			    mCB(this,uiEditPropRef,setDefinitionForm), false );
     definitionformbut_->attach( rightOf, definitionfld_ );
 
@@ -391,7 +392,7 @@ uiManPROPS::uiManPROPS( uiParent* p )
     const char* strs[] = { "For this survey only",
 			   "As default for all surveys",
 			   "As default for my user ID only", 0 };
-    srcfld_ = new uiGenInput( this, "Store", StringListInpSpec(strs) );
+    srcfld_ = new uiGenInput( this, tr("Store"), StringListInpSpec(strs) );
     srcfld_->attach( centeredBelow, buildfld_ );
 }
 
@@ -428,9 +429,11 @@ bool uiManPROPS::haveUserChange() const
 
 uiSelectPropRefs::uiSelectPropRefs( uiParent* p,PropertyRefSelection& prs,
 				    const char* lbl )
-    : uiDialog(p,uiDialog::Setup("Layer Properties - Selection",
-				 "Select layer properties to use",
-                                 mODHelpKey(mSelectPropRefsHelpID) ))
+    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2 - %3")
+		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
+		.arg(uiStrings::sSelection()),
+		uiStrings::phrSelect(tr("layer properties to use")),
+                mODHelpKey(mSelectPropRefsHelpID) ))
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
@@ -443,10 +446,12 @@ bool uiSelectPropRefs::acceptOK( CallBacker* )
 uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 	uiParent* p, PropertyRefSelection& prs, IOPar& pars, int pos,
 	const char* lbl )
-    : uiVarWizardDlg(p,uiDialog::Setup("Layer Properties - Selection",
-				       "Select layer properties to use",
-				       mODHelpKey(mSelectPropRefsHelpID)),
-	    	     pars, (uiVarWizardDlg::Position)pos )
+    : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
+		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
+		.arg(uiStrings::sSelection()),
+		uiStrings::phrSelect(tr("layer properties to use")),
+		mODHelpKey(mSelectPropRefsHelpID)),
+	    	pars, (uiVarWizardDlg::Position)pos )
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
@@ -465,12 +470,13 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
     , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, lbl, uiListBox::AboveMid );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, mToUiStringTodo(lbl), 
+			 uiListBox::AboveMid );
     propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
-					"Manage available properties",
+					tr("Manage available properties"),
 					mCB(this,uiSelectPropRefsGrp,manPROPS));
     manpropsbut->attach( centeredRightOf, propfld_ );
 }

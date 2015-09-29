@@ -38,7 +38,7 @@ static bool writePDF( const ProbDenFunc& pdf, const IOObj& ioobj )
 
     uiString msg = emsg;
     if ( !msg.isSet() )
-	msg = "Could not write PDF to disk";
+	msg = uiStrings::phrCannotWrite(od_static_tr("writePDF","PDF to disk"));
     uiMSG().error( msg );
     return false;
 }
@@ -147,15 +147,15 @@ bool uiProbDenFuncGen::acceptOK( CallBacker* )
 
 uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 						  bool isgauss, MultiID& ky )
-    : uiDialog(p,Setup("Generate editable PDF",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Generate editable PDF"),mNoDlgTitle,mTODOHelpKey))
     , nrdims_(nrdim)
     , ioobjky_(ky)
 {
     for ( int idx=0; idx<nrdims_; idx++ )
     {
 	uiGenInput* nmfld = new uiGenInput( this, nrdims_ == 1 ?
-		"Variable name" : BufferString("Dimension ",idx+1,": Name") );
-	uiGenInput* rgfld = new uiGenInput( this, "Value range",
+		tr("Variable name") : tr("Dimension %1: Name").arg(idx+1) );
+	uiGenInput* rgfld = new uiGenInput(this, mJoinUiStrs(sValue(),sRange()),
 				FloatInpSpec(), FloatInpSpec() );
 	rgfld->valuechanged.notify( mCB(this,uiProbDenFuncGenSampled,rgChg) );
 	nmflds_ += nmfld; rgflds_ += rgfld;
@@ -165,7 +165,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     }
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
-	    nrdims_ == 1 ? "Number of bins" : "Number of bins per dimension");
+      nrdims_ == 1 ? tr("Number of bins") : tr("Number of bins per dimension"));
     nrbinsfld_ = lsb->box();
     nrbinsfld_->setInterval( 3, 10000, 1 );
     nrbinsfld_->setValue( 25 );
@@ -176,9 +176,11 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     {
 	for ( int idx=0; idx<nrdims_; idx++ )
 	{
-	    BufferString lbltxt( nrdims_ == 1 ? "Exp/Std" : "Dimension " );
+	    uiString lbltxt =  nrdims_ == 1 ? tr("Exp/Std") : 
+							uiStrings::sDimension();
 	    if ( nrdims_ > 1 )
-		lbltxt.add( idx+1 ).add( ": Exp/Std" );
+		lbltxt = toUiString("%1 %2 %3").arg(lbltxt).arg(idx+1 )
+					       .arg( tr(": Exp/Std") );
 	    uiGenInput* expstdfld = new uiGenInput( this, lbltxt,
 				    FloatInpSpec(), FloatInpSpec() );
 	    expstdfld->attach( alignedBelow, alfld );
@@ -194,12 +196,14 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 	if ( nrdims_ > 1 )
 	{
 	    uiGenInput* fld;
-	    mMkCorrFld( nrdims_ == 2 ? "Correlation" : "Correlation 1 -> 2",
-			rightOf, expstdflds_[1] );
+	    mMkCorrFld(nrdims_ == 2 ? uiStrings::sCorrelation():tr("%1 1 -> 2")
+		      .arg(uiStrings::sCorrelation()), rightOf, expstdflds_[1]);
 	    if ( nrdims_ > 2 )
 	    {
-		mMkCorrFld( "Correlation 1 -> 3", alignedBelow, ccflds_[0] );
-		mMkCorrFld( "Correlation 2 -> 3", rightOf, ccflds_[1] );
+		mMkCorrFld( tr("%1 1 -> 3").arg(uiStrings::sCorrelation()), 
+						     alignedBelow, ccflds_[0] );
+		mMkCorrFld( tr("%1 2 -> 3").arg(uiStrings::sCorrelation()), 
+						     rightOf, ccflds_[1] );
 	    }
 	}
     }
@@ -246,7 +250,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
     float cc = ccflds_[ifld]->getfValue(); \
     if ( mIsUdf(cc) ) cc = 0; \
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() ) \
-	mErrRet( sGaussianCCRangeErrMsg() ) \
+	mErrRet( mToUiStringTodo(sGaussianCCRangeErrMsg()) ) \
     ccs_ += cc; \
 }
 
@@ -432,7 +436,7 @@ bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
 
 uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
 						    MultiID& ky )
-    : uiDialog(p,Setup("Generate Gaussian PDF",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Generate Gaussian PDF"),mNoDlgTitle,mTODOHelpKey))
     , ioobjky_(ky)
 {
     if ( nrdim == 1 )

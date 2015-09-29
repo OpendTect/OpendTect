@@ -21,12 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 				  const PropertyRefSelection& prs )
     : uiDialog( p, Setup(tr("Math property"),
-		BufferString("Value generation by formula for ",pr.name()),
-		mODHelpKey(mMathPropEdDlgHelpID)) )
+		tr("Value generation by formula for %1")
+		.arg(toUiString(pr.name())), mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
     , prs_(*new PropertyRefSelection(prs))
 {
-    uiMathFormula::Setup umfsu( "Formula (like den * vel)" );
+    uiMathFormula::Setup umfsu( tr("Formula (like den * vel)") );
     umfsu.proptype( prop_.ref().stdType() );
     umfsu.stortype( "Math Property" );
     formfld_ = new uiMathFormula( this, prop_.getForm(), umfsu );
@@ -42,8 +42,9 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     }
     formfld_->setNonSpecInputs( availpropnms );
 
-    uiToolButtonSetup tbsu( "rockphys", "Choose RockPhysics Formula",
-		    mCB(this,uiMathPropEdDlg,rockPhysReq), "Rock Physics");
+    uiToolButtonSetup tbsu( "rockphys", tr("Choose RockPhysics Formula"),
+		    mCB(this,uiMathPropEdDlg,rockPhysReq), 
+		    uiStrings::sRockPhy() );
     formfld_->addButton( tbsu );
 }
 
@@ -83,7 +84,7 @@ void uiMathPropEdDlg::setPType4Inp( int inpidx )
 
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup(tr("Rock Physics"),
+    uiDialog dlg( this, uiDialog::Setup(uiStrings::sRockPhy(),
 		  tr("Use a rock physics formula"),
 		  mODHelpKey(mRockPhysFormHelpID)) );
     uiRockPhysForm* rpffld = new uiRockPhysForm( &dlg, prop_.ref().stdType() );

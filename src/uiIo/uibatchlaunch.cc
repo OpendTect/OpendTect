@@ -37,7 +37,10 @@ static const char* rcsID mUsedVar = "$Id$";
 // uiProcSettings
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
-static const char* sKeyNoParFiles = "<No job files found>";
+
+
+const uiString uiStartBatchJobDialog::sKeyNoParFiles()
+{ return tr("<No job files found>");	}
 
 
 static bool enabClusterProc()
@@ -79,7 +82,7 @@ bool uiProcSettings::acceptOK()
 
 // uiStartBatchJobDialog
 uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
-    : uiDialog(p,Setup("(Re-)Start a batch job",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Start/ReStart a batch job"),mNoDlgTitle,
                         mODHelpKey(mRestartBatchDialogHelpID) ))
     , canresume_(false)
 {
@@ -87,28 +90,30 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 
     jobsfld_ = new uiListBox( topgrp, "Stored Batch Job" );
     jobsfld_->box()->setPrefHeightInChar( 10 );
-    jobsfld_->addItem( "Scanning Proc directory ...." );
+    jobsfld_->addItem( tr("Scanning Proc directory ....") );
 
-    vwfilebut_ = new uiToolButton( topgrp, "info", "View/Edit job file",
+    vwfilebut_ = new uiToolButton( topgrp, "info", tr("View/Edit job file"),
 		      mCB(this,uiStartBatchJobDialog,viewFile) );
     vwfilebut_->attach( rightOf, jobsfld_ );
-    rmfilebut_ = new uiToolButton( topgrp, "trashcan", "Remove job file",
-		      mCB(this,uiStartBatchJobDialog,rmFile) );
+    rmfilebut_ = new uiToolButton( topgrp, "trashcan", uiStrings::phrRemove(
+		     uiStrings::phrJoinStrings(tr("Job"), uiStrings::sFile())),
+		     mCB(this,uiStartBatchJobDialog,rmFile) );
     rmfilebut_->attach( centeredRightOf, jobsfld_ );
 
     topgrp->setFrame( true );
     topgrp->setHAlignObj( jobsfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
-    invalidsellbl_ = new uiLabel( botgrp, sKeyNoParFiles );
+    invalidsellbl_ = new uiLabel( botgrp, sKeyNoParFiles() );
 
     batchfld_ = new uiBatchJobDispatcherSel( botgrp, false,
 					     Batch::JobSpec::Attrib );
     batchfld_->selectionChange.notify(
 				mCB(this,uiStartBatchJobDialog,launcherSel) );
 
-    resumefld_ = new uiGenInput( botgrp, "Use already processed data",
-	BoolInpSpec(false,uiStrings::sYes(),"No (start from scratch)") );
+    resumefld_ = new uiGenInput( botgrp, tr("Use already processed data"),
+	BoolInpSpec(false,uiStrings::sYes(),uiStrings::phrJoinStrings(
+			  uiStrings::sNo(),tr("(start from scratch)"))) );
     resumefld_->attach( alignedBelow, batchfld_ );
     resumefld_->attach( alignedBelow, invalidsellbl_ );
 
@@ -127,7 +132,8 @@ void uiStartBatchJobDialog::fillList( CallBacker* )
     {
 	filenames_.add( dl.fullPath(idx) );
 	const BufferString& fnm = dl.get( idx );
-	jobsfld_->addItem( Batch::JobDispatcher::getJobName(fnm) );
+	jobsfld_->addItem( toUiString(Batch::JobDispatcher::
+							    getJobName(fnm)) );
     }
 
     jobsfld_->selectionChanged.notify( mCB(this,uiStartBatchJobDialog,itmSel) );
@@ -170,8 +176,8 @@ void uiStartBatchJobDialog::itmSel( CallBacker* )
     batchfld_->display( canrun );
     invalidsellbl_->display( !canrun );
     if ( !canrun )
-	invalidsellbl_->setText( !haveparfiles ? sKeyNoParFiles
-			   : (emptyfile ? "<Empty file>" : "<Pre-5.0 Job>") );
+	invalidsellbl_->setText( !haveparfiles ? sKeyNoParFiles()
+		    : (emptyfile ? tr("<Empty file>") : tr("<Pre-5.0 Job>")) );
 
     setButSens();
     launcherSel(0);
@@ -204,7 +210,8 @@ void uiStartBatchJobDialog::viewFile( CallBacker* )
 
     uiTextFileDlg* dlg = new uiTextFileDlg( this, filenames_.get(selidx) );
     dlg->setDeleteOnClose( true );
-    dlg->setCaption( BufferString( "Job: ", jobsfld_->textOfItem(selidx) ) );
+    dlg->setCaption( tr("Job: %1").arg(toUiString(jobsfld_->textOfItem(
+								    selidx))) );
     dlg->go();
 }
 

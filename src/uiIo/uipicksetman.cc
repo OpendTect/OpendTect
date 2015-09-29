@@ -42,7 +42,8 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 {
     createDefaultUI();
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
-			  "Merge pick sets", mCB(this,uiPickSetMan,mergeSets) );
+				    uiStrings::phrMerge(uiStrings::sPickSet()),
+				    mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
 }
@@ -57,11 +58,11 @@ void uiPickSetMan::ownSelChg()
 {
     BufferStringSet chsnnms;
     selgrp_->getChosen( chsnnms );
-    BufferString tt;
+    uiString tt;
     if ( chsnnms.size() > 1 )
-	tt.add( "Merge " ).add( chsnnms.getDispString(2) );
+	tt = uiStrings::phrMerge( mToUiStringTodo(chsnnms.getDispString(2)) );
     else
-	tt.add( "Merge pick sets" );
+	tt = uiStrings::phrMerge(uiStrings::sPickSet());
 
     mergebut_->setToolTip( tt );
 }

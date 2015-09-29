@@ -105,7 +105,7 @@ protected:
     bool		rootDirWritable() const;
     bool		doSurvInfoDialog(bool isnew);
     void		updateDataRootInSettings();
-    void		rollbackNewSurvey(const char*);
+    void		rollbackNewSurvey(const uiString&);
 
 private:
     void		fillLeftGroup(uiGroup*);

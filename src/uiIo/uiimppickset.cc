@@ -107,7 +107,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	serv_->fetchHors( false );
 	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
 	for ( int idx=0; idx<hinfos.size(); idx++ )
-	    horinpfld_->box()->addItem( hinfos[idx]->name );
+	    horinpfld_->box()->addItem( toUiString(hinfos[idx]->name) );
 	horinpfld_->attach( alignedBelow, zfld_ );
 	horinpfld_->display( zfld_->box()->currentItem() == 2 );
 
@@ -203,7 +203,7 @@ bool uiImpExpPickSet::doImport()
     IOM().commitChanges( *ioobj );
     BufferString errmsg;
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
-	mErrRet(errmsg);
+	mErrRet(mToUiStringTodo(errmsg));
 
     storedid_ = ioobj->key();
     if ( saveButtonChecked() )
@@ -240,14 +240,15 @@ bool uiImpExpPickSet::doExport()
     PtrMan<IOObj> ioobj = objfldioobj->clone();
     BufferString errmsg; Pick::Set ps;
     if ( !PickSetTranslator::retrieve(ps,ioobj,true, errmsg) )
-	mErrRet(errmsg);
+	mErrRet(mToUiStringTodo(errmsg));
 
     const char* fname = filefld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();
     if ( !sdo.usable() )
     {
 	sdo.close();
-	mErrRet( tr("Could not open output file") )
+	mErrRet(uiStrings::phrCannotOpen(uiStrings::phrOutput(
+		uiStrings::sFile())))
     }
 
     *sdo.ostrm << std::fixed;

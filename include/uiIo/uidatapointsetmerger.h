@@ -96,7 +96,8 @@ public:
     od_int64			nrDone() const		{ return rowdone_; }
     od_int64			totalNr() const		{return sdps_->size();}
     uiString			uiNrDoneText() const
-    				{ return "Postion processed"; }
+    				{return uiStrings::phrJoinStrings(
+				uiStrings::sPosition(mPlural),tr("processed"));}
     DataPointSet*		getNewDPS()		{ return newdps_; }
 protected:
     DPSMergerProp		prop_;

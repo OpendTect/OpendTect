@@ -29,10 +29,10 @@ public:
     {
 			Setup( bool is_2d )
 			    : uiPosFiltGroup::Setup(is_2d)
-			    , seltxt_("Filters")
+			    , seltxt_(uiStrings::sFilters())
 			    , incprovs_(false)		{}
 
-	mDefSetupMemb(BufferString,seltxt)
+	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(bool,incprovs)
     };
 
