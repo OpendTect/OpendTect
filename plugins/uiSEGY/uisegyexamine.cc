@@ -325,7 +325,7 @@ void uiSEGYExamine::updateInp()
 
     if ( stoppedatend || nrdone < 1 )
     {
-	BufferString str( "\n\n---- " );
+	BufferString str( "\n\n----  " );
 	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
 	if ( nrdone < 1 )
 	    str += "No traces found";
@@ -333,9 +333,9 @@ void uiSEGYExamine::updateInp()
 	{
 	    str += "Total number of traces present in file";
 	    if ( ismulti ) str += "s";
-	    str += ":"; str += nrdone;
+	    str += ": "; str += nrdone;
 	}
-	str += " ----";
+	str += "  ----";
 	txtinfo_ += str;
     }
     outInfo( "" );

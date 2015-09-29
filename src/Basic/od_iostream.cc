@@ -425,7 +425,7 @@ static void fillNumberFmtErrMsg( od_istream& strm, uiString& errmsg )
 
 #define mNumberNotPresentErrRet() \
 	{ errmsg.set("Number not present on last line"); \
-	    stdstrm.setstate(std::ios::failbit); return false; } \
+	    stdstrm.setstate(std::ios::failbit); return false; }
 
 template <class T>
 static bool getNumberWithRetry( od_istream& strm, T& t, uiString& errmsg )
