@@ -87,7 +87,7 @@ protected:
 
 
 mExpClass(uiTools) uiTreeItemTBHandler : public MenuHandler
-{
+{ mODTextTranslationClass(uiTreeItemTBHandler)
 public:
     				uiTreeItemTBHandler(uiParent*);
 

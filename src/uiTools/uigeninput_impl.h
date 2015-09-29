@@ -97,12 +97,14 @@ protected:
 
 
 class uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
-{
+{ mODTextTranslationClass(UserInputObjImpl)
 public:
 
 			uiGenInputBoolFld(uiParent*,
-				    const char* truetext="",
-				    const char* falsetext="",
+				    const uiString& truetext=uiStrings::
+								sEmptyString(),
+				    const uiString& falsetext=uiStrings::
+								sEmptyString(),
 				    bool initval = true,
 				    const char* nm="Bool Input");
 

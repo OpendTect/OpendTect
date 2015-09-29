@@ -235,7 +235,7 @@ void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
     const Color& col = withcolor ? Color::stdDrawColor( curidx )
 				 : Color::Black();
     colors_ += col;
-    funclistfld_->addItem( fcname, col );
+    funclistfld_->addItem( mToUiStringTodo(fcname), col );
 
     uiFunctionDrawer::DrawFunction* drawfunction =
 			new uiFunctionDrawer::DrawFunction( mfunc );
@@ -273,7 +273,8 @@ const char* uiFuncSelDraw::getCurrentListName() const
 
 uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 					float variable )
-    : uiDialog( p, uiDialog::Setup(tr("Window/Taper display"),0,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Window/Taper display"),
+				   uiStrings::sEmptyString(),mNoHelpKey) )
     , variable_(variable)
     , funcdrawer_(0)
 {
@@ -292,7 +293,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     funcdrawer_->funclistselChged.notify(
 	    mCB(this,uiWindowFuncSelDlg,funcSelChg) );
 
-    BufferString tapertxt( "Taper Length (%)" );
+    uiString tapertxt( tr("Taper Length (%)") );
     varinpfld_ = new uiGenInput( this, tapertxt, FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, funcdrawer_ );
     varinpfld_->setValue( variable_ * 100 );

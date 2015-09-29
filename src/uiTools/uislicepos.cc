@@ -27,13 +27,14 @@ uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
     , zfactor_(SI().zDomain().userFactor())
 {
-    toolbar_ = new uiToolBar( p, "Slice position" );
+    toolbar_ = new uiToolBar( p, uiStrings::phrJoinStrings(uiStrings::sSlice(),
+			      uiStrings::sPosition()) );
 
-    boxlabels_.add( "Inl" );
-    boxlabels_.add( "Crl" );
-    boxlabels_.add( "Z" );
+    boxlabels_.add( uiStrings::sInline() );
+    boxlabels_.add( uiStrings::sCrossline() );
+    boxlabels_.add( uiStrings::sZ() );
 
-    label_ = new uiLabel( toolbar_, boxlabels_.get(1) );
+    label_ = new uiLabel( toolbar_, boxlabels_[1] );
     sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
     sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
 
@@ -90,22 +91,23 @@ void uiSlicePos::initSteps( CallBacker* )
 }
 
 
-void uiSlicePos::setLabels( const char* inl, const char* crl, const char* z )
+void uiSlicePos::setLabels( const uiString& inl, const uiString& crl, 
+			    const uiString& z )
 {
-    boxlabels_.get(0) = inl;
-    boxlabels_.get(1) = crl;
-    boxlabels_.get(2) = z;
+    boxlabels_[0] = inl;
+    boxlabels_[1] = crl;
+    boxlabels_[2] = z;
 }
 
 
 void uiSlicePos::setBoxLabel( uiSlicePos::SliceDir orientation )
 {
     if ( orientation == OD::InlineSlice )
-	label_->setText( boxlabels_.get(0) );
+	label_->setText( boxlabels_[0] );
     else if ( orientation == OD::CrosslineSlice )
-	label_->setText( boxlabels_.get(1) );
+	label_->setText( boxlabels_[1] );
     else
-	label_->setText( boxlabels_.get(2) );
+	label_->setText( boxlabels_[2] );
 }
 
 

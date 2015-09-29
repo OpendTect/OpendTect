@@ -44,7 +44,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 
 	if ( exclude ) continue;
 
-	str.addString( MarkerStyle3D::TypeNames()[idx] );
+	str.addString( mToUiStringTodo(MarkerStyle3D::TypeNames()[idx]) );
 	types_ += type;
     }
 

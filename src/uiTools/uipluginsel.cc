@@ -70,7 +70,7 @@ public:
 
 uiVendorTreeItem::uiVendorTreeItem( uiTreeView* p,
 				    const char* vendorname, bool issel )
-    : uiTreeViewItem(p,Setup(uiString(vendorname)).
+    : uiTreeViewItem(p,Setup(mToUiStringTodo(vendorname)).
 				    type(uiTreeViewItem::CheckBox))
 {
     setChecked( issel, true );
@@ -104,7 +104,7 @@ protected:
 
 uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* p,
 					PluginProduct& prod )
-    : uiTreeViewItem(p, Setup(uiString(prod.productname_))
+    : uiTreeViewItem(p, Setup(mToUiStringTodo(prod.productname_))
 		    .iconname(prod.pckgnm_).type(uiTreeViewItem::CheckBox))
     , product_(prod)
 {
@@ -121,7 +121,7 @@ void uiProductTreeItem::checkCB( CallBacker* )
 
 
 uiPluginSel::uiPluginSel( uiParent* p )
-	: uiDialog(p,Setup("",mNoDlgTitle,
+	: uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
                             mODHelpKey(mPluginSelHelpID) )
 			.savebutton(true)
 			.savetext(tr("Show this dialog at startup")))

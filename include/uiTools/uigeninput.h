@@ -56,7 +56,7 @@ only if the uiGenInput has not been finalised yet.
 */
 
 mExpClass(uiTools) uiGenInput : public uiGroup
-{
+{mODTextTranslationClass(uiGenInput)
 public:
 			uiGenInput( uiParent* p, const uiString& disptxt
 				  , const char* inputStr=0 );

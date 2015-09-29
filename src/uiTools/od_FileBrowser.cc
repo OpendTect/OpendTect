@@ -70,7 +70,7 @@ int main( int argc, char** argv )
 	fnm = const_cast<char*>(File::linkTarget(fnm));
 #endif
 
-    uiTextFileDlg::Setup fdsetup( fnm );
+    uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
     uiTextFileDlg* dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
     dlg->showAlwaysOnTop();

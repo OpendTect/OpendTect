@@ -32,7 +32,7 @@ mExpClass(uiTools) uiOfferInfoWin : public uiMainWin
 { mODTextTranslationClass(uiOfferInfoWin);
 public:
 
-			uiOfferInfoWin(uiParent*,const char* captn,
+			uiOfferInfoWin(uiParent*,const uiString& captn,
 					int initialnrlines=5);
 
     void		setText(const char*);
@@ -56,12 +56,13 @@ public:
 
 			uiOfferInfo(uiParent*,bool setinsens=true);
 
-    void		setInfo(const char*,const char* newcaption=0);
+    void		setInfo(const char*,const uiString& newcaption=
+						     uiStrings::sEmptyString());
 
 protected:
 
     BufferString	info_;
-    BufferString	caption_;
+    uiString		caption_;
     bool		insens_;
 
     uiOfferInfoWin*	infowin_;

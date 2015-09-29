@@ -116,11 +116,12 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	if ( !header_ )
 	{
 	    const uiPoint pt( width()/2, 0 );
-	    header_ = scene().addItem( new uiTextItem(pt,dp->name()) );
+	    header_ = scene().addItem( new uiTextItem(pt,
+						toUiString(dp->name())) );
 	    header_->setZValue( 2 );
 	}
 	else
-	    header_->setText( dp->name() );
+	    header_->setText( toUiString(dp->name()) );
     }
 
     return true;
@@ -291,7 +292,7 @@ void uiHistogramDisplay::putN()
 {
     delete nitm_; nitm_ = 0;
     nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/10,0),
-				BufferString("N=",nrinpvals_)) );
+						tr("N=%1").arg(nrinpvals_)) );
     nitm_->setPenColor( Color::Black() );
     nitm_->setZValue( 99999 );
 }

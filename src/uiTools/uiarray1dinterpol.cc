@@ -36,7 +36,8 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
 
     if ( maxgapsz )
     {
-	maxgapszfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+	maxgapszfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+				       FloatInpSpec() );
 	maxgapszfld_->setWithCheck( true );
 	if ( prevfld )
 	    maxgapszfld_->attach( alignedBelow, prevfld );

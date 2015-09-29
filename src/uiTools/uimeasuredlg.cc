@@ -53,36 +53,44 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	ls_.fromString( str.buf() );
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
-    BufferString hdistlbl ( "Horizontal Distance ", SI().getXYUnitString() );
+    uiString hdistlbl = uiStrings::phrJoinStrings(uiStrings::sHorizontal(),
+			uiStrings::phrJoinStrings(uiStrings::sDistance(), 
+			SI().getUiXYUnitString()) );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    BufferString zdistlbl( "Vertical Distance ", SI().getZUnitString() );
+    uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
+			uiStrings::phrJoinStrings(uiStrings::sDistance(), 
+			SI().getUiZUnitString()) );
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
+    uiString zintimelbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
+			  uiStrings::phrJoinStrings(uiStrings::sDistance(), 
+			  SI().getUiXYUnitString()) );
     if ( SI().zIsTime() )
     {
-	BufferString lbl( "Vertical Distance ", SI().getXYUnitString() );
-	zdist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
+	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
 	zdist2fld_->attach( alignedBelow, zdistfld_ );
 
-	lbl = "Velocity ";
-	lbl += BufferString( "(", SI().getXYUnitString(false), "/sec)" );
-	appvelfld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(velocity_) );
+	zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVelocity(),
+		   UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
+	appvelfld_ = new uiGenInput(topgrp, zdistlbl, FloatInpSpec(velocity_));
 	appvelfld_->valuechanged.notify( mCB(this,uiMeasureDlg,velocityChgd) );
 	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
 
-    BufferString distlbl( "Distance ", SI().getXYUnitString() );
+    uiString distlbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
+		       SI().getUiXYUnitString());
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
     if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
     {
-	BufferString lbl( "Distance ", SI().xyInFeet() ? "(m)": "(ft)" );
+	uiString lbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
+		       SI().getUiXYUnitString());
 	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );
@@ -136,7 +144,7 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
                                         mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
-				uiSelLineStyle::Setup().drawstyle(false) );
+				   uiSelLineStyle::Setup().drawstyle(false) );
     linestylefld->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );
     dlg.go();
 

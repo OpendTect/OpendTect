@@ -34,17 +34,17 @@ public:
 uiRockPhysConstantFld( uiParent* p )
     : uiGroup(p,"Rock Physics Constant Field")
 {
-    nmlbl_ = new uiLabel( this, "" );
+    nmlbl_ = new uiLabel( this, uiStrings::sEmptyString() );
     nmlbl_->setPrefWidthInChar( 30 );
     nmlbl_->setAlignment( Alignment::Right );
 
-    valfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    valfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
     valfld_->attach( rightOf, nmlbl_ );
 
     infofld_ = new uiOfferInfo( this, false );
     infofld_->attach( rightOf, valfld_ );
 
-    rangelbl_ = new uiLabel( this, "" );
+    rangelbl_ = new uiLabel( this, uiStrings::sEmptyString() );
     rangelbl_->setPrefWidthInChar( 30 );
     rangelbl_->attach( rightOf, infofld_ );
 
@@ -67,15 +67,17 @@ void update( const RockPhysics::Formula::ConstDef* pcd )
     const RockPhysics::Formula::ConstDef& cd = *pcd;
     cstnm_ = cd.name();
 
-    nmlbl_->setText( BufferString("Value for '",cstnm_,"'") );
-    infofld_->setInfo( cd.desc_, BufferString("Information on '",cstnm_,"'") );
+    nmlbl_->setText( od_static_tr("update",
+			      "Value for '%1'").arg(mToUiStringTodo(cstnm_)) );
+    infofld_->setInfo( cd.desc_, od_static_tr("update","Information on '%1'").
+						      arg(toUiString(cstnm_)) );
     valfld_->setValue( cd.defaultval_ );
 
     const bool haverg = !cd.typicalrg_.isUdf();
     if ( haverg )
     {
-	BufferString rgstr( "Typical range: [", cd.typicalrg_.start, "," );
-	rgstr.add( cd.typicalrg_.stop ).add( "]" );
+	uiString rgstr = od_static_tr("update","Typical range: [%1,%2]").
+			 arg(cd.typicalrg_.start).arg(cd.typicalrg_.stop );
 	rangelbl_->setText( rgstr );
     }
     rangelbl_->display( haverg );

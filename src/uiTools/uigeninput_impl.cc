@@ -246,8 +246,8 @@ void uiGenInputInputFld::init()
 
 
 
-uiGenInputBoolFld::uiGenInputBoolFld( uiParent* p, const char* truetext,
-			  const char* falsetext, bool initval, const char* nm)
+uiGenInputBoolFld::uiGenInputBoolFld( uiParent* p, const uiString& truetext,
+		    const uiString& falsetext, bool initval, const char* nm)
     : uiGroup( p, nm )
     , UserInputObjImpl<bool>()
     , butgrp_( 0 ), checkbox_( 0 ), rb1_( 0 ), rb2_( 0 ), yn_( initval )
@@ -265,7 +265,7 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 {
     const BoolInpSpec* spc = dynamic_cast<const BoolInpSpec*>(&spec);
     if ( !spc )
-	{ pErrMsg("huh?"); init( p, "Y", "N", true ); }
+	{ pErrMsg("huh?"); init( p, tr("Y"), tr("N"), true ); }
     else
     {
 	init( p, spc->trueFalseTxt(true),
@@ -301,7 +301,7 @@ void uiGenInputBoolFld::init( uiParent* p, const uiString& truetext,
     if ( truetxt_.isEmpty()  || falsetxt_.isEmpty() )
     {
 	checkbox_ = new uiCheckBox( p, (truetxt_.isEmpty()) ?
-				(const char*) name() : truetxt_ );
+				mToUiStringTodo(name()) : truetxt_ );
 	checkbox_->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
 	setvalue_( yn );
 	return;

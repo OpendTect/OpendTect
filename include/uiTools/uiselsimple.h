@@ -123,18 +123,20 @@ mExpClass(uiTools) uiGetChoice : public uiDialog
 { mODTextTranslationClass(uiGetChoice);
 public:
 
-			uiGetChoice(uiParent*,const char* question=0,
+			uiGetChoice(uiParent*,const uiString& question=
+				    uiStrings::sEmptyString(),
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,
 				    const BufferStringSet& options,
-				    const char* question=0,
+				    const uiString& question=
+				    uiStrings::sEmptyString(),
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,uiDialog::Setup,
 				    const BufferStringSet& options, bool wc);
 
-    void		addChoice(const char* txt,const char* iconnm=0);
+    void		addChoice(const uiString& txt,const char* iconnm=0);
     void		setDefaultChoice(int);
     int			choice() const		{ return choice_; }
 			//!< on cancel will be -1

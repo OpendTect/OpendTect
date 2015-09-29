@@ -39,7 +39,7 @@ protected:
 };
 
 mExpClass(uiTools) uiInverseDistanceGridder2D : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiInverseDistanceGridder2D)
 public:
     static void		initClass();
     static uiDlgGroup*	create(uiParent*,Gridder2D*);

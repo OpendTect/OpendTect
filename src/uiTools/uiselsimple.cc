@@ -70,7 +70,7 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
     {
 	listfld_ = new uiListBox( this );
 	for ( int idx=0; idx<sup.items_.size(); idx++ )
-	    listfld_->addItem( sup.items_.get(idx) );
+	    listfld_->addItem( mToUiStringTodo(sup.items_.get(idx)) );
 	if ( !sup.deflt_.isEmpty() )
 	    listfld_->setCurrentItem( sup.deflt_ );
 	else
@@ -114,9 +114,10 @@ bool uiGetObjectName::acceptOK( CallBacker* )
 }
 
 
-uiGetChoice::uiGetChoice( uiParent* p, const char* qn, bool wcncl,
+uiGetChoice::uiGetChoice( uiParent* p, const uiString& qn, bool wcncl,
 			  const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,helpkey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,
+	       helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
@@ -124,8 +125,10 @@ uiGetChoice::uiGetChoice( uiParent* p, const char* qn, bool wcncl,
 
 
 uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
-			  const char* qn, bool wcncl, const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,helpkey))
+			  const uiString& qn, bool wcncl, 
+			  const HelpKey& helpkey )
+    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,
+	       helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
@@ -145,7 +148,7 @@ uiGetChoice::uiGetChoice( uiParent* p, uiDialog::Setup s,
 }
 
 
-void uiGetChoice::addChoice( const char* txt, const char* iconnm )
+void uiGetChoice::addChoice( const uiString& txt, const char* iconnm )
 {
     inpfld_->addItem( txt, iconnm );
 }

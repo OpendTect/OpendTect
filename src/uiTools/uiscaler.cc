@@ -20,17 +20,21 @@ static const char* scalestrs[] =
 	{ sLinScaler, sLogScaler, sExpScaler, 0 };
 
 
-uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
+uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
 	: uiGroup(p,"Scale selector")
 	, basefld(0)
 	, typefld(0)
 {
-    if ( !lbl ) lbl = linonly ? "Scale values: " : "Scale values";
+    uiString lbl = txt;
+
+
+    if ( lbl.isEmpty() ) lbl = linonly ? tr("Scale values: ") 
+				       : tr("Scale values");
 
     if ( !linonly )
     {
 	StringListInpSpec spec(scalestrs);
-	typefld = new uiGenInput( this, "", spec );
+	typefld = new uiGenInput( this, uiStrings::sEmptyString(), spec );
 	typefld->valuechanged.notify( mCB(this,uiScaler,typeSel) );
     }
 
@@ -48,7 +52,8 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
     {
 	ynfld->attach( leftOf, typefld );
 	linearfld->attach( alignedBelow, typefld );
-	basefld = new uiGenInput( this, tr("Base"), BoolInpSpec(true,"10","e"));
+	basefld = new uiGenInput( this, tr("Base"), BoolInpSpec(true,
+				  toUiString("10"),toUiString("e")));
 	basefld->attach( alignedBelow, typefld );
     }
 

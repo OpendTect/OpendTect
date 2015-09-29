@@ -155,9 +155,9 @@ void uiPluginMan::loadPush( CallBacker* )
 {
 #ifdef __win__
     const char* filt = "*.DLL;;*.*";
-    const char* captn = "Select plugin DLL";
+    const uiString& captn = uiStrings::phrSelect(tr("plugin DLL"));
 #else
-    const char* captn = "Select plugin shared library";
+    const uiString& captn = uiStrings::phrSelect(tr("plugin shared library"));
 # ifdef __mac__
     const char* filt = "*.dylib*;;*";
 # else
@@ -173,7 +173,8 @@ void uiPluginMan::loadPush( CallBacker* )
 	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, captn );
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, 
+		      captn );
     if ( !dlg.go() ) return;
 
     BufferString fnm = dlg.fileName();

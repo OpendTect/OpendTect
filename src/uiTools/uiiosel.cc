@@ -156,9 +156,9 @@ void uiIOSelect::updateFromEntries()
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	const char* usrnm = userNameFromKey( *entries_[idx] );
+	const char* usrnm = userNameFromKey(*entries_[idx]);
 	if ( usrnm )
-	    inp_->addItem( usrnm );
+	    inp_->addItem( toUiString(usrnm) );
 	else
 	{
 	    entries_.removeSingle( idx );
@@ -300,7 +300,7 @@ void uiIOSelect::setInput( const char* key )
 	return;
     }
 
-    const char* usrnm = userNameFromKey( key );
+    const char* usrnm = userNameFromKey(key) ;
     if ( !usrnm ) return;
 
     const int nrentries = entries_.size();
@@ -309,7 +309,7 @@ void uiIOSelect::setInput( const char* key )
 	const int boxidx = idx + nrSpec();
 	if ( entries_.get(idx) == key )
 	{
-	    inp_->setItemText( boxidx, usrnm );
+	    inp_->setItemText( boxidx, toUiString(usrnm) );
 	    inp_->setCurrentItem( boxidx );
 	    return;
 	}
@@ -317,9 +317,9 @@ void uiIOSelect::setInput( const char* key )
 
     entries_.addIfNew( key );
     if ( !inp_->isPresent(usrnm) )
-	inp_->addItem( usrnm );
-    inp_->setCurrentItem( usrnm );
-    setInputText( usrnm );
+	inp_->addItem( toUiString(usrnm) );
+    inp_->setCurrentItem(usrnm);
+    setInputText(usrnm);
 }
 
 
@@ -459,7 +459,7 @@ void uiIOSelect::setLabelSelectable( bool yn )
 }
 
 
-uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
+uiIOFileSelect::uiIOFileSelect( uiParent* p, const uiString& txt, bool frrd,
 				const char* inp, bool wclr )
 	: uiIOSelect(p,uiIOSelect::Setup(txt).withclear(wclr),
 			mCB(this,uiIOFileSelect,doFileSel))

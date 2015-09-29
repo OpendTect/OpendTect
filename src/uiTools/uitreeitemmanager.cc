@@ -449,7 +449,7 @@ void uiTreeItem::renameItem( uiTreeViewItem* itm )
 {
     if ( itm == uitreeviewitem_ )
     {
-	name_ = uitreeviewitem_->text( 0 );
+	name_ = mToUiStringTodo(uitreeviewitem_->text(0));
 	return;
     }
 
@@ -461,7 +461,7 @@ void uiTreeItem::renameItem( uiTreeViewItem* itm )
 
 // uiTreeTopItem
 uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
-    : uiTreeItem( listview->name() )
+    : uiTreeItem( mToUiStringTodo(listview->name()) )
     , disabselcngresp_(disab)
     , listview_( listview )
     , disabrightclick_(false)

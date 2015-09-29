@@ -123,10 +123,8 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
     , idg_( idg )
     , initialsearchradius_( idg.getSearchRadius() )
 {
-    BufferString radius = "Search radius [";
-    radius += (SI().xyInFeet() ? "ft" : "m" );
-    radius += "]";
-    searchradiusfld_ = new uiGenInput( this, radius.buf(), FloatInpSpec() );
+    uiString radius = tr("Search radius %1").arg(SI().getUiXYUnitString());
+    searchradiusfld_ = new uiGenInput( this, radius, FloatInpSpec() );
     searchradiusfld_->setValue( initialsearchradius_ );
     setHAlignObj( searchradiusfld_ );
 }

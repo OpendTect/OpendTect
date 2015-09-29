@@ -33,7 +33,7 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
     for ( int idx=0; idx<scl_.names().size(); idx++ )
     {
 	const uiKeyDesc* kd = scl_.keyDescs()[idx];
-	const BufferString& nm = scl_.names().get( idx );
+	const uiString& nm = mToUiStringTodo(scl_.names().get( idx ));
 
 	uiLabeledComboBox* lcbox
 	    	= new uiLabeledComboBox( this, sSupportedStates, nm );

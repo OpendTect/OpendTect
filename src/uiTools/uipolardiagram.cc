@@ -90,17 +90,17 @@ void uiPolarDiagram::drawCircles()
 	uiCircleItem* ci = scene().addItem( 
 		new uiCircleItem( center_, radius_ ) );
         circleitms_ += ci;
-	mAddDipLabel( "0" );
+	mAddDipLabel( toUiString("0") );
 
 	ci = scene().addItem( new uiCircleItem( center_, radius_*2/3 ) );
         circleitms_ += ci;
-	mAddDipLabel( "30" );
+	mAddDipLabel( toUiString("30") );
 
         ci = scene().addItem( new uiCircleItem( center_, radius_*1/3 ) );
         circleitms_ += ci;
-	mAddDipLabel( "60" );
+	mAddDipLabel( toUiString("60") );
         
-	mAddDipLabel( "90" );
+	mAddDipLabel( toUiString("90") );
     }
 	
     diptextitms_[0]->setPos( uiPoint( center_.x+radius_, center_.y-20) );
@@ -133,7 +133,7 @@ void uiPolarDiagram::drawSegments()
 	    float usrangle = Angle::convert( 
 		    Angle::Deg, float(angle), Angle::UsrDeg );
 	    uiTextItem* ti = scene().addItem( new uiTextItem( 
-			toString( usrangle ) ) );
+			toUiString( usrangle ) ) );
 	    azimuthtextitms_ += ti;
 	}
 	else

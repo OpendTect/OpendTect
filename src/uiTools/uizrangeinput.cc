@@ -15,11 +15,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiZRangeInput::uiZRangeInput( uiParent* p, bool depth, bool withstep )
-: uiGenInput( p, uiStrings::phrJoinStrings(
-	depth ? ZDomain::Depth().userName() : ZDomain::Time().userName(),
-					   uiStrings::sRange(),
-	depth ? ZDomain::Depth().unitStr(true) : ZDomain::Time().unitStr(true)),
-	     FloatInpIntervalSpec(withstep) )
+    : uiGenInput( p, tr("%1 %2 %3")
+		     .arg((depth ? ZDomain::Depth().userName() :
+		     ZDomain::Time().userName())).arg(uiStrings::sRange())
+		     .arg(depth ? ZDomain::Depth().uiUnitStr(true)
+		     : ZDomain::Time().uiUnitStr(true)),
+		     FloatInpIntervalSpec(withstep) )
     , isdepth_( depth )
     , withstep_( withstep )
 {}

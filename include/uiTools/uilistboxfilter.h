@@ -20,7 +20,7 @@ class uiListBox;
 /*!\brief A filter field attaching itself to a listbox. */
 
 mExpClass(uiTools) uiListBoxFilter : public uiGenInput
-{
+{ mODTextTranslationClass(uiListBoxFilter)
 public:
 
 			uiListBoxFilter(uiListBox&,bool above=true);

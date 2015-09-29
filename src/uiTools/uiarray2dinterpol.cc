@@ -59,7 +59,8 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
     if ( maxholesz )
     {
-	maxholeszfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+	maxholeszfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+					FloatInpSpec() );
 	maxholeszfld_->setWithCheck( true );
 	if ( prevfld )
 	    maxholeszfld_->attach( alignedBelow, prevfld );
@@ -144,7 +145,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     }
 
     selChangeCB( 0 );
-    setDistanceUnit( 0 );
+    setDistanceUnit( uiStrings::sEmptyString() );
 }
 
 
@@ -321,7 +322,8 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     , cornersfirst_(false)
     , stepsz_(1)
 {
-    radiusfld_ = new  uiGenInput( this, 0, FloatInpSpec() );
+    radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(), 
+				  FloatInpSpec() );
 
     parbut_ = new uiPushButton( this, tr("Parameters"),
 		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
@@ -329,7 +331,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     parbut_->attach( rightOf, radiusfld_ );
 
     setHAlignObj( radiusfld_ );
-    setDistanceUnit( 0 );
+    setDistanceUnit( uiStrings::sEmptyString() );
 }
 
 
@@ -377,12 +379,13 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
 
-    maxdistfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    maxdistfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+				  FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
 
     setHAlignObj( useneighborfld_ );
-    setDistanceUnit( 0 );
+    setDistanceUnit( uiStrings::sEmptyString() );
     intCB( 0 );
 }
 

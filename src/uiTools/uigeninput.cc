@@ -106,7 +106,7 @@ public:
 					 const DataInpSpec& dis,
 					 const char* nm="Bool Input Field" )
 			    : uiSimpleInputFld<uiGenInputBoolFld>( p, dis,
-							     mName(dis,0,nm) )
+							       mName(dis,0,nm) )
 			    {}
 
     virtual uiObject*	mainObj()	{ return usrinpobj.mainObject(); }
@@ -690,7 +690,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     : uiGroup(p,disptxt.getOriginalString()) \
     , finalised_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
-    , selText_(""), withchk_(false) \
+    , selText_(uiStrings::sEmptyString()), withchk_(false) \
     , labl_(0), titletext_(disptxt), cbox_(0), selbut_(0) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
@@ -1162,7 +1162,7 @@ void uiGenInput::doClear( CallBacker* )
 
 
 void uiGenInput::setWithSelect( bool yn )
-{ selText_ = yn ? "&Select" : "" ; }
+{ selText_ = yn ? tr("&Select") : uiStrings::sEmptyString() ; }
 
 
 void uiGenInput::setNrDecimals( int nrdec, int fldnr )

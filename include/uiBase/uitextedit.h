@@ -89,7 +89,7 @@ private:
 
 
 mExpClass(uiBase) uiTextBrowser : public uiTextEditBase
-{
+{ mODTextTranslationClass(uiTextBrowser)
 friend class		i_BrowserMessenger;
 public:
 

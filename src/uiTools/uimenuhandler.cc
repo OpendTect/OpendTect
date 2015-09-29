@@ -141,7 +141,8 @@ uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
     : MenuHandler(-1)
     , uiparent_(uiparent)
 {
-    tb_ = new uiToolBar( uiparent_, "Item tools", uiToolBar::Top, true );
+    tb_ = new uiToolBar( uiparent_, uiStrings::phrJoinStrings(tr("Item"), 
+			 uiStrings::sTools()), uiToolBar::Top, true );
     tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
     handleEmpty();
 }
@@ -152,7 +153,7 @@ void uiTreeItemTBHandler::handleEmpty()
     if ( nrItems() > 0 )
 	return;
 
-    tb_->addButton( "base_icon", "No tools available", CallBack() );
+    tb_->addButton( "base_icon", tr("No tools available"), CallBack() );
 }
 
 

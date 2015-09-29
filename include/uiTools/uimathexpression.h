@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 class uiLineEdit;
 class uiComboBox;
 class uiPushButton;
@@ -29,7 +30,7 @@ public:
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const uiString& lbl=0 )
+			Setup( const uiString& lbl=uiStrings::sEmptyString() )
 			    : label_(lbl)
 			    , withsetbut_(false)
 			    , withfns_(true)

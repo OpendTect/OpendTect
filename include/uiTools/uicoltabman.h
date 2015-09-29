@@ -25,6 +25,8 @@ class uiTreeView;
 class uiPushButton;
 class uiSpinBox;
 class uiWorld2Ui;
+class uiColTabImport;
+
 
 namespace ColTab { class Sequence; }
 
@@ -93,6 +95,12 @@ protected:
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
     void			markerChange(CallBacker*);
+
+private:
+
+    uiString			sKeyDefault();
+    uiString			sKeyEdited();
+    uiString			sKeyOwn();
 };
 
 #endif

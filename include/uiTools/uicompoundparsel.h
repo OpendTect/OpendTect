@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 
 class uiGenInput;
 class uiButton;
@@ -31,11 +32,12 @@ mExpClass(uiTools) uiCompoundParSel : public uiGroup
 {
 public:
 
-			uiCompoundParSel(uiParent*,const char* seltxt,
-					 const char* buttxt=0);
+			uiCompoundParSel(uiParent*,const uiString& seltxt,
+					 const uiString& 
+					 buttxt=uiStrings::sEmptyString());
 
 
-    void		setSelText(const char*);
+    void		setSelText(const uiString&);
     void		setSelIcon(const char*);
     void		updateSummary()			{ updSummary(0); }
 
@@ -43,7 +45,7 @@ public:
 
 protected:
 
-    virtual BufferString	getSummary() const	= 0;
+    virtual BufferString	getSummary() const= 0;
     void			doSel(CallBacker*);
     void			updSummary(CallBacker*);
 
@@ -62,9 +64,11 @@ mExpClass(uiTools) uiCheckedCompoundParSel : public uiCompoundParSel
 {
 public:
 
-			uiCheckedCompoundParSel(uiParent*,const char* seltxt,
+			uiCheckedCompoundParSel(uiParent*,
+				 const uiString& seltxt,
 				 bool mkinvisible, // if not, makes insensitive
-				 const char* buttxt=0);
+				 const uiString& buttxt=
+				 uiStrings::sEmptyString());
 
     void		setChecked(bool);
     bool		isChecked() const;

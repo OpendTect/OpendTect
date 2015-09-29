@@ -15,22 +15,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
-uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
-				    const char* btxt )
-    : uiGroup(p,seltxt)
+uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
+				    const uiString& btxt )
+    : uiGroup(p,mFromUiStringTodo(seltxt))
     , butPush(this)
 {
     txtfld_ = new uiGenInput( this, seltxt, "" );
     txtfld_->setReadOnly( true );
 
-    const char* buttxt = btxt ? btxt : "Select";
+    const uiString buttxt = (!btxt.isEmpty()) ? btxt : uiStrings::sSelect();
     const CallBack selcb( mCB(this,uiCompoundParSel,doSel) );
-    if ( FixedString(buttxt) == "Select" )
+    if ( FixedString(mFromUiStringTodo(buttxt)) == "Select" )
 	selbut_ = uiButton::getStd( this, uiButton::Select, selcb, false );
     else
 	selbut_ = new uiPushButton( this, buttxt, selcb, false );
     selbut_->attach( rightOf, txtfld_ );
-    selbut_->setName( BufferString(buttxt," ",seltxt).buf() );
+    const uiString stnm = uiStrings::phrJoinStrings(buttxt,seltxt);
+    selbut_->setName( mFromUiStringTodo(stnm) );
 
     setHAlignObj( txtfld_ );
     setHCenterObj( txtfld_ );
@@ -52,7 +53,7 @@ void uiCompoundParSel::updSummary( CallBacker* )
 }
 
 
-void uiCompoundParSel::setSelText( const char* txt )
+void uiCompoundParSel::setSelText( const uiString& txt )
 {
     txtfld_->setTitleText( txt );
 }
@@ -65,8 +66,9 @@ void uiCompoundParSel::setSelIcon( const char* ident )
 
 
 uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
-			    const char* seltxt, bool invis, const char* btxt )
-    : uiCompoundParSel(p,"",btxt)
+			 const uiString& seltxt, bool invis, 
+			 const uiString& btxt )
+    : uiCompoundParSel(p,uiStrings::sEmptyString(),btxt)
     , mkinvis_(invis)
     , checked(this)
 {

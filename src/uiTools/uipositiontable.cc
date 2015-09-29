@@ -32,14 +32,14 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     if ( !withxy_ && !withic_ )
 	withic_ = true;
 
-    BufferString infotxt( "Enter " );
-    if ( withxy_ ) infotxt += "X/Y";
-    if ( withxy_ && withic_ ) infotxt += " or ";
-    if ( withic_ ) infotxt += "Inl/Crl";
-    infotxt += " positions";
+    uiString infotxt;
+    if ( withxy_ ) infotxt = tr("Enter X/Y positions");
+    if ( withxy_ && withic_ ) infotxt = tr("Enter X/y or Inl/Crl positions");
+    if ( withic_ ) infotxt = tr("Enter Inl/Crl positions");
+    
     uiLabel* lbl = new uiLabel( this, infotxt );
 
-    uiLabel* pmlvl =  new uiLabel( this, "" );
+    uiLabel* pmlvl =  new uiLabel( this, uiStrings::sEmptyString() );
     uiPixmap pm( 20, 20 ); pm.fill( Color(200,0,0) );
     pmlvl->setPixmap( pm );
     pmlvl->attach( rightTo, lbl );
@@ -58,12 +58,13 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     table_->setNrRows( 5 );
     attachObj()->setMinimumWidth( withxy_ && withic_ ? 400 : 200 );
 
-    table_->setColumnLabel( 0, withxy_ ? "X" : sKey::Inline() );
-    table_->setColumnLabel( 1, withxy_ ? "Y" : sKey::Crossline() );
+    table_->setColumnLabel(0, withxy_ ? uiStrings::sX() : uiStrings::sInline());
+    table_->setColumnLabel(1, withxy_ ? uiStrings::sY() : 
+						       uiStrings::sCrossline());
     if ( withxy_ && withic_ )
     {
-	table_->setColumnLabel( 2, sKey::Inline() );
-	table_->setColumnLabel( 3, sKey::Crossline() );
+	table_->setColumnLabel( 2, uiStrings::sInline() );
+	table_->setColumnLabel( 3, uiStrings::sCrossline() );
     }
 
     if ( withz_ )
@@ -71,7 +72,8 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 	uiSeparator* hsep = new uiSeparator( this, "Separator" );
 	hsep->attach( stretchedBelow, table_ );
 
-	BufferString zlbl = "Z range "; zlbl += SI().getZUnitString();
+	uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(), 
+			SI().getUiZUnitString());
 	zfld_ = new uiGenInput( this, zlbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->setStretch( 0, 0 );

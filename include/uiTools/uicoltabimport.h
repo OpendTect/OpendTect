@@ -31,7 +31,7 @@ public:
 				~uiColTabImport();
 
     const char*			getCurrentSelColTab() const;
-
+    
 protected:
 
     uiGenInput*			choicefld_;
@@ -46,8 +46,11 @@ protected:
     void			usrSel(CallBacker*);
     bool			acceptOK(CallBacker*);
 
-    void			showMessage(const char*);
+    void			showMessage(const uiString&);
     void			showList();
+
+private :
+    static uiString		getLabel(bool);
 };
 
 #endif

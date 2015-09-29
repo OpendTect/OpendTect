@@ -95,7 +95,7 @@ void uiStatsDisplay::setDataName( const char* nm )
 {
     if ( namefld_ )
     {
-	namefld_->setText( nm );
+	namefld_->setText( mToUiStringTodo(nm) );
 	namefld_->setAlignment( Alignment::HCenter );
     }
 }
@@ -243,14 +243,15 @@ void uiStatsDisplay::putN()
 uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 					const uiStatsDisplay::Setup& su,
 					int nr, bool ismodal )
-    : uiMainWin(p,"Data statistics",1,false,ismodal)
+    : uiMainWin(p,uiStrings::phrData(uiStrings::sStatistics()),1,false,ismodal)
     , statnmcb_(0)
     , currentdispidx_(-1)
 {
     uiLabeledComboBox* lblcb=0;
     if ( nr > 1 )
     {
-	lblcb = new uiLabeledComboBox( this, "Select Data" );
+	lblcb = new uiLabeledComboBox( this, uiStrings::phrSelect(
+							   uiStrings::sData()));
 	statnmcb_ = lblcb->box();
     }
 
@@ -296,9 +297,8 @@ void uiStatsDisplayWin::mouseMoveCB( CallBacker* cb )
 
     const Geom::Point2D<int>& pos = disp->getMouseEventHandler().event().pos();
     Geom::Point2D<float> val = disp->getFuncXY( pos.x, false );
-    BufferString str;
-    str.add( "Value/Count: ").add( toString(val.x,4) );
-    str.add( " / " ).add( toString(val.y,0) );
+    uiString str = tr("Values/Count: %1/%2").arg(toUiString(val.x,4)).
+		   arg(toUiString(val.y,0)); 
     toStatusBar( str );
 }
 
@@ -330,8 +330,8 @@ void uiStatsDisplayWin::setDataName( const char* nm, int idx )
 {
     if ( statnmcb_ )
     {
-	idx > statnmcb_->size()-1 ? statnmcb_->addItem(nm)
-				  : statnmcb_->setItemText(idx,nm);
+	idx > statnmcb_->size()-1 ? statnmcb_->addItem(mToUiStringTodo(nm))
+			 : statnmcb_->setItemText(idx,mToUiStringTodo(nm));
 	return;
     }
 

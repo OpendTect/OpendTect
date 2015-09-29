@@ -20,6 +20,9 @@ uiString uiStrings::phrAdd( const uiString& string )
 uiString uiStrings::phrASCII( const uiString& string )
 { return toUiString(joinstring).arg( sASCII() ).arg( string ); }
 
+uiString uiStrings::phrCalculate( const uiString& string )
+{ return toUiString(joinstring).arg(sCalculate()).arg(string); }
+
 uiString uiStrings::phrCalculateFrom( const uiString& string )
 { return toUiString(joinstring).arg(sCalculateFrom()).arg(string); }
 
@@ -49,6 +52,9 @@ uiString uiStrings::phrCannotCreateDBEntryFor(const uiString& string)
 
 uiString uiStrings::phrCannotCreateDirectory( const uiString& string )
 { return phrCannotCreate( tr("directory %1").arg(string) ); }
+
+uiString uiStrings::phrCannotExtract( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotExtract()).arg(string); }
 
 uiString uiStrings::phrCannotFind( const uiString& string )
 { return tr("Cannot find %1").arg( string ); }
@@ -207,6 +213,12 @@ uiString uiStrings::sColorTable(int num)
 
 uiString uiStrings::sCreate()
 { return tr("Create"); }
+
+uiString uiStrings::sCalculate()
+{ return tr("Calculate"); }
+
+uiString uiStrings::sCannotExtract()
+{ return tr("Cannot extract"); }
 
 uiString uiStrings::sCalculateFrom()
 { return tr("Calculate From"); }

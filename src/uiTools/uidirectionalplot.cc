@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uigraphicscoltab.h"
 #include "uifont.h"
+#include "uistrings.h"
 #include "angles.h"
 #include "mouseevent.h"
 #include "dataclipper.h"
@@ -238,17 +239,20 @@ void uiDirectionalPlot::drawScale()
     if ( !scaleannotitm_ )
     {
 	Alignment al( mAlignment(HCenter,VCenter) );
-	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,nm,al) );
+	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,
+						     mToUiStringTodo(nm),al) );
 	al.set( Alignment::Left );
-	scalestartitm_ = scene().addItem( new uiTextItem(startpt,"",al) );
+	scalestartitm_ = scene().addItem( new uiTextItem(startpt,
+						uiStrings::sEmptyString(),al) );
 	al.set( Alignment::Right );
-	scalestopitm_ = scene().addItem( new uiTextItem(endpt,"",al) );
+	scalestopitm_ = scene().addItem( new uiTextItem(endpt,
+						uiStrings::sEmptyString(),al) );
     }
     scalestartitm_->setPos( startpt );
     scaleannotitm_->setPos( midpt );
     scalestopitm_->setPos( endpt );
-    scalestartitm_->setText( toString(data_.setup_.usrposrg_.start) );
-    scalestopitm_->setText( toString(data_.setup_.usrposrg_.stop) );
+    scalestartitm_->setText( toUiString(data_.setup_.usrposrg_.start) );
+    scalestopitm_->setText( toUiString(data_.setup_.usrposrg_.stop) );
 }
 
 
@@ -259,7 +263,8 @@ void uiDirectionalPlot::drawHeader()
 	{ delete hdrannotitm1_; hdrannotitm1_ = 0; }
     else if ( !hdrannotitm1_ )
     {
-	hdrannotitm1_ = scene().addItem( new uiTextItem(setup_.nameforval_,al));
+	hdrannotitm1_ = scene().addItem( 
+			new uiTextItem(mToUiStringTodo(setup_.nameforval_),al));
 	hdrannotitm1_->setPos( uiPoint(0,0) );
     }
 
@@ -268,7 +273,8 @@ void uiDirectionalPlot::drawHeader()
     else if ( !hdrannotitm2_ )
     {
 	al.set( Alignment::Right );
-	hdrannotitm2_ = scene().addItem( new uiTextItem(setup_.hdrannot_,al) );
+	hdrannotitm2_ = scene().addItem( 
+			new uiTextItem(mToUiStringTodo(setup_.hdrannot_),al) );
     }
 
     if ( hdrannotitm2_ )
@@ -315,10 +321,10 @@ void uiDirectionalPlot::drawDirAnnot()
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const bool isew = idx % 2;
-	    const char* txt = idx == 0 ? "N"
-			   : (idx == 1 ? "E"
-			   : (idx==2 ?	 "S"
-			   :		 "W"));
+	    const uiString txt = idx == 0 ? uiStrings::sNorth(true) 
+			      : (idx == 1 ? uiStrings::sEast(true) 
+			      : (idx == 2 ? uiStrings::sSouth(true)
+			      		  : uiStrings::sWest(true)));
 	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
 					  : Alignment::HCenter,
 		          isew ? Alignment::VCenter

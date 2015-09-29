@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keyenum.h"
 #include "keystrs.h"
 
-uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const char* label,
+uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const uiString& label,
 				      int initialstate )
     : uiGroup( p )
 {

@@ -49,6 +49,8 @@ public:
     void			usePar(const IOPar&);
 
     bool			acceptOK();
+    static uiString		sButTxtAdvance();
+    static uiString		sButTxtPause();
 
 protected:
 

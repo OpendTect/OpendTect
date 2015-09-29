@@ -41,7 +41,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     datapackids_.setSize( nr );
     uiSeparator* sephor = 0;
 
-    uiToolBar* tb = new uiToolBar( this, "Stats" );
+    uiToolBar* tb = new uiToolBar( this, tr("Stats") );
     tb->addButton( "info", tr("Statistics"),
 	    	   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
 

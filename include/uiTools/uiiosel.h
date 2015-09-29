@@ -134,7 +134,7 @@ protected:
 mExpClass(uiTools) uiIOFileSelect : public uiIOSelect
 { mODTextTranslationClass(uiIOFileSelect);
 public:
-			uiIOFileSelect(uiParent*,const char* txt,
+			uiIOFileSelect(uiParent*,const uiString& txt,
 					bool for_read,
 					const char* inp=0,
 					bool withclear=false);

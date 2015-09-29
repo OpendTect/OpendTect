@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uihistogramdisplay.h"
 #include "uipixmap.h"
+#include "uistrings.h"
 
 #include "coltabmapper.h"
 #include "coltabsequence.h"
@@ -136,7 +137,8 @@ void uiMapperRangeEditor::init()
     rightcoltab_ = scene.addItem( new uiPixmapItem() );
     rightcoltab_->setZValue( zval );
 
-    minvaltext_ = scene.addItem( new uiTextItem("",Alignment::Right) );
+    minvaltext_ = scene.addItem( new uiTextItem(uiStrings::sEmptyString()
+							  ,Alignment::Right) );
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
     MouseCursor cursor( MouseCursor::SizeHor );
@@ -159,10 +161,10 @@ void uiMapperRangeEditor::drawText()
 	return;
 
     const int posy = histogramdisp_->height() / 3;
-    minvaltext_->setText( toString(cliprg_.start) );
+    minvaltext_->setText( toUiString(cliprg_.start) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
 
-    maxvaltext_->setText( toString(cliprg_.stop) );
+    maxvaltext_->setText( toUiString(cliprg_.stop) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
 }
 

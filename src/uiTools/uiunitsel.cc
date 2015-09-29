@@ -43,7 +43,8 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
 
 uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
     : uiGroup(p,"UnitSel")
-    , setup_(SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist,lbltxt)
+    , setup_(SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist,
+	     mToUiStringTodo(lbltxt))
     , selChange(this)
     , propSelChange(this)
 {
@@ -258,18 +259,18 @@ bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 }
 
 
-const char* uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
+uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
 {
     if ( !un )
-	return sDispNone;
+	return mToUiStringTodo(sDispNone);
     else if ( setup_.mode_ == Setup::SymbolsOnly )
-	return un->symbol();
+	return mToUiStringTodo(un->symbol());
     else if ( setup_.mode_ == Setup::NamesOnly )
-	return un->name().buf();
+	return mToUiStringTodo(un->name().buf());
 
     mDeclStaticString( ret );
     ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );
-    return ret;
+    return mToUiStringTodo(ret);
 }
 
 
@@ -292,5 +293,6 @@ void uiUnitSel::update()
     if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
 	inpfld_->setText( olddef );
     else if ( setup_.ptype_ == PropertyRef::Dist )
-	inpfld_->setText( getSelTxt(UnitOfMeasure::surveyDefDepthUnit()) );
+	inpfld_->setText( mFromUiStringTodo(getSelTxt(
+					UnitOfMeasure::surveyDefDepthUnit())) );
 }

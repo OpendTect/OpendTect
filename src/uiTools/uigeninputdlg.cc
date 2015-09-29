@@ -39,7 +39,7 @@ void uiGenInputGrp::build()
 {
     if ( !entries->size() )
     {
-	new uiLabel( this, "There are no values to be set" );
+	new uiLabel( this, tr("There are no values to be set") );
 	return;
     }
 

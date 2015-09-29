@@ -188,7 +188,7 @@ void uiColorTableSel::update()
 	if ( seqidx<0 ) continue;
 
 	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
-	addItem( seq.name() );
+	addItem( mToUiStringTodo(seq.name()) );
 	uiPixmap pm( 16, 10 ); pm.fill( seq, true );
 	setPixmap( idx, pm );
     }
@@ -403,7 +403,7 @@ void uiColorTable::canvasClick( CallBacker* )
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
 
-    uiAction* itm = new uiAction("Flipped", mCB(this,uiColorTable,doFlip) );
+    uiAction* itm = new uiAction(tr("Flipped"), mCB(this,uiColorTable,doFlip) );
     mnu->insertItem( itm, 0 );
     itm->setCheckable( true );
     itm->setChecked( mapsetup_.flipseq_ );
@@ -605,8 +605,9 @@ OD::Orientation uiColorTableGroup::getOrientation() const
 
 // uiColorTableToolBar
 uiColorTableToolBar::uiColorTableToolBar( uiParent* p, bool newline )
-    : uiToolBar(p,"Color table toolbar",uiToolBar::Top,newline)
-    , uiColorTable(ColTab::Sequence(""))
+    : uiToolBar(p,uiStrings::phrJoinStrings(uiStrings::sColorTable(), 
+		uiStrings::sToolbar()),uiToolBar::Top,newline)
+		, uiColorTable(ColTab::Sequence(""))
 {
     init();
 }
@@ -615,7 +616,8 @@ uiColorTableToolBar::uiColorTableToolBar( uiParent* p, bool newline )
 uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
 					  const ColTab::Sequence& seq,
 					  bool newline )
-    : uiToolBar(p,"Color table toolbar",uiToolBar::Top,newline)
+    : uiToolBar(p,uiStrings::phrJoinStrings(uiStrings::sColorTable(), 
+		uiStrings::sToolbar()),uiToolBar::Top,newline)
     , uiColorTable(seq)
 {
     init();

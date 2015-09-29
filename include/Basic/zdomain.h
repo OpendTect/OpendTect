@@ -110,7 +110,9 @@ public:
     uiString		userName() const	{ return def_.userName(); }
     const char*		unitStr(bool wp=false) const
     						{ return def_.unitStr(wp); }
-    uiString		getLabel() const	{ return def_.getLabel(); }
+    uiString		uiUnitStr(bool wp=false) const
+						{ return def_.uiUnitStr(wp); }	
+    uiString		getLabel() const	{ return def_.getLabel(); }    
     int			userFactor() const	{ return def_.userFactor(); }
 
 };

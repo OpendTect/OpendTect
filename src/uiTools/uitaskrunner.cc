@@ -58,7 +58,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     , dispmsgonerr_( dispmsgonerr )
     , symbidx_( 0 )
 {
-    proglbl_ = new uiLabel( this, noprogbardispsymbs[0] );
+    proglbl_ = new uiLabel( this, toUiString(noprogbardispsymbs[0]) );
     proglbl_->attach( hCentered );
 #ifdef __debug__
     proglbl_->setHSzPol( uiObject::WideVar );
@@ -93,7 +93,7 @@ bool uiTaskRunner::execute( Task& t )
 
     task_ = &t; state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
-    prevmessage_ = sKey::EmptyString();
+    prevmessage_ = uiStrings::sEmptyString();
     if ( statusBar() )
 	statusBar()->message( prevmessage_, 0 );
     prevnrdonetext_ = prevmessage_;
@@ -150,7 +150,7 @@ void uiTaskRunner::updateFields()
 
     if ( nrdone < 0 )
     {
-	setCaption( execnm_ );
+	setCaption( toUiString(execnm_) );
 	return;
     }
 
@@ -171,7 +171,7 @@ void uiTaskRunner::updateFields()
     if ( nrdonechg )
     {
 	prevnrdone_ = nrdone;
-	BufferString str; str += nrdone;
+	uiString str = toUiString(nrdone);
 	sb.message( str, 2 );
     }
 
@@ -191,9 +191,9 @@ void uiTaskRunner::updateFields()
 	if ( percentage > 100 ) percentage = 100;
 	if ( percentage!=prevpercentage_ )
 	{
-	    BufferString capt( "[" );
-	    capt.add( percentage ).add( "%] " ).add( execnm_ );
-	    setCaption( capt.buf() );
+	    uiString capt = tr("[%1%] %2").arg(percentage)
+					  .arg(toUiString(execnm_));
+	    setCaption( capt );
 
 	    prevpercentage_ = percentage;
 	}
@@ -204,7 +204,7 @@ void uiTaskRunner::updateFields()
     {
 	symbidx_++;
 #ifdef __debug__
-	proglbl_->setText( BufferString("[ ",symbidx_, " ]") );
+	proglbl_->setText( uiString(tr("[ %1 ]").arg(symbidx_)) );
 #else
 	if ( symbidx_ >= noprogbardispnrsymbs ) symbidx_ = 0;
 	proglbl_->setText( noprogbardispsymbs[symbidx_] );
@@ -231,7 +231,7 @@ bool uiTaskRunner::acceptOK( CallBacker* )
     else if ( state==Task::Run )
     {
 	task_->controlWork( Task::Pause );
-	setOkText(tr("Resume") );
+	setOkText(uiStrings::sResume() );
 	button(OK)->setIcon( "resume" );
     }
 
