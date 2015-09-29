@@ -339,10 +339,10 @@ void uiBuildListFromList::moveCB( CallBacker* cb )
     const int toidx = cb == movedownbut_ ? fromidx + 1 : fromidx - 1;
     if ( toidx < 0 || toidx >= sz ) return;
 
-    const uiString fromtxt( mToUiStringTodo(deffld_->textOfItem(fromidx)) );
-    const uiString totxt( mToUiStringTodo(deffld_->textOfItem(toidx)) );
-    deffld_->setItemText( fromidx, totxt );
-    deffld_->setItemText( toidx, fromtxt );
+    const char* fromtxt( deffld_->textOfItem(fromidx) );
+    const char* totxt( deffld_->textOfItem(toidx) );
+    deffld_->setItemText( fromidx, mToUiStringTodo(totxt) );
+    deffld_->setItemText( toidx, mToUiStringTodo(fromtxt) );
 
     itemSwitch( fromtxt, totxt );
 }

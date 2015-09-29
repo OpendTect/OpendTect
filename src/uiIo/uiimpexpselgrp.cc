@@ -300,14 +300,13 @@ void uiSGSelGrp::delSelGrps( CallBacker* )
 class uiRenameDlg : public uiDialog
 { mODTextTranslationClass(uiRenameDlg);
 public:
-uiString selGrpSet_ = tr("Selection Group Set");
 uiRenameDlg( uiParent* p, const char* nm )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrRename(selGrpSet_),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrRename(
+				 tr("Selection Group Set")),
                                  uiStrings::sEmptyString(), 
 				 mNoHelpKey) )
 {
-    namefld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-				    uiStrings::sSelection(), selGrpSet_) );
+    namefld_ = new uiGenInput( this, tr("Selection Group Set Name") );
     namefld_->setText( nm );
 }
 
