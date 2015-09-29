@@ -23,10 +23,10 @@ uiVisPlaneDataDisplayDragProp::uiVisPlaneDataDisplayDragProp(uiParent* p,
     , initialpanstate_( pdd->getTranslationDragKeys(false) )
     , pdd_( pdd )
 {
-    scrollstate_ = new uiButtonStateEdit( this, "Scroll movement",
-	    				  initialscrollstate_ );
-    panstate_ = new uiButtonStateEdit( this, "Pan movement",
-	    				  initialpanstate_ );
+    scrollstate_ = new uiButtonStateEdit( this, tr("Scroll movement"),
+					  initialscrollstate_ );
+    panstate_ = new uiButtonStateEdit( this, tr("Pan movement"),
+					  initialpanstate_ );
     panstate_->attach( alignedBelow, scrollstate_ );
 
 }
@@ -47,7 +47,7 @@ bool uiVisPlaneDataDisplayDragProp::acceptOK()
 	      scrollstate_->getState() );
     mSettUse( set, "dTect.MouseInteraction", pdd_->sKeyPlaneKey(),
 	      panstate_->getState() );
-    Settings::common().write(); 
+    Settings::common().write();
 
     return true;
 }
