@@ -279,7 +279,7 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     }
 
     screenpts.convexHull();
-    const bool res = polygon_->isInside( screenpts );
+    const char res = (char) polygon_->isInside( screenpts );
 
     polygonlock_.readUnLock();
 
