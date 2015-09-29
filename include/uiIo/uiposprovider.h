@@ -35,11 +35,11 @@ public:
 
 			Setup( bool is_2d, bool with_step, bool with_z )
 			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
-			    , seltxt_("Positions")
+			    , seltxt_(uiStrings::sPosition(2))
 			    , allownone_(false)
 			    , choicetype_(OnlyRanges)	{}
 	virtual	~Setup()				{}
-	mDefSetupMemb(BufferString,seltxt)
+	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(ChoiceType,choicetype)
 	mDefSetupMemb(bool,allownone)
     };
@@ -91,7 +91,7 @@ public:
     void		setInput(const TrcKeyZSampling& initcs,
 				 const TrcKeyZSampling& ioparcs);
     void		setInputLimit(const TrcKeyZSampling&);
-    const TrcKeyZSampling&	inputLimit() const		{ return setup_.tkzs_; }
+    const TrcKeyZSampling&	inputLimit() const	{ return setup_.tkzs_; }
 
     bool		isAll() const;
     void		setToAll();

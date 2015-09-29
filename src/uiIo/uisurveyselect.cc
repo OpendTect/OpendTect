@@ -41,7 +41,7 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     , surveyfld_(0)
 
 {
-    datarootfld_ = new uiFileInput( this, "Data Root",
+    datarootfld_ = new uiFileInput( this, tr("%1 Root").arg(uiStrings::sData()),
 		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
 		.directories(true) );
     setDataRoot( dataroot );
@@ -143,7 +143,7 @@ bool uiSurveySelectDlg::isNewSurvey() const
 // uiSurveySelect
 uiSurveySelect::uiSurveySelect( uiParent* p, bool forread,
 				bool needvalidrootdir, const char* lbl )
-    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl
+    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? mToUiStringTodo(lbl)
 						  : uiStrings::sSurvey() ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())

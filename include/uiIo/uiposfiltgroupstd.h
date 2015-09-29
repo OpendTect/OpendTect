@@ -21,7 +21,7 @@ class uiGenInput;
 /*! \brief UI for Random Position filter */
 
 mExpClass(uiIo) uiRandPosFiltGroup : public uiPosFiltGroup
-{
+{ mODTextTranslationClass(uiRandPosFiltGroup)
 public:
 
 			uiRandPosFiltGroup(uiParent*,const Setup&);
@@ -44,7 +44,7 @@ protected:
 /*! \brief UI for Subsample Position filter */
 
 mExpClass(uiIo) uiSubsampPosFiltGroup : public uiPosFiltGroup
-{
+{ mODTextTranslationClass(uiSubsampPosFiltGroup)
 public:
 
 			uiSubsampPosFiltGroup(uiParent*,const Setup&);

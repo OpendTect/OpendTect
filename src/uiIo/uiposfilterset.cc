@@ -211,7 +211,8 @@ BufferString uiPosFilterSetSel::getSummary() const
 
 void uiPosFilterSetSel::doDlg( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Filters","Specify Filters",
+    uiDialog dlg( this, uiDialog::Setup(uiStrings::sFilters(),
+					mJoinUiStrs(sSpecify(),sFilters()),
 					mODHelpKey(mPosFilterSetSelHelpID) ) );
     uiPosFilterSet* pfs = new uiPosFilterSet( &dlg, setup_ );
     pfs->usePar( iop_ );

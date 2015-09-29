@@ -110,7 +110,7 @@ private:
 /*!\brief Selects step(s) in inl/crl or trcnrs */
 
 mExpClass(uiIo) uiSelSteps : public uiGroup
-{
+{ mODTextTranslationClass(uiSelSteps)
 public:
 
                         uiSelSteps(uiParent*,bool is2d);
@@ -129,7 +129,7 @@ protected:
 /*!\brief Selects sub-volume. Default will be SI() work area */
 
 mExpClass(uiIo) uiSelHRange : public uiGroup
-{
+{ mODTextTranslationClass(uiSelHRange)
 public:
                         uiSelHRange(uiParent*,bool wstep);
 			uiSelHRange(uiParent*,const TrcKeySampling& limiths,
