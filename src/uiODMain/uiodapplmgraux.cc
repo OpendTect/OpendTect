@@ -511,7 +511,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 #endif
 
     uiGetChoice dlg( par_, options,
-			"Select policy for auto-update", true,
+			tr("Select policy for auto-update"), true,
                        mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
 
     const int idx = options.indexOf( alloptions.get((int)curait) );
@@ -565,7 +565,7 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
     else if ( opt==2 )
 	{
 		uiString titletext = tr("Create 3D cube from to 2DDataSet");
-		uiSeis2DTo3D dlg( par_ ,titletext); dlg.go(); 
+		uiSeis2DTo3D dlg( par_ ,titletext); dlg.go();
 	}
 }
 

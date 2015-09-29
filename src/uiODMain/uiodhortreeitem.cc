@@ -552,7 +552,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	uiPosProvider::Setup setup( false, true, false );
 	setup.allownone_ = true;
-	setup.seltxt( "Area subselection" );
+	setup.seltxt( tr("Area subselection") );
 	setup.tkzs_ = maxcs;
 
 	uiDialog dlg( getUiParent(),
