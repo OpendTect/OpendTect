@@ -93,7 +93,7 @@ protected:
 /*! \brief UI for TablePosProvider */
 
 mExpClass(uiIo) uiTablePosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiTablePosProvGroup)
 public:
 			uiTablePosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);
