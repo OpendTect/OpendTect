@@ -1589,8 +1589,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
-	if (BufferString(res.getFullString()) !=
-	    BufferString(uiNLAPartServer::sKeyUsrCancel()))
+	if (res.getFullString() !=
+		uiNLAPartServer::sKeyUsrCancel().getFullString())
 	    uiMSG().warning( res );
 
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
