@@ -741,7 +741,6 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     {
 	dpm.release( dpid );
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
-	channels_->turnOn( false );
 	return false;
     }
 
