@@ -19,8 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"), 0,
-                                     mNoHelpKey) )
+	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"), 
+                                     uiStrings::sEmptyString(), mNoHelpKey) )
 	, compfld_(0)
 {
     uiString instructions( tr("Workflow :-\n"
@@ -51,7 +51,7 @@ const char* uiMultCompDlg::getCompName( int idx ) const
 
 
 uiMultCompSel::uiMultCompSel( uiParent* p )
-    : uiCompoundParSel(p,"Components subselection")
+    : uiCompoundParSel(p,tr("Components subselection"))
     , dlg_(0)
 {
 }

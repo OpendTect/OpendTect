@@ -35,7 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;
-static const char* sKeyBayesClss = "Bayesian classification";
+static const uiString sKeyBayesClss() 
+{ return  od_static_tr("sKeyBayesClss","Bayesian classification"); }
 #define mInpPDFs	10
 #define mGetNorm	11
 #define mInpSeis	12
@@ -44,9 +45,9 @@ static const char* sKeyBayesClss = "Bayesian classification";
 
 static ProbDenFunc* getPDF( const char* id, uiString& emsg )
 {
-    if ( !id || !*id ) { emsg = "No ID"; return 0; }
+    if ( !id || !*id ) { emsg = od_static_tr("getPDF","No ID"); return 0; }
     PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
-    if ( !ioobj ) { emsg = "No IOObj"; return 0; }
+    if ( !ioobj ) { emsg = od_static_tr("getPDF","No IOObj"); return 0; }
     return ProbDenFuncTranslator::read(*ioobj,&emsg);
 }
 
@@ -99,8 +100,8 @@ class uiSeisBayesPDFInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- PDFs"),
-				tr("[1] Specify PDF input"),
+    : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
+				,tr("- PDFs")), tr("[1] Specify PDF input"),
 				 mODHelpKey(mSeisBayesPDFInpHelpID) ),
                                  pars,Start)
     , nrdisp_(1)
@@ -113,7 +114,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	uiIOObjSel* fld = new uiIOObjSel(this, ctxt,
-					 tr("Input PDF ").arg(idx+1));
+				 uiStrings::phrInput(tr("PDF %1").arg(idx+1)));
 	if ( idx == 0 )
 	    rmbuts_ += 0;
 	else
@@ -241,8 +242,8 @@ class uiSeisBayesNorm : public uiVarWizardDlg
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Scaling"),
-			tr("[2] Normalization/Scaling"),
+    : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
+			 ,tr("- Scaling")), tr("[2] Normalization/Scaling"),
 			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
     , is2d_(*pars[sKey::Type()] == '2')
     , prenormfld_(0)
@@ -279,8 +280,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     for ( int idx=0; idx<nrpdfs_; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	BufferString fldtxt( "For '" );
-	fldtxt.add( IOM().nameOf(id) ).add( "'" );
+	uiString fldtxt = tr("For '%1'").arg(toUiString(IOM().nameOf(id)));
 
 	float scl = 1;
 	FixedString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
@@ -411,7 +411,7 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismics").arg(sKeyBayesClss),
+    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismics").arg(sKeyBayesClss()),
 					tr("[3] Specify Seismic input"),
 					mODHelpKey(mSeisBayesSeisInpHelpID) ), 
 					pars,Middle)
@@ -503,7 +503,7 @@ class uiSeisBayesOut : public uiVarWizardDlg
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Output").arg(sKeyBayesClss),
+    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Output").arg(sKeyBayesClss()),
 					tr("[4] Select and specify output"),
 					mODHelpKey(mSeisBayesOutHelpID) ), 
 					pars,DoWork)
@@ -548,7 +548,7 @@ void addOut( const char* nm, bool ispdf )
     const IOObjContext ctxt( uiSeisSel::ioContext(gt,false) );
 
     if ( !ispdf )
-	su.seltxt_ = nm;
+	su.seltxt_ = toUiString(nm);
     else
     { su.seltxt_ = uiString(tr("P: '%1'")).arg( nm ); }
 

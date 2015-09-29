@@ -88,7 +88,7 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
     {
 	BufferStringSet cnms; oinf.getComponentNames( cnms );
 	compfld_->box()->setEmpty();
-	compfld_->box()->addItem( "<All>" );
+	compfld_->box()->addItem( tr("<All>") );
 	compfld_->box()->addItems( cnms );
     }
     compfld_->display( ismc_ );
@@ -122,7 +122,8 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 	return batchfld_->start();
     }
 
-    Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "", "" );
+    Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "", 
+						    uiStrings::sEmptyString() );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
     SeisCubeCopier copier( stp, compnr );
     uiTaskRunner taskrunner( this );
@@ -132,14 +133,16 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
 uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
-    : uiDialog(p,Setup("Copy 2D Seismic Data",uiString::emptyString(),
-                       mODHelpKey(mSeisCopyLineSetHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrCopy(tr("2D Seismic Data")),
+		       uiString::emptyString(), 
+		       mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
     inpfld_->selectionDone.notify( mCB(this,uiSeisCopy2DDataSet,inpSel) );
 
-    subselfld_ = new uiSeis2DMultiLineSel( this, "Select Lines to copy", true );
+    subselfld_ = new uiSeis2DMultiLineSel( this, uiStrings::phrSelect(
+		     tr("%1 to copy").arg(uiStrings::sLine(mPlural))), true );
     subselfld_->attach( alignedBelow, inpfld_ );
     if ( obj )
     {
@@ -147,7 +150,7 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 	subselfld_->setInput( obj->key() );
     }
 
-    scalefld_ = new uiScaler( this, "Scale values", true );
+    scalefld_ = new uiScaler( this, tr("Scale values"), true );
     scalefld_->attach( alignedBelow, subselfld_ );
 
     ioctxt.forread_ = false;

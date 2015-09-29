@@ -443,7 +443,7 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
 // uiSteerCubeSel
 
 static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
-						   const char* txt )
+						   const uiString& txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().seltxt( txt );
@@ -453,7 +453,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, bool is2d, bool forread,
-				const char* txt )
+				const uiString& txt )
 	: uiSeisSel(p,uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,forread),
 		    mkSeisSelSetupForSteering(is2d,forread,txt))
 {

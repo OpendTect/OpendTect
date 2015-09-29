@@ -72,7 +72,8 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
     else
     {
-	linesel2dfld_ = new uiSeis2DMultiLineSel( this, 0, false, true );
+	linesel2dfld_ = new uiSeis2DMultiLineSel(this,uiStrings::sEmptyString(),
+						 false,true);
 	linesel2dfld_->attach( alignedBelow, seisselfld_ );
 	linesel2dfld_->selectionChanged.notify(
 			mCB(this,uiWaveletExtraction,lineSelCB) );
@@ -101,11 +102,11 @@ void uiWaveletExtraction::createCommonUIFlds()
 			 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
-    BufferString lbl( "Wavelet length ", SI().getZUnitString() );
+    uiString lbl = tr("Wavelet length %1").arg(SI().getUiZUnitString());
     wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(120) );
     wtlengthfld_->attach( alignedBelow, surfacesel_ );
 
-    BufferString taperlbl( "Taper length ", SI().getZUnitString() );
+    uiString taperlbl = tr("Taper length %1").arg(SI().getUiZUnitString());
     taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(20) );
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
@@ -244,7 +245,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     const int wvltlen = wtlengthfld_->getIntValue();
     if ( (2*taperlen > wvltlen) || taperlen < 0 )
     {
-	uiMSG().error( tr("TaperLength should be in between\n",
+	uiMSG().error( tr("TaperLength should be in between\n"
 			  "0 and half the Wavelet Length") );
 	taperfld_->setValue( 5 );
 	return false;

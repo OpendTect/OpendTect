@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwaveletextraction.h"
 #include "uiwaveletmatchdlg.h"
 #include "od_helpids.h"
+#include "uilabel.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
@@ -55,15 +56,17 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "impfromothsurv", "Get from other survey",
+    manipgrp->addButton( "impfromothsurv", tr("Get from other survey"),
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
-    disppropbut_ = manipgrp->addButton( "info", "Display properties",
-				mCB(this,uiSeisWvltMan,dispProperties) );
-    revpolbut_ = manipgrp->addButton( "revpol", "Reverse polarity",
+    disppropbut_ = manipgrp->addButton( "info", mJoinUiStrs(sDisplay(),
+				sProperties()), mCB(this,uiSeisWvltMan,
+				dispProperties) ); 
+				
+    revpolbut_ = manipgrp->addButton( "revpol", tr("Reverse polarity"),
 				mCB(this,uiSeisWvltMan,reversePolarity) );
-    rotatephbut_  = manipgrp->addButton( "phase", "Rotate phase",
+    rotatephbut_  = manipgrp->addButton( "phase", tr("Rotate phase"),
 				mCB(this,uiSeisWvltMan,rotatePhase) );
-    taperbut_ = manipgrp->addButton( "wavelet_taper", "Taper",
+    taperbut_ = manipgrp->addButton( "wavelet_taper", tr("Taper"),
 				     mCB(this,uiSeisWvltMan,taper) );
     addButtons();
     uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
@@ -73,12 +76,12 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     fdsu.noy2axis(true).noy2gridline(true);
     
     waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
-    const BufferString ztxt( (SI().zIsTime() ? "Time " : "Depth "), 
-			      SI().getZUnitString() );
+    const uiString ztxt = toUiString("%1 %2").arg(SI().zIsTime() ? 
+	 uiStrings::sTime() : uiStrings::sDepth()).arg(SI().getUiZUnitString());
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
 
-    wvnamdisp_ = new uiLabel( wvltdispgrp, "Wavelet" );
+    wvnamdisp_ = new uiLabel( wvltdispgrp, uiStrings::sWavelet() );
     wvnamdisp_->attach(centeredAbove, waveletdisplay_);
     wvnamdisp_->setAlignment( Alignment::HCenter );
       
@@ -164,7 +167,7 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
     if ( is2d && SI().has3D() )
     {
 	int res = uiMSG().askGoOnAfter( tr("Use 2D or 3D data?"),
-		0, uiStrings::s2D(), uiStrings::s3D() );
+		uiStrings::sEmptyString(), uiStrings::s2D(), uiStrings::s3D() );
 	if ( res == -1 )
 	    return;
 	else
@@ -198,33 +201,32 @@ void uiSeisWvltMan::closeDlg( CallBacker* )
 }
 
 
-#define mSetButToolTip(but,str1,curwvltnm,str2,deftt) \
+#define mSetButToolTip(but,str1,deftt) \
     if ( !but->sensitive() ) \
 	but->setToolTip( deftt ); \
     else \
-    { \
-	tt.setEmpty(); \
-	tt.add( str1 ).add( " '" ).add( curwvltnm ).add( "' " ).add( str2 ); \
-	but->setToolTip( tr(tt) ); \
-    }
+	but->setToolTip( str1 ); \
 
 void uiSeisWvltMan::ownSelChg()
 {
-    BufferString tt,curwvlt;
+    uiString tt,curwvlt;
     if ( curioobj_ )
-	curwvlt.add( curioobj_->name() );
+	curwvlt = curioobj_->uiName();
 
     revpolbut_->setSensitive( curioobj_ );
     rotatephbut_->setSensitive( curioobj_ );
     taperbut_->setSensitive( curioobj_ );
     disppropbut_->setSensitive( curioobj_ );
 
-    mSetButToolTip(revpolbut_,"Reverse", curwvlt, "polarity",
-		   "Reverse polarity");
-    mSetButToolTip(rotatephbut_,"Rotate", curwvlt, "phase","Rotate phase");
-    mSetButToolTip(taperbut_,"Taper", curwvlt,"", "Taper" );
-    mSetButToolTip(disppropbut_,"Display", curwvlt, "properties",
-		   "Display properties");
+    mSetButToolTip(revpolbut_,tr("Reverse %1 polarity").arg(curwvlt),
+						       tr("Reverse polarity"));
+    mSetButToolTip(rotatephbut_,tr("Rotate %1 phase").arg(curwvlt),
+							   tr("Rotate phase"));
+    mSetButToolTip(taperbut_,tr("Taper %1").arg(curwvlt), tr("Taper") );
+    mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
+		   .arg(uiStrings::sDisplay()).arg(curwvlt)
+		   .arg(uiStrings::sProperties().toLower()), 
+		   mJoinUiStrs(sDisplay(),sProperties().toLower()));
 }
 
 
@@ -291,7 +293,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 
 
 #define mRet(s) \
-	{ ctio.setObj(0); if ( s ) uiMSG().error(s); return; }
+	{ ctio.setObj(0); if ( !s.isEmpty() ) uiMSG().error(s); return; }
 
 void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
@@ -309,15 +311,16 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
     dlg.setDirToCurrentSurvey();
     if ( !wvlt )
-	mRet((didsel ? "Could not read wavelet" : 0))
+	mRet((didsel ? uiStrings::phrCannotRead(uiStrings::sWavelet()) : 
+		       uiStrings::sEmptyString()))
     IOM().getEntry( ctio );
     if ( !ctio.ioobj_ )
-	mRet("Cannot create new entry in Object Management")
+	mRet(uiStrings::phrCannotCreate(tr("new entry in Object Management")))
     else if ( !wvlt->put(ctio.ioobj_) )
-	mRet("Cannot write wavelet to disk")
+	mRet(uiStrings::phrCannotWrite(tr("wavelet to disk")))
 
     selgrp_->fullUpdate( ctio.ioobj_->key() );
-    mRet( 0 )
+    mRet( uiStrings::sEmptyString() )
 }
 
 
@@ -345,7 +348,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     if ( !wvlt ) return;
 
     uiSeisWvltRotDlg dlg( this, *wvlt );
-    dlg.setCaption( curioobj_->name() );
+    dlg.setCaption( curioobj_->uiName() );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
     {
@@ -368,19 +371,21 @@ void uiSeisWvltMan::taper( CallBacker* )
     if ( !wvlt ) return;
 
     uiSeisWvltTaperDlg dlg( this, *wvlt );
-    BufferString title( "Taper '", curioobj_->name(), "'" );
-    dlg.setCaption( title.buf() );
+    uiString title = tr("Taper '%1'").arg(curioobj_->uiName());
+    dlg.setCaption( title );
     if ( dlg.go() )
     {
 	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error(tr("Cannot write tapered wavelet to disk"));
+	    uiMSG().error(uiStrings::phrCannotWrite(
+						tr("tapered wavelet to disk")));
 	else
 	    selgrp_->fullUpdate( curioobj_->key() );
     }
 }
 
 
-#define mErr() mErrRet( "Cannot draw wavelet" );
+#define mErr() mErrRet( (uiStrings::phrJoinStrings(uiStrings::sCannot(),  \
+				uiStrings::sDraw(), uiStrings::sWavelet())) );
 
 void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {
@@ -396,7 +401,7 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 
 void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
-    wvnamdisp_->setText( curioobj_->name() );
+    wvnamdisp_->setText( curioobj_->uiName() );
     wvnamdisp_->setPrefWidthInChar( 60 );
     if( !wvlt )
     {

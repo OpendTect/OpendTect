@@ -33,7 +33,8 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     , newSelection(this)
 {
     uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, seltxt ? seltxt : uiStrings::sWavelet() );
+	new uiLabeledComboBox( this, seltxt ? mToUiStringTodo(seltxt) : 
+							uiStrings::sWavelet() );
     nmfld_ = lcb->box();
     uiObject* lastfld = lcb->attachObj();
 

@@ -162,7 +162,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	volsbox_->getChosen( selnms );
 	for ( int idx=0; idx<selnms.size(); idx++ )
 	{
-	    selvolsbox_->addItem( selnms.get( idx ) );
+	    selvolsbox_->addItem( toUiString(selnms.get( idx )) );
 	    volsbox_->removeItem( selnms.get( idx ) );
 	}
 
@@ -172,7 +172,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	selvolsbox_->getChosen( selnms );
 	for ( int idx=0; idx<selnms.size(); idx++ )
 	{
-	    volsbox_->addItem( selnms.get( idx ) );
+	    volsbox_->addItem( toUiString(selnms.get( idx )) );
 	    selvolsbox_->removeItem( selnms.get( idx ) );
 	}
     }
@@ -261,7 +261,7 @@ void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
     {
 	if ( idx < 1 ) return;
 	selvolsbox_->removeItem(idx);
-	selvolsbox_->insertItem( item, idx-1 );
+	selvolsbox_->insertItem( toUiString(item), idx-1 );
 	selvolsbox_->setCurrentItem( idx - 1 );
     }
     else if ( but == movedownward_ )
@@ -269,8 +269,8 @@ void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
 	const int totalnr = selvolsbox_->size();
 	if ( idx > totalnr-2 ) return;
 	selvolsbox_->removeItem(idx);
-	if ( idx == totalnr-2 ) selvolsbox_->addItem( item );
-	else selvolsbox_->insertItem( item, idx+1 );
+	if ( idx == totalnr-2 ) selvolsbox_->addItem( toUiString(item) );
+	else selvolsbox_->insertItem( toUiString(item), idx+1 );
 	selvolsbox_->setCurrentItem( idx + 1 );
     }
 }

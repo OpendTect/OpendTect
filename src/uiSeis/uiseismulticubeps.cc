@@ -107,7 +107,8 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     sep->attach( stretchedBelow, compfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 
-    BufferString offsetstr( "Offset (start/step) ", SI().getXYUnitString() );
+    uiString offsetstr = tr("Offset (start/step) %1")
+						.arg(SI().getUiXYUnitString());
     const Interval<float> offsets( 0, 100 );
     offsfld_ = new uiGenInput( this, offsetstr,
 			       FloatInpIntervalSpec(offsets).setName("Offset"));
@@ -290,7 +291,7 @@ void uiSeisMultiCubePS::fillBox( uiListBox* lb )
 		= lb == cubefld_ ? entries_ : selentries_;
     lb->setEmpty();
     for ( int idx=0; idx<es.size(); idx++ )
-	lb->addItem( es[idx]->ioobj_->name() );
+	lb->addItem( es[idx]->ioobj_->uiName() );
 }
 
 
@@ -335,8 +336,8 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
     recordEntryData();
     if ( !outfld_->commitInput() )
 	mErrRet((outfld_->isEmpty()
-		 ? "Please enter a name for the output"
-		 : uiString::emptyString() ))
+	       ? uiStrings::phrSpecify(uiStrings::phrOutput(uiStrings::sName()))
+	       : uiString::emptyString()))
 
     SamplingData<float> offset( offsfld_->getfValue(0),
 				offsfld_->getfValue(1) );

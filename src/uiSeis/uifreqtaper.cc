@@ -84,23 +84,25 @@ class uiFreqTaperSelLineDlg : public uiDialog
 public:
 
 uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
-	: uiDialog(p,uiDialog::Setup("Select line from Data",0,mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("line from Data"))
+	, uiStrings::sEmptyString(),mNoHelpKey))
 	, linesfld_(0)
 	, objinfo_(objinfo)
 {
-    BufferString complbl ("Compute amplitude spectrum on ");
+    uiString complbl = tr("Compute amplitude spectrum on %1");
     if ( objinfo_.is2D() )
     {
 	BufferStringSet linenames;
 	objinfo.getLineNames( linenames );
-	complbl += "line:";
+	complbl = complbl.arg(uiStrings::sLine().toLower());
 	linesfld_ = new uiLabeledComboBox( this, complbl );
 	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
+	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
     }
     else
 	inlcrlfld_ = new uiGenInput( this, complbl,
-			BoolInpSpec(true,sKey::Inline(),sKey::Crossline()) );
+			BoolInpSpec(true,uiStrings::sInline(),
+			uiStrings::sCrossline()) );
     setOkText( uiStrings::sNext() );
 }
 
@@ -225,8 +227,9 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     mCheckLimitRanges();
     setSlopeFromFreq();
 
-    const char* tapertxt = "Slope (dB/Octave)";
-    varinpfld_ = new uiGenInput( this, "", FloatInpSpec() );
+    const uiString tapertxt = tr("Slope (dB/Octave)");
+    varinpfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+							       FloatInpSpec() );
     varinpfld_->setTitleText ( tapertxt );
     varinpfld_->setValue( td1_.paramval_ );
     varinpfld_->valuechanged.notify(mCB( this, uiFreqTaperGrp, slopeChanged ));

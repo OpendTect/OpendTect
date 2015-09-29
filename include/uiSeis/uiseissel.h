@@ -134,12 +134,15 @@ private:
 
 
 mExpClass(uiSeis) uiSteerCubeSel : public uiSeisSel
-{
+{ mODTextTranslationClass(uiSteerCubeSel)
 public:
 
 				uiSteerCubeSel(uiParent*,bool is2d,
 					       bool forread=true,
-					       const char* txt="Steering Data");
+					       const uiString& txt=
+					       toUiString("%1 %2")
+					       .arg(uiStrings::sSteering())
+					       .arg(uiStrings::sData()));
 
 protected:
 

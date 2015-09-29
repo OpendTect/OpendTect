@@ -342,7 +342,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	ElFR().getByType( tp, formulas );
 	ElasticPropertyRef& epr = elpropsel_.get(tp);
 	propflds_ += new uiElasticPropSelGrp(tgs[idx], propnms_, epr, formulas);
-	ts_->addTab( tgs[idx], props[idx] );
+	ts_->addTab( tgs[idx], toUiString(props[idx]) );
     }
     ts_->selChange().notify(
 			mCB(this,uiElasticPropSelDlg,screenSelectionChanged) );
@@ -428,7 +428,7 @@ bool uiElasticPropSelDlg::acceptOK( CallBacker* )
 
     BufferString msg;
     if ( !elpropsel_.isValidInput( &msg ) )
-	mErrRet( msg, return false; );
+	mErrRet( mToUiStringTodo(msg), return false; );
 
     return true;
 }

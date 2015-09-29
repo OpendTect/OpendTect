@@ -233,9 +233,9 @@ uiClusterProc::uiClusterProc( uiParent* p, const IOPar& iop )
     totalnr_ = proc_.totalNrJobs();
     progbar_->setTotalSteps( totalnr_ );
 
-    BufferString labeltxt( "Number of jobs finished: " );
-    labeltxt += "XXXX out of XXXX (XXXX with error)";
-    label_ = new uiLabel( this, labeltxt.buf() );
+    uiString labeltxt = sNrDoneText(toUiString("XXXX"), toUiString("XXXX"), 
+							    toUiString("XXXX"));
+    label_ = new uiLabel( this, labeltxt );
     label_->attach( alignedBelow, progbar_ );
 
     uiTaskRunner dlg( this );
@@ -254,6 +254,12 @@ uiClusterProc::~uiClusterProc()
 }
 
 
+uiString uiClusterProc::sNrDoneText( const uiString& nrdone, 
+				const uiString& totnr, const uiString& nrerror )
+{
+  return tr( "Number of jobs finished: %1 out of %2 (%3 with error) ")
+					.arg(nrdone).arg(totnr).arg(nrerror);
+}
 void uiClusterProc::progressCB( CallBacker* )
 {
     int nrjobsdone, nrjobswitherr;
@@ -262,12 +268,8 @@ void uiClusterProc::progressCB( CallBacker* )
     progbar_->setProgress( nrjobsdone + nrjobswitherr );
     if ( !msg.isEmpty() )
 	msgfld_->append( msg.buf() );
-
-    BufferString labeltxt( "Number of jobs finished: " );
-    labeltxt += nrjobsdone + nrjobswitherr;
-    labeltxt += " out of "; labeltxt += totalnr_;
-    labeltxt += " ("; labeltxt += nrjobswitherr;
-    labeltxt += "with error)";
+   uiString labeltxt = sNrDoneText(toUiString(nrjobsdone + nrjobswitherr), 
+			       toUiString(totalnr_), toUiString(nrjobswitherr));
     label_->setText( labeltxt );
     if ( totalnr_ && (nrjobsdone + nrjobswitherr) == totalnr_ )
     {
@@ -275,10 +277,10 @@ void uiClusterProc::progressCB( CallBacker* )
 	uiTaskRunner dlg( this );
 	if ( nrjobswitherr )
 	{
-	    BufferString ques; ques += nrjobswitherr;
-	    ques += " job(s) either failed or finished with error, ";
-	    ques += "do you still want to proceed with merging the output?";
-	    const int resp = uiMSG().question( ques.buf(), tr("Merge anyway"),
+	    uiString ques = tr("%1 job(s) either failed or finished with error,"
+			       "do you still want to proceed with merging "
+			       " the output?").arg(nrjobswitherr);
+	    const int resp = uiMSG().question( (ques), tr("Merge anyway"),
 				tr("Re-submit failed jobs"),
                                 uiStrings::sAbort() );
 	    if ( resp == -1 )
@@ -293,7 +295,7 @@ void uiClusterProc::progressCB( CallBacker* )
 	}
 
 	mergeOutput( pars_, &dlg, msg );
-	label_->setText( msg.buf() );
+	label_->setText( mToUiStringTodo(msg.buf()) );
     }
 }
 
@@ -312,7 +314,8 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     if ( !inobj || !outobj )
 	mErrRet("Cannot open Output" )
     PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
-		"Data transfer", &pars, "Writing results to output cube" );
+		"Data transfer", &pars, uiStrings::phrWriting(tr(
+		"results to output cube")) );
 
     if ( !exec )
 	return false;

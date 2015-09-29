@@ -132,8 +132,8 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup* vsu )
-    : uiDialog( p, uiDialog::Setup(tr("Specify velocity information"),0,
-                                    mODHelpKey(mVelocityDescDlg) ) )
+    : uiDialog( p, uiDialog::Setup(tr("Specify velocity information"),
+				    mNoDlgTitle, mODHelpKey(mVelocityDescDlg)))
     , toprange_( mUdf(float), mUdf(float ) )
     , bottomrange_( mUdf(float), mUdf(float ) )
 {

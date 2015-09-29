@@ -70,14 +70,15 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
 
     linegrp_ = new uiManipButGrp( linefld_ );
-    linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
-			mCB(this,uiSeis2DFileMan,removeLine) );
-    linegrp_->addButton( "mergelines", "Merge lines",
-			mCB(this,uiSeis2DFileMan,mergeLines) );
-    linegrp_->addButton( "browseseis", "Browse/edit this line",
+    linegrp_->addButton( uiManipButGrp::Remove, uiStrings::phrRemove(
+		    uiStrings::sLine()), mCB(this,uiSeis2DFileMan,removeLine) );
+    linegrp_->addButton( "mergelines", uiStrings::phrMerge(
+			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
+			mergeLines) );
+    linegrp_->addButton( "browseseis", tr("Browse/edit this line"),
 		        mCB(this,uiSeis2DFileMan,browsePush) );
     if ( SI().has3D() )
-	linegrp_->addButton( "extr3dinto2d", "Extract from 3D cube",
+	linegrp_->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
     linegrp_->attach( rightOf, linefld_->box() );
 
@@ -254,7 +255,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 
     const char* mrgopts[]
 	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
-    mrgoptfld_ = new uiGenInput( geomgrp, "Merge method",
+    mrgoptfld_ = new uiGenInput( geomgrp, uiStrings::phrMerge(tr("method")),
 				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );

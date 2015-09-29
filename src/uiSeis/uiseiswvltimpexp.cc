@@ -42,7 +42,8 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII file", uiFileInput::Setup()
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
+		      uiStrings::sFile())), uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
@@ -150,12 +151,13 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 
     wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
 
-    addzfld_ = new uiGenInput( this, BufferString("Output ",
-				     SI().zIsTime()?"time":"depth"),
+    addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ? 
+				     uiStrings::sTime() : uiStrings::sDepth()),
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
 
-    outpfld_ = new uiFileInput( this, "Output ASCII file", uiFileInput::Setup()
+    outpfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::phrASCII(
+				uiStrings::sFile())), uiFileInput::Setup()
 				.forread(false) );
     outpfld_->attach( alignedBelow, addzfld_ );
 }

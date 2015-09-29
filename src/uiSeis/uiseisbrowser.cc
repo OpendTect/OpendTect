@@ -114,11 +114,13 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
     if ( !openData(su) )
     {
 	setTitleText( tr("Error") );
-	BufferString lbltxt( "Cannot open input data (" );
-	lbltxt += Seis::nameOf(su.geom_); lbltxt += ")\n";
-	lbltxt += IOM().nameOf( su.id_ );
+	uiString lbltxt = uiStrings::phrCannotOpen(uiStrings::phrInput(
+			  uiStrings::phrData(tr("('%1')\n%2")
+			  .arg(Seis::nameOf(su.geom_))
+			  .arg(IOM().nameOf( su.id_ )))));
+
 	if ( !su.linekey_.isEmpty() )
-	    { lbltxt += " - "; lbltxt += su.linekey_; }
+	    { lbltxt = toUiString("%1 - %2").arg(lbltxt).arg(su.linekey_); }
 	new uiLabel( this, lbltxt );
 	setCtrlStyle( CloseOnly );
 	return;
@@ -425,7 +427,7 @@ void uiSeisBrowser::fillTable()
 
 void uiSeisBrowser::fillTableColumn( const SeisTrc& trc, int colidx )
 {
-    tbl_->setColumnLabel( colidx, trc.info().binid.toString( is2D() ) );
+    tbl_->setColumnLabel(colidx, toUiString(trc.info().binid.toString(is2D())));
 
     RowCol rc; rc.col() = colidx;
     for ( rc.row()=0; rc.row()<nrsamples_; rc.row()++ )

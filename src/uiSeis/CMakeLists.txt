@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiIo Seis Velocity)
-SET(OD_MODULE_SOURCES
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS uiIo Seis Velocity)
+set(OD_MODULE_SOURCES
 	inituiseis.cc
 	uibatchtime2depthsetup.cc
 	uiclusterproc.cc

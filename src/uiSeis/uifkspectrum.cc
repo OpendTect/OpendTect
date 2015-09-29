@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
-    : uiFlatViewMainWin(p,Setup("FK Spectrum"))
+    : uiFlatViewMainWin(p,Setup(tr("FK Spectrum")))
     , fft_(0)
     , input_(0)
     , output_(0)
@@ -62,9 +62,9 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
     lineitm_ = initAuxData();
 
-    ffld_ = new uiGenInput( this, SI().zIsTime() ? "F" : "Kz" );
+    ffld_ = new uiGenInput( this, SI().zIsTime() ? tr("F") : tr("Kz") );
     ffld_->setReadOnly();
-    kfld_ = new uiGenInput( this, "K" );
+    kfld_ = new uiGenInput( this, tr("K") );
     kfld_->setReadOnly();
     velfld_ = new uiGenInput( this, SI().zIsTime() ? tr("Vel (m/s)")
 						   : tr("Dip (deg)"));
@@ -132,7 +132,8 @@ float uiFKSpectrum::getMaxValue() const
 static void updateTB( uiToolButton& tb, bool quietmode )
 {
     tb.setIcon( quietmode ? "pick" : "stop" );
-    tb.setToolTip( quietmode ? "Set velocity" : uiStrings::sCancel() );
+    tb.setToolTip( quietmode ? od_static_tr("updateTB","Set velocity") :
+					     uiStrings::sCancel() );
 }
 
 
@@ -190,7 +191,7 @@ void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
     ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
     setCaption( !datapack ? tr("No data")
-	    : BufferString("F-K Spectrum for ",datapack->name()).buf() );
+	    : tr("F-K Spectrum for %1").arg(datapack->name()) );
 
     if ( dmid == DataPackMgr::SeisID() )
     {

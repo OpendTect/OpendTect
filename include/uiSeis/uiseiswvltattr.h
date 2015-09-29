@@ -114,6 +114,7 @@ private:
     Interval<float>		freqrange_;
 
     void			addAttrDisp(int);
+    
 };
 
 

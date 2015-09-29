@@ -46,12 +46,14 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     if ( !is2d )
     {
-	copybut_ = manipgrp->addButton( "copyobj", "Copy data store",
+	copybut_ = manipgrp->addButton( "copyobj", uiStrings::phrCopy(
+					uiStrings::phrData(tr("Store"))),
 					mCB(this,uiSeisPreStackMan,copyPush) );
-	mergebut_ = manipgrp->addButton( "mergeseis", "Merge data stores",
+	mergebut_ = manipgrp->addButton( "mergeseis", uiStrings::phrMerge(
+					uiStrings::phrData(tr("Stores"))),
 					mCB(this,uiSeisPreStackMan,mergePush) );
 	manipgrp->addButton( "mkmulticubeps",
-			     "Create/Edit Multi-Cube data store",
+			     tr("Create/Edit Multi-Cube data store"),
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
     }
 
@@ -74,37 +76,35 @@ uiString uiSeisPreStackMan::createCaption( bool is2d )
 }
 
 
-#define mSetButToolTip(but,str1,cursel,str2,deftt) \
+#define mSetButToolTip(but,str1,deftt) \
     if ( !but->sensitive() ) \
 	but->setToolTip( deftt ); \
     else \
-    { \
-	tt.setEmpty(); \
-	tt.add( str1 ).add( cursel ).add( str2 ); \
-	but->setToolTip( tr(tt) ); \
-    }
+	but->setToolTip( str1 ); \
 
 void uiSeisPreStackMan::ownSelChg()
 {
     if ( is2d_ )
 	return;
 
-    BufferString tt,cursel;
+    uiString tt,cursel;
     if ( curioobj_ )
-	cursel.add( curioobj_->name() );
+	cursel = curioobj_->uiName();
 
     copybut_->setSensitive( curioobj_ );
     mergebut_->setSensitive( curioobj_ );
-    mSetButToolTip(copybut_,"Make a copy of '",cursel,"'","Copy data store");
+    mSetButToolTip(copybut_,tr("Make a copy of '%1'").arg(cursel),
+		   tr("Copy data store"));
     BufferStringSet selnms;
     selgrp_->getChosen( selnms );
     if ( selnms.size() > 1 )
     {
-	mSetButToolTip(mergebut_,"Merge ",selnms.getDispString(2),"",
-		       "Merge data store");
+	mSetButToolTip(mergebut_, toUiString(selnms.getDispString(2)),
+		       uiStrings::phrMerge(uiStrings::phrData(tr("Store"))));
     }
     else
-	mergebut_->setToolTip( "Merge data store" );
+	mergebut_->setToolTip(uiStrings::phrMerge(uiStrings::phrData(
+								tr("Store"))));
 }
 
 

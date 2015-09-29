@@ -61,7 +61,6 @@ protected:
     void			taper(CallBacker*);
     void			updateCB(CallBacker*);
     void			rotUpdateCB(CallBacker*);
-    
 };
 
 #endif

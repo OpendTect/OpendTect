@@ -150,8 +150,9 @@ protected:
 mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiSeis2DLineSel
 { mODTextTranslationClass(uiSeis2DMultiLineSel);
 public:
-			uiSeis2DMultiLineSel(uiParent*,const char* text=0,
-					  bool withz=false,bool withstep=false);
+			uiSeis2DMultiLineSel(uiParent*,
+				 const uiString& text=uiStrings::sEmptyString(),
+				 bool withz=false,bool withstep=false);
 			~uiSeis2DMultiLineSel();
 
     bool		isAll() const;
