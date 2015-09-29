@@ -104,7 +104,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 
 #define mConstructorInitListStart(c) \
-	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.ctxt_.forread_), \
+	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread_), \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
@@ -112,7 +112,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
-    : mConstructorInitListStart(ctio)
+    : mConstructorInitListStart(ctio.ctxt_)
     , setup_( ttxt )
 {
     init( ctio );
@@ -121,7 +121,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
-    : mConstructorInitListStart(ctio)
+    : mConstructorInitListStart(ctio.ctxt_)
     , setup_( su )
 {
     init( ctio );
