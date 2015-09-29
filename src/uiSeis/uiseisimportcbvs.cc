@@ -50,13 +50,13 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
-    inpfld_ = new uiFileInput( this, "(First) CBVS file name", fisu );
+    inpfld_ = new uiFileInput( this, tr("(First) CBVS file name"), fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,inpSel) );
 
     StringListInpSpec spec;
-    spec.addString( "Input data cube" );
-    spec.addString( "Generated attribute cube" );
-    spec.addString( "SteeringCube" );
+    spec.addString( uiStrings::phrInput(uiStrings::phrData(tr("Cube"))) );
+    spec.addString( tr("Generated Attribute Cube") );
+    spec.addString( tr("SteeringCube") );
     typefld_ = new uiGenInput( this, tr("Cube type"), spec );
     typefld_->attach( alignedBelow, inpfld_ );
     typefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
@@ -210,8 +210,8 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo()) )
 	{ rmTmpIOObj(); return false; }
 
-    PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj,
-		    *outioobj_, "Importing CBVS seismic cube", "Loading data" );
+    PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj_,
+		    "Importing CBVS seismic cube", tr("Loading data") );
     if ( !exec )
 	{ rmTmpIOObj(); return false; }
 

@@ -39,7 +39,7 @@ public:
 
     };
     static int		addBrowser(BrowserDef*);
-
+    static uiString	sShowAttributeSet() { return tr("Show AttributeSet"); }
     mDeclInstanceCreatedNotifierAccess(uiSeisFileMan);
 
 protected:
