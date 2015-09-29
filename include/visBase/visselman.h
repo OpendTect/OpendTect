@@ -22,10 +22,11 @@ class SoSelection;
 class SoNode;
 class SoPath;
 
-namespace Threads { class Mutex; };
+namespace Threads { class Mutex; }
 
 namespace visBase
 {
+
 class Scene;
 class DataObject;
 class DataManager;
@@ -64,8 +65,8 @@ public:
     				// for implementing pick-based reselection
     CNotifier<SelectionManager,int>	reselnotifier;
 
-    void			fillPar(IOPar&,TypeSet<int>&) const {};
-    void			usePar(const IOPar&) {};
+    void			fillPar(IOPar&,TypeSet<int>&) const {}
+    void			usePar(const IOPar&) {}
 
 protected:
     void			select(int id,bool keep,bool lock);
@@ -78,7 +79,7 @@ protected:
     Threads::Mutex&		mutex_;
 };
 
-};
+} // namespace visBase
 
 #endif
 
