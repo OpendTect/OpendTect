@@ -364,8 +364,8 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	    posattribs_ += attr;
 	    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
 	    markerset->ref();
-	    Color clr = attr == EM::EMObject::sSeedNode() 
-				? Color::White() 
+	    Color clr = attr == EM::EMObject::sSeedNode()
+				? Color::White()
 				: Color::Green();
 	    markerset->setMarkersSingleColor( clr );
 	    addChild( markerset->osgNode() );
@@ -682,8 +682,6 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     if ( !pids ) return;
 
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
-    
-    Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
 
     markerset->clearMarkers();
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
@@ -797,7 +795,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
     if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
-    { 	unSelectAll();  return;  }
+    {	unSelectAll();  return;  }
 
     if ( !ctrldown_ )
 	unSelectAll();
