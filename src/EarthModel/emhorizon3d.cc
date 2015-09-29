@@ -721,19 +721,28 @@ int ChildFinder::nextStep()
 }
 
 
-Array2D<char>* Horizon3D::getChildren( const TrcKey& node ) const
+bool Horizon3D::selectChildren( const TrcKey& node )
 {
-    if ( !children_ ) return 0;
+    if ( !children_ ) return false;
 
     children_->setAll( '0' );
     od_int64 gidx = trackingsamp_.globalIdx( node );
     ChildFinder cf( trackingsamp_, *parents_, *children_ );
     cf.addTask( gidx );
-    cf.execute();
+    const bool res = cf.execute();
+    if ( res )
+    {
+	EMObjectCallbackData cbdata;
+	cbdata.event = EMObjectCallbackData::SelectionChange;
+	change.trigger( cbdata );
+    }
 
-    return children_;
+    return res;
 }
 
+
+Array2D<char>* Horizon3D::getChildren() const
+{ return children_; }
 
 void Horizon3D::resetChildren()
 { if ( children_ ) children_->setAll( '0' ); }

@@ -256,7 +256,7 @@ void uiMPEMan::handleAction( int res )
     case sRetrack: startRetrack(); break;
     case sStop: stopTracking(); break;
     case sPoly: changePolySelectionMode(); break;
-    case sChild: hd->selectChildren(tk); break;
+    case sChild: hor3d->selectChildren(tk); break;
     case sParent: hd->selectParent(tk); break;
     case sParPath: showParentsPath(); break;
     case sClear: clearSelection(); break;

@@ -45,7 +45,7 @@ class EMManager;
 mExpClass(EarthModel) EMObjectCallbackData
 {
 public:
-    		EMObjectCallbackData() 
+    		EMObjectCallbackData()
 		    : pid0( 0, 0, 0 )
 		    , pid1( 0, 0, 0 )
 		    , attrib( -1 )
@@ -54,7 +54,8 @@ public:
 		{}
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
-   		 AttribChange, SectionChange, NameChange, BurstAlert } event;
+   		 AttribChange, SectionChange, NameChange, SelectionChange,
+   		 BurstAlert } event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
@@ -96,7 +97,7 @@ public:
 
     Type		type_;
     TypeSet<PosID>	posids_;
-    bool		locked_;    
+    bool		locked_;
 };
 
 
@@ -164,12 +165,12 @@ public:
 
     virtual bool		isAtEdge(const EM::PosID&) const;
 
-    void			changePosID(const EM::PosID& from, 
+    void			changePosID(const EM::PosID& from,
 	    				    const EM::PosID& to,
 					    bool addtohistory);
     				/*!<Tells the object that the node former known
 				    as from is now called to. Function will also
-				    exchange set the position of to to the 
+				    exchange set the position of to to the
 				    posion of from. */
 
     virtual void		getLinkedPos(const EM::PosID& posid,
@@ -179,7 +180,7 @@ public:
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&, 
+    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
 					       const TrcKeyZSampling* =0) const
 				{ return 0; }
     				/*!< creates an iterator. If the sectionid is
@@ -198,7 +199,7 @@ public:
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int attr) const;
     const MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
-    void			setPosAttrMarkerStyle(int attr, 
+    void			setPosAttrMarkerStyle(int attr,
 						      const MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
@@ -273,7 +274,7 @@ protected:
     int				burstalertcount_;
 
     bool			insideselremoval_;
-    bool			selremoving_; 
+    bool			selremoving_;
 
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();

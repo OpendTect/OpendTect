@@ -1073,6 +1073,12 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 						hor3d->getSelectionColor() );
 	}
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
+    {
+	// TODO: Should be made more general, such that it also works for
+	// polygon selections
+	selectChildren();
+    }
 
     updateSingleColor();
 
@@ -2134,10 +2140,17 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
 }
 
 
-void HorizonDisplay::selectChildren( const TrcKey& tkin )
+void HorizonDisplay::selectChildren( const TrcKey& tk )
+{
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+    if ( hor3d ) hor3d->selectChildren( tk );
+}
+
+
+void HorizonDisplay::selectChildren()
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    Array2D<char>* children = hor3d ? hor3d->getChildren( tkin ) : 0;
+    Array2D<char>* children = hor3d ? hor3d->getChildren() : 0;
     if ( !children ) return;
 
     initSelectionDisplay( true );
@@ -2204,7 +2217,8 @@ void HorizonDisplay::updateSelections()
 
     TypeSet<int> pidxs;
     const TypeSet<EM::SubID>& selids = posselector.getSelected();
-    if ( selids.size()<=0 ) return;
+    if ( selids.size()<=0 )
+	return;
 
     for ( int idx=0; idx<selids.size(); idx++ )
     {

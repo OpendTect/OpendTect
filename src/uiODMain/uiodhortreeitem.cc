@@ -623,7 +623,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==childrenmnuitem_.id )
     {
 	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
-	hd->selectChildren( tk );
+	hor3d->selectChildren( tk );
     }
     else if ( mnuid==delchildrenmnuitem_.id )
     {

@@ -98,6 +98,7 @@ protected:
     ObjectSet<Hor3DMarkerIdInfo> markeridinfos_;
     MouseEventHandler*		mehandler_;
     TrcKeyZSampling		curcs_;
+    const TrcKeyPath*		curtkpath_;
     const Attrib::SelSpec*	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 
