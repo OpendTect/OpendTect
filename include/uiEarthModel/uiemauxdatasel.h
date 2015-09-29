@@ -22,7 +22,7 @@ ________________________________________________________________________
 mExpClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
 { mODTextTranslationClass(uiEMAuxDataSel);
 public:
-			uiEMAuxDataSel(uiParent*,const char* label,
+			uiEMAuxDataSel(uiParent*,const uiString& label,
 				       const MultiID* =0,
 				       const char* auxdata=0 );
     const MultiID&	getSurfaceID() const;

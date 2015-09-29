@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 				const MultiID* hormid, const char* auxdatanm )
-    : uiCompoundParSel( p, mToUiStringTodo(lbl) )
+    : uiCompoundParSel( p, lbl )
     , hormid_(hormid ? *hormid : -1)
     , auxdatanm_(auxdatanm)
 {
