@@ -46,7 +46,8 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 
     uiFileInput::Setup su( uiFileDialog::Txt );
     su.withexamine(true).examstyle(File::Table).forread(true);
-    inpfld_ = new uiFileInput( this, "Input file", su );
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()), 
+			       su );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
@@ -62,7 +63,8 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
     ctxt.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctxt, "Output data set" );
+    outfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
+					uiStrings::phrData(uiStrings::sSet())));
     outfld_->attach( alignedBelow, row1isdatafld_ );
 }
 
@@ -247,7 +249,7 @@ bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
 					   false);
     MouseCursorManager::restoreOverride();
     if ( !isok )
-	mErrRet(errmsg)
+	mErrRet(mToUiStringTodo(errmsg))
 
     return true;
 }

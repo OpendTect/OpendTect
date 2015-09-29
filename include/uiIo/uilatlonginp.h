@@ -20,7 +20,7 @@ class uiLatLongDMSInp;
 
 
 mExpClass(uiIo) uiLatLongInp : public uiGroup
-{
+{ mODTextTranslationClass(uiLatLongInp)
 public:
 
     			uiLatLongInp(uiParent*);
