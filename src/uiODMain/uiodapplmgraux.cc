@@ -507,7 +507,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 #endif
 
     uiGetChoice dlg( par_, options,
-			"Select policy for auto-update", true,
+			tr("Select policy for auto-update"), true,
                        mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));
 
     const int idx = options.indexOf( alloptions.get((int)curait) );
