@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     : uiDialog(p,uiDialog::Setup(tr("Specify Synthetic Parameters"),mNoDlgTitle,
 				 mODHelpKey(mRayTrcParamsDlgHelpID) )
-                                 .modal(false))
+				.modal(false))
     , stratsynth_(gp)
     , genNewReq(this)
     , synthRemoved(this)
