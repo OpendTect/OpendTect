@@ -204,10 +204,10 @@ void uiTaskRunner::updateFields()
     {
 	symbidx_++;
 #ifdef __debug__
-	proglbl_->setText( uiString(tr("[ %1 ]").arg(symbidx_)) );
+	proglbl_->setText( toUiString(tr("[ %1 ]").arg(symbidx_)) );
 #else
 	if ( symbidx_ >= noprogbardispnrsymbs ) symbidx_ = 0;
-	proglbl_->setText( noprogbardispsymbs[symbidx_] );
+	proglbl_->setText( toUiString(noprogbardispsymbs[symbidx_]) );
 #endif
     }
     proglbl_->display( !disppb );
