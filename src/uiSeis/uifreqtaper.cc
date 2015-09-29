@@ -186,7 +186,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 
 	const float sr = trcset.get(0)->info().sampling.step;
 
-	uiAmplSpectrum::Setup su( "", false, sr );
+	uiAmplSpectrum::Setup su( uiStrings::sEmptyString(), false, sr );
 	uiAmplSpectrum spec( this, su );
 	spec.setData( arr2d  );
 	delete funcvals_;
@@ -228,7 +228,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     setSlopeFromFreq();
 
     const uiString tapertxt = tr("Slope (dB/Octave)");
-    varinpfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    varinpfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 							       FloatInpSpec() );
     varinpfld_->setTitleText ( tapertxt );
     varinpfld_->setValue( td1_.paramval_ );
