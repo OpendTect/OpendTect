@@ -12,22 +12,24 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uigraphicslegend.h"
 
+#include "uifont.h"
 #include "uigraphicsitemimpl.h"
 
 uiLegendItem::uiLegendItem()
     : uiRectItem()
+    , headerfont_(*new FontData(8))
+    , infofont_(*new FontData(8))
 {
-    setRect( 0, 0, 200, 150 );
-
     buildLayout();
     setProperties();
-
-    init();
 }
 
 
 uiLegendItem::~uiLegendItem()
-{}
+{
+    delete &headerfont_;
+    delete &infofont_;
+}
 
 
 void uiLegendItem::buildLayout()
@@ -43,18 +45,20 @@ void uiLegendItem::buildLayout()
     uiAdvancedTextItem* date = new uiAdvancedTextItem( sDate() );
     uiAdvancedTextItem* sign = new uiAdvancedTextItem( sSignature() );
 
-    uiRectItem* rec0 = new uiRectItem( 0, 0, 200, 30 );
-    uiRectItem* separator = new uiRectItem( 0, 0, 200, 3 );
-    uiRectItem* rec1 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec2 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec3 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec4 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec5 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec6 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec7 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec8 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec9 = new uiRectItem( 0, 0, 100, 30 );
-    uiRectItem* rec10 = new uiRectItem( 0, 0, 100, 30 );
+    const int width = 100;
+    const int height = 40;
+    uiRectItem* rec0 = new uiRectItem( 0, 0, 2*width, height );
+    uiRectItem* separator = new uiRectItem( 0, 0, 2*width, height/10 );
+    uiRectItem* rec1 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec2 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec3 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec4 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec5 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec6 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec7 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec8 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec9 = new uiRectItem( 0, 0, width, height );
+    uiRectItem* rec10 = new uiRectItem( 0, 0, width, height );
 
     addChild( country );
     addChild( block );
@@ -80,51 +84,31 @@ void uiLegendItem::buildLayout()
     addChild( rec9 );
     addChild( rec10 );
 
-// setting position
-    rec0->setPos(0,0);
+    country->setFont( headerfont_ );
+    block->setFont( headerfont_ );
+    license->setFont( headerfont_ );
+    modelname->setFont( headerfont_ );
+    horizonname->setFont( headerfont_ );
+    mapscale->setFont( headerfont_ );
+    contourinc->setFont( headerfont_ );
+    username->setFont( headerfont_ );
+    date->setFont( headerfont_ );
+    sign->setFont( headerfont_ );
 
-    separator->setPos(0,27);
-
-    country->setPos(0,30);	mapscale->setPos(100,30);
-    rec1->setPos(0,30);		rec6->setPos(100,30);
-
-    block->setPos(0,60);	contourinc->setPos(100,60);
-    rec2->setPos(0,60);		rec7->setPos(100,60);
-
-    license->setPos(0,90);	username->setPos(100,90);
-    rec3->setPos(0,90);		rec8->setPos(100,90);
-
-    modelname->setPos(0,120);	date->setPos(100,120);
-    rec4->setPos(0,120);	rec9->setPos(100,120);
-
-    horizonname->setPos(0,150); sign->setPos(100,150);
-    rec5->setPos(0,150);	rec10->setPos(100,150);
-
-    LineStyle ls; ls.width_ = 2;
-}
-
-
-void uiLegendItem::setProperties()
-{
-    setAcceptHoverEvents( true );
-    setItemIgnoresTransformations( true );
-    setMovable( true );
-}
-
-
-void uiLegendItem::init()
-{
+// interactive text
     title_ = new uiAdvancedTextItem( sMap() );
-    country_ = new uiAdvancedTextItem( sCountry() );
-    block_ = new uiAdvancedTextItem( sBlock() );
-    license_ = new uiAdvancedTextItem( sLicense() );
-    modelname_ = new uiAdvancedTextItem( sModelNm() );
-    horizonname_ = new uiAdvancedTextItem( sHorNm() );
-    mapscale_ = new uiAdvancedTextItem( sScale() );
-    contourinc_ = new uiAdvancedTextItem( sContourInc() );
-    username_ = new uiAdvancedTextItem( sUserNm() );
-    date_ = new uiAdvancedTextItem( sDate() );
-    sign_ = new uiAdvancedTextItem( sSignature() );
+
+    Alignment al( Alignment::HCenter, Alignment::Bottom );
+    country_ = new uiAdvancedTextItem( sCountry(), al, true );
+    block_ = new uiAdvancedTextItem( sBlock(), al, true );
+    license_ = new uiAdvancedTextItem( sLicense(), al, true );
+    modelname_ = new uiAdvancedTextItem( sModelNm(), al, true );
+    horizonname_ = new uiAdvancedTextItem( sHorNm(), al, true );
+    mapscale_ = new uiAdvancedTextItem( sScale(), al, true );
+    contourinc_ = new uiAdvancedTextItem( sContourInc(), al, true );
+    username_ = new uiAdvancedTextItem( sUserNm(), al, true );
+    date_ = new uiAdvancedTextItem( sDate(), al, true );
+    sign_ = new uiAdvancedTextItem( sSignature(), al, true );
 
     addChild( title_ );
     addChild( country_ );
@@ -150,17 +134,72 @@ void uiLegendItem::init()
     date_->setTextIteraction( true );
     sign_->setTextIteraction( true );
 
+    country_->setFont( infofont_ );
+    block_->setFont( infofont_ );
+    license_->setFont( infofont_ );
+    modelname_->setFont( infofont_ );
+    horizonname_->setFont( infofont_ );
+    mapscale_->setFont( infofont_ );
+    contourinc_->setFont( infofont_ );
+    username_->setFont( infofont_ );
+    date_->setFont( infofont_ );
+    sign_->setFont( infofont_ );
+
+    const float w = (float)width;
+    const float h = (float)height;
+
+    country_->setTextWidth( w );
+    block_->setTextWidth( w );
+    license_->setTextWidth( w );
+    modelname_->setTextWidth( w );
+    horizonname_->setTextWidth( w );
+    mapscale_->setTextWidth( w );
+    contourinc_->setTextWidth( w );
+    username_->setTextWidth( w );
+    date_->setTextWidth( w );
+    sign_->setTextWidth( w );
+
+// setting position
+
+    rec0->setPos(0,0);
+
+    separator->setPos(0,h-3.f);
+
+    country->setPos(0,h);	mapscale->setPos(w,h);
+    rec1->setPos(0,h);		rec6->setPos(w,h);
+
+    block->setPos(0,2*h);	contourinc->setPos(w,2*h);
+    rec2->setPos(0,2*h);	rec7->setPos(w,2*h);
+
+    license->setPos(0,3*h);	username->setPos(w,3*h);
+    rec3->setPos(0,3*h);	rec8->setPos(w,3*h);
+
+    modelname->setPos(0,4*h);	date->setPos(w,4*h);
+    rec4->setPos(0,4*h);	rec9->setPos(w,4*h);
+
+    horizonname->setPos(0,5*h); sign->setPos(w,5*h);
+    rec5->setPos(0,5*h);	rec10->setPos(w,5*h);
 
     title_->setPos(0,0);
 
-    country_->setPos(0,30);	mapscale_->setPos(100,30);
+    country_->setPos(w/2,2*h);	    mapscale_->setPos(1.5f*w,2*h);
 
-    block_->setPos(0,60);	contourinc_->setPos(100,60);
+    block_->setPos(w/2,3*h);	    contourinc_->setPos(1.5f*w,3*h);
 
-    license_->setPos(0,90);	username_->setPos(100,90);
+    license_->setPos(w/2,4*h);	    username_->setPos(1.5f*w,4*h);
 
-    modelname_->setPos(0,120);	date_->setPos(100,120);
+    modelname_->setPos(w/2,5*h);    date_->setPos(1.5f*w,5*h);
 
-    horizonname_->setPos(0,150);	sign_->setPos(100,150);
+    horizonname_->setPos(w/2,6*h);  sign_->setPos(1.5f*w,6*h);
+
+    setRect( 0, 0, 2*width, 5*height );
+}
+
+
+void uiLegendItem::setProperties()
+{
+    setAcceptHoverEvents( true );
+    setItemIgnoresTransformations( true );
+    setMovable( true );
 }
 

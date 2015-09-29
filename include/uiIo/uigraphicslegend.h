@@ -46,6 +46,9 @@ protected:
     void		setProperties();
     void		init();
 
+    FontData&		headerfont_;
+    FontData&		infofont_;
+
 private:
 
     const uiString	sCountry()	    { return tr("Country"); }
