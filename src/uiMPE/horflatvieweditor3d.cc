@@ -25,7 +25,9 @@ ________________________________________________________________________
 #include "sectiontracker.h"
 #include "survinfo.h"
 #include "undo.h"
+
 #include "uiflatviewer.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uistrings.h"
 
@@ -36,7 +38,8 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
     : editor_(ed)
     , emid_(emid)
-    , horpainter_( new EM::HorizonPainter3D(ed->viewer(),emid) )
+    , horpainter_(new EM::HorizonPainter3D(ed->viewer(),emid))
+    , curtkpath_(0)
     , mehandler_(0)
     , vdselspec_(0)
     , wvaselspec_(0)
@@ -84,6 +87,7 @@ void HorizonFlatViewEditor3D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 
 void HorizonFlatViewEditor3D::setPath( const TrcKeyPath& path )
 {
+    curtkpath_ = &path;
     horpainter_->setPath( path );
 }
 
@@ -105,6 +109,8 @@ void HorizonFlatViewEditor3D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( mehandler_ == meh ) return;
+
     if ( mehandler_ )
     {
 	editor_->removeSelected.remove(
@@ -215,7 +221,9 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( editor_ && editor_->sower().accept(mehandler_->event(), false) )
 	return;
 
-    if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
+    const bool haspath = curtkpath_ && !curtkpath_->isEmpty();
+    const bool nopath = curcs_.isEmpty() && !haspath;
+    if ( nopath || !editor_->viewer().appearance().annot_.editable_
 			  || editor_->isSelActive() )
 	return;
 
@@ -238,6 +246,9 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
 	return;
 
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr ) return;
+
     const MouseEvent& mouseevent = mehandler_->event();
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
@@ -246,8 +257,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds &&
 	 markerpos && !ctrlorshifclicked )
     {
-	mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
-	if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
+	if ( !editor_->getMouseArea().isInside(mousepos) )
 	    return;
 
 	const uiWorldPoint wp =
@@ -265,6 +275,22 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 	editor_->sower().reverseSowingOrder();
 	if ( editor_->sower().activate(prefcol, mouseevent) )
 	    return;
+    }
+
+    const uiWorldPoint wp = vwr->getWorld2Ui().transform( mousepos );
+    const TrcKey tk( SI().transform(vwr->getCoord(wp)) );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
+    if ( !hor3d || !hor3d->hasZ(tk) )
+	return;
+
+    if ( mouseevent.rightButton() && mouseevent.ctrlStatus() )
+    {
+	uiMenu menu;
+	menu.insertAction( new uiAction(tr("Select Children")), 0 );
+	if ( menu.exec() ==0 )
+	{
+	    hor3d->selectChildren( tk );
+	}
     }
 }
 

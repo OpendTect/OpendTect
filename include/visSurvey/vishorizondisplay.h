@@ -188,7 +188,7 @@ public:
     BufferString		getSectionName(int secidx) const;
 
     void			selectParent(const TrcKey&);
-    void			selectChildren(const TrcKey&);
+    void			selectChildren();
     void			showParentLine(bool);
     void			showSelections(bool);
     void			showLocked(bool);

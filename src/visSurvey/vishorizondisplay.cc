@@ -1073,13 +1073,11 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 						hor3d->getSelectionColor() );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
     {
-// TODO: This would be the best solution, but triggers too often at the moment
-/*
-	if ( emobject_ && !emobject_->hasBurstAlert() )
-	    updateAuxData();
-*/
+	// TODO: Should be made more general, such that it also works for
+	// polygon selections
+	selectChildren();
     }
 
     updateSingleColor();
@@ -1581,7 +1579,7 @@ void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
     }
 
     mEndLine;
-    
+
 }
 
 
@@ -2142,10 +2140,10 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
 }
 
 
-void HorizonDisplay::selectChildren( const TrcKey& tkin )
+void HorizonDisplay::selectChildren()
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    Array2D<char>* children = hor3d ? hor3d->getChildren( tkin ) : 0;
+    Array2D<char>* children = hor3d ? hor3d->getChildren() : 0;
     if ( !children ) return;
 
     initSelectionDisplay( true );

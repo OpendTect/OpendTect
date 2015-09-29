@@ -1491,7 +1491,10 @@ void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
 
     const TypeSet<int>& bends = bpf.bendPoints();
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
-    rl->setName( "Parents path" );
+    BufferString rlnm = "Parents path";
+    rlnm.add( " [" ).add( tk.lineNr() ).add( "," )
+	.add( tk.trcNr() ).add( "]" );
+    rl->setName( rlnm );
     Geometry::RLM().add( rl );
     for ( int idx=0; idx<bends.size(); idx++ )
 	rl->addNode( trcs[bends[idx]].pos() );

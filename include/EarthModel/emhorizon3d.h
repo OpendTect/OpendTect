@@ -160,7 +160,8 @@ public:
     TrcKey			getParent(const TrcKey&) const;
     void			getParents(const TrcKey&,
 					   TypeSet<TrcKey>&) const;
-    Array2D<char>*		getChildren(const TrcKey&) const;
+    bool			selectChildren(const TrcKey&);
+    Array2D<char>*		getChildren() const;
     void			deleteChildren();
     void			resetChildren();
     void			setNodeLocked(const TrcKey&,bool locked);

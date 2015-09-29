@@ -461,7 +461,7 @@ void uiODViewer2DMgr::mouseClickedCB( CallBacker* cb )
 void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 {
     mDynamicCastGet(const MouseEventHandler*,meh,cb);
-    if ( !meh || !meh->hasEvent() ||
+    if ( !meh || !meh->hasEvent() || meh->event().ctrlStatus() ||
 	 (!meh->event().rightButton() && !meh->event().leftButton()) )
 	return;
 
