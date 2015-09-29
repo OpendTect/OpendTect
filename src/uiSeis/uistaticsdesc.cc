@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uicombobox.h"
 #include "uimsg.h"
+#include "unitofmeasure.h"
 
 
 
@@ -40,9 +41,9 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
 	    mCB(this,uiStaticsDesc,updateFlds));
     useconstantvelfld_->attach( alignedBelow, horfld_ );
 
-    BufferString label = "Statics velocity ";
-    label += SI().xyInFeet() ? "[ft/s]" : "[m/s]";
-    constantvelfld_ = new uiGenInput( this, label.buf(), FloatInpSpec());
+    uiString label = tr("Statics velocity %1")
+			 .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
+    constantvelfld_ = new uiGenInput( this, label, FloatInpSpec());
     constantvelfld_->attach( alignedBelow, useconstantvelfld_ );
 
     horattribfld_ = new uiLabeledComboBox( this, tr("Velocity attribute") );

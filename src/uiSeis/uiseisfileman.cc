@@ -49,14 +49,14 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
 class uiSeisCBVSBrowerMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiSeisCBVSBrowerMgr)
 public:
 
 uiSeisCBVSBrowerMgr()
 {
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 			    CBVSSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = uiString( "Browse/Edit CBVS cube '%1'" );
+    bdef->tooltip_ = tr( "Browse/Edit CBVS cube '%1'" );
     bdef->cb_ = mCB(this,uiSeisCBVSBrowerMgr,doBrowse);
     uiSeisFileMan::addBrowser( bdef );
 }
@@ -102,25 +102,26 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    copybut_ = manipgrp->addButton( "copyobj", is2d ? "Copy dataset"
-						    : "Copy cube",
-				    mCB(this,uiSeisFileMan,copyPush) );
+    copybut_ = manipgrp->addButton( "copyobj", is2d ? uiStrings::phrCopy(
+				tr("dataset")) : uiStrings::phrCopy(tr("cube")),
+				mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
-	man2dlinesbut_ = manipgrp->addButton( "man2d", "Manage lines",
+	man2dlinesbut_ = manipgrp->addButton( "man2d", uiStrings::phrManage(
+					   uiStrings::sLine(2)),
 					   mCB(this,uiSeisFileMan,man2DPush) );
     }
     else
     {
-	mergecubesbut_ = manipgrp->addButton( "mergeseis",
-					"Merge cube parts into one cube",
+	mergecubesbut_ = manipgrp->addButton( "mergeseis",uiStrings::phrMerge(
+					tr("cube parts into one cube")),
 					mCB(this,uiSeisFileMan,mergePush) );
 	browsebut_ = manipgrp->addButton( "browseseis",
-				"Browse/edit this cube",
+				tr("Browse/edit this cube"),
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
-    attribbut_ = manipgrp->addButton( "attributes", "Show AttributeSet",
+    attribbut_ = manipgrp->addButton( "attributes", sShowAttributeSet(),
 				      mCB(this,uiSeisFileMan,showAttribSet) );
 
     mTriggerInstanceCreatedNotifier();
@@ -160,8 +161,8 @@ void uiSeisFileMan::ownSelChg()
 	if ( but->sensitive() ) \
 	{ \
 	    tt.setEmpty(); \
-	    tt.add( str1 ).add( curattribnms ).add( str2 ); \
-	    but->setToolTip( uiString(tt) ); \
+	    tt.arg( str1 ).arg( curattribnms ).arg( str2 ); \
+	    but->setToolTip( tt ); \
 	} \
 	else \
 	    but->setToolTip( deftt ); \
@@ -173,22 +174,24 @@ void uiSeisFileMan::setToolButtonProperties()
     if ( curioobj_ )
 	cursel.add( curioobj_->name() );
 
-    BufferString tt;
+    uiString tt;
     copybut_->setSensitive( !cursel.isEmpty() );
-    mSetButToolTip(copybut_,"Make a Copy of '",cursel,"'",
-		   is2d_ ? "Copy dataset" : "Copy cube");
+    mSetButToolTip(copybut_,tr("Make a Copy of '"),toUiString(cursel),
+		   toUiString("'"), is2d_ ? uiStrings::phrCopy(tr("dataset")) :
+		   uiStrings::phrCopy(uiStrings::sCube().toLower()));
     if ( browsebut_ )
     {
 	const BrowserDef* bdef = getBrowserDef();
 	const bool enabbrowse = curimplexists_ && bdef;
 	browsebut_->setSensitive( enabbrowse );
 	if ( !enabbrowse )
-	    mSetButToolTip( browsebut_, "No browser for '",cursel,"'",
-				"Browse/edit selected cube" )
+	    mSetButToolTip( browsebut_, tr("No browser for '"),
+			    toUiString(cursel), toUiString("'"),
+			    tr("Browse/edit selected cube") )
 	else
 	{
 	    uiString bdeftt( bdef->tooltip_ );
-	    browsebut_->setToolTip( bdeftt.arg(curioobj_->name()) );
+	    browsebut_->setToolTip( bdeftt.arg(curioobj_->uiName()) );
 	}
     }
 
@@ -197,17 +200,21 @@ void uiSeisFileMan::setToolButtonProperties()
 	BufferStringSet selcubenms;
 	selgrp_->getChosen( selcubenms );
 	if ( selcubenms.size() > 1 )
-	    mSetButToolTip(mergecubesbut_,"Merge ",
-			   selcubenms.getDispString(2),"", "Merge cubes")
+	    mSetButToolTip(mergecubesbut_,uiStrings::sMerge(),toUiString(" %1")
+			   .arg(toUiString(selcubenms.getDispString(2))),
+			   uiStrings::sEmptyString(),uiStrings::phrMerge(
+			   uiStrings::sCube().toLower()))
 	else
-	    mergecubesbut_->setToolTip( "Merge cubes" );
+	    mergecubesbut_->setToolTip( uiStrings::phrMerge(
+						uiStrings::sCube().toLower()) );
     }
 
     if ( man2dlinesbut_ )
     {
 	man2dlinesbut_->setSensitive( !cursel.isEmpty() );
-	mSetButToolTip(man2dlinesbut_,"Manage 2D lines in '",cursel,"'",
-		       "Manage lines")
+	mSetButToolTip(man2dlinesbut_,uiStrings::phrManage(tr("2D lines in '")),
+		       toUiString(cursel),toUiString("'"),
+		       uiStrings::phrManage(uiStrings::sLine(2)))
     }
 
     if ( attribbut_ )
@@ -218,11 +225,12 @@ void uiSeisFileMan::setToolButtonProperties()
 	     FilePath fp( curioobj_->fullUserExpr() );
 	     fp.setExtension( "proc" );
 	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
-	     mSetButToolTip(attribbut_,"Show AttributeSet for ",cursel,"",
-			    "Show AttributeSet")
+	     mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
+			    toUiString(cursel),uiStrings::sEmptyString(),
+			    sShowAttributeSet())
 	}
 	else
-	    attribbut_->setToolTip( "Show AttributeSet" );
+	    attribbut_->setToolTip( sShowAttributeSet() );
     }
 }
 

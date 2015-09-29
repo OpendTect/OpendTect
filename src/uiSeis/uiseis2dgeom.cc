@@ -51,7 +51,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     lnmsfld_->setWithCheck( true );
     lnmsfld_->attach( alignedBelow, seisfld_ );
 
-    outfld_ = new uiFileInput( this, "Output file",
+    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 				uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, lnmsfld_ );
 }

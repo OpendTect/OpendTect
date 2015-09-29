@@ -81,8 +81,9 @@ public:
 			    , datasz_((int)(0.5/SI().zStep()))
 			    , logscale_(false)
 			    {
-				xaxcaption_ = "Frequency (Hz)";
-				yaxcaption_ = "Gain Factor (dB)";
+				xaxcaption_ = uiStrings::phrJoinStrings(
+					  uiStrings::sFrequency(), tr("(Hz)"));
+				yaxcaption_ = tr("Gain Factor (dB)");
 				noxgridline_ = true;
 				noygridline_ = true;
 				ywidth_ = 2;

@@ -126,10 +126,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 			: (is2d_ ? tr("Multi-line processing")
 				 : tr("Line-split processing")) );
     FixedString res = jobpars_.find( sKey::Target() );
-    BufferString captn = "Processing";
+    uiString captn = tr("Processing");
     if ( !res.isEmpty() )
-	captn.add( " '" ).add( res ).add( "'" );
-    setCaption( captn );
+	captn = tr("%1 ' '").arg(res);
+    setCaption(captn);
 
     if ( !is2d_ )
     {
@@ -146,16 +146,17 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	uiObject* inlperjobattach = 0;
 	if ( doresume )
 	{
-	    BufferString msg( sKey::TmpStor() ); msg += ": ";
+	    uiString msg = uiStrings::sTmpStor();
 	    uiLabel* tmpstorloc = new uiLabel( specparsgroup_, msg );
 
-	    inlperjobattach = new uiLabel( specparsgroup_, tmpstordir );
+	    inlperjobattach = new uiLabel( specparsgroup_, 
+						    toUiString(tmpstordir) );
 	    inlperjobattach->attach( rightOf, tmpstorloc );
 	}
 	else
 	{
 	    tmpstordirfld_ = new uiIOFileSelect( specparsgroup_,
-			    sKey::TmpStor(), false, tmpstordir );
+			    uiStrings::sTmpStor(), false, tmpstordir );
 	    tmpstordirfld_->usePar( uiIOFileSelect::tmpstoragehistory() );
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
 		tmpstordirfld_->setInput( tmpstordir );
@@ -240,7 +241,8 @@ bool uiSeisMMProc::initWork( bool retry )
 		File::createDir( tmpstordir );
 	    }
 	    if ( !File::isDirectory(tmpstordir) )
-		mErrRet( uiStrings::phrCannotCreateDirectory(tmpstordir) )
+		mErrRet( uiStrings::phrCannotCreateDirectory(
+						      toUiString(tmpstordir)) )
 	}
 
 	jobprov_->pars().write( parfnm_, sKey::Pars() );

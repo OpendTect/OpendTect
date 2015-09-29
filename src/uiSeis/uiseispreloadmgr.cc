@@ -125,7 +125,7 @@ void uiSeisPreLoadMgr::fillList()
     if ( entries.isEmpty() ) return;
 
     for ( int idx=0; idx<entries.size(); idx++ )
-	listfld_->addItem( entries[idx]->name_ );
+	listfld_->addItem( toUiString(entries[idx]->name_) );
 
     listfld_->setCurrentItem( 0 );
 }
@@ -152,9 +152,9 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 #define mCheckIOObjExistance( ioobj ) \
 if ( !ioobj->implExists( true ) ) \
 { \
-    BufferString msg = cannotloadstr; \
-    msg += ioobj->name(); \
-    uiMSG().error( msg.buf() ); \
+    uiString msg = toUiString("%1 %2").arg(toUiString(cannotloadstr)). \
+		   arg(ioobj->uiName()); \
+    uiMSG().error( msg ); \
     return; \
 }
 
@@ -163,7 +163,8 @@ class uiSeisPreLoadSel : public uiDialog
 public:
 
 uiSeisPreLoadSel( uiParent* p, GeomType geom )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
+					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data")
 				: tr("Pre-load 2D Data") );
@@ -178,7 +179,7 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
     subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
 
-    scalerfld_ = new uiScaler( this, 0, true );
+    scalerfld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
     scalerfld_->attach( alignedBelow, subselfld_ );
 
     typefld_ = new uiGenInput( this, tr("Load as"),
@@ -232,23 +233,26 @@ void updateEstUsage()
     SeisIOObjInfo info(seissel_->ioobj() );
     const int nrcomp = info.nrComponents();
 
-    BufferString infotxt = "Data format on disk: ";
+    uiString infotxt = uiStrings::phrData(tr("format on disk: "));
     if ( nrcomp > 0 )
     {
 	DataCharacteristics dc; info.getDataChar( dc );
 	const FixedString usertypestr =
 	    DataCharacteristics::getUserTypeString( dc.userType() );
 	if ( usertypestr.size() > 4 )
-	    infotxt += usertypestr.buf() + 4;
+	    infotxt = toUiString("%1 %2.").arg(infotxt).arg(
+					    toUiString(usertypestr.buf() + 4));
 
-	infotxt += ". Estimated memory usage: "; getDataChar( dc );
+	infotxt = tr("%1 Estimated memory usage: %2").arg(infotxt);
+	getDataChar(dc);
 	const od_int64 nrs = subselfld_->expectedNrSamples();
 	const od_int64 nrt = subselfld_->expectedNrTraces();
 	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt.add( File::getFileSizeString( nrbytes/1024 ) );
+	infotxt = toUiString("%1 %2").arg(infotxt).arg(toUiString(
+					File::getFileSizeString(nrbytes/1024)));
     }
     else
-	infotxt.add( "?" );
+	infotxt = toUiString("%1 ?").arg(infotxt);
 
     toStatusBar( infotxt );
 }
@@ -276,7 +280,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     const MultiID key = ioobj->key();
     if ( PLDM().isPresent(key) )
     {
-	uiString msg( ioobj->name() );
+	uiString msg( ioobj->uiName() );
 	msg.append( " is already preloaded.\nDo you want to reload the cube?" );
 	if ( !uiMSG().askGoOn(msg) ) return;
 
@@ -324,7 +328,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     bool skiploadedgeomids = false;
     if ( !loadedgeomids.isEmpty() )
     {
-	uiString msg( IOM().nameOf(key) );
+	uiString msg( mToUiStringTodo(IOM().nameOf(key)) );
 	msg.append( " dataset for " );
 	msg.append( loadedgeomids.size()>1 ? "lines " : "line " );
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
@@ -398,7 +402,7 @@ public:
 uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
     : uiIOObjSelDlg( p, ctio, tr("Select data store") )
 {
-    setCaption( "Pre-load data" );
+    setCaption( tr("Pre-load %1").arg(uiStrings::sData().toLower()) );
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s) to load"),
 			 uiListBox::AboveMid );
     lnmsfld_ = new uiListBox( selGrp(), su );

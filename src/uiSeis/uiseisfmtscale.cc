@@ -73,7 +73,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     if ( fixedfmtscl )
 	stortypfld_->setSensitive( false );
 
-    scalefld_ = new uiScaler( this, 0, true );
+    scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
     if ( data_.sclr_ )
 	scalefld_->setInput( *data_.sclr_ );
     scalefld_->attach( alignedBelow, stortypfld_ );
@@ -123,7 +123,7 @@ class uiSeisFmtScaleComp : public uiCompoundParSel
 public:
 
 uiSeisFmtScaleComp( uiSeisFmtScale* p, Seis::GeomType gt, bool ffs, bool we )
-    : uiCompoundParSel(p,"Format / Scaling","Specify")
+    : uiCompoundParSel(p,tr("Format / Scaling"),uiStrings::sSpecify())
     , gt_(gt)
     , fixfmtscl_(ffs)
     , withext_(we)
@@ -171,7 +171,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
     if ( !forexp )
 	compfld_ = new uiSeisFmtScaleComp( this, gt, issteer_, withext );
     else
-	scalefld_ = new uiScaler( this, 0, true );
+	scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
 
     setHAlignObj( compfld_ ? (uiGroup*)compfld_ : (uiGroup*)scalefld_ );
     postFinalise().notify( mCB(this,uiSeisFmtScale,updSteer) );

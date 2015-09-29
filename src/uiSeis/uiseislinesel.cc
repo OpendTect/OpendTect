@@ -201,7 +201,9 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 
 
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
-    : uiCompoundParSel(p,multisel?"Select 2D lines":"Select 2D line")
+    : uiCompoundParSel(p,multisel?uiStrings::phrSelect(mJoinUiStrs(s2D(),
+			 sLine(2).toLower())) : uiStrings::phrSelect(
+			 mJoinUiStrs(s2D(),sLine(2).toLower())))
     , ismultisel_(multisel)
     , selectionChanged(this)
 {
@@ -439,7 +441,7 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
-    if ( !forread_ ) fld_->addItem( "" );
+    if ( !forread_ ) fld_->addItem( uiStrings::sEmptyString() );
     setHAlignObj( lcb );
     if ( !forread_ )
 	fillWithAll();
@@ -714,12 +716,12 @@ bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 }
 
 
-uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const char* text,
+uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const uiString& text,
 					    bool withz, bool withstep )
     : uiSeis2DLineSel(p,true)
     , isall_(false),withz_(withz),withstep_(withstep)
 {
-    if ( text && *text ) txtfld_->setTitleText( text );
+    if ( !text.isEmpty() ) txtfld_->setTitleText( text );
     initRanges();
 }
 

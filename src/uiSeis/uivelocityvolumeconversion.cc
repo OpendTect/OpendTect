@@ -80,8 +80,8 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 
     for ( int idx=0; idx<types.size(); idx++ )
     {
-	outputveltype_->box()->addItem(
-		VelocityDesc::getTypeString(types[idx] ) );
+	outputveltype_->box()->addItem(toUiString(VelocityDesc::getTypeString(
+							    types[idx])));
     }
 
     outputveltype_->box()->setCurrentItem( oldoutputtype );

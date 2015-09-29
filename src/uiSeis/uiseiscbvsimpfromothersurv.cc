@@ -51,7 +51,8 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     sep1->attach( stretchedBelow, subselfld_ );
 
     interpfld_ = new uiGenInput( this, tr("Interpolation"),
-			    BoolInpSpec( true, interpols[0], interpols[1] ) );
+			    BoolInpSpec( true, toUiString(interpols[0]), 
+			    toUiString(interpols[1]) ) );
     interpfld_->valuechanged.notify(
 		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
     interpfld_->attach( ensureBelow, sep1 );
@@ -120,7 +121,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
     if ( TaskRunner::execute( &taskrunner, *import_ ) )
     {
-	uiMSG().error("Error in Data Import.");
+	uiMSG().error(uiStrings::phrCannotImport(uiStrings::sData()));
 	return false;
     } 
 

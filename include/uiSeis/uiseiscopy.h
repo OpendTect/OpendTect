@@ -51,7 +51,7 @@ protected:
 /*!\brief UI for copying 2d Datasets */
 
 mExpClass(uiSeis) uiSeisCopy2DDataSet : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisCopy2DDataSet)
 public:
 
 			uiSeisCopy2DDataSet(uiParent*,const IOObj*,

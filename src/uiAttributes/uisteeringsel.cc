@@ -55,7 +55,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
     const char* res = uiAF().attrNameOf( "Curvature" );
     if ( !res )
     {
-	nosteerlbl_ = new uiLabel( this, "<Steering unavailable>" );
+	nosteerlbl_ = new uiLabel( this, tr("<Steering unavailable>") );
 	setHAlignObj( nosteerlbl_ );
 	return;
     }
@@ -82,10 +82,10 @@ void uiSteeringSel::createFields()
     inpfld_->getHistory( inpselhist );
     inpfld_->attach( alignedBelow, typfld_ );
 
-    dirfld_ = new uiGenInput( this, "Azimuth", FloatInpSpec() );
+    dirfld_ = new uiGenInput( this, uiStrings::sAzimuth(), FloatInpSpec() );
     dirfld_->attach( alignedBelow, typfld_ );
-    BufferString dipstr( "Apparent dip " );
-    dipstr += SI().zIsTime() ? "(us/m)" : "(degrees)";
+    uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime() ? tr("(us/m)") 
+						            : tr("(degrees)"));
     dipfld_ = new uiGenInput( this, dipstr, FloatInpSpec() );
     dipfld_->attach( alignedBelow, dirfld_ );
 
@@ -277,7 +277,7 @@ const char* uiSteeringSel::text() const
 
 
 uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet* ads,
-				bool is2d, const char* txt )
+				bool is2d, const uiString& txt )
 	: uiSteerCubeSel(p,is2d,true,txt)
 	, attrdata_( is2d )
 {

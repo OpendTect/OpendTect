@@ -90,7 +90,7 @@ bool uiSeisRandTo2DBase::getRandomLineGeom( Geometry::RandomLineSet& geom) const
 
     BufferString msg;
     if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
-	mErrRet( msg );
+	mErrRet( mToUiStringTodo(msg) );
 
     return true;
 }

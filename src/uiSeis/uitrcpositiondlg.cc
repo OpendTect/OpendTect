@@ -94,9 +94,10 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),0,
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
+				    uiStrings::sEmptyString(),
                                     mODHelpKey(mTrcPositionDlgHelpID) )
-			     .modal(false) )
+				    .modal(false) )
     , linesfld_( 0 )
     , trcnrfld_( 0 )
     , inlfld_( 0 )
@@ -157,9 +158,10 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"), 0,
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"), 
+				   uiStrings::sEmptyString(),
                                    mODHelpKey(mTrcPositionDlgHelpID) )
-			     .modal(false) )
+				   .modal(false) )
     , linesfld_( 0 )
     , trcnrfld_( 0 )
     , inlfld_( 0 )
@@ -175,7 +177,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 	uiString str = tr("Compute attribute on line:");
 	linesfld_ = new uiLabeledComboBox( this, str );
 	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
+	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
 
 	linesfld_->box()->selectionChanged.notify(
 					mCB(this,uiTrcPositionDlg,lineSel) );

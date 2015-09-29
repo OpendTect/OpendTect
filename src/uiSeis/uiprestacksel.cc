@@ -29,7 +29,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
-	datapackinpfld_->addItem( DataPackMgr::nameOf( dpfids_[idx] ) );
+	datapackinpfld_->addItem(toUiString(DataPackMgr::nameOf(dpfids_[idx])));
 	if ( dpfids_[idx] == selid )
 	    datapackinpfld_->setCurrentItem( idx );
     }
@@ -55,7 +55,7 @@ uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );
     seisinpfld_ = new uiSeisSel( this, ctxt, sssu );
 
-    BufferString seltxt( "Select Prestack Data" );
+    uiString seltxt = uiStrings::phrSelect(mJoinUiStrs(sPreStack(),sData()));
     datapackinpfld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt),
 				mCB(this,uiPreStackSel,doSelDataPack));
 

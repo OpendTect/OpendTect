@@ -251,7 +251,7 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
-	    : uiDialog(p,Setup(w.name(),uiString::emptyString(),
+	    : uiDialog(p,Setup(toUiString(w.name()),uiString::emptyString(),
                                mODHelpKey(mWaveletDispPropDlgHelpID) )
 			 .modal(false))
 {
@@ -267,9 +267,10 @@ uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
 //Wavelet display properties
 uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    : uiGroup(p,"Properties")
-	    , wvltattr_(new WaveletAttrib(wvlt))
-	    , wvltsz_(wvlt.size())
+	    ,wvltattr_(new WaveletAttrib(wvlt))
+	    ,wvltsz_(wvlt.size())
 {
+   
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
     const float maxfreq = 1.f / wvlt.sampleRate();
     freqrange_.set( 0, maxfreq );
@@ -339,6 +340,7 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 	    break;
 	}
     }
+
     const float maxfreq = freqrange_.stop * mCast(float,idxnoamp) /
 			  mCast(float,attrarrays_[1]->info().getSize(0));
 
@@ -357,3 +359,4 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
     const StepInterval<float> phaserg( -180.f, 180.f, 45.f );
     attrdisps_[2]->yAxis(false)->setRange( phaserg );
 }
+

@@ -80,13 +80,13 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     float deffrq = 0.1f / sisr; int ideffr = mNINT32(deffrq);
     if ( ideffr > 0 && mIsZero(deffrq-ideffr,1e-4) )
 	deffrq = mCast( float, ideffr ); // avoid awkward 99.999 display
-    BufferString txt( "Central " );
-    txt += SI().zIsTime() ? "Frequency" : "Wavenumber";
+    uiString txt= tr("Central %1").arg(SI().zIsTime() ? uiStrings::sFrequency() 
+						    : uiStrings::sWaveNumber());
     freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq) );
     freqfld_->attach( alignedBelow, isrickfld_ );
 
     const float usrsr = sisr * SI().zDomain().userFactor();
-    txt = "Sample interval "; txt += SI().getZUnitString();
+    txt = tr("Sample interval %1").arg(SI().getUiZUnitString());
     srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld_->attach( alignedBelow, freqfld_ );
 

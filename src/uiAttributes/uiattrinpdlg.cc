@@ -37,7 +37,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     , seisinpfld_(0)
     , steerinpfld_(0)
 {
-    BufferString infotxt( "Provide input for the following attributes: " );
+    uiString infotxt = tr( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
 
     BufferString txt;
@@ -50,23 +50,23 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
 
-    BufferString seltext = issteer ? "Input SteeringCube" : "Input Seismics";
+    uiString seltext = issteer ? uiStrings::phrInput(tr("SteeringCube")) 
+			       : uiStrings::phrInput(uiStrings::sSeismics());
     if ( prevrefnm )
     {
-	seltext += "\n (replacing '";
-	seltext += prevrefnm;
-	seltext += "')";
+	seltext = tr("%1\n (replacing '%2')").arg(seltext)
+					     .arg(toUiString(prevrefnm));
     }
 
     if ( issteer )
     {
-	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, seltext.buf() );
+	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, seltext );
 	steerinpfld_->attach( alignedBelow, txtfld );
     }
     else
     {
 	uiSeisSel::Setup sssu( is2d, false );
-	sssu.seltxt( seltext.buf() );
+	sssu.seltxt( seltext );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
 	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
@@ -91,7 +91,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     uiSeisSel::Setup sssu( is2d, false );
     if ( hasseis )
     {
-	sssu.seltxt( "Input Seismics" );
+	sssu.seltxt( uiStrings::phrInput(uiStrings::sSeismics()) );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
 	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
@@ -99,7 +99,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
 
     if ( hassteer )
     {
-	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, "Input Steering" );
+	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, uiStrings::phrInput
+						     (uiStrings::sSteering()) );
 	if ( hasseis )
 	    steerinpfld_->attach( alignedBelow, seisinpfld_ );
     }

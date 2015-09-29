@@ -95,7 +95,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     if ( isimp_ )
     {
 	mkIsAscFld();
-	fnmfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup("")
+	fnmfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()
+			.toLower()), uiFileInput::Setup("")
 			.forread( true )
 			.withexamine( true ) );
 	fnmfld_->attach( alignedBelow, isascfld_ );
@@ -121,15 +122,14 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     uiObject* attachobj = haveposfld_->attachObj();
     if ( is2d )
     {
-	BufferString txt( isimp_ ? "Trace number included"
-				 : "Include trace number");
-	txt += " (preceding X/Y)";
+	uiString txt= tr("%1 (preceding X/Y)").arg( isimp_ ? 
+		      tr("Trace number included") : tr("Include trace number"));
 	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
 	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
-	txt = isimp_ ? "Ref/SP number included" : "Include Ref/SP number";
-	txt += " (after trace number)";
+	txt = tr("%1 (after trace number)").arg(isimp_ ? 
+	      tr("Ref/SP number included") : tr("Include Ref/SP number"));
 	haverefnrfld_ = new uiGenInput( this, txt, BoolInpSpec(false) );
 	haverefnrfld_->setValue( data().haverefnr_ );
 	haverefnrfld_->attach( alignedBelow, havenrfld_ );
@@ -242,9 +242,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 
     if ( isimp_ )
     {
-	BufferString txt = "Sampling info: start, step ";
-	txt += SI().getZUnitString(true);
-	txt += " and #samples";
+	uiString txt = tr("Sampling info: start, step %1 and #samples").
+		       arg(SI().getUiZUnitString(true));
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }
@@ -269,7 +268,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	mkIsAscFld();
 	isascfld_->attach( alignedBelow, havesdfld_ );
-	fnmfld_ = new uiFileInput( this, "Output file", uiFileInput::Setup("")
+	fnmfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()
+			.toLower()), uiFileInput::Setup("")
 			.forread( false )
 			.withexamine( false ) );
 	fnmfld_->attach( alignedBelow, isascfld_ );
@@ -302,7 +302,7 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 	subselfld_->attachObj()->attach( alignedBelow, seisfld_ );
     }
 
-    scalefld_ = new uiScaler( this, 0, true );
+    scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
     scalefld_->attach( alignedBelow, isimp_ ? sdfld_->attachObj()
 					   : subselfld_->attachObj() );
     if ( isimp_ ) scalefld_->attach( ensureBelow, sep );
