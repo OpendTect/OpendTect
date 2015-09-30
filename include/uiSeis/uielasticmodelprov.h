@@ -27,6 +27,9 @@ public:
     bool		getInputMIDs(MultiID& pwmid,MultiID& swmid,
 				     MultiID& aimid,MultiID& simid,
 				     MultiID& denmid) const;
+    void		setInputMIDs(const MultiID& pwmid,const MultiID& swmid,
+				     const MultiID& aimid,const MultiID& simid,
+				     const MultiID& denmid);
 
     uiString		errMsg() const			{ return errmsg_; }
 

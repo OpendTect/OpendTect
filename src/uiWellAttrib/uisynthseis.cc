@@ -104,10 +104,10 @@ void uiSynthSeisGrp::updateFieldDisplay()
     const bool iszerooofset = rtsel_->current()->isZeroOffset();
     if ( !rtsel_->current()->hasZeroOffsetFld() )
     { // cannot set zerooffset from outside e.g uiSynthGenDlg
-	uisynthcorrgrp_->display( !iszerooofset );
 	rtsel_->display( !iszerooofset );
     }
 
+    uisynthcorrgrp_->display( !iszerooofset );
     if ( internalmultiplebox_ )
     {
 	internalmultiplebox_->display( iszerooofset );

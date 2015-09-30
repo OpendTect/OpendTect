@@ -133,6 +133,29 @@ void uiElasticModelProvider::sourceSel( CallBacker* cb )
 }
 
 
+void uiElasticModelProvider::setInputMIDs(
+	const MultiID& pwmid, const MultiID& swmid, const MultiID& aimid,
+	const MultiID& simid, const MultiID& denmid )
+{
+    const bool iselastic = !simid.isUdf() || !swmid.isUdf();
+    const int sourceoptidx = aimid.isUdf() ? 0 : 1;
+    inptypefld_->setValue( !iselastic );
+    if ( iselastic )
+	inpsourceelfld_->setValue( sourceoptidx );
+    else
+	inpsourceacfld_->setValue( sourceoptidx );
+
+    sourceSel( 0 );
+
+    pwavefld_->setInput( pwmid );
+    swavefld_->setInput( swmid );
+    aifld_->setInput( aimid );
+    sifld_->setInput( simid );
+    densityfld_->setInput( denmid );
+    optdensityfld_->setChecked( !denmid.isUdf() );
+}
+
+
 bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
 					   MultiID& aimid, MultiID& simid,
 					   MultiID& denmid ) const
