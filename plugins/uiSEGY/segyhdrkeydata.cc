@@ -63,7 +63,7 @@ void SEGY::HdrEntryDataSet::reject( int heidx )
     if ( idx < 0 )
 	return;
 
-    // A previously OK field now turns bad - remove from all recs
+    // a previously OK field now turns bad - remove from all recs
     idxs_.removeSingle( idx );
     for ( int irec=0; irec<sz; irec++ )
     {
@@ -72,7 +72,6 @@ void SEGY::HdrEntryDataSet::reject( int heidx )
 	if ( rec.size() != idxs_.size() )
 	    { pErrMsg("Logic error"); rec.setSize( idxs_.size(), 0 ); }
     }
-
 }
 
 
@@ -126,6 +125,32 @@ void SEGY::HdrEntryDataSet::rejectNoProgress()
 
     for ( int idx=0; idx<toreject.size(); idx++ )
 	reject( toreject[idx] );
+}
+
+
+void SEGY::HdrEntryDataSet::merge( const HdrEntryDataSet& oth )
+{
+    for ( int idx=0; idx<oth.rejectedidxs_.size(); idx++ )
+	if ( !rejectedidxs_.isPresent(oth.rejectedidxs_[idx]) )
+	    reject( oth.rejectedidxs_[idx] );
+
+    TypeSet<int> transtbl;
+    for ( int idx=0; idx<idxs_.size(); idx++ )
+    {
+	int tridx = oth.idxs_.indexOf( idxs_[idx] );
+	if ( tridx < 0 )
+	    { pErrMsg("Huh"); tridx = 0; }
+	transtbl += tridx;
+    }
+
+    for ( int irec=0; irec<oth.size(); irec++ )
+    {
+	const HdrEntryRecord& othrec = oth[irec];
+	addRecord();
+	HdrEntryRecord& rec = (*this)[ size()-1 ];
+	for ( int ival=0; ival<transtbl.size(); ival++ )
+	    rec[ival] = othrec[ transtbl[ival] ];
+    }
 }
 
 
@@ -203,7 +228,15 @@ void SEGY::HdrEntryKeyData::finish()
     trcnr_.rejectNoProgress();
     refnr_.rejectConstants();
     // So be it. The benefit for all other 2D files is too big ...
+}
 
+
+void SEGY::HdrEntryKeyData::merge( const HdrEntryKeyData& oth )
+{
+    inl_.merge( oth.inl_ ); crl_.merge( oth.crl_ );
+    trcnr_.merge( oth.trcnr_ ); refnr_.merge( oth.refnr_ );
+    offs_.merge( oth.offs_ );
+    x_.merge( oth.x_ ); y_.merge( oth.y_ );
 }
 
 
@@ -232,8 +265,6 @@ void SEGY::HdrEntryKeyData::setCurOrFirst( HdrEntry& he,
 
 void SEGY::HdrEntryKeyData::setBest( TrcHeaderDef& th ) const
 {
-
-    //TODO can do better than this ...
 
     setCurOrFirst( th.inl_, inl_ );
     setCurOrFirst( th.crl_, crl_ );

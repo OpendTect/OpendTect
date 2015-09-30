@@ -25,7 +25,7 @@ class uiSEGYImpType;
 class uiHistogramDisplay;
 namespace SEGY
 {
-    class ImpType; class ScanInfo; class LoadDef; class HdrEntryKeyData;
+    class ImpType; class ScanInfoSet; class LoadDef; class HdrEntryKeyData;
 }
 
 
@@ -39,8 +39,7 @@ public:
 					const SEGY::ImpType* fixedimptyp=0);
 
     void		setImpTypIdx(int);
-    void		setScanInfo(const SEGY::ScanInfo&,int nrfiles,
-				    const SEGY::HdrEntryKeyData&);
+    void		setScanInfo(const SEGY::ScanInfoSet&);
 
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
