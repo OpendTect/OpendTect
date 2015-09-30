@@ -1783,3 +1783,12 @@ void uiAttribPartServer::survChangedCB( CallBacker* )
     delete multiattrdlg_; multiattrdlg_ = 0;
     delete dataattrdlg_; dataattrdlg_ = 0;
 }
+
+
+void uiAttribPartServer::setSelAttr( const char* attrnm )
+{
+    if ( attrsetdlg_ )
+	attrsetdlg_->setSelAttr( attrnm );
+}
+
+

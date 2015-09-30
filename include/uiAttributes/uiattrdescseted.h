@@ -72,6 +72,7 @@ public:
     bool		is2D() const;
 
     void		setSensitive(bool);
+    void		setSelAttr(const char* attrnm);
 
     bool		getUiAttribParamGrps(
 				uiParent*,ObjectSet<AttribParamGroup>&,

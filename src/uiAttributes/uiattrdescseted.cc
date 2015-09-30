@@ -649,6 +649,13 @@ void uiAttribDescSetEd::newList( int newcur )
 }
 
 
+void uiAttribDescSetEd::setSelAttr( const char* attrnm )
+{
+    if ( attrtypefld_ )
+	attrtypefld_->setAttr( attrnm );
+}
+
+
 void uiAttribDescSetEd::updateFields( bool set_type )
 {
     updating_fields_ = true;
