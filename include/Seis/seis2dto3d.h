@@ -90,11 +90,9 @@ protected:
 
     float	taperangle_;
     bool	readData();
-    void	readInputCube(const int szfastx,
+    bool	readInputCube(const int szfastx,
 				    const int szfasty, const int szfastz );
-    void	butterflyOperator();
-    void	multiplyArray( const Array3DImpl<float_complex>& a,
-				       Array3DImpl<float_complex>& b);
+    bool	butterflyOperator();
     bool			scaleArray();
     void			smartScale();
     bool			writeOutput();

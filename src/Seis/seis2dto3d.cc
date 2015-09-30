@@ -202,12 +202,13 @@ bool Seis2DTo3D::read()
 }
 
 
-void Seis2DTo3D::readInputCube(const int szfastx,
+bool Seis2DTo3D::readInputCube(const int szfastx,
 			       const int szfasty, const int szfastz )
 {
     if(nrdone_ == 0)
     trcarr_ = new Array3DImpl<float_complex>(szfastx,szfasty,szfastz);
-
+	if (!trcarr_->isOK())
+		return false;
     trcarr_->setAll(float_complex(0.f,0.f));
 
     if (smartscaling_ && nrdone_ == 0)
@@ -249,6 +250,7 @@ void Seis2DTo3D::readInputCube(const int szfastx,
 		rmsmax_ = rms;
 	}
     }
+	return true;
 }
 
 
@@ -405,11 +407,15 @@ int Seis2DTo3D::nextStep()
     const int szfastz = fft_->getFastSize( tkzs_.nrZ() );
 
     *strm_ << " \nConstructing 3D cube ... \n";
-    readInputCube( szfastx, szfasty, szfastz );
+	if (!readInputCube(szfastx, szfasty, szfastz))
+		return ErrorOccurred();
 	*strm_ << " \nFinished constructing 3D cube \n";
-	preProcessArray();
-    if( nrdone_ == 0 )
-    butterflyOperator();
+	if (!preProcessArray())
+		return ErrorOccurred();
+    
+	if (nrdone_ == 0)
+		if (!butterflyOperator())
+			return ErrorOccurred();
 
     mDoTransform( fft_, true, trcarr_ ,taskrun_);
     if ( nrdone_ == 0 )
@@ -438,9 +444,11 @@ int Seis2DTo3D::nextStep()
     scaleArray();
     }
 
-	unProcessArray();
+	if (!unProcessArray())
+		return ErrorOccurred();
     *strm_ << " \nWriting component to disk ... \n";
-    writeOutput();
+	if (!writeOutput())
+		return ErrorOccurred();
     nrdone_++;
 
     if (nrdone_ == totalNr() )
@@ -450,31 +458,17 @@ int Seis2DTo3D::nextStep()
 }
 
 
-void Seis2DTo3D::butterflyOperator()
+bool Seis2DTo3D::butterflyOperator()
 {
     butterfly_ = new Array3DImpl<float_complex>( *trcarr_ );
     if ( !butterfly_ || !butterfly_->isOK() )
-	return;
+	return false;
     butterfly_->setAll( float_complex(0.f,0.f) );
 
     OperatorComputerExecutor opcompexec(tkzs_, butterfly_->info(),
 				butterfly_->getData(), taperangle_, pow_);
     taskrun_->execute(opcompexec);
-}
-
-
-void Seis2DTo3D::multiplyArray( const Array3DImpl<float_complex>& a,
-				Array3DImpl<float_complex>& b )
-{
-    ArrayNDIter iter(b.info() );
-    const int* itposidx = iter.getPos();
-
-    do
-    {
-	float_complex val = a.getND(itposidx)*b.getND(itposidx);
-	b.setND(itposidx,val);
-    } while ( iter.next() );
-
+	return true;
 }
 
 
