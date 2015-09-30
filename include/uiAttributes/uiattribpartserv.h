@@ -176,6 +176,8 @@ public:
     void		setEvalBackupColTabMapper(const ColTab::MapperSetup*);
     const ColTab::MapperSetup* getEvalBackupColTabMapper() const;
 
+    void		setSelAttr(const char* attrnm);
+
 protected:
 
     MenuItem            stored2dmnuitem_;

@@ -71,6 +71,7 @@ public:
     void		updateCurDescEd();
     bool		is2D() const;
 
+    void		setSelAttr(const char* attrnm);
     void		setSensitive(bool);
 
     bool		getUiAttribParamGrps(

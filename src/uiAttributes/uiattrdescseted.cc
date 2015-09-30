@@ -842,6 +842,13 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 }
 
 
+void uiAttribDescSetEd::setSelAttr( const char* attrnm )
+{
+    if ( attrtypefld_ )
+	attrtypefld_->setAttr( attrnm );
+}
+
+
 void uiAttribDescSetEd::updateCurDescEd()
 {
     curDescEd()->setDesc( curDesc(), adsman_ );
