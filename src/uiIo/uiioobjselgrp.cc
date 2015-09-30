@@ -365,11 +365,9 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 {
     if ( curidx >= ioobjnms_.size() )
 	curidx = ioobjnms_.size() - 1;
-    if ( ioobjnms_.validIdx(curidx) )
-    {
-	listfld_->setCurrentItem( curidx );
-	selectionChanged.trigger();
-    }
+
+    listfld_->setCurrentItem( curidx );
+    selectionChanged.trigger();
 }
 
 
