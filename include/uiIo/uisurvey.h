@@ -61,6 +61,8 @@ public:
     const SurveyInfo*	curSurvInfo() const	{ return cursurvinfo_; }
 
     const char*		selectedSurveyName() const;
+    bool		freshSurveySelected() const
+			{ return freshsurveyselected_; }
 
 protected:
 
@@ -81,6 +83,7 @@ protected:
     uiTextEdit*		notesfld_;
     bool		parschanged_; //!< of initial survey only
     bool		cursurvremoved_;
+    bool		freshsurveyselected_;
 
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);

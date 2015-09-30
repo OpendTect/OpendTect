@@ -82,7 +82,7 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 		.arg(uiStrings::sCrossline()), CallBack() );
 	*newutils += new uiSurvey::Util( "spherewire", od_static_tr("getUtils",
 				"Setup geographical coordinates"), CallBack() );
-				      
+
 
 	if ( !utils.setIfNull(newutils) )
 	    delete newutils;
@@ -392,6 +392,7 @@ uiSurvey::uiSurvey( uiParent* p )
     , impsip_(0)
     , parschanged_(false)
     , cursurvremoved_(false)
+    , freshsurveyselected_(false)
 {
     const CallBack selchgcb( mCB(this,uiSurvey,selChange) );
 
@@ -673,9 +674,10 @@ bool uiSurvey::acceptOK( CallBacker* )
 	}
     }
 
-    // Step 5: start importing if possible
+    // Step 5: if fresh survey, help user on his/her way
     if ( impiop_ && impsip_ )
     {
+	freshsurveyselected_ = true;
 	readSurvInfoFromFile();
 	const char* askq = impsip_->importAskQuestion();
 	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
@@ -763,7 +765,7 @@ void uiSurvey::newButPushed( CallBacker* )
 
     cursurvinfo_->datadir_ = dataroot_;
     if ( !File::makeWritable(storagedir,true,true) )
-	mRetRollBackNewSurvey(tr("Cannot set the permissions" 
+	mRetRollBackNewSurvey(tr("Cannot set the permissions"
 							"for the new survey"))
 
     if ( !cursurvinfo_->write(dataroot_) )

@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
     : uiDialog(p,
-	       uiDialog::Setup(tr("Z Scaling"),tr("Set scaling factor"),
+	       uiDialog::Setup(tr("Z Scaling"),tr("Set Z scaling factor"),
                                 mODHelpKey(mZScaleDlgHelpID) )
 	       .canceltext(uiString::emptyString()))
     , valchgd_(false)
@@ -100,6 +100,7 @@ void uiZStretchDlg::doFinalise( CallBacker* )
 
     grp->attach( centeredBelow, sliderfld_ );
     savefld_ = new uiCheckBox( this, uiStrings::sSaveAsDefault() );
+    savefld_->setChecked( true );
     savefld_->attach( alignedBelow, grp );
 }
 

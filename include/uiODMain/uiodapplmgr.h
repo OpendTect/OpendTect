@@ -88,7 +88,9 @@ public:
 
 
     // Survey menu operations
-    static int			manageSurvey(uiParent* p=0);
+    int				selectSurvey(uiParent*);
+    static int			manageSurvey()		{ return manSurv(0); }
+
     enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
 				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
 				  Body, Props, ColTab, RanL, NrObjTypes };
@@ -261,6 +263,7 @@ protected:
     };
 
     MiscSurvInfo		tmpprevsurvinfo_;
+    static int			manSurv(uiParent*);
     bool			survChgReqAttrUpdate();
 
     bool			handleEvent(const uiApplPartServer*,int);
