@@ -334,11 +334,12 @@ bool uiProcessorManager::doSaveAs()
     selcontext.ctxt_.forread_ = false;
 
     uiIOObjSelDlg dlg( this, selcontext );
-    if ( dlg.go() && dlg.ioObj() )
+    if ( dlg.go() )
     {
-	if ( doSave( *dlg.ioObj() ) )
+	const IOObj* selobj = dlg.ioObj();
+	if (selobj && doSave(*selobj) )
 	{
-	    lastmid_ = dlg.ioObj()->key();
+	    lastmid_ = selobj->key();
 	    delete selcontext.ioobj_;
 	    return true;
 	}

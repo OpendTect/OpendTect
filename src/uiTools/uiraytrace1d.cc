@@ -212,6 +212,9 @@ bool uiRayTracer1D::isZeroOffset() const
 void uiRayTracer1D::zeroOffsetChecked( CallBacker* )
 {
     displayOffsetFlds( !iszerooffsetfld_->isChecked() );
+    if ( downwavefld_ ) downwavefld_->display( !isZeroOffset() );
+    if ( upwavefld_ ) upwavefld_->display( !isZeroOffset() );
+    offsetChanged.trigger();
 }
 
 #define mIsZeroOffset( offsets ) \
