@@ -145,9 +145,8 @@ void uiFunctionDisplay::setVals( const float* xvals, const float* yvals,
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    if ( mIsUdf(xvals[idx]) || mIsUdf(yvals[idx]) )
-		continue;
-	    xvals_ += xvals[idx]; yvals_ += yvals[idx];
+	    xvals_ += xvals[idx];
+	    yvals_ += yvals[idx];
 	}
     }
 
@@ -164,9 +163,8 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
 	const float dx = (xrg.stop-xrg.start) / (sz-1);
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    if ( mIsUdf(yvals[idx]) )
-		continue;
-	    xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx];
+	    xvals_ += xrg.start + idx * dx;
+	    yvals_ += yvals[idx];
 	}
     }
 
@@ -182,8 +180,6 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    if ( mIsUdf(xvals[idx]) || mIsUdf(yvals[idx]) )
-		continue;
 	    y2xvals_ += xvals[idx];
 	    y2yvals_ += yvals[idx];
 	}
@@ -203,8 +199,6 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 	const float dx = (xrg.stop-xrg.start) / (sz-1);
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    if ( mIsUdf(yvals[idx]) )
-		continue;
 	    y2xvals_ += xrg.start + idx * dx;
 	    y2yvals_ += yvals[idx];
 	}
@@ -251,6 +245,9 @@ Geom::Point2D<float> uiFunctionDisplay::getFuncXY( int xpix, bool y2 ) const
     // Not most optimal search
     for ( int idx=0; idx<xvals.size(); idx++ )
     {
+	if ( mIsUdf(xvals[idx]) || mIsUdf(yvals[idx]) )
+	    continue;
+
 	const float dist = Math::Abs( xval-xvals[idx] );
 	if ( dist<mindist )
 	{
@@ -312,7 +309,12 @@ void uiFunctionDisplay::getAxisRanges( const TypeSet<float>& vals,
 {
     rg.set( mUdf(float), -mUdf(float) );
     for ( int idx=0; idx<vals.size(); idx++ )
+    {
+	if ( mIsUdf(vals[idx]) )
+	    continue;
+
 	rg.include( vals[idx], false );
+    }
 
     if ( !setup_.fixdrawrg_ )
 	return;
@@ -339,26 +341,34 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
 
 void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 {
+    const uiAxisHandler* yax = y2 ? y2ax_ : yax_;
+    if ( !yax ) return;
+
+    const StepInterval<float>& yrg = yax->range();
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
     const uiPoint closept( xax_->getPix(xax_->range().start),
-			   y2 ? y2ax_->getPix(y2ax_->range().start)
-			      : yax_->getPix(yax_->range().start) );
+			   yax->getPix(yrg.start) );
     const bool fillbelow = y2 ? setup_.fillbelowy2_ : setup_.fillbelow_;
     if ( fillbelow )
 	ptlist += closept;
 
     const Interval<int> xpixintv( xax_->getPix(xax_->range().start),
 				  xax_->getPix(xax_->range().stop) );
-    const Interval<int> ypixintv( y2 ? y2ax_->getPix(y2ax_->range().start)
-				     : yax_->getPix(yax_->range().start),
-				  y2 ? y2ax_->getPix(y2ax_->range().stop)
-				     : yax_->getPix(yax_->range().stop) );
+    const Interval<int> ypixintv( yax->getPix(yrg.start),
+	    			  yax->getPix(yrg.stop) );
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	const int xpix = xax_->getPix( y2 ? y2xvals_[idx] : xvals_[idx] );
-	const int ypix = y2 ? y2ax_->getPix(y2yvals_[idx])
-			    : yax_->getPix(yvals_[idx]);
+	const float xval = y2 ? y2xvals_[idx] : xvals_[idx];
+	const float yval = y2 ? y2yvals_[idx] : yvals_[idx];
+	if ( mIsUdf(xval) || mIsUdf(yval) )
+	{
+	    ptlist += uiPoint( mUdf(int), mUdf(int) ); //break in curve
+	    continue;
+	}
+
+	const int xpix = xax_->getPix( xval );
+	const int ypix = yax->getPix( yval );
 	if ( xpixintv.includes(xpix,true) && ypixintv.includes(ypix,true) )
 	{
 	    pt.x = xpix;

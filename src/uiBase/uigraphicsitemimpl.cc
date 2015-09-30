@@ -422,10 +422,14 @@ void uiPolygonItem::fill()
 #define mImplSetPolygon( type, ptaccess ) \
 void uiPolygonItem::setPolygon( type ptlist ) \
 { \
-    QPolygonF qpolygonf( ptlist.size() );\
+    QPolygonF qpolygonf;\
     for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
-	qpolygonf[idx] = QPointF( (float) ptaccess[idx].x, \
-			         (float) ptaccess[idx].y );\
+    { \
+	if ( mIsUdf(ptaccess[idx].x) || mIsUdf(ptaccess[idx].y) ) \
+	    continue; \
+	qpolygonf += QPointF( (float) ptaccess[idx].x, \
+			      (float) ptaccess[idx].y );\
+    } \
     if ( !ptlist.isEmpty() && !qpolygonf.isClosed() ) \
     qpolygonf += qpolygonf.first(); \
     qpolygonitem_->setPolyLine( qpolygonf, true ); \
@@ -459,6 +463,7 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiWorldPoint>& ptlist )
 
 uiPolyLineItem::~uiPolyLineItem()
 { }
+
 
 #define mImpSetPolyline( type ) \
 void uiPolyLineItem::setPolyLine( type ptlist ) \
