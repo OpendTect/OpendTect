@@ -481,17 +481,16 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx )
 }
 
 
-void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles,
-					const SEGY::HdrEntryKeyData& hkd )
+void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
 {
-    tbl_->setColumnLabel( mQSResCol, si.fullscan_ ? "Full scan result"
+    tbl_->setColumnLabel( mQSResCol, sis.isFull() ? "Full scan result"
 						  : "Quick scan result" );
     clearInfo();
-    if ( !si.isUsable() )
+    if ( sis.isEmpty() )
 	return;
 
     uiString txt;
-    const SEGY::BasicFileInfo& bi = si.basicinfo_;
+    const SEGY::BasicFileInfo& bi = sis.basicInfo();
 
     txt.set( "%1" );
     txt.arg( bi.revision_ );
@@ -512,8 +511,8 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles,
     setCellTxt( mQSResCol, mDataFormatRow, txt );
 
     txt.set( "%1 (%2 %3)" );
-    txt.arg( bi.ns_ ).arg( si.nrtrcs_ )
-	.arg( si.nrtrcs_ == 1 ? tr("trace") : tr("traces") );
+    const int nrtrcs = sis.nrTraces();
+    txt.arg( bi.ns_ ).arg( nrtrcs ).arg( nrtrcs == 1?tr("trace"):tr("traces") );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
 
     if ( mIsUdf(bi.sampling_.step) )
@@ -524,28 +523,31 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si, int nrfiles,
 	const float endz = loaddef_.sampling_.start
 			 + (bi.ns_-1) * loaddef_.sampling_.step;
 	txt.arg( loaddef_.sampling_.start ).arg( endz )
-		 .arg( si.infeet_ ? "ft" : "m" );
+		 .arg( sis.inFeet() ? "ft" : "m" );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
+    const SEGY::ScanRangeInfo& rgs = sis.ranges();
     const char* rgstr = "%1 - %2";
-    inlinfotxt_.set( rgstr ).arg( si.inls_.start ).arg( si.inls_.stop );
-    crlinfotxt_.set( rgstr ).arg( si.crls_.start ).arg( si.crls_.stop );
-    trcnrinfotxt_.set( rgstr ).arg( si.trcnrs_.start ).arg( si.trcnrs_.stop );
-    xinfotxt_.set( rgstr ).arg( si.xrg_.start ).arg( si.xrg_.stop );
-    yinfotxt_.set( rgstr ).arg( si.yrg_.start ).arg( si.yrg_.stop );
-    offsetinfotxt_.set( rgstr ).arg( si.offsrg_.start ).arg( si.offsrg_.stop );
-    if ( mIsUdf(si.refnrs_.start) )
+    inlinfotxt_.set( rgstr ).arg( rgs.inls_.start ).arg( rgs.inls_.stop );
+    crlinfotxt_.set( rgstr ).arg( rgs.crls_.start ).arg( rgs.crls_.stop );
+    trcnrinfotxt_.set( rgstr ).arg( rgs.trcnrs_.start ).arg( rgs.trcnrs_.stop );
+    xinfotxt_.set( rgstr ).arg( rgs.xrg_.start ).arg( rgs.xrg_.stop );
+    yinfotxt_.set( rgstr ).arg( rgs.yrg_.start ).arg( rgs.yrg_.stop );
+    offsetinfotxt_.set( rgstr ).arg( rgs.offs_.start ).arg( rgs.offs_.stop );
+    if ( mIsUdf(rgs.refnrs_.start) )
 	refnrinfotxt_ =  tr( "<no data>" );
     else
-	refnrinfotxt_.set(rgstr).arg( si.refnrs_.start ).arg( si.refnrs_.stop );
+	refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start )
+				.arg( rgs.refnrs_.stop );
 
+    const int nrfiles = sis.size();
     txt = nrfiles < 1	? uiString::emptyString()
 	: (nrfiles < 2	? tr( "[1 file]")
 			: tr( "[%1 files]" ).arg( nrfiles ));
     tbl_->setTopLeftCornerLabel( txt );
 
-    setByteFldContents( hkd );
+    setByteFldContents( sis.keyData() );
     useLoadDef();
     showRelevantInfo();
 }

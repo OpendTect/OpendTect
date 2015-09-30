@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uisegyimptype.h"
 
 class Timer;
+class TaskRunner;
 class SurveyInfo;
 class DataClipSampler;
 class TrcKeyZSampling;
@@ -33,7 +34,6 @@ class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
 namespace SEGY { class ScanInfoCollectors; }
-namespace PosInfo { class Detector; }
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -56,7 +56,8 @@ public:
     const SurveyInfo*	survInfo() const
 			{ return survinfook_ ? survinfo_ : 0; }
     bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
-    bool		zInFeet() const		{ return infeet_; }
+    bool		zInFeet() const
+			{ return scaninfos_ && scaninfos_->inFeet(); }
 
     const SEGY::ImpType& impType() const;
     void		setImpTypIdx(int);
@@ -81,13 +82,11 @@ protected:
     uiCheckBox*		inc0sbox_;
     uiLabel*		nrfileslbl_;
     Timer*		timer_;
-    PosInfo::Detector*	pidetector_;
 
     BufferString	userfilename_;
     SEGY::LoadDef	loaddef_;
-    ObjectSet<SEGY::ScanInfo> scaninfo_;
-    SEGY::ScanInfoCollectors* collectors_;
-    bool		infeet_;
+    SEGY::ScanInfoSet*	scaninfos_;
+    DataClipSampler&	clipsampler_;
     bool		setbestrev0candidates_;
     SEGY::ImpType	fixedimptype_;
     SurveyInfo*		survinfo_;
@@ -103,8 +102,7 @@ protected:
     bool		getFileSpec();
     void		execNewScan(LoadDefChgType,bool full=false);
     void		scanInput();
-    bool		scanFile(const char*,LoadDefChgType,bool);
-    bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool,bool);
+    bool		scanFile(const char*,LoadDefChgType,TaskRunner*);
     bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
     void		completeLoadDef();
     void		handleNewInputSpec(LoadDefChgType ct=KeepAll,
@@ -117,7 +115,7 @@ protected:
     void		clearDisplay();
     void		setButtonStatuses();
     void		displayScanResults();
-    void		updateSurvMap(const SEGY::ScanInfo&);
+    void		updateSurvMap();
     bool		needICvsXY() const;
 
     void		initWin(CallBacker*);

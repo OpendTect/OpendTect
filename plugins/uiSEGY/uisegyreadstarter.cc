@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uiseparator.h"
 #include "uisurvmap.h"
 #include "uihistogramdisplay.h"
+#include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -46,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #define mForSurvSetup forsurvsetup
 #define mSurvMapHeight 350
 #define mDefSize 250
+#define mClipSamplerBufSz 100000
 
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
@@ -61,7 +63,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , survmap_(0)
     , setbestrev0candidates_(true)
     , userfilename_("x") // any non-empty
-    , collectors_(0)
+    , scaninfos_(0)
+    , clipsampler_(*new DataClipSampler(100000))
     , survinfo_(0)
     , survinfook_(false)
     , timer_(0)
@@ -205,8 +208,8 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
     delete survinfo_;
     delete timer_;
     delete filereadopts_;
-    delete collectors_;
-    deepErase( scaninfo_ );
+    delete scaninfos_;
+    delete &clipsampler_;
 }
 
 
@@ -217,7 +220,7 @@ FullSpec uiSEGYReadStarter::fullSpec() const
     ret.rev0_ = loaddef_.revision_ == 0;
     ret.spec_ = filespec_;
     ret.pars_ = filepars_;
-    ret.zinfeet_ = infeet_;
+    ret.zinfeet_ = zInFeet();
     if ( filereadopts_ )
 	ret.readopts_ = *filereadopts_;
     return ret;
@@ -252,23 +255,29 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 
 void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 {
-    deepErase( scaninfo_ );
-    delete collectors_; collectors_ = 0;
+    delete scaninfos_; scaninfos_ = 0;
+    clipsampler_.reset();
     clearDisplay();
     if ( !getFileSpec() )
 	return;
 
     const SEGY::ImpType& imptyp = impType();
-    collectors_ = new SEGY::ScanInfoCollectors( imptyp.is2D(), mForSurvSetup );
+    scaninfos_ = new SEGY::ScanInfoSet( imptyp.is2D() );
+    scaninfos_->setName( userfilename_ );
+
+    PtrMan<TaskRunner> trunner;
+    if ( full )
+	trunner = new uiTaskRunner( this );
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0),ct,full) )
+    if ( !scanFile(filespec_.fileName(0),ct,trunner) )
 	return;
 
     const int nrfiles = filespec_.nrFiles();
     for ( int idx=1; idx<nrfiles; idx++ )
-	scanFile( filespec_.fileName(idx), KeepAll, full );
+	scanFile( filespec_.fileName(idx), KeepAll, trunner );
 
+    scaninfos_->finish();
     displayScanResults();
 }
 
@@ -282,7 +291,7 @@ bool uiSEGYReadStarter::needICvsXY() const
 
 void uiSEGYReadStarter::setButtonStatuses()
 {
-    const int nrfiles = scaninfo_.size();
+    const int nrfiles = scaninfos_ ? scaninfos_->size() : 0;
     examinebut_->setSensitive( nrfiles > 0 );
     fullscanbut_->setSensitive( nrfiles > 0 );
     editbut_->setSensitive( nrfiles > 0 );
@@ -472,15 +481,14 @@ void uiSEGYReadStarter::icxyCB( CallBacker* )
 
 void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 {
-    if ( !ampldisp_ || !collectors_ )
+    if ( !ampldisp_ )
 	return;
 
-    const DataClipSampler& dcs = collectors_->clipsampler_;
-    int nrvals = (int)dcs.nrVals();
+    int nrvals = (int)clipsampler_.nrVals();
     if ( nrvals < 1 )
 	{ ampldisp_->setEmpty(); return; }
 
-    const float* csvals = dcs.vals();
+    const float* csvals = clipsampler_.vals();
     float clipval = clipfld_->getFValue();
     const bool useclip = !mIsUdf(clipval) && clipval > 0.05;
     const bool rm0 = !inc0sbox_->isChecked();
@@ -529,7 +537,7 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 }
 
 
-void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
+void uiSEGYReadStarter::updateSurvMap()
 {
     survinfook_ = false;
     if ( !survmap_ )
@@ -538,13 +546,13 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
     survinfo_ = survmap_->getEmptySurvInfo();
     survinfo_->setName( "No valid scan available" );
     const char* stbarmsg = "";
-    if ( collectors_ && collectors_->pidetector_ )
+    if ( scaninfos_ && !scaninfos_->isEmpty() )
     {
 	Coord crd[3]; TrcKeyZSampling cs;
-	stbarmsg = collectors_->pidetector_->getSurvInfo( cs.hsamp_, crd );
+	stbarmsg = scaninfos_->piDetector().getSurvInfo( cs.hsamp_, crd );
 	if ( !stbarmsg )
 	{
-	    cs.zsamp_ = scaninf.basicinfo_.getZRange();
+	    cs.zsamp_ = loaddef_.getZRange();
 	    survinfo_->setRange( cs, false );
 	    BinID bid[2];
 	    bid[0].inl() = cs.hsamp_.start_.inl();
@@ -666,9 +674,9 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 }
 
 bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
-				  bool full )
+				  TaskRunner* trunner )
 {
-    const bool isfirst = scaninfo_.isEmpty();
+    const bool isfirst = scaninfos_->isEmpty();
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRetFileName( "Cannot open file: %1" )
@@ -681,9 +689,8 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     if ( strm.isBad() )
 	mErrRetFileName( "File:\n%1\nhas no binary header" )
 
-    SEGY::ScanInfo* si = new SEGY::ScanInfo( fnm );
-    SEGY::BasicFileInfo& bfi = si->basicinfo_;
-    bool infeet = false;
+    SEGY::ScanInfo& si = scaninfos_->add( fnm );
+    SEGY::BasicFileInfo& bfi = si.basicInfo();
 
     const bool useloaddef = ct != KeepNone;
     if ( !useloaddef )
@@ -694,7 +701,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	binhdr.unSwap();
     if ( !binhdr.isRev0() )
 	binhdr.skipRev1Stanzas( strm );
-    infeet = binhdr.isInFeet();
+    scaninfos_->setInFeet( binhdr.isInFeet() );
 
     bfi.ns_ = binhdr.nrSamples();
     if ( bfi.ns_ < 1 || bfi.ns_ > mMaxReasonableNS )
@@ -705,7 +712,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	fmt = 1;
     bfi.format_ = fmt;
     if ( !completeFileInfo(strm,bfi,isfirst) )
-	return false;
+	{ scaninfos_->removeLast(); return false; }
 
     if ( isfirst && ct != KeepAll )
     {
@@ -714,24 +721,8 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	completeLoadDef();
     }
 
-    if ( !obtainScanInfo(*si,strm,isfirst,full) )
-	{ delete si; return false; }
-
-    si->infeet_ = infeet;
-    si->fullscan_ = full;
-    scaninfo_ += si;
-    return true;
-}
-
-
-bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
-					bool isfirst, bool full )
-{
-    if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
-	return false;
-
-    si.getFromSEGYBody( strm, loaddef_, filespec_.nrFiles()>1,
-			*collectors_, full, this );
+    const bool fullscan = trunner;
+    si.getFromSEGYBody( strm, loaddef_, clipsampler_, fullscan, trunner );
     return true;
 }
 
@@ -774,32 +765,27 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
 void uiSEGYReadStarter::completeLoadDef()
 {
-    if ( !setbestrev0candidates_ || !collectors_ )
-	return;
-
-    setbestrev0candidates_ = false;
-    collectors_->keydata_.setBest( *loaddef_.hdrdef_ );
-    infofld_->useLoadDef();
+    if ( setbestrev0candidates_ )
+    {
+	setbestrev0candidates_ = false;
+	scaninfos_->keyData().setBest( *loaddef_.hdrdef_ );
+	infofld_->useLoadDef();
+    }
 }
 
 
 void uiSEGYReadStarter::displayScanResults()
 {
-    if ( scaninfo_.isEmpty() )
+    if ( !scaninfos_ || scaninfos_->isEmpty() )
 	{ clearDisplay(); return; }
 
     setButtonStatuses();
     if ( ampldisp_ )
 	updateAmplDisplay( 0 );
 
-    SEGY::ScanInfo si( *scaninfo_[0] );
-    si.filenm_ = userfilename_;
-    for ( int idx=1; idx<scaninfo_.size(); idx++ )
-	si.merge( *scaninfo_[idx] );
-
-    infofld_->setScanInfo( si, scaninfo_.size(), collectors_->keydata_ );
+    infofld_->setScanInfo( *scaninfos_ );
     if ( mForSurvSetup )
-	updateSurvMap( si );
+	updateSurvMap();
 }
 
 

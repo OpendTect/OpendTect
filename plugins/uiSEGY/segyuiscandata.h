@@ -16,10 +16,12 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "bufstring.h"
 #include "datachar.h"
+#include "namedobj.h"
 
 class SeisTrcInfo;
 class DataClipSampler;
 class uiParent;
+class TaskRunner;
 namespace PosInfo { class Detector; }
 
 
@@ -88,75 +90,119 @@ public:
 };
 
 
-/*!\brief Bundle of info collectors */
+/*!\brief range info collected by scanning SEG-Y file */
 
-mExpClass(uiSEGY) ScanInfoCollectors
+mExpClass(uiSEGY) ScanRangeInfo
 {
 public:
+			ScanRangeInfo()		{ reInit(); }
 
-			ScanInfoCollectors(bool is2d,bool withpidet);
-			~ScanInfoCollectors();
+    Interval<double>	xrg_;
+    Interval<double>	yrg_;
+    Interval<int>	inls_;
+    Interval<int>	crls_;
+    Interval<int>	trcnrs_;
+    Interval<float>	refnrs_;
+    Interval<float>	offs_;
 
-    bool		is2D() const		{ return is2d_; }
-
-    void		finish();
-
-    DataClipSampler&	clipsampler_;
-    HdrEntryKeyData&	keydata_;
-    PosInfo::Detector*	pidetector_;
-
-protected:
-
-    const bool		is2d_;
-
+    void		reInit();
+    void		merge(const ScanRangeInfo&);
 };
 
 
-/*!\brief info collected by scanning SEG-Y file */
+/*!\brief info collected by scanning a SEG-Y file */
 
 mExpClass(uiSEGY) ScanInfo
 {
 public:
 
-			ScanInfo(const char* fnm);
+			ScanInfo(const char* fnm,bool is2d);
+			~ScanInfo();
 
-    BufferString	filenm_;
-    bool		usable_;
-    bool		fullscan_;
-    bool		isEmpty() const		{ return nrtrcs_ < 1; }
-    bool		isUsable() const	{ return usable_ && !isEmpty();}
+    BasicFileInfo&	basicInfo()		{ return basicinfo_; }
+    void		getFromSEGYBody(od_istream&,const LoadDef&,
+				    DataClipSampler&,bool full,TaskRunner* t=0);
 
-    int			nrtrcs_;
-    Interval<double>	xrg_;
-    Interval<double>	yrg_;
-    Interval<float>	offsrg_;
-    Interval<int>	inls_;
-    Interval<int>	crls_;
-    Interval<int>	trcnrs_;
-    Interval<float>	refnrs_;
-    bool		infeet_;
-
-    BasicFileInfo	basicinfo_;
-
-    void		getFromSEGYBody(od_istream&,const LoadDef&,bool ismulti,
-				    ScanInfoCollectors&,bool full,uiParent*);
     void		merge(const ScanInfo&);
 
-    void		reInit();
+    const char*		fileName() const	{ return filenm_; }
+    bool		is2D() const;
+    bool		isEmpty() const		{ return nrtrcs_ < 1; }
+    int			nrTraces() const	{ return nrtrcs_; }
+    bool		isFull() const		{ return full_; }
+
+    const HdrEntryKeyData&	keyData() const		{ return keydata_; }
+    const ScanRangeInfo&	ranges() const		{ return rgs_; }
+    const PosInfo::Detector&	piDetector() const	{ return *pidetector_; }
+    const BasicFileInfo&	basicInfo() const	{ return basicinfo_; }
 
 protected:
 
+    BufferString	filenm_;
+    PosInfo::Detector*	pidetector_;
+    HdrEntryKeyData&	keydata_;
+    BasicFileInfo	basicinfo_;
+    ScanRangeInfo	rgs_;
+    int			nrtrcs_;
+    bool		full_;
+
     od_stream_Pos	startpos_;
 
-    void		addPositions(const SeisTrcInfo&,PosInfo::Detector*);
+    void		reInit()		{ init( is2D() ); }
+    void		addPositions(const SeisTrcInfo&);
     void		addValues(DataClipSampler&,const float*,int);
-    void		addTraces(od_istream&,int trcidx,char*,float*,
-				  const LoadDef&,ScanInfoCollectors&,
-				  const OffsetCalculator&,bool rev=false);
+    void		addTraces(od_istream&,Interval<int>,char*,float*,
+				  const LoadDef&,DataClipSampler&,
+				  const OffsetCalculator&);
+
+private:
+
+    void		init(bool);
+    void		finish();
 
     friend class	FullUIScanner;
 
 };
+
+
+/*!\brief set of SEG-Y Scan Infos */
+
+mExpClass(uiSEGY) ScanInfoSet : public NamedObject
+{
+public:
+
+			ScanInfoSet(bool is2d);
+
+    void		setEmpty();
+    ScanInfo&		add(const char* fnm);	//!< does not open anything
+    void		removeLast();
+    void		setInFeet( bool yn )	{ infeet_ = yn; }
+    void		finish();
+
+    bool		is2D() const		{ return is2d_; }
+    bool		isEmpty() const		{ return nrtrcs_ < 1; }
+    int			nrTraces() const	{ return nrtrcs_; }
+    bool		inFeet() const		{ return infeet_; }
+    bool		isFull() const;
+    const BasicFileInfo& basicInfo() const;
+    const PosInfo::Detector& piDetector() const;
+    const HdrEntryKeyData& keyData() const	{ return keydata_; }
+    const ScanRangeInfo& ranges() const		{ return rgs_; }
+
+    int			size() const		{ return sis_.size(); }
+    const ScanInfo&	scanInfo( int i ) const	{ return *sis_[i]; }
+
+protected:
+
+    ObjectSet<ScanInfo>	sis_;
+    bool		is2d_;
+    bool		infeet_;
+    int			nrtrcs_;
+    HdrEntryKeyData&	keydata_;
+    ScanRangeInfo	rgs_;
+
+};
+
 
 } // namespace SEGY
 

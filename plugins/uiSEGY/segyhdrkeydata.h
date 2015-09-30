@@ -37,6 +37,8 @@ public:
     void		rejectConstants();
     void		rejectNoProgress();
 
+    void		merge(const HdrEntryDataSet&);
+
     TypeSet<int>	idxs_; // in TrcHeader::hdrDef()
     SortedList<int>	rejectedidxs_;
 
@@ -64,6 +66,8 @@ public:
     void		setEmpty();
     void		add(const TrcHeader&,bool isswapped);
     void		finish();
+
+    void		merge(const HdrEntryKeyData&);
 
     void		setBest(TrcHeaderDef&) const;
 

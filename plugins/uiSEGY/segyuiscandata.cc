@@ -24,6 +24,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitaskrunner.h"
 
+static const int cQuickScanNrTrcsAtEnds = 225; // 2 times
+static const int cQuickScanNrTrcsInMiddle = 25; // 2 times
+// total max 500 traces per file
+
 
 void SEGY::BasicFileInfo::init()
 {
@@ -177,57 +181,65 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 }
 
 
-SEGY::ScanInfoCollectors::ScanInfoCollectors( bool is2d, bool withpidet )
-    : clipsampler_(*new DataClipSampler(100000))
-    , keydata_(*new HdrEntryKeyData)
-    , pidetector_(0)
-    , is2d_(is2d)
+void SEGY::ScanRangeInfo::reInit()
 {
-    if ( withpidet )
-    {
-	PosInfo::Detector::Setup pisu( is2d_ );
-	pisu.isps( true );
-	pidetector_ = new PosInfo::Detector( pisu );
-    }
-}
-
-
-SEGY::ScanInfoCollectors::~ScanInfoCollectors()
-{
-    delete pidetector_;
-    delete &clipsampler_;
-    delete &keydata_;
-}
-
-
-void SEGY::ScanInfoCollectors::finish()
-{
-    keydata_.finish();
-    if ( pidetector_ )
-	pidetector_->finish();
-}
-
-
-
-SEGY::ScanInfo::ScanInfo( const char* fnm )
-    : filenm_(fnm)
-{
-    reInit();
-}
-
-
-void SEGY::ScanInfo::reInit()
-{
-    usable_ = fullscan_ = false;
-    nrtrcs_ = 0;
-    infeet_ = false;
     inls_ = Interval<int>( mUdf(int), 0 );
     crls_ = Interval<int>( mUdf(int), 0 );
     trcnrs_ = Interval<int>( mUdf(int), 0 );
     xrg_ = Interval<double>( mUdf(double), 0. );
     yrg_ = Interval<double>( mUdf(double), 0. );
     refnrs_ = Interval<float>( mUdf(float), 0.f );
-    offsrg_ = Interval<float>( mUdf(float), 0.f );
+    offs_ = Interval<float>( mUdf(float), 0.f );
+}
+
+
+void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
+{
+    inls_.include( si.inls_, false );
+    crls_.include( si.crls_, false );
+    trcnrs_.include( si.trcnrs_, false );
+    xrg_.include( si.xrg_, false );
+    yrg_.include( si.yrg_, false );
+    refnrs_.include( si.refnrs_, false );
+    offs_.include( si.offs_, false );
+}
+
+
+
+SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d )
+    : filenm_(fnm)
+    , keydata_(*new HdrEntryKeyData)
+    , pidetector_(0)
+{
+    init( is2d );
+}
+
+
+void SEGY::ScanInfo::init( bool is2d )
+{
+    full_ = false;
+    nrtrcs_ = 0;
+
+    rgs_.reInit();
+    keydata_.setEmpty();
+
+    PosInfo::Detector::Setup pisu( is2d );
+    pisu.isps( true ).reqsorting( false );
+    delete pidetector_;
+    pidetector_ = new PosInfo::Detector( pisu );
+}
+
+
+SEGY::ScanInfo::~ScanInfo()
+{
+    delete pidetector_;
+    delete &keydata_;
+}
+
+
+bool SEGY::ScanInfo::is2D() const
+{
+    return pidetector_ && pidetector_->is2D();
 }
 
 
@@ -239,13 +251,14 @@ class FullUIScanner : public ::Executor
 public:
 
 FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
-		char* buf, float* vals, ScanInfoCollectors& colls,
+		char* buf, float* vals, DataClipSampler& cs,
 		const OffsetCalculator& oc )
     : ::Executor("SEG-Y scanner")
     , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals)
-    , colls_(colls), offscalc_(oc)
+    , clipsampler_(cs), offscalc_(oc)
     , nrdone_(1)
 {
+    si_.full_ = false;
     totalnr_ = def_.nrTracesIn( strm );
 }
 
@@ -267,16 +280,17 @@ virtual int nextStep()
 	PtrMan<TrcHeader> thdr = def_.getTrace( strm_, buf_, vals_ );
 	if ( !thdr )
 	{
-	    colls_.finish();
+	    si_.full_ = true;
+	    si_.finish();
 	    return Finished();
 	}
 	else if ( !thdr->isusable )
 	    continue; // dead trace
 
 	def_.getTrcInfo( *thdr, ti_, offscalc_ );
-	colls_.keydata_.add( *thdr, def_.hdrsswapped_ );
-	si_.addPositions( ti_, colls_.pidetector_ );
-	si_.addValues( colls_.clipsampler_, vals_, def_.ns_ );
+	si_.keydata_.add( *thdr, def_.hdrsswapped_ );
+	si_.addPositions( ti_ );
+	si_.addValues( clipsampler_, vals_, def_.ns_ );
 	nrdone_++;
     }
 
@@ -289,7 +303,7 @@ virtual int nextStep()
     const LoadDef&	def_;
     char*		buf_;
     float*		vals_;
-    ScanInfoCollectors&	colls_;
+    DataClipSampler&	clipsampler_;
     const OffsetCalculator& offscalc_;
     od_int64		nrdone_, totalnr_;
 
@@ -298,17 +312,13 @@ virtual int nextStep()
 } // namespace SEGY
 
 
-#define mAdd2Dtector(dt,ti) \
-    if ( dt ) \
-	dt->add( ti.coord, ti.binid, ti.nr, ti.offset )
-
-
-
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
-				bool ismulti, ScanInfoCollectors& colls,
-				bool full, uiParent* uiparent )
+				DataClipSampler& clipsampler,
+				bool full, TaskRunner* trunner )
 {
+    reInit();
+
     startpos_ = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos_ );
     if ( !def.isValid() )
@@ -328,57 +338,81 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 	    return;
     }
 
-    usable_ = true;
     SEGY::OffsetCalculator offscalc;
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
-    offscalc.is2d_ = colls.is2D(); offscalc.coordscale_ = def.coordscale_;
+    offscalc.is2d_ = is2D(); offscalc.coordscale_ = def.coordscale_;
     SeisTrcInfo ti;
     def.getTrcInfo( *thdr, ti, offscalc );
 
-    inls_.start = inls_.stop = ti.binid.inl();
-    crls_.start = crls_.stop = ti.binid.crl();
-    trcnrs_.start = trcnrs_.stop = ti.nr;
-    xrg_.start = xrg_.stop = ti.coord.x;
-    yrg_.start = yrg_.stop = ti.coord.y;
-    refnrs_.start = refnrs_.stop = ti.refnr;
-    offsrg_.start = offsrg_.stop = ti.offset;
-
-    mAdd2Dtector( colls.pidetector_, ti );
-    addValues( colls.clipsampler_, vals, def.ns_ );
-    colls.keydata_.add( *thdr, def.hdrsswapped_ );
+    rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
+    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
+    addValues( clipsampler, vals, def.ns_ );
+    keydata_.add( *thdr, def.hdrsswapped_ );
 
     if ( full )
     {
-	FullUIScanner fscnnr( *this, strm, def, buf, vals, colls, offscalc );
-	uiTaskRunner tr( uiparent );
-	tr.execute( fscnnr );
+	FullUIScanner scanner( *this, strm, def, buf, vals,
+			       clipsampler, offscalc );
+	TaskRunner::execute( trunner, scanner );
 	return;
     }
 
-    addTraces( strm, 1, buf, vals, def, colls, offscalc );
-    if ( !ismulti )
-	addTraces( strm, nrtrcs_/2, buf, vals, def, colls, offscalc );
+#   define mAddTrcs() addTraces(strm,trcrg,buf,vals,def,clipsampler,offscalc)
+    Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
+    mAddTrcs();
+    trcrg.start = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
+    trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
+    mAddTrcs();
+    trcrg.start = (2*nrtrcs_)/3 - cQuickScanNrTrcsInMiddle/2;
+    trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
+    mAddTrcs();
+    trcrg.start = nrtrcs_ - cQuickScanNrTrcsAtEnds;
+    trcrg.stop = nrtrcs_ - 1;
+    mAddTrcs();
 
-    addTraces( strm, nrtrcs_-1, buf, vals, def, colls, offscalc, true );
-
-    colls.finish();
+    finish();
 }
 
 
-void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx,
-				char* buf, float* vals, const LoadDef& def,
-				ScanInfoCollectors& colls,
-				const OffsetCalculator& offscalc,
-				bool rev )
+void SEGY::ScanInfo::finish()
 {
-    if ( !def.goToTrace(strm,startpos_,trcidx) )
+    keydata_.finish();
+    pidetector_->finish();
+
+    const bool is2d = is2D();
+    const Coord cmin( pidetector_->minCoord() );
+    const Coord cmax( pidetector_->maxCoord() );
+
+    rgs_.xrg_.start = cmin.x; rgs_.xrg_.stop = cmax.x;
+    rgs_.yrg_.start = cmin.y; rgs_.yrg_.stop = cmax.y;
+
+    BinID startbid( pidetector_->start() );
+    BinID stopbid( pidetector_->stop() );
+    rgs_.trcnrs_.start = startbid.crl(); rgs_.trcnrs_.stop = stopbid.crl();
+    if ( is2d )
+    {
+	startbid = SI().transform( cmin );
+	stopbid = SI().transform( cmax );
+    }
+    rgs_.inls_.start = startbid.inl(); rgs_.inls_.stop = stopbid.inl();
+    rgs_.crls_.start = startbid.crl(); rgs_.crls_.stop = stopbid.crl();
+    rgs_.inls_.sort(); rgs_.crls_.sort();
+
+    rgs_.offs_ = pidetector_->offsRg();
+}
+
+
+void SEGY::ScanInfo::addTraces( od_istream& strm, Interval<int> trcidxs,
+				char* buf, float* vals, const LoadDef& def,
+				DataClipSampler& clipsampler,
+				const OffsetCalculator& offscalc )
+{
+    int curtrcidx = trcidxs.start;
+    if ( !def.goToTrace(strm,startpos_,curtrcidx) )
 	return;
 
-    const bool is2d = colls.is2D();
-    const int minnrtrcs = 10; const int maxnrtrcs = 10000;
-    SeisTrcInfo ti; int previnl = 0, prevcrl = 0, prevnr = 0;
-    bool haveinlchg = false, havecrlchg = false, havenrchg = false;
-    for ( int itrc=0; itrc<maxnrtrcs; itrc++ )
+    SeisTrcInfo ti;
+    for ( ; curtrcidx<=trcidxs.stop; curtrcidx++ )
     {
 	PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
 	if ( !thdr )
@@ -387,54 +421,21 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, int trcidx,
 	    continue;
 
 	def.getTrcInfo( *thdr, ti, offscalc );
-	colls.keydata_.add( *thdr, def.hdrsswapped_ );
-	addPositions( ti, colls.pidetector_ );
-	addValues( colls.clipsampler_, vals, def.ns_ );
-
-	int curinl = ti.binid.inl();
-	int curcrl = ti.binid.crl();
-	int curnr = ti.nr;
-	if ( itrc == 0 )
-	    { previnl = curinl; prevcrl = curcrl; prevnr = curnr; }
-	else
-	{
-	    if ( is2d )
-		havenrchg = havenrchg || curnr != prevnr;
-	    else
-	    {
-		haveinlchg = haveinlchg || curinl != previnl;
-		havecrlchg = havecrlchg || curcrl != prevcrl;
-	    }
-	}
-
-	const bool foundranges = is2d ? havenrchg : haveinlchg && havecrlchg;
-	const bool founddata = colls.clipsampler_.nrVals() > 1000;
-	if ( foundranges && founddata && itrc >= minnrtrcs )
-	    break;
-
-	if ( rev && !def.goToTrace(strm,startpos_,nrtrcs_-trcidx-2) )
-	    break;
+	keydata_.add( *thdr, def.hdrsswapped_ );
+	addPositions( ti );
+	addValues( clipsampler, vals, def.ns_ );
     }
 }
 
 
-void SEGY::ScanInfo::addPositions( const SeisTrcInfo& ti,
-				   PosInfo::Detector* dtctr )
+void SEGY::ScanInfo::addPositions( const SeisTrcInfo& ti )
 {
-    mAdd2Dtector( dtctr, ti );
-
-    inls_.include( ti.binid.inl(), false );
-    crls_.include( ti.binid.crl(), false );
-    trcnrs_.include( ti.nr, false );
-    xrg_.include( ti.coord.x, false );
-    yrg_.include( ti.coord.y, false );
-    refnrs_.include( ti.refnr, false );
-    offsrg_.include( ti.offset, false );
+    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
+    rgs_.refnrs_.include( ti.refnr, false );
 }
 
 
-void SEGY::ScanInfo::addValues( DataClipSampler& cs,
-				  const float* vals, int ns )
+void SEGY::ScanInfo::addValues( DataClipSampler& cs, const float* vals, int ns )
 {
     if ( !vals || ns < 1 )
 	return;
@@ -451,17 +452,80 @@ void SEGY::ScanInfo::addValues( DataClipSampler& cs,
 }
 
 
-void SEGY::ScanInfo::merge( const SEGY::ScanInfo& si )
+SEGY::ScanInfoSet::ScanInfoSet( bool is2d )
+    : is2d_(is2d)
+    , keydata_(*new HdrEntryKeyData)
 {
-    if ( si.nrtrcs_ < 1 )
-	return;
+    setEmpty();
+}
 
-    nrtrcs_ += si.nrtrcs_;
-    inls_.include( si.inls_, false );
-    crls_.include( si.crls_, false );
-    trcnrs_.include( si.trcnrs_, false );
-    xrg_.include( si.xrg_, false );
-    yrg_.include( si.yrg_, false );
-    refnrs_.include( si.refnrs_, false );
-    offsrg_.include( si.offsrg_, false );
+
+void SEGY::ScanInfoSet::setEmpty()
+{
+    nrtrcs_ = 0;
+    infeet_ = false;
+    keydata_.setEmpty();
+    rgs_.reInit();
+    deepErase( sis_ );
+}
+
+
+SEGY::ScanInfo& SEGY::ScanInfoSet::add( const char* fnm )
+{
+    ScanInfo* si = new ScanInfo( fnm, is2d_ );
+    sis_ += si;
+    return *si;
+}
+
+
+void SEGY::ScanInfoSet::removeLast()
+{
+    const int sz = sis_.size();
+    if ( sz > 0 )
+	sis_.removeSingle( sz-1 );
+}
+
+
+void SEGY::ScanInfoSet::finish()
+{
+    if ( sis_.isEmpty() )
+	{ nrtrcs_ = 0; return; }
+
+    const ScanInfo& sis0 = *sis_[0];
+    nrtrcs_ = sis0.nrTraces();
+    rgs_ = sis_[0]->ranges();
+    keydata_ = sis_[0]->keyData();
+
+    for ( int idx=1; idx<sis_.size(); idx++ )
+    {
+	const ScanInfo& sis = *sis_[idx];
+	nrtrcs_ += sis.nrTraces();
+	rgs_.merge( sis.ranges() );
+	keydata_.merge( sis.keyData() );
+    }
+}
+
+
+static const SEGY::BasicFileInfo dummyfileinfo;
+
+const SEGY::BasicFileInfo& SEGY::ScanInfoSet::basicInfo() const
+{
+    return sis_.isEmpty() ? dummyfileinfo : sis_[0]->basicInfo();
+}
+
+
+static const PosInfo::Detector dummypidet( PosInfo::Detector::Setup(true) );
+
+const PosInfo::Detector& SEGY::ScanInfoSet::piDetector() const
+{
+    return sis_.isEmpty() ? dummypidet : sis_[0]->piDetector();
+}
+
+
+bool SEGY::ScanInfoSet::isFull() const
+{
+    for ( int idx=0; idx<sis_.size(); idx++ )
+	if ( !sis_[idx]->isFull() )
+	    return false;
+    return true;
 }
