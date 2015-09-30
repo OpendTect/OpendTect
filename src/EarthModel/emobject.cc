@@ -31,6 +31,7 @@ int EMObject::sTemporaryControlNode() {return PosAttrib::TemporaryControlNode;}
 int EMObject::sEdgeControlNode()	{ return PosAttrib::EdgeControlNode; }
 int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
+int EMObject::sIntersectionNode()	{ return PosAttrib::IntersectionNode; }
 
 const char* EMObject::posattrprefixstr()    { return "Pos Attrib "; }
 const char* EMObject::posattrsectionstr()   { return " Section"; }

@@ -71,13 +71,14 @@ protected:
 
     void		generateNewMarker(const Horizon3D&,const SectionID&,
 	   				  SectionMarker3DLine&,Marker3D*&);
-    void		addDataToMarker(const BinID&,const Coord3&,
+    bool		addDataToMarker(const BinID&,const Coord3&,
 	    				const PosID&,const Horizon3D&,
 					Marker3D&,int idx=-1);
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
     void		changePolyLinePosition( const EM::PosID& pid );
+    Marker3D*		create3DMarker(const EM::SectionID&);
 
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
@@ -93,6 +94,7 @@ protected:
 
     bool		linenabled_;
     bool		seedenabled_;
+    int			nrseeds_;
 };
 
 } //namespace EM
