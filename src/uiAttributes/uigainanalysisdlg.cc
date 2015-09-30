@@ -185,7 +185,11 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
     const TypeSet<float>& yvals = funcdisp_->yVals();
     Interval<float> yvalrange( mUdf(float), -mUdf(float) );
     for ( int idx=0; idx<yvals.size(); idx++ )
+    {
+	if ( mIsUdf(yvals[idx]) )
+	    continue;
 	yvalrange.include( yvals[idx], false );
+    }
 
     if ( (!mIsUdf(yvalrange.start) && !range.includes(yvalrange.start,true)) ||
 	 (!mIsUdf(-yvalrange.stop) && !range.includes(yvalrange.stop,true)) )
@@ -202,6 +206,8 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 bool uiGainAnalysisDlg::acceptOK( CallBacker* )
 {
     scalefactors_ = funcdisp_->yVals();
+    while ( scalefactors_.isPresent(mUdf(float)) )
+	scalefactors_ -= mUdf(float);
     zvals_ = funcdisp_->xVals();
     convertZTo( true );
     return true;

@@ -241,9 +241,14 @@ void uiColorTableMan::selChg( CallBacker* )
 	TypeSet<float> yvals;
 	for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
 	{
-	    xvals += ctab_.transparency(idx).x;
-	    yvals += ctab_.transparency(idx).y;
+	    const Geom::Point2D<float> transp = ctab_.transparency( idx );
+	    if ( !transp.isDefined() )
+		continue;
+
+	    xvals += transp.x;
+	    yvals += transp.y;
 	}
+
 	cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
     }
 
@@ -537,6 +542,9 @@ void uiColorTableMan::transptChg( CallBacker* )
 	{
 	    Geom::Point2D<float> pt( cttranscanvas_->xVals()[idx],
 				     cttranscanvas_->yVals()[idx] );
+	    if ( !pt.isDefined() )
+		continue;
+
 	    if ( idx==0 && pt.x>0 )
 		pt.x = 0;
 	    else if ( idx==nrpts-1 && pt.x<1 )
@@ -549,6 +557,9 @@ void uiColorTableMan::transptChg( CallBacker* )
     {
 	Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 				 cttranscanvas_->yVals()[ptidx] );
+	if ( !pt.isDefined() )
+	    return;
+
 	bool reset = false;
 	if ( ptidx==0 && !mIsZero(pt.x,mEps) )
 	{
@@ -588,6 +599,9 @@ void uiColorTableMan::transptSel( CallBacker* )
 
     Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 			     cttranscanvas_->yVals()[ptidx] );
+    if ( !pt.isDefined() )
+	return;
+
     ctab_.setTransparency( pt );
     tableChanged.trigger();
 }
