@@ -170,7 +170,8 @@ void uiBaseMapObject::update()
 	    }
 	}
 
-	if ( !bmobject_->getImageFileName().isEmpty() )
+	const BufferString imgfnm = bmobject_->getImageFileName( idx );
+	if ( !imgfnm.isEmpty() )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
 	    {
@@ -186,15 +187,14 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPixmapItem* itm =	new uiPixmapItem(
-				      uiPixmap(bmobject_->getImageFileName()) );
+		    uiPixmapItem* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
 		    itm->setPaintInCenter( true );
 		    graphitem_.addChild( itm );
 		}
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
 		if ( !itm ) return;
-		itm->setPixmap( uiPixmap(bmobject_->getImageFileName()) );
+		itm->setPixmap( uiPixmap(imgfnm) );
 		itm->setPos( crds[ptidx] );
 		const int scale = bmobject_->getScale(idx);
 		itm->setScale( mCast(float,scale), mCast(float,scale) );
