@@ -507,7 +507,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );
-    rmbut_ = new uiToolButton( butgrp, "trashcan", tr("Remove Survey"),
+    rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
 
