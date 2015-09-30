@@ -127,8 +127,10 @@ uiODMain::uiODMain( uiMain& a )
     , ctabed_(0)
     , ctabwin_(0)
     , ctabtb_(0)
-    , timer_(*new Timer("Session restore timer"))
+    , sesstimer_(*new Timer("Session restore timer"))
     , memtimer_(*new Timer("Memory display timer"))
+    , newsurvinittimer_(*new Timer("New survey init timer"))
+    , neednewsurvinit_(false)
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
@@ -150,7 +152,7 @@ uiODMain::uiODMain( uiMain& a )
 	failed_ = false;
 
     IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
-    timer_.tick.notify( mCB(this,uiODMain,timerCB) );
+    sesstimer_.tick.notify( mCB(this,uiODMain,sessTimerCB) );
 
     const int systemnrcpus = Threads::getSystemNrProcessors();
     const int odnrcpus = Threads::getNrProcessors();
@@ -177,7 +179,7 @@ uiODMain::~uiODMain()
 
     delete ctabwin_;
     delete &lastsession_;
-    delete &timer_;
+    delete &sesstimer_;
     delete &memtimer_;
 
     delete menumgr_;
@@ -211,21 +213,32 @@ bool uiODMain::ensureGoodDataDir()
 bool uiODMain::ensureGoodSurveySetup()
 {
     BufferString errmsg;
+    int res = 0;
     if ( !IOMan::validSurveySetup(errmsg) )
     {
 	std::cerr << errmsg << std::endl;
-    uiMSG().error( toUiString(errmsg) );
+	uiMSG().error( toUiString(errmsg) );
 	return false;
     }
     else if ( !IOM().isReady() )
     {
-	while ( !uiODApplMgr::manageSurvey() )
+	while ( res == 0 )
 	{
-	    if ( uiMSG().askGoOn( tr("Without a valid survey, %1 "
+	    res = uiODApplMgr::manageSurvey();
+	    if ( res == 0 && uiMSG().askGoOn( tr("Without a valid survey, %1 "
 				     "cannot start.\nDo you wish to exit?")
 				     .arg( programname_ )) )
 		return false;
 	}
+    }
+    else
+	res = 1;
+
+    if ( res == 3 )
+    {
+	neednewsurvinit_ = true;
+	newsurvinittimer_.start( 200, true );
+	newsurvinittimer_.tick.notify( mCB(this,uiODMain,newSurvInitTimerCB) );
     }
 
     return true;
@@ -426,7 +439,7 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     cursession_ = &sess;
     doRestoreSession();
     cursession_ = &lastsession_; lastsession_.clear();
-    timer_.start( 200, true );
+    sesstimer_.start( 200, true );
     sceneMgr().setToViewMode( true );
     sceneMgr().updateTrees();
 }
@@ -523,9 +536,16 @@ void uiODMain::handleStartupSession()
 }
 
 
-void uiODMain::timerCB( CallBacker* )
+void uiODMain::sessTimerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
+}
+
+
+void uiODMain::newSurvInitTimerCB( CallBacker* )
+{
+    if ( neednewsurvinit_ )
+	applMgr().setZStretch();
 }
 
 
@@ -560,9 +580,11 @@ bool uiODMain::go()
     if ( failed_ ) return false;
 
     show();
+
     Timer tm( "Handle startup session" );
     tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     tm.start( 200, true );
+
     int rv = uiapp_.exec();
     return rv ? false : true;
 }
@@ -682,7 +704,7 @@ bool uiODMain::closeOK()
     IOM().applClosing();
 
     removeDockWindow( ctabwin_ );
-    timer_.tick.remove( mCB(this,uiODMain,timerCB) );
+    sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
     delete menumgr_; menumgr_ = 0;
     delete scenemgr_; scenemgr_ = 0;
 

@@ -296,7 +296,18 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 }
 
 
-int uiODApplMgr::manageSurvey( uiParent* p )
+
+
+int uiODApplMgr::selectSurvey( uiParent* p )
+{
+    const int res = manSurv( p );
+    if ( res == 3 )
+	setZStretch();
+    return res;
+}
+
+
+int uiODApplMgr::manSurv( uiParent* p )
 {
     BufferString prevnm = GetDataDir();
     bool isconvpending = OD_Get_2D_Data_Conversion_Status()==1;
@@ -321,7 +332,7 @@ int uiODApplMgr::manageSurvey( uiParent* p )
 	else if ( prevnm == GetDataDir() )
 	    return 1;
 	else
-	    return 2;
+	    return dlg.freshSurveySelected() ? 3 : 2;
     }
 }
 
@@ -1861,8 +1872,7 @@ void uiODApplMgr::storeEMObject()
 
 
 void uiODApplMgr::manSurvCB( CallBacker* )
-{ manageSurvey(); }
-
+{ selectSurvey( 0 ); }
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )

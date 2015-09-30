@@ -992,9 +992,9 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_wll",
            uiStrings::phrManage( uiStrings::sWells()),false,manWll);
     mAddTB(mantb_,"man_picks", uiStrings::phrManage(
-           			toUiString("%1/%2")
-           			   .arg(uiStrings::sPolygon(mPlural))
-           			   .arg(uiStrings::sPolygon(mPlural))),
+			toUiString("%1/%2")
+			   .arg(uiStrings::sPolygon(mPlural))
+			   .arg(uiStrings::sPolygon(mPlural))),
                             false,manPick);
     mAddTB(mantb_,"man_body",
            uiStrings::phrManage( tr("Bodies/Regions")),false,manBody);
@@ -1225,7 +1225,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     const int id = itm->getID();
     switch( id )
     {
-    case mManSurveyMnuItm:		applMgr().manageSurvey(); break;
+    case mManSurveyMnuItm:		applMgr().selectSurvey(0); break;
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
     case mSessAutoMnuItm:		appl_.autoSession(); break;
@@ -1455,7 +1455,7 @@ int uiODMenuMgr::ask2D3D( const uiString& txt, int res2d, int res3d,
 void uiODMenuMgr::manHor( CallBacker* )
 {
     const int opt =
-    	ask2D3D( uiStrings::phrManage( tr("2D or 3D Horizons")), 1, 2, 0 );
+	ask2D3D( uiStrings::phrManage( tr("2D or 3D Horizons")), 1, 2, 0 );
     if ( opt == 0 ) return;
 
     mDoOp(Man,Hor,opt);

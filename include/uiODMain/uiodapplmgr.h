@@ -88,7 +88,9 @@ public:
 
 
     // Survey menu operations
-    static int			manageSurvey(uiParent* p=0);
+    int				selectSurvey(uiParent*);
+    static int			manageSurvey()		{ return manSurv(0); }
+
     enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
 				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
 				  Body, Props, ColTab, RanL, NrObjTypes };
@@ -174,7 +176,7 @@ public:
     void			updateColorTable(int visid,int attrib);
     void			saveDefColTab(int visid,int attrib);
     bool			getDefaultDescID(Attrib::DescID&,
-	    					 bool is2d=false) const;
+						 bool is2d=false) const;
     void			calcShiftAttribute(int attrib,
 						   const Attrib::SelSpec&);
     bool			calcRandomPosAttrib(int visid,int attrib);
@@ -261,6 +263,7 @@ protected:
     };
 
     MiscSurvInfo		tmpprevsurvinfo_;
+    static int			manSurv(uiParent*);
     bool			survChgReqAttrUpdate();
 
     bool			handleEvent(const uiApplPartServer*,int);

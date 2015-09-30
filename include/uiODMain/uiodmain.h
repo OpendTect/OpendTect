@@ -115,10 +115,13 @@ private:
     bool		updateSession();
     void		doRestoreSession();
 
-    Timer&		timer_;
+    Timer&		sesstimer_;
     Timer&		memtimer_;
-    void		timerCB(CallBacker*);
+    Timer&		newsurvinittimer_;
+    bool		neednewsurvinit_;
+    void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
+    void		newSurvInitTimerCB(CallBacker*);
 
     uiString		getProgramString() const;
     void		translateText();
@@ -133,4 +136,3 @@ public:
 };
 
 #endif
-
