@@ -49,7 +49,7 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const uiString& tooltip,
     {
 	case FileLocation:	pm = "filelocation";	break;
 	case Rename:		pm = "renameobj";	break;
-	case Remove:		pm = "trashcan";	break;
+	case Remove:		pm = "delete";		break;
 	case ReadOnly:		pm = "readonly";	break;
 	default:		pm = "home";
 				pErrMsg("Unknown toolbut typ");

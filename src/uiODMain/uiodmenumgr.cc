@@ -220,10 +220,10 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->insertItem( manmnu_ );
 
     preloadmnu_ = new uiMenu( &appl_, tr("Pre-load") );
-    mInsertItem( preloadmnu_, m3Dots(uiStrings::sSeismics()),
-		 mPreLoadSeisMnuItm );
-    mInsertItem( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
-		 mPreLoadHorMnuItm );
+    mInsertPixmapItem( preloadmnu_, m3Dots(uiStrings::sSeismics()),
+		 mPreLoadSeisMnuItm, "preload_seis" );
+    mInsertPixmapItem( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
+		 mPreLoadHorMnuItm, "preload_horizon" );
     surveymnu_->insertItem( preloadmnu_ );
 
     surveymnu_->insertSeparator();
@@ -597,7 +597,7 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->insertItem( csoitm_ );
 
     uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
-    add2D3DMenuItem( *grditm, "ongrid", uiStrings::sAttribute(mPlural),
+    add2D3DMenuItem( *grditm, "", uiStrings::sAttribute(mPlural),
 		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 
@@ -646,7 +646,7 @@ void uiODMenuMgr::fillAnalMenu()
     mInsertItem( xplotmnu, m3Dots(tr("Open Cross-plot")), mOpenXplotMnuItm );
     analmnu_->insertItem( xplotmnu );
 
-    analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells() );
+    analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     analwellmnu_->insertItem( new uiAction( m3Dots(tr("Edit Logs")),
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
