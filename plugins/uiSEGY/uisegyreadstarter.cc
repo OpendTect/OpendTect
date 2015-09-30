@@ -406,13 +406,10 @@ void uiSEGYReadStarter::runClassic( bool imp )
 }
 
 
-#define mGetInpFile(varnm,what_to_do_if_not_exists) \
-
-
 void uiSEGYReadStarter::editFile( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
-    if ( !File::exists(fnm) ) \
+    if ( !File::exists(fnm) )
 	return;
 
     uiSEGYFileManip dlg( this, fnm );
