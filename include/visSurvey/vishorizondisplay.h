@@ -160,9 +160,6 @@ public:
     visBase::TextureChannel2RGBA* getChannels2RGBA();
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-
     bool			canBDispOn2DViewer() const	{ return true; }
     bool			isVerticalPlane() const		{ return false;}
 
@@ -192,8 +189,12 @@ public:
     void			showParentLine(bool);
     void			showSelections(bool);
     void			showLocked(bool);
+    bool			lockedShown() const;
     virtual void		clearSelections();
     void			updateAuxData();
+
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
 				~HorizonDisplay();

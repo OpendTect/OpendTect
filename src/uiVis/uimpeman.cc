@@ -112,11 +112,13 @@ static const int sUndo = 9;
 static const int sRedo = 10;
 static const int sLock = 11;
 static const int sUnlock = 12;
-static const int sSave = 13;
-static const int sSaveAs = 14;
-static const int sRest = 15;
-static const int sFull = 16;
-static const int sSett = 17;
+static const int sShowLocked = 13;
+static const int sHideLocked = 14;
+static const int sSave = 15;
+static const int sSaveAs = 16;
+static const int sRest = 17;
+static const int sFull = 18;
+static const int sSett = 19;
 
 
 void uiMPEMan::keyEventCB( CallBacker* )
@@ -223,6 +225,11 @@ int uiMPEMan::popupMenu()
 		    EM::EMM().undo().canReDo())
 	mAddAction( tr("Lock"), "l", sLock, "lock", true )
 	mAddAction( tr("Unlock"), "u", sUnlock, "unlock", true )
+	if ( hd->lockedShown() )
+	    mAddAction( tr("Hide Locked"), "", sHideLocked, 0, true )
+	else
+	    mAddAction( tr("Show Locked"), "", sShowLocked, 0, true )
+	
 	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
 	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
 	if ( !hd->displayedOnlyAtSections() )
@@ -267,6 +274,8 @@ void uiMPEMan::handleAction( int res )
     case sRedo: redo(); break;
     case sLock: hor3d->lockAll(); break;
     case sUnlock: hor3d->unlockAll(); break;
+    case sShowLocked: hd->showLocked( true ); break;
+    case sHideLocked: hd->showLocked( false ); break;
     case sSave: visserv_->storeEMObject( false ); break;
     case sSaveAs: visserv_->storeEMObject( true ); break;
     case sRest: hd->setOnlyAtSectionsDisplay( true ); break;

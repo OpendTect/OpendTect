@@ -811,6 +811,10 @@ void Horizon3D::lockAll()
 	const TrcKey tk = BinID::fromInt64( pid.subID() );
 	setNodeLocked( tk, true );
     }
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockChange;
+    change.trigger( cbdata );
 }
 
 
@@ -819,7 +823,15 @@ void Horizon3D::unlockAll()
     if ( !lockednodes_ ) return;
 
     lockednodes_->setAll( '0' );
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockChange;
+    change.trigger( cbdata );
 }
+
+
+const Array2D<char>* Horizon3D::getLockedNodes() const
+{ return lockednodes_; }
 
 
 void Horizon3D::setParentColor( const Color& col )

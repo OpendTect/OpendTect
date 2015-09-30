@@ -55,7 +55,7 @@ public:
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
    		 AttribChange, SectionChange, NameChange, SelectionChange,
-   		 BurstAlert } event;
+   		 LockChange, BurstAlert } event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange

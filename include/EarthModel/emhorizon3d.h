@@ -168,6 +168,7 @@ public:
     bool			isNodeLocked(const TrcKey&) const;
     void			lockAll();
     void			unlockAll();
+    const Array2D<char>*	getLockedNodes() const;
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
