@@ -35,8 +35,8 @@ const TypeSet<TypeSet<TypeSet<int> > >&	getCubeComps()	{ return slicecomps_; }
 
 protected:
 od_int64 nrIterations() const	{ return input_.info().getSize(2); }
-uiString uiMessage() const	{ 
-			    return tr("Computing 2D connected  components"); 
+uiString uiMessage() const	{
+			    return tr("Computing 2D connected  components");
 				}
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
@@ -71,7 +71,7 @@ TypeSet<TypeSet<TypeSet<int> > >	slicecomps_;
 };
 
 
-ConnComponents::ConnComponents( const Array2D<bool>& input ) 
+ConnComponents::ConnComponents( const Array2D<bool>& input )
     : input_(input)
 {
     label_ = new Array2DImpl<int>( input.info() );
@@ -91,7 +91,7 @@ void ConnComponents::compute( TaskRunner* tr )
     int* markers = label_->getData();
     components_.erase();
     TypeSet<int> labels;
-    
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( markers[idx]<1 )
@@ -101,7 +101,7 @@ void ConnComponents::compute( TaskRunner* tr )
 	if ( curidx==-1 )
 	{
 	    labels += markers[idx];
-	     
+
 	    TypeSet<int> ids;
 	    ids += idx;
 	    components_ += ids;
@@ -111,8 +111,8 @@ void ConnComponents::compute( TaskRunner* tr )
 	    components_[curidx] += idx;
 	}
     }
-    
-    const int nrcomps = labels.size(); 
+
+    const int nrcomps = labels.size();
     TypeSet<int> nrnodes;
     sortedindex_.erase();
     for ( int idx=0; idx<nrcomps; idx++ )
@@ -144,7 +144,7 @@ void ConnComponents::classifyMarks( Array2D<int>& mark )
 		if ( m>0 )
 		{
 		    mark.set(i,j,m);
-		    
+
 		    const int smij = mark.get(i,j-1);
 		    const int nwmij = mark.get(i-1,j+1);
 		    const int swmij = mark.get(i-1,j-1);
@@ -225,8 +225,8 @@ int ConnComponents::nrComponents() const
 
 const TypeSet<int>* ConnComponents::getComponent( int cidx )
 {
-    return  cidx<0 || cidx>=nrComponents() ? 0 : 
-	&components_[sortedindex_[cidx]]; 
+    return  cidx<0 || cidx>=nrComponents() ? 0 :
+	&components_[sortedindex_[cidx]];
 }
 
 
@@ -236,40 +236,40 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp )
 }
 
 
-void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1, 
+void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
 	int allowgapsz, int minsticksz, TypeSet<TypeSet<int> >& sticks )
 {
     const int compsz = comp.size();
     if ( compsz<minsticksz || compsz<2 )
 	return;
-    
+
     TypeSet<int> inls, crls;
     TypeSet<TypeSet<int> > inlcs, crlis;
     for ( int idx=0; idx<compsz; idx++ )
     {
-     	const int inl = comp[idx]/sz1;
-    	const int crl = comp[idx]%sz1;
+	const int inl = comp[idx]/sz1;
+	const int crl = comp[idx]%sz1;
 
-	const int iidx = inls.indexOf(inl);	
-    	if ( iidx<0 )
-    	{
+	const int iidx = inls.indexOf(inl);
+	if ( iidx<0 )
+	{
 	    inls += inl;
-	    TypeSet<int> icrls; 
+	    TypeSet<int> icrls;
 	    icrls += crl;
 	    inlcs += icrls;
 	}
-    	else
+	else
 	    inlcs[iidx] += crl;
 
-	const int cidx = crls.indexOf(crl);	
-    	if ( cidx<0 )
-    	{
-    	    crls += crl;
-	    TypeSet<int> cinls; 
+	const int cidx = crls.indexOf(crl);
+	if ( cidx<0 )
+	{
+	    crls += crl;
+	    TypeSet<int> cinls;
 	    cinls += inl;
 	    crlis += cinls;
 	}
-    	else
+	else
 	    crlis[cidx] += inl;
     }
 
@@ -319,7 +319,7 @@ void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
 		    res = nearestpos;
 	    }
 	}
-	
+
 	if ( res>-1 )
 	{
 	    prevpos = res;
@@ -349,26 +349,26 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
 
     for ( int idx=comp.size()-1; idx>=0; idx-- )
     {
-	if ( !toremove[idx] ) 
+	if ( !toremove[idx] )
 	    continue;
 
-	int nbs[4] = { comp[idx]+1, comp[idx]-1, comp[idx]+dimsz1, 
+	int nbs[4] = { comp[idx]+1, comp[idx]-1, comp[idx]+dimsz1,
 	    comp[idx]-dimsz1 };
 	for ( int k=0; k<4; k++ )
 	{
 	    int pidx = comp.indexOf( nbs[k] );
-    	    if ( pidx!=-1 )
-    	    {
-    		toremove[idx] = false;
-    		toremove[pidx] = false;
-    		break;
-    	    } 
+	    if ( pidx!=-1 )
+	    {
+		toremove[idx] = false;
+		toremove[pidx] = false;
+		break;
+	    }
 	}
     }
 
     for ( int idx=comp.size()-1; idx>=0; idx-- )
     {
-	if ( toremove[idx] ) 
+	if ( toremove[idx] )
 	    comp -= comp[idx];
     }
 
@@ -472,13 +472,13 @@ void ConnComponents::trimCompBranches( TypeSet<int>& comp, int dimsz1 )
 	    }
 
 	    if ( !hasvhnb )
-    		toremove[curidx] = true;
+		toremove[curidx] = true;
 	}
     }
 
     for ( int idx=compsz-1; idx>=0; idx-- )
     {
-	if ( toremove[idx] ) 
+	if ( toremove[idx] )
 	    comp -= comp[idx];
     }
 
@@ -513,7 +513,7 @@ float ConnComponents::overLapRate( int componentidx )
 }
 
 
-ConnComponents3D::ConnComponents3D( const Array3D<bool>& input ) 
+ConnComponents3D::ConnComponents3D( const Array3D<bool>& input )
     : input_(input)
 {}
 
@@ -539,13 +539,13 @@ void ConnComponents3D::compute( TaskRunner* tr )
 
     const TypeSet<TypeSet<TypeSet<int> > >& comps = cc.getCubeComps();
     const int nrslices = comps.size();
-    
+
     TypeSet<TypeSet<unsigned char> > usedcomps;
     for ( int idx=0; idx<nrslices; idx++ )
     {
 	const TypeSet<TypeSet<int> >& slicecomps = comps[idx];
 	const int slicecompsz = slicecomps.size();
-	
+
 	TypeSet<unsigned char> used;
 	for ( int idy=0; idy<slicecompsz; idy++ )
 	    used += 0;
@@ -559,21 +559,23 @@ void ConnComponents3D::compute( TaskRunner* tr )
     {
 	const TypeSet<TypeSet<int> >& slicecomps = comps[idx];
 	const int slicecompsz = slicecomps.size();
-	
+
 	for ( int idy=0; idy<slicecompsz; idy++ )
 	{
 	    if ( usedcomps[idx][idy] )
 		continue;
 
-	    ObjectSet<VPos>  ccomp;
-	    addToComponent( comps, idx, idy, usedcomps, ccomp );
+	    ObjectSet<VPos>*  ccomp = new ObjectSet<VPos>();
+	    addToComponent( comps, idx, idy, usedcomps, *ccomp );
 
-	    const int compsz = ccomp.size();
+	    const int compsz = ccomp->size();
 	    if ( compsz )
 	    {
-		components_ += &ccomp;
+		components_ += ccomp;
 		nrcomps += compsz;
 	    }
+	    else
+		delete ccomp;
 	}
     }
 
@@ -586,8 +588,8 @@ void ConnComponents3D::compute( TaskRunner* tr )
 }
 
 
-void ConnComponents3D::addToComponent( 
-	const TypeSet<TypeSet<TypeSet<int> > >& comps, int sliceidx, 
+void ConnComponents3D::addToComponent(
+	const TypeSet<TypeSet<TypeSet<int> > >& comps, int sliceidx,
 	int compidx, TypeSet<TypeSet<unsigned char> >& usedcomps,
         ObjectSet<VPos>& rescomp )
 {
