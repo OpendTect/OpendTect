@@ -91,9 +91,9 @@ static IOObjContext getIOCtxt( uiSurfaceMan::Type typ )
 static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
 {
     switch ( typ )
-    {			  
+    {
         mCaseRetStr(Hor2D, EMHorizon2DTranslatorGroup::sTypeName() );
-	mCaseRetStr(Hor3D, EMHorizon2DTranslatorGroup::sTypeName());
+	mCaseRetStr(Hor3D, EMHorizon3DTranslatorGroup::sTypeName());
 	mCaseRetStr(StickSet, uiStrings::sFaultStickSet());
 	mCaseRetStr(Flt3D, uiStrings::sFault());
 	mCaseRetStr(Body, od_static_tr("getActStr","Bodies"));
@@ -141,7 +141,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_ == Hor2D || type_ == AnyHor )
     {
 	man2dbut_ = manipgrp->addButton( "man2d",
-    	  uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
+	  uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
                                 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
@@ -192,7 +192,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	createregbodybut_ = manipgrp->addButton( "set_implicit",
 						 tr("Create region Body"),
 				mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	volestimatebut_ = manipgrp->addButton( "bodyvolume", 
+	volestimatebut_ = manipgrp->addButton( "bodyvolume",
 					     tr("Volume estimate"),
 					     mCB(this,uiSurfaceMan,calcVolCB) );
 	switchvalbut_ = manipgrp->addButton( "switch_implicit",

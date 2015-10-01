@@ -30,7 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiString EMHorizon3DTranslatorGroup::sTypeName(int num)
-{ return uiStrings::sHorizon(num); }
+{ return SI().has2D() ? mJoinUiStrs(s3D(), sHorizon(num))
+		      : uiStrings::sHorizon(num); }
 
 mDefSimpleTranslatorSelector(EMHorizon3D)
 
