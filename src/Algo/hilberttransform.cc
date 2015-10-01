@@ -146,8 +146,8 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
     if ( startidx_<0 )
 	return false;
 
-    mAllocVarLenArr( float, maskerarr, szin );
-    if ( !mIsVarLenArrOK(maskerarr) )
+    mAllocLargeVarLenArr( float, maskerarr, szin );
+    if ( !maskerarr )
 	return false;
 
     int nrsampforavg = 0;
@@ -169,7 +169,7 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
     const int windowsz = halflen_ * 2 + 1;
     if ( nrsampforavg != szin )		//means there are undefined values
 	GenericConvolve( windowsz, -halflen_, hilbwindow_,
-			 szin, 0, mVarLenArr(maskerarr),
+			 szin, 0, maskerarr.ptr(),
 			 szout, convstartidx_, outarr );
     else
 	GenericConvolveNoUdf( windowsz, -halflen_, hilbwindow_, szin, 0,
