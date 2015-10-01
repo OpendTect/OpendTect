@@ -193,6 +193,30 @@ void SEGY::ScanRangeInfo::reInit()
 }
 
 
+void SEGY::ScanRangeInfo::use( const PosInfo::Detector& dtector )
+{
+    const Coord cmin( dtector.minCoord() );
+    const Coord cmax( dtector.maxCoord() );
+
+    xrg_.start = cmin.x; xrg_.stop = cmax.x;
+    yrg_.start = cmin.y; yrg_.stop = cmax.y;
+
+    BinID startbid( dtector.start() );
+    BinID stopbid( dtector.stop() );
+    trcnrs_.start = startbid.crl(); trcnrs_.stop = stopbid.crl();
+    if ( dtector.is2D() )
+    {
+	startbid = SI().transform( cmin );
+	stopbid = SI().transform( cmax );
+    }
+    inls_.start = startbid.inl(); inls_.stop = stopbid.inl();
+    crls_.start = startbid.crl(); crls_.stop = stopbid.crl();
+    inls_.sort(); crls_.sort();
+
+    offs_ = dtector.offsRg();
+}
+
+
 void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
 {
     inls_.include( si.inls_, false );
@@ -279,18 +303,11 @@ virtual int nextStep()
     {
 	PtrMan<TrcHeader> thdr = def_.getTrace( strm_, buf_, vals_ );
 	if ( !thdr )
-	{
-	    si_.full_ = true;
-	    si_.finish();
-	    return Finished();
-	}
+	    { si_.full_ = true; return Finished(); }
 	else if ( !thdr->isusable )
 	    continue; // dead trace
 
-	def_.getTrcInfo( *thdr, ti_, offscalc_ );
-	si_.keydata_.add( *thdr, def_.hdrsswapped_ );
-	si_.addPositions( ti_ );
-	si_.addValues( clipsampler_, vals_, def_.ns_ );
+	si_.addTrace( *thdr, vals_, def_, clipsampler_, offscalc_ );
 	nrdone_++;
     }
 
@@ -298,7 +315,6 @@ virtual int nextStep()
 }
 
     ScanInfo&		si_;
-    SeisTrcInfo		ti_;
     od_istream&		strm_;
     const LoadDef&	def_;
     char*		buf_;
@@ -312,16 +328,14 @@ virtual int nextStep()
 } // namespace SEGY
 
 
-
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
-				DataClipSampler& clipsampler,
-				bool full, TaskRunner* trunner )
+		    DataClipSampler& clipsampler, TaskRunner* fullscanrunner )
 {
     reInit();
 
     startpos_ = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos_ );
-    if ( !def.isValid() )
+    if ( !def.isValid() || nrtrcs_ == 0 )
 	return;
 
     mAllocLargeVarLenArr( char, buf, def.traceDataBytes() );
@@ -329,76 +343,62 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
     if ( !thdr )
-	return;
+	{ finishGet(strm); return; }
     while ( !thdr->isusable )
     {
-	// skipping dead traces
+	// skip dead traces to get at least the first good trace
 	thdr = def.getTrace( strm, buf, vals );
 	if ( !thdr )
-	    return;
+	    { finishGet(strm); return; }
     }
 
-    SEGY::OffsetCalculator offscalc;
+    OffsetCalculator offscalc;
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
     offscalc.is2d_ = is2D(); offscalc.coordscale_ = def.coordscale_;
-    SeisTrcInfo ti;
-    def.getTrcInfo( *thdr, ti, offscalc );
 
-    rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
-    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
-    addValues( clipsampler, vals, def.ns_ );
-    keydata_.add( *thdr, def.hdrsswapped_ );
+    addTrace( *thdr, vals, def, clipsampler, offscalc, true );
 
-    if ( full )
+    if ( fullscanrunner )
     {
 	FullUIScanner scanner( *this, strm, def, buf, vals,
 			       clipsampler, offscalc );
-	TaskRunner::execute( trunner, scanner );
-	return;
+	TaskRunner::execute( fullscanrunner, scanner );
+    }
+    else
+    {
+#define	mAddTrcs() addTraces(strm,trcrg,buf,vals,def,clipsampler,offscalc)
+	Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
+	mAddTrcs();
+	trcrg.start = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
+	trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
+	mAddTrcs();
+	trcrg.start = (2*nrtrcs_)/3 - cQuickScanNrTrcsInMiddle/2;
+	trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
+	mAddTrcs();
+	trcrg.start = nrtrcs_ - cQuickScanNrTrcsAtEnds;
+	trcrg.stop = nrtrcs_ - 1;
+	mAddTrcs();
     }
 
-#   define mAddTrcs() addTraces(strm,trcrg,buf,vals,def,clipsampler,offscalc)
-    Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
-    mAddTrcs();
-    trcrg.start = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
-    trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
-    mAddTrcs();
-    trcrg.start = (2*nrtrcs_)/3 - cQuickScanNrTrcsInMiddle/2;
-    trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
-    mAddTrcs();
-    trcrg.start = nrtrcs_ - cQuickScanNrTrcsAtEnds;
-    trcrg.stop = nrtrcs_ - 1;
-    mAddTrcs();
-
-    finish();
+    finishGet( strm );
 }
 
 
-void SEGY::ScanInfo::finish()
+void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
+			const LoadDef& def, DataClipSampler& clipsampler,
+			const OffsetCalculator& offscalc, bool isfirst )
 {
-    keydata_.finish();
-    pidetector_->finish();
+    SeisTrcInfo ti;
+    def.getTrcInfo( thdr, ti, offscalc );
 
-    const bool is2d = is2D();
-    const Coord cmin( pidetector_->minCoord() );
-    const Coord cmax( pidetector_->maxCoord() );
+    keydata_.add( thdr, def.hdrsswapped_ );
+    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
+    addValues( clipsampler, vals, def.ns_ );
 
-    rgs_.xrg_.start = cmin.x; rgs_.xrg_.stop = cmax.x;
-    rgs_.yrg_.start = cmin.y; rgs_.yrg_.stop = cmax.y;
-
-    BinID startbid( pidetector_->start() );
-    BinID stopbid( pidetector_->stop() );
-    rgs_.trcnrs_.start = startbid.crl(); rgs_.trcnrs_.stop = stopbid.crl();
-    if ( is2d )
-    {
-	startbid = SI().transform( cmin );
-	stopbid = SI().transform( cmax );
-    }
-    rgs_.inls_.start = startbid.inl(); rgs_.inls_.stop = stopbid.inl();
-    rgs_.crls_.start = startbid.crl(); rgs_.crls_.stop = stopbid.crl();
-    rgs_.inls_.sort(); rgs_.crls_.sort();
-
-    rgs_.offs_ = pidetector_->offsRg();
+    if ( isfirst )
+	rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
+    else
+	rgs_.refnrs_.include( ti.refnr, false );
 }
 
 
@@ -411,27 +411,15 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, Interval<int> trcidxs,
     if ( !def.goToTrace(strm,startpos_,curtrcidx) )
 	return;
 
-    SeisTrcInfo ti;
     for ( ; curtrcidx<=trcidxs.stop; curtrcidx++ )
     {
 	PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
 	if ( !thdr )
 	    break;
-	if ( !thdr->isusable )
-	    continue;
 
-	def.getTrcInfo( *thdr, ti, offscalc );
-	keydata_.add( *thdr, def.hdrsswapped_ );
-	addPositions( ti );
-	addValues( clipsampler, vals, def.ns_ );
+	if ( thdr->isusable )
+	    addTrace( *thdr, vals, def, clipsampler, offscalc );
     }
-}
-
-
-void SEGY::ScanInfo::addPositions( const SeisTrcInfo& ti )
-{
-    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
-    rgs_.refnrs_.include( ti.refnr, false );
 }
 
 
@@ -449,6 +437,15 @@ void SEGY::ScanInfo::addValues( DataClipSampler& cs, const float* vals, int ns )
 	    break;
 	}
     }
+}
+
+
+void SEGY::ScanInfo::finishGet( od_istream& strm )
+{
+    keydata_.finish();
+    pidetector_->finish();
+    rgs_.use( *pidetector_ );
+    strm.setPosition( startpos_ );
 }
 
 

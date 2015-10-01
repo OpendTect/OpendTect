@@ -721,8 +721,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	completeLoadDef();
     }
 
-    const bool fullscan = trunner;
-    si.getFromSEGYBody( strm, loaddef_, clipsampler_, fullscan, trunner );
+    si.getFromSEGYBody( strm, loaddef_, clipsampler_, trunner );
     return true;
 }
 
