@@ -106,6 +106,7 @@ public:
     Interval<float>	offs_;
 
     void		reInit();
+    void		use(const PosInfo::Detector&);
     void		merge(const ScanRangeInfo&);
 };
 
@@ -120,8 +121,10 @@ public:
 			~ScanInfo();
 
     BasicFileInfo&	basicInfo()		{ return basicinfo_; }
+
     void		getFromSEGYBody(od_istream&,const LoadDef&,
-				    DataClipSampler&,bool full,TaskRunner* t=0);
+				    DataClipSampler&,TaskRunner* t=0);
+    			//!< will do full scan if TaskRunner passed
 
     void		merge(const ScanInfo&);
 
@@ -149,16 +152,18 @@ protected:
     od_stream_Pos	startpos_;
 
     void		reInit()		{ init( is2D() ); }
-    void		addPositions(const SeisTrcInfo&);
-    void		addValues(DataClipSampler&,const float*,int);
+    void		addTrace(TrcHeader&,const float*,const LoadDef&,
+	    			 DataClipSampler&,const OffsetCalculator&,
+				 bool isfirst=false);
     void		addTraces(od_istream&,Interval<int>,char*,float*,
 				  const LoadDef&,DataClipSampler&,
 				  const OffsetCalculator&);
+    void		addValues(DataClipSampler&,const float*,int);
 
 private:
 
     void		init(bool);
-    void		finish();
+    void		finishGet(od_istream&);
 
     friend class	FullUIScanner;
 
