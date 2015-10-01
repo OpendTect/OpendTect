@@ -449,7 +449,8 @@ void uiTreeItem::renameItem( uiTreeViewItem* itm )
 {
     if ( itm == uitreeviewitem_ )
     {
-	name_ = mToUiStringTodo(uitreeviewitem_->text(0));
+	BufferString newnm = uitreeviewitem_->text( 0 );
+	name_ = mToUiStringTodo( newnm );
 	return;
     }
 
