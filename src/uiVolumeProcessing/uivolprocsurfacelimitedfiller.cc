@@ -104,9 +104,13 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    hp->getStartAuxdataIdx(), &auxdatainfo );
     startgridfld_->attach( alignedBelow, usestartvalfld_ );
 
+    BufferString gradienthordatalabel = fromhorattribstr;
+    if ( SI().zDomain().isTime() )
+	gradienthordatalabel.add( " (/s)" );
+
     usegradientfld_ = new uiGenInput( this, "Gradient",
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
-			 constantstr, fromhorattribstr ) );
+			 constantstr, gradienthordatalabel ) );
     usegradientfld_->setSensitive( hasauxdata );
     usegradientfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
