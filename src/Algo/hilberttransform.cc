@@ -106,22 +106,29 @@ float operator[]( int pos ) const
     float val = mUdf(float);
     const int nrsamples = size_;
     if ( pos < 0 )
-	val = data_.value(0) - avg_;
+	val = data_.value(0);
     else if ( pos >= nrsamples )
-	val = data_.value( nrsamples-1 ) - avg_;
+	val = data_.value( nrsamples-1 );
     else
 	val = data_.value( pos );
 
-    const bool goup = pos < nrsamples/2;
-    int tmppos = goup ? (pos<0 ? 1 : pos+1)
-		      : (pos >= nrsamples ? nrsamples-2 : pos-1);
-    while ( mIsUdf( val ) && tmppos>0 && tmppos < nrsamples )
+    bool isudf = mIsUdf(val);
+
+    if ( isudf )
     {
-	val = data_.value( tmppos );
-	goup ? tmppos++ : tmppos--;
+	const bool goup = pos < nrsamples/2;
+	int tmppos = goup ? (pos<0 ? 1 : pos+1)
+			  : (pos >= nrsamples ? nrsamples-2 : pos-1);
+
+	while ( isudf && tmppos>0 && tmppos < nrsamples )
+	{
+	    val = data_.value( tmppos );
+	    isudf = mIsUdf( val );
+	    goup ? tmppos++ : tmppos--;
+	}
     }
 
-    return mIsUdf(val) ? val : val - avg_;
+    return isudf ? mUdf(float) : val - avg_;
 }
 
     int				size_;
@@ -134,27 +141,39 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
 				  ValueSeries<float>& output, int szout ) const
 {
     Masker masker( input, szin );
-    int nrsampforavg = szin;
     float sum = 0;
+
+    if ( startidx_<0 )
+	return false;
+
+    mAllocVarLenArr( float, maskerarr, szin );
+    if ( !maskerarr )
+	return false;
+
+    int nrsampforavg = 0;
     for ( int idx=0; idx<szin; idx++ )
     {
-	float val = masker[ idx + startidx_ ];
-	if ( mIsUdf(val) )
+	const float val = masker[idx + startidx_];
+	if ( !mIsUdf(val) )
 	{
-	    sum += 0;
-	    nrsampforavg--;
-	}
-	else
 	    sum += val;
+	    nrsampforavg++;
+	}
+
+	maskerarr[idx] = masker[idx];
     }
 
     masker.avg_ = sum / nrsampforavg;
 
     float* outarr = output.arr();
     const int windowsz = halflen_ * 2 + 1;
-    GenericConvolve( windowsz, -halflen_, hilbwindow_,
-		     szin, 0, masker,
-		     szout, convstartidx_, outarr );
+    if ( nrsampforavg != szin )		//means there are undefined values
+	GenericConvolve( windowsz, -halflen_, hilbwindow_,
+			 szin, 0, maskerarr.ptr(),
+			 szout, convstartidx_, outarr );
+    else
+	GenericConvolveNoUdf( windowsz, -halflen_, hilbwindow_, szin, 0,
+			      maskerarr.ptr(), szout, convstartidx_, outarr );
 
     return true;
 }

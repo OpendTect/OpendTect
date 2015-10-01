@@ -52,6 +52,30 @@ inline void GenericConvolve( int lx, int ifx, const A& x,
 }
 
 
+template <class A, class B, class C>
+inline void GenericConvolveNoUdf( int lx, int ifx, const A& x,
+			     int ly, int ify, const B& y,
+			     int lz, int ifz, C& z)
+{
+    int ilx=ifx+lx-1,ily=ify+ly-1,ilz=ifz+lz-1,i,j,jlow,jhigh;
+    float sum;
+
+    for ( i=ifz; i<=ilz; ++i )
+    {
+	jlow = i-ily;
+	if ( jlow < ifx ) jlow = ifx;
+
+	jhigh = i-ify;
+	if ( jhigh > ilx ) jhigh = ilx;
+
+	for ( j=jlow,sum=0.0; j<=jhigh; ++j )
+	    sum += x[j-ifx]*y[i-j-ify];
+
+	z[i-ifz] = sum;
+    }
+}
+
+
 
 /*!> similarity is the hyperspace distance between two vectors divided by
 the sum of the lengths */
