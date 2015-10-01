@@ -147,7 +147,7 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
 	return false;
 
     mAllocVarLenArr( float, maskerarr, szin );
-    if ( !maskerarr )
+    if ( !mIsVarLenArrOK(maskerarr) )
 	return false;
 
     int nrsampforavg = 0;
