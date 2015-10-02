@@ -68,6 +68,7 @@ public:
     void		finish();
 
     void		merge(const HdrEntryKeyData&);
+			// will not finish() - do this after last merge
 
     void		setBest(TrcHeaderDef&) const;
 

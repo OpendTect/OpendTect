@@ -124,7 +124,7 @@ public:
 
     void		getFromSEGYBody(od_istream&,const LoadDef&,
 				    DataClipSampler&,TaskRunner* t=0);
-    			//!< will do full scan if TaskRunner passed
+			//!< will do full scan if TaskRunner passed
 
     void		merge(const ScanInfo&);
 
@@ -153,7 +153,7 @@ protected:
 
     void		reInit()		{ init( is2D() ); }
     void		addTrace(TrcHeader&,const float*,const LoadDef&,
-	    			 DataClipSampler&,const OffsetCalculator&,
+				 DataClipSampler&,const OffsetCalculator&,
 				 bool isfirst=false);
     void		addTraces(od_istream&,Interval<int>,char*,float*,
 				  const LoadDef&,DataClipSampler&,
@@ -190,7 +190,7 @@ public:
     bool		inFeet() const		{ return infeet_; }
     bool		isFull() const;
     const BasicFileInfo& basicInfo() const;
-    const PosInfo::Detector& piDetector() const;
+    const PosInfo::Detector& piDetector() const	{ return detector_; }
     const HdrEntryKeyData& keyData() const	{ return keydata_; }
     const ScanRangeInfo& ranges() const		{ return rgs_; }
 
@@ -205,6 +205,7 @@ protected:
     int			nrtrcs_;
     HdrEntryKeyData&	keydata_;
     ScanRangeInfo	rgs_;
+    PosInfo::Detector&	detector_;
 
 };
 

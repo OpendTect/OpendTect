@@ -64,6 +64,8 @@ public:
     };
 
 			Detector(const Setup&);
+			Detector(const Detector&);
+    Detector&		operator =(const Detector&);
 			~Detector();
 
     bool		is2D() const		{ return setup_.is2d_; }
@@ -77,9 +79,11 @@ public:
     bool		add(const Coord&,const BinID&,int nr,float offs);
     bool		add(const CrdBidOffs&);
 
+
     bool		finish();
     bool		usable() const		{ return errmsg_.isEmpty(); }
     uiString		errMsg() const		{ return errmsg_; }
+    void		appendResults(const Detector&); // after finish only
 
     int			nrPositions( bool uniq=true ) const
 			{ return uniq ? nruniquepos_ : nrpos_; }
