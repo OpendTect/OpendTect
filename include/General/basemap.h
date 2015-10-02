@@ -89,7 +89,8 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    CNotifier<BaseMapObject,const MouseEvent&>	clicked;
+    CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
+    CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
     Notifier<BaseMapObject>	changed;
     Notifier<BaseMapObject>	stylechanged;
 

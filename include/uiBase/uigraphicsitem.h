@@ -109,6 +109,7 @@ public:
     virtual void	translateText();
 
     CNotifier<uiGraphicsItem,const MouseEvent&> leftClicked;
+    CNotifier<uiGraphicsItem,const MouseEvent&> rightClicked;
 protected:
 
 			uiGraphicsItem(QGraphicsItem*);
