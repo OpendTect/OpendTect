@@ -60,7 +60,7 @@ uiViewer3DMgr::uiViewer3DMgr()
     proptymenuitem_.iconfnm = "tools";
     amplspectrumitem_.iconfnm = "amplspectrum";
     viewermenuitem_.iconfnm = "vd";
-    removemenuitem_.iconfnm = "trashcan";
+    removemenuitem_.iconfnm = "remove";
 
     posdialogs_.allowNull();
     settingdlgs_.allowNull();

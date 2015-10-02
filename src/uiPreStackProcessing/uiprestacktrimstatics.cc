@@ -61,7 +61,7 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 
     BufferStringSet outputs;
     outputs.add( "Pilot trace" ).add( "Shift" ).add( "Trim Statics" );
-    outputfld_ = new uiGenInput( this, uiStrings::sOutput(), 
+    outputfld_ = new uiGenInput( this, uiStrings::sOutput(),
 		 StringListInpSpec(outputs) );
     outputfld_->setValue( processor_->getOutput() );
     outputfld_->attach( leftAlignedBelow, table_ );
@@ -70,7 +70,7 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
     grp->attach( rightTo, table_ );
     new uiToolButton( grp, "addnew",
 			"Add Iteration", mCB(this,uiTrimStatics,addCB) );
-    rmbut_ = new uiToolButton( grp, "trashcan",
+    rmbut_ = new uiToolButton( grp, "remove",
 			"Remove Iteration", mCB(this,uiTrimStatics,rmCB) );
     upbut_ = new uiToolButton( grp, uiToolButton::UpArrow,
 			"Move up", mCB(this,uiTrimStatics,moveUpCB) );

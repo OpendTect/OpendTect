@@ -793,9 +793,9 @@ void uiSurvey::rmButPushed( CallBacker* )
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    uiString msg = tr("This will remove the entire survey directory:\n\t%1"
+    uiString msg = tr("This will delete the entire survey directory:\n\t%1"
 		      "\nFull path: %2").arg(selnm).arg(truedirnm);
-    if ( !uiMSG().askRemove( msg ) ) return;
+    if ( !uiMSG().askRemove(msg) ) return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool rmisok = File::remove( truedirnm );

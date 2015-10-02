@@ -77,7 +77,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     propertiesbutton_ = new uiToolButton( butgrp, "settings",
 		tr("Edit step"), mCB(this,uiProcessorManager,propertiesCB) );
 
-    removeprocessorbutton_ = new uiToolButton( butgrp, "trashcan",
+    removeprocessorbutton_ = new uiToolButton( butgrp, "remove",
 		tr("Remove step"), mCB(this,uiProcessorManager,removeCB) );
 
     uiButtonGroup* iogrp =

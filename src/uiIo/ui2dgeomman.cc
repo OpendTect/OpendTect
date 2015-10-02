@@ -44,10 +44,10 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
-    selgrp_->getManipGroup()->addButton( "trashcan", uiStrings::phrRemove(
+    selgrp_->getManipGroup()->addButton( "delete", uiStrings::phrDelete(
 		     uiStrings::phrJoinStrings(tr("this"),uiStrings::sLine())),
 		     mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
-    selgrp_->getManipGroup()->addButton( "browse2dgeom", 
+    selgrp_->getManipGroup()->addButton( "browse2dgeom",
 	     mJoinUiStrs(sManage(), phrJoinStrings(uiStrings::sLine(),
 	     uiStrings::sGeometry())),
 	     mCB(this,ui2DGeomManageDlg,manLineGeom) );
@@ -66,7 +66,7 @@ public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     : uiDialog(p,uiDialog::Setup( mJoinUiStrs(sManage(),
-				  phrJoinStrings(uiStrings::sLine(), 
+				  phrJoinStrings(uiStrings::sLine(),
 			          uiStrings::sGeometry())),mNoDlgTitle,
 				  mODHelpKey(mManageLineGeomDlgHelpID)))
     , linenm_(linenm),readonly_(readonly)
@@ -74,7 +74,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     if ( readonly )
     {
 	setCtrlStyle( CloseOnly );
-	setCaption( uiStrings::phrJoinStrings(tr("Browse"), 
+	setCaption( uiStrings::phrJoinStrings(tr("Browse"),
 		    mJoinUiStrs(sLine(), sGeometry())) );
     }
 
@@ -129,7 +129,7 @@ public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
     : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sImport(),
-				 phrJoinStrings(uiStrings::sNew(), 
+				 phrJoinStrings(uiStrings::sNew(),
 				 uiStrings::phrJoinStrings(uiStrings::sLine(),
 				 uiStrings::sGeometry()))),
 				 toUiString(linenm),

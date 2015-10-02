@@ -36,7 +36,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 				    bool movable, bool compact )
     : uiGroup(p,"Object list build group")
     , selectionChange(this)
-{  
+{
     if ( !itmtyp ) itmtyp = "object";
     BufferString listnm( "Defined ", itmtyp, "s" );
     chckYPlural( listnm );
@@ -55,12 +55,12 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 		mCB(this,uiEditObjectList,cb) )
 	//-- Copy the following code exactly to the 'else' branch
 	//  (if you want to be purist, put it in a separate file and include it)
-	mDefBut( add, uiStrings::phrAdd(mToUiStringTodo(itmtyp)), 
+	mDefBut( add, uiStrings::phrAdd(mToUiStringTodo(itmtyp)),
 						    "addnew", addCB, false );
-	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()), 
+	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()),
 						    "edit", edCB, false );
 	mDefBut( rm, uiStrings::phrJoinStrings(uiStrings::sRemove(),
-			    mToUiStringTodo(itmtyp)), "trashcan", rmCB, true );
+			    mToUiStringTodo(itmtyp)), "remove", rmCB, true );
 	if ( movable )
 	{
 	    mDefBut( up, sMoveUp, "uparrow", upCB, true );
@@ -80,12 +80,12 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 	butnm##but_->setPrefWidthInChar( butsz )
 
 	//-- Make sure this code is exactly a copy of above
-	mDefBut( add, uiStrings::phrAdd(mToUiStringTodo(itmtyp)), 
+	mDefBut( add, uiStrings::phrAdd(mToUiStringTodo(itmtyp)),
 						    "addnew", addCB, false );
 	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()),
 						    "edit", edCB, false );
 	mDefBut( rm, uiStrings::phrJoinStrings(uiStrings::sRemove(),
-			    mToUiStringTodo(itmtyp)), "trashcan", rmCB, true );
+			    mToUiStringTodo(itmtyp)), "remove", rmCB, true );
 	if ( movable )
 	{
 	    mDefBut( up, sMoveUp, "uparrow", upCB, true );
@@ -186,7 +186,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     edbut_ = new uiToolButton( this, "edit", mToUiStringTodo(setup_.edtt_),
 			mCB(this,uiBuildListFromList,edCB) );
     edbut_->attach( rightOf, deffld_ );
-    rmbut_ = new uiToolButton( this, "trashcan", mToUiStringTodo(setup_.rmtt_),
+    rmbut_ = new uiToolButton( this, "remove", mToUiStringTodo(setup_.rmtt_),
 			mCB(this,uiBuildListFromList,rmCB) );
     rmbut_->attach( alignedBelow, edbut_ );
 
@@ -203,11 +203,11 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     if ( setup_.movable_ )
     {
 	moveupbut_ = new uiToolButton( this, uiToolButton::UpArrow,
-				       uiStrings::sMoveUp(), 
+				       uiStrings::sMoveUp(),
 				       mCB(this,uiBuildListFromList,moveCB) );
 	moveupbut_->attach( alignedBelow, savebut_ ? savebut_ : rmbut_ );
 	movedownbut_ = new uiToolButton( this, uiToolButton::DownArrow,
-					 uiStrings::sMoveDown(), 
+					 uiStrings::sMoveDown(),
 					 mCB(this,uiBuildListFromList,moveCB) );
 	movedownbut_->attach( alignedBelow, moveupbut_ );
     }
@@ -250,7 +250,7 @@ void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
     if ( itmidx < 0 || itmidx >= deffld_->size() )
 	return;
     if ( setup_.singleuse_ )
-	avfld_->insertItem( 
+	avfld_->insertItem(
 		mToUiStringTodo(avFromDef(deffld_->textOfItem(itmidx))), 0 );
 
     deffld_->removeItem( itmidx );

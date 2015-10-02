@@ -46,10 +46,10 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 
 uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 					    bool ed, bool isnew )
-    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? tr("Edit") : 
-	     tr("Browse")).arg(tr("Probability Density Function")), 
+    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? tr("Edit") :
+	     tr("Browse")).arg(tr("Probability Density Function")),
 	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
-	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())), 
+	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
 	     , edfld_(0)
 {
@@ -114,7 +114,7 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 	if ( !editable_ )
 	    nmfld->setReadOnly( true );
     }
-    tabstack_->addTab( dimnmgrp, nrdims_ < 2 ? uiStrings::sName() : 
+    tabstack_->addTab( dimnmgrp, nrdims_ < 2 ? uiStrings::sName() :
 					       uiStrings::sName(mPlural) );
 
     if ( !andpdf || nrdims_ > 3 )
@@ -470,7 +470,7 @@ void uiEditSampledProbDenFunc::updateUI()
     mDeclArrNDPDF;
     if ( !andpdf ) return;
 
-    uiString title = tr("%1 '%2'").arg(editable_ ? uiStrings::sEdit() : 
+    uiString title = tr("%1 '%2'").arg(editable_ ? uiStrings::sEdit() :
 		     tr("Browse ")).arg(pdf_.name());
     title = toUiString("%1 %2").arg(title).arg(tr("at %2 = %3")
 	    .arg(pdf_.dimName(2)).arg(andpdf->sampling(2).atIndex(curdim2_)));
@@ -607,7 +607,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	topgrp->setFrame( true );
 	var1fld_ = new uiComboBox( topgrp, "Var 1" );
 	var2fld_ = new uiComboBox( topgrp, "Var 2" );
-	ccfld_ = new uiGenInput( topgrp, uiStrings::sEmptyString(), 
+	ccfld_ = new uiGenInput( topgrp, uiStrings::sEmptyString(),
 							      FloatInpSpec(0));
 	var2fld_->attach( rightOf, var1fld_ );
 	ccfld_->attach( rightOf, var2fld_ );
@@ -636,7 +636,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 
     if ( editable_ )
     {
-	rmbut_ = new uiToolButton( ccgrp, "trashcan",
+	rmbut_ = new uiToolButton( ccgrp, "remove",
 				uiStrings::phrRemove(uiStrings::phrJoinStrings(
 				tr("Selected"),uiStrings::sCorrelation())),
 				mCB(this,uiEditGaussianProbDenFunc,rmPush) );
@@ -750,9 +750,9 @@ float uiEditGaussianProbDenFunc::getCC() const
     if ( mIsUdf(cc) )
 	return 0;
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() )
-    { 
-	uiMSG().error( mToUiStringTodo(sGaussianCCRangeErrMsg()) ); 
-	return mUdf(float); 
+    {
+	uiMSG().error( mToUiStringTodo(sGaussianCCRangeErrMsg()) );
+	return mUdf(float);
     }
     return cc;
 }

@@ -136,11 +136,10 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) );
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    clearseltbid_ = seltb_.addButton( "clearselection",
-                                       tr("Remove all selections"),
+    clearseltbid_ = seltb_.addButton( "clear", tr("Clear all selections"),
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
 
-    seldeltbid_ = seltb_.addButton( "trashcan", tr("Delete all selected"),
+    seldeltbid_ = seltb_.addButton( "clearselection", tr("Remove all selected"),
 	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections) );
 
     seltabletbid_ = seltb_.addButton( "seltable",tr("Show selections in table"),
@@ -180,7 +179,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	uiString txt =  tr("%1 %2").arg(nrgrps==2?tr("Both"):uiStrings::sAll())
 				   .arg(!grpstr.isEmpty()? tr("%1").arg(grpstr)
 				   : uiStrings::sEmptyString());
-	
+
 	grpfld_->addItem( txt );
 	TypeSet<Color> ctseqs;
 	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )

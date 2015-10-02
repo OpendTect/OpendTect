@@ -37,6 +37,7 @@ mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem(uiString::emptyString())
     , parenttype_(parenttype)
+    , visserv_(ODMainWin()->applMgr().visServer())
     , menu_(0)
     , statswin_(0)
     , ampspectrumwin_(0)
@@ -80,8 +81,7 @@ uiODDataTreeItem::~uiODDataTreeItem()
     delete statswin_;
     delete ampspectrumwin_;
 
-    uiVisPartServer* visserv = applMgr()->visServer();
-    MenuHandler* tb = visserv->getToolBarHandler();
+    MenuHandler* tb = visserv_->getToolBarHandler();
     tb->createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
 }
@@ -89,9 +89,8 @@ uiODDataTreeItem::~uiODDataTreeItem()
 
 int uiODDataTreeItem::uiTreeViewItemType() const
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs(displayID()) ||
-	 visserv->hasSingleColorFallback(displayID()) )
+    if ( visserv_->canHaveMultipleAttribs(displayID()) ||
+	 visserv_->hasSingleColorFallback(displayID()) )
     {
 	return uiTreeViewItem::CheckBox;
     }
@@ -110,16 +109,15 @@ uiODApplMgr* uiODDataTreeItem::applMgr() const
 
 bool uiODDataTreeItem::init()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs(displayID()) ||
-	 visserv->hasSingleColorFallback(displayID()) )
+    if ( visserv_->canHaveMultipleAttribs(displayID()) ||
+	 visserv_->hasSingleColorFallback(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
-	uitreeviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
+	uitreeviewitem_->setChecked( visserv_->isAttribEnabled(displayID(),
 				     attribNr() ) );
     }
 
-    MenuHandler* tb = visserv->getToolBarHandler();
+    MenuHandler* tb = visserv_->getToolBarHandler();
     tb->createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
 
@@ -129,16 +127,14 @@ bool uiODDataTreeItem::init()
 
 void uiODDataTreeItem::checkCB( CallBacker* cb )
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
-    visserv->enableAttrib( displayID(), attribNr(), isChecked() );
+    visserv_->enableAttrib( displayID(), attribNr(), isChecked() );
 }
 
 
 bool uiODDataTreeItem::shouldSelect( int selid ) const
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
     return selid!=-1 && selid==displayID() &&
-	   visserv->getSelAttribNr()==attribNr();
+	   visserv_->getSelAttribNr()==attribNr();
 }
 
 
@@ -159,8 +155,7 @@ int uiODDataTreeItem::displayID() const
 
 int uiODDataTreeItem::attribNr() const
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
-    const int nrattribs = visserv->getNrAttribs( displayID() );
+    const int nrattribs = visserv_->getNrAttribs( displayID() );
     const int attribnr = nrattribs-siblingIndex()-1;
     return attribnr<0 || attribnr>=nrattribs ? 0 : attribnr;
 }
@@ -173,6 +168,9 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
 	return;
 
     createMenu( tb, true );
+    const  bool enab = !visserv_->isLocked(displayID()) &&
+			visserv_->canRemoveAttrib(displayID());
+    mAddMenuItem( tb, &removemnuitem_, enab, false );
 }
 
 
@@ -199,11 +197,10 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
 void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     const bool isfirst = !siblingIndex();
-    const bool islast = siblingIndex()==visserv->getNrAttribs( displayID())-1;
+    const bool islast = siblingIndex()==visserv_->getNrAttribs( displayID())-1;
 
-    const bool islocked = visserv->isLocked( displayID() );
+    const bool islocked = visserv_->isLocked( displayID() );
 
     if ( !islocked && (!isfirst || !islast) )
     {
@@ -230,16 +227,16 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
     const DataPack::ID dpid =
-	visserv->getDisplayedDataPackID( displayID(), attribNr() );
+	visserv_->getDisplayedDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid>DataPack::cNoID();
-    const bool isvert = visserv->isVerticalDisp( displayID() );
+    const bool isvert = visserv_->isVerticalDisp( displayID() );
     if ( hasdatapack )
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
 			  &statisticsitem_, true, false)
     else
 	mResetMenuItem( &statisticsitem_ )
 
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
     const bool hastransform = scene && scene->getZAxisTransform();
     if ( hasdatapack && isvert )
     {
@@ -254,18 +251,18 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &fkspectrumitem_ )
     }
 
-    mAddMenuOrTBItem( istb, menu, menu, &removemnuitem_,
-		  !islocked && visserv->canRemoveAttrib( displayID()), false );
-    if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
+    mAddMenuOrTBItem( istb, 0, menu, &removemnuitem_,
+		  !islocked && visserv_->canRemoveAttrib( displayID()), false );
+    if ( visserv_->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu())
 	mAddMenuOrTBItem( istb, 0, &displaymnuitem_,
 			  &changetransparencyitem_, true, false )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
-    if ( visserv->canBDispOn2DViewer(displayID()) && hasdatapack )
+    if ( visserv_->canBDispOn2DViewer(displayID()) && hasdatapack )
     {
 	const Attrib::SelSpec* as =
-	    visserv->getSelSpec( displayID(), attribNr() );
+	    visserv_->getSelSpec( displayID(), attribNr() );
 	const bool hasattrib =
 	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 
@@ -292,7 +289,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 bool uiODDataTreeItem::select()
 {
-    applMgr()->visServer()->setSelObjectId( displayID(), attribNr() );
+    visserv_->setSelObjectId( displayID(), attribNr() );
     return true;
 }
 
@@ -304,13 +301,11 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    uiVisPartServer* visserv = applMgr()->visServer();
-
     if ( mnuid==movetotopmnuitem_.id )
     {
-	const int nrattribs = visserv->getNrAttribs( displayID() );
+	const int nrattribs = visserv_->getNrAttribs( displayID() );
 	for ( int idx=attribNr(); idx<nrattribs-1; idx++ )
-	    visserv->swapAttribs( displayID(), idx, idx+1 );
+	    visserv_->swapAttribs( displayID(), idx, idx+1 );
 
 	moveItemToTop();
 	select();
@@ -320,7 +315,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==movetobottommnuitem_.id )
     {
 	for ( int idx=attribNr(); idx; idx-- )
-	    visserv->swapAttribs( displayID(), idx, idx-1 );
+	    visserv_->swapAttribs( displayID(), idx, idx-1 );
 
 	moveItem( parent_->lastChild() );
 	select();
@@ -330,10 +325,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==moveupmnuitem_.id )
     {
 	const int attribnr = attribNr();
-	if ( attribnr<visserv->getNrAttribs( displayID() )-1 )
+	if ( attribnr<visserv_->getNrAttribs( displayID() )-1 )
 	{
 	    const int targetattribnr = attribnr+1;
-	    visserv->swapAttribs( displayID(), attribnr, targetattribnr );
+	    visserv_->swapAttribs( displayID(), attribnr, targetattribnr );
 	}
 
 	moveItem( siblingAbove() );
@@ -347,7 +342,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( attribnr )
 	{
 	    const int targetattribnr = attribnr-1;
-	    visserv->swapAttribs( displayID(), attribnr, targetattribnr );
+	    visserv_->swapAttribs( displayID(), attribnr, targetattribnr );
 	}
 
 	moveItem( siblingBelow() );
@@ -357,7 +352,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==changetransparencyitem_.id )
     {
-	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
+	visserv_->showAttribTransparencyDlg( displayID(), attribNr() );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==statisticsitem_.id || mnuid==amplspectrumitem_.id
@@ -365,9 +360,9 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int visid = displayID();
 	const int attribid = attribNr();
-	DataPack::ID dpid = visserv->getDataPackID( visid, attribid );
-	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( visid );
-	const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribid );
+	DataPack::ID dpid = visserv_->getDataPackID( visid, attribid );
+	const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( visid );
+	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attribid );
 	const FixedString dpname = DPM(dmid).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
 	{
@@ -397,7 +392,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
 	{
-	    const bool isselmodeon = visserv->isSelectionModeOn();
+	    const bool isselmodeon = visserv_->isSelectionModeOn();
 	    if ( !isselmodeon )
 	    {
 		if ( mnuid==amplspectrumitem_.id )
@@ -430,7 +425,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int attribnr = attribNr();
 	prepareForShutdown();
-	visserv->removeAttrib( displayID(), attribnr );
+	visserv_->removeAttrib( displayID(), attribnr );
 	applMgr()->updateColorTable( displayID(), attribnr ? attribnr-1 : 0 );
 
 	parent_->removeChild( this );

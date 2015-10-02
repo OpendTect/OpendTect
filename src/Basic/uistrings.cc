@@ -104,6 +104,9 @@ uiString uiStrings::phrCrossPlot( const uiString& string )
 uiString uiStrings::phrData( const uiString& string )
 { return toUiString(joinstring).arg(sData()).arg(string); }
 
+uiString uiStrings::phrDelete( const uiString& string )
+{ return toUiString(joinstring).arg(sDelete()).arg(string); }
+
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
 
@@ -438,7 +441,7 @@ uiString uiStrings::sShift()
 uiString uiStrings::sSpecify()
 { return tr("Specify"); }
 
-uiString uiStrings::sSpecifyOut()   
+uiString uiStrings::sSpecifyOut()
 { return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
 
 

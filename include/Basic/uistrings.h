@@ -76,6 +76,8 @@ public:
     //!<"Create <string>"
     static uiString phrData(const uiString&);
     //!<"Data <string>"
+    static uiString phrDelete(const uiString&);
+    //!<"Delete <string>"
     static uiString phrDoesntExist(const uiString& string,int num=1);
     //!<"<string> does/do not exist"
     static uiString phrEdit(const uiString& string);
@@ -170,7 +172,7 @@ public:
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
-    static uiString sCalculate();	
+    static uiString sCalculate();
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCantCreateHor();

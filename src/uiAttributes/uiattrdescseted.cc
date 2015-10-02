@@ -211,7 +211,7 @@ void uiAttribDescSetEd::createGroups()
     sortbut_ = new uiToolButton( leftgrp, "sort", tr("Sort attributes"),
 				 mCB(this,uiAttribDescSetEd,sortPush) );
     sortbut_->attach( alignedBelow, movedownbut_ );
-    rmbut_ = new uiToolButton( leftgrp, "trashcan", tr("Remove selected"),
+    rmbut_ = new uiToolButton( leftgrp, "remove", tr("Remove selected"),
 				mCB(this,uiAttribDescSetEd,rmPush) );
     rmbut_->attach( alignedBelow, sortbut_ );
 

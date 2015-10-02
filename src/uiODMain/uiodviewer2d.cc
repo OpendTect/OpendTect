@@ -453,7 +453,7 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
-    tb->addButton( "trashcan", tr("Remove PolySelection"),
+    tb->addButton( "clearselection", tr("Remove Selection"),
 			mCB(this,uiODViewer2D,removeSelected), false );
 }
 
@@ -890,7 +890,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	if ( seisfdp->isVertical() )
 	{
 	    pt.x = fdp->posData().range(true).atIndex( gidx );
-	    pt.y = datatransform_ ? 
+	    pt.y = datatransform_ ?
 		   datatransform_->transformTrc( trkv.tk_, trkv.val_ ) :
 		   trkv.val_;
 	}

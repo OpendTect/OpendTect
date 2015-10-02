@@ -21,6 +21,7 @@ class uiFKSpectrum;
 class uiMenuHandler;
 class uiSeisAmplSpectrum;
 class uiStatsDisplayWin;
+class uiVisPartServer;
 namespace Attrib { class SelSpec; }
 namespace ColTab { class Sequence; }
 
@@ -60,6 +61,7 @@ protected:
     virtual bool		hasTransparencyMenu() const { return true; }
 
     uiODApplMgr*		applMgr() const;
+    uiVisPartServer*		visserv_;
     int				sceneID() const;
     bool			isSelectable() const	{ return true; }
     bool			isExpandable() const	{ return false; }

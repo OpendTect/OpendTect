@@ -1104,8 +1104,9 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 		handleToolClick, "rectangleselect", 1 );
     viewtb_->setButtonMenu( polyselectid_, mnu );
 
-    removeselectionid_ = viewtb_->addButton( "trashcan", tr("Remove selection"),
-		    mCB(this,uiODMenuMgr,removeSelection), false );
+    removeselectionid_ = viewtb_->addButton( "clearselection",
+		tr("Remove selection"),
+		 mCB(this,uiODMenuMgr,removeSelection), false );
 
     soloid_ = mAddTB(viewtb_,"solo",tr("Display current element only"),
 		     true,soloMode);
