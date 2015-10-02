@@ -112,7 +112,9 @@ ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     : QAbstractGraphicsShapeItem()
     , mstyle_( new MarkerStyle2D() )
     , fill_(false)
-{}
+{
+    setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
+}
 
 
 ODGraphicsMarkerItem::~ODGraphicsMarkerItem()
@@ -143,23 +145,11 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
 
-    const QPointF p00 = mapToScene( QPointF(0,0) );
-    const QPointF d01 = mapToScene( QPointF(0,1) )-p00;
-    const QPointF d10 = mapToScene( QPointF(1,0) )-p00;
-
-    const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
-    const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
-    if ( !xdist || !ydist )
-	return;
-
-    const float szx = mstyle_->size_ / xdist;
-    const float szy = mstyle_->size_ / ydist;
-
     painter->setPen( pen() );
     if ( fill_ )
 	painter->setBrush( QColor(QRgb(fillcolor_.rgb())) );
 
-    drawMarker( *painter, mstyle_->type_, szx, szy );
+    drawMarker( *painter, mstyle_->type_, mstyle_->size_, mstyle_->size_ );
 
     if ( option->state & QStyle::State_Selected )
     {
@@ -526,9 +516,12 @@ void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 
 
 // ODGraphicsAdvancedTextItem
-ODGraphicsAdvancedTextItem::ODGraphicsAdvancedTextItem()
+ODGraphicsAdvancedTextItem::ODGraphicsAdvancedTextItem( bool centered )
     : QGraphicsTextItem()
-{}
+{
+    if ( centered )
+	document()->setDefaultTextOption( QTextOption(Qt::AlignCenter) );
+}
 
 
 void ODGraphicsAdvancedTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* ev )

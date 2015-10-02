@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "basicmod.h"
 #include "survgeom.h"
 
@@ -41,19 +41,19 @@ public:
 				//!<If data is changed, call touch afterwards
     void			touch();
     const PosInfo::Line2DData&	data() const		{ return data_; }
-    
+
     StepInterval<float>		zRange() const;
 
-    static BufferString  	makeUniqueLineName(const char* lsnm,
-	    					   const char* lnm);
+    static BufferString		makeUniqueLineName(const char* lsnm,
+						   const char* lnm);
     float			averageTrcDist() const;
     RelationType		compare(const Geometry&,bool usezrg) const;
 
-    Geometry2D*			as2D() 			{ return this; }
+    Geometry2D*			as2D()			{ return this; }
 
 protected:
 
-                    		~Geometry2D();
+				~Geometry2D();
 
 
     PosInfo::Line2DData&	data_;
@@ -62,6 +62,5 @@ protected:
 };
 
 } // namespace Survey
-
 
 #endif

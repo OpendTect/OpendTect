@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "trckeyvalue.h"
 
+
 mExpClass(General) TabletInfo
 {
     friend class	QtTabletEventFilter;
@@ -203,9 +204,9 @@ public:
     {
     public:
 				Info(const TrcKeyValue&,
-				     float offset = mUdf(float));
+                                     float offset=mUdf(float));
 
-	TrcKeyValue             trkv_;
+        TrcKeyValue		trkv_;
 	float			offset_;
     };
 

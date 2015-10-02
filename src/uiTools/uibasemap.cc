@@ -65,11 +65,18 @@ bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
 
 
-void uiBaseMapObject::selCB( CallBacker* cb )
+void uiBaseMapObject::leftClickCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const MouseEvent&,ev,cb);
     if ( bmobject_ )
-	bmobject_->clicked.trigger( ev );
+	bmobject_->leftClicked.trigger( ev );
+}
+
+void uiBaseMapObject::rightClickCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const MouseEvent&,ev,cb);
+    if ( bmobject_ )
+	bmobject_->rightClicked.trigger( ev );
 }
 
 
@@ -89,6 +96,14 @@ void uiBaseMapObject::changedStyleCB( CallBacker* )
 
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 { transform_ = w2ui; }
+
+
+void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
+{
+    graphitem_.addChild( &itm );
+    itm.leftClicked.notify( mCB(this,uiBaseMapObject,leftClickCB) );
+    itm.rightClicked.notify( mCB(this,uiBaseMapObject,rightClickCB) );
+}
 
 
 void uiBaseMapObject::update()
@@ -126,8 +141,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPolyLineItem* itm = new uiPolyLineItem();
 		    if ( !itm ) return;
-		    graphitem_.addChild( itm );
-		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		    addToGraphItem( *itm );
 		}
 
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
@@ -154,8 +168,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPolygonItem* itm = new uiPolygonItem();
 		    if ( !itm ) return;
-		    graphitem_.addChild( itm );
-		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		    addToGraphItem( *itm );
 		}
 
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
@@ -170,7 +183,8 @@ void uiBaseMapObject::update()
 	    }
 	}
 
-	if ( !bmobject_->getImageFileName().isEmpty() )
+	const BufferString imgfnm = bmobject_->getImageFileName( idx );
+	if ( !imgfnm.isEmpty() )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
 	    {
@@ -186,15 +200,14 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPixmapItem* itm =	new uiPixmapItem(
-				      uiPixmap(bmobject_->getImageFileName()) );
+		    uiPixmapItem* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
 		    itm->setPaintInCenter( true );
 		    graphitem_.addChild( itm );
 		}
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
 		if ( !itm ) return;
-		itm->setPixmap( uiPixmap(bmobject_->getImageFileName()) );
+		itm->setPixmap( uiPixmap(imgfnm) );
 		itm->setPos( crds[ptidx] );
 		const int scale = bmobject_->getScale(idx);
 		itm->setScale( mCast(float,scale), mCast(float,scale) );
@@ -221,8 +234,7 @@ void uiBaseMapObject::update()
 		{
 		    uiMarkerItem* itm = new uiMarkerItem();
 		    if ( !itm ) return;
-		    graphitem_.addChild( itm );
-		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		    addToGraphItem( *itm );
 		}
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
@@ -251,8 +263,7 @@ void uiBaseMapObject::update()
 	    {
 		uiTextItem* itm = new uiTextItem();
 		if ( !itm ) return;
-		graphitem_.addChild( itm );
-		itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		addToGraphItem( *itm );
 	    }
 
 	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));

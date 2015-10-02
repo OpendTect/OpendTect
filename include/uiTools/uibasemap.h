@@ -48,13 +48,16 @@ protected:
 
     void			changedCB(CallBacker*);
     void			changedStyleCB(CallBacker*);
-    void			selCB(CallBacker*);
+    void			leftClickCB(CallBacker*);
+    void			rightClickCB(CallBacker*);
 
     uiGraphicsItem&		graphitem_;
     const uiWorld2Ui*		transform_;
 
     bool			changed_;
     BaseMapObject*		bmobject_;
+private:
+    void			addToGraphItem(uiGraphicsItem&);
 };
 
 

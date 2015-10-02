@@ -56,7 +56,7 @@ public:
 
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
-    virtual BufferString	getImageFileName() const	{ return ""; }
+    virtual BufferString	getImageFileName(int idx) const	{ return ""; }
     virtual int			getScale(int) const		{ return 1; }
     virtual void		setScale(int,int)		{}
 
@@ -89,7 +89,8 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    CNotifier<BaseMapObject,const MouseEvent&>	clicked;
+    CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
+    CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
     Notifier<BaseMapObject>	changed;
     Notifier<BaseMapObject>	stylechanged;
 

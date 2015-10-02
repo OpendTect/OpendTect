@@ -280,10 +280,11 @@ protected:
 mExpClass(uiBase) uiAdvancedTextItem : public uiGraphicsItem
 {
 public:
-			uiAdvancedTextItem();
+			uiAdvancedTextItem(bool centered=false);
 			uiAdvancedTextItem(const uiString&,
 					   const Alignment& =
-				    Alignment(Alignment::Left,Alignment::Top));
+				    Alignment(Alignment::Left,Alignment::Top),
+					   bool centered=false);
 			~uiAdvancedTextItem();
 
     Alignment		getAlignment() const;
@@ -294,7 +295,7 @@ public:
 
     void		setAlignment(const Alignment&);
     void		setDefaultTextColor(const Color&);
-    void		setFont(const uiFont&);
+    void		setFont(const FontData&);
     void		setPlainText(const uiString&);
     void		setTextWidth(float);
 
@@ -302,6 +303,7 @@ public:
 
 protected:
     Alignment		al_;
+    bool		textiscentered_;
     QGraphicsItem*	mkQtObj();
     ODGraphicsAdvancedTextItem* qtextitem_;
 
