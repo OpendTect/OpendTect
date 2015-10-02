@@ -569,7 +569,7 @@ void ConnComponents3D::compute( TaskRunner* tr )
 	    addToComponent( comps, idx, idy, usedcomps, *ccomp );
 
 	    const int compsz = ccomp->size();
-	    if ( compsz )
+	    if ( compsz>0 )
 	    {
 		components_ += ccomp;
 		nrcomps += compsz;
