@@ -112,7 +112,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 				tr("Move current command up"), butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 				tr("Move current command down"), butpushcb );
-    rmbut_ = new uiToolButton( bgrp, "trashcan",
+    rmbut_ = new uiToolButton( bgrp, "remove",
 				tr("Remove current command from flow"),
 				butpushcb );
     bgrp->attach( centeredBelow, procsfld_ );

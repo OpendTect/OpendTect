@@ -254,7 +254,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     propertiesbutton_->setName( "Settings" );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
-    removestepbutton_ = new uiToolButton( flowgrp, "trashcan",
+    removestepbutton_ = new uiToolButton( flowgrp, "remove",
 		tr("Remove step from flow"), mCB(this,uiChain,removeStepPush) );
     removestepbutton_->attach( alignedBelow, propertiesbutton_ );
 

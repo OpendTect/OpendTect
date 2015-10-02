@@ -12,11 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiimphorizon.h"
 
 #include "uiarray2dinterpol.h"
+#include "uibutton.h"
+#include "uibuttongroup.h"
+#include "uicolor.h"
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
-#include "uibutton.h"
-#include "uicolor.h"
-#include "uitaskrunner.h"
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
 #include "uistrings.h"
+#include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
 
@@ -34,11 +35,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array2dinterpolimpl.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
-#include "emhorizon3d.h"
 #include "emhorizonascio.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfacetr.h"
 #include "file.h"
 #include "filepath.h"
 #include "horizonscanner.h"
@@ -104,16 +105,15 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     attrlistfld_->setNrLines( 6 );
     attrlistfld_->itemChosen.notify( mCB(this,uiImportHorizon,inputChgd) );
 
-    uiToolButton* addbut = new uiToolButton( this, "addnew", tr("Add new"),
+    uiButtonGroup* butgrp =
+		new uiButtonGroup( attrlistfld_, "Buttons", OD::Vertical );
+    butgrp->attach( rightTo, attrlistfld_->box() );
+    new uiToolButton( butgrp, "addnew", tr("Add new"),
 				mCB(this,uiImportHorizon,addAttribCB) );
-    addbut->attach( rightTo, attrlistfld_ );
-    uiToolButton* rmbut = new uiToolButton( this, "stop",
-					    uiStrings::sRemove(),
+    new uiToolButton( butgrp, "remove", uiStrings::sRemove(),
 				mCB(this,uiImportHorizon,rmAttribCB) );
-    rmbut->attach( alignedBelow, addbut );
-    uiToolButton* clearbut = new uiToolButton( this, "clear", tr("Clear list"),
+    new uiToolButton( butgrp, "clear", tr("Clear list"),
 				mCB(this,uiImportHorizon,clearListCB) );
-    clearbut->attach( alignedBelow, rmbut );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, attrlistfld_ );
@@ -249,9 +249,9 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 
 void uiImportHorizon::addAttribCB( CallBacker* )
 {
-    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sAttribute()), 
-			     uiStrings::sName(),
-			     new StringInpSpec() );
+    uiGenInputDlg dlg( this, mNoDlgTitle,
+			uiStrings::sName(), new StringInpSpec() );
+    dlg.setCaption( uiStrings::phrAdd(uiStrings::sAttribute()) );
     if ( !dlg.go() ) return;
 
     const char* attrnm = dlg.text();
@@ -316,12 +316,12 @@ void uiImportHorizon::scanPush( CallBacker* )
 	if ( !uiMSG().askGoOn(msg) ) \
 	    return false; \
     }
-    
+
 
 uiString uiImportHorizon::goOnMsg()
-{	 
-    uiString msg(tr("The horizon is not compatible with survey " 
-		      "trace, do you want to continue?")); 
+{
+    uiString msg(tr("The horizon is not compatible with survey "
+		      "trace, do you want to continue?"));
     return msg;
 }
 

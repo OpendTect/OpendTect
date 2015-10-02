@@ -38,7 +38,7 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 					mNoDlgTitle,mNoHelpKey))
     , marker_(mrk)
 {
-    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+    namefld_ = new uiGenInput( this, uiStrings::sName(),
                                StringInpSpec("Marker") );
 
     uiColorInput::Setup csu( mrk.color() );
@@ -119,7 +119,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     addbut_->attach( alignedBelow, pickbut_ );
     editbut_ = new uiToolButton( toolgrp_, "edit", tr("Edit Marker"), butcb );
     editbut_->attach( alignedBelow, addbut_ );
-    rembut_ = new uiToolButton(toolgrp_, "trashcan", tr("Remove Marker"),butcb);
+    rembut_ = new uiToolButton(toolgrp_, "remove", tr("Remove Marker"),butcb);
     rembut_->attach( alignedBelow, editbut_ );
 }
 

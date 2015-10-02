@@ -81,7 +81,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
     , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {
-    removemnuitem_.iconfnm = "trashcan";
+    removemnuitem_.iconfnm = "remove";
     histogrammnuitem_.iconfnm = "histogram";
     lockmnuitem_.iconfnm = "lock";
     addattribmnuitem_.iconfnm = "attributes";

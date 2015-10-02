@@ -56,7 +56,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , view2dvditem_(tr("2D Viewer"))
 {
     statisticsitem_.iconfnm = "histogram";
-    removemnuitem_.iconfnm = "trashcan";
+    removemnuitem_.iconfnm = "remove";
     view2dwvaitem_.iconfnm = "wva";
     view2dvditem_.iconfnm = "vd";
     amplspectrumitem_.iconfnm = "amplspectrum";
