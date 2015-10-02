@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volproclateralsmoother.h"
 #include "volprocsmoother.h"
 #include "volprocbodyfiller.h"
+#include "volprocstatscomputer.h"
 #include "volprocsurfacelimitedfiller.h"
 #include "volprocvolreader.h"
 #include "volproctrans.h"
@@ -35,6 +36,7 @@ mDefModInitFn(VolumeProcessing)
     VolProc::ExternalAttribCalculator::initClass();
     VolProc::BodyFiller::initClass();
     VolProc::HorInterFiller::initClass();
+    VolProc::StatsCalculator::initClass();
     VolProc::SurfaceLimitedFiller::initClass();
     VolProc::VelocityGridder::initClass();
     VolProc::VolumeReader::initClass();

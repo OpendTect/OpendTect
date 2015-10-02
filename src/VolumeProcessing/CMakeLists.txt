@@ -18,6 +18,7 @@ set( OD_MODULE_SOURCES
 	volprochorinterfiller.cc
 	volproclateralsmoother.cc
 	volprocsmoother.cc
+	volprocstatscomputer.cc
 	volproctrans.cc
 	volprocbodyfiller.cc
 	volprocsurfacelimitedfiller.cc
