@@ -72,6 +72,7 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     , currentpinchscale_(0)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(1000))
     , reversemousewheel_(false)
+    , midmousebutfordrag_(true)
 {
     Settings::common().getYN( SettingsAccess::sKeyMouseWheelReversal(),
 			      reversemousewheel_ );
@@ -103,8 +104,11 @@ GestureEventHandler& gestureEventHandler()
 { return gestureeventhandler_; }
 
 void setMouseWheelReversal(bool yn) { reversemousewheel_ = yn; }
-
 bool getMouseWheelReversal() const { return reversemousewheel_; }
+
+void setMidMouseButtonForDrag( bool yn ) { midmousebutfordrag_ = yn; }
+bool hasMidMouseButtonForDrag() const	{ return midmousebutfordrag_; }
+
 
 
 const uiPoint& getStartPos() const	{ return startpos_; }
@@ -119,6 +123,7 @@ protected:
     uiGraphicsViewBase&		handle_;
     float			currentpinchscale_;
     bool			reversemousewheel_;
+    bool			midmousebutfordrag_;
 
     uiMouseEventBlockerByGestures&   mouseeventblocker_;
 
@@ -186,6 +191,16 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonPressed( me );
     }
+    else if ( ev->button() == Qt::MiddleButton )
+    {
+	if ( midmousebutfordrag_ )
+	{
+	    setDragMode( ScrollHandDrag );
+	    QMouseEvent fake( ev->type(), ev->pos(), Qt::LeftButton,
+			      Qt::LeftButton, ev->modifiers() );
+	    QGraphicsView::mousePressEvent( &fake );
+	}
+    }
     else
 	buttonstate_ = OD::NoButton;
 
@@ -221,6 +236,11 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
 	    uiRect selrect( startpos_, stoppos );
 	    handle_.scene().setSelectionArea( selrect );
 	}
+    }
+    else if ( ev->button() == Qt::MiddleButton )
+    {
+	if ( midmousebutfordrag_ )
+	    setDragMode( NoDrag );
     }
 
     handle_.setCtrlPressed( false );
@@ -484,19 +504,20 @@ void uiGraphicsViewBase::rubberBandCB( CallBacker* )
 void uiGraphicsViewBase::setMouseTracking( bool yn )
 { body_->setMouseTracking( yn ); }
 
-
 bool uiGraphicsViewBase::hasMouseTracking() const
 { return body_->hasMouseTracking(); }
 
-
 void uiGraphicsViewBase::setMouseWheelReversal( bool yn )
-{
-    body_->setMouseWheelReversal( yn );
-}
-
+{ body_->setMouseWheelReversal( yn ); }
 
 bool uiGraphicsViewBase::getMouseWheelReversal() const
 { return body_->getMouseWheelReversal(); }
+
+void uiGraphicsViewBase::setMidMouseButtonForDrag( bool yn )
+{ body_->setMidMouseButtonForDrag( yn ); }
+
+bool uiGraphicsViewBase::hasMidMouseButtonForDrag() const
+{ return body_->hasMidMouseButtonForDrag(); }
 
 
 int uiGraphicsViewBase::width() const

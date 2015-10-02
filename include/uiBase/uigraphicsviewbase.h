@@ -51,6 +51,9 @@ public:
     void			setMouseWheelReversal(bool);
     bool			getMouseWheelReversal() const;
 
+    void			setMidMouseButtonForDrag(bool);
+    bool			hasMidMouseButtonForDrag() const;
+
     int				width() const;
     int				height() const;
 
