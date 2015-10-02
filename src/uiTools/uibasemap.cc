@@ -127,7 +127,7 @@ void uiBaseMapObject::update()
 		    uiPolyLineItem* itm = new uiPolyLineItem();
 		    if ( !itm ) return;
 		    graphitem_.addChild( itm );
-		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		    itm->leftClicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
@@ -155,7 +155,7 @@ void uiBaseMapObject::update()
 		    uiPolygonItem* itm = new uiPolygonItem();
 		    if ( !itm ) return;
 		    graphitem_.addChild( itm );
-		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		    itm->leftClicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
@@ -222,7 +222,7 @@ void uiBaseMapObject::update()
 		    uiMarkerItem* itm = new uiMarkerItem();
 		    if ( !itm ) return;
 		    graphitem_.addChild( itm );
-		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		    itm->leftClicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
@@ -252,7 +252,7 @@ void uiBaseMapObject::update()
 		uiTextItem* itm = new uiTextItem();
 		if ( !itm ) return;
 		graphitem_.addChild( itm );
-		itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
+		itm->leftClicked.notify( mCB(this,uiBaseMapObject,selCB) );
 	    }
 
 	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));
