@@ -118,6 +118,9 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     else
     {
 	SequentialReader rdr( *ioobj, &tkzs );
+	uiString caption = tr("Pre-loading %1");
+	caption.arg( ioobj->name() );
+	rdr.setName( caption.getFullString() );
 	rdr.setScaler( scaler );
 	rdr.setDataChar( type );
 	if ( !trunnr.execute(rdr) )
