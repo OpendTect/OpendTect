@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "uistrings.h"
 
+
 PosInfo::Detector::Detector( const Setup& su )
 	: sorting_(*new BinIDSorting(su.is2d_))
 	, sortanal_(0)
@@ -24,11 +25,20 @@ PosInfo::Detector::Detector( const Setup& su )
     reInit();
 }
 
+PosInfo::Detector::Detector( const Detector& oth )
+	: sorting_(*new BinIDSorting(oth.is2D()))
+	, setup_(oth.is2D())
+	, sortanal_(0)
+{
+    *this = oth;
+}
+
 
 PosInfo::Detector::~Detector()
 {
-    delete &sorting_;
+    delete sortanal_;
     deepErase( lds_ );
+    delete &sorting_;
 }
 
 
@@ -46,6 +56,53 @@ void PosInfo::Detector::reInit()
     firstduppos_.binid_.inl() = firstaltnroffs_.binid_.inl() = mUdf(int);
     mSetUdf(distrg_.start); avgdist_ = 0;
     step_.inl() = step_.crl() = 1;
+}
+
+
+PosInfo::Detector& PosInfo::Detector::operator =( const PosInfo::Detector& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    setup_ = oth.setup_;
+    sorting_ = oth.sorting_;
+    deepCopy( lds_, oth.lds_ );
+    nruniquepos_ = oth.nruniquepos_;
+    nrpos_ = oth.nrpos_;
+    mincoord_ = oth.mincoord_;
+    maxcoord_ = oth.maxcoord_;
+    offsrg_ = oth.offsrg_;
+    allstd_ = oth.allstd_;
+    nroffsperpos_ = oth.nroffsperpos_;
+    start_ = oth.start_;
+    stop_ = oth.stop_;
+    step_ = oth.step_;
+    inlirreg_ = oth.inlirreg_;
+    crlirreg_ = oth.crlirreg_;
+    distrg_ = oth.distrg_;
+    avgdist_ = oth.avgdist_;
+    firstcbo_ = oth.firstcbo_;
+    lastcbo_ = oth.lastcbo_;
+    llnstart_ = oth.llnstart_;
+    llnstop_ = oth.llnstop_;
+    firstduppos_ = oth.firstduppos_;
+    firstaltnroffs_ = oth.firstaltnroffs_;
+
+    delete sortanal_; sortanal_ = 0;
+    if ( oth.sortanal_ )
+	sortanal_ = new BinIDSortingAnalyser( *oth.sortanal_ );
+    cbobuf_ = oth.cbobuf_;
+    curline_ = oth.curline_;
+    curseg_ = oth.curseg_;
+    curcbo_ = oth.curcbo_;
+    prevcbo_ = oth.prevcbo_;
+    curusrcbo_ = oth.curusrcbo_;
+    prevusrcbo_ = oth.prevusrcbo_;
+    curlnstart_ = oth.curlnstart_;
+    nroffsthispos_ = oth.nroffsthispos_;
+    errmsg_ = oth.errmsg_;
+
+    return *this;
 }
 
 
@@ -94,6 +151,44 @@ bool PosInfo::Detector::finish()
     }
 
     return true;
+}
+
+
+void PosInfo::Detector::appendResults( const PosInfo::Detector& oth )
+{
+    deepAppend( lds_, oth.lds_ );
+    lastcbo_ = oth.lastcbo_;
+
+    // following can be improved, there may be a gap between the two 'blocks'
+    allstd_ = allstd_ && oth.allstd_; // can be improved
+    inlirreg_ = inlirreg_ || oth.inlirreg_;
+    crlirreg_ = crlirreg_ || oth.crlirreg_;
+
+#   define mChkMin(memb) if ( memb > oth.memb ) memb = oth.memb
+#   define mChkMax(memb) if ( memb < oth.memb ) memb = oth.memb
+    mChkMin(mincoord_.x); mChkMin(mincoord_.y);
+    mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
+    mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
+    mChkMin(start_.inl()); mChkMin(start_.crl());
+    mChkMax(stop_.inl()); mChkMax(stop_.crl());
+    mChkMin(distrg_.start); mChkMax(distrg_.stop);
+
+    const int mylen = llnstop_.binid_.inl() - llnstart_.binid_.inl();
+    const int othlen = oth.llnstop_.binid_.inl() - oth.llnstart_.binid_.inl();
+    if ( mylen < othlen )
+	{ llnstart_ = oth.llnstart_; llnstop_ = oth.llnstop_; }
+
+    if ( mIsUdf(firstduppos_.binid_.inl()) )
+	firstduppos_ = oth.firstduppos_;
+    if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
+	firstaltnroffs_ = oth.firstaltnroffs_;
+
+    if ( nruniquepos_+oth.nruniquepos_ > 0 )
+	avgdist_ = (avgdist_*nruniquepos_ + oth.avgdist_*oth.nruniquepos_)
+		 / (nruniquepos_+oth.nruniquepos_);
+
+    nrpos_ += oth.nrpos_;
+    nruniquepos_ += oth.nruniquepos_;
 }
 
 
@@ -226,7 +321,6 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 
     return 0;
 }
-
 
 
 bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
@@ -397,7 +491,7 @@ void PosInfo::Detector::addPos()
 	}
 	if ( setup_.is2d_ )
 	{
-	    const float dist = (float) curcbo_.coord_.distTo( prevcbo_.coord_ );
+	    const float dist = (float)curcbo_.coord_.distTo( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
 		distrg_.start = distrg_.stop = dist;
 	    else

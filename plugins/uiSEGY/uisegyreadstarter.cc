@@ -291,10 +291,9 @@ bool uiSEGYReadStarter::needICvsXY() const
 
 void uiSEGYReadStarter::setButtonStatuses()
 {
-    const int nrfiles = scaninfos_ ? scaninfos_->size() : 0;
+    const int nrfiles = filespec_.nrFiles();
     examinebut_->setSensitive( nrfiles > 0 );
     fullscanbut_->setSensitive( nrfiles > 0 );
-    editbut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
     if ( icvsxybut_ )
@@ -305,6 +304,8 @@ void uiSEGYReadStarter::setButtonStatuses()
 	    icvsxybut_->setIcon( loaddef_.icvsxytype_ ==
 		    SEGY::FileReadOpts::XYOnly ? "usexy" : "useic" );
     }
+
+    editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
 }
 
 
@@ -375,6 +376,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
     handleNewInputSpec( KeepNone );
+    setButtonStatuses();
 }
 
 
@@ -408,7 +410,7 @@ void uiSEGYReadStarter::runClassic( bool imp )
 
 void uiSEGYReadStarter::editFile( CallBacker* )
 {
-    const BufferString fnm( inpfld_->fileName() );
+    const BufferString fnm( filespec_.fileName(0) );
     if ( !File::exists(fnm) )
 	return;
 

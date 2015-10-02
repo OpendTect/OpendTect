@@ -452,6 +452,7 @@ void SEGY::ScanInfo::finishGet( od_istream& strm )
 SEGY::ScanInfoSet::ScanInfoSet( bool is2d )
     : is2d_(is2d)
     , keydata_(*new HdrEntryKeyData)
+    , detector_(*new PosInfo::Detector(is2d))
 {
     setEmpty();
 }
@@ -464,6 +465,7 @@ void SEGY::ScanInfoSet::setEmpty()
     keydata_.setEmpty();
     rgs_.reInit();
     deepErase( sis_ );
+    detector_.reInit();
 }
 
 
@@ -490,8 +492,9 @@ void SEGY::ScanInfoSet::finish()
 
     const ScanInfo& sis0 = *sis_[0];
     nrtrcs_ = sis0.nrTraces();
-    rgs_ = sis_[0]->ranges();
-    keydata_ = sis_[0]->keyData();
+    rgs_ = sis0.ranges();
+    keydata_ = sis0.keyData();
+    detector_ = sis0.piDetector();
 
     for ( int idx=1; idx<sis_.size(); idx++ )
     {
@@ -499,7 +502,11 @@ void SEGY::ScanInfoSet::finish()
 	nrtrcs_ += sis.nrTraces();
 	rgs_.merge( sis.ranges() );
 	keydata_.merge( sis.keyData() );
+	detector_.appendResults( sis.piDetector() );
     }
+
+    keydata_.finish();
+    detector_.finish();
 }
 
 
@@ -508,14 +515,6 @@ static const SEGY::BasicFileInfo dummyfileinfo;
 const SEGY::BasicFileInfo& SEGY::ScanInfoSet::basicInfo() const
 {
     return sis_.isEmpty() ? dummyfileinfo : sis_[0]->basicInfo();
-}
-
-
-static const PosInfo::Detector dummypidet( PosInfo::Detector::Setup(true) );
-
-const PosInfo::Detector& SEGY::ScanInfoSet::piDetector() const
-{
-    return sis_.isEmpty() ? dummypidet : sis_[0]->piDetector();
 }
 
 
