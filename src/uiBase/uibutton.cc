@@ -284,7 +284,7 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 	mGetDefs(Settings,options)
 	mGetDefs(Properties,options)
 	mGetDefs(Help,help)
-	mGetDefs(Ok,checkgreen)
+	mGetDefs(Ok,ok)
 	mGetDefs(Cancel,cancel)
     }
 

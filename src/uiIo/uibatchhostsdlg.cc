@@ -93,9 +93,9 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     uiButtonGroup* buttons = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( buttons, "addnew", uiStrings::phrAdd(tr("Host")),
 			mCB(this,uiBatchHostsDlg,addHostCB) );
-    new uiToolButton( buttons, "stop", uiStrings::phrRemove(tr("Host")),
+    new uiToolButton( buttons, "remove", uiStrings::phrRemove(tr("Host")),
 			mCB(this,uiBatchHostsDlg,rmHostCB) );
-    upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow, 
+    upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow,
 			uiStrings::sMoveUp(),
 			mCB(this,uiBatchHostsDlg,moveUpCB) );
     downbut_ = new uiToolButton( buttons, uiToolButton::DownArrow,
