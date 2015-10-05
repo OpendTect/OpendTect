@@ -59,28 +59,6 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 }
 
 
-void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
-						  const char** frmtdesc,
-						  BufferString& filters )
-{
-    BufferStringSet supportedformats;
-    supportedImageFormats( supportedformats );
-    int idy = 0;
-    while ( imagefrmt[idy] )
-    {
-	if ( supportedformats.isPresent( imagefrmt[idy] ) )
-	{
-	    if ( !filters.isEmpty() ) filters += ";;";
-	    filters += frmtdesc[idy];
-	}
-	idy++;
-    }
-
-    uiSaveImageDlg::addPrintFmtFilters( filters );
-    filters_ = filters;
-}
-
-
 void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
 { aspectratio_ = (float) ( scene_->width() / scene_->height() ); }
 

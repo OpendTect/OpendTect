@@ -33,18 +33,17 @@ public:
     Notifier<uiSaveImageDlg>	sizesChanged;
 
     void		sPixels2Inch(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&,float);
+				     Geom::Size2D<float>&,float);
     void		sInch2Pixels(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&,float);
+				     Geom::Size2D<float>&,float);
     void		sCm2Inch(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&);
+				     Geom::Size2D<float>&);
     void		sInch2Cm(const Geom::Size2D<float>&,
-	    			     Geom::Size2D<float>&);
+				     Geom::Size2D<float>&);
     void		createGeomInpFlds(uiObject*);
-    void                fillPar(IOPar&,bool is2d);
-    bool                usePar(const IOPar&);
-    
-    static void		addPrintFmtFilters(BufferString&);
+
+    void		fillPar(IOPar&,bool is2d);
+    bool		usePar(const IOPar&);
 
 protected:
     void		setDirName(const char*);
@@ -70,9 +69,7 @@ protected:
     void		getSettingsPar(PtrMan<IOPar>&,BufferString);
     void		setSizeInPix(int width, int height);
     void		updateFilter();
-    virtual void	getSupportedFormats(const char** imgfrmt,
-	    				    const char** frmtdesc,
-					    BufferString& filter)	=0;
+    virtual bool	supportPrintFormats() const			= 0;
     void		fileSel(CallBacker*);
     void		addFileExtension(BufferString&);
     bool		filenameOK() const;
@@ -112,10 +109,10 @@ mExpClass(uiTools) uiSaveWinImageDlg : public uiSaveImageDlg
 {
 public:
 			uiSaveWinImageDlg(uiParent*);
+
 protected:
-    void		getSupportedFormats(const char** imgfrmt,
-	    				    const char** frmtdesc,
-					    BufferString& filter);
+    bool		supportPrintFormats() const	{ return true; }
+
     void		setFldVals(CallBacker*);
     bool		acceptOK(CallBacker*);
 };

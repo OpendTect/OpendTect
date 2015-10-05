@@ -157,6 +157,9 @@ bool uiPixmap::isPresent( const char* icnm )
     return OD::IconFile::isPresent( icnm );
 }
 
+static int sPDFfmtIdx = 5;
+static int sPSfmtIdx = 6;
+static int sEPSfmtIdx = 7;
 
 static const char* sImageFormats[] =
 { "jpg", "png", "tiff", "bmp", "xpm", "pdf", "ps", "eps", 0 };
@@ -175,7 +178,8 @@ static const char* sImageFormatDescs[] =
 };
 
 
-void supportedImageFormats( BufferStringSet& formats, bool forread )
+void supportedImageFormats( BufferStringSet& formats, bool forread,
+			    bool withprintformats )
 {
     QList<QByteArray> imgfrmts = forread
 	? QImageReader::supportedImageFormats()
@@ -183,10 +187,18 @@ void supportedImageFormats( BufferStringSet& formats, bool forread )
 
     for ( int idx=0; idx<imgfrmts.size(); idx++ )
 	formats.add( imgfrmts[idx].data() );
+
+    if ( withprintformats )
+    {
+	formats.add( sImageFormats[sPDFfmtIdx] );
+	formats.add( sImageFormats[sPSfmtIdx] );
+	formats.add( sImageFormats[sEPSfmtIdx] );
+    }
 }
 
 
-void getImageFileFilter( BufferString& filter, bool forread )
+void getImageFormatDescs( BufferStringSet& descs, bool forread,
+			  bool withprintformats )
 {
     BufferStringSet formats; supportedImageFormats( formats, forread );
 
@@ -194,10 +206,23 @@ void getImageFileFilter( BufferString& filter, bool forread )
     while ( sImageFormats[idx] )
     {
 	if ( formats.isPresent(sImageFormats[idx]) )
-	{
-	    if ( !filter.isEmpty() ) filter += ";;";
-	    filter += sImageFormatDescs[idx];
-	}
+	    descs.add( sImageFormatDescs[idx] );
 	idx++;
     }
+
+    if ( withprintformats )
+    {
+	descs.add( sImageFormatDescs[sPDFfmtIdx] );
+	descs.add( sImageFormatDescs[sPSfmtIdx] );
+	descs.add( sImageFormatDescs[sEPSfmtIdx] );
+    }
+}
+
+
+void getImageFileFilter( BufferString& filter, bool forread,
+			 bool withprintformats )
+{
+    BufferStringSet descs;
+    getImageFormatDescs( descs, forread, withprintformats );
+    filter = descs.cat( ";;" );
 }

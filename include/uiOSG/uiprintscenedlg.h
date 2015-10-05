@@ -28,7 +28,7 @@ namespace osg
 */
 
 mExpClass(uiOSG) uiPrintSceneDlg : public uiSaveImageDlg
-{ mODTextTranslationClass(uiPrintSceneDlg);
+{ mODTextTranslationClass(uiPrintSceneDlg)
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);
 protected:
@@ -37,9 +37,7 @@ protected:
 
     const char*		getExtension();
     void		writeToSettings();
-    void		getSupportedFormats(const char** imagefrmt,
-					    const char** frmtdesc,
-					    BufferString& filters);
+    bool		supportPrintFormats() const	{ return false; }
 
     enum		{InvalidImages=0, OnlyMainViewImage, MainAndHudImages };
     void		setFldVals(CallBacker*);

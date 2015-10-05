@@ -36,25 +36,6 @@ static const char* sKeySnapshot = "snapshot";
 
 BufferString uiSaveImageDlg::dirname_;
 
-static int sPDFfmtIdx = 4;
-static int sPSfmtIdx = 5;
-static int sEPSfmtIdx = 6;
-
-static const char* imageformats[] =
-{ "jpg", "png", "bmp", "xpm", "pdf", "ps", "eps", 0 };
-
-static const char* imageformatdescs[] =
-{
-    "JPEG (*.jpg *.jpeg)",
-    "PNG (*.png)",
-    "Bitmap (*.bmp)",
-    "XPM (*.xpm)",
-    "Portable Doc Format (*.pdf)",
-    "Postscript (*.ps)",
-    "EPS (*.eps)",
-    0
-};
-
 
 static const StepInterval<float> maximum_size_range(0.5,999,0.1);
 static StepInterval<float> maximum_pixel_size_range(1,99999,1);
@@ -116,7 +97,7 @@ void uiSaveImageDlg::copyToClipBoardClicked( CallBacker* )
 void uiSaveImageDlg::updateFilter()
 {
     BufferString filterstr;
-    getSupportedFormats( imageformats, imageformatdescs, filterstr );
+    getImageFileFilter( filterstr, false, supportPrintFormats() );
     filters_ = filterstr;
     fileinputfld_->setFilter( filterstr );
 }
@@ -196,7 +177,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     heightfld_->attach( rightTo, widthfld_ );
 
     const char* units[] = { "cm", "inches", 0 };
-    unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    unitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 						    StringListInpSpec(units) );
     unitfld_->setElemSzPol( uiObject::Small );
     unitfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
@@ -403,15 +384,14 @@ bool uiSaveImageDlg::filenameOK() const
 
 const char* uiSaveImageDlg::getExtension()
 {
-    int ifmt = -1;
     FilePath fp( fileinputfld_->fileName() );
     const BufferString ext( fp.extension() );
-    for ( int idx=0; imageformats[idx]; idx++ )
-    {
-	if ( ext == imageformats[idx] )
-	    { ifmt = idx; break; }
-    }
+    BufferStringSet imageformats;
+    supportedImageFormats( imageformats, false );
+    BufferStringSet formatdescs;
+    getImageFormatDescs( formatdescs, false );
 
+    int ifmt = imageformats.indexOf( ext.buf() );
     if ( ifmt < 0 )
     {
 	ifmt = 0;
@@ -436,14 +416,17 @@ const char* uiSaveImageDlg::getExtension()
 	    filter += tempstr;
 	}
 
-	for ( int idx=0; imageformatdescs[idx]; idx++ )
+	for ( int idx=0; idx<formatdescs.size(); idx++ )
 	{
-	    if ( !strncmp(imageformatdescs[idx],filter.buf(),3) )
+	    if ( !strncmp(formatdescs.get(idx).buf(),filter.buf(),3) )
 		ifmt = idx;
 	}
     }
 
-    return imageformats[ifmt] ? imageformats[ifmt] : imageformats[0];
+    ifmt = imageformats.validIdx(ifmt) ? ifmt : 0;
+    mDeclStaticString(ret);
+    ret = imageformats.get(ifmt);
+    return ret.buf();
 }
 
 
@@ -499,18 +482,12 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     res.setEmpty();
     par.get( sKeyFileType(), res );
 
-    int idx = 0;
-    while ( imageformats[idx] )
-    {
-	if ( res != imageformats[idx] )
-	{
-	    idx++;
-	    continue;
-	}
-
-	fileinputfld_->setSelectedFilter( imageformatdescs[idx] );
-	break;
-    }
+    BufferStringSet formats, descs;
+    supportedImageFormats( formats, false, supportPrintFormats() );
+    getImageFormatDescs( descs, false, supportPrintFormats() );
+    const int idx = formats.indexOf( res );
+    if ( descs.validIdx(idx) )
+	fileinputfld_->setSelectedFilter( formats.get(idx) );
 
     if ( ispixel )
 	setSizeInPix( (int)sizepix_.width(), (int)sizepix_.height() );
@@ -533,17 +510,8 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 }
 
 
-void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
-{
-    filters += ";;";
-    filters += imageformatdescs[sPDFfmtIdx];
-    filters += ";;";
-    filters += imageformatdescs[sPSfmtIdx];
-    filters += ";;";
-    filters += imageformatdescs[sEPSfmtIdx];
-}
 
-
+// uiSaveWinImageDlg
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
@@ -573,27 +541,6 @@ void uiSaveWinImageDlg::setFldVals( CallBacker* )
 	const int h = mw->geometry().height();
 	setSizeInPix( w, h );
     }
-}
-
-
-void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
-					     const char** frmtdesc,
-					     BufferString& filters )
-{
-    BufferStringSet supportedformats;
-    supportedImageFormats( supportedformats );
-    int idy = 0;
-    while ( imagefrmt[idy] )
-    {
-	if ( supportedformats.isPresent(imagefrmt[idy]) )
-	{
-	    if ( !filters.isEmpty() ) filters += ";;";
-	    filters += frmtdesc[idy];
-	}
-	idy++;
-    }
-
-    uiSaveImageDlg::addPrintFmtFilters( filters );
 }
 
 

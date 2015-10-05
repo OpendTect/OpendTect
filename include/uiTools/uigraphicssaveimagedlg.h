@@ -20,12 +20,11 @@ mExpClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
 { mODTextTranslationClass(uiGraphicsSaveImageDlg);
 public:
 			uiGraphicsSaveImageDlg(uiParent*,uiGraphicsScene*);
+
 protected:
     uiGraphicsScene*	scene_;
-  
-    void		getSupportedFormats(const char** imagefrmt,
-					    const char** frmtdesc,
-					    BufferString& filters);
+
+    bool		supportPrintFormats() const	{ return true; }
     void		writeToSettings();
     void		setAspectRatio(CallBacker*);
     void		setFldVals(CallBacker*);

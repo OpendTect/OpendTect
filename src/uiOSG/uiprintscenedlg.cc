@@ -93,31 +93,6 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 }
 
 
-void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,
-					   const char** frmtdesc,
-					   BufferString& filters )
-{
-    BufferStringSet supportedimageformats;
-    supportedImageFormats( supportedimageformats );
-
-    int idx = 0;
-    while ( imagefrmt[idx] )
-    {
-	for ( int idxfmt = 0; idxfmt<supportedimageformats.size(); idxfmt++ )
-	{
-	    if ( supportedimageformats.get(idxfmt) == imagefrmt[idx] )
-	    {
-		if ( !filters.isEmpty() ) filters += ";;";
-		filters += frmtdesc[idx];
-		break;
-	    }
-	}
-	idx++;
-    }
-
-}
-
-
 void uiPrintSceneDlg::setFldVals( CallBacker* )
 {
     if ( useparsfld_->getBoolValue() )
