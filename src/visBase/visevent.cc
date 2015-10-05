@@ -330,6 +330,11 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	    if ( !eventinfo.pressed && !wasdragging_ )
 		isactivepickevent = false;
 	}
+
+	//We don't accept press or release events if no buttons are active.
+	//Probably we have touch-event.
+	if ( !buttonstate )
+	    return false;
     }
 
     if ( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT )

@@ -334,7 +334,11 @@ void ui3DViewerBody::setupHUD()
 
 void ui3DViewerBody::setupTouch()
 {
+    if ( getGraphicsWindow().getEventQueue() )
+	getGraphicsWindow().getEventQueue()->setFirstTouchEmulatesMouse(false);
+
     qwidget()->grabGesture(Qt::PinchGesture);
+
 }
 
 
