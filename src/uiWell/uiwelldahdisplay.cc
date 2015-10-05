@@ -138,8 +138,8 @@ void uiWellDahDisplay::gatherInfo()
 			 : ld2_->dahobj_ ? ld2_->dahobj_->name().str() : 0;
     BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name().str()
 			 : ld1_->dahobj_ ? ld1_->dahobj_->name().str() : 0;
-    ld1_->xax_.setCaption( axis1nm );
-    ld2_->xax_.setCaption( axis2nm );
+    ld1_->xax_.setCaption( toUiString(axis1nm) );
+    ld2_->xax_.setCaption( toUiString(axis2nm) );
 }
 
 
@@ -332,7 +332,8 @@ void uiWellDahDisplay::drawCurve( bool first )
     {
 	Alignment al( Alignment::HCenter, first ? Alignment::Top
 						: Alignment::Bottom );
-	uiTextItem* ti = scene().addItem(new uiTextItem(ld.dahobj_->name(),al));
+	uiTextItem* ti = scene().addItem(new uiTextItem(toUiString(
+						       ld.dahobj_->name()),al));
 	ti->setTextColor( ls.color_ );
 	uiPoint txtpt;
 	txtpt = first ? uiPoint( pts[0] ) : pts[pts.size()-1];
@@ -396,7 +397,7 @@ void uiWellDahDisplay::drawMarkers()
 	if ( setup_.nrmarkerchars_ < mtxt.size() )
 	mtxt[setup_.nrmarkerchars_] = '\0';
 	uiTextItem* ti = scene().addItem(
-	new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
+	new uiTextItem(toUiString(mtxt),mAlignment(Right,VCenter)) );
 	ti->setPos( uiPoint(x1-1,y) );
 	ti->setTextColor( nmcol );
 	mrkdraw->txtitm_ = ti;

@@ -81,22 +81,26 @@ uiWellMan::uiWellMan( uiParent* p )
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsfld_ );
-    logvwbut_ = butgrp->addButton( "view_log", "View selected log",
-			mCB(this,uiWellMan,viewLogPush) );
+    logvwbut_ = butgrp->addButton( "view_log", mJoinUiStrs(sView(),
+					      sSelectedLog().toLower()),
+					      mCB(this,uiWellMan,viewLogPush) );
     logrenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
-		"Rename selected log", mCB(this,uiWellMan,renameLogPush) );
+		      uiStrings::phrRename(uiStrings::sSelectedLog().toLower()),
+		      mCB(this,uiWellMan,renameLogPush) );
     logrmbut_ = butgrp->addButton( uiManipButGrp::Remove,
-		"Remove selected log(s)", mCB(this,uiWellMan,removeLogPush) );
+		uiStrings::phrRemove(uiStrings::sSelectedLog(mPlural).toLower())
+		, mCB(this,uiWellMan,removeLogPush) );
     logexpbut_ = butgrp->addButton( "export",
 			uiStrings::phrExport( uiStrings::sWellLog(mPlural) ),
 			mCB(this,uiWellMan,exportLogs) );
-    loguombut_ = butgrp->addButton( "unitsofmeasure",
-		"View/edit unit of measure", mCB(this,uiWellMan,logUOMPush) );
+    loguombut_ = butgrp->addButton( "unitsofmeasure", 
+					tr("View/edit unit of measure"), 
+					mCB(this,uiWellMan,logUOMPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
-    logupbut_ = butgrp->addButton( "uparrow", "Move up",
+    logupbut_ = butgrp->addButton( "uparrow", uiStrings::sMoveUp(),
 			mCB(this,uiWellMan,moveLogsPush) );
-    logdownbut_ = butgrp->addButton( "downarrow", "Move down",
+    logdownbut_ = butgrp->addButton( "downarrow", uiStrings::sMoveDown(),
 			mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,logSel) );
     logsfld_->itemChosen.notify( mCB(this,uiWellMan,logSel) );
@@ -104,8 +108,8 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_->attach( rightOf, selgrp_ );
 
     welltrackbut_ = new uiToolButton( extrabutgrp_, "edwelltrack",
-				     uiStrings::phrEdit(tr("Well Track")),
-				     mCB(this,uiWellMan, edWellTrack) );
+			uiStrings::phrEdit(mJoinUiStrs(sWell(),sTrack())),
+			mCB(this,uiWellMan, edWellTrack) );
 
     if ( SI().zIsTime() )
     {
@@ -211,7 +215,7 @@ void uiWellMan::fillLogsFld()
     }
 
     for ( int idx=0; idx<availablelognms_.size(); idx++)
-	logsfld_->addItem( availablelognms_.get(idx) );
+	logsfld_->addItem( toUiString(availablelognms_.get(idx)) );
 
     logsfld_->chooseAll( false );
     addlogsbut_->setSensitive( iswritable_ && curwds_.size() == 1 );
@@ -222,20 +226,22 @@ void uiWellMan::fillLogsFld()
 
 
 
-static void setButToolTip( uiButton* but, const char* oper, const char* objtyp,
-			const char* obj, const char* end=0 )
+void uiWellMan::setButToolTip( uiButton* but, const uiString& oper, 
+			   const uiString& objtyp, const uiString& obj, 
+			   const uiString& end )
 {
     if ( !but )
 	return;
 
-    BufferString tt( oper, " ", objtyp );
-    if ( but->sensitive() && obj )
-	tt.add( " for '" ).add( obj ).add( "'" );
+    uiString tt = toUiString("%1 %2").arg(oper)
+				     .arg(objtyp);
+    if ( but->sensitive() && !obj.isEmpty() )
+	tt = tr("%1 for '%2'").arg(tt).arg(obj);
 
-    if ( end )
-	tt.add( end );
+    if ( !end.isEmpty() )
+	tt = toUiString("%1 %2").arg(tt).arg(end);
 
-    but->setToolTip( tt );
+    but->setToolTip( tt );			       
 }
 
 
@@ -245,17 +251,19 @@ static void setButToolTip( uiButton* but, const char* oper, const char* objtyp,
 
 void uiWellMan::setWellToolButtonProperties()
 {
-    const char* curwellnm = curioobj_ ? curioobj_->name().str() : 0;
-    const char* edvwstr = iswritable_ ? "Edit" : "View";
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName() : 
+						      uiStrings::sEmptyString();
+    const uiString edvwstr = iswritable_ ? uiStrings::sEdit() : 
+							     uiStrings::sView();
 
-    mSetWellButToolTip( welltrackbut_, "Well Track" );
+    mSetWellButToolTip( welltrackbut_, mJoinUiStrs(sWell(),sTrack()) );
     if ( d2tbut_ )
-	mSetWellButToolTip( d2tbut_, "Depth/Time model" );
+	mSetWellButToolTip( d2tbut_, tr("Depth/Time model") );
 
     if ( csbut_ )
-	mSetWellButToolTip( csbut_, "Checkshot Data" );
+	mSetWellButToolTip( csbut_, tr("Checkshot Data") );
 
-    mSetWellButToolTip( markerbut_, "Markers" );
+    mSetWellButToolTip( markerbut_, uiStrings::sMarker(mPlural) );
 }
 
 
@@ -282,25 +290,35 @@ void uiWellMan::setLogToolButtonProperties()
     loguombut_->setSensitive( iswritable_ && nrlogs > 0 );
     logedbut_->setSensitive( iswritable_ && nrlogs > 0 );
 
-    const char* curwellnm = curioobj_ ? curioobj_->name().str() : 0;
-    const char* curlognm = logsfld_->getText();
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName() : 
+						      uiStrings::sEmptyString();
+    const uiString curlognm = toUiString(logsfld_->getText());
 
-    mSetLogButToolTip( logupbut_, "Move", " up" );
-    mSetLogButToolTip( logdownbut_, "Move", " down" );
-    mSetLogButToolTip( logrenamebut_, "Rename", 0 );
-    mSetLogButToolTip( loguombut_, "View/edit units of measure for ", 0 );
-    mSetLogButToolTip( logedbut_, "Edit", 0 );
+    mSetLogButToolTip( logupbut_, uiStrings::sMove(), 
+						   uiStrings::sUp().toLower() );
+    mSetLogButToolTip( logdownbut_, uiStrings::sMove(), 
+						 uiStrings::sDown().toLower() );
+    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(), 
+						    uiStrings::sEmptyString() );
+    mSetLogButToolTip( loguombut_, tr("View/edit units of measure for "), 
+						    uiStrings::sEmptyString() );
+    mSetLogButToolTip( logedbut_, uiStrings::sEdit(), 
+						    uiStrings::sEmptyString() );
 
-    setButToolTip( logrmbut_, "Remove", lognms.getDispString(3), curwellnm, 0 );
-    setButToolTip( logexpbut_, "Export", lognms.getDispString(3),
-			nrchosenwells==1 ? curwellnm : 0, 0 );
+    setButToolTip(logrmbut_, uiStrings::sRemove(), 
+		  toUiString(lognms.getDispString(3)), curwellnm, 
+		  uiStrings::sEmptyString());
+    setButToolTip(logexpbut_, uiStrings::sExport(), 
+		  toUiString(lognms.getDispString(3)), 
+		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(), 
+		  uiStrings::sEmptyString() );
 
     const int nrlogs2vw = nrchosenwells * nrchosenlogs ;
     const bool canview = nrlogs2vw == 1 || nrlogs2vw == 2;
     logvwbut_->setSensitive( canview );
 
     if ( !canview )
-	logvwbut_->setToolTip( "View log(s)" );
+	logvwbut_->setToolTip( mJoinUiStrs(sView(),sLog(mPlural).toLower()) );
     else
     {
 	BufferStringSet wellnms;
@@ -312,8 +330,9 @@ void uiWellMan::setLogToolButtonProperties()
 	    delete ioobj;
 	}
 
-	BufferString tt( "View ", lognms.getDispString(2), " for " );
-	tt.add( wellnms.getDispString(2) );
+	uiString tt = tr("View %1 for %2")
+		      .arg(toUiString(lognms.getDispString(2)))
+		      .arg(toUiString(wellnms.getDispString(2)));
 	logvwbut_->setToolTip( tt );
     }
 }
@@ -593,7 +612,7 @@ void uiWellMan::writeLogs()
     {
 	Well::Writer wwr( curmultiids_[idwell], *curwds_[idwell] );
 	if ( !wwr.putLogs() )
-	    uiMSG().error( wwr.errMsg() );
+	    uiMSG().error( mToUiStringTodo(wwr.errMsg()) );
     }
     wellsChgd();
 }
@@ -667,9 +686,10 @@ void uiWellMan::viewLogPush( CallBacker* )
 void uiWellMan::renameLogPush( CallBacker* )
 {
     mEnsureLogSelected(uiStrings::sNoLogSel());
-    BufferString lognm( logsfld_->getText() );
-    const BufferString titl( "Rename '",lognm, "'" );
-    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
+    BufferString lognm = logsfld_->getText();
+    const uiString titl = uiStrings::phrRename(toUiString("'%1'").arg(lognm));
+    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()), 
+				new StringInpSpec(lognm));
     if ( !dlg.go() )
 	return;
 
@@ -680,7 +700,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
-	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
+	Well::Log* log = curwds_[idwell]->logs().getLog(lognm);
 	if ( log ) log->setName( newnm );
     }
     writeLogs();
@@ -768,7 +788,7 @@ void uiWellMan::mkFileInfo()
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    txt.add( Well::Info::sKBElev().getFullString() ).add( colonstr );
+	    txt.add(Well::Info::sKeyKBElev()).add(colonstr);
 	    txt.add( zun ? zun->userValue(rdelev) : rdelev );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
@@ -777,7 +797,7 @@ void uiWellMan::mkFileInfo()
 	const float td = track.dahRange().stop;
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	{
-	    txt.add( Well::Info::sTD().getFullString() ).add( colonstr );
+	    txt.add(Well::Info::sKeyTD()).add( colonstr );
 	    txt.add( zun ? zun->userValue(td) : td );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
@@ -795,7 +815,7 @@ void uiWellMan::mkFileInfo()
 	const float replvel = info.replvel;
 	if ( !mIsUdf(replvel) )
 	{
-	     txt.add( Well::Info::sReplVel().getFullString() ).add( colonstr );
+	     txt.add(Well::Info::sKeyReplVel()).add(colonstr);
 	     txt.add( zun ? zun->userValue(replvel) : replvel );
 	     txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
 		      .getFullString() );
@@ -805,7 +825,7 @@ void uiWellMan::mkFileInfo()
 	const float groundelev = info.groundelev;
 	if ( !mIsUdf(groundelev) )
 	{
-	    txt.add( Well::Info::sGroundElev().getFullString() ).add( colonstr);
+	    txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
 	    txt.add( zun ? zun->userValue(groundelev) : groundelev );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();

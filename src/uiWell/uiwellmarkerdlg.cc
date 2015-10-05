@@ -121,10 +121,11 @@ static float uiMarkerDlgzFactor( uiCheckBox* cb=0 )
 }
 
 
-static void exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
-			const Well::Track& trck, uiCheckBox* cb=0 )
+void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
+			const Well::Track& trck, uiCheckBox* cb )
 {
-    uiFileDialog fdlg( p, false, 0, 0, "File name for export" );
+    uiFileDialog fdlg( p, false, 0, 0, tr("%1 for export")
+				       .arg(uiStrings::sFileName()) );
     fdlg.setDirectory( GetDataDir() );
     if ( !fdlg.go() )
 	return;
@@ -253,7 +254,8 @@ bool uiMarkerDlg::getFromScreen()
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
-    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 0 );
+    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 
+						    uiStrings::sEmptyString() );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     const int currentrow = table_->currentRow();
     const Color defgreycol( 128, 128, 128 );
@@ -392,7 +394,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp);
 	if ( !levelsel )
 	{
-	    levelsel = new uiStratLevelSel( 0, true, 0 );
+	    levelsel = new uiStratLevelSel(0, true, uiStrings::sEmptyString());
 	    levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
 	    table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	}
@@ -474,9 +476,9 @@ uiReadMarkerFile( uiParent* p )
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
-    fnmfld_ = new uiFileInput( this, "Input ASCII file",
-			uiFileInput::Setup().withexamine(true)
-					    .forread(true));
+    fnmfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
+			       uiFileInput::Setup().withexamine(true)
+			       .forread(true) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mTableImpDataSelmarkersHelpID) );
@@ -612,7 +614,7 @@ uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
     list_ = new uiListBox( this, "Markers" );
     list_->setMultiChoice( true );
     for ( int idx=0; idx<mset.size(); idx++ )
-	list_->addItem( mset[idx]->name(), mset[idx]->color() );
+	list_->addItem( toUiString(mset[idx]->name()), mset[idx]->color() );
 }
 
 void getSelIDs( TypeSet<int>& items )
@@ -718,7 +720,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd )
     {
-	uiMSG().error( Well::MGR().errMsg() );
+	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
 	return;
     }
 
@@ -844,7 +846,8 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
 
 
 uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
-    : uiDialog(p,uiDialog::Setup("Well Markers",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),
+						     mNoDlgTitle,mTODOHelpKey))
     , table_(0)
     , wd_(&wd)
 {
@@ -852,11 +855,11 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 	return;
 
     setCtrlStyle( CloseOnly );
-    setTitleText( BufferString("Markers for well '",wd_->name(),"'") );
+    setTitleText( tr("Markers for well '%1'").arg(toUiString(wd_->name())) );
 
     const Well::MarkerSet& mset = wd_->markers();
     if ( mset.isEmpty() )
-	{ new uiLabel( this, "No markers for this well" ); return; }
+	{ new uiLabel( this, tr("No markers for this well") ); return; }
 
     const int nrmrks = mset.size();
     table_ = createMarkerTable( this, nrmrks, false );
@@ -879,7 +882,7 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     }
 
 
-    uiButton* expbut = new uiPushButton( this, "&Export",
+    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
 				    mCB(this,uiMarkerViewDlg,exportCB), false );
     expbut->setIcon( "export" );
     expbut->attach( centeredBelow, table_ );
@@ -891,5 +894,5 @@ void uiMarkerViewDlg::exportCB( CallBacker* )
     if ( !wd_ )
 	return;
 
-    exportMarkerSet( this, wd_->markers(), wd_->track() );
+    uiMarkerDlg::exportMarkerSet( this, wd_->markers(), wd_->track() );
 }

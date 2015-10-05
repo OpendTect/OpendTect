@@ -40,7 +40,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
     , altpref_(0)
     , altPropChosen(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pr.name() );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox(this, toUiString(pr.name()));
     lognmfld_ = lcb->box();
     lognmfld_->selectionChanged.notify(
 			       mCB(this,uiWellSinglePropSel,updateSelCB) );
@@ -52,7 +52,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
 
     if ( altpropref_ )
     {
-	altbox_ = new uiCheckBox( this, altpropref_->name() );
+	altbox_ = new uiCheckBox( this, toUiString(altpropref_->name()) );
 	altbox_->attach( rightOf, unfld_ );
 	altbox_->activated.notify( mCB(this,uiWellSinglePropSel,switchPropCB) );
     }

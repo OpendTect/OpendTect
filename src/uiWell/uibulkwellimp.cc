@@ -174,7 +174,8 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )
 	{
-	    errors.add( uiStrings::phrCannotCreateDBEntryFor(wd->name()) );
+	    errors.add( uiStrings::phrCannotCreateDBEntryFor(
+						    toUiString(wd->name())) );
 	    continue;
 	}
 
@@ -195,7 +196,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter input file name" )
+	mErrRet( uiStrings::phrInput(mJoinUiStrs(sFile(),sName())) )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -232,7 +233,8 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 				 mODHelpKey(mBulkLogImportHelpID))
 			   .modal(false))
 {
-    inpfld_ = new uiFileInput( this, "Input LAS files",	uiFileInput::Setup() );
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
+		  uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
@@ -271,7 +273,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{
-	    errors.add( BufferString(fnm,": ",errmsg) );
+	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
+					    .arg(toUiString(errmsg)) );
 	    continue;
 	}
 
@@ -293,7 +296,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	lasimp.setData( wd );
 	errmsg = lasimp.getLogs( fnm, info, zistvd );
 	if ( !errmsg.isEmpty() )
-	    errors.add( BufferString(fnm,": ",errmsg) );
+	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
+					    .arg(toUiString(errmsg)) );
 
 	Well::Writer wtr( *ioobj, *wd );
 	wtr.putLogs();
@@ -319,8 +323,10 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 			   .modal(false))
     , fd_(BulkMarkerAscIO::getDesc())
 {
-    inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup()
-		.withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(
+			       mJoinUiStrs(sMarker(),sFile())), 
+			       uiFileInput::Setup().withexamine(true)
+			       .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -336,7 +342,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter input file name" )
+	mErrRet( uiStrings::sInvInpFile() )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -349,7 +355,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
     ObjectSet<MarkerSet> markersets;
     readFile( strm, wellnms, markersets );
     if ( wellnms.isEmpty() )
-	mErrRet( "No information read from file" );
+	mErrRet( uiStrings::phrCannotRead(uiStrings::sFile()) )
 
     const ObjectSet<Table::TargetInfo>& tis = fd_->bodyinfos_;
     const bool doconv = tis.validIdx(1) && tis[1]->selection_.form_==1;
@@ -389,7 +395,8 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	Well::Writer ww( *ioobj, *wd );
 	if ( !ww.putMarkers() )
 	{
-	    errors.add( BufferString(wellnm,": ",ww.errMsg()) );
+	    errors.add( toUiString("%1: %2").arg(toUiString(wellnm))
+					    .arg(toUiString(ww.errMsg())) );
 	    continue;
 	}
 
@@ -451,7 +458,8 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 {
     uiFileInput::Setup fs;
     fs.withexamine(true).examstyle(File::Table);
-    inpfld_ = new uiFileInput( this, "Input Depth/Time Model file", fs );
+    inpfld_ = new uiFileInput( this, 
+			 uiStrings::phrInput(tr("Depth/Time Model file")), fs );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
         mODHelpKey(mTableImpDataSelwellsHelpID) );
@@ -467,7 +475,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter input file name" )
+	mErrRet( uiStrings::phrEnter(mJoinUiStrs(sInputFile(),sName())))
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -479,7 +487,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
     ObjectSet<D2TModelData> d2tdata;
     readFile( strm, d2tdata );
     if ( d2tdata.isEmpty() )
-	mErrRet( "No information read from file" );
+	mErrRet( uiStrings::phrCannotRead(uiStrings::sFile()) )
 
     uiStringSet errors;
     for ( int idx=0; idx<d2tdata.size(); idx++ )
@@ -507,7 +515,8 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	Writer ww( *ioobj, *wd );
 	if ( !ww.putD2T() )
 	{
-	    errors.add( BufferString(wellnm,": ",ww.errMsg()) );
+	    errors.add( toUiString("%1: %2").arg(toUiString(wellnm))
+					    .arg(toUiString(ww.errMsg())) );
 	    continue;
 	}
 

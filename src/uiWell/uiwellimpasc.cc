@@ -43,8 +43,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Well Track"),mNoDlgTitle,
-				 mODHelpKey(mWellImportAscHelpID)).modal(false))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(mJoinUiStrs(sWell(),
+			   sTrack())),mNoDlgTitle,
+			   mODHelpKey(mWellImportAscHelpID)).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -57,8 +58,9 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     havetrckbox_->setChecked( true );
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
-    trckinpfld_ = new uiFileInput( this, "Well Track File",
-				   uiFileInput::Setup().withexamine(true) );
+    trckinpfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
+		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
+		   uiFileInput::Setup().withexamine(true) );
     trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
 
@@ -71,15 +73,15 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
-    BufferString coordunitslbl( "Coordinate " );
-    coordunitslbl += SI().getXYUnitString();
+    uiString coordunitslbl = uiStrings::phrJoinStrings(uiStrings::sCoordinate(),
+						      SI().getUiXYUnitString());
     coordfld_ = new uiGenInput( this, coordunitslbl,
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
     const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    uiString kblbl = tr( "%1 %2" )
-		     .arg(Well::Info::sKBElev()).arg( zunit );
+    uiString kblbl = toUiString( "%1 %2" ).arg(Well::Info::sKBElev())
+		     .arg( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
@@ -232,20 +234,20 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
 
-    idfld = new uiGenInput( this, Well::Info::sUwid(),
+    idfld = new uiGenInput( this, toUiString(Well::Info::sKeyUwid()),
 			    StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
     idfld->attach( ensureBelow, horsep );
 
-    operfld = new uiGenInput( this, Well::Info::sOper(),
+    operfld = new uiGenInput( this, toUiString(Well::Info::sKeyOper()),
 			      StringInpSpec(info.oper) );
     operfld->attach( rightTo, idfld );
 
-    statefld = new uiGenInput( this, Well::Info::sState(),
+    statefld = new uiGenInput( this, toUiString(Well::Info::sKeyState()),
 			       StringInpSpec(info.state) );
     statefld->attach( alignedBelow, idfld );
 
-    countyfld = new uiGenInput( this, Well::Info::sCounty(),
+    countyfld = new uiGenInput( this, toUiString(Well::Info::sKeyCounty()),
 				StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }

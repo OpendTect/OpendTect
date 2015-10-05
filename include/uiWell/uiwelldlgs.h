@@ -45,7 +45,9 @@ mExpClass(uiWell) uiWellTrackDlg : public uiDialog
 public:
 			uiWellTrackDlg(uiParent*,Well::Data&);
 			~uiWellTrackDlg();
-
+    static const uiString   sCkShotData();
+    static const uiString   sTimeDepthModel();
+    
 protected:
 
     Well::Data&		wd_;
@@ -93,7 +95,7 @@ mExpClass(uiWell) uiD2TModelDlg : public uiDialog
 public:
 			uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
 			~uiD2TModelDlg();
-
+    
 protected:
 
     Well::Data&		wd_;

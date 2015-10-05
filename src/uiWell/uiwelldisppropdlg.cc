@@ -84,7 +84,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	    foundlog = true;
 	}
 	else
-	    ts_->addTab( tgs[idx], propflds_[idx]->props().subjectName() );
+	    ts_->addTab( tgs[idx], toUiString(
+				      propflds_[idx]->props().subjectName()) );
     }
 
     uiPushButton* applbut = new uiPushButton( this, tr("Apply to all wells"),

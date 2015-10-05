@@ -154,7 +154,7 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 
 
 uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
-    : uiMainWin(p,wd.name())
+    : uiMainWin(p,toUiString(wd.name()))
     , wd_(wd)  
 {
     setStretch( 2, 2 );
@@ -184,6 +184,6 @@ void uiWellDisplayWin::closeWin( CallBacker* )
 void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
-    statusBar()->message( mesg.buf() );
+    statusBar()->message( mToUiStringTodo(mesg.buf()) );
 }
 

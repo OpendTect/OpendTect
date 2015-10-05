@@ -82,10 +82,14 @@ public:
     //!<"<string> does/do not exist"
     static uiString phrEdit(const uiString& string);
     //!<"Edit <string>"
+    static uiString phrEnter(const uiString&);
+    //!<"Enter <string>"
     static uiString phrExistsConinue(const uiString&,bool overwrite);
     //!<"<string> exists. Continue?" or "<string> exists. Overwrite?
     static uiString phrExport(const uiString& string);
     //!<"Export <string>"
+    static uiString phrExtract(const uiString&);
+    //!<"Extract <string>"
     static uiString phrImport(const uiString& string);
     //!<"Import <string>"
     static uiString phrInline(const uiString&);
@@ -172,7 +176,7 @@ public:
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
-    static uiString sCalculate();
+    static uiString sCalculate();	
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCantCreateHor();
@@ -218,7 +222,7 @@ public:
     static uiString sData();
     static uiString sDecimal()		{ return tr("Decimal"); }
     static uiString sDefault()		{ return tr("Default"); }
-    static uiString sDelete()		{ return tr("Delete"); }
+    static uiString sDelete();		
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDip()		{ return tr("Dip"); }
     static uiString sDisabled()		{ return tr("Disabled"); }
@@ -232,12 +236,14 @@ public:
     static uiString sEdit();
     static uiString sEmptyString()	{ return uiString::emptyString(); }
     static uiString sEnabled()		{ return tr("Enabled"); }
+    static uiString sEnter();
     static uiString sEnterValidName();
     static uiString sErrors(int num=1)	{ return tr("Error", 0, num); }
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExit()		{ return tr("Exit"); }
     static uiString sExport();
+    static uiString sExtract();
     static uiString sFaultStickSet(int num=1);
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFactor(int num=1)	{ return tr("Factor",0,num); }
@@ -291,6 +297,7 @@ public:
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMerge();
     static uiString sModify();
+    static uiString sMove()		{ return tr("Move"); }
     static uiString sMoveDown()		{ return tr("Move Down"); }
     static uiString sMoveUp()		{ return tr("Move Up"); }
     static uiString sMsec()		{ return tr("msec"); }

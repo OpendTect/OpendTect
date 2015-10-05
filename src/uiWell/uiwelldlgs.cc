@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
+#include "veldesc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -57,20 +58,23 @@ static const int cYCol = 1;
 static const int cZCol = 2;
 static const int cMDTrackCol = 3;
 
-static BufferString getWinTitle( const char* objtyp, const MultiID& wllky,
-				 bool& iswr )
+
+uiString getWinTitle( const uiString& objtyp, 
+				      const MultiID& wllky, bool& iswr )
 {
     iswr = Well::Writer::isFunctional( wllky );
-    return BufferString( iswr ? "Edit" : "View", " ", objtyp );
+    return toUiString("%1 %2").arg(iswr ? uiStrings::sEdit() : 
+					  uiStrings::sView()).
+			       arg(objtyp);
 }
-
 
 #define mGetDlgSetup(wd,objtyp,hid) \
     uiDialog::Setup( getWinTitle(objtyp,wd.multiID(),writable_), \
 		     mNoDlgTitle, mODHelpKey(hid) )
-#define mTDName(iscksh) iscksh ? "Checkshot Data" : "Time-Depth Model"
+#define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
+			       : uiWellTrackDlg::sTimeDepthModel()
 #define mTDOpName(op,iscksh) \
-    BufferString( op, " ", mTDName(iscksh) )
+    toUiString("%1 %2").arg(op).arg(mTDName(iscksh)) 
 
 #define mAddSetBut(fld,cb) \
     if ( writable_ ) \
@@ -81,7 +85,7 @@ static BufferString getWinTitle( const char* objtyp, const MultiID& wllky,
     }
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
-	: uiDialog(p,mGetDlgSetup(d,"Well Track",mWellTrackDlgHelpID))
+	: uiDialog(p,mGetDlgSetup(d,tr("Well Track"),mWellTrackDlgHelpID))
 	, wd_(d)
 	, track_(d.track())
 	, orgtrack_(new Well::Track(d.track()))
@@ -127,8 +131,8 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     mAddSetBut( wellheadyfld_, updateYpos )
     if ( !writable_ ) wellheadyfld_-> setReadOnly( true );
 
-    kbelevfld_ = new uiGenInput( actbutgrp, Well::Info::sKBElev(),
-				 FloatInpSpec(mUdf(float)) );
+    kbelevfld_ = new uiGenInput(actbutgrp, Well::Info::sKBElev(),
+				 FloatInpSpec(mUdf(float)));
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
     if ( !writable_ ) kbelevfld_-> setReadOnly( true );
@@ -157,6 +161,14 @@ uiWellTrackDlg::~uiWellTrackDlg()
     delete orgtrack_;
     delete &fd_;
 }
+
+
+const uiString uiWellTrackDlg::sCkShotData() 
+{ return tr("Checkshot Data"); }
+
+
+const uiString uiWellTrackDlg::sTimeDepthModel()
+{ return tr("Time-Depth Model"); }
 
 
 static const UnitOfMeasure* getDisplayUnit( uiCheckBox* zinfeet )
@@ -211,13 +223,15 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     NotifyStopper nsy( wellheadyfld_->updateRequested );
     NotifyStopper nskbelev( kbelevfld_->updateRequested );
 
-    const BufferString xyunit( SI().getXYUnitString() );
-    BufferString coordlbl( "-Coordinate of well head ", xyunit );
-    const BufferString depthunit =
-			      getDistUnitString( zinftfld_->isChecked(), true );
+    uiString coordlbl = tr("-Coordinate of well head %1").
+						  arg(SI().getUiXYUnitString());
+    const uiString depthunit = uiStrings::sDistUnitString( 
+					   zinftfld_->isChecked(), true, true );
 
-    wellheadxfld_->setTitleText( BufferString("X", coordlbl) );
-    wellheadyfld_->setTitleText( BufferString("Y", coordlbl) );
+    wellheadxfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sX(), 
+								    coordlbl) );
+    wellheadyfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sY(), 
+								    coordlbl) );
     kbelevfld_->setTitleText( tr("%1 %2 ")
 			      .arg( Well::Info::sKBElev() )
 			      .arg( depthunit ) );
@@ -295,8 +309,9 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 	, fd_(fd)
 {
     setOkText( uiStrings::sImport() );
-    wtinfld_ = new uiFileInput( this, "Well Track File",
-				uiFileInput::Setup().withexamine(true) );
+    wtinfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
+		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
+		   uiFileInput::Setup().withexamine(true) );
     wtinfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
@@ -717,7 +732,8 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 				.rowgrow(true)
 				.defrowlbl("")
 				.selmode(uiTable::Single)
-				.removeselallowed(false), mTDName(cksh) );
+				.removeselallowed(false), 
+				(mTDName(cksh)).getFullString().buf() );
 
     timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
     timefld_->setChecked( true );
@@ -733,17 +749,17 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     tbl_->setNrRows( nremptyrows );
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
     tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
-    uiString kbstr = Well::Info::sKBElev();
+    uiString kbstr = toUiString(Well::Info::sKBElev());
     tbl_->setColumnToolTip( cMDCol,
-	uiString("Measured depth along the borehole, origin at %1").arg(kbstr));
+	   tr("Measured depth along the borehole, origin at %1").arg(kbstr));
     tbl_->setColumnToolTip( cTVDCol,
-	uiString( "True Vertical Depth, origin at %1").arg(kbstr) );
+	    tr("True Vertical Depth, origin at %1").arg(kbstr) );
     tbl_->setColumnToolTip( getTVDSSCol(),
-	    "True Vertical Depth Sub-Sea, positive downwards" );
+	    tr("True Vertical Depth Sub-Sea, positive downwards") );
     tbl_->setColumnToolTip( getTimeCol(),
-	    "Two-way travel times with same origin as seismic survey: SRD=0" );
+	 tr("Two-way travel times with same origin as seismic survey: SRD=0") );
     tbl_->setColumnToolTip( getVintCol(),
-	    "Interval velocity above this control point (read-only)" );
+	    tr("Interval velocity above this control point (read-only)") );
     tbl_->setPrefWidth( 700 );
     tbl_->setTableReadOnly( !writable_ );
 
@@ -752,7 +768,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     if ( !cksh_ )
     {
-	replvelfld_ = new uiGenInput( this, Well::Info::sReplVel(),
+	replvelfld_ = new uiGenInput(this,Well::Info::sReplVel(),
 				      FloatInpSpec(mUdf(float)) );
 	if ( !writable_ )
 	    replvelfld_-> setReadOnly( true );
@@ -959,9 +975,9 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 void uiD2TModelDlg::fillReplVel( CallBacker* )
 {
     NotifyStopper ns( replvelfld_->updateRequested );
-    uiString lbl( "%1 %2 " );
-    lbl.arg( Well::Info::sReplVel() )
-       .arg( getVelUnitString(zinftfld_->isChecked(),true) );
+    uiString lbl = toUiString("%1 %2").arg(Well::Info::sKeyReplVel()).arg(
+				VelocityDesc::getVelUnit(true));
+    if ( zinftfld_->isChecked() ) lbl = toUiString("%1 ").arg(lbl);
     replvelfld_->setTitleText( lbl );
     replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
 }
@@ -1307,8 +1323,8 @@ class uiD2TModelReadDlg : public uiDialog
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup( mTDOpName("Import",cksh), mNoDlgTitle,
-		     mODHelpKey(mD2TModelReadDlgHelpID) ))
+	: uiDialog(p,uiDialog::Setup( mTDOpName(uiStrings::sImport(),cksh), 
+		     mNoDlgTitle, mODHelpKey(mD2TModelReadDlgHelpID) ))
 	, cksh_(cksh)
 	, wd_(wd)
 {
@@ -1722,7 +1738,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 
 	    PropertyRef::StdType ptyp = PropertyRef::Other;
 	    if ( uom ) ptyp = uom->propType();
-	    uiUnitSel::Setup ussu( ptyp, "" );
+	    uiUnitSel::Setup ussu( ptyp, uiStrings::sEmptyString() );
 	    ussu.selproptype( true );
 	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
 	    unfld->setUnit( uom );

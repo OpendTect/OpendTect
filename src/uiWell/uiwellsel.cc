@@ -63,7 +63,7 @@ uiWellSel::uiWellSel( uiParent* p, bool forread, const uiIOObjSel::Setup& su )
 
 
 uiWellParSel::uiWellParSel( uiParent* p )
-    : uiCompoundParSel(p,"Well(s)","Select")
+    : uiCompoundParSel(p,uiStrings::sWell(mPlural),uiStrings::sSelect())
     , iopar_(*new IOPar)
 {
     butPush.notify( mCB(this,uiWellParSel,doDlg) );

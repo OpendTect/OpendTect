@@ -320,7 +320,8 @@ uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
 uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 				    const uiWellLogDisplay::Setup& wldsu,
 				    bool mkcopy )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey).modal(false))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
+						       mNoHelpKey).modal(false))
     , logSet(this)
     , logsmine_(mkcopy)
     , log1_(0)
@@ -378,39 +379,38 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
 {
     const Well::Log* l1 = getLog( true );
     const Well::Log* l2 = getLog( false );
-    BufferString capt( "Log viewer" );
+    uiString capt = tr("Log viewer");
     if ( l1 || l2 )
-	capt.add( ": " );
+	capt = toUiString("%1 %2").arg(capt).arg(toUiString(": "));
 
     if ( l1 )
-	capt.add( l1->name() );
-
+	capt = toUiString("%1 %2").arg(capt).arg(toUiString(l1->name()));
     if ( l2 )
     {
 	if ( !l1->name().isEqual(l2->name()) )
-	    capt.add( " & ").add( l2->name() );
+	    capt = toUiString("%1 & %2").arg(capt).arg(toUiString(l2->name()));
     }
 
-    BufferString str;
+    uiString str = uiStrings::sEmptyString();
     if ( !wellnm1_.isEmpty() )
-	str.add( wellnm1_.buf() );
+	str= toUiString(wellnm1_);
     if ( !wellnm2_.isEmpty() )
-	str.add( " and " ).add( wellnm2_.buf() );
+	str = tr( "%1 and %2" ).arg(str).arg(toUiString(wellnm2_.buf()));
     if ( !str.isEmpty() )
-	capt.add( " of ").add( str );
+	capt = tr("%1 of %2").arg(capt).arg(str);
 
     setCaption( capt );
     if ( l1 && !wellnm1_.isEmpty() )
     {
-	capt = l1->name();
-	capt.add( " of " ).add( wellnm1_.buf() );
+	capt = tr("%1 of %2").arg(toUiString(l1->name())).arg(
+						    toUiString(wellnm1_));
 	dispfld_->dahObjData( true ).xax_.setCaption( capt );
     }
 
     if ( l2 && !wellnm2_.isEmpty() )
     {
-	capt = l2->name();
-	capt.add( " of " ).add( wellnm2_.buf() );
+	capt = tr("%1 of %2").arg(toUiString(l2->name())).arg(
+						    toUiString(wellnm2_));
 	dispfld_->dahObjData( false ).xax_.setCaption( capt );
     }
 

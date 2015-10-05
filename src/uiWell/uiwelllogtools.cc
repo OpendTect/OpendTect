@@ -192,7 +192,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 	wellgrp  = new uiGroup( displaygrp, "Well group" );
 	if ( prevgrp ) wellgrp->attach( rightOf, prevgrp );
 	wellgrp->setHSpacing( 0 );
-	wellnm = new uiLabel( wellgrp, logdata.wellname_ );
+	wellnm = new uiLabel( wellgrp, toUiString(logdata.wellname_) );
 	wellnm->setVSzPol( uiObject::Small );
 	for ( int idlog=0; idlog<logdata.inplogs_.size(); idlog++ )
 	{
@@ -230,7 +230,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
 
-    const char* txt = " Threshold ( Grubbs number )";
+    const uiString txt = tr("Threshold ( Grubbs number )");
     thresholdfld_ = new uiLabeledSpinBox( actiongrp, txt );
     thresholdfld_->attach( rightOf, spbgt );
     thresholdfld_->box()->setInterval( 1.0, 20.0, 0.1 );
@@ -244,7 +244,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
 
-    replacespikevalfld_ = new uiGenInput( actiongrp, 0, FloatInpSpec() );
+    replacespikevalfld_ = new uiGenInput( actiongrp, uiStrings::sEmptyString(), 
+							       FloatInpSpec() );
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );
 
@@ -515,7 +516,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
     }
     okbut_->setSensitive( emsg.isEmpty() );
     if ( !emsg.isEmpty() )
-	uiMSG().error( emsg );
+	uiMSG().error( mToUiStringTodo(emsg) );
 
     displayLogs();
 }
@@ -557,7 +558,9 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     , changed_(false)
     , valueChanged(this)
 {
-    BufferString dlgcaption( "Edit '", log.name(), "' log" );
+    uiString dlgcaption = uiStrings::phrEdit(uiStrings::phrJoinStrings(
+				     toUiString("'%1'").arg(toUiString(
+				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
     uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
     table_ = new uiTable( this, ts, "Well log table" );
