@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 #include "uisegyreadstartinfo.h"
 #include "uisegyreadfinisher.h"
+#include "uisegyimpparsdlg.h"
 #include "uisegyimptype.h"
 #include "uisegyexamine.h"
 #include "uisegymanip.h"
@@ -26,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
-#include "uilabel.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uisplitter.h"
@@ -48,6 +48,9 @@ static const char* rcsID mUsedVar = "$Id:$";
 #define mSurvMapHeight 350
 #define mDefSize 250
 #define mClipSamplerBufSz 100000
+
+static const char* sKeyClipRatio = "Amplitudes.Clip Ratio";
+static const char* sKeyIncludeZeros = "Amplitudes.Include Zeros";
 
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
@@ -131,10 +134,19 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
 void uiSEGYReadStarter::createTools()
 {
+    uiToolButton* openbut = new uiToolButton( this, "open",
+				tr("Use Saved SEG-Y setup"),
+				mCB(this,uiSEGYReadStarter,readParsCB) );
+    openbut->attach( rightOf, infofld_ );
+    uiToolButton* savebut = new uiToolButton( this, "save",
+				tr("Store this setup"),
+				mCB(this,uiSEGYReadStarter,writeParsCB) );
+    savebut->attach( rightOf, openbut );
+
     fullscanbut_ = new uiToolButton( this, "fullscan",
 				    tr("Scan the entire input"),
 				    mCB(this,uiSEGYReadStarter,fullScanReq) );
-    fullscanbut_->attach( rightOf, infofld_ );
+    fullscanbut_->attach( alignedBelow, openbut );
 
     uiGroup* examinegrp = new uiGroup( this, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
@@ -155,11 +167,9 @@ void uiSEGYReadStarter::createTools()
 	needicvsxy = false;
     if ( needicvsxy )
     {
-	uiLabel* emptyln = new uiLabel( this, uiString::emptyString() );
-	emptyln->attach( alignedBelow, examinegrp );
 	icvsxybut_ = new uiToolButton( this, "useic", useictooltip_,
 		mCB(this,uiSEGYReadStarter,icxyCB) );
-	icvsxybut_->attach( alignedBelow, emptyln );
+	icvsxybut_->attach( alignedBelow, examinegrp );
     }
 }
 
@@ -289,6 +299,26 @@ bool uiSEGYReadStarter::needICvsXY() const
 }
 
 
+int uiSEGYReadStarter::examineNrTraces() const
+{
+    return examinenrtrcsfld_->getIntValue();
+}
+
+
+float uiSEGYReadStarter::ratioClip() const
+{
+    float clipperc = clipfld_->getFValue();
+    const bool useclip = !mIsUdf(clipperc) && clipperc > 0.05;
+    return useclip ? clipperc * 0.01f : 0.f;
+}
+
+
+bool uiSEGYReadStarter::incZeros() const
+{
+    return inc0sbox_->isChecked();
+}
+
+
 void uiSEGYReadStarter::setButtonStatuses()
 {
     const int nrfiles = filespec_.nrFiles();
@@ -397,7 +427,7 @@ void uiSEGYReadStarter::runClassic( bool imp )
     else if ( !imp )
 	su.geoms_ -= Seis::Line;
 
-    commit();
+    commit( true );
     const FullSpec fullspec = fullSpec();
     IOPar iop; fullspec.fillPar( iop );
     classicrdr_ = new uiSEGYRead( this, su, &iop );
@@ -450,11 +480,73 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
 	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    uiSEGYExamine::Setup su( examinenrtrcsfld_->getIntValue() );
+    uiSEGYExamine::Setup su( examineNrTraces() );
     su.fs_ = filespec_; su.fp_ = filepars_;
     uiSEGYExamine* dlg = new uiSEGYExamine( this, su );
     dlg->setDeleteOnClose( true );
     dlg->go();
+}
+
+
+void uiSEGYReadStarter::usePar( const IOPar& iop )
+{
+    if ( typfld_ )
+	typfld_->usePar( iop );
+
+    int nrtrcs = examineNrTraces();
+    iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrtrcs );
+    examinenrtrcsfld_->setValue( nrtrcs );
+
+    float clipratio = ratioClip();
+    iop.get( sKeyClipRatio, clipratio );
+    if ( mIsUdf(clipratio) || clipratio < 0.f )
+	clipratio = 0.f;
+    else if ( clipratio > 1.f )
+	clipratio = 1.f;
+    clipfld_->setValue( clipratio*100.f );
+
+    bool inczeros = incZeros();
+    iop.getYN( sKeyIncludeZeros, inczeros );
+    inc0sbox_->setChecked( inczeros );
+
+    loaddef_.usePar( iop );
+    forceRescan( KeepAll, false );
+    updateICvsXYButton();
+}
+
+
+void uiSEGYReadStarter::fillPar( IOPar& iop ) const
+{
+    const_cast<uiSEGYReadStarter*>(this)->commit( true );
+    const FullSpec fullspec = fullSpec();
+    fullspec.fillPar( iop );
+
+    iop.set( FilePars::sKeyRevision(), loaddef_.revision_ );
+    impType().fillPar( iop );
+
+    iop.set( uiSEGYExamine::Setup::sKeyNrTrcs, examineNrTraces() );
+    iop.set( sKeyClipRatio, ratioClip() );
+    iop.setYN( sKeyIncludeZeros, incZeros() );
+}
+
+
+void uiSEGYReadStarter::readParsCB( CallBacker* )
+{
+    uiSEGYReadImpParsDlg dlg( this, lastparname_ );
+    if ( dlg.go() )
+    {
+	usePar( dlg.pars() );
+	lastparname_ = dlg.parName();
+    }
+}
+
+
+void uiSEGYReadStarter::writeParsCB( CallBacker* )
+{
+    IOPar iop; fillPar( iop );
+    uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_ );
+    if ( dlg.go() )
+	lastparname_ = dlg.parName();
 }
 
 
@@ -463,21 +555,32 @@ void uiSEGYReadStarter::icxyCB( CallBacker* )
     if ( !icvsxybut_ ) return;
 
     if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
-    {
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
-	icvsxybut_->setIcon( "usexy" );
-	icvsxybut_->setToolTip( usexytooltip_ );
-    }
     else
-    {
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
-	icvsxybut_->setIcon( "useic" );
-	icvsxybut_->setToolTip( useictooltip_ );
-    }
 
     userfilename_.setEmpty();
     forceRescan();
     infofld_->updateDisplay();
+
+    updateICvsXYButton();
+}
+
+
+void uiSEGYReadStarter::updateICvsXYButton()
+{
+    if ( !icvsxybut_ ) return;
+
+    if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
+    {
+	icvsxybut_->setIcon( "useic" );
+	icvsxybut_->setToolTip( useictooltip_ );
+    }
+    else
+    {
+	icvsxybut_->setIcon( "usexy" );
+	icvsxybut_->setToolTip( usexytooltip_ );
+    }
 }
 
 
@@ -491,9 +594,9 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 	{ ampldisp_->setEmpty(); return; }
 
     const float* csvals = clipsampler_.vals();
-    float clipval = clipfld_->getFValue();
-    const bool useclip = !mIsUdf(clipval) && clipval > 0.05;
-    const bool rm0 = !inc0sbox_->isChecked();
+    float clipratio = ratioClip();
+    const bool useclip = clipratio > 0.0005;
+    const bool rm0 = !incZeros();
     if ( !useclip && !rm0 )
 	{ ampldisp_->setData( csvals, nrvals ); return; }
 
@@ -516,11 +619,10 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 
     if ( useclip )
     {
-	clipval *= 0.01f;
 	DataClipper clipper;
 	clipper.putData( vals.arr(), nrvals );
 	Interval<float> rg;
-	clipper.calculateRange( clipval, rg );
+	clipper.calculateRange( clipratio, rg );
 	TypeSet<float> oldvals( vals );
 	vals.setEmpty();
 	for ( int idx=0; idx<nrvals; idx++ )
@@ -790,23 +892,19 @@ void uiSEGYReadStarter::displayScanResults()
 }
 
 
-bool uiSEGYReadStarter::commit()
+bool uiSEGYReadStarter::commit( bool permissive )
 {
-    if ( filespec_.isEmpty() )
+    if ( !permissive && filespec_.isEmpty() )
+    {
+	uiMSG().error( uiStrings::phrSelect(uiStrings::sInputFile()) );
 	return false;
+    }
 
-    filepars_.ns_ = loaddef_.ns_;
-    filepars_.fmt_ = loaddef_.format_;
-    filepars_.setSwap( loaddef_.hdrsswapped_, loaddef_.dataswapped_ );
+    loaddef_.getFilePars( filepars_ );
 
+    delete filereadopts_;
     filereadopts_ = new FileReadOpts( impType().geomType() );
-    filereadopts_->thdef_ = *loaddef_.hdrdef_;
-    filereadopts_->coordscale_ = loaddef_.coordscale_;
-    filereadopts_->timeshift_ = loaddef_.sampling_.start;
-    filereadopts_->sampleintv_ = loaddef_.sampling_.step;
-    filereadopts_->psdef_ = loaddef_.psoffssrc_;
-    filereadopts_->offsdef_ = loaddef_.psoffsdef_;
-    filereadopts_->icdef_ = loaddef_.icvsxytype_;
+    loaddef_.getFileReadOpts( *filereadopts_ );
 
     return true;
 }

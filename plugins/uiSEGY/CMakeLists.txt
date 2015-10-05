@@ -17,6 +17,7 @@ set(OD_MODULE_SOURCES
     uisegyexamine.cc
     uisegyexp.cc
     uisegyimpdlg.cc
+    uisegyimpparsdlg.cc
     uisegyimptype.cc
     uisegymanip.cc
     uisegypi.cc

@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace SEGY
 {
 const char* FilePars::sKeyForceRev0()	   { return "Force Rev0"; }
+const char* FilePars::sKeyRevision()	   { return "Revision"; }
 const char* FilePars::sKeyNrSamples()	   { return "Nr samples overrule"; }
 const char* FilePars::sKeyNumberFormat()   { return "Number format"; }
 const char* FilePars::sKeyByteSwap()	   { return "Byte swapping"; }

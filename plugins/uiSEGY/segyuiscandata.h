@@ -28,8 +28,10 @@ namespace PosInfo { class Detector; }
 namespace SEGY
 {
 
+class FilePars;
 class TrcHeader;
 class TrcHeaderDef;
+class FileReadOpts;
 class HdrEntryKeyData;
 class OffsetCalculator;
 
@@ -61,6 +63,8 @@ public:
     int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
     bool		goToTrace(od_istream&,od_stream_Pos,int) const;
 
+    void		getFilePars(FilePars&) const;
+
 };
 
 
@@ -87,6 +91,10 @@ public:
     bool		skipData(od_istream&) const;
     void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
 				   const OffsetCalculator&) const;
+
+    void		getFileReadOpts(FileReadOpts&) const;
+    void		usePar(const IOPar&);
+
 };
 
 

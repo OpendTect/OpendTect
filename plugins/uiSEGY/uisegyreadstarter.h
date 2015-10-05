@@ -62,6 +62,9 @@ public:
     const SEGY::ImpType& impType() const;
     void		setImpTypIdx(int);
 
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
 protected:
 
     SEGY::FileSpec	filespec_;
@@ -84,6 +87,7 @@ protected:
     Timer*		timer_;
 
     BufferString	userfilename_;
+    BufferString	lastparname_;
     SEGY::LoadDef	loaddef_;
     SEGY::ScanInfoSet*	scaninfos_;
     DataClipSampler&	clipsampler_;
@@ -109,6 +113,10 @@ protected:
 					   bool full=false);
     void		runClassic(bool);
     void		forceRescan(LoadDefChgType ct=KeepAll,bool full=false);
+    bool		needICvsXY() const;
+    int			examineNrTraces() const;
+    float		ratioClip() const;
+    bool		incZeros() const;
 
     void		createTools();
     void		createHist();
@@ -116,7 +124,7 @@ protected:
     void		setButtonStatuses();
     void		displayScanResults();
     void		updateSurvMap();
-    bool		needICvsXY() const;
+    void		updateICvsXYButton();
 
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);
@@ -129,12 +137,14 @@ protected:
     void		defChg( CallBacker* )	{ forceRescan(); }
     void		revChg( CallBacker* )	{ forceRescan(KeepBasic); }
     void		examineCB(CallBacker*);
+    void		readParsCB(CallBacker*);
+    void		writeParsCB(CallBacker*);
     void		icxyCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    bool		commit();
+    bool		commit(bool permissive=false);
 
 };
 
