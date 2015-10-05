@@ -244,7 +244,7 @@ bool IOStream::putTo( ascostream& stream ) const
 	stream.put( "$Multi", fms );
     }
 
-    const FilePath fpsurvdir( GetDataDir() );
+    const FilePath fpsurvdir( GetDataDir(), dirName() );
     const BufferString survdir( fpsurvdir.fullPath() );
     nrfiles = fs_.fnames_.size();
 
