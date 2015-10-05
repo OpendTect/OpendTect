@@ -38,7 +38,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const uiLaySeqAttribEd::Setup& edsu )
     : uiDialog(p,uiDialog::Setup(edsu.isnew_ ? tr("Add attribute")
                                              : tr("Edit attribute"),
-		                 gtDlgTitle(lsa,edsu.isnew_),
+		                 mToUiStringTodo(gtDlgTitle(lsa,edsu.isnew_)),
                                  mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
     , reftree_(rt)
@@ -83,7 +83,8 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 			OD::ChooseAtLeastOne );
 	lithofld_->setNrLines( reftree_.lithologies().size() );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
-	    lithofld_->addItem( reftree_.lithologies().getLith(idx).name() );
+	    lithofld_->addItem( toUiString(reftree_.lithologies().
+						         getLith(idx).name()) );
 
 	uiStratSelUnits::Setup ssusu( uiStratSelUnits::Multi,
 				      Strat::UnitRefIter::AllNodes );
@@ -94,7 +95,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	stattypfld_ = new uiComboBox( integrgrp_, "Statistics on results" );
 	new uiLabel( integrgrp_, tr("Statistics on results"), stattypfld_ );
 #   define mAddStatItm(enm) \
-	stattypfld_->addItem( Stats::TypeNames()[Stats::enm] );
+	stattypfld_->addItem( toUiString(Stats::TypeNames()[Stats::enm]) );
 	if ( attr_.prop_.hasType(PropertyRef::Dist) )
 	    mAddStatItm(Sum);
 	mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);

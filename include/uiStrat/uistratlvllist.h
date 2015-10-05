@@ -44,6 +44,9 @@ protected:
     void	editCB(CallBacker*);
     void	removeCB(CallBacker*);
     void	removeAllCB(CallBacker*);
+
+private:
+    static const char*	sNoLevelTxt()		{return "--- None ---"; }
 };
 
 #endif

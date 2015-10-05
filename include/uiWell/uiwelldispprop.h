@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uigroup.h"
 #include "welldisp.h"
+#include "uistrings.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -39,13 +40,15 @@ mExpClass(uiWell) uiWellDispProperties : public uiGroup
 { mODTextTranslationClass(uiWellDispProperties)
 public:
 
-    mExpClass(uiWell) Setup
+    mExpClass(uiWell) Setup		     
     {
     public:
 	    Setup( const uiString& sztxt=uiString::emptyString(),
 		   const uiString& coltxt=uiString::emptyString() )
-		: mysztxt_(!sztxt.isEmpty() ? sztxt : "Line thickness")
-		, mycoltxt_(!coltxt.isEmpty() ? coltxt : "Line color")
+		: mysztxt_(!sztxt.isEmpty() ? sztxt : tr("Line thickness"))
+		, mycoltxt_(!coltxt.isEmpty() ? coltxt : 
+			     uiStrings::phrJoinStrings(uiStrings::sLine(),
+			     uiStrings::sColor().toLower()) )
 		, onlyfor2ddisplay_(false) {}
 	    mDefSetupMemb(uiString,mysztxt)
 	    mDefSetupMemb(uiString,mycoltxt)

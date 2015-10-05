@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratutildlgs.h"
 #include "uitoolbutton.h"
 
-static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiListBox(p,Setup(OD::ChooseOnlyOne,tr("Regional markers"),
@@ -36,13 +35,13 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 
     uiButtonGroup* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
     grp->attach( rightTo, box() );
-    new uiToolButton( grp, "addnew", tr("Create New"),
+    new uiToolButton( grp, "addnew", uiStrings::phrCreate(uiStrings::sNew()),
 		      mCB(this,uiStratLvlList,addCB) );
     new uiToolButton( grp, "edit", uiStrings::sEdit(),
                       mCB(this,uiStratLvlList,editCB) );
-    new uiToolButton( grp, "remove", uiStrings::sRemove(),
+    new uiToolButton( grp, "stop", uiStrings::sRemove(),
 		      mCB(this,uiStratLvlList,removeCB) );
-    new uiToolButton( grp, "clear", tr("Remove all"),
+    new uiToolButton( grp, "clear", uiStrings::phrRemove(uiStrings::sAll()),
 		      mCB(this,uiStratLvlList,removeAllCB) );
 
     setLevels();
@@ -75,7 +74,7 @@ uiStratLvlList::~uiStratLvlList()
 #define mCheckLocked            if ( checkLocked() ) return;
 
 #define mCheckEmptyList \
-    if ( isPresent(sNoLevelTxt) ) \
+    if ( isPresent(sNoLevelTxt()) ) \
 	return;
 
 
@@ -92,7 +91,7 @@ bool uiStratLvlList::checkLocked() const
 
 
 void uiStratLvlList::editCB( CallBacker* )
-{ mCheckLocked; mCheckEmptyList; editLevel( false ); }
+{ mCheckLocked; mCheckEmptyList; editLevel( false );  }
 
 void uiStratLvlList::addCB( CallBacker* )
 { mCheckLocked; editLevel( true ); }
@@ -147,7 +146,7 @@ void uiStratLvlList::removeLvl( CallBacker* cb )
 	    removeItem( indexOf( lvl->name() ) );
     }
     if ( isEmpty() )
-	addItem( sNoLevelTxt );
+	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
 }
 
 
@@ -165,10 +164,10 @@ void uiStratLvlList::fill( CallBacker* )
 	lvlcolors += lvl.color();
     }
     for ( int idx=0; idx<lvlnms.size(); idx++ )
-	addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
+	addItem( toUiString(lvlnms[idx]->buf()), lvlcolors[idx] );
 
     if ( isEmpty() )
-	addItem( sNoLevelTxt );
+	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
 }
 
 

@@ -194,12 +194,12 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
     const BufferString selnm( cb->text() );
     cb->setEmpty();
     if ( wnone )
-	cb->addItem( "---" );
+	cb->addItem( toUiString("---") );
     if ( nms.isEmpty() ) return;
 
     cb->addItems( nms );
     if ( wall )
-	cb->addItem( sKey::All() );
+	cb->addItem( uiStrings::sAll() );
 
     if ( wnone ) def++;
     if ( !selnm.isEmpty() )
@@ -433,10 +433,10 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     propnm##fld_ = lblbox##propnm->box(); \
     PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
     if ( prop == PropertyRef::Volum ) \
-	propnm##fld_->addItem( "" ); \
+	propnm##fld_->addItem( uiStrings::sEmptyString() ); \
     for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
 	if ( subsel##propnm[idx] )\
-	    propnm##fld_->addItem( subsel##propnm[idx]->name() );\
+	    propnm##fld_->addItem( toUiString(subsel##propnm[idx]->name()) );\
     if ( prevbox )\
 	lblbox##propnm->attach( alignedBelow, prevbox );
 

@@ -204,13 +204,13 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 
     uiFileInput::Setup su( uiFileDialog::Txt, fnm_ );
     su.forread_ = doread;
-    filefld_ = new uiFileInput( this, "File name", su );
+    filefld_ = new uiFileInput( this, uiStrings::sFileName() );
 
     if ( doread )
     {
 	const Interval<int> valrg( 1, 1000 );
 	IntInpSpec val( 1, valrg );
-	eachfld_ = new uiGenInput( this, sKeyUseEach(), val );
+	eachfld_ = new uiGenInput( this, tr("Use Each"), val );
 	eachfld_->attach( alignedBelow, filefld_ );
 
 	doreplacefld_ = new uiGenInput( this, 
@@ -220,7 +220,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 
 	val = 10;
 	val.setLimits( valrg );
-	nrdisplayfld_ = new uiGenInput( this, sKeyNrDisplay(), val );
+	nrdisplayfld_ = new uiGenInput( this, tr("Display Nr Models"), val );
 	nrdisplayfld_->setWithCheck();
 	nrdisplayfld_->setChecked( true );
 	nrdisplayfld_->attach( alignedBelow, doreplacefld_ );
@@ -626,10 +626,13 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 
     uiMenu mnu( parent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sProperties())), 1 );
-    mnu.insertAction( new uiAction("Remove layer ..."), 2 );
-    mnu.insertAction( new uiAction("Remove this Well"), 3 );
-    mnu.insertAction( new uiAction("Dump all wells to file ..."), 4 );
-    mnu.insertAction( new uiAction("Add dumped wells from file ..."), 5 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::phrRemove(
+                                       uiStrings::sLayer().toLower()))), 2 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::phrRemove(
+                                                     tr("this Well")))), 3 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Dump all wells to file"))), 4 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::phrAdd(tr(
+                                          "dumped wells from file")))), 5 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 
@@ -650,13 +653,15 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     else
     {
 
-	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
-		                  BufferString("Remove '",lay.name(),"'"),
+	uiDialog dlg( this, uiDialog::Setup( uiStrings::phrRemove(
+				  uiStrings::sLayer().toLower()),
+		                  uiStrings::phrRemove(toUiString("'%1'")
+				  .arg(lay.name())),
                                   mODHelpKey(mStratSimpleLayerModDispHelpID)));
 	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(),
                                          BoolInpSpec(true,
-                                         "Only this layer",
-                                         "All layers with this ID") );
+                                         tr("Only this layer"),
+                                         tr("All layers with this ID")) );
 	if ( dlg.go() )
 	    removeLayers( ls, layidx, !gi->getBoolValue() );
     }
@@ -752,7 +757,7 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
     {
 	if ( !emptyitm_ )
 	    emptyitm_ = vwr_.rgbCanvas().scene().addItem(
-				new uiTextItem( "<---empty--->",
+				new uiTextItem( tr("<---empty--->"),
 				mAlignment(HCenter,VCenter) ) );
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,

@@ -130,23 +130,28 @@ void uiStratUnitEditDlg::getFromScreen()
 	unitlithfld_->getChosen( lithids_ );
 }
 
-#define mPreventWrongChar(buf,act)\
-    BufferString strnm;\
-    char* ptr = buf;\
-    while ( *ptr )\
-    {\
-	if ( iswspace(*ptr) || (*ptr) == '.' )\
-	    *ptr = '_';\
-	if ( (*ptr) == '>' || (*ptr) == '<')\
-	    strnm = "Name contains strange characters !";\
-	ptr++;\
-    }\
-    if ( !strnm.isEmpty() )\
-    {\
-	strnm += " \n Continue anyway ?";\
-	if ( !uiMSG().askContinue( strnm ) )\
-	    act;\
+
+bool uiStratUnitEditDlg::checkWrongChar(char* buf)
+{
+    uiString strnm;
+    char* ptr = buf;
+    while ( *ptr )
+    {
+	if ( iswspace(*ptr) || (*ptr) == '.' )
+	    *ptr = '_';
+	if ( (*ptr) == '>' || (*ptr) == '<')
+	    strnm = tr("Name contains strange characters !");
+	ptr++;
     }
+    if ( !strnm.isEmpty() )
+    {
+	strnm = tr("%1 \n Continue anyway ?").arg(strnm);
+	if ( !uiMSG().askContinue( strnm ) )
+	   return false;
+    }
+    return true;
+}
+
 
 bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 {
@@ -156,7 +161,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 	{ mErrRet( tr("Please specify a valid unit name"), return false ) }
     else
     {
-	mPreventWrongChar( unnm.getCStr(), return false );
+	if(!checkWrongChar( unnm.getCStr())) return false;
     }
 
     const char* oldcode = unit_.code();
@@ -224,7 +229,7 @@ void uiStratLithoBox::fillLiths( CallBacker* )
     setEmpty();
     const Strat::LithologySet& lithos = Strat::RT().lithologies();
     for ( int idx=0; idx<lithos.size(); idx++ )
-	addItem( lithos.getLith(idx).name() );
+	addItem( toUiString(lithos.getLith(idx).name()) );
 
     bool dotrigger = false; int firstsel = -1;
     for ( int idx=0; idx<selected.size(); idx++ )
@@ -297,7 +302,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, tr("Remove Last"),
-	    uiPixmap("remove"), mCB(this,uiStratLithoDlg,rmLast), true );
+	    uiPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );
 
@@ -310,7 +315,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     BufferString nm( nmfld_->text() );
     if ( nm.isEmpty() ) return;
 
-    mPreventWrongChar( nm.getCStr(), return );
+    if(!uiStratUnitEditDlg::checkWrongChar(nm.getCStr())) return;
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
@@ -323,7 +328,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
 
     const char* lithfailedmsg = lithos.add( newlith );
     if ( lithfailedmsg )
-	{ mErrRet( lithfailedmsg, return; ) }
+	{ mErrRet( toUiString(lithfailedmsg), return; ) }
 
     anychg_ = true;
     prevlith_ = 0;
@@ -373,7 +378,7 @@ void uiStratLithoDlg::renameCB( CallBacker* )
     if ( !lith || lith->isUdf() ) return;
 
     lith->setName( nmfld_->text() );
-    selfld_->setItemText( selfld_->currentItem(), nmfld_->text() );
+    selfld_->setItemText( selfld_->currentItem(), toUiString(nmfld_->text()) );
     lithos.reportAnyChange();
     prevlith_ = lith;
     anychg_ = true;
@@ -429,7 +434,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
 
     fillfld_ = new uiFillPattern( this );
     fillfld_->set( cont_.pattern_ );
-    new uiLabel( this, "Pattern", fillfld_ );
+    new uiLabel( this, tr("Pattern"), fillfld_ );
     fillfld_->attach( alignedBelow, nmfld_ );
 
     uiColorInput::Setup su( cont_.color_ );
@@ -737,7 +742,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    errmsg = tr("Empty unit name. ");
 	else
 	{
-	    mPreventWrongChar( code.getCStr(), return false );
+	    if(!uiStratUnitEditDlg::checkWrongChar(code.getCStr())) 
+		return false;
 	    units[idx]->setCode( code.buf() );
 	}
 	if ( errmsg.isEmpty() && code == rootunit_.code() )

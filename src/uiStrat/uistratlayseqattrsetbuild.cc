@@ -53,7 +53,7 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     if ( !attrset_.isEmpty() )
     {
 	for ( int idx=0; idx<attrset_.size(); idx++ )
-	    deffld_->addItem( attrset_.attr(idx).name() );
+	    deffld_->addItem( toUiString(attrset_.attr(idx).name()) );
 	deffld_->setCurrentItem( 0 );
 	defSelChg();
     }

@@ -36,6 +36,7 @@ mExpClass(uiStrat) uiStratLithoBox : public uiListBox
 public:
     			uiStratLithoBox(uiParent*);
     			~uiStratLithoBox();
+
 protected:
 
     void		fillLiths(CallBacker*);
@@ -48,6 +49,7 @@ public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
     const TypeSet<int>& getLithologies() const 	{ return lithids_; }
+    static bool		checkWrongChar(char*);
 
 protected:
 

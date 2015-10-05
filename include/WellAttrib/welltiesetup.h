@@ -27,7 +27,7 @@ namespace WellTie
 {
 
 mExpClass(WellAttrib) Setup
-{
+{ mODTextTranslationClass(Setup)
 public:
 			enum CorrType { None, Automatic, UserDefined };
 			DeclareEnumUtils(CorrType)
@@ -78,6 +78,10 @@ public:
 				{ return "CheckShot Corrections"; }
     static const char*		sKeyUseExistingD2T()
 				{ return "Use Existing Depth/Time model"; }
+    static const uiString	sCSCorrType()
+				{ return tr("CheckShot Corrections"); }
+    static const uiString	sUseExistingD2T()
+				{ return tr("Use Existing Depth/Time model"); }
 };
 
 

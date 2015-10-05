@@ -38,7 +38,8 @@ uiStratSelUnitsListItem( uiTreeViewItem* p, const Strat::UnitRef* ur, bool wchk)
 static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 {
     const char* nm = ur == &ur->refTree() ? sUsrNameRT : ur->code().buf();
-    return uiTreeViewItem::Setup( nm, wchk ? CheckBox : Standard, false );
+    return uiTreeViewItem::Setup( toUiString(nm), 
+					    wchk ? CheckBox : Standard, false );
 }
 
     const Strat::UnitRef*	unit_;
@@ -98,7 +99,7 @@ void uiStratSelUnits::mkBoxFld()
     else
     {
 	uiLabeledComboBox* cb = new uiLabeledComboBox( this, nms,
-							setup_.fldtxt_ );
+						  toUiString(setup_.fldtxt_) );
 	combo_ = cb->box(); setHAlignObj( cb );
     }
     combo_->selectionChanged.notify( curchgcb );
@@ -125,7 +126,7 @@ void uiStratSelUnits::mkTreeFld()
 
     tree_ = new uiTreeView( this, setup_.fldtxt_,
 	      nrleaves<setup_.maxnrlines_ ? 0 : setup_.maxnrlines_, true );
-    tree_->setColumnText( 0, setup_.fldtxt_ );
+    tree_->setColumnText( 0, mToUiStringTodo(setup_.fldtxt_) );
     tree_->setStretch( 1, 2 );
 
     ObjectSet<const Strat::UnitRef> dispunits;

@@ -5,6 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+add_definitions( -DmNoAutoUiString )
+
 set(OD_MODULE_DEPS uiIo Strat )
 set(OD_MODULE_SOURCES
 	uistratreftree.cc uistrattreewin.cc uistratutildlgs.cc

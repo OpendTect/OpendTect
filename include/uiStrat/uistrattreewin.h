@@ -98,6 +98,10 @@ private:
 
     friend const uiStratTreeWin& StratTWin();
     static ManagedObjectSet<uiToolButtonSetup> tbsetups_;
+    uiString			sExpandTxt();
+    uiString			sCollapseTxt();
+    uiString			sEditTxt(bool domenu);
+    uiString			sLockTxt(bool domenu);
 
 public:
     void			changeLayerModelNumber(bool add);
