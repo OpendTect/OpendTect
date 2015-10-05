@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiStrat Well)
-SET(OD_MODULE_SOURCES
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS uiStrat Well)
+set(OD_MODULE_SOURCES
 		inituiwell.cc
 		uibulkwellimp.cc
 		uid2tmodelgrp.cc

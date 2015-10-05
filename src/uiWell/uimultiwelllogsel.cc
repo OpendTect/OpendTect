@@ -66,13 +66,15 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     }
 
     CallBack cb( mCB(this,uiWellZRangeSelector,getFromScreen) );
-    zchoicefld_ = new uiGenInput( this, s.txtofmainfld_,
+    zchoicefld_ = new uiGenInput( this, toUiString(s.txtofmainfld_),
 					StringListInpSpec(zchoiceset) );
     zchoicefld_->valuechanged.notify( cb );
     setHAlignObj( zchoicefld_ );
 
     uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
-    const uiString units[] = { uiString::emptyString(),dptlbl,"(ms)",0 };
+    uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
+    const uiString units[] = { uiString::emptyString(),dptlbl,timelbl,
+						    uiStrings::sEmptyString() };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
@@ -265,10 +267,11 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 				    : s.defmeterstep_;
 	const float timestep = SI().zStep()*ztimefac_;
 	params().zstep_ = dptstep;
-	BufferString stpbuf( "Step ");
-	BufferString dptstpbuf( stpbuf ); dptstpbuf += zinft ? "(ft)" : "(m )";
-	BufferString timestpbuf( stpbuf ); timestpbuf += "(ms)";
-
+	uiString dptstpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
+					SI().getUiXYUnitString(true,true));
+	uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
+	uiString timestpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
+								   timelbl);
 	depthstepfld_ = new uiGenInput(this, dptstpbuf, FloatInpSpec(dptstep));
 	timestepfld_ = new uiGenInput(this, timestpbuf, FloatInpSpec(timestep));
 	depthstepfld_->setElemSzPol( uiObject::Small );
@@ -292,7 +295,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     if ( s.withsampling_ )
     {
 	sampfld_ = new uiGenInput( this, tr("Log resampling method"),
-				StringListInpSpec(Stats::UpscaleTypeDef()) );
+				StringListInpSpec(Stats::UpscaleTypeNames()) );
 	sampfld_->setValue( Stats::UseAvg );
 	sampfld_->valuechanged.notify( cb );
 	sampfld_->attach( alignedBelow, abovefld_ );
@@ -400,7 +403,8 @@ void uiMultiWellLogSel::init()
     const uiObject::SzPolicy vpol = uiObject::WideMax;
     const OD::ChoiceMode chmode =
 	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
-    uiListBox::Setup su( chmode, singlelog_ ? "Log" : uiStrings::sLogs(),
+    uiListBox::Setup su( chmode, singlelog_ ? uiStrings::sLog() : 
+							    uiStrings::sLogs(),
 			 singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
     logsfld_ = new uiListBox( this, su );
     logsfld_->setHSzPol( hpol );
@@ -490,7 +494,7 @@ void uiMultiWellLogSel::update()
 	wellobjs_ += ioobj;
 
 	if ( wellsfld_ )
-	    wellsfld_->addItem( ioobj->name() );
+	    wellsfld_->addItem( ioobj->uiName() );
     }
 
     updateLogsFldCB( 0 );

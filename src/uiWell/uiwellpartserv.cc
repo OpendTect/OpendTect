@@ -497,7 +497,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
-	mErrRet( uiStrings::phrCannotCreateDBEntryFor( wellname ))
+	mErrRet( uiStrings::phrCannotCreateDBEntryFor( toUiString(wellname) ))
 
     RefMan<Well::Data> well = new Well::Data( wellname );
     Well::Track& track = well->track();
@@ -542,7 +542,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
     Well::Writer wwr( *ctio->ioobj_, *well );
     if ( !wwr.put() )
-	mErrRet( wwr.errMsg() )
+	mErrRet( mToUiStringTodo(wwr.errMsg()) )
 
     mid = ctio->ioobj_->key();
     if ( manwelldlg_ )

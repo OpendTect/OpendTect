@@ -50,7 +50,8 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 {
     setOkText( uiStrings::sImport() );
 
-    lasfld_ = new uiFileInput( this, "Input (pseudo-)LAS logs file",
+    lasfld_ = new uiFileInput( this, uiStrings::phrInput(
+			       tr("(pseudo-)LAS logs file")),
 			       uiFileInput::Setup(uiFileDialog::Gen)
 			       .filter(lasfileflt).withexamine(true) );
     lasfld_->valuechanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
@@ -95,13 +96,13 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
     const char* res = wdai.getLogInfo( lasfnm, lfi );
-    if ( res ) { uiMSG().error( res ); return; }
+    if ( res ) { uiMSG().error( mToUiStringTodo(res) ); return; }
 
     logsfld_->setEmpty();
     logsfld_->addItems( lfi.lognms );
     logsfld_->chooseAll( true );
 
-    BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
+    uiString lbl = toUiString("(%1)").arg(mToUiStringTodo(lfi.zunitstr.buf()));
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
     const bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
@@ -133,7 +134,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     {
 	wd = Well::MGR().get( wmid );
 	if ( !wd )
-	    uiMSG().error( Well::MGR().errMsg() );
+	    uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
     }
     else
     {
@@ -180,13 +181,9 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( nrexisting > 0 )
     {
 	const bool issingle = nrexisting == 1;
-	uiString msg = tr("Existing log%1%2\nalready exist%3 and will not "
-			  "be loaded.\n\nPlease remove %4 from the existing "
-			  "logs before import.")
-		     .arg(issingle ? ":" : tr("s:\n"))
-		     .arg(existlogs.getDispString())
-		     .arg(issingle ? tr("s") : "" )
-		     .arg(issingle ? tr("it") : tr("these"));
+	uiString msg = tr("The following logs already exist and will not "
+	                  "be imported:\n\n%1\n\nPlease remove them before " 
+			  "import.").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
 	uiMSG().warning( msg );
@@ -195,7 +192,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     lfi.lognms = lognms;
     const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue() );
     if ( res )
-	mErrRet( res )
+	mErrRet( mToUiStringTodo(res) )
 
     Well::Writer wtr( wmid, *wd );
     if ( !wtr.putLogs() )
@@ -288,8 +285,9 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells ? "File Directory"
-						: "Output file",
+    outfld_ = new uiFileInput( this, multiwells ? 
+			              mJoinUiStrs(sFile(),sDirectory())
+				    : uiStrings::phrOutput(uiStrings::sFile()),
 			      uiFileInput::Setup().forread(false)
 						  .directories(multiwells) );
     outfld_->attach( alignedBelow, zunitgrp_ );

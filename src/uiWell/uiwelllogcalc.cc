@@ -94,7 +94,7 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup(tr("Calculate new logs"),
-				     getDlgTitle(wllids),
+				     mToUiStringTodo(getDlgTitle(wllids)),
 				     mODHelpKey(mWellLogCalcHelpID) ))
 	, superwls_(*new Well::LogSet)
 	, form_(*new Math::Formula(true,getSpecVars()))
@@ -137,7 +137,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->formUnitSet.notify( formunitcb );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Choose rockphysics formula"),
-			    rockphyscb, "Rock Physics");
+			    rockphyscb, uiStrings::sRockPhy() );
     formfld_->addButton( tbsu );
 
     uiSeparator* sep = new uiSeparator( this, "sep" );
@@ -165,7 +165,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     nmfld_ = new uiGenInput( this, tr("Name for new log") );
     nmfld_->attach( alignedBelow, lcb );
 
-    uiUnitSel::Setup uussu( PropertyRef::Other, "Output unit of measure" );
+    uiUnitSel::Setup uussu( PropertyRef::Other, uiStrings::phrOutput(
+						       tr("unit of measure")) );
     uussu.withnone( true );
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, nmfld_ );
@@ -268,15 +269,15 @@ class uiWellLogCalcRockPhys : public uiDialog
 public:
 
 uiWellLogCalcRockPhys( uiParent* p )
-    : uiDialog(p, uiDialog::Setup(tr("Rock Physics"),
-				  "Use a rock physics formula",
+    : uiDialog(p, uiDialog::Setup(uiStrings::sRockPhy(),
+				  tr("Use a rock physics formula"),
                                   mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 { formgrp_ = new uiRockPhysForm( this ); }
 
 bool acceptOK( CallBacker* )
 {
     bool rv = formgrp_->isOK();
-    if ( !rv ) uiMSG().error( formgrp_->errMsg() );
+    if ( !rv ) uiMSG().error( mToUiStringTodo(formgrp_->errMsg()) );
     return rv;
 }
 
@@ -501,8 +502,8 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    {
 		inpd.wl_ = getInpLog( wls, iinp, ishft==0 );
 		if ( !inpd.wl_ )
-		    mErrRet(BufferString(form_.inputDef(iinp),
-                    ": empty log"))
+		    mErrRet(tr("%1: empty log").arg(toUiString(
+							 form_.inputDef(iinp))))
 	    }
 
 	    inpd.specidx_ = specidx;

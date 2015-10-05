@@ -386,7 +386,8 @@ if ( mrknms.addIfNew( mrk.name() ) )\
 
     for ( int idx=0; idx<mrknms.size(); idx++ )
     {
-	mrklist_->addItem( mrknms.get( idxs[idx] ), mrkcols[idxs[idx]] );
+	mrklist_->addItem( toUiString(mrknms.get( idxs[idx]) ),
+							  mrkcols[idxs[idx]] );
 	colors_ += mrkcols[idxs[idx]];
     }
 

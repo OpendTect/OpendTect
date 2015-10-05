@@ -80,10 +80,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
-    setCaption( isgeom ? uiStrings::phrJoinStrings(uiStrings::sImport(),
-			 uiStrings::sHorizon(1)) : toUiString("%1 %2 %3").
-			 arg(uiStrings::sImport()).arg(uiStrings::sHorizon(1)).
-			 arg(uiStrings::sData()) );
+    setCaption(isgeom ? uiStrings::phrImport(uiStrings::sHorizon()) : 
+			uiStrings::phrImport(mJoinUiStrs(sHorizon(),sData())));
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     setDeleteOnClose( false );
     ctio_.ctxt_.forread_ = !isgeom_;

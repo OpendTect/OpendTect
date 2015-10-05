@@ -71,11 +71,11 @@ void uiWellSelGrp::createFields()
 				"Wells Table" );
     selwellstbl_->setNrCols( withpos_ ? 2 : 1 );
     selwellstbl_->setNrRows( 5 );
-    selwellstbl_->setColumnLabel( 0, "Well Name" );
+    selwellstbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName()) );
     selwellstbl_->setColumnWidth(0,90);
     if ( withpos_ )
     {
-	selwellstbl_->setColumnLabel( 1, "Start at" );
+	selwellstbl_->setColumnLabel( 1, tr("Start at") );
 	selwellstbl_->setColumnWidth(1,90);
 
 	onlytopfld_ = new uiGenInput( this, tr("Use only wells' top position"),
@@ -173,7 +173,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 		|| FixedString(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
 		continue;
 
-	    wellsbox_->addItem( selwellstbl_->text( RowCol(idx,0) ) );
+	    wellsbox_->addItem(toUiString(selwellstbl_->text(RowCol(idx,0))) );
 	    selwellstbl_->removeRow(idx);
 	    lastusedidx = idx;
 	    wellsbox_->chooseAll(false);
@@ -504,7 +504,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     BufferString msg;
     const bool res = RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg);
     if ( !res )
-	uiMSG().error(msg);
+	uiMSG().error(mToUiStringTodo(msg));
 
     return res;
 }

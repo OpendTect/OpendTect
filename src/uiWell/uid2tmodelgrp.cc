@@ -44,7 +44,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     , setup_(su)
     , fd_( *Well::D2TModelAscIO::getDesc(setup_.withunitfld_) )
 {
-    filefld_ = new uiFileInput( this, setup_.filefldlbl_,
+    filefld_ = new uiFileInput( this, mToUiStringTodo(setup_.filefldlbl_),
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {

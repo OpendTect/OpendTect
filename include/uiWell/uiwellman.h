@@ -35,6 +35,10 @@ public:
     const TypeSet<MultiID>&	getSelWells() const	{ return curmultiids_; }
     void			getSelLogs(BufferStringSet&) const;
     const BufferStringSet&	getAvailableLogs() const;
+    static void			setButToolTip(uiButton* but,
+				const uiString& oper,const uiString& objtyp,
+				const uiString& obj,
+				const uiString& end=uiStrings::sEmptyString());
 
 protected:
 

@@ -55,7 +55,8 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	topfld_ = new uiComboBox( this, "Top marker" );
     else
     {
-	lcb = new uiLabeledComboBox( this, setup_.seltxt_, "Top marker" );
+	lcb = new uiLabeledComboBox( this, toUiString(setup_.seltxt_), 
+								"Top marker" );
 	topfld_ = lcb->box();
     }
     topfld_->selectionChanged.notify( mrkselcb );

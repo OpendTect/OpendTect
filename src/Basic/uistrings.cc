@@ -107,12 +107,18 @@ uiString uiStrings::phrData( const uiString& string )
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
 
+uiString uiStrings::phrEnter( const uiString& string )
+{ return toUiString(joinstring).arg(sEnter()).arg(string); }
+
 uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 {
     return tr( "%1 exists. %2?")
 	.arg( string )
 	.arg( overwrite ? sOverwrite() : sContinue() );
 }
+
+uiString uiStrings::phrExtract( const uiString& string )
+{ return toUiString(joinstring).arg(sExtract()).arg(string); }
 
 uiString uiStrings::phrInline( const uiString& string )
 { return phrJoinStrings( sInline(), string ); }
@@ -289,14 +295,23 @@ uiString uiStrings::sCrossPlot()
 uiString uiStrings::sData()
 { return tr("Data"); }
 
+uiString uiStrings::sDelete()
+{ return tr("Delete"); }
+
 uiString uiStrings::sEdit()
 { return tr("Edit"); }
+
+uiString uiStrings::sEnter()
+{ return tr("Enter"); }
 
 uiString uiStrings::sEnterValidName()
 { return tr("Please enter a valid name"); }
 
 uiString uiStrings::sExport()
 { return tr("Export"); }
+
+uiString uiStrings::sExtract()
+{ return tr("Extract"); }
 
 uiString uiStrings::sFault( int num )
 { return tr("Fault", 0, num ); }
@@ -438,7 +453,7 @@ uiString uiStrings::sShift()
 uiString uiStrings::sSpecify()
 { return tr("Specify"); }
 
-uiString uiStrings::sSpecifyOut()
+uiString uiStrings::sSpecifyOut()   
 { return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
 
 

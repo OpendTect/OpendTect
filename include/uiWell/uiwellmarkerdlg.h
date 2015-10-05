@@ -38,7 +38,10 @@ public:
     void			setMarkerSet(const Well::MarkerSet&,
 					     bool addtoexisting=false);
     bool			getMarkerSet(Well::MarkerSet&) const;
-
+    static void			exportMarkerSet(uiParent* p,
+						const Well::MarkerSet& mset,
+						const Well::Track& trck, 
+						uiCheckBox* cb=0 );
 protected:
 
     uiTable*			table_;
@@ -79,7 +82,7 @@ protected:
 /*! \brief Dialog for Viewing the markers for a well */
 
 mExpClass(uiWell) uiMarkerViewDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMarkerViewDlg)
 public:
 				uiMarkerViewDlg(uiParent*,const Well::Data&);
 

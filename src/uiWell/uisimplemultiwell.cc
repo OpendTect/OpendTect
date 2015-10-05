@@ -70,19 +70,20 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
 		        "Data Table" );
-    tbl_->setColumnLabel( 0, tr("Well Name") );
-    const char* xunstr = SI().getXYUnitString();
-    tbl_->setColumnLabel( 1, BufferString("[X",xunstr,"]") );
-    tbl_->setColumnLabel( 2, BufferString("[Y",xunstr,"]") );
+    tbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName().toLower()) );
+    const uiString xunstr = SI().getUiXYUnitString();
+    tbl_->setColumnLabel( 1, toUiString("[%1%2]").arg(uiStrings::sX())
+								.arg(xunstr) );
+    tbl_->setColumnLabel( 2, toUiString("[%1%2]").arg(uiStrings::sY())
+								.arg(xunstr) );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    BufferString zunstr = zun.getFullString();
-    tbl_->setColumnLabel( 3, BufferString("[KB",zunstr,"]") );
+    tbl_->setColumnLabel( 3, tr("[KB%1]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
-    tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,"]") );
+    tbl_->setColumnLabel( 4, tr("[TD%1]").arg(zun) );
     tbl_->setColumnToolTip( 4, Well::Info::sTD() );
-    tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,"]") );
+    tbl_->setColumnLabel( 5, tr("[GL%1]").arg(zun) );
     tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
-    tbl_->setColumnLabel( 6, "[UWI]" );
+    tbl_->setColumnLabel( 6, tr("[UWI]") );
     tbl_->setColumnToolTip( 6, Well::Info::sUwid() );
 
     uiPushButton* pb = new uiPushButton( this, tr("Read file"),
@@ -168,24 +169,28 @@ public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup(tr("Multi-well creation"),
-				  "Create multiple wells",
+				  uiStrings::phrCreate(tr("multiple wells")),
 		            mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
     , par_(p)
     , fd_("Simple multi-welldata")
 {
-    inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
-		      .withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(), 
+			       uiFileInput::Setup().withexamine(true)
+			       .examstyle(File::Table) );
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyKBElev() ); fd_.bodyinfos_ += ti;
+    ti->setName( Well::Info::sKeyKBElev() ); 
+    fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyTD() ); fd_.bodyinfos_ += ti;
+    ti->setName( Well::Info::sKeyTD() ); 
+    fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyGroundElev() ); fd_.bodyinfos_ += ti;
-    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
-					     Table::Optional );
+    ti->setName( Well::Info::sKeyGroundElev() ); 
+    fd_.bodyinfos_ += ti;
+    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyReplVel(),
+				      Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -193,16 +198,16 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter the input file name" )
+	mErrRet( uiStrings::phrEnter(mJoinUiStrs(sInputFile(),sName())) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile()))
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -364,9 +369,9 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     if ( crwellids_.isEmpty() )
     {
-        return !uiMSG().askGoOn( "No wells have been imported. "
-                                 "Do you want to make changes to the table?",
-                                 uiStrings::sYes(), "No, Quit" );
+        return !uiMSG().askGoOn( tr("No wells have been imported. "
+                                 "Do you want to make changes to the table?"),
+                                 uiStrings::sYes(), tr("No, Quit") );
     }
 
     return true;
