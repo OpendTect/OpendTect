@@ -72,6 +72,7 @@ protected:
 
 
 
-mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
+mGlobal(uiBase) void supportedImageFormats(BufferStringSet&,bool forread=false);
+mGlobal(uiBase) void getImageFileFilter(BufferString& filter,bool forread);
 
 #endif
