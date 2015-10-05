@@ -283,8 +283,10 @@ MultiID SeisJobExecProv::tempStorID() const
 	    inls.stop = SI().sampling(false).hsamp_.stop_.inl();
 	    inls.step = SI().sampling(false).hsamp_.step_.inl();
 	}
-	iostrm->fileSpec().nrs_ = inls;
+	
 	iostrm->fileSpec().setFileName( fp.fullPath() );
+	iostrm->fileSpec().nrs_ = inls;
+
 	IOM().commitChanges( *iostrm );
 	ctio_.setObj(0);
     }
