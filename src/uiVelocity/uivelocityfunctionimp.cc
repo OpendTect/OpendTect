@@ -46,7 +46,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII File",
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(), 
 			       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
@@ -112,7 +112,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 	return false;
 
     if ( !*inpfld_->fileName() )
-	mErrRet( "Please select the input file" );
+	mErrRet( uiStrings::phrSelect(uiStrings::phrInput(uiStrings::sFile())) )
 
     od_istream strm( inpfld_->fileName() );
     if ( !strm.isOK() )
@@ -136,12 +136,13 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 	mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())) );
 
     if ( !outfld_->commitInput() )
-	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)
+	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
+				    : uiStrings::sEmptyString() )
 
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
     functions->setData( bidvalset, desc, true ); //set ZisT
     if ( !functions->store( ctio_.ioobj_->key() ) )
-	mErrRet( "Cannot store velocity functions" );
+	mErrRet( tr("Cannot store velocity functions") );
 
     uiString msg = tr("Velocity Function successfully imported\n"
 		      "Do you want to import more Velocity Functions");
