@@ -46,11 +46,11 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
     , contentSelected(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-				isfinal ? "Content" : "Content zone" );
+				isfinal ? tr("Content") : tr("Content zone") );
     fld_ = lcb->box();
-    fld_->addItem( "-" );
+    fld_->addItem( toUiString("-") );
     for ( int idx=0; idx<rt_.contents().size(); idx++ )
-	fld_->addItem( rt_.contents()[idx]->name() );
+	fld_->addItem( toUiString(rt_.contents()[idx]->name()) );
     setHAlignObj( lcb );
     fld_->selectionChanged.notify( mCB(this,uiStratLayerContent,contSel) );
 }
@@ -85,7 +85,7 @@ int uiStratLayerContent::selectedIndex() const
 
 int uiStratLayerContent::addOption( const char* nm )
 {
-    fld_->addItem( nm );
+    fld_->addItem( toUiString(nm) );
     return fld_->size() - 1;
 }
 
@@ -127,7 +127,7 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 	const PropertyRefSelection& props ) const
 {
     if ( props.isEmpty() )
-	mErrRet( "No property is selected." )
+	mErrRet( tr("No property is selected.") )
     if ( !props[0]->isThickness() )
     {
 	pErrMsg( "Thickness should always be the first property" );
@@ -136,10 +136,10 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 
     PropertyRefSelection densityprops = props.subselect( PropertyRef::Den );
     if ( densityprops.isEmpty() )
-	mErrRet( "No property of type 'Density' selected" )
+	mErrRet( tr("No property of type 'Density' selected") )
     PropertyRefSelection velocityprops = props.subselect( PropertyRef::Vel );
     if ( velocityprops.isEmpty() )
-	mErrRet( "No property of type 'Velocity' selected" )
+	mErrRet( tr("No property of type 'Velocity' selected") )
     return true;
 }
 
@@ -185,7 +185,8 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     getMouseEventHandler().doubleClick.notify(
 			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
 
-    const BufferString lbltxt( "top (", zinft_?"ft":"m", ")" );
+    const uiString& lbltxt = tr("top %1").arg(SI().getUiXYUnitString
+								   (true,true));
     topdepthfld_ = new uiGenInput( parent(), lbltxt, FloatInpSpec(0) );
     topdepthfld_->setElemSzPol( uiObject::Small );
     topdepthfld_->attach( rightBorder );
@@ -252,7 +253,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     {
 	if ( !emptyitm_ )
 	{
-	    emptyitm_ = scene().addItem( new uiTextItem( "<Click to add>",
+	    emptyitm_ = scene().addItem( new uiTextItem( tr("<Click to add>"),
 					mAlignment(HCenter,VCenter) ) );
 	    emptyitm_->setPenColor( Color::Black() );
 	    emptyitm_->setPos( workrect_.centre() );
@@ -336,8 +337,10 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 	uiMenu mnu( parent(), uiStrings::sAction() );
 	mnu.insertItem( new uiAction(
 			m3Dots(uiStrings::sEdit())), 0 );
-	mnu.insertItem( new uiAction("Add Above ..."), 1 );
-	mnu.insertItem( new uiAction("Add Below ..."), 2 );
+	mnu.insertItem( new uiAction(m3Dots(uiStrings::phrAdd(
+						    uiStrings::sAbove()))), 1 );
+	mnu.insertItem( new uiAction(m3Dots(uiStrings::phrAdd(
+						    uiStrings::sBelow()))), 2 );
 	if ( editdesc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
@@ -379,7 +382,7 @@ uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 	vpr->val_ = lg.dispThickness();
     }
 
-    nm_ = scene_.addItem( new uiTextItem( gen_->name(),
+    nm_ = scene_.addItem( new uiTextItem( toUiString(gen_->name()),
 			  mAlignment(HCenter,VCenter) ) );
     nm_->setPenColor( Color::Black() );
     lithcol_ = scene_.addItem( new uiCircleItem );
@@ -473,7 +476,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     BufferString dispnm( disp.gen_->name() );
     if ( !disp.gen_->content().isUnspecified() )
 	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
-    disp.nm_->setText( getLimitedDisplayString(dispnm,25,false) );
+    disp.nm_->setText(toUiString(getLimitedDisplayString(dispnm,25, false)));
     midpt.y = (disp.topy_ + disp.boty_) / 2;
     disp.nm_->setPos( mCast(float,midpt.x), mCast(float,midpt.y-2) );
 	    // the 'y-2' makes the text more nicely centered in the box
@@ -574,7 +577,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     typfld_ = new uiComboBox(this, opts, BufferString(pr.name(), " type"));
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setHSzPol( uiObject::Small );
-    prelbl_ = new uiLabel( this, pr.name(), typfld_ );
+    prelbl_ = new uiLabel( this, toUiString(pr.name()), typfld_ );
     valfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec() );
     rgfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec(),
                              FloatInpSpec() );

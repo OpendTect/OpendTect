@@ -27,7 +27,7 @@ namespace Strat { class LayerSequenceGenDesc; }
 
 mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
 				 , public uiLayerSequenceGenDesc
-{
+{ mODTextTranslationClass(uiExtLayerSequenceGenDesc)
 public:
 
     				uiExtLayerSequenceGenDesc(uiParent*,

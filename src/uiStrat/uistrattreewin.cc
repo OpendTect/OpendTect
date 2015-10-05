@@ -38,13 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uitreeview.h"
 
-#define	mExpandTxt(domenu)	domenu ? "Expand all" : "Expand all"
-#define	mCollapseTxt(domenu)	domenu ? "Collapse all" : "Collapse all"
-
-//tricky: want to show action in menu and status on button
-#define	mEditTxt(domenu)	domenu ? "Unlock" : "Toggle read only: locked"
-#define	mLockTxt(domenu)	domenu ? "Lock" : "Toggle read only: editable"
-
 using namespace Strat;
 
 ManagedObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
@@ -88,6 +81,22 @@ uiStratTreeWin::~uiStratTreeWin()
 {
     delete &repos_;
 }
+
+
+uiString uiStratTreeWin::sExpandTxt()
+{ return tr("Expand all"); }
+
+
+uiString uiStratTreeWin::sCollapseTxt()
+{ return tr("Collapse all"); }
+
+//tricky: want to show action in menu and status on button
+uiString uiStratTreeWin::sEditTxt(bool domenu)
+{ return domenu ? tr("Unlock") : tr("Toggle read only: locked"); }
+
+
+uiString uiStratTreeWin::sLockTxt(bool domenu)
+{ return domenu ? tr("Lock") : tr("Toggle read only: editable"); }
 
 
 void uiStratTreeWin::setNewRT()
@@ -161,12 +170,12 @@ void uiStratTreeWin::createMenu()
     uiMenuBar* menubar = menuBar();
     uiMenu* mnu = new uiMenu( this, uiStrings::sFile() );
     expandmnuitem_ =
-	new uiAction( mExpandTxt(true), mCB(this,uiStratTreeWin,setExpCB) );
+	new uiAction( sExpandTxt(), mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
     expandmnuitem_->setIcon( "collapse_tree" );
     mnu->insertSeparator();
     editmnuitem_ =
-	new uiAction( mEditTxt(true), mCB(this,uiStratTreeWin,editCB) );
+	new uiAction( sEditTxt(true), mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
     editmnuitem_->setIcon( "unlock" );
     savemnuitem_ = new uiAction( uiStrings::sSave(),
@@ -193,15 +202,15 @@ void uiStratTreeWin::createMenu()
 
 void uiStratTreeWin::createToolBar()
 {
-    tb_ = new uiToolBar( this, "Stratigraphy Manager Tools" );
-    mDefBut(colexpbut_,"collapse_tree",setExpCB,mCollapseTxt(false));
+    tb_ = new uiToolBar( this, tr("Stratigraphy Manager Tools") );
+    mDefBut(colexpbut_,"collapse_tree",setExpCB,sCollapseTxt());
     colexpbut_->setSensitive( istreedisp_ );
     tb_->addSeparator();
     mDefBut(moveunitupbut_,"uparrow",moveUnitCB,tr("Move unit up"));
     mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,tr("Move unit down"));
     tb_->addSeparator();
     mDefBut(newbut_,"new",newCB,uiStrings::sNew());
-    mDefBut(lockbut_,"unlock",editCB,mEditTxt(false));
+    mDefBut(lockbut_,"unlock",editCB,sEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;
     mDefBut(uitb,"save",saveCB,uiStrings::sSave());
@@ -249,12 +258,12 @@ void uiStratTreeWin::createGroups()
 void uiStratTreeWin::setExpCB( CallBacker* )
 {
     const bool expand =
-	FixedString(expandmnuitem_->text().getFullString()) == mExpandTxt(true);
+	expandmnuitem_->text().getFullString() == sExpandTxt().getFullString();
     uitree_->expand( expand );
-    expandmnuitem_->setText( expand ? mCollapseTxt(true) : mExpandTxt(true) );
+    expandmnuitem_->setText( expand ? sCollapseTxt() : sExpandTxt() );
     expandmnuitem_->setIcon( expand ? "collapse_tree" : "expand_tree" );
     colexpbut_->setIcon( expand ? "collapse_tree" : "expand_tree" );
-    colexpbut_->setToolTip( expand ? mCollapseTxt(false) : mExpandTxt(false) );
+    colexpbut_->setToolTip( expand ? sCollapseTxt() : sExpandTxt() );
 }
 
 
@@ -275,9 +284,9 @@ void uiStratTreeWin::newCB( CallBacker* )
 
 void uiStratTreeWin::editCB( CallBacker* )
 {
-    FixedString edmenutxt( editmnuitem_->text().getFullString() );
-    FixedString edtxt( mEditTxt(true) );
-    const bool doedit = edmenutxt==edtxt;
+    uiString edmenutxt( editmnuitem_->text() );
+    uiString edtxt( sEditTxt(true) );
+    const bool doedit = edmenutxt.getFullString()==edtxt.getFullString();
     setEditable( doedit );
 }
 
@@ -285,10 +294,10 @@ void uiStratTreeWin::editCB( CallBacker* )
 void uiStratTreeWin::setEditable( bool doedit )
 {
     uitree_->makeTreeEditable( doedit );
-    editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
+    editmnuitem_->setText( doedit ? sLockTxt(true) : sEditTxt(true) );
     editmnuitem_->setIcon( doedit ? "unlock" : "readonly" );
     lockbut_->setIcon( doedit ? "unlock" : "readonly" );
-    lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
+    lockbut_->setToolTip( doedit ? sLockTxt(false) : sEditTxt(false) );
     lockbut_->setOn( !doedit );
     setIsLocked( !doedit );
 }
@@ -352,7 +361,7 @@ static const char* infolvltrs[] =
 
 void uiStratTreeWin::saveAsCB( CallBacker* )
 {
-    const char* dlgtit = "Save the stratigraphy at:";
+    const uiString dlgtit = uiStrings::phrSave(tr("the stratigraphy at:"));
 
     uiDialog savedlg( this, uiDialog::Setup( tr("Save Stratigraphy"),
 		    dlgtit, mNoHelpKey ) );

@@ -162,7 +162,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 
     const char** corrs = WellTie::Setup::CorrTypeNames();
     cscorrfld_ = new uiLabeledComboBox( logsgrp, corrs,
-					WellTie::Setup::sKeyCSCorrType());
+					WellTie::Setup::sCSCorrType());
     cscorrfld_->attach( alignedBelow, used2tmbox_ );
     logsgrp->setHAlignObj( cscorrfld_ );
 
@@ -212,7 +212,7 @@ bool uiTieWinMGRDlg::selIs2D() const
     return SI().has2D();
 }
 
-#define mErrRet(s) { if ( s && cb ) uiMSG().error(s); return; }
+#define mErrRet(s) { if ( !s.isEmpty() && cb ) uiMSG().error(s); return; }
 
 void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 {
@@ -224,7 +224,8 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 	wd_->unRef();
 
     wd_ = Well::MGR().get( wellid );
-    if ( !wd_ ) mErrRet( "Canot read well data.")
+    if ( !wd_ ) mErrRet( uiStrings::phrCannotRead(mJoinUiStrs(sWell().toLower(),
+							    sData().toLower())))
 
     wd_->ref();
     logsfld_->wellid_ = wellid;
@@ -272,13 +273,17 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
     const bool is2d = selIs2D();
     mDynamicCastGet( uiSeisSel*, seisfld, is2d ? seis2dfld_ : seis3dfld_ );
     if ( !seisfld )
-	mErrRet( "Please select a seismic type" )
+	mErrRet(uiStrings::phrSelect(tr("%1 type")
+					.arg(uiStrings::sSeismic().toLower())))
 
     if ( seisfld->isChecked() )
     {
 	const MultiID& seisid = seisfld->key();
 	if ( seisid.isEmpty() )
-	    mErrRet("Please select the input seimic data")
+	    mErrRet(uiStrings::phrSelect(uiStrings::phrJoinStrings(
+		    uiStrings::sInput().toLower(), 
+		    uiStrings::sSeismic().toLower(),
+		    uiStrings::sData().toLower())))
 
 	if ( is2d && seislinefld_ )
 	    seislinefld_->setDataSet( seisid );
@@ -301,7 +306,7 @@ void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
 
 
 #undef mErrRet
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 
 void uiTieWinMGRDlg::getSetup( const char* nm )
@@ -339,7 +344,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 				  "type\nthan the survey.\n"
 				  "Change the survey type to 2D/3D.\n"
 				  "Or select a new dataset.");
-	    mErrRet( errmsg.getFullString() );
+	    mErrRet( errmsg );
 	}
 
 	if ( typefld_ )
@@ -356,7 +361,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 	    if ( seisfld->key().isEmpty() )
 	    {
 		seisfld->setEmpty();
-		mErrRet("Cannot restore the seismic data from the setup")
+		mErrRet(tr("Cannot restore the seismic data from the setup"))
 	    }
 
 	    const MultiID& actualseisid = seisfld->key(true);
@@ -383,14 +388,15 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 {
     if ( !wtsetup_.vellognm_.isEmpty() )
     {
-	if ( !wd_ ) mErrRet( "No well data." )
+	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
+			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
 	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
 	if ( !vp )
 	{
 	    uiString errmsg = tr("Cannot retrieve the velocity log %1"
 				 " stored in the setup.")
 			    .arg(wtsetup_.vellognm_);
-	    mErrRet( errmsg.getFullString() );
+	    mErrRet( errmsg );
 	}
 
 	const UnitOfMeasure* velpuom = vp->unitOfMeasure();
@@ -408,14 +414,15 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 {
     if ( !wtsetup_.denlognm_.isEmpty() )
     {
-	if ( !wd_ ) mErrRet( "No well data." )
+	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
+			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
 	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
 	if ( !den )
 	{
 	    uiString errmsg = tr("Cannot retrieve the density log %1"
 				 " stored in the setup.")
-			    .arg(wtsetup_.denlognm_);
-	    mErrRet( errmsg.getFullString() );
+			    .arg(toUiString(wtsetup_.denlognm_));
+	    mErrRet( errmsg );
 	}
 
 	const UnitOfMeasure* denuom = den->unitOfMeasure();
@@ -439,13 +446,13 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 
 
 #undef mErrRet
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 
 bool uiTieWinMGRDlg::initSetup()
 {
     if ( !wellfld_->commitInput() )
-	mErrRet("Please select a valid well")
+	mErrRet(uiStrings::phrSelect(tr("a valid well")))
 
     const MultiID& wellid = wellfld_->ctxtIOObj().ioobj_->key();
     if ( wd_ )
@@ -453,27 +460,29 @@ bool uiTieWinMGRDlg::initSetup()
 
     wd_ = Well::MGR().get( wellid );
     if ( !wd_ )
-	mErrRet("Cannot read the well data")
+	mErrRet(uiStrings::phrCannotRead(mJoinUiStrs(
+					 sWell().toLower(),sData().toLower())))
 
     wd_->ref();
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	uiTieWin* win = welltiedlgset_[idx];
 	if ( win->welltieSetup().wellid_ == wellid )
-	    mErrRet( "A window with this well is already opened" )
+	    mErrRet( tr("A window with this well is already opened") )
     }
     wtsetup_.wellid_ = wellid;
 
     const bool is2d = selIs2D();
     mDynamicCastGet( uiSeisSel*, seisfld, is2d ? seis2dfld_ : seis3dfld_ );
     if ( !seisfld )
-	mErrRet( "Please select a seismic type" )
+	mErrRet( uiStrings::phrSelect(tr("a seismic type")) )
 
     if ( seisfld->isChecked() )
     {
 	const MultiID& seisid = seisfld->key();
 	if ( seisid.isEmpty() )
-	    mErrRet("Please select the input seimic data")
+	    mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
+					  mJoinUiStrs(sWell(),sData()))))
 	    // msg required because the seismic is optional
 
 	wtsetup_.seisid_ = seisid;
@@ -492,20 +501,21 @@ bool uiTieWinMGRDlg::initSetup()
     }
 
     if ( !logsfld_->isOK() )
-	mErrRet( "Cannot select appropriate logs" )
+	mErrRet( tr("Cannot select appropriate logs") )
 
     uiWellSinglePropSel* psflden = logsfld_->
 				 getPropSelFromListByIndex( mDensityIdx );
     if ( !psflden )
-	mErrRet( "Cannot find the density in the log selection list" )
+	mErrRet( uiStrings::phrCannotFind(
+				tr("the density in the log selection list")) )
 
     Well::Log* den = wd_->logs().getLog( psflden->logName() );
     if ( !den )
-	mErrRet( "Could not extract this density log" )
+	mErrRet( uiStrings::phrCannotExtract(tr("this density log")) )
 
     const UnitOfMeasure* uom = psflden->getUnit();
     if ( !uom )
-	mErrRet( "Please select a unit for the density log" )
+	mErrRet( uiStrings::phrSelect(tr("a unit for the density log")) )
 
     den->setUnitMeasLabel( uom->symbol() );
     wtsetup_.denlognm_ = psflden->logName();
@@ -513,15 +523,16 @@ bool uiTieWinMGRDlg::initSetup()
     uiWellSinglePropSel* psflvp = logsfld_->
 				getPropSelFromListByIndex( mPwaveIdx );
     if ( !psflvp )
-	mErrRet( "Cannot find the Pwave in the log selection list" )
+	mErrRet( uiStrings::phrCannotFind(
+				    tr("the Pwave in the log selection list")) )
 
     Well::Log* vp = wd_->logs().getLog( psflvp->logName() );
     if ( !vp )
-	mErrRet( "Could not extract this velocity log" )
+	mErrRet( uiStrings::phrCannotExtract(tr("this velocity log")) )
 
     uom = psflvp->getUnit();
     if ( !uom )
-	mErrRet( "Please select a unit for the velocity log" )
+	mErrRet( uiStrings::phrSelect(tr("a unit for the velocity log")) )
 
     vp->setUnitMeasLabel( uom->symbol() );
     wtsetup_.vellognm_ = psflvp->logName();
@@ -532,7 +543,7 @@ bool uiTieWinMGRDlg::initSetup()
 				       wtsetup_.corrtype_ );
 
     if ( !wvltfld_->getWavelet() )
-	mErrRet("Please select a valid wavelet")
+	mErrRet(uiStrings::phrSelect(tr("a valid wavelet")))
 
     wtsetup_.wvltid_ = wvltfld_->getID();
 

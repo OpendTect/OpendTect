@@ -140,7 +140,7 @@ public :
 
 	for ( int idx=0; idx<colnms.size(); idx++ )
 	{
-	    uiCheckBox* box = new uiCheckBox( this, colnms.get(idx) );
+	    uiCheckBox* box = new uiCheckBox(this, toUiString(colnms.get(idx)));
 	    box->setChecked( data_.getCol( idx )->isdisplayed_ );
 	    box->activated.notify( mCB(this,uiColViewerDlg,selChg) );
 	    colboxflds_ += box;
@@ -479,7 +479,7 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     pli->setPenStyle( LineStyle(LineStyle::Solid,1,Color::Black()) );
     colitm.borderitm_ = pli;
 
-    uiTextItem* ti = scene_.addItem( new uiTextItem( colitm.name_ ) );
+    uiTextItem* ti = scene_.addItem(new uiTextItem( toUiString(colitm.name_) ));
     ti->setTextColor( Color::Black() );
     ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y1-18) );
     ti->setAlignment( Alignment::HCenter );
@@ -507,7 +507,8 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot
 	    					  : LineStyle::Solid;
 	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
-	uiTextItem* ti = scene_.addItem( new uiTextItem( lvl.name_.buf() ) );
+	uiTextItem* ti = scene_.addItem( new uiTextItem( 
+					        toUiString(lvl.name_) ) );
 	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) );
 	ti->setZValue( 2 );
 	ti->setTextColor( lvl.color_ );
@@ -575,11 +576,11 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	for ( int idx=1; idx<unm.size(); idx++ )
 	{
 	    BufferString tmpnm = unm; tmpnm[idx] = '\0';
-	    if ( FontList().get().width( tmpnm ) > ( x2-x1 ) )
+	    if ( FontList().get().width( toUiString(tmpnm) ) > ( x2-x1 ) )
 		{ unm[idx-1] = '\0'; break; }
 	}
 
-	uiTextItem* ti = scene_.addItem( new uiTextItem( unm ) );
+	uiTextItem* ti = scene_.addItem( new uiTextItem( toUiString(unm )) );
 	ti->setTextColor( Color::Black() );
 	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
 	ti->setAlignment( Alignment::HCenter );
@@ -605,7 +606,8 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	tb_->addSeparator();
     else
     {
-	tb_ = new uiToolBar( v.parent(), "Viewer toolbar", uiToolBar::Top );
+	tb_ = new uiToolBar( v.parent(), toUiString("Viewer toolbar"), 
+							      uiToolBar::Top );
 	mDynamicCastGet(uiMainWin*,mw,v.parent())
 	if ( mw )
 	    mw->addToolBar( tb_ );

@@ -21,7 +21,7 @@ namespace Strat { class Content; class RefTree; }
 /*!\brief Gets the layer content */
 
 mExpClass(uiStrat) uiStratLayerContent : public uiGroup
-{
+{ mODTextTranslationClass(uiStratLayerContent)
 public:
 
   			uiStratLayerContent(uiParent*,bool isfinal,

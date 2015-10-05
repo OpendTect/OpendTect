@@ -95,9 +95,11 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
 {
     uiTreeViewItem* lvit = parlvit
         ? new uiTreeViewItem( parlvit, uiTreeViewItem::Setup()
-				.label(nur.code()).label(nur.description()) )
+				.label(toUiString(nur.code()))
+				.label(mToUiStringTodo(nur.description())) )
 	: root ? 0 : new uiTreeViewItem( lv_,uiTreeViewItem::Setup()
-				.label(nur.code()).label(nur.description() ));
+				.label(toUiString(nur.code()))
+				.label(mToUiStringTodo(nur.description()) ));
 
     if ( parlvit || !root )
 	{ mCreateAndSetUnitPixmap( nur, lvit ) }
@@ -112,8 +114,8 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
 	    if ( !lur ) continue;
 
 	    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup()
-				.label( lur->code() )
-				.label( lur->description() );
+				.label( toUiString(lur->code()) )
+				.label( mToUiStringTodo(lur->description()) );
 	    if ( lvit )
 		item = new uiTreeViewItem( lvit, setup );
 	    else
@@ -367,7 +369,8 @@ void uiStratRefTree::subdivideUnit( uiTreeViewItem* lvit )
 void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
 					const Strat::UnitRef& unit ) const
 {
-    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup().label( unit.code() );
+    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup().label( toUiString(
+								unit.code()) );
     uiTreeViewItem* newitem = lvit ? new uiTreeViewItem( lvit , setup )
                                    : new uiTreeViewItem( lv_, setup );
     newitem->setRenameEnabled( cUnitsCol, false );	//TODO
@@ -375,7 +378,7 @@ void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
     newitem->setRenameEnabled( cLithoCol, false );
     newitem->setDragEnabled( true );
     newitem->setDropEnabled( true );
-    newitem->setText( unit.description(), cDescCol );
+    newitem->setText( mToUiStringTodo(unit.description()), cDescCol );
 
     if ( lvit )
     {
@@ -446,8 +449,8 @@ void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
 	    addLithologies( (LeavedUnitRef&)nur, urdlg.getLithologies() );
 	}
 
-	lvit->setText( unitref->code(), cUnitsCol );
-	lvit->setText( unitref->description(), cDescCol );
+	lvit->setText( toUiString(unitref->code()), cUnitsCol );
+	lvit->setText( mToUiStringTodo(unitref->description()), cDescCol );
 	tree_->unitChanged.trigger();
 	updateUnitsPixmaps();
 	anychange_ = true;

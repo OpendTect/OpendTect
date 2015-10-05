@@ -24,7 +24,7 @@ namespace Strat { class LayerSequence; class Content; }
 
 
 mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
-{
+{ mODTextTranslationClass(uiStratSimpleLayerModelDisp)
 public:
 
     			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
