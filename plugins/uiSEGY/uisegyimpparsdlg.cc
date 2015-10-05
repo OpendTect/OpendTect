@@ -237,5 +237,4 @@ uiSEGYStoreImpParsDlg::uiSEGYStoreImpParsDlg( uiParent* p, const IOPar& iop,
 bool uiSEGYStoreImpParsDlg::doIO()
 {
     mErrRet( tr("Sorry, not implemented yet") );
-    return false;
 }
