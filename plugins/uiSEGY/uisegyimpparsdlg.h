@@ -19,47 +19,59 @@ ________________________________________________________________________
 class uiListBox;
 class uiCheckBox;
 class uiGenInput;
+namespace Repos { class IOParSet; class IOPar; }
 
 
-mExpClass(uiSEGY) uiSEGYReadImpParsDlg : public uiDialog
-{ mODTextTranslationClass(uiSEGYReadImpParsDlg)
+mExpClass(uiSEGY) uiSEGYImpParsDlg : public uiDialog
+{ mODTextTranslationClass(uiSEGYImpParsDlg)
 public:
 
-			uiSEGYReadImpParsDlg(uiParent*,const char* defnm=0);
+			uiSEGYImpParsDlg(uiParent*,bool,const char*);
+			~uiSEGYImpParsDlg();
 
-    const IOPar&	pars() const		{ return iop_; }
     const char*		parName() const		{ return parname_; }
 
 protected:
 
     uiListBox*		listfld_;
-    uiCheckBox*		asdefbox_;
+    Repos::IOParSet&	parset_;
 
     mutable BufferString parname_;
-    mutable IOPar	iop_;
 
     bool		acceptOK(CallBacker*);
+    virtual bool	doIO()			= 0;
 
 };
 
 
-mExpClass(uiSEGY) uiSEGYStoreImpParsDlg : public uiDialog
+mExpClass(uiSEGY) uiSEGYReadImpParsDlg : public uiSEGYImpParsDlg
+{ mODTextTranslationClass(uiSEGYReadImpParsDlg)
+public:
+
+			uiSEGYReadImpParsDlg(uiParent*,const char* defnm=0);
+
+    const IOPar*	pars() const;
+
+protected:
+
+    virtual bool	doIO();
+
+};
+
+
+mExpClass(uiSEGY) uiSEGYStoreImpParsDlg : public uiSEGYImpParsDlg
 { mODTextTranslationClass(uiSEGYStoreImpParsDlg)
 public:
 
 			uiSEGYStoreImpParsDlg(uiParent*,const IOPar&,
 						const char* defnm=0);
 
-    const char*		parName() const		{ return parname_; }
-
 protected:
 
-    uiListBox*		listfld_;
     uiGenInput*		namefld_;
+    uiCheckBox*		asdefbox_;
 
-    mutable BufferString parname_;
-
-    bool		acceptOK(CallBacker*);
+    virtual bool	doIO();
 
 };
 

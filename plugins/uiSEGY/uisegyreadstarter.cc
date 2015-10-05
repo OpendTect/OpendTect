@@ -535,7 +535,7 @@ void uiSEGYReadStarter::readParsCB( CallBacker* )
     uiSEGYReadImpParsDlg dlg( this, lastparname_ );
     if ( dlg.go() )
     {
-	usePar( dlg.pars() );
+	usePar( *dlg.pars() );
 	lastparname_ = dlg.parName();
     }
 }
