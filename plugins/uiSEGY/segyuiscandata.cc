@@ -206,7 +206,7 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
 {
     FilePars filepars; getFilePars( filepars );
     filepars.usePar( iop );
-    ns_ = filepars.ns_; format_ = filepars.fmt_;
+    ns_ = filepars.ns_; format_ = (short)filepars.fmt_;
     hdrsswapped_ = filepars.swapHdrs();
     dataswapped_ = filepars.swapData();
 
