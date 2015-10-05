@@ -563,7 +563,11 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 
 uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos )
 {
+#if QT_VERSION >= 0x050000
+    QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y, QTransform());
+#else
     QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y );
+#endif
     if ( !qitm ) return 0;
 
     for ( int idx=0; idx<items_.size(); idx++ )
