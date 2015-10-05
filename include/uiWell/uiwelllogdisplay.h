@@ -83,7 +83,7 @@ protected:
 */
 
 mExpClass(uiWell) uiWellLogDispDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWellLogDispDlg)
 public:
 
    			uiWellLogDispDlg(uiParent*,
