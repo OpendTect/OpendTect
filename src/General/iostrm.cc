@@ -244,8 +244,8 @@ bool IOStream::putTo( ascostream& stream ) const
 	stream.put( "$Multi", fms );
     }
 
-    const FilePath fpsurvdir( GetDataDir(), dirName() );
-    const BufferString survdir( fpsurvdir.fullPath() );
+    const FilePath fpsurvsubdir( GetDataDir(), dirName() );
+    const BufferString survsubdir( fpsurvsubdir.fullPath() );
     nrfiles = fs_.fnames_.size();
 
     for ( int idx=0; idx<nrfiles; idx++ )
@@ -255,8 +255,8 @@ bool IOStream::putTo( ascostream& stream ) const
 	int offs = 0;
 	if ( fp.isAbsolute() )
 	{
-	    BufferString head( fp.dirUpTo( fpsurvdir.nrLevels() - 1 ) );
-	    if ( head == survdir )
+	    BufferString head( fp.dirUpTo( fpsurvsubdir.nrLevels() - 1 ) );
+	    if ( head == survsubdir )
 		offs = head.size()+1;
 	}
 	if ( idx == 0 )
