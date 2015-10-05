@@ -85,9 +85,9 @@ void uiFunctionSel::updateList()
     for ( int idx=0; idx<velsources_.size(); idx++ )
     {
 	if ( idx<list_->size() )
-	    list_->setItemText(idx,velsources_[idx]->userName() );
+	    list_->setItemText(idx,toUiString(velsources_[idx]->userName()) );
 	else
-	    list_->addItem( velsources_[idx]->userName() );
+	    list_->addItem( toUiString(velsources_[idx]->userName()) );
     }
 
     while ( list_->size()>velsources_.size() )
@@ -174,8 +174,9 @@ void uiFunctionSel::colorChanged(CallBacker*)
 
 
 uiAddFunction::uiAddFunction( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Add velocity function source"),0,
-				   mODHelpKey(mAddFunctionHelpID) ) )
+    : uiDialog(p, uiDialog::Setup(uiStrings::phrAdd(
+				  tr("velocity function source")),
+				  mNoDlgTitle,	mODHelpKey(mAddFunctionHelpID)))
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
@@ -226,8 +227,8 @@ bool uiAddFunction::acceptOK(CallBacker*)
 
 
 uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
-    : uiDialog( p, uiDialog::Setup(tr("Edit velocity functions"),0,
-				   mODHelpKey(mEditFunctionHelpID) ) )
+    : uiDialog( p, uiDialog::Setup(uiStrings::phrEdit(tr("velocity functions")),
+			     mNoDlgTitle, mODHelpKey(mEditFunctionHelpID)) )
     , dlggrp_( 0 )
 {
     dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs, false );
