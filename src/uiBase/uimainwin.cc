@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
 #include "uipixmap.h"
@@ -199,6 +200,8 @@ private:
 
     bool		deletefrombody_;
     bool		deletefromod_;
+
+    bool		hasguisettings_;
 };
 
 
@@ -217,11 +220,12 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, poptimer_("Popup timer")
 	, poppedup_(false)
 	, exitapponclose_(false)
-        , prefsz_(-1,-1)
+	, prefsz_(-1,-1)
 	, prefpos_(uiPoint::udf())
 	, nractivated_(0)
 	, moved_(false)
 	, createtbmenu_(false)
+	, hasguisettings_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -300,6 +304,17 @@ void uiMainWinBody::doShow( bool minimized )
 
     QEvent* ev = new QEvent( mUsrEvPopUpReady );
     QApplication::postEvent( this, ev );
+
+#ifdef __debug__
+    QRect qrect = geometry();
+    if ( !hasguisettings_ && qrect.height() > 768 )
+    {
+	BufferString msg( "The height of this window is ", qrect.height(),
+			  " pixels.\nThis will not fit on most laptops. "
+			  "Please make a new layout." );
+	pErrMsg( msg );
+    }
+#endif
 
     if ( !handle_.afterPopup.isEmpty() )
     {
@@ -399,6 +414,7 @@ void uiMainWinBody::go( bool showminimized )
     finalise( true );
     doShow( showminimized );
     move( handle_.popuparea_ );
+
 }
 
 
@@ -586,7 +602,7 @@ void uiMainWinBody::renewToolbarsMenu()
     {
 	uiToolBar& tb = *toolbars_[idx];
 	uiAction* itm =
-	    new uiAction( mToUiStringTodo(tb.name()), 
+	    new uiAction( mToUiStringTodo(tb.name()),
 	    mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm );
@@ -631,6 +647,7 @@ void uiMainWinBody::readSettings()
     settings.endGroup();
 
     updateToolbarsMenu();
+    hasguisettings_ = true;
 }
 
 
@@ -827,7 +844,7 @@ void uiMainWin::show()
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
-bool uiMainWin::touch()			{ return body_->touch(); }
+bool uiMainWin::touch()				{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 void uiMainWin::showMaximized()			{ body_->showMaximized(); }
@@ -1249,8 +1266,16 @@ void uiMainWin::languageChangeCB( CallBacker* )
     }
 }
 
+
+void uiMainWin::aftPopupCB( CallBacker* )
+{
+    afterPopup.trigger();
+}
+
+
+
 class ImageSaver : public CallBacker
-{ mODTextTranslationClass(ImageSaver);
+{ mODTextTranslationClass(ImageSaver)
 public:
 
 ImageSaver()
@@ -1300,6 +1325,7 @@ void shootImageCB( CallBacker* )
     }
     else
 	image.save( fname_ );
+
     timer_.stop();
 }
 
