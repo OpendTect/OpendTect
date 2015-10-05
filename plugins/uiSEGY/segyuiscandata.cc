@@ -89,6 +89,15 @@ bool SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
 }
 
 
+void SEGY::BasicFileInfo::getFilePars( SEGY::FilePars& fpars ) const
+{
+    fpars.ns_ = ns_;
+    fpars.fmt_ = format_;
+    fpars.setSwap( hdrsswapped_, dataswapped_ );
+}
+
+
+
 SEGY::LoadDef::LoadDef()
     : hdrdef_(0)
 {
@@ -178,6 +187,42 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
     if ( !thdr || !getData(strm,buf,vals) )
 	{ delete thdr; return 0; }
     return thdr;
+}
+
+
+void SEGY::LoadDef::getFileReadOpts( SEGY::FileReadOpts& readopts ) const
+{
+    readopts.thdef_ = *hdrdef_;
+    readopts.coordscale_ = coordscale_;
+    readopts.timeshift_ = sampling_.start;
+    readopts.sampleintv_ = sampling_.step;
+    readopts.psdef_ = psoffssrc_;
+    readopts.offsdef_ = psoffsdef_;
+    readopts.icdef_ = icvsxytype_;
+}
+
+
+void SEGY::LoadDef::usePar( const IOPar& iop )
+{
+    FilePars filepars; getFilePars( filepars );
+    filepars.usePar( iop );
+    ns_ = filepars.ns_; format_ = (short)filepars.fmt_;
+    hdrsswapped_ = filepars.swapHdrs();
+    dataswapped_ = filepars.swapData();
+
+    iop.get( FilePars::sKeyRevision(), revision_ );
+    if ( iop.isTrue(FilePars::sKeyForceRev0()) )
+	revision_ = 0;
+
+    FileReadOpts readopts( Seis::Vol ); getFileReadOpts( readopts );
+    readopts.usePar( iop );
+    *hdrdef_ = readopts.thdef_;
+    coordscale_ = readopts.coordscale_;
+    sampling_.start = readopts.timeshift_;
+    sampling_.step = readopts.sampleintv_;
+    psoffssrc_ = readopts.psdef_;
+    psoffsdef_ = readopts.offsdef_;
+    icvsxytype_ = readopts.icdef_;
 }
 
 

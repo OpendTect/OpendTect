@@ -13,6 +13,10 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uicombobox.h"
 #include "survinfo.h"
 
+static const char* sKeyImpTyp = "Import.Type";
+static const char* sKeyVSP = "VSP";
+
+
 
 SEGY::ImpType::ImpType( bool isvsp )
     : tidx_(0)
@@ -78,6 +82,12 @@ uiString SEGY::ImpType::dispText() const
 }
 
 
+void SEGY::ImpType::fillPar( IOPar& iop ) const
+{
+    iop.set( sKeyImpTyp, isVSP() ? sKeyVSP : Seis::nameOf(geomType()) );
+}
+
+
 
 uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
 				const uiString* lbltxt )
@@ -126,7 +136,7 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
 }
 
 
-const SEGY::ImpType& uiSEGYImpType::impType()
+const SEGY::ImpType& uiSEGYImpType::impType() const
 {
     typ_.tidx_ = fld_->currentItem();
     return typ_;
@@ -137,4 +147,18 @@ void uiSEGYImpType::setTypIdx( int tidx )
 {
     typ_.tidx_ = tidx;
     fld_->setCurrentItem( typ_.tidx_ );
+}
+
+
+void uiSEGYImpType::usePar( const IOPar& iop )
+{
+    const BufferString res = iop.find( sKeyImpTyp );
+    if ( res.isEmpty() )
+	return;
+
+    NotifyStopper ns( fld_->selectionChanged );
+    if ( res == sKeyVSP )
+	setTypIdx( fld_->size()-1 );
+    else
+	fld_->setText( res );
 }

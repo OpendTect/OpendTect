@@ -45,6 +45,7 @@ public:
     TypeSet<int>	types_;
 
     uiString		dispText() const;
+    void		fillPar(IOPar&) const;
 
 private:
 
@@ -62,8 +63,10 @@ public:
 			uiSEGYImpType(uiParent*,bool withvsp,
 				      const uiString* lbltxt=0);
 
-    const SEGY::ImpType& impType();
+    const SEGY::ImpType& impType() const;
     void		setTypIdx(int);
+
+    void		usePar(const IOPar&);
 
     Notifier<uiSEGYImpType> typeChanged;
 

@@ -74,6 +74,7 @@ public:
     static int		fmtOf(const char*,bool forread);
 
     static const char*	sKeyForceRev0();
+    static const char*	sKeyRevision();
     static const char*	sKeyNrSamples();
     static const char*	sKeyNumberFormat();
     static const char*	sKeyByteSwap();
