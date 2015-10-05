@@ -1,4 +1,5 @@
 # Known generated files
+.DS_Store
 *mod.h
 *helpids.h
 about.html
