@@ -180,7 +180,6 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     const int nrexisting = existlogs.size();
     if ( nrexisting > 0 )
     {
-	const bool issingle = nrexisting == 1;
 	uiString msg = tr("The following logs already exist and will not "
 	                  "be imported:\n\n%1\n\nPlease remove them before " 
 			  "import.").arg(existlogs.getDispString());
