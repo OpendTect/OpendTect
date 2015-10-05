@@ -84,7 +84,7 @@ protected:
 
     od_int64			nrIterations() const	{ return totalnr_; }
 
-    int				totalnr_;
+    od_int64			totalnr_;
 
     const Array3D<float>&	input_;
     Array3D<float>&		output_;
