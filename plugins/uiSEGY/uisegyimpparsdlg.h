@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
-#include "typeset.h"
 #include "uidialog.h"
 
 class uiListBox;
