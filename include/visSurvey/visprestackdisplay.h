@@ -77,6 +77,8 @@ public:
     NotifierAccess*		getMovementNotifier() { return &draggermoving;}
     const BinID			draggerPosition() const	{ return draggerpos_; }
 
+    bool			hasPosModeManipulator() const	{ return true; }
+
 				//2D case
     const Seis2DDisplay*	getSeis2DDisplay() const;
     bool			setSeis2DData(const IOObj* ioobj);

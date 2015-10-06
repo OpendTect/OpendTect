@@ -123,6 +123,7 @@ public:
 
     virtual MultiID		getMultiID() const { return MultiID::udf(); }
 
+    virtual bool		hasPosModeManipulator() const	{ return false;}
     virtual void		showManipulator(bool yn)	{}
     virtual bool		isManipulatorShown() const	{ return false;}
     virtual bool		isManipulated() const		{ return false;}
@@ -131,7 +132,6 @@ public:
     virtual void		acceptManipulation()		{}
     virtual BufferString	getManipulationString() const	{ return ""; }
     virtual NotifierAccess*	getManipulationNotifier()	{ return 0; }
-    virtual void		enableEditor(bool yn)		{}
 
     virtual bool		allowMaterialEdit() const	{ return false;}
 				/*!\note Modification of color should be done

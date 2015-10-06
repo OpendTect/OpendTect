@@ -67,6 +67,7 @@ public:
     void			setOrientation(SliceType);
     SliceType			getOrientation() const { return orientation_; }
 
+    bool			hasPosModeManipulator() const	{ return true; }
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
     bool			isManipulated() const;
