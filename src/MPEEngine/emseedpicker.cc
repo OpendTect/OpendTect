@@ -79,11 +79,11 @@ EMSeedPicker::TrackMode EMSeedPicker::getTrackMode() const
 uiString EMSeedPicker::getTrackModeText( TrackMode mode, bool is2d )
 {
     if ( mode==TrackFromSeeds )
-	return is2d ? tr("Track from seed(s)") : tr("Track in Volume");
+	return tr("Auto-track from Seeds");
     else if ( mode==TrackBetweenSeeds )
-	return tr("Track between Seeds");
+	return tr("Auto-track between Seeds");
     else if ( mode==DrawBetweenSeeds )
-	return tr("Draw between Seeds");
+	return tr("Manual Interpretation");
     else
 	return tr("Unknown mode");
 }
