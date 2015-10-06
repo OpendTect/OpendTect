@@ -243,7 +243,7 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 
-    delbut_ = new uiToolButton( this, "trashcan", uiStrings::phrJoinStrings(
+    delbut_ = new uiToolButton( this, "delete", uiStrings::phrJoinStrings(
 				uiStrings::sDelete(), trselgrp),
 			        mCB(this,uiSGSelGrp,delSelGrps) );
     delbut_->attach( alignedBelow, infobut_ );
@@ -303,7 +303,7 @@ public:
 uiRenameDlg( uiParent* p, const char* nm )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrRename(
 				 tr("Selection Group Set")),
-                                 uiStrings::sEmptyString(), 
+                                 uiStrings::sEmptyString(),
 				 mNoHelpKey) )
 {
     namefld_ = new uiGenInput( this, tr("Selection Group Set Name") );

@@ -507,7 +507,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );
-    rmbut_ = new uiToolButton( butgrp, "trashcan", tr("Remove Survey"),
+    rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
 
@@ -793,9 +793,9 @@ void uiSurvey::rmButPushed( CallBacker* )
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    uiString msg = tr("This will remove the entire survey directory:\n\t%1"
+    uiString msg = tr("This will delete the entire survey directory:\n\t%1"
 		      "\nFull path: %2").arg(selnm).arg(truedirnm);
-    if ( !uiMSG().askRemove( msg ) ) return;
+    if ( !uiMSG().askRemove(msg) ) return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool rmisok = File::remove( truedirnm );

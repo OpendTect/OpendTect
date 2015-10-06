@@ -214,7 +214,7 @@ int uiMPEMan::popupMenu()
 	    mAddAction( tr("Select Children"), "", sChild, 0, true )
 	}
 	mAddAction( tr("Clear Selection"), "a", sClear, "clear", true )
-	mAddAction( tr("Delete Selected"), "d", sDelete, "trashcan", true )
+	mAddAction( tr("Delete Selected"), "d", sDelete, "clearselection", true)
 	mAddAction( tr("Undo"), "ctrl+z", sUndo, "undo",
 		    EM::EMM().undo().canUnDo())
 	mAddAction( tr("Redo"), "ctrl+y", sRedo, "redo",

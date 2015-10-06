@@ -191,6 +191,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
+    propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
 }
@@ -248,6 +249,7 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     if ( istb )
     {
+	mAddMenuItem( menu, &propertymnuitem_, true, false );
 	const int setidx = Pick::Mgr().indexOf( set_ );
 	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
@@ -506,6 +508,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
+    propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
 }
@@ -563,6 +566,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     if ( istb )
     {
+	mAddMenuItem( menu, &propertymnuitem_, true, false );
 	const int setidx = Pick::Mgr().indexOf( set_ );
 	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
