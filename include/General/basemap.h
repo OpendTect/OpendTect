@@ -57,8 +57,6 @@ public:
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
     virtual BufferString	getImageFileName(int idx) const	{ return ""; }
-    virtual int			getScale(int) const		{ return 1; }
-    virtual void		setScale(int,int)		{}
     virtual void		getXYScale(int idx,float& scx,float& scy) const
 				{ scx = scy = 1.f; }
     virtual void		setXYScale(int idx,float scx,float scy)	{}

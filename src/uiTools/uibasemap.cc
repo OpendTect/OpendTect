@@ -209,8 +209,10 @@ void uiBaseMapObject::update()
 		if ( !itm ) return;
 		itm->setPixmap( uiPixmap(imgfnm) );
 		itm->setPos( crds[ptidx] );
-		const int scale = bmobject_->getScale(idx);
-		itm->setScale( mCast(float,scale), mCast(float,scale) );
+
+		float scalex=1.f, scaley=1.f;
+		bmobject_->getXYScale( idx, scalex, scaley );
+		itm->setScale( scalex, scaley );
 		itemnr++;
 	    }
 	}
