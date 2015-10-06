@@ -43,6 +43,18 @@ void ApplicationData::exit( int retcode )
 }
 
 
+bool ApplicationData::isCommandAndCTRLSwapped()
+{
+    return !QCoreApplication::testAttribute( Qt::AA_MacDontSwapCtrlAndMeta );
+}
+
+
+void ApplicationData::swapCommandAndCTRL( bool yn )
+{
+    QCoreApplication::setAttribute( Qt::AA_MacDontSwapCtrlAndMeta, !yn );
+}
+
+
 void ApplicationData::setOrganizationName( const char* nm )
 { QCoreApplication::setOrganizationName( nm ); }
 

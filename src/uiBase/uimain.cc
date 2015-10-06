@@ -258,10 +258,9 @@ static void initQApplication()
     ApplicationData::setOrganizationName( "dGB");
     ApplicationData::setOrganizationDomain( "opendtect.org" );
     ApplicationData::setApplicationName( "OpendTect" );
-#ifdef __mac__
 
-    QCoreApplication::setAttribute(
-				Qt::AA_MacDontSwapCtrlAndMeta, true );
+#ifdef __mac__
+    ApplicationData::swapCommandAndCTRL( true );
 #endif
 
 #ifndef __win__

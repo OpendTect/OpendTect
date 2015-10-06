@@ -107,7 +107,7 @@ void MouseEvent::setButtonState( const OD::ButtonState& bs )
 bool MouseEvent::leftButton() const	{ return butstate_ & OD::LeftButton; }
 bool MouseEvent::rightButton() const	{ return butstate_ & OD::RightButton; }
 bool MouseEvent::middleButton() const	{ return butstate_ & OD::MidButton; }
-bool MouseEvent::ctrlStatus() const	{ return butstate_ &OD::ControlButton;}
+bool MouseEvent::ctrlStatus() const	{ return butstate_ & OD::ControlButton;}
 bool MouseEvent::altStatus() const	{ return butstate_ & OD::AltButton; }
 bool MouseEvent::shiftStatus() const	{ return butstate_ & OD::ShiftButton; }
 

@@ -43,6 +43,9 @@ public:
     static void		exit(int returncode);
 			//!<Tells the eventloop to quit.
 
+    static bool		isCommandAndCTRLSwapped();
+			//!<On Mac, is Ctrl and Command buttons swapped?
+    static void		swapCommandAndCTRL(bool);
 
     static void		setOrganizationName(const char*);
     static void		setOrganizationDomain(const char*);
