@@ -211,7 +211,7 @@ void uiBaseMapObject::update()
 		itm->setPos( crds[ptidx] );
 
 		float scalex=1.f, scaley=1.f;
-		bmobject_->getScale( idx, scalex, scaley );
+		bmobject_->getXYScale( idx, scalex, scaley );
 		itm->setScale( scalex, scaley );
 		itemnr++;
 	    }
