@@ -201,6 +201,8 @@ public:
 
 protected:
     SectionKnotsStatus*	getSectionKnotsStatus(EM::SectionID)const;
+
+    void			updateManipulator();
 };
 
 } // namespace VisSurvey
