@@ -168,8 +168,8 @@ void uiHorizonSetupGroup::mpeActionCB( CallBacker* )
 void uiHorizonSetupGroup::updateButtonSensitivity()
 {
     const bool enable = engine().getState() == MPE::Engine::Stopped;
-    toolbar_->setSensitive( startbutid_, enable );
-    toolbar_->setSensitive( stopbutid_, !enable );
+    toolbar_->setSensitive( startbutid_, enable && !is2d_ );
+    toolbar_->setSensitive( stopbutid_, !enable && !is2d_ );
     toolbar_->setSensitive( savebutid_, enable );
     toolbar_->setSensitive( retrackbutid_, enable );
 
