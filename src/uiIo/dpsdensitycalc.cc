@@ -97,17 +97,18 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( dps_.isInactive(mCast(DataPointSet::RowID,rid)) ||
-	     (grp_>0 && dps_.group(mCast(DataPointSet::RowID,rid)) != grp_) )
+	DataPointSet::RowID dpsrid = mCast(DataPointSet::RowID,rid);
+	if ( dps_.isInactive(dpsrid) ||
+	     (grp_>0 && dps_.group(dpsrid) != grp_) )
 	    continue;
 
-	const bool isselected = dps_.isSelected(mCast(DataPointSet::RowID,rid));
+	const bool isselected = dps_.isSelected( dpsrid );
 	if ( (areatype_==DPSDensityCalcND::Selected && !isselected) ||
 	     (areatype_==DPSDensityCalcND::NonSelected && isselected) )
 	    continue;
 
 	TypeSet<int> indexs;
-	if ( !getPositions(indexs,mCast(int,rid)) )
+	if ( !getPositions(indexs,dpsrid) )
 	    continue;
 
 	setFreqValue( indexs.arr() );
