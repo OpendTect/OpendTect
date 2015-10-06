@@ -355,6 +355,9 @@ void uiWellMan::logSel( CallBacker* )
 
 void uiWellMan::edMarkers( CallBacker* )
 {
+    if ( !curioobj_ )
+	return;
+
     MultiID curmid( curioobj_->key() );	
     PtrMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
@@ -391,6 +394,9 @@ void uiWellMan::edMarkers( CallBacker* )
 
 void uiWellMan::edWellTrack( CallBacker* )
 {
+    if ( !curioobj_ )
+	return;
+
     PtrMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
 
