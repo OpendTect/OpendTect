@@ -94,6 +94,7 @@ public:
 			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
 			~uiFlatViewStdControl();
     virtual uiToolBar*	toolBar()		{ return tb_; }
+    uiToolBar*		editToolBar()		{ return edittb_; }
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
     float		getCurrentPosPerCM(bool forx1) const;
@@ -115,6 +116,7 @@ protected:
     float		defx2pospercm_;
 
     uiToolBar*		tb_;
+    uiToolBar*		edittb_;
     uiToolButton*	rubbandzoombut_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;

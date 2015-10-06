@@ -35,6 +35,11 @@ static const char* rcsID mUsedVar = "$Id$";
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
     tb_->addButton( but );
 
+#define mEditDefBut(but,fnm,cbnm,tt) \
+    but = new uiToolButton(edittb_,fnm,tt,\
+			   mCB(this,uiFlatViewStdControl,cbnm) ); \
+    edittb_->addButton( but );
+
 #define sLocalHZIdx	0
 #define sGlobalHZIdx	1
 #define sManHZIdx	2
@@ -81,6 +86,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , vwr_(vwr)
     , setup_(setup)
     , ctabed_(0)
+    , edittb_(0)
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
     , propertiesmnuitem_(m3Dots(tr("Properties")),100)
@@ -182,7 +188,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withedit_ )
     {
-	mDefBut(editbut_,"seedpickmode",dragModeCB,tr("Edit mode"));
+	edittb_ = new uiToolBar( mainwin(), tr("Edit Tools") );
+	mEditDefBut(editbut_,"seedpickmode",dragModeCB,tr("Edit mode"));
 	editbut_->setToggleButton( true );
     }
 
