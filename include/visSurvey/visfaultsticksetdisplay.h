@@ -151,6 +151,7 @@ protected:
 					TypeSet<Coord3>& intersectpoints);
     EM::FaultStickSet*		emFaultStickSet();
     void			sowingFinishedCB(CallBacker*);
+    void			updateManipulator();
 
 
     MPE::FaultStickSetEditor*	fsseditor_;
