@@ -41,6 +41,8 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj )
 
 ObjectEditor::~ObjectEditor()
 {
+    CallBack::removeFromMainThread( this );
+
     emobject.unRef();
     deepErase( geeditors );
     sections.erase();
@@ -118,7 +120,7 @@ bool ObjectEditor::setPosition(const Coord3& np)
 
     nodeclonecountdown--;
     if ( !nodeclonecountdown )
-	cloneMovingNode();
+	mMainThreadCall( ObjectEditor::cloneMovingNode );
 
     return true;
 }
