@@ -96,7 +96,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 				tr("Move current item up"), butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 				 tr("Move current item down"), butpushcb );
-    rmbut_ = new uiToolButton( bgrp, "trashcan",
+    rmbut_ = new uiToolButton( bgrp, "remove",
 				tr("Remove current item from flow"), butpushcb);
     bgrp->attach( centeredBelow, flowfld_ );
 
