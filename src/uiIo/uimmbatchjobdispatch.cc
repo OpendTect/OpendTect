@@ -251,7 +251,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     {
 	if ( !errmsg_.isEmpty() )
 	    uiMSG().error( errmsg_ );
-	setCancelText( tr("Dismiss") );
+	setCancelText( uiStrings::sClose() );
 	button(OK)->display( false );
 	return;
     }
