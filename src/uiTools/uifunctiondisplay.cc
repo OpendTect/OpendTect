@@ -333,7 +333,15 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
     yax_->updateScene();
     if ( y2ax_ )
     {
-	y2ax_->setup().noannot( !havey2 );
+	if ( !havey2 )
+	    y2ax_->setup().noannot( true );
+	else
+	{
+	    const bool noy2axis = setup_.noy2axis_;
+	    y2ax_->setup().noaxisline(noy2axis).noaxisannot(noy2axis)
+			  .nogridline(setup_.noy2gridline_);
+	}
+
 	y2ax_->updateDevSize(); y2ax_->updateScene();
     }
 }

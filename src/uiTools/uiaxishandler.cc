@@ -139,9 +139,9 @@ void uiAHPlotAnnotSet::setVisible( bool yn )
 
 const LineStyle& uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah )const
 {
+    if ( !pah.isAux() ) return setup_.style_;
     const bool ishighlighted = pah.linetype_ == PlotAnnotation::HighLighted;
-    return !pah.isAux() ? setup_.style_ : (ishighlighted ?
-	    setup_.auxhllinestyle_ : setup_.auxlinestyle_);
+    return ishighlighted ? setup_.auxhllinestyle_ : setup_.auxlinestyle_;
 }
 
 

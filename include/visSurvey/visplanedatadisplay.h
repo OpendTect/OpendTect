@@ -15,13 +15,9 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 
-#include "enums.h"
-#include "factory.h"
 #include "mousecursor.h"
 #include "oduicommon.h"
-#include "ranges.h"
 #include "undo.h"
-
 
 template <class T> class Array2D;
 namespace visBase
@@ -32,8 +28,6 @@ namespace visBase
 }
 
 class BinIDValueSet;
-class RegularSeisDataPack;
-
 
 namespace visSurvey
 {
@@ -90,7 +84,7 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
-    void			getRandomPos(DataPointSet&,TaskRunner*) const;
+    void			getRandomPos(DataPointSet&,TaskRunner* =0)const;
     void			setRandomPosData(int attrib,
 						 const DataPointSet*,
 						 TaskRunner*);
@@ -163,18 +157,12 @@ public:
 protected:
 				~PlaneDataDisplay();
 
-    void			setVolumeDataPackNoCache(int attrib,
-						const RegularSeisDataPack*);
     void			setRandomPosDataNoCache(int attrib,
 							const BinIDValueSet*,
 							TaskRunner*);
-    void			interpolArray(int,float*, int, int,
-				    const Array2D<float>&,TaskRunner*) const;
-    void			setDisplayDataPackIDs(int attrib,
-					const TypeSet<DataPack::ID>& dpids);
     void			updateChannels(int attrib,TaskRunner*);
-    void			createTransformedDataPack(int attrib);
-
+    void			createTransformedDataPack(int attrib,
+							  TaskRunner*);
     void			updateMainSwitch();
     void			setScene(Scene*);
     void			setSceneEventCatcher(visBase::EventCatcher*);

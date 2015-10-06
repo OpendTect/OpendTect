@@ -573,7 +573,7 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpm.release( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
 
-    createTransformedDataPack( attrib );
+    createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     return true;
 }
@@ -635,7 +635,7 @@ void RandomTrackDisplay::dataTransformCB( CallBacker* )
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	createTransformedDataPack( idx );
+	createTransformedDataPack( idx, 0 );
 	updateChannels( idx, 0 );
     }
 }
@@ -663,50 +663,79 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     const int nrversions = randsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    for ( int idx=0; idx<nrversions; idx++ )
+    int newsz0 = randsdp->data().info().getSize( 1 );
+    int newsz1 = randsdp->data().info().getSize( 2 );
+    bool differentattribsizes = false, onlycurrent = true;
+    if ( nrAttribs() > 1 )
     {
-	const Array3DImpl<float>& array = randsdp->data( idx );
-	const int sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
-	const int sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
-	const float* arr = array.getData();
-	OD::PtrPolicy cp = OD::UsePtr;
+	const int oldchannelsz0 =
+	    (channels_->getSize(0,1)+resolution_) / (resolution_+1);
+	const int oldchannelsz1 =
+	    (channels_->getSize(0,2)+resolution_) / (resolution_+1);
 
-	if ( !arr || resolution_>0 )
+	differentattribsizes = newsz0!=oldchannelsz0 || newsz1!=oldchannelsz1;
+	onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
+	if ( newsz0 < oldchannelsz0 ) newsz0 = oldchannelsz0;
+	if ( newsz1 < oldchannelsz1 ) newsz1 = oldchannelsz1;
+    }
+
+    for ( int attribidx=0; attribidx<nrAttribs(); attribidx++ )
+    {
+	if ( onlycurrent && attribidx!=attrib )
+	    continue;
+
+	randsdp = dpm.obtain( getDisplayedDataPackID(attribidx) );
+	if ( !randsdp ) continue;
+
+	for ( int idx=0; idx<randsdp->nrComponents(); idx++ )
 	{
-	    mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
-	    if ( !tmparr ) continue;
+	    const Array3DImpl<float>& array = randsdp->data( idx );
+	    const int sz0 = 1 + (newsz0-1) * (resolution_+1);
+	    const int sz1 = 1 + (newsz1-1) * (resolution_+1);
+	    const float* arr = array.getData();
+	    OD::PtrPolicy cp = OD::UsePtr;
 
-	    if ( resolution_ == 0 )
-		array.getAll( tmparr );
-	    else
+	    if ( !arr || resolution_>0 || differentattribsizes )
 	    {
-		Array2DSlice<float> slice2d( array );
-		slice2d.setDimMap( 0, 1 );
-		slice2d.setDimMap( 1, 2 );
-		slice2d.setPos( 0, 0 );
-		slice2d.init();
+		mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
+		if ( !tmparr ) continue;
+		// TODO: Get rid of this extra array creation for
+		// differentattribsizes when Jaap enables usage of
+		// LayeredTexture with different texturesizes. [T254]
 
-		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-		Array2DReSampler<float,float> resampler(
-				slice2d, tmparr, sz0, sz1, true );
-		resampler.setInterpolate( true );
-		TaskRunner::execute( taskr, resampler );
+		if ( resolution_==0 && !differentattribsizes )
+		    array.getAll( tmparr );
+		else
+		{
+		    Array2DSlice<float> slice2d( array );
+		    slice2d.setDimMap( 0, 1 );
+		    slice2d.setDimMap( 1, 2 );
+		    slice2d.setPos( 0, 0 );
+		    slice2d.init();
+
+		    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+		    Array2DReSampler<float,float> resampler(
+			    slice2d, tmparr, sz0, sz1, true );
+		    resampler.setInterpolate( true );
+		    TaskRunner::execute( taskr, resampler );
+		}
+
+		arr = tmparr;
+		cp = OD::TakeOverPtr;
 	    }
 
-	    arr = tmparr;
-	    cp = OD::TakeOverPtr;
+	    channels_->setSize( attribidx, 1, sz0, sz1 );
+	    channels_->setUnMappedData( attribidx, idx, arr, cp, 0,
+					interactivetexturedisplay_ );
 	}
-
-	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
-				    interactivetexturedisplay_ );
     }
 
     channels_->turnOn( true );
 }
 
 
-void RandomTrackDisplay::createTransformedDataPack( int attrib )
+void RandomTrackDisplay::createTransformedDataPack(
+				int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
@@ -717,19 +746,21 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib )
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	const TrcKeyPath& path = randsdp->getPath();
-	TrcKeyZSampling tkzs( false );
-	for ( int idx=0; idx<path.size(); idx++ )
-	    tkzs.hsamp_.include( path[idx].pos() );
-	tkzs.zsamp_ = panelstrip_->getZRange();
-	tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
-				  : datatransform_->getGoodZStep();
-
-	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	datatransform_->loadDataIfMissing( voiidx_ );
+	if ( datatransform_->needsVolumeOfInterest() )
+	{
+	    const TrcKeyPath& path = randsdp->getPath();
+	    TrcKeyZSampling tkzs( false );
+	    for ( int idx=0; idx<path.size(); idx++ )
+		tkzs.hsamp_.include( path[idx].pos() );
+	    tkzs.zsamp_ = panelstrip_->getZRange();
+	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
+				      : datatransform_->getGoodZStep();
+	    if ( voiidx_ < 0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	}
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( randsdp.ptr() );

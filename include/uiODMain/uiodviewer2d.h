@@ -29,6 +29,7 @@ class uiSlicePos2DView;
 class uiToolBar;
 class uiTreeFactorySet;
 class MouseCursorExchange;
+class TaskRunner;
 class Vw2DDataManager;
 class ZAxisTransform;
 
@@ -97,7 +98,10 @@ public:
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
     virtual void		setPos(const TrcKeyZSampling&);
-    void			setTrcKeyZSampling(const TrcKeyZSampling&);
+    void			setRandomLineID( int id )
+				{ rdmlineid_ = id; }
+    void			setTrcKeyZSampling(const TrcKeyZSampling&,
+						   TaskRunner* =0);
     const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return tkzs_; }
     Pos::GeomID			geomID() const;
@@ -123,9 +127,9 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void		setWinTitle(bool fromcs=false);
-				/*!<\param fromcs if true, TrcKeyZSampling
-				will be used to set window title.*/
+    virtual void		setWinTitle(bool fromvisobjinfo);
+				/*!<\param fromvisobjinfo if true, window title
+				  will be set from visBase::DataObject info.*/
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
@@ -187,6 +191,8 @@ protected:
     TrcKeyZSampling		tkzs_;
     uiString			basetxt_;
     uiODMain&			appl_;
+    int				rdmlineid_;
+    int				voiidx_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;

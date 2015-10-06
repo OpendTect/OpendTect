@@ -173,7 +173,8 @@ protected:
 
     void			updateLineNamePos();
     void			updateChannels(int attrib,TaskRunner*);
-    void			createTransformedDataPack(int attrib);
+    void			createTransformedDataPack(int attrib,
+							  TaskRunner* =0);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);

@@ -32,7 +32,8 @@ ZAxisTransformPointGenerator::~ZAxisTransformPointGenerator()
 }
 
 
-void ZAxisTransformPointGenerator::setInput( const TrcKeyZSampling& cs )
+void ZAxisTransformPointGenerator::setInput( const TrcKeyZSampling& cs,
+					     TaskRunner* taskr )
 {
     tkzs_ = cs;
     iter_.setSampling( cs.hsamp_ );
@@ -44,7 +45,7 @@ void ZAxisTransformPointGenerator::setInput( const TrcKeyZSampling& cs )
 	else
 	    transform_.setVolumeOfInterest( voiid_, cs, true );
 
-	transform_.loadDataIfMissing( voiid_ );
+	transform_.loadDataIfMissing( voiid_, taskr );
     }
 }
 

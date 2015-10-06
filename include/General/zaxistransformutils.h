@@ -31,7 +31,8 @@ public:
 				ZAxisTransformPointGenerator(ZAxisTransform&);
 				~ZAxisTransformPointGenerator();
 
-    void			setInput( const TrcKeyZSampling& cs );
+    void			setInput(const TrcKeyZSampling& cs,
+					 TaskRunner* =0);
     void			setOutputDPS( DataPointSet& dps )
 				{ dps_ = &dps; }
 

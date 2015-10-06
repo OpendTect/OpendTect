@@ -829,7 +829,10 @@ void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->getRandomPos( dtps, 0 );
+    if ( !so ) return;
+
+    uiTaskRunner taskrunner( appserv().parent() );
+    so->getRandomPos( dtps, &taskrunner );
 }
 
 
@@ -847,7 +850,10 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setRandomPosData( attrib, dtps, 0 );
+    if ( !so ) return;
+
+    uiTaskRunner taskrunner( appserv().parent() );
+    so->setRandomPosData( attrib, dtps, &taskrunner );
 }
 
 

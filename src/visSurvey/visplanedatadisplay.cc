@@ -11,15 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "array2dresample.h"
-#include "attribsel.h"
-#include "binidvalue.h"
 #include "datapointset.h"
-#include "flatposdata.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
-#include "survinfo.h"
-#include "zdomain.h"
 
 #include "visdepthtabplanedragger.h"
 #include "visevent.h"
@@ -121,7 +116,6 @@ PlaneDataDisplay::PlaneDataDisplay()
     init();
     showManipulator( dragger_->isOn() );
     startmovepos_.setEmpty();
-
 }
 
 
@@ -315,7 +309,7 @@ bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,PlaneDataDisplay,dataTransformCB) );
-	if ( voiidx_>0 )
+	if ( voiidx_ != -1 )
 	{
 	    datatransform_->removeVolumeOfInterest( voiidx_ );
 	    voiidx_ = -1;
@@ -359,7 +353,7 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 	if ( rposcache_[idx] )
 	    setRandomPosDataNoCache( idx, rposcache_[idx], 0 );
 	else
-	    createTransformedDataPack( idx );
+	    createTransformedDataPack( idx, 0 );
 
 	updateChannels( idx, 0 );
     }
@@ -618,13 +612,13 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( int attrib ) const
 }
 
 
-void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
+void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
 {
     if ( !datatransform_ ) return;
 
     const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 ); //attrib?
     ZAxisTransformPointGenerator generator( *datatransform_ );
-    generator.setInput( cs );
+    generator.setInput( cs, taskr );
     generator.setOutputDPS( pos );
     generator.execute();
 }
@@ -747,121 +741,9 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpm.release( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
 
-    createTransformedDataPack( attrib );
+    createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     return true;
-}
-
-
-void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
-			const RegularSeisDataPack* regsdp )
-{
-    if ( !regsdp ) return;
-
-    //set display datapack.
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-
-    TypeSet<DataPack::ID> attridpids;
-    ObjectSet<const FlatDataPack> displaypacks;
-    ObjectSet<const FlatDataPack> tfpacks;
-    //mLoadFDPs( regsdp, attridpids, displaypacks );
-
-    //transform data if necessary.
-    const bool usetf = tfpacks.size();
-    if ( nrAttribs()>1 )
-    {
-	const int oldchannelsz0 =
-		  (channels_->getSize(0,1)+resolution_) / (resolution_+1);
-	const int oldchannelsz1 =
-		  (channels_->getSize(0,2)+resolution_) / (resolution_+1);
-
-	//check current attribe sizes
-	int newsz0 = 0, newsz1 = 0;
-	bool hassamesz = true;
-	if ( oldchannelsz0 && oldchannelsz1 )
-	{
-	    for ( int idx=0; idx<attridpids.size(); idx++ )
-	    {
-		const int sz0 = usetf ? tfpacks[idx]->data().info().getSize(0)
-		    : displaypacks[idx]->data().info().getSize(0);
-		const int sz1 = usetf ? tfpacks[idx]->data().info().getSize(1)
-		    : displaypacks[idx]->data().info().getSize(1);
-
-		if ( idx && (sz0!=newsz0 || sz1!=newsz1) )
-		    hassamesz = false;
-
-		if ( newsz0<sz0 ) newsz0 = sz0;
-		if ( newsz1<sz1 ) newsz1 = sz1;
-	    }
-	}
-
-	const bool onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
-	const int attribsz = (newsz0<2 || newsz1<2) || (newsz0==oldchannelsz0
-		&& newsz1==oldchannelsz1 && hassamesz) ? 0 : nrAttribs();
-	if ( newsz0<oldchannelsz0 ) newsz0 = oldchannelsz0;
-	if ( newsz1<oldchannelsz1 ) newsz1 = oldchannelsz1;
-	for ( int idx=0; idx<attribsz; idx++ )
-	{
-	    if ( onlycurrent && idx!=attrib )
-		continue;
-
-	    TypeSet<DataPack::ID> pids;
-	    ObjectSet<const FlatDataPack> packs;
-	    /*if ( idx!=attrib &&  volumecache_[idx] )
-	    {
-		mLoadFDPs( volumecache_[idx], pids, packs );
-	    }*/
-
-	    bool needsupdate = false;
-	    const int idsz = idx==attrib ? attridpids.size() : pids.size();
-	    for ( int idy=0; idy<idsz; idy++ )
-	    {
-		const FlatDataPack* dp = idx!=attrib ? packs[idy] :
-		    ( usetf ? tfpacks[idy] : displaypacks[idy] );
-		StepInterval<double> rg0 = dp->posData().range(true);
-		StepInterval<double> rg1 = dp->posData().range(false);
-		const int sz0 = dp->data().info().getSize(0);
-		const int sz1 = dp->data().info().getSize(1);
-		if ( sz0==newsz0 && sz1==newsz1 )
-		    continue;
-
-		needsupdate = true;
-		mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
-			Array2DImpl<float> (newsz0,newsz1) );
-		interpolArray(idx,arr->getData(),newsz0,newsz1,dp->data(),0);
-		mDeclareAndTryAlloc( FlatDataPack*, fdp,
-			FlatDataPack( dp->category(), arr ) );
-
-		rg0.step = newsz0!=1 ? rg0.width()/(newsz0-1) : rg0.width();
-		rg1.step = newsz1!=1 ? rg1.width()/(newsz1-1) : rg1.width();
-
-		fdp->posData().setRange( true, rg0 );
-		fdp->posData().setRange( false, rg1 );
-
-		dpman.addAndObtain( fdp );
-		if ( idx==attrib )
-		    attridpids[idy] = fdp->id();
-		else
-		    pids[idy] = fdp->id();
-
-		dpman.release( dp );
-	    }
-
-	    if ( idx!=attrib )
-	    {
-		if ( needsupdate )
-		    setDisplayDataPackIDs( idx, pids );
-
-		for ( int idy=0; idy<pids.size(); idy++ )
-		    dpman.release( pids[idy] );
-	    }
-	}
-    }
-
-    setDisplayDataPackIDs( attrib, attridpids );
-
-    for ( int idx=0; idx<attridpids.size(); idx++ )
-	dpman.release( attridpids[idx] );
 }
 
 
@@ -903,21 +785,6 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 }
 
 
-void PlaneDataDisplay::setDisplayDataPackIDs( int attrib,
-			const TypeSet<DataPack::ID>& newdpids )
-{
-    TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
-    for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
-
-    dpids = newdpids;
-    for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
-
-    updateChannels( attrib, 0 );
-}
-
-
 void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
@@ -930,45 +797,77 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
     const int dim0 = orientation_==OD::InlineSlice ? 1 : 0;
     const int dim1 = orientation_==OD::ZSlice ? 1 : 2;
-    for ( int idx=0; idx<nrversions; idx++ )
+    int newsz0 = regsdp->data().info().getSize( dim0 );
+    int newsz1 = regsdp->data().info().getSize( dim1 );
+    bool differentattribsizes = false, onlycurrent = true;
+    if ( nrAttribs() > 1 )
     {
-	const Array3D<float>& array = regsdp->data( idx );
-	const int sz0 = 1 + (array.info().getSize(dim0)-1) * (resolution_+1);
-	const int sz1 = 1 + (array.info().getSize(dim1)-1) * (resolution_+1);
+	const int oldchannelsz0 =
+	    (channels_->getSize(0,1)+resolution_) / (resolution_+1);
+	const int oldchannelsz1 =
+	    (channels_->getSize(0,2)+resolution_) / (resolution_+1);
 
-	const float* arr = array.getData();
-	OD::PtrPolicy cp = OD::UsePtr;
+	differentattribsizes = newsz0!=oldchannelsz0 || newsz1!=oldchannelsz1;
+	onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
+	if ( newsz0 < oldchannelsz0 ) newsz0 = oldchannelsz0;
+	if ( newsz1 < oldchannelsz1 ) newsz1 = oldchannelsz1;
+    }
 
-	if ( !arr || resolution_>0 )
+    for ( int attribidx=0; attribidx<nrAttribs(); attribidx++ )
+    {
+	if ( onlycurrent && attribidx!=attrib )
+	    continue;
+
+	regsdp = dpm.obtain( getDisplayedDataPackID(attribidx) );
+	if ( !regsdp ) continue;
+
+	for ( int idx=0; idx<regsdp->nrComponents(); idx++ )
 	{
-	    mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
-	    if ( !tmparr ) continue;
+	    const Array3D<float>& array = regsdp->data( idx );
+	    const int sz0 = 1 + (newsz0-1) * (resolution_+1);
+	    const int sz1 = 1 + (newsz1-1) * (resolution_+1);
+	    const float* arr = array.getData();
+	    OD::PtrPolicy cp = OD::UsePtr;
 
-	    if ( resolution_ == 0 )
-		array.getAll( tmparr );
-	    else
+	    if ( !arr || resolution_>0 || differentattribsizes )
 	    {
-		Array2DSlice<float> slice2d( array );
-		slice2d.setDimMap( 0, dim0 );
-		slice2d.setDimMap( 1, dim1 );
-		slice2d.setPos( orientation_, 0 );
-		slice2d.init();
-		interpolArray( attrib, tmparr, sz0, sz1, slice2d, taskr );
+		mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
+		if ( !tmparr ) continue;
+		// TODO: Get rid of this extra array creation for
+		// differentattribsizes when Jaap enables usage of
+		// LayeredTexture with different texturesizes. [T254]
+
+		if ( resolution_==0 && !differentattribsizes )
+		    array.getAll( tmparr );
+		else
+		{
+		    Array2DSlice<float> slice2d( array );
+		    slice2d.setDimMap( 0, dim0 );
+		    slice2d.setDimMap( 1, dim1 );
+		    slice2d.setPos( orientation_, 0 );
+		    slice2d.init();
+
+		    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+		    Array2DReSampler<float,float> resampler(
+			    slice2d, tmparr, sz0, sz1, true );
+		    resampler.setInterpolate( true );
+		    TaskRunner::execute( taskr, resampler );
+		}
+
+		arr = tmparr;
+		cp = OD::TakeOverPtr;
 	    }
 
-	    arr = tmparr;
-	    cp = OD::TakeOverPtr;
+	    channels_->setSize( attribidx, 1, sz0, sz1 );
+	    channels_->setUnMappedData( attribidx, idx, arr, cp, 0 );
 	}
-
-	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
     }
 
     channels_->turnOn( true );
 }
 
 
-void PlaneDataDisplay::createTransformedDataPack( int attrib )
+void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
@@ -979,12 +878,15 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib )
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-/*	TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
-	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	datatransform_->loadDataIfMissing( voiidx_ );*/
+	if ( datatransform_->needsVolumeOfInterest() )
+	{
+	    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
+	    if ( voiidx_ < 0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	}
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( regsdp.ptr() );
@@ -998,19 +900,6 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib )
     dpm.obtain( outputid );
 }
 
-
-void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
-				      const Array2D<float>& inp,
-				      TaskRunner* taskr ) const
-{
-    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-    Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
-    resampler.setInterpolate( true );
-    TaskRunner::execute( taskr, resampler );
-}
-
-
-#define mIsValid(idx,sz) ( idx>=0 && idx<sz )
 
 void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					Coord3& pos,

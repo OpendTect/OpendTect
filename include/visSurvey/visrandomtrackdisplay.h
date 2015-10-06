@@ -194,8 +194,8 @@ protected:
 						 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int node) const;
     void			updateChannels(int attrib,TaskRunner*);
-    void			createTransformedDataPack(int attrib);
-
+    void			createTransformedDataPack(int attrib,
+							  TaskRunner* =0);
     void			setNodePos(int,const BinID&,bool check);
 
     BinID			snapPosition(const BinID&) const;

@@ -65,8 +65,10 @@ public:
     
     const char*		entityStr() const { return isTime() ? "t" : "d"; }
 
-    bool		operator ==( const Def& def ) const
+    bool		operator==( const Def& def ) const
 			{ return key_ == def.key_; }
+    bool		operator!=( const Def& def ) const
+			{ return !(*this==def); }
 
     // For plugins:
 			Def( const char* ky, const uiString& usrnm,

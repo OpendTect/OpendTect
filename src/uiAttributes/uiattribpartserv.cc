@@ -712,15 +712,15 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    output = new RegularSeisDataPack(
 				SeisDataPack::categoryStr(false,false) );
 	    output->setSampling( tkzs );
-	    output->addComponent( targetspecs_[0].userRef() );
-	    ValueSeries<float>* arr3dvs = output->data(0).getStorage();
-	    if ( !arr3dvs )
+	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
+		    !output->data(0).getStorage() )
 	    {
 		delete output;
 		output = 0;
 	    }
 	    else
 	    {
+		ValueSeries<float>* arr3dvs = output->data(0).getStorage();
 		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
 		copier.execute();
 	    }
@@ -876,7 +876,9 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
     {
-	newpack->addComponent( targetspecs_[idx].userRef() );
+	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
+	    continue;
+
 	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
 	{
 	    const int trcidx = output.find( (*path)[idy] );
@@ -935,6 +937,103 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 }
 
 
+class RegularSeisDataPackCreatorFor2D : public ParallelTask
+{
+public:
+RegularSeisDataPackCreatorFor2D( const Data2DArray& input,
+				 const TrcKeyZSampling& sampling,
+				 const TypeSet<Attrib::SelSpec>& selspecs,
+				 DataPack::ID& outputid )
+    : input_(input)
+    , sampling_(sampling)
+    , targetspecs_(selspecs)
+    , refnrs_(sampling.hsamp_.nrTrcs(),mUdf(float))
+    , outputid_(outputid)
+    , outputdp_(0)
+{
+}
+
+od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
+
+bool doPrepare( int nrthreads )
+{
+    if ( input_.trcinfoset_.isEmpty() ||
+	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() )
+	return false;
+
+    outputdp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true) );
+    outputdp_->setSampling( sampling_ );
+    for ( int icomp=0; icomp<input_.dataset_->info().getSize(0); icomp++ )
+	if ( !outputdp_->addComponent(targetspecs_[icomp].userRef()) )
+	    continue;
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    if ( !outputdp_ ) return false;
+    const ObjectSet<SeisTrcInfo>& trcinfoset = input_.trcinfoset_;
+    const Array3DImpl<float>* dataset = input_.dataset_;
+    for ( int icomp=0; icomp<outputdp_->nrComponents(); icomp++ )
+    {
+	Array3DImpl<float>& data = outputdp_->data( icomp );
+	// trcinfoset.size() and sampling.hsamp_.nrTrcs() might differ if the
+	// data has missing or duplicate trace numbers.
+	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
+	{
+	    const int trcidx = sampling_.hsamp_.trcIdx( trcinfoset[tidx]->nr );
+	    if ( trcidx < 0 )
+		continue;
+
+	    const int nrz = sampling_.zsamp_.nrSteps() + 1;
+	    const int dtidx = icomp*trcinfoset.size() + tidx;
+	    const bool domemcopy = dataset->getData() && data.getData();
+	    if ( domemcopy )
+	    {
+		const float* dataptr = dataset->getData() + dtidx*nrz;
+		float* trcptr = data.getData() + trcidx*nrz;
+		OD::memCopy( trcptr, dataptr, nrz*sizeof(float) );
+	    }
+	    else
+	    {
+		const OffsetValueSeries<float> datastor(
+				*dataset->getStorage(), dtidx*nrz );
+		OffsetValueSeries<float> trcstor(
+				*data.getStorage(), trcidx*nrz );
+		for ( int zidx=0; zidx<nrz; zidx++ )
+		    trcstor.setValue( zidx, datastor.value(zidx) );
+	    }
+
+	    if ( icomp == 0 )
+		refnrs_[trcidx] = trcinfoset[tidx]->refnr;
+	}
+    }
+
+    return true;
+}
+
+bool doFinish( bool success )
+{
+    outputdp_->setRefNrs( refnrs_ );
+    outputdp_->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
+    outputdp_->setName( targetspecs_[0].userRef() );
+    DPM(DataPackMgr::SeisID()).add( outputdp_ );
+    outputid_ = outputdp_->id();
+    return true;
+}
+
+protected:
+
+    const Data2DArray&			input_;
+    const TrcKeyZSampling&		sampling_;
+    const TypeSet<Attrib::SelSpec>&	targetspecs_;
+    RegularSeisDataPack*		outputdp_;
+    DataPack::ID&			outputid_;
+    TypeSet<float>			refnrs_;
+};
+
 DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
@@ -970,40 +1069,12 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     TrcKeyZSampling sampling = data2darr->cubesampling_;
     sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid;
     sampling.hsamp_.survid_ = Survey::GM().get2DSurvID();
-    RegularSeisDataPack* newpack = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(true,true) );
-    newpack->setSampling( sampling );
 
-    TypeSet<float> refnrs( newpack->nrTrcs(), mUdf(float) );
-    const ObjectSet<SeisTrcInfo>& trcinfoset = data2darr->trcinfoset_;
-    const Array3DImpl<float>* dataset = data2darr->dataset_;
-    for ( int icomp=0; icomp<dataset->info().getSize(0); icomp++ )
-    {
-	newpack->addComponent( targetspecs_[icomp].userRef() );
-	Array3DImpl<float>& data = newpack->data( icomp );
-	// Running a loop instead of directly assigning the array as
-	// sampling.nrTrcs() and trcinfoset.size() might differ if data has
-	// missing or duplicate trace numbers.
-	for ( int tidx=0; tidx<trcinfoset.size(); tidx++ )
-	{
-	    const int trcidx = sampling.hsamp_.trcIdx( trcinfoset[tidx]->nr );
-	    if ( trcidx < 0 )
-		continue;
-
-	    for ( int zidx=0; zidx<dataset->info().getSize(2); zidx++ )
-		data.set( 0, trcidx, zidx , dataset->get(icomp,tidx,zidx) );
-
-	    if ( icomp == 0 )
-		refnrs[trcidx] = trcinfoset[tidx]->refnr;
-	}
-    }
-
-    newpack->setRefNrs( refnrs );
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
-    newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
-    return newpack->id();
+    DataPack::ID outputid = DataPack::cNoID();
+    RegularSeisDataPackCreatorFor2D datapackcreator(
+		*data2darr, sampling, targetspecs_, outputid );
+    datapackcreator.execute();
+    return outputid;
 }
 
 

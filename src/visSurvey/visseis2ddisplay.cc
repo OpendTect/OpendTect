@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "zaxistransform.h"
-#include "samplfunc.h"
 
 //For parsing old pars
 #include "attribsel.h"
@@ -360,7 +359,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpm.release( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
 
-    createTransformedDataPack( attrib );
+    createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     return true;
 }
@@ -394,55 +393,66 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
     const int nrversions = seisdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
+    const TrcKeyZSampling& sampling = seisdp->sampling();
+    const StepInterval<float>& datazrg = sampling.zsamp_;
+    const StepInterval<float>& displayzrg = trcdisplayinfo_.zrg_;
+    if ( !displayzrg.overlaps(datazrg) )
+	{ channels_->turnOn( false ); return; }
+
+    const int nrtraces = sampling.nrTrcs();
+    const int nrsamples = datazrg.nrSteps()+1;
+    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
+    const int nrdisplaysamples = displayzrg.nrSteps()+1;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	PtrMan<Array3DImpl<float> > tmparr = 0;
-	Array3D<float>* usedarr = &seisdp->data( idx );
-	const int nrtraces = seisdp->sampling().nrTrcs();
-	const int nrsamples = seisdp->getZRange().nrSteps()+1;
-	const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
-	const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
+	Array3D<float>& data = seisdp->data( idx );
+	Array3D<float>* usedarr = &data;
 	if ( nrtraces!=nrdisplaytraces ||
 	     nrsamples!=nrdisplaysamples ||
 	     seisdp->getTrcKey(0).trcNr()!=trcdisplayinfo_.alltrcnrs_[0] )
 	{
 	    mTryAlloc( tmparr,
 		    Array3DImpl<float>( 1, nrdisplaytraces, nrdisplaysamples) );
+	    if ( !tmparr || !tmparr->isOK() )
+		return;
 	    tmparr->setAll( mUdf(float) );
 	    usedarr = tmparr;
+	    StepInterval<float> overlapzrg( displayzrg );
+	    overlapzrg.limitTo( datazrg );
+	    const int nrzsamples = overlapzrg.nrSteps()+1;
+	    const int startzidx = displayzrg.nearestIndex( overlapzrg.start );
 	    const int startidx = trcdisplayinfo_.rg_.start;
 	    for ( int trcidx=0; trcidx<trcdisplayinfo_.size_; trcidx++ )
 	    {
 		const int trcnr = trcdisplayinfo_.alltrcnrs_[startidx+trcidx];
-		const int globalidx = seisdp->sampling().trcIdx( trcnr );
+		const int globalidx = sampling.trcIdx( trcnr );
 		if ( globalidx<0 || globalidx>nrtraces-1 )
 		    continue;
 
-		const float* trcptr = seisdp->getTrcData( idx, globalidx );
-		const OffsetValueSeries<float> trcstor =
-				seisdp->getTrcStorage( idx, globalidx );
-		float* dataptr = tmparr->getData() ?
-				tmparr->getData() + trcidx*nrdisplaysamples : 0;
-
-		for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
+		if ( tmparr->getData() && data.getData() &&
+			mIsEqual(datazrg.step,displayzrg.step,mDefEpsF) )
 		{
-		    const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
-		    const float sample = seisdp->getZRange().getfIndex( z );
-		    float val = mUdf(float);
-		    if ( trcptr )
-			IdxAble::interpolateReg( trcptr, nrsamples, sample,
-						 val, false );
-		    else
-			IdxAble::interpolateReg( trcstor, nrsamples, sample,
-						 val, false );
+		    const float* dataptr = seisdp->getTrcData( idx, globalidx );
+		    float* trcptr = tmparr->getData() + trcidx*nrdisplaysamples;
+		    const od_int64 sz = nrzsamples * sizeof(float);
+		    OD::memCopy( trcptr+startzidx, dataptr, sz );
+		    continue;
+		}
 
-		    if ( dataptr )
-			*(dataptr + zidx) = val;
-		    else
-			tmparr->set( 0, trcidx, zidx, val );
+		const OffsetValueSeries<float> datastor =
+				seisdp->getTrcStorage( idx, globalidx );
+		OffsetValueSeries<float> trcstor(
+			*tmparr->getStorage(), trcidx*nrdisplaysamples );
+
+		for ( int zidx=0; zidx<nrzsamples; zidx++ )
+		{
+		    const float z = overlapzrg.atIndex( zidx );
+		    const int datazidx = datazrg.nearestIndex( z );
+		    trcstor.setValue( startzidx+zidx, datastor.value(datazidx));
 		}
 	    }
 	}
@@ -520,7 +530,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 }
 
 
-void Seis2DDisplay::createTransformedDataPack( int attrib )
+void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
@@ -531,21 +541,15 @@ void Seis2DDisplay::createTransformedDataPack( int attrib )
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	TrcKeyZSampling tkzs;
-	tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = geomid_;
-	tkzs.hsamp_.start_.crl() =
-	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start];
-	tkzs.hsamp_.stop_.crl() =
-	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop];
-	tkzs.hsamp_.step_.inl() = tkzs.hsamp_.step_.crl() = 1;
-	tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
-	tkzs.zsamp_.setFrom( trcdisplayinfo_.zrg_ );
-	// use survey step here?
-	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	datatransform_->loadDataIfMissing( voiidx_ );
+	if ( datatransform_->needsVolumeOfInterest() )
+	{
+	    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, attrib );
+	    if ( voiidx_ < 0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	}
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( regsdp.ptr() );
@@ -870,8 +874,8 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
     int dataidx = -1;
     float mindist;
     if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
-	par.set( sKey::TraceNr(), geometry_.positions()[dataidx].nr_ );
-
+	par.set( sKey::TraceKey(),
+		TrcKey(geomid_,geometry_.positions()[dataidx].nr_) );
 }
 
 
@@ -1124,7 +1128,7 @@ void Seis2DDisplay::dataTransformCB( CallBacker* )
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	createTransformedDataPack( idx );
+	createTransformedDataPack( idx, 0 );
 	updateChannels( idx, 0 );
     }
 }

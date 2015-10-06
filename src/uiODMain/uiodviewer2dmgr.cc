@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiodvw2dpicksettreeitem.h"
 #include "uiodvw2dvariabledensity.h"
 #include "uiodvw2dwigglevararea.h"
+#include "uitaskrunner.h"
 #include "uitreeitemmanager.h"
 #include "uivispartserv.h"
 #include "zaxistransform.h"
@@ -50,6 +51,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
+#include "visrandomtrackdisplay.h"
 
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
@@ -133,7 +135,7 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 
 
 int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
-					bool wva,
+					bool dowva,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
@@ -153,21 +155,17 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     else
 	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
 
-    return displayIn2DViewer( dpid, posdatasel.selspec_, wva,
-			      initialx1pospercm, initialx2pospercm );
-}
-
-
-int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
-			const Attrib::SelSpec& as, bool dowva,
-			float initialx1pospercm, float initialx2pospercm )
-{
     uiODViewer2D* vwr2d = &addViewer2D( -1 );
-    const DataPack::ID vwdpid = vwr2d->createFlatDataPack( dpid, 0 );
+    const Attrib::SelSpec& as = posdatasel.selspec_;
     vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
+    const Geometry::RandomLine* rdmline =
+	Geometry::RLM().get( posdatasel.rdmlineid_ );
+    if ( rdmline )
+	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->setUpView( vwdpid, dowva );
+    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
+    vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dowva );
     vwr2d->useStoredDispPars( !dowva );
 
@@ -193,6 +191,10 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	ConstRefMan<ZAxisTransform> zat =
 		visServ().getZAxisTransform( visServ().getSceneID(visid) );
 	vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
+	ConstRefMan<visBase::DataObject> dataobj = visServ().getObject( visid );
+	mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dataobj.ptr());
+	if ( rtd )
+	    vwr2d->setRandomLineID( rtd->getRandomLineID() );
     }
     else
 	visServ().fillDispPars( visid, attribid,
@@ -207,7 +209,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const int version = visServ().currentVersion( visid, attribid );
     const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
     vwr2d->setUpView( dpid, dowva );
-    vwr2d->setWinTitle();
+    vwr2d->setWinTitle( true );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
@@ -339,20 +341,23 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 {
     if ( !vwr2d ) return;
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
-    uiODViewer2D* clickedvwr2d = 0;
-    const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
     TypeSet<PlotAnnotation>& auxannot =
 	selauxannot_.isx1_ ? vwr.appearance().annot_.x1_.auxannot_
 			   : vwr.appearance().annot_.x2_.auxannot_;
+    const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
+    const int selannotidx = selauxannot_.auxposidx_;
+    if ( !tkzs.isFlat() || !auxannot.validIdx(selannotidx) )
+	return;
+
+    uiODViewer2D* clickedvwr2d = 0;
     if ( TrcKey::is2D(tkzs.hsamp_.survid_) )
     {
-	if ( selauxannot_.auxposidx_<0 ||
-	     auxannot[selauxannot_.auxposidx_].isNormal())
+	if ( auxannot[selannotidx].isNormal() )
 	    return;
 
 	Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
 					      mUdf(int), mUdf(int) );
-	const float auxpos = auxannot[selauxannot_.auxposidx_].pos_;
+	const float auxpos = auxannot[selannotidx].pos_;
 	intpoint2d = intersectingLineID( vwr2d, auxpos );
 	if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	   return;
@@ -360,82 +365,39 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
     }
     else
     {
-	if ( !tkzs.isFlat() || selauxannot_.auxposidx_<0 )
-	    return;
-
-	TrcKeyZSampling clickedtkzs;
-	TrcKeyZSampling newposkzs;
-	if ( tkzs.defaultDir()==TrcKeyZSampling::Inl )
+	TrcKeyZSampling oldtkzs, newtkzs;
+	const ZAxisTransform* zat = vwr2d->getZAxisTransform();
+	if ( zat )
 	{
-	    if ( selauxannot_.isx1_ )
-	    {
-		const int auxpos = mNINT32( selauxannot_.oldauxpos_ );
-		clickedtkzs.hsamp_.setTrcRange(
-			Interval<int>(auxpos,auxpos) );
-		const int newauxpos =
-		    mNINT32( auxannot[selauxannot_.auxposidx_].pos_ );
-		newposkzs.hsamp_.setTrcRange(
-			Interval<int>(newauxpos,newauxpos) );
-	    }
-	    else
-	    {
-		const float auxpos = selauxannot_.oldauxpos_;
-		clickedtkzs.zsamp_ =
-		    StepInterval<float>( auxpos, auxpos,
-					 clickedtkzs.zsamp_.step );
-		const float newauxpos = auxannot[selauxannot_.auxposidx_].pos_;
-		newposkzs.zsamp_ = StepInterval<float>( newauxpos, newauxpos,
-							newposkzs.zsamp_.step );
-	    }
+	    oldtkzs.zsamp_ = newtkzs.zsamp_ = zat->getZInterval( false );
+	    oldtkzs.zsamp_.step = newtkzs.zsamp_.step = zat->getGoodZStep();
 	}
-	else if ( tkzs.defaultDir()==TrcKeyZSampling::Crl )
-	{
-	    if ( selauxannot_.isx1_ )
-	    {
-		const int auxpos = mNINT32(selauxannot_.oldauxpos_);
-		clickedtkzs.hsamp_.setLineRange(
-			Interval<int>(auxpos,auxpos) );
-		const int newauxpos =
-		    mNINT32(auxannot[selauxannot_.auxposidx_].pos_);
-		newposkzs.hsamp_.setLineRange(
-			Interval<int>(newauxpos,newauxpos) );
-	    }
-	    else
-	    {
-		const float auxpos = selauxannot_.oldauxpos_;
-		clickedtkzs.zsamp_ =
-		    StepInterval<float>( auxpos, auxpos,
-					 clickedtkzs.zsamp_.step );
-		const float newauxpos = auxannot[selauxannot_.auxposidx_].pos_;
-		newposkzs.zsamp_ = StepInterval<float>( newauxpos, newauxpos,
-							newposkzs.zsamp_.step );
-	    }
 
-	}
-	else if ( tkzs.defaultDir()==TrcKeyZSampling::Z )
+	if ( tkzs.defaultDir()!=TrcKeyZSampling::Inl && selauxannot_.isx1_ )
 	{
 	    const int auxpos = mNINT32(selauxannot_.oldauxpos_);
-	    const int newauxpos =
-				mNINT32(auxannot[selauxannot_.auxposidx_].pos_);
-	    if ( selauxannot_.isx1_ )
-	    {
-		clickedtkzs.hsamp_.setLineRange(
-			Interval<int>(auxpos,auxpos) );
-		newposkzs.hsamp_.setLineRange(
-			Interval<int>(newauxpos,newauxpos) );
-	    }
-	    else
-	    {
-		clickedtkzs.hsamp_.setTrcRange(
-			Interval<int>(auxpos,auxpos) );
-		newposkzs.hsamp_.setTrcRange(
-			Interval<int>(newauxpos,newauxpos) );
-	    }
+	    const int newauxpos = mNINT32(auxannot[selannotidx].pos_);
+	    oldtkzs.hsamp_.setLineRange( Interval<int>(auxpos,auxpos) );
+	    newtkzs.hsamp_.setLineRange( Interval<int>(newauxpos,newauxpos) );
+	}
+	else if ( tkzs.defaultDir()!=TrcKeyZSampling::Z && !selauxannot_.isx1_ )
+	{
+	    const float auxpos = selauxannot_.oldauxpos_;
+	    const float newauxpos = auxannot[selannotidx].pos_;
+	    oldtkzs.zsamp_ = Interval<float>( auxpos, auxpos );
+	    newtkzs.zsamp_ = Interval<float>( newauxpos, newauxpos );
+	}
+	else
+	{
+	    const int auxpos = mNINT32(selauxannot_.oldauxpos_);
+	    const int newauxpos = mNINT32(auxannot[selannotidx].pos_);
+	    oldtkzs.hsamp_.setTrcRange( Interval<int>(auxpos,auxpos) );
+	    newtkzs.hsamp_.setTrcRange( Interval<int>(newauxpos,newauxpos) );
 	}
 
-	clickedvwr2d = find2DViewer( clickedtkzs );
+	clickedvwr2d = find2DViewer( oldtkzs );
 	if ( clickedvwr2d )
-	    clickedvwr2d->setPos( newposkzs );
+	    clickedvwr2d->setPos( newtkzs );
 	setAllIntersectionPositions();
     }
 
@@ -529,6 +491,13 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	uiWorldPoint initialcentre( uiWorldPoint::udf() );
 	TrcKeyZSampling newtkzs = SI().sampling(true);
 	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
+	const ZAxisTransform* zat = curvwr2d->getZAxisTransform();
+	if ( zat )
+	{
+	    newtkzs.zsamp_ = zat->getZInterval( false );
+	    newtkzs.zsamp_.step = zat->getGoodZStep();
+	}
+
 	if ( menuid==0 )
 	{
 	    const PosInfo::Line2DData& l2ddata =
@@ -575,8 +544,9 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     uiODViewer2D* vwr2d = &addViewer2D( -1 );
     vwr2d->setSelSpec( &curvwr2d.selSpec(true), true );
     vwr2d->setSelSpec( &curvwr2d.selSpec(false), false );
-    vwr2d->setTrcKeyZSampling( newsampling );
     vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
+    uiTaskRunner taskr( const_cast<uiODViewer2D&>(curvwr2d).viewerParent() );
+    vwr2d->setTrcKeyZSampling( newsampling, &taskr );
 
     const uiFlatViewStdControl* control = curvwr2d.viewControl();
     vwr2d->setInitialCentre( initialcentre );
@@ -716,13 +686,13 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const TrcKeyZSampling& tkzs )
 
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
-    TrcKeyZSampling::Dir vwr2ddir = vwr2d->getTrcKeyZSampling().defaultDir();
-    TypeSet<PlotAnnotation>& x1intannots =
-	vwr2d->viewwin()->viewer().appearance().annot_.x1_.auxannot_;
-    TypeSet<PlotAnnotation>& x2intannots =
-	vwr2d->viewwin()->viewer().appearance().annot_.x2_.auxannot_;
-    x1intannots.erase(); x2intannots.erase();
-    const PlotAnnotation::LineType boldltype = PlotAnnotation::Bold;
+    const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
+    if ( !tkzs.isFlat() ) return;
+
+    uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
+    TypeSet<PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
+    TypeSet<PlotAnnotation>& x2auxannot = vwr.appearance().annot_.x2_.auxannot_;
+    x1auxannot.erase(); x2auxannot.erase();
 
     if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )
     {
@@ -763,67 +733,69 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		commongids += Survey::GM().getGeomID( wvalnm );
 	}
 
-	const StepInterval<double> x1rg =
-	    vwr2d->viewwin()->viewer().posRange( true );
-	const StepInterval<int> trcrg =
-	    vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
+	const StepInterval<double> x1rg = vwr.posRange( true );
+	const StepInterval<int> trcrg = tkzs.hsamp_.trcRange();
 	for ( int intposidx=0; intposidx<intsect->size(); intposidx++ )
 	{
 	    const Line2DInterSection::Point& intpos =
 		intsect->getPoint( intposidx );
 	    if ( !commongids.isPresent(intpos.line) )
 		continue;
+
 	    PlotAnnotation newannot;
-	    if ( find2DViewer(intpos.line) )
-		newannot.linetype_ = boldltype;
+	    const uiODViewer2D* curvwr2d = find2DViewer( intpos.line );
+	    if ( curvwr2d && curvwr2d->zDomain()==vwr2d->zDomain() )
+		newannot.linetype_ = PlotAnnotation::Bold;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
 	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
-	newannot.txt_ = mToUiStringTodo(Survey::GM().getName( intpos.line ));
-	    x1intannots += newannot;
+	    newannot.txt_ = mToUiStringTodo( Survey::GM().getName(intpos.line));
+	    x1auxannot += newannot;
 	}
     }
     else
     {
+	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
 	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	{
-	    const uiODViewer2D* idxvwr = viewers2d_[vwridx];
-	    const TrcKeyZSampling& idxvwrtkzs = idxvwr->getTrcKeyZSampling();
+	    const uiODViewer2D* curvwr2d = viewers2d_[vwridx];
+	    const TrcKeyZSampling& idxvwrtkzs = curvwr2d->getTrcKeyZSampling();
 	    TrcKeyZSampling::Dir idxvwrdir = idxvwrtkzs.defaultDir();
-	    if ( vwr2d == idxvwr || vwr2ddir==idxvwrdir )
+	    if ( curvwr2d==vwr2d || idxvwrdir==dir || !idxvwrtkzs.isFlat() ||
+		    curvwr2d->zDomain()!=vwr2d->zDomain() )
 		continue;
 
 	    PlotAnnotation newannot;
-	    newannot.linetype_ = boldltype;
+	    newannot.linetype_ = PlotAnnotation::Bold;
 
-	    if ( vwr2ddir==TrcKeyZSampling::Inl )
+	    if ( dir == TrcKeyZSampling::Inl )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
 		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
 		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
-		    x1intannots += newannot;
+		    x1auxannot += newannot;
 		}
 		else
 		{
 		    newannot.pos_ = idxvwrtkzs.zsamp_.start;
 		    newannot.txt_ = tr( "ZSlice %1" ).arg(newannot.pos_);
-		    x2intannots += newannot;
+		    x2auxannot += newannot;
 		}
 	    }
-	    else if ( vwr2ddir==TrcKeyZSampling::Crl )
+	    else if ( dir == TrcKeyZSampling::Crl )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
-		    x1intannots += newannot;
+		    x1auxannot += newannot;
 		}
 		else
 		{
 		    newannot.pos_ = idxvwrtkzs.zsamp_.start;
 		    newannot.txt_ = tr( "ZSlice %1" ).arg(newannot.pos_);
-		    x2intannots += newannot;
+		    x2auxannot += newannot;
 		}
 	    }
 	    else
@@ -832,19 +804,19 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		{
 		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
-		    x1intannots += newannot;
+		    x1auxannot += newannot;
 		}
 		else
 		{
 		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
 		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
-		    x2intannots += newannot;
+		    x2auxannot += newannot;
 		}
 	    }
 	}
     }
 
-    vwr2d->viewwin()->viewer().handleChange( FlatView::Viewer::Annot );
+    vwr.handleChange( FlatView::Viewer::Annot );
 }
 
 
