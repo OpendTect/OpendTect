@@ -71,6 +71,12 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
 
 void uiLabel::init( const uiString& txt, uiObject* buddy )
 {
+//Overcome QMacStyles setting of fonts, which is not inline with
+//our layout.
+#ifdef __mac__
+    setFont( uiFontList::getInst().get(FontData::Control) );
+#endif
+
     setText( txt );
     setTextSelectable( true );
 
