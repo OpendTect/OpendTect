@@ -784,7 +784,6 @@ uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
 void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
-    const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ))
     if ( !menu || !s2d || istb ) return;
@@ -876,7 +875,6 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     if ( !menu || mnuid==-1 || menu->isHandled() )
 	return;
 
-    const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ));
     if ( !s2d )

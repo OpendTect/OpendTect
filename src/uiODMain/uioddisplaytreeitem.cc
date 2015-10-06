@@ -81,7 +81,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
     , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {
-    removemnuitem_.iconfnm = "trashcan";
+    removemnuitem_.iconfnm = "remove";
     histogrammnuitem_.iconfnm = "histogram";
     lockmnuitem_.iconfnm = "lock";
     addattribmnuitem_.iconfnm = "attributes";
@@ -290,6 +290,9 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
 	return;
 
     createMenu( tb, true );
+    mAddMenuItem( tb, &lockmnuitem_, true, false );
+    mAddMenuItem( tb, &removemnuitem_,
+		  !visserv_->isLocked(displayid_),false);
 }
 
 
@@ -315,9 +318,6 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	else
 	    mResetMenuItem( &histogrammnuitem_ );
 
-	mAddMenuItem( menu, &lockmnuitem_, true, false );
-	mAddMenuItem( menu, &removemnuitem_,
-		      !visserv_->isLocked(displayid_),false);
 	return;
     }
 
