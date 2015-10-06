@@ -37,10 +37,11 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 {
     manager_.fillPar( restorepar_ );
 
-    const char* lbltxt = "Preprocessing methods";
+    const uiString lbltxt = tr("Preprocessing methods");
     uiLabel* label = new uiLabel( this, lbltxt );
 
-    factorylist_ = new uiListBox( this, lbltxt, OD::ChooseOnlyOne );
+    factorylist_ = new uiListBox( this, "Preprocessing methods", 
+							    OD::ChooseOnlyOne );
     factorylist_->addItems( Processor::factory().getUserNames() );
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify(
@@ -50,7 +51,8 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     factorylist_->attach( ensureBelow, label );
 
     addprocessorbutton_ = new uiToolButton( this, uiToolButton::RightArrow,
-		tr("Add method"), mCB(this,uiProcessorManager,addCB) );
+			      uiStrings::phrAdd(tr("method")), 
+			      mCB(this,uiProcessorManager,addCB) );
     addprocessorbutton_->attach( centeredRightOf, factorylist_ );
 
     processorlist_ = new uiListBox( this );
@@ -69,16 +71,19 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     butgrp->attach( rightOf, processorlist_ );
     moveupbutton_ = new uiToolButton( butgrp, uiToolButton::UpArrow,
-		tr("Move up"), mCB(this,uiProcessorManager,moveUpCB) );
+		uiStrings::sMoveUp(), mCB(this,uiProcessorManager,moveUpCB) );
 
     movedownbutton_ = new uiToolButton( butgrp, uiToolButton::DownArrow,
-		tr("Move down"), mCB(this,uiProcessorManager,moveDownCB) );
+	       uiStrings::sMoveDown(), mCB(this,uiProcessorManager,moveDownCB));
 
     propertiesbutton_ = new uiToolButton( butgrp, "settings",
-		tr("Edit step"), mCB(this,uiProcessorManager,propertiesCB) );
+				    uiStrings::phrEdit(
+				    uiStrings::sStep().toLower()),
+				    mCB(this,uiProcessorManager,propertiesCB) );
 
-    removeprocessorbutton_ = new uiToolButton( butgrp, "remove",
-		tr("Remove step"), mCB(this,uiProcessorManager,removeCB) );
+    removeprocessorbutton_ = new uiToolButton( butgrp, "trashcan",
+			     uiStrings::phrRemove(uiStrings::sStep().toLower()),
+			     mCB(this,uiProcessorManager,removeCB) );
 
     uiButtonGroup* iogrp =
 	new uiButtonGroup( this, "IO Buttons", OD::Horizontal );

@@ -43,7 +43,7 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outputfile_ = new uiFileInput( this, "Output ASCII file",
+    outputfile_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 				   uiFileInput::Setup(0).forread(false) );
     outputfile_->attach( alignedBelow, subsel_ );
 }
@@ -73,10 +73,10 @@ bool uiEventExport::acceptOK( CallBacker* )
     od_ostream strm( outputfile_->fileName() );
     if ( !strm.isOK() )
     {
-	BufferString msg = "Cannot open ";
-	msg.add( outputfile_->fileName() ).add( " for writing" );
+	uiString msg = tr("%1 for writing").arg(uiStrings::phrCannotOpen(
+					 toUiString(outputfile_->fileName())));
 	strm.addErrMsgTo( msg );
-	uiMSG().error( msg.buf() );
+	uiMSG().error( msg );
 	return false;
     }
 

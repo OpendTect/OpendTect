@@ -34,7 +34,7 @@ uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const MultiID* mid,
 
     if ( withedit )
     {
-	editbut_ = new uiPushButton( this, "",
+	editbut_ = new uiPushButton( this, uiStrings::sEmptyString(),
 		mCB(this,uiProcSel,editPushCB), false );
 	editbut_->attach( rightOf, selfld_ );
     }
@@ -81,21 +81,23 @@ void uiProcSel::selDoneCB( CallBacker* cb )
 
 void uiProcSel::editPushCB( CallBacker* )
 {
-    BufferString title;
+    uiString title;
     ProcessManager man;
     const IOObj* ioobj =  selfld_->ioobj( true );
     if ( ioobj )
     {
 	uiString errmsg;
 	PreStackProcTranslator::retrieve( man, ioobj, errmsg );
-	title = "Edit";
+	title = uiStrings::sEdit();
     }
     else
-	title = "Create";
+	title = uiStrings::sCreate();
 
-    title += " prestack processing";
+    title = toUiString("%1 %2 %3").arg(title)
+				  .arg(uiStrings::sPreStack().toLower())
+				  .arg(uiStrings::sProcessing().toLower());
 
-    uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, 
+    uiDialog dlg( this, uiDialog::Setup( title, mNoDlgTitle, 
                                         mODHelpKey(mPreStackProcSelHelpID) ) );
     dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );

@@ -102,7 +102,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Preprocessing",uiString::emptyString(),
+    : uiDialog(p,uiDialog::Setup(tr("Preprocessing"),uiString::emptyString(),
                                  mODHelpKey(mPreStackProcSelHelpID) ) )
     , cb_(cb)
 {
@@ -160,7 +160,7 @@ void uiViewer2DMainWin::applyPreProcCB( CallBacker* )
 
 void uiViewer2DMainWin::setUpView()
 {
-    uiMainWin win( this, "Creating gather displays ... " );
+    uiMainWin win( this, m3Dots(tr("Creating gather displays")) );
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
@@ -170,7 +170,7 @@ void uiViewer2DMainWin::setUpView()
     removeAllGathers();
 
     if ( preprocmgr_ && !preprocmgr_->reset() )
-	return uiMSG().error( "Can not preprocess data" );
+	return uiMSG().error( tr("Can not preprocess data") );
 
     int nrvwr = 0;
     for ( int gidx=0; gidx<gatherinfos_.size(); gidx++ )
@@ -278,7 +278,7 @@ void uiViewer2DMainWin::clearAuxData()
 
 void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 {
-    uiIOObjSelDlg::Setup sdsu( "Select Mute for display" );
+    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(tr("Mute for display")) );
     sdsu.multisel( true );
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(MuteDef);
     uiIOObjSelDlg mutesel( this, sdsu, *ctio );
@@ -386,7 +386,7 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
     mCBCapsuleUnpack(IOPar,pars,cb);
     BufferString mesg;
     makeInfoMsg( mesg, pars );
-    statusBar()->message( mesg.buf() );
+    statusBar()->message( toUiString(mesg.buf()) );
 }
 
 
@@ -1027,7 +1027,7 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 
 
 class uiAngleCompParDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAngleCompParDlg)
 public:
 
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
@@ -1035,12 +1035,12 @@ uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
 				 uiString::emptyString(),
 			      mODHelpKey(mViewer2DPSMainWindisplayAngleHelpID)))
 {
-    FixedString windowtitle = isag ? "Angle Gather Display"
-				   : "Angle Data Display";
+    uiString windowtitle = isag ? tr("Angle Gather Display")
+				: tr("Angle Data Display");
 
     setTitleText( windowtitle );
-    BufferString windowcaption = "Specify Parameters for ";
-    windowcaption += windowtitle;
+    uiString windowcaption = uiStrings::phrSpecify(tr("Parameters for %1")
+							     .arg(windowtitle));
     setCaption( windowcaption );
     anglegrp_ = new PreStack::uiAngleCompGrp( this, acp, false, false );
 }

@@ -33,15 +33,14 @@ uiDialog* uiAGC::create( uiParent* p, Processor* sgp )
 
 
 uiAGC::uiAGC( uiParent* p, AGC* sgagc )
-    : uiDialog( p, uiDialog::Setup(tr("AGC setup"),0,
+    : uiDialog( p, uiDialog::Setup(tr("AGC setup"),mNoDlgTitle,
                                     mODHelpKey(mPreStackAGCHelpID) ) )
     , processor_( sgagc )
 {
-    BufferString label = "Window width ";
     BufferString unit;
     processor_->getWindowUnit( unit, true );
-    label += unit;
-    windowfld_ = new uiGenInput( this, label.buf(),
+    uiString label = tr("Window width %1").arg(mToUiStringTodo(unit));
+    windowfld_ = new uiGenInput( this, label,
 			     FloatInpSpec(processor_->getWindow().width() ));
     lowenergymute_ = new uiGenInput( this, tr("Low energy mute (%)"),
 	    			     FloatInpSpec() );

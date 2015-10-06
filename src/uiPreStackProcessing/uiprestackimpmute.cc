@@ -43,7 +43,10 @@ uiImportMute::uiImportMute( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII File",
+    inpfld_ = new uiFileInput( this, toUiString("%1 %2 %3")
+				.arg(uiStrings::sInput())
+				.arg(uiStrings::sASCII())
+				.arg(uiStrings::sFile()),
 	                       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
@@ -101,11 +104,11 @@ bool uiImportMute::acceptOK( CallBacker* )
     MuteDef mutedef;
 
     if ( !*inpfld_->fileName() )
-	mErrRet( "Please select the input file" );
+	mErrRet( uiStrings::phrSelect(mJoinUiStrs(sInput(),sFile())) )
 
     od_istream strm( inpfld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet( uiStrings::phrCannotOpen(mJoinUiStrs(sInput(),sFile())) )
 
     MuteAscIO muteascio( fd_, strm );
 
@@ -120,17 +123,18 @@ bool uiImportMute::acceptOK( CallBacker* )
 	TrcKeySampling hs;
 
 	if ( inlcrlfld_->getBinID() == BinID(mUdf(int),mUdf(int)) )
-	    mErrRet( "Please enter Inl/Crl" )
+	    mErrRet( tr("Enter Inl/Crl") )
 
 	else if ( !hs.includes(inlcrlfld_->getBinID()) )
-	    mErrRet( "Please enter Inl/Crl within survey range" )
+	    mErrRet( tr("Enter Inl/Crl within survey range") )
 
 	else if ( !muteascio.getMuteDef(mutedef, inlcrlfld_->getBinID()) )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())))
     }
 
     if ( !outfld_->commitInput() )
-	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0 )
+	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
+				    : uiStrings::sEmptyString() )
 
    PtrMan<MuteDefTranslator> trans =
 	    (MuteDefTranslator*)ctio_.ioobj_->createTranslator();

@@ -21,7 +21,7 @@ namespace PreStackView
 {
 
 mClass(uiPreStackProcessing) uiGatherDisplayInfoHeader : public uiGroup
-{
+{ mODTextTranslationClass(uiGatherDisplayInfoHeader)
 public:
     				uiGatherDisplayInfoHeader(uiParent*);
     				~uiGatherDisplayInfoHeader() {}

@@ -38,7 +38,7 @@ uiDialog* uiLateralStack::create( uiParent* p, Processor* sgp )
 
 
 uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
-    : uiDialog( p, uiDialog::Setup(tr("Super Gather setup"),0,
+    : uiDialog( p, uiDialog::Setup(tr("Super Gather setup"),mNoDlgTitle,
                                     mODHelpKey(mPreStackVerticalStackHelpID) ) )
     , processor_( sgvs )
 {
