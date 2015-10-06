@@ -110,6 +110,7 @@ public:
 
     int			fontHeight() const;
     int			fontWidth(bool max=false) const;
+    int			fontWidthFor(const uiString&) const;
     int			fontWidthFor(const char*) const;
 
     void		setHSzPol(uiObject::SzPolicy);

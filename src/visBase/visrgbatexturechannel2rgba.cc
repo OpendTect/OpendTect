@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistexturechannels.h"
 #include "coltabsequence.h"
+#include "uistrings.h"
+
 #include <osgGeo/LayeredTexture>
 
 mCreateFactoryEntry( visBase::RGBATextureChannel2RGBA );
@@ -65,28 +67,29 @@ const ColTab::Sequence* RGBATextureChannel2RGBA::getSequence( int ch ) const
 
 
 void RGBATextureChannel2RGBA::getChannelName( int channel,
-					      BufferString& res ) const
+					      uiString& res ) const
 {
+    uiString layername;
     switch ( channel ) {
 	case 0:
-	    res = "Red";
+	    layername = uiStrings::sRed();
 	    break;
 	case 1:
-	    res = "Green";
+	    layername = uiStrings::sGreen();
 	    break;
 	case 2:
-	    res = "Blue";
+	    layername = uiStrings::sBlue();
 	    break;
 	case 3:
-	    res = "Transparency";
+	    layername = uiStrings::sTransparency();
 	    break;
 	default:
 	    res.setEmpty();
 	    break;
     }
 
-    if ( !res.isEmpty() )
-	res += " layer";
+    if ( !layername.isEmpty() )
+	res = uiStrings::phrJoinStrings( layername, uiStrings::sLayer() );
 }
 
 
