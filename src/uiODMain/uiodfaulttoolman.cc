@@ -1426,7 +1426,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
 
 static void keyDown( bool yn )
 {
-    if ( uiMain::keyboardEventHandler().event().key_ == OD::Space )
+    if ( uiMain::keyboardEventHandler().event().key_ == '`' )
 	MPE::ObjectEditor::enableNodeCloning( yn );
 }
 

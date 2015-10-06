@@ -260,6 +260,10 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     if ( ea.getHandled() )
 	return false;
 
+    if ( ea.getXnormalized()<=-1.0 || ea.getXnormalized()>=1.0 ||
+	 ea.getYnormalized()<=-1.0 || ea.getYnormalized()>=1.0 )
+	return false;
+
     EventInfo eventinfo;
     bool isactivepickevent = true;
 

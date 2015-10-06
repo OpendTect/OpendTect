@@ -123,6 +123,7 @@ public:
 
     virtual MultiID		getMultiID() const { return MultiID::udf(); }
 
+    virtual bool		hasPosModeManipulator() const	{ return false;}
     virtual void		showManipulator(bool yn)	{}
     virtual bool		isManipulatorShown() const	{ return false;}
     virtual bool		isManipulated() const		{ return false;}

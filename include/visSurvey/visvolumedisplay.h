@@ -108,6 +108,7 @@ public:
 
     bool                        turnOn(bool yn);
     bool                        isOn() const;
+    bool			hasPosModeManipulator() const	{ return true; }
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
     bool			isManipulated() const;

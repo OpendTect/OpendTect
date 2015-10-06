@@ -72,6 +72,7 @@ public:
     int				nrResolutions() const	{ return 3; }
     void			setResolution(int,TaskRunner*);
 
+    bool			hasPosModeManipulator() const	{ return true; }
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
     bool			isManipulated() const;

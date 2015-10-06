@@ -90,11 +90,14 @@ Scene::Scene()
     , scenecoltab_(0)
     , topimg_( 0 )
     , botimg_( 0 )
+    , posmodemanipdeselobjid_( -1 )
+    , spacebarwaspressed_( false )
 {
     mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
     mAttachCB( events_.eventhappened, Scene::keyPressCB );
     mAttachCB( events_.nothandled, Scene::mouseCursorCB );
+    mAttachCB( visBase::DM().selMan().selnotifier, Scene::selChangeCB );
 
     setCameraAmbientLight( 1 );
     setup();
@@ -414,7 +417,10 @@ void Scene::removeObject( int idx )
     DataObject* obj = getObject( idx );
     mDynamicCastGet(SurveyObject*,so,obj)
     if ( so )
+    {
 	mDetachCB( so->getMovementNotifier(), Scene::objectMoved );
+	hoveredposmodemanipobjids_ -= obj->id();
+    }
 
     if ( idx<tempzstretchtrans_->size() )
 	tempzstretchtrans_->removeObject( idx );
@@ -644,12 +650,85 @@ void Scene::objectMoved( CallBacker* cb )
 }
 
 
+void Scene::selChangeCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( int, selid, cber );
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	const visBase::DataObject* dataobj = getObject( idx );
+	mDynamicCastGet( const visSurvey::SurveyObject*, so, dataobj );
+	if ( so && so->hasPosModeManipulator() && selid==dataobj->id() )
+	    return;
+    }
+
+    // reset if new selection via tree/scene/spacebar is not a posmodemanipobj
+    posmodemanipdeselobjid_ = -1;
+}
+
+
+void Scene::togglePosModeManipObjSel()
+{
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+
+    TypeSet<int> selectableposmodemanipobjids;
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	const visBase::DataObject* dataobj = getObject( idx );
+	mDynamicCastGet( const visSurvey::SurveyObject*, so, dataobj );
+	if ( !so )
+	    continue;
+
+	if ( so->hasPosModeManipulator() && !so->isLocked() && dataobj->isOn() )
+	    selectableposmodemanipobjids += dataobj->id();
+
+	if ( !selectedids.isPresent(dataobj->id()) )
+	    continue;
+
+	if ( so->hasPosModeManipulator() && so->isManipulatorShown() )
+	{
+	    visBase::DM().selMan().select( posmodemanipdeselobjid_ );
+	    return;
+	}
+
+	posmodemanipdeselobjid_ = dataobj->id();
+    }
+
+    if ( selectableposmodemanipobjids.isEmpty() )
+    {
+	posmodemanipdeselobjid_ = -1;
+	return;
+    }
+
+    while ( selectableposmodemanipobjids.size() > 1 )
+    {
+	const int idx0 = hoveredposmodemanipobjids_.indexOf(
+					    selectableposmodemanipobjids[0] );
+	const int idx1 = hoveredposmodemanipobjids_.indexOf(
+					    selectableposmodemanipobjids[1] );
+	selectableposmodemanipobjids.removeSingle( idx0<idx1 ? 0 : 1 );
+    }
+
+    visBase::DM().selMan().select( selectableposmodemanipobjids[0] );
+}
+
+
 void Scene::keyPressCB( CallBacker* cb )
 {
     STM().setCurrentScene( this );
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::Keyboard ) return;
+
+    if ( eventinfo.key_ == OD::Space )
+    {
+	if ( eventinfo.pressed && !spacebarwaspressed_ )
+	    togglePosModeManipObjSel();
+
+	spacebarwaspressed_ = eventinfo.pressed;
+	events_.setHandled();
+	return;
+    }
+
     if ( eventinfo.pressed ) return;
 
     kbevent_.key_ = eventinfo.key_;
@@ -692,6 +771,12 @@ void Scene::mouseCB( CallBacker* cb )
 	    mDynamicCastGet(const SurveyObject*,so,pickedobj);
 	    if ( so )
 	    {
+		if ( so->hasPosModeManipulator() )
+		{
+		    hoveredposmodemanipobjids_ -= pickedobj->id();
+		    hoveredposmodemanipobjids_ += pickedobj->id();
+		}
+
 		if ( !mouseposval_[0] )
 		{
 		    BufferString newmouseposval;
@@ -1008,6 +1093,8 @@ void Scene::removeAll()
     mRemoveSelector;
 
     curzstretch_ = -1;
+
+    hoveredposmodemanipobjids_.erase();
 }
 
 

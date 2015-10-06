@@ -146,6 +146,7 @@ public:
     
     virtual bool        allowsPicks() const;
     void		allowShading(bool yn );
+    bool		hasPosModeManipulator() const		{ return true; }
     void		showManipulator(bool yn);
     bool		isManipulated() const;
     bool		canResetManipulation() const;

@@ -211,6 +211,13 @@ protected:
     void			mouseCursorCB(CallBacker*);
     static const Color&		cDefaultMarkerColor();
 
+    void			togglePosModeManipObjSel();
+    void			selChangeCB(CallBacker*);
+
+    TypeSet<int>		hoveredposmodemanipobjids_;
+    int				posmodemanipdeselobjid_;
+    bool			spacebarwaspressed_;
+
     RefMan<visBase::Transformation>	tempzstretchtrans_;
 
     RefMan<visBase::Transformation>	inlcrlrotation_;
