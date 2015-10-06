@@ -294,6 +294,7 @@ public:
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMerge();
     static uiString sModify();
+    static uiString sMouse()		{ return tr("Mouse"); }
     static uiString sMove()		{ return tr("Move"); }
     static uiString sMoveDown()		{ return tr("Move Down"); }
     static uiString sMoveUp()		{ return tr("Move Up"); }

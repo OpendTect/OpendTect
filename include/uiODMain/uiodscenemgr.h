@@ -238,8 +238,10 @@ private:
 
     uiGenInput*		keybindingfld_;
     uiGenInput*		wheeldirectionfld_;
+    uiGenInput*		trackpadzoomspeedfld_;
 
     BufferString	initialkeybinding_;
+    float		initialzoomfactor_;
     bool		initialmousewheelreversal_;
 };
 

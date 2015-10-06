@@ -10,6 +10,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 
 
+float MouseEvent::getDefaultTrackpadZoomFactor() { return 0.02f; }
+float MouseEvent::getDefaultMouseWheelZoomFactor() { return 0.1f; }
+
 
 TabletInfo::TabletInfo()
     : eventtype_( None )

@@ -77,6 +77,8 @@ protected:
 
     void		updateSettings(bool oldval,bool newval,const char* key);
     void		updateSettings(int oldval,int newval,const char* key);
+    void		updateSettings(float oldval,float newval,
+				       const char* key);
     void		updateSettings(const OD::String& oldval,
 				       const OD::String& newval,
 				       const char* key);

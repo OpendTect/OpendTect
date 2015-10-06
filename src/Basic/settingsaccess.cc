@@ -43,6 +43,9 @@ const char* SettingsAccess::sKeyAnisotropicPower()
 const char* SettingsAccess::sKeyMouseWheelReversal()
 { return "dTect.Mouse Wheel Reversal"; }
 
+const char* SettingsAccess::sKeyMouseWheelZoomFactor()
+{ return "dTect.Mouse Wheel Zoom Factor"; }
+
 
 SettingsAccess::SettingsAccess()
     : settings_( Settings::common() )

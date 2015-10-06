@@ -292,6 +292,7 @@ void uiSettingsGroup::updateSettings( type oldval, type newval, \
 
 mUpdateSettings( bool, setYN )
 mUpdateSettings( int, set )
+mUpdateSettings( float, set )
 mUpdateSettings( const OD::String&, set )
 
 

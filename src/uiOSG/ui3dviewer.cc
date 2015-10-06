@@ -342,6 +342,34 @@ void ui3DViewerBody::setupTouch()
 }
 
 
+void ui3DViewerBody::setMouseWheelZoomFactor( float factor )
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+    dynamic_cast<osgGeo::TrackballManipulator*>(
+						view_->getCameraManipulator() );
+
+    if ( !manip )
+	return;
+
+    if ( getReversedMouseWheelDirection() )
+	manip->setWheelZoomFactor( factor );
+    else
+	manip->setWheelZoomFactor( -factor );
+}
+
+
+float ui3DViewerBody::getMouseWheelZoomFactor() const
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+    dynamic_cast<osgGeo::TrackballManipulator*>(view_->getCameraManipulator() );
+
+    if ( !manip )
+	return false;
+
+    return fabs( manip->getWheelZoomFactor() );
+}
+
+
 void ui3DViewerBody::setReversedMouseWheelDirection( bool reversed )
 {
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
@@ -1452,6 +1480,15 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 	WheelMode mode; parseEnum( modestr, mode );
 	setWheelDisplayMode( mode );
     }
+
+    float zoomfactor = MouseEvent::getDefaultMouseWheelZoomFactor();
+#ifdef __mac__
+    zoomfactor = MouseEvent::getDefaultTrackpadZoomFactor();
+#endif
+
+    Settings::common().get( SettingsAccess::sKeyMouseWheelZoomFactor(),
+			    zoomfactor );
+    setMouseWheelZoomFactor( zoomfactor );
 }
 
 
@@ -1601,6 +1638,15 @@ float ui3DViewer::getStereoOffset() const
 {
     return osgbody_->getStereoOffset();
 }
+
+void ui3DViewer::setMouseWheelZoomFactor( float factor )
+{
+    osgbody_->setMouseWheelZoomFactor( factor );
+}
+
+
+float ui3DViewer::getMouseWheelZoomFactor() const
+{ return osgbody_->getMouseWheelZoomFactor(); }
 
 
 void ui3DViewer::setReversedMouseWheelDirection( bool reversed )
