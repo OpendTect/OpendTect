@@ -59,6 +59,9 @@ public:
     virtual BufferString	getImageFileName(int idx) const	{ return ""; }
     virtual int			getScale(int) const		{ return 1; }
     virtual void		setScale(int,int)		{}
+    virtual void		getXYScale(int idx,float& scx,float& scy) const
+				{ scx = scy = 1.f; }
+    virtual void		setXYScale(int idx,float scx,float scy)	{}
 
     virtual void		setLineStyle(int idx,const LineStyle&)	    {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
