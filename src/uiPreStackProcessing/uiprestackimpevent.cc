@@ -38,7 +38,7 @@ uiEventImport::uiEventImport( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    filefld_ = new uiFileInput( this, "Input ASCII file",
+    filefld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 				uiFileInput::Setup(0).forread(true)
 						     .withexamine(true) );
 

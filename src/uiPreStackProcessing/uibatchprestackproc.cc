@@ -30,6 +30,12 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
                         mODHelpKey(mPreStackBatchProcSetupHelpID)))
     , is2d_( is2d )
 {
+    setHelpKey( mODHelpKey(mPreStackBatchProcSetupHelpID) );
+
+    uiString dlgnm = toUiString("%1 %2 %3").arg(uiStrings::sPreStack())
+			       .arg(is2d_ ? uiStrings::s2D() : uiStrings::s3D())
+			       .arg(uiStrings::sProcessing());
+    setCaption( dlgnm );
     chainsel_ = new uiProcSel( this, uiStrings::sSetup(), 0 );
     chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
 

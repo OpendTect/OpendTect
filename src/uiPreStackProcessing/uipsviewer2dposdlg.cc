@@ -34,9 +34,9 @@ namespace PreStackView
 uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	const TrcKeyZSampling& cs, const BufferStringSet& gathernms,
 	bool issynthetic )
-    : uiDialog(p,uiDialog::Setup("Prestack Gather display positions",
-				0, mODHelpKey(mViewer2DPSPosDlgHelpID) )
-                                .modal(false))
+    : uiDialog(p,uiDialog::Setup(tr("Prestack Gather display positions"),
+			      mNoDlgTitle, mODHelpKey(mViewer2DPSPosDlgHelpID) )
+                              .modal(false))
     , okpushed_(this)
     , is2d_(is2d)
 {
@@ -159,10 +159,9 @@ void uiGatherPosSliceSel::reDoTable()
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
 
-    BufferString lbl( issynthetic_ ? "Model"
-				   : is2d_ ? "Trace" : isinl_ ? "CrossLine"
-							      : "Inline" );
-    lbl += " Nr ";
+    uiString lbl = tr("%1 Nr").arg(issynthetic_ ? tr("Model")
+			      : is2d_ ? uiStrings::sTrace() : isinl_ ? 
+			      uiStrings::sCrossline() : uiStrings::sInline() );
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {
 	int rowidx = 0;
@@ -488,7 +487,7 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
 	    if ( !allgatherfld_->isChosen(idx) ) continue;
 	    const char* txt = allgatherfld_->textOfItem(idx);
 	    if ( selgatherfld_->isPresent( txt ) ) continue;
-	    selgatherfld_->addItem( allgatherfld_->textOfItem(idx));
+	    selgatherfld_->addItem(toUiString(allgatherfld_->textOfItem(idx)));
 	    allgatherfld_->removeItem(idx);
 	}
     }
@@ -500,7 +499,7 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
 	    const char* txt = selgatherfld_->textOfItem(idx);
 	    if ( allgatherfld_->isPresent( txt ) ) continue;
 
-	    allgatherfld_->addItem( txt );
+	    allgatherfld_->addItem( toUiString(txt) );
 	    selgatherfld_->removeItem(idx);
 	    allgatherfld_->setChosen( allgatherfld_->size()-1 );
 	}

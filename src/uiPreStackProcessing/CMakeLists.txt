@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiSeis PreStackProcessing )
-SET(OD_MODULE_SOURCES
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS uiSeis PreStackProcessing )
+set(OD_MODULE_SOURCES
 	inituiprestackprocessing.cc
 	psviewer2dgatherpainter.cc
 	uibatchprestackproc.cc 

@@ -122,8 +122,8 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
-    : uiDialog(p, uiDialog::Setup("Advanced Parameter",
-				  "Advanced angle parameters",
+    : uiDialog(p, uiDialog::Setup(tr("Advanced Parameter"),
+				  tr("Advanced angle parameters"),
                                   mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
     , params_(pars)
     , isformute_(isformute)
@@ -152,39 +152,40 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 
 void uiAngleCompAdvParsDlg::createAngleCompFields()
 {
-    smoothtypefld_ = new uiGenInput( this, "Smoothing Type",
-    StringListInpSpec(PreStack::AngleComputer::smoothingTypeDef()) );
+    smoothtypefld_ = new uiGenInput( this, tr("Smoothing Type"),
+    StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
     smoothtypefld_->setValue( PreStack::AngleComputer::FFTFilter );
     smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					     smoothTypeSel) );
 
     const BufferStringSet& windowfunctions = WINFUNCS().getNames();
-    smoothwindowfld_ = new uiGenInput( this, "Window/Taper",
+    smoothwindowfld_ = new uiGenInput( this, tr("Window/Taper"),
 				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
     smoothwindowfld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
 					       smoothWindowSel) );
 
-    smoothwinparamfld_ = new uiGenInput( this, "Taper length",
+    smoothwinparamfld_ = new uiGenInput( this, tr("Taper length"),
 					 FloatInpSpec() );
     smoothwinparamfld_->attach( rightOf, smoothwindowfld_ );
-    smoothwinparamlbl_ = new uiLabel( this, "%" );
+    smoothwinparamlbl_ = new uiLabel( this, toUiString("%") );
     smoothwinparamlbl_->attach( rightOf, smoothwinparamfld_ );
 
-    smoothwinlengthfld_ = new uiGenInput(this, "Window width", FloatInpSpec());
+    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"), 
+								FloatInpSpec());
     smoothwinlengthfld_->attach( alignedBelow, smoothwindowfld_ );
-    smoothwinlengthlbl_ = new uiLabel( this, SI().getZUnitString(false) );
+    smoothwinlengthlbl_ = new uiLabel( this, SI().getUiZUnitString(false) );
     smoothwinlengthlbl_->attach( rightOf, smoothwinlengthfld_ );
 
-    freqf3fld_ = new uiGenInput( this, "Freq F3", FloatInpSpec() );
+    freqf3fld_ = new uiGenInput( this, tr("Freq F3"), FloatInpSpec() );
     freqf3fld_->attach( alignedBelow, smoothtypefld_ );
-    freqf3lbl_ = new uiLabel( this, "Hz" );
+    freqf3lbl_ = new uiLabel( this, tr("Hz") );
     freqf3lbl_->attach( rightOf, freqf3fld_ );
 
-    freqf4fld_ = new uiGenInput( this, "Freq F4", FloatInpSpec() );
+    freqf4fld_ = new uiGenInput( this, tr("Freq F4"), FloatInpSpec() );
     freqf4fld_->attach( alignedBelow, freqf3fld_ );
-    freqf4lbl_ = new uiLabel( this, "Hz" );
+    freqf4lbl_ = new uiLabel( this, tr("Hz") );
     freqf4lbl_->attach( rightOf, freqf4fld_ );
 }
 
