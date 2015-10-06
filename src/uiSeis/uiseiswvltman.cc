@@ -280,6 +280,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
+    
     wvlt->setName( curioobj_->name().buf() );
 
     Wavelet resampledwvlt( *wvlt );

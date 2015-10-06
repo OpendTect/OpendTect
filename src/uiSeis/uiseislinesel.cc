@@ -115,6 +115,8 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
 	lbchoiceio_->storeRequested.notify(
 				mCB(this,uiSeis2DLineChoose,writeChoiceReq) );
     }
+
+    setHAlignObj( listfld_ );
 }
 
 
