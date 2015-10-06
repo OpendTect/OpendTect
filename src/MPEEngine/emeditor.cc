@@ -43,6 +43,8 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
 
 ObjectEditor::~ObjectEditor()
 {
+    CallBack::removeFromMainThread( this );
+
     delete interactionline;
     emobject.unRef();
     deepErase( geeditors );
@@ -121,7 +123,7 @@ bool ObjectEditor::setPosition(const Coord3& np)
 
     nodeclonecountdown--;
     if ( !nodeclonecountdown )
-	cloneMovingNode();
+	mMainThreadCall( ObjectEditor::cloneMovingNode );
 
     return true;
 }
@@ -435,7 +437,7 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
     const int editoridx = sections.indexOf(sectionid);
 
     const Geometry::Element* ge =
-	const_cast<const EM::EMObject*>(&emobject)->sectionGeometry( sectionid );
+	const_cast<const EM::EMObject*>(&emobject)->sectionGeometry(sectionid);
 
     if ( !ge && editoridx!=-1 )
     {
