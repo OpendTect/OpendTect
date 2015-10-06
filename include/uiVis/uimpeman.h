@@ -16,9 +16,14 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "trckeyzsampling.h"
 
-namespace EM { class EMObject; class Horizon3D; }
+namespace EM { class EMObject; class Horizon2D; class Horizon3D; }
 namespace MPE { class EMTracker; }
-namespace visSurvey { class HorizonDisplay; class MPEClickCatcher; }
+namespace visSurvey
+{
+    class Horizon2DDisplay;
+    class HorizonDisplay;
+    class MPEClickCatcher;
+}
 
 class uiPropertiesDialog;
 class uiVisPartServer;
@@ -81,7 +86,9 @@ protected:
     bool			isPickingWhileSetupUp() const;
 
     MPE::EMTracker*		getSelectedTracker();
+    visSurvey::Horizon2DDisplay* getSelected2DDisplay();
     visSurvey::HorizonDisplay*	getSelectedDisplay();
+    EM::Horizon2D*		getSelectedHorizon2D();
     EM::Horizon3D*		getSelectedHorizon3D();
 
     int				cureventnr_;

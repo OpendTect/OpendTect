@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -37,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
@@ -775,7 +777,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 
 void uiMPEMan::treeItemSelCB( CallBacker* )
 {
-    if ( !getSelectedDisplay() )
+    if ( !getSelectedDisplay() && !getSelected2DDisplay() )
     {
 	turnSeedPickingOn( false );
 	updateClickCatcher( false );
@@ -860,6 +862,18 @@ visSurvey::HorizonDisplay* uiMPEMan::getSelectedDisplay()
 }
 
 
+visSurvey::Horizon2DDisplay* uiMPEMan::getSelected2DDisplay()
+{
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size() != 1 )
+	return 0;
+
+    mDynamicCastGet(visSurvey::Horizon2DDisplay*,hd,
+		    visserv_->getObject(selectedids[0]))
+    return hd;
+}
+
+
 EM::Horizon3D* uiMPEMan::getSelectedHorizon3D()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
@@ -867,6 +881,16 @@ EM::Horizon3D* uiMPEMan::getSelectedHorizon3D()
 		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     return hor3d;
+}
+
+
+EM::Horizon2D* uiMPEMan::getSelectedHorizon2D()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    EM::EMObject* emobj =
+		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
+    return hor2d;
 }
 
 
