@@ -605,9 +605,6 @@ void uiODFaultToolMan::enableStickAccess( bool yn )
 
     if ( curfltd_ && curfltd_->areSticksDisplayed()!=yn )
 	curfltd_->display( yn, !yn || curfltd_->arePanelsDisplayed() );
-
-    if ( !yn )
-	appl_.menuMgr().updateViewMode( !yn );
 }
 
 
@@ -637,8 +634,8 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 	    toolbar_->turnOn( selectmode_ ? selbutidx_ : editbutidx_, false );
     }
 
-    if ( cb && areSticksAccessible() )
-	appl_.applMgr().visServer()->setViewMode( false );
+    if ( cb )
+	appl_.applMgr().visServer()->setViewMode( !areSticksAccessible() );
 
     if ( curfssd_ )
 	curfssd_->setStickSelectMode( selectmode_ );
@@ -650,11 +647,6 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
     const bool selecting = toolbar_->isOn( selbutidx_ );
     showSettings( selecting && toolbar_->isOn(settingsbutidx_) );
     appl_.applMgr().visServer()->turnSelectionModeOn( selecting );
-
-    const bool enabeditor =
-	!toolbar_->isOn(selbutidx_) && !toolbar_->isOn(editbutidx_);
-    if ( curfssd_ )
-	curfssd_->enableEditor( !enabeditor );
 }
 
 

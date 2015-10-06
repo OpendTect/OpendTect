@@ -72,7 +72,6 @@ public:
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
-    virtual void		enableEditor(bool yn);
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
@@ -151,6 +150,7 @@ protected:
 					TypeSet<Coord3>& intersectpoints);
     EM::FaultStickSet*		emFaultStickSet();
     void			sowingFinishedCB(CallBacker*);
+    void			updateManipulator();
 
 
     MPE::FaultStickSetEditor*	fsseditor_;

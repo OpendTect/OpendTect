@@ -213,7 +213,6 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	addChild( viseditor_->osgNode() );
 	mAttachCB( viseditor_->draggingStarted,
 		   FaultStickSetDisplay::draggingStartedCB );
-	viseditor_->turnOn( showmanipulator_ );
     }
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
@@ -235,6 +234,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 
     updateSticks();
     updateKnotMarkers();
+    updateManipulator();
     return true;
 }
 
@@ -836,23 +836,22 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 void FaultStickSetDisplay::showManipulator( bool yn )
 {
     showmanipulator_ = yn;
-    if ( viseditor_ )
-	viseditor_->turnOn( yn );
-
     updateSticks();
     updateKnotMarkers();
-
-    if ( scene_ )
-	scene_->blockMouseSelection( yn );
-
-     displaymodechange.trigger();
+    updateManipulator();
+    displaymodechange.trigger();
 }
 
 
-void FaultStickSetDisplay::enableEditor( bool yn )
+void FaultStickSetDisplay::updateManipulator()
 {
+    const bool show = showmanipulator_ && !areAllKnotsHidden();
+
     if ( viseditor_ )
-	viseditor_->turnOn( yn );
+	viseditor_->turnOn( show && !stickselectmode_ );
+
+    if ( scene_ )
+	scene_->blockMouseSelection( show );
 }
 
 
@@ -1125,6 +1124,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     ctrldown_ = false;
 
     setActiveStick( EM::PosID::udf() );
+    updateManipulator();
     updateEditPids();
     updateKnotMarkers();
 
@@ -1255,6 +1255,7 @@ void FaultStickSetDisplay::hideAllKnots( bool yn )
     {
 	hideallknots_ = yn;
 	updateAll();
+	updateManipulator();
     }
 }
 
