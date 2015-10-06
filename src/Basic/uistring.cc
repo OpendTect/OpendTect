@@ -509,6 +509,9 @@ wchar_t* uiString::createWCharString() const
 
 uiString& uiString::operator=( const uiString& str )
 {
+    if ( &str == this )
+	return *this;
+
     Threads::Locker datalocker( datalock_ );
     refPtr( str.data_ );
     unRefAndZeroPtr( data_ );
