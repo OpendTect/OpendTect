@@ -77,6 +77,11 @@ public:
     Color			getBackgroundColor() const;
     Geom::Size2D<int>		getViewportSizePixels() const;
 
+    float			getMouseWheelZoomFactor() const;
+				/*!<Always positive. Direction is set by
+				    setReversedMouseWheelDirection() */
+    void			setMouseWheelZoomFactor(float);
+
     void			setReversedMouseWheelDirection(bool);
     bool			getReversedMouseWheelDirection() const;
 

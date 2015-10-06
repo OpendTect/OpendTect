@@ -517,6 +517,7 @@ uiString& uiString::operator=( const uiString& str )
     refPtr( str.data_ );
     unRefAndZeroPtr( data_ );
     data_ = str.data_;
+    mSetDBGStr;
     return *this;
 }
 

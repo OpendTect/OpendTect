@@ -114,6 +114,9 @@ public:
     const TabletInfo*		tabletInfo() const;
     void			setTabletInfo(const TabletInfo*);
 
+    static float		getDefaultTrackpadZoomFactor();
+    static float		getDefaultMouseWheelZoomFactor();
+
 protected:
 
     OD::ButtonState		butstate_;

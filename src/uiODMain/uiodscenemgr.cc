@@ -1412,6 +1412,8 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
     , keybindingfld_( 0 )
     , wheeldirectionfld_( 0 )
     , initialmousewheelreversal_( false )
+    , trackpadzoomspeedfld_( 0 )
+    , initialzoomfactor_( 0 )
 {
     TypeSet<int> sceneids;
     if ( ODMainWin()->applMgr().visServer() )
@@ -1429,7 +1431,6 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
 	keybindingfld_ = new uiGenInput( this, tr("3D Mouse Controls"),
 					 StringListInpSpec( keyset ) );
 
-
 	setts_.get( ui3DViewer::sKeyBindingSettingsKey(), initialkeybinding_ );
 	keybindingfld_->setText( viewer->getCurrentKeyBindings() );
 
@@ -1442,6 +1443,19 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
 			uiStrings::sNormal(),
 			uiStrings::sReversed()) );
 	wheeldirectionfld_->attach( alignedBelow, keybindingfld_ );
+
+#ifdef __mac__
+
+	initialzoomfactor_ = viewer->getMouseWheelZoomFactor();
+	const bool istrackpad =
+	  fabs(initialzoomfactor_-MouseEvent::getDefaultTrackpadZoomFactor())<
+	  fabs(initialzoomfactor_-MouseEvent::getDefaultMouseWheelZoomFactor());
+
+	trackpadzoomspeedfld_ = new uiGenInput( this,
+	       tr("Optimize zoom speed for"),
+	       BoolInpSpec( istrackpad, tr("Trackpad"), uiStrings::sMouse()) );
+	trackpadzoomspeedfld_->attach( alignedBelow, wheeldirectionfld_ );
+#endif
     }
 }
 
@@ -1461,6 +1475,7 @@ bool uiKeyBindingSettingsGroup::acceptOK()
     const BufferString keybinding = keybindingfld_->text();
     const bool reversedwheel = !wheeldirectionfld_->getBoolValue();
 
+
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	ui3DViewer* viewer = ODMainWin()->sceneMgr().get3DViewer(sceneids[idx]);
@@ -1477,6 +1492,32 @@ bool uiKeyBindingSettingsGroup::acceptOK()
 	const_cast<uiGraphicsViewBase*>(allviewers[idx])
         		->setMouseWheelReversal( reversedwheel );
     }
+
+    if ( trackpadzoomspeedfld_ )
+    {
+	const float zoomfactor = trackpadzoomspeedfld_->getBoolValue()
+	    ? MouseEvent::getDefaultTrackpadZoomFactor()
+	    : MouseEvent::getDefaultMouseWheelZoomFactor();
+
+	for ( int idx=0; idx<sceneids.size(); idx++ )
+	{
+	    ui3DViewer* viewer =
+	    ODMainWin()->sceneMgr().get3DViewer(sceneids[idx]);
+	    viewer->setMouseWheelZoomFactor(zoomfactor);
+	}
+	/*TODO: It was not easy to find a good handling of the mouse events,
+	 as it is done in many places, and differently.
+	for ( int idx=0; idx<allviewers.size(); idx++ )
+	{
+	    const_cast<uiGraphicsViewBase*>(allviewers[idx])
+		->setMouseWheelZoomFactor( zoomfactor );
+	}
+	 */
+
+	updateSettings( initialzoomfactor_, zoomfactor,
+			SettingsAccess::sKeyMouseWheelZoomFactor() );
+    }
+
 
 
     updateSettings( initialkeybinding_, keybinding,

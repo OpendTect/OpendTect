@@ -46,6 +46,7 @@ public:
     static const char*	sKeyEnableMipmapping();
     static const char*	sKeyAnisotropicPower();
     static const char*	sKeyMouseWheelReversal();
+    static const char*	sKeyMouseWheelZoomFactor();
 
 protected:
     Settings&			settings_;

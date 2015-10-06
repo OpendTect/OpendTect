@@ -68,6 +68,11 @@ public:
     void		setStereoOffset(float);
     float		getStereoOffset() const;
 
+    void		setMouseWheelZoomFactor(float);
+			/*!<Always positive, direction is set by
+			    setReversedMouseWheelDirection() */
+    float		getMouseWheelZoomFactor() const;
+
     void		setReversedMouseWheelDirection(bool);
     bool		getReversedMouseWheelDirection() const;
 
