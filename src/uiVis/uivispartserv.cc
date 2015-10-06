@@ -654,7 +654,7 @@ int uiVisPartServer::getNrAttribs( int id ) const
 
 
 void uiVisPartServer::getAttribPosName(int id, int attrib,
-				       BufferString& res ) const
+				       uiString& res ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;

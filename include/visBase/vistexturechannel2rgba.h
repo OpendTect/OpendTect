@@ -34,7 +34,7 @@ with shaders. There should always be a non-shading way to fall back on.
 */
 
 mExpClass(visBase) TextureChannel2RGBA : public DataObject
-{
+{ mODTextTranslationClass(TextureChannel2RGBA);
 public:
     virtual MappedTextureDataSet* createMappedDataSet() const;
 
@@ -61,7 +61,7 @@ public:
 
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
-    virtual void		getChannelName(int,BufferString&) const;
+    virtual void		getChannelName(int,uiString&) const;
     
     int				getTexturePixelSizeInBits() const;
     const unsigned char*	getTextureData() const;

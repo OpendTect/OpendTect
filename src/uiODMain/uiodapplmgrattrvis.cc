@@ -118,7 +118,7 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
 	 !am_.visserv_->isAttribEnabled( id, attrib ) )
 	return false;
 
-    BufferString attribposname;
+    uiString attribposname;
     am_.visserv_->getAttribPosName( id, attrib, attribposname );
 
     const Pos::GeomID geomid = am_.visserv_->getGeomID( id );

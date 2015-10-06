@@ -290,7 +290,7 @@ const visBase::TextureChannel2RGBA*
 }
 
 
-void SurveyObject::getChannelName( int idx, BufferString& res ) const
+void SurveyObject::getChannelName( int idx, uiString& res ) const
 {
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
     if ( !tc2rgba )

@@ -538,9 +538,18 @@ void uiObjectBody::uisetFont( const uiFont& f )
 }
 
 
+int uiObjectBody::fontWidthFor( const uiString& str ) const
+{
+    const QWidget* qw = qwidget();
+    if ( !qw )
+    { return fontWidthFor( str.getFullString().buf()); }
+
+    return qw->fontMetrics().width( str.getQString() );
+}
+
+
 int uiObjectBody::fontWidthFor( const char* str ) const
 {
-    gtFntWdtHgt();
     const QWidget* qw = qwidget();
     if ( !qw )
 	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt; }

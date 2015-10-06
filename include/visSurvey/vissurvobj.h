@@ -201,7 +201,7 @@ public:
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
 							   int version=0) const;
-    void			getChannelName(int,BufferString&) const;
+    void			getChannelName(int,uiString&) const;
 				//!<\returns "Layer 0", or "Red", "Green" ...
     virtual void		setColTabMapperSetup(int,
 				     const ColTab::MapperSetup&,TaskRunner*);

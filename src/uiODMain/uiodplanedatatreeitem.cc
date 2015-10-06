@@ -255,7 +255,7 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
     const bool issi = !zdinf || zdinf->def_.isSI();
     const bool selok = applMgr()->attrServer()->selectAttrib(
-			*as, issi ? 0 : zdinf, geomid, "Select first layer" );
+			*as, issi ? 0 : zdinf, geomid, tr("first layer" ) );
     return selok ? displayDataFromDesc( as->id(), as->isStored() ) : false;
 }
 

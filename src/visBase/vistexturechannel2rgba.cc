@@ -131,10 +131,9 @@ bool TextureChannel2RGBA::usesShading() const
 }
 
 
-void TextureChannel2RGBA::getChannelName( int idx, BufferString& res ) const
+void TextureChannel2RGBA::getChannelName( int idx, uiString& res ) const
 {
-    res = "Layer ";
-    res += idx+1;
+    res = tr("Layer %1").arg( idx+1 );
 }
 
 

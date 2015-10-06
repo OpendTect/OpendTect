@@ -170,6 +170,7 @@ public:
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
     static uiString sBelow()		{ return tr("Below"); }
+    static uiString sBlue()		{ return tr("Blue"); }
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
@@ -254,6 +255,7 @@ public:
     static uiString sFrequency(int num=1);
     static uiString sGeometry()		{ return tr("Geometry"); }
     static uiString sGo()	        { return tr("Go"); }
+    static uiString sGreen()		{ return tr("Green"); }
     static uiString sHelp();
     static uiString sHeight()		{ return tr("Height"); }
     static uiString sHide()		{ return tr("Hide"); }
@@ -339,6 +341,7 @@ public:
     static uiString sRange(int num=1)	{ return tr("Range",0,1); }
     static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
+    static uiString sRed()		{ return tr("Red"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
     static uiString sRemove();

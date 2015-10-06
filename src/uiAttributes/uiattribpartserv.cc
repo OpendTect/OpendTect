@@ -340,7 +340,7 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 				       const ZDomain::Info* zdominfo,
 				       Pos::GeomID geomid,
-				       const char* seltxt )
+				       const uiString& seltxt )
 {
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     const bool is2d = geom && geom->is2D();
@@ -1266,7 +1266,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 {
     if ( stored3dmnuitem_.id == mnuid )
 	return selectAttrib( as, 0, Survey::GM().cUndefGeomID(),
-			     "Select Attribute" );
+			    uiStrings::phrSelect( uiStrings::sAttribute()) );
 
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
 		      calc3dmnuitem_.findItem(mnuid) ||

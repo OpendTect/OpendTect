@@ -33,7 +33,7 @@ public:
 				mCreateDataObj(RGBATextureChannel2RGBA);
 
     const ColTab::Sequence*	getSequence(int ch) const;
-    void			getChannelName(int,BufferString&) const;
+    void			getChannelName(int,uiString&) const;
 
     void			swapChannels(int ch0,int ch1);
 
