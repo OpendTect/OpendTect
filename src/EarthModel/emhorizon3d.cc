@@ -594,7 +594,7 @@ void Horizon3D::initTrackingArrays()
     parents_ = new Array2DImpl<od_int64>( nrrows, nrcols );
     parents_->setAll( -1 );
     lockednodes_ = new Array2DImpl<char>( nrrows, nrcols );
-    lockednodes_->setAll( 0 );
+    lockednodes_->setAll( '0' );
     children_ = new Array2DImpl<char>( nrrows, nrcols );
 }
 
