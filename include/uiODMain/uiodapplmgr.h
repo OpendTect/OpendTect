@@ -25,7 +25,6 @@ class uiNLAPartServer;
 class uiODApplService;
 class uiPickPartServer;
 class uiSeisPartServer;
-class uiStratTreeWin;
 class uiTreeItem;
 class uiVisPartServer;
 class uiVolProcPartServer;
