@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id$
+RCS:		$Id:$
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,8 @@ ________________________________________________________________________
 #include "vectoraccess.h"
 #endif
 
-#ifdef __debug__
-# include "debug.h"
-#endif
 
-/*!
-\brief Use TypeSet instead.
-*/
+/*!\brief Base class for TypeSet, usually not used as such. */
 
 template <class T, class I>
 mClass(Basic) TypeSetBase : public OD::Set
@@ -36,15 +31,16 @@ public:
     typedef T			object_type;
 
     inline virtual		~TypeSetBase();
-    inline TypeSetBase<T,I>&	operator =(const TypeSetBase<T,I>&);
+    inline TypeSetBase<T,I>&	operator =( const TypeSetBase<T,I>& ts )
+    				{ return copy( ts ); }
 
-    inline size_type		size() const	{ return vec_.size(); }
-    inline virtual od_int64	nrItems() const	{ return size(); }
+    inline size_type		size() const;
+    inline virtual od_int64	nrItems() const		{ return size(); }
     inline virtual bool		setSize(size_type,T val=T());
 				/*!<\param val value assigned to new items */
     inline virtual bool		setCapacity(size_type sz,bool withmargin);
 				/*!<Allocates mem only, no size() change */
-    inline virtual size_type	getCapacity() const {return vec_.getCapacity();}
+    inline virtual size_type	getCapacity() const;
     inline void			setAll(T);
     inline void			replace(T,T);
 
@@ -60,17 +56,16 @@ public:
     inline bool			isPresent(const T&) const;
     inline size_type		count(const T&) const;
 
-    inline TypeSetBase<T,I>&	operator +=(const T&);
-    inline TypeSetBase<T,I>&	operator -=(const T&);
-    inline virtual TypeSetBase<T,I>& copy(const T*,size_type);
-    inline virtual TypeSetBase<T,I>& copy(const TypeSetBase<T,I>&);
+    inline TypeSetBase<T,I>&	add(const T&);
+    inline virtual void		insert(size_type,const T&);
+    inline bool			push( const T& t )	{ return add(t); }
+    inline T			pop();
+    inline TypeSetBase<T,I>&	operator+=( const T& t ) { return add(t); }
     inline virtual bool		append(const T*,size_type);
     inline virtual bool		append(const TypeSetBase<T,I>&);
-    inline TypeSetBase<T,I>&	add(const T& t) { push(t); return *this; }
-    inline bool			push(const T&);
-    inline T			pop();
-    inline virtual void		swap(od_int64,od_int64);
-    inline virtual void		reverse();
+    inline virtual bool		addIfNew(const T&);
+    inline virtual TypeSetBase<T,I>& copy(const T*,size_type);
+    inline virtual TypeSetBase<T,I>& copy(const TypeSetBase<T,I>&);
     virtual inline void		createUnion(const TypeSetBase<T,I>&);
 				/*!< Adds items not already there */
     virtual inline void		createIntersection(const TypeSetBase<T,I>&);
@@ -79,15 +74,14 @@ public:
 	    				 bool must_preserve_order=false);
 				//!< Removes all items present in other set.
 
-    inline virtual bool		addIfNew(const T&);
+    inline virtual void		swap(od_int64,od_int64);
+    inline virtual void		reverse();
 
     inline virtual void		erase();
-
     inline virtual void		removeSingle(size_type,
 	    				     bool preserver_order=true);
+    inline TypeSetBase<T,I>&	operator -=(const T&);
     inline virtual void		removeRange(size_type from,size_type to);
-    
-    inline virtual void		insert(size_type,const T&);
 
 				//! 3rd party access
     inline virtual T*		arr()		{ return gtArr(); }
@@ -109,11 +103,10 @@ protected:
 };
 
 
-/*!
-\brief Set of (small) copyable elements.
+/*!\brief Set of (small) copyable elements.
 
   TypeSet is meant for simple types or small objects that have a copy
-  constructor. The `-=' function will only remove the first occurrence that
+  constructor. The `-=' operator will only remove the first occurrence that
   matches using the `==' operator. The requirement of the presence of that  
   operator is actually not that bad: at least you can't forget it.
   
@@ -139,9 +132,7 @@ public:
 };
 
 
-/*!
-\brief We need this because STL has a crazy specialisation of the vector<bool>.
-*/
+/*!\brief Needed because the std lib has a crazy specialisation vector<bool>. */
 
 mClass(Basic) BoolTypeSetType
 {
@@ -161,9 +152,7 @@ protected:
 typedef TypeSet<BoolTypeSetType> BoolTypeSet;
 
 
-/*!
-\brief Large Value Vector. Publicly derived from TypeSetBase.
-*/
+/*!\brief Large Value Vector. */
 
 template <class T>
 mClass(Basic) LargeValVec : public TypeSetBase<T,od_int64>
@@ -181,11 +170,6 @@ public:
 
 };
 
-
-#define mExportTypeSet( mod, tp ) \
-mExportVectorAccess( mod, tp, int ); \
-template mExpClass(mod) TypeSetBase<tp,int>; \
-template mExpClass(mod) TypeSet<tp>
 
 template <class T, class I>
 inline bool operator ==( const TypeSetBase<T,I>& a, const TypeSetBase<T,I>& b )
@@ -211,7 +195,7 @@ inline bool append( TypeSetBase<T,I>& to, const TypeSetBase<S,J>& from )
     const J sz = from.size();
     if ( !to.setCapacity( sz + to.size(), true ) ) return false;
     for ( J idx=0; idx<sz; idx++ )
-	to += from[idx];
+	to.add( from[idx] );
 
     return true;
 }
@@ -245,11 +229,9 @@ template <class T, class I> inline
 TypeSetBase<T,I>::TypeSetBase()
 {}
 
-
 template <class T, class I> inline
 TypeSetBase<T,I>::TypeSetBase( I nr, T typ )
 { setSize( nr, typ ); }
-
 
 template <class T, class I> inline
 TypeSetBase<T,I>::TypeSetBase( const T* tarr, I nr )
@@ -260,35 +242,113 @@ TypeSetBase<T,I>::TypeSetBase( const TypeSetBase<T,I>& t )
     : OD::Set( t )
 { append( t ); }
 
-
 template <class T, class I> inline
 TypeSetBase<T,I>::~TypeSetBase() {}
 
-
 template <class T, class I> inline
-TypeSetBase<T,I>& TypeSetBase<T,I>::operator =( const TypeSetBase<T,I>& ts )
-{ return copy( ts ); }
-
+I TypeSetBase<T,I>::size() const
+{ return vec_.size(); }
 
 template <class T, class I> inline
 bool TypeSetBase<T,I>::setSize( I sz, T val )
 { return vec_.setSize( sz, val ); }
 
+template <class T, class I> inline
+I TypeSetBase<T,I>::getCapacity() const
+{ return vec_.getCapacity(); }
 
 template <class T, class I> inline
 bool TypeSetBase<T,I>::setCapacity( I sz, bool withmargin )
 { return vec_.setCapacity( sz, withmargin ); }
 
-
 template <class T, class I> inline
 void TypeSetBase<T,I>::setAll( T val )
 { vec_.fillWith( val ); }
-
 
 template <class T, class I> inline
     void TypeSetBase<T,I>::replace( T val, T newval )
 { vec_.replace( val, newval ); }
 
+
+template <class T, class I> inline
+bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
+{ return vec_.validIdx( (I)idx ); }
+
+template <class T, class I> inline
+T& TypeSetBase<T,I>::operator[]( I idx )
+{ return vec_[idx]; }
+
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::operator[]( I idx ) const
+{ return vec_[idx]; }
+
+template <class T, class I> inline
+T& TypeSetBase<T,I>::first()
+{ return vec_.first(); }
+
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::first() const
+{ return vec_.first(); }
+
+template <class T, class I> inline
+T& TypeSetBase<T,I>::last()
+{ return vec_.last(); }
+
+template <class T, class I> inline
+const T& TypeSetBase<T,I>::last() const	
+{ return vec_.last(); }
+
+template <class T, class I> inline
+T TypeSetBase<T,I>::pop()
+{ return vec_.pop_back(); }
+
+template <class T, class I> inline
+I TypeSetBase<T,I>::indexOf( T typ, bool forward, I start ) const
+{ return vec_.indexOf( typ, forward, start ); }
+
+template <class T, class I> inline
+bool TypeSetBase<T,I>::isPresent( const T& t ) const
+{ return vec_.isPresent(t); }
+
+template <class T, class I> inline
+I TypeSetBase<T,I>::count( const T& typ ) const
+{ return vec_.count( typ ); }
+
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::add( const T& typ )
+{ vec_.push_back( typ ); return *this; }
+
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::operator -=( const T& typ )
+{ vec_.erase( typ ); return *this; }
+
+template <class T, class I> inline
+TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const TypeSetBase<T,I>& ts )
+{ return this == &ts ? *this : copy( ts.arr(), ts.size() ); }
+
+template <class T, class I> inline
+void TypeSetBase<T,I>::erase()
+{ vec_.erase(); }
+
+template <class T, class I> inline
+void TypeSetBase<T,I>::removeRange( I i1, I i2 )
+{ vec_.remove( i1, i2 ); }
+
+template <class T, class I> inline
+void TypeSetBase<T,I>::insert( I idx, const T& typ )
+{ vec_.insert( idx, typ );}
+
+template <class T, class I> inline
+std::vector<T>& TypeSetBase<T,I>::vec()
+{ return vec_.vec(); }
+
+template <class T, class I> inline
+const std::vector<T>& TypeSetBase<T,I>::vec() const
+{ return vec_.vec(); }
+
+template <class T, class I> inline
+T* TypeSetBase<T,I>::gtArr() const
+{ return size()>0 ? const_cast<T*>(&(*this)[0]) : 0; }
 
 
 template <class T, class I> inline
@@ -314,82 +374,6 @@ void TypeSetBase<T,I>::reverse()
 
 
 template <class T, class I> inline
-bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
-{
-    return vec_.validIdx( (I) idx );
-}
-
-
-template <class T, class I> inline
-T& TypeSetBase<T,I>::operator[]( I idx )
-{
-    return vec_[idx];
-}
-
-
-template <class T, class I> inline
-const T& TypeSetBase<T,I>::operator[]( I idx ) const
-{
-    return vec_[idx];
-}
-
-
-template <class T, class I> inline
-T& TypeSetBase<T,I>::first()			{ return vec_.first(); }
-template <class T, class I> inline
-const T& TypeSetBase<T,I>::first() const	{ return vec_.first(); }
-template <class T, class I> inline
-T& TypeSetBase<T,I>::last()			{ return vec_.last(); }
-template <class T, class I> inline
-const T& TypeSetBase<T,I>::last() const		{ return vec_.last(); }
-
-
-template <class T, class I> inline
-T TypeSetBase<T,I>::pop()
-{
-    return vec_.pop_back();
-}
-
-
-template <class T, class I> inline
-I TypeSetBase<T,I>::indexOf( T typ, bool forward, I start ) const
-{
-    return vec_.indexOf( typ, forward, start );
-}
-
-
-template <class T, class I> inline
-bool TypeSetBase<T,I>::isPresent( const T& t ) const
-{
-    return vec_.isPresent(t);
-}
-
-
-template <class T, class I> inline
-I TypeSetBase<T,I>::count( const T& typ ) const
-{
-    return vec_.count( typ );
-}
-
-
-template <class T, class I> inline
-TypeSetBase<T,I>& TypeSetBase<T,I>::operator +=( const T& typ )
-{ vec_.push_back( typ ); return *this; }
-
-
-template <class T, class I> inline
-TypeSetBase<T,I>& TypeSetBase<T,I>::operator -=( const T& typ )
-{ vec_.erase( typ ); return *this; }
-
-
-template <class T, class I> inline
-TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const TypeSetBase<T,I>& ts )
-{
-    return this == &ts ? *this : copy( ts.arr(), ts.size() );
-}
-
-
-template <class T, class I> inline
 TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const T* tarr, I sz )
 {
     if ( size() != sz )
@@ -400,13 +384,6 @@ TypeSetBase<T,I>& TypeSetBase<T,I>::copy( const T* tarr, I sz )
 	    (*this)[idx] = tarr[idx];
     }
     return *this;
-}
-
-
-template <class T, class I> inline
-bool TypeSetBase<T,I>::push( const T& t )
-{
-    return vec_.push_back( t );
 }
 
 
@@ -485,11 +462,6 @@ bool TypeSetBase<T,I>::addIfNew( const T& typ )
 
 
 template <class T, class I> inline
-void TypeSetBase<T,I>::erase()
-{ vec_.erase(); }
-
-
-template <class T, class I> inline
 void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 {
     if ( kporder )
@@ -502,31 +474,6 @@ void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 	vec_.remove( lastidx );
     }
 }
-
-
-template <class T, class I> inline
-void TypeSetBase<T,I>::removeRange( I i1, I i2 )
-{ vec_.remove( i1, i2 ); }
-
-
-template <class T, class I> inline
-void TypeSetBase<T,I>::insert( I idx, const T& typ )
-{ vec_.insert( idx, typ );}
-
-
-template <class T, class I> inline
-std::vector<T>& TypeSetBase<T,I>::vec()
-{ return vec_.vec(); }
-
-
-template <class T, class I> inline
-const std::vector<T>& TypeSetBase<T,I>::vec() const
-{ return vec_.vec(); }
-
-
-template <class T, class I> inline
-T* TypeSetBase<T,I>::gtArr() const
-{ return size()>0 ? const_cast<T*>(&(*this)[0]) : 0; }
 
 
 #endif

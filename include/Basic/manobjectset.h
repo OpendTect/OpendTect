@@ -34,8 +34,6 @@ public:
     inline ManagedObjectSet<T>&	operator =(const ManagedObjectSet<T>&);
     virtual bool		isManaged() const	{ return true; }
 
-    inline virtual ManagedObjectSet<T>& operator -=( T* ptr );
-
     inline virtual void		erase()			{ deepErase( *this ); }
     inline virtual void		append(const ObjectSet<T>&);
     inline virtual void		removeRange(size_type,size_type);
@@ -56,7 +54,6 @@ ManagedObjectSet<T>::ManagedObjectSet( const ManagedObjectSet<T>& t )
     : ObjectSet<T>()
 { *this = t; }
 
-
 template <class T> inline
 ManagedObjectSet<T>::~ManagedObjectSet()
 { erase(); }
@@ -74,16 +71,8 @@ template <class T> inline
 ManagedObjectSet<T>& ManagedObjectSet<T>::operator =(
 					const ManagedObjectSet<T>& os )
 {
-    if ( &os != this ) deepCopy( *this, os );
-    return *this;
-}
-
-
-template <class T> inline
-ManagedObjectSet<T>& ManagedObjectSet<T>::operator -=( T* ptr )
-{
-    if ( ptr )
-	{ this->vec_.erase( (void*)ptr ); delete ptr; }
+    if ( &os != this )
+	deepCopy( *this, os );
     return *this;
 }
 
@@ -97,7 +86,7 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 	ObjectSet<T>::append( os );
     else
 	for ( int idx=0; idx<sz; idx++ )
-	    *this += os[idx] ? new T( *os[idx] ) : 0;
+	    ObjectSet<T>::add( os[idx] ? new T( *os[idx] ) : 0 );
 }
 
 

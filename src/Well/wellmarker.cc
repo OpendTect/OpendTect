@@ -63,10 +63,10 @@ void Well::MarkerSet::fillWithAll( TaskRunner* tr )
 }
 
 
-ObjectSet<Well::Marker>& Well::MarkerSet::operator += ( Well::Marker* mrk )
+ObjectSet<Well::Marker>& Well::MarkerSet::doAdd( Well::Marker* mrk )
 {
     if ( mrk && !isPresent( mrk->name().buf() ) )
-	ObjectSet<Well::Marker>::operator += ( mrk );
+	ObjectSet<Well::Marker>::doAdd( mrk );
 
     return *this;
 }

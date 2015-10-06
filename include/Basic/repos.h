@@ -56,6 +56,7 @@ public:
     bool		next()			{ return next(cursource_,rev_);}
     void		reset()			{ cursource_ = Temp; }
     Source		source() const		{ return cursource_; }
+    void		setSource( Source s )	{ cursource_ = s; }
     BufferString	fileName() const	{ return fileName(cursource_); }
 
     BufferString	fileName(Source) const;

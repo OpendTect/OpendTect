@@ -170,11 +170,14 @@ public:
     virtual int		indexOf(int inl,int* newidx=0) const;
 			//!< newidx only filled if not null and -1 is returned
 
-    virtual CubeData&	operator +=( LineData* ld )	{ return add( ld ); }
     SortedCubeData&	add(LineData*);
 
     virtual int		indexOf( const LineData* l ) const
 			{ return CubeData::indexOf( l ); }
+
+protected:
+
+    virtual CubeData&	doAdd(LineData*);
 
 };
 
