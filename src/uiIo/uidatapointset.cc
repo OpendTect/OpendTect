@@ -64,7 +64,7 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()), 
+    : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
 				    uiStrings::sEmptyString(),
                                     mNoHelpKey).modal(false))
     , plotter_(plotter)
@@ -384,12 +384,12 @@ void uiDataPointSet::updColNames()
 	if ( tid == ycol_ ) axnm = toUiString("[%1]").arg(uiStrings::sY());
 	if ( tid == y2col_ ) axnm = toUiString("[%1]").arg(uiStrings::sY2());
 
-	uiString colnm = ( tid == sortcol_ ? toUiString("*") : 
+	uiString colnm = ( tid == sortcol_ ? toUiString("*") :
 						   uiStrings::sEmptyString() );;
 	if ( !axnm.isEmpty() ) colnm = axnm;
 
 	if ( tid == zcid )
-	    colnm = tr("%1 Z (%1)").arg(colnm).arg(zunitnm_);
+	    colnm = tr("%1 Z (%2)").arg(colnm).arg(zunitnm_);
 	else
 	    colnm = toUiString("%1 %2").arg(colnm).arg(toUiString(
 							userName(dColID(tid))));
@@ -715,12 +715,12 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 			uiStrings::sInline()).arg(uiStrings::sCrossline())) );
     seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
 
-    posinpfld_ = new uiGenInput( this, 
+    posinpfld_ = new uiGenInput( this,
 				uiStrings::phrInput(uiStrings::sPosition()),
 			        PositionInpSpec(PositionInpSpec::Setup(true)) );
     posinpfld_->attach( leftAlignedBelow, seltypefld_ );
 
-    uiString zinptxt = tr("%1 in %2").arg(uiStrings::sZValue()).arg( 
+    uiString zinptxt = tr("%1 in %2").arg(uiStrings::sZValue()).arg(
 		       SI().zIsTime() ? uiStrings::sSec() : toUiString("%3/%4")
 		       .arg(uiStrings::sMeter()).arg(uiStrings::sFeet()));
     zinpfld_ = new uiGenInput( this, zinptxt, FloatInpSpec() );
@@ -728,7 +728,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 
     if ( grpnames.size()>1 )
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, 
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 					  uiStrings::phrSelect(tr("group" )) );
 	grpfld_ = lcb->box();
 	grpfld_->addItems( grpnames );
@@ -1324,7 +1324,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-		uiStrings::phrManage(mJoinUiStrs(sCrossPlot(),sData())), 
+		uiStrings::phrManage(mJoinUiStrs(sCrossPlot(),sData())),
 		mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();
@@ -1735,7 +1735,7 @@ void uiDataPointSet::addColumn( CallBacker* )
 	unsavedchgs_ = true;
 	dps_.dataChanged();
 	runcalcs_ += 0;
-	tbl_->setColumnLabel( tbl_->nrCols()-1, 
+	tbl_->setColumnLabel( tbl_->nrCols()-1,
 					      toUiString(dlg.newAttribName()) );
 	reDoTable();
     }
