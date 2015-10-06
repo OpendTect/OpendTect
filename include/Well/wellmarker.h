@@ -80,8 +80,6 @@ public:
 			MarkerSet()			{}
     void		fillWithAll(TaskRunner* tr=0);
 
-    virtual ObjectSet<Marker>& operator +=(Marker*);
-
     const Marker*	getByName(const char* nm) const { return gtByName(nm); }
     Marker*		getByName(const char* nm)	{ return gtByName(nm); }
     const Marker*	getByLvlID(int id) const	{ return gtByLvlID(id);}
@@ -109,6 +107,7 @@ public:
 
 protected:
 
+    virtual ObjectSet<Marker>& doAdd(Marker*);
     Marker*		gtByName(const char*) const;
     Marker*		gtByLvlID(int) const;
     void		addCopy(const ObjectSet<Marker>&,int,float);

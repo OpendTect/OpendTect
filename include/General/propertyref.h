@@ -144,8 +144,6 @@ public:
     int			add(PropertyRef*);
 			//!< refuses if another one isKnownAs. If not added,
 			//!< clean up the mess yourself (i.e. delete it)
-    virtual PropertyRefSet& operator +=( PropertyRef* pr )
-			{ add(pr); return *this; }
     int			ensurePresent(PropertyRef::StdType,const char* nm1,
 				      const char* nm2=0,const char* nm3=0);
 
@@ -161,6 +159,8 @@ public:
 protected:
 
     PropertyRef*	fnd(const char*) const;
+    virtual PropertyRefSet& doAdd( PropertyRef* pr )
+			{ add(pr); return *this; }
 
 public:
 

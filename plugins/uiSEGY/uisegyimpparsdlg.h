@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
-#include "typeset.h"
 #include "uidialog.h"
 
 class uiListBox;
@@ -38,7 +37,10 @@ protected:
 
     mutable BufferString parname_;
 
+    void		selChgCB(CallBacker*);
     bool		acceptOK(CallBacker*);
+
+    virtual void	selectionChanged()	{}
     virtual bool	doIO()			= 0;
 
 };
@@ -65,13 +67,16 @@ public:
 
 			uiSEGYStoreImpParsDlg(uiParent*,const IOPar&,
 						const char* defnm=0);
+			~uiSEGYStoreImpParsDlg();
 
 protected:
 
     uiGenInput*		namefld_;
     uiCheckBox*		asdefbox_;
+    Repos::IOPar*	parstostore_;
 
     virtual bool	doIO();
+    virtual void	selectionChanged();
 
 };
 

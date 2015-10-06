@@ -9,6 +9,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "repos.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "od_iostream.h"
+#include "ascstream.h"
+#include "safefileio.h"
+#include "file.h"
 #include <ctype.h>
 
 
@@ -75,4 +79,122 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
     }
 
     return ret;
+}
+
+
+
+Repos::IOParSet::IOParSet( const char* basenm )
+    : basenm_(basenm)
+{
+    FileProvider rfp( basenm_ );
+    while ( rfp.next() )
+    {
+	const BufferString fnm( rfp.fileName() );
+
+	SafeFileIO sfio( fnm );
+	if ( !sfio.open(true) )
+	    continue;
+
+	ascistream astrm( sfio.istrm(), true );
+	while ( sfio.istrm().isOK() )
+	{
+	    IOPar* par = new IOPar( rfp.source() );
+	    par->getFrom( astrm );
+	    if ( par->isEmpty() )
+		{ delete par; continue; }
+
+	    add( par );
+	}
+	sfio.closeSuccess();
+    }
+}
+
+
+Repos::IOParSet& Repos::IOParSet::doAdd( Repos::IOPar* iop )
+{
+    if ( !iop )
+	return *this;
+
+    const int paridx = find( iop->name() );
+    if ( paridx < 0 )
+	ObjectSet<IOPar>::doAdd( iop );
+    else
+	replace( paridx, iop );
+
+    return *this;
+}
+
+
+ObjectSet<const Repos::IOPar> Repos::IOParSet::getEntries(
+					Repos::Source src ) const
+{
+    ObjectSet<const IOPar> ret;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const IOPar* entry = (*this)[idx];
+	if ( entry->src_ == src )
+	    ret += entry;
+    }
+    return ret;
+}
+
+
+int Repos::IOParSet::find( const char* nm ) const
+{
+    int ret = -1;
+    for ( int idx=0; idx<size(); idx++ )
+	if ( ((*this)[idx])->name() == nm )
+	    { ret = idx; break; }
+    return ret;
+}
+
+
+bool Repos::IOParSet::write( Repos::Source reqsrc ) const
+{
+    return write( &reqsrc );
+}
+
+
+bool Repos::IOParSet::write( const Repos::Source* reqsrc ) const
+{
+    bool rv = true;
+
+    FileProvider rfp( basenm_ );
+    while ( rfp.next() )
+    {
+	const Source cursrc = rfp.source();
+	if ( reqsrc && *reqsrc != cursrc )
+	    continue;
+
+	ObjectSet<const IOPar> srcentries = getEntries( cursrc );
+	if ( srcentries.isEmpty() )
+	    continue;
+
+	const BufferString fnm( rfp.fileName() );
+	if ( File::exists(fnm) && !File::isWritable(fnm) )
+	    { rv = false; continue; }
+
+	SafeFileIO sfio( fnm );
+	if ( !sfio.open(false) )
+	    { rv = false; continue; }
+
+	ascostream astrm( sfio.ostrm() );
+	astrm.putHeader( basenm_ );
+	for ( int idx=0; idx<srcentries.size(); idx++ )
+	    srcentries[idx]->putTo( astrm );
+
+	if ( sfio.ostrm().isOK() )
+	    sfio.closeSuccess();
+	else
+	    { rv = false; sfio.closeFail(); }
+    }
+
+    return rv;
+}
+
+
+BufferString Repos::IOParSet::fileName( Source src ) const
+{
+    FileProvider rfp( basenm_ );
+    return rfp.fileName( src );
 }

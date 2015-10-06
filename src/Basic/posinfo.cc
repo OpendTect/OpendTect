@@ -546,6 +546,12 @@ bool PosInfo::CubeData::isFullyRectAndReg() const
 
 PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
 {
+    return (PosInfo::SortedCubeData&)doAdd( ld );
+}
+
+
+PosInfo::CubeData& PosInfo::SortedCubeData::doAdd( PosInfo::LineData* ld )
+{
     if ( !ld ) return *this;
 
     int newidx;
@@ -553,7 +559,7 @@ PosInfo::SortedCubeData& PosInfo::SortedCubeData::add( PosInfo::LineData* ld )
     if ( curidx < 0 )
     {
 	if ( newidx >= size() )
-	    ManagedObjectSet<LineData>::operator +=( ld );
+	    ManagedObjectSet<LineData>::doAdd( ld );
 	else
 	    insertAt( ld, newidx );
 	return *this;

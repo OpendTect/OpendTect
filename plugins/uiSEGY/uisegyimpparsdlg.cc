@@ -13,147 +13,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
-#include "safefileio.h"
-#include "file.h"
 #include "repos.h"
-#include "ascstream.h"
-#include "od_iostream.h"
-#include "manobjectset.h"
-
-
-namespace Repos
-{
-
-class IOPar : public ::IOPar
-{
-public:
-
-		IOPar( Source src )
-		    : ::IOPar(""), src_(src)		{}
-
-    Source	src_;
-
-};
-
-
-class IOParSet : public ManagedObjectSet<IOPar>
-{
-public:
-
-			IOParSet(const char* basenm);
-
-    int			find(const char*) const;
-    ObjectSet<const IOPar> getEntries(Source) const;
-
-    bool		write(Source) const;
-    bool		write(const Source* s=0) const;
-
-protected:
-
-    const BufferString	basenm_;
-
-};
-
-} // namespace Repos
-
-
-Repos::IOParSet::IOParSet( const char* basenm )
-    : basenm_(basenm)
-{
-    FileProvider rfp( basenm_ );
-    while ( rfp.next() )
-    {
-	const BufferString fnm( rfp.fileName() );
-
-	SafeFileIO sfio( fnm );
-	if ( !sfio.open(true) )
-	    continue;
-
-	ascistream astrm( sfio.istrm(), true );
-	while ( sfio.istrm().isOK() )
-	{
-	    IOPar* par = new IOPar( rfp.source() );
-	    par->getFrom( astrm );
-	    if ( par->isEmpty() )
-		{ delete par; continue; }
-
-	    int paridx = find( par->name() );
-	    if ( paridx < 0 )
-		*this += par;
-	    else
-		replace( paridx, par );
-	}
-	sfio.closeSuccess();
-    }
-}
-
-
-ObjectSet<const Repos::IOPar> Repos::IOParSet::getEntries(
-					Repos::Source src ) const
-{
-    ObjectSet<const IOPar> ret;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const IOPar* entry = (*this)[idx];
-	if ( entry->src_ == src )
-	    { ret += entry; break; }
-    }
-    return ret;
-}
-
-
-int Repos::IOParSet::find( const char* nm ) const
-{
-    int ret = -1;
-    for ( int idx=0; idx<size(); idx++ )
-	if ( ((*this)[idx])->name() == nm )
-	    { ret = idx; break; }
-    return ret;
-}
-
-
-bool Repos::IOParSet::write( Repos::Source reqsrc ) const
-{
-    return write( &reqsrc );
-}
-
-
-bool Repos::IOParSet::write( const Repos::Source* reqsrc ) const
-{
-    bool rv = true;
-
-    FileProvider rfp( basenm_ );
-    while ( rfp.next() )
-    {
-	const Source cursrc = rfp.source();
-	if ( reqsrc && *reqsrc != cursrc )
-	    continue;
-
-	ObjectSet<const IOPar> srcentries = getEntries( cursrc );
-	if ( srcentries.isEmpty() )
-	    continue;
-
-	const BufferString fnm( rfp.fileName() );
-	if ( File::exists(fnm) && !File::isWritable(fnm) )
-	    { rv = false; continue; }
-
-	SafeFileIO sfio( fnm );
-	if ( !sfio.open(false) )
-	    { rv = false; continue; }
-
-	ascostream astrm( sfio.ostrm() );
-	astrm.putHeader( basenm_ );
-	for ( int idx=0; idx<srcentries.size(); idx++ )
-	    srcentries[idx]->putTo( astrm );
-
-	if ( sfio.ostrm().isOK() )
-	    sfio.closeSuccess();
-	else
-	    { rv = false; sfio.closeFail(); }
-    }
-
-    return rv;
-}
 
 
 static const char* sNoSavedYet = "<No saved setups yet>";
@@ -176,12 +36,19 @@ uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
 
     listfld_ = new uiListBox( this, "Stored Setups" );
     listfld_->addItems( nms );
+    listfld_->selectionChanged.notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
 }
 
 
 uiSEGYImpParsDlg::~uiSEGYImpParsDlg()
 {
     delete &parset_;
+}
+
+
+void uiSEGYImpParsDlg::selChgCB( CallBacker* )
+{
+    selectionChanged();
 }
 
 
@@ -226,6 +93,7 @@ bool uiSEGYReadImpParsDlg::doIO()
 uiSEGYStoreImpParsDlg::uiSEGYStoreImpParsDlg( uiParent* p, const IOPar& iop,
 					      const char* defnm )
     : uiSEGYImpParsDlg(p,false,defnm)
+    , parstostore_(new Repos::IOPar(iop))
 {
     setHelpKey( mTODOHelpKey );
 
@@ -234,7 +102,31 @@ uiSEGYStoreImpParsDlg::uiSEGYStoreImpParsDlg( uiParent* p, const IOPar& iop,
 }
 
 
+uiSEGYStoreImpParsDlg::~uiSEGYStoreImpParsDlg()
+{
+    delete parstostore_;
+}
+
+
+void uiSEGYStoreImpParsDlg::selectionChanged()
+{
+    namefld_->setText( listfld_->getText() );
+}
+
+
 bool uiSEGYStoreImpParsDlg::doIO()
 {
-    mErrRet( tr("Sorry, not implemented yet") );
+    const BufferString parnm( namefld_->text() );
+    if ( parnm.isEmpty() )
+	mErrRet( tr("Please enter a name for this entry") )
+
+    const Repos::Source targetsrc = Repos::Data; //TODO? make user selectable?
+    parstostore_->setName( parnm );
+    parstostore_->src_ = targetsrc;
+    parset_.add( parstostore_ );
+    parstostore_ = 0;
+    if ( !parset_.write(targetsrc) )
+	mErrRet( tr("Cannot write to:\n%1").arg(parset_.fileName(targetsrc)) );
+
+    return true;
 }

@@ -50,9 +50,6 @@ public:
     inline size_type		size() const		{ return vec_.size(); }
     inline virtual od_int64	nrItems() const		{ return size(); }
 
-    inline virtual bool		validIdx(od_int64) const;
-    inline virtual bool		isPresent(const T*) const;
-    inline virtual size_type	indexOf(const T*) const;
 #ifdef __MAC_LLVM_COMPILER_ERROR__
     inline T*			operator[](size_type);
     inline const T*		operator[](size_type) const;
@@ -60,44 +57,43 @@ public:
     inline virtual T*		operator[](size_type);
     inline virtual const T*	operator[](size_type) const;
 #endif
-
     inline virtual T*		operator[](const T*) const; //!< check & unconst
 
-    inline virtual T*		replace(size_type idx,T*);
-    inline virtual void		insertAt(T* newptr,size_type);
-    inline virtual void		insertAfter(T* newptr,size_type);
-    inline virtual void		copy(const ObjectSet<T>&);
-    inline virtual void		append(const ObjectSet<T>&);
-    inline virtual void		swap(od_int64,od_int64);
-    inline virtual void		reverse(); 
-
-#ifdef __MAC_LLVM_COMPILER_ERROR__
-    inline ObjectSet<T>&	operator +=(T*);
-#else
-    inline virtual ObjectSet<T>& operator +=(T*);
-#endif
-    inline virtual ObjectSet<T>& operator -=(T*);
-    inline virtual void		push(T* ptr);
-    inline virtual T*		pop();
-    
-    inline bool			addIfNew(T*);
-
-    inline virtual void		erase()		{ plainErase(); }
-    				
-    virtual inline T*		removeSingle(size_type,bool keep_order=true);
-    				/*!<\returns the removed pointer. */
-    virtual void		removeRange(size_type from,size_type to);
-
+    inline virtual bool		validIdx(od_int64) const;
+    inline virtual bool		isPresent(const T*) const;
+    inline virtual size_type	indexOf(const T*) const;
     inline T*			first();
     inline const T*		first() const;
     inline T*			last();
     inline const T*		last() const;
 
+    inline ObjectSet<T>&	add( T* t )		{ return doAdd(t); }
+    inline ObjectSet<T>&	operator +=( T* t )	{ return doAdd( t ); }
+    inline void			push( T* t )		{ doAdd( t ); }
+    inline bool			addIfNew(T*);
+    inline virtual T*		replace(size_type idx,T*);
+    inline virtual void		insertAt(T* newptr,size_type);
+    inline virtual void		insertAfter(T* newptr,size_type);
+
+    inline virtual void		copy(const ObjectSet<T>&);
+    inline virtual void		append(const ObjectSet<T>&);
+    inline virtual void		swap(od_int64,od_int64);
+    inline virtual void		reverse(); 
+    
+
+    inline virtual void		erase()			{ plainErase(); }
+    inline virtual T*		pop();
+    virtual inline T*		removeSingle(size_type,bool keep_order=true);
+    				/*!<\returns the removed pointer. */
+    virtual void		removeRange(size_type from,size_type to);
+    inline ObjectSet<T>&	operator -=(T*);
 
 protected:
 
     VectorAccess<void*,size_type> vec_;
     bool			allow0_;
+
+    inline virtual ObjectSet<T>& doAdd(T*);
 
 public:
 
@@ -132,7 +128,7 @@ inline void deepAppend( ObjectSet<T>& to, const ObjectSet<S>& from )
 {
     const int sz = from.size();
     for ( int idx=0; idx<sz; idx++ )
-	to += from[idx] ? new T( *from[idx] ) : 0;
+	to.add( from[idx] ? new T( *from[idx] ) : 0 );
 }
 
 
@@ -142,7 +138,7 @@ inline void deepAppendClone( ObjectSet<T>& to, const ObjectSet<S>& from )
 {
     const int sz = from.size();
     for ( int idx=0; idx<sz; idx++ )
-	to += from[idx] ? from[idx]->clone() : 0;
+	to.add( from[idx] ? from[idx]->clone() : 0 );
 }
 
 
@@ -352,7 +348,7 @@ bool ObjectSet<T>::isPresent( const T* ptr ) const
 
 
 template <class T> inline
-ObjectSet<T>& ObjectSet<T>::operator +=( T* ptr )
+ObjectSet<T>& ObjectSet<T>::doAdd( T* ptr )
 {
     if ( ptr || allow0_ )
 	vec_.push_back( (void*)ptr );
@@ -415,7 +411,7 @@ void ObjectSet<T>::insertAt( T* newptr, size_type idx )
 template <class T> inline
 void ObjectSet<T>::insertAfter( T* newptr, size_type idx )
 {
-    *this += newptr;
+    add( newptr );
     if ( idx < 0 )
 	vec_.moveToStart( (void*)newptr );
     else
@@ -441,14 +437,8 @@ void ObjectSet<T>::append( const ObjectSet<T>& os )
     const size_type sz = os.size();
     vec_.setCapacity( size()+sz, true );
     for ( size_type idx=0; idx<sz; idx++ )
-	*this += const_cast<T*>( os[idx] );
+	add( const_cast<T*>( os[idx] ) );
 }
-
-
-template <class T> inline
-void ObjectSet<T>::push( T* ptr )
-{ *this +=ptr; }
-
 
 template <class T> inline
 T* ObjectSet<T>::pop()
@@ -461,7 +451,7 @@ bool ObjectSet<T>::addIfNew( T* ptr )
     if ( isPresent(ptr) )
 	return false;
 
-    *this += ptr;
+    add( ptr );
     return true;
 }
 
