@@ -43,6 +43,7 @@ public:
 				/*!<Does not delete the entry. */
     inline virtual T*		replace(int idx, T*);
 				/*!<Deletes entry and returns 0 */
+    inline virtual ManagedObjectSet<T>& operator -=(T*);
 
 };
 
@@ -66,6 +67,16 @@ ManagedObjectSet<T>& ManagedObjectSet<T>::operator =( const ObjectSet<T>& os )
 	{ erase(); append( os ); }
     return *this;
 }
+
+
+template <class T> inline
+ManagedObjectSet<T>& ManagedObjectSet<T>::operator -=( T* ptr )
+{
+    if ( ptr )
+	{ this->vec_.erase( (void*)ptr ); delete ptr; }
+    return *this;
+}
+
 
 template <class T> inline
 ManagedObjectSet<T>& ManagedObjectSet<T>::operator =(

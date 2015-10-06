@@ -86,7 +86,7 @@ public:
     virtual inline T*		removeSingle(size_type,bool keep_order=true);
     				/*!<\returns the removed pointer. */
     virtual void		removeRange(size_type from,size_type to);
-    inline ObjectSet<T>&	operator -=(T*);
+    virtual ObjectSet<T>&	operator -=(T*);
 
 protected:
 
