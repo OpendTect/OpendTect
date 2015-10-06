@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "iopar.h"
 #include "mouseevent.h"
-#include "timer.h"
 
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
@@ -395,8 +394,8 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	return eventcatcher_.ishandled_;
     }
 
-    // 0 times out if all events in window system's queue have been processed
-    eventcatcher_.eventreleasetimer_->start( 0, true );
+    CallBack::addToMainThread(
+		    mCB( &eventcatcher_,EventCatcher,releaseEventsCB), 0 );
     return false;
 }
 
@@ -587,13 +586,11 @@ EventCatcher::EventCatcher()
     , osgnode_( 0 )
     , eventcatchhandler_( 0 )
     , eventreleasepostosg_( true )
-    , eventreleasetimer_( new Timer() )
 {
     osgnode_ = setOsgNode( new osg::Node );
     eventcatchhandler_ = new EventCatchHandler( *this );
     eventcatchhandler_->ref();
     osgnode_->setEventCallback( eventcatchhandler_ );
-    mAttachCB( eventreleasetimer_->tick, EventCatcher::releaseEventsCB );
 }
 
 
@@ -616,11 +613,11 @@ void EventCatcher::setUtm2Display( ObjectSet<Transformation>& nt )
 
 EventCatcher::~EventCatcher()
 {
+    detachAllNotifiers();
     deepUnRef( utm2display_ );
 
     osgnode_->removeEventCallback( eventcatchhandler_ );
     eventcatchhandler_->unref();
-    delete eventreleasetimer_;
 }
 
 
@@ -658,7 +655,7 @@ void EventCatcher::releaseEventsCB( CallBacker* )
 	if ( eventqueue_.isEmpty() )
 	    return;
 
-	const EventInfo* curevent = eventqueue_.removeSingle( 0 );
+	PtrMan<const EventInfo> curevent = eventqueue_.removeSingle( 0 );
 	locker.unlockNow();
 
 	ishandled_ = false;
@@ -668,8 +665,6 @@ void EventCatcher::releaseEventsCB( CallBacker* )
 
 	if ( !ishandled_ )
 	    nothandled.trigger( *curevent, this );
-
-	delete curevent;
     }
 }
 

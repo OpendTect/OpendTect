@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 class TabletInfo;
-class Timer;
 
 namespace osg { class Node; }
 
@@ -130,7 +129,6 @@ protected:
     ObjectSet<EventInfo>	eventqueue_;
     Threads::Lock		eventqueuelock_;
     bool			eventreleasepostosg_;
-    Timer*			eventreleasetimer_;
 };
 
 }; // Namespace
