@@ -36,7 +36,7 @@ uiString uiStrings::phrSelect( const uiString& string )
 { return toUiString(joinstring).arg( sSelect() ).arg( string ); }
 
 uiString uiStrings::phrDoesntExist(const uiString& string, int num )
-{ return tr( "%1 does not exist", 0, num ); }
+{ return tr( "%1 does not exist", 0, num ).arg( string ); }
 
 uiString uiStrings::phrExport( const uiString& string )
 { return toUiString(joinstring).arg( sExport() ).arg( string ); }
@@ -103,6 +103,9 @@ uiString uiStrings::phrCrossPlot( const uiString& string )
 
 uiString uiStrings::phrData( const uiString& string )
 { return toUiString(joinstring).arg(sData()).arg(string); }
+
+uiString uiStrings::phrDelete( const uiString& string )
+{ return toUiString(joinstring).arg(sDelete()).arg(string); }
 
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
@@ -425,7 +428,7 @@ uiString uiStrings::sSeismics( bool is2d, bool isps, int num )
 {
     return toUiString( "%1 %2%3" )
 	.arg( is2d ? s2D() : s3D() )
-	.arg( isps ? tr("prestack ") : uiString::emptyString() )
+	.arg( isps ? tr("Prestack ") : uiString::emptyString() )
 	.arg( sSeismic( num ) );
 }
 
@@ -453,7 +456,7 @@ uiString uiStrings::sShift()
 uiString uiStrings::sSpecify()
 { return tr("Specify"); }
 
-uiString uiStrings::sSpecifyOut()   
+uiString uiStrings::sSpecifyOut()
 { return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
 
 
@@ -508,7 +511,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 			     bool both_2d_3d_in_context,
 			     bool both_pre_post_in_context )
 {
-    if ( is2d && is2d )
+    if ( is2d && is3d )
 	return tr( "Seismic data" );
 
     if ( is2d )
@@ -530,7 +533,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 		return tr( "Post-Stack 2D Data" );
 	    }
 
-	    return tr("2D Data");
+	    return tr("2D Data (attribute)");
 	}
 
 	if ( both_pre_post_in_context )
@@ -538,7 +541,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 	    return tr("Post-Stack Data");
 	}
 
-	return tr("2D Data");
+	return tr("2D Data (attribute)");
     }
 
     if ( is3d )

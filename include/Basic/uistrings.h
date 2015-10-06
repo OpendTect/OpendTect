@@ -75,6 +75,8 @@ public:
     //!<"Create <string>"
     static uiString phrData(const uiString&);
     //!<"Data <string>"
+    static uiString phrDelete(const uiString&);
+    //!<"Delete <string>"
     static uiString phrDoesntExist(const uiString& string,int num=1);
     //!<"<string> does/do not exist"
     static uiString phrEdit(const uiString& string);
@@ -146,6 +148,7 @@ public:
     //!<"Z in <string>"
     static uiString phrZRange(const uiString&);
     //!<"Z Range <string>"
+
 
     //Words
     static uiString s2D();
