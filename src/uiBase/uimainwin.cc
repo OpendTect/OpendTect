@@ -1521,7 +1521,7 @@ void uiDialogBody::setTitleText( const uiString& txt )
 {
     setup_.dlgtitle_ = txt;
     if ( titlelbl_ )
-	titlelbl_->setText(txt);
+	titlelbl_->setText( txt );
 }
 
 

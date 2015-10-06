@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QPixmap>
 #include <QBitmap>
 #include <QColor>
+#include <QImageReader>
 #include <QImageWriter>
 
 mUseQtnamespace
@@ -156,10 +157,72 @@ bool uiPixmap::isPresent( const char* icnm )
     return OD::IconFile::isPresent( icnm );
 }
 
+static int sPDFfmtIdx = 5;
+static int sPSfmtIdx = 6;
+static int sEPSfmtIdx = 7;
 
-void supportedImageFormats( BufferStringSet& imageformats )
+static const char* sImageFormats[] =
+{ "jpg", "png", "tiff", "bmp", "xpm", "pdf", "ps", "eps", 0 };
+
+static const char* sImageFormatDescs[] =
 {
-    QList<QByteArray> imgfrmts = QImageWriter::supportedImageFormats();
+    "JPEG (*.jpg *.jpeg)",
+    "PNG (*.png)",
+    "TIFF (*.tiff)",
+    "Bitmap (*.bmp)",
+    "XPM (*.xpm)",
+    "Portable Doc Format (*.pdf)",
+    "Postscript (*.ps)",
+    "EPS (*.eps)",
+    0
+};
+
+
+void supportedImageFormats( BufferStringSet& formats, bool forread,
+			    bool withprintformats )
+{
+    QList<QByteArray> imgfrmts = forread
+	? QImageReader::supportedImageFormats()
+	: QImageWriter::supportedImageFormats();
+
     for ( int idx=0; idx<imgfrmts.size(); idx++ )
-	imageformats.add( imgfrmts[idx].data() );
+	formats.add( imgfrmts[idx].data() );
+
+    if ( withprintformats )
+    {
+	formats.add( sImageFormats[sPDFfmtIdx] );
+	formats.add( sImageFormats[sPSfmtIdx] );
+	formats.add( sImageFormats[sEPSfmtIdx] );
+    }
+}
+
+
+void getImageFormatDescs( BufferStringSet& descs, bool forread,
+			  bool withprintformats )
+{
+    BufferStringSet formats; supportedImageFormats( formats, forread );
+
+    int idx = 0;
+    while ( sImageFormats[idx] )
+    {
+	if ( formats.isPresent(sImageFormats[idx]) )
+	    descs.add( sImageFormatDescs[idx] );
+	idx++;
+    }
+
+    if ( withprintformats )
+    {
+	descs.add( sImageFormatDescs[sPDFfmtIdx] );
+	descs.add( sImageFormatDescs[sPSfmtIdx] );
+	descs.add( sImageFormatDescs[sEPSfmtIdx] );
+    }
+}
+
+
+void getImageFileFilter( BufferString& filter, bool forread,
+			 bool withprintformats )
+{
+    BufferStringSet descs;
+    getImageFormatDescs( descs, forread, withprintformats );
+    filter = descs.cat( ";;" );
 }
