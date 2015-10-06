@@ -61,7 +61,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
-    selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(), 
+    selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(),
 									sgsu );
     selgrp_->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->itemChosen.notify( mCB(this,uiObjFileMan,selChg) );
@@ -85,8 +85,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
     uiToolButton* dummytb = new uiToolButton( infogrp_, "empty",
-					      uiString::emptyString(),
-                                              CallBack() );
+					uiString::emptyString(), CallBack() );
     dummytb->attach( rightTo, infofld_ );
     dummytb->display( false );
 
@@ -97,8 +96,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( tr("Notes") );
     notesfld_->attach( alignedBelow, noteslbl );
-    uiToolButton* savebut = new uiToolButton( notesgrp, "save",
-                                              tr("Save Notes"),
+    uiToolButton* savebut =
+		new uiToolButton( notesgrp, "save", tr("Save Notes"),
 	    mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
 
@@ -117,6 +116,7 @@ void uiObjFileMan::finaliseStartCB( CallBacker* )
 {
     const bool hasbuttons = extrabutgrp_->nrButtons() > 0;
     extrabutgrp_->display( hasbuttons, !hasbuttons );
+    selgrp_->setCurrent( 0 );
 }
 
 
@@ -131,7 +131,6 @@ static bool isIOStream( const IOObj& ioobj )
 {
     return getIOStream( ioobj );
 }
-
 
 
 static BufferString getNotesFileName( const IOObj& ioobj )
