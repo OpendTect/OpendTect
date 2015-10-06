@@ -24,10 +24,10 @@ namespace Repos
     enum Source	{ Temp, Rel, ApplSetup, Data, Survey, User };
 
 /*!\brief Constructs repository file names.
- 
+
   The basename is the name of a file in upper and lower case,
   e.g. UnitsOfMeasure.
-  
+
   Then the files to find are:
   Temp: temp stor dir (/tmp on unix), file "UnitsOfMeasure"
   Rel: Software (release) dir, data subdir, file "UnitsOfMeasure"
@@ -77,7 +77,7 @@ protected:
 
 /*!\brief IOPar with its Repos Source. */
 
-class IOPar : public ::IOPar
+mExpClass(Basic) IOPar : public ::IOPar
 {
 public:
 
@@ -93,7 +93,7 @@ public:
 
 /*!\brief Set of Repos::IOPar with each a unique name for user recognistion. */
 
-class IOParSet : public ManagedObjectSet<IOPar>
+mExpClass(Basic) IOParSet : public ManagedObjectSet<IOPar>
 {
 public:
 
