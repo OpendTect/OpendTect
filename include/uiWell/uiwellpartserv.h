@@ -69,6 +69,7 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
+    void			closePropDlg(const MultiID&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
@@ -94,7 +95,7 @@ protected:
 
     uiWellImportAsc*		uiwellimpdlg_;
     uiWell2RandomLineDlg*	rdmlinedlg_;
-    uiWellDispPropDlg*		uiwellpropdlg_;
+    ObjectSet<uiWellDispPropDlg> wellpropdlgs_;
     uiD2TModelGen*		uid2tmgen_;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_;
     uiSimpleMultiWellCreate*	impsimpledlg_;
@@ -110,7 +111,6 @@ protected:
     bool			disponcreation_;
     const char*			multiid_;
     bool			allapplied_;
-    bool			isdisppropopened_;
 
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgDeleted(CallBacker*);
@@ -122,6 +122,7 @@ protected:
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
     void			survChangedCB(CallBacker*);
+    int				getPropDlgIndex(const MultiID&);
 
 };
 

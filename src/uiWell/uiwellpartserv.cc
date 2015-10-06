@@ -61,13 +61,11 @@ int uiWellPartServer::evDisplayWell()		    { return 2; }
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , rdmlinedlg_(0)
-    , uiwellpropdlg_(0)
     , uiwellimpdlg_(0)
     , disponcreation_(false)
     , multiid_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
-    , isdisppropopened_(false)
     , manwelldlg_(0)
     , impsimpledlg_(0)
     , impbulktrackdlg_(0)
@@ -88,6 +86,7 @@ uiWellPartServer::~uiWellPartServer()
     delete impbulklogdlg_;
     delete impbulkmrkrdlg_;
     delete impbulkd2tdlg_;
+    deepErase( wellpropdlgs_ );
 }
 
 
@@ -99,6 +98,7 @@ void uiWellPartServer::survChangedCB( CallBacker* )
     delete impbulklogdlg_; impbulklogdlg_ = 0;
     delete impbulkmrkrdlg_; impbulkmrkrdlg_ = 0;
     delete impbulkd2tdlg_; impbulkd2tdlg_ = 0;
+    deepErase( wellpropdlgs_ );
 }
 
 
@@ -221,22 +221,46 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd ) return false;
 
-    if ( isdisppropopened_ == false )
-    {
-	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), wd );
-	uiwellpropdlg_->applyAllReq.notify(
-			    mCB(this,uiWellPartServer,applyAll) );
-	uiwellpropdlg_->windowClosed.notify(
-			    mCB(this,uiWellPartServer, wellPropDlgClosed) );
-	isdisppropopened_ = uiwellpropdlg_->go();
-    }
+    const int dlgidx = getPropDlgIndex( mid );
+    if ( dlgidx != -1 )
+	return wellpropdlgs_[dlgidx]->go();
+
+    uiWellDispPropDlg* uiwellpropdlg = new uiWellDispPropDlg( parent(), wd );
+    uiwellpropdlg->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
+    uiwellpropdlg->windowClosed.notify(
+			mCB(this,uiWellPartServer, wellPropDlgClosed) );
+    wellpropdlgs_ += uiwellpropdlg;
+    uiwellpropdlg->go();
     return true;
+}
+
+
+int uiWellPartServer::getPropDlgIndex( const MultiID& mid )
+{
+    for ( int idx=0; idx<wellpropdlgs_.size(); idx++ )
+    {
+	if ( !wellpropdlgs_[idx]->wellData() )
+	    continue;
+
+	const MultiID dlgid = wellpropdlgs_[idx]->wellData()->multiID();
+	if ( dlgid == mid )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+void uiWellPartServer::closePropDlg( const MultiID& mid )
+{
+    const int dlgidx = getPropDlgIndex( mid );
+    if ( dlgidx != -1 )
+	delete wellpropdlgs_.removeSingle( dlgidx );
 }
 
 
 void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 {
-    isdisppropopened_ = false;
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
     ConstRefMan<Well::Data> edwd = dlg->wellData();
