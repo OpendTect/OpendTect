@@ -318,7 +318,12 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     if ( !badhdr )
     {
 	if ( *(hdrln+1) == 'G' )
-	    return getOldTimeWell(strm);
+	{
+	    errmsg_.set( "Cannot read old time wells" );
+	    strm.addErrMsgTo( errmsg_ );
+	    return false;
+	    //return getOldTimeWell(strm);
+	}
 	else if ( *(hdrln+1) != 'T' )
 	    badhdr = true;
     }
