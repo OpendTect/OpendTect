@@ -58,7 +58,7 @@ public:
 
     inline TypeSetBase<T,I>&	add(const T&);
     inline virtual void		insert(size_type,const T&);
-    inline bool			push( const T& t )	{ return add(t); }
+    inline bool			push(const T&);
     inline T			pop();
     inline TypeSetBase<T,I>&	operator+=( const T& t ) { return add(t); }
     inline virtual bool		append(const T*,size_type);
@@ -317,6 +317,10 @@ I TypeSetBase<T,I>::count( const T& typ ) const
 template <class T, class I> inline
 TypeSetBase<T,I>& TypeSetBase<T,I>::add( const T& typ )
 { vec_.push_back( typ ); return *this; }
+
+template <class T, class I> inline
+bool TypeSetBase<T,I>::push( const T& typ )
+{ return vec_.push_back( typ ); }
 
 template <class T, class I> inline
 TypeSetBase<T,I>& TypeSetBase<T,I>::operator -=( const T& typ )

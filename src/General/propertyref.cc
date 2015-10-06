@@ -469,7 +469,7 @@ int PropertyRefSet::add( PropertyRef* pr )
     if ( !pr ) return -1;
 
     if ( !isPresent( pr->name() ) )
-	{ ObjectSet<PropertyRef>::operator+=( pr ); return size()-1; }
+	{ ObjectSet<PropertyRef>::doAdd( pr ); return size()-1; }
 
     return -1;
 }
