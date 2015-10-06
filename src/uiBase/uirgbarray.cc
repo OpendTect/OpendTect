@@ -65,7 +65,7 @@ bool uiRGBArray::setSize( int d0, int d1 )
 
     delete qimg_;
     qimg_ = new QImage( d0, d1,withalpha_ ? QImage::Format_ARGB32
-	    				  : QImage::Format_RGB32 );
+					  : QImage::Format_RGB32 );
 
     return true;
 }
@@ -164,7 +164,7 @@ OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,
 {
     if ( !File::exists(fnm) )
     {
-	errmsg = uiStrings::sFileDoesntExist();
+	errmsg = uiStrings::sFileDoesntExist().arg( fnm );
 	return 0;
     }
 

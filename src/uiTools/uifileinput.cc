@@ -79,10 +79,8 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 	examinebut_ = uiButton::getStd( this,
 			exameditable_ ? uiButton::Edit : uiButton::Examine,
 			mCB(this,uiFileInput,examineFile), false );
-	examinebut_->setText( toUiString("%1 %2")
-			     .arg(exameditable_
-				  ? uiStrings::sEdit()
-				  : uiStrings::sExamine()) );
+	examinebut_->setText(
+		exameditable_ ? uiStrings::sEdit() : uiStrings::sExamine() );
     }
     if ( setup.directories_ )
     {
