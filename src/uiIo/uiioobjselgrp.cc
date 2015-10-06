@@ -405,7 +405,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	{
 	    ctio_.setObj( 0 );
 	    if ( sz > 0 )
-		uiMSG().error(tr("Please select the %1 or press Cancel"
+		uiMSG().error(tr("Please select the %1 "
 				 "or press Cancel").arg(mObjTypeName));
 	    return false;
 	}
