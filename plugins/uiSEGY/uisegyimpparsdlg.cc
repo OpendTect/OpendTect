@@ -22,7 +22,7 @@ static const char* sNoSavedYet = "<No saved setups yet>";
 uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
     : uiDialog(p,Setup(isread?tr("Read SEG-Y setup"):tr("Store SEG-Y setup"),
 			mNoDlgTitle,mNoHelpKey))
-    , parset_(*new Repos::IOParSet("SEGYSetup"))
+    , parset_(*new Repos::IOParSet("SEGYSetups"))
     , parname_(dfnm)
 {
     BufferStringSet nms;
