@@ -43,6 +43,13 @@ public:
 	timer_.start( 1000, false );
     }
 
+
+    ~RequestEchoServer()
+    {
+	detachAllNotifiers();
+    }
+
+
     void newConnectionCB( CallBacker* )
     {
 	lastactivity_ = time( 0 );

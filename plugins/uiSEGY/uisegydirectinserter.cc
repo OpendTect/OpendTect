@@ -28,6 +28,12 @@ uiSEGYDirectVolInserter::uiSEGYDirectVolInserter()
 }
 
 
+uiSEGYDirectVolInserter::~uiSEGYDirectVolInserter()
+{
+    detachAllNotifiers();
+}
+
+
 uiToolButtonSetup* uiSEGYDirectVolInserter::getButtonSetup() const
 {
     uiSEGYDirectVolInserter* self = const_cast<uiSEGYDirectVolInserter*>(this);
@@ -81,6 +87,12 @@ uiSEGYDirect2DInserter::uiSEGYDirect2DInserter()
 }
 
 
+uiSEGYDirect2DInserter::~uiSEGYDirect2DInserter()
+{
+    detachAllNotifiers();
+}
+
+
 uiToolButtonSetup* uiSEGYDirect2DInserter::getButtonSetup() const
 {
     uiSEGYDirect2DInserter* self = const_cast<uiSEGYDirect2DInserter*>(this);
@@ -123,13 +135,19 @@ void uiSEGYDirect2DInserter::initClass()
 			  mSEGYDirect2DTranslInstance.getDisplayName() );
 }
 
-//Prestack 3D 
+//Prestack 3D
 
 #define mSEGYDirectPS3DTranslInstance mTranslTemplInstance(SeisPS3D,SEGYDirect)
 
 uiSEGYDirectPS3DInserter::uiSEGYDirectPS3DInserter()
     : uiIOObjInserter(mSEGYDirectPS3DTranslInstance)
 {
+}
+
+
+uiSEGYDirectPS3DInserter::~uiSEGYDirectPS3DInserter()
+{
+    detachAllNotifiers();
 }
 
 
@@ -173,7 +191,7 @@ void uiSEGYDirectPS3DInserter::scanComplete( CallBacker* )
 
 void uiSEGYDirectPS3DInserter::initClass()
 {
-    factory().addCreator( create, 
+    factory().addCreator( create,
 	mSEGYDirectPS3DTranslInstance.getDisplayName() );
 }
 

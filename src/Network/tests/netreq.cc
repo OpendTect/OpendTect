@@ -37,6 +37,7 @@ class Tester : public CallBacker
 public:
     ~Tester()
     {
+	detachAllNotifiers();
 	CallBack::removeFromMainThread( this );
     }
 
@@ -121,7 +122,7 @@ public:
 
 	BufferString receivedlongmessage;
 	receivedpacket->getStringPayload( receivedlongmessage );
-	mRunStandardTest( 
+	mRunStandardTest(
 	     receivedlongmessage==payload &&
 	     receivedpacket->requestID()==largepacket.requestID() &&
 	     receivedpacket->subID()==largepacket.subID(),
@@ -132,7 +133,7 @@ public:
 
 	{
 	    //Send a packet that requests a disconnect. Server will
-	    //disconnect, and we should not be able to read the packet.	
+	    //disconnect, and we should not be able to read the packet.
 	    //
 	    //Further, the errorcode should be set correctly.
 	    Network::RequestConnection conn2( hostname_, (unsigned short)port_,
@@ -215,7 +216,7 @@ public:
 	      packetString( prefix_, "Sending from other thread", packet ),
 	      conn_->errMsg().getFullString() );
 
-	PtrMan<Network::RequestPacket> receivedpacket =	
+	PtrMan<Network::RequestPacket> receivedpacket =
 	    conn_->pickupPacket( packet.requestID(), 20000 );
 	mRunStandardTestWithError(
 	    ((bool) receivedpacket.ptr())==conn_->isMultiThreaded(),

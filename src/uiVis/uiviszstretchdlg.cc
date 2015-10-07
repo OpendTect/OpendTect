@@ -74,6 +74,12 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 }
 
 
+uiZStretchDlg::~uiZStretchDlg()
+{
+    detachAllNotifiers();
+}
+
+
 void uiZStretchDlg::doFinalise( CallBacker* )
 {
     updateSliderValues();

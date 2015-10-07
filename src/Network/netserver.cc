@@ -39,6 +39,7 @@ Network::Server::Server()
 
 Network::Server::~Server()
 {
+    detachAllNotifiers();
     if ( isListening() )
 	close();
 #ifndef OD_NO_QT

@@ -25,12 +25,13 @@ mExpClass(uiVelocity) uiLinearVelTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiLinearVelTransform);
 public:
     static void		initClass();
-    			uiLinearVelTransform(uiParent*,bool t2d);
+			uiLinearVelTransform(uiParent*,bool t2d);
+			~uiLinearVelTransform();
 
     ZAxisTransform*	getSelection();
 
-    FixedString 	toDomain() const;
-    FixedString 	fromDomain() const;
+    FixedString	toDomain() const;
+    FixedString	fromDomain() const;
     bool		canBeField() const			{ return true; }
 
 protected:

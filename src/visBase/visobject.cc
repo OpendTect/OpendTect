@@ -50,6 +50,7 @@ VisualObjectImpl::VisualObjectImpl( bool issel )
 
 VisualObjectImpl::~VisualObjectImpl()
 {
+    detachAllNotifiers();
     if ( material_ )
 	material_->unRef();
 }
@@ -63,7 +64,7 @@ void VisualObjectImpl::setLockable()
 void VisualObjectImpl::readLock()
 {
 }
-	
+
 
 void VisualObjectImpl::readUnLock()
 {
@@ -79,7 +80,7 @@ bool VisualObjectImpl::tryReadLock()
 void VisualObjectImpl::writeLock()
 {
 }
-	
+
 
 void VisualObjectImpl::writeUnLock()
 {
@@ -147,7 +148,7 @@ Material* VisualObjectImpl::getMaterial()
 
 void VisualObjectImpl::setGroupNode( osg::Group* grpnode )
 {
-    if ( !grpnode || osgroot_ == grpnode ) 
+    if ( !grpnode || osgroot_ == grpnode )
 	return;
 
     osg::ref_ptr<osg::Group> newgroup = grpnode;
@@ -157,12 +158,12 @@ void VisualObjectImpl::setGroupNode( osg::Group* grpnode )
 
     if ( osgroot_->getStateSet() )
     grpnode->setStateSet( osgroot_->getStateSet() );
-   
+
     setOsgNode( grpnode );
     osgroot_ = grpnode;
 }
 
-    
+
 int VisualObjectImpl::addChild( osg::Node* nn )
 {
     if ( !nn )
@@ -209,9 +210,9 @@ bool VisualObjectImpl::usePar( const IOPar& iopar )
     bool isonsw;
     if ( iopar.getYN(sKeyIsOn(),isonsw) )
 	turnOn( isonsw );
-    
+
     const FixedString nm = iopar.find( sKey::Name() );
-    
+
     if ( !nm.isEmpty() )
 	setName( toUiString(nm) );
 

@@ -58,6 +58,7 @@ mExpClass(uiWellAttrib) uiSynthCorrectionsGrp : public uiGroup
 { mODTextTranslationClass(uiSynthCorrectionsGrp);
 public:
 				uiSynthCorrectionsGrp(uiParent*);
+				~uiSynthCorrectionsGrp();
 
     bool			wantNMOCorr() const;
     float			getStrechtMutePerc() const;
