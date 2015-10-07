@@ -214,6 +214,7 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
 
     const bool is2d = Seis::is2D( geom_ );
     mFillFromDefIf(is2d,thdef_.trnr_,TrcHeaderDef::sTrNrByte());
+    mFillFromDefIf(is2d,thdef_.refnr_,TrcHeaderDef::sRefNrByte());
 
     mFillIf(!mIsUdf(coordscale_),sKeyCoordScale(),coordscale_);
     mFillIf(!mIsUdf(timeshift_),sKeyTimeShift(),timeshift_);

@@ -39,13 +39,17 @@ void SEGY::FullSpec::fillPar( IOPar& iop ) const
     iop.setYN( sKeyZInFeet, zinfeet_ );
     if ( !isVSP() )
 	iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
+    else
+	iop.removeWithKey( sKey::Geometry() );
 }
 
 
 void SEGY::FullSpec::usePar( const IOPar& iop )
 {
+    Seis::GeomType gt = Seis::Vol; Seis::getFromPar( iop, gt );
     spec_.usePar( iop );
     pars_.usePar( iop );
+    readopts_.setGeomType( gt );
     readopts_.usePar( iop );
     iop.getYN( FilePars::sKeyForceRev0(), rev0_ );
     iop.getYN( sKeyIsVSP, isvsp_ );
