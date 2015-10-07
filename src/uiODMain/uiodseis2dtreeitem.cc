@@ -126,6 +126,9 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	{
 	    const Attrib::SelSpec* ds =
 			    applMgr()->visServer()->getSelSpec( id, adx );
+	    if ( ds && ds->id() == Attrib::SelSpec::cOtherAttrib() )
+		continue;
+
 	    BufferString attribname = sKeyUnselected();
 	    if ( ds && ds->userRef() && *ds->userRef() )
 		attribname = ds->userRef();
