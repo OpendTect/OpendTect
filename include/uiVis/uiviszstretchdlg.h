@@ -24,6 +24,7 @@ mExpClass(uiVis) uiZStretchDlg : public uiDialog
 { mODTextTranslationClass(uiZStretchDlg);
 public:
 			uiZStretchDlg(uiParent*);
+			~uiZStretchDlg();
 
     bool		valueChanged() const	{ return valchgd_; }
 

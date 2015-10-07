@@ -76,6 +76,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
+    detachAllNotifiers();
     if ( l2dintersections_ )
 	deepErase( *l2dintersections_ );
     delete l2dintersections_;

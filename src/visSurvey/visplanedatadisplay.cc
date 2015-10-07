@@ -127,6 +127,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
+    detachAllNotifiers();
     setSceneEventCatcher( 0 );
     deepErase( rposcache_ );
     setZAxisTransform( 0,0 );

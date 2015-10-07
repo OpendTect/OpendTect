@@ -86,6 +86,7 @@ PolygonBodyDisplay::PolygonBodyDisplay()
 
 PolygonBodyDisplay::~PolygonBodyDisplay()
 {
+    detachAllNotifiers();
     setSceneEventCatcher( 0 );
 
     if ( viseditor_ )

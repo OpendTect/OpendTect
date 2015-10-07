@@ -64,6 +64,12 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
 }
 
 
+uiLinearVelTransform::~uiLinearVelTransform()
+{
+    detachAllNotifiers();
+}
+
+
 void uiLinearVelTransform::velChangedCB( CallBacker* )
 {
     if ( !rangefld_ )

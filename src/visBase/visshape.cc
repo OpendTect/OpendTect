@@ -40,9 +40,9 @@ mCreateFactoryEntry( visBase::VertexShape );
 namespace visBase
 {
 
-const char* Shape::sKeyOnOff() 			{ return  "Is on";	}
-const char* Shape::sKeyTexture() 		{ return  "Texture";	}
-const char* Shape::sKeyMaterial() 		{ return  "Material";	}
+const char* Shape::sKeyOnOff()			{ return  "Is on";	}
+const char* Shape::sKeyTexture()		{ return  "Texture";	}
+const char* Shape::sKeyMaterial()		{ return  "Material";	}
 
 
 
@@ -412,6 +412,7 @@ void VertexShape::setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp )
 
 VertexShape::~VertexShape()
 {
+    detachAllNotifiers();
     if ( getMaterial() )
 	getMaterial()->change.remove( mCB(this,VertexShape,materialChangeCB) );
 
@@ -703,11 +704,11 @@ class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet,
 {
 public:
 			OSGIndexedPrimitiveSet()
-    			    : element_( new T ) {}
+			    : element_( new T ) {}
 
 			mImplOsgFuncs
     virtual void	setEmpty()
-    			{ element_->erase(element_->begin(),element_->end()); }
+			{ element_->erase(element_->begin(),element_->end()); }
     virtual void	append( int idx ) { element_->push_back( idx ); }
     virtual int		pop() { return 0; }
     virtual int		set(int,int) { return 0; }
@@ -761,7 +762,7 @@ public:
 
 			mImplOsgFuncs
 
-    int			size() const 	   { return element_->getCount();}
+    int			size() const	   { return element_->getCount();}
     int			get(int idx) const { return element_->getFirst()+idx;}
 
     void		setRange( const Interval<int>& rg )

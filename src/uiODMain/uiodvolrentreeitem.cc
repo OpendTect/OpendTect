@@ -393,6 +393,7 @@ uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
 
 uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 {
+    detachAllNotifiers();
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		     visserv_->getObject(getParentDisplayID()));
 

@@ -234,6 +234,12 @@ uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
 }
 
 
+uiSynthCorrectionsGrp::~uiSynthCorrectionsGrp()
+{
+    detachAllNotifiers();
+}
+
+
 void uiSynthCorrectionsGrp::parsChanged( CallBacker* )
 {
     advbut_->display( wantNMOCorr() );

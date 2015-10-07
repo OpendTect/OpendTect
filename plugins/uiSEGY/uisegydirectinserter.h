@@ -23,6 +23,7 @@ mExpClass(uiSEGY) uiSEGYDirectVolInserter : public uiIOObjInserter
 public:
 
 				uiSEGYDirectVolInserter();
+				~uiSEGYDirectVolInserter();
 
     virtual uiToolButtonSetup*	getButtonSetup() const;
     static uiIOObjInserter*	create()
@@ -45,6 +46,7 @@ mExpClass(uiSEGY) uiSEGYDirect2DInserter : public uiIOObjInserter
 public:
 
 				uiSEGYDirect2DInserter();
+				~uiSEGYDirect2DInserter();
 
     virtual uiToolButtonSetup*	getButtonSetup() const;
     static uiIOObjInserter*	create()
@@ -67,7 +69,8 @@ mExpClass(uiSEGY) uiSEGYDirectPS3DInserter : public uiIOObjInserter
 public:
 
 				uiSEGYDirectPS3DInserter();
-				
+				~uiSEGYDirectPS3DInserter();
+
     virtual uiToolButtonSetup*	getButtonSetup() const;
     static uiIOObjInserter*	create()
 				{ return new uiSEGYDirectPS3DInserter;  }

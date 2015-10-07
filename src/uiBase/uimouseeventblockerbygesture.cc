@@ -35,6 +35,7 @@ uiMouseEventBlockerByGestures::uiMouseEventBlockerByGestures( int delay_ms )
 
 uiMouseEventBlockerByGestures::~uiMouseEventBlockerByGestures()
 {
+    detachAllNotifiers();
     delete &gestureendtime_;
 }
 
@@ -92,7 +93,7 @@ bool uiMouseEventBlockerByGestures::updateFromEvent( const QEvent* qev )
 	if ( !gesture ) gesture  = gestureevent->gesture(Qt::PanGesture);
 	if ( !gesture ) gesture  = gestureevent->gesture(Qt::PinchGesture);
 	if ( !gesture ) gesture  = gestureevent->gesture(Qt::SwipeGesture);
-	
+
 	if ( gesture )
 	{
 	    const Qt::GestureState state = gesture->state();

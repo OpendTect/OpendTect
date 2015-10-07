@@ -35,6 +35,11 @@ static BufferString packetString( const char* prefix,
 class Tester : public CallBacker
 {
 public:
+    ~Tester()
+    {
+	detachAllNotifiers();
+	CallBack::removeFromMainThread( this );
+    }
 
     void runEventLoopTest(CallBacker*)
     {
@@ -117,7 +122,7 @@ public:
 
 	BufferString receivedlongmessage;
 	receivedpacket->getStringPayload( receivedlongmessage );
-	mRunStandardTest( 
+	mRunStandardTest(
 	     receivedlongmessage==payload &&
 	     receivedpacket->requestID()==largepacket.requestID() &&
 	     receivedpacket->subID()==largepacket.subID(),

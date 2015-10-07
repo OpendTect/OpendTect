@@ -43,6 +43,7 @@ uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l )
 
 uiWellDisplayControl::~uiWellDisplayControl()
 {
+    detachAllNotifiers();
     clear();
 }
 
@@ -255,7 +256,7 @@ void uiWellDisplayControl::setSelMarker( const Well::Marker* mrk )
     selmarker_ = mrk;
 
     if ( seldisp_ )
-	seldisp_->setToolTip( mrk ? toUiString(mrk->name()) : 
+	seldisp_->setToolTip( mrk ? toUiString(mrk->name()) :
 						    uiStrings::sEmptyString() );
 
     if ( lastselmarker_ != mrk )

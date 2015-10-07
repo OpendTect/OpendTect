@@ -25,6 +25,12 @@ uiTime2DepthZTransformBase::uiTime2DepthZTransformBase( uiParent* p, bool t2d )
 }
 
 
+uiTime2DepthZTransformBase::~uiTime2DepthZTransformBase()
+{
+    detachAllNotifiers();
+}
+
+
 FixedString uiTime2DepthZTransformBase::toDomain() const
 {
     return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
