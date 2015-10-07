@@ -366,17 +366,15 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.initialcentre(initialcentre_)
 					.managecoltab(!tifs_) );
 
-
-    picksettingstbid_ =
-	viewstdcontrol_->toolBar()->addButton(
-		"seedpicksettings", tr("Tracking setup"),
-		mCB(this,uiODViewer2D,trackSetupCB), false );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     mAttachCB( *viewstdcontrol_->editPushed(),
 	       uiODViewer2D::itmSelectionChangedCB );
-    if ( tifs_ )
+    if ( tifs_ && viewstdcontrol_->editToolBar() )
     {
-	createPolygonSelBut( viewstdcontrol_->toolBar() );
+	picksettingstbid_ = viewstdcontrol_->editToolBar()->addButton(
+		    "seedpicksettings", tr("Tracking setup"),
+		    mCB(this,uiODViewer2D,trackSetupCB), false );
+	createPolygonSelBut( viewstdcontrol_->editToolBar() );
 	createViewWinEditors();
     }
 
