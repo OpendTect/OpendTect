@@ -48,7 +48,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
     horinfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
 					   : mIOObjContext(EMHorizon3D),
-			        "Horizon to snap" );
+			        tr("%1 to snap").arg(uiStrings::sHorizon()) );
     if ( inp ) horinfld_->setInput( *inp );
 
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
@@ -62,7 +62,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
                                 StringListInpSpec(eventnms));
     eventfld_->attach( alignedBelow, seisfld_ );
 
-    BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
+    uiString gatelbl = tr("Search gate %1").arg(SI().getUiZUnitString());
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
     gatefld_->setValues( -SI().zStep() * SI().zDomain().userFactor(),
 			  SI().zStep() * SI().zDomain().userFactor() );

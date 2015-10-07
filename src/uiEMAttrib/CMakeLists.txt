@@ -5,6 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+add_definitions( -DmNoAutoUiString )
+
 set(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
 set(OD_MODULE_SOURCES
 	uiattremout.cc

@@ -157,8 +157,9 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 						  const TrcKeySampling& hs )
     : ui2DGridLines(p,hs)
 {
-    inlmodefld_ = new uiGenInput( this, sKey::Inline(),
-				  BoolInpSpec(true,"Range","Loose") );
+    inlmodefld_ = new uiGenInput( this, uiStrings::sInline(),
+				  BoolInpSpec(true,uiStrings::sRange(),
+				  tr("Loose")) );
     inlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
     inlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, true );
     inlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
@@ -169,8 +170,9 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 					paramsChgCB) );
     inlsfld_->attach( alignedBelow, inlmodefld_ );
 
-    crlmodefld_ = new uiGenInput( this, sKey::Crossline(),
-				  BoolInpSpec(true,"Range","Loose") );
+    crlmodefld_ = new uiGenInput( this, uiStrings::sCrossline(),
+				  BoolInpSpec(true,uiStrings::sRange(),
+				  tr("Loose")) );
     crlmodefld_->valuechanged.notify(mCB(this,ui2DGridLinesFromInlCrl,modeChg));
     crlmodefld_->attach( alignedBelow, inlrgfld_ );
     crlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Crl, true );
@@ -344,14 +346,14 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     if ( !rdl || rdl->nrNodes() != 2 )
     {
 	rdlfld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
-				  "Input RandomLine" );
+				uiStrings::phrInput(uiStrings::sRandomLine()) );
 	rdlfld_->selectionDone.notify( mCB(this,ui2DGridLinesFromRandLine,
 					   paramsChgCB) );
 	pardistfld_->attach( alignedBelow, rdlfld_ );
     }
 
     uiString perlbl(
-	    tr("Perpendicular line spacing %1").arg(SI().getXYUnitString()) );
+	    tr("Perpendicular line spacing %1").arg(SI().getUiXYUnitString()) );
     perdistfld_ = new uiGenInput( this, perlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
     perdistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
@@ -411,7 +413,7 @@ void ui2DGridLinesFromRandLine::paramsChgCB( CallBacker* cb )
 	BufferString msg;
 	if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
 	{
-	    uiMSG().error( msg );
+	    uiMSG().error( mToUiStringTodo(msg) );
 	    return;
 	}
 
@@ -466,8 +468,9 @@ bool ui2DGridLinesFromRandLine::fillPar( IOPar& par ) const
 
 
 uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
-    : uiDialog(p,uiDialog::Setup("Create 2D Seismic grid",mNoDlgTitle,
-				 mODHelpKey(mCreate2DGridHelpID) ) )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrCreate(tr("%2 %3 grid")
+		 .arg(uiStrings::s2D()).arg(uiStrings::sSeismic())),mNoDlgTitle,
+		 mODHelpKey(mCreate2DGridHelpID) ) )
     , sourceselfld_(0),inlcrlgridgrp_(0)
     , tkzs_(*new TrcKeyZSampling(true))
 {
@@ -517,8 +520,9 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 	randlinegrdgrp_->attach( alignedBelow, bboxfld_ );
     else
     {
-	sourceselfld_ = new uiGenInput( grp, "Create Grid from",
-				  BoolInpSpec(true,"Inl/Crl","Random line") );
+	sourceselfld_ = new uiGenInput( grp, uiStrings::phrCreate(
+				  tr("Grid from")), BoolInpSpec(true,
+				  tr("Inl/Crl"),uiStrings::sRandomLine()) );
 	sourceselfld_->valuechanged.notify( mCB(this,uiCreate2DGrid,srcSelCB) );
 	sourceselfld_->attach( alignedBelow, bboxfld_ );
 	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, tkzs_.hsamp_ );
@@ -543,13 +547,16 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
 {
     uiGroup* grp = new uiGroup( this, "Horizon group" );
 
-    horcheckfld_ = new uiCheckBox( grp, "Extract horizons for the new grid",
+    horcheckfld_ = new uiCheckBox( grp, uiStrings::phrExtract(
+				   tr("horizons for the new grid")),
 				   mCB(this,uiCreate2DGrid,horCheckCB) );
     horselfld_ = new uiIOObjSelGrp( grp, mIOObjContext(EMHorizon3D),
-		"Select horizons", uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+		 uiStrings::phrSelect(uiStrings::sHorizon(mPlural).toLower()),
+		 uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
     horselfld_->attach( alignedBelow, horcheckfld_ );
 
-    hornmfld_ = new uiGenInput( grp, "Horizon 2D name prefix" );
+    hornmfld_ = new uiGenInput( grp, tr("%1 name prefix")
+				     .arg(mJoinUiStrs(sHorizon(),s2D())) );
     hornmfld_->attach( alignedBelow, horselfld_ );
 
     grp->setHAlignObj( hornmfld_ );
@@ -568,10 +575,12 @@ uiGroup* uiCreate2DGrid::createPreviewGroup()
     previewmap_->setPrefWidth( 300 );
     previewmap_->setPrefHeight( 300 );
 
-    nrinlinesfld_ = new uiLabel( grp, "Nr of inlines in grid: XXX" );
+    nrinlinesfld_ = new uiLabel( grp, tr("Nr of inlines in grid: %1")
+								  .arg("XXX") );
     nrinlinesfld_->setPrefWidthInChar( 40 );
     nrinlinesfld_->attach( centeredBelow, previewmap_ );
-    nrcrlinesfld_ = new uiLabel( grp, "Nr of crosslines in grid: XXX" );
+    nrcrlinesfld_ = new uiLabel( grp, tr("Nr of crosslines in grid: %1")
+								  .arg("XXX") );
     nrcrlinesfld_->setPrefWidthInChar( 40 );
     nrcrlinesfld_->attach( centeredBelow, nrinlinesfld_ );
     return grp;
@@ -644,8 +653,8 @@ void uiCreate2DGrid::updatePreview( CallBacker* )
     previewmap_->setSurveyInfo( &SI() );
     BufferString nrinlstxt, nrcrlstxt;
     grp->getNrLinesLabelTexts( nrinlstxt, nrcrlstxt );
-    nrinlinesfld_->setText( nrinlstxt.buf() );
-    nrcrlinesfld_->setText( nrcrlstxt.buf() );
+    nrinlinesfld_->setText( toUiString(nrinlstxt.buf()) );
+    nrcrlinesfld_->setText( toUiString(nrcrlstxt.buf()) );
 }
 
 
