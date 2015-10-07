@@ -86,7 +86,7 @@ bool uiSEGYReadImpParsDlg::doIO()
 	    return false;
     }
 
-    mErrRet( tr("TODO: Not impl yet") );
+    return true;
 }
 
 

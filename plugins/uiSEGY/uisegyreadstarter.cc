@@ -511,6 +511,7 @@ void uiSEGYReadStarter::usePar( const IOPar& iop )
 
     loaddef_.usePar( iop );
     forceRescan( KeepAll, false );
+    infofld_->useLoadDef();
     updateICvsXYButton();
 }
 

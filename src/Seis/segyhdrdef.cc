@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "segythdef.h"
+#include "segyhdr.h"
 #include "ibmformat.h"
 #include "settings.h"
 #include "genc.h"
@@ -74,7 +75,7 @@ void SEGY::HdrEntry::setName( const char* nm )
     if ( !nm )
 	name_ = 0;
     else
-	{ name_ = new char [strLength(nm)+1]; strcpy(name_,nm); }
+	{ name_ = new char [FixedString(nm).size()+1]; strcpy(name_,nm); }
 }
 
 
@@ -84,7 +85,7 @@ void SEGY::HdrEntry::setDescription( const char* d )
     if ( !d )
 	desc_ = 0;
     else
-	{ desc_ = new char [strLength(d)+1]; strcpy(desc_,d); }
+	{ desc_ = new char [FixedString(d).size()+1]; strcpy(desc_,d); }
 }
 
 
@@ -167,7 +168,8 @@ void SEGY::HdrEntry::fillPar( IOPar& iop, const char* ky ) const
 }
 
 
-void SEGY::HdrEntry::usePar( const IOPar& iop, const char* ky )
+void SEGY::HdrEntry::usePar( const IOPar& iop, const char* ky,
+			     const SEGY::HdrDef* def )
 {
     int byteposition = bytepos_; iop.get( ky, byteposition );
     byteposition -= byteposition % 2; // make sure we are 'internal'
@@ -175,6 +177,22 @@ void SEGY::HdrEntry::usePar( const IOPar& iop, const char* ky )
     int nb = issmall_ ? 2 : 4;
     iop.get( BufferString(sKeyBytesFor,ky), nb );
     issmall_ = nb < 4;
+    if ( !def || bytepos_<0 || bytepos_ >237 )
+	return;
+
+    unsigned char offs = 0;
+    const int hidx = def->idxOfBytePos( bytepos_, offs );
+    if ( hidx<0 || offs != 0 )
+    {
+	setName( "nonstd" );
+	setDescription( "" );
+    }
+    else
+    {
+	const HdrEntry& he = *((*def)[hidx]);
+	setName( he.name_ );
+	setDescription( he.desc_ );
+    }
 }
 
 
@@ -192,7 +210,6 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 #define mAddHead(nm,desc) mAddHdr(nm,true,desc)
 #define mAddHead4(nm,desc) mAddHdr(nm,false,desc)
 
-static const char* sKeyStatic = " static ";
 
 void SEGY::HdrDef::mkTrc()
 {
@@ -238,9 +255,9 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "swevel", "subweathering velocity" );
     mAddHead( "sut", "uphole time at source" );
     mAddHead( "gut", "uphole time at receiver group" );
-    mAddHead( "sstat", BufferString("source",sKeyStatic,"correction") ); // 30
-    mAddHead( "gstat", BufferString("group",sKeyStatic,"correction") );
-    mAddHead( "tstat", BufferString("total",sKeyStatic,"applied") );
+    mAddHead( "sstat", "source static correction" );		// 30
+    mAddHead( "gstat", "group static correction" );
+    mAddHead( "tstat", "total static applied" );
     mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace "
 	    "identification header and time break, positive if time break "
 	    "occurs after end of header" );
@@ -418,6 +435,9 @@ int SEGY::HdrDef::indexOf( const char* nm ) const
 int SEGY::HdrDef::idxOfBytePos( SEGY::HdrEntry::BytePos bp,
 				unsigned char& offs ) const
 {
+    if ( bp < 0 || bp > 240 )
+	return -1;
+
     offs = 0;
     bp -= bp % 2; // HdrDef's are always 'internal'
     for ( int idx=bp/4; idx<size(); idx++ )
@@ -432,6 +452,7 @@ int SEGY::HdrDef::idxOfBytePos( SEGY::HdrEntry::BytePos bp,
 	    return idx;
 	}
     }
+
     return -1;
 }
 
@@ -464,18 +485,40 @@ SEGY::TrcHeaderDef::TrcHeaderDef()
 }
 
 
+#define mSgyByteKey(nm) s##nm##Byte()
+
 void SEGY::TrcHeaderDef::usePar( const IOPar& iopar )
 {
-#define mSgyKey(nm) s##nm##Byte()
-    inl_.usePar( iopar, mSgyKey(Inl) );
-    crl_.usePar( iopar, mSgyKey(Crl) );
-    xcoord_.usePar( iopar, mSgyKey(XCoord) );
-    ycoord_.usePar( iopar, mSgyKey(YCoord) );
-    offs_.usePar( iopar, mSgyKey(Offs) );
-    azim_.usePar( iopar, mSgyKey(Azim) );
-    trnr_.usePar( iopar, mSgyKey(TrNr) );
-    refnr_.usePar( iopar, mSgyKey(RefNr) );
-    pick_.usePar( iopar, mSgyKey(Pick) );
+    const HdrDef* hdef = &TrcHeader::hdrDef();
+#   define mGetDefFromPar(var,keynm) \
+	var.usePar( iopar, mSgyByteKey(keynm), hdef )
+
+    mGetDefFromPar( inl_, Inl );
+    mGetDefFromPar( crl_, Crl );
+    mGetDefFromPar( xcoord_, XCoord );
+    mGetDefFromPar( ycoord_, YCoord );
+    mGetDefFromPar( offs_, Offs );
+    mGetDefFromPar( azim_, Azim );
+    mGetDefFromPar( trnr_, TrNr );
+    mGetDefFromPar( refnr_, RefNr );
+    mGetDefFromPar( pick_, Pick );
+}
+
+
+void SEGY::TrcHeaderDef::fillPar( IOPar& iopar, const char* ky ) const
+{
+#   define mPutDefToPar(var,keynm) \
+	var.fillPar( iopar, IOPar::compKey(ky,mSgyByteKey(keynm)) )
+
+    mPutDefToPar( inl_, Inl );
+    mPutDefToPar( crl_, Crl );
+    mPutDefToPar( xcoord_, XCoord );
+    mPutDefToPar( ycoord_, YCoord );
+    mPutDefToPar( offs_, Offs );
+    mPutDefToPar( azim_, Azim );
+    mPutDefToPar( trnr_, TrNr );
+    mPutDefToPar( refnr_, RefNr );
+    mPutDefToPar( pick_, Pick );
 }
 
 
@@ -487,20 +530,4 @@ void SEGY::TrcHeaderDef::fromSettings()
 	useiop = subiop;
     usePar( *useiop );
     delete subiop;
-}
-
-
-void SEGY::TrcHeaderDef::fillPar( IOPar& iopar, const char* ky ) const
-{
-#undef mSgyKey
-#define mSgyKey(nm) IOPar::compKey(ky,s##nm##Byte())
-    inl_.fillPar( iopar, mSgyKey(Inl) );
-    crl_.fillPar( iopar, mSgyKey(Crl) );
-    xcoord_.fillPar( iopar, mSgyKey(XCoord) );
-    ycoord_.fillPar( iopar, mSgyKey(YCoord) );
-    offs_.fillPar( iopar, mSgyKey(Offs) );
-    azim_.fillPar( iopar, mSgyKey(Azim) );
-    trnr_.fillPar( iopar, mSgyKey(TrNr) );
-    refnr_.fillPar( iopar, mSgyKey(RefNr) );
-    pick_.fillPar( iopar, mSgyKey(Pick) );
 }
