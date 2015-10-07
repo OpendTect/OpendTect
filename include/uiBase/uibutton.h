@@ -51,8 +51,8 @@ public:
 			//! Not for casual use
     mQtclass(QAbstractButton*)	qButton();
 
-    enum StdType	{ Select, Apply, Save, SaveAs, Edit, Examine,
-			  Options, Settings, Properties,
+    enum StdType	{ Apply, Select, Settings, Options, Properties,
+			  Edit, Examine, Save, SaveAs, Rename, Remove,
 			  Help, Ok, Cancel };
 
     static uiButton*	getStd(uiParent*,StdType,const CallBack&,
