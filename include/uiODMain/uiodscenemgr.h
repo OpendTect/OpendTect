@@ -21,17 +21,17 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Timer;
+class ZAxisTransform;
 class uiDockWin;
 class uiFlatViewWin;
-class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
 class uiTreeItem;
+class uiTreeView;
 class uiWindowGrabber;
-class ZAxisTransform;
 namespace Pick { class Set; }
 namespace Geometry { class RandomLineSet; }
 
@@ -129,11 +129,11 @@ public:
     void			disabTrees( bool yn );
 
     void			getLoadedPickSetIDs(TypeSet<MultiID>&,bool poly,
-						    int scnid=-1) const;
+	    					    int scnid=-1) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
-	    				       const char* emtypestr=0,
+					       const char* emtypestr=0,
 					       int sceneid=-1) const;
-    				// if sceneid==-1, then all scenes
+				// if sceneid==-1, then all scenes
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
     int				addPickSetItem(const MultiID&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
