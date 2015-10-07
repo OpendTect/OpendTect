@@ -84,7 +84,8 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 void uiAttrTrcSelOut::createSingleHorUI()
 {
     ctio_.ctxt_.forread_ = true;
-    objfld_ = new uiIOObjSel( pargrp_, ctio_, "Calculate along Horizon" );
+    objfld_ = new uiIOObjSel( pargrp_, ctio_, uiStrings::phrCalculate(
+							tr("along Horizon")) );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -164,7 +165,7 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 
 void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
-    const char* gatelabel = "Z Interval required around Horizons";
+    const uiString gatelabel = tr("Z Interval required around Horizons");
     gatefld_ = new uiGenInput( prnt, gatelabel,
 			FloatInpIntervalSpec().setName("Z Interval Start",0)
 					      .setName("Z Interval Stop",1) );
@@ -263,7 +264,7 @@ void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
-    const char* mainhorlabel = "Main Horizon";
+    const uiString mainhorlabel = tr("Main %1").arg(uiStrings::sHorizon());
     mainhorfld_ = new uiGenInput( prnt, mainhorlabel,
 				 BoolInpSpec(true,tr("Top"),
                                  uiStrings::sBottom()) );
@@ -273,7 +274,7 @@ void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 {
-    const char* choicelbl = "Define Z limits for the output cube";
+    const uiString choicelbl = tr("Define Z limits for the output cube");
     setcubeboundsfld_ = new uiGenInput ( prnt, choicelbl, BoolInpSpec(true) );
     setcubeboundsfld_->attach( alignedBelow,
 			       mainhorfld_ ? mainhorfld_

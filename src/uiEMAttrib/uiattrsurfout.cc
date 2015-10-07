@@ -60,7 +60,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->attach( rightOf, filludffld_ );
 
     objfld_ = new uiIOObjSel( pargrp_, mIOObjContext(EMHorizon3D),
-			      "Calculate on Horizon" );
+			      uiStrings::phrCalculate(tr("on Horizon")) );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
     pargrp_->setHAlignObj( objfld_ );

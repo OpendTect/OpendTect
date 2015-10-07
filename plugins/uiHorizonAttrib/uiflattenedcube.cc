@@ -36,9 +36,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
-	: uiDialog(p,Setup(tr("Create flattened seismics"),
-			    BufferString("Create seismics flattened on '",
-					 getHorNm(horid),"'")
+	: uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
+			   .arg(uiStrings::sSeismics().toLower())),
+			   uiStrings::phrCreate(tr("Seismics flattened on '%2'")
+			   .arg(mToUiStringTodo(getHorNm(horid))))
 			  , mODHelpKey(mFlattenedCubeHelpID) ))
 	, hormid_(EM::EMM().getMultiID(horid))
 	, pp_(*new Pos::EMSurfaceProvider3D)
@@ -51,7 +52,8 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     uiTaskRunner taskrunner( p );
     if ( !pp_.initialize(&taskrunner) )
     {
-	new uiLabel( this, "Cannot initialize horizon" );
+	new uiLabel( this, tr("Cannot initialize %1")
+					.arg(uiStrings::sHorizon().toLower()) );
 	return;
     }
 

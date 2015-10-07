@@ -202,9 +202,10 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
-					    .withexamine(true)
-					    .forread(true) );
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(), 
+				     uiFileInput::Setup()
+				     .withexamine(true)
+				     .forread(true) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
 
@@ -220,9 +221,9 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     horselfld_->setAllowDuplicates( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
-    uiPushButton* addbut = new uiPushButton( horselfld_, tr("Add new"),
+    uiPushButton* addbut = new uiPushButton( this, tr("Add new"),
 				mCB(this,uiImportHorizon2D,addHor), false );
-    addbut->attach( rightTo, horselfld_->box() );
+    addbut->attach( rightTo, horselfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
@@ -275,8 +276,8 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, "Add Horizon", uiStrings::sName(),
-		       new StringInpSpec() );
+    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sHorizon()), 
+		       uiStrings::sName(), new StringInpSpec() );
     if ( !dlg.go() ) return;
 
     const char* hornm = dlg.text();
@@ -284,11 +285,11 @@ void uiImportHorizon2D::addHor( CallBacker* )
     if ( IOM().getLocal(hornm,0) )
     {
 	uiMSG().error(tr("Failed to add: a surface already "
-                         "exists with name %1").arg(hornm));
+                         "exists with name %1").arg(toUiString(hornm)));
 	return;
     }
 
-    horselfld_->addItem( hornm );
+    horselfld_->addItem( toUiString(hornm) );
     horselfld_->setChosen( horselfld_->size()-1, true );
     horselfld_->scrollToBottom();
 }
@@ -304,7 +305,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     BufferString msg;
     if ( !EM::Horizon2DAscIO::isFormatOK(fd_, msg) )
     {
-	uiMSG().message( msg );
+	uiMSG().message( mToUiStringTodo(msg) );
 	return;
     }
 

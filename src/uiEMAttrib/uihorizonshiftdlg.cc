@@ -37,9 +37,10 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
-    : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,
-                                 mODHelpKey(mHorizonShiftDialogHelpID) ).
-				  modal(false) )
+    : uiDialog(p,uiDialog::Setup(tr("%1 shift").arg(uiStrings::sHorizon()),
+				mNoDlgTitle,
+                                mODHelpKey(mHorizonShiftDialogHelpID) )
+				.modal(false) )
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)
     , emid_(emid)
@@ -54,12 +55,12 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     const float curshift = initialshift*SI().zDomain().userFactor();
     shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
 
-    BufferString lbl( "Shift Range ", SI().getZUnitString() );
+   uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
     rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
     rangeinpfld_->valuechanged.notify(
 	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
 
-    lbl = BufferString( "Shift ", SI().getZUnitString() );
+    lbl = tr("Shift %1").arg(SI().getUiZUnitString());
     slider_ = new uiSlider(
 	    this, uiSlider::Setup(lbl).withedit(true), "Horizon slider" );
     slider_->attach( alignedBelow, rangeinpfld_ );
@@ -77,8 +78,8 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     if ( emhor3d_ )
     {
 	emhor3d_->ref();
-	BufferString title = setup().wintitle_.getFullString();
-	title.add( " - " ).add( emhor3d_->name() );
+	uiString title = toUiString("%1 - %2").arg(setup().wintitle_)
+					      .arg(emhor3d_->name());
 	setCaption( title );
     }
 
@@ -93,13 +94,13 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	calbut_->attach( rightTo, attrinpfld_ );
 	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
 
-	storefld_ = new uiCheckBox( this, "Store Horizons on pressing OK" );
+	storefld_ = new uiCheckBox( this, tr("Store Horizons on pressing OK") );
 	storefld_->attach( alignedBelow, attrinpfld_ );
 	storefld_->setChecked( false );
 	storefld_->activated.notify(
 		mCB(this,uiHorizonShiftDialog,setNameFldSensitive) );
 
-	namefld_ = new uiGenInput( this, "Attribute Basename",
+	namefld_ = new uiGenInput( this, tr("Attribute Basename"),
 				   StringInpSpec(sDefaultAttribName()) );
 	namefld_->attach( alignedBelow, storefld_ );
 	attribChangeCB( 0 );

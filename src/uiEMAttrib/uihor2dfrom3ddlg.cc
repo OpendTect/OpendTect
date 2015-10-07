@@ -34,8 +34,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Create 2D horizon from 3D",
-				 mNoDlgTitle,mODHelpKey(mHor2DFrom3DDlgHelpID)))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrCreate(tr("%1 from %2")
+			  .arg(uiStrings::phrJoinStrings(uiStrings::s2D(),
+			  uiStrings::sHorizon().toLower()))
+			  .arg(uiStrings::s3D())), mNoDlgTitle,
+			  mODHelpKey(mHor2DFrom3DDlgHelpID)))
 {
     uiSurfaceRead::Setup srsu( "Horizon" );
     srsu.withattribfld( false );
@@ -51,7 +54,7 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
 
     out2dfld_->attach( alignedBelow, linesetinpsel_ );
 
-    displayfld_ = new uiCheckBox( this, "Display on OK" );
+    displayfld_ = new uiCheckBox( this, tr("Display on OK") );
     displayfld_->setChecked( true );
     displayfld_->attach( alignedBelow,out2dfld_ );
 }
