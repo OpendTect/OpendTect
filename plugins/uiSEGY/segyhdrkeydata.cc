@@ -170,8 +170,11 @@ SEGY::HdrEntryKeyData::HdrEntryKeyData()
 void SEGY::HdrEntryKeyData::init()
 {
     mDoAllDSs( reject(mHdrEntry(DUse)) );
+    mDoAllDSs( reject(mHdrEntry(Scalel)) );
     mDoAllDSs( reject(mHdrEntry(Scalco)) );
     mDoAllDSs( reject(mHdrEntry(CoUnit)) );
+    mDoAllDSs( reject(mHdrEntry(DelRt)) );
+    mDoAllDSs( reject(mHdrEntry(Trwf)) );
     mDoAllDSs( reject(mHdrEntry(Ns)) );
     mDoAllDSs( reject(mHdrEntry(Dt)) );
 

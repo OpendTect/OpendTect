@@ -130,6 +130,7 @@ protected:
 
 public:
 
+    // 'well-known' headers, not often abused
     static int		EntryJobID()		{ return 0; }
     static int		EntryLino()		{ return 1; }
     static int		EntryDt()		{ return 5; }
@@ -191,6 +192,7 @@ protected:
 
 public:
 
+    // 'well-known' headers
     static int	EntryTracl()		{ return 0; }
     static int	EntryTracr()		{ return 1; }
     static int	EntryFldr()		{ return 2; }
@@ -198,6 +200,7 @@ public:
     static int	EntryTrid()		{ return 7; }
     static int	EntryDUse()		{ return 10; }
     static int	EntryOffset()		{ return 11; }
+    static int	EntryScalel()		{ return 19; }
     static int	EntryScalco()		{ return 20; }
     static int	EntrySx()		{ return 21; }
     static int	EntrySy()		{ return 22; }
@@ -205,6 +208,7 @@ public:
     static int	EntryGy()		{ return 24; }
     static int	EntryCoUnit()		{ return 25; }
     static int	EntryLagA()		{ return 33; }
+    static int	EntryLagB()		{ return 34; }
     static int	EntryDelRt()		{ return 35; }
     static int	EntryNs()		{ return 38; }
     static int	EntryDt()		{ return 39; }
@@ -227,4 +231,3 @@ public:
 
 
 #endif
-
