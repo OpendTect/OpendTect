@@ -148,7 +148,7 @@ void uiAttrTypeSel::update()
     idxs_ = sorted_ ? grpnms_.getSortIndexes() : 0;
 
     for ( int idx=0; idx<nrgrps; idx++ )
-	grpfld_->addItem( grpnms_.get(idxs_ ? idxs_[idx] : idx) );
+	grpfld_->addItem( toUiString(grpnms_.get(idxs_ ? idxs_[idx] : idx)) );
 
     setGrp( sKeyAllGrp );
 }
@@ -186,7 +186,7 @@ void uiAttrTypeSel::updAttrNms( const char* selattrnm )
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	const char* attrnm = nms.get(idx);
-	attrfld_->addItem( attrnm );
+	attrfld_->addItem( toUiString(attrnm) );
 	if ( (!selattrnm || !*selattrnm) && isPrefAttrib(grpidx,attrnm) )
 	    curattrnm = attrnm;
     }

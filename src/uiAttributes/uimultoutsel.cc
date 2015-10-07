@@ -177,7 +177,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet* ds )
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow, uiStrings::sAdd(),
 		      mCB(this,uiMultiAttribSel,doAdd) );
-    new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
+    new uiToolButton( bgrp, uiToolButton::LeftArrow, tr("Don't use"),
 		      mCB(this,uiMultiAttribSel,doRemove) );
     bgrp->attach( centeredRightOf, attribfld_ );
 
@@ -189,9 +189,9 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet* ds )
     selfld_->attach( ensureRightOf, bgrp );
 
     uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
-    new uiToolButton( sortgrp, uiToolButton::UpArrow,"Move up",
+    new uiToolButton( sortgrp, uiToolButton::UpArrow,uiStrings::sMoveUp(),
 		      mCB(this,uiMultiAttribSel,moveUp) );
-    new uiToolButton( sortgrp, uiToolButton::DownArrow, "Move down",
+    new uiToolButton( sortgrp, uiToolButton::DownArrow, uiStrings::sMoveDown(),
 		      mCB(this,uiMultiAttribSel,moveDown) );
     sortgrp->attach( centeredRightOf, selfld_ );
 
@@ -233,7 +233,7 @@ void uiMultiAttribSel::fillAttribFld()
 		if ( alluserrefs.size() > 1 )
 		    const_cast<Desc*>(desc)->setUserRef( usrref );
 		allids_ += desc->id();
-		attribfld_->addItem( desc->userRef() );
+		attribfld_->addItem( toUiString(desc->userRef()) );
 		continue;
 	    }
 
@@ -244,7 +244,7 @@ void uiMultiAttribSel::fillAttribFld()
 	    const DescID newid =
 		const_cast<Attrib::DescSet*>(descset_)->addDesc( tmpdesc );
 	    allids_ += newid;
-	    attribfld_->addItem( tmpdesc->userRef() );
+	    attribfld_->addItem( toUiString(tmpdesc->userRef()) );
 	}
     }
 }
@@ -269,7 +269,7 @@ void uiMultiAttribSel::updateSelFld()
 	const Attrib::Desc* desc = descset_->getDesc( selids_[idx] );
 	if (!desc ) continue;
 
-	selfld_->addItem( desc->userRef() );
+	selfld_->addItem( toUiString(desc->userRef()) );
     }
 }
 

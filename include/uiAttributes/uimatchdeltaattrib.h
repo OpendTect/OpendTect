@@ -21,7 +21,7 @@ class uiGenInput;
 /*! \brief MatchDelta Attribute description editor */
 
 mClass(uiAttributes) uiMatchDeltaAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiMatchDeltaAttrib)
 public:
 
 			uiMatchDeltaAttrib(uiParent*,bool);

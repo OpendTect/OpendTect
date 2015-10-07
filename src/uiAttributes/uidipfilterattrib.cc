@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
+#include "veldesc.h"
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
@@ -62,15 +63,17 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     szfld_->box()->setStep( cStepVal, true );
     szfld_->attach( alignedBelow, inpfld_ );
 
-    BufferString fltrlbl;
-    fltrlbl = zIsTime() ? "Velocity " : "Dip ";
-    fltrlbl += "to pass";
+    uiString fltrlbl = tr("%1 to pass").arg(zIsTime() ? uiStrings::sVelocity()
+						      : uiStrings::sDip());
     fltrtpfld_ = new uiGenInput( this, fltrlbl, StringListInpSpec(fltrstrs) );
     fltrtpfld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
     fltrtpfld_->attach( alignedBelow, szfld_ );
 
-    BufferString lbl( "Min/max " );
-    lbl += zIsTime() ? "velocity (m/s)" : "dip (deg)";
+    uiString lbl = tr("Min/max %1").arg(zIsTime() ? tr("%1 %2")
+				   .arg(uiStrings::sVelocity().toLower())
+				   .arg(VelocityDesc::getVelUnit(true))
+				   : tr("%1 (deg)")
+				   .arg(uiStrings::sDip().toLower()));
     const char* fldnm = zIsTime() ? " velocity" : " dip";
     velfld_ = new uiGenInput( this, lbl,
 		FloatInpSpec().setName( BufferString("Min",fldnm).buf() ),

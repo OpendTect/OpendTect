@@ -83,7 +83,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? tr("Attribute Set 2D")
 					: tr("Attribute Set 3D"),mNoDlgTitle,
 					mODHelpKey(mAttribDescSetEdHelpID) )
-	.savebutton(true).savetext("Save on Close")
+	.savebutton(true).savetext(tr("Save on Close"))
 	.menubar(true).modal(false))
     , inoutadsman_(adsm)
     , userattrnames_(*new BufferStringSet)
@@ -171,7 +171,7 @@ void uiAttribDescSetEd::createMenuBar()
 
 void uiAttribDescSetEd::createToolBar()
 {
-    toolbar_ = new uiToolBar( this, "AttributeSet tools" );
+    toolbar_ = new uiToolBar( this, tr("AttributeSet tools") );
     mAddButton( "new", newSet, tr("New attribute set") );
     mAddButton( "open", openSet, tr("Open attribute set") );
     mAddButton( "defset", defaultSet, tr("Open default attribute set") );
@@ -1031,8 +1031,8 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     BufferStringSet attribnames;
     getDefaultAttribsets( attribfiles, attribnames );
 
-    uiSelectFromList::Setup sflsu( "Default Attribute Sets", attribnames );
-    sflsu.dlgtitle( "Select default attribute set" );
+    uiSelectFromList::Setup sflsu( tr("Default Attribute Sets"), attribnames );
+    sflsu.dlgtitle( tr("Select default attribute set") );
     uiSelectFromList dlg( this, sflsu );
     dlg.setHelpKey(mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
     if ( !dlg.go() ) return;

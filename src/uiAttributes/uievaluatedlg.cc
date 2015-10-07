@@ -31,10 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 
-static const char* sKeyInit = "Initial value";
-static const char* sKeyIncr = "Increment";
-
-
 #define mGetValParFromGroup( T, str, desc )\
 {\
     mDescGetConstParamGroup(T,str,desc,parstr1_);\
@@ -58,7 +54,7 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	const Attrib::Desc* desc = ade.curDesc();
 	const float val = desc ? ade.getOutputValue( desc->selectedOutput() )
 			       : 0;
-	initfld = new uiGenInput( this, sKeyInit, FloatInpSpec(val) );
+	initfld = new uiGenInput( this, sInit(), FloatInpSpec(val) );
 	setHAlignObj( initfld );
 	return;
     }
@@ -86,14 +82,14 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	createInputSpecs( valpar2, initspec2, incrspec2 );
 
     if ( initspec1 && initspec2 )
-	initfld = new uiGenInput( this, sKeyInit, *initspec1, *initspec2 );
+	initfld = new uiGenInput( this, sInit(), *initspec1, *initspec2 );
     else
-	initfld = new uiGenInput( this, sKeyInit, *initspec1 );
+	initfld = new uiGenInput( this, sInit(), *initspec1 );
 
     if ( incrspec1 && incrspec2 )
-	incrfld = new uiGenInput( this, sKeyIncr, *incrspec1, *incrspec2 );
+	incrfld = new uiGenInput( this, sIncr(), *incrspec1, *incrspec2 );
     else if ( incrspec1 )
-	incrfld = new uiGenInput( this, sKeyIncr, *incrspec1 );
+	incrfld = new uiGenInput( this, sIncr(), *incrspec1 );
 
     if ( incrfld )
 	incrfld->attach( alignedBelow, initfld );
@@ -102,6 +98,14 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
     delete initspec1; delete incrspec1;
     delete initspec2; delete incrspec2;
 }
+
+
+uiString AttribParamGroup::sInit() 
+{ return tr("Initial value"); }
+
+
+uiString AttribParamGroup::sIncr() 
+{ return tr("Increment"); }
 
 
 void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
@@ -426,7 +430,7 @@ void uiEvaluateDlg::sliderMove( CallBacker* )
     if ( sliceidx >= lbls_.size() )
 	return;
 
-    displaylbl->setText( lbls_[sliceidx]->buf() );
+    displaylbl->setText( toUiString(lbls_[sliceidx]->buf()) );
     showslicecb.trigger( sliceidx );
 }
 

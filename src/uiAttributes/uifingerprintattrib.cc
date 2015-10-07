@@ -114,17 +114,19 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     lbl->attach( centeredLeftOf, refgrp_ );
 
     refposfld_ = new uiGenInput( this,
-			is2d_ ? sKey::TraceNr() : tr("Position (Inl/Crl)"),
+			is2d_ ? tr("%1 Number").arg(uiStrings::sTrace()) 
+			: tr("Position (Inl/Crl)"),
 			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
 			.setName("Inl position",0).setName("Crl position",1) );
     refposfld_->attach( alignedBelow, refgrp_ );
 
-    BufferString zlabel = "Z "; zlabel += SI().getZUnitString();
+    uiString zlabel = toUiString("%1 %2").arg(uiStrings::sZ())
+					 .arg(SI().getUiZUnitString());
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );
 
-    getposbut_ = new uiToolButton( this, "pick", "Point in 3D scene",
+    getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
 				   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
     pickretriever_ = PickRetriever::getInstance();
@@ -137,7 +139,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	linefld_->attach( alignedBelow, refposfld_ );
     }
 
-    picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
+    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPickSet(),
+							   sFile().toLower()) );
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
 
@@ -172,8 +175,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
     table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 
-    BufferString str = "Right-click\nto add,\ninsert or\nremove\nan attribute";
-    uiLabel* tablelab = new uiLabel( this, str.buf() );
+    uiString str = tr("Right-click\nto add,\ninsert or\nremove\nan attribute");
+    uiLabel* tablelab = new uiLabel( this, str );
     tablelab->attach( leftTo, table_ );
 
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
@@ -632,8 +635,8 @@ bool uiFingerPrintAttrib::areUIParsOK()
 
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 				  const BufferStringSet& attrrefset )
-    : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
-				   "Specify advanced options",
+    : uiDialog( p, uiDialog::Setup(tr("FingerPrint attribute advanced options"),
+				   tr("Specify advanced options"),
                                    mODHelpKey(mFPAdvancedDlgHelpID) ) )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , calcobj_(*calcobj)
@@ -644,11 +647,12 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPickSet());
     picksetbut_->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
-    uiRadioButton* autobut = new uiRadioButton( rangesgrp_, "Automatic" );
+    uiRadioButton* autobut = new uiRadioButton( rangesgrp_, tr("Automatic") );
     autobut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     rangesgrp_->selectButton( calcobj_.getRgRefType() );
 
-    picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
+    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPickSet(),
+							   sFile().toLower()) );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
     picksetfld_->setInput( MultiID(calcobj_.getRgRefPick().buf()) );
     picksetfld_->display( true );
@@ -658,7 +662,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
     CallBack cbcalc = mCB(this,uiFPAdvancedDlg,calcPush);
     uiPushButton* calcbut =
-	new uiPushButton( this, "Calculate parameters", cbcalc, true);
+	new uiPushButton( this, tr("Calculate parameters"), cbcalc, true);
     calcbut->attach( alignedBelow, (uiParent*)attrvalsgrp );
 
     postFinalise().notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
@@ -678,14 +682,15 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
     for ( int idx=0; idx<attrrefset.size(); idx++ )
     {
 	const char* attrnm = attrrefset.get(idx).buf();
-	valflds_ += new uiGenInput( attrvalsgrp, attrnm,
+	valflds_ += new uiGenInput( attrvalsgrp, toUiString(attrnm),
 			  FloatInpSpec().setName(BufferString("Val ",attrnm)) );
 	uiSpinBox* spinbox = new uiSpinBox( attrvalsgrp );
 	spinbox->setInterval( 1, 5 );
 	wgtflds_ += spinbox;
 	spinbox->setName( BufferString("Weight ",attrnm) );
 
-	minmaxflds_ += new uiGenInput( attrvalsgrp, "", FloatInpIntervalSpec()
+	minmaxflds_ += new uiGenInput( attrvalsgrp, uiStrings::sEmptyString(), 
+				       FloatInpIntervalSpec()
 				      .setName(BufferString("Min ",attrnm),0)
 				      .setName(BufferString("Max ",attrnm),1));
 
@@ -696,9 +701,9 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	{
 	    uiLabel* txt = new uiLabel( attrvalsgrp, uiStrings::sValue() );
 	    txt->attach( centeredAbove, valflds_[idx] );
-	    txt = new uiLabel( attrvalsgrp, "Weight" );
+	    txt = new uiLabel( attrvalsgrp, tr("Weight") );
 	    txt->attach( centeredAbove, wgtflds_[idx] );
-	    txt = new uiLabel( attrvalsgrp, "Minimum    Maximum" );
+	    txt = new uiLabel( attrvalsgrp, tr("Minimum    Maximum") );
 	    txt->attach( centeredAbove, minmaxflds_[idx] );
 	    if ( idx == 18 )
 		valflds_[idx]->attach( rightOf, minmaxflds_[0] );

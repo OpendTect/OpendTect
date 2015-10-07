@@ -45,9 +45,9 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     if ( nrindir )
     {
 	indirgrp = new uiGroup( this, "Indirect attribs" );
-	const char* txt = indirinps.size() > 1
-            ? "Specify the input for these attributes"
-	    : "Specify the input for this attribute";
+	const uiString txt = indirinps.size() > 1
+            ? uiStrings::phrSpecify(tr("the input for these attributes"))
+	    : uiStrings::phrSpecify(tr("the input for this attribute"));
 	mkGrp( indirgrp, txt, indirinps );
     }
 
@@ -61,9 +61,11 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     if ( dirinps.size() )
     {
 	uiGroup* dirgrp = new uiGroup( this, "Direct attribs" );
-	const char* txt = dirinps.size() > 1
-            ? "Specify the cubes that contain these attributes"
-	    : "Specify the cube that contains this attribute";
+	const uiString txt = dirinps.size() > 1
+            ? uiStrings::phrSpecify(
+			 tr("the cubes that contain these attributes"))
+	    : uiStrings::phrSpecify(
+			 tr("the cube that contains this attribute"));
 	mkGrp( dirgrp, txt, dirinps );
 	if ( indirgrp )
 	    dirgrp->attach( alignedBelow, indirgrp );
@@ -83,7 +85,7 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 }
 
 
-void mkGrp( uiGroup* mkgrp, const char* lbltxt,
+void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 	    const BufferStringSet& inps )
 {
     uiLabel* lbl = new uiLabel( mkgrp, lbltxt );
@@ -107,7 +109,8 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
 	    newgrp->attach( rightOf, curgrp );
 	    curgrp = newgrp;
 	}
-	uiIOObjSel* newsel = new uiIOObjSel( curgrp, *newctio, *inps[idx] );
+	uiIOObjSel* newsel = new uiIOObjSel( curgrp, *newctio, 
+						      toUiString(*inps[idx]) );
 	if ( neednewgrp )
 	    curgrp->setHAlignObj( newsel );
 	else if ( prevsel )

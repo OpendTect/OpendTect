@@ -44,7 +44,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
-    fileinpfld = new uiFileInput( this, "File name" );
+    fileinpfld = new uiFileInput(this, uiStrings::sFileName());
     fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)" \
                                       : "Job specifications (*.par)" );
 
@@ -169,12 +169,14 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
 	sImportDir = GetDataDir();
 
     const char* fltr = "Attribute Sets (*.attr)";
-    fileinpfld_ = new uiFileInput( this, "Select Input File",
-	uiFileInput::Setup().defseldir(sImportDir).forread(true).filter(fltr) );
+    fileinpfld_ = new uiFileInput( this, uiStrings::phrSelect(
+		      mJoinUiStrs(sInput(),sFile())), uiFileInput::Setup().
+		      defseldir(sImportDir).forread(true).filter(fltr) );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
     ctxt.forread_ = false;
-    attrsetfld_ = new uiIOObjSel( this, ctxt, tr("Output Attribute Set") );
+    attrsetfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
+							 tr("Attribute Set")) );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }
 

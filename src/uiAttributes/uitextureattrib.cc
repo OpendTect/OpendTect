@@ -83,14 +83,17 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 		    StringListInpSpec(actionstr) );
     actionfld_->attach( alignedBelow, stepoutfld_ );
 
-    glcmsizefld_ = new uiGenInput( this, "GLCM size",
-                                   BoolInpSpec(true,"16x16","32x32") );
+    glcmsizefld_ = new uiGenInput( this, tr("GLCM size"),
+                                   BoolInpSpec(true,toUiString("16x16"),
+				   toUiString("32x32")) );
     glcmsizefld_->attach( alignedBelow, actionfld_ );
 
-    globalminfld_ = new uiGenInput( this, "Input Data Range", FloatInpSpec() );
+    globalminfld_ = new uiGenInput( this, uiStrings::phrInput(
+			       mJoinUiStrs(sData(),sRange())), FloatInpSpec() );
     globalminfld_->setElemSzPol(uiObject::Small);
     globalminfld_->attach( alignedBelow, glcmsizefld_ );
-    globalmaxfld_ = new uiGenInput( this, "", FloatInpSpec() );
+    globalmaxfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+							      FloatInpSpec() );
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
 
@@ -194,13 +197,13 @@ class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
 uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
-    : uiDialog(p,uiDialog::Setup("Select data for analysis",
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("data for analysis")),
 				 mNoDlgTitle,mNoHelpKey))
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
 {
-    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+    nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				IntInpSpec(50) );
 
     if ( is2d )
@@ -208,9 +211,9 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 	SeisIOObjInfo objinfo( mid );
 	BufferStringSet linenames;
 	objinfo.getLineNames( linenames );
-	linesfld_ = new uiLabeledComboBox( this, "Analysis on line:" );
+	linesfld_ = new uiLabeledComboBox( this, tr("Analysis on line:") );
 	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
+	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
 
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }

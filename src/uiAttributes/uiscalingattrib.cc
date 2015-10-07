@@ -125,10 +125,9 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     table->setToolTip( tr("Right-click to add, insert or remove a gate") );
 
     // for AGC
-    BufferString label = "Window width ";
-    label += SI().getZUnitString( true );
+    uiString label = tr("Window width %1").arg(SI().getUiZUnitString( true ));
     // TODO: make default value dependent on survey type
-    windowfld = new uiGenInput( this, label.buf(), FloatInpSpec(200) );
+    windowfld = new uiGenInput( this, label, FloatInpSpec(200) );
     windowfld->attach( alignedBelow, typefld );
 
     lowenergymute = new uiGenInput( this, tr("Low energy mute (%)"),
@@ -370,7 +369,8 @@ public:
 				  DataPack3D=3 };
 
 uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
-    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
+	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
     , attribnm_(0)
     , linesfld_(0)
     , subvolfld_(0)
@@ -388,7 +388,8 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
 }
 
 uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
-    : uiDialog(p,uiDialog::Setup("Select data","For gain analysis",mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
+	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
     , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
@@ -417,7 +418,7 @@ protected:
 void createSelFields( DataType type )
 {
     IntInpSpec nrtrcinpspec( 50 );
-    nrtrcfld_ = new uiGenInput( this, "Nr of Traces for Examination",
+    nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				nrtrcinpspec );
     
     if ( type==uiSelectPositionDlg::Stored2D )
@@ -425,9 +426,9 @@ void createSelFields( DataType type )
 	SeisIOObjInfo seisinfo( mid_ );
 	BufferStringSet linenames;
 	seisinfo.getLineNames( linenames );
-	linesfld_ = new uiLabeledComboBox( this, "Gain Analyisis on line:" );
+	linesfld_ = new uiLabeledComboBox(this, tr("Gain Analyisis on line:"));
 	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
+	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
 	
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }

@@ -284,7 +284,7 @@ void uiCrossAttrEvaluateDlg::sliderMove( CallBacker* )
     if ( sliceidx >= lbls_.size() )
 	return;
 
-    displaylbl->setText( lbls_[sliceidx]->buf() );
+    displaylbl->setText( toUiString(lbls_[sliceidx]->buf()) );
     showslicecb.trigger( sliceidx );
 }
 

@@ -60,7 +60,7 @@ protected:
     			mDeclReqAttribUIFns
 
     mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
-    {                                                                           
+    { mODTextTranslationClass(uiSimiSteeringSel) 
 	public:
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
 					  bool is2d);

@@ -39,41 +39,10 @@ static const int cNrRandPicks = 100;
 
 #define mErrRet(msg) \
 {\
-    BufferString em = "Cannot create 2D random pickset" \
-    " to compute the ranges:";\
-    em += "\n"; em += msg;\
-    uiMSG().error( em.buf() );\
+    uiString em = toUiString("%1 \n %2").arg(emTxt()).arg(msg);	\
+    uiMSG().error( em );\
     return;\
 }\
-
-static void create2DRandPicks( const MultiID& dsetid, BinIDValueSet* rangesset )
-{
-    PtrMan<IOObj> ioobj = IOM().get( dsetid );
-    if ( !ioobj ) mErrRet( "2D Dataset ID is not OK" );
-    PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj );
-    const int nrlines = dset->nrLines();
-    if ( !nrlines )
-	mErrRet( "Input Dataset is empty" );
-
-    while ( rangesset->totalSize() < cNrRandPicks )
-    {
-	const int lineidx = Stats::randGen().getIndex( nrlines );
-	const Pos::GeomID geomid = dset->geomID( lineidx );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomid) );
-	if ( !geom2d ) break;
-
-	const PosInfo::Line2DData& geometry = geom2d->data();
-	const int nrcoords = geometry.positions().size();
-	const int crdidx = Stats::randGen().getIndex( nrcoords );
-	const Coord& pos = geometry.positions()[crdidx].coord_;
-
-	const BinID bid = SI().transform( pos );
-	const float zpos = (float) (geometry.zRange().start +
-			    Stats::randGen().get()*geometry.zRange().width());
-	rangesset->add( bid, zpos );
-    }
-}
 
 
 static void create3DRandPicks( BinIDValueSet* rangesset )
@@ -106,6 +75,37 @@ calcFingParsObject::~calcFingParsObject()
 {
     deepErase(posset_);
     reflist_->erase();
+}
+
+
+void calcFingParsObject::create2DRandPicks( const MultiID& dsetid, 
+						      BinIDValueSet* rangesset )
+{
+    PtrMan<IOObj> ioobj = IOM().get( dsetid );
+    if ( !ioobj ) mErrRet( tr("2D Dataset ID is not OK") );
+    PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj );
+    const int nrlines = dset->nrLines();
+    if ( !nrlines )
+	mErrRet( uiStrings::phrInput(tr("Dataset is empty")) );
+
+    while ( rangesset->totalSize() < cNrRandPicks )
+    {
+	const int lineidx = Stats::randGen().getIndex( nrlines );
+	const Pos::GeomID geomid = dset->geomID( lineidx );
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomid) );
+	if ( !geom2d ) break;
+
+	const PosInfo::Line2DData& geometry = geom2d->data();
+	const int nrcoords = geometry.positions().size();
+	const int crdidx = Stats::randGen().getIndex( nrcoords );
+	const Coord& pos = geometry.positions()[crdidx].coord_;
+
+	const BinID bid = SI().transform( pos );
+	const float zpos = (float) (geometry.zRange().start +
+			    Stats::randGen().get()*geometry.zRange().width());
+	rangesset->add( bid, zpos );
+    }
 }
 
 

@@ -147,7 +147,8 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
     else
     {
 	flatvwin_ =
-	    new uiFlatViewMainWin( 0, uiFlatViewMainWin::Setup(getPanelName()));
+	    new uiFlatViewMainWin( 0, uiFlatViewMainWin::Setup(
+						   toUiString(getPanelName())));
 	uiFlatViewer& vwr = flatvwin_->viewer();
 	vwr.setInitialSize( uiSize(400,600) );
 	FlatView::Appearance& app = vwr.appearance();

@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "";
 
 uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       TypeSet<float>& zvals, TypeSet<float>& scalefac )
-    : uiDialog(p,uiDialog::Setup(tr("Analyse Gain"), 0, mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Analyse Gain"), mNoDlgTitle, mNoHelpKey))
     , zvals_(zvals)
     , scalefactors_(scalefac)
     , trcbuf_(traces)
@@ -124,8 +124,9 @@ void uiGainAnalysisDlg::setData( bool sety )
     }
 
     bool linear = ampscaletypefld_->getBoolValue();
-    BufferString label( "RMS Amplitude" );
-    label += linear ? "(Linear)" : "(dB)";
+    uiString label = toUiString("%1 %2 %3").arg(uiStrings::sRMS())
+		     .arg(uiStrings::sAmplitude())
+		     .arg(linear ? tr("(Linear)") : tr("(dB)"));
 
     funcdisp_->yAxis(true)->setCaption( label );
     

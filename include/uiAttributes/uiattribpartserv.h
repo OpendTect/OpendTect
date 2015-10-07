@@ -81,6 +81,7 @@ public:
 			//!< Request current 2D NLAModel* via getObject()
     static int		objNLAModel3D();
 			//!< Request current 3D NLAModel* via getObject()
+    static uiString	getMenuText(bool is2d,bool issteering, bool endmenu);
 
     void		manageAttribSets();
     const Attrib::DescSet* curDescSet(bool is2d) const;
