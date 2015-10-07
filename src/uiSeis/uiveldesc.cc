@@ -258,7 +258,8 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
 	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     }
 
-    selectionDoneCB( 0 ); //sets the ranges
+    postFinalise().notify( mCB(this,uiVelSel,selectionDoneCB) );
+    //sets the ranges
 }
 
 
@@ -362,6 +363,7 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
 	    mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 
     setHAlignObj( velsel_ );
+    postFinalise().notify( mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 }
 
 
