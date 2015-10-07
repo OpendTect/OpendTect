@@ -115,7 +115,8 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 
 
 #define mImplInitVar \
-	: uiDialog(p,uiDialog::Setup("","",mODHelpKey(mAttrSelDlgNo_NNHelpID)))\
+	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, \
+					mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
 	, attrdata_(atd) \
 	, selgrp_(0) \
 	, storoutfld_(0) \
@@ -137,7 +138,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const Setup& stp )
     mImplInitVar
 {
-    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
+    initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
 }
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -146,7 +147,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
     mImplInitVar
 {
     dpfids_ = dpfids;
-    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
+    initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
 }
 
 
@@ -289,7 +290,7 @@ void uiAttrSelDlg::createSelectionButtons()
     if ( havenlaouts )
     {
 	nlafld_ = new uiRadioButton( selgrp_,
-				     attrdata_.nlamodel_->nlaType(false) );
+			      toUiString(attrdata_.nlamodel_->nlaType(false)) );
 	nlafld_->setSensitive( havenlaouts );
 	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
@@ -299,7 +300,7 @@ void uiAttrSelDlg::createSelectionButtons()
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	zdomainfld_ = new uiRadioButton( selgrp_,
-					 attrdata_.zdomaininfo_->key() );
+			           toUiString(attrdata_.zdomaininfo_->key()) );
 	zdomainfld_->setSensitive( !nms.isEmpty() );
 	zdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
@@ -625,7 +626,7 @@ uiString uiAttrSel::cDefLabel() { return uiStrings::sInputData(); }
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 		      DescID curid, bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel()),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?mToUiStringTodo(txt):cDefLabel()),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
@@ -640,7 +641,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
 		      bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:cDefLabel()),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?mToUiStringTodo(txt):cDefLabel()),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid_(DescID::undef())

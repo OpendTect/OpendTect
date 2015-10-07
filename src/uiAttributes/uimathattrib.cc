@@ -43,7 +43,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	, form_(*new Math::Formula(true,Attrib::Mathematics::getSpecVars()))
 {
     uiAttrSelData asd( is2d );
-    uiMathFormula::Setup mfsu( "Formula (like 'nearstk + c0 * farstk')" );
+    uiMathFormula::Setup mfsu( tr("Formula (like 'nearstk + c0 * farstk')") );
     mfsu.withunits( false ).maxnrinps( 8 ).withsubinps(true)
 	.stortype( "Attribute calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
@@ -51,8 +51,8 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     formfld_->inpSet.notify( mCB(this,uiMathAttrib,inpSel) );
     updateNonSpecInputs();
     const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
-    uiToolButtonSetup tbsu( "rockphys", "Use rockphysics formula",
-			    rockphyscb, "Rock Physics");
+    uiToolButtonSetup tbsu( "rockphys", tr("Use rockphysics formula"),
+			    rockphyscb, uiStrings::sRockPhy());
     formfld_->addButton( tbsu );
     setHAlignObj( formfld_ );
 }
@@ -132,7 +132,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
 
 void uiMathAttrib::rockPhysReq( CallBacker* )
 {
-    uiDialog rpdlg( this, uiDialog::Setup("Rock Physics",
+    uiDialog rpdlg( this, uiDialog::Setup(uiStrings::sRockPhy(),
 					  mNoDlgTitle,mTODOHelpKey) );
     uiRockPhysForm* rpform = new uiRockPhysForm( &rpdlg );
     if ( !rpdlg.go() )

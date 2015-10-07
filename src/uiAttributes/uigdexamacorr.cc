@@ -38,9 +38,9 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
     , qcwin_(0)
     , parent_(p)
 {
-    const BufferString basestr = " Auto-correlation viewer ";
-    examtitle_ = basestr; examtitle_ +="(examine)";
-    qctitle_ = basestr; qctitle_ +="(check parameters)";
+    const uiString basestr = tr("Auto-correlation viewer ");
+    examtitle_ = tr("%1 (examine)").arg(basestr);
+    qctitle_ = tr("%1 (check parameters)").arg(basestr);
 }
 
 

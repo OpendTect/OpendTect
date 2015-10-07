@@ -135,32 +135,34 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 
 uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				BufferStringSet& anm)
-	: uiDialog(p,uiDialog::Setup("Open Attribute Set",
-	                             "Select an Attribute-Set to open",
-                                     mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(tr("Open Attribute Set"),
+	                   uiStrings::phrSelect(tr("an Attribute-Set to open")),
+                           mNoHelpKey))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, attribfiles_(afl)
 	, attribnames_(anm)
 {
-    defselfld_ = new uiGenInput( this, "Select from", BoolInpSpec(true,
-				"Survey-defined sets", "Default sets") );
+    defselfld_ = new uiGenInput( this, uiStrings::phrSelect(tr("from")), 
+		     BoolInpSpec(true,tr("Survey-defined sets"), 
+		     mJoinUiStrs(sDefault(),sSet(mPlural).toLower())) );
     defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 
     autoloadfld_ = new uiGenInput( this, uiString::emptyString(),
-                                   BoolInpSpec(false, "Set for Auto-Load\t",
-                                "Disable Auto-load") );
+                                   BoolInpSpec(false, tr("Set for Auto-Load\t"),
+                                   tr("Disable Auto-load")) );
     autoloadfld_->attach( alignedBelow, defselfld_ );
 
     ctio_.ctxt_.forread_ = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, autoloadfld_ );
 
-    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Default Sets") );
+    uiListBox::Setup su( OD::ChooseOnlyOne, mJoinUiStrs(sDefault(),
+							       sSet(mPlural)) );
     defattrlist_ = new uiListBox( this, su );
     defattrlist_->addItems( attribnames_ );
     defattrlist_->attach( alignedBelow, autoloadfld_ );
 
-    lbl_ = new uiLabel( this, "Survey-defined sets" );
+    lbl_ = new uiLabel( this, tr("Survey-defined sets") );
     lbl_->attach( leftTo, selgrp_ );
 
     postFinalise().notify( mCB(this,uiAutoAttrSetOpen,setChg) );
@@ -205,7 +207,7 @@ bool uiAutoAttrSetOpen::acceptOK( CallBacker* )
 {
     usrdef_ = defselfld_->getBoolValue();
     if ( usrdef_ && selgrp_->nrChosen() < 1 )
-	{ uiMSG().error("No Attribute Set available"); return false; }
+	{ uiMSG().error(tr("No Attribute Set available")); return false; }
 
     ctio_.setObj( selgrp_->chosenID() );
     defselid_ = defattrlist_->currentItem();

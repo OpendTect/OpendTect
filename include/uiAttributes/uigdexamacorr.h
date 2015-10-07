@@ -59,8 +59,8 @@ protected:
     Attrib::DescID		attribid_;
     Attrib::DescSet*		dset_;
     uiParent*			parent_;
-    BufferString		examtitle_;
-    BufferString		qctitle_;
+    uiString			examtitle_;
+    uiString			qctitle_;
 
     FlatDataPack*		fddatapackqc_;
     FlatDataPack*		fddatapackexam_;

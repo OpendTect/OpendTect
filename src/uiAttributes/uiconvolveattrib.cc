@@ -79,8 +79,8 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
     szfld_->box()->setStep( cStepVal, true );
     szfld_->attach( alignedBelow, kernelfld_ );
 
-    const char* spherestr = is2d ? "Circle" : "Sphere";
-    const char* cubestr = is2d ? "Square" : "Cube";
+    const uiString spherestr = is2d ? tr("Circle") : tr("Sphere");
+    const uiString cubestr = is2d ? tr("Square") : uiStrings::sCube();
     shapefld_ = new uiGenInput( this, tr("Shape"),
 	    			BoolInpSpec(true, spherestr, cubestr) );
     shapefld_->attach( alignedBelow, szfld_ );

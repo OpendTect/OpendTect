@@ -120,7 +120,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	uiSeparator* sep2 = new uiSeparator( pargrp_, "PS Start Separator" );
 	sep2->attach( stretchedBelow, objfld_ );
 
-	uiCheckBox* cb = new uiCheckBox( pargrp_,"Enable Prestack Analysis" );
+	uiCheckBox* cb = new uiCheckBox(pargrp_,tr("Enable Prestack Analysis"));
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 	cb->attach( ensureBelow, sep2 );
@@ -129,7 +129,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	ctxt.forread_ = false;
 	ctxt.fixTranslator( "MultiCube" );
 	datastorefld_ = new uiIOObjSel( pargrp_, ctxt,
-					"Output Prestack DataStore" );
+			    uiStrings::phrOutput(uiStrings::phrJoinStrings(
+			    uiStrings::sPreStack(),tr("DataStore"))) );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );

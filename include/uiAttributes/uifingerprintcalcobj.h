@@ -54,6 +54,9 @@ public:
     BinIDValueSet*	createRangesBinIDSet() const;
     void		setValRgSet(BinIDValueSet*,bool);
     bool		computeValsAndRanges();
+    static uiString	emTxt()	    { return tr("Cannot create 2D random "
+					    "pickset to compute the ranges:"); }
+    
 protected:
     
     void		findDataSetID(MultiID&) const;
@@ -75,6 +78,8 @@ protected:
     uiParent*		parent_;
     BufferString	rgpickset_;
     int			rgreftype_;
+    static void		create2DRandPicks(const MultiID& dsetid, 
+						      BinIDValueSet* rangesset);
 
 };
 

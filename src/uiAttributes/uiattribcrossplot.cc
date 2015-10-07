@@ -78,13 +78,13 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     uiGroup* provgrp = new uiGroup( this, "Attribute group" );
     provgrp->attach( leftAlignedBelow, attrgrp );
     uiPosProvider::Setup psu( ads_.is2D(), true, true );
-    psu.seltxt( "Select locations by" )
+    psu.seltxt( uiStrings::phrSelect(tr("locations by")) )
        .choicetype( uiPosProvider::Setup::OnlySeisTypes );
     posprovfld_ = new uiPosProvider( provgrp, psu );
     posprovfld_->setExtractionDefaults();
 
     uiPosFilterSet::Setup fsu( ads_.is2D() );
-    fsu.seltxt( "Location filters" ).incprovs( true );
+    fsu.seltxt( tr("Location filters") ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( provgrp, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
 
@@ -116,7 +116,7 @@ void uiAttribCrossPlot::adsChg()
 	    idx--;
 	    continue;
 	}
-	attrsfld_->addItem( attrinfo_->attrnms_.get(idx) );
+	attrsfld_->addItem( toUiString(attrinfo_->attrnms_.get(idx)) );
 	attrsfld_->setChosen( attrsfld_->size()-1, true );
     }
 
@@ -132,7 +132,7 @@ void uiAttribCrossPlot::adsChg()
 	}
 
 	const char* ioobjnm = attrinfo_->ioobjnms_.get(idx).buf();
-	attrsfld_->addItem( BufferString("[",ioobjnm,"]") );
+	attrsfld_->addItem( toUiString("[%1]").arg(ioobjnm) );
     }
 
     if ( !attrsfld_->isEmpty() )
@@ -262,7 +262,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
 
     for ( int lidx=0; lidx<linenames.size(); lidx++ )
     {
-	lnmfld_->addItem( linenames.get(lidx) );
+	lnmfld_->addItem( toUiString(linenames.get(lidx)) );
 	lnmfld_->setChosen( lidx, false );
     }
 }
@@ -281,7 +281,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     DataPointSet* dps = 0;
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
-	mErrRet(uiString("Internal: no Pos::Provider"))
+	mErrRet(toUiString("Internal: no Pos::Provider"))
 
     mDynamicCastGet(Pos::Provider2D*,p2d,prov.ptr())
     BufferStringSet linenames;
@@ -364,7 +364,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     }
 
     uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
-		uiDataPointSet::Setup("Attribute data",false),dpsdispmgr_ );
+		uiDataPointSet::Setup(tr("Attribute data"),false),dpsdispmgr_ );
     dpsset_ += uidps;
     IOPar& attrpar = uidps->storePars();
     ads_.fillPar( attrpar );

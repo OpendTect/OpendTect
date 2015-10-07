@@ -305,13 +305,13 @@ bool uiAttrDescEd::zIsTime() const
 uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 {
     if ( !desc )
-	return 0;
+	return uiStrings::sEmptyString();
 
     errmsg_.setEmpty();
 
     if ( desc->isSatisfied() == Desc::Error )
     {
-	const uiString derrmsg( desc->errMsg() );
+	const uiString derrmsg( mToUiStringTodo(desc->errMsg()) );
 	if ( !desc->isStored()
 		|| derrmsg.getFullString() != DescSet::storedIDErrStr() )
 	    errmsg_ = derrmsg;
@@ -336,13 +336,13 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 uiString uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
     if ( !editdesc ) editdesc = desc_;
-    if ( !editdesc ) return 0;
+    if ( !editdesc ) return uiStrings::sEmptyString();
 
     getParameters( *editdesc );
-    errmsg_ = Provider::prepare( *editdesc ).getFullString();
+    errmsg_ = Provider::prepare( *editdesc );
     editdesc->updateParams();	//needed before getInput to set correct input nr
     if ( !getInput(*editdesc) || !getOutput(*editdesc) )
-	return 0;
+	return uiStrings::sEmptyString();
 
     editdesc->updateParams();	//needed after getInput to update inputs' params
 

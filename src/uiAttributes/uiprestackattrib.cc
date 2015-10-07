@@ -59,7 +59,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
-		   StringListInpSpec(PreStack::PropCalc::CalcTypeDef()) );
+		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
     calctypefld_->attach( alignedBelow, preprocsel_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
@@ -69,7 +69,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
     lsqtypefld_ = new uiGenInput( this, tr("AVO output"),
-		  StringListInpSpec(PreStack::PropCalc::LSQTypeDef()) );
+		  StringListInpSpec(PreStack::PropCalc::LSQTypeNames()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
 
     useanglefld_ = new uiCheckBox( this, tr("Use Angles") );
@@ -77,7 +77,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
 
     gathertypefld_ = new uiGenInput( this, tr("Gather type"),
-			     StringListInpSpec(PSAttrib::GatherTypeDef()) );
+			     StringListInpSpec(PSAttrib::GatherTypeNames()) );
     gathertypefld_->attach( alignedBelow, stattypefld_ );
     gathertypefld_->valuechanged.notify(
 				 mCB(this,uiPreStackAttrib,gatherTypSel) );
@@ -86,22 +86,22 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
     xrgfld_->attach( alignedBelow, gathertypefld_ );
 
-    const char* xlabel = SI().xyInFeet() ? "feet     " : "meters    ";
+    const uiString xlabel = SI().xyInFeet()?tr("feet     "):tr("meters    ");
     xrglbl_ = new uiLabel( this, xlabel );
     xrglbl_->attach( rightOf, xrgfld_ );
 
     xunitfld_ = new uiGenInput( this, uiString::emptyString(),
-				StringListInpSpec(PSAttrib::XaxisUnitDef()) );
+				StringListInpSpec(PSAttrib::XaxisUnitNames()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
     xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
 
     xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
-		    StringListInpSpec(PreStack::PropCalc::AxisTypeDef())
+		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
 				      .setName("X") );
     xaxistypefld_->attach( alignedBelow, xrgfld_ );
 
     valaxtypefld_ = new uiGenInput( this, tr("Amplitude transformations"),
-		     StringListInpSpec(PreStack::PropCalc::AxisTypeDef()) );
+		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
     valaxtypefld_->attach( alignedBelow, xaxistypefld_ );
 
     anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, false, false );
@@ -424,13 +424,12 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
 void uiPreStackAttrib::gatherTypSel( CallBacker* )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    BufferString xlbl( gathertypefld_->text(), " range (empty=all)" );
+    uiString xlbl = tr(" range (empty=all)")
+				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
     xunitfld_->display( !isoffset );
     if ( isoffset )
-    {
-	xrglbl_->setText( SI().xyInFeet() ? "feet    " : "meters    " );
-    }
+    	xrglbl_->setText( SI().getUiXYUnitString(false,false) );
     else
     {
 	xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
@@ -445,7 +444,7 @@ void uiPreStackAttrib::gatherUnitSel( CallBacker* )
 {
     const bool isdegrees = xunitfld_->getIntValue() == 0;
     if ( xunitfld_->rightObj()->isDisplayed() )
-	xrglbl_->setText( isdegrees ? "degrees" : "radians" );
+	xrglbl_->setText( isdegrees ? tr("degrees") : tr("radians") );
 }
 
 

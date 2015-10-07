@@ -96,7 +96,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     pos0fld_ = new uiStepOutSel( this, setup );
     pos0fld_->setFieldNames( "Trc1 Inl", "Trc1 Crl" );
     pos0fld_->attach( alignedBelow, extfld_ );
-    setup.seltxt( "&" );
+    setup.seltxt( toUiString("&") );
     pos1fld_ = new uiStepOutSel( this, setup );
     pos1fld_->setFieldNames( "Trc2 Inl", "Trc2 Crl" );
     pos1fld_->attach( rightOf, pos0fld_ );
@@ -109,13 +109,13 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     steerfld_->typeSelected.notify( mCB(this,uiSimilarityAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    BufferString mdlbl = "Maximum dip";
-    mdlbl += zIsTime() ? " (us/m)" : " (mm/m)";
+    uiString mdlbl = tr("Maximum dip %1").arg(zIsTime() ? tr("(us/m)") 
+						        : tr(" (mm/m)"));
     maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() );
     maxdipfld_->attach( alignedBelow, steerfld_ );
 
-    BufferString ddlbl = "Delta dip";
-    ddlbl += zIsTime() ? " (us/m)" : " (mm/m)";
+    uiString ddlbl = tr("Delta dip %1").arg(zIsTime() ? tr("(us/m)") 
+						      : tr(" (mm/m)"));
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
 
@@ -350,7 +350,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
     mDynamicCastGet(StringListInpSpec*,listspec,inpspec);
     if ( !listspec ) return;
 
-    listspec->addString("Browse dip");
+    listspec->addString(tr("Browse dip"));
 //    typfld_->newSpec(listspec,0);
     setHAlignObj( typfld_ );
 }

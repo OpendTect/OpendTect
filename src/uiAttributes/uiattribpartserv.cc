@@ -81,20 +81,6 @@ static const int cMaxNrClasses = 100;
 static const int cMaxMenuSize = 150;
 
 
-static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
-{
-    mDeclStaticString(menutext);
-    if ( is2d )
-	menutext = issteering ? "Steering 2D Data" : "Stored 2D Data";
-    else
-	menutext = issteering ? "SteeringCubes" : "Stored Cubes";
-
-    if ( endmenu ) menutext.add( " ..." );
-
-    return menutext;
-}
-
-
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , dirshwattrdesc_(0)
@@ -142,6 +128,24 @@ uiAttribPartServer::~uiAttribPartServer()
     delete volattrdlg_;
     delete multiattrdlg_;
     delete dataattrdlg_;
+}
+
+
+uiString uiAttribPartServer::getMenuText( bool is2d,
+						bool issteering, bool endmenu )
+{
+    uiString menutext;
+    if ( is2d )
+	menutext = issteering ? toUiString("%1 %2 %3")
+		   .arg(uiStrings::sSteering()).arg(uiStrings::s2D())
+		   .arg(uiStrings::sData()) : toUiString("%1 %2 %3")
+		   .arg(uiStrings::sStored()).arg(uiStrings::s2D())
+		   .arg(uiStrings::sData());
+    else
+	menutext = issteering ? mJoinUiStrs(sSteering(),sCube(mPlural)) :
+				mJoinUiStrs(sStored(),sCube(mPlural));
+
+    return endmenu ? m3Dots(menutext) : menutext;
 }
 
 
@@ -375,7 +379,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     }
     else
     {
-	uiAttrSelDlg::Setup setup( seltxt );
+	uiAttrSelDlg::Setup setup( mToUiStringTodo(seltxt) );
 	setup.showsteeringdata(true);
 	uiAttrSelDlg dlg( parent(), attrdata, setup );
 	if ( !dlg.go() )
@@ -504,7 +508,7 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
     int res = uiMSG().askGoOnAfter( tr("Which attributes do you want to use?"),
-				    0, uiStrings::s2D(),
+				    uiStrings::sEmptyString(), uiStrings::s2D(),
 				    uiStrings::s3D() );
     if ( res == -1 ) return 0;
     return res == 1 ? ds2d : ds3d;
@@ -1085,7 +1089,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
     for ( int idx=start; idx<stop; idx++ )
     {
 	const BufferString& nm = nms.get( idx );
-	MenuItem* itm = new MenuItem( nm );
+	MenuItem* itm = new MenuItem( toUiString(nm) );
 	itm->checkable = true;
 	if ( ids && Seis::PLDM().isPresent(MultiID(ids->get(idx))) )
 	    itm->iconfnm = "preloaded";
@@ -1164,7 +1168,9 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	if ( startnm.size() > 3 ) startnm[3] = '\0';
 	BufferString stopnm = bfset.get(stop-1);
 	if ( stopnm.size() > 3 ) stopnm[3] = '\0';
-	MenuItem* submnu = new MenuItem( BufferString(startnm," - ",stopnm) );
+	MenuItem* submnu = new MenuItem( toUiString("%1 - %2")
+					 .arg(toUiString(startnm))
+					 .arg(toUiString(stopnm)) );
 
 	    SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
 			     DescID::undef() );
@@ -1211,12 +1217,13 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
     MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     if ( nlamodel )
     {
-	BufferString ittxt;
+	uiString ittxt;
 	if ( !useext || is2d )
-        { ittxt = "&"; ittxt += nlamodel->nlaType(false); }
+        {ittxt = toUiString(nlamodel->nlaType(false));}
 	else
-	    ittxt = "Neural Network 3D";
-	if ( useext && is2d ) ittxt += " 2D";
+	    ittxt = tr("Neural Network 3D");
+	if ( useext && is2d ) ittxt = toUiString("%1 %2").arg(ittxt)
+							 .arg(uiStrings::s2D());
 
 	nlamnuitem->text = ittxt;
 	const DescSet* dset = DSHolder().getDescSet(is2d,false);
@@ -1238,8 +1245,10 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 {
     MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_
 				    : &zdomain3dmnuitem_;
-    BufferString itmtxt = zdinf.key();
-    itmtxt += useext ? (!is2d ? " Cubes" : " 2D Lines") : " Data";
+    uiString itmtxt = toUiString("%1 %2").arg(toUiString(zdinf.key()))
+			    .arg(useext ? (!is2d ? uiStrings::sCube(mPlural)
+			    : mJoinUiStrs(s2D(),sLine(mPlural)))
+			    : uiStrings::sData());
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
     zdomainmnuitem->checkable = true;
@@ -1250,7 +1259,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
 	const BufferString& nm = ioobjnms.get( idx );
-	MenuItem* itm = new MenuItem( nm );
+	MenuItem* itm = new MenuItem( toUiString(nm) );
 	const bool docheck = nm == as.userRef();
 	mAddManagedMenuItem( zdomainmnuitem, itm, true, docheck );
 	if ( docheck ) zdomainmnuitem->checked = true;

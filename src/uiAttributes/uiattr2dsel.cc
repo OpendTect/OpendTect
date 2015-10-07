@@ -149,7 +149,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
 
     if ( !nla_ ) return;
 
-    nlafld_ = new uiRadioButton( selgrp_, nla_->nlaType(false) );
+    nlafld_ = new uiRadioButton( selgrp_, toUiString(nla_->nlaType(false)) );
     nlafld_->setSensitive( attrinf_->nlaoutnms_.size() );
     nlafld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 }

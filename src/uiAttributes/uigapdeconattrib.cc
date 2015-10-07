@@ -42,7 +42,7 @@ mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp())
 
 
 class uiGDPositionDlg: public uiDialog
-{
+{ mODTextTranslationClass(uiGDPositionDlg)
     public:
 			uiGDPositionDlg(uiParent*,const TrcKeyZSampling&,bool,
 					const MultiID&);
@@ -75,8 +75,8 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     par_.setEmpty();
     inpfld_ = createInpFld( is2d );
 
-    BufferString gatestr = "Correlation window ";
-    gatestr += SI().getZUnitString();
+    uiString gatestr = tr("%1 window %2").arg(uiStrings::sCorrelation())
+					 .arg(SI().getUiZUnitString());
     gatefld_ = new uiGenInput( this, gatestr, FloatInpIntervalSpec() );
     gatefld_->attach( alignedBelow, inpfld_ );
 
@@ -84,20 +84,18 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     exambut_ = new uiPushButton( this, m3Dots(tr("Examine")), cbexam, true);
     exambut_->attach( rightOf, gatefld_ );
 
-    BufferString lagstr = "Lag size ";
-    lagstr += SI().getZUnitString();
+    uiString lagstr = tr("Lag size %1").arg(SI().getUiZUnitString());
     lagfld_ = new uiGenInput( this, lagstr, FloatInpSpec() );
     lagfld_->attach( alignedBelow, gatefld_ );
 
-    BufferString gapstr = "Gap size ";
-    gapstr += SI().getZUnitString();
+    uiString gapstr = tr("Gap size %1").arg(SI().getUiZUnitString());
     gapfld_ = new uiGenInput( this, gapstr, FloatInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
 
     noiselvlfld_ = new uiGenInput( this, tr("Random noise added"),
                                   IntInpSpec() );
     noiselvlfld_->attach( alignedBelow, gapfld_ );
-    uiLabel* percentlbl = new uiLabel( this, "%" );
+    uiLabel* percentlbl = new uiLabel( this, toUiString("%") );
     percentlbl->attach( rightOf, noiselvlfld_ );
 
     wantmixfld_ = new uiGenInput( this, tr("Use trace averaging"),
@@ -113,14 +111,14 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     stepoutfld_->attach( rightOf, wantmixfld_ );
 
     BoolInpSpec bis( true, tr("Zero phase", "Minimum phase") );
-    isinpzerophasefld_ = new uiGenInput( this, tr("Input is"), bis );
+    isinpzerophasefld_ = new uiGenInput( this, uiStrings::sInput(), bis );
     isinpzerophasefld_->attach( alignedBelow, wantmixfld_ );
 
-    isoutzerophasefld_ = new uiGenInput( this, tr("Output is"), bis );
+    isoutzerophasefld_ = new uiGenInput( this, uiStrings::sOutput(), bis );
     isoutzerophasefld_->attach( alignedBelow, isinpzerophasefld_ );
 
     CallBack cbqc = mCB(this,uiGapDeconAttrib,qCPush);
-    qcbut_ = new uiPushButton( this, m3Dots(tr("Check parameters")), cbqc, true);
+    qcbut_ = new uiPushButton(this, m3Dots(tr("Check parameters")), cbqc, true);
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );
@@ -648,8 +646,8 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				  bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",
-                                   0,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Gap Decon viewer position"),
+                                   mNoDlgTitle, mNoHelpKey) )
     , tkzs_( cs )
     , prefcs_(0)
     , is2d_( is2d )
@@ -664,12 +662,12 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 	BufferStringSet linenames;
 	objinfo.getLineNames( linenames );
 	linesfld_ = new uiLabeledComboBox( this,
-			 "Compute autocorrelation on line:" );
+			 tr("Compute autocorrelation on line:") );
 	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
+	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
     }
     else
-	inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
+	inlcrlfld_ = new uiGenInput( this, tr("Compute autocorrelation on:"),
 				    BoolInpSpec(true,uiStrings::sInline(),
                                                 uiStrings::sCrossline()) );
     setOkText( uiStrings::sNext() );
@@ -692,7 +690,7 @@ void uiGDPositionDlg::popUpPosDlg()
     {
 	SeisTrcTranslator::getRanges(
 		mid_, inputcs, Survey::GM().getName(getGeomID()) );
-	tkzs_.hsamp_.set( inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange() );
+	tkzs_.hsamp_.set(inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange());
     }
 
     tkzs_.zsamp_.stop = tkzs_.zsamp_.width();
@@ -705,10 +703,10 @@ void uiGDPositionDlg::popUpPosDlg()
 	{
 	    if ( isinl )
 		inputcs.hsamp_.stop_.inl() = inputcs.hsamp_.start_.inl()
-				       = inputcs.hsamp_.inlRange().snappedCenter();
+				    = inputcs.hsamp_.inlRange().snappedCenter();
 	    else
 		inputcs.hsamp_.stop_.crl() = inputcs.hsamp_.start_.crl()
-				       = inputcs.hsamp_.crlRange().snappedCenter();
+				    = inputcs.hsamp_.crlRange().snappedCenter();
 	}
 
 	inputcs.zsamp_.start = 0;
