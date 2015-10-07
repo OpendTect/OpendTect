@@ -10,13 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id:$";
 
 #include "uisegyimpparsdlg.h"
+#include "uibutton.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uimsg.h"
 #include "repos.h"
 
 
 static const char* sNoSavedYet = "<No saved setups yet>";
+static const Repos::Source cSrcToManage = Repos::Data;
 
 
 uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
@@ -24,19 +27,20 @@ uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
 			mNoDlgTitle,mNoHelpKey))
     , parset_(*new Repos::IOParSet("SEGYSetups"))
     , parname_(dfnm)
+    , setchgd_(false)
 {
-    BufferStringSet nms;
-    for ( int idx=0; idx<parset_.size(); idx++ )
-	nms.add( parset_[idx]->name() );
-
-    if ( nms.size() > 1 )
-	nms.sort();
-    else if ( nms.isEmpty() && isread )
-	nms.add( sNoSavedYet );
-
     listfld_ = new uiListBox( this, "Stored Setups" );
-    listfld_->addItems( nms );
+    fillList();
     listfld_->selectionChanged.notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
+
+    renbut_ = uiButton::getStd( this, uiButton::Rename,
+				mCB(this,uiSEGYImpParsDlg,renCB), true );
+    renbut_->attach( rightOf, listfld_ );
+    delbut_ = uiButton::getStd( this, uiButton::Remove,
+				mCB(this,uiSEGYImpParsDlg,delCB), true );
+    delbut_->attach( alignedBelow, renbut_ );
+
+    updateButtons();
 }
 
 
@@ -46,15 +50,114 @@ uiSEGYImpParsDlg::~uiSEGYImpParsDlg()
 }
 
 
+void uiSEGYImpParsDlg::fillList()
+{
+    BufferStringSet nms;
+    for ( int idx=0; idx<parset_.size(); idx++ )
+	nms.add( parset_[idx]->name() );
+    nms.sort();
+    listfld_->addItems( nms );
+}
+
+
+void uiSEGYImpParsDlg::renCB( CallBacker* )
+{
+    const BufferString oldnm( listfld_->getText() );
+    const int paridx = parset_.find( oldnm );
+    if ( paridx < 0 )
+	{ pErrMsg("Huh rename"); return; }
+
+    uiString titl( uiStrings::phrRename(toUiString("'%1'")).arg( oldnm ) );
+    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName()),
+			new StringInpSpec(oldnm) );
+    if ( !dlg.go() )
+	return;
+
+    const BufferString newnm = dlg.text();
+    if ( newnm.isEmpty() || newnm == oldnm )
+	return;
+
+    parset_[paridx]->setName( newnm );
+    setchgd_ = true;
+
+    update( newnm );
+}
+
+
+void uiSEGYImpParsDlg::delCB( CallBacker* )
+{
+    const int newselidx = listfld_->currentItem() - 1;
+    BufferString newselnm;
+    if ( newselidx >= 0 )
+	newselnm = listfld_->textOfItem( newselidx );
+
+    const int remidx = parset_.find( listfld_->getText() );
+    if ( remidx < 0 )
+	{ pErrMsg("Huh remove"); return; }
+
+    parset_.removeSingle( remidx );
+    setchgd_ = true;
+
+    update( newselnm.isEmpty() ? 0 : newselnm.str() );
+}
+
+
+
 void uiSEGYImpParsDlg::selChgCB( CallBacker* )
 {
     selectionChanged();
+    updateButtons();
+}
+
+
+void uiSEGYImpParsDlg::update( const char* tosel )
+{
+    NotifyStopper stopper( listfld_->selectionChanged );
+
+    listfld_->setEmpty(); fillList();
+    if ( tosel )
+	listfld_->setCurrentItem( tosel );
+
+    updateButtons();
+}
+
+
+void uiSEGYImpParsDlg::updateButtons()
+{
+    const BufferString curitm( listfld_->getText() );
+    bool isactive = !curitm.isEmpty();
+    if ( isactive )
+    {
+	const int paridx = parset_.find( curitm );
+	if ( paridx < 0 )
+	    { pErrMsg("Huh update"); isactive = false; }
+	else
+	{
+	    Repos::IOPar& iop = *parset_[paridx];
+	    if ( iop.src_ != cSrcToManage )
+		isactive = false;
+	}
+    }
+
+    renbut_->setSensitive( isactive );
+    delbut_->setSensitive( isactive );
 }
 
 
 bool uiSEGYImpParsDlg::acceptOK( CallBacker* )
 {
-    return doIO();
+    if ( !doIO() )
+	return false;
+
+    if ( setchgd_ && !parset_.write(cSrcToManage) )
+    {
+	uiMSG().error(
+		tr("Could not write changes.\nPlease check permissions on %1.")
+		     .arg( parset_.fileName(cSrcToManage) ) );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -120,13 +223,11 @@ bool uiSEGYStoreImpParsDlg::doIO()
     if ( parnm.isEmpty() )
 	mErrRet( tr("Please enter a name for this entry") )
 
-    const Repos::Source targetsrc = Repos::Data; //TODO? make user selectable?
     parstostore_->setName( parnm );
-    parstostore_->src_ = targetsrc;
+    parstostore_->src_ = cSrcToManage;
     parset_.add( parstostore_ );
     parstostore_ = 0;
-    if ( !parset_.write(targetsrc) )
-	mErrRet( tr("Cannot write to:\n%1").arg(parset_.fileName(targetsrc)) );
+    setchgd_ = true;
 
     return true;
 }

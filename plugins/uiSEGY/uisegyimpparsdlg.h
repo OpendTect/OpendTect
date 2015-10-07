@@ -33,10 +33,19 @@ public:
 protected:
 
     uiListBox*		listfld_;
+    uiButton*		renbut_;
+    uiButton*		delbut_;
     Repos::IOParSet&	parset_;
 
     mutable BufferString parname_;
+    mutable bool	setchgd_;
 
+    void		fillList();
+    void		update(const char*);
+    void		updateButtons();
+
+    void		renCB(CallBacker*);
+    void		delCB(CallBacker*);
     void		selChgCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
