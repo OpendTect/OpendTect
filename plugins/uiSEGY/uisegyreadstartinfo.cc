@@ -76,7 +76,8 @@ SEGY::HdrEntry hdrEntry() const
 
 void setByteNr( short bnr )
 {
-    bnr--; // input will be 'user' byte number
+    if ( bnr%2 )
+	bnr--; // input was 'user' byte number
 
     int selidx = -1;
     for ( int idx=0; idx<heidxs_.size(); idx++ )
@@ -407,7 +408,6 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 	return;
 
     updateCellTexts();
-
     manRev0Rows();
     if ( mHavePSRow )
 	manPSRow();
@@ -477,7 +477,7 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx )
 	{ pErrMsg( "Input type fixed, cannot set" ); return; }
 
     imptype_.tidx_ = idx;
-    showRelevantInfo();
+    parChanged( false );
 }
 
 
@@ -596,7 +596,8 @@ void uiSEGYReadStartInfo::useLoadDef()
 
     if ( Seis::isPS(gt) )
     {
-	psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
+	if ( psoffsrcfld_ )
+	    psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
 	mSetToByteNr( offsetbytefld_, offs_  );
 	if ( offsgengrp_ )
 	{
@@ -637,7 +638,7 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	mSetByteNr( key2bytefld_, crl_  );
     }
 
-    if ( Seis::isPS(imptype_.geomType()) )
+    if ( Seis::isPS(imptype_.geomType()) && psoffsrcfld_ )
     {
 	loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
 				    psoffsrcfld_->currentItem();

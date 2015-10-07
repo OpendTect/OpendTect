@@ -19,6 +19,8 @@ ________________________________________________________________________
 namespace SEGY
 {
 
+class HdrDef;
+
 /*!\brief describes one tape or trace header field,
 
 Note: it is important to know whether your HdrEntry is in 'internal' or in
@@ -64,7 +66,7 @@ public:
     int			getValue(const void* buf,bool swapped=false) const;
     void		putValue(void* buf,int) const;
 
-    void		usePar(const IOPar&,const char* ky);
+    void		usePar(const IOPar&,const char* ky,const HdrDef* hd=0);
     void		fillPar(IOPar&,const char* ky) const;
     void		removeFromPar(IOPar&,const char* ky) const;
 

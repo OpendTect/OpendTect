@@ -116,7 +116,7 @@ void SEGY::HdrEntryDataSet::rejectNoProgress()
 	    const HdrEntryRecord& rec = (*this)[irec];
 	    int curval = rec[idx];
 
-	    if ( curval == prevval || (curval<prevval) != isupwd )
+	    if ( curval == prevval || (curval>prevval) != isupwd )
 		{ isbad = true; break; }
 	}
 	if ( isbad )
@@ -155,15 +155,19 @@ void SEGY::HdrEntryDataSet::merge( const HdrEntryDataSet& oth )
 
 
 #define mDoAllDSs( oper ) \
-    inl_.oper; crl_.oper; trcnr_.oper; refnr_.oper; offs_.oper; \
-    x_.oper; y_.oper
+    inl_.oper; crl_.oper; trcnr_.oper; refnr_.oper; offs_.oper; x_.oper; y_.oper
 
 #define mHdrEntry(nm) TrcHeader::Entry##nm()
-#define mIsHE(nm) ihe == mHdrEntry(nm)
 #define mRejectEntry(set,nm) set.reject( mHdrEntry(nm) )
 
 
 SEGY::HdrEntryKeyData::HdrEntryKeyData()
+{
+    init();
+}
+
+
+void SEGY::HdrEntryKeyData::init()
 {
     mDoAllDSs( reject(mHdrEntry(DUse)) );
     mDoAllDSs( reject(mHdrEntry(Scalco)) );
@@ -184,6 +188,7 @@ SEGY::HdrEntryKeyData::HdrEntryKeyData()
 void SEGY::HdrEntryKeyData::setEmpty()
 {
     mDoAllDSs( setEmpty() );
+    init();
 }
 
 

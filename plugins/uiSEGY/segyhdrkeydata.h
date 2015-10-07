@@ -74,6 +74,7 @@ public:
 
 protected:
 
+    void		init();
     void		setCurOrFirst(HdrEntry&,const HdrEntryDataSet&) const;
 
 };
