@@ -74,6 +74,7 @@ protected:
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
     bool		doBatch(bool);
 
+    void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
     SeisStdImporterReader* getImpReader(const IOObj&,SeisTrcWriter&,
 					Pos::GeomID);
     bool		exec2Dimp(const IOObj&,const IOObj&,bool,const char*,

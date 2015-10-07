@@ -331,8 +331,7 @@ void uiSEGYReadStarter::setButtonStatuses()
 	const bool isneeded = needICvsXY();
 	icvsxybut_->display( isneeded );
 	if ( isneeded )
-	    icvsxybut_->setIcon( loaddef_.icvsxytype_ ==
-		    SEGY::FileReadOpts::XYOnly ? "usexy" : "useic" );
+	    updateICvsXYButton();
     }
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
@@ -396,9 +395,14 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
+
+    if ( imptyp.is2D() )
+	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
+
     infofld_->setImpTypIdx( imptyp.tidx_ );
-    if ( mForSurvSetup )
-	forceRescan();
+
+    setbestrev0candidates_ = true;
+    forceRescan();
     setButtonStatuses();
 }
 

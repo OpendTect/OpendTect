@@ -380,6 +380,17 @@ bool uiSEGYReadFinisher::doVSP()
 }
 
 
+void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
+					    const IOObj& outioobj )
+{
+    fs_.fillPar( inioobj.pars() );
+    const bool outissidom = ZDomain::isSI( outioobj.pars() );
+    if ( !outissidom )
+	ZDomain::Def::get(outioobj.pars()).set( inioobj.pars() );
+    IOM().commitChanges( inioobj );
+}
+
+
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 			    SeisTrcWriter& wrr, Pos::GeomID geomid )
 {
@@ -500,7 +511,7 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     if ( doimp )
     {
 	iniostrm = static_cast<IOStream*>( fspec.getIOObj( true ) );
-	IOM().commitChanges( *iniostrm );
+	updateInIOObjPars( *iniostrm, outioobj );
 	wrr = new SeisTrcWriter( &outioobj );
 	imp = new SeisImporter( getImpReader(*iniostrm,*wrr,geomid), *wrr, gt );
 	BufferString nm( imp->name() ); nm.add( " (" ).add( lnm ).add( ")" );
@@ -718,11 +729,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	return doBatch( doimp );
 
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
-    fs_.fillPar( inioobj->pars() );
-    const bool outissidom = ZDomain::isSI( outioobj->pars() );
-    if ( !outissidom )
-	ZDomain::Def::get(outioobj->pars()).set( inioobj->pars() );
-    IOM().commitChanges( *inioobj );
+    updateInIOObjPars( *inioobj, *outioobj );
 
     return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
 		: do3D( *inioobj, *outioobj, doimp );

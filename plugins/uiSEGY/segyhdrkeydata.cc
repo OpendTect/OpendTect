@@ -273,7 +273,6 @@ void SEGY::HdrEntryKeyData::setCurOrFirst( HdrEntry& he,
 
 void SEGY::HdrEntryKeyData::setBest( TrcHeaderDef& th ) const
 {
-
     setCurOrFirst( th.inl_, inl_ );
     setCurOrFirst( th.crl_, crl_ );
     setCurOrFirst( th.trnr_, trcnr_ );
