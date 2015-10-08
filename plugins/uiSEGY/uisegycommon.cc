@@ -23,7 +23,7 @@ static const char* sKeyIsVSP = "Is Zero-offset VSP";
 SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
     : readopts_(gt)
     , isvsp_(isvsp)
-    , rev0_(false)
+    , rev_(-1)
     , zinfeet_(SI().depthsInFeet())
 {
 }
@@ -34,7 +34,8 @@ void SEGY::FullSpec::fillPar( IOPar& iop ) const
     spec_.fillPar( iop );
     pars_.fillPar( iop );
     readopts_.fillPar( iop );
-    iop.setYN( FilePars::sKeyForceRev0(), rev0_ );
+    iop.set( FilePars::sKeyRevision(), rev_ );
+    iop.setYN( FilePars::sKeyForceRev0(), rev_ == 0 );
     iop.setYN( sKeyIsVSP, isvsp_ );
     iop.setYN( sKeyZInFeet, zinfeet_ );
     if ( !isVSP() )
@@ -51,9 +52,11 @@ void SEGY::FullSpec::usePar( const IOPar& iop )
     pars_.usePar( iop );
     readopts_.setGeomType( gt );
     readopts_.usePar( iop );
-    iop.getYN( FilePars::sKeyForceRev0(), rev0_ );
     iop.getYN( sKeyIsVSP, isvsp_ );
     iop.getYN( sKeyZInFeet, zinfeet_ );
+    iop.get( FilePars::sKeyRevision(), rev_ );
+    if ( iop.isTrue(FilePars::sKeyForceRev0()) )
+	rev_ = 0;
 }
 
 

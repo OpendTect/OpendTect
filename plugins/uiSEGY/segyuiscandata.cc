@@ -275,10 +275,11 @@ void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
 
 
 
-SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d )
+SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d, bool isps )
     : filenm_(fnm)
     , keydata_(*new HdrEntryKeyData)
     , pidetector_(0)
+    , isps_(isps)
 {
     init( is2d );
 }
@@ -487,15 +488,16 @@ void SEGY::ScanInfo::addValues( DataClipSampler& cs, const float* vals, int ns )
 
 void SEGY::ScanInfo::finishGet( od_istream& strm )
 {
-    keydata_.finish();
+    keydata_.finish( isps_ );
     pidetector_->finish();
     rgs_.use( *pidetector_ );
     strm.setPosition( startpos_ );
 }
 
 
-SEGY::ScanInfoSet::ScanInfoSet( bool is2d )
+SEGY::ScanInfoSet::ScanInfoSet( bool is2d, bool isps )
     : is2d_(is2d)
+    , isps_(isps)
     , keydata_(*new HdrEntryKeyData)
     , detector_(*new PosInfo::Detector(is2d))
 {
@@ -516,7 +518,7 @@ void SEGY::ScanInfoSet::setEmpty()
 
 SEGY::ScanInfo& SEGY::ScanInfoSet::add( const char* fnm )
 {
-    ScanInfo* si = new ScanInfo( fnm, is2d_ );
+    ScanInfo* si = new ScanInfo( fnm, is2d_, isps_ );
     sis_ += si;
     return *si;
 }
@@ -550,7 +552,7 @@ void SEGY::ScanInfoSet::finish()
 	detector_.appendResults( sis.piDetector() );
     }
 
-    keydata_.finish();
+    keydata_.finish( isps_ );
     detector_.finish();
 }
 

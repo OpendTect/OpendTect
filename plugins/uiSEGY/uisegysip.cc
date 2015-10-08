@@ -41,7 +41,8 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 	return false;
 
     xyinft_ = rdst->zInFeet();
-    rdst->fullSpec().fillPar( imppars_ );
+    const SEGY::FullSpec fullspec( rdst->fullSpec() );
+    fullspec.fillPar( imppars_ );
     userfilename_ = rdst->userFileName();
     return true;
 }

@@ -58,7 +58,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, binhead_(*new SEGY::BinHeader)
 	, trcscale_(0)
 	, curtrcscale_(0)
-	, forcerev0_(false)
+	, forcedrev_(-1)
 	, storinterp_(0)
 	, blockbuf_(0)
 	, headerdone_(false)
@@ -100,7 +100,8 @@ void SEGYSeisTrcTranslator::cleanUp()
     delete bp2c_; bp2c_ = 0;
     headerdone_ = false;
 
-    prevoffs_ = curoffs_ = -1; mSetUdf(curcoord_.x);
+    forcedrev_ = -1;
+    prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
 }
 
 
@@ -144,11 +145,12 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead_.setInput( binheaderbuf, filepars_.swapHdrs() );
     if ( binhead_.isSwapped() )
 	binhead_.unSwap();
-    if ( forcerev0_ )
-	binhead_.setEntryVal( revcodeentry, 0 );
 
     trchead_.setNeedSwap( filepars_.swapHdrs() );
     trchead_.isrev0_ = binhead_.revision() < 1;
+    if ( forcedrev_ >= 0 )
+	trchead_.isrev0_ = forcedrev_ == 0;
+
     if ( !trchead_.isrev0_ )
     {
 	const int nrstzs = binhead_.skipRev1Stanzas( strm );
@@ -433,7 +435,10 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     fileopts_.usePar( iopar );
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
-    iopar.getYN( SEGY::FilePars::sKeyForceRev0(), forcerev0_ );
+    iopar.get( SEGY::FilePars::sKeyRevision(), forcedrev_ );
+    if ( iopar.isTrue(SEGY::FilePars::sKeyForceRev0()) )
+	forcedrev_ = 0;
+
     othdomain_ = !ZDomain::isSI( iopar );
 }
 

@@ -38,7 +38,7 @@ public:
 			uiSEGYReadStartInfo(uiParent*,SEGY::LoadDef&,
 					const SEGY::ImpType* fixedimptyp=0);
 
-    void		setImpTypIdx(int);
+    void		setImpTypIdx(int,bool updnow=true);
     void		setScanInfo(const SEGY::ScanInfoSet&);
 
     void		useLoadDef(); //!< when you have changed the loaddef
