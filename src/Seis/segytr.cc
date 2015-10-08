@@ -100,7 +100,8 @@ void SEGYSeisTrcTranslator::cleanUp()
     delete bp2c_; bp2c_ = 0;
     headerdone_ = false;
 
-    prevoffs_ = curoffs_ = forcedrev_ = -1; mSetUdf(curcoord_.x);
+    forcedrev_ = -1;
+    prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
 }
 
 
