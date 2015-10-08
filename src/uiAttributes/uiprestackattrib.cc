@@ -50,7 +50,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
-    dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"), 
+    dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"),
                                        BoolInpSpec(false) );
     dopreprocessfld_->attach( alignedBelow, prestackinpfld_ );
     dopreprocessfld_->valuechanged.notify(
@@ -424,7 +424,7 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
 void uiPreStackAttrib::gatherTypSel( CallBacker* )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    uiString xlbl = tr(" range (empty=all)")
+    uiString xlbl = tr("%1 range (empty=all)")
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
     xunitfld_->display( !isoffset );
