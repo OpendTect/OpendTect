@@ -134,5 +134,5 @@ uiString VelocityDesc::getVelUnit( bool wp )
 
 uiString VelocityDesc::getVelVolumeLabel()
 {
-    return tr( "Velocity model (%1/s)").arg( SI().getUiZUnitString(false) );
+    return tr( "Velocity model %1").arg( getVelUnit(true) );
 }
