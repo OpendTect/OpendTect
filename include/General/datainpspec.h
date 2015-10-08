@@ -695,8 +695,10 @@ public:
     const uiStringSet& strings() const;
 
     const EnumDef*	enumDef() const		{ return enumdef_ ; }
+    void		setEnumDef(const EnumDef&);
+			//!<EnumDef is assumed to remain in mem
 
-    void		addString(uiString txt);
+    void		addString(const uiString& txt);
     virtual const char*	text(int idx=0) const;
     void		setItemText(int idx, const uiString&);
     virtual bool	setText(const char* s,int nr);

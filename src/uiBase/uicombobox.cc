@@ -75,6 +75,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
+    , enumdef_(0)
 {
 }
 
@@ -86,6 +87,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
+    , enumdef_(0)
 {
     addItems( uids );
 }
@@ -98,6 +100,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const uiStringSet& strings,
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
+    , enumdef_(0)
 {
     addItems( strings );
 }
@@ -109,6 +112,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
+    , enumdef_(0)
 {
     addItems( uids );
 }
@@ -121,6 +125,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const uiString* strings,
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
+    , enumdef_(0)
 {
     for ( int idx=0; !strings[idx].isEmpty(); idx++ )
 	addItem( strings[idx] );
@@ -134,9 +139,18 @@ uiComboBox::uiComboBox( uiParent* parnt, const EnumDef& enums,
     , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))
     , curwidth_(0)
+    , enumdef_(&enums)
 {
     for ( int idx=0; idx<enums.size(); idx++ )
-	addItem( enums.getUiString(idx), idx );
+    {
+	addItem( enums.getUiStringForIndex(idx), idx );
+	if ( enums.getIconFileForIndex(idx) )
+	{
+	    setIcon( idx, enums.getIconFileForIndex(idx) );
+	}
+    }
+
+    setReadOnly( true );
 }
 
 
@@ -244,6 +258,9 @@ bool uiComboBox::isPresent( const char* txt ) const
 const char* uiComboBox::textOfItem( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return sKey::EmptyString();
+
+    if ( isReadOnly() && enumdef_ && idx<enumdef_->size() )
+	return enumdef_->getKeyForIndex( idx );
 
     if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
 	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
@@ -495,6 +512,18 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** strs,
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiStringSet& strs,
+				     const uiString& txt, const char* nm )
+    : uiGroup(p,"Labeled combobox")
+{
+    cb_ = new uiComboBox( this, strs, nm && *nm
+			 ? nm
+			 : txt.getFullString().buf() );
+    labl_ = new uiLabel( this, txt, cb_ );
+    setHAlignObj( cb_ );
+}
+
+
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const EnumDef& strs,
 				     const uiString& txt, const char* nm )
     : uiGroup(p,"Labeled combobox")
 {

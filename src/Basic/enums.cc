@@ -10,24 +10,43 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "string2.h"
 
+EnumDef::EnumDef()
+{}
+
 EnumDef::EnumDef( const char* nm, const char* s[], short nrs )
     : NamedObject(nm)
-    , names_(s)
-    , nrsign_(nrs)	{}
-
-bool EnumDef::isValidName( const char* s ) const
-{ return getIndexInStringArrCI(s,names_,0,nrsign_,-1) >= 0; }
-
-
-int EnumDef::convert( const char* s ) const
-{ return getIndexInStringArrCI(s,names_,0,nrsign_,0); }
+    , keys_(s)
+{
+    for ( int idx=0; idx<size(); idx++ )
+	enums_ += idx;
+}
 
 
-const char* EnumDef::convert( int i ) const
-{ return names_[i]; }
+bool EnumDef::isValidKey( const char* s ) const
+{
+    return keys_.indexOf( s )>=0;
+}
 
 
-uiString EnumDef::getUiString( int i ) const
+int EnumDef::indexOf( const char* s ) const
+{
+    const int idx = keys_.indexOf( s );
+    return idx >= 0 ? idx : 0;
+}
+
+
+int EnumDef::indexOf( int theenum ) const
+{
+    const int idx = enums_.indexOf( theenum );
+    return idx >= 0 ? idx : 0;
+}
+
+
+const char* EnumDef::getKeyForIndex( int i ) const
+{ return keys_.get(i).buf(); }
+
+
+uiString EnumDef::getUiStringForIndex( int i ) const
 {
     if ( !uistrings_.validIdx(i) )
     {
@@ -39,5 +58,67 @@ uiString EnumDef::getUiString( int i ) const
 }
 
 
+const char* EnumDef::getIconFileForIndex(int i) const
+{
+    return iconfiles_.validIdx(i)
+	    ? iconfiles_.get(i).str()
+	    : 0;
+}
+
+
+void EnumDef::setIconFileForIndex( int i, const char* iconname )
+{
+    if ( i>=size() || !iconname || !*iconname )
+	return;
+
+    if ( !iconfiles_.size() )
+    {
+	for ( int idx=0; idx<size(); idx++ )
+	    iconfiles_.add( sKey::EmptyString() );
+    }
+    iconfiles_.get(i) = iconname;
+}
+
+
+void EnumDef::setUiStringForIndex(int idx,const uiString& str)
+{ uistrings_[idx]=str; }
+
+
 int EnumDef::size() const
-{ int i=0; while ( names_[i] ) i++; return i; }
+{ return keys_.size(); }
+
+
+void EnumDef::remove( const char* key )
+{
+    const int idx = keys_.indexOf( key );
+    if ( idx<0 )
+    {
+        pErrMsg("Removing missing enum");
+        return;
+    }
+
+    uistrings_.removeSingle( idx, true );
+    keys_.removeSingle(idx,true);
+    enums_.removeSingle( idx, true );
+    if ( iconfiles_.size() )
+	iconfiles_.removeSingle( idx );
+}
+
+
+void EnumDef::add(const char* key, const uiString& string, int enumval,
+                  const char* iconfile)
+{
+    uistrings_.add( string );
+    enums_.add( enumval );
+    keys_.add( key );
+    setIconFileForIndex( keys_.size()-1, iconfile );
+}
+
+
+void EnumDef::fillUiStrings()
+{
+    for ( int idx=0; idx<keys_.size(); idx++ )
+	uistrings_ += ::toUiString( keys_.get(idx) );
+
+}
+

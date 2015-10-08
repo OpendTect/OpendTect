@@ -359,10 +359,9 @@ StringListInpSpec::StringListInpSpec( const EnumDef& enums )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
-    , enumdef_( &enums )
+    , enumdef_(  0 )
 {
-    for ( int idx=0; idx<enums.size(); idx++ )
-	strings_.add( enums.getUiString(idx) );
+    setEnumDef( enums );
 }
 
 
@@ -406,8 +405,19 @@ const uiStringSet& StringListInpSpec::strings() const
 { return strings_; }
 
 
-void StringListInpSpec::addString( uiString txt )
+void StringListInpSpec::addString( const uiString& txt )
 { strings_.add( txt ); }
+
+
+void StringListInpSpec::setEnumDef( const EnumDef& enums )
+{
+    strings_.erase();
+    enumdef_ = &enums;
+
+    for ( int idx=0; idx<enums.size(); idx++ )
+	strings_.add( enums.getUiStringForIndex(idx) );
+}
+
 
 
 const char* StringListInpSpec::text( int ) const
@@ -417,7 +427,7 @@ const char* StringListInpSpec::text( int ) const
 
     if ( enumdef_ )
     {
-	return enumdef_->convert(cur_);
+	return enumdef_->getKeyForIndex(cur_);
     }
 
     return strings_[cur_].getFullString().buf();
@@ -432,9 +442,9 @@ bool StringListInpSpec::setText( const char* s, int nr )
 {
     if ( enumdef_ )
     {
-	if ( enumdef_->isValidName( s ) )
+	if ( enumdef_->isValidKey( s ) )
 	{
-	    cur_ = enumdef_->convert( s );
+	    cur_ = enumdef_->indexOf( s );
 	    isset_ = true;
 	    return true;
 	}

@@ -16,45 +16,87 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "iopar.h"
 #include "uistring.h"
+#include "bufstringset.h"
 
 #include "namedobj.h"
 
 /*!
-\brief Holds data pertinent to a certain enum.
+\brief Holds data pertinent to a certain enum. It does not know the enum
+values themselves, but treat them as integers.
+
+In most cases, the inherited EnumDefImpl<ENUM> is used, but a stand-alone
+EnumDef can be used if one wants to use combinations of enums that
+are not available as EnumDefImpl.
+
+A stand-alone EnumDef can be created as follows to create a combo box
+with all enums in Stats::Type without the average.
+
+\code
+EnumDef def = Stats::TypeDef();
+def.remove( def.getKey(Stats::Average) );
+
+new uiComboBox( this, def );
+\endcode
+
+
 */
 
 
 mExpClass(Basic) EnumDef : public NamedObject
 {
 public:
-			EnumDef(const char* nm,const char* s[],short nrs=0);
-    bool		isValidName(const char*) const;
-    int			convert(const char* s) const;
-    const char*		convert(int i) const;
-    uiString		getUiString(int i) const;
-    const char**	names() const { return names_; }
-    const uiStringSet&	strings() const;
+				EnumDef();
+				EnumDef(const char* nm,const char* s[],
+					short nrs=0);
+    bool			isValidKey(const char*) const;
+    int				indexOf(const char* s) const;
+    int				indexOf(int enumval) const;
+    const char*			getKeyForIndex(int i) const;
+    uiString			getUiStringForIndex(int i) const;
+    void			setUiStringForIndex(int,const uiString&);
+    const BufferStringSet&	keys() const { return keys_; }
+    const uiStringSet&		strings() const { return uistrings_; }
 
-    int			size() const;
+    const char*			getIconFileForIndex(int idx) const;
+    void			setIconFileForIndex(int idx,const char*);
+
+    int				size() const;
+
+    //Expert use only!
+    void			remove(const char* key);
+    void			add(const char* key, const uiString&,
+                        	    int enumval, const char* iconfile);
 
 protected:
+    void		fillUiStrings();
     uiStringSet		uistrings_;
-    const char**	names_;
-    short		nrsign_;
+    BufferStringSet	keys_;
+    TypeSet<int>	enums_;
+    BufferStringSet	iconfiles_;
+public:
+    //Legacy
+    bool		isValidName(const char* key) const
+    			{ return isValidKey(key); }
+    const char*		convert(int idx) const { return getKeyForIndex(idx); }
+    int			convert(const char* txt) const { return indexOf(txt); }
 };
 
 template <class ENUM>
 mClass(Basic) EnumDefImpl : public EnumDef
 { mODTextTranslationClass(EnumDef)
 public:
-		EnumDefImpl(const char* nm,const char* s[],short nrs=0);
-    bool	parse(const char* txt,ENUM& res) const;
-    bool	parse(const IOPar& par,const char* key,ENUM& res) const;
-    ENUM	parse(const char* txt) const;
-    const char* toString(ENUM theenum) const;
-    uiString	toUiString(ENUM theenum) const;
+			EnumDefImpl(const char* nm,const char* s[],short nrs=0);
+    bool		parse(const char* txt,ENUM& res) const;
+    bool		parse(const IOPar& par,const char* key,ENUM& res) const;
+    ENUM		parse(const char* txt) const;
+    ENUM		getEnumForIndex(int idx) const;
+    const char*		getKey(ENUM theenum) const;
+    uiString		toUiString(ENUM theenum) const;
 private:
-    void	initUiStrings();
+    void		init();
+public:
+    //Legacy
+    const char*		toString(ENUM theenum) const { return getKey(theenum); }
 
 };
 
@@ -130,7 +172,7 @@ private:
 
   protected:
 
-      static const char*          StateNames_[];
+      static const char*	  StateKeys_[];
       static const EnumDef        StateDefinition_;
 
   // similar for Type
@@ -166,7 +208,7 @@ private:
       return (MyClass::State) StateDef().convert( txt ); \
   } \
 
-  const char* MyClass::Statenames_[] =
+  const char* MyClass::StateKeys_[] =
           { "Good", "Bad", "Not very handsome", 0 };
 
 
@@ -190,17 +232,17 @@ private:
       return (MyClass::Type) TypeDef().convert( txt ); \
   } \
 
-  const char* MyClass::Typenames_[] =
+  const char* MyClass::TypeKeys_[] =
           { "Yes", "No", "Not sure", 0 };
 
   \endcode
 
   Localization is separated from the selection. Hence, if you wish to add
-  translated enum-strings, you can implement your own initUiStrings() function:
+  translated enum-strings, you can implement your own init() function:
 
  \code
  template <>
- void EnumDefImpl<MyClass::Type>::initUiStrings()
+ void EnumDefImpl<MyClass::Type>::init()
  {
      uistrings_ += tr("Yes");
      uistrings_ += tr("No");
@@ -225,14 +267,14 @@ public: \
     static const char* get##enm##String(enm); /*legacy */ \
 protected: \
     static const EnumDefImpl<enm> enm##Definition_; \
-    static const char* enm##Names_[]; \
+    static const char* enm##Keys_[]; \
 public:
 
 #define DeclareNameSpaceEnumUtils(mod,enm) \
     mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
     mExtern(mod) const char** enm##Names();\
     extern const EnumDefImpl<enm> enm##Definition_; \
-    extern const char* enm##Names_[]; \
+    extern const char* enm##Keys_[]; \
     mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
     mExtern(mod) bool parseEnum(const char*,enm&); \
     mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
@@ -243,11 +285,11 @@ public:
 
 #define _DefineEnumNames(prefix,enm,deflen,prettynm) \
 const EnumDefImpl<prefix::enm> prefix::enm##Definition_ ( prettynm, \
-				prefix::enm##Names_, deflen ); \
+				prefix::enm##Keys_, deflen ); \
 const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
 { return prefix::enm##Definition_; } \
 const char** prefix::enm##Names() \
-{ return prefix::enm##Def().names(); } \
+{ return prefix::enm##Keys_; } \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
 { \
     const bool isok = prefix::parseEnum( txt, res ); \
@@ -263,10 +305,10 @@ prefix::enm prefix::parseEnum##enm(const char* txt) \
 const char* prefix::get##enm##String( prefix::enm theenum ) \
 { return prefix::toString( theenum ); } \
 const char* prefix::toString( prefix::enm theenum ) \
-{ return enm##Def().toString( theenum ); } \
+{ return enm##Def().getKey( theenum ); } \
 uiString prefix::toUiString( prefix::enm theenum ) \
 { return enm##Def().toUiString( theenum ); } \
-const char* prefix::enm##Names_[] =
+const char* prefix::enm##Keys_[] =
 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
@@ -279,26 +321,27 @@ template <class ENUM> inline
 EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
     : EnumDef( nm, nms, nrs )
 {
-    initUiStrings();
+    init();
     if ( uistrings_.size()!=size() )
-    {
 	pErrMsg( "Wrong number of uistrings" );
-    }
 
     for ( int idx=uistrings_.size(); idx<size(); idx++ )
-	uistrings_ += ::toUiString(names_[idx]);
+	uistrings_ += ::toUiString( keys_.get(idx) );
+
+    if ( iconfiles_.size() && iconfiles_.size()!=size() )
+	pErrMsg( "Wrong number of iconfiles" );
 }
 
 template <class ENUM> inline
 bool EnumDefImpl<ENUM>::parse(const char* txt, ENUM& res ) const
 {
-    const int idx = isValidName( txt )
-	?  convert( txt )
+    const int idx = isValidKey( txt )
+	?  indexOf( txt )
 	: -1;
     if ( idx<0 )
 	return false;
 
-    res = (ENUM) idx;
+    res = (ENUM) enums_[idx];
     return true;
 }
 
@@ -313,31 +356,40 @@ bool EnumDefImpl<ENUM>::parse( const IOPar& par, const char* key,
 
 
 template <class ENUM> inline
-ENUM EnumDefImpl<ENUM>::parse(const char* txt) const
+ENUM EnumDefImpl<ENUM>::getEnumForIndex( int idx ) const
 {
-    return (ENUM) convert( txt );
+    return (ENUM) enums_[idx];
 }
 
 
 template <class ENUM> inline
-const char* EnumDefImpl<ENUM>::toString( ENUM theenum ) const
+ENUM EnumDefImpl<ENUM>::parse(const char* txt) const
 {
-    return convert( (int) theenum );
+    return getEnumForIndex( indexOf( txt ) );
+}
+
+
+template <class ENUM> inline
+const char* EnumDefImpl<ENUM>::getKey( ENUM theenum ) const
+{
+    const int idx = enums_.indexOf( (int) theenum );
+    return keys_.get(idx>=0?idx:0).buf();
 }
 
 
 template <class ENUM> inline
 uiString EnumDefImpl<ENUM>::toUiString( ENUM theenum ) const
-{ return getUiString((int) theenum ); }
+{
+    const int idx = enums_.indexOf( (int) theenum );
+    return getUiStringForIndex( idx );
+}
 
 
 template <class ENUM> inline
-void EnumDefImpl<ENUM>::initUiStrings()
+void EnumDefImpl<ENUM>::init()
 {
-    for ( int idx=0; names_[idx]; idx++ )
-	uistrings_ += ::toUiString(names_[idx]);
+     fillUiStrings();
 }
-
 
 
 #endif

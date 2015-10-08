@@ -212,6 +212,16 @@ void MenuItem::createItems( const BufferStringSet& names )
 
 
 
+void MenuItem::createItems( const uiStringSet& names )
+{
+    removeItems();
+
+    for ( int idx=0; idx<names.size(); idx++ )
+	addItem( new MenuItem(names[idx]), true );
+}
+
+
+
 MenuHandler::MenuHandler( int id )
     : id_(id)
     , initnotifier(this)
