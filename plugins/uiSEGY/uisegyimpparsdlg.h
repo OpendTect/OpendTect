@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiListBox;
 class uiCheckBox;
 class uiGenInput;
+class uiTextEdit;
 namespace Repos { class IOParSet; class IOPar; }
 
 
@@ -40,6 +41,7 @@ protected:
     mutable BufferString parname_;
     mutable bool	setchgd_;
 
+    int			parIdx() const;
     void		fillList();
     void		update(const char*);
     void		updateButtons();
@@ -66,6 +68,9 @@ public:
 protected:
 
     virtual bool	doIO();
+    uiTextEdit*		detailsfld_;
+
+    virtual void	selectionChanged();
 
 };
 

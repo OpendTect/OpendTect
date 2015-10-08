@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 #include "uisegyimpparsdlg.h"
 #include "uibutton.h"
+#include "uitextedit.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
@@ -31,6 +32,7 @@ uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
 {
     listfld_ = new uiListBox( this, "Stored Setups" );
     fillList();
+    listfld_->setPrefWidthInChar( 50 );
     listfld_->selectionChanged.notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
 
     renbut_ = uiButton::getStd( this, uiButton::Rename,
@@ -41,6 +43,7 @@ uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
     delbut_->attach( alignedBelow, renbut_ );
 
     updateButtons();
+    postFinalise().notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
 }
 
 
@@ -60,13 +63,20 @@ void uiSEGYImpParsDlg::fillList()
 }
 
 
+int uiSEGYImpParsDlg::parIdx() const
+{
+    const BufferString nm( listfld_->getText() );
+    return parset_.find( listfld_->getText() );
+}
+
+
 void uiSEGYImpParsDlg::renCB( CallBacker* )
 {
-    const BufferString oldnm( listfld_->getText() );
-    const int paridx = parset_.find( oldnm );
+    const int paridx = parIdx();
     if ( paridx < 0 )
-	{ pErrMsg("Huh rename"); return; }
+	return;
 
+    const BufferString oldnm( listfld_->getText() );
     uiString titl( uiStrings::phrRename(toUiString("'%1'")).arg( oldnm ) );
     uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName()),
 			new StringInpSpec(oldnm) );
@@ -124,19 +134,13 @@ void uiSEGYImpParsDlg::update( const char* tosel )
 
 void uiSEGYImpParsDlg::updateButtons()
 {
-    const BufferString curitm( listfld_->getText() );
-    bool isactive = !curitm.isEmpty();
+    const int paridx = parIdx();
+    bool isactive = paridx >= 0;
     if ( isactive )
     {
-	const int paridx = parset_.find( curitm );
-	if ( paridx < 0 )
-	    { pErrMsg("Huh update"); isactive = false; }
-	else
-	{
-	    Repos::IOPar& iop = *parset_[paridx];
-	    if ( iop.src_ != cSrcToManage )
-		isactive = false;
-	}
+	Repos::IOPar& iop = *parset_[paridx];
+	if ( iop.src_ != cSrcToManage )
+	    isactive = false;
     }
 
     renbut_->setSensitive( isactive );
@@ -165,6 +169,37 @@ uiSEGYReadImpParsDlg::uiSEGYReadImpParsDlg( uiParent* p, const char* defnm )
     : uiSEGYImpParsDlg(p,true,defnm)
 {
     setHelpKey( mTODOHelpKey );
+
+    detailsfld_ = new uiTextEdit( this, "Entry details", true );
+    detailsfld_->setPrefHeightInChar( 5 );
+    detailsfld_->attach( alignedBelow, listfld_ );
+    detailsfld_->setStretch( 2, 1 );
+}
+
+
+void uiSEGYReadImpParsDlg::selectionChanged()
+{
+    const int paridx = parIdx();
+    if ( paridx < 0 )
+	detailsfld_->setText( "" );
+    else
+    {
+	const Repos::IOPar& iop = *parset_[paridx];
+
+	uiString todisp =
+	    tr( "Origin: %1 (%2)"
+		"\nSEG-Y Revision: %3"
+		"\nData type: %4"
+		"\nCreated by %5 at %6." )
+		.arg( Repos::isUserDefined(iop.src_) ? tr("User-defined")
+						     : tr("Internal") )
+		.arg( Repos::descriptionOf(iop.src_) )
+		.arg( iop.find(SEGY::FilePars::sKeyRevision()) )
+		.arg( iop.find("Import.Type") )
+		.arg( iop.find(sKey::CrBy()) )
+		.arg( iop.find(sKey::CrAt()) );
+	detailsfld_->setText( todisp );
+    }
 }
 
 
@@ -224,6 +259,7 @@ bool uiSEGYStoreImpParsDlg::doIO()
 	mErrRet( tr("Please enter a name for this entry") )
 
     parstostore_->setName( parnm );
+    parstostore_->setStdCreationEntries();
     parstostore_->src_ = cSrcToManage;
     parset_.add( parstostore_ );
     parstostore_ = 0;
