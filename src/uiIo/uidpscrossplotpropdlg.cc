@@ -789,7 +789,7 @@ bool acceptOK()
 }
 
     uiDataPointSetCrossPlotter& plotter_;
-    bool			hasy2_;	
+    bool			hasy2_;
     uiGenInput*			sizefld_;
     uiComboBox*			shapefld_;
     uiColorInput*		ycolinpfld_;

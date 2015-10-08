@@ -265,7 +265,7 @@ void uiToolBar::clear()
 void uiToolBar::translateText()
 {
     if ( !label_.isEmpty() )
-        qtoolbar_->setWindowTitle( label_.getQString() );
+	qtoolbar_->setWindowTitle( label_.getQString() );
 
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
 	addedobjects_[idx]->translateText();
