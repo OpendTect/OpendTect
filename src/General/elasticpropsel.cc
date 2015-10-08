@@ -506,10 +506,10 @@ ElasticPropSelection* ElasticPropSelection::get( const MultiID& mid )
 ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 {
     if ( !ioobj ) return 0;
-    PtrMan<ElasticPropSelectionTranslator> tr =
+    PtrMan<ElasticPropSelectionTranslator> translator =
 		(ElasticPropSelectionTranslator*)ioobj->createTranslator();
 
-    if ( !tr ) return 0;
+    if ( !translator ) return 0;
     ElasticPropSelection* eps = 0;
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
@@ -546,9 +546,9 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 bool ElasticPropSelection::put( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    PtrMan<ElasticPropSelectionTranslator> tr =
+    PtrMan<ElasticPropSelectionTranslator> translator =
 		(ElasticPropSelectionTranslator*)ioobj->createTranslator();
-    if ( !tr ) return false;
+    if ( !translator ) return false;
     bool retval = false;
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
