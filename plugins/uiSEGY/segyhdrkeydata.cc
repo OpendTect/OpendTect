@@ -270,8 +270,8 @@ void SEGY::HdrEntryKeyData::setCurOrPref(
 	const HdrEntry& defhe = *hdrdef[ ds.idxs_[idx] ];
 	if ( defhe.bytepos_ == bytepos )
 	{
-	    // we're cool, current is a valid one
-	    he.bytepos_ = bytepos; // to be sure it's internal
+	    // we're cool, current is a valid one, make sure it's internal
+	    he.bytepos_ = (HdrEntry::BytePos)bytepos;
 	    return;
 	}
     }
