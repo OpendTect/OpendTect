@@ -720,7 +720,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 //-----------------------------------------------------------------------------
 
 #define mInitStdMembs \
-    : uiGroup(p,disptxt.getOriginalString()) \
+    : uiGroup(p,mFromUiStringTodo(disptxt)) \
     , finalised_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
     , selText_(uiStrings::sEmptyString()), withchk_(false) \
@@ -738,7 +738,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 {
     inputs_ += new StringInpSpec( inputStr );
     if ( !disptxt.isEmpty() )
-	inputs_[0]->setName( disptxt.getOriginalString() );
+	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
@@ -750,7 +750,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     inputs_ += inp1.clone();
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( !disptxt.isEmpty() && !inputhasnm )
-	inputs_[0]->setName( disptxt.getOriginalString() );
+	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
