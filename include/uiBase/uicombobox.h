@@ -108,6 +108,7 @@ private:
     uiComboBoxBody&	mkbody(uiParent*,const char*);
     void		adjustWidth(const uiString&);
     int			curwidth_;
+    const EnumDef*	enumdef_;
 
 public:
 
@@ -136,6 +137,8 @@ public:
 		uiLabeledComboBox(uiParent*,const char**,
 				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const uiStringSet&,
+				  const uiString& lbl,const char* nm=0);
+		uiLabeledComboBox(uiParent*,const EnumDef&,
 				  const uiString& lbl,const char* nm=0);
 
     uiComboBox*	box()		{ return cb_; }

@@ -87,6 +87,7 @@ public:
 					 CallBack cb=CallBack(),
 					 int placement=-1);
     void			createItems(const BufferStringSet&);
+    void			createItems(const uiStringSet&);
 
     uiString			text;
 				/*< The text that should be on the item. */

@@ -571,8 +571,19 @@ public:
 			{
 			    init();
 
-			    cbb_.setReadOnly( true );
+			    const EnumDef* enumdef = enumDef();
+			    if ( enumdef )
+			    {
+				for ( int idx=0; idx<enumdef->size(); idx++ )
+				{
+				    const char* iconfile =
+					enumdef->getIconFileForIndex(idx);
+				    if ( iconfile )
+					 cbb_.setIcon(idx,iconfile);
+				}
+			    }
 
+			    cbb_.setReadOnly( true );
 			    cbb_.selectionChanged.notify(
 				mCB(this,uiGenInputInputFld,valChangedNotify) );
 			}
@@ -586,15 +597,15 @@ public:
 				return cbb_.text();
 
 			    const int selidx = cbb_.currentItem();
-			    return enumdef->convert( selidx );
+			    return enumdef->getKeyForIndex( selidx );
 			}
     virtual void	setText( const char* t,int idx )
 			{
 			    const EnumDef* enumdef = enumDef();
 			    if ( enumdef &&
-				 enumdef->isValidName(t) )
+				 enumdef->isValidKey(t) )
 			    {
-				const int selidx = enumdef->convert(t);
+				const int selidx = enumdef->indexOf(t);
 				cbb_.setCurrentItem( selidx );
 				return;
 			    }

@@ -33,7 +33,7 @@ DefineEnumNames(DateInfo,DayOfWeek,2,"Week day") {
 };
 
 template <>
-void EnumDefImpl<DateInfo::DayOfWeek>::initUiStrings()
+void EnumDefImpl<DateInfo::DayOfWeek>::init()
 {
     uistrings_ += tr("Sunday");
     uistrings_ += tr("Monday");

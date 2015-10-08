@@ -92,8 +92,10 @@ public:
 
     void			addEnum(const char*);
     void			addEnums(const char**);
+    void			setEnums(const EnumDef&);
+				//!<Enumdef is assumed to remain in memory
 
-    void	fillDefStr(BufferString&) const;
+    void			fillDefStr(BufferString&) const;
     bool			isSet() const;
     void			setSet(bool yn=true);
 };

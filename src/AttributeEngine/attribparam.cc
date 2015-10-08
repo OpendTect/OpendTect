@@ -195,6 +195,12 @@ BufferString EnumParam::getDefaultValue() const
 }
 
 
+void EnumParam::setEnums( const EnumDef& defs )
+{
+    static_cast<StringListInpSpec*>(spec_)->setEnumDef( defs );
+}
+
+mStartAllowDeprecatedSection
 void EnumParam::addEnums( const char** nes )
 {
     int idx=0;
@@ -204,6 +210,7 @@ void EnumParam::addEnums( const char** nes )
 	idx++;
     }
 }
+mStopAllowDeprecatedSection
 
 
 void EnumParam::fillDefStr( BufferString& res ) const
