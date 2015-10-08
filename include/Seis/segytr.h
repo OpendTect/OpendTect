@@ -54,9 +54,11 @@ public:
     const SEGY::BinHeader& binHeader() const	{ return binhead_; }
     const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }
     void		setTxtHeader(SEGY::TxtHeader*);	//!< write; becomes mine
+    void		setForcedRev( int rev )	{ forcedrev_ = rev; }
     void		setForceRev0( bool yn )	{ forcedrev_ = 0; }
 
     int			dataBytes() const;
+    int			forcedRev() const	{ return forcedrev_; }
     bool		rev0Forced() const	{ return forcedrev_ == 0; }
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }

@@ -31,7 +31,7 @@ public:
 
 			FullSpec(Seis::GeomType,bool isvsp=false);
 
-    bool		rev0_;
+    int			rev_;
     FileSpec		spec_;
     FilePars		pars_;
     FileReadOpts	readopts_;

@@ -227,7 +227,7 @@ FullSpec uiSEGYReadStarter::fullSpec() const
 {
     const SEGY::ImpType& imptyp = impType();
     FullSpec ret( imptyp.geomType(), imptyp.isVSP() );
-    ret.rev0_ = loaddef_.revision_ == 0;
+    ret.rev_ = loaddef_.revision_;
     ret.spec_ = filespec_;
     ret.pars_ = filepars_;
     ret.zinfeet_ = zInFeet();
@@ -911,15 +911,15 @@ bool uiSEGYReadStarter::commit( bool permissive )
 
 bool uiSEGYReadStarter::acceptOK( CallBacker* )
 {
+    if ( !commit(false) )
+	return false;
+
     if ( mForSurvSetup )
     {
 	if ( !survinfook_ )
 	    mErrRet( tr("No valid survey setup found" ) )
 	return true;
     }
-
-    if ( !commit() )
-	return false;
 
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );

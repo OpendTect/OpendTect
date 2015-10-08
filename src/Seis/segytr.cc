@@ -148,7 +148,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     trchead_.setNeedSwap( filepars_.swapHdrs() );
     trchead_.isrev0_ = binhead_.revision() < 1;
-    if ( forcedrev_ != -1 )
+    if ( forcedrev_ >= 0 )
 	trchead_.isrev0_ = forcedrev_ == 0;
 
     if ( !trchead_.isrev0_ )
