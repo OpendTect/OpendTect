@@ -249,7 +249,7 @@ bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
 	    resamplvals += log->getValue( resamprg.atIndex( idx ) );
     }
 
-    uiAmplSpectrum::Setup su( lognm, false,  resamprg.step );
+    uiAmplSpectrum::Setup su( toUiString(lognm), false,  resamprg.step );
     uiAmplSpectrum* asd = new uiAmplSpectrum( parent(), su );
     asd->setData( resamplvals.arr(), resampsz );
     asd->show();

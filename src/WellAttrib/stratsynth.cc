@@ -671,7 +671,7 @@ uiString uiMessage() const
     if ( errmsg_.isEmpty() )
 	return tr("Generating elastic model");
     else
-	return mToUiStringTodo(errmsg_.buf());
+	return errmsg_;
 }
 
 uiString uiNrDoneText() const	{ return tr("Models done"); }
@@ -701,12 +701,11 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     const PropertyRefSelection& props = lm_.propertyRefs();
 
     aimodel.erase();
-    BufferString errmsg;
+    uiString errmsg;
     if ( !eps.isValidInput(&errmsg) )
     {
 	mutex_.lock();
-	errmsg_ = BufferString( "Cannot create elastic model as" );
-	errmsg_ += errmsg;
+	errmsg_ = tr("Cannot create elastic model as %1").arg(errmsg);
 	mutex_.unLock();
 	return false;
     }
@@ -720,8 +719,8 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( seq.isEmpty() )
     {
 	mutex_.lock();
-	errmsg_ = "Elastic model is not proper to generate synthetics as a "
-		  "layer sequence has no layers";
+	errmsg_ = tr("Elastic model is not proper to generate synthetics as a "
+		  "layer sequence has no layers");
 	mutex_.unLock();
 	return false;
     }
@@ -750,8 +749,8 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( aimodel.isEmpty() )
     {
 	mutex_.lock();
-	errmsg_ += "After discarding layers with no thickness ";
-	errmsg_ += "no layers remained";
+	errmsg_ = tr("After discarding layers with no thickness "
+		     "no layers remained");
 	mutex_.unLock();
 	return false;
     }
@@ -768,7 +767,7 @@ od_int64 nrIterations() const
 const Strat::LayerModel&	lm_;
 TypeSet<ElasticModel>&		aimodels_;
 Threads::Mutex			mutex_;
-BufferString			errmsg_;
+uiString			errmsg_;
 
 };
 

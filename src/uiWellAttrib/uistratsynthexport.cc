@@ -56,9 +56,9 @@ class uiStratSynthOutSel : public uiCheckedCompoundParSel
 { mODTextTranslationClass(uiStratSynthOutSel);
 public:
 
-uiStratSynthOutSel( uiParent* p, const char* seltxt,
+uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
 		    const BufferStringSet& nms )
-    : uiCheckedCompoundParSel( p, seltxt, false, "Select" )
+    : uiCheckedCompoundParSel( p, seltxt, false, uiStrings::sSelect() )
     , nms_(nms)
     , nm_(seltxt)
 {
@@ -67,10 +67,10 @@ uiStratSynthOutSel( uiParent* p, const char* seltxt,
 
 void selItems( CallBacker* )
 {
-    uiDialog::Setup su( BufferString("Select ",nm_), mNoDlgTitle,
+    uiDialog::Setup su( uiStrings::phrSelect(nm_), mNoDlgTitle,
                         mODHelpKey(mStartSynthOutSelHelpID) );
     uiDialog dlg( parent(), su );
-    uiListBox* lb = new uiListBox( &dlg, nm_ );
+    uiListBox* lb = new uiListBox( &dlg, mFromUiStringTodo(nm_) );
     lb->setMultiChoice( true );
     lb->addItems( nms_ );
     for ( int idx=0; idx<selidxs_.size(); idx++ )
@@ -112,11 +112,11 @@ virtual BufferString getSummary() const
     return ret;
 }
 
-    const BufferString	nm_;
-    const BufferStringSet nms_;
-    TypeSet<int>	selidxs_;
+    const uiString	    nm_;
+    const BufferStringSet   nms_;
+    TypeSet<int>	    selidxs_;
 
-    uiListBox*		listfld_;
+    uiListBox*		    listfld_;
 
 };
 
@@ -124,14 +124,14 @@ virtual BufferString getSummary() const
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
-				 getWinTitle(ss),
+				 mNoDlgTitle,
                                  mODHelpKey(mStratSynthExportHelpID) ) )
     , ss_(ss)
     , randlinesel_(0)
 {
     crnewfld_ = new uiGenInput( this, tr("2D Line"),
-			     BoolInpSpec(true,tr("Create New"),
-					 tr("Use existing")) );
+			     BoolInpSpec(true,uiStrings::phrCreate(
+			     uiStrings::sNew()), tr("Use existing")) );
     crnewfld_->valuechanged.notify( mCB(this,uiStratSynthExport,crNewChg) );
 
 
@@ -157,12 +157,15 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     getExpObjs();
 
     BufferStringSet nms; addNames( postsds_, nms );
-    poststcksel_ = new uiStratSynthOutSel( selgrp, "Post-stack line data",nms );
+    poststcksel_ = new uiStratSynthOutSel( selgrp, tr("Post-stack line data")
+									,nms );
     nms.erase(); addNames( sslvls_, nms );
-    horsel_ = new uiStratSynthOutSel( selgrp, "2D horizons", nms );
+    horsel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(s2D(),
+					    sHorizon(mPlural).toLower()), nms );
     horsel_->attach( alignedBelow, poststcksel_ );
     nms.erase(); addNames( presds_, nms );
-    prestcksel_ = new uiStratSynthOutSel( selgrp, "Prestack data", nms );
+    prestcksel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(sPreStack(),
+						      sData().toLower()), nms );
     prestcksel_->attach( alignedBelow, horsel_ );
     selgrp->setHAlignObj( poststcksel_ );
     selgrp->attach( alignedBelow, geomgrp_ );
@@ -198,10 +201,11 @@ BufferString uiStratSynthExport::getWinTitle( const StratSynth& ss ) const
 void uiStratSynthExport::fillGeomGroup()
 {
     StringListInpSpec inpspec;
-    inpspec.addString( "Straight line" ); inpspec.addString( "Polygon" );
+    inpspec.addString(tr("Straight line")); 
+    inpspec.addString(uiStrings::sPolygon());
     const bool haverl = SI().has3D();
     if ( haverl )
-	inpspec.addString( "Random Line" );
+	inpspec.addString( uiStrings::sRandomLine() );
     geomsel_ = new uiGenInput( geomgrp_, tr("Geometry for line"), inpspec );
     geomsel_->valuechanged.notify( mCB(this,uiStratSynthExport,geomSel) );
     geomgrp_->setHAlignObj( geomsel_ );
@@ -384,7 +388,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		BufferString errmsg;
 		if ( !PickSetTranslator::retrieve(
 			    pickset,IOM().get(picksetobj->key()),true,errmsg) )
-		    mErrRet( errmsg, false )
+		    mErrRet( mToUiStringTodo(errmsg), false )
 	    }
 	    for ( int idx=0; idx<pickset.size(); idx++ )
 		ptlist += pickset[idx].pos_;
@@ -398,7 +402,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	    Geometry::RandomLineSet lset;
 	    BufferString errmsg;
 	    if ( !RandomLineSetTranslator::retrieve(lset,randlineobj,errmsg) )
-		mErrRet( errmsg, false )
+		mErrRet( mToUiStringTodo(errmsg), false )
 	    const ObjectSet<Geometry::RandomLine>& lines = lset.lines();
 	    BufferStringSet linenames;
 	    for ( int idx=0; idx<lines.size(); idx++ )

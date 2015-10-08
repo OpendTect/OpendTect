@@ -119,7 +119,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 
 #define mAddButton(pm,func,tip) \
 	toolbar_->addButton( pm, tip, mCB(this,uiCheckShotEdit,func) )
-    toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
+    toolbar_ = new uiToolBar( this, tr("Well Tie Control"), uiToolBar::Right );
     mAddButton( "z2t", editCSPushed, tr("View/Edit Model") );
     toolbar_->addSeparator();
     editbut_ = new uiToolButton( toolbar_, "seedpickmode",tr("Edit mode"),
@@ -178,7 +178,7 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
     if ( !mevh )
     {
 	mCBCapsuleUnpack(BufferString,inf,cb);
-	statusBar()->message( inf.buf() );
+	statusBar()->message( mToUiStringTodo(inf.buf()) );
     }
 }
 

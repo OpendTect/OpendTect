@@ -431,48 +431,54 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     const bool shiftedsingez = !extrwin.isUdf() && !layerbased &&
 			       !mIsZero(extrwin.start,1e-6f);
 
-    BufferString wintitl( "Attributes " );
-    BufferString timegate( "[", toString(winms.start,0), "-" );
-    timegate.add( toString(winms.stop,0) ).add( "]" ).add( "ms" );
+    uiString wintitl = uiStrings::sAttribute(mPlural);
+    uiString timegate = tr("[%1-%2]ms").arg(toUiString(winms.start,0))
+				       .arg(toUiString(winms.stop,0));
 
     if ( !multiz )
     {
 	if ( !shiftedsingez )
-	    wintitl.add( "at " );
+	    wintitl = tr( "%1 at" ).arg(wintitl);
 	else
 	{
-	    wintitl.add( fabs( winms.start ) ).add( "ms " )
-		   .add( winms.start < 0 ? "above " : "below " );
+	    wintitl = tr("%1 %2ms %3").arg(wintitl)
+				      .arg(toUiString(fabs( winms.start )))
+				      .arg(winms.start < 0 ? 
+				      uiStrings::sAbove().toLower() : 
+				      uiStrings::sBelow().toLower());
 	}
     }
     else if ( !layerbased && !extrwin.isUdf() )
     {
-	wintitl.add( "in a time gate " ).add( timegate ).add( " relative to " );
+	wintitl = tr("%1 in a time gate %2 relative to").arg(wintitl)
+							.arg(timegate);
     }
     else
     {
-	wintitl.add( "between " );
+	wintitl = tr("%1 between").arg(wintitl);
     }
 
-    wintitl.add( lvl.name() );
+    wintitl = toUiString("%1 %2").arg(wintitl).arg(lvl.name());
     if ( stoplvl )
     {
-	wintitl.add( !extrwin.isUdf() && !layerbased ? " and down to "
-						     : " and " );
-	wintitl.add( stoplvl->name() );
+	wintitl = toUiString("%1 %2").arg(wintitl)
+					.arg(!extrwin.isUdf() && !layerbased ? 
+					tr("and down to") : tr("and"));
+	wintitl = toUiString("%1 %2").arg(wintitl)
+					      .arg(stoplvl->name());
     }
 
     if ( multiz && !layerbased )
     {
-	wintitl.add( " each " ).add( winms.step ).add( "ms" );
+	wintitl = tr( "%1 each %2ms").arg(wintitl).arg(winms.step);
     }
     else if ( layerbased && !extrwin.isUdf() )
     {
-	wintitl.add( " within " ).add( timegate );
+	wintitl = tr("%1 within %2").arg(wintitl).arg( timegate );
     }
 
     if ( layerbased )
-	wintitl.add( " - layer-based extraction" );
+	wintitl = tr("%1 - layer-based extraction").arg(wintitl);
 
     uiDataPointSet::Setup su( wintitl, false );
     uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
@@ -519,7 +525,7 @@ bool uiStratSynthCrossplot::rejectOK( CallBacker* )
 }
 
 #undef mErrRet
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 {
@@ -529,7 +535,7 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
     const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
     if ( !evfld_->getFromScreen() )
-	mErrRet(0)
+	mErrRet(uiStrings::sEmptyString())
 
     deepErase( extrgates_ );
     const Interval<float>& extrwin = evfld_->hasExtrWin()

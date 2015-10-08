@@ -61,9 +61,8 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
     grp->setHSpacing( 40 );
 
     const Wavelet* initw = wvltset_[0];
-    BufferString initwnm( "Initial :" );
-    BufferString estwnm( "Estimated" );
-    initwnm += initw->name();
+    uiString initwnm = tr("Initial : %1").arg(toUiString(initw->name()));
+    uiString estwnm = tr("Estimated");
 
     uiLabel* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
     activewvltfld_ = new uiGenInput(this, uiString::emptyString(),

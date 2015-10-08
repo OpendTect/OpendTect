@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mErrRet(s,act) \
-{ uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
+{ uiMsgMainWinSetter mws(mainwin()); if (!s.isEmpty()) uiMSG().error(s); act; }
 
 uiSynthSeisGrp::uiSynthSeisGrp( uiParent* p, const uiRayTracer1D::Setup& su )
     : uiGroup(p)
@@ -298,11 +298,11 @@ uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
 bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
 {
     if ( mIsUdf(mutelenfld_->getFValue() ) || mutelenfld_->getFValue()<0 )
-	mErrRet( "The mutelength must be more than zero.", return false );
+	mErrRet( tr("The mutelength must be more than zero."), return false );
 
     if ( mIsUdf(stretchmutelimitfld_->getFValue()) ||
 	 stretchmutelimitfld_->getFValue()<0 )
-	mErrRet( "The stretch mute must be more than 0%", return false );
+	mErrRet( tr("The stretch mute must be more than 0%"), return false );
 
     return true;
 }

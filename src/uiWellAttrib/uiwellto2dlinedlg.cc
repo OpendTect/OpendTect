@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui2dgeomman.h"
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uigroup.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
@@ -54,8 +55,8 @@ uiWellTo2DLineDlg::~uiWellTo2DLineDlg()
 
 void uiWellTo2DLineDlg::createFields()
 {
-    BufferString txt( "Extend outward (" );
-    txt += SI().xyInFeet() ? "ft)" : "m)";
+    uiString txt = tr("Extend outward %1")
+				       .arg(SI().getUiXYUnitString(true, true));
     float defdist = 100 * SI().inlDistance();
     extendfld_ = new uiGenInput( this, txt,
 				FloatInpSpec(mCast(float,mNINT32(defdist))) );

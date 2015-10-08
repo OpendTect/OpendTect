@@ -214,7 +214,9 @@ public :
 	sep->attach( stretchedBelow, topgrp );
 
 	mrkdispfld_ = new uiWellMarkersDispProperties( this,
-		uiWellDispProperties::Setup( "Marker size", "Marker color" ),
+		uiWellDispProperties::Setup( 
+		mJoinUiStrs(sMarker(),sSize().toLower()),
+		mJoinUiStrs(sMarker(),sColor().toLower())),
 		pms_.mrkdisp_, pms_.allmarkernms_, true );
 	mrkdispfld_->attach( ensureBelow, sep );
 	mrkdispfld_->attach( alignedBelow, topgrp );

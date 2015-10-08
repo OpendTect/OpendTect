@@ -426,9 +426,9 @@ bool uiElasticPropSelDlg::acceptOK( CallBacker* )
     if( ctio_.ioobj_ )
 	doStore( *ctio_.ioobj_ );
 
-    BufferString msg;
+    uiString msg;
     if ( !elpropsel_.isValidInput( &msg ) )
-	mErrRet( mToUiStringTodo(msg), return false; );
+	mErrRet( msg, return false; );
 
     return true;
 }

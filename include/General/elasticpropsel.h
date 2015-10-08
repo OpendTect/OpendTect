@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "elasticprop.h"
+#include "uistrings.h"
 
 class IOObj;
 
@@ -22,7 +23,7 @@ class IOObj;
 */
 
 mExpClass(General) ElasticPropSelection : public PropertyRefSelection
-{
+{ mODTextTranslationClass(ElasticPropSelection)
 public:
 
 				ElasticPropSelection(bool withswave=true);
@@ -43,7 +44,8 @@ public:
     static ElasticPropSelection* get(const IOObj*);
     bool	put(const IOObj*) const;
 
-    bool			isValidInput(BufferString* errmsg=0) const;
+    bool			isValidInput(uiString*  
+				errmsg = 0) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

@@ -68,9 +68,8 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     welllogselfld_->attach( ensureBelow, attrsfld_ );
 
     const float inldist = SI().inlDistance();
-    const char* distunit =  SI().getXYUnitString();
-    BufferString radiusbuf( "  Radius around wells ");
-    radiusbuf += distunit;
+    uiString radiusbuf =  tr("Radius around wells %1")
+						.arg(SI().getUiXYUnitString());
     radiusfld_ = new uiGenInput( this, radiusbuf,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
     if ( attrsfld_ )
@@ -82,7 +81,8 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     if ( ads_ && !ads_->is2D() )
     {
 	uiPosFilterSet::Setup fsu( false );
-	fsu.seltxt( "Filter positions" ).incprovs( true );
+	fsu.seltxt( mJoinUiStrs(sFilter(),sPosition(mPlural).toLower()) )
+							     .incprovs( true );
 	posfiltfld_ = new uiPosFilterSetSel( this, fsu );
 	posfiltfld_->attach( alignedBelow, radiusfld_ );
     }
@@ -134,7 +134,7 @@ void uiWellLogExtractGrp::adsChg()
 	    idx--;
 	    continue;
 	}
-	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
+	attrsfld_->addItem( toUiString(attrinf.attrnms_.get(idx)), false );
 	attrsfld_->setChosen( attrsfld_->size()-1, true );
     }
 
@@ -150,7 +150,7 @@ void uiWellLogExtractGrp::adsChg()
 	}
 
 	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	attrsfld_->addItem( BufferString("[",ioobjnm,"]") );
+	attrsfld_->addItem( toUiString("[%1]").arg(ioobjnm) );
     }
 }
 
@@ -239,7 +239,8 @@ void uiWellLogExtractGrp::getSelLogNames( BufferStringSet& lognms )
 { welllogselfld_->getSelLogNames( lognms ); }
 
 #undef mErrRet
-#define mErrRet(s) { deepErase(dcds); if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) \
+{ deepErase(dcds); if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiWellLogExtractGrp::extractDPS()
 {
@@ -252,7 +253,7 @@ bool uiWellLogExtractGrp::extractDPS()
     for ( int idx=0; idx<lognms.size(); idx++ )
 	dcds += new DataColDef( lognms[idx]->buf() );
     if ( lognms.isEmpty() )
-	mErrRet("Please select at least one log")
+	mErrRet(uiStrings::phrSelect(tr("at least one log")))
     BufferStringSet attrnms;
     if ( ads_ )
 	addDCDs( attrsfld_, dcds,  attrnms );
@@ -261,11 +262,11 @@ bool uiWellLogExtractGrp::extractDPS()
     welllogselfld_->getSelWellNames( wellnms );
     welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )
-	mErrRet("Please select at least one well")
+	mErrRet(uiStrings::phrSelect(tr("at least one well")))
 
     ObjectSet<DataPointSet> dpss;
     if ( !extractWellData(ioobjids,lognms,dpss) )
-	mErrRet(0)
+	mErrRet(uiStrings::sEmptyString())
 
     PtrMan<Pos::Filter> filt = 0;
     if ( posfiltfld_ )
@@ -320,7 +321,8 @@ bool uiWellLogExtractGrp::extractDPS()
     curdps_->dataChanged();
     MouseCursorManager::restoreOverride();
     if ( curdps_->isEmpty() )
-	mErrRet("No positions found matching criteria")
+	mErrRet(uiStrings::phrCannotFind(uiStrings::sPosition(mPlural)
+								    .toLower()))
 
     BufferString dpsnm( "Well data:" );
     for ( int idx=0; idx<wellnms.size(); idx++ )

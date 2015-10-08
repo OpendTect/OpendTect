@@ -369,7 +369,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 	synthdisp_->addViewerToControl( *vwr );
 	vwr->viewChanged.notify( mCB(this,uiStratLayerModel,lmViewChangedCB) );
 	uiToolButton* parsbut = synthdisp_->control()->parsButton( vwr );
-	parsbut->setToolTip( "Layermodel display properties" );
+	parsbut->setToolTip( tr("Layermodel display properties") );
     }
 
     modtools_->attach( ensureBelow, moddisp_ );
@@ -449,9 +449,9 @@ void uiStratLayerModel::snapshotCB( CallBacker* )
 
 void uiStratLayerModel::setWinTitle()
 {
-    BufferString txt( "Layer modeling" );
+    uiString txt;
     if ( descctio_.ioobj_ )
-	txt.add( " [" ).add( descctio_.ioobj_->name() ).add( "]" );
+	  txt = tr("Layer modeling [%1]").arg(descctio_.ioobj_->uiName());
     setCaption( txt );
 }
 
@@ -612,8 +612,8 @@ bool uiStratLayerModel::checkUnscaledWavelet()
 	      "with the seismic data" );
     opts.add( "[Ignore]: I will not use scaling-sensitive operations" );
     uiGetChoice dlg( this, opts,
-	    "The wavelet seems to be unscaled.\n"
-	    "For most purposes, you will need a scaled wavelet.\n", true );
+	    tr("The wavelet seems to be unscaled.\n"
+	    "For most purposes, you will need a scaled wavelet.\n"), true );
     dlg.setHelpKey( mODHelpKey(mStratLayerModelcheckUnscaledWaveletHelpID) );
     dlg.go(); const int choice = dlg.choice();
     if ( choice < 0 )
@@ -701,12 +701,12 @@ bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 
     while ( true )
     {
-	const int res = uiMSG().askSave( "Generation description not saved.\n"
-					 "Save now?" );
+	const int res = uiMSG().askSave(tr("Generation description not saved.\n"
+					 "Save now?") );
 	if ( !allowcncl && res < 0 )
 	{
-	    uiMSG().error( "Sorry, you cannot cancel right now."
-			   "Please save or discard your work" );
+	    uiMSG().error( tr("Sorry, you cannot cancel right now."
+			   "Please save or discard your work") );
 	    continue;
 	}
 	if ( res < 1 )
@@ -925,7 +925,7 @@ void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
 {
     const int nrmods = gentools_->nrModels();
     if ( nrmods < 1 )
-	{ uiMSG().error("Please enter a valid number of models"); return; }
+	{ uiMSG().error(tr("Enter a valid number of models")); return; }
 
     MouseCursorChanger mcs( MouseCursor::Wait );
 
@@ -1039,13 +1039,13 @@ void uiStratLayerModel::setElasticProps()
 	}
     }
 
-    BufferString errmsg;
-    if ( !elpropsel_->isValidInput( &errmsg) )
+    uiString errmsg;
+    if ( !elpropsel_->isValidInput(&errmsg) )
     {
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg += "\nPlease define a new value. ";
-	    uiMSG().message( errmsg.buf() );
+	    errmsg = tr("%1\nPlease define a new value.").arg(errmsg);
+	    uiMSG().message(errmsg);
 	}
 	if ( !selElasticProps( *elpropsel_ ) )
 	    return;
@@ -1195,20 +1195,19 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
     {
 	BufferString msg;
 	synthdisp_->makeInfoMsg( msg, pars );
-	statusBar()->message( msg.buf() );
+	statusBar()->message( mToUiStringTodo(msg.buf()) );
     }
     else
     {
-	BufferString msg;
+	uiString msg;
 	for ( int idx=0; idx<pars.size(); idx++ )
 	{
-	    msg += pars.getKey( idx );
-	    msg +=": ";
-	    msg += pars.getValue( idx );
+	    msg = toUiString("%1 : %2").arg(pars.getKey(idx))
+				       .arg(pars.getValue(idx));
 	    if ( idx<pars.size()-1 )
-		msg += "; ";
+		msg = toUiString("%1; ").arg(msg);
 	}
-	statusBar()->message( msg.buf() );
+	statusBar()->message( msg );
     }
 }
 
