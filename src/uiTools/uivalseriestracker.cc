@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet(s) { if ( domsg ) uiMSG().error( s ); return false; }
 
 uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
-       				bool hideeventtype, bool immediateupdate )
+				bool hideeventtype, bool immediateupdate )
     : uiDlgGroup( p , tr("Event tracker"))
     , tracker_( tracker )
     , immediateupdate_( immediateupdate )
@@ -65,7 +65,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
 
     alloweddifffld_ = new uiGenInput ( this, tr("Allowed difference (%)"),
-	    			       FloatInpSpec());
+				       FloatInpSpec());
     alloweddifffld_->setValue( tracker_.allowedVariance()*100 );
     alloweddifffld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     alloweddifffld_->attach( alignedBelow, thresholdtypefld_ );
@@ -78,7 +78,8 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     usesimifld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     usesimifld_->attach( alignedBelow, ampthresholdfld_ );
 
-    uiString compwindtxt( tr("Compare window ").arg(SI().getUiZUnitString()) );
+    uiString compwindtxt(
+		tr("Compare window %1").arg(SI().getUiZUnitString()) );
     compwinfld_ = new uiGenInput( this, compwindtxt, FloatInpIntervalSpec() );
     compwinfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     compwinfld_->attach( alignedBelow, usesimifld_ );
