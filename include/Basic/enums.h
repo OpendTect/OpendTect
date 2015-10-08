@@ -323,13 +323,17 @@ EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
 {
     init();
     if ( uistrings_.size()!=size() )
+    {
 	pErrMsg( "Wrong number of uistrings" );
+    }
 
     for ( int idx=uistrings_.size(); idx<size(); idx++ )
 	uistrings_ += ::toUiString( keys_.get(idx) );
 
     if ( iconfiles_.size() && iconfiles_.size()!=size() )
+    {
 	pErrMsg( "Wrong number of iconfiles" );
+    }
 }
 
 template <class ENUM> inline
