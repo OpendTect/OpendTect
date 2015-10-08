@@ -44,10 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
-static const char* sKeyAmplVals = "       [Amplitude values]       ";
-static const char* sKeyRMSVals = "[Amplitude RMS values]";
-
-
 #define mErrRetBool(s)\
 { uiMSG().error(s); return false; }\
 
