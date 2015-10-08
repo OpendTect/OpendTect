@@ -267,7 +267,9 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
     deepErase( pssread );
 }
 
-void uiPickSetMgr::keyPressedCB(CallBacker*)
+
+
+void uiPickSetMgr::keyPressedCB( CallBacker* )
 {
     if ( !uiMain::keyboardEventHandler().hasEvent() )
 	return;
@@ -279,6 +281,4 @@ void uiPickSetMgr::keyPressedCB(CallBacker*)
 
     if ( KeyboardEvent::isReDo(kbe) )
 	setmgr_.undo().reDo( 1, true );
-    
 }
-

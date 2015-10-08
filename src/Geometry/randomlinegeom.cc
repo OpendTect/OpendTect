@@ -410,6 +410,7 @@ int RandomLineManager::indexOf( const MultiID& mid ) const
 
 RandomLine* RandomLineManager::get( const MultiID& mid )
 {
+    if ( mid.isUdf() ) return 0;
     const int rlidx = indexOf( mid );
     RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : 0;
     if ( rl )

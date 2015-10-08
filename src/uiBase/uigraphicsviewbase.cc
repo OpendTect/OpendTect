@@ -135,6 +135,7 @@ protected:
     void			mousePressEvent(QMouseEvent*);
     void			mouseDoubleClickEvent(QMouseEvent*);
     void			keyPressEvent(QKeyEvent*);
+    void			keyReleaseEvent(QKeyEvent*);
     bool			viewportEvent(QEvent*);
     void			scrollContentsBy (int,int);
     bool			event(QEvent*);
@@ -264,6 +265,23 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
     }
 
     QGraphicsView::keyPressEvent( ev );
+}
+
+
+void uiGraphicsViewBody::keyReleaseEvent( QKeyEvent* ev )
+{
+    if ( !ev ) return;
+
+    QGraphicsItem* itm = scene()->focusItem();
+    if ( !itm )
+    {
+	// TODO: impl modifier
+	KeyboardEvent ke;
+	ke.key_ = (OD::KeyboardKey)ev->key();
+	keyboardhandler_.triggerKeyReleased( ke );
+    }
+
+    QGraphicsView::keyReleaseEvent( ev );
 }
 
 
