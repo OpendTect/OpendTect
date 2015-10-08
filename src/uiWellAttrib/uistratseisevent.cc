@@ -34,7 +34,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     , uptolvlfld_(0)
 {
     if ( !setup_.fixedlevel_ )
-	levelfld_ = new uiStratLevelSel( this, false, "Reference level" );
+	levelfld_ = new uiStratLevelSel( this, false, tr("Reference level" ));
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
     eventnms.removeSingle(0);
@@ -65,7 +65,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	    extrwinfld_->checked.notify( mCB(this,uiStratSeisEvent,extrWinCB) );
 	    extrwinfld_->setChecked( true );
 
-	    usestepfld_ = new uiCheckBox( this, " " );
+	    usestepfld_ = new uiCheckBox( this, uiStrings::sEmptyString() );
 	    usestepfld_->setChecked();
 	    usestepfld_->activated.notify(
 					 mCB(this,uiStratSeisEvent,stepSelCB) );
@@ -160,7 +160,7 @@ void uiStratSeisEvent::stepSelCB( CallBacker* )
 }
 
 
-#define mErrRet(s) { if ( s && *s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiStratSeisEvent::getFromScreen()
 {
@@ -169,7 +169,8 @@ bool uiStratSeisEvent::getFromScreen()
     {
 	ev_.setLevel( levelfld_->selected() );
 	if ( !ev_.level() )
-	    mErrRet("Cannot find selected stratigraphic level")
+	    mErrRet(uiStrings::phrCannotFind(
+					    tr("selected stratigraphic level")))
     }
 
     ev_.setEvType( !evfld_->isChecked() ? VSEvent::None
@@ -181,7 +182,7 @@ bool uiStratSeisEvent::getFromScreen()
     {
 	Interval<float> win( extrwinfld_->getFInterval() );
 	if ( win.isUdf() )
-	    mErrRet("Please enter a valid time range")
+	    mErrRet(uiStrings::phrInput(tr("a valid time range")))
 
 	win.scale( mToSecFactorF );
 	ev_.setExtrWin( win );
@@ -191,7 +192,7 @@ bool uiStratSeisEvent::getFromScreen()
 	{
 	    const float stepms = extrstepfld_->getFValue();
 	    if ( mIsUdf(stepms) )
-		mErrRet("Please enter a valid step")
+		mErrRet(uiStrings::phrInput(tr("a valid step")))
 
 	    extrstep = stepms * mToSecFactorF;
 	}

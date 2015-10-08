@@ -137,7 +137,7 @@ void uiSynthGenDlg::updateSynthNames()
 
 	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
 	if ( prsd ) continue;
-	synthnmlb_->addItem( sd->name() );
+	synthnmlb_->addItem( toUiString(sd->name()) );
     }
 }
 
@@ -322,7 +322,7 @@ void uiSynthGenDlg::putToScreen()
 	}
 	else
 	{
-	    psselfld_->box()->addItem( genparams.inpsynthnm_ );
+	    psselfld_->box()->addItem( toUiString(genparams.inpsynthnm_) );
 	    psselfld_->box()->setSensitive( false );
 	}
 

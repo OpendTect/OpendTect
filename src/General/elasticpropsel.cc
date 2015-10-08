@@ -29,7 +29,7 @@ static const char* sKeyElasticsSize	= "Nr of Elastic Properties";
 static const char* sKeyElasticProp	= "Elastic Properties";
 static const char* sKeyElastic		= "Elastic";
 static const char* sKeyFormulaName	= "Name of formula";
-static const char* sKeyMathExpr	= "Mathematic Expression";
+static const char* sKeyMathExpr		= "Mathematic Expression";
 static const char* sKeySelVars		= "Selected properties";
 static const char* sKeyUnits		= "Units";
 static const char* sKeyType		= "Type";
@@ -306,7 +306,7 @@ ElasticPropertyRef& ElasticPropSelection::gt( ElasticFormula::Type tp ) const
 
 
 
-bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
+bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -316,10 +316,7 @@ bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
 	if ( vars.isEmpty() )
 	 {
 	    if ( errmsg )
-	    {
-		*errmsg = "No variable specified for ";
-		*errmsg += propnm;
-	    }
+		*errmsg = tr("No variable specified for %1").arg(propnm);
 	    return false;
 	 }
 
@@ -329,10 +326,7 @@ bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
 	if ( vars.isPresent( epr.name() ) )
 	{
 	    if ( errmsg )
-	    {
-		*errmsg += propnm;
-		*errmsg += " is dependent on itself";
-	    }
+		*errmsg = tr("%1 is dependent on itself").arg(propnm);
 	    return false;
 	}
 
@@ -347,10 +341,8 @@ bool ElasticPropSelection::isValidInput( BufferString* errmsg ) const
 	    if ( vars.isPresent(nm) && form.variables().isPresent( propnm ) )
 	    {
 		if ( errmsg )
-		{
-		    *errmsg += propnm; *errmsg += " and "; *errmsg += nm;
-		    *errmsg += " depend on each other";
-		}
+		    *errmsg = tr("%1 and %2 depend on each other").arg(propnm)
+			      .arg(nm);
 		return false;
 	    }
 	}

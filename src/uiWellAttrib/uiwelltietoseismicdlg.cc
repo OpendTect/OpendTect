@@ -75,8 +75,8 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
     server_.setTaskRunner( new uiTaskRunner( p ) );
 
     mGetWD(return)
-    BufferString title( "Tie ");
-    title += wd->name(); title += " to "; title += welltieSetup().seisnm_;
+    uiString title = tr("Tie %1 to %2").arg(toUiString(wd->name()))
+				       .arg(toUiString(welltieSetup().seisnm_));
     setCaption( title );
 
     initAll();
@@ -259,7 +259,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     BufferStringSet eventtypes;
     server_.pickMgr().getEventTypes( eventtypes );
     for ( int idx=0; idx<eventtypes.size(); idx++)
-	eventtypefld_->box()->addItem( eventtypes[idx]->buf() );
+	eventtypefld_->box()->addItem( toUiString(eventtypes[idx]->buf()) );
 
     eventtypefld_->box()->setCurrentItem( server_.pickMgr().getEventType() );
 
@@ -466,7 +466,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
-    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),"",
+    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),mNoDlgTitle,
                                              mNoHelpKey) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
 				BoolInpSpec(true,uiStrings::sName(),
@@ -520,7 +520,7 @@ bool uiTieWin::acceptOK( CallBacker* )
 void uiTieWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
-    statusBar()->message( mesg.buf() );
+    statusBar()->message( mToUiStringTodo(mesg.buf()) );
 }
 
 
@@ -561,7 +561,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvltdraw_->activeWvltChged.notify( mCB(this,WellTie::uiInfoDlg,
 				       wvltChanged) );
     wvltdraw_->setActiveWavelet( true );
-    wvltscaler_ = new uiLabel( wvltgrp, 0 );
+    wvltscaler_ = new uiLabel( wvltgrp, uiStrings::sEmptyString() );
     wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
     const int initwvltsz = data_.initwvlt_.size() - 1;
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *

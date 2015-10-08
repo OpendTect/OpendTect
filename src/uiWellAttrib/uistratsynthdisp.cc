@@ -163,7 +163,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     prestackgrp_ = new uiGroup( datagrp_, "Prestack View Group" );
     prestackgrp_->attach( rightOf, lvlsnapcbx, 20 );
 
-    offsetposfld_ = new uiSynthSlicePos( prestackgrp_, "Offset" );
+    offsetposfld_ = new uiSynthSlicePos( prestackgrp_, uiStrings::sOffset() );
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged));
 
     prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64",
@@ -350,7 +350,7 @@ void uiStratSynthDisp::updateSyntheticList( bool wva )
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     BufferString curitem = datalist->text();
     datalist->setEmpty();
-    datalist->addItem( sKeyNone() );
+    datalist->addItem( uiStrings::sNone() );
     for ( int idx=0; idx<curSS().nrSynthetics(); idx ++)
     {
 	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
@@ -358,7 +358,7 @@ void uiStratSynthDisp::updateSyntheticList( bool wva )
 
 	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
 	if ( wva && prsd ) continue;
-	datalist->addItem( sd->name() );
+	datalist->addItem( toUiString(sd->name()) );
     }
 
     datalist->setCurrentItem( curitem );
@@ -1736,7 +1736,7 @@ void uiStratSynthDisp::setDiffData()
 }
 
 
-uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
+uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const uiString& lbltxt )
     : uiGroup( p, "Slice Pos" )
     , positionChg(this)
 {

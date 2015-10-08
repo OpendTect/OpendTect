@@ -43,7 +43,7 @@ public:
 
     void			setRefLevel(const char*);
     uiString	 		errMsg() const
-				{ return errmsg_.isEmpty() ? 0 : errmsg_;}
+				{ return errmsg_; }
 
 protected:
 

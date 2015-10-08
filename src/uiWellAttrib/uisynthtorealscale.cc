@@ -79,7 +79,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     valueslider_->attach( alignedBelow, dispfld_ );
     valueslider_->setStretch( 2, 1 );
 
-    uiLabel* lbl = new uiLabel( this, nm );
+    uiLabel* lbl = new uiLabel( this, mToUiStringTodo(nm) );
     dispfld_->attach( centeredBelow, lbl );
     setHAlignObj( dispfld_ );
 }
@@ -153,14 +153,16 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 #define mNoDealRet(cond,msg) \
     if ( cond ) \
 	{ new uiLabel( this, msg ); return; }
-    mNoDealRet( Strat::LVLS().isEmpty(), "No Stratigraphic Levels defined" )
-    mNoDealRet( tb.isEmpty(), "Please generate models first" )
-    mNoDealRet( inpwvltid_.isEmpty(), "Please create a Wavelet first" )
+    mNoDealRet( Strat::LVLS().isEmpty(), tr("No Stratigraphic Levels defined") )
+    mNoDealRet( tb.isEmpty(), tr("Generate models first") )
+    mNoDealRet( inpwvltid_.isEmpty(), uiStrings::phrCreate(
+							tr("a Wavelet first")) )
     mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
-	    "Please select Stratigraphic Level\nbefore starting this tool" )
+				   uiStrings::phrSelect(tr("Stratigraphic Level"
+				   "\nbefore starting this tool")) )
 
-    BufferString wintitle( "Determine scaling for synthetics using '" );
-    wintitle.add( IOM().nameOf( inpwvltid_ ) ).add( "'" );
+    uiString wintitle = tr("Determine scaling for synthetics using '%1'")
+				    .arg(toUiString(IOM().nameOf(inpwvltid_)));
     setTitleText( wintitle );
 
     uiSeisSel::Setup sssu( is2d_, false );
@@ -191,7 +193,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     uiSeparator* sep = new uiSeparator( this, "separator" );
     sep->attach( stretchedBelow, gobut );
 
-    valislbl_ = new uiLabel( this, sKeyAmplVals );
+    valislbl_ = new uiLabel( this, tr("       [Amplitude values]       ") );
     valislbl_->setAlignment( Alignment::HCenter );
     valislbl_->attach( centeredBelow, sep );
 
@@ -261,7 +263,8 @@ bool uiSynthToRealScale::getEvent()
 	return false;
     seisev_ = evfld_->event();
     const bool isrms = evfld_->getFullExtrWin().nrSteps() > 0;
-    valislbl_->setText( isrms ? sKeyRMSVals : sKeyAmplVals );
+    valislbl_->setText( isrms ? tr("[Amplitude RMS values]")  
+			      : tr("       [Amplitude values]       ") );
     return true;
 }
 
@@ -279,7 +282,7 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
 	BufferString errmsg;
 	polygon_ = PickSetTranslator::getPolygon( *ioobj, errmsg );
 	if ( !polygon_ )
-	    mErrRetBool( errmsg );
+	    mErrRetBool( mToUiStringTodo(errmsg) );
     }
 
     const IOObj* ioobj = horfld_->ioobj();
