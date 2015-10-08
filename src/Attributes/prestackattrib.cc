@@ -417,13 +417,13 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 
 	mDeclareAndTryAlloc( PreStack::Gather*, gather,
 				PreStack::Gather(*curgather ) );
-	
+
 	if ( !gather )
 	    return false;
 
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	curgatherid = gather->id();
-	
+
 	if ( curanglegather )
 	{
 	    mDeclareAndTryAlloc( PreStack::Gather*, anglegather,
@@ -466,7 +466,7 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 	{
 	    if ( !preprocessor_->wantsInput(relbid) )
 		continue;
-	    
+
 	    const BinID bid = currentbid_+relpos+relbid*sistep;
 	    PreStack::Gather* gather = 0;
 	    if ( gatherset_.isEmpty() )
@@ -526,7 +526,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	DPM(DataPackMgr::FlatID()).release( curgatherid );
 	curgatherid = getPreProcessedID( relpos );
     }
-    
+
     propcalc_->setGather( curgatherid );
     if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )
 	return false;
@@ -563,7 +563,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    mErrRet( uiStrings::phrCannotFindDBEntry( ::toUiString(psid_)) )
 
 	if ( is2D() )
-	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, 
+	    psrdr_ = SPSIOPF().get2DReader( *psioobj_,
 					    Survey::GM().getName(geomid_) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
@@ -578,6 +578,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     }
 
     mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
+    Provider::prepPriorToBoundsCalc();
 }
 
 

@@ -323,6 +323,8 @@ void Convolve::prepPriorToBoundsCalc()
 	int wvletmididx = wavelet_->centerSample();
 	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
     }
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 

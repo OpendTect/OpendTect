@@ -170,6 +170,8 @@ void Frequency::prepPriorToBoundsCalc()
 					 false, windowtype_, variable_ );
 	}
     }
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 
