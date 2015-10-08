@@ -16,6 +16,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <ctype.h>
 
 
+bool Repos::isUserDefined( Repos::Source src )
+{
+    return src == Temp || src > ApplSetup;
+}
+
+
+uiString Repos::descriptionOf( Repos::Source src )
+{
+    const char* fn = "Repos::descriptionOf";
+    switch ( src )
+    {
+	case Rel:	return od_static_tr( fn, "OpendTect Release" );
+	case ApplSetup:	return od_static_tr( fn, "Common Application Setup" );
+	case Data:	return od_static_tr( fn, "Survey Data Root" );
+	case Survey:	return od_static_tr( fn, "Current Survey" );
+	case User:	return od_static_tr( fn, "Your Home/User directory" );
+	default:	return od_static_tr( fn, "Temporary Storage" );
+    }
+}
+
+
 bool Repos::FileProvider::next( Repos::Source& src, bool rev )
 {
     if ( rev )
@@ -167,9 +188,6 @@ bool Repos::IOParSet::write( const Repos::Source* reqsrc ) const
 	    continue;
 
 	ObjectSet<const IOPar> srcentries = getEntries( cursrc );
-	if ( srcentries.isEmpty() )
-	    continue;
-
 	const BufferString fnm( rfp.fileName() );
 	if ( File::exists(fnm) && !File::isWritable(fnm) )
 	    { rv = false; continue; }

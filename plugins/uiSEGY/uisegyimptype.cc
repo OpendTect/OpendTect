@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegyimptype.h"
 #include "uicombobox.h"
 #include "survinfo.h"
+#include "keystrs.h"
 
 static const char* sKeyImpTyp = "Import.Type";
 static const char* sKeyVSP = "VSP";
@@ -152,7 +153,9 @@ void uiSEGYImpType::setTypIdx( int tidx )
 
 void uiSEGYImpType::usePar( const IOPar& iop )
 {
-    const BufferString res = iop.find( sKeyImpTyp );
+    BufferString res = iop.find( sKeyImpTyp );
+    if ( res.isEmpty() || res == sKey::All() )
+	res = iop.find( sKey::Geometry() );
     if ( res.isEmpty() )
 	return;
 

@@ -261,7 +261,7 @@ void SEGY::HdrEntryKeyData::setCurOrPref(
 	return;
 
     const HdrDef& hdrdef = TrcHeader::hdrDef();
-    int bytepos = he.bytepos_;
+    HdrEntry::BytePos bytepos = he.bytepos_;
     if ( bytepos%2 ) bytepos--;
 
     // see if already a valid one is selected
@@ -270,8 +270,8 @@ void SEGY::HdrEntryKeyData::setCurOrPref(
 	const HdrEntry& defhe = *hdrdef[ ds.idxs_[idx] ];
 	if ( defhe.bytepos_ == bytepos )
 	{
-	    // we're cool, current is a valid one
-	    he.bytepos_ = bytepos; // to be sure it's internal
+	    // we're cool, current is a valid one.
+	    he.bytepos_ = bytepos; // just ensure it's internal bytenr
 	    return;
 	}
     }

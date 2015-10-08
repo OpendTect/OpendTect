@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "uistring.h"
 #include "bufstring.h"
 #include "manobjectset.h"
 #include "iopar.h"
@@ -21,7 +22,7 @@ ________________________________________________________________________
 namespace Repos
 {
 
-    enum Source	{ Temp, Rel, ApplSetup, Data, Survey, User };
+    enum Source		{ Temp, Rel, ApplSetup, Data, Survey, User };
 
 /*!\brief Constructs repository file names.
 
@@ -31,7 +32,7 @@ namespace Repos
   Then the files to find are:
   Temp: temp stor dir (/tmp on unix), file "UnitsOfMeasure"
   Rel: Software (release) dir, data subdir, file "UnitsOfMeasure"
-  Appl: Application setup dir, data subdir, file "UnitsOfMeasure"
+  ApplSetup: Application setup dir, data subdir, file "UnitsOfMeasure"
   Data: survey data root, file ".unitsofmeasure"
   Survey: survey directory, file ".unitsofmeasure"
   User: home/user dir, .od subdir, file "unitsofmeasure"
@@ -46,6 +47,10 @@ namespace Repos
   while ( rfp.next() )
       addUnitsFromFile( rfp.fileName(), rfp.source() );
 */
+
+    mGlobal(Basic) bool		isUserDefined(Source);
+    mGlobal(Basic) uiString	descriptionOf(Source);
+
 
 mExpClass(Basic) FileProvider
 {
