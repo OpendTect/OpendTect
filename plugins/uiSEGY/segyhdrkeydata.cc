@@ -33,33 +33,33 @@ void SEGY::HdrEntryDataSet::addRecord()
 }
 
 
-void SEGY::HdrEntryDataSet::add( int heidx, int val )
+void SEGY::HdrEntryDataSet::add( int hdidx, int val )
 {
-    if ( rejectedidxs_.isPresent(heidx) )
+    if ( rejectedidxs_.isPresent(hdidx) )
 	return;
 
     HdrEntryRecord& rec = (*this)[ size()-1 ];
-    const int listpos = idxs_.indexOf( heidx );
+    const int listpos = idxs_.indexOf( hdidx );
     if ( listpos >= 0 )
 	rec[listpos] = val;
     else if ( size() > 1 )
-	reject( heidx ); // shld already have been in rejected list?
+	reject( hdidx ); // shld already have been in rejected list?
     else
-	{ idxs_ += heidx; rec += val; }
+	{ idxs_ += hdidx; rec += val; }
 }
 
 
-void SEGY::HdrEntryDataSet::reject( int heidx )
+void SEGY::HdrEntryDataSet::reject( int hdidx )
 {
-    if ( rejectedidxs_.isPresent(heidx) )
+    if ( rejectedidxs_.isPresent(hdidx) )
 	return;
 
-    rejectedidxs_.add( heidx );
+    rejectedidxs_.add( hdidx );
     const int sz = size();
     if ( sz < 1 )
 	return;
 
-    const int idx = idxs_.indexOf( heidx );
+    const int idx = idxs_.indexOf( hdidx );
     if ( idx < 0 )
 	return;
 
@@ -92,7 +92,7 @@ void SEGY::HdrEntryDataSet::rejectConstants()
 		{ havevariation = true; break; }
 	}
 	if ( !havevariation )
-	    toreject += idx;
+	    toreject += idxs_[idx];
     }
 
     for ( int idx=0; idx<toreject.size(); idx++ )
@@ -120,7 +120,7 @@ void SEGY::HdrEntryDataSet::rejectNoProgress()
 		{ isbad = true; break; }
 	}
 	if ( isbad )
-	    toreject += idx;
+	    toreject += idxs_[idx];
     }
 
     for ( int idx=0; idx<toreject.size(); idx++ )
@@ -226,16 +226,12 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd )
 }
 
 
-void SEGY::HdrEntryKeyData::finish()
+void SEGY::HdrEntryKeyData::finish( bool isps )
 {
     offs_.rejectConstants();
-
-    // SEG-Y files can have a single inline, crossline or gather
-
-    // For 2D PS the following will make valid single-gather files unloadable:
-    trcnr_.rejectNoProgress();
     refnr_.rejectConstants();
-    // So be it. The benefit for all other 2D files is too big ...
+    if ( !isps )
+	trcnr_.rejectNoProgress();
 }
 
 
@@ -248,59 +244,70 @@ void SEGY::HdrEntryKeyData::merge( const HdrEntryKeyData& oth )
 }
 
 
-void SEGY::HdrEntryKeyData::setCurOrFirst( HdrEntry& he,
-					   const HdrEntryDataSet& ds ) const
+void SEGY::HdrEntryKeyData::setCurOrPref( HdrEntry& he,
+			   const HdrEntryDataSet& ds, int prefhdidx,
+			   int defidx ) const
+{
+    TypeSet<int> prefhdidxs; prefhdidxs += prefhdidx;
+    setCurOrPref( he, ds, prefhdidxs, defidx );
+}
+
+
+void SEGY::HdrEntryKeyData::setCurOrPref(
+		HdrEntry& he, const HdrEntryDataSet& ds,
+		const TypeSet<int>& prefhdidxs, int defidx ) const
 {
     if ( ds.isEmpty() )
 	return;
 
     const HdrDef& hdrdef = TrcHeader::hdrDef();
-    const int bytepos = he.bytepos_ - 1; // he has a 'user' byte number
+    int bytepos = he.bytepos_;
+    if ( bytepos%2 ) bytepos--;
 
     // see if already a valid one is selected
     for ( int idx=0; idx<ds.idxs_.size(); idx++ )
     {
 	const HdrEntry& defhe = *hdrdef[ ds.idxs_[idx] ];
 	if ( defhe.bytepos_ == bytepos )
-	    return; // we're cool, current is a valid one
+	{
+	    // we're cool, current is a valid one
+	    he.bytepos_ = bytepos; // to be sure it's internal
+	    return;
+	}
     }
 
-    // current is invalid, use first valid one
-    he = *hdrdef[ ds.idxs_[0] ];
-    he.bytepos_++; // convert to 'user' byte number
+    // current is invalid, try use a preferred one
+    for ( int idx=0; idx<ds.idxs_.size(); idx++ )
+    {
+	if ( prefhdidxs.isPresent(ds.idxs_[idx]) )
+	    { he = *hdrdef[ ds.idxs_[idx] ]; return; }
+    }
+
+    // none of the preferred ones there, use default
+    if ( defidx >= ds.idxs_.size() )
+	defidx = ds.idxs_.size() - 1;
+    he = *hdrdef[ ds.idxs_[defidx] ];
 }
 
 
 void SEGY::HdrEntryKeyData::setBest( TrcHeaderDef& th ) const
 {
-    setCurOrFirst( th.inl_, inl_ );
-    setCurOrFirst( th.crl_, crl_ );
-    setCurOrFirst( th.trnr_, trcnr_ );
-    setCurOrFirst( th.refnr_, refnr_ );
-    setCurOrFirst( th.offs_, offs_ );
-    setCurOrFirst( th.xcoord_, x_ );
-    setCurOrFirst( th.ycoord_, y_ );
+#define mSetCurOrPref(thmemb,mymemb,thstd,deflt) \
+    setCurOrPref( th.thmemb, mymemb, TrcHeader::Entry##thstd(), deflt )
 
-    // ... and for X and Y it looks too stupid if we select a non-specific one
-    const HdrDef& hdrdef = TrcHeader::hdrDef();
+    mSetCurOrPref( inl_, inl_, Inline, 0 );
+    mSetCurOrPref( crl_, crl_, Crossline, 1 );
+    mSetCurOrPref( trnr_, trcnr_, Cdp, 0 );
+    mSetCurOrPref( refnr_, refnr_, SP, 1 );
+    mSetCurOrPref( offs_, offs_, Offset, 2 );
 
-    for ( int ihe=0; ihe<x_.size(); ihe++ )
-    {
-	if ( ihe == mHdrEntry(Sx) || ihe == mHdrEntry(Gx)
-	  || ihe == mHdrEntry(Xcdp) )
-	{
-	    th.xcoord_ = *hdrdef[ x_.idxs_[ihe] ];
-	    th.xcoord_.bytepos_++;
-	}
-    }
+    TypeSet<int> hdidxs;
+    hdidxs += TrcHeader::EntrySx(); hdidxs += TrcHeader::EntryGx();
+    hdidxs += TrcHeader::EntryXcdp();
+    setCurOrPref( th.xcoord_, x_, hdidxs, 0 );
 
-    for ( int ihe=0; ihe<y_.size(); ihe++ )
-    {
-	if ( ihe == mHdrEntry(Sy) || ihe == mHdrEntry(Gy)
-	  || ihe == mHdrEntry(Ycdp) )
-	{
-	    th.ycoord_ = *hdrdef[ y_.idxs_[ihe] ];
-	    th.ycoord_.bytepos_++;
-	}
-    }
+    hdidxs.setEmpty();
+    hdidxs += TrcHeader::EntrySy(); hdidxs += TrcHeader::EntryGy();
+    hdidxs += TrcHeader::EntryYcdp();
+    setCurOrPref( th.ycoord_, y_, hdidxs, 0 );
 }

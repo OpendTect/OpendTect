@@ -89,9 +89,9 @@ protected:
     BufferString	userfilename_;
     BufferString	lastparname_;
     SEGY::LoadDef	loaddef_;
+    bool		detectrev0flds_;
     SEGY::ScanInfoSet*	scaninfos_;
     DataClipSampler&	clipsampler_;
-    bool		setbestrev0candidates_;
     SEGY::ImpType	fixedimptype_;
     SurveyInfo*		survinfo_;
     bool		survinfook_;

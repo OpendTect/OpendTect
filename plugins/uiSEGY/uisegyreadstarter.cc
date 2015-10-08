@@ -64,7 +64,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , icvsxybut_(0)
     , ampldisp_(0)
     , survmap_(0)
-    , setbestrev0candidates_(true)
+    , detectrev0flds_(true)
     , userfilename_("x") // any non-empty
     , scaninfos_(0)
     , clipsampler_(*new DataClipSampler(100000))
@@ -272,7 +272,7 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 	return;
 
     const SEGY::ImpType& imptyp = impType();
-    scaninfos_ = new SEGY::ScanInfoSet( imptyp.is2D() );
+    scaninfos_ = new SEGY::ScanInfoSet( imptyp.is2D(), imptyp.isPS() );
     scaninfos_->setName( userfilename_ );
 
     PtrMan<TaskRunner> trunner;
@@ -280,8 +280,18 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 	trunner = new uiTaskRunner( this );
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0),ct,trunner) )
+    const BufferString fnm0 = filespec_.fileName( 0 );
+    if ( !scanFile(fnm0,ct,trunner) )
 	return;
+
+    if ( !full && detectrev0flds_ )
+    {
+	detectrev0flds_ = false;
+	scaninfos_->scanInfo(0).keyData().setBest( *loaddef_.hdrdef_ );
+	scaninfos_->setEmpty();
+	if ( !scanFile(fnm0,ct,trunner) )
+	    return;
+    }
 
     const int nrfiles = filespec_.nrFiles();
     for ( int idx=1; idx<nrfiles; idx++ )
@@ -399,16 +409,16 @@ void uiSEGYReadStarter::typChg( CallBacker* )
     if ( imptyp.is2D() )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
 
-    infofld_->setImpTypIdx( imptyp.tidx_ );
-
-    setbestrev0candidates_ = true;
-    forceRescan();
+    infofld_->setImpTypIdx( imptyp.tidx_, false );
+    detectrev0flds_ = true;
+    forceRescan( KeepBasic );
     setButtonStatuses();
 }
 
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
+    detectrev0flds_ = true;
     handleNewInputSpec( KeepNone );
     setButtonStatuses();
 }
@@ -823,12 +833,8 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     if ( !completeFileInfo(strm,bfi,isfirst) )
 	{ scaninfos_->removeLast(); return false; }
 
-    if ( isfirst && ct != KeepAll )
-    {
-	if ( ct == KeepNone )
-	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
-	completeLoadDef();
-    }
+    if ( isfirst && ct == KeepNone )
+	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
 
     si.getFromSEGYBody( strm, loaddef_, clipsampler_, trunner );
     return true;
@@ -847,7 +853,6 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
     const bool isfirst = true; // for mErrRetFileName
     const od_stream::Pos firsttrcpos = strm.position();
 
-    SEGY::LoadDef ld;
     PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
     if ( !thdr )
 	mErrRetResetStream( "File:\n%1\nNo traces found" )
@@ -868,17 +873,6 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
     strm.setPosition( firsttrcpos );
     return true;
-}
-
-
-void uiSEGYReadStarter::completeLoadDef()
-{
-    if ( setbestrev0candidates_ )
-    {
-	setbestrev0candidates_ = false;
-	scaninfos_->keyData().setBest( *loaddef_.hdrdef_ );
-	infofld_->useLoadDef();
-    }
 }
 
 

@@ -65,7 +65,7 @@ public:
 
     void		setEmpty();
     void		add(const TrcHeader&,bool isswapped);
-    void		finish();
+    void		finish(bool isps);
 
     void		merge(const HdrEntryKeyData&);
 			// will not finish() - do this after last merge
@@ -75,7 +75,10 @@ public:
 protected:
 
     void		init();
-    void		setCurOrFirst(HdrEntry&,const HdrEntryDataSet&) const;
+    void		setCurOrPref(HdrEntry&,const HdrEntryDataSet&,
+				     int prefhdidx,int defidx) const;
+    void		setCurOrPref(HdrEntry&,const HdrEntryDataSet&,
+				     const TypeSet<int>&,int) const;
 
 };
 

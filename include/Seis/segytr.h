@@ -54,10 +54,10 @@ public:
     const SEGY::BinHeader& binHeader() const	{ return binhead_; }
     const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }
     void		setTxtHeader(SEGY::TxtHeader*);	//!< write; becomes mine
-    void		setForceRev0( bool yn )	{ forcerev0_ = yn; }
+    void		setForceRev0( bool yn )	{ forcedrev_ = 0; }
 
     int			dataBytes() const;
-    bool		rev0Forced() const	{ return forcerev0_; }
+    bool		rev0Forced() const	{ return forcedrev_ == 0; }
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
     const unsigned char* blockBuf() const	{ return blockbuf_; }
@@ -75,7 +75,7 @@ protected:
     SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
     LinScaler*		trcscale_;
     const LinScaler*	curtrcscale_;
-    bool		forcerev0_;
+    int			forcedrev_;
 
     bool		useinpsd_;
     TraceDataInterpreter* storinterp_;

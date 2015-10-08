@@ -471,13 +471,14 @@ void uiSEGYReadStartInfo::parChanged( bool revchg )
 }
 
 
-void uiSEGYReadStartInfo::setImpTypIdx( int idx )
+void uiSEGYReadStartInfo::setImpTypIdx( int idx, bool doupd )
 {
     if ( inptypfixed_ )
 	{ pErrMsg( "Input type fixed, cannot set" ); return; }
 
     imptype_.tidx_ = idx;
-    parChanged( false );
+    if ( doupd )
+	parChanged( false );
 }
 
 

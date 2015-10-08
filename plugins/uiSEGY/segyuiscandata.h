@@ -125,7 +125,7 @@ mExpClass(uiSEGY) ScanInfo
 {
 public:
 
-			ScanInfo(const char* fnm,bool is2d);
+			ScanInfo(const char* fnm,bool is2d,bool isps);
 			~ScanInfo();
 
     BasicFileInfo&	basicInfo()		{ return basicinfo_; }
@@ -138,6 +138,7 @@ public:
 
     const char*		fileName() const	{ return filenm_; }
     bool		is2D() const;
+    bool		isPS() const		{ return isps_; }
     bool		isEmpty() const		{ return nrtrcs_ < 1; }
     int			nrTraces() const	{ return nrtrcs_; }
     bool		isFull() const		{ return full_; }
@@ -156,6 +157,7 @@ protected:
     ScanRangeInfo	rgs_;
     int			nrtrcs_;
     bool		full_;
+    bool		isps_;
 
     od_stream_Pos	startpos_;
 
@@ -184,7 +186,7 @@ mExpClass(uiSEGY) ScanInfoSet : public NamedObject
 {
 public:
 
-			ScanInfoSet(bool is2d);
+			ScanInfoSet(bool is2d,bool isps);
 
     void		setEmpty();
     ScanInfo&		add(const char* fnm);	//!< does not open anything
@@ -209,6 +211,7 @@ protected:
 
     ObjectSet<ScanInfo>	sis_;
     bool		is2d_;
+    bool		isps_;
     bool		infeet_;
     int			nrtrcs_;
     HdrEntryKeyData&	keydata_;
