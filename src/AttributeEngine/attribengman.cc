@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribprovider.h"
 #include "attribstorprovider.h"
 
+#include "convmemvalseries.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "ioman.h"
@@ -350,6 +351,16 @@ public:
 DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     : in_(in), out_(out)
     , domemcopy_(false)
+    , samplebytes_(sizeof(float))
+    , inptr_(0)
+    , outptr_(0)
+    , intracebytes_(0)
+    , inlinebytes_(0)
+    , incompbytes_(0)
+    , outtracebytes_(0)
+    , outlinebytes_(0)
+    , outcompbytes_(0)
+    , bytestocopy_(0)
 {
     worktkzs_ = out.sampling();
     worktkzs_.limitTo( in.sampling() );
@@ -363,9 +374,42 @@ bool doPrepare( int nrthreads )
     if ( in_.getDataDesc() != out_.getDataDesc() )
 	return true;
 
-    domemcopy_ = out_.sampling().nrZ() > 10;
+    inptr_ = mCast( const unsigned char*, in_.data().getData() );
+    mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
+		     in_.data().getStorage() );
+    if ( instorage )
+    {
+	inptr_ = mCast( const unsigned char*, instorage->storArr() );
+	samplebytes_ = in_.getDataDesc().nrBytes();
+    }
+
+    outptr_ = mCast( unsigned char*, out_.data().getData() );
+    mDynamicCastGet( const ConvMemValueSeries<float>*, outstorage,
+		     out_.data().getStorage() );
+    if ( outstorage )
+	outptr_ = mCast( unsigned char*, outstorage->storArr() );
+
+    if ( !inptr_ || !outptr_ )
+	return true;
+
+    intracebytes_ = samplebytes_ * in_.sampling().size(TrcKeyZSampling::Z);
+    inlinebytes_ = intracebytes_ * in_.sampling().size(TrcKeyZSampling::Crl);
+    incompbytes_ = samplebytes_ * in_.sampling().totalNr();
+
+    outtracebytes_ = samplebytes_ * out_.sampling().size(TrcKeyZSampling::Z);
+    outlinebytes_ = outtracebytes_ * out_.sampling().size(TrcKeyZSampling::Crl);
+    outcompbytes_ = samplebytes_ * out_.sampling().totalNr();
+
+    bytestocopy_ = samplebytes_ * worktkzs_.nrZ();
+
+    const float start = worktkzs_.zsamp_.start;
+    inptr_ += samplebytes_ * in_.getZRange().nearestIndex( start );
+    outptr_ += samplebytes_ * out_.getZRange().nearestIndex( start );
+
+    domemcopy_ = true;
     return true;
 }
+
 
 bool doWork( od_int64 start, od_int64 stop, int threadidx )
 {
@@ -379,6 +423,23 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	const int outcrlidx = outtks.trcIdx( bid.crl() );
 	const int ininlidx = intks.lineIdx( bid.inl() );
 	const int incrlidx = intks.trcIdx( bid.crl() );
+
+	if ( domemcopy_ )
+	{
+	    const unsigned char* curinptr =
+		inptr_ + ininlidx*inlinebytes_ + incrlidx*intracebytes_;
+	    unsigned char* curoutptr =
+		outptr_ + outinlidx*outlinebytes_ + outcrlidx*outtracebytes_;
+
+	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
+	    {
+		OD::sysMemCopy( curoutptr, curinptr, bytestocopy_ );
+		curinptr += incompbytes_;
+		curoutptr += outcompbytes_;
+	    }
+
+	    continue;
+	}
 
 	for ( int idz=0; idz<nrz; idz++ )
 	{
@@ -404,9 +465,19 @@ protected:
     RegularSeisDataPack&	out_;
     TrcKeyZSampling		worktkzs_;
 
-
     od_int64			totalnr_;
     bool			domemcopy_;
+
+    int				samplebytes_;
+    const unsigned char*	inptr_;
+    unsigned char*		outptr_;
+    od_int64			intracebytes_;
+    od_int64			inlinebytes_;
+    od_int64			incompbytes_;
+    od_int64			outtracebytes_;
+    od_int64			outlinebytes_;
+    od_int64			outcompbytes_;
+    od_int64			bytestocopy_;
 };
 
 

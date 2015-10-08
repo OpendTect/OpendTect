@@ -215,6 +215,8 @@ protected:
     RefMan<visBase::TextureRectangle>	texturerect_;
 
     int					originalresolution_;
+    bool				forcemanipupdate_;
+    bool				interactivetexturedisplay_;
 
     struct UpdateStageInfo
     {

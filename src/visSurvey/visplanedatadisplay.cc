@@ -74,6 +74,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     , csfromsession_( false )
     , eventcatcher_( 0 )
     , texturerect_( 0 )
+    , forcemanipupdate_( false )
+    , interactivetexturedisplay_( false )
     , originalresolution_( -1 )
     , undo_( *new Undo() )
 {
@@ -393,6 +395,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 	    originalresolution_ = resolution_;
 
 	resolution_ = 0;
+	interactivetexturedisplay_ = true;
 	updateSel();
     }
 }
@@ -412,7 +415,11 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
 	originalresolution_ = -1;
     }
 
+    interactivetexturedisplay_ = false;
+
+    forcemanipupdate_ = true;
     updateSel();
+    forcemanipupdate_ = false;
 
     PlaneDataMoveUndoEvent* undoevent =
 	new PlaneDataMoveUndoEvent( this, startmovepos_, snappedcs );
@@ -485,7 +492,12 @@ bool PlaneDataDisplay::isManipulatorShown() const
 
 
 bool PlaneDataDisplay::isManipulated() const
-{ return getTrcKeyZSampling(true,true)!=getTrcKeyZSampling(false,true); }
+{
+    if ( getTrcKeyZSampling(true,true) != getTrcKeyZSampling(false,true) )
+	return true;
+
+    return forcemanipupdate_;
+}
 
 
 void PlaneDataDisplay::resetManipulation()
@@ -860,7 +872,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	    }
 
 	    channels_->setSize( attribidx, 1, sz0, sz1 );
-	    channels_->setUnMappedData( attribidx, idx, arr, cp, 0 );
+	    channels_->setUnMappedData( attribidx, idx, arr, cp, 0,
+					interactivetexturedisplay_ );
 	}
     }
 
