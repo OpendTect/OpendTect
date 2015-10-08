@@ -434,9 +434,9 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 			arr.set(0,(int)idx,idz-zstartidx,trc.get(idz,idc));
 		}
 	    }
-	}
 
-	addToNrDone( 1 );
+	    addToNrDone( 1 );
+	}
     }
 
     return true;
