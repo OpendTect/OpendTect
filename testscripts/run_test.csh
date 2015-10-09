@@ -86,24 +86,28 @@ if ( "$config" == "" ) then
     exit 1
 endif
 
-if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}:${LD_LIBRARY_PATH}
-else
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
-endif
-
-if ( $?DYLD_LIBRARY_PATH ) then
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}:${DYLD_LIBRARY_PATH}
-else
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
-endif
-
+#Figure out libdir
 set kernel=`uname -a | awk '{print $1}'`
 
 if ( "${kernel}" == "Darwin" ) then
     set bindir="${wdir}/Contents/MacOS"
+    set libdir="${wdir}/Contents/Frameworks"
 else
     set bindir="${wdir}/bin/${plf}/${config}"
+    set libdir="${bindir}"
+endif
+
+
+if ( $?LD_LIBRARY_PATH ) then
+    setenv LD_LIBRARY_PATH ${qtdir}/lib:${libdir}:${LD_LIBRARY_PATH}
+else
+    setenv LD_LIBRARY_PATH ${qtdir}/lib:${libdir}
+endif
+
+if ( $?DYLD_LIBRARY_PATH ) then
+    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${libdir}:${DYLD_LIBRARY_PATH}
+else
+    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${libdir}
 endif
 
 if ( "$datadir" != "" ) then

@@ -111,7 +111,7 @@ mGlobal(Basic) const char* GetLibPlfDir(void);
  and GetSoftwareDir()/Contents/Frameworks on Mac.
  */
 
-mGlobal(Basic) inline const char* GetBinPlfDir(void)
+mGlobal(Basic) inline const char* mDeprecated GetBinPlfDir(void)
 { return GetExecPlfDir(); }
 //!<Old don't use
 
