@@ -55,7 +55,7 @@ public:
     void		setSeedPicking( bool yn )	{}
     void		setTrackerSetupActive(bool yn)
 			{ trackersetupactive_ = yn; }
-
+    
     Notifier<HorizonFlatViewEditor3D>	updseedpkingstatus_;
 
 protected:

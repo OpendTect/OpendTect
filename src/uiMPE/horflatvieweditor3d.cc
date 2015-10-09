@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
+#include "horflatvieweditor2d.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
@@ -381,32 +382,6 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 }
 
 
-static bool selectSeedData(
-		const FlatView::AuxDataEditor* editor, bool& pickinvd )
-{
-    if ( !editor )
-	return false;
-
-    const bool vdvisible = editor->viewer().isVisible(false);
-    const bool wvavisible = editor->viewer().isVisible(true);
-
-    if ( vdvisible && wvavisible )
-	pickinvd = uiMSG().question( "Which one is your seed data?",
-				     "VD", "Wiggle" );
-    else if ( vdvisible )
-	pickinvd = true;
-    else if ( wvavisible )
-	pickinvd = false;
-    else
-    {
-	uiMSG().error( "No data to choose from" );
-	return false;
-    }
-
-    return true;
-}
-
-
 bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 					   const EMSeedPicker& spk,
 					   bool& pickinvd ) const
@@ -430,7 +405,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 
     if ( spk.nrSeeds() < 1 )
     {
-	if ( !selectSeedData(editor_,pickinvd) )
+	if ( !HorizonFlatViewEditor2D::selectSeedData(editor_,pickinvd) )
 	    return false;
 
 	atsel = pickinvd ? vdselspec_ : wvaselspec_;

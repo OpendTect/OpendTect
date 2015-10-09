@@ -373,7 +373,7 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
 }
 
 
-static bool selectSeedData(
+bool HorizonFlatViewEditor2D::selectSeedData(
 		const FlatView::AuxDataEditor* editor, bool& pickinvd )
 {
     if ( !editor )
@@ -383,15 +383,15 @@ static bool selectSeedData(
     const bool wvavisible = editor->viewer().isVisible(true);
 
     if ( vdvisible && wvavisible )
-	pickinvd = uiMSG().question( "Which one is your seed data?",
-				     "VD", "Wiggle" );
+	pickinvd = uiMSG().question( tr("Which one is your seed data?"),
+				     tr("VD"), uiStrings::sWiggle() );
     else if ( vdvisible )
 	pickinvd = true;
     else if ( wvavisible )
 	pickinvd = false;
     else
     {
-	uiMSG().error( "No data to choose from" );
+	uiMSG().error( tr("No data to choose from") );
 	return false;
     }
 

@@ -30,7 +30,7 @@ namespace MPE
 /*!\brief Viewer for previewing data around seed */
 
 mExpClass(uiMPE) uiPreviewGroup : public uiGroup
-{
+{ mODTextTranslationClass(uiPreviewGroup)
 public:
 				uiPreviewGroup(uiParent*);
 				~uiPreviewGroup();

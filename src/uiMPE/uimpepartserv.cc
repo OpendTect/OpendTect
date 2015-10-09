@@ -565,14 +565,24 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
     return true;
 }
 
+uiString uiMPEPartServer::sYesAskGoOnStr()
+{
+    return tr("This object has saved tracker settings.\n" 
+				    "Do you want to verify / change them?");
+}
+
+
+uiString uiMPEPartServer::sNoAskGoOnStr()
+{
+    return tr("This object was created by manual drawing\n" 
+			    "only, or its tracker settings were not saved.\n" 
+			    "Do you want to specify them right now?" );
+}
+
 
 #define mAskGoOnStr(setupavailable) \
-    ( setupavailable ? \
-	"This object has saved tracker settings.\n" \
-	"Do you want to verify / change them?" : \
-	"This object was created by manual drawing\n" \
-	"only, or its tracker settings were not saved.\n" \
-	"Do you want to specify them right now?" )
+    ( setupavailable ? sYesAskGoOnStr() : sNoAskGoOnStr() )\
+	
 
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 					const EM::SectionID& sid )
@@ -840,7 +850,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( !seedpicker ) return false;
 
     uiDialog* setupdlg  = new uiDialog( parent(),
-		uiDialog::Setup(tr("Horizon Tracking Settings"),0,
+		uiDialog::Setup(tr("Horizon Tracking Settings"),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->showAlwaysOnTop();
