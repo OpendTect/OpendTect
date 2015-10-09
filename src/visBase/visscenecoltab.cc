@@ -55,6 +55,10 @@ SceneColTab::SceneColTab()
     , pixeldensity_( getDefaultPixelDensity() )
 {
     addChild( osgcolorbar_ );
+    
+    //Set it to something to avoid osg to look for own font
+    setAnnotFont( FontData() );
+
     mScalarBar->setOrientation( mScalarBarType::VERTICAL );
     mScalarBar->setTitle( "" );
     mScalarBar->setNumLabels( 5 );

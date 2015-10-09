@@ -364,11 +364,24 @@ mExternC(Basic) const char* GetPlfSubDir()
 }
 
 
-mExternC(Basic) const char* GetBinPlfDir()
+mExternC(Basic) const char* GetExecPlfDir()
 {
     mDeclStaticString( res );
     if ( res.isEmpty() )
 	res = FilePath( GetFullExecutablePath() ).pathOnly();
+    return res.buf();
+}
+
+
+mExternC(Basic) const char* GetLibPlfDir()
+{
+    mDeclStaticString( res );
+    if ( res.isEmpty() )
+#ifdef __mac__
+        res = FilePath(GetSoftwareDir(0),"Frameworks").fullPath();
+#else
+        res = FilePath( GetFullExecutablePath() ).pathOnly();
+#endif
     return res.buf();
 }
 
