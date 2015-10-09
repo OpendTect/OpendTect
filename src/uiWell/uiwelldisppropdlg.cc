@@ -26,20 +26,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
-	: uiDialog(p,uiDialog::Setup(tr("Well display properties"),mNoDlgTitle,
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
+	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
+				     .arg(wd ? toUiString(wd->name())
+					     : uiString::emptyString()),
+				     mNoDlgTitle,
 				     mODHelpKey(mWellDispPropDlgHelpID) )
 		     .savebutton(true)
 		     .savechecked(false)
 		     .modal(false))
-	, wd_(d)
+	, wd_(wd)
 	, applyAllReq(this)
 	, savedefault_(false)
 	, is2ddisplay_(is2d)
 {
     setCtrlStyle( CloseOnly );
 
-    Well::DisplayProperties& props = d->displayProperties( is2ddisplay_ );
+    Well::DisplayProperties& props = wd->displayProperties( is2ddisplay_ );
 
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
     ObjectSet<uiGroup> tgs;
