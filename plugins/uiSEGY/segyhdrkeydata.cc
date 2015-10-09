@@ -286,7 +286,8 @@ void SEGY::HdrEntryKeyData::setCurOrPref(
     // none of the preferred ones there, use default
     if ( defidx >= ds.idxs_.size() )
 	defidx = ds.idxs_.size() - 1;
-    he = *hdrdef[ ds.idxs_[defidx] ];
+	if ( defidx >= 0 )
+	he = *hdrdef[ ds.idxs_[defidx] ];
 }
 
 
