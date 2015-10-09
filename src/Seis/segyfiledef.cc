@@ -26,17 +26,19 @@ const char* FilePars::sKeyRevision()	   { return "Revision"; }
 const char* FilePars::sKeyNrSamples()	   { return "Nr samples overrule"; }
 const char* FilePars::sKeyNumberFormat()   { return "Number format"; }
 const char* FilePars::sKeyByteSwap()	   { return "Byte swapping"; }
+const char* FileReadOpts::sKeyCoordScale() { return "Coordinate scaling "
+    						    "overrule"; }
 const char* FileReadOpts::sKeyTimeShift()  { return "Start time overrule"; }
 const char* FileReadOpts::sKeySampleIntv() { return "Sample rate overrule"; }
 const char* FileReadOpts::sKeyICOpt()	   { return "IC -> XY"; }
+const char* FileReadOpts::sKeyHaveTrcNrs() { return "Have trace numbers"; }
+const char* FileReadOpts::sKeyTrcNrDef()   { return "Generate trace numbers"; }
 const char* FileReadOpts::sKeyPSOpt()	   { return "Offset source"; }
 const char* FileReadOpts::sKeyCoordOpt()   { return "Coord source"; }
 const char* FileReadOpts::sKeyOffsDef()	   { return "Generate offsets"; }
 const char* FileReadOpts::sKeyCoordStart() { return "Generate coords.Start"; }
 const char* FileReadOpts::sKeyCoordStep() { return "Generate coords.Step"; }
 const char* FileReadOpts::sKeyCoordFileName() { return "Coordinate file"; }
-const char* FileReadOpts::sKeyCoordScale()
-				{ return "Coordinate scaling overrule"; }
 }
 
 
@@ -170,6 +172,24 @@ int SEGY::FilePars::fmtOf( const char* str, bool forread )
 }
 
 
+SEGY::FileReadOpts::FileReadOpts( Seis::GeomType gt )
+    : forread_(true)
+    , coordscale_(mUdf(float))
+    , timeshift_(mUdf(float))
+    , sampleintv_(mUdf(float))
+    , icdef_(Both)
+    , havetrcnrs_(true)
+    , trcnrdef_(1000,1)
+    , psdef_(InFile)
+    , offsdef_(0.f,25.f)
+    , coorddef_(Present)
+    , stepcoord_(1,1)
+{
+    setGeomType( gt );
+    thdef_.fromSettings();
+}
+
+
 void SEGY::FileReadOpts::setGeomType( Seis::GeomType gt )
 {
     geom_ = gt;
@@ -182,6 +202,8 @@ static int getICOpt( SEGY::FileReadOpts::ICvsXYType opt )
     return opt == SEGY::FileReadOpts::XYOnly ? -1
 	: (opt == SEGY::FileReadOpts::ICOnly ? 1 : 0);
 }
+
+
 static SEGY::FileReadOpts::ICvsXYType getICType( int opt )
 {
     return opt < 0 ? SEGY::FileReadOpts::XYOnly
@@ -224,6 +246,8 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
 
     if ( is2d && !isps )
     {
+	iop.setYN( sKeyHaveTrcNrs(), havetrcnrs_ );
+	mFillIf(!havetrcnrs_,sKeyTrcNrDef(),trcnrdef_);
 	mFillIf(true,sKeyCoordOpt(),(int)coorddef_);
 	mFillIf(coorddef_==Generate,sKeyCoordStart(),startcoord_);
 	mFillIf(coorddef_==Generate,sKeyCoordStep(),stepcoord_);
@@ -243,16 +267,22 @@ bool SEGY::FileReadOpts::usePar( const IOPar& iop )
 {
     thdef_.usePar( iop );
 
+    iop.get( sKeyCoordScale(), coordscale_ );
+    iop.get( sKeyTimeShift(), timeshift_ );
+    iop.get( sKeySampleIntv(), sampleintv_ );
+
+    iop.getYN( sKeyHaveTrcNrs(), havetrcnrs_ );
+    iop.get( sKeyTrcNrDef(), trcnrdef_ );
+
     int icopt = getICOpt( icdef_ );
     iop.get( sKeyICOpt(), icopt );
     icdef_ = getICType( icopt );
+
     int psopt = (int)psdef_;
     iop.get( sKeyPSOpt(), psopt );
     psdef_ = (PSDefType)psopt;
     iop.get( sKeyOffsDef(), offsdef_ );
-    iop.get( sKeyCoordScale(), coordscale_ );
-    iop.get( sKeyTimeShift(), timeshift_ );
-    iop.get( sKeySampleIntv(), sampleintv_ );
+
     int coordopt = (int)coorddef_;
     iop.get( sKeyCoordOpt(), coordopt );
     coorddef_ = (CoordDefType)coordopt;
@@ -298,17 +328,19 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool isrev0 ) const
     if ( !mIsUdf(sampleintv_) )
 	iop.set( "Sample interval used", sampleintv_ );
 
-    const bool is2d = Seis::is2D( geom_ );
-    const bool isps = Seis::isPS( geom_ );
-
-    if ( isrev0 )
+    if ( Seis::is2D(geom_) )
     {
-	if ( is2d )
+	if ( havetrcnrs_ )
 	    reportHdrEntry( iop, sKey::TraceNr(), thdef_.trnr_ );
 	else
+	    iop.set( sKeyTrcNrDef(), trcnrdef_ );
+    }
+    else
+    {
+	iop.set( "Positioning defined by",
+		icdef_ == XYOnly ? "Coordinates" : "Inline/Crossline" );
+	if ( isrev0 )
 	{
-	    iop.set( "Positioning defined by",
-		    icdef_ == XYOnly ? "Coordinates" : "Inline/Crossline" );
 	    if ( icdef_ != XYOnly )
 	    {
 		reportHdrEntry( iop, "Inline", thdef_.inl_ );
@@ -322,18 +354,20 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool isrev0 ) const
 	}
     }
 
-    if ( !isps )
-	return;
-
-    iop.set( "Offsets", psdef_ == UsrDef ? "User defined"
-	    : (psdef_ == InFile ? "In file" : "Source/Receiver coordinates") );
-    if ( psdef_ == UsrDef )
-	iop.set( sKeyOffsDef(), offsdef_ );
-    else if ( psdef_ != SrcRcvCoords )
+    if ( Seis::isPS(geom_) )
     {
-	reportHdrEntry( iop, sKey::Offset(), thdef_.offs_ );
-	if ( !thdef_.azim_.isUdf() )
-	    reportHdrEntry( iop, sKey::Azimuth(), thdef_.azim_ );
+	iop.set( "Offsets",
+	    	   psdef_ == UsrDef	? "User defined"
+		: (psdef_ == InFile 	? "In file"
+		    			: "Source/Receiver coordinates") );
+	if ( psdef_ == UsrDef )
+	    iop.set( sKeyOffsDef(), offsdef_ );
+	else if ( psdef_ != SrcRcvCoords )
+	{
+	    reportHdrEntry( iop, sKey::Offset(), thdef_.offs_ );
+	    if ( !thdef_.azim_.isUdf() )
+		reportHdrEntry( iop, sKey::Azimuth(), thdef_.azim_ );
+	}
     }
 }
 

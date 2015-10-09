@@ -97,16 +97,8 @@ protected:
 mExpClass(Seis) FileReadOpts
 {
 public:
-			FileReadOpts( Seis::GeomType gt=Seis::Vol )
-			    : forread_(true)
-			    , offsdef_(0,1)
-			    , coordscale_(mUdf(float))
-			    , timeshift_(mUdf(float))
-			    , sampleintv_(mUdf(float))
-			    , psdef_(InFile)
-			    , icdef_(Both)
-			    , coorddef_(Present)
-			{ setGeomType(gt); thdef_.fromSettings(); }
+
+			FileReadOpts(Seis::GeomType gt=Seis::Vol);
 
     Seis::GeomType	geomType() const	{ return geom_; }
     void		setGeomType(Seis::GeomType);
@@ -115,15 +107,20 @@ public:
     enum PSDefType	{ InFile=0, SrcRcvCoords=1, UsrDef=2 };
     enum CoordDefType	{ Present=0, ReadFile=1, Generate=2 };
 
+    bool		forread_;
     TrcHeaderDef	thdef_;
-    ICvsXYType		icdef_;
-    PSDefType		psdef_;
-    CoordDefType	coorddef_;
-    SamplingData<float>	offsdef_;
     float		coordscale_;
     float		timeshift_;
     float		sampleintv_;
-    bool		forread_;
+    ICvsXYType		icdef_;
+
+    bool		havetrcnrs_;
+    SamplingData<int>	trcnrdef_;
+
+    PSDefType		psdef_;
+    SamplingData<float>	offsdef_;
+
+    CoordDefType	coorddef_;
     Coord		startcoord_;
     Coord		stepcoord_;
     BufferString	coordfnm_;
@@ -132,12 +129,14 @@ public:
     float		timeShift(float) const;
     float		sampleIntv(float) const;
 
-    static const char*	sKeyICOpt();
-    static const char*	sKeyPSOpt();
-    static const char*	sKeyOffsDef();
     static const char*	sKeyCoordScale();
     static const char*	sKeyTimeShift();
     static const char*	sKeySampleIntv();
+    static const char*	sKeyICOpt();
+    static const char*	sKeyHaveTrcNrs();
+    static const char*	sKeyTrcNrDef();
+    static const char*	sKeyPSOpt();
+    static const char*	sKeyOffsDef();
     static const char*	sKeyCoordOpt();
     static const char*	sKeyCoordStart();
     static const char*	sKeyCoordStep();
