@@ -357,8 +357,9 @@ virtual int nextStep()
 	else if ( !thdr->isusable )
 	    continue; // dead trace
 
-	si_.addTrace( *thdr, vals_, def_, clipsampler_, offscalc_, nrdone_ );
 	nrdone_++;
+	si_.addTrace( *thdr, vals_, def_, clipsampler_, offscalc_,
+			(int)nrdone_ );
     }
 
     return MoreToDo();
