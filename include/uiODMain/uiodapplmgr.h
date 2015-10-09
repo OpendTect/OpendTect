@@ -284,7 +284,7 @@ protected:
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
     void			setHistogram(int visid,int attrib);
-    void			storeEMObject();
+    void			storeEMObject(bool saveas=false);
 
     void			manStrat();
 

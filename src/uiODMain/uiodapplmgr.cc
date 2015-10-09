@@ -1468,7 +1468,9 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	updateColorTable( visserv_->getEventObjId(),
 			  visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evStoreEMObject() )
-	storeEMObject();
+	storeEMObject( false );
+    else if ( evid == uiVisPartServer::evStoreEMObjectAs() )
+	storeEMObject( true );
     else if ( evid == uiVisPartServer::evKeyboardEvent() )
     {
     }
@@ -1841,7 +1843,7 @@ void uiODApplMgr::cleanPreview()
 }
 
 
-void uiODApplMgr::storeEMObject()
+void uiODApplMgr::storeEMObject( bool saveasreq )
 {
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
@@ -1854,7 +1856,7 @@ void uiODApplMgr::storeEMObject()
     const EM::ObjectID emid = surface->getObjectID();
     MultiID mid = emserv_->getStorageID( emid );
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    const bool saveas = mid.isEmpty() || !ioobj;
+    const bool saveas = mid.isEmpty() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
     BufferString auxdatanm;
     emserv_->storeAuxData( emid, auxdatanm );
