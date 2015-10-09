@@ -54,7 +54,7 @@ protected:
 
     Attrib::CurrentSel&	sel_;
     IOPar&		subselpar_;
-    Attrib::DescSet&	ads_;
+    Attrib::DescSet*	ads_;
     MultiID		nlaid_;
     const NLAModel*	nlamodel_;
 

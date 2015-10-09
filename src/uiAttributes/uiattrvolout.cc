@@ -55,12 +55,12 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
-			    const NLAModel* n, const MultiID& id )
+			    const NLAModel* model, const MultiID& id )
     : uiBatchProcDlg(p,uiString::emptyString(),false, Batch::JobSpec::Attrib)
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
-    , ads_(*new Attrib::DescSet(ad))
-    , nlamodel_(n)
+    , ads_(new Attrib::DescSet(ad))
+    , nlamodel_(0)
     , nlaid_(id)
     , todofld_(0)
     , attrselfld_(0)
@@ -76,7 +76,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
 		     : mODHelpKey(mAttrVolOutHelpID) );
 
-    uiAttrSelData attrdata( ads_, false );
+    if ( model )
+	nlamodel_ = model->clone();
+
+    uiAttrSelData attrdata( *ads_, false );
     attrdata.nlamodel_ = nlamodel_;
 
     uiSeparator* sep1 = 0;
@@ -152,7 +155,8 @@ uiAttrVolOut::~uiAttrVolOut()
 {
     delete &sel_;
     delete &subselpar_;
-    delete &ads_;
+    delete ads_;
+    delete nlamodel_;
 }
 
 
@@ -160,17 +164,23 @@ void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
 				     const NLAModel* nlamodel,
 				     const MultiID& nlaid )
 {
-    ads_ = *new Attrib::DescSet( descset );
+    delete ads_;
+    ads_ = new Attrib::DescSet( descset );
     if ( todofld_ )
     {
-	todofld_->setDescSet( &ads_ );
+	todofld_->setDescSet( ads_ );
 	todofld_->setNLAModel( nlamodel );
     }
 
     if ( attrselfld_ )
-	attrselfld_->setDescSet( &ads_ );
+	attrselfld_->setDescSet( ads_ );
 
-    nlamodel_ = nlamodel;
+    if ( nlamodel )
+    {
+	delete nlamodel_;
+	nlamodel_ = nlamodel->clone();
+    }
+
     nlaid_ = nlaid;
 }
 
@@ -198,13 +208,13 @@ void uiAttrVolOut::attrSel( CallBacker* )
     if ( todofld_->getRanges(cs) )
 	transffld_->selfld->setInput( cs );
 
-    Attrib::Desc* desc = ads_.getDesc( todofld_->attribID() );
+    Attrib::Desc* desc = ads_->getDesc( todofld_->attribID() );
     if ( !desc )
     {
 	mSetObjFld("")
 	if ( is2d )	//it could be 2D neural network
 	{
-	    Attrib::Desc* firststoreddsc = ads_.getFirstStored();
+	    Attrib::Desc* firststoreddsc = ads_->getFirstStored();
 	    if ( firststoreddsc )
 	    {
 		const LineKey lk( firststoreddsc->getValParam(
@@ -314,7 +324,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    delete chioobj;
 	}
 
-	Attrib::Desc* seldesc = ads_.getDesc( todofld_->attribID() );
+	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
 	{
 	    uiMultOutSel multoutdlg( this, *seldesc );
@@ -385,27 +395,27 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     Attrib::DescID targetid = nlamodel_id.isValid() ? nlamodel_id
 					    : todofld_->attribID();
 
-    Attrib::Desc* seldesc = ads_.getDesc( targetid );
+    Attrib::Desc* seldesc = ads_->getDesc( targetid );
     if ( seldesc )
     {
 	const bool is2d = todofld_->is2D();
 	Attrib::DescID multoiid = seldesc->getMultiOutputInputID();
 	if ( multoiid != Attrib::DescID::undef() )
 	{
-	    uiAttrSelData attrdata( ads_ );
+	    uiAttrSelData attrdata( *ads_ );
 	    Attrib::SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_,
 				is2d, Attrib::DescID::undef(), false, false );
 	    TypeSet<Attrib::SelSpec> targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
-				is2d, attrinf, &ads_, this, targetspecs ))
+				is2d, attrinf, ads_, this, targetspecs ))
 		return 0;
 	    for ( int idx=0; idx<targetspecs.size(); idx++ )
 		outdescids += targetspecs[idx].id();
 	}
     }
     const int outdescidsz = outdescids.size();
-    Attrib::DescSet* ret = outdescidsz ? ads_.optimizeClone( outdescids )
-			    : ads_.optimizeClone( targetid );
+    Attrib::DescSet* ret = outdescidsz ? ads_->optimizeClone( outdescids )
+			    : ads_->optimizeClone( targetid );
     if ( !ret )
 	return 0;
 
@@ -439,7 +449,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     {
 	attrselfld_->getSelIds( outdescids );
 	nrseloutputs = outdescids.size();
-	clonedset = ads_.optimizeClone( outdescids );
+	clonedset = ads_->optimizeClone( outdescids );
     }
     if ( !clonedset )
 	return false;
@@ -493,7 +503,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	    descset.usePar( nlamodel_->pars() );
 
 	Attrib::Desc* desc = nlamodel_ ? descset.getFirstStored()
-			      : ads_.getDesc( todofld_->attribID() );
+			      : ads_->getDesc( todofld_->attribID() );
 	if ( desc )
 	{
 	    BufferString storedid = desc->getStoredID();
@@ -517,7 +527,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
     defstr += nlaid_;
 
     uiString errmsg;
-    Attrib::EngineMan::addNLADesc( defstr, id, ads_, todofld_->outputNr(),
+    Attrib::EngineMan::addNLADesc( defstr, id, *ads_, todofld_->outputNr(),
 			   nlamodel_, errmsg );
 
     if ( !errmsg.isEmpty() )
