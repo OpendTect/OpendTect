@@ -112,6 +112,7 @@ public:
     const char*		getSurvInfo(TrcKeySampling&,Coord crd[3]) const;
 
     StepInterval<int>	getRange(bool inldir=false) const;
+    bool		haveStep(bool) const; // to check during detection
 
 protected:
 
@@ -158,6 +159,7 @@ protected:
     void		setCur(const PosInfo::CrdBidOffs&);
     void		getBinIDRanges();
     int			getStep(bool inl) const; //!< smallest
+    int			getRawStep(bool,bool) const;
     uiString		createPositionString(const CrdBidOffs&) const;
 
     CrdBidOffs		workCBO(const CrdBidOffs&) const;
@@ -166,7 +168,6 @@ protected:
 };
 
 
-} // namespace
+} // namespace PosInfo
 
 #endif
-

@@ -561,7 +561,7 @@ void PosInfo::Detector::getBinIDRanges()
 }
 
 
-int PosInfo::Detector::getStep( bool inldir ) const
+int PosInfo::Detector::getRawStep( bool inldir, bool retpositive ) const
 {
     const bool swpd = crlSorted();
     const bool lndir = swpd ? !inldir : inldir;
@@ -586,11 +586,29 @@ int PosInfo::Detector::getStep( bool inldir ) const
 	}
     }
 
+    if ( retpositive )
+	return stp < 0 ? -stp : stp;
+
     const bool revln = !(swpd ? sorting_.inlUpward() : sorting_.crlUpward());
     const bool revnr = !(swpd ? sorting_.crlUpward() : sorting_.inlUpward());
     const bool isrev = lndir ? revln : revnr;
-    if ( mIsUdf(stp) ) stp = 1;
     return isrev ? -stp : stp;
+}
+
+
+bool PosInfo::Detector::haveStep( bool inldir ) const
+{
+    return !mIsUdf( getRawStep(inldir,true) );
+}
+
+
+int PosInfo::Detector::getStep( bool inldir ) const
+
+{
+    int stp = getRawStep( inldir, false );
+    if ( mIsUdf(stp) ) stp = 1;
+    else if ( mIsUdf(-stp) ) stp = -1;
+    return stp;
 }
 
 

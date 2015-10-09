@@ -130,7 +130,7 @@ public:
 
     BasicFileInfo&	basicInfo()		{ return basicinfo_; }
 
-    void		getFromSEGYBody(od_istream&,const LoadDef&,
+    void		getFromSEGYBody(od_istream&,const LoadDef&,bool surv,
 				    DataClipSampler&,TaskRunner* t=0);
 			//!< will do full scan if TaskRunner passed
 
@@ -168,6 +168,12 @@ protected:
     void		addTraces(od_istream&,Interval<int>,char*,float*,
 				  const LoadDef&,DataClipSampler&,
 				  const OffsetCalculator&);
+    bool		addNextTrace(od_istream&,char*,float*,
+				         const LoadDef&,DataClipSampler&,
+					 const OffsetCalculator&);
+    void		ensureStepsFound(od_istream&,char*,float*,
+				         const LoadDef&,DataClipSampler&,
+					 const OffsetCalculator&);
     void		addValues(DataClipSampler&,const float*,int);
 
 private:
