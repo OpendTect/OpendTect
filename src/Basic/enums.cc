@@ -17,6 +17,10 @@ EnumDef::EnumDef( const char* nm, const char* s[], short nrs )
     : NamedObject(nm)
     , keys_(s)
 {
+    if ( !size() )
+    {
+	pErrMsg("Emtpy enum def!. Input array must be wrong");
+    }
     for ( int idx=0; idx<size(); idx++ )
 	enums_ += idx;
 }

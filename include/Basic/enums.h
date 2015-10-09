@@ -266,14 +266,13 @@ public: \
     static uiString toUiString(enm); \
     static const char* get##enm##String(enm); /*legacy */ \
 protected: \
-    static const EnumDefImpl<enm> enm##Definition_; \
     static const char* enm##Keys_[]; \
+    static ConstPtrMan<EnumDefImpl<enm> > enm##Definition_; \
 public:
 
 #define DeclareNameSpaceEnumUtils(mod,enm) \
     mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
     mExtern(mod) const char** enm##Names();\
-    extern const EnumDefImpl<enm> enm##Definition_; \
     extern const char* enm##Keys_[]; \
     mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
     mExtern(mod) bool parseEnum(const char*,enm&); \
@@ -284,10 +283,18 @@ public:
     mExtern(mod) const char* get##enm##String(enm); /*legacy */
 
 #define _DefineEnumNames(prefix,enm,deflen,prettynm) \
-const EnumDefImpl<prefix::enm> prefix::enm##Definition_ ( prettynm, \
-				prefix::enm##Keys_, deflen ); \
 const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
-{ return prefix::enm##Definition_; } \
+{ \
+    if ( !enm##Definition_ ) \
+    { \
+	EnumDefImpl<prefix::enm>* newdef = \
+	    new EnumDefImpl<prefix::enm>( prettynm, prefix::enm##Keys_, deflen ); \
+	if ( !enm##Definition_.setIfNull( newdef ) ) \
+	    delete newdef; \
+    } \
+ \
+    return *enm##Definition_; \
+} \
 const char** prefix::enm##Names() \
 { return prefix::enm##Keys_; } \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
@@ -312,9 +319,11 @@ const char* prefix::enm##Keys_[] =
 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
+ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = 0; \
 _DefineEnumNames( clss, enm, deflen, prettynm )
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
+static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
 _DefineEnumNames( nmspc, enm, deflen, prettynm )
 
 template <class ENUM> inline
@@ -376,6 +385,9 @@ ENUM EnumDefImpl<ENUM>::parse(const char* txt) const
 template <class ENUM> inline
 const char* EnumDefImpl<ENUM>::getKey( ENUM theenum ) const
 {
+    if ( !size() )
+	return 0;
+
     const int idx = enums_.indexOf( (int) theenum );
     return keys_.get(idx>=0?idx:0).buf();
 }
