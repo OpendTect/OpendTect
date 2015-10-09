@@ -99,7 +99,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
 
-    BufferString srchwindtxt( "Search window ", SI().getZUnitString() );
+    uiString srchwindtxt = tr("Search window %1").arg(SI().getUiZUnitString());
     StepInterval<int> swin0( -10000, -1, -1 );
     StepInterval<int> swin1( 1, 10000, 1 );
     IntInpIntervalSpec iis; iis.setSymmetric( true );
@@ -116,7 +116,8 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec diis; diis.setSymmetric( true );
     diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
 
-    BufferString disptxt( "Data Display window ", SI().getZUnitString() );
+    uiString disptxt = tr("Data Display Window %1")
+						 .arg(SI().getUiZUnitString());
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, srchgatefld_ );
     nrzfld_->attach( ensureBelow, sep );
@@ -124,7 +125,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
     IntInpSpec tiis; tiis.setLimits( StepInterval<int>(3,99,2) );
-    nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", tiis );
+    nrtrcsfld_ = new uiGenInput( leftgrp, tr("Nr Traces"), tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
@@ -211,11 +212,11 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
 
 
 class uiStepDialog : public uiDialog
-{
+{ mODTextTranslationClass(uiStepDialog)
 public:
 
 uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup("Stepwise tracking",uiString::emptyString(),
+    : uiDialog(p,Setup(tr("Stepwise tracking"),uiString::emptyString(),
 			mODHelpKey(mTrackingWizardHelpID)))
 {
     steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
@@ -224,7 +225,7 @@ uiStepDialog( uiParent* p, const char* valstr )
 						       .selmode(uiTable::Multi)
 						       .defrowlbl(""),
 			      "Stepwise tracking table" );
-    steptable_->setColumnLabel( 0, "Value" );
+    steptable_->setColumnLabel( 0, uiStrings::sValue() );
 
     SeparString ss( valstr, ',' );
     if ( ss.size() > 3 )

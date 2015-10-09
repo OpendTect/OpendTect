@@ -56,7 +56,8 @@ public:
     void		setSeedPicking(bool);
     void		setTrackerSetupActive( bool yn )
 			{ trackersetupactive_ = yn; }
-
+    static bool		selectSeedData(const FlatView::AuxDataEditor* editor, 
+							      bool& pickinvd);
 
     Notifier<HorizonFlatViewEditor2D> updseedpkingstatus_;
 

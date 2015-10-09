@@ -34,7 +34,7 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
 {
     wvafld_ = new uiCheckList( this, uiCheckList::OneMinimum,
 			       OD::Horizontal );
-    wvafld_->addItem( "WVA" ).addItem( "VD" );
+    wvafld_->addItem( tr("WVA") ).addItem( tr("VD") );
     wvafld_->changed.notify( mCB(this,uiPreviewGroup,wvavdChgCB) );
 
     vwr_ = new uiFlatViewer( this );

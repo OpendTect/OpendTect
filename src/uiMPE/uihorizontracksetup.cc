@@ -109,7 +109,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties() );
 
     mDynamicCastGet(uiDialog*,dlg,p)
-    toolbar_ = new uiToolBar( dlg, "Tracking tools", uiToolBar::Left );
+    toolbar_ = new uiToolBar( dlg, tr("Tracking tools"), uiToolBar::Left );
     initToolBar();
 
     engine().actionCalled.notify( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
@@ -126,27 +126,30 @@ void uiHorizonSetupGroup::initToolBar()
 {
     trackbutid_ = -1;
 
-    startbutid_ = toolbar_->addButton( "autotrack", "Start Auto Tracking [K]",
+    startbutid_ = toolbar_->addButton("autotrack",tr("Start Auto Tracking [K]"),
 				mCB(this,uiHorizonSetupGroup,startCB) );
     toolbar_->setShortcut( startbutid_, "k" );
 
-    stopbutid_ = toolbar_->addButton( "stop", "Stop Auto Tracking [S]",
+    stopbutid_ = toolbar_->addButton( "stop", tr("Stop Auto Tracking [S]"),
 				mCB(this,uiHorizonSetupGroup,stopCB) );
     toolbar_->setShortcut( stopbutid_, "s" );
 
-    savebutid_ = toolbar_->addButton( "save", "Save Horizon [Ctrl+S]",
-				mCB(this,uiHorizonSetupGroup,saveCB) );
+    savebutid_ = toolbar_->addButton( "save", uiStrings::phrSave(
+			  toUiString("%1 [Ctrl+S]").arg(uiStrings::sHorizon())),
+			  mCB(this,uiHorizonSetupGroup,saveCB) );
     toolbar_->setShortcut( savebutid_, "ctrl+s" );
 
-    retrackbutid_ = toolbar_->addButton( "retrackhorizon", "Retrack All",
+    retrackbutid_ = toolbar_->addButton( "retrackhorizon", tr("Retrack All"),
 				mCB(this,uiHorizonSetupGroup,retrackCB) );
 
-    undobutid_ = toolbar_->addButton( "undo", "Undo [Ctrl+Z]",
-				mCB(this,uiHorizonSetupGroup,undoCB) );
+    undobutid_ = toolbar_->addButton( "undo", toUiString("%1 [Ctrl+Z]")
+					.arg(tr("Undo")),
+					mCB(this,uiHorizonSetupGroup,undoCB) );
     toolbar_->setShortcut( undobutid_, "ctrl+z" );
 
-    redobutid_ = toolbar_->addButton( "redo", "Redo [Ctrl+Y]",
-				mCB(this,uiHorizonSetupGroup,redoCB) );
+    redobutid_ = toolbar_->addButton( "redo", toUiString("%1 [Ctrl+Y]")
+					.arg(tr("Redo")),
+					mCB(this,uiHorizonSetupGroup,redoCB) );
     toolbar_->setShortcut( redobutid_, "ctrl+y" );
 
     updateButtonSensitivity();
@@ -320,7 +323,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     linewidthfld_->attach( alignedBelow, colorfld_ );
 
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
-			StringListInpSpec(MarkerStyle3D::TypeDef()) );
+			StringListInpSpec(MarkerStyle3D::TypeNames()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );

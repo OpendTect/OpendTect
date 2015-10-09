@@ -117,7 +117,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-
+    
 protected:
     void			activeVolumeChange(CallBacker*);
     void			loadEMObjectCB(CallBacker*);
@@ -162,6 +162,10 @@ protected:
     void			cleanSetupDependents();
 
     MPE::uiSetupGroup*		setupgrp_;
+
+private:
+    static uiString		sYesAskGoOnStr();
+    static uiString		sNoAskGoOnStr();
 };
 
 #endif
