@@ -104,6 +104,21 @@ bool uiODVw2DFaultSSParentTreeItem::init()
 { return uiODVw2DTreeItem::init(); }
 
 
+void uiODVw2DFaultSSParentTreeItem::getFaultSSVwr2DIDs(
+	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DFaultSSTreeItem*,faultssitem,
+			getChild(idx))
+	if ( !faultssitem || faultssitem->emObjectID() != emid )
+	    continue;
+
+	vw2dobjids.addIfNew( faultssitem->vw2DObject()->id() );
+    }
+}
+
+
 void uiODVw2DFaultSSParentTreeItem::getLoadedFaultSSs(
 	TypeSet<EM::ObjectID>& emids ) const
 {

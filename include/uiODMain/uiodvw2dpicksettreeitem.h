@@ -30,6 +30,8 @@ public:
 				~uiODVw2DPickSetParentTreeItem();
 
     bool			showSubMenu();
+    void			getPickSetVwr2DIDs(const MultiID& mid,
+						   TypeSet<int>& vw2ids) const;
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			removePickSet(const MultiID&);
     void			addPickSets(const TypeSet<MultiID>&);
@@ -65,6 +67,7 @@ public:
     bool		showSubMenu();
     bool		select();
     const MultiID&	pickMultiID() const;
+    const VW2DPickSet*	vw2DObject() const	{ return vw2dpickset_; }
 
 protected:
 

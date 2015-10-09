@@ -27,6 +27,7 @@ class uiODViewer2D;
 class uiTreeFactorySet;
 class MouseEventHandler;
 class TrcKeyZSampling;
+class Vw2DDataObject;
 namespace Attrib	{ class SelSpec; }
 
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
@@ -48,6 +49,7 @@ public:
 	bool			isValid() const		{ return auxposidx_>=0;}
     };
 
+    uiODViewer2D*		getParent2DViewer(int vw2dobjid);
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
@@ -65,12 +67,16 @@ public:
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
 
     //3D Horizons
+    void			getHor3DVwr2DIDs( EM::ObjectID emid,
+						  TypeSet<int>& vw2dids) const;
     void			removeHorizon3D(EM::ObjectID emid);
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID mid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     // 2D Horizons
+    void			getHor2DVwr2DIDs( EM::ObjectID emid,
+						  TypeSet<int>& vw2dids) const;
     void			removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
@@ -84,12 +90,16 @@ public:
     void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
 
     //FaultStickSet
+    void			getFaultSSVwr2DIDs( EM::ObjectID emid,
+						    TypeSet<int>& vw2ids) const;
     void			removeFaultSS(EM::ObjectID emid);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID mid);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
     //PickSets
+    void			getPickSetVwr2DIDs(const MultiID& mid,
+						   TypeSet<int>& vw2ids) const;
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			addPickSets(const TypeSet<MultiID>&);
@@ -101,6 +111,9 @@ public:
     static const char*		sKeyVisID()		{ return "VisID"; }
     static const char*		sKeyAttrID()		{ return "Attrib ID"; }
     static const char*		sKeyWVA()		{ return "WVA"; }
+
+    CNotifier<uiODViewer2DMgr,int>  vw2dObjAdded;
+    CNotifier<uiODViewer2DMgr,int>  vw2dObjToBeRemoved;
 
 protected:
 
@@ -120,6 +133,8 @@ protected:
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
+    void			viewObjAdded(CallBacker*);
+    void			viewObjToBeRemoved(CallBacker*);
     void			viewWinClosedCB(CallBacker*);
     void			vw2DPosChangedCB(CallBacker*);
     void			homeZoomChangedCB(CallBacker*);

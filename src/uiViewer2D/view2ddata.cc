@@ -22,7 +22,10 @@ ________________________________________________________________________
 Vw2DDataObject::Vw2DDataObject()
     : id_( -1 )
     , name_( 0 )
-{}
+{
+    mDefineStaticLocalObject( Threads::Atomic<int>, vw2dobjid, (0) );
+    id_ = vw2dobjid++;
+}
 
 
 Vw2DDataObject::~Vw2DDataObject()

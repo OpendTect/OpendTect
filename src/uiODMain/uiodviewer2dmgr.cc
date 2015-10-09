@@ -59,6 +59,8 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
     , l2dintersections_(0)
+    , vw2dObjAdded(this)
+    , vw2dObjToBeRemoved(this)
 {
     // for relevant 2D datapack
     tifs2d_->addFactory( new uiODVW2DWiggleVarAreaTreeItemFactory, 1000 );
@@ -623,9 +625,29 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
+    mAttachCB( vwr->dataMgr()->dataObjAdded, uiODViewer2DMgr::viewObjAdded );
+    mAttachCB( vwr->dataMgr()->dataObjToBeRemoved,
+	       uiODViewer2DMgr::viewObjToBeRemoved );
     vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
     viewers2d_ += vwr;
     return *vwr;
+}
+
+
+uiODViewer2D* uiODViewer2DMgr::getParent2DViewer( int vwr2dobjid )
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	ObjectSet<Vw2DDataObject> vw2dobjs;
+	viewers2d_[idx]->dataMgr()->getObjects( vw2dobjs );
+	for ( int objidx=0; objidx<vw2dobjs.size(); objidx++ )
+	{
+	    if ( vw2dobjs[objidx]->id()==vwr2dobjid )
+		return viewers2d_[idx];
+	}
+    }
+
+    return 0;
 }
 
 
@@ -899,10 +921,28 @@ void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 	if ( vwrid != id )
 	    continue;
 
+	mDetachCB( viewers2d_[idx]->dataMgr()->dataObjAdded,
+		   uiODViewer2DMgr::viewObjAdded );
+	mDetachCB( viewers2d_[idx]->dataMgr()->dataObjToBeRemoved,
+		   uiODViewer2DMgr::viewObjToBeRemoved );
 	delete viewers2d_.removeSingle( idx );
 	setAllIntersectionPositions();
 	return;
     }
+}
+
+
+void uiODViewer2DMgr::viewObjAdded( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,vw2dobjid,cb);
+    vw2dObjAdded.trigger( vw2dobjid );
+}
+
+
+void uiODViewer2DMgr::viewObjToBeRemoved( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,vw2dobjid,cb);
+    vw2dObjToBeRemoved.trigger( vw2dobjid );
 }
 
 
@@ -952,6 +992,14 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 }
 
 
+void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
+					TypeSet<int>& vw2dobjids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getHor3DVwr2DIDs( emid, vw2dobjids );
+}
+
+
 void uiODViewer2DMgr::removeHorizon3D( EM::ObjectID emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -982,6 +1030,14 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid )
     if ( emids.isPresent(emid) )
 	return;
     appl_.sceneMgr().addEMItem( emid );
+}
+
+
+void uiODViewer2DMgr::getHor2DVwr2DIDs( EM::ObjectID emid,
+					TypeSet<int>& vw2dobjids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getHor2DVwr2DIDs( emid, vw2dobjids );
 }
 
 
@@ -1051,6 +1107,15 @@ void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid )
 }
 
 
+void uiODViewer2DMgr::getFaultSSVwr2DIDs( EM::ObjectID emid,
+					TypeSet<int>& vw2dobjids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getFaultSSVwr2DIDs( emid, vw2dobjids );
+}
+
+
+
 void uiODViewer2DMgr::removeFaultSS( EM::ObjectID emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -1081,6 +1146,14 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
     if ( emids.isPresent(emid) )
 	return;
     appl_.sceneMgr().addEMItem( emid );
+}
+
+
+void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
+					  TypeSet<int>& vw2dobjids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getPickSetVwr2DIDs( mid, vw2dobjids );
 }
 
 

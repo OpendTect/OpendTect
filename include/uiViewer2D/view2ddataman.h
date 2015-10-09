@@ -48,6 +48,8 @@ public:
 		    const ObjectSet<uiFlatViewAuxDataEditor>&,factory);
 
     Notifier<Vw2DDataManager>	addRemove;
+    CNotifier<Vw2DDataManager,int> dataObjAdded;
+    CNotifier<Vw2DDataManager,int> dataObjToBeRemoved;
 
 protected:
 

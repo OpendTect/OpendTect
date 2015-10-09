@@ -100,6 +100,20 @@ bool uiODVw2DFaultParentTreeItem::init()
 
 
 
+void uiODVw2DFaultParentTreeItem::getFaultVwr2DIDs(
+	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DFaultTreeItem*,faultitem,getChild(idx))
+	if ( !faultitem || faultitem->emObjectID() != emid )
+	    continue;
+
+	vw2dobjids.addIfNew( faultitem->vw2DObject()->id() );
+    }
+}
+
+
 void uiODVw2DFaultParentTreeItem::getLoadedFaults(
 	TypeSet<EM::ObjectID>& emids ) const
 {
