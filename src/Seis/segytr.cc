@@ -101,6 +101,8 @@ void SEGYSeisTrcTranslator::cleanUp()
     headerdone_ = false;
 
     forcedrev_ = -1;
+    mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
+    curtrcnr_ = prevtrcnr_ = -1;
     prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
 }
 
@@ -650,6 +652,15 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
     if ( !tryInterpretBuf(ti) )
 	return false;
+
+    if ( !fileopts_.havetrcnrs_ )
+    {
+	if ( prevtrcnr_ < 0 )
+	    curtrcnr_ = fileopts_.trcnrdef_.start;
+	else
+	    curtrcnr_ = prevtrcnr_ + fileopts_.trcnrdef_.step;
+	ti.nr = curtrcnr_;
+    }
 
     bool goodpos = true;
     int nrbadtrcs = 0;

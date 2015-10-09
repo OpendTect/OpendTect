@@ -79,8 +79,10 @@ public:
     void		reInit(bool alsohdef);
 
     float		coordscale_;
-    FileReadOpts::PSDefType psoffssrc_;
     FileReadOpts::ICvsXYType icvsxytype_;
+    bool		havetrcnrs_;
+    SamplingData<int>	trcnrdef_;
+    FileReadOpts::PSDefType psoffssrc_;
     SamplingData<float>	psoffsdef_;
 
     TrcHeaderDef*	hdrdef_;
@@ -156,6 +158,7 @@ protected:
     BasicFileInfo	basicinfo_;
     ScanRangeInfo	rgs_;
     int			nrtrcs_;
+    int			idxfirstlive_;
     bool		full_;
     bool		isps_;
 
@@ -164,7 +167,7 @@ protected:
     void		reInit()		{ init( is2D() ); }
     void		addTrace(TrcHeader&,const float*,const LoadDef&,
 				 DataClipSampler&,const OffsetCalculator&,
-				 bool isfirst=false);
+				 int trcidx);
     void		addTraces(od_istream&,Interval<int>,char*,float*,
 				  const LoadDef&,DataClipSampler&,
 				  const OffsetCalculator&);

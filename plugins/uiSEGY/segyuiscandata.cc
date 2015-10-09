@@ -196,9 +196,11 @@ void SEGY::LoadDef::getFileReadOpts( SEGY::FileReadOpts& readopts ) const
     readopts.coordscale_ = coordscale_;
     readopts.timeshift_ = sampling_.start;
     readopts.sampleintv_ = sampling_.step;
-    readopts.psdef_ = psoffssrc_;
-    readopts.offsdef_ = psoffsdef_;
     readopts.icdef_ = icvsxytype_;
+    readopts.psdef_ = psoffssrc_;
+    readopts.havetrcnrs_ = havetrcnrs_;
+    readopts.trcnrdef_ = trcnrdef_;
+    readopts.offsdef_ = psoffsdef_;
 }
 
 
@@ -220,9 +222,11 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     coordscale_ = readopts.coordscale_;
     sampling_.start = readopts.timeshift_;
     sampling_.step = readopts.sampleintv_;
+    icvsxytype_ = readopts.icdef_;
+    havetrcnrs_ = readopts.havetrcnrs_;
+    trcnrdef_ = readopts.trcnrdef_;
     psoffssrc_ = readopts.psdef_;
     psoffsdef_ = readopts.offsdef_;
-    icvsxytype_ = readopts.icdef_;
 }
 
 
@@ -288,7 +292,7 @@ SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d, bool isps )
 void SEGY::ScanInfo::init( bool is2d )
 {
     full_ = false;
-    nrtrcs_ = 0;
+    nrtrcs_ = idxfirstlive_ = 0;
 
     rgs_.reInit();
     keydata_.setEmpty();
@@ -353,7 +357,7 @@ virtual int nextStep()
 	else if ( !thdr->isusable )
 	    continue; // dead trace
 
-	si_.addTrace( *thdr, vals_, def_, clipsampler_, offscalc_ );
+	si_.addTrace( *thdr, vals_, def_, clipsampler_, offscalc_, nrdone_ );
 	nrdone_++;
     }
 
@@ -389,11 +393,13 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     mAllocLargeVarLenArr( float, vals, def.ns_ );
 
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
+    idxfirstlive_ = 0;
     if ( !thdr )
 	{ finishGet(strm); return; }
     while ( !thdr->isusable )
     {
 	// skip dead traces to get at least the first good trace
+	idxfirstlive_++;
 	thdr = def.getTrace( strm, buf, vals );
 	if ( !thdr )
 	    { finishGet(strm); return; }
@@ -403,7 +409,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
     offscalc.is2d_ = is2D(); offscalc.coordscale_ = def.coordscale_;
 
-    addTrace( *thdr, vals, def, clipsampler, offscalc, true );
+    addTrace( *thdr, vals, def, clipsampler, offscalc, idxfirstlive_ );
 
     if ( fullscanrunner )
     {
@@ -435,7 +441,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 
 void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
 			const LoadDef& def, DataClipSampler& clipsampler,
-			const OffsetCalculator& offscalc, bool isfirst )
+			const OffsetCalculator& offscalc, int nrinfile )
 {
     SeisTrcInfo ti;
     def.getTrcInfo( thdr, ti, offscalc );
@@ -444,7 +450,7 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
     addValues( clipsampler, vals, def.ns_ );
 
-    if ( isfirst )
+    if ( nrinfile == idxfirstlive_ )
 	rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
     else
 	rgs_.refnrs_.include( ti.refnr, false );
@@ -476,7 +482,11 @@ bool SEGY::ScanInfo::addNextTrace( od_istream& strm,
 	return false;
 
     if ( thdr->isusable )
-	addTrace( *thdr, vals, def, clipsampler, offscalc );
+    {
+	od_stream_Pos tidx = strm.position() - startpos_;
+	tidx /= SegyTrcHeaderLength + def.traceDataBytes();
+	addTrace( *thdr, vals, def, clipsampler, offscalc, (int)tidx );
+    }
 
     return true;
 }
