@@ -498,8 +498,6 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
 
 bool uiSeisPartServer::usePar( const IOPar& par )
 {
-    Seis::PLDM().removeAll();
-
     PtrMan<IOPar> plpar = par.subselect( sKeyPreLoad() );
     if ( !plpar ) return true;
 

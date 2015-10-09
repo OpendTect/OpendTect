@@ -217,6 +217,8 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     SeisIOObjInfo oinf( mid );
     if ( !oinf.isOK() ) return;
 
+    PLDM().remove( mid, geomid );
+
     PreLoader spl( mid, geomid, tr );
     const GeomType gt = oinf.geomType();
     switch ( gt )
