@@ -80,6 +80,24 @@ void RandomLine::setNodePosition( int idx, const BinID& bid, bool moving )
 }
 
 
+void RandomLine::setNodePositions( const TypeSet<BinID>& bids )
+{
+    while ( nrNodes() > bids.size() )
+	removeNode( 0 );
+
+    for ( int idx=0; idx<bids.size(); idx++ )
+    {
+	if ( idx<nrNodes() )
+	    setNodePosition( idx, bids[idx], true );
+	else
+	    addNode( bids[idx] );
+    }
+
+    ChangeData cd( ChangeData::Moved, -1 );
+    nodeChanged.trigger( cd );
+}
+
+
 void RandomLine::removeNode( int idx )
 {
     nodes_.removeSingle( idx );
