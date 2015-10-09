@@ -96,11 +96,24 @@ mGlobal(Basic) const char* GetPlfSubDir(void);
   Ouput medio 2009 is one of lux32, lux64, sol32, mac, win32 or win64.
 */
 
-mGlobal(Basic) const char* GetBinPlfDir(void);
-/*!< Platform dependent bin directory
+
+mGlobal(Basic) const char* GetExecPlfDir(void);
+/*!< Platform dependent executable directory
   Returns full path to bin dir:
-  GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir()
+  GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir() on Windows and Linux,
+  and GetSoftwareDir()/Contents/MacOS on Mac.
 */
+
+mGlobal(Basic) const char* GetLibPlfDir(void);
+/*!< Platform dependent library directory
+ Returns full path to bin dir:
+ GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir() on Windows and Linux,
+ and GetSoftwareDir()/Contents/Frameworks on Mac.
+ */
+
+mGlobal(Basic) inline const char* GetBinPlfDir(void)
+{ return GetExecPlfDir(); }
+//!<Old don't use
 
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */

@@ -805,7 +805,7 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
 	return false;
 
     BufferString cmd( "\"",
-		      FilePath(GetBinPlfDir(),"od_FileBrowser").fullPath(),
+		      FilePath(GetExecPlfDir(),"od_FileBrowser").fullPath(),
 		      "\"" );
     if ( vp.style_ != Text )
 	cmd.add( " --style ")

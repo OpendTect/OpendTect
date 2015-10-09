@@ -307,7 +307,7 @@ bool BatchProgram::initOutput()
     {
 	BufferString cmd = "@";
 	cmd += "\"";
-	cmd += FilePath(GetBinPlfDir()).add("od_ProgressViewer").fullPath();
+	cmd += FilePath(GetExecPlfDir()).add("od_ProgressViewer").fullPath();
 	cmd += "\" ";
 
 	cmd += GetPID();

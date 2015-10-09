@@ -64,7 +64,7 @@ void RemoteJobExec::ckeckConnection()
 
 void RemoteJobExec::uiErrorMsg( const char* msg )
 {
-    BufferString cmd( "\"", FilePath(GetBinPlfDir(),"od_DispMsg").fullPath() );
+    BufferString cmd( "\"", FilePath(GetExecPlfDir(),"od_DispMsg").fullPath() );
     cmd.add( "\" --err " ).add( msg );
     OS::ExecCommand( cmd );
 }

@@ -136,7 +136,7 @@ bool ODMad::ProcExec::init()
 	pars_.write( fname, sKey::Pars() ); \
 	ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath(); \
 	ret += " form=ascii_float | \""; \
-	ret += FilePath(GetBinPlfDir()).add("od_madexec").fullPath(); \
+	ret += FilePath(GetExecPlfDir()).add("od_madexec").fullPath(); \
 	ret += "\" "; ret += fname
 #else
     #define mAddNewExec \

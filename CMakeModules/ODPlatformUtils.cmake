@@ -39,7 +39,7 @@ if(UNIX) #Apple an Linux
 		  "${CMAKE_CXX_FLAGS} -D__MAC_LLVM_COMPILER_ERROR__" )
 	endif()
 	set( CMAKE_MACOSX_RPATH 1 )
-	set( CMAKE_INSTALL_RPATH "@loader_path/" )
+	set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
 	set ( OD_GCC_COMPILER 1 )
 	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
 	    set ( OD_EXTRA_OSGFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job

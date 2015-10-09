@@ -499,7 +499,7 @@ void CrashDumper::sendDump( const char* filename )
     if ( sendappl_.isEmpty() || !File::exists(filename) )
 	return;
 
-    const BufferString cmd( "\"", FilePath(GetBinPlfDir(),sendappl_).fullPath(),
+    const BufferString cmd( "\"", FilePath(GetExecPlfDir(),sendappl_).fullPath(),
 			    "\"" );
     const BufferString args( "--binary ", filename );
     ExecODProgram( cmd, args );

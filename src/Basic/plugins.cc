@@ -208,7 +208,7 @@ void PluginManager::getDefDirs()
     if ( dnm.isEmpty() )
     {
 	appdir_ = GetSoftwareDir(0);
-	applibdir_ = GetBinPlfDir();
+	applibdir_ = GetLibPlfDir();
     }
     else
     {

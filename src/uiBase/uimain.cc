@@ -264,7 +264,7 @@ static void initQApplication()
 #endif
 
 #ifndef __win__
-    QCoreApplication::addLibraryPath( GetBinPlfDir() ); // Qt plugin libraries
+    QCoreApplication::addLibraryPath( GetExecPlfDir() ); // Qt plugin libraries
 #endif
 }
 

@@ -64,7 +64,7 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 {
     FilePath srcfp( src );
     BufferString newsrc = srcfp.fileName();
-    FilePath zipcomfp( GetBinPlfDir(), "zip" );
+    FilePath zipcomfp( GetExecPlfDir(), "zip" );
     BufferString cmd( zipcomfp.fullPath() );
     cmd += " -r \"";
     cmd += dest;

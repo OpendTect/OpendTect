@@ -381,7 +381,7 @@ BufferString OS::MachineCommand::getLocalCommand() const
 // OS::CommandLauncher
 
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
-    : odprogressviewer_(FilePath(GetBinPlfDir(),sODProgressViewerProgName)
+    : odprogressviewer_(FilePath(GetExecPlfDir(),sODProgressViewerProgName)
 			    .fullPath())
     , process_( 0 )
     , stderror_( 0 )
@@ -501,7 +501,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    localcmd.add( " --monitorfnm " ).add( monitorfnm_.buf() );
 
 	BufferString launchercmd( "\"",
-		FilePath(GetBinPlfDir(),"od_batch_launcher").fullPath() );
+		FilePath(GetExecPlfDir(),"od_batch_launcher").fullPath() );
 	launchercmd.add( "\" " ).add( localcmd );
 	return doExecute( launchercmd, pars.launchtype_==Wait4Finish, false,
 			  pars.createstreams_ );

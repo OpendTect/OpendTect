@@ -48,7 +48,7 @@ int main( int argc, char** argv )
 	mErrExit( "Failed to fork process" )
     else if ( pid == 0 )	// Child process
     {
-	chdir( GetBinPlfDir() );
+	chdir( GetExecPlfDir() );
 	char** childargv = new char*[argc];
 	int idx = 0;
 	for ( ; idx<argc-1; idx++ )
@@ -78,7 +78,7 @@ int main( int argc, char** argv )
     else if ( needmonitor )	// Parent process
     {
 	BufferString progviewercmd( "\"",
-		FilePath(GetBinPlfDir(),sODProgressViewerProgName).fullPath() );
+		FilePath(GetExecPlfDir(),sODProgressViewerProgName).fullPath() );
 	progviewercmd.add( "\" --inpfile \"" ).add( monitorfnm )
 		     .add( "\" --pid " ).add( pid ).add( " &" );
 	if ( system(progviewercmd.buf()) )
