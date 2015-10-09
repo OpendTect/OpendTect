@@ -26,9 +26,9 @@ namespace PreStack
 {
 
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Prestack Processing"),mNoDlgTitle,
-                        mODHelpKey(mPreStackBatchProcSetupHelpID)))
-    , is2d_( is2d )
+    : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
+		     Batch::JobSpec::PreStack)
+    , is2d_(is2d)
 {
     setHelpKey( mODHelpKey(mPreStackBatchProcSetupHelpID) );
 
@@ -36,28 +36,21 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
 			       .arg(is2d_ ? uiStrings::s2D() : uiStrings::s3D())
 			       .arg(uiStrings::sProcessing());
     setCaption( dlgnm );
-    chainsel_ = new uiProcSel( this, uiStrings::sSetup(), 0 );
+    chainsel_ = new uiProcSel( pargrp_, uiStrings::sSetup(), 0 );
     chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
 
     const Seis::GeomType gt = is2d_ ? Seis::LinePS : Seis::VolPS;
-    inputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
+    inputsel_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,true),
 				uiSeisSel::Setup(gt) );
     inputsel_->attach( alignedBelow, chainsel_ );
 
-    possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(is2d,false) );
+    possubsel_ =  new uiPosSubSel( pargrp_, uiPosSubSel::Setup(is2d,false) );
     possubsel_->attach( alignedBelow, inputsel_ );
 
-    outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,false),
+    outputsel_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,false),
 				uiSeisSel::Setup(gt) );
     outputsel_->attach( alignedBelow, possubsel_ );
-    outputsel_->selectionDone.notify(
-				 mCB(this,uiBatchProcSetup,outputNameChangeCB));
-
-    batchfld_ = new uiBatchJobDispatcherSel( this, false,
-					     Batch::JobSpec::PreStack );
-    batchfld_->attach( alignedBelow, outputsel_ );
-
-    outputNameChangeCB( 0 );
+    pargrp_->setHAlignObj( outputsel_ );
 }
 
 
@@ -66,11 +59,9 @@ uiBatchProcSetup::~uiBatchProcSetup()
 }
 
 
-void uiBatchProcSetup::outputNameChangeCB( CallBacker* )
+void uiBatchProcSetup::getJobName( BufferString& jobnm) const
 {
-    const IOObj* ioobj = outputsel_->ioobj( true );
-    if ( ioobj )
-	batchfld_->setJobName( ioobj->name() );
+    jobnm = outputsel_->getInput();
 }
 
 
@@ -135,9 +126,8 @@ bool uiBatchProcSetup::prepareProcessing()
 }
 
 
-bool uiBatchProcSetup::fillPar()
+bool uiBatchProcSetup::fillPar( IOPar& par )
 {
-    IOPar& par = batchfld_->jobSpec().pars_;
     const IOObj* inioobj = inputsel_->ioobj( true );
     const IOObj* outioobj = outputsel_->ioobj( true );
     if ( (inputsel_->attachObj()->isDisplayed() && !inioobj) || !outioobj )
@@ -160,16 +150,4 @@ bool uiBatchProcSetup::fillPar()
     Seis::putInPar( geom, par );
     return true;
 }
-
-
-bool uiBatchProcSetup::acceptOK( CallBacker* )
-{
-    if ( !prepareProcessing() || !fillPar() )
-	return false;
-
-    batchfld_->setJobName( outputsel_->ioobj()->name() );
-    return batchfld_->start();
-}
-
-
 } // namespace PreStack

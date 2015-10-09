@@ -34,7 +34,7 @@ class uiVelSel;
 class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
-namespace PreStack { class uiImportMute; }
+namespace PreStack { class uiImportMute; class uiBatchProcSetup; }
 namespace Vel { class uiImportVelFunc; }
 
 
@@ -100,6 +100,8 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiODApplMgr&	am_;
     uiParent*		par_;
     ObjectSet<uiDataPointSet> uidpsset_;
+    PreStack::uiBatchProcSetup* batchprocps2ddlg_;
+    PreStack::uiBatchProcSetup* batchprocps3ddlg_;
 };
 
 
