@@ -193,6 +193,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
+    sssu.selectcomp(true);
     seissel_ = new uiSeisSel( this, ctxt, sssu );
     seissel_->selectionDone.notify( inpselcb );
 
@@ -451,7 +452,6 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     if ( needinfo )
 	uiMSG().message( tr("Successful export of:\n%1").arg(sfs.dispName()) );
 
-    selcomp_ = -1;
     return false;
 }
 
@@ -491,18 +491,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	}
 	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
 	SeisIOObjInfo oinf( rdr.ioObj() );
-	if ( oinf.isOK() && oinf.nrComponents() > 1 && selcomp_ < 0 )
-	{
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	    BufferStringSet cnms; oinf.getComponentNames( cnms, geomid );
-	    uiSelectFromList dlg( this,
-	    uiSelectFromList::Setup(tr("Please select the component"),cnms) );
-	    dlg.setHelpKey(mODHelpKey(mSEGYExpdoWorkHelpID) );
-	    if ( !dlg.go() )
-		return false;
-	    selcomp_ = dlg.selection();
-	}
-	rdr.setComponent( selcomp_ );
+	rdr.setComponent( seissel_->compNr() );
 
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
 	{

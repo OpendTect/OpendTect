@@ -41,11 +41,13 @@ public:
 			SeisSingleTraceProc(const IOObj& in,const IOObj& out,
 				const char* nm="Trace processor",
 				const IOPar* iniopar=0,
-				const uiString& msg=uiStrings::sProcessing());
+				const uiString& msg=uiStrings::sProcessing(),
+				int compnr=0);
 			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj&,
 				const char* nm="Trace processor",
 				ObjectSet<IOPar>* iniopars=0,
-				const uiString& msg=uiStrings::sProcessing());
+				const uiString& msg=uiStrings::sProcessing(),
+				int compnr=0);
 			SeisSingleTraceProc(const IOObj& out,const char* nm,
 					    const uiString& msg);
     virtual		~SeisSingleTraceProc();
@@ -117,6 +119,7 @@ protected:
     TrcKeySampling	fillhs_;
     SeisTrc*		filltrc_;
     bool		extendtrctosi_;
+    int			compnr_;
 
     bool		nextReader();
     virtual void	wrapUp();

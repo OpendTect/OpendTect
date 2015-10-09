@@ -72,11 +72,15 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
     if ( !outioobj )
 	{ strm << "Output SEG-Y file is not OK" << od_endl; return false; }
 
+    int compnr;
+    if ( !inppar->get( sKey::Component(), compnr ) )
+	compnr = 0;
+
     SEGY::FilePars fp; fp.usePar( *outpar );
     fp.fillPar( outioobj->pars() );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"SEG-Y exporter", outpar,
-				mToUiStringTodo("Exporting traces") );
+			    "SEG-Y exporter", outpar,
+			    mToUiStringTodo("Exporting traces"), compnr );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }
