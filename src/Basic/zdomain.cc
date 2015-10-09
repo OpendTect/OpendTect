@@ -30,8 +30,8 @@ ObjectSet<ZDomain::Def>& DEFS()
     if ( !defs )
     {
         ManagedObjectSet<ZDomain::Def>* newdefs =
-        				new ManagedObjectSet<ZDomain::Def>;
-	*newdefs += new ZDomain::Def( ZDomain::sKeyTime(),
+				new ManagedObjectSet<ZDomain::Def>;
+        *newdefs += new ZDomain::Def( ZDomain::sKeyTime(),
 				      uiStrings::sTime(), "ms", 1000 );
 	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(),
 				      uiStrings::sDepth(), "", 1 );
@@ -170,7 +170,7 @@ uiString ZDomain::Def::uiUnitStr( bool withparens ) const
 	BufferString unitstr = unitStr( false );
 	if ( !unitstr.isEmpty() )
 	    ret.add( "(" ).add( unitstr ).add( ")" );
-	return toUiString(unitstr);
+	return toUiString(ret);
     }
 
     if ( !isDepth() )
