@@ -45,7 +45,7 @@ static bool checkEnvVars( BufferString& msg )
 	msg = "RSFROOT is either not set or invalid";
 	return false;
     }
-    
+
     return true;
 }
 
@@ -92,8 +92,6 @@ uiMadagascarLink::~uiMadagascarLink()
 
 void uiMadagascarLink::updateToolBar( CallBacker* )
 {
-    mnumgr.dtectTB()->addButton( "madagascar", tr("Madagascar link"),
-	    			 mCB(this,uiMadagascarLink,doMain) );
 }
 
 

@@ -60,10 +60,10 @@ uiGMTIntro( uiParent* p )
     setOkText( uiStrings::sContinue() );
 
     uiString msg = tr("You need to install the GMT mapping tool package\n"
-                      "before you can use this utility\nAlso make sure that "
-                      "the environment variable GMTROOT is set "
-                      "to the GMT installation directory\n and your PATH "
-                      "variable includes the GMT bin directory");
+			"before you can use this utility\nAlso make sure that "
+			"the environment variable GMTROOT is set "
+			"to the GMT installation directory\n and your PATH "
+			"variable includes the GMT bin directory");
 
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );
@@ -79,9 +79,9 @@ protected:
 
 void gmtPush( CallBacker* )
 {
-    uiDesktopServices::openUrl(
-	    __islinux__ ? "http://www.opendtect.org/index.php/download.html"
-	    		: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
+    uiDesktopServices::openUrl( __islinux__
+	? "http://www.opendtect.org/index.php/download.html"
+	: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 
 bool acceptOK( CallBacker* )
@@ -126,8 +126,6 @@ uiGMTMgr::~uiGMTMgr()
 
 void uiGMTMgr::updateToolBar( CallBacker* )
 {
-    appl_->menuMgr().dtectTB()->addButton( "gmt_logo", "GMT Mapping Tool",
-					   mCB(this,uiGMTMgr,createMap) );
 }
 
 
@@ -135,8 +133,7 @@ void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
     uiAction* newitem = new uiAction( "GMT Mapping Tool ...",
-					  mCB(this,uiGMTMgr,createMap),
-					  "gmt_logo" );
+				mCB(this,uiGMTMgr,createMap), "gmt_logo" );
     appl_->menuMgr().procMnu()->insertItem( newitem );
 }
 
