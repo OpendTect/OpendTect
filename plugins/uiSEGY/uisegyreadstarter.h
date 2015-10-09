@@ -28,7 +28,7 @@ class uiSpinBox;
 class uiCheckBox;
 class uiFileInput;
 class uiSurveyMap;
-class uiToolButton;
+class uiRadioButton;
 class uiHistogramDisplay;
 class uiSEGYRead;
 class uiSEGYImpType;
@@ -71,6 +71,9 @@ protected:
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
 
+    uiGroup*		topgrp_;
+    uiGroup*		midgrp_;
+    uiGroup*		botgrp_;
     uiSEGYImpType*	typfld_;
     uiFileInput*	inpfld_;
     uiSEGYReadStartInfo* infofld_;
@@ -79,7 +82,8 @@ protected:
     uiButton*		examinebut_;
     uiButton*		fullscanbut_;
     uiButton*		editbut_;
-    uiToolButton*	icvsxybut_;
+    uiRadioButton*	useicbut_;
+    uiRadioButton*	usexybut_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
     uiCheckBox*		inc0sbox_;
@@ -96,8 +100,6 @@ protected:
     SurveyInfo*		survinfo_;
     bool		survinfook_;
     uiSEGYRead*		classicrdr_;
-    const uiString	usexytooltip_;
-    const uiString	useictooltip_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 
@@ -119,12 +121,12 @@ protected:
     bool		incZeros() const;
 
     void		createTools();
-    void		createHist();
+    uiGroup*		createAmplDisp();
     void		clearDisplay();
     void		setButtonStatuses();
     void		displayScanResults();
     void		updateSurvMap();
-    void		updateICvsXYButton();
+    void		updateICvsXYButtons();
 
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);

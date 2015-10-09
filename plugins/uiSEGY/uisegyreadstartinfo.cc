@@ -163,6 +163,8 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     setCellTxt( mUseTxtCol, mZRangeRow, tr("start / interval") );
 
     mkBasicInfoFlds();
+
+    setStretch( 2, 0 );
 }
 
 
@@ -199,9 +201,11 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
 
     uiGroup* grp = new uiGroup( 0, "Z Range" );
     zstartfld_ = new uiLineEdit( grp, FloatInpSpec(0.f), "Z Start" );
+    zstartfld_->setToolTip( tr("Z position of first trace sample") );
     zstartfld_->editingFinished.notify( parchgcb );
     zstartfld_->setStretch( 2, 1 );
     srfld_ = new uiLineEdit( grp, FloatInpSpec(1.f,0.f), "Z Interval" );
+    srfld_->setToolTip( tr("Step between samples ('sample rate')") );
     srfld_->editingFinished.notify( parchgcb );
     srfld_->setStretch( 2, 1 );
     srfld_->attach( rightOf, zstartfld_ );
@@ -308,10 +312,12 @@ void uiSEGYReadStartInfo::manPSRow()
 		    offsgengrp_ = new uiGroup( 0, "Offset Generation" );
 		    offsgenstartfld_ = new uiLineEdit( offsgengrp_,
 			    FloatInpSpec(0.f), "Offset Start" );
+		    offsgenstartfld_->setToolTip( tr("Offset start value") );
 		    offsgenstartfld_->editingFinished.notify( parchgcb );
 		    offsgenstartfld_->setStretch( 2, 1 );
 		    offsgenstepfld_ = new uiLineEdit( offsgengrp_,
 			    FloatInpSpec(100.f,0.f), "Offset Step" );
+		    offsgenstepfld_->setToolTip( tr("Step in offset values") );
 		    offsgenstepfld_->editingFinished.notify( parchgcb );
 		    offsgenstepfld_->setStretch( 2, 1 );
 		    offsgenstepfld_->attach( rightOf, offsgenstartfld_ );

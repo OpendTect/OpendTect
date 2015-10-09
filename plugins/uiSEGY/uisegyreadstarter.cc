@@ -61,20 +61,17 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 				  mTODOHelpKey ).nrstatusflds(1) )
     , filereadopts_(0)
     , typfld_(0)
-    , icvsxybut_(0)
+    , useicbut_(0)
+    , usexybut_(0)
     , ampldisp_(0)
     , survmap_(0)
     , detectrev0flds_(true)
-    , userfilename_("x") // any non-empty
+    , userfilename_("_") // any non-empty non-existing
     , scaninfos_(0)
     , clipsampler_(*new DataClipSampler(100000))
     , survinfo_(0)
     , survinfook_(false)
     , timer_(0)
-    , usexytooltip_(tr("Click to use Inline/Crossline for positioning."
-	"\nX and Y will then be calculated using the survey setup."))
-    , useictooltip_(tr( "Click to use (X,Y) for positioning."
-	"\nInline/Crossline will then be calculated using the survey setup."))
 {
     if ( mForSurvSetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
@@ -85,43 +82,57 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
 
+    topgrp_ = new uiGroup( this, "Top group" );
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
 	.objtype( tr("SEG-Y") );
-    inpfld_ = new uiFileInput( this, "Input file(s) (*=wildcard)",
+    inpfld_ = new uiFileInput( topgrp_, "Input file(s) (*=wildcard)",
 				fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
-    editbut_ = uiButton::getStd( this, uiButton::Edit,
+    editbut_ = uiButton::getStd( topgrp_, uiButton::Edit,
 			         mCB(this,uiSEGYReadStarter,editFile), false );
     editbut_->attach( rightOf, inpfld_ );
     editbut_->setSensitive( false );
 
-    uiGroup* attgrp = inpfld_;
     if ( imptyp )
 	fixedimptype_ = *imptyp;
     else
     {
-	typfld_ = new uiSEGYImpType( this, !mForSurvSetup );
+	typfld_ = new uiSEGYImpType( topgrp_, !mForSurvSetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
-	attgrp = typfld_;
     }
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, attgrp );
+    uiSeparator* sep = new uiSeparator( this, "Top sep" );
+    sep->attach( stretchedBelow, topgrp_ );
 
-    infofld_ = new uiSEGYReadStartInfo( this, loaddef_, imptyp );
-    infofld_->attach( ensureBelow, sep );
+    midgrp_ = new uiGroup( this, "Mid group" );
+    midgrp_->attach( ensureBelow, sep );
+    infofld_ = new uiSEGYReadStartInfo( midgrp_, loaddef_, imptyp );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
     infofld_->revChanged.notify( mCB(this,uiSEGYReadStarter,revChg) );
 
+    sep = new uiSeparator( this, "Bot sep" );
+    sep->attach( stretchedBelow, midgrp_ );
+
+    botgrp_ = new uiGroup( this, "Bottom group" );
+    botgrp_->attach( ensureBelow, sep );
     if ( mForSurvSetup )
     {
-	survmap_ = new uiSurveyMap( this, true );
+	survmap_ = new uiSurveyMap( botgrp_, true );
 	survmap_->setSurveyInfo( 0 );
     }
-    createHist();
+    uiGroup* amplgrp = createAmplDisp();
+    if ( survmap_ )
+    {
+	uiSplitter* spl = new uiSplitter( botgrp_ );
+	survmap_->view().setPrefWidth( mDefSize );
+	spl->addGroup( survmap_ );
+	spl->addGroup( amplgrp );
+	spl->attach( ensureBelow, infofld_ );
+    }
     createTools();
+    botgrp_->setStretch( 2, 1 );
 
     setButtonStatuses();
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
@@ -134,21 +145,21 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
 void uiSEGYReadStarter::createTools()
 {
-    uiToolButton* openbut = new uiToolButton( this, "open",
+    uiToolButton* openbut = new uiToolButton( midgrp_, "open",
 				tr("Use Saved SEG-Y setup"),
 				mCB(this,uiSEGYReadStarter,readParsCB) );
     openbut->attach( rightOf, infofld_ );
-    uiToolButton* savebut = new uiToolButton( this, "save",
+    uiToolButton* savebut = new uiToolButton( midgrp_, "save",
 				tr("Store this setup"),
 				mCB(this,uiSEGYReadStarter,writeParsCB) );
     savebut->attach( rightOf, openbut );
 
-    fullscanbut_ = new uiToolButton( this, "fullscan",
+    fullscanbut_ = new uiToolButton( midgrp_, "fullscan",
 				    tr("Scan the entire input"),
 				    mCB(this,uiSEGYReadStarter,fullScanReq) );
     fullscanbut_->attach( alignedBelow, openbut );
 
-    uiGroup* examinegrp = new uiGroup( this, "Examine group" );
+    uiGroup* examinegrp = new uiGroup( midgrp_, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
 				    uiString::emptyString(),
 				    mCB(this,uiSEGYReadStarter,examineCB) );
@@ -167,49 +178,54 @@ void uiSEGYReadStarter::createTools()
 	needicvsxy = false;
     if ( needicvsxy )
     {
-	icvsxybut_ = new uiToolButton( this, "useic", useictooltip_,
-		mCB(this,uiSEGYReadStarter,icxyCB) );
-	icvsxybut_->attach( alignedBelow, examinegrp );
+	const CallBack icvsxycb( mCB(this,uiSEGYReadStarter,icxyCB) );
+	useicbut_ = new uiRadioButton( midgrp_, tr("Use I/C"), icvsxycb );
+	// useicbut_->setIcon( "useic" );
+	useicbut_->setToolTip(
+	    tr("Select to use Inline/Crossline for positioning."
+		"\nX and Y will be calculated using the survey setup.\nPrefer "
+		"this if you have valid In- and Crossline numbers available."));
+	useicbut_->attach( alignedBelow, examinegrp );
+
+	usexybut_ = new uiRadioButton( midgrp_, tr("Use (X,Y)"), icvsxycb );
+	// usexybut_->setIcon( "usexy" );
+	usexybut_->setToolTip(
+	    tr( "Select to use (X,Y) for positioning.\nInline/Crossline "
+		"will be calculated using the survey setup.\nOnly use this "
+		"option if you do not have valid In- and Crossline numbers.") );
+	usexybut_->attach( alignedBelow, useicbut_ );
     }
 }
 
 
-void uiSEGYReadStarter::createHist()
+uiGroup* uiSEGYReadStarter::createAmplDisp()
 {
-    uiGroup* histgrp = new uiGroup( this, "Hist grp" );
-    const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
+    uiGroup* amplgrp = new uiGroup( botgrp_, "Hist grp" );
+    const CallBack adupcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
+
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     hdsu.canvaswidth(mDefSize)
 	.canvasheight( mForSurvSetup ? mSurvMapHeight : mDefSize );
-    ampldisp_ = new uiHistogramDisplay( histgrp, hdsu );
+    ampldisp_ = new uiHistogramDisplay( amplgrp, hdsu );
     ampldisp_->setTitle( tr("Amplitudes") );
-    clipfld_ = new uiSpinBox( histgrp, 1, "Clipping percentage" );
+
+    clipfld_ = new uiSpinBox( amplgrp, 1, "Clipping percentage" );
     clipfld_->setInterval( 0.f, 49.9f, 0.1f );
     clipfld_->setValue( 0.1f );
     clipfld_->setToolTip( tr("Percentage clip for display") );
     clipfld_->setSuffix( uiString("%") );
     clipfld_->setHSzPol( uiObject::Small );
     clipfld_->attach( rightOf, ampldisp_ );
-    clipfld_->valueChanging.notify( histupdcb );
-    inc0sbox_ = new uiCheckBox( histgrp, "Zeros" );
+    clipfld_->valueChanging.notify( adupcb );
+
+    inc0sbox_ = new uiCheckBox( amplgrp, "Zeros" );
     inc0sbox_->attach( alignedBelow, clipfld_ );
     inc0sbox_->setHSzPol( uiObject::Small );
     inc0sbox_->setToolTip( tr("Include value '0' for histogram display") );
-    inc0sbox_->activated.notify( histupdcb );
-    if ( !mForSurvSetup )
-    {
-	histgrp->setStretch( 2, 1 );
-	histgrp->attach( stretchedBelow, infofld_ );
-    }
-    else
-    {
-	uiSplitter* spl = new uiSplitter( this );
-	survmap_->view().setPrefWidth( mDefSize );
-	spl->addGroup( survmap_ );
-	spl->addGroup( histgrp );
-	spl->attach( ensureBelow, infofld_ );
-    }
+    inc0sbox_->activated.notify( adupcb );
+
+    return amplgrp;
 }
 
 
@@ -336,12 +352,13 @@ void uiSEGYReadStarter::setButtonStatuses()
     fullscanbut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
-    if ( icvsxybut_ )
+    if ( useicbut_ )
     {
 	const bool isneeded = needICvsXY();
-	icvsxybut_->display( isneeded );
+	useicbut_->display( isneeded );
+	usexybut_->display( isneeded );
 	if ( isneeded )
-	    updateICvsXYButton();
+	    updateICvsXYButtons();
     }
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
@@ -526,7 +543,7 @@ void uiSEGYReadStarter::usePar( const IOPar& iop )
     loaddef_.usePar( iop );
     forceRescan( KeepAll, false );
     infofld_->useLoadDef();
-    updateICvsXYButton();
+    updateICvsXYButtons();
 }
 
 
@@ -565,37 +582,38 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 }
 
 
-void uiSEGYReadStarter::icxyCB( CallBacker* )
+void uiSEGYReadStarter::icxyCB( CallBacker* cb )
 {
-    if ( !icvsxybut_ ) return;
+    if ( !useicbut_ ) return;
 
-    if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
-	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
+    const bool iccl = cb == useicbut_;
+    const bool useic = iccl ? useicbut_->isChecked() : !usexybut_->isChecked();
+    loaddef_.icvsxytype_ = useic ? SEGY::FileReadOpts::ICOnly
+				 : SEGY::FileReadOpts::XYOnly;
+    if ( iccl )
+    {
+	NotifyStopper ns( usexybut_->activated );
+	usexybut_->setChecked( !useic );
+    }
     else
-	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
+    {
+	NotifyStopper ns( useicbut_->activated );
+	useicbut_->setChecked( !useic );
+    }
 
-    userfilename_.setEmpty();
+
     forceRescan();
     infofld_->updateDisplay();
-
-    updateICvsXYButton();
 }
 
 
-void uiSEGYReadStarter::updateICvsXYButton()
+void uiSEGYReadStarter::updateICvsXYButtons()
 {
-    if ( !icvsxybut_ ) return;
+    if ( !useicbut_ ) return;
 
-    if ( loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly )
-    {
-	icvsxybut_->setIcon( "useic" );
-	icvsxybut_->setToolTip( useictooltip_ );
-    }
-    else
-    {
-	icvsxybut_->setIcon( "usexy" );
-	icvsxybut_->setToolTip( usexytooltip_ );
-    }
+    const bool useic = loaddef_.icvsxytype_ != SEGY::FileReadOpts::XYOnly;
+    if ( useicbut_->isChecked() != useic )
+	useicbut_->setChecked( useic ); // should trigger setting xy
 }
 
 
@@ -836,7 +854,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     if ( isfirst && ct == KeepNone )
 	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
 
-    si.getFromSEGYBody( strm, loaddef_, clipsampler_, trunner );
+    si.getFromSEGYBody( strm, loaddef_, mForSurvSetup, clipsampler_, trunner );
     return true;
 }
 

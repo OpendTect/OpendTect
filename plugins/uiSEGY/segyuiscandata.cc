@@ -375,6 +375,7 @@ virtual int nextStep()
 
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
+			bool forsurvsetup,
 		    DataClipSampler& clipsampler, TaskRunner* fullscanrunner )
 {
     reInit();
@@ -415,6 +416,8 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 #define	mAddTrcs() addTraces(strm,trcrg,buf,vals,def,clipsampler,offscalc)
 	Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
 	mAddTrcs();
+	if ( !is2D() && forsurvsetup )
+	    ensureStepsFound( strm, buf, vals, def, clipsampler, offscalc );
 	trcrg.start = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
 	trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
 	mAddTrcs();
@@ -458,13 +461,39 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, Interval<int> trcidxs,
 	return;
 
     for ( ; curtrcidx<=trcidxs.stop; curtrcidx++ )
-    {
-	PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
-	if ( !thdr )
+	if ( !addNextTrace(strm,buf,vals,def,clipsampler,offscalc) )
 	    break;
+}
 
-	if ( thdr->isusable )
-	    addTrace( *thdr, vals, def, clipsampler, offscalc );
+
+bool SEGY::ScanInfo::addNextTrace( od_istream& strm,
+				    char* buf, float* vals, const LoadDef& def,
+				    DataClipSampler& clipsampler,
+				    const OffsetCalculator& offscalc )
+{
+    PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
+    if ( !thdr )
+	return false;
+
+    if ( thdr->isusable )
+	addTrace( *thdr, vals, def, clipsampler, offscalc );
+
+    return true;
+}
+
+
+void SEGY::ScanInfo::ensureStepsFound( od_istream& strm,
+				char* buf, float* vals, const LoadDef& def,
+				DataClipSampler& clipsampler,
+				const OffsetCalculator& offscalc )
+{
+    while ( true )
+    {
+	const bool haveinlstep = pidetector_->haveStep( true );
+	const bool havecrlstep = pidetector_->haveStep( false );
+	if ( (haveinlstep && havecrlstep)
+	  || !addNextTrace(strm,buf,vals,def,clipsampler,offscalc) )
+	    break;
     }
 }
 
