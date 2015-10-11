@@ -53,6 +53,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
 	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
 
+    mInsertItem( helpmnu_, tr("Workflows"), mWorkflowsMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0)
 }
@@ -71,6 +72,10 @@ void uiODHelpMenuMgr::handle( int id )
 {
     switch( id )
     {
+	case mAboutMnuItm:
+	{
+	    uiMSG().aboutOpendTect( getAboutString() );
+	} break;
 	case mAdminMnuItm:
 	{
 	    HelpProvider::provideHelp( HelpKey("appman",0) );
@@ -83,9 +88,9 @@ void uiODHelpMenuMgr::handle( int id )
 	{
 	    uiDesktopServices::openUrl( getSupportURL() );
 	} break;
-	case mAboutMnuItm:
+	case mWorkflowsMnuItm:
 	{
-	    uiMSG().aboutOpendTect( getAboutString() );
+	    HelpProvider::provideHelp( HelpKey("wf",0) );
 	} break;
 	default:
 	{
