@@ -31,15 +31,15 @@ public:
 
     void		addRecord();
 
-    void		add(int heidx,int val); // last added record
-    void		reject(int heidx); // removes from all records
+    void		add(int heidx,int val);
+    void		reject(int heidx);	// removes from all records
 
-    void		rejectConstants();
-    void		rejectNoProgress();
+    void		rejectConstants(int,int);
+    void		rejectNoProgress(int,int);
 
     void		merge(const HdrEntryDataSet&);
 
-    TypeSet<int>	idxs_; // in TrcHeader::hdrDef()
+    TypeSet<int>	idxs_;		// in TrcHeader::hdrDef()
     SortedList<int>	rejectedidxs_;
 
     virtual void	erase();
@@ -62,9 +62,12 @@ public:
     HdrEntryDataSet	offs_;
     HdrEntryDataSet	x_;
     HdrEntryDataSet	y_;
+    TypeSet<int>	newfileat_;
 
+    int			size() const		{ return inl_.size(); }
     void		setEmpty();
-    void		add(const TrcHeader&,bool isswapped);
+    void		add(const TrcHeader&,bool isswapped,
+			    bool isnewline);
     void		finish(bool isps);
 
     void		merge(const HdrEntryKeyData&);

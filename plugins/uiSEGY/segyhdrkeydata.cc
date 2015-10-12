@@ -75,17 +75,17 @@ void SEGY::HdrEntryDataSet::reject( int hdidx )
 }
 
 
-void SEGY::HdrEntryDataSet::rejectConstants()
+void SEGY::HdrEntryDataSet::rejectConstants( int start, int stop )
 {
-    if ( idxs_.size() < 1 || size() < 2 )
+    if ( idxs_.size() < 1 || stop-start < 1 )
 	return;
 
     TypeSet<int> toreject;
     for ( int idx=0; idx<idxs_.size(); idx++ )
     {
-	const int firstval = ((*this)[0])[idx];
+	const int firstval = ((*this)[start])[idx];
 	bool havevariation = false;
-	for ( int irec=1; irec<size(); irec++ )
+	for ( int irec=start+1; irec<=stop; irec++ )
 	{
 	    const HdrEntryRecord& rec = (*this)[irec];
 	    if ( rec[idx] != firstval )
@@ -100,18 +100,18 @@ void SEGY::HdrEntryDataSet::rejectConstants()
 }
 
 
-void SEGY::HdrEntryDataSet::rejectNoProgress()
+void SEGY::HdrEntryDataSet::rejectNoProgress( int start, int stop )
 {
-    if ( idxs_.size() < 1 || size() < 2 )
+    if ( idxs_.size() < 1 || stop-start < 1 )
 	return;
 
     TypeSet<int> toreject;
     for ( int idx=0; idx<idxs_.size(); idx++ )
     {
-	int prevval = ((*this)[0])[idx];
-	const bool isupwd = ((*this)[1])[idx] > prevval;
+	int prevval = ((*this)[start])[idx];
+	const bool isupwd = ((*this)[start+1])[idx] > prevval;
 	bool isbad = false;
-	for ( int irec=1; irec<size(); irec++ )
+	for ( int irec=start+1; irec<=stop; irec++ )
 	{
 	    const HdrEntryRecord& rec = (*this)[irec];
 	    int curval = rec[idx];
@@ -130,6 +130,14 @@ void SEGY::HdrEntryDataSet::rejectNoProgress()
 
 void SEGY::HdrEntryDataSet::merge( const HdrEntryDataSet& oth )
 {
+    if ( size() == 0 )
+    {
+	TypeSet<HdrEntryRecord>::operator =( oth );
+	idxs_ = oth.idxs_;
+	rejectedidxs_ = oth.rejectedidxs_;
+	return;
+    }
+
     for ( int idx=0; idx<oth.rejectedidxs_.size(); idx++ )
 	if ( !rejectedidxs_.isPresent(oth.rejectedidxs_[idx]) )
 	    reject( oth.rejectedidxs_[idx] );
@@ -191,12 +199,17 @@ void SEGY::HdrEntryKeyData::init()
 void SEGY::HdrEntryKeyData::setEmpty()
 {
     mDoAllDSs( setEmpty() );
+    newfileat_.setEmpty();
     init();
 }
 
 
-void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd )
+void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
+				 bool isnewline )
 {
+    if ( isnewline )
+	newfileat_ += size();
+
     const HdrDef& hdrdef = TrcHeader::hdrDef();
     const void* buf = thdr.buf_;
     const int nrhe = hdrdef.size();
@@ -228,19 +241,46 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd )
 
 void SEGY::HdrEntryKeyData::finish( bool isps )
 {
-    offs_.rejectConstants();
-    refnr_.rejectConstants();
-    if ( !isps )
-	trcnr_.rejectNoProgress();
+    const int sz = size();
+    if ( sz < 2 )
+	return;
+
+    TypeSet<int> lineidxs;
+    if ( newfileat_.isEmpty() || newfileat_[0] != 0 )
+	lineidxs += 0;
+    lineidxs.append( newfileat_ );
+    lineidxs += sz;
+
+    for ( int iline=1; iline<lineidxs.size(); iline++ )
+    {
+	const int start = lineidxs[iline-1];
+	const int stop = lineidxs[iline] - 1;
+
+	offs_.rejectConstants( start, stop );
+	refnr_.rejectConstants( start, stop );
+	if ( !isps )
+	    trcnr_.rejectNoProgress( start, stop );
+    }
 }
 
 
 void SEGY::HdrEntryKeyData::merge( const HdrEntryKeyData& oth )
 {
+    const int addsz = oth.size();
+    if ( addsz < 1 )
+	return;
+    const int orgsz = size();
+
     inl_.merge( oth.inl_ ); crl_.merge( oth.crl_ );
     trcnr_.merge( oth.trcnr_ ); refnr_.merge( oth.refnr_ );
     offs_.merge( oth.offs_ );
     x_.merge( oth.x_ ); y_.merge( oth.y_ );
+
+    const int othnrlns = oth.newfileat_.size();
+    if ( othnrlns < 1 )
+	newfileat_ += orgsz;
+    for ( int idx=0; idx<othnrlns; idx++ )
+	newfileat_ += orgsz + oth.newfileat_[idx];
 }
 
 

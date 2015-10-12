@@ -601,7 +601,6 @@ void uiSEGYReadStarter::icxyCB( CallBacker* cb )
 
 
     forceRescan();
-    infofld_->updateDisplay();
 }
 
 
