@@ -367,7 +367,8 @@ BinID RandomTrackDisplay::getNodePos( int nodeidx ) const
 BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 {
     const Coord crd = dragger_->getKnot( nodeidx );
-    return BinID( mNINT32(crd.x), mNINT32(crd.y) );
+    return BinID( SI().inlRange(false).snap(crd.x),
+		  SI().crlRange(false).snap(crd.y) );
 }
 
 
@@ -893,8 +894,7 @@ void RandomTrackDisplay::acceptManipulation()
 
     for ( int idx=0; idx<nrNodes(); idx++ )
     {
-	const Coord crd = dragger_->getKnot(idx);
-	setNodePos( idx, BinID(mNINT32(crd.x),mNINT32(crd.y)), false);
+	setNodePos( idx, getManipNodePos(idx), false);
 	if ( !getUpdateStageNr() )
 	    dragger_->showAdjacentPanels( idx, false );
     }
@@ -1022,8 +1022,7 @@ void RandomTrackDisplay::nodeMoved( CallBacker* cb )
 
     for ( int idx=abs(sel); idx>=abs(sel)-1; idx-- )
     {
-	const Coord crd = dragger_->getKnot( idx );
-	const BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
+	const BinID bid = getManipNodePos( idx );
 	dragger_->showAdjacentPanels( idx, getNodePos(idx)!=bid );
 	mUpdateRandomLineGeometry( setNodePosition(idx,bid,true) );
 
