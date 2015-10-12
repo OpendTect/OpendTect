@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "zdomain.h"
 
 
-DefineEnumTools(Viewer2DPosDataSel,PosType,"Position Type")
+DefineEnumUtils(Viewer2DPosDataSel,PosType,"Position Type")
 { "In-line", "Cross-line", "2D line", "Z-slice", "Random line", 0 };
 
 #define mToPosTypeStr( postype ) \

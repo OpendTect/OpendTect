@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "windowfunction.h"
 
 
-DefineEnumTools( ArrayNDWindow, WindowType, "Windowing type")
+DefineEnumUtils( ArrayNDWindow, WindowType, "Windowing type")
 { "Box", "Hamming", "Hanning", "Blackman", "Bartlett",
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
@@ -153,7 +153,7 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 
 
 
-DefineEnumTools( PolyTrend, Order, "Polynomial Order")
+DefineEnumUtils( PolyTrend, Order, "Polynomial Order")
 { "None", "Order0", "Order1", "Order2", 0 };
 
 

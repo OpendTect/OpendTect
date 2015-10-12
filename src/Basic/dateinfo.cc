@@ -21,7 +21,7 @@ static const int leapdaycount[]
 	= { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
 
-DefineEnumTools(DateInfo,DayOfWeek,"Week day") {
+DefineEnumUtils(DateInfo,DayOfWeek,"Week day") {
 	"Sunday",
 	"Monday",
 	"Tuesday",
@@ -44,7 +44,7 @@ void EnumDefImpl<DateInfo::DayOfWeek>::init()
     uistrings_ += tr("Saturday");
 }
 
-DefineEnumTools(DateInfo,Month,"Month") {
+DefineEnumUtils(DateInfo,Month,"Month") {
 	"jan", "feb", "mar", "apr", "may", "jun",
 	"jul", "aug", "sep", "oct", "nov", "dec",
 	0

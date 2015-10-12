@@ -53,7 +53,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-DefineEnumTools(uiSurfaceMan,Type,"Surface type")
+DefineEnumUtils(uiSurfaceMan,Type,"Surface type")
 {
     EMHorizon2DTranslatorGroup::sGroupName(),
     EMHorizon3DTranslatorGroup::sGroupName(),

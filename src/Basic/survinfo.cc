@@ -46,7 +46,7 @@ const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
 
-DefineEnumTools(SurveyInfo,Pol2D,"Survey Type")
+DefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
 

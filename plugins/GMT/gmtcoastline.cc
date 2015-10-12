@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 
 
-DefineNameSpaceEnumTools(ODGMT,Resolution,"Resolutions")
+DefineNameSpaceEnumUtils(ODGMT,Resolution,"Resolutions")
 { "Full", "High", "Intermediate", "Low", "Crude", 0 };
 
 

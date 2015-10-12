@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "settings.h"
 
-DefineNameSpaceEnumTools(Stats,Type,"Statistic type")
+DefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
 {
 	"Count",
 	"Average", "Median", "RMS",
@@ -26,7 +26,7 @@ DefineNameSpaceEnumTools(Stats,Type,"Statistic type")
 	0
 };
 
-DefineNameSpaceEnumTools(Stats,UpscaleType,"Upscale type")
+DefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 {
 	"Take Nearest Sample",
 	"Use Average", "Use Median", "Use RMS", "Use Most Frequent",

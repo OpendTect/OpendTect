@@ -57,7 +57,7 @@ private:
 };
 
 
-DefineEnumTools(PlaneDataDisplay,SliceType,"Orientation")
+DefineEnumUtils(PlaneDataDisplay,SliceType,"Orientation")
 { "Inline", "Crossline", "Z-slice", 0 };
 
 

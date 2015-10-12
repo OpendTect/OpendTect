@@ -25,11 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellreader.h"
 
 
-DefineNameSpaceEnumTools(ODGMT,Shape,"Shapes")
+DefineNameSpaceEnumUtils(ODGMT,Shape,"Shapes")
 { "Star", "Circle", "Diamond", "Square", "Triangle", "Cross", "Polygon",
   "Line", 0 };
 
-DefineNameSpaceEnumTools(ODGMT,Alignment,"Alignments")
+DefineNameSpaceEnumUtils(ODGMT,Alignment,"Alignments")
 { "Above", "Below", "Left", "Right", 0 };
 
 

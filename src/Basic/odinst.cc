@@ -50,11 +50,11 @@ static BufferString getInstDir()
 # endif
 #endif
 
-DefineNameSpaceEnumTools(ODInst,AutoInstType,"Auto update")
+DefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
 
 
-DefineNameSpaceEnumTools(ODInst,RelType,"Release type")
+DefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 {
 	"Stable",
 	"Development",

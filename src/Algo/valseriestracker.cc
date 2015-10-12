@@ -49,7 +49,7 @@ void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
 
 // EventTracker
 
-DefineEnumTools(EventTracker,CompareMethod,"Compare Method")
+DefineEnumUtils(EventTracker,CompareMethod,"Compare Method")
 {
 	"None",
 	"Seed Trace",

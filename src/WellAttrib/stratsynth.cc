@@ -64,7 +64,7 @@ static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 #define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
 
 
-DefineEnumTools(SynthGenParams,SynthType,"Synthetic Type")
+DefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 { "Pre Stack",
   "Zero Offset Stack",
   "Strat Property",

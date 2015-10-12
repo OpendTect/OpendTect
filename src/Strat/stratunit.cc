@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "randcolor.h"
 
-DefineEnumTools(Strat::UnitRef,Type,"Unit Type")
+DefineEnumUtils(Strat::UnitRef,Type,"Unit Type")
 { "Node", "Leaved", "Leaf", 0 };
 
 
