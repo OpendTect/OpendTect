@@ -39,7 +39,7 @@ mExpClass(Algo) VelocityDesc
 { mODTextTranslationClass(VelocityDesc);
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
-    			DeclareEnumUtils(Type);
+    			mDeclareEnumUtils(Type);
     
 			VelocityDesc();
 			VelocityDesc(Type);

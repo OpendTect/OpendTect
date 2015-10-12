@@ -40,7 +40,7 @@ namespace Geometry { class RandomLine; }
 mStruct(uiODMain) Viewer2DPosDataSel
 {
     enum PosType	{InLine=0, CrossLine=1, Line2D=2, ZSlice=3, RdmLine=4 };
-			DeclareEnumUtils(PosType);
+			mDeclareEnumUtils(PosType);
 
 			Viewer2DPosDataSel() { clean(); }
     virtual		~Viewer2DPosDataSel() {}

@@ -27,7 +27,7 @@ mExpClass(General) ElasticFormula : public NamedObject
 public:
 
 			enum Type	{ Den, PVel, SVel };
-			DeclareEnumUtils(Type)
+			mDeclareEnumUtils(Type)
 
 			ElasticFormula(const char* nm,const char* expr,Type tp)
 				: NamedObject( nm )

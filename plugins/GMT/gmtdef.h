@@ -20,11 +20,11 @@ namespace ODGMT
 {
     enum Shape		{ Star, Circle, Diamond, Square, Triangle, Cross,
    			  Polygon, Line };
-    			DeclareNameSpaceEnumUtils(GMT,Shape)
+    			mDeclareNameSpaceEnumUtils(GMT,Shape)
     enum Resolution	{ Full, High, Intermediate, Low, Crude };
-			DeclareNameSpaceEnumUtils(GMT,Resolution)
+			mDeclareNameSpaceEnumUtils(GMT,Resolution)
     enum Alignment	{ Above, Below, Left, Right };
-			DeclareNameSpaceEnumUtils(GMT,Alignment);
+			mDeclareNameSpaceEnumUtils(GMT,Alignment);
     enum ExecStatus	{ Success, FatalError, Failure };
 
     static const char* shapekeysbuf[] = { "a", "c", "d", "s", "t", "x", "n", "-", 0 };

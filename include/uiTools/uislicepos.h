@@ -31,7 +31,7 @@ public:
 			~uiSlicePos();
 
     typedef OD::SliceType SliceDir;
-			DeclareEnumUtils(SliceDir);
+			mDeclareEnumUtils(SliceDir);
 
     uiToolBar*		getToolBar() const		{ return toolbar_; }
     TrcKeyZSampling	getTrcKeyZSampling() const	{ return curcs_; }

@@ -42,7 +42,7 @@ public:
 					Symmlet6, Symmlet7, Symmlet8,
 					Symmlet9, Symmlet10, Vaidyanathan };
 
-			DeclareEnumUtils(WaveletType);
+			mDeclareEnumUtils(WaveletType);
 
     static void		getInfo(WaveletType tp,int& len,TypeSet<float>&);
 
@@ -141,7 +141,7 @@ public:
 
 
     enum		WaveletType { Morlet, Gaussian, MexicanHat };
-    			DeclareEnumUtils(WaveletType);
+    			mDeclareEnumUtils(WaveletType);
 
     void		setWavelet(CWT::WaveletType);
 

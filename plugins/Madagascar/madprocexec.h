@@ -27,7 +27,7 @@ mExpClass(Madagascar) ProcExec : public ::Executor
 public:
 
     enum FlowStage	{ Start, Intermediate, Finish };
-    			DeclareEnumUtils(FlowStage)
+    			mDeclareEnumUtils(FlowStage)
 
     			ProcExec(const IOPar&,od_ostream&);
     			~ProcExec();

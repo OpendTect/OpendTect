@@ -40,7 +40,7 @@ mExpClass(Strat) UnitRef : public CallBacker
 public:
 
     enum Type		{ NodeOnly, Leaved, Leaf };
-			DeclareEnumUtils(Type)
+			mDeclareEnumUtils(Type)
 
 			UnitRef(NodeUnitRef*,const char* d=0);
     virtual		~UnitRef();

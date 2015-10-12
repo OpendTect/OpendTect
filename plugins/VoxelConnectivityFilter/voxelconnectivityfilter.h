@@ -30,10 +30,10 @@ public:
 				"Voxel Connectivity Filter" );
 
     enum		Connectivity { Faces, Edges, Corners };
-    			DeclareEnumUtils( Connectivity );
+    			mDeclareEnumUtils( Connectivity );
 
     enum		AcceptOutput { Ranking, BodySize, Value, Transparent };
-    			DeclareEnumUtils( AcceptOutput );
+    			mDeclareEnumUtils( AcceptOutput );
 
     void		setConnectivity(Connectivity val){connectivity_ = val;}
     			/*!<Must be either 6, 12 or 26 */

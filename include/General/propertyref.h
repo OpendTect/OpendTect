@@ -48,7 +48,7 @@ public:
 			    GR, Imp, Perm, Pres, PresWt, Res, Son, Temp, Time,
 			    Vel, Volum, Vol, Other
 			};
-			DeclareEnumUtils(StdType)
+			mDeclareEnumUtils(StdType)
     static StdType	surveyZType();
 
 			PropertyRef( const char* nm, StdType t=Other )

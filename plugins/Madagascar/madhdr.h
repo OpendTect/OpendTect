@@ -31,7 +31,7 @@ public:
 			~RSFHeader(){};
 
     enum Format		{ NativeFloat, NativeInt, AsciiFloat, AsciiInt, Other };
-    			DeclareEnumUtils(Format);
+    			mDeclareEnumUtils(Format);
 
     bool		read(const char* fnm);
     bool		read(od_istream&);

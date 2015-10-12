@@ -61,7 +61,7 @@ public:
     const InterpolationLayerModel* getLayerModel() const;
 
     enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
-				DeclareEnumUtils(ExtensionModel)
+				mDeclareEnumUtils(ExtensionModel)
     ExtensionModel		extensionMethod() const	{ return extension_; }
     void			extensionMethod(ExtensionModel ext)
 				{ extension_ = ext; }

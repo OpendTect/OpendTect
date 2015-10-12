@@ -61,7 +61,7 @@ public:
     			Picks(bool zit);
 
     enum PickType	{ RMO, RMS, Delta, Epsilon, Eta };
-     			DeclareEnumUtils(PickType)
+     			mDeclareEnumUtils(PickType)
     PickType		pickType() const;
     void		setPickType( PickType, bool resetcolor );
     const char*		zDomain() const;

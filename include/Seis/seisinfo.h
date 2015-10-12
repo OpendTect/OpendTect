@@ -51,7 +51,7 @@ public:
     enum Fld		{ TrcNr=0, Pick, RefNr,
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
 			  Offset, Azimuth };
-    			DeclareEnumUtils(Fld)
+    			mDeclareEnumUtils(Fld)
     double		getValue(Fld) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
     int			getDefaultAxisFld(Seis::GeomType,

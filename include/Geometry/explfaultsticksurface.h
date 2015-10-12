@@ -47,7 +47,7 @@ public:
     bool		needsUpdate() const		{ return needsupdate_; }
 
     enum TriProjection	{ None=0, Inline=1, Crossline=2, ZSlice=3 };
-			DeclareEnumUtils(TriProjection);
+			mDeclareEnumUtils(TriProjection);
     TriProjection	triangulateAlg() const		{ return trialg_; }
     void		triangulateAlg(TriProjection);
 

@@ -36,7 +36,7 @@ mExpClass(General) MapperSetup : public CallBacker
 public:
 			MapperSetup();
     enum Type		{ Fixed, Auto, HistEq };
-			DeclareEnumUtils(Type);
+			mDeclareEnumUtils(Type);
 
     mDefSetupClssMemb(MapperSetup,Type,type)
     mDefSetupClssMemb(MapperSetup,Interval<float>,cliprate)	//!< Auto

@@ -239,7 +239,7 @@ public:
     BufferString	getDataDirName() const	{ return datadir_; }
     void		updateDirName(); //!< May be used after setName()
 
-			DeclareEnumUtils(Pol2D);
+			mDeclareEnumUtils(Pol2D);
     Pol2D		survDataType() const	{ return survdatatype_; }
     void		setSurvDataType( Pol2D typ )
 			{ survdatatype_ = typ; survdatatypeknown_ = true; }

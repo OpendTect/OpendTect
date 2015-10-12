@@ -78,9 +78,9 @@ public:
     static const char*	angleDPIDStr()		{ return "angleid"; }
 
     enum GatherType	{ Off, Ang };
-			DeclareEnumUtils(GatherType)
+			mDeclareEnumUtils(GatherType)
     enum XaxisUnit	{ Deg, Rad };
-			DeclareEnumUtils(XaxisUnit)
+			mDeclareEnumUtils(XaxisUnit)
 
     const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
     const MultiID&			psID() const	{ return psid_; }

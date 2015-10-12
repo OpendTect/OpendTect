@@ -39,7 +39,7 @@ mExpClass(Strat) LaySeqAttrib : public NamedObject
 public:
 
     enum Transform	{ Pow, Log, Exp };
-			DeclareEnumUtils(Transform)
+			mDeclareEnumUtils(Transform)
 
 			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
 				      const char* nm=0 )

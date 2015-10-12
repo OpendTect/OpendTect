@@ -106,7 +106,7 @@ public:
     {
 			DipSource();
 	enum Type	{ None, Horizon, SteeringVolume };
-			DeclareEnumUtils(Type);
+			mDeclareEnumUtils(Type);
 
 	bool		operator==(const DipSource& b) const;
 
