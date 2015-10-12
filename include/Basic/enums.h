@@ -333,6 +333,14 @@ DefineEnumNames(clss,enm,0,prettynm)
 #define mDefineNameSpaceEnumUtils(nmspc,enm,prettynm) \
 DefineNameSpaceEnumNames(nmspc,enm,0,prettynm)
 
+//Legacy
+#define DeclareEnumUtils(enm) mDeclareEnumUtils(enm)
+#define DefineEnumUtils(clss,enm,prettynm) mDefineEnumUtils(clss,enm,prettynm)
+#define DefineNameSpaceEnumUtils(nmspc,enm,prettynm) \
+mDefineNameSpaceEnumUtils(nmspc,enm,prettynm)
+#define DeclareNameSpaceEnumUtils(mod,enm) mDeclareNameSpaceEnumUtils(mod,enm)
+
+
 template <class ENUM> inline
 EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
     : EnumDef( nm, nms, nrs )
