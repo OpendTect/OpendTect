@@ -25,11 +25,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 class uiHorizonAuxDataDlg: public uiDialog
-{
+{ mODTextTranslationClass(uiHorizonAuxDataDlg)
 public:
 uiHorizonAuxDataDlg( uiParent* p,
 		     const uiHorizonAuxDataSel::HorizonAuxDataInfo& info )
-    : uiDialog( p, uiDialog::Setup("Horizon data selection",0,mNoHelpKey ))
+    : uiDialog( p 
+    , uiDialog::Setup(toUiString("%1 %2 %3").arg(uiStrings::sHorizon())
+					    .arg(uiStrings::sData())
+					    .arg(uiStrings::sSelection())
+					    , mNoDlgTitle
+					    , mNoHelpKey ))
     , auxidx_( 0 )
     , selmid_( 0 )
     , auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
@@ -50,7 +55,7 @@ uiHorizonAuxDataDlg( uiParent* p,
     datalistfld_->selectionChanged.notify(
 	    mCB(this, uiHorizonAuxDataDlg, auxidxChg) );
 
-    uiLabel* directlabel = new uiLabel( grp, "Available data" );
+    uiLabel* directlabel = new uiLabel( grp, tr("Available data") );
     directlabel->attach( alignedAbove, datalistfld_ );
     directlabel->attach( rightTo, horlabel );
 }
@@ -177,12 +182,13 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 	BufferStringSet attrnms;
 	eminfo.getAttribNames( attrnms );
 	for ( int idx=0; idx<attrnms.size(); idx++ )
-	    str.addString( attrnms.get(idx) );
+	    str.addString( toUiString(attrnms.get(idx)) );
 
 	horfld_->setText( obj->name() );
     }
 
-    auxfld_ = new uiGenInput( this, tr("Horizon Data"), str );
+    auxfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
+				    uiStrings::sHorizon(),uiStrings::sData()));
     auxfld_->attach( rightOf, selbut_ );
     auxfld_->setPrefWidthInChar( 60 );
     auxfld_->valuechanged.notify(
@@ -225,7 +231,7 @@ void uiHorizonAuxDataSel::selCB( CallBacker* )
 
     StringListInpSpec str;
     for ( int idx=0; idx<attrnms.size(); idx++ )
-	str.addString( attrnms.get(idx) );
+	str.addString( toUiString(attrnms.get(idx)) );
     auxfld_->clear();
     auxfld_->newSpec( str, 0 );
 

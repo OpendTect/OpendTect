@@ -734,7 +734,8 @@ bool uiEMPartServer::storeFaultAuxData( const EM::ObjectID& id,
 
     BufferStringSet atrrnms;
     auxdata->getAuxDataList( atrrnms );
-    uiGetObjectName::Setup setup( "Fault Data", atrrnms );
+    uiGetObjectName::Setup setup( toUiString("%1 %2").arg(uiStrings::sFault())
+					    .arg(uiStrings::sData()), atrrnms );
     setup.inptxt_ = uiStrings::sAttribute(mPlural);
     uiGetObjectName dlg( parent(), setup );
     if ( !dlg.go() )
@@ -1166,8 +1167,8 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 			      varsettings.getFold(), errmsg, msgiserror );
     if ( !hvc.isOK() )
     {
-	msgiserror ? uiMSG().error( errmsg.buf() )
-		   : uiMSG().warning( errmsg.buf() );
+	msgiserror ? uiMSG().error( mToUiStringTodo(errmsg.buf()) )
+		   : uiMSG().warning( mToUiStringTodo(errmsg.buf()) );
 	return false;
     }
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),
@@ -1266,7 +1267,8 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	return false;
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
-    const uiString infomsg = interp ? interp->infoMsg() : 0;
+    const uiString infomsg = 
+			interp ? interp->infoMsg() : uiStrings::sEmptyString();
     if ( infomsg.isSet() )
 	uiMSG().message( infomsg );
 

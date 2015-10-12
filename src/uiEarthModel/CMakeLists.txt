@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-#add_definitions( -DmNoAutoUiString )
+add_definitions( -DmNoAutoUiString )
 
 SET(OD_MODULE_DEPS uiStrat EarthModel )
 SET(OD_MODULE_SOURCES
