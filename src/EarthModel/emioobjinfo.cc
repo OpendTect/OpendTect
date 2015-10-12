@@ -334,9 +334,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 
 IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 {
-    ObjectType type;
-    ObjectTypeDef().parse( grpname, type );
-    return type;
+    return ObjectTypeDef().parse( grpname );
 }
 
 

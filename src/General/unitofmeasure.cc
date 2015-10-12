@@ -240,8 +240,8 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	const int nrtypes = types.size();
 	for ( int ityp=0; ityp<nrtypes; ityp++ )
 	{
-	    PropertyRef::StdType stdtype;
-	    PropertyRef::StdTypeDef().parse( types[ityp], stdtype );
+	    PropertyRef::StdType stdtype =
+                PropertyRef::StdTypeDef().parse( types[ityp] );
 	    UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
 	    un.setScaler( LinScaler(shft,fac) );
 	    un.setSource( src );

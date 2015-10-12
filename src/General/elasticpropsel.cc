@@ -137,8 +137,8 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
     const BufferStringSet& props = ElasticFormula::TypeDef().keys();
     for ( int idx=0; idx<props.size(); idx++ )
     {
-	ElasticFormula::Type tp;
-	ElasticFormula::TypeDef().parse( props.get(idx), tp );
+	ElasticFormula::Type tp =
+            ElasticFormula::TypeDef().parse( props.get(idx) );
 	BufferStringSet fnms;
 	ROCKPHYSFORMS().getRelevant(
 			    ElasticPropertyRef::elasticToStdType(tp), fnms );
@@ -234,8 +234,8 @@ ElasticPropSelection::ElasticPropSelection( bool withswave )
     const BufferStringSet& props = ElasticFormula::TypeDef().keys();
     for ( int idx=0; idx<props.size(); idx++ )
     {
-	ElasticFormula::Type tp;
-	ElasticFormula::TypeDef().parse( props.get(idx), tp );
+	ElasticFormula::Type tp =
+            ElasticFormula::TypeDef().parse( props.get(idx) );
 	if ( withswave || tp != ElasticFormula::SVel )
 	    *this += new ElasticPropertyRef( props.get(idx),
 				    ElasticFormula(props.get(idx),"", tp) );
@@ -358,8 +358,8 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& pps,
     const BufferStringSet& props = ElasticFormula::TypeDef().keys();
     for ( int idx=0; idx<props.size(); idx++ )
     {
-	ElasticFormula::Type tp;
-	ElasticFormula::TypeDef().parse( props.get(idx), tp );
+	ElasticFormula::Type tp =
+            ElasticFormula::TypeDef().parse( props.get(idx) );
 	guessQuantity( pps, tp );
     }
 }
@@ -527,8 +527,8 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 	while ( !atEndOfSection( astream.next() ) )
 	{
 	    IOPar iop; iop.getFrom( astream );
-	    ElasticFormula::Type tp;
-	    ElasticFormula::TypeDef().parse( iop.find( sKeyType ), tp );
+	    ElasticFormula::Type tp =
+                ElasticFormula::TypeDef().parse( iop.find( sKeyType ) );
 	    eps->get( tp ).formula().usePar( iop );
 	    BufferString nm; iop.get( sKeyPropertyName, nm );
 	    eps->get( tp ).setName(nm);

@@ -132,9 +132,9 @@ void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
     cutoffrangefld_->display( cutofftypefld_->getIntValue()==mCutOutside ||
                             cutofftypefld_->getIntValue()==mCutInside );
 
-    VoxelConnectivityFilter::AcceptOutput output;
-    VoxelConnectivityFilter::AcceptOutputDef().parse( acceptoutputfld_->text(),
-	     					    output );
+    const VoxelConnectivityFilter::AcceptOutput output =
+	VoxelConnectivityFilter::AcceptOutputDef().parse(
+                acceptoutputfld_->text());
     acceptvaluefld_->display( output==VoxelConnectivityFilter::Value );
     rejectoutputvalfld_->display( !rejectoutputudffld_->getBoolValue() );
 }
@@ -193,9 +193,9 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    VoxelConnectivityFilter::AcceptOutput output;
-    VoxelConnectivityFilter::AcceptOutputDef().parse( acceptoutputfld_->text(),
-	     					    output );
+    const VoxelConnectivityFilter::AcceptOutput output =
+	VoxelConnectivityFilter::AcceptOutputDef().parse(
+                acceptoutputfld_->text() );
 
     if ( output==VoxelConnectivityFilter::Value &&
 	 mIsUdf(acceptvaluefld_->getFValue() ) )

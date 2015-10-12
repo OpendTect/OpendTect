@@ -95,10 +95,10 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    newgeninp->setElemSzPol( uiObject::Medium );
 	    newgeninp->valuechanged.notify( cb );
 
-	    Well::ZRangeSelector::ZSelection zsel;
             const char* key =
                     Well::ExtractParams::ZSelectionDef().getKeyForIndex(idx);
-	    Well::ZRangeSelector::ZSelectionDef().parse( key, zsel );
+	    const Well::ZRangeSelector::ZSelection zsel =
+		Well::ZRangeSelector::ZSelectionDef().parse( key );
 	    if ( (zsel == Well::ZRangeSelector::Times && istime) ||
 		 (zsel == Well::ZRangeSelector::Depths && !istime) )
 	    {

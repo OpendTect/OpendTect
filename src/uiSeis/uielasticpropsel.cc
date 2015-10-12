@@ -335,8 +335,8 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 
     for ( int idx=0; idx<props.size(); idx++ )
     {
-	ElasticFormula::Type tp;
-	ElasticFormula::TypeDef().parse( props.get(idx), tp );
+	const ElasticFormula::Type tp =
+            ElasticFormula::TypeDef().parse( props.get(idx) );
 	tgs += new uiGroup( ts_->tabGroup(), props.get(idx) );
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );

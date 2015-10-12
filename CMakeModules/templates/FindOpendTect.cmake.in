@@ -20,11 +20,11 @@ endif()
 include( ${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )
 
 #Set the linker path to OpendTect's libraries
-link_directories( ${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH} )
+link_directories( ${OD_BINARY_BASEDIR}/${OD_LIB_OUTPUT_RELPATH} )
 
 #As backup, link to release
 set ( RELEASE_RELPATH "bin/${OD_PLFSUBDIR}/Release" )
-if ( NOT ( OD_EXEC_OUTPUT_RELPATH STREQUAL RELEASE_RELPATH ) )
+if ( NOT ( OD_LIB_OUTPUT_RELPATH STREQUAL RELEASE_RELPATH ) )
     if ( EXISTS ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
 	link_directories( ${OD_BINARY_BASEDIR}/${RELEASE_RELPATH} )
     endif()
