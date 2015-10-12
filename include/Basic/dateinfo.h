@@ -32,10 +32,10 @@ mExpClass(Basic) DateInfo
 {
 public:
     enum DayOfWeek	{ Su=0, Mo, Tu, We, Th, Fr, Sa };
-			DeclareEnumUtils(DayOfWeek)
+			mDeclareEnumUtils(DayOfWeek)
     enum Month		{ Jan=0, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep,
 			  Oct, Nov, Dec };
-			DeclareEnumUtils(Month)	//!< Uses "jan", "feb" etc.
+			mDeclareEnumUtils(Month)	//!< Uses "jan", "feb" etc.
     static const char**	sFullMonths();		//!< str = sFullMonths()[Month]
     static const char**	sAllDaysInMonth();	//!< 0 to 31
 

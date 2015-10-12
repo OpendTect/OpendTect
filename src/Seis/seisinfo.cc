@@ -70,16 +70,16 @@ class SeisEnum
 {
 public:
     typedef Seis::SelType SelType;
-	    DeclareEnumUtils(SelType)
+	    mDeclareEnumUtils(SelType)
     typedef Seis::GeomType GeomType;
-	    DeclareEnumUtils(GeomType)
+	    mDeclareEnumUtils(GeomType)
     typedef Seis::WaveType WaveType;
-	    DeclareEnumUtils(WaveType)
+	    mDeclareEnumUtils(WaveType)
     typedef Seis::DataType DataType;
-	    DeclareEnumUtils(DataType)
+	    mDeclareEnumUtils(DataType)
 };
 
-DefineEnumUtils(SeisEnum,SelType,"Selection type")
+mDefineEnumUtils(SeisEnum,SelType,"Selection type")
 {
 	sKey::Range(),
 	sKey::Table(),
@@ -87,7 +87,7 @@ DefineEnumUtils(SeisEnum,SelType,"Selection type")
 	0
 };
 
-DefineEnumUtils(SeisEnum,GeomType,"Geometry type")
+mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 {
 	"3D Volume",
 	"Pre-Stack Volume",
@@ -96,7 +96,7 @@ DefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 	0
 };
 
-DefineEnumUtils(SeisEnum,WaveType,"Wave type")
+mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
 {
 	"P",
 	"Sh",
@@ -105,7 +105,7 @@ DefineEnumUtils(SeisEnum,WaveType,"Wave type")
 	0
 };
 
-DefineEnumUtils(SeisEnum,DataType,"Data type")
+mDefineEnumUtils(SeisEnum,DataType,"Data type")
 {
 	"Amplitude",
 	"Dip",
@@ -198,7 +198,7 @@ bool Seis::isPSGeom( const IOPar& iop )
 }
 
 
-DefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
+mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 	"Trace number",
 	"Pick position",
 	"Ref/SP number",

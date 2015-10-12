@@ -27,7 +27,7 @@ static const char* sKeyDefinition = "Definition";
 
 mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 
-DefineEnumUtils(PropertyRef,StdType,"Standard Property")
+mDefineEnumUtils(PropertyRef,StdType,"Standard Property")
 {
 	"Anisotropy",
 	"Area",

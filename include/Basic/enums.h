@@ -115,9 +115,9 @@ public:
   Normally, you'll have a class with an enum member. In that case, you'll want
   to use the EnumDef classes. These are normally almost hidden by a few
   simple macros:
-  * DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
-  * DefineEnumUtils(clss,enm,prettynm) defines the names.
-  * For namespaces, you can use DeclareNameSpaceEnumUtils only
+  * mDeclareEnumUtils(enm) will make sure the enum will have a string conversion.
+  * mDefineEnumUtils(clss,enm,prettynm) defines the names.
+  * For namespaces, you can use mDeclareNameSpaceEnumUtils only
 
   The 'Declare' macros should be placed in the public section of the class.
   Example of usage:
@@ -130,9 +130,9 @@ public:
   {
   public:
       enum State  { Good, Bad, Ugly };
-		  DeclareEnumUtils(State)
+		  mDeclareEnumUtils(State)
       enum Type   { Yes, No, Maybe };
-       	          DeclareEnumUtils(Type)
+       	          mDeclareEnumUtils(Type)
 
 		  // rest of class
   };
@@ -143,9 +143,9 @@ public:
   \code
   #include <myclass.h>
   
-  DefineEnumUtils(MyClass,State,"My class state")
+  mDefineEnumUtils(MyClass,State,"My class state")
 	  { "Good", "Bad", "Not very handsome", 0 };
-  DefineEnumUtils(MyClass,Type,"My class type")
+  mDefineEnumUtils(MyClass,Type,"My class type")
           { "Yes", "No", "Not sure", 0 };
   \endcode
 
@@ -254,7 +254,7 @@ public:
 
 -*/
 
-#define DeclareEnumUtils(enm) \
+#define mDeclareEnumUtils(enm) \
 public: \
     static const EnumDefImpl<enm>& enm##Def(); \
     static const char** enm##Names();\
@@ -270,7 +270,7 @@ protected: \
     static ConstPtrMan<EnumDefImpl<enm> > enm##Definition_; \
 public:
 
-#define DeclareNameSpaceEnumUtils(mod,enm) \
+#define mDeclareNameSpaceEnumUtils(mod,enm) \
     mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
     mExtern(mod) const char** enm##Names();\
     extern const char* enm##Keys_[]; \
@@ -327,10 +327,10 @@ static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
 _DefineEnumNames( nmspc, enm, deflen, prettynm )
 
 //New Defs
-#define DefineEnumUtils(clss,enm,prettynm) \
+#define mDefineEnumUtils(clss,enm,prettynm) \
 DefineEnumNames(clss,enm,0,prettynm)
 
-#define DefineNameSpaceEnumUtils(nmspc,enm,prettynm) \
+#define mDefineNameSpaceEnumUtils(nmspc,enm,prettynm) \
 DefineNameSpaceEnumNames(nmspc,enm,0,prettynm)
 
 template <class ENUM> inline

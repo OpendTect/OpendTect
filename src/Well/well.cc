@@ -50,7 +50,7 @@ uiString Well::Info::sTD()
 	{ return tr("Total Depth [TD]"); }
 
 
-DefineEnumUtils( Well::Info, WellType, "Well Type" )
+mDefineEnumUtils( Well::Info, WellType, "Well Type" )
 { "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
   "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
   "canceledlocation", "injectiondisposalwell", 0 };

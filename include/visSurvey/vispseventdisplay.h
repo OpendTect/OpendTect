@@ -48,7 +48,7 @@ public:
     void			setHorizonID(int);
 
     enum MarkerColor 		{ Single, Quality, Velocity, VelocityFit };
-    				DeclareEnumUtils(MarkerColor);
+    				mDeclareEnumUtils(MarkerColor);
 
     void			setMarkerColor(MarkerColor,bool update=true);
     MarkerColor			getMarkerColor() const;
@@ -67,7 +67,7 @@ public:
     
     enum DisplayMode		{ None, ZeroOffset, FullOnSections, 
 				  ZeroOffsetOnSections, FullOnGathers };
-    				DeclareEnumUtils(DisplayMode);
+    				mDeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
 

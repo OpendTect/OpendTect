@@ -44,7 +44,7 @@ public:
 				AngleComputer();
 
     enum smoothingType		{ None, MovingAverage, FFTFilter };
-				DeclareEnumUtils(smoothingType)
+				mDeclareEnumUtils(smoothingType)
 
     virtual Gather*		computeAngles() = 0;
     virtual bool		isOK() const = 0;

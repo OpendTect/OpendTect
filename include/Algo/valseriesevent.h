@@ -25,7 +25,7 @@ mExpClass(Algo) VSEvent
 public:
     enum Type	{ None, Extr, Max, Min, ZC, ZCNegPos, ZCPosNeg,
 		  GateMax, GateMin };
-		DeclareEnumUtils(Type);
+		mDeclareEnumUtils(Type);
 };
 
 

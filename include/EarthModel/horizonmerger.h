@@ -33,7 +33,7 @@ mExpClass(EarthModel) HorizonMerger : public ParallelTask
 {
 public:
     enum Mode		{ Average, Top, Base };
-			DeclareEnumUtils(Mode)
+			mDeclareEnumUtils(Mode)
 
     void		setMode( Mode m )	{ mode_ = m; }
     Mode		getMode() const		{ return mode_; }

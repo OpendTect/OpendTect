@@ -22,7 +22,7 @@ mExpClass(General) FontData
 public:
 
     enum Weight		{ Light, Normal, DemiBold, Bold, Black };
-			DeclareEnumUtils(Weight)
+			mDeclareEnumUtils(Weight)
     static int		numWeight(Weight);
     static Weight	enumWeight(int);
 

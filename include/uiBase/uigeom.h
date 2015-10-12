@@ -44,7 +44,7 @@ mExpClass(uiBase) uiRect  : public Geom::PixRectangle<int>
 public:
 
     enum Side		{ Left, Right, Top, Bottom };
-			DeclareEnumUtils(Side)
+			mDeclareEnumUtils(Side)
     static inline bool	isHor( Side s )			{ return s > Right; }
     static uiRect::Side	across(uiRect::Side);
     static uiRect::Side	clockWise(uiRect::Side);

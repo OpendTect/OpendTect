@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <string.h>
 
 
-DefineEnumUtils(OD::Platform,Type,"Platform")
+mDefineEnumUtils(OD::Platform,Type,"Platform")
 {
 	"Linux (32 bits)",
 	"Linux (64 bits)",

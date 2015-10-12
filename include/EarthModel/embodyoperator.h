@@ -44,7 +44,7 @@ public:
 			BodyOperator();
 			~BodyOperator();
     enum Action		{ Union, IntSect, Minus };
-			DeclareEnumUtils(Action);
+			mDeclareEnumUtils(Action);
 
     bool		isOK() const;
 

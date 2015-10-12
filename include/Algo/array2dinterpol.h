@@ -35,7 +35,7 @@ public:
 				mDefineFactoryInClass(Array2DInterpol,factory);
 
     enum FillType		{ HolesOnly, ConvexHull, Full };
-				DeclareEnumUtils(FillType);
+				mDeclareEnumUtils(FillType);
 
     void			setFillType(FillType);
     FillType			getFillType() const;

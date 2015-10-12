@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 
 
-DefineEnumUtils(FontData,Weight,"Font weight")
+mDefineEnumUtils(FontData,Weight,"Font weight")
 { "Light", "Normal", "Demi-Bold", "Bold", "Black", 0 };
 
 const char* universalfamilies[] =

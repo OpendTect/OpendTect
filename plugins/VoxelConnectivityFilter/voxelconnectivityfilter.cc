@@ -28,10 +28,10 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-DefineEnumUtils( VoxelConnectivityFilter, AcceptOutput, "AcceptOutput")
+mDefineEnumUtils( VoxelConnectivityFilter, AcceptOutput, "AcceptOutput")
 { "Body-size rank", "Body size", "Value", "Transparent", 0 };
 
-DefineEnumUtils( VoxelConnectivityFilter, Connectivity, "Connectivity")
+mDefineEnumUtils( VoxelConnectivityFilter, Connectivity, "Connectivity")
 { "Common Faces (6 neighbors)", "Common Edges (18 neighbors)",
   "Full (26 neighbors)", 0 };
 

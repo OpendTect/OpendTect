@@ -35,10 +35,10 @@ namespace ODInst
 
 
     enum AutoInstType		{ UseManager, InformOnly, FullAuto, NoAuto  };
-				DeclareNameSpaceEnumUtils(Basic,AutoInstType)
+				mDeclareNameSpaceEnumUtils(Basic,AutoInstType)
     enum RelType		{ Stable, Development, PreStable,
 				  PreDevelopment, Ancient, Other };
-				DeclareNameSpaceEnumUtils(Basic,RelType)
+				mDeclareNameSpaceEnumUtils(Basic,RelType)
     /*!
 	Policy: Externally, policy can be fixed using OD_INSTALLER_POLICY
 	Without OD_INSTALLER_POLICY, read/write user settings

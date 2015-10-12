@@ -53,7 +53,7 @@ mExpClass(visSurvey) PlaneDataDisplay :
 public:
 
     typedef OD::SliceType	SliceType;
-				DeclareEnumUtils(SliceType);
+				mDeclareEnumUtils(SliceType);
 
 				PlaneDataDisplay();
 

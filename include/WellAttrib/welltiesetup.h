@@ -30,7 +30,7 @@ mExpClass(WellAttrib) Setup
 { mODTextTranslationClass(Setup)
 public:
 			enum CorrType { None, Automatic, UserDefined };
-			DeclareEnumUtils(CorrType)
+			mDeclareEnumUtils(CorrType)
 
 			Setup()
 			    : wellid_(-1)

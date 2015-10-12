@@ -261,7 +261,7 @@ mExpClass(Algo) ArrayNDWindow
 public:
     enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,
 			  CosTaper5, CosTaper10, CosTaper20 };
-			DeclareEnumUtils(WindowType);
+			mDeclareEnumUtils(WindowType);
 
 			ArrayNDWindow(const ArrayNDInfo&,bool rectangular,
 				      WindowType=Hamming);
@@ -738,7 +738,7 @@ public:
     bool			operator==(const PolyTrend&) const;
 
 				enum Order	{ None, Order0, Order1, Order2};
-				DeclareEnumUtils(Order)
+				mDeclareEnumUtils(Order)
 
     static const char*		sKeyOrder()	{ return "Polynomial Order"; }
 
