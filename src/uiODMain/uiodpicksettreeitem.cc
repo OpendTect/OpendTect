@@ -306,7 +306,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	if ( psd )
-	    setOnlyAtSectionsDisplay( !psd->allShown() );
+	    setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
@@ -619,7 +619,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	if ( psd )
-	    setOnlyAtSectionsDisplay( !psd->allShown() );
+	    setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
