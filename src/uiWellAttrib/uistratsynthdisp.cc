@@ -532,7 +532,7 @@ void uiStratSynthDisp::levelSnapChanged( CallBacker* )
     if ( !lvl )  return;
     StratSynthLevel* edlvl = const_cast<StratSynthLevel*>( lvl );
     VSEvent::Type tp;
-    VSEvent::parseEnumType( levelsnapselfld_->text(), tp );
+    VSEvent::TypeDef().parse( levelsnapselfld_->text(), tp );
     edlvl->snapev_ = tp;
     drawLevel();
 }

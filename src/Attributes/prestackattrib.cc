@@ -55,7 +55,7 @@ void PSAttrib::initClass()
 
 #define mDefEnumPar(var,typ,defval) \
     epar = new EnumParam( var##Str() ); \
-    epar->addEnums( typ##Names() ); \
+    epar->setEnums( typ##Def() ); \
     epar->setDefaultValue( defval ); \
     desc->addParam( epar )
 
@@ -87,7 +87,7 @@ void PSAttrib::initClass()
 
     EnumParam* smoothtype = new EnumParam(
 				PreStack::AngleComputer::sKeySmoothType() );
-    smoothtype->addEnums( PreStack::AngleComputer::smoothingTypeNames() );
+    smoothtype->setEnums( PreStack::AngleComputer::smoothingTypeDef() );
     smoothtype->setDefaultValue( PreStack::AngleComputer::FFTFilter );
     desc->addParam( smoothtype );
 

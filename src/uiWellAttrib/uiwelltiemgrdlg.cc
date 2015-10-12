@@ -160,8 +160,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
     used2tmbox_->attach( alignedBelow, logsfld_ );
 
-    const char** corrs = WellTie::Setup::CorrTypeNames();
-    cscorrfld_ = new uiLabeledComboBox( logsgrp, corrs,
+    cscorrfld_ = new uiLabeledComboBox( logsgrp, WellTie::Setup::CorrTypeDef(),
 					WellTie::Setup::sCSCorrType());
     cscorrfld_->attach( alignedBelow, used2tmbox_ );
     logsgrp->setHAlignObj( cscorrfld_ );
@@ -539,7 +538,7 @@ bool uiTieWinMGRDlg::initSetup()
     wtsetup_.issonic_  = psflvp->altPropSelected();
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
-    WellTie::Setup::parseEnumCorrType( cscorrfld_->box()->text(),
+    WellTie::Setup::CorrTypeDef().parse( cscorrfld_->box()->text(),
 				       wtsetup_.corrtype_ );
 
     if ( !wvltfld_->getWavelet() )

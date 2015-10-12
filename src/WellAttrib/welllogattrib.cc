@@ -33,7 +33,7 @@ void WellLog::initClass()
     desc->addParam( new StringParam(keyStr()) );
     desc->addParam( new StringParam(logName()) );
     EnumParam* scaletype = new EnumParam( upscaleType() );
-    scaletype->addEnums( Stats::UpscaleTypeNames() );
+    scaletype->setEnums( Stats::UpscaleTypeDef() );
     scaletype->setDefaultValue( (int)Stats::Average );
     desc->addParam( scaletype );
 

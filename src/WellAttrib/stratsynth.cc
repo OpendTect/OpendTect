@@ -151,7 +151,7 @@ void SynthGenParams::usePar( const IOPar& par )
     else
     {
 	BufferString typestr;
-	parseEnum( par, sKeySynthType(), synthtype_ );
+	SynthTypeDef().parse( par, sKeySynthType(), synthtype_ );
 	if ( synthtype_ == SynthGenParams::AngleStack ||
 	     synthtype_ == SynthGenParams::AVOGradient )
 	{

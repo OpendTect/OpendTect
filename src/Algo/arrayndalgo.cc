@@ -55,7 +55,7 @@ bool ArrayNDWindow::resize( const ArrayNDInfo& info )
 
 bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
 {
-    BufferString winnm = ArrayNDWindow::WindowTypeNames()[wintype];
+    BufferString winnm = ArrayNDWindow::WindowTypeDef().getKey(wintype);
     float paramval = mUdf(float);
 
     switch( wintype )

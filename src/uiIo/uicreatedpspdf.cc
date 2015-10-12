@@ -73,8 +73,9 @@ void uiCreateDPSPDF::createDefaultUI()
     uiLabeledComboBox* selcbx = 0;
     if ( plotter_ && plotter_->selAreaSize() )
     {
-	BufferStringSet seltype( DPSDensityCalcND::CalcAreaTypeNames(), 3 );;
-	selcbx = new uiLabeledComboBox( this, seltype, tr("Create PDF from") );
+	selcbx = new uiLabeledComboBox( this,
+		DPSDensityCalcND::CalcAreaTypeDef(),
+		tr("Create PDF from") );
 	createfrmfld_ = selcbx->box();
     }
 
@@ -280,7 +281,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 
     DPSDensityCalcND::CalcAreaType areatype = DPSDensityCalcND::All;
     if ( createfrmfld_ )
-	DPSDensityCalcND::parseEnum( createfrmfld_->text(), areatype );
+	areatype =(DPSDensityCalcND::CalcAreaType) createfrmfld_->currentItem();
     DPSDensityCalcND denscalc( dps_, axisparams, pdf.getData(), areatype );
     if ( plotter_ )
 	denscalc.setGroup( plotter_->curGroup() );

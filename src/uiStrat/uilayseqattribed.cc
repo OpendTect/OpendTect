@@ -63,9 +63,9 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	if ( edsu.allowintegr_ )
 	    lbl = new uiLabel( localgrp_, uiString::emptyString() );
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
-						    tr("From depth intervals"));
+						Stats::UpscaleTypeDef(),
+						tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
-	upscaletypfld_-> addItems( Stats::UpscaleTypeNames() );
 	if ( lbl )
 	    lupscfld->attach( alignedBelow, lbl );
 	localgrp_->setHAlignObj( lupscfld );
@@ -92,14 +92,21 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	unfld_ = new uiStratSelUnits( integrgrp_, reftree_, ssusu );
 	unfld_->setExpanded( 1 );
 
-	stattypfld_ = new uiComboBox( integrgrp_, "Statistics on results" );
-	new uiLabel( integrgrp_, tr("Statistics on results"), stattypfld_ );
 #   define mAddStatItm(enm) \
-	stattypfld_->addItem( toUiString(Stats::TypeNames()[Stats::enm]) );
+	stattypedef_.add(Stats::TypeDef().getKey(Stats::enm), \
+			 Stats::TypeDef().toUiString(Stats::enm),Stats::enm,0)
 	if ( attr_.prop_.hasType(PropertyRef::Dist) )
 	    mAddStatItm(Sum);
-	mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);
-	mAddStatItm(Min); mAddStatItm(Max);
+
+	mAddStatItm(Average);
+	mAddStatItm(Median);
+	mAddStatItm(StdDev);
+	mAddStatItm(Min);
+	mAddStatItm(Max);
+
+	stattypfld_ = new uiComboBox( integrgrp_, stattypedef_,
+				      "Statistics on results" );
+	new uiLabel( integrgrp_, tr("Statistics on results"), stattypfld_ );
 
 	lithofld_->attach( centeredRightOf, unfld_ );
 	stattypfld_->attach( alignedBelow, lithofld_ );

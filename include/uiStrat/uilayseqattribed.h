@@ -66,6 +66,7 @@ protected:
     uiComboBox*		stattypfld_;
     uiComboBox*		upscaletypfld_;
     uiComboBox*		transformfld_;
+    EnumDef		stattypedef_;
 
     inline bool		haveLocal() const	{ return localgrp_; }
     inline bool		haveIntegrated() const	{ return integrgrp_; }

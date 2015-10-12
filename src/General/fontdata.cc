@@ -90,7 +90,7 @@ bool FontData::getFrom( const char* s )
 
     family_ = fms[0];
     if ( nr > 1 ) pointsize_ = fms.getIValue( 1 );
-    if ( nr > 2 ) parseEnumWeight( fms[2], weight_ );
+    if ( nr > 2 ) WeightDef().parse( fms[2], weight_ );
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
 
     return true;

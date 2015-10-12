@@ -57,13 +57,13 @@ void uiUnitSel::init()
     units_.allowNull( true );
     tblkey_ = setup_.lbltxt_.getFullString();
     if ( tblkey_.isEmpty() )
-	tblkey_ = PropertyRef::StdTypeNames()[setup_.ptype_];
+	tblkey_ = PropertyRef::StdTypeDef().getKey(setup_.ptype_);
 
     propfld_ = 0;
     if ( setup_.selproptype_ )
     {
-	propfld_ = new uiComboBox( this, "Properties" );
-	propfld_->addItems( PropertyRef::StdTypeNames() );
+	propfld_ = new uiComboBox( this, PropertyRef::StdTypeDef(),
+				   "Properties" );
 	propfld_->setCurrentItem( (int)setup_.ptype_ );
 	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
     }
@@ -230,7 +230,7 @@ void uiUnitSel::setPropType( PropertyRef::StdType typ )
 const char* uiUnitSel::tblKey() const
 {
     if ( setup_.ptype_ != PropertyRef::Other )
-	return PropertyRef::StdTypeNames()[setup_.ptype_];
+	return PropertyRef::StdTypeDef().getKey(setup_.ptype_);
     return tblkey_;
 }
 

@@ -1486,8 +1486,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     BufferString(sKeydTectScene(),sKeyWheelDisplayMode()), modestr );
     if ( res )
     {
-	WheelMode mode; parseEnum( modestr, mode );
-	setWheelDisplayMode( mode );
+        setWheelDisplayMode( WheelModeDef().parse(modestr) );
     }
 
     float zoomfactor = MouseEvent::getDefaultMouseWheelZoomFactor();
@@ -1782,7 +1781,7 @@ bool ui3DViewer::usePar( const IOPar& par )
     }
 
     StereoType stereotype;
-    if ( parseEnum( par, sKeyStereo(), stereotype ) )
+    if ( StereoTypeDef().parse( par, sKeyStereo(), stereotype ) )
 	setStereoType( stereotype );
 
     float offset;

@@ -133,7 +133,7 @@ void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
                             cutofftypefld_->getIntValue()==mCutInside );
 
     VoxelConnectivityFilter::AcceptOutput output;
-    VoxelConnectivityFilter::parseEnumAcceptOutput( acceptoutputfld_->text(),
+    VoxelConnectivityFilter::AcceptOutputDef().parse( acceptoutputfld_->text(),
 	     					    output );
     acceptvaluefld_->display( output==VoxelConnectivityFilter::Value );
     rejectoutputvalfld_->display( !rejectoutputudffld_->getBoolValue() );
@@ -194,7 +194,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
     }
 
     VoxelConnectivityFilter::AcceptOutput output;
-    VoxelConnectivityFilter::parseEnumAcceptOutput( acceptoutputfld_->text(),
+    VoxelConnectivityFilter::AcceptOutputDef().parse( acceptoutputfld_->text(),
 	     					    output );
 
     if ( output==VoxelConnectivityFilter::Value &&

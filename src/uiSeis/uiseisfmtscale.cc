@@ -259,7 +259,8 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
 void uiSeisFmtScale::fillFmtPars( IOPar& iop ) const
 {
     const int tp = getFormat();
-    iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[tp] );
+    iop.set( sKey::DataStorage(),
+	    DataCharacteristics::UserTypeDef().getKeyForIndex(tp) );
     iop.update( sKeyOptDir(), horOptim() ? "Horizontal" : "" );
 }
 

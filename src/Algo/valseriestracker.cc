@@ -750,8 +750,8 @@ bool EventTracker::usePar( const IOPar& iopar )
     if ( !ValSeriesTracker::usePar(iopar) )
 	return false;
 
-    VSEvent::parseEnumType( iopar.find(sKeyTrackEvent()), evtype_ );
-    parseEnumCompareMethod( iopar.find(sKeyCompareMethod()), comparemethod_ );
+    VSEvent::TypeDef().parse( iopar.find(sKeyTrackEvent()), evtype_ );
+    CompareMethodDef().parse( iopar.find(sKeyCompareMethod()), comparemethod_ );
     iopar.get( sKeyPermittedRange(), permrange_ );
     iopar.get( sKeyValueThreshold(), ampthreshold_ );
     TypeSet<float> storedampthresholds;

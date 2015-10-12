@@ -37,6 +37,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthRemoved(this)
     , synthChanged(this)
     , synthDisabled(this)
+    , synthtypedefs_( SynthGenParams::SynthTypeDef() )
 {
     setOkText( uiStrings::sApply() );
     setCancelText( uiStrings::sClose() );
@@ -55,12 +56,11 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     rightgrp->setStretch( 1, 1 );
 
     uiGroup* toppargrp = new uiGroup( rightgrp, "Parameter Group - top part" );
-    BufferStringSet types( SynthGenParams::SynthTypeNames() );
-    const int stratpropidx =
-	types.indexOf( SynthGenParams::toString(SynthGenParams::StratProp) );
-    types.removeSingle( stratpropidx );
-    uiLabeledComboBox* lblcbx =
-	new uiLabeledComboBox( toppargrp, types, tr("Synthetic type") );
+
+    synthtypedefs_.remove(SynthGenParams::toString(SynthGenParams::StratProp));
+
+    uiLabeledComboBox* lblcbx = new uiLabeledComboBox( toppargrp,
+                                         synthtypedefs_, tr("Synthetic type") );
     typefld_ = lblcbx->box();
     typefld_->selectionChanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
 
@@ -273,8 +273,9 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 
 void uiSynthGenDlg::updateFieldDisplay()
 {
+    const char* curkey = typefld_->text();
     SynthGenParams::SynthType synthtype =
-	SynthGenParams::parseEnumSynthType( typefld_->text() );
+	 SynthGenParams::SynthTypeDef().parse( curkey );
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
     synthseis_->updateFieldDisplay();
@@ -288,8 +289,9 @@ void uiSynthGenDlg::updateFieldDisplay()
 void uiSynthGenDlg::typeChg( CallBacker* )
 {
     updateFieldDisplay();
+    const char* curkey = typefld_->text();
     stratsynth_.genParams().synthtype_ =
-	SynthGenParams::parseEnumSynthType( typefld_->text() );
+	 SynthGenParams::SynthTypeDef().parse( curkey );
     stratsynth_.genParams().setDefaultValues();
     putToScreen();
     BufferString nm;
@@ -306,7 +308,8 @@ void uiSynthGenDlg::putToScreen()
     synthseis_->setWavelet( genparams.wvltnm_ );
     namefld_->setText( genparams.name_ );
 
-    typefld_->setCurrentItem( SynthGenParams::toString(genparams.synthtype_) );
+    const int curitem = synthtypedefs_.indexOf(genparams.synthtype_);
+    typefld_->setCurrentItem( curitem );
 
     if ( genparams.isPSBased() )
     {
@@ -345,7 +348,8 @@ bool uiSynthGenDlg::getFromScreen()
     stratsynth_.genParams().raypars_.setEmpty();
 
     SynthGenParams& genparams = stratsynth_.genParams();
-    genparams.synthtype_ = SynthGenParams::parseEnumSynthType(typefld_->text());
+    const char* curkey = typefld_->text();
+    genparams.synthtype_ = SynthGenParams::SynthTypeDef().parse(curkey);
 
     if ( genparams.isPSBased() )
     {

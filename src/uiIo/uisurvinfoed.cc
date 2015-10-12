@@ -127,7 +127,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 #endif
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
-				SurveyInfo::Pol2DNames(), tr("Survey type") );
+			SurveyInfo::Pol2DDef(), tr("Survey type") );
     lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
 
     mkSIPFld( lcb->attachObj() );

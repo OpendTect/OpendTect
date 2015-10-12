@@ -57,7 +57,7 @@ uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs, bool allowmath )
     , props_(prs)
     , allowmath_(allowmath)
 {
-    const BufferStringSet dispnms( PropertyRef::StdTypeNames() );
+    const BufferStringSet dispnms( PropertyRef::StdTypeDef().keys() );
 
     setAvailable( dispnms );
 
@@ -312,7 +312,7 @@ void uiBuildPROPS::editReq( bool isadd )
     else
     {
 	PropertyRef::StdType typ = PropertyRef::Other;
-	PropertyRef::parseEnumStdType( nm, typ );
+	PropertyRef::StdTypeDef().parse( nm, typ );
 	pr = new PropertyRef( nm, typ );
     }
     if ( !pr ) return;

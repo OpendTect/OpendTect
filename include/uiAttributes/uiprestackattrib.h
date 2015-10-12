@@ -58,6 +58,7 @@ protected:
 
     PreStack::uiAngleCompGrp*		anglecompgrp_;
     PreStack::AngleCompParams&		params_;
+    EnumDef				statsdef_;
 
     bool		usedatapackasinput_;
 
@@ -65,10 +66,6 @@ protected:
     bool		setAngleParameters(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
     bool		getAngleParameters(Attrib::Desc&);
-
-    Stats::Type		getStatEnumfromString(const char* stattypename);
-    const char*		getStringfromStatEnum(Stats::Type enm);
-    void		getStatTypeNames(BufferStringSet& stattypenames);
 
     void		doPreProcSel(CallBacker*);
     void		calcTypSel(CallBacker*);

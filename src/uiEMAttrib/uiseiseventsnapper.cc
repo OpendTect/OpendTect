@@ -43,6 +43,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
     , horizon_(0)
     , is2d_(is2d)
     , readyForDisplay(this)
+    , typedef_( VSEvent::TypeDef() )
 {
     setCtrlStyle( RunAndClose );
 
@@ -56,10 +57,9 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 			      uiSeisSel::Setup(gt));
     seisfld_->attach( alignedBelow, horinfld_ );
 
-    BufferStringSet eventnms( VSEvent::TypeNames() );
-    eventnms.removeSingle(0);
+    typedef_.remove( typedef_.getKey(VSEvent::None) );
     eventfld_ = new uiGenInput( this, tr("Event"),
-                                StringListInpSpec(eventnms));
+				StringListInpSpec(typedef_));
     eventfld_->attach( alignedBelow, seisfld_ );
 
     uiString gatelbl = tr("Search gate %1").arg(SI().getUiZUnitString());
@@ -141,7 +141,8 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
 
 	    SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
-	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
+	    snapper.setEvent(
+		    typedef_.getEnumForIndex(eventfld_->getIntValue()));
 
 	    uiTaskRunner dlg( this );
 	    if ( !TaskRunner::execute(&dlg,snapper) )
@@ -172,7 +173,9 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 		return false;
 
 	    SeisEventSnapper2D::Setup su(
-		    seisioobj, eventfld_->getIntValue()+1, rg );
+		    seisioobj,
+		    typedef_.getEnumForIndex(eventfld_->getIntValue()),
+		    rg );
 	    SeisEventSnapper2D snapper( hor2d, newhor2d, su );
 
 	    uiTaskRunner dlg( this );

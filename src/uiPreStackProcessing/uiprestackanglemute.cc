@@ -264,7 +264,7 @@ bool uiAngleCompAdvParsDlg::isSmoothTypeMovingAverage()
 {
     const char* smoothtype = smoothtypefld_->text();
     PreStack::AngleComputer::smoothingType smtype;
-    PreStack::AngleComputer::parseEnum( smoothtype, smtype );
+    PreStack::AngleComputer::smoothingTypeDef().parse( smoothtype, smtype );
     return smtype == PreStack::AngleComputer::MovingAverage;
 }
 
@@ -273,7 +273,7 @@ bool uiAngleCompAdvParsDlg::isSmoothTypeFFTFilter()
 {
     const char* smoothtype = smoothtypefld_->text();
     PreStack::AngleComputer::smoothingType smtype;
-    PreStack::AngleComputer::parseEnum( smoothtype, smtype );
+    PreStack::AngleComputer::smoothingTypeDef().parse( smoothtype, smtype );
     return smtype == PreStack::AngleComputer::FFTFilter;
 }
 

@@ -209,7 +209,8 @@ static void setPlatform( uiTable& tbl, int row, const HostData& hd )
     mDynamicCastGet(uiComboBox*,cb,cellobj)
     if ( !cb )
     {
-	cb = new uiComboBox( 0, OD::Platform::TypeNames(), "Platforms" );
+	cb = new uiComboBox( 0, OD::Platform::TypeDef(),
+			     "Platforms" );
 	tbl.setCellObject( RowCol(row,sPlfCol), cb );
     }
 

@@ -536,7 +536,7 @@ void PropertyRefSet::readFrom( ascistream& astrm )
 
 	const BufferString stdtypstr( iop.getValue(0) );
 	PropertyRef::StdType st;
-        PropertyRef::parseEnumStdType(stdtypstr, st );
+        PropertyRef::StdTypeDef().parse(stdtypstr, st );
 	PropertyRef* pr = new PropertyRef( propnm, st );
 	pr->usePar( iop );
 

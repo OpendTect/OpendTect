@@ -40,7 +40,7 @@ ODMad::ProcExec::ProcExec( const IOPar& iop, od_ostream& reportstrm )
     , progmeter_(0)
     , trc_(0)
 {
-    parseEnumFlowStage( pars_.find( sKeyFlowStage() ), stage_ );
+    FlowStageDef().parse( pars_.find( sKeyFlowStage() ), stage_ );
 }
 
 

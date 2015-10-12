@@ -31,7 +31,7 @@ PickSetMgr::PickSetMgr( PickData& pd )
 
 void PickSetMgr::setEventType( const char* ev )
 {
-    if ( !VSEvent::parseEnum(ev, evtype_) )
+    if ( !VSEvent::TypeDef().parse(ev, evtype_) )
         evtype_ = VSEvent::None;
 }
 

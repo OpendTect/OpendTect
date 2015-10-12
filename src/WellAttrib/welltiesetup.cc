@@ -59,7 +59,7 @@ void Setup::usePar( const IOPar& iop )
     iop.get( sKeyWavltID, wvltid_ );
     iop.getYN( sKeyIsSonic, issonic_ );
     iop.getYN( sKeyUseExistingD2T(), useexistingd2tm_ );
-    parseEnumCorrType( sKeyCSCorrType(), corrtype_ );
+    CorrTypeDef().parse( sKeyCSCorrType(), corrtype_ );
     iop.get( sKeySeisLineID, lk );
     if ( linenm_.isEmpty() && !lk.lineName().isEmpty() ) //copy old key to new
 	linenm_ = lk.lineName();

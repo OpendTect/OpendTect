@@ -727,23 +727,15 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),mJoinUiStrs(sDisplay(), sProperties()))
     , plotter_(p->plotter())
     , hasy2_(p->plotter().axisHandler(2))
+    , shapeenums_( MarkerStyle2D::TypeDef() )
 {
     const MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
     sizefld_ = new uiGenInput(this,tr("Marker size"),IntInpSpec(mstyle.size_));
-    uiStringSet shapenms;
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Square) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Circle) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Cross) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Plus) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Target) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::HLine) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::VLine) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Plane) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Triangle) );
-    shapenms.add( MarkerStyle2D::toUiString(MarkerStyle2D::Arrow) );
+
+    shapeenums_.remove( MarkerStyle2D::TypeDef().getKey(MarkerStyle2D::None) );
 
     uiLabeledComboBox* llb =
-	new uiLabeledComboBox( this, shapenms, tr("Marker shape") );
+	new uiLabeledComboBox( this, shapeenums_, tr("Marker shape") );
     shapefld_ = llb->box();
     llb->attach( alignedBelow, sizefld_ );
     shapefld_->setCurrentItem( (int)(mstyle.type_-1) );
@@ -774,7 +766,7 @@ bool acceptOK()
 
     MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
     mstyle.size_ = sizefld_->getIntValue();
-    mstyle.type_ = (MarkerStyle2D::Type)(shapefld_->currentItem()+1);
+    mstyle.type_ = MarkerStyle2D::TypeDef().parse( shapefld_->text() );
     plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
     plotter_.axisHandler(1)->setup().gridlinestyle_.color_ =
 	ycolinpfld_->color();
@@ -792,6 +784,7 @@ bool acceptOK()
     bool			hasy2_;
     uiGenInput*			sizefld_;
     uiComboBox*			shapefld_;
+    EnumDef			shapeenums_;
     uiColorInput*		ycolinpfld_;
     uiColorInput*		y2colinpfld_;
 };

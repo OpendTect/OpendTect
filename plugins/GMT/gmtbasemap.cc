@@ -192,7 +192,7 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 	par->getYN( ODGMT::sKeyUseWellSymbolsYN(), usewellsymbol );
 	FixedString shapestr = par->find( ODGMT::sKeyShape() );
 	if ( !usewellsymbol && !shapestr ) continue;
-	ODGMT::Shape shape = ODGMT::parseEnumShape( shapestr.str() );
+	ODGMT::Shape shape = ODGMT::ShapeDef().parse( shapestr.str() );
 	symbstr = ODGMT::sShapeKeys()[(int)shape];
 	par->get( sKey::Size(), sz );
 	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )

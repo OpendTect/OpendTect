@@ -187,7 +187,7 @@ bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
 
 void ColTab::MapperSetup::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Type(), TypeNames()[(int)type_] );
+    par.set( sKey::Type(), TypeDef().getKey(type_) );
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );

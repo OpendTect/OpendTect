@@ -738,7 +738,8 @@ bool Set::usePar( const IOPar& par )
     if ( doconnect ) disp_.connect_ = Disp::Close;
     else
     {
-	if ( !Disp::parseEnumConnection(par.find(sKeyConnect), disp_.connect_) )
+	if ( !Disp::ConnectionDef().parse(par.find(sKeyConnect),
+	     disp_.connect_) )
 	    disp_.connect_ = Disp::None;
     }
 

@@ -131,33 +131,24 @@ const char* Seis::nameOf( Seis::WaveType wt )
 { return SeisEnum::getWaveTypeString(wt); }
 
 Seis::SelType Seis::selTypeOf( const char* s )
-{ SeisEnum::SelType res; SeisEnum::parseEnumSelType(s,res); return res; }
+{ return SeisEnum::SelTypeDef().parse(s); }
 
 Seis::GeomType Seis::geomTypeOf( const char* s )
-{ SeisEnum::GeomType res; SeisEnum::parseEnumGeomType(s,res); return res; }
+{ return SeisEnum::GeomTypeDef().parse(s); }
 
 Seis::DataType Seis::dataTypeOf( const char* s )
 {
     if ( sKey::Steering() == s )
 	return Seis::Dip;
-    SeisEnum::DataType res; SeisEnum::parseEnumDataType(s,res);
-    return res;
+
+    return SeisEnum::DataTypeDef().parse(s);
 }
 
 Seis::WaveType Seis::waveTypeOf( const char* s )
-{ SeisEnum::WaveType res; SeisEnum::parseEnumWaveType(s,res); return res; }
+{ return SeisEnum::WaveTypeDef().parse(s); }
 
-const char** Seis::selTypeNames()
-{ return SeisEnum::SelTypeNames(); }
-
-const char** Seis::geomTypeNames()
-{ return SeisEnum::GeomTypeNames(); }
-
-const char** Seis::dataTypeNames()
-{ return SeisEnum::DataTypeNames(); }
-
-const char** Seis::waveTypeNames()
-{ return SeisEnum::WaveTypeNames(); }
+const BufferStringSet& Seis::dataTypeNames()
+{ return SeisEnum::DataTypeDef().keys(); }
 
 bool Seis::isAngle( Seis::DataType dt )
 { return dt==Seis::Phase || dt==Seis::Azimuth; }
@@ -292,7 +283,7 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 }
 
 
-#define mIOIOPar(fn,fld,memb) iopar.fn( FldNames()[(int)fld], memb )
+#define mIOIOPar(fn,fld,memb) iopar.fn( FldDef().getKey(fld), memb )
 
 void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 {

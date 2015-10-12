@@ -55,12 +55,11 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     , ztimefac_(SI().showZ2UserFactor())
 {
     const bool withzintime = s.withzintime_ && SI().zIsTime();
-    const char** zchoice = Well::ExtractParams::ZSelectionNames();
-    BufferStringSet zchoiceset;
+    uiStringSet zchoiceset;
 
-    for ( int idx=0; zchoice[idx]; idx++ )
+    for ( int idx=0; idx<Well::ExtractParams::ZSelectionDef().size(); idx++ )
     {
-	zchoiceset.add( BufferString( zchoice[idx] ) );
+	zchoiceset.add( Well::ExtractParams::ZSelectionDef().strings()[idx] );
 	if ( !withzintime && idx ==1 )
 	    break;
     }
@@ -73,11 +72,11 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
     uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
-    const uiString units[] = { uiString::emptyString(),dptlbl,timelbl,
-						    uiStrings::sEmptyString() };
+    uiStringSet units;
+    units.add(uiString::emptyString()).add(dptlbl).add(timelbl);
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
-    for ( int idx=0; idx<zchoiceset.size(); idx++ )
+    for ( int idx=0; idx<mMIN(zchoiceset.size(),units.size()); idx++ )
     {
 	uiString msg = tr( "Start / stop %1" );
 	msg.arg( units[idx] );
@@ -97,9 +96,11 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    newgeninp->valuechanged.notify( cb );
 
 	    Well::ZRangeSelector::ZSelection zsel;
-	    Well::ZRangeSelector::parseEnum( zchoiceset.get(idx), zsel );
+            const char* key =
+                    Well::ExtractParams::ZSelectionDef().getKeyForIndex(idx);
+	    Well::ZRangeSelector::ZSelectionDef().parse( key, zsel );
 	    if ( (zsel == Well::ZRangeSelector::Times && istime) ||
-		    (zsel == Well::ZRangeSelector::Depths && !istime) )
+		 (zsel == Well::ZRangeSelector::Depths && !istime) )
 	    {
 		Interval<float> zrg( SI().zRange(true) );
 		zrg.scale( ztimefac_ );

@@ -69,7 +69,7 @@ void ElasticFormula::fillPar( IOPar& par ) const
 void ElasticFormula::usePar( const IOPar& par )
 {
     BufferString nm; par.get( sKeyFormulaName, nm ); setName( nm );
-    parseEnumType( par.find( sKeyType ), type_ );
+    TypeDef().parse( par.find( sKeyType ), type_ );
     par.get( sKeyMathExpr, expression_ );
     par.get( sKeySelVars, variables_ );
     par.get( sKeyUnits, units_ );
@@ -134,11 +134,11 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 {
     const ObjectSet<RockPhysics::Formula> forms;
 
-    const char** props = ElasticFormula::TypeNames();
-    for ( int idx=0; props[idx]; idx++ )
+    const BufferStringSet& props = ElasticFormula::TypeDef().keys();
+    for ( int idx=0; idx<props.size(); idx++ )
     {
 	ElasticFormula::Type tp;
-	ElasticFormula::parseEnumType( props[idx], tp );
+	ElasticFormula::TypeDef().parse( props.get(idx), tp );
 	BufferStringSet fnms;
 	ROCKPHYSFORMS().getRelevant(
 			    ElasticPropertyRef::elasticToStdType(tp), fnms );
@@ -231,14 +231,14 @@ ElasticPropSelection::ElasticPropSelection( bool withswave )
 {
     mkEmpty(); // get rid of thickness
 
-    const char** props = ElasticFormula::TypeNames();
-    for ( int idx=0; props[idx]; idx++ )
+    const BufferStringSet& props = ElasticFormula::TypeDef().keys();
+    for ( int idx=0; idx<props.size(); idx++ )
     {
 	ElasticFormula::Type tp;
-	ElasticFormula::parseEnumType( props[idx], tp );
+	ElasticFormula::TypeDef().parse( props.get(idx), tp );
 	if ( withswave || tp != ElasticFormula::SVel )
-	    *this += new ElasticPropertyRef( props[idx],
-				    ElasticFormula(props[idx],"", tp) );
+	    *this += new ElasticPropertyRef( props.get(idx),
+				    ElasticFormula(props.get(idx),"", tp) );
     }
 }
 
@@ -355,11 +355,11 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& pps,
 				    ElasticPropSelection& sel )
     : elasticprops_(sel)
 {
-    const char** props = ElasticFormula::TypeNames();
-    for ( int idx=0; props[idx]; idx++ )
+    const BufferStringSet& props = ElasticFormula::TypeDef().keys();
+    for ( int idx=0; idx<props.size(); idx++ )
     {
 	ElasticFormula::Type tp;
-	ElasticFormula::parseEnumType( props[idx], tp );
+	ElasticFormula::TypeDef().parse( props.get(idx), tp );
 	guessQuantity( pps, tp );
     }
 }
@@ -528,7 +528,7 @@ ElasticPropSelection* ElasticPropSelection::get( const IOObj* ioobj )
 	{
 	    IOPar iop; iop.getFrom( astream );
 	    ElasticFormula::Type tp;
-	    ElasticFormula::parseEnumType( iop.find( sKeyType ), tp );
+	    ElasticFormula::TypeDef().parse( iop.find( sKeyType ), tp );
 	    eps->get( tp ).formula().usePar( iop );
 	    BufferString nm; iop.get( sKeyPropertyName, nm );
 	    eps->get( tp ).setName(nm);

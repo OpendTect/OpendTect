@@ -595,9 +595,9 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
 	return false;
 
     mTryParse( par.get( sKeyRange(), range_) , "Cannot parse value range" );
-    mTryParse( parseEnum( par, sKeyConnectivity(), connectivity_ ),
+    mTryParse( ConnectivityDef().parse(par, sKeyConnectivity(), connectivity_ ),
 	    "Cannot parse connectivity" );
-    mTryParse( parseEnum( par, sKeyAcceptOutput(), acceptoutput_ ),
+    mTryParse( AcceptOutputDef().parse( par, sKeyAcceptOutput(),acceptoutput_ ),
 	    "Cannot parse kept output type" );
     if ( acceptoutput_==Value )
 	mTryParse( par.get( sKeyAcceptValue(), acceptvalue_),

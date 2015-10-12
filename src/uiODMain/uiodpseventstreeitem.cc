@@ -179,7 +179,7 @@ void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
-    BufferStringSet items;
+    uiStringSet items;
     mAddPSMenuItems( coloritem_, markerColorNames, coloridx_ )
     if ( eventdisplay_->hasParents() )
     {

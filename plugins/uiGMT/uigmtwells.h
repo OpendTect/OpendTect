@@ -46,7 +46,6 @@ protected:
     uiSpinBox*		labelfontszfld_;
 
     void		choiceSel(CallBacker*);
-    void		fillItems();
 };
 
 #endif

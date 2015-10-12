@@ -48,8 +48,8 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
 {
     uiString velfldlbl = uiStrings::phrJoinStrings(
-			VelocityDesc::toUiString(VelocityDesc::Interval),
-			VelocityDesc::getVelUnit(true) );
+		    VelocityDesc::TypeDef().toUiString(VelocityDesc::Interval),
+		    VelocityDesc::getVelUnit(true) );
 
     velfld_ = new uiGenInput( this, velfldlbl,
 			     FloatInpSpec(SI().zInFeet() ? 6000.f : 2000.f ) );

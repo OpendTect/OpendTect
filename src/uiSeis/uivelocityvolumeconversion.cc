@@ -139,7 +139,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 	outputveltype_->box()->textOfItem( outputvelidx );
 
     VelocityDesc outputdesc;
-    if ( !VelocityDesc::parseEnumType( outputtype, outputdesc.type_ ) )
+    if ( !VelocityDesc::TypeDef().parse( outputtype, outputdesc.type_ ) )
     {
 	pErrMsg("Imparsable velocity type");
 	return false;

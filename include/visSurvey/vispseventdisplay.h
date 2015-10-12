@@ -77,8 +77,8 @@ public:
     void			setMarkerStyle(const MarkerStyle3D&,bool updat);
     virtual bool		hasColor() const { return true; }
     virtual Color		getColor() const;
-    const char**		markerColorNames()const;
-    const char**		displayModeNames()const;
+    const uiStringSet&		markerColorNames()const;
+    const uiStringSet&		displayModeNames()const;
     bool			hasParents() const;
 
 

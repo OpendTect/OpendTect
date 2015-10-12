@@ -106,7 +106,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     BufferString type;
     pars().get( StratAmpCalc::sKeyAmplitudeOption(), type );
-    Stats::Type sttype = Stats::parseEnumType( type );
+    Stats::Type sttype = Stats::TypeDef().parse( type );
     bool outputfold = false;
     pars().getYN( StratAmpCalc::sKeyOutputFoldYN(), outputfold );
     StratAmpCalc exec( tophor, usesingle ? 0 : bothor, sttype, hs, outputfold );

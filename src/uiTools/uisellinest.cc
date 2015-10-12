@@ -55,8 +55,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 
     if ( su.drawstyle_ )
     {
-	BufferStringSet itms( LineStyle::TypeNames() );
-	stylesel_ = new uiComboBox( this, itms, "Line Style" );
+	stylesel_ = new uiComboBox( this, LineStyle::TypeDef(), "Line Style" );
 	stylesel_->setPrefWidthInChar( 16 );
 	stylesel_->setCurrentItem( (int)linestyle_.type_ );
 	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );

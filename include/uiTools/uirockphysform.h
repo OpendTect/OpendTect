@@ -46,14 +46,15 @@ public:
 
 protected:
 
-    uiComboBox*		typfld_;
-    uiComboBox*		nmfld_;
-    uiTextEdit*		formulafld_;
-    uiTextBrowser*	descriptionfld_;
+    uiComboBox*				typfld_;
+    EnumDefImpl<PropertyRef::StdType>	types_;
+    uiComboBox*				nmfld_;
+    uiTextEdit*				formulafld_;
+    uiTextBrowser*			descriptionfld_;
     ObjectSet<uiRockPhysConstantFld>	cstflds_;
 
-    const PropertyRef::StdType fixedtype_;
-    BufferString	errmsg_;
+    const PropertyRef::StdType		fixedtype_;
+    BufferString			errmsg_;
 
     void		typSel(CallBacker*);
     void		nameSel(CallBacker*);

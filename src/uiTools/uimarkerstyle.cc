@@ -22,15 +22,13 @@ static const char* rcsID mUsedVar = "$Id$";
 uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	    const Interval<int>& rg, int nrexcluded,
 	    const MarkerStyle3D::Type* excluded )
-	: uiGroup(p)
-	, colselfld_( 0 )
+    : uiGroup(p)
+    , colselfld_( 0 )
+    , markertypedef_( MarkerStyle3D::TypeDef() )
 {
-    StringListInpSpec str;
-    for ( int idx=0; MarkerStyle3D::TypeNames()[idx]; idx++ )
+    for ( int idx=markertypedef_.size()-1; idx>=0; idx-- )
     {
-	int typenr = getIndexInStringArrCI(MarkerStyle3D::TypeNames()[idx],
-					    MarkerStyle3D::TypeNames() ) - 1;
-	MarkerStyle3D::Type type = (MarkerStyle3D::Type) typenr;
+	const MarkerStyle3D::Type type = markertypedef_.getEnumForIndex(idx);
 
 	bool exclude = false;
 	for ( int idy=0; idy<nrexcluded; idy++ )
@@ -42,12 +40,11 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	    }
 	}
 
-	if ( exclude ) continue;
-
-	str.addString( mToUiStringTodo(MarkerStyle3D::TypeNames()[idx]) );
-	types_ += type;
+	if ( exclude )
+	    markertypedef_.remove( markertypedef_.getKey(type) );
     }
 
+    StringListInpSpec str( markertypedef_ );
     typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
 
     sliderfld_ = new uiSlider( this,

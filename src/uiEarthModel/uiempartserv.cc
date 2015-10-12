@@ -159,7 +159,7 @@ EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
 
 void uiEMPartServer::manageSurfaces( const char* typstr )
 {
-    uiSurfaceMan dlg( parent(), uiSurfaceMan::parseEnumType(typstr) );
+    uiSurfaceMan dlg( parent(), uiSurfaceMan::TypeDef().parse(typstr) );
     dlg.go();
 }
 

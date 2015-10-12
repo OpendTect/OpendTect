@@ -370,7 +370,8 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
     if ( postypefld_ )
     {
 	const char* txtofinp = postypefld_->box()->text();
-	Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
+	Viewer2DPosDataSel::PosTypeDef().parse( txtofinp,
+                                                posdatasel_->postype_ );
     }
 
     updatePosFlds();
@@ -429,5 +430,5 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
     iop.get( sKeyRdmLineID(), rdmlineid_ );
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );
-    parseEnum( iop, PosTypeDef().name(), postype_ );
+    PosTypeDef().parse( iop, PosTypeDef().name(), postype_ );
 }

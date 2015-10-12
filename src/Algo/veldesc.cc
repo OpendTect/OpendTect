@@ -70,7 +70,7 @@ bool VelocityDesc::isThomsen() const
 
 void VelocityDesc::fillPar( IOPar& par ) const
 {
-    par.set( sKeyVelocityType(), TypeNames()[(int)type_] );
+    par.set( sKeyVelocityType(), TypeDef().getKey(type_) );
     if ( type_==RMS )
 	statics_.fillPar( par );
     else
@@ -105,7 +105,7 @@ bool VelocityDesc::usePar( const IOPar& par )
 	if ( sepstr.size()<1 )
 	    return false;
 
-	if ( !parseEnumType( sepstr[0], type_ ) )
+	if ( !TypeDef().parse( sepstr[0], type_ ) )
 	    return false;
 
 	statics_.velattrib_.setEmpty();
@@ -114,7 +114,7 @@ bool VelocityDesc::usePar( const IOPar& par )
 	return true;
     }
 
-    if ( !parseEnumType( typestr, type_ ) )
+    if ( !TypeDef().parse( typestr, type_ ) )
 	return false;
 
     if ( type_==RMS && !statics_.usePar( par ) )

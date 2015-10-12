@@ -50,6 +50,7 @@ public:
     bool			isValidKey(const char*) const;
     int				indexOf(const char* s) const;
     int				indexOf(int enumval) const;
+    int				getEnumValForIndex(int) const;
     const char*			getKeyForIndex(int i) const;
     uiString			getUiStringForIndex(int i) const;
     void			setUiStringForIndex(int,const uiString&);
@@ -96,7 +97,6 @@ private:
 public:
     //Legacy
     const char*		toString(ENUM theenum) const { return getKey(theenum); }
-
 };
 
 

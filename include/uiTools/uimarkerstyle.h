@@ -45,6 +45,7 @@ protected:
     uiSlider*				sliderfld_;
     uiGenInput*				typefld_;
     uiColorInput*			colselfld_;
+    EnumDefImpl<MarkerStyle3D::Type>	markertypedef_;
 };
 
 #endif

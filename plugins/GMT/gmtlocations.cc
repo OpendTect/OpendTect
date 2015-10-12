@@ -187,7 +187,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 
     float sz;
     get( sKey::Size(), sz );
-    const int shape = ODGMT::parseEnumShape( find(ODGMT::sKeyShape()) );
+    const int shape = ODGMT::ShapeDef().parse( find(ODGMT::sKeyShape()) );
 
     BufferString comm = "@psxy ";
     BufferString str; mGetRangeProjString( str, "X" );
@@ -405,7 +405,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     }
     else
     {
-	const int shape = ODGMT::parseEnumShape( find(ODGMT::sKeyShape()) );
+	const int shape = ODGMT::ShapeDef().parse( find(ODGMT::sKeyShape()) );
 	comm += ODGMT::sShapeKeys()[shape];
     }
 
@@ -453,7 +453,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     }
 
     ODGMT::Alignment al =
-	ODGMT::parseEnumAlignment( find( ODGMT::sKeyLabelAlignment() ) );
+	ODGMT::AlignmentDef().parse( find( ODGMT::sKeyLabelAlignment() ) );
 
     BufferString alstr;
     float dx = 0, dy = 0;

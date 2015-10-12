@@ -48,7 +48,7 @@ void SpecDecomp::initClass()
     desc->addParam( ttype );
 
     EnumParam* window = new EnumParam( windowStr() );
-    window->addEnums( ArrayNDWindow::WindowTypeNames() );
+    window->setEnums( ArrayNDWindow::WindowTypeDef() );
     window->setRequired( false );
     window->setValue( ArrayNDWindow::CosTaper5 );
     desc->addParam( window );
@@ -64,12 +64,12 @@ void SpecDecomp::initClass()
     desc->addParam( deltafreq );
 
     EnumParam* dwtwavelet = new EnumParam( dwtwaveletStr() );
-    dwtwavelet->addEnums( WaveletTransform::WaveletTypeNames() );
+    dwtwavelet->setEnums( WaveletTransform::WaveletTypeDef() );
     dwtwavelet->setDefaultValue( WaveletTransform::Haar );
     desc->addParam( dwtwavelet );
 
     EnumParam* cwtwavelet = new EnumParam( cwtwaveletStr() );
-    cwtwavelet->addEnums( CWT::WaveletTypeNames() );
+    cwtwavelet->setEnums( CWT::WaveletTypeDef() );
     cwtwavelet->setDefaultValue( CWT::Morlet );
     desc->addParam( cwtwavelet );
 

@@ -30,7 +30,8 @@ DefineEnumNames(MarkerStyle2D,Type,2,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", 0 };
 DefineEnumNames(MarkerStyle3D,Type,0,"Marker type")
-{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", "Point", "Plane", 0 };
+{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross",
+  "Point", "Plane", 0 };
 DefineEnumNames(LineStyle,Type,0,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
@@ -94,7 +95,7 @@ void clss::toString( BufferString& bs ) const \
 void clss::fromString( const char* s ) \
 { \
     FileMultiString fms( s ); \
-    parseEnumType( fms[0], type_ ); \
+    TypeDef().parse( fms[0], type_ ); \
     par = fms.getIValue( 1 ); \
     FileMultiString colfms( fms.from(2) ); \
     color_.use( colfms ); \

@@ -71,7 +71,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     if ( nm.isEmpty() ) return false;
 
     setName( nm );
-    type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
+    type_ = PropertyRef::StdTypeDef().parse( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
     iop.get( sKey::Unit(), unit_ );
     iop.get( sKey::Desc(), desc_ );
@@ -87,7 +87,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	if ( !nm.isEmpty() )
 	{
 	    const PropType typ =
-		    PropertyRef::parseEnumStdType( subpar->find(sKey::Type()) );
+		PropertyRef::StdTypeDef().parse( subpar->find(sKey::Type()) );
 	    VarDef* vd = new VarDef( nm, typ );
 	    subpar->get( sKey::Unit(), vd->unit_ );
 	    subpar->get( sKey::Desc(), vd->desc_ );

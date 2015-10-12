@@ -65,7 +65,8 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 
     lebelfld_ = new uiCheckBox( this, tr("Post labels"),
 				mCB(this,uiGMTWellsGrp,choiceSel) );
-    lebelalignfld_ = new uiComboBox( this, "Alignment" );
+    lebelalignfld_ = new uiComboBox( this, ODGMT::AlignmentDef(),
+				     "Alignment" );
     lebelalignfld_->attach( alignedBelow, symbfld_ );
     lebelfld_->attach( leftOf, lebelalignfld_ );
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, tr("Font size") );
@@ -74,18 +75,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     labelfontszfld_->setInterval( 8, 20 );
     labelfontszfld_->setValue( 10 );
 
-    fillItems();
     choiceSel(0);
-}
-
-
-void uiGMTWellsGrp::fillItems()
-{
-    for ( int idx=0; idx<4; idx++ )
-    {
-	BufferString alignkey = ODGMT::AlignmentNames()[idx];
-	lebelalignfld_->addItem( alignkey );
-    }
 }
 
 

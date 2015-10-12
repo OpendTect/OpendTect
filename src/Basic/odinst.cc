@@ -93,7 +93,7 @@ ODInst::RelType ODInst::getRelType()
 	return ODInst::Other;
 
     relstr[relsz-2] = '\0';
-    return ODInst::parseEnumRelType( relstr.buf()+1 );
+    return ODInst::RelTypeDef().parse( relstr.buf()+1 );
 }
 
 
@@ -250,7 +250,7 @@ ODInst::AutoInstType ODInst::getAutoInstType()
     mDeclEnvVarVal;
     const char* res = envvarval && *envvarval ? envvarval
 			: userSettings().find( sKeyAutoInst() );
-    return res && *res ? parseEnumAutoInstType( res ) : ODInst::InformOnly;
+    return res && *res ? AutoInstTypeDef().parse( res ) : ODInst::InformOnly;
 }
 
 

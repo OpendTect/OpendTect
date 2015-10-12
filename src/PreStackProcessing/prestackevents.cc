@@ -779,7 +779,7 @@ bool EventManager::DipSource::operator==(const EventManager::DipSource& b) const
 void EventManager::DipSource::fill( BufferString& buf ) const
 {
     FileMultiString fms;
-    fms += TypeDef().convert( (int) type_ );
+    fms += TypeDef().getKey( type_ );
     fms += mid_;
     buf = fms;
 }
@@ -793,7 +793,7 @@ bool EventManager::DipSource::use( const char* str )
 	return false;
 
     Type typeenum;
-    if ( !parseEnumType( type, typeenum ) )
+    if ( !TypeDef().parse( type, typeenum ) )
 	return false;
 
     if ( typeenum==SteeringVolume )

@@ -100,19 +100,20 @@ void update( const RockPhysics::Formula::ConstDef* pcd )
 uiRockPhysForm::uiRockPhysForm( uiParent* p )
     : uiGroup(p,"RockPhyics Formula Selector")
     , fixedtype_(PropertyRef::Den)
+    , types_( PropertyRef::StdTypeDef() )
 {
-    BufferStringSet typnms( PropertyRef::StdTypeNames() );
-    for ( int idx=0; idx<typnms.size(); idx++ )
+    for ( int idx=types_.size()-1; idx>=0; idx-- )
     {
 	BufferStringSet nms;
-	const PropertyRef::StdType typ
-			= PropertyRef::parseEnumStdType( typnms.get(idx) );
+	const PropertyRef::StdType typ = types_.getEnumForIndex(idx);
 	ROCKPHYSFORMS().getRelevant( typ, nms );
 	if ( nms.isEmpty() )
-	    { typnms.removeSingle( idx ); idx--; }
+	{
+	    types_.remove( types_.getKeyForIndex(idx) );
+	}
     }
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, typnms,
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, types_,
 						    tr("Property Type") );
     typfld_ = lcb->box();
     typfld_->setHSzPol( uiObject::MedMax );
@@ -126,6 +127,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
     : uiGroup(p,"RockPhyics Formula Selector")
     , fixedtype_(typ)
     , typfld_(0)
+    , types_( PropertyRef::StdTypeDef() )
 {
     createFlds( 0 );
 }
@@ -181,18 +183,18 @@ PropertyRef::StdType uiRockPhysForm::getType() const
     if ( !typfld_ )
 	return fixedtype_;
 
-    const char* txt = typfld_->text();
-    if ( !txt || !*txt )
-	return PropertyRef::Other;
-
-    return PropertyRef::parseEnumStdType(txt);
+    const int idx = typfld_->currentItem();
+    return types_.getEnumForIndex(idx);
 }
 
 
 void uiRockPhysForm::setType( PropertyRef::StdType typ )
 {
     if ( typfld_ )
-	typfld_->setText( PropertyRef::toString(typ) );
+    {
+	const int idx = types_.indexOf( typ );
+	typfld_->setCurrentItem( idx );
+    }
 
     BufferStringSet nms;
     ROCKPHYSFORMS().getRelevant( typ, nms );
@@ -211,10 +213,8 @@ void uiRockPhysForm::typSel( CallBacker* cb )
 {
     if ( !typfld_ ) return;
 
-    const char* txt = typfld_->text();
-    if ( !txt || !*txt ) return;
-
-    setType( PropertyRef::parseEnumStdType(txt) );
+    const int idx = typfld_->currentItem();
+    setType( types_.getEnumForIndex(idx) );
 }
 
 

@@ -56,6 +56,7 @@ protected:
     uiListBox*			synthnmlb_;
     StratSynth&			stratsynth_;
     uiSynthSeisGrp*		synthseis_;
+    EnumDef			synthtypedefs_;
 
     void			getPSNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);

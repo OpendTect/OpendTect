@@ -90,15 +90,15 @@ Color PSEventDisplay::getColor() const
 }
 
 
-const char** PSEventDisplay::markerColorNames() const
+const uiStringSet& PSEventDisplay::markerColorNames() const
 {
-    return PSEventDisplay::MarkerColorNames();
+    return PSEventDisplay::MarkerColorDef().strings();
 }
 
 
-const char** PSEventDisplay::displayModeNames() const
+const uiStringSet& PSEventDisplay::displayModeNames() const
 {
-    return PSEventDisplay::DisplayModeNames();
+    return PSEventDisplay::DisplayModeDef().strings();
 }
 
 

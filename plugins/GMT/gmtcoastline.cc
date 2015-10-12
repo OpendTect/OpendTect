@@ -83,7 +83,8 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     *( rangestr.getCStr() + rangestr.size() - 1 ) = '\0';
     BufferString comm = "pscoast "; comm += rangestr;
     comm += " -JM"; comm += mapdim.start; comm += "c -D";
-    const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution()) );
+    const int res =
+	ODGMT::ResolutionDef().parse( find(ODGMT::sKeyResolution()) );
     comm += sResKeys[res];
     LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle()) );
     drawcontour = ls.type_ != LineStyle::None;

@@ -492,7 +492,7 @@ bool Picks::usePar( const IOPar& par )
     const FixedString typestr = par.find( sKeyPickType() );
     if ( typestr )
     {
-	if ( !parseEnumPickType(typestr,picktype_ ) )
+	if ( !PickTypeDef().parse(typestr,picktype_ ) )
 	    return false;
     }
     else

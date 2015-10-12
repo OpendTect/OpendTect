@@ -59,7 +59,8 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
 	    mDoIOPar( set, LaySeqAttrib::sKeyUnits(), lsa.units_ );
 	    mDoIOPar( set, LaySeqAttrib::sKeyLithos(), lsa.liths_ );
 	}
-	FileMultiString fms( LaySeqAttrib::TransformNames()[lsa.transform_] );
+	FileMultiString fms(
+		LaySeqAttrib::TransformDef().getKey(lsa.transform_) );
 	if ( mIsUdf(lsa.transformval_) )
 	    fms += sKey::FloatUdf();
 	else
@@ -100,7 +101,7 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	mSetUdf( lsa->transformval_ );
 	if ( sz > 1 )
 	{
-	    lsa->transform_ = LaySeqAttrib::parseEnumTransform( fms[0] );
+	    lsa->transform_ = LaySeqAttrib::TransformDef().parse( fms[0] );
 	    lsa->transformval_ = fms.getFValue( 1 );
 	    if ( lsa->transform_==LaySeqAttrib::Log && lsa->transformval_<0 )
 		mSetUdf( lsa->transformval_ );
@@ -141,13 +142,12 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 {
     if ( attr_.islocal_ )
     {
-	statupscl_ = (Stats::UpscaleType)Stats::UpscaleTypeDef()
-					.convert( desc.stat_ );
+	statupscl_ = Stats::UpscaleTypeDef().parse( desc.stat_ );
 	stattype_ = Stats::typeFor( statupscl_ );
     }
     else
     {
-	stattype_ = (Stats::Type)Stats::TypeDef().convert( desc.stat_ );
+	stattype_ = Stats::TypeDef().parse( desc.stat_ );
 	statupscl_ = Stats::upscaleTypeFor( stattype_ );
     }
 

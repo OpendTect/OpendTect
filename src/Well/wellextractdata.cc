@@ -204,7 +204,7 @@ void Well::ZRangeSelector::usePar( const IOPar& pars )
     pars.get( sKeyLimits(), above_, below_ );
     pars.get( sKeyZRange(), fixedzrg_ );
     pars.getYN( sKeySnapZRangeToSurvey(), snapzrgtosurvey_ );
-    parseEnumZSelection( pars.find( sKeyZSelection() ), zselection_ );
+    ZSelectionDef().parse( pars.find( sKeyZSelection() ), zselection_ );
 }
 
 
@@ -408,7 +408,7 @@ void Well::ExtractParams::usePar( const IOPar& pars )
 {
     ZRangeSelector::usePar( pars );
     pars.getYN( sKeyZExtractInTime(), extractzintime_ );
-    parseEnumUpscaleType( pars.find( sKeySamplePol() ), samppol_ );
+    Stats::UpscaleTypeDef().parse( pars.find( sKeySamplePol() ), samppol_ );
 }
 
 
@@ -636,7 +636,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
     pars.get( sKeyLogNm(), lognm_ );
-    parseEnumUpscaleType(
+    Stats::UpscaleTypeDef().parse(
 	    pars.find( Well::ExtractParams::sKeySamplePol() ), samppol_ );
 }
 

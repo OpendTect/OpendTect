@@ -112,7 +112,7 @@ DateInfo::DateInfo( int yr, DateInfo::Month m, int dy )
 
 DateInfo::DateInfo( int yr, const char* mn, int dy )
 	: years_(yr-1900)
-	, months_((int)parseEnumMonth(mn))
+	, months_((int)MonthDef().parse(mn))
 {
     setDay( dy );
 }
@@ -436,7 +436,7 @@ void DateInfo::toString( BufferString& str ) const
 	{ str += sKey::Undef(); return; }
 
     str += day(); str += "-";
-    str += DateInfo::MonthDef().toString(month()); str += "-";
+    str += DateInfo::MonthDef().getKey(month()); str += "-";
     str += year();
 }
 
@@ -451,7 +451,7 @@ bool DateInfo::fromString( const char* inp )
     days_ = toInt( dayptr );
     if ( days_ > 0 ) days_--;
     Month monthvar;
-    parseEnumMonth( ss[1], monthvar );
+    MonthDef().parse( ss[1], monthvar );
     months_ = (int) monthvar;
     days1900_ = 0; setYear( toInt(ss[2]) );
 
@@ -471,7 +471,7 @@ bool DateInfo::fromStdDateString( const char* inp )
 
     buf[0] = (char) tolower( buf[0] );
     Month monthvar;
-    parseEnumMonth( buf, monthvar );
+    MonthDef().parse( buf, monthvar );
     months_ = (int) monthvar;
 
     ptr = getNextWord( ptr, buf );

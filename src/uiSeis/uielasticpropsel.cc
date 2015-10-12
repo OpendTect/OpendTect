@@ -305,7 +305,7 @@ void uiElasticPropSelGrp::putToScreen()
 
 
 
-static const char** props = ElasticFormula::TypeNames();
+static const BufferStringSet& props = ElasticFormula::TypeDef().keys();
 
 #define mErrRet(s,act) { uiMSG().error(s); act; }
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
@@ -333,16 +333,16 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
     ts_ = new uiTabStack( this, "Property selection tab stack" );
     ObjectSet<uiGroup> tgs;
 
-    for ( int idx=0; props[idx]; idx++ )
+    for ( int idx=0; idx<props.size(); idx++ )
     {
 	ElasticFormula::Type tp;
-	ElasticFormula::parseEnumType( props[idx], tp );
-	tgs += new uiGroup( ts_->tabGroup(), props[idx] );
+	ElasticFormula::TypeDef().parse( props.get(idx), tp );
+	tgs += new uiGroup( ts_->tabGroup(), props.get(idx) );
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );
 	ElasticPropertyRef& epr = elpropsel_.get(tp);
 	propflds_ += new uiElasticPropSelGrp(tgs[idx], propnms_, epr, formulas);
-	ts_->addTab( tgs[idx], toUiString(props[idx]) );
+	ts_->addTab( tgs[idx], ElasticFormula::TypeDef().toUiString(tp) );
     }
     ts_->selChange().notify(
 			mCB(this,uiElasticPropSelDlg,screenSelectionChanged) );

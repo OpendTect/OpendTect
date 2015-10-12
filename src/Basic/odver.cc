@@ -173,7 +173,7 @@ void OD::Platform::set( const char* s, bool isshort )
 	{ pErrMsg("null or empty platform set"); return; }
 
     if ( !isshort )
-	parseEnumType( s, type_ );
+	TypeDef().parse( s, type_ );
     else
     {
 	const bool islin = *s == 'l';
@@ -190,7 +190,7 @@ void OD::Platform::set( const char* s, bool isshort )
 bool OD::Platform::isValidName( const char* s, bool isshort )
 {
     if ( !s || !*s )	return false;
-    if ( !isshort )	return TypeDef().isValidName( s );
+    if ( !isshort )	return TypeDef().isValidKey( s );
 
     const BufferString cmp(s);
     return cmp == "lux64" || cmp == "win64"

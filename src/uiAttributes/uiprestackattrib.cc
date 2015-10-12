@@ -40,13 +40,10 @@ static const char* rcsID mUsedVar = "$Id$";
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())
 
 
-static const char*	statTypeCountStr()	{ return "Fold"; }
-static const char*	statTypeAverageStr()	{ return "Stack"; }
-
-
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
-	, params_(*new PreStack::AngleCompParams)
+    : uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
+    , params_(*new PreStack::AngleCompParams)
+    , statsdef_( Stats::TypeDef() )
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
@@ -63,9 +60,12 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     calctypefld_->attach( alignedBelow, preprocsel_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
-    BufferStringSet stattypenames; getStatTypeNames(stattypenames);
+    statsdef_.setUiStringForIndex( statsdef_.indexOf(Stats::Count),
+				   tr("Fold") );
+    statsdef_.setUiStringForIndex( statsdef_.indexOf(Stats::Average),
+				   tr("Stack") );
     stattypefld_ = new uiGenInput( this, tr("Statistics type"),
-				   StringListInpSpec(stattypenames) );
+				   StringListInpSpec(statsdef_) );
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
     lsqtypefld_ = new uiGenInput( this, tr("AVO output"),
@@ -114,52 +114,6 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 
 uiPreStackAttrib::~uiPreStackAttrib()
 {
-}
-
-
-void uiPreStackAttrib::getStatTypeNames( BufferStringSet& stattypenames )
-{
-    stattypenames = Stats::TypeNames();
-    const char* countstr = Stats::toString( Stats::Count );
-    const int countidx = stattypenames.indexOf( countstr );
-    if ( countidx > -1 )
-	*stattypenames[countidx] = statTypeCountStr();
-
-    const char* averagestr = Stats::toString( Stats::Average );
-    const int averageidx = stattypenames.indexOf( averagestr );
-    if ( averageidx > -1 )
-	*stattypenames[averageidx] = statTypeAverageStr();
-}
-
-
-Stats::Type uiPreStackAttrib::getStatEnumfromString( const char* stattypename )
-{
-    FixedString typname( stattypename );
-    if ( typname==statTypeCountStr() )
-	return Stats::Count;
-    else if ( typname==statTypeAverageStr() )
-	return Stats::Average;
-
-    Stats::Type enm;
-    if ( Stats::parseEnum(stattypename,enm) )
-	return enm;
-
-    return Stats::Average;
-}
-
-
-const char* uiPreStackAttrib::getStringfromStatEnum( Stats::Type enm )
-{
-    FixedString typname = Stats::toString( enm );
-    if ( !typname )
-	return Stats::toString(Stats::Average);
-
-    if ( typname == Stats::toString(Stats::Count) )
-	return statTypeCountStr();
-    else if ( typname == Stats::toString(Stats::Average) )
-	return statTypeAverageStr();
-
-    return typname;
 }
 
 
@@ -249,7 +203,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     if ( aps->setup().calctype_ == PreStack::PropCalc::Stats )
     {
-	stattypefld_->setText( getStringfromStatEnum(aps->setup().stattype_) );
+	stattypefld_->setValue( statsdef_.indexOf(aps->setup().stattype_));
     }
     else
     {
@@ -350,7 +304,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     if ( calctyp == 0 )
     {
 	mSetEnum( Attrib::PSAttrib::stattypeStr(),
-		  getStatEnumfromString(stattypefld_->text()) )
+		  statsdef_.getEnumValForIndex(stattypefld_->getIntValue()));
     }
     else
     {

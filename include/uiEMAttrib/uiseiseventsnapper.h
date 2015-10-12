@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uidialog.h"
+#include "valseriesevent.h"
 
 namespace EM { class Horizon; }
 
@@ -37,17 +38,18 @@ public:
 
 protected:
 
-    uiHorSaveFieldGrp*	savefldgrp_;
-    uiIOObjSel*		horinfld_;
-    uiSeisSel*		seisfld_;
-    uiGenInput*		eventfld_;
-    uiGenInput*		gatefld_;
-    bool		is2d_;
+    uiHorSaveFieldGrp*		savefldgrp_;
+    uiIOObjSel*			horinfld_;
+    uiSeisSel*			seisfld_;
+    uiGenInput*			eventfld_;
+    uiGenInput*			gatefld_;
+    bool			is2d_;
+    EnumDefImpl<VSEvent::Type>	typedef_;
 
-    virtual bool	acceptOK(CallBacker*);
-    bool		readHorizon();
+    virtual bool		acceptOK(CallBacker*);
+    bool			readHorizon();
 
-    EM::Horizon*	horizon_;
+    EM::Horizon*		horizon_;
 
 };
 

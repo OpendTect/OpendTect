@@ -9,7 +9,7 @@ add_definitions( -DmNoAutoUiString )
 
 set(OD_MODULE_DEPS Network )
 set(OD_USEQT Widgets PrintSupport)
-set(OD_TEST_PROGS )
+set(OD_TEST_PROGS  )
 set(QT_MOC_HEADERS
 	i_qaction.h
 	i_qbutton.h

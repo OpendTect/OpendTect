@@ -34,9 +34,9 @@ static int getVelType( const IOPar& iop )
 	return mNoVelocity;
 
     const FixedString typestr = iop.find( VelocityDesc::sKeyVelocityType() );
-    if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::RMS] )
+    if ( typestr == VelocityDesc::TypeDef().getKey(VelocityDesc::RMS) )
 	return mVelocityRMS;
-    else if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::Avg] )
+    else if ( typestr == VelocityDesc::TypeDef().getKey(VelocityDesc::Avg) )
 	return mVelocityAvg;
 
     return mVelocityIntv;

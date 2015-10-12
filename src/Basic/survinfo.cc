@@ -440,7 +440,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeySurvDataType() )
 	{
 	    Pol2D var;
-	    if ( !parseEnumPol2D( astream.value(), var ) )
+	    if ( !Pol2DDef().parse( astream.value(), var ) )
 		var = Both2DAnd3D;
 
 	    si->setSurvDataType( var );

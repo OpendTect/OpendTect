@@ -54,8 +54,7 @@ void uiCBVSVolOpts::use( const IOPar& iop )
 
 bool uiCBVSVolOpts::fill( IOPar& iop ) const
 {
-    const int dctyp = stortypfld_->getIntValue();
-    iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[dctyp] );
+    iop.set( sKey::DataStorage(), stortypfld_->text() );
 
     iop.update( CBVSSeisTrcTranslator::sKeyOptDir(),
 			optimdirfld_->isChecked() ? "Horizontal" : "" );
@@ -89,8 +88,7 @@ void uiCBVSPS3DOpts::use( const IOPar& iop )
 
 bool uiCBVSPS3DOpts::fill( IOPar& iop ) const
 {
-    const int dctyp = stortypfld_->getIntValue();
-    iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[dctyp] );
+    iop.set( sKey::DataStorage(), stortypfld_->text() );
     return true;
 }
 

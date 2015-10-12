@@ -85,7 +85,7 @@ void uiGMTSymbolPars::fillShapes()
     {
 	for ( int idx=0; idx<6; idx++ )
 	{
-	    BufferString shapekey = ODGMT::ShapeNames()[idx];
+	    BufferString shapekey = ODGMT::ShapeDef().getKeyForIndex(idx);
 	    if ( shapekey.isEmpty() ) break;
 
 	    shapekey.getCStr()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
@@ -104,7 +104,7 @@ bool uiGMTSymbolPars::fillPar( IOPar& par ) const
     if ( !usewellsymbols_ )
     {
 	const int shp = shapefld_->currentItem();
-	BufferString shapestr = ODGMT::ShapeNames()[shp];
+	BufferString shapestr = ODGMT::ShapeDef().getKeyForIndex(shp);
 	par.set( ODGMT::sKeyShape(), shapestr );
 	par.setYN( ODGMT::sKeyFill(), fillcolfld_->doDraw() );
 	par.set( ODGMT::sKeyFillColor(), fillcolfld_->color() );
@@ -132,7 +132,7 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     else
     {
 	ODGMT::Shape shp;
-	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape() ), shp ) )
+	if ( ODGMT::ShapeDef().parse( par.find( ODGMT::sKeyShape() ), shp ) )
 	    shapefld_->setCurrentItem( shp );
 
 	Color col;

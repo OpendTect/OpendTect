@@ -47,23 +47,23 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     if ( SI().zIsTime() )
     {
 	BufferStringSet typnms;
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Interval]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::RMS]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Avg]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Delta]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Epsilon]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Eta]);
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Interval));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::RMS));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Avg));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Delta));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Epsilon));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Eta));
 	context.toselect_.require_.set(StoredFunctionSource::sKeyVelocityType(),
 				       typnms );
     }
     else
     {
 	BufferStringSet typnms;
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Interval]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Avg]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Delta]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Epsilon]);
-	typnms.add(VelocityDesc::TypeNames()[(int)VelocityDesc::Eta]);
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Interval));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Avg));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Delta));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Epsilon));
+	typnms.add(VelocityDesc::TypeDef().getKey(VelocityDesc::Eta));
 	context.toselect_.require_.set(StoredFunctionSource::sKeyVelocityType(),
 				       typnms );
     }

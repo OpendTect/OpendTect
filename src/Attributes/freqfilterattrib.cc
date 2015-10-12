@@ -41,9 +41,7 @@ void FreqFilter::initClass()
 
     //Note: Ordering must be the same as numbering!
     EnumParam* filtertype_ = new EnumParam( filtertypeStr() );
-    const char** filtertypes = FFTFilter::TypeNames();
-    for ( int idx=0; filtertypes[idx]; idx++ )
-	filtertype_->addEnum( filtertypes[idx] );
+    filtertype_->setEnums( FFTFilter::TypeDef() );
     filtertype_->setDefaultValue( FFTFilter::LowPass );
     desc->addParam( filtertype_ );
 
