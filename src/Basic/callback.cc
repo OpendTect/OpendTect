@@ -124,17 +124,9 @@ private:
 
 static PtrMan<QEventLoopReceiver> currentreceiver = 0;
 
-static QEventLoopReceiver* getQELR()
-{
-    if ( !currentreceiver )
-    {
-	QEventLoopReceiver* rec  = new QEventLoopReceiver;
-	if ( !currentreceiver.setIfNull( rec ) )
-	    delete rec;
-    }
 
-    return currentreceiver;
-}
+static QEventLoopReceiver* getQELR()
+{ return currentreceiver.createIfNull(); }
 
 #endif // OD_NO_QT
 

@@ -27,18 +27,11 @@ mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 
+static PtrMan<GeometryManager> theinst = 0;
 
 const GeometryManager& GM()
 {
-    mDefineStaticLocalObject( PtrMan<GeometryManager>, theinst, = 0 );
-    if ( !theinst )
-    {
-	GeometryManager* newgm = new GeometryManager;
-	if ( !theinst.setIfNull( newgm ) )
-	    delete newgm;
-    }
-
-    return *theinst;
+    return *theinst.createIfNull();
 }
 
 
