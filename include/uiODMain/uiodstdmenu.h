@@ -222,6 +222,7 @@ ________________________________________________________________________
 #define mProgrammerMnuItm	(mHelpMnuBase + 3)
 #define mAboutMnuItm		(mHelpMnuBase + 4)
 #define mSupportMnuItm		(mHelpMnuBase + 5)
+#define mWorkflowsMnuItm	(mHelpMnuBase + 6)
 
 
 
