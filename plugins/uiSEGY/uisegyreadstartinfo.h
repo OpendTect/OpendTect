@@ -60,8 +60,10 @@ protected:
     uiLineEdit*		srfld_;
     uiSEGYByteNr*	xcoordbytefld_;
     uiSEGYByteNr*	ycoordbytefld_;
-    uiSEGYByteNr*	key1bytefld_;
-    uiSEGYByteNr*	key2bytefld_;
+    uiSEGYByteNr*	inlbytefld_;
+    uiSEGYByteNr*	crlbytefld_;
+    uiSEGYByteNr*	trcnrbytefld_;
+    uiSEGYByteNr*	refnrbytefld_;
     uiSEGYByteNr*	offsetbytefld_;
     uiComboBox*		psoffsrcfld_;
     uiGroup*		offsgengrp_;
