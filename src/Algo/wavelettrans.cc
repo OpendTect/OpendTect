@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h"
 
 
-DefineEnumNames(WaveletTransform,WaveletType,0,"Wavelet Type")
+DefineEnumUtils(WaveletTransform,WaveletType,"Wavelet Type")
 { "Haar", "Daubechies4", "Daubechies6", "Daubechies8", "Daubechies10",
   "Daubechies12", "Daubechies14", "Daubechies16", "Daubechies18",
   "Daubechies20", "Beylkin", "Coiflet1", "Coiflet2", "Coiflet3",
@@ -475,7 +475,7 @@ const TypeSet<float>* CWT::CWTWavelets::getWavelet( float scale ) const
 
 // ****** CWT *****
 
-DefineEnumNames(CWT,WaveletType,0,"Wavelet Type")
+DefineEnumUtils(CWT,WaveletType,"Wavelet Type")
 { "Morlet", "Gaussian", "Mexican Hat", 0 };
 
 

@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "valseriesevent.h"
 
-DefineEnumNames(VSEvent,Type,0,"Event type")
+DefineEnumUtils(VSEvent,Type,"Event type")
 {
 	"None",
 	"Peak or trough",

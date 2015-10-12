@@ -59,7 +59,7 @@ const char* TrackSampler::sKeyDahCol()	    { return "Create MD column"; }
 const char* LogDataExtracter::sKeyLogNm()   { return
 					      Well::TrackSampler::sKeyLogNm(); }
 
-DefineEnumNames(ZRangeSelector,ZSelection,0,"Type of selection")
+DefineEnumUtils(ZRangeSelector,ZSelection,"Type of selection")
 { "Markers", "Depth range", "Time range", 0 };
 
 }

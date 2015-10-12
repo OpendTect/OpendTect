@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include <string.h>
 
-DefineEnumNames(DataCharacteristics,UserType,1,"Data storage") {
+DefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
 	"0 - auto",
 	"1 - 8  bit signed",
         "2 - 8  bit unsigned",

@@ -38,7 +38,7 @@ static const char* sKeyPropertyName	= "Property name";
 mDefSimpleTranslators(ElasticPropSelection,
 		      "Elastic Property Selection",od,Seis);
 
-DefineEnumNames(ElasticFormula,Type,0,"Elastic Property")
+DefineEnumUtils(ElasticFormula,Type,"Elastic Property")
 { "Density", "PWave", "SWave", 0 };
 
 

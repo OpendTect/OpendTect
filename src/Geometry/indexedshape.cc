@@ -15,7 +15,7 @@ namespace Geometry
 
 PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
 
-DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
+DefineEnumUtils(PrimitiveSet, PrimitiveType, "PrimitiveType" )
 { "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans",
   "Other", 0 };
 

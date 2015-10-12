@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-DefineEnumNames( IOObjInfo, ObjectType, 0, "Object Type" )
+DefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
 {
   "Unknown",
   EMHorizon3DTranslatorGroup::sGroupName(),

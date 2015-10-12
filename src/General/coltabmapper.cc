@@ -99,7 +99,7 @@ void ColTab::setMapperDefaults( Interval<float> cr, float sm, bool asym,
 
 namespace ColTab
 {
-    DefineEnumNames( MapperSetup, Type, 1, "Types" )
+    DefineEnumUtils( MapperSetup, Type, "Types" )
     { "Fixed", "Auto", "HistEq", 0 };
 }
 

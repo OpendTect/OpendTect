@@ -116,7 +116,7 @@ public:
   to use the EnumDef classes. These are normally almost hidden by a few
   simple macros:
   * DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
-  * DefineEnumNames(clss,enm,deflen,prettynm) defines the names.
+  * DefineEnumUtils(clss,enm,prettynm) defines the names.
   * For namespaces, you can use DeclareNameSpaceEnumUtils only
 
   The 'Declare' macros should be placed in the public section of the class.
@@ -143,9 +143,9 @@ public:
   \code
   #include <myclass.h>
   
-  DefineEnumNames(MyClass,State,1,"My class state")
+  DefineEnumUtils(MyClass,State,"My class state")
 	  { "Good", "Bad", "Not very handsome", 0 };
-  DefineEnumNames(MyClass,Type,0,"My class type")
+  DefineEnumUtils(MyClass,Type,"My class type")
           { "Yes", "No", "Not sure", 0 };
   \endcode
 
@@ -325,6 +325,13 @@ _DefineEnumNames( clss, enm, deflen, prettynm )
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
 static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
 _DefineEnumNames( nmspc, enm, deflen, prettynm )
+
+//New Defs
+#define DefineEnumUtils(clss,enm,prettynm) \
+DefineEnumNames(clss,enm,0,prettynm)
+
+#define DefineNameSpaceEnumUtils(nmspc,enm,prettynm) \
+DefineNameSpaceEnumNames(nmspc,enm,0,prettynm)
 
 template <class ENUM> inline
 EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )

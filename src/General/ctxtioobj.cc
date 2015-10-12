@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "keystrs.h"
 
-DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
+DefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 
 	"Seismic data",
 	"Surface data",

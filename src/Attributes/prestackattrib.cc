@@ -30,14 +30,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace Attrib
 {
-DefineEnumNames(PSAttrib,GatherType,0,"Gather type")
+DefineEnumUtils(PSAttrib,GatherType,"Gather type")
 {
     "Offset",
     "Angle",
     0
 };
 
-DefineEnumNames(PSAttrib,XaxisUnit,0,"X-Axis unit")
+DefineEnumUtils(PSAttrib,XaxisUnit,"X-Axis unit")
 {
     "in Degrees",
     "in Radians",

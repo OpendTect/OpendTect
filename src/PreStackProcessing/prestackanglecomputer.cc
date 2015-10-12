@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
+DefineEnumUtils(AngleComputer,smoothingType,"Smoothing Type")
 {
 	"None",
 	"Moving-Average",
