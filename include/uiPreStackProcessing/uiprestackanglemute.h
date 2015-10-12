@@ -55,6 +55,7 @@ protected:
     uiAngleCompAdvParsDlg*	advpardlg_;
 
     bool			isformute_;
+    bool			dooffset_;
 };
 
 

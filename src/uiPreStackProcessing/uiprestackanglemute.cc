@@ -34,6 +34,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     , params_(pars)
     , isformute_(isformute)
     , anglelbl_(0)
+    , dooffset_(dooffset)
+    , advpardlg_(0)
 {
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
 				uiSeisSel::Setup(Seis::Vol), false);
@@ -61,7 +63,6 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
-    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset, isformute);
     setHAlignObj( velfuncsel_ );
 }
 
@@ -114,6 +115,9 @@ bool uiAngleCompGrp::acceptOK()
 
 void uiAngleCompGrp::advPushButCB( CallBacker* )
 {
+    if (!advpardlg_)
+    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset_, 
+								    isformute_);
     advpardlg_->updateFromParams();
     advpardlg_->go();
 }
