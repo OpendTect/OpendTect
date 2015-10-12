@@ -560,41 +560,40 @@ bool Color::fromDescription( const char* inp )
 }
 
 
-const BufferStringSet& Color::descriptions()
+static BufferStringSet* descCreator()
 {
-    mDefineStaticLocalObject( PtrMan<BufferStringSet>, bss, = 0 );
-    if ( !bss )
-    {
-        BufferStringSet* newbss = new BufferStringSet;
-	for ( int idx=0; idx<cNrColDD; idx++ )
-	    newbss->add( cColDD[idx].nm_ );
+    BufferStringSet* newbss = new BufferStringSet;
+    for ( int idx=0; idx<cNrColDD; idx++ )
+	newbss->add( cColDD[idx].nm_ );
 
-        if ( !bss.setIfNull( newbss ) )
-            delete newbss;
+    return newbss;
+}
+
+static PtrMan<BufferStringSet> descs = 0;
+
+
+const BufferStringSet& Color::descriptions()
+{ return *descs.createIfNull( descCreator ); }
+
+static PtrMan<TypeSet<Color> > cols = 0;
+
+static TypeSet<Color>* descCenterCreator()
+{
+    TypeSet<Color>* newcols = new TypeSet<Color>;
+    for ( int idx=0; idx<cNrColDD; idx++ )
+    {
+	const ColorDescriptionData& cdd = cColDD[idx];
+	*newcols += Color( (unsigned char) cdd.r_,
+			(unsigned char) cdd.g_,
+			(unsigned char) cdd.b_ );
     }
-    return *bss;
+
+    return newcols;
 }
 
 
 const TypeSet<Color>& Color::descriptionCenters()
-{
-    mDefineStaticLocalObject( PtrMan<TypeSet<Color> >, cols, = 0 );
-    if ( !cols )
-    {
-	TypeSet<Color>* newcols = new TypeSet<Color>;
-	for ( int idx=0; idx<cNrColDD; idx++ )
-	{
-	    const ColorDescriptionData& cdd = cColDD[idx];
-	    *newcols += Color( (unsigned char) cdd.r_,
-			    (unsigned char) cdd.g_,
-			    (unsigned char) cdd.b_ );
-	}
-
-        if ( !cols.setIfNull( newcols ) )
-            delete newcols;
-    }
-    return *cols;
-}
+{ return *cols.createIfNull( descCenterCreator ); }
 
 
 const char* Color::largeUserInfoString() const

@@ -37,6 +37,8 @@ template <class T>
 void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
 { if ( isowner ) delete [] ptr; ptr = 0; }
 
+template <class T> T* createSingleObject() { return new T; }
+template <class T> T* createObjectArray(od_int64 sz) { return new T[sz]; }
 
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
     or RefMan instead. */
@@ -45,7 +47,6 @@ template<class T>
 mClass(Basic) PtrManBase
 {
 public:
-
     inline bool		operator !() const	{ return !ptr_; }
 
     inline T*		set(T* p, bool doerase=true);
@@ -56,6 +57,10 @@ public:
 
     inline bool		setIfNull(T* p);
 
+    typedef T* 		(*PointerCreator)();
+    inline T*		createIfNull(PointerCreator=createSingleObject<T>);
+    			/*!<If null, PointerCrator will be called to
+			    create new object.  */
 protected:
 
     typedef void		(*PtrFunc)(T*);
@@ -66,7 +71,6 @@ protected:
 
     PtrFunc			setfunc_;
     PtrFunc			deletefunc_;
-
 };
 
 
@@ -124,7 +128,6 @@ public:
 
 				mImpPtrManPointerAccess( const, T )
 				mImpPtrManPointerAccess( , T )
-
 #ifdef __debug__
     T&				operator[](int);
     const T&			operator[](int) const;
@@ -245,6 +248,26 @@ bool PtrManBase<T>::setIfNull( T* p )
 
 
 template <class T> inline
+T* PtrManBase<T>::createIfNull(PointerCreator creator)
+{
+    if ( ptr_ )
+	return ptr_;
+
+    T* newptr = creator();
+    if ( !newptr )
+	return 0;
+
+    if ( !setIfNull(newptr) )
+    {
+	if ( setfunc_ ) setfunc_(newptr);
+	if ( deletefunc_ ) deletefunc_(newptr);
+    }
+
+    return ptr_;
+}
+
+
+template <class T> inline
 PtrMan<T>::PtrMan( const PtrMan<T>& )
     : PtrManBase<T>( 0, deleteFunc, 0 )
 {
@@ -336,7 +359,6 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( T* p )
     this->set( p );
     return *this;
 }
-
 
 #ifdef __debug__
 
