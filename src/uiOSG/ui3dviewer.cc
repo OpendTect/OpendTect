@@ -86,10 +86,10 @@ FixedString ui3DViewer::sKeyBindingSettingsKey()
     return KeyBindings::sSettingsKey();
 }
 
-DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
+DefineEnumTools(ui3DViewer,StereoType,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
 
-DefineEnumNames(ui3DViewer,WheelMode,0,"WheelMode")
+DefineEnumTools(ui3DViewer,WheelMode,"WheelMode")
 { "Never", "Always", "On Hover", 0 };
 
 

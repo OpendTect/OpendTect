@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-DefineEnumNames( EventManager::DipSource,Type,1,"Dip source" )
+DefineEnumTools( EventManager::DipSource,Type,"Dip source" )
 { "None", "Horizon", "SteeringCube", 0 };
 
 

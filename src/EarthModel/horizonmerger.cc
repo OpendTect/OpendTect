@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-DefineEnumNames(HorizonMerger,Mode,1,"Merge mode")
+DefineEnumTools(HorizonMerger,Mode,"Merge mode")
 { "Take average", "Use top", "Use base", 0 };
 
 Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )

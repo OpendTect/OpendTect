@@ -49,7 +49,7 @@ const char* ExtensionArray2DInterpol::sKeyNrSteps()
 
 
 
-DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
+DefineEnumTools( Array2DInterpol, FillType, "Filltypes" )
 { "Only Holes", "Convex Hull", "Full", 0 };
 
 mImplFactory( Array2DInterpol, Array2DInterpol::factory );

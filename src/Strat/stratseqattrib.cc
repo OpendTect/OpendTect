@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mFileType "Layer Sequence Attribute Set"
 static const char* sKeyFileType = mFileType;
 mDefSimpleTranslators(StratLayerSequenceAttribSet,mFileType,od,Attr);
-DefineEnumNames(Strat::LaySeqAttrib,Transform,1,"Value Transformation")
+DefineEnumTools(Strat::LaySeqAttrib,Transform,"Value Transformation")
 { "Power", "Log", "Exp", 0 };
 
 

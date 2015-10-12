@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "unitofmeasure.h"
 
-DefineEnumNames(DPSDensityCalcND,CalcAreaType,1,"Calculation Area Type")
+DefineEnumTools(DPSDensityCalcND,CalcAreaType,"Calculation Area Type")
 {
     "Whole region",
     "Selected region",

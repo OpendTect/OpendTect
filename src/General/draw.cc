@@ -22,17 +22,17 @@ The main chunk is color table related.
 static const int cDotsFillPatternType = 1;
 static const int cLinesFillPatternType = 2;
 
-DefineEnumNames(Alignment,HPos,1,"Alignment")
+DefineEnumTools(Alignment,HPos,"Alignment")
 { "Left", "Right", "Center", 0 };
-DefineEnumNames(Alignment,VPos,1,"Alignment")
+DefineEnumTools(Alignment,VPos,"Alignment")
 { "Top", "Bottom", "Center", 0 };
-DefineEnumNames(MarkerStyle2D,Type,2,"Marker type")
+DefineEnumTools(MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", 0 };
-DefineEnumNames(MarkerStyle3D,Type,0,"Marker type")
+DefineEnumTools(MarkerStyle3D,Type,"Marker type")
 { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross",
   "Point", "Plane", 0 };
-DefineEnumNames(LineStyle,Type,0,"Line style")
+DefineEnumTools(LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
 Alignment::Alignment( HPos h, VPos v )

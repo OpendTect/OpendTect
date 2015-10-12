@@ -115,7 +115,7 @@ public:
   to use the EnumDef classes. These are normally almost hidden by a few
   simple macros:
   * DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
-  * DefineEnumNames(clss,enm,deflen,prettynm) defines the names.
+  * DefineEnumTools(clss,enm,prettynm) defines the names.
   * For namespaces, you can use DeclareNameSpaceEnumUtils only
 
   The 'Declare' macros should be placed in the public section of the class.
@@ -142,9 +142,9 @@ public:
   \code
   #include <myclass.h>
   
-  DefineEnumNames(MyClass,State,1,"My class state")
+  DefineEnumTools(MyClass,State,"My class state")
 	  { "Good", "Bad", "Not very handsome", 0 };
-  DefineEnumNames(MyClass,Type,0,"My class type")
+  DefineEnumTools(MyClass,Type,"My class type")
           { "Yes", "No", "Not sure", 0 };
   \endcode
 
@@ -281,7 +281,7 @@ public:
     mExtern(mod) uiString toUiString(enm); \
     mExtern(mod) const char* get##enm##String(enm); /*legacy */
 
-#define _DefineEnumNames(prefix,enm,createfunc,prettynm) \
+#define _DefineEnumTools(prefix,enm,createfunc,prettynm) \
 const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
 { return *enm##Definition_.createIfNull( createfunc ); } \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
@@ -304,22 +304,28 @@ uiString prefix::toUiString( prefix::enm theenum ) \
 { return enm##Def().toUiString( theenum ); } \
 
 
-#define DefineEnumNames(clss,enm,deflen,prettynm) \
+#define DefineEnumTools(clss,enm,prettynm) \
 EnumDefImpl<clss::enm>* clss::enm##CreateDef() \
 { return new EnumDefImpl<clss::enm>( prettynm, clss::enm##Keys_ ); } \
 const char** clss::enm##Names() { return clss::enm##Keys_ ; } \
 ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = 0; \
-_DefineEnumNames( clss, enm, clss::enm##CreateDef, prettynm ); \
+_DefineEnumTools( clss, enm, clss::enm##CreateDef, prettynm ); \
 const char* clss::enm##Keys_[] =
 
-#define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
+#define DefineNameSpaceEnumTools(nmspc,enm,prettynm) \
 extern const char* nmspc##enm##Keys_[]; \
 static EnumDefImpl<nmspc::enm>* nmspc##enm##CreateDef() \
 { return new EnumDefImpl<nmspc::enm>( prettynm, nmspc##enm##Keys_ ); } \
 const char** nmspc::enm##Names() { return nmspc##enm##Keys_; } \
 static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
-_DefineEnumNames( nmspc, enm, nmspc##enm##CreateDef, prettynm );\
+_DefineEnumTools( nmspc, enm, nmspc##enm##CreateDef, prettynm );\
 const char* nmspc##enm##Keys_[] =
+
+//Legacy
+#define DefineEnumNames(clss,enm,deflen,prettynm) \
+DefineEnumTools(clss,enm,prettynm)
+#define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
+DefineNameSpaceEnumTools(nmspc,enm,prettynm)
 
 template <class ENUM> inline
 EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[] )

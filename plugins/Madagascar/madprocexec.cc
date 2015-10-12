@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }
 const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
 
-DefineEnumNames(ODMad::ProcExec,FlowStage,1,"Flow Stage")
+DefineEnumTools(ODMad::ProcExec,FlowStage,"Flow Stage")
 { "Start", "Intermediate", "Finish", 0 };
 
 

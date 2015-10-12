@@ -23,7 +23,7 @@ const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 const char* VelocityDesc::sKeyVelocityVolume()	{ return "Velocity volume"; }
 
-DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
+DefineEnumTools(VelocityDesc,Type,"Velocity Types")
 { "Unknown", "Vint", "Vrms", "Vavg", "Delta", "Epsilon", "Eta", 0 };
 
 VelocityDesc::VelocityDesc()
