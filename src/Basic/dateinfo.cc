@@ -450,8 +450,7 @@ bool DateInfo::fromString( const char* inp )
 
     days_ = toInt( dayptr );
     if ( days_ > 0 ) days_--;
-    Month monthvar;
-    MonthDef().parse( ss[1], monthvar );
+    Month monthvar = MonthDef().parse( ss[1] );
     months_ = (int) monthvar;
     days1900_ = 0; setYear( toInt(ss[2]) );
 
@@ -470,8 +469,7 @@ bool DateInfo::fromStdDateString( const char* inp )
     if ( !ptr ) return false;
 
     buf[0] = (char) tolower( buf[0] );
-    Month monthvar;
-    MonthDef().parse( buf, monthvar );
+    const Month monthvar = MonthDef().parse( buf );
     months_ = (int) monthvar;
 
     ptr = getNextWord( ptr, buf );
