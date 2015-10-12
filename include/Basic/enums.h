@@ -46,8 +46,7 @@ mExpClass(Basic) EnumDef : public NamedObject
 {
 public:
 				EnumDef();
-				EnumDef(const char* nm,const char* s[],
-					short nrs=0);
+				EnumDef(const char* nm,const char* s[]);
     bool			isValidKey(const char*) const;
     int				indexOf(const char* s) const;
     int				indexOf(int enumval) const;
@@ -85,7 +84,7 @@ template <class ENUM>
 mClass(Basic) EnumDefImpl : public EnumDef
 { mODTextTranslationClass(EnumDef)
 public:
-			EnumDefImpl(const char* nm,const char* s[],short nrs=0);
+			EnumDefImpl(const char* nm,const char* s[]);
     bool		parse(const char* txt,ENUM& res) const;
     bool		parse(const IOPar& par,const char* key,ENUM& res) const;
     ENUM		parse(const char* txt) const;
@@ -265,7 +264,8 @@ public: \
     static const char* toString(enm); \
     static uiString toUiString(enm); \
     static const char* get##enm##String(enm); /*legacy */ \
-protected: \
+private: \
+    static EnumDefImpl<enm>* enm##CreateDef(); \
     static const char* enm##Keys_[]; \
     static ConstPtrMan<EnumDefImpl<enm> > enm##Definition_; \
 public:
@@ -273,7 +273,6 @@ public:
 #define DeclareNameSpaceEnumUtils(mod,enm) \
     mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
     mExtern(mod) const char** enm##Names();\
-    extern const char* enm##Keys_[]; \
     mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
     mExtern(mod) bool parseEnum(const char*,enm&); \
     mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
@@ -282,21 +281,9 @@ public:
     mExtern(mod) uiString toUiString(enm); \
     mExtern(mod) const char* get##enm##String(enm); /*legacy */
 
-#define _DefineEnumNames(prefix,enm,deflen,prettynm) \
+#define _DefineEnumNames(prefix,enm,createfunc,prettynm) \
 const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
-{ \
-    if ( !enm##Definition_ ) \
-    { \
-	EnumDefImpl<prefix::enm>* newdef = \
-	    new EnumDefImpl<prefix::enm>( prettynm, prefix::enm##Keys_, deflen ); \
-	if ( !enm##Definition_.setIfNull( newdef ) ) \
-	    delete newdef; \
-    } \
- \
-    return *enm##Definition_; \
-} \
-const char** prefix::enm##Names() \
-{ return prefix::enm##Keys_; } \
+{ return *enm##Definition_.createIfNull( createfunc ); } \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
 { \
     const bool isok = prefix::parseEnum( txt, res ); \
@@ -315,20 +302,28 @@ const char* prefix::toString( prefix::enm theenum ) \
 { return enm##Def().getKey( theenum ); } \
 uiString prefix::toUiString( prefix::enm theenum ) \
 { return enm##Def().toUiString( theenum ); } \
-const char* prefix::enm##Keys_[] =
 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
+EnumDefImpl<clss::enm>* clss::enm##CreateDef() \
+{ return new EnumDefImpl<clss::enm>( prettynm, clss::enm##Keys_ ); } \
+const char** clss::enm##Names() { return clss::enm##Keys_ ; } \
 ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = 0; \
-_DefineEnumNames( clss, enm, deflen, prettynm )
+_DefineEnumNames( clss, enm, clss::enm##CreateDef, prettynm ); \
+const char* clss::enm##Keys_[] =
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
+extern const char* nmspc##enm##Keys_[]; \
+static EnumDefImpl<nmspc::enm>* nmspc##enm##CreateDef() \
+{ return new EnumDefImpl<nmspc::enm>( prettynm, nmspc##enm##Keys_ ); } \
+const char** nmspc::enm##Names() { return nmspc##enm##Keys_; } \
 static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
-_DefineEnumNames( nmspc, enm, deflen, prettynm )
+_DefineEnumNames( nmspc, enm, nmspc##enm##CreateDef, prettynm );\
+const char* nmspc##enm##Keys_[] =
 
 template <class ENUM> inline
-EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
-    : EnumDef( nm, nms, nrs )
+EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[] )
+    : EnumDef( nm, nms )
 {
     init();
     if ( uistrings_.size()!=size() )

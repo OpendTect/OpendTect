@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 EnumDef::EnumDef()
 {}
 
-EnumDef::EnumDef( const char* nm, const char* s[], short nrs )
+EnumDef::EnumDef( const char* nm, const char* s[] )
     : NamedObject(nm)
     , keys_(s)
 {
