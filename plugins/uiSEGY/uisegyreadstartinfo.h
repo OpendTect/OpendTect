@@ -43,7 +43,6 @@ public:
 
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
-    void		updateDisplay()		{ showRelevantInfo(); }
 
     Notifier<uiSEGYReadStartInfo> loaddefChanged;
     Notifier<uiSEGYReadStartInfo> revChanged; //!< implies loaddefChanged
@@ -65,6 +64,10 @@ protected:
     uiSEGYByteNr*	trcnrbytefld_;
     uiSEGYByteNr*	refnrbytefld_;
     uiSEGYByteNr*	offsetbytefld_;
+    uiComboBox*		trcnrsrcfld_;
+    uiGroup*		trcnrgengrp_;
+    uiLineEdit*		trcnrgenstartfld_;
+    uiLineEdit*		trcnrgenstepfld_;
     uiComboBox*		psoffsrcfld_;
     uiGroup*		offsgengrp_;
     uiLineEdit*		offsgenstartfld_;
@@ -85,10 +88,15 @@ protected:
     uiString		offsetinfotxt_;
 
     void		mkBasicInfoFlds();
-    void		manRev0Rows();
-    void		manPSRow();
+    void		manNonBasicRows();
+    void		manCoordDefFlds();
+    void		man2DDefFlds();
+    void		man3DDefFlds();
+    void		manPSDefFlds();
+    void		remove2DDefFlds();
+    void		remove3DDefFlds();
+    void		setScanInfoTexts(const SEGY::ScanInfoSet&);
     void		updateCellTexts();
-    void		showRelevantInfo();
     void		setByteFldContents(const SEGY::HdrEntryKeyData&);
     void		parChanged(bool);
 
