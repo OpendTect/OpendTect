@@ -110,6 +110,15 @@ uiButtonTemplBody( uiButton& uibut, uiParent* p, const uiString& txt )
 }
 
 
+void keyPressEvent( QKeyEvent* qke )
+{
+    if ( qke && qke->key() == Qt::Key_Space )
+	return;
+
+    return ButT::keyPressEvent( qke );
+}
+
+
 void resizeEvent( QResizeEvent* ev )
 {
     uiParent* hpar = uibut_.parent();
