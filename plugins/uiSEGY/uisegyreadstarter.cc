@@ -180,7 +180,6 @@ void uiSEGYReadStarter::createTools()
     {
 	const CallBack icvsxycb( mCB(this,uiSEGYReadStarter,icxyCB) );
 	useicbut_ = new uiRadioButton( midgrp_, tr("Use I/C"), icvsxycb );
-	// useicbut_->setIcon( "useic" );
 	useicbut_->setToolTip(
 	    tr("Select to use Inline/Crossline for positioning."
 		"\nX and Y will be calculated using the survey setup.\nPrefer "
@@ -188,7 +187,6 @@ void uiSEGYReadStarter::createTools()
 	useicbut_->attach( alignedBelow, examinegrp );
 
 	usexybut_ = new uiRadioButton( midgrp_, tr("Use (X,Y)"), icvsxycb );
-	// usexybut_->setIcon( "usexy" );
 	usexybut_->setToolTip(
 	    tr( "Select to use (X,Y) for positioning.\nInline/Crossline "
 		"will be calculated using the survey setup.\nOnly use this "
@@ -612,8 +610,10 @@ void uiSEGYReadStarter::updateICvsXYButtons()
     if ( !useicbut_ ) return;
 
     const bool useic = loaddef_.icvsxytype_ != SEGY::FileReadOpts::XYOnly;
-    if ( useicbut_->isChecked() != useic )
-	useicbut_->setChecked( useic ); // should trigger setting xy
+    NotifyStopper nsic( useicbut_->activated );
+    useicbut_->setChecked( useic );
+    NotifyStopper nsxy( usexybut_->activated );
+    usexybut_->setChecked( !useic );
 }
 
 
