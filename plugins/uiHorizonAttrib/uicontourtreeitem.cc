@@ -1313,15 +1313,18 @@ void uiContourTreeItem::updateZShift()
 
     lines_->dirtyCoordinates();
 
-    for ( int idx=0; labels_ && idx<labels_->nrTexts(); idx++ )
+    if ( labels_ )
     {
-	Coord3 pos = labels_->text(idx)->getPosition();
-	pos.z += deltaz;
-	labels_->text(idx)->setPosition( pos );
-	BufferString txt = labels_->text(idx)->getText().getFullString();
-	float labelval = txt.toFloat();
-	labelval += deltaz * SI().zDomain().userFactor();
-	labels_->text(idx)->setText( toString( (int)labelval ) );
+	for ( int idx=0; labels_ && idx<labels_->nrTexts(); idx++ )
+	{
+	    Coord3 pos = labels_->text(idx)->getPosition();
+	    pos.z += deltaz;
+	    labels_->text(idx)->setPosition( pos );
+	    BufferString txt = labels_->text(idx)->getText().getFullString();
+	    float labelval = txt.toFloat();
+	    labelval += deltaz * SI().zDomain().userFactor();
+	    labels_->text(idx)->setText( toString( (int)labelval ) );
+	}
     }
 
     zshift_ = (float) trans.z;
