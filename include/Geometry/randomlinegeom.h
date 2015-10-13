@@ -37,6 +37,7 @@ public:
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
     void		setNodePosition(int idx,const BinID&,bool moving=false);
+    void		setNodePositions(const TypeSet<BinID>&);
     void		removeNode(int);
     void		removeNode(const BinID&);
     bool		isEmpty() const		{ return nodes_.isEmpty(); }

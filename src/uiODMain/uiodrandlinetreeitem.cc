@@ -265,11 +265,11 @@ void uiODRandomLineParentTreeItem::genFromTable()
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
-	if ( !rtd ) return;
+	if ( !rtd || !rtd->getRandomLine() ) return;
 
 	TypeSet<BinID> newbids;
 	table->getBinIDs( newbids );
-	rtd->setNodePositions( newbids );
+	rtd->getRandomLine()->setNodePositions( newbids );
 
 	table->getZRange( zrg );
 	zrg.scale( 1.f/SI().zDomain().userFactor() );
@@ -451,14 +451,14 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool enab = !islocked && rtd->nrNodes()>1;
     for ( int idx=0; enab && idx<=rtd->nrNodes(); idx++ )
     {
-    uiString nodename;
+	uiString nodename;
 	if ( idx==rtd->nrNodes() )
 	{
-	nodename = tr("after node %1").arg( idx-1 );
+	    nodename = tr("after node %1").arg( idx-1 );
 	}
 	else
 	{
-	nodename = tr("before node %1").arg( idx );
+	    nodename = tr("before node %1").arg( idx );
 	}
 
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename),
@@ -519,7 +519,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,ioobj,bs) )
-	uiMSG().error( mToUiStringTodo(bs) );
+		uiMSG().error( mToUiStringTodo(bs) );
 	    else
 	    {
 		applMgr()->visServer()->setObjectName( displayID(),
@@ -546,9 +546,11 @@ void uiODRandomLineTreeItem::editNodes()
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
+    if ( !rtd || !rtd->getRandomLine() )
+	return;
 
     TypeSet<BinID> bids;
-    rtd->getAllNodePos( bids );
+    rtd->getRandomLine()->allNodePositions( bids );
     uiDialog dlg( getUiParent(),
 	  uiDialog::Setup(uiStrings::sRandomLine(mPlural),
 	      tr("Specify node positions"),
@@ -559,22 +561,22 @@ void uiODRandomLineTreeItem::editNodes()
     Interval<float> zrg = rtd->getDataTraceRange();
     zrg.scale( mCast(float,SI().zDomain().userFactor() ) );
     table->setZRange( zrg );
-    if ( dlg.go() )
-    {
-	TypeSet<BinID> newbids;
-	table->getBinIDs( newbids );
-	rtd->setNodePositions( newbids );
+    if ( !dlg.go() )
+	return;
 
-	table->getZRange( zrg );
-	zrg.scale( 1.f/SI().zDomain().userFactor() );
-	rtd->setDepthInterval( zrg );
+    TypeSet<BinID> newbids;
+    table->getBinIDs( newbids );
+    rtd->getRandomLine()->setNodePositions( newbids );
 
-	visserv_->setSelObjectId( rtd->id() );
-	for ( int attrib=0; attrib<visserv_->getNrAttribs(rtd->id()); attrib++ )
-	    visserv_->calculateAttrib( rtd->id(), attrib, false );
+    table->getZRange( zrg );
+    zrg.scale( 1.f/SI().zDomain().userFactor() );
+    rtd->setDepthInterval( zrg );
 
-	ODMainWin()->sceneMgr().updateTrees();
-    }
+    visserv_->setSelObjectId( rtd->id() );
+    for ( int attrib=0; attrib<visserv_->getNrAttribs(rtd->id()); attrib++ )
+	visserv_->calculateAttrib( rtd->id(), attrib, false );
+
+    ODMainWin()->sceneMgr().updateTrees();
 }
 
 

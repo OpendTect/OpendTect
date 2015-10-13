@@ -142,8 +142,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     Geometry::RandomLine* rl =
 	new Geometry::RandomLine( mFromUiStringTodo(name()) );
     setRandomLineID( rl->ID() );
-    addNode( start );
-    addNode( stop );
+    rl_->addNode( start );
+    rl_->addNode( stop );
 
     setDepthInterval( Interval<float>( survinterval.start,
 				       survinterval.stop ));
@@ -320,7 +320,6 @@ void RandomTrackDisplay::addNode( const BinID& bid )
     {
 	nodes_ += sbid;
 	dragger_->insertKnot( nodes_.size()-1, Coord(sbid.inl(),sbid.crl()) );
-	mUpdateRandomLineGeometry( addNode(sbid) );
 
 	if ( ismanip_ )
 	    dragger_->showAdjacentPanels( nodes_.size()-1, true );
@@ -342,7 +341,6 @@ void RandomTrackDisplay::insertNode( int nodeidx, const BinID& bid )
     {
 	nodes_.insert( nodeidx, sbid );
 	dragger_->insertKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
-	mUpdateRandomLineGeometry( insertNode(nodeidx,sbid) );
 
 	if ( ismanip_ )
 	    dragger_->showAdjacentPanels( nodeidx, true );
@@ -444,8 +442,10 @@ bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 	{
 	    nodes_.removeSingle( 0 );
 	    dragger_->removeKnot( 0 );
-	    mUpdateRandomLineGeometry( removeNode(0) );
 	}
+
+	while ( rl_->nrNodes() > 0 )
+	    mUpdateRandomLineGeometry( removeNode(0) );
 
 	for ( int idx=0; idx<uniquebids.size(); idx++ )
 	{
@@ -844,7 +844,7 @@ void RandomTrackDisplay::addNode( int nodenr )
     ismanip_ = true;
 
     const BinID newpos = proposeNewPos(nodenr);
-    insertNode( nodenr, newpos );
+    rl_->insertNode( nodenr, newpos );
     if ( nodenr!=0 && nodenr!=nrNodes()-1 )
 	dragger_->showAdjacentPanels( nodenr, false );
 }
