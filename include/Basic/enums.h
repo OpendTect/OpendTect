@@ -104,13 +104,6 @@ public:
 \ingroup Basic
 \brief Some utilities surrounding the often needed enum <-> string table.
 
-  The function EnumDef::convert returns the enum (integer) value from a text
-  string. The first arg is string you wish to convert to the enum, the second
-  is the array with enum names. Then, the integer value of the first enum value
-  (also returned when no match is found) and the number of characters to be
-  matched (0=all). Make absolutely sure the char** definition has a closing
-  ' ... ,0 };'.
-
   Normally, you'll have a class with an enum member. In that case, you'll want
   to use the EnumDef classes. These are normally almost hidden by a few
   simple macros:
@@ -143,14 +136,10 @@ public:
   #include <myclass.h>
   
   DefineEnumUtils(MyClass,State,"My class state")
-	  { "Good", "Bad", "Not very handsome", 0 };
+  { "Good", "Bad", "Not very handsome", 0 };
   DefineEnumUtils(MyClass,Type,"My class type")
-          { "Yes", "No", "Not sure", 0 };
+  { "Yes", "No", "Not sure", 0 };
   \endcode
-
-  Note the '1' in the first one telling the EnumDef that only one character
-  needs	to be matched when converting string -> enum. The '0' in the second
-  indicates that the entire string must match.
 
   This will expand to (added newlines, removed some superfluous stuff:
 
@@ -160,19 +149,11 @@ public:
   {
   public: 
 
-      enum 			  State { Good, Bad, Ugly };
-      static const EnumDef&       StateDef();
-      static const char**         StateNames();
-      static bool                 parseEnum(const char*, State& );
-      static bool                 parseEnum(const IOPar&,const char*key,State&);
-      static int                  parseEnumState(const char*);
-      static const char*          toString(State);
-      static uiString		  toUiString(State);
+      enum 			  	State { Good, Bad, Ugly };
+      static const EnumDefImpl<State>& StateDef();
 
-  protected:
-
-      static const char*	  StateKeys_[];
-      static const EnumDef        StateDefinition_;
+  private:
+      static const PtrMan<EnumDefImpl<State> >	StateDefinition_;
 
   // similar for Type
 
@@ -183,57 +164,9 @@ public:
   and, in myclass.cc:
 
   \code
-
-  const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
-
-  const EnumDef MyClass::StateDefinition_("My class state",
-	  					MyClass::Statenames,1);
-
-  bool MyClass::parseEnum(const char* txt, State& res ) \
-  { \
-      const int idx = StateDef().isValidName( txt ) \
-          ?  StateDef().convert( txt ) \
-          : -1; \
-      if ( idx<0 ) \
-          return false; \
-    \
-      res = (State) idx; \
-      return true; \
-  } \
-  bool MyClass::parseEnum( const IOPar& par, const char* key, State& res ) \
-  { return parseEnum( par.find( key ), res ); } \
-  MyClass::State MyClass::parseEnumState(const char* txt) \
-  { \
-      return (MyClass::State) StateDef().convert( txt ); \
-  } \
-
-  const char* MyClass::StateKeys_[] =
-          { "Good", "Bad", "Not very handsome", 0 };
-
-
-  const EnumDef& MyClass::TypeDef()   { return TypeDefinition_; }
-  const EnumDef MyClass::TypeDefinition_("My class type",MyClass::Typenames, 0);
-  bool MyClass::parseEnum(const char* txt, Type& res ) \
-  { \
-      const int idx = TypeDef().isValidName( txt ) \
-          ?  TypeDef().convert( txt ) \
-          : -1; \
-      if ( idx<0 ) \
-          return false; \
-    \
-      res = (Type) idx; \
-      return true; \
-  } \
-  bool MyClass::parseEnum( const IOPar& par, const char* key, Type& res ) \
-  { return parseEnum( par.find( key ), res ); } \
-  MyClass::Type MyClass::parseEnumType(const char* txt) \
-  { \
-      return (MyClass::Type) TypeDef().convert( txt ); \
-  } \
-
-  const char* MyClass::TypeKeys_[] =
-          { "Yes", "No", "Not sure", 0 };
-
+  const PtrMan<EnumDefImpl<State> > MyClass::StateDefinition_ = 0;
+  const EnumDef& MyClass::StateDef()
+  { return *StateDefinition_.createIfNull(); }
   \endcode
 
   Localization is separated from the selection. Hence, if you wish to add
@@ -256,14 +189,14 @@ public:
 #define DeclareEnumUtils(enm) \
 public: \
     static const EnumDefImpl<enm>& enm##Def(); \
-    static const char** enm##Names();\
-    static bool parseEnum##enm(const char*,enm&);  /*legacy */ \
-    static bool parseEnum(const char*,enm&); \
-    static bool parseEnum(const IOPar&,const char*,enm&); \
-    static enm parseEnum##enm(const char*);  \
+    static mDeprecated const char** enm##Names();\
+    static bool mDeprecated parseEnum##enm(const char*,enm&);  /*legacy */ \
+    static bool mDeprecated parseEnum(const char*,enm&); \
+    static bool mDeprecated parseEnum(const IOPar&,const char*,enm&); \
+    static enm mDeprecated parseEnum##enm(const char*);  \
     static const char* toString(enm); \
     static uiString toUiString(enm); \
-    static const char* get##enm##String(enm); /*legacy */ \
+    static const char* mDeprecated get##enm##String(enm); /*legacy */ \
 private: \
     static EnumDefImpl<enm>* enm##CreateDef(); \
     static const char* enm##Keys_[]; \
@@ -272,21 +205,21 @@ public:
 
 #define DeclareNameSpaceEnumUtils(mod,enm) \
     mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
-    mExtern(mod) const char** enm##Names();\
-    mExtern(mod) bool parseEnum(const IOPar&,const char*,enm&); \
-    mExtern(mod) bool parseEnum(const char*,enm&); \
-    mExtern(mod) bool parseEnum##enm(const char*,enm&); /*legacy */  \
-    mExtern(mod) enm parseEnum##enm(const char*); \
+    mExtern(mod) const char** mDeprecated enm##Names();\
+    mExtern(mod) bool mDeprecated parseEnum(const IOPar&,const char*,enm&); \
+    mExtern(mod) bool mDeprecated parseEnum(const char*,enm&); \
+    mExtern(mod) bool mDeprecated parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern(mod) enm mDeprecated parseEnum##enm(const char*); \
     mExtern(mod) const char* toString(enm); \
     mExtern(mod) uiString toUiString(enm); \
-    mExtern(mod) const char* get##enm##String(enm); /*legacy */
+    mExtern(mod) const char* mDeprecated get##enm##String(enm); /*legacy */
 
 #define _DefineEnumUtils(prefix,enm,createfunc,prettynm) \
 const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
 { return *enm##Definition_.createIfNull( createfunc ); } \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
 { \
-    const bool isok = prefix::parseEnum( txt, res ); \
+    const bool isok = prefix::enm##Def().parse( txt, res ); \
     if ( !isok ) res = (prefix::enm) 0; \
     return isok; \
 } \
