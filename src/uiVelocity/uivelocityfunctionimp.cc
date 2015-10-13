@@ -92,7 +92,7 @@ void uiImportVelFunc::velTypeChangeCB( CallBacker* )
 {
     VelocityDesc desc;
     typefld_->get( desc, false );
-    fd_.bodyinfos_[mVel]->setName( VelocityDesc::getTypeString(desc.type_) );
+    fd_.bodyinfos_[mVel]->setName( VelocityDesc::toString(desc.type_) );
 }
 
 

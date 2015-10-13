@@ -183,7 +183,7 @@ bool Picks::setColor( const Color& col, bool dosave )
 void Picks::getColorKey( BufferString& key ) const
 {
     key = "dTect.VelPick.";
-    key += getPickTypeString(picktype_);
+    key += toString(picktype_);
     key += ".";
     key += sKey::Color();
 }
@@ -446,7 +446,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 
     par.set( sKey::Type(), sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
-    par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
+    par.set( sKeyPickType(), toString( picktype_ ) );
     par.set( ZDomain::sKey(), zDomain() );
 }
 
@@ -477,7 +477,7 @@ void Picks::fillPar( IOPar& par ) const
     }
 
     par.setYN(sKeyIsTime(),zit_);
-    par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
+    par.set( sKeyPickType(), toString( picktype_ ) );
     if ( smoother_ ) smoother_->fillPar( par );
     par.set(sKeyRefOffset(),refoffset_);
 }
@@ -1071,7 +1071,7 @@ const IOObjContext& Picks::getStorageContext()
 
 void Picks::setContextPickType( IOObjContext& ctxt, PickType type )
 {
-    ctxt.toselect_.require_.set( sKeyPickType(), getPickTypeString( type ) );
+    ctxt.toselect_.require_.set( sKeyPickType(), toString( type ) );
 }
 
 

@@ -1046,7 +1046,7 @@ void PlaneDataDisplay::fillPar( IOPar& par ) const
 {
     MultiTextureSurveyObject::fillPar( par );
 
-    par.set( sKeyOrientation(), getSliceTypeString( orientation_) );
+    par.set( sKeyOrientation(), toString( orientation_) );
     getTrcKeyZSampling( false, true ).fillPar( par );
 }
 

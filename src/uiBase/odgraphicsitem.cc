@@ -123,7 +123,7 @@ ODGraphicsMarkerItem::~ODGraphicsMarkerItem()
 
 void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 {
-    const char* typestr = MarkerStyle2D::getTypeString( mstyle.type_ );
+    const char* typestr = MarkerStyle2D::toString( mstyle.type_ );
     if ( mstyle.isVisible() || mstyle.size_ != 0 || !typestr || !*typestr )
 	*mstyle_ = mstyle;
 }

@@ -718,7 +718,7 @@ void Set::fillPar( IOPar& par ) const
 
     par.set( sKey::Size(), disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
-    par.set( sKeyConnect, Disp::getConnectionString(disp_.connect_) );
+    par.set( sKeyConnect, Disp::toString(disp_.connect_) );
     par.merge( pars_ );
 }
 

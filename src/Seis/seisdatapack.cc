@@ -316,12 +316,12 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 }
 
 
-#define mKeyInl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
-#define mKeyCrl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl)
-#define mKeyCoordX	SeisTrcInfo::getFldString(SeisTrcInfo::CoordX)
-#define mKeyCoordY	SeisTrcInfo::getFldString(SeisTrcInfo::CoordY)
-#define mKeyTrcNr	SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr)
-#define mKeyRefNr	SeisTrcInfo::getFldString(SeisTrcInfo::RefNr)
+#define mKeyInl		SeisTrcInfo::toString(SeisTrcInfo::BinIDInl)
+#define mKeyCrl		SeisTrcInfo::toString(SeisTrcInfo::BinIDCrl)
+#define mKeyCoordX	SeisTrcInfo::toString(SeisTrcInfo::CoordX)
+#define mKeyCoordY	SeisTrcInfo::toString(SeisTrcInfo::CoordY)
+#define mKeyTrcNr	SeisTrcInfo::toString(SeisTrcInfo::TrcNr)
+#define mKeyRefNr	SeisTrcInfo::toString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
@@ -352,7 +352,7 @@ bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 void SeisFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
 {
     for ( int idx=0; idx<tiflds_.size(); idx++ )
-	keys.add( SeisTrcInfo::getFldString(tiflds_[idx]) );
+	keys.add( SeisTrcInfo::toString(tiflds_[idx]) );
 }
 
 

@@ -730,8 +730,8 @@ ValueSeriesEvent<float,float> EventTracker::findExtreme(
 void EventTracker::fillPar( IOPar& iopar ) const
 {
     ValSeriesTracker::fillPar( iopar );
-    iopar.set( sKeyTrackEvent(), VSEvent::getTypeString(evtype_) );
-    iopar.set( sKeyCompareMethod(), getCompareMethodString(comparemethod_) );
+    iopar.set( sKeyTrackEvent(), VSEvent::toString(evtype_) );
+    iopar.set( sKeyCompareMethod(), toString(comparemethod_) );
     iopar.set( sKeyPermittedRange(), permrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyValueThresholds(), ampthresholds_ );

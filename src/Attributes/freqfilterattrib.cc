@@ -123,9 +123,9 @@ void FreqFilter::updateDesc( Desc& desc )
     const BufferString type = ftype->getStringValue();
 
     desc.setParamEnabled( minfreqStr(),
-		      type != FFTFilter::getTypeString( FFTFilter::LowPass ) );
+		      type != FFTFilter::toString( FFTFilter::LowPass ) );
     desc.setParamEnabled( maxfreqStr(),
-		      type != FFTFilter::getTypeString( FFTFilter::HighPass ) );
+		      type != FFTFilter::toString( FFTFilter::HighPass ) );
 
     const bool isfft = desc.getValParam(isfftfilterStr())->getBoolValue();
     desc.setParamEnabled( nrpolesStr(), !isfft );

@@ -59,7 +59,7 @@ ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
 void ElasticFormula::fillPar( IOPar& par ) const
 {
     par.set( sKeyFormulaName, name() );
-    par.set( sKeyType, getTypeString( type_ ) );
+    par.set( sKeyType, toString( type_ ) );
     par.set( sKeyMathExpr, expression_ );
     par.set( sKeySelVars, variables_ );
     par.set( sKeyUnits, units_ );

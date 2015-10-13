@@ -175,7 +175,7 @@ const char* ODMad::ProcExec::getProcString()
 	    return 0;
 	else
 	{
-	    pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
+	    pars_.set( sKeyFlowStage(), toString(Finish) );
 	    pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
 	    mAddNewExec;
 	}
@@ -218,7 +218,7 @@ const char* ODMad::ProcExec::getProcString()
 		       "Madagascar" );
 	    pars_.removeWithKey( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
 						 sKey::FileName()) );
-	    pars_.set( sKeyFlowStage(), getFlowStageString(newstage) );
+	    pars_.set( sKeyFlowStage(), toString(newstage) );
 	    ret += " | ";
 	    if ( endproc && nooutput )
 	    {
@@ -240,7 +240,7 @@ const char* ODMad::ProcExec::getProcString()
 	    }
 	    else
 	    {
-		pars_.set( sKeyFlowStage(), getFlowStageString(Finish) );
+		pars_.set( sKeyFlowStage(), toString(Finish) );
 		pars_.set( sKey::LogFile(), StreamProvider::sStdErr() );
 		ret += " | ";
 		mAddNewExec;

@@ -238,7 +238,7 @@ void updateEstUsage()
     {
 	DataCharacteristics dc; info.getDataChar( dc );
 	const FixedString usertypestr =
-	    DataCharacteristics::getUserTypeString( dc.userType() );
+	    DataCharacteristics::toString( dc.userType() );
 	if ( usertypestr.size() > 4 )
 	    infotxt = toUiString("%1 %2.").arg(infotxt).arg(
 					    toUiString(usertypestr.buf() + 4));

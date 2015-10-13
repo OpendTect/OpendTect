@@ -70,7 +70,7 @@ public:
 
     int		 	weekDay() const;	//!< Sunday => 1
     const char*		weekDayName() const;
-    const char*		monthName() const      {return getMonthString(month());}
+    const char*		monthName() const   {return MonthDef().getKey(month());}
     const char*		whenRelative(const DateInfo* di=0) const;
     static const char*	fullMonthName(int);
     static const char*	fullMonthName(Month);

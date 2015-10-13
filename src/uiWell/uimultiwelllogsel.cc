@@ -296,7 +296,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     if ( s.withsampling_ )
     {
 	sampfld_ = new uiGenInput( this, tr("Log resampling method"),
-				StringListInpSpec(Stats::UpscaleTypeNames()) );
+				StringListInpSpec(Stats::UpscaleTypeDef()) );
 	sampfld_->setValue( Stats::UseAvg );
 	sampfld_->valuechanged.notify( cb );
 	sampfld_->attach( alignedBelow, abovefld_ );

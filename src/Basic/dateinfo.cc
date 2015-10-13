@@ -220,7 +220,7 @@ int DateInfo::weekDay() const
 const char* DateInfo::weekDayName() const
 {
     const int nr = weekDay() - 1;
-    return getDayOfWeekString((DayOfWeek) nr);
+    return DayOfWeekDef().getKey((DayOfWeek) nr);
 }
 
 

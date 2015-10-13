@@ -83,7 +83,7 @@ void Alignment::setUiValue( int v )
 void clss::toString( BufferString& bs ) const \
 { \
     FileMultiString fms; \
-    fms = getTypeString(type_); \
+    fms = toString(type_); \
     fms += par; \
     color_.fill( bs ); \
     fms += FileMultiString(bs); \

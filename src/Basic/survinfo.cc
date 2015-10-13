@@ -998,7 +998,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     astream.put( sKey::Name(), name() );
-    astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
+    astream.put( sKeySurvDataType(), toString( survDataType()) );
     FileMultiString fms;
     fms += tkzs_.hsamp_.start_.inl(); fms += tkzs_.hsamp_.stop_.inl();
 				fms += tkzs_.hsamp_.step_.inl();

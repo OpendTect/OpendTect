@@ -534,16 +534,16 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 bool SeisTrcBufDataPack::dimValuesInInt( const char* keystr ) const
 {
     FixedString key( keystr );
-    return key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) ||
-	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) ||
-	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl);
+    return key == SeisTrcInfo::toString(SeisTrcInfo::TrcNr) ||
+	   key == SeisTrcInfo::toString(SeisTrcInfo::BinIDInl) ||
+	   key == SeisTrcInfo::toString(SeisTrcInfo::BinIDCrl);
 }
 
 
 void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
     for ( int idx=0; idx<flds_.size(); idx++ )
-	bss.add( SeisTrcInfo::getFldString(flds_[idx]) );
+	bss.add( SeisTrcInfo::toString(flds_[idx]) );
 }
 
 
@@ -608,7 +608,7 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? SeisTrcInfo::getFldString(posfld_) : "Z";
+    return dim0 ? SeisTrcInfo::toString(posfld_) : "Z";
 }
 
 

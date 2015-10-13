@@ -356,7 +356,7 @@ void uiSeisFileMan::mkFileInfo()
 	    const BasicComponentInfo& bci =
 		*tri->readMgr()->info().compinfo_[0];
 	    const DataCharacteristics::UserType ut = bci.datachar.userType();
-	    dsstr = DataCharacteristics::getUserTypeString(ut);
+	    dsstr = DataCharacteristics::toString(ut);
 	}
 	delete tri;
     }

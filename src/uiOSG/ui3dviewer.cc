@@ -1747,7 +1747,7 @@ void ui3DViewer::savePropertySettings() const
     mSaveProp( set, sKeyBGColor(), getBackgroundColor() );
     mSaveProp( setYN, sKeyAnimate(), isAnimationEnabled() );
     mSaveProp( set, sKeyWheelDisplayMode(),
-	       getWheelModeString(getWheelDisplayMode()) );
+	       toString(getWheelDisplayMode()) );
     Settings::common().write();
 }
 

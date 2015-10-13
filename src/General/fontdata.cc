@@ -102,7 +102,7 @@ void FontData::putTo( BufferString& s ) const
     FileMultiString fms;
     fms += family_;
     fms += pointsize_;
-    fms += FontData::getWeightString(weight_);
+    fms += FontData::toString(weight_);
     fms += getYesNoString( italic_ );
     s = fms;
 }

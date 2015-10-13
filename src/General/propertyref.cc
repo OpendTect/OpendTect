@@ -557,7 +557,7 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
     {
 	const PropertyRef& pr = *(*this)[idx];
 	IOPar iop;
-	iop.set( pr.name(), PropertyRef::getStdTypeString(pr.stdType()) );
+	iop.set( pr.name(), PropertyRef::toString(pr.stdType()) );
 	pr.fillPar( iop );
 	iop.putTo( astrm );
     }

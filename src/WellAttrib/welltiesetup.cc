@@ -77,7 +77,7 @@ void Setup::fillPar( IOPar& iop ) const
     iop.set( sKeyWavltID, wvltid_ );
     iop.setYN( sKeyIsSonic, issonic_ );
     iop.setYN( sKeyUseExistingD2T(), useexistingd2tm_ );
-    iop.set( sKeyCSCorrType(), getCorrTypeString( corrtype_ ) );
+    iop.set( sKeyCSCorrType(), toString( corrtype_ ) );
     const LineKey lk( linenm_, 0 );
     iop.set( sKeySeisLineID, lk ); //backward compatibility
 }

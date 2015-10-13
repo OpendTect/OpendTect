@@ -215,7 +215,7 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
     pars.set( sKeyLimits(), above_, below_ );
     pars.set( sKeyZRange(), fixedzrg_ );
     pars.setYN( sKeySnapZRangeToSurvey(), snapzrgtosurvey_ );
-    pars.set( sKeyZSelection(), getZSelectionString( zselection_ ) );
+    pars.set( sKeyZSelection(), toString( zselection_ ) );
 }
 
 
@@ -416,7 +416,7 @@ void Well::ExtractParams::fillPar( IOPar& pars ) const
 {
     ZRangeSelector::fillPar( pars );
     pars.setYN( sKeyZExtractInTime(), extractzintime_ );
-    pars.set( sKeySamplePol(), getUpscaleTypeString( samppol_ ) );
+    pars.set( sKeySamplePol(), Stats::toString( samppol_ ) );
 }
 
 

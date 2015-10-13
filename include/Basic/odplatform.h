@@ -43,7 +43,7 @@ public:
     bool        operator ==( const Platform::Type& t ) const
 					{ return type_ == t; }
 
-    const char*	longName() const { return getTypeString(type_); }
+    const char*	longName() const { return TypeDef().getKey(type_); }
     const char*	shortName() const;	//!< mac, lux32, win64, etc.
 
     static bool	isValidName(const char*,bool isshortnm);

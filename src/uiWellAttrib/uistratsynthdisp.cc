@@ -152,13 +152,12 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     scalebut_->attach( rightOf, wvltfld_ );
 
     uiLabeledComboBox* lvlsnapcbx =
-	new uiLabeledComboBox( datagrp_, tr("Snap level") );
+	new uiLabeledComboBox( datagrp_, VSEvent::TypeDef(), tr("Snap level") );
     levelsnapselfld_ = lvlsnapcbx->box();
     lvlsnapcbx->attach( rightOf, scalebut_ );
     lvlsnapcbx->setStretch( 2, 0 );
     levelsnapselfld_->selectionChanged.notify(
 				mCB(this,uiStratSynthDisp,levelSnapChanged) );
-    levelsnapselfld_->addItems( VSEvent::TypeNames() );
 
     prestackgrp_ = new uiGroup( datagrp_, "Prestack View Group" );
     prestackgrp_->attach( rightOf, lvlsnapcbx, 20 );

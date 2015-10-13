@@ -280,7 +280,7 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 	const UnitOfMeasure& uom = *entries[idx];
 	if ( uom.source() != src ) continue;
 
-	FileMultiString fms( PropertyRef::getStdTypeString(uom.propType()) );
+	FileMultiString fms( PropertyRef::toString(uom.propType()) );
 	fms += uom.symbol();
 	fms += uom.scaler().toString();
 	astrm.put( uom.name(), fms );

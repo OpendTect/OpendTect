@@ -119,16 +119,16 @@ mDefineEnumUtils(SeisEnum,DataType,"Data type")
 };
 
 const char* Seis::nameOf( Seis::SelType st )
-{ return SeisEnum::getSelTypeString(st); }
+{ return SeisEnum::toString(st); }
 
 const char* Seis::nameOf( Seis::GeomType gt )
-{ return SeisEnum::getGeomTypeString(gt); }
+{ return SeisEnum::toString(gt); }
 
 const char* Seis::nameOf( Seis::DataType dt )
-{ return SeisEnum::getDataTypeString(dt); }
+{ return SeisEnum::toString(dt); }
 
 const char* Seis::nameOf( Seis::WaveType wt )
-{ return SeisEnum::getWaveTypeString(wt); }
+{ return SeisEnum::toString(wt); }
 
 Seis::SelType Seis::selTypeOf( const char* s )
 { return SeisEnum::SelTypeDef().parse(s); }

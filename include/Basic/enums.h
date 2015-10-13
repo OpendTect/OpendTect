@@ -75,10 +75,9 @@ protected:
     BufferStringSet	iconfiles_;
 public:
     //Legacy
-    bool		isValidName(const char* key) const
-    			{ return isValidKey(key); }
-    const char*		convert(int idx) const { return getKeyForIndex(idx); }
-    int			convert(const char* txt) const { return indexOf(txt); }
+    bool		isValidName(const char* key) const;
+    const char*		convert(int idx) const;
+    int			convert(const char* txt) const;
 };
 
 template <class ENUM>
