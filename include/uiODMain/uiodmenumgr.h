@@ -81,7 +81,7 @@ public:
 
     static int		ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
 				int rescncl=0);
-    void		add2D3DToolButton(uiToolBar&,const char* iconnnm,
+    int			add2D3DToolButton(uiToolBar&,const char* iconnnm,
 				     const uiString& tooltip,
 				     const CallBack& cb2d,const CallBack& cb3d,
 				     int itmid2d=-1,int itmid3d=-1);
