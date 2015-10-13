@@ -170,11 +170,17 @@ void uiHorizonSetupGroup::mpeActionCB( CallBacker* )
 
 void uiHorizonSetupGroup::updateButtonSensitivity()
 {
-    const bool enable = engine().getState() == MPE::Engine::Stopped;
-    toolbar_->setSensitive( startbutid_, enable && !is2d_ );
-    toolbar_->setSensitive( stopbutid_, !enable && !is2d_ );
-    toolbar_->setSensitive( savebutid_, enable );
-    toolbar_->setSensitive( retrackbutid_, enable );
+    const bool stopped = engine().getState() == MPE::Engine::Stopped;
+    const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
+    const bool invol = mode_ == EMSeedPicker::TrackFromSeeds;
+
+    tabgrp_->setTabEnabled( eventgrp_, usedata );
+    tabgrp_->setTabEnabled( correlationgrp_, usedata );
+
+    toolbar_->setSensitive( startbutid_, invol && stopped && !is2d_ );
+    toolbar_->setSensitive( stopbutid_, invol && !stopped && !is2d_ );
+    toolbar_->setSensitive( savebutid_, stopped );
+    toolbar_->setSensitive( retrackbutid_, stopped && usedata );
 
     toolbar_->setSensitive( undobutid_, EM::EMM().undo().canUnDo() );
     toolbar_->setSensitive( redobutid_, EM::EMM().undo().canReDo() );
@@ -258,17 +264,17 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     const int nrmodes = EMSeedPicker::nrTrackModes( is2d_ );
     for ( int idx=0; idx<nrmodes; idx++ )
     {
-	EMSeedPicker::TrackMode md = (EMSeedPicker::TrackMode)idx;
+	EMSeedPicker::TrackMode md = EMSeedPicker::getTrackMode( idx, is2d_ );
 	uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
-		    EMSeedPicker::getTrackModeText(md,is2d_) );
+			EMSeedPicker::getTrackModeText(md,is2d_) );
 	butptr->activated.notify(
-		    mCB(this,uiHorizonSetupGroup,seedModeChange) );
+			mCB(this,uiHorizonSetupGroup,seedModeChange) );
 	mode_ =  EMSeedPicker::TrackBetweenSeeds;
     }
 
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, modeselgrp_ );
-    BufferStringSet strs; strs.add( "Seed Trace" ).add( "Adjacent Parent" );
+    uiStringSet strs; strs.add( tr("Seed Trace") ).add( tr("Adjacent Parent") );
     methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
@@ -386,17 +392,10 @@ void uiHorizonSetupGroup::selUseVariance( CallBacker* )
 
 void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
-    mode_ = (EMSeedPicker::TrackMode)modeselgrp_->selectedId();
+    mode_ = EMSeedPicker::getTrackMode( modeselgrp_->selectedId(), is2d_ );
     modeChanged_.trigger();
 
-    const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
-    const bool invol = mode_ == EMSeedPicker::TrackFromSeeds;
-    tabgrp_->setTabEnabled( eventgrp_, usedata );
-    tabgrp_->setTabEnabled( correlationgrp_, usedata );
-
-    toolbar_->setSensitive( startbutid_, invol );
-    toolbar_->setSensitive( stopbutid_, invol );
-    toolbar_->setSensitive( retrackbutid_, usedata );
+    updateButtonSensitivity();
 }
 
 
@@ -506,14 +505,28 @@ void uiHorizonSetupGroup::initPropertyGroup()
 void uiHorizonSetupGroup::setMode( EMSeedPicker::TrackMode mode )
 {
     mode_ = mode;
-    modeselgrp_->selectButton( (int)mode_ );
+    modeselgrp_->selectButton( EMSeedPicker::getTrackModeIndex(mode,is2d_) );
 }
 
 
 EMSeedPicker::TrackMode uiHorizonSetupGroup::getMode() const
 {
-    return (EMSeedPicker::TrackMode)
-	(modeselgrp_ ? modeselgrp_->selectedId() : 0);
+    return EMSeedPicker::getTrackMode(
+	modeselgrp_ ? modeselgrp_->selectedId() : 0, is2d_ );
+}
+
+
+void uiHorizonSetupGroup::setTrackingMethod( EventTracker::CompareMethod cm )
+{
+    if ( horadj_ ) horadj_->setCompareMethod( cm );
+    methodfld_->setValue( cm==EventTracker::SeedTrace ? 0 : 1 );
+}
+
+
+EventTracker::CompareMethod uiHorizonSetupGroup::getTrackingMethod() const
+{
+    return methodfld_->getIntValue()==0 ? EventTracker::SeedTrace
+					: EventTracker::AdjacentParent;
 }
 
 

@@ -69,6 +69,7 @@ public:
 						    const char* grpnm);
     void			useSavedSetupDlg(const EM::ObjectID&,
 						 const EM::SectionID&);
+    MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
 
     int				activeTrackerID() const;
 				/*!< returns the trackerid of the last event */
@@ -117,7 +118,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    
+
 protected:
     void			activeVolumeChange(CallBacker*);
     void			loadEMObjectCB(CallBacker*);

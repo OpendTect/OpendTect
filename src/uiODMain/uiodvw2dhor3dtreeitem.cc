@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
 #include "uimenu.h"
+#include "uimpe.h"
 #include "uimpepartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
@@ -34,7 +35,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
-
 #include "view2ddataman.h"
 #include "view2dhorizon3d.h"
 
@@ -85,6 +85,9 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	if ( !mps->addTracker( EM::Horizon3D::typeStr(), -1 ) )
 	    return true;
 
+	if ( mps->getSetupGroup() )
+	    mps->getSetupGroup()->setTrackingMethod(
+						EventTracker::AdjacentParent );
 	const int trackid = mps->activeTrackerID();
 	const int emid = mps->getEMObjectID( trackid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon3D( emid );
@@ -159,6 +162,8 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 		continue;
 
 	    MPE::engine().addTracker( emobj );
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
 	}
 
 	addChld( new uiODVw2DHor3DTreeItem(emids[idx]), false, false);
@@ -169,8 +174,9 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
 {
     uiODVw2DHor3DTreeItem* hortreeitem = new uiODVw2DHor3DTreeItem( emid );
-    addChld( hortreeitem,false, false );
-    viewer2D()->viewControl()->setEditMode( true );
+    addChld( hortreeitem, false, false );
+    if ( viewer2D() && viewer2D()->viewControl() )
+	viewer2D()->viewControl()->setEditMode( true );
     hortreeitem->select();
 }
 

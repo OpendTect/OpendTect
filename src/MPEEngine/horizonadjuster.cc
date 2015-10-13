@@ -42,6 +42,10 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
 	    Interval<float>(-2*SI().zStep(), 2*SI().zStep() ) );
     evtracker_.setRangeStep( SI().zStep() );
     evtracker_.normalizeSimilarityValues( true );
+
+    mDynamicCastGet(EM::Horizon2D*,hor2d,&horizon_)
+    evtracker_.setCompareMethod( hor2d ? EventTracker::AdjacentParent
+				       : EventTracker::SeedTrace );
 }
 
 

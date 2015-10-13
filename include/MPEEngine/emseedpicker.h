@@ -96,6 +96,8 @@ public:
 
     enum TrackMode	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
     static int		nrTrackModes(bool is2d);
+    static TrackMode	getTrackMode(int idx,bool is2d);
+    static int		getTrackModeIndex(TrackMode,bool is2d);
     static uiString	getTrackModeText(TrackMode,bool is2d);
 
     void		setTrackMode(TrackMode);
