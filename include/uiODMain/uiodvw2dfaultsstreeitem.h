@@ -28,6 +28,8 @@ public:
 				~uiODVw2DFaultSSParentTreeItem();
 
     bool			showSubMenu();
+    void			getFaultSSVwr2DIDs(EM::ObjectID emid,
+						   TypeSet<int>& vw2ids ) const;
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
     void			removeFaultSS(EM::ObjectID);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
@@ -64,6 +66,7 @@ public:
     bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    const VW2DFaultSS3D* vw2DObject() const	{ return fssview_; }
 
 protected:
 

@@ -81,6 +81,21 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 }
 
 
+void uiODVw2DPickSetParentTreeItem::getPickSetVwr2DIDs(
+	const MultiID& mid, TypeSet<int>& vw2dobjids ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DPickSetTreeItem*,picktreeitem,
+			getChild(idx))
+	if ( !picktreeitem || picktreeitem->pickMultiID() != mid )
+	    continue;
+
+	vw2dobjids.addIfNew( picktreeitem->vw2DObject()->id() );
+    }
+}
+
+
 void uiODVw2DPickSetParentTreeItem::removePickSet( const MultiID& mid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )

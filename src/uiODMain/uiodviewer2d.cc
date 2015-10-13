@@ -49,6 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
+#include "randomlinegeom.h"
 
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
@@ -73,6 +74,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , tifs_(0)
     , treetp_(0)
     , polyseltbid_(-1)
+    , rdmlineid_(mUdf(int))
     , basetxt_(tr("2D Viewer - "))
     , initialcentre_(uiWorldPoint::udf())
     , initialx1pospercm_(mUdf(float))
@@ -82,6 +84,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , viewWinAvailable(this)
     , viewWinClosed(this)
     , dataChanged(this)
+    , posChanged(this)
     , mousecursorexchange_(0)
     , marker_(0)
     , datatransform_(0)
@@ -205,6 +208,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 
 	isvertical_ = seisfdp && seisfdp->isVertical();
+	if ( regfdp )
+	    setTrcKeyZSampling( regfdp->sampling() );
 	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
     }
 
@@ -324,6 +329,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	if ( needslicepos )
 	{
 	    slicepos_ = new uiSlicePos2DView( fvmw, ZDomain::Info(zDomain()) );
+	    slicepos_->setTrcKeyZSampling( tkzs_ );
 	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
 	}
 
@@ -513,6 +519,7 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 	setUpView( createDataPack(false), false );
     else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
 	setUpView( createDataPack(true), true );
+    posChanged.trigger();
 }
 
 
@@ -770,10 +777,16 @@ void uiODViewer2D::setWinTitle( bool fromcs )
     else
     {
 	info = toUiString("%1: %2");
-	if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+	if ( !mIsUdf(rdmlineid_) )
+	{
+	    const Geometry::RandomLine* rdmline =
+			Geometry::RLM().get( rdmlineid_ );
+	    if ( rdmline ) info = mToUiStringTodo( rdmline->name() );
+	}
+	else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
 	{
 	    info.arg( tr("Line") )
-		.arg( mToUiStringTodo( Survey::GM().getName( geomID()) ) );
+		.arg( mToUiStringTodo( Survey::GM().getName(geomID()) ) );
 	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	{
@@ -794,7 +807,6 @@ void uiODViewer2D::setWinTitle( bool fromcs )
 
     uiString title = toUiString("%1%2").arg( mToUiStringTodo(basetxt_) )
 				       .arg( info );
-
     if ( viewwin() )
 	viewwin()->setWinTitle( title );
 }
@@ -942,6 +954,21 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 }
 
 
+void uiODViewer2D::getHor3DVwr2DIDs( EM::ObjectID emid,
+				     TypeSet<int>& vw2dobjids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	    hor3dpitem->getHor3DVwr2DIDs( emid, vw2dobjids );
+    }
+}
+
+
 void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;
@@ -1003,6 +1030,21 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 }
 
 
+void uiODViewer2D::getHor2DVwr2DIDs( EM::ObjectID emid,
+				     TypeSet<int>& vw2dobjids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	    hor3dpitem->getHor2DVwr2DIDs( emid, vw2dobjids );
+    }
+}
+
+
 void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;
@@ -1055,6 +1097,21 @@ void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	    hor2dpitem->addNewTrackingHorizon2D( emid );
+    }
+}
+
+
+void uiODViewer2D::getFaultVwr2DIDs( EM::ObjectID emid,
+				     TypeSet<int>& vw2dobjids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+			treetp_->getChild(idx))
+	if ( faultpitem )
+	    faultpitem->getFaultVwr2DIDs( emid, vw2dobjids );
     }
 }
 
@@ -1115,6 +1172,21 @@ void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 }
 
 
+void uiODViewer2D::getFaultSSVwr2DIDs( EM::ObjectID emid,
+				     TypeSet<int>& vw2dobjids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultsspitem,
+			treetp_->getChild(idx))
+	if ( faultsspitem )
+	    faultsspitem->getFaultSSVwr2DIDs( emid, vw2dobjids );
+    }
+}
+
+
 void uiODViewer2D::removeFaultSS( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;
@@ -1167,6 +1239,21 @@ void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addNewTempFaultSS( emid );
+    }
+}
+
+
+void uiODViewer2D::getPickSetVwr2DIDs( const MultiID& mid,
+				       TypeSet<int>& vw2dobjids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickpitem,
+			treetp_->getChild(idx))
+	if ( pickpitem )
+	    pickpitem->getPickSetVwr2DIDs( mid, vw2dobjids );
     }
 }
 

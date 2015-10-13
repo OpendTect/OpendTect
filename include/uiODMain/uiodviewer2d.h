@@ -97,6 +97,10 @@ public:
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
     virtual void		setPos(const TrcKeyZSampling&);
+    void			setRandomLineID( int id )
+				{ rdmlineid_ = id; }
+    int				getRandomLineID() const
+				{ return rdmlineid_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return tkzs_; }
@@ -134,8 +138,11 @@ public:
     Notifier<uiODViewer2D>	viewWinAvailable;
     Notifier<uiODViewer2D>	viewWinClosed;
     Notifier<uiODViewer2D>	dataChanged;
+    Notifier<uiODViewer2D>	posChanged;
 
     //Horizon 3D
+    void			getHor3DVwr2DIDs(EM::ObjectID emid,
+						 TypeSet<int>& vw2dids) const;
     void			removeHorizon3D(EM::ObjectID emid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
@@ -143,6 +150,8 @@ public:
     void			addNewTrackingHorizon3D(EM::ObjectID);
 
     //Horizon2D
+    void			getHor2DVwr2DIDs(EM::ObjectID emid,
+						 TypeSet<int>& vw2dids) const;
     void			removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
@@ -150,6 +159,8 @@ public:
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
 
     //Fault
+    void			getFaultVwr2DIDs(EM::ObjectID emid,
+						 TypeSet<int>& vw2dids) const;
     void			removeFault(EM::ObjectID emid);
     void			getLoadedFaults(
 					TypeSet<EM::ObjectID>&) const;
@@ -157,6 +168,8 @@ public:
     void			addNewTempFault(EM::ObjectID emid);
 
     //FaultStickeSet
+    void			getFaultSSVwr2DIDs(EM::ObjectID emid,
+						   TypeSet<int>& vw2dids) const;
     void			removeFaultSS(EM::ObjectID emid);
     void			getLoadedFaultSSs(
 					TypeSet<EM::ObjectID>&) const;
@@ -164,6 +177,8 @@ public:
     void			addNewTempFaultSS(EM::ObjectID emid);
 
     //PickSets
+    void			getPickSetVwr2DIDs(const MultiID& mid,
+						   TypeSet<int>& vw2ids ) const;
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			addPickSets(const TypeSet<MultiID>&);
@@ -187,6 +202,7 @@ protected:
     TrcKeyZSampling		tkzs_;
     uiString			basetxt_;
     uiODMain&			appl_;
+    int				rdmlineid_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;

@@ -28,6 +28,8 @@ public:
 				~uiODVw2DFaultParentTreeItem();
 
     bool			showSubMenu();
+    void			getFaultVwr2DIDs(EM::ObjectID emid,
+						 TypeSet<int>& vw2dids ) const;
     void			getLoadedFaults(
 					TypeSet<EM::ObjectID>& emids) const;
     void			removeFault(EM::ObjectID);
@@ -65,6 +67,7 @@ public:
     bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    const VW2DFault*	vw2DObject() const	{ return faultview_; }
 
 protected:
 

@@ -111,6 +111,20 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
+void uiODVw2DHor2DParentTreeItem::getHor2DVwr2DIDs(
+	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
+	if ( !hor2dtreeitm || hor2dtreeitm->emObjectID() != emid )
+	    continue;
+
+	vw2dobjids.addIfNew( hor2dtreeitm->vw2DObject()->id() );
+    }
+}
+
+
 void uiODVw2DHor2DParentTreeItem::getLoadedHorizon2Ds(
 	TypeSet<EM::ObjectID>& emids ) const
 {

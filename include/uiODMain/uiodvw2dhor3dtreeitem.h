@@ -28,6 +28,8 @@ public:
 				~uiODVw2DHor3DParentTreeItem();
 
     bool			showSubMenu();
+    void			getHor3DVwr2DIDs(EM::ObjectID emid,
+						 TypeSet<int>& vw2dids) const;
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			removeHorizon3D(EM::ObjectID emid);
@@ -65,6 +67,7 @@ public:
     bool		select();
     bool		showSubMenu();
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    const Vw2DHorizon3D* vw2DObject() const	{ return horview_; }
 
 protected:
 

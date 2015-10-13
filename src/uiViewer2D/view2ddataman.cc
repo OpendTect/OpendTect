@@ -26,6 +26,8 @@ Vw2DDataManager::Vw2DDataManager()
     : selectedid_( -1 )
     , freeid_( 0 )
     , addRemove( this )
+    , dataObjAdded( this )
+    , dataObjToBeRemoved( this )
 {}
 
 
@@ -40,13 +42,14 @@ void Vw2DDataManager::addObject( Vw2DDataObject* obj )
     if ( objects_.isPresent(obj) ) return;
 
     objects_ += obj;
-    obj->setID(freeid_++);
+    freeid_++;
     obj->ref();
 
     if ( selectedid_ != -1 )
 	deSelect( selectedid_ );
 
     selectedid_ = obj->id();
+    dataObjAdded.trigger( obj->id() );
     addRemove.trigger();
 }
 
@@ -55,6 +58,7 @@ void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 {
     if ( !objects_.isPresent(dobj) ) return;
 
+    dataObjToBeRemoved.trigger( dobj->id() );
     objects_ -= dobj;
 
     if ( dobj->id() == selectedid_ )
@@ -67,6 +71,9 @@ void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 
 void Vw2DDataManager::removeAll()
 {
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	dataObjToBeRemoved.trigger( objects_[idx]->id() );
+
     deepUnRef( objects_ );
     selectedid_ = -1;
     freeid_ = 0;
