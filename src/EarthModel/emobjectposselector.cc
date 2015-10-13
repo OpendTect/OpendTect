@@ -48,7 +48,8 @@ bool EMObjectPosSelector::doPrepare( int nrthreads )
 
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
-    if ( !surf ) return false;
+    if ( !surf || !surf->getArray() )
+	return false;
 
     startrow_ = surf->rowRange().start;
     nrrows_ = surf->rowRange().nrSteps() +1 ;

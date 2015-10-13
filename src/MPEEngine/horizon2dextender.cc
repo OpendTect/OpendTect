@@ -99,8 +99,10 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
 	    !boundary.hsamp_.includes(neighbor.pos()) )
 	return;
 
-    float neighborz = hor2d_.getZ( neighbor );
-    if ( !mIsUdf(neighborz) )
+    const bool hasz = hor2d_.hasZ( neighbor );
+    const bool isintersection = hor2d_.isAttrib(
+			neighbor, EM::EMObject::sIntersectionNode() );
+    if ( hasz && !isintersection )
 	return;
 
     hor2d_.setZ( neighbor, hor2d_.getZ(src), true );

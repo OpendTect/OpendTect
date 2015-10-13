@@ -36,18 +36,18 @@ public:
 
 
     bool reDo()
-    { 
+    {
 	if ( !patch_ ) return false;
 	patch_->addSeed( trkv_ );
-	return true; 
+	return true;
     }
 
 
     bool unDo()
-    { 
+    {
 	if ( !patch_ ) return false;
 	patch_->removeSeed( index_ );
-	return true; 
+	return true;
     }
 
 private:
@@ -93,7 +93,7 @@ Coord3 Patch::seedCoord( int idx ) const
 	return Coord3::udf();
 
     const TrcKey tck = seeds_[idx].tk_;
-    const EM::PosID pid = 
+    const EM::PosID pid =
 	EM::PosID( emobj->id(), emobj->sectionID(0), tck.pos().toInt64() );
 
     Coord3 pos = emobj->getPos( pid );
@@ -108,7 +108,7 @@ int Patch::addSeed( const TrcKeyValue& tckv )
     const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
 
     BinID dir;
-    if ( !emobj || 
+    if ( !emobj ||
 	 !tckv.isDefined() ||
 	 seeds_.indexOf(tckv) !=-1 ||
 	 !seedpicker_->lineTrackDirection(dir) )
@@ -119,9 +119,9 @@ int Patch::addSeed( const TrcKeyValue& tckv )
 	seeds_ += tckv;
 	return seeds_.size()-1;
     }
-    
+
     const bool crdir = dir.col()>0;
-    const EM::PosID pid = 
+    const EM::PosID pid =
 	EM::PosID( emobj->id(),emobj->sectionID(0),tckv.tk_.pos().toInt64() );
 
     int idx = findClosedSeed( pid );
@@ -153,7 +153,7 @@ void Patch::removeSeed( int idx )
 int Patch::findClosedSeed( const EM::PosID& pid )
 {
     BinID dir;
-    if ( seeds_.size()==0 || !seedpicker_->lineTrackDirection(dir) ) 
+    if ( seeds_.size()==0 || !seedpicker_->lineTrackDirection(dir) )
 	return 0;
 
     const bool crdir = dir.col()>0;
@@ -175,8 +175,9 @@ int Patch::findClosedSeed( const EM::PosID& pid )
 }
 
 
-void Patch::clear() 
+void Patch::clear()
 { seeds_.erase(); }
+
 
 EMSeedPicker::EMSeedPicker( EMTracker& tracker )
     : tracker_(tracker)
@@ -195,9 +196,9 @@ EMSeedPicker::EMSeedPicker( EMTracker& tracker )
 }
 
 
-EMSeedPicker::~EMSeedPicker() 
+EMSeedPicker::~EMSeedPicker()
 {
-    if ( patch_ ) 
+    if ( patch_ )
 	patch_->unRef();
 
     patchundo_.removeAll();
@@ -224,7 +225,7 @@ bool EMSeedPicker::isSeedPickBlocked() const
 { return blockpicking_; }
 
 void EMSeedPicker::endPatch( bool yn )
-{ 
+{
     if ( patch_ && patch_->nrSeeds()>0 )
     {
 	updatePatchLine( yn );
@@ -240,8 +241,8 @@ void EMSeedPicker::setSeedPickArea( const TrcKeySampling& tks )
 const TrcKeySampling& EMSeedPicker::getSeedPickArea() const
 { return seedpickarea_; }
 
-int EMSeedPicker::nrTrackModes( bool )
-{ return 3; }
+int EMSeedPicker::nrTrackModes( bool is2d )
+{ return is2d ? 2 : 3; }
 
 void EMSeedPicker::setTrackMode( TrackMode tm )
 { trackmode_ = tm; }
@@ -250,21 +251,42 @@ EMSeedPicker::TrackMode EMSeedPicker::getTrackMode() const
 { return trackmode_; }
 
 
-const Undo& EMSeedPicker::horPatchUndo() const	{ return patchundo_; }
-Undo& EMSeedPicker::horPatchUndo()		{ return patchundo_; }
+EMSeedPicker::TrackMode EMSeedPicker::getTrackMode( int idx, bool is2d )
+{
+    if ( idx==0 ) return is2d ? TrackBetweenSeeds : TrackFromSeeds;
+    if ( idx==1 ) return is2d ? DrawBetweenSeeds : TrackBetweenSeeds;
+    return DrawBetweenSeeds;
+}
+
+
+int EMSeedPicker::getTrackModeIndex( TrackMode tm, bool is2d )
+{
+    if ( tm == TrackFromSeeds )
+	return is2d ? -1 : 0;
+    if ( tm == TrackBetweenSeeds )
+	return is2d ? 0 : 1;
+    if ( tm == DrawBetweenSeeds )
+	return is2d ? 1 : 2;
+
+    return -1;
+}
 
 
 uiString EMSeedPicker::getTrackModeText( TrackMode mode, bool is2d )
 {
     if ( mode==TrackFromSeeds )
-	return tr("Auto-track from Seeds");
+	return tr("Volume Auto-track");
     else if ( mode==TrackBetweenSeeds )
-	return tr("Auto-track between Seeds");
+	return tr("Section Auto-track");
     else if ( mode==DrawBetweenSeeds )
-	return tr("Manual Interpretation");
+	return tr("Manual Draw");
     else
 	return tr("Unknown mode");
 }
+
+
+const Undo& EMSeedPicker::horPatchUndo() const	{ return patchundo_; }
+Undo& EMSeedPicker::horPatchUndo()		{ return patchundo_; }
 
 
 void EMSeedPicker::setSelSpec( const Attrib::SelSpec* as )
@@ -325,6 +347,7 @@ bool EMSeedPicker::canUndo()
 bool EMSeedPicker::canReDo()
 {  return patchundo_.canReDo(); }
 
+
 bool EMSeedPicker::addSeed( const TrcKeyValue& seed, bool drop )
 { return addSeed( seed, drop, seed ); }
 
@@ -367,6 +390,7 @@ int EMSeedPicker::indexOf( const TrcKey& tk ) const
     return seeds.indexOf( tk );
 }
 
+
 bool EMSeedPicker::lineTrackDirection( BinID& dir,
 					    bool perptotrackdir ) const
 {
@@ -386,5 +410,6 @@ bool EMSeedPicker::lineTrackDirection( BinID& dir,
 
     return true;
 }
+
 
 } // namespace MPE

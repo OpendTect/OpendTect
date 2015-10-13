@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
+
 #include "bufstring.h"
 #include "callback.h"
 #include "color.h"
@@ -20,6 +21,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "emseedpicker.h"
 #include "randcolor.h"
+#include "valseriestracker.h"
 
 #include "uigroup.h"
 
@@ -45,14 +47,16 @@ public:
 			uiSetupGroup(uiParent*,const char* helpref);
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setMode(EMSeedPicker::TrackMode)	{}
-    virtual EMSeedPicker::TrackMode getMode() const		=0;
+    virtual EMSeedPicker::TrackMode getMode() const		= 0;
+    virtual void	setTrackingMethod(EventTracker::CompareMethod)	{}
+    virtual EventTracker::CompareMethod	getTrackingMethod() const	= 0;
     virtual void	setSeedPos(const TrcKeyValue&)		{}
     virtual void	setColor(const Color&)			{}
-    virtual const Color& getColor()				=0;
+    virtual const Color& getColor()				= 0;
     virtual void	setLineWidth(int)			{}
-    virtual int		getLineWidth() const			=0;
+    virtual int		getLineWidth() const			= 0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
-    virtual const MarkerStyle3D& getMarkerStyle()		=0;
+    virtual const MarkerStyle3D& getMarkerStyle()		= 0;
 
     virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
     virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }

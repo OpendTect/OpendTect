@@ -59,14 +59,15 @@ mExpClass(MPEEngine) EMSeedPicker: public CallBacker
 public:
     virtual		~EMSeedPicker();
 
+
     virtual void	setSectionID(EM::SectionID);
     virtual EM::SectionID getSectionID() const;
 
     virtual bool	startSeedPick();
 			/*!<Should be set when seedpicking is about to start. */
-    virtual void	endPatch(bool);
-    const Patch*	getPatch() const { return patch_; }
 
+    const Patch*	getPatch() const { return patch_; }
+    virtual void	endPatch(bool);
     bool		stopSeedPick();
 
     void		addSeedToPatch(const TrcKeyValue&);
@@ -95,6 +96,8 @@ public:
 
     enum TrackMode	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
     static int		nrTrackModes(bool is2d);
+    static TrackMode	getTrackMode(int idx,bool is2d);
+    static int		getTrackModeIndex(TrackMode,bool is2d);
     static uiString	getTrackModeText(TrackMode,bool is2d);
 
     void		setTrackMode(TrackMode);
@@ -114,6 +117,7 @@ public:
     const Undo&		horPatchUndo() const;
     bool		canUndo();
     bool		canReDo();
+
 
     Notifier<EMSeedPicker>	seedAdded;
     Notifier<EMSeedPicker>	seedRemoved;
@@ -142,7 +146,7 @@ protected:
     TrcKeySampling	seedpickarea_;
     bool		sowermode_;
     Patch*		patch_;
-    Undo&			patchundo_;
+    Undo&		patchundo_;
 
 };
 

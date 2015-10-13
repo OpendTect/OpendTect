@@ -52,6 +52,8 @@ public:
 
     void			setMode(EMSeedPicker::TrackMode);
     EMSeedPicker::TrackMode	getMode() const;
+    void			setTrackingMethod(EventTracker::CompareMethod);
+    EventTracker::CompareMethod	getTrackingMethod() const;
     void			setSeedPos(const TrcKeyValue&);
     void			setColor(const Color&);
     const Color&		getColor();

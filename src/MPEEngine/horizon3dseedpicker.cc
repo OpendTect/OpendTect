@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "undo.h"
 
+
 namespace MPE
 {
 
@@ -323,16 +324,15 @@ void Horizon3DSeedPicker::processJunctions()
 }
 
 
-
 bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
 {
     if ( trackmode_ != DrawBetweenSeeds )
 	return false;
+
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;
     const StepInterval<float> zrg = engine().activeVolume().zsamp_;
     TypeSet<TrcKeyValue> path = patch_->getPath();
     mGetHorizon( hor3d, false )
-
 
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
@@ -354,7 +354,7 @@ bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
 	interpolateSeeds();
     }
 
-    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+    EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
     return true;
 }
 
@@ -449,7 +449,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	extender->setDirection( TrcKeyValue(TrcKey(0,1),mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
 	extender->setDirection( TrcKeyValue(TrcKey(1,0),mUdf(float)) );
-    
+
     TypeSet<TrcKey> addedpos;
     TypeSet<TrcKey> addedpossrc;
 
@@ -486,8 +486,6 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 
 bool Horizon3DSeedPicker::doesModeUseVolume() const
 { return trackmode_==TrackFromSeeds; }
-
-
 
 
 int Horizon3DSeedPicker::nrLateralNeighbors( const BinID& bid ) const
@@ -561,19 +559,17 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 		continue;
 	}
 
-	const Coord3 seed1 = hor3d->getCoord( seedlist_[ sortidx[vtx] ] );
-	const Coord3 seed2 = hor3d->getCoord( seedlist_[ sortidx[vtx+1] ] );
-
+	const Coord3 seed1 = hor3d->getCoord( seedlist_[sortidx[vtx]] );
+	const Coord3 seed2 = hor3d->getCoord( seedlist_[sortidx[vtx+1]] );
 	for ( int idx=step; idx<diff; idx+=step )
 	{
 	    const double frac = (double) idx / diff;
 	    const Coord3 interpos = (1-frac) * seed1 + frac  * seed2;
 	    const TrcKey tk = SI().transform( interpos );
-	    hor3d->setZ( tk, (float)interpos.z, true );
-   	    if ( tk.isUdf() )
+	    if ( tk.isUdf() )
 		continue;
-
-	    hor3d->setAttrib( tk,EM::EMObject::sSeedNode(),false,true );
+	    hor3d->setZ( tk, (float)interpos.z, true );
+	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )
 		snaplist += tk;

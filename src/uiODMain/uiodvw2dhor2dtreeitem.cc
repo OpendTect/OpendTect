@@ -30,15 +30,14 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
-
-#include "visseis2ddisplay.h"
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
-#include "emsurfacetr.h"
+#include "visseis2ddisplay.h"
 
 
 #define mAddInAllIdx	0
