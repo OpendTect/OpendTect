@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 
 #include "uibody.h"
+#include "uiicon.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uiobj.h"
@@ -194,24 +195,36 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     {
 	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
 	yesbut->setText(yestxt.getQString() );
-	if ( !withics )
-	    yesbut->setIcon( qicon );
+	if ( withics )
+	{
+	    uiIcon icn( "ok" );
+	    qicon = icn.qicon();
+	}
+	yesbut->setIcon( qicon );
     }
 
     if ( !notxt.isEmpty() )
     {
 	QPushButton* nobut = mb->addButton( QMessageBox::No );
 	nobut->setText( notxt.getQString() );
-	if ( !withics )
-	    nobut->setIcon( qicon );
+	if ( withics )
+	{
+	    uiIcon icn( "stop" );
+	    qicon = icn.qicon();
+	}
+	nobut->setIcon( qicon );
     }
 
     if ( !cncltxt.isEmpty() )
     {
 	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
 	rejbut->setText( cncltxt.getQString() );
-	if ( !withics )
-	    rejbut->setIcon( qicon );
+	if ( withics )
+	{
+	    uiIcon icn( "cancel" );
+	    qicon = icn.qicon();
+	}
+	rejbut->setIcon( qicon );
     }
 
     return mb;
@@ -249,7 +262,7 @@ void uiMsg::message( const uiString& part1, const uiString& part2,
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
-    showMessageBox( Information, popParnt(), msg, uiStrings::sOk(), 
+    showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Information") );
 }
@@ -261,7 +274,7 @@ void uiMsg::warning( const uiString& part1, const uiString& part2,
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
-    showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(), 
+    showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Warning") );
 }
@@ -273,7 +286,7 @@ void uiMsg::error( const uiString& part1, const uiString& part2,
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
-    showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(), 
+    showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Error") );
 }
@@ -363,7 +376,7 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 
 int uiMsg::askContinue( const uiString& text )
 {
-    return question( text, uiStrings::sContinue(), uiStrings::sAbort(), 
+    return question( text, uiStrings::sContinue(), uiStrings::sAbort(),
 		     uiString::emptyString() );
 }
 
@@ -371,7 +384,7 @@ int uiMsg::askContinue( const uiString& text )
 int uiMsg::askOverwrite( const uiString& text )
 {
     const uiString yestxt = uiStrings::sOverwrite();
-    return question( text, yestxt, uiStrings::sCancel(), 
+    return question( text, yestxt, uiStrings::sCancel(),
 		     uiString::emptyString() );
 }
 
