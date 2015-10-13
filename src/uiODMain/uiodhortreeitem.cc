@@ -106,7 +106,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
     mnu.insertItem( newmenu, mNewIdx );
-    newmenu->setEnabled( !hastransform );
+    newmenu->setEnabled( !hastransform && SI().has3D() );
 
     mnu.insertItem( new uiAction(m3Dots(tr("Create with Constant Z"))),
 		    mCreateIdx );

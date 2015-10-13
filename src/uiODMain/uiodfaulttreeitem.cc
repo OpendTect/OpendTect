@@ -75,7 +75,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getZAxisTransform() )
+    const bool hastransform = scene && scene->getZAxisTransform();
+    if ( hastransform )
     {
 	//uiMSG().message( "Cannot add Faults to this scene" );
 	//return false;
@@ -83,7 +84,9 @@ bool uiODFaultParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
-    mnu.insertItem( new uiAction(uiStrings::sNew()), mNewMnuID );
+    uiAction* newmenu = new uiAction( uiStrings::sNew() );
+    mnu.insertItem( newmenu, mNewMnuID );
+    newmenu->setEnabled( !hastransform && SI().has3D() );
 
     if ( children_.size() )
     {
