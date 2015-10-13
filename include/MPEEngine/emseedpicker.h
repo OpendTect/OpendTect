@@ -23,12 +23,32 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "trckeyvalue.h"
 #include "uistring.h"
+#include "undo.h"
+
 
 namespace MPE
 {
 
 class EMTracker;
-
+class EMSeedPicker;
+mExpClass(MPEEngine) Patch
+{ mRefCountImpl(Patch);
+public:
+			    Patch(const EMSeedPicker*);
+    const TypeSet<TrcKeyValue>&  getPath() const;
+    int                     nrSeeds();
+    Coord3                  seedCoord(int) const;
+    int			    addSeed(const TrcKeyValue&);
+    void		    removeSeed(int);
+    void		    clear();
+    
+protected:
+    EM::PosID               seedNode(int) const;
+    int			    findClosedSeed(const EM::PosID&);
+    const EMSeedPicker*     seedpicker_;
+private:
+    TypeSet<TrcKeyValue>    seeds_;
+};
 /*!
 \brief Handles adding of seeds and retracking of events based on new seeds. An
 instance of the class is usually available from each EMTracker.
@@ -37,8 +57,7 @@ instance of the class is usually available from each EMTracker.
 mExpClass(MPEEngine) EMSeedPicker: public CallBacker
 { mODTextTranslationClass(EMSeedPicker)
 public:
-    virtual		~EMSeedPicker() {}
-
+    virtual		~EMSeedPicker();
 
     virtual void	setSectionID(EM::SectionID);
     virtual EM::SectionID getSectionID() const;
@@ -46,9 +65,11 @@ public:
     virtual bool	startSeedPick();
 			/*!<Should be set when seedpicking is about to start. */
     virtual void	endPatch(bool);
-    virtual bool	isPatchEnded() const;
+    const Patch*	getPatch() const { return patch_; }
+
     bool		stopSeedPick();
 
+    void		addSeedToPatch(const TrcKeyValue&);
     bool		addSeed(const TrcKeyValue&,bool drop=false);
     virtual bool	addSeed(const TrcKeyValue& seedcrd,bool drop,
 				const TrcKeyValue& seedkey)	{ return false;}
@@ -85,6 +106,14 @@ public:
 
     void		setSeedPickArea(const TrcKeySampling&);
     const TrcKeySampling& getSeedPickArea() const;
+    EMTracker&		emTracker() const { return tracker_; }
+    bool		lineTrackDirection( BinID& dir, 
+				            bool perptotrackdir = false ) const;
+    virtual bool	updatePatchLine(bool) { return false; }
+    Undo&		hor3DPatchUndo();
+    const Undo&		hor3DPatchUndo() const;
+    bool		canUndo();
+    bool		canReDo();
 
     Notifier<EMSeedPicker>	seedAdded;
     Notifier<EMSeedPicker>	seedRemoved;
@@ -108,11 +137,13 @@ protected:
 
     bool		blockpicking_;
     bool		didchecksupport_;
-    bool		endpatch_;
     EM::SectionID	sectionid_;
     TrackMode		trackmode_;
     TrcKeySampling	seedpickarea_;
     bool		sowermode_;
+    Patch*		patch_;
+    Undo&			patchundo_;
+
 };
 
 } // namespace MPE

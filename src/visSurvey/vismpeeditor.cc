@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vissower.h"
 #include "vistransform.h"
+#include "vispolyline.h"
 
 mCreateFactoryEntry( visSurvey::MPEEditor )
 
@@ -38,6 +39,9 @@ MPEEditor::MPEEditor()
     , isdragging_( false )
     , draggerinmotion_( false )
     , draggingStarted( this )
+    , patchmarkers_( 0 )
+    , patchline_( 0 )
+    , patch_( 0 )
 {
     nodematerial_ = new visBase::Material;
     nodematerial_->ref();
@@ -66,6 +70,35 @@ MPEEditor::~MPEEditor()
 
     removeChild( sower_->osgNode() );
     delete sower_;
+
+    unRefAndZeroPtr( patchmarkers_ );
+    unRefAndZeroPtr( patchline_ );
+ 
+}
+
+
+void MPEEditor::setupPatchDisplay()
+{
+    if ( patchmarkers_ && patchline_ )
+	return;
+
+    patchmarkers_ = visBase::MarkerSet::create();
+    patchmarkers_->ref();
+    patchline_ = visBase::PolyLine::create();
+    patchline_->ref();
+
+    patchline_->setMaterial( new visBase::Material );
+    LineStyle lsty( LineStyle::DashDot, 4, Color::Green() );
+    patchline_->setLineStyle( lsty );
+
+    addChild( patchmarkers_->osgNode() );
+    addChild( patchline_->osgNode() );
+
+    patchmarkers_->setMarkersSingleColor( Color::White() );
+    patchmarkers_->setScreenSize( markersize_ );
+
+    patchmarkers_->setDisplayTransformation( transformation_ );
+    patchline_->setDisplayTransformation( transformation_ );
 }
 
 
@@ -372,6 +405,40 @@ bool MPEEditor::clickCB( CallBacker* cb )
 	return true;
 
     return false;
+}
+
+
+void MPEEditor::displayPatch( const MPE::Patch* patch )
+{
+    setupPatchDisplay();
+    if ( !patch ||!patchmarkers_ || !patchline_ )
+	return;
+    cleanPatch();
+    TypeSet<TrcKeyValue> path = patch->getPath();
+    for ( int idx=0; idx<path.size(); idx++ )
+    {
+	const Coord3 pos = patch->seedCoord( idx );
+	if ( pos.isDefined() )
+	{
+	    patchmarkers_->addPos( pos );
+	    patchline_->addPoint( pos );
+	}
+    }
+}
+
+
+void MPEEditor::cleanPatch()
+{
+    if ( !patchline_ ||!patchmarkers_ )
+	return;
+
+    if ( patchline_->getCoordinates()==0 && patchmarkers_->size()==0 )
+	return;
+
+    patchline_->removeAllPoints();
+    patchmarkers_->clearMarkers();
+    patchmarkers_->forceRedraw( true );
+    patchline_->dirtyCoordinates();
 }
 
 

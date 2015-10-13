@@ -124,9 +124,11 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     Notifier<MPEClickCatcher>	click;
+    Notifier<MPEClickCatcher>	endSowing;
 
     const MPEClickInfo&		info() const;
     MPEClickInfo&		info();
+    const visBase::EventInfo*   visInfo() const { return cureventinfo_; }
 
     void			setTrackerType(const char*);
     static bool			isClickable(const char* trackertype,int visid);
@@ -151,6 +153,7 @@ protected:
 					const visBase::EventInfo&);
 
     void			allowPickBasedReselection();
+    void			sowingEnd(CallBacker*);
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;

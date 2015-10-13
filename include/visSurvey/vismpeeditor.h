@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "visobject.h"
 #include "vissower.h"
-
+#include "emseedpicker.h"
 
 namespace MPE { class ObjectEditor; }
 
@@ -48,6 +48,7 @@ public:
 			mCreateDataObj( MPEEditor );
 
     void		setEditor( MPE::ObjectEditor* );
+    void		setPatch(MPE::Patch* patch) { patch_ = patch; }
     MPE::ObjectEditor*	getMPEEditor() { return emeditor_; }
     void		setSceneEventCatcher( visBase::EventCatcher* );
 
@@ -88,7 +89,8 @@ public:
     Notifier<MPEEditor>		draggingStarted;
 
     Sower&			sower()			{ return *sower_; }
-
+    void			displayPatch(const MPE::Patch*);
+    void			cleanPatch();
 
 protected:
     				~MPEEditor();
@@ -102,10 +104,12 @@ protected:
     void			removeDragger( int );
     void			addDragger( const EM::PosID& );
     void			setActiveDragger( const EM::PosID& );
+    void			setupPatchDisplay();
 
     int				rightclicknode_;
 
     MPE::ObjectEditor*		emeditor_;
+    MPE::Patch*                 patch_;
 
     visBase::Material*		nodematerial_;
     visBase::Material*		activenodematerial_;
@@ -114,7 +118,8 @@ protected:
     ObjectSet<visBase::MarkerSet>       draggermarkers_;
     TypeSet<EM::PosID>			posids_;
     float				markersize_;
-
+    visBase::MarkerSet*                 patchmarkers_;
+    visBase::PolyLine*			patchline_;
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
     EM::PosID			activedragger_;

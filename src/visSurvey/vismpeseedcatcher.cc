@@ -46,6 +46,7 @@ MPEClickCatcher::MPEClickCatcher()
     , trackertype_( 0 )
     , editor_( 0 )
     , cureventinfo_( 0 )
+    , endSowing( this )
 {}
 
 
@@ -230,6 +231,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setEMObjID( emod->getObjectID() );
 	    sendUnderlyingPlanes( emod, eventinfo );
+	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
 	}
@@ -340,7 +342,6 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    break;
 	}
     }
-    cureventinfo_ = 0;
     info().clear();
 }
 
@@ -547,12 +548,18 @@ bool MPEClickCatcher::activateSower( const Color& color,
 {
     if ( editor_ && cureventinfo_ )
     {
+	mAttachCB( editor_->sower().sowingend, MPEClickCatcher::sowingEnd );
 	return editor_->sower().activate( color, *cureventinfo_,
 					  info_.getObjID(), workrange );
     }
     return false;
 }
 
+
+void MPEClickCatcher::sowingEnd( CallBacker* )
+{
+    endSowing.trigger();
+}
 
 
 bool MPEClickCatcher::sequentSowing() const

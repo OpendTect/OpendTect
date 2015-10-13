@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "uiparent.h"
 #include "trckeyzsampling.h"
+#include "trckeyvalue.h"
 
 namespace EM { class EMObject; class Horizon2D; class Horizon3D; }
 namespace MPE { class EMTracker; }
@@ -98,6 +99,9 @@ protected:
 
     void			seedClick(CallBacker*);
     void			updateClickCatcher(bool create=true);
+    void			cleanPatchDisplay();
+    void			sowingFinishedCB(CallBacker*);
+    void			updatePatchDisplay();
 
     bool			seedpickwason_;
     TrcKeyZSampling		oldactivevol_;

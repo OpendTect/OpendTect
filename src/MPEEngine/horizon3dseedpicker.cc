@@ -25,7 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "survinfo.h"
 #include "trckeyvalue.h"
-
+#include "emmanager.h"
+#include "undo.h"
 
 namespace MPE
 {
@@ -236,9 +237,6 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& start,
 					     bool startwasdefined,
 					     bool eraseonly )
 {
-   if ( endpatch_ )
-	return true;
-
     BinID dir;
     if ( !lineTrackDirection(dir) )
 	return retrackFromSeedList(); // track on Rdl
@@ -322,6 +320,42 @@ void Horizon3DSeedPicker::processJunctions()
     junctions_ += curbid; \
     const BinID nextbid = curbid + dir; \
     junctions_ += nextbid; \
+}
+
+
+
+bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
+{
+    if ( trackmode_ != DrawBetweenSeeds )
+	return false;
+    const TrcKeySampling hrg = engine().activeVolume().hsamp_;
+    const StepInterval<float> zrg = engine().activeVolume().zsamp_;
+    TypeSet<TrcKeyValue> path = patch_->getPath();
+    mGetHorizon( hor3d, false )
+
+
+    for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
+    {
+	const float val = !doerase ? path[idx].val_ : mUdf(float);
+	hor3d->setZ( path[idx].tk_, val, true );
+    }
+
+    for ( int idx=0; idx<patch_->nrSeeds()-1; idx++ )
+    {
+	if ( path[idx].tk_.isUdf() || path[idx+1].tk_.isUdf() )
+	    continue;
+
+	if ( !zrg.includes(path[idx].val_,false) || 
+	     !hrg.includes(path[idx].tk_) )
+	continue;
+	seedlist_.erase();
+	seedlist_ += path[idx].tk_;
+	seedlist_ += path[idx+1].tk_;
+	interpolateSeeds();
+    }
+
+    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+    return true;
 }
 
 
@@ -415,7 +449,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	extender->setDirection( TrcKeyValue(TrcKey(0,1),mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
 	extender->setDirection( TrcKeyValue(TrcKey(1,0),mUdf(float)) );
-
+    
     TypeSet<TrcKey> addedpos;
     TypeSet<TrcKey> addedpossrc;
 
@@ -454,25 +488,6 @@ bool Horizon3DSeedPicker::doesModeUseVolume() const
 { return trackmode_==TrackFromSeeds; }
 
 
-bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
-					    bool perptotrackdir ) const
-{
-    const TrcKeyZSampling& activevol = engine().activeVolume();
-    dir = activevol.hsamp_.step_;
-
-    const bool inltracking = activevol.nrInl()==1 && activevol.nrCrl()>1;
-    const bool crltracking = activevol.nrCrl()==1 && activevol.nrInl()>1;
-
-    if ( !inltracking && !crltracking )
-	return false;
-
-    if ( (!perptotrackdir && inltracking) || (perptotrackdir && crltracking) )
-	dir.inl() = 0;
-    else
-	dir.crl() = 0;
-
-    return true;
-}
 
 
 int Horizon3DSeedPicker::nrLateralNeighbors( const BinID& bid ) const
@@ -546,15 +561,19 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 		continue;
 	}
 
+	const Coord3 seed1 = hor3d->getCoord( seedlist_[ sortidx[vtx] ] );
+	const Coord3 seed2 = hor3d->getCoord( seedlist_[ sortidx[vtx+1] ] );
+
 	for ( int idx=step; idx<diff; idx+=step )
 	{
-	    const Coord3 seed1 = hor3d->getCoord( seedlist_[ sortidx[vtx] ] );
-	    const Coord3 seed2 = hor3d->getCoord( seedlist_[ sortidx[vtx+1] ] );
 	    const double frac = (double) idx / diff;
 	    const Coord3 interpos = (1-frac) * seed1 + frac  * seed2;
 	    const TrcKey tk = SI().transform( interpos );
 	    hor3d->setZ( tk, (float)interpos.z, true );
-	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
+   	    if ( tk.isUdf() )
+		continue;
+
+	    hor3d->setAttrib( tk,EM::EMObject::sSeedNode(),false,true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )
 		snaplist += tk;
