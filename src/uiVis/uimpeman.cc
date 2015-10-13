@@ -866,7 +866,7 @@ void uiMPEMan::undo()
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( seedpicker && seedpicker->canUndo() )
     {
-	 seedpicker->hor3DPatchUndo().unDo();
+	 seedpicker->horPatchUndo().unDo();
 	 updatePatchDisplay();
     }
     else
@@ -891,7 +891,7 @@ void uiMPEMan::redo()
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( seedpicker && seedpicker->canReDo() )
     {
-	 seedpicker->hor3DPatchUndo().reDo();
+	 seedpicker->horPatchUndo().reDo();
 	 updatePatchDisplay();
     }
 }

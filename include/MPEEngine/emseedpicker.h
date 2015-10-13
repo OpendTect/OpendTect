@@ -110,8 +110,8 @@ public:
     bool		lineTrackDirection( BinID& dir, 
 				            bool perptotrackdir = false ) const;
     virtual bool	updatePatchLine(bool) { return false; }
-    Undo&		hor3DPatchUndo();
-    const Undo&		hor3DPatchUndo() const;
+    Undo&		horPatchUndo();
+    const Undo&		horPatchUndo() const;
     bool		canUndo();
     bool		canReDo();
 

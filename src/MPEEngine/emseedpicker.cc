@@ -250,8 +250,8 @@ EMSeedPicker::TrackMode EMSeedPicker::getTrackMode() const
 { return trackmode_; }
 
 
-const Undo& EMSeedPicker::hor3DPatchUndo() const	{ return patchundo_; }
-Undo& EMSeedPicker::hor3DPatchUndo()			{ return patchundo_; }
+const Undo& EMSeedPicker::horPatchUndo() const	{ return patchundo_; }
+Undo& EMSeedPicker::horPatchUndo()		{ return patchundo_; }
 
 
 uiString EMSeedPicker::getTrackModeText( TrackMode mode, bool is2d )
