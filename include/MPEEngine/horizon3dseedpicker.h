@@ -47,6 +47,7 @@ public:
 
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
+    bool		updatePatchLine(bool);
 
 protected:
     bool		retrackOnActiveLine(const BinID& startbid,
@@ -54,8 +55,6 @@ protected:
 					    bool eraseonly=false);
     bool		retrackFromSeedList();
     void		processJunctions();
-    bool		lineTrackDirection(BinID& dir,
-					   bool perptotrackdir=false) const;
     int			nrLateralNeighbors(const BinID& pid) const;
     int			nrLineNeighbors(const BinID& pid,
 					bool perptotrackdir=false) const;

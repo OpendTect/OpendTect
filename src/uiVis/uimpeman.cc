@@ -46,6 +46,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visselman.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
+#include "vismpeeditor.h"
+#include "visevent.h"
 
 using namespace MPE;
 
@@ -281,7 +283,6 @@ void uiMPEMan::handleAction( int res )
     case sRest: hd->setOnlyAtSectionsDisplay( true ); break;
     case sFull: hd->setOnlyAtSectionsDisplay( false ); break;
     case sSett: showSetupDlg(); break;
-
     default:
 	break;
     }
@@ -384,6 +385,19 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedhor && clickedhor!=hor )
 	mSeedClickReturn();
 
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
+    if ( !seedpicker )
+	mSeedClickReturn();
+
+    seedpicker->setSectionID( emobj->sectionID(0) );
+    if ( clickcatcher_->info().isDoubleClicked() && 
+	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+    {
+	seedpicker->endPatch( false );
+	cleanPatchDisplay();
+	mSeedClickReturn();
+    }
+
     if ( !clickcatcher_->info().isLegalClick() )
     {
 	if ( tracker->is2D() && !clickcatcher_->info().getObjLineName() )
@@ -401,17 +415,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	clickcatcher_->info().getObjDataSelSpec();
     if ( !clickedas )
 	mSeedClickReturn();
-
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-    if ( !seedpicker )
-	mSeedClickReturn();
-
-    seedpicker->setSectionID( emobj->sectionID(0) );
-    if ( clickcatcher_->info().isDoubleClicked() )
-    {
-	seedpicker->endPatch( true );
-	mSeedClickReturn();
-    }
 
     const MPE::SectionTracker* sectiontracker =
 	tracker->getSectionTracker(emobj->sectionID(0), true);
@@ -487,10 +490,11 @@ void uiMPEMan::seedClick( CallBacker* )
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
 			 (float)seedcrd.z );
     bool shiftclicked = clickcatcher_->info().isShiftClicked();
-
+    
+    const Color clr= seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ? 
+	Color::Green() : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
-	 clickcatcher_->activateSower(emobj->preferredColor(),
-				      &seedpicker->getSeedPickArea()) )
+	 clickcatcher_->activateSower( clr, &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
     }
@@ -593,14 +597,18 @@ void uiMPEMan::seedClick( CallBacker* )
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
 	}
     }
-    else if ( seedpicker->addSeed(seedpos,shiftclicked) )
-	engine.updateFlatCubesContainer( newvolume, trackerid, true );
-
+    else
+    {
+	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+	{
+	    seedpicker->addSeedToPatch( seedpos );
+	    updatePatchDisplay();
+	}
+	else if ( seedpicker->addSeed(seedpos,shiftclicked) )
+	    engine.updateFlatCubesContainer(newvolume,trackerid,true);
+    }
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
-
-    if ( seedpicker->isPatchEnded() )
-	seedpicker->endPatch( false );
 }
 
 
@@ -764,6 +772,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 	clickcatcher_->ref();
 	clickcatcher_->click.notify(mCB(this,uiMPEMan,seedClick));
 	clickcatcher_->turnOn( false );
+	mAttachCB( clickcatcher_->endSowing, uiMPEMan::sowingFinishedCB );
     }
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
@@ -781,6 +790,23 @@ void uiMPEMan::updateClickCatcher( bool create )
     visserv_->removeObject( clickcatcher_->id(), clickablesceneid_ );
     visserv_->addObject( clickcatcher_, newsceneid, false );
     clickablesceneid_ = newsceneid;
+}
+
+
+void uiMPEMan::sowingFinishedCB( CallBacker* )
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker ) return;
+
+    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+    {
+	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
+	const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
+	seedpicker->endPatch( doerase );
+	cleanPatchDisplay();
+    }
+
 }
 
 
@@ -820,23 +846,70 @@ void uiMPEMan::validateSeedConMode()
 }
 
 
+void uiMPEMan::cleanPatchDisplay()
+{
+    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
+    if ( hor && hor->getEditor() )
+    {
+	visSurvey::MPEEditor* editor = hor->getEditor();
+	editor->cleanPatch();
+    }
+}
+
+
 void uiMPEMan::undo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
-    engine().undo( errmsg );
-    if ( !errmsg.isEmpty() )
-	uiMSG().message( errmsg );
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( seedpicker && seedpicker->canUndo() )
+    {
+	 seedpicker->horPatchUndo().unDo();
+	 updatePatchDisplay();
+    }
+    else
+    {
+	uiString undoerrmsg;
+	engine().undo( undoerrmsg );
+	if ( !undoerrmsg.isEmpty() )
+	    uiMSG().message( undoerrmsg );
+    }
 }
 
 
 void uiMPEMan::redo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-    uiString errmsg;
-    engine().redo( errmsg );
-    if ( !errmsg.isEmpty() )
-	uiMSG().message( errmsg );
+    uiString redoerrmsg;
+    engine().redo( redoerrmsg );
+    if ( !redoerrmsg.isEmpty() )
+	uiMSG().message( redoerrmsg );
+
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( seedpicker && seedpicker->canReDo() )
+    {
+	 seedpicker->horPatchUndo().reDo();
+	 updatePatchDisplay();
+    }
+}
+
+
+void uiMPEMan::updatePatchDisplay()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !tracker || !seedpicker )
+	return;
+
+    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
+    if ( hor && hor->getEditor() )
+    {
+	visSurvey::MPEEditor* editor = hor->getEditor();
+	editor->displayPatch( seedpicker->getPatch() );
+    }
+
 }
 
 
