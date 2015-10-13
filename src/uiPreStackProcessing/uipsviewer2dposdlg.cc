@@ -305,15 +305,16 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     BufferString firstgnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
-    int modelidx = 0;
+    int modelnr = 0;
     for ( int gidx=0; gidx<gatherinfos.size(); gidx++ )
     {
 	const GatherInfo& ginfo = gatherinfos[gidx];
-	const int trcnr = issynthetic_ ? modelidx+1
+	if ( ginfo.gathernm_ == firstgnm )
+	    modelnr++;
+
+	const int trcnr = issynthetic_ ? modelnr
 				       : isinl_ || is2d_ ? ginfo.bid_.crl()
 							 : ginfo.bid_.inl();
-	if ( ginfo.gathernm_ == firstgnm )
-	    modelidx++;
 	if ( (!issynthetic_ || ginfo.isselected_) &&
 	     ginfo.gathernm_ == firstgnm )
 	{
@@ -435,10 +436,13 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 		gatherinfos_ += ginfo;
 		dispgatheridxs_ += gatherinfos_.size()-1;
 	    }
-	    else if ( gatherinfos_.validIdx(trcnr-1) )
+	    else 
 	    {
-		dispgatheridxs_ += trcnr-1;
-		gatherinfos_[trcnr-1].isselected_ = true;
+		const int ginfoidx = trcnr-1 + ((trcrg.width()+1)*colidx);
+		if ( !gatherinfos_.validIdx(ginfoidx) )
+		    continue;
+		dispgatheridxs_ += ginfoidx;
+		gatherinfos_[ginfoidx].isselected_ = true;
 	    }
 	}
     }
@@ -480,32 +484,31 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb)
-    if ( but == toselect_ )
-    {
-	for ( int idx=allgatherfld_->size()-1; idx>=0; idx-- )
-	{
-	    if ( !allgatherfld_->isChosen(idx) ) continue;
-	    const char* txt = allgatherfld_->textOfItem(idx);
-	    if ( selgatherfld_->isPresent( txt ) ) continue;
-	    selgatherfld_->addItem(toUiString(allgatherfld_->textOfItem(idx)));
-	    allgatherfld_->removeItem(idx);
-	}
-    }
-    else if ( but == fromselect_ )
-    {
-	for ( int idx=selgatherfld_->size()-1; idx>=0; idx-- )
-	{
-	    if ( !selgatherfld_->isChosen(idx) ) continue;
-	    const char* txt = selgatherfld_->textOfItem(idx);
-	    if ( allgatherfld_->isPresent( txt ) ) continue;
+    uiListBox* fromfld = but == toselect_ ? allgatherfld_ : selgatherfld_;
+    uiListBox* tofld = but == toselect_ ? selgatherfld_ : allgatherfld_;
 
-	    allgatherfld_->addItem( toUiString(txt) );
-	    selgatherfld_->removeItem(idx);
-	    allgatherfld_->setChosen( allgatherfld_->size()-1 );
-	}
+    BufferStringSet removegathernms;
+    for ( int idx=0; idx<fromfld->size(); idx++ )
+    {
+	if ( !fromfld->isChosen(idx) )
+	    continue;
+
+	removegathernms.addIfNew( fromfld->textOfItem(idx) );
     }
+
+    while ( !removegathernms.isEmpty() )
+    {
+	BufferString remgathernm = removegathernms.get( 0 );
+	removegathernms.removeSingle( 0 );
+	tofld->addItem( toUiString(remgathernm.buf()) );
+	const int remidx = fromfld->indexOf( remgathernm.buf() );
+	fromfld->removeItem( remidx );
+    }
+
     allgatherfld_->sortItems();
+    allgatherfld_->chooseAll( false );
     selgatherfld_->sortItems();
+    selgatherfld_->chooseAll();
 }
 
 
