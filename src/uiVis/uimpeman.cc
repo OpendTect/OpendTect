@@ -871,10 +871,10 @@ void uiMPEMan::undo()
     }
     else
     {
-	uiString errmsg;
-	engine().undo( errmsg );
-	if ( !errmsg.isEmpty() )
-	    uiMSG().message( errmsg );
+	uiString undoerrmsg;
+	engine().undo( undoerrmsg );
+	if ( !undoerrmsg.isEmpty() )
+	    uiMSG().message( undoerrmsg );
     }
 }
 
@@ -882,10 +882,10 @@ void uiMPEMan::undo()
 void uiMPEMan::redo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-    uiString errmsg;
-    engine().redo(errmsg);
-    if ( !errmsg.isEmpty() )
-	uiMSG().message( errmsg );
+    uiString redoerrmsg;
+    engine().redo( redoerrmsg );
+    if ( !redoerrmsg.isEmpty() )
+	uiMSG().message( redoerrmsg );
 
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
