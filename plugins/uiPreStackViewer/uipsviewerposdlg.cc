@@ -56,9 +56,9 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 
     applybox_ = new uiCheckBox( this, tr("Immediate update"),
 				mCB(this,uiViewer3DPositionDlg,applBoxSel) );
-    applybox_->attach( rightOf, stepfld_ );
+    applybox_->attach( alignedBelow, oobox_ );
     applybut_ = new uiPushButton( this, tr("Update Now"), true );
-    applybut_->attach( rightBorder );
+    applybut_->attach( rightTo, applybox_ );
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
     postFinalise().notify( mCB(this,uiViewer3DPositionDlg,atStart) );

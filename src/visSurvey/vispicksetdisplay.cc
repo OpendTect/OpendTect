@@ -517,7 +517,7 @@ void PickSetDisplay::otherObjectsMoved(
     TypeSet<Coord3> polycoords;
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
     {
-	Coord3 pos = (*set_)[idx].pos_;
+	Coord3 pos = set_->validIdx(idx) ? (*set_)[idx].pos_ : Coord3::udf();
 	if ( datatransform_ ) pos.z = datatransform_->transform( pos );
 
 	if ( scene_ )

@@ -686,6 +686,7 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 
 void uiODViewer2D::trackSetupCB( CallBacker* cb )
 {
+    if ( !treetp_ ) return;
     const uiTreeViewItem* curitem = treetp_->getTreeView()->currentItem();
     if ( !curitem )
 	return;
@@ -701,7 +702,8 @@ void uiODViewer2D::trackSetupCB( CallBacker* cb )
 	    break;
     }
 
-    EM::EMObject* emobj = EM::EMM().getObject( hortreeitm->emObjectID() );
+    EM::EMObject* emobj =
+	hortreeitm ? EM::EMM().getObject( hortreeitm->emObjectID() ) : 0;
     if ( !emobj )
 	return;
 
