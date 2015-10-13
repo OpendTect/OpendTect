@@ -190,13 +190,13 @@ public:
 public: \
     static const EnumDefImpl<enm>& enm##Def(); \
     static mDeprecated const char** enm##Names();\
-    static bool mDeprecated parseEnum##enm(const char*,enm&);  /*legacy */ \
-    static bool mDeprecated parseEnum(const char*,enm&); \
-    static bool mDeprecated parseEnum(const IOPar&,const char*,enm&); \
-    static enm mDeprecated parseEnum##enm(const char*);  \
+    static mDeprecated bool parseEnum##enm(const char*,enm&);  /*legacy */ \
+    static mDeprecated bool parseEnum(const char*,enm&); \
+    static mDeprecated bool parseEnum(const IOPar&,const char*,enm&); \
+    static mDeprecated enm parseEnum##enm(const char*);  \
     static const char* toString(enm); \
     static uiString toUiString(enm); \
-    static const char* mDeprecated get##enm##String(enm); /*legacy */ \
+    static mDeprecated const char* get##enm##String(enm); /*legacy */ \
 private: \
     static EnumDefImpl<enm>* enm##CreateDef(); \
     static const char* enm##Keys_[]; \
@@ -205,14 +205,14 @@ public:
 
 #define mDeclareNameSpaceEnumUtils(mod,enm) \
     mExtern(mod) const EnumDefImpl<enm>& enm##Def(); \
-    mExtern(mod) const char** mDeprecated enm##Names();\
-    mExtern(mod) bool mDeprecated parseEnum(const IOPar&,const char*,enm&); \
-    mExtern(mod) bool mDeprecated parseEnum(const char*,enm&); \
-    mExtern(mod) bool mDeprecated parseEnum##enm(const char*,enm&); /*legacy */  \
-    mExtern(mod) enm mDeprecated parseEnum##enm(const char*); \
+    mExtern(mod) mDeprecated const char** enm##Names();\
+    mExtern(mod) mDeprecated bool parseEnum(const IOPar&,const char*,enm&); \
+    mExtern(mod) mDeprecated bool parseEnum(const char*,enm&); \
+    mExtern(mod) mDeprecated bool parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern(mod) mDeprecated enm parseEnum##enm(const char*); \
     mExtern(mod) const char* toString(enm); \
     mExtern(mod) uiString toUiString(enm); \
-    mExtern(mod) const char* mDeprecated get##enm##String(enm); /*legacy */
+    mExtern(mod) mDeprecated const char* get##enm##String(enm); /*legacy */
 
 //Legacy
 #define DeclareEnumUtils(enm) mDeclareEnumUtils(enm)
