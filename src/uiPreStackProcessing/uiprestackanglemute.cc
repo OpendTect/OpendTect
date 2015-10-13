@@ -157,7 +157,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 void uiAngleCompAdvParsDlg::createAngleCompFields()
 {
     smoothtypefld_ = new uiGenInput( this, tr("Smoothing Type"),
-    StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
+	StringListInpSpec(PreStack::AngleComputer::smoothingTypeDef()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
     smoothtypefld_->setValue( PreStack::AngleComputer::FFTFilter );
     smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,

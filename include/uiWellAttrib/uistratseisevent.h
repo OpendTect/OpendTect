@@ -60,6 +60,7 @@ protected:
 
     uiStratLevelSel*	levelfld_;
     uiGenInput*		evfld_;
+    EnumDefImpl<VSEvent::Type>	evtype_;
     uiGenInput*		snapoffsfld_;
     uiGenInput*		extrwinfld_;
     uiCheckBox*		usestepfld_;

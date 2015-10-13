@@ -32,14 +32,15 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     , nosteplbl_(0)
     , levelfld_(0)
     , uptolvlfld_(0)
+    , evtype_( VSEvent::TypeDef() )
 {
     if ( !setup_.fixedlevel_ )
 	levelfld_ = new uiStratLevelSel( this, false, tr("Reference level" ));
 
-    BufferStringSet eventnms( VSEvent::TypeNames() );
-    eventnms.removeSingle(0);
+    evtype_.remove( evtype_.getKeyForIndex(0) );
+
     evfld_ = new uiGenInput( this, tr("Snap synthetics to event"),
-				StringListInpSpec(eventnms) );
+				StringListInpSpec(evtype_) );
     evfld_->setWithCheck( true );
     evfld_->checked.notify( mCB(this,uiStratSeisEvent,evSnapCheck) );
     evfld_->setValue( 1 );
@@ -174,7 +175,7 @@ bool uiStratSeisEvent::getFromScreen()
     }
 
     ev_.setEvType( !evfld_->isChecked() ? VSEvent::None
-		   : (VSEvent::Type)(evfld_->getIntValue()+1) );
+		   : evtype_.getEnumForIndex(evfld_->getIntValue()) );
     if ( ev_.evType() != VSEvent::None )
 	ev_.setOffset( snapoffsfld_->getFValue() * mToSecFactorF );
 
@@ -212,7 +213,7 @@ void uiStratSeisEvent::putToScreen()
 	levelfld_->setSelected( ev_.level() );
     evfld_->setChecked( ev_.evType() != VSEvent::None );
     if ( ev_.evType() == VSEvent::None )
-	evfld_->setValue( ((int)ev_.evType())-1 );
+	evfld_->setValue( evtype_.getKey(ev_.evType()) );
 
     snapoffsfld_->setValue( ev_.offset() );
     if ( extrwinfld_ )
