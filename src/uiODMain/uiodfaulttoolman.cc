@@ -1404,6 +1404,7 @@ void uiODFaultToolMan::setAuxSurfaceWrite( const char* outputname )
 
 void uiODFaultToolMan::undoCB( CallBacker* )
 {
+    if ( !curfltd_ && !curfssd_ ) return;
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().unDo( 1, true  ) )
@@ -1415,6 +1416,7 @@ void uiODFaultToolMan::undoCB( CallBacker* )
 
 void uiODFaultToolMan::redoCB( CallBacker* )
 {
+    if ( !curfltd_ && !curfssd_ ) return;
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().reDo( 1, true  ) )
