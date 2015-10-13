@@ -841,7 +841,6 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 	scene_->setPickable( !yn );
 
     setViewModeCursor( HoverCursor );
-    actmodecursor_.shape_ = MouseCursor::NotSet;
 
     if ( trigger )
 	handle_.viewmodechanged.trigger( handle_ );
@@ -861,7 +860,10 @@ void ui3DViewerBody::setViewModeCursor( ViewModeCursor viewmodecursor )
     else if ( viewmodecursor==HoverCursor && isViewMode() )
 	cursor.shape_ = MouseCursor::PointingHand;
     else
+    {
 	cursor.shape_ = MouseCursor::Arrow;
+	actmodecursor_.shape_ = MouseCursor::NotSet;
+    }
 
     mQtclass(QCursor) qcursor;
     uiCursorManager::fillQCursor( cursor, qcursor );
