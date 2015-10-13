@@ -252,16 +252,20 @@ void uiSEGYReadStartInfo::manCoordDefFlds()
 
 
 #define mRemoveRefNrByteFld() \
-	mRemoveFromTable( refnrbytefld_, mKey2Row, mUseCol )
+    mRemoveFromTable( refnrbytefld_, mKey2Row, mUseCol )
+#define mRemoveTrcNrByteFld() \
+    mRemoveFromTable( trcnrbytefld_, mKey1Row, mUseCol )
+#define mRemoveTrcNrGenGrp() { \
+    mRemoveFromTable( trcnrgengrp_, mKey1Row, mUseCol ); \
+    trcnrgenstartfld_ = trcnrgenstepfld_ = 0; }
 
 
 void uiSEGYReadStartInfo::remove2DDefFlds()
 {
     mRemoveFromTable( trcnrsrcfld_, mKey1Row, mUseTxtCol );
-    mRemoveFromTable( trcnrbytefld_, mKey1Row, mUseCol )
+    mRemoveTrcNrByteFld();
+    mRemoveTrcNrGenGrp();
     mRemoveRefNrByteFld();
-    mRemoveFromTable( trcnrgengrp_, mKey1Row, mUseCol );
-    trcnrgenstartfld_ = trcnrgenstepfld_ = 0;
 }
 
 
@@ -286,16 +290,49 @@ void uiSEGYReadStartInfo::man2DDefFlds()
 	mRemoveRefNrByteFld()
     else if ( !refnrbytefld_ )
     {
-	refnrbytefld_ = new uiSEGYByteNr( 0, "RefNr byte" );
+	refnrbytefld_ = new uiSEGYByteNr( 0, "Ref/SP number byte" );
 	refnrbytefld_->selectionChanged.notify( parchgcb );
 	mAdd2Tbl( refnrbytefld_, mKey2Row, mUseCol );
     }
 
-    if ( !trcnrbytefld_ )
+    if ( !trcnrsrcfld_ )
     {
-	trcnrbytefld_ = new uiSEGYByteNr( 0, "TrcNr byte" );
-	trcnrbytefld_->selectionChanged.notify( parchgcb );
-	mAdd2Tbl( trcnrbytefld_, mKey1Row, mUseCol );
+	trcnrsrcfld_ = new uiComboBox( 0, "Trace number source" );
+	trcnrsrcfld_->addItem( "In file" );
+	trcnrsrcfld_->addItem( "Generate" );
+	trcnrsrcfld_->selectionChanged.notify( parchgcb );
+	mAdd2Tbl( trcnrsrcfld_, mKey1Row, mUseTxtCol );
+    }
+
+    if ( loaddef_.havetrcnrs_ )
+    {
+	mRemoveTrcNrGenGrp();
+	if ( !trcnrbytefld_ )
+	{
+	    trcnrbytefld_ = new uiSEGYByteNr( 0, "Trace number byte" );
+	    trcnrbytefld_->selectionChanged.notify( parchgcb );
+	    mAdd2Tbl( trcnrbytefld_, mKey1Row, mUseCol );
+	}
+    }
+    else
+    {
+	mRemoveTrcNrByteFld();
+	if ( !trcnrgengrp_ )
+	{
+	    trcnrgengrp_ = new uiGroup( 0, "Trace number Generation" );
+	    trcnrgenstartfld_ = new uiLineEdit( trcnrgengrp_,
+		    IntInpSpec(1000), "Trace Number Start" );
+	    trcnrgenstartfld_->setToolTip( tr("Trace number start value") );
+	    trcnrgenstartfld_->editingFinished.notify( parchgcb );
+	    trcnrgenstartfld_->setStretch( 2, 1 );
+	    trcnrgenstepfld_ = new uiLineEdit( trcnrgengrp_,
+		    IntInpSpec(1), "Trace number Step" );
+	    trcnrgenstepfld_->setToolTip( tr("Step in trace numbers") );
+	    trcnrgenstepfld_->editingFinished.notify( parchgcb );
+	    trcnrgenstepfld_->setStretch( 2, 1 );
+	    trcnrgenstepfld_->attach( rightOf, trcnrgenstartfld_ );
+	    tbl_->setCellGroup( RowCol(mKey1Row,mUseCol), trcnrgengrp_ );
+	}
     }
 }
 
@@ -451,10 +488,11 @@ void uiSEGYReadStartInfo::updateCellTexts()
     setCellTxt( mQSResCol, mYRow, isvsp ? sEmpty : yinfotxt_ );
     setCellTxt( mQSResCol, mPSRow, !isvsp && isps ? offsetinfotxt_ : sEmpty );
     setCellTxt( mUseTxtCol, mNrSamplesRow, nrtrcsusrtxt );
-    setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
     setCellTxt( mUseTxtCol, mXRow, xustxt );
     setCellTxt( mUseTxtCol, mYRow, yustxt );
+    if ( !is2d )
+	setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
 }
 
 
@@ -645,8 +683,14 @@ void uiSEGYReadStartInfo::useLoadDef()
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
     {
-	mSetToByteNr( trcnrbytefld_, trnr_  );
+	trcnrsrcfld_->setCurrentItem( loaddef_.havetrcnrs_ ? 0 : 1 );
 	mSetToByteNr( refnrbytefld_, refnr_  );
+	mSetToByteNr( trcnrbytefld_, trnr_  );
+	if ( trcnrgengrp_ )
+	{
+	    trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start );
+	    trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step );
+	}
     }
     else
     {
@@ -666,8 +710,7 @@ void uiSEGYReadStartInfo::useLoadDef()
 
     if ( Seis::isPS(gt) )
     {
-	if ( psoffsrcfld_ )
-	    psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
+	psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
 	mSetToByteNr( offsetbytefld_, offs_  );
 	if ( offsgengrp_ )
 	{
@@ -684,9 +727,18 @@ void uiSEGYReadStartInfo::fillLoadDef()
 {
     loaddef_.revision_ = revfld_->currentItem();
     loaddef_.format_ = (short)(*fmtfld_->text() - '0');
-    loaddef_.ns_ = nsfld_->getIntValue();
-    loaddef_.sampling_.start = zstartfld_->getFValue();
-    loaddef_.sampling_.step = srfld_->getFValue();
+
+    int newns = nsfld_->getIntValue();
+    if ( newns > 0 )
+	loaddef_.ns_ = newns;
+
+    SamplingData<float> sampling = loaddef_.sampling_;
+    sampling.start = zstartfld_->getFValue();
+    if ( !mIsUdf(sampling.start) )
+	loaddef_.sampling_.start = sampling.start;
+    sampling.step = srfld_->getFValue();
+    if ( !mIsUdf(sampling.step) && sampling.step != 0.f )
+	loaddef_.sampling_.step = sampling.step;
 
     if ( imptype_.isVSP() )
 	return;
@@ -700,8 +752,17 @@ void uiSEGYReadStartInfo::fillLoadDef()
 
     if ( Seis::is2D(gt) )
     {
-	mSetByteNr( trcnrbytefld_, trnr_  );
 	mSetByteNr( refnrbytefld_, refnr_  );
+	mSetByteNr( trcnrbytefld_, trnr_  );
+	loaddef_.havetrcnrs_ = trcnrsrcfld_->currentItem() == 0;
+	if ( trcnrgengrp_ )
+	{
+	    SamplingData<int>& def = loaddef_.trcnrdef_;
+	    def.start = trcnrgenstartfld_->getIntValue();
+	    if ( mIsUdf(def.start) ) def.start = 1;
+	    def.step = trcnrgenstepfld_->getIntValue();
+	    if ( mIsUdf(def.step) || def.step == 0 ) def.step = 1;
+	}
     }
     else
     {
@@ -709,15 +770,18 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	mSetByteNr( crlbytefld_, crl_  );
     }
 
-    if ( Seis::isPS(gt) && psoffsrcfld_ )
+    if ( Seis::isPS(gt) )
     {
 	loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
 				    psoffsrcfld_->currentItem();
 	mSetByteNr( offsetbytefld_, offs_  );
 	if ( offsgengrp_ )
 	{
-	    loaddef_.psoffsdef_.start = offsgenstartfld_->getFValue();
-	    loaddef_.psoffsdef_.step = offsgenstepfld_->getFValue();
+	    SamplingData<float>& def = loaddef_.psoffsdef_;
+	    def.start = offsgenstartfld_->getFValue();
+	    if ( mIsUdf(def.start) ) def.start = 0.f;
+	    def.step = offsgenstepfld_->getFValue();
+	    if ( mIsUdf(def.step) ) def.step = 1.f;
 	}
     }
 }

@@ -110,8 +110,10 @@ void SEGY::LoadDef::reInit( bool alsohdef )
     init();
 
     coordscale_ = mUdf(float);
-    psoffssrc_ = FileReadOpts::InFile;
     icvsxytype_ = FileReadOpts::ICOnly;
+    havetrcnrs_ = true;
+    trcnrdef_ = SamplingData<int>( 1000, 1 );
+    psoffssrc_ = FileReadOpts::InFile;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
@@ -447,6 +449,9 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     def.getTrcInfo( thdr, ti, offscalc );
 
     const bool isfirst = nrinfile == idxfirstlive_;
+    if ( !def.havetrcnrs_ )
+	ti.nr = def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ );
+
     keydata_.add( thdr, def.hdrsswapped_, isfirst );
     pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
     addValues( clipsampler, vals, def.ns_ );
