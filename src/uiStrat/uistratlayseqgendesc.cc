@@ -185,8 +185,8 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     getMouseEventHandler().doubleClick.notify(
 			    mCB(this,uiExtLayerSequenceGenDesc,dblClckCB) );
 
-    const uiString& lbltxt = tr("top %1").arg(SI().getUiXYUnitString
-								   (true,true));
+    const uiString lbltxt =
+	tr("top %1").arg(SI().getUiXYUnitString(true,true));
     topdepthfld_ = new uiGenInput( parent(), lbltxt, FloatInpSpec(0) );
     topdepthfld_->setElemSzPol( uiObject::Small );
     topdepthfld_->attach( rightBorder );
