@@ -206,6 +206,8 @@ public:
     void 			removeAllViewers();
     const FlatView::DataDispPars& dispPars() const    { return app_.ddpars_; }
     FlatView::DataDispPars&	dispPars()	      { return app_.ddpars_; }
+    const FlatView::Annotation& annot() const	      { return app_.annot_; }
+    FlatView::Annotation&	annot()		      { return app_.annot_; }
     void			setGatherInfos(const TypeSet<GatherInfo>&);
     PSViewAppearance		curViewerApp();
 

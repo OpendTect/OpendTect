@@ -56,8 +56,7 @@ static int sStartNrViewers = 8;
 namespace PreStackView
 {
 
-static const char* sStoredStr( bool stored )
-{ return stored ? "Stored" : "Synthteic"; }
+static const char* sKeySynthetic()	{ return "Synthteic"; }
 
 
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
@@ -198,6 +197,7 @@ void uiViewer2DMainWin::removeAllGathers()
     deepErase( gdi_ );
 }
 
+#define sWidthForX2Annot 70
 
 void uiViewer2DMainWin::reSizeItems()
 {
@@ -207,12 +207,11 @@ void uiViewer2DMainWin::reSizeItems()
     scaleVal( hslval_, true, true );
     scaleVal( vslval_, false, true );
 
-    const int annotsz =
-	vwrs_[0]->appearance().annot_.x2_.showannot_ ? 70 : 0;
-    const int w = mNINT32( (hslval_*startwidth_-annotsz)/(float)nritems );
+    const int w =
+	mNINT32( (hslval_*startwidth_- sWidthForX2Annot)/(float)nritems );
     const int h = mNINT32( vslval_*startheight_ );
     for ( int idx=0; idx<nritems; idx++ )
-	mainviewer_->reSizeItem( idx, uiSize( idx ? w : w+annotsz, h ) );
+	mainviewer_->reSizeItem( idx, uiSize(idx ? w : w+sWidthForX2Annot, h) );
 
     infobar_->reSizeItems();
     mainviewer_->resetViewArea(0);
@@ -389,6 +388,16 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
     statusBar()->message( toUiString(mesg.buf()) );
 }
 
+BufferString getSettingsKey( bool isstored )
+{
+    mDeclStaticString( key );
+    if ( isstored )
+	key = PreStack::Gather::sDataPackCategory();
+    else
+	key = IOPar::compKey( PreStack::Gather::sDataPackCategory(),
+			      sKeySynthetic() ) ;
+    return key;
+}
 
 class uiPSMultiPropDlg : public uiDialog
 { mODTextTranslationClass(uiPSMultiPropDlg);
@@ -401,6 +410,7 @@ uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
     , cb_(cb)
     , forstored_(stored)
 {
+    setCtrlStyle( uiDialog::CloseOnly );
     uiLabeledComboBox* lblcb =
 	new uiLabeledComboBox( this, tr("Select gather") );
     datasetcb_ = lblcb->box();
@@ -422,6 +432,7 @@ void selectPropCB( CallBacker* )
     if ( vwrs.isEmpty() )
 	return;
 
+    vwrs[0]->appearance().annot_.allowuserchange_ = false;
     uiFlatViewPropDlg propdlg( this, *vwrs[0], cb_ );
     if ( propdlg.go() )
     {
@@ -429,9 +440,7 @@ void selectPropCB( CallBacker* )
 	 {
 	     if ( propdlg.saveButtonChecked() )
 	     {
-		 const BufferString key(
-			 IOPar::compKey(PreStack::Gather::sDataPackCategory(),
-					sStoredStr(forstored_)) );
+		 const BufferString key( getSettingsKey(forstored_) );
 		 vwrs[0]->storeDefaults( key );
 	     }
 
@@ -506,10 +515,6 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     gd->setPosition( gd->getBinID(), tkzs_.zsamp_.width()==0 ? 0 : &zrg );
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
-    fv->appearance().annot_.x2_.name_ = "TWT";
-    fv->appearance().annot_.x1_.showannot_ = true;
-    fv->appearance().annot_.x2_.showannot_ = vwrs_.isEmpty();
-    fv->appearance().annot_.allowuserchangereversedaxis_ = false;
 
     vwrs_ += fv;
     addGroup( gd, gdi );
@@ -565,7 +570,16 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     const int actappidx = appearances_.indexOf( dummypsapp );
     fv->appearance().ddpars_ =
 	actappidx<0 ? control_->dispPars() : appearances_[actappidx].ddpars_;
-    fv->handleChange( FlatView::Viewer::DisplayPars );
+    fv->appearance().annot_ =
+	actappidx<0 ? control_->annot() : appearances_[actappidx].annot_;
+    fv->appearance().annot_.x1_.name_ = "Offset";
+    fv->appearance().annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
+    fv->appearance().annot_.x1_.showannot_ = true;
+    fv->appearance().annot_.x2_.showannot_ = vwrs_.size()==1;
+    fv->appearance().annot_.x1_.showgridlines_ = true;
+    fv->appearance().annot_.x2_.showgridlines_ = true;
+    fv->appearance().annot_.color_ = Color::Black();
+    fv->handleChange( FlatView::Viewer::DisplayPars | FlatView::Viewer::Annot );
     control_->addViewer( *fv );
 }
 
@@ -652,13 +666,23 @@ void uiViewer2DMainWin::setAppearance( const FlatView::Appearance& app,
     PSViewAppearance& viewapp = appearances_[appidx];
     viewapp.annot_ = app.annot_;
     viewapp.ddpars_ = app.ddpars_;
+    viewapp.annot_.allowuserchangereversedaxis_ = false;
     for ( int gidx=0; gidx<gd_.size(); gidx++ )
     {
 	if ( viewapp.datanm_ != gdi_[gidx]->getDataName() )
 	    continue;
 	uiFlatViewer* vwr = gd_[gidx]->getUiFlatViewer();
-	vwr->appearance() = app;
-	vwr->handleChange( FlatView::Viewer::DisplayPars );
+	viewapp.annot_.color_ = Color::Black();
+	viewapp.annot_.x1_.name_ = "Offset";
+	viewapp.annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
+	viewapp.annot_.x1_.showannot_ = true;
+	viewapp.annot_.x2_.showannot_ = gidx==0;
+	viewapp.annot_.x1_.showgridlines_ = true;
+	viewapp.annot_.x2_.showgridlines_ = true;
+	viewapp.annot_.color_ = Color::Black();
+	vwr->appearance() = viewapp;
+	vwr->handleChange( FlatView::Viewer::DisplayPars |
+			   FlatView::Viewer::Annot );
     }
 }
 
@@ -694,8 +718,6 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 		wvamapper.cliprate_ = Interval<float>(0.0,0.0);
 		wvamapper.autosym0_ = true;
 		wvamapper.symmidval_ = 0.0f;
-		psapp.annot_.x1_.showannot_ = true;
-		psapp.annot_.x2_.showannot_ = true;
 	    }
 	}
 	else if ( !appearances_.isEmpty() )
@@ -704,6 +726,14 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 	    psapp.ddpars_ = appearances_[0].ddpars_;
 	}
 
+	psapp.annot_.x1_.showannot_ = true;
+	psapp.annot_.x2_.showannot_ = true;
+	psapp.annot_.x1_.name_ = "Offset";
+	psapp.annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
+	psapp.annot_.x1_.showgridlines_ = true;
+	psapp.annot_.x2_.showgridlines_ = true;
+	psapp.annot_.color_ = Color::Black();
+	psapp.annot_.allowuserchangereversedaxis_ = false;
 	appearances_ +=psapp;
     }
 }
@@ -782,9 +812,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 bool uiViewer2DMainWin::getStoredAppearance( PSViewAppearance& psapp ) const
 {
     Settings& setts = Settings::fetch( "flatview" );
-     const BufferString key(
-	     IOPar::compKey(PreStack::Gather::sDataPackCategory(),
-			    sStoredStr(isStored())) );
+    const BufferString key( getSettingsKey(isStored()) );
     PtrMan<IOPar> iop = setts.subselect( key );
     if ( !iop && isStored() ) // for older stored par files
 	iop = setts.subselect( PreStack::Gather::sDataPackCategory() );
@@ -1480,14 +1508,26 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	if ( !vwrs_[vwridx] ) continue;
 	uiFlatViewer& vwr = *vwrs_[vwridx];
 	vwr.appearance() = app_;
-	if ( vwridx>0 ) vwr.appearance().annot_.x2_.showannot_ = false;
+	vwr.appearance().annot_.x1_.name_ = "Offset";
+	vwr.appearance().annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
+	vwr.appearance().annot_.x1_.showannot_ = true;
+	vwr.appearance().annot_.x2_.showannot_ = vwridx==0;
+	vwr.appearance().annot_.x1_.showgridlines_ = true;
+	vwr.appearance().annot_.x2_.showgridlines_ = true;
+	vwr.appearance().annot_.color_ = Color::Black();
 
 	const uiWorldRect cv( vwr.curView() );
-	FlatView::Annotation& annot = vwr.appearance().annot_;
-	if ( (cv.right() > cv.left()) == annot.x1_.reversed_ )
-	    { annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
-	if ( (cv.top() > cv.bottom()) == annot.x2_.reversed_ )
-	    { annot.x2_.reversed_ = !annot.x2_.reversed_; flip( false ); }
+	FlatView::Annotation& annotations = vwr.appearance().annot_;
+	if ( (cv.right() > cv.left()) == annotations.x1_.reversed_ )
+	{
+	    annotations.x1_.reversed_ = !annotations.x1_.reversed_;
+	    flip( true );
+	}
+	if ( (cv.top() > cv.bottom()) == annotations.x2_.reversed_ )
+	{
+	    annotations.x2_.reversed_ = !annotations.x2_.reversed_;
+	    flip( false );
+	}
 
 	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
 	{
