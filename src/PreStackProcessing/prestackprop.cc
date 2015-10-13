@@ -17,14 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace PreStack
 {
-DefineEnumUtils(PropCalc,CalcType,"Calculation type")
+mDefineEnumUtils(PropCalc,CalcType,"Calculation type")
 {
 	"Statistics",
 	"AVO Attributes",
 	0
 };
 
-DefineEnumUtils(PropCalc,AxisType,"Axis transformation")
+mDefineEnumUtils(PropCalc,AxisType,"Axis transformation")
 {
 	"None",
 	"Logarithmic",
@@ -36,7 +36,7 @@ DefineEnumUtils(PropCalc,AxisType,"Axis transformation")
 	0
 };
 
-DefineEnumUtils(PropCalc,LSQType,"Axis type")
+mDefineEnumUtils(PropCalc,LSQType,"Axis type")
 {
 	"Intercept",
 	"Gradient",

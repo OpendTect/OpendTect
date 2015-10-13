@@ -24,9 +24,9 @@ public:
 
     enum Pos	{ Start, Stop, Center };
     enum HPos	{ Left, Right, HCenter };
-		DeclareEnumUtils(HPos)
+		mDeclareEnumUtils(HPos)
     enum VPos	{ Top, Bottom, VCenter };
-		DeclareEnumUtils(VPos)
+		mDeclareEnumUtils(VPos)
 
 		Alignment( HPos h=Left, VPos v=Top );
 		Alignment( Pos h, Pos v );
@@ -63,7 +63,7 @@ public:
 
     enum Type			{ None, Square, Circle, Cross, Plus, Target,
 				  HLine, VLine, Plane, Triangle, Arrow };
-				DeclareEnumUtils(Type)
+				mDeclareEnumUtils(Type)
 
 				MarkerStyle2D( Type tp=Square, int sz=1,
 					       Color col=Color::Black(),
@@ -92,7 +92,7 @@ public:
     enum Type		{ None=-1,
 			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross,
 			  Point, Plane };
-			DeclareEnumUtils(Type)
+			mDeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
 				       Color col=Color::White() );
@@ -118,7 +118,7 @@ public:
     enum Type		{ None, Solid, Dash, Dot, DashDot, DashDotDot };
 			// This enum should not be changed: it is cast
 			// directly to a UI enum.
-			DeclareEnumUtils(Type)
+			mDeclareEnumUtils(Type)
 
 			LineStyle(Type t=Solid,int w=1,Color c=Color::Black());
 

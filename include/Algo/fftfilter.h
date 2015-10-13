@@ -37,7 +37,7 @@ public:
 			~FFTFilter();
 
 			enum Type		{ LowPass, HighPass, BandPass };
-			DeclareEnumUtils(Type)
+			mDeclareEnumUtils(Type)
 
     void		setLowPass(float cutf3,float cutf4);
     void		setHighPass(float cutf1,float cutf2);

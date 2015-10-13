@@ -279,11 +279,10 @@ void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
 
 
 
-SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d, bool isps )
+SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d )
     : filenm_(fnm)
     , keydata_(*new HdrEntryKeyData)
     , pidetector_(0)
-    , isps_(isps)
 {
     init( is2d );
 }
@@ -447,11 +446,12 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     SeisTrcInfo ti;
     def.getTrcInfo( thdr, ti, offscalc );
 
-    keydata_.add( thdr, def.hdrsswapped_ );
+    const bool isfirst = nrinfile == idxfirstlive_;
+    keydata_.add( thdr, def.hdrsswapped_, isfirst );
     pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
     addValues( clipsampler, vals, def.ns_ );
 
-    if ( nrinfile == idxfirstlive_ )
+    if ( isfirst )
 	rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
     else
 	rgs_.refnrs_.include( ti.refnr, false );
@@ -528,7 +528,6 @@ void SEGY::ScanInfo::addValues( DataClipSampler& cs, const float* vals, int ns )
 
 void SEGY::ScanInfo::finishGet( od_istream& strm )
 {
-    keydata_.finish( isps_ );
     pidetector_->finish();
     rgs_.use( *pidetector_ );
     strm.setPosition( startpos_ );
@@ -558,7 +557,7 @@ void SEGY::ScanInfoSet::setEmpty()
 
 SEGY::ScanInfo& SEGY::ScanInfoSet::add( const char* fnm )
 {
-    ScanInfo* si = new ScanInfo( fnm, is2d_, isps_ );
+    ScanInfo* si = new ScanInfo( fnm, is2d_ );
     sis_ += si;
     return *si;
 }

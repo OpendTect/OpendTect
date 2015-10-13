@@ -27,7 +27,7 @@ mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 public:
 
     enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body };
-			DeclareEnumUtils(Type);
+			mDeclareEnumUtils(Type);
 
 			uiSurfaceMan(uiParent*,Type);
 			~uiSurfaceMan();

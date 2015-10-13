@@ -72,7 +72,7 @@ public:
     static const char*		sType()		{ return "EventTracker"; }
 
     enum CompareMethod		{ None, SeedTrace, AdjacentParent };
-				DeclareEnumUtils(CompareMethod)
+				mDeclareEnumUtils(CompareMethod)
 
     void			setCompareMethod(CompareMethod);
     CompareMethod		getCompareMethod() const;

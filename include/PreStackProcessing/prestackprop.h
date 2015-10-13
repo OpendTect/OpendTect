@@ -35,12 +35,12 @@ mExpClass(PreStackProcessing) PropCalc
 public:
 
     enum CalcType	{ Stats, LLSQ };
-			DeclareEnumUtils(CalcType)
+			mDeclareEnumUtils(CalcType)
     enum AxisType	{ Norm, Log, Exp, Sqr, Sqrt, Abs, Sinsq };
-			DeclareEnumUtils(AxisType)
+			mDeclareEnumUtils(AxisType)
     enum LSQType	{ A0, Coeff, StdDevA0, StdDevCoeff,
 		          CorrCoeff };
-			DeclareEnumUtils(LSQType)
+			mDeclareEnumUtils(LSQType)
 
     mExpClass(PreStackProcessing) Setup
     {

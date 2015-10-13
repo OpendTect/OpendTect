@@ -23,7 +23,7 @@ mClass(uiIo) DPSDensityCalcND : public ParallelTask
 public:
 
     enum CalcAreaType		{ All, Selected, NonSelected };
-    				DeclareEnumUtils(CalcAreaType);
+    				mDeclareEnumUtils(CalcAreaType);
 
     struct AxisParam
     {

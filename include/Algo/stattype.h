@@ -27,7 +27,7 @@ enum Type
 	Sum, SqSum,
 	MostFreq
 };
-DeclareNameSpaceEnumUtils(Algo,Type)
+mDeclareNameSpaceEnumUtils(Algo,Type)
 
     /* When resampling a denser sampling */
 enum UpscaleType
@@ -35,7 +35,7 @@ enum UpscaleType
 	TakeNearest,
 	UseAvg, UseMed, UseRMS, UseMostFreq
 };
-DeclareNameSpaceEnumUtils(Algo,UpscaleType)
+mDeclareNameSpaceEnumUtils(Algo,UpscaleType)
 
 inline Type typeFor( UpscaleType ut )
 {

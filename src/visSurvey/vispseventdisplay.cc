@@ -27,10 +27,10 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace visSurvey
 {
 
-DefineEnumUtils( PSEventDisplay, MarkerColor, "Marker Color" )
+mDefineEnumUtils( PSEventDisplay, MarkerColor, "Marker Color" )
 { "Single", "Quality", "Velocity", "Velocity fit", 0 };
 
-DefineEnumUtils( PSEventDisplay, DisplayMode, "Display Mode" )
+mDefineEnumUtils( PSEventDisplay, DisplayMode, "Display Mode" )
 { "None","Zero offset", "Sticks from sections", "Zero offset on sections",
   "Sticks to gathers", 0 };
 

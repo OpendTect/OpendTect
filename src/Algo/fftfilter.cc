@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #define mMINNRSAMPLES	100
 
-DefineEnumUtils(FFTFilter,Type,"Filter type")
+mDefineEnumUtils(FFTFilter,Type,"Filter type")
 { "LowPass", "HighPass", "BandPass", 0 };
 
 

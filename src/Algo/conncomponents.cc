@@ -287,10 +287,11 @@ void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
     int prevpos = -1, sidx = mUdf(int);
     for ( int i=0; i<sticksz; i++ )
     {
+	const int curidx = ids[i];
 	int res = -1;
-	const int count = nbs[ids[i]].size();
+	const int count = nbs[curidx].size();
 	if ( prevpos<0 )
-	    res = nbs[ids[i]][0];
+	    res = nbs[curidx][0];
 	else
 	{
 	    if ( abs(ics[i]-ics[sidx])>allowgapsz )
@@ -298,20 +299,20 @@ void ConnComponents::getCompSticks( TypeSet<int>& comp, int sz1,
 
 	    if ( count==1 )
 	    {
-		const int diff = nbs[ids[i]][0] - prevpos;
+		const int diff = nbs[curidx][0] - prevpos;
 		if ( abs(diff)<=allowgapsz )
-		    res = nbs[ids[i]][0];
+		    res = nbs[curidx][0];
 	    }
 	    else
 	    {
-		int nearestpos = nbs[ids[i]][0];
+		int nearestpos = nbs[curidx][0];
 		int mindist = abs(nearestpos-prevpos);
 		for ( int k=1; k<count; k++ )
 		{
-		    const int dp = abs(nbs[ids[i]][k]-prevpos);
+		    const int dp = abs(nbs[curidx][k]-prevpos);
 		    if ( dp<mindist )
 		    {
-			nearestpos = nbs[ids[i]][k];
+			nearestpos = nbs[curidx][k];
 			mindist = dp;
 		    }
 		}

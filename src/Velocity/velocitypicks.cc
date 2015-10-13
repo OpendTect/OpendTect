@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Vel
 {
 
-DefineEnumUtils( Picks, PickType, "Pick types" )
+mDefineEnumUtils( Picks, PickType, "Pick types" )
 { "RMO", "RMS", "Delta", "Epsilon", "Eta", 0 };
 
 

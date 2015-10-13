@@ -127,7 +127,7 @@ mExpClass(uiSEGY) ScanInfo
 {
 public:
 
-			ScanInfo(const char* fnm,bool is2d,bool isps);
+			ScanInfo(const char* fnm,bool is2d);
 			~ScanInfo();
 
     BasicFileInfo&	basicInfo()		{ return basicinfo_; }
@@ -140,7 +140,6 @@ public:
 
     const char*		fileName() const	{ return filenm_; }
     bool		is2D() const;
-    bool		isPS() const		{ return isps_; }
     bool		isEmpty() const		{ return nrtrcs_ < 1; }
     int			nrTraces() const	{ return nrtrcs_; }
     bool		isFull() const		{ return full_; }
@@ -160,7 +159,6 @@ protected:
     int			nrtrcs_;
     int			idxfirstlive_;
     bool		full_;
-    bool		isps_;
 
     od_stream_Pos	startpos_;
 

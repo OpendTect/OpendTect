@@ -54,7 +54,7 @@ public:
     enum WellType	{ None, Oil, Gas, OilGas, Dry, PluggedOil,
 			  PluggedGas, PluggedOilGas, PermLoc, CancLoc,
 			  InjectDispose };
-			DeclareEnumUtils(WellType);
+			mDeclareEnumUtils(WellType);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

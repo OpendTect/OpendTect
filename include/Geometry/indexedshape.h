@@ -32,7 +32,7 @@ mExpClass(Geometry) PrimitiveSet
 public:
     enum	PrimitiveType{Points,Lines,Triangles,
 			      LineStrips,TriangleStrip,TriangleFan,Other};
-		DeclareEnumUtils(PrimitiveType);
+		mDeclareEnumUtils(PrimitiveType);
 
     virtual int			size() const				= 0;
     virtual int			get(int) const				= 0;

@@ -103,7 +103,7 @@ public:
 			    , connect_(None)
 			    , pixsize_(3)		{}
 	enum Connection { None, Open, Close };
-			DeclareEnumUtils(Connection);
+			mDeclareEnumUtils(Connection);
 	Color		color_;		//!< color
 	int		pixsize_;	//!< size in pixels
 	int		markertype_;	//!< MarkerStyle3D

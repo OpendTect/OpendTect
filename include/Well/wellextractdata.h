@@ -53,7 +53,7 @@ public :
 
 
     enum		ZSelection { Markers, Depths, Times };
-			DeclareEnumUtils(ZSelection);
+			mDeclareEnumUtils(ZSelection);
 
     ZSelection		zselection_;
 

@@ -33,7 +33,7 @@ static const char* sKeyIsSonic = "Provided TWT log is sonic";
 static const char* sKeySetupPar = "Well Tie Setup";
 static const char* sKeySeisLineID = "ID of selected Line"; //backward compat.
 
-DefineEnumUtils(Setup,CorrType,"Check Shot Corrections")
+mDefineEnumUtils(Setup,CorrType,"Check Shot Corrections")
 { "None", "Automatic", "Use editor", 0 };
 
 

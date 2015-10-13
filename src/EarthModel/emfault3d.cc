@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emrowcoliterator.h"
 #include "undo.h"
 #include "posfilter.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -25,13 +26,14 @@ namespace EM {
 
 mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::sGroupName() )
 
-    
+
 Fault3D::Fault3D( EMManager& em )
     : Fault(em)
     , geometry_( *this )
-    , auxdata_( 0 )  
+    , auxdata_( 0 )
 {
     geometry_.addSection( "", false );
+    setPreferredColor( getRandomColor() );
 }
 
 
@@ -88,7 +90,7 @@ void Fault3D::apply( const Pos::Filter& pf )
 	    const StepInterval<int> colrg = fssg->colRange( rc.row() );
 	    if ( colrg.isUdf() ) continue;
 
-	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start; 
+	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
 		  rc.col()-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
@@ -150,7 +152,7 @@ int Fault3DGeometry::nrKnots( const SectionID& sid, int sticknr ) const
 }
 
 
-bool Fault3DGeometry::insertStick( const SectionID& sid, int sticknr, 
+bool Fault3DGeometry::insertStick( const SectionID& sid, int sticknr,
 				 int firstcol, const Coord3& pos,
 				 const Coord3& editnormal, bool addtohistory )
 {
@@ -192,7 +194,7 @@ bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
     const Coord3 normal = getEditPlaneNormal( sid, sticknr );
     if ( !normal.isDefined() || !pos.isDefined() )
 	return false;
-    
+
     if ( !fss->removeStick(sticknr) )
 	return false;
 
@@ -250,7 +252,7 @@ bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
     int nrcrls=0, nrnoncrls=0;
     const Coord crldir = SI().binID2Coord().crlDir().normalize();
     for ( int sidx=0; sidx<nrSections(); sidx++ )
-    {	
+    {
 	const EM::SectionID sid = sectionID( sidx );
 	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
 	if ( !fss ) continue;
@@ -260,7 +262,7 @@ bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
 	{
 	    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
 	    if ( fabs(normal.z) < 0.5 && mIsEqual(normal.x,crldir.x,mEps)
-		    		      && mIsEqual(normal.y,crldir.y,mEps) )
+				      && mIsEqual(normal.y,crldir.y,mEps) )
 		nrcrls++;
 	    else
 		nrnoncrls++;
@@ -302,7 +304,7 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 
 #define mDefEditNormalStr( editnormstr, sid, sticknr ) \
     BufferString editnormstr("Edit normal of section "); \
-    editnormstr += sid; editnormstr += " sticknr "; editnormstr += sticknr; 
+    editnormstr += sid; editnormstr += " sticknr "; editnormstr += sticknr;
 
 void Fault3DGeometry::fillPar( IOPar& par ) const
 {
@@ -335,8 +337,8 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	{
 	    fss->setSticksVertical( false );
 	    mDefEditNormalStr( editnormstr, sid, sticknr );
-	    Coord3 editnormal( Coord3::udf() ); 
-	    par.get( editnormstr.buf(), editnormal ); 
+	    Coord3 editnormal( Coord3::udf() );
+	    par.get( editnormstr.buf(), editnormal );
 	    fss->addEditPlaneNormal( editnormal );
 	    if ( editnormal.isDefined() && fabs(editnormal.z)<0.5 )
 		fss->setSticksVertical( true );
@@ -355,7 +357,7 @@ Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-	    				     Table::Optional );
+					     Table::Optional );
     if ( is2d )
 	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
 						 Table::Required );
@@ -382,7 +384,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
     bool oninl = false; bool oncrl = false; bool ontms = false;
 
-    double firstz = mUdf(double); 
+    double firstz = mUdf(double);
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;
@@ -486,7 +488,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    const RowCol rc( sticknr, crdidx );
 	    flt.geometry().insertKnot( sid, rc.toInt64(),
-		    		       stick->crds_[crdidx], false );
+				       stick->crds_[crdidx], false );
 	}
 
 	sticknr++;

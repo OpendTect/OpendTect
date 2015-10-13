@@ -65,7 +65,7 @@ public:
 
     enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
 			  Geom, None };
-			DeclareEnumUtils(StdSelType);
+			mDeclareEnumUtils(StdSelType);
 
 			IOObjContext(const TranslatorGroup*,
 				     const char* prefname=0);

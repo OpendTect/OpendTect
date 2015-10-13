@@ -62,7 +62,7 @@ public:
     void		align();
 
     enum StereoType	{ None, RedCyan, QuadBuffer };
-			DeclareEnumUtils(StereoType)
+			mDeclareEnumUtils(StereoType)
     bool		setStereoType(StereoType);
     StereoType		getStereoType() const;
     void		setStereoOffset(float);
@@ -88,7 +88,7 @@ public:
     bool		isCameraPerspective() const;
 
     enum WheelMode	{ Never, Always, OnHover };
-			DeclareEnumUtils(WheelMode)
+			mDeclareEnumUtils(WheelMode)
     void		setWheelDisplayMode(WheelMode);
     WheelMode		getWheelDisplayMode() const;
 
