@@ -95,9 +95,15 @@ macro ( create_package PACKAGE_NAME )
 		set( EXE "${EXE}.exe" )
 	endif()
 
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${COPYFROMLIBDIR}/${EXE}
-			 ${COPYTOLIBDIR}/${EXE} )
+	if ( NOT APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/${EXE}
+			     ${COPYTOLIBDIR}/${EXE} )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMEXEDIR}/${EXE}
+			     ${COPYTOEXEDIR}/${EXE} )
+	endif()
     endforeach()
 
     if( ${PACKAGE_NAME} STREQUAL "base" )
@@ -280,9 +286,11 @@ macro( init_destinationdir  PACKAGE_NAME )
 	set( COPYTODATADIR ${DESTINATION_DIR} )
     else()
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}
-			     ${DESTINATION_DIR}/MacOS )
-	set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/Contents/MacOS )
-	set( COPYTOLIBDIR ${DESTINATION_DIR}/MacOS )
+			     ${DESTINATION_DIR}/MacOS ${DESTINATION_DIR}/Frameworks )
+	set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/Contents/Frameworks )
+	set( COPYTOLIBDIR ${DESTINATION_DIR}/Frameworks )
+	set( COPYFROMEXEDIR ${CMAKE_INSTALL_PREFIX}/Contents/MacOS )
+	set( COPYTOEXEDIR ${DESTINATION_DIR}/MacOS )
 	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX}/Contents/Resources )
 	set( COPYTODATADIR ${DESTINATION_DIR}/Resources )
     endif()
