@@ -291,6 +291,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , auxdata(*new SurfaceAuxData(*this))
     , lockednodes_(0)
     , parents_(0)
+    , children_(0)
     , parentcolor_(Color::Yellow())
     , selectioncolor_(Color::Orange())
     , lockcolor_(Color::Blue())
@@ -580,7 +581,9 @@ void Horizon3D::initAllAuxData( float val )
 
 void Horizon3D::initTrackingArrays()
 {
-    delete parents_; delete lockednodes_;
+    delete parents_; parents_ = 0;
+    delete lockednodes_; lockednodes_ = 0;
+    delete children_; children_ = 0;
 
     const SectionID sid = sectionID( 0 );
     const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
@@ -811,6 +814,10 @@ void Horizon3D::lockAll()
 	const TrcKey tk = BinID::fromInt64( pid.subID() );
 	setNodeLocked( tk, true );
     }
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockChange;
+    change.trigger( cbdata );
 }
 
 
@@ -819,7 +826,15 @@ void Horizon3D::unlockAll()
     if ( !lockednodes_ ) return;
 
     lockednodes_->setAll( '0' );
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockChange;
+    change.trigger( cbdata );
 }
+
+
+const Array2D<char>* Horizon3D::getLockedNodes() const
+{ return lockednodes_; }
 
 
 void Horizon3D::setParentColor( const Color& col )
