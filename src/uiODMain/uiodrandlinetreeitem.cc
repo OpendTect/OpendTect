@@ -431,6 +431,16 @@ bool uiODRandomLineTreeItem::displayDefaultData()
 }
 
 
+#define mGetPickedPanelIdx( menu, rtd, panelidx ) \
+    mDynamicCastGet( uiMenuHandler*, uimenuhandler, menu ); \
+    int panelidx = -1; \
+    if ( rtd && uimenuhandler && uimenuhandler->getPath() ) \
+	panelidx = rtd->getClosestPanelIdx(uimenuhandler->getPickedPos() );
+
+#define mAddInsertNodeMnuItm( nodeidx, nodename ) \
+    mAddManagedMenuItem( &insertnodemnuitem_, new MenuItem(nodename), \
+			 rtd->canAddNode(nodeidx), false )
+
 void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
@@ -449,21 +459,34 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      !islocked, false );
     insertnodemnuitem_.removeItems();
 
-    const bool enab = !islocked && rtd->nrNodes()>1;
-    for ( int idx=0; enab && idx<=rtd->nrNodes(); idx++ )
+    if ( !islocked && rtd->nrNodes()>1 )
     {
-	uiString nodename;
-	if ( idx==rtd->nrNodes() )
+	mGetPickedPanelIdx( menu, rtd, panelidx );
+	if ( panelidx >=0 )
 	{
-	    nodename = tr("after node %1").arg( idx-1 );
+	    if ( panelidx == 0 )
+		mAddInsertNodeMnuItm( panelidx, tr("before clicked panel") );
+	    if ( panelidx==0 || panelidx==rtd->nrNodes()-2 )
+		mAddInsertNodeMnuItm( panelidx+1, tr("on clicked panel") );
+	    if ( panelidx == rtd->nrNodes()-2 )
+		mAddInsertNodeMnuItm( panelidx+2, tr("after clicked panel") );
 	}
-	else
+	else if ( rtd->nrNodes() <= 20 )
 	{
-	    nodename = tr("before node %1").arg( idx );
+	    for ( int idx=0; idx<=rtd->nrNodes(); idx++ )
+	    {
+		if ( idx == 0 )
+		    mAddInsertNodeMnuItm( idx, tr("before node 1") )
+		else if ( idx == rtd->nrNodes() )
+		    mAddInsertNodeMnuItm( idx, tr("after node %1").arg(idx) )
+		else
+		    mAddInsertNodeMnuItm( idx,
+			    tr("between node %1 && %2").arg(idx).arg(idx+1) );
+	    }
 	}
-
-	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename),
-			    rtd->canAddNode(idx), false );
+	else				// too many nodes for tree menu	
+	    mAddInsertNodeMnuItm( -1,
+			tr("<use right-click menu of random line in scene>") );
     }
 
     mAddMenuOrTBItem( istb, 0, menu, &saveasmnuitem_, true, false );
@@ -483,15 +506,26 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 		    visserv_->getObject(displayid_));
     if ( !rtd ) return;
 
+    mGetPickedPanelIdx( menu, rtd, panelidx );
+
     if ( mnuid==editnodesmnuitem_.id )
     {
 	editNodes();
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
+    }
+    else if ( mnuid==insertnodemnuitem_.id )
+    {
+	rtd->addNode( panelidx+1 );
+	menu->setIsHandled( true );
     }
     else if ( insertnodemnuitem_.itemIndex(mnuid)!=-1 )
     {
-	menu->setIsHandled(true);
-	rtd->addNode(insertnodemnuitem_.itemIndex(mnuid));
+	int nodeidx = insertnodemnuitem_.itemIndex( mnuid );
+	if ( panelidx >= 0 )
+	    nodeidx += panelidx==0 ? panelidx : panelidx+1;
+
+	rtd->addNode( nodeidx );
+	menu->setIsHandled( true );
     }
     else
     {

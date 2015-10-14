@@ -144,6 +144,7 @@ public:
     virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &nodemoving_;}
 
+    int				getClosestPanelIdx(const Coord&) const;
     Coord3			getNormal(const Coord3&) const;
     virtual float		calcDist(const Coord3&) const;
     virtual bool		allowsPicks() const		{ return true; }

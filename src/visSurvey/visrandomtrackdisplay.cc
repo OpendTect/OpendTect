@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisdatapackzaxistransformer.h"
 #include "randomlinegeom.h"
 #include "mousecursor.h"
+#include "polylinend.h"
 #include "settings.h"
 #include "uistrings.h"
 
@@ -1115,6 +1116,20 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 
 SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat( int ) const
 { return SurveyObject::Traces; }
+
+
+int RandomTrackDisplay::getClosestPanelIdx( const Coord& xypos ) const
+{
+    TypeSet<Coord> coords;
+    for ( int idx=0; idx<nodes_.size(); idx++ )
+	coords += SI().transform( nodes_[idx] );
+
+    const PolyLineND<Coord> polyline( coords );
+    int panelidx = -1;
+    polyline.distTo( xypos, &panelidx );
+
+    return panelidx;
+}
 
 
 #define mFindTrc(inladd,crladd) \
