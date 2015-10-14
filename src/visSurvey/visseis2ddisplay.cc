@@ -559,7 +559,7 @@ void Seis2DDisplay::updatePanelStripPath()
     if ( getUpdateStageNr() )
     {
 	const float diff = mCast(float,
-		tdi.alltrcnrs_[updatestageinfo_.oldtrcrgstart_]-
+		tdi.alltrcnrs_[mCast(int,updatestageinfo_.oldtrcrgstart_)]-
 		tdi.alltrcnrs_[tdi.rg_.start]);
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
