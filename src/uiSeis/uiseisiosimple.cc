@@ -122,13 +122,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     uiObject* attachobj = haveposfld_->attachObj();
     if ( is2d )
     {
-	uiString txt= tr("%1 (preceding X/Y)").arg( isimp_ ? 
+	uiString txt= tr("%1 (preceding X/Y)").arg( isimp_ ?
 		      tr("Trace number included") : tr("Include trace number"));
 	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
 	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
-	txt = tr("%1 (after trace number)").arg(isimp_ ? 
+	txt = tr("%1 (after trace number)").arg(isimp_ ?
 	      tr("Ref/SP number included") : tr("Include Ref/SP number"));
 	haverefnrfld_ = new uiGenInput( this, txt, BoolInpSpec(false) );
 	haverefnrfld_->setValue( data().haverefnr_ );
@@ -551,11 +551,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     SeisIOSimple sios( data(), isimp_ );
     uiTaskRunner dlg( this );
     const bool res = TaskRunner::execute( &dlg, sios ) && !ismulticomp;
-    if ( res )
-    {
-	uiMSG().error( tr("Error while Data transfer.") );
-	return false;
-    }
+    if ( !res )
+	return res;
 
     const uiString msg = tr("Data successfully %1. Do you want to %1 more.")
 			    .arg(isimp_ ? tr("Imported") : tr("Exported"));
