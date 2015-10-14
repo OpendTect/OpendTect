@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
 #include "uipixmap.h"
@@ -199,6 +200,8 @@ private:
 
     bool		deletefrombody_;
     bool		deletefromod_;
+
+    bool		hasguisettings_;
 };
 
 
@@ -217,11 +220,12 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, poptimer_("Popup timer")
 	, poppedup_(false)
 	, exitapponclose_(false)
-        , prefsz_(-1,-1)
+	, prefsz_(-1,-1)
 	, prefpos_(uiPoint::udf())
 	, nractivated_(0)
 	, moved_(false)
 	, createtbmenu_(false)
+	, hasguisettings_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -301,6 +305,44 @@ void uiMainWinBody::doShow( bool minimized )
     QEvent* ev = new QEvent( mUsrEvPopUpReady );
     QApplication::postEvent( this, ev );
 
+#ifdef __debug__
+
+/*
+ We need a check on windows being too big for small(laptop) screens.
+ But if we set the margins too tight we'll get a hit for many windows.
+ Then we (programmers) will start ignoring pErrMsg's, which is _really_ bad.
+ Notes:
+ * It seems that windows can be a bit bigger than the screen.
+ * Remember the actual size is dep on font size.
+ * I asked Farrukh to come up with some data on our laptops, most notably the
+   ones used for the courses, but it's inconclusive.
+
+ The issue is the tension between: what would we like to support vs the ease
+ of build and - last but not least - the convenience for the user to have
+ a lot of info and tools on a single window.
+
+ In any case: recurring pErrMsg's are *BAD*. They should never be ignored.
+ Which means they have to indicate serious problems, not matters of taste.
+
+*/
+
+#   define mMinSupportedWidth 1600
+#   define mMinSupportedHeight 1000
+
+    QRect qrect = geometry();
+    if ( !hasguisettings_ && (qrect.width() > mMinSupportedWidth
+			   || qrect.height() > mMinSupportedHeight) )
+    {
+	BufferString msg( "The window '", name(), "' is " );
+	msg.add( qrect.width() ).add( "x" ).add( qrect.height() )
+	    .add( ". That won't fit on many laptops.\nWe want to support >= " )
+	    .add( mMinSupportedWidth ).add( "x" ).add( mMinSupportedHeight )
+	    .add( ", see comments in the .cc file." );
+	pErrMsg( msg );
+    }
+
+#endif
+
     if ( !handle_.afterPopup.isEmpty() )
     {
 	handle_.afterpopuptimer_ = new Timer( "After popup timer" );
@@ -308,6 +350,7 @@ void uiMainWinBody::doShow( bool minimized )
 				mCB(&handle_,uiMainWin,aftPopupCB) );
 	handle_.afterpopuptimer_->start( 50, true );
     }
+
     if ( modal_ )
 	eventloop_.exec();
 }
@@ -586,7 +629,7 @@ void uiMainWinBody::renewToolbarsMenu()
     {
 	uiToolBar& tb = *toolbars_[idx];
 	uiAction* itm =
-	    new uiAction( mToUiStringTodo(tb.name()), 
+	    new uiAction( mToUiStringTodo(tb.name()),
 	    mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm );
@@ -631,6 +674,7 @@ void uiMainWinBody::readSettings()
     settings.endGroup();
 
     updateToolbarsMenu();
+    hasguisettings_ = true;
 }
 
 
@@ -827,7 +871,7 @@ void uiMainWin::show()
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
-bool uiMainWin::touch()			{ return body_->touch(); }
+bool uiMainWin::touch()				{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 void uiMainWin::showMaximized()			{ body_->showMaximized(); }
@@ -1249,8 +1293,16 @@ void uiMainWin::languageChangeCB( CallBacker* )
     }
 }
 
+
+void uiMainWin::aftPopupCB( CallBacker* )
+{
+    afterPopup.trigger();
+}
+
+
+
 class ImageSaver : public CallBacker
-{ mODTextTranslationClass(ImageSaver);
+{ mODTextTranslationClass(ImageSaver)
 public:
 
 ImageSaver()
@@ -1300,6 +1352,7 @@ void shootImageCB( CallBacker* )
     }
     else
 	image.save( fname_ );
+
     timer_.stop();
 }
 

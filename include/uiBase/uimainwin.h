@@ -58,7 +58,7 @@ public:
     };
 
 			uiMainWin(uiParent*,const uiMainWin::Setup&);
-			uiMainWin(uiParent*,const uiString& 
+			uiMainWin(uiParent*,const uiString&
 				  caption=tr("uiMainWin"),
 				  int nrstatusflds=1,bool withmenubar=true,
 				  bool modal=false);
@@ -207,7 +207,7 @@ protected:
 				     int res);
 
     void		copyToClipBoardCB(CallBacker*);
-    void		aftPopupCB( CallBacker* )	{ afterPopup.trigger();}
+    void		aftPopupCB(CallBacker*);
     void		languageChangeCB(CallBacker*);
 
     uiMainWinBody*	body_;
