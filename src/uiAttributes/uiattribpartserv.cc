@@ -716,15 +716,15 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    output = new RegularSeisDataPack(
 				SeisDataPack::categoryStr(false,false) );
 	    output->setSampling( tkzs );
-	    output->addComponent( targetspecs_[0].userRef() );
-	    ValueSeries<float>* arr3dvs = output->data(0).getStorage();
-	    if ( !arr3dvs )
+	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
+		    !output->data(0).getStorage() )
 	    {
 		delete output;
 		output = 0;
 	    }
 	    else
 	    {
+		ValueSeries<float>* arr3dvs = output->data(0).getStorage();
 		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
 		copier.execute();
 	    }
@@ -880,7 +880,9 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
     {
-	newpack->addComponent( targetspecs_[idx].userRef() );
+	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
+	    continue;
+
 	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
 	{
 	    const int trcidx = output.find( (*path)[idy] );
@@ -892,7 +894,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     }
 
     newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
     newpack->setName( targetspecs_[0].userRef() );
     DPM(DataPackMgr::SeisID()).add( newpack );
     return newpack->id();
@@ -939,10 +941,143 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 }
 
 
+// Creates datapack for 2D data. outputsampling is the sampling for which
+// datapack will be created. Data2DHolder::getTrcKeyZSampling() is the sampling
+// of the input data.
+class RegularSeisDataPackCreatorFor2D : public ParallelTask
+{
+public:
+RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
+				 const TrcKeyZSampling& outputsampling,
+				 const ZDomain::Def& zdef,
+				 const BufferStringSet& compnames,
+				 DataPack::ID& outputid )
+    : input_(input)
+    , inputsampling_(input.getTrcKeyZSampling())
+    , sampling_(outputsampling)
+    , zdef_(zdef)
+    , compnames_(compnames)
+    , refnrs_(outputsampling.hsamp_.nrTrcs(),mUdf(float))
+    , outputid_(outputid)
+    , outputdp_(0)
+{
+}
+
+od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
+
+bool doPrepare( int nrthreads )
+{
+    if ( input_.trcinfoset_.isEmpty() ||
+	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() ||
+	    !sampling_.zsamp_.overlaps(inputsampling_.zsamp_) )
+	return false;
+
+    outputdp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true) );
+    outputdp_->setSampling( sampling_ );
+    for ( int idx=0; idx<input_.dataset_[0]->validSeriesIdx().size(); idx++ )
+    {
+	const char* compname = compnames_.validIdx(idx) ?
+		compnames_[idx]->buf() : sKey::EmptyString().buf();
+	if ( !outputdp_->addComponent(compname) )
+	    continue;
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    if ( !outputdp_ ) return false;
+    const StepInterval<float>& datazrg = inputsampling_.zsamp_;
+    const StepInterval<float>& displayzrg = sampling_.zsamp_;
+    StepInterval<float> overlapzrg( displayzrg );
+    overlapzrg.limitTo( datazrg );
+    const int startzidx = displayzrg.nearestIndex( overlapzrg.start );
+    const int nrzsamp = overlapzrg.nrSteps()+1;
+    const TypeSet<int> valididxs = input_.dataset_[0]->validSeriesIdx();
+
+    for ( int idx=0; idx<outputdp_->nrComponents(); idx++ )
+    {
+	Array3DImpl<float>& data = outputdp_->data( idx );
+	// trcinfoset.size() and sampling.hsamp_.nrTrcs() might differ if the
+	// data has missing or duplicate trace numbers.
+	const ObjectSet<SeisTrcInfo>& trcinfoset = input_.trcinfoset_;
+	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
+	{
+	    const int trcidx = sampling_.hsamp_.trcIdx( trcinfoset[tidx]->nr );
+	    if ( trcidx<0 || trcidx>sampling_.hsamp_.nrTrcs()-1 )
+		continue;
+
+	    const ValueSeries<float>* stor =
+		input_.dataset_[tidx]->series( valididxs[idx] );
+	    if ( !stor ) continue;
+
+	    const bool domemcopy = stor->arr() && data.getData() &&
+				mIsEqual(datazrg.step,displayzrg.step,mDefEpsF);
+	    if ( domemcopy )
+		OD::memCopy( outputdp_->getTrcData(idx,trcidx)+startzidx,
+			     stor->arr(), nrzsamp*sizeof(float) );
+	    else
+	    {
+		OffsetValueSeries<float> trcstor =
+			outputdp_->getTrcStorage( idx, trcidx );
+		for ( int zidx=0; zidx<nrzsamp; zidx++ )
+		{
+		    const float z = overlapzrg.atIndex( zidx );
+		    const int datazidx = datazrg.nearestIndex( z );
+		    trcstor.setValue( startzidx+zidx, stor->value(datazidx) );
+		}
+	    }
+
+	    if ( idx == 0 )
+		refnrs_[trcidx] = trcinfoset[tidx]->refnr;
+	}
+    }
+
+    return true;
+}
+
+bool doFinish( bool success )
+{
+    outputdp_->setRefNrs( refnrs_ );
+    outputdp_->setZDomain( ZDomain::Info(zdef_) );
+    if ( !compnames_.isEmpty() )
+	outputdp_->setName( compnames_[0]->buf() );
+    DPM(DataPackMgr::SeisID()).add( outputdp_ );
+    outputid_ = outputdp_->id();
+    return true;
+}
+
+protected:
+
+    const Data2DHolder&			input_;
+    const TrcKeyZSampling&		sampling_;
+    const ZDomain::Def&			zdef_;
+    const BufferStringSet&		compnames_;
+    const TrcKeyZSampling		inputsampling_;
+    RegularSeisDataPack*		outputdp_;
+    DataPack::ID&			outputid_;
+    TypeSet<float>			refnrs_;
+};
+
 DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
 {
+    const bool isstored = targetspecs_[0].isStored();
+    const DescSet* curds = DSHolder().getDescSet( true, isstored );
+    if ( curds )
+    {
+	const Desc* targetdesc = curds->getDesc( targetID(true) );
+	if ( targetdesc )
+	{
+	    const MultiID mid( targetdesc->getStoredID() );
+	    mDynamicCastGet(const RegularSeisDataPack*,regsdp,
+			    Seis::PLDM().get(mid,geomid) );
+	    if ( regsdp ) return regsdp->id();
+	}
+    }
+
     PtrMan<EngineMan> aem = createEngMan( &tkzs, geomid );
     if ( !aem ) return DataPack::cNoID();
 
@@ -955,45 +1090,26 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     if ( !TaskRunner::execute( &taskrunner, *process ) )
 	return DataPack::cNoID();
 
-    mDeclareAndTryAlloc( ConstRefMan<Data2DArray>,
-			 data2darr, Data2DArray(*data2d) );
-    TrcKeyZSampling sampling = data2darr->cubesampling_;
-    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid;
-    sampling.hsamp_.survid_ = Survey::GM().get2DSurvID();
-    RegularSeisDataPack* newpack = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(true,true) );
-    newpack->setSampling( sampling );
+    BufferStringSet userrefs;
+    for ( int idx=0; idx<targetspecs_.size(); idx++ )
+	userrefs.add( targetspecs_[idx].userRef() );
 
-    TypeSet<float> refnrs( newpack->nrTrcs(), mUdf(float) );
-    const ObjectSet<SeisTrcInfo>& trcinfoset = data2darr->trcinfoset_;
-    const Array3DImpl<float>* dataset = data2darr->dataset_;
-    for ( int icomp=0; icomp<dataset->info().getSize(0); icomp++ )
-    {
-	newpack->addComponent( targetspecs_[icomp].userRef() );
-	Array3DImpl<float>& data = newpack->data( icomp );
-	// Running a loop instead of directly assigning the array as
-	// sampling.nrTrcs() and trcinfoset.size() might differ if data has
-	// missing or duplicate trace numbers.
-	for ( int tidx=0; tidx<trcinfoset.size(); tidx++ )
-	{
-	    const int trcidx = sampling.hsamp_.trcIdx( trcinfoset[tidx]->nr );
-	    if ( trcidx < 0 )
-		continue;
+    return createDataPackFor2D( *data2d, tkzs,
+	    ZDomain::Def::get(targetspecs_[0].zDomainKey()), userrefs );
+}
 
-	    for ( int zidx=0; zidx<dataset->info().getSize(2); zidx++ )
-		data.set( 0, trcidx, zidx , dataset->get(icomp,tidx,zidx) );
 
-	    if ( icomp == 0 )
-		refnrs[trcidx] = trcinfoset[tidx]->refnr;
-	}
-    }
-
-    newpack->setRefNrs( refnrs );
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
-    newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
-    return newpack->id();
+DataPack::ID uiAttribPartServer::createDataPackFor2D(
+					const Attrib::Data2DHolder& input,
+					const TrcKeyZSampling& outputsampling,
+					const ZDomain::Def& zdef,
+					const BufferStringSet& compnames )
+{
+    DataPack::ID outputid = DataPack::cNoID();
+    RegularSeisDataPackCreatorFor2D datapackcreator(
+		input, outputsampling, zdef, compnames, outputid );
+    datapackcreator.execute();
+    return outputid;
 }
 
 

@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "zaxistransform.h"
-#include "samplfunc.h"
 
 //For parsing old pars
 #include "attribsel.h"
@@ -360,7 +359,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpm.release( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
 
-    createTransformedDataPack( attrib );
+    createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     return true;
 }
@@ -389,79 +388,32 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    DataPackRef<RegularSeisDataPack> seisdp = dpm.obtain( dpid );
-    if ( !seisdp ) return;
+    DataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    if ( !regsdp ) return;
 
-    const int nrversions = seisdp->nrComponents();
+    const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int idx=0; idx<nrversions; idx++ )
     {
-	PtrMan<Array3DImpl<float> > tmparr = 0;
-	Array3D<float>* usedarr = &seisdp->data( idx );
-	const int nrtraces = seisdp->sampling().nrTrcs();
-	const int nrsamples = seisdp->getZRange().nrSteps()+1;
-	const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
-	const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
-	if ( nrtraces!=nrdisplaytraces ||
-	     nrsamples!=nrdisplaysamples ||
-	     seisdp->getTrcKey(0).trcNr()!=trcdisplayinfo_.alltrcnrs_[0] )
-	{
-	    mTryAlloc( tmparr,
-		    Array3DImpl<float>( 1, nrdisplaytraces, nrdisplaysamples) );
-	    tmparr->setAll( mUdf(float) );
-	    usedarr = tmparr;
-	    const int startidx = trcdisplayinfo_.rg_.start;
-	    for ( int trcidx=0; trcidx<trcdisplayinfo_.size_; trcidx++ )
-	    {
-		const int trcnr = trcdisplayinfo_.alltrcnrs_[startidx+trcidx];
-		const int globalidx = seisdp->sampling().trcIdx( trcnr );
-		if ( globalidx<0 || globalidx>nrtraces-1 )
-		    continue;
-
-		const float* trcptr = seisdp->getTrcData( idx, globalidx );
-		const OffsetValueSeries<float> trcstor =
-				seisdp->getTrcStorage( idx, globalidx );
-		float* dataptr = tmparr->getData() ?
-				tmparr->getData() + trcidx*nrdisplaysamples : 0;
-
-		for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
-		{
-		    const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
-		    const float sample = seisdp->getZRange().getfIndex( z );
-		    float val = mUdf(float);
-		    if ( trcptr )
-			IdxAble::interpolateReg( trcptr, nrsamples, sample,
-						 val, false );
-		    else
-			IdxAble::interpolateReg( trcstor, nrsamples, sample,
-						 val, false );
-
-		    if ( dataptr )
-			*(dataptr + zidx) = val;
-		    else
-			tmparr->set( 0, trcidx, zidx, val );
-		}
-	    }
-	}
+	Array3D<float>& array = regsdp->data( idx );
 
 	if ( !idx )
 	{
-	    sz0 = 1 + (usedarr->info().getSize(1)-1) * (resolution_+1);
-	    sz1 = 1 + (usedarr->info().getSize(2)-1) * (resolution_+1);
+	    sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
+	    sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
 
 	    //If the size is too big to display, use low resolution only
 	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
-		sz0 = usedarr->info().getSize(1);
+		sz0 = array.info().getSize(1);
 
 	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
-		sz1 = usedarr->info().getSize(2);
+		sz1 = array.info().getSize(2);
 	}
 
-	ValueSeries<float>* stor =
-	    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
+	ValueSeries<float>* stor = !resolution_ ? array.getStorage() : 0;
 	bool ownsstor = false;
 
 	if ( !stor )
@@ -481,31 +433,17 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	if ( ownsstor )
 	{
 	    if ( resolution_ == 0 )
-		usedarr->getAll( *stor );
+		array.getAll( *stor );
 	    else
 	    {
-		Array2DSlice<float> slice2d( *usedarr );
+		Array2DSlice<float> slice2d( array );
 		slice2d.setDimMap( 0, 1 );
 		slice2d.setDimMap( 1, 2 );
 		slice2d.setPos( 0, 0 );
 		slice2d.init();
 
-		// Copy all the data from usedarr to an Array2DImpl and pass
-		// this object to Array2DReSampler. This copy is done because
-		// Array2DReSampler will access the input using the "get"
-		// method. The get method of Array2DImpl is much faster than
-		// that of Seis2DArray.
-		Array2DImpl<float> sourcearr2d( slice2d );
-		if ( !sourcearr2d.isOK() )
-		{
-		    channels_->turnOn( false );
-		    pErrMsg(
-			"Insufficient memory; cannot display the 2D seismics.");
-		    return;
-		}
-
 		Array2DReSampler<float,float> resampler(
-				sourcearr2d, *stor, sz0, sz1, true );
+				slice2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		TaskRunner::execute( taskr, resampler );
 	    }
@@ -520,7 +458,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 }
 
 
-void Seis2DDisplay::createTransformedDataPack( int attrib )
+void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
@@ -531,21 +469,15 @@ void Seis2DDisplay::createTransformedDataPack( int attrib )
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	TrcKeyZSampling tkzs;
-	tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = geomid_;
-	tkzs.hsamp_.start_.crl() =
-	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start];
-	tkzs.hsamp_.stop_.crl() =
-	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop];
-	tkzs.hsamp_.step_.inl() = tkzs.hsamp_.step_.crl() = 1;
-	tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
-	tkzs.zsamp_.setFrom( trcdisplayinfo_.zrg_ );
-	// use survey step here?
-	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	datatransform_->loadDataIfMissing( voiidx_ );
+	if ( datatransform_->needsVolumeOfInterest() )
+	{
+	    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, attrib );
+	    if ( voiidx_ < 0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	}
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( regsdp.ptr() );
@@ -593,8 +525,10 @@ void Seis2DDisplay::updatePanelStripPath()
 		  posidx<tdi.alljoints_[idx]; posidx++ )
 	    {
 		const Coord pos = tdi.alltrcpos_[posidx];
-		const double d0 = pos.distTo( tdi.alltrcpos_[posidx-1] );
-		const double d1 = pos.distTo( tdi.alltrcpos_[posidx+1] );
+		double d0 = pos.distTo( tdi.alltrcpos_[posidx-1] );
+		double d1 = pos.distTo( tdi.alltrcpos_[posidx+1] );
+		d0 *= abs( tdi.alltrcnrs_[posidx+1]-tdi.alltrcnrs_[posidx] );
+		d1 *= abs( tdi.alltrcnrs_[posidx-1]-tdi.alltrcnrs_[posidx] );
 		if ( (d0+d1)>0.0 && fabs(d0-d1)/(d0+d1)>0.1 )
 		    knots += posidx;
 	    }
@@ -611,7 +545,9 @@ void Seis2DDisplay::updatePanelStripPath()
     for ( int idx=0; idx<knots.size(); idx++ )
     {
 	path += tdi.alltrcpos_[knots[idx]];
-	mapping += mCast( float, (knots[idx]-tdi.rg_.start)*(resolution_+1) );
+	const float diff = tdi.alltrcnrs_[knots[idx]] -
+			tdi.alltrcnrs_[tdi.rg_.start];
+	mapping += diff * (resolution_+1);
 
 	const Coord3 linepos( path[idx], tdi.zrg_.start );
 	polyline_->addPoint( linepos );
@@ -622,7 +558,8 @@ void Seis2DDisplay::updatePanelStripPath()
 
     if ( getUpdateStageNr() )
     {
-	const float diff = updatestageinfo_.oldtrcrgstart_ - tdi.rg_.start;
+	const float diff = tdi.alltrcnrs_[updatestageinfo_.oldtrcrgstart_] -
+			tdi.alltrcnrs_[tdi.rg_.start];
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
@@ -870,8 +807,8 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
     int dataidx = -1;
     float mindist;
     if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
-	par.set( sKey::TraceNr(), geometry_.positions()[dataidx].nr_ );
-
+	par.set( sKey::TraceKey(),
+		TrcKey(geomid_,geometry_.positions()[dataidx].nr_) );
 }
 
 
@@ -1124,7 +1061,7 @@ void Seis2DDisplay::dataTransformCB( CallBacker* )
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	createTransformedDataPack( idx );
+	createTransformedDataPack( idx, 0 );
 	updateChannels( idx, 0 );
     }
 }

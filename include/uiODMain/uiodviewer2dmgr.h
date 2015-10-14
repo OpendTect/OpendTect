@@ -59,10 +59,6 @@ public:
 					Viewer2DPosDataSel&,bool wva,
 					float initialx1pospercm=mUdf(float),
 					float initialx2pospercm=mUdf(float));
-    int				displayIn2DViewer(DataPack::ID,
-					const Attrib::SelSpec&,bool wva,
-					float initialx1pospercm=mUdf(float),
-					float initialx2pospercm=mUdf(float));
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int id,bool byvisid);

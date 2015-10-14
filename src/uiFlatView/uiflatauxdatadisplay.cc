@@ -88,7 +88,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
     if ( !getDisplay() ) return;
 
-    if ( !enabled_ )
+    if ( !enabled_ || poly_.isEmpty() )
     {
 	display_->removeAll( true );
 	removeItems();
@@ -172,6 +172,8 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     }
 
     const int nrmarkerstyles = markerstyles_.size();
+    while ( markeritems_.size() > poly_.size() )
+	display_->remove( markeritems_.pop(), true );
 
     for ( int idx=0; idx<poly_.size(); idx++ )
     {

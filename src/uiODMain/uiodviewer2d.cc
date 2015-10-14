@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodvw2dpicksettreeitem.h"
 #include "uipixmap.h"
 #include "uistrings.h"
+#include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -75,6 +76,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , treetp_(0)
     , polyseltbid_(-1)
     , rdmlineid_(mUdf(int))
+    , voiidx_(-1)
     , basetxt_(tr("2D Viewer - "))
     , initialcentre_(uiWorldPoint::udf())
     , initialx1pospercm_(mUdf(float))
@@ -92,7 +94,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_ = vwrid++;
 
-    setWinTitle();
+    setWinTitle( true );
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );
@@ -114,7 +116,12 @@ uiODViewer2D::~uiODViewer2D()
     deepErase( auxdataeditors_ );
 
     if ( datatransform_ )
+    {
+	if ( voiidx_ != -1 )
+	    datatransform_->removeVolumeOfInterest( voiidx_ );
+	voiidx_ = -1;
 	datatransform_->unRef();
+    }
 
     if ( viewwin() )
     {
@@ -294,14 +301,29 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
+void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
+				       TaskRunner* taskr )
 {
+    if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
+    {
+	if ( voiidx_!=-1 && tkzs!=tkzs_ )
+	{
+	    datatransform_->removeVolumeOfInterest( voiidx_ );
+	    voiidx_ = -1;
+	}
+
+	if ( voiidx_ < 0 )
+	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
+	else
+	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+
+	datatransform_->loadDataIfMissing( voiidx_, taskr );
+    }
+
     tkzs_ = tkzs;
     if ( slicepos_ )
     {
 	slicepos_->setTrcKeyZSampling( tkzs );
-	slicepos_->getToolBar()->display( tkzs.isFlat() );
-
 	if ( datatransform_ )
 	{
 	    TrcKeyZSampling limitcs;
@@ -311,7 +333,7 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 	}
     }
 
-    if ( tkzs.isFlat() ) setWinTitle( true );
+    if ( tkzs.isFlat() ) setWinTitle( false );
 }
 
 
@@ -347,7 +369,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     }
 
     viewwin_->setInitialSize( 700, 400 );
-    if ( tkzs_.isFlat() ) setTrcKeyZSampling( tkzs_ );
+    if ( tkzs_.isFlat() ) setWinTitle( false );
 
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
@@ -373,7 +395,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.managecoltab(!tifs_) );
 
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
-    mAttachCB( *viewstdcontrol_->editPushed(),
+    mAttachCB( viewstdcontrol_->editPushed(),
 	       uiODViewer2D::itmSelectionChangedCB );
     if ( tifs_ && viewstdcontrol_->editToolBar() )
     {
@@ -513,7 +535,8 @@ void uiODViewer2D::posChg( CallBacker* )
 void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 {
     if ( tkzs == tkzs_ ) return;
-    setTrcKeyZSampling( tkzs );
+    uiTaskRunner taskr( viewerParent() );
+    setTrcKeyZSampling( tkzs, &taskr );
     const uiFlatViewer& vwr = viewwin()->viewer(0);
     if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
 	setUpView( createDataPack(false), false );
@@ -659,7 +682,6 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
 }
 
 
-
 void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 {
     const uiTreeViewItem* curitem = treetp_->getTreeView()->currentItem();
@@ -760,19 +782,17 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 }
 
 
-void uiODViewer2D::setWinTitle( bool fromcs )
+void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 {
     uiString info;
-    if ( !fromcs )
+    if ( fromvisobjinfo )
     {
 	BufferString objectinfo;
 	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
 	if ( objectinfo.isEmpty() )
 	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
 	else
-	{
 	    info = mToUiStringTodo( objectinfo );
-	}
     }
     else
     {
@@ -891,18 +911,15 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
     if ( !seisfdp && !mapdp ) return;
 
-    const TrcKeyValue trkv = info.trkv_;
+    const TrcKeyValue& trkv = info.trkv_;
     FlatView::Point& pt = marker_->poly_[0];
     if ( seisfdp )
     {
-	const Survey::Geometry* geometry = Survey::GM().getGeometry(
-			seisfdp->is2D() ? geomID() : tkzs_.hsamp_.survid_ );
-	const TrcKey trckey = geometry ? trkv.tk_  : TrcKey::udf();
-	const int gidx = seisfdp->getSourceDataPack().getGlobalIdx( trckey );
+	const int gidx = seisfdp->getSourceDataPack().getGlobalIdx( trkv.tk_ );
 	if ( seisfdp->isVertical() )
 	{
 	    pt.x = fdp->posData().range(true).atIndex( gidx );
-	    pt.y = datatransform_ ? 
+	    pt.y = datatransform_ ?
 		   datatransform_->transformTrc( trkv.tk_, trkv.val_ ) :
 		   trkv.val_;
 	}
@@ -942,13 +959,11 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	    mousepos.z = datatransform_->transformBack( mousepos );
     }
 
-    const TrcKey trck=TrcKey( SI().transform(Coord(mousepos.x, mousepos.y)) );
-    TrcKeyValue trckval( trck );
-    trckval.val_ = (float)mousepos.z;
-
     if ( mousecursorexchange_ && mousepos.isDefined() )
     {
-	MouseCursorExchange::Info info( trckval );
+	const TrcKeyValue trckeyval( SI().transform(mousepos.coord()),
+				     mCast(float,mousepos.z) );
+	MouseCursorExchange::Info info( trckeyval );
 	mousecursorexchange_->notifier.trigger( info, this );
     }
 }

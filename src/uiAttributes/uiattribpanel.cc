@@ -18,12 +18,10 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "attribfactory.h"
 #include "attribdataholder.h"
-#include "arrayndimpl.h"
-#include "arrayndslice.h"
-#include "arrayndwrapper.h"
 #include "flatposdata.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "uiattribpartserv.h"
 #include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
@@ -100,35 +98,15 @@ EngineMan* uiAttribPanel::createEngineMan()
 
 FlatDataPack* uiAttribPanel::createFDPack( const Data2DHolder& d2dh ) const
 {
-    mDeclareAndTryAlloc(ConstRefMan<Data2DArray>,d2darr,Data2DArray(d2dh));
-    if ( !d2darr ) return 0;
-
-    Array1DSlice<float> arr1dslice( *d2darr->dataset_ );
-    arr1dslice.setDimMap( 0, 2 );
-    arr1dslice.setPos( 1, 0 );
-
-    Array3DWrapper<float> arr3d( arr1dslice );
-    arr3d.setDimMap( 0, 2 );
-
+    if ( d2dh.dataset_.isEmpty() ) return 0;
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
     sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
 
-    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(true,true) );
-    regsdp->setSampling( sampling );
-    regsdp->setRefNrs( TypeSet<float>(1,d2darr->trcinfoset_[0]->refnr) );
-    for ( int idx=0; idx<d2darr->dataset_->info().getSize(0); idx++ )
-    {
-	arr1dslice.setPos( 0, idx );
-	if ( !arr1dslice.init() )
-	    continue;
-
-	arr3d.init();
-	regsdp->addComponent( sKey::EmptyString() );
-	regsdp->data( idx ) = arr3d;
-    }
-
-    return new RegularFlatDataPack( *regsdp, -1 );
+    const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
+						d2dh, sampling, SI().zDomain());
+    ConstDataPackRef<RegularSeisDataPack> regsdp =
+		DPM(DataPackMgr::SeisID()).obtain( outputid );
+    return regsdp ? new RegularFlatDataPack(*regsdp,-1) : 0;
 }
 
 

@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 namespace Attrib
 {
+    class Data2DHolder;
     class Desc;
     class DescSet;
     class EngineMan;
@@ -32,7 +33,6 @@ namespace Attrib
 class BinIDValueSet;
 class TrcKeyZSampling;
 class DataPointSetDisplayMgr;
-class RandomSeisDataPack;
 class IOObj;
 class NLAModel;
 class DataPointSet;
@@ -46,7 +46,7 @@ class uiAttrVolOut;
 class uiImpAttrSet;
 namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
-namespace ZDomain { class Info; }
+namespace ZDomain { class Info; class Def; }
 
 /*!
 \brief Service provider for application level - Attributes
@@ -119,6 +119,10 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
+    static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
+					    const TrcKeyZSampling& outputsamp,
+					    const ZDomain::Def& zdef,
+					    const BufferStringSet& compnames=0);
 
     Attrib::DescID	getStoredID(const MultiID&,bool is2d,
 				    int selout=-1) const;
