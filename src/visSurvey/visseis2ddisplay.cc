@@ -545,8 +545,8 @@ void Seis2DDisplay::updatePanelStripPath()
     for ( int idx=0; idx<knots.size(); idx++ )
     {
 	path += tdi.alltrcpos_[knots[idx]];
-	const float diff = tdi.alltrcnrs_[knots[idx]] -
-			tdi.alltrcnrs_[tdi.rg_.start];
+	const float diff = mCast(float,tdi.alltrcnrs_[knots[idx]]-
+				 tdi.alltrcnrs_[tdi.rg_.start]);
 	mapping += diff * (resolution_+1);
 
 	const Coord3 linepos( path[idx], tdi.zrg_.start );
@@ -558,8 +558,9 @@ void Seis2DDisplay::updatePanelStripPath()
 
     if ( getUpdateStageNr() )
     {
-	const float diff = tdi.alltrcnrs_[updatestageinfo_.oldtrcrgstart_] -
-			tdi.alltrcnrs_[tdi.rg_.start];
+	const float diff = mCast(float,
+		tdi.alltrcnrs_[updatestageinfo_.oldtrcrgstart_]-
+		tdi.alltrcnrs_[tdi.rg_.start]);
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
