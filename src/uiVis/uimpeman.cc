@@ -559,8 +559,6 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
-    if ( mIsUdf(cureventnr_) && clickcatcher_->moreToSow() )
-	shiftclicked = true;  // 1st seed sown is "tracking buffer" only
 
     beginSeedClickEvent( emobj );
 
