@@ -440,7 +440,7 @@ uiSurvey::uiSurvey( uiParent* p )
     infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
     infofld_ = new uiTextEdit( topgrp, "Info", true );
-    infofld_->setPrefHeightInChar( 8 );
+    infofld_->setPrefHeightInChar( 7 );
     infofld_->setStretch( 2, 1 );
     infofld_->attach( rightTo, infolbl );
     infofld_->attach( ensureBelow, rightgrp );
@@ -453,7 +453,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     notesfld_ = new uiTextEdit( botgrp, "Survey Notes" );
     notesfld_->attach( rightTo, notelbl );
-    notesfld_->setPrefHeightInChar( 6 );
+    notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
@@ -1133,8 +1133,8 @@ void uiSurvey::putToScreen()
     BufferString infostr;
     infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()
 	.add( zinfo ).addNewLine().add( bininfo ).addNewLine()
-	.add( areainfo ).addNewLine().add( survtypeinfo )
-	.addNewLine().add( locinfo ).addNewLine().add( orientinfo );
+	.add( areainfo ).add( "; ").add( survtypeinfo )
+	.addNewLine().add( orientinfo ).addNewLine().add( locinfo );
     infofld_->setText( infostr );
 
     const bool anysvy = !dirfld_->isEmpty();

@@ -235,13 +235,6 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
-#if QT_VERSION >= 0x050000
-void myMessageOutput( QtMsgType, const QMessageLogContext&, const QString& );
-#else
-void myMessageOutput( QtMsgType type, const char* msg );
-#endif
-
-
 const uiFont* uiMain::font_ = 0;
 QApplication* uiMain::app_ = 0;
 uiMain*	uiMain::themain_ = 0;
@@ -297,33 +290,30 @@ uiMain::uiMain( QApplication* qapp )
 
 static const char* getStyleFromSettings()
 {
-    const char* lookpref = Settings::common().find( "dTect.LookStyle" );
-    if ( !lookpref || !*lookpref )
+    FixedString lookpref = Settings::common().find( "dTect.LookStyle" );
+    if ( lookpref.isEmpty() )
 	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
 
-    if ( lookpref && *lookpref )
-    {
 #ifndef QT_NO_STYLE_CDE
-	if ( !strcmp(lookpref,"CDE") )
-	    return "cde";
+    if ( lookpref == "CDE" )
+	return "cde";
 #endif
 #ifndef QT_NO_STYLE_MOTIF
-	if ( !strcmp(lookpref,"Motif") )
-	    return "motif";
+    else if ( lookpref == "Motif" )
+	return "motif";
 #endif
 #ifndef QT_NO_STYLE_WINDOWS
-	if ( !strcmp(lookpref,"Windows") )
-	    return "windows";
+    else if ( lookpref == "Windows" )
+	return "windows";
 #endif
 #ifndef QT_NO_STYLE_PLASTIQUE
-	if ( !strcmp(lookpref,"Plastique") )
-	    return "plastique";
+    else if ( lookpref == "Plastique" )
+	return "plastique";
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
-	if ( !strcmp(lookpref,"Cleanlooks") )
-	    return "cleanlooks";
+    else if ( lookpref == "Cleanlooks" )
+	return "cleanlooks";
 #endif
-    }
 
     return 0;
 }
@@ -335,23 +325,45 @@ void uiMain::cleanQtOSEnv()
 }
 
 
+#if QT_VERSION >= 0x050000
+static void qtMessageOutput( QtMsgType type, const QMessageLogContext&,
+			     const QString& msg )
+#else
+static void qtMessageOutput( QtMsgType type, const char* msg )
+#endif
+{
+    const BufferString str( msg );
+    if ( str.isEmpty() )
+	return;
+
+    switch ( type )
+    {
+	case QtDebugMsg:
+	case QtWarningMsg:
+	    if ( !str.startsWith("KGlobal") && !str.startsWith("kfilemodule") )
+		ErrMsg( str, true );
+	    break;
+	case QtFatalMsg:
+	case QtCriticalMsg:
+	    ErrMsg( str );
+	    break;
+	default:
+	    break;
+    }
+}
+
+
 void uiMain::init( QApplication* qap, int& argc, char **argv )
 {
     if ( app_ )
-    {
-	pErrMsg("You already have a uiMain object!");
-	return;
-    }
-    else
-	themain_ = this;
+	{ pErrMsg("You already have a uiMain object!"); return; }
+
+    themain_ = this;
 
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
-    if ( qap )
-	app_ = qap;
-    else
-	app_ = new QApplication( argc, argv );
+    app_ = qap ? qap : new QApplication( argc, argv );
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
     keyfilter_ = new KeyboardEventFilter( kbeh );
@@ -364,24 +376,18 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 	DBG::message( "... done." );
 
 #if QT_VERSION >= 0x050000
-    qInstallMessageHandler( myMessageOutput );
+    qInstallMessageHandler( qtMessageOutput );
 #else
-    qInstallMsgHandler( myMessageOutput );
+    qInstallMsgHandler( qtMessageOutput );
 #endif
 
     BufferString stylestr = getStyleFromSettings();
-#ifdef __win__
     if ( stylestr.isEmpty() )
+#ifdef __win__
 	stylestr = QSysInfo::WindowsVersion == QSysInfo::WV_VISTA
 		? "windowsvista" : "windowsxp";
 #else
-# ifdef __mac__
-    if ( stylestr.isEmpty() )
-	stylestr = "macintosh";
-# else
-    if ( stylestr.isEmpty() )
-	stylestr = "cleanlooks";
-# endif
+	stylestr = __ismac__ ? "macintosh" : "cleanlooks";
 #endif
 
     QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
@@ -414,13 +420,16 @@ uiMain::~uiMain()
 
 int uiMain::exec()
 {
-    if ( !app_ )  { pErrMsg("Huh?") ; return -1; }
+    if ( !app_ )
+	{ pErrMsg("Huh?") ; return -1; }
     return app_->exec();
 }
 
 
 void* uiMain::thread()
-{ return qApp ? qApp->thread() : 0; }
+{
+    return qApp ? qApp->thread() : 0;
+}
 
 
 void uiMain::getCmdLineArgs( BufferStringSet& args ) const
@@ -433,10 +442,15 @@ void uiMain::getCmdLineArgs( BufferStringSet& args ) const
 
 void uiMain::setTopLevel( uiMainWin* obj )
 {
-    if ( !obj ) return;
-    if ( !app_ )  { pErrMsg("Huh?") ; return; }
+    if ( !obj || !app_ )
+    {
+	if ( !app_ )
+	    { pErrMsg("Huh?"); }
+	return;
+    }
 
-    if ( mainobj_ ) mainobj_->setExitAppOnClose( false );
+    if ( mainobj_ )
+	mainobj_->setExitAppOnClose( false );
     obj->setExitAppOnClose( true );
 
     mainobj_ = obj;
@@ -447,18 +461,19 @@ void uiMain::setTopLevel( uiMainWin* obj )
 void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
 {
     font_ = &fnt;
-    if ( !app_ )  { pErrMsg("Huh?") ; return; }
+    if ( !app_ )
+	{ pErrMsg("Huh?"); return; }
     app_->setFont( font_->qFont() );
 }
 
 
 void uiMain::exit( int retcode )
 {
-    if ( !app_ )  { pErrMsg("Huh?") ; return; }
+    if ( !app_ )
+	{ pErrMsg("Huh?") ; return; }
     app_->exit( retcode );
 }
-/*!<
-    \brief Tells the application to exit with a return code.
+/*!<\brief Tells the application to exit with a return code.
 
     After this function has been called, the application leaves the main
     event loop and returns from the call to exec(). The exec() function
@@ -469,7 +484,6 @@ void uiMain::exit( int retcode )
 
     Note that unlike the C library exit function, this function does
     return to the caller - it is event processing that stops
-
 */
 
 
@@ -500,7 +514,9 @@ uiSize uiMain::desktopSize() const
 
 uiMain& uiMain::theMain()
 {
-    if ( themain_ ) return *themain_;
+    if ( themain_ )
+	return *themain_;
+
     if ( !qApp )
     {
 	pFreeFnErrMsg("FATAL: no uiMain and no qApp." );
@@ -522,7 +538,10 @@ KeyboardEventHandler& uiMain::keyboardEventHandler()
 
 
 void uiMain::flushX()
-{ if ( app_ ) app_->flush(); }
+{
+    if ( app_ )
+	app_->flush();
+}
 
 
 int uiMain::getDPI()
@@ -532,9 +551,13 @@ int uiMain::getDPI()
     return xdpi > ydpi ? ydpi : xdpi;
 }
 
+
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
-{ if ( app_ ) app_->processEvents( QEventLoop::AllEvents, msec ); }
+{
+    if ( app_ )
+	app_->processEvents( QEventLoop::AllEvents, msec );
+}
 
 
 static bool usenametooltip_ = false;
@@ -572,7 +595,9 @@ void uiMain::useNameToolTip( bool yn )
 
 
 bool uiMain::isNameToolTipUsed()
-{ return usenametooltip_; }
+{
+    return usenametooltip_;
+}
 
 
 void uiMain::formatNameToolTipString( BufferString& namestr )
@@ -586,36 +611,14 @@ void uiMain::formatNameToolTipString( BufferString& namestr )
 }
 
 
-#if QT_VERSION >= 0x050000
-void myMessageOutput( QtMsgType type, const QMessageLogContext&,
-		      const QString& msg )
-#else
-void myMessageOutput( QtMsgType type, const char* msg )
-#endif
+bool isMainThread( const void* thread )
 {
-    const BufferString str( msg );
-    switch ( type ) {
-	case QtDebugMsg:
-	    ErrMsg( str, true );
-	    break;
-	case QtWarningMsg:
-	    ErrMsg( str, true );
-	    break;
-	case QtFatalMsg:
-	    ErrMsg( str );
-	    break;
-	case QtCriticalMsg:
-	    ErrMsg( str );
-	    break;
-	default:
-	    break;
-    }
+    return uiMain::theMain().thread() == thread;
 }
 
 
-bool isMainThread( const void* thread )
-{ return uiMain::theMain().thread() == thread; }
-
 bool isMainThreadCurrent()
-{ return isMainThread( Threads::currentThread() ); }
+{
+    return isMainThread( Threads::currentThread() );
+}
 

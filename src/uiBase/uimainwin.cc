@@ -306,14 +306,41 @@ void uiMainWinBody::doShow( bool minimized )
     QApplication::postEvent( this, ev );
 
 #ifdef __debug__
+
+/*
+ We need a check on windows being too big for small(laptop) screens.
+ But if we set the margins too tight we'll get a hit for many windows.
+ Then we (programmers) will start ignoring pErrMsg's, which is _really_ bad.
+ Notes:
+ * It seems that windows can be a bit bigger than the screen.
+ * Remember the actual size is dep on font size.
+ * I asked Farrukh to come up with some data on our laptops, most notably the
+   ones used for the courses, but it's inconclusive.
+
+ The issue is the tension between: what would we like to support vs the ease
+ of build and - last but not least - the convenience for the user to have
+ a lot of info and tools on a single window.
+
+ In any case: recurring pErrMsg's are *BAD*. They should never be ignored.
+ Which means they have to indicate serious problems, not matters of taste.
+
+*/
+
+#   define mMinSupportedWidth 1500
+#   define mMinSupportedHeight 900
+
     QRect qrect = geometry();
-    if ( !hasguisettings_ && qrect.height() > 768 )
+    if ( !hasguisettings_ && (qrect.width() > mMinSupportedWidth
+			   || qrect.height() > mMinSupportedHeight) )
     {
-	BufferString msg( "The height of this window is ", qrect.height(),
-			  " pixels.\nThis will not fit on most laptops. "
-			  "Please make a new layout." );
+	BufferString msg( "This window is ", qrect.height(), "x" );
+	msg.add( qrect.width() ).add( ". That won't fit on many laptops."
+		"\nWe want to support at least " )
+	    .add( mMinSupportedHeight ).add( "x" ).add( mMinSupportedWidth )
+	    .add( ", see comments in the .cc file." );
 	pErrMsg( msg );
     }
+
 #endif
 
     if ( !handle_.afterPopup.isEmpty() )
@@ -323,6 +350,7 @@ void uiMainWinBody::doShow( bool minimized )
 				mCB(&handle_,uiMainWin,aftPopupCB) );
 	handle_.afterpopuptimer_->start( 50, true );
     }
+
     if ( modal_ )
 	eventloop_.exec();
 }
