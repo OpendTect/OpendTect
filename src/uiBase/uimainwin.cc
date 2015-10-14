@@ -326,17 +326,17 @@ void uiMainWinBody::doShow( bool minimized )
 
 */
 
-#   define mMinSupportedWidth 1500
-#   define mMinSupportedHeight 900
+#   define mMinSupportedWidth 1600
+#   define mMinSupportedHeight 1000
 
     QRect qrect = geometry();
     if ( !hasguisettings_ && (qrect.width() > mMinSupportedWidth
 			   || qrect.height() > mMinSupportedHeight) )
     {
-	BufferString msg( "This window is ", qrect.height(), "x" );
-	msg.add( qrect.width() ).add( ". That won't fit on many laptops."
-		"\nWe want to support at least " )
-	    .add( mMinSupportedHeight ).add( "x" ).add( mMinSupportedWidth )
+	BufferString msg( "The window '", name(), "' is " );
+	msg.add( qrect.width() ).add( "x" ).add( qrect.height() )
+	    .add( ". That won't fit on many laptops.\nWe want to support >= " )
+	    .add( mMinSupportedWidth ).add( "x" ).add( mMinSupportedHeight )
 	    .add( ", see comments in the .cc file." );
 	pErrMsg( msg );
     }
@@ -442,7 +442,6 @@ void uiMainWinBody::go( bool showminimized )
     finalise( true );
     doShow( showminimized );
     move( handle_.popuparea_ );
-
 }
 
 
@@ -2096,5 +2095,4 @@ bool uiDialog::hasSaveButton() const
 int uiDialog::titlepos_ = 0; // default is centered.
 int uiDialog::titlePos()			{ return titlepos_; }
 void uiDialog::setTitlePos( int p )		{ titlepos_ = p; }
-
 
