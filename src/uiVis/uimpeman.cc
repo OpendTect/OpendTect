@@ -489,11 +489,16 @@ void uiMPEMan::seedClick( CallBacker* )
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
 			 (float)seedcrd.z );
     bool shiftclicked = clickcatcher_->info().isShiftClicked();
-        
-    const Color clr= seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ? 
-	Color::Green() : emobj->preferredColor();
+    
+    Color clr = Color::Green();
+    if ( Math::Abs(emobj->preferredColor().g()-Color::Green().g())<30 )
+	    clr = Color::Red();
+
+    const Color sowclr= 
+	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ? 
+	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
-	 clickcatcher_->activateSower( clr, &seedpicker->getSeedPickArea()) )
+	 clickcatcher_->activateSower( sowclr, &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
     }
