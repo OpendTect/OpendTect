@@ -50,3 +50,4 @@ Button "Dismiss"
 
 Include "$SCRIPTSDIR$/test-newSurvey.cmd"
 End
+

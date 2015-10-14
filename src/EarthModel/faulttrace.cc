@@ -1551,3 +1551,4 @@ bool FaultTrcDataProvider::getFaultZVals( const BinID& bid,
     return !zvals.isEmpty();
 }
 
+

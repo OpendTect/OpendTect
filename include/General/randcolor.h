@@ -41,3 +41,4 @@ inline Color getRandStdDrawColor()
 }
 
 #endif
+

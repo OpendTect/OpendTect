@@ -780,3 +780,4 @@ Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc ) const
     ret.x *= scale; ret.y *= scale;
     return ret;
 }
+

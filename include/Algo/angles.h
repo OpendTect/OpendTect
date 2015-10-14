@@ -97,3 +97,4 @@ inline T convert( Type inptyp, T val, Type outtyp )
 } // namespace Angle
 
 #endif
+

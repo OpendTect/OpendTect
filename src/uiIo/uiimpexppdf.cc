@@ -611,3 +611,4 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
                                         uiStrings::sProbDensFunc(false,1) ) );
     return false;
 }
+

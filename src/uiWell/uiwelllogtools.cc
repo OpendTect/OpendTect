@@ -629,3 +629,4 @@ bool uiWellLogEditor::acceptOK( CallBacker* )
 {
     return true;
 }
+

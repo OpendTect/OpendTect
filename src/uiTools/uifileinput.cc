@@ -282,3 +282,4 @@ void uiFileInput::examineFile( CallBacker* )
 	    uiMSG().error( tr("Cannot launch file browser") );
     }
 }
+

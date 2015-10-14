@@ -141,3 +141,4 @@ void NamedObject::setCleanName( const char* nm )
 
     setName( startptr );
 }
+

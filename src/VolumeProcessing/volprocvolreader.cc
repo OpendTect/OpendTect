@@ -66,3 +66,4 @@ bool VolumeReader::usePar( const IOPar& pars )
 }
 
 } // namespace VolProc
+

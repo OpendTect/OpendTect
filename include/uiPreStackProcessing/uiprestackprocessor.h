@@ -98,3 +98,4 @@ mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
 
 #endif
 
+

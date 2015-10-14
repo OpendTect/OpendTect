@@ -472,3 +472,4 @@ void uiWellDahDisplay::reSized( CallBacker* )
 {
     draw();
 }
+

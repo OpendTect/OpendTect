@@ -473,3 +473,4 @@ void EMManager::levelToBeRemoved( CallBacker* cb )
 }
 
 } // namespace EM
+

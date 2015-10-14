@@ -148,3 +148,4 @@ bool Curvature::set( double z1, double z2, double z3,
 
     return true;
 }
+

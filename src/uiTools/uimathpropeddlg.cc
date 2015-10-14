@@ -205,3 +205,4 @@ BufferString uiMathPropEdDlg::formulaStr() const
 {
     return formfld_->text();
 }
+

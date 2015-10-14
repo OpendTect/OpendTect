@@ -857,3 +857,4 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
     for ( int idx=0; idx<ioobjids_.size(); idx++ )
 	lbchoiceio_->keys().add( ioobjids_[idx]->buf() );
 }
+

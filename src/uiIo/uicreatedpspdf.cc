@@ -370,3 +370,4 @@ void uiCreateDPSPDF::viewPDF()
     editdlg.go();
     mSavePDF( return );
 }
+

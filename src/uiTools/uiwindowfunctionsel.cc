@@ -178,3 +178,4 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
     viewbut_->display( !onlytaper_ || hasparam );
 }
 
+

@@ -545,3 +545,4 @@ void Well::MarkerChgRange::remove()
 
     rg_.stop = rg_.start = rg_.start - 1;
 }
+

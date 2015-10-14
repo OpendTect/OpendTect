@@ -57,3 +57,4 @@ bool BatchProgram::go( od_ostream& strm )
     res = horcr.finish( &taskrunner );
     return res;
 }
+

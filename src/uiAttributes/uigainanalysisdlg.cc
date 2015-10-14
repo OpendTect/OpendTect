@@ -220,3 +220,4 @@ bool uiGainAnalysisDlg::rejectOK( CallBacker* )
     convertZTo( true );
     return true;
 }
+

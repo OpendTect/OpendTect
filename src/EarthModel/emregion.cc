@@ -524,3 +524,4 @@ bool Region3D::usePar( const IOPar& par )
 }
 
 } // namespace EM
+

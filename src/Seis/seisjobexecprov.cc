@@ -321,3 +321,4 @@ bool SeisJobExecProv::removeTempSeis()
 	fp.setFileName(0);
     return File::remove( fp.fullPath().buf() );
 }
+

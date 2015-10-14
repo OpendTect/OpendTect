@@ -662,3 +662,4 @@ uiSeisBayesClass::~uiSeisBayesClass()
     delete inpseisdlg_;
     delete outdlg_;
 }
+

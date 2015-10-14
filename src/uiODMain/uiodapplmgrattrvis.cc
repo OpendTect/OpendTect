@@ -308,3 +308,4 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 
     iop.write( fp.fullPath(), sKey::Pars() );
 }
+

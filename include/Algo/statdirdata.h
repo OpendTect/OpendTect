@@ -139,3 +139,4 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 
 #endif
 
+

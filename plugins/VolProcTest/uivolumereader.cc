@@ -62,3 +62,4 @@ bool uiReader::acceptOK( CallBacker* )
 }
 
 } //namespace
+

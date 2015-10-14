@@ -99,3 +99,4 @@ bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
+

@@ -85,3 +85,4 @@ void PointSet::setDisplayTransformation( const mVisTrans* trans )
 
 };
 // namespace visBase
+

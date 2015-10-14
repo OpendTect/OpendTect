@@ -268,3 +268,4 @@ bool uiExportFault::acceptOK( CallBacker* )
 				tr("No, close window") );
     return !ret;
 }
+

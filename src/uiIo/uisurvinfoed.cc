@@ -946,3 +946,4 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     return true;
 }
 
+

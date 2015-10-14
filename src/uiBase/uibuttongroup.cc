@@ -82,3 +82,4 @@ void uiButtonGroup::setExclusive( bool yn )
 
 bool uiButtonGroup::isExclusive() const
 { return qbuttongrp_->exclusive(); }
+

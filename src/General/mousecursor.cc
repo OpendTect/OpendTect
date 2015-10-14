@@ -114,3 +114,4 @@ void MouseCursorChanger::restore()
     if ( active_ ) MouseCursorManager::restoreOverride();
     active_ = false;
 }
+

@@ -335,3 +335,4 @@ bool uiPluginSel::isVendorSelected( int vendoridx ) const
 
     return false;
 }
+

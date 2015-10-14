@@ -180,3 +180,4 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 
     return true;
 }
+

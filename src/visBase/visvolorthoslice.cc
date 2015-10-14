@@ -263,3 +263,4 @@ const mVisTrans* OrthogonalSlice::getDisplayTransformation() const
 
 
 } // namespace visBase
+

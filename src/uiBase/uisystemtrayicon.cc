@@ -60,3 +60,4 @@ void uiSystemTrayIcon::show()
 
 void uiSystemTrayIcon::hide()
 { qsystemtrayicon_->hide(); }
+

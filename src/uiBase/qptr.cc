@@ -81,3 +81,4 @@ i_QPtrImpl::~i_QPtrImpl()
     set( 0 );
 }
 
+

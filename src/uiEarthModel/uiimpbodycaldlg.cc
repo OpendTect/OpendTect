@@ -96,3 +96,4 @@ void uiImplBodyCalDlg::getImpBody()
     uiTaskRunner taskrunner(this);
     impbody_ = embody_.createImplicitBody(&taskrunner,false);
 }
+

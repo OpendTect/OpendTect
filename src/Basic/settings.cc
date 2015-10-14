@@ -219,3 +219,4 @@ mExternC(Basic) const char* GetSettingsDataDir()
     Settings::common().get( "Default DATA directory", ret );
     return ret.buf();
 }
+

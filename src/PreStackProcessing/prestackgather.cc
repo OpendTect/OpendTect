@@ -481,3 +481,4 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
 }
 
 } // namespace PreStack
+

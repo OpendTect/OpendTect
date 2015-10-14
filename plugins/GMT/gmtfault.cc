@@ -312,3 +312,4 @@ bool GMTFault::loadFaults( uiString& errmsg )
 
     return true;
 }
+

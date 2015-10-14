@@ -274,3 +274,4 @@ void IsoContourTracer::addVertex( ODPolygon<float>& contour, bool headinsert,
 
     contour.insert( (headinsert ? 0 : prev+1), vertex );
 }
+

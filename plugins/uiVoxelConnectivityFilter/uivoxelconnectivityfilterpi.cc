@@ -27,3 +27,4 @@ mDefODInitPlugin(uiVoxelConnectivityFilter)
     VolProc::uiVoxelConnectivityFilter::initClass();
     return 0; // All OK - no error messages
 }
+

@@ -125,3 +125,4 @@ void RemCommHandler::writeLog( const char* msg )
     logstrm_ << msg << od_endl;
 }
 
+

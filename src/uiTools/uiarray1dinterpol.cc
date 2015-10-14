@@ -117,3 +117,4 @@ Array1DInterpol* uiArray1DInterpolSel::getResult( int nr )
     Array1DInterpol* res = results_[nr];
     return res;
 }
+

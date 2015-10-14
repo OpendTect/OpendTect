@@ -529,3 +529,4 @@ int FaultStickSetGeometry::indexOf( const SectionID& sid, int sticknr ) const
 
 
 } // namespace EM
+

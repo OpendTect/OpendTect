@@ -11,3 +11,4 @@ endif
 cd $WORK/..
 echo "ckin $args"
 ckin $args
+

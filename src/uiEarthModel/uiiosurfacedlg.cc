@@ -292,3 +292,4 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     return true;
 }
+

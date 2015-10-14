@@ -107,3 +107,4 @@ mGlobal(Basic) TextTranslateMgr& TrMgr();
 
 #endif
 
+

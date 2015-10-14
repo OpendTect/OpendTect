@@ -170,3 +170,4 @@ OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,
 
     return new uiRGBArray( fnm );
 }
+

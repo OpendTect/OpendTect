@@ -1779,3 +1779,4 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
     return setUoMValues();
 }
+

@@ -18,3 +18,4 @@ mDefModInitFn(WellAttrib)
 
     Attrib::WellLog::initClass();
 }
+

@@ -528,3 +528,4 @@ void uiSEGYRead::raiseCurrent()
     else mRaise( examdlg_ );
     else mRaise( rev1qdlg_ );
 }
+

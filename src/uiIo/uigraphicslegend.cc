@@ -203,3 +203,4 @@ void uiLegendItem::setProperties()
     setMovable( true );
 }
 
+

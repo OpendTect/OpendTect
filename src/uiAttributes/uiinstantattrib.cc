@@ -133,3 +133,4 @@ void uiInstantaneousAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     params += EvalParam( Instantaneous::rotateAngle(),
 	    		 Instantaneous::rotateAngle() );   
 }
+

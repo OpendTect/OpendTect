@@ -219,3 +219,4 @@ void uiPosFilterSetSel::doDlg( CallBacker* )
     if ( dlg.go() )
 	pfs->fillPar( iop_ );
 }
+

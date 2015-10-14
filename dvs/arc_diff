@@ -13,3 +13,4 @@ if ( "$1" == "--new" ) then
 endif
 
 arc diff $args $*
+

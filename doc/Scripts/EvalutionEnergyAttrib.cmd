@@ -81,3 +81,4 @@ Button "Redisplay element*"
 Button "Cancel"
 TreeMenu "Inline`*" "Remove"
 End
+

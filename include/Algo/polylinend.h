@@ -243,3 +243,4 @@ T PolyLineND<T>::getPoint( double arclen ) const
 
 
 #endif
+

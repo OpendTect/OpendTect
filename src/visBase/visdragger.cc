@@ -505,3 +505,4 @@ const Color& Dragger::getArrowColor() const
 
 
 }; // namespace visBase
+

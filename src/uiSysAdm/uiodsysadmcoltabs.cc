@@ -101,3 +101,4 @@ bool uiODSysAdmColorTabs::acceptOK( CallBacker* )
 
     return true;
 }
+

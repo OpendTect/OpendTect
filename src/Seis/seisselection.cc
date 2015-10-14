@@ -817,3 +817,4 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 
     return mMIN( estnrtraces, tracesInSI() );
 }
+

@@ -170,3 +170,4 @@ void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	params += EvalParam( "Trace positions", Semblance::pos0Str(),
 			     Semblance::pos1Str() );
 }
+

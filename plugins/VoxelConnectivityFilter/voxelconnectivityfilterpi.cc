@@ -27,3 +27,4 @@ mDefODInitPlugin(VoxelConnectivityFilter)
     VolProc::VoxelConnectivityFilter::initClass();
     return 0; // All OK - no error messages
 }
+

@@ -595,3 +595,4 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 	cmd.addFilePath( riopfp, FilePath::Unix );
     }
 }
+

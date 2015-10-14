@@ -325,3 +325,4 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 }
 
 #undef mFalseRet
+

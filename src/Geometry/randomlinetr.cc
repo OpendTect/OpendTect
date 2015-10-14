@@ -214,3 +214,4 @@ const char* dgbRandomLineSetTranslator::write(
 
     return strm.isOK() ? 0 : "Error during write of RandomLine Set file";
 }
+

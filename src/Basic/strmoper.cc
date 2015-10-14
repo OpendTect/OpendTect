@@ -507,3 +507,4 @@ std::ios* StreamData::streamPtr() const
 	ret = ostrm;
     return const_cast<std::ios*>( ret );
 }
+

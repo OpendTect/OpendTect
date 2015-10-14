@@ -65,3 +65,4 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     uidps->setGroupNames( wellnms );
     return uidps->go() ? true : false;
 }
+

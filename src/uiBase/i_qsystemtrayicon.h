@@ -69,3 +69,4 @@ void activated( QSystemTrayIcon::ActivationReason reason )
 QT_END_NAMESPACE
 
 #endif
+

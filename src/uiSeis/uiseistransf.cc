@@ -208,3 +208,4 @@ void uiSeisTransfer::fillPar( IOPar& iop ) const
     iop.set( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );
     iop.set( sKeyNullTrcPol(), nullTrcPolicy() );
 }
+

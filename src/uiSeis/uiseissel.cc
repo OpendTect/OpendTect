@@ -473,3 +473,4 @@ const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
     return IOPar::compKey( defkey, sKey::Steering() );
 }
 
+

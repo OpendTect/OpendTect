@@ -529,3 +529,4 @@ const Interval<int>* Scaling::desZSampMargin( int inp, int ) const
 }
 
 } // namespace Attrib
+

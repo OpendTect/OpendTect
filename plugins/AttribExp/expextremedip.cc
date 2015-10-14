@@ -323,3 +323,4 @@ float ExtremeDipAttrib::Task::getRealMaxPos( SeisTrc* trc, float curt,
 
     return mUndefValue;
 }
+

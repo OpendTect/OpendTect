@@ -55,3 +55,4 @@ void uiODWellWriteOpts::initClass()
 {
     factory().addCreator( create, mODWellTranslInstance.getDisplayName() );
 }
+

@@ -179,3 +179,4 @@ bool Batch::VolMMProgDef::canHandle( const Batch::JobSpec& js ) const
     par.getYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
     return !needsfullvol;
 }
+

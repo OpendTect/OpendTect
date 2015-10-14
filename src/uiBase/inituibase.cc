@@ -35,3 +35,4 @@ mDefModInitFn(uiBase)
 	    				System::CrashDumper::sUiSenderAppl() );
 #endif
 }
+

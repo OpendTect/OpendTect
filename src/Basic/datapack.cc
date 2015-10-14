@@ -338,3 +338,4 @@ void DataPack::dumpInfo( IOPar& iop ) const
     const od_int64 nrkb = mCast(od_int64,nrKBytes());
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
 }
+

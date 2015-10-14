@@ -721,3 +721,4 @@ double RadialBasisFunctionGridder2D::evaluateRBF( double radius, double scale )
     return radius * radius * ( log(radius) - 1. );
 }
 
+

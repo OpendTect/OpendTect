@@ -18,3 +18,4 @@ defineTranslatorGroup(MPESetup,"Tracking setup");
 defineTranslator(dgb,MPESetup,mDGBKey);
 
 #endif
+

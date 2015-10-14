@@ -138,3 +138,4 @@ bool makeLine( const T& start, const T& stop, const T& step, TypeSet<T>& output)
 
 
 #endif
+

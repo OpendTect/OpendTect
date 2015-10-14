@@ -132,3 +132,4 @@ mDefODInitPlugin(uiCustomIODir)
     (void)new uiCustomIODirMgr( *ODMainWin() );
     return 0;
 }
+

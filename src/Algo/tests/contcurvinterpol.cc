@@ -144,3 +144,4 @@ int main( int argc, char** argv )
     return ExitProgram( testContinuousCurvatureInterpolation() ? 0 : 1 );
 
 }
+

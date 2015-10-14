@@ -674,3 +674,4 @@ void VDA2DBitMapGenerator::drawVal( int ix, int iy, float val )
     bitmap_->set( ix, iy, bmval );
 }
 
+

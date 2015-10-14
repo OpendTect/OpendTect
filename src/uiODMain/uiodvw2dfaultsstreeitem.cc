@@ -360,3 +360,4 @@ uiTreeItem* uiODVw2DFaultSSTreeItemFactory::createForVis(
     mDynamicCastGet(const VW2DFaultSS3D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DFaultSSTreeItem(id,true) : 0;
 }
+

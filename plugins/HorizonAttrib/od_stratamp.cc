@@ -144,3 +144,4 @@ bool BatchProgram::go( od_ostream& strm )
     mUnRef();
     return true;
 }
+

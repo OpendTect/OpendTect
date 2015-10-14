@@ -104,3 +104,4 @@ void ThumbWheel::setAngle( float angle, float rotationtime )
 { thumbwheel_->setAngle( angle, rotationtime ); }
 
 } // namespace visBase
+

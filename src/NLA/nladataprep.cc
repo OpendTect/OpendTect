@@ -136,3 +136,4 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     }
     bvs.append( bvsnew );
 }
+

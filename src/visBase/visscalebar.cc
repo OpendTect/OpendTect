@@ -193,3 +193,4 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 }
 
 }
+

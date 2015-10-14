@@ -115,3 +115,4 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     }
     return true;
 }
+

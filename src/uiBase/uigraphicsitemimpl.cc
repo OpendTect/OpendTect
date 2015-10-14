@@ -1053,3 +1053,4 @@ QGraphicsItem* uiCurvedItem::mkQtObj()
     qpathitem_ = new QGraphicsPathItem();
     return qpathitem_;
 }
+

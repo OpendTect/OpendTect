@@ -47,3 +47,4 @@ REM we won't return that value. It may change one day though.
 exit /b 0
 
 ENDLOCAL
+

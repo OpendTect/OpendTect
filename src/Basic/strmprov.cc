@@ -771,3 +771,4 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
 
     return isok;
 }
+

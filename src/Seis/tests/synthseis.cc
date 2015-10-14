@@ -218,3 +218,4 @@ bool BatchProgram::go( od_ostream& strm )
 
     return true;
 };
+

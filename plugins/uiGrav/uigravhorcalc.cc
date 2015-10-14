@@ -133,3 +133,4 @@ bool uiGravHorCalc::acceptOK( CallBacker* )
 
     return false;
 }
+

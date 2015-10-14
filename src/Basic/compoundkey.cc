@@ -131,3 +131,4 @@ const MultiID& MultiID::udf()
    mDefineStaticLocalObject( MultiID, _udf, (-1) );
    return _udf;
 }
+

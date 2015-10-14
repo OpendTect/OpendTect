@@ -284,3 +284,4 @@ bool EM::RandomLineByShiftGenerator::getIntersection( Coord c00, Coord c01,
 
     return true;
 }
+

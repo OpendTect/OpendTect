@@ -99,3 +99,4 @@ const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
     return entry ? ((const char*)entry->attrnm_) : 0;
 }
 
+

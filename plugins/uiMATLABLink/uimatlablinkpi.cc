@@ -32,3 +32,4 @@ mDefODInitPlugin(uiMATLABLink)
     // Add custom dir
     return 0;
 }
+

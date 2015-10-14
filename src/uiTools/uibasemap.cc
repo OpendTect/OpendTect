@@ -543,3 +543,4 @@ uiGraphicsScene& uiBaseMap::scene()
 void uiBaseMap::centerWorldItem( bool yn )
 { centerworlditem_ = yn; }
 
+

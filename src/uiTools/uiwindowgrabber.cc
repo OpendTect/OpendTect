@@ -268,3 +268,4 @@ void uiWindowGrabber::actCB( CallBacker* )
     MouseCursorManager::restoreOverride();
 }
 
+

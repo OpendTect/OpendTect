@@ -422,3 +422,4 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     drawSel( 0 );
     return true;
 }
+

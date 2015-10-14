@@ -622,3 +622,4 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     analdlg.go();
 }
 
+

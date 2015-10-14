@@ -10,3 +10,4 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 #include "ivfileviewerbase.cc"
+

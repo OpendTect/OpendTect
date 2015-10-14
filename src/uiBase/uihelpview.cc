@@ -136,3 +136,4 @@ HelpProvider* DevDocHelp::createInstance()
 {
     return new DevDocHelp;
 };
+

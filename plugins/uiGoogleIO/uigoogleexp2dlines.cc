@@ -151,3 +151,4 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
 
     wrr.writeLine( 0, plotcrds, lnm );
 }
+

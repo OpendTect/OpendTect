@@ -96,3 +96,4 @@ bool uiGMTLocationsGrp::usePar( const IOPar& par )
     return symbfld_->usePar( par );
 }
 
+

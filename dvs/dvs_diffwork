@@ -26,3 +26,4 @@ foreach fnm ( $* )
 	echo "diff $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm"
 	diff $fnm $goback/$wrkdir/$srcinc/$modnm/$fnm
 end
+

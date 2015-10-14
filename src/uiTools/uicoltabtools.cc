@@ -102,3 +102,4 @@ bool uiColorTableCanvas::handleLongTabletPress()
     endCmdRecEvent( refnr, "rightButtonPressed" );
     return true;
 }
+

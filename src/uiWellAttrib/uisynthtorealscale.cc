@@ -544,3 +544,4 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 			 seisfld_->ioobj()->key(), evfld_->levelName() );
     return true;
 }
+

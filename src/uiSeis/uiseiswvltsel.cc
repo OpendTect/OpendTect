@@ -230,3 +230,4 @@ Wavelet* uiWaveletSel::getWavelet( bool noerr ) const
     const IOObj* selioobj = ioobj( noerr );
     return selioobj ? Wavelet::get( selioobj ) : 0;
 }
+

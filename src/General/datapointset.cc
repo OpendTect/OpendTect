@@ -910,3 +910,4 @@ DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 
     return -1;
 }
+

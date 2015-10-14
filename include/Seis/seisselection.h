@@ -142,3 +142,4 @@ inline bool isEmpty( const SelData* sd )
 
 #endif
 
+

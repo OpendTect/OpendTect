@@ -158,3 +158,4 @@ bool BatchProgram::go( od_ostream& strm )
 			     << od_newline;
     return false;
 }
+

@@ -496,3 +496,4 @@ void LogCubeCreator::addUniqueTrace( const SeisTrc& trc,
     stckr.stack( trc );
 }
 
+

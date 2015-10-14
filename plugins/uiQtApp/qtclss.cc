@@ -28,3 +28,4 @@ void QtClss::go()
 {
     win_->show();
 }
+

@@ -439,3 +439,4 @@ BufferStringSet* VertVariogramComputer::getLabels() const
 {
     return variogramnms_;
 }
+

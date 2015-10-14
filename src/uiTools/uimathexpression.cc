@@ -191,3 +191,4 @@ void uiMathExpression::doIns( CallBacker* )
 
     insertText( txt );
 }
+

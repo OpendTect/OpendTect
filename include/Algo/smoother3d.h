@@ -197,3 +197,4 @@ Task::Control Smoother3D<T>::getState() const
 { return convolver_.getState(); }
 
 #endif
+

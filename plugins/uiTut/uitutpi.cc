@@ -143,3 +143,4 @@ mDefODInitPlugin(uiTut)
     uiTutorialAttrib::initClass();
     return 0;
 }
+

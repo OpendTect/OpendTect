@@ -697,3 +697,4 @@ uiGraphicsItem* uiGraphicsItemGroup::findItem( QGraphicsItem* qitm )
 
     return 0;
 }
+

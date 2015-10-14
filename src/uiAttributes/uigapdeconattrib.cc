@@ -739,3 +739,4 @@ Pos::GeomID uiGDPositionDlg::getGeomID() const
 
     return Survey::GM().getGeomID( linesfld_->box()->text() );
 }
+

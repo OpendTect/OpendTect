@@ -449,3 +449,4 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 }
 
 } // namespace VolProc
+

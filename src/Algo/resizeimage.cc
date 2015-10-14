@@ -155,3 +155,4 @@ bool ImageResizer::doFinish( bool success )
 
 void ImageResizer::setLanczosSize( int n )
 { lanczossize_ = n; }
+

@@ -791,3 +791,4 @@ bool uiDirLightDlg::InitInfo::operator!= ( const InitInfo& it ) const
 	    ambintensity_ != it.ambintensity_ ||
 	    directlighton_ != it.directlighton_;
 }
+

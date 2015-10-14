@@ -109,3 +109,4 @@ bool BinDataDesc::convertsWellTo( const BinDataDesc& dd ) const
     if ( !isint_ ) return false;
     return dd.issigned_ == issigned_;
 }
+

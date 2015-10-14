@@ -86,3 +86,4 @@ if ( $bashmode == 1 ) then
 else
     echo "$sethdirstr setenv binsubdir $binsubdir"
 endif
+

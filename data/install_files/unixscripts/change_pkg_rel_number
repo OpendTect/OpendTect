@@ -64,3 +64,4 @@ foreach pkg ( ${pkgs} )
     rm -rf "$instdir"
     echo "Done"
 end
+

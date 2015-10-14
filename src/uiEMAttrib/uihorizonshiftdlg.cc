@@ -265,3 +265,4 @@ bool uiHorizonShiftDialog::acceptOK( CallBacker* )
 
     return true;
 }
+

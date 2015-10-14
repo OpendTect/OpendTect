@@ -367,3 +367,4 @@ void uiSlider::editRetPress( CallBacker* )
 
     valueChanged.trigger();
 }
+

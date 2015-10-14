@@ -359,3 +359,4 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	}
     }
 }
+

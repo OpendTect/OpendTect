@@ -550,3 +550,4 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
 
 
 } // namespace EM
+

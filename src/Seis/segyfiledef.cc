@@ -423,3 +423,4 @@ void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
     else
 	prevbid_ = ti.binid;
 }
+

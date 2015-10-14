@@ -50,3 +50,4 @@ Include "$SCRIPTSDIR$/ImportSeismicAttributeSet.cmd"   //Add to cvs
 Include "$SCRIPTSDIR$/ManageWells.cmd"  //Add to cvs
 
 End
+

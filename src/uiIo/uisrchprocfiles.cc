@@ -114,3 +114,4 @@ bool uiSrchProcFiles::acceptOK( CallBacker* )
 {
     return true;
 }
+

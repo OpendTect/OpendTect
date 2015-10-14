@@ -135,3 +135,4 @@ void BitMap2RGB::drawWVA( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	}
     }
 }
+

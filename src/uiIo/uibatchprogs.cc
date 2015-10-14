@@ -382,3 +382,4 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 	    finp->setText( uitf->fileName() );
     }
 }
+

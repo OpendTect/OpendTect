@@ -124,3 +124,4 @@ void uiProbDenFuncMan::mkFileInfo()
     }
     setInfo( txt );
 }
+

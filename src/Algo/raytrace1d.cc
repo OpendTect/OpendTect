@@ -495,3 +495,4 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 
     return RayTracer1D::compute( layer, offsetidx, rayparam );
 }
+

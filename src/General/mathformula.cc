@@ -398,3 +398,4 @@ void Math::Formula::usePar( const IOPar& iop )
 	id.unit_ = UoMR().get( unstr );
     }
 }
+

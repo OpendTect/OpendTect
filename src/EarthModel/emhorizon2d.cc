@@ -787,3 +787,4 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
 }
 
 } // namespace EM
+

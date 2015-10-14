@@ -2149,3 +2149,4 @@ bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
 }
 
 }; //namespace
+

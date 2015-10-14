@@ -933,3 +933,4 @@ void ElasticModel::getTimeSampling( Interval<float>& timerg, bool usevs ) const
     timerg.stop *= 2.f;
 }
 
+

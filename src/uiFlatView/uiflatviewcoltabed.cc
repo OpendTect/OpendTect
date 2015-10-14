@@ -54,3 +54,4 @@ void uiFlatViewColTabEd::colTabChanged( CallBacker* )
     colTabChgd.trigger();
 }
 
+

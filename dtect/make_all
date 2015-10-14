@@ -141,3 +141,4 @@ if ( $mins > 0 ) then
 	echo -n "${mins}m "
 endif
 echo "${seconds}s."
+

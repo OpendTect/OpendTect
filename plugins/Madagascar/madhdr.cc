@@ -431,3 +431,4 @@ bool TrcHdrStrm::writeNextTrc( const TrcHeader& trchdr ) const
 #undef mbuflen
 #undef mPutFld
 #undef mGetFld
+

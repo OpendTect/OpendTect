@@ -18,3 +18,4 @@ mDefModInitFn(uiStrat)
 
     uiBasicLayerSequenceGenDesc::initClass();
 }
+

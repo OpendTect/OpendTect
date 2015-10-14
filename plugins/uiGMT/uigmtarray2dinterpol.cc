@@ -189,3 +189,4 @@ bool uiGMTNearNeighborGrid::acceptOK()
 
     return true;
 }
+

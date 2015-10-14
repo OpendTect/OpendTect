@@ -386,3 +386,4 @@ inline void PacketInterpreter::getBytes( void* ptr, int nrbytes ) const
 
 
 #endif
+

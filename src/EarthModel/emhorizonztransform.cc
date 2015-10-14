@@ -318,3 +318,4 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 }
 
 } // namespace EM
+

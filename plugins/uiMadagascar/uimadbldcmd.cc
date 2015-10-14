@@ -439,3 +439,4 @@ void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
 
 void uiMadagascarBldCmd::doAdd( CallBacker* )	{ mImplButFn( true ); }
 void uiMadagascarBldCmd::doEdit( CallBacker* )	{ mImplButFn( false ); }
+

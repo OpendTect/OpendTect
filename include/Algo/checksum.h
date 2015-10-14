@@ -27,3 +27,4 @@ mGlobal(Algo) void initChecksum();
 
 
 #endif
+

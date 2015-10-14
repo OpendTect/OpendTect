@@ -1168,3 +1168,4 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
     const Interval<int> crlrg( crlRange(work) );
     return inlrg.includes(bid.inl(),false) && crlrg.includes(bid.crl(),false);
 }
+

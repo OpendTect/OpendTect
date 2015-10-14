@@ -101,3 +101,4 @@ bool uiMathPropEdDlg::acceptOK( CallBacker* )
 
     return false;
 }
+

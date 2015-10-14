@@ -394,3 +394,4 @@ BufferString SqlDB::FullTextCondition::getStr() const
     res.add( " ) AGAINST ( ").add( searchstr_ ).add( " )" );
     return res;
 }
+

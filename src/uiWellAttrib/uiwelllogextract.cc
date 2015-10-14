@@ -338,3 +338,4 @@ bool uiWellLogExtractGrp::extractDPS()
     curdps_->setName( dpsnm );
     return true;
 }
+

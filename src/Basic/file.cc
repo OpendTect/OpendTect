@@ -824,3 +824,4 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
 }
 
 } // namespace File
+

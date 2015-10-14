@@ -221,3 +221,4 @@ void GapDeconACorrView::setDescSet( Attrib::DescSet* ds )
     delete dset_;
     dset_ = ds;
 }
+

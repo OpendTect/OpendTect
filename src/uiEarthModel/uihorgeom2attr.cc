@@ -240,3 +240,4 @@ bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
 	&& savefldgrp_->saveHorizon();
     return res;
 }
+

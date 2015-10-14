@@ -242,3 +242,4 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
 }
 
 } // namespace Annotations
+

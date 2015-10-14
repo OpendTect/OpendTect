@@ -6,3 +6,4 @@
 
 sed -e "s/__INST_DIR__/$replaceinstdir/" .odinit.gmt > odinit.gmt
 chmod +x odinit.gmt
+

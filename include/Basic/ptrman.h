@@ -479,3 +479,4 @@ ConstRefMan<T>&	ConstRefMan<T>::operator=(const T* p)
 }
 
 #endif
+

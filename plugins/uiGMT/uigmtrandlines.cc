@@ -169,3 +169,4 @@ bool uiGMTRandLinesGrp::usePar( const IOPar& par )
     return true;
 }
 
+

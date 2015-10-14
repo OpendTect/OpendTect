@@ -246,3 +246,4 @@ bool SectionTracker::usePar( const IOPar& par )
 }
 
 } // namespace MPE
+

@@ -175,3 +175,4 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
     }
 }
 
+

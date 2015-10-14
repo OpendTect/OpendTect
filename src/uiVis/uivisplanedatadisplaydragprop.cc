@@ -59,3 +59,4 @@ bool uiVisPlaneDataDisplayDragProp::revertChanges()
     pdd_->setTranslationDragKeys( false, initialpanstate_ );
     return true;
 }
+

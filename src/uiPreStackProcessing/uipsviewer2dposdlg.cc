@@ -529,3 +529,4 @@ bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
 }
 
 } //namespace
+

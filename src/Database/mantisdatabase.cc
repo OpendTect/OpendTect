@@ -1229,3 +1229,4 @@ void SqlDB::MantisDBMgr::editVersions( const BufferStringSet& versions,
 	    editedvers.addIfNew( str.buf() );
     }
 }
+

@@ -154,3 +154,4 @@ void Light::applyAttribute( osg::StateSet* ns, osg::StateAttribute* attr )
 }
 
 } // namespace visBase
+

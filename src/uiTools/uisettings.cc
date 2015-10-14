@@ -526,3 +526,4 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 
     return true;
 }
+

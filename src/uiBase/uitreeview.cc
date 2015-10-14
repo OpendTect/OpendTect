@@ -1166,3 +1166,4 @@ uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
 
 const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
+

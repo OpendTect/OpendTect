@@ -736,3 +736,4 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
     wd_.displayProperties(false).usePar( iop );
     return true;
 }
+

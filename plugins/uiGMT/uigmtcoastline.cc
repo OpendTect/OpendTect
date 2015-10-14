@@ -177,3 +177,4 @@ bool uiGMTCoastlineGrp::usePar( const IOPar& par )
     return true;
 }
 
+

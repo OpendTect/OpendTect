@@ -721,3 +721,4 @@ od_int64 SEGY::FileIndexer::totalNr() const
 
 uiString SEGY::FileIndexer::uiNrDoneText() const
 { return tr("Traces scanned"); }
+

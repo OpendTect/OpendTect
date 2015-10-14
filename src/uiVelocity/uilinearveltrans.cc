@@ -156,3 +156,4 @@ bool uiLinearVelTransform::acceptOK()
 }
 
 } // namespace Vel
+

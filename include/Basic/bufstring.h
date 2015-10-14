@@ -253,3 +253,4 @@ inline BufferString& BufferString::setLim( double d, int maxnrchars )
 
 
 #endif
+

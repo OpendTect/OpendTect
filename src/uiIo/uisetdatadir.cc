@@ -283,3 +283,4 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
 
     (void)uiSurvey_UnzipFile( par, zipfilenm, datadir );
 }
+

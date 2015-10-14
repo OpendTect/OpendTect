@@ -477,3 +477,4 @@ void DataClipSampler::report( IOPar& iop ) const
 	iop.add( "Median value", vals_[nrVals()/2] );
     }
 }
+

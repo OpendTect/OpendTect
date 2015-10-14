@@ -853,3 +853,4 @@ void Strat::LayerModel::setElasticPropSel( const ElasticPropSelection& elp )
 {
     elasticpropsel_ = elp;
 }
+

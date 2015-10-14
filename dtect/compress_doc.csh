@@ -16,3 +16,4 @@ gzip -c "${file}" > "${compdir}/${file}"
 goto next
 
 the_end:
+

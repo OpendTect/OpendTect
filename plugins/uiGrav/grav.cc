@@ -55,3 +55,4 @@ double Grav::Block::prim( double x, double y, double z ) const
 
     return x > 0 ? v1 - v2 : v1 + v2;
 }
+

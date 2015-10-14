@@ -616,3 +616,4 @@ bool SEGY::ScanInfoSet::isFull() const
 	    return false;
     return true;
 }
+

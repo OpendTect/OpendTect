@@ -14,3 +14,4 @@ if test "x$1" = "x--debugger"; then
 else
 	"@USERFILE_COMMAND@" @LAUNCHERSCRIPT_COMMAND_ARGUMENTS@
 fi
+

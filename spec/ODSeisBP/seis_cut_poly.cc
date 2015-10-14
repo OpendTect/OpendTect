@@ -117,3 +117,4 @@ bool BatchProgram::go( std::ostream& strm )
     strm << "\nExcluded " << nrexcl << " traces" << std::endl;
     return true;
 }
+

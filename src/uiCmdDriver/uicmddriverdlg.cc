@@ -542,3 +542,4 @@ void uiCmdDriverDlg::autoStartGo( const char* fnm )
 
 
 }; // namespace CmdDrive
+

@@ -420,3 +420,4 @@ bool uiPreStackAttrib::setInput( const Desc& desc )
 {
     return true;
 }
+

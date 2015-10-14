@@ -844,3 +844,4 @@ void CalloutDisplay::setPosition( int idx, const Pick::Location& pick )
 }
 
 }; // namespace
+

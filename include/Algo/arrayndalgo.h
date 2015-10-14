@@ -842,3 +842,4 @@ void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
 }
 
 #endif
+

@@ -348,3 +348,4 @@ bool uiMdiAreaWindow::isMinimized() const
 bool uiMdiAreaWindow::isMaximized() const
 { return qmdisubwindow_->isMaximized(); }
 
+

@@ -543,3 +543,4 @@ void DateInfo::getUsrDisp( BufferString& disp, bool withcurtime ) const
 	if ( secs < 10 ) disp += "0"; disp += secs;
     }
 }
+

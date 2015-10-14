@@ -38,3 +38,4 @@ bool uiVisMenuItemHandler::shouldAddMenu() const
 
     return FixedString(classnm_) == survobj->factoryKeyword();
 }
+

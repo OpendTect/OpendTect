@@ -74,3 +74,4 @@ endif()
 OD_ADD_SOURCE_FILES( resources/od_main.rc resources/resource.h resources/icon1.ico scene.xpm )
 
 OD_INIT_MODULE()
+

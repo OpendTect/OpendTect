@@ -420,3 +420,4 @@ bool HorizonAutoTracker::usePar( const IOPar& par )
 }
 
 } // namespace MPE
+

@@ -180,3 +180,4 @@ int uiWizard::lastPage() const
 
     return lastidx;
 }
+

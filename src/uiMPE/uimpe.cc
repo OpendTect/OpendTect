@@ -55,3 +55,4 @@ uiMPEEngine& uiMPE()
 }
 
 } // namespace MPE
+

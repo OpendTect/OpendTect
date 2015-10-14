@@ -82,3 +82,4 @@ bool ElementEditor::setDirection( GeomPosID, const Coord3& )
 
 
 }; //Namespace
+

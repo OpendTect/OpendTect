@@ -57,3 +57,4 @@ void ObjDisposer::doDel( CallBacker* in )
     delete obj;
     todeltimers += tim;
 }
+

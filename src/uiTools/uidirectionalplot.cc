@@ -536,3 +536,4 @@ uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
 {
     return uiPointFromPolar( center_, r, Angle::usrdeg2rad(ang) );
 }
+

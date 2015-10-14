@@ -125,3 +125,4 @@ od_int64 Stack::nrIterations() const
 }
 
 } // namespace PreStack
+

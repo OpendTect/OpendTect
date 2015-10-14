@@ -412,3 +412,4 @@ bool SEGYDirectSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     return false;
 }
 
+

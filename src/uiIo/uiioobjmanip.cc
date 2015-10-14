@@ -498,3 +498,4 @@ void uiIOObjManipGroup::relocCB( CallBacker* cb )
     mCBCapsuleUnpack(const char*,msg,cb);
     subj_.relocStart( msg );
 }
+

@@ -111,3 +111,4 @@ echo
 echo "Syntax ${progname}  <--listfile <listfile> | files ..>"
 echo
 exit 1
+

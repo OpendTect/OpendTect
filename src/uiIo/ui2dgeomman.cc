@@ -422,3 +422,4 @@ bool Geom2DImpHandler::confirmOverwrite( const char* lnm )
 		      .arg(lnm);
     return uiMSG().askOverwrite( msg );
 }
+

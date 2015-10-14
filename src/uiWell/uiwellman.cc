@@ -857,3 +857,4 @@ const BufferStringSet& uiWellMan::getAvailableLogs() const
 {
     return availablelognms_;
 }
+

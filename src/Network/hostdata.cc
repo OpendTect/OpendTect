@@ -698,3 +698,4 @@ bool HostDataList::isOK( uiStringSet& errors ) const
     errors.insert( 0, tr("Errors in Host information") );
     return false;
 }
+

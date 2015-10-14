@@ -21,3 +21,4 @@ mDefineEnumUtils(VSEvent,Type,"Event type")
 	"Largest trough",
 	0
 };
+

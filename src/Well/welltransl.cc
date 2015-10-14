@@ -106,3 +106,4 @@ bool odWellTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
     mImplStart(setReadOnly(ro));
     return true;
 }
+

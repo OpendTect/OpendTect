@@ -1212,3 +1212,4 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 
     return true;
 }
+

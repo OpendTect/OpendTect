@@ -193,3 +193,4 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 
     return false;
 }
+

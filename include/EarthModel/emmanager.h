@@ -138,3 +138,4 @@ mGlobal(EarthModel) bool canOverwrite(const MultiID&);
 } // namespace EM
 
 #endif
+

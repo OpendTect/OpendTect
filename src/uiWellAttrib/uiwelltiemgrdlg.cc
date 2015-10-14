@@ -614,3 +614,4 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 
 } // namespace WellTie
 
+

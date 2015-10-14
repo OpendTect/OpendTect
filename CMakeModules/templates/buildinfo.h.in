@@ -21,3 +21,4 @@ ________________________________________________________________________
 #ifndef mCOPYRIGHT_STRING
 # define mCOPYRIGHT_STRING "Copyright (C) 1995-@YEAR@ dGB Beheer BV."
 #endif
+

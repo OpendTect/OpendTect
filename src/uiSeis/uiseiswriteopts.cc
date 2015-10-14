@@ -97,3 +97,4 @@ void uiCBVSPS3DOpts::initClass()
 {
     factory().addCreator( create, mCBVSPS3DTranslInstance.getDisplayName() );
 }
+

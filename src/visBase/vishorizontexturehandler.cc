@@ -368,3 +368,4 @@ void HorizonTextureHandler::setHorizonSection( const HorizonSection& horsec )
     horsection_ = &horsec;
     updateTileTextureOrigin();
 }
+

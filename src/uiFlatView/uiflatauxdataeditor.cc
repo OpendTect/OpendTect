@@ -51,3 +51,4 @@ void uiFlatViewAuxDataEditor::sizeChangeCB( CallBacker* )
 
     viewChangeCB( 0 );
 }
+

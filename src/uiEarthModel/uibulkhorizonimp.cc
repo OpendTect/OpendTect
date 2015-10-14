@@ -198,3 +198,4 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
     return true;
 }
 
+

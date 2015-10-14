@@ -649,3 +649,4 @@ TypeSet<Coord>& FaultStickSetFlatViewEditor::getCoords()
 { return fsspainter_->getCoords(); }
 
 } // namespace MPE
+

@@ -258,3 +258,4 @@ void uiPolarDiagram::updatePointer()
 }
 
 
+

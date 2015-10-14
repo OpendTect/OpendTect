@@ -300,3 +300,4 @@ int DiscFilterAttrib::Task::nextStep()
 
     return 0;
 }
+

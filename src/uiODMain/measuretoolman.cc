@@ -300,3 +300,4 @@ void MeasureToolMan::surveyChanged( CallBacker* )
     picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
 
+

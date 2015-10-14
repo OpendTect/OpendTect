@@ -163,3 +163,4 @@ bool uiDPSSelectednessDlg::acceptOK( CallBacker* )
     showIn3DScene();
     return true;
 }
+

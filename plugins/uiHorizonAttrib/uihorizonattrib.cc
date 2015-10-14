@@ -177,3 +177,4 @@ void uiHorizonAttrib::typeSel(CallBacker*)
     surfdatafld_->display( !isz );
 }
 
+

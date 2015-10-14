@@ -308,3 +308,4 @@ bool uiFKSpectrum::view( Array2D<float>& array )
 
     return true;
 }
+

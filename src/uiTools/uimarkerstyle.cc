@@ -107,3 +107,4 @@ void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
 	colselfld_->setColor( st.color_ );
     sliderfld_->setValue( st.size_ );
 }
+

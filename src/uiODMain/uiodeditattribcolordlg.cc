@@ -120,3 +120,4 @@ bool uiODEditAttribColorDlg::acceptOK( CallBacker* )
 {
     return true;
 }
+

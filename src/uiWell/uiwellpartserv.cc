@@ -576,3 +576,4 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     return true;
 }
 
+

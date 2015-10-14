@@ -396,3 +396,4 @@ bool uiTextFileDlg::okToExit()
 
     return true;
 }
+

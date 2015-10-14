@@ -45,3 +45,4 @@ bool Tut::LogTools::runSmooth( const int inpgate )
 
     return true;
 }
+

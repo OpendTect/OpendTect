@@ -229,3 +229,4 @@ bool TextTaskRunner::execute( Task& t )
 
     return execres_;
 }
+

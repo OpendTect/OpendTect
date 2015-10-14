@@ -149,3 +149,4 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf, od_ostream& strm )
     pdf.writeBulk( strm, binary_ );
     return strm.isOK();
 }
+

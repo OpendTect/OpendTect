@@ -164,3 +164,4 @@ bool Vel::uiBatchVolumeConversion::acceptOK( CallBacker* )
     batchfld_->setJobName( outputsel_->ioobj()->name() );
     return batchfld_->start();
 }
+

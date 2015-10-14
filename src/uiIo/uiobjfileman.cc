@@ -363,3 +363,4 @@ void uiObjFileMan::updateCB( CallBacker* )
     const MultiID curmid = selgrp_->currentID();
     selgrp_->fullUpdate( curmid );
 }
+

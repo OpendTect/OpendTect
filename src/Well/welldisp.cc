@@ -407,3 +407,4 @@ void Well::DisplayProperties::commitDefaults()
     setts.write();
 }
 
+

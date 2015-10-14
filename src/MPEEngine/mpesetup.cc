@@ -134,3 +134,4 @@ const char* dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
 	return "Cannot write setup to file";
     return 0;
 }
+

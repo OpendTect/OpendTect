@@ -189,3 +189,4 @@ bool RGBATextureChannel2RGBA::isUndefPerChannel() const
 
 
 } // namespace visBase
+

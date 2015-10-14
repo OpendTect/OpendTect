@@ -9,3 +9,4 @@ endif
 
 echo "arc commit --revision $1"
 arc commit --revision $1
+

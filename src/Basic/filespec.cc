@@ -281,3 +281,4 @@ void FileSpec::getMultiFromString( const char* str )
     if ( len > 3 )
 	zeropad_ = fms.getIValue( 3 );
 }
+

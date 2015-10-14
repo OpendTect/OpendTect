@@ -401,3 +401,4 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
 
     (void)uiWellLogDispDlg::popupNonModal( this, wl );
 }
+

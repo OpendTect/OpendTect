@@ -417,3 +417,4 @@ float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
     }
 }
 
+

@@ -415,3 +415,4 @@ void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tr )
     Threads::WorkManager::twm().addWork( work,
 	Threads::WorkManager::cDefaultQueueID() );
 }
+

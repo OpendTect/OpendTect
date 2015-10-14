@@ -125,3 +125,4 @@ void Axes::setMasterCamera( visBase::Camera* camera )
 }
 
 } //namespace visBase
+

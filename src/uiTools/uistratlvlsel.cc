@@ -127,3 +127,4 @@ void uiStratLevelSel::extChgCB( CallBacker* )
     else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );
 }
+

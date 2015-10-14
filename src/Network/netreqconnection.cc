@@ -482,3 +482,4 @@ void RequestServer::newConnectionCB(CallBacker* cb)
 
     newConnection.trigger();
 }
+

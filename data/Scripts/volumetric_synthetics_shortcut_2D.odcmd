@@ -14,3 +14,4 @@ ListClick "Select Data" "Synthetic Gather Creator" Left
 Button "Add method"
 
 [SynthGatherCreator setup]
+

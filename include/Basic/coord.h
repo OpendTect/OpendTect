@@ -262,3 +262,4 @@ inline Coord3 Coord3::normalize() const
 
 
 #endif
+

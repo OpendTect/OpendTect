@@ -97,3 +97,4 @@ exit 0
 syntax:
     echo "$0 <serversubdir> <docdir>"
     exit 1
+

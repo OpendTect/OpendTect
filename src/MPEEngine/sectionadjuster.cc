@@ -111,3 +111,4 @@ bool SectionAdjuster::usePar( const IOPar& par )
 }
 
 } // namespace MPE
+

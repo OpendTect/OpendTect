@@ -22,3 +22,4 @@ void VW2DSeis::triggerDeSel()
 {
     deselted_.trigger();
 }
+

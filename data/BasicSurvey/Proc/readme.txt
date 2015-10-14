@@ -13,3 +13,4 @@ This directory does not have support via the IO Manager. That means we are
 talking about flat file access only, via a construction like:
 #include "oddirs.h"
 BufferString fname = GetProcFileName( "myprocess.log" );
+

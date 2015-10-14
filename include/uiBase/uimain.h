@@ -95,3 +95,4 @@ mGlobal(uiBase) bool isMainThreadCurrent();
 
 #endif
 
+

@@ -61,3 +61,4 @@ bool uiVisPolygonSurfBezierDlg::applyCB( CallBacker* )
     return true;
 }
 
+

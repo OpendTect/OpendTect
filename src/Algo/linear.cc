@@ -94,3 +94,4 @@ void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
     calcLS( *this, &vals[0].x, &vals[0].y, nrpts,
 	    sizeof(Geom::Point2D<float>) );
 }
+

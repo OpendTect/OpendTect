@@ -6,3 +6,4 @@
 # $Id$
 
 svn propedit svn:ignore .
+

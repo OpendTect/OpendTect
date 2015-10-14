@@ -216,3 +216,4 @@ void uiSlicePos::nextCB( CallBacker* )
     uiSpinBox* stepbox = slicestepbox_;
     posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
 }
+

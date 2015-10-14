@@ -211,3 +211,4 @@ bool BatchProgram::go( std::ostream& logstrm )
     mErrStrm << nrwr << " traces written." << std::endl;
     return nrwr ? true : false;
 }
+

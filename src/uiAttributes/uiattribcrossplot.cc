@@ -377,3 +377,4 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 const DataPointSet& uiAttribCrossPlot::getDPS() const
 { return *curdps_; }
 
+

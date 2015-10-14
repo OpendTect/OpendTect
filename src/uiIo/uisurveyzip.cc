@@ -151,3 +151,4 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 
     return true;
 }
+

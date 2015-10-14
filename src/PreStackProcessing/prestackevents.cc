@@ -968,3 +968,4 @@ bool SetEventUndo::removeEvent()
 
 
 }; //namespace
+

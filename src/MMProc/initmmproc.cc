@@ -18,3 +18,4 @@ mDefModInitFn(MMProc)
 
     Batch::MMJobDispatcher::initClass();
 }
+

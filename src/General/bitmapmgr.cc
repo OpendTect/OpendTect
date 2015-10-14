@@ -207,3 +207,4 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     return true;
 }
 
+

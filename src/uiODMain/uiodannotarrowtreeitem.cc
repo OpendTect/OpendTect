@@ -160,3 +160,4 @@ void ArrowSubItem::propertyChange( CallBacker* cb )
     mgr.setUnChanged( setidx, false );
 }
 
+

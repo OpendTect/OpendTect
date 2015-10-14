@@ -303,3 +303,4 @@ int Seis2DCopier::nextStep()
     nrdone_++;
     return MoreToDo();
 }
+

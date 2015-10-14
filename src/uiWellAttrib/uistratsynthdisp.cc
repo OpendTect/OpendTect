@@ -1802,3 +1802,4 @@ int uiSynthSlicePos::getValue() const
 {
     return sliceposbox_->getIntValue();
 }
+

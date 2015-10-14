@@ -581,3 +581,4 @@ void SeisSequentialWriter::reportWrite( const char* errmsg )
 	lock_.signal( true );
 }
 
+

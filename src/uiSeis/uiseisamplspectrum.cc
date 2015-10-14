@@ -32,3 +32,4 @@ void uiSeisAmplSpectrum::setDataPackID( DataPack::ID dpid,
     }
 }
 
+

@@ -534,3 +534,4 @@ Coord3	FaultStick::getNormal( bool is2d ) const
 
 
 } // namespace EM
+

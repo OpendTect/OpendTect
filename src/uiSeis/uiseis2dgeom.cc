@@ -115,3 +115,4 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
 
     return true;
 }
+

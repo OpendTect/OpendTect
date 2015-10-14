@@ -29,3 +29,4 @@ mDefODInitPlugin(My_Plugin_Name)
     My_Class* myclss = new My_Class;
     return 0;
 }
+

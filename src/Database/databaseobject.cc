@@ -401,3 +401,4 @@ bool DatabaseTable::insertRow( Access& access,const BufferStringSet& cols,
 }
 
 } //namespace
+

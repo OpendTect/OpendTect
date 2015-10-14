@@ -1197,3 +1197,4 @@ float Well::LogSampler::getLogVal( const char* lnm, int idz ) const
 int Well::LogSampler::nrZSamples() const
 { return data_ ? data_->info().getSize(1) : 0; }
 
+

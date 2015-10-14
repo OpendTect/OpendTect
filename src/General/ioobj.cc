@@ -492,3 +492,4 @@ const char* IOX::dirName() const
     delete ioobj;
     return dirnm_;
 }
+

@@ -73,3 +73,4 @@ int Grav::HorCalc::nextStep()
 
     return Finished();
 }
+

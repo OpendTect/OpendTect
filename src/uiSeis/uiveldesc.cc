@@ -530,3 +530,4 @@ uiZAxisTransform* uiDepth2Time::createInstance( uiParent* p,
 uiDepth2Time::uiDepth2Time( uiParent* p )
     : uiVelModelZAxisTransform( p, false )
 {}
+

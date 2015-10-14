@@ -596,3 +596,4 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
     deepErase( rgens_ );
     return true;
 }
+

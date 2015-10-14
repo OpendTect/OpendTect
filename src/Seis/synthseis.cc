@@ -1038,3 +1038,4 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
     }
 }
 } // namespace Seis
+

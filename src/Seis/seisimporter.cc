@@ -458,3 +458,4 @@ bool SeisStdImporterReader::fetch( SeisTrc& trc )
 
     return true;
 }
+

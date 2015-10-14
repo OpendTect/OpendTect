@@ -167,3 +167,4 @@ void uiTutSeisTools::inpSel( CallBacker* )
     if ( inioobj )
 	subselfld_->setInput( *inioobj );
 }
+

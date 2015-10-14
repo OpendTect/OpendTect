@@ -346,3 +346,4 @@ bool FourierInterpol3D::doFinish( bool success )
 
     return true;
 }
+

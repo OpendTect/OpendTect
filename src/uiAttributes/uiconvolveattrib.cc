@@ -201,3 +201,4 @@ void uiConvolveAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     if ( kernelfld_->getIntValue() < 2 )
 	params += EvalParam( filterszstr(), Convolve::sizeStr() );
 }
+

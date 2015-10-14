@@ -165,3 +165,4 @@ void uiSEGYImpType::usePar( const IOPar& iop )
     else
 	fld_->setText( res );
 }
+

@@ -315,3 +315,4 @@ void ObjectEditor::getAlongMovingNodes( const EM::PosID&,
 }
 
 } // namespace MPE
+

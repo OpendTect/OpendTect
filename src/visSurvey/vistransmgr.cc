@@ -140,3 +140,4 @@ void SceneTransformManager::computeICRotationTransform(
 }
 
 } // namespace visSurvey
+

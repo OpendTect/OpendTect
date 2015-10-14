@@ -489,3 +489,4 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
     fp.setExtension( "proc" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
 }
+

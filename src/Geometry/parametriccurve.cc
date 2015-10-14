@@ -163,3 +163,4 @@ void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids, bool remudf ) const
 
 }; //Namespace
 
+

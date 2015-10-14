@@ -157,3 +157,4 @@ mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 	    area size, unit is ft^2, m^2, km^2 or mile^2. */
 
 #endif
+

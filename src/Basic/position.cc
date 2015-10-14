@@ -540,3 +540,4 @@ Coord Pos::IdxPair2Coord::transform( const Coord& ip_coord ) const
     return Coord( xtr.a + xtr.b*ip_coord.x + xtr.c*ip_coord.y,
 		  ytr.a + ytr.b*ip_coord.x + ytr.c*ip_coord.y );
 }
+

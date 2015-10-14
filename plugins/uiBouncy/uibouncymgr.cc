@@ -240,3 +240,4 @@ void uiBouncyMgr::shutdownCB( CallBacker* )
 }
 
 }
+

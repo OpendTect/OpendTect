@@ -223,3 +223,4 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     rmTmpIOObj();
     return allok;
 }
+

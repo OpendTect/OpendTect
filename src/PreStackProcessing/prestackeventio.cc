@@ -1566,3 +1566,4 @@ bool EventPatchWriter::writeFloat( od_ostream& strm, float val,
 
 
 }; //namespace
+

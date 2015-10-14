@@ -668,3 +668,4 @@ const MarchingCubeLookupTable& MarchingCubeLookupTable::get()
                               (new MarchingCubeLookupTable) );
     return *table;
 }
+

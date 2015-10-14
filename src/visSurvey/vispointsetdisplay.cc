@@ -260,3 +260,4 @@ void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 } //namespace visSurvey
+

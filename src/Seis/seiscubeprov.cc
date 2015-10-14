@@ -645,3 +645,4 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 
     return data_->get( tkzs_.inlIdx(bid.inl()), tkzs_.crlIdx(bid.crl()) );
 }
+

@@ -510,3 +510,4 @@ void MPEEditor::setActiveDragger( const EM::PosID& pid )
 }
 
 } // namespace visSurvey
+

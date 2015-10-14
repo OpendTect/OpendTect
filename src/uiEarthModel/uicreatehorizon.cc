@@ -106,3 +106,4 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
 				        "Do you want to create another one?"));
     return !res;
 }
+

@@ -48,3 +48,4 @@ int main( int argc, char** argv )
     rje->launchProc();
     return ExitProgram( 0 );
 }
+

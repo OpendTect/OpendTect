@@ -69,3 +69,4 @@ ArrPtrMan<type> varnm; \
 #undef __varlenwithptr__
 
 #endif
+

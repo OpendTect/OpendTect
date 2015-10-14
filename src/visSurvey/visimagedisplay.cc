@@ -194,3 +194,4 @@ void ImageDisplay::updateCoords(CallBacker*)
 }
 
 } //namespace visSurvey
+

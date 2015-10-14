@@ -232,3 +232,4 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
     }
     mrkSelDone.trigger();
 }
+

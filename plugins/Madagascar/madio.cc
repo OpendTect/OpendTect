@@ -153,3 +153,4 @@ StreamData ODMad::FileSpec::doOpen( const char* fnm ) const
 
     return ret;
 }
+

@@ -159,3 +159,4 @@ mDefODInitPlugin(uiMadagascar)
     lnk = new uiMadagascarLink( *ODMainWin() );
     return lnk ? 0 : (const char*)ODMad::PI().errMsg().getFullString();
 }
+

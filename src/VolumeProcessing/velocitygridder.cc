@@ -656,3 +656,4 @@ bool VelocityGridder::usePar( const IOPar& par )
 }
 
 } // namespace VolProc
+

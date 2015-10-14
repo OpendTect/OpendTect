@@ -187,3 +187,4 @@ void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
     statusBar()->message( mToUiStringTodo(mesg.buf()) );
 }
 
+

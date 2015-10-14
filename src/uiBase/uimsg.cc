@@ -499,3 +499,4 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 		    notxt.getOriginalString() );
     return !checked;
 }
+

@@ -294,3 +294,4 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
 
     linenmfld_->addItems( emdata.linenames );
 }
+

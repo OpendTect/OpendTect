@@ -875,3 +875,4 @@ bool MadStream::write2DTraces( bool writetofile )
     return true;
 }
 #undef mErrRet
+

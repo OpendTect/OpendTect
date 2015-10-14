@@ -3,3 +3,4 @@ OpendTect V6.1.x : Release info
 In general, all fixes in the stable 6.0 are also applied in the 6.1 releases.
 
 ----
+

@@ -68,3 +68,4 @@ mGlobal(Well) IOObj* findIOObj(const char* wellnm,const char* uwi);
 } // namespace Well
 
 #endif
+

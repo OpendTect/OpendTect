@@ -78,3 +78,4 @@ BufferString uiEMAuxDataSel::getSummary() const
     summary.add( "[" ).add( auxdatanm_ ).add( "]" );
     return summary;
 }
+

@@ -556,3 +556,4 @@ void uiODAnnotSubItem::removeStuff()
     }
     mgr.removeCBs( this );
 }
+

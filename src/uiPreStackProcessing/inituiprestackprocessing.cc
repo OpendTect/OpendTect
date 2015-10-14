@@ -30,3 +30,4 @@ mDefModInitFn(uiPreStackProcessing)
 
     Batch::MMJobDispatcher::addDef( new Batch::PreStackMMProgDef );
 }
+

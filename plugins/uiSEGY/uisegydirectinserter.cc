@@ -196,3 +196,4 @@ void uiSEGYDirectPS3DInserter::initClass()
 }
 
 
+

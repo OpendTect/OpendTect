@@ -169,3 +169,4 @@ const mVisTrans* RandomPos2Body::getDisplayTransformation() const
 
 
 }; // namespace visBase
+

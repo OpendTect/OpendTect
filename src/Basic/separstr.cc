@@ -264,3 +264,4 @@ void SeparString::setSepChar( char newchar )
 	ss.add( (*this)[idx] );
     *this = ss;
 }
+

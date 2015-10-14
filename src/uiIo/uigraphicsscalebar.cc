@@ -117,3 +117,4 @@ void uiScaleBarItem::adjustValues()
 	pxwidth_ = mCast(int,pxwidth_/scalex);
     }
 }
+

@@ -2069,3 +2069,4 @@ int uiDialog::titlepos_ = 0; // default is centered.
 int uiDialog::titlePos()			{ return titlepos_; }
 void uiDialog::setTitlePos( int p )		{ titlepos_ = p; }
 
+

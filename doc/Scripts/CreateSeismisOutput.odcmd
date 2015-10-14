@@ -40,3 +40,4 @@ Button "Proceed"
 TreeMenu "Inline" Left "Add"
 TreeMenu "Inline`425`<right-click>" "Select Attribute`Stored Cubes`test425" On
 TreeMenu "Inline`425" "Remove"
+

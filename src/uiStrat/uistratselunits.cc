@@ -451,3 +451,4 @@ void uiStratSelUnits::checkChildren( const Strat::UnitRef* ur, bool yn )
 	}
     }
 }
+

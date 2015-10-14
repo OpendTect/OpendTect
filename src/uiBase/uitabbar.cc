@@ -162,3 +162,4 @@ uiGroup* uiTabBar::page( int idx ) const
 {
     return const_cast<uiGroup*>( &tabs_[idx]->group() );
 }
+

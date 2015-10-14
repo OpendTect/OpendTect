@@ -23,3 +23,4 @@ A standalone 'application' is the uiSeisMMProc class, which handles the
 distribution of processing on multiple machines.
 
 */
+

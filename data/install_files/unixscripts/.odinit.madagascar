@@ -19,3 +19,4 @@ endif
 setenv PATH ${PATH}:${RSFROOT}/bin
 
 echo "Madagascar setup done"
+

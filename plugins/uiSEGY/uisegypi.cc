@@ -224,3 +224,4 @@ mDefODInitPlugin(uiSEGY)
 	uiSEGYMgr::theinst_ = new uiSEGYMgr( ODMainWin() );
     return 0;
 }
+

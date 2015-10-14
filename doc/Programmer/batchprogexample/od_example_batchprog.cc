@@ -27,3 +27,4 @@ bool BatchProgram::go( std::ostream& strm )
     progressmeter.setFinished();
     return true;
 }
+

@@ -216,3 +216,4 @@ void uiZStretchDlg::butPush( CallBacker* b )
     else
 	homecb.doCall( this );
 }
+

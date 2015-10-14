@@ -157,3 +157,4 @@ const char* dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
 
     return 0;
 }
+

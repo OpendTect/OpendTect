@@ -79,3 +79,4 @@ void uiSelObjFromOtherSurvey::setDirToOtherSurvey()
     if ( !othersurveyrootdir_.isEmpty() )
 	IOM().setRootDir( othersurveyrootdir_ );
 }
+

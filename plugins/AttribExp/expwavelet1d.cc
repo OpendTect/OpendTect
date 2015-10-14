@@ -202,3 +202,4 @@ bool Wavelet1DAttrib::Task::Input::set(const BinID& pos,
 }
 
 
+

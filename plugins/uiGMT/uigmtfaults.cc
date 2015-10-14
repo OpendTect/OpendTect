@@ -224,3 +224,4 @@ void uiGMTFaultsGrp::reset()
     horfld_->clear();
     typeChgCB( 0 );
 }
+

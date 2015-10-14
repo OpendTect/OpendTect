@@ -2469,3 +2469,4 @@ void HorizonDisplay::setPixelDensity( float dpi )
 
 
 }; // namespace visSurvey
+

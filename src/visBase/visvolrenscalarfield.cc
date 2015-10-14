@@ -845,3 +845,4 @@ const char* VolumeRenderScalarField::writeVolumeFile( int attr,
 
 
 } // namespace visBase
+

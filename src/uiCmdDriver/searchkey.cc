@@ -238,3 +238,4 @@ const BufferString* WildcardManager::wildcardStr( int idx ) const
 
 
 }; // namespace CmdDrive
+

@@ -121,3 +121,4 @@ bool uiDesktopServices::openUrl( const char* url )
 
     return res;
 }
+

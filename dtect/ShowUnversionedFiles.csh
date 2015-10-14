@@ -5,3 +5,4 @@
 
 
 svn status | awk '/^?/{print $2}'
+

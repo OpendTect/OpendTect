@@ -120,3 +120,4 @@ protected:
 #ifdef UIPARENT_BODY_CENTR_WIDGET
 # undef UIPARENT_BODY_CENTR_WIDGET
 #endif
+

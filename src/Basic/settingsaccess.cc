@@ -124,3 +124,4 @@ int SettingsAccess::getDefaultTexResFactor( int nrres ) const
     res = defaultTexResFactorFromEnvVar();
     return validResolution( res, nrres );
 }
+

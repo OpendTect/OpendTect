@@ -56,3 +56,4 @@ void uiMFCDialog::OnBnClickedOk()
    return;
    OnOK();
 }
+

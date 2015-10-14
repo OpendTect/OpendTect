@@ -209,3 +209,4 @@ GPUManager& manager()
 }
 
 }; //namespace
+

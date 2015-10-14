@@ -264,3 +264,4 @@ mDefineParentItem(ScaleBar,"ScaleBar",1000);
 }; // namespace Annotations
 
 #endif
+

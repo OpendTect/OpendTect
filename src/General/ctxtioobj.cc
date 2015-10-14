@@ -494,3 +494,4 @@ int CtxtIOObj::fillObj( bool mktmp, int translidxfornew )
     IOM().getEntry( *this, mktmp, translidxfornew );
     return ioobj_ ? 2 : 0;
 }
+

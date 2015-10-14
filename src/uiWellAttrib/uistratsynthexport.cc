@@ -602,3 +602,4 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 			   " in survey setup to display the 2D line"));
     return true;
 }
+

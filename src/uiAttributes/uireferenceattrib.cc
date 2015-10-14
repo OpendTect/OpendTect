@@ -115,3 +115,4 @@ bool uiReferenceAttrib::getInput( Attrib::Desc& desc )
     fillInp( inpfld, desc, 0 );
     return true;
 }
+

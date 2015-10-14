@@ -58,3 +58,4 @@ bool BatchProgram::go( od_ostream& strm )
     SeisCubeCopier copier( stp, compnr );
     return copier.go( &strm, false, true );
 }
+

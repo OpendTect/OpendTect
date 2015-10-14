@@ -130,3 +130,4 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     ctio.setObj( existioobj->clone() );
     return true;
 }
+

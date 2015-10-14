@@ -89,3 +89,4 @@ else
 	echo "This license requires the license manager daemon to be started."
 	echo "You may want to use the start.$target_name.lmgrd script for this purpose."
 endif
+

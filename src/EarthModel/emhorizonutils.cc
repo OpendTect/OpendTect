@@ -451,3 +451,4 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 }
 
 } // namespace EM
+

@@ -93,3 +93,4 @@ bool uiShortcutsDlg::acceptOK( CallBacker* )
     SCMgr().setList( scl_ );
     return true;
 }
+

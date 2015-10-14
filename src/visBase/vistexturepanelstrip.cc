@@ -208,3 +208,4 @@ void TexturePanelStrip::setDisplayTransformation( const mVisTrans* tr )
 
 const mVisTrans* TexturePanelStrip::getDisplayTransformation() const
 { return displaytrans_; }
+

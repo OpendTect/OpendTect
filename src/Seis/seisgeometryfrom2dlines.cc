@@ -78,3 +78,4 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 
     MouseCursorManager::restoreOverride();
 }
+

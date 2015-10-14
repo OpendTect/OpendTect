@@ -265,3 +265,4 @@ bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 
     return true;
 }
+

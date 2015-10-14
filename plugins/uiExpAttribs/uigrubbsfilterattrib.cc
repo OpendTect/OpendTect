@@ -130,3 +130,4 @@ void uiGrubbsFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     params += EvalParam( timegatestr(), GrubbsFilter::gateStr() );
     params += EvalParam( stepoutstr(), GrubbsFilter::stepoutStr() );
 }
+

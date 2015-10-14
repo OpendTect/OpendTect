@@ -6,3 +6,4 @@ if [%1]==[--debugger] (
 
 "@USERFILE_COMMAND@" @LAUNCHERSCRIPT_COMMAND_ARGUMENTS@
 pause
+

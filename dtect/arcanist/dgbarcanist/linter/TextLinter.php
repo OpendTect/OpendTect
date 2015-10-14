@@ -430,3 +430,4 @@ final class TextLinter extends ArcanistLinter {
     return $data;
   }
 }
+

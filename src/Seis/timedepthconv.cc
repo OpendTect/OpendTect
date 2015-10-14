@@ -1024,3 +1024,4 @@ float LinearD2TTransform::getGoodZStep() const
     const int nrsamples = SI().zRange( false ).nrSteps();
     return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
 }
+

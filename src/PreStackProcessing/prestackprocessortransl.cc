@@ -129,3 +129,4 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
     return astrm.isOK() ? uiString::emptyString()
 			: tr("Error during write to process definition file");
 }
+

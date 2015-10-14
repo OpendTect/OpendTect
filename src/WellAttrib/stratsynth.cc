@@ -1990,3 +1990,4 @@ void SynthRayModelManager::addRayModelSet(
     synthraypars_ += sgp.raypars_;
     raymodels_ += rms;
 }
+

@@ -81,3 +81,4 @@ if ( NOT MATLAB_DIR STREQUAL "" )
     install( DIRECTORY ${OUTDIR} DESTINATION
 	     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
 endif()
+

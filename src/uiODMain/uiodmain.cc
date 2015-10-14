@@ -724,3 +724,4 @@ void uiODMain::exit()
 
     uiapp_.exit(0);
 }
+

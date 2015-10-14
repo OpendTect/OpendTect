@@ -527,3 +527,4 @@ bool uiGMTMainWin::acceptOK( CallBacker*)
 {
     return fillPar() && batchfld_->start();
 }
+

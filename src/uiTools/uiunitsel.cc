@@ -296,3 +296,4 @@ void uiUnitSel::update()
 	inpfld_->setText( mFromUiStringTodo(getSelTxt(
 					UnitOfMeasure::surveyDefDepthUnit())) );
 }
+

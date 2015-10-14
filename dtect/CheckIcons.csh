@@ -15,3 +15,4 @@ foreach fil ( *.png )
 	if ( ! -e ../icons.Default/$fil ) echo $fil
 end
 echo ""
+

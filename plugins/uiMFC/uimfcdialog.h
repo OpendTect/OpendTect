@@ -39,3 +39,4 @@ protected:
 bool initMFCDialog( HWND hwnd );
 
 #endif
+

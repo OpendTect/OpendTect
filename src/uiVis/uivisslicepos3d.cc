@@ -157,3 +157,4 @@ TrcKeyZSampling uiSlicePos3DDisp::getSampling() const
     return curpdd_ ? curpdd_->getTrcKeyZSampling( true, true )
 		   : curvol_->sliceSampling( curvol_->getSelectedSlice() );
 }
+

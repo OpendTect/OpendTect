@@ -575,3 +575,4 @@ Strat::LevelSet* Strat::LevelSet::createStd( const char* nm )
     ret->readFrom( getStdFileName(nm,"Levels") );
     return ret;
 }
+

@@ -276,3 +276,4 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 
 
 #endif
+

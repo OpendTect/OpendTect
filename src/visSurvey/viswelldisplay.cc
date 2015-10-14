@@ -1027,3 +1027,4 @@ void WellDisplay::setPixelDensity( float dpi )
 
 } // namespace visSurvey
 
+

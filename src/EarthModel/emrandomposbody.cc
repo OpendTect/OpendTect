@@ -432,3 +432,4 @@ void RandomPosBody::fillBodyPar( IOPar& par ) const
 
 
 }; // namespace EM
+

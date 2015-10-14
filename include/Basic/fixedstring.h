@@ -102,3 +102,4 @@ inline FixedString& FixedString::operator=(const OD::String&)
 
 
 #endif
+

@@ -28,3 +28,4 @@ MACRO( OD_SETUP_ZLIB )
 	add_definitions( -DHAS_ZLIB )
     endif()
 ENDMACRO()
+

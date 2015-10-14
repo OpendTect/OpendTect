@@ -483,3 +483,4 @@ int SeisStatsCalc::nextStep()
     return MoreToDo();
 }
 
+

@@ -828,3 +828,4 @@ void SampledNDProbDenFunc::writeBulk( od_ostream& strm, bool binary ) const
 bool SampledNDProbDenFunc::readBulk( od_istream& strm, bool binary )
 { return ArrayNDProbDenFunc::readBulkData( strm, binary ); }
 
+

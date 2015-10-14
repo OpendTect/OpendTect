@@ -310,3 +310,4 @@ void NormalListAdapter::remove( const TypeSet<int>& idxs )
 
 
 }; // namespace visBase
+

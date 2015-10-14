@@ -117,3 +117,4 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 
     return true;
 }
+

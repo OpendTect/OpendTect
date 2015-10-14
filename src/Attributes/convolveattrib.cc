@@ -487,3 +487,4 @@ bool Convolve::isSingleTrace() const
 }
 
 } // namespace Attrib
+

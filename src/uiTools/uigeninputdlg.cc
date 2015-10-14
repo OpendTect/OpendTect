@@ -152,3 +152,4 @@ bool uiGenInputDlg::acceptOK( CallBacker* cb )
 {
     return group->acceptOK( cb );
 }
+

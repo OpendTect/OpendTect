@@ -302,3 +302,4 @@ void EMObjectPosSelector::makeListGrow( const RowCol& start,
 }
 
 } // namespace EM
+

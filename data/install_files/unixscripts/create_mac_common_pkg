@@ -68,3 +68,4 @@ goto removetemp
 removetemp:
     cd $pkgsdir
     rm -rf temp
+

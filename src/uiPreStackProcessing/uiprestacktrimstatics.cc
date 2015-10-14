@@ -186,3 +186,4 @@ bool uiTrimStatics::acceptOK( CallBacker* )
 }
 
 } // namespace PreStack
+

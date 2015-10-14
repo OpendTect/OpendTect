@@ -128,3 +128,4 @@ uiGroup* uiTabStack::page( int id ) const
 int uiTabStack::currentPageId() const
 { return tabbar_->currentTabId(); }
 
+

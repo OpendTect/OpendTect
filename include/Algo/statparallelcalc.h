@@ -326,3 +326,4 @@ inline double ParallelCalc<T>::variance() const
 
 }
 #endif
+

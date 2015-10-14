@@ -265,3 +265,4 @@ Settings& ODInst::userSettings()
 {
     return Settings::fetch( "instmgr" );
 }
+

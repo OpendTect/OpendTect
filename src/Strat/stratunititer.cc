@@ -163,3 +163,4 @@ Interval<int> Strat::UnitRefIter::levelRange() const
 
     return rg;
 }
+

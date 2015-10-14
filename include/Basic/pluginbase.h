@@ -74,3 +74,4 @@ struct PluginInfo
 /* } -- for the extern "C" */
 
 #endif
+

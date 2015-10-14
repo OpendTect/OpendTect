@@ -274,3 +274,4 @@ bool LateralStack::processOutput( const OffsetAzimuth& oa,const BinID& center )
 }
 
 } // namespace PreStack
+

@@ -8,3 +8,4 @@ static const char* _rcsID mUsedVar = "$Id$";
 #define USESOODCLASSES
 
 #include "ivfileviewerbase.cc"
+

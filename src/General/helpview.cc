@@ -41,3 +41,4 @@ bool HelpKey::isEmpty() const
 
 HelpKey HelpKey::emptyHelpKey()
 { return HelpKey( 0 , sKey::EmptyString() ); }
+

@@ -341,3 +341,4 @@ bool Well::Log::insertAtDah( float dh, float val )
     if ( val > range_.stop ) range_.stop = val;
     return true;
 }
+

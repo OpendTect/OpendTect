@@ -63,3 +63,4 @@ const char* uiSEGYSurvInfoProvider::importAskQuestion() const
 {
     return "Import the SEG-Y data used for survey setup now?";
 }
+

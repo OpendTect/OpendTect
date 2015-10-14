@@ -34,3 +34,4 @@ else
     tkdiff /tmp/mdiff.$$ $diffinp
     \rm /tmp/mdiff.$$
 endif
+

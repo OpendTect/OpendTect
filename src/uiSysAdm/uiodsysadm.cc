@@ -260,3 +260,4 @@ void uiODSysAdm::doAttribSets( CallBacker* )
 {
     uiMSG().error( tr("Needs implementation") );
 }
+

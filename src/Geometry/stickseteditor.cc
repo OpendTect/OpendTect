@@ -50,3 +50,4 @@ void StickSetEditor::addedKnots(CallBacker*)
 
     
 }; //Namespace
+

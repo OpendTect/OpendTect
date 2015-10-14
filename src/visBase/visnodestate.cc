@@ -93,3 +93,4 @@ void NodeState::applyAttribute( osg::StateSet* ns, osg::StateAttribute* attr)
     if ( ns )
 	ns->setAttribute( attr );
 }
+

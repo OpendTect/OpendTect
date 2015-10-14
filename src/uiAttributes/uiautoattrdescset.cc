@@ -215,3 +215,4 @@ bool uiAutoAttrSetOpen::acceptOK( CallBacker* )
     isauto_ = autoloadfld_->getBoolValue();
     return true;
 }
+

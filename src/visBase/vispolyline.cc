@@ -203,3 +203,4 @@ void PolyLine3D::setDisplayTransformation( const mVisTrans* trans)
 
 
 }; // namespace visBase
+

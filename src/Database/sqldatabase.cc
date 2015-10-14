@@ -126,3 +126,4 @@ void SqlDB::Access::close()
 {
     qdb_->close();
 }
+

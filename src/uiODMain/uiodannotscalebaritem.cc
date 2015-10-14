@@ -261,3 +261,4 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
     mgr.setUnChanged( setidx, false );
 }
 
+

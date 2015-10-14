@@ -295,3 +295,4 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     return true;
 }
 
+

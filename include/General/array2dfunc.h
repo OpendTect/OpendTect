@@ -113,3 +113,4 @@ RT Array2DFunc<RT,PT,T>::getValue( PT x, PT y ) const
 }
 
 #endif
+

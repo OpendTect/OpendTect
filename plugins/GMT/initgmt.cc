@@ -41,3 +41,4 @@ void GMT::initStdClasses()
     GMTSurfaceGrid::initClass();
     GMTNearNeighborGrid::initClass();
 }
+

@@ -368,3 +368,4 @@ void uiTablePosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Table() );
 }
+

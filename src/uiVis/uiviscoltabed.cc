@@ -149,3 +149,4 @@ bool uiColorBarDialog::closeOK()
     winClosing.trigger( this );
     return true;
 }
+

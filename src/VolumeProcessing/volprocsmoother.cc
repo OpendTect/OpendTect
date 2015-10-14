@@ -140,3 +140,4 @@ Task* Smoother::createTask()
 }
 
 } // namespace VolProc
+

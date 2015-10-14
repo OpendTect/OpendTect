@@ -211,3 +211,4 @@ void uiMaterialGrp::sliderMove( CallBacker* cb )
 
 void uiMaterialGrp::colorChangeCB(CallBacker*)
 { if ( colinp_ ) survobj_->setColor( colinp_->color() ); }
+

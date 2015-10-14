@@ -143,3 +143,4 @@ double Math::Atan2( double y, double x )
     return atan2 ( y, x );
 }
 
+

@@ -94,3 +94,4 @@ bool SeisTrcReaderSet::get( ObjectSet<SeisTrc>& trcs )
 
     return true;
 }
+

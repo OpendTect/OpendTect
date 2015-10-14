@@ -50,3 +50,4 @@ chmod +w -R *
 
 echo "OpendTect_DIR:PATH=${inpdir}" >> CMakeCache.txt
 echo "CMAKE_BUILD_TYPE:STRING=Debug" >> CMakeCache.txt
+

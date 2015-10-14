@@ -235,3 +235,4 @@ float BendPointFinder3D::getMaxSqDistToLine( int& idx, int start,
 
     return (float) dsqmax;
 }
+

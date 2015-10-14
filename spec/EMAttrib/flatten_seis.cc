@@ -131,3 +131,4 @@ bool BatchProgram::go( std::ostream& strm )
     exec.execute( &strm );
     return true;
 }
+

@@ -391,3 +391,4 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
 
 } // namespace WellTie
 
+

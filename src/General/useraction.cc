@@ -22,3 +22,4 @@ UserAction::UserAction( const UserAction& ua )
     , id_( -1 )
     , change_( this )
 {}
+

@@ -238,3 +238,4 @@ const char* DatabaseColumn<T>::dataString( const T& val ) const
 
 
 #endif
+

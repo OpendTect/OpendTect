@@ -106,3 +106,4 @@ void uiGraphicsView::printImageCB( CallBacker* )
 {
     print();
 }
+

@@ -515,3 +515,4 @@ uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const uiString& txt, int dec,
     lbl_->setAlignment( Alignment::Right );
     setHAlignObj( sb_ );
 }
+

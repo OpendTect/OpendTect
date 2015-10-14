@@ -627,3 +627,4 @@ uiString uiChain::getPossibleInitialStepNames()
 }
 
 } // namespace VolProc
+

@@ -15,3 +15,4 @@ My_Class::My_Class()
 {
     uiMSG().message( "Hello world!" );
 }
+

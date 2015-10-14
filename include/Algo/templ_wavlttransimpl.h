@@ -86,3 +86,4 @@ void transform1Dt( const T* in, T* out, int space ) const
 	}
     }
 }
+

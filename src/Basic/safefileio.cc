@@ -277,3 +277,4 @@ void SafeFileIO::rmLock()
     if ( locked_ && File::exists(lockfnm_) )
 	File::remove( lockfnm_ );
 }
+

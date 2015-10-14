@@ -132,3 +132,4 @@ mImplFuncs( od_uint64, mUdf(od_uint64), INT_MAX, UInt64 )
 mImplFuncs( od_int64, mUdf(od_int64), mUdf(od_int64)+1, Int64 )
 mImplFloatFuncs( float, mUdf(float), 1e29f, Float )
 mImplFloatFuncs( double, mUdf(double), 1e29, Double )
+

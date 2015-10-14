@@ -292,3 +292,4 @@ void uiColorInput::setLblText( const uiString& txt )
 {
     if ( lbl_ ) lbl_->setText( txt );
 }
+

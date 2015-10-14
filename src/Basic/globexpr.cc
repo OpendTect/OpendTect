@@ -192,3 +192,4 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 
     return matched;
 }
+

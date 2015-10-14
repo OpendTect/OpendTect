@@ -308,3 +308,4 @@ bool uiFreqFilterAttrib::areUIParsOK()
     return true;
 }
 
+

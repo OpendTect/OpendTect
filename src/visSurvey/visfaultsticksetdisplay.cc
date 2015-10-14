@@ -1260,3 +1260,4 @@ void FaultStickSetDisplay::hideAllKnots( bool yn )
 }
 
 } // namespace visSurvey
+

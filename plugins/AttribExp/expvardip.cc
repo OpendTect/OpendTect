@@ -259,3 +259,4 @@ int MinVarianceDipAttrib::Task::nextStep()
 
     return 0;
 }
+

@@ -231,3 +231,4 @@ void EM::StickSet::cleanUp()
 
 const IOObjContext& EM::StickSet::getIOObjContext() const
 { return EMStickSetTranslatorGroup::ioContext(); }
+

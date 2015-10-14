@@ -234,3 +234,4 @@ bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* anm ) const
 
     return false;
 }
+

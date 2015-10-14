@@ -226,3 +226,4 @@ void getImageFileFilter( BufferString& filter, bool forread,
     getImageFormatDescs( descs, forread, withprintformats );
     filter = descs.cat( ";;" );
 }
+

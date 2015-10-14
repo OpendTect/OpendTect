@@ -860,3 +860,4 @@ void BodyOperator::fillPar( IOPar& par )
 
 
 }; //Namespce
+

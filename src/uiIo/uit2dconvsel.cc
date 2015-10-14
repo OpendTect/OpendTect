@@ -71,3 +71,4 @@ void uiT2DConvSel::inpSel( CallBacker* cb )
 
     selfld_->setSensitive( ZDomain::isSI(ioobj->pars()) );
 }
+

@@ -302,3 +302,4 @@ uiTreeItem* uiODVw2DFaultSS2DTreeItemFactory::createForVis(
     mDynamicCastGet(const VW2DFaultSS2D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DFaultSS2DTreeItem(id,true) : 0;
 }
+

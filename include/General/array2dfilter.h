@@ -281,3 +281,4 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 
 
 #endif
+

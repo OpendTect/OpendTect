@@ -98,3 +98,4 @@ RowCol RowCol::getDirection() const
 
 
 
+

@@ -206,3 +206,4 @@ mGlobal(uiTools) void setLine(uiLineItem&,const LineParameters<float>&,
 
 #endif
 
+

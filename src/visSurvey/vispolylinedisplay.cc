@@ -59,3 +59,4 @@ void PolyLineDisplay::setPixelDensity( float dpi )
 
 
 }//namespace
+

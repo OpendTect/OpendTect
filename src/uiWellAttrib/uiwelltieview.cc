@@ -463,3 +463,4 @@ void uiCrossCorrView::draw()
 }
 
 } // namespace WellTie
+

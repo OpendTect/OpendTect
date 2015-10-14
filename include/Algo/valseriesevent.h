@@ -413,3 +413,4 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 
 #endif
 
+

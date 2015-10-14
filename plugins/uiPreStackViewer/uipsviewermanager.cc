@@ -766,3 +766,4 @@ void uiViewer3DMgr::surveyToBeChangedCB( CallBacker* )
 }
 
 }; // Namespace
+

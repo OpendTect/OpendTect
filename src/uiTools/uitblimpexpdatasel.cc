@@ -749,3 +749,4 @@ void uiTableImpDataSel::updateSummary()
     fmtdeffld_->updateSummary();
     descChg( 0 );
 }
+

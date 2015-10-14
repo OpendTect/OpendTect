@@ -177,3 +177,4 @@ const void* NotSavedPrompter::getCurrentObjectData() const
 
 bool NotSavedPrompter::isSaveAs() const
 { return dlg_ ? dlg_->isSaveAs() : false; }
+

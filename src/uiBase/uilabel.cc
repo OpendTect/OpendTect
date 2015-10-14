@@ -191,3 +191,4 @@ Alignment::HPos uiLabel::alignment() const
     al.setUiValue( (int)body_->alignment() );
     return al.hPos();
 }
+

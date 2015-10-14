@@ -351,3 +351,4 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     defnrpicks = randpars_.nr_;
     return true;
 }
+

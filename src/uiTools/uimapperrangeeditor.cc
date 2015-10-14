@@ -357,3 +357,4 @@ void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
 }
 
 
+

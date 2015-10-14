@@ -562,3 +562,4 @@ PluginManager& PIM()
     mDefineStaticLocalObject(PtrMan<PluginManager>,inst,= new PluginManager);
     return *inst;
 }
+

@@ -759,3 +759,4 @@ bool uiGraphicsViewBase::print()
     body_->render( &painter );
     return true;
 }
+

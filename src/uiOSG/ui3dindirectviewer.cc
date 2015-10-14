@@ -707,3 +707,4 @@ osg::GraphicsContext* ui3DIndirectViewBody::getGraphicsContext()
 {
     return graphicswin_;
 }
+

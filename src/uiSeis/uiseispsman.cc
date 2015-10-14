@@ -198,3 +198,4 @@ void uiSeisPreStackMan::mkMultiPush( CallBacker* )
     dlg.go();
     selgrp_->fullUpdate( key );
 }
+

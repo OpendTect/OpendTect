@@ -47,3 +47,4 @@ mGlobal(MMProc) const ObjectSet<MMProc::AssetMgr>& ASMGRS();
 
 #endif
 
+

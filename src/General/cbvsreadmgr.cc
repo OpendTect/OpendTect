@@ -663,3 +663,4 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 	strm << od_newline << od_endl;
     }
 }
+

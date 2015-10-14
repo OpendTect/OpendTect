@@ -238,3 +238,4 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 }
 
 #endif
+

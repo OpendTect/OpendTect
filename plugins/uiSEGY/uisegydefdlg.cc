@@ -401,3 +401,4 @@ bool uiEditSEGYFileDataDlg::acceptOK( CallBacker* )
 
 
 
+

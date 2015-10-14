@@ -301,3 +301,4 @@ bool uiLaySeqAttribEd::acceptOK( CallBacker* )
     nmchgd_ = oldnm != newnm;
     return true;
 }
+

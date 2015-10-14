@@ -19,3 +19,4 @@ ________________________________________________________________________
 mGlobal(visBase) const char* GetOSGVersion();
 
 #endif
+

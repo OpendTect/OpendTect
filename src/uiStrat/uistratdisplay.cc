@@ -781,3 +781,4 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     updatePosButtonStates();
 }
 
+

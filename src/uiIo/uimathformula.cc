@@ -462,3 +462,4 @@ void uiMathFormula::writeReq( CallBacker* )
     IOPar iop; form_.fillPar( iop );
     iop.putTo( astrm );
 }
+

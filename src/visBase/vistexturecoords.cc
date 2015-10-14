@@ -254,3 +254,4 @@ void TextureCoordListAdapter::remove( const TypeSet<int>& idxs )
 
 
 }; // namespace visBase
+

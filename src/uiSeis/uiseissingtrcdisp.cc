@@ -131,3 +131,4 @@ void uiSeisSingleTraceDisplay::addRefZ( float zref )
 
     handleChange( Annot );
 }
+

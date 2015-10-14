@@ -48,3 +48,4 @@ mDefModInitFn(VolumeProcessing)
     VolProcAttrib::initClass();
 #endif
 }
+

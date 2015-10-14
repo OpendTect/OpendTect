@@ -443,3 +443,4 @@ void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool yn )
     else
 	yaxis_->setup().showauxannot( yn );
 }
+

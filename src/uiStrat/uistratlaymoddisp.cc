@@ -1099,3 +1099,4 @@ void uiStratSimpleLayerModelDisp::drawSelectedSequence()
     updateSelSeqAuxData();
     vwr_.handleChange( mCast(unsigned int, FlatView::Viewer::Auxdata) );
 }
+

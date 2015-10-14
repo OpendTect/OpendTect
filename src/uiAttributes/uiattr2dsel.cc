@@ -273,3 +273,4 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 
     return true;
 }
+

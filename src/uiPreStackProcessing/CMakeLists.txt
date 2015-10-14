@@ -34,3 +34,4 @@ set(OD_MODULE_SOURCES
 set( OD_MODULE_GUI_PROGS od_PreStackMMBatch.cc )
 
 OD_INIT_MODULE()
+

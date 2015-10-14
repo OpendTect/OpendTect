@@ -671,3 +671,4 @@ void uiFlatViewStdControl::keyPressCB( CallBacker* cb )
 NotifierAccess* uiFlatViewStdControl::editPushed()
 { return editbut_ ? &editbut_->activated : 0; }
 
+

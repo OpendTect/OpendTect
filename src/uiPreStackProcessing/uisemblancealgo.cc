@@ -23,3 +23,4 @@ uiSemblanceAlgorithm::uiSemblanceAlgorithm( uiParent* p, const HelpKey& helpkey)
 
 
 }; //namespace
+

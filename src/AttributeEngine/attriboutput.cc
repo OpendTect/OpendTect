@@ -1369,3 +1369,4 @@ bool TableOutput::areBIDDuplicated() const
 }
 
 } // namespace Attrib
+

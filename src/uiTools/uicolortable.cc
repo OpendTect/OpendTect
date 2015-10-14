@@ -650,3 +650,4 @@ OD::Orientation uiColorTableToolBar::getOrientation() const
 { return uiToolBar::getOrientation(); }
 
 
+

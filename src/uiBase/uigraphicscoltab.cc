@@ -132,3 +132,4 @@ void uiColTabItem::setupChanged()
     setPixmap();
     adjustLabel();
 }
+

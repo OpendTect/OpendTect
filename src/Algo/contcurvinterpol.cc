@@ -1316,3 +1316,4 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
     zmean_ /= curcount;
 
 }
+

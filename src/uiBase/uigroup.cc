@@ -664,3 +664,4 @@ void uiGroupObj::grpDel( CallBacker* cb )
     else
 	{ pErrMsg("huh?"); }
 }
+

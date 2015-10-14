@@ -428,3 +428,4 @@ int IOObjInfo::nrSticks() const
 }
 
 } // namespace EM
+

@@ -165,3 +165,4 @@ bool LatLong2Coord::fromString( const char* s )
     set( l, c );
     return true;
 }
+

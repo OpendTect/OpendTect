@@ -372,3 +372,4 @@ void FlatViewer::setPixelDensity( float dpi )
 }
 
 }; // Namespace
+

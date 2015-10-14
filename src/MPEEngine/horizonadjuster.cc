@@ -370,3 +370,4 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
 }
 
 } // namespace MPE
+

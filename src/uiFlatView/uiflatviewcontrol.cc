@@ -337,3 +337,4 @@ bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
 
     return true;
 }
+

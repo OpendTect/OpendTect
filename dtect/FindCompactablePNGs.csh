@@ -69,3 +69,4 @@ foreach fil ( `find "$topdir" -name \*.png -print | sed -e 's/ /@SP@/g'` )
 end
 
 exit $nrfiles
+

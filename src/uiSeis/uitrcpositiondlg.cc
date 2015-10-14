@@ -317,3 +317,4 @@ void uiTrcPositionDlg::lineSel( CallBacker* cb )
     trcnrfld_->box()->setInterval( line2d.trcNrRange() );
     trcnrfld_->box()->setValue( line2d.trcNrRange().snappedCenter() );
 }
+

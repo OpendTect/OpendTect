@@ -319,3 +319,4 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 
     return true;
 }
+

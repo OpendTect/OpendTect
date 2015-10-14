@@ -57,3 +57,4 @@ bool uiGoogleExportPolygon::acceptOK( CallBacker* )
 
     return true;
 }
+

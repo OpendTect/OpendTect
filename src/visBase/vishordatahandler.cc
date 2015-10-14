@@ -179,3 +179,4 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
     }
 }
 
+

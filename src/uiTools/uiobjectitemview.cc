@@ -173,3 +173,4 @@ void uiObjectItemView::setCursor( const MouseCursor& mc )
     for ( int idx=0; idx<objectitems_.size(); idx++ )
 	objectitems_[idx]->getObject()->setCursor( mc );
 }
+

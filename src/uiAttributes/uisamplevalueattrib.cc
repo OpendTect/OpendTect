@@ -43,3 +43,4 @@ bool uiSampleValueAttrib::getInput( Desc& desc )
     fillInp( inpfld_, desc, 0 );
     return true;
 }
+

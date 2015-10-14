@@ -28,3 +28,4 @@ mDefODInitPlugin(MATLABLink)
     VolProc::MatlabStep::initClass();
     return 0;
 }
+

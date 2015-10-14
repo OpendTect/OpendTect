@@ -81,3 +81,4 @@ bool uiVarWizardDlg::rejectOK( CallBacker* )
     leave_ = !cancelpushed_;
     return true;
 }
+

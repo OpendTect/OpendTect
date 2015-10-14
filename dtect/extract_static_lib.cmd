@@ -21,3 +21,4 @@ lib /NOLOGO /LIST %staticlib% > %memberlist%
 for /f "delims=" %%x in (%memberlist%) do lib /NOLOGO /EXTRACT:%%x "%staticlib%"
 
 del %memberlist%
+

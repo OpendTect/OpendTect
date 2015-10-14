@@ -450,3 +450,4 @@ bool uiGenInputIntFld::notifyValueChanged_( const CallBack& cb )
 
 bool uiGenInputIntFld::notifyUpdateRequested_( const CallBack& cb )
 { uiSpinBox::valueChanged.notify( cb ); return true; }
+

@@ -639,3 +639,4 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 }
 
 } // namespace MPE
+

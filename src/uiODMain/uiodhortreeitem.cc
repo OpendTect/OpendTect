@@ -883,3 +883,4 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 
     menu->setIsHandled( handled );
 }
+

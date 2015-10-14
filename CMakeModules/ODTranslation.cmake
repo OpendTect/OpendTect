@@ -13,3 +13,4 @@ if ( UNIX AND QT_LUPDATE_EXECUTABLE AND (EXISTS ${QT_LUPDATE_EXECUTABLE} ) )
 			${QT_LUPDATE_EXECUTABLE}
 		COMMENT "Updating od localizations" )
 endif()
+

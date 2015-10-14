@@ -484,3 +484,4 @@ MultiID uiWaveletExtraction::storeKey() const
     const IOObj* wvltioobj = outputwvltfld_->ioobj( true );
     return wvltioobj ? wvltioobj->key() : MultiID("");
 }
+

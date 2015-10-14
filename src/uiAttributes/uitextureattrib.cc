@@ -401,3 +401,4 @@ void uiTextureAttrib::calcAndSetMinMaxVal( const SeisTrcBuf& bufs )
 
 
 
+

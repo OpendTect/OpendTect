@@ -160,3 +160,4 @@ void VW2DFaultSS3D::triggerDeSel()
     knotenabled_ = false;
     deselted_.trigger();
 }
+

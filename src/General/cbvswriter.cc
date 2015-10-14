@@ -494,3 +494,4 @@ bool CBVSWriter::writeTrailer()
 
     return true;
 }
+

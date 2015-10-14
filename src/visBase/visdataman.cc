@@ -146,3 +146,4 @@ const DataObject* DataManager::getIndexedObject( int idx ) const
 
 
 }; //namespace
+

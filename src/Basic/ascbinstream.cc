@@ -92,3 +92,4 @@ ascbinistream& ascbinistream::getBin( void* buf, od_stream_Count nrbytes )
     strm_.getBin( buf, nrbytes );
     return *this;
 }
+

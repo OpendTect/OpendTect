@@ -235,3 +235,4 @@ void FlatView::ZoomMgr::toStart( int vieweridx ) const
     if ( !current_.isPresent(-1) )
 	current_.setAll( 0 );
 }
+

@@ -73,3 +73,4 @@ void uiTime2DepthZTransformBase::finalizeDoneCB(CallBacker*)
 	mAttachCB( rangefld_->valuechanging,
 		   uiTime2DepthZTransformBase::rangeChangedCB );
 }
+

@@ -199,3 +199,4 @@ bool uiPluginMan::rejectOK( CallBacker* )
     }
     return true;
 }
+

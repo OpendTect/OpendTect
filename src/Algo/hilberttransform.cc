@@ -217,3 +217,4 @@ bool HilbertTransform::transform( const ArrayND<float>& real,
 
     return true;
 }
+

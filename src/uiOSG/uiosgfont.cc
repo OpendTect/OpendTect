@@ -29,3 +29,4 @@ osgText::Font* uiOsgFontCreator::createFont( const FontData& fd )
         ? new osgText::Font( new osgQt::QFontImplementation(*qfont) )
 	: 0;
 }
+

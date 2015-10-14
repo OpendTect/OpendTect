@@ -7,3 +7,4 @@
 SET( LIBLIST Madagascar uiMadagascar MadagascarAttribs MadagascarAttribs )
 SET( EXECLIST od_madexec )
 SET( PACK "odmadagascar")
+

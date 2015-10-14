@@ -49,3 +49,4 @@ protected:
     void			stylebutCB(CallBacker*);
     void			velocityChgd(CallBacker*);
 };
+

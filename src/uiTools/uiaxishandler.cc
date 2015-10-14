@@ -902,3 +902,4 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
 
     lineitm.setLine( from, to );
 }
+

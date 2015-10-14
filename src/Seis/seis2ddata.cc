@@ -225,3 +225,4 @@ void Seis2DDataSet::getDataSetsOnLine( const char* lnm, BufferStringSet& ds )
 void Seis2DDataSet::getDataSetsOnLine( Pos::GeomID geomid,
 				       BufferStringSet& ds )
 { SeisIOObjInfo::getDataSetNamesForLine( geomid, ds ); }
+

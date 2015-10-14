@@ -450,3 +450,4 @@ Task* LateralSmoother::createTask()
 }
 
 } // namespace VolProc
+

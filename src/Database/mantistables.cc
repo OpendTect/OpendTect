@@ -342,3 +342,4 @@ void SqlDB::BugHistoryTableEntry::getQueryInfo( BufferStringSet& colnms,
     values.add( date_ ).add( fieldnm_ ).add( oldvalue_ ).add( newvalue_ );
     values.add( toString(type_) );
 }
+

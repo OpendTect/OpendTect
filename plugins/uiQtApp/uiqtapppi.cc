@@ -62,3 +62,4 @@ mDefODInitPlugin(uiQtApp)
     mgr = new uiQtAppMgr( ODMainWin() );
     return 0;
 }
+

@@ -228,3 +228,4 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 
     return true;
 }
+

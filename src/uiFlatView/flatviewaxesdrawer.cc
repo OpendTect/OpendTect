@@ -252,3 +252,4 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 }
 
+

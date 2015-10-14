@@ -798,3 +798,4 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
     }
 }
 
+

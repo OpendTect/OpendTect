@@ -56,3 +56,4 @@ setenv DTECT_DATA `cd $dir;dirs -l`
 echo ""
 echo "You can now use this directory as OpendTect data directory."
 echo ""
+

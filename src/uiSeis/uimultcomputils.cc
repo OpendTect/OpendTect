@@ -140,3 +140,4 @@ void uiMultCompSel::MCompDlg::selChg( CallBacker* )
 {
     outlistfld_->display( !useallfld_->getBoolValue() );
 }
+

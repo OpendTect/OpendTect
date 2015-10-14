@@ -432,3 +432,4 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
     iop.get( sKey::GeomID(), geomid_ );
     PosTypeDef().parse( iop, PosTypeDef().name(), postype_ );
 }
+

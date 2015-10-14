@@ -499,3 +499,4 @@ void uiTextBrowser::reload()
 
     body_->reload();
 }
+

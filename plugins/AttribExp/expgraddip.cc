@@ -195,3 +195,4 @@ int GradientDipAttrib::Task::nextStep()
 
     return 0;
 }
+

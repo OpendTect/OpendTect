@@ -171,3 +171,4 @@ const char* uiAttrInpDlg::getSteerKey() const
     buf = is2D() ? lk : lk.lineName();
     return buf;
 }
+

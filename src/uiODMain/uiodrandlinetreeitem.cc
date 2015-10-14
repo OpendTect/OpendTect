@@ -619,3 +619,4 @@ void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
 {
     ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
 }
+

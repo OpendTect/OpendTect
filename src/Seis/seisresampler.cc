@@ -129,3 +129,4 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 
     return &worktrc;
 }
+

@@ -191,3 +191,4 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 	    sel.selsections += 0;
     }
 }
+

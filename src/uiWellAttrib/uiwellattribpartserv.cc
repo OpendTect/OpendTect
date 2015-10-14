@@ -257,3 +257,4 @@ bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
     return true;
 }
 
+

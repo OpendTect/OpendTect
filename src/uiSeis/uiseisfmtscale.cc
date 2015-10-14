@@ -272,3 +272,4 @@ void uiSeisFmtScale::fillOtherPars( IOPar& iop ) const
     delete sc;
     iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcToSI() );
 }
+

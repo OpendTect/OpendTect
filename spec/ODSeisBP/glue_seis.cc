@@ -452,3 +452,4 @@ bool BatchProgram::go( std::ostream& strm_ )
 
     return true;
 }
+

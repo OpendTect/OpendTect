@@ -189,3 +189,4 @@ void itemEntered( QTreeWidgetItem* item, int col )
 QT_END_NAMESPACE
 
 #endif
+

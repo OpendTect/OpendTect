@@ -383,3 +383,4 @@ const AngleMute::AngleMutePars& AngleMute::params() const
 { return static_cast<AngleMute::AngleMutePars&>(*params_); }
 
 } // namespace PreStack
+

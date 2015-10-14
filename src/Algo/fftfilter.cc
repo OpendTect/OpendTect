@@ -608,3 +608,4 @@ void FFTFilter::restoreSize( const Array1DImpl<float>& inp,
 	outp.set( idx, inp.get( idx + shift ) );
 }
 
+

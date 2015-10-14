@@ -59,3 +59,4 @@ inline UpscaleType upscaleTypeFor( Type st )
 
 
 #endif
+

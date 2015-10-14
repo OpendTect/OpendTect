@@ -314,3 +314,4 @@ mDefODInitPlugin(uiHorizonAttrib)
     mDefineStaticLocalObject( uiHorAttribPIMgr, mgr, (ODMainWin()) );
     return 0;
 }
+

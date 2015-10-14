@@ -49,3 +49,4 @@ bool Geom2dAscIO::getData( PosInfo::Line2DData& geom )
 
      return geom.positions().size();
 }
+

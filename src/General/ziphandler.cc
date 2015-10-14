@@ -1735,3 +1735,4 @@ int ZipHandler::getCumulativeFileCount( int dir ) const
 
     return -1;
 }
+

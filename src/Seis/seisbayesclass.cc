@@ -557,3 +557,4 @@ void SeisBayesClass::getClass( const TypeSet<float>& probs, int& winner,
     winner++;
     conf = (winnerval - runnerupval) / winnerval;
 }
+

@@ -150,3 +150,4 @@ bool Strat::RepositoryAccess::writeTree( const Strat::RefTree& rt,
     msg_ = tr("Stratigraphic tree written to %1").arg(fnm);
     return true;
 }
+

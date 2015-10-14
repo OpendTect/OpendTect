@@ -71,3 +71,4 @@ void uiSeedPropDlg::updateMarkerStyle()
 {
     emobject_->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), markerstyle_ );
 }
+

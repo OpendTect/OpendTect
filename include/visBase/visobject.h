@@ -131,3 +131,4 @@ mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 
 #endif
 
+

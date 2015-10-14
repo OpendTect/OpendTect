@@ -480,3 +480,4 @@ bool SeisPSCubeSeisTrcTranslator::skip( int nr )
     }
     return true;
 }
+

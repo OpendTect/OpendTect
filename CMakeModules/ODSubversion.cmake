@@ -60,3 +60,4 @@ add_custom_target( update ${UPDATE_CMD}
 		  ${EXTERNALCMD}
 		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		  COMMENT "Updating from repositories" )
+

@@ -460,3 +460,4 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
 }
+

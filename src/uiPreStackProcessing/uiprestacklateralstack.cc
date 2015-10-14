@@ -76,3 +76,4 @@ bool uiLateralStack::acceptOK( CallBacker* )
 
 
 }; //namespace
+

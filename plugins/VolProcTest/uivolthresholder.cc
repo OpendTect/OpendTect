@@ -50,3 +50,4 @@ bool uiVolumeThresholder::acceptOK( CallBacker* )
 }
 
 } //namespace
+

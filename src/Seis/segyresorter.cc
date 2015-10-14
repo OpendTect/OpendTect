@@ -449,3 +449,4 @@ bool SEGY::ReSorter::writeData()
 
     return true;
 }
+

@@ -304,3 +304,4 @@ void uiHorizonRelationsDlg::makeWatertightCB( CallBacker* )
 {
     uiMSG().message( tr("Not implemented yet") );
 }
+

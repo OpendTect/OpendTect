@@ -150,3 +150,4 @@ QDockWidget* uiDockWin::qwidget()
 
 void uiDockWin::setMinimumWidth( int width )
 { if ( body_ ) body_->setMinimumWidth( width ); }
+

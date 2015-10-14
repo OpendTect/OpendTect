@@ -18,3 +18,4 @@ SemblanceAlgorithm::~SemblanceAlgorithm()
 {}
 
 }; //namespace
+

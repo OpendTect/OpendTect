@@ -173,3 +173,4 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     return true;
 }
 
+

@@ -389,3 +389,4 @@ BufferString uiMadIOSel::getSummary() const
 
     return ret;
 }
+

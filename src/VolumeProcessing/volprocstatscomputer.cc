@@ -217,3 +217,4 @@ void StatsCalculatorTask::prepareWork()
 }
 
 }//namespace
+

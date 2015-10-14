@@ -944,3 +944,4 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 
     return false;
 }
+

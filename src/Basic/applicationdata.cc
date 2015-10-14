@@ -96,3 +96,4 @@ void ApplicationData::setApplicationName( const char* nm )
 { }
 
 #endif
+

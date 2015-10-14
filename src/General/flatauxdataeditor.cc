@@ -1092,3 +1092,4 @@ void Sower::setEraserMask( bool yn, OD::ButtonState mask )
 
 
 };
+

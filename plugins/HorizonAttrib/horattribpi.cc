@@ -35,3 +35,4 @@ mDefODInitPlugin(HorizonAttrib)
 
     return 0; // All OK - no error messages
 }
+

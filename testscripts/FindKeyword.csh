@@ -125,3 +125,4 @@ echo
 echo "Syntax ${progname} --keyword <kw> [--message <msg>] [--exceptionfile <file>] <--listfile <listfile> | files ..>"
 echo
 exit 1
+

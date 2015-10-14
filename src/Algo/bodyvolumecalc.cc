@@ -168,3 +168,4 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     volsum_ += unitvol_*nrunits;
     return true;
 }
+

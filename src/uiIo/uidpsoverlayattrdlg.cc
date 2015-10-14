@@ -214,3 +214,4 @@ void uiDPSOverlayPropDlg::scaleChanged( CallBacker* )
 	}
     }
 }
+

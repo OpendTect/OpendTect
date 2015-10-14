@@ -269,3 +269,4 @@ void uiWorld2Ui::getAppropriateRange( float min, float max,
     newmax = al.findEnd( max );
     if ( rev )	Swap( newmin, newmax );
 }
+

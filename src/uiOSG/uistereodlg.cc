@@ -59,3 +59,4 @@ void uiStereoDlg::sliderMove( CallBacker* )
     for ( int idx=0; idx<vwrs_.size(); idx++ )
         vwrs_[idx]->setStereoOffset( slval );
 }
+

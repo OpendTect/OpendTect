@@ -83,3 +83,4 @@ void uiFillPattern::set( const FillPattern& fp )
     reDrawPattern();
     patternChanged.trigger();
 }
+

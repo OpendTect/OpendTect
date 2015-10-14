@@ -439,3 +439,4 @@ const Interval<float>* Coherency::reqZMargin( int inp, int ) const
 }
 
 } // namespace Attrib
+

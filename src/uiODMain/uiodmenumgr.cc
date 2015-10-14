@@ -1525,3 +1525,4 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillProcMenu();
     dTectMnuChanged.trigger();
 }
+

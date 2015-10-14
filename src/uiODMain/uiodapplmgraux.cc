@@ -572,3 +572,4 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 
 void uiODApplMgrDispatcher::setupBatchHosts()
 { uiBatchHostsDlg dlg( par_ ); dlg.go(); }
+

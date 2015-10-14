@@ -176,3 +176,4 @@ bool uiTutHorTools::doSmoother()
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
     return taskrunner.execute( *saver );
 }
+

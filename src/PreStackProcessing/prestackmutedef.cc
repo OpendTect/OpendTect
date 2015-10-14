@@ -196,3 +196,4 @@ const MultiID& MuteDef::getReferenceHorizon() const
 { return refhor_; }
 
 } // namespace PreStack
+

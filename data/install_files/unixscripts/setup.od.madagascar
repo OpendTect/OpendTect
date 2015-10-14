@@ -5,3 +5,4 @@
 #
 sed -e "s/__INST_DIR__/$replaceinstdir/" .odinit.madagascar > odinit.madagascar
 chmod +x odinit.madagascar
+

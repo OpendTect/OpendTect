@@ -296,3 +296,4 @@ int Horizon3DTesselator::getNormalIdx( int crdidx )
 
     return -1;
 }
+

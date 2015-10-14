@@ -149,3 +149,4 @@ void ArrayNDSliceBase::getSourcePos( const int* localpos, int* arraypos ) const
     for ( int idx=0; idx<nrowndims; idx++ )
 	arraypos[vardim_[idx]] = localpos[idx];
 }
+

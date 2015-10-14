@@ -108,3 +108,4 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
     return true;
 }
 
+

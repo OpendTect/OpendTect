@@ -190,3 +190,4 @@ void Network::RequestPacket::addErrMsg( BufferString& msg ) const
     msg.add( ":\n" ).add( mymsg );
 
 }
+

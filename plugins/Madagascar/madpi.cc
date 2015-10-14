@@ -32,3 +32,4 @@ mDefODInitPlugin(Madagascar)
 			     = ODMad::PI().errMsg().getFullString());
     return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();
 }
+

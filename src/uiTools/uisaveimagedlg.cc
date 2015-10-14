@@ -568,3 +568,4 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
 		       (int)sizepix_.height(), dpifld_->box()->getIntValue());
     return true;
 }
+

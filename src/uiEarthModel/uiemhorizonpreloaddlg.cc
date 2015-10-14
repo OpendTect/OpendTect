@@ -282,3 +282,4 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 
     par.putTo( astrm );
 }
+

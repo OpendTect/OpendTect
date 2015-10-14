@@ -646,3 +646,4 @@ void uiMultiWellLogSel::writeWellChoiceReq( CallBacker* )
     for ( int idx=0; idx<wellobjs_.size(); idx++ )
 	wellschoiceio_->keys().add( wellobjs_[idx]->key().buf() );
 }
+

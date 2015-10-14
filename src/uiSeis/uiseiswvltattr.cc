@@ -360,3 +360,4 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
     attrdisps_[2]->yAxis(false)->setRange( phaserg );
 }
 
+

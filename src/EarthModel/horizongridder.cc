@@ -346,3 +346,4 @@ bool ContinuousCurvatureHor3DGridder::setArray2D( Array2D<float>& arr,
      return setArray( arr,taskrunner );
 }
 
+

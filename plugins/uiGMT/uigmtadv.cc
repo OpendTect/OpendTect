@@ -69,3 +69,4 @@ bool uiGMTAdvGrp::usePar( const IOPar& par )
     return true;
 }
 
+

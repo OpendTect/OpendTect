@@ -201,3 +201,4 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
 
 #endif
+

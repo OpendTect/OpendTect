@@ -48,3 +48,4 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
     return batchjobfld_->start();
 }
 
+

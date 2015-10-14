@@ -1822,3 +1822,4 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     uivv->draw();
     uivv->go();
 }
+

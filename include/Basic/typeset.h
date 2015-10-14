@@ -481,3 +481,4 @@ void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 
 
 #endif
+

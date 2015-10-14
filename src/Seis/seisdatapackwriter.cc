@@ -142,3 +142,4 @@ int SeisDataPackWriter::nextStep()
     return MoreToDo();
 }
 
+

@@ -125,3 +125,4 @@ bool ThresholdStep::usePar( const IOPar& par )
 
 ProcessingStep* ThresholdStep::create(ProcessingChain& pc)
 { return new ThresholdStep( pc ); }
+

@@ -295,3 +295,4 @@ void TextTranslateMgr::loadUSEnglish()
     addLanguage( english );
 }
 
+

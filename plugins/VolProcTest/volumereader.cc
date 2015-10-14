@@ -169,3 +169,4 @@ const char* VolumeReader::errMsg() const
 
 ProcessingStep* VolumeReader::create( ProcessingChain& pc )
 { return new VolumeReader( pc ); }
+

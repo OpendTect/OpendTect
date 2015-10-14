@@ -80,3 +80,4 @@ bool uiAGC::acceptOK( CallBacker* )
 }
 
 } // namespace PreStack
+

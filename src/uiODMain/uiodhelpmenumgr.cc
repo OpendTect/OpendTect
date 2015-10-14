@@ -120,3 +120,4 @@ uiString uiODHelpMenuMgr::getAboutString()
     str.add( "</html>" );
     return mToUiStringTodo(str);
 }
+

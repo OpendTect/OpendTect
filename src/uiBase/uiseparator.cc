@@ -54,3 +54,4 @@ void uiSeparator::setRaised( bool yn )
     body_->setFrameShadow( yn ? QFrame::Raised
 			      : QFrame::Sunken );
 }
+

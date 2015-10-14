@@ -283,3 +283,4 @@ bool SeisTrcValueSeries::copytoArray( Array1D<float>& seistrcarr )
 
 const float* SeisTrcValueSeries::arr() const
 { return const_cast<SeisTrcValueSeries*>( this )->arr(); }
+

@@ -299,3 +299,4 @@ MatlabLibMgr& MLM()
     mDefineStaticLocalObject( MatlabLibMgr, inst, );
     return inst;
 }
+

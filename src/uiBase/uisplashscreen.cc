@@ -40,3 +40,4 @@ void uiSplashScreen::finish( uiMainWin* mw )
 
 void uiSplashScreen::showMessage( const char* msg )
 { qsplashscreen_->showMessage( msg ); }
+

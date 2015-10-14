@@ -52,3 +52,4 @@ inline void getVariogramModel( const char* typestr, float nugget, float sill,
 
 
 #endif
+

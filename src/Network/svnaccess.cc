@@ -311,3 +311,4 @@ void SVNAccess::diff( const char* fnm, BufferString& res ) const
     mRetRmTempFile()
 #endif
 }
+

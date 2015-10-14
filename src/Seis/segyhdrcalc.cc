@@ -348,3 +348,4 @@ bool SEGY::HdrCalcSet::storeInSettings() const
 
     return setts.write();
 }
+

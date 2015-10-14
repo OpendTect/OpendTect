@@ -144,3 +144,4 @@ void IbmFormat::putFloat( float value, void* inpbuf )
     outbuf[0] = fbuf[0]; outbuf[1] = fbuf[1];
     outbuf[2] = fbuf[2]; outbuf[3] = fbuf[3];
 }
+

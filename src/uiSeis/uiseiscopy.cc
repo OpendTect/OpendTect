@@ -205,3 +205,4 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
     uiTaskRunner taskrunner( this );
     return taskrunner.execute( copier );
 }
+

@@ -1452,3 +1452,4 @@ void uiODFaultToolMan::keyPressedCB( CallBacker* )
 
 void uiODFaultToolMan::keyReleasedCB( CallBacker* )
 { keyDown( false ); }
+

@@ -28,3 +28,4 @@ mDefODInitPlugin(uiBouncy)
 		= new uiBouncy::uiBouncyMgr( ODMainWin() ) );
     return 0;
 }
+

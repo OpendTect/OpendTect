@@ -734,3 +734,4 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
 		: do3D( *inioobj, *outioobj, doimp );
 }
+

@@ -95,3 +95,4 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
 }
 
 } // namespace VolProc
+

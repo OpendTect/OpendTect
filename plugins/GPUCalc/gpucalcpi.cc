@@ -27,3 +27,4 @@ mDefODInitPlugin(GPUCalc)
 
     return 0;
 }
+

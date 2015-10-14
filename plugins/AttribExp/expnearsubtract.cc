@@ -149,3 +149,4 @@ int NearSubtractAttrib::Task::nextStep()
 
     return 0;
 }
+

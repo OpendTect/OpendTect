@@ -197,3 +197,4 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     uiTaskRunner taskrunner( this );
     return TaskRunner::execute( &taskrunner, sr );
 }
+

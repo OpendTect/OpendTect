@@ -386,3 +386,4 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 
     return true;
 }
+

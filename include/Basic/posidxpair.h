@@ -101,3 +101,4 @@ inline IdxPair IdxPair::fromInt64( od_int64 i64 )
 } // namespace Pos
 
 #endif
+

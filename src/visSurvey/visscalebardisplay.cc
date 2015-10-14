@@ -229,3 +229,4 @@ void ScaleBarDisplay::toPar( IOPar& par ) const
 
 } // namespace visSurvey
 
+

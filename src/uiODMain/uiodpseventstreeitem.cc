@@ -282,3 +282,4 @@ void uiODPSEventsTreeItem::displayMiniColTab()
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
 }
 
+

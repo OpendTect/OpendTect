@@ -491,3 +491,4 @@ bool uiBatchHostsDlg::acceptOK( CallBacker* )
 
     return true;
 }
+

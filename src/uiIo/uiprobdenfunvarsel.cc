@@ -135,3 +135,4 @@ void uiPrDenFunVarSel::rangeChanged( CallBacker* )
     range.step = range.width()/nrbins;
     rangesel_->setValue( range );
 }
+

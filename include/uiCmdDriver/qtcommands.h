@@ -58,3 +58,4 @@ mStartDeclComposerClass( uiCmdDriver, QFileDlg,CmdComposer,uiMainWin )
 
 #endif
 
+

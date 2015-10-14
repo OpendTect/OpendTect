@@ -65,3 +65,4 @@ const char* uiGatherDisplayInfoHeader::getDataName() const
 { return datalbl_->text().getFullString(); }
 
 } //namespace
+

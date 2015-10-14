@@ -518,3 +518,4 @@ const char* uiWell2RandomLineDlg::getRandLineID() const
     return multid->buf();
 }
 
+

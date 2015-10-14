@@ -1328,3 +1328,4 @@ void uiContourTreeItem::updateZShift()
     zshift_ = (float) trans.z;
 }
 
+

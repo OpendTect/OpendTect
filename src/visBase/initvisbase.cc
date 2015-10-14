@@ -40,3 +40,4 @@ mDefModInitFn(visBase)
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::RGBATextureChannel2RGBA::initClass();
 }
+

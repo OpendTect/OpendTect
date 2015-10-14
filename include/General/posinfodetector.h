@@ -171,3 +171,4 @@ protected:
 } // namespace PosInfo
 
 #endif
+

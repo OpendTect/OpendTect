@@ -188,3 +188,4 @@ mDefODInitPlugin(uiImpGPR)
     (void)new uiImpGPRMgr( *ODMainWin() );
     return 0; // All OK - no error messages
 }
+

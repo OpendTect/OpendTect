@@ -865,3 +865,4 @@ void PosInfo::CubeDataFiller::finishLine()
 
     initLine();
 }
+

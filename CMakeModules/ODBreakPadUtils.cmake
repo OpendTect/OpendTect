@@ -54,3 +54,4 @@ macro(OD_SETUP_BREAKPAD)
 	endif(OD_ENABLE_BREAKPAD)
 
 endmacro(OD_SETUP_BREAKPAD)
+

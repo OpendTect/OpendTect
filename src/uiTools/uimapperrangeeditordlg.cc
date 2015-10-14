@@ -150,3 +150,4 @@ void uiMultiMapperRangeEditWin::dataPackDeleted( CallBacker* cb )
 
     mapperrgeditors_[dpidx]->display( false );
 }
+

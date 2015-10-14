@@ -176,3 +176,4 @@ BufferString ODDLSite::fullURL( const char* relfnm ) const
     ret.add( host_ ).add( getFileName(relfnm) );
     return ret;
 }
+

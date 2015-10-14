@@ -317,3 +317,4 @@ bool uiCrossAttrEvaluateDlg::storeSlices() const
 {
     return enabstore_ ? storefld->isChecked() : false;
 }
+

@@ -30,3 +30,4 @@ foreach bnry ( ${binpath}/* )
 	end
     endif
 end
+

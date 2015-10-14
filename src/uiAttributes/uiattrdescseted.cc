@@ -1367,3 +1367,4 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 
     return eps.size();
 }
+

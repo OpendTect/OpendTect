@@ -139,3 +139,4 @@ bool BatchProgram::go( std::ostream& strm )
 
     return true;
 }
+

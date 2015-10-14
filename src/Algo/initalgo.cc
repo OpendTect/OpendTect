@@ -47,3 +47,4 @@ mDefModInitFn(Algo)
 
     initChecksum();
 }
+

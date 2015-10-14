@@ -432,3 +432,4 @@ void Strat::LeafUnitRef::setLithology( int lid )
     if ( lid != lith_ )
 	{ lith_ = lid; notifChange(); }
 }
+

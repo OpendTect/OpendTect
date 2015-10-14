@@ -89,3 +89,4 @@ mGlobal(GPUCalc) GPUManager& manager();
 
 #endif
 
+

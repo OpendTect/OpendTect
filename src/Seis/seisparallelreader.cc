@@ -662,3 +662,4 @@ int SequentialReader::nextStep()
 }
 
 } // namespace Seis
+

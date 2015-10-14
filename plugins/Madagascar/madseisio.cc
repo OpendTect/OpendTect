@@ -152,3 +152,4 @@ void ODMad::SeisSeqOut::initClass()
 {
     Seis::SeqOut::factory().addCreator( create, ODMad::sKeyMadagascar );
 }
+

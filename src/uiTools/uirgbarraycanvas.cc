@@ -145,3 +145,4 @@ bool uiRGBArrayCanvas::createPixmap()
     pixmap_ = new uiPixmap( rgbarr_ );
     return true;
 }
+

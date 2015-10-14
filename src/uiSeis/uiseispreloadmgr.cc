@@ -549,3 +549,4 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 	mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
     alliop.putTo( astrm );
 }
+

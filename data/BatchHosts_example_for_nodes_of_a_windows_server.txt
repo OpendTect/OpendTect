@@ -14,3 +14,4 @@ proc3: 64 bit Linux Machine : lux : /dsk/d2/MMsurveys
 proc4: 32 bit Linux Machine : lux : /dsk/d2/MMsurveys
 -- S;\Surveys, P;\ODData and /dsk/d2/MMsurveys should be pointing
 -- to the same, unique, physical folder
+

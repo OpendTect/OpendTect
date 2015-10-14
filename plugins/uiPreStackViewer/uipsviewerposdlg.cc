@@ -243,3 +243,4 @@ bool uiViewer3DPositionDlg::rejectOK( CallBacker* )
 
 }; //namespace
 
+

@@ -241,3 +241,4 @@ bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
 
     return true;
 }
+

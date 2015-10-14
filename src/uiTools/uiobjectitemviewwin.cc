@@ -551,3 +551,4 @@ void uiObjectItemViewAxisPainter::plotAxis( CallBacker* )
     if ( zax_ )
 	zax_->updateScene();
 }
+

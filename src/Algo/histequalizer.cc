@@ -122,3 +122,4 @@ void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
     }
 }
 
+

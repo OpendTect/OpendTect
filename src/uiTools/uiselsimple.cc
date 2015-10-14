@@ -180,3 +180,4 @@ bool uiGetChoice::acceptOK( CallBacker* )
     choice_ = inpfld_->firstChecked();
     return true;
 }
+

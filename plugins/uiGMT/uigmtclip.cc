@@ -115,3 +115,4 @@ bool uiGMTClipGrp::getTerminatingPars( IOPar& par )
 }
 
 
+

@@ -37,3 +37,4 @@ mDefModInitFn(PreStackProcessing)
     PreStack::AngleMute::initClass();
     PreStack::TrimStatics::initClass();
 }
+

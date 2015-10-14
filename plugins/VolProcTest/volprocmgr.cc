@@ -44,3 +44,4 @@ void Manager::buttonClickCB( CallBacker* )
     uiProcessingChain dlg( toolbar_, chain_ );
     dlg.go();
 }
+

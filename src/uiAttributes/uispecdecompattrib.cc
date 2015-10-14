@@ -525,3 +525,4 @@ const char* uiSpecDecompPanel::getPackName()
 
 const char* uiSpecDecompPanel::getPanelName()
 { return "Time Frequency spectrum"; }
+

@@ -565,3 +565,4 @@ uiSelSubline::uiSelSubline( uiParent* p, bool wstep )
     zfld_->attach( alignedBelow, nrfld_ );
     setHAlignObj( nrfld_ );
 }
+

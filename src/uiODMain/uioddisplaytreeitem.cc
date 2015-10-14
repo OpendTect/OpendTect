@@ -487,3 +487,4 @@ void uiODDisplayTreeItem::prepareForShutdown()
 
     visserv_->removeObject( displayid_, sceneID() );
 }
+

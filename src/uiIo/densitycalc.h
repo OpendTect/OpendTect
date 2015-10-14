@@ -328,3 +328,4 @@ void DensityCalc::getFreqData( Array2D<float>& freqdata ) const
 
 
 #endif
+

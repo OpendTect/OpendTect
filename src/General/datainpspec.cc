@@ -626,3 +626,4 @@ float PositionInpSpec::getVal( const Setup& s, int idx ) const
 {
     return mGetMembAsFloat(s,idx);
 }
+

@@ -247,3 +247,4 @@ const char* clss::attribName() const \
 
 #endif
 
+

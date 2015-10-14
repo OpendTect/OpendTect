@@ -206,3 +206,4 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
     MouseCursorManager::restoreOverride();
     return TaskRunner::execute( &taskrunner, cm );
 }
+

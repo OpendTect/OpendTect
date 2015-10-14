@@ -441,3 +441,4 @@ void uiSeis2DFileMan::extrFrom3D( CallBacker* )
     if ( dlg.go() )
 	redoAllLists();
 }
+

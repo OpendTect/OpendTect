@@ -247,3 +247,4 @@ bool Smoother1D<T>::doWork(od_int64 start,od_int64 stop,int)
 }
 
 #endif
+

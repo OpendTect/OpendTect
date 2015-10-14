@@ -2363,3 +2363,4 @@ bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
     return false;
 }
 
+

@@ -327,3 +327,4 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 #undef CGOLD
 #undef ZEPS
 #undef SIGN
+

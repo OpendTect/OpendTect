@@ -406,3 +406,4 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
     viewChanged.trigger();
 }
 
+

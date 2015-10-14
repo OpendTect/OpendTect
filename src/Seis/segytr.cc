@@ -878,3 +878,4 @@ bool SEGYSeisTrcTranslator::noErrMsg()
 {
     errmsg_.setEmpty(); return false;
 }
+

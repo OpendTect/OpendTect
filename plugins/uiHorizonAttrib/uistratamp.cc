@@ -279,3 +279,4 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
 {
     return prepareProcessing() && fillPar() && batchfld_->start();
 }
+

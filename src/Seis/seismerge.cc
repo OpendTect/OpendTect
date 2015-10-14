@@ -372,3 +372,4 @@ int SeisMerger::writeFromBuf()
 
     return writeTrc( getStacked(tmp) );
 }
+

@@ -240,3 +240,4 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 
     return true;
 }
+

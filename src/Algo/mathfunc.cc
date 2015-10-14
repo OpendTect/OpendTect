@@ -32,3 +32,4 @@ float ValSeriesMathFunc::getValue( float x ) const
 
     return interp.value( vs_, x );
 }
+

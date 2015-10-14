@@ -469,3 +469,4 @@ bool uiWellImportAsc::checkInpFlds()
 
     return true;
 }
+

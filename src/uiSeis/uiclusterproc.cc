@@ -341,3 +341,4 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 
     return true;
 }
+

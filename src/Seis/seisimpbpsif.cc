@@ -350,3 +350,4 @@ int SeisImpBPSIF::writeData()
 
     return Executor::MoreToDo();
 }
+

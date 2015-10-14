@@ -133,3 +133,4 @@ InterpolationLayerModel* uiInterpolationLayerModel::getModel()
 
     return mdl;
 }
+

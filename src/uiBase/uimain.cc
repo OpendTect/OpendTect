@@ -618,3 +618,4 @@ bool isMainThread( const void* thread )
 
 bool isMainThreadCurrent()
 { return isMainThread( Threads::currentThread() ); }
+

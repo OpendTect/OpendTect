@@ -19,3 +19,4 @@ set endofline='$'
 set prevrev=`echo ${currev}|sed "s/${lastnr}${endofline}/${targetnr}/"`
 
 dvs diff -r$prevrev $fil
+

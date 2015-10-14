@@ -529,3 +529,4 @@ void uiStratTreeWin::makeEditable( bool yn )
     if ( stratwin )
 	stratwin->setEditable( yn );
 }
+

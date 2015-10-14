@@ -68,3 +68,4 @@ mDefODInitPlugin(uiGrav)
     (void)new uiGravMgr( *ODMainWin() );
     return 0; // All OK - no error messages
 }
+

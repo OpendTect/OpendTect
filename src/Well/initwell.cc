@@ -25,3 +25,4 @@ mDefModInitFn(Well)
     WellT2DTransform::initClass();
     Pos::WellProvider3D::initClass();
 }
+

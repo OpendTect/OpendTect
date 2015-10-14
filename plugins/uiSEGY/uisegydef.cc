@@ -1168,3 +1168,4 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 
     return true;
 }
+

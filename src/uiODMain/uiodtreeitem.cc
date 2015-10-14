@@ -379,3 +379,4 @@ bool uiODSceneTreeItem::showSubMenu()
 {
     return menu_->executeMenu( uiMenuHandler::fromTree() );
 }
+

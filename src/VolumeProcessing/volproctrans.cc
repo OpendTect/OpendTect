@@ -127,3 +127,4 @@ const char* dgbVolProcessingTranslator::write( const VolProc::Chain& chain,
     return astrm.isOK() ? 0
 	:  "Error during write to output Volume Processing setup file";
 }
+

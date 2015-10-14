@@ -771,3 +771,4 @@ bool ::Threads::Work::operator==(const ::Threads::Work& t ) const
 {
     return obj_==t.obj_ && cbf_==t.cbf_ && tf_==t.tf_ && stf_==t.stf_;
 }
+

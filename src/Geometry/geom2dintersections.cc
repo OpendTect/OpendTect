@@ -243,3 +243,4 @@ bool Line2DInterSectionFinder::doFinish( bool success )
 
     return true;
 }
+

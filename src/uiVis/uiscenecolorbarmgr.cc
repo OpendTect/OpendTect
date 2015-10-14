@@ -70,3 +70,4 @@ void uiSceneColorbarMgr::posChangedCB( CallBacker* )
     heightfld_->setValue( scenecoltab_->getSize().height() );
 }
 
+

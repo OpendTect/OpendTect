@@ -208,3 +208,4 @@ void TextStreamProgressMeter::annotate( bool withrate )
 	}
     }
 }
+

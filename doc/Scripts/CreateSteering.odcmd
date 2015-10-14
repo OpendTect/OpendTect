@@ -30,3 +30,4 @@ Button "Ok (Select)"
 [Create Steering Seismics]
 Combo "Steering algorithm" "BG Fast Steering"
 Button "Proceed"
+

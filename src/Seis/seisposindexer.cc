@@ -625,3 +625,4 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 	idxs.insert( crlidx, posidx );
     }
 }
+

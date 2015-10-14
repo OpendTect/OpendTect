@@ -140,3 +140,4 @@ void uiCoherencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     params += EvalParam( sKeyMaxDip, Coherency::sKeyMaxDip() );
     params += EvalParam( sKeyDeltaDip, Coherency::sKeyDDip() );
 }
+

@@ -239,3 +239,4 @@ void uiHorizonAuxDataSel::selCB( CallBacker* )
     auxfld_->setValue( auxidx_ );
 }
 
+

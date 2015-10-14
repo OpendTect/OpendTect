@@ -229,3 +229,4 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 
 
 }; //Namespace
+

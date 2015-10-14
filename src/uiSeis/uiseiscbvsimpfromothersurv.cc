@@ -132,3 +132,4 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     return !ret;
 }
 
+

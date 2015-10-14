@@ -13,3 +13,4 @@ SET( LIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
 	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts )
 SET( EXECLIST  )
 SET( PACK "basedata")
+

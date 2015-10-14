@@ -134,3 +134,4 @@ std::streamsize qstreambuf::xsputn( const char_type* s, std::streamsize n )
 }
 
 #endif //No qt
+

@@ -1328,3 +1328,4 @@ Math::Expression* Math::ExpressionParser::parse() const
 	{ errmsg_ = "Empty input"; return 0; }
     return parse( inp_.buf() );
 }
+
