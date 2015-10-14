@@ -161,6 +161,8 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 
     const osg::Vec3 startpos = lineintersector->getStart() * invMVPW;
     const osg::Vec3 stoppos = lineintersector->getEnd() * invMVPW;
+    if ( startpos.isNaN() || stoppos.isNaN() )
+	return;
     const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
     const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
     eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );

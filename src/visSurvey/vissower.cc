@@ -312,11 +312,18 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	Scene* scene = STM().currentScene();
 	if ( scene && transformation_ && eventinfo.displaypickedpos.isDefined())
 	{
+	    if ( mIsUdf(eventinfo.pickdepth) )
+		furrowpos = Coord3::udf();
+	    else
+		furrowpos = 
+		eventinfo.mouseline.getPoint( eventinfo.pickdepth-0.01 );
 	    furrowpos = eventinfo.mouseline.getPoint(eventinfo.pickdepth-0.01);
 	    scene->getTempZStretchTransform()->transformBack( furrowpos );
 	    transformation_->transformBack( furrowpos );
 	}
 
+	if ( furrowpos.isUdf() )
+	    return false;
 	bool isvalidpos = !sz ||
 			  eventinfo.pickedobjids==eventlist_[0]->pickedobjids ||
 			  eventinfo.pickedobjids.isPresent(underlyingobjid_);
