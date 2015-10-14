@@ -621,4 +621,3 @@ bool isMainThreadCurrent()
 {
     return isMainThread( Threads::currentThread() );
 }
-
