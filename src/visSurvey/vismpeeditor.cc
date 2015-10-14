@@ -79,26 +79,35 @@ MPEEditor::~MPEEditor()
 
 void MPEEditor::setupPatchDisplay()
 {
-    if ( patchmarkers_ && patchline_ )
-	return;
+    Color lineclr = Color::Green() ;
+    Color mkclr = Color::White();
+    if ( emeditor_ )
+    {
+	const EM::EMObject& emobj = emeditor_->emObject();
+	mkclr = emobj.preferredColor();
+	if ( Math::Abs(mkclr.g()-Color::Green().g())<30 )
+	    lineclr = Color::Red();
+    }
+    if ( !patchmarkers_ )
+    {
+	patchmarkers_ = visBase::MarkerSet::create();
+	patchmarkers_->ref();
+	patchmarkers_->setScreenSize(markersize_);
+	addChild(patchmarkers_->osgNode());
+	patchmarkers_->setDisplayTransformation( transformation_ );
+    }
+    if ( !patchline_ )
+    {
+	patchline_ = visBase::PolyLine::create();
+	patchline_->ref();
+	patchline_->setMaterial(new visBase::Material);
+	addChild(patchline_->osgNode());
+	patchline_->setDisplayTransformation( transformation_ );
+    }
 
-    patchmarkers_ = visBase::MarkerSet::create();
-    patchmarkers_->ref();
-    patchline_ = visBase::PolyLine::create();
-    patchline_->ref();
-
-    patchline_->setMaterial( new visBase::Material );
-    LineStyle lsty( LineStyle::DashDot, 4, Color::Green() );
+    LineStyle lsty( LineStyle::Solid, 4, lineclr );
     patchline_->setLineStyle( lsty );
-
-    addChild( patchmarkers_->osgNode() );
-    addChild( patchline_->osgNode() );
-
-    patchmarkers_->setMarkersSingleColor( Color::White() );
-    patchmarkers_->setScreenSize( markersize_ );
-
-    patchmarkers_->setDisplayTransformation( transformation_ );
-    patchline_->setDisplayTransformation( transformation_ );
+    patchmarkers_->setMarkersSingleColor( mkclr );
 }
 
 
@@ -156,6 +165,10 @@ void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 	draggers_[idx]->setDisplayTransformation( transformation_ );
 
     sower_->setDisplayTransformation( nt );
+    if ( patchmarkers_ )
+	patchmarkers_->setDisplayTransformation( nt );
+    if ( patchline_ )
+	patchline_->setDisplayTransformation( nt );
 }
 
 
