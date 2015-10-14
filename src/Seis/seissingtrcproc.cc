@@ -185,7 +185,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 
     if ( rdrs_.size() == 1 )
     {
-	is3d_ = !rdr->is2D() || !wrr_.is2D();
+	is3d_ = !rdr->is2D() && !wrr_.is2D();
 	wrr_.setCrFrom( rdr->ioObj()->fullUserExpr() );
 	if ( iop )
 	    wrr_.auxPars() = *iop;
