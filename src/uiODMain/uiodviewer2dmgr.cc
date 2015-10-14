@@ -767,7 +767,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 
 	    PlotAnnotation newannot;
 	    const uiODViewer2D* curvwr2d = find2DViewer( intpos.line );
-	    if ( curvwr2d && curvwr2d->zDomain()==vwr2d->zDomain() )
+	    if ( curvwr2d &&
+		    curvwr2d->getZAxisTransform()==vwr2d->getZAxisTransform() )
 		newannot.linetype_ = PlotAnnotation::Bold;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
@@ -785,7 +786,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    const TrcKeyZSampling& idxvwrtkzs = curvwr2d->getTrcKeyZSampling();
 	    TrcKeyZSampling::Dir idxvwrdir = idxvwrtkzs.defaultDir();
 	    if ( curvwr2d==vwr2d || idxvwrdir==dir || !idxvwrtkzs.isFlat() ||
-		    curvwr2d->zDomain()!=vwr2d->zDomain() )
+		    curvwr2d->getZAxisTransform()!=vwr2d->getZAxisTransform() )
 		continue;
 
 	    PlotAnnotation newannot;

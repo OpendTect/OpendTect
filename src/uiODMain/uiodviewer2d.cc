@@ -116,7 +116,12 @@ uiODViewer2D::~uiODViewer2D()
     deepErase( auxdataeditors_ );
 
     if ( datatransform_ )
+    {
+	if ( voiidx_ != -1 )
+	    datatransform_->removeVolumeOfInterest( voiidx_ );
+	voiidx_ = -1;
 	datatransform_->unRef();
+    }
 
     if ( viewwin() )
     {
