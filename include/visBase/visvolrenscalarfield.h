@@ -90,6 +90,9 @@ public:
     void			swapAttribs(int attr0,int attr1);
     void			setAttribTransparency(int attr,unsigned char);
 
+    void			setRightHandSystem(bool);
+    bool			isRightHandSystem() const;
+
 protected:
     				~VolumeRenderScalarField();
 
@@ -127,6 +130,8 @@ protected:
 
     Material*				material_;
     bool				useshading_;
+
+    bool				isrighthandsystem_;
 
     osgVolume::VolumeTile*		osgvoltile_;
     osg::Switch*			osgvolroot_;

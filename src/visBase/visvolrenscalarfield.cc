@@ -90,6 +90,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , channels2rgba_( 0 )
     , isrgba_( false )
     , useshading_( true )
+    , isrighthandsystem_( DataObject::isRightHandSystem() )
     , raytt_( 0 )
     , osgvoltile_( new osgVolume::VolumeTile() )
     , osgvolume_( new osgVolume::Volume() )
@@ -157,6 +158,14 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
     setMaterial( 0 );
     setChannels2RGBA( 0 );
 }
+
+
+void VolumeRenderScalarField::setRightHandSystem( bool yn )
+{ isrighthandsystem_ = yn; }
+
+
+bool VolumeRenderScalarField::isRightHandSystem() const
+{ return isrighthandsystem_; }
 
 
 void VolumeRenderScalarField::setChannels2RGBA(

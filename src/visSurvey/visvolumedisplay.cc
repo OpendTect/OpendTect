@@ -284,6 +284,7 @@ void VolumeDisplay::setRightHandSystem( bool yn )
 {
     visBase::VisualObjectImpl::setRightHandSystem( yn );
     boxdragger_->setRightHandSystem( yn );
+    scalarfield_->setRightHandSystem( yn );
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	isosurfaces_[idx]->setRightHandSystem( yn );
 }
