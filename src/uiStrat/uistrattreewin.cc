@@ -63,8 +63,8 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , repos_(*new Strat::RepositoryAccess())
     , tb_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
-    IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
+    IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,survChgCB ) );
+    IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,appCloseCB ) );
     if ( RT().isEmpty() )
 	setNewRT();
 
@@ -447,10 +447,21 @@ bool uiStratTreeWin::closeOK()
 }
 
 
-void uiStratTreeWin::forceCloseCB( CallBacker* )
+void uiStratTreeWin::appCloseCB( CallBacker* )
 {
-    IOM().surveyChanged.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
-    IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
+    IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,appCloseCB ) );
+    if ( stratwin )
+    {
+	stratwin->close();
+	delete stratwin;
+	stratwin = 0;
+    }
+}
+
+
+void uiStratTreeWin::survChgCB( CallBacker* )
+{
+    IOM().surveyChanged.remove( mCB(this,uiStratTreeWin,survChgCB ) );
     if ( stratwin )
 	stratwin->close();
 

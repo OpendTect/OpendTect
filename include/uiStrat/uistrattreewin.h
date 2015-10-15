@@ -89,7 +89,8 @@ protected:
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
     void			moveUnitCB(CallBacker*);
-    void			forceCloseCB(CallBacker*);
+    void			survChgCB(CallBacker*);
+    void			appCloseCB(CallBacker*);
     void			helpCB(CallBacker*);
     void			manLiths(CallBacker*);
     void			manConts(CallBacker*);
