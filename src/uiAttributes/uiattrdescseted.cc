@@ -844,8 +844,10 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 
 void uiAttribDescSetEd::setSelAttr( const char* attrnm )
 {
-    if ( attrtypefld_ )
-	attrtypefld_->setAttr( attrnm );
+    if ( !attrtypefld_ ) return;
+
+    attrtypefld_->setAttr( attrnm );
+    updateFields( false );
 }
 
 
