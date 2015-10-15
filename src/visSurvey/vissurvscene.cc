@@ -722,7 +722,7 @@ void Scene::keyPressCB( CallBacker* cb )
 
     if ( eventinfo.key_ == OD::Space )
     {
-	if ( eventinfo.pressed && !spacebarwaspressed_ )
+	if ( !spacebarwaspressed_ )
 	    togglePosModeManipObjSel();
 
 	spacebarwaspressed_ = eventinfo.pressed;

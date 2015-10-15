@@ -819,8 +819,10 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
 void ui3DViewerBody::setFocusCB( CallBacker* )
 {
     // Need focus to show mod key dependent act-mode cursors
+    // or toggle between picking and positioning in act mode
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-    if ( kbe.key_==OD::Shift || kbe.key_==OD::Control || kbe.key_==OD::Alt )
+    if ( kbe.key_==OD::Shift || kbe.key_==OD::Control || kbe.key_==OD::Alt ||
+	 kbe.key_==OD::Space )
     {
 	if ( !qwidget()->hasFocus() && qwidget()->underMouse() )
 	    qwidget()->setFocus();
