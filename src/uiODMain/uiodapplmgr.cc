@@ -116,7 +116,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 
     appl_.afterPopup.notify( mCB(this,uiODApplMgr,mainWinUpCB) );
 
-    IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    IOM().surveyToBeChanged.notify(
+			mCB(this,uiODApplMgr,surveyToBeChanged),true );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
 }
 
