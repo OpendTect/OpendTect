@@ -34,10 +34,9 @@ CC2DExtracor( const Array3D<bool>& inp )
 const TypeSet<TypeSet<TypeSet<int> > >&	getCubeComps()	{ return slicecomps_; }
 
 protected:
+
 od_int64 nrIterations() const	{ return input_.info().getSize(2); }
-uiString uiMessage() const	{
-			    return tr("Computing 2D connected  components");
-				}
+uiString uiMessage() const { return tr("Computing 2D connected	components"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
