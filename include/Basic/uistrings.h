@@ -252,15 +252,17 @@ public:
     static uiString sExport();
     static uiString sExtract();
     static uiString sFaultStickSet(int num=1);
-    static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFactor(int num=1)	{ return tr("Factor",0,num); }
     static uiString sFault(int num=1);
+    static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiString sFileName()	        { return tr("File name"); }
     static uiString sFinish()		{ return tr("Finish"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }
+    static uiString sFlip()		{ return tr("Flip"); }
+    static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
     static uiString sGeometry()		{ return tr("Geometry"); }
     static uiString sGo()	        { return tr("Go"); }

@@ -155,7 +155,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withflip_ )
     {
-	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,tr("Flip left/right"));
+	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,
+			      uiStrings::sFlipLeftRight());
     }
 
     if ( setup.withsnapshot_ )

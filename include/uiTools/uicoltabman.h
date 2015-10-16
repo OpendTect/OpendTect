@@ -73,12 +73,14 @@ protected:
     void			selChg(CallBacker*);
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
+    void			flipCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     virtual void		reDraw( bool deep )	{ reDrawCB(0); }
 
 
     void			refreshColTabList(const char*);
+    void			updateTransparencyGraph();
 
     bool			saveColTab(bool);
 

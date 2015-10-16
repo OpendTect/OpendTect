@@ -98,7 +98,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     colseqfld_ = new uiColorTableSel( this, "Color table" );
     colseqfld_->attach( rightOf, fillfld_ );
 
-    flipfld_ = new uiCheckBox( this, tr("Flip") );
+    flipfld_ = new uiCheckBox( this, uiStrings::sFlip() );
     flipfld_->attach( rightOf, colseqfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), tr("Line Style") );

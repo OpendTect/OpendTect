@@ -347,7 +347,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logarithmfld_ = new uiCheckBox( this, tr("Logarithmic") );
     logarithmfld_->attach( rightOf, rangefld_ );
 
-    revertlogfld_ = new uiCheckBox( this, tr("Flip") );
+    revertlogfld_ = new uiCheckBox( this, uiStrings::sFlip() );
     revertlogfld_->attach( rightOf, cliprangefld_ );
 
     lblr_ = new uiLabeledSpinBox( this, tr("Repeat") );
