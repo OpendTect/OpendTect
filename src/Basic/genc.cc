@@ -4,7 +4,6 @@
  * DATE     : March 1994
  * FUNCTION : general utilities
 -*/
-
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
@@ -28,22 +27,100 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 #include <stdlib.h>
-#ifndef __win__
+#ifdef __win__
+# include <float.h>
+# include <time.h>
+# include <sys/timeb.h>
+# include <shlobj.h>
+#else
 # include <unistd.h>
 # include <errno.h>
 # include <netdb.h>
+# include <stdio.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/types.h>
 # include <signal.h>
-#else
-# include <float.h>
-# include <time.h>
-# include <sys/timeb.h>
-# include <shlobj.h>
 #endif
 
+#ifdef __lux__
+static Threads::Atomic<int> canovercommit( 0 );
+//0 = don't know
+//1 = yes
+//-1 = no
+#endif
+
+static bool memCanOverCommit()
+{
+#ifndef __lux__
+    return false;
+#else
+    if ( canovercommit )
+	return canovercommit == 1;
+
+    /* Do NOT set this variable unless you are explicitely looking for
+       unitialized variable. mTryAlloc will nearly always return a valid pointer
+       in that case, even when there is not enough memory */
+    const char* s = getenv( "DTECT_NO_OVERCOMMITINIT" );
+    if ( s )
+	{ canovercommit = -1; return false; }
+
+    // file should exist as of kernel 2.1.27
+    FILE *file = fopen( "/proc/sys/vm/overcommit_memory", "r" );
+    if ( !file )
+	{ canovercommit = -1; return false; }
+
+    fseek(file,0,SEEK_END);
+    const long filesize = ftell(file);
+    if ( filesize == 0 ) // same as if the file would contain '\0'
+    {
+	fclose( file );
+	canovercommit = 1;
+	return true;
+    }
+
+    char* contents = (char*) malloc( sizeof(char) * 1 );
+    rewind(file);
+    fread(&contents[0],1,1,file);
+    fclose( file );
+
+    //https://www.win.tue.nl/~aeb/linux/lk/lk-9.html
+    // values valid since kernel 2.5.30
+    canovercommit = contents[0] == '\0' || contents[0] == '\1' ? 1 : -1;
+    free( contents );
+
+    return canovercommit == 1;
+#endif
+}
+
+
+void* operator new( std::size_t sz )
+{
+    void* p = malloc( sz );
+    if ( !p )
+	throw std::bad_alloc();
+
+    //By writing into the mem, we force the os to allocate the memory
+    if ( memCanOverCommit() )
+	memset( p, 0, sz );
+
+    return p;
+}
+
+
+void* operator new[]( std::size_t sz )
+{
+    void* p = malloc( sz );
+    if ( !p )
+	throw std::bad_alloc();
+
+    //By writing into the mem, we force the os to allocate the memory
+    if ( memCanOverCommit() )
+	memset( p, 0, sz );
+
+    return p;
+}
 
 
 #define mConvDefFromStrToShortType(type,fn) \

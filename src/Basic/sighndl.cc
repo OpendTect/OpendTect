@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 
 #include <signal.h>
+#include <new>
 
 #ifdef __win__
 # include <windows.h>
@@ -31,6 +32,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __mac__
 # define SIGCLD SIGCHLD
 #endif
+
+static void mem_alloc_fail()
+{
+    ErrMsg("Memory allocation failed");
+    DBG::forceCrash(true);
+};
 
 
 
@@ -149,7 +156,8 @@ void SignalHandling::initFatalSignalHandling()
 {
     if ( GetEnvVarYN( "DTECT_HANDLE_FATAL") )
     {
-	// Fatal stuff
+	// Fatal stuf
+	std::set_new_handler(mem_alloc_fail );
 	mCatchSignal( SIGINT );	/* Interrupt */
 	mCatchSignal( SIGILL );	/* Illegal instruction */
 	mCatchSignal( SIGFPE );	/* Floating point */
