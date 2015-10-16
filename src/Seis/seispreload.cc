@@ -215,7 +215,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     Pos::GeomID geomid = -1;
     iop.get( sKey::GeomID(), geomid );
 
-    DataCharacteristics::UserType usertype;
+    DataCharacteristics::UserType usertype( DataCharacteristics::Auto );
     DataCharacteristics::UserTypeDef().parse( iop, sKeyUserType(), usertype );
 
     SeisIOObjInfo oinf( mid );
