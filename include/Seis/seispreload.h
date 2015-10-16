@@ -62,6 +62,7 @@ public:
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
+    static const char*	sKeyUserType();
 
 protected:
 

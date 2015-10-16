@@ -29,6 +29,7 @@ namespace Seis
 {
 
 const char* PreLoader::sKeyLines()	{ return "Lines"; }
+const char* PreLoader::sKeyUserType()	{ return "User Type"; }
 
 PreLoader::PreLoader( const MultiID& mid, Pos::GeomID geomid, TaskRunner* trn )
     : mid_(mid), geomid_(geomid), tr_(trn)
@@ -214,6 +215,9 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     Pos::GeomID geomid = -1;
     iop.get( sKey::GeomID(), geomid );
 
+    DataCharacteristics::UserType usertype;
+    DataCharacteristics::UserTypeDef().parse( iop, sKeyUserType(), usertype );
+
     SeisIOObjInfo oinf( mid );
     if ( !oinf.isOK() ) return;
 
@@ -226,7 +230,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	case Vol: {
 	    TrcKeyZSampling tkzs(true);
 	    tkzs.usePar( iop );
-	    spl.load( tkzs );
+	    spl.load( tkzs, usertype );
 	} break;
 	case Line: {
 	    BufferStringSet lnms;
@@ -256,6 +260,13 @@ void PreLoader::fillPar( IOPar& iop ) const
 
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,PLDM().get(mid_));
+    if( regsdp )
+    {
+	iop.set( sKeyUserType(), DataCharacteristics::toString(
+		    DataCharacteristics(regsdp->getDataDesc()).userType()) );
+	regsdp->sampling().fillPar( iop );
+    }
 
     const GeomType gt = oinf.geomType();
 
