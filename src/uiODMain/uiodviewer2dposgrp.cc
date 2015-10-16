@@ -260,7 +260,7 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    const IOObj* rdlobj = rdmlinefld_->ioobj(!emiterror);
 	    if ( !rdlobj )
 		return false;
-	    posdatasel_->rdmlineid_ = rdlobj->key();
+	    posdatasel_->rdmlinemultiid_ = rdlobj->key();
 	    break;
     }
 
@@ -317,7 +317,7 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
 	    sliceselflds_[2]->setTrcKeyZSampling( tkzs );
 	    break;
 	case Viewer2DPosDataSel::RdmLine:
-	    rdmlinefld_->setInput( posdatasel_->rdmlineid_ );
+	    rdmlinefld_->setInput( posdatasel_->rdmlinemultiid_ );
 	    break;
     }
 }
@@ -416,7 +416,7 @@ void Viewer2DPosDataSel::fillPar( IOPar& iop ) const
 {
     tkzs_.fillPar( iop );
     selspec_.fillPar( iop );
-    iop.set( sKeyRdmLineID(), rdmlineid_ );
+    iop.set( sKeyRdmLineID(), rdmlinemultiid_ );
     iop.setYN( sKeySelectData(), selectdata_ );
     iop.set( sKey::GeomID(), geomid_ );
     iop.set( PosTypeDef().name(), toString(postype_) );
@@ -427,7 +427,7 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
 {
     tkzs_.usePar( iop );
     selspec_.usePar( iop );
-    iop.get( sKeyRdmLineID(), rdmlineid_ );
+    iop.get( sKeyRdmLineID(), rdmlinemultiid_ );
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );
     PosTypeDef().parse( iop, PosTypeDef().name(), postype_ );

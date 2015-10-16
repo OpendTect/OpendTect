@@ -46,12 +46,12 @@ mStruct(uiODMain) Viewer2DPosDataSel
     virtual		~Viewer2DPosDataSel() {}
 			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
 			{
-			    postype_	= sd.postype_;
-			    selspec_	= sd.selspec_;
-			    tkzs_	= sd.tkzs_;
-			    rdmlineid_	= sd.rdmlineid_;
-			    geomid_	= sd.geomid_;
-			    selectdata_ = sd.selectdata_;
+			    postype_	    = sd.postype_;
+			    selspec_	    = sd.selspec_;
+			    tkzs_	    = sd.tkzs_;
+			    rdmlinemultiid_ = sd.rdmlinemultiid_;
+			    geomid_	    = sd.geomid_;
+			    selectdata_	    = sd.selectdata_;
 			}
 
     virtual void	clean()
@@ -60,7 +60,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 						    : Viewer2DPosDataSel::Line2D;
 			    selspec_ = Attrib::SelSpec();
 			    tkzs_ = TrcKeyZSampling(true);
-			    rdmlineid_ = MultiID::udf();
+			    rdmlinemultiid_ = MultiID::udf();
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
 			    selectdata_ = true;
 			}
@@ -69,7 +69,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
     Attrib::SelSpec	selspec_;
     TrcKeyZSampling	tkzs_;
     Pos::GeomID		geomid_;
-    MultiID		rdmlineid_;
+    MultiID		rdmlinemultiid_;
     bool		selectdata_;
 
     static const char*	sKeyRdmLineID() { return "Random Line ID"; }

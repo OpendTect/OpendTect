@@ -145,12 +145,12 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     DataPack::ID dpid = DataPack::cNoID();
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
-    const bool isrl = !posdatasel.rdmlineid_.isUdf();
-    if ( isrl )
+
+    if ( !posdatasel.rdmlinemultiid_.isUdf() )
     {
 	TypeSet<BinID> knots, path;
 	Geometry::RandomLineSet::getGeometry(
-		posdatasel.rdmlineid_, knots, &posdatasel.tkzs_.zsamp_ );
+		posdatasel.rdmlinemultiid_, knots, &posdatasel.tkzs_.zsamp_ );
 	Geometry::RandomLine::getPathBids( knots, path );
 	dpid = attrserv->createRdmTrcsOutput(
 				posdatasel.tkzs_.zsamp_, &path, &knots );
@@ -162,7 +162,7 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     const Attrib::SelSpec& as = posdatasel.selspec_;
     vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
     const Geometry::RandomLine* rdmline =
-	Geometry::RLM().get( posdatasel.rdmlineid_ );
+	Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
     if ( rdmline )
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
