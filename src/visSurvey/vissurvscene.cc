@@ -650,15 +650,23 @@ void Scene::objectMoved( CallBacker* cb )
 }
 
 
+#define mGetPosModeManipObjInfo( idx, dataobj, so, canmove ) \
+\
+    const visBase::DataObject* dataobj = getObject( idx ); \
+    mDynamicCastGet( const SurveyObject*, so, dataobj ); \
+\
+    const bool canmove = so && so->hasPosModeManipulator() \
+			    && !so->isLocked() && dataobj->isOn();
+
+
 void Scene::selChangeCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( int, selid, cber );
 
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	const visBase::DataObject* dataobj = getObject( idx );
-	mDynamicCastGet( const visSurvey::SurveyObject*, so, dataobj );
-	if ( so && so->hasPosModeManipulator() && selid==dataobj->id() )
+	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
+	if ( canmoveposmodemanip && selid==dataobj->id() )
 	    return;
     }
 
@@ -671,45 +679,46 @@ void Scene::togglePosModeManipObjSel()
 {
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
 
-    TypeSet<int> selectableposmodemanipobjids;
+    TypeSet<int> movableposmodemanipobjids;
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	const visBase::DataObject* dataobj = getObject( idx );
-	mDynamicCastGet( const visSurvey::SurveyObject*, so, dataobj );
+	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
 	if ( !so )
 	    continue;
 
-	if ( so->hasPosModeManipulator() && !so->isLocked() && dataobj->isOn() )
-	    selectableposmodemanipobjids += dataobj->id();
+	if ( canmoveposmodemanip )
+	    movableposmodemanipobjids += dataobj->id();
 
 	if ( !selectedids.isPresent(dataobj->id()) )
 	    continue;
 
-	if ( so->hasPosModeManipulator() && so->isManipulatorShown() )
+	if ( canmoveposmodemanip && so->isManipulatorShown() )
 	{
 	    visBase::DM().selMan().select( posmodemanipdeselobjid_ );
+	    posmodemanipdeselobjid_ = -1;
 	    return;
 	}
 
-	posmodemanipdeselobjid_ = dataobj->id();
+	if ( !so->hasPosModeManipulator() )
+	    posmodemanipdeselobjid_ = dataobj->id();
     }
 
-    if ( selectableposmodemanipobjids.isEmpty() )
+    if ( movableposmodemanipobjids.isEmpty() )
     {
 	posmodemanipdeselobjid_ = -1;
 	return;
     }
 
-    while ( selectableposmodemanipobjids.size() > 1 )
+    while ( movableposmodemanipobjids.size() > 1 )
     {
 	const int idx0 = hoveredposmodemanipobjids_.indexOf(
-					    selectableposmodemanipobjids[0] );
+					    movableposmodemanipobjids[0] );
 	const int idx1 = hoveredposmodemanipobjids_.indexOf(
-					    selectableposmodemanipobjids[1] );
-	selectableposmodemanipobjids.removeSingle( idx0<idx1 ? 0 : 1 );
+					    movableposmodemanipobjids[1] );
+	movableposmodemanipobjids.removeSingle( idx0<idx1 ? 0 : 1 );
     }
 
-    visBase::DM().selMan().select( selectableposmodemanipobjids[0] );
+    visBase::DM().selMan().select( movableposmodemanipobjids[0] );
 }
 
 
