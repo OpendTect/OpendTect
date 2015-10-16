@@ -44,6 +44,9 @@ uiString uiStrings::phrExport( const uiString& string )
 uiString uiStrings::phrImport( const uiString& string )
 { return toUiString(joinstring).arg( sImport() ).arg( string ); }
 
+uiString uiStrings::phrCannotAdd( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
+
 uiString uiStrings::phrCannotCreate( const uiString& string )
 { return tr("Cannot create %1").arg( string ); }
 
@@ -184,6 +187,9 @@ uiString uiStrings::phrWriting( const uiString& string )
 uiString uiStrings::phrSave( const uiString& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }
 
+uiString uiStrings::phrShowIn( const uiString& string )
+{ return toUiString(joinstring).arg(sShowIn()).arg(string); }
+
 uiString uiStrings::phrSpecify( const uiString& string )
 { return toUiString(joinstring).arg(sSpecify()).arg(string); }
 
@@ -225,6 +231,9 @@ uiString uiStrings::sCreate()
 
 uiString uiStrings::sCalculate()
 { return tr("Calculate"); }
+
+uiString uiStrings::sCannotAdd()
+{ return tr("Cannot Add"); }
 
 uiString uiStrings::sCannotExtract()
 { return tr("Cannot extract"); }
@@ -452,6 +461,9 @@ uiString uiStrings::sSetAs()
 
 uiString uiStrings::sShift()
 { return tr("Shift" ); }
+
+uiString uiStrings::sShowIn()
+{ return tr("Show in"); }
 
 uiString uiStrings::sSpecify()
 { return tr("Specify"); }

@@ -33,6 +33,8 @@ public:
     //!<"Calculate <string>"
     static uiString phrCalculateFrom(const uiString& string);
     //!<"Calculate from <string>"
+    static uiString phrCannotAdd(const uiString&);
+    //!<"Cannot Add <string>"
     static uiString phrCannotCreate(const uiString& string);
     //!<"Cannot create <string>"
     static uiString phrCannotCreateDBEntryFor(const uiString& string);
@@ -131,6 +133,8 @@ public:
     //!<"Select Position <string>"
     static uiString phrSetAs(const uiString&);
     //<!"Set As <string>"
+    static uiString phrShowIn(const uiString&);
+    //<!"Show in <string>"
     static uiString phrSpecify(const uiString&);
     //<!"Specify <string>"
     static uiString phrStorageDir(const uiString& string);
@@ -193,6 +197,7 @@ public:
     static uiString sCantWriteSettings();
     static uiString sCantOpenInpFile(int num=1);
     static uiString sCantOpenOutpFile(int num=1);
+    static uiString sCannotAdd();
     static uiString sCannotSave();
     static uiString sCannotStart();
     static uiString sCannotWrite();
@@ -208,6 +213,7 @@ public:
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConstant()		{ return tr("Constant"); }
     static uiString sContinue()		{ return tr("Continue"); }
+    static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
     static uiString sCopy();
     static uiString sCreateGroup()	{ return tr("Create Group"); }
@@ -231,7 +237,6 @@ public:
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDistance()		{ return tr("Distance"); }
     static uiString sDone()		{ return tr("Done"); }
-
     static uiString sDown()		{ return tr("Down"); }
     static uiString sDraw()		{ return tr("Draw"); }
     static uiString sEast(bool abb)	{ return abb ? tr("E"):tr("East"); }
@@ -385,6 +390,7 @@ public:
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift();
     static uiString sShow()             { return tr("Show"); }
+    static uiString sShowIn();
     static uiString sSlice()		{ return tr("Slice"); }
     static uiString sSouth(bool abb)	{ return abb ? tr("S"):tr("South"); }
     static uiString sSpecify();
@@ -417,7 +423,7 @@ public:
     static uiString sType()             { return tr("Type"); }
     static uiString sUndefVal()		{ return tr("Undefined Value"); }
     static uiString sUndo()		{ return tr("Undo"); }
-    static uiString sUnit(int num=1) { return tr("Unit",0,num); }
+    static uiString sUnit(int num=1)	{ return tr("Unit",0,num); }
     static uiString sUnlock()		{ return tr("Unlock"); }
     static uiString sUp()		{ return tr("Up"); }
     static uiString sUse()		{ return tr("Use"); }
