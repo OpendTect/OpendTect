@@ -62,7 +62,7 @@ public:
     float		crlDistance() const;
     float		getArea(const Interval<int>& inl,
 			     const Interval<int>& crl) const;	//!<returns m2
-    float		getArea(bool work) const ;		//!<returns m2
+    float		getArea(bool work) const;		//!<returns m2
 
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
 
