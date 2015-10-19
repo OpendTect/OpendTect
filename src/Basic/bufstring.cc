@@ -229,7 +229,7 @@ bool BufferString::setBufSize( unsigned int newlen )
     if ( !buf_ )
 	{ buf_ = oldbuf; return false; }
     else if ( !oldbuf )
-	buf_[0] = '\0';
+	*buf_ = '\0';
     else
     {
 	unsigned int newsz = (oldbuf ? strLength( oldbuf ) : 0) + 1;
@@ -493,7 +493,7 @@ void BufferString::init()
     {
 	mTryAlloc( buf_, char[len_] );
 	if ( buf_ )
-	    buf_[0] = '\0';
+	    *buf_ = '\0';
     }
 }
 
@@ -735,6 +735,24 @@ bool BufferStringSet::addIfNew( const OD::String& s )
 }
 
 
+BufferStringSet& BufferStringSet::addToAll( const char* str, bool infront )
+{
+    if ( !str || !*str )
+	return *this;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	BufferString& itm = get( idx );
+	if ( infront )
+	    itm.insertAt( 0, str );
+	else
+	    itm.add( str );
+    }
+
+    return *this;
+}
+
+
 int BufferStringSet::maxLength() const
 {
     int ret = 0;
@@ -894,4 +912,3 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
     if ( ptr && *ptr )
 	add( ptr );
 }
-

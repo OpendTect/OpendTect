@@ -133,6 +133,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     , offsetbytefld_(0)
     , offsgengrp_(0)
     , inptypfixed_(imptyp)
+    , nrunswappedfmts_(5)
     , sBytePos(tr("from header"))
 {
     nrrows_ = mNrInfoRows;
@@ -196,7 +197,13 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     revfld_->selectionChanged.notify( revchgcb );
     mAdd2Tbl( revfld_, mRevRow, mUseCol );
 
-    fmtfld_ = new uiComboBox( 0, SEGY::FilePars::getFmts(false), "Format" );
+    BufferStringSet fmts( SEGY::FilePars::getFmts(false) );
+    nrunswappedfmts_ = fmts.size();
+    BufferStringSet swpdfmts( SEGY::FilePars::getFmts(false) );
+    swpdfmts.removeSingle( swpdfmts.size()-1 ); // 8-bits swapped makes no sense
+    swpdfmts.addToAll( " (byte swapped)" );
+    fmts.add( swpdfmts, true );
+    fmtfld_ = new uiComboBox( 0, fmts, "Format" );
     fmtfld_->selectionChanged.notify( parchgcb );
     mAdd2Tbl( fmtfld_, mDataFormatRow, mUseCol );
 
@@ -659,13 +666,23 @@ void uiSEGYReadStartInfo::useLoadDef()
 
     const char** fmts = SEGY::FilePars::getFmts(false);
     const char* fmt = *fmts;
-    for ( int idx=0; fmt; idx++ )
+    for ( short idx=0; fmt; idx++ )
     {
 	fmt = fmts[idx];
 	if ( !fmt )
 	    { pErrMsg("Format not found"); break; }
 	else if ( (short)(*fmt - '0') == loaddef_.format_ )
-	    { fmtfld_->setCurrentItem( idx ); break; }
+	{
+	    short newidx = idx;
+	    if ( loaddef_.dataswapped_ )
+	    {
+		newidx += nrunswappedfmts_;
+		if ( newidx >= fmtfld_->size() )
+		    { pErrMsg("Huh"); newidx -= nrunswappedfmts_; }
+	    }
+	    fmtfld_->setCurrentItem( newidx );
+	    break;
+	}
     }
 
     nsfld_->setValue( loaddef_.ns_ );
@@ -726,6 +743,8 @@ void uiSEGYReadStartInfo::useLoadDef()
 void uiSEGYReadStartInfo::fillLoadDef()
 {
     loaddef_.revision_ = revfld_->currentItem();
+
+    loaddef_.dataswapped_ = fmtfld_->currentItem() >= nrunswappedfmts_;
     loaddef_.format_ = (short)(*fmtfld_->text() - '0');
 
     int newns = nsfld_->getIntValue();

@@ -232,6 +232,12 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
 }
 
 
+bool SEGY::LoadDef::needXY() const
+{
+    return icvsxytype_ != FileReadOpts::ICOnly;
+}
+
+
 void SEGY::ScanRangeInfo::reInit()
 {
     inls_ = Interval<int>( mUdf(int), 0 );
