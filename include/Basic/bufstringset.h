@@ -51,6 +51,7 @@ public:
     BufferStringSet&	add(const QString&);
     BufferStringSet&	add(const BufferStringSet&,bool allowduplicates);
     BufferStringSet&	add(const char* arr[],int len=-1);
+    BufferStringSet&	addToAll(const char*,bool infront=false);
     bool		addIfNew(const char*);	//!< returns whether added
     bool		addIfNew(const OD::String&);
 

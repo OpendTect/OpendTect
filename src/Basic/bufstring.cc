@@ -88,7 +88,8 @@ BufferString& BufferString::setEmpty()
     if ( len_ != minlen_ )
 	{ destroy(); init(); }
     else
-	buf_[0] = 0;
+	buf_[0] = '\0';
+
     return *this;
 }
 
@@ -491,7 +492,7 @@ void BufferString::init()
     {
 	mTryAlloc( buf_, char[len_] );
 	if ( buf_ )
-	    *buf_ ='\0';
+	    *buf_ = '\0';
     }
 }
 
@@ -730,6 +731,24 @@ bool BufferStringSet::addIfNew( const char* s )
 bool BufferStringSet::addIfNew( const OD::String& s )
 {
     return addIfNew( s.buf() );
+}
+
+
+BufferStringSet& BufferStringSet::addToAll( const char* str, bool infront )
+{
+    if ( !str || !*str )
+	return *this;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	BufferString& itm = get( idx );
+	if ( infront )
+	    itm.insertAt( 0, str );
+	else
+	    itm.add( str );
+    }
+
+    return *this;
 }
 
 

@@ -78,6 +78,7 @@ protected:
     const bool		inptypfixed_;
     int			nrrows_;
     bool		parsbeingset_;
+    short		nrunswappedfmts_;
     const uiString	sBytePos;
     uiString		xinfotxt_;
     uiString		yinfotxt_;

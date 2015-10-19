@@ -25,6 +25,7 @@ class TrcKeyZSampling;
 class uiLabel;
 class uiButton;
 class uiSpinBox;
+class uiLineEdit;
 class uiCheckBox;
 class uiFileInput;
 class uiSurveyMap;
@@ -84,6 +85,7 @@ protected:
     uiButton*		editbut_;
     uiRadioButton*	useicbut_;
     uiRadioButton*	usexybut_;
+    uiLineEdit*		coordscalefld_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
     uiCheckBox*		inc0sbox_;
@@ -123,10 +125,11 @@ protected:
     void		createTools();
     uiGroup*		createAmplDisp();
     void		clearDisplay();
-    void		setButtonStatuses();
+    void		setToolStates();
     void		displayScanResults();
     void		updateSurvMap();
     void		updateICvsXYButtons();
+    void		updateCoordScale();
 
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);
@@ -142,6 +145,7 @@ protected:
     void		readParsCB(CallBacker*);
     void		writeParsCB(CallBacker*);
     void		icxyCB(CallBacker*);
+    void		coordscaleChg(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
     bool		acceptOK(CallBacker*);

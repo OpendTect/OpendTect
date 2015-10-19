@@ -97,6 +97,8 @@ public:
     void		getFileReadOpts(FileReadOpts&) const;
     void		usePar(const IOPar&);
 
+    bool		needXY() const;
+
 };
 
 

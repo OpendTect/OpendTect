@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uisplitter.h"
@@ -63,6 +64,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , typfld_(0)
     , useicbut_(0)
     , usexybut_(0)
+    , coordscalefld_(0)
     , ampldisp_(0)
     , survmap_(0)
     , detectrev0flds_(true)
@@ -134,7 +136,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     createTools();
     botgrp_->setStretch( 2, 1 );
 
-    setButtonStatuses();
+    setToolStates();
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
 }
 
@@ -172,6 +174,7 @@ void uiSEGYReadStarter::createTools()
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
     examinegrp->attach( alignedBelow, fullscanbut_ );
+    examinegrp->setFrame( true );
 
     bool needicvsxy = !mForSurvSetup;
     if ( imptypeFixed() && (fixedimptype_.isVSP() || fixedimptype_.is2D()) )
@@ -192,6 +195,21 @@ void uiSEGYReadStarter::createTools()
 		"will be calculated using the survey setup.\nOnly use this "
 		"option if you do not have valid In- and Crossline numbers.") );
 	usexybut_->attach( alignedBelow, useicbut_ );
+    }
+
+    if ( !imptypeFixed() || !fixedimptype_.isVSP() )
+    {
+	coordscalefld_ = new uiLineEdit( midgrp_, FloatInpSpec(), "CoordScale");
+	coordscalefld_->setHSzPol( uiObject::Small );
+	coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
+	    "the coordinate scaling in the trace headers."
+	    "\nAll coordinates read will then be multiplied by that factor." ));
+	coordscalefld_->editingFinished.notify(
+				mCB(this,uiSEGYReadStarter,coordscaleChg) );
+	if ( usexybut_ )
+	    coordscalefld_->attach( alignedBelow, usexybut_ );
+	else
+	    coordscalefld_->attach( alignedBelow, examinegrp );
     }
 }
 
@@ -258,7 +276,7 @@ void uiSEGYReadStarter::clearDisplay()
 	ampldisp_->setEmpty();
     if ( mForSurvSetup )
 	survmap_->setSurveyInfo( 0 );
-    setButtonStatuses();
+    setToolStates();
 }
 
 
@@ -343,7 +361,7 @@ bool uiSEGYReadStarter::incZeros() const
 }
 
 
-void uiSEGYReadStarter::setButtonStatuses()
+void uiSEGYReadStarter::setToolStates()
 {
     const int nrfiles = filespec_.nrFiles();
     examinebut_->setSensitive( nrfiles > 0 );
@@ -358,6 +376,9 @@ void uiSEGYReadStarter::setButtonStatuses()
 	if ( isneeded )
 	    updateICvsXYButtons();
     }
+
+    if ( coordscalefld_ )
+	coordscalefld_->display( loaddef_.needXY() );
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
 }
@@ -427,7 +448,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
     infofld_->setImpTypIdx( imptyp.tidx_, false );
     detectrev0flds_ = true;
     forceRescan( KeepBasic );
-    setButtonStatuses();
+    setToolStates();
 }
 
 
@@ -435,7 +456,7 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
 {
     detectrev0flds_ = true;
     handleNewInputSpec( KeepNone );
-    setButtonStatuses();
+    setToolStates();
 }
 
 
@@ -599,7 +620,28 @@ void uiSEGYReadStarter::icxyCB( CallBacker* cb )
 	useicbut_->setChecked( !useic );
     }
 
+    forceRescan();
+}
 
+
+void uiSEGYReadStarter::updateCoordScale()
+{
+    loaddef_.coordscale_ = mUdf(float);
+    if ( !coordscalefld_ )
+	return;
+
+    BufferString edtxt = coordscalefld_->text();
+    edtxt.trimBlanks();
+    if ( edtxt.isEmpty() )
+	return;
+
+    loaddef_.coordscale_ = edtxt.toFloat();
+}
+
+
+void uiSEGYReadStarter::coordscaleChg( CallBacker* cb )
+{
+    updateCoordScale();
     forceRescan();
 }
 
@@ -898,7 +940,7 @@ void uiSEGYReadStarter::displayScanResults()
     if ( !scaninfos_ || scaninfos_->isEmpty() )
 	{ clearDisplay(); return; }
 
-    setButtonStatuses();
+    setToolStates();
     if ( ampldisp_ )
 	updateAmplDisplay( 0 );
 
@@ -922,6 +964,7 @@ bool uiSEGYReadStarter::commit( bool permissive )
     filereadopts_ = new FileReadOpts( impType().geomType() );
     loaddef_.getFileReadOpts( *filereadopts_ );
 
+    updateCoordScale();
     return true;
 }
 
