@@ -788,7 +788,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll,
     }
 
     if ( !emsg ) delete errmsg;
-    if ( !warnmsg) delete warnmsg;
+    if ( !wmsg) delete warnmsg;
 
     return success;
 }

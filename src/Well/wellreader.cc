@@ -274,17 +274,14 @@ bool Well::odReader::get() const
 {
     wd_.setD2TModel( 0 );
     wd_.setCheckShotModel( 0 );
-    if ( !getTrack() )
+    if ( !getTrack() || !getInfo() ) //Keep first
 	return false;
 
-    getInfo(); //need the replacement velocity
-    if ( SI().zIsTime() && !getD2T() )
+    if ( SI().zIsTime() && (!getD2T() || !getCSMdl()) )
 	return false;
 
     getLogs();
     getMarkers();
-    if ( SI().zIsTime() )
-	getCSMdl();
 
     getDispProps();
     return true;
@@ -622,7 +619,10 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	mErrRetStrmOper( "find anything in file" )
 
     if ( wd_.track().isEmpty() )
-	getTrack();
+    {
+	if ( !getTrack() )
+	    return false;
+    }
 
     const Interval<float> trackdahrg = wd_.track().dahRange();
     const bool havetrack = !wd_.track().isEmpty();
@@ -705,12 +705,13 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
     if ( d2t->size() < 2 )
 	{ delete d2t; d2t = 0; }
 
-    if ( wd_.track().isEmpty() && !getTrack() && !getInfo() )
-	return false;
+    if ( wd_.track().isEmpty() )
+    {
+	if ( !getTrack() || !getInfo() )
+	    return false;
+    }
 
-    updateDTModel( d2t, wd_.track(), wd_.info().replvel, csmdl );
-
-    if ( !d2t || d2t->size() < 2 )
+    if ( !updateDTModel(d2t,wd_.track(),wd_.info().replvel,csmdl) )
 	mErrRetStrmOper( "read valid D2T model" )
 
     return true;
