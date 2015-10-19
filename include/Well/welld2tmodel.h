@@ -72,10 +72,9 @@ public:
 				      float replvel);
 			//!< cstvel: velocity of the TD model
 			//!< replvel: Replacement velocity, above SRD
-    bool		ensureValid(const Well::Data&,TypeSet<double>* zvals=0,
-				    TypeSet<double>* tvals=0,
-				    uiString* errmsg=0,
-				    uiString* warnmsg=0);
+    bool		ensureValid(const Well::Data&,uiString& errmsg,
+				    TypeSet<double>* zvals=0,
+				    TypeSet<double>* tvals=0);
 			//!< Returns corrected model if necessary
 			//!< May eventually also correct info().replvel
 

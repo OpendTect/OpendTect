@@ -400,7 +400,8 @@ bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
 					TimeDepthModel& model ) const
 {
     Well::D2TModel d2t = *this;
-    if ( !d2t.ensureValid(wd) )
+    uiString msg;
+    if ( !d2t.ensureValid(wd,msg) )
 	return false;
 
     TypeSet<float> depths;
@@ -413,7 +414,6 @@ bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
     }
 
     model.setModel( depths.arr(), times.arr(), depths.size() );
-
     return model.isOK();
 }
 
@@ -752,20 +752,16 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 }
 
 
-bool Well::D2TModel::ensureValid( const Well::Data& wll,
+bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 				  TypeSet<double>* depths,
-				  TypeSet<double>* times,
-				  uiString* emsg, uiString* wmsg )
+				  TypeSet<double>* times )
 {
     const bool externalvals = depths && times;
     const int sz = externalvals ? depths->size() : size();
     if ( sz < 2 || (depths && !times) || (!depths && times) )
-	return false;
+	{ msg = tr("Input model invalid"); return false; }
 
-    uiString* errmsg = emsg ? emsg : new uiString;
-    uiString* warnmsg = wmsg ? wmsg : new uiString;
     const Well::Track& track = wll.track();
-
     TypeSet<double>* zvals = depths ? depths : new TypeSet<double>;
     TypeSet<double>* tvals = times ? times : new TypeSet<double>;
     if ( !externalvals )
@@ -778,18 +774,14 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll,
 	}
     }
 
-    const bool success =
-	      getTVDD2TModel( *this, wll, *zvals, *tvals, *errmsg, *warnmsg );
+    uiString wmsg;
+    const bool isok = getTVDD2TModel( *this, wll, *zvals, *tvals, msg, wmsg );
+    if ( !wmsg.isEmpty() )
+	ErrMsg( wmsg.getFullString() );
 
     if ( !externalvals )
-    {
-	delete zvals;
-	delete tvals;
-    }
+	{ delete zvals; delete tvals; }
 
-    if ( !emsg ) delete errmsg;
-    if ( !wmsg) delete warnmsg;
-
-    return success;
+    return isok;
 }
 
