@@ -55,8 +55,9 @@ protected:
     Data&		wd_;
 
     bool		addToLogSet(Log*) const;
-    bool		updateDTModel(D2TModel*,const Track&,float replvel,
-				      bool ischeckshot) const;
+    bool		updateDTModel(D2TModel*,bool ischeckshot,
+					BufferString& errmsg) const;
+			//!< D2TModel will become mine and may even be deleted
 
 };
 

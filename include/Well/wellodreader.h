@@ -61,7 +61,6 @@ public:
 
 protected:
 
-    bool		getOldTimeWell(od_istream&) const;
     void		getLogInfo(BufferStringSet&,TypeSet<int>&) const;
     void		readLogData(Log&,od_istream&,int) const;
     bool		getTrack(od_istream&) const;

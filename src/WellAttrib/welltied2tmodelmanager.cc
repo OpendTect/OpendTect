@@ -87,13 +87,14 @@ void D2TModelMgr::shiftModel( float shift)
 void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
 {
     if ( !d2t || !wd_ )
-    { pErrMsg("Bad D2TMdl: ignoring"); return; }
+	return;
 
-    if ( !d2t->ensureValid(*wd_) )
-    { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
+    uiString msg;
+    if ( !d2t->ensureValid(*wd_,msg) )
+	{ delete d2t; return; }
 
     if ( d2t->size() < 2 )
-    { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
+	{ delete d2t; return; }
 
     delete prvd2t_; prvd2t_ = 0;
     if ( d2T() )

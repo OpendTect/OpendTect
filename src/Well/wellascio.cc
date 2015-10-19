@@ -452,7 +452,7 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	tvals += tval;
     }
 
-    return d2t.ensureValid( wll, &zvals, &tvals, &errmsg_, &warnmsg_ );
+    return d2t.ensureValid( wll, errmsg_, &zvals, &tvals );
 }
 
 

@@ -48,6 +48,9 @@ const char* Well::odIO::sExtDispProps()	{ return ".disp"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
+static const char* sOperReadD2T = "read valid Time/Depth relation";
+
+
 bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
 {
     if ( !newlog )
@@ -63,14 +66,17 @@ bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
 }
 
 
-bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel,
-				      const Well::Track& track,
-				      float replvel,
-				      bool ischeckshot ) const
+bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
+				      BufferString& errmsg ) const
 
 {
-    if ( !dtmodel || !dtmodel->ensureValid(wd_) )
+    uiString msg;
+    if ( !dtmodel || !dtmodel->ensureValid(wd_,msg) )
+    {
+	delete dtmodel;
+	errmsg.set( msg.getFullString() ); // need translated string
 	return false;
+    }
 
     if ( ischeckshot )
 	wd_.setCheckShotModel( dtmodel );
@@ -319,7 +325,6 @@ bool Well::odReader::getInfo( od_istream& strm ) const
 	    errmsg_.set( "Cannot read old time wells" );
 	    strm.addErrMsgTo( errmsg_ );
 	    return false;
-	    //return getOldTimeWell(strm);
 	}
 	else if ( *(hdrln+1) != 'T' )
 	    badhdr = true;
@@ -359,42 +364,6 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     }
 
     return true;
-}
-
-
-bool Well::odReader::getOldTimeWell( od_istream& strm ) const
-{
-    ascistream astrm( strm, false );
-    astrm.next();
-    while ( !atEndOfSection(astrm) ) astrm.next();
-
-    // get track
-    Coord3 c3, prevc, c0;
-    float dah = 0;
-    while ( strm.isOK() )
-    {
-	strm >> c3.x >> c3.y >> c3.z;
-	if ( !strm.isOK() || c3.distTo(c0) < 1 ) break;
-
-	if ( !wd_.track().isEmpty() )
-	    dah += (float) c3.distTo( prevc );
-	wd_.track().addPoint( c3, (float) c3.z, dah );
-	prevc = c3;
-    }
-    if ( wd_.track().size() < 1 )
-	mErrRetStrmOper( "get track positions" )
-
-    wd_.info().surfacecoord = wd_.track().pos(0);
-    wd_.info().source_.set( FilePath(basenm_).fileName() );
-
-    // create T2D
-    D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell() );
-    for ( int idx=0; idx<wd_.track().size(); idx++ )
-	d2t->add( wd_.track().dah(idx),(float) wd_.track().pos(idx).z );
-
-    updateDTModel( d2t, wd_.track(), wd_.info().replvel, false );
-
-    return d2t && d2t->size() > 1;
 }
 
 
@@ -681,7 +650,7 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyD2T(),version) )
-	mErrRetStrmOper( "read header" )
+	mErrRetStrmOper( "read D/T file header" )
 
     ascistream astrm( strm, false );
     Well::D2TModel* d2t = new Well::D2TModel;
@@ -699,11 +668,10 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
     while ( strm.isOK() )
     {
 	strm >> dah >> val;
-	if ( !strm.isOK() ) break;
+	if ( !strm.isOK() )
+	    break;
 	d2t->add( dah, val );
     }
-    if ( d2t->size() < 2 )
-	{ delete d2t; d2t = 0; }
 
     if ( wd_.track().isEmpty() )
     {
@@ -711,8 +679,8 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	    return false;
     }
 
-    if ( !updateDTModel(d2t,wd_.track(),wd_.info().replvel,csmdl) )
-	mErrRetStrmOper( "read valid D2T model" )
+    if ( !updateDTModel(d2t,false,errmsg_) )
+	mErrRetStrmOper( sOperReadD2T )
 
     return true;
 }
@@ -729,7 +697,7 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyDispProps(),version) )
-	mErrRetStrmOper( "read header" )
+	mErrRetStrmOper( "read well properties header" )
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
@@ -737,4 +705,3 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
     wd_.displayProperties(false).usePar( iop );
     return true;
 }
-

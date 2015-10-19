@@ -59,11 +59,11 @@ static const int cZCol = 2;
 static const int cMDTrackCol = 3;
 
 
-uiString getWinTitle( const uiString& objtyp, 
+uiString getWinTitle( const uiString& objtyp,
 				      const MultiID& wllky, bool& iswr )
 {
     iswr = Well::Writer::isFunctional( wllky );
-    return toUiString("%1 %2").arg(iswr ? uiStrings::sEdit() : 
+    return toUiString("%1 %2").arg(iswr ? uiStrings::sEdit() :
 					  uiStrings::sView()).
 			       arg(objtyp);
 }
@@ -74,7 +74,7 @@ uiString getWinTitle( const uiString& objtyp,
 #define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
 			       : uiWellTrackDlg::sTimeDepthModel()
 #define mTDOpName(op,iscksh) \
-    toUiString("%1 %2").arg(op).arg(mTDName(iscksh)) 
+    toUiString("%1 %2").arg(op).arg(mTDName(iscksh))
 
 #define mAddSetBut(fld,cb) \
     if ( writable_ ) \
@@ -163,7 +163,7 @@ uiWellTrackDlg::~uiWellTrackDlg()
 }
 
 
-const uiString uiWellTrackDlg::sCkShotData() 
+const uiString uiWellTrackDlg::sCkShotData()
 { return tr("Checkshot Data"); }
 
 
@@ -225,12 +225,12 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 
     uiString coordlbl = tr("-Coordinate of well head %1").
 						  arg(SI().getUiXYUnitString());
-    const uiString depthunit = uiStrings::sDistUnitString( 
+    const uiString depthunit = uiStrings::sDistUnitString(
 					   zinftfld_->isChecked(), true, true );
 
-    wellheadxfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sX(), 
+    wellheadxfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sX(),
 								    coordlbl) );
-    wellheadyfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sY(), 
+    wellheadyfld_->setTitleText( uiStrings::phrJoinStrings(uiStrings::sY(),
 								    coordlbl) );
     kbelevfld_->setTitleText( tr("%1 %2 ")
 			      .arg( Well::Info::sKBElev() )
@@ -732,7 +732,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 				.rowgrow(true)
 				.defrowlbl("")
 				.selmode(uiTable::Single)
-				.removeselallowed(false), 
+				.removeselallowed(false),
 				(mTDName(cksh)).getFullString().buf() );
 
     timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
@@ -1323,7 +1323,7 @@ class uiD2TModelReadDlg : public uiDialog
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup( mTDOpName(uiStrings::sImport(),cksh), 
+	: uiDialog(p,uiDialog::Setup( mTDOpName(uiStrings::sImport(),cksh),
 		     mNoDlgTitle, mODHelpKey(mD2TModelReadDlgHelpID) ))
 	, cksh_(cksh)
 	, wd_(wd)
@@ -1575,15 +1575,12 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 	return;
 
     bool needrestore = false;
-    uiString errmsg, warnmsg;
-    if ( !d2t->ensureValid(wd_,0,0,&errmsg,&warnmsg) || d2t->size() < 2 )
+    uiString errmsg;
+    if ( !d2t->ensureValid(wd_,errmsg) || d2t->size() < 2 )
     {
 	uiString msg = tr("Invalid model detected\n%1\n"
 			  "But could not autocorrect the current model")
 			  .arg(errmsg);
-	if ( warnmsg.isSet() )
-	    msg.append( warnmsg, true );
-
 	uiMSG().warning( msg );
 	if ( *d2t != *orgd2t_ )
 	    needrestore = true;
@@ -1597,14 +1594,9 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 		"(New model will only be saved on disk on successful exit of"
 		" the editor)")
 		.arg(errmsg);
-	    if ( warnmsg.isSet() )
-		msg.append( warnmsg, true );
-
 	    needrestore = !uiMSG().askGoOn( msg );
 	    if ( !needrestore )
-	    {
 		uiMSG().message( tr("Time-depth model succesfully corrected") );
-	    }
 	}
     }
 
