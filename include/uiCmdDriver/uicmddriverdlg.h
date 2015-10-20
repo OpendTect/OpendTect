@@ -103,7 +103,7 @@ protected:
 
 private:
 
-    static uiString sInterupting() { return tr("-Interupting-"); }
+    static uiString sInterrupting() { return tr("-Interrupting-"); }
 };
 
 
