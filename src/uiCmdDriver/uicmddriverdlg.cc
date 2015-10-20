@@ -372,7 +372,7 @@ void uiCmdDriverDlg::selectPauseCB( CallBacker* )
     }
     else
     {
-	pausebut_->setText( sInterupting() );
+	pausebut_->setText( sInterrupting() );
 	drv_.pause( true );
     }
 }
@@ -390,7 +390,7 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
     }
 
     BufferString buttext = pausebut_->text().getFullString();
-    if ( buttext==sInterupting().getFullString() && ispec->dlgtitle_.isEmpty() )
+    if ( buttext==sInterrupting().getFullString() && ispec->dlgtitle_.isEmpty())
     {
 	pausebut_->setText( uiStrings::sResume() );
 	return;
@@ -416,7 +416,7 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
 void uiCmdDriverDlg::selectAbortCB( CallBacker* )
 {
     drv_.abort();
-    abortbut_->setText( sInterupting() );
+    abortbut_->setText( sInterrupting() );
 
     pausebut_->setText( uiStrings::sPause() );
     pausebut_->setSensitive( false );
