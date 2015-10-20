@@ -61,7 +61,7 @@ public:
 				{ scx = scy = 1.f; }
     virtual void		setXYScale(int idx,float scx,float scy)	{}
 
-    virtual void		setLineStyle(int idx,const LineStyle&)	    {}
+    virtual void		setLineStyle(int shapeidx,const LineStyle&) {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
 
     virtual void		setFillColor(int idx,const Color&)	    {}

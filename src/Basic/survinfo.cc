@@ -640,8 +640,8 @@ Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 
 bool SurveyInfo::isReasonable( const BinID& b ) const
 {
-    return reasonableRange( true ).includes( b.inl(),false ) &&
-	   reasonableRange( false ).includes( b.crl(),false );
+    return reasonableRange( true ).includes( b.inl(), false ) &&
+	   reasonableRange( false ).includes( b.crl(), false );
 }
 
 
