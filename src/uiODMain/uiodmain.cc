@@ -143,10 +143,6 @@ uiODMain::uiODMain( uiMain& a )
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
 
-    if ( !ensureGoodDataDir()
-      || (IOM().isBad() && !ensureGoodSurveySetup()) )
-	::exit( 0 );
-
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
 	failed_ = false;
@@ -212,6 +208,9 @@ bool uiODMain::ensureGoodDataDir()
 
 bool uiODMain::ensureGoodSurveySetup()
 {
+    if ( !ensureGoodDataDir() )
+	return false;
+
     BufferString errmsg;
     int res = 0;
     if ( !IOMan::validSurveySetup(errmsg) )

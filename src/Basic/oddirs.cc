@@ -165,7 +165,7 @@ mExternC(Basic) const char* GetDataDir()
 {
     const char* basedir = GetBaseDataDir();
     if ( !basedir || !*basedir )
-	return lostinspace;
+	return 0;
 
     const char* survnm = GetSurveyName();
     if ( !survnm || !*survnm )

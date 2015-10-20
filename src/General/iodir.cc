@@ -171,6 +171,9 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 IOObj* IODir::getObj( const MultiID& ky )
 {
     BufferString dirnm( IOM().rootDir() );
+    if ( dirnm.isEmpty() )
+	return 0;
+
     int nrkeys = ky.nrKeys();
     for ( int idx=0; idx<nrkeys; idx++ )
     {
