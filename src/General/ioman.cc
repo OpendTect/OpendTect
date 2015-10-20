@@ -1018,3 +1018,23 @@ bool IOMan::isValidDataRoot( const char* d )
 
     return true;
 }
+
+
+bool IOMan::isValidSurveyDir( const char* d )
+{
+    FilePath fp( d );
+    fp.add( ".omf" );
+    if ( !File::exists(fp.fullPath()) )
+	return false;
+
+    fp.setFileName( ".survey" );
+    if ( !File::exists(fp.fullPath()) )
+	return false;
+
+    fp.setFileName( "Seismics" );
+    if ( !File::isDirectory(fp.fullPath()) )
+	return false;
+
+    return true;
+}
+

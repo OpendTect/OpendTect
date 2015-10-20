@@ -211,15 +211,28 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	offerunzipsurv = true;
 	if ( !DirList(datadir).isEmpty() )
 	{
-	    uiString msg = tr("The target directory:\n%1"
-		"\nis not an OpendTect Data Root directory."
-		"\nIt already contains files though."
-		"\nDo you want to convert this directory into an "
-		"OpendTect Data Root directory?"
-		"\n(this process will not remove the existing files)")
-		.arg(datadir);
-	    if ( !uiMSG().askGoOn( msg ) )
-		return false;
+	    DirList survdl( datadir, DirList::DirsOnly );
+	    bool hasvalidsurveys = false;
+	    for ( int idx=0; idx<survdl.size(); idx++ )
+	    {
+		if ( IOMan::isValidSurveyDir(survdl.fullPath(idx)) )
+		    hasvalidsurveys = true;
+	    }
+
+	    if ( hasvalidsurveys )
+		offerunzipsurv = false;
+	    else
+	    {
+		uiString msg = tr("The target directory:\n%1"
+		    "\nis not an OpendTect Data Root directory."
+		    "\nIt already contains files though."
+		    "\nDo you want to convert this directory into an "
+		    "OpendTect Data Root directory?"
+		    "\n(this process will not remove the existing files)")
+		    .arg(datadir);
+		if ( !uiMSG().askGoOn( msg ) )
+		    return false;
+	    }
 	}
 
 	File::copy( stdomf, omffnm );

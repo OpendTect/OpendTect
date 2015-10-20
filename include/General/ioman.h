@@ -109,6 +109,7 @@ public:
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
 
     static bool		isValidDataRoot(const char* dirnm);
+    static bool		isValidSurveyDir(const char* dirnm);
 
 private:
 
