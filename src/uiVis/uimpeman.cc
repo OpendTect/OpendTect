@@ -408,13 +408,6 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !clickedas )
 	mSeedClickReturn();
 
-    seedpicker->setSectionID( emobj->sectionID(0) );
-    if ( clickcatcher_->info().isDoubleClicked() )
-    {
-	seedpicker->endPatch( true );
-	mSeedClickReturn();
-    }
-
     const MPE::SectionTracker* sectiontracker =
 	tracker->getSectionTracker(emobj->sectionID(0), true);
     const Attrib::SelSpec* trackedatsel = sectiontracker
