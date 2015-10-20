@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 #include "uimain.h"
 #include "uimouseeventblockerbygesture.h"
-
+#include "swapbuffercallback.h"
 
 #include <osgQt/GraphicsWindowQt>
 #include <osgViewer/View>
@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/MatrixTransform>
 #include <osgGeo/ThumbWheel>
 #include <osg/Version>
-
 
 #include "envvars.h"
 #include "iopar.h"
@@ -171,6 +170,11 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     eventfilter_.attachToQObj( glw );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
+
+    swapcallback_ = new SwapCallback( this );
+    swapcallback_->ref();
+    graphicswin_->setSwapCallback( swapcallback_ );
+
     setStretch(2,2);
 
     setupHUD();
@@ -206,6 +210,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , wheeldisplaymode_((int)ui3DViewer::OnHover)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
     , mapview_(false)
+    , swapcallback_( 0 )
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -242,6 +247,18 @@ ui3DViewerBody::~ui3DViewerBody()
     viewport_->unref();
     offscreenrenderswitch_->unref();
     offscreenrenderhudswitch_->unref();
+    if ( swapcallback_ ) swapcallback_->unref();
+}
+
+
+void ui3DViewerBody::removeSwapCallback( CallBacker* )
+{
+    if ( swapcallback_ )
+    {
+	getGraphicsContext()->setSwapCallback( 0 );
+	swapcallback_->unref();
+	swapcallback_ = 0;
+    }
 }
 
 #define mMainCameraOrder    0
@@ -909,6 +926,8 @@ void ui3DViewerBody::setSceneID( int sceneid )
 	setAnnotColor( survscene->getAnnotColor() );
 
     if ( camera_ ) newscene->setCamera( camera_ );
+
+    if ( swapcallback_ ) swapcallback_->scene_ = scene_;
 }
 
 

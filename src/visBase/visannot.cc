@@ -18,12 +18,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "uistring.h"
 #include "vistransform.h"
+#include "threadwork.h"
+#include "visscene.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Switch>
+#include <osg/Shader>
 
 #include <osgGeo/OneSideRender>
+#include <osgGeo/VolumeTechniques>
 
 
 mCreateFactoryEntry( visBase::Annotation )
@@ -35,6 +39,20 @@ const char* Annotation::textprefixstr()	    { return "Text "; }
 const char* Annotation::cornerprefixstr()   { return "Corner "; }
 const char* Annotation::showtextstr()	    { return "Show Text"; }
 const char* Annotation::showscalestr()	    { return "Show Scale"; }
+
+static const int dim0psindexes[] = { 2, 5, 3, 4 };
+static const int dim0coordindexes[] = { 0, 4, 7, 3 };
+
+static const int dim1psindexes[] = { 0, 5, 1, 4 };
+static const int dim1coordindexes[] = { 0, 4, 5, 1 };
+
+static const int dim2psindexes[] = { 0, 3, 1, 2 };
+static const int dim2coordindexes[] = { 0, 3, 2, 1 };
+
+static const int* psindexarr[] = {dim0psindexes,dim1psindexes,dim2psindexes};
+static const int* coordindexarr[] =
+    { dim0coordindexes, dim1coordindexes, dim2coordindexes };
+
 
 
 static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
@@ -65,29 +83,30 @@ Annotation::Annotation()
     , displaytrans_(0)
     , scale_(false)
     , tkzs_(true)
+    , scene_( 0 )
 {
     tkzsdefaultscale_ = getDefaultScale( tkzs_ );
 
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     geode_->ref();
     addChild( geode_ );
-    gridlines_->ref();
+
     scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1;
 
     annotcolor_ = Color::White();
 
     setPickable( false, false );
 
-	osg::Vec3f ptr[8];
+    osg::Vec3f ptr[8];
 
-	ptr[0] = osg::Vec3f( 0, 0, 0 );
-	ptr[1] = osg::Vec3f( 0, 0, 1 );
-	ptr[2] = osg::Vec3f( 0, 1, 1 );
-	ptr[3] = osg::Vec3f( 0, 1, 0 );
-	ptr[4] = osg::Vec3f( 1, 0, 0 );
-	ptr[5] = osg::Vec3f( 1, 0, 1 );
-	ptr[6] = osg::Vec3f( 1, 1, 1 );
-	ptr[7] = osg::Vec3f( 1, 1, 0 );
+    ptr[0] = osg::Vec3f( 0, 0, 0 );
+    ptr[1] = osg::Vec3f( 0, 0, 1 );
+    ptr[2] = osg::Vec3f( 0, 1, 1 );
+    ptr[3] = osg::Vec3f( 0, 1, 0 );
+    ptr[4] = osg::Vec3f( 1, 0, 0 );
+    ptr[5] = osg::Vec3f( 1, 0, 1 );
+    ptr[6] = osg::Vec3f( 1, 1, 1 );
+    ptr[7] = osg::Vec3f( 1, 1, 0 );
 
     osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
     box_ = new osg::Geometry;
@@ -118,6 +137,7 @@ Annotation::Annotation()
 
     Text* text = 0; mAddText mAddText mAddText
 
+    gridlines_->ref();
     gridlinecoords_ = new osg::Vec3Array;
     gridlinecoords_->ref();
     updateTextPos();
@@ -136,6 +156,45 @@ Annotation::~Annotation()
     gridlines_->unref();
 
     if ( displaytrans_ ) displaytrans_->unRef();
+}
+
+
+void Annotation::setScene( visBase::Scene* scene )
+{
+    if ( !scene )
+	return;
+
+    scene_ = scene;
+
+    scene_->contextIsUp.notify( mCB(this,Annotation,firstTraversal) );
+}
+
+
+void Annotation::firstTraversal(CallBacker*)
+{
+    if ( osgGeo::RayTracedTechnique::isShadingSupported() )
+    {
+	float factor = 1.1;
+	BufferString code( "void main(void)\n"
+			  "{\n"
+			  "    gl_FragDepth = gl_FragCoord.z");
+
+	code.add(" * ").add(toString(factor,1) );
+	code.add(";\n");
+	code.add(""
+		 "    if ( gl_FragDepth>0.999999 ) gl_FragDepth = 0.999999; \n"
+		 "	  gl_FragColor = gl_FrontMaterial.diffuse;\n"
+		 "}\n");
+	osg::ref_ptr<osg::Shader> fragmentShader =
+		new osg::Shader( osg::Shader::FRAGMENT, code.str() );
+
+	osg::ref_ptr<osg::Program> program = new osg::Program;
+
+	program->addShader( fragmentShader.get() );
+	gridlines_->getOrCreateStateSet()->setAttributeAndModes(program.get());
+    }
+
+    scene_->contextIsUp.remove( mCB(this,Annotation,firstTraversal) );
 }
 
 
@@ -311,19 +370,6 @@ void Annotation::updateGridLines()
     }
 
     coords->resize( 0 );
-
-    const int dim0psindexes[] = { 2, 5, 3, 4 };
-    const int dim0coordindexes[] = { 0, 4, 7, 3 };
-
-    const int dim1psindexes[] = { 0, 5, 1, 4 };
-    const int dim1coordindexes[] = { 0, 4, 5, 1 };
-
-    const int dim2psindexes[] = { 0, 3, 1, 2 };
-    const int dim2coordindexes[] = { 0, 3, 2, 1 };
-
-    const int* psindexarr[] = {dim0psindexes,dim1psindexes,dim2psindexes};
-    const int* coordindexarr[] =
-	{ dim0coordindexes, dim1coordindexes, dim2coordindexes };
 
     const osg::Vec3f* cornercoords = (const osg::Vec3f*)
 	box_->getVertexArray()->getDataPointer();

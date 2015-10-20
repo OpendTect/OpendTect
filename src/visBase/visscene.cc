@@ -47,6 +47,7 @@ Scene::Scene()
     , mousedownid_( -1 )
     , blockmousesel_( false )
     , nameChanged(this)
+    , contextIsUp( this )
     , osgsceneroot_( 0 )
     , camera_( 0 )
 {
@@ -99,6 +100,14 @@ bool Scene::saveCurrentOffsetAsDefault() const
     fillOffsetPar( Settings::common() );
     return Settings::common().write( true );
 }
+
+
+float Scene::getPolygonOffsetFactor() const
+{ return polygonoffset_->getFactor(); }
+
+
+float Scene::getPolygonOffsetUnits() const
+{ return polygonoffset_->getUnits(); }
 
 
 void Scene::setCamera( visBase::Camera* cam )

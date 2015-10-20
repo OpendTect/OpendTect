@@ -130,6 +130,7 @@ void Scene::updateAnnotationText()
 void Scene::setup()
 {
     annot_ = visBase::Annotation::create();
+    annot_->setScene( this );
 
     const Settings& setts = Settings::common();
     BufferString font;

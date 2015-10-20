@@ -88,8 +88,11 @@ public:
     virtual void	setPixelDensity(float);
     const Text2*	getAnnotTexts() const { return axisannot_; }
 
-protected:
+
+    void		setScene(Scene*);
+private:
     			~Annotation();
+    void		firstTraversal(CallBacker*);
     void		initGridLines();
     void		updateGridLines();
     void		updateTextPos();
@@ -108,6 +111,7 @@ protected:
     osgGeo::OneSideRender*	gridlines_;
     RefMan<Text2>		axisnames_;
     RefMan<Text2>		axisannot_;
+    visBase::Scene*		scene_;
 
     const mVisTrans*		displaytrans_;
 
