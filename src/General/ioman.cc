@@ -64,6 +64,12 @@ IOMan::IOMan( const char* rd )
 void IOMan::init()
 {
     state_ = Bad;
+    if ( rootdir_.isEmpty() )
+    {
+	msg_ = "Directory for data storage is not set";
+	return;
+    }
+
     if ( !to( emptykey, true ) )
     {
         FilePath surveyfp( GetDataDir(), ".omf" );
@@ -407,7 +413,7 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 MultiID IOMan::createNewKey( const MultiID& dirkey )
 {
     Threads::Locker lock( lock_ );
-    if ( !to( dirkey, true ) )
+    if ( !to(dirkey,true) || !dirptr_ )
 	return MultiID::udf();
 
     return dirptr_->newKey();
@@ -417,6 +423,9 @@ MultiID IOMan::createNewKey( const MultiID& dirkey )
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
     Threads::Locker lock( lock_ );
+    if ( rootdir_.isEmpty() )
+	return false;
+
     const bool issamedir = dirptr_ && ky == dirptr_->key();
     if ( !forcereread && issamedir )
 	return true;
@@ -479,7 +488,7 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
     Threads::Locker lock( lock_ );
-    if ( isBad() || !tgname ) return 0;
+    if ( isBad() || !tgname || !dirptr_ ) return 0;
 
     const IOObj* ioobj = 0;
     for ( int idx=0; idx<dirptr_->size(); idx++ )
@@ -529,7 +538,8 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
     Threads::Locker lock( lock_ );
     if ( !ctxt.trgroup_ ) return 0;
 
-    IOM().to( ctxt.getSelKey() );
+    if ( !IOM().to(ctxt.getSelKey()) || !dirptr_ )
+	return 0;
 
     const ObjectSet<IOObj>& ioobjs = dirptr_->getObjs();
     IOObj* ret = 0; if ( nrfound ) *nrfound = 0;
@@ -574,7 +584,8 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	if ( !IOObj::isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
-	    IOM().to( ctio.ctxt_.getSelKey() );
+	    if ( !IOM().to(ctio.ctxt_.getSelKey()) || !dirptr_ )
+		return 0;
 	    const IOObj* ioob = dirptr_->get( res.buf(), 0 );
 	    if ( ioob )
 		res = ioob->key();
@@ -656,6 +667,8 @@ bool IOMan::setDir( const char* dirname )
 {
     Threads::Locker lock( lock_ );
     if ( !dirname ) dirname = rootdir_;
+    if ( !dirname || !*dirname )
+	return false;
 
     IODir* newdirptr = new IODir( dirname );
     if ( !newdirptr ) return false;
@@ -686,7 +699,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	return;
 
     Threads::Locker lock( lock_ );
-    to( ctio.ctxt_.getSelKey() );
+    if ( !to(ctio.ctxt_.getSelKey()) || !dirptr_ )
+	return;
 
     const IOObj* ioobj = dirptr_->get( ctio.ctxt_.name(),
 					ctio.ctxt_.trgroup_->groupName() );
@@ -861,7 +875,7 @@ bool SurveyDataTreePreparer::prepSurv()
     if ( IOM().isBad() )
 	{ errmsg_ = "Can't go to root of survey"; return false; }
     IODir* topdir = IOM().dirptr_;
-    if ( !topdir->main() || topdir->main()->name() == "Appl dir" )
+    if ( !topdir || !topdir->main() || topdir->main()->name() == "Appl dir" )
 	return true;
 
     if ( !createDataTree() )

@@ -313,8 +313,10 @@ Export_Basic od_ostream& logMsgStrm()
     if ( gLogFilesRedirectCode > 0 && !GetEnvVarYN("OD_LOG_STDERR") )
     {
 	const char* basedd = GetBaseDataDir();
-	if ( !File::isDirectory(basedd) )
-	    errmsg = "Directory for data storage is invalid";
+	if ( !basedd || !*basedd )
+	    errmsg = "Directory for data storage is not set\n";
+	else if ( !File::isDirectory(basedd) )
+	    errmsg = "Directory for data storage is invalid\n";
 	else
 	{
 	    FilePath fp( basedd, "LogFiles" );
@@ -499,7 +501,7 @@ void CrashDumper::sendDump( const char* filename )
     if ( sendappl_.isEmpty() || !File::exists(filename) )
 	return;
 
-    const BufferString cmd( "\"", FilePath(GetExecPlfDir(),sendappl_).fullPath(),
+    const BufferString cmd( "\"",FilePath(GetExecPlfDir(),sendappl_).fullPath(),
 			    "\"" );
     const BufferString args( "--binary ", filename );
     ExecODProgram( cmd, args );
