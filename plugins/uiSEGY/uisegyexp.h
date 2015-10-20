@@ -41,7 +41,6 @@ protected:
     bool		autogentxthead_;
     BufferString	hdrtxt_;
     IOPar		pars_;
-    int			selcomp_;
 
     uiSeisSel*		seissel_;
     uiSeisTransfer*	transffld_;

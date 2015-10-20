@@ -67,8 +67,9 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 					  const char* nm, const IOPar* iop,
-					  const uiString& msg )
+					  const uiString& msg, int compnr )
     mInitVars();
+    compnr_ = compnr;
 
     setInput( in, out, nm, iop, msg );
 }
@@ -77,8 +78,9 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj& out, const char* nm,
 					  ObjectSet<IOPar>* iopset,
-					  const uiString& msg )
+					  const uiString& msg, int compnr )
     mInitVars();
+    compnr_ = compnr;
 
     if ( objset.isEmpty() )
 	{ curmsg_ = tr("No input specified"); return; }
@@ -176,6 +178,8 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 	if ( !szdone )
 	    allszsfound_ = false;
     }
+
+    rdr->setComponent( compnr_ );
 
     rdrs_ += rdr;
 
