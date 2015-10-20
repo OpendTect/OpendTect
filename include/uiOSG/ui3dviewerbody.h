@@ -41,6 +41,7 @@ class ui3DViewer;
 class TrackBallManipulatorMessenger;
 class KeyBindMan;
 class uiMouseEventBlockerByGestures;
+class SwapCallback;
 
 namespace osg
 {
@@ -150,6 +151,8 @@ public:
 
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
+    void			removeSwapCallback(CallBacker*);
+
 protected:
     void				enableDragging( bool yn );
 
@@ -214,6 +217,8 @@ protected:
     RefMan<visBase::Axes>		axes_;
     RefMan<visBase::PolygonSelection>	polygonselection_;
     TrackBallManipulatorMessenger*	manipmessenger_;
+
+    SwapCallback*			swapcallback_;
 
     IOPar				homepos_;
     RefMan<visBase::SceneColTab>	visscenecoltab_;

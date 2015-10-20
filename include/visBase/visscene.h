@@ -67,9 +67,14 @@ public:
     int			getUpdateQueueID() const	{return updatequeueid_;}
     int			fixedIdx() const		{ return fixedidx_; }
 
+    float		getPolygonOffsetFactor() const;
+    float		getPolygonOffsetUnits() const;
+
     void		setName(const uiString&);
 
     Notifier<Scene>	nameChanged;
+    Notifier<Scene>	contextIsUp;
+			//Trigges when we can ask quesitons about the context
 
     static const char*	sKeyOffset()	{ return "Polygon offset"; }
     static const char*	sKeyFactor()	{ return "Factor"; }

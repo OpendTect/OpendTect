@@ -12,6 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ui3dindirectviewer.h"
 
+#include "swapbuffercallback.h"
+
 #include <QWidget>
 #include <QPainter>
 #include <QInputEvent>
@@ -680,6 +682,10 @@ ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
     graphicswin_ = new GraphicsWindowIndirect( widget );
     graphicswin_->ref();
     setStretch(2,2);
+
+    swapcallback_ = new SwapCallback( this );
+    swapcallback_->ref();
+    graphicswin_->setSwapCallback( swapcallback_ );
 
     setupHUD();
     setupView();
