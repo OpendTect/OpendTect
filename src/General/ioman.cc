@@ -535,6 +535,9 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 
 IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 {
+    if ( nrfound )
+	*nrfound = 0;
+
     Threads::Locker lock( lock_ );
     if ( !ctxt.trgroup_ ) return 0;
 
@@ -542,7 +545,7 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 	return 0;
 
     const ObjectSet<IOObj>& ioobjs = dirptr_->getObjs();
-    IOObj* ret = 0; if ( nrfound ) *nrfound = 0;
+    IOObj* ret = 0;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
