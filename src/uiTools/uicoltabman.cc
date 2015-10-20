@@ -151,8 +151,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     uiPushButton* savebut =
 	new uiPushButton( this, uiStrings::sSaveAs(), false );
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
-    savebut->attach( rightTo, importbut_ );
     savebut->attach( rightBorder, 0 );
+
+    uiPushButton* flipbutt = new uiPushButton( this, tr("Flip"), true );
+    flipbutt->activated.notify( mCB(this,uiColorTableMan,flipCB) );
+    flipbutt->attach( leftOf, savebut );
+    flipbutt->attach( rightTo, importbut_ );
 
     markercanvas_->markerChanged.notify(
 			mCB(this,uiColorTableMan,markerChange) );
@@ -222,6 +226,24 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 }
 
 
+void uiColorTableMan::updateTransparencyGraph()
+{
+    TypeSet<float> xvals;
+    TypeSet<float> yvals;
+    for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
+    {
+	const Geom::Point2D<float> transp = ctab_.transparency( idx );
+	if ( !transp.isDefined() )
+	    continue;
+
+	xvals += transp.x;
+	yvals += transp.y;
+    }
+
+    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
+}
+
+
 void uiColorTableMan::selChg( CallBacker* )
 {
     const uiTreeViewItem* itm = coltablistfld_->selectedItem();
@@ -236,21 +258,7 @@ void uiColorTableMan::selChg( CallBacker* )
     markercolfld_->setColor( ctab_.markColor() );
 
     if ( enabletrans_ )
-    {
-	TypeSet<float> xvals;
-	TypeSet<float> yvals;
-	for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
-	{
-	    const Geom::Point2D<float> transp = ctab_.transparency( idx );
-	    if ( !transp.isDefined() )
-		continue;
-
-	    xvals += transp.x;
-	    yvals += transp.y;
-	}
-
-	cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
-    }
+	updateTransparencyGraph();
 
     delete orgctab_;
     orgctab_ = new ColTab::Sequence( ctab_ );
@@ -296,10 +304,21 @@ void uiColorTableMan::removeCB( CallBacker* )
 }
 
 
+void uiColorTableMan::flipCB( CallBacker* )
+{
+    ctab_.flipColor();
+    ctab_.flipTransparency();
+    tableChanged.trigger();
+    markercanvas_->reDrawNeeded.trigger();
+    ctabcanvas_->setRGB();
+    updateTransparencyGraph();
+}
+
+
 void uiColorTableMan::saveCB( CallBacker* )
 {
-    saveColTab( true );
-    tableAddRem.trigger();
+    if ( saveColTab( true ) )
+	tableAddRem.trigger();
 }
 
 
@@ -573,16 +592,7 @@ void uiColorTableMan::transptChg( CallBacker* )
 	}
 
 	if ( reset )
-	{
-	    TypeSet<float> xvals;
-	    TypeSet<float> yvals;
-	    for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
-	    {
-		xvals += ctab_.transparency(idx).x;
-		yvals += ctab_.transparency(idx).y;
-	    }
-	    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size() );
-	}
+	    updateTransparencyGraph();
 
 	ctab_.changeTransparency( ptidx, pt );
     }

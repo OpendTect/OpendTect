@@ -281,7 +281,10 @@ void ColTab::Sequence::removeColor( int idx )
 {
     if ( idx>0 && idx<size()-1 )
     {
-	x_.removeSingle( idx ); r_.removeSingle( idx ); g_.removeSingle( idx ); b_.removeSingle( idx );
+	x_.removeSingle( idx );
+	r_.removeSingle( idx );
+	g_.removeSingle( idx );
+	b_.removeSingle( idx );
 	colorChanged.trigger();
     }
 }
@@ -362,8 +365,15 @@ void ColTab::Sequence::flipColor()
 
 void ColTab::Sequence::flipTransparency()
 {
-    for ( int idx=0; idx<tr_.size()-1; idx++ )
-	tr_[idx].x = 1 - tr_[idx].x;
+    TypeSet< Geom::Point2D<float> > oldtr( tr_ );
+
+    const int sz = oldtr.size();
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	tr_[idx].x = 1 - oldtr[sz-idx-1].x;
+	tr_[idx].y = oldtr[sz-idx-1].y;
+    }
 }
 
 
