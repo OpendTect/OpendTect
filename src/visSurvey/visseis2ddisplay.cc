@@ -41,7 +41,6 @@ const char* Seis2DDisplay::sKeyLineSetID()	{ return "LineSet ID"; }
 const char* Seis2DDisplay::sKeyTrcNrRange()	{ return "Trc Nr Range"; }
 const char* Seis2DDisplay::sKeyZRange()		{ return "Z Range"; }
 const char* Seis2DDisplay::sKeyShowLineName()	{ return "Show linename"; }
-const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
 const char* Seis2DDisplay::sKeyShowPanel()	{ return "Show panel"; }
 const char* Seis2DDisplay::sKeyShowPolyLine()	{ return "Show polyline"; }
 
@@ -388,90 +387,32 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    DataPackRef<RegularSeisDataPack> seisdp = dpm.obtain( dpid );
-    if ( !seisdp ) return;
+    DataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    if ( !regsdp ) return;
 
-    const int nrversions = seisdp->nrComponents();
+    const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
-    const TrcKeyZSampling& sampling = seisdp->sampling();
-    const StepInterval<float>& datazrg = sampling.zsamp_;
-    const StepInterval<float>& displayzrg = trcdisplayinfo_.zrg_;
-    if ( !displayzrg.overlaps(datazrg) )
-	{ channels_->turnOn( false ); return; }
-
-    const int nrtraces = sampling.nrTrcs();
-    const int nrsamples = datazrg.nrSteps()+1;
-    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
-    const int nrdisplaysamples = displayzrg.nrSteps()+1;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int idx=0; idx<nrversions; idx++ )
     {
-	PtrMan<Array3DImpl<float> > tmparr = 0;
-	Array3D<float>& data = seisdp->data( idx );
-	Array3D<float>* usedarr = &data;
-	if ( nrtraces!=nrdisplaytraces ||
-	     nrsamples!=nrdisplaysamples ||
-	     seisdp->getTrcKey(0).trcNr()!=trcdisplayinfo_.alltrcnrs_[0] )
-	{
-	    mTryAlloc( tmparr,
-		    Array3DImpl<float>( 1, nrdisplaytraces, nrdisplaysamples) );
-	    if ( !tmparr || !tmparr->isOK() )
-		return;
-	    tmparr->setAll( mUdf(float) );
-	    usedarr = tmparr;
-	    StepInterval<float> overlapzrg( displayzrg );
-	    overlapzrg.limitTo( datazrg );
-	    const int nrzsamples = overlapzrg.nrSteps()+1;
-	    const int startzidx = displayzrg.nearestIndex( overlapzrg.start );
-	    const int startidx = trcdisplayinfo_.rg_.start;
-	    for ( int trcidx=0; trcidx<trcdisplayinfo_.size_; trcidx++ )
-	    {
-		const int trcnr = trcdisplayinfo_.alltrcnrs_[startidx+trcidx];
-		const int globalidx = sampling.trcIdx( trcnr );
-		if ( globalidx<0 || globalidx>nrtraces-1 )
-		    continue;
-
-		if ( tmparr->getData() && data.getData() &&
-			mIsEqual(datazrg.step,displayzrg.step,mDefEpsF) )
-		{
-		    const float* dataptr = seisdp->getTrcData( idx, globalidx );
-		    float* trcptr = tmparr->getData() + trcidx*nrdisplaysamples;
-		    const od_int64 sz = nrzsamples * sizeof(float);
-		    OD::memCopy( trcptr+startzidx, dataptr, sz );
-		    continue;
-		}
-
-		const OffsetValueSeries<float> datastor =
-				seisdp->getTrcStorage( idx, globalidx );
-		OffsetValueSeries<float> trcstor(
-			*tmparr->getStorage(), trcidx*nrdisplaysamples );
-
-		for ( int zidx=0; zidx<nrzsamples; zidx++ )
-		{
-		    const float z = overlapzrg.atIndex( zidx );
-		    const int datazidx = datazrg.nearestIndex( z );
-		    trcstor.setValue( startzidx+zidx, datastor.value(datazidx));
-		}
-	    }
-	}
+	Array3D<float>& array = regsdp->data( idx );
 
 	if ( !idx )
 	{
-	    sz0 = 1 + (usedarr->info().getSize(1)-1) * (resolution_+1);
-	    sz1 = 1 + (usedarr->info().getSize(2)-1) * (resolution_+1);
+	    sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
+	    sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
 
 	    //If the size is too big to display, use low resolution only
 	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
-		sz0 = usedarr->info().getSize(1);
+		sz0 = array.info().getSize(1);
 
 	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
-		sz1 = usedarr->info().getSize(2);
+		sz1 = array.info().getSize(2);
 	}
 
-	ValueSeries<float>* stor =
-	    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
+	ValueSeries<float>* stor = !resolution_ ? array.getStorage() : 0;
 	bool ownsstor = false;
 
 	if ( !stor )
@@ -491,31 +432,17 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	if ( ownsstor )
 	{
 	    if ( resolution_ == 0 )
-		usedarr->getAll( *stor );
+		array.getAll( *stor );
 	    else
 	    {
-		Array2DSlice<float> slice2d( *usedarr );
+		Array2DSlice<float> slice2d( array );
 		slice2d.setDimMap( 0, 1 );
 		slice2d.setDimMap( 1, 2 );
 		slice2d.setPos( 0, 0 );
 		slice2d.init();
 
-		// Copy all the data from usedarr to an Array2DImpl and pass
-		// this object to Array2DReSampler. This copy is done because
-		// Array2DReSampler will access the input using the "get"
-		// method. The get method of Array2DImpl is much faster than
-		// that of Seis2DArray.
-		Array2DImpl<float> sourcearr2d( slice2d );
-		if ( !sourcearr2d.isOK() )
-		{
-		    channels_->turnOn( false );
-		    pErrMsg(
-			"Insufficient memory; cannot display the 2D seismics.");
-		    return;
-		}
-
 		Array2DReSampler<float,float> resampler(
-				sourcearr2d, *stor, sz0, sz1, true );
+				slice2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		TaskRunner::execute( taskr, resampler );
 	    }
@@ -597,8 +524,10 @@ void Seis2DDisplay::updatePanelStripPath()
 		  posidx<tdi.alljoints_[idx]; posidx++ )
 	    {
 		const Coord pos = tdi.alltrcpos_[posidx];
-		const double d0 = pos.distTo( tdi.alltrcpos_[posidx-1] );
-		const double d1 = pos.distTo( tdi.alltrcpos_[posidx+1] );
+		double d0 = pos.distTo( tdi.alltrcpos_[posidx-1] );
+		double d1 = pos.distTo( tdi.alltrcpos_[posidx+1] );
+		d0 *= abs( tdi.alltrcnrs_[posidx+1]-tdi.alltrcnrs_[posidx] );
+		d1 *= abs( tdi.alltrcnrs_[posidx-1]-tdi.alltrcnrs_[posidx] );
 		if ( (d0+d1)>0.0 && fabs(d0-d1)/(d0+d1)>0.1 )
 		    knots += posidx;
 	    }
@@ -615,7 +544,9 @@ void Seis2DDisplay::updatePanelStripPath()
     for ( int idx=0; idx<knots.size(); idx++ )
     {
 	path += tdi.alltrcpos_[knots[idx]];
-	mapping += mCast( float, (knots[idx]-tdi.rg_.start)*(resolution_+1) );
+	const float diff = mCast(float,tdi.alltrcnrs_[knots[idx]]-
+				 tdi.alltrcnrs_[tdi.rg_.start]);
+	mapping += diff * (resolution_+1);
 
 	const Coord3 linepos( path[idx], tdi.zrg_.start );
 	polyline_->addPoint( linepos );
@@ -626,7 +557,9 @@ void Seis2DDisplay::updatePanelStripPath()
 
     if ( getUpdateStageNr() )
     {
-	const float diff = updatestageinfo_.oldtrcrgstart_ - tdi.rg_.start;
+	const float diff = mCast(float,
+		tdi.alltrcnrs_[updatestageinfo_.oldtrcrgstart_]-
+		tdi.alltrcnrs_[tdi.rg_.start]);
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
@@ -662,8 +595,8 @@ void Seis2DDisplay::annotateNextUpdateStage( bool yn )
     }
     else if ( !getUpdateStageNr() )
     {
-	updatestageinfo_.oldtrcrgstart_ =mCast(float,trcdisplayinfo_.rg_.start);
-	updatestageinfo_.oldzrgstart_ = mCast(float,trcdisplayinfo_.zrg_.start);
+	updatestageinfo_.oldtrcrgstart_ = trcdisplayinfo_.rg_.start;
+	updatestageinfo_.oldzrgstart_ = trcdisplayinfo_.zrg_.start;
     }
     else
 	panelstrip_->freezeDisplay( false );	// thaw to refreeze
@@ -916,7 +849,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
     const int trcnr = geometry_.positions()[traceidx].nr_;
     const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
     const int trcidx = regsdp->getNearestGlobalIdx( trckey );
-    const int sampidx =  regsdp->getZRange().nearestIndex( pos.z );
+    const int sampidx = regsdp->getZRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = regsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;
@@ -931,8 +864,7 @@ int Seis2DDisplay::getNearestTraceNr( const Coord3& pos ) const
     int trcidx = -1;
     float mindist;
     getNearestTrace( pos, trcidx, mindist );
-
-    return  geometry_.positions()[trcidx].nr_;
+    return geometry_.positions()[trcidx].nr_;
 }
 
 

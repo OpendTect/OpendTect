@@ -210,7 +210,10 @@ public:
 
     const OffsetValueSeries<float> getTrcStorage(
 					int comp,int globaltrcidx) const;
-    const float*		getTrcData(int comp,int globaltrcidx)const;
+    OffsetValueSeries<float>	getTrcStorage(int comp,int globaltrcidx);
+
+    const float*		getTrcData(int comp,int globaltrcidx) const;
+    float*			getTrcData(int comp,int globaltrcidx);
 
     int				nrComponents() const
 				{ return arrays_.size(); }

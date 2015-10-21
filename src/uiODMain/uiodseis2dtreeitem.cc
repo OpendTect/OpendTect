@@ -1002,7 +1002,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     s2d->setSelSpec( attribNr(), myas );
     applMgr()->useDefColTab( displayID(), attribNr() );
-    s2d->setDataPackID( attribNr(), dpid, 0 );
+    s2d->setDataPackID( attribNr(), dpid, &taskrunner );
     s2d->showPanel( true );
 
     updateColumnText(0);

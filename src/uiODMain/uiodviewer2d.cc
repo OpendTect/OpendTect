@@ -605,20 +605,13 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    SeisFlatDataPack* seisfdp = 0;
     if ( regsdp )
-    {
-	RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, comp );
-	DPM(DataPackMgr::FlatID()).add( regfdp );
-	return regfdp->id();
-    }
+	seisfdp = new RegularFlatDataPack( *regsdp, comp );
     else if ( randsdp )
-    {
-	RandomFlatDataPack* randfdp = new RandomFlatDataPack( *randsdp, comp );
-	DPM(DataPackMgr::FlatID()).add( randfdp );
-	return randfdp->id();
-    }
-
-    return DataPack::cNoID();
+	seisfdp = new RandomFlatDataPack( *randsdp, comp );
+    DPM(DataPackMgr::FlatID()).add( seisfdp );
+    return seisfdp ? seisfdp->id() : DataPack::cNoID();
 }
 
 

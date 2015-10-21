@@ -9,11 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdataholder.h"
 
-#include "attribdataholderarray.h"
-#include "arraynd.h"
-#include "arrayndslice.h"
-#include "trckeyzsampling.h"
-#include "genericnumer.h"
 #include "interpol1d.h"
 #include "seisinfo.h"
 #include "simpnumer.h"
@@ -281,68 +276,6 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
 
     return -1;
 }
-
-
-Data2DArray::Data2DArray( const Data2DHolder& dh )
-    : dataset_( 0 )
-{
-    dh.ref();
-
-    const DataHolderArray array3d( dh.dataset_ );
-    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
-    
-    if ( !dataset_ || !dataset_->isOK() )
-    {
-	delete dataset_;
-	dataset_ = 0;
-    }
-
-    for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
-    {
-	SeisTrcInfo* ni = new SeisTrcInfo( *dh.trcinfoset_[idx] );
-	ni->sampling.start = dh.dataset_[idx]->z0_ * ni->sampling.step;
-	trcinfoset_ += ni;
-    }
-
-    cubesampling_ = dh.getTrcKeyZSampling();
-
-    dh.unRef();
-}
-
-
-Data2DArray::~Data2DArray()
-{
-    delete dataset_;
-    deepErase( trcinfoset_ );
-}
-
-
-bool Data2DArray::isOK() const
-{ return dataset_ && dataset_->isOK(); }
-
-
-int Data2DArray::indexOf( int trcnr ) const
-{
-    if ( trcinfoset_.isEmpty() )
-	return -1;
-
-    const int guessedidx = trcnr-trcinfoset_[0]->nr;
-    if ( trcinfoset_.validIdx(guessedidx) &&
-	 trcnr == trcinfoset_[guessedidx]->nr )
-	return guessedidx;
-
-    for ( int idx=0; idx<trcinfoset_.size(); idx++ )
-    {
-	if ( trcnr == trcinfoset_[idx]->nr )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-int Data2DArray::nrTraces() const
-{ return dataset_->info().getSize(0); }
 
 
 } // namespace Attrib

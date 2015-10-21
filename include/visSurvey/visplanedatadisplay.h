@@ -162,7 +162,7 @@ protected:
 							TaskRunner*);
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
-							  TaskRunner*);
+							  TaskRunner* =0);
     void			updateMainSwitch();
     void			setScene(Scene*);
     void			setSceneEventCatcher(visBase::EventCatcher*);

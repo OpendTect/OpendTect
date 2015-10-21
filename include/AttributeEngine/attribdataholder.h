@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "refcount.h"
-#include "samplingdata.h"
-#include "sets.h"
 #include "valseries.h"
 
 class SeisTrcInfo;
@@ -94,28 +92,6 @@ public:
 					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }
-};
-
-
-/*!
-\brief Class that holds 2d seismic data or attribute data in an array.
-*/
-
-mExpClass(AttributeEngine) Data2DArray
-{ mRefCountImpl(Data2DArray);
-public:
-    				Data2DArray(const Data2DHolder&);
-
-    bool			isOK() const;
-
-    int				indexOf(int tracenr) const;
-
-    int				nrTraces() const;
-    bool			isEmpty() const { return !nrTraces(); }
-
-    Array3DImpl<float>*		dataset_;
-    ObjectSet<SeisTrcInfo>	trcinfoset_;
-    TrcKeyZSampling		cubesampling_;
 };
 
 

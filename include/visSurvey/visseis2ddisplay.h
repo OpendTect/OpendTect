@@ -13,14 +13,9 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
-#include "multiid.h"
 #include "posinfo2dsurv.h"
-
-class ZAxisTransform;
-class Color;
 
 namespace visBase
 {
@@ -148,7 +143,6 @@ public:
 
     virtual void		annotateNextUpdateStage(bool yn);
 
-
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
@@ -216,8 +210,8 @@ protected:
 
     struct UpdateStageInfo
     {
-	float oldtrcrgstart_;
-	float oldzrgstart_;
+	int	oldtrcrgstart_;
+	float	oldzrgstart_;
     };
     UpdateStageInfo		updatestageinfo_;
 
@@ -227,18 +221,9 @@ protected:
     static const char*		sKeyShowLineName();
     static const char*		sKeyShowPanel();
     static const char*		sKeyShowPolyLine();
-
-				//Old format
-    static const char*		sKeyTextureID();
-
-public:
-// old stuff, only here to keep other code compiling
-    MultiID			getMultiID() const	{ return datasetid_; }
 };
 
 } // namespace visSurvey
 
-
 #endif
-
 

@@ -28,16 +28,14 @@ uiODVw2DTreeTop::uiODVw2DTreeTop( uiTreeView* lv, uiODApplMgr* am,
 {
     setPropertyPtr( applmgrstr(), am );
     setPropertyPtr( viewer2dptr(), vw2d );
-
-    tfs_->addnotifier.notify( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
-    tfs_->removenotifier.notify( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
+    mAttachCB( tfs_->addnotifier, uiODVw2DTreeTop::addFactoryCB );
+    mAttachCB( tfs_->removenotifier, uiODVw2DTreeTop::addFactoryCB );
 }
 
 
 uiODVw2DTreeTop::~uiODVw2DTreeTop()
 {
-    tfs_->addnotifier.remove( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
-    tfs_->removenotifier.remove( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
+    detachAllNotifiers();
 }
 
 

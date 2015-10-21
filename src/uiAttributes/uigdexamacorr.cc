@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "uiattribpartserv.h"
 #include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
@@ -130,20 +131,12 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
     sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
 
-    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(true,true) );
-    regsdp->setSampling( sampling );
-    regsdp->addComponent( "autocorrelation" );
-    mDeclareAndTryAlloc(
-	    ConstRefMan<Data2DArray>,d2darr,Data2DArray(*correctd2dh));
-    if ( d2darr )
-	regsdp->data( 0 ) = *d2darr->dataset_;
-
-    TypeSet<float> refnrs;
-    refnrs.setCapacity( d2darr->trcinfoset_.size(), false );
-    for ( int idx=0; idx<d2darr->trcinfoset_.size(); idx++ )
-	refnrs += d2darr->trcinfoset_[idx]->refnr;
-    regsdp->setRefNrs( refnrs );
+    BufferStringSet cnames; cnames.add( "autocorrelation" );
+    const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
+					d2dh, sampling, SI().zDomain(), cnames);
+    ConstDataPackRef<RegularSeisDataPack> regsdp =
+		DPM(DataPackMgr::SeisID()).obtain( outputid );
+    if ( !regsdp ) return;
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
     fdp = new RegularFlatDataPack( *regsdp, 0 );

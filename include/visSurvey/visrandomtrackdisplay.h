@@ -14,16 +14,11 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
-#include "ranges.h"
-
-class TrcKeyZSampling;
 
 namespace visBase
 {
-    class EventCatcher;
     class PolyLine;
     class RandomTrackDragger;
-    class MarkerSet;
     class TexturePanelStrip;
 }
 
@@ -32,11 +27,8 @@ namespace Geometry
     class RandomLine;
 }
 
-
 namespace visSurvey
 {
-
-class Scene;
 
 /*!\brief Used for displaying a random or arbitrary line.
 

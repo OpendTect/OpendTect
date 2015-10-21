@@ -83,10 +83,9 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     detachAllNotifiers();
     if ( l2dintersections_ )
 	deepErase( *l2dintersections_ );
-    delete l2dintersections_;
-    l2dintersections_ = 0;
-    delete tifs2d_; delete tifs3d_;
+    deleteAndZeroPtr( l2dintersections_ );
     deepErase( viewers2d_ );
+    delete tifs2d_; delete tifs3d_;
 }
 
 void uiODViewer2DMgr::setupHorizon3Ds( uiODViewer2D* vwr2d )
