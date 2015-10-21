@@ -157,7 +157,7 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
     if ( !isDepth() )
 	return defunit_;
 
-    return getDistUnitString( ::SI().zInFeet(), false );
+    return getDistUnitString( ::SI().depthsInFeet(), false );
 }
 
 
@@ -176,7 +176,7 @@ uiString ZDomain::Def::uiUnitStr( bool withparens ) const
     if ( !isDepth() )
 	return toUiString(defunit_);
 
-    return uiStrings::sDistUnitString( ::SI().zInFeet(), false, false );
+    return uiStrings::sDistUnitString( ::SI().depthsInFeet(), false, false );
 }
 
 
