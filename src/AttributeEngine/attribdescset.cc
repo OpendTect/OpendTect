@@ -34,6 +34,13 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Attrib
 {
 
+uiString DescSet::sFactoryEntryNotFound(const char* attrnm)
+{
+    return uiStrings::phrCannotCreate( tr("an instance of attribute %1")
+					.arg(attrnm) );
+}
+
+
 DescSet::DescSet( bool is2d )
     : is2d_(is2d)
     , storedattronly_(false)
@@ -499,7 +506,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
     if ( !errmsgs ) \
 	return 0; \
 \
-    (*errmsgs) += uiString(str); \
+    (*errmsgs) += str; \
     return 0;\
 }
 
@@ -510,10 +517,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 {
     Desc* dsc = PF().createDescCopy( attrname );
     if ( !dsc )
-    {
-	uiString err = tr("Cannot find factory-entry for %1").arg( attrname );
-	mHandleDescErr(err);
-    }
+	mHandleDescErr( sFactoryEntryNotFound(attrname) );
 
     if ( !dsc->parseDefStr(defstring.buf()) )
     {
@@ -766,7 +770,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 		mHandleParseErr(tr("No attribute definition string specified"));
 	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
 				     steeringdescid) )
-		mHandleParseErr( tr("Cannot create steering desc"));
+		mHandleParseErr( tr("Cannot create steering definition"));
 
 	    Desc* dsc = getDesc( DescID(id,false) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
@@ -831,10 +835,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
     RefMan<Desc> stdesc = PF().createDescCopy(attribname);
     if ( !stdesc )
-    {
-	uiString err = tr("Cannot find factory-entry for %1").arg(attribname);
-	mHandleSteeringParseErr(err);
-    }
+	mHandleSteeringParseErr( sFactoryEntryNotFound(attribname) );
 
     if ( !stdesc->parseDefStr(steeringdef) )
     {
