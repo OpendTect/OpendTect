@@ -195,7 +195,7 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
     visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
     mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
     Scene* scene = STM().currentScene();
-    if ( !pdd || !scene )
+    if ( !pdd || pdd->getOrientation()==OD::ZSlice || !scene )
 	return;
 
     CubeSampling cs = pdd->getCubeSampling( false, false );
@@ -209,11 +209,15 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
     transformation_->transform( p2 );
     scene->getTempZStretchTransform()->transform( p2 );
 
-    Coord3 pos;
-    if ( !Plane3(p0,p1,p2).intersectWith(eventinfo.mouseline, pos) )
+    double t;
+    const Plane3 plane( p0, p1, p2 );
+    if ( !eventinfo.mouseline.intersectWith(plane,t) || t<0.0 || t>1.0 )
 	return;
 
+    Coord3 pos = eventinfo.mouseline.getPoint( t );
+
     eventinfo.displaypickedpos = pos;
+    eventinfo.pickdepth = t;
     scene->getTempZStretchTransform()->transformBack( pos );
     transformation_->transformBack( pos, eventinfo.worldpickedpos );
 }

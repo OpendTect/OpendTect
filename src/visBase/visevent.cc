@@ -344,6 +344,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     traverse( activeinfo, cActiveIntersecTraversalMask(), view );
 
     EventInfo* foremostinfo = new EventInfo( eventinfo );
+    foremostinfo->mouseline = passiveinfo.mouseline; // = activeinfo.mouseline
 
     const double eps = 1e-6;
     if ( !isactivepickevent && !mIsUdf(passiveinfo.pickdepth) )
