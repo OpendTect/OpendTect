@@ -37,7 +37,7 @@ namespace CmdDrive
 
 
 uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
-	: uiDialog( p, Setup(tr("Command interaction"), ispec.dlgtitle_, 
+	: uiDialog( p, Setup(tr("Command interaction"), ispec.dlgtitle_,
                              mNoHelpKey).modal(false) )
 	, unhide_( !ispec.wait_ )
 {
@@ -107,12 +107,12 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     setCtrlStyle( CloseOnly );
     setCancelText( uiStrings::sHide() );
 
-    cmdoptionfld_ = new uiLabeledComboBox( this, optstrs, 
+    cmdoptionfld_ = new uiLabeledComboBox( this, optstrs,
 						      tr("Select script to") );
     cmdoptionfld_->box()->selectionChanged.notify(
 					  mCB(this,uiCmdDriverDlg,selChgCB) );
 
-    tooltipfld_ = new uiCheckBox( this, tr("ToolTipNameGuide"),
+    tooltipfld_ = new uiCheckBox( this, tr("Show Tooltips"),
 				  mCB(this,uiCmdDriverDlg,toolTipChangeCB) );
     tooltipfld_->attach( rightOf, cmdoptionfld_ );
     tooltipfld_->setChecked( GetEnvVarYN("DTECT_USE_TOOLTIP_NAMEGUIDE") );
@@ -120,7 +120,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 
     const uiString commandfile = tr( "command file" );
 
-    inpfld_ = new uiFileInput( this, 
+    inpfld_ = new uiFileInput( this,
 			uiStrings::phrInput(commandfile),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.filter("Script files (*.odcmd *.cmd)")
@@ -130,7 +130,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.displaylocalpath(true) );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
 
-    logfld_ = new uiFileInput( this, 
+    logfld_ = new uiFileInput( this,
 			uiStrings::phrOutput(uiStrings::sLogFile()),
 			uiFileInput::Setup()
 			.forread(false)
@@ -139,7 +139,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.displaylocalpath(true) );
     logfld_->attach( alignedBelow, inpfld_ );
 
-    outfld_ = new uiFileInput( this, 
+    outfld_ = new uiFileInput( this,
 			uiStrings::phrOutput(commandfile),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.filter("Script files (*.odcmd)")
@@ -170,7 +170,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			mCB(this,uiCmdDriverDlg,selectStopRecordCB), true );
     stopbut_->attach( alignedBelow, logfld_ );
 
-    uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this, 
+    uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this,
 					     uiString::emptyString() );
 
     drv_.interactRequest.notify( mCB(this,uiCmdDriverDlg,interactCB) );
@@ -300,7 +300,7 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
     if ( isRefToDataDir(fld,true) && !isRefToDataDir(fld,false) )
     {
 	uiString msg =
-	    od_static_tr( "passSurveyCheck" , 
+	    od_static_tr( "passSurveyCheck" ,
 			  "%1 - path is referring to previous survey!" )
 			.arg( fld.titleText().getFullString() );
 	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
@@ -350,7 +350,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
     {
 	uiMSG().error( mToUiStringTodo(drv_.errMsg()) );
 	return false;
-    }	   
+    }
 
     logfld_->setFileName( fp.fullPath() );
     inpfld_->setFileName( fnm );
@@ -503,7 +503,7 @@ void uiCmdDriverDlg::setDefaultSelDirs()
     inpfld_->setDefaultSelectionDir( dir );
     outfld_->setDefaultSelectionDir( dir );
 
-    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0) 
+    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0)
 		      : defaultlogdir_.buf();
     logfld_->setDefaultSelectionDir( dir );
 }
