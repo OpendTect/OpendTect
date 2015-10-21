@@ -109,7 +109,7 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 	    newgrp->attach( rightOf, curgrp );
 	    curgrp = newgrp;
 	}
-	uiIOObjSel* newsel = new uiIOObjSel( curgrp, *newctio, 
+	uiIOObjSel* newsel = new uiIOObjSel( curgrp, *newctio,
 						      toUiString(*inps[idx]) );
 	if ( neednewgrp )
 	    curgrp->setHAlignObj( newsel );
@@ -352,9 +352,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     RefMan<Desc> desc = PF().createDescCopy( attribname );
     if ( !desc )
     {
-        uiString err = tr( "Cannot find factory-entry for %1" )
-            .arg( attribname );
-	uiMSG().error( err );
+	uiMSG().error( DescSet::sFactoryEntryNotFound(attribname) );
 	return 0;
     }
 

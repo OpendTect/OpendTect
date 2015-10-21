@@ -190,6 +190,7 @@ private:
 public:
 
     DescID		ensureDefStoredPresent() const;
+    static uiString	sFactoryEntryNotFound(const char* attrnm);
 
 };
 
