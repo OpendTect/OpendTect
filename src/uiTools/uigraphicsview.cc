@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiCrossHairItem::uiCrossHairItem( uiGraphicsViewBase& vw )
     : view_(vw)
-    , ls_(*new LineStyle(LineStyle::Dot,1,Color::LightGrey()))
+    , ls_(*new OD::LineStyle(OD::LineStyle::Dot,1,Color::LightGrey()))
 {
     itemgrp_ = view_.scene().addItemGrp( new uiGraphicsItemGroup );
     horline_ = new uiLineItem; itemgrp_->add( horline_ );
@@ -48,13 +48,13 @@ void uiCrossHairItem::mouseMoveCB( CallBacker* )
 }
 
 
-void uiCrossHairItem::setLineStyle( const LineStyle& ls )
+void uiCrossHairItem::setLineStyle( const OD::LineStyle& ls )
 {
     horline_->setPenStyle( ls );
     vertline_->setPenStyle( ls );
 }
 
-const LineStyle& uiCrossHairItem::getLineStyle() const
+const OD::LineStyle& uiCrossHairItem::getLineStyle() const
 { return ls_; }
 
 void uiCrossHairItem::show( bool yn )

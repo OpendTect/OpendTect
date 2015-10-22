@@ -36,7 +36,7 @@ uiRockPhysConstantFld( uiParent* p )
 {
     nmlbl_ = new uiLabel( this, uiStrings::sEmptyString() );
     nmlbl_->setPrefWidthInChar( 30 );
-    nmlbl_->setAlignment( Alignment::Right );
+    nmlbl_->setAlignment( OD::Alignment::Right );
 
     valfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
     valfld_->attach( rightOf, nmlbl_ );
@@ -138,7 +138,7 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Formula") );
     lcb->box()->setHSzPol( uiObject::WideMax );
     lcb->label()->setPrefWidthInChar( 35 );
-    lcb->label()->setAlignment( Alignment::Right );
+    lcb->label()->setAlignment( OD::Alignment::Right );
 
     nmfld_ = lcb->box();
     nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );

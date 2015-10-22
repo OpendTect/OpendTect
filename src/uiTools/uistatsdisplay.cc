@@ -96,7 +96,7 @@ void uiStatsDisplay::setDataName( const char* nm )
     if ( namefld_ )
     {
 	namefld_->setText( mToUiStringTodo(nm) );
-	namefld_->setAlignment( Alignment::HCenter );
+	namefld_->setAlignment( OD::Alignment::HCenter );
     }
 }
 

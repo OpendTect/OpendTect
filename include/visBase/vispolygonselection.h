@@ -46,8 +46,8 @@ public:
     void			setSelectionType(SelectionType);
     SelectionType		getSelectionType() const;
 
-    void			setLineStyle(const LineStyle&);
-    const LineStyle&		getLineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
+    const OD::LineStyle&		getLineStyle() const;
 
     void			clear();
     bool			hasPolygon() const;

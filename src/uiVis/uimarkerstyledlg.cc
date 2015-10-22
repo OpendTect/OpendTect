@@ -21,8 +21,8 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
 				   mNoHelpKey)
 		   .canceltext(uiString::emptyString()))
 {
-    MarkerStyle3D::Type excludedtypes[] =
-				{ MarkerStyle3D::None, MarkerStyle3D::Point };
+    OD::MarkerStyle3D::Type excludedtypes[] =
+				{ OD::MarkerStyle3D::None, OD::MarkerStyle3D::Point };
     stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
 	    2, excludedtypes );
     stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleDlg,typeSel) );
@@ -35,7 +35,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
 
 bool uiMarkerStyleDlg::acceptOK( CallBacker* )
 {
-    MarkerStyle3D style;
+    OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style ); //just to process text input on fld
     return true;
 }

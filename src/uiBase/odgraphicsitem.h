@@ -71,10 +71,10 @@ public:
     QRectF			boundingRect() const;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
 				      QWidget*);
-    static void			drawMarker(QPainter&,MarkerStyle2D::Type,
+    static void			drawMarker(QPainter&,OD::MarkerStyle2D::Type,
 					   float,float);
 
-    void			setMarkerStyle(const MarkerStyle2D&);
+    void			setMarkerStyle(const OD::MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
     void			setFillColor( const Color& col )
 				{ fillcolor_ = col; }
@@ -85,7 +85,7 @@ public:
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     QRectF			boundingrect_;
-    MarkerStyle2D*		mstyle_;
+    OD::MarkerStyle2D*		mstyle_;
     Color			fillcolor_;
     bool			fill_;
     int				side_;
@@ -128,18 +128,18 @@ public:
     QPoint			getEndPoint(const QPoint&,double,double);
     void			drawArrowHead(QPainter&,const QPoint&,
 					      const QPoint&);
-    void			setArrowStyle( const ArrowStyle& arrowstyle )
+    void			setArrowStyle( const OD::ArrowStyle& arrowstyle)
 				{ arrowstyle_ = arrowstyle ; }
     void			setArrowSize( const int arrowsz )
 				{ arrowsz_ = arrowsz ; }
-    void			setLineStyle(QPainter&,const LineStyle&);
+    void			setLineStyle(QPainter&,const OD::LineStyle&);
 
     virtual int			type() const	{ return ODGraphicsType+4; }
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
-    ArrowStyle			arrowstyle_;
+    OD::ArrowStyle		arrowstyle_;
     int				arrowsz_;
 };
 

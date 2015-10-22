@@ -124,7 +124,7 @@ void uiSeisSingleTraceDisplay::addRefZ( float zref )
     FlatView::AuxData* ad = createAuxData(
 				BufferString("Ref Z ",curnraux) );
     ad->poly_ += FlatView::Point( 0, zref );
-    ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 20,
+    ad->markerstyles_ += OD::MarkerStyle2D( OD::MarkerStyle2D::HLine, 20,
 				Color::stdDrawColor(curnraux) );
     ad->zvalue_ = 100;
     addAuxData( ad );

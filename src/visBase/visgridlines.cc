@@ -61,7 +61,7 @@ GridLines::~GridLines()
 }
 
 
-void GridLines::setLineStyle( const LineStyle& ls )
+void GridLines::setLineStyle( const OD::LineStyle& ls )
 {
     for ( int idx=0; idx<polylineset_.size(); idx++ )
 	polylineset_[idx]->getMaterial()->setColor( ls.color_ );
@@ -70,7 +70,7 @@ void GridLines::setLineStyle( const LineStyle& ls )
 }
 
 
-void GridLines::getLineStyle( LineStyle& ls ) const
+void GridLines::getLineStyle( OD::LineStyle& ls ) const
 {
     if ( polylineset_.size() == 0 ) return;
 

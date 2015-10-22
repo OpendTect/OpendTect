@@ -254,7 +254,7 @@ public:
 
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
-    void		setLabelAlignment(Alignment::HPos,bool cols);
+    void		setLabelAlignment(OD::Alignment::HPos,bool cols);
     void		setLabelBGColor(int,Color,bool isrow);
 
 

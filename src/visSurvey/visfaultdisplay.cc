@@ -115,7 +115,7 @@ FaultDisplay::FaultDisplay()
 
     drawstyle_->ref();
     addNodeState( drawstyle_ );
-    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,2) );
+    drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
     texuredatas_.allowNull( true );
 
     if ( getMaterial() )
@@ -719,7 +719,7 @@ bool FaultDisplay::usePar( const IOPar& par )
     BufferString linestyle;
     if ( par.get(sKeyLineStyle(),linestyle) )
     {
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.fromString( linestyle );
 	setLineStyle( ls );
     }
@@ -1826,11 +1826,11 @@ bool FaultDisplay::onSection( int sticknr )
 }
 
 
-const LineStyle* FaultDisplay::lineStyle() const
+const OD::LineStyle* FaultDisplay::lineStyle() const
 { return &drawstyle_->lineStyle(); }
 
 
-void FaultDisplay::setLineStyle( const LineStyle& lst )
+void FaultDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     if ( lineStyle()->width_<0 || lst.width_<0 )
     {
@@ -1846,17 +1846,17 @@ void FaultDisplay::setLineStyle( const LineStyle& lst )
 
 void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
-    const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
+    const bool islinesolid = lineStyle()->type_ == OD::LineStyle::Solid;
     const float linewidth = islinesolid ? 0.5f*lineStyle()->width_ : -1.0f;
 
-    LineStyle lnstyle( *lineStyle() ) ;
+    OD::LineStyle lnstyle( *lineStyle() ) ;
     lnstyle.width_ = (int)( 2*linewidth );
 
     if ( shape )
 	shape->setLineStyle( lnstyle );
 
     int width = (int)mMAX( lnstyle.width_+6.0f, 1.0f );
-    activestickmarker_->setLineStyle(LineStyle(LineStyle::Solid, width) );
+    activestickmarker_->setLineStyle(OD::LineStyle(OD::LineStyle::Solid, width) );
 }
 
 

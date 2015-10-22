@@ -51,7 +51,7 @@ public:
 
     void		setActiveStick(EM::PosID&);
     int			getActiveStickId() const      { return activestickid_; }
-    void		setMarkerLineStyle(const LineStyle&);
+    void		setMarkerLineStyle(const OD::LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*) const;
     FlatView::AuxData*	getAuxData(const EM::PosID*) const;
 
@@ -114,8 +114,8 @@ protected:
 
     FlatView::Viewer&	viewer_;
 
-    LineStyle		markerlinestyle_;
-    MarkerStyle2D	markerstyle_;
+    OD::LineStyle		markerlinestyle_;
+    OD::MarkerStyle2D	markerstyle_;
 
     EM::ObjectID        emid_;
     ObjectSet<Fault3DMarker>    f3dmarkers_;

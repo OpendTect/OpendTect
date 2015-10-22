@@ -184,7 +184,7 @@ Color uiStatusBar::getBGColor( int fldidx ) const
 
 
 int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
-			    Alignment::HPos al, int stretch )
+			    OD::Alignment::HPos al, int stretch )
 {
     int idx = body_->addMsgFld( lbltxt, stretch );
 
@@ -196,7 +196,7 @@ int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
 }
 
 int uiStatusBar::addMsgFld( const uiString& tooltip,
-			    Alignment::HPos al, int stretch )
+			    OD::Alignment::HPos al, int stretch )
 {
     int idx = body_->addMsgFld( uiStrings::sEmptyString(), stretch );
 
@@ -229,11 +229,11 @@ void uiStatusBar::setToolTip( int idx, const uiString& tooltip )
 }
 
 
-void uiStatusBar::setTxtAlign( int idx, Alignment::HPos hal )
+void uiStatusBar::setTxtAlign( int idx, OD::Alignment::HPos hal )
 {
     if ( !body_->msgs_.validIdx(idx) ) return;
 
-    Alignment al( hal );
+    OD::Alignment al( hal );
     body_->msgs_[idx]->setAlignment( (Qt::Alignment)al.hPos() );
 }
 

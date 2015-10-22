@@ -64,7 +64,7 @@ Seis2DDisplay::Seis2DDisplay()
     addChild( polyline_->osgNode() );
 
     polylineds_ = polyline_->addNodeState( new visBase::DrawStyle );
-    polylineds_->setLineStyle( LineStyle(LineStyle::Solid,3,Color::White()) );
+    polylineds_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,3,Color::White()) );
     setColor( Color::White() );
     polylineds_->ref();
 
@@ -122,11 +122,11 @@ Color Seis2DDisplay::getColor() const
 { return polyline_->getMaterial()->getColor(); }
 
 
-const LineStyle* Seis2DDisplay::lineStyle() const
+const OD::LineStyle* Seis2DDisplay::lineStyle() const
 { return &polylineds_->lineStyle(); }
 
 
-void Seis2DDisplay::setLineStyle( const LineStyle& ls )
+void Seis2DDisplay::setLineStyle( const OD::LineStyle& ls )
 {
     polylineds_->setLineStyle( ls );
     requestSingleRedraw();

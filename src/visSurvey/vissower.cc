@@ -50,7 +50,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
 {
     sowingline_->ref();
     sowingline_->setMaterial( new visBase::Material );
-    sowingline_->setLineStyle( LineStyle(LineStyle::Solid,1) );
+    sowingline_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
     sowingline_->setPickable( false, false );
     addChild( sowingline_->osgNode() );
     reInitSettings();

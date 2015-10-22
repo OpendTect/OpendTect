@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "visobject.h"
 
-class LineStyle;
+namespace OD { class LineStyle; };
 class TaskRunner;
 class VisColorTab;
 class ZAxisTransform;
@@ -145,8 +145,8 @@ public:
 	LogStyle		style_;
     };
 
-    const LineStyle&		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    const OD::LineStyle&		lineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
 
     void			initializeData(const LogParams&,int);
     float			getValue(const TypeSet<Coord3Value>&,int,bool,

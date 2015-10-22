@@ -133,10 +133,10 @@ void AxesDrawer::updateViewRect()
     else
 	rectitem_->setRect( rect.left(), rect.top(),
 			    rect.width(), rect.height() );
-    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, annot.color_) );
+    rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid, 3, annot.color_) );
     
-    ArrowStyle arrowstyle;
-    arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
+    OD::ArrowStyle arrowstyle;
+    arrowstyle.headstyle_.type_ = OD::ArrowHeadStyle::Triangle;
     if ( showx1annot && !ad1.name_.isEmpty() && ad1.name_ != " " )
     {
 	const int right = rect.right();
@@ -149,7 +149,7 @@ void AxesDrawer::updateViewRect()
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );
 	arrowitem1_->setVisible( true );
-    	arrowitem1_->setPenStyle( LineStyle(LineStyle::Solid,1,annot.color_) );
+    	arrowitem1_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,annot.color_) );
     	arrowitem1_->setTailHeadPos( from, to );
     	
     	if ( !axis1nm_ )

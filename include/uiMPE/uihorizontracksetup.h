@@ -59,8 +59,8 @@ public:
     const Color&		getColor();
     int				getLineWidth() const;
     void			setLineWidth(int);
-    void			setMarkerStyle(const MarkerStyle3D&);
-    const MarkerStyle3D&	getMarkerStyle();
+    void			setMarkerStyle(const OD::MarkerStyle3D&);
+    const OD::MarkerStyle3D&	getMarkerStyle();
 
     NotifierAccess*		modeChangeNotifier()
 				{ return &modeChanged_; }
@@ -151,7 +151,7 @@ protected:
 
     bool			is2d_;
     EMSeedPicker::TrackMode	mode_;
-    MarkerStyle3D		markerstyle_;
+    OD::MarkerStyle3D		markerstyle_;
 
     HorizonTrackerMgr*		trackmgr_;
     SectionTracker*		sectiontracker_;

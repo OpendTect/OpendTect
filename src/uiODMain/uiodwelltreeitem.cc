@@ -135,7 +135,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
-	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
+	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
     wd->setName( mToUiStringTodo(wellname));
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );

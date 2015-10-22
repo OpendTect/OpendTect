@@ -64,8 +64,8 @@ public:
     void			setColor(Color);
     bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
-    const LineStyle*		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    const OD::LineStyle*		lineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
 
     void			hideAllKnots(bool yn);
     bool			areAllKnotsHidden() const;

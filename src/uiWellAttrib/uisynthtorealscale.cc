@@ -111,7 +111,7 @@ void drawMarkerLine( float val )
 
     if ( !markerlineitem_ )
     {
-	LineStyle ls( LineStyle::Solid, 2, Color(0,255,0) );
+	OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
 	markerlineitem_ = dispfld_->scene().addItem( new uiLineItem() );
 	markerlineitem_->setPenStyle( ls );
 	markerlineitem_->setZValue( 3 );
@@ -190,7 +190,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     sep->attach( stretchedBelow, gobut );
 
     valislbl_ = new uiLabel( this, tr("       [Amplitude values]       ") );
-    valislbl_->setAlignment( Alignment::HCenter );
+    valislbl_->setAlignment( OD::Alignment::HCenter );
     valislbl_->attach( centeredBelow, sep );
 
     uiGroup* statsgrp = new uiGroup( this, "Stats displays" );

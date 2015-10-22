@@ -62,15 +62,15 @@ public:
     bool		usesSingleColor() const;
     void		getColorArray(TypeSet<Color>& colors) const;
 
-    void		setMarkerStyle(const MarkerStyle3D&);
+    void		setMarkerStyle(const OD::MarkerStyle3D&);
     			/*!<Sets predefined shape and size.
 			    Will only use color of markerstyle if no
 			    material is set.*/
-    MarkerStyle3D&	getMarkerStyle() { return markerstyle_; }
-    const MarkerStyle3D& getMarkerStyle() const { return markerstyle_; }
-    void		setType(MarkerStyle3D::Type);
+    OD::MarkerStyle3D&	getMarkerStyle() { return markerstyle_; }
+    const OD::MarkerStyle3D& getMarkerStyle() const { return markerstyle_; }
+    void		setType(OD::MarkerStyle3D::Type);
     			/*!<Sets predefined shape. */
-    MarkerStyle3D::Type	getType() const;
+    OD::MarkerStyle3D::Type	getType() const;
 
     void		setScreenSize(float);
     			/*!<If a nonzero value is given, the object will
@@ -135,7 +135,7 @@ protected:
     RefMan<Normals>		normals_;
     RefMan<const mVisTrans>	displaytrans_;
     osgGeo::MarkerSet*		markerset_;
-    MarkerStyle3D		markerstyle_;
+    OD::MarkerStyle3D		markerstyle_;
 
     float			pixeldensity_;
 

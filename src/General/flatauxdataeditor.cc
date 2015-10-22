@@ -35,7 +35,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , movementFinished( this )
     , addAuxDataChange( this )
     , seldatasetidx_( -1 )
-    , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
+    , polygonsellst_( OD::LineStyle::Solid, 1, Color( 255, 0, 0 ) )
     , polygonselrect_( true )
     , isselactive_( true )
     , movementlimit_( 0 )
@@ -202,7 +202,7 @@ bool AuxDataEditor::getSelectionPolygonRectangle() const
 { return polygonselrect_; }
 
 
-void AuxDataEditor::setSelectionPolygonLineStyle( const LineStyle& lst )
+void AuxDataEditor::setSelectionPolygonLineStyle( const OD::LineStyle& lst )
 {
     polygonsellst_ = lst;
 
@@ -214,7 +214,7 @@ void AuxDataEditor::setSelectionPolygonLineStyle( const LineStyle& lst )
 }
 
 
-const LineStyle& AuxDataEditor::getSelectionPolygonLineStyle() const
+const OD::LineStyle& AuxDataEditor::getSelectionPolygonLineStyle() const
 {
     return polygonsellst_;
 }
@@ -798,7 +798,7 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 
     mode_ = Furrowing;
     furrowstamp_ = Time::getMilliSeconds();
-    sowingline_->linestyle_ = LineStyle( LineStyle::Solid, 1, color );
+    sowingline_->linestyle_ = OD::LineStyle( OD::LineStyle::Solid, 1, color );
 
     if ( !accept(mouseevent, false) )
     {

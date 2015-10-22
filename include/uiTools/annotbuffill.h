@@ -36,7 +36,7 @@ public:
     {
 	public:
 
-	    LineStyle               		linestyle_;
+	    OD::LineStyle               		linestyle_;
 	    TypeSet<dPoint>      		pts_;
     };
     //TODO add later on sth for the polygones
@@ -45,7 +45,8 @@ public:
 			AnnotBufferFiller(const uiWorld2Ui* w=0);
 			~AnnotBufferFiller();
 
-    void		addLineInfo(const LineStyle&,TypeSet<dPoint>,bool,bool);
+    void		addLineInfo(const OD::LineStyle&,
+				    TypeSet<dPoint>,bool,bool);
     void		setW2UI( const uiWorld2Ui* w )	{ w2u_ = w; }
     void		fillBuffer(const uiWorldRect&,uiRGBArray&) const;
     void		fillInterWithBufArea(const uiWorldRect&,const LineInfo*,

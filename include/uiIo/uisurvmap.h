@@ -38,8 +38,8 @@ public:
     void		showLabels(bool yn);
     bool		labelsShown() const;
 
-    const LineStyle&	getLineStyle() const	{ return ls_; }
-    void		setLineStyle(const LineStyle&);
+    const OD::LineStyle&	getLineStyle() const	{ return ls_; }
+    void		setLineStyle(const OD::LineStyle&);
 
 protected:
 
@@ -48,7 +48,7 @@ protected:
     ObjectSet<uiTextItem>	labels_;
 
     const SurveyInfo*		survinfo_;
-    LineStyle			ls_;
+    OD::LineStyle			ls_;
     bool			showlabels_;
 
     void			setVisibility(bool);

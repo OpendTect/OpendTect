@@ -364,13 +364,13 @@ mShowFunction( showMarkerName, markerNameShown )
 mShowFunction( showLogName, logNameShown )
 
 
-const LineStyle* WellDisplay::lineStyle() const
+const OD::LineStyle* WellDisplay::lineStyle() const
 {
     return &well_->lineStyle();
 }
 
 
-void WellDisplay::setLineStyle( const LineStyle& lst )
+void WellDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     well_->setLineStyle( lst );
 }
@@ -896,9 +896,9 @@ void WellDisplay::setupPicking( bool yn )
 	refPtr( markerset_ );
 	addChild( markerset_->osgNode() );
 	markerset_->setMaterial( new visBase::Material );
-	MarkerStyle3D markerstyle;
+	OD::MarkerStyle3D markerstyle;
 	markerstyle.size_ = mPickSz;
-	markerstyle.type_ = (MarkerStyle3D::Type) mPickSz;
+	markerstyle.type_ = (OD::MarkerStyle3D::Type) mPickSz;
 	markerset_->setMarkerStyle( markerstyle );
 	mTryAlloc( pseudotrack_, Well::Track() );
     }

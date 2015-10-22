@@ -128,8 +128,8 @@ public:
     bool		isPresent(const char*) const;
     int			maxNrOfChoices() const;
 
-    Alignment::HPos	alignment() const	{ return alignment_; }
-    void		setAlignment(Alignment::HPos);
+    OD::Alignment::HPos alignment() const	{ return alignment_; }
+    void		setAlignment(OD::Alignment::HPos);
     void		setNrLines(int);
     void		setFieldWidth(int);
     void		setHSzPol(uiObject::SzPolicy);
@@ -219,7 +219,7 @@ private:
     void		translateText();
 
     OD::ChoiceMode	choicemode_;
-    Alignment::HPos	alignment_;
+    OD::Alignment::HPos alignment_;
     bool		allowduplicates_;
     uiMenu&		rightclickmnu_;
     mutable BufferString rettxt_;

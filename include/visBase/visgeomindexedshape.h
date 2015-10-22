@@ -56,7 +56,7 @@ public:
 
     void			setRenderMode(RenderMode);
 
-    void			setLineStyle(const LineStyle&);
+    void			setLineStyle(const OD::LineStyle&);
 				/*!<for polylin3d, only the radius is used.*/
 
     void			enableColTab(bool);
@@ -126,7 +126,7 @@ protected:
     ColTab::Sequence		                sequence_;
     GeomShapeType				geomshapetype_;
 
-    LineStyle					linestyle_;
+    OD::LineStyle					linestyle_;
     bool					useosgnormal_;
 };
 

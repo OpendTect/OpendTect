@@ -22,34 +22,34 @@ The main chunk is color table related.
 static const int cDotsFillPatternType = 1;
 static const int cLinesFillPatternType = 2;
 
-mDefineEnumUtils(Alignment,HPos,"Alignment")
+mDefineEnumUtils(OD::Alignment,HPos,"OD::Alignment")
 { "Left", "Right", "Center", 0 };
-mDefineEnumUtils(Alignment,VPos,"Alignment")
+mDefineEnumUtils(OD::Alignment,VPos,"OD::Alignment")
 { "Top", "Bottom", "Center", 0 };
-mDefineEnumUtils(MarkerStyle2D,Type,"Marker type")
+mDefineEnumUtils(OD::MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", 0 };
-mDefineEnumUtils(MarkerStyle3D,Type,"Marker type")
+mDefineEnumUtils(OD::MarkerStyle3D,Type,"Marker type")
 { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross",
   "Point", "Plane", 0 };
-mDefineEnumUtils(LineStyle,Type,"Line style")
+mDefineEnumUtils(OD::LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
-Alignment::Alignment( HPos h, VPos v )
+OD::Alignment::Alignment( HPos h, VPos v )
     : hor_(h), ver_(v)                                  {}
-Alignment::Alignment( Pos h, Pos v )
+OD::Alignment::Alignment( Pos h, Pos v )
     : hor_(h==Start?Left:(h==Stop?Right:HCenter))
     , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))       {}
 
 
-Alignment::HPos Alignment::opposite( HPos p )
+OD::Alignment::HPos OD::Alignment::opposite( HPos p )
 { return p == Left ? Right : (p == Right ? Left : HCenter); }
 
 
-Alignment::VPos Alignment::opposite( VPos p )
+OD::Alignment::VPos OD::Alignment::opposite( VPos p )
 { return p == Top ? Bottom : (p == Bottom ? Top : VCenter); }
 
-Alignment::Pos Alignment::pos( bool hor ) const
+OD::Alignment::Pos OD::Alignment::pos( bool hor ) const
 {
     if ( hor )
 	return hor_ == Left ? Start : (hor_ == Right ? Stop : Center);
@@ -57,14 +57,14 @@ Alignment::Pos Alignment::pos( bool hor ) const
 }
 
 
-void Alignment::set( Alignment::Pos h, Alignment::Pos v )
+void OD::Alignment::set( OD::Alignment::Pos h, OD::Alignment::Pos v )
 {
     hor_ = h == Start ? Left : (h == Stop ? Right : HCenter);
     ver_ = v == Start ? Top : (v == Stop ? Bottom : VCenter);
 }
 
 
-int Alignment::uiValue() const
+int OD::Alignment::uiValue() const
 {
     int ret = hor_ == Left ? 0x0001 : (hor_ == Right ? 0x0002 : 0x0004);
     ret |= ver_ == Top ? 0x0020 : (ver_ == Bottom ? 0x0040 : 0x0080);
@@ -72,7 +72,7 @@ int Alignment::uiValue() const
 }
 
 
-void Alignment::setUiValue( int v )
+void OD::Alignment::setUiValue( int v )
 {
     hor_ = v&0x0001 ? Left : (v&0x0002 ? Right : HCenter);
     ver_ = v&0x0020 ? Top : (v&0x0040 ? Bottom : VCenter);
@@ -102,72 +102,72 @@ void clss::fromString( const char* s ) \
 }
 
 
-mToStringImpl( MarkerStyle2D, size_ )
-mToStringImpl( MarkerStyle3D, size_ )
-mToStringImpl( LineStyle, width_ )
+mToStringImpl( OD::MarkerStyle2D, size_ )
+mToStringImpl( OD::MarkerStyle3D, size_ )
+mToStringImpl( OD::LineStyle, width_ )
 
-mFromStringImpl( MarkerStyle2D, size_ )
-mFromStringImpl( MarkerStyle3D, size_ )
-mFromStringImpl( LineStyle, width_ )
+mFromStringImpl( OD::MarkerStyle2D, size_ )
+mFromStringImpl( OD::MarkerStyle3D, size_ )
+mFromStringImpl( OD::LineStyle, width_ )
 
-MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
+OD::MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
     : type_(tp), size_(sz), color_(col), rotation_(rot)
 {}
 
 
-bool MarkerStyle2D::operator==( const MarkerStyle2D& b ) const
+bool OD::MarkerStyle2D::operator==( const OD::MarkerStyle2D& b ) const
 {
     return type_==b.type_ && size_==b.size_ && color_==b.color_ &&
 	mIsEqual(rotation_,b.rotation_,mDefEps);
 }
 
 
-const MarkerStyle2D& MarkerStyle2D::operator=( const MarkerStyle2D& a )
+const OD::MarkerStyle2D& OD::MarkerStyle2D::operator=( const OD::MarkerStyle2D& a )
 {
     type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
     rotation_ = a.rotation_; return *this;
 }
 
 
-bool MarkerStyle2D::isVisible() const
+bool OD::MarkerStyle2D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
 
 
-MarkerStyle3D::MarkerStyle3D(Type tp, int sz, Color col )
+OD::MarkerStyle3D::MarkerStyle3D(Type tp, int sz, Color col )
     : type_(tp), size_(sz), color_(col)
 {}
 
 
-bool MarkerStyle3D::operator==(const MarkerStyle3D& b) const
+bool OD::MarkerStyle3D::operator==(const OD::MarkerStyle3D& b) const
 { return type_==b.type_ && size_==b.size_ && color_==b.color_; }
 
 
-bool MarkerStyle3D::operator!=(const MarkerStyle3D& b) const
+bool OD::MarkerStyle3D::operator!=(const OD::MarkerStyle3D& b) const
 { return !(*this==b); }
 
 
-bool MarkerStyle3D::isVisible() const
+bool OD::MarkerStyle3D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
 
 
-LineStyle::LineStyle( Type t, int w, Color c )
+OD::LineStyle::LineStyle( Type t, int w, Color c )
     : type_(t), width_(w), color_(c)
 {}
 
 
-bool LineStyle::operator ==( const LineStyle& ls ) const
+bool OD::LineStyle::operator ==( const OD::LineStyle& ls ) const
 { return type_ == ls.type_ && width_ == ls.width_ && color_ == ls.color_; }
 
 
-bool LineStyle::operator !=( const LineStyle& ls ) const
+bool OD::LineStyle::operator !=( const OD::LineStyle& ls ) const
 { return !(*this == ls); }
 
 
-bool LineStyle::isVisible() const
+bool OD::LineStyle::isVisible() const
 { return type_!=None && width_>0 && color_.isVisible();}
 
 
-void FillPattern::getTypeNames( BufferStringSet& res )
+void OD::FillPattern::getTypeNames( BufferStringSet& res )
 {
     res.add( "No Fill" );
     res.add( "Dots" );
@@ -175,7 +175,7 @@ void FillPattern::getTypeNames( BufferStringSet& res )
 }
 
 
-void FillPattern::getOptNames( int typ, BufferStringSet& res )
+void OD::FillPattern::getOptNames( int typ, BufferStringSet& res )
 {
     res.setEmpty();
     if ( typ == cDotsFillPatternType )
@@ -203,31 +203,31 @@ void FillPattern::getOptNames( int typ, BufferStringSet& res )
 
 
 
-ArrowHeadStyle::ArrowHeadStyle( int sz, Type t, HandedNess h )
+OD::ArrowHeadStyle::ArrowHeadStyle( int sz, Type t, HandedNess h )
     : sz_(sz), type_(t), handedness_(h)
 {}
 
 
-void ArrowHeadStyle::setBoldNess( int b )
+void OD::ArrowHeadStyle::setBoldNess( int b )
 { sz_ = 3*b; }
 
 
 
-ArrowStyle::ArrowStyle( int boldness, Type t )
+OD::ArrowStyle::ArrowStyle( int boldness, Type t )
     : type_(t)
-    , linestyle_(LineStyle::Solid,boldness)
+    , linestyle_(OD::LineStyle::Solid,boldness)
 { setBoldNess(boldness); }
 
 
-void ArrowStyle::setBoldNess( int b )
+void OD::ArrowStyle::setBoldNess( int b )
 { linestyle_.width_ = b; headstyle_.setBoldNess(b); tailstyle_.setBoldNess(b); }
 
 
-bool ArrowStyle::hasHead() const
+bool OD::ArrowStyle::hasHead() const
 { return headstyle_.sz_ > 0 && type_ < TailOnly; }
 
 
-bool ArrowStyle::hasTail() const
+bool OD::ArrowStyle::hasTail() const
 { return tailstyle_.sz_ > 0 && (type_ == TwoSided || type_ == TailOnly); }
 
 

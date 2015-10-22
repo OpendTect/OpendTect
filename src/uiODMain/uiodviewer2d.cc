@@ -896,7 +896,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	marker_ = vwr.createAuxData( "XYZ Marker" );
 	vwr.addAuxData( marker_ );
 	marker_->poly_ += FlatView::Point(0,0);
-	marker_->markerstyles_ += MarkerStyle2D();
+	marker_->markerstyles_ += OD::MarkerStyle2D();
     }
 
     ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( false, true );

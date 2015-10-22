@@ -357,7 +357,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	FlatView::AuxData* ad = vwrs_[idx]->createAuxData( "Zoom box" );
 	vwrs_[idx]->addAuxData( ad );
 	zoomboxes_ += ad;
-	ad->linestyle_ = LineStyle( LineStyle::Dash, 3, Color::Black() );
+	ad->linestyle_ = OD::LineStyle( OD::LineStyle::Dash, 3, Color::Black() );
 	ad->zvalue_ = uiFlatViewer::auxDataZVal();
 
 	if ( vwrs_[idx] == activeVwr() )

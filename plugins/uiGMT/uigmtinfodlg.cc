@@ -33,7 +33,7 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
                       " variable GMT_SHAREDIR is to set ");
 
     uiLabel* lbl = new uiLabel( this, msg );
-    lbl->setAlignment( Alignment::HCenter );
+    lbl->setAlignment( OD::Alignment::HCenter );
 
     uiPushButton* gmtbut = new uiPushButton( this, tr("Download GMT"),
 				      mCB(this,uiGMTInfoDlg,gmtPushCB),true );

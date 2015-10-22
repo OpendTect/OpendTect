@@ -667,7 +667,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 	fillcolors_ += auxdata.fillcolor_;
 	markerstyles_ += auxdata.markerstyles_.size()
 	    ? auxdata.markerstyles_[0]
-	    : MarkerStyle2D();
+	    : OD::MarkerStyle2D();
 	x1rgs_ += auxdata.x1rg_ ? *auxdata.x1rg_ : Interval<double>( 0, 1 );
 	x2rgs_ += auxdata.x2rg_ ? *auxdata.x2rg_ : Interval<double>( 0, 1 );
 	auxnames.add( auxdata.name_.buf() );
@@ -731,7 +731,7 @@ void uiFVAnnotPropTab::putToScreen()
 	fillcolors_[idx] = vwr_.getAuxData(indices_[idx])->fillcolor_;
 	markerstyles_[idx] =
 	    vwr_.getAuxData(indices_[idx])->markerstyles_.size() ?
-	    vwr_.getAuxData(indices_[idx])->markerstyles_[0] : MarkerStyle2D();
+	    vwr_.getAuxData(indices_[idx])->markerstyles_[0] : OD::MarkerStyle2D();
 	x1rgs_[idx] = vwr_.getAuxData(indices_[idx])->x1rg_
 	    ? *vwr_.getAuxData(indices_[idx])->x1rg_
 	    : Interval<double>( 0, 1 );

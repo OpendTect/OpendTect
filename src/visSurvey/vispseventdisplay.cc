@@ -213,19 +213,19 @@ PSEventDisplay::DisplayMode PSEventDisplay::getDisplayMode() const
 { return displaymode_; }
 
 
-void PSEventDisplay::setLineStyle( const LineStyle& ls )
+void PSEventDisplay::setLineStyle( const OD::LineStyle& ls )
 {
     linestyle_->setLineStyle( ls );
 }
 
 
-LineStyle PSEventDisplay::getLineStyle() const
+OD::LineStyle PSEventDisplay::getLineStyle() const
 {
     return linestyle_->lineStyle();
 }
 
 
-void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st, bool update )
+void PSEventDisplay::setMarkerStyle( const OD::MarkerStyle3D& st, bool update )
 {
     if ( markerstyle_==st )
 	return;

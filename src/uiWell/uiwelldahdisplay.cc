@@ -290,7 +290,7 @@ void uiWellDahDisplay::drawCurve( bool first )
     if ( pts.isEmpty() )
 	return;
 
-    LineStyle ls(LineStyle::Solid); ls.color_ = ld.col_;
+    OD::LineStyle ls(OD::LineStyle::Solid); ls.color_ = ld.col_;
     if ( ld.drawascurve_ )
     {
 	TypeSet<uiPoint> ptsforspikes;
@@ -330,8 +330,8 @@ void uiWellDahDisplay::drawCurve( bool first )
 
     if ( setup_.drawcurvenames_ )
     {
-	Alignment al( Alignment::HCenter, first ? Alignment::Top
-						: Alignment::Bottom );
+	OD::Alignment al( OD::Alignment::HCenter, first ? OD::Alignment::Top
+						: OD::Alignment::Bottom );
 	uiTextItem* ti = scene().addItem(new uiTextItem(toUiString(
 						       ld.dahobj_->name()),al));
 	ti->setTextColor( ls.color_ );
@@ -382,11 +382,11 @@ void uiWellDahDisplay::drawMarkers()
 	   mCast(float,x1),mCast(float,y),mCast(float,x2),mCast(float,y)));
 	const int shapeint = mrkdisp_.shapeint_;
 	const int drawsize = mrkdisp_.size_;
-	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
+	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
-	    ls.type_ =  LineStyle::Solid;
+	    ls.type_ =  OD::LineStyle::Solid;
 	if ( shapeint == 2 )
-	    ls.type_ = LineStyle::Dash;
+	    ls.type_ = OD::LineStyle::Dash;
 
 	li->setPenStyle( ls );
 	li->setZValue( 2 );
@@ -441,7 +441,7 @@ void uiWellDahDisplay::drawZPicks()
 	Color lcol( setup_.pickls_.color_ );
 	if ( pd.color_ != Color::NoColor() )
 	    lcol = pd.color_;
-	li->setPenStyle( LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
+	li->setPenStyle( OD::LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
 			lcol) );
 	li->setZValue( 2 );
 	zpickitms_.add( li );

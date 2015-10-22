@@ -22,19 +22,19 @@ static const char* rcsID mUsedVar = "$Id$";
 static const int cMinWidth = 1;
 static const int cMaxWidth = 100;
 
-uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
+uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
 				const uiSelLineStyle::Setup& su )
     : uiGroup(p,"Line style selector")
-    , linestyle_(*new LineStyle(ls))
+    , linestyle_(*new OD::LineStyle(ls))
     , changed(this)
 {
     init( su );
 }
 
-uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
+uiSelLineStyle::uiSelLineStyle( uiParent* p, const OD::LineStyle& ls,
 				const uiString& ltxt )
     : uiGroup(p,"Line style selector")
-    , linestyle_(*new LineStyle(ls))
+    , linestyle_(*new OD::LineStyle(ls))
     , changed(this)
 {
     init( Setup(ltxt) );
@@ -55,7 +55,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 
     if ( su.drawstyle_ )
     {
-	stylesel_ = new uiComboBox( this, LineStyle::TypeDef(), "Line Style" );
+	stylesel_ = new uiComboBox( this, OD::LineStyle::TypeDef(), "Line Style" );
 	stylesel_->setPrefWidthInChar( 16 );
 	stylesel_->setCurrentItem( (int)linestyle_.type_ );
 	stylesel_->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
@@ -110,22 +110,22 @@ uiSelLineStyle::~uiSelLineStyle()
 }
 
 
-const LineStyle& uiSelLineStyle::getStyle() const
+const OD::LineStyle& uiSelLineStyle::getStyle() const
 {
     return linestyle_;
 }
 
 
-void uiSelLineStyle::setStyle( const LineStyle& ls )
+void uiSelLineStyle::setStyle( const OD::LineStyle& ls )
 {
     setColor( ls.color_ );
     setWidth( ls.width_ );
     setType( (int)ls.type_ );
     if ( colinp_ )
-	colinp_->setSensitive( linestyle_.type_ != LineStyle::None );
+	colinp_->setSensitive( linestyle_.type_ != OD::LineStyle::None );
 
     if ( widthbox_ )
-	widthbox_->setSensitive( linestyle_.type_ != LineStyle::None );
+	widthbox_->setSensitive( linestyle_.type_ != OD::LineStyle::None );
 }
 
 
@@ -166,7 +166,7 @@ int uiSelLineStyle::getWidth() const
 
 void uiSelLineStyle::setType( int tp )
 {
-    linestyle_.type_ = (LineStyle::Type)tp;
+    linestyle_.type_ = (OD::LineStyle::Type)tp;
     if ( stylesel_ ) stylesel_->setCurrentItem( tp );
 }
 
@@ -180,18 +180,18 @@ int uiSelLineStyle::getType() const
 void uiSelLineStyle::changeCB( CallBacker* cb )
 {
     if ( stylesel_ )
-	linestyle_.type_ = (LineStyle::Type)stylesel_->currentItem();
+	linestyle_.type_ = (OD::LineStyle::Type)stylesel_->currentItem();
 
     if ( colinp_ )
     {
 	linestyle_.color_ = colinp_->color();
-	colinp_->setSensitive( linestyle_.type_ != LineStyle::None );
+	colinp_->setSensitive( linestyle_.type_ != OD::LineStyle::None );
     }
 
     if ( widthbox_ )
     {
 	linestyle_.width_ = widthbox_->box()->getIntValue();
-	widthbox_->setSensitive( linestyle_.type_ != LineStyle::None );
+	widthbox_->setSensitive( linestyle_.type_ != OD::LineStyle::None );
     }
 
     changed.trigger(cb);

@@ -679,19 +679,19 @@ void uiGraphicsViewBase::setNoBackGround()
 }
 
 
-void uiGraphicsViewBase::setSceneAlignment( const Alignment& al )
+void uiGraphicsViewBase::setSceneAlignment( const OD::Alignment& al )
 {
     Qt::Alignment qal;
-    if ( al.vPos() == Alignment::Top )
+    if ( al.vPos() == OD::Alignment::Top )
 	qal = Qt::AlignTop;
-    else if ( al.vPos() == Alignment::Bottom )
+    else if ( al.vPos() == OD::Alignment::Bottom )
 	qal = Qt::AlignBottom;
     else
 	qal = Qt::AlignVCenter;
 
-    if ( al.hPos() == Alignment::Left )
+    if ( al.hPos() == OD::Alignment::Left )
 	qal = qal | Qt::AlignLeft;
-    else if ( al.hPos() == Alignment::Right )
+    else if ( al.hPos() == OD::Alignment::Right )
 	qal = qal | Qt::AlignRight;
     else
 	qal = qal | Qt::AlignHCenter;

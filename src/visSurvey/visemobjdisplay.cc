@@ -76,7 +76,7 @@ EMObjectDisplay::EMObjectDisplay()
     drawstyle_->ref();
     addNodeState( drawstyle_ );
 
-    LineStyle defls; defls.width_ = 4;
+    OD::LineStyle defls; defls.width_ = 4;
     drawstyle_->setLineStyle( defls );
 
     getMaterial()->setAmbience( 0.8 );
@@ -396,13 +396,13 @@ bool EMObjectDisplay::showsPosAttrib(int attr) const
 { return posattribs_.isPresent(attr); }
 
 
-const LineStyle* EMObjectDisplay::lineStyle() const
+const OD::LineStyle* EMObjectDisplay::lineStyle() const
 {
     return &drawstyle_->lineStyle();
 }
 
 
-void EMObjectDisplay::setLineStyle( const LineStyle& ls )
+void EMObjectDisplay::setLineStyle( const OD::LineStyle& ls )
 {
     if ( emobject_ )
 	emobject_->setPreferredLineStyle( ls );
@@ -646,7 +646,7 @@ bool EMObjectDisplay::usePar( const IOPar& par )
     BufferString linestyle;
     if ( par.get(sKeyLineStyle(),linestyle) )
     {
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.fromString( linestyle );
 	setLineStyle( ls );
     }

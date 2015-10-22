@@ -21,14 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	    const Interval<int>& rg, int nrexcluded,
-	    const MarkerStyle3D::Type* excluded )
+	    const OD::MarkerStyle3D::Type* excluded )
     : uiGroup(p)
     , colselfld_( 0 )
-    , markertypedef_( MarkerStyle3D::TypeDef() )
+    , markertypedef_( OD::MarkerStyle3D::TypeDef() )
 {
     for ( int idx=markertypedef_.size()-1; idx>=0; idx-- )
     {
-	const MarkerStyle3D::Type type = markertypedef_.getEnumForIndex(idx);
+	const OD::MarkerStyle3D::Type type = markertypedef_.getEnumForIndex(idx);
 
 	bool exclude = false;
 	for ( int idy=0; idy<nrexcluded; idy++ )
@@ -76,7 +76,7 @@ NotifierAccess* uiMarkerStyle3D::colSel()
 { return colselfld_ ? &colselfld_->colorChanged : 0; }
 
 
-void uiMarkerStyle3D::getMarkerStyle( MarkerStyle3D& st ) const
+void uiMarkerStyle3D::getMarkerStyle( OD::MarkerStyle3D& st ) const
 {
     st.type_ = types_[typefld_->getIntValue()];
     st.size_ = getSize();
@@ -84,7 +84,7 @@ void uiMarkerStyle3D::getMarkerStyle( MarkerStyle3D& st ) const
 }
 
 
-MarkerStyle3D::Type uiMarkerStyle3D::getType() const
+OD::MarkerStyle3D::Type uiMarkerStyle3D::getType() const
 { return types_[typefld_->getIntValue()]; }
 
 
@@ -96,7 +96,7 @@ int uiMarkerStyle3D::getSize() const
 { return sliderfld_->getIntValue(); }
 
 
-void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
+void uiMarkerStyle3D::setMarkerStyle( const OD::MarkerStyle3D& st )
 {
     int idx = types_.indexOf( st.type_ );
     if ( idx<0 )

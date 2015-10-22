@@ -25,7 +25,7 @@ public:
 protected:
 
     EM::EMObject*	emobject_;
-    MarkerStyle3D	markerstyle_;
+    OD::MarkerStyle3D	markerstyle_;
 
     void		doFinalise(CallBacker*);
 

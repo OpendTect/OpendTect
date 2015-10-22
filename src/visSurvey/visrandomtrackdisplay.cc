@@ -122,7 +122,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     polyline_->ref();
     addChild( polyline_->osgNode() );
     polyline_->setMaterial( new visBase::Material );
-    polyline_->setLineStyle( LineStyle(LineStyle::Solid,1) );
+    polyline_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
 
     markerset_->ref();
     addChild( markerset_->osgNode() );

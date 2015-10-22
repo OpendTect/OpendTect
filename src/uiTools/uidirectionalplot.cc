@@ -217,7 +217,7 @@ void uiDirectionalPlot::drawScale()
     {
 	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt) );
 	scalestartptitem_ = scene().addItem(
-	    new uiMarkerItem(startpt,MarkerStyle2D(MarkerStyle2D::Circle,3)) );
+	    new uiMarkerItem(startpt,OD::MarkerStyle2D(OD::MarkerStyle2D::Circle,3)) );
     }
     else
     {
@@ -238,13 +238,13 @@ void uiDirectionalPlot::drawScale()
     uiPoint midpt( startpt ); midpt += endpt; midpt /= 2;
     if ( !scaleannotitm_ )
     {
-	Alignment al( mAlignment(HCenter,VCenter) );
+	OD::Alignment al( mAlignment(HCenter,VCenter) );
 	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,
 						     mToUiStringTodo(nm),al) );
-	al.set( Alignment::Left );
+	al.set( OD::Alignment::Left );
 	scalestartitm_ = scene().addItem( new uiTextItem(startpt,
 						uiStrings::sEmptyString(),al) );
-	al.set( Alignment::Right );
+	al.set( OD::Alignment::Right );
 	scalestopitm_ = scene().addItem( new uiTextItem(endpt,
 						uiStrings::sEmptyString(),al) );
     }
@@ -258,7 +258,7 @@ void uiDirectionalPlot::drawScale()
 
 void uiDirectionalPlot::drawHeader()
 {
-    Alignment al( Alignment::Left, Alignment::Top );
+    OD::Alignment al( OD::Alignment::Left, OD::Alignment::Top );
     if ( setup_.nameforval_.isEmpty() )
 	{ delete hdrannotitm1_; hdrannotitm1_ = 0; }
     else if ( !hdrannotitm1_ )
@@ -272,7 +272,7 @@ void uiDirectionalPlot::drawHeader()
 	{ delete hdrannotitm2_; hdrannotitm2_ = 0; }
     else if ( !hdrannotitm2_ )
     {
-	al.set( Alignment::Right );
+	al.set( OD::Alignment::Right );
 	hdrannotitm2_ = scene().addItem( 
 			new uiTextItem(mToUiStringTodo(setup_.hdrannot_),al) );
     }
@@ -325,10 +325,10 @@ void uiDirectionalPlot::drawDirAnnot()
 			      : (idx == 1 ? uiStrings::sEast(true) 
 			      : (idx == 2 ? uiStrings::sSouth(true)
 			      		  : uiStrings::sWest(true)));
-	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
-					  : Alignment::HCenter,
-		          isew ? Alignment::VCenter
-			  : (idx == 2 ? Alignment::Top : Alignment::Bottom) );
+	    OD::Alignment al( isew ? (idx==1 ? OD::Alignment::Left : OD::Alignment::Right)
+					  : OD::Alignment::HCenter,
+		          isew ? OD::Alignment::VCenter
+			  : (idx == 2 ? OD::Alignment::Top : OD::Alignment::Bottom) );
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 

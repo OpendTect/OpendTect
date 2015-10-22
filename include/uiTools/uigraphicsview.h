@@ -19,7 +19,7 @@ class uiGraphicsItemGroup;
 class uiLineItem;
 class uiToolButton;
 class uiParent;
-class LineStyle;
+namespace OD { class LineStyle; };
 
 mExpClass(uiTools) uiCrossHairItem : public CallBacker
 {
@@ -27,8 +27,8 @@ public:
 			uiCrossHairItem(uiGraphicsViewBase&);
 			~uiCrossHairItem();
 
-    void		setLineStyle(const LineStyle&);
-    const LineStyle&	getLineStyle() const;
+    void		setLineStyle(const OD::LineStyle&);
+    const OD::LineStyle&	getLineStyle() const;
 
     void		show(bool yn);
     bool		isShown() const;
@@ -40,7 +40,7 @@ protected:
     uiLineItem*		horline_;
     uiLineItem*		vertline_;
 
-    LineStyle&		ls_;
+    OD::LineStyle&		ls_;
     uiGraphicsViewBase& view_;
 };
 

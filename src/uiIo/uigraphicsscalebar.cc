@@ -43,7 +43,7 @@ void uiScaleBarItem::initDefaultScale()
     lowermid_ = new uiRectItem;	    addChild( lowermid_ );
     lowerright_ = new uiRectItem;   addChild( lowerright_ );
 
-    const Alignment cenbot = Alignment( Alignment::HCenter, Alignment::Bottom );
+    const OD::Alignment cenbot = OD::Alignment( OD::Alignment::HCenter, OD::Alignment::Bottom );
     startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
     addChild( startnr_ );
     midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 

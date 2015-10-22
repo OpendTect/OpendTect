@@ -213,7 +213,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->rowInserted.notify( mCB(this,uiDataPointSet,rowAddedCB) );
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
-    tbl_->setLabelAlignment( Alignment::Left, true );
+    tbl_->setLabelAlignment( OD::Alignment::Left, true );
     dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
 
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );

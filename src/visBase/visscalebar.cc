@@ -40,7 +40,7 @@ ScaleBar::ScaleBar()
     firstloc_.pos_ = Coord3::udf();
 
     markers_->setMaterial( 0 );
-    markers_->setMarkerStyle( MarkerStyle3D::Sphere );
+    markers_->setMarkerStyle( OD::MarkerStyle3D::Sphere );
     markers_->setScreenSize( 2.5f );
     markers_->setMarkersSingleColor( getMaterial()->getColor() );
     markers_->ref();
@@ -174,7 +174,7 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 
 void ScaleBar::setLineWidth( int width )
 {
-    linestyle_->setLineStyle( LineStyle(LineStyle::Solid,width) );
+    linestyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,width) );
     requestSingleRedraw();
 }
 

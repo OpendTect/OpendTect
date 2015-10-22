@@ -408,7 +408,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->poly_ += pt1;
     selectedtraceaux_->poly_ += pt2;
     selectedtraceaux_->linestyle_ =
-	LineStyle( LineStyle::Dot, 2, Color::DgbColor() );
+	OD::LineStyle( OD::LineStyle::Dot, 2, Color::DgbColor() );
 
     vwr_->handleChange( FlatView::Viewer::Auxdata );
 }
@@ -574,7 +574,7 @@ void uiStratSynthDisp::drawLevel()
 	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
 	curSS().getLevelTimes( tbuf, curd2tmodels );
 
-	auxd->linestyle_.type_ = LineStyle::None;
+	auxd->linestyle_.type_ = OD::LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
 	{
 	    if ( tbuf.get(imdl)->isNull() )
@@ -582,7 +582,7 @@ void uiStratSynthDisp::drawLevel()
 	    const float tval =
 		dispflattened_ ? 0 :  tbuf.get(imdl)->info().pick;
 
-	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
+	    auxd->markerstyles_ += OD::MarkerStyle2D( OD::MarkerStyle2D::Target,
 						  cMarkerSize, lvl->col_ );
 	    auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
 	}

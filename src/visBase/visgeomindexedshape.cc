@@ -49,7 +49,7 @@ GeomIndexedShape::GeomIndexedShape()
     , singlematerial_( new Material )
     , coltabmaterial_( new Material )
     , geomshapetype_( Triangle )
-    , linestyle_( LineStyle::Solid,2,Color(0,255,0) )
+    , linestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
     , useosgnormal_( false )
 {
     singlematerial_->ref();
@@ -462,7 +462,7 @@ void GeomIndexedShape::reClip()
 }
 
 
-void GeomIndexedShape::setLineStyle( const LineStyle& lnstyle )
+void GeomIndexedShape::setLineStyle( const OD::LineStyle& lnstyle )
 {
     if ( lnstyle == linestyle_ )
 	return;

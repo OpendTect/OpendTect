@@ -110,7 +110,7 @@ void ODGraphicsPointItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 // ODGraphicsMarkerItem
 ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     : QAbstractGraphicsShapeItem()
-    , mstyle_( new MarkerStyle2D() )
+    , mstyle_( new OD::MarkerStyle2D() )
     , fill_(false)
 {
     setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
@@ -121,9 +121,9 @@ ODGraphicsMarkerItem::~ODGraphicsMarkerItem()
 { delete mstyle_; }
 
 
-void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
+void ODGraphicsMarkerItem::setMarkerStyle( const OD::MarkerStyle2D& mstyle )
 {
-    const char* typestr = MarkerStyle2D::toString( mstyle.type_ );
+    const char* typestr = OD::MarkerStyle2D::toString( mstyle.type_ );
     if ( mstyle.isVisible() || mstyle.size_ != 0 || !typestr || !*typestr )
 	*mstyle_ = mstyle;
 }
@@ -162,44 +162,44 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
 
 
 void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
-		    MarkerStyle2D::Type typ, float szx, float szy )
+		    OD::MarkerStyle2D::Type typ, float szx, float szy )
 {
     switch ( typ )
     {
-	case MarkerStyle2D::Square:
+	case OD::MarkerStyle2D::Square:
 	    painter.drawRect( QRectF(-szx, -szy, 2*szx, 2*szy) );
 	    break;
 
-	case MarkerStyle2D::Target:
+	case OD::MarkerStyle2D::Target:
 	    szx /=2;
 	    szy /=2;
-	case MarkerStyle2D::Circle:
+	case OD::MarkerStyle2D::Circle:
 	    painter.drawEllipse( QRectF( -szx, -szy, 2*szx, 2*szy) );
 	    break;
 
-	case MarkerStyle2D::Cross:
+	case OD::MarkerStyle2D::Cross:
 	    painter.drawLine( QLineF(-szx, -szy, +szx, +szy) );
 	    painter.drawLine( QLineF(-szx, +szy, +szx, -szy) );
 	    break;
 
-	case MarkerStyle2D::HLine:
+	case OD::MarkerStyle2D::HLine:
 	    painter.drawLine( QLineF( -szx, 0, +szx, 0 ) );
 	    break;
 
-	case MarkerStyle2D::VLine:
+	case OD::MarkerStyle2D::VLine:
 	    painter.drawLine( QLineF( 0, -szy, 0, +szy ) );
 	    break;
 
-	case MarkerStyle2D::Plus:
-	    drawMarker( painter, MarkerStyle2D::HLine, szx, szy );
-	    drawMarker( painter, MarkerStyle2D::VLine, szx, szy );
+	case OD::MarkerStyle2D::Plus:
+	    drawMarker( painter, OD::MarkerStyle2D::HLine, szx, szy );
+	    drawMarker( painter, OD::MarkerStyle2D::VLine, szx, szy );
 	    break;
 
-	case MarkerStyle2D::Plane:
+	case OD::MarkerStyle2D::Plane:
 	    painter.drawRect( QRectF(-3*szx, -szy/2, 6*szx, szy) );
 	    break;
 
-	case MarkerStyle2D::Triangle: {
+	case OD::MarkerStyle2D::Triangle: {
 	    QPolygonF triangle;
 	    triangle += QPointF( -szx, 0 );
 	    triangle += QPointF( 0, -2*szy );
@@ -207,11 +207,11 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 	    painter.drawPolygon( triangle );
 	    } break;
 
-	case MarkerStyle2D::Arrow:
-	    drawMarker( painter, MarkerStyle2D::VLine, 2*szx, 2*szy );
-	    drawMarker( painter, MarkerStyle2D::Triangle, -szx, -szy );
+	case OD::MarkerStyle2D::Arrow:
+	    drawMarker( painter, OD::MarkerStyle2D::VLine, 2*szx, 2*szy );
+	    drawMarker( painter, OD::MarkerStyle2D::Triangle, -szx, -szy );
 	    break;
-	case MarkerStyle2D::None:
+	case OD::MarkerStyle2D::None:
 	    break;
     }
 }
@@ -273,7 +273,7 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 
 
 void ODGraphicsArrowItem::setLineStyle( QPainter& painter,
-					const LineStyle& ls )
+					const OD::LineStyle& ls )
 {
     pen().setStyle( (Qt::PenStyle)ls.type_ );
     pen().setColor( QColor(QRgb(ls.color_.rgb())) );
@@ -294,12 +294,12 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 				   comingfrom.y() - qpt.y() );
     const double ang( Math::Atan2((double)relvec.y(),(double)relvec.x()) );
 
-    const ArrowHeadStyle& headstyle = arrowstyle_.headstyle_;
-    if ( headstyle.handedness_ == ArrowHeadStyle::TwoHanded )
+    const OD::ArrowHeadStyle& headstyle = arrowstyle_.headstyle_;
+    if ( headstyle.handedness_ == OD::ArrowHeadStyle::TwoHanded )
     {
 	switch ( headstyle.type_ )
 	{
-	    case ArrowHeadStyle::Square:
+	    case OD::ArrowHeadStyle::Square:
 	    {
 	        TypeSet<QPoint> polypts;
 		polypts += qpt;
@@ -310,7 +310,7 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 		painter.drawPolygon( polypts.arr(), 3 );
 		break;
 	    }
-	    case ArrowHeadStyle::Cross:
+	    case OD::ArrowHeadStyle::Cross:
 	    {
 		painter.drawLine( qpt, QPoint(getEndPoint(qpt,
 				  getAddedAngle(ang,.25),headstyle.sz_/2)) );
@@ -322,8 +322,8 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 				  getAddedAngle(ang,-.75),headstyle.sz_/2)) );
 		break;
 	    }
-	    case ArrowHeadStyle::Triangle:
-	    case ArrowHeadStyle::Line:
+	    case OD::ArrowHeadStyle::Triangle:
+	    case OD::ArrowHeadStyle::Line:
 	    {
 		const QPoint rightend = getEndPoint( qpt,
 		    getAddedAngle( ang,headangfac), headstyle.sz_ );
@@ -331,7 +331,7 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter,
 		    getAddedAngle( ang,-headangfac), headstyle.sz_ );
 		painter.drawLine( qpt, rightend );
 		painter.drawLine( qpt, leftend );
-		if ( headstyle.type_ == ArrowHeadStyle::Triangle )
+		if ( headstyle.type_ == OD::ArrowHeadStyle::Triangle )
 		    painter.drawLine( leftend, rightend );
 		break;
 	    }

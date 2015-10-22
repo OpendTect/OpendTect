@@ -1463,7 +1463,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( curline.size()==1 && curline[0].isDefined() ) \
     { \
 	visBase::MarkerSet* markerset = visBase::MarkerSet::create(); \
-	MarkerStyle3D markerstyle = \
+	OD::MarkerStyle3D markerstyle = \
 	emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode());\
 	markerset->setMarkerStyle( markerstyle );\
 	markerset->setDisplayTransformation(transformation_); \
@@ -1859,7 +1859,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    intersectionlineids_ += linestoupdate[idx];
 	    intersectionlinevoi_ += -2;
 
-	    const bool do3d = lineStyle()->type_==LineStyle::Solid;
+	    const bool do3d = lineStyle()->type_==OD::LineStyle::Solid;
 
 	    visBase::VertexShape* newline = do3d
 		? (visBase::VertexShape*) visBase::PolyLine3D::create()
@@ -1949,13 +1949,13 @@ void HorizonDisplay::updateIntersectionLines(
 }
 
 
-void HorizonDisplay::setLineStyle( const LineStyle& lst )
+void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     if ( lst==*lineStyle() )
 	return;
 
     const bool removelines =
-	(lst.type_==LineStyle::Solid) != (lineStyle()->type_==LineStyle::Solid);
+	(lst.type_==OD::LineStyle::Solid) != (lineStyle()->type_==OD::LineStyle::Solid);
 
     EMObjectDisplay::setLineStyle( lst );
 
@@ -1965,7 +1965,7 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
     {
 	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	{
-	    visBase::VertexShape* newline = lst.type_==LineStyle::Solid
+	    visBase::VertexShape* newline = lst.type_==OD::LineStyle::Solid
 		? (visBase::VertexShape*) visBase::PolyLine3D::create()
 		: (visBase::VertexShape*) visBase::PolyLine::create();
 	    newline->ref();
@@ -1981,17 +1981,17 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 
 	    intersectionlines_.replace( idx, newline )->unRef();
 
-	    if ( lst.type_==LineStyle::Solid )
+	    if ( lst.type_==OD::LineStyle::Solid )
 	    {
 		((visBase::PolyLine3D* ) newline )->setLineStyle( lst );
 	    }
 	}
     }
-    else if ( lst.type_==LineStyle::Solid )
+    else if ( lst.type_==OD::LineStyle::Solid )
     {
 	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	{
-	   LineStyle lnstyle( lst );
+	   OD::LineStyle lnstyle( lst );
 	   lnstyle.width_ /=2;
 
 	    visBase::PolyLine3D* pl =

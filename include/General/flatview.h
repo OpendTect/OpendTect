@@ -63,14 +63,14 @@ public:
 
     bool			enabled_;	//!<Turns on/off everything
     BufferString		name_;
-    Alignment			namealignment_;
+    OD::Alignment			namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
     Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
     Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
 
     TypeSet<Point>		poly_;
-    TypeSet<MarkerStyle2D>	markerstyles_;
+    TypeSet<OD::MarkerStyle2D>	markerstyles_;
 				/*!<- No markerstyles means no markers will be
 				      displayed.
 				    - If number of markerstyles is more than
@@ -79,15 +79,15 @@ public:
 				      excess points.
 				*/
 
-    LineStyle			linestyle_;
+    OD::LineStyle			linestyle_;
     Color			fillcolor_;
-    FillPattern			fillpattern_;
+    OD::FillPattern			fillpattern_;
     int				zvalue_; //!<overlay zvalue ( max=on top )
     MouseCursor			cursor_;
 
     bool			close_;
 
-    void			setFillPattern( const FillPattern& fp )
+    void			setFillPattern( const OD::FillPattern& fp )
 						{ fillpattern_ = fp; }
     bool			isEmpty() const;
     void			empty();
@@ -123,9 +123,9 @@ public:
 	int			factor_;
 	bool			showauxannot_;
 	uiString		auxlabel_;
-	LineStyle		auxlinestyle_;
-	LineStyle		auxhllinestyle_;
-	TypeSet<PlotAnnotation> auxannot_;
+	OD::LineStyle		auxlinestyle_;
+	OD::LineStyle		auxhllinestyle_;
+	TypeSet<OD::PlotAnnotation> auxannot_;
 	int			auxPosIdx(float pos,float eps) const;
 	void			showAll(bool yn);
     };

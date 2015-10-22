@@ -67,7 +67,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     else
     {
 	lbl_ = new uiLabel( this, su.seltxt_ );
-	lbl_->setAlignment( Alignment::Right );
+	lbl_->setAlignment( OD::Alignment::Right );
     }
 
     const CallBack selcb( mCB(this,uiIOSelect,doSel) );

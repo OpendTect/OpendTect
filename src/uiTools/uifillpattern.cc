@@ -21,7 +21,7 @@ uiFillPattern::uiFillPattern( uiParent* p )
 	, patternChanged(this)
 {
     const CallBack selchgcb( mCB(this,uiFillPattern,selChg) );
-    BufferStringSet nms; FillPattern::getTypeNames( nms );
+    BufferStringSet nms; OD::FillPattern::getTypeNames( nms );
     typefld_ = new uiComboBox( this, nms, "Type" );
     typefld_->setHSzPol( uiObject::Small );
     typefld_->selectionChanged.notify( selchgcb );
@@ -45,7 +45,7 @@ uiFillPattern::uiFillPattern( uiParent* p )
 void uiFillPattern::setOptNms()
 {
     BufferStringSet nms;
-    FillPattern::getOptNames( typefld_->currentItem(), nms );
+    OD::FillPattern::getOptNames( typefld_->currentItem(), nms );
     optfld_->setEmpty(); optfld_->addItems( nms );
 }
 
@@ -66,15 +66,15 @@ void uiFillPattern::reDrawPattern()
 }
 
 
-FillPattern uiFillPattern::get() const
+OD::FillPattern uiFillPattern::get() const
 {
     int typ = typefld_->currentItem(); if ( typ < 0 ) typ = 0;
     int opt = optfld_->currentItem(); if ( opt < 0 || typ == 0 ) opt = 0;
-    return FillPattern( typ, opt );
+    return OD::FillPattern( typ, opt );
 }
 
 
-void uiFillPattern::set( const FillPattern& fp )
+void uiFillPattern::set( const OD::FillPattern& fp )
 {
     NotifyStopper ns( patternChanged );
     typefld_->setCurrentItem( fp.type_ );

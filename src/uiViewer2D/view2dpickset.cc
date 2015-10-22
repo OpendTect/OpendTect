@@ -124,35 +124,35 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 }
 
 
-MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
+OD::MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 {
-    MarkerStyle2D style( MarkerStyle2D::Square, ps.disp_.pixsize_,
+    OD::MarkerStyle2D style( OD::MarkerStyle2D::Square, ps.disp_.pixsize_,
 			 ps.disp_.color_ );
     switch( ps.disp_.markertype_ )
     {
-	case MarkerStyle3D::Plane:
-	    style.type_ = MarkerStyle2D::Plane;
+	case OD::MarkerStyle3D::Plane:
+	    style.type_ = OD::MarkerStyle2D::Plane;
 	    break;
-	case MarkerStyle3D::Sphere:
-	    style.type_ = MarkerStyle2D::Circle;
+	case OD::MarkerStyle3D::Sphere:
+	    style.type_ = OD::MarkerStyle2D::Circle;
 	    break;
-	case MarkerStyle3D::Cube:
-	    style.type_ = MarkerStyle2D::Square;
+	case OD::MarkerStyle3D::Cube:
+	    style.type_ = OD::MarkerStyle2D::Square;
 	    break;
-	case MarkerStyle3D::Cone:
-	    style.type_ = MarkerStyle2D::Triangle;
+	case OD::MarkerStyle3D::Cone:
+	    style.type_ = OD::MarkerStyle2D::Triangle;
 	    break;
-	case MarkerStyle3D::Cross:
-	    style.type_ = MarkerStyle2D::Plus;
+	case OD::MarkerStyle3D::Cross:
+	    style.type_ = OD::MarkerStyle2D::Plus;
 	    break;
-	case MarkerStyle3D::Arrow:
-	    style.type_ = MarkerStyle2D::Arrow;
+	case OD::MarkerStyle3D::Arrow:
+	    style.type_ = OD::MarkerStyle2D::Arrow;
 	    break;
-	case MarkerStyle3D::Cylinder:
-	    style.type_ = MarkerStyle2D::Square;
+	case OD::MarkerStyle3D::Cylinder:
+	    style.type_ = OD::MarkerStyle2D::Square;
 	    break;
 	default:
-	    style.type_ = MarkerStyle2D::Circle;
+	    style.type_ = OD::MarkerStyle2D::Circle;
     }
 
     return style;
@@ -217,7 +217,7 @@ void VW2DPickSet::drawAll()
 	FlatView::AuxData* picks = picks_[ivwr];
 	picks->poly_.erase();
 	picks->markerstyles_.erase();
-	MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
+	OD::MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
 	const int nrpicks = picksetidxs_.size();
 	ConstRefMan<ZAxisTransform> zat = vwr.getZAxisTransform();
 	for ( int idx=0; idx<nrpicks; idx++ )

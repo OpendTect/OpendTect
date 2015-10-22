@@ -29,8 +29,8 @@ namespace EM
 Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
-    , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
-    , markerstyle_(MarkerStyle2D::Square, 4, Color(255,255,0) )
+    , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
+    , markerstyle_(OD::MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( mUdf(int) )
     , path_(0)
     , flatposdata_(0)
@@ -534,7 +534,7 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 
     for ( int auxdid=0; auxdid<f3dmarkers_[0]->stickmarker_.size(); auxdid++ )
     {
-	LineStyle& linestyle =
+	OD::LineStyle& linestyle =
 	    f3dmarkers_[0]->stickmarker_[auxdid]->marker_->linestyle_;
 	if ( f3dmarkers_[0]->stickmarker_[auxdid]->stickid_== activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;

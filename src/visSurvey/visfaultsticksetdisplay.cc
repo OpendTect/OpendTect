@@ -69,7 +69,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
     stickdrawstyle_->ref();
 
-    LineStyle stickls( LineStyle::Solid, 3 );
+    OD::LineStyle stickls( OD::LineStyle::Solid, 3 );
     stickdrawstyle_->setLineStyle( stickls );
     addChild( sticks_->osgNode() );
     sticks_->setName( uiStrings::sFaultStickSet() );
@@ -264,15 +264,15 @@ Color FaultStickSetDisplay::getColor() const
 { return getMaterial()->getColor(); }
 
 
-const LineStyle* FaultStickSetDisplay::lineStyle() const
+const OD::LineStyle* FaultStickSetDisplay::lineStyle() const
 { return &stickdrawstyle_->lineStyle(); }
 
 
-void FaultStickSetDisplay::setLineStyle( const LineStyle& ls )
+void FaultStickSetDisplay::setLineStyle( const OD::LineStyle& ls )
 {
     stickdrawstyle_->setLineStyle( ls );
 
-    LineStyle activestickls( ls );
+    OD::LineStyle activestickls( ls );
     activestickls.width_ += 2;
     activestickdrawstyle_->setLineStyle( activestickls );
 

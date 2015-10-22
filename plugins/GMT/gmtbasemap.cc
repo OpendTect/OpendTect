@@ -200,9 +200,9 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 	    const char* lsstr = par->find( ODGMT::sKeyLineStyle() );
 	    if ( !lsstr ) continue;
 
-	    LineStyle ls;
+	    OD::LineStyle ls;
 	    ls.fromString( lsstr );
-	    if ( ls.type_ != LineStyle::None )
+	    if ( ls.type_ != OD::LineStyle::None )
 	    {
 		mGetLineStyleString( ls, penstr );
 	    }

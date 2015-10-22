@@ -185,7 +185,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    continue;
 	}
 
-	const MarkerStyle2D& style = markerstyles_[styleidx];
+	const OD::MarkerStyle2D& style = markerstyles_[styleidx];
 	if ( !style.isVisible() )
 	    continue;
 

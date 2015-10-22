@@ -512,7 +512,7 @@ uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const uiString& txt, int dec,
     sb_ = new uiSpinBox( this, dec, nm && *nm ? nm : txt.getFullString().buf());
     BufferString sblbl;
     lbl_ = new uiLabel( this, txt, sb_ );
-    lbl_->setAlignment( Alignment::Right );
+    lbl_->setAlignment( OD::Alignment::Right );
     setHAlignObj( sb_ );
 }
 

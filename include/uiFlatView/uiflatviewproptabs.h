@@ -227,10 +227,10 @@ protected:
 
     ObjectSet<FlatView::AuxData::EditPermissions>	permissions_;
     BoolTypeSet						enabled_;
-    TypeSet<LineStyle>					linestyles_;
+    TypeSet<OD::LineStyle>					linestyles_;
     TypeSet<int>					indices_;
     TypeSet<Color>					fillcolors_;
-    TypeSet<MarkerStyle2D>				markerstyles_;
+    TypeSet<OD::MarkerStyle2D>				markerstyles_;
     TypeSet<Interval<double> >				x1rgs_;
     TypeSet<Interval<double> >				x2rgs_;
     int							currentaux_;

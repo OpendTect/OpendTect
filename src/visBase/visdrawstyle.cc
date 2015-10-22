@@ -60,7 +60,7 @@ float DrawStyle::getPointSize() const
 }
 
 
-void DrawStyle::setLineStyle( const LineStyle& nls )
+void DrawStyle::setLineStyle( const OD::LineStyle& nls )
 {
     if ( linestyle_ == nls )
 	return;
@@ -105,11 +105,11 @@ void DrawStyle::updateLineStyle()
 
     unsigned short pattern;
 
-    if ( linestyle_.type_==LineStyle::None )      pattern = 0;
-    else if ( linestyle_.type_==LineStyle::Solid )pattern = 0xFFFF;
-    else if ( linestyle_.type_==LineStyle::Dash ) pattern = 0xF0F0;
-    else if ( linestyle_.type_==LineStyle::Dot )  pattern = 0xAAAA;
-    else if ( linestyle_.type_==LineStyle::DashDot ) pattern = 0xF6F6;
+    if ( linestyle_.type_==OD::LineStyle::None )      pattern = 0;
+    else if ( linestyle_.type_==OD::LineStyle::Solid )pattern = 0xFFFF;
+    else if ( linestyle_.type_==OD::LineStyle::Dash ) pattern = 0xF0F0;
+    else if ( linestyle_.type_==OD::LineStyle::Dot )  pattern = 0xAAAA;
+    else if ( linestyle_.type_==OD::LineStyle::DashDot ) pattern = 0xF6F6;
     else pattern = 0xEAEA;
 
     linestippleattrib_->setPattern( pattern );

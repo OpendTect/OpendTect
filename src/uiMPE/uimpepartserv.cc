@@ -303,7 +303,7 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
 				      setupgrp_->getMarkerStyle() );
 
-	LineStyle ls = emobj->preferredLineStyle();
+	OD::LineStyle ls = emobj->preferredLineStyle();
 	ls.width_ = setupgrp_->getLineWidth();
 	emobj->setPreferredLineStyle( ls );
     }

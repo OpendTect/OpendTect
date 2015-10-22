@@ -29,7 +29,7 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 		      mODHelpKey(mGoogleExportSurveyHelpID) ) )
     , si_(uisurv->curSurvInfo())
 {
-    const LineStyle ls( LineStyle::Solid, 20, Color(255,170,80,100) );
+    const OD::LineStyle ls( OD::LineStyle::Solid, 20, Color(255,170,80,100) );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
 

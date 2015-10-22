@@ -105,7 +105,7 @@ void MPEEditor::setupPatchDisplay()
 	patchline_->setDisplayTransformation( transformation_ );
     }
 
-    LineStyle lsty( LineStyle::Solid, 4, lineclr );
+    OD::LineStyle lsty( OD::LineStyle::Solid, 4, lineclr );
     patchline_->setLineStyle( lsty );
     patchmarkers_->setMarkersSingleColor( mkclr );
 }
@@ -328,9 +328,9 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     marker->setMarkersSingleColor( nodematerial_->getColor() );
 
 
-    MarkerStyle3D markerstyle;
+    OD::MarkerStyle3D markerstyle;
     marker->setMarkerHeightRatio( 1.0f );
-    markerstyle = MarkerStyle3D::Cube;
+    markerstyle = OD::MarkerStyle3D::Cube;
     markerstyle.size_ = (int)markersize_;
     marker->setMarkerStyle( markerstyle );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );

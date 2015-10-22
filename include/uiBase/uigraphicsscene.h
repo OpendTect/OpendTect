@@ -27,9 +27,7 @@ mFDQtclass(QGraphicsLinearLayout)
 mFDQtclass(QGraphicsWidget)
 mFDQtclass(ODGraphicsScene)
 
-class ArrowStyle;
-class Alignment;
-class MarkerStyle2D;
+namespace OD { class ArrowStyle; class Alignment; class MarkerStyle2D; }
 
 class uiPolygonItem;
 class uiPolyLineItem;

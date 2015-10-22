@@ -167,7 +167,7 @@ void StickSetDisplay::updateStickMarkerSet()
     {
 	visBase::MarkerSet* markerset = knotmarkersets_[idx];
 	markerset->clearMarkers();
-	markerset->setMarkerStyle( MarkerStyle3D::Sphere );
+	markerset->setMarkerStyle( OD::MarkerStyle3D::Sphere );
 	markerset->setMaterial(0);
 	markerset->setDisplayTransformation( displaytransform_ );
 	markerset->setScreenSize( mDefaultMarkerSize );
@@ -215,7 +215,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	if ( !fss || fss->isStickHidden(sticknr,mSceneIdx) )
 	    continue;
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
-	const MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
+	const OD::MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
 	knotmarkersets_[groupidx]->setScreenSize( mDefaultMarkerSize );
 	knotmarkersets_[groupidx]->addPos( fault_->getPos(pid), false );

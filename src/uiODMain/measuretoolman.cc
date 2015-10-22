@@ -284,7 +284,7 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 	Pick::Set* ps = displayobjs_[idx]->getSet();
 	if ( !ps ) continue;
 
-	LineStyle ls( measuredlg_->getLineStyle() );
+	OD::LineStyle ls( measuredlg_->getLineStyle() );
 	ps->disp_.color_ = ls.color_;
 	ps->disp_.pixsize_ = ls.width_;
 	picksetmgr_.reportDispChange( this, *ps );

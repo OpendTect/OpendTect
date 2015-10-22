@@ -47,7 +47,7 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
 				Interval<float>(0.01f,0.01f);
     vwr_->appearance().setGeoDefaults( true );
 
-    LineStyle ls( LineStyle::Solid, 3, Color(0,255,0) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 3, Color(0,255,0) );
     minline_ = vwr_->createAuxData( "Min line" );
     minline_->cursor_.shape_ = MouseCursor::SizeVer;
     minline_->linestyle_ = ls;
@@ -64,12 +64,12 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
 
     seeditm_ = vwr_->createAuxData( "Seed" );
     seeditm_->poly_ += FlatView::Point(0,0);
-    seeditm_->markerstyles_ += MarkerStyle2D(MarkerStyle2D::Square,3);
+    seeditm_->markerstyles_ += OD::MarkerStyle2D(OD::MarkerStyle2D::Square,3);
     seeditm_->markerstyles_[0].color_ = Color(0,255,0);
     vwr_->addAuxData( seeditm_ );
 
     seedline_ = vwr_->createAuxData( "Seed line" );
-    seedline_->linestyle_ = LineStyle( LineStyle::Dash, 1, Color(0,255,0) );
+    seedline_->linestyle_ = OD::LineStyle( OD::LineStyle::Dash, 1, Color(0,255,0) );
     seedline_->poly_ += FlatView::Point(0,0);
     seedline_->poly_ += FlatView::Point(0,0);
     vwr_->addAuxData( seedline_ );

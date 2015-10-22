@@ -45,7 +45,7 @@ protected:
     void		pickAddChgCB(CallBacker*);
     void		pickRemoveCB(CallBacker*);
     void		dataChangedCB(CallBacker*);
-    MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
+    OD::MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
     void		updateSetIdx(const TrcKeyZSampling&);
     void		updateSetIdx(const TrcKeyPath&);

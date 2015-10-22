@@ -62,7 +62,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
 				ODGMT::ResolutionDef(), tr("Resolution") );
     resolutionfld_ = lcb->box();
 
-    lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, lcb );
 
     wetcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
@@ -84,7 +84,7 @@ void uiGMTCoastlineGrp::reset()
     cmfld_->setValue( 3 );
     ewfld_->setValue( true );
     resolutionfld_->setCurrentItem( 0 );
-    lsfld_->setStyle( LineStyle() );
+    lsfld_->setStyle( OD::LineStyle() );
     wetcolfld_->setDoDraw( false );
     drycolfld_->setDoDraw( false );
     wetcolfld_->setColor( Color(170,255,255) );
@@ -130,7 +130,7 @@ bool uiGMTCoastlineGrp::fillPar( IOPar& par ) const
     par.set( ODGMT::sKeyUTMZone(), utmzone );
     const char* res = resolutionfld_->text();
     par.set( ODGMT::sKeyResolution(), res );
-    const LineStyle ls = lsfld_->getStyle();
+    const OD::LineStyle ls = lsfld_->getStyle();
     BufferString lsstr; ls.toString( lsstr );
     par.set( ODGMT::sKeyLineStyle(), lsstr );
 
@@ -153,7 +153,7 @@ bool uiGMTCoastlineGrp::usePar( const IOPar& par )
     par.get( ODGMT::sKeyUTMZone(), utmzone );
     utmfld_->setValue( utmzone );
     resolutionfld_->setCurrentItem( par.find(ODGMT::sKeyResolution()) );
-    LineStyle ls; BufferString lsstr;
+    OD::LineStyle ls; BufferString lsstr;
     par.get( ODGMT::sKeyLineStyle(), lsstr );
     ls.fromString( lsstr ); lsfld_->setStyle( ls );
 

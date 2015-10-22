@@ -70,9 +70,9 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
     postFinalise().notify( mCB( this, uiTaskRunner, onFinalise ) );
 
-    statusBar()->addMsgFld( tr("Current activity"), Alignment::Left, 2 );
-    statusBar()->addMsgFld( tr("Counted items"), Alignment::Right, 2 );
-    statusBar()->addMsgFld( tr("Number done"), Alignment::Left, 1 );
+    statusBar()->addMsgFld( tr("Current activity"), OD::Alignment::Left, 2 );
+    statusBar()->addMsgFld( tr("Counted items"), OD::Alignment::Right, 2 );
+    statusBar()->addMsgFld( tr("Number done"), OD::Alignment::Left, 1 );
 }
 
 

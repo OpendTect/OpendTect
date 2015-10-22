@@ -117,7 +117,7 @@ public:
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
-    void 		setPenStyle(const LineStyle&,bool withalpha=false);
+    void 		setPenStyle(const OD::LineStyle&,bool withalpha=false);
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end);
     void		setLine(const uiWorldPoint&,const uiWorldPoint&);
@@ -252,16 +252,16 @@ mExpClass(uiBase) uiTextItem : public uiGraphicsItem
 public:
 			uiTextItem();
 			uiTextItem(const uiString&,
-				   const Alignment& al=Alignment());
+				   const OD::Alignment& al=OD::Alignment());
 			uiTextItem(const uiPoint&,const uiString&,
-				   const Alignment& al=Alignment());
+				   const OD::Alignment& al=OD::Alignment());
 			~uiTextItem();
 
     void 		setFont(const uiFont&);
     void		setFontData(const FontData&);
     const uiString	getText() const;
     uiSize		getTextSize() const;
-    void 		setAlignment(const Alignment&);
+    void 		setAlignment(const OD::Alignment&);
     void		setText(const uiString&);
     void		setTextColor(const Color&);
 
@@ -282,18 +282,19 @@ mExpClass(uiBase) uiAdvancedTextItem : public uiGraphicsItem
 public:
 			uiAdvancedTextItem(bool centered=false);
 			uiAdvancedTextItem(const uiString&,
-					   const Alignment& =
-				    Alignment(Alignment::Left,Alignment::Top),
-					   bool centered=false);
+			   const OD::Alignment& =
+			    OD::Alignment(OD::Alignment::Left,
+					  OD::Alignment::Top),
+					  bool centered=false);
 			~uiAdvancedTextItem();
 
-    Alignment		getAlignment() const;
+    OD::Alignment		getAlignment() const;
     Color		getDefaultTextColor() const;
     uiFont&		getFont() const;
     uiString		getPlainText() const;
     float		getTextWidth() const;
 
-    void		setAlignment(const Alignment&);
+    void		setAlignment(const OD::Alignment&);
     void		setDefaultTextColor(const Color&);
     void		setFont(const FontData&);
     void		setPlainText(const uiString&);
@@ -302,7 +303,7 @@ public:
     void		setTextIteraction(bool);
 
 protected:
-    Alignment		al_;
+    OD::Alignment		al_;
     bool		textiscentered_;
     QGraphicsItem*	mkQtObj();
     ODGraphicsAdvancedTextItem* qtextitem_;
@@ -315,15 +316,15 @@ mExpClass(uiBase) uiMarkerItem : public uiGraphicsItem
 {
 public:
     				uiMarkerItem(bool fill=true);
-				uiMarkerItem(const MarkerStyle2D&,
+				uiMarkerItem(const OD::MarkerStyle2D&,
 					     bool fill=true);
 				uiMarkerItem(const uiPoint&,
-					     const MarkerStyle2D&,
+					     const OD::MarkerStyle2D&,
 					     bool fill=true);
 				~uiMarkerItem();
 
     ODGraphicsMarkerItem*	qMarkerItem()	{ return qmarkeritem_; }
-    void			setMarkerStyle(const MarkerStyle2D&);
+    void			setMarkerStyle(const OD::MarkerStyle2D&);
     void			setFill(bool);
     void			setFillColor(const Color&,bool withalpha=false);
 
@@ -356,7 +357,7 @@ public:
     				uiArrowItem();
 				uiArrowItem(const uiPoint& tail,
 					    const uiPoint& head,
-					    const ArrowStyle&);
+					    const OD::ArrowStyle&);
     				uiArrowItem(ODGraphicsArrowItem*);
 				~uiArrowItem();
 
@@ -364,7 +365,7 @@ public:
     void			setTailPos(const uiPoint&);
     void			setTailHeadPos(const uiPoint& tail,
 					       const uiPoint& head);
-    void			setArrowStyle(const ArrowStyle&);
+    void			setArrowStyle(const OD::ArrowStyle&);
     void 			setArrowSize(int);
 
     ODGraphicsArrowItem*  	qArrowItem()	{ return qarrowitem_; }

@@ -30,7 +30,7 @@ void uiSeedPropDlg::doFinalise( CallBacker* )
 
 void uiSeedPropDlg::sliderMove( CallBacker* )
 {
-    MarkerStyle3D style;
+    OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
     if ( markerstyle_==style )
 	return;
@@ -43,7 +43,7 @@ void uiSeedPropDlg::sliderMove( CallBacker* )
 
 void uiSeedPropDlg::typeSel( CallBacker* )
 {
-    MarkerStyle3D style;
+    OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
     if ( markerstyle_==style )
 	return;
@@ -56,7 +56,7 @@ void uiSeedPropDlg::typeSel( CallBacker* )
 
 void uiSeedPropDlg::colSel( CallBacker* )
 {
-    MarkerStyle3D style;
+    OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
     if ( markerstyle_==style )
 	return;

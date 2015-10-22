@@ -119,7 +119,7 @@ public:
     void			setRandomPosData( int,const DataPointSet*,
 						 TaskRunner*);
 
-    void			setLineStyle(const LineStyle&);
+    void			setLineStyle(const OD::LineStyle&);
 				/*!<If ls is solid, a 3d shape will be used,
 				    otherwise 'flat' lines. */
     bool			hasStoredAttrib(int attrib) const;

@@ -275,13 +275,13 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
     }
     else if ( selauxannot_.isValid() && selauxannot_.isselected_ )
     {
-	TypeSet<PlotAnnotation>& xauxannot =
+	TypeSet<OD::PlotAnnotation>& xauxannot =
 	    selauxannot_.isx1_ ? curvwr.appearance().annot_.x1_.auxannot_
 			     : curvwr.appearance().annot_.x2_.auxannot_;
 	if ( !xauxannot.validIdx(selauxannot_.auxposidx_) )
 	    return;
 
-	PlotAnnotation& selauxannot = xauxannot[selauxannot_.auxposidx_];
+	OD::PlotAnnotation& selauxannot = xauxannot[selauxannot_.auxposidx_];
 	if ( selauxannot.isNormal() )
 	    return;
 
@@ -313,16 +313,16 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 void uiODViewer2DMgr::setAuxAnnotLineStyles( uiFlatViewer& vwr, bool forx1 )
 {
     FlatView::Annotation& annot = vwr.appearance().annot_;
-    TypeSet<PlotAnnotation>& auxannot = forx1 ? annot.x1_.auxannot_
+    TypeSet<OD::PlotAnnotation>& auxannot = forx1 ? annot.x1_.auxannot_
 					      : annot.x2_.auxannot_;
     for ( int idx=0; idx<auxannot.size(); idx++ )
 	if ( !auxannot[idx].isNormal() )
-	    auxannot[idx].linetype_ = PlotAnnotation::Bold;
+	    auxannot[idx].linetype_ = OD::PlotAnnotation::Bold;
 
     const int selannotidx = selauxannot_.auxposidx_;
     if ( !(forx1^selauxannot_.isx1_) && auxannot.validIdx(selannotidx) )
 	if ( !auxannot[selannotidx].isNormal() )
-	    auxannot[selannotidx].linetype_ = PlotAnnotation::HighLighted;
+	    auxannot[selannotidx].linetype_ = OD::PlotAnnotation::HighLighted;
 }
 
 
@@ -343,7 +343,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 {
     if ( !vwr2d ) return;
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
-    TypeSet<PlotAnnotation>& auxannot =
+    TypeSet<OD::PlotAnnotation>& auxannot =
 	selauxannot_.isx1_ ? vwr.appearance().annot_.x1_.auxannot_
 			   : vwr.appearance().annot_.x2_.auxannot_;
     const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
@@ -712,8 +712,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     if ( !tkzs.isFlat() ) return;
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
-    TypeSet<PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
-    TypeSet<PlotAnnotation>& x2auxannot = vwr.appearance().annot_.x2_.auxannot_;
+    TypeSet<OD::PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
+    TypeSet<OD::PlotAnnotation>& x2auxannot = vwr.appearance().annot_.x2_.auxannot_;
     x1auxannot.erase(); x2auxannot.erase();
 
     if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )
@@ -764,11 +764,11 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    if ( !commongids.isPresent(intpos.line) )
 		continue;
 
-	    PlotAnnotation newannot;
+	    OD::PlotAnnotation newannot;
 	    const uiODViewer2D* curvwr2d = find2DViewer( intpos.line );
 	    if ( curvwr2d &&
 		    curvwr2d->getZAxisTransform()==vwr2d->getZAxisTransform() )
-		newannot.linetype_ = PlotAnnotation::Bold;
+		newannot.linetype_ = OD::PlotAnnotation::Bold;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
 	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
@@ -788,8 +788,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		    curvwr2d->getZAxisTransform()!=vwr2d->getZAxisTransform() )
 		continue;
 
-	    PlotAnnotation newannot;
-	    newannot.linetype_ = PlotAnnotation::Bold;
+	    OD::PlotAnnotation newannot;
+	    newannot.linetype_ = OD::PlotAnnotation::Bold;
 
 	    if ( dir == TrcKeyZSampling::Inl )
 	    {

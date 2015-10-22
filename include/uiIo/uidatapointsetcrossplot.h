@@ -54,10 +54,10 @@ public:
 
 	mDefSetupMemb(bool,noedit)
 	mDefSetupMemb(uiBorder,minborder)
-	mDefSetupMemb(MarkerStyle2D,markerstyle) // None => uses drawPoint
-	mDefSetupMemb(LineStyle,xstyle)
-	mDefSetupMemb(LineStyle,ystyle)
-	mDefSetupMemb(LineStyle,y2style)
+	mDefSetupMemb(OD::MarkerStyle2D,markerstyle) // None => uses drawPoint
+	mDefSetupMemb(OD::LineStyle,xstyle)
+	mDefSetupMemb(OD::LineStyle,ystyle)
+	mDefSetupMemb(OD::LineStyle,y2style)
 	mDefSetupMemb(bool,showcc)		// corr coefficient
 	mDefSetupMemb(bool,showregrline)
 	mDefSetupMemb(bool,showy1userdefpolyline)
@@ -118,7 +118,7 @@ public:
 					     const Interval<int>&);
 
     void			prepareItems(bool y2);
-    void			addItemIfNew(int itmidx,MarkerStyle2D&,
+    void			addItemIfNew(int itmidx,OD::MarkerStyle2D&,
 					uiGraphicsItemGroup*,uiAxisHandler&,
 					uiDataPointSet::DRowID,bool);
     void			setItem(uiGraphicsItem*,bool y2,const uiPoint&);
@@ -133,8 +133,8 @@ public:
 						 bool removesel=false);
     void			drawDensityPlot(bool removesel=false);
     bool			drawPoints(uiGraphicsItemGroup*,
-					   const AxisData&,bool y2,
-					   MarkerStyle2D&,bool rempt = false);
+				   const AxisData&,bool y2,
+				   OD::MarkerStyle2D&,bool rempt = false);
     void			removeSelectionItems();
 
     void			setSceneSelectable( bool yn )
@@ -347,9 +347,9 @@ protected:
     void			setWorldSelArea(int);
     void			reDrawSelArea();
     bool			drawRID(uiDataPointSet::DRowID,
-					uiGraphicsItemGroup*,
-					const AxisData&,bool y2,
-					MarkerStyle2D&,int idmidx,bool rempt);
+				    uiGraphicsItemGroup*,
+				    const AxisData&,bool y2,
+				    OD::MarkerStyle2D&,int idmidx,bool rempt);
 
     bool			selNearest(const MouseEvent&);
     void			reDrawCB(CallBacker*);

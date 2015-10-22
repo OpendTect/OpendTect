@@ -271,10 +271,10 @@ void uiWellDisplayControl::highlightMarker( const Well::Marker& mrk, bool yn )
 	uiWellDahDisplay& ld = *logdisps_[iddisp];
 	uiWellDahDisplay::MarkerDraw* mrkdraw = ld.getMarkerDraw( mrk );
 	if ( !mrkdraw ) continue;
-	const LineStyle& ls = mrkdraw->ls_;
+	const OD::LineStyle& ls = mrkdraw->ls_;
 	uiLineItem& li = *mrkdraw->lineitm_;
 	int width = yn ? ls.width_+2 : ls.width_;
-	li.setPenStyle( LineStyle( ls.type_, width, mrk.color() ) );
+	li.setPenStyle( OD::LineStyle( ls.type_, width, mrk.color() ) );
     }
 }
 

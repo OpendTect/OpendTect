@@ -727,12 +727,12 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),mJoinUiStrs(sDisplay(), sProperties()))
     , plotter_(p->plotter())
     , hasy2_(p->plotter().axisHandler(2))
-    , shapeenums_( MarkerStyle2D::TypeDef() )
+    , shapeenums_( OD::MarkerStyle2D::TypeDef() )
 {
-    const MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
+    const OD::MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
     sizefld_ = new uiGenInput(this,tr("Marker size"),IntInpSpec(mstyle.size_));
 
-    shapeenums_.remove( MarkerStyle2D::TypeDef().getKey(MarkerStyle2D::None) );
+    shapeenums_.remove( OD::MarkerStyle2D::TypeDef().getKey(OD::MarkerStyle2D::None) );
 
     uiLabeledComboBox* llb =
 	new uiLabeledComboBox( this, shapeenums_, tr("Marker shape") );
@@ -764,9 +764,9 @@ bool acceptOK()
 	return false;
     }
 
-    MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
+    OD::MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
     mstyle.size_ = sizefld_->getIntValue();
-    mstyle.type_ = MarkerStyle2D::TypeDef().parse( shapefld_->text() );
+    mstyle.type_ = OD::MarkerStyle2D::TypeDef().parse( shapefld_->text() );
     plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
     plotter_.axisHandler(1)->setup().gridlinestyle_.color_ =
 	ycolinpfld_->color();

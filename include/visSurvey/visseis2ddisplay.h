@@ -68,8 +68,8 @@ public:
     bool			hasColor() const		{ return true; }
     Color			getColor() const;
     void			setColor(Color);
-    const LineStyle*		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    const OD::LineStyle*		lineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
 
     void			enableAttrib(int attrib,bool yn);
     bool			hasSingleColorFallback() const	{ return true; }

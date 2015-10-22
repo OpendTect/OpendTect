@@ -1077,13 +1077,13 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
 }
 
 
-void uiTable::setLabelAlignment( Alignment::HPos hal, bool col )
+void uiTable::setLabelAlignment( OD::Alignment::HPos hal, bool col )
 {
     QHeaderView* hdr = col ? body_->horizontalHeader()
 				     : body_->verticalHeader();
     if ( hdr )
     {
-	Alignment al( hal, Alignment::VCenter );
+	OD::Alignment al( hal, OD::Alignment::VCenter );
 	hdr->setDefaultAlignment( (Qt::Alignment)al.uiValue() );
     }
 }

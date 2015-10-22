@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "uistring.h"
 
-class LineStyle;
-class FillPattern;
+namespace OD { class LineStyle; class FillPattern; }
+
 class MouseCursor;
 class MouseEvent;
 class uiGraphicsScene;
@@ -82,10 +82,10 @@ public:
     bool		isItemIgnoresTransformationsEnabled() const;
     virtual uiRect	boundingRect() const;
 
-    virtual void	setPenStyle(const LineStyle&,bool usetransp=false);
+    virtual void	setPenStyle(const OD::LineStyle&,bool usetransp=false);
     virtual void	setPenColor(const Color&,bool usetransp=false);
     virtual void	setFillColor(const Color&,bool usetransp=false);
-    virtual void	setFillPattern(const FillPattern&);
+    virtual void	setFillPattern(const OD::FillPattern&);
     virtual void	setTransparency(float);
 			/*!< To set the overall transparency of graphics item.
 			 Passed value should be between 0 and 1. If the item

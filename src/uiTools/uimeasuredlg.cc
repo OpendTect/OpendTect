@@ -29,13 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-static const char* sKeyLineStyle = "Measure LineStyle";
+static const char* sKeyLineStyle = "Measure OD::LineStyle";
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
                         mODHelpKey(mMeasureDlgHelpID) ).modal(false))
-    , ls_(*new LineStyle(LineStyle::Solid,3))
+    , ls_(*new OD::LineStyle(OD::LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)
     , dist2fld_(0)

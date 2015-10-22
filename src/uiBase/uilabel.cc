@@ -181,16 +181,16 @@ void uiLabel::setPixmap( const uiPixmap& pixmap )
 }
 
 
-void uiLabel::setAlignment( Alignment::HPos hal )
+void uiLabel::setAlignment( OD::Alignment::HPos hal )
 {
-    Alignment al( hal, Alignment::VCenter );
+    OD::Alignment al( hal, OD::Alignment::VCenter );
     body_->setAlignment( (Qt::AlignmentFlag)al.uiValue() );
 }
 
 
-Alignment::HPos uiLabel::alignment() const
+OD::Alignment::HPos uiLabel::alignment() const
 {
-    Alignment al;
+    OD::Alignment al;
     al.setUiValue( (int)body_->alignment() );
     return al.hPos();
 }

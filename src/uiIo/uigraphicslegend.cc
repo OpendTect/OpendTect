@@ -98,7 +98,7 @@ void uiLegendItem::buildLayout()
 // interactive text
     title_ = new uiAdvancedTextItem( sMap() );
 
-    Alignment al( Alignment::HCenter, Alignment::Bottom );
+    OD::Alignment al( OD::Alignment::HCenter, OD::Alignment::Bottom );
     country_ = new uiAdvancedTextItem( sCountry(), al, true );
     block_ = new uiAdvancedTextItem( sBlock(), al, true );
     license_ = new uiAdvancedTextItem( sLicense(), al, true );

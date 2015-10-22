@@ -128,7 +128,7 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
-	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
+	titleitem_->setAlignment( OD::Alignment(OD::Alignment::HCenter,OD::Alignment::Top));
 	titleitem_->setPos( uiPoint(width()/2,0) );
 	titleitem_->setZValue( 2 );
     }
@@ -415,7 +415,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 
     if ( polydrawn )
     {
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.width_ = setup_.ywidth_;
 	ls.color_ = setup_.ycol_;
 	ypolyitem_->setPenStyle( ls );
@@ -454,7 +454,7 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 
     if ( polydrawn )
     {
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.width_ = setup_.y2width_;
 	ls.color_ = setup_.y2col_;
 	y2polyitem_->setPenStyle( ls );
@@ -498,7 +498,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 
     uiGraphicsItemGroup* curitmgrp = isy2 ? y2markeritems_ : ymarkeritems_;
     curitmgrp->setVisible( true );
-    const MarkerStyle2D& mst = isy2 ? setup_.markerstyley2_
+    const OD::MarkerStyle2D& mst = isy2 ? setup_.markerstyley2_
 				    : setup_.markerstyley1_;
     const bool markerisfilled = isy2 ? setup_.markerfilly2_
 				     : setup_.markerfilly1_;

@@ -196,9 +196,9 @@ void ODGoogle::XMLWriter::writePolyStyle( const char* stylnm, const Color& col,
     if ( !isOK() ) return; mDeclPolyStNm;
 
     strm() <<	"\t<Style id=\"" << stnm << "\">\n"
-		"\t\t<LineStyle>\n"
+		"\t\t<OD::LineStyle>\n"
 		"\t\t\t<width>" << wdth << "</width>\n"
-		"\t\t</LineStyle>\n"
+		"\t\t</OD::LineStyle>\n"
 		"\t\t<PolyStyle>\n"
 		"\t\t\t<color>" << col.getStdStr(false,-1) << "</color>\n";
     strm() <<	"\t\t</PolyStyle>\n"

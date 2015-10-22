@@ -459,7 +459,7 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     }
 
     curpolylineitem->setPolyLine( pixpts );
-    LineStyle ls = yah->setup().style_;
+    OD::LineStyle ls = yah->setup().style_;
     ls.width_ = 3;
     curpolylineitem->setPenStyle( ls );
     curpolylineitem->setZValue( 4 );
@@ -1299,7 +1299,7 @@ void uiDataPointSetCrossPlotter::prepareItems( bool y2 )
 }
 
 
-void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
+void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,OD::MarkerStyle2D& mstyle,
 					       uiGraphicsItemGroup* curitmgrp,
 					       uiAxisHandler& yah,
 					       uiDataPointSet::DRowID rid,
@@ -1308,7 +1308,7 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
     if ( itmidx >= curitmgrp->size() )
     {
 	uiGraphicsItem* itm = 0;
-	if ( mstyle.type_ == MarkerStyle2D::None )
+	if ( mstyle.type_ == OD::MarkerStyle2D::None )
 	    itm = new uiPointItem();
 	else
 	{
@@ -1500,7 +1500,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	else if ( showy4_ && isy2 && isY2Shown() )
 	    overlaycol = getOverlayColor(rid,false);
 
-	MarkerStyle2D mstyle( setup_.markerstyle_ );
+	OD::MarkerStyle2D mstyle( setup_.markerstyle_ );
 	mstyle.color_.setRgb( yad.axis_->setup().style_.color_.rgb() );
 	mDynamicCastGet(uiMarkerItem*,markeritem,item)
 	if ( markeritem ) markeritem->setMarkerStyle( mstyle );
@@ -1715,7 +1715,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 bool uiDataPointSetCrossPlotter::drawRID( uiDataPointSet::DRowID rid,
 	uiGraphicsItemGroup* curitmgrp,
 	const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2,
-	MarkerStyle2D& mstyle, int itmidx, bool remsel )
+	OD::MarkerStyle2D& mstyle, int itmidx, bool remsel )
 {
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
@@ -1751,7 +1751,7 @@ bool uiDataPointSetCrossPlotter::drawRID( uiDataPointSet::DRowID rid,
 
 bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2,
-	MarkerStyle2D& mstyle, bool removesel )
+	OD::MarkerStyle2D& mstyle, bool removesel )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     isdensityplot_ = false;
@@ -1796,7 +1796,7 @@ void uiDataPointSetCrossPlotter::drawData(
 
     uiAxisHandler& yah = *yad.axis_;
 
-    MarkerStyle2D mstyle( setup_.markerstyle_ );
+    OD::MarkerStyle2D mstyle( setup_.markerstyle_ );
     mstyle.color_.setRgb( yah.setup().style_.color_.rgb() );
 
     prepareItems( isy2 );

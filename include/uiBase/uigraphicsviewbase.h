@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiobj.h"
 
-class Alignment;
+namespace OD { class Alignment; };
 class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
@@ -63,7 +63,7 @@ public:
     void			centreOn(uiPoint);
     uiRect			getSceneRect() const;
     void			setSceneRect(const uiRect&);
-    void			setSceneAlignment(const Alignment&);
+    void			setSceneAlignment(const OD::Alignment&);
 
     uiPoint			getCursorPos() const;
     void			getScaleFactor(float&,float&) const;

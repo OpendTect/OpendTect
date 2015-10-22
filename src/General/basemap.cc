@@ -36,9 +36,9 @@ void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 { }
 
 
-Alignment BaseMapObject::getAlignment( int shapeidx ) const
+OD::Alignment BaseMapObject::getAlignment( int shapeidx ) const
 {
-    return Alignment();
+    return OD::Alignment();
 }
 
 
@@ -92,7 +92,7 @@ BaseMapMarkers::~BaseMapMarkers()
 { }
 
 
-void BaseMapMarkers::setMarkerStyle( int, const MarkerStyle2D& ms )
+void BaseMapMarkers::setMarkerStyle( int, const OD::MarkerStyle2D& ms )
 {
     if ( markerstyle_==ms )
 	return;

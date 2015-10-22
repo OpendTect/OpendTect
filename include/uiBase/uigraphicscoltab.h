@@ -30,15 +30,15 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-			Setup( bool h ) //!< horizontal?
-			    : hor_(h)
-			    , sz_(h?100:25,h?25:100)
-			    , startal_(Alignment::HCenter,Alignment::Bottom)
-			    , stopal_(Alignment::HCenter,Alignment::Top) {}
+		Setup( bool h ) //!< horizontal?
+		    : hor_(h)
+		    , sz_(h?100:25,h?25:100)
+		    , startal_(OD::Alignment::HCenter,OD::Alignment::Bottom)
+		    , stopal_(OD::Alignment::HCenter,OD::Alignment::Top) {}
 	mDefSetupMemb(bool,hor)
 	mDefSetupMemb(uiSize,sz)
-	mDefSetupMemb(Alignment,startal)
-	mDefSetupMemb(Alignment,stopal)
+	mDefSetupMemb(OD::Alignment,startal)
+	mDefSetupMemb(OD::Alignment,stopal)
     };
 
     			uiColTabItem(const Setup&);

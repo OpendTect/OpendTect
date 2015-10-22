@@ -33,16 +33,16 @@ public:
 
     int		addMsgFld(const uiString& lbltxt=uiString::emptyString(),
 			  const uiString& tooltip =uiString::emptyString(),
-			  Alignment::HPos al=Alignment::Left,
+			  OD::Alignment::HPos al=OD::Alignment::Left,
 			  int stretch=1);
 
     int		addMsgFld(const uiString& tooltip,
-				  Alignment::HPos al=Alignment::Left,
+				  OD::Alignment::HPos al=OD::Alignment::Left,
 				  int stretch=1);
     bool		addObject(uiObject*);
 
     void		setToolTip(int,const uiString&);
-    void		setTxtAlign(int,Alignment::HPos);
+    void		setTxtAlign(int,OD::Alignment::HPos);
     void		setLabelTxt(int,const uiString&);
 
     int			nrFields() const;

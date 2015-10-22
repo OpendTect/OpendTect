@@ -73,8 +73,8 @@ public:
 
     virtual void		turnOnSelectionMode(bool);
     bool			allowMaterialEdit() const { return true; }
-    const LineStyle*		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    const OD::LineStyle*		lineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
 
     bool			hasColor() const;
     void			setColor(Color);

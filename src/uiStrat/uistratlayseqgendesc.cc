@@ -390,9 +390,10 @@ uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
     lithcol_->setPenColor( lithcolor );
     lithcol_->setFillColor( lithcolor );
     top_ = scene_.addItem( new uiLineItem );
-    top_->setPenStyle( LineStyle(LineStyle::Solid) );
+    top_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid) );
     poly_ = scene_.addItem( new uiPolygonItem );
-    const LineStyle ls( LineStyle::Solid, 2, gen_->unit().dispColor(false) );;
+    const OD::LineStyle
+	ls( OD::LineStyle::Solid, 2, gen_->unit().dispColor(false) );;
     poly_->setPenStyle( ls );
 }
 

@@ -26,7 +26,7 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
 {
     uiGraphicsObjectScene* newscene = new uiGraphicsObjectScene("Object Scene");
     setScene( *newscene );
-    setSceneAlignment( Alignment::HCenter );
+    setSceneAlignment( OD::Alignment::HCenter );
 
     CallBack resetareacb( mCB(this,uiObjectItemView,resetViewArea) );
     reSize.notify( resetareacb );

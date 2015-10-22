@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 
-class LineStyle;
+namespace OD { class LineStyle; };
 
 
 namespace osgGeo {
@@ -48,8 +48,8 @@ public:
     void		setPoint( int, const Coord3& );
     void		removePoint( int );
     void		removeAllPoints();
-    void		setLineStyle(const LineStyle&);
-    const LineStyle&	lineStyle() const;
+    void		setLineStyle(const OD::LineStyle&);
+    const OD::LineStyle&	lineStyle() const;
 
     void		setDisplayTransformation( const mVisTrans* );
     			/*!<\note The transformation is forwarded to the
@@ -70,8 +70,8 @@ public:
     static PolyLine3D*	create()
 			mCreateDataObj(PolyLine3D);
 
-    void		setLineStyle(const LineStyle&);
-    const LineStyle&	lineStyle() const;
+    void		setLineStyle(const OD::LineStyle&);
+    const OD::LineStyle&	lineStyle() const;
     void		setResolution(int);
     int			getResolution() const;
     void		addPrimitiveSetToScene(osg::PrimitiveSet*);
@@ -89,7 +89,7 @@ public:
 protected:
     void			updateRadius();
     osgGeo::PolyLineNode*	osgpoly_;
-    LineStyle			lst_;
+    OD::LineStyle			lst_;
     float			pixeldensity_;
 };
 

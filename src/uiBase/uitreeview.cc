@@ -500,7 +500,7 @@ uiTreeView::WidthMode uiTreeView::columnWidthMode( int column ) const
 }
 
 
-void uiTreeView::setColumnAlignment( Alignment::HPos hal )
+void uiTreeView::setColumnAlignment( OD::Alignment::HPos hal )
 {
     const int nrcols = nrColumns();
     for ( int icol=0; icol<nrcols; icol++ )
@@ -508,16 +508,16 @@ void uiTreeView::setColumnAlignment( Alignment::HPos hal )
 }
 
 
-void uiTreeView::setColumnAlignment( int col, Alignment::HPos hal )
+void uiTreeView::setColumnAlignment( int col, OD::Alignment::HPos hal )
 {
-    Alignment al( hal );
+    OD::Alignment al( hal );
     body_->headerItem()->setTextAlignment( col, al.uiValue() );
 }
 
 
-Alignment::HPos uiTreeView::columnAlignment( int col ) const
+OD::Alignment::HPos uiTreeView::columnAlignment( int col ) const
 {
-    Alignment al;
+    OD::Alignment al;
     al.setUiValue( body_->headerItem()->textAlignment(col) );
     return al.hPos();
 }

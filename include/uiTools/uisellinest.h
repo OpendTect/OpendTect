@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiComboBox;
 class uiColorInput;
 class uiLabeledSpinBox;
-class LineStyle;
+namespace OD { class LineStyle; };
 
 
 /*!\brief Group for defining line properties
@@ -51,14 +51,14 @@ public:
 
     };
 
-			uiSelLineStyle(uiParent*,const LineStyle&,
+			uiSelLineStyle(uiParent*,const OD::LineStyle&,
 			 const uiString& lbltxt=uiString::emptyString());
-			uiSelLineStyle(uiParent*,const LineStyle&,
+			uiSelLineStyle(uiParent*,const OD::LineStyle&,
 					       const Setup&);
 			~uiSelLineStyle();
 
-    void		setStyle(const LineStyle&);
-    const LineStyle&	getStyle() const;
+    void		setStyle(const OD::LineStyle&);
+    const OD::LineStyle&	getStyle() const;
 
     void		setColor(const Color&);
     const Color&	getColor() const;
@@ -76,7 +76,7 @@ protected:
     uiColorInput*		colinp_;
     uiLabeledSpinBox*		widthbox_;
 
-    LineStyle&			linestyle_;
+    OD::LineStyle&			linestyle_;
 
     void			changeCB(CallBacker*);
 private:

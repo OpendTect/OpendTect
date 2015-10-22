@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 
 class DataPointSet;
-class LineStyle;
+namespace OD { class LineStyle; };
 class NotifierAccess;
 class RegularSeisDataPack;
 class SeisTrcBuf;
@@ -138,10 +138,10 @@ public:
 					 with setMaterial on
 					 visBase::VisualObject */
 
-    virtual const LineStyle*	lineStyle() const { return 0; }
+    virtual const OD::LineStyle*	lineStyle() const { return 0; }
 				/*!<If the linestyle can be set, a non-zero
 				    pointer should be return. */
-    virtual void		setLineStyle(const LineStyle&) {}
+    virtual void		setLineStyle(const OD::LineStyle&) {}
     virtual void		getLineWidthBounds(int& min,int& max);
     virtual bool		hasSpecificLineColor() const { return false; }
 				/*!<Specifies wether setLineStyle takes

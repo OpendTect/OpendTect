@@ -27,7 +27,8 @@ namespace ODGMT
 			mDeclareNameSpaceEnumUtils(GMT,Alignment);
     enum ExecStatus	{ Success, FatalError, Failure };
 
-    static const char* shapekeysbuf[] = { "a", "c", "d", "s", "t", "x", "n", "-", 0 };
+    static const char* shapekeysbuf[] =
+			{ "a", "c", "d", "s", "t", "x", "n", "-", 0 };
     static const char* resolkeysbuf[] = { "f", "h", "i", "l", "c" };
 
     mGlobal(GMT) inline const char**	sShapeKeys() { return shapekeysbuf; }

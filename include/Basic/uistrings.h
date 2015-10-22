@@ -164,7 +164,7 @@ public:
     static uiString sAdd();
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
-    static uiString sAlignment()	{ return tr("Alignment"); }
+    static uiString sAlignment()	{ return tr("OD::Alignment"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAmplitude()	{ return tr("Amplitude"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }

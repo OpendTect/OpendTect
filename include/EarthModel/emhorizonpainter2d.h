@@ -30,7 +30,8 @@ public:
 			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);
 			~HorizonPainter2D();
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,
+					   bool upd=false);
     void		setGeomID(Pos::GeomID);
 
     void		enableLine(bool);
@@ -70,8 +71,8 @@ protected:
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
 
-    LineStyle		markerlinestyle_;
-    MarkerStyle2D	markerstyle_;
+    OD::LineStyle		markerlinestyle_;
+    OD::MarkerStyle2D	markerstyle_;
     FlatView::Viewer&	viewer_;
 
     Pos::GeomID 	geomid_;

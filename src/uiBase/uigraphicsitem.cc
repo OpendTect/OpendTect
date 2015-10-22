@@ -421,7 +421,7 @@ void uiGraphicsItem::setSelectable( bool yn )
 }
 
 
-void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
+void uiGraphicsItem::setPenStyle( const OD::LineStyle& ls, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
@@ -458,14 +458,14 @@ void uiGraphicsItem::setFillColor( const Color& col, bool usetransparency )
 }
 
 
-void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
+void uiGraphicsItem::setFillPattern( const OD::FillPattern& inpfp )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
     QBrush qbrush = agsitm->brush();
     Qt::BrushStyle qbs = Qt::NoBrush;
-    FillPattern fp = inpfp;
+    OD::FillPattern fp = inpfp;
 
     // Beware, this is a duplication of what is in draw.cc
     // Did this to get full freedom to solve extensions and changes in .cc only

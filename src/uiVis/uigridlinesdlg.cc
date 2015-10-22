@@ -58,7 +58,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     if ( inlfld_ && crlfld_ )
 	crlfld_->attach( leftAlignedBelow, inlspacingfld_ );
 
-    LineStyle lst;
+    OD::LineStyle lst;
     pdd->gridlines()->getLineStyle( lst );
 
     lsfld_ = new uiSelLineStyle( this, lst, tr("Line style") );

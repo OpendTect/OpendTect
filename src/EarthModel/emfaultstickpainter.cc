@@ -27,8 +27,8 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 				      const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
-    , markerlinestyle_( LineStyle::Solid,2,Color(0,255,0) )
-    , markerstyle_( MarkerStyle2D::Square, 4, Color(255,255,0) )
+    , markerlinestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
+    , markerstyle_( OD::MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( -1 )
     , is2d_( false )
     , path_(0)
@@ -439,7 +439,7 @@ void FaultStickPainter::setActiveStick( EM::PosID& pid )
 
     for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )
     {
-	LineStyle& linestyle =
+	OD::LineStyle& linestyle =
 	    (*sectionmarkerlines_[0])[stkidx]->marker_->linestyle_;
 	if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;

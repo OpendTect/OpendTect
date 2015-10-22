@@ -31,18 +31,18 @@ static const float logof2 = logf(2);
     }
 
 
-class uiAHPlotAnnot : public PlotAnnotation
+class uiAHPlotAnnot : public OD::PlotAnnotation
 {
 public:
 
     enum Type		{ Aux, Special, Fill };
 			uiAHPlotAnnot( Type t )
 			    : type_(t), txtwdth_(0)		{}
-			uiAHPlotAnnot( const PlotAnnotation& pah )
+			uiAHPlotAnnot( const OD::PlotAnnotation& pah )
 								{ *this = pah; }
 			uiAHPlotAnnot( const uiAHPlotAnnot& oth )
 								{ *this = oth; }
-    uiAHPlotAnnot&	operator =(const PlotAnnotation&);
+    uiAHPlotAnnot&	operator =(const OD::PlotAnnotation&);
     uiAHPlotAnnot&	operator =(const uiAHPlotAnnot&);
 
     Type		type_;
@@ -64,7 +64,7 @@ public:
     uiFont&		font()			{ return FontList().get(); }
     void		setVisible(bool);
 
-    void		add(const PlotAnnotation&);
+    void		add(const OD::PlotAnnotation&);
     void		add(float,uiAHPlotAnnot::Type);
 
     void		allAdded();
@@ -74,7 +74,7 @@ protected:
 
     void		removeAllGraphicsItems();
 
-    const LineStyle&	getLineStyle(const uiAHPlotAnnot&) const;
+    const OD::LineStyle&	getLineStyle(const uiAHPlotAnnot&) const;
     int			getZValue(const uiAHPlotAnnot&) const;
 
     void		addItems(const uiAHPlotAnnot&,bool);
@@ -96,9 +96,9 @@ protected:
 };
 
 
-uiAHPlotAnnot& uiAHPlotAnnot::operator =( const PlotAnnotation& pah )
+uiAHPlotAnnot& uiAHPlotAnnot::operator =( const OD::PlotAnnotation& pah )
 {
-    PlotAnnotation::operator =( pah );
+    OD::PlotAnnotation::operator =( pah );
     type_ = Aux;
     txtwdth_ = FontList().get().width( pah.txt_ );
     return *this;
@@ -107,7 +107,7 @@ uiAHPlotAnnot& uiAHPlotAnnot::operator =( const PlotAnnotation& pah )
 
 uiAHPlotAnnot& uiAHPlotAnnot::operator =( const uiAHPlotAnnot& oth )
 {
-    PlotAnnotation::operator =( oth );
+    OD::PlotAnnotation::operator =( oth );
     type_ = oth.type_;
     txtwdth_ = oth.txtwdth_;
     return *this;
@@ -137,10 +137,10 @@ void uiAHPlotAnnotSet::setVisible( bool yn )
 }
 
 
-const LineStyle& uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah )const
+const OD::LineStyle& uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah )const
 {
     if ( !pah.isAux() ) return setup_.style_;
-    const bool ishighlighted = pah.linetype_ == PlotAnnotation::HighLighted;
+    const bool ishighlighted = pah.linetype_ == OD::PlotAnnotation::HighLighted;
     return ishighlighted ? setup_.auxhllinestyle_ : setup_.auxlinestyle_;
 }
 
@@ -152,7 +152,7 @@ int uiAHPlotAnnotSet::getZValue( const uiAHPlotAnnot& pah ) const
 }
 
 
-void uiAHPlotAnnotSet::add( const PlotAnnotation& pah )
+void uiAHPlotAnnotSet::add( const OD::PlotAnnotation& pah )
 {
     *this += uiAHPlotAnnot( pah );
 }
@@ -165,7 +165,7 @@ void uiAHPlotAnnotSet::add( float val, uiAHPlotAnnot::Type type )
     pah.txt_ = mToUiStringTodo(toStringLim( val, val < 0 ? axh_.reqnrchars_+1
 					 : axh_.reqnrchars_ ));
     pah.txtwdth_ = font().width( pah.txt_ );
-    pah.linetype_ = PlotAnnotation::Normal;
+    pah.linetype_ = OD::PlotAnnotation::Normal;
     *this += pah;
 }
 
@@ -253,7 +253,7 @@ void uiAHPlotAnnotSet::addGridLineAt( int pix, const uiAHPlotAnnot& pah )
 
 void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 {
-    const LineStyle& ls = getLineStyle( pah );
+    const OD::LineStyle& ls = getLineStyle( pah );
     const int zvalue = getZValue( pah );
     uiLineItem* tickitm = axh_.getTickLine( pix );
     tickitm->setPenColor( ls.color_ );
@@ -264,15 +264,15 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
     const int p1 = axh_.tickEndPix( true );
     if ( axh_.isHor() )
     {
-	const Alignment al( Alignment::HCenter, setup_.side_ == uiRect::Top
-	    ? (setup_.annotinside_ ? Alignment::Top : Alignment::Bottom)
-	    : (setup_.annotinside_ ? Alignment::Bottom : Alignment::Top) );
+	const OD::Alignment al( OD::Alignment::HCenter, setup_.side_ == uiRect::Top
+	    ? (setup_.annotinside_ ? OD::Alignment::Top : OD::Alignment::Bottom)
+	    : (setup_.annotinside_ ? OD::Alignment::Bottom : OD::Alignment::Top) );
 	txtitm = new uiTextItem( uiPoint(pix,p1), pah.txt_, al );
     }
     else
     {
-	const Alignment al( setup_.side_==uiRect::Left ?
-		Alignment::Right : Alignment::Left, Alignment::VCenter );
+	const OD::Alignment al( setup_.side_==uiRect::Left ?
+		OD::Alignment::Right : OD::Alignment::Left, OD::Alignment::VCenter );
 	txtitm = new uiTextItem( uiPoint(p1,pix), pah.txt_, al );
     }
 
@@ -576,8 +576,8 @@ void uiAxisHandler::updateAxisLine()
     if ( setup_.noaxisline_ )
 	{ mRemoveFromScene( axislineitm_ ); return; }
 
-    LineStyle ls( setup_.style_ );
-    ls.type_ = LineStyle::Solid;
+    OD::LineStyle ls( setup_.style_ );
+    ls.type_ = OD::LineStyle::Solid;
 
     const int edgepix = pixToEdge();
     if ( isHor() )
@@ -674,7 +674,7 @@ void uiAxisHandler::updateName()
     else
 	nameitm_->setText( setup_.caption_ );
 
-    Alignment al( Alignment::HCenter, Alignment::VCenter );
+    OD::Alignment al( OD::Alignment::HCenter, OD::Alignment::VCenter );
     uiPoint pt;
     const int namepos = pixToEdge() - ticSz() - pxsizeinotherdir_;
     if ( isHor() )
@@ -682,7 +682,7 @@ void uiAxisHandler::updateName()
 	const bool istop = setup_.side_ == uiRect::Top;
 	pt.x = pixBefore() + axsz_/2;
 	pt.y = istop ? namepos : height_-namepos;
-	al.set( istop ? Alignment::Top : Alignment::Bottom );
+	al.set( istop ? OD::Alignment::Top : OD::Alignment::Bottom );
     }
     else
     {
@@ -798,21 +798,21 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 	{ mRemoveFromScene( endannotitm_ ); return; }
 
     const int pix2edge = pixToEdge();
-    int xpix, ypix; Alignment al;
+    int xpix, ypix; OD::Alignment al;
     if ( isHor() )
     {
 	xpix = devsz_ - pixAfter() - 2;
 	ypix = setup_.side_ == uiRect::Top ? pix2edge  : height_ - pix2edge - 2;
-	al.set( Alignment::Left,
-		setup_.side_==uiRect::Top ? Alignment::Bottom : Alignment::Top);
+	al.set( OD::Alignment::Left,
+		setup_.side_==uiRect::Top ? OD::Alignment::Bottom : OD::Alignment::Top);
     }
     else
     {
 	xpix = setup_.side_ == uiRect::Left  ? pix2edge + 5
 					     : width_ - pix2edge - 5;
 	ypix = pixBefore() + 5;
-	al.set( setup_.side_==uiRect::Left ? Alignment::Left : Alignment::Right,
-		Alignment::VCenter );
+	al.set( setup_.side_==uiRect::Left ? OD::Alignment::Left : OD::Alignment::Right,
+		OD::Alignment::VCenter );
     }
 
     if ( !endannotitm_ )

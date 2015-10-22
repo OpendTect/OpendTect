@@ -49,7 +49,7 @@ public:
 
     void		setActiveStick(EM::PosID&);
     int			getActiveStickId()	{ return activestickid_; }
-    void		setMarkerLineStyle(const LineStyle&);
+    void		setMarkerLineStyle(const OD::LineStyle&);
     bool		hasDiffActiveStick(const EM::PosID*);
     FlatView::AuxData*	getAuxData(const EM::PosID*);
 
@@ -103,8 +103,8 @@ protected:
     const TrcKeyPath*	path_;
     const FlatPosData*	flatposdata_;
 
-    LineStyle		markerlinestyle_;
-    MarkerStyle2D       markerstyle_;
+    OD::LineStyle		markerlinestyle_;
+    OD::MarkerStyle2D	    markerstyle_;
 
     FlatView::Viewer&   viewer_;
 

@@ -176,7 +176,7 @@ void uiPolarDiagram::drawPointer()
     if ( !pointeritm_ )
     {
 	pointeritm_ = scene().addItem( new uiMarkerItem );
-	LineStyle ls( LineStyle::Solid, 3, Color( 255, 0, 0 ) );
+	OD::LineStyle ls( OD::LineStyle::Solid, 3, Color( 255, 0, 0 ) );
 	pointeritm_->setPenStyle( ls );
     }
 	

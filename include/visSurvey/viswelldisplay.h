@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "welllogdisp.h"
 #include "factory.h"
 
-class LineStyle;
+namespace OD { class LineStyle; };
 
 namespace visBase
 {
@@ -88,8 +88,8 @@ public:
     void			fillLogParams(visBase::Well::LogParams&,
 						visBase::Well::Side side);
 
-    const LineStyle*		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    const OD::LineStyle*		lineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
     bool			hasColor() const	{ return true; }
     Color			getColor() const;
     void			setLogData(visBase::Well::LogParams&,bool);

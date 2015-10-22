@@ -47,9 +47,9 @@ EMObject::EMObject( EMManager& emm )
     , locked_( false )
     , burstalertcount_( 0 )
     , selremoving_( false )
-    , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
+    , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
-	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::Green()))
+	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::Green()))
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -210,13 +210,13 @@ bool EMObject::isAtEdge( const PosID& ) const
 }
 
 
-const LineStyle& EMObject::preferredLineStyle() const
+const OD::LineStyle& EMObject::preferredLineStyle() const
 {
     return preferredlinestyle_;
 }
 
 
-void EMObject::setPreferredLineStyle( const LineStyle& lnst )
+void EMObject::setPreferredLineStyle( const OD::LineStyle& lnst )
 {
     if ( preferredlinestyle_ == lnst )
 	return;
@@ -442,14 +442,14 @@ const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 }
 
 
-const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
+const OD::MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
 {
     addPosAttrib( attr );
     return preferredMarkerStyle3D();
 }
 
 
-void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
+void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
 {
     addPosAttrib( attr );
     setPreferredMarkerStyle3D( ms );
@@ -462,13 +462,13 @@ void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
 }
 
 
-const MarkerStyle3D& EMObject::preferredMarkerStyle3D() const
+const OD::MarkerStyle3D& EMObject::preferredMarkerStyle3D() const
 {
     return preferredmarkerstyle_;
 }
 
 
-void EMObject::setPreferredMarkerStyle3D( const MarkerStyle3D& mkst )
+void EMObject::setPreferredMarkerStyle3D( const OD::MarkerStyle3D& mkst )
 {
     if( mkst == preferredmarkerstyle_ )
 	return;
@@ -624,7 +624,7 @@ void EMObject::useDisplayPars( const IOPar& par )
     }
 
     BufferString lnststr;
-    LineStyle lnst;
+    OD::LineStyle lnst;
     if( displaypar.get(sKey::LineStyle(),lnststr) )
     {
 	lnst.fromString( lnststr );
@@ -632,7 +632,7 @@ void EMObject::useDisplayPars( const IOPar& par )
     }
 
     BufferString mkststr;
-    MarkerStyle3D mkst;
+    OD::MarkerStyle3D mkst;
     if( displaypar.get(sKey::MarkerStyle(),mkststr) )
     {
 	mkst.fromString( mkststr );

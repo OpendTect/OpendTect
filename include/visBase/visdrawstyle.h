@@ -42,13 +42,13 @@ public:
     void		setPointSize( float );
     float		getPointSize() const;
 
-    void		setLineStyle( const LineStyle& );
+    void		setLineStyle( const OD::LineStyle& );
 			/*!< Color in Linestyle is ignored, must be
 			 set separately.
 			 */
 
     void 		setLineWidth(int);
-    const LineStyle&	lineStyle() const 		{ return linestyle_; }
+    const OD::LineStyle& lineStyle() const 		{ return linestyle_; }
 
     void		setPixelDensity(float);
 
@@ -56,7 +56,7 @@ protected:
 
     void			updateLineStyle();
 
-    LineStyle			linestyle_;
+    OD::LineStyle			linestyle_;
     float			pointsize_;
     float			pixeldensity_;
 

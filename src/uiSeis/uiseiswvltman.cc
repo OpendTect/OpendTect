@@ -83,7 +83,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
     wvnamdisp_ = new uiLabel( wvltdispgrp, uiStrings::sWavelet() );
     wvnamdisp_->attach(centeredAbove, waveletdisplay_);
-    wvnamdisp_->setAlignment( Alignment::HCenter );
+    wvnamdisp_->setAlignment( OD::Alignment::HCenter );
       
     selChg( this );
     mTriggerInstanceCreatedNotifier();

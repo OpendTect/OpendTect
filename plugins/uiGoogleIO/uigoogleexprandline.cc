@@ -42,7 +42,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 			      StringInpSpec(mFromUiStringTodo(nm)) );
     lnmfld_->attach( alignedBelow, putlnmfld_ );
 
-    LineStyle ls( LineStyle::Solid, 20, Color(200,0,200) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 20, Color(200,0,200) );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, lnmfld_ );
@@ -67,11 +67,11 @@ bool uiGoogleExportRandomLine::acceptOK( CallBacker* )
     if ( !lnmchoice || !*lnm ) lnm = "Random line";
     mCreateWriter( lnm, SI().name() );
 
-    BufferString ins( "\t\t<LineStyle>\n\t\t\t<color>" );
+    BufferString ins( "\t\t<OD::LineStyle>\n\t\t\t<color>" );
     ins += lsfld_->getColor().getStdStr(false,-1);
     ins += "</color>\n\t\t\t<width>";
     ins += lsfld_->getWidth() * .1;
-    ins += "</width>\n\t\t</LineStyle>";
+    ins += "</width>\n\t\t</OD::LineStyle>";
     wrr.writeIconStyles( 0, 0, ins );
 
 

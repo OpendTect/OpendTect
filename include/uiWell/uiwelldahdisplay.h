@@ -53,7 +53,7 @@ public:
     {
 			    Setup()
 			    : nrmarkerchars_(2)
-			    , pickls_(LineStyle::Solid,1,Color(0,200,0))
+			    , pickls_(OD::LineStyle::Solid,1,Color(0,200,0))
 			    , border_(5)
 			    , noxannot_(false)
 			    , noyannot_(false)
@@ -66,7 +66,8 @@ public:
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
-	mDefSetupMemb(LineStyle,pickls)   //!< color used if no PickData color
+	mDefSetupMemb(OD::LineStyle,pickls)
+	//!< color used if no PickData color
 	mDefSetupMemb(int,axisticsz)
 	mDefSetupMemb(bool,noxannot)
 	mDefSetupMemb(bool,noyannot)
@@ -197,7 +198,7 @@ protected:
 			    ~MarkerDraw();
 
 	const Well::Marker&     mrk_;
-	LineStyle               ls_;
+	OD::LineStyle               ls_;
 	uiTextItem*             txtitm_;
 	uiLineItem*             lineitm_;
     };

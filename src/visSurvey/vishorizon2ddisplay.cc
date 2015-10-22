@@ -37,7 +37,7 @@ namespace visSurvey
 Horizon2DDisplay::Horizon2DDisplay()
 {
     points_.allowNull(true);
-    EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,5 ) );
+    EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
 }
 
 
@@ -134,7 +134,7 @@ const visBase::PointSet* Horizon2DDisplay::getPointSet(
     return 0;
 }
 
-void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
+void Horizon2DDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     // TODO: set the draw style correctly after properly implementing
     // different line styles. Only SOLID is supported now.

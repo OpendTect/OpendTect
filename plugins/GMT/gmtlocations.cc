@@ -272,14 +272,14 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
-    LineStyle ls;
+    OD::LineStyle ls;
     const char* lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     bool dofill;
     getYN( ODGMT::sKeyFill(), dofill );
 
     bool drawline = true;
-    if ( ls.type_ == LineStyle::None && dofill )
+    if ( ls.type_ == OD::LineStyle::None && dofill )
 	drawline = false;
 
     BufferString comm = "@psxy ";

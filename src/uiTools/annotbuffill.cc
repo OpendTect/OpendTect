@@ -128,7 +128,7 @@ dPoint AnnotBufferFiller::computeIntersect( const dPoint& pt1,
 }
 
 
-void AnnotBufferFiller::addLineInfo( const LineStyle& ls, TypeSet<dPoint> ptset,
+void AnnotBufferFiller::addLineInfo( const OD::LineStyle& ls, TypeSet<dPoint> ptset,
 				     bool ishgrid, bool isvgrid )
 {
     LineInfo* linfo = new LineInfo();
@@ -147,7 +147,7 @@ void AnnotBufferFiller::dummytest()
 {
     LineInfo* linfo = new LineInfo();
     
-    LineStyle lstyle( LineStyle::Solid, 1, Color::DgbColor() );
+    OD::LineStyle lstyle( OD::LineStyle::Solid, 1, Color::DgbColor() );
     linfo->linestyle_ = lstyle;
     linfo->pts_ += dPoint( 125, 0.5 );
     linfo->pts_ += dPoint( 200, 1.8 );

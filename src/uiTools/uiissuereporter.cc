@@ -38,7 +38,7 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
 		"when this problem occurred.\n\n"
 		"For feedback and/or updates on this issue,\n"
 		"do please also leave your e-mail address\n") );
-    plealbl->setAlignment( Alignment::HCenter );
+    plealbl->setAlignment( OD::Alignment::HCenter );
     uiButton* vrbut = new uiPushButton( this, tr("View report"),
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
     vrbut->attach( centeredRightOf, lblgrp );

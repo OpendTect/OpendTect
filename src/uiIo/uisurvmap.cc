@@ -25,12 +25,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
-    , ls_(LineStyle::Solid,3,Color::Red())
+    , ls_(OD::LineStyle::Solid,3,Color::Red())
     , showlabels_(true)
 {
     for ( int idx=0; idx<4; idx++ )
     {
-        uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
+        uiMarkerItem* markeritem = new uiMarkerItem( OD::MarkerStyle2D::Square );
 	graphitem_.addChild( markeritem );
 	vertices_ += markeritem;
     }
@@ -67,7 +67,7 @@ bool uiSurveyBoxObject::labelsShown() const
 { return !labels_.isEmpty() && labels_[0]->isVisible(); }
 
 
-void uiSurveyBoxObject::setLineStyle( const LineStyle& ls )
+void uiSurveyBoxObject::setLineStyle( const OD::LineStyle& ls )
 {
     ls_ = ls;
     frame_->setPenColor( ls.color_ );
@@ -112,8 +112,8 @@ void uiSurveyBoxObject::update()
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
 	const bool bot = mapcnr[idx].y > mapcnr[oppidx].y;
         BinID bid = si.transform( mapcnr[idx] );
-	Alignment al( Alignment::HCenter,
-		      bot ? Alignment::Top : Alignment::Bottom );
+	OD::Alignment al( OD::Alignment::HCenter,
+		      bot ? OD::Alignment::Top : OD::Alignment::Bottom );
 	labels_[idx]->setPos( mapcnr[idx] );
 	labels_[idx]->setText( toUiString(bid.toString()) );
 	labels_[idx]->setAlignment( al );
@@ -127,7 +127,7 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     : uiBaseMapObject(bmo)
     , angleline_(0), anglelabel_(0)
 {
-    ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
+    OD::ArrowStyle arrowstyle( 3, OD::ArrowStyle::HeadOnly );
     arrowstyle.linestyle_.width_ = 3;
     arrow_ = new uiArrowItem;
     arrow_->setArrowStyle( arrowstyle );
@@ -137,7 +137,7 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
 	return;
 
     angleline_ = new uiLineItem;
-    angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
+    angleline_->setPenStyle( OD::LineStyle(OD::LineStyle::Dot,2,Color(255,0,0)) );
     graphitem_.addChild( angleline_ );
 
     mDeclAlignment( txtalign, Right, Bottom );

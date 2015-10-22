@@ -51,7 +51,7 @@ MarkerSet::MarkerSet()
     setMaximumScale( maxscale );
 
     setAutoRotateMode( NO_ROTATION );
-    setType( MarkerStyle3D::Cube );
+    setType( OD::MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
     setMaterial( 0 ); //Triggers update of markerset's color array
 }
@@ -140,7 +140,7 @@ void MarkerSet::removeMarker( int idx )
 }
 
 
-void MarkerSet::setMarkerStyle( const MarkerStyle3D& ms )
+void MarkerSet::setMarkerStyle( const OD::MarkerStyle3D& ms )
 {
     setType( ms.type_ );
     setScreenSize( (float) ms.size_ );
@@ -177,35 +177,35 @@ void MarkerSet::getColorArray( TypeSet<Color>& colors ) const
 }
 
 
-MarkerStyle3D::Type MarkerSet::getType() const
+OD::MarkerStyle3D::Type MarkerSet::getType() const
 {
     return markerstyle_.type_;
 }
 
 
-void MarkerSet::setType( MarkerStyle3D::Type type )
+void MarkerSet::setType( OD::MarkerStyle3D::Type type )
 {
     switch ( type )
     {
-	case MarkerStyle3D::Cube:
+	case OD::MarkerStyle3D::Cube:
 	    markerset_->setShape( osgGeo::MarkerShape::Box );
 	    break;
-	case MarkerStyle3D::Cone:
+	case OD::MarkerStyle3D::Cone:
 	    markerset_->setShape( osgGeo::MarkerShape::Cone );
 	    break;
-	case MarkerStyle3D::Cylinder:
+	case OD::MarkerStyle3D::Cylinder:
 	    markerset_->setShape( osgGeo::MarkerShape::Cylinder );
 	    break;
-	case MarkerStyle3D::Sphere:
+	case OD::MarkerStyle3D::Sphere:
 	    markerset_->setShape( osgGeo::MarkerShape::Sphere );
 	    break;
-	case MarkerStyle3D::Cross:
+	case OD::MarkerStyle3D::Cross:
 	    markerset_->setShape( osgGeo::MarkerShape::Cross );
 	    break;
-	case MarkerStyle3D::Arrow:
+	case OD::MarkerStyle3D::Arrow:
 	    markerset_->setShape( osgGeo::MarkerShape::Arrow );
 	    break;
-	case MarkerStyle3D::Plane:
+	case OD::MarkerStyle3D::Plane:
 	    markerset_->setShape( osgGeo::MarkerShape::Plane );
 	    break;
 	default:

@@ -138,11 +138,11 @@ void uiMapperRangeEditor::init()
     rightcoltab_->setZValue( zval );
 
     minvaltext_ = scene.addItem( new uiTextItem(uiStrings::sEmptyString()
-							  ,Alignment::Right) );
+							  ,OD::Alignment::Right) );
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
     MouseCursor cursor( MouseCursor::SizeHor );
-    LineStyle ls( LineStyle::Solid, 2, Color(0,255,0) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
     minline_ = scene.addItem( new uiLineItem() );
     minline_->setPenStyle( ls );
     minline_->setCursor( cursor );

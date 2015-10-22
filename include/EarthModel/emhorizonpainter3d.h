@@ -85,8 +85,8 @@ protected:
     const TrcKeyPath*	path_;
     const FlatPosData*	flatposdata_;
 
-    LineStyle		markerlinestyle_;
-    MarkerStyle2D	markerstyle_;
+    OD::LineStyle		markerlinestyle_;
+    OD::MarkerStyle2D	markerstyle_;
     FlatView::Viewer&	viewer_;
 
     ObjectSet<SectionMarker3DLine> markerline_;

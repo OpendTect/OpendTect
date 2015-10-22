@@ -17,11 +17,15 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "threadlock.h"
 
-namespace OD { class RGBImage; }
+namespace OD
+{
+    class RGBImage;
+    class LineStyle;
+    class MarkerStyle2D;
+}
 
-class MarkerStyle2D;
+
 class MouseEvent;
-class LineStyle;
 template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
@@ -50,19 +54,22 @@ public:
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
-    virtual Alignment		getAlignment(int shapeidx) const;
+    virtual OD::Alignment		getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }
     virtual Color		getColor() const;
 
-    virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
-    virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
+    virtual void		setMarkerStyle(int idx,
+					const OD::MarkerStyle2D&) {}
+    virtual const OD::MarkerStyle2D* getMarkerStyle(int shapeidx) const
+					{ return 0;}
     virtual BufferString	getImageFileName(int idx) const	{ return ""; }
     virtual void		getXYScale(int idx,float& scx,float& scy) const
 				{ scx = scy = 1.f; }
     virtual void		setXYScale(int idx,float scx,float scy)	{}
 
-    virtual void		setLineStyle(int shapeidx,const LineStyle&) {}
-    virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
+    virtual void		setLineStyle(int shapeidx,
+					const OD::LineStyle&) {}
+    virtual const OD::LineStyle* getLineStyle(int shapeidx) const { return 0; }
 
     virtual void		setFillColor(int idx,const Color&)	    {}
     virtual const Color		getFillColor(int idx) const

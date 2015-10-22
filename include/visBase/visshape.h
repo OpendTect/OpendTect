@@ -92,7 +92,7 @@ public:
     virtual  void	  setCoordinates(Coordinates* coords);
     virtual  Coordinates* getCoordinates() { return coords_; }
     virtual  const Coordinates*	  getCoordinates() const { return coords_; }
-    virtual  void	  setLineStyle(const LineStyle&){};
+    virtual  void	  setLineStyle(const OD::LineStyle&){};
 
     void		removeSwitch();
 			/*!<Will turn the object permanently on.

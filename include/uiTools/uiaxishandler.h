@@ -39,7 +39,8 @@ template <class T> class LineParameters;
   will always be used. If you do use begin and end handlers, you'll have to
   call setRange() for all before using plotAxis().
 
-  The drawAxis will plot the axis. If LineStyle::Type is not LineStyle::None,
+  The drawAxis will plot the axis. If OD::LineStyle::Type is not
+  OD::LineStyle::None,
   grid lines will be drawn, too. If it *is* None, then still the color and
   size will be used for drawing the axis (the axis' style is always Solid).
 
@@ -60,7 +61,7 @@ public:
 			    , noaxisannot_(false)
 			    , nogridline_(false)
 			    , showauxannot_(false)
-			    , auxlinestyle_(LineStyle(LineStyle::Dot))
+			    , auxlinestyle_(OD::LineStyle(OD::LineStyle::Dot))
 			    , annotinside_(false)
 			    , annotinint_(false)
 			    , fixedborder_(false)
@@ -88,10 +89,10 @@ public:
 	mDefSetupMemb(bool,showauxannot)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
-	mDefSetupMemb(LineStyle,style)
-	mDefSetupMemb(LineStyle,gridlinestyle)
-	mDefSetupMemb(LineStyle,auxlinestyle)
-	mDefSetupMemb(LineStyle,auxhllinestyle)
+	mDefSetupMemb(OD::LineStyle,style)
+	mDefSetupMemb(OD::LineStyle,gridlinestyle)
+	mDefSetupMemb(OD::LineStyle,auxlinestyle)
+	mDefSetupMemb(OD::LineStyle,auxhllinestyle)
 	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,specialvalue) //!< Will be gridlined and annotated.
@@ -130,7 +131,7 @@ public:
     int			getPix(double abvsval) const;
     int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
-    void		setAuxAnnot( const TypeSet<PlotAnnotation>& pos )
+    void		setAuxAnnot( const TypeSet<OD::PlotAnnotation>& pos )
 						{ auxannots_ = pos; }
 
     const Setup&	setup() const		{ return setup_; }
@@ -176,7 +177,7 @@ protected:
 
     int			pxsizeinotherdir_;
     uiAHPlotAnnotSet&	annots_;
-    TypeSet<PlotAnnotation> auxannots_;
+    TypeSet<OD::PlotAnnotation> auxannots_;
     float		endpos_;
     int			devsz_;
     int			axsz_;

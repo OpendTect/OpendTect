@@ -476,13 +476,13 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     rectpts += uiPoint( x1, y2  );
     rectpts += uiPoint( x1, y1  );
     uiPolyLineItem* pli = scene_.addItem( new uiPolyLineItem( rectpts ) );
-    pli->setPenStyle( LineStyle(LineStyle::Solid,1,Color::Black()) );
+    pli->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,Color::Black()) );
     colitm.borderitm_ = pli;
 
     uiTextItem* ti = scene_.addItem(new uiTextItem( toUiString(colitm.name_) ));
     ti->setTextColor( Color::Black() );
     ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y1-18) );
-    ti->setAlignment( Alignment::HCenter );
+    ti->setAlignment( OD::Alignment::HCenter );
     ti->setZValue( 2 );
     colitm.bordertxtitm_ = ti;
 }
@@ -504,8 +504,8 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
 
-	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot
-						  : LineStyle::Solid;
+	LineStyle::Type lst = lvl.name_.isEmpty() ? OD::LineStyle::Dot
+						  : OD::LineStyle::Solid;
 	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem(
 					        toUiString(lvl.name_) ) );
@@ -583,7 +583,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	uiTextItem* ti = scene_.addItem( new uiTextItem( toUiString(unm )) );
 	ti->setTextColor( Color::Black() );
 	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
-	ti->setAlignment( Alignment::HCenter );
+	ti->setAlignment( OD::Alignment::HCenter );
 	ti->setZValue( 2 );
 	colitm.txtitms_ += ti;
 	colitm.unititms_ += pli;

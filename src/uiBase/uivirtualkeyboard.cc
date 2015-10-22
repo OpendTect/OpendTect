@@ -126,7 +126,7 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    const MarkerStyle2D ms( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
+    const OD::MarkerStyle2D ms( OD::MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
     uiMarkerItem* led = new uiMarkerItem( point, ms );
     led->setFillColor( color );

@@ -73,8 +73,9 @@ public:
     void		setTextFactor(int n)	{ txtfactor_ = n; reDraw(); }
 			// Values displayed along axis are multiplied by this
 			// factor.
-    void		setLineStyle(const LineStyle& lst) {ls_=lst; reDraw(); }
-    void		setGridLineStyle(const LineStyle& gls)
+    void		setLineStyle(const OD::LineStyle& lst)
+			{ls_=lst; reDraw(); }
+    void		setGridLineStyle(const OD::LineStyle& gls)
 			{ gridls_ = gls; reDraw(); }
     void		setFontData(const FontData&);
 
@@ -103,8 +104,8 @@ protected:
 
     Interval<double>		rg_;
 
-    LineStyle			ls_;
-    LineStyle			gridls_;
+    OD::LineStyle			ls_;
+    OD::LineStyle			gridls_;
     SamplingData<double>	sampling_;
     int				txtfactor_;
     FontData			fontdata_;
@@ -137,16 +138,16 @@ public:
     void		setAnnotInside(bool yn);
     void		enableAxisLine(bool yn);
     void		setBorder(const uiBorder&);
-    void		setXLineStyle(const LineStyle&);
-    void		setYLineStyle(const LineStyle&);
-    void		setGridLineStyle(const LineStyle&);
-    void		setAuxLineStyle(const LineStyle&,bool forx,
+    void		setXLineStyle(const OD::LineStyle&);
+    void		setYLineStyle(const OD::LineStyle&);
+    void		setGridLineStyle(const OD::LineStyle&);
+    void		setAuxLineStyle(const OD::LineStyle&,bool forx,
 					bool forhl=false);
     void		setAnnotInInt( bool xaxis, bool dowant )
 			{ xaxis ? xaxis_->setup().annotinint(dowant)
 				: yaxis_->setup().annotinint(dowant); }
     void		showAuxPositions(bool forx,bool yn);
-    void		setAuxAnnotPositions(const TypeSet<PlotAnnotation>&,
+    void		setAuxAnnotPositions(const TypeSet<OD::PlotAnnotation>&,
 						bool forx);
 
     virtual void	updateScene()

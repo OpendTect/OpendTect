@@ -89,7 +89,7 @@ public:
     int			getItemID(int idx) const;
     int			getItemIdx(int id) const;
 
-    void		setItemAlignment(int idx,Alignment::HPos);
+    void		setItemAlignment(int idx,OD::Alignment::HPos);
 
     void		setNrLines( int prefNrLines )
 			{
@@ -242,9 +242,9 @@ int uiListBoxBody::indexOf( uiListBoxItem* itm ) const
 }
 
 
-void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
+void uiListBoxBody::setItemAlignment( int idx, OD::Alignment::HPos hpos )
 {
-    Alignment al( hpos, Alignment::VCenter );
+    OD::Alignment al( hpos, OD::Alignment::VCenter );
     if ( item(idx) )
 	item(idx)->setTextAlignment( (Qt::Alignment)al.uiValue() );
 }
@@ -399,7 +399,7 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     , deleteButtonPressed(this) \
     , itemChosen(this) \
     , rightclickmnu_(*new uiMenu(p)) \
-    , alignment_(Alignment::Left) \
+    , alignment_(OD::Alignment::Left) \
     , scrollingblocked_(false) \
     , allowduplicates_(true)
 
@@ -1157,7 +1157,7 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
 }
 
 
-void uiListBox::setAlignment( Alignment::HPos al )
+void uiListBox::setAlignment( OD::Alignment::HPos al )
 {
     alignment_ = al;
     for ( int idx=0; idx<size(); idx++ )

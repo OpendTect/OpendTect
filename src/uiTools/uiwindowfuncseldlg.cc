@@ -45,7 +45,7 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
 				  su.xaxrg_.stop, su.yaxrg_.start ) );
 
     uiAxisHandler::Setup asu( uiRect::Bottom, width(), height() );
-    asu.style( LineStyle::None );
+    asu.style( OD::LineStyle::None );
     asu.maxnrchars_ = 8;
     asu.border_ = uiBorder(10,10,10,10);
 
@@ -94,7 +94,7 @@ void uiFunctionDrawer::setFrame()
     else
 	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
 				  borderrect.width(), borderrect.height() );
-    borderrectitem_->setPenStyle( LineStyle() );
+    borderrectitem_->setPenStyle( OD::LineStyle() );
     borderrect.setTop( borderrect.top() + 3 );
     transform_->resetUiRect( borderrect );
 }
@@ -132,7 +132,7 @@ void uiFunctionDrawer::draw( CallBacker* )
 	createLine( func );
 	uiPolyLineItem* polyitem = new uiPolyLineItem();
 	polyitem->setPolyLine( func->pointlist_ );
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.width_ = 2;
 	ls.color_ = func->color_;
 	polyitem->setPenStyle( ls );

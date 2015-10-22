@@ -175,7 +175,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
 					 "an optional prefix and postfix "
 					 "for each:") );
     lbl->attach( ensureBelow, selgrp );
-    lbl->setAlignment( Alignment::Left );
+    lbl->setAlignment( OD::Alignment::Left );
     prefxfld_ = new uiGenInput( this, tr("Prefix") );
     prefxfld_->attach( alignedBelow, selgrp );
     prefxfld_->attach( ensureBelow, lbl );

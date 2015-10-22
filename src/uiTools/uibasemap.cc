@@ -123,7 +123,7 @@ void uiBaseMapObject::update()
 	    worldpts += crds[cdx];
 
 	if ( bmobject_->getLineStyle(idx) &&
-	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
+	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
 	{
 	    if ( !bmobject_->close(idx) )
 	    {
@@ -217,8 +217,8 @@ void uiBaseMapObject::update()
 	    }
 	}
 
-	const MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
-	if ( ms2d && ms2d->type_!=MarkerStyle2D::None )
+	const OD::MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
+	if ( ms2d && ms2d->type_!=OD::MarkerStyle2D::None )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
 	    {
@@ -272,7 +272,7 @@ void uiBaseMapObject::update()
 	    if ( !itm ) return;
 	    itm->setText( mToUiStringTodo(shapenm) );
 	    itm->setPos( crds[0] );
-	    const Alignment al = bmobject_->getAlignment( idx );
+	    const OD::Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
 
 	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
@@ -297,7 +297,7 @@ void uiBaseMapObject::updateStyle()
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
 	if ( bmobject_->getLineStyle(idx) &&
-	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
+	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
 	{
 	    if ( !bmobject_->close(idx) )
 	    {

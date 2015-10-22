@@ -76,7 +76,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 			      uiStrings::sHorizon() );
     horfld_->attach( alignedBelow, optionfld_ );
 
-    linestfld_ = new uiSelLineStyle( this, LineStyle(),
+    linestfld_ = new uiSelLineStyle( this, OD::LineStyle(),
 				     uiSelLineStyle::Setup("Line Style" )
 						     .color(false) );
     linestfld_->attach( alignedBelow, horfld_ );
@@ -196,7 +196,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     }
 
     FixedString lskey = iop.find( ODGMT::sKeyLineStyle() );
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.fromString( lskey.str() );
     linestfld_->setStyle( ls );
 

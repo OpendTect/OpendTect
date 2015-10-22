@@ -55,7 +55,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     if ( putallfld_ )
 	putlnmfld_->attach( alignedBelow, putallfld_ );
 
-    LineStyle ls( LineStyle::Solid, 20, Color(0,0,255) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 20, Color(0,0,255) );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, putlnmfld_ );
@@ -103,11 +103,11 @@ bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
 {
     mCreateWriter( s2dfm_->name(), SI().name() );
 
-    BufferString ins( "\t\t<LineStyle>\n\t\t\t<color>" );
+    BufferString ins( "\t\t<OD::LineStyle>\n\t\t\t<color>" );
     ins += lsfld_->getColor().getStdStr(false,-1);
     ins += "</color>\n\t\t\t<width>";
     ins += lsfld_->getWidth() * .1;
-    ins += "</width>\n\t\t</LineStyle>";
+    ins += "</width>\n\t\t</OD::LineStyle>";
     wrr.writeIconStyles( 0, 0, ins );
 
     getFinalSelectedLineNames();

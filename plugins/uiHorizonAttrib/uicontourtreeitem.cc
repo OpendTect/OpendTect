@@ -483,7 +483,7 @@ class uiContourParsDlg : public uiDialog
 public:
 
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
-		  const StepInterval<float>& intv, const LineStyle& ls,
+		  const StepInterval<float>& intv, const OD::LineStyle& ls,
 		  int sceneid )
     : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,
                         mODHelpKey(mContourParsDlgHelpID) )
@@ -539,7 +539,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 			    mCB(this,uiContourParsDlg,selectFontCB), false );
     fontfld_->attach( rightOf, showlblsfld_ );
 
-    alignbutsfld_ = new uiButtonGroup( this, "Alignment buttons",
+    alignbutsfld_ = new uiButtonGroup( this, "OD::Alignment buttons",
 				       OD::Horizontal );
     alignbutsfld_->attach( alignedBelow, showlblsfld_ );
 
@@ -573,7 +573,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 }
 
 
-const LineStyle& getLineStyle() const
+const OD::LineStyle& getLineStyle() const
 { return lsfld_->getStyle(); }
 
 
@@ -892,7 +892,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         oldintv += Interval<float>( zshift_, zshift_ );
 
         uiContourParsDlg dlg( ODMainWin(), attrnm_, range, oldintv,
-                              LineStyle(LineStyle::Solid,linewidth_,color_),
+                              OD::LineStyle(OD::LineStyle::Solid,linewidth_,color_),
                               sceneID() );
         if ( labels_ )
 	{
@@ -1054,7 +1054,7 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
     mDynamicCastGet(uiContourParsDlg*,dlg,cb);
     if ( !dlg || !lines_ ) return;
 
-    LineStyle ls( dlg->getLineStyle() );
+    OD::LineStyle ls( dlg->getLineStyle() );
     drawstyle_->setLineStyle( ls );
     material_->setColor( ls.color_ );
     color_ = ls.color_;

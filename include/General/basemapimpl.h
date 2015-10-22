@@ -24,8 +24,8 @@ public:
 				BaseMapMarkers();
 				~BaseMapMarkers();
 
-    void			setMarkerStyle(int,const MarkerStyle2D&);
-    const MarkerStyle2D*	getMarkerStyle(int) const
+    void			setMarkerStyle(int,const OD::MarkerStyle2D&);
+    const OD::MarkerStyle2D*	getMarkerStyle(int) const
 				{ return &markerstyle_;}
 
     TypeSet<Coord>&		positions() { return positions_; }
@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    MarkerStyle2D		markerstyle_;
+    OD::MarkerStyle2D		markerstyle_;
     TypeSet<Coord>		positions_;
 
 };

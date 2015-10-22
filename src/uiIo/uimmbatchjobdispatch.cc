@@ -110,10 +110,10 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	maxhostdisp = nrhosts>7 ? 8 : (nrhosts<3 ? 3 : nrhosts);
     const int hostnmwdth = 30;
 
-    statusBar()->addMsgFld( toUiString("Message"), Alignment::Left, 20 );
-    statusBar()->addMsgFld( toUiString("DoneTxt"), Alignment::Right, 20 );
-    statusBar()->addMsgFld( toUiString("NrDone"), Alignment::Left, 10 );
-    statusBar()->addMsgFld( toUiString("Activity"), Alignment::Left, 1 );
+    statusBar()->addMsgFld( toUiString("Message"), OD::Alignment::Left, 20 );
+    statusBar()->addMsgFld( toUiString("DoneTxt"), OD::Alignment::Right, 20 );
+    statusBar()->addMsgFld( toUiString("NrDone"), OD::Alignment::Left, 10 );
+    statusBar()->addMsgFld( toUiString("Activity"), OD::Alignment::Left, 1 );
 
     specparsgroup_ = new uiGroup( this, "Specific parameters group" );
     uiSeparator* sep = new uiSeparator( this, "Hor sep 1" );

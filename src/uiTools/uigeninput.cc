@@ -853,7 +853,7 @@ void uiGenInput::doFinalise( CallBacker* )
     {
 	labl_ = new uiLabel( this, titletext_ );
 	labl_->attach( leftTo, lastElem );
-	labl_->setAlignment( Alignment::Right );
+	labl_->setAlignment( OD::Alignment::Right );
 	labl_->makeRequired( isrequired_ );
     }
 

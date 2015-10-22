@@ -63,9 +63,9 @@ public:
     void		setColumnWidthMode(int column,WidthMode);
     WidthMode		columnWidthMode(int column) const;
 
-    void		setColumnAlignment(Alignment::HPos);
-    void		setColumnAlignment(int,Alignment::HPos);
-    Alignment::HPos	columnAlignment(int) const;
+    void		setColumnAlignment(OD::Alignment::HPos);
+    void		setColumnAlignment(int,OD::Alignment::HPos);
+    OD::Alignment::HPos columnAlignment(int) const;
 
     enum		ScrollMode { Auto, AlwaysOff, AlwaysOn };
     void		setHScrollBarMode(ScrollMode);

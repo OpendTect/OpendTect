@@ -176,8 +176,8 @@ FlatView::Annotation::AxisData::AxisData()
     , showgridlines_( false )
     , annotinint_( false )
     , factor_( 1 )
-    , auxlinestyle_( LineStyle(LineStyle(LineStyle::Dot)) )
-    , auxhllinestyle_( LineStyle(LineStyle(LineStyle::Dot,2,
+    , auxlinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot)) )
+    , auxhllinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot,2,
 					   getRandStdDrawColor())) )
 {}
 
@@ -191,7 +191,7 @@ int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 {
     for ( int auxidx=0; auxidx<auxannot_.size(); auxidx++ )
     {
-	const PlotAnnotation& annot = auxannot_[auxidx];
+	const OD::PlotAnnotation& annot = auxannot_[auxidx];
 	if ( mIsEqual(annot.pos_,atpos,eps) )
 	    return auxidx;
     }
@@ -266,7 +266,7 @@ FlatView::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
     , namealignment_(mAlignment(Center,Center))
-    , linestyle_( LineStyle::None, 1, Color::NoColor() )
+    , linestyle_( OD::LineStyle::None, 1, Color::NoColor() )
     , fillcolor_( Color::NoColor() )
     , zvalue_( 1 )
     , close_( false )

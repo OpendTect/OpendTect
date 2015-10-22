@@ -801,7 +801,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	mAttachCB( dragger->finished, RandomTrackDragger::finishCB );
 
 	visBase::MarkerSet* marker = visBase::MarkerSet::create();
-	MarkerStyle3D markerstyle;
+	OD::MarkerStyle3D markerstyle;
 
 	marker->setMinimumScale( 0 );
 	marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
@@ -812,7 +812,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	{
 	    dragger->setDraggerType( Dragger::Translate1D );
 	    dragger->setRotation( Coord3(0,1,0), M_PI_2 ); // confirms default
-	    markerstyle = MarkerStyle3D::Cylinder;
+	    markerstyle = OD::MarkerStyle3D::Cylinder;
 	    markerstyle.size_ = 4;
 	    marker->setMarkerHeightRatio( 3 );
 	    marker->setRotationForAllMarkers( Coord3(0,1,0), M_PI_2 );
@@ -821,7 +821,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	{
 	    dragger->setDraggerType( Dragger::Translate2D );
 	    dragger->setRotation( Coord3(1,0,0), 0 );	  // nullifies default
-	    markerstyle = MarkerStyle3D::Cube;
+	    markerstyle = OD::MarkerStyle3D::Cube;
 	    markerstyle.size_ = 12;
 	    marker->setMarkerHeightRatio( 0.1 );
 	    marker->setRotationForAllMarkers( Coord3(1,0,0), M_PI_2 );

@@ -45,8 +45,8 @@ public:
     setting an alignment only makes sense if you reserve space using
     setPrefWidthInChar();
 */
-    void		setAlignment(Alignment::HPos);
-    Alignment::HPos	alignment() const;
+    void		setAlignment(OD::Alignment::HPos);
+    OD::Alignment::HPos alignment() const;
 
     void		makeRequired(bool yn=true);
 

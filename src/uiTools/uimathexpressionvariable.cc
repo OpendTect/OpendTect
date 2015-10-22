@@ -49,7 +49,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     const uiString lblstr = tr("For input number %1 use").arg(varidx_+1);
     inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
     inplbl_->setPrefWidthInChar( 35 );
-    inplbl_->setAlignment( Alignment::Right );
+    inplbl_->setAlignment( OD::Alignment::Right );
     inpfld_->selectionChanged.notify(
 			mCB(this,uiMathExpressionVariable,inpChg) );
 

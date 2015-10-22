@@ -83,9 +83,9 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 
     LocationDisplay::setSet( newset );
 
-    MarkerStyle3D markerstyle;
+    OD::MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
-    markerstyle.type_ = (MarkerStyle3D::Type) set_->disp_.markertype_;
+    markerstyle.type_ = (OD::MarkerStyle3D::Type) set_->disp_.markertype_;
     markerset_->setMaterial( 0 );
     markerset_->setMarkerStyle( markerstyle );
     markerset_->setMarkersSingleColor( set_->disp_.color_ );
@@ -159,7 +159,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     {
 	if ( needLine() && polyline_ )
 	{
-	    LineStyle ls; ls.width_ = set_->disp_.pixsize_;
+	    OD::LineStyle ls; ls.width_ = set_->disp_.pixsize_;
 	    polyline_->setLineStyle( ls );
 	}
 
@@ -168,9 +168,9 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 
     if ( markerset_->getType() != set_->disp_.markertype_ )
     {
-	markerset_->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
-	if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow
-		|| set_->disp_.markertype_ == MarkerStyle3D::Plane )
+	markerset_->setType( (OD::MarkerStyle3D::Type)set_->disp_.markertype_ );
+	if ( set_->disp_.markertype_ == OD::MarkerStyle3D::Arrow
+		|| set_->disp_.markertype_ == OD::MarkerStyle3D::Plane )
 	    fullRedraw(0);
     }
 
@@ -198,8 +198,8 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 	markerset_->insertPos( idx, loc.pos_, false );
     else
 	markerset_->setPos( idx, loc.pos_, false );
-    if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
-	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
+    if ( set_->disp_.markertype_ == OD::MarkerStyle3D::Arrow ||
+	 set_->disp_.markertype_ == OD::MarkerStyle3D::Plane )
 	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
 
     if ( needLine() )
@@ -323,7 +323,7 @@ void PickSetDisplay::createLine()
     polyline_->setMaterial( 0 );
 
     int pixsize = set_->disp_.pixsize_;
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.width_ = pixsize;
     polyline_->setLineStyle( ls );
 }
@@ -335,7 +335,7 @@ void PickSetDisplay::redrawLine()
 	return;
 
     int pixsize = set_->disp_.pixsize_;
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.width_ = pixsize;
     polyline_->setLineStyle( ls );
 
@@ -403,7 +403,7 @@ static float getSurveyRotation()
 ::Quaternion PickSetDisplay::getDirection( const Pick::Location& loc ) const
 {
     const float survngle = getSurveyRotation();
-    if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow )
+    if ( set_->disp_.markertype_ == OD::MarkerStyle3D::Arrow )
     {
 	const float phi = SI().isRightHandSystem() ? survngle + loc.dir_.phi
 					     : survngle - loc.dir_.phi;
@@ -482,9 +482,9 @@ bool PickSetDisplay::setBodyDisplay()
 visBase::MarkerSet* PickSetDisplay::createOneMarker() const
 {
     visBase::MarkerSet* marker =  visBase::MarkerSet::create();
-    MarkerStyle3D markerstyle;
+    OD::MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
-    markerstyle.type_ = ( MarkerStyle3D::Type ) set_->disp_.markertype_;
+    markerstyle.type_ = ( OD::MarkerStyle3D::Type ) set_->disp_.markertype_;
     marker->setMaterial(0);
     marker->setMarkerStyle(markerstyle);
     marker->setMarkersSingleColor( Color::NoColor() );

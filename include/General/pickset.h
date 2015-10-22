@@ -106,7 +106,7 @@ public:
 			mDeclareEnumUtils(Connection);
 	Color		color_;		//!< color
 	int		pixsize_;	//!< size in pixels
-	int		markertype_;	//!< MarkerStyle3D
+	int		markertype_;	//!< OD::MarkerStyle3D
 	Connection	connect_;	//!< connect picks in set order
     };
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "trckeyzsampling.h"
 
-class LineStyle;
+namespace OD { class LineStyle; };
 
 namespace visBase
 {
@@ -38,14 +38,14 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
 
-    void			setLineStyle(const LineStyle&);
-    void			getLineStyle(LineStyle&) const;
+    void			setLineStyle(const OD::LineStyle&);
+    void			getLineStyle(OD::LineStyle&) const;
 
     void			adjustGridCS();
     void			setGridTrcKeyZSampling(const TrcKeyZSampling&);
     void			setPlaneTrcKeyZSampling(const TrcKeyZSampling&);
-    const TrcKeyZSampling&		getGridTrcKeyZSampling() 	{ return gridcs_; }
-    const TrcKeyZSampling&		getPlaneTrcKeyZSampling() 	{ return planecs_; }
+    const TrcKeyZSampling&	getGridTrcKeyZSampling() { return gridcs_; }
+    const TrcKeyZSampling&	getPlaneTrcKeyZSampling() { return planecs_; }
 
     void			showInlines(bool);
     bool			areInlinesShown() const;

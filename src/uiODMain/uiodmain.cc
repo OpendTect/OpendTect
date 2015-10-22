@@ -158,7 +158,7 @@ uiODMain::uiODMain( uiMain& a )
     if ( !useallcpus )
 	statustt.append( tr("| CPU: Used/Available") );
     statusBar()->setToolTip( mMemStatusFld, statustt );
-    statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
+    statusBar()->setTxtAlign( mMemStatusFld, OD::Alignment::HCenter );
     memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
     memtimer_.start( 1000 );
 

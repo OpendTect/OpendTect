@@ -71,10 +71,11 @@ public:
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
 
-    void			setLineStyle(const LineStyle&);
-    LineStyle			getLineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
+    OD::LineStyle			getLineStyle() const;
 
-    void			setMarkerStyle(const MarkerStyle3D&,bool updat);
+    void			setMarkerStyle(const OD::MarkerStyle3D&,
+					       bool updat);
     virtual bool		hasColor() const { return true; }
     virtual Color		getColor() const;
     const uiStringSet&		markerColorNames()const;
@@ -137,7 +138,7 @@ protected:
     MarkerColor				markercolor_;
     ColTab::Mapper			ctabmapper_;
     ColTab::Sequence			ctabsequence_;
-    MarkerStyle3D			markerstyle_;
+    OD::MarkerStyle3D			markerstyle_;
     visBase::MarkerSet*			eventmarkerset_;
     mutable Threads::Lock		lock_;
 };

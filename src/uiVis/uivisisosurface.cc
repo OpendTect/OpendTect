@@ -259,7 +259,7 @@ void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 
 void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 {
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.width_ = 2;
     const uiAxisHandler* yaxis = funcDisp().yAxis(false);
     const int valytop = yaxis->getPix( yaxis->range().start );

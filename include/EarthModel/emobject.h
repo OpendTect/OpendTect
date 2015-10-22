@@ -141,8 +141,8 @@ public:
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&,
 						  bool addtohistory=false);
-    const LineStyle&		preferredLineStyle() const;
-    void			setPreferredLineStyle(const LineStyle&);
+    const OD::LineStyle&		preferredLineStyle() const;
+    void			setPreferredLineStyle(const OD::LineStyle&);
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
@@ -199,9 +199,9 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int attr) const;
-    const MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
+    const OD::MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
     void			setPosAttrMarkerStyle(int attr,
-						      const MarkerStyle3D&);
+						      const OD::MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
@@ -250,8 +250,9 @@ protected:
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete() const;
     void			posIDChangeCB(CallBacker*);
-    const MarkerStyle3D&	preferredMarkerStyle3D() const;
-    void			setPreferredMarkerStyle3D(const MarkerStyle3D&);
+    const OD::MarkerStyle3D&	preferredMarkerStyle3D() const;
+    void			setPreferredMarkerStyle3D(
+					const OD::MarkerStyle3D&);
     void			useDisplayPars(const IOPar&);
     BufferString		objname_;
     ObjectID			id_;
@@ -260,8 +261,8 @@ protected:
     uiString			errmsg_;
 
     Color&			preferredcolor_;
-    LineStyle&			preferredlinestyle_;
-    MarkerStyle3D&		preferredmarkerstyle_;
+    OD::LineStyle&			preferredlinestyle_;
+    OD::MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
 

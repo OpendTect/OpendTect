@@ -276,7 +276,7 @@ void uiLineItem::setPenColor( const Color& col, bool )
 }
 
 
-void uiLineItem::setPenStyle( const LineStyle& ls, bool )
+void uiLineItem::setPenStyle( const OD::LineStyle& ls, bool )
 {
     QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
@@ -542,11 +542,11 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 uiTextItem::uiTextItem()
     : uiGraphicsItem( mkODObj() )
 {
-    setAlignment( Alignment(Alignment::Left,Alignment::Top) );
+    setAlignment( OD::Alignment(OD::Alignment::Left,OD::Alignment::Top) );
 }
 
 
-uiTextItem::uiTextItem( const uiString& txt, const Alignment& al )
+uiTextItem::uiTextItem( const uiString& txt, const OD::Alignment& al )
     : uiGraphicsItem(mkODObj())
 {
     setText( txt );
@@ -555,7 +555,7 @@ uiTextItem::uiTextItem( const uiString& txt, const Alignment& al )
 
 
 uiTextItem::uiTextItem( const uiPoint& pos, const uiString& txt,
-			const Alignment& al )
+			const OD::Alignment& al )
     : uiGraphicsItem(mkODObj())
 {
     setText( txt );
@@ -620,31 +620,31 @@ void uiTextItem::setFontData( const FontData& fd )
 }
 
 
-void uiTextItem::setAlignment( const Alignment& al )
+void uiTextItem::setAlignment( const OD::Alignment& al )
 {
 
     switch ( al.hPos() )
     {
-	case Alignment::Right:
+	case OD::Alignment::Right:
 	    qtextitem_->setHAlignment( Qt::AlignRight );
 	    break;
-	case Alignment::HCenter:
+	case OD::Alignment::HCenter:
 	    qtextitem_->setHAlignment( Qt::AlignHCenter );
 	    break;
-	case Alignment::Left:
+	case OD::Alignment::Left:
 	    qtextitem_->setHAlignment( Qt::AlignLeft );
 	    break;
     }
 
     switch ( al.vPos() )
     {
-	case Alignment::Bottom:
+	case OD::Alignment::Bottom:
 	    qtextitem_->setVAlignment( Qt::AlignBottom );
 	    break;
-	case Alignment::VCenter:
+	case OD::Alignment::VCenter:
 	    qtextitem_->setVAlignment( Qt::AlignVCenter );
 	    break;
-	case Alignment::Top:
+	case OD::Alignment::Top:
 	    qtextitem_->setVAlignment( Qt::AlignTop );
 	    break;
     }
@@ -666,7 +666,7 @@ void uiTextItem::setTextColor( const Color& col )
 // uiAdvancedTextItem
 uiAdvancedTextItem::uiAdvancedTextItem( bool centered )
     : uiGraphicsItem(0)
-    , al_(Alignment::Left,Alignment::Top)
+    , al_(OD::Alignment::Left,OD::Alignment::Top)
     , textiscentered_(centered)
 {
     qgraphicsitem_ = mkQtObj();
@@ -674,7 +674,7 @@ uiAdvancedTextItem::uiAdvancedTextItem( bool centered )
 
 
 uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt,
-					const Alignment& al,
+					const OD::Alignment& al,
 					bool centered )
     : uiGraphicsItem(0)
     , al_(al)
@@ -690,7 +690,7 @@ uiAdvancedTextItem::~uiAdvancedTextItem()
 }
 
 
-Alignment uiAdvancedTextItem::getAlignment() const
+OD::Alignment uiAdvancedTextItem::getAlignment() const
 {
     return al_;
 }
@@ -724,7 +724,7 @@ float uiAdvancedTextItem::getTextWidth() const
 { return qtextitem_->textWidth(); }
 
 
-void uiAdvancedTextItem::setAlignment( const Alignment& al )
+void uiAdvancedTextItem::setAlignment( const OD::Alignment& al )
 {
     al_ = al;
 }
@@ -779,26 +779,26 @@ void uiAdvancedTextItem::stPos( float x, float y )
 	QRectF boundrec = qtextitem_->boundingRect();
 	switch( al_.hPos() )
 	{
-	case Alignment::Left:
+	case OD::Alignment::Left:
 	    boundrec.translate( 0., 0. );
 	    break;
-	case Alignment::HCenter:
+	case OD::Alignment::HCenter:
 	    boundrec.translate( -boundrec.width()/2., 0. );
 	    break;
-	case Alignment::Right:
+	case OD::Alignment::Right:
 	    boundrec.translate( -boundrec.width(), 0. );
 	    break;
 	}
 
 	switch( al_.vPos() )
 	{
-	case Alignment::Top:
+	case OD::Alignment::Top:
 	    boundrec.translate( 0., 0. );
 	    break;
-	case Alignment::VCenter:
+	case OD::Alignment::VCenter:
 	    boundrec.translate( 0., -boundrec.height()/2. );
 	    break;
-	case Alignment::Bottom:
+	case OD::Alignment::Bottom:
 	    boundrec.translate( 0., -boundrec.height() );
 	    break;
 	}
@@ -827,7 +827,7 @@ uiMarkerItem::uiMarkerItem( bool fill )
 }
 
 
-uiMarkerItem::uiMarkerItem( const uiPoint& pos, const MarkerStyle2D& mstyle,
+uiMarkerItem::uiMarkerItem( const uiPoint& pos, const OD::MarkerStyle2D& mstyle,
 			    bool fill )
     : uiGraphicsItem( mkQtObj() )
 {
@@ -837,7 +837,7 @@ uiMarkerItem::uiMarkerItem( const uiPoint& pos, const MarkerStyle2D& mstyle,
 }
 
 
-uiMarkerItem::uiMarkerItem( const MarkerStyle2D& mstyle, bool fill )
+uiMarkerItem::uiMarkerItem( const OD::MarkerStyle2D& mstyle, bool fill )
     : uiGraphicsItem( mkQtObj() )
 {
     setMarkerStyle( mstyle );
@@ -858,7 +858,7 @@ uiMarkerItem::~uiMarkerItem()
 }
 
 
-void uiMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
+void uiMarkerItem::setMarkerStyle( const OD::MarkerStyle2D& mstyle )
 {
     qmarkeritem_->setMarkerStyle( mstyle );
 }
@@ -910,7 +910,7 @@ uiArrowItem::uiArrowItem()
 
 
 uiArrowItem::uiArrowItem( const uiPoint& tail, const uiPoint& head,
-			  const ArrowStyle& style )
+			  const OD::ArrowStyle& style )
     : uiGraphicsItem(mkQtObj())
 {
     tailpos_ = tail;
@@ -954,7 +954,7 @@ void uiArrowItem::setTailHeadPos( const uiPoint& tail, const uiPoint& head )
 }
 
 
-void uiArrowItem::setArrowStyle( const ArrowStyle& arrowstyle )
+void uiArrowItem::setArrowStyle( const OD::ArrowStyle& arrowstyle )
 {
     qarrowitem_->setArrowStyle( arrowstyle );
 }

@@ -241,7 +241,7 @@ void uiViewer2DMainWin::displayMutes()
 	    FlatView::AuxData* muteaux =
 		gd->getUiFlatViewer()->createAuxData( mutedef->name() );
 	    muteaux->linestyle_.color_ = mutecolors_[muteidx];
-	    muteaux->linestyle_.type_ = LineStyle::Solid;
+	    muteaux->linestyle_.type_ = OD::LineStyle::Solid;
 	    muteaux->linestyle_.width_ = 3;
 
 	    StepInterval<float> offsetrg = gd->getOffsetRange();

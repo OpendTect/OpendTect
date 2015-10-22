@@ -329,7 +329,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     linewidthfld_->attach( alignedBelow, colorfld_ );
 
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
-			StringListInpSpec(MarkerStyle3D::TypeDef()) );
+			StringListInpSpec(OD::MarkerStyle3D::TypeDef()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
@@ -427,8 +427,8 @@ void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 
 void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 {
-    const MarkerStyle3D::Type newtype =
-	(MarkerStyle3D::Type)(MarkerStyle3D::None+seedtypefld_->getIntValue());
+    const OD::MarkerStyle3D::Type newtype =
+	(OD::MarkerStyle3D::Type)(OD::MarkerStyle3D::None+seedtypefld_->getIntValue());
     if ( markerstyle_.type_ == newtype )
 	return;
     markerstyle_.type_ = newtype;
@@ -498,7 +498,7 @@ void uiHorizonSetupGroup::initPropertyGroup()
 {
     seedsliderfld_->setValue( markerstyle_.size_ );
     seedcolselfld_->setColor( markerstyle_.color_ );
-    seedtypefld_->setValue( markerstyle_.type_ - MarkerStyle3D::None );
+    seedtypefld_->setValue( markerstyle_.type_ - OD::MarkerStyle3D::None );
 }
 
 
@@ -551,14 +551,14 @@ int uiHorizonSetupGroup::getLineWidth() const
 { return linewidthfld_->getIntValue(); }
 
 
-void uiHorizonSetupGroup::setMarkerStyle( const MarkerStyle3D& markerstyle )
+void uiHorizonSetupGroup::setMarkerStyle( const OD::MarkerStyle3D& markerstyle )
 {
     markerstyle_ = markerstyle;
     initPropertyGroup();
 }
 
 
-const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
+const OD::MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 {
     return markerstyle_;
 }

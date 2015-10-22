@@ -45,7 +45,7 @@ public:
 						Coord3&,
 						BufferString& val,
 						BufferString& info) const;
-    void			setLineStyle(const LineStyle&);
+    void			setLineStyle(const OD::LineStyle&);
 
     bool			setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::SectionID		getSectionID(int visid) const;

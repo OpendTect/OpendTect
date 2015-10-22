@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "geometry.h"
 #include "uistring.h"
 
+namespace OD
+{
 
 mExpClass(General) Alignment
 {
@@ -53,8 +55,11 @@ protected:
 };
 
 
-#define mAlignment(h,v) Alignment(Alignment::h,Alignment::v)
-#define mDeclAlignment(nm,h,v) Alignment nm( Alignment::h, Alignment::v )
+
+
+#define mAlignment(h,v) OD::Alignment(OD::Alignment::h,OD::Alignment::v)
+#define mDeclAlignment(nm,h,v) \
+OD::Alignment nm( OD::Alignment::h, OD::Alignment::v )
 
 
 mExpClass(General) MarkerStyle2D
@@ -69,8 +74,8 @@ public:
 					       Color col=Color::Black(),
 					       float rot=0);
 
-    bool			operator==(const MarkerStyle2D& a) const;
-    const MarkerStyle2D&	operator=(const MarkerStyle2D& a);
+    bool			operator==(const OD::MarkerStyle2D& a) const;
+    const OD::MarkerStyle2D&	operator=(const OD::MarkerStyle2D& a);
 
     Type			type_;
     int				size_;
@@ -106,8 +111,8 @@ public:
     void		toString(BufferString&) const;
     void		fromString(const char*);
 
-    bool		operator==(const MarkerStyle3D& b) const;
-    bool		operator!=(const MarkerStyle3D& b) const;
+    bool		operator==(const OD::MarkerStyle3D& b) const;
+    bool		operator!=(const OD::MarkerStyle3D& b) const;
 };
 
 
@@ -122,8 +127,8 @@ public:
 
 			LineStyle(Type t=Solid,int w=1,Color c=Color::Black());
 
-    bool		operator ==( const LineStyle& ls ) const;
-    bool		operator !=( const LineStyle& ls ) const;
+    bool		operator ==( const OD::LineStyle& ls ) const;
+    bool		operator !=( const OD::LineStyle& ls ) const;
 
     Type		type_;
     int			width_;
@@ -188,9 +193,9 @@ public:
     bool		hasTail() const;
 
     Type		type_;
-    LineStyle		linestyle_;	//!< contains the color
-    ArrowHeadStyle	headstyle_;
-    ArrowHeadStyle	tailstyle_;
+    OD::LineStyle		linestyle_;	//!< contains the color
+    OD::ArrowHeadStyle	headstyle_;
+    OD::ArrowHeadStyle	tailstyle_;
 
 };
 
@@ -210,7 +215,7 @@ public:
     uiString		txt_;
     LineType		linetype_;
 
-    PlotAnnotation&	operator=( const PlotAnnotation& from )
+    OD::PlotAnnotation&	operator=( const OD::PlotAnnotation& from )
 			{
 			    pos_ = from.pos_;
 			    linetype_ = from.linetype_;
@@ -218,7 +223,7 @@ public:
 			    return *this;
 			}
 
-    bool		operator==( const PlotAnnotation& from ) const
+    bool		operator==( const OD::PlotAnnotation& from ) const
 			{
 			    return pos_ == from.pos_
 				&& linetype_ == from.linetype_;
@@ -226,6 +231,8 @@ public:
 
     bool		isNormal() const
 			{ return linetype_ == Normal; }
+
+};
 
 };
 

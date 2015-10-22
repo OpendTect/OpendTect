@@ -261,20 +261,20 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 
 void Well::setTrackProperties( Color& col, int width)
 {
-    LineStyle lst;
+    OD::LineStyle lst;
     lst.color_ = col;
     lst.width_ = width;
     setLineStyle( lst );
 }
 
 
-void Well::setLineStyle( const LineStyle& lst )
+void Well::setLineStyle( const OD::LineStyle& lst )
 {
     track_->setLineStyle( lst );
 }
 
 
-const LineStyle& Well::lineStyle() const
+const OD::LineStyle& Well::lineStyle() const
 {
     return track_->lineStyle();
 }
@@ -348,24 +348,24 @@ bool Well::wellBotNameShown() const
 
 void Well::setMarkerSetParams( const MarkerParams& mp )
 {
-   MarkerStyle3D markerstyle;
+   OD::MarkerStyle3D markerstyle;
    markerset_->setMarkerHeightRatio( 1.0f );
 
     switch ( mp.shapeint_ )
     {
     case 0:
-	markerstyle = MarkerStyle3D::Cylinder;
+	markerstyle = OD::MarkerStyle3D::Cylinder;
 	markerset_->setMarkerHeightRatio(
 		( float )mp.cylinderheight_/mp.size_ );
 	break;
     case 1:
-	markerstyle = MarkerStyle3D::Cube;
+	markerstyle = OD::MarkerStyle3D::Cube;
 	break;
     case 2:
-	markerstyle = MarkerStyle3D::Sphere;
+	markerstyle = OD::MarkerStyle3D::Sphere;
 	break;
     case 3:
-	markerstyle = MarkerStyle3D::Cone;
+	markerstyle = OD::MarkerStyle3D::Cone;
 	break;
     default:
 	pErrMsg( "Shape not implemented" );
@@ -944,7 +944,7 @@ bool Well::usePar( const IOPar& par )
     BufferString linestyle;
     if ( par.get(linestylestr(),linestyle) )
     {
-	LineStyle lst;
+	OD::LineStyle lst;
 	lst.fromString( linestyle );
 	setLineStyle( lst );
     }

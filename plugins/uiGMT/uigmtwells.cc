@@ -66,7 +66,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     lebelfld_ = new uiCheckBox( this, tr("Post labels"),
 				mCB(this,uiGMTWellsGrp,choiceSel) );
     lebelalignfld_ = new uiComboBox( this, ODGMT::AlignmentDef(),
-				     "Alignment" );
+				     "OD::Alignment" );
     lebelalignfld_->attach( alignedBelow, symbfld_ );
     lebelfld_->attach( leftOf, lebelalignfld_ );
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, tr("Font size") );

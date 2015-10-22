@@ -66,7 +66,7 @@ uiGMTIntro( uiParent* p )
 			"variable includes the GMT bin directory");
 
     uiLabel* lbl = new uiLabel( this, msg );
-    lbl->setAlignment( Alignment::HCenter );
+    lbl->setAlignment( OD::Alignment::HCenter );
 
     uiPushButton* gmtbut = new uiPushButton( this, "Download GMT",
 					     mCB(this,uiGMTIntro,gmtPush),

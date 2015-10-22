@@ -29,8 +29,8 @@ public:
 
     				uiFillPattern(uiParent*);
 
-    FillPattern			get() const;
-    void			set(const FillPattern&);
+    OD::FillPattern			get() const;
+    void			set(const OD::FillPattern&);
 
     Notifier<uiFillPattern> 	patternChanged;
 

@@ -108,16 +108,16 @@ mGlobal(GMT) GMTParFactory& GMTPF();
     str += lscol; str += ","; \
     switch ( ls.type_ ) \
     { \
-	case LineStyle::Dash: \
+	case OD::LineStyle::Dash: \
 	    str += "-"; \
 	    break; \
-	case LineStyle::Dot: \
+	case OD::LineStyle::Dot: \
 	    str += "."; \
 	    break; \
-	case LineStyle::DashDot: \
+	case OD::LineStyle::DashDot: \
 	    str += "-."; \
 	    break; \
-	case LineStyle::DashDotDot: \
+	case OD::LineStyle::DashDotDot: \
 	    str += "-.."; \
 	    break; \
 	default: break; \
