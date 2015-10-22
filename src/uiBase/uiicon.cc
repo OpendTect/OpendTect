@@ -22,7 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-const char* uiIcon::None()		{ return "null"; }
+const char* uiIcon::None()
+{
+    return OD::IconFile::getIdentifier( OD::NoIcon );
+}
+
 
 uiIcon::uiIcon()
     : qicon_(*new QIcon)

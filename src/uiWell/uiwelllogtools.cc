@@ -218,7 +218,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
 
     CallBack cb( mCB( this, uiWellLogToolWin, applyPushedCB ) );
-    applybut_ = uiButton::getStd( actiongrp, uiButton::Apply, cb, true );
+    applybut_ = uiButton::getStd( actiongrp, OD::Apply, cb, true );
     applybut_->attach( rightOf, llc );
 
     freqfld_ = new uiFreqFilterSelFreq( actiongrp );
@@ -244,7 +244,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
 				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
 
-    replacespikevalfld_ = new uiGenInput( actiongrp, uiStrings::sEmptyString(), 
+    replacespikevalfld_ = new uiGenInput( actiongrp, uiStrings::sEmptyString(),
 							       FloatInpSpec() );
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );
@@ -252,7 +252,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
 
-    okbut_ = uiButton::getStd( this, uiButton::Ok,
+    okbut_ = uiButton::getStd( this, OD::Ok,
 				mCB(this,uiWellLogToolWin,acceptOK), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
@@ -271,7 +271,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     overwritefld_->activated.notify( mCB(this,uiWellLogToolWin,overWriteCB) );
     overwritefld_->setStretch( 0, 0 );
 
-    uiButton* cancelbut = uiButton::getStd( this, uiButton::Cancel,
+    uiButton* cancelbut = uiButton::getStd( this, OD::Cancel,
 				mCB(this,uiWellLogToolWin,rejectOK), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );

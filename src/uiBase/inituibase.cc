@@ -22,7 +22,7 @@ mDefModInitFn(uiBase)
     mIfNotFirstTime( return );
 
     uiButton::setHaveCommonPBIcons(
-	    	!Settings::common().isFalse("Ui.Icons.PushButtons") );
+	    !Settings::common().isFalse("Ui.Icons.PushButtons") );
 
     uiCursorManager::initClass();
     FlareHelpProvider::initODHelp();
@@ -32,7 +32,6 @@ mDefModInitFn(uiBase)
 
 #ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(
-	    				System::CrashDumper::sUiSenderAppl() );
+					System::CrashDumper::sUiSenderAppl() );
 #endif
 }
-

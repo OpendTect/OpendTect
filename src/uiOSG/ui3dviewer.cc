@@ -838,8 +838,8 @@ void ui3DViewerBody::setFocusCB( CallBacker* )
     // Need focus to show mod key dependent act-mode cursors
     // or toggle between picking and positioning in act mode
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-    if ( kbe.key_==OD::Shift || kbe.key_==OD::Control || kbe.key_==OD::Alt ||
-	 kbe.key_==OD::Space )
+    if ( kbe.key_==OD::KB_Shift || kbe.key_==OD::KB_Control
+	|| kbe.key_==OD::KB_Alt || kbe.key_==OD::KB_Space )
     {
 	if ( !qwidget()->hasFocus() && qwidget()->underMouse() )
 	    qwidget()->setFocus();
@@ -1010,15 +1010,15 @@ void ui3DViewerBody::setAnimationEnabled( bool yn )
 	manip->setAllowThrow( yn );
 	manip->stopThrow();
     }
-} 
+}
 
 
 bool ui3DViewerBody::isAnimationEnabled() const
-{ 
+{
     osg::ref_ptr<osgGA::StandardManipulator> manip =
 	static_cast<osgGA::StandardManipulator*>(
 	view_->getCameraManipulator() );
-    
+
     if ( manip )
 	return manip->getAllowThrow();
 
@@ -1838,4 +1838,3 @@ void ui3DViewer::setScenesPixelDensity(float dpi)
 
 float ui3DViewer::getScenesPixelDensity() const
 { return getScene()->getPixelDensity(); }
-

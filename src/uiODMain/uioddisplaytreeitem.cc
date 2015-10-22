@@ -245,9 +245,9 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(uiKeyDesc,kd,cb);
 
-    if ( kd.state()==OD::ShiftButton && kd.key()==OD::Delete )
+    if ( kd.state()==OD::ShiftButton && kd.key()==OD::KB_Delete )
 	deleteObject();
-    if ( kd.key()==OD::V && kd.state()==OD::NoButton )
+    if ( kd.key()==OD::KB_V && kd.state()==OD::NoButton )
 	setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
 }
 

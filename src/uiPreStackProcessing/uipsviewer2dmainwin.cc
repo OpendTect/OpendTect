@@ -106,7 +106,7 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
-    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+    uiButton* applybut = uiButton::getStd( this, OD::Apply,
 			    mCB(this,uiPSPreProcessingDlg,applyCB), true );
     applybut->attach( alignedBelow, preprocgrp_ );
 }
@@ -725,7 +725,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 	    psapp.annot_ = appearances_[0].annot_;
 	    psapp.ddpars_ = appearances_[0].ddpars_;
 	}
-	
+
 	psapp.annot_.x1_.showannot_ = true;
 	psapp.annot_.x2_.showannot_ = true;
 	psapp.annot_.x1_.name_ = "Offset";

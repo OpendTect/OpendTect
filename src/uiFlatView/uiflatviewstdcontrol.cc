@@ -661,7 +661,7 @@ void uiFlatViewStdControl::keyPressCB( CallBacker* cb )
     mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
     if ( !keh || !keh->hasEvent() ) return;
 
-    if ( keh->event().key_==OD::Escape && rubbandzoombut_ )
+    if ( keh->event().key_==OD::KB_Escape && rubbandzoombut_ )
     {
 	rubbandzoombut_->setOn( !rubbandzoombut_->isOn() );
 	dragModeCB( rubbandzoombut_ );

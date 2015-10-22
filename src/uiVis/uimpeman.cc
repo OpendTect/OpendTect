@@ -134,7 +134,7 @@ void uiMPEMan::keyEventCB( CallBacker* )
 	undo();
     else if ( KeyboardEvent::isReDo(kev) )
 	redo();
-    else if ( kev.key_ == OD::K )
+    else if ( kev.key_ == OD::KB_K )
     {
 	if ( MPE::engine().trackingInProgress() )
 	    action = sStop;
@@ -146,21 +146,21 @@ void uiMPEMan::keyEventCB( CallBacker* )
 		action = sStart;
 	}
     }
-    else if ( kev.key_ == OD::Y )
+    else if ( kev.key_ == OD::KB_Y )
     {
 	action = sPoly;
     }
-    else if ( kev.key_ == OD::A )
+    else if ( kev.key_ == OD::KB_A )
 	action = sClear;
-    else if ( kev.key_==OD::D || kev.key_==OD::Delete )
+    else if ( kev.key_==OD::KB_D || kev.key_==OD::KB_Delete )
 	action = sDelete;
-    else if ( kev.key_ == OD::L )
+    else if ( kev.key_ == OD::KB_L )
 	action = sLock;
-    else if ( kev.key_ == OD::U )
+    else if ( kev.key_ == OD::KB_U )
 	action = sUnlock;
-    else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_) )
+    else if ( kev.key_ == OD::KB_S && OD::ctrlKeyboardButton(kev.modifier_) )
 	action = sSave;
-    else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_)
+    else if ( kev.key_ == OD::KB_S && OD::ctrlKeyboardButton(kev.modifier_)
 				&& OD::shiftKeyboardButton(kev.modifier_) )
 	action = sSaveAs;
 
@@ -231,7 +231,7 @@ int uiMPEMan::popupMenu()
 	    mAddAction( tr("Hide Locked"), "", sHideLocked, 0, true )
 	else
 	    mAddAction( tr("Show Locked"), "", sShowLocked, 0, true )
-	
+
 	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
 	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
 	if ( !hd->displayedOnlyAtSections() )
@@ -390,7 +390,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     seedpicker->setSectionID( emobj->sectionID(0) );
-    if ( clickcatcher_->info().isDoubleClicked() && 
+    if ( clickcatcher_->info().isDoubleClicked() &&
 	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
     {
 	seedpicker->endPatch( false );
@@ -490,13 +490,13 @@ void uiMPEMan::seedClick( CallBacker* )
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
 			 (float)seedcrd.z );
     bool shiftclicked = clickcatcher_->info().isShiftClicked();
-        
+
     Color clr = Color::Green();
     if ( Math::Abs(emobj->preferredColor().g()-Color::Green().g())<30 )
 	    clr = Color::Red();
 
-    const Color sowclr= 
-	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ? 
+    const Color sowclr=
+	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ?
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
 	 clickcatcher_->activateSower( sowclr, &seedpicker->getSeedPickArea()) )
@@ -808,7 +808,6 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
 	seedpicker->endPatch( doerase );
 	cleanPatchDisplay();
     }
-
 }
 
 
@@ -1048,5 +1047,4 @@ void uiMPEMan::setUndoLevel( int preveventnr )
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
-
 

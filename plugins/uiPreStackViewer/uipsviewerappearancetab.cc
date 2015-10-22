@@ -55,7 +55,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
     zgridautofld_ = new uiGenInput( this, uiString::emptyString(),
-	    BoolInpSpec( zudf, tr("Automatic sampling"), 
+	    BoolInpSpec( zudf, tr("Automatic sampling"),
 			 uiString::emptyString(), 0 ) );
     zgridautofld_->attach( rightOf, zgridfld_ );
     zgridautofld_->valuechanged.notify(
@@ -78,7 +78,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
     offsgridautofld_ = new uiGenInput( this, uiString::emptyString(),
-	    BoolInpSpec( offsudf, tr("Automatic sampling"), 
+	    BoolInpSpec( offsudf, tr("Automatic sampling"),
 			 uiString::emptyString(), 0 ) );
     offsgridautofld_->attach( rightOf, offsgridfld_ );
     offsgridautofld_->valuechanged.notify(
@@ -92,7 +92,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     offsgridrangelbl_ = new uiLabel( this, SI().getXYUnitString(true) );
     offsgridrangelbl_->attach( rightOf, offsgridrangefld_ );
 
-    applybut_ = uiButton::getStd( this, uiButton::Apply,
+    applybut_ = uiButton::getStd( this, OD::Apply,
 		mCB(this,uiViewer3DAppearanceTab,applyButPushedCB), true );
     applybut_->attach( alignedBelow, offsgridrangefld_ );
 

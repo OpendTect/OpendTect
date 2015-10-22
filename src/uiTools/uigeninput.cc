@@ -576,10 +576,10 @@ public:
 			    {
 				for ( int idx=0; idx<enumdef->size(); idx++ )
 				{
-				    const char* iconfile =
-                            		enumdef->getIconFileForIndex(idx);
-				    if ( iconfile )
-					 cbb_.setIcon(idx,iconfile);
+				    const char* iconid =
+		enumdef->getIconFileForIndex(idx);
+				    if ( iconid )
+					 cbb_.setIcon(idx,iconid);
 				}
 			    }
 
@@ -862,7 +862,7 @@ void uiGenInput::doFinalise( CallBacker* )
 
     if ( !selText_.isEmpty() )
     {
-	selbut_ = uiButton::getStd( this, uiButton::Select,
+	selbut_ = uiButton::getStd( this, OD::Select,
 				    mCB(this,uiGenInput,doSelect_), false );
 	selbut_->setName( BufferString("Select ",name()) );
 	selbut_->attach( rightOf, lastElem );
@@ -1228,5 +1228,4 @@ void uiGenInput::setRequired( bool yn )
     isrequired_ = yn;
     if ( labl_ ) labl_->makeRequired( yn );
 }
-
 

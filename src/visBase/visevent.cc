@@ -306,7 +306,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     {
 	eventinfo.type = MouseDoubleClick;
 	eventinfo.pressed = false;
-	wasdragging_ = false; 
+	wasdragging_ = false;
     }
     else
 	return false;
@@ -336,7 +336,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	    if ( !eventinfo.pressed && !wasdragging_ )
 		isactivepickevent = false;
 	}
-	
+
 	//We don't accept press or release events if no buttons are active.
 	//Probably we have touch-event.
 	if ( !buttonstate )
@@ -406,174 +406,174 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
 void EventCatchHandler::initKeyMap()
 {
-    keymap_[osgGA::GUIEventAdapter::KEY_0] = OD::Zero;
-    keymap_[osgGA::GUIEventAdapter::KEY_1] = OD::One;
-    keymap_[osgGA::GUIEventAdapter::KEY_2] = OD::Two;
-    keymap_[osgGA::GUIEventAdapter::KEY_3] = OD::Three;
-    keymap_[osgGA::GUIEventAdapter::KEY_4] = OD::Four;
-    keymap_[osgGA::GUIEventAdapter::KEY_5] = OD::Five;
-    keymap_[osgGA::GUIEventAdapter::KEY_6] = OD::Six;
-    keymap_[osgGA::GUIEventAdapter::KEY_7] = OD::Seven;
-    keymap_[osgGA::GUIEventAdapter::KEY_8] = OD::Eight;
-    keymap_[osgGA::GUIEventAdapter::KEY_9] = OD::Nine;
-    keymap_[osgGA::GUIEventAdapter::KEY_A] = OD::A;
-    keymap_[osgGA::GUIEventAdapter::KEY_B] = OD::B;
-    keymap_[osgGA::GUIEventAdapter::KEY_C] = OD::C;
-    keymap_[osgGA::GUIEventAdapter::KEY_D] = OD::D;
-    keymap_[osgGA::GUIEventAdapter::KEY_E] = OD::E;
-    keymap_[osgGA::GUIEventAdapter::KEY_F] = OD::F;
-    keymap_[osgGA::GUIEventAdapter::KEY_G] = OD::G;
-    keymap_[osgGA::GUIEventAdapter::KEY_H] = OD::H;
-    keymap_[osgGA::GUIEventAdapter::KEY_I] = OD::I;
-    keymap_[osgGA::GUIEventAdapter::KEY_J] = OD::J;
-    keymap_[osgGA::GUIEventAdapter::KEY_K] = OD::K;
-    keymap_[osgGA::GUIEventAdapter::KEY_L] = OD::L;
-    keymap_[osgGA::GUIEventAdapter::KEY_M] = OD::M;
-    keymap_[osgGA::GUIEventAdapter::KEY_N] = OD::N;
-    keymap_[osgGA::GUIEventAdapter::KEY_O] = OD::O;
-    keymap_[osgGA::GUIEventAdapter::KEY_P] = OD::P;
-    keymap_[osgGA::GUIEventAdapter::KEY_Q] = OD::Q;
-    keymap_[osgGA::GUIEventAdapter::KEY_R] = OD::R;
-    keymap_[osgGA::GUIEventAdapter::KEY_S] = OD::S;
-    keymap_[osgGA::GUIEventAdapter::KEY_T] = OD::T;
-    keymap_[osgGA::GUIEventAdapter::KEY_U] = OD::U;
-    keymap_[osgGA::GUIEventAdapter::KEY_V] = OD::V;
-    keymap_[osgGA::GUIEventAdapter::KEY_W] = OD::W;
-    keymap_[osgGA::GUIEventAdapter::KEY_X] = OD::X;
-    keymap_[osgGA::GUIEventAdapter::KEY_Y] = OD::Y;
-    keymap_[osgGA::GUIEventAdapter::KEY_Z] = OD::Z;
+    keymap_[osgGA::GUIEventAdapter::KEY_0] = OD::KB_Zero;
+    keymap_[osgGA::GUIEventAdapter::KEY_1] = OD::KB_One;
+    keymap_[osgGA::GUIEventAdapter::KEY_2] = OD::KB_Two;
+    keymap_[osgGA::GUIEventAdapter::KEY_3] = OD::KB_Three;
+    keymap_[osgGA::GUIEventAdapter::KEY_4] = OD::KB_Four;
+    keymap_[osgGA::GUIEventAdapter::KEY_5] = OD::KB_Five;
+    keymap_[osgGA::GUIEventAdapter::KEY_6] = OD::KB_Six;
+    keymap_[osgGA::GUIEventAdapter::KEY_7] = OD::KB_Seven;
+    keymap_[osgGA::GUIEventAdapter::KEY_8] = OD::KB_Eight;
+    keymap_[osgGA::GUIEventAdapter::KEY_9] = OD::KB_Nine;
+    keymap_[osgGA::GUIEventAdapter::KEY_A] = OD::KB_A;
+    keymap_[osgGA::GUIEventAdapter::KEY_B] = OD::KB_B;
+    keymap_[osgGA::GUIEventAdapter::KEY_C] = OD::KB_C;
+    keymap_[osgGA::GUIEventAdapter::KEY_D] = OD::KB_D;
+    keymap_[osgGA::GUIEventAdapter::KEY_E] = OD::KB_E;
+    keymap_[osgGA::GUIEventAdapter::KEY_F] = OD::KB_F;
+    keymap_[osgGA::GUIEventAdapter::KEY_G] = OD::KB_G;
+    keymap_[osgGA::GUIEventAdapter::KEY_H] = OD::KB_H;
+    keymap_[osgGA::GUIEventAdapter::KEY_I] = OD::KB_I;
+    keymap_[osgGA::GUIEventAdapter::KEY_J] = OD::KB_J;
+    keymap_[osgGA::GUIEventAdapter::KEY_K] = OD::KB_K;
+    keymap_[osgGA::GUIEventAdapter::KEY_L] = OD::KB_L;
+    keymap_[osgGA::GUIEventAdapter::KEY_M] = OD::KB_M;
+    keymap_[osgGA::GUIEventAdapter::KEY_N] = OD::KB_N;
+    keymap_[osgGA::GUIEventAdapter::KEY_O] = OD::KB_O;
+    keymap_[osgGA::GUIEventAdapter::KEY_P] = OD::KB_P;
+    keymap_[osgGA::GUIEventAdapter::KEY_Q] = OD::KB_Q;
+    keymap_[osgGA::GUIEventAdapter::KEY_R] = OD::KB_R;
+    keymap_[osgGA::GUIEventAdapter::KEY_S] = OD::KB_S;
+    keymap_[osgGA::GUIEventAdapter::KEY_T] = OD::KB_T;
+    keymap_[osgGA::GUIEventAdapter::KEY_U] = OD::KB_U;
+    keymap_[osgGA::GUIEventAdapter::KEY_V] = OD::KB_V;
+    keymap_[osgGA::GUIEventAdapter::KEY_W] = OD::KB_W;
+    keymap_[osgGA::GUIEventAdapter::KEY_X] = OD::KB_X;
+    keymap_[osgGA::GUIEventAdapter::KEY_Y] = OD::KB_Y;
+    keymap_[osgGA::GUIEventAdapter::KEY_Z] = OD::KB_Z;
 
-    // Cribbed from function setUpKeyMap() in osgQt/QGraphicsViewAdapter.cpp
+    // Grabbed from function setUpKeyMap() in osgQt/QGraphicsViewAdapter.cpp
 
-    keymap_[osgGA::GUIEventAdapter::KEY_BackSpace] = OD::Backspace;
-    keymap_[osgGA::GUIEventAdapter::KEY_Tab] = OD::Tab;
-    keymap_[osgGA::GUIEventAdapter::KEY_Linefeed] = OD::Return;	// No LineFeed
-    keymap_[osgGA::GUIEventAdapter::KEY_Clear] = OD::Clear;
-    keymap_[osgGA::GUIEventAdapter::KEY_Return] = OD::Return;
-    keymap_[osgGA::GUIEventAdapter::KEY_Pause] = OD::Pause;
-    keymap_[osgGA::GUIEventAdapter::KEY_Scroll_Lock] = OD::ScrollLock;
-    keymap_[osgGA::GUIEventAdapter::KEY_Sys_Req] = OD::SysReq;
-    keymap_[osgGA::GUIEventAdapter::KEY_Escape] = OD::Escape;
-    keymap_[osgGA::GUIEventAdapter::KEY_Delete] = OD::Delete;
+    keymap_[osgGA::GUIEventAdapter::KEY_BackSpace] = OD::KB_Backspace;
+    keymap_[osgGA::GUIEventAdapter::KEY_Tab] = OD::KB_Tab;
+    keymap_[osgGA::GUIEventAdapter::KEY_Linefeed] = OD::KB_Return;// No LineFeed
+    keymap_[osgGA::GUIEventAdapter::KEY_Clear] = OD::KB_Clear;
+    keymap_[osgGA::GUIEventAdapter::KEY_Return] = OD::KB_Return;
+    keymap_[osgGA::GUIEventAdapter::KEY_Pause] = OD::KB_Pause;
+    keymap_[osgGA::GUIEventAdapter::KEY_Scroll_Lock] = OD::KB_ScrollLock;
+    keymap_[osgGA::GUIEventAdapter::KEY_Sys_Req] = OD::KB_SysReq;
+    keymap_[osgGA::GUIEventAdapter::KEY_Escape] = OD::KB_Escape;
+    keymap_[osgGA::GUIEventAdapter::KEY_Delete] = OD::KB_Delete;
 
-    keymap_[osgGA::GUIEventAdapter::KEY_Home] = OD::Home;
-    keymap_[osgGA::GUIEventAdapter::KEY_Left] = OD::Left;
-    keymap_[osgGA::GUIEventAdapter::KEY_Up] = OD::Up;
-    keymap_[osgGA::GUIEventAdapter::KEY_Right] = OD::Right;
-    keymap_[osgGA::GUIEventAdapter::KEY_Down] = OD::Down;
-    keymap_[osgGA::GUIEventAdapter::KEY_Prior] = OD::Left;	// No Prior
-    keymap_[osgGA::GUIEventAdapter::KEY_Page_Up] = OD::PageUp;
-    keymap_[osgGA::GUIEventAdapter::KEY_Next] = OD::Right;	// No Next
-    keymap_[osgGA::GUIEventAdapter::KEY_Page_Down] = OD::PageDown;
-    keymap_[osgGA::GUIEventAdapter::KEY_End] = OD::End;
-    keymap_[osgGA::GUIEventAdapter::KEY_Begin] = OD::Home;	// No Begin
+    keymap_[osgGA::GUIEventAdapter::KEY_Home] = OD::KB_Home;
+    keymap_[osgGA::GUIEventAdapter::KEY_Left] = OD::KB_Left;
+    keymap_[osgGA::GUIEventAdapter::KEY_Up] = OD::KB_Up;
+    keymap_[osgGA::GUIEventAdapter::KEY_Right] = OD::KB_Right;
+    keymap_[osgGA::GUIEventAdapter::KEY_Down] = OD::KB_Down;
+    keymap_[osgGA::GUIEventAdapter::KEY_Prior] = OD::KB_Left;	// No Prior
+    keymap_[osgGA::GUIEventAdapter::KEY_Page_Up] = OD::KB_PageUp;
+    keymap_[osgGA::GUIEventAdapter::KEY_Next] = OD::KB_Right;	// No Next
+    keymap_[osgGA::GUIEventAdapter::KEY_Page_Down] = OD::KB_PageDown;
+    keymap_[osgGA::GUIEventAdapter::KEY_End] = OD::KB_End;
+    keymap_[osgGA::GUIEventAdapter::KEY_Begin] = OD::KB_Home;	// No Begin
 
-    keymap_[osgGA::GUIEventAdapter::KEY_Select] = OD::Select;
-    keymap_[osgGA::GUIEventAdapter::KEY_Print] = OD::Print;
-    keymap_[osgGA::GUIEventAdapter::KEY_Execute] = OD::Execute;
-    keymap_[osgGA::GUIEventAdapter::KEY_Insert] = OD::Insert;
-    //keymap_[osgGA::GUIEventAdapter::KEY_Undo] = OD::;		// No Undo
-    //keymap_[osgGA::GUIEventAdapter::KEY_Redo] = OD::;		// No Redo
-    keymap_[osgGA::GUIEventAdapter::KEY_Menu] = OD::Menu;
-    keymap_[osgGA::GUIEventAdapter::KEY_Find] = OD::Search;	// No Find
-    keymap_[osgGA::GUIEventAdapter::KEY_Cancel] = OD::Cancel;
-    keymap_[osgGA::GUIEventAdapter::KEY_Help] = OD::Help;
-    keymap_[osgGA::GUIEventAdapter::KEY_Break] = OD::Escape;	// No Break
-    keymap_[osgGA::GUIEventAdapter::KEY_Mode_switch] = OD::Mode_switch;
-    keymap_[osgGA::GUIEventAdapter::KEY_Script_switch] = OD::Mode_switch;
+    keymap_[osgGA::GUIEventAdapter::KEY_Select] = OD::KB_Select;
+    keymap_[osgGA::GUIEventAdapter::KEY_Print] = OD::KB_Print;
+    keymap_[osgGA::GUIEventAdapter::KEY_Execute] = OD::KB_Execute;
+    keymap_[osgGA::GUIEventAdapter::KEY_Insert] = OD::KB_Insert;
+    //keymap_[osgGA::GUIEventAdapter::KEY_Undo]		// No Undo
+    //keymap_[osgGA::GUIEventAdapter::KEY_Redo]		// No Redo
+    keymap_[osgGA::GUIEventAdapter::KEY_Menu] = OD::KB_Menu;
+    keymap_[osgGA::GUIEventAdapter::KEY_Find] = OD::KB_Search;	// No Find
+    keymap_[osgGA::GUIEventAdapter::KEY_Cancel] = OD::KB_Cancel;
+    keymap_[osgGA::GUIEventAdapter::KEY_Help] = OD::KB_Help;
+    keymap_[osgGA::GUIEventAdapter::KEY_Break] = OD::KB_Escape; // No Break
+    keymap_[osgGA::GUIEventAdapter::KEY_Mode_switch] = OD::KB_Mode_switch;
+    keymap_[osgGA::GUIEventAdapter::KEY_Script_switch] = OD::KB_Mode_switch;
 							// No Script switch
-    keymap_[osgGA::GUIEventAdapter::KEY_Num_Lock] = OD::NumLock;
+    keymap_[osgGA::GUIEventAdapter::KEY_Num_Lock] = OD::KB_NumLock;
 
-    keymap_[osgGA::GUIEventAdapter::KEY_Shift_L] = OD::Shift;
-    keymap_[osgGA::GUIEventAdapter::KEY_Shift_R] = OD::Shift;
-    keymap_[osgGA::GUIEventAdapter::KEY_Control_L] = OD::Control;
-    keymap_[osgGA::GUIEventAdapter::KEY_Control_R] = OD::Control;
-    keymap_[osgGA::GUIEventAdapter::KEY_Caps_Lock] = OD::CapsLock;
-    keymap_[osgGA::GUIEventAdapter::KEY_Shift_Lock] = OD::CapsLock;
+    keymap_[osgGA::GUIEventAdapter::KEY_Shift_L] = OD::KB_Shift;
+    keymap_[osgGA::GUIEventAdapter::KEY_Shift_R] = OD::KB_Shift;
+    keymap_[osgGA::GUIEventAdapter::KEY_Control_L] = OD::KB_Control;
+    keymap_[osgGA::GUIEventAdapter::KEY_Control_R] = OD::KB_Control;
+    keymap_[osgGA::GUIEventAdapter::KEY_Caps_Lock] = OD::KB_CapsLock;
+    keymap_[osgGA::GUIEventAdapter::KEY_Shift_Lock] = OD::KB_CapsLock;
 
-    keymap_[osgGA::GUIEventAdapter::KEY_Meta_L] = OD::Meta;	// No Meta L
-    keymap_[osgGA::GUIEventAdapter::KEY_Meta_R] = OD::Meta;	// No Meta R
-    keymap_[osgGA::GUIEventAdapter::KEY_Alt_L] = OD::Alt;	// No Alt L
-    keymap_[osgGA::GUIEventAdapter::KEY_Alt_R] = OD::Alt;	// No Alt R
-    keymap_[osgGA::GUIEventAdapter::KEY_Super_L] = OD::Super_L;
-    keymap_[osgGA::GUIEventAdapter::KEY_Super_R] = OD::Super_R;
-    keymap_[osgGA::GUIEventAdapter::KEY_Hyper_L] = OD::Hyper_L;
-    keymap_[osgGA::GUIEventAdapter::KEY_Hyper_R] = OD::Hyper_R;
+    keymap_[osgGA::GUIEventAdapter::KEY_Meta_L] = OD::KB_Meta;	// No Meta L
+    keymap_[osgGA::GUIEventAdapter::KEY_Meta_R] = OD::KB_Meta;	// No Meta R
+    keymap_[osgGA::GUIEventAdapter::KEY_Alt_L] = OD::KB_Alt;	// No Alt L
+    keymap_[osgGA::GUIEventAdapter::KEY_Alt_R] = OD::KB_Alt;	// No Alt R
+    keymap_[osgGA::GUIEventAdapter::KEY_Super_L] = OD::KB_Super_L;
+    keymap_[osgGA::GUIEventAdapter::KEY_Super_R] = OD::KB_Super_R;
+    keymap_[osgGA::GUIEventAdapter::KEY_Hyper_L] = OD::KB_Hyper_L;
+    keymap_[osgGA::GUIEventAdapter::KEY_Hyper_R] = OD::KB_Hyper_R;
 
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Space] = OD::Space;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Tab] = OD::Tab;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Enter] = OD::Enter;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_F1] = OD::F1;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_F2] = OD::F2;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_F3] = OD::F3;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_F4] = OD::F4;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Home] = OD::Home;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Left] = OD::Left;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Up] = OD::Up;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Right] = OD::Right;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Down] = OD::Down;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Prior] = OD::Left;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Page_Up] = OD::PageUp;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Next] = OD::Right;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Page_Down] = OD::PageDown;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_End] = OD::End;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Space] = OD::KB_Space;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Tab] = OD::KB_Tab;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Enter] = OD::KB_Enter;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_F1] = OD::KB_F1;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_F2] = OD::KB_F2;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_F3] = OD::KB_F3;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_F4] = OD::KB_F4;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Home] = OD::KB_Home;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Left] = OD::KB_Left;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Up] = OD::KB_Up;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Right] = OD::KB_Right;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Down] = OD::KB_Down;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Prior] = OD::KB_Left;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Page_Up] = OD::KB_PageUp;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Next] = OD::KB_Right;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Page_Down] = OD::KB_PageDown;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_End] = OD::KB_End;
 
-    // keymap_[osgGA::GUIEventAdapter::KEY_KP_Begin] = OD::;	// No Begin
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Insert] = OD::Insert;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Delete] = OD::Delete;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Equal] = OD::Equal;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Multiply] = OD::Asterisk;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Add] = OD::Plus;
-    //keymap_[osgGA::GUIEventAdapter::KEY_KP_Separator] = OD::;	// No Separator
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Subtract] = OD::Minus;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Decimal] = OD::Period;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_Divide] = OD::Division;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_0] = OD::Zero;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_1] = OD::One;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_2] = OD::Two;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_3] = OD::Three;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_4] = OD::Four;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_5] = OD::Five;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_6] = OD::Six;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_7] = OD::Seven;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_8] = OD::Eight;
-    keymap_[osgGA::GUIEventAdapter::KEY_KP_9] = OD::Nine;
+    // keymap_[osgGA::GUIEventAdapter::KEY_KP_Begin] = OD::KB_; // No Begin
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Insert] = OD::KB_Insert;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Delete] = OD::KB_Delete;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Equal] = OD::KB_Equal;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Multiply] = OD::KB_Asterisk;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Add] = OD::KB_Plus;
+    //keymap_[osgGA::GUIEventAdapter::KEY_KP_Separator] // No Separator
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Subtract] = OD::KB_Minus;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Decimal] = OD::KB_Period;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_Divide] = OD::KB_Division;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_0] = OD::KB_Zero;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_1] = OD::KB_One;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_2] = OD::KB_Two;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_3] = OD::KB_Three;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_4] = OD::KB_Four;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_5] = OD::KB_Five;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_6] = OD::KB_Six;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_7] = OD::KB_Seven;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_8] = OD::KB_Eight;
+    keymap_[osgGA::GUIEventAdapter::KEY_KP_9] = OD::KB_Nine;
 
-    keymap_[osgGA::GUIEventAdapter::KEY_F1] = OD::F1;
-    keymap_[osgGA::GUIEventAdapter::KEY_F2] = OD::F2;
-    keymap_[osgGA::GUIEventAdapter::KEY_F3] = OD::F3;
-    keymap_[osgGA::GUIEventAdapter::KEY_F4] = OD::F4;
-    keymap_[osgGA::GUIEventAdapter::KEY_F5] = OD::F5;
-    keymap_[osgGA::GUIEventAdapter::KEY_F6] = OD::F6;
-    keymap_[osgGA::GUIEventAdapter::KEY_F7] = OD::F7;
-    keymap_[osgGA::GUIEventAdapter::KEY_F8] = OD::F8;
-    keymap_[osgGA::GUIEventAdapter::KEY_F9] = OD::F9;
-    keymap_[osgGA::GUIEventAdapter::KEY_F10] = OD::F10;
-    keymap_[osgGA::GUIEventAdapter::KEY_F11] = OD::F11;
-    keymap_[osgGA::GUIEventAdapter::KEY_F12] = OD::F12;
-    keymap_[osgGA::GUIEventAdapter::KEY_F13] = OD::F13;
-    keymap_[osgGA::GUIEventAdapter::KEY_F14] = OD::F14;
-    keymap_[osgGA::GUIEventAdapter::KEY_F15] = OD::F15;
-    keymap_[osgGA::GUIEventAdapter::KEY_F16] = OD::F16;
-    keymap_[osgGA::GUIEventAdapter::KEY_F17] = OD::F17;
-    keymap_[osgGA::GUIEventAdapter::KEY_F18] = OD::F18;
-    keymap_[osgGA::GUIEventAdapter::KEY_F19] = OD::F19;
-    keymap_[osgGA::GUIEventAdapter::KEY_F20] = OD::F20;
-    keymap_[osgGA::GUIEventAdapter::KEY_F21] = OD::F21;
-    keymap_[osgGA::GUIEventAdapter::KEY_F22] = OD::F22;
-    keymap_[osgGA::GUIEventAdapter::KEY_F23] = OD::F23;
-    keymap_[osgGA::GUIEventAdapter::KEY_F24] = OD::F24;
-    keymap_[osgGA::GUIEventAdapter::KEY_F25] = OD::F25;
-    keymap_[osgGA::GUIEventAdapter::KEY_F26] = OD::F26;
-    keymap_[osgGA::GUIEventAdapter::KEY_F27] = OD::F27;
-    keymap_[osgGA::GUIEventAdapter::KEY_F28] = OD::F28;
-    keymap_[osgGA::GUIEventAdapter::KEY_F29] = OD::F29;
-    keymap_[osgGA::GUIEventAdapter::KEY_F30] = OD::F30;
-    keymap_[osgGA::GUIEventAdapter::KEY_F31] = OD::F31;
-    keymap_[osgGA::GUIEventAdapter::KEY_F32] = OD::F32;
-    keymap_[osgGA::GUIEventAdapter::KEY_F33] = OD::F33;
-    keymap_[osgGA::GUIEventAdapter::KEY_F34] = OD::F34;
-    keymap_[osgGA::GUIEventAdapter::KEY_F35] = OD::F35;
+    keymap_[osgGA::GUIEventAdapter::KEY_F1] = OD::KB_F1;
+    keymap_[osgGA::GUIEventAdapter::KEY_F2] = OD::KB_F2;
+    keymap_[osgGA::GUIEventAdapter::KEY_F3] = OD::KB_F3;
+    keymap_[osgGA::GUIEventAdapter::KEY_F4] = OD::KB_F4;
+    keymap_[osgGA::GUIEventAdapter::KEY_F5] = OD::KB_F5;
+    keymap_[osgGA::GUIEventAdapter::KEY_F6] = OD::KB_F6;
+    keymap_[osgGA::GUIEventAdapter::KEY_F7] = OD::KB_F7;
+    keymap_[osgGA::GUIEventAdapter::KEY_F8] = OD::KB_F8;
+    keymap_[osgGA::GUIEventAdapter::KEY_F9] = OD::KB_F9;
+    keymap_[osgGA::GUIEventAdapter::KEY_F10] = OD::KB_F10;
+    keymap_[osgGA::GUIEventAdapter::KEY_F11] = OD::KB_F11;
+    keymap_[osgGA::GUIEventAdapter::KEY_F12] = OD::KB_F12;
+    keymap_[osgGA::GUIEventAdapter::KEY_F13] = OD::KB_F13;
+    keymap_[osgGA::GUIEventAdapter::KEY_F14] = OD::KB_F14;
+    keymap_[osgGA::GUIEventAdapter::KEY_F15] = OD::KB_F15;
+    keymap_[osgGA::GUIEventAdapter::KEY_F16] = OD::KB_F16;
+    keymap_[osgGA::GUIEventAdapter::KEY_F17] = OD::KB_F17;
+    keymap_[osgGA::GUIEventAdapter::KEY_F18] = OD::KB_F18;
+    keymap_[osgGA::GUIEventAdapter::KEY_F19] = OD::KB_F19;
+    keymap_[osgGA::GUIEventAdapter::KEY_F20] = OD::KB_F20;
+    keymap_[osgGA::GUIEventAdapter::KEY_F21] = OD::KB_F21;
+    keymap_[osgGA::GUIEventAdapter::KEY_F22] = OD::KB_F22;
+    keymap_[osgGA::GUIEventAdapter::KEY_F23] = OD::KB_F23;
+    keymap_[osgGA::GUIEventAdapter::KEY_F24] = OD::KB_F24;
+    keymap_[osgGA::GUIEventAdapter::KEY_F25] = OD::KB_F25;
+    keymap_[osgGA::GUIEventAdapter::KEY_F26] = OD::KB_F26;
+    keymap_[osgGA::GUIEventAdapter::KEY_F27] = OD::KB_F27;
+    keymap_[osgGA::GUIEventAdapter::KEY_F28] = OD::KB_F28;
+    keymap_[osgGA::GUIEventAdapter::KEY_F29] = OD::KB_F29;
+    keymap_[osgGA::GUIEventAdapter::KEY_F30] = OD::KB_F30;
+    keymap_[osgGA::GUIEventAdapter::KEY_F31] = OD::KB_F31;
+    keymap_[osgGA::GUIEventAdapter::KEY_F32] = OD::KB_F32;
+    keymap_[osgGA::GUIEventAdapter::KEY_F33] = OD::KB_F33;
+    keymap_[osgGA::GUIEventAdapter::KEY_F34] = OD::KB_F34;
+    keymap_[osgGA::GUIEventAdapter::KEY_F35] = OD::KB_F35;
 }
 
 

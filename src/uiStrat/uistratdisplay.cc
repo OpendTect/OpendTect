@@ -178,8 +178,8 @@ public :
 
 protected:
 
-    ObjectSet<uiCheckBox> 	colboxflds_;
-    uiCheckBox* 		allboxfld_;
+    ObjectSet<uiCheckBox>	colboxflds_;
+    uiCheckBox*		allboxfld_;
     uiStratDrawer&		drawer_;
     StratDispData&		data_;
 };
@@ -430,7 +430,7 @@ void uiStratDrawer::drawColumns()
 	colitms_ += colitm;
 	colitm->pos_ = pos;
 	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )
-	    	      /( data_.nrDisplayedCols() ) ;
+		      /( data_.nrDisplayedCols() ) ;
 	if ( colitm->size_ <0 )
 	    colitm->size_ = 0;
 	drawBorders( *colitm );
@@ -505,9 +505,9 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
 
 	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot
-	    					  : LineStyle::Solid;
+						  : LineStyle::Solid;
 	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
-	uiTextItem* ti = scene_.addItem( new uiTextItem( 
+	uiTextItem* ti = scene_.addItem( new uiTextItem(
 					        toUiString(lvl.name_) ) );
 	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) );
 	ti->setZValue( 2 );
@@ -606,7 +606,7 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	tb_->addSeparator();
     else
     {
-	tb_ = new uiToolBar( v.parent(), toUiString("Viewer toolbar"), 
+	tb_ = new uiToolBar( v.parent(), toUiString("Viewer toolbar"),
 							      uiToolBar::Top );
 	mDynamicCastGet(uiMainWin*,mw,v.parent())
 	if ( mw )
@@ -710,7 +710,7 @@ void uiStratViewControl::dragModeCB( CallBacker* )
 void uiStratViewControl::keyPressed( CallBacker* )
 {
     const KeyboardEvent& ev = viewer_.getKeyboardEventHandler().event();
-    if ( ev.key_ == OD::Escape )
+    if ( ev.key_ == OD::KB_Escape )
     {
 	rubbandzoombut_->setOn( !rubbandzoombut_->isOn() );
 	dragModeCB( rubbandzoombut_ );
@@ -768,7 +768,7 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     LinScaler scaler( allarea.top()+border, range_.start,
 		      allarea.bottom()-border, range_.stop );
     const Interval<float> rg( mCast(float,scaler.scale(selarea->top())),
-	    		      mCast(float,scaler.scale(selarea->bottom())) );
+			      mCast(float,scaler.scale(selarea->bottom())) );
     if ( rg.width()<=0.1 ) return;
 
     range_ = rg;

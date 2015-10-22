@@ -51,9 +51,9 @@ public:
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
 	    uiLabel* label = new uiLabel( this,
-  			    mToUiStringTodo(prompter_.objects_[idx]->string_) );
+			    mToUiStringTodo(prompter_.objects_[idx]->string_) );
 
-	    uiButton* curbutton = uiButton::getStd( this, uiButton::Save,
+	    uiButton* curbutton = uiButton::getStd( this, OD::Save,
 					mCB(this,uiNotSavedDlg,buttonCB),
 					prompter_.objects_[idx]->issaveas_ );
 	    curbutton->attach( rightOf, label );
@@ -150,7 +150,7 @@ bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
 void NotSavedPrompter::addObject( const char* str,const CallBack& cb,
 	bool issaveas, const void* dataptr )
 {
-    objects_ += new NotSavedPrompterData( toUiString(str), cb, issaveas, 
+    objects_ += new NotSavedPrompterData( toUiString(str), cb, issaveas,
 								    dataptr );
 }
 

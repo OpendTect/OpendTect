@@ -404,7 +404,7 @@ void uiVisEMObject::keyEventCB( CallBacker* )
 	return;
 
     const KeyboardEvent& ke = visserv_->getKeyboardEvent();
-    if ( ke.key_==OD::R && ke.modifier_==OD::NoButton )
+    if ( ke.key_==OD::KB_R && ke.modifier_==OD::NoButton )
     {
 	const bool oas = hd->displayedOnlyAtSections();
 	hd->setOnlyAtSectionsDisplay( !oas );

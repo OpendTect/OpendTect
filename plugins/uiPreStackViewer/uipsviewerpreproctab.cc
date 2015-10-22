@@ -30,7 +30,7 @@ uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p,
     uipreprocmgr_->change.notify(
 	    mCB(this,uiViewer3DPreProcTab,processorChangeCB) );
 
-    applybut_ = uiButton::getStd( this, uiButton::Apply,
+    applybut_ = uiButton::getStd( this, OD::Apply,
 	   mCB(this,uiViewer3DPreProcTab,applyButPushedCB), true );
     applybut_->attach( centeredBelow, uipreprocmgr_ );
 

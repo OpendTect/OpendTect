@@ -282,7 +282,7 @@ void uiEditSEGYFileDataDlg::fillFileTable()
 	const BufferString oldfilename = fp.fileName();
 	filetable_->setText( RowCol(idx,0),
 			fp.pathOnly() == olddir ? oldfilename : fp.fullPath() );
-	uiButton* selbut = uiButton::getStd( 0, uiButton::Select,
+	uiButton* selbut = uiButton::getStd( 0, OD::Select,
 			       mCB(this,uiEditSEGYFileDataDlg,fileSelCB), true);
 	filetable_->setCellObject( RowCol(idx,2), selbut );
     }

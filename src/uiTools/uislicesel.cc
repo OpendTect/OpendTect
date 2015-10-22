@@ -55,7 +55,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 
     if ( !isvol_ && !is2d_ )
     {
-	applybut_ = uiButton::getStd( this, uiButton::Apply,
+	applybut_ = uiButton::getStd( this, OD::Apply,
 				    mCB(this,uiSliceSel,applyPush), true );
 	mainObject()->setTabOrder( (uiObject*)z0fld_, (uiObject*)applybut_ );
 	applybut_->attach( alignedBelow, z0fld_ );
@@ -81,14 +81,14 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 
 
 uiString uiSliceSel::sButTxtAdvance()
-{ 
-    return tr("Advance >>"); 
+{
+    return tr("Advance >>");
 }
 
 
 uiString uiSliceSel::sButTxtPause()
-{ 
-    return tr("Pause"); 
+{
+    return tr("Pause");
 }
 
 
@@ -102,7 +102,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 
 void uiSliceSel::createInlFld()
 {
-    uiString label = ( isinl_ ? uiStrings::phrInline(tr("nr")) : 
+    uiString label = ( isinl_ ? uiStrings::phrInline(tr("nr")) :
 				uiStrings::phrInline(uiStrings::sRange()));
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
@@ -115,8 +115,8 @@ void uiSliceSel::createInlFld()
 void uiSliceSel::createCrlFld()
 {
     uiString label = is2d_ ? uiStrings::phrJoinStrings(uiStrings::sTrace(),
-		     uiStrings::sRange()) : 
-		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) : 
+		     uiStrings::sRange()) :
+		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) :
 			       uiStrings::phrCrossline(uiStrings::sRange()) );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
@@ -225,7 +225,7 @@ void typSel( CallBacker* )
 	else
 	    stopAuto( false );
     }
-    ctrlbut->setText( autoreq ? uiSliceSel::sButTxtPause() : 
+    ctrlbut->setText( autoreq ? uiSliceSel::sButTxtPause() :
 				uiSliceSel::sButTxtAdvance() );
     backbut->display( !autoreq );
     inauto_ = autoreq;
@@ -239,7 +239,7 @@ void butPush( CallBacker* cb )
     else
     {
 	/*new*/paused_ = ctrlbut->text().getOriginalString()[1] == 'P';
-	ctrlbut->setText( paused_ ? uiStrings::sGo() : 
+	ctrlbut->setText( paused_ ? uiStrings::sGo() :
 						  uiSliceSel::sButTxtPause() );
     }
 }
@@ -565,7 +565,7 @@ void uiSliceSel::fillPar( IOPar& iop )
 
     cs.zsamp_.start = mCast( float, z0fld_->box()->getIntValue() );
     cs.zsamp_.stop = mCast( float, istsl_ ? z0fld_->box()->getIntValue()
-			 		  : z1fld_->getIntValue() );
+					  : z1fld_->getIntValue() );
 
     cs.fillPar( iop );
 }
@@ -646,7 +646,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
     , posdlg_(0)
 {
     inlcrlfld_ = new uiGenInput( this, tr("Compute on:"),
-			BoolInpSpec(true,uiStrings::sInline(), 
+			BoolInpSpec(true,uiStrings::sInline(),
 			uiStrings::sCrossline()));
     setOkText( uiStrings::sNext() );
 }

@@ -57,6 +57,26 @@ enum CheckState
     Checked=2
 };
 
+
+enum StdIconType
+{
+    NoIcon=0,
+    Apply,
+    Cancel,
+    Edit,
+    Help,
+    Ok,
+    Options,
+    Properties,
+    Examine,
+    Rename,
+    Remove,
+    Save,
+    SaveAs,
+    Select,
+    Settings
+};
+
 } // namespace OD
 
 

@@ -308,7 +308,7 @@ void uiMainWinBody::doShow( bool minimized )
 #ifdef __debug__
 
 /*
- We need a check on windows being too big for small(laptop) screens.
+ We need a check on windows being too big for little (laptop) screens.
  But if we set the margins too tight we'll get a hit for many windows.
  Then we (programmers) will start ignoring pErrMsg's, which is _really_ bad.
  Notes:
@@ -326,8 +326,8 @@ void uiMainWinBody::doShow( bool minimized )
 
 */
 
-#   define mMinSupportedWidth 1600
-#   define mMinSupportedHeight 1000
+#   define mMinSupportedWidth 1920
+#   define mMinSupportedHeight 1080
 
     QRect qrect = geometry();
     if ( !hasguisettings_ && (qrect.width() > mMinSupportedWidth
@@ -709,7 +709,7 @@ void uiMainWinBody::keyPressEvent( QKeyEvent* ev )
     OD::KeyboardKey key = OD::KeyboardKey( ev->key() );
     OD::ButtonState modifier = OD::ButtonState( (int)ev->modifiers() );
 
-    if ( key == OD::C && modifier == OD::ControlButton )
+    if ( key == OD::KB_C && modifier == OD::ControlButton )
 	handle_.ctrlCPressed.trigger();
 
     return QMainWindow::keyPressEvent( ev );
@@ -1766,13 +1766,13 @@ void uiDialogBody::initChildren()
 uiObject* uiDialogBody::createChildren()
 {
     if ( !setup_.oktext_.isEmpty() )
-	okbut_ = uiButton::getStd( centralwidget_, uiButton::Ok, CallBack(),
+	okbut_ = uiButton::getStd( centralwidget_, OD::Ok, CallBack(),
 				   true, setup_.oktext_ );
     if ( !setup_.canceltext_.isEmpty() )
-	cnclbut_ = uiButton::getStd( centralwidget_, uiButton::Cancel,
+	cnclbut_ = uiButton::getStd( centralwidget_, OD::Cancel,
 				     CallBack(), true, setup_.canceltext_ );
     if ( setup_.applybutton_ )
-	applybut_ = uiButton::getStd( centralwidget_, uiButton::Apply,
+	applybut_ = uiButton::getStd( centralwidget_, OD::Apply,
 				mCB(this,uiDialogBody,applyCB), true,
 				   setup_.applytext_ );
 
@@ -1796,7 +1796,7 @@ uiObject* uiDialogBody::createChildren()
 	shwhid = true;
 #endif
 
-	helpbut_ = uiButton::getStd( centralwidget_, uiButton::Help,
+	helpbut_ = uiButton::getStd( centralwidget_, OD::Help,
 				mCB(this,uiDialogBody,provideHelp), true );
 	if ( shwhid )
 	    helpbut_->setToolTip( uiStrings::phrJoinStrings(

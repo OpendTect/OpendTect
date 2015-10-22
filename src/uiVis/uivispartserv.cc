@@ -2070,7 +2070,7 @@ void uiVisPartServer::keyEventCB( CallBacker* cb )
     kbevent_ = sceneeventsrc_->getKeyboardEvent();
 
     const int selid = getSelObjectId();
-    if ( kbevent_.key_==OD::V && kbevent_.modifier_==OD::NoButton )
+    if ( kbevent_.key_==OD::KB_V && kbevent_.modifier_==OD::NoButton )
     {
 	setOnlyAtSectionsDisplay( selid, !displayedOnlyAtSections(selid) );
     }

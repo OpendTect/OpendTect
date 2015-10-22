@@ -26,7 +26,7 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
     const uiString buttxt = (!btxt.isEmpty()) ? btxt : uiStrings::sSelect();
     const CallBack selcb( mCB(this,uiCompoundParSel,doSel) );
     if ( FixedString(mFromUiStringTodo(buttxt)) == "Select" )
-	selbut_ = uiButton::getStd( this, uiButton::Select, selcb, false );
+	selbut_ = uiButton::getStd( this, OD::Select, selcb, false );
     else
 	selbut_ = new uiPushButton( this, buttxt, selcb, false );
     selbut_->attach( rightOf, txtfld_ );
@@ -66,7 +66,7 @@ void uiCompoundParSel::setSelIcon( const char* ident )
 
 
 uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
-			 const uiString& seltxt, bool invis, 
+			 const uiString& seltxt, bool invis,
 			 const uiString& btxt )
     : uiCompoundParSel(p,uiStrings::sEmptyString(),btxt)
     , mkinvis_(invis)

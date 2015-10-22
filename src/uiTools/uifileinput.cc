@@ -77,7 +77,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     if ( setup.withexamine_ )
     {
 	examinebut_ = uiButton::getStd( this,
-			exameditable_ ? uiButton::Edit : uiButton::Examine,
+			exameditable_ ? OD::Edit : OD::Examine,
 			mCB(this,uiFileInput,examineFile), false );
 	examinebut_->setText(
 		exameditable_ ? uiStrings::sEdit() : uiStrings::sExamine() );
