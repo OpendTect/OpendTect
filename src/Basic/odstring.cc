@@ -10,6 +10,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "globexpr.h"
 #include <string.h>
 
+#include "perthreadrepos.h"
+
 
 static FixedString emptyfixedstring( "" );
 
@@ -62,6 +64,15 @@ bool OD::String::operator <( const char* s ) const
 
 bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
 {
+#ifdef __debug__
+    if ( s && gtStr()==s )
+    {
+	if ( isStaticString(this) )
+	{
+	    pErrMsg("Static string compared to itself");
+	}
+    }
+#endif
     mGetMeForEquality();
     return mIsInsens() ? caseInsensitiveEqual(me,s,0) : !strcmp( me, s );
 }
