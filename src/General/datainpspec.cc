@@ -451,9 +451,10 @@ bool StringListInpSpec::setText( const char* s, int nr )
     }
     else
     {
+	BufferString compstr;
 	for ( int idx=0; idx<strings_.size(); idx++ )
 	{
-	    if ( strings_[idx].getFullString() == s )
+	    if ( strings_[idx].getFullString(&compstr) == s )
 	    { cur_ = idx; isset_ = true; return true; }
 	}
     }
