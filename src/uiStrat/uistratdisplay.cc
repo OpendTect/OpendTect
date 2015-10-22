@@ -504,9 +504,9 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
 
-	LineStyle::Type lst = lvl.name_.isEmpty() ? OD::LineStyle::Dot
+	OD::LineStyle::Type lst = lvl.name_.isEmpty() ? OD::LineStyle::Dot
 						  : OD::LineStyle::Solid;
-	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
+	li->setPenStyle( OD::LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem(
 					        toUiString(lvl.name_) ) );
 	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) );
