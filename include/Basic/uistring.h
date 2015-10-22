@@ -124,10 +124,12 @@ public:
 
 
     /*! Results: */
-    const OD::String&		getFullString() const;
+    const OD::String&		getFullString(BufferString* = 0) const;
 				/*!< Full string, *without* translation
 				    result is in a thread-safe static buffer,
-				    so copy the result before calling again. */
+				    so copy the result before calling again.
+				    If BufferString is given, it will be
+				    filled, and static buffer won't be used. */
     wchar_t*			createWCharString() const;
 				/*!< The translation. Result becomes owner's and
 				    should be deleted using the [] operator. */

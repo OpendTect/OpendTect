@@ -401,15 +401,20 @@ const char* uiString::getOriginalString() const
 }
 
 
-const OD::String& uiString::getFullString() const
+const OD::String& uiString::getFullString( BufferString* res ) const
 {
-    mDeclStaticString( res );
+    if ( !res )
+    {
+	mDeclStaticString( staticres );
+	res = &staticres;
+    }
+
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
-	res = sKey::EmptyString();
+	*res = sKey::EmptyString();
     else
-	data_->getFullString( res );
-    return res;
+	data_->getFullString( *res );
+    return *res;
 }
 
 
