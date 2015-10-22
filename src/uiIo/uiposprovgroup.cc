@@ -280,10 +280,10 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 {
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
-    selfld_ = new uiGenInput(this, uiStrings::phrJoinStrings(uiStrings::sData(),
-	    		     tr("from")), BoolInpSpec(true,uiStrings::sPickSet()
-			     ,uiStrings::phrJoinStrings(tr("Table"),
-			     uiStrings::sFile())));
+    selfld_ = new uiGenInput(this, tr("Data from"),
+		    BoolInpSpec(true,uiStrings::sPickSet(), 
+		    uiStrings::phrJoinStrings(uiStrings::sTable(),
+					      uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiIOObjSel( this, ctio_ );
     psfld_->attach( alignedBelow, selfld_ );
