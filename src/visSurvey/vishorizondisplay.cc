@@ -1912,7 +1912,7 @@ void HorizonDisplay::updateIntersectionLines(
 	line->getCoordinates()->setEmpty();
 	line->removeAllPrimitiveSets();
 
-	while ( pointgroup->size()>1 ) pointgroup->removeObject( 1 );
+	pointgroup->removeAll();
 	int cii = 0;
 
 	for ( int sectionidx=0; sectionidx<horizon->nrSections(); sectionidx++ )
