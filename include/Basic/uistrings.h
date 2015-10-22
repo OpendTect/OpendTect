@@ -404,6 +404,7 @@ public:
     static uiString sSurveys()		{ return sSurvey(mPlural); }
     static uiString sTakeSnapshot()	{ return tr("Take Snapshot"); }
     static uiString sStart()		{ return tr("Start"); }
+    static uiString sTable(int num=1)	{ return tr("Table",0,num); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTmpStor()		{ return tr("Temporary storage "

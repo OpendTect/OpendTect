@@ -41,8 +41,8 @@ uiColTabImport::uiColTabImport( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    choicefld_ = new uiGenInput( this, uiStrings::phrImport(tr("from")),
-	BoolInpSpec(true,tr("Other user"),uiStrings::sFile()) );
+    choicefld_ = new uiGenInput( this, tr("Import from"),
+	BoolInpSpec(true,tr("Other user"), uiStrings::sFile()) );
     choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
@@ -117,7 +117,8 @@ void uiColTabImport::usrSel( CallBacker* )
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error(tr("Please select an existing %1")
-		    .arg(fromuser ? tr("directory") : uiStrings::sFile()));
+		    .arg(fromuser ? uiStrings::sDirectory().toLower()
+			          : uiStrings::sFile().toLower() ));
 	return;
     }
 
