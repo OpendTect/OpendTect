@@ -416,7 +416,8 @@ void Viewer2DPosDataSel::fillPar( IOPar& iop ) const
 {
     tkzs_.fillPar( iop );
     selspec_.fillPar( iop );
-    iop.set( sKeyRdmLineID(), rdmlinemultiid_ );
+    iop.set( sKeyRdmLineID(), rdmlineid_ );
+    iop.set( sKeyRdmLineMultiID(), rdmlinemultiid_ );
     iop.setYN( sKeySelectData(), selectdata_ );
     iop.set( sKey::GeomID(), geomid_ );
     iop.set( PosTypeDef().name(), toString(postype_) );
@@ -427,7 +428,8 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
 {
     tkzs_.usePar( iop );
     selspec_.usePar( iop );
-    iop.get( sKeyRdmLineID(), rdmlinemultiid_ );
+    iop.get( sKeyRdmLineID(), rdmlineid_ );
+    iop.get( sKeyRdmLineMultiID(), rdmlinemultiid_ );
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );
     PosTypeDef().parse( iop, PosTypeDef().name(), postype_ );
