@@ -262,7 +262,7 @@ void uiButton::translateText()
 }
 
 
-static uiButton* crStd( uiParent* p, OD::StdIconType typ,
+static uiButton* crStd( uiParent* p, OD::StdActionType typ,
 	const CallBack& cb, bool immediate, const uiString* buttxt,
 	bool pbics=false )
 {
@@ -285,19 +285,21 @@ static uiButton* crStd( uiParent* p, OD::StdIconType typ,
     switch( typ )
     {
 	mGetDefs(Apply)
-	mGetDefs(Select)
-	mGetDefs(Settings)
-	mGetDefs(Options)
-	mGetDefs(Properties)
+	mGetDefs(Cancel)
+	mGetDefs(Define)
 	mGetDefs(Edit)
 	mGetDefs(Examine)
-	mGetDefs(Save)
-	mGetDefs(SaveAs)
-	mGetDefs(Rename)
-	mGetDefs(Remove)
 	mGetDefs(Help)
 	mGetDefs(Ok)
-	mGetDefs(Cancel)
+	mGetDefs(Options)
+	mGetDefs(Properties)
+	mGetDefs(Rename)
+	mGetDefs(Remove)
+	mGetDefs(Save)
+	mGetDefs(SaveAs)
+	mGetDefs(Select)
+	mGetDefs(Settings)
+	mGetDefs(Unload)
 	default:
 	break;
     }
@@ -315,13 +317,13 @@ static uiButton* crStd( uiParent* p, OD::StdIconType typ,
     return ret;
 }
 
-uiButton* uiButton::getStd( uiParent* p, OD::StdIconType typ,
+uiButton* uiButton::getStd( uiParent* p, OD::StdActionType typ,
 	const CallBack& cb, bool immediate )
 {
     return crStd( p, typ, cb, immediate, 0, havecommonpbics_ );
 }
 
-uiButton* uiButton::getStd( uiParent* p, OD::StdIconType typ,
+uiButton* uiButton::getStd( uiParent* p, OD::StdActionType typ,
 	const CallBack& cb, bool immediate, const uiString& buttxt )
 {
     return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );

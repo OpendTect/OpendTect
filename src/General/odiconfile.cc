@@ -23,7 +23,7 @@ static const char* sFileNameEnd = ".png";
 #define mIconDirDefault "Default"
 
 
-OD::IconFile::IconFile( OD::StdIconType typ )
+OD::IconFile::IconFile( OD::StdActionType typ )
 {
     init( getIdentifier(typ) );
 }
@@ -92,26 +92,28 @@ void OD::IconFile::set( const char* inp )
 }
 
 
-const char* OD::IconFile::getIdentifier( OD::StdIconType typ )
+const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
 {
 #   define mCaseRet(typ,ret) case typ: return #ret;
 
     switch( typ )
     {
 	mCaseRet(Apply,apply)
-	mCaseRet(Select,selectfromlist)
-	mCaseRet(Settings,options)
-	mCaseRet(Options,options)
-	mCaseRet(Properties,options)
+	mCaseRet(Cancel,cancel)
+	mCaseRet(Define,define)
 	mCaseRet(Edit,edit)
 	mCaseRet(Examine,examine)
-	mCaseRet(Save,save)
-	mCaseRet(SaveAs,saveas)
-	mCaseRet(Rename,renameobj)
-	mCaseRet(Remove,delete)
 	mCaseRet(Help,help)
 	mCaseRet(Ok,ok)
-	mCaseRet(Cancel,cancel)
+	mCaseRet(Options,options)
+	mCaseRet(Properties,options)
+	mCaseRet(Rename,renameobj)
+	mCaseRet(Remove,delete)
+	mCaseRet(Save,save)
+	mCaseRet(SaveAs,saveas)
+	mCaseRet(Select,selectfromlist)
+	mCaseRet(Settings,options)
+	mCaseRet(Unload,unload)
 	default: break;
     }
 

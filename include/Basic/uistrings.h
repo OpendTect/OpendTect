@@ -177,7 +177,7 @@ public:
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
-    static uiString sCalculate();	
+    static uiString sCalculate();
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCantCreateHor();
@@ -223,7 +223,8 @@ public:
     static uiString sData();
     static uiString sDecimal()		{ return tr("Decimal"); }
     static uiString sDefault()		{ return tr("Default"); }
-    static uiString sDelete();		
+    static uiString sDefine()		{ return tr("Define"); }
+    static uiString sDelete();
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDip()		{ return tr("Dip"); }
     static uiString sDisabled()		{ return tr("Disabled"); }
@@ -421,6 +422,7 @@ public:
     static uiString sUndo()		{ return tr("Undo"); }
     static uiString sUnit(int num=1)	{ return tr("Unit",0,num); }
     static uiString sUnlock()		{ return tr("Unlock"); }
+    static uiString sUnload()		{ return tr("Unload"); }
     static uiString sUp()		{ return tr("Up"); }
     static uiString sUse()		{ return tr("Use"); }
     static uiString sUtilities()	{ return tr("Utilities"); }

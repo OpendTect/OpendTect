@@ -33,8 +33,10 @@ mExpClass(uiTools) uiCompoundParSel : public uiGroup
 public:
 
 			uiCompoundParSel(uiParent*,const uiString& seltxt,
-					 const uiString& 
-					 buttxt=uiStrings::sEmptyString());
+					 OD::StdActionType t=OD::Select);
+			uiCompoundParSel(uiParent*,const uiString& seltxt,
+					 const uiString& buttxt,
+					 const char* icid=0);
 
 
     void		setSelText(const uiString&);
@@ -51,6 +53,11 @@ protected:
 
     uiGenInput*			txtfld_;
     uiButton*			selbut_;
+
+private:
+
+    void			crTextFld(const uiString&);
+    void			finishCreation(const uiString&,const uiString&);
 
 };
 

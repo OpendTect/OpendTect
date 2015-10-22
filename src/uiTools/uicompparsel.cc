@@ -15,22 +15,45 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
+#define mSelCB mCB(this,uiCompoundParSel,doSel)
+
 uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
-				    const uiString& btxt )
+				    OD::StdActionType typ )
     : uiGroup(p,mFromUiStringTodo(seltxt))
     , butPush(this)
 {
+    crTextFld( seltxt );
+    selbut_ = uiButton::getStd( this, typ, mSelCB, false );
+    finishCreation( seltxt, selbut_->text() );
+}
+
+
+uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
+				    const uiString& btxt, const char* icid )
+    : uiGroup(p,mFromUiStringTodo(seltxt))
+    , butPush(this)
+{
+    crTextFld( seltxt );
+    selbut_ = new uiPushButton( this, btxt, mSelCB, false );
+    if ( icid )
+	selbut_->setIcon( icid );
+    finishCreation( seltxt, btxt );
+}
+
+
+void uiCompoundParSel::crTextFld( const uiString& seltxt )
+{
     txtfld_ = new uiGenInput( this, seltxt, "" );
     txtfld_->setReadOnly( true );
+}
 
-    const uiString buttxt = (!btxt.isEmpty()) ? btxt : uiStrings::sSelect();
-    const CallBack selcb( mCB(this,uiCompoundParSel,doSel) );
-    if ( FixedString(mFromUiStringTodo(buttxt)) == "Select" )
-	selbut_ = uiButton::getStd( this, OD::Select, selcb, false );
-    else
-	selbut_ = new uiPushButton( this, buttxt, selcb, false );
+
+void uiCompoundParSel::finishCreation( const uiString& seltxt,
+				       const uiString& btxt )
+{
     selbut_->attach( rightOf, txtfld_ );
-    const uiString stnm = uiStrings::phrJoinStrings(buttxt,seltxt);
+
+    const uiString stnm = uiStrings::phrJoinStrings(btxt,seltxt);
     selbut_->setName( mFromUiStringTodo(stnm) );
 
     setHAlignObj( txtfld_ );
@@ -38,6 +61,7 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
 
     postFinalise().notify( mCB(this,uiCompoundParSel,updSummary) );
 }
+
 
 
 void uiCompoundParSel::doSel( CallBacker* )

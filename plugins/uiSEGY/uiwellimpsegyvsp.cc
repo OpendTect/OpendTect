@@ -50,7 +50,7 @@ class uiSEGYVSPBasicPars : public uiCompoundParSel
 public:
 
 uiSEGYVSPBasicPars( uiWellImportSEGYVSP* p )
-    : uiCompoundParSel( p, "SEG-Y input" )
+    : uiCompoundParSel( p, tr("SEG-Y input") )
     , imp_(*p)
     , fnm_("-")
 {

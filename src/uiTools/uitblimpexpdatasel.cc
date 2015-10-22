@@ -70,7 +70,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
-    uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) : 
+    uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :
 		       tr("%1").arg(tinf_.name());
     uiLabel* lbl = new uiLabel( this, lbltxt );
     if ( formfld_ )
@@ -555,7 +555,7 @@ class uiTableFmtDescFldsParSel : public uiCompoundParSel
 public:
 
 uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
-    : uiCompoundParSel( p, tr("Format definition"), tr("Define") )
+    : uiCompoundParSel( p, tr("Format definition"), OD::Define )
     , impsel_(*p)
     , helpkey_(helpkey)
     , descCommitted(this)
