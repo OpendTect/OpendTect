@@ -63,15 +63,15 @@ mExpClass(General) IconFile : public NamedObject
 {
 public:
 
-    typedef OD::StdIconType StdIconType;
+    typedef OD::StdActionType StdActionType;
 
 			IconFile(const char* identifier=0);
-			IconFile(StdIconType);
+			IconFile(StdActionType);
 
     void		set(const char* identifier);
-    void		set( StdIconType t )	{ set( getIdentifier(t) ); }
+    void		set( StdActionType t )	{ set( getIdentifier(t) ); }
 
-    static const char*	getIdentifier(StdIconType);
+    static const char*	getIdentifier(StdActionType);
     static bool		isPresent(const char* identifier);
 
     bool		haveData() const	{ return !nms_.isEmpty(); }

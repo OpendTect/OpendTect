@@ -151,7 +151,7 @@ class uiSEGYExpTxtHeader : public uiCompoundParSel
 public:
 
 uiSEGYExpTxtHeader( uiSEGYExp* se )
-    : uiCompoundParSel(se,"Text header","Define")
+    : uiCompoundParSel(se,tr("Text header"),OD::Define)
     , se_(se)
 {
     butPush.notify( mCB(this,uiSEGYExpTxtHeader,butPushed) );

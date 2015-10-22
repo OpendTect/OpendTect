@@ -61,37 +61,23 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 					     OD::Vertical );
     bgrp->attach( rightOf, listfld_->box() );
 
-#define mAddBut(s,fn) \
-    new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), false )
+#define mAddBut(s,fn,ic) { \
+    uiButton* but = new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), \
+					false ); \
+    but->setIcon( ic ); }
 
     if ( has3d )
     {
-	mAddBut(tr("Add Cube"),cubeLoadPush);
+	mAddBut(tr("Add Cube"),cubeLoadPush,"seismiccube")
     }
     if ( has2d )
     {
 	if ( has3d )
-	    mAddBut(tr("Add 2D DataSet"),linesLoadPush);
+	    mAddBut(tr("Add 2D DataSet"),linesLoadPush,"seismicline2d")
 	else
-	    mAddBut(tr("Add DataSet"),linesLoadPush);
+	    mAddBut(tr("Add DataSet"),linesLoadPush,"seismicline2d")
     }
-/*
-    if ( has3d )
-    {
-	if ( has2d )
-	    mAddBut(tr("Add 3D Prestack data"),ps3DPush);
-	else
-	    mAddBut(tr("Add Prestack data"),ps3DPush);
-    }
-    if ( has2d )
-    {
-	if ( has3d )
-	    mAddBut(tr("Add 2D Prestack data"),ps2DPush);
-	else
-	    mAddBut(tr("Add Prestack data"),ps2DPush);
-    }
-*/
-    mAddBut(tr("Unload Checked"),unloadPush);
+    mAddBut(tr("Unload Checked"),unloadPush,"unload");
 
     uiToolButton* savetb = new uiToolButton( topgrp, "save",
 	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );

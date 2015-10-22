@@ -52,9 +52,9 @@ public:
 			//! Not for casual use
     mQtclass(QAbstractButton*)	qButton();
 
-    static uiButton*	getStd(uiParent*,OD::StdIconType,const CallBack&,
+    static uiButton*	getStd(uiParent*,OD::StdActionType,const CallBack&,
 				bool immediate);
-    static uiButton*	getStd(uiParent*,OD::StdIconType,const CallBack&,
+    static uiButton*	getStd(uiParent*,OD::StdActionType,const CallBack&,
 				bool immediate,const uiString& nonstd_text);
 
     static bool		haveCommonPBIcons()	{ return havecommonpbics_; }

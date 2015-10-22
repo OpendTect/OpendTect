@@ -58,11 +58,12 @@ enum CheckState
 };
 
 
-enum StdIconType
+enum StdActionType
 {
     NoIcon=0,
     Apply,
     Cancel,
+    Define,
     Edit,
     Help,
     Ok,
@@ -74,7 +75,8 @@ enum StdIconType
     Save,
     SaveAs,
     Select,
-    Settings
+    Settings,
+    Unload
 };
 
 } // namespace OD

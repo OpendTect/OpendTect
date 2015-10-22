@@ -800,7 +800,7 @@ public:
 
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,uiStrings::sFault(),uiStrings::sSelect())
+    : uiCompoundParSel(p,uiStrings::sFault())
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)

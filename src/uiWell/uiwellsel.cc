@@ -50,7 +50,7 @@ IOObjContext uiWellSel::getContext( bool forread, bool withinserters ) const
 uiWellSel::uiWellSel( uiParent* p, bool forread, const uiString& seltxt,
 			bool withinserters )
     : uiIOObjSel(p,getContext(forread,withinserters),
-	    	 getSetup(forread,seltxt,withinserters))
+		 getSetup(forread,seltxt,withinserters))
 {
 }
 
@@ -63,7 +63,7 @@ uiWellSel::uiWellSel( uiParent* p, bool forread, const uiIOObjSel::Setup& su )
 
 
 uiWellParSel::uiWellParSel( uiParent* p )
-    : uiCompoundParSel(p,uiStrings::sWell(mPlural),uiStrings::sSelect())
+    : uiCompoundParSel(p,uiStrings::sWell(mPlural))
     , iopar_(*new IOPar)
 {
     butPush.notify( mCB(this,uiWellParSel,doDlg) );
