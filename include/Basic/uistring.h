@@ -122,6 +122,9 @@ public:
 				    without translation. \Note that
 				    result is in a thread-safe static buffer, so
 				    copy the result before calling again.*/
+    const OD::String&		getFullString(BufferString*) const;
+				/*!< Full string, *without* translation
+				    result is put in the provided buffer. */
     const char*			getOriginalString() const;
     const mQtclass(QString&)	getQtString() const;
     wchar_t*			createWCharString() const;

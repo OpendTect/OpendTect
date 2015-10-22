@@ -394,9 +394,10 @@ void StringListInpSpec::setItemText( int idx, const uiString& s )
 
 bool StringListInpSpec::setText( const char* s, int nr )
 {
+    BufferString compstr;
     for ( int idx=0; idx<strings_.size(); idx++ )
     {
-	if ( strings_[idx].getFullString() == s )
+	if ( strings_[idx].getFullString(&compstr) == s )
 	{ cur_ = idx; isset_ = true; return true; }
     }
 

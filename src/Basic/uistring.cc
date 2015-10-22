@@ -275,12 +275,18 @@ const char* uiString::getOriginalString() const
 }
 
 
+const OD::String& uiString::getFullString( BufferString* res ) const
+{
+    Threads::Locker datalocker( datalock_ );
+    data_->getFullString( *res );
+    return *res;
+}
+
+
 const OD::String& uiString::getFullString() const
 {
     mDeclStaticString( res );
-    Threads::Locker datalocker( datalock_ );
-    data_->getFullString( res );
-    return res;
+    return getFullString( &res );
 }
 
 
