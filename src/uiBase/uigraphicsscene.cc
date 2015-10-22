@@ -81,9 +81,9 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
 {
     OD::KeyboardKey key = OD::KeyboardKey( qkeyevent->key() );
     OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
-    if ( key == OD::P && modifier == OD::ControlButton )
+    if ( key == OD::KB_P && modifier == OD::ControlButton )
 	uiscene_.ctrlPPressed.trigger();
-    else if ( key == OD::C && modifier == OD::ControlButton )
+    else if ( key == OD::KB_C && modifier == OD::ControlButton )
 	uiscene_.ctrlCPressed.trigger();
     QGraphicsScene::keyPressEvent( qkeyevent );
 }

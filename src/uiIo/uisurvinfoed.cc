@@ -152,7 +152,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     uiLabel* crdlbl = new uiLabel( this, tr("Coordinate settings:") );
     crdlbl->attach( leftBorder );
     crdlbl->attach( ensureBelow, horsep2 );
-    coordset = new uiGenInput( this, uiStrings::sEmptyString(), 
+    coordset = new uiGenInput( this, uiStrings::sEmptyString(),
                          BoolInpSpec(true,tr("Easy"), uiStrings::sAdvanced()) );
     coordset->attach( alignedBelow, rangegrp_ );
     coordset->attach( rightTo, crdlbl );
@@ -166,7 +166,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     trgrp_->attach( alignedBelow, rangegrp_ );
     trgrp_->attach( ensureBelow, coordset );
 
-    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+    uiButton* applybut = uiButton::getStd( this, OD::Apply,
 			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
     applybut->attach( alignedBelow, crdgrp_ );
 

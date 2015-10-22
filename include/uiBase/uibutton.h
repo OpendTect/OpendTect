@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiobj.h"
 #include "uistring.h"
+#include "odiconfile.h"
 
 class uiButtonBody;
 class uiCheckBoxBody;
@@ -51,14 +52,11 @@ public:
 			//! Not for casual use
     mQtclass(QAbstractButton*)	qButton();
 
-    enum StdType	{ Apply, Select, Settings, Options, Properties,
-			  Edit, Examine, Save, SaveAs, Rename, Remove,
-			  Help, Ok, Cancel };
-
-    static uiButton*	getStd(uiParent*,StdType,const CallBack&,
+    static uiButton*	getStd(uiParent*,OD::StdIconType,const CallBack&,
 				bool immediate);
-    static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
-			       const uiString& nonstd_text);
+    static uiButton*	getStd(uiParent*,OD::StdIconType,const CallBack&,
+				bool immediate,const uiString& nonstd_text);
+
     static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
     static void		setHaveCommonPBIcons( bool yn=true )
 						{ havecommonpbics_ = yn; }

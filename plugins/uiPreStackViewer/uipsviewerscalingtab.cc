@@ -34,7 +34,7 @@ uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
     , savedefault_( false )
     , mgr_( mgr )
 {
-    applybut_ = uiButton::getStd( this, uiButton::Apply,
+    applybut_ = uiButton::getStd( this, OD::Apply,
 		   mCB(this,uiViewer3DScalingTab,applyButPushedCB), true );
     applybut_->attach( alignedBelow, lastcommonfld_ );
 

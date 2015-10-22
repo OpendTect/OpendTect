@@ -84,7 +84,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
 
-    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+    uiButton* applybut = uiButton::getStd( this, OD::Apply,
 	    mCB(this,uiDPSOverlayPropDlg,doApply), true );
     applybut->attach( centeredBelow, plotter_.isY2Shown() ? y4lblcbx
 							  : y3lblcbx );

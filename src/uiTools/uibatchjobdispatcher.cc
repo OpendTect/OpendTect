@@ -103,7 +103,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	attachobj = selfld_->attachObj();
     }
 
-    optsbut_ = uiButton::getStd( this, uiButton::Options,
+    optsbut_ = uiButton::getStd( this, OD::Options,
 		mCB(this,uiBatchJobDispatcherSel,optsPush), false,
 		optionsbuttxt );
     if ( attachobj )

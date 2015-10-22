@@ -23,7 +23,19 @@ static const char* sFileNameEnd = ".png";
 #define mIconDirDefault "Default"
 
 
+OD::IconFile::IconFile( OD::StdIconType typ )
+{
+    init( getIdentifier(typ) );
+}
+
+
 OD::IconFile::IconFile( const char* identifier )
+{
+    init( identifier );
+}
+
+
+void OD::IconFile::init( const char* identifier )
 {
     BufferString icsetnm( mIconDirDefault );
     Settings::common().get( "Icon set name", icsetnm );
@@ -77,6 +89,33 @@ void OD::IconFile::set( const char* inp )
     }
 
     pErrMsg(BufferString("No icon found for identifier '",identifier,"'"));
+}
+
+
+const char* OD::IconFile::getIdentifier( OD::StdIconType typ )
+{
+#   define mCaseRet(typ,ret) case typ: return #ret;
+
+    switch( typ )
+    {
+	mCaseRet(Apply,apply)
+	mCaseRet(Select,selectfromlist)
+	mCaseRet(Settings,options)
+	mCaseRet(Options,options)
+	mCaseRet(Properties,options)
+	mCaseRet(Edit,edit)
+	mCaseRet(Examine,examine)
+	mCaseRet(Save,save)
+	mCaseRet(SaveAs,saveas)
+	mCaseRet(Rename,renameobj)
+	mCaseRet(Remove,delete)
+	mCaseRet(Help,help)
+	mCaseRet(Ok,ok)
+	mCaseRet(Cancel,cancel)
+	default: break;
+    }
+
+    return "no_icon";
 }
 
 

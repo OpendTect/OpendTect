@@ -343,7 +343,7 @@ void uiObjectItemViewWin::usePar( const IOPar& iop )
 void uiObjectItemViewWin::rubBandCB( CallBacker* )
 {
     const uiRect* selrect = mainviewer_->getSelectedArea();
-    if ( !selrect ) return; 
+    if ( !selrect ) return;
 
     const int selwidth = selrect->width();
     const int selheight = selrect->height();
@@ -471,7 +471,7 @@ void uiObjectItemViewControl::setToolButtons()
 
 void uiObjectItemViewControl::keyPressedCB( CallBacker* )
 {
-    if ( mainviewer_.getKeyboardEventHandler().event().key_ == OD::Escape )
+    if ( mainviewer_.getKeyboardEventHandler().event().key_ == OD::KB_Escape )
 	changeStatus();
 }
 

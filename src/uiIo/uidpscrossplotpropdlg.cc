@@ -48,7 +48,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
     , plotter_(p->plotter())
 {
     const char* axnms[] = { "X", "Y", "Y2", 0 };
-    uiLabeledComboBox* axlcb = new uiLabeledComboBox( this, axnms, 
+    uiLabeledComboBox* axlcb = new uiLabeledComboBox( this, axnms,
 							  uiStrings::sAxis() );
     axselfld_ = axlcb->box();
     const CallBack axselcb( mCB(this,uiDPSCPScalingTab,axSel) );
@@ -320,7 +320,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	selaxisfld_ =
 	    new uiGenInput( this, uiString::emptyString(),
                             BoolInpSpec( true,uiStrings::phrJoinStrings(
-			    uiStrings::sDraw(),tr("Y1")), 
+			    uiStrings::sDraw(),tr("Y1")),
 			    mJoinUiStrs(sDraw(), sY2())) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
@@ -750,7 +750,7 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
     ycolinpfld_ = new uiColorInput( this, uiColorInput::Setup(yaxiscol)
-		      .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY(), 
+		      .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY(),
 		      mJoinUiStrs(sAxis(), sColor()))));
     ycolinpfld_->attach( alignedBelow, llb );
 
@@ -758,7 +758,7 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     {
 	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
 	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
-		       .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY2(), 
+		       .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY2(),
 		       mJoinUiStrs(sAxis(), sColor()))));
 	y2colinpfld_->attach( alignedBelow, ycolinpfld_ );
     }
@@ -941,7 +941,7 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     densplottab_ = new uiDPSDensPlotSetTab( this );
     addGroup( densplottab_ );
 
-    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+    uiButton* applybut = uiButton::getStd( this, OD::Apply,
 	    mCB(this,uiDataPointSetCrossPlotterPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
 }

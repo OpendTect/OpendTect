@@ -262,41 +262,44 @@ void uiButton::translateText()
 }
 
 
-static uiButton* crStd( uiParent* p, uiButton::StdType typ,
+static uiButton* crStd( uiParent* p, OD::StdIconType typ,
 	const CallBack& cb, bool immediate, const uiString* buttxt,
 	bool pbics=false )
 {
     uiString txt = uiString::emptyString();
     uiString tt = uiString::emptyString();
-#   define mGetDefs(typ,icnm) \
-    case uiButton::typ: { \
-    if ( !buttxt ) \
-	txt = uiStrings::s##typ(); \
-    else \
-    { \
-	txt = *buttxt; \
-	tt = uiStrings::phrThreeDots( uiStrings::s##typ(), immediate ); \
-    } \
-    icid = #icnm; \
+    const char* icid = 0;
+
+#   define mGetDefs(typ) \
+    case OD::typ: { \
+	if ( !buttxt ) \
+	    txt = uiStrings::s##typ(); \
+	else \
+	{ \
+	    txt = *buttxt; \
+	    tt = uiStrings::phrThreeDots( uiStrings::s##typ(), immediate ); \
+	} \
+	icid = OD::IconFile::getIdentifier( OD::typ ); \
     break; }
 
-    const char* icid = 0;
     switch( typ )
     {
-	mGetDefs(Apply,apply)
-	mGetDefs(Select,selectfromlist)
-	mGetDefs(Settings,options)
-	mGetDefs(Options,options)
-	mGetDefs(Properties,options)
-	mGetDefs(Edit,edit)
-	mGetDefs(Examine,examine)
-	mGetDefs(Save,save)
-	mGetDefs(SaveAs,saveas)
-	mGetDefs(Rename,renameobj)
-	mGetDefs(Remove,delete)
-	mGetDefs(Help,help)
-	mGetDefs(Ok,ok)
-	mGetDefs(Cancel,cancel)
+	mGetDefs(Apply)
+	mGetDefs(Select)
+	mGetDefs(Settings)
+	mGetDefs(Options)
+	mGetDefs(Properties)
+	mGetDefs(Edit)
+	mGetDefs(Examine)
+	mGetDefs(Save)
+	mGetDefs(SaveAs)
+	mGetDefs(Rename)
+	mGetDefs(Remove)
+	mGetDefs(Help)
+	mGetDefs(Ok)
+	mGetDefs(Cancel)
+	default:
+	break;
     }
 
     uiButton* ret = 0;
@@ -312,13 +315,13 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
     return ret;
 }
 
-uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
+uiButton* uiButton::getStd( uiParent* p, OD::StdIconType typ,
 	const CallBack& cb, bool immediate )
 {
     return crStd( p, typ, cb, immediate, 0, havecommonpbics_ );
 }
 
-uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
+uiButton* uiButton::getStd( uiParent* p, OD::StdIconType typ,
 	const CallBack& cb, bool immediate, const uiString& buttxt )
 {
     return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );

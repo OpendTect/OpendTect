@@ -605,7 +605,7 @@ Coord3 Scene::getMousePos( bool displayspace ) const
 
     Coord3 res = xytmousepos_;
     if ( datatransform_ && !mousetrckey_.isUdf() )
-        res.z = datatransform_->transformTrcBack( 
+	res.z = datatransform_->transformTrcBack(
 	mousetrckey_, (float)xytmousepos_.z );
     return res;
 }
@@ -728,7 +728,7 @@ void Scene::keyPressCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::Keyboard ) return;
 
-    if ( eventinfo.key_ == OD::Space )
+    if ( eventinfo.key_ == OD::KB_Space )
     {
 	if ( !spacebarwaspressed_ )
 	    togglePosModeManipObjSel();

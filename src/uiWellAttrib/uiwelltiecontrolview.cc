@@ -139,7 +139,7 @@ void uiControlView::keyPressCB( CallBacker* )
 {
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
-    if ( ev.key_ == OD::P )
+    if ( ev.key_ == OD::KB_P )
 	setEditMode( !editbut_->isOn() );
 }
 
@@ -214,7 +214,7 @@ public :
 	sep->attach( stretchedBelow, topgrp );
 
 	mrkdispfld_ = new uiWellMarkersDispProperties( this,
-		uiWellDispProperties::Setup( 
+		uiWellDispProperties::Setup(
 		mJoinUiStrs(sMarker(),sSize().toLower()),
 		mJoinUiStrs(sMarker(),sColor().toLower())),
 		pms_.mrkdisp_, pms_.allmarkernms_, true );

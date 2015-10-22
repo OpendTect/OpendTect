@@ -35,10 +35,10 @@ uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
     listfld_->setPrefWidthInChar( 50 );
     listfld_->selectionChanged.notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
 
-    renbut_ = uiButton::getStd( this, uiButton::Rename,
+    renbut_ = uiButton::getStd( this, OD::Rename,
 				mCB(this,uiSEGYImpParsDlg,renCB), true );
     renbut_->attach( rightOf, listfld_ );
-    delbut_ = uiButton::getStd( this, uiButton::Remove,
+    delbut_ = uiButton::getStd( this, OD::Remove,
 				mCB(this,uiSEGYImpParsDlg,delCB), true );
     delbut_->attach( alignedBelow, renbut_ );
 

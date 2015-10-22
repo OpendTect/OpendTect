@@ -505,14 +505,14 @@ void ui3DViewerBody::enableThumbWheelHandling( bool yn,
     {
 	osgGeo::ThumbWheelEventHandler* handler = 0;
 #if OSG_MIN_VERSION_REQUIRED(3,3,2)
-	osg::Callback* nodecb = view_->getSceneData()->getEventCallback();
+	osg::Callback* cb = view_->getSceneData()->getEventCallback();
 #else
-	osg::NodeCallback* nodecb = view_->getSceneData()->getEventCallback();
+	osg::NodeCallback* cb = view_->getSceneData()->getEventCallback();
 #endif
-	while ( nodecb && !handler )
+	while ( cb && !handler )
 	{
-	    handler = dynamic_cast<osgGeo::ThumbWheelEventHandler*>( nodecb );
-	    nodecb = nodecb->getNestedCallback();
+	    handler = dynamic_cast<osgGeo::ThumbWheelEventHandler*>( cb );
+	    cb = cb->getNestedCallback();
 	}
 
 	if ( handler )
@@ -837,8 +837,8 @@ void ui3DViewerBody::setFocusCB( CallBacker* )
     // Need focus to show mod key dependent act-mode cursors
     // or toggle between picking and positioning in act mode
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-    if ( kbe.key_==OD::Shift || kbe.key_==OD::Control || kbe.key_==OD::Alt ||
-	 kbe.key_==OD::Space )
+    if ( kbe.key_==OD::KB_Shift || kbe.key_==OD::KB_Control
+	|| kbe.key_==OD::KB_Alt || kbe.key_==OD::KB_Space )
     {
 	if ( !qwidget()->hasFocus() && qwidget()->underMouse() )
 	    qwidget()->setFocus();
@@ -1459,7 +1459,7 @@ void ui3DViewerBody::setMapView( bool yn )
 void ui3DViewerBody::enableDragging( bool yn )
 {
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	    static_cast<osgGeo::TrackballManipulator*>(
+		static_cast<osgGeo::TrackballManipulator*>(
 					    view_->getCameraManipulator() );
     if ( !manip )
 	return;

@@ -91,7 +91,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     inpfld_ = new uiFileInput( topgrp_, "Input file(s) (*=wildcard)",
 				fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
-    editbut_ = uiButton::getStd( topgrp_, uiButton::Edit,
+    editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 			         mCB(this,uiSEGYReadStarter,editFile), false );
     editbut_->attach( rightOf, inpfld_ );
     editbut_->setSensitive( false );

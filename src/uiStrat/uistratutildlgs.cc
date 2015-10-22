@@ -82,8 +82,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
-	uiButton* sellithbut = uiButton::getStd( this, uiButton::Edit,
-						    cb, false );
+	uiButton* sellithbut = uiButton::getStd( this, OD::Edit, cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
 
 	lithids_.erase();
@@ -742,7 +741,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    errmsg = tr("Empty unit name. ");
 	else
 	{
-	    if(!uiStratUnitEditDlg::checkWrongChar(code.getCStr())) 
+	    if(!uiStratUnitEditDlg::checkWrongChar(code.getCStr()))
 		return false;
 	    units[idx]->setCode( code.buf() );
 	}

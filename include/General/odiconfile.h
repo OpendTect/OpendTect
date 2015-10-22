@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "namedobj.h"
 #include "bufstringset.h"
+#include "oduicommon.h"
 
 
 /*!\brief Constructs file names for OD icons.
@@ -62,9 +63,15 @@ mExpClass(General) IconFile : public NamedObject
 {
 public:
 
+    typedef OD::StdIconType StdIconType;
+
 			IconFile(const char* identifier=0);
+			IconFile(StdIconType);
 
     void		set(const char* identifier);
+    void		set( StdIconType t )	{ set( getIdentifier(t) ); }
+
+    static const char*	getIdentifier(StdIconType);
     static bool		isPresent(const char* identifier);
 
     bool		haveData() const	{ return !nms_.isEmpty(); }
@@ -80,6 +87,10 @@ protected:
     BufferStringSet	nms_;
 
     bool		findIcons(const char*,bool shortname);
+
+private:
+
+    void		init(const char*);
 
 };
 

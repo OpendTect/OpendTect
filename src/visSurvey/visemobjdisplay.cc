@@ -188,7 +188,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     bool keycb = false;
     bool mousecb = false;
     if ( eventinfo.type == visBase::Keyboard )
-	keycb = eventinfo.key_==OD::N && eventinfo.pressed;
+	keycb = eventinfo.key_==OD::KB_N && eventinfo.pressed;
     else if ( eventinfo.type == visBase::MouseClick )
     {
 	mousecb =

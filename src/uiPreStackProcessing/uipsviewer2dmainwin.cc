@@ -106,7 +106,7 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
-    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+    uiButton* applybut = uiButton::getStd( this, OD::Apply,
 			    mCB(this,uiPSPreProcessingDlg,applyCB), true );
     applybut->attach( alignedBelow, preprocgrp_ );
 }

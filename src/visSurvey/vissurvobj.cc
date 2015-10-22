@@ -327,11 +327,11 @@ void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
 	    buttonstate &= OD::ShiftButton | OD::ControlButton | OD::AltButton;
 
 	    if ( eventinfo.type==visBase::Keyboard && !eventinfo.pressed )
-	    {
-		buttonstate -= eventinfo.key_==OD::Shift ? OD::ShiftButton :
-			       eventinfo.key_==OD::Control ? OD::ControlButton :
-			       eventinfo.key_==OD::Alt ? OD::AltButton : 0;
-	    }
+		buttonstate -=
+		       eventinfo.key_==OD::KB_Shift	? OD::ShiftButton :
+		      (eventinfo.key_==OD::KB_Control	? OD::ControlButton :
+		      (eventinfo.key_==OD::KB_Alt	? OD::AltButton
+							: 0));
 
 	    if ( buttonstate == inplanedragkeys )
 		mousecursor.shape_ = MouseCursor::SizeAll;
@@ -342,7 +342,7 @@ void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
 }
 
 
-void SurveyObject::getMousePosInfo( const visBase::EventInfo& info, 
+void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
     IOPar& iopar ) const
 {
     const Coord3 xytmousepos = info.worldpickedpos;
