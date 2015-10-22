@@ -336,6 +336,10 @@ bool ChainExecutor::Epoch::doPrepare()
 
 	TrcKeyZSampling csamp;
 	csamp.hsamp_ = stepoutputhrg;
+	const StepInterval<float> fullzrg = csamp.zsamp_;
+	csamp.zsamp_.start = fullzrg.atIndex( stepoutputzrg.start );
+	csamp.zsamp_.stop = fullzrg.atIndex( stepoutputzrg.stop );
+
 	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
 	outcube->setSampling( csamp );
