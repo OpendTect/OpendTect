@@ -75,9 +75,9 @@ protected:
     BufferStringSet	iconfiles_;
 public:
     //Legacy
-    bool		isValidName(const char* key) const;
-    const char*		convert(int idx) const;
-    int			convert(const char* txt) const;
+    mDeprecated bool		isValidName(const char* key) const;
+    mDeprecated const char*	convert(int idx) const;
+    mDeprecated int		convert(const char* txt) const;
 };
 
 template <class ENUM>
@@ -95,7 +95,8 @@ private:
     void		init();
 public:
     //Legacy
-    const char*		toString(ENUM theenum) const { return getKey(theenum); }
+    mDeprecated const char*
+			toString(ENUM theenum) const { return getKey(theenum); }
 };
 
 
