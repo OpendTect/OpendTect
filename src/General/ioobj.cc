@@ -455,7 +455,7 @@ Conn* IOX::getConn( bool forread ) const
     XConn* xconn = new XConn;
     xconn->conn_ = ioobj->getConn( forread );
     if ( xconn->conn_ )
-	xconn->conn_->setLinkedTo( key() );
+	xconn->setLinkedTo( key() );
 
     delete ioobj;
     return xconn;
