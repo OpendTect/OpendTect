@@ -449,16 +449,18 @@ bool IOX::implExists( bool i ) const
 
 Conn* IOX::getConn( bool forread ) const
 {
+    XConn* ret = 0;
+
     IOObj* ioobj = getIOObj();
-    if ( !ioobj ) return 0;
+    if ( ioobj )
+    {
+	ret = new XConn;
+	ret->conn_ = ioobj->getConn( forread );
+	delete ioobj;
+	ret->setLinkedTo( key() );
+    }
 
-    XConn* xconn = new XConn;
-    xconn->conn_ = ioobj->getConn( forread );
-    if ( xconn->conn_ )
-	xconn->setLinkedTo( key() );
-
-    delete ioobj;
-    return xconn;
+    return ret;
 }
 
 
@@ -492,4 +494,3 @@ const char* IOX::dirName() const
     delete ioobj;
     return dirnm_;
 }
-
