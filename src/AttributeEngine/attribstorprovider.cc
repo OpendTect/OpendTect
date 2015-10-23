@@ -613,9 +613,10 @@ bool StorageProvider::checkDesiredVolumeOK()
     const bool crlwrong =
 	desiredvolume_->hrg.start.crl() > storedvolume_.hrg.stop.crl()
      || desiredvolume_->hrg.stop.crl() < storedvolume_.hrg.start.crl();
+    const bool zepsilon = 1e-06;
     const bool zwrong =
-	desiredvolume_->zrg.start > storedvolume_.zrg.stop
-     || desiredvolume_->zrg.stop < storedvolume_.zrg.start;
+	desiredvolume_->zrg.start > storedvolume_.zrg.stop+zepsilon
+     || desiredvolume_->zrg.stop < storedvolume_.zrg.start-zepsilon;
     const float zstepratio = desiredvolume_->zrg.step / storedvolume_.zrg.step;
     const bool zstepwrong = zstepratio > 100 || zstepratio < 0.01;
 
