@@ -1090,7 +1090,11 @@ void uiSurvey::putToScreen()
 	const SurveyInfo& si = *cursurvinfo_;
 	notesfld_->setText( si.comment() );
 
-	zinfo.add( " (" ).add( si.getZUnitString(false) ).add( "): ");
+	zinfo.add( "(" )
+	     .add( si.zIsTime() ? ZDomain::Time().unitStr()
+				: getDistUnitString(si.zInFeet(), false) )
+	     .add( "): " );
+
 	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
 	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
