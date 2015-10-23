@@ -187,9 +187,10 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
     const float z0 = tkzs.zsamp_.start / tkzs.zsamp_.step;
-    const int outz0samp = (int)Math::Floor( z0 );
+    const float zepsilon = 1e-3;
+    const int outz0samp = (int)Math::Floor( z0+zepsilon );
     const float extrazsamp = z0 - mCast(float,outz0samp);
-    const bool needinterp = extrazsamp >= 1e3;
+    const bool needinterp = fabs(extrazsamp) >= zepsilon;
     const Interval<int> outrg( outz0samp, outz0samp+tkzs.zsamp_.nrSteps() );
     if ( !inputrg.overlaps(outrg,false) )
 	return;
