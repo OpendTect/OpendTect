@@ -146,9 +146,7 @@ void uiSEGYReadFinisher::crSeisFields()
     attgrp = transffld_;
 
     if ( is2d )
-    {
 	cr2DCoordSrcFields( attgrp, ismulti );
-    }
 
     uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
@@ -168,11 +166,14 @@ void uiSEGYReadFinisher::crSeisFields()
 	if ( !is2d )
 	    outscanfld_->setInputText( objname_ );
 
-	batchfld_ = new uiBatchJobDispatcherSel( this, true,
-						 Batch::JobSpec::SEGY );
-	batchfld_->setJobName( "Read SEG-Y" );
-	batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(gt));
-	batchfld_->attach( alignedBelow, outimpfld_ );
+	if ( gt != Seis::LinePS || !ismulti )
+	{
+	    batchfld_ = new uiBatchJobDispatcherSel( this, true,
+						     Batch::JobSpec::SEGY );
+	    batchfld_->setJobName( "Read SEG-Y" );
+	    batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
+	    batchfld_->attach( alignedBelow, outimpfld_ );
+	}
     }
 }
 
