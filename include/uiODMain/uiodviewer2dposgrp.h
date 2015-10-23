@@ -50,17 +50,20 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selspec_	= sd.selspec_;
 			    tkzs_	= sd.tkzs_;
 			    rdmlineid_	= sd.rdmlineid_;
+			    rlgeomid_	= sd.rlgeomid_;
 			    geomid_	= sd.geomid_;
 			    selectdata_ = sd.selectdata_;
 			}
 
     virtual void	clean()
 			{
-			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
-						    : Viewer2DPosDataSel::Line2D;
+			    postype_ =
+				SI().has3D() ? Viewer2DPosDataSel::InLine
+					     : Viewer2DPosDataSel::Line2D;
 			    selspec_ = Attrib::SelSpec();
 			    tkzs_ = TrcKeyZSampling(true);
 			    rdmlineid_ = MultiID::udf();
+			    rlgeomid_ = mUdf(int);
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
 			    selectdata_ = true;
 			}
@@ -70,10 +73,12 @@ mStruct(uiODMain) Viewer2DPosDataSel
     TrcKeyZSampling	tkzs_;
     Pos::GeomID		geomid_;
     MultiID		rdmlineid_;
+    int			rlgeomid_;
     bool		selectdata_;
 
-    static const char*	sKeyRdmLineID() { return "Random Line ID"; }
-    static const char*	sKeySelectData(){ return "Select Data"; }
+    static const char*	sKeyRdmLineID()		{ return "Random Line ID"; }
+    static const char*	sKeyRdmLineGeomID()	{ return "Random Line GeomID"; }
+    static const char*	sKeySelectData()	{ return "Select Data"; }
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
