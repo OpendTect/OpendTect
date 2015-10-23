@@ -64,6 +64,7 @@ enum StdActionType
     Apply,
     Cancel,
     Define,
+    Delete,
     Edit,
     Help,
     Ok,

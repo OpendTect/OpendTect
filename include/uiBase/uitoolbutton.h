@@ -37,6 +37,9 @@ public:
 					     const CallBack&);
 				~uiToolButton();
 
+    static uiToolButton*	getStd(uiParent*,OD::StdActionType,
+					const CallBack&,const uiString& ttip);
+
     bool			isOn() const;
     void			setOn(bool yn=true);
 
@@ -74,7 +77,7 @@ mExpClass(uiBase) uiToolButtonSetup
 {
 public:
 			uiToolButtonSetup( const char* ic, const uiString& tt,
-					   const CallBack& c , const uiString& 
+					   const CallBack& c , const uiString&
 					   nm = uiStrings::sEmptyString() )
 			    : icid_(ic)
 			    , cb_(c)

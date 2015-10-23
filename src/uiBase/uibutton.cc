@@ -274,7 +274,7 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
     case OD::typ: { \
 	if ( !buttxt ) \
 	    txt = uiStrings::s##typ(); \
-	else \
+	else if ( !buttxt->isEmpty() )\
 	{ \
 	    txt = *buttxt; \
 	    tt = uiStrings::phrThreeDots( uiStrings::s##typ(), immediate ); \
@@ -287,6 +287,7 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
 	mGetDefs(Apply)
 	mGetDefs(Cancel)
 	mGetDefs(Define)
+	mGetDefs(Delete)
 	mGetDefs(Edit)
 	mGetDefs(Examine)
 	mGetDefs(Help)
@@ -645,6 +646,23 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const char* iconnm,
     tbbody_->setIcon( icon.qicon() );
     tbbody_->setIconSize( QSize(iconSize(),iconSize()) );
     return *tbbody_;
+}
+
+
+uiToolButton* uiToolButton::getStd( uiParent* p, OD::StdActionType typ,
+				    const CallBack& cb, const uiString& tt )
+{
+    uiButton* but = uiButton::getStd( p, typ, cb, true,
+					uiString::emptyString() );
+    if ( !but )
+	return 0;
+
+    mDynamicCastGet(uiToolButton*,tb,but)
+    if ( !tb )
+	{ pFreeFnErrMsg("uiButton::getStd delivered PB"); return 0; }
+
+    tb->setToolTip( tt );
+    return tb;
 }
 
 
