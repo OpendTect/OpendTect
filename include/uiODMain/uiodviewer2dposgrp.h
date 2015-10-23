@@ -46,39 +46,39 @@ mStruct(uiODMain) Viewer2DPosDataSel
     virtual		~Viewer2DPosDataSel() {}
 			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
 			{
-			    postype_	= sd.postype_;
-			    selspec_	= sd.selspec_;
-			    tkzs_	= sd.tkzs_;
-			    rdmlineid_	= sd.rdmlineid_;
-			    rlgeomid_	= sd.rlgeomid_;
-			    geomid_	= sd.geomid_;
-			    selectdata_ = sd.selectdata_;
+			    postype_	    = sd.postype_;
+			    selspec_	    = sd.selspec_;
+			    tkzs_	    = sd.tkzs_;
+			    rdmlineid_	    = sd.rdmlineid_;
+			    rdmlinemultiid_ = sd.rdmlinemultiid_;
+			    geomid_	    = sd.geomid_;
+			    selectdata_	    = sd.selectdata_;
 			}
 
     virtual void	clean()
 			{
-			    postype_ =
-				SI().has3D() ? Viewer2DPosDataSel::InLine
-					     : Viewer2DPosDataSel::Line2D;
-			    selspec_ = Attrib::SelSpec();
-			    tkzs_ = TrcKeyZSampling(true);
-			    rdmlineid_ = MultiID::udf();
-			    rlgeomid_ = mUdf(int);
+			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
+						: Viewer2DPosDataSel::Line2D;
+			    selspec_	    = Attrib::SelSpec();
+			    tkzs_	    = TrcKeyZSampling(true);
+			    rdmlineid_	    = -1;
+			    rdmlinemultiid_ = MultiID::udf();
+			    rdmlineid_ = mUdf(int);
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
-			    selectdata_ = true;
+			    selectdata_	    = true;
 			}
 
     PosType		postype_;
     Attrib::SelSpec	selspec_;
     TrcKeyZSampling	tkzs_;
     Pos::GeomID		geomid_;
-    MultiID		rdmlineid_;
-    int			rlgeomid_;
+    MultiID		rdmlinemultiid_;
+    int			rdmlineid_;
     bool		selectdata_;
 
-    static const char*	sKeyRdmLineID()		{ return "Random Line ID"; }
-    static const char*	sKeyRdmLineGeomID()	{ return "Random Line GeomID"; }
-    static const char*	sKeySelectData()	{ return "Select Data"; }
+    static const char*	sKeyRdmLineMultiID(){ return "Random Line MultiID"; }
+    static const char*  sKeyRdmLineID()	    { return "Random Line ID"; }
+    static const char*	sKeySelectData()    { return "Select Data"; }
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
