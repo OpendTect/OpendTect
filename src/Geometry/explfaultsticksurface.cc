@@ -534,7 +534,7 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 	    if ( !knots.isPresent(pos) )
 	    {
 		knots += pos;
-		coordlist_->set( knots.size()-1, stick[idy] );
+		coordlist_->add( stick[idy] );
 	    }
 	}
     }

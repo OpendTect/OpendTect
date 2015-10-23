@@ -27,13 +27,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
 #include "visemobjdisplay.h"
+#include "envvars.h"
 #include "od_helpids.h"
 
 
 // uiPropertiesDlg
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
-				      mNoDlgTitle, 
+				      mNoDlgTitle,
                                       mODHelpKey(mPropertiesDlgHelpID) ))
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
@@ -59,9 +60,12 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     if ( plg )
 	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
 
-    mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
-    if ( flt )
-	addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
+    if ( GetEnvVarYN("USE_FAULT_RETRIANGULATION") )
+    {
+	mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
+	if ( flt )
+	    addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
+    }
 
     setCancelText( uiString::emptyString() );
 }
