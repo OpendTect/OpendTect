@@ -62,14 +62,14 @@ static PtrMan<od_ostream> dbglogstrm = 0;
 static ObjectSet<const OD::String> staticstrings_;
 static Threads::Lock staticstringslock_;
 
-void addToStaticStringRepos( const OD::String* str )
+Export_Basic void addToStaticStringRepos( const OD::String* str )
 {
     Threads::Locker locker( staticstringslock_ );
     staticstrings_.addIfNew( str );
 }
 
 
-bool isStaticString( const OD::String* str )
+Export_Basic bool isStaticString( const OD::String* str )
 {
     Threads::Locker locker( staticstringslock_ );
     return staticstrings_.isPresent(str); 
