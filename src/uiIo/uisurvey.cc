@@ -732,7 +732,12 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
 }
 
 
-#define mRetRollBackNewSurvey(errmsg) { rollbackNewSurvey(errmsg); return; }
+#define mRetRollBackNewSurvey(errmsg) \
+{ \
+    rollbackNewSurvey(errmsg); \
+    selChange(0); \
+    return; \
+}
 
 
 void uiSurvey::newButPushed( CallBacker* )
