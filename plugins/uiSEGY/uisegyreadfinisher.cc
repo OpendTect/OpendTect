@@ -175,8 +175,6 @@ void uiSEGYReadFinisher::crSeisFields()
 	    batchfld_->attach( alignedBelow, outimpfld_ );
 	}
     }
-
-
 }
 
 
