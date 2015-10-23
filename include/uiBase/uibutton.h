@@ -56,6 +56,7 @@ public:
 				bool immediate);
     static uiButton*	getStd(uiParent*,OD::StdActionType,const CallBack&,
 				bool immediate,const uiString& nonstd_text);
+				//!< will deliver toolbutton is txt is empty
 
     static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
     static void		setHaveCommonPBIcons( bool yn=true )

@@ -95,9 +95,10 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     vwfilebut_ = new uiToolButton( topgrp, "info", tr("View/Edit job file"),
 		      mCB(this,uiStartBatchJobDialog,viewFile) );
     vwfilebut_->attach( rightOf, jobsfld_ );
-    rmfilebut_ = new uiToolButton( topgrp, "delete", uiStrings::phrDelete(
-		     uiStrings::phrJoinStrings(tr("Job"), uiStrings::sFile())),
-		     mCB(this,uiStartBatchJobDialog,rmFile) );
+    rmfilebut_ = uiToolButton::getStd( topgrp, OD::Delete,
+		 mCB(this,uiStartBatchJobDialog,rmFile),
+		 uiStrings::phrDelete(
+		 uiStrings::phrJoinStrings(tr("Job"), uiStrings::sFile())) );
     rmfilebut_->attach( centeredRightOf, jobsfld_ );
 
     topgrp->setFrame( true );
