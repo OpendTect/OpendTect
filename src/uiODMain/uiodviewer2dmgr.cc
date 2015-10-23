@@ -144,16 +144,24 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     DataPack::ID dpid = DataPack::cNoID();
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
-
-
-    if ( !posdatasel.rdmlinemultiid_.isUdf() )
+    const bool isrl =
+	!mIsUdf(posdatasel.rdmlineid_) || !posdatasel.rdmlinemultiid_.isUdf();
+    if ( isrl )
     {
+	Geometry::RandomLine* rdmline = 0;
+	if ( !mIsUdf(posdatasel.rdmlineid_) )
+	    rdmline = Geometry::RLM().get( posdatasel.rdmlineid_ );
+	else
+	    rdmline = Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
+
+	if ( !rdmline )
+	    return -1;
 	TypeSet<BinID> knots, path;
-	Geometry::RandomLineSet::getGeometry(
-		posdatasel.rdmlinemultiid_, knots, &posdatasel.tkzs_.zsamp_ );
-	Geometry::RandomLine::getPathBids( knots, path );
+	rdmline->allNodePositions( knots );
+	rdmline->getPathBids( knots, path );
+	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
 	dpid = attrserv->createRdmTrcsOutput(
-				posdatasel.tkzs_.zsamp_, &path, &knots );
+		posdatasel.tkzs_.zsamp_, &path, &knots );
     }
     else if ( posdatasel.rdmlineid_ != -1 )
     {
@@ -168,6 +176,9 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     }
     else
 	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
+
+    if ( dpid==DataPack::cNoID() )
+	return -1;
 
     uiODViewer2D* vwr2d = &addViewer2D( -1 );
     const Attrib::SelSpec& as = posdatasel.selspec_;
@@ -751,10 +762,12 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	if ( !wvadesc && !vddesc )
 	    return;
 
-	const SeisIOObjInfo wvasi( wvadesc ? wvadesc->getStoredID(true)
-					   : vddesc->getStoredID(true) );
-	const SeisIOObjInfo vdsi( vddesc ? vddesc->getStoredID(true)
-					 : wvadesc->getStoredID(true));
+	const MultiID wvaid( wvadesc ? wvadesc->getStoredID(true)
+				     : vddesc->getStoredID(true) );
+	const MultiID vdmid( vddesc ? vddesc->getStoredID(true)
+				    : wvadesc->getStoredID(true) );
+	const SeisIOObjInfo wvasi( wvaid );
+	const SeisIOObjInfo vdsi( vdmid );
 	BufferStringSet wvalnms, vdlnms;
 	wvasi.getLineNames( wvalnms );
 	vdsi.getLineNames( vdlnms );

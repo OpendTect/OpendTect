@@ -63,6 +63,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    tkzs_	    = TrcKeyZSampling(true);
 			    rdmlineid_	    = -1;
 			    rdmlinemultiid_ = MultiID::udf();
+			    rdmlineid_ = mUdf(int);
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
 			    selectdata_	    = true;
 			}

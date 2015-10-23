@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "randomlinetr.h"
+#include "randomlinegeom.h"
 #include "zdomain.h"
 
 
@@ -261,6 +262,8 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    if ( !rdlobj )
 		return false;
 	    posdatasel_->rdmlinemultiid_ = rdlobj->key();
+	    posdatasel_->rdmlineid_ =
+		Geometry::RLM().get( rdlobj->key() )->ID();
 	    break;
     }
 
@@ -418,6 +421,7 @@ void Viewer2DPosDataSel::fillPar( IOPar& iop ) const
     selspec_.fillPar( iop );
     iop.set( sKeyRdmLineID(), rdmlineid_ );
     iop.set( sKeyRdmLineMultiID(), rdmlinemultiid_ );
+    iop.set( sKeyRdmLineID(), rdmlineid_ );
     iop.setYN( sKeySelectData(), selectdata_ );
     iop.set( sKey::GeomID(), geomid_ );
     iop.set( PosTypeDef().name(), toString(postype_) );
@@ -430,6 +434,7 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
     selspec_.usePar( iop );
     iop.get( sKeyRdmLineID(), rdmlineid_ );
     iop.get( sKeyRdmLineMultiID(), rdmlinemultiid_ );
+    iop.get( sKeyRdmLineID(), rdmlineid_ );
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );
     PosTypeDef().parse( iop, PosTypeDef().name(), postype_ );
