@@ -459,6 +459,9 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
 {
     workloadcond_.lock();
     int queueidx = queueids_.indexOf( queueid );
+    if ( queueidx < 0 )
+	{ workloadcond_.unLock(); return; }
+
     queueisclosing_[queueidx] = true;
     workloadcond_.unLock();
 
