@@ -78,7 +78,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 	new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s3D()),
 			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
 
-    unloadbut_ = new uiPushButton( this, tr("Unload selected"),
+    unloadbut_ = new uiPushButton( this, tr("Unload Checked"),
 		mCB(this,uiHorizonPreLoadDlg,unloadPushCB), false );
     unloadbut_->attach( alignedBelow, butgrp );
 
@@ -140,9 +140,9 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( selhornms.isEmpty() )
 	return;
 
-    uiString msg = tr( "Unload selected horizon(s)'?\n"
-                  "(This will not delete the object(s) from disk)", 0,
-                  selhornms.size() );
+    uiString msg = tr( "Unload checked horizon(s)?\n"
+		  "(This will not delete the file(s) from disk)", 0,
+		  selhornms.size() );
     
     if ( !uiMSG().askGoOn( msg ) )
 	return;
@@ -282,4 +282,3 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 
     par.putTo( astrm );
 }
-
