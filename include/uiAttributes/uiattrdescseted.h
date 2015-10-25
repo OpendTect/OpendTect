@@ -149,6 +149,7 @@ protected:
     void			evalAttribute(CallBacker*);
     void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);
+    void			dotPathCB(CallBacker*);
     void			exportToDotCB(CallBacker*);
 
     void			setButStates();
@@ -185,4 +186,3 @@ public:
 };
 
 #endif
-
