@@ -71,8 +71,8 @@ public:
     void		updateCurDescEd();
     bool		is2D() const;
 
-    void		setSensitive(bool);
     void		setSelAttr(const char* attrnm);
+    void		setSensitive(bool);
 
     bool		getUiAttribParamGrps(
 				uiParent*,ObjectSet<AttribParamGroup>&,
@@ -149,6 +149,7 @@ protected:
     void			evalAttribute(CallBacker*);
     void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);
+    void			dotPathCB(CallBacker*);
     void			exportToDotCB(CallBacker*);
 
     void			setButStates();
@@ -185,5 +186,3 @@ public:
 };
 
 #endif
-
-

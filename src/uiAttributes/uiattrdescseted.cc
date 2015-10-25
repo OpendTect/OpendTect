@@ -51,6 +51,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -156,7 +157,8 @@ void uiAttribDescSetEd::createMenuBar()
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), defaultSet, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    mInsertMnuItem(impmnu,m3Dots(tr("From other Survey")), importSet,"impset" );
+    mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")),
+		    importSet, "impset" );
     mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFile );
     mInsertItem( m3Dots(tr("Reconstruct from job file")), job2Set, "job2set" );
     mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
@@ -184,7 +186,11 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "evalattr", evalAttribute, tr("Evaluate attribute") );
     mAddButton( "evalcrossattr",crossEvalAttrs,tr("Cross attributes evaluate"));
     mAddButton( "xplot", crossPlot, tr("Cross-Plot attributes") );
-    mAddButton( "dot", exportToDotCB, tr("View as graph") );
+    const int dotidx = mAddButton( "dot", exportToDotCB, tr("View as graph") );
+    uiMenu* mnu = new uiMenu(0);
+    mnu->insertAction( new uiAction(tr("Graphviz Installation"),
+	mCB(this,uiAttribDescSetEd,dotPathCB)) );
+    toolbar_->setButtonMenu( dotidx, mnu );
 }
 
 
@@ -724,8 +730,7 @@ bool uiAttribDescSetEd::doAcceptInputs()
 		const char* attribname = desc->userRef();
 		uiString msg = tr("Input is not correct for attribute '%1'.")
 			       .arg(attribname);
-		uiStringSet messages;
-		messages += errmsg;
+		uiStringSet messages; messages += errmsg;
 		uiMSG().errorWithDetails( messages, msg );
 	    }
 	    return false;
@@ -1289,9 +1294,76 @@ bool uiAttribDescSetEd::is2D() const
 }
 
 
+class uiWhereIsDotDlg : public uiDialog
+{ mODTextTranslationClass(uiWhereIsDotDlg)
+public:
+uiWhereIsDotDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Graphviz/Dot "),mNoDlgTitle,mTODOHelpKey))
+{
+    uiString txt = tr("To display the attribute graph an installation of \n"
+	"Graphviz is required. Graphviz can be downloaded from:\n%1")
+	.arg("http://www.graphviz.org");
+    uiLabel* lbl = new uiLabel( this, txt );
+
+    BufferString pathfromsetts;
+    Settings::common().get( "Dot path", pathfromsetts );
+
+    dotfld_ = new uiFileInput( this, tr("Dot executable"),
+			       pathfromsetts.buf() );
+    dotfld_->attach( leftAlignedBelow, lbl );
+}
+
+
+const char* fileName() const
+{ return dotfld_->fileName(); }
+
+
+bool acceptOK( CallBacker* )
+{
+    const BufferString fnm = fileName();
+    if ( File::exists(fnm) && File::isExecutable(fnm) )
+    {
+	const FilePath fp( fnm );
+	if ( fp.baseName() != "dot" )
+	{
+	    const bool res = uiMSG().askGoOn( tr("It looks like you did not "
+		" select the dot executable.\nDo you want to continue?") );
+	    if ( !res ) return false;
+	}
+
+	Settings::common().set( "Dot path", fnm.buf() );
+	Settings::common().write();
+	return true;
+    }
+
+    uiMSG().error( tr("Selected file does not exist or is not executable") );
+    return false;
+}
+
+    uiFileInput*	dotfld_;
+};
+
+
+void uiAttribDescSetEd::dotPathCB( CallBacker* )
+{
+    uiWhereIsDotDlg dlg( this );
+    dlg.go();
+}
+
+
 void uiAttribDescSetEd::exportToDotCB( CallBacker* )
 {
     if ( !attrset_ || attrlistfld_->isEmpty() ) return;
+
+    BufferString dotpath;
+    Settings::common().get( "Dot path", dotpath );
+    if ( dotpath.isEmpty() )
+    {
+	uiWhereIsDotDlg dlg( this );
+	if ( !dlg.go() ) return;
+
+	dotpath = dlg.fileName();
+    }
 
     const BufferString fnm = FilePath::getTempName( "dot" );
     const char* attrnm = IOM().nameOf( setid_ );
@@ -1299,8 +1371,8 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
 
     FilePath outputfp( fnm );
     outputfp.setExtension( "png" );
-    BufferString cmd;
-    cmd.add( "dot -Tpng " ).add( fnm ).add( " -o " ).add( outputfp.fullPath() );
+    BufferString cmd( "\"", dotpath, "\"" );
+    cmd.add( " -Tpng " ).add( fnm ).add( " -o " ).add( outputfp.fullPath() );
     const bool res = OS::ExecCommand( cmd.buf() );
     if ( !res )
     {
@@ -1369,4 +1441,3 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 
     return eps.size();
 }
-
