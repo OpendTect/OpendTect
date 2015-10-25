@@ -601,6 +601,11 @@ void uiODMenuMgr::fillProcMenu()
 		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 
+    procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
+    procwellmnu_->insertItem( new uiAction(m3Dots(uiStrings::sRockPhy()),
+		mCB(&applMgr(),uiODApplMgr,launchRockPhysics),"rockphys") );
+    procmnu_->insertItem( procwellmnu_ );
+
     mInsertItem( procmnu_, m3Dots(tr("(Re-)Start Batch Job")),
 		 mStartBatchJobMnuItm );
 }
@@ -653,8 +658,6 @@ void uiODMenuMgr::fillAnalMenu()
 	analwellmnu_->insertItem(
 	    new uiAction( m3Dots(tr("Tie Well to Seismic")),
 		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ));
-    analwellmnu_->insertItem( new uiAction( m3Dots(uiStrings::sRockPhy()),
-		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys"));
     analmnu_->insertItem( analwellmnu_ );
 
     layermodelmnu_ = new uiMenu( &appl_, tr("Layer Modeling"),
@@ -1525,4 +1528,3 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillProcMenu();
     dTectMnuChanged.trigger();
 }
-

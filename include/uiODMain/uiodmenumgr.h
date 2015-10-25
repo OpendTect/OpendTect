@@ -48,6 +48,7 @@ public:
     uiMenu*		analWellMnu()		{ return analwellmnu_; }
     uiMenu*		layerModelMnu()		{ return layermodelmnu_; }
     uiMenu*		procMnu()		{ return procmnu_; }
+    uiMenu*		procWellMnu()		{ return procwellmnu_; }
     uiMenu*		sceneMnu()		{ return scenemnu_; }
     uiMenu*		viewMnu()		{ return viewmnu_; }
     uiMenu*		utilMnu()		{ return utilmnu_; }
@@ -107,6 +108,7 @@ protected:
     uiMenu*		analwellmnu_;
     uiMenu*		layermodelmnu_;
     uiMenu*		procmnu_;
+    uiMenu*		procwellmnu_;
     uiMenu*		scenemnu_;
     uiMenu*		viewmnu_;
     uiMenu*		utilmnu_;
@@ -189,5 +191,3 @@ protected:
 
 
 #endif
-
-
