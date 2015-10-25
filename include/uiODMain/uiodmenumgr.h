@@ -48,6 +48,7 @@ public:
     uiMenu*		analWellMnu()		{ return analwellmnu_; }
     uiMenu*		layerModelMnu()		{ return layermodelmnu_; }
     uiMenu*		procMnu()		{ return procmnu_; }
+    uiMenu*		procWellMnu()		{ return procwellmnu_; }
     uiMenu*		sceneMnu()		{ return scenemnu_; }
     uiMenu*		viewMnu()		{ return viewmnu_; }
     uiMenu*		utilMnu()		{ return utilmnu_; }
@@ -81,7 +82,7 @@ public:
 
     static int		ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
 				int rescncl=0);
-    void		add2D3DToolButton(uiToolBar&,const char* iconnnm,
+    int			add2D3DToolButton(uiToolBar&,const char* iconnnm,
 				     const uiString& tooltip,
 				     const CallBack& cb2d,const CallBack& cb3d,
 				     int itmid2d=-1,int itmid3d=-1);
@@ -107,6 +108,7 @@ protected:
     uiMenu*		analwellmnu_;
     uiMenu*		layermodelmnu_;
     uiMenu*		procmnu_;
+    uiMenu*		procwellmnu_;
     uiMenu*		scenemnu_;
     uiMenu*		viewmnu_;
     uiMenu*		utilmnu_;
@@ -189,4 +191,3 @@ protected:
 
 
 #endif
-

@@ -601,6 +601,11 @@ void uiODMenuMgr::fillProcMenu()
 		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 
+    procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
+    procwellmnu_->insertItem( new uiAction(m3Dots(uiStrings::sRockPhy()),
+		mCB(&applMgr(),uiODApplMgr,launchRockPhysics),"rockphys") );
+    procmnu_->insertItem( procwellmnu_ );
+
     mInsertItem( procmnu_, m3Dots(tr("(Re-)Start Batch Job")),
 		 mStartBatchJobMnuItm );
 }
@@ -653,8 +658,6 @@ void uiODMenuMgr::fillAnalMenu()
 	analwellmnu_->insertItem(
 	    new uiAction( m3Dots(tr("Tie Well to Seismic")),
 		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ));
-    analwellmnu_->insertItem( new uiAction( m3Dots(uiStrings::sRockPhy()),
-		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys"));
     analmnu_->insertItem( analwellmnu_ );
 
     layermodelmnu_ = new uiMenu( &appl_, tr("Layer Modeling"),
@@ -873,25 +876,25 @@ void uiODMenuMgr::fillUtilMenu()
 }
 
 
-void uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
-				     const uiString& tt,
-				     const CallBack& cb2d, const CallBack& cb3d,
-				     int itmid2d, int itmid3d )
+int uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
+				    const uiString& tt,
+				    const CallBack& cb2d, const CallBack& cb3d,
+				    int itmid2d, int itmid3d )
 {
     if ( !SI().has2D() )
-	tb.addButton( iconnm, tt, cb3d, false, itmid3d );
-    else if ( !SI().has3D() )
-	tb.addButton( iconnm, tt, cb2d, false, itmid2d );
-    else
-    {
-	const int butid = tb.addButton( iconnm, tt );
-	uiMenu* popmnu = new uiMenu( tb.parent(), uiStrings::sAction() );
-	popmnu->insertItem( new uiAction(m3Dots(uiStrings::s2D()),cb2d),
-			    itmid2d );
-	popmnu->insertItem( new uiAction(m3Dots(uiStrings::s3D()),cb3d),
-			    itmid3d );
-	tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );
-    }
+	return tb.addButton( iconnm, tt, cb3d, false, itmid3d );
+
+    if ( !SI().has3D() )
+	return tb.addButton( iconnm, tt, cb2d, false, itmid2d );
+
+    const int butid = tb.addButton( iconnm, tt );
+    uiMenu* popmnu = new uiMenu( tb.parent(), uiStrings::sAction() );
+    popmnu->insertItem( new uiAction(m3Dots(uiStrings::s2D()),cb2d),
+			itmid2d );
+    popmnu->insertItem( new uiAction(m3Dots(uiStrings::s3D()),cb3d),
+			itmid3d );
+    tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );
+    return butid;
 }
 
 
