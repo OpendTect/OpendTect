@@ -36,7 +36,7 @@ public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
-			SeisIOObjInfo(const char* ioobjnm);
+			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
 			~SeisIOObjInfo();
 
@@ -115,6 +115,7 @@ public:
     static void		getLinesWithData(BufferStringSet& lnms,
 	    				 TypeSet<Pos::GeomID>& gids);
 
+			mDeprecated SeisIOObjInfo(const char* ioobjnm);
 protected:
 
     Seis::GeomType	geomtype_;

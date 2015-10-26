@@ -54,6 +54,34 @@ SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
 	: ioobj_(IOM().get(id))				{ setType(); }
 
 
+SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
+	: ioobj_(0)
+	, geomtype_(geomtype)
+{
+    mGoToSeisDir();
+    switch ( geomtype_ )
+    {
+	case Seis::Vol:
+	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc) );
+	break;
+
+	case Seis::VolPS:
+	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS3D) );
+	break;
+
+	case Seis::Line:
+	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc2D) );
+	break;
+
+	case Seis::LinePS:
+	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS2D) );
+	break;
+    }
+
+    setType();
+}
+
+
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
 	: ioobj_(0)
 {

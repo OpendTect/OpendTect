@@ -327,7 +327,7 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
     {
 	if ( stored )
 	{
-	    const SeisIOObjInfo objinfo( attrbnm );
+	    const SeisIOObjInfo objinfo( attrbnm, Seis::Line );
 	    if ( !objinfo.ioObj() )
 		return DataPack::cNoID();
 

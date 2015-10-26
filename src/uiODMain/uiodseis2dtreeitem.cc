@@ -932,7 +932,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     BufferString linename( Survey::GM().getName(s2d->getGeomID()) );
     BufferStringSet lnms;
-    const SeisIOObjInfo objinfo( attribnm );
+    const SeisIOObjInfo objinfo( attribnm, Seis::Line );
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
     objinfo.getLineNames( lnms, opts2d );
     if ( !lnms.isPresent(linename) || !objinfo.ioObj() )
