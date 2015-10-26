@@ -238,7 +238,14 @@ bool Seis2DLineMerger::nextAttr()
     curattridx_++;
     if ( !attrnms_.validIdx(curattridx_) )
 	return false;
-    SeisIOObjInfo seisdatainfo(  attrnms_.get(curattridx_).buf() );
+    IOM().to( SeisTrc2DTranslatorGroup::ioContext().getSelKey() );
+    PtrMan<IOObj> seisobj =
+	IOM().getLocal( attrnms_.get(curattridx_).buf(),
+			mTranslGroupName(SeisTrc2D) );
+    if ( !seisobj )
+	return false;
+
+    SeisIOObjInfo seisdatainfo(  seisobj );
     delete ds_;
     ds_ = new Seis2DDataSet( *seisdatainfo.ioObj() );
     currentlyreading_ = 0;

@@ -368,7 +368,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
 	if ( dlg.getSelType()==0 || dlg.getSelType()==1 )
 	{
-	    SeisIOObjInfo info( dlg.getStoredAttrName() );
+	    SeisIOObjInfo info( dlg.getStoredAttrName(), Seis::Line );
 	    attrdata.attribid_ = adsman->descSet()->getStoredID(
 					info.ioObj() ? info.ioObj()->key() : 0,
 					dlg.getComponent(), true );

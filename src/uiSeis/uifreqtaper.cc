@@ -124,7 +124,7 @@ protected:
 { uiMSG().error(msg); return; }
 void uiFreqTaperDlg::previewPushed(CallBacker*)
 {
-    SeisIOObjInfo objinfo( seisnm_ );
+    SeisIOObjInfo objinfo( seisnm_, Seis::Line );
     if ( !objinfo.isOK() )
 	mErrRet( tr("Cannot read input data, "
 		 "please make sure you selected valid data") );

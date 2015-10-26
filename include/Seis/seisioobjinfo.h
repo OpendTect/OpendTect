@@ -36,7 +36,7 @@ public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
-			SeisIOObjInfo(const char* ioobjnm);
+			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
 			~SeisIOObjInfo();
 
