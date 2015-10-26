@@ -163,17 +163,6 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	dpid = attrserv->createRdmTrcsOutput(
 		posdatasel.tkzs_.zsamp_, &path, &knots );
     }
-    else if ( posdatasel.rdmlineid_ != -1 )
-    {
-	Geometry::RandomLine* rl = Geometry::RLM().get( posdatasel.rdmlineid_ );
-	if ( !rl ) return -1;
-
-	TypeSet<BinID> knots, path;
-	rl->allNodePositions( knots );
-	rl->getPathBids( knots, path );
-	dpid = attrserv->createRdmTrcsOutput(
-		    posdatasel.tkzs_.zsamp_, &path, &knots );
-    }
     else
 	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
 
