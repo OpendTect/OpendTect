@@ -40,32 +40,31 @@ int main( int argc, char** argv )
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
 
-    BufferString msg = "";
+    uiString msg = uiString::emptyString();
     for ( int idx=0; idx<normalargs.size(); idx++ )
     {
 	BufferString nextarg( normalargs[idx]->buf() );
 	nextarg.replace( "-+-", "\n" );
-	msg += nextarg;
+	msg.append( nextarg );
 	if ( idx<normalargs.size()-1 )
-	    msg += " ";
+	    msg.append( toUiString(" ") );
     }
-    uiString msgout;
     if ( msg.isEmpty() )
-	msgout = typ == 1 ? od_static_tr("main", "Be careful!")
+	msg = typ == 1 ? od_static_tr("main", "Be careful!")
 	    : (typ ==2 ? od_static_tr("main", "Problem found!")
 		       : od_static_tr("main", "Your answer:"));
 
     uiMain app( argc, argv );
     if ( typ == 0 )
-	uiMSG().message( msgout );
+	uiMSG().message( msg );
     else if ( typ == 1 )
-	uiMSG().warning( msgout );
+	uiMSG().warning( msg );
     else if ( typ == 2 )
-	uiMSG().error( msgout );
+	uiMSG().error( msg );
     else if ( typ == 3 )
     {
-	msgout = mToUiStringTodo(getYesNoString(uiMSG().askGoOn( msgout )));
-	od_cout() << msgout << od_endl;
+	msg = mToUiStringTodo(getYesNoString(uiMSG().askGoOn(msg)));
+	od_cout() << msg << od_endl;
     }
 
     return ExitProgram( 0 );

@@ -280,7 +280,7 @@ bool Network::Socket::write( const OD::String& str )
 bool Network::Socket::write( const IOPar& par )
 {
     BufferString str;
-    par.dumpPretty( str );
+    par.putTo( str );
     return write( str );
 }
 

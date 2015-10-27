@@ -27,6 +27,7 @@ RemoteJobExec::RemoteJobExec( const char* host, const int port )
     , par_(*new IOPar)
     , isconnected_(false)
 {
+    socket_.setTimeout( 3000 );
     isconnected_ = socket_.connectToHost( host_, port, true );
     ckeckConnection();
 }
