@@ -534,8 +534,6 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 {
     const bool remote = !machine.isKnownAs( HostData::localHostName() );
 
-    cmd = "@";
-
     if ( __iswin__ || machine.isWindows() ) // from or to Windows
     {
     // Do not use od_remexe if host is local
@@ -556,6 +554,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     }
     else
     {
+        cmd = "@";
 	cmd.addWoSpc( GetExecScript(remote) );
 
 	if ( remote )

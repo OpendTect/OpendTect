@@ -27,6 +27,7 @@ RemoteJobExec::RemoteJobExec( const char* host, const int port )
     , par_(*new IOPar)
     , isconnected_(false)
 {
+    socket_.setTimeout( 4000 );
     isconnected_ = socket_.connectToHost( host_, port, true );
     ckeckConnection();
 }
@@ -68,3 +69,4 @@ void RemoteJobExec::uiErrorMsg( const char* msg )
     cmd.add( "\" --err " ).add( msg );
     OS::ExecCommand( cmd );
 }
+
