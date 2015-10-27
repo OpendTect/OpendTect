@@ -791,11 +791,15 @@ void CmdDriver::setSleep( float time, bool regular )
     else if ( time <= 0.0 )
 	pendingsleep_ += time;
     else if ( pendingsleep_ >= 0.0 )
+    {
 	Threads::sleep( time );
+	mBusyWaitUntil( activityStopped(false,false) );
+    }
     else if ( pendingsleep_+time > 0.0 )
     {
 	Threads::sleep( pendingsleep_+time );
 	pendingsleep_ = 0.0;
+	mBusyWaitUntil( activityStopped(false,false) );
     }
 }
 
@@ -827,6 +831,7 @@ void CmdDriver::setSleep( float time, bool regular )
     { \
 	Threads::sleep( pendingsleep_ ); \
 	pendingsleep_ = 0.0; \
+	mBusyWaitUntil( activityStopped(false,false) ); \
     } \
 }
 
