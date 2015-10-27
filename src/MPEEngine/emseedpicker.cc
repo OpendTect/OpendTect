@@ -106,7 +106,6 @@ Coord3 Patch::seedCoord( int idx ) const
     }
     else
     {
-	mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
 	if ( hor2d )
 	{
 	    TrcKey tck = seeds_[idx].tk_;
