@@ -238,7 +238,8 @@ bool Seis2DLineMerger::nextAttr()
     curattridx_++;
     if ( !attrnms_.validIdx(curattridx_) )
 	return false;
-    SeisIOObjInfo seisdatainfo(  attrnms_.get(curattridx_).buf() );
+
+    SeisIOObjInfo seisdatainfo(  attrnms_.get(curattridx_).buf(), Seis::Line );
     delete ds_;
     ds_ = new Seis2DDataSet( *seisdatainfo.ioObj() );
     currentlyreading_ = 0;
