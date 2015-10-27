@@ -38,7 +38,7 @@ OD::IconFile::IconFile( const char* identifier )
 void OD::IconFile::init( const char* identifier )
 {
     BufferString icsetnm( mIconDirDefault );
-    Settings::common().get( "Icon set name", icsetnm );
+    ::Settings::common().get( "Icon set name", icsetnm );
     BufferString dirnm( mIconDirStart, icsetnm );
     icdirnm_ = mGetSetupFileName(dirnm);
     if ( icsetnm == "Default" )
