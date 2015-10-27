@@ -841,9 +841,11 @@ void uiMPEMan::validateSeedConMode()
 void uiMPEMan::cleanPatchDisplay()
 {
     visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    if ( hor && hor->getEditor() )
+    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
+    if ( hor || hor2d )
     {
-	visSurvey::MPEEditor* editor = hor->getEditor();
+	visSurvey::MPEEditor* editor = 
+	    hor ? hor->getEditor() : hor2d->getEditor();
 	editor->cleanPatch();
     }
 }
@@ -867,6 +869,17 @@ void uiMPEMan::undo()
 	if ( !undoerrmsg.isEmpty() )
 	    uiMSG().message( undoerrmsg );
     }
+    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
+    if ( hor )
+    {
+	hor->requestSingleRedraw();
+	return;
+    }
+
+    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
+    if ( hor2d )
+	hor2d->requestSingleRedraw();
+
 }
 
 
@@ -896,10 +909,12 @@ void uiMPEMan::updatePatchDisplay()
 	return;
 
     visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    if ( hor && hor->getEditor() )
+    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
+    if ( hor || hor2d )
     {
-	visSurvey::MPEEditor* editor = hor->getEditor();
-	editor->displayPatch( seedpicker->getPatch() );
+	visSurvey::MPEEditor* editor = 
+	    hor ? hor->getEditor() : hor2d->getEditor();
+	editor->displayPatch(seedpicker->getPatch());
     }
 
 }

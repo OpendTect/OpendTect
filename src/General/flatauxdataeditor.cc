@@ -230,9 +230,9 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 #define mGetIdxPair2CoordTransform( trans, view, mousearea ) \
     Pos::IdxPair2Coord trans; \
     trans.set3Pts( view.topLeft(), view.topRight(), view.bottomLeft(), \
-		   Pos::IdxPair( mousearea.topLeft().x, mousearea.topLeft().y ), \
-		   Pos::IdxPair( mousearea.topRight().x, mousearea.topRight().y ), \
-		   mousearea.bottomLeft().y );
+	  Pos::IdxPair( mousearea.topLeft().x, mousearea.topLeft().y ), \
+	  Pos::IdxPair( mousearea.topRight().x, mousearea.topRight().y ), \
+	  mousearea.bottomLeft().y );
 
 
 void AuxDataEditor::getPointSelections(
@@ -392,8 +392,9 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 
 	selptcoord_ = selptidx_.size() && seldatasetidx_<auxdata_.size() &&
 		      selptidx_[0]<auxdata_[seldatasetidx_]->poly_.size()
-	    ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
-	    : (FlatView::Point) trans.transform(Pos::IdxPair(ev.pos().x,ev.pos().y) );
+	   ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
+           : (FlatView::Point) trans.transform(
+	   Pos::IdxPair(ev.pos().x,ev.pos().y) );
     }
 
     hasmoved_ = false;
@@ -438,7 +439,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	    const Rect wr = getWorldRect(ids_[seldatasetidx_]);
 	    mGetIdxPair2CoordTransform( trans, wr, mousearea_ );
 
-	    selptcoord_ = trans.transform( Pos::IdxPair(ev.pos().x,ev.pos().y) );
+	    selptcoord_ = trans.transform(Pos::IdxPair(ev.pos().x,ev.pos().y));
 	    movementFinished.trigger();
 	    mousehandler_.setHandled( true );
 	}
@@ -565,7 +566,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    AuxData* polysel = viewer_.createAuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
-	    //polysel->poly_ += trans.transform( Pos::IdxPair(prevpt_.x,prevpt_.y) );
+     //polysel->poly_ += trans.transform( Pos::IdxPair(prevpt_.x,prevpt_.y) );
 	    polygonsel_ += polysel;
 	    viewer_.addAuxData( polysel );
 	}
@@ -728,6 +729,7 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , singleseeded_( true )
     , curknotid_( -1 )
     , curknotstamp_( mUdf(int) )
+    , sowingEnd( this )
 {
     sowingline_ = editor_.viewer().createAuxData( 0 );
     editor_.viewer().addAuxData( sowingline_ );
@@ -954,6 +956,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 
     mode_ = FirstSowing;
     int count = 0;
+    const bool sow = bendpoints_.size()>1;
     while ( bendpoints_.size() )
     {
 	int idx = bendpoints_[0];
@@ -970,6 +973,8 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     }
 
     reset();
+    if ( sow )
+	sowingEnd.trigger();
     mReturnHandled( true );
 }
 

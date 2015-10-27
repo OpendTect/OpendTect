@@ -44,7 +44,8 @@ public:
     
 protected:
     EM::PosID               seedNode(int) const;
-    int			    findClosedSeed(const EM::PosID&);
+    int			    findClosedSeed3d(const EM::PosID&);
+    int			    findClosedSeed2d(const TrcKeyValue&);
     const EMSeedPicker*     seedpicker_;
 private:
     TypeSet<TrcKeyValue>    seeds_;

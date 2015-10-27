@@ -77,7 +77,12 @@ protected:
 	    			       EMSeedPicker&,const FlatDataPack&) const;
     bool		getPosID(const Coord3&,EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
-	    			  const MouseEvent&) const;
+	    			  const MouseEvent&);
+    void		sowingFinishedCB(CallBacker*);
+    void		keyPressedCB(CallBacker*);
+    void		undo();
+    void		redo();
+    EMSeedPicker*	getEMSeedPicker() const;
 
 	mStruct(uiMPE) Hor3DMarkerIdInfo
 	{
@@ -90,6 +95,8 @@ protected:
     void			fillAuxInfoContainer();
     FlatView::AuxData*		getAuxData(int markerid);
     EM::SectionID		getSectionID(int markerid);
+    void			setupPatchDisplay();
+    void			updatePatchDisplay();
 
     EM::ObjectID		emid_;
     EM::HorizonPainter3D*	horpainter_;
@@ -105,6 +112,8 @@ protected:
     bool			trackersetupactive_;
     TrcKey			pickedpos_;
     mutable bool		dodropnext_;
+
+    FlatView::AuxData*		patchdata_;
 };
 
 } //namespace MPE

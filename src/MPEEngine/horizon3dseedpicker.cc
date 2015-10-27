@@ -334,26 +334,22 @@ bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
     TypeSet<TrcKeyValue> path = patch_->getPath();
     mGetHorizon( hor3d, false )
 
+    seedlist_.erase();
+    hor3d->setBurstAlert( true );
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
 	hor3d->setZ( path[idx].tk_, val, true );
-    }
 
-    for ( int idx=0; idx<patch_->nrSeeds()-1; idx++ )
-    {
-	if ( path[idx].tk_.isUdf() || path[idx+1].tk_.isUdf() )
-	    continue;
-
-	if ( !zrg.includes(path[idx].val_,false) || 
-	     !hrg.includes(path[idx].tk_) )
+	if ( path[idx].tk_.isUdf() || 
+	    !zrg.includes(path[idx].val_,false) || 
+	    !hrg.includes(path[idx].tk_) )
 	continue;
-	seedlist_.erase();
 	seedlist_ += path[idx].tk_;
-	seedlist_ += path[idx+1].tk_;
-	interpolateSeeds();
     }
 
+    interpolateSeeds();
+    hor3d->setBurstAlert( false );
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
     return true;
 }

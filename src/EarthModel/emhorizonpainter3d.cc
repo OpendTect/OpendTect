@@ -33,6 +33,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , flatposdata_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
+    , intersection_( true )
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -153,8 +154,9 @@ bool HorizonPainter3D::addPolyLine()
 		    newmarker = true;
 		    const EM::PosID pid = EM::PosID(
 			emobj->id(), sid,bid.toInt64() );
-		    emobj->setPosAttrib(
-			pid, EM::EMObject::sIntersectionNode(),true );
+		    if ( intersection_ )
+			 emobj->setPosAttrib(
+				pid, EM::EMObject::sIntersectionNode(),true );
 		}
 
 		if ( newmarker )
@@ -186,7 +188,9 @@ bool HorizonPainter3D::addPolyLine()
 		coorddefined = true;
 		newmarker = true;
 		const EM::PosID pid = EM::PosID(emobj->id(),sid,bid.toInt64());
-		emobj->setPosAttrib(pid,EM::EMObject::sIntersectionNode(),true);
+		if ( intersection_ )
+		    emobj->setPosAttrib(
+		    pid,EM::EMObject::sIntersectionNode(), true, false );
 	    }
 
 	    if ( newmarker )
@@ -197,7 +201,8 @@ bool HorizonPainter3D::addPolyLine()
 
 	     if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
 		nrseeds_++;
-	    emobj->removePosAttribList( EM::EMObject::sIntersectionNode() );
+	    emobj->removePosAttribList( 
+		EM::EMObject::sIntersectionNode(), false );
 	}
     }
 

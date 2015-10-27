@@ -207,6 +207,35 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 }
 
 
+bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
+{
+    if ( trackmode_ != DrawBetweenSeeds )
+	return false;
+
+    TypeSet<TrcKeyValue> path = patch_->getPath();
+    mGetHorizon( hor3d, false )
+
+    hor3d->setBurstAlert( true );
+    for ( int idx=0; idx<path.size(); idx++ )
+    {
+	const float val = !doerase ? path[idx].val_ : mUdf(float);
+	hor3d->setZ( path[idx].tk_, val, true );
+    }
+
+    seedlist_.erase();
+    for ( int idx=0; idx<path.size(); idx++ )
+    {
+	if ( path[idx].tk_.isUdf() )
+	    continue;
+	seedlist_ += path[idx].tk_;
+    }
+    interpolateSeeds();
+    hor3d->setBurstAlert( false );
+    EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
+    return true;
+}
+
+
 bool Horizon2DSeedPicker::removeSeed( const TrcKey& tk, bool environment,
 				      bool retrack )
 {

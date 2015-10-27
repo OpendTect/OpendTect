@@ -33,6 +33,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "undo.h"
 #include "uiflatviewer.h"
+#include "uigraphicsview.h"
+#include "keyboardevent.h"
 #include "uimsg.h"
 #include "uistrings.h"
 
@@ -53,12 +55,20 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , dodropnext_(false)
     , pickedpos_(TrcKey::udf())
     , updseedpkingstatus_(this)
+    , patchdata_(0)
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
 	    mCB(this,HorizonFlatViewEditor2D,horRepaintATSCB) );
     horpainter_->repaintdone_.notify(
 	    mCB(this,HorizonFlatViewEditor2D,horRepaintedCB) );
+    mAttachCB( editor_->sower().sowingEnd, 
+	HorizonFlatViewEditor2D::sowingFinishedCB );
+    mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
+    if ( vwr )
+    mAttachCB( 
+	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
+	HorizonFlatViewEditor2D::keyPressedCB );
 }
 
 
@@ -81,6 +91,13 @@ HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
     cleanAuxInfoContainer();
     delete horpainter_;
     deepErase( markeridinfos_ );
+    if ( patchdata_ )
+    {
+	editor_->viewer().removeAuxData( patchdata_ );
+	delete patchdata_;
+	patchdata_ = 0;
+    }
+
 }
 
 
@@ -292,12 +309,110 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 void HorizonFlatViewEditor2D::doubleClickedCB( CallBacker* )
 {
     handleMouseClicked( true );
+    MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
+    if ( !seedpicker )
+	return;
+
+    if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds )
+    {
+	seedpicker->endPatch( false );
+	updatePatchDisplay();
+    }
+}
+
+
+EMSeedPicker* HorizonFlatViewEditor2D::getEMSeedPicker() const
+{
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !tracker || !tracker->is2D() || tracker->objectID() != emid_ )
+	return 0;
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return 0;
+
+    EMSeedPicker* picker = tracker->getSeedPicker( true );
+    if ( !picker ) return 0;
+
+    picker->setSectionID( emobj->sectionID(0) );
+    return picker;
 }
 
 
 void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
 {
     handleMouseClicked( false );
+}
+
+
+void HorizonFlatViewEditor2D::keyPressedCB( CallBacker* cb )
+{
+    mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
+    if ( !keh || !keh->hasEvent() ) return;
+
+    if ( KeyboardEvent::isUnDo(keh->event()) )
+	undo();
+
+    if ( KeyboardEvent::isReDo(keh->event()) )
+	redo();
+}
+
+
+void HorizonFlatViewEditor2D::undo()
+{
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
+    if ( seedpicker && seedpicker->canUndo() )
+    {
+	 seedpicker->horPatchUndo().unDo();
+	 updatePatchDisplay();
+    }
+    else
+    {
+	uiString undoerrmsg;
+	engine().undo( undoerrmsg );
+	if ( !undoerrmsg.isEmpty() )
+	    uiMSG().message( undoerrmsg );
+    }
+
+   if ( editor_ )
+	editor_->viewer().handleChange( FlatView::Viewer::Auxdata );
+
+}
+
+
+void HorizonFlatViewEditor2D::redo()
+{
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiString redoerrmsg;
+    engine().redo( redoerrmsg );
+    if ( !redoerrmsg.isEmpty() )
+	uiMSG().message( redoerrmsg );
+
+    MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
+    if ( seedpicker && seedpicker->canReDo() )
+    {
+	 seedpicker->horPatchUndo().reDo();
+	 updatePatchDisplay();
+    }
+}
+
+
+void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
+{
+    MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
+    if ( !seedpicker )
+	return;
+
+    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds && 
+	mehandler_ )
+    {
+	const MouseEvent& mouseevent = mehandler_->event();
+	const bool doerase = 
+	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
+	seedpicker->endPatch( doerase );
+	updatePatchDisplay();
+    }
+
 }
 
 
@@ -492,7 +607,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
 
 
 bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
-					 const MouseEvent& mev ) const
+					 const MouseEvent& mev )
 {
     const TrcKeyValue tkv( getTrcKey(crd.coord()), (float)crd.z );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
@@ -505,10 +620,15 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    drop = dodropnext_;
 	    dodropnext_ = false;
 	}
-
 	const TrcKeyValue tkv2( getTrcKey(Coord(mev.x(),mev.y())), 0.f );
-	if ( spk.addSeed(tkv,drop,tkv2) )
-	    return true;
+	if ( spk.getTrackMode()==spk.DrawBetweenSeeds )
+	{
+	    spk.addSeedToPatch( tkv );
+	    updatePatchDisplay();
+	}
+	else if ( spk.addSeed(tkv,drop,tkv2) )
+	    return true;    
+
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {
@@ -518,6 +638,69 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
     }
 
     return true;
+}
+
+
+void HorizonFlatViewEditor2D::setupPatchDisplay()
+{
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject(emid_);
+    if ( !emobj || !editor_ ) return;
+
+    Color patchcolor = Color::Green();
+    const Color mkclr = emobj->preferredColor();
+    if ( Math::Abs(patchcolor.g()-mkclr.g())<30 )
+	    patchcolor = Color::Red();
+
+    if ( !patchdata_ )
+    {
+	patchdata_ = editor_->viewer().createAuxData(0);
+	editor_->viewer().addAuxData(patchdata_);
+    }
+    patchdata_->empty();
+    patchdata_->enabled_ = true;
+    patchdata_->linestyle_ = LineStyle( LineStyle::Solid, 4, patchcolor );
+
+}
+
+
+void HorizonFlatViewEditor2D::updatePatchDisplay()
+{
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !tracker || !tracker->is2D() || tracker->objectID() != emid_ )
+	return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker )
+	return;
+
+    const Patch* patch = seedpicker->getPatch();
+    if ( !patch )
+	return;
+
+    setupPatchDisplay();
+
+    const EM::EMObject* emobj = EM::EMM().getObject(emid_);
+    if ( !emobj ) return;
+
+    TypeSet<TrcKeyValue> path = patch->getPath();
+    for ( int idx=0; idx<path.size(); idx++ )
+    {
+	const TrcKeyValue tkzs = path[idx];
+	if ( tkzs.isUdf() )
+	    continue;
+	const BinID bid = tkzs.tk_.pos();
+	const int pidx = horpainter_->getTrcNos().indexOf(bid.crl());
+	if ( pidx == -1 )
+	    continue;
+	const double x = horpainter_->getDistances()[pidx];
+
+	MarkerStyle2D markerstyle( 
+	    MarkerStyle2D::Square, 4, emobj->preferredColor() );
+	patchdata_->markerstyles_ += markerstyle;
+	patchdata_->poly_ += FlatView::Point( x, tkzs.val_ );
+    }
+    editor_->viewer().handleChange( FlatView::Viewer::Auxdata );
+    paint();
 }
 
 
