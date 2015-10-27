@@ -140,6 +140,8 @@ void uiElasticModelProvider::setInputMIDs(
     const bool iselastic = !simid.isUdf() || !swmid.isUdf();
     const int sourceoptidx = aimid.isUdf() ? 0 : 1;
     inptypefld_->setValue( !iselastic );
+    inpsourceacfld_->display( !iselastic );
+    inpsourceelfld_->display( iselastic );
     if ( iselastic )
 	inpsourceelfld_->setValue( sourceoptidx );
     else
