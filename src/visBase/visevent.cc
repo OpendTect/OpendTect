@@ -264,7 +264,10 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     if ( ea.getXnormalized()<=-1.0 || ea.getXnormalized()>=1.0 ||
 	 ea.getYnormalized()<=-1.0 || ea.getYnormalized()>=1.0 )
-	return false;
+    {
+	if ( !wasdragging_ )
+	    return false;
+    }
 
     EventInfo eventinfo;
     bool isactivepickevent = true;
@@ -366,6 +369,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     traverse( activeinfo, cActiveIntersecTraversalMask(), view );
 
     EventInfo* foremostinfo = new EventInfo( eventinfo );
+    foremostinfo->mouseline = passiveinfo.mouseline; // = activeinfo.mouseline
 
     const double eps = 1e-6;
     if ( !isactivepickevent && !mIsUdf(passiveinfo.pickdepth) )
