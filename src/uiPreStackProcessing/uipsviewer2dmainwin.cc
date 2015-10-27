@@ -58,6 +58,22 @@ namespace PreStackView
 
 static const char* sKeySynthetic()	{ return "Synthteic"; }
 
+static void setAnnotationPars( FlatView::Annotation& annot )
+{
+    annot.x1_.name_ = "Offset";
+    annot.x1_.reversed_ = false;
+    annot.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
+    annot.x2_.reversed_ = true;
+    annot.x1_.showauxannot_ = false;
+    annot.x2_.showauxannot_ = false;
+    annot.x1_.annotinint_ = true;
+    annot.x2_.annotinint_ = false;
+    annot.x1_.showgridlines_ = true;
+    annot.x2_.showgridlines_ = true;
+    annot.color_ = Color::Black();
+    annot.allowuserchangereversedaxis_ = false;
+}
+
 
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     : uiObjectItemViewWin(p,uiObjectItemViewWin::Setup(title).startwidth(800))
@@ -572,13 +588,9 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	actappidx<0 ? control_->dispPars() : appearances_[actappidx].ddpars_;
     fv->appearance().annot_ =
 	actappidx<0 ? control_->annot() : appearances_[actappidx].annot_;
-    fv->appearance().annot_.x1_.name_ = "Offset";
-    fv->appearance().annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
     fv->appearance().annot_.x1_.showannot_ = true;
     fv->appearance().annot_.x2_.showannot_ = vwrs_.size()==1;
-    fv->appearance().annot_.x1_.showgridlines_ = true;
-    fv->appearance().annot_.x2_.showgridlines_ = true;
-    fv->appearance().annot_.color_ = Color::Black();
+    setAnnotationPars( fv->appearance().annot_ );
     fv->handleChange( FlatView::Viewer::DisplayPars | FlatView::Viewer::Annot );
     control_->addViewer( *fv );
 }
@@ -672,14 +684,9 @@ void uiViewer2DMainWin::setAppearance( const FlatView::Appearance& app,
 	if ( viewapp.datanm_ != gdi_[gidx]->getDataName() )
 	    continue;
 	uiFlatViewer* vwr = gd_[gidx]->getUiFlatViewer();
-	viewapp.annot_.color_ = Color::Black();
-	viewapp.annot_.x1_.name_ = "Offset";
-	viewapp.annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
 	viewapp.annot_.x1_.showannot_ = true;
 	viewapp.annot_.x2_.showannot_ = gidx==0;
-	viewapp.annot_.x1_.showgridlines_ = true;
-	viewapp.annot_.x2_.showgridlines_ = true;
-	viewapp.annot_.color_ = Color::Black();
+	setAnnotationPars( viewapp.annot_ );
 	vwr->appearance() = viewapp;
 	vwr->handleChange( FlatView::Viewer::DisplayPars |
 			   FlatView::Viewer::Annot );
@@ -728,12 +735,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 
 	psapp.annot_.x1_.showannot_ = true;
 	psapp.annot_.x2_.showannot_ = true;
-	psapp.annot_.x1_.name_ = "Offset";
-	psapp.annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
-	psapp.annot_.x1_.showgridlines_ = true;
-	psapp.annot_.x2_.showgridlines_ = true;
-	psapp.annot_.color_ = Color::Black();
-	psapp.annot_.allowuserchangereversedaxis_ = false;
+	setAnnotationPars( psapp.annot_ );
 	appearances_ +=psapp;
     }
 }
@@ -1508,13 +1510,9 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	if ( !vwrs_[vwridx] ) continue;
 	uiFlatViewer& vwr = *vwrs_[vwridx];
 	vwr.appearance() = app_;
-	vwr.appearance().annot_.x1_.name_ = "Offset";
-	vwr.appearance().annot_.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
 	vwr.appearance().annot_.x1_.showannot_ = true;
 	vwr.appearance().annot_.x2_.showannot_ = vwridx==0;
-	vwr.appearance().annot_.x1_.showgridlines_ = true;
-	vwr.appearance().annot_.x2_.showgridlines_ = true;
-	vwr.appearance().annot_.color_ = Color::Black();
+	setAnnotationPars( vwr.appearance().annot_ );
 
 	const uiWorldRect cv( vwr.curView() );
 	FlatView::Annotation& annotations = vwr.appearance().annot_;

@@ -28,7 +28,6 @@ class uiColorTableSel;
 
 namespace PreStack { class Gather; class MuteDef; class ProcessManager;
 		     class VelocityBasedAngleComputer; class AngleCompParams; }
-namespace FlatView { class AuxData; }
 namespace PreStackView
 {
     class uiViewer2D;
