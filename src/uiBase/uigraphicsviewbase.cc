@@ -261,6 +261,7 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* ev )
 	// TODO: impl modifier
 	KeyboardEvent ke;
 	ke.key_ = (OD::KeyboardKey)ev->key();
+	ke.modifier_ = OD::ButtonState( (int)ev->modifiers() );
 	keyboardhandler_.triggerKeyPressed( ke );
     }
 
@@ -278,6 +279,7 @@ void uiGraphicsViewBody::keyReleaseEvent( QKeyEvent* ev )
 	// TODO: impl modifier
 	KeyboardEvent ke;
 	ke.key_ = (OD::KeyboardKey)ev->key();
+	ke.modifier_ = OD::ButtonState( (int)ev->modifiers() );
 	keyboardhandler_.triggerKeyReleased( ke );
     }
 
