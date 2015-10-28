@@ -143,6 +143,7 @@ void Scene::setup()
     if ( !font.isEmpty() )
 	fd.getFrom( font.buf() );
     annot_->setFont( fd );
+    annot_->allowShading( SettingsAccess().doesUserWantShading(false) );
 
     if ( !SI().pars().get( sKeyZStretch(), curzstretch_ ) )
         SI().pars().get( "Z Scale", curzstretch_ );

@@ -84,6 +84,7 @@ Annotation::Annotation()
     , scale_(false)
     , tkzs_(true)
     , scene_( 0 )
+    , allowshading_( true )
 {
     tkzsdefaultscale_ = getDefaultScale( tkzs_ );
 
@@ -172,7 +173,7 @@ void Annotation::setScene( visBase::Scene* scene )
 
 void Annotation::firstTraversal(CallBacker*)
 {
-    if ( osgGeo::RayTracedTechnique::isShadingSupported() )
+    if ( allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
     {
 	float factor = 1.1;
 	BufferString code( "void main(void)\n"
