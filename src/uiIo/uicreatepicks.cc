@@ -219,7 +219,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 
     if ( hornms_.size() )
     {
-	horselfld_ = new uiLabeledComboBox( this, mJoinUiStrs(sHorizon(), 
+	horselfld_ = new uiLabeledComboBox( this, mJoinUiStrs(sHorizon(),
 							    sSelection()) );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_ );
@@ -247,7 +247,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 	horsel2fld_->attach( rightOf, horselfld_ );
     }
 
-    uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(), 
+    uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
 						       SI().getUiZUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
@@ -330,12 +330,11 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
     if ( choice )
     {
-	if ( uiStrings::sSelect().getFullString() ==
-	     horselfld_->box()->text()	)
-	    mErrRet(tr("Please Select a valid horizon"));
-	if (choice == 2 && uiStrings::sSelect().getFullString() ==
-	    horsel2fld_->text())
-	    mErrRet(tr("Please Select a valid second horizon"));
+	const BufferString selstr = uiStrings::sSelect().getFullString();
+	if ( selstr == horselfld_->box()->text() )
+	    mErrRet(uiStrings::phrSelect(tr("a valid horizon")));
+	if (choice == 2 && selstr == horsel2fld_->text() )
+	    mErrRet(uiStrings::phrSelect(tr("a valid second horizon")));
     }
     else
     {
@@ -344,7 +343,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
 	if ( !survzrg.includes(zrg.start,false) ||
 		!survzrg.includes(zrg.stop,false) )
-		mErrRet(tr("Please Enter a valid Z Range"));
+	    mErrRet(uiStrings::phrEnter(tr("a valid Z Range")));
     }
 
     mkRandPars();
