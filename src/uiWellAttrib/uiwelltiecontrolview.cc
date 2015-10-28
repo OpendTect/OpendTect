@@ -216,8 +216,8 @@ public :
 	mrkdispfld_ = new uiWellMarkersDispProperties( this,
 		uiWellDispProperties::Setup(
 		mJoinUiStrs(sMarker(),sSize().toLower()),
-		mJoinUiStrs(sMarker(),sColor().toLower())),
-		pms_.mrkdisp_, pms_.allmarkernms_, true );
+		mJoinUiStrs(sMarker(),sColor().toLower()))
+		.onlyfor2ddisplay(true), pms_.mrkdisp_, pms_.allmarkernms_ );
 	mrkdispfld_->attach( ensureBelow, sep );
 	mrkdispfld_->attach( alignedBelow, topgrp );
 	mrkdispfld_->putToScreen();

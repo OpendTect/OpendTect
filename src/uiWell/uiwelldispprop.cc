@@ -156,16 +156,16 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     shapes3d.add(tr("Sphere"));
     shapes2d.add(tr("Dot"));shapes2d.add(tr("Solid"));shapes2d.add(tr("Dash"));
 
-
     shapefld_ = new uiLabeledComboBox( this, tr("Shape") );
     shapefld_->attach( alignedBelow, colfld_ );
     for ( int idx=0; idx<shapes3d.size(); idx++)
-	shapefld_->box()->addItem(is2d ? shapes2d[idx] : shapes3d[idx]);
+	shapefld_->box()->addItem(
+		setup_.onlyfor2ddisplay_ ? shapes2d[idx] : shapes3d[idx]);
 
     cylinderheightfld_ = new uiLabeledSpinBox( this, tr("Height") );
     cylinderheightfld_->box()->setInterval( 0, 10, 1 );
     cylinderheightfld_->attach( rightOf, shapefld_ );
-    cylinderheightfld_->display( !is2d );
+    cylinderheightfld_->display( !setup_.onlyfor2ddisplay_ );
 
     singlecolfld_ = new uiCheckBox( this, tr("use single color") );
     singlecolfld_->attach( rightOf, colfld_);
@@ -175,26 +175,32 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizefld_->box()->setInterval( 0, 500, 1 );
     nmsizefld_->box()->setValue( 2 * mp.size_ );
     nmsizefld_->attach( alignedBelow, shapefld_ );
+    nmsizefld_->display( !setup_.onlyfor2ddisplay_ );
 
     uiStringSet styles;
     styles.add( uiStrings::sNormal() ); styles.add(tr("Bold"));
     styles.add(tr("Italic")); styles.add(tr("Bold Italic"));
-
     nmstylefld_ = new uiComboBox( this, styles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
+    nmstylefld_->display( !setup_.onlyfor2ddisplay_ );
 
     uiString dlgtxt = tr( "Names color" );
     uiColorInput::Setup csu( mrkprops().color_ ); csu.lbltxt( dlgtxt );
     nmcolfld_ = new uiColorInput( this, csu, dlgtxt.getFullString() );
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
+    nmcolfld_->display( !setup_.onlyfor2ddisplay_ );
 
     samecolasmarkerfld_ = new uiCheckBox( this, tr("same as markers") );
     samecolasmarkerfld_->attach( rightOf, nmcolfld_);
+    samecolasmarkerfld_->display( !setup_.onlyfor2ddisplay_ );
 
     uiListBox::Setup msu( OD::ChooseZeroOrMore, tr("Display markers") );
     displaymarkersfld_ = new uiListBox( this, msu );
-    displaymarkersfld_->attach( alignedBelow, nmcolfld_ );
     displaymarkersfld_->addItems( allmarkernms );
+    if ( !setup_.onlyfor2ddisplay_ )
+	displaymarkersfld_->attach( alignedBelow, nmcolfld_ );
+    else
+	displaymarkersfld_->attach( alignedBelow, shapefld_ );
 
     doPutToScreen();
     markerFldsChged(0);
@@ -265,7 +271,8 @@ void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
-    cylinderheightfld_->display( !shapefld_->box()->currentItem() && !is2d_ );
+    cylinderheightfld_->display( !shapefld_->box()->currentItem() &&
+				 !setup_.onlyfor2ddisplay_ );
 }
 
 

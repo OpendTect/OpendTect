@@ -68,7 +68,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 
     propflds_ += new uiWellMarkersDispProperties( tgs[2],
 	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
-	, props.markers_, allmarkernms, is2d );
+	.onlyfor2ddisplay(is2d), props.markers_, allmarkernms );
 
     if ( !is2d )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],

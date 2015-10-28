@@ -117,7 +117,7 @@ public:
 			uiWellMarkersDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Markers&,
 					const BufferStringSet& allmarkernms,
-					bool is2d);
+					bool is2d=false);
 
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
