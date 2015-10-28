@@ -9,7 +9,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "commandlineparser.h"
 
 #include "filepath.h"
+#include "varlenarray.h"
+
 #include "genc.h"
+
+
+CommandLineParser::CommandLineParser( const char* str )
+{
+    init( str );
+}
 
 
 CommandLineParser::CommandLineParser( int argc, char** argv )
@@ -160,6 +168,65 @@ void CommandLineParser::init( int argc, char** argv )
 }
 
 
+void CommandLineParser::init( const char* thecomm )
+{
+    BufferStringSet args;
+    const BufferString comm( thecomm );
+    BufferString tmp;
+
+    char inquotes = 0; //0 - not in quotes, otherwise "'" or """ )
+
+    for ( int idx=0; idx<comm.size(); idx++ )
+    {
+	if ( inquotes )
+	{
+	    if ( comm[idx]==inquotes )
+	    {
+		inquotes=0;
+		continue;
+	    }
+	}
+	else
+	{
+	    if ( comm[idx] == '"' )
+	    {
+		inquotes = '"';
+		continue;
+	    }
+	    if ( comm[idx] == '\'' )
+	    {
+		inquotes = '\'';
+		continue;
+	    }
+
+	    if ( isspace(comm[idx]) )
+	    {
+		if ( !tmp.isEmpty() )
+		{
+		    args.add(tmp);
+		    tmp.setEmpty();
+		}
+
+		continue;
+	    }
+	}
+
+	tmp += comm[idx];
+    }
+
+    if ( !tmp.isEmpty() )
+	args.add(tmp);
+
+    mAllocVarLenArr( char*, argarray, args.size() );
+    for ( int idx=0; idx<args.size(); idx++ )
+    {
+	argarray[idx] = args.get(idx).getCStr();
+    }
+
+    init( args.size(), argarray );
+}
+
+
 void CommandLineParser::getNormalArguments( BufferStringSet& res ) const
 {
     res.erase();
@@ -170,4 +237,19 @@ void CommandLineParser::getNormalArguments( BufferStringSet& res ) const
     }
 }
 
+
+bool CommandLineParser::getVal( const char* key, BufferString& val,
+				bool acceptnone, int valnr ) const
+{
+    const int keyidx = indexOf( key );
+    if ( keyidx<0 )
+	return acceptnone;
+
+    const int validx = keyidx + mMAX(valnr,1);
+    if ( !argv_.validIdx( validx ) || isKey(validx) )
+	return false;
+
+    val.set( argv_[validx]->buf() );
+    return true;
+}
 

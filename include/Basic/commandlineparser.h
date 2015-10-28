@@ -51,6 +51,7 @@ ________________________________________________________________________
 mExpClass(Basic) CommandLineParser
 {
 public:
+				CommandLineParser(const char*);
 				CommandLineParser(int argc,char** argv);
 				CommandLineParser();
 				/*!<Actual command line is used, i.e. the one
@@ -102,6 +103,7 @@ private:
 
     int				indexOf(const char*) const;
     void			init(int,char**);
+    void			init(const char*);
 
     BufferString		progname_;
     BufferString		executable_;
@@ -128,20 +130,6 @@ bool CommandLineParser::getVal( const char* key, T& val,
     return getFromString( val, argv_[validx]->buf(), mUdf(T) );
 }
 
-bool CommandLineParser::getVal( const char* key, BufferString& val,
-				bool acceptnone, int valnr ) const
-{
-    const int keyidx = indexOf( key );
-    if ( keyidx<0 )
-	return acceptnone;
-
-    const int validx = keyidx + mMAX(valnr,1);
-    if ( !argv_.validIdx( validx ) || isKey(validx) )
-	return false;
-
-    val.set( argv_[validx]->buf() );
-    return true;
-}
 
 #endif
 
