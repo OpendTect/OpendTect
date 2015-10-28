@@ -90,6 +90,7 @@ public:
 
 
     void		setScene(Scene*);
+    void		allowShading(bool yn) { allowshading_=yn; }
 private:
     			~Annotation();
     void		firstTraversal(CallBacker*);
@@ -116,6 +117,7 @@ private:
     const mVisTrans*		displaytrans_;
 
     Color			annotcolor_;
+    bool			allowshading_;
 
     static const char*		textprefixstr();
     static const char*		cornerprefixstr();
