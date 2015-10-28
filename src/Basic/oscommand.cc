@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "genc.h"
+#include "commandlineparser.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "filepath.h"
@@ -656,56 +657,6 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     return true;
 }
 
-#ifndef OD_NO_QT
-static QStringList parseCompleteCommand( const QString& comm )
-{
-    QStringList args;
-    QString tmp;
-    int nrquotes = 0;
-    bool inquotes = false;
-
-    for ( int idx=0; idx<comm.size(); idx++ )
-    {
-	if ( comm.at(idx) == QLatin1Char('"') )
-	{
-	    nrquotes++;
-	    if ( nrquotes == 3 ) // the quote character itself
-	    {
-		nrquotes = 0;
-		tmp += comm.at( idx );
-	    }
-
-	    continue;
-	}
-
-	if ( nrquotes>0 )
-	{
-	    if ( nrquotes == 1 )
-		inquotes = !inquotes;
-	    nrquotes = 0;
-	}
-
-	if ( !inquotes && comm.at(idx).isSpace() )
-	{
-	    if ( !tmp.isEmpty() )
-	    {
-		args += tmp;
-		tmp.clear();
-	    }
-	}
-	else
-	{
-	    tmp += comm.at(idx);
-	}
-    }
-
-    if ( !tmp.isEmpty() )
-	args += tmp;
-
-    return args;
-}
-#endif
-
 
 bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 {
@@ -741,14 +692,19 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 #endif
 
 #ifndef OD_NO_QT
-    QStringList args = parseCompleteCommand( QString(comm) );
-    if ( args.isEmpty() )
+    CommandLineParser parser( comm );
+    if ( parser.getExecutable().isEmpty() )
 	return false;
 
-    QString prog = args.first();
-    args.removeFirst();
+    QStringList args;
+    for ( int idx=0; idx<parser.nrArgs(); idx++ )
+    {
+	args.append( QString(parser.getArg(idx).str()) );
+    }
+
     qint64 qpid = pid_;
-    return QProcess::startDetached( prog, args, "", &qpid );
+    return QProcess::startDetached( parser.getExecutable().str(), args, "",
+	    			    &qpid );
 #else
     return false;
 #endif
