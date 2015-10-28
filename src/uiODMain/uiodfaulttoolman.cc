@@ -248,7 +248,7 @@ uiString uiODFaultToolMan::sKeyReplaceExisting()
 { return tr( "Replace Existing" ); }
 
 #define mCurItem( combo, key ) \
-    ( key().getFullString() == combo->text() )
+    ( BufferString(key().getFullString()) == combo->text() )
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
