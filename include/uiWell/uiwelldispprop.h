@@ -116,8 +116,7 @@ mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
 public:
 			uiWellMarkersDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Markers&,
-					const BufferStringSet& allmarkernms,
-					bool is2d);
+					const BufferStringSet& allmarkernms);
 
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
@@ -141,7 +140,6 @@ protected:
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
-    bool		is2d_;
 };
 
 
