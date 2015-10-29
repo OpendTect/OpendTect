@@ -76,7 +76,7 @@ public:
     void		addToHistory(const char*);
     void		addToHistory(const BufferStringSet&);
 
-    void		setEmpty();
+    virtual void	setEmpty();
     virtual void	processInput()		{}
     void		setReadOnly(bool readonly=true);
 

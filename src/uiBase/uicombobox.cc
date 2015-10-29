@@ -217,6 +217,7 @@ void uiComboBox::setEmpty()
 {
     mBlockCmdRec;
     body_->QComboBox::clear();
+    body_->clearEditText();
     itemids_.erase();
     itemstrings_.erase();
 }

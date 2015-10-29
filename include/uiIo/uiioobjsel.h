@@ -62,6 +62,7 @@ public:
 
     void		setInput(const IOObj&);
     void		setInput(const MultiID&);
+    virtual void	setEmpty();
 
     MultiID		key(bool noerr=false) const;
     const IOObj*	ioobj(bool noerr=false) const;
