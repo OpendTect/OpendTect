@@ -415,6 +415,14 @@ void uiIOObjSel::updateInput()
 }
 
 
+void uiIOObjSel::setEmpty()
+{
+    uiIOSelect::setEmpty();
+    workctio_.setObj( 0 ); inctio_.setObj( 0 );
+    updateInput();
+}
+
+
 const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 {
     mDeclStaticString( nm );
