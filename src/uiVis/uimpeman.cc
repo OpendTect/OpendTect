@@ -118,7 +118,7 @@ static const int sShowLocked = 13;
 static const int sHideLocked = 14;
 static const int sSave = 15;
 static const int sSaveAs = 16;
-static const int sRest = 17;
+static const int sAtSect = 17;
 static const int sFull = 18;
 static const int sSett = 19;
 
@@ -146,10 +146,10 @@ void uiMPEMan::keyEventCB( CallBacker* )
 		action = sStart;
 	}
     }
+    else if ( kev.key_==OD::KB_R && kev.modifier_==OD::NoButton )
+	restrictCurrentHorizon();
     else if ( kev.key_ == OD::KB_Y )
-    {
 	action = sPoly;
-    }
     else if ( kev.key_ == OD::KB_A )
 	action = sClear;
     else if ( kev.key_==OD::KB_D || kev.key_==OD::KB_Delete )
@@ -235,10 +235,10 @@ int uiMPEMan::popupMenu()
 	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
 	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
 	if ( !hd->displayedOnlyAtSections() )
-	    mAddAction( tr("Display Only at Sections"), "r", sRest,
+	    mAddAction( tr("Display Only at Sections"), "v", sAtSect,
 			"sectiononly", true )
 	else
-	    mAddAction( tr("Display in Full"), "r", sFull, "sectionoff", true )
+	    mAddAction( tr("Display in Full"), "v", sFull, "sectionoff", true )
 	mAddAction( tr("Show Settings ..."), "", sSett, "tools", true )
     }
 
@@ -280,7 +280,7 @@ void uiMPEMan::handleAction( int res )
     case sHideLocked: hd->showLocked( false ); break;
     case sSave: visserv_->storeEMObject( false ); break;
     case sSaveAs: visserv_->storeEMObject( true ); break;
-    case sRest: hd->setOnlyAtSectionsDisplay( true ); break;
+    case sAtSect: hd->setOnlyAtSectionsDisplay( true ); break;
     case sFull: hd->setOnlyAtSectionsDisplay( false ); break;
     case sSett: showSetupDlg(); break;
     default:
@@ -308,6 +308,33 @@ void uiMPEMan::startRetrack()
 void uiMPEMan::stopTracking()
 {
     MPE::engine().stopTracking();
+}
+
+
+void uiMPEMan::restrictCurrentHorizon()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if ( !tracker )
+    {
+	const int nrtrackers = MPE::engine().nrTrackersAlive();
+	if ( nrtrackers > 0 )
+	    tracker = MPE::engine().getTracker( 0 );
+    }
+
+    EM::EMObject* emobj =
+		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( !hor3d ) return;
+
+    TypeSet<int> visids;
+    visserv_->findObject( typeid(visSurvey::HorizonDisplay), visids );
+    for ( int idx=0; idx<visids.size(); idx++ )
+    {
+	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+			visserv_->getObject(visids[idx]))
+	if ( hd && hd->getObjectID() == hor3d->id() )
+	    hd->setOnlyAtSectionsDisplay( !hd->displayedOnlyAtSections() );
+    }
 }
 
 
@@ -781,8 +808,8 @@ void uiMPEMan::updateClickCatcher( bool create )
     if ( selectedids.size() != 1 )
 	return;
 
-    mDynamicCastGet( visSurvey::EMObjectDisplay*,
-		     surface, visserv_->getObject(selectedids[0]) );
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+		    surface,visserv_->getObject(selectedids[0]));
     clickcatcher_->setEditor( surface ? surface->getEditor() : 0 );
 
     const int newsceneid = visserv_->getSceneID( selectedids[0] );

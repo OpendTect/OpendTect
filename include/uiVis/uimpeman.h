@@ -74,6 +74,7 @@ protected:
     void			removeInPolygon();
     void			showParentsPath();
     void			showSetupDlg();
+    void			restrictCurrentHorizon();
 
     void			trackFromSeedsOnly();
     void			trackFromSeedsAndEdges();
