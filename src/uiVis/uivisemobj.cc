@@ -399,16 +399,6 @@ void uiVisEMObject::addToToolBarCB( CallBacker* )
 
 void uiVisEMObject::keyEventCB( CallBacker* )
 {
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,getDisplay())
-    if ( !hd || !hd->isSelected() )
-	return;
-
-    const KeyboardEvent& ke = visserv_->getKeyboardEvent();
-    if ( ke.key_==OD::KB_R && ke.modifier_==OD::NoButton )
-    {
-	const bool oas = hd->displayedOnlyAtSections();
-	hd->setOnlyAtSectionsDisplay( !oas );
-    }
 }
 
 
