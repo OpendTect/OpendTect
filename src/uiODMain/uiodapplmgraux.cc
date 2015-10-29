@@ -539,7 +539,7 @@ void uiODApplMgrDispatcher::processPreStack( bool is2d )
 #ifdef __debug__
 	mPreStackBatchdlg(batchprocps2ddlg_)
 #else
-	uiMSG().message( "Coming soon" );
+	uiMSG().message( tr("Coming soon") );
 	return;
 #endif
     }
