@@ -535,7 +535,14 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 void uiODApplMgrDispatcher::processPreStack( bool is2d )
 {
     if ( is2d )
-    { mPreStackBatchdlg(batchprocps2ddlg_) }
+    {
+#ifdef __debug__
+	mPreStackBatchdlg(batchprocps2ddlg_)
+#else
+	uiMSG().message( tr("Coming soon") );
+	return;
+#endif
+    }
     else
     { mPreStackBatchdlg(batchprocps3ddlg_) }
 }
