@@ -1,0 +1,12 @@
+#!/bin/csh -f
+
+if ( $#argv < 1 ) then
+    echo "Usage: $0 <revision id>"
+    echo ""
+    arc list
+    exit 1
+endif
+
+echo "arc land --revision $1"
+arc land --revision $1
+
