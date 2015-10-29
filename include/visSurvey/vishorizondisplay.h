@@ -193,6 +193,7 @@ public:
     void			showParentLine(bool);
     void			showSelections(bool);
     void			showLocked(bool);
+    bool			lockedShown() const;
     virtual void		clearSelections();
     void			updateAuxData();
 

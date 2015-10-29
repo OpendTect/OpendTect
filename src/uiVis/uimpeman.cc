@@ -227,6 +227,11 @@ int uiMPEMan::popupMenu()
 		    EM::EMM().undo().canReDo())
 	mAddAction( tr("Lock"), "l", sLock, "lock", true )
 	mAddAction( tr("Unlock"), "u", sUnlock, "unlock", true )
+	if ( hd->lockedShown() )
+	    mAddAction( tr("Hide Locked"), "", sHideLocked, 0, true )
+	else
+	    mAddAction( tr("Show Locked"), "", sShowLocked, 0, true )
+
 	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
 	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
 	if ( !hd->displayedOnlyAtSections() )
@@ -271,6 +276,8 @@ void uiMPEMan::handleAction( int res )
     case sRedo: redo(); break;
     case sLock: hor3d->lockAll(); break;
     case sUnlock: hor3d->unlockAll(); break;
+    case sShowLocked: hd->showLocked( true ); break;
+    case sHideLocked: hd->showLocked( false ); break;
     case sSave: visserv_->storeEMObject( false ); break;
     case sSaveAs: visserv_->storeEMObject( true ); break;
     case sAtSect: hd->setOnlyAtSectionsDisplay( true ); break;

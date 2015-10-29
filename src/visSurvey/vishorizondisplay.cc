@@ -159,6 +159,7 @@ HorizonDisplay::~HorizonDisplay()
     deepErase( shifts_ );
 
     if ( selections_ ) selections_->unRef();
+    if ( lockedpts_ ) lockedpts_->unRef();
 }
 
 
@@ -199,6 +200,8 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 	parentline_->setDisplayTransformation( transformation_ );
     if ( selections_ )
 	selections_->setDisplayTransformation( transformation_ );
+    if ( lockedpts_ )
+	lockedpts_->setDisplayTransformation( transformation_ );
 
 }
 
@@ -1071,6 +1074,8 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
 						hor3d->getSelectionColor() );
+	    if ( lockedpts_ && lockedpts_->getMaterial() )
+		lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
@@ -2193,8 +2198,58 @@ void HorizonDisplay::showSelections( bool yn )
 
 void HorizonDisplay::showLocked( bool yn )
 {
-    if ( lockedpts_ ) lockedpts_->turnOn( yn );
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    const Array2D<char>* locked = hor3d ? hor3d->getLockedNodes() : 0;
+    if ( !locked ) return;
+
+    if ( !lockedpts_ && yn )
+    {
+	lockedpts_ = visBase::PointSet::create();
+	lockedpts_->ref();
+	addChild( lockedpts_->osgNode() );
+	lockedpts_->setDisplayTransformation( transformation_ );
 }
+
+    if ( lockedpts_ )
+    {
+	lockedpts_->removeAllPoints();
+	lockedpts_->removeAllPrimitiveSets();
+	lockedpts_->getMaterial()->clear();
+	if ( lockedpts_->getMaterial() )
+	    lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
+    }
+
+    if ( !yn )
+    {
+	lockedpts_->turnOn( false );
+	return;
+    }
+
+    const TrcKeySampling tks = hor3d->getTrackingSampling();
+    const EM::SectionID sid = hor3d->sectionID( 0 );
+    TypeSet<int> pidxs;
+    for ( od_int64 gidx=0; gidx<locked->info().getTotalSz(); gidx++ )
+    {
+	if ( locked->getData()[gidx] == '0' )
+	    continue;
+
+	const TrcKey tk = tks.atIndex( gidx );
+	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
+	const int pidx = lockedpts_->addPoint( pos );
+	pidxs += pidx;
+    }
+
+    Geometry::PrimitiveSet* pointsetps =
+		Geometry::IndexedPrimitiveSet::create( true );
+    pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+    pointsetps->append( pidxs.arr(), pidxs.size() );
+    lockedpts_->addPrimitiveSet( pointsetps );
+    lockedpts_->turnOn( true );
+}
+
+
+bool HorizonDisplay::lockedShown() const
+{ return lockedpts_ ? lockedpts_->isOn() : false; }
 
 
 void HorizonDisplay::updateSelections()
