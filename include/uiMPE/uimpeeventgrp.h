@@ -38,8 +38,8 @@ public:
 				~uiEventGroup();
 
     void			setSectionTracker(SectionTracker*);
-
     void			setSeedPos(const TrcKeyValue&);
+    void			updateSensitivity(bool doauto);
 
     NotifierAccess*		changeNotifier()
 				{ return &changed_; }
