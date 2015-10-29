@@ -6,11 +6,12 @@ Wed 15 Oct 2014, 10:06:50
 [OpendTect Main Window]
 Menu "Processing`Create Seismic Output`Prestack Processing"
 
-[Prestack Processing]
+[PreStack*]
 Button "Create"
 
 [Create prestack processing]
-ListClick "Select Data" "Synthetic Gather Creator" Left
+ListClick "Preprocessing methods" "Synthetic Gather Creator" Left
 Button "Add method"
 
 [SynthGatherCreator setup]
+
