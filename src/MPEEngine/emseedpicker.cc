@@ -242,7 +242,7 @@ const TrcKeySampling& EMSeedPicker::getSeedPickArea() const
 { return seedpickarea_; }
 
 int EMSeedPicker::nrTrackModes( bool is2d )
-{ return is2d ? 2 : 3; }
+{ return 3; }
 
 void EMSeedPicker::setTrackMode( TrackMode tm )
 { trackmode_ = tm; }
@@ -253,8 +253,8 @@ EMSeedPicker::TrackMode EMSeedPicker::getTrackMode() const
 
 EMSeedPicker::TrackMode EMSeedPicker::getTrackMode( int idx, bool is2d )
 {
-    if ( idx==0 ) return is2d ? TrackBetweenSeeds : TrackFromSeeds;
-    if ( idx==1 ) return is2d ? DrawBetweenSeeds : TrackBetweenSeeds;
+    if ( idx==0 ) return TrackFromSeeds;
+    if ( idx==1 ) return TrackBetweenSeeds;
     return DrawBetweenSeeds;
 }
 
@@ -262,11 +262,11 @@ EMSeedPicker::TrackMode EMSeedPicker::getTrackMode( int idx, bool is2d )
 int EMSeedPicker::getTrackModeIndex( TrackMode tm, bool is2d )
 {
     if ( tm == TrackFromSeeds )
-	return is2d ? -1 : 0;
+	return 0;
     if ( tm == TrackBetweenSeeds )
-	return is2d ? 0 : 1;
+	return 1;
     if ( tm == DrawBetweenSeeds )
-	return is2d ? 1 : 2;
+	return 2;
 
     return -1;
 }
@@ -275,9 +275,9 @@ int EMSeedPicker::getTrackModeIndex( TrackMode tm, bool is2d )
 uiString EMSeedPicker::getTrackModeText( TrackMode mode, bool is2d )
 {
     if ( mode==TrackFromSeeds )
-	return tr("Volume Auto-track");
+	return tr("Section Auto-track from seeds");
     else if ( mode==TrackBetweenSeeds )
-	return tr("Section Auto-track");
+	return tr("Snap between seeds");
     else if ( mode==DrawBetweenSeeds )
 	return tr("Manual Draw");
     else

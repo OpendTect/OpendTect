@@ -91,6 +91,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , varianceChanged_(this)
     , propertyChanged_(this)
     , mps_(0)
+    , mode_(EMSeedPicker::TrackFromSeeds)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
@@ -172,15 +173,23 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 {
     const bool stopped = engine().getState() == MPE::Engine::Stopped;
     const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
-    const bool invol = mode_ == EMSeedPicker::TrackFromSeeds;
+    const bool doauto = mode_ == EMSeedPicker::TrackFromSeeds;
+    const bool invol = !is2d_ && doauto;
 
+    methodfld_->setSensitive( doauto );
+    eventgrp_->updateSensitivity( doauto );
     tabgrp_->setTabEnabled( eventgrp_, usedata );
-    tabgrp_->setTabEnabled( correlationgrp_, usedata );
+    tabgrp_->setTabEnabled( correlationgrp_, doauto );
 
-    toolbar_->setSensitive( startbutid_, invol && stopped && !is2d_ );
-    toolbar_->setSensitive( stopbutid_, invol && !stopped && !is2d_ );
+    seedtypefld_->setSensitive( doauto );
+    seedcolselfld_->setSensitive( doauto );
+    seedsliderfld_->setSensitive( doauto );
+    parentcolfld_->setSensitive( doauto );
+
+    toolbar_->setSensitive( startbutid_, invol && stopped );
+    toolbar_->setSensitive( stopbutid_, invol && !stopped );
     toolbar_->setSensitive( savebutid_, stopped );
-    toolbar_->setSensitive( retrackbutid_, stopped && usedata );
+    toolbar_->setSensitive( retrackbutid_, stopped && doauto );
 
     toolbar_->setSensitive( undobutid_, EM::EMM().undo().canUnDo() );
     toolbar_->setSensitive( redobutid_, EM::EMM().undo().canReDo() );
@@ -269,7 +278,6 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 			EMSeedPicker::getTrackModeText(md,is2d_) );
 	butptr->activated.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
-	mode_ =  EMSeedPicker::TrackBetweenSeeds;
     }
 
     uiSeparator* sep = new uiSeparator( grp );

@@ -142,6 +142,15 @@ uiEventGroup::~uiEventGroup()
 }
 
 
+void uiEventGroup::updateSensitivity( bool doauto )
+{
+    thresholdtypefld_->setSensitive( doauto );
+    ampthresholdfld_->setSensitive( doauto );
+    if ( addstepbut_ )
+	addstepbut_->setSensitive( doauto );
+}
+
+
 void uiEventGroup::changeCB( CallBacker* )
 {
     previewgrp_->setWindow( srchgatefld_->getIInterval() );
