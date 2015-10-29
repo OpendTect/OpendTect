@@ -60,7 +60,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	horselfld_->addItem( mToUiStringTodo(hinfos_[idx]->name) );
 
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Select lines") );
+    uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Select lines") );
     linenmfld_ = new uiListBox( this, su );
     linenmfld_->attach( alignedBelow, lcbox );
 
@@ -69,7 +69,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     headerfld_->attach( alignedBelow, linenmfld_ );
 
     udffld_ = new uiGenInput( this, tr("Write undefined parts? Undef value"),
-			      FloatInpSpec(sKey::FloatUdf()) );
+			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
@@ -277,6 +277,8 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 
 void uiExport2DHorizon::horChg( CallBacker* cb )
 {
+    BufferStringSet sellines;
+    linenmfld_->getChosen( sellines );
     linenmfld_->setEmpty();
     const int horidx = horselfld_->currentItem();
     if ( horidx < 0 || horidx > hinfos_.size() )
@@ -293,5 +295,8 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
 	return;
 
     linenmfld_->addItems( emdata.linenames );
+    linenmfld_->setChosen( sellines );
+    if ( linenmfld_->nrChosen() == 0 )
+	linenmfld_->chooseAll();
 }
 
