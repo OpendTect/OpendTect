@@ -950,6 +950,7 @@ void uiListBox::setEmpty()
 {
     mListBoxBlockCmdRec;
     lb_->body().removeAll();
+    updateCheckState();
 }
 
 
@@ -1357,6 +1358,8 @@ void uiListBox::chooseAll( bool yn )
 {
     if ( isMultiChoice() )
 	setAllItemsChecked( yn );
+
+    updateCheckState();
 }
 
 
