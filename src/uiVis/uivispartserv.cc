@@ -2184,12 +2184,12 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 
 void uiVisPartServer::initMPEStuff()
 {
-    TypeSet<int> emobjids;
-    findObject( typeid(visSurvey::EMObjectDisplay), emobjids );
-    for ( int idx=0; idx<emobjids.size(); idx++ )
+    TypeSet<int> visids;
+    findObject( typeid(visSurvey::EMObjectDisplay), visids );
+    for ( int idx=0; idx<visids.size(); idx++ )
     {
 	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-			getObject(emobjids[idx]))
+			getObject(visids[idx]))
 	emod->updateFromMPE();
     }
 
