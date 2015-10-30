@@ -51,20 +51,16 @@ static Threads::Atomic<int> canovercommit( 0 );
 //-1 = no
 #endif
 
+//In release mode, use own operator to allocate memory.
+#ifndef __debug__
+
 static bool memCanOverCommit()
 {
-#ifndef __lux__
+# ifndef __lux__
     return false;
-#else
+# else
     if ( canovercommit )
 	return canovercommit == 1;
-
-    /* Do NOT set this variable unless you are explicitely looking for
-       unitialized variable. mTryAlloc will nearly always return a valid pointer
-       in that case, even when there is not enough memory */
-    const char* s = getenv( "DTECT_NO_OVERCOMMITINIT" );
-    if ( s )
-	{ canovercommit = -1; return false; }
 
     // file should exist as of kernel 2.1.27
     FILE *file = fopen( "/proc/sys/vm/overcommit_memory", "r" );
@@ -91,14 +87,15 @@ static bool memCanOverCommit()
     free( contents );
 
     return canovercommit == 1;
-#endif
+# endif
 }
 
-#ifdef __win__
+
+# ifdef __win__
 void* operator new( std::size_t sz )
-#else
+# else
 void* operator new( std::size_t sz ) throw(std::bad_alloc)
-#endif
+# endif
 {
     void* p = malloc( sz );
     if ( !p )
@@ -112,11 +109,11 @@ void* operator new( std::size_t sz ) throw(std::bad_alloc)
 }
 
 
-#ifdef __win__
+# ifdef __win__
 void* operator new[]( std::size_t sz )
-#else
+# else
 void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
-#endif
+# endif
 {
     void* p = malloc( sz );
     if ( !p )
@@ -128,6 +125,7 @@ void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
 
     return p;
 }
+#endif
 
 
 #define mConvDefFromStrToShortType(type,fn) \
