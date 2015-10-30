@@ -295,9 +295,10 @@ bool Well::odReader::get() const
     if ( !getTrack() || !getInfo() ) //Keep first
 	return false;
 
-    if ( SI().zIsTime() && (!getD2T() || !getCSMdl()) )
+    if ( SI().zIsTime() && !getD2T() )
 	return false;
 
+    getCSMdl();
     getLogs();
     getMarkers();
 
