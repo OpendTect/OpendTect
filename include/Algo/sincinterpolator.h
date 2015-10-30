@@ -2,6 +2,7 @@
 #define sincinterpolator_h
 
 #include "algomod.h"
+#include "arrayndimpl.h"
 #include "mathfunc.h"
 #include "objectset.h"
 #include "thread.h"
@@ -26,31 +27,32 @@ public:
     {
 			Table(int lsinc,int nsinc,float emax,float fmax,
 			      int lmax);
-			~Table();
 
-	bool		isOK() const			{ return asinc_; }
+	bool		isOK() const		{ return asinc_.get2DData(); }
+
+	void		setValue(int,int,float);
 
 	bool		hasSameDesign(float fmax,int lmax) const;
 	float		getMaximumError() const		{ return emax_; }
 	float		getMaximumFrequency() const	{ return fmax_; }
 	int		getMaximumLength() const	{ return lmax_; }
 	od_int64	getTableBytes() const;
-	int		getLength() const;  // length of sinc approximations
 	int		getNumbers() const; // number of sinc approximations
+	int		getLength() const;  // length of sinc approximations
 	int		getShift() const;
-	inline void	setValue( int idx, int idy, float val )
-			{ asinc_[idx][idy] = val; }
-	inline float	getValue( int idx, int idy ) const
-			{ return asinc_[idx][idy]; }
+
+	protected:
+
+	Array2DImpl<float>	asinc_;		// array of sinc approximations
 
 	private:
 
-	float**		asinc_;  // array of sinc approximations
 	float		emax_;
 	float		fmax_;
 	int		lmax_;
-	int		nsinc_;
-	int		lsinc_;
+
+	friend class	SincInterpolator;
+	friend class	RotatorExecutor;
 
     };
 
@@ -65,9 +67,6 @@ protected:
 			// Builds a table based on design parameters.
     static const Table* makeTable(float fmax,int lmax);
     static float	sinc(float x);
-
-    static float**	makeArray(int n1,int n2);
-    static void		deleteArray(float**,int n1);
 
 };
 
@@ -144,13 +143,12 @@ protected:
 			SincInterpolator();
     bool		init() { return initTable( 0.3f, 8 ); }
 
-    inline float	getTableVal(int idx,int idy) const;
-
     template <class RT>
     bool		initUndefTable(const RT*,od_int64 sz);
 
     bool*		isudfarr_;
     int			lsinc_;
+    int			nsincm1_;
     int			ishift_;
     bool		extrapcst_;
     bool		extrapzero_;
@@ -161,6 +159,7 @@ protected:
 
 			/*Table of sinc interpolation coefficients.*/
     const SincTableManager::Table*		table_;
+    const float**	asinc_;		// only a cached shortcut
 };
 
 
@@ -248,9 +247,6 @@ inline int SincInterpolator::getMaximumLength() const
 inline od_int64 SincInterpolator::getTableBytes() const
 { return table_->getTableBytes(); }
 
-inline float SincInterpolator::getTableVal( int idx, int idy ) const
-{ return table_ ? table_->getValue( idx, idy ) : mUdf(float); }
-
 
 template <class RT>
 bool SincInterpolator::initUndefTable( const RT* vals, od_int64 sz )
@@ -322,13 +318,21 @@ bool SincInterpolator1D<RT,PT>::initTable( float fmax, int lmax )
     return true;
 }
 
-#define mKSinc(frac) ( mCast(int,frac*(table_->getNumbers()-1)+0.5) )
+#define mKSinc(frac) ( mCast(int,frac*nsincm1_+0.5) )
 #define mValidPos(is,ns)	( (is > -1 && is < ns) )
-#define mAddVal(val,totidx,weight,outval,sumweights) \
+#define mCheckUdf(totidx) \
 { \
     if ( isudfarr_ && isudfarr_[totidx] ) \
 	continue; \
-    \
+}
+#define mAddVal(val,weight,totidx,outval) \
+{ \
+    mCheckUdf(totidx) \
+    outval += val * weight; \
+}
+#define mAddValW(val,totidx,weight,outval,sumweights) \
+{ \
+    mCheckUdf(totidx) \
     outval += val * weight; \
     sumweights += weight; \
 }
@@ -344,35 +348,37 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
 
     const PT floorx = floor(x);
     fracx = x - floorx;
+    const float* asinc = asinc_[mKSinc(fracx)];
     idx0 = floorx + ishift_;
-    const int ksinc = mKSinc(fracx);
 
-    float out = 0.f, sumweights = 0.f;
+    float out = 0.f;
     if ( mValidPos(idx0,nxm_) )
     {
 	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
-	    mAddVal(data_[idx],idx,getTableVal(isinc,ksinc),out,sumweights)
+	    mAddVal(data_[idx],asinc[isinc],idx,out)
     }
     else if ( extrapzero_ )
     {
+	float sumweights = 0.f;
 	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
 	{
 	    if ( !mValidPos(idx,nx_) )
 		continue;
 
-	    mAddVal(data_[idx],idx,getTableVal(isinc,ksinc),out,sumweights)
+	    mAddValW(data_[idx],idx,asinc[isinc],out,sumweights)
 	}
+	if ( !mIsZero(sumweights,mDefEpsF) ) out /= sumweights;
     }
     else if ( extrapcst_ )
     {
 	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
 	{
 	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
-	    mAddVal(data_[idx1],idx,getTableVal(isinc,ksinc),out,sumweights)
+	    mAddVal(data_[idx1],asinc[isinc],idx,out)
 	}
     }
 
-    return mIsZero(sumweights,mDefEpsF) ? mUdf(RT) : mCast(RT,out/sumweights);
+    return mCast(RT,out);
 }
 
 
@@ -415,40 +421,39 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 
     const PT floorx = floor(x);
     const PT floory = floor(y);
-    fracx = x - floor(x);
-    fracy = y - floor(y);
+    fracx = x - floorx;
+    fracy = y - floory;
+    const float* asincx = asinc_[mKSinc(fracx)];
+    const float* asincy = asinc_[mKSinc(fracy)];
     idx0 = floorx + ishift_;
     idy0 = floory + ishift_;
-    const int ksincx = mKSinc(fracx);
-    const int ksincy = mKSinc(fracy);
 
-    double out = 0., sumweights = 0.;
-    double outx, sumx;
+    double out = 0., outx;
     if ( mValidPos(idx0,nxm_) && mValidPos(idy0,nym_) )
     {
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
 	{
-	    outx = 0.; sumx = 0.;
-	    const float asincx = getTableVal( ixsinc, ksincx );
-	    if ( mIsZero(asincx,mDefEpsF) )
+	    outx = 0.;
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) )
 		continue;
 
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
 	    {
 		const od_int64 off = idx*ny_+idy;
-		mAddVal(data_[off],off,getTableVal(iysinc,ksincy),outx,sumx)
+		mAddVal(data_[off],asincy[iysinc],off,outx)
 	    }
-	    out += outx * asincx;
-	    sumweights += sumx;
+	    out += outx * asincxval;
 	}
     }
     else if ( extrapzero_ )
     {
+	double sumweights = 0., sumx;
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
 	{
 	    outx = 0.; sumx = 0.;
-	    const float asincx = getTableVal( ixsinc, ksincx );
-	    if ( mIsZero(asincx,mDefEpsF) || !mValidPos(idx,nx_) )
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) || !mValidPos(idx,nx_) )
 		continue;
 
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
@@ -457,19 +462,20 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 		    continue;
 
 		const od_int64 off = idx*ny_+idy;
-		mAddVal(data_[off],off,getTableVal(iysinc,ksincy),outx,sumx)
+		mAddValW(data_[off],off,asincy[iysinc],outx,sumx)
 	    }
-	    out += outx * asincx;
+	    out += outx * asincxval;
 	    sumweights += sumx;
 	}
+	if ( !mIsZero(sumweights,mDefEps) ) out /= sumweights;
     }
     else if ( extrapcst_ )
     {
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
 	{
-	    outx = 0.; sumx = 0.;
-	    const float asincx = getTableVal( ixsinc, ksincx );
-	    if ( mIsZero(asincx,mDefEpsF) )
+	    outx = 0.;
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) )
 		continue;
 
 	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
@@ -477,14 +483,13 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 	    {
 		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
 		const od_int64 off = idx1*ny_+idy1;
-		mAddVal(data_[off],off,getTableVal(iysinc,ksincy),outx,sumx)
+		mAddVal(data_[off],asincy[iysinc],off,outx)
 	    }
-	    out += outx * asincx;
-	    sumweights += sumx;
+	    out += outx * asincxval;
 	}
     }
 
-    return mIsZero(sumweights,mDefEps) ? mUdf(RT) : mCast(RT,out/sumweights);
+    return mCast(RT,out);
 }
 
 
@@ -536,90 +541,90 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
     const PT floorx = floor(x);
     const PT floory = floor(y);
     const PT floorz = floor(z);
-    fracx = x - floor(x);
-    fracy = y - floor(y);
-    fracz = z - floor(z);
+    fracx = x - floorx;
+    fracy = y - floory;
+    fracz = z - floorz;
+    const float* asincx = asinc_[mKSinc(fracx)];
+    const float* asincy = asinc_[mKSinc(fracy)];
+    const float* asincz = asinc_[mKSinc(fracz)];
     idx0 = floorx + ishift_;
     idy0 = floory + ishift_;
     idz0 = floorz + ishift_;
-    const int ksincx = mKSinc(fracx);
-    const int ksincy = mKSinc(fracy);
-    const int ksincz = mKSinc(fracz);
 
-    double out = 0., sumweights = 0.;
-    double outx, outy, sumx, sumy;
+    double out = 0.;
+    double outx, outy;
     if ( mValidPos(idx0,nxm_) && mValidPos(idy0,nym_) && mValidPos(idz0,nzm_) )
     {
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
 	{
-	    outx = 0.; sumx = 0.;
-	    const float asincx = getTableVal( ixsinc, ksincx );
-	    if ( mIsZero(asincx,mDefEpsF) )
+	    outx = 0.;
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) )
 		continue;
 
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
 	    {
-		outy = 0.; sumy = 0.;
-		const float asincy = getTableVal( iysinc, ksincy );
-		if ( mIsZero(asincy,mDefEpsF) )
+		outy = 0.;
+		const float asincyval = asincy[iysinc];
+		if ( mIsZero(asincyval,mDefEpsF) )
 		    continue;
 
 		for ( int izsinc=0,idz=idz0; izsinc<lsinc_; izsinc++,idz++ )
 		{
 		    const od_int64 off = mGetOffset(idx,idy,idz);
-		    mAddVal(data_[off],off,getTableVal(izsinc,ksincz),outy,sumy)
+		    mAddVal(data_[off],asincz[izsinc],off,outy)
 		}
-		outx += outy * asincy;
-		sumx += sumy;
+		outx += outy * asincyval;
 	    }
-	    out += asincx * outx;
-	    sumweights += sumx;
+	    out += asincxval * outx;
 	}
     }
     else if ( extrapzero_ )
     {
+	double sumweights = 0., sumx, sumy;
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
 	{
 	    outx = 0.; sumx = 0.;
-	    const float asincx = getTableVal( ixsinc, ksincx );
-	    if ( mIsZero(asincx,mDefEpsF) || !mValidPos(idx,nx_) )
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) || !mValidPos(idx,nx_) )
 		continue;
 
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
 	    {
 		outy = 0.; sumy = 0.;
-		const float asincy = getTableVal( iysinc, ksincy );
-		if ( mIsZero(asincy,mDefEpsF) || !mValidPos(idy,ny_) )
+		const float asincyval = asincy[iysinc];
+		if ( mIsZero(asincyval,mDefEpsF) || !mValidPos(idy,ny_) )
 		    continue;
 
 		for ( int izsinc=0,idz=idz0; izsinc<lsinc_; izsinc++,idz++ )
 		{
 		    if ( !mValidPos(idz,nz_) ) continue;
 		    const od_int64 off = mGetOffset(idx,idy,idz);
-		    mAddVal(data_[off],off,getTableVal(izsinc,ksincz),outy,sumy)
+		    mAddValW(data_[off],off,asincz[izsinc],outy,sumy)
 		}
-		outx += outy * asincy;
+		outx += outy * asincyval;
 		sumx += sumy;
 	    }
-	    out += asincx * outx;
+	    out += asincxval * outx;
 	    sumweights += sumx;
 	}
+	if ( !mIsZero(sumweights,mDefEps) ) out /= sumweights;
     }
     else if ( extrapcst_ )
     {
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
 	{
-	    outx = 0.; sumx = 0.;
-	    const float asincx = getTableVal( ixsinc, ksincx );
-	    if ( mIsZero(asincx,mDefEpsF) )
+	    outx = 0.;
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) )
 		continue;
 
 	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
 	    {
-		outy = 0.; sumy = 0.;
-		const float asincy = getTableVal( iysinc, ksincy );
-		if ( mIsZero(asincy,mDefEpsF) )
+		outy = 0.;
+		const float asincyval = asincy[iysinc];
+		if ( mIsZero(asincyval,mDefEpsF) )
 		    continue;
 
 		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
@@ -627,17 +632,15 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 		{
 		    const int idz1 = idz < 0 ? 0 : idz >= nz_ ? nz_-1 : idz;
 		    const od_int64 off = mGetOffset(idx1,idy1,idz1);
-		    mAddVal(data_[off],off,getTableVal(izsinc,ksincz),outy,sumy)
+		    mAddVal(data_[off],asincz[izsinc],off,outy)
 		}
-		outx += outy * asincy;
-		sumx += sumy;
+		outx += outy * asincyval;
 	    }
-	    out += asincx * outx;
-	    sumweights += sumx;
+	    out += asincxval * outx;
 	}
     }
 
-    return mIsZero(sumweights,mDefEps) ? mUdf(RT) : mCast(RT,out/sumweights);
+    return mCast(RT,out);
 }
 
 #endif
