@@ -18,10 +18,6 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "ptrman.h"
 
-#define mPolyArray1DInfoTp Array1DInfo
-#define mPolyArray2DInfoTp Array2DInfo
-#define mPolyArray3DInfoTp Array3DInfo
-
 /*!
 \brief An ArrayND is an array with a given number of dimensions and a size.
 
@@ -94,7 +90,6 @@ protected:
 						return getStorage()->arr();
 					    return 0;
 					}
-
 };
 
 
@@ -143,6 +138,9 @@ public:
     T		                getND( const int* pos ) const
 				    { return get( pos[0], pos[1] ); }
 
+    virtual T**			get2DData()		{ return 0; }
+    virtual const T**		get2DData() const	{ return 0; }
+
     virtual const Array2DInfo&	info() const = 0;
 };
 
@@ -162,6 +160,9 @@ public:
 				    { set( pos[0], pos[1], pos[2], v);}
     T		                getND( const int* pos ) const
 				    { return get( pos[0], pos[1], pos[2] ); }
+
+    virtual T***		get3DData()		{ return 0; }
+    virtual const T***		get3DData() const	{ return 0; }
 
     virtual const Array3DInfo&	info() const = 0;
 };

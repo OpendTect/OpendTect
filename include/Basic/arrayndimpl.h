@@ -18,20 +18,30 @@ ________________________________________________________________________
 # include "debug.h"
 #endif
 
-#define mDeclArrayNDProtMemb(inftyp) \
-    inftyp			in_; \
-    ValueSeries<T>*		stor_; \
- \
-    const ValueSeries<T>*	getStorage_() const { return stor_; }
+/*!Helper class to handle internal storage of arrays */
 
-#define mDeclArrayNDCopyTools(nd) \
-    inline			Array##nd##Impl(const Array##nd<T>&); \
-    inline			Array##nd##Impl(const Array##nd##Impl<T>&); \
-    inline Array##nd##Impl<T>&	operator =( const Array##nd<T>& ai ) \
-				{ copyFrom(ai); return *this; } \
-    inline Array##nd##Impl<T>&	operator =( const Array##nd##Impl<T>& ai ) \
-				{ copyFrom(ai); return *this; } \
-    inline bool			setStorageNoResize(ValueSeries<T>*);
+template <class T>
+mClass(Basic) ArrayImplBase
+{
+protected:
+    virtual od_int64	getStorageSize() const			= 0;
+
+    			ArrayImplBase();
+    			~ArrayImplBase()	{ delete stor_; }
+
+    bool		storageOK() const;
+    bool		updateStorageSize();
+    			/*!<Sets storage size to getStorageSize()
+			    and creates if need be. */
+
+    bool		setStorageNoResize(ValueSeries<T>*);
+    bool		setStorageInternal(ValueSeries<T>*);
+    bool		getDataFrom(const ArrayND<T>& templ);
+
+    ValueSeries<T>*	stor_;
+    T*			ptr_;	//not owned, only a shortcut
+				//for the 99% percent case
+};
 
 
 /*!
@@ -39,42 +49,47 @@ ________________________________________________________________________
 */
 
 template <class T>
-mClass(Basic) Array1DImpl : public Array1D<T>
-{
+mClass(Basic) Array1DImpl : public Array1D<T>, public ArrayImplBase<T>
+{ typedef ArrayImplBase<T> base;
 public:
 
-    inline			Array1DImpl(int sz);
-    inline			~Array1DImpl();
-				mDeclArrayNDCopyTools(1D);
+			Array1DImpl(int sz);
+			Array1DImpl(const Array1D<T>&);
+			Array1DImpl(const Array1DImpl<T>&);
+    Array1DImpl<T>&	operator =( const Array1D<T>& ai )
+			    { copyFrom(ai); return *this; }
+    Array1DImpl<T>&	operator =( const Array1DImpl<T>& ai )
+			    { copyFrom(ai); return *this; }
 
-    ValueSeries<T>*		clone() const
-				{ return new Array1DImpl<T>(*this); }
+    ValueSeries<T>*	clone() const
+			    { return new Array1DImpl<T>(*this); }
 
-    inline bool			isOK() const { return stor_ && stor_->isOK(); }
-    inline void			copyFrom(const Array1D<T>&);
-    inline bool			setStorage(ValueSeries<T>*);
-    inline bool			canSetStorage() const	{ return true; }
+    bool		isOK() const { return base::storageOK(); }
+    void		copyFrom(const Array1D<T>&);
+    bool		setStorage(ValueSeries<T>* vs)
+    			    { return base::setStorageInternal(vs); }
+    bool		canSetStorage() const	{ return true; }
 
-    inline void			set(int pos,T);
-    inline T			get(int pos) const;
+    void		set(int pos,T);
+    T			get(int pos) const;
 
-    inline const Array1DInfo&	info() const		{ return in_; }
-    inline bool			canSetInfo() const	{ return true; }
-    inline bool			setInfo(const ArrayNDInfo&);
-    inline bool			setSize(int);
-    inline bool			setSize( od_int64 sz )
-				{ return setSize( ((int)sz) ); }
+    const Array1DInfo&	info() const		{ return in_; }
+    bool		canSetInfo() const	{ return true; }
+    bool		setInfo(const ArrayNDInfo&);
+    bool		setSize(int);
+    bool		setSize( od_int64 sz )
+			    { return setSize( ((int)sz) ); }
 
-				// ValueSeries interface
-    inline T*			arr()			{ return ptr_; }
-    inline const T*		arr() const		{ return ptr_; }
+			// ValueSeries interface
+    T*			arr()			{ return base::ptr_; }
+    const T*		arr() const		{ return base::ptr_; }
 
 protected:
-    inline const T*		getData_() const	{ return ptr_; }
-    T*				ptr_;	//not owned, only a shortcut
-					//for the 99% percent case
+    const T*		getData_() const	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
+    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
 
-    mDeclArrayNDProtMemb(Array1DInfoImpl);
+    Array1DInfoImpl	in_;
 
 };
 
@@ -84,36 +99,47 @@ protected:
 */
 
 template <class T>
-mClass(Basic) Array2DImpl : public Array2D<T>
-{
+mClass(Basic) Array2DImpl : public Array2D<T>, public ArrayImplBase<T>
+{ typedef ArrayImplBase<T> base;
 public:
 			Array2DImpl(int sz0,int sz1);
 			Array2DImpl(const Array2DInfo&);
-			~Array2DImpl();
-			mDeclArrayNDCopyTools(2D)
+    			Array2DImpl(const Array2D<T>&);
+    			Array2DImpl(const Array2DImpl<T>&);
+			~Array2DImpl() { deleteAndZeroArrPtr( ptr2d_ ); }
 
-    inline bool		isOK() const { return stor_ && stor_->isOK(); }
+    Array2DImpl<T>&	operator =( const Array2D<T>& ai )
+			    { copyFrom(ai); return *this; }
+    Array2DImpl<T>&	operator =( const Array2DImpl<T>& ai )
+			    { copyFrom(ai); return *this; }
+
+    bool		isOK() const { return base::storageOK(); }
     bool		canSetStorage() const		{ return true; }
-    bool		setStorage(ValueSeries<T>*);
+    bool		setStorage(ValueSeries<T>* vs);
 
-    virtual void	set(int,int,T);
-    virtual T		get(int,int) const;
+    void		set(int,int,T);
+    T			get(int,int) const;
     void		copyFrom(const Array2D<T>&);
 
-    inline const Array2DInfo& info() const		{ return in_; }
-    inline bool		canSetInfo() const		{ return true; }
+    const Array2DInfo&	info() const		{ return in_; }
+    bool		canSetInfo() const	{ return true; }
 
     bool		setInfo(const ArrayNDInfo&);
     bool		setSize(int,int);
 
+    T**			get2DData()		{ return ptr2d_; }
+    const T**		get2DData() const	{ return (const T**) ptr2d_; }
+
 protected:
+    void		updateStorage();
+    const T*		getData_() const	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
+    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
 
-    inline const T*		getData_() const	{ return ptr_; }
-    T*				ptr_;	//not owned, only a shortcut
-					//for the 99% percent case
+    void		updateCachePointers();
 
-    mDeclArrayNDProtMemb(Array2DInfoImpl);
-
+    Array2DInfoImpl	in_;
+    T**			ptr2d_;
 };
 
 
@@ -122,33 +148,47 @@ protected:
 */
 
 template <class T>
-mClass(Basic) Array3DImpl : public Array3D<T>
-{
+mClass(Basic) Array3DImpl : public Array3D<T>, public ArrayImplBase<T>
+{ typedef ArrayImplBase<T> base;
 public:
-    inline		Array3DImpl(int sz0,int sz1,int sz2);
-    inline		Array3DImpl(const Array3DInfo&);
-			mDeclArrayNDCopyTools(3D)
-    inline		~Array3DImpl();
+			Array3DImpl(int sz0,int sz1,int sz2);
+			Array3DImpl(const Array3DInfo&);
+			Array3DImpl(const Array3D<T>&);
+			Array3DImpl(const Array3DImpl<T>&);
+			~Array3DImpl() { eraseCache(); }
+    Array3DImpl<T>&	operator =( const Array3D<T>& ai )
+			    { copyFrom(ai); return *this; }
+    Array3DImpl<T>&	operator =( const Array3DImpl<T>& ai )
+			    { copyFrom(ai); return *this; }
 
-    inline bool		isOK() const { return stor_ && stor_->isOK(); }
-    inline bool		canSetStorage() const	{ return true; }
-    inline bool		setStorage(ValueSeries<T>*);
+    bool		isOK() const { return base::storageOK(); }
+    bool		canSetStorage() const	{ return true; }
+    bool		setStorage(ValueSeries<T>* vs);
 
-    inline void		set(int,int,int,T);
-    inline T		get(int,int,int) const;
-    inline void		copyFrom(const Array3D<T>&);
+    void		set(int,int,int,T);
+    T			get(int,int,int) const;
+    void		copyFrom(const Array3D<T>&);
 
-    inline const Array3DInfo& info() const		{ return in_; }
-    inline bool		canSetInfo() const		{ return true; }
-    inline bool		setInfo(const ArrayNDInfo&);
-    inline bool		setSize(int,int,int);
+    const Array3DInfo&	info() const			{ return in_; }
+    bool		canSetInfo() const		{ return true; }
+    bool		setInfo(const ArrayNDInfo&);
+    bool		setSize(int,int,int);
+
+    T***		get3DData()		{ return ptr3d_; }
+    const T***		get3DData() const	{ return (const T***) ptr3d_; }
 
 protected:
-    inline const T*	getData_() const	{ return ptr_; }
-    T*			ptr_;	//not owned, only a shortcut
-					//for the 99% percent case
+    void		updateStorage();
+    const T*		getData_() const	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
+    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
 
-    mDeclArrayNDProtMemb(Array3DInfoImpl);
+    void		updateCachePointers();
+    void		eraseCache();
+
+    TypeSet<T**> 	cachestor_;
+    T***		ptr3d_;
+    Array3DInfoImpl	in_;
 };
 
 
@@ -157,136 +197,162 @@ protected:
 */
 
 template <class T>
-mClass(Basic) ArrayNDImpl : public ArrayND<T>
-{
+mClass(Basic) ArrayNDImpl : public ArrayND<T>, public ArrayImplBase<T>
+{ typedef ArrayImplBase<T> base;
 public:
 
-    static ArrayND<T>*		create(const ArrayNDInfo& nsz);
+    static ArrayND<T>*	create(const ArrayNDInfo& nsz);
 
-    inline			ArrayNDImpl(const ArrayNDInfo&);
-				mDeclArrayNDCopyTools(ND)
-    inline			~ArrayNDImpl();
+			ArrayNDImpl(const ArrayNDInfo&);
+			ArrayNDImpl(const ArrayND<T>&);
+			ArrayNDImpl(const ArrayNDImpl<T>&);
+    ArrayNDImpl<T>&	operator =( const ArrayND<T>& ai )
+			    { copyFrom(ai); return *this; }
+    ArrayNDImpl<T>&	operator =( const ArrayNDImpl<T>& ai )
+			    { copyFrom(ai); return *this; }
+			~ArrayNDImpl();
 
-    inline bool			isOK() const { return stor_ && stor_->isOK(); }
-    inline bool			canSetStorage() const	{ return true; }
-    inline bool			setStorage(ValueSeries<T>*);
+    bool		isOK() const { return base::storageOK(); }
+    bool		canSetStorage() const	{ return true; }
+    bool		setStorage(ValueSeries<T>* vs)
+    			    { return base::setStorageInternal(vs); }
 
-    inline void			setND(const int*,T);
-    inline T			getND(const int*) const;
+    void		setND(const int*,T);
+    T			getND(const int*) const;
 
-    inline const ArrayNDInfo&	info() const		{ return *in_; }
-    inline bool			canSetInfo() const	{ return true; }
-    inline bool			canChangeNrDims() const	{ return true; }
-    inline bool			setInfo(const ArrayNDInfo&);
+    const ArrayNDInfo&	info() const		{ return *in_; }
+    bool		canSetInfo() const	{ return true; }
+    bool		canChangeNrDims() const	{ return true; }
+    bool		setInfo(const ArrayNDInfo&);
 
-    inline bool			setSize(const int*);
-    inline void			copyFrom(const ArrayND<T>&);
+    bool		setSize(const int*);
+    void		copyFrom(const ArrayND<T>&);
 
 protected:
 
-    inline const T*		getData_() const	{ return ptr_; }
-    T*				ptr_;	//not owned, only a shortcut
-					//for the 99% percent case
+    const T*		getData_() const	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
+    od_int64		getStorageSize() const  { return in_->getTotalSz(); }
 
-    mDeclArrayNDProtMemb(ArrayNDInfo*)
-
+    ArrayNDInfo*	in_;
 };
 
 
-#define mArrNDImplCreateStor \
-    setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
-					info().getTotalSz()))
-#define mArrayNDImplSetSize(s) \
-    if ( !stor_ ) \
-	mArrNDImplCreateStor; \
-    if ( !stor_ || !stor_->setSize(s) ) \
-	{ ptr_ = 0; delete stor_; stor_ = 0; return false; } \
-    ptr_ = stor_->arr()
+template <class T> inline
+ArrayImplBase<T>::ArrayImplBase()
+    : stor_(0)
+    , ptr_(0)
+{ }
 
-#define mArrNDImplConstructor \
-    , stor_(0) \
-    , ptr_(0) \
-{ \
-    if ( !info().isOK() ) return; \
-    mArrNDImplCreateStor; \
+
+template <class T> inline
+bool ArrayImplBase<T>::setStorageNoResize( ValueSeries<T>* s )
+{
+    ptr_ = 0;
+    delete stor_;
+
+    stor_ = s;
+
+    ptr_ = stor_->arr();
+
+    return true;
 }
 
-#define mArrNDImplCopyConstructor(clss,from) \
-template <class T> inline \
-clss<T>::clss( const from<T>& templ ) \
-    : in_(templ.info())  \
-    , stor_(0) \
-    , ptr_(0) \
-{ \
-    const ValueSeries<T>* storage = templ.getStorage(); \
-    ValueSeries<T>* newstor = storage && storage->selfSufficient() \
-	? storage->clone() \
-	: 0; \
-    if ( !newstor || !setStorageNoResize( newstor ) )  \
-    { \
-	if ( !info().isOK() ) \
-	{ \
-	    pErrMsg( "Invalid size" ); \
-	    return; \
-	} \
-	setStorageNoResize( \
-		new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
-	copyFrom( templ ); \
-    } \
-}
 
-#define mArrNDImplDestructor( clss ) \
-	template <class T> inline clss<T>::~clss() { delete stor_; }
-
-#define mArrNDImplSetStorage( clss ) \
-template <class T> inline \
-bool clss<T>::setStorage( ValueSeries<T>* s ) \
-{ \
-    ptr_ = 0; \
-    if ( !s->setSize(info().getTotalSz()) ) \
-    { \
-	delete s; \
-	return false; \
-    } \
-    return setStorageNoResize( s ); \
-} \
- \
- \
-template <class T> inline \
-bool clss<T>::setStorageNoResize( ValueSeries<T>* s ) \
-{ \
-    ptr_ = 0; \
-    delete stor_; stor_ = s; ptr_ = stor_->arr(); \
-    return true; \
-}
-
-#define mArrNDImplDoNormalCopy \
-    if ( !this->isOK() ) \
-	return; \
-    if ( this->getData() ) \
-    { \
-	templ.getAll( this->getData() ); \
-	return; \
-    } \
-    else if ( this->getStorage() ) \
-    { \
-	templ.getAll( *this->getStorage() ); \
-	return; \
+template <class T> inline
+bool ArrayImplBase<T>::setStorageInternal( ValueSeries<T>* s )
+{
+    ptr_ = 0;
+    if ( !s->setSize(getStorageSize()) )
+    {
+	delete s;
+	return false;
     }
-#define mArrNDImplHandleNormalCopy(inf) \
-    if ( inf != templ.info() ) \
-	setInfo( templ.info() ); \
-    mArrNDImplDoNormalCopy; \
+
+    return setStorageNoResize( s );
+}
+
+
+template <class T> inline
+bool ArrayImplBase<T>::updateStorageSize()
+{
+    if ( !stor_ )
+    {
+	setStorageNoResize(
+	    new MultiArrayValueSeries<T,T>(getStorageSize()));
+    }
+
+    if ( !stor_ || !stor_->setSize( getStorageSize() ) )
+    {
+	ptr_ = 0;
+	delete stor_;
+	stor_ = 0;
+	return false;
+    }
+
+    ptr_ = stor_->arr();
+    return true;
+}
+
+
+template <class T> inline
+bool ArrayImplBase<T>::storageOK() const
+{ return stor_ && stor_->isOK(); }
+
+
+template <class T> inline
+bool ArrayImplBase<T>::getDataFrom( const ArrayND<T>& templ )
+{
+    if ( !storageOK() )
+	return false;
+
+    if ( ptr_ )
+    {
+	templ.getAll( ptr_ );
+	return true;
+    }
+
+    if ( stor_ )
+    {
+	templ.getAll( *stor_ );
+	return true;
+    }
+
+    if ( getStorageSize() )
+    {
+	pErrMsg("Cannot store in array without storage" );
+	return false;
+    }
+
+    return true;
+}
 
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl( int nsz )
     : in_(nsz)
-mArrNDImplConstructor
-mArrNDImplCopyConstructor(Array1DImpl,Array1D)
-mArrNDImplCopyConstructor(Array1DImpl,Array1DImpl)
-mArrNDImplDestructor( Array1DImpl )
-mArrNDImplSetStorage( Array1DImpl )
+{
+    base::updateStorageSize();
+}
+
+
+template <class T> inline
+Array1DImpl<T>::Array1DImpl( const Array1D<T>& templ )
+    : in_(templ.info())
+{
+    base::updateStorageSize();
+    copyFrom( templ );
+}
+
+
+template <class T> inline
+Array1DImpl<T>::Array1DImpl( const Array1DImpl<T>& templ )
+    : in_(templ.info())
+{
+    base::updateStorageSize();
+    copyFrom( templ );
+}
+
 
 template <class T> inline
 void Array1DImpl<T>::set( int pos, T v )
@@ -295,8 +361,8 @@ void Array1DImpl<T>::set( int pos, T v )
     if ( !in_.validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    if ( ptr_ ) ptr_[pos] = v;
-    else stor_->setValue(pos,v);
+    if ( base::ptr_ ) base::ptr_[pos] = v;
+    else base::stor_->setValue(pos,v);
 }
 
 
@@ -307,19 +373,17 @@ T Array1DImpl<T>::get( int pos ) const
     if ( !in_.validPos( pos ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    return ptr_ ? ptr_[pos] : stor_->value(pos);
+    return base::ptr_ ? base::ptr_[pos] : base::stor_->value(pos);
 }
 
 
 template <class T> inline
 void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
 {
-    mArrNDImplHandleNormalCopy(in_)
+    if ( in_ != templ.info() )
+	setInfo( templ.info() );
 
-    const int totsz = (int) in_.getTotalSz();
-
-    for ( int idx=0; idx<totsz; idx++ )
-	set( idx, templ.get(idx) );
+    base::getDataFrom( templ );
 }
 
 
@@ -335,7 +399,7 @@ template <class T> inline
 bool Array1DImpl<T>::setSize( int s )
 {
     in_.setSize( 0, s );
-    mArrayNDImplSetSize( s );
+    base::updateStorageSize();
     return true;
 }
 
@@ -343,15 +407,39 @@ bool Array1DImpl<T>::setSize( int s )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1 )
     : in_(sz0,sz1)
-mArrNDImplConstructor
+    , ptr2d_(0)
+{
+    updateStorage();
+}
+
+
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz )
     : in_( nsz )
-mArrNDImplConstructor
-mArrNDImplCopyConstructor(Array2DImpl,Array2D)
-mArrNDImplCopyConstructor(Array2DImpl,Array2DImpl)
-mArrNDImplDestructor(Array2DImpl)
-mArrNDImplSetStorage(Array2DImpl)
+    , ptr2d_(0)
+{
+    updateStorage();
+}
+
+
+template <class T> inline
+Array2DImpl<T>::Array2DImpl( const Array2D<T>& templ )
+    : in_(templ.info())
+    , ptr2d_(0)
+{
+    updateStorage();
+    copyFrom( templ );
+}
+
+
+template <class T> inline
+Array2DImpl<T>::Array2DImpl( const Array2DImpl<T>& templ )
+    : in_(templ.info())
+    , ptr2d_(0)
+{
+    updateStorage();
+    copyFrom( templ );
+}
 
 
 template <class T> inline
@@ -364,9 +452,15 @@ void Array2DImpl<T>::set( int p0, int p1, T v )
 	DBG::forceCrash(true);
     }
 #endif
-    const od_int64 offset = in_.getOffset( p0, p1 );
-    if ( ptr_ ) ptr_[offset] = v;
-    else stor_->setValue( offset, v );
+    if ( ptr2d_ )
+    {
+	ptr2d_[p0][p1] = v;
+    }
+    else
+    {
+	const od_int64 offset = in_.getOffset( p0, p1 );
+	base::stor_->setValue( offset, v );
+    }
 }
 
 
@@ -380,23 +474,31 @@ T Array2DImpl<T>::get( int p0, int p1 ) const
 	DBG::forceCrash(true);
     }
 #endif
+
+    if ( ptr2d_ )
+	return ptr2d_[p0][p1];
+
     const od_int64 offset = in_.getOffset( p0, p1 );
-    return ptr_ ? ptr_[offset] : stor_->value( offset );
+    return base::stor_->value( offset );
+}
+
+
+template <class T> inline
+bool Array2DImpl<T>::setStorage(ValueSeries<T>* vs)
+{
+    bool res = base::setStorageInternal(vs);
+    updateCachePointers();
+    return res;
 }
 
 
 template <class T> inline
 void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 {
-    mArrNDImplHandleNormalCopy(in_)
+    if ( in_ != templ.info() )
+	setInfo( templ.info() );
 
-    const int sz0 = in_.getSize(0);
-    const int sz1 = in_.getSize(1);
-    for ( int id0=0; id0<sz0; id0++ )
-    {
-	for ( int id1=0; id1<sz1; id1++ )
-	    set( id0, id1, templ.get(id0,id1) );
-    }
+    base::getDataFrom( templ );
 }
 
 
@@ -412,23 +514,76 @@ template <class T> inline
 bool Array2DImpl<T>::setSize( int d0, int d1 )
 {
     in_.setSize( 0, d0 ); in_.setSize( 1, d1 );
-    mArrayNDImplSetSize( in_.getTotalSz() );
+    updateStorage();
     return true;
+}
+
+
+template <class T> inline
+void Array2DImpl<T>::updateStorage()
+{
+    base::updateStorageSize();
+    updateCachePointers();
+}
+
+
+template <class T> inline
+void Array2DImpl<T>::updateCachePointers()
+{
+    deleteAndZeroArrPtr( ptr2d_ );
+
+    if ( !base::ptr_ )
+	return;
+
+    const int n1 = in_.getSize( 0 );
+    mTryAlloc(ptr2d_,T*[n1])
+    if ( !ptr2d_ )
+	return;
+
+    const int n2 = in_.getSize( 1 );
+    od_uint64 offset = 0;
+    for ( int idx=0; idx<n1; idx++, offset+=n2 )
+	ptr2d_[idx] = base::ptr_ + offset;
 }
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2 )
     : in_(sz0,sz1,sz2)
-mArrNDImplConstructor
+    , ptr3d_(0)
+{
+    updateStorage();
+}
+
+
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz )
     : in_(nsz)
-mArrNDImplConstructor
-mArrNDImplCopyConstructor(Array3DImpl,Array3D)
-mArrNDImplCopyConstructor(Array3DImpl,Array3DImpl)
-mArrNDImplDestructor(Array3DImpl)
-mArrNDImplSetStorage(Array3DImpl)
+    , ptr3d_(0)
+{
+    updateStorage();
+}
+
+
+template <class T> inline
+Array3DImpl<T>::Array3DImpl( const Array3D<T>& templ )
+    : in_(templ.info())
+    , ptr3d_(0)
+{
+    updateStorage();
+    copyFrom( templ );
+}
+
+
+template <class T> inline
+Array3DImpl<T>::Array3DImpl( const Array3DImpl<T>& templ )
+    : in_(templ.info())
+    , ptr3d_(0)
+{
+    updateStorage();
+    copyFrom( templ );
+}
+
 
 template <class T> inline
 void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
@@ -437,9 +592,15 @@ void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
     if ( !in_.validPos( p0, p1, p2 ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
-    const od_int64 offset = in_.getOffset( p0, p1, p2 );
-    if ( ptr_ ) ptr_[offset] = v;
-    else stor_->setValue( offset, v );
+    if ( ptr3d_ )
+    {
+	ptr3d_[p0][p1][p2] = v;
+    }
+    else
+    {
+	const od_int64 offset = in_.getOffset( p0, p1, p2 );
+	base::stor_->setValue( offset, v );
+    }
 }
 
 
@@ -450,25 +611,31 @@ T Array3DImpl<T>::get( int p0, int p1, int p2 ) const
     if ( !in_.validPos( p0, p1, p2 ) )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
+    if ( ptr3d_ )
+	return ptr3d_[p0][p1][p2];
+
     const od_int64 offset = in_.getOffset( p0, p1, p2 );
-    return ptr_ ? ptr_[offset] : stor_->value( offset );
+    return base::stor_->value( offset );
 }
 
 
 template <class T> inline
 void Array3DImpl<T>::copyFrom( const Array3D<T>& templ )
 {
-    mArrNDImplHandleNormalCopy(in_)
+    if ( in_ != templ.info() )
+	setInfo( templ.info() );
 
-    int sz0 = in_.getSize(0);
-    int sz1 = in_.getSize(1);
-    int sz2 = in_.getSize(2);
-    for ( int id0=0; id0<sz0; id0++ )
-	for ( int id1=0; id1<sz1; id1++ )
-	    for ( int id2=0; id2<sz2; id2++ )
-		set( id0, id1, id2, templ.get(id0,id1,id2) );
+    base::getDataFrom( templ );
 }
 
+
+template <class T> inline
+bool Array3DImpl<T>::setStorage(ValueSeries<T>* vs)
+{
+    bool res = base::setStorageInternal(vs);
+    updateCachePointers();
+    return res;
+}
 
 template <class T> inline
 bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
@@ -482,38 +649,88 @@ template <class T> inline
 bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 {
     in_.setSize( 0, d0 ); in_.setSize( 1, d1 ); in_.setSize( 2, d2 );
-    mArrayNDImplSetSize( in_.getTotalSz() );
+    updateStorage();
     return true;
 }
 
 
-#undef mArrNDImplCopyConstructor
-#define mArrNDImplCopyConstructor(clss,from) \
-template <class T> inline \
-clss<T>::clss( const from<T>& templ ) \
-    : in_(templ.info().clone())  \
-    , stor_(0) \
-    , ptr_(0) \
-{ \
-    if ( !info().isOK() ) \
-    { \
-	pErrMsg( "Invalid size" ); \
-	return; \
-    } \
-    setStorage( new MultiArrayValueSeries<T,T>(in_->getTotalSz()) ); \
-    copyFrom( templ ); \
+template <class T> inline
+void Array3DImpl<T>::updateStorage()
+{
+    base::updateStorageSize();
+    updateCachePointers();
 }
+
+
+template <class T> inline
+void Array3DImpl<T>::eraseCache()
+{
+    for ( int idx=0; idx<cachestor_.size(); idx++ )
+    {
+	delete [] cachestor_[idx];
+    }
+
+    ptr3d_ = 0;
+}
+
+
+template <class T> inline
+void Array3DImpl<T>::updateCachePointers()
+{
+    eraseCache();
+
+    if ( !base::ptr_ )
+	return;
+
+    const int n1 = in_.getSize( 0 );
+    const int n2 = in_.getSize( 1 );
+    const int n3 = in_.getSize( 2 );
+    od_uint64 offset = 0;
+    for ( int idx=0; idx<n1; idx++ )
+    {
+	mDeclareAndTryAlloc(T**,ptr2d,T*[n2])
+	if ( !ptr2d )
+	    return;
+
+	for ( int idy=0; idy<n2; idy++, offset+=n3 )
+	    ptr2d[idy] = base::ptr_ + offset;
+
+	cachestor_ += ptr2d;
+    }
+
+    ptr3d_ = &cachestor_[0];
+}
+
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz )
     : in_(nsz.clone())
-mArrNDImplConstructor
-mArrNDImplCopyConstructor(ArrayNDImpl,ArrayND)
-mArrNDImplCopyConstructor(ArrayNDImpl,ArrayNDImpl)
-template <class T> inline ArrayNDImpl<T>::~ArrayNDImpl()
-{ delete stor_; delete in_; }
+{
+    base::updateStorageSize();
+}
 
-mArrNDImplSetStorage( ArrayNDImpl )
+
+template <class T> inline
+ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ )
+    : in_( templ.info().clone() )
+{
+    base::updateStorageSize();
+    copyFrom( templ );
+}
+
+
+template <class T> inline
+ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& templ )
+    : in_( templ.info().clone() )
+{
+    base::updateStorageSize();
+    copyFrom( templ );
+}
+
+
+template <class T> inline ArrayNDImpl<T>::~ArrayNDImpl()
+{ delete in_; }
+
 
 template <class T> inline
 void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
@@ -524,17 +741,7 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 	in_ = templ.info().clone();
     }
 
-    mArrNDImplDoNormalCopy;
-
-    if ( in_->getTotalSz() > 0 )
-    {
-	ArrayNDIter iter( *in_ );
-	do
-	{
-	    const int* pos = iter.getPos();
-	    setND( pos, templ.getND(pos) );
-	} while ( iter.next() );
-    }
+    base::getDataFrom( templ );
 }
 
 
@@ -546,8 +753,8 @@ void ArrayNDImpl<T>::setND( const int* pos, T v )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
     const od_int64 offset = in_->getOffset(pos);
-    if ( ptr_ ) ptr_[offset] = v ;
-    else stor_->setValue( offset, v);
+    if ( base::ptr_ ) base::ptr_[offset] = v ;
+    else base::stor_->setValue( offset, v);
 }
 
 
@@ -559,7 +766,7 @@ T ArrayNDImpl<T>::getND( const int* pos ) const
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
     const od_int64 offset = in_->getOffset(pos);
-    return ptr_ ? ptr_[offset] : stor_->value( offset );
+    return base::ptr_ ? base::ptr_[offset] : base::stor_->value( offset );
 }
 
 
@@ -585,7 +792,7 @@ bool ArrayNDImpl<T>::setSize( const int* d )
     for ( int idx=0; idx<ndim; idx++ )
 	in_->setSize( idx, d[idx] );
 
-    mArrayNDImplSetSize( in_->getTotalSz() );
+    base::updateStorageSize();
     return true;
 }
 
