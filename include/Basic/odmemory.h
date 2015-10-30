@@ -217,13 +217,10 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 	{
 	    T* ptr = ptr_+start;
 	    T* stopptr = ptr_+stop;
-	    od_int64 idx = 0;
-
 	    while ( ptr<=stopptr )
 	    {
 		*ptr = valfunc_();
 		ptr++;
-		quickAddToNrDone( idx++ );
 	    }
 
 	    return true;
@@ -237,12 +234,12 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( valfunc_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { vs_->setValue( idx, valfunc_() ); quickAddToNrDone( idx ); }
+	    { vs_->setValue( idx, valfunc_() ); }
     }
     else
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { vs_->setValue( idx, val_ ); quickAddToNrDone( idx ); }
+	    { vs_->setValue( idx, val_ ); }
     }
 
     return true;
@@ -279,12 +276,10 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 #define mODMemSetterFullImpl(Type) \
     Type* ptr = ptr_ + start; \
     const Type* stopptr = ptr + size; \
-    od_int64 idx = 0; \
     while ( ptr != stopptr ) \
     { \
 	*ptr = val_; \
 	ptr++; \
-	quickAddToNrDone( idx++ ); \
     } \
  \
     return true;
@@ -362,17 +357,17 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( outptr_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { outptr_[idx] = invs_->value( idx ); quickAddToNrDone( idx ); }
+	    { outptr_[idx] = invs_->value( idx ); }
     }
     else if ( inptr_ )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { outvs_->setValue( idx, inptr_[idx] ); quickAddToNrDone( idx ); }
+	    { outvs_->setValue( idx, inptr_[idx] ); }
     }
     else
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
-	    { outvs_->setValue( idx, invs_->value(idx));quickAddToNrDone(idx); }
+	    { outvs_->setValue( idx, invs_->value(idx)); }
     }
     return true;
 }
@@ -428,8 +423,6 @@ bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
     {
 	if ( vs_->value(idx)==fromval_ )
 	    vs_->setValue( idx, toval_ );
-
-	quickAddToNrDone( idx );
     }
 
     return true;
@@ -440,14 +433,12 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 {
     T* ptr = ptr_ + start;
     const T* stopptr = ptr + size;
-    od_int64 idx = 0;
     while ( ptr != stopptr )
     {
 	if ( *ptr==fromval_ )
 	    *ptr = toval_;
 
 	ptr++;
-	quickAddToNrDone( idx++ );
     }
 
     return true;
@@ -485,3 +476,4 @@ inline void memValueSet( T* arr, T val , od_int64 sz, TaskRunner* taskrun )
 
 
 #endif
+
