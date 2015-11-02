@@ -133,8 +133,10 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
 	if ( setup.withfixedaspectratio_ )
+	{
 	    mDefBut(fittoscrnbut_,"exttofullsurv",fitToScreenCB,
 		    tr("Fit to screen"));
+	}
     }
 
     if ( setup.withhomebutton_ )
