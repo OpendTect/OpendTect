@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "gendefs.h"
+#include "uistrings.h"
 class BufferStringSet;
 
 
