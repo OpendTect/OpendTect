@@ -48,7 +48,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
     view_->disableScrollZoom();
     view_->scene().addItem( worldgroup_ );
-    view_->setDragMode( uiGraphicsView::ScrollHandDrag );
+    view_->setDragMode( uiGraphicsView::NoDrag );
     view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setSceneBorder( 2 );

@@ -194,6 +194,12 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     }
     else if ( ev->button() == Qt::MiddleButton )
     {
+	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
+	startpos_ = uiPoint( viewpt.x, viewpt.y );
+	buttonstate_ = OD::MidButton;
+	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	mousehandler_.triggerButtonPressed( me );
+
 	if ( midmousebutfordrag_ )
 	{
 	    setDragMode( ScrollHandDrag );
@@ -240,6 +246,10 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
     }
     else if ( ev->button() == Qt::MiddleButton )
     {
+	buttonstate_ = OD::MidButton;
+	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	mousehandler_.triggerButtonReleased( me );
+	
 	if ( midmousebutfordrag_ )
 	    setDragMode( NoDrag );
     }

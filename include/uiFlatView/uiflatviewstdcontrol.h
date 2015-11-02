@@ -125,6 +125,7 @@ protected:
     uiToolButton*	cancelzoombut_;
     uiToolButton*	sethomezoombut_;
     uiToolButton*	gotohomezoombut_;
+    uiToolButton*	fittoscrnbut_;
     uiToolButton*	parsbut_;
     uiToolButton*	editbut_;
 
@@ -152,6 +153,7 @@ protected:
     void		aspectRatioCB(CallBacker*);
     void		keyPressCB(CallBacker*);
     void		homeZoomOptSelCB(CallBacker*);
+    void		fitToScreenCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*)	{}
     virtual void	wheelMoveCB(CallBacker*);

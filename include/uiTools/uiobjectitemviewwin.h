@@ -151,6 +151,7 @@ public :
 
     virtual uiToolBar*	toolBar() { return toolbar_;}
 
+    void		setRubberBandingOn(bool);
     void	        changeStatus();
 
 protected:
@@ -159,7 +160,6 @@ protected:
     uiToolBar*          toolbar_;
     uiToolButton*	manipdrawbut_;
     MouseCursor		cursor_;
-    bool		manip_;
 
     void		setToolButtons();
     void		stateCB(CallBacker*);
