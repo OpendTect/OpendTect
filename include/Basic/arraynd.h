@@ -266,13 +266,8 @@ bool ArrayNDIter::setGlobalPos( od_int64 globalidx )
     return sz_.getArrayPos(globalidx,position_);
 }
 
-
-#define mDefArrayNDConverter(nd) \
-template <class T, class TT> \
-class Array##nd##Conv : public Array##nd<T> \
-{ \
+#define mDefArrayNDStdMembers(nd) \
 public: \
- \
 			Array##nd##Conv(Array##nd<TT>* arr) \
 			    : arr_(arr)	{} \
 			~Array##nd##Conv()	{ delete arr_; } \
@@ -285,9 +280,17 @@ protected: \
  \
 public:
 
+#define mDefArrayNDConverter(nd) \
+template <class T, class TT> \
+class Array##nd##Conv : public Array##nd<T> \
+{ mDefArrayNDStdMembers(nd);
 
-mDefArrayNDConverter(1D)
 
+
+template <class T, class TT>
+class Array1DConv : public Array1D<T>
+{ mDefArrayNDStdMembers(1D);
+public:
     T			get( int p0 ) const
 					{ return (T)arr_->get( p0 ); }
     void		set( int p0, T v )
@@ -295,8 +298,10 @@ mDefArrayNDConverter(1D)
 
 };
 
-mDefArrayNDConverter(2D)
 
+template <class T, class TT>
+class Array2DConv : public Array2D<T>
+{ mDefArrayNDStdMembers(2D);
     T			get( int p0, int p1 ) const
 					{ return (T)arr_->get( p0, p1 ); }
     void		set( int p0, int p1, T v )
@@ -304,7 +309,9 @@ mDefArrayNDConverter(2D)
 
 };
 
-mDefArrayNDConverter(3D)
+template <class T, class TT>
+class Array3DConv : public Array3D<T>
+{ mDefArrayNDStdMembers(3D);
 
     T			get( int p0, int p1, int p2 ) const
 					{ return (T)arr_->get( p0, p1, p2 ); }

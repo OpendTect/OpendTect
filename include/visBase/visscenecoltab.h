@@ -28,7 +28,7 @@ namespace visBase
 class VisColorTab;
 
 mExpClass(visBase) SceneColTab : public VisualObjectImpl
-{
+{ mODTextTranslationClass(SceneColTab);
 public:
     static SceneColTab*	create()
 			mCreateDataObj(SceneColTab);
