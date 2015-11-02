@@ -326,7 +326,7 @@ void Horizon3DSeedPicker::processJunctions()
 
 bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
 {
-    if ( trackmode_ != DrawBetweenSeeds )
+    if ( trackmode_ != DrawBetweenSeeds && trackmode_ != DrawAndSnap )
 	return false;
 
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;
@@ -340,6 +340,14 @@ bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
 	hor3d->setZ( path[idx].tk_, val, true );
+	if ( trackmode_ == DrawAndSnap )
+	{
+	    hor3d->setAttrib( path[idx].tk_, EM::EMObject::sSeedNode(),
+		false, true );
+	    TypeSet<TrcKey> seed;
+	    seed += path[idx].tk_;
+	    tracker_.snapPositions( seed );
+	}
 
 	if ( path[idx].tk_.isUdf() || 
 	    !zrg.includes(path[idx].val_,false) || 

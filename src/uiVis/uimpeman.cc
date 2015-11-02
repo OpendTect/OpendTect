@@ -417,8 +417,11 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     seedpicker->setSectionID( emobj->sectionID(0) );
-    if ( clickcatcher_->info().isDoubleClicked() &&
-	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+    const bool dbclick = clickcatcher_->info().isDoubleClicked() && 
+	(seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
+    
+    if ( dbclick )
     {
 	seedpicker->endPatch( false );
 	cleanPatchDisplay();
@@ -452,7 +455,8 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()==0) )
     {
 	if ( trackedatsel &&
-	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) )
+	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) &&
+	     (seedpicker->getTrackMode()!=seedpicker->DrawAndSnap) )
 	{
 	    bool chanceoferror = false;
 	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
@@ -499,6 +503,7 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 
     const TrcKey node = clickcatcher_->info().getNode();
+
     Coord3 seedcrd;
     if ( !clickedonhorizon )
     {
@@ -512,6 +517,9 @@ void uiMPEMan::seedClick( CallBacker* )
 	seedcrd = hor->getCoord( node );
     }
 
+    if ( seedcrd.isUdf() )
+	mSeedClickReturn();
+
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
     const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
@@ -523,7 +531,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    clr = Color::Red();
 
     const Color sowclr=
-	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ?
+	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds || 
+	seedpicker->getTrackMode()==seedpicker->DrawAndSnap ?
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
 	 clickcatcher_->activateSower( sowclr, &seedpicker->getSeedPickArea()) )
@@ -628,7 +637,8 @@ void uiMPEMan::seedClick( CallBacker* )
     }
     else
     {
-	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
 	{
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
@@ -828,7 +838,8 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
 	const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );

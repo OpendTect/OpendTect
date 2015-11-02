@@ -280,6 +280,13 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
+    
+    if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds ||
+	seedpicker->getTrackMode()==EMSeedPicker::DrawAndSnap )
+	horpainter_->displayIntersection( false );
+    else
+	horpainter_->displayIntersection( true );
+
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds &&
 	 markerpos && !ctrlorshifclicked )
     {
@@ -313,7 +320,8 @@ void HorizonFlatViewEditor2D::doubleClickedCB( CallBacker* )
     if ( !seedpicker )
 	return;
 
-    if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds )
+    if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds ||
+	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	seedpicker->endPatch( false );
 	updatePatchDisplay();
@@ -400,11 +408,11 @@ void HorizonFlatViewEditor2D::redo()
 void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
 {
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
-    if ( !seedpicker )
+    if ( !seedpicker || !mehandler_ )
 	return;
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds && 
-	mehandler_ )
+     if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	const MouseEvent& mouseevent = mehandler_->event();
 	const bool doerase = 
@@ -621,7 +629,8 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 	const TrcKeyValue tkv2( getTrcKey(Coord(mev.x(),mev.y())), 0.f );
-	if ( spk.getTrackMode()==spk.DrawBetweenSeeds )
+	if ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
+	     spk.getTrackMode()==spk.DrawAndSnap )
 	{
 	    spk.addSeedToPatch( tkv );
 	    updatePatchDisplay();
