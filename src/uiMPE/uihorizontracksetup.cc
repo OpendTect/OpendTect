@@ -284,7 +284,8 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
 
     uiGroup* optiongrp = new uiGroup( grp, "Options");
-    betweenseedsfld_ = new uiCheckBox( optiongrp, tr("Between seeds") );
+    betweenseedsfld_ = new uiCheckBox( optiongrp,
+			tr("Between Seeds (coming soon)") );
     betweenseedsfld_->activated.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     snapfld_ = new uiCheckBox( optiongrp, tr("Snap to Event") );
