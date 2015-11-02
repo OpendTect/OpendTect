@@ -56,6 +56,8 @@ protected:
 
     bool		addToLogSet(Log*) const;
     bool		updateDTModel(D2TModel*,bool ischeckshot,
+					uiString& errmsg) const;
+    bool		updateDTModel(D2TModel*,bool ischeckshot,
 					BufferString& errmsg) const;
 			//!< D2TModel will become mine and may even be deleted
 

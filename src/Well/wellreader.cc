@@ -67,6 +67,27 @@ bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
 
 
 bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
+				      uiString& errmsg ) const
+
+{
+    uiString msg;
+    if ( !dtmodel || !dtmodel->ensureValid(wd_,msg) )
+    {
+	delete dtmodel;
+	errmsg = msg; // need translated string
+	return false;
+    }
+
+    if ( ischeckshot )
+	wd_.setCheckShotModel( dtmodel );
+    else
+	wd_.setD2TModel( dtmodel );
+
+    return true;
+}
+
+
+bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
 				      BufferString& errmsg ) const
 
 {
@@ -74,7 +95,7 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
     if ( !dtmodel || !dtmodel->ensureValid(wd_,msg) )
     {
 	delete dtmodel;
-	errmsg.set( msg.getFullString() ); // need translated string
+	errmsg = mFromUiStringTodo(msg); // need translated string
 	return false;
     }
 
@@ -679,7 +700,6 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	if ( !getTrack() || !getInfo() )
 	    return false;
     }
-
     if ( !updateDTModel(d2t,false,errmsg_) )
 	mErrRetStrmOper( sOperReadD2T )
 
