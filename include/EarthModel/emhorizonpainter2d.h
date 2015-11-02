@@ -41,6 +41,7 @@ public:
     TypeSet<float>&	getDistances()			{ return distances_; }
 
     void		paint();
+    void		displayIntersection(bool yn) { intersection_ = yn; }
 
 	mStruct(EarthModel)	Marker2D
 	{
@@ -85,6 +86,7 @@ protected:
 
     bool		linenabled_;
     bool		seedenabled_;
+    bool		intersection_;
 };
 
 } // namespace EM
