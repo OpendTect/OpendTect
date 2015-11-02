@@ -30,6 +30,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     , markerseeds_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
+    , intersection_(true)
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -129,6 +130,10 @@ bool HorizonPainter2D::addPolyLine()
 	    {
 		coorddefined = true;
 		newmarker = true;
+		const EM::PosID pid = EM::PosID(emobj->id(),sid,bid.toInt64());
+		if ( intersection_ )
+		    emobj->setPosAttrib(
+		    pid,EM::EMObject::sIntersectionNode(),true,false );
 	    }
 	    
 	    if ( newmarker )
@@ -164,6 +169,8 @@ bool HorizonPainter2D::addPolyLine()
 		    FlatView::Point( distances_[idx], z );
 	    
 	    bid.inl() = inlfromcs;
+	    emobj->removePosAttribList(
+		EM::EMObject::sIntersectionNode(), false );
 	}
     }
 
