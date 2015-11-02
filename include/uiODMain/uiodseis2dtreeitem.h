@@ -20,19 +20,28 @@ ________________________________________________________________________
 class uiMenu;
 class uiTaskRunner;
 
-mDefineItem( Line2DParent, TreeItem, TreeTop,
-	     mShowMenu bool handleSubMenu(int);
-	     bool loadDefaultData();
-	     bool selectLoadAttribute(const TypeSet<Pos::GeomID>&,
-				      const char* attrnm=sKeyRightClick());
-	     static const char* sKeyRightClick();
-	     static const char* sKeyUnselected();
-	     uiMenu* replaceattritm_;
-	     uiMenu* removeattritm_;
-	     uiMenu* dispattritm_;
-	     uiMenu* hideattritm_;
-	     uiMenu* editcoltabitm_;
-	     mMenuOnAnyButton )
+
+
+
+mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODLine2DParentTreeItem)
+    mDefineItemMembers( Line2DParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+    bool                handleSubMenu(int);
+    bool                loadDefaultData();
+    bool                selectLoadAttribute(const TypeSet<Pos::GeomID>&,
+                             const char* attrnm=sKeyRightClick());
+    static const char*  sKeyRightClick();
+    static const char*  sKeyUnselected();
+    uiMenu*             replaceattritm_;
+    uiMenu*             removeattritm_;
+    uiMenu*             dispattritm_;
+    uiMenu*             hideattritm_;
+    uiMenu*             editcoltabitm_;
+};
+
+
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(Line2DTreeItemFactory);

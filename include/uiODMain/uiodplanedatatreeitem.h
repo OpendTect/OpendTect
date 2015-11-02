@@ -77,7 +77,12 @@ protected:
 
 
 
-mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton )
+mExpClass(uiODMain) uiODInlineParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODInlineParentTreeItem);
+    mDefineItemMembers( InlineParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+};
 
 
 mExpClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
@@ -101,7 +106,12 @@ protected:
 };
 
 
-mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton )
+mExpClass(uiODMain) uiODCrosslineParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODCrossineParentTreeItem);
+    mDefineItemMembers( CrosslineParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+};
 
 
 mExpClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
@@ -125,7 +135,13 @@ protected:
 };
 
 
-mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton )
+
+mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODZsliceParentTreeItem);
+    mDefineItemMembers( ZsliceParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+};
 
 
 mExpClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory

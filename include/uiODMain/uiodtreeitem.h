@@ -91,19 +91,14 @@ public:
     return inheritedClass::anyButtonClick( lv ); \
 }
 
-
-#define mDefineItem( type, inherited, parentitem, extrapublic ) \
-mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
-{ mODTextTranslationClass(uiOD##type##TreeItem)\
+#define mDefineItemMembers( type, inherited, parentitem ) \
     typedef uiOD##inherited inheritedClass; \
-public: \
-    			uiOD##type##TreeItem(); \
-    extrapublic;	\
 protected: \
-    virtual const char*	iconName() const; \
-    const char* 	parentType() const \
-			{ return typeid(uiOD##parentitem).name();} \
-};
+virtual const char*	iconName() const; \
+const char* 	parentType() const \
+{ return typeid(uiOD##parentitem).name();} \
+public: \
+    			uiOD##type##TreeItem()
 
 
 #endif
