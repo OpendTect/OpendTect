@@ -879,12 +879,12 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
     }
 
+    setupgrp_->setSectionTracker( sectracker );
     setupgrp_->setMode( seedpicker->getTrackMode() );
     setupgrp_->setColor( emobj->preferredColor() );
     setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
-    setupgrp_->setSectionTracker( sectracker );
     MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();

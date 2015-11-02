@@ -289,48 +289,11 @@ void EMSeedPicker::setSeedPickArea( const TrcKeySampling& tks )
 const TrcKeySampling& EMSeedPicker::getSeedPickArea() const
 { return seedpickarea_; }
 
-int EMSeedPicker::nrTrackModes( bool is2d )
-{ return 3; }
-
 void EMSeedPicker::setTrackMode( TrackMode tm )
 { trackmode_ = tm; }
 
 EMSeedPicker::TrackMode EMSeedPicker::getTrackMode() const
 { return trackmode_; }
-
-
-EMSeedPicker::TrackMode EMSeedPicker::getTrackMode( int idx, bool is2d )
-{
-    if ( idx==0 ) return TrackFromSeeds;
-    if ( idx==1 ) return TrackBetweenSeeds;
-    return DrawBetweenSeeds;
-}
-
-
-int EMSeedPicker::getTrackModeIndex( TrackMode tm, bool is2d )
-{
-    if ( tm == TrackFromSeeds )
-	return 0;
-    if ( tm == TrackBetweenSeeds )
-	return 1;
-    if ( tm == DrawBetweenSeeds )
-	return 2;
-
-    return -1;
-}
-
-
-uiString EMSeedPicker::getTrackModeText( TrackMode mode, bool is2d )
-{
-    if ( mode==TrackFromSeeds )
-	return tr("Section Auto-track from seeds");
-    else if ( mode==TrackBetweenSeeds )
-	return tr("Snap between seeds");
-    else if ( mode==DrawBetweenSeeds )
-	return tr("Manual Draw");
-    else
-	return tr("Unknown mode");
-}
 
 
 const Undo& EMSeedPicker::horPatchUndo() const	{ return patchundo_; }

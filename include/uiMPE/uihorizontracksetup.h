@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uimpe.h"
 
 class uiButtonGroup;
+class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
 class uiSeisSel;
@@ -113,6 +114,8 @@ protected:
     void			seedModeChange(CallBacker*);
 
     uiButtonGroup*		modeselgrp_;
+    uiCheckBox*			betweenseedsfld_;
+    uiCheckBox*			snapfld_;
     uiGenInput*			methodfld_;
 
 // Event and Correlation Group

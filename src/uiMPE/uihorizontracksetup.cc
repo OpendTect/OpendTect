@@ -173,8 +173,13 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 {
     const bool stopped = engine().getState() == MPE::Engine::Stopped;
     const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
-    const bool doauto = mode_ == EMSeedPicker::TrackFromSeeds;
+    const bool doauto = mode_ == EMSeedPicker::TrackFromSeeds ||
+			mode_ == EMSeedPicker::TrackBetweenSeeds;
     const bool invol = !is2d_ && doauto;
+
+//    betweenseedsfld_->setSensitive( modeselgrp_->selectedId()==0 );
+    betweenseedsfld_->setSensitive( false ); // for time being
+    snapfld_->setSensitive( modeselgrp_->selectedId()==1 );
 
     methodfld_->setSensitive( doauto );
     eventgrp_->updateSensitivity( doauto );
@@ -270,15 +275,23 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     modeselgrp_->setExclusive( true );
     grp->setHAlignObj( modeselgrp_ );
 
-    const int nrmodes = EMSeedPicker::nrTrackModes( is2d_ );
-    for ( int idx=0; idx<nrmodes; idx++ )
-    {
-	EMSeedPicker::TrackMode md = EMSeedPicker::getTrackMode( idx, is2d_ );
-	uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
-		    EMSeedPicker::getTrackModeText(md,is2d_) );
-	butptr->activated.notify(
+    uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
+	tr("Section Auto-track") );
+    butptr->activated.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
-    }
+    butptr = new uiRadioButton( modeselgrp_, tr("Manual Draw") );
+    butptr->activated.notify(
+			mCB(this,uiHorizonSetupGroup,seedModeChange) );
+
+    uiGroup* optiongrp = new uiGroup( grp, "Options");
+    betweenseedsfld_ = new uiCheckBox( optiongrp, tr("Between seeds") );
+    betweenseedsfld_->activated.notify(
+			mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    snapfld_ = new uiCheckBox( optiongrp, tr("Snap to Event") );
+    snapfld_->activated.notify(
+			mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    snapfld_->attach( alignedBelow, betweenseedsfld_ );
+    optiongrp->attach( rightTo, modeselgrp_ );
 
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, modeselgrp_ );
@@ -400,9 +413,19 @@ void uiHorizonSetupGroup::selUseVariance( CallBacker* )
 
 void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
-    mode_ = EMSeedPicker::getTrackMode( modeselgrp_->selectedId(), is2d_ );
-    modeChanged_.trigger();
+    const int modeidx = modeselgrp_->selectedId();
+    if ( modeidx==0 )
+    {
+	mode_ = betweenseedsfld_->isChecked() ? EMSeedPicker::TrackBetweenSeeds
+					      : EMSeedPicker::TrackFromSeeds;
+    }
+    else
+    {
+	mode_ = snapfld_->isChecked() ? EMSeedPicker::DrawAndSnap
+				      : EMSeedPicker::DrawBetweenSeeds;
+    }
 
+    modeChanged_.trigger();
     updateButtonSensitivity();
 }
 
@@ -480,11 +503,18 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 
 void uiHorizonSetupGroup::initModeGroup()
 {
-    if ( EMSeedPicker::nrTrackModes(is2d_) > 0 )
-	modeselgrp_->selectButton( mode_ );
+    const int modeidx = mode_==EMSeedPicker::TrackFromSeeds ||
+			mode_==EMSeedPicker::TrackBetweenSeeds ? 0 : 1;
+    modeselgrp_->selectButton( modeidx );
 
-    methodfld_->setValue(
-	horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
+    betweenseedsfld_->setChecked( mode_==EMSeedPicker::TrackBetweenSeeds );
+    snapfld_->setChecked( mode_==EMSeedPicker::DrawAndSnap );
+
+    if ( horadj_ )
+	methodfld_->setValue(
+		horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
+
+    updateButtonSensitivity();
 }
 
 
@@ -513,15 +543,12 @@ void uiHorizonSetupGroup::initPropertyGroup()
 void uiHorizonSetupGroup::setMode( EMSeedPicker::TrackMode mode )
 {
     mode_ = mode;
-    modeselgrp_->selectButton( EMSeedPicker::getTrackModeIndex(mode,is2d_) );
+    initModeGroup();
 }
 
 
 EMSeedPicker::TrackMode uiHorizonSetupGroup::getMode() const
-{
-    return EMSeedPicker::getTrackMode(
-	modeselgrp_ ? modeselgrp_->selectedId() : 0, is2d_ );
-}
+{ return mode_; }
 
 
 void uiHorizonSetupGroup::setTrackingMethod( EventTracker::CompareMethod cm )
