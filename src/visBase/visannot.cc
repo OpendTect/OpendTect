@@ -143,14 +143,14 @@ Annotation::Annotation()
     gridlinecoords_->ref();
     updateTextPos();
 
-    getMaterial()->change.notify( mCB(this,Annotation,updateTextColor) );
+    mAttachCB( getMaterial()->change, Annotation::updateTextColor );
     getMaterial()->setColor( annotcolor_ );
 }
 
 
 Annotation::~Annotation()
 {
-    getMaterial()->change.remove( mCB(this,Annotation,updateTextColor) );
+    detachAllNotifiers();
     box_->unref();
     gridlinecoords_->unref();
     geode_->unref();
@@ -167,7 +167,7 @@ void Annotation::setScene( visBase::Scene* scene )
 
     scene_ = scene;
 
-    scene_->contextIsUp.notify( mCB(this,Annotation,firstTraversal) );
+    mAttachCB( scene_->contextIsUp, Annotation::firstTraversal );
 }
 
 
