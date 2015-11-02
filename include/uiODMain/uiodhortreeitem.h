@@ -95,9 +95,16 @@ protected:
 };
 
 
-mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-		void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
-		virtual void removeChild(uiTreeItem*) )
+mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODHorizon2DParentTreeItem);
+    mDefineItemMembers( Horizon2DParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+    void            sort();
+    virtual void    removeChild(uiTreeItem*);
+    bool            addChld(uiTreeItem* child, bool below, bool downwards );
+
+};
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory

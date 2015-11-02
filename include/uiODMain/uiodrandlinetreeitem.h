@@ -20,22 +20,29 @@ class IOObj;
 class uiRandomLinePolyLineDlg;
 namespace Geometry { class RandomLineSet; }
 
-mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
-    bool load(const IOObj&,int); \
-    bool addStored(int); \
-    void genRandLine(int); \
-    void genFromContours(); \
-    void genFromExisting(); \
-    void genFromPolygon(); \
-    void genFromTable(); \
-    void genFromWell(); \
-    void loadRandLineFromWell(CallBacker*); \
-    void genFromPicks(); \
-    void rdlPolyLineDlgCloseCB(CallBacker*); \
-    void removeChild(uiTreeItem*);\
-    uiRandomLinePolyLineDlg* rdlpolylinedlg_;
-    mMenuOnAnyButton
-)
+
+mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODTreeItem
+{
+    mODTextTranslationClass(uiODRandomLineParentTreeItem);
+    mDefineItemMembers( RandomLineParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+
+    bool			load(const IOObj&,int);
+    bool			addStored(int);
+    void			genRandLine(int);
+    void			genFromContours();
+    void			genFromExisting();
+    void			genFromPolygon();
+    void			genFromTable();
+    void			genFromWell();
+    void			loadRandLineFromWell(CallBacker*);
+    void			genFromPicks();
+    void			rdlPolyLineDlgCloseCB(CallBacker*);
+    void			removeChild(uiTreeItem*);
+    uiRandomLinePolyLineDlg*	rdlpolylinedlg_;
+};
+
 
 namespace visSurvey { class RandomTrackDisplay; }
 

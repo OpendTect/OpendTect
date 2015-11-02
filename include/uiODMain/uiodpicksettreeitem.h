@@ -19,10 +19,15 @@ ________________________________________________________________________
 namespace Pick		{ class Set; }
 
 
-mDefineItem( PickSetParent, TreeItem, TreeTop, \
-    ~uiODPickSetParentTreeItem(); \
-    void addPickSet(Pick::Set*);\
-    mShowMenu mMenuOnAnyButton )
+
+mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODPickSetParentTreeItem);
+    mDefineItemMembers( PickSetParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+    void addPickSet(Pick::Set*);
+    ~uiODPickSetParentTreeItem();
+};
 
 
 mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
@@ -68,10 +73,14 @@ protected:
 };
 
 
-mDefineItem( PolygonParent, TreeItem, TreeTop, \
-    ~uiODPolygonParentTreeItem(); \
-    void addPolygon(Pick::Set*);\
-    mShowMenu mMenuOnAnyButton )
+mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODPolygonParentTreeItem);
+    mDefineItemMembers( PolygonParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+    ~uiODPolygonParentTreeItem();
+    void addPolygon(Pick::Set*);
+};
 
 
 mExpClass(uiODMain) uiODPolygonTreeItemFactory : public uiODTreeItemFactory

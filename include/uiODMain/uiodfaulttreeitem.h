@@ -94,7 +94,12 @@ protected:
 };
 
 
-mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
+mExpClass(uiODMain) uiODFaultStickSetParentTreeItem : public uiODTreeItem
+{   mODTextTranslationClass(uiODFaultStickSetParentTreeItem)
+    mDefineItemMembers( FaultStickSetParent, TreeItem, TreeTop );
+    mShowMenu;
+    mMenuOnAnyButton;
+};
 
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory
