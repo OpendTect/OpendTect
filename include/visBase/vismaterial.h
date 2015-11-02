@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "visnodestate.h"
+#include "uistring.h"
 
 namespace osg {
     class Material;
@@ -34,7 +35,7 @@ namespace visBase
 */
 
 mExpClass(visBase) Material : public NodeState
-{
+{ mODTextTranslationClass(Material);
 public:
     			Material();
 
