@@ -1,0 +1,13 @@
+#!/bin/csh -f
+
+if ( $#argv > 0 ) then
+	set branchnm="$*"
+else
+	echo -n "Branch name: "
+	set branchnm="$<"
+endif
+
+git checkout master
+git pull --rebase
+git checkout "$branchnm"
+git rebase master
