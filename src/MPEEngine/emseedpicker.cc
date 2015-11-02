@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "emseedpicker.h"
 
 #include "emobject.h"
+#include "emhorizon2d.h"
 #include "emtracker.h"
 #include "horizonadjuster.h"
 #include "sectiontracker.h"
@@ -92,13 +93,26 @@ Coord3 Patch::seedCoord( int idx ) const
     if ( idx>=seeds_.size() || !emobj )
 	return Coord3::udf();
 
-    const TrcKey tck = seeds_[idx].tk_;
-    const EM::PosID pid =
-	EM::PosID( emobj->id(), emobj->sectionID(0), tck.pos().toInt64() );
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    const bool is2d = hor2d;
 
-    Coord3 pos = emobj->getPos( pid );
+    Coord3 pos = Coord3::udf();
+    if ( !is2d )
+    {
+	const TrcKey tck = seeds_[idx].tk_;
+	const EM::PosID pid =
+	    EM::PosID( emobj->id(),emobj->sectionID(0),tck.pos().toInt64() );
+	pos = emobj->getPos( pid );
+    }
+    else
+    {
+	if ( hor2d )
+	{
+	    TrcKey tck = seeds_[idx].tk_;
+	    pos = hor2d->getPos(emobj->sectionID(0), tck.geomID(), tck.trcNr());
+	}
+    }
     pos.z = seeds_[idx].val_;
-
     return pos;
 }
 
@@ -108,10 +122,7 @@ int Patch::addSeed( const TrcKeyValue& tckv )
     const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
 
     BinID dir;
-    if ( !emobj ||
-	 !tckv.isDefined() ||
-	 seeds_.indexOf(tckv) !=-1 ||
-	 !seedpicker_->lineTrackDirection(dir) )
+    if ( !emobj || !tckv.isDefined() || seeds_.indexOf(tckv) !=-1 )
 	return -1;
 
     if ( seeds_.size()==0 )
@@ -120,20 +131,35 @@ int Patch::addSeed( const TrcKeyValue& tckv )
 	return seeds_.size()-1;
     }
 
-    const bool crdir = dir.col()>0;
-    const EM::PosID pid =
-	EM::PosID( emobj->id(),emobj->sectionID(0),tckv.tk_.pos().toInt64() );
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    const bool is2d = hor2d;
 
-    int idx = findClosedSeed( pid );
-    if ( tckv.tk_==seeds_[idx].tk_ )
-	return -1;
+    int idx = 0;
+    if ( !is2d )
+    {
+	if ( !seedpicker_->lineTrackDirection(dir) )
+	    return -1;
+	const bool crdir = dir.col()>0;
+	const EM::PosID pid =
+	    EM::PosID(emobj->id(),emobj->sectionID(0),tckv.tk_.pos().toInt64());
 
-    const EM::PosID& pos = seedNode( idx );
-    const int curval=crdir ? pid.getRowCol().col() : pid.getRowCol().row();
-    const int posval=crdir ? pos.getRowCol().col() : pos.getRowCol().row();
+	idx = findClosedSeed3d( pid );
+	if ( tckv.tk_==seeds_[idx].tk_ )
+	    return -1;
 
-    if ( curval>=posval && seeds_.size()<curval )
-	idx++;
+	const EM::PosID& pos = seedNode( idx );
+	const int curval=crdir ? pid.getRowCol().col() : pid.getRowCol().row();
+	const int posval=crdir ? pos.getRowCol().col() : pos.getRowCol().row();
+
+	if ( curval>=posval && seeds_.size()<curval )
+	    idx++;
+    }
+    else
+    {
+	idx = findClosedSeed2d( tckv );
+	if ( tckv.trcNr()>= seeds_[idx].trcNr() )
+	    idx++;
+    }
 
     seeds_.insert( idx, tckv );
     return idx;
@@ -148,15 +174,19 @@ void Patch::removeSeed( int idx )
 }
 
 
-
 #define nMaxInteger 2109876543
-int Patch::findClosedSeed( const EM::PosID& pid )
+int Patch::findClosedSeed3d( const EM::PosID& pid )
 {
     BinID dir;
-    if ( seeds_.size()==0 || !seedpicker_->lineTrackDirection(dir) )
+    if ( seeds_.size()==0  )
 	return 0;
 
-    const bool crdir = dir.col()>0;
+    bool crdir = false;
+    if ( !seedpicker_->lineTrackDirection(dir) )
+	crdir = true;
+    else
+	crdir = dir.col()>0;
+
     int mindiff = nMaxInteger;
     int minidx = 0;
     for ( int idx=0; idx<seeds_.size(); idx++ )
@@ -172,6 +202,24 @@ int Patch::findClosedSeed( const EM::PosID& pid )
     }
     return minidx;
 
+}
+
+
+int Patch::findClosedSeed2d( const TrcKeyValue& tkv )
+{
+    int mindiff = nMaxInteger;
+    int minidx = 0;
+    for ( int idx=0; idx<seeds_.size(); idx++ )
+    {
+	const TrcKeyValue stkv = seeds_[idx];
+	if ( abs(stkv.tk_.trcNr()-tkv.tk_.trcNr())< mindiff )
+	{
+	    mindiff = abs(stkv.tk_.trcNr()-tkv.tk_.trcNr());
+	    minidx = idx;
+	}
+    }
+
+    return minidx;
 }
 
 

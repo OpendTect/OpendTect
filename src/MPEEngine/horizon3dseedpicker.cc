@@ -326,7 +326,7 @@ void Horizon3DSeedPicker::processJunctions()
 
 bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
 {
-    if ( trackmode_ != DrawBetweenSeeds )
+    if ( trackmode_ != DrawBetweenSeeds && trackmode_ != DrawAndSnap )
 	return false;
 
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;
@@ -334,26 +334,30 @@ bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
     TypeSet<TrcKeyValue> path = patch_->getPath();
     mGetHorizon( hor3d, false )
 
+    seedlist_.erase();
+    hor3d->setBurstAlert( true );
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
 	hor3d->setZ( path[idx].tk_, val, true );
-    }
+	if ( trackmode_ == DrawAndSnap )
+	{
+	    hor3d->setAttrib( path[idx].tk_, EM::EMObject::sSeedNode(),
+		false, true );
+	    TypeSet<TrcKey> seed;
+	    seed += path[idx].tk_;
+	    tracker_.snapPositions( seed );
+	}
 
-    for ( int idx=0; idx<patch_->nrSeeds()-1; idx++ )
-    {
-	if ( path[idx].tk_.isUdf() || path[idx+1].tk_.isUdf() )
-	    continue;
-
-	if ( !zrg.includes(path[idx].val_,false) || 
-	     !hrg.includes(path[idx].tk_) )
+	if ( path[idx].tk_.isUdf() || 
+	    !zrg.includes(path[idx].val_,false) || 
+	    !hrg.includes(path[idx].tk_) )
 	continue;
-	seedlist_.erase();
 	seedlist_ += path[idx].tk_;
-	seedlist_ += path[idx+1].tk_;
-	interpolateSeeds();
     }
 
+    interpolateSeeds();
+    hor3d->setBurstAlert( false );
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
     return true;
 }

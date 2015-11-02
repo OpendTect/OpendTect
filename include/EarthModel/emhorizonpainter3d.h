@@ -43,6 +43,7 @@ public:
     void		enableSeed(bool);
 
     void		paint();
+    void		displayIntersection(bool yn) { intersection_ = yn; }
 
     	mStruct(EarthModel) Marker3D
 	{
@@ -95,6 +96,7 @@ protected:
     bool		linenabled_;
     bool		seedenabled_;
     int			nrseeds_;
+    bool		intersection_;
 };
 
 } //namespace EM

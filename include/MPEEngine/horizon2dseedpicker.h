@@ -46,6 +46,7 @@ public:
     bool		reTrack();
 
     bool		doesModeUseVolume() const;
+    bool		updatePatchLine(bool);
 
 protected:
 

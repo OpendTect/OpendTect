@@ -80,8 +80,15 @@ protected:
 				       EMSeedPicker&,const FlatDataPack&) const;
     bool		getPosID(const Coord3&, EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
-				  const MouseEvent&) const;
+				  const MouseEvent&);
     TrcKey		getTrcKey(const Coord&) const;
+    void		setupPatchDisplay();
+    void		updatePatchDisplay();
+    void		sowingFinishedCB(CallBacker*);
+    void		keyPressedCB(CallBacker*);
+    void		undo();
+    void		redo();
+    EMSeedPicker*	getEMSeedPicker() const;
 
 	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{
@@ -111,6 +118,8 @@ protected:
     bool			trackersetupactive_;
     TrcKey			pickedpos_;
     mutable bool		dodropnext_;
+    FlatView::AuxData*		patchdata_;
+
 };
 
 } // namepace MPE

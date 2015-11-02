@@ -417,8 +417,11 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     seedpicker->setSectionID( emobj->sectionID(0) );
-    if ( clickcatcher_->info().isDoubleClicked() &&
-	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+    const bool dbclick = clickcatcher_->info().isDoubleClicked() && 
+	(seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
+    
+    if ( dbclick )
     {
 	seedpicker->endPatch( false );
 	cleanPatchDisplay();
@@ -511,7 +514,8 @@ void uiMPEMan::seedClick( CallBacker* )
     {
 	seedcrd = hor->getCoord( node );
     }
-
+    if ( seedcrd.isUdf() )
+	mSeedClickReturn();
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
     const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
@@ -523,7 +527,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    clr = Color::Red();
 
     const Color sowclr=
-	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ?
+	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds || 
+	seedpicker->getTrackMode()==seedpicker->DrawAndSnap ?
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
 	 clickcatcher_->activateSower( sowclr, &seedpicker->getSeedPickArea()) )
@@ -628,7 +633,8 @@ void uiMPEMan::seedClick( CallBacker* )
     }
     else
     {
-	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
 	{
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
@@ -828,7 +834,8 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds )
+    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
 	const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
@@ -877,9 +884,11 @@ void uiMPEMan::validateSeedConMode()
 void uiMPEMan::cleanPatchDisplay()
 {
     visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    if ( hor && hor->getEditor() )
+    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
+    if ( hor || hor2d )
     {
-	visSurvey::MPEEditor* editor = hor->getEditor();
+	visSurvey::MPEEditor* editor = 
+	    hor ? hor->getEditor() : hor2d->getEditor();
 	editor->cleanPatch();
     }
 }
@@ -903,6 +912,17 @@ void uiMPEMan::undo()
 	if ( !undoerrmsg.isEmpty() )
 	    uiMSG().message( undoerrmsg );
     }
+    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
+    if ( hor )
+    {
+	hor->requestSingleRedraw();
+	return;
+    }
+
+    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
+    if ( hor2d )
+	hor2d->requestSingleRedraw();
+
 }
 
 
@@ -932,12 +952,13 @@ void uiMPEMan::updatePatchDisplay()
 	return;
 
     visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    if ( hor && hor->getEditor() )
+    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
+    if ( hor || hor2d )
     {
-	visSurvey::MPEEditor* editor = hor->getEditor();
-	editor->displayPatch( seedpicker->getPatch() );
+	visSurvey::MPEEditor* editor = 
+	    hor ? hor->getEditor() : hor2d->getEditor();
+	editor->displayPatch(seedpicker->getPatch());
     }
-
 }
 
 
