@@ -1,5 +1,5 @@
 #ifndef uichecklist_h
-#define uigeninput_impl_h
+#define uichecklist_h
 
 /*+
 ________________________________________________________________________
