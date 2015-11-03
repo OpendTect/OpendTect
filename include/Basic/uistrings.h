@@ -35,12 +35,16 @@ public:
     //!<"Calculate from <string>"
     static uiString phrCannotAdd(const uiString&);
     //!<"Cannot Add <string>"
+    static uiString phrCannotCopy(const uiString&);
+    //!<"Cannot Copy <string>"
     static uiString phrCannotCreate(const uiString& string);
     //!<"Cannot create <string>"
     static uiString phrCannotCreateDBEntryFor(const uiString& string);
     //!<"Cannot create database entry for <string>"
     static uiString phrCannotCreateDirectory(const uiString& string);
     //!<"Cannot create directory <string>"
+    static uiString phrCannotEdit(const uiString&);
+    //!<"Cannot edit <string>"
     static uiString phrCannotExtract(const uiString&);
     //!<"Cannot extract <string>"
     static uiString phrCannotFind(const uiString& string);
@@ -49,6 +53,8 @@ public:
     //!<"Cannot find database entry for
     static uiString phrCannotImport(const uiString&);
     //!"Cannot Import <string>"
+    static uiString phrCannotLoad(const uiString&);
+    //!"Cannot Load <string>"
     static uiString phrCannotOpen(const uiString& string);
     //!<"Cannot open <string>"
     static uiString phrCannotRead(const uiString& string);
@@ -66,6 +72,8 @@ public:
     static uiString phrCannotWriteDBEntry(const uiString&);
     static uiString phrCannotStart(const uiString&);
     //!<"Cannot Start <string>"
+    static uiString phrCheck(const uiString&);
+    //!<"Check <string>"
     static uiString phrCreateNew(const uiString&);
     //!<"Create New <string>"
     static uiString phrCrossline(const uiString&);
@@ -114,6 +122,8 @@ public:
     static uiString phrMerge(const uiString&);
     //!<"Merge <string>"
     static uiString phrModify(const uiString&);
+    //!<"Modify <string>"
+    static uiString phrOpen(const uiString&);
     //!<"Modify <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
@@ -166,7 +176,7 @@ public:
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAlignment()	{ return tr("OD::Alignment"); }
     static uiString sAll()		{ return tr("All"); }
-    static uiString sAmplitude()	{ return tr("Amplitude"); }
+    static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sASCII();
@@ -198,10 +208,15 @@ public:
     static uiString sCantOpenInpFile(int num=1);
     static uiString sCantOpenOutpFile(int num=1);
     static uiString sCannotAdd();
+    static uiString sCannotCopy();
+    static uiString sCannotEdit();
+    static uiString sCannotLoad();
+    static uiString sCannotRemove();
     static uiString sCannotSave();
     static uiString sCannotStart();
     static uiString sCannotWrite();
     static uiString sCannotUnZip();
+    static uiString sCheck();
     static uiString sCannotZip();
     static uiString sCreateNew();
     static uiString sCreateOutput();
@@ -289,7 +304,7 @@ public:
     static uiString sInvalid();
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
     static uiString sLat()		{ return tr("Latitude"); }
-    static uiString sLayer()		{ return tr("Layer"); }
+    static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLeft()		{ return tr("Left"); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
@@ -407,7 +422,7 @@ public:
     static uiString sStorageDir();
     static uiString sStored();
     static uiString sStratigraphy();
-    static uiString sSurface()		{ return tr("Surface"); }
+    static uiString sSurface(int num=1)	{ return tr("Surface",0,num); }
     static uiString sSurvey(int num=1)  { return tr("Survey",0,num); }
     static uiString sSurveys()		{ return sSurvey(mPlural); }
     static uiString sTakeSnapshot()	{ return tr("Take Snapshot"); }
@@ -436,7 +451,7 @@ public:
     static uiString sValue(int num=1)	{ return tr("Value",0,num); }
     static uiString sVelocity()		{ return tr("Velocity"); }
     static uiString sVertical()		{ return tr("Vertical"); }
-    static uiString sVolume();
+    static uiString sVolume(int num=1);
     static uiString sView()		{ return tr("View"); }
     static uiString sUseSingleColor()	{ return tr("Use Single Color"); }
     static uiString sWarning()		{ return tr("Warning"); }
