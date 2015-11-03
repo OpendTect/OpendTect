@@ -38,7 +38,7 @@ uiVolProcPartServer::~uiVolProcPartServer()
 }
 
 
-void uiVolProcPartServer::doVolProc( const MultiID* mid )
+void uiVolProcPartServer::doVolProc( const MultiID* mid, const char* steptype )
 {
     if ( !volprocchain_ )
     {
@@ -75,6 +75,8 @@ void uiVolProcPartServer::doVolProc( const MultiID* mid )
 
     volprocchaindlg_->raise();
     volprocchaindlg_->show();
+    if ( steptype )
+	volprocchaindlg_->addStep( steptype );
 }
 
 

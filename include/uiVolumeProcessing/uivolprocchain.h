@@ -40,6 +40,7 @@ public:
     void			setChain(Chain&);
     const Chain&		getChain() const	{ return chain_; }
     const MultiID&		storageID() const;
+    void			addStep(const char* steptype);
 
     static const char*		pixmapFileName()    { return "volproc"; }
 
