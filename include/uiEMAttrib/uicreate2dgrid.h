@@ -25,8 +25,8 @@ class uiBatchJobDispatcherSel;
 class uiCheckBox;
 class uiGenInput;
 class uiGrid2DMapObject;
+class uiHorizonParSel;
 class uiIOObjSel;
-class uiIOObjSelGrp;
 class uiLabel;
 class uiPosSubSel;
 class uiSeisSel;
@@ -147,7 +147,7 @@ protected:
     uiLabel*			nrcrlinesfld_;
 
     uiCheckBox*			horcheckfld_;
-    uiIOObjSelGrp*		horselfld_;
+    uiHorizonParSel*		horselfld_;
     uiGenInput*			hornmfld_;
     uiBatchJobDispatcherSel*	batchfld_;
 
