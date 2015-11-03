@@ -263,8 +263,6 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
 
     if ( setupgrp_ )
 	seedpicker->setTrackMode( setupgrp_->getMode() );
-
-    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
 }
 
 
@@ -567,22 +565,22 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 
 uiString uiMPEPartServer::sYesAskGoOnStr()
 {
-    return tr("This object has saved tracker settings.\n" 
+    return tr("This object has saved tracker settings.\n"
 				    "Do you want to verify / change them?");
 }
 
 
 uiString uiMPEPartServer::sNoAskGoOnStr()
 {
-    return tr("This object was created by manual drawing\n" 
-			    "only, or its tracker settings were not saved.\n" 
+    return tr("This object was created by manual drawing\n"
+			    "only, or its tracker settings were not saved.\n"
 			    "Do you want to specify them right now?" );
 }
 
 
 #define mAskGoOnStr(setupavailable) \
     ( setupavailable ? sYesAskGoOnStr() : sNoAskGoOnStr() )\
-	
+
 
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 					const EM::SectionID& sid )
@@ -864,21 +862,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
 
-    if ( freshdlg )
-    {
-	seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
-
-	if ( cursceneid_ != -1 )
-	    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
-    }
-    else
-    {
-	const bool setupavailable = sectracker &&
-				    sectracker->hasInitializedSetup();
-	if ( !setupavailable )
-	    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
-    }
-
+    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
     setupgrp_->setSectionTracker( sectracker );
     setupgrp_->setMode( seedpicker->getTrackMode() );
     setupgrp_->setColor( emobj->preferredColor() );
