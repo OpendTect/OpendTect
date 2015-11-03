@@ -48,12 +48,12 @@ ScaleBar::ScaleBar()
 
     Geometry::RangePrimitiveSet* ps = Geometry::RangePrimitiveSet::create();
     ps->setRange( Interval<int>(0,1) );
-   
+
     lines_->addPrimitiveSet( ps );
     lines_->setMaterial( 0 );
     lines_->ref();
     addChild( lines_->osgNode() );
-    
+
     linestyle_ = lines_->addNodeState( new visBase::DrawStyle );
     linestyle_->ref();
     setLineWidth( 2 );
@@ -110,15 +110,15 @@ void ScaleBar::setPick( const Pick::Location& loc )
 
 void ScaleBar::updateVis( const Pick::Location& loc )
 {
-    if ( !loc.pos_.isDefined() )
+    if ( !loc.pos_.isDefined() || loc.dir_==Sphere() )
 	return;
 
     pos_ = loc.pos_;
     const Coord3 pos2 = getSecondPos( loc );
-    
+
     markers_->setPos( 0, pos_ );
     markers_->setPos( 1, pos2 );
-        
+
     lines_->getCoordinates()->setPos( 0, pos_ );
     lines_->getCoordinates()->setPos( 1, pos2 );
     lines_->dirtyCoordinates();

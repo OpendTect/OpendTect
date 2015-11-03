@@ -285,9 +285,11 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	{
 	    if ( eventinfo.type==visBase::MouseClick )
 	    {
+		const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
+		const Pick::Location undoloc( undoloccoord_, dir );
+		const Pick::Location newloc( newpos, dir );
 		set_->moveWithUndo(
-		    waitsforpositionid_,Pick::Location(undoloccoord_),
-		    Pick::Location(newpos) );
+		    waitsforpositionid_, undoloc, newloc );
 		Pick::Mgr().undo().setUserInteractionEnd(
 		    Pick::Mgr().undo().currentEventID() );
 		undomove_ = false;

@@ -48,7 +48,7 @@ ScaleBarDisplay::ScaleBarDisplay()
 
 ScaleBarDisplay::~ScaleBarDisplay()
 {}
-  
+
 
 
 //
@@ -153,9 +153,15 @@ visBase::VisualObject* ScaleBarDisplay::createLocation() const
     sb->setDisplayTransformation( displaytransform_ );
     return sb;
 }
-	
+
 
 void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
+{
+    setPosition( idx, loc, true );
+}
+
+
+void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc, bool add)
 {
     const Coord3 normal = spherical2Cartesian( loc.dir_, true );
     const bool pickedonz = mIsEqual(normal.z,1,mDefEps);
@@ -163,7 +169,7 @@ void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 	setOnInlCrl( !pickedonz );
     else if ( pickedonz == oninlcrl_ )
 	return;
-   
+
     mDynamicCastGet(visBase::ScaleBar*,sb,group_->getObject(idx));
     if ( sb )
 	sb->setPick( loc );
