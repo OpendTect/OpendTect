@@ -38,7 +38,7 @@ class PlaneDraggerCallbackHandler : public osgManipulator::DraggerCallback
 public:
 
     PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )  
-	: dragger_( dragger )						{}
+	: dragger_( dragger ), moved_(false) {}
 
     using			osgManipulator::DraggerCallback::receive;
     virtual bool		receive(const osgManipulator::MotionCommand&);
@@ -51,6 +51,7 @@ protected:
 
     osg::Matrix			initialosgmatrix_;
     Coord3			initialcenter_;
+    bool			moved_;
 };
 
 
@@ -88,11 +89,13 @@ bool PlaneDraggerCallbackHandler::receive(
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
     {
+	moved_ = true;
 	constrain( translatedinline || translatedinplane );
 	dragger_.motion.trigger();
     }
-    else if ( cmd.getStage()==osgManipulator::MotionCommand::FINISH )
+    else if ( moved_ && cmd.getStage()==osgManipulator::MotionCommand::FINISH )
     {
+	moved_ = false;
 	dragger_.finished.trigger();
 	if ( initialosgmatrix_ != dragger_.osgdragger_->getMatrix() )
 	    dragger_.changed.trigger();
