@@ -48,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispartserv.h"
 #include "visrandomtrackdisplay.h"
 #include "visrgbatexturechannel2rgba.h"
+#include "visselman.h"
 #include "od_helpids.h"
 
 
@@ -269,7 +270,10 @@ void uiODRandomLineParentTreeItem::genFromTable()
 
 	TypeSet<BinID> newbids;
 	table->getBinIDs( newbids );
+
+	NotifyStopper notifystopper( visBase::DM().selMan().updateselnotifier );
 	rtd->getRandomLine()->setNodePositions( newbids );
+	notifystopper.restore();
 
 	table->getZRange( zrg );
 	zrg.scale( 1.f/SI().zDomain().userFactor() );
@@ -598,17 +602,24 @@ void uiODRandomLineTreeItem::editNodes()
     if ( !dlg.go() )
 	return;
 
+    rtd->annotateNextUpdateStage( true );
+
     TypeSet<BinID> newbids;
     table->getBinIDs( newbids );
+
+    NotifyStopper notifystopper( visBase::DM().selMan().updateselnotifier );
     rtd->getRandomLine()->setNodePositions( newbids );
+    notifystopper.restore();
 
     table->getZRange( zrg );
     zrg.scale( 1.f/SI().zDomain().userFactor() );
     rtd->setDepthInterval( zrg );
 
     visserv_->setSelObjectId( rtd->id() );
+    rtd->annotateNextUpdateStage( true );
     for ( int attrib=0; attrib<visserv_->getNrAttribs(rtd->id()); attrib++ )
 	visserv_->calculateAttrib( rtd->id(), attrib, false );
+    rtd->annotateNextUpdateStage( false );
 
     ODMainWin()->sceneMgr().updateTrees();
 }
