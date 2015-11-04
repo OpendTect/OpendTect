@@ -2241,7 +2241,7 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 	}
     }
 
-    markerset_->setScreenSize(lst.width_/2);
+    markerset_->setScreenSize(((float) lst.width_)/2.0f);
 
     return oldline;
 }
