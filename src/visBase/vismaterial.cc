@@ -37,7 +37,6 @@ const char* Material::sKeyTransparency()	{ return "Transparency"; }
 #define mGetReadLock(nm) \
     Threads::Locker nm( lock_, Threads::Locker::ReadLock )
 
-#define mChangeTrigger if ( shouldtrigger_ ) change.trigger();
 
 Material::Material()
     : material_( addAttribute(new osg::Material) )
@@ -50,7 +49,6 @@ Material::Material()
     , change( this )
     , colorbindtype_( 1 )
     , transparencybendpower_ ( 1.0 )
-    , shouldtrigger_( true )
 {
     material_->ref();
     setColorMode( Off );
@@ -70,8 +68,10 @@ Material::~Material()
 void Material::setFrom( const Material& mat, bool trigger )
 {
     if ( mat.osgcolorarray_ )
+    {
 	setColorArray(
 	mGetOsgVec4Arr(mat.osgcolorarray_->clone(osg::CopyOp::DEEP_COPY_ALL)) );
+    }
 
     setPropertiesFrom( mat, trigger );
 }
@@ -79,7 +79,6 @@ void Material::setFrom( const Material& mat, bool trigger )
 
 void Material::setPropertiesFrom( const Material& mat,bool trigger )
 {
-    shouldtrigger_ = trigger;
     mGetWriteLock( lckr );
     mSetProp( diffuseintensity_ );
     mSetProp( ambience_ );
@@ -88,19 +87,22 @@ void Material::setPropertiesFrom( const Material& mat,bool trigger )
     mSetProp( shininess_ );
     mSetProp( color_ );
     updateOsgMaterial();
+
+    lckr.unlockNow();
+
+    if ( trigger ) change.trigger();
 }
 
 
-void Material::setColors( const TypeSet<Color>& colors, bool synchronizing )
+void Material::setColors( const TypeSet<Color>& colors, bool trigger )
 {
-    shouldtrigger_ = synchronizing;
     //Loop backwards to allocate the memory at first call
     for ( int idx=colors.size()-1; idx>=0; idx-- )
-        setColor( colors[idx], idx );
+        setColor( colors[idx], idx, trigger );
 }
 
 
-void Material::setColor( const Color& n, int idx )
+void Material::setColor( const Color& n, int idx, bool trigger )
 {
     mGetWriteLock( lckr );
 
@@ -109,7 +111,7 @@ void Material::setColor( const Color& n, int idx )
 	color_ = n;
 	updateOsgMaterial();
 	lckr.unlockNow();
-	mChangeTrigger
+	if ( trigger ) change.trigger();
 	return;
     }
 
@@ -127,7 +129,7 @@ void Material::setColor( const Color& n, int idx )
     }
 
     lckr.unlockNow();
-    mChangeTrigger
+    if ( trigger ) change.trigger();
 }
 
 
@@ -204,7 +206,7 @@ void Material::setTransparency( float n, int idx, bool update )
     }
 
     lckr.unlockNow();
-    mChangeTrigger
+    change.trigger();
 }
 
 
@@ -279,7 +281,7 @@ void Material::set##func( Type n ) \
     var = n; \
     updateOsgMaterial(); \
     lck.unlockNow();\
-    mChangeTrigger\
+    change.trigger();\
 } \
 Type Material::get##func() const \
 { \

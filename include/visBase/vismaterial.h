@@ -46,7 +46,7 @@ public:
     void		setPropertiesFrom(const Material&, bool trigger= false);
 			/*!< set materials by input material's properties */
     void		setColors(const TypeSet<Color>&,
-				  bool synchronizing = true);
+				  bool trigger = true);
 			/*!< set material's od colors by input colors. */
 
 
@@ -56,7 +56,7 @@ public:
     void		setColorMode( ColorMode );
     ColorMode		getColorMode() const;
 
-    void		setColor(const Color&,int=-1);
+    void		setColor(const Color&,int=-1,bool trigger=true);
 			/*!< set material's od colors by input colors.
 			using setColors() to instead of this calling
 			if having to setColor many times. */
@@ -146,7 +146,6 @@ private:
     osg::Array*			osgcolorarray_;
     ObjectSet<osg::Geometry>	attachedgeoms_;
     float			transparencybendpower_;
-    bool			shouldtrigger_;
 };
 
 } // namespace visBase
