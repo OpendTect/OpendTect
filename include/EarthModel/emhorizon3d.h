@@ -145,7 +145,10 @@ public:
 					const TrcKeySampling& hs);
 
 
-    TrcKey::SurvID		getSurveyID() const;
+    Pos::GeomID			getSurveyGeomID() const { return survgeomid_; }
+    				//!A 3D Horizon is locked to one survey
+    				//!Geometry
+    void			setSurveyGeomID(Pos::GeomID);
 
     uiString			getUserTypeStr() const { return userTypeStr(); }
     static uiString		userTypeStr()
@@ -200,11 +203,14 @@ protected:
     Color			selectioncolor_;
     Color			lockcolor_;
 
+    Pos::GeomID			survgeomid_;
+
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;
 				//!< Fast: reads from the first section
     /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+    TrcKey::SurvID		getSurveyID() const {return getSurveyGeomID();}
 };
 
 

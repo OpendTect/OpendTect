@@ -125,7 +125,7 @@ void MarkerSet::clearMarkers()
     if ( coords_ ) coords_->setEmpty();
     if ( normals_ ) normals_->clear();
     if ( material_ ) material_->clear();
-
+    markerset_->forceRedraw( true );
 }
 
 

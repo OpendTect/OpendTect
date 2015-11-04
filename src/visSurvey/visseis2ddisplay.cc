@@ -218,6 +218,27 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 }
 
 
+void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res ) const
+{
+    if ( !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.start ) ||
+	 !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.stop ) )
+	return;
+
+    for ( int idx=trcdisplayinfo_.rg_.start;
+	  idx<=trcdisplayinfo_.rg_.stop;
+	  idx++ )
+    {
+	res += TrcKey( geomid_, trcdisplayinfo_.alltrcnrs_[idx] );
+    }
+}
+
+
+Interval<float> Seis2DDisplay::getDataTraceRange() const
+{
+    return getZRange( false, -1 );
+}
+
+
 StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 {
     if ( !datatransform_ || !displayspace )

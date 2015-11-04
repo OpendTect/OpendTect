@@ -25,9 +25,11 @@ namespace visBase
 {
     class HorizonSection;
     class HorizonTextureHandler;
+    class MarkerSet;
     class PointSet;
     class TextureChannel2RGBA;
     class VertexShape;
+    class PolyLine;
 }
 
 
@@ -196,7 +198,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-protected:
+private:
 				~HorizonDisplay();
     void			removeEMStuff();
 
@@ -220,17 +222,6 @@ protected:
 				    int whichobj );
     void			updateSingleColor();
 
-    void			traverseLine(bool oninline,
-				    const TrcKeyZSampling& cs,
-				    EM::SectionID sid,
-				    visBase::VertexShape*,
-				    int& cii,
-				    visBase::DataObjectGroup*) const;
-    void			drawHorizonOnRandomTrack(const TypeSet<Coord>&,
-				    const StepInterval<float>&,
-				    const EM::SectionID&,
-				    visBase::VertexShape*, int&,
-				    visBase::DataObjectGroup*) const;
 
     void			initSelectionDisplay(bool erase);
     virtual void		updateSelections();
@@ -244,11 +235,46 @@ protected:
     TypeSet<BufferString>		secnames_;
     TypeSet<EM::SectionID>		sids_;
 
-    ObjectSet<visBase::VertexShape>	intersectionlines_;
-    ObjectSet<visBase::DataObjectGroup>	intersectionpointsets_;
+    struct IntersectionData
+    {
+				IntersectionData(const OD::LineStyle&);
+				~IntersectionData();
+	void			addLine(const TypeSet<Coord3>&);
+	void			clear();
+
+	void			setPixelDensity(float);
+	void			setDisplayTransformation(const mVisTrans*);
+	void 			updateDataTransform(const TrcKeyZSampling&,
+						   ZAxisTransform*);
+        void			setSceneEventCatcher(visBase::EventCatcher*);
+        void			setMaterial(visBase::Material*);
+	RefMan<visBase::VertexShape> setLineStyle(const OD::LineStyle&);
+    				//Returns old line if replaced
+
+
+        visBase::VertexShape*		line_;
+        visBase::MarkerSet*		markerset_;
+        ZAxisTransform*			zaxistransform_;
+        int				voiid_;
+    };
+
+    IntersectionData*		getOrCreateIntersectionData(
+	    			     ObjectSet<IntersectionData>& pool );
+    				//!<Return data from pool or creates new
+
+    void			traverseLine(const TrcKeyPath&,
+	    				     const Interval<float>& zrg,
+                                 	     EM::SectionID,
+					     IntersectionData&) const;
+    void			drawHorizonOnZSlice(const TrcKeyZSampling&,
+					     const EM::SectionID&,
+					     IntersectionData&) const;
+
+
+    ManagedObjectSet<IntersectionData>	intersectiondata_;
+    					//One per object we intersect with
+
     float				maxintersectionlinethickness_;
-    TypeSet<int>			intersectionlineids_;
-    TypeSet<int>			intersectionlinevoi_;
     visBase::Material*			intersectionlinematerial_;
 
     visBase::PointSet*			selections_;

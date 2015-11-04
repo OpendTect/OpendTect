@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapack.h"
 #include "position.h"
+#include "trckeysampling.h"
 #include "valseries.h"
 
 template <class T> class Array2D;
@@ -203,6 +204,8 @@ public:
     virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
     virtual int			getGlobalIdx(const TrcKey&) const	= 0;
     virtual int			getNearestGlobalIdx(const TrcKey&) const;
+
+    void			getPath(TrcKeyPath&) const;
 
     virtual bool		addComponent(const char* nm)		= 0;
 

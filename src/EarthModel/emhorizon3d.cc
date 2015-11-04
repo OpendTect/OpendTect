@@ -295,6 +295,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , parentcolor_(Color::Yellow())
     , selectioncolor_(Color::Orange())
     , lockcolor_(Color::Blue())
+    , survgeomid_( Survey::GM().default3DSurvID() )
 {
     geometry_.addSection( "", false );
 }
@@ -397,12 +398,6 @@ float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
     //TODO support the parameters
     return getZ( SI().transform(c) );
-}
-
-
-TrcKey::SurvID Horizon3D::getSurveyID() const
-{
-    return TrcKey::std3DSurvID();
 }
 
 

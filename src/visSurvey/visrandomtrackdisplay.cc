@@ -513,6 +513,23 @@ void RandomTrackDisplay::removeAllNodes()
 }
 
 
+void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path ) const 
+{
+    TypeSet<BinID> nodes;
+    getAllNodePos( nodes );
+
+    TypeSet<BinID> bids;
+    Geometry::RandomLine::getPathBids( nodes, bids, false, 0 );
+
+    path.erase();
+    const Pos::SurvID survid = s3dgeom_->getSurvID();
+    for ( int idx=0; idx<bids.size(); idx++ )
+    {
+	path += TrcKey( survid, bids[idx] );
+    }
+}
+
+
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 { getDataTraceBids( bids, 0 ); }
 

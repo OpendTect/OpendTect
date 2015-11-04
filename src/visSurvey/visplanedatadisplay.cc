@@ -625,6 +625,32 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( int attrib ) const
 }
 
 
+void PlaneDataDisplay::getTraceKeyPath( TrcKeyPath& path ) const
+{
+    path.erase();
+    if ( orientation_==OD::ZSlice )
+	return;
+
+    const TrcKeyZSampling trczs = getTrcKeyZSampling( true, true, 0 );
+
+    TrcKeySamplingIterator iter( trczs.hsamp_ );
+    TrcKey curkey = iter.curTrcKey();
+    do
+    {
+	path += curkey;
+    } while ( iter.next( curkey ));
+}
+
+
+Interval<float> PlaneDataDisplay::getDataTraceRange() const
+{
+    const TrcKeyZSampling tkzs = getTrcKeyZSampling( false, false, -1 );
+    Interval<float> res;
+    res.setFrom( tkzs.zsamp_ );
+    return res;
+}
+
+
 void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
 {
     if ( !datatransform_ ) return;

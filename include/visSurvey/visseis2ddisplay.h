@@ -52,6 +52,9 @@ public:
     void			setZRange(const StepInterval<float>&);
     StepInterval<float>		getZRange(bool displayspace,int att=-1) const;
 
+    void			getTraceKeyPath(TrcKeyPath&) const;
+    Interval<float>		getDataTraceRange() const;
+
     void			setTraceNrRange(const Interval<int>&);
     Interval<int>		getTraceNrRange() const;
     const StepInterval<int>&	getMaxTraceNrRange() const;
