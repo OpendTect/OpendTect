@@ -62,6 +62,10 @@ ipch
 *.unsuccessfulbuild
 *.cache
 
+#Doxygen stuff
+CMakeModules/Doxyfile
+doc/Programmer/Generated
+
 
 #CMakes stuff
 *.ninja
