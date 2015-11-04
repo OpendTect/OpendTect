@@ -26,6 +26,8 @@ PROJECT_NAME           = @CMAKE_PROJECT_NAME@
 
 PROJECT_NUMBER         = @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@
 
+LOOKUP_CACHE_SIZE	= 2
+#Enable many objects to be stored.
 
 PROJECT_LOGO		= @CMAKE_SOURCE_DIR@/data/od_small.png
 
@@ -353,7 +355,7 @@ EXAMPLE_PATTERNS       =
 # directories that contain image that are included in the documentation (see 
 # the \image command).
 
-IMAGE_PATH             = 
+IMAGE_PATH             = @CMAKE_SOURCE_DIR@/doc/Programmer/images
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should 
 # invoke to filter for each input file. Doxygen will invoke the filter program 

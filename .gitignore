@@ -62,6 +62,10 @@ ipch
 *.build
 *.xcodeproj
 
+#Doxygen stuff
+CMakeModules/Doxyfile
+doc/Programmer/Generated
+
 
 #CMakes stuff
 *.ninja

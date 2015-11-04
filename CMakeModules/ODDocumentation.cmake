@@ -19,8 +19,6 @@ endforeach()
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
-    set( OD_DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/include/Basic/main.dox" )
-    OD_ADD_SOURCE_FILES( ${CMAKE_SOURCE_DIR}/include/Basic/main.dox )
 
     file ( GLOB DOXYGEN_PROGDOC_FILES "${CMAKE_SOURCE_DIR}/doc/Programmer/*.dox" )
     foreach ( OD_DOXYGEN_PROGDOC_FILE ${DOXYGEN_PROGDOC_FILES} )

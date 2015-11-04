@@ -1,0 +1,63 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	K. Tingdahl
+ Date:		Nov 2015
+ SVN:		$Id$
+________________________________________________________________________
+
+-*/
+
+
+/*!
+\page localization Localization of OpendTect
+
+\section sysreq System Requirements
+
+-# The Qt linguist software \n
+  The Qt linguist software is avialable for free. Download and install it on you machine.
+-# A template file \n
+  This is called od_template.ts and distributed together with the OpendTect SDK. The
+  file should be found in the data/localization/source directory of your installation.
+
+\section getting_started Getting started
+
+-# Start the Qt Linguist program
+-# Open the od_template.ts and save it in the same folder as od_<language-tag>.ts, where <language-tag> is the 
+IETF language tag, see https://en.wikipedia.org/wiki/IETF_language_tag. For example, the Chinese translation file
+is called "od_cn-cn.ts".
+-# Go to: Edit -> Translation file settings
+\image html menu.png
+and fill in the lower part of the popup with the language and country you are translating to.
+\image html language_setting.png  
+-# Go to Edit -> Find and in the field "Find what" type in: "Language Name" and press Find.
+\image html find_language_name.png 
+This will bring you to the context item: TextTranslateMgr
+Below the box "Strings", you see: \n
+\image html language_name.png 
+Fill in the name of your language in the top field ("<language> translation"). For example, it should be "中国" for Chinese. If there are separate
+fields for singular and plural, fill in both.
+-# Save these settings.
+
+
+\section work Translate the strings
+When you have opened the .ts file, on the left you see a long list of Context items. When you select any of these items, you will see in the box "Strings" the source texts which are contained in that specific context item.
+
+Now, for our initial testing, we do need the translation of Context Item uiStrings (almost at the bottom of the list of Context items). These strings are used all over OpendTect, so if you translate these, you'll have a flying start.
+
+You will see several %1 or %2.
+Those represent variables (for example: %1=elephant, %2 = mouse) So instead of saying "elephant is bigger than mouse", I say %1 is bigger than %2.
+So you do not need to translate %1 or %2, just keep those same characters. So that would become (in Chinese) %1 大 于 %2 , or %2 小于 %1.
+
+So every time you select a Source text  line in the Strings box, type in the translation of that source text in the field : <Language> translation. Sometimes there is only one field, sometimes there are two fields (for singular and plural).
+After every translation, press the icon in the top row with the green V , to save your translation and go to the next Source text in the Strings box.
+
+If ever there is a Source text, that you do not know how to translate, then simply leave the translation field empty.
+For some more information, you can check the manual at http://doc.qt.io/qt-5/linguist-translators.html .
+
+\section submit Submit your translation
+Once you are finished with the translation (or as far as you can come), send the ts-file to info@opendtect.org. It will then be incorporated into release if we deem it meets our standard.
+
+If you wish to improve an existing translation, open the ts-file for that language and edit. Then send us your updated ts-file.
+*/
