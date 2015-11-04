@@ -502,7 +502,7 @@ void uiStratSynthDisp::setZoomView( const uiWorldRect& relwr )
     Geom::Point2D<double> centre = abswr.centre();
     Geom::Size2D<double> newsz = abswr.size();
     control_->setActiveVwr( 0 );
-    control_->setNewView( centre, newsz );
+    control_->setNewView( centre, newsz, *control_->activeVwr() );
 }
 
 

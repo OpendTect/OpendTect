@@ -148,7 +148,8 @@ void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
     updateViewRange( newbbox );
 
     if ( viewer_->control() )
-	viewer_->control()->setNewView( newbbox.centre(), newbbox.size() );
+	viewer_->control()->setNewView(
+		newbbox.centre(), newbbox.size(), *viewer_ );
 }
 
 

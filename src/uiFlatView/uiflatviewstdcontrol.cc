@@ -210,8 +210,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 uiFlatViewStdControl::~uiFlatViewStdControl()
 {
     detachAllNotifiers();
+    deleteAndZeroPtr( ctabed_ );
     menu_.unRef();
-    delete ctabed_; ctabed_ = 0;
 }
 
 
@@ -374,27 +374,28 @@ void uiFlatViewStdControl::doZoom( bool zoomin, bool onlyvertzoom,
 	vwr.rgbCanvas().getNavigationMouseEventHandler();
     const bool hasmouseevent = meh.hasEvent();
 
+    Geom::Size2D<double> newsz = zoommgr_.current( vwridx );
     if ( zoomin )
-	zoommgr_.forward( vwridx, onlyvertzoom, true );
+	newsz = zoommgr_.forward( vwridx, onlyvertzoom, true );
     else
     {
 	if ( zoommgr_.atStart(vwridx) )
 	    return;
-	zoommgr_.back( vwridx, onlyvertzoom, hasmouseevent );
+	newsz = zoommgr_.back( vwridx, onlyvertzoom, hasmouseevent );
     }
 
     Geom::Point2D<double> mousepos = hasmouseevent ?
 	vwr.getWorld2Ui().transform(meh.event().pos()) : vwr.curView().centre();
-    Geom::Size2D<double> newsz = zoommgr_.current( vwridx );
-
-    setNewView( mousepos, newsz );
+    setNewView( mousepos, newsz, vwr );
 }
 
 
 void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 {
-    reInitZooms();
+    while( !zoommgr_.atStart() )
+	setNewView( vwr_.curView().centre(), zoommgr_.back(0,false,true), vwr_);
 }
+
 
 void uiFlatViewStdControl::fitToScreenCB( CallBacker* )
 {
@@ -504,7 +505,7 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
     if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
 
     const uiWorldRect wr( wp.x-hwdth, wp.y-hhght, wp.x+hwdth, wp.y+hhght );
-    vwr.setBoundingRect( uiWorld2Ui(viewrect.size(),wr).transform(bb) );
+    vwr.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );
     vwr.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
     updateZoomManager();
 }

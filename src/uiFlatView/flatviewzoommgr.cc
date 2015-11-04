@@ -190,37 +190,42 @@ FlatView::ZoomMgr::Size FlatView::ZoomMgr::current( int vieweridx ) const
 }
 
 
-void FlatView::ZoomMgr::back( int vieweridx, bool onlyvertical,
-			      bool usefwdfac ) const
+FlatView::ZoomMgr::Size FlatView::ZoomMgr::back( int vieweridx,
+						 bool onlyvertical,
+						 bool usefwdfac ) const
 {
     int& cur = current_[vieweridx];
-    if ( cur <= 0 ) return;
-
-    if ( !usefwdfac && !onlyvertical )
-	{ cur--; return; }
+    if ( cur>0 && !usefwdfac && !onlyvertical )
+	{ cur--; return current( vieweridx ); }
 
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
     if ( !onlyvertical )
 	newsize.setWidth( newsize.width() / fwdfac_ );
     newsize.setHeight( newsize.height() / fwdfac_ );
     const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
+    // NOTE: newsize returned can be greater than the initialSize. This is not
+    // added to zooms_ is such a case, but is needed to maintain constant
+    // aspect ratio while zooming out.
+    return newsize;
 }
 
 
-void FlatView::ZoomMgr::forward( int vieweridx, bool onlyvertical,
-				 bool usefwdfac ) const
+FlatView::ZoomMgr::Size FlatView::ZoomMgr::forward( int vieweridx,
+						    bool onlyvertical,
+						    bool usefwdfac ) const
 {
     int& cur = current_[vieweridx];
-    if ( cur < 0 ) return;
+    if ( cur < 0 ) return current( vieweridx );
 
     if ( !usefwdfac && cur<nrZooms(vieweridx)-1 && !onlyvertical )
-	{ cur++; return; }
+	{ cur++; return current( vieweridx ); }
     
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
     if ( !onlyvertical )
 	newsize.setWidth( newsize.width() * fwdfac_ );
     newsize.setHeight( newsize.height() * fwdfac_ );
     const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
+    return current( vieweridx );
 }
 
 

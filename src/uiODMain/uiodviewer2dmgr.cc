@@ -379,7 +379,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
     else
     {
 	TrcKeyZSampling oldtkzs, newtkzs;
-	const ZAxisTransform* zat = vwr2d->getZAxisTransform();
+	ConstRefMan<ZAxisTransform> zat = vwr2d->getZAxisTransform();
 	if ( zat )
 	{
 	    oldtkzs.zsamp_ = newtkzs.zsamp_ = zat->getZInterval( false );
@@ -504,7 +504,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	uiWorldPoint initialcentre( uiWorldPoint::udf() );
 	TrcKeyZSampling newtkzs = SI().sampling(true);
 	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
-	const ZAxisTransform* zat = curvwr2d->getZAxisTransform();
+	ConstRefMan<ZAxisTransform> zat = curvwr2d->getZAxisTransform();
 	if ( zat )
 	{
 	    newtkzs.zsamp_ = zat->getZInterval( false );
@@ -723,8 +723,9 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     if ( !tkzs.isFlat() ) return;
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
-    TypeSet<OD::PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
-    TypeSet<OD::PlotAnnotation>& x2auxannot = vwr.appearance().annot_.x2_.auxannot_;
+    FlatView::Annotation& annot = vwr.appearance().annot_;
+    TypeSet<OD::PlotAnnotation>& x1auxannot = annot.x1_.auxannot_;
+    TypeSet<OD::PlotAnnotation>& x2auxannot = annot.x2_.auxannot_;
     x1auxannot.erase(); x2auxannot.erase();
 
     if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )

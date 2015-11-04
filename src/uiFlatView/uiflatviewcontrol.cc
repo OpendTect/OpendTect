@@ -37,8 +37,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
 uiFlatViewControl::~uiFlatViewControl()
 {
     detachAllNotifiers();
-    delete propdlg_;
-    propdlg_ = 0;
+    deleteAndZeroPtr( propdlg_ );
 }
 
 
@@ -128,12 +127,38 @@ void uiFlatViewControl::reInitZooms()
 
 
 void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
-				    Geom::Size2D<double> sz )
+				    Geom::Size2D<double> sz,
+				    uiFlatViewer& vwr )
 {
-    uiFlatViewer& vwr = *vwrs_[0];
+    uiWorldRect wr = vwr.curView();
     const uiWorldRect bb = vwr.boundingBox();
-    uiWorldRect wr = getZoomOrPanRect( mousepos, sz, vwr.curView(), bb );
-    setNewWorldRect( vwr, wr );
+    const bool withfixedaspectratio = !vwr.updatesBitmapsOnResize();
+    if ( !withfixedaspectratio )
+	wr = getZoomOrPanRect( mousepos, sz, vwr.curView(), bb );
+    else
+    {
+	if ( sz.width()<=bb.width() && sz.height()<=bb.height() )
+	{
+	    wr = getZoomOrPanRect( mousepos, sz, vwr.curView(), bb );
+	    if ( vwr.getViewRect() != vwr.getViewRect(false) )
+	    {
+		const uiWorld2Ui w2ui( vwr.getViewRect(), wr );
+		wr = w2ui.transform( vwr.getViewRect(false) );
+		vwr.setBoundingRect( w2ui.transform(bb) );
+	    }
+	}
+	else
+	{
+	    const double hwdth = sz.width()/2, hhght = sz.height()/2;
+	    wr = uiWorldRect( mousepos.x-hwdth, mousepos.y-hhght,
+			      mousepos.x+hwdth, mousepos.y+hhght );
+	    vwr.setBoundingRect(uiWorld2Ui(vwr.getViewRect(),wr).transform(bb));
+	}
+	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
+    }
+
+    vwr.setView( wr );
+    updateZoomManager();
 }
 
 
@@ -187,27 +212,9 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 	 (selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    uiWorldRect wr = vwr->getWorld2Ui().transform( *selarea );
-    wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, vwr->boundingBox() );
-    setNewWorldRect( *vwr, wr );
+    const uiWorldRect wr = vwr->getWorld2Ui().transform( *selarea );
+    setNewView( wr.centre(), wr.size(), *vwr );
     rubberBandUsed.trigger();
-}
-
-
-void uiFlatViewControl::setNewWorldRect( uiFlatViewer& vwr, uiWorldRect& wr )
-{
-    const bool needextraborders = !vwr.updatesBitmapsOnResize();
-    if ( needextraborders && vwr.getViewRect()!=vwr.getViewRect(false) )
-    {
-	const uiWorldRect bb = vwr.boundingBox();
-	const uiWorld2Ui w2ui( vwr.getViewRect(), wr );
-	wr = w2ui.transform( vwr.getViewRect(false) );
-	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
-	vwr.setBoundingRect( w2ui.transform(bb) );
-    }
-
-    vwr.setView( wr );
-    updateZoomManager();
 }
 
 
@@ -228,7 +235,7 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 	delete propdlg_;
 	BufferStringSet annots;
 	const int selannot = vwr.getAnnotChoices( annots );
-    	propdlg_ = new uiFlatViewPropDlg( 0, vwr,
+	propdlg_ = new uiFlatViewPropDlg( parent(), vwr,
 				mCB(this,uiFlatViewControl,applyProperties),
 				annots.size() ? &annots : 0, selannot );
     	mAttachCB( propdlg_->windowClosed, uiFlatViewControl::propDlgClosed );

@@ -166,16 +166,6 @@ bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
 }
 
 
-void uiMultiFlatViewControl::setNewView(Geom::Point2D<double> mousepos,
-					Geom::Size2D<double> sz)
-{
-    const uiWorldRect wr = getZoomOrPanRect( mousepos,sz,activevwr_->curView(),
-	    				     activevwr_->boundingBox() );
-    activevwr_->setView( wr );
-    updateZoomManager();
-}
-
-
 #define mAddBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
     tb_->addButton( but );
@@ -213,11 +203,8 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 	(selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    uiWorldRect wr = activevwr_->getWorld2Ui().transform( *selarea );
-    wr = getZoomOrPanRect( wr.centre(), wr.size(), wr,
-	    		   activevwr_->boundingBox() );
-    activevwr_->setView( wr );
-    updateZoomManager();
+    const uiWorldRect wr = activevwr_->getWorld2Ui().transform( *selarea );
+    setNewView( wr.centre(), wr.size(), *activevwr_ );
     rubberBandUsed.trigger();
 }
 
@@ -357,7 +344,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	FlatView::AuxData* ad = vwrs_[idx]->createAuxData( "Zoom box" );
 	vwrs_[idx]->addAuxData( ad );
 	zoomboxes_ += ad;
-	ad->linestyle_ = OD::LineStyle( OD::LineStyle::Dash, 3, Color::Black() );
+	ad->linestyle_ = OD::LineStyle(OD::LineStyle::Dash,3,Color::Black());
 	ad->zvalue_ = uiFlatViewer::auxDataZVal();
 
 	if ( vwrs_[idx] == activeVwr() )

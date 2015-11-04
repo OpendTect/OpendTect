@@ -48,14 +48,14 @@ public:
 			current. Also removes zooms larger than this one. */
 
     Size		current(int vieweridx=0) const;
-    void		back(int vieweridx,bool onlyvertical,
+    Size		back(int vieweridx,bool onlyvertical,
 			     bool usefwdfac) const;
 			/*!< Never past initial zoom. \param onlyvertical if
 			true, only the height of current size is multiplied by
 			1/fwdfac_ to get new size. \param usefwdfac if true,
 			multiplies current size by 1/fwdfac_ to get new size.
 			Else returns previous size. */
-    void		forward(int vieweridx,bool onlyvertical,
+    Size		forward(int vieweridx,bool onlyvertical,
 				bool usefwdfac) const;
 			/*!< Goes on and on. \param onlyvertical if true, only
 			the height of current size is multiplied by fwdfac_ to

@@ -731,7 +731,8 @@ void uiFVAnnotPropTab::putToScreen()
 	fillcolors_[idx] = vwr_.getAuxData(indices_[idx])->fillcolor_;
 	markerstyles_[idx] =
 	    vwr_.getAuxData(indices_[idx])->markerstyles_.size() ?
-	    vwr_.getAuxData(indices_[idx])->markerstyles_[0] : OD::MarkerStyle2D();
+	    vwr_.getAuxData(indices_[idx])->markerstyles_[0]
+	    : OD::MarkerStyle2D();
 	x1rgs_[idx] = vwr_.getAuxData(indices_[idx])->x1rg_
 	    ? *vwr_.getAuxData(indices_[idx])->x1rg_
 	    : Interval<double>( 0, 1 );
@@ -847,7 +848,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Specify Display Properties"),
 				      mNoDlgTitle,
-				      mODHelpKey(mODViewer2DPropDlgHelpID) ))
+				      mODHelpKey(mODViewer2DPropDlgHelpID))
+				      .modal(false))
     , vwr_(vwr)
     , applycb_(applcb)
     , selannot_(selannot)
