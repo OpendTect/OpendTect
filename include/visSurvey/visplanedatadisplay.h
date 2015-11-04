@@ -81,9 +81,11 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
     TrcKeyZSampling		getTrcKeyZSampling(int attrib=-1) const;
+    void			getTraceKeyPath(TrcKeyPath&) const;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
+    Interval<float>		getDataTraceRange() const;
     void			getRandomPos(DataPointSet&,TaskRunner* =0)const;
     void			setRandomPosData(int attrib,
 						 const DataPointSet*,

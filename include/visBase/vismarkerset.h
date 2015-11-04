@@ -109,6 +109,7 @@ public:
     void		removeMarker(int idx);
 
     void		clearMarkers();
+    			//!<Removes all markers
     void		turnMarkerOn(unsigned int idx,bool);
 
     int			findClosestMarker(const Coord3&, bool scenespace=false);

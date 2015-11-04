@@ -462,6 +462,14 @@ int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 }
 
 
+void SeisDataPack::getPath( TrcKeyPath& path ) const
+{
+    path.erase();
+    for ( int idx=0; idx<nrTrcs(); idx++ )
+        path += getTrcKey( idx );
+}
+
+
 const OffsetValueSeries<float>
     SeisDataPack::getTrcStorage(int comp, int globaltrcidx) const
 {

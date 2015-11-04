@@ -60,7 +60,7 @@ public:
     void			doRef();
     void			doUnRef();
 
-				mDefineFactoryInClass(SurveyObject,factory)
+				mDefineFactoryInClass(SurveyObject,factory);
 
     virtual void		set3DSurvGeom(const Survey::Geometry3D*);
     const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_; }
@@ -278,6 +278,7 @@ public:
 				{ return 0; }
 
 				//Trace-data
+    virtual void		getTraceKeyPath(TrcKeyPath&) const {}
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
 				{ return Interval<float>(0,0); }
