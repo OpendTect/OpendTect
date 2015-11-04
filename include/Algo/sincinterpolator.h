@@ -349,7 +349,7 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
     const PT floorx = floor(x);
     fracx = x - floorx;
     const float* asinc = asinc_[mKSinc(fracx)];
-    idx0 = floorx + ishift_;
+    idx0 = mCast(int,floorx) + ishift_;
 
     float out = 0.f;
     if ( mValidPos(idx0,nxm_) )
@@ -425,8 +425,8 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
     fracy = y - floory;
     const float* asincx = asinc_[mKSinc(fracx)];
     const float* asincy = asinc_[mKSinc(fracy)];
-    idx0 = floorx + ishift_;
-    idy0 = floory + ishift_;
+    idx0 = mCast(int,floorx) + ishift_;
+    idy0 = mCast(int,floory) + ishift_;
 
     double out = 0., outx;
     if ( mValidPos(idx0,nxm_) && mValidPos(idy0,nym_) )
@@ -547,9 +547,9 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
     const float* asincx = asinc_[mKSinc(fracx)];
     const float* asincy = asinc_[mKSinc(fracy)];
     const float* asincz = asinc_[mKSinc(fracz)];
-    idx0 = floorx + ishift_;
-    idy0 = floory + ishift_;
-    idz0 = floorz + ishift_;
+    idx0 = mCast(int,floorx) + ishift_;
+    idy0 = mCast(int,floory) + ishift_;
+    idz0 = mCast(int,floorz) + ishift_;
 
     double out = 0.;
     double outx, outy;
