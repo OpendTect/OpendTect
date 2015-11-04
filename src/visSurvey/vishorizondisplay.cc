@@ -1503,7 +1503,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
     if ( !horizon ) return;
 
-    const float zshift = getTranslation().z;
+    const float zshift = (float)getTranslation().z;
 
     const Geometry::BinIDSurface* geom =
 	horizon->geometry().sectionGeometry( sid );
@@ -2248,7 +2248,7 @@ HorizonDisplay::IntersectionData::setLineStyle( const LineStyle& lst )
 	}
     }
 
-    markerset_->setScreenSize(lst.width_/2);
+    markerset_->setScreenSize( (float)(lst.width_/2) );
 
     return oldline;
 }
