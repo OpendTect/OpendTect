@@ -166,13 +166,11 @@ bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
 }
 
 
-void uiMultiFlatViewControl::setNewView(Geom::Point2D<double> mousepos,
-					Geom::Size2D<double> sz)
+void uiMultiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
+					 Geom::Size2D<double> sz,
+					 uiFlatViewer* vwr )
 {
-    const uiWorldRect wr = getZoomOrPanRect( mousepos,sz,activevwr_->curView(),
-	    				     activevwr_->boundingBox() );
-    activevwr_->setView( wr );
-    updateZoomManager();
+    uiFlatViewControl::setNewView( mousepos, sz, vwr );
 }
 
 
@@ -213,11 +211,8 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 	(selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    uiWorldRect wr = activevwr_->getWorld2Ui().transform( *selarea );
-    wr = getZoomOrPanRect( wr.centre(), wr.size(), wr,
-	    		   activevwr_->boundingBox() );
-    activevwr_->setView( wr );
-    updateZoomManager();
+    const uiWorldRect wr = activevwr_->getWorld2Ui().transform( *selarea );
+    setNewView( wr.centre(), wr.size(), activevwr_ );
     rubberBandUsed.trigger();
 }
 

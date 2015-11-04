@@ -39,13 +39,17 @@ public:
     TypeSet<uiWorldRect>getBoundingBoxes() const;
     			//!< Returns bounding boxes of all viewers.
     virtual void	setNewView(Geom::Point2D<double> mousepos,
-				   Geom::Size2D<double> newsize);
+				   Geom::Size2D<double> newsize,
+				   uiFlatViewer* vwr=0);
 			/*!< Pass centre instead of mousepos if there is no
 			MouseEvent. Retains uiWorldRect's LR/TB swapping while
 			changing the input to the actual new values. Use for
 			setting new view while zoomin/zoom out only. Makes sure
 			\param mousepos (pointed by MouseCursor) does not change
-			after changing view. */
+			after changing view and bitmaps are filled in extra
+			available space without changing aspect ratio
+			(if has to be constant) along with needed
+			uiFlatViewer::setBoundingRect(const uiRect&). */
     virtual void	flip(bool hor);
     			//!< reverses uiWorldRect's LR or TB swapping
     virtual void	doPropertiesDialog(int vieweridx=0);

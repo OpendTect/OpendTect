@@ -49,7 +49,8 @@ public:
     			~uiMultiFlatViewControl();
 
     void                setNewView(Geom::Point2D<double> mousepos,
-	    			   Geom::Size2D<double> size);
+				   Geom::Size2D<double> size,
+				   uiFlatViewer* vwr=0);
 
     uiToolBar*		getToolBar(int idx) { return toolbars_[idx]; }
 

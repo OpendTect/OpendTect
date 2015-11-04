@@ -49,8 +49,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->disableScrollZoom();
     view_->scene().addItem( worldgroup_ );
     view_->setDragMode( uiGraphicsView::NoDrag );
-    view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
-    view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setSceneBorder( 2 );
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
@@ -405,4 +403,5 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
     yseldatarange_ = yrg;
     viewChanged.trigger();
 }
+
 
