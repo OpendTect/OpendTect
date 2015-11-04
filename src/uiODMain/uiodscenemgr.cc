@@ -1145,36 +1145,32 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
     {
 	const uiTreeItem* chlditm = topitm->getChild( chidx );
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,emtreeitem,chlditm)
-	if ( !emtreeitem )
+	mDynamicCastGet(const uiODFaultTreeItem*,flttreeitem,chlditm)
+	mDynamicCastGet(const uiODFaultStickSetTreeItem*,fsstreeitem,chlditm)
+	if ( !emtreeitem && !flttreeitem && !fsstreeitem )
 	    continue;
 
-	EM::ObjectID emid = emtreeitem->emObjectID();
-	if ( !type )
-	    emids.addIfNew( emid );
-	else if ( EM::Horizon3D::typeStr()==type )
+	if ( !type || EM::Horizon3D::typeStr()==type )
 	{
 	    mDynamicCastGet(const uiODHorizonTreeItem*,hor3dtreeitm,chlditm)
 	    if ( hor3dtreeitm )
-		emids.addIfNew( emid );
+		emids.addIfNew( hor3dtreeitm->emObjectID() );
 	}
-	else if ( EM::Horizon2D::typeStr()==type )
+	else if ( !type || EM::Horizon2D::typeStr()==type )
 	{
 	    mDynamicCastGet(const uiODHorizon2DTreeItem*,hor2dtreeitm,chlditm)
 	    if ( hor2dtreeitm )
-		emids.addIfNew( emid );
+		emids.addIfNew( hor2dtreeitm->emObjectID() );
 	}
-	else if ( EM::Fault3D::typeStr()==type )
+	else if ( !type || EM::Fault3D::typeStr()==type )
 	{
-	    mDynamicCastGet(const uiODFaultTreeItem*,faulttreeitm,chlditm)
-	    if ( faulttreeitm )
-		emids.addIfNew( emid );
+	    if ( flttreeitem )
+		emids.addIfNew( flttreeitem->emObjectID() );
 	}
-	else if ( EM::FaultStickSet::typeStr()==type )
+	else if ( !type || EM::FaultStickSet::typeStr()==type )
 	{
-	    mDynamicCastGet(const uiODFaultStickSetTreeItem*,fltstickreeitm,
-		    	    chlditm)
-	    if ( fltstickreeitm )
-		emids.addIfNew( emid );
+	    if ( fsstreeitem )
+		emids.addIfNew( fsstreeitem->emObjectID() );
 	}
     }
 }
