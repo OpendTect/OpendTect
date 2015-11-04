@@ -26,6 +26,8 @@ PROJECT_NAME           = @CMAKE_PROJECT_NAME@
 
 PROJECT_NUMBER         = @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@
 
+LOOKUP_CACHE_SIZE	= 2
+#Enable many objects to be stored.
 
 PROJECT_LOGO		= @CMAKE_SOURCE_DIR@/data/od_small.png
 
