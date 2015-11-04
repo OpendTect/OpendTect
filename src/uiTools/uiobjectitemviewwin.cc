@@ -47,6 +47,7 @@ uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
     mainviewer_->setPrefHeight( startheight_ );
     mainviewer_->enableScrollBars( true );
     mainviewer_->disableScrollZoom();
+    mainviewer_->setMidMouseButtonForDrag( true );
     mainviewer_->reSize.notify( mCB(this,uiObjectItemViewWin,reSizeCB) );
     mainviewer_->rubberBandUsed.notify(mCB(this,uiObjectItemViewWin,rubBandCB));
     mainviewer_->scrollBarUsed.notify(
@@ -446,7 +447,6 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     : uiGroup(mw.parent(),"ObjectItemView control")
     , mainviewer_(mw)
     , manipdrawbut_(0)
-    , manip_(false)
     , toolbar_(0)
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
@@ -459,20 +459,21 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 	    mCB(this,uiObjectItemViewControl,keyPressedCB) );
     mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
-    mainviewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
+    mainviewer_.setDragMode( uiGraphicsViewBase::NoDrag );
 }
 
 
 void uiObjectItemViewControl::setToolButtons()
 {
-    mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode (Esc)"));
+    mDefBut(manipdrawbut_,"rubbandzoom",stateCB,tr("Switch view mode (Esc)"));
+    manipdrawbut_->setToggleButton( true );
 }
 
 
 void uiObjectItemViewControl::keyPressedCB( CallBacker* )
 {
     if ( mainviewer_.getKeyboardEventHandler().event().key_ == OD::KB_Escape )
-	changeStatus();
+	setRubberBandingOn( !manipdrawbut_->isOn() );
 }
 
 
@@ -482,25 +483,20 @@ void uiObjectItemViewControl::stateCB( CallBacker* )
 }
 
 
-void uiObjectItemViewControl::changeStatus()
+void uiObjectItemViewControl::setRubberBandingOn( bool yn )
 {
-    manip_ = !manip_;
-
-    uiGraphicsViewBase::ODDragMode mode = !manip_ ?
-	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::ScrollHandDrag;
-
-    if ( manipdrawbut_ )
-	manipdrawbut_->setIcon( manip_ ? "altview" : "altpick" );
-
-    mainviewer_.setDragMode( mode );
-    if ( mode == uiGraphicsViewBase::ScrollHandDrag )
-	cursor_.shape_ = MouseCursor::OpenHand;
-    else
-	cursor_.shape_ = MouseCursor::Arrow;
-
-    mainviewer_.setCursor( cursor_ );
+    manipdrawbut_->setOn( yn );
+    changeStatus();
 }
 
+
+void uiObjectItemViewControl::changeStatus()
+{
+    const bool isrubband = manipdrawbut_->isOn();
+    uiGraphicsViewBase::ODDragMode mode = isrubband ?
+	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::NoDrag;
+    mainviewer_.setDragMode( mode );
+}
 
 
 uiObjectItemViewAxisPainter::uiObjectItemViewAxisPainter( uiObjectItemView& vw )

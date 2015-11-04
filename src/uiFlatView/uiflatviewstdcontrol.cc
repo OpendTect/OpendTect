@@ -132,6 +132,11 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     if ( setup.withzoombut_ || setup.isvertical_ )
     {
 	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
+	if ( setup.withfixedaspectratio_ )
+	{
+	    mDefBut(fittoscrnbut_,"exttofullsurv",fitToScreenCB,
+		    tr("Fit to screen"));
+	}
     }
 
     if ( setup.withhomebutton_ )
@@ -391,6 +396,13 @@ void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
     reInitZooms();
 }
 
+void uiFlatViewStdControl::fitToScreenCB( CallBacker* )
+{
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->setExtraBorders( uiSize(), uiSize() );
+    reInitZooms();
+}
+
 
 void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 {
@@ -501,13 +513,7 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh || meh->event().rightButton() ) return;
-
-    const int vwridx = getViewerIdx( meh, false );
-    if ( vwridx<0 ) return;
-    uiFlatViewer* vwr = vwrs_[vwridx];
-    if ( vwr->rgbCanvas().dragMode() != uiGraphicsViewBase::ScrollHandDrag )
-	return;
+    if ( !meh || !meh->event().middleButton() ) return;
 
     mousedownpt_ = meh->event().pos();
     mousepressed_ = true;
@@ -583,13 +589,13 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
     const bool iseditmode = editbut_ && editbut_->isOn();
     const bool iszoommode = rubbandzoombut_ && rubbandzoombut_->isOn();
 
-    uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::ScrollHandDrag );
-    MouseCursor cursor( MouseCursor::OpenHand );
+    uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::NoDrag );
+    MouseCursor cursor( MouseCursor::Arrow );
     if ( iszoommode || iseditmode )
     {
 	mode = iszoommode ? uiGraphicsViewBase::RubberBandDrag
 			  : uiGraphicsViewBase::NoDrag;
-	cursor = iszoommode ? MouseCursor::Arrow : MouseCursor::Cross;
+	cursor = !iseditmode ? MouseCursor::Arrow : MouseCursor::Cross;
     }
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )

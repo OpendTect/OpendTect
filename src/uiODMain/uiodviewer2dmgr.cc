@@ -340,8 +340,7 @@ void uiODViewer2DMgr::setAuxAnnotLineStyles( uiFlatViewer& vwr, bool forx1 )
 
 void uiODViewer2DMgr::reSetPrevDragMode( uiODViewer2D* curvwr2d )
 {
-    uiGraphicsViewBase::ODDragMode prevdragmode =
-    uiGraphicsViewBase::ScrollHandDrag;
+    uiGraphicsViewBase::ODDragMode prevdragmode = uiGraphicsViewBase::NoDrag;
     if ( curvwr2d->viewControl()->isEditModeOn() )
 	prevdragmode = uiGraphicsViewBase::NoDrag;
     else if ( curvwr2d->viewControl()->isRubberBandOn() )
