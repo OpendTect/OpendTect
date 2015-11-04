@@ -636,11 +636,11 @@ void PlaneDataDisplay::getTraceKeyPath( TrcKeyPath& path ) const
     const TrcKeyZSampling trczs = getTrcKeyZSampling( true, true, 0 );
 
     TrcKeySamplingIterator iter( trczs.hsamp_ );
-    TrcKey curkey = iter.curTrcKey();
-    do
+    TrcKey curkey = TrcKey::udf();
+    while ( iter.next(curkey) )
     {
 	path += curkey;
-    } while ( iter.next( curkey ));
+    }
 }
 
 
