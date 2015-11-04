@@ -1012,7 +1012,7 @@ void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 
     refPtr( intersectionlinematerial_ );
 
-    for ( int idx=0; yn && idx<intersectiondata_.size(); idx++ )
+    for ( int idx=0; idx<intersectiondata_.size(); idx++ )
 	intersectiondata_[idx]->setMaterial( intersectionlinematerial_ );
 }
 
