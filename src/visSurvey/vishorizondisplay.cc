@@ -1413,6 +1413,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 
 void HorizonDisplay::traverseLine( const TrcKeyPath& path,
+                                   const TypeSet<Coord>& crds,
 				   const Interval<float>& zrg,
                                    EM::SectionID sid,
                                    HorizonDisplay::IntersectionData& res ) const
@@ -1434,44 +1435,55 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
         return;
 
     TypeSet<Coord3> curline;
-    for ( int idx=0; idx<path.size(); idx++ )
+    for ( int idx=0; idx<path.size()-1; idx++ )
     {
         TrcKey hortrc = TrcKey::udf();
-        if ( pathgeomid==horgeomid ) //We are on the same grid
+        const Coord intersectioncoord = idx>=crds.size()
+            ? pathgeom->toCoord( path[idx] )
+            : crds[idx];
+        
+        if ( intersectioncoord.isDefined() )
         {
-            hortrc = path[idx];
-        }
-        else
-        {
-            const Coord pathpos = pathgeom->toCoord(path[idx]);
-            hortrc = horgeom->getTrace( pathpos, horgeom->averageTrcDist() );
-        }
+            if ( pathgeomid==horgeomid ) //We are on the same grid
+            {
+                hortrc = path[idx];
+            }
+            else
+            {
+                hortrc = horgeom->getTrace( intersectioncoord,
+                                            horgeom->averageTrcDist() );
+            }
 
-        EM::SubID horsubid = hortrc.isUdf()
-                ? mUdf(EM::SubID)
-                : hortrc.pos().toInt64();
+            EM::SubID horsubid = hortrc.isUdf()
+                    ? mUdf(EM::SubID)
+                    : hortrc.pos().toInt64();
 
-        if ( seedposids && !mIsUdf(horsubid) &&
-             seedposids->isPresent(EM::PosID(hor->id(),sid,horsubid)))
-        {
-            horsubid = mUdf(EM::SubID);
-        }
+            if ( seedposids && !mIsUdf(horsubid) &&
+                 seedposids->isPresent(EM::PosID(hor->id(),sid,horsubid)))
+            {
+                horsubid = mUdf(EM::SubID);
+            }
 
-        if ( !mIsUdf(horsubid) )
-        {
-	    Coord3 horpos = hor->getPos(sid,horsubid);
-	    if ( horpos.isDefined() )
-	    {
-		if ( zaxistransform_ )
-		    horpos.z = zaxistransform_->transformTrc( hortrc,
-                                                  	  (float) horpos.z );
-	    }
+            if ( !mIsUdf(horsubid) )
+            {
+                Coord3 horpos = hor->getPos(sid,horsubid);
+                if ( horpos.isDefined() )
+                {
+                    if ( zaxistransform_ )
+                        horpos.z = zaxistransform_->transformTrc( hortrc,
+                                                              (float) horpos.z );
+                }
 
-	    if ( horpos.isDefined() && zrg.includes(horpos.z,false) )
-	    {
-		curline += horpos;
-		continue;
-	    }
+                if ( horpos.isDefined() && zrg.includes(horpos.z,false) )
+                {
+                    //Take coord from intersection, and z from horizon
+                    //Gives nice intersection when geometry is different
+                    //such as on 2D lines
+                    
+                    curline += Coord3( intersectioncoord, horpos.z );
+                    continue;
+                }
+            }
         }
 
 	res.addLine( curline );
@@ -1586,11 +1598,12 @@ void HorizonDisplay::updateIntersectionLines(
 	{
             const TrcKeyZSampling trzs = objs[idx]->getTrcKeyZSampling(-1);
 
-            TrcKeyPath path;
-            objs[idx]->getTraceKeyPath( path );
+            TrcKeyPath trckeypath;
+            TypeSet<Coord> trccoords;
+            objs[idx]->getTraceKeyPath( trckeypath, &trccoords );
 	    const Interval<float> zrg = objs[idx]->getDataTraceRange();
 
-            if ( path.isEmpty() && trzs.isEmpty() )
+            if ( trckeypath.isEmpty() && trzs.isEmpty() )
                 continue;
 
 	    IntersectionData* data = 0;
@@ -1599,10 +1612,10 @@ void HorizonDisplay::updateIntersectionLines(
 		  sectionidx++ )
 	    {
 		const EM::SectionID sid = horizon->sectionID(sectionidx);
-		if ( path.size() )
+		if ( trckeypath.size() )
 		{
 		    data = getOrCreateIntersectionData( lines );
-		    traverseLine( path, zrg, sid, *data );
+		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
             	    continue;
 		}
 		else

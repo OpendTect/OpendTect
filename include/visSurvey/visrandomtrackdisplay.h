@@ -84,7 +84,8 @@ public:
     void			getDataTraceBids(TypeSet<BinID>&) const;
 				//!<Segment-based coding: inner nodes doubled
 
-    void			getTraceKeyPath(TrcKeyPath&) const;
+    void			getTraceKeyPath(TrcKeyPath&,
+                                                TypeSet<Coord>*) const;
     Interval<float>		getDataTraceRange() const;
     TypeSet<Coord>		getTrueCoords() const;
 
