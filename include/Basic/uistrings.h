@@ -124,7 +124,7 @@ public:
     static uiString phrModify(const uiString&);
     //!<"Modify <string>"
     static uiString phrOpen(const uiString&);
-    //!<"Modify <string>"
+    //!<"Open <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
     static uiString phrReading(const uiString&);
