@@ -917,8 +917,3 @@ void uiFaultParSel::setActOptions( const BufferStringSet& opts, int dftoptidx )
     optnms_ = opts;
     defaultoptidx_ = opts.validIdx(dftoptidx) ? dftoptidx : 0;
 }
-
-
-
-
-
