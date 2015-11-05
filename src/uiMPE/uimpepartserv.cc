@@ -679,6 +679,9 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     const int trackerid = getTrackerID( emid );
     if ( trackerid<0 ) return false;
 
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(emid))
+    if ( hor3d ) hor3d->saveParentArray();
+
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return false;

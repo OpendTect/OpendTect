@@ -198,6 +198,7 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 
     mRemove( getSetupFileName )
     mRemove( getParFileName )
+    mRemove( getParentChildFileName )
 
     return res;
 }
@@ -244,6 +245,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     mRename( getSetupFileName )
     mRename( getParFileName )
+    mRename( getParentChildFileName )
 
     return res;
 }

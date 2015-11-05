@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
+#include "ascstream.h"
 #include "atomic.h"
 #include "binidsurface.h"
 #include "binidvalset.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "emundo.h"
 #include "executor.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "pickset.h"
 #include "posprovider.h"
@@ -583,21 +585,87 @@ void Horizon3D::initTrackingArrays()
     delete lockednodes_; lockednodes_ = 0;
     delete children_; children_ = 0;
 
-    const SectionID sid = sectionID( 0 );
-    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() ) return;
+    const bool haspcd = readParentArray();
+    if ( !haspcd )
+    {
+	const SectionID sid = sectionID( 0 );
+	const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+	if ( !geom || geom->isEmpty() ) return;
 
-    trackingsamp_.setInlRange( geom->rowRange() );
-    trackingsamp_.setCrlRange( geom->colRange() );
+	trackingsamp_.setInlRange( geom->rowRange() );
+	trackingsamp_.setCrlRange( geom->colRange() );
+    }
+
     const int nrrows = trackingsamp_.nrLines();
     const int nrcols = trackingsamp_.nrTrcs();
 
-    parents_ = new Array2DImpl<od_int64>( nrrows, nrcols );
-    parents_->setAll( -1 );
+    if ( !parents_ )
+    {
+	parents_ = new Array2DImpl<od_int64>( nrrows, nrcols );
+	parents_->setAll( -1 );
+    }
+
     lockednodes_ = new Array2DImpl<char>( nrrows, nrcols );
     lockednodes_->setAll( '0' );
     children_ = new Array2DImpl<char>( nrrows, nrcols );
     children_->setAll( '0' );
+}
+
+
+bool Horizon3D::saveParentArray()
+{
+    if ( !parents_ ) return true;
+
+    const od_int64 totalsz = parents_->info().getTotalSz();
+    const od_int64* data = parents_->getData();
+    if ( totalsz<1 || !data ) return false;
+
+    IOObjInfo ioobjinfo( multiID() );
+    if ( !ioobjinfo.ioObj() ) return false;
+
+    od_ostream strm( getParentChildFileName(*ioobjinfo.ioObj()) );
+    if ( !strm.isOK() ) return false;
+
+    ascostream astream( strm );
+    astream.putHeader( "Parent-Child Data" );
+
+    IOPar par;
+    trackingsamp_.fillPar( par );
+    par.putTo( astream );
+
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+	strm.addBin( data[idx] );
+
+    strm.close();
+
+    return true;
+}
+
+
+bool Horizon3D::readParentArray()
+{
+    IOObjInfo ioobjinfo( multiID() );
+    if ( !ioobjinfo.ioObj() ) return false;
+
+    od_istream strm( getParentChildFileName(*ioobjinfo.ioObj()) );
+    if ( !strm.isOK() ) return false;
+
+    ascistream astream( strm );
+    const IOPar par( astream );
+    trackingsamp_.usePar( par );
+
+    delete parents_;
+    parents_ = new Array2DImpl<od_int64>( trackingsamp_.nrInl(),
+					  trackingsamp_.nrCrl() );
+    od_int64* data = parents_->getData();
+    if ( !data )
+    { delete parents_; parents_ = 0; return false; }
+
+    const od_int64 totalsz = parents_->info().getTotalSz();
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+	strm.getBin( data[idx] );
+
+    return true;
 }
 
 

@@ -159,6 +159,8 @@ public:
     SurfaceAuxData&		auxdata;
 
     void			initTrackingArrays();
+    bool			saveParentArray();
+    bool			readParentArray();
     TrcKeySampling		getTrackingSampling() const;
     void			setParent(const TrcKey&,const TrcKey& parent);
     TrcKey			getParent(const TrcKey&) const;

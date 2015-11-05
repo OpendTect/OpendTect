@@ -66,6 +66,7 @@ public:
 
     static BufferString		getParFileName(const IOObj&);
     static BufferString		getSetupFileName(const IOObj&);
+    static BufferString		getParentChildFileName(const IOObj&);
 
     virtual void		apply(const Pos::Filter&);
 
