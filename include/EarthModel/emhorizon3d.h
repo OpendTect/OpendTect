@@ -211,6 +211,7 @@ public:
     /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
     TrcKey::SurvID		getSurveyID() const {return getSurveyGeomID();}
+    static Color		sDefaultSelectionColor();
 };
 
 

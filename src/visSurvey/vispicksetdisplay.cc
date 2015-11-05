@@ -43,8 +43,7 @@ PickSetDisplay::PickSetDisplay()
     , dragger_(0)
     , draggeridx_(-1)
     , showdragger_(false)
-    , unselcorlor_(Color::White())
-    , selcolor_(Color::Green())
+    , color_(Color::White())
 {
     markerset_->ref();
     markerset_->applyRotationToAllMarkers( false );
@@ -107,7 +106,7 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 void PickSetDisplay::updateDragger()
 {
     if ( dragger_ )
-	dragger_->updateDragger(false);
+    dragger_->updateDragger( false );
 }
 
 
@@ -569,6 +568,8 @@ void PickSetDisplay::otherObjectsMoved(
 	if ( pidx && set_->disp_.connect_ == Pick::Set::Disp::Close )
 	    polyline_->setPoint( pidx, polyline_->getPoint(0) );
     }
+
+    requestSingleRedraw();
 }
 
 
@@ -713,10 +714,7 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
     if ( !scene_ || ! scene_->getPolySelection() )
 	return;
 
-    unselcorlor_ = set_->disp_.color_;
-    if ( Math::Abs(unselcorlor_.g()-255)<10 )
-	selcolor_ = Color::Red();
-
+    color_ = set_->disp_.color_;
     const int diff = markerset_->size()-pickselstatus_.size();
     if ( diff !=0 ) // added new pos or removed pos. reset
     {
@@ -741,7 +739,7 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
 
 void PickSetDisplay::unSelectAll()
 {
-    markerset_->setMarkersSingleColor( unselcorlor_ );
+    markerset_->setMarkersSingleColor( color_ );
     deepErase( selectors_ );
     pickselstatus_.setAll( false );
 }
@@ -749,7 +747,7 @@ void PickSetDisplay::unSelectAll()
 
 void PickSetDisplay::setPickSelect( int idx, bool yn )
 {
-    Color clr = yn ? selcolor_ : unselcorlor_;
+    Color clr = yn ? color_.complementaryColor() : color_;
     markerset_->getMaterial()->setColor( clr, idx );
     pickselstatus_[idx] = yn;
 }

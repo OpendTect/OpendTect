@@ -1908,7 +1908,6 @@ void HorizonDisplay::updateSelections()
     	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );
-	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
 	pidxs += pidx;
     }
 
@@ -1917,6 +1916,7 @@ void HorizonDisplay::updateSelections()
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
+    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
     selections_->turnOn( true );
 }
 
