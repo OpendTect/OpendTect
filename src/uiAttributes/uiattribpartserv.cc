@@ -507,9 +507,8 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     const int nr2d = ds2d->nrDescs( false, true );
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
-    int res = uiMSG().askGoOnAfter( tr("Which attributes do you want to use?"),
-				    uiStrings::sEmptyString(), uiStrings::s2D(),
-				    uiStrings::s3D() );
+    const int res =
+	uiMSG().ask2D3D( tr("Which attributes do you want to use?"), true );
     if ( res == -1 ) return 0;
     return res == 1 ? ds2d : ds3d;
 }

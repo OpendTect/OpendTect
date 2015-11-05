@@ -56,14 +56,16 @@ public:
 			 const uiString& textno=uiString::emptyString(),
 			 const uiString& textcncl=uiString::emptyString(),
 			 const uiString& caption=uiString::emptyString());
-    int		askSave(const uiString&,bool cancelbutt=true);
+    int		askSave(const uiString&,bool cancelbut=true);
     		//!<\retval 0=Don't save 1=Save -1=Cancel
-    int		askRemove(const uiString&,bool cancelbutt=false);
+    int		askRemove(const uiString&,bool cancelbut=false);
     		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askContinue(const uiString&);
     		//!<\retval 0=Abort 1=Continue
     int		askOverwrite(const uiString&);
 		//!<\retval 0=Abort 1=Overwrite
+    int		ask2D3D(const uiString&,bool cancelbut=false);
+		//!<\retval 0=3D 1=2D -1=Cancel
 
     bool	askGoOn(const uiString&,bool withyesno=true);
     		//!< withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
