@@ -55,7 +55,7 @@ static const char* rcsID mUsedVar = "$Id$";
     worktrc_ = &intrc_
 
 #define mHandlePastLastReader(to_do) \
-    if ( currdridx_ >= rdrs_.size() ) \
+    if ( !rdrs_.validIdx(currdridx_) ) \
 	{ wrapUp(); to_do; }
 
 
@@ -489,3 +489,4 @@ void SeisSingleTraceProc::wrapUp()
 {
     wrr_.close();
 }
+
