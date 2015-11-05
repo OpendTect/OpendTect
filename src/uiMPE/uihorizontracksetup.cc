@@ -379,7 +379,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     parentcolfld_->attach( alignedBelow, seedsliderfld_ );
 
     selectioncolfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::Yellow())
+		   uiColorInput::Setup(EM::Horizon3D::sDefaultSelectionColor())
 				.withdesc(false).lbltxt(tr("Selections")) );
     selectioncolfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );

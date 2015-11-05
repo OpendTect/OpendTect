@@ -381,16 +381,13 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     qInstallMsgHandler( qtMessageOutput );
 #endif
 
+#ifndef __win__
     BufferString stylestr = getStyleFromSettings();
     if ( stylestr.isEmpty() )
-#ifdef __win__
-	stylestr = QSysInfo::WindowsVersion == QSysInfo::WV_VISTA
-		? "windowsvista" : "windowsxp";
-#else
 	stylestr = __ismac__ ? "macintosh" : "cleanlooks";
-#endif
-
+    
     QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
+#endif
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
     if ( qssfnm.isEmpty() )

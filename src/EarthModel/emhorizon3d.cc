@@ -42,6 +42,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM {
 
+    Color Horizon3D::sDefaultSelectionColor() { return Color::Orange(); }
+
 class AuxDataImporter : public Executor
 { mODTextTranslationClass(AuxDataImporter);
 public:
@@ -293,7 +295,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , selectioncolor_(Color::Orange())
+    , selectioncolor_(sDefaultSelectionColor())
     , lockcolor_(Color::Blue())
     , survgeomid_( Survey::GM().default3DSurvID() )
 {

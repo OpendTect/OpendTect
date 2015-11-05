@@ -128,8 +128,7 @@ protected:
 private:
     void			setPickSelect(int,bool);
     void			unSelectAll();
-    Color			unselcorlor_;
-    Color			selcolor_;
+    Color			color_;
     BoolTypeSet			pickselstatus_;
 };
 

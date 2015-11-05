@@ -213,6 +213,8 @@ public:
     Array2D<char>*		getChildren(const TrcKey&) const
     				{ return getChildren(); }
     TrcKey::SurvID		getSurveyID() const { return getSurveyGeomID();}
+
+    static Color		sDefaultSelectionColor();
 };
 
 
