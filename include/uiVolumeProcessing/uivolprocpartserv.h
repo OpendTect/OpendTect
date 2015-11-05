@@ -32,7 +32,7 @@ public:
 
     const char*		name() const			{ return "VolProc"; }
 
-    void		doVolProc(const MultiID*);
+    void		doVolProc(const MultiID*,const char* steptype=0);
     void		createVolProcOutput(const IOObj*);
 
     void		fillPar(IOPar&) const;

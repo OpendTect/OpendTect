@@ -515,6 +515,12 @@ void uiChain::addStepPush(CallBacker*)
 	return;
 
     const char* steptype = uiStepDialog::factory().getNames()[sel]->buf();
+    addStep( steptype );
+}
+
+
+void uiChain::addStep( const char* steptype )
+{
     Step* step = Step::factory().create( steptype );
     if ( !step ) return;
 
