@@ -183,7 +183,7 @@ bool uiStratSeisEvent::getFromScreen()
     {
 	Interval<float> win( extrwinfld_->getFInterval() );
 	if ( win.isUdf() )
-	    mErrRet(uiStrings::phrInput(tr("a valid time range")))
+	    mErrRet(uiStrings::phrEnter(tr("a valid time range")))
 
 	win.scale( mToSecFactorF );
 	ev_.setExtrWin( win );
@@ -193,7 +193,7 @@ bool uiStratSeisEvent::getFromScreen()
 	{
 	    const float stepms = extrstepfld_->getFValue();
 	    if ( mIsUdf(stepms) )
-		mErrRet(uiStrings::phrInput(tr("a valid step")))
+		mErrRet(uiStrings::phrEnter(tr("a valid step")))
 
 	    extrstep = stepms * mToSecFactorF;
 	}
