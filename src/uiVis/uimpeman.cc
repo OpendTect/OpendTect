@@ -375,10 +375,20 @@ void uiMPEMan::mouseCursorCallCB( CallBacker* )
 
 
 #define mSeedClickReturn() \
-{ endSeedClickEvent(emobj);  return; }
+{\
+if ( seedpicker && clickcatcher_ && clickcatcher_->moreToSow() )\
+{\
+    if (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||\
+	seedpicker->getTrackMode()==seedpicker->DrawAndSnap )\
+	return;\
+}\
+endSeedClickEvent(emobj);\
+return; \
+}\
 
 void uiMPEMan::seedClick( CallBacker* )
 {
+    MPE::EMSeedPicker* seedpicker = 0;
     EM::EMObject* emobj = 0;
     MPE::Engine& engine = MPE::engine();
     if ( engine.trackingInProgress() )
@@ -412,9 +422,17 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedhor && clickedhor!=hor )
 	mSeedClickReturn();
 
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
+    seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker )
 	mSeedClickReturn();
+
+     if ( clickedhor && clickedhor==hor && 
+	!clickcatcher_->info().isDoubleClicked() )
+     {
+	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
+	    mSeedClickReturn();
+     }
 
     seedpicker->setSectionID( emobj->sectionID(0) );
     const bool dbclick = clickcatcher_->info().isDoubleClicked() && 
@@ -478,7 +496,8 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( seedpicker->nrSeeds() > 0 )
     {
 	if ( trackedatsel &&
-	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) )
+	     seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds &&
+	     seedpicker->getTrackMode()!=seedpicker->DrawAndSnap )
 	{
 	    bool chanceoferror = false;
 	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
