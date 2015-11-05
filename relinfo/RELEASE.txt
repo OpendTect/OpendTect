@@ -12,7 +12,7 @@ v5.0.11: November 5, 2015
  * Fix for crash while changing display properties of Y2 points in Cross-plot
    window
  * Fix for crash while closing OpendTect main window when HorizonShift
-   dialog is open
+   window is open
  * Fix for Steering cube names disappearing from the 'Manage Seismic' window
  * Fix for processing volume using 'Horizon-based painter (advanced)' option
    in volume builder
