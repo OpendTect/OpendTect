@@ -700,7 +700,7 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	if ( !getTrack() || !getInfo() )
 	    return false;
     }
-    if ( !updateDTModel(d2t,false,errmsg_) )
+    if ( !updateDTModel(d2t,csmdl,errmsg_) )
 	mErrRetStrmOper( sOperReadD2T )
 
     return true;
