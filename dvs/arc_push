@@ -35,11 +35,24 @@ else
 endif
 
 do_work:
+echo "First running arc_update to bring $branchnm up-to-date with $mainbranch"
+arc_update $branchnm
+if ( $status != 0 ) then
+    echo "${0}: error while updating $branchnm, fix errors and try again"
+    exit 1
+endif
 
-echo "Going to update $branchnm"
+echo "Going to push all local commits from $branchnm to $mainbranch at Github"
+echo -n "Are you sure you want to go ahead?(y/n): "
+set anschar=$<
+if( "$anschar" != "y" && "$anschar" != "Y" ) then
+    echo "${0}: Aborted by user"
+    exit 1
+endif
+
 git checkout $mainbranch
 if ( $status != 0 ) then
-    echo "${0}: Cannot checkout $mainbranch, fix errors and try again"
+    echo "${0}- Cannot checkout $mainbranch, fix errors and try again"
     exit 1
 endif
 
@@ -49,17 +62,17 @@ if ( $status != 0 ) then
     exit 1
 endif
 
-git checkout "$branchnm"
+git merge "$branchnm"
 if ( $status != 0 ) then
-    echo "${0}: Cannot checkout $branchnm, fix errors and try again"
+    echo "${0}: Cannot merge $branchnm to $mainbranch, fix errors and try again"
     exit 1
 endif
 
-git rebase $mainbranch
+git push
 if ( $status != 0 ) then
-    echo "${0}: Cannot rebase $branchnm with $mainbranch, fix errors and try again"
+    echo "${0}: Cannot push $mainbranch, fix errors and try again"
     exit 1
 endif
 
-echo "Updated branch $branchnm successfully"
+echo "Pushed all changes from branch $branchnm successfully"
 exit 0
