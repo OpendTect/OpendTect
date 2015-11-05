@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
@@ -239,9 +240,9 @@ void ui2DGridLinesFromInlCrl::paramsChgCB( CallBacker* )
 void ui2DGridLinesFromInlCrl::getNrLinesLabelTexts( BufferString& inltxt,
 						    BufferString& crltxt ) const
 {
-    inltxt = "Nr of Inlines in grid: ";
+    inltxt = "Nr of In-lines in grid: ";
     inltxt += grid_->size( true );
-    crltxt = "Nr of Crosslines in grid: ";
+    crltxt = "Nr of Cross-lines in grid: ";
     crltxt += grid_->size( false );
 }
 
@@ -468,7 +469,7 @@ bool ui2DGridLinesFromRandLine::fillPar( IOPar& par ) const
 
 
 uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrCreate(tr("%2 %3 grid")
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrCreate(tr("%2 %3 Grid")
 		 .arg(uiStrings::s2D()).arg(uiStrings::sSeismic())),mNoDlgTitle,
 		 mODHelpKey(mCreate2DGridHelpID) ) )
     , sourceselfld_(0),inlcrlgridgrp_(0)
@@ -550,9 +551,7 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
     horcheckfld_ = new uiCheckBox( grp, uiStrings::phrExtract(
 				   tr("horizons for the new grid")),
 				   mCB(this,uiCreate2DGrid,horCheckCB) );
-    horselfld_ = new uiIOObjSelGrp( grp, mIOObjContext(EMHorizon3D),
-		 uiStrings::phrSelect(uiStrings::sHorizon(mPlural).toLower()),
-		 uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    horselfld_ = new uiHorizonParSel( grp, false, true );
     horselfld_->attach( alignedBelow, horcheckfld_ );
 
     hornmfld_ = new uiGenInput( grp, tr("%1 name prefix")
@@ -575,12 +574,10 @@ uiGroup* uiCreate2DGrid::createPreviewGroup()
     previewmap_->setPrefWidth( 300 );
     previewmap_->setPrefHeight( 300 );
 
-    nrinlinesfld_ = new uiLabel( grp, tr("Nr of inlines in grid: %1")
-								  .arg("XXX") );
+    nrinlinesfld_ = new uiLabel( grp, uiStrings::sEmptyString() );
     nrinlinesfld_->setPrefWidthInChar( 40 );
     nrinlinesfld_->attach( centeredBelow, previewmap_ );
-    nrcrlinesfld_ = new uiLabel( grp, tr("Nr of crosslines in grid: %1")
-								  .arg("XXX") );
+    nrcrlinesfld_ = new uiLabel( grp, uiStrings::sEmptyString() );
     nrcrlinesfld_->setPrefWidthInChar( 40 );
     nrcrlinesfld_->attach( centeredBelow, nrinlinesfld_ );
     return grp;
@@ -681,12 +678,12 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 
 void uiCreate2DGrid::fillHorPar( IOPar& par )
 {
-    BufferStringSet horids;
-    const int nrsel = horselfld_->nrChosen();
-    for ( int idx=0; idx<nrsel; idx++ )
-	horids.add( horselfld_->chosenID(idx).buf() );
+    const TypeSet<MultiID>& horids = horselfld_->getSelected();
+    BufferStringSet horidstrs;
+    for ( int idx=0; idx<horids.size(); idx++ )
+	horidstrs.add( horids[idx].buf() );
 
-    par.set( Horizon2DGridCreator::sKeyInputIDs(), horids );
+    par.set( Horizon2DGridCreator::sKeyInputIDs(), horidstrs );
     par.set( Horizon2DGridCreator::sKeySeisID(), outfld_->key() );
     par.set( Horizon2DGridCreator::sKeyPrefix(), hornmfld_->text() );
 }
@@ -793,3 +790,4 @@ bool uiCreate2DGrid::acceptOK( CallBacker* )
     batchfld_->setJobName( outfld_->ioobj()->name() );
     return batchfld_->start();
 }
+

@@ -505,7 +505,7 @@ bool uiSurfaceRead::processInput()
 
 // uiHorizonParSel
 uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
-    : uiCompoundParSel(p,uiStrings::sHorizon())
+    : uiCompoundParSel(p,uiStrings::sHorizon(mPlural))
     , is2d_(is2d)
 {
     butPush.notify( mCB(this,uiHorizonParSel,doDlg) );
@@ -917,7 +917,3 @@ void uiFaultParSel::setActOptions( const BufferStringSet& opts, int dftoptidx )
     optnms_ = opts;
     defaultoptidx_ = opts.validIdx(dftoptidx) ? dftoptidx : 0;
 }
-
-
-
-
