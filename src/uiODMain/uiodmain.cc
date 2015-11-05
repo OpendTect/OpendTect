@@ -706,6 +706,8 @@ bool uiODMain::closeOK()
     sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
     delete menumgr_; menumgr_ = 0;
     delete scenemgr_; scenemgr_ = 0;
+    delete viewer2dmgr_; viewer2dmgr_ = 0;
+    delete applmgr_; applmgr_ = 0;
 
     return true;
 }
