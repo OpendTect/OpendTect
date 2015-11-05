@@ -16,15 +16,16 @@ class KaiserWindow;
  A table contains shifted, stretched KaiserWindow functions in both directions
 */
 
-mClass(Algo) SincTableManager
+mExpClass(Algo) SincTableManager
 {
 public:
 			SincTableManager()	{};
 
     static SincTableManager&	STM();
 
-    struct Table /*Table of sinc interpolator coefficients.*/
+    mExpClass(Algo) Table /*Table of sinc interpolator coefficients.*/
     {
+	public:
 			Table(int lsinc,int nsinc,float emax,float fmax,
 			      int lmax);
 			~Table()		{}
@@ -130,7 +131,7 @@ protected:
  */
 
 
-mClass(Algo) SincInterpolator
+mExpClass(Algo) SincInterpolator
 {
 public:
 			~SincInterpolator();
