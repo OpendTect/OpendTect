@@ -110,12 +110,11 @@ void ScaleBar::setPick( const Pick::Location& loc )
 
 void ScaleBar::updateVis( const Pick::Location& loc )
 {
-    if ( !loc.pos_.isDefined() )
+    if ( !loc.pos_.isDefined() || loc.dir_==Sphere() )
 	return;
 
     pos_ = loc.pos_;
     const Coord3 pos2 = getSecondPos( loc );
-    
     if ( !pos_.isDefined() || !pos2.isDefined() )
 	return;
 

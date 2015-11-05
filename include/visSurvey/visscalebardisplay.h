@@ -28,21 +28,21 @@ public:
     static ScaleBarDisplay*	create()
 				mCreateDataObj(ScaleBarDisplay);
     				~ScaleBarDisplay();
-    
+
     void			setOnInlCrl(bool);
     bool			isOnInlCrl() const;
-    
+
     void			setOrientation(int);
     int				getOrientation() const;
 
     void			setLineWidth(int);
     int				getLineWidth() const;
-    
+
     void			setLength(double);
     double			getLength() const;
 
     void			setColors(Color);
-    
+
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
@@ -50,11 +50,13 @@ public:
     void			toPar(IOPar&) const;
 
 protected:
-      
+
     visBase::VisualObject*	createLocation() const;
 
-    virtual void		setPosition(int,const Pick::Location&,
-					    bool addd=false);
+    virtual void		setPosition(int,const Pick::Location&);
+    virtual void		setPosition(int idx,const Pick::Location&,
+					    bool add);
+
     virtual void		removePosition(int);
 
     virtual int			clickedMarkerIndex(
@@ -75,3 +77,4 @@ protected:
 } // namespace visSurvey
 
 #endif
+
