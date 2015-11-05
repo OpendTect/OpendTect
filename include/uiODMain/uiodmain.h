@@ -20,7 +20,6 @@ class IOObj;
 class ODSession;
 class Timer;
 class uiMain;
-class uiDockWin;
 class uiODApplMgr;
 class uiODMain;
 class uiODMenuMgr;
@@ -91,7 +90,6 @@ protected:
     ODSession*		cursession_;
     ODSession&		lastsession_;
     bool		restoringsess_;
-    uiDockWin*		ctabwin_;
     BufferString	programname_;
 
     MultiID		cursessid_;

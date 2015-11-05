@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribpartserv.h"
 #include "uimain.h"
 #include "uicolortable.h"
-#include "uidockwin.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -125,7 +124,6 @@ uiODMain::uiODMain( uiMain& a )
     , menumgr_(0)
     , scenemgr_(0)
     , ctabed_(0)
-    , ctabwin_(0)
     , ctabtb_(0)
     , sesstimer_(*new Timer("Session restore timer"))
     , memtimer_(*new Timer("Memory display timer"))
@@ -173,7 +171,6 @@ uiODMain::~uiODMain()
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
 
-    delete ctabwin_;
     delete &lastsession_;
     delete &sesstimer_;
     delete &memtimer_;
@@ -702,10 +699,11 @@ bool uiODMain::closeOK()
 
     IOM().applClosing();
 
-    removeDockWindow( ctabwin_ );
     sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
     delete menumgr_; menumgr_ = 0;
     delete scenemgr_; scenemgr_ = 0;
+    delete viewer2dmgr_; viewer2dmgr_ = 0;
+    delete applmgr_; applmgr_ = 0;
 
     return true;
 }
