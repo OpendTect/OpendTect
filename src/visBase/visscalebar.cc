@@ -114,7 +114,9 @@ void ScaleBar::updateVis( const Pick::Location& loc )
 	return;
 
     pos_ = loc.pos_;
-    const Coord3 pos2 = getSecondPos( loc );
+    const Coord3 pos2 = getSecondPos( loc );  
+    if ( !pos_.isDefined() || !pos2.isDefined() )
+	return;
 
     markers_->setPos( 0, pos_ );
     markers_->setPos( 1, pos2 );
@@ -193,4 +195,3 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 }
 
 }
-
