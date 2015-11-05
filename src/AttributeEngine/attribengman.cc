@@ -374,6 +374,9 @@ bool doPrepare( int nrthreads )
     if ( in_.getDataDesc() != out_.getDataDesc() )
 	return true;
 
+    if ( in_.isEmpty() || out_.isEmpty() )
+	return false;
+
     inptr_ = mCast( const unsigned char*, in_.data().getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
 		     in_.data().getStorage() );
