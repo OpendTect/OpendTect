@@ -255,6 +255,9 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
     if ( mid.isUdf() ) return;
 
     selemid_ = em_.getObjectID( mid );
+    EM::EMObject* emobj = em_.getObject( selemid_ );
+    if ( emobj ) emobj->setFullyLoaded( true );
+
     sendEvent( evDisplayHorizon() );
 }
 
