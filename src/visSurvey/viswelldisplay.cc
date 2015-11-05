@@ -82,7 +82,14 @@ WellDisplay::~WellDisplay()
     if ( transformation_ )
 	transformation_->unRef();
     if ( wd_ )
+    {
+	wd_->trackchanged.remove( mCB(this,WellDisplay,fullRedraw) );
+	wd_->markerschanged.remove( mCB(this,WellDisplay,updateMarkers) );
+	wd_->disp3dparschanged.remove( mCB(this,WellDisplay,fullRedraw) );
+	if ( zistime_ )
+	    wd_->d2tchanged.remove( mCB(this,WellDisplay,fullRedraw) );
 	wd_->unRef();
+    }
 
     delete dispprop_;
     unRefAndZeroPtr( markerset_ );
