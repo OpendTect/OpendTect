@@ -569,8 +569,8 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 
     while ( lefttoalloc )
     {
-	const unsigned int allocsize = lefttoalloc>=chunksize_
-	    ? (unsigned int)chunksize_ : (unsigned int)lefttoalloc;
+	const od_uint64 allocsize = lefttoalloc>=chunksize_
+	    ? (od_uint64)chunksize_ : lefttoalloc;
 
 	AT* ptr;
 	mTryAlloc( ptr, AT[allocsize] );
