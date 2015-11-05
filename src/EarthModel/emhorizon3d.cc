@@ -359,6 +359,7 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 	return 0;
     }
 
+    hor3d->setFullyLoaded( true );
     return hor3d;
 }
 

@@ -255,6 +255,9 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
     if ( mid.isUdf() ) return;
 
     selemid_ = em_.getObjectID( mid );
+    EM::EMObject* emobj = em_.getObject( selemid_ );
+    if ( emobj ) emobj->setFullyLoaded( true );
+
     sendEvent( evDisplayHorizon() );
 }
 
@@ -1250,7 +1253,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	return false;
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
-    const uiString infomsg = 
+    const uiString infomsg =
 			interp ? interp->infoMsg() : uiStrings::sEmptyString();
     if ( infomsg.isSet() )
 	uiMSG().message( infomsg );
