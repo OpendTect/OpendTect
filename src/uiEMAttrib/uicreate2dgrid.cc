@@ -90,7 +90,8 @@ void update()
     if ( !grid_ ) return;
 
     OD::LineStyle ls;
-    int graphicszval = 1;
+    ls.width_ = 5;
+    int graphicszval = 2;
     for ( int idx=0; idx<grid_->size(true); idx++ )
     {
 	const Grid2D::Line* line2d = grid_->getLine( idx, true );
@@ -105,9 +106,9 @@ void update()
 	    mDrawLine( line2d );
     }
 
-    ls.width_ = 2;
-    ls.color_.set( 200, 100, 100 );
-    graphicszval = 2;
+    ls.width_ += 2;
+    ls.color_ = Color::Green();
+    graphicszval = 4;
     if ( baseline_ )
 	mDrawLine( baseline_ );
 }
