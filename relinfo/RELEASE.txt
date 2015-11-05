@@ -1,6 +1,22 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.11: November 5, 2015
+ * Fix for calculating default Output sample distance when survey defined with
+   depth in 'Feet'
+ * Fix for crash while clicking on View well track or View markers icon in
+   manage Wells window without a default well
+ * Fix for empty '2D <=> 3D' menu in '2D only' surveys
+ * Fix for 2D line projections displayed at a wrong depth in
+   transformed scenes
+ * Fix for crash while changing display properties of Y2 points in Cross-plot
+   window
+ * Fix for crash while closing OpendTect main window when HorizonShift
+   window is open
+ * Fix for Steering cube names disappearing from the 'Manage Seismic' window
+ * Fix for processing volume using 'Horizon-based painter (advanced)' option
+   in volume builder
+
 v5.0.10: September 16, 2015
  * Fix for crash while shifting horizon after loading faults
  * Fix for crash while importing horizon with horizon data
