@@ -48,3 +48,9 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
     return batchjobfld_->start();
 }
 
+
+void uiBatchProcDlg::setProgName( const char* prognm )
+{
+    batchjobfld_->jobSpec().prognm_ = prognm;
+}
+
