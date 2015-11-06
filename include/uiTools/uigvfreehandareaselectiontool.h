@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 class uiGraphicsView;
 class uiPolygonItem;
-namespace OD{ template <class T> class Polygon; };
+template <class T> class ODPolygon;
 
 mExpClass(uiTools) uiGVFreehandAreaSelectionTool : public CallBacker
 {
@@ -36,12 +36,12 @@ public:
 
     void		enable();
     void		disable();
-    bool		isEnabled() const;
+    bool		isEnabled() const { return enabled_; }
 
     void		setPolygonMode(bool);
     bool		isPolygonMode() const;
 
-    const OD::Polygon<int>& selection();
+    const ODPolygon<int>& selection() const { return odpolygon_; }
 
     Notifier<uiGVFreehandAreaSelectionTool>	started;
     Notifier<uiGVFreehandAreaSelectionTool>	pointAdded;
@@ -51,6 +51,8 @@ protected:
 
     uiGraphicsView&	gv_;
     uiPolygonItem*	polygonselitem_;
+    ODPolygon<int>&	odpolygon_;
+
     
     bool		ispolygonmode_;
     bool		enabled_;
