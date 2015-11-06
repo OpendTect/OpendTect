@@ -245,7 +245,12 @@ protected:
     Interval<float>		depthrg_;
     int				voiidx_;
 
-    float			oldzrgstart_;
+    struct UpdateStageInfo
+    {
+	float			oldzrgstart_;
+	float			mapfactor_;
+    };
+    UpdateStageInfo		updatestageinfo_;
 
     bool			lockgeometry_;
     bool			ismanip_;
