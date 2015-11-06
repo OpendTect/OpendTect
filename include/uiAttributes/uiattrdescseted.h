@@ -72,6 +72,7 @@ public:
     bool		is2D() const;
 
     void		setSelAttr(const char* attrnm);
+    void		loadDefaultAttrSet(const char* attribsetnm);
     void		setSensitive(bool);
 
     bool		getUiAttribParamGrps(

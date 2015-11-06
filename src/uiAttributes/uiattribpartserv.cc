@@ -1902,3 +1902,9 @@ void uiAttribPartServer::setSelAttr( const char* attrnm )
 	attrsetdlg_->setSelAttr( attrnm );
 }
 
+
+void uiAttribPartServer::loadDefaultAttrSet( const char* attribsetnm )
+{
+    if ( attrsetdlg_ )
+	attrsetdlg_->loadDefaultAttrSet( attribsetnm );
+}
