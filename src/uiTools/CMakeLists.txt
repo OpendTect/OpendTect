@@ -45,6 +45,7 @@ SET( OD_MODULE_SOURCES
 	uigraphicssceneaxismgr.cc
 	uigraphicsview.cc
 	uigridder2d.cc
+	uigvfreehandareaselectiontool.cc
 	uihandledlsitefail.cc
 	uihistogramdisplay.cc
 	uiinterpollayermodel.cc
