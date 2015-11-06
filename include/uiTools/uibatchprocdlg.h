@@ -31,7 +31,9 @@ protected:
     virtual bool		prepareProcessing() { return true; }
     virtual void		getJobName(BufferString& jobnm) const;
     virtual bool		fillPar(IOPar&)		=0;
+
     bool			acceptOK(CallBacker*);
+    void			setProgName(const char*);
 
     uiGroup*			pargrp_;
     uiGroup*			batchgrp_;
