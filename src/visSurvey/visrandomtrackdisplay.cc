@@ -785,6 +785,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
     }
 
+    setPanelStripZRange( panelstrip_->getZRange() );
     channels_->turnOn( true );
 }
 
@@ -870,15 +871,16 @@ void RandomTrackDisplay::updatePanelStripPath()
 
 void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 {
-    const StepInterval<float> zrg( rg.start, rg.stop, appliedZRangeStep() );
-    panelstrip_->setZRange( zrg );
-    const Interval<float> mapping(0,mCast(float,zrg.nrSteps()*(resolution_+1)));
-    panelstrip_->setZRange2TextureMapping( mapping );
+    panelstrip_->unsetZRange2TextureMapping();
+    panelstrip_->setZRange( rg );
 
     if ( getUpdateStageNr() )
     {
-	const float factor = (resolution_+1) / zrg.step;
-	panelstrip_->setZTextureShift( (oldzrgstart_-zrg.start)*factor );
+	const float mapfactor = updatestageinfo_.mapfactor_;
+	const float diff = updatestageinfo_.oldzrgstart_ - rg.start;
+	panelstrip_->setZTextureShift( diff * mapfactor );
+	const Interval<float> mapping( 0.0f, rg.width() * mapfactor );
+	panelstrip_->setZRange2TextureMapping( mapping );
     }
 }
 
@@ -898,7 +900,11 @@ void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
     else
     {
 	if ( !getUpdateStageNr() )
-	    oldzrgstart_ = getDepthInterval().start;
+	{
+	    updatestageinfo_.oldzrgstart_ = getDepthInterval().start;
+	    updatestageinfo_.mapfactor_ =
+		(channels_->getSize(0,2)-1) / getDepthInterval().width();
+	}
 	else
 	    panelstrip_->freezeDisplay( false );	// thaw to refreeze
 
