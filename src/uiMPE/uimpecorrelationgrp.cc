@@ -141,7 +141,7 @@ void uiCorrelationGroup::previewChgCB(CallBacker *)
 void uiCorrelationGroup::setSectionTracker( SectionTracker* st )
 {
     sectiontracker_ = st;
-    mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster())
+    mDynamicCastGet(HorizonAdjuster*,horadj,st ? st->adjuster() : 0)
     adjuster_ = horadj;
     if ( !adjuster_ ) return;
 
