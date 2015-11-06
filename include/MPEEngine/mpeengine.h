@@ -108,8 +108,11 @@ public:
 					      const TrcKeyZSampling&);
     void			swapCacheAndItsBackup();
 
+    bool			pickingOnSameData(const Attrib::SelSpec& oldss,
+						  const Attrib::SelSpec& newss,
+						  uiString& error) const;
     bool			isSelSpecSame(const Attrib::SelSpec& setupss,
-				      const Attrib::SelSpec& clickedss) const;
+					const Attrib::SelSpec& clickedss) const;
 
     void			updateFlatCubesContainer(const TrcKeyZSampling&,
 							 int idx,bool);

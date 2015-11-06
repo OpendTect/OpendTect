@@ -424,6 +424,9 @@ void Engine::removeTracker( int idx )
     deepErase( *flatcubescontainer_[idx] );
     flatcubescontainer_.replace( idx, 0 );
 
+    if ( nrTrackersAlive()==0 )
+	activevolume_.setEmpty();
+
     trackeraddremove.trigger();
 }
 
@@ -539,6 +542,27 @@ TrcKeyZSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
     }
 
     return res;
+}
+
+
+bool Engine::pickingOnSameData( const Attrib::SelSpec& oldss,
+				const Attrib::SelSpec& newss,
+				uiString& error ) const
+{
+    bool match = false;
+    if ( oldss.isStored() && newss.isStored() )
+    {
+	const FixedString defstr = oldss.defString();
+	match = defstr == newss.defString();
+	if ( match ) return true;
+    }
+
+    // TODO: Other messages for other options
+    error = tr( "This horizon has previously been picked on:\n'%1'.\n"
+		"The new seed has been picked on:\n'%2'." )
+			 .arg(oldss.userRef())
+			 .arg(newss.userRef());
+    return false;
 }
 
 

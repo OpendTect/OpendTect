@@ -57,11 +57,11 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintATSCB) );
     horpainter_->repaintdone_.notify(
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
-    mAttachCB( editor_->sower().sowingEnd, 
+    mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     if ( vwr )
-    mAttachCB( 
+    mAttachCB(
 	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
 	HorizonFlatViewEditor3D::keyPressedCB );
 }
@@ -86,7 +86,7 @@ HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
     cleanAuxInfoContainer();
     delete horpainter_;
     deepErase( markeridinfos_ );
-    
+
     if ( patchdata_ )
     {
 	editor_->viewer().removeAuxData( patchdata_ );
@@ -272,7 +272,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
-    
+
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds ||
 	seedpicker->getTrackMode()==EMSeedPicker::DrawAndSnap )
 	horpainter_->displayIntersection( false );
@@ -397,7 +397,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* )
 {
     handleMouseClicked( true );
-    
+
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
     if ( !seedpicker )
 	return;
@@ -408,7 +408,6 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* )
 	seedpicker->endPatch( false );
 	updatePatchDisplay();
     }
-
 }
 
 
@@ -494,11 +493,11 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
     if ( !seedpicker || !mehandler_ )
 	return;
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds || 
+    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	const MouseEvent& mouseevent = mehandler_->event();
-	const bool doerase = 
+	const bool doerase =
 	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
 	seedpicker->endPatch( doerase );
 	updatePatchDisplay();
@@ -514,8 +513,6 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return false;
 
-    const Attrib::SelSpec* atsel = 0;
-
     const MPE::SectionTracker* sectiontracker =
 	tracker.getSectionTracker(emobj->sectionID(0), true);
 
@@ -523,48 +520,33 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 			? sectiontracker->adjuster()->getAttributeSel(0)
 			: 0;
 
-    Attrib::SelSpec newatsel;
-
+    Attrib::SelSpec curss;
     if ( trackedatsel )
-	newatsel = *trackedatsel;
+	curss = *trackedatsel;
 
     if ( spk.nrSeeds() < 1 )
     {
 	if ( !HorizonFlatViewEditor2D::selectSeedData(editor_,pickinvd) )
 	    return false;
-
-	atsel = pickinvd ? vdselspec_ : wvaselspec_;
-
-	if ( !trackersetupactive_ && atsel && trackedatsel &&
-	     (newatsel!=*atsel) &&
-	     (spk.getTrackMode()!=spk.DrawBetweenSeeds) )
-	{
-	    uiMSG().error( tr("Saved setup has different attribute. \n"
-		    	      "Either change setup attribute or change\n"
-			      "display attribute you want to track on") );
-	    return false;
-	}
     }
-    else
-    {
-	if ( vdselspec_ && trackedatsel && (newatsel==*vdselspec_) )
-	    pickinvd = true;
-	else if ( wvaselspec_ && trackedatsel && (newatsel==*wvaselspec_) )
-	    pickinvd = false;
-	else if ( spk.getTrackMode() !=spk.DrawBetweenSeeds )
-	{
-	    uiString warnmsg = tr("Setup suggests tracking is done on '%1.\n"
-				  "But what you see is: '%2'.\n"
-				  "To continue seed picking either "
-				  "change displayed attribute or\n"
-				  "change input data in Tracking Setup.")
-			     .arg(newatsel.userRef());
-	    if (vdselspec_ && pickinvd)
-		      warnmsg.arg(vdselspec_->userRef());
-	    else if (wvaselspec_ && !pickinvd)
-		      warnmsg.arg(wvaselspec_->userRef());
 
-	    uiMSG().error( warnmsg );
+    const bool vdvisible = editor_->viewer().isVisible(false);
+    const bool wvavisible = editor_->viewer().isVisible(true);
+    const bool needsdata = spk.getTrackMode() != spk.DrawBetweenSeeds;
+    if ( spk.nrSeeds()>0 && trackedatsel && needsdata )
+    {
+	uiString vdmsg, wvamsg;
+	const bool vdres = vdvisible &&
+		MPE::engine().pickingOnSameData( curss, *vdselspec_, vdmsg );
+	const bool wvares = wvavisible &&
+		MPE::engine().pickingOnSameData( curss, *wvaselspec_, wvamsg );
+	if ( !vdres && !wvares )
+	{
+	    const bool res = uiMSG().askContinue( vdmsg );
+	    if ( !res )
+		return false;
+
+	    const_cast<MPE::EMSeedPicker*>(&spk)->setSelSpec( vdselspec_ );
 	    return false;
 	}
     }
@@ -590,9 +572,8 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
 
     seedpicker.setSelSpec( as );
 
-    if ( !MPE::engine().cacheIncludes(*as,curcs_) )
-	if ( dp.id() > DataPack::cNoID() )
-	    MPE::engine().setAttribData( *as, dp.id() );
+    if ( dp.id() > DataPack::cNoID() )
+	MPE::engine().setAttribData( *as, dp.id() );
 
     MPE::engine().activevolumechange.trigger();
 
@@ -624,7 +605,7 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 
 
 bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
-					 const MouseEvent& mev ) 
+					 const MouseEvent& mev )
 {
     const TrcKeyValue tkv( SI().transform(crd), (float)crd.z );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
@@ -706,9 +687,9 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 	    x = tkzs.tk_.pos().crl();
 	else if ( curcs_.nrCrl()==1 )
 	    x = tkzs.tk_.pos().inl();
-	else 
+	else
 	    return;
-	OD::MarkerStyle2D markerstyle( 
+	OD::MarkerStyle2D markerstyle(
 	    OD::MarkerStyle2D::Square, 4, emobj->preferredColor() );
 	patchdata_->markerstyles_ += markerstyle;
 	patchdata_->poly_ += FlatView::Point( x, tkzs.val_ );
