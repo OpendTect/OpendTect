@@ -1053,6 +1053,21 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 }
 
 
+void uiAttribDescSetEd::loadDefaultAttrSet( const char* attribsetnm )
+{
+    BufferStringSet attribfiles;
+    BufferStringSet attribnames;
+    getDefaultAttribsets( attribfiles, attribnames );
+    const int selidx = attribnames.indexOf( attribsetnm );
+    if ( selidx>=0 )
+    {
+	const char* filenm = attribfiles[selidx]->buf();
+	importFromFile( filenm );
+	attrsetfld_->setText( sKeyNotSaved );
+    }
+}
+
+
 static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 				 BufferStringSet& attribfiles,
 				 BufferStringSet& attribnames )

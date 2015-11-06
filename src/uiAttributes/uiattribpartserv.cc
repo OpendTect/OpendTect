@@ -131,7 +131,7 @@ uiAttribPartServer::~uiAttribPartServer()
 }
 
 
-uiString uiAttribPartServer::getMenuText( bool is2d, 
+uiString uiAttribPartServer::getMenuText( bool is2d,
 						bool issteering, bool endmenu )
 {
     uiString menutext;
@@ -1367,7 +1367,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 				    : &zdomain3dmnuitem_;
     uiString itmtxt = toUiString("%1 %2").arg(toUiString(zdinf.key()))
 			    .arg(useext ? (!is2d ? uiStrings::sCube(mPlural)
-			    : mJoinUiStrs(s2D(),sLine(mPlural))) 
+			    : mJoinUiStrs(s2D(),sLine(mPlural)))
 			    : uiStrings::sData());
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
@@ -1907,4 +1907,9 @@ void uiAttribPartServer::setSelAttr( const char* attrnm )
 }
 
 
+void uiAttribPartServer::loadDefaultAttrSet( const char* attrsetnm )
+{
+    if ( attrsetdlg_ )
+	attrsetdlg_->loadDefaultAttrSet( attrsetnm );
+}
 

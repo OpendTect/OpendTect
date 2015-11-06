@@ -74,6 +74,8 @@ public:
     void		setSelAttr(const char* attrnm);
     void		setSensitive(bool);
 
+    void		loadDefaultAttrSet(const char* attribsetnm);
+
     bool		getUiAttribParamGrps(
 				uiParent*,ObjectSet<AttribParamGroup>&,
 				BufferStringSet& paramnms,

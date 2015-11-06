@@ -182,6 +182,7 @@ public:
     const ColTab::MapperSetup* getEvalBackupColTabMapper() const;
 
     void		setSelAttr(const char* attrnm);
+    void		loadDefaultAttrSet(const char* attrsetnm);
 
 protected:
 
