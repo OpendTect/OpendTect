@@ -219,7 +219,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 }
 
 
-void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res ) const
+void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res,TypeSet<Coord>* ) const
 {
     if ( !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.start ) ||
 	 !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.stop ) )

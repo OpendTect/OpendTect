@@ -278,7 +278,11 @@ public:
 				{ return 0; }
 
 				//Trace-data
-    virtual void		getTraceKeyPath(TrcKeyPath&) const {}
+    virtual void		getTraceKeyPath(TrcKeyPath&,
+                                                TypeSet<Coord>* = 0) const {}
+                                /*!<If Coordinates are different from the
+                                   trckeys, they can be delivered in the 
+                                   TypeSet<Coord>* */
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
 				{ return Interval<float>(0,0); }
@@ -291,7 +295,7 @@ public:
 						  DataPointSet&) const	{}
     virtual void		setRandomPosData( int attrib,
 						  const DataPointSet*,
-						  TaskRunner*)	{}
+						  TaskRunner*)          {}
     virtual void		readAuxData()				{}
 
     virtual void		setScene(Scene* scn);

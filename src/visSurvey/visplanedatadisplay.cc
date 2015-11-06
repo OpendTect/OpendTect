@@ -627,7 +627,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( int attrib ) const
 }
 
 
-void PlaneDataDisplay::getTraceKeyPath( TrcKeyPath& path ) const
+void PlaneDataDisplay::getTraceKeyPath( TrcKeyPath& path,TypeSet<Coord>* ) const
 {
     path.erase();
     if ( orientation_==OD::ZSlice )

@@ -81,7 +81,8 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
     TrcKeyZSampling		getTrcKeyZSampling(int attrib=-1) const;
-    void			getTraceKeyPath(TrcKeyPath&) const;
+    void			getTraceKeyPath(TrcKeyPath&,
+                                                TypeSet<Coord>*) const;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;

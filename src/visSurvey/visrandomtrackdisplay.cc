@@ -512,19 +512,54 @@ void RandomTrackDisplay::removeAllNodes()
 }
 
 
-void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path ) const 
+void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
+                                          TypeSet<Coord>* crds ) const
 {
+    if ( crds ) crds->erase();
+    
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
 
     TypeSet<BinID> bids;
-    Geometry::RandomLine::getPathBids( nodes, bids, false, 0 );
+    TypeSet<int> segments;
+    Geometry::RandomLine::getPathBids( nodes, bids, false, &segments );
 
     path.erase();
     const Pos::SurvID survid = s3dgeom_->getSurvID();
+    int curlinesegment = -1;
+    Line2 curline;
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	path += TrcKey( survid, bids[idx] );
+        if ( !crds )
+            continue;
+        
+        if ( curlinesegment!=segments[idx] )
+        {
+            curlinesegment = -1;
+            
+            const int cursegment = segments[idx];
+            if ( cursegment<nodes.size()-1 )
+            {
+                const BinID startnode = nodes[segments[idx]];
+                const BinID stopnode = nodes[segments[idx]+1];
+                const Coord startpos = s3dgeom_->transform ( startnode );
+                const Coord stoppos = s3dgeom_->transform( stopnode );
+                
+                if ( startpos.isDefined() && stoppos.isDefined() &&
+                     startpos.sqDistTo( stoppos )>1e-3 )
+                {
+                    curline = Line2( startpos, stoppos );
+                    curlinesegment = cursegment;
+                }
+            }
+        }
+        
+        Coord pathpos = s3dgeom_->transform(bids[idx]);
+        if ( curlinesegment>=0 )
+            pathpos = curline.closestPoint( pathpos );
+        
+        (*crds) += pathpos;
     }
 }
 
