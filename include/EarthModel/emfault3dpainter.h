@@ -104,6 +104,7 @@ protected:
     void		repaintFault3D();
 
     Coord		getNormalInRandLine( int idx ) const;
+    FlatView::Point	getFVAuxPoint(const Coord3&) const;
 
     virtual void	fault3DChangedCB(CallBacker*);
      
