@@ -343,18 +343,29 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     }
     else
     {
-	BinID start( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
-	BinID stop(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
-
-	Coord3 p0( SI().transform(start), tkzs_.zsamp_.start );
-	Coord3 p1( SI().transform(start), tkzs_.zsamp_.stop );
-	Coord3 p2( SI().transform(stop), tkzs_.zsamp_.start );
-	Coord3 p3( SI().transform(stop), tkzs_.zsamp_.stop );
-
 	TypeSet<Coord3> pts;
+	if ( tkzs_.defaultDir() == TrcKeyZSampling::Z )
+	{
+	    BinID lt( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
+	    BinID lb(tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.crl() );
+	    BinID rt( tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.start_.crl() );
+	    BinID rb(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
 
-	pts += p0; pts += p1; pts += p2; pts += p3;
-
+	    pts += Coord3( SI().transform(lt), tkzs_.zsamp_.start );
+	    pts += Coord3( SI().transform(lb), tkzs_.zsamp_.start );
+	    pts += Coord3( SI().transform(rt), tkzs_.zsamp_.start );
+	    pts += Coord3( SI().transform(rb), tkzs_.zsamp_.start );
+	}
+	else
+	{
+	    BinID start( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
+	    BinID stop(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
+	    
+	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.start );
+	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.stop );
+	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.start );
+	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.stop );
+	}
 	if ( !paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
 	    return false;
     }
@@ -389,9 +400,7 @@ bool Fault3DPainter::paintPlaneIntxn(EM::Fault3D& f3d, Fault3DMarker* f3dmaker,
 	return false;
 
     Geometry::IndexedGeometry* idxgeom = idxshape->getGeometry()[0];
-
     Geometry::PrimitiveSet* geomps = idxgeom->getCoordsPrimitiveSet();
-
     if ( !geomps->size() )
 	return false;
 
@@ -421,59 +430,52 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 					const Geometry::PrimitiveSet* coordps,
 					TypeSet<Coord3>& intxnposs)
 {
-    FlatView::AuxData* intsecauxdat = viewer_.createAuxData( 0 );
-
-    intsecauxdat->poly_.erase();
-    intsecauxdat->linestyle_ = markerlinestyle_;
-    intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
-    intsecauxdat->linestyle_.color_ = f3d.preferredColor();
-    intsecauxdat->enabled_ = linenabled_;
-
-    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-    for ( int idx=0; idx<coordps->size(); idx++ )
+    for ( int idx=1; idx<coordps->size(); idx+=2 )
     {
-	if ( coordps->get(idx) == -1 )
-	{
-	    viewer_.addAuxData( intsecauxdat );
-	    f3dmaker->intsecmarker_ += intsecauxdat;
-	    intsecauxdat = viewer_.createAuxData( 0 );
-	    intsecauxdat->poly_.erase();
-	    intsecauxdat->linestyle_ = markerlinestyle_;
-	    intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
-	    intsecauxdat->linestyle_.color_ = f3d.preferredColor();
-	    intsecauxdat->enabled_ = linenabled_;
+	const Coord3 pos1 = intxnposs[coordps->get(idx)];
+	const Coord3 pos2 = intxnposs[coordps->get(idx-1)];
+	FlatView::Point auxpos1 = getFVAuxPoint( pos1 );
+	FlatView::Point auxpos2 = getFVAuxPoint( pos2 );
+	if ( !auxpos1.isDefined() || !auxpos2.isDefined() )
 	    continue;
-	}
 
-	const Coord3 pos = intxnposs[coordps->get(idx)];
-	BinID posbid =  SI().transform( pos.coord() );
+	FlatView::AuxData* intsecauxdat = viewer_.createAuxData( 0 );
+	intsecauxdat->poly_.erase();
+	intsecauxdat->linestyle_ = markerlinestyle_;
+	intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
+	intsecauxdat->linestyle_.color_ = f3d.preferredColor();
+	intsecauxdat->enabled_ = linenabled_;
+	intsecauxdat->poly_ += auxpos1;
+	intsecauxdat->poly_ += auxpos2;
+	f3dmaker->intsecmarker_ += intsecauxdat;
+	viewer_.addAuxData( intsecauxdat );
+    }
+} 
 
-	if ( path_ )
-	{
-	    const TrcKey trckey = Survey::GM().traceKey(
-		    Survey::GM().default3DSurvID(),posbid.inl(),posbid.crl() );
-	    const int trcidx = path_->indexOf( trckey );
-	    if ( trcidx != -1 )
-	    {
-		const double z = zat ? zat->transform(pos) : pos.z;
-		intsecauxdat->poly_ += FlatView::Point(
-			flatposdata_->position(true,trcidx), z );
-	    }
-	    continue;
-	}
 
-	if ( tkzs_.nrZ() == 1 )
-	    intsecauxdat->poly_ += FlatView::Point( posbid.inl(), posbid.crl());
-	else if ( tkzs_.nrCrl() == 1 )
-	    intsecauxdat->poly_ +=
-		FlatView::Point( posbid.inl(), zat? zat->transform(pos):pos.z );
-	else if ( tkzs_.nrInl() == 1 )
-	    intsecauxdat->poly_ +=
-		FlatView::Point( posbid.crl(), zat? zat->transform(pos):pos.z );
+FlatView::Point Fault3DPainter::getFVAuxPoint( const Coord3& pos ) const
+{
+    BinID posbid =  SI().transform( pos.coord() );
+    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+    if ( path_ )
+    {
+	const TrcKey trckey = Survey::GM().traceKey(
+		Survey::GM().default3DSurvID(),posbid.inl(),posbid.crl() );
+	const int trcidx = path_->indexOf( trckey );
+	if ( trcidx == -1 )
+	    return FlatView::Point::udf();
+	
+	const double z = zat ? zat->transform(pos) : pos.z;
+	return FlatView::Point( flatposdata_->position(true,trcidx), z );
     }
 
-    viewer_.addAuxData( intsecauxdat );
-    f3dmaker->intsecmarker_ += intsecauxdat;
+    if ( tkzs_.nrZ() == 1 )
+	return FlatView::Point( posbid.inl(), posbid.crl());
+    else if ( tkzs_.nrCrl() == 1 )
+	return FlatView::Point( posbid.inl(), zat? zat->transform(pos):pos.z );
+    else if ( tkzs_.nrInl() == 1 )
+	return FlatView::Point( posbid.crl(), zat? zat->transform(pos):pos.z );
+    return FlatView::Point::udf();
 }
 
 
