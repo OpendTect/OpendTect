@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimpe.h"
 
 class uiGenInput;
+class uiLabel;
 class uiPushButton;
 
 namespace MPE
@@ -65,6 +66,7 @@ protected:
     uiGenInput*			extriffailfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
+    uiLabel*			datalabel_;
 
     uiPreviewGroup*		previewgrp_;
     void			previewChgCB(CallBacker*);

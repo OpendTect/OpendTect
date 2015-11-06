@@ -869,6 +869,17 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
+
+    TypeSet<TrcKey> seeds;
+    seedpicker->getSeeds( seeds );
+    if ( !seeds.isEmpty() )
+    {
+	TrcKeyValue lastseed( seeds.last() );
+	mDynamicCastGet(EM::Horizon*,hor,emobj)
+	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
+	setupgrp_->setSeedPos( lastseed );
+    }
+
     MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
