@@ -79,6 +79,12 @@ void HorizonPainter3D::setFlatPosData( const FlatPosData* fps )
 
 void HorizonPainter3D::paint()
 {
+    CallBack::addToMainThread( mCB(this,HorizonPainter3D,paintCB) );
+}
+
+
+void HorizonPainter3D::paintCB( CallBacker* )
+{
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
@@ -86,7 +92,7 @@ void HorizonPainter3D::paint()
     if ( emobj && markerseeds_ && nrseeds_==1 )
     {
 	for ( int idx=0;idx<markerseeds_->marker_->markerstyles_.size(); idx++ )
-	    markerseeds_->marker_->markerstyles_[idx].color_= 
+	    markerseeds_->marker_->markerstyles_[idx].color_=
 	    emobj->preferredColor();
     }
 
@@ -95,14 +101,14 @@ void HorizonPainter3D::paint()
 }
 
 
-HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker( 
+HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
     const EM::SectionID& sid )
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    markerstyle_.color_ = 
+    markerstyle_.color_ =
 	emobj->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).color_;
     seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData(seedauxdata);
@@ -202,7 +208,7 @@ bool HorizonPainter3D::addPolyLine()
 
 	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
 		nrseeds_++;
-	    emobj->removePosAttribList( 
+	    emobj->removePosAttribList(
 		EM::EMObject::sIntersectionNode(), false );
 	}
     }
@@ -250,11 +256,11 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
     else if ( tkzs_.nrCrl() == 1 )
 	x = bid.inl();
 
-    marker.marker_->poly_ += FlatView::Point( x, z ); 
+    marker.marker_->poly_ += FlatView::Point( x, z );
     if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) ||
-	hor3d.isPosAttrib(posid,EM::EMObject::sIntersectionNode()) ) 
+	hor3d.isPosAttrib(posid,EM::EMObject::sIntersectionNode()) )
     {
-	 markerseeds_->marker_->poly_ += FlatView::Point( x, z ); 
+	 markerseeds_->marker_->poly_ += FlatView::Point( x, z );
 	 return true;
     }
 
@@ -286,7 +292,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 		const TrcKey tk = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-		if ( tkzs_.hsamp_.includes(bid) || 
+		if ( tkzs_.hsamp_.includes(bid) ||
 		    (path_&&path_->isPresent(tk)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
