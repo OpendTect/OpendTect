@@ -760,6 +760,7 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     iopar.get( "Seed Connection mode", connectmode );
     seedpicker->setTrackMode( (MPE::EMSeedPicker::TrackMode)connectmode );
     tracker->usePar( iopar );
+
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
 
