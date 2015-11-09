@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "bufstringset.h"
+#include "datapointset.h"
 #include "trckeyzsampling.h"
 #include "ranges.h"
 #include "refcount.h"
@@ -22,7 +23,6 @@ ________________________________________________________________________
 
 class BinDataDesc;
 class BinIDValueSet;
-class DataPointSet;
 class RegularSeisDataPack;
 class SeisTrc;
 class SeisTrcInfo;
@@ -386,6 +386,32 @@ protected:
     void			addLocalInterval(TypeSet<Interval<int> >&,
 					         TypeSet<float>&,
 						 int,float) const;
+
+    struct PosAndRowIDPair
+    {
+	Pos::GeomID		gid_;
+	Pos::TraceID		tid_;
+	DataPointSet::RowID	rid_;
+
+				PosAndRowIDPair( Pos::GeomID gid,
+						 Pos::TraceID tid,
+						 DataPointSet::RowID rid )
+				    : gid_(gid)
+				    , tid_(tid)
+				    , rid_(rid)			{};
+
+	bool			operator == ( PosAndRowIDPair other ) const
+	    			{ return other.gid_ == gid_ &&
+					 other.tid_ == tid_ &&
+					 other.rid_ == rid_;
+				}
+
+	bool			operator > ( PosAndRowIDPair other ) const
+	    			{ return gid_ > other.gid_ ||
+				   ( gid_==other.gid_ && tid_ > other.tid_ ); }
+    };
+
+    TypeSet<PosAndRowIDPair>	parpset_;
 };
 
 
@@ -393,4 +419,5 @@ protected:
 
 
 #endif
+
 
