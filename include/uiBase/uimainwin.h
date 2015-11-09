@@ -59,7 +59,7 @@ public:
 
 			uiMainWin(uiParent*,const uiMainWin::Setup&);
 			uiMainWin(uiParent*,const uiString&
-				  caption=tr("uiMainWin"),
+				  caption=uiString::emptyString(),
 				  int nrstatusflds=1,bool withmenubar=true,
 				  bool modal=false);
     virtual		~uiMainWin();
