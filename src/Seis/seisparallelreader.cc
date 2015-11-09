@@ -400,8 +400,6 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		}
 
 		const int zstartidx = trc.nearestSample( tkzs_.zsamp_.start );
-		const int zstopidx = trc.nearestSample( tkzs_.zsamp_.stop );
-
 		const BinDataDesc trcdatadesc =
 			trc.data().getInterpreter(idc)->dataChar();
 		if ( storarr && dp_->getDataDesc()==trcdatadesc )
@@ -411,27 +409,32 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		    const od_int64 offset =
 			arr.info().getOffset( 0, mCast(int,idx), 0 );
 
-		    const unsigned char* srcptr =
+		    const unsigned char* srcstartptr =
 			databuf->data() + zstartidx*bytespersamp;
-		    char* dstptr = storarr + offset*bytespersamp;
+		    char* dststartptr = storarr + offset*bytespersamp;
 
-		    for ( int idz=zstartidx; idz<=zstopidx; idz++ )
+		    for ( int zidx=0; zidx<tkzs_.zsamp_.nrSteps()+1; zidx++ )
 		    {
+			const float zval = tkzs_.zsamp_.atIndex( zidx );
+			const int trczidx = trc.nearestSample( zval );
+			const unsigned char* srcptr =
+				srcstartptr + trczidx*bytespersamp;
+			char* dstptr = dststartptr + zidx*bytespersamp;
 			// Checks if amplitude equals undef value of underlying
 			// data type as the array is initialized with undefs.
 			if ( memcmp(dstptr,srcptr,bytespersamp) )
 			    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
 			else
-			    arr.set(0,(int)idx,idz-zstartidx,trc.get(idz,idc));
-
-			srcptr += bytespersamp;
-			dstptr += bytespersamp;
+			    arr.set( 0, (int)idx, zidx, trc.getValue(zval,idc));
 		    }
 		}
 		else
 		{
-		    for ( int idz=zstartidx; idz<=zstopidx; idz++ )
-			arr.set(0,(int)idx,idz-zstartidx,trc.get(idz,idc));
+		    for ( int zidx=0; zidx<tkzs_.zsamp_.nrSteps()+1; zidx++ )
+		    {
+			const float zval = tkzs_.zsamp_.atIndex( zidx );
+			arr.set( 0, (int)idx, zidx, trc.getValue(zval,idc) );
+		    }
 		}
 	    }
 
@@ -473,8 +476,8 @@ bool execute()
     const int idx0 = dp_.sampling().hsamp_.lineIdx( trc_.info().binid.inl() );
     const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
 
-    const int zstartidx = trc_.nearestSample( dp_.sampling().zsamp_.start );
-    const int zstopidx = trc_.nearestSample( dp_.sampling().zsamp_.stop );
+    const StepInterval<float>& zsamp = dp_.sampling().zsamp_;
+    const int zstartidx = trc_.nearestSample( zsamp.start );
 
     for ( int cidx=0; cidx<trc_.nrComponents(); cidx++ )
     {
@@ -496,27 +499,32 @@ bool execute()
 	    const int bytespersamp = databuf->bytesPerSample();
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
 
-	    const unsigned char* srcptr =
+	    const unsigned char* srcstartptr =
 			databuf->data() + zstartidx*bytespersamp;
-	    char* dstptr = storarr + offset*bytespersamp;
+	    char* dststartptr = storarr + offset*bytespersamp;
 
-	    for ( int zidx=zstartidx; zidx<=zstopidx; zidx++ )
+	    for ( int zidx=0; zidx<zsamp.nrSteps()+1; zidx++ )
 	    {
 		// Check if amplitude equals undef value of underlying data
 		// type knowing that array has been initialized with undefs
+		const float zval = zsamp.atIndex( zidx );
+		const int trczidx = trc_.nearestSample( zval );
+		const unsigned char* srcptr =
+			srcstartptr + trczidx*bytespersamp;
+		char* dstptr = dststartptr + zidx*bytespersamp;
 		if ( memcmp(dstptr,srcptr,bytespersamp) )
 		    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
 		else
-		    arr.set( idx0, idx1, zidx-zstartidx, trc_.get(zidx,cidx) );
-
-		srcptr += bytespersamp;
-		dstptr += bytespersamp;
+		    arr.set( idx0, idx1, zidx, trc_.getValue(zval,cidx) );
 	    }
 	}
 	else
 	{
-	    for ( int zidx=zstartidx; zidx<=zstopidx; zidx++ )
-		arr.set( idx0, idx1, zidx-zstartidx, trc_.get(zidx,cidx) );
+	    for ( int zidx=0; zidx<zsamp.nrSteps()+1; zidx++ )
+	    {
+		const float zval = zsamp.atIndex( zidx );
+		arr.set( idx0, idx1, zidx, trc_.getValue(zval,cidx) );
+	    }
 	}
     }
 
@@ -662,4 +670,3 @@ int SequentialReader::nextStep()
 }
 
 } // namespace Seis
-
