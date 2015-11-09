@@ -54,6 +54,7 @@ public:
 //    StepInterval<int>		getInputZRg(const StepInterval<int>&) const;
 
     Task*			createTask();
+    virtual bool		needsFullVolume() const { return false; }
 
 protected:
 
