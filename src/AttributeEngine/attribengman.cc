@@ -392,7 +392,9 @@ bool doPrepare( int nrthreads )
     if ( outstorage )
 	outptr_ = mCast( unsigned char*, outstorage->storArr() );
 
-    if ( !inptr_ || !outptr_ )
+    domemcopy_ = inptr_ && outptr_ && mIsEqual(in_.sampling().zsamp_.step,
+					out_.sampling().zsamp_.step,mDefEpsF);
+    if ( !domemcopy_ )
 	return true;
 
     intracebytes_ = samplebytes_ * in_.sampling().size(TrcKeyZSampling::Z);
@@ -408,8 +410,6 @@ bool doPrepare( int nrthreads )
     const float start = worktkzs_.zsamp_.start;
     inptr_ += samplebytes_ * in_.getZRange().nearestIndex( start );
     outptr_ += samplebytes_ * out_.getZRange().nearestIndex( start );
-
-    domemcopy_ = true;
     return true;
 }
 
@@ -444,16 +444,21 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	    continue;
 	}
 
+	const int nrinpzsamp = in_.sampling().zsamp_.nrSteps()+1;
+	const int nroutzsamp = out_.sampling().zsamp_.nrSteps()+1;
 	for ( int idz=0; idz<nrz; idz++ )
 	{
 	    const float zval = worktkzs_.zsamp_.atIndex( idz );
 	    const int inzidx = in_.sampling().zsamp_.nearestIndex( zval );
 	    const int outzidx = out_.sampling().zsamp_.nearestIndex( zval );
+	    if ( inzidx>=nrinpzsamp ||	outzidx>=nroutzsamp )
+		break;
+
 	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
 	    {
 		const float val = in_.data(idc).get( ininlidx, incrlidx,
 						     inzidx );
-		if ( !Values::isUdf( val ) )
+		if ( !mIsUdf(val) )
 		    out_.data(idc).set( outinlidx, outcrlidx, outzidx, val );
 	    }
 	}
@@ -487,6 +492,7 @@ protected:
 const RegularSeisDataPack* EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
+    if ( packset.isEmpty() ) return 0;
     const char* category = SeisDataPack::categoryStr(
 			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
 			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
@@ -500,7 +506,13 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
 	output->setSampling( cswithcachestep );
     }
     else
-	output->setSampling( tkzs_ );
+    {
+	TrcKeyZSampling outputtkzs = packset[0]->sampling();
+	for ( int idx=1; idx<packset.size(); idx++ )
+	    outputtkzs.include( packset[idx]->sampling() );
+	outputtkzs.limitTo( tkzs_ );
+	output->setSampling( outputtkzs );
+    }
 
     for ( int idx=0; idx<packset[0]->nrComponents() && idx<attrspecs_.size();
 									idx++ )
@@ -1293,4 +1305,3 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 #undef mErrRet
 
 } // namespace Attrib
-
