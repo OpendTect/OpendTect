@@ -561,8 +561,10 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 		uiMSG().error( mToUiStringTodo(bs) );
 	    else
 	    {
-		applMgr()->visServer()->setObjectName( displayID(),
-			       ioobj->uiName() );
+		uiString rdlname = ioobj->uiName();
+		applMgr()->visServer()->setObjectName( displayID(), rdlname );
+		rtd->getRandomLine()->setName( rdlname.getFullString() );
+
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }
 	}

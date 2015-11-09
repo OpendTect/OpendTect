@@ -24,6 +24,7 @@ namespace Geometry
 
 RandomLine::RandomLine( const char* nm )
     : NamedObject(nm)
+    , nameChanged(this)
     , nodeChanged(this)
     , zrangeChanged(this)
     , lset_(0)
@@ -69,6 +70,13 @@ void RandomLine::insertNode( int idx, const BinID& bid )
     nodes_.insert( idx, bid );
     ChangeData cd( ChangeData::Inserted, idx );
     nodeChanged.trigger( cd );
+}
+
+
+void RandomLine::setName( const char* nm )
+{
+    NamedObject::setName( nm );
+    nameChanged.trigger();
 }
 
 
