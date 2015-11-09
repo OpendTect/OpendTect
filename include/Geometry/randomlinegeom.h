@@ -36,6 +36,7 @@ public:
 
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
+    void		setName(const char*);
     void		setNodePosition(int idx,const BinID&,bool moving=false);
     void		setNodePositions(const TypeSet<BinID>&);
     void		removeNode(int);
@@ -75,6 +76,7 @@ public:
 	int		nodeidx_;
     };
 
+    Notifier<RandomLine>	nameChanged;
     CNotifier<RandomLine,const ChangeData&>	nodeChanged;
     Notifier<RandomLine>	zrangeChanged;
 
