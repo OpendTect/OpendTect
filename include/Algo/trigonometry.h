@@ -298,6 +298,44 @@ public:
 
 
 /*!
+\brief A ParamLine2 is a line in space, with the following equations:
+
+  x = x0 + alpha*t
+  y = y0 + beta*t
+
+  This class will replace the Line2 in coming versions.
+*/
+
+mExpClass(Algo) ParamLine2
+{
+			ParamLine2(double slope=0,double intcpt=0);
+			ParamLine2(const Coord&,double slope);
+			ParamLine2(const Coord& p0,const Coord& p1);
+			/*!<Normalizes so that t=0 is p0 and t=1 is p1 */
+
+    bool		operator==(const ParamLine2&) const;
+
+    Coord		direction(bool normalized=true) const;
+
+    Coord		getPoint(double t) const;
+
+    double		closestPoint(const Coord& point) const;
+			/*!<\return the point on the line that is closest to
+				    the given point. If t is given, it will be
+				    filled with the t-value of the closest point
+			*/
+
+    double		distanceToPoint(const Coord&) const;
+    double		sqDistanceToPoint(const Coord&) const;
+
+    double		x0_;
+    double		y0_;
+    double		alpha_;
+    double		beta_;
+};
+
+
+/*!
 \brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
 form y = slope*x + y-intercept; for making operations easier.
 */
