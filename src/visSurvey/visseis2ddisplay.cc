@@ -51,6 +51,7 @@ Seis2DDisplay::Seis2DDisplay()
     , polyline_(visBase::PolyLine::create())
     , linename_(visBase::Text2::create())
     , geomchanged_(this)
+    , geomidchanged_(this)
     , maxtrcnrrg_(0,mUdf(int),1)
     , datatransform_(0)
     , voiidx_(-1)
@@ -173,6 +174,8 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 	linename_->text()->setFontData( scene_->getAnnotFont(),
 					getPixelDensity() );
     }
+
+    geomidchanged_.trigger();
 }
 
 
