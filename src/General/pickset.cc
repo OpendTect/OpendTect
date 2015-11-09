@@ -31,22 +31,27 @@ namespace Pick
 
 Location::Location( double x, double y, double z )
     : pos_(x,y,z), text_(0)
+    , trckey_( TrcKey::udf() )
 {}
 
 Location::Location( const Coord& c, float z )
     : pos_(c,z), text_(0)
+    , trckey_( TrcKey::udf() )
 {}
 
 Location::Location( const Coord3& c )
     : pos_(c), text_(0)
+    , trckey_( TrcKey::udf() )
 {}
 
 Location::Location( const Coord3& c, const Coord3& d )
     : pos_(c), dir_(d), text_(0)
+    , trckey_( TrcKey::udf() )
 {}
 
 Location::Location( const Coord3& c, const Sphere& d )
     : pos_(c), dir_(d), text_(0)
+    , trckey_( TrcKey::udf() )
 {}
 
 Location::Location( const Location& pl )
@@ -64,6 +69,8 @@ void Location::operator=( const Location& pl )
 {
     pos_ = pl.pos_;
     dir_ = pl.dir_;
+    trckey_ = pl.trckey_;
+
     if ( pl.text_ )
     {
 	if ( !text_ )
@@ -229,7 +236,7 @@ void Location::toString( BufferString& str, bool forexport ) const
     str.add( usepos.x ).add( "\t" ).add( usepos.y ).add( "\t" ).add( usepos.z );
     if ( hasDir() )
 	str.add( "\t" ).add( dir_.radius ).add( "\t" ).add( dir_.theta )
-	    .add( "\t" ).add( dir_.phi );
+	   .add( "\t" ).add( dir_.phi );
 }
 
 

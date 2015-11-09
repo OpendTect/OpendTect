@@ -209,6 +209,91 @@ Quaternion Quaternion::inverse() const
 
 
 
+ParamLine2::ParamLine2( double slope, double intcpt )
+    : x0_( 0 )
+    , y0_( intcpt )
+    , alpha_( 1 )
+    , beta_( slope )
+{}
+
+
+ParamLine2::ParamLine2( const Coord& pt, double slope )
+    : x0_( pt.x )
+    , y0_( pt.y )
+{
+    if ( mIsUdf(slope) ) //Vertical
+    {
+	alpha_ = 0;
+	beta_ = 1;
+    }
+    else
+    {
+	alpha_ = 1;
+	beta_ = slope;
+    }
+}
+
+
+ParamLine2::ParamLine2( const Coord& start, const Coord& stop )
+    : x0_(start.x)
+    , y0_(start.y)
+    , alpha_ ( stop.x - start.x )
+    , beta_( stop.y - start.y )
+{}
+
+
+double ParamLine2::sqDistanceToPoint( const Coord& p ) const
+{
+    const double t = closestPoint( p );
+    const Coord closestpoint = getPoint( t );
+    return closestpoint.sqDistTo( p );
+}
+
+
+double ParamLine2::distanceToPoint( const Coord& point ) const
+{
+    return Math::Sqrt( sqDistanceToPoint( point ) );
+}
+
+
+bool ParamLine2::operator==( const ParamLine2& line ) const
+{
+    //Check if direction is same
+    const double dotprod =
+	Coord(alpha_,beta_).dot(Coord(line.alpha_,line.beta_));
+
+    if ( !mIsEqual(dotprod,1,mDefEps) )
+	return false;
+
+    const double sqdist = sqDistanceToPoint(Coord(line.x0_,line.y0_) );
+
+    return mIsZero(sqdist,mDefEps);
+}
+
+
+Coord ParamLine2::getPoint( double t ) const
+{
+    return Coord( x0_+alpha_*t, y0_+beta_*t );
+}
+
+
+
+
+Coord ParamLine2::direction( bool normalize ) const
+{
+    const Coord res = Coord(alpha_,beta_);
+    return normalize ? res.normalize() : res;
+}
+
+
+double ParamLine2::closestPoint( const Coord& point ) const
+{
+    const Coord dir = direction( false );
+    const Coord diff = point-Coord(x0_,y0_);
+    return diff.dot(dir)/dir.sqAbs();
+}
+
+
 Line2::Line2( double slope, double intcpt )
     : slope_(slope),yintcpt_(intcpt)
     , start_(mUdf(double),mUdf(double))

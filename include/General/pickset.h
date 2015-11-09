@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "sets.h"
 #include "tableascio.h"
+#include "trckey.h"
 #include "trigonometry.h"
 #include "undo.h"
 
@@ -54,6 +55,9 @@ public:
     void		toString(BufferString&,bool forexport=false) const;
 
     Coord3		pos_;
+    TrcKey		trckey_;
+    			/*!<If Undef, defined by pos_.
+			    If defined, z-value is defined in pos_.z */
     Sphere		dir_;/*!< Optional direction at location.
 			          phi is defined as the direction's
 				  counter-clockwise angle from the x-axis in
