@@ -15,6 +15,7 @@ CMakeModules/license.txt
 CMakeModules/sourcefiles_od.txt
 CMakeModules/sourcefiles_dgb.txt
 CMakeModules/Doxyfile
+data/BatchHosts
 data/ModDeps.od
 data/ModDeps.dgb
 data/SequenceModels
