@@ -233,9 +233,9 @@ bool EMTracker::usePar( const IOPar& iopar )
 	{
 	    st->usePar( *localpar );
 
-	    EMSeedPicker* seedpicker = getSeedPicker( false );
-	    if ( seedpicker )
-	    seedpicker->setSelSpec( &st->getDisplaySpec() );
+	    EMSeedPicker* sp = getSeedPicker( false );
+	    if ( sp && st->adjuster() )
+		sp->setSelSpec( st->adjuster()->getAttributeSel(0) );
 	}
 	else  // old policy for restoring session
 	{
