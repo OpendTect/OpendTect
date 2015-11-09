@@ -171,9 +171,9 @@ if( WIN32 )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpeg4.dll )
     endif()
     if( ${OD_PLFSUBDIR} STREQUAL "win32" )
-	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x86/Microsoft.VC100.CRT" )
+	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 12.0/VC/redist/x86/Microsoft.VC120.CRT" )
     elseif( ${OD_PLFSUBDIR} STREQUAL "win64" )
-	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 10.0/VC/redist/x64/Microsoft.VC100.CRT" )
+	set( MSVCPATH "C:/Program\ Files \(x86\)/Microsoft\ Visual\ Studio\ 12.0/VC/redist/x64/Microsoft.VC120.CRT" )
     endif()
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_DEBUG}
 	    DESTINATION bin/${OD_PLFSUBDIR}
@@ -204,6 +204,9 @@ if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
 	     CONFIGURATIONS Debug )
+    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
+	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+	     CONFIGURATIONS Release )
 else()
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
