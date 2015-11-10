@@ -177,6 +177,8 @@ protected:
     void			updatePanelStripZRange();
 
     void			updateLineNamePos();
+    void			updateTexOriginAndScale(int attrib,
+							const TrcKeyZSampling&);
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =0);

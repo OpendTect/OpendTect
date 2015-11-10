@@ -32,7 +32,6 @@ static const char* rcsID mUsedVar = "$Id$";
 //For parsing old pars
 #include "attribsel.h"
 
-#define mMaxImageSize 300000000	// 32767
 
 namespace visSurvey
 {
@@ -269,11 +268,6 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 	return;
 
     trcdisplayinfo_.zrg_.setFrom( zrg );
-    if ( trcdisplayinfo_.zrg_.nrSteps()+1 > mMaxImageSize )
-    {
-	trcdisplayinfo_.zrg_.stop = trcdisplayinfo_.zrg_.start +
-				    (mMaxImageSize-1)*trcdisplayinfo_.zrg_.step;
-    }
 
     updatePanelStripZRange();
     updatePanelStripPath();
@@ -333,8 +327,7 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 	}
     }
 
-    for ( int idx=mMIN(trcdisplayinfo_.alltrcnrs_.size(),mMaxImageSize)-1;
-	  idx>=0; idx-- )
+    for ( int idx=trcdisplayinfo_.alltrcnrs_.size()-1; idx>=0; idx-- )
     {
 	if ( trcdisplayinfo_.alltrcnrs_[idx]<=rg.stop )
 	{
@@ -408,12 +401,33 @@ DataPack::ID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
 }
 
 
+void Seis2DDisplay::updateTexOriginAndScale( int attrib,
+					     const TrcKeyZSampling& tkzs )
+{
+    if ( !tkzs.isDefined() || tkzs.isEmpty() )
+	return;
+
+    const TraceDisplayInfo& tdi = trcdisplayinfo_;
+
+    const Coord origin( (tkzs.zsamp_.start-tdi.zrg_.start) / tdi.zrg_.step,
+		tkzs.hsamp_.trcRange().start - tdi.alltrcnrs_[tdi.rg_.start] );
+
+    const Coord scale( tkzs.zsamp_.step / tdi.zrg_.step,
+		       tkzs.hsamp_.trcRange().step );
+
+    channels_->setOrigin( attrib, origin*(resolution_+1) );
+    channels_->setScale( attrib, scale );
+}
+
+
 void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
     DataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
     if ( !regsdp ) return;
+
+    updateTexOriginAndScale( attrib, regsdp->sampling() );
 
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
@@ -428,13 +442,6 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	{
 	    sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
 	    sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
-
-	    //If the size is too big to display, use low resolution only
-	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
-		sz0 = array.info().getSize(1);
-
-	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
-		sz1 = array.info().getSize(2);
 	}
 
 	ValueSeries<float>* stor = !resolution_ ? array.getStorage() : 0;

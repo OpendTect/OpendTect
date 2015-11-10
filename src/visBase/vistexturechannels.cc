@@ -12,10 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistexturechannels.h"
 
-#include "vistexturechannel2rgba.h"
+#include "coord.h"
 #include "coltabmapper.h"
 #include "mousecursor.h"
 #include "settingsaccess.h"
+#include "visosg.h"
+#include "vistexturechannel2rgba.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osg/Image>
@@ -40,6 +42,12 @@ public:
 
     void			setSize(int,int,int);
     int				getSize(unsigned char dim) const;
+
+    void			setOrigin(const Coord& origin);
+    const Coord&		getOrigin() const;
+    void			setScale(const Coord& scale);
+    const Coord&		getScale() const;
+
     od_int64			nrElements(bool percomponent) const;
 
     void			setOsgIDs(const TypeSet<int>& );
@@ -85,6 +93,8 @@ public:
     TextureChannels&				texturechannels_;
     TypeSet<float>				histogram_;
     int						size_[3];
+    Coord					origin_;
+    Coord					scale_;
 
     ObjectSet<osg::Image>			osgimages_;
     TypeSet<int>				osgids_;
@@ -95,6 +105,8 @@ ChannelInfo::ChannelInfo( TextureChannels& nc )
     : texturechannels_( nc )
     , currentversion_( 0 )
     , histogram_( mNrColors, 0 )
+    , origin_( 0.0, 0.0 )
+    , scale_( 1.0, 1.0 )
 {
     size_[0] = 0;
     size_[1] = 0;
@@ -128,6 +140,22 @@ void ChannelInfo::setSize( int s0, int s1, int s2 )
 
 int ChannelInfo::getSize( unsigned char dim ) const
 { return size_[dim]; }
+
+
+void ChannelInfo::setOrigin( const Coord& origin )
+{ origin_ = origin; }
+
+
+const Coord& ChannelInfo::getOrigin() const
+{ return origin_; }
+
+
+void ChannelInfo::setScale( const Coord& scale )
+{ scale_ = scale; }
+
+
+const Coord& ChannelInfo::getScale() const
+{ return scale_; }
 
 
 od_int64 ChannelInfo::nrElements( bool percomponent ) const
@@ -599,6 +627,38 @@ int TextureChannels::getSize( int channel, unsigned char dim ) const
 }
 
 
+void TextureChannels::setOrigin( int channel, const Coord& origin )
+{
+    if ( channelinfo_.validIdx(channel) )
+	channelinfo_[channel]->setOrigin( origin );
+}
+
+
+const Coord& TextureChannels::getOrigin( int channel ) const
+{
+    if ( !channelinfo_.validIdx(channel) )
+	return Coord::udf();
+
+    return channelinfo_[channel]->getOrigin();
+}
+
+
+void TextureChannels::setScale( int channel, const Coord& scale )
+{
+    if ( channelinfo_.validIdx(channel) )
+	channelinfo_[channel]->setScale( scale );
+}
+
+
+const Coord& TextureChannels::getScale( int channel ) const
+{
+    if ( !channelinfo_.validIdx(channel) )
+	return Coord::udf();
+
+    return channelinfo_[channel]->getScale();
+}
+
+
 bool TextureChannels::turnOn( bool yn )
 {
     bool res = isOn();
@@ -633,10 +693,14 @@ int TextureChannels::addChannel()
     ChannelInfo* newchannel = new ChannelInfo( *this );
 
     const int res = channelinfo_.size();
-    if ( res ) //&& !doOsg() ) For later
+    if ( res )
+    {
 	newchannel->setSize( channelinfo_[0]->getSize(0),
 			     channelinfo_[0]->getSize(1),
 			     channelinfo_[0]->getSize(2) );
+	newchannel->setOrigin( channelinfo_[0]->getOrigin() );
+	newchannel->setScale( channelinfo_[0]->getScale() );
+    }
 
     channelinfo_ += newchannel;
     newchannel->setOsgIDs( osgids );
@@ -972,6 +1036,11 @@ void TextureChannels::update( int channel, bool freezeifnodata )
 	    const int udfchannel = nrTextureBands()==3 ? 2 : 3;
 	    osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
 	}
+
+	osgtexture_->setDataLayerOrigin( osgid,
+		Conv::to<osg::Vec2f>(channelinfo_[channel]->getOrigin()) );
+	osgtexture_->setDataLayerScale( osgid,
+		Conv::to<osg::Vec2f>(channelinfo_[channel]->getScale()) );
     }
 
     if ( getChannels2RGBA() )
