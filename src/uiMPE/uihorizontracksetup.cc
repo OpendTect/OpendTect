@@ -492,11 +492,12 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
 void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 {
     sectiontracker_ = st;
-    mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster())
+    mDynamicCastGet(HorizonAdjuster*,horadj,
+		    sectiontracker_ ? sectiontracker_->adjuster() : 0)
     horadj_ = horadj;
-    if ( !horadj_ ) return;
+    if ( horadj_ )
+	initStuff();
 
-    initStuff();
     correlationgrp_->setSectionTracker( st );
     eventgrp_->setSectionTracker( st );
 }
@@ -635,3 +636,4 @@ void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
 
 
 } //namespace MPE
+

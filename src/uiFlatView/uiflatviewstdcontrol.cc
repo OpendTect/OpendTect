@@ -195,7 +195,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     if ( setup.withedit_ )
     {
 	edittb_ = new uiToolBar( mainwin(), tr("Edit Tools") );
-	mEditDefBut(editbut_,"seedpickmode",dragModeCB,tr("Edit mode"));
+	mEditDefBut(editbut_,"seedpickmode",editModeCB,tr("Edit mode"));
 	editbut_->setToggleButton( true );
     }
 
@@ -396,6 +396,7 @@ void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 	setNewView( vwr_.curView().centre(), zoommgr_.back(0,false,true),&vwr_);
 }
 
+
 void uiFlatViewStdControl::fitToScreenCB( CallBacker* )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
@@ -566,7 +567,7 @@ void uiFlatViewStdControl::setEditMode( bool yn )
 {
     if ( editbut_ )
 	editbut_->setOn( yn );
-    dragModeCB( editbut_ );
+    editModeCB( editbut_ );
 }
 
 
@@ -582,21 +583,41 @@ bool uiFlatViewStdControl::isRubberBandOn() const
 }
 
 
-void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
+void uiFlatViewStdControl::dragModeCB( CallBacker* )
 {
-    mDynamicCastGet(uiToolButton*,but,cb);
-    const bool iseditbut = but==editbut_;
     const bool iseditmode = editbut_ && editbut_->isOn();
     const bool iszoommode = rubbandzoombut_ && rubbandzoombut_->isOn();
 
+    bool editable = false;
     uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::NoDrag );
     MouseCursor cursor( MouseCursor::Arrow );
-    if ( iszoommode || iseditmode )
+    if ( !iszoommode && iseditmode )
     {
-	mode = iszoommode ? uiGraphicsViewBase::RubberBandDrag
-			  : uiGraphicsViewBase::NoDrag;
-	cursor = !iseditmode ? MouseCursor::Arrow : MouseCursor::Cross;
+	cursor = MouseCursor::Cross;
+	editable = true;
     }
+    if ( iszoommode )
+	mode = uiGraphicsViewBase::RubberBandDrag;
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode( mode );
+	vwrs_[idx]->setCursor( cursor );
+	vwrs_[idx]->appearance().annot_.editable_ = editable;
+	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
+    }
+}
+
+
+void uiFlatViewStdControl::editModeCB( CallBacker* )
+{
+    const bool iseditmode = editbut_ && editbut_->isOn();
+    const bool iszoommode = rubbandzoombut_ && rubbandzoombut_->isOn();
+    if ( iszoommode )
+	rubbandzoombut_->setOn( false );
+
+    uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::NoDrag );
+    MouseCursor cursor( iseditmode ? MouseCursor::Cross : MouseCursor::Arrow );
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
@@ -606,9 +627,6 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
 					!vwrs_[idx]->hasZAxisTransform();
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
     }
-
-    if ( iseditbut && iseditmode && rubbandzoombut_ )
-	rubbandzoombut_->setOn( false );
 }
 
 
@@ -677,4 +695,5 @@ void uiFlatViewStdControl::keyPressCB( CallBacker* cb )
 
 NotifierAccess* uiFlatViewStdControl::editPushed()
 { return editbut_ ? &editbut_->activated : 0; }
+
 

@@ -426,19 +426,19 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !seedpicker )
 	mSeedClickReturn();
 
-     if ( clickedhor && clickedhor==hor && 
+    if ( clickedhor && clickedhor==hor &&
 	!clickcatcher_->info().isDoubleClicked() )
-     {
+    {
 	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
 	    mSeedClickReturn();
-     }
+    }
 
     seedpicker->setSectionID( emobj->sectionID(0) );
-    const bool dbclick = clickcatcher_->info().isDoubleClicked() && 
+    const bool dbclick = clickcatcher_->info().isDoubleClicked() &&
 	(seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
-    
+
     if ( dbclick )
     {
 	seedpicker->endPatch( false );
@@ -470,59 +470,32 @@ void uiMPEMan::seedClick( CallBacker* )
 	? sectiontracker->adjuster()->getAttributeSel(0)
 	: 0;
 
-    if ( !visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()==0) )
-    {
-	if ( trackedatsel &&
-	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) &&
-	     (seedpicker->getTrackMode()!=seedpicker->DrawAndSnap) )
-	{
-	    bool chanceoferror = false;
-	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
-		chanceoferror = !engine.isSelSpecSame(*trackedatsel,*clickedas);
-	    else
-		chanceoferror = !FixedString(clickedas->defString())
-				.startsWith( trackedatsel->defString() );
-
-	    if ( chanceoferror )
-	    {
-		uiMSG().error(tr("Saved setup has different attribute. \n"
-				 "Either change setup attribute or change\n"
-				 "display attribute you want to track on"));
-		mSeedClickReturn();
-	    }
-	}
-    }
-
     if ( seedpicker->nrSeeds() > 0 )
     {
 	if ( trackedatsel &&
-	     seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds &&
-	     seedpicker->getTrackMode()!=seedpicker->DrawAndSnap )
+	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) &&
+	      seedpicker->getTrackMode()!=seedpicker->DrawAndSnap )
 	{
-	    bool chanceoferror = false;
-	    if ( !trackedatsel->is2D() || trackedatsel->isStored() )
-		chanceoferror = !engine.isSelSpecSame(*trackedatsel,*clickedas);
-	    else
-		chanceoferror = !FixedString(clickedas->defString())
-				.startsWith( trackedatsel->defString() );
-
-	    if ( chanceoferror )
+	    uiString msg;
+	    const bool isdatasame = MPE::engine().pickingOnSameData(
+			*trackedatsel, *clickedas, msg );
+	    if ( !isdatasame )
 	    {
-		uiString warnmsg = tr("Setup suggests tracking is done on: "
-				      "'%1'\nbut what you see is: '%2'.\n"
-				      "To continue seed picking either "
-				      "change displayed attribute or\n"
-				      "change input data in Tracking Setup.")
-				 .arg(trackedatsel->userRef())
-				 .arg(clickedas->userRef());
-		uiMSG().error( warnmsg );
+		const bool res = uiMSG().askContinue( msg );
+		if ( res )
+		{
+		    DataPack::ID datapackid =
+				clickcatcher_->info().getObjDataPackID();
+		    if ( datapackid > DataPack::cNoID() )
+			engine.setAttribData( *clickedas, datapackid );
+		    seedpicker->setSelSpec( clickedas );
+		}
 		mSeedClickReturn();
 	    }
 	}
     }
 
     const TrcKey node = clickcatcher_->info().getNode();
-
     Coord3 seedcrd;
     if ( !clickedonhorizon )
     {
@@ -535,7 +508,6 @@ void uiMPEMan::seedClick( CallBacker* )
     {
 	seedcrd = hor->getCoord( node );
     }
-
     if ( seedcrd.isUdf() )
 	mSeedClickReturn();
 
@@ -550,7 +522,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    clr = Color::Red();
 
     const Color sowclr=
-	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds || 
+	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	seedpicker->getTrackMode()==seedpicker->DrawAndSnap ?
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
@@ -567,15 +539,15 @@ void uiMPEMan::seedClick( CallBacker* )
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
 	DataPack::ID datapackid = clickcatcher_->info().getObjDataPackID();
 
-	if ( clickedas && h2dsp )
+	if ( h2dsp )
 	    h2dsp->setSelSpec( clickedas );
 
-	if ( !clickedas || !h2dsp || !h2dsp->canAddSeed(*clickedas) )
+	if ( !h2dsp || !h2dsp->canAddSeed(*clickedas) )
 	{
-	    uiMSG().error(tr("2D tracking requires attribute from setup "
-			     "to be displayed"));
+	    uiMSG().error( tr("Cannot add seeds") );
 	    mSeedClickReturn();
 	}
+
 	if ( datapackid > DataPack::cNoID() )
 	    engine.setAttribData( *clickedas, datapackid );
 
@@ -657,7 +629,7 @@ void uiMPEMan::seedClick( CallBacker* )
     else
     {
 	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
+	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
 	{
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
@@ -858,7 +830,7 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
     if ( !seedpicker ) return;
 
     if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
+	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
 	const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
@@ -982,7 +954,6 @@ void uiMPEMan::updatePatchDisplay()
 	    hor ? hor->getEditor() : hor2d->getEditor();
 	editor->displayPatch(seedpicker->getPatch());
     }
-
 }
 
 

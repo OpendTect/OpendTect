@@ -150,6 +150,21 @@ bool Engine::startRetrack( uiString& errmsg )
 }
 
 
+bool Engine::startFromEdges( uiString& errmsg )
+{
+    errmsg.setEmpty();
+    if ( state_ == Started )
+	return false;
+
+    if ( !prepareForTrackInVolume(errmsg) )
+	return false;
+
+    state_ = Started;
+    actionCalled.trigger();
+    return trackFromEdges();
+}
+
+
 bool Engine::trackingInProgress() const
 {
     for ( int idx=0; idx<trackermgrs_.size(); idx++ )
@@ -349,6 +364,12 @@ bool Engine::trackInVolume()
 }
 
 
+bool Engine::trackFromEdges()
+{
+    return true;
+}
+
+
 void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 				       TaskRunner* taskr )
 {
@@ -423,6 +444,9 @@ void Engine::removeTracker( int idx )
 
     deepErase( *flatcubescontainer_[idx] );
     flatcubescontainer_.replace( idx, 0 );
+
+    if ( nrTrackersAlive()==0 )
+	activevolume_.setEmpty();
 
     trackeraddremove.trigger();
 }
@@ -539,6 +563,27 @@ TrcKeyZSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
     }
 
     return res;
+}
+
+
+bool Engine::pickingOnSameData( const Attrib::SelSpec& oldss,
+				const Attrib::SelSpec& newss,
+				uiString& error ) const
+{
+    bool match = false;
+    if ( oldss.isStored() && newss.isStored() )
+    {
+	const FixedString defstr = oldss.defString();
+	match = defstr == newss.defString();
+	if ( match ) return true;
+    }
+
+    // TODO: Other messages for other options
+    error = tr( "This horizon has previously been picked on:\n'%1'.\n"
+		"The new seed has been picked on:\n'%2'." )
+			 .arg(oldss.userRef())
+			 .arg(newss.userRef());
+    return false;
 }
 
 
@@ -964,3 +1009,4 @@ void Engine::init()
 }
 
 } // namespace MPE
+

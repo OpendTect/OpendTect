@@ -14,21 +14,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribsel.h"
 #include "autotracker.h"
-#include "undo.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emseedpicker.h"
 #include "executor.h"
-#include "mpeengine.h"
-#include "sectionextender.h"
-#include "sectionselector.h"
-#include "sectionadjuster.h"
-#include "sectiontracker.h"
-#include "survinfo.h"
-#include "iopar.h"
-
 #include "ioman.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "mpeengine.h"
 #include "mpesetup.h"
+#include "sectionadjuster.h"
+#include "sectionextender.h"
+#include "sectionselector.h"
+#include "sectiontracker.h"
+#include "survinfo.h"
+#include "undo.h"
 
 
 namespace MPE
@@ -232,6 +232,10 @@ bool EMTracker::usePar( const IOPar& iopar )
 	if ( !localpar->get(setupidStr(),setupid) )
 	{
 	    st->usePar( *localpar );
+
+	    EMSeedPicker* sp = getSeedPicker( false );
+	    if ( sp && st->adjuster() )
+		sp->setSelSpec( st->adjuster()->getAttributeSel(0) );
 	}
 	else  // old policy for restoring session
 	{
@@ -264,3 +268,4 @@ void EMTracker::setEMObject( EM::EMObject* no )
 }
 
 } // namespace MPE
+

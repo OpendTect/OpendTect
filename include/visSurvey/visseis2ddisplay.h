@@ -146,12 +146,13 @@ public:
 
     NotifierAccess*		getMovementNotifier()
 				{ return &geomchanged_; }
+    NotifierAccess*		getManipulationNotifier()
+				{ return &geomidchanged_; }
 
     static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
     static Seis2DDisplay*	getSeis2DDisplay(Pos::GeomID);
 
     virtual void		annotateNextUpdateStage(bool yn);
-
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -212,6 +213,7 @@ protected:
     const mVisTrans*		transformation_;
     visBase::Text2*		linename_;
     Notifier<Seis2DDisplay>	geomchanged_;
+    Notifier<Seis2DDisplay>	geomidchanged_;
 
     Pos::GeomID			geomid_;
     ZAxisTransform*		datatransform_;

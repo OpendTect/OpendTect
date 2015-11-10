@@ -271,9 +271,13 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 	return;
 
     seedpicker->setSectionID( emobj->sectionID(0) );
+
     bool pickinvd = true;
     if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
 	return;
+
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr ) return;
 
     const MouseEvent& mouseevent = mehandler_->event();
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
@@ -290,8 +294,7 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds &&
 	 markerpos && !ctrlorshifclicked )
     {
-	mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
-	if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
+	if ( !editor_->getMouseArea().isInside(mousepos) )
 	    return;
 
 	const uiWorldPoint wp =
@@ -529,8 +532,6 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return false;
 
-    const Attrib::SelSpec* atsel = 0;
-
     const MPE::SectionTracker* sectiontracker =
 	tracker.getSectionTracker(emobj->sectionID(0), true);
 
@@ -538,47 +539,33 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
 			? sectiontracker->adjuster()->getAttributeSel(0)
 			: 0;
 
-    Attrib::SelSpec newatsel;
+    Attrib::SelSpec curss;
     if ( trackedatsel )
-	newatsel = *trackedatsel;
+	curss = *trackedatsel;
 
     if ( spk.nrSeeds() < 1 )
     {
 	if ( !selectSeedData(editor_,pickinvd) )
 	    return false;
-
-	atsel = pickinvd ? vdselspec_ : wvaselspec_;
-
-	if ( !trackersetupactive_ && atsel && trackedatsel &&
-	     (newatsel!=*atsel) &&
-	     (spk.getTrackMode()!=spk.DrawBetweenSeeds) )
-	{
-	    uiMSG().error( tr("Saved setup has different attribute. \n"
-			      "Either change setup attribute or change\n"
-			      "display attribute you want to track on") );
-	    return false;
-	}
     }
-    else
-    {
-	if ( vdselspec_ && trackedatsel && (newatsel==*vdselspec_) )
-	    pickinvd = true;
-	else if ( wvaselspec_ && trackedatsel && (newatsel==*wvaselspec_) )
-	    pickinvd = false;
-	else if ( spk.getTrackMode() !=spk.DrawBetweenSeeds )
-	{
-	    uiString warnmsg = tr("Setup suggests tracking is done on '%1.\n"
-				  "But what you see is: '%2'.\n"
-				  "To continue seed picking either "
-				  "change displayed attribute or\n"
-				  "change input data in Tracking Setup.")
-			     .arg(newatsel.userRef());
-	    if (vdselspec_ && pickinvd)
-		warnmsg.arg(vdselspec_->userRef());
-	    else if (wvaselspec_ && !pickinvd)
-		warnmsg.arg(wvaselspec_->userRef());
 
-	    uiMSG().error(warnmsg);
+    const bool vdvisible = editor_->viewer().isVisible(false);
+    const bool wvavisible = editor_->viewer().isVisible(true);
+    const bool needsdata = spk.getTrackMode() != spk.DrawBetweenSeeds;
+    if ( spk.nrSeeds()>0 && trackedatsel && needsdata )
+	{
+	uiString vdmsg, wvamsg;
+	const bool vdres = vdvisible &&
+		MPE::engine().pickingOnSameData( curss, *vdselspec_, vdmsg );
+	const bool wvares = wvavisible &&
+		MPE::engine().pickingOnSameData( curss, *wvaselspec_, wvamsg );
+	if ( !vdres && !wvares )
+    {
+	    const bool res = uiMSG().askContinue( vdmsg );
+	    if ( !res )
+		return false;
+
+	    const_cast<MPE::EMSeedPicker*>(&spk)->setSelSpec( vdselspec_ );
 	    return false;
 	}
     }
@@ -628,6 +615,7 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    drop = dodropnext_;
 	    dodropnext_ = false;
 	}
+
 	const TrcKeyValue tkv2( getTrcKey(Coord(mev.x(),mev.y())), 0.f );
 	if ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
 	     spk.getTrackMode()==spk.DrawAndSnap )
@@ -637,7 +625,6 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	}
 	else if ( spk.addSeed(tkv,drop,tkv2) )
 	    return true;    
-
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {

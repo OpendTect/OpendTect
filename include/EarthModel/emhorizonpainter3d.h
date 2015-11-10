@@ -77,6 +77,7 @@ protected:
 					Marker3D&,int idx=-1);
 
     void		horChangeCB(CallBacker*);
+    void		paintCB(CallBacker*);
     void		changePolyLineColor();
     void		changePolyLinePosition( const EM::PosID& pid );
     Marker3D*		create3DMarker(const EM::SectionID&);

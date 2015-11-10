@@ -266,6 +266,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 
     wellid_ = multiid;
     fullRedraw(0);
+    changed_.trigger();
 
     return true;
 }

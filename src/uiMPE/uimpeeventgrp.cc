@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
+#include "uilabel.h"
 #include "uimpepreviewgrp.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -116,8 +117,8 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec diis; diis.setSymmetric( true );
     diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
 
-    uiString disptxt = tr("Data Display Window %1")
-						 .arg(SI().getUiZUnitString());
+    uiString disptxt = tr("Data Display window %1")
+					.arg(SI().getUiZUnitString());
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, srchgatefld_ );
     nrzfld_->attach( ensureBelow, sep );
@@ -129,6 +130,11 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
+
+    datalabel_ = new uiLabel( leftgrp, uiStrings::sEmptyString() );
+    datalabel_->setStretch( 2, 1 );
+    datalabel_->attach( leftAlignedBelow, nrzfld_ );
+    datalabel_->attach( ensureBelow, nrtrcsfld_ );
 
     previewgrp_ = new uiPreviewGroup( this );
     previewgrp_->attach( rightTo, leftgrp );
@@ -277,7 +283,7 @@ void uiEventGroup::addStepPushedCB( CallBacker* )
 void uiEventGroup::setSectionTracker( SectionTracker* st )
 {
     sectiontracker_ = st;
-    mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster())
+    mDynamicCastGet(HorizonAdjuster*,horadj,st ? st->adjuster() : 0)
     adjuster_ = horadj;
     if ( !adjuster_ ) return;
 
@@ -287,6 +293,8 @@ void uiEventGroup::setSectionTracker( SectionTracker* st )
 
 void uiEventGroup::init()
 {
+    if ( !adjuster_ ) return;
+
     VSEvent::Type ev = adjuster_->trackEvent();
     const int fldidx = getEventIdx( ev );
     evfld_->setValue( fldidx );
@@ -312,11 +320,19 @@ void uiEventGroup::setSeedPos( const TrcKeyValue& tkv )
 {
     seedpos_ = tkv;
     previewgrp_->setSeedPos( tkv );
+
+    if ( adjuster_ && adjuster_->getAttributeSel(0) )
+    {
+	const Attrib::SelSpec* as = adjuster_->getAttributeSel(0);
+	datalabel_->setText( tr("Picked on: %1").arg(as->userRef()) );
+    }
 }
 
 
 bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 {
+    if ( !adjuster_ ) return false;
+
     fieldchange = false;
 
     VSEvent::Type evtyp = getEventType( evfld_->getIntValue() );
@@ -460,3 +476,4 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 }
 
 } //namespace MPE
+

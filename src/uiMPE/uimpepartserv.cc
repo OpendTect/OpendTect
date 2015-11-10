@@ -263,8 +263,6 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
 
     if ( setupgrp_ )
 	seedpicker->setTrackMode( setupgrp_->getMode() );
-
-    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
 }
 
 
@@ -762,6 +760,7 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     iopar.get( "Seed Connection mode", connectmode );
     seedpicker->setTrackMode( (MPE::EMSeedPicker::TrackMode)connectmode );
     tracker->usePar( iopar );
+
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
 
@@ -867,9 +866,6 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( freshdlg )
     {
 	seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
-
-	if ( cursceneid_ != -1 )
-	    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
     }
     else
     {
@@ -885,6 +881,17 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
+
+    TypeSet<TrcKey> seeds;
+    seedpicker->getSeeds( seeds );
+    if ( !seeds.isEmpty() )
+    {
+	TrcKeyValue lastseed( seeds.last() );
+	mDynamicCastGet(EM::Horizon*,hor,emobj)
+	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
+	setupgrp_->setSeedPos( lastseed );
+    }
+
     MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
@@ -946,3 +953,4 @@ bool uiMPEPartServer::usePar( const IOPar& par )
 
     return res;
 }
+

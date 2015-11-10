@@ -64,6 +64,7 @@ public:
     TrackState			getState() const	{ return state_; }
     bool			startTracking(uiString&);
     bool			startRetrack(uiString&);
+    bool			startFromEdges(uiString&);
     void			stopTracking();
     bool			trackingInProgress() const;
     void			undo(uiString& errmsg);
@@ -108,8 +109,11 @@ public:
 					      const TrcKeyZSampling&);
     void			swapCacheAndItsBackup();
 
+    bool			pickingOnSameData(const Attrib::SelSpec& oldss,
+						  const Attrib::SelSpec& newss,
+						  uiString& error) const;
     bool			isSelSpecSame(const Attrib::SelSpec& setupss,
-				      const Attrib::SelSpec& clickedss) const;
+					const Attrib::SelSpec& clickedss) const;
 
     void			updateFlatCubesContainer(const TrcKeyZSampling&,
 							 int idx,bool);
@@ -150,6 +154,7 @@ protected:
     bool			prepareForTrackInVolume(uiString&);
     bool			prepareForRetrack();
     bool			trackInVolume();
+    bool			trackFromEdges();
     void			trackingFinishedCB(CallBacker*);
 
     struct CacheSpecs
@@ -195,3 +200,4 @@ mGlobal(MPEEngine) Engine&	engine();
 } // namespace MPE
 
 #endif
+

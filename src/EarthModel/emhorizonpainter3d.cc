@@ -79,6 +79,12 @@ void HorizonPainter3D::setFlatPosData( const FlatPosData* fps )
 
 void HorizonPainter3D::paint()
 {
+    CallBack::addToMainThread( mCB(this,HorizonPainter3D,paintCB) );
+}
+
+
+void HorizonPainter3D::paintCB( CallBacker* )
+{
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
@@ -128,6 +134,7 @@ bool HorizonPainter3D::addPolyLine()
 	EM::SectionID sid = hor3d->sectionID( ids );
 	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
 	markerline_ += secmarkerln;
+
 	markerseeds_ = create3DMarker( sid );
 	bool newmarker = true;
 	bool coorddefined = true;
@@ -199,13 +206,14 @@ bool HorizonPainter3D::addPolyLine()
 		newmarker = false;
 	    }
 
-	     if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
+	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
 		nrseeds_++;
 	    emobj->removePosAttribList( 
 		EM::EMObject::sIntersectionNode(), false );
 	}
     }
 
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
     return true;
 }
 
@@ -447,6 +455,7 @@ void HorizonPainter3D::enableLine( bool yn )
     linenabled_ = yn;
     if ( nrseeds_ == 1 )
 	markerseeds_->marker_->enabled_ = yn;
+
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 
 }
