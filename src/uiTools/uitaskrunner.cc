@@ -40,11 +40,25 @@ static const char* noprogbardispsymbs[] =
 	"       |||||       ", "      |||||        ", "     |||||         ",
 	"    |||||          ", "   |||||           ", "  |||||            ",
 	" |||||             ", "|||||              " };
-static const int noprogbardispnrsymbs = 29;
 
 
-uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
-    : uiDialog( p, uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
+
+/*!If there is a main window up, we should always use that window as parent.
+   Only if main window does not exist, use the provided parent. */
+
+static uiParent* getParent( uiParent* p )
+{
+    uiParent* res = uiMainWin::activeWindow();
+    if ( res )
+        return res;
+    
+    return p;
+}
+
+
+uiTaskRunner::uiTaskRunner( uiParent* parent, bool dispmsgonerr )
+    : uiDialog( getParent(parent),
+                uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause())
 	.canceltext(uiStrings::sAbort()) )
