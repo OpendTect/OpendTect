@@ -77,6 +77,11 @@ public:
     void			setSize(int channel,int sz0,int sz1,int sz2);
     int				getSize(int channel,unsigned char dim) const;
 
+    void			setOrigin(int channel,const Coord& origin);
+    const Coord&		getOrigin(int channel) const;
+    void			setScale(int channel,const Coord& scale);
+    const Coord&		getScale(int channel) const;
+
     void			setNrComponents(int channel,int nrcomp);
     int				getNrComponents(int channel) const;
 
