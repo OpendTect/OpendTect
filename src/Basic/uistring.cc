@@ -421,6 +421,7 @@ const OD::String& uiString::getFullString( BufferString* res ) const
 
 bool uiString::isCacheValid() const
 {
+#ifndef OD_NO_QT
     const int curchange = TrMgr().changeCount();
     if ( !data_ || data_->changecount_!=curchange || data_->qstring_.isEmpty() )
 	return false;
@@ -430,8 +431,10 @@ bool uiString::isCacheValid() const
 	if ( !data_->arguments_[idx].isCacheValid() )
 	    return false;
     }
-
     return true;
+#else
+    return false;
+#endif
 }
 
 
