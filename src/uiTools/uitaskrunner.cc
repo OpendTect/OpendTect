@@ -41,6 +41,10 @@ static const char* noprogbardispsymbs[] =
 	"    |||||          ", "   |||||           ", "  |||||            ",
 	" |||||             ", "|||||              " };
 
+#ifndef __debug__
+static const int noprogbardispnrsymbs = 29;
+#endif
+
 
 
 /*!If there is a main window up, we should always use that window as parent.
