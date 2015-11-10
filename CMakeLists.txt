@@ -88,17 +88,18 @@ set( OD_PLUGINS
 	uiGLCM
 	uiGMT
 	uiGoogleIO
-	uiSEGY
 	uiHello
 	uiHorizonAttrib
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
 	uiMATLABLink
+	uiPresentationMaker
+	uiPreStackViewer
+	uiSEGY
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
-	uiPreStackViewer
 	CmdDriver
 )
 
