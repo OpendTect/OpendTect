@@ -56,8 +56,8 @@ static uiParent* getParent( uiParent* p )
 }
 
 
-uiTaskRunner::uiTaskRunner( uiParent* parent, bool dispmsgonerr )
-    : uiDialog( getParent(parent),
+uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
+    : uiDialog( getParent(prnt),
                 uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause())
