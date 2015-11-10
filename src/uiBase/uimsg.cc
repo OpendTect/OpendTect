@@ -389,6 +389,33 @@ int uiMsg::askOverwrite( const uiString& text )
 }
 
 
+int uiMsg::ask2D3D( const uiString& text, bool wcancel )
+{
+    mPrepCursor();
+
+    mCapt( uiStrings::sSpecify() );
+    const int refnr = beginCmdRecEvent( utfwintitle );
+
+    uiString yestxt = uiStrings::s2D();
+    uiString notxt = uiStrings::s3D();
+    uiString cncltxt =
+	wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString();
+    PtrMan<QMessageBox> mb = createMessageBox( Question, popParnt(), text,
+	yestxt, notxt, cncltxt, wintitle );
+    mb->button(QMessageBox::Yes  )->setIcon( QIcon() );
+    mb->button(QMessageBox::No	)->setIcon( QIcon() );
+    const int res = mb->exec();
+
+    const int retval = res==QMessageBox::Yes ? 1 :
+		       res==QMessageBox::No  ? 0 : -1;
+
+    endCmdRecEvent( refnr, 1-retval, yestxt.getOriginalString(),
+		    notxt.getOriginalString(), cncltxt.getOriginalString() );
+
+    return retval;
+}
+
+
 int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 		     const uiString& notxtinp,
 		     const uiString& cncltxtinp, const uiString& title )
@@ -499,3 +526,4 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 		    notxt.getOriginalString() );
     return !checked;
 }
+

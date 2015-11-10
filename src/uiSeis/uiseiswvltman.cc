@@ -60,8 +60,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
     disppropbut_ = manipgrp->addButton( "info", mJoinUiStrs(sDisplay(),
 				sProperties()), mCB(this,uiSeisWvltMan,
-				dispProperties) ); 
-				
+				dispProperties) );
+
     revpolbut_ = manipgrp->addButton( "revpol", tr("Reverse polarity"),
 				mCB(this,uiSeisWvltMan,reversePolarity) );
     rotatephbut_  = manipgrp->addButton( "phase", tr("Rotate phase"),
@@ -74,9 +74,9 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
     uiFunctionDisplay::Setup fdsu;
     fdsu.noy2axis(true).noy2gridline(true);
-    
+
     waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
-    const uiString ztxt = toUiString("%1 %2").arg(SI().zIsTime() ? 
+    const uiString ztxt = toUiString("%1 %2").arg(SI().zIsTime() ?
 	 uiStrings::sTime() : uiStrings::sDepth()).arg(SI().getUiZUnitString());
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
@@ -84,7 +84,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvnamdisp_ = new uiLabel( wvltdispgrp, uiStrings::sWavelet() );
     wvnamdisp_->attach(centeredAbove, waveletdisplay_);
     wvnamdisp_->setAlignment( Alignment::HCenter );
-      
+
     selChg( this );
     mTriggerInstanceCreatedNotifier();
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
@@ -161,13 +161,12 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::extractPush( CallBacker* cb )
+void uiSeisWvltMan::extractPush( CallBacker* )
 {
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().askGoOnAfter( tr("Use 2D or 3D data?"),
-		uiStrings::sEmptyString(), uiStrings::s2D(), uiStrings::s3D() );
+	int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
 	if ( res == -1 )
 	    return;
 	else
@@ -225,7 +224,7 @@ void uiSeisWvltMan::ownSelChg()
     mSetButToolTip(taperbut_,tr("Taper %1").arg(curwvlt), tr("Taper") );
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
 		   .arg(uiStrings::sDisplay()).arg(curwvlt)
-		   .arg(uiStrings::sProperties().toLower()), 
+		   .arg(uiStrings::sProperties().toLower()),
 		   mJoinUiStrs(sDisplay(),sProperties().toLower()));
 }
 
@@ -280,7 +279,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-    
+
     wvlt->setName( curioobj_->name().buf() );
 
     Wavelet resampledwvlt( *wvlt );
@@ -312,7 +311,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
     dlg.setDirToCurrentSurvey();
     if ( !wvlt )
-	mRet((didsel ? uiStrings::phrCannotRead(uiStrings::sWavelet()) : 
+	mRet((didsel ? uiStrings::phrCannotRead(uiStrings::sWavelet()) :
 		       uiStrings::sEmptyString()))
     IOM().getEntry( ctio );
     if ( !ctio.ioobj_ )
@@ -408,7 +407,7 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
     {
 	waveletdisplay_->setEmpty();
 	return;
-    }	
+    }
     Wavelet resampledwvlt( *wvlt );
     reSampleWavelet( resampledwvlt );
     const int wvltsz = resampledwvlt.size();
@@ -417,4 +416,5 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
     waveletdisplay_->setVals( intxval, resampledwvlt.samples() , wvltsz );
-} 
+}
+
