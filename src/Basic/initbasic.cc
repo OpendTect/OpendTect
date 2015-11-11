@@ -31,6 +31,11 @@ mDefModInitFn(Basic)
     SignalHandling::initClass();
     CallBack::initClass();
 
+    //Remove all residual affinity (if any) from inherited
+    //process. This could be if this process is started through
+    //forking from a process that had affinity set.
+    Threads::setCurrentThreadProcessorAffinity(-1);
+
 #ifdef __win__
     _set_output_format(_TWO_DIGIT_EXPONENT);
     // From MSDN:
