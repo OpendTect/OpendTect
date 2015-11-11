@@ -264,7 +264,7 @@ static void initQApplication()
 
 
 uiMain::uiMain( int& argc, char **argv )
-    : mainobj_( 0 )
+    : mainobj_(0)
 {
 #ifdef __mac__
     uiInitMac();
@@ -275,16 +275,18 @@ uiMain::uiMain( int& argc, char **argv )
 
     const QPixmap pixmap( XpmIconData );
     app_->setWindowIcon( QIcon(pixmap) );
+    qdesktop_ = app_->desktop();
 }
 
 
 uiMain::uiMain( QApplication* qapp )
-    : mainobj_( 0 )
+    : mainobj_(0)
 {
     initQApplication();
     app_ = qapp;
     const QPixmap pixmap( XpmIconData );
     app_->setWindowIcon( QIcon(pixmap) );
+    qdesktop_ = app_->desktop();
 }
 
 
@@ -385,7 +387,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     BufferString stylestr = getStyleFromSettings();
     if ( stylestr.isEmpty() )
 	stylestr = __ismac__ ? "macintosh" : "cleanlooks";
-    
+
     QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
 #endif
 
@@ -497,6 +499,21 @@ Color uiMain::windowColor() const
     const QColor& qcol =
 	 QApplication::palette().color( QPalette::Window );
     return Color( qcol.red(), qcol.green(), qcol.blue() );
+}
+
+
+int uiMain::nrScreens() const
+{ return qdesktop_ ? qdesktop_->screenCount() : -1; }
+
+
+uiSize uiMain::getScreenSize( int screennr, bool available ) const
+{
+    if ( !qdesktop_ )
+	return uiSize( mUdf(int), mUdf(int) );
+
+    QRect qrect = available ? qdesktop_->availableGeometry( screennr )
+			    : qdesktop_->screenGeometry( screennr );
+    return uiSize( qrect.width(), qrect.height() );
 }
 
 
