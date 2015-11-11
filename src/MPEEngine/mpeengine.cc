@@ -570,13 +570,9 @@ bool Engine::pickingOnSameData( const Attrib::SelSpec& oldss,
 				const Attrib::SelSpec& newss,
 				uiString& error ) const
 {
-    bool match = false;
-    if ( oldss.isStored() && newss.isStored() )
-    {
-	const FixedString defstr = oldss.defString();
-	match = defstr == newss.defString();
-	if ( match ) return true;
-    }
+    const FixedString defstr = oldss.defString();
+    const bool match = defstr == newss.defString();
+    if ( match ) return true;
 
     // TODO: Other messages for other options
     error = tr( "This horizon has previously been picked on:\n'%1'.\n"
