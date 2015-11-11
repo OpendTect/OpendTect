@@ -79,24 +79,29 @@ bool execute()
 
     Threads::Locker lckr( lock_ );
 
+    TypeSet<Threads::Work> tasks;
+
+// WVA
     if ( !wvabmpmgr_ )
 	wvabmpmgr_ = new BitMapMgr();
 
     if ( wvabmpmgr_ && isVisible(appearance_,true) )
+    {
 	wvabmpmgr_->init( wvapack_.ptr(), appearance_, true );
+	BitMapGenTask* wvatask = new BitMapGenTask( *wvabmpmgr_, wr_, sz_, sz_ );
+	tasks += Threads::Work( *wvatask, true );
+    }
 
+// VD
     if ( !vdbmpmgr_ )
 	vdbmpmgr_ = new BitMapMgr();
 
     if ( vdbmpmgr_ && isVisible(appearance_,false) )
+    {
 	vdbmpmgr_->init( vdpack_.ptr(), appearance_, false );
-
-    BitMapGenTask wvatask( *wvabmpmgr_, wr_, sz_, sz_ );
-    BitMapGenTask vdtask( *vdbmpmgr_, wr_, sz_, sz_ );
-
-    TypeSet<Threads::Work> tasks;
-    tasks += Threads::Work( wvatask, false );
-    tasks += Threads::Work( vdtask, false );
+	BitMapGenTask* vdtask = new BitMapGenTask( *vdbmpmgr_, wr_, sz_, sz_ );
+	tasks += Threads::Work( *vdtask, true );
+    }
 
     if ( !Threads::WorkManager::twm().addWork( tasks,
 	       Threads::WorkManager::cDefaultQueueID() ) )
@@ -108,6 +113,7 @@ bool execute()
 			 uiPoint(0,0), true );
 
     display_.setImage( isdynamic_, *image_, wr_ );
+    display_.setVisible( !tasks.isEmpty() );
     return true;
 }
 
@@ -224,7 +230,7 @@ void uiBitMapDisplay::setDataPack( const FlatDataPack* fdp, bool wva )
 	vdpack_ = fdp;
     }
 
-    basetask_->setDataPack( fdp, wva );
+//    basetask_->setDataPack( fdp, wva );
 }
 
 
