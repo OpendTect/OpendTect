@@ -229,8 +229,6 @@ void uiBitMapDisplay::setDataPack( const FlatDataPack* fdp, bool wva )
 	if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
 	vdpack_ = fdp;
     }
-
-//    basetask_->setDataPack( fdp, wva );
 }
 
 
@@ -276,10 +274,23 @@ uiGraphicsItem* uiBitMapDisplay::getDisplay()
 }
 
 
-
 Interval<float> uiBitMapDisplay::getDataRange( bool iswva ) const
 {
-    return basetask_->getBitmapDataRange( iswva );
+    Interval<float> rg( mUdf(float), mUdf(float) );
+    const FlatDataPack* fdp = iswva ? wvapack_.ptr() : vdpack_.ptr();
+    if ( !fdp ) return rg;
+
+    const ColTab::MapperSetup mapper =
+	iswva ? appearance_.ddpars_.wva_.mappersetup_
+	      : appearance_.ddpars_.vd_.mappersetup_;
+
+    Interval<float> mapperrange = mapper.range_;
+    if ( mapper.type_ == ColTab::MapperSetup::Fixed )
+	return mapperrange;
+
+    A2DBitMapInpData bmdata( fdp->data() );
+    rg = bmdata.scale( mapper.cliprate_, mapper.symmidval_ );
+    return rg;
 }
 
 
