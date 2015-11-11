@@ -310,6 +310,9 @@ protected:
 mGlobal(Basic) int getSystemNrProcessors();
 mGlobal(Basic) int getNrProcessors();
 mGlobal(Basic) const void* currentThread();
+mGlobal(Basic) void setCurrentThreadProcessorAffinity( int cpu );
+/*!<Tells the current thread to always run on a certain cpu. Set to
+-1 to remove binding.  Not guaranteed to work on all platforms. */
 
 /*! Causes the current thread to sleep */
 mGlobal(Basic) void sleep(double seconds);

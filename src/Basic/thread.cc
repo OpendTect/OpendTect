@@ -839,6 +839,53 @@ int Threads::getSystemNrProcessors()
 #endif
 }
 
+
+#ifdef __linux__
+# include <pthread.h>
+
+void Threads::setCurrentThreadProcessorAffinity( int cpunum )
+{
+    cpu_set_t cpumask;
+    CPU_ZERO( &cpumask );
+    if ( cpunum>=0 )
+	CPU_SET( cpunum, &cpumask );
+    else
+    {
+	for ( int idx=0; idx<getSystemNrProcessors(); idx++ )
+	{
+	    CPU_SET( idx, &cpumask );
+	}
+    }
+    if ( sched_setaffinity( 0, sizeof(cpumask), &cpumask ) !=0 )
+    {
+	pFreeFnErrMsg("Could not set cpu affinity" );
+    }
+}
+#elif defined(__win__)
+void Threads::setCurrentThreadProcessorAffinity( int cpunum )
+{
+    DWORD_PTR mask;
+    if ( cpunum>=0 && cpunum <64 )
+    {
+	const DWORD_PTR val = 1;
+	mask = val << cpunum;
+    }
+    else
+    {
+	mask = 0xFFFFFFFFFFFFFFFF;
+    }
+
+    if ( SetThreadAffinityMask( GetCurrentThread(), mask )==0 )
+    {
+	pFreeFnErrMsg("Could not set cpu affinity" );
+    }
+}
+#else
+void Threads::setCurrentThreadProcessorAffinity( int cpunum )
+{}
+#endif
+
+
 int Threads::getNrProcessors()
 {
     mDefineStaticLocalObject( int, nrproc, (-1) );
