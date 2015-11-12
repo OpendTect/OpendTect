@@ -659,6 +659,7 @@ void uiAttribDescSetEd::setSelAttr( const char* attrnm )
 {
     if ( !attrtypefld_ ) return;
 
+    attrlistfld_->setEmpty();
     attrtypefld_->setAttr( attrnm );
     updateFields( false );
 }
