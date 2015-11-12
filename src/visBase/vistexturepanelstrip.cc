@@ -270,7 +270,7 @@ bool TexturePanelStrip::getTextureInfo( int& width, int& height, int& pixsize )
 const unsigned char* TexturePanelStrip::getTextureData() const
 {
     osgGeo::LayeredTexture* lytexture = osgpanelstrip_->getTexture();
-    if ( !lytexture ) return false;
+    if ( !lytexture ) return 0;
 
     return lytexture->getCompositeTextureImage()->data();
 }
