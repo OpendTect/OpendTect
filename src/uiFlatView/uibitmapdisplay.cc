@@ -79,24 +79,29 @@ bool execute()
 
     Threads::Locker lckr( lock_ );
 
+    TypeSet<Threads::Work> tasks;
+
+// WVA
     if ( !wvabmpmgr_ )
 	wvabmpmgr_ = new BitMapMgr();
 
     if ( wvabmpmgr_ && isVisible(appearance_,true) )
+    {
 	wvabmpmgr_->init( wvapack_.ptr(), appearance_, true );
+	BitMapGenTask* wvatask = new BitMapGenTask( *wvabmpmgr_, wr_, sz_, sz_ );
+	tasks += Threads::Work( *wvatask, true );
+    }
 
+// VD
     if ( !vdbmpmgr_ )
 	vdbmpmgr_ = new BitMapMgr();
 
     if ( vdbmpmgr_ && isVisible(appearance_,false) )
+    {
 	vdbmpmgr_->init( vdpack_.ptr(), appearance_, false );
-
-    BitMapGenTask wvatask( *wvabmpmgr_, wr_, sz_, sz_ );
-    BitMapGenTask vdtask( *vdbmpmgr_, wr_, sz_, sz_ );
-
-    TypeSet<Threads::Work> tasks;
-    tasks += Threads::Work( wvatask, false );
-    tasks += Threads::Work( vdtask, false );
+	BitMapGenTask* vdtask = new BitMapGenTask( *vdbmpmgr_, wr_, sz_, sz_ );
+	tasks += Threads::Work( *vdtask, true );
+    }
 
     if ( !Threads::WorkManager::twm().addWork( tasks,
 	       Threads::WorkManager::cDefaultQueueID() ) )
@@ -108,28 +113,10 @@ bool execute()
 			 uiPoint(0,0), true );
 
     display_.setImage( isdynamic_, *image_, wr_ );
+    display_.setVisible( !tasks.isEmpty() );
     return true;
 }
 
-
-Interval<float> getBitmapDataRange( bool iswva ) const
-{
-    Interval<float> rg( mUdf(float), mUdf(float) );
-    const ColTab::MapperSetup mapper =
-	iswva ? appearance_.ddpars_.wva_.mappersetup_
-	      : appearance_.ddpars_.vd_.mappersetup_;
-
-    Interval<float> mapperrange = mapper.range_;
-    if ( mapper.type_ == ColTab::MapperSetup::Fixed )
-	return mapperrange;
-
-    BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
-    if ( mgr && mgr->bitMapGen() )
-	rg = mgr->bitMapGen()->data().scale(
-		mapper.cliprate_, mapper.symmidval_ );
-
-    return rg;
-}
 
     bool			isdynamic_;
 
@@ -223,8 +210,6 @@ void uiBitMapDisplay::setDataPack( const FlatDataPack* fdp, bool wva )
 	if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
 	vdpack_ = fdp;
     }
-
-    basetask_->setDataPack( fdp, wva );
 }
 
 
@@ -270,10 +255,23 @@ uiGraphicsItem* uiBitMapDisplay::getDisplay()
 }
 
 
-
 Interval<float> uiBitMapDisplay::getDataRange( bool iswva ) const
 {
-    return basetask_->getBitmapDataRange( iswva );
+    Interval<float> rg( mUdf(float), mUdf(float) );
+    const FlatDataPack* fdp = iswva ? wvapack_.ptr() : vdpack_.ptr();
+    if ( !fdp ) return rg;
+
+    const ColTab::MapperSetup mapper =
+	iswva ? appearance_.ddpars_.wva_.mappersetup_
+	      : appearance_.ddpars_.vd_.mappersetup_;
+
+    Interval<float> mapperrange = mapper.range_;
+    if ( mapper.type_ == ColTab::MapperSetup::Fixed )
+	return mapperrange;
+
+    A2DBitMapInpData bmdata( fdp->data() );
+    rg = bmdata.scale( mapper.cliprate_, mapper.symmidval_ );
+    return rg;
 }
 
 
@@ -336,4 +334,5 @@ Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 void uiBitMapDisplay::dynamicTaskFinishCB( CallBacker* )
 {
 }
+
 
