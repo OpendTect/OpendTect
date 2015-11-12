@@ -87,7 +87,21 @@ public:
     
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
+    int				getNrTextures() const;
+    const unsigned char*	getTextureData() const;
+    mStruct(visBase) TextureDataInfo
+    {
+	TypeSet<Coord3> coords_;
+	TypeSet<Coord>	texcoords_;
+	TypeSet<int>	ps_;    
+	void		setEmpty() { coords_.erase(); texcoords_.erase();
+				     ps_.erase(); }
+    };
 
+    bool			getTextureDataInfo(int tidx,
+				    TextureDataInfo& texinfo) const;
+    bool			getTextureInfo(int& width,int& height,
+				    int& pixsize);
 protected:
     					~TexturePanelStrip();
     void				updatePath();
@@ -97,6 +111,16 @@ protected:
     RefMan<TextureChannels>		channels_;
     PtrMan<TypeSet<Coord> >		pathcoords_;
     PtrMan<TypeSet<float> >		pathtexoffsets_;
+private:
+    bool			calcTextureCoordinates(TypeSet<Coord3>& coordin,
+					TypeSet<Coord>& coordout) const;
+    Coord			getImageTextureCoord(const Coord3 dispcrd,
+					double minx,double xlen,double minz,
+					double zlen) const;
+    void			getMinAndLengthInfo(double& minval,double& len,
+						    bool bz=false) const;
+
+
 };
 
 };
