@@ -148,11 +148,11 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
     for ( int idx=0; idx<incr; idx++ )
     {
-	int inpinlidx = curbid.inl()-tkzsin_.hsamp_.start_.inl();
-	int inpcrlidx = curbid.crl()-tkzsin_.hsamp_.start_.crl();
+	int inpinlidx = tkzsin_.lineIdx( curbid.inl() );
+	int inpcrlidx = tkzsin_.trcIdx( curbid.crl() );
 
-	int outpinlidx = curbid.inl()-tkzsout_.hsamp_.start_.inl();
-	int outpcrlidx = curbid.crl()-tkzsout_.hsamp_.start_.crl();
+	int outpinlidx = tkzsout_.lineIdx( curbid.inl() );
+	int outpcrlidx = tkzsout_.trcIdx( curbid.crl() );
 
 	for ( int idz=0; idz<nrsamples; idz++ )
 	{
