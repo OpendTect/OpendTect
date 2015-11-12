@@ -872,7 +872,8 @@ void Threads::setCurrentThreadProcessorAffinity( int cpunum )
     }
     else
     {
-	mask = 0xFFFFFFFFFFFFFFFF;
+	const DWORD_PTR zero = 0;
+	mask = ~zero;
     }
 
     if ( SetThreadAffinityMask( GetCurrentThread(), mask )==0 )
