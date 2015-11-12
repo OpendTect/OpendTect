@@ -376,7 +376,9 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const uiWorldPoint wp = markerpos ? *markerpos :
 			vwr->getWorld2Ui().transform( mousepos );
-    const bool action = doTheSeed( *seedpicker, vwr->getCoord(wp), mouseevent );
+    Coord3 clickedcrd = vwr->getCoord( wp );
+    clickedcrd.z = wp.y;
+    const bool action = doTheSeed( *seedpicker, clickedcrd, mouseevent );
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
 
