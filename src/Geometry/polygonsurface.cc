@@ -441,10 +441,10 @@ bool PolygonSurface::linesegmentsIntersecting( const Coord3& v0,
     if ( norm0.dot(norm1)>0 )
 	return false;
 
-    Line3 segment0( v0, v1 );
-    Line3 segment1( p0, p1 );
+    Line3 segment0 = Line3::fromPosAndDir( v0, v1 );
+    Line3 segment1 = Line3::fromPosAndDir( p0, p1 );
     double t0, t1;
-    segment0.closestPoint( segment1, t0, t1 );
+    segment0.closestPointToLine( segment1, t0, t1 );
     return (t0>0 && t0<1) && (t1>0 && t1<1);
 }
 

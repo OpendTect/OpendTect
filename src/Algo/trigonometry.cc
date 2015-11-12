@@ -208,397 +208,187 @@ Quaternion Quaternion::inverse() const
 }
 
 
-
-ParamLine2::ParamLine2( double slope, double intcpt )
-    : x0_( 0 )
-    , y0_( intcpt )
-    , alpha_( 1 )
-    , beta_( slope )
-{}
-
-
-ParamLine2::ParamLine2( const Coord& pt, double slope )
-    : x0_( pt.x )
-    , y0_( pt.y )
+template <class T> inline
+double ParamLineBase<T>::sqDistanceToPoint( const T& p ) const
 {
-    if ( mIsUdf(slope) ) //Vertical
-    {
-	alpha_ = 0;
-	beta_ = 1;
-    }
-    else
-    {
-	alpha_ = 1;
-	beta_ = slope;
-    }
-}
-
-
-ParamLine2::ParamLine2( const Coord& start, const Coord& stop )
-    : x0_(start.x)
-    , y0_(start.y)
-    , alpha_ ( stop.x - start.x )
-    , beta_( stop.y - start.y )
-{}
-
-
-double ParamLine2::sqDistanceToPoint( const Coord& p ) const
-{
-    const double t = closestPoint( p );
+    const double t = closestParam( p );
     const Coord closestpoint = getPoint( t );
     return closestpoint.sqDistTo( p );
 }
 
 
-double ParamLine2::distanceToPoint( const Coord& point ) const
+template <class T> inline
+T ParamLineBase<T>::closestPoint( const T& pt ) const
+{ return getPoint( closestParam( pt ) ); }
+
+
+template <class T> inline
+double ParamLineBase<T>::distanceToPoint( const T& point ) const
 {
     return Math::Sqrt( sqDistanceToPoint( point ) );
 }
 
-
-bool ParamLine2::operator==( const ParamLine2& line ) const
+template <class T> inline
+T ParamLineBase<T>::getPoint( double t ) const
 {
-    //Check if direction is same
-    const double dotprod =
-	Coord(alpha_,beta_).dot(Coord(line.alpha_,line.beta_));
-
-    if ( !mIsEqual(dotprod,1,mDefEps) )
-	return false;
-
-    const double sqdist = sqDistanceToPoint(Coord(line.x0_,line.y0_) );
-
-    return mIsZero(sqdist,mDefEps);
+    return p0_ + dir_ * t;
 }
 
 
-Coord ParamLine2::getPoint( double t ) const
+template <class T> inline
+T ParamLineBase<T>::direction( bool normalize ) const
 {
-    return Coord( x0_+alpha_*t, y0_+beta_*t );
+    return normalize ? dir_.normalize() : dir_;
+}
+
+
+template <class T> inline
+double ParamLineBase<T>::closestParam( const T& point ) const
+{
+    const Coord diff = point-p0_;
+    return diff.dot(dir_)/dir_.sqAbs();
+}
+
+
+template <class T> inline
+bool ParamLineBase<T>::isOnLine( const T& pt ) const
+{
+    return sqDistanceToPoint( pt )<0.0001;
 }
 
 
 
+//Instantiate all functions
+template class ParamLineBase<Coord>;
+template class ParamLineBase<Coord3>;
 
-Coord ParamLine2::direction( bool normalize ) const
+Line2::Line2()
 {
-    const Coord res = Coord(alpha_,beta_);
-    return normalize ? res.normalize() : res;
-}
-
-
-double ParamLine2::closestPoint( const Coord& point ) const
-{
-    const Coord dir = direction( false );
-    const Coord diff = point-Coord(x0_,y0_);
-    return diff.dot(dir)/dir.sqAbs();
-}
-
-
-Line2::Line2( double slope, double intcpt )
-    : slope_(slope),yintcpt_(intcpt)
-    , start_(mUdf(double),mUdf(double))
-    , stop_(mUdf(double),mUdf(double))
-    , isvertical_(false),xintcpt_(mUdf(double))
-{}
-
-
-Line2::Line2( const Coord& pt, double slope )
-    : slope_(slope)
-    , start_(mUdf(double),mUdf(double))
-    , stop_(mUdf(double),mUdf(double))
-{
-    isvertical_ = mIsUdf(slope_) ? true : false;
-    xintcpt_ = isvertical_ ? pt.x : mUdf(double);
-    yintcpt_ = isvertical_ ? mUdf(double) : pt.y - slope_ * pt.x;
+    p0_ = Coord::udf();
+    dir_ = Coord::udf();
 }
 
 
 Line2::Line2( const Coord& start, const Coord& stop )
-    : start_(start),stop_(stop)
-    , isvertical_(false),xintcpt_(mUdf(double))
 {
-    double xdiff = stop_.x - start_.x;
-    double ydiff = stop_.y - start_.y;
-    if ( mIsZero(xdiff,mDefEps) )
-    {
-	slope_ = mUdf(double);
-	yintcpt_= mUdf(double);
-	isvertical_ = true;
-	xintcpt_ = start_.x;
-    }
-    else
-    {
-	slope_ = ydiff / xdiff;
-	yintcpt_ = start_.y - slope_ * start_.x;
-    }
+    p0_ = start;
+    dir_ = stop-start;
 }
+
 
 
 bool Line2::operator==( const Line2& line ) const
 {
-    if ( isvertical_ )
-	return line.isvertical_ && mIsEqual(xintcpt_,line.xintcpt_,mDefEps);
+    //Check if direction is same
+    const double dotprod = direction(true).dot(line.direction(true));
 
-    return mIsEqual(slope_,line.slope_,mDefEps) &&
-	   mIsEqual(yintcpt_,line.yintcpt_,mDefEps);
+    if ( !mIsEqual(dotprod,1,mDefEps) )
+	return false;
+
+    const double sqdist = sqDistanceToPoint( line.p0_ );
+
+    return mIsZero(sqdist,mDefEps);
 }
 
-
-#define mRetUdf return Coord( mUdf(double), mUdf(double) )
-Coord Line2::direction() const
+Line2 Line2::fromPosAndDir( const Coord& p0, const Coord& dir )
 {
-    if ( mIsUdf(slope_) )
-    {
-	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    mRetUdf;
-
-	return Coord( 0, 1 );
-    }
-
-    return Coord(1,slope_).normalize();
+    Line2 res;
+    res.p0_ = p0;
+    res.dir_ = dir;
+    return res;
 }
 
 
-Coord Line2::closestPoint( const Coord& point ) const
-{
-    if ( mIsUdf(slope_) )
-    {
-	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    mRetUdf;
-
-	return Coord( xintcpt_, point.y );
-    }
-
-    const double x = ( point.x + slope_ * (point.y-yintcpt_) ) /
-		     ( 1 + slope_*slope_ );
-    const double y = slope_ * x + yintcpt_;
-    return Coord( x, y );
-}
+static const double oneplus = 1.0 + mDefEpsD;
 
 
 Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 {
-    Coord pos( mUdf(double), mUdf(double) );
-    if ( line.start_==line.stop_ && !isOnLine(line.start_) )
-	mRetUdf;
+    if ( mIsEqual(direction(true).dot(line.direction(true)),1.0, mDefEpsD) )
+	return Coord::udf();
 
-    if ( mIsUdf(slope_) )
+    double devisor = line.dir_.x*dir_.y-line.dir_.y*dir_.x;
+    if ( mIsZero( devisor, mDefEpsD) )
+	return Coord::udf();
+
+    //Compute point on line that crosses this.
+    const double u =
+	(dir_.x * (line.p0_.y-p0_.y) +dir_.y*(p0_.x-line.p0_.x))/ devisor ;
+    if ( checkinlimits )
     {
-	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    mRetUdf;
+	if ( u<-mDefEpsD || u>oneplus )
+	    return Coord::udf();
 
-	if ( mIsUdf(line.slope_) || line.isvertical_ )
-	    mRetUdf;
+	devisor = dir_.x*line.dir_.y-dir_.y*line.dir_.x;
+	if ( mIsZero( devisor, mDefEpsD) )
+	    return Coord::udf();
 
-	pos.x = xintcpt_;
-	pos.y = line.slope_ * pos.x + line.yintcpt_;
-    }
-    else
-    {
-	if ( mIsUdf(line.slope_) )
-	{
-	    if ( !line.isvertical_ || mIsUdf(line.xintcpt_) )
-		mRetUdf;
+	//Compute corresponding position on this line
+	const double t =
+	    (line.dir_.x*(p0_.y-line.p0_.y) +line.dir_.y*(line.p0_.x-p0_.x)) /
+		devisor;
 
-	    pos.x = line.xintcpt_;
-	    pos.y = slope_ * pos.x + yintcpt_;
-	}
-	else
-	{
-	    double slopediff = slope_ - line.slope_;
-	    if ( mIsZero(slopediff,mDefEps) )
-		mRetUdf;
-
-	    pos.x = ( line.yintcpt_ - yintcpt_ ) / slopediff;
-	    pos.y = slope_ * pos.x + yintcpt_;
-	}
+	if ( t<-mDefEpsD || t>oneplus )
+	     return Coord::udf();
     }
 
-    if ( !checkinlimits )
-	return pos;
-
-    bool inlimits1 = true;
-    if ( !mIsUdf(start_.x) && !mIsUdf(stop_.x) )
-    {
-	const double xdiff = stop_.x - start_.x;
-	const double ydiff = stop_.y - start_.y;
-	if ( !mIsZero(xdiff,mDefEps) && (pos.x-start_.x) * (stop_.x-pos.x) < 0 )
-	    inlimits1 = false;
-
-	if ( !mIsZero(ydiff,mDefEps) && (pos.y-start_.y) * (stop_.y-pos.y) < 0 )
-	    inlimits1 = false;
-    }
-
-    bool inlimits2 = true;
-    if ( !mIsUdf(line.start_.x) && !mIsUdf(line.stop_.x) )
-    {
-	const double xdiff = line.stop_.x - line.start_.x;
-	const double ydiff = line.stop_.y - line.start_.y;
-	if ( !mIsZero(xdiff,mDefEps)
-		&& (pos.x-line.start_.x) * (line.stop_.x-pos.x) < 0 )
-	    inlimits1 = false;
-
-	if ( !mIsZero(ydiff,mDefEps)
-		&& (pos.y-line.start_.y) * (line.stop_.y-pos.y) < 0 )
-	    inlimits1 = false;
-    }
-
-    if ( !inlimits1 || !inlimits2 )
-	mRetUdf;
-
-    return pos;
+    return line.getPoint( u );
 }
 
 
-bool Line2::isOnLine( const Coord& pt ) const
+void Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
 {
-    return mIsEqual(pt.y,slope_*pt.x+yintcpt_,0.0001);
+    line.dir_.x = -dir_.y;
+    line.dir_.y = dir_.x;
+    line.p0_ = point;
 }
 
 
-double Line2::distanceTo( const Line2& line ) const
+void Line2::getParallelLine( Line2& line, double dist ) const
 {
-    if ( isvertical_ && line.isvertical_ )
-	return fabs( xintcpt_ - line.xintcpt_ );
-
-    if ( !mIsEqual(slope_,line.slope_,mDefEps) )
-	return mUdf(double);
-
-    const double intcptdiff = fabs( yintcpt_ - line.yintcpt_ );
-    return intcptdiff / Math::Sqrt( 1 + slope_ * slope_ );
+    line = *this;
+    Coord movement = Coord(-dir_.y,dir_.x).normalize() * dist;
+    line.p0_ += movement;
 }
-
-
-bool Line2::getParallelLine( Line2& line, double dist ) const
-{
-    if ( mIsUdf(slope_) )
-    {
-	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    return false;
-
-	line.yintcpt_ = mUdf(double);
-	line.isvertical_ = true;
-	line.xintcpt_ = xintcpt_ + dist;
-    }
-    else
-    {
-	double constterm = dist * Math::Sqrt( 1 + slope_ * slope_ );
-	line.yintcpt_ = yintcpt_ + constterm;
-    }
-
-    line.slope_ = slope_;
-    return true;
-}
-
-
-bool Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
-{
-    if ( mIsUdf(slope_) )
-    {
-	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    return false;
-
-	line.slope_ = 0;
-	line.isvertical_ = false;
-	line.yintcpt_ = point.y;
-    }
-    else if ( mIsZero(slope_,mDefEps) )
-    {
-	line.slope_ = mUdf(double);
-	line.yintcpt_ = mUdf(double);
-	line.isvertical_ = true;
-	line.xintcpt_ = point.x;
-    }
-    else
-    {
-	line.slope_ = -1. / slope_;
-	line.yintcpt_ = point.y - line.slope_ * point.x;
-    }
-
-    return true;
-}
-
 
 
 Line3::Line3() {}
 
 Line3::Line3( double x0, double y0, double z0, double alpha, double beta,
 	      double gamma )
-    : x0_( x0 )
-    , y0_( y0 )
-    , z0_( z0 )
-    , alpha_( alpha )
-    , beta_( beta )
-    , gamma_( gamma )
-{}
-
-
-Line3::Line3( const Coord3& point, const Vector3& vector )
-    : x0_( point.x )
-    , y0_( point.y )
-    , z0_( point.z )
-    , alpha_( vector.x )
-    , beta_(vector.y )
-    , gamma_( vector.z )
-{}
-
-
-double Line3::distanceToPoint( const Coord3& point ) const
 {
-    return Math::Sqrt( sqDistanceToPoint( point ) );
+    p0_.x = x0;
+    p0_.y = y0;
+    p0_.z = z0;
+    dir_.x = alpha;
+    dir_.y = beta;
+    dir_.z = gamma;
 }
 
 
-double Line3::sqDistanceToPoint( const Coord3& point ) const
+Line3 Line3::fromPosAndDir( const Coord3& p0, const Vector3& dir )
 {
-    const Vector3 p0p1( point.x - x0_, point.y - y0_, point.z - z0_ );
-    const Vector3 v( alpha_, beta_, gamma_ );
-
-    return v.cross( p0p1 ).sqAbs() / v.sqAbs();
+    Line3 res;
+    res.p0_ = p0;
+    res.dir_ = dir;
+    return res;
 }
 
 
-/*
-   |
-   B-------C
-   |      /
-   |     /
-   |    /
-   |   /
-   |  /
-   |a/
-   |/
-   A
-   |
-   |
-
-Given: A, C and dir
-Wanted: B
-
-B = dir/|dir| * |AB|
-|AB| = |AC| * cos(a)
-dir.AC = |dir|*|AC|*cos(a)
-
-dir.AC / |dir| = |AC|*cos(a)
-
-B = dir/|dir| * dir.AC / |dir|
-
-*/
-
-double Line3::closestPoint( const Coord3& point ) const
+Line3::Line3( const Coord3& start, const Coord3& stop )
 {
-    const Coord3 dir = direction( false );
-    const Coord3 diff = point-Coord3(x0_,y0_,z0_);
-    return diff.dot(dir)/dir.sqAbs();
+    p0_ = start;
+    dir_ = stop-start;
 }
 
 
-void Line3::closestPoint( const Line3& line, double& t_this,
-			  double& t_line ) const
+void Line3::closestPointToLine( const Line3& line, double& t_this,
+				double& t_line ) const
 {
     const Coord3 dir0 = direction( false );
     const Coord3 dir1 = line.direction( false );
-    const Coord3 diff(x0_-line.x0_,y0_-line.y0_,z0_-line.z0_);
+    const Coord3 diff = p0_ - line.p0_;
+
     const double d0 = dir0.dot(dir0);
     const double d1 = dir1.dot(dir1);
     const double d01 = dir0.dot(dir1);
@@ -613,8 +403,8 @@ void Line3::closestPoint( const Line3& line, double& t_this,
 
 bool Line3::intersectWith( const Plane3& b, double& t ) const
 {
-    const double denominator = alpha_*b.A_ + beta_*b.B_ + gamma_*b.C_;
-    const double dist0 = b.A_*x0_ + b.B_*y0_ + b.C_*z0_ + b.D_;
+    const double denominator = dir_.x*b.A_ + dir_.y*b.B_ + dir_.z*b.C_;
+    const double dist0 = b.A_*p0_.x + b.B_*p0_.y + b.C_*p0_.z + b.D_;
     if ( mIsZero(denominator,mDefEps) )
     {
 	const double test = dist0/Math::Sqrt(b.A_*b.A_+b.B_*b.B_+b.C_*b.C_);
@@ -630,12 +420,6 @@ bool Line3::intersectWith( const Plane3& b, double& t ) const
     t = -dist0 / denominator;
 
     return true;
-}
-
-
-Coord3 Line3::getPoint( double t ) const
-{
-    return Coord3( x0_+alpha_*t, y0_+beta_*t, z0_+gamma_*t );
 }
 
 
@@ -787,7 +571,7 @@ bool Plane3::onSameSide( const Coord3& p1, const Coord3& p2 )
 double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
 {
     Vector3 norm( normal().normalize() );
-    const Line3 linetoplane( point, norm );
+    const Line3 linetoplane = Line3::fromPosAndDir( point, norm );
 
     Coord3 p0;
     if ( intersectWith( linetoplane, p0 ) )
@@ -820,33 +604,31 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     if ( mIsZero(dir.abs(),mDefEps) )
 	return false;
 
-    res.alpha_ = dir.x;
-    res.beta_ = dir.y;
-    res.gamma_ = dir.z;
+    res.dir_ = dir;
 
     double deter;
     if ( !mIsZero(dir.x,mDefEps) )
     {
 	deter = dir.x;
-	res.x0_ = 0;
-	res.y0_ = (-D_*b.C_+C_*b.D_)/deter;
-	res.z0_ = (-B_*b.D_+D_*b.B_)/deter;
+	res.p0_.x = 0;
+	res.p0_.y = (-D_*b.C_+C_*b.D_)/deter;
+	res.p0_.z = (-B_*b.D_+D_*b.B_)/deter;
 	return true;
     }
     else if ( !mIsZero(dir.y,mDefEps) )
     {
 	deter = -dir.y;
-	res.y0_ = 0;
-	res.x0_ = (-D_*b.C_+C_*b.D_)/deter;
-	res.z0_ = (-A_*b.D_+D_*b.A_)/deter;;
+	res.p0_.y = 0;
+	res.p0_.x = (-D_*b.C_+C_*b.D_)/deter;
+	res.p0_.z = (-A_*b.D_+D_*b.A_)/deter;;
 	return true;
     }
     else
     {
 	deter = dir.z;
-	res.x0_ = (-D_*b.B_+B_*b.D_)/deter;
-	res.y0_ = (-A_*b.D_+D_*b.A_)/deter;
-	res.z0_ = 0;
+	res.p0_.x = (-D_*b.B_+B_*b.D_)/deter;
+	res.p0_.y = (-A_*b.D_+D_*b.A_)/deter;
+	res.p0_.z = 0;
     }
 
     return true;
@@ -879,7 +661,7 @@ Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
     Coord3 v0;
     if ( project )
     {
-	const Line3 line( pt, plane_.normal() );
+	const Line3 line = Line3::fromPosAndDir( pt, plane_.normal() );
 	plane_.intersectWith( line, v0 );
 	v0 -= origin_;
     }

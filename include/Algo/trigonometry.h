@@ -297,129 +297,94 @@ public:
 };
 
 
-/*!
-\brief A ParamLine2 is a line in space, with the following equations:
+/*!Base class for parametric lines, i.e. lines on the form:
+    p = p0 + t*dir
 
-  x = x0 + alpha*t
-  y = y0 + beta*t
+ This class is instantiated with T=Coord and T=Coord3.
+ */
 
-  This class will replace the Line2 in coming versions.
-*/
-
-mExpClass(Algo) ParamLine2
+template <class T>
+class ParamLineBase
 {
-			ParamLine2(double slope=0,double intcpt=0);
-			ParamLine2(const Coord&,double slope);
-			ParamLine2(const Coord& p0,const Coord& p1);
-			/*!<Normalizes so that t=0 is p0 and t=1 is p1 */
+public:
 
-    bool		operator==(const ParamLine2&) const;
+    T		direction(bool normalized=true) const;
 
-    Coord		direction(bool normalized=true) const;
+    T		getPoint(double t) const;
+    T		start() const { return getPoint(0); }
+    T		stop() const { return getPoint(1); }
+    double	closestParam(const T& point) const;
+		/*!<\returns the point on the line that is closest to
+		 the given point. If t is given, it will be
+		 filled with the t-value of the closest point. */
 
-    Coord		getPoint(double t) const;
+    T		closestPoint(const T&) const;
+		//!<\returns the point on the line that is closest to pt.
 
-    double		closestPoint(const Coord& point) const;
-			/*!<\return the point on the line that is closest to
-				    the given point. If t is given, it will be
-				    filled with the t-value of the closest point
-			*/
+    double	distanceToPoint(const T&) const;
+    double	sqDistanceToPoint(const T&) const;
+		/*!<Returns the squared distance, which is cheaper to compute.*/
+    bool	isOnLine(const T& pt) const;
 
-    double		distanceToPoint(const Coord&) const;
-    double		sqDistanceToPoint(const Coord&) const;
 
-    double		x0_;
-    double		y0_;
-    double		alpha_;
-    double		beta_;
+    T		p0_;
+    T		dir_;
 };
 
 
 /*!
-\brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
-form y = slope*x + y-intercept; for making operations easier.
+\brief A Line2 is a line in the plane, with the following equations:
+
+  p(x,y) = p0 + dir * t
+
+ Though the line is infinitely long, one can treat the line as having
+ a start when t=0 and a stop when t=1.
 */
 
-mExpClass(Algo) Line2
+mExpClass(Algo) Line2 : public ParamLineBase<Coord>
 {
 public:
-			Line2(double slope=0,double intcpt=0);
-			Line2(const Coord&,double slope);
-			Line2(const Coord&,const Coord&);
+			Line2();
+			Line2(const Coord& start,const Coord& stop);
+			/*!<Normalizes so that t=0 is p0 and t=1 is p1 */
+
+    static Line2	fromPosAndDir(const Coord&, const Coord&);
 
     bool		operator==(const Line2&) const;
 
-    Coord		direction() const;	/*!<Normalized */
-
-    Coord		closestPoint(const Coord& point) const;
-			/*!<\return the point on the line that is closest to
-				     the given point */
-
     Coord		intersection(const Line2&,bool checkinlimit=true) const;
-
-    double		distanceTo(const Line2&) const;
-			/*!<Gives distance to another parallel line */
-    bool		getParallelLine(Line2& line,double dist) const;
-			/*!<Gives a parallel line at a distance dist */
-    bool		getPerpendicularLine(Line2& line,const Coord& pt) const;
-			/*!<Gives a perpendicular line through point pt*/
-    bool		isOnLine(const Coord& pt) const;
-
-    double		slope_;
-    double		yintcpt_;
-
-    bool		isvertical_;		/*!<Parallel to y-axis */
-    double		xintcpt_;		/*!<only if isvertical_ true */
-
-    Coord		start_;			/*!<For line-segments only */
-    Coord		stop_;			/*!<For line-segments only */
+			/*!<If checkinlimit is true, Coord::udf() will be
+			    returned if the intersection is ouside t=[0,1] on
+			    either line. */
+    void		getPerpendicularLine(Line2&,const Coord& pt) const;
+    void		getParallelLine(Line2& line,double dist) const;
 };
 
 
 /*!
 \brief A Line3 is a line in space, with the following equations:
 
-  x = x0 + alpha*t
-  y = y0 + beta*t
-  z = z0 + gamma*t
+   p(x,y,z) = p0 + dir * t
 */
 
-mExpClass(Algo) Line3
+mExpClass(Algo) Line3 : public ParamLineBase<Coord3>
 {
 public:
 			Line3();
 			Line3(	double x0, double y0, double z0,
 				double alpha, double beta, double gamma );
-			Line3( const Coord3&, const Vector3& );
+			Line3( const Coord3&, const Coord3& );
+			/*<Create line using point and direction. */
+    static Line3	fromPosAndDir(const Coord3&, const Vector3&);
 
-    Vector3		direction( bool normalize = true ) const
-			{
-			    const Vector3 res( alpha_, beta_, gamma_ );
-			    return normalize ? res.normalize() : res;
-			}
-
-    Coord3		getPoint(double t) const;
     bool		intersectWith( const Plane3&, double& t ) const;
 			/*!<Calculates the intersection between the line
 			    and the plane. If success, it sets t. */
 
-
-    double		distanceToPoint( const Coord3& point ) const;
-    double		sqDistanceToPoint( const Coord3& point ) const;
-    double		closestPoint( const Coord3& point ) const;
-			/*!<\returns the point on the line that is closest to
-				     the given point */
-    void		closestPoint( const Line3& line, double& t_this,
-				      double& t_line ) const;
+    void		closestPointToLine(const Line3& line, double& t_this,
+				     double& t_line ) const;
 			/*!<\returns the t for the point point on the line
 				     that is closest to the given line*/
-
-    double		x0_;
-    double		y0_;
-    double		z0_;
-    double		alpha_;
-    double		beta_;
-    double		gamma_;
 };
 
 

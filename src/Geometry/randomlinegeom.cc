@@ -218,9 +218,6 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 }
 
 
-
-
-
 RandomLineSet::RandomLineSet()
     : pars_(*new IOPar)
 {
@@ -237,14 +234,13 @@ RandomLineSet::RandomLineSet( const RandomLine& baserandln, double dist,
     const Coord startpt = SI().transform( baserandln.nodePosition(0) );
     const Coord stoppt = SI().transform( baserandln.nodePosition(1) );
     Line2 rline( startpt, stoppt );
-    rline.start_ = Coord::udf();
-    rline.stop_ = Coord::udf();			// removing limits.
+
     if ( parallel )
 	createParallelLines( rline, dist );
     else
     {
 	const Coord centrpt = ( startpt + stoppt ) / 2;
-	Line2 rlineperp( 0, 0 );
+	Line2 rlineperp;
 	rline.getPerpendicularLine( rlineperp, centrpt );
 	createParallelLines( rlineperp, dist );
     }
@@ -312,8 +308,8 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 	if ( posfinished && negfinished )
 	    break;
 
-	Line2 posline( 0, 0 );
-	Line2 negline( 0, 0 );
+	Line2 posline;
+	Line2 negline;
 	if ( !idx )
 	    posline = baseline;
 	else

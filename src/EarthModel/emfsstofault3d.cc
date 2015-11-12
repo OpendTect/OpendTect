@@ -363,7 +363,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 		    k0.z *= SI().zScale();
 		    Coord3 k1 = sticks_[idy]->crds_[idz+1];
 		    k1.z *= SI().zScale();
-		    Line3 segment( k0, k1-k0 );
+		    Line3 segment( k0, k1 );
 		    Coord3 tmp = stickpositions[0]; tmp.z *= SI().zScale();
 		    float dist = (float) segment.distanceToPoint(tmp);
 		    if ( dist>epsilon )
@@ -432,7 +432,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	    {
 		const Coord3& k0 = sticks_[idy]->crds_[idz];
 		const Coord3& k1 = sticks_[idy]->crds_[idz+1];
-		Line3 segment( k0, k1-k0 );
+		Line3 segment( k0, k1 );
 		const float pldist = (float) segment.sqDistanceToPoint( pos );
 		if ( nearidx==-1 || pldist<mindist )
 		{

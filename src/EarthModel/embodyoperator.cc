@@ -278,7 +278,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	const int crlidx = idx % crlsz;
 	const BinID bid( inlrg_.atIndex(inlidx), crlrg_.atIndex(crlidx) );
 	Coord3 pos( SI().transform(bid), 0 );
-	Line3 vtln( pos, Coord3(0,0,1) );
+	Line3 vtln = Line3::fromPosAndDir( pos, Coord3(0,0,1) );
 
 	Interval<float> segment;
 	int nrintersections = 0;
@@ -310,9 +310,9 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 			}
 			else
 			{
-			    Line3 edge( v[pidx], dir );
+			    Line3 edge = Line3::fromPosAndDir( v[pidx], dir );
 			    double te, tv;
-			    vtln.closestPoint(edge,tv,te);
+			    vtln.closestPointToLine(edge,tv,te);
 			    if ( te<=1 && te>=0 )
 			    {
 				pos.z = v[pidx].z+te*dir.z;

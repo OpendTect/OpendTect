@@ -56,7 +56,7 @@ struct ExplPlaneIntersectionExtractorPlane
 
 	if ( clipper.isStartChanged() )
 	{
-	    t0 = line.closestPoint(
+	    t0 = line.closestParam(
 		    planecoordsys_.transform(clipper.getStart())-center );
 	    t0change = true;
 	}
@@ -65,7 +65,7 @@ struct ExplPlaneIntersectionExtractorPlane
 
 	if ( clipper.isStopChanged() )
 	{
-	    t1 = line.closestPoint(
+	    t1 = line.closestParam(
 		    planecoordsys_.transform(clipper.getStop())-center );
 	    t1change = true;
 	}
@@ -277,16 +277,16 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 #define mEdge20 2
 
 #define mCheckEdge( edgeidx ) \
-    intersectionline.closestPoint(edge##edgeidx,t[mEdge##edgeidx], \
+    intersectionline.closestPointToLine(edge##edgeidx,t[mEdge##edgeidx], \
 	    			  edget##edgeidx);  \
 	edgeok##edgeidx = edget##edgeidx<1+1e-2 && edget##edgeidx>-1e-2
 
 	double t[3];
 	int startedge=-1, stopedge=-1;
 
-	const Line3 edge01( c0, c1-c0 );
-	const Line3 edge12( c1, c2-c1 );
-	const Line3 edge20( c2, c0-c2 );
+	const Line3 edge01( c0, c1  );
+	const Line3 edge12( c1, c2 );
+	const Line3 edge20( c2, c0 );
 
 	double edget01,edget12,edget20;
 	bool edgeok01,edgeok12,edgeok20;

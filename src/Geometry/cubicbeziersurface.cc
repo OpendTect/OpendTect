@@ -119,8 +119,9 @@ Coord3 CubicBezierSurfacePatch::computeNormal( float u, float v ) const
 bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
 				float& u, float& v, float eps ) const
 {
-    const Coord3 linepoint(line.x0_, line.y0_, line.z0_ );
-    const Coord3 linedir( line.alpha_, line.beta_, line.gamma_ );
+    const Coord3 linepoint = line.p0_;
+    const Coord3 linedir = line.dir_;
+
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 currentpos = computePos(u,v);
@@ -267,7 +268,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 
     Coord3 center( bbox.getRange(0).center(), bbox.getRange(1).center(),
 			 bbox.getRange(2).center() );
-    Coord3 closestpointonline = line.getPoint( line.closestPoint(center) );
+    Coord3 closestpointonline = line.closestPoint(center);
     if ( !bbox.includes(closestpointonline,false) )
 	return false;
 
@@ -287,7 +288,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 	    center.y = bbox.getRange(1).center();
 	    center.z = bbox.getRange(2).center();
 
-	    closestpointonline = line.getPoint( line.closestPoint(center) );
+	    closestpointonline = line.closestPoint(center);
 	    if ( !bbox.includes(closestpointonline,false) )
 		continue;
 
@@ -302,8 +303,8 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 
 		patch = dummypatch;
 
-		intersectionline.z0_ *= zfactor;
-		intersectionline.gamma_ *= zfactor;
+		intersectionline.p0_.z *= zfactor;
+		intersectionline.dir_.z *= zfactor;
 	    }
 
 	    float u = (float) res.x;

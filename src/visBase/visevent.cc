@@ -166,7 +166,7 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 
     const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
     const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
-    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
+    eventinfo.mouseline = Line3( startcoord, stopcoord );
 
     osgUtil::IntersectionVisitor iv( lineintersector.get() );
     iv.setTraversalMask( mask );
@@ -239,7 +239,7 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 
 	eventinfo.displaypickedpos = Conv::to<Coord3>( pickpos );
 	eventinfo.pickdepth =
-		eventinfo.mouseline.closestPoint( eventinfo.displaypickedpos );
+		eventinfo.mouseline.closestParam( eventinfo.displaypickedpos );
 
 	Coord3& pos( eventinfo.worldpickedpos );
 	pos = eventinfo.displaypickedpos;

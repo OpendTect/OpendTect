@@ -981,9 +981,9 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
 	{
 	    const Coord3 p0 = knots[knot].scaleBy(scale);
 	    const Coord3 p1 = knots[knot<nrknots-1 ? knot+1 : 0].scaleBy(scale);
-	    const Line3 segment(p0, p1-p0);
+	    const Line3 segment(p0, p1 );
 	    double t, segt;
-	    intersectionline.closestPoint(segment,t,segt);
+	    intersectionline.closestPointToLine(segment,t,segt);
 	    if ( segt<=1+1e-3 && segt+1e-3>=0 )
 		intersections += segment.getPoint(segt).scaleBy(invscale);
 	}

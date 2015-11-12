@@ -19,8 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
 {
     Line2 line( from, to );
-    line.start_ = Coord::udf();
-    line.stop_ = Coord::udf();		// making the line infinite
+
     const TrcKeySampling hs( SI().sampling(false).hsamp_ );
     Coord svert[4];
     svert[0] = SI().transform( hs.start_ );

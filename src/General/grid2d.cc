@@ -110,11 +110,10 @@ void Grid2D::set( const Grid2D::Line& baseln, double pardist, double perpdist,
     const Coord startpt = SI().transform( baseln.start_ );
     const Coord stoppt = SI().transform( baseln.stop_ );
     Line2 rline( startpt, stoppt );
-    rline.start_ = Coord::udf();
-    rline.stop_ = Coord::udf();
+
     createParallelLines( rline, pardist, hs, dim0lines_ );
     const Coord centrpt = ( startpt + stoppt ) / 2;
-    Line2 rlineperp( 0, 0 );
+    Line2 rlineperp;
     rline.getPerpendicularLine( rlineperp, centrpt );
     createParallelLines( rlineperp, perpdist, hs, dim1lines_ );
 }
@@ -175,8 +174,8 @@ void Grid2D::createParallelLines( const Line2& baseline, double dist,
 	if ( posfinished && negfinished )
 	    break;
 
-	Line2 posline( 0, 0 );
-	Line2 negline( 0, 0 );
+	Line2 posline;
+	Line2 negline;
 	if ( !idx )
 	    posline = baseline;
 	else

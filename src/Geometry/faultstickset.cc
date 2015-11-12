@@ -328,12 +328,12 @@ double FaultStickSet::interStickDist( int sticknr1, int sticknr2,
     mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, mUdf(double) );
     if ( knotrg1.start==knotrg1.stop )
     {
-	Line3 stick( b0, b1-b0 );
+	Line3 stick( b0, b1 );
 	return stick.distanceToPoint( a0 );
     }
     else if ( knotrg2.start==knotrg2.stop )
     {
-	Line3 stick( a0, a1-a0 );
+	Line3 stick( a0, a1 );
 	return stick.distanceToPoint( b0 );
     }
 

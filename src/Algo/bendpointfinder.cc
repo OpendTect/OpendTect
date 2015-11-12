@@ -145,8 +145,7 @@ float BendPointFinder2DBase::getMaxSqDistToLine( int& idx, int start,
     for ( int ipt=start+1; ipt<stop; ipt++ )
     {
 	const Coord crd( coord(ipt) );
-	nearestpt = line.closestPoint( crd );
-	const double dsq = nearestpt.sqDistTo( crd );
+	const double dsq = line.sqDistanceToPoint( crd );
 	if ( dsq>dsqmax ) { dsqmax = dsq; idx = ipt; }
     }
 
@@ -222,8 +221,8 @@ float BendPointFinder3D::getMaxSqDistToLine( int& idx, int start,
 		sqDistTo( coords_[idx].scaleBy(scale_) );
     }
 
-    const Line3 line( coords_[start].scaleBy(scale_),
-		      (coords_[stop]-coords_[start]).scaleBy(scale_) );
+    const Line3 line = Line3::fromPosAndDir( coords_[start].scaleBy(scale_),
+			    (coords_[stop]-coords_[start]).scaleBy(scale_) );
     double dsqmax = 0;
 
     for ( int ipt=start+1; ipt<stop; ipt++ )

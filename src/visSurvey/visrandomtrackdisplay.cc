@@ -558,7 +558,7 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
         
         Coord pathpos = s3dgeom_->transform(bids[idx]);
         if ( curlinesegment>=0 )
-            pathpos = curline.closestPoint( pathpos );
+	    pathpos = curline.closestPoint( pathpos );
         
         (*crds) += pathpos;
     }
