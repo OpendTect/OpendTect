@@ -2,6 +2,105 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="en_US">
 <context>
+    <name>MPESetupTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/MPEEngine/mpesetup.cc" line="+55"/>
+        <source>Tracking setup</source>
+        <translation>
+            <numerusform>Tracking setup</numerusform>
+            <numerusform>Tracking setups</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>ODGMTProcFlowTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../plugins/GMT/gmtprocflow.cc" line="+17"/>
+        <source>GMT process flow</source>
+        <translation>
+            <numerusform>GMT process flow</numerusform>
+            <numerusform>GMT process flows</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>PosVecDataSetTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../include/Geometry/posvecdatasetfact.h" line="+21"/>
+        <source>Positioned Vector Data</source>
+        <translation>
+            <numerusform>Positioned Vector Data</numerusform>
+            <numerusform>Positioned Vector Data</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>PreStackProcTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="+20"/>
+        <source>Prestack Processor</source>
+        <translation>
+            <numerusform>Prestack Processor</numerusform>
+            <numerusform>Prestack Processors</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>SeisPS2DTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../include/Seis/seispsfact.h" line="+31"/>
+        <source>2D Pre-Stack Seismic</source>
+        <translation>
+            <numerusform>2D Pre-Stack Seismic</numerusform>
+            <numerusform>2D Pre-Stack Seismic</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>SeisPS3DTranslatorGroup</name>
+    <message numerus="yes">
+        <location line="-9"/>
+        <source>Pre-Stack Seismic</source>
+        <translation>
+            <numerusform>Pre-Stack Seismic</numerusform>
+            <numerusform>Pre-Stack Seismic</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>SeisTrc2DTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/Seis/initseis.cc" line="+40"/>
+        <source>2D Seismic Data</source>
+        <translation>
+            <numerusform>2D Seismic Data</numerusform>
+            <numerusform>2D Seismic Data</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>SeisTrcTranslatorGroup</name>
+    <message numerus="yes">
+        <location line="-14"/>
+        <source>Seismic Data</source>
+        <translation>
+            <numerusform>Seismic Data</numerusform>
+            <numerusform>Seismic Data</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>SurvGeom2DTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/General/survgeometrytransl.cc" line="+25"/>
+        <source>Geometry</source>
+        <translation>
+            <numerusform>Geometry</numerusform>
+            <numerusform>Geometries</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>TextTranslateMgr</name>
     <message numerus="yes">
         <source>Language Name</source>
@@ -14,11 +113,22 @@
 <context>
     <name>TextTranslatorLanguage</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+58"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+59"/>
         <source>Language Name</source>
         <translation>
             <numerusform>English</numerusform>
             <numerusform>English</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>VolProcessingTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+22"/>
+        <source>Volume Processing Setup</source>
+        <translation>
+            <numerusform>Volume Processing Setup</numerusform>
+            <numerusform>Volume Processing Setups</numerusform>
         </translation>
     </message>
 </context>
@@ -36,12 +146,22 @@
 <context>
     <name>uiHorizonPreLoadDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+143"/>
         <source>Unload selected horizon(s)&apos;?
 (This will not delete the object(s) from disk)</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Unload the selected horizon</numerusform>
             <numerusform>Unload the selected horizons</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+143"/>
+        <source>Unload checked horizon(s)?
+(This will not delete the file(s) from disk)</source>
+        <translation>
+            <numerusform>Unload checked horizon?
+(This will not delete the file from disk)</numerusform>
+            <numerusform>Unload checked horizons?
+(This will not delete the files from disk)</numerusform>
         </translation>
     </message>
 </context>
@@ -69,7 +189,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+159"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+170"/>
         <source>Attribute</source>
         <translation>
             <numerusform>Attribute</numerusform>
@@ -77,7 +197,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Body</source>
         <translation>
             <numerusform>Body</numerusform>
@@ -85,7 +205,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+25"/>
+        <location line="+27"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
@@ -125,7 +245,16 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+22"/>
+        <location line="+2"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+559"/>
+        <source>Cube</source>
+        <translation>
+            <numerusform>Cube</numerusform>
+            <numerusform>Cubes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+23"/>
         <source>Error</source>
         <translation>
             <numerusform>Error</numerusform>
@@ -141,7 +270,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Filter</source>
         <translation>
             <numerusform>Filter</numerusform>
@@ -149,7 +278,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+14"/>
+        <location line="+18"/>
         <source>In-line</source>
         <translation>
             <numerusform>In-line</numerusform>
@@ -157,7 +286,23 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+16"/>
+        <location line="+12"/>
+        <source>Line</source>
+        <translation>
+            <numerusform>Line</numerusform>
+            <numerusform>Lines</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Lithology</source>
+        <translation>
+            <numerusform>Lithology</numerusform>
+            <numerusform>Lithologies</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+3"/>
         <source>Log</source>
         <translation>
             <numerusform>Log</numerusform>
@@ -165,7 +310,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+14"/>
+        <location line="+18"/>
         <source>Mute</source>
         <translation>
             <numerusform>Mute</numerusform>
@@ -189,7 +334,23 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+3"/>
+        <location line="+1"/>
+        <source>PickSet</source>
+        <translation>
+            <numerusform>PickSet</numerusform>
+            <numerusform>PickSets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>Polygon</source>
+        <translation>
+            <numerusform>Polygon</numerusform>
+            <numerusform>Polygons</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
         <source>Position</source>
         <translation>
             <numerusform>Position</numerusform>
@@ -197,7 +358,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Range</source>
         <translation>
             <numerusform>Range</numerusform>
@@ -213,7 +374,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+18"/>
+        <location line="+20"/>
         <source>Scene</source>
         <translation>
             <numerusform>Scene</numerusform>
@@ -221,7 +382,31 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+27"/>
+        <location line="+11"/>
+        <source>Selected Log</source>
+        <translation>
+            <numerusform>Selected Log</numerusform>
+            <numerusform>Selected Logs</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+3"/>
+        <source>Session</source>
+        <translation>
+            <numerusform>Session</numerusform>
+            <numerusform>Sessions</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>Set</source>
+        <translation>
+            <numerusform>Set</numerusform>
+            <numerusform>Sets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+13"/>
         <source>Step</source>
         <translation>
             <numerusform>Step</numerusform>
@@ -237,7 +422,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+9"/>
+        <location line="+4"/>
+        <source>Table</source>
+        <translation>
+            <numerusform>Table</numerusform>
+            <numerusform>Tables</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+8"/>
         <source>Trace</source>
         <translation>
             <numerusform>Trace</numerusform>
@@ -253,7 +446,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Value</source>
         <translation>
             <numerusform>Value</numerusform>
@@ -284,7 +477,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+36"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="-520"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -292,7 +485,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+170"/>
+        <location line="+182"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -300,7 +493,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+45"/>
+        <location line="+51"/>
         <source>input file</source>
         <translation>
             <numerusform>Input file</numerusform>
@@ -316,7 +509,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+29"/>
+        <location line="+39"/>
         <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
@@ -348,7 +541,23 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+72"/>
+        <location line="+29"/>
+        <source>PDF</source>
+        <translation>
+            <numerusform>PDF</numerusform>
+            <numerusform>PDFs</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>Probability Density Function</source>
+        <translation>
+            <numerusform>Probability Density Function</numerusform>
+            <numerusform>Probability Density Functions</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+42"/>
         <source>Selection</source>
         <translation>
             <numerusform>Selection</numerusform>
