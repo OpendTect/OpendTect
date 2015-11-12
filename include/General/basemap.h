@@ -21,6 +21,7 @@ namespace OD { class RGBImage; }
 
 class MarkerStyle2D;
 class MouseEvent;
+class TaskRunner;
 class LineStyle;
 template <class T> class ODPolygon;
 
@@ -88,7 +89,7 @@ public:
     virtual void		removeWithPolygon(const ODPolygon<double>&) {}
 
     virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&,TaskRunner* taskr=0);
 
     CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
@@ -117,4 +118,5 @@ public:
 
 
 #endif
+
 
