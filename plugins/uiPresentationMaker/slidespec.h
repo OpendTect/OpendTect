@@ -16,21 +16,24 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 #include "uigeom.h"
-#include "uistring.h"
+#include "bufstring.h"
 
 
 mExpClass(uiPresentationMaker) SlideSpec
 {
 public:
-			SlideSpec()			{}
-			~SlideSpec()			{}
+			SlideSpec();
+			~SlideSpec();
 
-    uiString		title_;
+    void		getPythonScript(BufferString&) const;
+
+    BufferString	title_;
 
     BufferString	imagefnm_;
     uiSize		imagesz_;
     uiPoint		imagepos_;
 
+    int			layoutindex_;
     int			index_;
 };
 
