@@ -211,6 +211,7 @@ uiFlatViewStdControl::~uiFlatViewStdControl()
 {
     detachAllNotifiers();
     deleteAndZeroPtr( ctabed_ );
+    MouseCursorManager::restoreOverride();
     menu_.unRef();
 }
 
@@ -516,6 +517,14 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
     if ( !meh || !meh->event().middleButton() ) return;
 
+    MouseCursor cursor( MouseCursor::ClosedHand );
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode(uiGraphicsViewBase::ScrollHandDrag);
+	vwrs_[idx]->setCursor( cursor );
+    }
+
+    MouseCursorManager::setOverride( cursor.shape_ );
     mousedownpt_ = meh->event().pos();
     mousepressed_ = true;
 }
@@ -524,7 +533,8 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh || !mousepressed_ ) return;
+    if ( !meh || !mousepressed_ )
+	return;
 
     const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
@@ -547,6 +557,17 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
 void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
     handDragging( cb );
+    MouseCursorManager::restoreOverride();
+    MouseCursor cursor( !isEditModeOn() ? MouseCursor::Arrow
+	    				: MouseCursor::Cross );
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
+	vwrs_[idx]->setCursor( cursor );
+    }
+    
+    MouseCursorManager::setOverride( cursor.shape_ );
+
     mousepressed_ = false;
 }
 
@@ -599,6 +620,7 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
 	cursor = !iseditmode ? MouseCursor::Arrow : MouseCursor::Cross;
     }
 
+    MouseCursorManager::setOverride( cursor.shape_ );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );

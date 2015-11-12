@@ -47,8 +47,11 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 {
     view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
     view_->disableScrollZoom();
+    view_->setMidMouseButtonForDrag( false );
     view_->scene().addItem( worldgroup_ );
     view_->setDragMode( uiGraphicsView::NoDrag );
+    view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setSceneBorder( 2 );
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
