@@ -1192,6 +1192,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     mGetOrAskForScene;
 
     RefMan<EM::EMObject> obj = EM::EMM().getObject( emid );
+    if ( !obj ) return -1;
 
     FixedString type = obj->getTypeStr();
     uiODDisplayTreeItem* itm;
