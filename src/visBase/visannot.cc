@@ -173,7 +173,18 @@ void Annotation::setScene( visBase::Scene* scene )
 
 void Annotation::firstTraversal(CallBacker*)
 {
-    if ( allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
+    /*  Force system never to use the shader as it has a bug
+        http://bugs.dgbes.com/view.php?id=5014
+            
+        This does however enable bug 
+                         
+        http://bugs.dgbes.com/view.php?id=4723
+                                       
+	To resolve the bug, remove the "false" and start debugging
+    */
+        
+    if ( false &&
+         allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
     {
 	float factor = 1.1;
 	BufferString code( "void main(void)\n"
