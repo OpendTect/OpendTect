@@ -26,6 +26,7 @@ namespace OD
 
 
 class MouseEvent;
+class TaskRunner;
 template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
@@ -95,7 +96,7 @@ public:
     virtual void		removeWithPolygon(const ODPolygon<double>&) {}
 
     virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
+    virtual bool		usePar(const IOPar&,TaskRunner* taskr=0);
 
     CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;

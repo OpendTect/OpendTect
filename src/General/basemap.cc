@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemapimpl.h"
 #include "coord.h"
+#include "task.h"
 
 #include "uistrings.h"
 
@@ -70,7 +71,7 @@ bool BaseMapObject::fillPar( IOPar& par ) const
 }
 
 
-bool BaseMapObject::usePar( const IOPar& par )
+bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
 {
     BufferString nm, type;
     if ( par.get(sKey::Name(),nm) )
