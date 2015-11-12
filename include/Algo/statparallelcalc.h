@@ -31,7 +31,7 @@ namespace Stats
 
 template <class T>
 mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
-{ mODTextTranslationClass(ParallelCalc)
+{ mODTextTranslationClass(ParallelCalc);
 public:
 				ParallelCalc(const CalcSetup& s,const T* data,
 					     int sz,const T* weights = 0)
@@ -110,12 +110,14 @@ inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 {
     if ( !data_ )
     { 
-	errmsg_ = tr("No data given to compute statistics"); 
+	errmsg_ = od_static_tr("Stats_Parallel_Calc",
+			       "No data given to compute statistics"); 
 	return false; 
     }
     if ( nradded_ < 1 )
     { 
-	errmsg_ = tr("Data array is empty");
+	errmsg_ = od_static_tr("Stats_Parallel_Calc",
+			       "Data array is empty");
 	return false; 
     }
 

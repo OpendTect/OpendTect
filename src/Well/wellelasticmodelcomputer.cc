@@ -20,9 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 
 
-namespace Well
-{
-
 Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd )
     : wd_(wd)
 {
@@ -310,6 +307,4 @@ float Well::ElasticModelComputer::getSVel( int idx ) const
     const UnitOfMeasure* uom = uomset_[logidx];
     return uom ? uom->getSIValue( logval ) : logval;
 }
-
-}; //namespace Well
 

@@ -83,7 +83,7 @@ public:
 
 template <class ENUM>
 mClass(Basic) EnumDefImpl : public EnumDef
-{ mODTextTranslationClass(EnumDef)
+{ mODTextTranslationClass(EnumDefImpl);
 public:
 			EnumDefImpl(const char* nm,const char* s[],short nrs=0);
     bool		parse(const char* txt,ENUM& res) const;
@@ -339,6 +339,8 @@ DefineNameSpaceEnumNames(nmspc,enm,0,prettynm)
 #define DefineNameSpaceEnumUtils(nmspc,enm,prettynm) \
 mDefineNameSpaceEnumUtils(nmspc,enm,prettynm)
 #define DeclareNameSpaceEnumUtils(mod,enm) mDeclareNameSpaceEnumUtils(mod,enm)
+
+#define mEnumTr(str) tr(str)
 
 
 template <class ENUM> inline
