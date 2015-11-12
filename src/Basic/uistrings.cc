@@ -463,17 +463,6 @@ uiString uiStrings::sSave()
 uiString uiStrings::sSaveAs()
 { return tr("Save as"); }
 
-uiString uiStrings::sSeismic( int num )
-{ return tr("Seismic", 0, num ); }
-
-uiString uiStrings::sSeismics( bool is2d, bool isps, int num )
-{
-    return toUiString( "%1 %2%3" )
-	.arg( is2d ? s2D() : s3D() )
-	.arg( isps ? tr("prestack ") : uiString::emptyString() )
-	.arg( sSeismic( num ) );
-}
-
 uiString uiStrings::sSelect()
 { return tr("Select"); }
 

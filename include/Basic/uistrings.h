@@ -391,9 +391,7 @@ public:
     static uiString sSec()		{ return tr("sec"); }
     static uiString sSize()		{ return tr("Size"); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
-    static uiString sSeismic(int num=1);
-    static uiString sSeismics()		{ return sSeismic(mPlural); }
-    static uiString sSeismics(bool is2d,bool isps,int num);
+    //For Seismic, use sVolDataName
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelection(int num=1);
     static uiString sSelect();

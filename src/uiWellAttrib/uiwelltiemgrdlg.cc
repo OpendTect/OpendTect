@@ -273,16 +273,14 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
     mDynamicCastGet( uiSeisSel*, seisfld, is2d ? seis2dfld_ : seis3dfld_ );
     if ( !seisfld )
 	mErrRet(uiStrings::phrSelect(tr("%1 type")
-					.arg(uiStrings::sSeismic().toLower())))
+             .arg(uiStrings::sVolDataName(true, true, false).toLower())));
 
     if ( seisfld->isChecked() )
     {
 	const MultiID& seisid = seisfld->key();
 	if ( seisid.isEmpty() )
-	    mErrRet(uiStrings::phrSelect(uiStrings::phrJoinStrings(
-		    uiStrings::sInput().toLower(), 
-		    uiStrings::sSeismic().toLower(),
-		    uiStrings::sData().toLower())))
+            mErrRet(uiStrings::phrSelect(
+                uiStrings::phrInput(uiStrings::sVolDataName(true,true,false))));
 
 	if ( is2d && seislinefld_ )
 	    seislinefld_->setDataSet( seisid );

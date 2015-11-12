@@ -50,8 +50,10 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
 
-    uiString seltext = issteer ? uiStrings::phrInput(tr("SteeringCube")) 
-			       : uiStrings::phrInput(uiStrings::sSeismics());
+    uiString seltext = issteer
+        ? uiStrings::phrInput(tr("SteeringCube"))
+        : uiStrings::phrInput(uiStrings::sVolDataName(true, true, false) );
+    
     if ( prevrefnm )
     {
 	seltext = tr("%1\n (replacing '%2')").arg(seltext)
@@ -91,7 +93,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     uiSeisSel::Setup sssu( is2d, false );
     if ( hasseis )
     {
-	sssu.seltxt( uiStrings::phrInput(uiStrings::sSeismics()) );
+	sssu.seltxt( uiStrings::phrInput(
+                                uiStrings::sVolDataName(is2d, !is2d, false)) );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
 	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
