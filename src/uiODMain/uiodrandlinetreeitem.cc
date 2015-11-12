@@ -455,7 +455,9 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
-    if (  rtd->nrNodes() <= 0 ) return;
+    if ( !rtd || rtd->nrNodes() <= 0 )
+	return;
+
     const bool islocked = rtd->isGeometryLocked() || rtd->isLocked();
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &editnodesmnuitem_,
 		      !islocked, false );
@@ -488,7 +490,7 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 			    tr("between node %1 && %2").arg(idx).arg(idx+1) );
 	    }
 	}
-	else				// too many nodes for tree menu	
+	else				// too many nodes for tree menu
 	    mAddInsertNodeMnuItm( -1,
 			tr("<use right-click menu of random line in scene>") );
     }
