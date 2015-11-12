@@ -149,25 +149,36 @@ endif
 echo ${sources} | xargs -P ${nrcpu} sed \
 	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mClass(.*)/class/g' \
-	-e 's/[^ \t]*_static_tr([ \t]*/static_func___begquote/g' \
+	-e 's/mDefineEMObjFuncs(.*)/Q_OBJECT/g' \
+	-e 's/mExpClass(.*)/class /g' \
+	-e 's/mClass(.*)/class /g' \
+	-e 's/mStruct(.*)/struct /g' \
+	-e 's/mExpStruct(.*)/struct /g' \
+	-e 's/mEnumTr/EnumDefImpl::tr /g' \
+	-e 's/"static_func_"/""/g' \
+	-e 's/[^( \t]*_static_tr([ \t]*/static_func___begquote/g' \
 	-e 's/static_func_[^,]*/&__endquote::tr(/g' \
+	-e 's/"[\t ]*__endquote/"__endquote/g' \
 	-e 's/::tr(,/::tr(/g' \
 	-e 's/__begquote"//g' \
 	-e 's/"__endquote//g' -iTMP
 
 #Filter the headers for patterns
 echo ${headers} | xargs -P ${nrcpu} sed \
-	-e 's/mExpClass(.*)/class/g' \
-	-e 's/mClass(.*)/class/g' \
+	-e 's/mExpClass(.*)/class /g' \
+	-e 's/mClass(.*)/class /g' \
+	-e 's/mStruct(.*)/struct /g' \
+	-e 's/mExpStruct(.*)/struct /g' \
 	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/[^ \t]*_static_tr([ \t]*/static_func___begquote/g' \
-	-e 's/static_func_[^,]*/&__endquote::tr(/g' \
-	-e 's/::tr(,/::tr(/g' \
-	-e 's/__begquote"//g' \
-	-e 's/"__endquote//g' -iTMP
-
+	-e 's/mEnumTr/EnumDefImpl::tr /g' \
+	-e 's/"static_func_"/""/g' \
+	-e 's/[^( \t]*_static_tr([ \t]*/static_func___begquote/g' \
+        -e 's/static_func_[^,]*/&__endquote::tr(/g' \
+	-e 's/"[\t ]*__endquote/"__endquote/g' \
+        -e 's/::tr(,/::tr(/g' \
+        -e 's/__begquote"//g' \
+        -e 's/"__endquote//g' -iTMP
 
 #Run lupdate
 ${lupdate} -silent -locations relative ${profnm}

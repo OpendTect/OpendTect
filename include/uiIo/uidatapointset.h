@@ -51,8 +51,9 @@ public:
     typedef DataPointSet::RowID	DRowID;
 
     mStruct(uiIo) Setup : public uiDialog::Setup
-    {
-	    Setup(const uiString& wintitl,bool ismodal=false);
+    { mODTextTranslationClass(uiDataPointSet::Setup);
+    public:
+	Setup(const uiString& wintitl,bool ismodal=false);
 
 	mDefSetupMemb(uiString,wintitle)	//!< "Extracted data"
 	mDefSetupMemb(bool,isconst)		//!< false

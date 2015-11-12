@@ -47,15 +47,18 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
 }
 
 
-#define mCreateUI( classname, function ) \
-{ \
-    uiString msg = tr( "To use this GMT algorithm you need to install GMT." \
-	    	       "\nClick on GMT-button for more information" ); \
-    uiLabel* lbl = new uiLabel( this, msg ); \
-    uiButton* gmtbut = new uiToolButton( this, "gmt_logo", tr("GMT info"), \
-	    				mCB(this,classname,function) ); \
-    gmtbut->attach( alignedBelow, lbl ); \
-    setHAlignObj( lbl ); \
+static void createUi( uiArray2DInterpol* p, const CallBack& cb )
+{
+    uiString msg = od_static_tr( "create_GMT_UI",
+	    		"To use this GMT algorithm you need to install GMT."
+	    	       "\nClick on GMT-button for more information" ); 
+    uiLabel* lbl = new uiLabel( p, msg );
+    uiButton* gmtbut = new uiToolButton( p, "gmt_logo",
+	    				 od_static_tr("create_GMT_UI",
+					              "GMT info"),cb);
+	    				 
+    gmtbut->attach( alignedBelow, lbl );
+    p->setHAlignObj( lbl );
 }
 
 
@@ -69,7 +72,7 @@ uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
 	setHAlignObj( tensionfld_ );
     }
     else
-	mCreateUI(uiGMTSurfaceGrid,gmtPushCB);
+	createUi( this, mCB(this,uiGMTSurfaceGrid,gmtPushCB));
 }
 
 
@@ -146,7 +149,7 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
 	setHAlignObj( radiusfld_ );
     }
     else
-	mCreateUI(uiGMTNearNeighborGrid,gmtPushCB);
+	createUi( this, mCB(this,uiGMTNearNeighborGrid,gmtPushCB));
 }
 
 

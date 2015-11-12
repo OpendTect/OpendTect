@@ -482,7 +482,7 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    for ( int idx=0; idx<=rtd->nrNodes(); idx++ )
 	    {
 		if ( idx == 0 )
-		    mAddInsertNodeMnuItm( idx, tr("before node 1") )
+		    mAddInsertNodeMnuItm( idx, tr("before first node") )
 		else if ( idx == rtd->nrNodes() )
 		    mAddInsertNodeMnuItm( idx, tr("after node %1").arg(idx) )
 		else

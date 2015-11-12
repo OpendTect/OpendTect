@@ -71,37 +71,128 @@ float clss##Window::getValue( float x ) const \
     if ( x < 0 ) x = -x; \
     double val = mCast(double,x);
 
+void BoxWindow::initClass()
+{
+    WINFUNCS().addCreator( BoxWindow::create, BoxWindow::sName() );
+}
 
-mImplClassMinimal(Box)
+
+float BoxWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
     return 1;
 }
-mImplClass(Bartlett)
+
+
+void BartlettWindow::initClass()
+{
+    WINFUNCS().addCreator( BartlettWindow::create, BartlettWindow::sName() );
+}
+
+
+float BartlettWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     return mCast(float, 1. - val );
 }
-mImplClass(Hanning)
+
+
+void HanningWindow::initClass()
+{
+    WINFUNCS().addCreator( HanningWindow::create, HanningWindow::sName() );
+}
+
+
+float HanningWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     return mCast(float, 0.50 * (1. + cos( M_PI * val )) );
 }
-mImplClass(Hamming)
+
+
+void HammingWindow::initClass()
+{
+    WINFUNCS().addCreator( HammingWindow::create, HammingWindow::sName() );
+}
+
+
+float HammingWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     return mCast(float, 0.54 + 0.46 * cos( M_PI * val ) );
 }
-mImplClass(Blackman)
+
+
+void BlackmanWindow::initClass()
+{
+    WINFUNCS().addCreator( BlackmanWindow::create, BlackmanWindow::sName() );
+}
+
+
+float BlackmanWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     return mCast(float, 0.42 + 0.50 * cos( M_PI  * val ) +
 			       0.08 * cos( M_2PI * val ) );
 }
-mImplClass(FlatTop)
+
+
+void FlatTopWindow::initClass()
+{
+    WINFUNCS().addCreator( FlatTopWindow::create, FlatTopWindow::sName() );
+}
+
+
+float FlatTopWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     const double pi_x = M_PI * val;
     return mCast(float, ( 1.	+ 1.93	* cos(	    pi_x )
 				+ 1.29	* cos( 2. * pi_x )
 				+ 0.388 * cos( 3. * pi_x )
 				+ 0.032 * cos( 4. * pi_x )) / 4.64 );
 }
-mImplClass(CosTaper)
+
+
+void CosTaperWindow::initClass()
+{
+    WINFUNCS().addCreator( CosTaperWindow::create, CosTaperWindow::sName() );
+}
+
+
+float CosTaperWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     if ( val < threshold_ )
        return 1;
     val -= threshold_; val *= factor_;
     return mCast(float, (1. + cos( M_PI * val )) * 0.5 );
 }
-mImplClass(Kaiser)
+
+
+void KaiserWindow::initClass()
+{
+    WINFUNCS().addCreator( KaiserWindow::create, KaiserWindow::sName() );
+}
+
+
+float KaiserWindow::getValue( float x ) const
+{
+    if ( x < -1 || x > 1 ) return 0;
+    if ( x < 0 ) x = -x;
+    double val = mCast(double,x);
     const double num = Math::BesselI0( M_PI * alpha_ * Math::Sqrt(1-val*val) );
     return mCast(float, num / denom_ );
 }

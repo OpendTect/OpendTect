@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "coltab.h"
 #include "typeset.h"
+#include "uistring.h"
 
 
 namespace ColTab
@@ -29,7 +30,7 @@ class Sequence;
  */
 
 mExpClass(General) IndexedLookUpTable
-{
+{ mODTextTranslationClass(IndexedLookUpTable);
 public:
 
 			IndexedLookUpTable(const Sequence&,int nrcols=0,

@@ -35,13 +35,13 @@ mDefineEnumUtils(DateInfo,DayOfWeek,"Week day") {
 template <>
 void EnumDefImpl<DateInfo::DayOfWeek>::init()
 {
-    uistrings_ += tr("Sunday");
-    uistrings_ += tr("Monday");
-    uistrings_ += tr("Tuesday");
-    uistrings_ += tr("Wednesday");
-    uistrings_ += tr("Thursday");
-    uistrings_ += tr("Friday");
-    uistrings_ += tr("Saturday");
+    uistrings_ += mEnumTr("Sunday");
+    uistrings_ += mEnumTr("Monday");
+    uistrings_ += mEnumTr("Tuesday");
+    uistrings_ += mEnumTr("Wednesday");
+    uistrings_ += mEnumTr("Thursday");
+    uistrings_ += mEnumTr("Friday");
+    uistrings_ += mEnumTr("Saturday");
 }
 
 mDefineEnumUtils(DateInfo,Month,"Month") {

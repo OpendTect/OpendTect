@@ -27,8 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "uistrings.h"
 
-#define mInitVars() \
-	: Executor(nm) \
+#define mInitMembers \
+	Executor(nm) \
 	, wrr_(*new SeisTrcWriter(&out)) \
 	, nrskipped_(0) \
 	, intrc_(*new SeisTrc) \
@@ -48,7 +48,8 @@ static const char* rcsID mUsedVar = "$Id$";
 	, allszsfound_(true) \
 	, totnr_(-1) \
 	, currdridx_(-1) \
-{ \
+
+#define mInitVars() \
     wrrkey_ = out.key(); \
     worktrc_ = &intrc_; \
     curmsg_ = msg; \
@@ -61,6 +62,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
 					  const uiString& msg )
+    : mInitMembers
+{
     mInitVars();
 }
 
@@ -68,6 +71,8 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 					  const char* nm, const IOPar* iop,
 					  const uiString& msg, int compnr )
+    : mInitMembers
+{
     mInitVars();
     compnr_ = compnr;
 
@@ -79,6 +84,8 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj& out, const char* nm,
 					  ObjectSet<IOPar>* iopset,
 					  const uiString& msg, int compnr )
+    : mInitMembers
+{
     mInitVars();
     compnr_ = compnr;
 
