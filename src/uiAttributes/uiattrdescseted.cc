@@ -655,9 +655,12 @@ void uiAttribDescSetEd::newList( int newcur )
 }
 
 
-void uiAttribDescSetEd::setSelAttr( const char* attrnm )
+void uiAttribDescSetEd::setSelAttr( const char* attrnm, bool cleanattlist )
 {
     if ( !attrtypefld_ ) return;
+
+    if ( cleanattlist )
+	attrlistfld_->setEmpty();
 
     attrtypefld_->setAttr( attrnm );
     updateFields( false );

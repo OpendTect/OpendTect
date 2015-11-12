@@ -71,7 +71,7 @@ public:
     void		updateCurDescEd();
     bool		is2D() const;
 
-    void		setSelAttr(const char* attrnm);
+    void		setSelAttr(const char* attrnm,bool cleanattrlist);
     void		setSensitive(bool);
 
     void		loadDefaultAttrSet(const char* attribsetnm);
