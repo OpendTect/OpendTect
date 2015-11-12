@@ -145,6 +145,7 @@ protected:
     virtual void        zoomChgCB(CallBacker*);
     virtual void	rubBandUsedCB(CallBacker*);
     virtual void	dragModeCB(CallBacker*);
+    void		editModeCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
     void		handDragStarted(CallBacker*);
