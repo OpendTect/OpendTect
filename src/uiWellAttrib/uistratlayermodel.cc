@@ -449,9 +449,9 @@ void uiStratLayerModel::snapshotCB( CallBacker* )
 
 void uiStratLayerModel::setWinTitle()
 {
-    uiString txt;
-    if ( descctio_.ioobj_ )
-	  txt = tr("Layer modeling [%1]").arg(descctio_.ioobj_->uiName());
+    uiString descnm( descctio_.ioobj_ ? descctio_.ioobj_->uiName()
+				      : uiStrings::sNew() );
+    uiString txt( tr("Layer modeling [%1]").arg(descnm) );
     setCaption( txt );
 }
 
