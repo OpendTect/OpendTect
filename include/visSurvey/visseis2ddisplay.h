@@ -156,6 +156,8 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    visBase::TexturePanelStrip* getTexturePanelStrip() const 
+				{ return panelstrip_; }
 
 protected:
 				~Seis2DDisplay();
