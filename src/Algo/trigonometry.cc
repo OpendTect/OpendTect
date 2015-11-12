@@ -208,60 +208,6 @@ Quaternion Quaternion::inverse() const
 }
 
 
-template <class T> inline
-double ParamLineBase<T>::sqDistanceToPoint( const T& p ) const
-{
-    const double t = closestParam( p );
-    const Coord closestpoint = getPoint( t );
-    return closestpoint.sqDistTo( p );
-}
-
-
-template <class T> inline
-T ParamLineBase<T>::closestPoint( const T& pt ) const
-{ return getPoint( closestParam( pt ) ); }
-
-
-template <class T> inline
-double ParamLineBase<T>::distanceToPoint( const T& point ) const
-{
-    return Math::Sqrt( sqDistanceToPoint( point ) );
-}
-
-template <class T> inline
-T ParamLineBase<T>::getPoint( double t ) const
-{
-    return p0_ + dir_ * t;
-}
-
-
-template <class T> inline
-T ParamLineBase<T>::direction( bool normalize ) const
-{
-    return normalize ? dir_.normalize() : dir_;
-}
-
-
-template <class T> inline
-double ParamLineBase<T>::closestParam( const T& point ) const
-{
-    const Coord diff = point-p0_;
-    return diff.dot(dir_)/dir_.sqAbs();
-}
-
-
-template <class T> inline
-bool ParamLineBase<T>::isOnLine( const T& pt ) const
-{
-    return sqDistanceToPoint( pt )<0.0001;
-}
-
-
-
-//Instantiate all functions
-template class ParamLineBase<Coord>;
-template class ParamLineBase<Coord3>;
-
 Line2::Line2()
 {
     p0_ = Coord::udf();

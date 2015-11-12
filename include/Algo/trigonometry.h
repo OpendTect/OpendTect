@@ -332,6 +332,7 @@ public:
 };
 
 
+
 /*!
 \brief A Line2 is a line in the plane, with the following equations:
 
@@ -522,6 +523,60 @@ inline bool Sphere::operator ==( const Sphere& s ) const
     const float dt = theta-s.theta;
     const float dp = phi-s.phi;
     return mIsZero(dr,1e-8) && mIsZero(dt,1e-8) && mIsZero(dp,1e-8);
+}
+
+//Implementations of ParamLineBase
+
+
+
+template <class T> inline
+double ParamLineBase<T>::sqDistanceToPoint(const T& p) const
+{
+    const double t = closestParam(p);
+    const Coord closestpoint = getPoint(t);
+    return closestpoint.sqDistTo(p);
+}
+
+
+template <class T> inline
+T ParamLineBase<T>::closestPoint(const T& pt) const
+{
+    return getPoint(closestParam(pt));
+}
+
+
+template <class T> inline
+double ParamLineBase<T>::distanceToPoint(const T& point) const
+{
+    return Math::Sqrt(sqDistanceToPoint(point));
+}
+
+template <class T> inline
+T ParamLineBase<T>::getPoint(double t) const
+{
+    return p0_ + dir_ * t;
+}
+
+
+template <class T> inline
+T ParamLineBase<T>::direction(bool normalize) const
+{
+    return normalize ? dir_.normalize() : dir_;
+}
+
+
+template <class T> inline
+double ParamLineBase<T>::closestParam(const T& point) const
+{
+    const Coord diff = point - p0_;
+    return diff.dot(dir_) / dir_.sqAbs();
+}
+
+
+template <class T> inline
+bool ParamLineBase<T>::isOnLine(const T& pt) const
+{
+    return sqDistanceToPoint(pt)<0.0001;
 }
 
 
