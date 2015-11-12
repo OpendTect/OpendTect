@@ -269,10 +269,10 @@ Line2::Line2()
 }
 
 
-Line2::Line2( const Coord& start, const Coord& stop )
+Line2::Line2( const Coord& strt, const Coord& stp )
 {
-    p0_ = start;
-    dir_ = stop-start;
+    p0_ = strt;
+    dir_ = stp-strt;
 }
 
 
@@ -375,10 +375,10 @@ Line3 Line3::fromPosAndDir( const Coord3& p0, const Vector3& dir )
 }
 
 
-Line3::Line3( const Coord3& start, const Coord3& stop )
+Line3::Line3( const Coord3& strt, const Coord3& stp )
 {
-    p0_ = start;
-    dir_ = stop-start;
+    p0_ = strt;
+    dir_ = stp-strt;
 }
 
 
