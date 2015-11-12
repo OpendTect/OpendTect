@@ -213,6 +213,7 @@ uiFlatViewStdControl::~uiFlatViewStdControl()
     detachAllNotifiers();
     deleteAndZeroPtr( ctabed_ );
     menu_.unRef();
+    MouseCursorManager::restoreOverride();
 }
 
 
@@ -517,6 +518,14 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
     if ( !meh || !meh->event().middleButton() ) return;
 
+    MouseCursor cursor( MouseCursor::ClosedHand );
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode(uiGraphicsViewBase::ScrollHandDrag);
+	vwrs_[idx]->setCursor( cursor );
+    }
+
+    MouseCursorManager::setOverride( cursor.shape_ );
     mousedownpt_ = meh->event().pos();
     mousepressed_ = true;
 }
@@ -548,6 +557,17 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
 void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
     handDragging( cb );
+    MouseCursorManager::restoreOverride();
+    MouseCursor cursor( !isEditModeOn() ? MouseCursor::Arrow
+					: MouseCursor::Cross );
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
+	vwrs_[idx]->setCursor( cursor );
+    }
+
+    MouseCursorManager::setOverride( cursor.shape_ );
+
     mousepressed_ = false;
 }
 
@@ -600,6 +620,7 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* )
     if ( iszoommode )
 	mode = uiGraphicsViewBase::RubberBandDrag;
 
+    MouseCursorManager::setOverride( cursor.shape_ );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );

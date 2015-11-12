@@ -236,7 +236,9 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 {
-    if ( editor_ && editor_->sower().accept(mehandler_->event(), false) )
+    const MouseEvent& mouseevent = mehandler_->event();
+    if ( (editor_ && editor_->sower().accept(mouseevent,false)) ||
+	 mouseevent.middleButton() )
 	return;
 
     const bool haspath = curtkpath_ && !curtkpath_->isEmpty();
@@ -267,7 +269,6 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
     if ( !vwr ) return;
 
-    const MouseEvent& mouseevent = mehandler_->event();
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
@@ -394,8 +395,16 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 }
 
 
-void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* )
+void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* cb )
 {
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
     handleMouseClicked( true );
 
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
@@ -428,8 +437,16 @@ EMSeedPicker* HorizonFlatViewEditor3D::getEMSeedPicker() const
 }
 
 
-void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
+void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* cb )
 {
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
     handleMouseClicked( false );
 }
 
