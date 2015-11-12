@@ -197,6 +197,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	edittb_ = new uiToolBar( mainwin(), tr("Edit Tools") );
 	mEditDefBut(editbut_,"seedpickmode",editModeCB,tr("Edit mode"));
 	editbut_->setToggleButton( true );
+	editbut_->setShortcut( "space" );
     }
 
     menu_.ref();
