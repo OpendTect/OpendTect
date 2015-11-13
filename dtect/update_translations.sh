@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/sh
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
@@ -17,130 +17,141 @@
 # - copy the new translations into the work-directory.
 # - remove the temporary copy
 
-if (  $#argv < 5 ) then
+if [ $# -lt 5 ]; then
     echo "Usage : $0 <sourcedir> <tsbasedir> <binarydir> <application> <lupdate>"
     exit 1
-endif
+fi
 
 
-if ( $?DTECT_SCRIPT_VERBOSE ) then
+if [ $?DTECT_SCRIPT_VERBOSE ]; then
     echo "$0  ++++++"
     echo "args: $*"
-    set verbose=yes
-    set echo=on
-endif
+    verbose=yes
+    echo=on
+fi
 
-set scriptdir=`dirname $0`
-set nrcpu = `${scriptdir}/GetNrProc`
+scriptdir=`dirname $0`
+nrcpu=`${scriptdir}/GetNrProc`
 
-set sourcedir=$1
-set tsbasedir=$2
-set binarydir=$3
-set application=$4
-set lupdate=$5
-set tmpoddir=/tmp/lupdate_tmp_$$
+sourcedir=$1
+tsbasedir=$2
+binarydir=$3
+application=$4
+lupdate=$5
+tmpoddir=/tmp/lupdate_tmp_$$
 
-set kernel=`uname -a | awk '{print $1}'`
-if ( "${kernel}" == "Darwin" ) then
-    set lupdate_dir=`dirname ${lupdate}`
+removetmpoddirsed="s/\/tmp\/"
+removetmpoddirsed+=`basename $tmpoddir`
+removetmpoddirsed+="\///g"
+
+kernel=`uname -a | awk '{print $1}'`
+if [ "${kernel}" == "Darwin" ]; then
+    lupdate_dir=`dirname ${lupdate}`
     setenv DYLD_LIBRARY_PATH ${lupdate_dir}/../lib
-endif
+fi
 
-if ( -e $tmpoddir ) then
+if [ -e $tmpoddir ]; then
     \rm -rf $tmpoddir
-endif
+fi
 
 mkdir $tmpoddir
-if ( -e ${sourcedir}/src ) cp -a ${sourcedir}/src ${tmpoddir}/.
-if ( -e ${sourcedir}/include ) cp -a ${sourcedir}/include ${tmpoddir}/.
-if ( -e ${sourcedir}/plugins ) cp -a ${sourcedir}/plugins ${tmpoddir}/.
+if [ -e ${sourcedir}/src ]; then
+    cp -a ${sourcedir}/src ${tmpoddir}/.
+fi
+if [ -e ${sourcedir}/include ]; then
+    cp -a ${sourcedir}/include ${tmpoddir}/.
+fi
+if [ -e ${sourcedir}/plugins ]; then
+    cp -a ${sourcedir}/plugins ${tmpoddir}/.
+fi
 
-set projectdir=${tmpoddir}/data/localizations/source
+projectdir="${tmpoddir}/data/localizations/source"
 mkdir -p ${projectdir}
 
+shopt -s nullglob
 #Copy existing ts-files ot project dir
 cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
 
-set profnm=${projectdir}/normaltrans.pro
+profnm=${projectdir}/normaltrans.pro
 
-set olddir=`pwd`
+olddir=`pwd`
 cd ${projectdir}
 
-set headers = `find $tmpoddir -path "*.h"`
-set dirfile = ${tmpoddir}/dirs
-foreach header ( ${headers} )
+headers=`find $tmpoddir -path "*.h"`
+dirfile=${tmpoddir}/dirs
+for header in ${headers}; do
     dirname ${header} >> ${dirfile}
-end
+done
 
-set dirs = `sort -u ${dirfile}`
+dirs=`sort -u ${dirfile}`
 
 #Create file with all files
-set filelist="filelist.txt"
+filelist="filelist.txt"
 
 echo "" >> ${filelist}
 
 echo -n "HEADERS = " >> ${filelist}
-foreach fnm ( $headers )
-    echo " \" >> ${filelist}
+for fnm in ${headers} ; do
+    echo " \\" >> ${filelist}
     echo -n "    $fnm" >> ${filelist}
-end
+done
 
 echo "" >> ${filelist}
 
-set sources = `find ${tmpoddir} -path "*.cc"`
+sources=`find ${tmpoddir} -path "*.cc"`
 
 echo -n "SOURCES = " >> ${filelist}
-foreach fnm ( $sources )
-    echo " \" >> ${filelist}
+for fnm in $sources ; do
+    echo " \\" >> ${filelist}
     echo -n "    $fnm" >> ${filelist}
-end
+done
 
 # Create a list of target .ts files for normal ts files
 echo -n "TRANSLATIONS = " > ${profnm}
 
-echo " \" >> ${profnm}
+echo " \\" >> ${profnm}
 echo -n "    ${application}_template.ts" >> ${profnm}
 
-set nonomatch=1
-foreach fnm ( ${application}*.ts )
-    if ( "${fnm}" =~ "*en-us.ts" ) then
+nonomatch=1
+for fnm in ${application}*.ts ; do
+    if [[ "${fnm}" =~ .*en-us.ts ]]; then
 	continue
-    endif
+    fi
 
-    if ( "${fnm}" =~ "*_template.ts" ) then
+    if [[ "${fnm}" =~ .*_template.ts ]]; then
 	continue
-    endif
+    fi
 
-    echo " \" >> ${profnm}
+    echo " \\" >> ${profnm}
     echo -n "    $fnm" >> ${profnm}
-end
+done
 
 cat ${filelist} >> ${profnm}
 
 echo "" >> ${profnm}
 echo -n "INCLUDEPATH += " >> ${profnm}
 
-foreach dir ( ${dirs} )
-    echo " \" >> ${profnm}
+for dir in ${dirs} ; do
+    echo " \\" >> ${profnm}
     echo -n "	${dir}" >>${profnm}
-end
+done
 
 #Create a list of .ts files for plural operations
-set pluralpro=$projectdir/plural.pro
-if ( -e ${application}_en-us.ts ) then
+pluralpro=$projectdir/plural.pro
+if [ -e ${application}_en-us.ts ]; then
     echo -n "TRANSLATIONS = " > ${pluralpro}
-    echo " \" >> ${pluralpro}
+    echo " \\" >> ${pluralpro}
     echo -n "    ${application}_en-us.ts" >> ${pluralpro}
     cat ${filelist} >> ${pluralpro}
 
     echo "" >> ${pluralpro}
     echo -n "INCLUDEPATH += " >> ${pluralpro}
 
-    foreach dir ( ${dirs} )
-	    echo " \" >> ${pluralpro}
-	    echo -e "	${dir}" >>${pluralpro}
-    end
-endif
+    for dir in ${dirs} ; do
+	    echo " \\" >> ${pluralpro}
+	    echo -n "	${dir}" >>${pluralpro}
+    done
+fi
 
 #Remove the filelist
 \rm -rf ${filelist}
@@ -181,11 +192,26 @@ echo ${headers} | xargs -P ${nrcpu} sed \
         -e 's/__begquote"//g' \
         -e 's/"__endquote//g' -iTMP
 
+result=0
 #Run lupdate
-${lupdate} -silent -locations relative ${profnm}
-if ( -e ${pluralpro} ) then
-    ${lupdate} -silent -locations relative -pluralonly ${pluralpro}
-endif
+errfile=${tmpoddir}/stderr
+${lupdate} -silent -locations relative ${profnm} 2> ${errfile}
+errors=`cat ${tmpoddir}/stderr`
+if [ "${errors}" != "" ]; then
+    echo "Errors during non-plural processing:"
+    cat ${tmpoddir}/stderr | sed -e $removetmpoddirsed
+    result=1
+fi
+
+if [ -e ${pluralpro} ]; then
+    ${lupdate} -silent -locations relative -pluralonly ${pluralpro} 2> ${errfile}
+    errors=`cat ${tmpoddir}/stderr`
+    if [ "${errors}" != "" ]; then
+	echo "Errors during plural processing:"
+	cat ${tmpoddir}/stderr | sed -e $removetmpoddirsed
+	result=1
+    fi
+fi
 
 #Copy results back
 rsync --checksum *.ts ${binarydir}/data/localizations/generated
@@ -197,5 +223,4 @@ rsync --checksum *.ts ${binarydir}/data/localizations/generated
 cd ${olddir}
 
 
-exit 0
-
+exit ${result}
