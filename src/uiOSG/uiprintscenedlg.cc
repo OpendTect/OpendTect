@@ -41,7 +41,198 @@ static bool prevbuttonstate = true;
 
 #define FOREGROUND_TRANSPARENCY 128
 #define BACKGROUND_TRANSPARENCY 255
+#define m32BitSizeLimit 4294967294UL  //4GB osg image size limitation
 
+
+ui3DViewer2Image::ui3DViewer2Image( ui3DViewer& vwr, const char* imgfnm,
+				    uiSize imgsz, int dpi )
+    : vwr_(vwr)
+    , imgfnm_(imgfnm)
+    , sizepix_(imgsz)
+{
+    dpi_ = dpi==-1 ? vwr_.getScenesPixelDensity() : (float)dpi;
+
+    if ( imgsz.height()==0 || imgsz.width()==0 )
+	sizepix_ = vwr_.getViewportSizePixels();
+}
+
+
+bool ui3DViewer2Image::create()
+{
+    const od_int64 size = mNINT64(sizepix_.width()*sizepix_.height())*4 ;
+    if( size>m32BitSizeLimit )
+    {
+	pErrMsg( "The output image size is too big, please reduce image size\
+		  or resolution" );
+	return false;
+    }
+
+    bool ret = false;
+
+    const float scenesDPI = vwr_.getScenesPixelDensity();
+    const float renderDPI = dpi_;
+    const bool changedpi = scenesDPI != renderDPI;
+    if ( changedpi )
+        vwr_.setScenesPixelDensity( renderDPI );
+
+    osgViewer::View* mainview =
+	const_cast<osgViewer::View*>( vwr_.getOsgViewerMainView() );
+
+    osgViewer::View* hudview =
+	const_cast<osgViewer::View*>( vwr_.getOsgViewerHudView() );
+
+    ui3DViewer::WheelMode curmode = vwr_.getWheelDisplayMode();
+    vwr_.setWheelDisplayMode( ui3DViewer::Never );
+    osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage(
+	hudview, FOREGROUND_TRANSPARENCY );
+    vwr_.setWheelDisplayMode( curmode );
+
+    osg::ref_ptr<osg::Image> mainviewimage = offScreenRenderViewToImage(
+	mainview,BACKGROUND_TRANSPARENCY );
+
+    if ( changedpi )
+        vwr_.setScenesPixelDensity( scenesDPI );
+
+    const int validresult = validateImages( mainviewimage, hudimage );
+
+    if ( validresult == InvalidImages )
+	return false;
+    else if ( validresult == OnlyMainViewImage )
+    {
+	flipImageVertical( mainviewimage );
+	ret = saveImages( mainviewimage, 0 );
+    }
+    else
+    {
+	flipImageVertical( hudimage );
+	flipImageVertical( mainviewimage );
+	ret = saveImages( mainviewimage, hudimage );
+    }
+
+    return ret;
+}
+
+
+int ui3DViewer2Image::validateImages( const osg::Image* mainimage,
+				      const osg::Image* hudimage )
+{
+    if ( !mainimage || !hasImageValidFormat(mainimage) )
+    {
+	errmsg_ = tr(" Image creation is failed. ");
+	return InvalidImages;
+    }
+
+    bool validsize (false);
+    if ( hudimage && mainimage )
+    {
+	validsize = mainimage->s() == hudimage->s() &&
+		    mainimage->t() == hudimage->t();
+	if ( !validsize )
+	{
+	    pErrMsg("The size of main view image is different from hud image.");
+	    return OnlyMainViewImage;
+	}
+    }
+
+    if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
+    {
+	errmsg_ =
+	   tr("Cannot include HUD items (color bar and axis) in screen shot.");
+	return OnlyMainViewImage;
+    }
+
+    return MainAndHudImages;
+}
+
+
+bool ui3DViewer2Image::saveImages( const osg::Image* mainimg,
+				   const osg::Image* hudimg )
+{
+    if ( !mainimg )
+	return false;
+
+    FilePath imgfp( imgfnm_ );
+    const char* fmt = imgfp.extension();
+
+    uiRGBArray rgbhudimage( true );
+    if ( hudimg && hudimg->getPixelFormat() == GL_RGBA )
+    {
+	rgbhudimage.setSize( hudimg->s(), hudimg->t() );
+	rgbhudimage.put( hudimg->data(),false,true );
+    }
+
+    uiRGBArray rgbmainimage( mainimg->getPixelFormat()==GL_RGBA );
+    rgbmainimage.setSize( mainimg->s(), mainimg->t() );
+
+    if ( !rgbmainimage.put( mainimg->data(), false, true ) )
+	return false;
+
+    if ( rgbhudimage.bufferSize()>0 )
+    {
+	rgbmainimage.blendWith( rgbhudimage, true,
+	    FOREGROUND_TRANSPARENCY, false, true );
+    }
+
+    rgbmainimage.save( imgfnm_.buf(), fmt );
+
+    return true;
+
+}
+
+
+osg::Image* ui3DViewer2Image::offScreenRenderViewToImage(
+			    osgViewer::View* view, unsigned char transparency )
+{
+    osg::Image* outputimage = 0;
+
+    osgGeo::TiledOffScreenRenderer tileoffrenderer( view,
+	visBase::DataObject::getCommonViewer() );
+    tileoffrenderer.setOutputSize( mNINT32( sizepix_.width() ),
+	mNINT32( sizepix_.height() ) );
+
+    tileoffrenderer.setOutputBackgroundTransparency( 0 );
+    tileoffrenderer.setForegroundTransparency( transparency );
+
+    if ( tileoffrenderer.createOutput() )
+    {
+	const osg::Image* outimg = tileoffrenderer.getOutput();
+
+	if ( outimg )
+	    outputimage = (osg::Image*)outimg->clone(
+	    osg::CopyOp::DEEP_COPY_ALL );
+
+    }
+
+    return outputimage;
+}
+
+
+bool ui3DViewer2Image::hasImageValidFormat( const osg::Image* image )
+{
+    bool ret = true;
+
+    if ( ( image->getPixelFormat() != GL_RGBA &&
+	 image->getPixelFormat() !=GL_RGB ) ||
+	 !image->isDataContiguous() )
+    {
+	pErrMsg( "Image is in the wrong format." ) ;
+	ret = false;
+    }
+
+    return ret;
+}
+
+
+void ui3DViewer2Image::flipImageVertical(osg::Image* image)
+{
+    if ( !image ) return;
+
+    if ( image->getOrigin()==osg::Image::BOTTOM_LEFT )
+	image->flipVertical();
+}
+
+
+// uiPrintSceneDlg
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<ui3DViewer>& vwrs )
     : uiSaveImageDlg( p, false )
@@ -132,7 +323,6 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 }
 
 
-#define m32BitSizeLimit 4294967294UL  //4GB osg image size limitation
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
     const od_int64 size = mNINT64(sizepix_.width()*sizepix_.height())*4 ;
