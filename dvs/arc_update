@@ -1,8 +1,21 @@
 #!/bin/csh -f
 
+if ( ! -e ./.arcconfig ) then
+    set gitroot=`git rev-parse --show-toplevel`
+    if ( ${gitroot} != ${PWD} ) then
+	echo "Changing directory to ${gitroot}"
+	cd ${gitroot}
+    endif
+endif
+
+if ( ! -e ./.arcconfig ) then
+    echo "${0}: Cannot find .arcconfig, "
+    exit 1
+endif
+
 set curbranch=`git branch | /bin/grep '\*' | awk '{print $2}'`
 echo "Current branch: ${curbranch}"
-set mainbranch=`awk '{if($1=="\"arc.land.onto.default\":") print $2}' < ${WORK}/.arcconfig | sed 's/[",,]//g'`
+set mainbranch=`awk '{if($1=="\"arc.land.onto.default\":") print $2}' < ./.arcconfig | sed 's/[",,]//g'`
 set brlist=`git branch -vv | /bin/grep -v origin | awk '{if($1=="*") print $2; else print $1}'`
 
 if ( $#brlist == 0 ) then
