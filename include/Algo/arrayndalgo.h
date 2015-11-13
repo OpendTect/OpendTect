@@ -255,7 +255,7 @@ inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( in2.info().getTotalSz() != sz )
 	return mUdf(T);
 
-    Array1DImpl<T> sumvec( sz );
+    Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
@@ -273,13 +273,13 @@ inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( in2.info().getTotalSz() != sz )
 	return mUdf(T);
 
-    Array1DImpl<T> sqvec1( sz ), sqvec2( sz );
+    Array1DImpl<T> sqvec1( mCast(int,sz) ), sqvec2( mCast(int,sz) );
     if ( !sqvec1.isOK() || !sqvec2.isOK() )
 	return mUdf(T);
 
     getProduct( in1, in1, sqvec1 );
     getProduct( in2, in2, sqvec2 );
-    Array1DImpl<T> sumvec( sz );
+    Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
@@ -297,13 +297,13 @@ inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( in2.info().getTotalSz() != sz )
 	return mUdf(T);
 
-    Array1DImpl<T> sqvec1( sz ), sqvec2( sz );
+    Array1DImpl<T> sqvec1( mCast(int,sz) ), sqvec2( mCast(int,sz) );
     if ( !sqvec1.isOK() || !sqvec2.isOK() )
 	return mUdf(T);
 
     getProduct( in1, in1, sqvec1 );
     getProduct( in2, in2, sqvec2 );
-    Array1DImpl<T> sumvec( sz );
+    Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
@@ -384,7 +384,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     removeBias<T,fT>( inyed );
     removeBias<T,fT>( inxed );
 
-    Array1DImpl<T> crossprodxy( sz );
+    Array1DImpl<T> crossprodxy( mCast(int,sz) );
     if ( !crossprodxy.isOK() )
 	{ if ( !hasxvals ) delete inx; return false; }
 
