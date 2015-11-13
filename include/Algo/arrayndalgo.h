@@ -209,7 +209,7 @@ inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( in2.info().getTotalSz() != sz )
 	return mUdf(T);
 
-    Array1DImpl<T> prodvec( sz );
+    Array1DImpl<T> prodvec( mCasT(int,sz) );
     if ( !prodvec.isOK() )
 	return mUdf(T);
 
@@ -351,7 +351,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     const ArrayND<T>* inx = hasxvals ? inx_ : 0;
     if ( !hasxvals )
     {
-	Array1DImpl<T>* inxtmp = new Array1DImpl<T>( sz );
+	Array1DImpl<T>* inxtmp = new Array1DImpl<T>( mCast(int,sz) );
 	if ( !inxtmp->isOK() )
 	    { delete inxtmp; return false; }
 
@@ -413,7 +413,7 @@ inline bool removeTrend( const ArrayND<T>& in, ArrayND<T>& out )
 	return false;
 
     const od_uint64 sz = in.info().getTotalSz();
-    Array1DImpl<T> trend( sz );
+    Array1DImpl<T> trend( mCast(int,sz) );
     if ( !trend.isOK() )
 	return false;
 
