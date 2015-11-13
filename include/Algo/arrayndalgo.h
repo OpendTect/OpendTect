@@ -209,7 +209,7 @@ inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( in2.info().getTotalSz() != sz )
 	return mUdf(T);
 
-    Array1DImpl<T> prodvec( mCasT(int,sz) );
+    Array1DImpl<T> prodvec( mCast(int,sz) );
     if ( !prodvec.isOK() )
 	return mUdf(T);
 
