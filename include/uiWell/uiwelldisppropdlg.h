@@ -70,7 +70,7 @@ mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {mODTextTranslationClass(uiMultiWellDispPropDlg)
 public:
 				uiMultiWellDispPropDlg(uiParent*,
-						ObjectSet<Well::Data>&,
+						const ObjectSet<Well::Data>&,
 						bool is2ddisplay);
 				~uiMultiWellDispPropDlg();
 
@@ -87,5 +87,4 @@ protected:
 
 
 #endif
-
 

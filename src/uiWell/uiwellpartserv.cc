@@ -324,10 +324,7 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 
 void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
 {
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
-    if ( !wd ) return;
-
-    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), *wd );
+    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), mid );
     welldispwin->show();
 }
 
@@ -575,5 +572,4 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     delete ctio->ioobj_;
     return true;
 }
-
 

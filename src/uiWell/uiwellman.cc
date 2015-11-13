@@ -734,7 +734,10 @@ void uiWellMan::removeLogPush( CallBacker* )
 	    BufferString logname( logs2rem.get( idrem ) );
 	    const Well::Log* log = wls.getLog( logname );
 	    if ( log )
+	    {
 		delete wls.remove( wls.indexOf( logname ) );
+		curwds_[idwell]->reloaded.trigger();
+	    }
 	}
     }
     writeLogs();
@@ -857,4 +860,3 @@ const BufferStringSet& uiWellMan::getAvailableLogs() const
 {
     return availablelognms_;
 }
-

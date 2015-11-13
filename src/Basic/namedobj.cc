@@ -90,9 +90,18 @@ void NamedObject::deleteNotify( const CallBack& c )
 }
 
 
+void NamedObject::stopDeleteNotify( NamedObject& o )
+{
+    cbRem( &o );
+    o.cbRem( this );
+}
+
+
 void NamedObject::cbRem( NamedObject* o )
 {
-    if ( !delnotify_ ) return; // Huh?
+    if ( !delnotify_ )
+	return;
+
     for ( int idx=delnotify_->size()-1; idx>=0; idx-- )
     {
 	CallBack cb = (*delnotify_)[idx];
@@ -141,4 +150,3 @@ void NamedObject::setCleanName( const char* nm )
 
     setName( startptr );
 }
-

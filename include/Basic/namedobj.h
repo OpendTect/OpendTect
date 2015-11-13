@@ -53,6 +53,7 @@ public:
     void		setCleanName(const char*); //!< cleans string first
 
     void		deleteNotify(const CallBack&);
+    void		stopDeleteNotify(NamedObject&);
 
 protected:
 
@@ -68,4 +69,3 @@ private:
 
 
 #endif
-

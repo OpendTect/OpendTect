@@ -171,8 +171,23 @@ protected:
     DisplayProperties&	disp3d_;
 };
 
+
+mExpClass(Well) ManData
+{
+public:
+
+			ManData(const MultiID&);
+
+    bool		isAvailable() const;
+    Well::Data&		data();
+    const Well::Data&	data() const;
+
+    MultiID		id_;
+
+};
+
+
 } // namespace Well
 
 #endif
-
 

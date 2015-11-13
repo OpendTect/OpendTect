@@ -132,9 +132,15 @@ void uiWellDispPropDlg::setWDNotifiers( bool yn )
     if ( !wd_ ) return;
 
     if ( yn )
+    {
 	mAttachCB( mDispNot, uiWellDispPropDlg::wdChg );
+	mAttachCB( wd_->reloaded, uiWellDispPropDlg::wdChg );
+    }
     else
+    {
 	mDetachCB( mDispNot, uiWellDispPropDlg::wdChg );
+	mDetachCB( wd_->reloaded, uiWellDispPropDlg::wdChg );
+    }
 }
 
 
@@ -195,9 +201,9 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 
 //uiMultiWellDispPropDlg
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
-					        ObjectSet<Well::Data>& wds,
-						bool is2ddisplay )
-	: uiWellDispPropDlg(p,wds[0],is2ddisplay)
+					       const ObjectSet<Well::Data>& wds,
+					       bool is2ddisplay )
+	: uiWellDispPropDlg(p,const_cast<Well::Data*>(wds[0]),is2ddisplay)
 	, wds_(wds)
 	, wellselfld_(0)
 {
@@ -284,6 +290,5 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 void uiMultiWellDispPropDlg::onClose( CallBacker* )
 {
 }
-
 
 

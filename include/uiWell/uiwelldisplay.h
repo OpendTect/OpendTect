@@ -33,7 +33,7 @@ namespace Well { class Data; }
 */
 
 mExpClass(uiWell) uiWellDisplay : public uiGroup
-{
+{mODTextTranslationClass(uiWellDisplay);
 public:
 
     mStruct(uiWell) Setup
@@ -56,21 +56,17 @@ public:
 	mDefSetupMemb(bool,withcontrol) //will add a control 
 	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars 
 
-	void copyFrom(const Setup& su)
-	{
-	    nobackground_ 	= su.nobackground_;
-	    nologborder_  	= su.nologborder_;
-	    withcontrol_  	= su.withcontrol_;
-	    noxannot_	  	= su.noxannot_;
-	    noyannot_	  	= su.noyannot_;
-	    xaxisinpercents_ 	= su.xaxisinpercents_;
-	    takedisplayfrom3d_ 	= su.takedisplayfrom3d_;
-	}
     };
 
-				uiWellDisplay(uiParent*,Well::Data& wd,
-							const Setup& su );
+//				uiWellDisplay(uiParent*,Well::Data& wd,
+//							const Setup& su );
+				uiWellDisplay(uiParent*,const MultiID&,
+					      const Setup&);
 				~uiWellDisplay();
+
+    bool			haveWellData() const;
+    Well::Data&			wellData();
+				//!< can only be used if haveWellData() == true
 
     Interval<float>		zRange() const	{ return zrg_; }
     void 			setZRange(Interval<float> zrg)
@@ -88,10 +84,11 @@ public:
     const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
     bool			hasStrat() const { return stratdisp_; }
     int				nrLogDisps() const { return logdisps_.size(); }
+    void			clearLogDisplay();
 
 protected:
 
-    Well::Data& 		wd_;
+    Well::ManData		mandata_;
 
     Interval<float>		zrg_;
     bool			dispzinft_;
@@ -106,8 +103,15 @@ protected:
 
     void			setDahData();
     void			setDisplayProperties();
+    void			updateDisplayFromWellData();
 
-    void			applyWDChanges(CallBacker*);
+    void			wdChgCB(CallBacker*);
+    void			wellReloadCB(CallBacker*);
+
+private:
+
+    void			init(const Setup&);
+
 };
 
 
@@ -116,20 +120,24 @@ protected:
 */
 
 mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
-{
+{mODTextTranslationClass(uiWellDisplayWin);
 public :
-			    	uiWellDisplayWin(uiParent*,Well::Data&);
+				uiWellDisplayWin(uiParent*,const MultiID&,
+						 bool withcontrol=true);
 
 protected:                  
 
-    Well::Data& 		wd_;
     uiWellDisplay* 		welldisp_;
 
-    void			dispInfoMsg(CallBacker*);
-    void 			closeWin(CallBacker*);
+    void			wdDelCB(CallBacker*);
+    void			posChgCB(CallBacker*);
+
+private:
+
+    uiString			getWinTitle(const MultiID&,bool);
+
 };
 
 #endif
-
 
 

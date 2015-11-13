@@ -173,3 +173,26 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     return 0;
 }
 
+
+Well::ManData::ManData( const MultiID& id )
+    : id_(id)
+{
+}
+
+
+bool Well::ManData::isAvailable() const
+{
+    return Well::MGR().get( id_ );
+}
+
+
+Well::Data& Well::ManData::data()
+{
+    return *Well::MGR().get( id_ );
+}
+
+
+const Well::Data& Well::ManData::data() const
+{
+    return *Well::MGR().get( id_ );
+}
