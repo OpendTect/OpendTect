@@ -37,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 	: uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
-                  .arg(uiStrings::uiStrings::sVolDataName(true, true, false)
+                  .arg(uiStrings::sVolDataName(true, true, false)
                      .toLower())),
                  uiStrings::phrCreate(tr("Seismics flattened on '%2'")
 			   .arg(mToUiStringTodo(getHorNm(horid))))

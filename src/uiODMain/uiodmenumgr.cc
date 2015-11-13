@@ -239,7 +239,7 @@ void uiODMenuMgr::fillImportMenu()
 
     uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttribute() );
     uiMenu* impseis = new uiMenu( &appl_,
-                    uiStrings::uiStrings::sVolDataName(true, true, true) );
+                    uiStrings::sVolDataName(true, true, true) );
     uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaultStickSets") );
@@ -379,7 +379,7 @@ void uiODMenuMgr::fillExportMenu()
 {
     expmnu_->clear();
     uiMenu* expseis = new uiMenu( &appl_,
-                        uiStrings::uiStrings::sVolDataName(true, true, true) );
+                        uiStrings::sVolDataName(true, true, true) );
     uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(mPlural) );
@@ -495,7 +495,7 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, m3Dots(tr("Random Lines")), mManRanLMnuItm,
 			"empty" );
     add2D3DMenuItem( *manmnu_, "man_seis",
-                    uiStrings::uiStrings::sVolDataName(true, true, false),
+                    uiStrings::sVolDataName(true, true, false),
 			mManSeis2DMnuItm, mManSeis3DMnuItm );
     add2D3DMenuItem( *manmnu_, "man_ps", tr("Seismics Prestack"),
 			mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );

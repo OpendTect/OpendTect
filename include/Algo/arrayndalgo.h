@@ -72,6 +72,18 @@ inline T getAverage( const ArrayND<T>& in )
 }
 
 
+//!Specialization for complex numbers.
+template <>
+inline float_complex getAverage<float_complex>(const ArrayND<float_complex>& in)
+{
+    const od_uint64 sz = in.info().getTotalSz();
+    const float_complex sumvals = getSum(in);
+    return mIsUdf(sumvals) ? mUdf(float_complex) : sumvals / mCast(float,sz);
+}
+
+
+
+
 /*!\brief returns a scaled array */
 
 template <class T>
