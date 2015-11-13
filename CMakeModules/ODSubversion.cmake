@@ -37,6 +37,8 @@ else()
 	  OUTPUT_VARIABLE VCS_VERSION
 	  OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
+
+	set ( UPDATE_CMD ${GIT_EXECUTABLE} pull --rebase )
     endif()
 endif()
 
