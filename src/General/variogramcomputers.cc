@@ -30,7 +30,7 @@ HorVariogramComputer::HorVariogramComputer( DataPointSet& dpset, int size,
     , variogramnms_( new BufferStringSet )
 {
     dataisok_ = compVarFromRange( dpset, size, cid, range, fold,
-	    			  errmsg, msgiserror );
+				  errmsg, msgiserror );
 }
 
 
@@ -132,10 +132,10 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 		double val1 = (double)dpset.getValues( posval1 )[cid-1];
 		double val2 = (double)dpset.getValues( posval2 )[cid-1];
 		double diffval = 0.5*(val2-val1)*(val2-val1);
-				
-		if ( mIsUdf(val1) || mIsUdf(val2) || mIsZero(diffval,mDefEps) ) 
+
+		if ( mIsUdf(val1) || mIsUdf(val2) || mIsZero(diffval,mDefEps) )
 		    continue;
-						
+
 		stats += diffval;
 		ifold++;
 	    }
@@ -263,7 +263,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
 	for ( int idz = 0; idz<nrin-1; idz++ )
 	{
-	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , mDefEps ) ) 
+	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , mDefEps ) )
 	    {
 		errmsg = "Data inappropriate for analysis.\n";
 		errmsg += "Please re-extract with Radius around wells = 0";
@@ -307,7 +307,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 		continue;
 	    }
 
-	    float reldist = ( float ) 
+	    float reldist = ( float )
 			    ( depth_out-dpset.z(disorder[previdx].rowid_) )/
 			    ( dpset.z(disorder[previdx+1].rowid_)-
 			      dpset.z(disorder[previdx].rowid_) );
@@ -319,7 +319,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    depth_out += (double)(step/zstep);
 	}
 
-	removeTrend<double,double>( interpolatedvals );
+	ArrayMath::removeTrend<double,double>( interpolatedvals );
 	variogramvals_->set( nrcontribwells, 0, 0 );
 	axes_->set( nrcontribwells, 0, 0);
 	variogramnms_->add(grpnames.get( igroup-1 ));

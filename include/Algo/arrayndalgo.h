@@ -15,180 +15,441 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "arraynd.h"
+#include "arrayndimpl.h"
 #include "coord.h"
 #include "enums.h"
-#include "arrayndslice.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
 
 
-#define mComputeTrendAandB( sz ) { \
-	aval = ( (fT)sz * crosssum - sum * (fT)sumindexes ) / \
-	       ( (fT)sz * (fT)sumsqidx - (fT)sumindexes * (fT)sumindexes );\
-	bval = ( sum * (fT)sumsqidx - (fT)sumindexes * crosssum ) / \
-	       ( (fT)sz * (fT)sumsqidx - (fT)sumindexes * (fT)sumindexes ); }
-
-
-/*!\brief [do not use, helper function] */
-
-template <class T, class fT>
-inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
+namespace ArrayMath
 {
-    ArrayND<T>& out_ = out ? *out : const_cast<ArrayND<T>&>(in_);
-    if ( out && in_.info() != out_.info() )
-	return false;
 
-    T avg = 0;
-    T sum = 0;
-    od_int64 sumindexes = 0;
-    od_int64 sumsqidx = 0;
-    T crosssum = 0;
-    T aval = mUdf(T);
-    T bval = mUdf(T);
+/*!\brief returns the sum of all defined values in the Array.
+   Returns UDF if empty or only udfs encountered. */
 
-    const od_int64 sz = in_.info().getTotalSz();
+template <class T>
+inline T getSum( const ArrayND<T>& in )
+{
+    const od_uint64 sz = in.info().getTotalSz();
+    if ( sz < 1 )
+	return mUdf(T);
 
-    const T* inpptr = in_.getData();
-    T* outptr = out_.getData();
-
-    if ( inpptr && outptr )
+    T sum = 0; od_uint64 count = 0;
+    const T* inpvals = in.getData();
+    if ( inpvals )
     {
-	int count = 0;
-	for ( int idx=0; idx<sz; idx++ )
+	for ( od_uint64 idx=0; idx<sz; idx++ )
 	{
-	    const T value = inpptr[idx];
-	    if ( mIsUdf(value) )
-		continue;
-
-	    sum += inpptr[idx];
-	    count++;
-	    if ( !trend )
-		continue;
-
-	    sumindexes += idx;
-	    sumsqidx += idx * idx;
-	    crosssum += inpptr[idx] * (fT)idx;
-	}
-
-	if ( count <= 1 )
-	    return false;
-
-	if ( trend )
-	    mComputeTrendAandB(count)
-	else
-	    avg = sum / (fT)count;
-
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    const T value = inpptr[idx];
-	    outptr[idx] = mIsUdf(value) ? mUdf(T)
-					: (trend ? value - (aval*(fT)idx+bval)
-					:  value - avg);
+	    const T value = inpvals[idx];
+	    if ( !mIsUdf(value) )
+		{ sum += value; count++; }
 	}
     }
     else
     {
-	ArrayNDIter iter( in_.info() );
-	int index = 0, count = 0;
-
+	ArrayNDIter iter( in.info() );
 	do
 	{
-	    const T value = in_.getND( iter.getPos() );
-	    index++;
-	    if ( mIsUdf(value) )
-		continue;
-
-	    sum += value;
-	    count++;
-	    if ( !trend )
-		continue;
-
-	    sumindexes += index;
-	    sumsqidx += index * index;
-	    crosssum += value * (fT)index;
-	} while ( iter.next() );
-
-	iter.reset();
-	if ( count <= 1 )
-	    return false;
-
-	if ( trend )
-	    mComputeTrendAandB(count)
-	else
-	    avg = sum / (fT)count;
-
-	index = 0;
-	do
-	{
-	    const T inpval = in_.getND( iter.getPos() );
-	    const T outval = mIsUdf(inpval) ? mUdf(T)
-			   : (trend ? inpval - avg-(aval*(fT)index+bval)
-				    : inpval - avg);
-	    out_.setND(iter.getPos(), outval );
-	    index++;
+	    const T value = in.getND( iter.getPos() );
+	    if ( !mIsUdf(value) )
+		{ sum += value; count++; }
 	} while ( iter.next() );
     }
 
-    return true;
+    return count == 0 ? mUdf(T) : sum;
 }
 
 
-/*!\brief Removes the bias from an ArrayND. */
+/*!\brief returns the average amplitude of the array */
 
-template <class T, class fT>
-inline bool removeBias( ArrayND<T>& inout )
+template <class T>
+inline T getAverage( const ArrayND<T>& in )
 {
-    return removeLinPart<T,fT>( inout, 0, false );
+    const od_uint64 sz = in.info().getTotalSz();
+    const T sumvals = getSum( in );
+    return mIsUdf(sumvals) ? mUdf(T) : sumvals / mCast(T,sz);
 }
+
+
+/*!\brief returns a scaled array */
+
+template <class T>
+inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift )
+{
+    ArrayND<T>& out = out_ ? *out_ : const_cast<ArrayND<T>&>( in );
+    const od_uint64 sz = in.info().getTotalSz();
+    const T* inpvals = in.getData();
+    T* outvals = out.getData();
+    if ( inpvals && outvals )
+    {
+	for ( od_uint64 idx=0; idx<sz; idx++ )
+	{
+	    const T value = inpvals[idx];
+	    if ( mIsUdf(value) )
+		continue;
+
+	    outvals[idx] = fact * value + shift;
+	}
+    }
+    else
+    {
+	ArrayNDIter iter( in.info() );
+	do
+	{
+	    const int* pos = iter.getPos();
+	    const T value = in.getND( pos );
+	    if ( mIsUdf(value) )
+		continue;
+
+	    out.setND( pos, fact * value + shift );
+	} while ( iter.next() );
+    }
+}
+
+
+/*!\brief computes the sum array between two arrays with scaling */
+
+template <class T>
+inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
+		    ArrayND<T>& out, T fact1, T fact2 )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return;
+
+    const T* vals1 = in1.getData();
+    const T* vals2 = in2.getData();
+    T* outvals = out.getData();
+    if ( vals1 && vals2 && outvals )
+    {
+	for ( od_uint64 idx=0; idx<sz; idx++ )
+	{
+	    const T val1 = vals1[idx];
+	    const T val2 = vals2[idx];
+	    if ( mIsUdf(val1) || mIsUdf(val2) )
+		{ outvals[idx] = mUdf(T); continue; }
+
+	    outvals[idx] = fact1 * val1 + fact2 * val2;
+	}
+    }
+    else
+    {
+	ArrayNDIter iter( in1.info() );
+	do
+	{
+	    const int* pos = iter.getPos();
+	    const T val1 = in1.getND( pos );
+	    const T val2 = in2.getND( pos );
+	    if ( mIsUdf(val1) || mIsUdf(val2) )
+		{ out.setND( pos, mUdf(T) ); continue; }
+
+	    out.setND( pos, fact1 * val1 + fact2 * val2 );
+	} while ( iter.next() );
+    }
+}
+
+
+/*!\brief computes the product array between two arrays */
+
+template <class T>
+inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
+			ArrayND<T>& out )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return;
+
+    const T* vals1 = in1.getData();
+    const T* vals2 = in2.getData();
+    T* outvals = out.getData();
+    if ( vals1 && vals2 && outvals )
+    {
+	for ( od_uint64 idx=0; idx<sz; idx++ )
+	{
+	    const T val1 = vals1[idx];
+	    const T val2 = vals2[idx];
+	    if ( mIsUdf(val1) || mIsUdf(val2) )
+		{ outvals[idx] = mUdf(T); continue; }
+
+	    outvals[idx] = val1 * val2;
+	}
+    }
+    else
+    {
+	ArrayNDIter iter( in1.info() );
+	do
+	{
+	    const int* pos = iter.getPos();
+	    const T val1 = in1.getND( pos );
+	    const T val2 = in2.getND( pos );
+	    if ( mIsUdf(val1) || mIsUdf(val2) )
+		{ out.setND( pos, mUdf(T) ); continue; }
+
+	    out.setND( pos, val1 * val2 );
+	} while ( iter.next() );
+    }
+}
+
+
+/*!\brief computes the sum array between two arrays */
+
+template <class T>
+inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
+		    ArrayND<T>& out )
+{ getSum( in1, in2, out, (T)1, (T)1 ); }
+
+
+/*!\brief returns the sum of product amplitudes between two vectors */
+
+template <class T>
+inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return mUdf(T);
+
+    Array1DImpl<T> prodvec( sz );
+    if ( !prodvec.isOK() )
+	return mUdf(T);
+
+    getProduct( in1, in2, prodvec );
+    return getSum( prodvec );
+}
+
+
+/*!\brief returns the sum of squarred amplitudes of the array */
+
+template <class T>
+inline T getSumSq( const ArrayND<T>& in )
+{ return getSumProduct( in, in ); }
+
+
+/*!\brief return the Norm-2 of the array */
+
+template <class T>
+inline T getNorm2( const ArrayND<T>& in )
+{
+    const T sumsqvals = getSumSq( in );
+    return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals );
+}
+
+
+/*!\brief return the RMS of the array */
+
+template <class T>
+inline T getRMS( const ArrayND<T>& in )
+{
+    const od_uint64 sz = in.info().getTotalSz();
+    const T sumsqvals = getSumSq( in );
+    return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals/mCast(T,sz) );
+}
+
+
+/*!\brief returns the sum of squarred differences of two arrays */
+
+template <class T>
+inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return mUdf(T);
+
+    Array1DImpl<T> sumvec( sz );
+    if ( !sumvec.isOK() )
+	return mUdf(T);
+
+    getSum( in1, in2, sumvec, (T)1, (T)-1 );
+    return getSumSq( sumvec );
+}
+
+
+/*!\brief returns the sum of summed squarred amplitudes of two arrays */
+
+template <class T>
+inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return mUdf(T);
+
+    Array1DImpl<T> sqvec1( sz ), sqvec2( sz );
+    if ( !sqvec1.isOK() || !sqvec2.isOK() )
+	return mUdf(T);
+
+    getProduct( in1, in1, sqvec1 );
+    getProduct( in2, in2, sqvec2 );
+    Array1DImpl<T> sumvec( sz );
+    if ( !sumvec.isOK() )
+	return mUdf(T);
+
+    getSum( sqvec1, sqvec2, sumvec );
+    return getSum( sumvec );
+}
+
+
+/*!\brief returns the sum of subtracted squarred amplitudes of two arrays */
+
+template <class T>
+inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return mUdf(T);
+
+    Array1DImpl<T> sqvec1( sz ), sqvec2( sz );
+    if ( !sqvec1.isOK() || !sqvec2.isOK() )
+	return mUdf(T);
+
+    getProduct( in1, in1, sqvec1 );
+    getProduct( in2, in2, sqvec2 );
+    Array1DImpl<T> sumvec( sz );
+    if ( !sumvec.isOK() )
+	return mUdf(T);
+
+    getSum( sqvec1, sqvec2, sumvec, (T)1, (T)-1 );
+    return getSum( sumvec );
+}
+
 
 /*!\brief Fills an ArrayND with an unbiased version of another. */
 
 template <class T, class fT>
 inline bool removeBias( const ArrayND<T>& in, ArrayND<T>& out )
 {
-    return removeLinPart<T,fT>( in, &out, false );
+    const T averagevalue = getAverage( in );
+    if ( mIsUdf(averagevalue) )
+	return false;
+
+    getScaled( in, &out, (T)1, -averagevalue );
+    return true;
 }
 
-/*!\brief Removes a linear trend from an ArrayND. */
+
+/*!\brief Removes the bias ( 0 order trend = average ) from an ArrayND. */
 
 template <class T, class fT>
-inline bool removeTrend( ArrayND<T>& inout )
+inline bool removeBias( ArrayND<T>& inout )
 {
-    return removeLinPart<T,fT>( inout, 0, true );
+    const ArrayND<T>& inconst = const_cast<const ArrayND<T>&>( inout );
+    return removeBias<T,fT>( inconst, inout );
 }
+
+
+/*!\brief returns the intercept and gradient of two arrays */
+
+template <class T, class fT>
+inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
+				  T& intercept, T& gradient )
+{
+    const od_uint64 sz = iny.info().getTotalSz();
+    T avgyvals = getAverage( iny );
+    if ( mIsUdf(avgyvals) )
+	return false;
+
+    const bool hasxvals = inx_;
+    const ArrayND<T>* inx = hasxvals ? inx_ : 0;
+    if ( !hasxvals )
+    {
+	Array1DImpl<T>* inxtmp = new Array1DImpl<T>( sz );
+	if ( !inxtmp->isOK() )
+	    { delete inxtmp; return false; }
+
+	T* inxvals = inxtmp->getData();
+	if ( inxvals )
+	{
+	    for ( od_uint64 idx=0; idx<sz; idx++ )
+		inxvals[idx] = mCast(fT,idx);
+	}
+	else
+	{
+	    ArrayNDIter iter( inxtmp->info() );
+	    od_uint64 idx = 0;
+	    do
+	    {
+		inxtmp->setND( iter.getPos(), mCast(fT,idx) );
+		idx++;
+	    } while ( iter.next() );
+	}
+
+	inx = inxtmp;
+    }
+
+    T avgxvals = getAverage( *inx );
+    if ( mIsUdf(avgxvals) )
+	{ if ( !hasxvals) delete inx; return false; }
+
+    ArrayND<T>& inyed = const_cast<ArrayND<T>&>( iny );
+    ArrayND<T>& inxed = const_cast<ArrayND<T>&>( *inx );
+    removeBias<T,fT>( inyed );
+    removeBias<T,fT>( inxed );
+
+    Array1DImpl<T> crossprodxy( sz );
+    if ( !crossprodxy.isOK() )
+	{ if ( !hasxvals ) delete inx; return false; }
+
+    getProduct( *inx, iny, crossprodxy );
+
+    gradient = getSumProduct( *inx, iny ) / getSumSq( *inx );
+    intercept = avgyvals - gradient * avgxvals;
+    getScaled( iny, &inyed, (T)1, avgyvals );
+
+    if ( !hasxvals )
+	delete inx;
+    else
+	getScaled( *inx, &inxed, (T)1, avgxvals );
+
+    return true;
+}
+
 
 /*!\brief Fills an ArrayND with a de-trended version of another. */
 
 template <class T, class fT>
 inline bool removeTrend( const ArrayND<T>& in, ArrayND<T>& out )
 {
-    return removeLinPart<T,fT>( in, &out, true );
-}
+    T intercept, gradient;
+    if ( !getInterceptGradient<T,fT>(in,0,intercept,gradient) )
+	return false;
 
+    const od_uint64 sz = in.info().getTotalSz();
+    Array1DImpl<T> trend( sz );
+    if ( !trend.isOK() )
+	return false;
 
-/*!\brief returns the average of all defined values in the Arrray1D.
-   Returns UDF if empty or only udfs encountered. */
-
-template <class T>
-inline T getAverage( const ArrayND<T>& in )
-{
-    const int sz = in.info().getTotalSz();
-    if ( sz < 1 )
-	return mUdf(T);
-
-    T sum = 0; int count = 0;
-    for ( int idx=0; idx<sz; idx++ )
+    T* trendvals = trend.getData();
+    if ( trendvals )
     {
-	const T val = in.get( idx );
-	if ( !mIsUdf(val) )
-	    { sum += val; count++; }
+	for ( od_uint64 idx=0; idx<sz; idx++ )
+	    trendvals[idx] = -( mCast(fT,idx)*gradient + intercept );
+    }
+    else
+    {
+	ArrayNDIter iter( trend.info() );
+	od_uint64 idx = 0;
+	do
+	{
+	    trend.setND( iter.getPos(), -( mCast(fT,idx)*gradient+intercept ) );
+	    idx++;
+	} while( iter.next() );
     }
 
-    if ( count == 0 )
-	return mUdf(T);
+    getSum( in, trend, out );
 
-    return sum / count;
+    return true;
 }
+
+
+/*!\brief Removes a 1st order (linear) trend from an ArrayND. */
+
+template <class T, class fT>
+inline bool removeTrend( ArrayND<T>& inout )
+{
+    const ArrayND<T>& inconst = const_cast<const ArrayND<T>&>( inout );
+    return removeTrend<T,fT>( inconst, inout );
+}
+
+}; //namespace
 
 
 /*!\brief Returns whether there are undefs in the Array1D.  */
@@ -325,7 +586,6 @@ public:
 		    out->setND( iter.getPos(),
 			     mIsUdf( inval ) ? inval : inval * window_[idx] );
 		    idx++;
-
 		} while ( iter.next() );
 	    }
 	}
