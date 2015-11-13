@@ -1899,10 +1899,10 @@ void uiAttribPartServer::survChangedCB( CallBacker* )
 }
 
 
-void uiAttribPartServer::setSelAttr( const char* attrnm, bool cleanattrlist )
+void uiAttribPartServer::setSelAttr( const char* attrnm, bool isnewset )
 {
     if ( attrsetdlg_ )
-	attrsetdlg_->setSelAttr( attrnm, cleanattrlist );
+	attrsetdlg_->setSelAttr( attrnm, isnewset );
 }
 
 
