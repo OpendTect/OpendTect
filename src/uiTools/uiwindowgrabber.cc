@@ -60,6 +60,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 	    windownms.add( windowlist_[idx]->caption(true) );
 
 	windowfld_ = new uiLabeledComboBox( this, tr("Grab window") );
+	windowfld_->box()->setHSzPol( uiObject::Wide );
 	windowfld_->box()->addItems( windownms );
     }
 
