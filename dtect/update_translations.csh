@@ -149,7 +149,7 @@ endif
 echo ${sources} | xargs -P ${nrcpu} sed \
 	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mDefineEMObjFuncs(.*)/Q_OBJECT/g' \
+	-e 's/mTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mExpClass(.*)/class /g' \
 	-e 's/mClass(.*)/class /g' \
 	-e 's/mStruct(.*)/struct /g' \
@@ -165,12 +165,13 @@ echo ${sources} | xargs -P ${nrcpu} sed \
 
 #Filter the headers for patterns
 echo ${headers} | xargs -P ${nrcpu} sed \
+	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/mTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mExpClass(.*)/class /g' \
 	-e 's/mClass(.*)/class /g' \
 	-e 's/mStruct(.*)/struct /g' \
 	-e 's/mExpStruct(.*)/struct /g' \
-	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mEnumTr/EnumDefImpl::tr /g' \
 	-e 's/"static_func_"/""/g' \
 	-e 's/[^( \t]*_static_tr([ \t]*/static_func___begquote/g' \
