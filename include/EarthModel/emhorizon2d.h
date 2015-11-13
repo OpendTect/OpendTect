@@ -106,7 +106,8 @@ multiple z-values per trace is needed, multiple sections can be added.
 */
 
 mExpClass(EarthModel) Horizon2D : public Horizon
-{ mDefineEMObjFuncs( Horizon2D );
+{   mDefineEMObjFuncs( Horizon2D );
+    mODTextTranslationClass( Horizon2D );
 public:
 
     virtual float		getZ(const TrcKey&) const;

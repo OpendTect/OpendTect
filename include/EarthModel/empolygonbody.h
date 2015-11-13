@@ -77,7 +77,8 @@ protected:
 */
 
 mExpClass(EarthModel) PolygonBody : public Surface, public Body
-{ mDefineEMObjFuncs( PolygonBody );
+{   mDefineEMObjFuncs( PolygonBody );
+    mODTextTranslationClass( PolygonBody );
 public:
     PolygonBodyGeometry&	geometry();
     const PolygonBodyGeometry&	geometry() const;

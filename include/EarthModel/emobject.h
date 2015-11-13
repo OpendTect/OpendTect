@@ -285,7 +285,6 @@ protected:
 } // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
-mODTextTranslationClass( clss ); \
 public: \
 				clss(EM::EMManager&); \
     static void			initClass(); \

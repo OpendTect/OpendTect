@@ -76,7 +76,8 @@ protected:
 */
 
 mExpClass(EarthModel) Fault3D : public Fault
-{ mDefineEMObjFuncs( Fault3D );
+{   mDefineEMObjFuncs( Fault3D );
+    mODTextTranslationClass( Fault3D );
 public:
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;

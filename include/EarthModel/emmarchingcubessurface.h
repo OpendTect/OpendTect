@@ -30,7 +30,8 @@ class BodyOperator;
 */
 
 mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
-{ mDefineEMObjFuncs( MarchingCubesSurface );
+{   mDefineEMObjFuncs( MarchingCubesSurface );
+    mODTextTranslationClass( MarchingCubesSurface );
 public:
 
     const char*			type() const		{ return typeStr(); }

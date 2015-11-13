@@ -98,7 +98,8 @@ protected:
 */
 
 mExpClass(EarthModel) FaultStickSet: public Fault
-{ mDefineEMObjFuncs( FaultStickSet );
+{   mDefineEMObjFuncs( FaultStickSet );
+    mODTextTranslationClass( FaultStickSet );
 public:
     FaultStickSetGeometry&		geometry();
     const FaultStickSetGeometry&	geometry() const;

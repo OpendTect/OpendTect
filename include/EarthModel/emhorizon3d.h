@@ -94,7 +94,8 @@ fillstyle in between the knots.
 */
 
 mExpClass(EarthModel) Horizon3D : public Horizon
-{ mDefineEMObjFuncs( Horizon3D );
+{   mDefineEMObjFuncs( Horizon3D );
+    mODTextTranslationClass( Horizon3D );
 public:
 
     virtual float		getZ(const TrcKey&) const;

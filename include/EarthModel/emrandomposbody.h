@@ -28,7 +28,8 @@ namespace EM
 */
 
 mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
-{ mDefineEMObjFuncs( RandomPosBody );
+{   mDefineEMObjFuncs( RandomPosBody );
+    mODTextTranslationClass( RandomPosBody );
 public:
 
     const char*			type() const { return typeStr(); }
