@@ -484,7 +484,7 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 		if ( idx == 0 )
 		    mAddInsertNodeMnuItm( idx, tr("before first node") )
 		else if ( idx == rtd->nrNodes() )
-		    mAddInsertNodeMnuItm( idx, tr("after node %1").arg(idx) )
+		    mAddInsertNodeMnuItm( idx, tr("after last node") )
 		else
 		    mAddInsertNodeMnuItm( idx,
 			    tr("between node %1 && %2").arg(idx).arg(idx+1) );
