@@ -21,7 +21,8 @@ class ProbDenFunc;
 
 
 mExpClass(Geometry) ProbDenFuncTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(ProbDenFunc)
+{   isTranslatorGroup(ProbDenFunc);
+    mODTextTranslationClass(ProbDenFuncTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
 

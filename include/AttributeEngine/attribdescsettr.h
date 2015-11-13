@@ -25,7 +25,8 @@ namespace Attrib { class DescSet; }
 */
 
 mExpClass(AttributeEngine) AttribDescSetTranslatorGroup : public TranslatorGroup
-{			  isTranslatorGroup(AttribDescSet)
+{   isTranslatorGroup(AttribDescSet);
+    mODTextTranslationClass(AttribDescSetTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(AttribDescSet)
 

@@ -26,7 +26,8 @@ namespace Seis		{ class SelData; }
 /*!\brief TranslatorGroup for 2D Seismic Data */
 
 mExpClass(Seis) SeisTrc2DTranslatorGroup : public TranslatorGroup
-{				isTranslatorGroup(SeisTrc2D)
+{   isTranslatorGroup(SeisTrc2D);
+    mODTextTranslationClass(SeisTrc2DTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(SeisTrc2D)
 

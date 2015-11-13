@@ -28,7 +28,8 @@ namespace PreStack { class EventManager; }
 */
 
 mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
-{ isTranslatorGroup(PSEvent);
+{   isTranslatorGroup(PSEvent);
+    mODTextTranslationClass(PSEventTranslatorGroup);;
 public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
     const char*			defExtension() const { return sDefExtension(); }

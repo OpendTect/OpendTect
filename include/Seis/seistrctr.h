@@ -75,7 +75,8 @@ SeisTrcReader and SeisTrcWriter do support it.
 
 
 mExpClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
-{				isTranslatorGroup(SeisTrc)
+{   isTranslatorGroup(SeisTrc);
+    mODTextTranslationClass(SeisTrcTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(SeisTrc)
 

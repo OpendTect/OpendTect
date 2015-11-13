@@ -186,7 +186,7 @@ public:
 
 
 //! In the class definition of a TranslatorGroup class
-#define isTranslatorGroupBody(clss) \
+#define isTranslatorGroup(clss) \
 protected: \
     ~clss##TranslatorGroup() {} \
 public: \
@@ -202,11 +202,6 @@ public: \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
     static TranslatorGroup& theInst()
 
-
-#define isTranslatorGroup( clss ) \
-mTextTranslationClass( clss##TranslatorGroup, \
-	       clss##TranslatorGroup::theInst().translationApplication() ) \
-isTranslatorGroupBody(clss);
 
 #define isTranslatorGroupWithInst( clss ) \
 isTranslatorGroupBody( clss ) \
@@ -273,7 +268,9 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! can make use of OpendTect object selection, retrieval etc.
 #define mDeclEmptyTranslatorBundle(mod,clss,fmt,defext) \
 mExpClass(mod) clss##TranslatorGroup : public TranslatorGroup \
-{			isTranslatorGroup(clss) \
+{			isTranslatorGroup(clss); \
+mTextTranslationClass( clss##TranslatorGroup, \
+clss##TranslatorGroup::theInst().translationApplication() ) \
 			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \

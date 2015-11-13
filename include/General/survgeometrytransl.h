@@ -20,8 +20,8 @@ ________________________________________________________________________
 //TODO: Make Translator/Group classes for 3D when needed.
 
 mExpClass(General) SurvGeom2DTranslatorGroup : public TranslatorGroup
-{
-			isTranslatorGroup(SurvGeom2D);
+{   isTranslatorGroup(SurvGeom2D);
+    mODTextTranslationClass(SurvGeom2DTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(SurvGeom2D);
     const char*		defExtension() const	{ return "geom"; }

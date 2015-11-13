@@ -25,7 +25,8 @@ typedef EM::Body	EMBody;
 /*!\brief TranslatorGroup for EM::Body.*/
 
 mExpClass(EarthModel) EMBodyTranslatorGroup : public TranslatorGroup
-{			isTranslatorGroup(EMBody)
+{   isTranslatorGroup(EMBody);
+    mODTextTranslationClass(EMBodyTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(EMBody)
 

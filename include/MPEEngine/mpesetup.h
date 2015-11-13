@@ -49,7 +49,8 @@ typedef MPE::Setup MPESetup;
 */
 
 mExpClass(MPEEngine) MPESetupTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(MPESetup)
+{   isTranslatorGroup(MPESetup);
+    mODTextTranslationClass(MPESetupTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(MPESetup)
     const char*		defExtension() const		{ return "ts"; }

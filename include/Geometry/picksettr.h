@@ -23,7 +23,8 @@ template <class T> class ODPolygon;
 
 
 mExpClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(PickSet)
+{   isTranslatorGroup(PickSet);
+    mODTextTranslationClass(PickSetTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(PickSet)
 

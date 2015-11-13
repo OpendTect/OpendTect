@@ -14,7 +14,8 @@ namespace ODGMT { class ProcFlow; }
 
 
 mExpClass(GMT) ODGMTProcFlowTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(ODGMTProcFlow)
+{   isTranslatorGroup(ODGMTProcFlow);
+    mODTextTranslationClass(ODGMTProcFlowTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(ODGMTProcFlow)
 

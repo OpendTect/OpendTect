@@ -20,7 +20,8 @@ namespace Geometry { class RandomLineSet; }
 class Conn;
 
 mExpClass(Geometry) RandomLineSetTranslatorGroup : public TranslatorGroup
-{				  isTranslatorGroup(RandomLineSet)
+{  isTranslatorGroup(RandomLineSet);
+    mODTextTranslationClass(RandomLineSetTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
 

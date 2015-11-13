@@ -23,7 +23,8 @@ namespace PreStack { class MuteDef; }
 */
 
 mExpClass(PreStackProcessing) MuteDefTranslatorGroup : public TranslatorGroup
-{				      isTranslatorGroup(MuteDef)
+{   isTranslatorGroup(MuteDef);
+    mODTextTranslationClass(MuteDefTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(MuteDef)
 

@@ -27,7 +27,8 @@ namespace Well { class Data; };
 
 
 mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
-{			    isTranslatorGroup(Well)
+{   isTranslatorGroup(Well);
+    mODTextTranslationClass(WellTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(Well)
     const char*		defExtension() const { return "well"; }

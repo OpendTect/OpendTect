@@ -25,7 +25,8 @@ namespace VolProc { class Chain; }
 
 mExpClass(VolumeProcessing) VolProcessingTranslatorGroup
 				: public TranslatorGroup
-{				      isTranslatorGroup(VolProcessing)
+{   isTranslatorGroup(VolProcessing);
+    mODTextTranslationClass(VolProcessingTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(VolProcessing)
 

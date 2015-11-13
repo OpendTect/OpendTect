@@ -27,7 +27,8 @@ typedef EM::StickSet EMStickSet;
 */
 
 mExpClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
-{				  isTranslatorGroup(EMStickSet)
+{   isTranslatorGroup(EMStickSet);
+    mODTextTranslationClass(EMStickSetTranslatorGroup);
 public:
 				mDefEmptyTranslatorGroupConstructor(EMStickSet)
 

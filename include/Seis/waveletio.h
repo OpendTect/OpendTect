@@ -19,7 +19,8 @@ class Wavelet;
 
 
 mExpClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
-{					 isTranslatorGroup(Wavelet)
+{   isTranslatorGroup(Wavelet);
+    mODTextTranslationClass(WaveletTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(Wavelet)
 

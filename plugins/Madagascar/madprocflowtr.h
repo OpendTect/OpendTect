@@ -14,7 +14,8 @@ namespace ODMad { class ProcFlow; }
 
 
 mExpClass(Madagascar) ODMadProcFlowTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(ODMadProcFlow)
+{   isTranslatorGroup(ODMadProcFlow);
+    mODTextTranslationClass(ODMadProcFlowTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(ODMadProcFlow)
 

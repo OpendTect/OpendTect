@@ -162,7 +162,8 @@ mGlobal(Seis) SeisPSIOProviderFactory& SPSIOPF();
 //! Translator mechanism is only used for selection etc.
 
 mExpClass(Seis) SeisPS3DTranslatorGroup : public TranslatorGroup
-{				isTranslatorGroup(SeisPS3D)
+{   isTranslatorGroup(SeisPS3D);
+    mODTextTranslationClass(SeisPS3DTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(SeisPS3D)
 };
@@ -187,7 +188,8 @@ public:
 
 
 mExpClass(Seis) SeisPS2DTranslatorGroup : public TranslatorGroup
-{				isTranslatorGroup(SeisPS2D)
+{   isTranslatorGroup(SeisPS2D);
+    mODTextTranslationClass(SeisPS2DTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(SeisPS2D)
 };

@@ -45,7 +45,8 @@ storage.
 */
 
 mExpClass(EarthModel) EMHorizon3DTranslatorGroup : public TranslatorGroup
-{				   isTranslatorGroup(EMHorizon3D)
+{   isTranslatorGroup(EMHorizon3D);
+    mODTextTranslationClass(EMHorizon3DTranslatorGroup);
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
@@ -58,7 +59,8 @@ public:
 */
 
 mExpClass(EarthModel) EMHorizon2DTranslatorGroup : public TranslatorGroup
-{				   isTranslatorGroup(EMHorizon2D)
+{   isTranslatorGroup(EMHorizon2D);
+    mODTextTranslationClass(EMHorizon2DTranslatorGroup);
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
@@ -71,7 +73,8 @@ public:
 */
 
 mExpClass(EarthModel) EMAnyHorizonTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(EMAnyHorizon)
+{   isTranslatorGroup(EMAnyHorizon);
+    mODTextTranslationClass(EMAnyHorizonTranslatorGroup);
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
 };
@@ -82,7 +85,8 @@ public:
 */
 
 mExpClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
-{			    isTranslatorGroup(EMFault3D);
+{   isTranslatorGroup(EMFault3D);
+    mODTextTranslationClass(EMFault3DTranslatorGroup);;
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
@@ -95,7 +99,8 @@ public:
 */
 
 mExpClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
-{			isTranslatorGroup(EMFaultStickSet);
+{   isTranslatorGroup(EMFaultStickSet);
+    mODTextTranslationClass(EMFaultStickSetTranslatorGroup);;
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 

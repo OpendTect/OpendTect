@@ -21,7 +21,8 @@ class PosVecDataSet;
 
 
 mExpClass(Geometry) PosVecDataSetTranslatorGroup : public TranslatorGroup
-{			     isTranslatorGroup(PosVecDataSet)
+{   isTranslatorGroup(PosVecDataSet);
+    mODTextTranslationClass(PosVecDataSetTranslatorGroup);
 public:
     			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
 

@@ -82,7 +82,8 @@ protected:
 
 
 mExpClass(uiODMain) ODSessionTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(ODSession)
+{   isTranslatorGroup(ODSession);
+    mODTextTranslationClass(ODSessionTranslatorGroup);
 public:
 			mDefEmptyTranslatorGroupConstructor(ODSession)
     const char*		defExtension() const		{ return "sess"; }
