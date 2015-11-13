@@ -22,9 +22,10 @@ public:
 			PresentationSpec();
 			~PresentationSpec();
 
+    void		setEmpty();
     int			nrSlides() const;
-    void		addSlide(SlideSpec&);
-    void		insertSlide(int,SlideSpec&);
+    void		addSlide(PresSlideSpec&);
+    void		insertSlide(int,PresSlideSpec&);
     void		swapSlides(int idx0,int idx1);
     void		removeSlide(int);
 
@@ -35,7 +36,7 @@ public:
     void		getPythonScript(BufferString&) const;
 
 protected:
-    ObjectSet<SlideSpec>	slides_;
+    ObjectSet<PresSlideSpec>	slides_;
     BufferString		title_;
 
     BufferString		masterfilename_;

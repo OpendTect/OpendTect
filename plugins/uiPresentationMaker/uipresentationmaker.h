@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uipresentationmakermod.h"
 #include "uidialog.h"
 
+class uiButtonGroup;
+class uiComboBox;
 class uiFileInput;
 class uiGenInput;
 class uiTable;
@@ -30,15 +32,22 @@ public:
 protected:
     bool		acceptOK(CallBacker*);
 
+    void		typeCB(CallBacker*);
     void		addCB(CallBacker*);
     void		moveUpCB(CallBacker*);
     void		moveDownCB(CallBacker*);
     void		removeCB(CallBacker*);
     void		createCB(CallBacker*);
 
+    void		updateWindowList();
+    void		updateSceneList();
+
     PresentationSpec&	specs_;
 
     uiGenInput*		titlefld_;
+    uiButtonGroup*	typegrp_;
+    uiComboBox*		windowfld_;
+    uiComboBox*		scenefld_;
     uiTable*		slidestbl_;
     uiFileInput*	masterfld_;
     uiFileInput*	outputfld_;

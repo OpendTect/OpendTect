@@ -15,21 +15,29 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "slidespec.h"
 
 
-SlideSpec::SlideSpec()
+PresSlideSpec::PresSlideSpec()
     : index_(-1)
     , layoutindex_(1)
+    , imagesz_(0,0)
+    , imagepos_(0,0)
+{
+    imagefnm_.setEmpty();
+}
+
+
+PresSlideSpec::~PresSlideSpec()
 {}
 
 
-SlideSpec::~SlideSpec()
-{}
-
-
-void SlideSpec::getPythonScript( BufferString& script ) const
+void PresSlideSpec::getPythonScript( BufferString& script ) const
 {
     script.add( "slide_layout = prs.slide_layouts[" )
 	  .add( layoutindex_ ).add( "]\n" )
 	  .add( "slide = prs.slides.add_slide(slide_layout)\n" );
+
+    if ( !imagefnm_.isEmpty() )
+	script.add( "pic = slide.shapes.add_picture('" )
+	      .add( imagefnm_.buf() ).add( "',0,0)\n" );
 }
 
 
@@ -40,15 +48,23 @@ PresentationSpec::PresentationSpec()
 PresentationSpec::~PresentationSpec()
 {}
 
+void PresentationSpec::setEmpty()
+{
+    deepErase( slides_ );
+    title_.setEmpty();
+    outputfilename_.setEmpty();
+    masterfilename_.setEmpty();
+}
+
 
 int PresentationSpec::nrSlides() const
 { return slides_.size(); }
 
 
-void PresentationSpec::addSlide( SlideSpec& ss )
+void PresentationSpec::addSlide( PresSlideSpec& ss )
 { slides_ += &ss; }
 
-void PresentationSpec::insertSlide( int idx, SlideSpec& ss )
+void PresentationSpec::insertSlide( int idx, PresSlideSpec& ss )
 { slides_.insertAt( &ss, idx ); }
 
 void PresentationSpec::swapSlides( int idx0, int idx1 )
@@ -67,10 +83,17 @@ void PresentationSpec::setMasterFilename( const char* fnm )
 { masterfilename_ = fnm; }
 
 
-static void init( BufferString& script )
+static void init( BufferString& script, const char* fnm )
 {
-    script.add( "from pptx import Presentation\n\n" )
-	  .add( "prs = Presentation()\n" );
+    script.add( "from pptx import Presentation\n" )
+	  .add( "from pptx.util import Inches, Cm\n\n" );
+
+    script.add( "prs = Presentation(" );
+    const FixedString masterfnm = fnm;
+    if ( !masterfnm.isEmpty() )
+	script.add( "'" ).add( fnm ).add( "'" );
+
+    script.add( ")\n" );
 }
 
 
@@ -86,7 +109,7 @@ static void addTitleSlide( BufferString& script, const char* title )
 void PresentationSpec::getPythonScript( BufferString& script ) const
 {
     script.setEmpty();
-    init( script );
+    init( script, masterfilename_ );
     addTitleSlide( script, title_.buf() );
 
     for ( int idx=0; idx<slides_.size(); idx++ )

@@ -19,11 +19,11 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
-mExpClass(uiPresentationMaker) SlideSpec
+mExpClass(uiPresentationMaker) PresSlideSpec
 {
 public:
-			SlideSpec();
-			~SlideSpec();
+			PresSlideSpec();
+			~PresSlideSpec();
 
     void		getPythonScript(BufferString&) const;
 
@@ -33,8 +33,8 @@ public:
     uiSize		imagesz_;
     uiPoint		imagepos_;
 
-    int			layoutindex_;
     int			index_;
+    int			layoutindex_;
 };
 
 #endif
