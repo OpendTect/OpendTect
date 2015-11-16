@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "trckeyzsampling.h"
 #include "posidxpair2coord.h"
+#include "zdomain.h"
 
 
 namespace Survey
@@ -70,6 +71,12 @@ public:
 
     Geometry3D*		as3D()			{ return this; }
 
+    void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
+			//!< dir = 0 : auto; -1 round downward, 1 round upward);
+    void		snapStep(BinID&,const BinID& dir=BinID(0,0))const;
+			//!< see snap() for direction
+    void		snapZ(float&,int direction=0) const;
+			//!< see snap() for direction
 protected:
     
     BufferString	name_;

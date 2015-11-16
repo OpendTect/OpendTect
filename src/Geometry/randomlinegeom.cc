@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "randomlinetr.h"
+#include "survgeom3d.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "trigonometry.h"
@@ -132,6 +133,10 @@ void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
+    const Pos::SurvID survid = Survey::GM().default3DSurvID();
+    if ( cs.hsamp_.survid_!=survid )
+	pErrMsg( "Limiting go range in different survey");
+
     if ( nrNodes() != 2 ) return;
 
     zrange_.limitTo( cs.zsamp_ );
@@ -141,13 +146,15 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     if ( startin && stopin )
 	return;
 
-    Coord svert[4];
-    svert[0] = SI().transform( hs.start_ );
-    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
-    svert[2] = SI().transform( hs.stop_ );
-    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
+    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D(survid);
 
-    Line2 line( SI().transform(nodes_[0]), SI().transform(nodes_[1]) );
+    Coord svert[4];
+    svert[0] = geom->transform( hs.start_ );
+    svert[1] = geom->transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = geom->transform( hs.stop_ );
+    svert[3] = geom->transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
+
+    Line2 line( geom->transform(nodes_[0]), geom->transform(nodes_[1]) );
     TypeSet<Coord> points;
     for ( int idx=0; idx<4; idx++ )
     {
@@ -160,60 +167,79 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     if ( !points.size() )
 	nodes_.erase();
     else if ( points.size() == 1 )
-	nodes_[startin ? 1 : 0] = SI().transform( points[0] );
-    else if ( SI().transform(nodes_[0]).distTo(points[0])
-	    < SI().transform(nodes_[0]).distTo(points[1]) )
+	nodes_[startin ? 1 : 0] = geom->transform( points[0] );
+    else if ( geom->transform(nodes_[0]).distTo(points[0])
+	    < geom->transform(nodes_[0]).distTo(points[1]) )
     {
-	nodes_[0] = SI().transform( points[0] );
-	nodes_[1] = SI().transform( points[1] );
+	nodes_[0] = geom->transform( points[0] );
+	nodes_[1] = geom->transform( points[1] );
     }
     else
     {
-	nodes_[0] = SI().transform( points[1] );
-	nodes_[1] = SI().transform( points[0] );
+	nodes_[0] = geom->transform( points[1] );
+	nodes_[1] = geom->transform( points[0] );
     }
 }
 
-
-#define mGetBinIDs( x, y ) \
-    bool reverse = stop.x - start.x < 0; \
-    int step = inlwise ? SI().inlStep() : SI().crlStep(); \
-    if ( reverse ) step *= -1; \
-    for ( int idi=0; idi<nrlines; idi++ ) \
-    { \
-	BinID bid; \
-	int bidx = start.x + idi*step; \
-	float val = Interpolate::linear1D( (float)start.x, (float)start.y, \
-					   (float)stop.x, (float)stop.y, \
-					   (float)bidx ); \
-	int bidy = (int)(val + .5); \
-	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
-	SI().snap( nextbid ); \
-	if ( allowduplicate ) \
-	    bids += nextbid ; \
-	else \
-	    bids.addIfNew( nextbid ); \
-	if ( segments ) (*segments) += (idx-1);\
-    }
 
 void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 			    TypeSet<BinID>& bids,
 			    bool allowduplicate,
 			    TypeSet<int>* segments )
 {
+    getPathBids( knots, Survey::GM().default3DSurvID(), bids,
+		 allowduplicate, segments );
+}
+
+
+void RandomLine::getPathBids( const TypeSet<BinID>& knots,
+			     Pos::SurvID survid,
+			    TypeSet<BinID>& bids,
+			    bool allowduplicate,
+			    TypeSet<int>* segments )
+{
+    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D( survid );
     for ( int idx=1; idx<knots.size(); idx++ )
     {
 	BinID start = knots[idx-1];
 	BinID stop = knots[idx];
 	if ( start == stop ) continue;
-	const int nrinl = int(abs(stop.inl()-start.inl()) / SI().inlStep() + 1);
-	const int nrcrl = int(abs(stop.crl()-start.crl()) / SI().crlStep() + 1);
+	const int nrinl = int(abs(stop.inl()-start.inl()) / geom->inlStep() +1);
+	const int nrcrl = int(abs(stop.crl()-start.crl()) / geom->crlStep() +1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
-	if ( inlwise )
-	    { mGetBinIDs(inl(),crl()); }
-	else
-	    { mGetBinIDs(crl(),inl()); }
+	const char fastdim = inlwise ? 0 : 1;
+	const char slowdim = inlwise ? 1 : 0;
+
+	bool reverse = stop[fastdim] - start[fastdim] < 0;
+	int step = geom->sampling().hsamp_.step_[fastdim];
+	if ( reverse ) step *= -1;
+
+	for ( int idi=0; idi<nrlines; idi++ )
+	{
+	    BinID bid;
+	    int bidx = start[fastdim] + idi*step;
+	    float val = Interpolate::linear1D( (float)start[fastdim],
+					      (float)start[slowdim],
+					      (float)stop[fastdim],
+					      (float)stop[slowdim],
+					      (float)bidx );
+	    int bidy = (int)(val + .5);
+	    BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx);
+	    geom->snap( nextbid );
+	    bool didadd;
+	    if ( allowduplicate )
+	    {
+		didadd = true;
+		bids += nextbid;
+	    }
+	    else
+	    {
+		didadd = bids.addIfNew( nextbid );
+	    }
+
+	    if ( didadd && segments ) (*segments) += (idx-1);\
+	}
     }
 }
 
@@ -234,8 +260,12 @@ RandomLineSet::RandomLineSet( const RandomLine& baserandln, double dist,
     if ( baserandln.nrNodes() != 2 )
 	return;
 
-    const Coord startpt = SI().transform( baserandln.nodePosition(0) );
-    const Coord stoppt = SI().transform( baserandln.nodePosition(1) );
+    const Pos::SurvID survid = Survey::GM().default3DSurvID();
+    ConstRefMan<Survey::Geometry3D> geom =
+	    Survey::GM().getGeometry3D( survid );
+
+    const Coord startpt = geom->transform( baserandln.nodePosition(0) );
+    const Coord stoppt = geom->transform( baserandln.nodePosition(1) );
     Line2 rline( startpt, stoppt );
     rline.start_ = Coord::udf();
     rline.stop_ = Coord::udf();			// removing limits.
@@ -293,14 +323,18 @@ void RandomLineSet::insertLine( RandomLine& rl, int idx )
 }
 
 
-void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
+void RandomLineSet::createParallelLines( const Line2& baseline,
+					 double dist )
 {
-    const TrcKeySampling hs( SI().sampling(false).hsamp_ );
+    const Pos::SurvID survid = Survey::GM().default3DSurvID();
+    ConstRefMan<Survey::Geometry3D> geom =
+	Survey::GM().getGeometry3D( survid );
+    const TrcKeySampling hs( geom->sampling().hsamp_ );
     Coord svert[4];
-    svert[0] = SI().transform( hs.start_ );
-    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
-    svert[2] = SI().transform( hs.stop_ );
-    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
+    svert[0] = geom->transform( hs.start_ );
+    svert[1] = geom->transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = geom->transform( hs.stop_ );
+    svert[3] = geom->transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     Line2 sbound[4];			// Survey boundaries
     for ( int idx=0; idx<4; idx++ )
@@ -348,8 +382,8 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 	else
 	{
 	    RandomLine* rln = new RandomLine;
-	    rln->addNode( SI().transform(endsposline[0]) );
-	    rln->addNode( SI().transform(endsposline[1]) );
+	    rln->addNode( geom->transform(endsposline[0]) );
+	    rln->addNode( geom->transform(endsposline[1]) );
 	    addLine( *rln );
 	}
 
@@ -359,8 +393,8 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 	else
 	{
 	    RandomLine* rln = new RandomLine;
-	    rln->addNode( SI().transform(endsnegline[0]) );
-	    rln->addNode( SI().transform(endsnegline[1]) );
+	    rln->addNode( geom->transform(endsnegline[0]) );
+	    rln->addNode( geom->transform(endsnegline[1]) );
 	    insertLine( *rln, 0 );
 	}
     }

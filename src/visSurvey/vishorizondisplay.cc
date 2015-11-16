@@ -1471,7 +1471,7 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
                 {
                     if ( zaxistransform_ )
                         horpos.z = zaxistransform_->transformTrc( hortrc,
-							  (float) horpos.z );
+						      (float) horpos.z );
                 }
 
                 if ( horpos.isDefined() && zrg.includes(horpos.z,false) )
@@ -1601,7 +1601,6 @@ void HorizonDisplay::updateIntersectionLines(
             TrcKeyPath trckeypath;
             TypeSet<Coord> trccoords;
             objs[idx]->getTraceKeyPath( trckeypath, &trccoords );
-	    const Interval<float> zrg = objs[idx]->getDataTraceRange();
 
             if ( trckeypath.isEmpty() && trzs.isEmpty() )
                 continue;
@@ -1614,13 +1613,14 @@ void HorizonDisplay::updateIntersectionLines(
 		const EM::SectionID sid = horizon->sectionID(sectionidx);
 		if ( trckeypath.size() )
 		{
+		    const Interval<float> zrg = objs[idx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
 		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
             	    continue;
 		}
 		else
 		{
-		    if ( mIsZero(zrg.width(),1e-5) )
+		    if ( mIsZero(trzs.zsamp_.width(),1e-5) )
 		    {
 			data = getOrCreateIntersectionData( lines );
 			drawHorizonOnZSlice( trzs, sid, *data );

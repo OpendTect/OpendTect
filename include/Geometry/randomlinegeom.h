@@ -49,9 +49,15 @@ public:
     const BinID&	nodePosition(int) const;
     void		allNodePositions(TypeSet<BinID>&) const;
     static void		getPathBids(const TypeSet<BinID>& knots,
-	    				  TypeSet<BinID>& path,
-					  bool allowduplicate=false,
-					  TypeSet<int>* segments=0);
+				    Pos::SurvID,
+				    TypeSet<BinID>& path,
+				    bool allowduplicate=false,
+				    TypeSet<int>* segments=0);
+    static void		getPathBids(const TypeSet<BinID>& knots,
+				    TypeSet<BinID>& path,
+				    bool allowduplicate=false,
+				    TypeSet<int>* segments=0);
+			//!<Deprecated in coming versions of OD
 
     void		setZRange( const Interval<float>& rg )
     			{ zrange_ = rg; zrangeChanged.trigger(); }

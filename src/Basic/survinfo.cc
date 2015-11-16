@@ -153,6 +153,79 @@ float Survey::Geometry3D::zStep() const
 { return sampling_.zsamp_.step; }
 
 
+static void doSnap( int& idx, int start, int step, int dir )
+{
+    if ( step < 2 ) return;
+    int rel = idx - start;
+    int rest = rel % step;
+    if ( !rest ) return;
+
+    idx -= rest;
+
+    if ( !dir ) dir = rest > step / 2 ? 1 : -1;
+    if ( rel > 0 && dir > 0 )	   idx += step;
+    else if ( rel < 0 && dir < 0 ) idx -= step;
+}
+
+
+void Survey::Geometry3D::snap( BinID& binid, const BinID& rounding ) const
+{
+    const BinID& stp = sampling_.hsamp_.step_;
+    if ( stp.inl() == 1 && stp.crl() == 1 ) return;
+    doSnap( binid.inl(), sampling_.hsamp_.start_.inl(), stp.inl(),
+	    rounding.inl() );
+    doSnap( binid.crl(), sampling_.hsamp_.start_.crl(), stp.crl(),
+	    rounding.crl() );
+}
+
+#define mSnapStep(ic) \
+rest = s.ic % stp.ic; \
+if ( rest ) \
+{ \
+int hstep = stp.ic / 2; \
+bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
+s.ic -= rest; \
+if ( upw ) s.ic += stp.ic; \
+}
+
+void Survey::Geometry3D::snapStep( BinID& s, const BinID& rounding ) const
+{
+    const BinID& stp = sampling_.hsamp_.step_;
+    if ( s.inl() < 0 ) s.inl() = -s.inl();
+    if ( s.crl() < 0 ) s.crl() = -s.crl();
+    if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
+    if ( s.crl() < stp.crl() ) s.crl() = stp.crl();
+    if ( s == stp || (stp.inl() == 1 && stp.crl() == 1) )
+	return;
+
+    int rest;
+
+
+    mSnapStep(inl())
+    mSnapStep(crl())
+}
+
+
+void Survey::Geometry3D::snapZ( float& z, int dir ) const
+{
+    const StepInterval<float>& zrg = sampling_.zsamp_;
+    const float eps = 1e-8;
+
+    if ( z < zrg.start + eps )
+    { z = zrg.start; return; }
+    if ( z > zrg.stop - eps )
+    { z = zrg.stop; return; }
+
+    const float relidx = zrg.getfIndex( z );
+    int targetidx = mNINT32(relidx);
+    const float zdiff = z - zrg.atIndex( targetidx );
+    if ( !mIsZero(zdiff,eps) && dir )
+	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
+    z = zrg.atIndex( targetidx );;
+    if ( z > zrg.stop - eps )
+	z = zrg.stop;
+}
+
 
 void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
 				const TrcKeyZSampling& cs, float zscl )
@@ -882,75 +955,26 @@ void SurveyInfo::gen3Pts()
 }
 
 
-static void doSnap( int& idx, int start, int step, int dir )
-{
-    if ( step < 2 ) return;
-    int rel = idx - start;
-    int rest = rel % step;
-    if ( !rest ) return;
-
-    idx -= rest;
-
-    if ( !dir ) dir = rest > step / 2 ? 1 : -1;
-    if ( rel > 0 && dir > 0 )      idx += step;
-    else if ( rel < 0 && dir < 0 ) idx -= step;
-}
-
-
 void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
-    const TrcKeyZSampling& cs = sampling( false );
-    const BinID& stp = cs.hsamp_.step_;
-    if ( stp.inl() == 1 && stp.crl() == 1 ) return;
-    doSnap( binid.inl(), cs.hsamp_.start_.inl(), stp.inl(), rounding.inl() );
-    doSnap( binid.crl(), cs.hsamp_.start_.crl(), stp.crl(), rounding.crl() );
+    RefMan<Survey::Geometry3D> geom = get3DGeometry( false );
+    geom->snap( binid, rounding );
 }
 
 
-void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
+void SurveyInfo::snapStep( BinID& step, const BinID& rounding ) const
 {
-    const BinID& stp = tkzs_.hsamp_.step_;
-    if ( s.inl() < 0 ) s.inl() = -s.inl();
-    if ( s.crl() < 0 ) s.crl() = -s.crl();
-    if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
-    if ( s.crl() < stp.crl() ) s.crl() = stp.crl();
-    if ( s == stp || (stp.inl() == 1 && stp.crl() == 1) )
-	return;
-
-    int rest;
-#define mSnapStep(ic) \
-    rest = s.ic % stp.ic; \
-    if ( rest ) \
-    { \
-	int hstep = stp.ic / 2; \
-	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
-	s.ic -= rest; \
-	if ( upw ) s.ic += stp.ic; \
-    }
-
-    mSnapStep(inl())
-    mSnapStep(crl())
+    RefMan<Survey::Geometry3D> geom = get3DGeometry( true );
+    geom->snapStep( step, rounding );
 }
+
+
 
 
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
-    const StepInterval<float>& zrg = tkzs_.zsamp_;
-    const float eps = 1e-8;
-
-    if ( z < zrg.start + eps )
-	{ z = zrg.start; return; }
-    if ( z > zrg.stop - eps )
-	{ z = zrg.stop; return; }
-
-    const float relidx = zrg.getfIndex( z );
-    int targetidx = mNINT32(relidx);
-    const float zdiff = z - zrg.atIndex( targetidx );
-    if ( !mIsZero(zdiff,eps) && dir )
-	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
-    z = zrg.atIndex( targetidx );;
-    if ( z > zrg.stop - eps )
-	 z = zrg.stop;
+    RefMan<Survey::Geometry3D> geom = get3DGeometry( true );
+    geom->snapZ( z, dir );
 }
 
 
