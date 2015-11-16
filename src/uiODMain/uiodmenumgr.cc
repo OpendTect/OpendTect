@@ -987,7 +987,8 @@ void uiODMenuMgr::fillManTB()
 {
     const int seisid =
 	mAddTB(mantb_,"man_seis",
-               uiStrings::phrManage( tr("Seismic data")),false,manSeis);
+               uiStrings::phrManage(uiStrings::sVolDataName(true, true, false)),
+                                    false,manSeis);
     const int horid = mAddTB(mantb_,"man_hor",
               uiStrings::phrManage( uiStrings::sHorizon(mPlural)),false,manHor);
     const int fltid = mAddTB(mantb_,"man_flt",
