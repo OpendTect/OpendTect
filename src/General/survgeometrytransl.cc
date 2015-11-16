@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "od_iostream.h"
+#include "uistrings.h"
 
 
 defineTranslatorGroup(SurvGeom2D,"Geometry");
@@ -22,7 +23,7 @@ mDefSimpleTranslatorSelector(SurvGeom2D);
 mDefSimpleTranslatorioContext(SurvGeom2D,Geom);
 
 uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
-{ return tr( "Geometry", 0, num ); }
+{ return uiStrings::sGeometry(num); }
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )

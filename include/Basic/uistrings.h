@@ -280,7 +280,7 @@ public:
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
-    static uiString sGeometry()		{ return tr("Geometry"); }
+    static uiString sGeometry(int num=1) { return tr("Geometry",0,num); }
     static uiString sGo()	        { return tr("Go"); }
     static uiString sGreen()		{ return tr("Green"); }
     static uiString sHelp();

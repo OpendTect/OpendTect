@@ -23,8 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispacketinfo.h"
 #include "seis2dto3d.h"
 
+#include "uistrings.h"
+
 uiString SeisTrcTranslatorGroup::sTypeName( int num )
-{ return tr("Seismic Data", 0, num ); }
+{ return uiStrings::sVolDataName(false,true,false,false,false); }
 
 defineTranslatorGroup(SeisTrc,"Seismic Data");
 defineTranslator(CBVS,SeisTrc,"CBVS");
@@ -38,7 +40,7 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefSimpleTranslatorSelector(SeisTrc);
 
 uiString SeisTrc2DTranslatorGroup::sTypeName( int num )
-{ return tr("2D Seismic Data", 0, num ); }
+{ return uiStrings::sVolDataName(true,false,false,false,false); }
 
 defineTranslatorGroup(SeisTrc2D,"2D Seismic Data");
 defineTranslator(CBVS,SeisTrc2D,"CBVS");
