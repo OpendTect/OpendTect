@@ -135,7 +135,9 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
     const Pos::SurvID survid = Survey::GM().default3DSurvID();
     if ( cs.hsamp_.survid_!=survid )
+    {
 	pErrMsg( "Limiting go range in different survey");
+    }
 
     if ( nrNodes() != 2 ) return;
 
