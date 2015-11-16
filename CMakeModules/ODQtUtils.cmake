@@ -174,7 +174,7 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	    VERBATIM
 	COMMENT "Compiling translations" )
     
-	install(DIRECTORY data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
+	install(DIRECTORY ${CMAKE_BINARY_DIR}/data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
           FILES_MATCHING PATTERN "*.qm")
 	
     endif()

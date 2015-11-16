@@ -213,6 +213,13 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${COPYTODATADIR}/data/${LIB} )
 	  endif()
        endforeach()
+       file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
+	foreach( QMFILE ${QMFILES} )
+	    get_filename_component( QMFILENM ${QMFILE} NAME )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMDATADIR}/data/localizations/${QMFILENM}
+			     ${COPYTODATADIR}/data/localizations/${QMFILENM} )
+	endforeach()
    endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
