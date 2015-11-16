@@ -134,10 +134,11 @@ void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
-    if ( cs.hsamp_.survid_!=survid_ )
-	pErrMsg( "Limiting go range in different survey");
+    if ( cs.hsamp_.survid_ != survid_ )
+	{ pErrMsg( "Limiting go range in different survey"); }
 
-    if ( nrNodes() != 2 ) return;
+    if ( nrNodes() != 2 )
+	return;
 
     zrange_.limitTo( cs.zsamp_ );
     const TrcKeySampling& hs = cs.hsamp_;
