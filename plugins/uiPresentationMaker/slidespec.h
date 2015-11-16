@@ -18,12 +18,32 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "bufstring.h"
 
-
-mExpClass(uiPresentationMaker) PresSlideSpec
+mExpClass(uiPresentationMaker) SlideLayout
 {
 public:
-			PresSlideSpec();
-			~PresSlideSpec();
+			SlideLayout();
+
+    void		saveToSettings();
+    void		readFromSettings();
+
+    float		maxWidth() const;
+    float		maxHeigth() const;
+
+    int			format_;
+    float		width_;
+    float		height_;
+    float		left_;
+    float		right_;
+    float		top_;
+    float		bottom_;
+};
+
+
+mExpClass(uiPresentationMaker) SlideContent
+{
+public:
+			SlideContent();
+			~SlideContent();
 
     void		getPythonScript(BufferString&) const;
 

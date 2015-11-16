@@ -85,6 +85,7 @@ public:
     inline T		height() const;
     inline void		setWidth(T val);
     inline void		setHeight(T val);
+    inline void		set(T w,T h);
     inline Size2D<T>	operator+(T val) const;
     inline Size2D<T>&	operator+=(T val);
     inline Size2D<T>&	operator-=(T val);
@@ -415,6 +416,11 @@ void Size2D<T>::setWidth( T val )
 template <class T> inline
 void Size2D<T>::setHeight( T val )
 { height_ = val; }
+
+
+template <class T> inline
+void Size2D<T>::set( T w, T h )
+{ width_ = w; height_ = h; }
 
 
 template <class T> inline

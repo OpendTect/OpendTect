@@ -57,7 +57,7 @@ void uiPresMakerPIMgr::updateMenu( CallBacker* )
     if ( dlg_ )
     { dlg_->close(); delete dlg_; dlg_ = 0; }
 
-    uiAction* action = new uiAction( tr("Presentation Maker"),
+    uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
 			mCB(this,uiPresMakerPIMgr,mnuCB) );
     appl_->menuMgr().toolsMnu()->insertAction( action );
 }

@@ -16,12 +16,13 @@ ________________________________________________________________________
 #include "uipresentationmakermod.h"
 #include "uidialog.h"
 
+#include "presentationspec.h"
+
 class uiButtonGroup;
 class uiComboBox;
 class uiFileInput;
 class uiGenInput;
 class uiTable;
-class PresentationSpec;
 
 mExpClass(uiPresentationMaker) uiPresentationMakerDlg : public uiDialog
 { mODTextTranslationClass(uiPresentationMakerDlg)
@@ -33,6 +34,7 @@ protected:
     bool		acceptOK(CallBacker*);
 
     void		typeCB(CallBacker*);
+    void		layoutCB(CallBacker*);
     void		addCB(CallBacker*);
     void		moveUpCB(CallBacker*);
     void		moveDownCB(CallBacker*);
@@ -42,7 +44,7 @@ protected:
     void		updateWindowList();
     void		updateSceneList();
 
-    PresentationSpec&	specs_;
+    PresentationSpec	specs_;
 
     uiGenInput*		titlefld_;
     uiButtonGroup*	typegrp_;

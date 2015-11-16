@@ -17,66 +17,174 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uicombobox.h"
 #include "uidesktopservices.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiodattribtreeitem.h"
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
-#include "ui3dviewer.h"
 #include "uiprintscenedlg.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 #include "uistring.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
+#include "uivispartserv.h"
+#include "ui3dviewer.h"
 
 #include "file.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "od_ostream.h"
 #include "oscommand.h"
-#include "presentationspec.h"
-#include "slidespec.h"
 
 
 class uiSlideLayoutDlg : public uiDialog
 { mODTextTranslationClass(uiSlideLayoutDlg)
 public:
-uiSlideLayoutDlg( uiParent* p )
+uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
     : uiDialog(p,Setup(tr("Slide Layout"),mNoDlgTitle,mTODOHelpKey))
+    , spec_(spec)
 {
-    uiLabel* lbl = new uiLabel( this, tr("Slide Format") );
+    uiLabel* lbl = new uiLabel( this, tr("Slide Format:") );
     lbl->attach( leftBorder );
-    widthfld_ = new uiGenInput( this, uiStrings::sWidth() );
-    widthfld_->attach( ensureBelow, lbl );
-    heightfld_ = new uiGenInput( this, uiStrings::sHeight() );
-    heightfld_->attach( rightTo, widthfld_ );
 
-    uiLabel* mlbl = new uiLabel( this, tr("Image Margins") );
+    uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Format") );
+    formatfld_ = lcc->box();
+    formatfld_->setHSzPol( uiObject::MedVar );
+    lcc->attach( ensureBelow, lbl );
+
+    uiStringSet formats;
+    formats.add( tr("Screen 4:3") )
+	   .add( tr("Screen 16:9 (2007-2010)") )
+	   .add( tr("Screen 16:9 (2013)") )
+	   .add( tr("User Defined") );
+    formatfld_->addItems( formats );
+    formatfld_->selectionChanged.notify( mCB(this,uiSlideLayoutDlg,formatCB) );
+
+    uiLabeledSpinBox* wf = new uiLabeledSpinBox( this, uiStrings::sWidth(), 2 );
+    widthfld_ = wf->box();
+    uiLabeledSpinBox* hf = new uiLabeledSpinBox( this, uiStrings::sHeight(), 2);
+    heightfld_ = hf->box();
+
+    wf->attach( alignedBelow, lcc );
+    hf->attach( rightTo, wf );
+
+    uiSeparator* sep1 = new uiSeparator( this, "Sep1" );
+    sep1->attach( stretchedBelow, wf );
+
+    uiLabel* ilbl = new uiLabel( this, tr("Image Margins:") );
+    ilbl->attach( leftBorder );
+    ilbl->attach( ensureBelow, sep1 );
+
+    uiLabeledSpinBox* lf = new uiLabeledSpinBox( this, tr("Left"), 2 );
+    leftfld_ = lf->box();
+    uiLabeledSpinBox* rf = new uiLabeledSpinBox( this, tr("Right"), 2 );
+    rightfld_ = rf->box();
+    uiLabeledSpinBox* tf = new uiLabeledSpinBox( this, tr("Top"), 2 );
+    topfld_ = tf->box();
+    uiLabeledSpinBox* bf = new uiLabeledSpinBox( this, tr("Bottom"), 2 );
+    bottomfld_ = bf->box();
+
+    lf->attach( alignedBelow, wf );
+    lf->attach( ensureBelow, ilbl );
+    rf->attach( rightTo, lf );
+    rf->attach( alignedBelow, hf );
+    tf->attach( alignedBelow, lf );
+    bf->attach( rightTo, tf );
+    bf->attach( alignedBelow, rf );
+
+    uiSeparator* sep2 = new uiSeparator( this, "Sep2" );
+    sep2->attach( stretchedBelow, tf );
+
+    uiLabel* mlbl = new uiLabel( this, tr("Master/Layout Index:") );
     mlbl->attach( leftBorder );
-    mlbl->attach( ensureBelow, widthfld_ );
-    leftfld_ = new uiGenInput( this, tr("Left") );
-    leftfld_->attach( alignedBelow, widthfld_ );
-    leftfld_->attach( ensureBelow, mlbl );
-    rightfld_ = new uiGenInput( this, tr("Right") );
-    rightfld_->attach( rightTo, leftfld_ );
-    topfld_ = new uiGenInput( this, tr("Top") );
-    topfld_->attach( alignedBelow, leftfld_ );
-    bottomfld_ = new uiGenInput( this, tr("Bottom") );
-    bottomfld_->attach( rightTo, topfld_ );
+    mlbl->attach( ensureBelow, sep2 );
 
+    titlemasterfld_ = new uiGenInput( this, tr("Title Master"), IntInpSpec() );
+    titlelayoutfld_ = new uiGenInput( this, tr("Layout"), IntInpSpec() );
+    masterfld_ = new uiGenInput( this, tr("Slide Master"), IntInpSpec() );
+    layoutfld_ = new uiGenInput( this, tr("Layout"), IntInpSpec() );
+    titlemasterfld_->attach( alignedBelow, tf );
+    titlemasterfld_->attach( ensureBelow, mlbl );
+    titlelayoutfld_->attach( rightTo, titlemasterfld_ );
+    masterfld_->attach( alignedBelow, titlemasterfld_ );
+    layoutfld_->attach( rightTo, masterfld_ );
+
+    SlideLayout& layout = spec_.getSlideLayout();
+    formatfld_->setCurrentItem( layout.format_ );
+    formatCB(0);
+    if ( layout.format_==3 )
+    {
+	widthfld_->setValue( layout.width_ );
+	heightfld_->setValue( layout.height_ );
+    }
+
+    leftfld_->setValue( layout.left_ );
+    rightfld_->setValue( layout.right_ );
+    topfld_->setValue( layout.top_ );
+    bottomfld_->setValue( layout.bottom_ );
+
+    titlemasterfld_->setValue( spec_.titlemasterindex_ );
+    titlelayoutfld_->setValue( spec_.titlelayoutindex_ );
+    masterfld_->setValue( layout.masterindex_ );
+    layoutfld_->setValue( layout.layoutindex_ );
 }
 
-protected:
-    uiGenInput*		widthfld_;
-    uiGenInput*		heightfld_;
-    uiGenInput*		leftfld_;
-    uiGenInput*		rightfld_;
-    uiGenInput*		topfld_;
-    uiGenInput*		bottomfld_;
 
+protected:
+void formatCB( CallBacker* )
+{
+    const int sel = formatfld_->currentItem();
+    if ( sel==0 )
+    { widthfld_->setValue( 10 ); heightfld_->setValue( 7.5 ); }
+    if ( sel==1 )
+    { widthfld_->setValue( 10 ); heightfld_->setValue( 5.63 ); }
+    if ( sel==2 )
+    { widthfld_->setValue( 13.33 ); heightfld_->setValue( 7.5 ); }
+
+    widthfld_->setSensitive( sel==3 );
+    heightfld_->setSensitive( sel==3 );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    SlideLayout& layout = spec_.getSlideLayout();
+    layout.format_ = formatfld_->currentItem();
+    layout.width_ = widthfld_->getFValue();
+    layout.height_ = heightfld_->getFValue();
+    layout.left_ = leftfld_->getFValue();
+    layout.right_ = rightfld_->getFValue();
+    layout.top_ = topfld_->getFValue();
+    layout.bottom_ = bottomfld_->getFValue();
+
+    layout.masterindex_ = masterfld_->getIntValue();
+    layout.layoutindex_ = layoutfld_->getIntValue();
+    spec_.titlemasterindex_ = titlemasterfld_->getIntValue();
+    spec_.titlelayoutindex_ = titlelayoutfld_->getIntValue();
+    layout.saveToSettings();
+    return true;
+}
+
+    PresentationSpec&	spec_;
+    uiComboBox*		formatfld_;
+    uiSpinBox*		widthfld_;
+    uiSpinBox*		heightfld_;
+    uiSpinBox*		leftfld_;
+    uiSpinBox*		rightfld_;
+    uiSpinBox*		topfld_;
+    uiSpinBox*		bottomfld_;
+
+    uiGenInput*		titlemasterfld_;
+    uiGenInput*		titlelayoutfld_;
+    uiGenInput*		masterfld_;
+    uiGenInput*		layoutfld_;
 };
 
-uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
+
+uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     : uiDialog(0,Setup(tr("Presentation Maker"),mNoDlgTitle,mTODOHelpKey))
-    , specs_(*new PresentationSpec)
 {
     setModal( false );
     setCtrlStyle( CloseOnly );
@@ -84,8 +192,14 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     titlefld_ = new uiGenInput( this, tr("Presentation Title") );
     titlefld_->setElemSzPol( uiObject::Wide );
 
+    uiToolButton* layoutbut =
+	new uiToolButton( this, "settings", tr("Slide Layout"),
+			  mCB(this,uiPresentationMakerDlg,layoutCB) );
+    layoutbut->attach( rightTo, titlefld_ );
+
+    BufferString filter( "PowerPoint (*.pptx)" );
     uiFileInput::Setup fis;
-    fis.forread(true);
+    fis.forread(true).filter( filter );
     masterfld_ = new uiFileInput( this, tr("Master pptx"), fis );
     masterfld_->attach( alignedBelow, titlefld_ );
 
@@ -93,8 +207,11 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     outputfld_ = new uiFileInput( this, tr("Output pptx"), fis );
     outputfld_->attach( alignedBelow, masterfld_ );
 
-    fis.forread(true).directories(true);
+    const BufferString imgpath =
+		FilePath( GetDataDir() ).add( "Misc" ).fullPath();
+    fis.forread(true).directories(true).filter("");
     imagestorfld_ = new uiFileInput( this, tr("Image Storage Location"), fis );
+    imagestorfld_->setFileName( imgpath.buf() );
     imagestorfld_->attach( alignedBelow, outputfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
@@ -127,7 +244,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     ts.rowdesc("Slide");
     slidestbl_ = new uiTable( this, ts, "Slides table" );
     slidestbl_->setColumnLabel( 0, tr("Title") );
-    slidestbl_->attach( alignedBelow, windowfld_ );
+    slidestbl_->attach( ensureBelow, windowfld_ );
 
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     new uiToolButton( butgrp, uiToolButton::UpArrow, uiStrings::sMoveUp(),
@@ -189,6 +306,13 @@ void uiPresentationMakerDlg::typeCB(CallBacker *)
 }
 
 
+void uiPresentationMakerDlg::layoutCB( CallBacker* )
+{
+    uiSlideLayoutDlg dlg( this, specs_ );
+    dlg.go();
+}
+
+
 static int slideidx = 1;
 void uiPresentationMakerDlg::addCB( CallBacker* )
 {
@@ -197,6 +321,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
 
+    BufferString slidename;
     const bool grabscene = typegrp_->selectedId()==0;
     if ( grabscene )
     {
@@ -208,6 +333,21 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 
 	ui3DViewer2Image vwr2image( *vwrs[selitm], imagefnm.buf() );
 	vwr2image.create();
+
+
+	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+	const int visid = visserv->getSelObjectId();
+	const int attrib = visserv->getSelAttribNr();
+	uiString objnm = visserv->getObjectName( visid );
+	slidename = objnm.getFullString();
+
+	if ( attrib >= 0 )
+	{
+	    uiString dispnm =
+		uiODAttribTreeItem::createDisplayName( visid, attrib );
+	    slidename.add( " : " );
+	    slidename.add( dispnm.getFullString() );
+	}
     }
     else
     {
@@ -220,27 +360,31 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 	const bool grabdesktop = typegrp_->selectedId()==2;
 	const int zoom = grabdesktop ? 0 : 1;
 	windowlist[selitm]->grab( imagefnm, zoom, "png" );
+	slidename = grabdesktop ? "Desktop"
+		: windowlist[selitm]->caption(true).getFullString();
     }
 
-    PresSlideSpec* ss = new PresSlideSpec;
-    ss->imagefnm_ = imagefnm;
-    ss->title_ = BufferString( "Slide ", slideidx );
+    SlideContent* ss = new SlideContent( slidename, imagefnm );
     specs_.addSlide( *ss );
     slideidx++;
 
     const int row = slidestbl_->nrRows();
     slidestbl_->insertRows( row, 1 );
-    slidestbl_->setText( RowCol(row,0), ss->title_ );
+    slidestbl_->setText( RowCol(row,0), slidename );
 }
 
 
 void uiPresentationMakerDlg::moveUpCB( CallBacker* )
 {
+    const int currow = slidestbl_->currentRow();
+    if ( currow < 1 ) return;
 }
 
 
 void uiPresentationMakerDlg::moveDownCB( CallBacker* )
 {
+    const int currow = slidestbl_->currentRow();
+    if ( currow > slidestbl_->nrRows() -1 ) return;
 }
 
 
