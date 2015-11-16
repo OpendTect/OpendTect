@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellimpsegyvsp.h"
 #include "uisegyreadstarter.h"
 #include "uisegyimptype.h"
+#include "uisegyread.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
@@ -30,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmenumgr.h"
 #include "uimsg.h"
 #include "uitoolbar.h"
+#include "envvars.h"
 
 #include "odplugin.h"
 
@@ -67,10 +69,15 @@ public:
     void		imp3DPSCB(CallBacker*);
     void		impVSPCB(CallBacker*);
     void		exp2DCB(CallBacker*);
+    void		exp2DPSCB(CallBacker*);
     void		exp3DCB(CallBacker*);
     void		exp3DPSCB(CallBacker*);
     void		reSortCB(CallBacker*);
     void		readStarterCB(CallBacker*);
+
+    void		impClassicCB( CallBacker* )	{ impClassic( false ); }
+    void		linkClassicCB( CallBacker* )	{ impClassic( true ); }
+    void		impClassic(bool);
 
     static uiSEGYMgr*	theinst_;
     static const uiString sSEGYString( bool imm )
@@ -117,38 +124,46 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
     impseismnu->insertItem( impsgymnu );
     uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
-    uiMenu* expsgymnu = !only2d ? new uiMenu( appl_, sSEGYString(true),
-						segy_iconid ) : expseismnu;
-    if ( expsgymnu != expseismnu )
-	expseismnu->insertItem( expsgymnu );
+    uiMenu* expsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
+    expseismnu->insertItem( expsgymnu );
 
     if ( have2d )
     {
-	impsgymnu->insertItem( new uiAction( only2d ? m3Dots(tr("Line(s)"))
-		    : m3Dots(uiStrings::s2D()), muiSEGYMgrCB(imp2DCB),
-			"seismicline2d" ) );
-	impsgymnu->insertItem( new uiAction( only2d ?
-		m3Dots(tr("Pre-Stack Data")) : m3Dots(tr("Pre-Stack 2D")),
-		    muiSEGYMgrCB(imp2DPSCB), "prestackdataset2d" ) );
-	expsgymnu->insertItem( new uiAction( only2d ? sSEGYString(false)
-		    : m3Dots(uiStrings::s2D()), muiSEGYMgrCB(exp2DCB),
-		    only2d ? segy_iconid : "seismicline2d" ) );
+	const char* lineicid = "seismicline2d";
+	const char* linepsicid = "prestackdataset2d";
+	uiString linestr = only2d ? m3Dots(tr("Line(s)"))
+				  : m3Dots(uiStrings::s2D());
+	uiString linepsstr = only2d ? m3Dots(tr("Pre-Stack Data"))
+				: m3Dots(tr("Pre-Stack 2D"));
+
+	impsgymnu->insertItem( new uiAction( linestr, muiSEGYMgrCB(imp2DCB),
+				lineicid ) );
+	impsgymnu->insertItem( new uiAction( linepsstr, muiSEGYMgrCB(imp2DPSCB),
+				linepsicid ) );
+	expsgymnu->insertItem( new uiAction( linestr, muiSEGYMgrCB(exp2DCB),
+				lineicid ) );
+	expsgymnu->insertItem( new uiAction( linepsstr, muiSEGYMgrCB(exp2DPSCB),
+				linepsicid ) );
     }
 
     if ( !only2d )
     {
+	const char* volicid = "seismiccube";
 	uiString volstr = have2d ? m3Dots(uiStrings::s3D())
 				 : m3Dots(uiStrings::sVolume());
-	uiString psstr = have2d ? m3Dots(tr("PreStack 3D"))
+	const char* volpsicid = "prestackdataset";
+	uiString volpsstr = have2d ? m3Dots(tr("PreStack 3D"))
 				: m3Dots(tr("Pre-Stack Volume"));
+
 	impsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
-					"seismiccube") );
-        impsgymnu->insertItem( new uiAction(psstr,muiSEGYMgrCB(imp3DPSCB),
-					"prestackdataset") );
+					volicid) );
+        impsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(imp3DPSCB),
+					volpsicid) );
+
         expsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
-					"seismiccube") );
-        expsgymnu->insertItem( new uiAction(psstr,muiSEGYMgrCB(exp3DPSCB),
-					"prestackdataset") );
+					volicid) );
+        expsgymnu->insertItem( new uiAction(volpsstr,muiSEGYMgrCB(exp3DPSCB),
+					volpsicid) );
     }
 
     mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertItem(
@@ -157,6 +172,16 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     mnumgr_.createSeisOutputMenu()->insertItem(
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
 			muiSEGYMgrCB(reSortCB)) );
+
+    bool segyclassictoplevel = GetEnvVarYN( "OD_SEGY_CLASSIC_TOPLEVEL" );
+    uiString classicmnutitle = segyclassictoplevel ? tr("SEG-Y [Classic]")
+						   : tr("Classic tool");
+    uiMenu* impclassmnu = new uiMenu( appl_, classicmnutitle, "launch" );
+    (segyclassictoplevel ? impseismnu : impsgymnu)->insertItem( impclassmnu );
+    impclassmnu->insertItem( new uiAction( uiStrings::sImport(),
+		   muiSEGYMgrCB(impClassicCB), "import") );
+    impclassmnu->insertItem( new uiAction( tr("Link"),
+		   muiSEGYMgrCB(linkClassicCB), "link") );
 }
 
 
@@ -189,8 +214,18 @@ void uiSEGYMgr::exp##typ##CB( CallBacker* ) \
 }
 
 mImplExpCB( 2D, Seis::Line )
+mImplExpCB( 2DPS, Seis::LinePS )
 mImplExpCB( 3D, Seis::Vol )
 mImplExpCB( 3DPS, Seis::VolPS )
+
+
+void uiSEGYMgr::impClassic( bool islink )
+{
+    uiSEGYRead::Setup su( islink ? uiSEGYRead::DirectDef : uiSEGYRead::Import );
+    if ( islink )
+	su.geoms_ -= Seis::Line;
+    new uiSEGYRead( appl_, su );
+}
 
 
 void uiSEGYMgr::reSortCB( CallBacker* )
