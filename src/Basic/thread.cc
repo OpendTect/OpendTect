@@ -745,6 +745,7 @@ public:
 protected:
     void		run()
 			{
+                            Threads::setCurrentThreadProcessorAffinity(-1);
 			    if ( !cb_.willCall() )
 				func_( 0 );
 			    else
