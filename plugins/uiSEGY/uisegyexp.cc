@@ -186,7 +186,6 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	, manipbox_(0)
 	, batchfld_(0)
 	, autogentxthead_(true)
-	, selcomp_(-1)
 {
     setCtrlStyle( RunAndClose );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
@@ -208,12 +207,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
     txtheadfld_->attach( alignedBelow, fpfld_ );
 
-    uiSEGYFileSpec::Setup su( geom_ != Seis::Line );
-    su.forread( false ).canbe3d( !Seis::is2D(geom_) );
+    const bool is2d = Seis::is2D(geom_);
+    const bool is2dline = geom_ == Seis::Line;
+    uiSEGYFileSpec::Setup su( !is2dline );
+    su.forread( false ).canbe3d( !is2d );
     fsfld_ = new uiSEGYFileSpec( this, su );
     fsfld_->attach( alignedBelow, txtheadfld_ );
 
-    if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
+    if ( is2dline )
     {
 	morebox_ = new uiCheckBox( this,
 		    uiStrings::phrExport( "more lines from the same dataset") );
@@ -224,17 +225,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	manipbox_ = new uiCheckBox( this,
 			tr("Manipulate output file after creation") );
 	manipbox_->attach( alignedBelow, fsfld_ );
-    }
 
-    if ( !Seis::is2D(geom_) )
-    {
 	batchfld_ = new uiBatchJobDispatcherSel( this, true,
 						 Batch::JobSpec::SEGY );
 	batchfld_->checked.notify( mCB(this,uiSEGYExp,batchChg) );
 	batchfld_->setJobName( "Output SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
-	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(geom_) );
+	js.pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
 	batchfld_->attach( alignedBelow,
 		manipbox_ ?  manipbox_ : fsfld_->attachObj() );
     }
@@ -431,7 +429,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const char* lnm = is2d && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
 		    ? transffld_->selFld2D()->selectedLine() : 0;
-    bool needinfo = false;
+    bool needmsgallok = false;
     if ( morebox_ && morebox_->isChecked() )
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj );
@@ -441,7 +439,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     {
 	bool result = doWork( *inioobj, *outioobj, lnm );
 	if ( !result || !manipbox_ || !manipbox_->isChecked() )
-	    needinfo = result;
+	    needmsgallok = result;
 	else
 	{
 	    uiSEGYFileManip dlg( this, outioobj->fullUserExpr(false) );
@@ -449,7 +447,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 	}
     }
 
-    if ( needinfo )
+    if ( needmsgallok )
 	uiMSG().message( tr("Successful export of:\n%1").arg(sfs.dispName()) );
 
     return false;
@@ -464,7 +462,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	return false;
 
-    const IOObj* useoutioobj = &outioobj; IOObj* tmpioobj = 0;
+    const IOObj* useoutioobj = &outioobj;
+    IOObj* tmpioobj = 0;
     const bool inissidom = ZDomain::isSI( inioobj.pars() );
     if ( !inissidom )
     {
@@ -474,21 +473,21 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     SEGY::TxtHeader::info2D() = is2d;
+#   define mRet(yn) \
+    { delete tmpioobj; SEGY::TxtHeader::info2D() = false; return yn; }
+
     Executor* exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 				    "Output seismic data", tr("Writing traces"),
 				    linenm );
     if ( !exec )
-	{ delete tmpioobj; return false; }
+	mRet( false )
     PtrMan<Executor> execptrman = exec;
 
     mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
     if ( sstp )
     {
 	if ( !sstp->reader(0) )
-	{
-	    delete tmpioobj;
-	    return false;
-	}
+	    mRet( false )
 	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	rdr.setComponent( seissel_->compNr() );
@@ -522,7 +521,6 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( tmpioobj )
 	IOM().commitChanges( *tmpioobj );
-    delete tmpioobj;
-    SEGY::TxtHeader::info2D() = false;
-    return rv;
+
+    mRet( rv )
 }
