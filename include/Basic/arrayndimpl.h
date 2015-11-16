@@ -26,12 +26,12 @@ mClass(Basic) ArrayImplBase
 protected:
     virtual od_int64	getStorageSize() const			= 0;
 
-    			ArrayImplBase();
-    			~ArrayImplBase()	{ delete stor_; }
+			ArrayImplBase();
+			~ArrayImplBase()	{ delete stor_; }
 
     bool		storageOK() const;
     bool		updateStorageSize();
-    			/*!<Sets storage size to getStorageSize()
+			/*!<Sets storage size to getStorageSize()
 			    and creates if need be. */
 
     bool		setStorageNoResize(ValueSeries<T>*);
@@ -67,7 +67,7 @@ public:
     bool		isOK() const { return base::storageOK(); }
     void		copyFrom(const Array1D<T>&);
     bool		setStorage(ValueSeries<T>* vs)
-    			    { return base::setStorageInternal(vs); }
+			    { return base::setStorageInternal(vs); }
     bool		canSetStorage() const	{ return true; }
 
     void		set(int pos,T);
@@ -104,8 +104,8 @@ mClass(Basic) Array2DImpl : public Array2D<T>, public ArrayImplBase<T>
 public:
 			Array2DImpl(int sz0,int sz1);
 			Array2DImpl(const Array2DInfo&);
-    			Array2DImpl(const Array2D<T>&);
-    			Array2DImpl(const Array2DImpl<T>&);
+			Array2DImpl(const Array2D<T>&);
+			Array2DImpl(const Array2DImpl<T>&);
 			~Array2DImpl() { deleteAndZeroArrPtr( ptr2d_ ); }
 
     Array2DImpl<T>&	operator =( const Array2D<T>& ai )
@@ -186,7 +186,7 @@ protected:
     void		updateCachePointers();
     void		eraseCache();
 
-    TypeSet<T**> 	cachestor_;
+    TypeSet<T**>	cachestor_;
     T***		ptr3d_;
     Array3DInfoImpl	in_;
 };
@@ -215,7 +215,7 @@ public:
     bool		isOK() const { return base::storageOK(); }
     bool		canSetStorage() const	{ return true; }
     bool		setStorage(ValueSeries<T>* vs)
-    			    { return base::setStorageInternal(vs); }
+			    { return base::setStorageInternal(vs); }
 
     void		setND(const int*,T);
     T			getND(const int*) const;
@@ -670,6 +670,7 @@ void Array3DImpl<T>::eraseCache()
 	delete [] cachestor_[idx];
     }
 
+    cachestor_.erase();
     ptr3d_ = 0;
 }
 
