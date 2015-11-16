@@ -32,6 +32,9 @@ mExpClass(Geometry) RandomLine : public NamedObject
 public:
     			RandomLine(const char* nm=0);
 
+    void		setSurvID(Pos::SurvID s) { survid_ = s; }
+    Pos::SurvID		getSurvID() const { return survid_; }
+
     int			ID() const		{ return id_; }
 
     int			addNode(const BinID&);
@@ -49,9 +52,10 @@ public:
     const BinID&	nodePosition(int) const;
     void		allNodePositions(TypeSet<BinID>&) const;
     static void		getPathBids(const TypeSet<BinID>& knots,
-	    				  TypeSet<BinID>& path,
-					  bool allowduplicate=false,
-					  TypeSet<int>* segments=0);
+				    Pos::SurvID,
+				    TypeSet<BinID>& path,
+				    bool allowduplicate=false,
+				    TypeSet<int>* segments=0);
 
     void		setZRange( const Interval<float>& rg )
     			{ zrange_ = rg; zrangeChanged.trigger(); }
@@ -84,6 +88,8 @@ public:
     const RandomLineSet* lineSet() const	{ return lset_; }
 
 protected:
+
+    Pos::SurvID		survid_;
 
     TypeSet<BinID>	nodes_;
     Interval<float>	zrange_;
@@ -128,7 +134,8 @@ protected:
     ObjectSet<RandomLine>	lines_;
     IOPar&			pars_;
 
-    void		createParallelLines(const Line2& baseline,double dist);
+    void		createParallelLines(const Line2& baseline,Pos::SurvID,
+					    double dist);
 
 public:
     static void		getGeometry(const MultiID&,TypeSet<BinID>& knots,

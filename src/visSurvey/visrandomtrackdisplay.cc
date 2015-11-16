@@ -523,10 +523,10 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
 
     TypeSet<BinID> bids;
     TypeSet<int> segments;
-    Geometry::RandomLine::getPathBids( nodes, bids, false, &segments );
+    const Pos::SurvID survid = s3dgeom_->getSurvID();
+    Geometry::RandomLine::getPathBids( nodes, survid, bids, false, &segments );
 
     path.erase();
-    const Pos::SurvID survid = s3dgeom_->getSurvID();
     int curlinesegment = -1;
     Line2 curline;
     for ( int idx=0; idx<bids.size(); idx++ )
@@ -575,7 +575,8 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
-    Geometry::RandomLine::getPathBids( nodes, bids, true, segments );
+    const Pos::SurvID survid = s3dgeom_->getSurvID();
+    Geometry::RandomLine::getPathBids( nodes, survid, bids, true, segments );
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	if ( !idx || bids[idx]!=trcspath_.last() )
