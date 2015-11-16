@@ -670,6 +670,7 @@ void Array3DImpl<T>::eraseCache()
 	delete [] cachestor_[idx];
     }
 
+    cachestor_.erase();
     ptr3d_ = 0;
 }
 
