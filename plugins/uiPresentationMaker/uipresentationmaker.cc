@@ -405,7 +405,7 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	return;
     }
 
-    const FixedString outputfnm = outputfld_->fileName();
+    const BufferString outputfnm = outputfld_->fileName();
     if ( outputfnm.isEmpty() )
     {
 	uiMSG().error( tr("Please provide output file name") );
@@ -415,7 +415,7 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     specs_.setTitle( title );
     specs_.setOutputFilename( outputfnm );
 
-    const FixedString masterfnm = masterfld_->fileName();
+    const BufferString masterfnm = masterfld_->fileName();
     specs_.setMasterFilename( masterfnm.buf() );
 
     BufferString script;
