@@ -71,7 +71,7 @@ const char* SEGY::HdrEntry::name() const
 
 void SEGY::HdrEntry::setName( const char* nm )
 {
-    delete name_;
+    delete [] name_;
     if ( !nm )
 	name_ = 0;
     else
@@ -81,7 +81,7 @@ void SEGY::HdrEntry::setName( const char* nm )
 
 void SEGY::HdrEntry::setDescription( const char* d )
 {
-    delete desc_;
+    delete [] desc_;
     if ( !d )
 	desc_ = 0;
     else

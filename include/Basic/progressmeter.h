@@ -64,7 +64,12 @@ public:
     void		setStarted();
     void		setFinished();
     void		setNrDone(od_int64);
-    void		setTotalNr(od_int64 t)		{ totalnr_ = t; }
+    void		setTotalNr(od_int64 t)
+			{
+			    Threads::Locker lock( lock_ );
+			    totalnr_ = t;
+			}
+
     void		setMessage(const uiString&);
 
 			/*!<This setting will not reset unless you call it.*/

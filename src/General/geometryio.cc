@@ -63,12 +63,13 @@ protected:
 	if ( updateonly_ && isLoaded(geomid) )
 	    mReturn
 
-	mDynamicCastGet(SurvGeom2DTranslator*,transl,ioobj->createTranslator())
-	if ( !transl )
+	PtrMan<Translator> transl = ioobj->createTranslator();
+	mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
+	if ( !geomtransl )
 	    mReturn
 
 	uiString errmsg;
-	Geometry* geom = transl->readGeometry( *ioobj, errmsg );
+	Geometry* geom = geomtransl->readGeometry( *ioobj, errmsg );
 	if ( geom )
 	{
 	    geom->ref();
@@ -102,8 +103,9 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
     if ( !ioobj || ioobj->key().nrKeys() != 2)
 	return false;
 
-    mDynamicCastGet(SurvGeom2DTranslator*,transl,ioobj->createTranslator())
-    if ( !transl )
+    PtrMan<Translator> transl = ioobj->createTranslator();
+    mDynamicCastGet(SurvGeom2DTranslator*,geomtransl,transl.ptr());
+    if ( !geomtransl )
 	return false;
 
     const FixedString crfromstr( createfromstr );
@@ -113,7 +115,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 	IOM().commitChanges( *ioobj );
     }
 
-    return transl->writeGeometry( *ioobj, geom, errmsg );
+    return geomtransl->writeGeometry( *ioobj, geom, errmsg );
 }
 
 
