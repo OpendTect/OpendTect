@@ -140,7 +140,7 @@ template <class T> inline
 void Array1DSlice<T>::set( int pos, T val )
 {
     if ( !isinited_ )
-	pErrMsg("ArrayNDSlice not inited!");
+    { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( !writable_ ) return;
     mAllocVarLenArr( int, srcpos, position_.size() );
@@ -153,7 +153,7 @@ template <class T> inline
 T Array1DSlice<T>::get( int pos ) const
 {
     if ( !isinited_ )
-	pErrMsg("ArrayNDSlice not inited!");
+    { pErrMsg("ArrayNDSlice not inited!"); }
 
     mAllocVarLenArr( int, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
@@ -182,7 +182,7 @@ template <class T> inline
 const ValueSeries<T>* Array1DSlice<T>::getStorage_() const
 {
     if ( !isinited_ )
-	pErrMsg("ArrayNDSlice not inited!");
+    { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( offset_<0 )
 	return 0;
@@ -242,7 +242,7 @@ template <class T> inline
 void Array2DSlice<T>::set( int pos0, int pos1, T val )
 {
     if ( !isinited_ )
-	pErrMsg("ArrayNDSlice not inited!");
+    { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( !writable_ ) return;
 
@@ -257,7 +257,7 @@ template <class T> inline
 T Array2DSlice<T>::get( int pos0, int pos1 ) const
 {
     if ( !isinited_ )
-	pErrMsg("ArrayNDSlice not inited!");
+    { pErrMsg("ArrayNDSlice not inited!"); }
 
     const int localpos[] = { pos0, pos1 };
     mAllocVarLenArr( int, srcpos, position_.size() );
@@ -275,7 +275,7 @@ template <class T> inline
 const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
 {
     if ( !isinited_ )
-	pErrMsg("ArrayNDSlice not inited!");
+    { pErrMsg("ArrayNDSlice not inited!"); }
 
     if ( offset_<0 )
 	return 0;
