@@ -36,7 +36,7 @@ public:
     inline void			setXY(TT xx,TT yy);
     inline void			setXY(T xx,T yy);
     inline Point2D<T>&		zero();
-    inline Point2D<T>		operator-();
+    inline Point2D<T>		operator-() const;
 
     inline T&			operator[](int idx);
     inline T			operator[](int idx) const;
@@ -279,7 +279,7 @@ Point2D<T>& Point2D<T>::zero()
 { x = y = 0; return *this; }
 
 template <class T> inline
-Point2D<T> Point2D<T>::operator -()
+Point2D<T> Point2D<T>::operator -() const
 { return Point2D<T>( -x, -y ); }
 
 
