@@ -43,9 +43,11 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, outer(mUndefPtr(TrcKeySampling))
 	, fetcher(0)
-	, psrdr_(0)
+	, psrdr2d_(0)
+	, psrdr3d_(0)
 	, tbuf_(0)
 	, pscditer_(0)
+	, pslditer_(0)
 	, selcomp_(-1)
 {
     init();
@@ -59,8 +61,10 @@ SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
 	, outer(mUndefPtr(TrcKeySampling))
 	, fetcher(0)
-	, psrdr_(0)
+	, psrdr2d_(0)
+	, psrdr3d_(0)
 	, pscditer_(0)
+	, pslditer_(0)
 	, tbuf_(0)
 	, selcomp_(-1)
 {
@@ -87,9 +91,12 @@ void SeisTrcReader::init()
     if ( tbuf_ ) tbuf_->deepErase();
     mDelOuter; outer = mUndefPtr(TrcKeySampling);
     delete fetcher; fetcher = 0;
-    delete psrdr_; psrdr_ = 0;
+    delete psrdr2d_; psrdr2d_ = 0;
+    delete psrdr3d_; psrdr3d_ = 0;
     delete pscditer_; pscditer_ = 0;
+    delete pslditer_; pslditer_ = 0;
     nrfetchers = 0; curlineidx = -1;
+    curpsbid_ = BinID( 0, 0 );
 }
 
 
@@ -102,15 +109,17 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
     else if ( psioprov_ )
     {
-	if ( is2d_ )
+	if ( !is2d_ )
+	    psrdr3d_ = psioprov_->get3DReader( *ioobj_ );
+	else
 	{
-	    errmsg_ = tr("SeisTrcReader cannot read from "
-			 "2D Prestack Data store");
-	    return false;
+	    if ( !seldata_ )
+		{ errmsg_ = tr("No line geometry ID set"); return false; }
+	    psrdr2d_ = psioprov_->get2DReader( *ioobj_, seldata_->geomID() );
 	}
-	psrdr_ = psioprov_->get3DReader( *ioobj_ );
     }
-    if ( (is2d_ && !dataset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
+    if ( (is2d_ && !dataset_) || (!is2d_ && !trl_)
+	    || (psioprov_ && !psrdr2d_ && !psrdr3d_) )
     {
 	errmsg_ = tr("No data interpreter available for '%1'")
 		.arg(ioobj_->name());
@@ -142,16 +151,32 @@ bool SeisTrcReader::startWork()
     outer = 0;
     if ( psioprov_ )
     {
-	if ( !psrdr_ && !prepareWork(Seis::Prod) )
+	if ( !psrdr2d_ && !psrdr3d_ && !prepareWork(Seis::Prod) )
 	    { pErrMsg("Huh"); return false; }
 
-	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
-	if (!pscditer_->next(curpsbid_))
+	if ( psrdr3d_ )
 	{
-	    errmsg_ = tr("Prestack Data storage is empty");
-	    return false;
+	    pscditer_ = new PosInfo::CubeDataIterator( psrdr3d_->posData() );
+	    if ( !pscditer_->next(curpsbid_) )
+	    {
+		errmsg_ = tr("3D Prestack Data storage is empty");
+		return false;
+	    }
+	    pscditer_->reset();
 	}
-	pscditer_->reset();
+	else if ( psrdr2d_ )
+	{
+	    pslditer_ = new PosInfo::Line2DDataIterator( psrdr2d_->posData() );
+	    if ( !pslditer_->next() )
+	    {
+		errmsg_ = tr("2D Prestack Data storage is empty");
+		return false;
+	    }
+	    pslditer_->reset();
+	}
+	else
+	    { pErrMsg("Huh"); return false; }
+
 	return true;
     }
     else if ( is2d_ )
@@ -398,29 +423,51 @@ bool SeisTrcReader::get( SeisTrc& trc )
 
 int SeisTrcReader::getPS( SeisTrcInfo& ti )
 {
-    if ( !psrdr_ ) return 0;
+    if ( !psrdr2d_ && !psrdr3d_ ) return 0;
 
     if ( !tbuf_ )
 	tbuf_ = new SeisTrcBuf( false );
 
     if ( tbuf_->isEmpty() )
     {
-	int selres = 2;
-	while ( selres % 256 == 2 )
+	if ( psrdr3d_ )
 	{
-	    if ( !pscditer_->next(curpsbid_) )
+	    int selres = 2;
+	    while ( selres % 256 == 2 )
 	    {
-		delete psrdr_; psrdr_ = 0;
-		return 0;
+		if ( !pscditer_->next(curpsbid_) )
+		{
+		    delete psrdr3d_; psrdr3d_ = 0;
+		    return 0;
+		}
+		selres = seldata_ ? seldata_->selRes( curpsbid_ ) : 0;
 	    }
-	    selres = seldata_ ? seldata_->selRes( curpsbid_ ) : 0;
+
+	    if ( seldata_ && !seldata_->isOK(curpsbid_) )
+		return 2;
+
+	    if ( !psrdr3d_->getGather(curpsbid_,*tbuf_) )
+		{ errmsg_ = psrdr3d_->errMsg(); return -1; }
 	}
+	else
+	{
+	    int inl = seldata_ ? seldata_->inlRange().start : 0;
+	    bool isok = false;
+	    int trcnr = 0;
+	    while ( !isok )
+	    {
+		if ( !pslditer_->next() )
+		{
+		    delete psrdr2d_; psrdr2d_ = 0;
+		    return 0;
+		}
+		trcnr = pslditer_->trcNr();
+		isok = !seldata_ || seldata_->isOK( BinID(inl,trcnr) );
+	    }
 
-	if ( seldata_ && !seldata_->isOK(curpsbid_) )
-	    return 2;
-
-	if ( !psrdr_->getGather(curpsbid_,*tbuf_) )
-	    { errmsg_ = psrdr_->errMsg(); return -1; }
+	    if ( !psrdr2d_->getGath(trcnr,*tbuf_) )
+		{ errmsg_ = psrdr2d_->errMsg(); return -1; }
+	}
     }
 
     ti = tbuf_->get(0)->info();

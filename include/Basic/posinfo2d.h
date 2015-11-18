@@ -120,7 +120,35 @@ protected:
     int			gtIndex(int,bool&) const;
     int			gtIndex(const Coord&,double* sqdist=0) const;
 
+    friend class	Line2DDataIterator;
+
 };
+
+
+/*!\brief Iterates through Line2DData. */
+
+mExpClass(Basic) Line2DDataIterator
+{
+public:
+
+			Line2DDataIterator( const Line2DData& ld )
+			    : ld_(ld), idx_(-1)	{}
+
+    inline bool		next()
+			{
+			    idx_++;
+			    return idx_ < ld_.posns_.size();
+			}
+
+    inline void		reset()		{ idx_ = -1; }
+    inline const Line2DPos& line2DPos() const { return ld_.posns_[idx_]; }
+    inline int		trcNr() const	{ return ld_.posns_[idx_].nr_; }
+
+    const Line2DData&	ld_;
+    int			idx_;
+
+};
+
 
 } // namespace PosInfo
 
