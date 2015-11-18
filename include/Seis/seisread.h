@@ -22,8 +22,13 @@ class Executor;
 class TrcKeySampling;
 class SeisTrcBuf;
 class SeisPS3DReader;
-namespace PosInfo { class CubeData; class CubeDataIterator; class Line2DData; }
+class SeisPS2DReader;
 namespace Seis { class Bounds; class Bounds2D; }
+namespace PosInfo
+{
+    class CubeData; class CubeDataIterator;
+    class Line2DData; class Line2DDataIterator;
+}
 
 
 /*!\brief reads from a seismic data store.
@@ -105,8 +110,10 @@ protected:
     Seis::ReadMode	readmode;
     bool		entryis2d;
     StepInterval<int>	curtrcnrrg;
-    SeisPS3DReader*	psrdr_;
+    SeisPS2DReader*	psrdr2d_;
+    SeisPS3DReader*	psrdr3d_;
     PosInfo::CubeDataIterator* pscditer_;
+    PosInfo::Line2DDataIterator* pslditer_;
     BinID		curpsbid_;
     int			selcomp_;
 
