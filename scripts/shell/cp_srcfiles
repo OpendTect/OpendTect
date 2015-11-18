@@ -1,0 +1,39 @@
+#!/bin/csh -f
+#
+# Script to copy source files from the trunk, useful when porting stuff.
+# Usually used in conjunction with diff_srcfiles
+#
+
+if ( ! $?basedir ) then
+	echo "basedir variable not set."
+	echo "It's the directory that contains 'dev/' with the the source trees"
+	exit 1
+endif
+
+if ( "$1" == "--l" ) then
+    shift
+endif
+
+if ( $#argv < 1 ) then
+        echo "Usage : $0 subdir-from-$basedir/dev"
+        exit 1
+endif
+set subdir=$1
+shift
+set srcdir=$basedir/dev/$subdir
+if ( ! -d $srcdir ) then
+        echo "$srcdir is not a directory"
+        exit 1
+endif
+
+
+echo -n "Copying"
+
+foreach fil ( $* )
+
+     echo -n " $fil"
+     cp $srcdir/$fil .
+
+end
+
+echo ""

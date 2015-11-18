@@ -1,0 +1,117 @@
+#!/bin/csh -f
+#
+# Script to compare source files with the trunk, useful when porting stuff.
+# The script checks new/deleted/changed
+#
+
+if ( ! $?basedir ) then
+	echo "basedir variable not set."
+	echo "It's the directory that contains 'dev/' with the the source trees"
+	exit 1
+endif
+set forlist=0
+set showdifftxt=0
+set showalldiff=1
+
+next_arg:
+
+if ( "$1" == "--l" ) then
+    set forlist=1
+    shift
+    goto next_arg
+endif
+if ( "$1" == "--m" ) then
+    set showalldiff=0
+    shift
+    goto next_arg
+endif
+if ( "$1" == "--t" ) then
+    set showdifftxt=1
+    shift
+    goto next_arg
+endif
+
+
+if ( $#argv < 1 ) then
+        echo "Usage : $0 subdir-from-$basedir/dev"
+        exit 1
+endif
+set subdir=$1
+shift
+set srcdir=$basedir/dev/$subdir
+if ( ! -d $srcdir ) then
+        echo "$srcdir is not a directory"
+        exit 1
+endif
+
+set targetdir=`pwd`
+
+if ( $forlist == 1 ) then
+
+    cd $targetdir
+
+else
+
+    cd $srcdir
+    echo ""; echo "Comparing with $srcdir"; echo ""
+    foreach fil ( *.c? *.h *.txt *.dia *.csproj *.sln *.resx dGB*.xml )
+	if ( ! -e $targetdir/$fil ) then
+	    echo "NEW: $fil"
+	endif
+    end
+
+    cd $targetdir
+    foreach fil ( *.c? *.h *.txt *.dia *.csproj *.sln *.resx dGB*.xml )
+	if ( ! -e $srcdir/$fil ) then
+	    echo "GONE: $fil"
+	endif
+    end
+
+    echo ""; echo "-----------"; echo ""
+
+endif
+
+
+
+#set verbose=yes
+#set echo=on
+
+foreach fil ( *.c? *.h *.txt *.dia *.csproj *.sln *.resx dGB*.xml )
+
+    set nrdiff=`diff $basedir/dev/$subdir/$fil ./$fil|wc -l`
+    set isdiff=0
+
+    if ( $nrdiff > 4 ) then
+
+	set isdiff=1
+
+    else if ( $nrdiff > 0 ) then
+
+	if ( $showalldiff == 1 ) then
+	    set isdiff=1
+	else
+	    set filtnr=`diff $basedir/dev/$subdir/$fil ./$fil| sed /Id:/d |wc -l`
+	    if ( $filtnr > 2 ) then
+		set isdiff=1
+	    endif
+	endif
+
+    endif
+
+    if ( $isdiff == 1 ) then
+
+	if ( $showdifftxt == 1 ) then
+	    echo "--> $fil"
+	    diff $basedir/dev/$subdir/$fil ./$fil
+	else
+	    echo -n "$fil "
+	    if ( $forlist == 0 ) then
+		echo "differs"
+	    endif
+	endif
+
+    endif
+
+end
+
+if ( $forlist == 1 ) echo ""
