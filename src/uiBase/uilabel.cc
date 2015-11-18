@@ -114,7 +114,7 @@ void uiLabel::updateWidth()
     if ( strs.size() != 1 )
 	return;
 
-    int lblwidth = body_->fontWidthFor( text_.getFullString().buf() ) + 1;
+    int lblwidth = body_->fontWidthFor( text_ ) + 1;
     if ( isrequired_ )
 	lblwidth++;
 

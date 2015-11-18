@@ -542,7 +542,12 @@ int uiObjectBody::fontWidthFor( const uiString& str ) const
 {
     const QWidget* qw = qwidget();
     if ( !qw )
-    { return fontWidthFor( str.getFullString().buf()); }
+    {
+	gtFntWdtHgt();
+	QString qstr;
+	str.fillQString( qstr );
+	return qstr.size() * fnt_wdt;
+    }
 
     return qw->fontMetrics().width( str.getQString() );
 }
