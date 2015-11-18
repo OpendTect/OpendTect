@@ -127,11 +127,16 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     , cancelflag_( false )
 {
     spacefiller_[0] = 0; //to avoid warning of unused
-    controlcond_.lock();
+    
+    //controlcond_.lock();
+    // No need to lock here, as object is fully setup, and 
+    // since we are in the constructor, no-one knows aout us
+    //
     const BufferString name( "TWM ", toString( man.twmid_ ) );
     thread_ = new Thread( mCB( this, WorkThread, doWork), name.buf() );
 
-    controlcond_.unLock();
+    //controlcond_.unLock();
+    //
 
     SignalHandling::startNotify( SignalHandling::Kill,
 				 mCB( this, WorkThread, exitWork ));
