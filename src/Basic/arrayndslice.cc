@@ -21,6 +21,7 @@ ArrayNDSliceBase::ArrayNDSliceBase( ArrayNDInfo* localinfo,
     , position_( sourceinfo.getNDim(), -1 )
     , vardim_( localinfo->getNDim(), -1 )
     , offset_( -1 )
+    , isinited_( false )
 { }
 
 
@@ -35,6 +36,7 @@ bool ArrayNDSliceBase::setPos( int dim, int pos )
 	return false;
 
     position_[dim] = pos;
+    isinited_ = false;
 
     return true;
 }
@@ -56,6 +58,7 @@ void ArrayNDSliceBase::setDimMap( int localdim, int remotedim )
 {
     vardim_[localdim] = remotedim;
     position_[remotedim] = -1;
+    isinited_ = false;
 }
 
 
@@ -135,6 +138,7 @@ bool ArrayNDSliceBase::init()
     for ( int idx=0; idx<nrowndims; idx++ )
 	info_.setSize( idx, sourceinfo_.getSize(vardim_[idx]) );
 
+    isinited_ = true;
     return true;
 }
 
