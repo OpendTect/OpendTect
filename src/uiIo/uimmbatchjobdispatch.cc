@@ -763,7 +763,7 @@ bool uiMMBatchJobDispatcher::rejectOK( CallBacker* )
     {
 	if ( jobrunner_->jobsDone() > 0 || jobrunner_->jobsInProgress() > 0 )
 	{
-	    uiString msg = tr("This will stop all processing!");
+	    uiString msg = tr("This will stop all processing!%1");
 	    if ( !haveTmpProcFiles() )
 	    {
 		msg.arg("\n\nDo you want to do this?");
