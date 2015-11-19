@@ -72,8 +72,8 @@ void uiSEGYDirectVolInserter::scanComplete( CallBacker* )
 
 void uiSEGYDirectVolInserter::initClass()
 {
-    factory().addCreator( create,
-			  mSEGYDirectVolTranslInstance.getDisplayName() );
+    const Translator& transl = mSEGYDirectVolTranslInstance;
+    factory().addCreator( create, transl.getDisplayName() );
 }
 
 
@@ -131,8 +131,8 @@ void uiSEGYDirect2DInserter::scanComplete( CallBacker* )
 
 void uiSEGYDirect2DInserter::initClass()
 {
-    factory().addCreator( create,
-			  mSEGYDirect2DTranslInstance.getDisplayName() );
+    const Translator& transl = mSEGYDirect2DTranslInstance;
+    factory().addCreator( create, transl.getDisplayName() );
 }
 
 //Prestack 3D
@@ -191,8 +191,8 @@ void uiSEGYDirectPS3DInserter::scanComplete( CallBacker* )
 
 void uiSEGYDirectPS3DInserter::initClass()
 {
-    factory().addCreator( create,
-	mSEGYDirectPS3DTranslInstance.getDisplayName() );
+    const Translator& transl = mSEGYDirectPS3DTranslInstance;
+    factory().addCreator( create, transl.getDisplayName() );
 }
 
 

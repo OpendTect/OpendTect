@@ -118,11 +118,15 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	    psrdr2d_ = psioprov_->get2DReader( *ioobj_, seldata_->geomID() );
 	}
     }
-    if ( (is2d_ && !dataset_) || (!is2d_ && !trl_)
-	    || (psioprov_ && !psrdr2d_ && !psrdr3d_) )
+
+    const bool is3dfail = !is2d_ && !trl_;
+    const bool is2dfail = is2d_ && !psioprov_ && !dataset_;
+    const bool ispsfail = psioprov_ && !psrdr2d_ && !psrdr3d_;
+    if ( is3dfail && is2dfail && ispsfail )
     {
-	errmsg_ = tr("No data interpreter available for '%1'")
-		.arg(ioobj_->name());
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = tr("No data interpreter available for '%1'")
+		    .arg(ioobj_->name());
 	return false;
     }
 
@@ -307,10 +311,13 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
 	return -1;
 
-    if ( is2d_ )
-	return get2D(ti);
     if ( psioprov_ )
 	return getPS(ti);
+    else if ( is2d_ )
+	return get2D(ti);
+
+
+    // 3D post-stack
 
     SeisTrcTranslator& sttrl = *strl();
     bool needsk = needskip; needskip = false;
@@ -404,10 +411,10 @@ bool SeisTrcReader::get( SeisTrc& trc )
     else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
 	return false;
 
-    if ( is2d_ )
-	return get2D(trc);
     if ( psioprov_ )
 	return getPS(trc);
+    if ( is2d_ )
+	return get2D(trc);
 
     if ( !strl()->read(trc) )
     {
@@ -451,7 +458,6 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 	}
 	else
 	{
-	    int inl = seldata_ ? seldata_->inlRange().start : 0;
 	    bool isok = false;
 	    int trcnr = 0;
 	    while ( !isok )
@@ -462,7 +468,7 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 		    return 0;
 		}
 		trcnr = pslditer_->trcNr();
-		isok = !seldata_ || seldata_->isOK( BinID(inl,trcnr) );
+		isok = !seldata_ || seldata_->isOK( BinID(0,trcnr) );
 	    }
 
 	    if ( !psrdr2d_->getGath(trcnr,*tbuf_) )

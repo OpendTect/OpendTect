@@ -142,10 +142,8 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 				linepsicid ) );
 	expsgymnu->insertItem( new uiAction( linestr, muiSEGYMgrCB(exp2DCB),
 				lineicid ) );
-	/* TODO activate when truly ready
 	expsgymnu->insertItem( new uiAction( linepsstr, muiSEGYMgrCB(exp2DPSCB),
 				linepsicid ) );
-				*/
     }
 
     if ( !only2d )
