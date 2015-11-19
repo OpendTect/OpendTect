@@ -55,7 +55,8 @@ HorizonPainter2D::~HorizonPainter2D()
 }
 
 
-void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
+void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs, 
+    bool update )
 {
     tkzs_ = cs;
 }
@@ -72,6 +73,7 @@ void HorizonPainter2D::paint()
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
+    changePolyLineColor();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     repaintdone_.trigger();
 }
@@ -228,9 +230,13 @@ void HorizonPainter2D::changePolyLineColor()
 
 	Color prefcol = emobj->preferredColor();
 	prefcol.setTransparency( 0 );
+	const int width = emobj->preferredLineStyle().width_;
 
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
+	{
 	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ = prefcol;
+	    (*secmarkerlines)[markidx]->marker_->linestyle_.width_ = width;
+	}
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );

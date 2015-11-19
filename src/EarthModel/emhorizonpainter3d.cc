@@ -88,6 +88,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
+    changePolyLineColor();
     const EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj && markerseeds_ && nrseeds_==1 )
     {
