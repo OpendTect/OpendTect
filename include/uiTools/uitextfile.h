@@ -123,6 +123,7 @@ protected:
     void		dismiss(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		finalizeCB(CallBacker*);
 
     void		fileNmChgd(CallBacker*);
     void		init(const Setup&,const uiTextFile::Setup&,const char*);

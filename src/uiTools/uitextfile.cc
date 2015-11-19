@@ -10,16 +10,19 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitextfile.h"
-#include "uitextedit.h"
-#include "uitable.h"
-#include "uimenu.h"
+
+#include "uibutton.h"
 #include "uifiledlg.h"
+#include "uimenu.h"
 #include "uimsg.h"
-#include "filepath.h"
-#include "tableconvimpl.h"
 #include "uistrings.h"
-#include "perthreadrepos.h"
+#include "uitable.h"
+#include "uitextedit.h"
+
+#include "filepath.h"
 #include "od_iostream.h"
+#include "perthreadrepos.h"
+#include "tableconvimpl.h"
 
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
 
@@ -294,6 +297,20 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
     filemnu->insertItem( new uiAction(uiStrings::sExit(),
 			 mCB(this,uiTextFileDlg,dismiss)));
     menuBar()->insertItem( filemnu );
+
+    postFinalise().notify( mCB(this,uiTextFileDlg,finalizeCB) );
+}
+
+
+void uiTextFileDlg::finalizeCB(CallBacker *)
+{
+// ToDo: Support StdActionType's in uiDialog
+    uiButton* cancelbut = button(CANCEL);
+    if ( !cancelbut ) return;
+
+    if ( FixedString(setup().canceltext_.getOriginalString()) ==
+		uiStrings::sReload().getOriginalString() )
+	cancelbut->setIcon( "refresh" );
 }
 
 
