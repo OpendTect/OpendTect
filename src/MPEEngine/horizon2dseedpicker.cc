@@ -213,16 +213,16 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
 	return false;
 
     TypeSet<TrcKeyValue> path = patch_->getPath();
-    mGetHorizon( hor3d, false )
+    mGetHorizon( hor2d, false )
 
-    hor3d->setBurstAlert( true );
+    hor2d->setBurstAlert( true );
     for ( int idx=0; idx<path.size(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
-	hor3d->setZ( path[idx].tk_, val, true );
+	hor2d->setZ( path[idx].tk_, val, true );
 	if ( trackmode_ == DrawAndSnap )
 	{
-	    hor3d->setAttrib( path[idx].tk_, EM::EMObject::sSeedNode(),
+	    hor2d->setAttrib( path[idx].tk_, EM::EMObject::sSeedNode(),
 		false, true );
 	    TypeSet<TrcKey> seed;
 	    seed += path[idx].tk_;
@@ -238,7 +238,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
 	seedlist_ += path[idx].tk_;
     }
     interpolateSeeds();
-    hor3d->setBurstAlert( false );
+    hor2d->setBurstAlert( false );
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
     return true;
 }
