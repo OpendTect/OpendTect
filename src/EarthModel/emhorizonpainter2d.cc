@@ -55,7 +55,7 @@ HorizonPainter2D::~HorizonPainter2D()
 }
 
 
-void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs, 
+void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs,
     bool update )
 {
     tkzs_ = cs;
@@ -83,7 +83,7 @@ bool HorizonPainter2D::addPolyLine()
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( !emobj ) return false;
-    
+
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return false;
 
@@ -99,10 +99,10 @@ bool HorizonPainter2D::addPolyLine()
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
 	viewer_.addAuxData( seedauxdata );
-	
+
 	markerseeds_ = new Marker2D;
 	markerseeds_->marker_ = seedauxdata;
-	markerseeds_->sectionid_ = sid; 
+	markerseeds_->sectionid_ = sid;
 
 	bool newmarker = true;
 	bool coorddefined = true;
@@ -118,7 +118,7 @@ bool HorizonPainter2D::addPolyLine()
 		continue;
 	    else
 		bid.inl() = hor2d->geometry().lineIndex( geomid_ );
-	    
+
 	    const Coord3 crd = hor2d->getPos( sid, bid.toInt64() );
 	    EM::PosID posid( id_, sid, bid.toInt64() );
 
@@ -137,7 +137,7 @@ bool HorizonPainter2D::addPolyLine()
 		    emobj->setPosAttrib(
 		    pid,EM::EMObject::sIntersectionNode(),true,false);
 	    }
-	    
+
 	    if ( newmarker )
 	    {
 		FlatView::AuxData* auxdata =
@@ -157,7 +157,7 @@ bool HorizonPainter2D::addPolyLine()
 		marker->sectionid_ = sid;
 		newmarker = false;
 	    }
-	    
+
 	    int idx = trcnos_.indexOf(bid.crl());
 	    if ( idx == -1 )
 		continue;
@@ -169,7 +169,7 @@ bool HorizonPainter2D::addPolyLine()
 	    if ( hor2d->isPosAttrib(posid,EM::EMObject::sSeedNode()) )
 		markerseeds_->marker_->poly_ +=
 		    FlatView::Point( distances_[idx], z );
-	    
+
 	    bid.inl() = inlfromcs;
 	    emobj->removePosAttribList(
 		EM::EMObject::sIntersectionNode(), false );
@@ -183,7 +183,7 @@ bool HorizonPainter2D::addPolyLine()
 void HorizonPainter2D::horChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -272,7 +272,7 @@ void HorizonPainter2D::enableLine( bool yn )
     for ( int markidx=markerline_.size()-1;  markidx>=0; markidx-- )
     {
 	SectionMarker2DLine* markerlines = markerline_[markidx];
-	
+
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
 	{
 	    (*markerlines)[idy]->marker_->enabled_ = yn;
@@ -295,5 +295,5 @@ void HorizonPainter2D::enableSeed( bool yn )
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
-}; //namespace EM
+} //namespace EM
 
