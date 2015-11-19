@@ -75,17 +75,20 @@ public:
     void		removeSlide(int);
 
     void		setTitle(const char*);
+    void		doAddTitleSlide( bool yn )	{ addtitleslide_ = yn; }
+
     void		setOutputFilename(const char*);
     void		setMasterFilename(const char*);
 
     void		getPythonScript(BufferString&) const;
 
-    int				titlemasterindex_;
-    int				titlelayoutindex_;
+    int			titlemasterindex_;
+    int			titlelayoutindex_;
 
 protected:
     ObjectSet<SlideContent>	slides_;
     BufferString		title_;
+    bool			addtitleslide_;
 
     BufferString		masterfilename_;
     BufferString		outputfilename_;

@@ -226,9 +226,12 @@ void PresentationSpec::getPythonScript( BufferString& script ) const
 {
     script.setEmpty();
     init( script, masterfilename_ );
-    script.add( "title_master_index=" ).add( titlemasterindex_ ).add( "\n" );
-    script.add( "title_layout_index=" ).add( titlelayoutindex_ ).add( "\n" );
-    addTitleSlide( script, title_.buf() );
+    if ( addtitleslide_ )
+    {
+	script.add( "title_master_index=" ).add( titlemasterindex_ ).add("\n");
+	script.add( "title_layout_index=" ).add( titlelayoutindex_ ).add("\n");
+	addTitleSlide( script, title_.buf() );
+    }
 
     for ( int idx=0; idx<slides_.size(); idx++ )
 	slides_[idx]->getPythonScript( slidelayout_, script );
