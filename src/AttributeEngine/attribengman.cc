@@ -507,11 +507,7 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
     }
     else
     {
-	TrcKeyZSampling outputtkzs = packset[0]->sampling();
-	for ( int idx=1; idx<packset.size(); idx++ )
-	    outputtkzs.include( packset[idx]->sampling() );
-	outputtkzs.limitTo( tkzs_ );
-	output->setSampling( outputtkzs );
+	output->setSampling( tkzs_ );
     }
 
     for ( int idx=0; idx<packset[0]->nrComponents() && idx<attrspecs_.size();
