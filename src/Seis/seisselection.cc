@@ -130,6 +130,12 @@ void Seis::SelData::usePar( const IOPar& iop )
     isall_ = !res || !*res || *res == *sKey::None();
 
     iop.get( sKey::GeomID(), geomid_ );
+    if ( geomid_ < 0 )
+    {
+	res = iop.find( sKey::LineKey() );
+	if ( res && *res )
+	    geomid_ = Survey::GM().getGeomID( res );
+    }
 }
 
 
@@ -535,7 +541,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
     for ( int idx=0; idx<poly.size(); idx++ )
     {
 	const Geom::Point2D<int>& pt = poly.getVertex( idx );
-	polys_[0]->add( Geom::Point2D<float>( 
+	polys_[0]->add( Geom::Point2D<float>(
 				 mCast(float,pt.x), mCast(float,pt.y) ) );
     }
     initZrg( zrg );
@@ -605,8 +611,8 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 Interval<int> Seis::PolySelData::inlRange() const
 {
     if ( isall_ ) return Seis::SelData::inlRange();
-    
-    if ( polys_.isEmpty() ) 
+
+    if ( polys_.isEmpty() )
 	return Interval<int>( mUdf(int), mUdf(int) );
 
     Interval<float> floatrg( polys_[0]->getRange(true) );
@@ -624,18 +630,18 @@ Interval<int> Seis::PolySelData::inlRange() const
 Interval<int> Seis::PolySelData::crlRange() const
 {
     if ( isall_  ) return Seis::SelData::crlRange();
-    
-    if ( polys_.isEmpty() ) 
+
+    if ( polys_.isEmpty() )
 	return Interval<int>( mUdf(int), mUdf(int) );
-    
+
     Interval<float> floatrg( polys_[0]->getRange(false) );
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(false) );
-    
+
     Interval<int> intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
     intrg.widen( stepoutreach_.crl() );
     intrg.limitTo( Seis::SelData::crlRange() );
-    
+
     return intrg;
 }
 
@@ -724,7 +730,7 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 	    zrg_.start = psd.zrg_.start;
 	if ( zrg_.stop > psd.zrg_.stop )
 	    zrg_.stop = psd.zrg_.stop;
-	
+
 	for ( int idx=0; idx<psd.polys_.size(); idx++ )
 	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
     }
@@ -736,12 +742,12 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 	    const Interval<int> inlrg = rsd->inlRange();
 	    const Interval<int> crlrg = rsd->crlRange();
 	    const Interval<float> zrg = rsd->zRange();
-	    
-	    // Must withdraw stepout already included in RangeSelData, since 
+
+	    // Must withdraw stepout already included in RangeSelData, since
 	    // PolySelData will add it again on-the-fly. Equality is assumed.
-	    
+
 	    ODPolygon<float>* rect = new ODPolygon<float>();
-	    Geom::Point2D<float> point( 
+	    Geom::Point2D<float> point(
 			mCast(float,inlrg.start + stepoutreach_.inl()),
 			mCast(float,crlrg.start + stepoutreach_.crl()) );
 	    rect->add( point );
@@ -753,7 +759,7 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 	    rect->add( point );
 
 	    polys_ += rect;
-		 
+
 	    if ( zrg_.start < zrg.start )
 		zrg_.start = zrg.start;
 	    if ( zrg_.stop > zrg.stop )
@@ -770,7 +776,7 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 int Seis::PolySelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
-    
+
     Interval<float> inlrg( mCast(float,bid.inl()), mCast(float,bid.inl()) );
     inlrg.widen( mCast(float,stepoutreach_.inl()) );
     Interval<float> crlrg( mCast(float,bid.crl()), mCast(float,bid.crl()) );
@@ -802,12 +808,12 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
         const float coverfrac = rectarea
 	    ? (float) polys_[idx]->area()/rectarea
 	    : 1.0f;
-	
+
 	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop));
 	inlrg.widen( stepoutreach_.inl() );
 	Interval<int> crlrg( mNINT32(polycrlrg.start), mNINT32(polycrlrg.stop));
 	crlrg.widen( stepoutreach_.crl() );
-	
+
 	TrcKeySampling hs;
 	hs.set( inlrg, crlrg );
 	if ( step ) hs.step_ = *step;
