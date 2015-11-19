@@ -534,10 +534,12 @@ void Seis2DDisplay::updatePanelStripPath()
 
     for ( int idx=0; idx<bends.size(); idx++ )
     {
-	if ( bends[idx]>tdi.rg_.start && tdi.alljoints_.last()<tdi.rg_.start )
+	if ( bends[idx]>tdi.rg_.start &&
+	    (!tdi.alljoints_.isEmpty() && tdi.alljoints_.last()<tdi.rg_.start) )
 	    tdi.alljoints_ += tdi.rg_.start;
 
-	if ( bends[idx]>tdi.rg_.stop && tdi.alljoints_.last()<tdi.rg_.stop )
+	if ( bends[idx]>tdi.rg_.stop && 
+	    (!tdi.alljoints_.isEmpty() && tdi.alljoints_.last()<tdi.rg_.stop) )
 	    tdi.alljoints_ += tdi.rg_.stop;
 
 	tdi.alljoints_ += bends[idx];
