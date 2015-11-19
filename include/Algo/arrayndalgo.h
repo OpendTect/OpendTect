@@ -258,6 +258,40 @@ inline T getRMS( const ArrayND<T>& in )
 }
 
 
+/*!\brief returns the residual differences of two arrays */
+
+template <class T>
+inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+{
+    const od_uint64 sz = in1.info().getTotalSz();
+    if ( in2.info().getTotalSz() != sz )
+	return mUdf(T);
+
+    Array1DImpl<T> diffvec( mCast(int,sz) );
+    if ( !diffvec.isOK() )
+	return mUdf(T);
+
+    getSum( in1, in2, diffvec, (T)1, (T)-1 );
+    T* diffdata = diffvec.getData();
+    if ( diffdata )
+    {
+	for ( od_uint64 idx=0; idx<sz; idx++ )
+	    diffdata[idx] = Math::Abs( diffdata[idx] );
+    }
+    else
+    {
+	ArrayNDIter iter( diffvec.info() );
+	do
+	{
+	    const int* pos = iter.getPos();
+	    diffvec.setND( pos, Math::Abs( diffvec.getND(pos) ) );
+	} while ( iter.next() );
+    }
+
+    return getAverage( diffvec );
+}
+
+
 /*!\brief returns the sum of squarred differences of two arrays */
 
 template <class T>
