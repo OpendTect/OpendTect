@@ -516,7 +516,7 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
                                           TypeSet<Coord>* crds ) const
 {
     if ( crds ) crds->erase();
-    
+
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
 
@@ -533,11 +533,11 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
 	path += TrcKey( survid, bids[idx] );
         if ( !crds )
             continue;
-        
+
         if ( curlinesegment!=segments[idx] )
         {
             curlinesegment = -1;
-            
+
             const int cursegment = segments[idx];
             if ( cursegment<nodes.size()-1 )
             {
@@ -545,7 +545,7 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
                 const BinID stopnode = nodes[segments[idx]+1];
                 const Coord startpos = s3dgeom_->transform ( startnode );
                 const Coord stoppos = s3dgeom_->transform( stopnode );
-                
+
                 if ( startpos.isDefined() && stoppos.isDefined() &&
                      startpos.sqDistTo( stoppos )>1e-3 )
                 {
@@ -554,11 +554,11 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
                 }
             }
         }
-        
+
         Coord pathpos = s3dgeom_->transform(bids[idx]);
         if ( curlinesegment>=0 )
             pathpos = curline.closestPoint( pathpos );
-        
+
         (*crds) += pathpos;
     }
 }
@@ -721,7 +721,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     int newsz0 = randsdp->data().info().getSize( 1 );
     int newsz1 = randsdp->data().info().getSize( 2 );
     bool differentattribsizes = false, onlycurrent = true;
-    if ( nrAttribs() > 1 )
+    if ( attrib!=0 && nrAttribs()>1 )
     {
 	const int oldchannelsz0 =
 	    (channels_->getSize(0,1)+resolution_) / (resolution_+1);
@@ -769,7 +769,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		    Array2DReSampler<float,float> resampler(
 			    slice2d, tmparr, sz0, sz1, true );
 		    resampler.setInterpolate( true );
-		    TaskRunner::execute( taskr, resampler );
+		    TaskRunner::execute( 0, resampler );
 		}
 
 		arr = tmparr;

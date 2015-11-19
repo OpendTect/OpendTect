@@ -841,7 +841,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
     int newsz0 = regsdp->data().info().getSize( dim0 );
     int newsz1 = regsdp->data().info().getSize( dim1 );
     bool differentattribsizes = false, onlycurrent = true;
-    if ( nrAttribs() > 1 )
+    if ( attrib!=0 && nrAttribs()>1 )
     {
 	const int oldchannelsz0 =
 	    (channels_->getSize(0,1)+resolution_) / (resolution_+1);
@@ -889,7 +889,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		    Array2DReSampler<float,float> resampler(
 			    slice2d, tmparr, sz0, sz1, true );
 		    resampler.setInterpolate( true );
-		    TaskRunner::execute( taskr, resampler );
+		    TaskRunner::execute( 0, resampler );
 		}
 
 		arr = tmparr;
