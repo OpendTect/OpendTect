@@ -306,11 +306,12 @@ void uiTextFileDlg::finalizeCB(CallBacker *)
 {
 // ToDo: Support StdActionType's in uiDialog
     uiButton* cancelbut = button(CANCEL);
-    if ( !cancelbut ) return;
+    if ( !cancelbut || !uiButton::haveCommonPBIcons() )
+	return;
 
     if ( FixedString(setup().canceltext_.getOriginalString()) ==
 		uiStrings::sReload().getOriginalString() )
-	cancelbut->setIcon( "refresh" );
+	cancelbut->setIcon( "reload" );
 }
 
 
