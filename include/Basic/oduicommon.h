@@ -77,7 +77,8 @@ enum StdActionType
     SaveAs,
     Select,
     Settings,
-    Unload
+    Unload,
+    Reload
 };
 
 } // namespace OD
