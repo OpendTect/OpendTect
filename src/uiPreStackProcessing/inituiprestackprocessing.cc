@@ -26,7 +26,9 @@ mDefModInitFn(uiPreStackProcessing)
     PreStack::uiMute::initClass();
     PreStack::uiLateralStack::initClass();
     PreStack::uiAngleMute::initClass();
+#ifdef __debug__
     PreStack::uiTrimStatics::initClass();
+#endif
 
     Batch::MMJobDispatcher::addDef( new Batch::PreStackMMProgDef );
 }
