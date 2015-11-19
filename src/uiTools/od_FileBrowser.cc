@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextfile.h"
 #include "uimain.h"
 
+#include "moddepmgr.h"
 #include "prog.h"
 
 #ifdef __win__
@@ -21,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiTools" );
 
     int argidx = 1;
     File::ViewPars vp;
