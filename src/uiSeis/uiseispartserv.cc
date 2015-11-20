@@ -86,6 +86,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , impps3dseisdlg_(0)
     , expps3dseisdlg_(0)
     , impps2dseisdlg_(0)
+    , expps2dseisdlg_(0)
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     IOM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
@@ -108,6 +109,7 @@ uiSeisPartServer::~uiSeisPartServer()
     delete impps3dseisdlg_;
     delete expps3dseisdlg_;
     delete impps2dseisdlg_;
+    delete expps2dseisdlg_;
 }
 
 
@@ -130,9 +132,10 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     delete impps3dseisdlg_; impps3dseisdlg_ = 0;
     delete expps3dseisdlg_; expps3dseisdlg_ = 0;
     delete impps2dseisdlg_; impps2dseisdlg_ = 0;
+    delete expps2dseisdlg_; expps2dseisdlg_ = 0;
 }
 
-#define mSeisImpExpDlg(dlgobj,is2d,isps) \
+#define mPopupSimpIODlg(dlgobj,is2d,isps) { \
     if ( !dlgobj ) \
     { \
 	const Seis::GeomType gt( Seis::geomTypeOf( is2d, isps ) ); \
@@ -140,7 +143,7 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
 	dlgobj = new uiSeisIOSimple( parent(), gt, forread ); \
 	dlgobj->setCaption( mkDlgCaption(forread,is2d,isps) ); \
     }\
-    dlgobj->show();
+    dlgobj->show(); }
 
 
 uiString uiSeisPartServer::mkDlgCaption( bool forread, bool is2d, bool isps )
@@ -178,30 +181,33 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	case 5:
 	    {
 		if ( forread )
-		{ mSeisImpExpDlg(imp3dseisdlg_,false,false) }
+		    mPopupSimpIODlg(imp3dseisdlg_, false, false )
 		else
-		{ mSeisImpExpDlg(exp3dseisdlg_,false,false) }
+		    mPopupSimpIODlg(exp3dseisdlg_, false, false )
 		break;
 	    }
 	case 6:
 	    {
 		if ( forread )
-		{ mSeisImpExpDlg(imp2dseisdlg_,true,false) }
+		    mPopupSimpIODlg(imp2dseisdlg_, true, false )
 		else
-		{ mSeisImpExpDlg(exp2dseisdlg_,true,false) }
+		    mPopupSimpIODlg(exp2dseisdlg_, true, false )
 		break;
 	    }
 	case 7:
 	    {
 		if ( forread )
-		{ mSeisImpExpDlg(impps3dseisdlg_,false,true) }
+		    mPopupSimpIODlg(impps3dseisdlg_, false, true )
 		else
-		{ mSeisImpExpDlg(expps3dseisdlg_,false,true) }
+		    mPopupSimpIODlg(expps3dseisdlg_, false, true )
 		break;
 	    }
 	case 8:
 	    {
-		mSeisImpExpDlg(impps2dseisdlg_,true,true)
+		if ( forread )
+		    mPopupSimpIODlg( impps2dseisdlg_, true, true )
+		else
+		    mPopupSimpIODlg( expps2dseisdlg_, true, true )
 		break;
 	    }
     }

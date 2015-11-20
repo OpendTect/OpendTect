@@ -609,7 +609,7 @@ void uiDataPointSet::selYCol( CallBacker* )
     {
 	if ( dps_.nrActive()*2 > minptsfordensity )
 	{
-	    uiString msg(tr("DataPoint set too large. Th epercentage of points "
+	    uiString msg(tr("DataPoint set too large. The percentage of points "
 			    "displayed should be modified for acceptable "
 			    "performance.\n\nDo you want to change 'Plot each' "
 			    "or do you want to continue with no Y2 ?"));
