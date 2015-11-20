@@ -774,6 +774,9 @@ void PreStackDisplay::seis2DMovedCB( CallBacker* )
     if ( !seis2d_ || trcnr_<0 )
 	return;
 
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
+    basedirection_ = SI().binID2Coord().transformBackNoSnap(
+	    seis2d_->getNormal(trcnr_) ) - orig;
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
 	    seis2d_->getCoord(trcnr_) );
     dataChangedCB(0);
