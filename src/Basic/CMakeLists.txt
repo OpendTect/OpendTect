@@ -109,7 +109,8 @@ set( OD_MODULE_SOURCES
 
 set ( OD_MODULE_PROGS test_exit_program.cc )
 if ( UNIX )
-    set ( OD_MODULE_PROGS ${OD_MODULE_PROGS} od_batch_launcher.cc )
+    list ( APPEND OD_MODULE_PROGS od_batch_launcher.cc )
+    list ( APPEND OD_MODULE_PROGS test_breakpad.cc )
 endif()
 
 if ( ITTNOTIFY_FOUND )

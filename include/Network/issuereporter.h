@@ -44,6 +44,8 @@ public:
 
 protected:
 
+    void			fillBasicReport(const char* filename);
+
     BufferString		host_;
     BufferString		path_;
     uiString			errmsg_;
