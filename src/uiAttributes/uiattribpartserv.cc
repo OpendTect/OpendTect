@@ -1142,8 +1142,8 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     {
 	return somesuccess &&
 	     uiMSG().askGoOn(
-	      tr("Some data extraction failed. Do you want to continue and use"
-	         " the (partially) extracted data?"), true);
+	      tr("Some data extraction failed.\n\nDo you want to continue and "
+		  "use the (partially) extracted data?"), true);
     }
 
     return true;

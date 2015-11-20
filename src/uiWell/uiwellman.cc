@@ -583,7 +583,7 @@ void uiWellMan::editLogPush( CallBacker* )
 
     const bool res = uiMSG().askSave(
 			tr("One or more log values have been changed."
-			   "Do you want to save your changes?"), false );
+			   "\n\nDo you want to save your changes?"), false );
     if ( !res ) return;
 
     wl.updateAfterValueChanges();

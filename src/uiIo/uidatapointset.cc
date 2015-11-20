@@ -609,9 +609,9 @@ void uiDataPointSet::selYCol( CallBacker* )
     {
 	if ( dps_.nrActive()*2 > minptsfordensity )
 	{
-	    uiString msg(tr("DataPoint set too large. Percentage of points "
-			    "displayed should be modified to give better "
-			    "performance. Do you want to change 'Plot each' "
+	    uiString msg(tr("DataPoint set too large. Th epercentage of points "
+			    "displayed should be modified for acceptable "
+			    "performance.\n\nDo you want to change 'Plot each' "
 			    "or do you want to continue with no Y2 ?"));
 
 	    if (uiMSG().askGoOn(msg, tr("Change % Data displayed"),
@@ -1287,8 +1287,8 @@ bool uiDataPointSet::saveOK()
     if ( !unsavedchgs_ )
 	return true;
 
-    int res = uiMSG().askSave( tr("There are unsaved changes.\n"
-			       "Do you want to save the data?") );
+    int res = uiMSG().askSave( tr("There are unsaved changes."
+			       "\n\nDo you want to save the data?") );
     if ( res == -1 )
 	return false;
     else if ( res == 0 )
@@ -1570,21 +1570,19 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	    tbl_->selectedRanges();
 	if ( tablerange.size()>1 )
 	{
-	    if (!uiMSG().askGoOn(tr("Only selected rows will be removed"
-				    "\nThose rows falling in the same range"
-				    "\nbut not displayed as only certain"
-				    "\npercentage of data is displayed "
-				    "will not\nbe removed.\nDo you want "
-				    "to go ahead with removal?")))
+	    if (!uiMSG().askGoOn(
+			tr( "Only selected rows will be removed."
+			    "\nThe rows in that range that "
+			    "are not displayed will not be removed."
+			    "\n\nDo you want to go ahead with removal?")))
 		 return;
 	}
 	else
 	{
-	    const int rep = uiMSG().askGoOnAfter(tr("Do you want to remove rows"
-				 "\nwhich fall in the same range but are not"
-				 "\nselected or displayed as only certain"
-				 "\npercentage of data is displayed or only the"
-				 "\nselected & displayed ones ?"),
+	    const int rep = uiMSG().askGoOnAfter(
+		    tr("Do you want to remove rows which fall in the same "
+			"range but are not selected or displayed?\n(only a "
+			"certain percentage of data is displayed!)"),
 				 uiStrings::sCancel(), tr("Delete all"),
                                  tr("Delete only selected") );
 	    if ( rep == 1 )

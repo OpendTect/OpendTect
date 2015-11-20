@@ -197,7 +197,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    // most likely a survey directory (see IOMan::isValidDataRoot())
 	    const BufferString parentdir = FilePath(datadir).pathOnly();
 	    uiString msg = tr( "Target directory:\n%1\nappears to be a survey "
-		"directory. Do you want to set its parent:\n%2\nas the "
+		"directory.\n\nDo you want to set its parent:\n%2\nas the "
 		"OpendTect Data Root directory?").arg(datadir).arg(parentdir);
 	    if ( !uiMSG().askGoOn(msg) )
 		return false;
@@ -226,7 +226,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 		uiString msg = tr("The target directory:\n%1"
 		    "\nis not an OpendTect Data Root directory."
 		    "\nIt already contains files though."
-		    "\nDo you want to convert this directory into an "
+		    "\n\nDo you want to convert this directory into an "
 		    "OpendTect Data Root directory?"
 		    "\n(this process will not remove the existing files)")
 		    .arg(datadir);

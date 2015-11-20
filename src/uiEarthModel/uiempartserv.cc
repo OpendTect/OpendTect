@@ -536,7 +536,7 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
     if ( !ioobj && emobj->isEmpty() )
 	return true;
 
-    uiString msg = tr( "%1 '%2' has changed.\nDo you want to save it?" )
+    uiString msg = tr( "%1 '%2' has changed.\n\nDo you want to save it?" )
 		   .arg( emobj->getTypeStr() ).arg( emobj->name() );
 
     const int ret = uiMSG().askSave( msg, withcancel );

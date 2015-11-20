@@ -449,8 +449,8 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     if ( saveButtonChecked() )
 	readyForDisplay.trigger();
 
-    uiString msg = tr("2D Horizon successfully imported\n"
-		      "Do you want to import more 2D Horizons?");
+    uiString msg = tr("2D Horizon successfully imported."
+		      "\n\nDo you want to import more 2D Horizons?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

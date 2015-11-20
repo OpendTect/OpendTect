@@ -224,9 +224,9 @@ bool uiImportFault::handleLMKAscii()
     else
 	fault->unRef();
 
-    const char* tp = fault3d ? "FaultSet" : "FaultStickSet";
-    uiString msg = tr("%1 successfully imported\n"
-		      "Do you want to import more %1?")
+    const char* tp = fault3d ? "FaultSets" : "FaultStickSets";
+    uiString msg = tr("%1 successfully imported."
+		      "\n\nDo you want to import more %1?")
 		      .arg(tp);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
@@ -265,8 +265,8 @@ bool uiImportFault::handleAscii()
     else
 	fault->unRef();
 
-    uiString msg = tr("%1 successfully imported\n"
-		      "Do you want to import more %1?")
+    uiString msg = tr("%1 successfully imported."
+		      "\n\nDo you want to import more %1?")
 		      .arg(tp);
     bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );

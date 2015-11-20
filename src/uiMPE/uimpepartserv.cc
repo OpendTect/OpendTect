@@ -366,8 +366,8 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     if ( !seedhasbeenpicked_ )
     {
-	uiString str = tr("No seeds have been picked. "
-			  "Do you want to continue with horizon tracking?");
+	uiString str = tr("No seeds have been picked.\n\n"
+			  "Do you want to continue horizon tracking?");
 	const bool res = uiMSG().askContinue( str );
 	if ( !res )
 	{
@@ -565,22 +565,22 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 
 uiString uiMPEPartServer::sYesAskGoOnStr()
 {
-    return tr("This object has saved tracker settings.\n" 
+    return tr("This object has saved tracker settings.\n\n"
 				    "Do you want to verify / change them?");
 }
 
 
 uiString uiMPEPartServer::sNoAskGoOnStr()
 {
-    return tr("This object was created by manual drawing\n" 
-			    "only, or its tracker settings were not saved.\n" 
-			    "Do you want to specify them right now?" );
+    return tr( "This object was created by manual drawing"
+			    " only, or its tracker settings were not saved."
+			    "\n\nDo you want to specify them right now?" );
 }
 
 
 #define mAskGoOnStr(setupavailable) \
     ( setupavailable ? sYesAskGoOnStr() : sNoAskGoOnStr() )\
-	
+
 
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 					const EM::SectionID& sid )

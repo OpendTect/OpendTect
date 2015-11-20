@@ -299,7 +299,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	{
 	    const bool overwrite =
 		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
-				    " Do you want to overwrite?").arg(lnm) );
+				    "\n\nDo you want to overwrite?").arg(lnm) );
 	    if ( overwrite )
 	    {
 		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );

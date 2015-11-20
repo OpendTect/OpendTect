@@ -426,7 +426,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     if ( wd && wd->hasChanged() )
     {
-	uiString warnstr = tr("This well has changed since the last save.\n"
+	uiString warnstr = tr("This well has changed since the last save.\n\n"
 			      "Do you want to save it?");
 	int retval = uiMSG().askSave( warnstr, withcancel );
 	if ( !retval ) return true;

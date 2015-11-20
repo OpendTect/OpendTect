@@ -144,8 +144,8 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !functions->store( ctio_.ioobj_->key() ) )
 	mErrRet( tr("Cannot store velocity functions") );
 
-    uiString msg = tr("Velocity Function successfully imported\n"
-		      "Do you want to import more Velocity Functions");
+    uiString msg = tr("Velocity Function successfully imported."
+		      "\n\nDo you want to import more Velocity Functions?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

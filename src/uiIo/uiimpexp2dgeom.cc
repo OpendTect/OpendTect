@@ -90,7 +90,7 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 
     strm.close();
 
-    const uiString msg = tr("Geometry successfully exported. "
+    const uiString msg = tr("Geometry successfully exported.\n\n"
 			    "Do you want to export more?");
     const bool res = uiMSG().askGoOn( msg );
     return !res;

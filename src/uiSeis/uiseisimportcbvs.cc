@@ -199,8 +199,8 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 
     if ( dolink )
     {
-	 uiString msg = tr("CBVS cube successfully imported\n"
-		      "Do you want to import more Cubes");
+	 uiString msg = tr("CBVS cube successfully imported."
+		      "\n\nDo you want to import more cubes?");
 	 bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
 	 return !ret;

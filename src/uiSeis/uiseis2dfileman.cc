@@ -205,7 +205,7 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     linefld_->getChosen( sellines );
     if ( sellines.isEmpty() ||
 	!uiMSG().askRemove(tr("All selected lines "
-	    "will be removed. Do you want to continue?")) )
+	    "will be removed.\n\nDo you want to continue?")) )
 	return;
 
     for ( int idx=0; idx<sellines.size(); idx++ )

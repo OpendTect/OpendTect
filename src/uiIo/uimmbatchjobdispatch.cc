@@ -285,8 +285,8 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 bool uiMMBatchJobDispatcher::retFullFailGoOnMsg()
 {
     return uiMSG().askGoOn(tr("Do you want to (try to) remove all "
-			    "temporary data?\nIf you don't, you may be able to"
-			    "re-start the job later"));
+			    "temporary data?\n\nIf you don't, you may be able "
+			    "to re-start the job later"));
 }
 
 

@@ -115,7 +115,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	msg.append( tr(" The provided center sample row position was: %1" )
 			.arg( wvlt->centerSample() + 1 + nrhdrlines ), true );
 	msg.append( "", true );
-	msg.append( tr( "Do you want to reposition the center sample?" ) );
+	msg.append( tr( "\n\nDo you want to reposition the center sample?" ) );
 	if ( uiMSG().askGoOn(msg) )
 	    wvlt->setCenterSample( maxsamp );
     }
@@ -127,8 +127,8 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !wvlt->put(ctio_.ioobj_) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
-    uiString msg = tr("Wavelet successfully imported\n"
-		      "Do you want to import more Wavelets");
+    uiString msg = tr("Wavelet successfully imported."
+		      "\n\nDo you want to import more Wavelets?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

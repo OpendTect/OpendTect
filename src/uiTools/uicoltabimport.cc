@@ -240,8 +240,8 @@ bool uiColTabImport::acceptOK( CallBacker* )
     if ( oneadded )
 	ColTab::SM().write( false );
 
-    uiString msg = tr( "ColorTab successfully imported\n"
-		      "Do you want to import more ColorTabs?" );
+    uiString msg = tr( "Color table successfully imported."
+		      "\n\nDo you want to import more Color tables?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

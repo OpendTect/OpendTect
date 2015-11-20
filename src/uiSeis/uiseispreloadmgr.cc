@@ -267,7 +267,8 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     if ( PLDM().isPresent(key) )
     {
 	uiString msg( ioobj->uiName() );
-	msg.append( " is already preloaded.\nDo you want to reload the cube?" );
+	msg.append( " is already preloaded."
+		    "\n\nDo you want to reload the cube?" );
 	if ( !uiMSG().askGoOn(msg) ) return;
 
 	PreLoader spl( key );
@@ -324,7 +325,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 		msg.append( ", " );
 	}
 
-	msg.append( " is already preloaded. Do you want to reload?" );
+	msg.append( " is already preloaded.\n\nDo you want to reload?" );
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
     }
 

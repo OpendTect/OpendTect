@@ -1000,7 +1000,7 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
 
     if ( File::exists(outfld_->selGrpFileNm()) )
     {
-	if (!uiMSG().askOverwrite(tr("Selected selections already present, "
+	if (!uiMSG().askOverwrite(tr("Selected selections already present.\n\n"
 				     "Do you want to overwrite?")))
 	    return false;
     }

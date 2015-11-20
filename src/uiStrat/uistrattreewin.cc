@@ -425,8 +425,8 @@ bool uiStratTreeWin::closeOK()
 
     if ( needsave )
     {
-	int res = uiMSG().askSave( tr("Stratigraphic framework has changed\n"
-                                      " Do you want to save it?") );
+	int res = uiMSG().askSave( tr("Stratigraphic framework has changed."
+                                      "\n\nDo you want to save it?") );
 
 	if ( res == 1 )
 	    saveCB( 0 );

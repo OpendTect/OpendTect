@@ -141,7 +141,7 @@ bool applyCB( CallBacker* )
     if ( preprocgrp_->isChanged() )
     {
 	 const int ret =
-	     uiMSG().askSave(tr("Current settings are not saved.\n"
+	     uiMSG().askSave(tr("Current settings are not saved.\n\n"
 			        "Do you want to save them?"));
 	 if ( ret==-1 )
 	     return false;

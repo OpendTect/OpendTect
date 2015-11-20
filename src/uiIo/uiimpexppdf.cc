@@ -453,7 +453,7 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 	 ( pdf2d && !ProbDenFuncTranslator::write(*pdf2d,*pdfioobj,&errmsg) ) )
     { uiMSG().error(errmsg); delete pdf; return false; }
 
-    uiString msg( tr("Imported %1x%2 PDF. Do you want to import more PDFs" ) );
+    uiString msg( tr("Imported %1x%2 PDF.\n\nDo you want to import more?" ) );
     msg.arg( pdf->size(0) ).arg( pdf2d ? pdf2d->size(1) : 1 );
     delete pdf;
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),

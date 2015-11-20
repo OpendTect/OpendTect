@@ -196,7 +196,7 @@ void uiODTreeItem::handleStandardItems( int mnuid )
     if ( mnuid==103 )
     {
 	const uiString msg = tr("All %1 items will be removed from the tree."
-				"\nDo you want to continue?")
+				"\n\nDo you want to continue?")
 			   .arg(name());
 	if ( !uiMSG().askRemove(msg) ) return;
 

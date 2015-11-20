@@ -1343,7 +1343,7 @@ bool acceptOK( CallBacker* )
 	if ( fp.baseName() != "dot" )
 	{
 	    const bool res = uiMSG().askGoOn( tr("It looks like you did not "
-		" select the dot executable.\nDo you want to continue?") );
+		" select the dot executable.\n\nDo you want to continue?") );
 	    if ( !res ) return false;
 	}
 
