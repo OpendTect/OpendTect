@@ -247,9 +247,9 @@ MultiID uiSeisPartServer::getDefault2DDataID() const
     else if ( seisidx >= 0 )
 	return ioobjs[seisidx]->key();
 
-    uiString msg = tr("No or no valid default 2D data found."
+    uiString msg = tr("No or no valid default 2D data found.\n"
 		      "You can set a default 2d data in the 'Manage Seismics' "
-		      "window. Do you want to go there now? ");
+		      "window.\n\nDo you want to go there now? ");
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
 	return false;
@@ -291,8 +291,8 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
 
     uiString msg = tr("No or no valid default volume found."
 		      "You can set a default volume in the 'Manage Seismics' "
-		      "window. Do you want to go there now? "
-		      "On 'No' an empty plane will be added");
+		      "window.\n\nDo you want to go there now?\n"
+		      "(on 'No' an empty plane will be added)");
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
 	return false;

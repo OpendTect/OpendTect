@@ -83,7 +83,7 @@ bool uiEventImport::acceptOK( CallBacker* )
     }
 
     uiString msg = tr( "PreStack Event successfully imported."
-		      "\nDo you want to import more PreStack Events?" );
+		      "\n\nDo you want to import more PreStack Events?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

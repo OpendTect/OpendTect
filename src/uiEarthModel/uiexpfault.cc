@@ -261,7 +261,7 @@ bool uiExportFault::acceptOK( CallBacker* )
      EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
 	? uiStrings::sFaultStickSet(mPlural)
 	: uiStrings::sFault(mPlural);
-    uiString msg = tr( "%1 successfully exported\n"
+    uiString msg = tr( "%1 successfully exported.\n\n"
 		    "Do you want to export more %2?" )
 	.arg(tp).arg(tps);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),

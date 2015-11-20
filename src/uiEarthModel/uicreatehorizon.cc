@@ -102,7 +102,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     }
 
     ready.trigger();
-    const bool res = uiMSG().askGoOn(tr("Horizon successfully created. "
+    const bool res = uiMSG().askGoOn(tr("Horizon successfully created.\n\n"
 				        "Do you want to create another one?"));
     return !res;
 }

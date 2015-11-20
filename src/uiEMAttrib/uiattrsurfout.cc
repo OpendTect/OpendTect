@@ -173,8 +173,9 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );
     if ( !attrfnm.isEmpty() )
     {
-	const int val = uiMSG().askOverwrite(tr("Horizon data with "
-            "this attribute name already exists. Do you want to overwrite?"));
+	const int val = uiMSG().askOverwrite( tr("Horizon data with "
+            "this attribute name already exists."
+	    "\n\nDo you want to overwrite?") );
 	if ( val==0 )
 	    return false;
     }

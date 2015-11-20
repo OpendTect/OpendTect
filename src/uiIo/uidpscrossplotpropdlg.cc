@@ -576,8 +576,8 @@ void computePts( bool isy2 )
 
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
-	msg_ = tr("Y%1 goes beyond the autoscaled range. "
-		  "Do you want to rescale?").arg(isy2 ? 2 : 1);
+	msg_ = tr("Y%1 goes beyond the autoscaled range."
+		  "\n\nDo you want to rescale?").arg(isy2 ? 2 : 1);
 
 	if ( uiMSG().askGoOn(msg_) )
 	{

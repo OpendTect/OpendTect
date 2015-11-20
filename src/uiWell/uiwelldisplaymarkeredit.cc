@@ -300,10 +300,8 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 	}
     }
 
-    uiString msg = tr("This will remove %1"
-		      " from all the wells \n "
-		      "Do you want to continue ? ")
-		 .arg(mrknm);
+    uiString msg = tr("This will remove %1 from all the wells."
+		      "\n\nDo you want to continue ? ").arg(mrknm);
 
     if ( uiMSG().askContinue( msg ) )
     {
@@ -528,8 +526,8 @@ void uiWellDispCtrlEditMarkerDlg::askForSavingEditedChanges()
 {
     if ( !hasedited_ ) return;
 
-    uiString msg = tr("Some markers have been edited. \n"
-		      "Do you want to save those changes? ");
+    uiString msg = tr("Some markers have been edited."
+		      "\n\nDo you want to save those changes? ");
     if ( uiMSG().askGoOn( msg ) )
 	needsave_ = true;
     else

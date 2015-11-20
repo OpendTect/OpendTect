@@ -93,7 +93,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;
-	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n"
+	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n\n"
 				      "Do you want to continue?") ) )
 	    return false;
     }
@@ -101,7 +101,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     {
 	if ( !doerrs ) return false;
 	uiString msg = tr( "The new cube size may exceed the space "
-			   "available on disk:\n%1\nDo you want to continue?" );
+		       "available on disk:\n%1\n\nDo you want to continue?" );
 
 	uiString explanationmsg = avszmb == 0 ? tr("The disk seems to be full!")
 					      : tr("\nEstimated size: %1 MB\n"

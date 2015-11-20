@@ -316,8 +316,8 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
     {
 	uiString msg = tr("No or no valid default 2D data found."
 			  "You can set default 2D data in the 'Manage "
-			  "Seismics' window. Do you want to go there now? "
-			  "On 'No' only the projection line will be shown" );
+			  "Seismics' window.\n\nDo you want to go there now?\n"
+			  "(on 'No' only the projection line will be shown)" );
 	const bool tomanage = uiMSG().askGoOn( msg );
 	if ( tomanage )
 	{

@@ -103,8 +103,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( File::exists(oldworkdir.fullPath()) )
     {
 	uiString msg = tr("Your current work directory (%1) %2 to be "
-			  "a valid work directory.\n"
-			  "Do you want to completely remove "
+			  "a valid work directory."
+			  "\n\nDo you want to completely remove "
 			  "the existing directory "
 			  "and create a new work directory there?")
 		     .arg(oldworkdir.fullPath())

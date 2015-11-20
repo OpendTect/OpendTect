@@ -216,8 +216,8 @@ bool uiImpAttrSet::acceptOK( CallBacker* )
 	return false;
     }
 
-    res = uiMSG().askGoOn( tr("Attribute Set successfully imported.\n"
-			   "Do you want to import more Attribute Sets?") );
+    res = uiMSG().askGoOn( tr("Attribute Set successfully imported."
+			   "\n\nDo you want to import more Attribute Sets?") );
     return !res;
 }
 

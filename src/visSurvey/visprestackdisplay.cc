@@ -694,8 +694,8 @@ void PreStackDisplay::setTraceNr( int trcnr )
 	    if ( !show2d )
 	    {
 //		resettrace = uiMSG().askContinue(
-//			"There is no data at the selected location.\n"
-//			"Do you want to find a nearby location to continue?" );
+//		"There is no data at the selected location."
+//		"\n\nDo you want to find a nearby location to continue?" );
 		show2d = true;
 	    }
 

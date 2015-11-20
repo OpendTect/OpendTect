@@ -369,9 +369,9 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     if ( crwellids_.isEmpty() )
     {
-        return !uiMSG().askGoOn( tr("No wells have been imported. "
-                                 "Do you want to make changes to the table?"),
-                                 uiStrings::sYes(), tr("No, Quit") );
+        return !uiMSG().askGoOn( tr("No wells have been imported."
+			     "\n\nDo you want to make changes to the table?"),
+			     uiStrings::sYes(), tr("No, Quit") );
     }
 
     return true;

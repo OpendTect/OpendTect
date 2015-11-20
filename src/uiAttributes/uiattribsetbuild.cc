@@ -86,8 +86,8 @@ bool uiAttribDescSetBuild::handleUnsaved()
 {
     if ( !anychg_ && !usrchg_ ) return true;
 
-    const int res = uiMSG().question(tr("Seismic Attribute Set not saved.\n"
-					"Do you want to save it now?"),
+    const int res = uiMSG().question(tr("Seismic Attribute Set not saved."
+					"\n\nDo you want to save it now?"),
 				     tr("Yes (store)"), tr("No (discard)"),
 	uiStrings::sCancel());
     if ( res == 0 ) return true;

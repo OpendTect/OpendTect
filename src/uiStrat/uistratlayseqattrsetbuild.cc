@@ -73,7 +73,7 @@ bool uiStratLaySeqAttribSetBuild::handleUnsaved()
 {
     if ( !anychg_ && !usrchg_ ) return true;
 
-    const int res = uiMSG().question(tr("Well Attribute Set not saved.\n"
+    const int res = uiMSG().question(tr("Well Attribute Set not saved.\n\n"
 	                                "Do you want to save it now?"),
                                      tr("Yes (store)"), tr("No (discard)"),
                                         uiStrings::sCancel() );

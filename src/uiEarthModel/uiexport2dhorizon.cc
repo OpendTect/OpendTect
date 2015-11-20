@@ -270,7 +270,7 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
     }
 
     uiString msg = tr("2D Horizon successfully exported."
-		      "\nDo you want to export more horizons?");
+		      "\n\nDo you want to export more horizons?");
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }
 

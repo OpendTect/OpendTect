@@ -243,7 +243,7 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
     {
 	uiString chgstr = toberemoved ? tr( "remove" ) : tr( "change" );
 	uiString msg = tr("%1 will become undetiable as it is dependent on '%2'"
-			  ". Do you want to %3 the synthetics?")
+			  ".\n\nDo you want to %3 the synthetics?")
 			  .arg(synthstobedisabled.getDispString())
 			  .arg(sgptorem.name_.buf()).arg(chgstr);
 	if ( !uiMSG().askGoOn(msg) )

@@ -123,10 +123,10 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     {
 	uiMSG().error(uiStrings::phrCannotImport(uiStrings::sData()));
 	return false;
-    } 
+    }
 
-    uiString msg = tr("CBVS cube successfully imported\n"
-		      "Do you want to import more Cubes");
+    uiString msg = tr("CBVS cube successfully imported\n\n"
+		      "Do you want to import more cubes?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(), 
 				 tr("No, close window") );
     return !ret;

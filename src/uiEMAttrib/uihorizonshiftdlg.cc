@@ -176,8 +176,7 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
     if ( (calcshiftrg_ != shiftrg_) && (!mIsUdf(calcshiftrg_.start) &&
 				        !mIsUdf(calcshiftrg_.stop)) )
     {
-	if ( uiMSG().askGoOn(tr("Do you want to recalculate "
-                                "on the give range")) )
+	if ( uiMSG().askGoOn(tr("Do you want to recalculate the range?")) )
 	{
 	    calcshiftrg_ = rangeinpfld_->getFStepInterval();
 	    calcAttrib( 0 );

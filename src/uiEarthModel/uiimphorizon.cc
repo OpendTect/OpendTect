@@ -516,8 +516,8 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     if ( doDisplay() )
 	importReady.trigger();
 
-    uiString msg = tr("3D Horizon successfully imported\n"
-		      "Do you want to import more 3D Horizons?");
+    uiString msg = tr("3D Horizon successfully imported."
+		      "\n\nDo you want to import more 3D Horizons?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

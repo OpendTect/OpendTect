@@ -115,7 +115,7 @@ void uiProcSel::editPushCB( CallBacker* )
 	    }
 	    else
 	    {
-		if ( uiMSG().askSave(tr("Current settings are not saved.\n"
+		if ( uiMSG().askSave(tr("Current settings are not saved.\n\n"
 					"Do you want to discard them?")) )
 		    break;
 

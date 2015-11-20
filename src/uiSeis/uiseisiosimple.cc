@@ -554,8 +554,9 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     if ( !res )
 	return res;
 
-    const uiString msg = tr("Data successfully %1. Do you want to %1 more.")
-			    .arg(isimp_ ? tr("Imported") : tr("Exported"));
+    const uiString msg = tr("Data successfully %1.\n\nDo you want to %2 more?")
+			    .arg(isimp_ ? tr("imported") : tr("exported"))
+			    .arg(isimp_ ? tr("import") : tr("export"));
     const bool ret = uiMSG().askGoOn(msg, uiStrings::sYes(),
 		     tr("No, close window"));
     return !ret;

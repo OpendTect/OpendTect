@@ -279,8 +279,8 @@ bool acceptOK( CallBacker* )
     info.state = statefld->text();
     info.county = countyfld->text();
 
-    uiString msg = tr("Well Track successfully imported\n"
-		      "Do you want to import more Well Tracks");
+    uiString msg = tr("Well Track successfully imported."
+		      "\n\nDo you want to import more Well Tracks?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;
@@ -315,8 +315,8 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 	wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
 	wd_.info().groundelev = mUdf(float);
     }
-    uiString msg = tr("Well Track successfully imported\n"
-		      "Do you want to import more Well Tracks");
+    uiString msg = tr("Well Track successfully imported."
+		      "\n\nDo you want to import more Well Tracks?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

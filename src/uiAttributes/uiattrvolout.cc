@@ -279,7 +279,7 @@ bool uiAttrVolOut::prepareProcessing()
 		uiString msg = tr("Invalid charactor '|' "
 				  " found in output name. "
 				  "It will be renamed to: '%1'"
-				  "\nDo you want to continue?")
+				  "\n\nDo you want to continue?")
 			     .arg(outputnm.buf());
 		    return false;
 	    }

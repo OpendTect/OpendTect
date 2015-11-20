@@ -197,8 +197,8 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( !wtr.putLogs() )
 	mErrRet( tr("Cannot write logs to disk") )
 
-    uiString msg = tr("Well Log successfully imported\n"
-		      "Do you want to import more Well Logs");
+    uiString msg = tr("Well Log successfully imported."
+		      "\n\nDo you want to import more Well Logs?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

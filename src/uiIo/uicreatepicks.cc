@@ -165,7 +165,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     {
 	uiString msg = tr("PickSet would contain %1 "
 			  "points which might consume unexpected time & memory."
-			  "Do you want to continue?")
+			  "\n\nDo you want to continue?")
 		     .arg(dpssize);
 	if ( !uiMSG().askGoOn(msg) )
 	{

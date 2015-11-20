@@ -243,7 +243,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	BufferString selnm = attrfld->getText();
 	if ( selnm==curnm_ )
 	{
-	    uiString msg = tr("Do you want to reload the attribute %1")
+	    uiString msg = tr("Do you want to reload the attribute %1?")
                            .arg(selnm);
 	    if ( !uiMSG().askGoOn(msg) )
 	    {
