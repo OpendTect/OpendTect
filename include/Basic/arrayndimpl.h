@@ -26,12 +26,12 @@ mClass(Basic) ArrayImplBase
 protected:
     virtual od_int64	getStorageSize() const			= 0;
 
-    			ArrayImplBase();
-    			~ArrayImplBase()	{ delete stor_; }
+			ArrayImplBase();
+			~ArrayImplBase()	{ delete stor_; }
 
     bool		storageOK() const;
     bool		updateStorageSize();
-    			/*!<Sets storage size to getStorageSize()
+			/*!<Sets storage size to getStorageSize()
 			    and creates if need be. */
 
     bool		setStorageNoResize(ValueSeries<T>*);
@@ -67,7 +67,7 @@ public:
     bool		isOK() const { return base::storageOK(); }
     void		copyFrom(const Array1D<T>&);
     bool		setStorage(ValueSeries<T>* vs)
-    			    { return base::setStorageInternal(vs); }
+			    { return base::setStorageInternal(vs); }
     bool		canSetStorage() const	{ return true; }
 
     void		set(int pos,T);
@@ -104,8 +104,8 @@ mClass(Basic) Array2DImpl : public Array2D<T>, public ArrayImplBase<T>
 public:
 			Array2DImpl(int sz0,int sz1);
 			Array2DImpl(const Array2DInfo&);
-    			Array2DImpl(const Array2D<T>&);
-    			Array2DImpl(const Array2DImpl<T>&);
+			Array2DImpl(const Array2D<T>&);
+			Array2DImpl(const Array2DImpl<T>&);
 			~Array2DImpl() { deleteAndZeroArrPtr( ptr2d_ ); }
 
     Array2DImpl<T>&	operator =( const Array2D<T>& ai )
@@ -186,7 +186,7 @@ protected:
     void		updateCachePointers();
     void		eraseCache();
 
-    TypeSet<T**> 	cachestor_;
+    TypeSet<T**>	cachestor_;
     T***		ptr3d_;
     Array3DInfoImpl	in_;
 };
@@ -202,6 +202,8 @@ mClass(Basic) ArrayNDImpl : public ArrayND<T>, public ArrayImplBase<T>
 public:
 
     static ArrayND<T>*	create(const ArrayNDInfo& nsz);
+    static ArrayND<T>*	clone(const ArrayND<T>&);
+    static bool		clone(const ArrayND<T>&,ArrayND<T>&);
 
 			ArrayNDImpl(const ArrayNDInfo&);
 			ArrayNDImpl(const ArrayND<T>&);
@@ -215,7 +217,7 @@ public:
     bool		isOK() const { return base::storageOK(); }
     bool		canSetStorage() const	{ return true; }
     bool		setStorage(ValueSeries<T>* vs)
-    			    { return base::setStorageInternal(vs); }
+			    { return base::setStorageInternal(vs); }
 
     void		setND(const int*,T);
     T			getND(const int*) const;
@@ -811,6 +813,91 @@ ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& nsz )
     return new ArrayNDImpl<T>( nsz );
 }
 
+
+template <class T> inline
+ArrayND<T>* ArrayNDImpl<T>::clone( const ArrayND<T>& oth )
+{
+    ArrayND<T>* out = create( oth.info() );
+    if ( !out )
+	return 0;
+
+    if ( !out->isOK() )
+	{ delete out; return 0; }
+
+    const bool success = clone( oth, *out );
+    if ( !success )
+	{ delete out; return 0; }
+
+    return out;
+}
+
+
+template <class T> inline
+bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
+{
+    const od_uint64 sz = inp.info().getTotalSz();
+    if ( !inp.isOK() )
+	return false;
+
+    if ( !out.isOK() || out.info() != inp.info() )
+    {
+	if ( !out.setInfo(inp.info()) ) //Also allocates storage
+	    return false;
+    }
+
+    if ( inp.getData() && out.getData() )
+    {
+	OD::memCopy( out.getData(), inp.getData(), sz*sizeof(T) );
+	return true;
+    }
+
+    const int ndim = inp.info().getNDim();
+    if ( ndim==1 )
+    {
+	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)
+	mDynamicCastGet(Array1DImpl<T>*,out1d,&out)
+	if ( inp1d && out1d )
+	    { *out1d = *inp1d; return true; }
+    }
+    else if ( ndim==2 )
+    {
+	mDynamicCastGet(const Array2DImpl<T>*,inp2d,&inp)
+	mDynamicCastGet(Array2DImpl<T>*,out2d,&out)
+	if ( inp2d && out2d )
+	    { *out2d = *inp2d; return true; }
+    }
+    else if ( ndim==3 )
+    {
+	mDynamicCastGet(const Array3DImpl<T>*,inp3d,&inp)
+	mDynamicCastGet(Array3DImpl<T>*,out3d,&out)
+	if ( inp3d && out3d )
+	    { *out3d = *inp3d; return true; }
+    }
+
+    mDynamicCastGet(const ArrayNDImpl<T>*,inpnd,&inp)
+    mDynamicCastGet(ArrayNDImpl<T>*,outnd,&out)
+    if ( inpnd && &outnd )
+    {
+	*outnd = *inpnd;
+	return true;
+    }
+
+    ValueSeries<T>* newstor = out.getStorage();
+    if ( newstor )
+    {
+	inp.getAll( *newstor );
+	return true;
+    }
+
+    ArrayNDIter iter( inp.info() );
+    do
+    {
+	const int* pos = iter.getPos();
+	out.setND( pos, inp.getND(pos) );
+    } while ( iter.next() );
+
+    return true;
+}
 
 #endif
 
