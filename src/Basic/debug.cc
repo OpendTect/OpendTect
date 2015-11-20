@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 
 #ifdef __win__
-#include "client\windows\handler\exception_handler.h"
+#include "client/windows/handler/exception_handler.h"
 #endif
 
 #ifdef __lux__
@@ -448,8 +448,7 @@ namespace System
 {
 
 CrashDumper::CrashDumper()
-    : sendappl_( sSenderAppl() )
-    , handler_(0)
+    : handler_(0)
 {
     init();
 }
@@ -514,12 +513,38 @@ void CrashDumper::init()
 
 void CrashDumper::sendDump( const char* filename )
 {
-    if ( sendappl_.isEmpty() || !File::exists(filename) )
+    if ( !File::exists(filename) )
 	return;
 
-    const BufferString cmd( "\"",FilePath(GetExecPlfDir(),sendappl_).fullPath(),
-			    "\"" );
-    const BufferString args( "--binary ", filename );
+    const BufferString processscript =
+#if defined( __win__ )
+	"process_dumpfile.cmd";
+#else
+	"process_dumpfile.sh";
+#endif
+
+    const FilePath script( GetScriptDir(), processscript );
+    const FilePath symboldir( GetExecPlfDir(), "symbols" );
+
+#ifdef __win__
+    const FilePath dumphandler(GetExecPlfDir(), "minidump_stackwalk.exe");
+#else
+    const FilePath dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
+#endif
+
+    const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
+
+    const BufferString cmd( "\"",script.fullPath(), "\"" );
+    BufferString args = BufferString( "\"", filename, "\"" );
+    args += BufferString( " \"", symboldir.fullPath(), "\"" );
+    args += BufferString( " \"", dumphandler.fullPath(), "\"" );
+    args += BufferString( " ", prefix );
+    if ( !sendappl_.isEmpty() )
+	args += BufferString( " \"",
+		FilePath(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
+
+    std::cout << cmd.str() << " " << args.str() << std::endl;
+
     ExecODProgram( cmd, args );
 }
 
@@ -533,8 +558,9 @@ CrashDumper& CrashDumper::getInstance()
 }
 
 
+//!Obsolete since we don't do non-ui
 FixedString CrashDumper::sSenderAppl()
-{ return FixedString("od_ReportIssue" ); }
+{ return FixedString("" ); }
 
 FixedString CrashDumper::sUiSenderAppl()
 { return FixedString( "od_uiReportIssue" ); }

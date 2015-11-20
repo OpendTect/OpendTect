@@ -30,16 +30,23 @@ public:
     
     System::IssueReporter&	reporter() { return reporter_; }
     const char*			errMsg() const;
-    
+
+    static FixedString		sKeyAllowSending()
+    				{ return "Allow sending of issue-reports"; }
 
 protected:
-    
+    bool			allowSending() const;
     void			viewReportCB(CallBacker*);
+    void			viewReport(const uiString& caption);
+    void			copyToClipBoardCB(CallBacker*);
     void			proxySetCB(CallBacker*);
     
     bool			acceptOK(CallBacker*);
     void			setButSensitive(bool);
     void			getReport(BufferString&) const;
+
+    static uiString		sSendReport() { return tr("Send report"); }
+    static uiString		sDontSendReport() { return tr("Do not send"); }
     
     uiTextEdit*			commentfld_;
     uiGenInput*			emailfld_;

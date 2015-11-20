@@ -45,9 +45,8 @@ mDefModInitFn(Basic)
     PosInfo::Survey2D::initClass();
 
 #ifdef mUseCrashDumper
-    System::CrashDumper::getInstance().setSendAppl(
-					System::CrashDumper::sSenderAppl() );
+    //Force init of handler.
+    System::CrashDumper::getInstance();
 #endif
-
 }
 

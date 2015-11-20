@@ -59,7 +59,6 @@ bool System::IssueReporter::readReport( const char* filename )
     if ( fstream.isBad() )
 	mStreamError( tr("open") );
 
-    report_.setEmpty();
 
     report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
 
@@ -68,31 +67,14 @@ bool System::IssueReporter::readReport( const char* filename )
     if ( !fstream.getAll( unfilteredreport ) )
 	mStreamError( tr("read") );
 
-    SeparString sep( unfilteredreport.buf(), '\n' );
-
-    for ( int idx=0; idx<sep.size(); idx++ )
-    {
-	BufferString line = sep[idx];
-
-	mTestMatch( "zypper" )
-	mTestMatch( "no debugging symbols found" );
-	mTestMatch( "Missing separate debuginfo for" );
-	mTestMatch( "no loadable sections found in added symbol-file");
-	report_.add( line ).add( "\n" );
-    }
+    report_.add( unfilteredreport.buf() );
 
     return true;
 }
 
 
-bool System::IssueReporter::setDumpFileName( const char* filename )
+void System::IssueReporter::fillBasicReport( const char* filename )
 {
-    if ( !File::exists( filename ) )
-    {
-	errmsg_ = uiStrings::phrDoesntExist(toUiString(filename));
-	return false;
-    }
-
     report_.setEmpty();
     BufferString unfilteredreport;
     unfilteredreport.add(  "The file path of crash report is....\n" );
@@ -124,6 +106,16 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
     {
 	BufferString line = sep[idx];
 	report_.add( line ).add( "\n" );
+    }
+}
+
+
+bool System::IssueReporter::setDumpFileName( const char* filename )
+{
+    if ( !File::exists( filename ) )
+    {
+	errmsg_ = uiStrings::phrDoesntExist(toUiString(filename));
+	return false;
     }
 
     crashreportpath_ = filename;
@@ -189,10 +181,10 @@ bool System::IssueReporter::parseCommandLine()
     parser.getVal( pathkey, path_ );
     const bool binary = parser.hasKey( "binary" );
 
+    fillBasicReport( filename );
+
     if ( binary )
-    {
 	return setDumpFileName( filename );
-    }
 
     return readReport( filename );
 }

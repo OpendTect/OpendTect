@@ -64,6 +64,11 @@ install ( DIRECTORY CMakeModules DESTINATION ${MISC_INSTALL_PREFIX}
 	  PATTERN "*.cmake~" EXCLUDE
 	  PATTERN "sourcefiles*.txt*" EXCLUDE)
 
+#install breakpad
+install( PROGRAMS ${BREAKPAD_STACKWALK_EXECUTABLE}
+             DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE}
+             CONFIGURATIONS Release )
+
 #install doc stuff
 file( GLOB TUTHFILES plugins/Tut/*.h )
 file( GLOB TUTCCFILES plugins/Tut/*.cc )
