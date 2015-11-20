@@ -202,6 +202,8 @@ mClass(Basic) ArrayNDImpl : public ArrayND<T>, public ArrayImplBase<T>
 public:
 
     static ArrayND<T>*	create(const ArrayNDInfo& nsz);
+    static ArrayND<T>*	clone(const ArrayND<T>&);
+    static bool		clone(const ArrayND<T>&,ArrayND<T>&);
 
 			ArrayNDImpl(const ArrayNDInfo&);
 			ArrayNDImpl(const ArrayND<T>&);
@@ -811,5 +813,90 @@ ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& nsz )
     return new ArrayNDImpl<T>( nsz );
 }
 
+
+template <class T> inline
+ArrayND<T>* ArrayNDImpl<T>::clone( const ArrayND<T>& oth )
+{
+    ArrayND<T>* out = create( oth.info() );
+    if ( !out )
+	return 0;
+
+    if ( !out->isOK() )
+	{ delete out; return 0; }
+
+    const bool success = clone( oth, *out );
+    if ( !success )
+	{ delete out; return 0; }
+
+    return out;
+}
+
+
+template <class T> inline
+bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
+{
+    const od_uint64 sz = inp.info().getTotalSz();
+    if ( !inp.isOK() )
+	return false;
+
+    if ( !out.isOK() || out.info() != inp.info() )
+    {
+	if ( !out.setInfo(inp.info()) ) //Also allocates storage
+	    return false;
+    }
+
+    if ( inp.getData() && out.getData() )
+    {
+	OD::memCopy( out.getData(), inp.getData(), sz*sizeof(T) );
+	return true;
+    }
+
+    const int ndim = inp.info().getNDim();
+    if ( ndim==1 )
+    {
+	mDynamicCastGet(const Array1DImpl<T>*,inp1d,&inp)
+	mDynamicCastGet(Array1DImpl<T>*,out1d,&out)
+	if ( inp1d && out1d )
+	    { *out1d = *inp1d; return true; }
+    }
+    else if ( ndim==2 )
+    {
+	mDynamicCastGet(const Array2DImpl<T>*,inp2d,&inp)
+	mDynamicCastGet(Array2DImpl<T>*,out2d,&out)
+	if ( inp2d && out2d )
+	    { *out2d = *inp2d; return true; }
+    }
+    else if ( ndim==3 )
+    {
+	mDynamicCastGet(const Array3DImpl<T>*,inp3d,&inp)
+	mDynamicCastGet(Array3DImpl<T>*,out3d,&out)
+	if ( inp3d && out3d )
+	    { *out3d = *inp3d; return true; }
+    }
+
+    mDynamicCastGet(const ArrayNDImpl<T>*,inpnd,&inp)
+    mDynamicCastGet(ArrayNDImpl<T>*,outnd,&out)
+    if ( inpnd && &outnd )
+    {
+	*outnd = *inpnd;
+	return true;
+    }
+
+    ValueSeries<T>* newstor = out.getStorage();
+    if ( newstor )
+    {
+	inp.getAll( *newstor );
+	return true;
+    }
+
+    ArrayNDIter iter( inp.info() );
+    do
+    {
+	const int* pos = iter.getPos();
+	out.setND( pos, inp.getND(pos) );
+    } while ( iter.next() );
+
+    return true;
+}
 
 #endif
