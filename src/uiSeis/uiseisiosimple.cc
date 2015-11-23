@@ -143,22 +143,19 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		BoolInpSpec(true,tr("X Y"),tr("Inl Crl")) );
 	isxyfld_->setValue( data().isxy_ );
 	isxyfld_->attach( alignedBelow, attachobj );
-	if ( !isimp_ )
-	{
-	    if ( !isps )
-		attachobj = isxyfld_->attachObj();
-	    else
-	    {
-		haveoffsbut_ = new uiCheckBox( this, uiStrings::sOffset() );
-		haveoffsbut_->setChecked( data().haveoffs_ );
-		haveoffsbut_->attach( alignedBelow, isxyfld_ );
-		haveazimbut_ = new uiCheckBox( this, uiStrings::sAzimuth() );
-		haveazimbut_->setChecked( data().haveazim_ );
-		haveazimbut_->attach( rightOf, haveoffsbut_ );
-		pspposlbl_ = new uiLabel( this, tr("Include"), haveoffsbut_ );
-		attachobj = haveoffsbut_;
-	    }
-	}
+	attachobj = isxyfld_->attachObj();
+    }
+
+    if ( !isimp_ && isps )
+    {
+	haveoffsbut_ = new uiCheckBox( this, uiStrings::sOffset() );
+	haveoffsbut_->setChecked( data().haveoffs_ );
+	haveoffsbut_->attach( alignedBelow, attachobj );
+	haveazimbut_ = new uiCheckBox( this, uiStrings::sAzimuth() );
+	haveazimbut_->setChecked( data().haveazim_ );
+	haveazimbut_->attach( rightOf, haveoffsbut_ );
+	pspposlbl_ = new uiLabel( this, tr("Include"), haveoffsbut_ );
+	attachobj = haveoffsbut_;
     }
 
     if ( isimp_ )

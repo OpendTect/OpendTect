@@ -55,7 +55,7 @@ static uiParent* getParent( uiParent* p )
     uiParent* res = uiMainWin::activeWindow();
     if ( res )
         return res;
-    
+
     return p;
 }
 
@@ -79,7 +79,8 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     proglbl_ = new uiLabel( this, toUiString(noprogbardispsymbs[0]) );
     proglbl_->attach( hCentered );
 #ifdef __debug__
-    proglbl_->setHSzPol( uiObject::WideVar );
+    proglbl_->setPrefWidthInChar( 20 );
+    proglbl_->setAlignment( OD::Alignment::Left );
 #endif
 
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
@@ -222,7 +223,9 @@ void uiTaskRunner::updateFields()
     {
 	symbidx_++;
 #ifdef __debug__
-	proglbl_->setText( toUiString(tr("[ %1 ]").arg(symbidx_)) );
+	//TODO: solve in uiLabel:
+	// if you leave out the spaces at the end, number will be truncated
+	proglbl_->setText( tr("[dbg] step: %1     ").arg(symbidx_) );
 #else
 	if ( symbidx_ >= noprogbardispnrsymbs ) symbidx_ = 0;
 	proglbl_->setText( toUiString(noprogbardispsymbs[symbidx_]) );
