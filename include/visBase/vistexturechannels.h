@@ -136,6 +136,9 @@ protected:
     TextureChannel2RGBA*	tc2rgba_;
     osgGeo::LayeredTexture*	osgtexture_;
     bool			interpolatetexture_;
+
+public:
+    StepInterval<float>		getEnvelopeRange(unsigned char dim) const;
 };
 
 

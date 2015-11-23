@@ -191,7 +191,7 @@ protected:
     bool			hasCache(int) const;
 
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
-    void			setUpdateStageTextureTransform();
+    void			updateTexShiftAndGrowth();
 
     visBase::EventCatcher*		eventcatcher_;
     MouseCursor				mousecursor_;
@@ -226,7 +226,7 @@ protected:
 	bool		refreeze_;
 	TrcKeyZSampling oldcs_;
 	SliceType	oldorientation_;
-	Coord		oldimagesize_;
+	Coord		oldimagesize_;		// obsolete
     };
     UpdateStageInfo			updatestageinfo_;
     TrcKeyZSampling			startmovepos_;
@@ -235,6 +235,9 @@ protected:
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyResolution()  { return "Resolution"; }
     static const char*		sKeyGridLinesID() { return "GridLines ID"; }
+
+    void			updateTexOriginAndScale(int attrib,
+							const TrcKeyZSampling&);
 };
 
 } // namespace visSurvey
