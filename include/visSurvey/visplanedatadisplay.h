@@ -191,7 +191,10 @@ protected:
     bool			hasCache(int) const;
 
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
-    void			setUpdateStageTextureTransform();
+
+    void			updateTexShiftAndGrowth();
+    void			updateTexOriginAndScale(int attrib,
+							const TrcKeyZSampling&);
 
     visBase::EventCatcher*		eventcatcher_;
     MouseCursor				mousecursor_;
@@ -224,9 +227,8 @@ protected:
     struct UpdateStageInfo
     {
 	bool		refreeze_;
-	TrcKeyZSampling oldcs_;
+	TrcKeyZSampling oldtkzs_;
 	SliceType	oldorientation_;
-	Coord		oldimagesize_;
     };
     UpdateStageInfo			updatestageinfo_;
     TrcKeyZSampling			startmovepos_;

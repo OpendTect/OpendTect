@@ -658,6 +658,22 @@ const Coord& TextureChannels::getScale( int channel ) const
 }
 
 
+StepInterval<float> TextureChannels::getEnvelopeRange( unsigned char dim ) const
+{
+    if ( !osgtexture_->isEnvelopeDefined() )
+	return StepInterval<float>::udf();
+
+    if ( dim > 1 ) dim = 1;
+
+    osg::Vec2f center = osgtexture_->envelopeCenter();
+    osg::Vec2f halfsz = osgtexture_->textureEnvelopeSize() * 0.5f;
+
+    return StepInterval<float>( center[dim]-halfsz[dim],
+				center[dim]+halfsz[dim],
+				1.0/osgtexture_->tilingPlanResolution()[dim] );
+}
+
+
 bool TextureChannels::turnOn( bool yn )
 {
     bool res = isOn();
@@ -684,7 +700,6 @@ int TextureChannels::addChannel()
     const int osgid = osgtexture_->addDataLayer();
     const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
     osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
-    osgtexture_->setDataLayerBorderColor( osgid, imageudfcolor );
     osgtexture_->setDataLayerFilterType( osgid, mGetFilterType );
 
     osgids += osgid;
@@ -1034,6 +1049,10 @@ void TextureChannels::update( int channel, bool freezeifnodata )
 	    osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
 	    const int udfchannel = nrTextureBands()==3 ? 2 : 3;
 	    osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
+
+	    osg::Vec4f bordercolor( 1.0, 1.0, 1.0, 1.0 );
+	    bordercolor[udfchannel] = 0.0;
+	    osgtexture_->setDataLayerBorderColor( osgid, bordercolor );
 	}
 
 	osgtexture_->setDataLayerOrigin( osgid,

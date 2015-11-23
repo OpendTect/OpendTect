@@ -693,7 +693,7 @@ void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
 
     curicstep_ = cs.hsamp_.step_;
 
-    setUpdateStageTextureTransform();
+    updateTexShiftAndGrowth();
 
     //channels_->clearAll();
     movefinished_.trigger();
@@ -831,77 +831,56 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
     ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
     if ( !regsdp ) return;
 
+    updateTexOriginAndScale( attrib, regsdp->sampling() );
+
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
     const int dim0 = orientation_==OD::InlineSlice ? 1 : 0;
     const int dim1 = orientation_==OD::ZSlice ? 1 : 2;
-    int newsz0 = regsdp->data().info().getSize( dim0 );
-    int newsz1 = regsdp->data().info().getSize( dim1 );
-    bool differentattribsizes = false, onlycurrent = true;
-    if ( attrib!=0 && nrAttribs()>1 )
+
+    for ( int idx=0; idx<nrversions; idx++ )
     {
-	const int oldchannelsz0 =
-	    (channels_->getSize(0,1)+resolution_) / (resolution_+1);
-	const int oldchannelsz1 =
-	    (channels_->getSize(0,2)+resolution_) / (resolution_+1);
+	const Array3D<float>& array = regsdp->data( idx );
+	const int sz0 = 1 + (array.info().getSize(dim0)-1) * (resolution_+1);
+	const int sz1 = 1 + (array.info().getSize(dim1)-1) * (resolution_+1);
 
-	differentattribsizes = newsz0!=oldchannelsz0 || newsz1!=oldchannelsz1;
-	onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
-	if ( newsz0 < oldchannelsz0 ) newsz0 = oldchannelsz0;
-	if ( newsz1 < oldchannelsz1 ) newsz1 = oldchannelsz1;
-    }
+	const float* arr = array.getData();
+	OD::PtrPolicy cp = OD::UsePtr;
 
-    for ( int attribidx=0; attribidx<nrAttribs(); attribidx++ )
-    {
-	if ( onlycurrent && attribidx!=attrib )
-	    continue;
-
-	regsdp = dpm.obtain( getDisplayedDataPackID(attribidx) );
-	if ( !regsdp ) continue;
-
-	for ( int idx=0; idx<regsdp->nrComponents(); idx++ )
+	if ( !arr || resolution_>0 )
 	{
-	    const Array3D<float>& array = regsdp->data( idx );
-	    const int sz0 = 1 + (newsz0-1) * (resolution_+1);
-	    const int sz1 = 1 + (newsz1-1) * (resolution_+1);
-	    const float* arr = array.getData();
-	    OD::PtrPolicy cp = OD::UsePtr;
+	    mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
+	    if ( !tmparr ) continue;
 
-	    if ( !arr || resolution_>0 || differentattribsizes )
+	    if ( resolution_ == 0 )
+		array.getAll( tmparr );
+	    else
 	    {
-		mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
-		if ( !tmparr ) continue;
-		// TODO: Get rid of this extra array creation for
-		// differentattribsizes when Jaap enables usage of
-		// LayeredTexture with different texturesizes. [T254]
+		Array2DSlice<float> slice2d( array );
+		slice2d.setDimMap( 0, dim0 );
+		slice2d.setDimMap( 1, dim1 );
+		slice2d.setPos( orientation_, 0 );
+		slice2d.init();
 
-		if ( resolution_==0 && !differentattribsizes )
-		    array.getAll( tmparr );
-		else
-		{
-		    Array2DSlice<float> slice2d( array );
-		    slice2d.setDimMap( 0, dim0 );
-		    slice2d.setDimMap( 1, dim1 );
-		    slice2d.setPos( orientation_, 0 );
-		    slice2d.init();
-
-		    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-		    Array2DReSampler<float,float> resampler(
-			    slice2d, tmparr, sz0, sz1, true );
-		    resampler.setInterpolate( true );
-		    TaskRunner::execute( 0, resampler );
-		}
-
-		arr = tmparr;
-		cp = OD::TakeOverPtr;
+		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+		Array2DReSampler<float,float> resampler(
+					    slice2d, tmparr, sz0, sz1, true );
+		resampler.setInterpolate( true );
+		TaskRunner::execute( 0, resampler );
 	    }
 
-	    channels_->setSize( attribidx, 1, sz0, sz1 );
-	    channels_->setUnMappedData( attribidx, idx, arr, cp, 0,
-					interactivetexturedisplay_ );
+	    arr = tmparr;
+	    cp = OD::TakeOverPtr;
 	}
+
+	channels_->setSize( attrib, 1, sz0, sz1 );
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
+				    interactivetexturedisplay_ );
     }
+
+    if ( !getUpdateStageNr() )
+	updateTexShiftAndGrowth();
 
     channels_->turnOn( true );
 }
@@ -1113,18 +1092,14 @@ void PlaneDataDisplay::annotateNextUpdateStage( bool yn )
 {
     if ( !yn )
     {
-	texturerect_->setTextureShift( Coord(0.0,0.0) );
-	texturerect_->setTextureGrowth( Coord(0.0,0.0) );
+	updateTexShiftAndGrowth();
 	dragger_->showPlane( false );
 	dragger_->showDraggerBorder( true );
     }
     else if ( !getUpdateStageNr() )
     {
-	updatestageinfo_.oldcs_ = getTrcKeyZSampling( false, true );
+	updatestageinfo_.oldtkzs_ = getTrcKeyZSampling( false, true );
 	updatestageinfo_.oldorientation_ = orientation_;
-	// Needs refinement when introducing variably sized texture layers
-	updatestageinfo_.oldimagesize_.x = channels_->getSize(0,2);
-	updatestageinfo_.oldimagesize_.y = channels_->getSize(0,1);
 	updatestageinfo_.refreeze_ = true;
     }
     else if ( updatestageinfo_.refreeze_ )
@@ -1135,51 +1110,103 @@ void PlaneDataDisplay::annotateNextUpdateStage( bool yn )
 }
 
 
-void PlaneDataDisplay::setUpdateStageTextureTransform()
+void PlaneDataDisplay::updateTexShiftAndGrowth()
 {
-    if ( !getUpdateStageNr() )
+    const Interval<float> erg0 = channels_->getEnvelopeRange( 0 );
+    const Interval<float> erg1 = channels_->getEnvelopeRange( 1 );
+
+    if ( erg0.isUdf() || erg1.isUdf() )
 	return;
 
-    const TrcKeyZSampling& oldcs = updatestageinfo_.oldcs_;
-    const TrcKeyZSampling  newcs = getTrcKeyZSampling( false, true );
+    const TrcKeyZSampling tkzs = getTrcKeyZSampling( false, true );
+    const TrcKeyZSampling& oldtkzs = updatestageinfo_.oldtkzs_;
 
-    Coord samplingratio( updatestageinfo_.oldimagesize_.x/oldcs.nrZ(),
-			 updatestageinfo_.oldimagesize_.y/oldcs.nrInl() );
-    Coord startdif( (newcs.zsamp_.start-oldcs.zsamp_.start) / newcs.zsamp_.step,
-		    newcs.hsamp_.start_.inl()-oldcs.hsamp_.start_.inl() );
-    Coord growth( newcs.nrZ()-oldcs.nrZ(), newcs.nrInl()-oldcs.nrInl() );
-    updatestageinfo_.refreeze_ =
-	newcs.hsamp_.start_.crl()==oldcs.hsamp_.start_.crl();
+    const TrcKeyZSampling& si = SI().sampling( true );
+    const float resolutionfactor = resolution_ + 1;
+
+    const float inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
+    const float inlfactor = resolutionfactor / si.hsamp_.step_.inl();
+
+    const float crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
+    const float crlfactor = resolutionfactor / si.hsamp_.step_.crl();
+
+    const float zdif = tkzs.zsamp_.start - si.zsamp_.start;
+    const float zfactor = resolutionfactor / si.zsamp_.step;
+
+    Coord startdif( zdif*zfactor - erg0.start, inldif*inlfactor - erg1.start );
+    Coord growth( tkzs.zsamp_.width()*zfactor - erg0.width(),
+		  tkzs.hsamp_.lineRange().width()*inlfactor - erg1.width() );
+
+    bool refreeze = tkzs.hsamp_.start_.crl()==oldtkzs.hsamp_.start_.crl();
 
     if ( orientation_ == OD::InlineSlice )
     {
-	samplingratio.y = updatestageinfo_.oldimagesize_.y / oldcs.nrCrl();
-	startdif.y = newcs.hsamp_.start_.crl() - oldcs.hsamp_.start_.crl();
-	growth.y = newcs.nrCrl() - oldcs.nrCrl();
-	updatestageinfo_.refreeze_ =
-	    newcs.hsamp_.start_.inl()==oldcs.hsamp_.start_.inl();
+	startdif.y = crldif * crlfactor - erg1.start;
+	growth.y = tkzs.hsamp_.trcRange().width()*crlfactor - erg1.width();
+	refreeze = tkzs.hsamp_.start_.inl()==oldtkzs.hsamp_.start_.inl();
     }
 
     if ( orientation_ == OD::ZSlice )
     {
-	samplingratio.x = updatestageinfo_.oldimagesize_.x / oldcs.nrCrl();
-	startdif.x = newcs.hsamp_.start_.crl() - oldcs.hsamp_.start_.crl();
-	growth.x = newcs.nrCrl() - oldcs.nrCrl();
-	updatestageinfo_.refreeze_ = newcs.zsamp_.start==oldcs.zsamp_.start;
+	startdif.x = crldif * crlfactor - erg0.start;
+	growth.x = tkzs.hsamp_.trcRange().width()*crlfactor - erg0.width();
+	refreeze = tkzs.zsamp_.start==oldtkzs.zsamp_.start;
     }
 
-    const int texturebordercoord = oldcs.nrInl() + oldcs.nrCrl() + oldcs.nrZ();
-    if ( updatestageinfo_.oldorientation_!=orientation_ )
+    if ( getUpdateStageNr() == 1 )
     {
-	startdif = Coord( texturebordercoord, texturebordercoord );
-	updatestageinfo_.refreeze_ = true;
+	if ( updatestageinfo_.oldorientation_ != orientation_ )
+	{
+	    updatestageinfo_.refreeze_ = true;
+	    const int texborderval = si.nrInl() + si.nrCrl() + si.nrZ();
+	    startdif = Coord(texborderval,texborderval) * resolutionfactor;
+	}
+	else
+	    updatestageinfo_.refreeze_ = refreeze;
     }
-
-    startdif.x  *= samplingratio.x; startdif.y  *= samplingratio.y;
-    growth.x *= samplingratio.x; growth.y *= samplingratio.y;
 
     texturerect_->setTextureGrowth( growth );
     texturerect_->setTextureShift( -startdif - growth*0.5 );
+}
+
+
+void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
+						const TrcKeyZSampling& tkzs )
+{
+    if ( !tkzs.isDefined() || tkzs.isEmpty() )
+	return;
+
+    const TrcKeyZSampling& si = SI().sampling( true );
+    const float resolutionfactor = resolution_ + 1;
+
+    const float inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
+    const float inlfactor = resolutionfactor / si.hsamp_.step_.inl();
+
+    const float crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
+    const float crlfactor = resolutionfactor / si.hsamp_.step_.crl();
+
+    const float zdif = tkzs.zsamp_.start - si.zsamp_.start;
+    const float zfactor = resolutionfactor / si.zsamp_.step;
+
+    Coord origin( zdif * zfactor, inldif * inlfactor );
+
+    Coord scale( tkzs.zsamp_.step / si.zsamp_.step,
+		 tkzs.hsamp_.step_.inl() / si.hsamp_.step_.inl() );
+
+    if ( orientation_ == OD::InlineSlice )
+    {
+	origin.y = crldif * crlfactor;
+	scale.y = tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
+    }
+
+    if ( orientation_ == OD::ZSlice )
+    {
+	origin.x = crldif * crlfactor;
+	scale.x = tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
+    }
+
+    channels_->setOrigin( attrib, origin );
+    channels_->setScale( attrib, scale );
 }
 
 

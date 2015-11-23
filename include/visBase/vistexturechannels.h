@@ -82,6 +82,8 @@ public:
     void			setScale(int channel,const Coord& scale);
     const Coord&		getScale(int channel) const;
 
+    StepInterval<float>		getEnvelopeRange(unsigned char dim) const;
+
     void			setNrComponents(int channel,int nrcomp);
     int				getNrComponents(int channel) const;
 
