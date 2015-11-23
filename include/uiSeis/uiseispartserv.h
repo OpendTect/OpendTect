@@ -92,6 +92,7 @@ protected:
     uiSeisIOSimple*	impps3dseisdlg_;
     uiSeisIOSimple*	expps3dseisdlg_;
     uiSeisIOSimple*	impps2dseisdlg_;
+    uiSeisIOSimple*	expps2dseisdlg_;
     uiSeisImportCBVS*	impcbvsdlg_;
     uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_;
 

@@ -401,9 +401,14 @@ void uiODMenuMgr::fillExportMenu()
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
     uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
     if ( have2d )
+    {
 	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Line"))
 			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm,
 			"seismicline2d"	);
+	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Pre-Stack Data"))
+			: m3Dots(tr("Pre-Stack 2D")), mExpSeisSimplePS2DMnuItm,
+			"prestackdataset2d" );
+    }
     if ( !only2d )
     {
 	mInsertPixmapItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
