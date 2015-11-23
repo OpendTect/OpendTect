@@ -876,7 +876,7 @@ bool ArrayNDImpl<T>::clone( const ArrayND<T>& inp, ArrayND<T>& out )
 
     mDynamicCastGet(const ArrayNDImpl<T>*,inpnd,&inp)
     mDynamicCastGet(ArrayNDImpl<T>*,outnd,&out)
-    if ( inpnd && &outnd )
+    if ( inpnd && outnd )
     {
 	*outnd = *inpnd;
 	return true;
