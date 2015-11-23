@@ -266,6 +266,105 @@ void ChainExecutor::computeComputationScope( Step::ID stepid,
 }
 
 
+struct VolumeMemory
+{
+    Step::ID		creator_;
+    Step::OutputSlotID	outputslot_;
+    od_int64		nrbytes_;
+    int			firstepoch_;
+    int			lastepoch_;
+
+			VolumeMemory( Step::ID creator,
+				      Step::OutputSlotID outputslot,
+				      od_int64 nrbytes,
+				      int firstepoch, int lastepoch )
+			: creator_(creator)
+			, outputslot_(outputslot)
+			, nrbytes_(nrbytes)
+			, firstepoch_(firstepoch)
+			, lastepoch_(lastepoch)			{};
+
+    bool		operator==( VolumeMemory vm ) const
+			{
+			    return creator_ == vm.creator_ &&
+				   outputslot_ == vm.outputslot_ &&
+				   nrbytes_ == vm.nrbytes_ &&
+				   firstepoch_ == vm.firstepoch_ &&
+				   lastepoch_ == vm.lastepoch_;
+			}
+};
+
+
+od_int64 ChainExecutor::computeMaximumMemoryUsage(
+					const TrcKeySampling& hrg,
+					const StepInterval<int>& zrg )
+{
+    if ( !scheduleWork() )
+	return -1;
+
+    TypeSet<VolumeMemory> activevolumes;
+
+    for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
+    {
+	const ObjectSet<Step>& steps = epochs_[epochidx]->getSteps();
+	for ( int stepidx=0; stepidx<steps.size(); stepidx++ )
+	{
+	    const Step* step = steps[stepidx];
+	    for ( int outputidx=0; outputidx<step->getNrOutputs(); outputidx++ )
+	    {
+		if ( !step->validOutputSlotID(step->getOutputSlotID(outputidx)))
+		    continue;
+
+		const od_int64 outputsize = step->getOuputMemSize( outputidx );
+
+		VolumeMemory volmem( step->getID(), outputidx, outputsize,
+				     epochidx, epochidx );
+
+		activevolumes += volmem;
+	    }
+
+	    //Handle if mem can be the same.
+
+	    for ( int inputidx=0; inputidx<step->getNrInputs(); inputidx++ )
+	    {
+		//Look at connection. Is any of the activevolumes used ?
+		const int activevolidx = 0; //Compute();
+		activevolumes[activevolidx].lastepoch_ = epochidx;
+	    }
+	}
+    }
+
+    for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
+    {
+	od_int64 memneeded = 0;
+
+	for ( int idx=0; idx<activevolumes.size(); idx++ )
+	{
+	    if ( epochidx<activevolumes[idx].firstepoch_ )
+		continue;
+
+	    if ( epochidx>activevolumes[idx].lastepoch_ )
+		continue;
+
+	    memneeded += activevolumes[idx].nrbytes_;
+	}
+
+	const ObjectSet<Step>& steps = epochs_[epochidx]->getSteps();
+	for ( int idx=0; idx<steps.size(); idx++ )
+	{
+	    memneeded += steps[idx]->getProcTimeExtraMemory();
+	}
+    }
+    //TODO finish
+    return 0;
+
+
+
+
+
+}
+
+
 bool ChainExecutor::setCalculationScope( const TrcKeySampling& hrg,
 					 const StepInterval<int>& zrg )
 {
@@ -296,7 +395,7 @@ bool ChainExecutor::Epoch::needsStepOutput( Step::ID stepid ) const
 }
 
 
-bool ChainExecutor::Epoch::doPrepare()
+bool ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
@@ -363,7 +462,9 @@ bool ChainExecutor::Epoch::doPrepare()
 	if ( currentstep->getID()==chainexec_.chain_.outputstepid_ )
 	    currentstep->enableOutput( chainexec_.chain_.outputslotid_ );
 
-	Task* newtask = currentstep->createTask();
+	Task* newtask = currentstep->needReportProgress()
+			    ? currentstep->createTaskWithProgMeter(progmeter)
+			    : currentstep->createTask();
 	if ( !newtask )
 	{
 	    pErrMsg("Could not create task");
@@ -414,7 +515,7 @@ int ChainExecutor::nextStep()
     //curtasklock_.lock();
     curepoch_ = epochs_.pop();
 
-    if ( !curepoch_->doPrepare() )
+    if ( !curepoch_->doPrepare(progressmeter_) )
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
@@ -1149,6 +1250,22 @@ Task* Step::createTask()
 
     return 0;
 }
+
+
+Task* Step::createTaskWithProgMeter( ProgressMeter* )
+{
+    return createTask();
+}
+
+
+od_int64 Step::getOuputMemSize( int outputidx ) const
+{
+    const RegularSeisDataPack* output = getOutput( getOutputSlotID(outputidx) );
+    if ( !output ) return 0;
+
+    return output->sampling().totalNr() * sizeof(float);
+}
+
 
 } // namespace Volproc
 

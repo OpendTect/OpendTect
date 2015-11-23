@@ -104,11 +104,15 @@ public:
 				 are independent from each other.*/
 
     virtual Task*		createTask();
+    virtual Task*		createTaskWithProgMeter(ProgressMeter*);
+    virtual bool		needReportProgress()	{ return false; }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
     virtual void		releaseData();
+    virtual od_int64		getOuputMemSize(int) const;
+    virtual od_int64		getProcTimeExtraMemory() const	{ return 0; }
 
     virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
@@ -123,11 +127,12 @@ protected:
 
     Chain*				chain_;
 
-    ObjectSet<const RegularSeisDataPack>	inputs_;
+    ObjectSet<const RegularSeisDataPack> inputs_;
     TypeSet<InputSlotID>		inputslotids_;
 
     BufferString			username_;
     ID					id_;
+    uiString				errmsg_;
 
     TrcKeySampling			tks_;
     StepInterval<int>			zrg_;
@@ -271,6 +276,8 @@ public:
 
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
+    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
+						const StepInterval<int>&);
 
     const RegularSeisDataPack*	getOutput() const;
     int				nextStep();
@@ -290,8 +297,9 @@ private:
 				~Epoch()		{ delete &taskgroup_; }
 
 	void			addStep(Step* s)	{ steps_ += s; }
+	const ObjectSet<Step>&	getSteps() const	{ return steps_; }
 
-	bool			doPrepare();
+	bool			doPrepare(ProgressMeter* progmeter=0);
 	Task&			getTask()		{ return taskgroup_; }
 
 	bool			needsStepOutput(Step::ID) const;
@@ -323,7 +331,7 @@ private:
     bool			isok_;
     Chain&			chain_;
 
-    TrcKeySampling			outputhrg_;
+    TrcKeySampling		outputhrg_;
     StepInterval<int>		outputzrg_;
 
     mutable uiString		errmsg_;
