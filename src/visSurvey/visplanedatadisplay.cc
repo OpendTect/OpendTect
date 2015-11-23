@@ -1124,12 +1124,12 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
     const TrcKeyZSampling& oldtkzs = updatestageinfo_.oldcs_;
 
     const TrcKeyZSampling& si = SI().sampling( true );
-    const float resolutionfactor = resolution_ + 1;
+    const float resolutionfactor = mCast( float, resolution_+1 );
 
-    const float inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
+    const int inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
     const float inlfactor = resolutionfactor / si.hsamp_.step_.inl();
 
-    const float crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
+    const int crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
     const float crlfactor = resolutionfactor / si.hsamp_.step_.crl();
 
     const float zdif = tkzs.zsamp_.start - si.zsamp_.start;
@@ -1180,12 +1180,12 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
 	return;
 
     const TrcKeyZSampling& si = SI().sampling( true );
-    const float resolutionfactor = resolution_ + 1;
+    const float resolutionfactor = mCast( float, resolution_+1 );
 
-    const float inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
+    const int inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
     const float inlfactor = resolutionfactor / si.hsamp_.step_.inl();
 
-    const float crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
+    const int crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
     const float crlfactor = resolutionfactor / si.hsamp_.step_.crl();
 
     const float zdif = tkzs.zsamp_.start - si.zsamp_.start;
