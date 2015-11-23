@@ -223,8 +223,8 @@ ________________________________________________________________________
 #define mAboutMnuItm		(mHelpMnuBase + 4)
 #define mSupportMnuItm		(mHelpMnuBase + 5)
 #define mWorkflowsMnuItm	(mHelpMnuBase + 6)
-
-
+#define mShortcutsMnuItm	(mHelpMnuBase + 7)
 
 
 #endif
+
