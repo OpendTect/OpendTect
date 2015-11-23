@@ -186,6 +186,9 @@ protected:
     void			getDataTraceBids(TypeSet<BinID>&,
 						 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int node) const;
+    void			updateTexOriginAndScale(
+					    int attrib,const TrcKeyPath&,
+					    const StepInterval<float>& zrg);
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =0);
@@ -238,7 +241,6 @@ protected:
     struct UpdateStageInfo
     {
 	float			oldzrgstart_;
-	float			mapfactor_;
     };
     UpdateStageInfo		updatestageinfo_;
 
