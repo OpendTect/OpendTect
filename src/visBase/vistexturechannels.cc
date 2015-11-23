@@ -628,7 +628,6 @@ int TextureChannels::addChannel()
     const int osgid = osgtexture_->addDataLayer();
     const osg::Vec4f imageudfcolor( 1.0, 1.0, 1.0, 0.0 );
     osgtexture_->setDataLayerImageUndefColor( osgid, imageudfcolor );
-    osgtexture_->setDataLayerBorderColor( osgid, imageudfcolor );
     osgtexture_->setDataLayerFilterType( osgid, mGetFilterType );
 
     osgids += osgid;
@@ -953,6 +952,10 @@ void TextureChannels::update( int channel, bool freezeifnodata )
 	osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
 	const int udfchannel = nrTextureBands()==3 ? 2 : 3;
 	osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
+
+	osg::Vec4f bordercolor( 1.0, 1.0, 1.0, 1.0 );
+	bordercolor[udfchannel] = 0.0;
+	osgtexture_->setDataLayerBorderColor( osgid, bordercolor );
     }
 }
 
