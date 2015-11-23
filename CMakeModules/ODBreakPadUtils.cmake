@@ -13,22 +13,22 @@ if(OD_ENABLE_BREAKPAD)
     add_definitions( -DHAS_BREAKPAD )
     if( WIN32 )
 	find_library( BREAKPADLIB_DEBUG NAMES exception_handler 
-		      PATHS ${BREAKPAD_DIR}/client/windows/Debug/lib 
+		      PATHS ${BREAKPAD_DIR}/lib/Debug
 		      REQUIRED )
 	find_library( BREAKPADLIB_RELEASE NAMES exception_handler 
-		      PATHS ${BREAKPAD_DIR}/client/windows/Release/lib 
+		PATHS ${BREAKPAD_DIR}/lib/Release
 		      REQUIRED )
 	find_library( BREAKPADCOMMONLIB_DEBUG NAMES common 
-		      PATHS ${BREAKPAD_DIR}/client/windows/Debug/lib 
+		PATHS ${BREAKPAD_DIR}/lib/Debug
 		      REQUIRED )
 	find_library( BREAKPADCOMMONLIB_RELEASE NAMES common 
-		      PATHS ${BREAKPAD_DIR}/client/windows/Release/lib 
+		PATHS ${BREAKPAD_DIR}/lib/Release
 		      REQUIRED )
 	find_library( BREAKPADCLIENTLIB_DEBUG NAMES crash_generation_client 
-		      PATHS ${BREAKPAD_DIR}/client/windows/Debug/lib 
+		PATHS ${BREAKPAD_DIR}/lib/Debug
 		      REQUIRED )
 	find_library( BREAKPADCLIENTLIB_RELEASE NAMES crash_generation_client 
-		      PATHS ${BREAKPAD_DIR}/client/windows/Release/lib 
+		PATHS ${BREAKPAD_DIR}/lib/Release
 		      REQUIRED )
 	 OD_MERGE_LIBVAR( BREAKPADLIB )
 	 OD_MERGE_LIBVAR( BREAKPADCOMMONLIB )
@@ -45,8 +45,6 @@ if(OD_ENABLE_BREAKPAD)
     endif()
 
     set(OD_BREAKPADLIBS ${BREAKPADLIB} ${BREAKPADCOMMONLIB} ${BREAKPADCLIENTLIB} )
-    list(APPEND OD_MODULE_INCLUDESYSPATH ${BREAKPAD_DIR}/include/breakpad )
-    list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
 
     find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms 
 		  PATHS ${BREAKPAD_DIR}/bin )

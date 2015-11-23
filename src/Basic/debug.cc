@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 
 #ifdef __win__
-#include "client\windows\handler\exception_handler.h"
+#include "client/windows/handler/exception_handler.h"
 #endif
 
 #ifdef __lux__
@@ -525,7 +525,13 @@ void CrashDumper::sendDump( const char* filename )
 
     const FilePath script( GetScriptDir(), processscript );
     const FilePath symboldir( GetExecPlfDir(), "symbols" );
+
+#ifdef __win__
+    const FilePath dumphandler(GetExecPlfDir(), "minidump_stackwalk.exe");
+#else
     const FilePath dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
+#endif
+
     const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
 
     const BufferString cmd( "\"",script.fullPath(), "\"" );
@@ -536,6 +542,8 @@ void CrashDumper::sendDump( const char* filename )
     if ( !sendappl_.isEmpty() )
 	args += BufferString( " \"",
 		FilePath(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
+
+    std::cout << cmd.str() << " " << args.str() << std::endl;
 
     ExecODProgram( cmd, args );
 }

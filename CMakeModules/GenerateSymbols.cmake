@@ -33,7 +33,12 @@ endif()
 
 #Get library location and name
 get_filename_component( LIBDIR ${LIBRARY} PATH )
-get_filename_component( LIBNAME ${LIBRARY} NAME )
+
+if ( WIN32 )
+    get_filename_component( LIBNAME ${LIBRARY} NAME_WE )
+else()
+    get_filename_component( LIBNAME ${LIBRARY} NAME )
+endif()
 
 set ( OUTDIR ${LIBDIR}/symbols )
 
@@ -66,10 +71,15 @@ endif()
 
 list ( GET SYMBOL_LIST 3 CHECKSUM )
 
+set ( DIRNAME ${OUTDIR}/${LIBNAME} )
+if ( WIN32 )
+    set ( DIRNAME ${OUTDIR}/${LIBNAME}.pdb )
+endif()
+
 #Remove old symbols
-if ( EXISTS ${OUTDIR}/${LIBNAME} )
-    file( REMOVE_RECURSE ${OUTDIR}/${LIBNAME} )
+if ( EXISTS ${DIRNAME} )
+    file( REMOVE_RECURSE ${DIRNAME} )
 endif()
 
 #Write out new symbols
-file ( WRITE ${OUTDIR}/${LIBNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
+file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
