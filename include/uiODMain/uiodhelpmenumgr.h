@@ -33,6 +33,7 @@ public:
 protected:
 
     uiString		getAboutString();
+    void		showShortKeys();
 
     uiODMenuMgr*	mnumgr_;
     uiMenu*		helpmnu_;

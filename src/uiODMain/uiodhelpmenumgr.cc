@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "od_istream.h"
 #include "odver.h"
+#include "oscommand.h"
 #include "osgver.h"
 
 
@@ -55,6 +56,8 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 
     mInsertItem( helpmnu_, tr("Workflows"), mWorkflowsMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
+		 mShortcutsMnuItm, "?" );
     mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0)
 }
 
@@ -92,11 +95,31 @@ void uiODHelpMenuMgr::handle( int id )
 	{
 	    HelpProvider::provideHelp( HelpKey("wf",0) );
 	} break;
+	case mShortcutsMnuItm:
+	{
+	    showShortKeys();
+	} break;
 	default:
 	{
 	    HelpProvider::provideHelp( HelpKey("od",0) );
 	}
     }
+}
+
+
+void uiODHelpMenuMgr::showShortKeys()
+{
+    const BufferString imgpath =
+	GetSetupDataFileName( ODSetupLoc_SWDirOnly, "shortkeys.png", false );
+    if ( !File::exists(imgpath.buf()) )
+	return;
+
+    const BufferString title = "Keyboard Shortcuts and Mouse Controls";
+    BufferString cmd = "od_ImageViewer --bg ";
+    cmd.add( imgpath ).addSpace().add( "'" ).add( title ).add( "'" );
+    const bool res = OS::ExecCommand( cmd.buf(), OS::RunInBG );
+    if ( !res )
+	uiMSG().error( tr("Could not launch ShortKeys table") );
 }
 
 

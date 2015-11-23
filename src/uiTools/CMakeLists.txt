@@ -103,6 +103,7 @@ SET( OD_MODULE_SOURCES
 
 set( OD_MODULE_GUI_PROGS
 	od_FileBrowser.cc
+	od_ImageViewer.cc
 	od_ProgressViewer.cc
 	od_uiReportIssue.cc
 )
