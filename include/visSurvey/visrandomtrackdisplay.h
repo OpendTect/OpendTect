@@ -248,7 +248,7 @@ protected:
     struct UpdateStageInfo
     {
 	float			oldzrgstart_;
-	float			mapfactor_;
+	float			mapfactor_;	// obsolete
     };
     UpdateStageInfo		updatestageinfo_;
 
@@ -264,6 +264,10 @@ protected:
     static const char*		sKeyKnotPrefix();
     static const char*		sKeyDepthInterval();
     static const char*		sKeyLockGeometry();
+
+    void			updateTexOriginAndScale(
+					    int attrib,const TrcKeyPath&,
+					    const StepInterval<float>& zrg);
 };
 
 } // namespace visSurvey

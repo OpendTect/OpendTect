@@ -708,6 +708,36 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 }
 
 
+void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
+			const TrcKeyPath& path, const StepInterval<float>& zrg )
+{
+    if ( path.size()<2 || zrg.isUdf() )
+	return;
+
+    int idx0 = 0;
+    while ( idx0<trcspath_.size() && path.first().pos()!=trcspath_[idx0] )
+	idx0++;
+
+    int idx1 = trcspath_.size()-1;
+    while ( idx1>=0 && path.last().pos()!=trcspath_[idx1] )
+	idx1--;
+
+    if ( idx0>=trcspath_.size() || idx1<0 || idx1-idx0!=path.size()-1 )
+    {
+	pErrMsg( "Texture trace path does not match random line geometry" );
+	return;
+    }
+
+    const Coord origin(
+	    (zrg.start-getDepthInterval().start)/appliedZRangeStep(), idx0 );
+
+    const Coord scale( zrg.step/appliedZRangeStep(), 1.0 );
+
+    channels_->setOrigin( attrib, origin*(resolution_+1) );
+    channels_->setScale( attrib, scale );
+}
+
+
 void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
@@ -715,74 +745,50 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
     if ( !randsdp ) return;
 
+    updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->getZRange() );
+
     const int nrversions = randsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    int newsz0 = randsdp->data().info().getSize( 1 );
-    int newsz1 = randsdp->data().info().getSize( 2 );
-    bool differentattribsizes = false, onlycurrent = true;
-    if ( attrib!=0 && nrAttribs()>1 )
+    for ( int idx=0; idx<nrversions; idx++ )
     {
-	const int oldchannelsz0 =
-	    (channels_->getSize(0,1)+resolution_) / (resolution_+1);
-	const int oldchannelsz1 =
-	    (channels_->getSize(0,2)+resolution_) / (resolution_+1);
+	const Array3DImpl<float>& array = randsdp->data( idx );
+	const int sz0 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
+	const int sz1 = 1 + (array.info().getSize(2)-1) * (resolution_+1);
+	const float* arr = array.getData();
+	OD::PtrPolicy cp = OD::UsePtr;
 
-	differentattribsizes = newsz0!=oldchannelsz0 || newsz1!=oldchannelsz1;
-	onlycurrent = newsz0<=oldchannelsz0 && newsz1<=oldchannelsz1;
-	if ( newsz0 < oldchannelsz0 ) newsz0 = oldchannelsz0;
-	if ( newsz1 < oldchannelsz1 ) newsz1 = oldchannelsz1;
-    }
-
-    for ( int attribidx=0; attribidx<nrAttribs(); attribidx++ )
-    {
-	if ( onlycurrent && attribidx!=attrib )
-	    continue;
-
-	randsdp = dpm.obtain( getDisplayedDataPackID(attribidx) );
-	if ( !randsdp ) continue;
-
-	for ( int idx=0; idx<randsdp->nrComponents(); idx++ )
+	if ( !arr || resolution_>0 )
 	{
-	    const Array3DImpl<float>& array = randsdp->data( idx );
-	    const int sz0 = 1 + (newsz0-1) * (resolution_+1);
-	    const int sz1 = 1 + (newsz1-1) * (resolution_+1);
-	    const float* arr = array.getData();
-	    OD::PtrPolicy cp = OD::UsePtr;
+	    mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
+	    if ( !tmparr ) continue;
 
-	    if ( !arr || resolution_>0 || differentattribsizes )
+	    if ( resolution_==0 )
+		array.getAll( tmparr );
+	    else
 	    {
-		mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
-		if ( !tmparr ) continue;
+		Array2DSlice<float> slice2d( array );
+		slice2d.setDimMap( 0, 1 );
+		slice2d.setDimMap( 1, 2 );
+		slice2d.setPos( 0, 0 );
+		slice2d.init();
 
-		if ( resolution_==0 && !differentattribsizes )
-		    array.getAll( tmparr );
-		else
-		{
-		    Array2DSlice<float> slice2d( array );
-		    slice2d.setDimMap( 0, 1 );
-		    slice2d.setDimMap( 1, 2 );
-		    slice2d.setPos( 0, 0 );
-		    slice2d.init();
-
-		    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-		    Array2DReSampler<float,float> resampler(
+		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+		Array2DReSampler<float,float> resampler(
 			    slice2d, tmparr, sz0, sz1, true );
-		    resampler.setInterpolate( true );
-		    TaskRunner::execute( 0, resampler );
-		}
-
-		arr = tmparr;
-		cp = OD::TakeOverPtr;
+		resampler.setInterpolate( true );
+		TaskRunner::execute( 0, resampler );
 	    }
 
-	    channels_->setSize( attribidx, 1, sz0, sz1 );
-	    channels_->setUnMappedData( attribidx, idx, arr, cp, 0,
-					interactivetexturedisplay_ );
+	    arr = tmparr;
+	    cp = OD::TakeOverPtr;
 	}
+
+	channels_->setSize( attrib, 1, sz0, sz1 );
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
+				    interactivetexturedisplay_ );
     }
 
-    setPanelStripZRange( panelstrip_->getZRange() );
     channels_->turnOn( true );
 }
 
@@ -868,16 +874,16 @@ void RandomTrackDisplay::updatePanelStripPath()
 
 void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 {
-    panelstrip_->unsetZRange2TextureMapping();
-    panelstrip_->setZRange( rg );
+    const StepInterval<float> zrg( rg.start, rg.stop, appliedZRangeStep() );
+    panelstrip_->setZRange( zrg );
+    const Interval<float> mapping(0,mCast(float,zrg.nrSteps()*(resolution_+1)));
+    panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )
     {
-	const float mapfactor = updatestageinfo_.mapfactor_;
-	const float diff = updatestageinfo_.oldzrgstart_ - rg.start;
-	panelstrip_->setZTextureShift( diff * mapfactor );
-	const Interval<float> mapping( 0.0f, rg.width() * mapfactor );
-	panelstrip_->setZRange2TextureMapping( mapping );
+	const float factor = (resolution_+1) / zrg.step;
+	const float diff = updatestageinfo_.oldzrgstart_ - zrg.start;
+	panelstrip_->setZTextureShift( diff*factor );
     }
 }
 
@@ -897,11 +903,7 @@ void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
     else
     {
 	if ( !getUpdateStageNr() )
-	{
 	    updatestageinfo_.oldzrgstart_ = getDepthInterval().start;
-	    updatestageinfo_.mapfactor_ =
-		(channels_->getSize(0,2)-1) / getDepthInterval().width();
-	}
 	else
 	    panelstrip_->freezeDisplay( false );	// thaw to refreeze
 

@@ -130,14 +130,16 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
-	const int inlidx =
-	    regsdp_.sampling().hsamp_.inlIdx( path_[idx].lineNr() );
-	const int crlidx =
-	    regsdp_.sampling().hsamp_.crlIdx( path_[idx].trcNr() );
+	const TrcKeySampling& hsamp = regsdp_.sampling().hsamp_;
+	const int nearestinl = path_[idx].lineNr() + hsamp.step_.lineNr()/2;
+	const int inlidx = hsamp.inlIdx( nearestinl );
+	const int nearestcrl = path_[idx].trcNr() + hsamp.step_.trcNr()/2;
+	const int crlidx = hsamp.crlIdx( nearestcrl );
 
 	if ( domemcopy_ )
 	{
-	    if ( regsdp_.sampling().hsamp_.includes(path_[idx]) )
+	    if ( hsamp.lineRange().includes(path_[idx].lineNr(),true) &&
+		 hsamp.trcRange().includes(path_[idx].trcNr(),true) )
 	    {
 		const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
 						      + crlidx*srctrcbytes_;
