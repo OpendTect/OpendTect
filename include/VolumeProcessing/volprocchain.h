@@ -114,6 +114,11 @@ public:
     virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
 
+    void			setNeedToReportProgress( bool );
+    bool			needToReportProgress() const;
+    void			setProgressMeter(ProgressMeter*);
+    ProgressMeter*		getProgressMeter();
+
 protected:
 				Step();
 
@@ -293,6 +298,7 @@ private:
 	void			addStep(Step* s)	{ steps_ += s; }
 
 	bool			doPrepare();
+	bool			doPrepareWithProgressMeter(ProgressMeter*);
 	Task&			getTask()		{ return taskgroup_; }
 
 	bool			needsStepOutput(Step::ID) const;

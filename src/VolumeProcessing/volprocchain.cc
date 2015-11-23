@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 
 #include "bufstring.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -298,6 +299,12 @@ bool ChainExecutor::Epoch::needsStepOutput( Step::ID stepid ) const
 
 bool ChainExecutor::Epoch::doPrepare()
 {
+    return doPrepareWithProgressMeter( 0 );
+}
+
+
+bool ChainExecutor::Epoch::doPrepareWithProgressMeter( ProgressMeter* pm )
+{
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
 	Step* currentstep = steps_[idx];
@@ -364,6 +371,9 @@ bool ChainExecutor::Epoch::doPrepare()
 	if ( currentstep->getID()==chainexec_.chain_.outputstepid_ )
 	    currentstep->enableOutput( chainexec_.chain_.outputslotid_ );
 
+	if ( currentstep->needToReportProgress() )
+	    currentstep->setProgressMeter( pm );
+
 	Task* newtask = currentstep->createTask();
 	if ( !newtask )
 	{
@@ -415,7 +425,7 @@ int ChainExecutor::nextStep()
     //curtasklock_.lock();
     curepoch_ = epochs_.pop();
 
-    if ( !curepoch_->doPrepare() )
+    if ( !curepoch_->doPrepareWithProgressMeter( progressmeter_ ) )
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
@@ -926,12 +936,17 @@ void Chain::Web::getConnections( Step::ID stepid, bool isinput,
 
 
 // Step
+HiddenParam<Step,int>			needreportprogmanager( 0 );
+HiddenParam<Step,ProgressMeter*>	progmetermanager( 0 );
+
 Step::Step()
     : chain_( 0 )
     , output_( 0 )
     , id_( cUndefID() )
 {
     inputs_.allowNull();
+    setNeedToReportProgress(0);
+    setProgressMeter(0);
 }
 
 
@@ -1149,6 +1164,30 @@ Task* Step::createTask()
 	return new BinIDWiseTask( *this );
 
     return 0;
+}
+
+
+void Step::setNeedToReportProgress( bool yn )
+{
+    needreportprogmanager.setParam( this, yn ? 1 : 0 );
+}
+
+
+bool Step::needToReportProgress() const
+{
+    return needreportprogmanager.getParam( this );
+}
+
+
+void Step::setProgressMeter( ProgressMeter* pm )
+{
+    progmetermanager.setParam( this, pm );
+}
+
+
+ProgressMeter* Step::getProgressMeter()
+{
+    return progmetermanager.getParam( this );
 }
 
 } // namespace Volproc
