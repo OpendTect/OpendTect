@@ -534,16 +534,30 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh || !mousepressed_ ) return;
+    if ( !meh )
+	return;
 
     const int vwridx = getViewerIdx( meh, false );
-    if ( vwridx<0 ) return;
-    uiFlatViewer* vwr = vwrs_[vwridx];
+    if ( vwridx<0 )
+	return;
 
+    uiFlatViewer* vwr = vwrs_[vwridx];
     const uiWorld2Ui& w2ui = vwr->getWorld2Ui();
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
     const uiWorldPoint curwpt = w2ui.transform( meh->event().pos() );
     mousedownpt_ = meh->event().pos();
+    if ( !mousepressed_ )
+    {
+	uiRect viewarea = vwr->getViewRect( false );
+	Interval<int> pixwidthrg( viewarea.topLeft().x, viewarea.topRight().x );
+	Interval<int> pixgeightrg( viewarea.topLeft().y,
+				   viewarea.bottomLeft().y );
+	if ( !pixwidthrg.includes(mousedownpt_.x,false) ||
+	     !pixgeightrg.includes(mousedownpt_.y,false) )
+	    MouseCursorManager::restoreOverride();
+	return;
+    }
+
 
     uiWorldRect newwr( vwr->curView() );
     newwr.translate( startwpt-curwpt );
@@ -556,6 +570,9 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
 
 void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
+    if ( !mousepressed_ )
+	return;
+
     handDragging( cb );
     MouseCursorManager::restoreOverride();
     MouseCursor cursor( !isEditModeOn() ? MouseCursor::Arrow
@@ -641,6 +658,7 @@ void uiFlatViewStdControl::editModeCB( CallBacker* )
     uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::NoDrag );
     MouseCursor cursor( iseditmode ? MouseCursor::Cross : MouseCursor::Arrow );
 
+    MouseCursorManager::setOverride( cursor.shape_ );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
