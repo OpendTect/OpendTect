@@ -449,9 +449,9 @@ void uiStratLayerModel::snapshotCB( CallBacker* )
 
 void uiStratLayerModel::setWinTitle()
 {
-    uiString txt;
-    if ( descctio_.ioobj_ )
-	  txt = tr("Layer modeling [%1]").arg(descctio_.ioobj_->uiName());
+    uiString descnm( descctio_.ioobj_ ? descctio_.ioobj_->uiName()
+	    			      : uiStrings::sNew() );
+    uiString txt( tr("Layer modeling [%1]").arg(descnm) );
     setCaption( txt );
 }
 
@@ -1202,10 +1202,8 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
 	uiString msg;
 	for ( int idx=0; idx<pars.size(); idx++ )
 	{
-	    msg = toUiString("%1 : %2").arg(pars.getKey(idx))
-				       .arg(pars.getValue(idx));
-	    if ( idx<pars.size()-1 )
-		msg = toUiString("%1; ").arg(msg);
+	    msg.append( toUiString("%1 : %2 ;").arg(pars.getKey(idx))
+					     .arg(pars.getValue(idx)) );
 	}
 	statusBar()->message( msg );
     }
