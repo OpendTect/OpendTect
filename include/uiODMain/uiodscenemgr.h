@@ -143,6 +143,8 @@ public:
     int				add2DLineItem(const MultiID&,int sceneid=-1);
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
+    int				addZSliceItem(const TrcKeyZSampling&,
+					      int sceneid=-1);
 
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
