@@ -301,6 +301,8 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	    if ( scalefactors_.validIdx(idx) )
 		factors += scalefactors_[idx];
 	}
+
+	factors += scalefactors_.last();
     }
 
     mDescGetParamGroup(ZGateParam,gateset,desc,Scaling::gateStr())
@@ -490,8 +492,9 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 {
     Attrib::Desc* inpdesc = !ads_ ? getInputDescFromDP( inpfld )
 				  : ads_->getDesc( inpfld->attribID() );
+    Attrib::Desc* inpdesccp = new Attrib::Desc( *inpdesc );
     Attrib::Desc* voldesc = PF().createDescCopy( VolStats::attribName() );
-    if ( !inpdesc || !voldesc )
+    if ( !inpdesccp || !voldesc )
 	return;
 
     PtrMan<Attrib::DescSet> descset =
@@ -501,7 +504,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	return;
     
     Attrib::Desc& desc = *voldesc;
-    desc.setInput( 0, inpdesc );
+    desc.setInput( 0, inpdesccp );
     Interval<float> timegate(-28,28);
     mSetFloatInterval( VolStats::gateStr(), timegate );
     mSetBinID( VolStats::stepoutStr(), BinID(descset->is2D() ? 0 : 5,5) );
@@ -513,8 +516,8 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     desc.setUserRef( "Examine-GainCorrection" );
     desc.updateParams();
 
-    inpdesc->setDescSet( descset );
-    descset->addDesc( inpdesc );
+    inpdesccp->setDescSet( descset );
+    descset->addDesc( inpdesccp );
     Attrib::DescID attribid = descset->addDesc( voldesc );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
     TypeSet<SelSpec> attribspecs;
@@ -530,7 +533,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     int nrtrcs = 0;
     if ( !isinpindp )
     {
-	LineKey lk( inpdesc->getStoredID(true) );
+	LineKey lk( inpdesccp->getStoredID(true) );
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 	if ( !ioobj )
 	    return uiMSG().error( tr("Select a valid input") );

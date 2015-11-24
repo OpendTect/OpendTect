@@ -670,8 +670,9 @@ void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
 
     while ( nr )
     {
-	const TrcKey trckey( lineRange().start + std::rand() % nrLines(),
-			     trcRange().start + std::rand() % nrTrcs() );
+	const BinID bid( lineRange().start + std::rand() % nrLines(),
+			 trcRange().start + std::rand() % nrTrcs() );
+	const TrcKey trckey( survid_, bid );
 	if ( includes(trckey) && res.addIfNew(trckey) )
 	    nr--;
     }
