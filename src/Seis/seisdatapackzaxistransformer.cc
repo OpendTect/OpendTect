@@ -74,6 +74,9 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 	outputdp_ = output;
     }
 
+    if ( seisdp->getScaler() )
+	outputdp_->setScaler( *seisdp->getScaler() );
+
     for ( int idx=0; idx<seisdp->nrComponents(); idx++ )
 	outputdp_->addComponent( seisdp->getComponentName(idx) );
 

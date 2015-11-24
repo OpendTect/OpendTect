@@ -498,6 +498,8 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
 			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
     RegularSeisDataPack* output =
 	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
+    if ( packset[0]->getScaler() )
+	output->setScaler( *packset[0]->getScaler() );
 
     if ( cache_ && cache_->sampling().zsamp_.step != tkzs_.zsamp_.step )
     {
@@ -507,6 +509,8 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
     }
     else
     {
+	// Steps of TrcKeyZSampling (Inl, Crl and Z) should be same as that of
+	// datapack (packset) that is preloaded and this will ensure that.
 	TrcKeyZSampling outputtkzs = packset[0]->sampling();
 	for ( int idx=1; idx<packset.size(); idx++ )
 	    outputtkzs.include( packset[idx]->sampling() );

@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "scaler.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
@@ -259,28 +260,37 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 		am_.visserv_->getColTabSequence( visid, attrib );
     if ( ctseq ) seq = *ctseq;
 
-    ColTab::MapperSetup mapper, mapper1;
-    const ColTab::MapperSetup* ctmap = !ioobj ?
-		0 : am_.visserv_->getColTabMapperSetup( visid, attrib );
+    ColTab::MapperSetup mapper;
+    const ColTab::MapperSetup* ctmap =
+		am_.visserv_->getColTabMapperSetup( visid, attrib );
     if ( ctmap ) mapper = *ctmap;
 
-    IOPar iop;
     if ( ioobj )
     {
     	FilePath fp( ioobj->fullUserExpr(true) );
     	fp.setExtension( "par" );
+	IOPar iop;
     	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
     	{
     	    const char* ctname = iop.find( sKey::Name() );
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
 	}
-    }
-    const bool isempt = iop.isEmpty();
 
-    am_.visserv_->setColTabMapperSetup( visid, attrib,!isempt? mapper:mapper1 );
+	DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+	ConstDataPackRef<SeisDataPack> seisdp =
+	    dpm.obtain( am_.visserv_->getDataPackID(visid,attrib) );
+	const Scaler* scaler = seisdp ? seisdp->getScaler() : 0;
+	if ( scaler && !mapper.range_.isUdf() )
+	{
+	    mapper.range_.start = scaler->scale( mapper.range_.start );
+	    mapper.range_.stop = scaler->scale( mapper.range_.stop );
+	}
+    }
+
+    am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
     am_.visserv_->setColTabSequence( visid, attrib, seq );
-    am_.appl_.colTabEd().colTab().setMapperSetup( !isempt ? &mapper:&mapper1 );
+    am_.appl_.colTabEd().colTab().setMapperSetup( &mapper );
     am_.appl_.colTabEd().colTab().setSequence( &seq, true );
     updateColorTable( visid, attrib );
 }

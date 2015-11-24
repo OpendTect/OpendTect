@@ -202,7 +202,7 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 
 void RegularSeisDataPack::dumpInfo( IOPar& par ) const
 {
-    DataPack::dumpInfo( par );
+    SeisDataPack::dumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
@@ -303,6 +303,8 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     randsdp->setPath( path );
     randsdp->setZRange(
 	    StepInterval<float>(zrg.start,zrg.stop,regsdp.getZRange().step) );
+    if ( regsdp.getScaler() )
+	randsdp->setScaler( *regsdp.getScaler() );
 
     for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
     {

@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "bufstringset.h"
 #include "datachar.h"
 #include "datapackbase.h"
 #include "multiid.h"
@@ -62,6 +61,7 @@ public:
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
+    static const char*	sKeyUserType();
 
 protected:
 

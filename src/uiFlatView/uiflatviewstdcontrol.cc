@@ -370,24 +370,18 @@ void uiFlatViewStdControl::doZoom( bool zoomin, bool onlyvertzoom,
 				   uiFlatViewer& vwr )
 {
     const int vwridx = vwrs_.indexOf( &vwr );
-    if ( vwridx < 0 ) return;
+    if ( vwridx<0 || (!zoomin && zoommgr_.atStart(vwridx)) )
+	return;
 
     const MouseEventHandler& meh =
 	vwr.rgbCanvas().getNavigationMouseEventHandler();
     const bool hasmouseevent = meh.hasEvent();
 
-    Geom::Size2D<double> newsz = zoommgr_.current( vwridx );
-    if ( zoomin )
-	newsz = zoommgr_.forward( vwridx, onlyvertzoom, true );
-    else
-    {
-	if ( zoommgr_.atStart(vwridx) )
-	    return;
-	newsz = zoommgr_.back( vwridx, onlyvertzoom, hasmouseevent );
-    }
-
-    Geom::Point2D<double> mousepos = hasmouseevent ?
+    const Geom::Point2D<double> mousepos = hasmouseevent ?
 	vwr.getWorld2Ui().transform(meh.event().pos()) : vwr.curView().centre();
+    const Geom::Size2D<double> newsz =
+	zoomin ? zoommgr_.forward(vwridx,onlyvertzoom,true)
+	       : zoommgr_.back(vwridx,onlyvertzoom,hasmouseevent);
     setNewView( mousepos, newsz, vwr );
 }
 

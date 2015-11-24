@@ -554,6 +554,18 @@ float SeisDataPack::nrKBytes() const
 }
 
 
+void SeisDataPack::dumpInfo( IOPar& iop ) const
+{
+    DataPack::dumpInfo( iop );
+    if ( scaler_ )
+    {
+	BufferString info;
+	scaler_->put( info.getCStr() );
+	iop.set( sKey::Scale(), info.buf() );
+    }
+}
+
+
 bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
 {
     float dummy; const BinDataDesc floatdesc( dummy );
