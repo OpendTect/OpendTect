@@ -873,9 +873,6 @@ void uiODViewer2D::fillPar( IOPar& iop ) const
 
 void uiODViewer2D::rebuildTree()
 {
-    for ( int chidx=0; chidx<treetp_->nrChildren(); chidx++ )
-	treetp_->getChild(chidx)->removeAllChildren();
-
     ObjectSet<Vw2DDataObject> objs;
     dataMgr()->getObjects( objs );
     for ( int iobj=0; iobj<objs.size(); iobj++ )
