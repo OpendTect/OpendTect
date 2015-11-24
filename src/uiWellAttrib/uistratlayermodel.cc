@@ -1202,10 +1202,8 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
 	uiString msg;
 	for ( int idx=0; idx<pars.size(); idx++ )
 	{
-	    msg = toUiString("%1 : %2").arg(pars.getKey(idx))
-				       .arg(pars.getValue(idx));
-	    if ( idx<pars.size()-1 )
-		msg = toUiString("%1; ").arg(msg);
+	    msg.append( toUiString("%1 : %2 ;").arg(pars.getKey(idx))
+					     .arg(pars.getValue(idx)) );
 	}
 	statusBar()->message( msg );
     }
