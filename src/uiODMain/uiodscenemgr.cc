@@ -1302,6 +1302,21 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
 }
 
 
+int uiODSceneMgr::addZSliceItem( const TrcKeyZSampling& tkzs, int sceneid )
+{
+    mGetOrAskForScene
+    uiODZsliceTreeItem* itm =
+	new uiODZsliceTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+
+    if ( !scene->itemmanager_->addChild(itm,false) )
+	return -1;
+
+    itm->setTrcKeyZSampling( tkzs );
+    itm->displayDefaultData();
+    return itm->displayID();
+}
+
+
 void uiODSceneMgr::removeTreeItem( int displayid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
