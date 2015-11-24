@@ -43,7 +43,7 @@ class uiSlideLayoutDlg : public uiDialog
 { mODTextTranslationClass(uiSlideLayoutDlg)
 public:
 uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
-    : uiDialog(p,Setup(tr("Slide Layout"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Settings"),mNoDlgTitle,mTODOHelpKey))
     , spec_(spec)
 {
     uiLabel* lbl = new uiLabel( this, tr("Slide Format:") );
