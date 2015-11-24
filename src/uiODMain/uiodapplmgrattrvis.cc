@@ -283,8 +283,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 	const Scaler* scaler = seisdp ? seisdp->getScaler() : 0;
 	if ( scaler && !mapper.range_.isUdf() )
 	{
-	    mapper.range_.start = scaler->scale( mapper.range_.start );
-	    mapper.range_.stop = scaler->scale( mapper.range_.stop );
+	    mapper.range_.start =
+		mCast(float,scaler->scale(mapper.range_.start));
+	    mapper.range_.stop = mCast(float,scaler->scale(mapper.range_.stop));
 	}
     }
 
