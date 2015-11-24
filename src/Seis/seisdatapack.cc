@@ -202,7 +202,7 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 
 void RegularSeisDataPack::dumpInfo( IOPar& par ) const
 {
-    DataPack::dumpInfo( par );
+    SeisDataPack::dumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
@@ -303,6 +303,8 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     randsdp->setPath( path );
     randsdp->setZRange(
 	    StepInterval<float>(zrg.start,zrg.stop,regsdp.getZRange().step) );
+    if ( regsdp.getScaler() )
+	randsdp->setScaler( *regsdp.getScaler() );
 
     for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
     {
@@ -318,12 +320,12 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 }
 
 
-#define mKeyInl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
-#define mKeyCrl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl)
-#define mKeyCoordX	SeisTrcInfo::getFldString(SeisTrcInfo::CoordX)
-#define mKeyCoordY	SeisTrcInfo::getFldString(SeisTrcInfo::CoordY)
-#define mKeyTrcNr	SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr)
-#define mKeyRefNr	SeisTrcInfo::getFldString(SeisTrcInfo::RefNr)
+#define mKeyInl		SeisTrcInfo::toString(SeisTrcInfo::BinIDInl)
+#define mKeyCrl		SeisTrcInfo::toString(SeisTrcInfo::BinIDCrl)
+#define mKeyCoordX	SeisTrcInfo::toString(SeisTrcInfo::CoordX)
+#define mKeyCoordY	SeisTrcInfo::toString(SeisTrcInfo::CoordY)
+#define mKeyTrcNr	SeisTrcInfo::toString(SeisTrcInfo::TrcNr)
+#define mKeyRefNr	SeisTrcInfo::toString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
@@ -354,7 +356,7 @@ bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 void SeisFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
 {
     for ( int idx=0; idx<tiflds_.size(); idx++ )
-	keys.add( SeisTrcInfo::getFldString(tiflds_[idx]) );
+	keys.add( SeisTrcInfo::toString(tiflds_[idx]) );
 }
 
 

@@ -215,22 +215,27 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     Pos::GeomID geomid = -1;
     iop.get( sKey::GeomID(), geomid );
 
-    DataCharacteristics::UserType usertype( DataCharacteristics::Auto );
+    SeisIOObjInfo info( mid );
+    if ( !info.isOK() ) return;
+
+    DataCharacteristics dc; info.getDataChar( dc );
+    DataCharacteristics::UserType usertype( dc.userType() );
     DataCharacteristics::UserTypeDef().parse( iop, sKeyUserType(), usertype );
 
-    SeisIOObjInfo oinf( mid );
-    if ( !oinf.isOK() ) return;
+    BufferString scalerstr;
+    iop.get( sKey::Scale(), scalerstr );
+    Scaler* scaler = !scalerstr.isEmpty() ? Scaler::get(scalerstr.buf()) : 0;
 
     PLDM().remove( mid, geomid );
 
     PreLoader spl( mid, geomid, tr );
-    const GeomType gt = oinf.geomType();
+    const GeomType gt = info.geomType();
     switch ( gt )
     {
 	case Vol: {
 	    TrcKeyZSampling tkzs(true);
 	    tkzs.usePar( iop );
-	    spl.load( tkzs, usertype );
+	    spl.load( tkzs, usertype, scaler );
 	} break;
 	case Line: {
 	    BufferStringSet lnms;
@@ -261,16 +266,21 @@ void PreLoader::fillPar( IOPar& iop ) const
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,PLDM().get(mid_));
-    if( regsdp )
+    if ( regsdp )
     {
 	iop.set( sKeyUserType(), DataCharacteristics::toString(
 		    DataCharacteristics(regsdp->getDataDesc()).userType()) );
 	regsdp->sampling().fillPar( iop );
+	const Scaler* scaler = regsdp->getScaler();
+	if ( scaler )
+	{
+	    BufferString info;
+	    scaler->put( info.getCStr() );
+	    iop.set( sKey::Scale(), info.buf() );
+	}
     }
 
-    const GeomType gt = oinf.geomType();
-
-    switch ( gt )
+    switch ( oinf.geomType() )
     {
 	case Vol:
 	break;

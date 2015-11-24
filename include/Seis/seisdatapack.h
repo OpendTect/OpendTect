@@ -131,6 +131,8 @@ public:
     double			getAltDim0Value(int ikey,int i0) const;
     void			getAuxInfo(int i0,int i1,IOPar&) const;
 
+    const Scaler*		getScaler() const
+				{ return source_.getScaler(); }
     const ZDomain::Info&	zDomain() const
 				{ return source_.zDomain(); }
     float			nrKBytes() const;
@@ -212,3 +214,4 @@ protected:
 };
 
 #endif
+

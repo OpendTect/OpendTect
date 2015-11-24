@@ -246,6 +246,7 @@ public:
     const BinDataDesc&		getDataDesc() const	{ return desc_; }
 
     float			nrKBytes() const;
+    void			dumpInfo(IOPar&) const;
 
 protected:
 				SeisDataPack(const char*,const BinDataDesc*);

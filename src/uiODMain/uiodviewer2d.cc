@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "mouseevent.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
@@ -466,7 +467,7 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
     polyseltbid_ = tb->addButton( "polygonselect", tr("Polygon Selection mode"),
 				  mCB(this,uiODViewer2D,selectionMode), true );
-    uiMenu* polymnu = new uiMenu( tb, tr("PoluMenu") );
+    uiMenu* polymnu = new uiMenu( tb, toUiString("PolyMenu") );
 
     uiAction* polyitm = new uiAction( uiStrings::sPolygon(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
@@ -606,20 +607,13 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    SeisFlatDataPack* seisfdp = 0;
     if ( regsdp )
-    {
-	RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, comp );
-	DPM(DataPackMgr::FlatID()).add( regfdp );
-	return regfdp->id();
-    }
+	seisfdp = new RegularFlatDataPack( *regsdp, comp );
     else if ( randsdp )
-    {
-	RandomFlatDataPack* randfdp = new RandomFlatDataPack( *randsdp, comp );
-	DPM(DataPackMgr::FlatID()).add( randfdp );
-	return randfdp->id();
-    }
-
-    return DataPack::cNoID();
+	seisfdp = new RandomFlatDataPack( *randsdp, comp );
+    DPM(DataPackMgr::FlatID()).add( seisfdp );
+    return seisfdp ? seisfdp->id() : DataPack::cNoID();
 }
 
 
@@ -670,6 +664,15 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     ColTab::MapperSetup mapper;
     if ( !mapper.usePar(iop) )
 	return false;
+
+    ConstDataPackRef<SeisFlatDataPack> seisfdp =
+		viewwin()->viewer().obtainPack( wva );
+    const Scaler* scaler = seisfdp ? seisfdp->getScaler() : 0;
+    if ( scaler && !mapper.range_.isUdf() )
+    {
+	mapper.range_.start = scaler->scale( mapper.range_.start );
+	mapper.range_.stop = scaler->scale( mapper.range_.stop );
+    }
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {

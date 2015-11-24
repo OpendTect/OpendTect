@@ -597,16 +597,12 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	return false;
     }
 
+    const DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid,attrib) )
     {
 	case uiVisPartServer::Cube :
 	{
-	    const DataPack::ID cacheid =
-				visserv_->getDataPackID( visid, attrib );
-	    if ( cacheid == DataPack::cNoID() )
-		useDefColTab( visid, attrib );
-
 	    TrcKeyZSampling cs = visserv_->getTrcKeyZSampling( visid, attrib );
 	    if ( !cs.isDefined() )
 		return false;
@@ -661,9 +657,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    attrserv_->setTargetSelSpec( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
-	    DataPack::ID cacheid = rdmtdisp->getDataPackID( attrib );
-	    if ( cacheid == DataPack::cNoID() )
-		useDefColTab( visid, attrib );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
 	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getNodes() : 0;
 	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
@@ -671,14 +664,12 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
 			    Attrib::ExtAttrFact().create( 0, myas, false );
-
 		// TODO implement
 		break;
 	    }
 
 	    const DataPack::ID newid =
 		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos );
-
 	    res = true;
 	    if ( newid == -1 )
 		res = false;
@@ -707,6 +698,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
     }
 
+    if ( cacheid == DataPack::cNoID() )
+	useDefColTab( visid, attrib );
     updateColorTable( visid, attrib );
     return res;
 }

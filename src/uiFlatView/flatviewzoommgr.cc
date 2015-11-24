@@ -204,7 +204,7 @@ FlatView::ZoomMgr::Size FlatView::ZoomMgr::back( int vieweridx,
     newsize.setHeight( newsize.height() / fwdfac_ );
     const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
     // NOTE: newsize returned can be greater than the initialSize. This is not
-    // added to zooms_ is such a case, but is needed to maintain constant
+    // added to zooms_ in such a case, but is needed to maintain constant
     // aspect ratio while zooming out.
     return newsize;
 }

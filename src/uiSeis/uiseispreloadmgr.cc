@@ -224,21 +224,19 @@ void updateEstUsage()
     {
 	DataCharacteristics dc; info.getDataChar( dc );
 	const FixedString usertypestr =
-	    DataCharacteristics::getUserTypeString( dc.userType() );
+	    DataCharacteristics::toString( dc.userType() );
 	if ( usertypestr.size() > 4 )
-	    infotxt = toUiString("%1 %2.").arg(infotxt).arg(
-					    toUiString(usertypestr.buf() + 4));
+	    infotxt.append( usertypestr.buf()+4 );
 
-	infotxt = tr("%1 Estimated memory usage: %2").arg(infotxt);
-	getDataChar(dc);
+	getDataChar( dc );
 	const od_int64 nrs = subselfld_->expectedNrSamples();
 	const od_int64 nrt = subselfld_->expectedNrTraces();
 	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt = toUiString("%1 %2").arg(infotxt).arg(toUiString(
-					File::getFileSizeString(nrbytes/1024)));
+	infotxt.append( tr(". Estimated memory usage: ") )
+	       .append( File::getFileSizeString(nrbytes/1024) );
     }
     else
-	infotxt = toUiString("%1 ?").arg(infotxt);
+	infotxt.append( "?" );
 
     toStatusBar( infotxt );
 }
@@ -301,7 +299,6 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     mDynamicCastGet(uiSeis2DSubSel*,ss2d,dlg.subselfld_)
     if ( !ss2d ) return;
 
-    uiTaskRunner taskrunner( this );
     TrcKeyZSampling tkzs;
     DataCharacteristics dc; dlg.getDataChar( dc );
     TypeSet<Pos::GeomID> geomids;
@@ -329,6 +326,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	skiploadedgeomids = !uiMSG().askGoOn( msg );
     }
 
+    uiTaskRunner taskrunner( this );
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	const Pos::GeomID& geomid = geomids[idx];
