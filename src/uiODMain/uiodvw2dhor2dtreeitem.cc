@@ -214,7 +214,7 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int dispid, bool )
 
 uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 {
-    NotifierAccess* deselnotify = horview_->deSelection();
+    NotifierAccess* deselnotify = horview_ ? horview_->deSelection() : 0;
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DHor2DTreeItem,deSelCB) );
 
@@ -246,7 +246,8 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 	}
     }
 
-    viewer2D()->dataMgr()->removeObject( horview_ );
+    if ( horview_ )
+	viewer2D()->dataMgr()->removeObject( horview_ );
 }
 
 
@@ -432,8 +433,11 @@ bool uiODVw2DHor2DTreeItem::select()
 	}
     }
 
-    viewer2D()->dataMgr()->setSelected( horview_ );
-    horview_->selected( isChecked() );
+    if ( horview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( horview_ );
+	horview_->selected( isChecked() );
+    }
     return true;
 }
 
@@ -446,14 +450,16 @@ void uiODVw2DHor2DTreeItem::deSelCB( CallBacker* )
 
 void uiODVw2DHor2DTreeItem::checkCB( CallBacker* )
 {
-    horview_->enablePainting( isChecked() );
+    if ( horview_ )
+	horview_->enablePainting( isChecked() );
 }
 
 
 void uiODVw2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 					   bool wva )
 {
-    horview_->setSelSpec( selspec, wva );
+    if ( horview_ )
+	horview_->setSelSpec( selspec, wva );
 }
 
 
