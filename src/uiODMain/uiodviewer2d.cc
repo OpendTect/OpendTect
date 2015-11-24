@@ -670,8 +670,8 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     const Scaler* scaler = seisfdp ? seisfdp->getScaler() : 0;
     if ( scaler && !mapper.range_.isUdf() )
     {
-	mapper.range_.start = scaler->scale( mapper.range_.start );
-	mapper.range_.stop = scaler->scale( mapper.range_.stop );
+	mapper.range_.start = mCast(float,scaler->scale(mapper.range_.start));
+	mapper.range_.stop = mCast(float,scaler->scale(mapper.range_.stop));
     }
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
