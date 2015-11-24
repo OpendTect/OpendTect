@@ -395,8 +395,9 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.managecoltab(!tifs_) );
 
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
-    mAttachCB( viewstdcontrol_->editPushed(),
-	       uiODViewer2D::itmSelectionChangedCB );
+    if ( viewstdcontrol_->editPushed() )
+	mAttachCB( viewstdcontrol_->editPushed(),
+		   uiODViewer2D::itmSelectionChangedCB );
     if ( tifs_ && viewstdcontrol_->editToolBar() )
     {
 	picksettingstbid_ = viewstdcontrol_->editToolBar()->addButton(
@@ -872,6 +873,9 @@ void uiODViewer2D::fillPar( IOPar& iop ) const
 
 void uiODViewer2D::rebuildTree()
 {
+    for ( int chidx=0; chidx<treetp_->nrChildren(); chidx++ )
+	treetp_->getChild(chidx)->removeAllChildren();
+
     ObjectSet<Vw2DDataObject> objs;
     dataMgr()->getObjects( objs );
     for ( int iobj=0; iobj<objs.size(); iobj++ )
