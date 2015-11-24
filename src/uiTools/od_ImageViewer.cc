@@ -43,10 +43,10 @@ int main( int argc, char** argv )
     if ( clp.hasKey("bg") )
 	ForkProcess();
 
-    const BufferString& fnm = args.get( 0 );
+    BufferString& fnm = args.get( 0 );
 #ifdef __win__
     if ( File::isLink(fnm) )
-	fnm = const_cast<char*>(File::linkTarget(fnm));
+	fnm = File::linkTarget( fnm );
 #endif
     if ( !File::exists(fnm.buf()) )
     {
