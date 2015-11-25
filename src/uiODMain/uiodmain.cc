@@ -715,6 +715,12 @@ uiString uiODMain::getProgramString() const
 }
 
 
+uiString uiODMain::getProgramName()
+{
+    return toUiString(programname_);
+}
+
+
 void uiODMain::exit()
 {
     if ( !closeOK() ) return;

@@ -61,6 +61,7 @@ public:
 					//!< notification, to get/put data
 
     Notifier<uiODMain>	justBeforeGo;	//!< Scenes inited, auto-plugins loaded
+    uiString		getProgramName();
 
     bool		askStore(bool& askedanything,
 				 const uiString& actiontype);
