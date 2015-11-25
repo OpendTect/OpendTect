@@ -533,7 +533,7 @@ template <class T> inline
 double ParamLineBase<T>::sqDistanceToPoint(const T& p) const
 {
     const double t = closestParam(p);
-    const Coord closestpoint = getPoint(t);
+    const T closestpoint = getPoint(t);
     return closestpoint.sqDistTo(p);
 }
 
@@ -568,7 +568,7 @@ T ParamLineBase<T>::direction(bool normalize) const
 template <class T> inline
 double ParamLineBase<T>::closestParam(const T& point) const
 {
-    const Coord diff = point - p0_;
+    const T diff = point - p0_;
     return diff.dot(dir_) / dir_.sqAbs();
 }
 
