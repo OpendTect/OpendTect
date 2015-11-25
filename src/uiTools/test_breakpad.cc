@@ -8,19 +8,19 @@
 static const char* rcsID mUsedVar = "$Id: refcount.cc 30402 2013-06-21 07:20:27Z kristofer.tingdahl@dgbes.com $";
 
 #include "genc.h"
-#include "testprog.h"
 #include "signal.h"
 #include "moddepmgr.h"
 
 
-//On windows, this will only trigger outside a debugger. Hence, set the path (to include
-//Qt libraries and libBasic and run from command line. If everything works
-//Breakpad should trigger and write out a crash report.
+/*On windows, this will only trigger outside a debugger. Hence, set the path
+(to include libraries and the OpendTect libraries and run from command line.
+If everything works Breakpad should trigger and write out a crash report.
+*/
 
 int main( int argc, char** argv )
 {
     SetProgramArgs(argc, argv);
-    OD::ModDeps().ensureLoaded("Basic");
+    OD::ModDeps().ensureLoaded("uiTools");
     
     DBG::forceCrash(false);
 
