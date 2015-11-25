@@ -196,10 +196,11 @@ void HorSampling::limitTo( const HorSampling& h, bool ignoresteps )
     } \
     else \
     { \
-	float startdiff = mCast( float, start.ic() - h.start.ic() ); \
-	int minstop = mMIN( stop.ic(), h.stop.ic() ); \
-	int common = mCast( int, start.ic() + step.ic() * (startdiff > 0 ? 1 \
-					: ceil(-startdiff/step.ic())) ); \
+	const int startdiff = start.ic() - h.start.ic(); \
+	const int minstop = mMIN( stop.ic(), h.stop.ic() ); \
+	int common = start.ic(); \
+	if ( startdiff < 0 ) \
+	    common += step.ic() * ((step.ic()-startdiff-1)/step.ic()); \
 	while ( common <= minstop && (common-h.start.ic())%h.step.ic() ) \
 	    common += step.ic(); \
 	if ( common > minstop ) \
