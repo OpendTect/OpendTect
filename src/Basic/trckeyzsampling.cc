@@ -338,10 +338,11 @@ void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
     } \
     else \
     { \
-	float start_diff = mCast( float, start_.ic() - h.start_.ic() ); \
-	int minstop_ = mMIN( stop_.ic(), h.stop_.ic() ); \
-	int common = mCast( int, start_.ic() + step_.ic() * (start_diff > 0 ? 1\
-					: ceil(-start_diff/step_.ic())) ); \
+	const int start_diff = start_.ic() - h.start_.ic(); \
+	const int minstop_ = mMIN( stop_.ic(), h.stop_.ic() ); \
+	int common = start_.ic(); \
+	if ( start_diff < 0 ) \
+	    common += step_.ic() * ((step_.ic()-start_diff-1)/step_.ic()); \
 	while ( common <= minstop_ && (common-h.start_.ic())%h.step_.ic() ) \
 	    common += step_.ic(); \
 	if ( common > minstop_ ) \
