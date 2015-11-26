@@ -876,7 +876,7 @@ void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 {
     const StepInterval<float> zrg( rg.start, rg.stop, appliedZRangeStep() );
     panelstrip_->setZRange( zrg );
-    const Interval<float> mapping(0,mCast(float,zrg.nrSteps()*(resolution_+1)));
+    const Interval<float> mapping( 0.0, zrg.nrfSteps()*(resolution_+1) );
     panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )
@@ -1625,6 +1625,11 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
 {
+    Interval<float> zrg = dragger_->getDepthRange();
+    s3dgeom_->snapZ( zrg.start );
+    s3dgeom_->snapZ( zrg.stop );
+    dragger_->setDepthRange( zrg );
+
     if ( originalresolution_ >= 0 )
     {
 	resolution_ = originalresolution_;
