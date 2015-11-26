@@ -14,7 +14,6 @@ ________________________________________________________________________
 @$*/
 
 #include "algomod.h"
-#include "arraynd.h"
 #include "arrayndimpl.h"
 #include "coord.h"
 #include "enums.h"
@@ -25,37 +24,115 @@ ________________________________________________________________________
 namespace ArrayMath
 {
 
+
+/*!\brief Parallel task for computing the sum of all element of the array
+	  Should not be used directly, instead call getSum(const ArrayND)
+ */
+
+template <class T>
+class CumSumExec : public ParallelTask
+{ mODTextTranslationClass(CumSumExec);
+public:
+		CumSumExec( const T* vals, od_int64 sz, bool noudf )
+		    : vals_(vals)
+		    , sz_(sz)
+		    , noudf_(noudf)
+		    , cumsum_(mUdf(T))
+		{}
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+
+    T		getSum() const		{ return cumsum_; }
+
+protected:
+
+    od_int64	nrIterations() const	{ return sz_; }
+
+private:
+
+    bool	doPrepare( int nrthreads )
+		{
+		    return sumvals_.setSize( nrthreads );
+		}
+
+    bool	doWork( od_int64 start, od_int64 stop, int threadidx )
+		{
+		    T sumval = 0;
+		    od_int64 count = 0;
+		    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+		    {
+			const T value = vals_[idx];
+			if ( !noudf_ && mIsUdf(value) )
+			    continue;
+
+			sumval += value;
+			count++;
+		    }
+
+		    sumvals_[threadidx] = count==0 ? mUdf(T) : sumval;
+
+		    return true;
+		}
+
+    bool	doFinish( bool success )
+		{
+		    if ( !success )
+			return false;
+
+		    int count = 0;
+		    cumsum_ = 0;
+		    for ( int idx=0; idx<sumvals_.size(); idx++ )
+		    {
+			if ( mIsUdf(sumvals_[idx]) )
+			    continue;
+
+			cumsum_ += sumvals_[idx];
+			count++;
+		    }
+
+		    if ( count == 0 )
+			cumsum_ = mUdf(T);
+
+		    return true;
+		}
+
+    od_int64	sz_;
+    bool	noudf_;
+
+    TypeSet<T>	sumvals_;
+    const T*	vals_;
+    T		cumsum_;
+};
+
+
 /*!\brief returns the sum of all defined values in the Array.
    Returns UDF if empty or only udfs encountered. */
 
 template <class T>
-inline T getSum( const ArrayND<T>& in )
+inline T getSum( const ArrayND<T>& in, bool noudf )
 {
-    const od_uint64 sz = in.info().getTotalSz();
-    if ( sz < 1 )
-	return mUdf(T);
-
-    T sum = 0; od_uint64 count = 0;
     const T* inpvals = in.getData();
     if ( inpvals )
     {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
-	{
-	    const T value = inpvals[idx];
-	    if ( !mIsUdf(value) )
-		{ sum += value; count++; }
-	}
+	CumSumExec<T> applycumsum( inpvals, in.info().getTotalSz(), noudf );
+	if ( !applycumsum.execute() )
+	    return mUdf(T);
+
+	return applycumsum.getSum();
     }
-    else
+
+    T sum = 0; od_uint64 count = 0;
+    ArrayNDIter iter( in.info() );
+    do
     {
-	ArrayNDIter iter( in.info() );
-	do
-	{
-	    const T value = in.getND( iter.getPos() );
-	    if ( !mIsUdf(value) )
-		{ sum += value; count++; }
-	} while ( iter.next() );
-    }
+	const T value = in.getND( iter.getPos() );
+	if ( !noudf && mIsUdf(value) )
+	    continue;
+
+	sum += value;
+	count++;
+    } while ( iter.next() );
 
     return count == 0 ? mUdf(T) : sum;
 }
@@ -64,30 +141,40 @@ inline T getSum( const ArrayND<T>& in )
 /*!\brief returns the average amplitude of the array */
 
 template <class T>
-inline T getAverage( const ArrayND<T>& in )
+inline T getAverage( const ArrayND<T>& in, bool noudf )
 {
     const od_uint64 sz = in.info().getTotalSz();
-    const T sumvals = getSum( in );
+    const T sumvals = getSum( in, noudf );
     return mIsUdf(sumvals) ? mUdf(T) : sumvals / mCast(T,sz);
 }
 
 
 //!Specialization for complex numbers.
 template <>
-inline float_complex getAverage<float_complex>(const ArrayND<float_complex>& in)
+inline float_complex getAverage<float_complex>(const ArrayND<float_complex>& in,
+					       bool noudf )
 {
     const od_uint64 sz = in.info().getTotalSz();
-    const float_complex sumvals = getSum(in);
+    const float_complex sumvals = getSum( in, noudf );
     return mIsUdf(sumvals) ? mUdf(float_complex) : sumvals / mCast(float,sz);
 }
 
 
 
+template <class T>
+mDefParallelCalc5Pars(ScalingExec,
+		  od_static_tr("ScalingExec","Array scaler executor"),
+		  const T*,arrin,T*,arrout,T,fact,T,shift,bool,noudf)
+mDefParallelCalcBody(,const T inpval = arrin_[idx]; \
+		      if ( !noudf_ && ( mIsUdf(inpval) ) ) \
+			  { arrout_[idx] = mUdf(T); continue; } \
+		      arrout_[idx] = fact_ * inpval + shift_; , )
 
 /*!\brief returns a scaled array */
 
 template <class T>
-inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift )
+inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift,
+		       bool noudf )
 {
     ArrayND<T>& out = out_ ? *out_ : const_cast<ArrayND<T>&>( in );
     const od_uint64 sz = in.info().getTotalSz();
@@ -95,36 +182,39 @@ inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift )
     T* outvals = out.getData();
     if ( inpvals && outvals )
     {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
-	{
-	    const T value = inpvals[idx];
-	    if ( mIsUdf(value) )
-		continue;
-
-	    outvals[idx] = fact * value + shift;
-	}
+	ScalingExec<T> applyscaler( sz, inpvals, outvals, fact, shift, noudf );
+	applyscaler.setReport( false );
+	applyscaler.execute();
+	return;
     }
-    else
+
+    ArrayNDIter iter( in.info() );
+    do
     {
-	ArrayNDIter iter( in.info() );
-	do
-	{
-	    const int* pos = iter.getPos();
-	    const T value = in.getND( pos );
-	    if ( mIsUdf(value) )
-		continue;
+	const int* pos = iter.getPos();
+	const T value = in.getND( pos );
+	if ( !noudf && mIsUdf(value) )
+	    continue;
 
-	    out.setND( pos, fact * value + shift );
-	} while ( iter.next() );
-    }
+	out.setND( pos, fact * value + shift );
+    } while ( iter.next() );
 }
 
+
+template <class T>
+mDefParallelCalc6Pars(SumExec,
+		      od_static_tr("SumExec","Array addition executor"),
+		  const T*,arr1,const T*,arr2,T*,out,T,fact1,T,fact2,bool,noudf)
+mDefParallelCalcBody(,const T val1 = arr1_[idx]; const T val2 = arr2_[idx]; \
+		      if ( !noudf_ && ( mIsUdf(val1) || mIsUdf(val2) ) ) \
+			  { out_[idx] = mUdf(T); continue; } \
+		      out_[idx] = fact1_ * val1 + fact2_ * val2; , )
 
 /*!\brief computes the sum array between two arrays with scaling */
 
 template <class T>
 inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-		    ArrayND<T>& out, T fact1, T fact2 )
+		    ArrayND<T>& out, T fact1, T fact2, bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -135,38 +225,41 @@ inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
     T* outvals = out.getData();
     if ( vals1 && vals2 && outvals )
     {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
-	{
-	    const T val1 = vals1[idx];
-	    const T val2 = vals2[idx];
-	    if ( mIsUdf(val1) || mIsUdf(val2) )
-		{ outvals[idx] = mUdf(T); continue; }
-
-	    outvals[idx] = fact1 * val1 + fact2 * val2;
-	}
+	SumExec<T> applysum( sz, vals1, vals2, outvals, fact1, fact2,noudf);
+	applysum.setReport( false );
+	applysum.execute();
+	return;
     }
-    else
+
+    ArrayNDIter iter( in1.info() );
+    do
     {
-	ArrayNDIter iter( in1.info() );
-	do
-	{
-	    const int* pos = iter.getPos();
-	    const T val1 = in1.getND( pos );
-	    const T val2 = in2.getND( pos );
-	    if ( mIsUdf(val1) || mIsUdf(val2) )
-		{ out.setND( pos, mUdf(T) ); continue; }
+	const int* pos = iter.getPos();
+	const T val1 = in1.getND( pos );
+	const T val2 = in2.getND( pos );
+	if ( !noudf && ( mIsUdf(val1) || mIsUdf(val2) ) )
+	    { out.setND( pos, mUdf(T) ); continue; }
 
-	    out.setND( pos, fact1 * val1 + fact2 * val2 );
-	} while ( iter.next() );
-    }
+	out.setND( pos, fact1 * val1 + fact2 * val2 );
+    } while ( iter.next() );
 }
+
+
+template <class T>
+mDefParallelCalc4Pars(ProdExec,
+		      od_static_tr("ProdExec","Array product executor"),
+		      const T*,arr1,const T*,arr2,T*,out,bool,noudf)
+mDefParallelCalcBody(,const T val1 = arr1_[idx]; const T val2 = arr2_[idx]; \
+		      if ( !noudf_ && ( mIsUdf(val1) || mIsUdf(val2) ) ) \
+			  { out_[idx] = mUdf(T); continue; } \
+		      out_[idx] = val1*val2; , )
 
 
 /*!\brief computes the product array between two arrays */
 
 template <class T>
 inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
-			ArrayND<T>& out )
+			ArrayND<T>& out, bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -177,30 +270,23 @@ inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     T* outvals = out.getData();
     if ( vals1 && vals2 && outvals )
     {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
-	{
-	    const T val1 = vals1[idx];
-	    const T val2 = vals2[idx];
-	    if ( mIsUdf(val1) || mIsUdf(val2) )
-		{ outvals[idx] = mUdf(T); continue; }
-
-	    outvals[idx] = val1 * val2;
-	}
+	ProdExec<T> applyprod( sz, vals1, vals2, outvals, noudf );
+	applyprod.setReport( false );
+	applyprod.execute();
+	return;
     }
-    else
+
+    ArrayNDIter iter( in1.info() );
+    do
     {
-	ArrayNDIter iter( in1.info() );
-	do
-	{
-	    const int* pos = iter.getPos();
-	    const T val1 = in1.getND( pos );
-	    const T val2 = in2.getND( pos );
-	    if ( mIsUdf(val1) || mIsUdf(val2) )
-		{ out.setND( pos, mUdf(T) ); continue; }
+	const int* pos = iter.getPos();
+	const T val1 = in1.getND( pos );
+	const T val2 = in2.getND( pos );
+	if ( !noudf && ( mIsUdf(val1) || mIsUdf(val2) ) )
+	    { out.setND( pos, mUdf(T) ); continue; }
 
-	    out.setND( pos, val1 * val2 );
-	} while ( iter.next() );
-    }
+	out.setND( pos, val1 * val2 );
+    } while ( iter.next() );
 }
 
 
@@ -208,14 +294,15 @@ inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
 
 template <class T>
 inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-		    ArrayND<T>& out )
-{ getSum( in1, in2, out, (T)1, (T)1 ); }
+		    ArrayND<T>& out, bool noudf )
+{ getSum( in1, in2, out, (T)1, (T)1, noudf ); }
 
 
 /*!\brief returns the sum of product amplitudes between two vectors */
 
 template <class T>
-inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
+			bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -225,24 +312,24 @@ inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( !prodvec.isOK() )
 	return mUdf(T);
 
-    getProduct( in1, in2, prodvec );
-    return getSum( prodvec );
+    getProduct( in1, in2, prodvec, noudf );
+    return getSum( prodvec, noudf );
 }
 
 
 /*!\brief returns the sum of squarred amplitudes of the array */
 
 template <class T>
-inline T getSumSq( const ArrayND<T>& in )
-{ return getSumProduct( in, in ); }
+inline T getSumSq( const ArrayND<T>& in, bool noudf )
+{ return getSumProduct( in, in, noudf ); }
 
 
 /*!\brief return the Norm-2 of the array */
 
 template <class T>
-inline T getNorm2( const ArrayND<T>& in )
+inline T getNorm2( const ArrayND<T>& in, bool noudf )
 {
-    const T sumsqvals = getSumSq( in );
+    const T sumsqvals = getSumSq( in, noudf );
     return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals );
 }
 
@@ -250,10 +337,10 @@ inline T getNorm2( const ArrayND<T>& in )
 /*!\brief return the RMS of the array */
 
 template <class T>
-inline T getRMS( const ArrayND<T>& in )
+inline T getRMS( const ArrayND<T>& in, bool noudf )
 {
     const od_uint64 sz = in.info().getTotalSz();
-    const T sumsqvals = getSumSq( in );
+    const T sumsqvals = getSumSq( in, noudf );
     return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals/mCast(T,sz) );
 }
 
@@ -261,7 +348,7 @@ inline T getRMS( const ArrayND<T>& in )
 /*!\brief returns the residual differences of two arrays */
 
 template <class T>
-inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -271,7 +358,7 @@ inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( !diffvec.isOK() )
 	return mUdf(T);
 
-    getSum( in1, in2, diffvec, (T)1, (T)-1 );
+    getSum( in1, in2, diffvec, (T)1, (T)-1, noudf );
     T* diffdata = diffvec.getData();
     if ( diffdata )
     {
@@ -288,14 +375,14 @@ inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2 )
 	} while ( iter.next() );
     }
 
-    return getAverage( diffvec );
+    return getAverage( diffvec, noudf );
 }
 
 
 /*!\brief returns the sum of squarred differences of two arrays */
 
 template <class T>
-inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -305,15 +392,15 @@ inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
-    getSum( in1, in2, sumvec, (T)1, (T)-1 );
-    return getSumSq( sumvec );
+    getSum( in1, in2, sumvec, (T)1, (T)-1, noudf );
+    return getSumSq( sumvec, noudf );
 }
 
 
 /*!\brief returns the sum of summed squarred amplitudes of two arrays */
 
 template <class T>
-inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -323,21 +410,21 @@ inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( !sqvec1.isOK() || !sqvec2.isOK() )
 	return mUdf(T);
 
-    getProduct( in1, in1, sqvec1 );
-    getProduct( in2, in2, sqvec2 );
+    getProduct( in1, in1, sqvec1, noudf );
+    getProduct( in2, in2, sqvec2, noudf );
     Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
-    getSum( sqvec1, sqvec2, sumvec );
-    return getSum( sumvec );
+    getSum( sqvec1, sqvec2, sumvec, noudf );
+    return getSum( sumvec, noudf );
 }
 
 
 /*!\brief returns the sum of subtracted squarred amplitudes of two arrays */
 
 template <class T>
-inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
+inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -347,14 +434,14 @@ inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
     if ( !sqvec1.isOK() || !sqvec2.isOK() )
 	return mUdf(T);
 
-    getProduct( in1, in1, sqvec1 );
-    getProduct( in2, in2, sqvec2 );
+    getProduct( in1, in1, sqvec1, noudf );
+    getProduct( in2, in2, sqvec2, noudf );
     Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
-    getSum( sqvec1, sqvec2, sumvec, (T)1, (T)-1 );
-    return getSum( sumvec );
+    getSum( sqvec1, sqvec2, sumvec, (T)1, (T)-1, noudf );
+    return getSum( sumvec, noudf );
 }
 
 
@@ -363,11 +450,11 @@ inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2 )
 template <class T, class fT>
 inline bool removeBias( const ArrayND<T>& in, ArrayND<T>& out )
 {
-    const T averagevalue = getAverage( in );
+    const T averagevalue = getAverage( in, false );
     if ( mIsUdf(averagevalue) )
 	return false;
 
-    getScaled( in, &out, (T)1, -averagevalue );
+    getScaled( in, &out, (T)1, -averagevalue, false );
     return true;
 }
 
@@ -389,7 +476,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 				  T& intercept, T& gradient )
 {
     const od_uint64 sz = iny.info().getTotalSz();
-    T avgyvals = getAverage( iny );
+    T avgyvals = getAverage( iny, false );
     if ( mIsUdf(avgyvals) )
 	return false;
 
@@ -421,7 +508,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 	inx = inxtmp;
     }
 
-    T avgxvals = getAverage( *inx );
+    T avgxvals = getAverage( *inx, false );
     if ( mIsUdf(avgxvals) )
 	{ if ( !hasxvals) delete inx; return false; }
 
@@ -434,16 +521,16 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     if ( !crossprodxy.isOK() )
 	{ if ( !hasxvals ) delete inx; return false; }
 
-    getProduct( *inx, iny, crossprodxy );
+    getProduct( *inx, iny, crossprodxy, false );
 
-    gradient = getSumProduct( *inx, iny ) / getSumSq( *inx );
+    gradient = getSumProduct( *inx, iny, false ) / getSumSq( *inx, false );
     intercept = avgyvals - gradient * avgxvals;
-    getScaled( iny, &inyed, (T)1, avgyvals );
+    getScaled( iny, &inyed, (T)1, avgyvals, false );
 
     if ( !hasxvals )
 	delete inx;
     else
-	getScaled( *inx, &inxed, (T)1, avgxvals );
+	getScaled( *inx, &inxed, (T)1, avgxvals, false );
 
     return true;
 }
@@ -480,7 +567,7 @@ inline bool removeTrend( const ArrayND<T>& in, ArrayND<T>& out )
 	} while( iter.next() );
     }
 
-    getSum( in, trend, out );
+    getSum( in, trend, out, false );
 
     return true;
 }
@@ -498,18 +585,30 @@ inline bool removeTrend( ArrayND<T>& inout )
 }; //namespace
 
 
-/*!\brief Returns whether there are undefs in the Array1D.  */
+/*!\brief Returns whether there are undefs in the Array.  */
 
 template <class fT>
-inline bool hasUndefs( const Array1D<fT>& in )
+inline bool hasUndefs( const ArrayND<fT>& in )
 {
-    const int sz = in.info().getSize(0);
-    for ( int idx=0; idx<sz; idx++ )
+    const fT* vals = in.getData();
+    if ( vals )
     {
-	const fT val = in.get( idx );
-	if ( mIsUdf(val) )
-	    return true;
+	for ( od_uint64 idx=0; idx<in.info().getTotalSz(); idx++ )
+	{
+	    if ( mIsUdf(vals[idx]) )
+		return true;
+	}
+
+	return false;
     }
+
+    ArrayNDIter iter( in.info() );
+    do
+    {
+	if ( mIsUdf(in.getND(iter.getPos())) )
+	    return true;
+
+    } while( iter.next() );
 
     return false;
 }

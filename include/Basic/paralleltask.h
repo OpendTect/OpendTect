@@ -166,9 +166,10 @@ for ( int isamp=0; isamp<outnrsamples; isamp++ )
     the uiMessage if the execution is done with a taskrunner, thus:
 
 
-mDefParallelCalc4Pars( SEGYSampleInterpreter, tr("Copying trace information"),
-		   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
-		   const TraceDataInterpreter*,storinterp)
+mDefParallelCalc4Pars( SEGYSampleInterpreter,
+	   od_static_tr("SEGYSampleInterpreter","Copying trace information"),
+	   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
+	   const TraceDataInterpreter*,storinterp)
 mDefParallelCalcBody( \* No initializations *\,
 	    trc_.set( idx, storinterp_->get(blockbuf_,idx), curcomp_ );
 		    , \* No post-operations *\)
