@@ -185,7 +185,10 @@ void uiViewer2DMainWin::setUpView()
     removeAllGathers();
 
     if ( preprocmgr_ && !preprocmgr_->reset() )
-	return uiMSG().error( tr("Can not preprocess data") );
+    {
+	uiMSG().error( tr("Can not preprocess data") );
+	return;
+    }
 
     int nrvwr = 0;
     for ( int gidx=0; gidx<gatherinfos_.size(); gidx++ )

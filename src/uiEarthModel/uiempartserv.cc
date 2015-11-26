@@ -1153,8 +1153,11 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 			      varsettings.getFold(), errmsg, msgiserror );
     if ( !hvc.isOK() )
     {
-	msgiserror ? uiMSG().error( mToUiStringTodo(errmsg.buf()) )
-		   : uiMSG().warning( mToUiStringTodo(errmsg.buf()) );
+	if ( msgiserror )
+	    uiMSG().error( mToUiStringTodo(errmsg.buf()) );
+	else
+	    uiMSG().warning( mToUiStringTodo(errmsg.buf()) );
+
 	return false;
     }
     uiVariogramDisplay* uivv = new uiVariogramDisplay( parent(), hvc.getData(),

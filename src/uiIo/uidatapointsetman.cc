@@ -91,7 +91,10 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
     BufferString masternm( dps->name() );
     if ( masternm == seldlg.ioObj()->name() )
-	return uiMSG().error( tr("Cannot merge same crossplots.") );
+    {
+	uiMSG().error( tr("Cannot merge same crossplots.") );
+	return;
+    }
 
     PosVecDataSet spvds;
     BufferString errmsg;

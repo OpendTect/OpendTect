@@ -704,7 +704,11 @@ void intvChanged( CallBacker* cb )
     if( invalidstep )
     {
 	intvfld_->setValue( contourintv_.step, 2 );
-	if (cb) return uiMSG().error(tr("Invalid step value"));
+	if (cb)
+	{
+	    uiMSG().error(tr("Invalid step value"));
+	    return;
+	}
     }
 
     intv = intvfld_->getFStepInterval();

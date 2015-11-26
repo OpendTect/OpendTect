@@ -245,15 +245,6 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 
 int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 			   const uiString& yestxt, const uiString& notxt,
-			   const uiString& cncltxt, const uiString& title )
-{
-    return showMessageBox( icon, parent, txt, yestxt, notxt,
-	    		   cncltxt, title, 0 );
-}
-
-
-int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
-			   const uiString& yestxt, const uiString& notxt,
 			   const uiString& cncltxt, const uiString& title,
 			   bool* notagain )
 {
@@ -303,7 +294,7 @@ void uiMsg::message( const uiString& part1, const uiString& part2,
     if ( !part3.isEmpty() ) msg.append( part3 );
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Information") );
+		    tr("Information"), 0 );
 }
 
 
@@ -315,19 +306,22 @@ void uiMsg::warning( const uiString& part1, const uiString& part2,
     if ( !part3.isEmpty() ) msg.append( part3 );
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Warning") );
+		    tr("Warning"), 0 );
 }
 
 
-void uiMsg::error( const uiString& part1, const uiString& part2,
-		   const uiString& part3 )
+bool uiMsg::error( const uiString& part1, const uiString& part2,
+		   const uiString& part3, bool withdontshowagain )
 {
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
+    bool notagain = false;
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Error") );
+		    tr("Error"), withdontshowagain ? &notagain : 0 );
+
+    return notagain;
 }
 
 
@@ -457,14 +451,6 @@ int uiMsg::ask2D3D( const uiString& text, bool wcancel )
 
 int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 		     const uiString& notxtinp,
-		     const uiString& cncltxtinp, const uiString& title )
-{
-    return question( text, yestxtinp, notxtinp, cncltxtinp, title, 0 );
-}
-
-
-int uiMsg::question( const uiString& text, const uiString& yestxtinp,
-		     const uiString& notxtinp,
 		     const uiString& cncltxtinp, const uiString& title,
 		     bool* notagain )
 {
@@ -513,28 +499,6 @@ void uiMsg::aboutOpendTect( const uiString& text )
 }
 
 
-bool uiMsg::askGoOn( const uiString& text, bool yn )
-{
-    const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
-    const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
-    return askGoOn( text, oktxt, canceltxt, 0 );
-}
-
-
-bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
-		     const uiString& textno )
-{
-    return askGoOn( text, textyes, textno, 0 );
-}
-
-
-int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
-			 const uiString& textyesinp, const uiString& textnoinp )
-{
-    return askGoOnAfter( text, cnclmsginp, textyesinp,textnoinp, 0 );
-}
-
-
 bool uiMsg::askGoOn( const uiString& text, bool yn, bool* notagain )
 {
     const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
@@ -565,38 +529,12 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
     const uiString cncltxt = cnclmsginp.isEmpty()
 	? uiStrings::sCancel()
 	: cnclmsginp;
-    return showMessageBox( Warning, popParnt(), text, yestxt, notxt, cncltxt );
+    return showMessageBox( Warning, popParnt(), text, yestxt, notxt, cncltxt,
+	    		   uiStrings::sEmptyString(), notagain );
 }
 
 
 uiString uiMsg::sDontShowAgain()
 { return tr("Don't show this message again"); }
 
-
-bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
-{
-    mPrepCursor();
-    const uiString oktxt = uiStrings::sOk();
-    const uiString notxt = notmsginp.isEmpty() ?
-			   sDontShowAgain() : notmsginp;
-    const uiString cncltxt = uiStrings::sCancel();
-    mCapt( tr("Information") );
-    const int refnr = beginCmdRecEvent( utfwintitle );
-
-    QCheckBox* cb = 0;
-    PtrMan<QMessageBox> mb = createMessageBox( Information, popParnt(), text,
-				       oktxt, notxt, cncltxt, wintitle, &cb);
-    // Only CmdDriver triggers hidden no-button, since it can't access checkbox.
-    mb->button( QMessageBox::No    )->setVisible( false );
-    // Make close/escape map onto hidden abort-button to reject checkbox state.
-    mb->button( QMessageBox::Abort )->setVisible( false );
-
-    const int res = mb->exec();
-    bool checked = cb->isChecked() && res!=QMessageBox::Abort;
-    checked = checked || res==QMessageBox::No;
-
-    endCmdRecEvent( refnr, checked ? 1 : 0, oktxt.getOriginalString(),
-		    notxt.getOriginalString() );
-    return !checked;
-}
 

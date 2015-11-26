@@ -38,9 +38,13 @@ public:
     void	warning(const uiString&,
 			const uiString& part2=uiString::emptyString(),
 			const uiString& part3=uiString::emptyString());
-    void	error(const uiString&,
+    bool	error(const uiString&,
 		      const uiString& part2=uiString::emptyString(),
-		      const uiString& part3=uiString::emptyString());
+		      const uiString& part3=uiString::emptyString(),
+		      bool withdontshowgain=false);
+    		/*!<If withdontshowgain is true, the user will be prompted
+		    to not see this again. Return true if the user
+		    does not want to see it again. */
     void	errorWithDetails(const FileMultiString&);
     		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
@@ -52,19 +56,14 @@ public:
 
     // Interaction
     int		question(const uiString&,
-			 const uiString& textyes,
-			 const uiString& textno,
-			 const uiString& textcncl,
-			 const uiString& caption,
-			 bool* dontaskagain);
-		/*!<If don't askagain is given, the user will have the
-		   option to not see this again, and the boolean will
-		   be filled in. */
-    int		question(const uiString&,
 			 const uiString& textyes=uiString::emptyString(),
 			 const uiString& textno=uiString::emptyString(),
 			 const uiString& textcncl=uiString::emptyString(),
-			 const uiString& caption=uiString::emptyString());
+			 const uiString& caption=uiString::emptyString(),
+			 bool* dontaskagain=0);
+		/*!<If dontaskagain is given, the user will have the
+		   option to not see this again, and the boolean will
+		   be filled in. */
     int		askSave(const uiString&,bool cancelbut=true);
     		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		askRemove(const uiString&,bool cancelbut=false);
@@ -76,39 +75,23 @@ public:
     int		ask2D3D(const uiString&,bool cancelbut=false);
 		//!<\retval 0=3D 1=2D -1=Cancel
 
-    bool	askGoOn(const uiString&,bool withyesno=true);
-    		//!< withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
-    bool	askGoOn(const uiString& msg,const uiString& textyes,
-			const uiString& textno);
-    int		askGoOnAfter(const uiString&,
-			     const uiString& cnclmsg=uiString::emptyString(),
-			     const uiString& textyes=uiString::emptyString(),
-			     const uiString& textno=uiString::emptyString());
-    bool	askGoOn(const uiString&,bool withyesno,
-	    		bool* dontaskagain);
+    bool	askGoOn(const uiString&,bool withyesno=true,
+	    		bool* dontaskagain=0);
     		/*!<withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
-		   If don't askagain is given, the user will have the
+		   If dontaskagain is given, the user will have the
 		   option to not see this again, and the boolean will
 		   be filled in. */
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno,
-	    		bool* dontaskagain);
+	    		bool* dontaskagain=0);
 		/*!<If don't askagain is given, the user will have the
 		   option to not see this again, and the boolean will
 		   be filled in. */
     int		askGoOnAfter(const uiString&,
-			     const uiString& cnclmsg,
-			     const uiString& textyes,
-			     const uiString& textno,
-			     bool* dontaskagain);
-		/*!< 1=yes, 0=no, -1=cancel
-		If don't askagain is given, the user will have the
-		   option to not see this again, and the boolean will
-		   be filled in. */
-    bool	showMsgNextTime(const uiString&,
-				const uiString& msg=uiString::emptyString());
-    		//!< The msg must be negative, like "Don't show msg again"
-    		//!< Be sure to store the ret val in the user settings
+			     const uiString& cnclmsg=uiString::emptyString(),
+			     const uiString& textyes=uiString::emptyString(),
+			     const uiString& textno=uiString::emptyString(),
+			     bool* dontaskagain=0);
 
     static void setNextCaption(const uiString&);
     		//!< Sets the caption for the next call to any of the msg fns
@@ -127,12 +110,11 @@ public:
     int		showMessageBox(Icon icon,QWidget* parent,
 			   const uiString& txt,const uiString& yestxtinp,
 			   const uiString& notxtinp,const uiString& cncltxtinp,
-			   const uiString& title=uiString::emptyString());
-    int		showMessageBox(Icon icon,QWidget* parent,
-			   const uiString& txt,const uiString& yestxtinp,
-			   const uiString& notxtinp,const uiString& cncltxtinp,
-			   const uiString& title,
-			   bool* notagain);
+			   const uiString& title=uiString::emptyString(),
+			   bool* notagain=0);
+		/*!<If don't askagain is given, the user will have the
+		   option to not see this again, and the boolean will
+		   be filled in. */
 
     static uiString	sDontShowAgain();
 

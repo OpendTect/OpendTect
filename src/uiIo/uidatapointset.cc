@@ -1745,7 +1745,10 @@ void uiDataPointSet::removeColumn( CallBacker* )
     const DColID dcolid = dColID();
     const TColID tcolid = tColID( dcolid );
     if ( dcolid < 0 )
-	return uiMSG().error(tr("Cannot remove this column"));
+    {
+	uiMSG().error(tr("Cannot remove this column"));
+	return;
+    }
     if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
     {
 	uiStringSet options;
@@ -1785,7 +1788,10 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 {
     const DColID dcid = dColID();
     if ( dcid<1 )
-	return uiMSG().error( tr("Please select an attribute column") );
+    {
+	uiMSG().error( tr("Please select an attribute column") );
+	return;
+    }
 
     dps_.dataSet().pars().set( sKeyGroups, grpnames_ );
     int nrgroups = 0;
@@ -1806,8 +1812,10 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 			      nrgroups, errmsg, msgiserror );
     if ( !vvc.isOK() )
     {
-	msgiserror ? uiMSG().error( mToUiStringTodo(errmsg) )
-		   : uiMSG().warning( mToUiStringTodo(errmsg) );
+	if ( msgiserror )
+	    uiMSG().error( mToUiStringTodo(errmsg) );
+	else
+	    uiMSG().warning( mToUiStringTodo(errmsg) );
 	return;
     }
 

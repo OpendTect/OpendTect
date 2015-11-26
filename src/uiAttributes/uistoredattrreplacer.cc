@@ -220,7 +220,10 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 					  const char* key, const char* userref )
 {
     if ( !key || !userref )
-	return uiMSG().error( tr("No valid steering input selected") );
+    {
+	uiMSG().error( tr("No valid steering input selected") );
+	return;
+    }
 
     const int output = getOutPut( storeentry.firstid_.asInt() );
     if ( output==0 )

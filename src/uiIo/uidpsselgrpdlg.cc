@@ -196,8 +196,11 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
 void uiDPSSelGrpDlg::calcSelectedness( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 )
-       return uiMSG().error(tr("Select a selection group"
-       " to map its likeliness."));
+    {
+       uiMSG().error(tr("Select a selection group"
+		        " to map its likeliness."));
+       return;
+    }
 
     plotter_.uidps().calcSelectedness();
 }

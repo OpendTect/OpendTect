@@ -558,10 +558,17 @@ void uiODSceneMgr::setStereoType( int type )
     {
 	if ( !Settings::common().isFalse(sKeyWarnStereo) )
 	{
-	    bool wantmsg = uiMSG().showMsgNextTime(
+	    bool dontaskagain = false;
+	    if ( !uiMSG().askGoOn(
 		tr("Stereo viewing is not officially supported."
-		"\nIt may not work well for your particular graphics setup.") );
-	    if ( !wantmsg )
+		" and it may not work well for your particular graphics setup."
+		"\nDo you wish to continue?"),
+		true, &dontaskagain ) )
+	    {
+		return;
+	    }
+		    
+	    if ( !dontaskagain )
 	    {
 		Settings::common().setYN( sKeyWarnStereo, false );
 		Settings::common().write();

@@ -383,9 +383,10 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 #endif
 		if ( envvarstr.isEmpty() )
 		    envvarstr = "'DTECT_APPL_SETUP'";
-		return uiMSG().error(
+		uiMSG().error(
 			tr("You need to set %1 to save in global level")
 				.arg(envvarstr) );
+		return;
 	    }
 	    src = Repos::ApplSetup;
 	}

@@ -536,7 +536,10 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	LineKey lk( inpdesccp->getStoredID(true) );
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 	if ( !ioobj )
-	    return uiMSG().error( tr("Select a valid input") );
+	{
+	    uiMSG().error( tr("Select a valid input") );
+	    return;
+	}
 
 	uiSelectPositionDlg subseldlg( this, ioobj->key(), is2D(),
 				       lk.attrName() );
@@ -596,7 +599,10 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     }
 
     if ( nrtrcs <= 0 )
-	return uiMSG().error(tr("Number of traces cannot be zero or negative"));
+    {
+	uiMSG().error(tr("Number of traces cannot be zero or negative"));
+	return;
+    }
 
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     aem->setTrcKeyZSampling( cs );

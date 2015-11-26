@@ -179,7 +179,8 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
     if ( range.width() < stepfld_->box()->getFValue() )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );
-	return uiMSG().error( tr("Range step greater than range itself") );
+	uiMSG().error( tr("Range step greater than range itself") );
+	return;
     }
 
     range.step = stepfld_->box()->getFValue();
@@ -196,7 +197,8 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 	 (!mIsUdf(-yvalrange.stop) && !range.includes(yvalrange.stop,true)) )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );
-	return uiMSG().error( tr("Scale Curve does not fit in the range") );
+	uiMSG().error( tr("Scale Curve does not fit in the range") );
+	return;
     }
 
     funcdisp_->yAxis(false)->setRange( range );
