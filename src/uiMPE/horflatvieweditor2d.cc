@@ -481,7 +481,9 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const uiWorldPoint wp = markerpos ? *markerpos :
 			vwr->getWorld2Ui().transform(mousepos);
-    doTheSeed( *seedpicker, vwr->getCoord(wp), mouseevent );
+    Coord3 clickedcrd = vwr->getCoord(wp);
+    clickedcrd.z = wp.y;
+    doTheSeed( *seedpicker, clickedcrd, mouseevent );
 
     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )
 	emobj->setBurstAlert( false );
