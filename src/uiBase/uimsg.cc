@@ -179,7 +179,8 @@ static void addStayOnTopFlag( QMessageBox& mb )
 
 static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 	const uiString& txt, const uiString& yestxt, const uiString& notxt,
-	const uiString& cncltxt, const uiString& title )
+	const uiString& cncltxt, const uiString& title,
+        QCheckBox** notagain )
 {
 
     QMessageBox* mb = new QMessageBox( parent );
@@ -227,13 +228,34 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 	rejbut->setIcon( qicon );
     }
 
+    if ( notagain && mb->layout() )
+    {
+	*notagain = new QCheckBox();
+	(*notagain)->setText( uiMsg::sDontShowAgain().getQString() );
+	mDynamicCastGet(QGridLayout*,grid,mb->layout())
+	if ( grid )
+	    grid->addWidget( *notagain, grid->rowCount(), 0, 1,
+		             grid->columnCount() );
+	else
+	    mb->layout()->addWidget( *notagain );
+    }
+
     return mb;
+}
+
+int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
+			   const uiString& yestxt, const uiString& notxt,
+			   const uiString& cncltxt, const uiString& title )
+{
+    return showMessageBox( icon, parent, txt, yestxt, notxt,
+	    		   cncltxt, title, 0 );
 }
 
 
 int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 			   const uiString& yestxt, const uiString& notxt,
-			   const uiString& cncltxt, const uiString& title )
+			   const uiString& cncltxt, const uiString& title,
+			   bool* notagain )
 {
     mPrepCursor();
     if ( txt.isEmpty() )
@@ -242,12 +264,29 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
     mCapt( title.isEmpty() ? uiStrings::sSpecify() : title );
     const int refnr = beginCmdRecEvent( utfwintitle );
 
+    QCheckBox* checkbox = 0;
     PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt,
-					       notxt, cncltxt, wintitle );
-    const int res = mb->exec();
+					       notxt, cncltxt, wintitle,
+					       notagain ? &checkbox : 0 );
+    if ( checkbox ) checkbox->setChecked( *notagain );
 
-    const int retval = res==QMessageBox::Yes ? 1 :
-		       res==QMessageBox::No  ? 0 : -1;
+    int retval = 0;
+    while ( true )
+    {
+	const int res = mb->exec();
+
+	//Capture if the checkbox was clicked. As signals are blocked
+	//this should normally not happen
+	if ( checkbox && mb->clickedButton()==checkbox )
+	    continue;
+
+	if ( notagain && checkbox )
+	    *notagain = checkbox->isChecked();
+
+	retval = res==QMessageBox::Yes ? 1 :
+	         res==QMessageBox::No  ? 0 : -1;
+	break;
+    }
 
     endCmdRecEvent( refnr, 1-retval, yestxt.getOriginalString(),
 		    notxt.getOriginalString(), cncltxt.getOriginalString() );
@@ -335,7 +374,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
     PtrMan<QMessageBox> mb = createMessageBox( Critical, popParnt(), strings[0],
 					       uiString::emptyString(),
 					       uiString::emptyString(),
-					       oktxt, wintitle );
+					       oktxt, wintitle, 0 );
     mb->setDefaultButton( QMessageBox::Abort );
 
     if ( strings.size()>1 )
@@ -401,7 +440,7 @@ int uiMsg::ask2D3D( const uiString& text, bool wcancel )
     uiString cncltxt =
 	wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString();
     PtrMan<QMessageBox> mb = createMessageBox( Question, popParnt(), text,
-	yestxt, notxt, cncltxt, wintitle );
+	yestxt, notxt, cncltxt, wintitle, 0 );
     mb->button(QMessageBox::Yes  )->setIcon( QIcon() );
     mb->button(QMessageBox::No	)->setIcon( QIcon() );
     const int res = mb->exec();
@@ -420,10 +459,20 @@ int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 		     const uiString& notxtinp,
 		     const uiString& cncltxtinp, const uiString& title )
 {
+    return question( text, yestxtinp, notxtinp, cncltxtinp, title, 0 );
+}
+
+
+int uiMsg::question( const uiString& text, const uiString& yestxtinp,
+		     const uiString& notxtinp,
+		     const uiString& cncltxtinp, const uiString& title,
+		     bool* notagain )
+{
     const uiString yestxt = yestxtinp.isEmpty() ? uiStrings::sYes() : yestxtinp;
     const uiString notxt = notxtinp.isEmpty() ? uiStrings::sNo() : notxtinp;
     return showMessageBox(
-	Question, popParnt(), text, yestxt, notxt, cncltxtinp, title );
+	Question, popParnt(), text, yestxt, notxt, cncltxtinp,
+	title, notagain );
 }
 
 
@@ -436,7 +485,7 @@ void uiMsg::about( const uiString& text )
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
 					       oktxt, uiString::emptyString(),
 					       uiString::emptyString(),
-					       wintitle );
+					       wintitle, 0 );
 
     mb->setIconPixmap( mb->windowIcon().pixmap(32) );
     mb->exec();
@@ -453,7 +502,7 @@ void uiMsg::aboutOpendTect( const uiString& text )
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
 					       oktxt, uiString::emptyString(),
 					       uiString::emptyString(),
-					       wintitle );
+					       wintitle, 0 );
     uiPixmap pm( sODLogo );
     if ( pm.qpixmap() )
 	mb->setIconPixmap( *pm.qpixmap() );
@@ -468,19 +517,44 @@ bool uiMsg::askGoOn( const uiString& text, bool yn )
 {
     const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
     const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
-    return askGoOn( text, oktxt, canceltxt );
+    return askGoOn( text, oktxt, canceltxt, 0 );
 }
 
 
 bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 		     const uiString& textno )
 {
-    return question( text, textyes, textno );
+    return askGoOn( text, textyes, textno, 0 );
 }
 
 
 int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 			 const uiString& textyesinp, const uiString& textnoinp )
+{
+    return askGoOnAfter( text, cnclmsginp, textyesinp,textnoinp, 0 );
+}
+
+
+bool uiMsg::askGoOn( const uiString& text, bool yn, bool* notagain )
+{
+    const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
+    const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
+    return askGoOn( text, oktxt, canceltxt, notagain );
+}
+
+
+bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
+		     const uiString& textno, bool* notagain )
+{
+    return question( text, textyes, textno,
+	             uiString::emptyString(),
+		     uiString::emptyString(), notagain );
+}
+
+
+int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
+			 const uiString& textyesinp, const uiString& textnoinp,
+       			 bool* notagain	)
 {
     const uiString yestxt = textyesinp.isEmpty()
 	? uiStrings::sYes()
@@ -495,28 +569,27 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 }
 
 
+uiString uiMsg::sDontShowAgain()
+{ return tr("Don't show this message again"); }
+
+
 bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 {
     mPrepCursor();
     const uiString oktxt = uiStrings::sOk();
     const uiString notxt = notmsginp.isEmpty() ?
-			   tr("Don't show this message again") : notmsginp;
+			   sDontShowAgain() : notmsginp;
     const uiString cncltxt = uiStrings::sCancel();
     mCapt( tr("Information") );
     const int refnr = beginCmdRecEvent( utfwintitle );
 
+    QCheckBox* cb = 0;
     PtrMan<QMessageBox> mb = createMessageBox( Information, popParnt(), text,
-					       oktxt, notxt, cncltxt, wintitle);
+				       oktxt, notxt, cncltxt, wintitle, &cb);
     // Only CmdDriver triggers hidden no-button, since it can't access checkbox.
     mb->button( QMessageBox::No    )->setVisible( false );
     // Make close/escape map onto hidden abort-button to reject checkbox state.
     mb->button( QMessageBox::Abort )->setVisible( false );
-
-    QCheckBox* cb = new QCheckBox();
-    cb->setText( notxt.getQString() );
-    mDynamicCastGet(QGridLayout*,grid,mb->layout())
-    if ( grid )
-	grid->addWidget( cb, grid->rowCount(), 0, 1, grid->columnCount() );
 
     const int res = mb->exec();
     bool checked = cb->isChecked() && res!=QMessageBox::Abort;
