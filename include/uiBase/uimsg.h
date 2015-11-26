@@ -52,6 +52,15 @@ public:
 
     // Interaction
     int		question(const uiString&,
+			 const uiString& textyes,
+			 const uiString& textno,
+			 const uiString& textcncl,
+			 const uiString& caption,
+			 bool* dontaskagain);
+		/*!<If don't askagain is given, the user will have the
+		   option to not see this again, and the boolean will
+		   be filled in. */
+    int		question(const uiString&,
 			 const uiString& textyes=uiString::emptyString(),
 			 const uiString& textno=uiString::emptyString(),
 			 const uiString& textcncl=uiString::emptyString(),
@@ -75,7 +84,27 @@ public:
 			     const uiString& cnclmsg=uiString::emptyString(),
 			     const uiString& textyes=uiString::emptyString(),
 			     const uiString& textno=uiString::emptyString());
-		//!< 1=yes, 0=no, -1=cancel
+    bool	askGoOn(const uiString&,bool withyesno,
+	    		bool* dontaskagain);
+    		/*!<withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
+		   If don't askagain is given, the user will have the
+		   option to not see this again, and the boolean will
+		   be filled in. */
+    bool	askGoOn(const uiString& msg,const uiString& textyes,
+			const uiString& textno,
+	    		bool* dontaskagain);
+		/*!<If don't askagain is given, the user will have the
+		   option to not see this again, and the boolean will
+		   be filled in. */
+    int		askGoOnAfter(const uiString&,
+			     const uiString& cnclmsg,
+			     const uiString& textyes,
+			     const uiString& textno,
+			     bool* dontaskagain);
+		/*!< 1=yes, 0=no, -1=cancel
+		If don't askagain is given, the user will have the
+		   option to not see this again, and the boolean will
+		   be filled in. */
     bool	showMsgNextTime(const uiString&,
 				const uiString& msg=uiString::emptyString());
     		//!< The msg must be negative, like "Don't show msg again"
@@ -99,6 +128,13 @@ public:
 			   const uiString& txt,const uiString& yestxtinp,
 			   const uiString& notxtinp,const uiString& cncltxtinp,
 			   const uiString& title=uiString::emptyString());
+    int		showMessageBox(Icon icon,QWidget* parent,
+			   const uiString& txt,const uiString& yestxtinp,
+			   const uiString& notxtinp,const uiString& cncltxtinp,
+			   const uiString& title,
+			   bool* notagain);
+
+    static uiString	sDontShowAgain();
 
 protected:
 
@@ -140,5 +176,4 @@ protected:
 
 
 #endif
-
 
