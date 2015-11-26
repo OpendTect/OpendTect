@@ -74,6 +74,12 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 {
     idzoffset_ = regsdp_.getZRange().nearestIndex( ransdp_.getZRange().start );
 
+    if ( !regsdp_.getZRange().isCompatible(ransdp_.getZRange(),1e-3) )
+    {
+	pErrMsg( "Unexpected incompatibility of datapack Z-ranges" );
+	return true;
+    }
+
     if ( regsdp_.getDataDesc() != ransdp_.getDataDesc() )
 	return true;
 
@@ -301,10 +307,13 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     RandomSeisDataPack* randsdp = new RandomSeisDataPack(
 		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
     randsdp->setPath( path );
-    randsdp->setZRange(
-	    StepInterval<float>(zrg.start,zrg.stop,regsdp.getZRange().step) );
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
+
+    StepInterval<float> newzrg = regsdp.getZRange();
+    newzrg.start = newzrg.atIndex( newzrg.getIndex(zrg.start) );
+    newzrg.stop  = newzrg.atIndex( newzrg.indexOnOrAfter(zrg.stop,0.0) );
+    randsdp->setZRange( newzrg );
 
     for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
     {
