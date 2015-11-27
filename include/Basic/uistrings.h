@@ -18,8 +18,9 @@ ________________________________________________________________________
 
 #define mPlural 2
 
-//Common strings. Use these and extend when needed
-
+/*!Common strings that are localized. Using these keeps the translation
+   at a minimum.
+*/
 mExpClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
@@ -136,6 +137,8 @@ public:
     //!<"Storage Directory <string>"
     static uiString phrSuccessfullyExported(const uiString&);
     //!<"Successfully exported <string>"
+    static uiString phrTODONotImpl(const char* clssname);
+    //!<"[clssname] TO DO: Not Implemented"> ...
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string> ...
     static uiString phrWriting(const uiString&);
@@ -150,7 +153,7 @@ public:
     //!<"Z Range <string>"
 
 
-    //Words
+//Words
     static uiString s2D();
     static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
@@ -473,6 +476,9 @@ public:
 #define m3Dots( txt ) uiStrings::phrThreeDots( txt, false )
 #define mJoinUiStrs( txt1, txt2 )\
    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
+
+#define mTODONotImplPhrase() uiStrings::phrTODONotImpl( ::className(*this) )
+
 
 #endif
 

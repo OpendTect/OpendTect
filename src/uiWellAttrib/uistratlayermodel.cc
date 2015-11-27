@@ -195,9 +195,14 @@ void doLayerModel( uiParent* p, const char* modnm, int opt )
 	return;
 
     dlg_ = new uiStratLayerModel( p, modnm, opt );
-    uiStratTreeWin::makeEditable( false );
-    dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
-    dlg_->go();
+    if ( !dlg_->moddisp_ )
+	{ delete dlg_; dlg_ = 0; }
+    else
+    {
+	uiStratTreeWin::makeEditable( false );
+	dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
+	dlg_->go();
+    }
 }
 
 void addToTreeWin()
@@ -317,6 +322,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , needtoretrievefrpars_(false)
     , automksynth_(true)
     , nrmodels_(0)
+    , moddisp_(0)
     , newModels(this)
     , waveletChanged(this)
     , saveRequired(this)
@@ -353,7 +359,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
     moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
     if ( !moddisp_ )
+    {
+	new uiLabel( this, tr("Start cancelled") );
+	close();
 	return;
+    }
+
     analtb_ = new uiToolBar( this, tr("Analysis toolbar"), uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", tr("Attributes vs model properties"),
 			    mCB(this,uiStratLayerModel,xPlotReq) );
@@ -898,7 +909,7 @@ void uiStratLayerModel::modEd( CallBacker* )
 }
 
 
-void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach ) 
+void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
 {
     int decimation = mUdf(int);
     if ( desc_.getWorkBenchParams().get(sKeyDecimation(),decimation) &&
@@ -907,7 +918,7 @@ void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
 
     const int nrmods = gentools_->nrModels();
     const int nrseq = desc_.size();
-    decimation = 
+    decimation =
 	mCast(int,floor(mCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed)) + 1;
     desc_.getWorkBenchParams().set( sKeyDecimation(), decimation );
 }

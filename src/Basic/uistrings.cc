@@ -29,6 +29,9 @@ uiString uiStrings::phrCalculateFrom( const uiString& string )
 uiString uiStrings::phrCrossline( const uiString& string )
 { return phrJoinStrings( sCrossline(), string ); }
 
+uiString uiStrings::phrTODONotImpl( const char* clssnm )
+{ return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
+
 uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 
