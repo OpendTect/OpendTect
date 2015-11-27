@@ -72,7 +72,7 @@ Export_Basic void addToStaticStringRepos( const OD::String* str )
 Export_Basic bool isStaticString( const OD::String* str )
 {
     Threads::Locker locker( staticstringslock_ );
-    return staticstrings_.isPresent(str); 
+    return staticstrings_.isPresent(str);
 }
 
 void od_test_prog_crash_handler(int)
@@ -563,7 +563,15 @@ FixedString CrashDumper::sSenderAppl()
 { return FixedString("" ); }
 
 FixedString CrashDumper::sUiSenderAppl()
-{ return FixedString( "od_uiReportIssue" ); }
+{
+#ifdef __win__
+    return FixedString( "od_uiReportIssue.exe" );
+#else
+    return FixedString( "od_uiReportIssue" );
+#endif
+}
+
+
 
 } // namespace System
 
