@@ -151,6 +151,8 @@ public:
     //!<"Storage Directory <string>"
     static uiString phrSuccessfullyExported(const uiString&);
     //!<"Successfully exported <string>"
+    static uiString phrTODONotImpl(const char* clssname);
+    //!<"[clssname] TO DO: Not Implemented"> ...
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string> ...
     static uiString phrWriting(const uiString&);
@@ -496,6 +498,8 @@ public:
 #define mJoinUiStrs( txt1, txt2 )\
    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
 
-#endif
+#define mTODONotImplPhrase() uiStrings::phrTODONotImpl( ::className(*this) )
 
+
+#endif
 
