@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidialog.h"
 
 #include "uibody.h"
+#include "uiclipboard.h"
 #include "uidesktopservices.h"
 #include "uidockwin.h"
 #include "uifont.h"
@@ -1345,11 +1346,7 @@ void shootImageCB( CallBacker* )
     image.setDotsPerMeterX( (int)(res_/0.0254) );
     image.setDotsPerMeterY( (int)(res_/0.0254) );
     if ( copytoclipboard_ )
-    {
-	QClipboard* clipboard = QApplication::clipboard();
-	clipboard->clear();
-	clipboard->setImage( image );
-    }
+	uiClipboard::setImage( image );
     else
 	image.save( fname_ );
 

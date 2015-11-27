@@ -12,6 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiissuereporter.h"
 
+#include "envvars.h"
+#include "settings.h"
+#include "uiclipboard.h"
 #include "uilabel.h"
 #include "uitextedit.h"
 #include "uibutton.h"
@@ -21,6 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "safefileio.h"
 
 #include "fstream"
+
+static FixedString sKeyAskBeforeSending()
+{ return "Ask before sending issue-report"; }
 
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
@@ -61,22 +67,64 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     usrinpgrp->setHAlignObj( emailfld_ );
     usrinpgrp->attach( alignedBelow, lblgrp );
 
-    setCancelText( tr("Do Not Send") );
-    setOkText( tr("Send Report") );
+    setCancelText( sDontSendReport() );
+    setOkText( sSendReport() );
 }
 	       
 
 void uiIssueReporterDlg::viewReportCB( CallBacker* )
+{
+    viewReport( uiString::emptyString() );
+}
+
+
+bool uiIssueReporterDlg::allowSending() const
+{
+    const BufferString env = GetEnvVar("PROHIBIT_SENDING_ISSUE_REPORT");
+    if ( !env.isEmpty() )
+	return false;
+
+    bool res = true;
+    Settings::common().getYN(sKeyAllowSending(),res );
+
+    return res;
+}
+
+
+void uiIssueReporterDlg::viewReport( const uiString& cap )
 {
     BufferString report;
     getReport( report );
     
     uiDialog dlg( this, uiDialog::Setup(tr("View report"), 
 				    uiStrings::sEmptyString(), mNoHelpKey ) );
+    uiLabel* label = cap.isEmpty() 
+	? (uiLabel*) 0
+	: new uiLabel( &dlg, cap );
+
     uiTextBrowser* browser = new uiTextBrowser(&dlg);
+    if ( label )
+	browser->attach( alignedBelow, label );
+
     browser->setText( report.buf() );
     dlg.setCancelText( uiStrings::sEmptyString() );
+
+    uiPushButton* copytoclipboard = new uiPushButton( &dlg,
+				  tr("Copy to Clipboard"), true );
+    copytoclipboard->activated.notify(
+			mCB(this,uiIssueReporterDlg,copyToClipBoardCB) );
+    copytoclipboard->attach( alignedBelow, browser );
+
     dlg.go();
+}
+
+
+void uiIssueReporterDlg::copyToClipBoardCB( CallBacker* )
+{
+    BufferString report;
+    getReport( report );
+
+    uiClipboard::setText( toUiString(report) );
 }
 
 
@@ -111,10 +159,40 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 
 bool uiIssueReporterDlg::acceptOK(CallBacker *)
 {
+    if ( !allowSending() )
+    {
+	viewReport(
+	    tr("Your installation does not allow direct "
+	       "reporting of problem reports. Please "
+	       "copy this text and send it to "
+	       "support@dgbes.com for processing." ));
+
+	return true;
+    }
+
+    bool dontaskagain = false;
+    Settings::common().getYN( sKeyAskBeforeSending(), dontaskagain );
+
+    bool res = dontaskagain
+	? true
+	: uiMSG().askGoOn(tr("The report will be sent to dGB Earth Sciences "
+		"using unencrypted connections, and possibly "
+		"using third party servers."), sSendReport(),
+		sDontSendReport(), &dontaskagain );
+
+    if ( !res )
+	return false;
+
+    if ( dontaskagain )
+    {
+	Settings::common().setYN( sKeyAskBeforeSending(), true );
+	Settings::common().write();
+    }
+
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     setButSensitive( false );
 
-    bool res = false;
+    res = false;
     BufferString report; getReport( report );
     reporter_.getReport() = report;
 
