@@ -563,7 +563,15 @@ FixedString CrashDumper::sSenderAppl()
 { return FixedString("" ); }
 
 FixedString CrashDumper::sUiSenderAppl()
-{ return FixedString( "od_uiReportIssue" ); }
+{
+#ifdef __win__
+    return FixedString( "od_uiReportIssue.exe" );
+#else
+    return FixedString( "od_uiReportIssue" );
+#endif
+}
+
+
 
 } // namespace System
 
