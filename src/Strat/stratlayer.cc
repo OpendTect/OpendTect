@@ -653,6 +653,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 				const Strat::LayerSequence& inpls )
 {
     LayerSequence* newls = new LayerSequence( &proprefs_ );
+    newls->setStartDepth( inpls.startDepth() );
 
     const PropertyRefSelection& inpprops = inpls.propertyRefs();
     for ( int ilay=0; ilay<inpls.size(); ilay++ )
@@ -741,10 +742,17 @@ bool Strat::LayerModel::read( od_istream& strm )
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {
-	strm.skipWord(); // skip "#S.."
+	strm.skipUntil( 'S' ); // skip "#S.."
+	BufferString linestr;
+	strm.getLine( linestr );
+	SeparString separlinestr( linestr.buf(), od_tab );
 	LayerSequence* seq = new LayerSequence( &proprefs_ );
-	int nrlays; strm >> nrlays;
-	strm.skipLine();
+	int nrlays = separlinestr.getIValue( 1 );
+	if ( separlinestr.size()>2 )
+	{
+	    float startdepth = separlinestr.getFValue( 2 );
+	    seq->setStartDepth( startdepth );
+	}
 	if ( !strm.isOK() )
 	    { ErrMsg("Error during read"); return false; }
 
@@ -817,7 +825,8 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr,
     {
 	const LayerSequence& seq = *seqs_[iseq];
 	const int nrlays = seq.size();
-	strm << "#S" << iseq << od_tab << nrlays << od_endl;
+	strm << "#S" << iseq << od_tab << nrlays
+		     << od_tab << seq.startDepth() <<od_endl;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{
