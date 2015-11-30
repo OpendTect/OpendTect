@@ -14,10 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uimsg.h"
 #include "survinfo.h"
+#include "settings.h"
 #include "od_strstream.h"
 
 static const char* sKeyZInFeet = "Z in feet";
 static const char* sKeyIsVSP = "Is Zero-offset VSP";
+static const char* sKeySuppress = "SEGY.Suppress Warnings";
 
 
 SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
@@ -62,19 +64,52 @@ void SEGY::FullSpec::usePar( const IOPar& iop )
 
 bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
 {
-    if ( warns.isEmpty() ) return true;
+    if ( warns.isEmpty() )
+	return true;
+
+    TypeSet<int> suppress;
+    Settings::common().get( sKeySuppress, suppress );
 
     uiString msg = "The operation was successful, but there %1:";
     msg.arg( warns.size() > 1 ? "were warnings" : "was a warning" );
 
+    TypeSet<int> curwarnnrs;
     for ( int idx=0; idx<warns.size(); idx++ )
-	msg.append("\n\n%1").arg( warns.get(idx) );
+    {
+	BufferString curwarn( warns.get(idx) );
+	char* nrptr = curwarn.getCStr() + 1;
+	char* msgptr = curwarn.getCStr() + 2;
+	*msgptr = '\0'; msgptr += 2;
+	const int msgnr = toInt( nrptr );
+	if ( suppress.isPresent(msgnr) )
+	    continue;
 
+	curwarnnrs += msgnr;
+	msg.append("\n\n%1").arg( msgptr );
+    }
+
+    if ( curwarnnrs.isEmpty() ) // all suppressed
+	return true;
+
+    bool suppresscurwarns = false;
+    bool res = true;
     if ( !withstop )
-	{ uiMSG().warning( msg ); return true; }
+	//TODO uiMSG().warning( msg, &suppresscurwarns );
+	uiMSG().warning( msg );
+    else
+    {
+	msg.append("\n\nContinue?");
+	res = uiMSG().askGoOn( msg, true, &suppresscurwarns );
+    }
 
-    msg.append("\n\nContinue?");
-    return uiMSG().askContinue( msg );
+    if ( suppresscurwarns )
+    {
+	suppress.createUnion( curwarnnrs );
+	Settings::common().set( sKeySuppress, suppress );
+	Settings::common().write();
+    }
+
+    return res;
 }
 
 
