@@ -54,6 +54,11 @@ public:
 				   const IOObjContext&,bool mknew,
 				   BufferString& errmsg) const;
 
+    bool		isPresent(const char*,const char* tgname=0) const;
+			/*!< Use before creating a named object
+			    \param tgname: example:
+			     EMHorizon3DTranslatorGroup::sGroupName().str() */
+
     const MultiID&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir_; }
