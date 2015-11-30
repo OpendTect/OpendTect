@@ -101,25 +101,41 @@ protected:
 
 
 template <class T> inline
-bool filterUndef( const ValueSeries<T>& input, ValueSeries<T>& output, int sz )
+bool filterUndef( const ValueSeries<T>& input, T* outptr, int sz )
 {
-    if ( !sz ) return true;
+    if ( !sz || !outptr ) return true;
     
     const T* inptr = input.arr();
-    T* outptr = output.arr();
     
-    ArrPtrMan<T> myinp = 0, myoutp = 0;
+    ArrPtrMan<T> myinp = 0;
     if ( !inptr )
     {
 	myinp = new T[sz];
-	for ( int idx=0; idx<sz; idx++ )
-	    myinp[idx] = input.value(idx);
+	input.getValues( myinp, sz );
     }
     
+    return filterUndef( inptr ? inptr : myinp, outptr, sz );
+}
+
+
+template <class T> inline
+bool filterUndef( const ValueSeries<T>& input, ValueSeries<T>& output, int sz )
+{
+    if ( !sz ) return true;
+
+    T* outptr = output.arr();
+
+    ArrPtrMan<T> myoutp = 0;
     if ( !outptr )
 	myoutp = outptr = new T[sz];
     
-    return filterUndef( inptr ? inptr : myinp, outptr, sz );
+    if ( !filterUndef( input, outptr, sz ) )
+	return false;
+
+    if ( myoutp )
+	output->setValues( outptr, sz );
+
+    return true;
 }
 
 
@@ -185,5 +201,4 @@ bool filterUndef(const T* input, T* output, int sz )
 }
 
 #endif
-
 
