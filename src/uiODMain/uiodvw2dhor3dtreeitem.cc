@@ -153,11 +153,19 @@ void uiODVw2DHor3DParentTreeItem::removeHorizon3D( EM::ObjectID emid )
 void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 	const TypeSet<EM::ObjectID>& emids )
 {
+    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    getLoadedHorizon3Ds( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
-	if ( MPE::engine().getTrackerByObject(emids[idx]) != -1 )
+	if ( !emidsloaded.isPresent(emids[idx]) )
+	    emidstobeloaded.addIfNew( emids[idx] );
+    }
+
+    for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
+    {
+	if ( MPE::engine().getTrackerByObject(emidstobeloaded[idx]) != -1 )
 	{
-	    EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
+	    EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
@@ -166,7 +174,7 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 		viewer2D()->viewControl()->setEditMode( true );
 	}
 
-	addChld( new uiODVw2DHor3DTreeItem(emids[idx]), false, false);
+	addChld( new uiODVw2DHor3DTreeItem(emidstobeloaded[idx]), false, false);
     }
 }
 
@@ -250,7 +258,8 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 	}
     }
 
-    viewer2D()->dataMgr()->removeObject( horview_ );
+    if ( horview_ )
+	viewer2D()->dataMgr()->removeObject( horview_ );
 }
 
 
@@ -264,6 +273,8 @@ bool uiODVw2DHor3DTreeItem::init()
 
 	horview_ = Vw2DHorizon3D::create( emid_, viewer2D()->viewwin(),
 				      viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( horview_ );
+	displayid_ = horview_->id();
     }
     else
     {
@@ -297,13 +308,9 @@ bool uiODVw2DHor3DTreeItem::init()
 		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
     }
 
-
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
     horview_->draw();
-
-    if ( displayid_ < 0 )
-	viewer2D()->dataMgr()->addObject( horview_ );
 
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
@@ -359,8 +366,11 @@ bool uiODVw2DHor3DTreeItem::select()
 	}
     }
 
-    viewer2D()->dataMgr()->setSelected( horview_ );
-    horview_->selected( isChecked() );
+    if ( horview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( horview_ );
+	horview_->selected( isChecked() );
+    }
 
     return true;
 }
@@ -439,7 +449,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
 void uiODVw2DHor3DTreeItem::checkCB( CallBacker* )
 {
-    horview_->enablePainting( isChecked() );
+    if ( horview_ )
+	horview_->enablePainting( isChecked() );
 }
 
 
@@ -452,13 +463,14 @@ void uiODVw2DHor3DTreeItem::deSelCB( CallBacker* )
 void uiODVw2DHor3DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 					   bool wva )
 {
-    horview_->setSelSpec( selspec, wva );
+    if ( horview_ )
+	horview_->setSelSpec( selspec, wva );
 }
 
 
 void uiODVw2DHor3DTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 {
-    if ( upd )
+    if ( upd && horview_ )
 	horview_->setTrcKeyZSampling( cs, upd );
 }
 

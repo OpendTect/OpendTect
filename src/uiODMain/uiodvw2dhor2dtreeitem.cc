@@ -152,20 +152,27 @@ void uiODVw2DHor2DParentTreeItem::removeHorizon2D( EM::ObjectID emid )
 void uiODVw2DHor2DParentTreeItem::addHorizon2Ds(
 	const TypeSet<EM::ObjectID>& emids )
 {
+    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    getLoadedHorizon2Ds( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
-	if ( MPE::engine().getTrackerByObject(emids[idx]) != -1 )
+	if ( !emidsloaded.isPresent(emids[idx]) )
+	    emidstobeloaded.addIfNew( emids[idx] );
+    }
+
+    for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
+    {
+	if ( MPE::engine().getTrackerByObject(emidstobeloaded[idx]) != -1 )
 	{
-	    EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
+	    EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
 	    MPE::engine().addTracker( emobj );
 	}
 
-	addChld( new uiODVw2DHor2DTreeItem(emids[idx]), false, false );
+	addChld( new uiODVw2DHor2DTreeItem(emidstobeloaded[idx]),false,false);
     }
-
 }
 
 
@@ -214,7 +221,7 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int dispid, bool )
 
 uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 {
-    NotifierAccess* deselnotify = horview_->deSelection();
+    NotifierAccess* deselnotify = horview_ ? horview_->deSelection() : 0;
     if ( deselnotify )
 	deselnotify->remove( mCB(this,uiODVw2DHor2DTreeItem,deSelCB) );
 
@@ -246,7 +253,8 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 	}
     }
 
-    viewer2D()->dataMgr()->removeObject( horview_ );
+    if ( horview_ )
+	viewer2D()->dataMgr()->removeObject( horview_ );
 }
 
 
@@ -260,6 +268,8 @@ bool uiODVw2DHor2DTreeItem::init()
 
 	horview_ = Vw2DHorizon2D::create( emid_, viewer2D()->viewwin(),
 				      viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( horview_ );
+	displayid_ = horview_->id();
     }
     else
     {
@@ -301,9 +311,6 @@ bool uiODVw2DHor2DTreeItem::init()
 	horview_->setGeomID( viewer2D()->geomID() );
 
     horview_->draw();
-
-    if ( displayid_ < 0 )
-	viewer2D()->dataMgr()->addObject( horview_ );
 
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
@@ -432,8 +439,11 @@ bool uiODVw2DHor2DTreeItem::select()
 	}
     }
 
-    viewer2D()->dataMgr()->setSelected( horview_ );
-    horview_->selected( isChecked() );
+    if ( horview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( horview_ );
+	horview_->selected( isChecked() );
+    }
     return true;
 }
 
@@ -446,14 +456,16 @@ void uiODVw2DHor2DTreeItem::deSelCB( CallBacker* )
 
 void uiODVw2DHor2DTreeItem::checkCB( CallBacker* )
 {
-    horview_->enablePainting( isChecked() );
+    if ( horview_ )
+	horview_->enablePainting( isChecked() );
 }
 
 
 void uiODVw2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 					   bool wva )
 {
-    horview_->setSelSpec( selspec, wva );
+    if ( horview_ )
+	horview_->setSelSpec( selspec, wva );
 }
 
 

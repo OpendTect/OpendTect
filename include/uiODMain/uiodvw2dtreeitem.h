@@ -42,6 +42,7 @@ public:
 
     static bool		create(uiTreeItem*,int vwrvisid,int displayid);
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
+    const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
 
 protected:
 
@@ -90,6 +91,7 @@ public:
 
     void			updSampling(const TrcKeyZSampling&,bool);
     void			updSelSpec(const Attrib::SelSpec*,bool wva);
+    const uiODVw2DTreeItem*	getVW2DItem(int displayid) const;
 
 protected:
 

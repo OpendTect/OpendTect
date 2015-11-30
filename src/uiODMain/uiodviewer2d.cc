@@ -876,10 +876,18 @@ void uiODViewer2D::fillPar( IOPar& iop ) const
 
 void uiODViewer2D::rebuildTree()
 {
+    if ( !treetp_ )
+	return;
+
     ObjectSet<Vw2DDataObject> objs;
     dataMgr()->getObjects( objs );
     for ( int iobj=0; iobj<objs.size(); iobj++ )
-	uiODVw2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
+    {
+	const uiODVw2DTreeItem* childitem =
+	    treetp_->getVW2DItem( objs[iobj]->id() );
+	if ( !childitem )
+	    uiODVw2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
+    }
 }
 
 

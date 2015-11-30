@@ -60,6 +60,9 @@ protected:
     int				freeid_;
 
     static const char*		sKeyNrObjects()	{ return "Nr objects"; }
+
+    bool			similarObjectPresent(
+	    				const Vw2DDataObject*) const;
 };
 
 #endif

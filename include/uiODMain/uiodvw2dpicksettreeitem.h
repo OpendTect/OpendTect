@@ -62,6 +62,7 @@ mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DPickSetTreeItem)
 public:
 			uiODVw2DPickSetTreeItem(int picksetid);
+			uiODVw2DPickSetTreeItem(int id,bool dummy);
 			~uiODVw2DPickSetTreeItem();
 
     bool		showSubMenu();
