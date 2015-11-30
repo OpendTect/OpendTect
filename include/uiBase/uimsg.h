@@ -35,12 +35,33 @@ public:
     void	message(const uiString&,
 			const uiString& part2=uiString::emptyString(),
 			const uiString& part3=uiString::emptyString());
+    bool	message(const uiString&,
+			const uiString& part2,
+			const uiString& part3,
+			bool withdontshowatain );
+		/*!<If withdontshowgain is true, the user will be prompted
+		    to not see this again. Return true if the user
+		    does not want to see it again. */
     void	warning(const uiString&,
 			const uiString& part2=uiString::emptyString(),
 			const uiString& part3=uiString::emptyString());
+    bool	warning(const uiString&,
+			const uiString& part2,
+			const uiString& part3,
+			bool withdontshowatain );
+		/*!<If withdontshowgain is true, the user will be prompted
+		    to not see this again. Return true if the user
+		    does not want to see it again. */
     void	error(const uiString&,
 		      const uiString& part2=uiString::emptyString(),
 		      const uiString& part3=uiString::emptyString());
+    bool	error(const uiString&,
+		      const uiString& part2,
+		      const uiString& part3,
+		      bool withdontshowatain );
+		/*!<If withdontshowgain is true, the user will be prompted
+		    to not see this again. Return true if the user
+		    does not want to see it again. */
     void	errorWithDetails(const FileMultiString&);
     		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a

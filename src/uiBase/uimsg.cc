@@ -298,36 +298,67 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 void uiMsg::message( const uiString& part1, const uiString& part2,
 		     const uiString& part3 )
 {
+    message( part1, part2, part3, false );
+}
+
+
+bool uiMsg::message( const uiString& part1, const uiString& part2,
+		     const uiString& part3, bool withdontshowgain )
+{
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
+    bool dontshowagain = false;
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Information") );
+		    tr("Information"), 
+	   	    withdontshowgain ? &dontshowagain : 0 );
+    return dontshowagain;
 }
 
 
 void uiMsg::warning( const uiString& part1, const uiString& part2,
 		     const uiString& part3 )
 {
+    warning( part1, part2, part3, false );
+}
+
+
+bool uiMsg::warning( const uiString& part1, const uiString& part2,
+		     const uiString& part3, bool withdontshowgain )
+{
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
+    bool dontshowagain = false;
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Warning") );
+		    tr("Warning"), 
+	   	    withdontshowgain ? &dontshowagain : 0 );
+    return dontshowagain;
 }
 
 
 void uiMsg::error( const uiString& part1, const uiString& part2,
 		   const uiString& part3 )
 {
+    error( part1, part2, part3, false );
+}
+
+
+bool uiMsg::error( const uiString& part1, const uiString& part2,
+		   const uiString& part3, bool withdontshowgain )
+{
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
+    bool dontshowagain = false;
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Error") );
+		    tr("Error"), 
+	   	    withdontshowgain ? &dontshowagain : 0 );
+
+    return dontshowagain;
 }
 
 
