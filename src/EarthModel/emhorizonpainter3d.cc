@@ -46,6 +46,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 
 HorizonPainter3D::~HorizonPainter3D()
 {
+    detachAllNotifiers();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
     {

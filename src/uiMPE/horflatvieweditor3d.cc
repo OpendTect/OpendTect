@@ -69,6 +69,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 
 HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 {
+    detachAllNotifiers();
     if ( mehandler_ )
     {
 	editor_->removeSelected.remove(
