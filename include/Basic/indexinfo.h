@@ -99,7 +99,7 @@ void IndexInfo::set( const StepInterval<X>& intv, Y y )
 	inundef_ = false;
 	nearest_ = intv.getIndex( y );
 	const Y pred = intv.atIndex( nearest_ );
-	roundedtolow_ = isrev ? pred < y : pred > y;
+	roundedtolow_ = isrev ? pred > y : pred < y;
     }
 }
 

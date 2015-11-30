@@ -271,8 +271,22 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     const FlatPosData& pd = dp->posData();
     const IndexInfo ix = pd.indexInfo( true, pos.x );
     const IndexInfo iy = pd.indexInfo( false, pos.y );
-    Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+
+    const int floorx = ix.roundedtolow_ ? ix.nearest_ : ix.nearest_ - 1;
+    const int floory = iy.roundedtolow_ ? iy.nearest_ : iy.nearest_ - 1;
+    const int ceilx = ix.roundedtolow_ ? ix.nearest_ + 1 : ix.nearest_;
+    const int ceily = iy.roundedtolow_ ? iy.nearest_ + 1 : ix.nearest_;
+    Coord3 pos1 = dp->getCoord( floorx, floory );
+    Coord3 pos2 = dp->getCoord( floorx, ceily );
+    Coord3 pos3 = dp->getCoord( ceilx, floory );
+    Coord3 pos4 = dp->getCoord( ceilx, ceily );
+    const float xfac = ( pos.x - pd.position(true,floorx) ) /
+		       ( pd.position(true,ceilx) - pd.position(true,floorx) );
+    const float yfac = ( pos.y - pd.position(false,floory) ) /
+		       ( pd.position(false,ceily) - pd.position(false,floory) );
+    Coord3 realpos = pos1*(1-xfac)*(1-yfac) + pos2*(1-xfac)*yfac
+			+ pos3*xfac*(1-yfac) + pos4*xfac*yfac;
+    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
 						      : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
@@ -297,7 +311,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
     const RowCol knotrc( fsspainter_->getActiveStickId(), knotid );
     const EM::PosID pid( emid,0,knotrc.toInt64() );
-    emfss->setPos( pid, coord3, true );
+    emfss->setPos( pid, realpos, true );
 }
 
 
@@ -319,7 +333,21 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     const FlatPosData& pd = dp->posData();
     ix = pd.indexInfo( true, wp.x );
     iy = pd.indexInfo( false, wp.y );
-    worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
+
+    const int floorx = ix.roundedtolow_ ? ix.nearest_ : ix.nearest_ - 1;
+    const int floory = iy.roundedtolow_ ? iy.nearest_ : iy.nearest_ - 1;
+    const int ceilx = ix.roundedtolow_ ? ix.nearest_ + 1 : ix.nearest_;
+    const int ceily = iy.roundedtolow_ ? iy.nearest_ + 1 : ix.nearest_;
+    Coord3 pos1 = dp->getCoord( floorx, floory );
+    Coord3 pos2 = dp->getCoord( floorx, ceily );
+    Coord3 pos3 = dp->getCoord( ceilx, floory );
+    Coord3 pos4 = dp->getCoord( ceilx, ceily );
+    const float xfac = ( wp.x - pd.position(true,floorx) ) /
+		       ( pd.position(true,ceilx) - pd.position(true,floorx) );
+    const float yfac = ( wp.y - pd.position(false,floory) ) /
+		       ( pd.position(false,ceily) - pd.position(false,floory) );
+    worldpos = pos1*(1-xfac)*(1-yfac) + pos2*(1-xfac)*yfac
+			+ pos3*xfac*(1-yfac) + pos4*xfac*yfac;
     worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
 							 : wp.y;
 
