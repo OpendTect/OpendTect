@@ -39,7 +39,8 @@ public:
     bool			parseCommandLine();
     
 protected:
-    
+    void			fillBasicReport(const char* filename);
+
     BufferString		host_;
     BufferString		path_;
     BufferString		errmsg_;

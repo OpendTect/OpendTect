@@ -33,6 +33,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uiaction.cc
 		uibutton.cc
 		uibuttongroup.cc
+		uiclipboard.cc
 		uicolor.cc
 		uicombobox.cc
 		uicursor.cc
@@ -83,7 +84,6 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uitoolbar.cc
 		uitreeview.cc
 		uivirtualkeyboard.cc)
-
 if ( APPLE )
     list ( APPEND OD_MODULE_SOURCES uimacinit.cc )
 endif()

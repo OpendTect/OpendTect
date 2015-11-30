@@ -6,7 +6,12 @@
 #_______________________________________________________________________________
 
 set( OD_USEQT Core )
-set( OD_USEBREAKPAD Yes )
+
+if ( OD_ENABLE_BREAKPAD )
+    list(APPEND OD_MODULE_INCLUDESYSPATH ${BREAKPAD_DIR}/include/breakpad )
+    list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
+endif()
+
 set( QT_MOC_HEADERS
 	qtimercomm.h
 )
@@ -100,8 +105,9 @@ set( OD_MODULE_SOURCES
 )
 
 set ( OD_MODULE_PROGS test_exit_program.cc )
+
 if ( UNIX )
-    set ( OD_MODULE_PROGS ${OD_MODULE_PROGS} od_batch_launcher.cc )
+    list ( APPEND OD_MODULE_PROGS od_batch_launcher.cc )
 endif()
 
 if ( ITTNOTIFY_FOUND )

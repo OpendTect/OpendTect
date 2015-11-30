@@ -327,6 +327,19 @@ mExternC(Basic) const char* GetBinPlfDir()
 }
 
 
+mExternC(Basic) const char* GetScriptDir()
+{
+    mDeclStaticString( res );
+    if ( res.isEmpty() )
+#ifdef __mac__
+    res = FilePath( GetFullExecutablePath() ).pathOnly();
+#else
+    res = FilePath( GetSoftwareDir(0),"bin" ).fullPath();
+#endif
+    return res.buf();
+}
+
+
 static const char* gtExecScript( const char* basedir, int remote )
 {
     mDeclStaticString( scriptnm );

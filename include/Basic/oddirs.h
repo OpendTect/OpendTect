@@ -23,7 +23,7 @@ Beware that all functions may return a pointer to *the same* static buffer!
 
 extern "C" {
 
-    /* Functions delivering files/directies in the 'survey data' scope */
+/* Functions delivering files/directies in the 'survey data' scope */
 
 mGlobal(Basic) const char* GetBaseDataDir(void);
 /*!< Base data directory: DTECT_[WIN]DATA or from User Settings. */
@@ -98,6 +98,13 @@ mGlobal(Basic) const char* GetBinPlfDir(void);
 /*!< Platform dependent bin directory
   Returns full path to bin dir:
   GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir()
+*/
+
+mGlobal(Basic) const char* GetScriptDir(void);
+/*!< Platform dependent script directory
+  Returns full path to bin dir:
+  GetSoftwareDir()/bin on Windows and Linux,
+  and GetSoftwareDir()/Contents/MacOS on Mac.
 */
 
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);

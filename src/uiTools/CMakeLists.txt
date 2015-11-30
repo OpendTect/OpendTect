@@ -109,4 +109,9 @@ if( WIN32 )
     set( OD_od_runinst_RESOURCE resources/od_runinst.rc )
 endif( WIN32 )
 
+if ( OD_ENABLE_BREAKPAD )
+    list ( APPEND OD_MODULE_PROGS test_breakpad.cc )
+endif()
+
+
 OD_INIT_MODULE()

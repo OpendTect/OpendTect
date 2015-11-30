@@ -87,11 +87,6 @@ if( OD_MODULE_DEPS )
     endforeach()
 endif()
 
-
-if(OD_USEBREAKPAD)
-    OD_SETUP_BREAKPAD()
-endif()
-
 if(OD_USEOSG)
     OD_SETUP_OSG()
 endif()
@@ -263,6 +258,13 @@ if ( OD_MODULE_HAS_LIBRARY )
     endif( OD_SET_TARGET_PROPERTIES )
 
     set_target_properties( ${TARGET_PROPERTIES} )
+    if( BREAKPAD_DUMPSYMS_EXECUTABLE )
+	add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+	    COMMAND ${CMAKE_COMMAND} -DLIBRARY=$<TARGET_FILE:${OD_MODULE_NAME}>
+				     -DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+				     -P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+	    COMMENT "Generating symbols" )
+    endif()
 
     install( TARGETS
 	    ${OD_MODULE_NAME}
@@ -375,6 +377,14 @@ if( OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED_PERMISSIONS_PROGS OR O
 		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} 
 		CONFIGURATIONS "Release" )
 
+	if( BREAKPAD_DUMPSYMS_EXECUTABLE )
+	    add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -DLIBRARY=$<TARGET_FILE:${TARGET_NAME}>
+					 -DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+					 -P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+		COMMENT "Generating symbols" )
+	endif()
+
     endforeach()
 
 endif()
@@ -422,6 +432,14 @@ if(OD_MODULE_BATCHPROGS)
 		${TARGET_NAME}
 		RUNTIME DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE} 
 		CONFIGURATIONS "Release" )
+
+	if( BREAKPAD_DUMPSYMS_EXECUTABLE )
+	    add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -DLIBRARY=$<TARGET_FILE:${TARGET_NAME}>
+					 -DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+					 -P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+		COMMENT "Generating symbols" )
+	endif()
     endforeach()
 
 endif( OD_MODULE_BATCHPROGS )

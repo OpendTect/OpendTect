@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "globexpr.h"
 #include <string.h>
 
-
 static FixedString emptyfixedstring( "" );
 
 const OD::String& OD::String::empty()
