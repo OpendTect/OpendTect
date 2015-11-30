@@ -311,3 +311,37 @@ bool uiODVw2DTreeItem::create(
 }
 
 
+const uiODVw2DTreeItem* uiODVw2DTreeItem::getVW2DItem( int displayid ) const
+{
+    if ( displayid_ == displayid )
+	return this;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DTreeItem*,vw2ditem,children_[idx]);
+	const uiODVw2DTreeItem* chliditem = vw2ditem->getVW2DItem( displayid );
+	if ( chliditem )
+	    return chliditem;
+    }
+
+    return 0;
+}
+
+
+const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	const uiTreeItem* childitm = getChild( idx );
+	mDynamicCastGet(const uiODVw2DTreeItem*,vw2dtreeitm,childitm)
+	if ( !vw2dtreeitm )
+	    continue;
+
+	const uiODVw2DTreeItem* childvw2ditm =
+	    vw2dtreeitm->getVW2DItem( displayid );
+	if ( childvw2ditm )
+	    return childvw2ditm;
+    }
+
+    return 0;
+}

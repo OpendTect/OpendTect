@@ -147,13 +147,21 @@ void uiODVw2DFaultSSParentTreeItem::removeFaultSS( EM::ObjectID emid )
 void uiODVw2DFaultSSParentTreeItem::addFaultSSs(
 					const TypeSet<EM::ObjectID>& emids )
 {
+    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    getLoadedFaultSSs( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
+	if ( !emidsloaded.isPresent(emids[idx]) )
+	    emidstobeloaded.addIfNew( emids[idx] );
+    }
+
+    for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
+    {
+	const EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
-	addChld( new uiODVw2DFaultSSTreeItem(emids[idx]), false, false);
+	addChld( new uiODVw2DFaultSSTreeItem(emidstobeloaded[idx]),false,false);
     }
 }
 
@@ -185,7 +193,8 @@ uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( int id, bool )
 uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
 {
     detachAllNotifiers();
-    viewer2D()->dataMgr()->removeObject( fssview_ );
+    if ( fssview_ )
+	viewer2D()->dataMgr()->removeObject( fssview_ );
 }
 
 
@@ -198,6 +207,8 @@ bool uiODVw2DFaultSSTreeItem::init()
 	if ( !emobj ) return false;
 	fssview_ = VW2DFaultSS3D::create( emid_, viewer2D()->viewwin(),
 				     viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( fssview_ );
+	displayid_ = fssview_->id();
     }
     else
     {
@@ -220,9 +231,6 @@ bool uiODVw2DFaultSSTreeItem::init()
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
 
     fssview_->draw();
-
-    if ( displayid_ < 0 )
-	viewer2D()->dataMgr()->addObject( fssview_ );
 
     mAttachCB( viewer2D()->viewControl()->editPushed(),
 	       uiODVw2DFaultSSTreeItem::enableKnotsCB );
@@ -269,7 +277,7 @@ void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DFaultSSTreeItem::enableKnotsCB( CallBacker* )
 {
-    if ( viewer2D()->dataMgr()->selectedID() == fssview_->id() )
+    if ( fssview_ && viewer2D()->dataMgr()->selectedID() == fssview_->id() )
 	fssview_->selected();
 }
 
@@ -278,8 +286,11 @@ bool uiODVw2DFaultSSTreeItem::select()
 {
     uitreeviewitem_->setSelected( true );
 
-    viewer2D()->dataMgr()->setSelected( fssview_ );
-    fssview_->selected();
+    if ( fssview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( fssview_ );
+	fssview_->selected();
+    }
 
     return true;
 }
@@ -324,7 +335,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 
 void uiODVw2DFaultSSTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 {
-    if ( upd )
+    if ( upd && fssview_ )
 	fssview_->setTrcKeyZSampling( cs, upd );
 }
 
@@ -337,7 +348,8 @@ void uiODVw2DFaultSSTreeItem::deSelCB( CallBacker* )
 
 void uiODVw2DFaultSSTreeItem::checkCB( CallBacker* )
 {
-    fssview_->enablePainting( isChecked() );
+    if ( fssview_ )
+	fssview_->enablePainting( isChecked() );
 }
 
 

@@ -58,7 +58,8 @@ uiODVW2DWiggleVarAreaTreeItem::~uiODVW2DWiggleVarAreaTreeItem()
 	menu_->unRef();
     }
 
-    viewer2D()->dataMgr()->removeObject( dummyview_ );
+    if ( dummyview_ )
+	viewer2D()->dataMgr()->removeObject( dummyview_ );
 }
 
 
@@ -84,6 +85,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 
     dummyview_ = new VW2DSeis();
     viewer2D()->dataMgr()->addObject( dummyview_ );
+    displayid_ = dummyview_->id();
 
     return uiODVw2DTreeItem::init();
 }
@@ -94,7 +96,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::select()
     if ( !uitreeviewitem_->isSelected() )
 	return false;
 
-    viewer2D()->dataMgr()->setSelected( dummyview_ );
+    if ( dummyview_ )
+	viewer2D()->dataMgr()->setSelected( dummyview_ );
 
     return true;
 }

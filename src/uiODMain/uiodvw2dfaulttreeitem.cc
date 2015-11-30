@@ -141,13 +141,21 @@ void uiODVw2DFaultParentTreeItem::removeFault( EM::ObjectID emid )
 
 void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 {
+    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    getLoadedFaults( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
+	if ( !emidsloaded.isPresent(emids[idx]) )
+	    emidstobeloaded.addIfNew( emids[idx] );
+    }
+
+    for ( int idx=0; idx<emidsloaded.size(); idx++ )
+    {
+	const EM::EMObject* emobj = EM::EMM().getObject( emidsloaded[idx] );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
-	addChld( new uiODVw2DFaultTreeItem(emids[idx]), false, false);
+	addChld( new uiODVw2DFaultTreeItem(emidsloaded[idx]), false, false);
     }
 }
 
@@ -180,7 +188,8 @@ uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
 uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 {
     detachAllNotifiers();
-    viewer2D()->dataMgr()->removeObject( faultview_ );
+    if ( faultview_ )
+	viewer2D()->dataMgr()->removeObject( faultview_ );
 }
 
 
@@ -194,6 +203,8 @@ bool uiODVw2DFaultTreeItem::init()
 
 	faultview_ = VW2DFault::create( emid_, viewer2D()->viewwin(),
 				   viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( faultview_ );
+	displayid_ = faultview_->id();
     }
     else
     {
@@ -217,9 +228,6 @@ bool uiODVw2DFaultTreeItem::init()
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
 
     faultview_->draw();
-
-    if ( displayid_ < 0 )
-	viewer2D()->dataMgr()->addObject( faultview_ );
 
     mAttachCB( viewer2D()->viewControl()->editPushed(),
 	       uiODVw2DFaultTreeItem::enableKnotsCB );
@@ -266,7 +274,7 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DFaultTreeItem::enableKnotsCB( CallBacker* )
 {
-    if ( viewer2D()->dataMgr()->selectedID() == faultview_->id() )
+    if ( faultview_ && viewer2D()->dataMgr()->selectedID() == faultview_->id() )
 	faultview_->selected();
 }
 
@@ -276,8 +284,11 @@ bool uiODVw2DFaultTreeItem::select()
     if ( !uitreeviewitem_->isSelected() )
 	return false;
 
-    viewer2D()->dataMgr()->setSelected( faultview_ );
-    faultview_->selected();
+    if ( faultview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( faultview_ );
+	faultview_->selected();
+    }
     return true;
 }
 
@@ -320,7 +331,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 
 void uiODVw2DFaultTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 {
-    if ( upd )
+    if ( upd && faultview_ )
 	faultview_->draw();
 }
 
@@ -333,7 +344,8 @@ void uiODVw2DFaultTreeItem::deSelCB( CallBacker* )
 
 void uiODVw2DFaultTreeItem::checkCB( CallBacker* )
 {
-    faultview_->enablePainting( isChecked() );
+    if ( faultview_ )
+	faultview_->enablePainting( isChecked() );
 }
 
 

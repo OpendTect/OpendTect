@@ -49,7 +49,8 @@ uiODVW2DVariableDensityTreeItem::~uiODVW2DVariableDensityTreeItem()
     if ( menu_ )
 	menu_->unRef();
 
-    viewer2D()->dataMgr()->removeObject( dummyview_ );
+    if ( dummyview_ )
+	viewer2D()->dataMgr()->removeObject( dummyview_ );
 }
 
 
@@ -72,6 +73,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
     dummyview_ = new VW2DSeis();
     viewer2D()->dataMgr()->addObject( dummyview_ );
+    displayid_ = dummyview_->id();
     mAttachCB( dummyview_->deSelection(),
 	       uiODVW2DVariableDensityTreeItem::deSelectCB );
 
@@ -103,7 +105,8 @@ bool uiODVW2DVariableDensityTreeItem::select()
     if ( !uitreeviewitem_->isSelected() )
 	return false;
 
-    viewer2D()->dataMgr()->setSelected( dummyview_ );
+    if ( dummyview_ )
+	viewer2D()->dataMgr()->setSelected( dummyview_ );
     uiFlatViewColTabEd* coltabed = viewer2D()->viewControl()->colTabEd();
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     coltabed->setColTab( vwr.appearance().ddpars_.vd_ );
@@ -126,7 +129,7 @@ void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 
 void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 {
-    if ( viewer2D()->dataMgr()->selectedID() != dummyview_->id() )
+    if ( !dummyview_ || viewer2D()->dataMgr()->selectedID() != dummyview_->id())
 	return;
 
     mDynamicCastGet(uiFlatViewColTabEd*,coltabed,cb);
@@ -154,7 +157,7 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 
     if ( !coltabinitialized_ ) initColTab();
 
-    if ( viewer2D()->dataMgr()->selectedID() == dummyview_->id() )
+    if ( dummyview_ && viewer2D()->dataMgr()->selectedID() == dummyview_->id() )
 	viewer2D()->viewControl()->colTabEd()->setColTab( ddp.vd_ );
 
     ColTab::Sequence seq( ddp.vd_.ctab_ );

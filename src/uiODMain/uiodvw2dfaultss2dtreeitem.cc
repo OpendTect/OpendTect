@@ -136,7 +136,8 @@ uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
     if ( emobj )
 	emobj->unRef();
 
-    viewer2D()->dataMgr()->removeObject( fssview_ );
+    if ( fssview_ )
+	viewer2D()->dataMgr()->removeObject( fssview_ );
 }
 
 
@@ -151,6 +152,8 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
 	fssview_ = VW2DFaultSS2D::create( emid_, viewer2D()->viewwin(),
 					 viewer2D()->dataEditor() );
+	viewer2D()->dataMgr()->addObject( fssview_ );
+	displayid_ = fssview_->id();
     }
     else
     {
@@ -179,9 +182,6 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     mAttachCB( fssview_->deSelection(), uiODVw2DFaultSS2DTreeItem::deSelCB );
 
     fssview_->draw();
-
-    if ( displayid_ < 0 )
-	viewer2D()->dataMgr()->addObject( fssview_ );
 
     mAttachCB( viewer2D()->viewControl()->editPushed(),
 	       uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
@@ -224,7 +224,7 @@ void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DFaultSS2DTreeItem::enableKnotsCB( CallBacker* )
 {
-    if ( viewer2D()->dataMgr()->selectedID() == fssview_->id() )
+    if ( fssview_ && viewer2D()->dataMgr()->selectedID() == fssview_->id() )
 	fssview_->selected();
 }
 
@@ -233,8 +233,11 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 {
     uitreeviewitem_->setSelected( true);
 
-    viewer2D()->dataMgr()->setSelected( fssview_ );
-    fssview_->selected();
+    if ( fssview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( fssview_ );
+	fssview_->selected();
+    }
     return true;
 }
 
@@ -279,7 +282,8 @@ void uiODVw2DFaultSS2DTreeItem::deSelCB( CallBacker* )
 
 void uiODVw2DFaultSS2DTreeItem::checkCB( CallBacker* )
 {
-    fssview_->enablePainting( isChecked() );
+    if ( fssview_ )
+	fssview_->enablePainting( isChecked() );
 }
 
 

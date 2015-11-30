@@ -14,6 +14,13 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "view2ddata.h"
+#include "view2dfaultss2d.h"
+#include "view2dfaultss3d.h"
+#include "view2dfault.h"
+#include "view2dhorizon2d.h"
+#include "view2dhorizon3d.h"
+#include "view2dpickset.h"
+#include "view2dseismic.h"
 
 #include "uiflatviewwin.h"
 #include "emposid.h"
@@ -153,12 +160,11 @@ void Vw2DDataManager::fillPar( IOPar& par ) const
 void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 			    const ObjectSet<uiFlatViewAuxDataEditor>& eds )
 {
-    int curnrobects = objects_.size();
     int nrobjects;
     if ( !iop.get( sKeyNrObjects(), nrobjects ))
 	return;
 
-    for ( int idx=curnrobects; idx<nrobjects; idx++ )
+    for ( int idx=0; idx<nrobjects; idx++ )
     {
 	PtrMan<IOPar> objpar = iop.subselect( toString(idx) );
 	if ( !objpar || !objpar->size() )
@@ -168,10 +174,75 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 	}
 	const char* type = objpar->find( sKey::Type() );
 	RefMan<Vw2DDataObject> obj = factory().create(type, -1 ,win,eds);
-	if ( obj && obj->usePar( *objpar ) )
-	{
+	if ( obj && obj->usePar( *objpar ) && !similarObjectPresent(obj) )
 	    addObject( obj );
-	}
     }
 }
 
+
+bool Vw2DDataManager::similarObjectPresent( const Vw2DDataObject* dobj ) const
+{
+    mDynamicCastGet(const VW2DSeis*,seisobj,dobj)
+    mDynamicCastGet(const Vw2DHorizon3D*,hor3dobj,dobj)
+    mDynamicCastGet(const Vw2DHorizon2D*,hor2dobj,dobj)
+    mDynamicCastGet(const VW2DFaultSS2D*,fss2dobj,dobj)
+    mDynamicCastGet(const VW2DFaultSS3D*,fss3dobj,dobj)
+    mDynamicCastGet(const VW2DFault*,fltobj,dobj)
+    mDynamicCastGet(const VW2DPickSet*,pickobj,dobj)
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	const Vw2DDataObject* vw2dobj = objects_[idx];
+	if ( seisobj )
+	{
+	    mDynamicCastGet(const VW2DSeis*,vw2seisobj,vw2dobj)
+	    if ( vw2seisobj )
+		return true;
+	}
+	else if ( hor3dobj )
+	{
+	    mDynamicCastGet(const Vw2DHorizon3D*,vw2dhor3dobj,vw2dobj)
+	    if ( vw2dhor3dobj && (hor3dobj==vw2dhor3dobj ||
+				  hor3dobj->emID()==vw2dhor3dobj->emID()) )
+		return true;
+	}
+	else if ( hor2dobj )
+	{
+	    mDynamicCastGet(const Vw2DHorizon2D*,vw2dhor2dobj,vw2dobj)
+	    if ( vw2dhor2dobj && (hor2dobj==vw2dhor2dobj ||
+				  hor2dobj->emID()==vw2dhor2dobj->emID()) )
+		return true;
+	}
+	else if ( fss2dobj )
+	{
+	    mDynamicCastGet(const VW2DFaultSS2D*,vw2dfss2dobj,vw2dobj)
+	    if ( vw2dfss2dobj && (fss2dobj==vw2dfss2dobj ||
+				  fss2dobj->emID()==vw2dfss2dobj->emID()) )
+		return true;
+	}
+	else if ( fss3dobj )
+	{
+	    mDynamicCastGet(const VW2DFaultSS3D*,vw2dfss3dobj,vw2dobj)
+	    if ( vw2dfss3dobj && (fss3dobj==vw2dfss3dobj ||
+				  fss3dobj->emID()==vw2dfss3dobj->emID()) )
+		return true;
+	}
+	else if ( fltobj )
+	{
+	    mDynamicCastGet(const VW2DFault*,vw2dfltobj,vw2dobj)
+	    if ( vw2dfltobj && (fltobj==vw2dfltobj ||
+				fltobj->emID()==vw2dfltobj->emID()) )
+		return true;
+	}
+	else if ( pickobj )
+	{
+	    mDynamicCastGet(const VW2DPickSet*,vw2dpickobj,vw2dobj)
+	    if ( vw2dpickobj &&
+		 (pickobj==vw2dpickobj ||
+		  pickobj->pickSetID()==vw2dpickobj->pickSetID()) )
+		return true;
+	}
+    }
+
+    return false;
+}
