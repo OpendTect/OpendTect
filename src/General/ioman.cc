@@ -786,6 +786,26 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 }
 
 
+bool IOMan::isPresent( const char* objname, const char* tgname ) const
+{
+    for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )
+    {
+	const TranslatorGroup& tgrp = *TranslatorGroup::groups()[itype];
+	if ( tgname && FixedString(tgname) != tgrp.groupName() )
+	    continue;
+
+	IODir iodir( tgrp.ioCtxt().getSelKey() );
+	if ( iodir.isBad() )
+	    continue;
+
+	if ( iodir.get(objname,tgname) )
+	    return true;
+    }
+
+    return false;
+}
+
+
 int IOMan::levelOf( const char* dirnm ) const
 {
     Threads::Locker lock( lock_ );
