@@ -194,63 +194,64 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 {
     mDefineStaticLocalObject( const bool, nowarn,
 			= Settings::common().isTrue("SEG-Y.No warnings") );
-    if ( nowarn || warnnrs_.isPresent(nr) ) return;
+    if ( nowarn || warnnrs_.isPresent(nr) )
+	return;
 
-    uiString msg;
+    uiString msg = toUiString( "[%1] " ).arg( nr );
     if ( nr == cSEGYWarnBadFmt )
     {
-	msg = tr("SEG-Y format '%1' "
-                 "found.\n\tReplaced with '1' (4-byte floating point)")
-            .arg(detail);
+	msg.append( tr("SEG-Y format '%1' "
+                "found.\n\tReplaced with '1' (4-byte floating point)")
+            .arg(detail) );
 	if ( toInt(detail) > 254 )
 	    msg.arg("\n-> The file may not be SEG-Y, or byte-swapped");
     }
     else if ( nr == cSEGYWarnPos )
     {
-	msg = tr("Bad position found. Such traces are "
-                 "ignored.\nFirst occurrence %1").arg(detail);
+	msg.append( tr("Bad position found. Such traces are "
+                "ignored.\nFirst occurrence %1").arg(detail) );
     }
     else if ( nr == cSEGYWarnZeroSampIntv )
     {
-	msg = tr("Zero sample interval found in trace header.\n"
-	         "First occurrence ").arg(detail);
+	msg.append( tr("Zero sample interval found in trace header.\n"
+	         "First occurrence ").arg(detail) );
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {
-	msg = mToUiStringTodo( detail );
+	msg.append( mToUiStringTodo( detail ) );
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {
-	msg = tr("Trace header indicates Geographic Coordinates (byte 89).\n"
-	         "These are not supported.\n"
-	         "Will bluntly load them as rectangular coordinates "
-	         "(which they are most often)."
-	         "\nBeware that the positions may therefore not be correct.\n"
-	         "First occurrence %1").arg(detail);
+	msg.append( tr("Trace header indicates geographic coords (byte 89).\n\n"
+	        "These are not supported as such.\n\n"
+	        "Will bluntly load them as rectangular coordinates "
+	        "(which they are most often)."
+	        "\nBeware that the positions may therefore not be correct.\n"
+	        "\nFirst occurrence %1").arg(detail) );
     }
     else if ( nr == cSEGYWarnSuspiciousCoord )
     {
-	msg = tr("Suspiciously large coordinate found.\nThis may be incorrect "
-	         "- please check the coordinate scaling.\nOverrule "
-                 "if necessary.\nCoordinate found: %1 at %2")
-	    .arg( detail ).arg( getTrcPosStr() );
+	msg.append( tr("Suspiciously large coordinate found."
+		"\nThis may be incorrect - please check the coordinate scaling."
+		"\nOverrule if necessary.\nCoordinate found: %1 at %2")
+	    .arg( detail ).arg( getTrcPosStr() ) );
     }
     else if ( nr == cSEGYFoundStanzas )
     {
-	msg = tr("SEG-Y REV.1 header indicates the presence of\n"
-	         "%1 Extended Textual File Header").arg(detail);
-	if ( toInt(detail) > 1 )
-	msg = tr( "%1s.\nThis is rarely correct. Please set the variable:"
-		  "\nOD_SEIS_SEGY_REV1_STANZAS"
-		  "\nif the file indeed contains these." ).arg(detail);
+	msg.append( tr("SEG-Y REV.1 header indicates the presence of "
+	        "%1 Extended Textual File Header(s)."
+		"\nThis is rarely correct. Please set the variable:"
+		"\nOD_SEIS_SEGY_REV1_STANZAS"
+		"\nif the file indeed contains these.")
+		.arg( detail ) );
     }
     else if ( nr == cSEGYWarnNonFixedLength )
     {
-	msg = tr("SEG-Y REV.1 header indicates variable length traces."
-	         "\nOpendTect will assume fixed trace length anyway.");
+	msg.append( tr("SEG-Y REV.1 header indicates variable length traces."
+	         "\nOpendTect will assume fixed trace length anyway.") );
     }
 
-    SeisTrcTranslator::addWarn( nr, detail );
+    SeisTrcTranslator::addWarn( nr, msg.getFullString().buf() );
 }
 
 
