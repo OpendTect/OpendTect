@@ -32,12 +32,20 @@ mGlobal(uiBase) friend uiMsg& uiMSG();
 public:
 
     // Messages
-    void	message(const uiString&,
+    bool	message(const uiString&,
 			const uiString& part2=uiString::emptyString(),
-			const uiString& part3=uiString::emptyString());
-    void	warning(const uiString&,
+			const uiString& part3=uiString::emptyString(),
+			bool withdontshowatain=false);
+    		/*!<If withdontshowgain is true, the user will be prompted
+		    to not see this again. Return true if the user
+		    does not want to see it again. */
+    bool	warning(const uiString&,
 			const uiString& part2=uiString::emptyString(),
-			const uiString& part3=uiString::emptyString());
+			const uiString& part3=uiString::emptyString(),
+			bool withdontshowatain=false);
+    		/*!<If withdontshowgain is true, the user will be prompted
+		    to not see this again. Return true if the user
+		    does not want to see it again. */
     bool	error(const uiString&,
 		      const uiString& part2=uiString::emptyString(),
 		      const uiString& part3=uiString::emptyString(),

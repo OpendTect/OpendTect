@@ -286,27 +286,31 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 }
 
 
-void uiMsg::message( const uiString& part1, const uiString& part2,
-		     const uiString& part3 )
+bool uiMsg::message( const uiString& part1, const uiString& part2,
+		     const uiString& part3, bool withdontshowagain )
 {
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
+    bool notagain = false;
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Information"), 0 );
+		    tr("Information"), withdontshowagain ? &notagain : 0 );
+    return notagain;
 }
 
 
-void uiMsg::warning( const uiString& part1, const uiString& part2,
-		     const uiString& part3 )
+bool uiMsg::warning( const uiString& part1, const uiString& part2,
+		     const uiString& part3, bool withdontshowagain )
 {
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
+    bool notagain = false;
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Warning"), 0 );
+		    tr("Warning"), withdontshowagain ? &notagain : 0 );
+    return notagain;
 }
 
 
