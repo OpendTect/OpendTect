@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
+#include "sorting.h"
 #include "survinfo.h"
 #include "undo.h"
 
@@ -390,7 +391,8 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 
 void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 {
-    if ( editor_ && editor_->sower().accept(meh_->event(), false) )
+    if ( (editor_ && editor_->sower().accept(meh_->event(),false)) ||
+	 meh_->event().middleButton() )
 	return;
 
     if ( !editor_->viewer().appearance().annot_.editable_
@@ -618,9 +620,9 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
-
     if ( !selectedids.size() ) return;
 
+    sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
     RefMan<EM::EMObject> emobject =
 			EM::EMM().getObject( f3dpainter_->getFaultID() );
 
@@ -636,7 +638,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     emf3d->setBurstAlert( true );
 
     RowCol rc;
-    for ( int ids=0; ids<selectedids.size(); ids++ )
+    for ( int ids=selectedids.size()-1; ids>=0; ids-- )
     {
 	rc.row() = getStickId( selectedids[ids] );
 	const StepInterval<int> colrg = fss->colRange( rc.row() );

@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
+#include "sorting.h"
 #include "survinfo.h"
 
 #include "uiworld2ui.h"
@@ -462,7 +463,8 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 {
-    if ( editor_ && editor_->sower().accept(meh_->event(), false) )
+    if ( (editor_ && editor_->sower().accept(meh_->event(), false)) ||
+	  meh_->event().middleButton() )
 	return;
 
     if ( !editor_->viewer().appearance().annot_.editable_
@@ -659,6 +661,7 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     editor_->getPointSelections( selectedids, selectedidxs );
     if ( !selectedids.size() ) return;
 
+    sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
     RefMan<EM::EMObject> emobject = 
 			EM::EMM().getObject( fsspainter_->getFaultSSID() );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -672,7 +675,7 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     emfss->setBurstAlert( true );
 
     RowCol rc;
-    for ( int ids=0; ids<selectedids.size(); ids++ )
+    for ( int ids=selectedids.size()-1; ids>=0; ids-- )
     {
 	rc.row() = getStickId( selectedids[ids] );
 	const StepInterval<int> colrg = fss->colRange( rc.row() );

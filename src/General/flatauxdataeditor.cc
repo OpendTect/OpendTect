@@ -295,11 +295,8 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 {
     TypeSet<int> ids;
     TypeSet<int> idxs;
-
-
     ObjectSet<AuxData> polygonsel;
     deepCopyClone( polygonsel, polygonsel_ );
-
     getPointSelections( polygonsel, ids, idxs );
 
     while ( ids.size() )
@@ -320,11 +317,6 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 
 	    seldatasetidx_ = ids_.indexOf( curdataid );
 	    removeSelected.trigger( !ids.size(), this );
-
-	    if ( !ids.size() )
-		break;
-
-	    getPointSelections( polygonsel, ids, idxs );
 	    //Update, since ids may have changed.
 	}
 	else
