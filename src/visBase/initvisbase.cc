@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 
+#include "genc.h"
 #include "settings.h"
 #include "visshape.h"
 #include "indexedshape.h"
@@ -39,4 +40,7 @@ mDefModInitFn(visBase)
 
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::RGBATextureChannel2RGBA::initClass();
+
+    //Notify threads to shut down at program end.
+    NotifyExitProgram(osgGeo::LayeredTexture::shutdownThreading);
 }
