@@ -94,8 +94,8 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
     bool suppresscurwarns = false;
     bool res = true;
     if ( !withstop )
-	//TODO uiMSG().warning( msg, &suppresscurwarns );
-	uiMSG().warning( msg );
+	suppresscurwarns = uiMSG().warning( msg, uiString::emptyString(),
+					    uiString::emptyString(), true );
     else
     {
 	msg.append("\n\nContinue?");
