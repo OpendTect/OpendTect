@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitable.h"
 
+#include "uiclipboard.h"
 #include "uicombobox.h"
 #include "uifont.h"
 #include "uilabel.h"
@@ -29,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "i_qtable.h"
 
 #include <QApplication>
-#include <QClipboard>
 #include <QCursor>
 #include <QDesktopWidget>
 #include <QHeaderView>
@@ -213,7 +213,7 @@ void uiTableBody::copy()
     if ( ranges.isEmpty() ) return;
 
     const QTableWidgetSelectionRange& range = ranges.first();
-    QString str;
+    BufferString str;
     for ( int i=0; i<range.rowCount(); i++ )
     {
 	if ( i > 0 ) str += "\n";
@@ -224,31 +224,34 @@ void uiTableBody::copy()
 
 	    QTableWidgetItem* itm =
 		item( range.topRow()+i, range.leftColumn()+j );
-	    str += itm ? itm->text() : "";
+	    str += itm ? BufferString(itm->text()) : sKey::EmptyString();
 	}
     }
 
     str += "\n";
-    QApplication::clipboard()->setText( str );
+    uiClipboard::setText( toUiString(str) );
 }
 
 
 void uiTableBody::paste()
 {
-    const QString str = QApplication::clipboard()->text();
-    const QStringList rows = str.split( '\n' );
-    const int nrrows = rows.count()-1;
-    const int nrcols = rows.first().count('\t') + 1;
+    BufferString str;
+    uiClipboard::getText( str );
+
+    const SeparString rows( str, '\n' );
+    const int nrrows = rows.size()-1;
+    const SeparString firstrow( rows[0], '\t' );
+    const int nrcols = firstrow.size();
 
     for ( int i = 0; i<nrrows; i++ )
     {
-	QStringList columns = rows[i].split( '\t' );
+	const SeparString columns( rows[i], '\t' );
 	for ( int j=0; j<nrcols; j++ )
 	{
 	    const RowCol rc( currentRow()+i, currentColumn()+j );
 	    QTableWidgetItem* itm = getItem( rc, true );
 	    if ( itm )
-		itm->setText( columns[j] );
+		itm->setText( columns[j].str() );
 	}
     }
 }
@@ -1350,7 +1353,7 @@ void uiTable::popupMenu( CallBacker* )
 	if ( !str || !*str )
 	    return;
 
-	QApplication::clipboard()->setText( QString(str) );
+	uiClipboard::setText( toUiString(str) );
     }
 
     setCurrentCell( newcell_ );

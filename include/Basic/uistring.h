@@ -191,7 +191,7 @@ public:
 			 const char* disambiguation,
 			 int pluralnr);
     void	setFrom(const mQtclass(QString)&);
-		/*!<Set the translated text no further
+		/*!<Set the translated text. No further
 		    translation will be done. */
     void	addLegacyVersion(const uiString&);
 		/*!<If this string was previously known by another origial

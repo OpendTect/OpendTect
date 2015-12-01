@@ -14,12 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "draw.h"
 #include "threadwork.h"
+#include "uiclipboard.h"
 #include "uimain.h"
 #include "uigraphicsitemimpl.h"
 
 #include <QApplication>
 #include <QByteArray>
-#include <QClipboard>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsItemGroup>
 #include <QGraphicsProxyWidget>
@@ -456,26 +456,23 @@ void uiGraphicsScene::CtrlCPressedCB( CallBacker* )
 
 void uiGraphicsScene::copyToClipBoard()
 {
-    QPainter* imagepainter = new QPainter();
-    QImage* image = new QImage( QSize((int)width(), (int)height()),
-				QImage::Format_ARGB32 );
+    QPainter imagepainter;
+    QImage image( QSize((int)width(), (int)height()),
+		  QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
-    image->fill( qcol.rgb() );
-    image->setDotsPerMeterX( mNINT32(uiMain::getDPI()/0.0254) );
-    image->setDotsPerMeterY( mNINT32(uiMain::getDPI()/0.0254) );
-    imagepainter->begin( image );
+    image.fill( qcol.rgb() );
+    image.setDotsPerMeterX( mNINT32(uiMain::getDPI()/0.0254) );
+    image.setDotsPerMeterY( mNINT32(uiMain::getDPI()/0.0254) );
+    imagepainter.begin( &image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
 		       view->mapToScene(view->width(),view->height()) );
-    qGraphicsScene()->render( imagepainter, QRectF(0,0,width(),height()),
+    qGraphicsScene()->render( &imagepainter, QRectF(0,0,width(),height()),
 			      sourcerect );
-    imagepainter->end();
+    imagepainter.end();
 
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setImage( *image );
-    delete imagepainter;
-    delete image;
+    uiClipboard::setImage( image );
 }
 
 

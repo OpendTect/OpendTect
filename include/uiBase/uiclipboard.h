@@ -20,6 +20,8 @@ Wrapper class around QClipboard
 mFDQtclass(QImage);
 mFDQtclass(QPixmap);
 class uiString;
+class BufferString;
+namespace OD { class RGBImage; }
 
 
 /*!Wrapper class around the QClipboard */
@@ -27,8 +29,12 @@ class uiString;
 mExpClass(uiBase) uiClipboard
 {
 public:
+    static void		getText(uiString&);
+    static void		getText(BufferString&);
     static void		setText(const uiString&);
+
     static void		setImage(const QImage&);
+    static void		setImage(const OD::RGBImage&);
 };
 
 
