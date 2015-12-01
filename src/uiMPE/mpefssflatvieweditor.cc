@@ -45,7 +45,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 {
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
-    fsspainter_->repaintdone_.notify( 
+    fsspainter_->repaintdone_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintedCB) );
 }
 
@@ -194,8 +194,8 @@ void FaultStickSetFlatViewEditor::fillActStkContainer()
 
 
 void FaultStickSetFlatViewEditor::fssRepaintATSCB( CallBacker* )
-{ 
-    cleanActStkContainer(); 
+{
+    cleanActStkContainer();
 }
 
 
@@ -221,7 +221,7 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
 	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
+	{
 	    selstickid = markeridinfo_[idx]->stickid_;
 	    break;
 	}
@@ -265,33 +265,12 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
-    ConstDataPackRef<FlatDataPack> dp =
-		editor_->viewer().obtainPack( false, true );
-    if ( !dp ) return;
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, pos.x );
-    const IndexInfo iy = pd.indexInfo( false, pos.y );
-
-    const int floorx = ix.roundedtolow_ ? ix.nearest_ : ix.nearest_ - 1;
-    const int floory = iy.roundedtolow_ ? iy.nearest_ : iy.nearest_ - 1;
-    const int ceilx = ix.roundedtolow_ ? ix.nearest_ + 1 : ix.nearest_;
-    const int ceily = iy.roundedtolow_ ? iy.nearest_ + 1 : ix.nearest_;
-    Coord3 pos1 = dp->getCoord( floorx, floory );
-    Coord3 pos2 = dp->getCoord( floorx, ceily );
-    Coord3 pos3 = dp->getCoord( ceilx, floory );
-    Coord3 pos4 = dp->getCoord( ceilx, ceily );
-    const float xfac = ( pos.x - pd.position(true,floorx) ) /
-		       ( pd.position(true,ceilx) - pd.position(true,floorx) );
-    const float yfac = ( pos.y - pd.position(false,floory) ) /
-		       ( pd.position(false,ceily) - pd.position(false,floory) );
-    Coord3 realpos = pos1*(1-xfac)*(1-yfac) + pos2*(1-xfac)*yfac
-			+ pos3*xfac*(1-yfac) + pos4*xfac*yfac;
+    Coord3 realpos = editor_->viewer().getCoord( pos );
     realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
 						      : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -299,7 +278,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 	return;
 
     const EM::SectionID sid = emfss->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, fss, 
+    mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 		     emfss->sectionGeometry( sid ) );
 
     StepInterval<int> colrg = fss->colRange( fsspainter_->getActiveStickId() );
@@ -335,20 +314,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     ix = pd.indexInfo( true, wp.x );
     iy = pd.indexInfo( false, wp.y );
 
-    const int floorx = ix.roundedtolow_ ? ix.nearest_ : ix.nearest_ - 1;
-    const int floory = iy.roundedtolow_ ? iy.nearest_ : iy.nearest_ - 1;
-    const int ceilx = ix.roundedtolow_ ? ix.nearest_ + 1 : ix.nearest_;
-    const int ceily = iy.roundedtolow_ ? iy.nearest_ + 1 : ix.nearest_;
-    Coord3 pos1 = dp->getCoord( floorx, floory );
-    Coord3 pos2 = dp->getCoord( floorx, ceily );
-    Coord3 pos3 = dp->getCoord( ceilx, floory );
-    Coord3 pos4 = dp->getCoord( ceilx, ceily );
-    const float xfac = ( wp.x - pd.position(true,floorx) ) /
-		       ( pd.position(true,ceilx) - pd.position(true,floorx) );
-    const float yfac = ( wp.y - pd.position(false,floory) ) /
-		       ( pd.position(false,ceily) - pd.position(false,floory) );
-    worldpos = pos1*(1-xfac)*(1-yfac) + pos2*(1-xfac)*yfac
-			+ pos3*xfac*(1-yfac) + pos4*xfac*yfac;
+    worldpos = editor_->viewer().getCoord( wp );
     worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
 							 : wp.y;
 
@@ -423,7 +389,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 	return;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -449,7 +415,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 				   &normal );
 
     if ( pid.isUdf() )
-	return; 
+	return;
 
     const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row();
 
@@ -496,7 +462,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
 	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
+	{
 	    stickid = markeridinfo_[idx]->stickid_;
 	    break;
 	}
@@ -508,7 +474,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( !emfss ) return;
 
     const EM::SectionID sid = emfss->sectionID( 0 );
-    mDynamicCastGet(const Geometry::FaultStickSet*,fss, 
+    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
 		    emfss->sectionGeometry(sid));
 
     RowCol rc;
@@ -536,7 +502,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
-    if ( !editor_->viewer().appearance().annot_.editable_ 
+    if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
 
@@ -547,7 +513,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     }
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -579,7 +545,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     fsseditor->getInteractionInfo( interactpid, 0, 0, fsspainter_->getGeomID(),
 				   pos, &normal );
 
-    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
+    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus()
 	 && !mouseevent.shiftStatus() )
     {
 	//Remove knot/stick
@@ -614,8 +580,8 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
 	const EM::SectionID sid = emfss->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
-	const int insertsticknr = !fss || fss->isEmpty() 
-	    			  ? 0 : fss->rowRange().stop+1;
+	const int insertsticknr = !fss || fss->isEmpty()
+				  ? 0 : fss->rowRange().stop+1;
 
 	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, true );
@@ -662,14 +628,14 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     if ( !selectedids.size() ) return;
 
     sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
-    RefMan<EM::EMObject> emobject = 
+    RefMan<EM::EMObject> emobject =
 			EM::EMM().getObject( fsspainter_->getFaultSSID() );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return;
-    
+
     const EM::SectionID sid = emfss->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,
-	    	    fss, emfss->sectionGeometry(sid ) );
+		    fss, emfss->sectionGeometry(sid ) );
     if ( !fss ) return;
 
     emfss->setBurstAlert( true );

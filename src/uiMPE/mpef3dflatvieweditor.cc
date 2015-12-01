@@ -44,7 +44,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 {
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
-    f3dpainter_->repaintdone_.notify( 
+    f3dpainter_->repaintdone_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
 }
 
@@ -184,7 +184,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
 	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
+	{
 	    selstickid = markeridinfo_[idx]->stickid_;
 	    break;
 	}
@@ -197,7 +197,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -225,19 +225,12 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
-    ConstDataPackRef<FlatDataPack> dp =
-		editor_->viewer().obtainPack( false, true );
-    if ( !dp ) return;
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, pos.x );
-    const IndexInfo iy = pd.indexInfo( false, pos.y );
-    Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
-						       : pos.y;
+    Coord3 realpos = editor_->viewer().getCoord( pos );
+    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+						      : pos.y;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -245,7 +238,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 	return;
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, emfss, 
+    mDynamicCastGet( const Geometry::FaultStickSet*, emfss,
 		     emf3d->sectionGeometry( sid ) );
     if ( !emfss ) return;
 
@@ -261,7 +254,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 
     EM::PosID pid( emid,0,knotrc.toInt64() );
 
-    emf3d->setPos(pid,coord3,true);
+    emf3d->setPos( pid, realpos, true );
 }
 
 
@@ -283,7 +276,8 @@ bool Fault3DFlatViewEditor::getMousePosInfo(
     const FlatPosData& pd = dp->posData();
     ix = pd.indexInfo( true, wp.x );
     iy = pd.indexInfo( false, wp.y );
-    worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
+
+    worldpos = editor_->viewer().getCoord( wp );
     worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
 							 : wp.y;
     return true;
@@ -351,7 +345,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -377,7 +371,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     f3deditor->getInteractionInfo( shdmakenewstick, pid, pos, &normal );
 
     if ( pid.isUdf() || shdmakenewstick )
-	return; 
+	return;
 
     const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row();
 
@@ -425,7 +419,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
 	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
+	{
 	    stickid = markeridinfo_[idx]->stickid_;
 	    break;
 	}
@@ -437,7 +431,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     if ( !emf3d ) return;
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, fss, 
+    mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 		     emf3d->sectionGeometry( sid ) );
 
     RowCol rc;
@@ -466,7 +460,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 
 void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 {
-    if ( !editor_->viewer().appearance().annot_.editable_ 
+    if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
 
@@ -477,7 +471,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     }
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -507,7 +501,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( makenewstick, interactpid, pos, &normal );
 
-    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
+    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus()
 	 && !mouseevent.shiftStatus() )
     {
 	//Remove knot/stick
@@ -516,12 +510,12 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 	if ( emf3d->geometry().nrKnots(mousepid_.sectionID(),rmnr) == 1 )
 	{
 	    res = emf3d->geometry().removeStick( mousepid_.sectionID(), rmnr,
-		    				 true );
+						 true );
 	    f3deditor->setLastClicked( EM::PosID::udf() );
 	}
 	else
 	    res = emf3d->geometry().removeKnot( mousepid_.sectionID(),
-		    				mousepid_.subID(), true );
+						mousepid_.subID(), true );
 	if ( res )
 	    mSetUserInteractionEnd();
 
@@ -632,7 +626,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-	    	    emf3d->sectionGeometry(sid));
+		    emf3d->sectionGeometry(sid));
     if ( !fss ) return;
 
     emf3d->setBurstAlert( true );
