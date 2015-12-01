@@ -60,7 +60,11 @@ public:
     static const char*	sKeyDataStart();
     static const char*	sKeyDataEnd();
 
+    uiComboBox*		getFld( bool top )
+    			{ return top ? topfld_ : botfld_; }
+
     Notifier<uiWellMarkerSel> mrkSelDone;
+
 protected:
 
     const Setup		setup_;
