@@ -22,6 +22,7 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     , nrlargestonly_( -1 )
     , edgevalue_( mUdf(float) )
     , bendpointeps_( mUdf(float) )
+    , edge_( 0 )
 {}
 
 
@@ -63,12 +64,14 @@ void IsoContourTracer::setNrLargestOnly( int nr )
 
 
 void IsoContourTracer::setEdgeValue( float edgeval )
-{ edgevalue_ = edgeval; }
+{
+    edge_ = mIsUdf(edgeval) ? 0 : 1;
+    edgevalue_ = edgeval;
+}
 
 
-#define mEdge			(mIsUdf(edgevalue_) ? 0 : 1)
-#define mOnEdge(xy,idx)		(idx<mEdge || idx>xy##range_.width()+mEdge)
-#define mFieldIdx(xy,idx)	(xy##range_.start + idx - mEdge)
+#define mOnEdge(xy,idx)		(idx<edge_ || idx>xy##range_.width()+edge_)
+#define mFieldIdx(xy,idx)	(xy##range_.start + idx - edge_)
 
 #define mFieldX(idx)		xsampling_.atIndex( mFieldIdx(x,idx) )
 #define mFieldY(idy)		ysampling_.atIndex( mFieldIdx(y,idy) )
@@ -88,7 +91,7 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 {
     deepErase( contours );
     Array3DImpl<float>* crossings = new Array3DImpl<float>(
-		    xrange_.width()+2*mEdge+1, yrange_.width()+2*mEdge+1, 2 );
+            xrange_.width()+2*edge_+1, yrange_.width()+2*edge_+1, 2 );
 
     findCrossings( *crossings, z );
     traceContours( *crossings, contours, closedonly );
@@ -106,36 +109,63 @@ void IsoContourTracer::findCrossings( Array3DImpl<float>& crossings,
     
     for ( int idx=0; idx<xsize; idx++)
     {
-	for ( int idy=0; idy<ysize; idy++ )
-	{
-	    const float z0 = mFieldZ( idx, idy );
-	    for ( int hor=0; hor<=1; hor++ )
-	    {
-		crossings.set( idx, idy, hor, mUdf(float) );
+        for ( int idy=0; idy<ysize; idy++ )
+        {
+            float z0;
 
-		if  ( (hor && idx==xsize-1) || (!hor && idy==ysize-1) )
-		    continue;
+            if ( mOnEdge(x,idx) || mOnEdge(y,idy) )
+            {
+                if ( edge_==0 )
+                    continue;
+                z0 = edgevalue_;
+            }
+            else
+            {
+                z0 = field_.get(mFieldIdx(x,idx), mFieldIdx(y,idy));
 
-		const float z1 = mFieldZ( idx+hor, idy+1-hor );
+                if ( mIsUdf(z0) )
+                    continue;
+            }
 
-		if ( mIsUdf(z0) || mIsUdf(z1) )
-		    continue;
+            for ( int hor=0; hor<=1; hor++ )
+            {
+                crossings.set( idx, idy, hor, mUdf(float) );
+
+                if  ( (hor && idx==xsize-1) || (!hor && idy==ysize-1) )
+                    continue;
+
+                const int tmpidx = idx+hor;
+                const int tmpidy = idy+1-hor;
+                float z1;
+                if ( mOnEdge(x,tmpidx) || mOnEdge(y,tmpidy) )
+                {
+                    if ( edge_==0 )
+                        continue;
+                    z1 = edgevalue_;
+                }
+                else
+                {
+                    z1 = field_.get(mFieldIdx(x,tmpidx), mFieldIdx(y,tmpidy));
+
+                    if ( mIsUdf(z1) )
+                        continue;
+                }
 		    
-		if ( (z0<z && z<=z1) || (z1<z && z<=z0) )
-		{
-		    const float frac = (z-z0) / (z1-z0);
+                if ( (z0<z && z<=z1) || (z1<z && z<=z0) )
+                {
+                    const float frac = (z-z0) / (z1-z0);
 
-		    if ( polyroi_ )
-		    {
-			mMakeVertex( vertex, idx, idy, hor, frac );
-			if ( !polyroi_->isInside(vertex, true, mDefEps) )
-			    continue;
-		    }
+                    if ( polyroi_ )
+                    {
+                        mMakeVertex( vertex, idx, idy, hor, frac );
+                        if ( !polyroi_->isInside(vertex, true, mDefEps) )
+                            continue;
+                    }
 
-		    crossings.set( idx, idy, hor, frac );
-		}
-	    }
-	}
+                    crossings.set( idx, idy, hor, frac );
+                }
+            }
+        }
     }
 }
 
