@@ -200,10 +200,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 void uiSeisTransfer::fillPar( IOPar& iop ) const
 {
     selfld->fillPar( iop );
-
-    Scaler* sc = scalefld_->getScaler();
-    iop.update( sKey::Scale(), sc ? sc->toString() : "" );
-    delete sc;
+    scalefld_->fillPar( iop );
 
     iop.set( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );
     iop.set( sKeyNullTrcPol(), nullTrcPolicy() );

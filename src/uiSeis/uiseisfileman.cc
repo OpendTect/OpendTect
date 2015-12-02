@@ -161,7 +161,7 @@ void uiSeisFileMan::ownSelChg()
 	if ( but->sensitive() ) \
 	{ \
 	    tt.setEmpty(); \
-	    tt.arg( str1 ).arg( curattribnms ).arg( str2 ); \
+	    tt.append( str1 ).append( curattribnms ).append( str2 ); \
 	    but->setToolTip( tt ); \
 	} \
 	else \
@@ -206,7 +206,7 @@ void uiSeisFileMan::setToolButtonProperties()
 			   uiStrings::sCube().toLower()))
 	else
 	    mergecubesbut_->setToolTip( uiStrings::phrMerge(
-						uiStrings::sCube().toLower()) );
+					    uiStrings::sCube(2).toLower()) );
     }
 
     if ( man2dlinesbut_ )
