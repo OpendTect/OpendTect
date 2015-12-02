@@ -200,17 +200,11 @@ void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
 const osg::Vec3 HorizonSection::NodeCallbackHandler::getProjectionDirection(
 					    const osgUtil::CullVisitor* cv )
 {
-    osg::Vec3 projectiondirection( 0, 0, 0 );
-    if( !cv ) return projectiondirection;
-    const osg::Camera* ca =
-	const_cast<osgUtil::CullVisitor*>(cv)->getCurrentCamera();
-    osg::Vec3 up;
-    osg::Vec3 eye;
-    osg::Vec3 center;
-    ca->getViewMatrixAsLookAt( eye,center,up );
-    projectiondirection = center - eye;
-    projectiondirection.normalize();
-    return projectiondirection;
+     osg::Vec3 projectiondirection( 0, 0, 0 );
+     if ( cv )
+	projectiondirection = cv->getEyePoint();
+
+     return projectiondirection;
 }
 
 
