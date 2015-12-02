@@ -33,13 +33,16 @@ public:
     void		setInput(const Scaler&);
     void		setUnscaled();
 
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
 protected:
 
     uiCheckBox*		ynfld;
     uiGenInput*		typefld;
     uiGenInput*		linearfld;
     uiGenInput*		basefld;
-    
+
     void		doFinalise(CallBacker*);
     void		typeSel(CallBacker*);
 };

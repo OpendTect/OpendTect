@@ -28,7 +28,7 @@ uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
     uiString lbl = txt;
 
 
-    if ( lbl.isEmpty() ) lbl = linonly ? tr("Scale values: ") 
+    if ( lbl.isEmpty() ) lbl = linonly ? tr("Scale values: ")
 				       : tr("Scale values");
 
     if ( !linonly )
@@ -140,6 +140,35 @@ void uiScaler::setInput( const Scaler& sc )
 	typefld->setValue( typnr );
 
     typeSel(0);
+}
+
+
+void uiScaler::fillPar( IOPar& iop ) const
+{
+    Scaler* scl = getScaler();
+    if ( !scl )
+	iop.removeWithKey( sKey::Scale() );
+    else
+    {
+	char buf[1024]; scl->put( buf );
+	iop.set( sKey::Scale(), buf );
+	delete scl;
+    }
+}
+
+
+void uiScaler::usePar( const IOPar& iop )
+{
+    const FixedString res = iop.find( sKey::Scale() );
+    if ( res.isEmpty() )
+	return;
+
+    Scaler* scl = Scaler::get( res );
+    if ( !scl )
+	return;
+
+    setInput( *scl );
+    delete scl;
 }
 
 

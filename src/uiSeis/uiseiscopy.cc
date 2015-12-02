@@ -122,7 +122,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 	return batchfld_->start();
     }
 
-    Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "", 
+    Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "",
 						    uiStrings::sEmptyString() );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
     SeisCubeCopier copier( stp, compnr );
@@ -130,11 +130,10 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     return taskrunner.execute( copier );
 }
 
-
 uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
     : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
-		       uiString::emptyString(), 
+		       uiString::emptyString(),
 		       mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
@@ -185,9 +184,7 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
 
     IOPar procpars;
     subselfld_->fillPar( procpars );
-    Scaler* scaler = scalefld_->getScaler();
-    if ( scaler )
-	procpars.set( sKey::Scale(), scaler->toString() );
+    scalefld_->fillPar( procpars );
 
     if ( batchfld_->wantBatch() )
     {

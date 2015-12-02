@@ -266,8 +266,6 @@ void uiSeisFmtScale::fillFmtPars( IOPar& iop ) const
 
 void uiSeisFmtScale::fillOtherPars( IOPar& iop ) const
 {
-    Scaler* sc = getScaler();
-    iop.update( sKey::Scale(), sc ? sc->toString() : "" );
-    delete sc;
+    scalefld_->fillPar( iop );
     iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcToSI() );
 }

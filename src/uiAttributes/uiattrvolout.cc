@@ -487,9 +487,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     Scaler* sc = transffld_->getScaler();
     if ( sc )
     {
-	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()),
-				sc->toString() );
+	char buf[1024]; sc->put( buf );
 	delete sc;
+	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()), buf );
     }
 
     BufferString attrnm = todofld_ ? todofld_->getAttrName() : "Multi-attribs";
