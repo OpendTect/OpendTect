@@ -33,11 +33,11 @@ public:
     virtual bool		canWrite() const	{ return false; }
 
     virtual Well::ReadAccess*	makeReadAccess( const IOObj&, Well::Data&,
-						BufferString& ) const
+						uiString& ) const
 				{ return 0; }
     virtual Well::WriteAccess*	makeWriteAccess( const IOObj&,
 						 const Well::Data&,
-						 BufferString& ) const
+						 uiString& ) const
 				{ return 0; }
 
     const OD::String&		type() const		{ return type_; }
