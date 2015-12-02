@@ -171,8 +171,24 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
 			const Coord3& b, const Coord3& c, double epsilon )
 {
+    Coord3 ap = a - p;
+    const double norm1 = ap.abs();
+    if ( norm1>=1e-10 ) ap /= norm1;
+    Coord3 bp = b - p; bp.normalize();
+    const double norm2 = bp.abs();
+    if ( norm2>=1e-10 ) bp /= norm2;
+    Coord3 cp = c - p; cp.normalize();
+    const double norm3 = cp.abs();
+    if ( norm3>=1e-10 ) cp /= norm3;
+    const double d1 = ap.dot( bp );
+    const double d2 = bp.dot( cp );
+    const double d3 = cp.dot( ap );
+    const double angle = Math::ACos(d1) + Math::ACos(d2) + Math::ACos(d3);
+    return mIsEqual(angle,M_2PI,epsilon);
+
+    /*Method 2
     return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) &&
-	   sameSide3D(p,c,a,b,epsilon);
+	   sameSide3D(p,c,a,b,epsilon); */
 }
 
 
@@ -195,6 +211,11 @@ inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
 inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b,
 			   double epsilon )
 {
+    if ( (p.x<a.x && p.x<b.x) || (p.x>a.x && p.x>b.x) ||
+	 (p.y<a.y && p.y<b.y) || (p.y>a.y && p.y>b.y) ||
+         (p.z<a.z && p.z<b.z) || (p.z>a.z && p.z>b.z) )
+	return false;
+
     const Coord3 pa = p-a;
     const Coord3 ba = b-a;
     const double t = pa.dot(ba)/ba.sqAbs();
