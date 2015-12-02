@@ -230,7 +230,7 @@ final class TextLinter extends ArcanistLinter {
 		$idx+2,
 		self::LINT_NEWLINES_BEFORE_EOF,
 		'There are empty lines at end of file. Please remove.',
-		"\n",
+		substr( $data, $idx+1 ),
 		"");
 
 		$this->nrautofixes++;
