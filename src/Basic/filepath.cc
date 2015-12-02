@@ -496,4 +496,3 @@ BufferString FilePath::winDrive() const
     BufferString windrive = File::getRootPath( fullPath() );
     return windrive;
 }
-

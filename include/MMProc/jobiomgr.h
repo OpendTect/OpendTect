@@ -99,4 +99,3 @@ mGlobal(MMProc) const OD::String& getTempBaseNm();
 mGlobal(MMProc) int mkTmpFileNr();
 
 #endif
-

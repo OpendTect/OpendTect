@@ -411,4 +411,3 @@ bool SEGYDirectSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     pErrMsg("This function should not be called");
     return false;
 }
-

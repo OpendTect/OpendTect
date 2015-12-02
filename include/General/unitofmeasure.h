@@ -215,4 +215,3 @@ template <class T> inline T getConvertedValue( T val,
 }
 
 #endif
-

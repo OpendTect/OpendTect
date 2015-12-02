@@ -77,4 +77,3 @@ mGlobal(Madagascar) ProgInfo& PI();
 } // namespace ODMad
 
 #endif
-

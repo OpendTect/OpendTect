@@ -22,4 +22,3 @@ the MPE::uiMPEEngine object, which is available through the static function
 MPE::uiMPE().
 
 */
-

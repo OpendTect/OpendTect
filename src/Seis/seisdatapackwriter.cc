@@ -140,4 +140,3 @@ int SeisDataPackWriter::nextStep()
     trc_->info().nr++;
     return MoreToDo();
 }
-

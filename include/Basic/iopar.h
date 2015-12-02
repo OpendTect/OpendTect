@@ -335,4 +335,3 @@ inline void IOPar::set( const char* k, const SamplingData<T>& sd )
 
 
 #endif
-

@@ -145,4 +145,3 @@ public:
 }; // Namespace
 
 #endif
-

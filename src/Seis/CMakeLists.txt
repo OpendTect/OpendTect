@@ -86,4 +86,3 @@ SET(OD_MODULE_BATCHPROGS
 	    od_process_segyio.cc
 )
 OD_INIT_MODULE()
-

@@ -508,4 +508,3 @@ uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis(
     mDynamicCastGet(const Vw2DHorizon2D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DHor2DTreeItem(id,true) : 0;
 }
-

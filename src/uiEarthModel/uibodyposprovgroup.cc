@@ -128,4 +128,3 @@ void uiBodyPosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Body() );
 }
-

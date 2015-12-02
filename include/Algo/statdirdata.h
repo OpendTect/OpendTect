@@ -138,4 +138,3 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 }; // namespace Stats
 
 #endif
-

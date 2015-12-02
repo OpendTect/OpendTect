@@ -77,4 +77,3 @@ T& PerThreadObjectRepository<T>::getObject()
 }
 
 #endif
-

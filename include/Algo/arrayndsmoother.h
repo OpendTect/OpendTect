@@ -115,4 +115,3 @@ int ArrayNDGentleSmoother<T>::nextStep()
 
 
 #endif
-

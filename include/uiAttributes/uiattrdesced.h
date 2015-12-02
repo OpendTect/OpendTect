@@ -246,4 +246,3 @@ const char* clss::attribName() const \
 	    	      uiAttrDescEd::AnyDim)
 
 #endif
-

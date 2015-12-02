@@ -1090,4 +1090,3 @@ void uiMPEMan::setUndoLevel( int preveventnr )
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
-

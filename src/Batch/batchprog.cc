@@ -352,4 +352,3 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 
     return ioobj;
 }
-

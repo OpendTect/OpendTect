@@ -182,4 +182,3 @@ void uiTutorialAttrib::steerTypeSel( CallBacker* )
 	}
     }
 }
-

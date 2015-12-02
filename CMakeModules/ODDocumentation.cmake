@@ -101,4 +101,3 @@ if ( BUILD_USERDOC )
     endif( WIN32 )
 
 endif( BUILD_USERDOC )
-

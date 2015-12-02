@@ -423,4 +423,3 @@ bool Horizon2DGridCreator::finish( TaskRunner* taskrunner )
 
     return true;
 }
-

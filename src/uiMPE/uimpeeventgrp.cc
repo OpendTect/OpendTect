@@ -476,4 +476,3 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 }
 
 } //namespace MPE
-

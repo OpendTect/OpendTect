@@ -139,4 +139,3 @@ private:
 } // namespace visSurvey
 
 #endif
-

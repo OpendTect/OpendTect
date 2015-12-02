@@ -175,4 +175,3 @@ mGlobal(Geometry) RandomLineManager& RLM();
 } // namespace Geometry
 
 #endif
-

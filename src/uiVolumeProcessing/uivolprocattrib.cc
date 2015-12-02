@@ -59,4 +59,3 @@ bool uiVolProcAttrib::getParameters( Attrib::Desc& desc )
     mSetString( VolProcAttrib::sKeySetup(), setupfld_->key() );
     return true;
 }
-

@@ -309,4 +309,3 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 	    item, enab, check )
 
 #endif
-

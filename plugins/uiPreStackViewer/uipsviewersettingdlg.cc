@@ -77,4 +77,3 @@ bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
 }
 
 } // namespace PreStackView
-

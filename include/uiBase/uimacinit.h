@@ -22,4 +22,3 @@ mGlobal(uiBase) void uiInitMac();
 
 
 #endif
-

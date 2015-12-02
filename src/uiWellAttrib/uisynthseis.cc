@@ -306,4 +306,3 @@ bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
 
     return true;
 }
-

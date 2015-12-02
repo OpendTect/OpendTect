@@ -125,4 +125,3 @@ void EnumDef::fillUiStrings()
 	uistrings_ += ::toUiString( keys_.get(idx) );
 
 }
-

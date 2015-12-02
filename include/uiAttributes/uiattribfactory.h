@@ -87,4 +87,3 @@ mGlobal(uiAttributes) uiAttributeFactory& uiAF();
 
 
 #endif
-

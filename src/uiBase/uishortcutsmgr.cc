@@ -411,4 +411,3 @@ bool uiExtraIntKeyDesc::set( const char* statestr, const char* keystr, int val )
     val_ = val;
     return uiKeyDesc::set( statestr, keystr );
 }
-

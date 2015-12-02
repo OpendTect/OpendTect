@@ -342,4 +342,3 @@ void inline uiTreeItem::setPropertyPtr( const char* propertykey, void* val )
 }
 
 #endif
-

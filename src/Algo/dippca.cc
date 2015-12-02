@@ -712,7 +712,3 @@ bool Dip3D::compute( TaskRunner* tr )
     Dip3DCalculator fdc( *this );
     return TaskRunner::execute( tr, fdc );
 }
-
-
-
-

@@ -82,4 +82,3 @@ public:
 } // namespace EM
 
 #endif
-

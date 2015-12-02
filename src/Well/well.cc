@@ -298,4 +298,3 @@ float Well::getDefaultVelocity()
 	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
     }
 }
-

@@ -784,4 +784,3 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 
     return isok;
 }
-

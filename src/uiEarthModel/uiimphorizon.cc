@@ -665,4 +665,3 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     delete loader;
     return horizon;
 }
-

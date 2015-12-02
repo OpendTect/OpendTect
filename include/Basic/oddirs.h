@@ -187,4 +187,3 @@ mGlobal(Basic) const char* GetScriptsDir(const char*);
 } // extern "C"
 
 #endif
-

@@ -76,4 +76,3 @@ mGlobal(uiWell)	float	getGUIDefaultVelocity();
 
 
 #endif
-

@@ -118,4 +118,3 @@ bool uiHandleDLSiteFail::acceptOK( CallBacker* )
 	site_ = dlsitefld_->text();
     return true;
 }
-

@@ -134,4 +134,3 @@ void SeisRandomProvider::triggerWork()
 			    mWMT( this, SeisRandomProvider, readTraces),
 			    &cb, -1, false, true );
 }
-

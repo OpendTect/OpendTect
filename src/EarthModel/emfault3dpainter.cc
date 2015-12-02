@@ -695,4 +695,3 @@ Coord Fault3DPainter::getNormalInRandLine( int idx ) const
 
 
 } //namespace EM
-

@@ -137,5 +137,3 @@ void Muter::itvMute(ValueSeries<float>& arr, int sz, Interval<float> itv ) const
 		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 }
-
-

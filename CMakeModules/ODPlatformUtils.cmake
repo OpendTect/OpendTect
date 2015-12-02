@@ -214,5 +214,3 @@ if ( WIN32 )
 else()
     add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 endif()
-
-

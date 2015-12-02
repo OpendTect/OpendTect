@@ -396,8 +396,3 @@ void uiTextureAttrib::calcAndSetMinMaxVal( const SeisTrcBuf& bufs )
     globalminfld_->setValue( range.start );
     globalmaxfld_->setValue( range.stop );
 }
-
-
-
-
-

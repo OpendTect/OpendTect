@@ -318,4 +318,3 @@ uiTreeItem* uiODVW2DWiggleVarAreaTreeItemFactory::createForVis(
 {
     return 0;
 }
-

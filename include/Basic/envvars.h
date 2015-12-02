@@ -44,4 +44,3 @@ mGlobal(Basic) bool WriteEnvVar(const char* env,const char* val);
 
 
 #endif
-

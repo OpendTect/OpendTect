@@ -517,4 +517,3 @@ const char* uiWell2RandomLineDlg::getRandLineID() const
     BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
     return multid->buf();
 }
-

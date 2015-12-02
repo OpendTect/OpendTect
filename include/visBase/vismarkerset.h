@@ -148,4 +148,3 @@ protected:
 } // namespace visBase
 
 #endif
-

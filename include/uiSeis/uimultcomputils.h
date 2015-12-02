@@ -72,4 +72,3 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 
 
 #endif
-

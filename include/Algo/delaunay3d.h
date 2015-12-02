@@ -171,5 +171,3 @@ protected:
 
 
 #endif
-
-

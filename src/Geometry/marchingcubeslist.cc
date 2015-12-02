@@ -1268,4 +1268,3 @@
     triangles_[46].nrindices_ += 9;
     static char dummy253[] = { 0,1, 0,2, 2,0, 5,1, 3,0, -1, 0,2, 4,2, 5,1 };
     triangles_[46].indices_ += dummy253;
-

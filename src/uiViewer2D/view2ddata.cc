@@ -101,4 +101,3 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
 
     return false;
 }
-

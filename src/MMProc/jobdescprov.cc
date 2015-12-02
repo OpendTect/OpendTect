@@ -319,4 +319,3 @@ const char* Line2DSubselJobDescProv::objName( int jidx ) const
     subselpars_[jidx]->get( sKey::GeomID(), geomid );
     return Survey::GM().getName( geomid );
 }
-

@@ -141,4 +141,3 @@ inline bool isEmpty( const SelData* sd )
 } // namespace
 
 #endif
-

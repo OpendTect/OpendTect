@@ -1540,4 +1540,3 @@ bool uiKeyBindingSettingsGroup::acceptOK()
 
     return true;
 }
-

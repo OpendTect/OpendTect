@@ -408,4 +408,3 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
 	mErrRetStrmOper("write well display parameters")
     return true;
 }
-

@@ -1874,6 +1874,3 @@ int Extension2DInterpolExecutor::nextStep()
 
     return Executor::MoreToDo();
 }
-
-
-

@@ -21,4 +21,3 @@ void PickRetriever::setInstance( PickRetriever* npr )
 
 PickRetriever* PickRetriever::getInstance()
 { return instance_; }
-

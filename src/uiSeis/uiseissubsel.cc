@@ -399,4 +399,3 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 
     selChange.trigger();
 }
-

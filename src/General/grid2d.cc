@@ -235,5 +235,3 @@ void Grid2D::limitTo( const TrcKeySampling& cs )
     mLimitLines(dim0)
     mLimitLines(dim1)
 }
-
-

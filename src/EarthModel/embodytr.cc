@@ -91,4 +91,3 @@ Executor* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
     mDynamicCastGet(EM::RandomPosBody*,rdpbdy,const_cast<EM::Body*>(&body));
     return rdpbdy ? rdpbdy->saver(&ioobj) : 0;
 }
-

@@ -69,4 +69,3 @@ void RemoteJobExec::uiErrorMsg( const char* msg )
     cmd.add( "\" --err " ).add( msg );
     OS::ExecCommand( cmd );
 }
-

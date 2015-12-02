@@ -157,4 +157,3 @@ void uiLateralSmoother::updateFlds( CallBacker* )
 }
 
 } // namespace VolProc
-

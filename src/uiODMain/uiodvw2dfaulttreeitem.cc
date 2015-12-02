@@ -368,4 +368,3 @@ uiTreeItem* uiODVw2DFaultTreeItemFactory::createForVis(
     mDynamicCastGet(const VW2DFault*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DFaultTreeItem(id,true) : 0;
 }
-

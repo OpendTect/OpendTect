@@ -154,4 +154,3 @@ macro(OD_SETUP_OSG)
     list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
 
 endmacro(OD_SETUP_OSG)
-

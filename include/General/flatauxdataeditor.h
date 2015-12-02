@@ -253,4 +253,3 @@ protected:
 }; // namespace FlatView
 
 #endif
-

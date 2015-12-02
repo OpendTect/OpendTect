@@ -232,5 +232,3 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 
     return true;
 }
-
-

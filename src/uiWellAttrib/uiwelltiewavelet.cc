@@ -228,4 +228,3 @@ void uiWavelet::drawWavelet()
 }
 
 } // namespace WellTie
-

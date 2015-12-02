@@ -201,5 +201,3 @@ protected:
 } // namespace
 
 #endif
-
-

@@ -748,4 +748,3 @@ bool HorizonSectionTile::getResolutionPrimitiveSet(
 
     return true;
 }
-

@@ -284,5 +284,3 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 void uiMultiWellDispPropDlg::onClose( CallBacker* )
 {
 }
-
-

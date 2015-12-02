@@ -963,5 +963,3 @@ void MarchingCubes2Implicit::setValue( od_int64 offset, int newval,
     *resultptr = newval;
     newfloodfillers_[offset] = true;
 }
-
-

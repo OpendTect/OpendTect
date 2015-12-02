@@ -182,4 +182,3 @@ protected:
 } // namespace
 
 #endif
-

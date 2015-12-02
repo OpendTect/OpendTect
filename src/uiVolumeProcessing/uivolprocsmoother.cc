@@ -111,4 +111,3 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 }
 
 } // namespace VolProc
-

@@ -1228,4 +1228,3 @@ void uiGenInput::setRequired( bool yn )
     isrequired_ = yn;
     if ( labl_ ) labl_->makeRequired( yn );
 }
-

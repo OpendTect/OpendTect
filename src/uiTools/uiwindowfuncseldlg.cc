@@ -378,4 +378,3 @@ const char* uiWindowFuncSelDlg::getCurrentWindowName() const
 {
     return funcdrawer_->getCurrentListName();
 }
-

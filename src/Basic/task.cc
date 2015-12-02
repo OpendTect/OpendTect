@@ -511,4 +511,3 @@ bool TaskRunner::execute( TaskRunner* tr, Task& task )
 
     return task.execute();
 }
-

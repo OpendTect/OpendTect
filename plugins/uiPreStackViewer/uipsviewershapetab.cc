@@ -193,4 +193,3 @@ bool uiViewer3DShapeTab::rejectOK()
 }
 
 } // namespace PreStackView
-

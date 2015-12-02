@@ -42,4 +42,3 @@ void uiRandomLineMan::mkFileInfo()
 
     setInfo( getFileInfo() );
 }
-

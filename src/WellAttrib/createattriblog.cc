@@ -141,4 +141,3 @@ bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
 	return false;
     return TaskRunner::execute( taskr, *process );
 }
-

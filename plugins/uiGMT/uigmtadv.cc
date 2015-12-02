@@ -68,4 +68,3 @@ bool uiGMTAdvGrp::usePar( const IOPar& par )
     inpfld_->setvalue_( comm );
     return true;
 }
-

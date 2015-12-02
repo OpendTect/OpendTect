@@ -207,4 +207,3 @@ mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basen
 }; //namespace
 
 #endif
-

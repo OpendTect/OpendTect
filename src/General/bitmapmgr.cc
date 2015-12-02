@@ -206,4 +206,3 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     updlckr.unlockNow();
     return true;
 }
-

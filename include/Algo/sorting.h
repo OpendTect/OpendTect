@@ -617,4 +617,3 @@ bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
 
 
 #endif
-

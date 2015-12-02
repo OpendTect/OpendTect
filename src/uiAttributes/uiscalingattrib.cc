@@ -624,4 +624,3 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     uiGainAnalysisDlg analdlg( this, bufs, zvals_, scalefactors_);
     analdlg.go();
 }
-

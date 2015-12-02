@@ -270,6 +270,3 @@ void uiHorSaveFieldGrp::expandToFullSurveyArray()
 	rowrg.stop = newrow;
     }
 }
-
-
-

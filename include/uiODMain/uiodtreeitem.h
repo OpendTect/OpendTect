@@ -111,4 +111,3 @@ mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
 
 
 #endif
-

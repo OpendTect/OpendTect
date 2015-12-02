@@ -91,4 +91,3 @@ inline int WeightedClassCounter<T>::result() const
 
 
 #endif
-

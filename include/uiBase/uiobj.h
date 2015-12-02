@@ -198,4 +198,3 @@ private:
 #define mUsrEvLongTabletPress  mQtclass(QEvent)::Type(mQtclass(QEvent)::User+2)
 
 #endif
-

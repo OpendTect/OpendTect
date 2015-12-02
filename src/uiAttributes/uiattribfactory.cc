@@ -98,4 +98,3 @@ const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
     const Entry* entry = getEntry( attrnm, true );
     return entry ? ((const char*)entry->attrnm_) : 0;
 }
-

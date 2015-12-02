@@ -659,4 +659,3 @@ void uiFreqTaperSel::setSelFreqs( CallBacker* )
     freqsetup_.minfreqrg_.start = freqValues().start;
     freqsetup_.maxfreqrg_.stop = freqValues().stop;
 }
-

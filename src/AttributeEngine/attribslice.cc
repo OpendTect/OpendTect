@@ -202,4 +202,3 @@ float SliceSet::getValue( int inl, int crl, float z ) const
 }
 
 }; //namespacer
-

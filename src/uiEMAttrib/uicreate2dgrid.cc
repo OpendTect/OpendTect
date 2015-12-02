@@ -791,4 +791,3 @@ bool uiCreate2DGrid::acceptOK( CallBacker* )
     batchfld_->setJobName( outfld_->ioobj()->name() );
     return batchfld_->start();
 }
-

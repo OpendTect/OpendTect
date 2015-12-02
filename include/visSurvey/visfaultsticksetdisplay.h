@@ -180,4 +180,3 @@ public:
 } // namespace VisSurvey
 
 #endif
-

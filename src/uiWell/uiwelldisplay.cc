@@ -186,4 +186,3 @@ void uiWellDisplayWin::dispInfoMsg( CallBacker* cb )
     mCBCapsuleUnpack(BufferString,mesg,cb);
     statusBar()->message( mToUiStringTodo(mesg.buf()) );
 }
-

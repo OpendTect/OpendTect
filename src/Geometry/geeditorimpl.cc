@@ -56,5 +56,3 @@ void ElementEditorImpl::addedKnots(CallBacker*)
 { editpositionchange.trigger(); }
 
 };
-
-

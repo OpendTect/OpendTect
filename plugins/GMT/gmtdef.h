@@ -129,4 +129,3 @@ mGlobal(GMT) const GMTWellSymbolRepository& GMTWSR();
     Settings::fetch("GMT").write();
 
 #endif
-

@@ -149,4 +149,3 @@ bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
 
 const char* uiDPSAddColumnDlg::newAttribName() const
 { return nmfld_->text(); }
-

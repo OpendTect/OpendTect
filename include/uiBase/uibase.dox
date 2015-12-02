@@ -82,4 +82,3 @@ these are (like uiObjects) uiBaseObject's. The uiMainWin is a subclass, and
 the ubiquitous uiDialog.
 
 */
-

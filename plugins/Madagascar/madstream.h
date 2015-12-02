@@ -94,4 +94,3 @@ protected:
 } // namespace ODMad
 
 #endif
-

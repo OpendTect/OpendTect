@@ -67,5 +67,3 @@ protected:
 };  // namespace MPE
 
 #endif
-
-

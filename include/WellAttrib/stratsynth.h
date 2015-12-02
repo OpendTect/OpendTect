@@ -182,5 +182,3 @@ protected:
 };
 
 #endif
-
-

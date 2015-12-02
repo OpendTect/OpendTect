@@ -561,4 +561,3 @@ inline bool Sphere::operator ==( const Sphere& s ) const
 
 
 #endif
-

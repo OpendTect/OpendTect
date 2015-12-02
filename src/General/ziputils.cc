@@ -318,4 +318,3 @@ uiString UnZipper::uiMessage() const
     else
 	return errmsg;
 }
-

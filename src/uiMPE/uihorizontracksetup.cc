@@ -636,4 +636,3 @@ void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
 
 
 } //namespace MPE
-

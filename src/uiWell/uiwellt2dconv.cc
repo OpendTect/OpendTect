@@ -78,5 +78,3 @@ uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
 
     return new uiWellT2DTransform( p );
 }
-
-

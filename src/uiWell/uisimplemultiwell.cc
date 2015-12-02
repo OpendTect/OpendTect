@@ -407,4 +407,3 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
     tbl_->setValue( rc, v ); rc.col()++;
     tbl_->setText( rc, wcd.uwi_ );
 }
-

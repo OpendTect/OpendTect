@@ -126,4 +126,3 @@ protected:
 };
 
 #endif
-

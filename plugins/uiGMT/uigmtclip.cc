@@ -113,5 +113,3 @@ bool uiGMTClipGrp::getTerminatingPars( IOPar& par )
     par.setYN( ODGMT::sKeyStartClipping(), false );
     return true;
 }
-
-

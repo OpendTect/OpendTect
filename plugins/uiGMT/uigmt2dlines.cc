@@ -172,4 +172,3 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     trcstepfld_->setValue( labelstep );
     return true;
 }
-

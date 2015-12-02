@@ -149,4 +149,3 @@ mStartDeclFunClass( CurWindow,	Function )	mEndDeclFunClass
 
 
 #endif
-

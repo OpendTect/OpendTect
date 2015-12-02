@@ -370,5 +370,3 @@ protected:
 };
 
 #endif
-
-

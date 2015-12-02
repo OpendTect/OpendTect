@@ -17,4 +17,3 @@ ________________________________________________________________________
 mDeclEmptyTranslatorBundle(General,ElasticPropSelection,od,"elas")
 
 #endif
-

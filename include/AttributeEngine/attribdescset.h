@@ -197,5 +197,3 @@ public:
 } // namespace Attrib
 
 #endif
-
-

@@ -21,4 +21,3 @@ mExportTemplClassInst( uiBase ) Geom::PixRectangle<int>;
 
 # endif
 #endif
-

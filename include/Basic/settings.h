@@ -84,4 +84,3 @@ mExternC( Basic ) const char* GetSettingsDataDir(void);
 	Settings::common().write();
 
 #endif
-

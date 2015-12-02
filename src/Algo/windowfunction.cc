@@ -333,4 +333,3 @@ double KaiserWindow::getError( int nrsamples ) const
 
 double KaiserWindow::getError() const
 { return getError( ns_ ); }
-

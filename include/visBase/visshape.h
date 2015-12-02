@@ -196,4 +196,3 @@ class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 }
 
 #endif
-

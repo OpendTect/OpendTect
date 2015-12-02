@@ -51,4 +51,3 @@ float Strat::SeisEvent::snappedTime( const SeisTrc& trc ) const
 
     return mUdf(float);
 }
-

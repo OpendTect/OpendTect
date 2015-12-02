@@ -150,4 +150,3 @@ const char* uiSelFonts::resultFor( const char* str )
 
     return FontList().key(0);
 }
-

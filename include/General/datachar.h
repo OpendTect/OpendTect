@@ -96,4 +96,3 @@ public:
 #undef mDeclConstr
 
 #endif
-

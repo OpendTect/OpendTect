@@ -224,4 +224,3 @@ void uiStratDispToTree::setUnitLvl( const char* code )
 {
     uitree_.setUnitLvl( code );
 }
-

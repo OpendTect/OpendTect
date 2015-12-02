@@ -102,4 +102,3 @@ protected:
 } // namespace
 
 #endif
-

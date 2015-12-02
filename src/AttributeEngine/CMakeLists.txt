@@ -33,5 +33,3 @@ set(OD_MODULE_SOURCES
 		initattributeengine.cc
 )
 OD_INIT_MODULE()
-
-

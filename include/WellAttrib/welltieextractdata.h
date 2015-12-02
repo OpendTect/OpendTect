@@ -66,4 +66,3 @@ protected:
 } // namespace WellTie
 
 #endif
-

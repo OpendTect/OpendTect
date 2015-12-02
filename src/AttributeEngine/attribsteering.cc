@@ -67,4 +67,3 @@ int getSteeringIndex( const BinID& bid )
 
 
 }; //namespace
-

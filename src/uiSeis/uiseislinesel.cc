@@ -966,4 +966,3 @@ void uiSeis2DMultiLineSel::setTrcRanges(
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	trcrgs_[selidxs_[idx]] = trcrgs[idx];
 }
-

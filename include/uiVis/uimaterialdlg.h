@@ -104,4 +104,3 @@ protected:
 };
 
 #endif
-

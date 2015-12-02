@@ -375,4 +375,3 @@ mGlobal(Algo) bool convertToVintIfNeeded(const float* inpvel,
 					float* outvel);
 
 #endif
-

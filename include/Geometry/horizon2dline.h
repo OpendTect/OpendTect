@@ -99,4 +99,3 @@ protected:
 } // namespace Geometry
 
 #endif
-

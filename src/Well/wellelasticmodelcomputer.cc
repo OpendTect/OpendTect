@@ -307,4 +307,3 @@ float Well::ElasticModelComputer::getSVel( int idx ) const
     const UnitOfMeasure* uom = uomset_[logidx];
     return uom ? uom->getSIValue( logval ) : logval;
 }
-

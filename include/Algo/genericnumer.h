@@ -260,4 +260,3 @@ inline void reverseArray( A* in, int sz, A* out=0 )
 
 
 #endif
-

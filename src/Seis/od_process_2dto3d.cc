@@ -216,5 +216,3 @@ bool BatchProgram::go( od_ostream& strm )
 	mMessage( "Could not write finish status" );
     return ret;
 }
-
-

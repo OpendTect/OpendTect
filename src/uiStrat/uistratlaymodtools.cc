@@ -522,5 +522,3 @@ const char* uiStratLayModFRPropSelector::getSelPorName() const
 {
     return porosityfld_->text();
 }
-
-

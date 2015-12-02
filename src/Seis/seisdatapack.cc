@@ -600,4 +600,3 @@ void RandomFlatDataPack::setSourceData()
     arr2d_ = slice2d;
     setTrcInfoFlds();
 }
-

@@ -436,4 +436,3 @@ private:
 } // namespace FlatView
 
 #endif
-

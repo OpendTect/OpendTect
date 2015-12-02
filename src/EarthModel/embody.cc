@@ -177,6 +177,3 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 
     return true;
 }
-
-
-

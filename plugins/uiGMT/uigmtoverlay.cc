@@ -76,4 +76,3 @@ uiGMTOverlayGrpFactory::Entry* uiGMTOverlayGrpFactory::getEntry(
 
     return 0;
 }
-

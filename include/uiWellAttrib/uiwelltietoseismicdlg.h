@@ -183,5 +183,3 @@ protected:
 } // namespace WellTie
 
 #endif
-
-

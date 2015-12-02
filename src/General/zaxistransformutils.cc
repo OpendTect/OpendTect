@@ -95,4 +95,3 @@ bool ZAxisTransformPointGenerator::doFinish( bool success )
     dps_->dataChanged();
     return success;
 }
-

@@ -780,4 +780,3 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     dragModeCB( rubbandzoombut_ );
     updatePosButtonStates();
 }
-

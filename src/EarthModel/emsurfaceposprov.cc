@@ -944,4 +944,3 @@ void EMRegion3DProvider::initClass()
 { Provider3D::factory().addCreator( create, "Region3D" ); }
 
 } // namespace Pos
-

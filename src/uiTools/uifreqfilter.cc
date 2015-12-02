@@ -88,4 +88,3 @@ void uiFreqFilterSelFreq::set( float minf, float maxf, FFTFilter::Type tp )
     filtertype_ = tp;
     putToScreen();
 }
-

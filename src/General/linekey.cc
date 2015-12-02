@@ -82,4 +82,3 @@ bool LineKey::usePar( const IOPar& iop, bool iopnm )
 
     return true;
 }
-

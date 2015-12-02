@@ -426,4 +426,3 @@ void EnumDefImpl<ENUM>::init()
 
 
 #endif
-

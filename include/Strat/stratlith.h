@@ -121,4 +121,3 @@ public:
 }; // namespace Strat
 
 #endif
-

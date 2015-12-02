@@ -180,4 +180,3 @@ int uiVisPickRetriever::unTransformedSceneID() const
 
     return -1;
 }
-

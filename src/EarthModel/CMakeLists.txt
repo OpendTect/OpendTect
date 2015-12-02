@@ -63,5 +63,3 @@ SET(OD_MODULE_SOURCES
 		initearthmodel.cc
 )
 OD_INIT_MODULE()
-
-

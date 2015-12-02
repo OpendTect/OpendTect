@@ -193,5 +193,3 @@ macro ( OD_FILTER_LIBRARIES INPUTLIST BUILD_TYPE )
 
     set ( ${INPUTLIST} ${OUTPUT} )
 endmacro()
-
-

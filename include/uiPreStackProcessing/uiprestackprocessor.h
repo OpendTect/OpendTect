@@ -97,4 +97,3 @@ mDefineFactory2Param( uiPreStackProcessing, uiDialog, uiParent*, Processor*,
 }; //namespace
 
 #endif
-

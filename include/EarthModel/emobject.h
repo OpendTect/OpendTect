@@ -335,4 +335,3 @@ void clss::setNewName() \
 }
 
 #endif
-

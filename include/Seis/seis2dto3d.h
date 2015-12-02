@@ -187,5 +187,3 @@ protected:
 };
 
 #endif
-
-

@@ -208,4 +208,3 @@ void uiAttrSurfaceOut::fillGridPar( IOPar& par ) const
     iopar.mergeComp( gridpar, "Grid" );
     par.merge( iopar );
 }
-

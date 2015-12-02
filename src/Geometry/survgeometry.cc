@@ -90,5 +90,3 @@ bool SurveyGeometry::hasEdgePoint( const Coord& from, const Coord& to )
 
     return false;
 }
-
-

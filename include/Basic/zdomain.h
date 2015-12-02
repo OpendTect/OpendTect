@@ -124,4 +124,3 @@ mGlobal(Basic) const char*	sKeyDepth();
 } // namespace ZDomain
 
 #endif
-

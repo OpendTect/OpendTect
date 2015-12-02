@@ -176,4 +176,3 @@ void uiHorizonSortDlg::updateRelationTree( const TypeSet<MultiID>& ids )
 
     reltree.write();
 }
-

@@ -646,5 +646,3 @@ void PropertySet::getPropertiesOfRefType( PropertyRef::StdType proptype,
 	if ( props_[idx] && props_[idx]->ref().hasType( proptype ) )
 	    resultset += const_cast<PropertySet*>(this)->props_[idx];
 }
-
-

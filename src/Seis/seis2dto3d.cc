@@ -689,4 +689,3 @@ void SeisScaler::scaleTrace( SeisTrc& trc )
 	trc.set( idz, val, 0 );
     }
 }
-

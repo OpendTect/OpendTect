@@ -345,4 +345,3 @@ protected:
 };
 
 #endif
-

@@ -360,4 +360,3 @@ protected:
 };
 
 #endif
-

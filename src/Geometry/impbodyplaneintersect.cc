@@ -110,4 +110,3 @@ bool ImplicitBodyPlaneIntersector::compute()
 
 
 };
-

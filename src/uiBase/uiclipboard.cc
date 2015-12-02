@@ -30,4 +30,3 @@ void uiClipboard::setImage( const QImage& img )
      clipboard->clear();
      clipboard->setImage( img );
 }
-

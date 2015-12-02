@@ -534,4 +534,3 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const EnumDef& strs,
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
-
