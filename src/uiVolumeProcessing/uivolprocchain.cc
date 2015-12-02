@@ -553,6 +553,23 @@ void uiChain::addStep( const char* steptype )
 }
 
 
+
+void uiChain::emptyChain()
+{
+    steplist_->chooseAll(false);
+    int curitm = steplist_->size()-1;
+
+    while ( curitm>=0 )
+    {
+	steplist_->removeItem(curitm);
+	chain_.removeStep( curitm );
+	curitm--;
+    }
+
+    updateButtons();
+}
+
+
 void uiChain::removeStepPush( CallBacker* )
 {
     int curitm = steplist_->firstChosen();
