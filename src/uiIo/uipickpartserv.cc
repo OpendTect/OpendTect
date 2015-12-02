@@ -165,51 +165,53 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt_.forread_ = true;
-    if ( poly )
-	ctio->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    ctio->ctxt_.toselect_.require_.set( sKey::Type(),
+			poly ? sKey::Polygon() : sKey::PickSet() );
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
     if ( !dlg.go() )
 	return false;
 
+    uiStringSet errmsgs;
     bool retval = false;
     const int nrsel = dlg.nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID id = dlg.chosenID(idx);
-	psids += id;
 	PtrMan<IOObj> ioobj = IOM().get( id );
-	const int setidx = psmgr_.indexOf( ioobj->key() );
-	Pick::Set* ps = setidx < 0 ? new Pick::Set : &(psmgr_.get(setidx));
-	BufferString bs;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true, bs) )
-	{
-	    if ( setidx < 0 )
-		psmgr_.set( ioobj->key(), ps );
+	if ( !ioobj ) continue;
 
-	    psids.addIfNew( ioobj->key() );
+	psids += id;
+	if ( Pick::Mgr().indexOf(id) >= 0 )
+	{
+	    retval = true;
+	    continue; // No need to read again
+	}
+
+	Pick::Set* ps = new Pick::Set;
+	BufferString bs;
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true,bs) )
+	{
+	    psmgr_.set( ioobj->key(), ps );
+	    psids.addIfNew( id );
 	    retval = true;
 	}
 	else
 	{
-	    if ( setidx < 0 )
-		delete ps;
-	    else
-		psmgr_.set( ioobj->key(), 0 ); //Remove from Mgr if present.
+	    delete ps;
+	    psmgr_.set( id, 0 ); //Remove from Mgr if present.
 
-	    if ( idx == 0 )
-	    {
-		uiMSG().error( mToUiStringTodo(bs) );
-		return false;
-	    }
-	    else
-	    {
-		uiString msg = toUiString("%1 : %2").arg(ioobj->uiName()).
-						     arg(mToUiStringTodo(bs));
-		uiMSG().warning( msg );
-	    }
+	    uiString msg = toUiString("%1 : %2").arg(ioobj->uiName()).
+						 arg(mToUiStringTodo(bs));
+	    errmsgs.add( msg );
 	}
+    }
+
+    if ( !errmsgs.isEmpty() )
+    {
+	uiString msg = tr("Some problems occurred while loading PickSets");
+	uiMSG().errorWithDetails( errmsgs, msg );
     }
 
     return retval;

@@ -52,12 +52,11 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj_;
 	if ( ps->disp_.connect_ == Pick::Set::Disp::None )
-	    ioobj->pars().set( sKey::Type(),
-			       PickSetTranslatorGroup::sKeyPickSet() );
+	    ioobj->pars().set( sKey::Type(), sKey::PickSet() );
 	else
 	    ioobj->pars().set( sKey::Type(), sKey::Polygon() );
 
-	if ( !doStore( *ps, *ioobj ) )
+	if ( !doStore(*ps,*ioobj) )
 	    { delete ps; ps = 0; return false; }
 
 	setmgr_.set( ioobj->key(), ps );
@@ -196,7 +195,7 @@ bool acceptOK( CallBacker* )
     { uiMSG().error(tr("Please select at least two sets")); return false; }
     else if (!outfld->commitInput())
     {
-	uiMSG().error(uiStrings::phrCannotCreate( 
+	uiMSG().error(uiStrings::phrCannotCreate(
 					mToUiStringTodo(outfld->getInput()) ));
 	return false;
     }
