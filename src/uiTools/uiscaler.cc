@@ -154,7 +154,6 @@ void uiScaler::typeSel( CallBacker* )
 	linearfld->setSensitive( typ == 0 );
     if ( basefld ) basefld->display( typ > 0 );
 }
-<<<<<<< HEAD
 
 
 void uiScaler::fillPar( IOPar& iop ) const
