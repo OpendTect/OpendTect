@@ -352,4 +352,3 @@ void SEGY::HdrEntryKeyData::setBest( TrcHeaderDef& th ) const
     hdidxs += TrcHeader::EntryYcdp();
     setCurOrPref( th.ycoord_, y_, hdidxs, 0 );
 }
-

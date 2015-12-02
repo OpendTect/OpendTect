@@ -285,4 +285,3 @@ int PolyArray1DInterpol::nextStep()
 
     return MoreToDo();
 }
-

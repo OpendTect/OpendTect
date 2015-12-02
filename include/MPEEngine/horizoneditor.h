@@ -59,6 +59,3 @@ protected:
 } // namespace MPE
 
 #endif
-
-
-

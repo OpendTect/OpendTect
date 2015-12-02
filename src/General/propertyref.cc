@@ -659,4 +659,3 @@ PropertyRefSelection PropertyRefSelection::getAll( PropertyRef::StdType typ )
     }
     return ret;
 }
-

@@ -123,5 +123,3 @@ protected:
 };
 
 #endif
-
-

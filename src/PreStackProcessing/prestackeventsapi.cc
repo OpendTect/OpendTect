@@ -480,4 +480,3 @@ PreStack::EventsAPIMgr& PreStack::EventsAPIMgr::getMgr()
     mDefineStaticLocalObject( PreStack::EventsAPIMgr, mgr, );
     return mgr;
 }
-

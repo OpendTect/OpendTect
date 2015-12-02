@@ -854,5 +854,3 @@ bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
 }
 
 } // namespace visBase
-
-

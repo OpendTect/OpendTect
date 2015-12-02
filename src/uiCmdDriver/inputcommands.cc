@@ -451,4 +451,3 @@ bool SliderCmdComposer::accept( const CmdRecEvent& ev )
 }
 
 } // namespace CmdDrive
-

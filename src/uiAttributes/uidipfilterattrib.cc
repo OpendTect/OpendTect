@@ -246,4 +246,3 @@ void uiDipFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	params += EvalParam( SI().zIsTime() ? "Maximum velocity" :"Maximum dip",
 			     DipFilter::maxvelStr() );
 }
-

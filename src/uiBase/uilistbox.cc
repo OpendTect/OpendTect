@@ -1498,5 +1498,3 @@ void uiListBox::getCheckedItems( TypeSet<int>& items ) const
 	if ( isItemChecked(idx) )
 	    items += idx;
 }
-
-

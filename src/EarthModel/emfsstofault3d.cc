@@ -715,4 +715,3 @@ bool FSStoFault3DConverter::writeSection( const SectionID& sid ) const
 
 
 }; // namespace EM
-

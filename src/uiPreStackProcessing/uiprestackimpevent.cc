@@ -90,4 +90,3 @@ bool uiEventImport::acceptOK( CallBacker* )
 }
 
 }; //namespace
-

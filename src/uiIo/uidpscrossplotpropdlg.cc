@@ -954,4 +954,3 @@ bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
     plotter_.dataChanged();
     return true;
 }
-

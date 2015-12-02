@@ -312,5 +312,3 @@ protected:
 };
 
 #endif
-
-

@@ -345,4 +345,3 @@ void uiStatsDisplayWin::setMarkValue( float val, bool forx, int idx )
     if ( disps_.validIdx(idx) )
 	disps_[idx]->setMarkValue( val, forx );
 }
-

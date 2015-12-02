@@ -187,4 +187,3 @@ void uiConvertPos::convFile( CallBacker* )
     uiMSG().message(tr("Total number of converted lines: %1")
 		  .arg(toString(nrln)));
 }
-

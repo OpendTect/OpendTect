@@ -373,4 +373,3 @@ void uiBuildListFromList::setCurDefSel( const char* nm )
 {
     deffld_->setCurrentItem( nm );
 }
-

@@ -617,4 +617,3 @@ void SEGY::FileDataSet::setIndexer( Seis::PosIndexer* n )
     indexer_ = n;
     if ( indexer_ ) indexer_->empty();
 }
-

@@ -93,5 +93,3 @@ protected:
 } // namespace EM
 
 #endif
-
-

@@ -447,4 +447,3 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 
 
 }; // namespace visBase
-

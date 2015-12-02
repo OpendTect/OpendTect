@@ -184,4 +184,3 @@ int IODirEntryList::indexOf( const char* nm ) const
     }
     return -1;
 }
-

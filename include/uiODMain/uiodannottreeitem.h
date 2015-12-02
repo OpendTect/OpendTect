@@ -227,4 +227,3 @@ mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000);
 
 
 #endif
-

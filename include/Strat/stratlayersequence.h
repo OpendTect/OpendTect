@@ -98,5 +98,3 @@ protected:
 }; // namespace Strat
 
 #endif
-
-

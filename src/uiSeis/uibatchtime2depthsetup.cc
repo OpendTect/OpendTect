@@ -209,4 +209,3 @@ bool uiBatchTime2DepthSetup::acceptOK( CallBacker* )
 
     return batchfld_->start();
 }
-

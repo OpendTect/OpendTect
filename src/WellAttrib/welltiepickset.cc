@@ -174,5 +174,3 @@ void PickSetMgr::sortByPos( TypeSet<Marker>& pickset )
 }
 
 } // namespace WellTie
-
-

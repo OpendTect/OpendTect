@@ -6,5 +6,3 @@
   "conduit_uri" : 		"https://phabricator.dgbes.com:8443",
   "base" :	  		"git:merge-base(origin/@MAIN_GIT_BRANCH@), arc:prompt"
 }
-
-

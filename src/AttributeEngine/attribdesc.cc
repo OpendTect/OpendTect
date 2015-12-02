@@ -834,4 +834,3 @@ Desc* Desc::cloneDescAndPropagateInput( const DescID& newinputid,
 
 
 }; // namespace Attrib
-

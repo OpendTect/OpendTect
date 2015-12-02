@@ -66,4 +66,3 @@ mDefModInitFn(Attributes)
     Attrib::Texture::initClass();
     Attrib::VolStats::initClass();
 }
-

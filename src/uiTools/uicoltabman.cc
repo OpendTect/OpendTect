@@ -628,4 +628,3 @@ void uiColorTableMan::importColTab( CallBacker* )
 	selChg(0);
     }
 }
-

@@ -188,4 +188,3 @@ bool OD::String::toBool() const
 {
     return ::toBool( str() );
 }
-

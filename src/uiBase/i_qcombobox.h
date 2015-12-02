@@ -70,4 +70,3 @@ void editTextChanged( const QString& )
 QT_END_NAMESPACE
 
 #endif
-

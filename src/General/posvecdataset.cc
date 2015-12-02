@@ -525,4 +525,3 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 
     return true;
 }
-

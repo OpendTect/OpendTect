@@ -430,5 +430,3 @@ bool SeisCBVS2DLinePutter::close()
     if ( ret ) errmsg_ = tr_->errMsg();
     return ret;
 }
-
-

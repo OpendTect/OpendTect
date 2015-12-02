@@ -754,4 +754,3 @@ bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
 
     return res;
 }
-

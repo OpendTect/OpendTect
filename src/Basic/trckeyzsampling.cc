@@ -1112,4 +1112,3 @@ bool TrcKeySamplingIterator::next( BinID& res ) const
     res = tks_.atIndex( mypos );
     return true;
 }
-

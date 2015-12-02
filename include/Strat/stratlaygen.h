@@ -95,5 +95,3 @@ public: \
 }; // namespace Strat
 
 #endif
-
-

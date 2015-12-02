@@ -331,6 +331,3 @@ void uiMultiAttribSel::moveDown( CallBacker* )
 
 void uiMultiAttribSel::getSelIds( TypeSet<Attrib::DescID>& ids ) const
 { ids = selids_; }
-
-
-

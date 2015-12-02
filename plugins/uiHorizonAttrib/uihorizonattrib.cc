@@ -176,5 +176,3 @@ void uiHorizonAttrib::typeSel(CallBacker*)
     isrelbox_->display( isz );
     surfdatafld_->display( !isz );
 }
-
-

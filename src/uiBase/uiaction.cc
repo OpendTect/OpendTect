@@ -651,6 +651,3 @@ void uiActionContainer::reloadIcons()
 {
     mObjectSetApplyToAll( actions_, actions_[idx]->reloadIcon() );
 }
-
-
-

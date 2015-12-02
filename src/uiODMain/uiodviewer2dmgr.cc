@@ -1190,4 +1190,3 @@ void uiODViewer2DMgr::addPickSets( const TypeSet<MultiID>& mids )
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addPickSets( mids );
 }
-

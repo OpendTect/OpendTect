@@ -187,4 +187,3 @@ public:
 } // namespace Math
 
 #endif
-

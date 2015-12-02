@@ -387,4 +387,3 @@ bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
     if ( !ioobj ) return false;
     return ioobj->implSetReadOnly( yn );
 }
-

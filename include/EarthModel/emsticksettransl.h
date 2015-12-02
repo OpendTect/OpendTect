@@ -177,5 +177,3 @@ protected:
 #define mLMK_CONTROL_PT		4
 
 #endif
-
-

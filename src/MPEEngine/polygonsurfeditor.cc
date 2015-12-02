@@ -535,4 +535,3 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 
 
 };  // namespace MPE
-

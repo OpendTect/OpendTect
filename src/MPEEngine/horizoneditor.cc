@@ -86,4 +86,3 @@ Geometry::ElementEditor* Horizon2DEditor::createEditor(const EM::SectionID& sid)
 }
 
 } // namespace MPE
-

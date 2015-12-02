@@ -49,4 +49,3 @@ enum	GeometryType{ Triangle = 0, Line,Point, WireFrame };
     section op displaycrg_ : section op geometry_->colRange();\
 
 #endif
-

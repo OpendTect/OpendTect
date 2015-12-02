@@ -372,5 +372,3 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 
 #endif
-
-

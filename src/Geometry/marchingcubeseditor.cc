@@ -232,4 +232,3 @@ void MarchingCubesSurfaceEditor::reportShapeChange( bool kernelchange )
 
     shapeChange.trigger();
 }
-

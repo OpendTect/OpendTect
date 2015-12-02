@@ -364,4 +364,3 @@ const Interval<float>* Semblance::desZMargin( int inp, int ) const
 }
 
 } // namespace Attrib
-

@@ -20,4 +20,3 @@ mDefModInitFn(uiWellAttrib)
     uiStratLayerModel::initClass();
     uiWellLogAttrib::initClass();
 }
-

@@ -698,5 +698,3 @@ bool uiContinuousCurvatureHor3DInterpol::usePar( const IOPar& par )
 {
     return true;
 }
-
-

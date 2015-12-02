@@ -156,4 +156,3 @@ const char* Poly2HorVol::dispText( float m3, bool zinft )
 
     return txt.buf();
 }
-

@@ -122,4 +122,3 @@ inline od_ostream& od_ostream::addBin( const T& t )
 
 
 #endif
-

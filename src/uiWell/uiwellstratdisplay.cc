@@ -214,4 +214,3 @@ void WellStratUnitGen::assignTimesToAllUnits()
 	}
     }
 }
-

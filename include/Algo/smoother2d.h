@@ -234,4 +234,3 @@ Task::Control Smoother2D<T>::getState() const
 { return convolver_.getState(); }
 
 #endif
-

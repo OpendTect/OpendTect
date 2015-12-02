@@ -26,4 +26,3 @@ typedef od_int64	od_stream_Pos;
 
 
 #endif
-

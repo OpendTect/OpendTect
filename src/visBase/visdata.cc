@@ -352,8 +352,3 @@ void DataObject::requestSingleRedraw()
         commonviewer_->getView(0)->requestRedraw();
     }
 }
-
-
-
-
-

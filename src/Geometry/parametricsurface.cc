@@ -445,5 +445,3 @@ void ParametricSurface::trimUndefParts()
 }
 
 } // namespace Geometry
-
-

@@ -201,4 +201,3 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	              "\nDo you want to export more Wavelets?");
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }
-

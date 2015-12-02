@@ -41,5 +41,3 @@ protected:
 } // namespace PreStack
 
 #endif
-
-

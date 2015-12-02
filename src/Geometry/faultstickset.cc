@@ -521,4 +521,3 @@ bool FaultStickSet::isKnotHidden( const RowCol& rc, int sceneidx ) const
 
 
 } // namespace Geometry
-

@@ -282,4 +282,3 @@ bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
 
     return myid == iopid;
 }
-

@@ -1651,4 +1651,3 @@ bool uiEMPartServer::usePar( const IOPar& par )
     EM::HPreL().load( mids, &uitr );
     return true;
 }
-

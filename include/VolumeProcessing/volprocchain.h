@@ -346,5 +346,3 @@ private:
 } // namespace VolProc
 
 #endif
-
-

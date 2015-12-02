@@ -600,4 +600,3 @@ void VolStats::getIdealStackPos(
 }
 
 } // namespace Attrib
-

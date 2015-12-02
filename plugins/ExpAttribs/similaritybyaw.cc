@@ -322,4 +322,3 @@ const Interval <int>* SimilaritybyAW::desZSampMargin(int inp, int ) const
 
 
 }
-

@@ -54,4 +54,3 @@ macro( OD_CREATE_INIT_HEADER )
     configure_file( ${OpendTect_DIR}/CMakeModules/templates/moduleheader.h.in 
 		    ${INITHEADER} )
 endmacro()
-

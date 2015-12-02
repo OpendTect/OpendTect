@@ -158,5 +158,3 @@ void Element::triggerNrPosCh()
 }
 
 }; //Namespace
-
-

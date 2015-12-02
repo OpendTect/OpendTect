@@ -1349,4 +1349,3 @@ void Scene::savePropertySettings()
 }
 
 } // namespace visSurvey
-

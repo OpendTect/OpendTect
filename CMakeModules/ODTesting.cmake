@@ -152,5 +152,3 @@ macro ( OD_ADD_LINT_TEST )
          	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
     endif()
 endmacro()
-
-

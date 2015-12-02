@@ -227,4 +227,3 @@ void uiPositionTable::setRowColor( int rid, bool includes )
     for ( int colid=0; colid<table_->nrCols(); colid++ )
 	table_->setColor( RowCol(rid,colid), col );
 }
-

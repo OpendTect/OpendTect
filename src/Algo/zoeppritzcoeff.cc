@@ -226,4 +226,3 @@ float_complex getFastCoeff( float par, const ElasticLayer& el1,
 
     return float_complex( A + B + C , 0 );
 }
-

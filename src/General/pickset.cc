@@ -889,4 +889,3 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 
     return true;
 }
-

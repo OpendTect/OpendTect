@@ -211,4 +211,3 @@ void Pos::TableProvider3D::initClass()
 {
     Pos::Provider3D::factory().addCreator( create, sKey::Table() );
 }
-

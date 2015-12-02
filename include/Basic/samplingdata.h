@@ -187,4 +187,3 @@ bool SamplingData<T>::isUdf() const
 { return mIsUdf(start) || mIsUdf(step); }
 
 #endif
-

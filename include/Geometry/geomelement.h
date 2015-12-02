@@ -94,5 +94,3 @@ private:
 } // namespace Geometry
 
 #endif
-
-

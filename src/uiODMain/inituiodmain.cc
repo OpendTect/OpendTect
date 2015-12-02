@@ -25,4 +25,3 @@ mDefModInitFn(uiODMain)
     uiKeyBindingSettingsGroup::initClass();
     VolProc::uiDataTreeItem::initClass();
 }
-

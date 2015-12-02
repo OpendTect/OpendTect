@@ -351,6 +351,3 @@ void GenericTransformND::Transform1D::setScope( int nr, const int* batchstarts )
     nr_ = nr;
     batchstarts_ = batchstarts;
 }
-
-
-

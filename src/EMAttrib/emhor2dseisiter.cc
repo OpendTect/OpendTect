@@ -120,4 +120,3 @@ int EM::Hor2DSeisLineIterator::lineSetIndex( const char* attrnm ) const
 
     return -1;
 }
-

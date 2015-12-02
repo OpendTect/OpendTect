@@ -374,4 +374,3 @@ bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
     uiLatLong2CoordDlg dlg( p, si->latlong2Coord(), si );
     return dlg.go();
 }
-

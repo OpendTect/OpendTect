@@ -309,4 +309,3 @@ void calcFingParsObject::saveValsAndRanges( const TypeSet<float>& vals,
 	}
     }
 }
-

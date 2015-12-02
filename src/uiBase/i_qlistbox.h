@@ -117,4 +117,3 @@ void itemChanged( QListWidgetItem* itm )
 QT_END_NAMESPACE
 
 #endif
-

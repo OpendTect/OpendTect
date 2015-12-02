@@ -129,5 +129,3 @@ private:
 }
 
 #endif
-
-

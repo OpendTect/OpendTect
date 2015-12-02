@@ -325,4 +325,3 @@ int uiEMAttribPartServer::getShiftedObjectVisID() const
 {
     return horshiftdlg_ ? horshiftdlg_->visID() : -1;
 }
-

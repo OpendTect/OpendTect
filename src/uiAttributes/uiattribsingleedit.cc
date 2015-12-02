@@ -82,4 +82,3 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
     nmchgd_ = oldnm != newnm;
     return true;
 }
-

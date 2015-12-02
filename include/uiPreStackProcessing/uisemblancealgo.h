@@ -38,5 +38,3 @@ protected:
 }; //namespace
 
 #endif
-
-

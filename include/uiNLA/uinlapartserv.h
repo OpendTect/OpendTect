@@ -131,5 +131,3 @@ protected:
 };
 
 #endif
-
-

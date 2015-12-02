@@ -30,4 +30,3 @@ public:
 } //namspace visBase
 
 #endif
-

@@ -133,5 +133,3 @@ private:
 } // namespace EM
 
 #endif
-
-

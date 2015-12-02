@@ -499,4 +499,3 @@ void uiIOFileSelect::usePar( const IOPar& iopar )
     const char* res = iopar.find( "File name" );
     if ( res ) setInput( res );
 }
-

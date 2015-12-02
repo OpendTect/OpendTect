@@ -373,4 +373,3 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
     wd_->logs().removeTopBottomUdfs();
     return 0;
 }
-

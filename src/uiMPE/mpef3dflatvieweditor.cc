@@ -616,4 +616,3 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
 }
 
 } //namespace MPE
-

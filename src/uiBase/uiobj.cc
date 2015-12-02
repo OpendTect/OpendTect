@@ -656,4 +656,3 @@ bool uiObject::handleLongTabletPress()
 
     return parent()->mainObject()->handleLongTabletPress();
 }
-

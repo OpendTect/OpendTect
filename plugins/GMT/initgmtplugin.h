@@ -19,5 +19,3 @@ namespace GMT
     mGlobal(GMT) void initStdClasses();
 }
 #endif
-
-

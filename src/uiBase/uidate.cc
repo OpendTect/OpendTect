@@ -134,6 +134,3 @@ void uiDateSel::showCalendarCB( CallBacker* )
 	setDate( cal->getDate() );
     }
 }
-
-
-

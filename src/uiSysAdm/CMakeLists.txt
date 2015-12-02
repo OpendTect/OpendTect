@@ -13,4 +13,3 @@ set(OD_MODULE_SOURCES uiodsysadm.cc uiodsysadmcoltabs.cc )
 set( OD_MODULE_PROGS od_sysadmmain.cc  )
 
 OD_INIT_MODULE()
-

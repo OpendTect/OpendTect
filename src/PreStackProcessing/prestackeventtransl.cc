@@ -116,4 +116,3 @@ Executor* dgbPSEventTranslator::createSaveAs( PreStack::EventManager& pse,
     grp->add( new PreStack::EventWriter( newstorage, pse ) );
     return grp;
 }
-

@@ -364,5 +364,3 @@ http://msdn.microsoft.com/library/default.asp?
 #endif /* __win__ */
 
 #endif
-
-

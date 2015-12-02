@@ -106,4 +106,3 @@ void FontData::putTo( BufferString& s ) const
     fms += getYesNoString( italic_ );
     s = fms;
 }
-

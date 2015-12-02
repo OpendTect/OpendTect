@@ -1648,4 +1648,3 @@ void RandomTrackDisplay::draggerRightClick( CallBacker* )
 }
 
 } // namespace visSurvey
-

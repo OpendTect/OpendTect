@@ -945,4 +945,3 @@ bool uiMPEPartServer::usePar( const IOPar& par )
 
     return res;
 }
-

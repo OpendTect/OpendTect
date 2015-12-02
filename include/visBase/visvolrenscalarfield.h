@@ -146,5 +146,3 @@ protected:
 }
 
 #endif
-
-

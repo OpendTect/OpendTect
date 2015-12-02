@@ -133,4 +133,3 @@ void uiShiftAttrib::steerTypeSel( CallBacker* )
 	}
     }
 }
-

@@ -65,5 +65,3 @@ private:
 };
 
 #endif
-
-

@@ -394,4 +394,3 @@ StepInterval<int> HorizonScanner::crlRg() const
 
 bool HorizonScanner::gapsFound( bool inl ) const
 { return dtctor_.haveGaps(inl); }
-

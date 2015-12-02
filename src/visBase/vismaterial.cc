@@ -486,4 +486,3 @@ void Material::clear()
 
 
 }; // namespace visBase
-

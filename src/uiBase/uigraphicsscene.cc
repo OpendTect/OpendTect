@@ -682,4 +682,3 @@ const uiSize uiGraphicsObjectScene::layoutSize() const
 				    (int)layoutitem_->size().rheight() )
 			  : uiSize(0,0) );
 }
-

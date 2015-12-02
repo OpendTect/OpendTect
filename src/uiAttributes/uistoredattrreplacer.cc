@@ -575,4 +575,3 @@ void uiStoredAttribReplacer::removeDescsWithBlankInp(
 	    attrset_->removeDesc( descid );
     }
 }
-

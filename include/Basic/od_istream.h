@@ -113,4 +113,3 @@ inline od_istream& od_istream::getBin( T& t )
 
 
 #endif
-

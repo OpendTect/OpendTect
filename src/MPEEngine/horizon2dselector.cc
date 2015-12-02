@@ -33,4 +33,3 @@ int Horizon2DSelector::nextStep()
 }
 
 } // namespace MPE
-

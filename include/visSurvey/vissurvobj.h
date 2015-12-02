@@ -383,5 +383,3 @@ protected:
 } // namespace visSurvey
 
 #endif
-
-

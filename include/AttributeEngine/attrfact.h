@@ -26,4 +26,3 @@ uiString AttribDescSetTranslatorGroup::sTypeName(int num)
 
 
 #endif
-

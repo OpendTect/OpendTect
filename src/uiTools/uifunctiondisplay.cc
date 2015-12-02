@@ -778,4 +778,3 @@ void uiFunctionDisplay::dump( od_ostream& strm, bool y2 ) const
     for ( int idx=0; idx<xvals.size(); idx++ )
 	strm << xvals[idx] << od_tab << yvals[idx] << od_endl;
 }
-

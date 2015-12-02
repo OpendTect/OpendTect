@@ -490,5 +490,3 @@ protected:
 };
 
 #endif
-
-

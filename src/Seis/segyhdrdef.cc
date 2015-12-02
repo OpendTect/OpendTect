@@ -531,4 +531,3 @@ void SEGY::TrcHeaderDef::fromSettings()
     usePar( *useiop );
     delete subiop;
 }
-

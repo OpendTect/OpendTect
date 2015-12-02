@@ -272,4 +272,3 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
 
 
 } // namespace PreStack
-

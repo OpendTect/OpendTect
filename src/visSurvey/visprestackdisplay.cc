@@ -1078,4 +1078,3 @@ bool PreStackDisplay::usePar( const IOPar& par )
 
 
 } // namespace visSurvey
-

@@ -135,4 +135,3 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 
     return true;
 }
-

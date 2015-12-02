@@ -555,4 +555,3 @@ const Interval<float>* Similarity::desZMargin( int inp, int ) const
 
 
 }; //namespace
-

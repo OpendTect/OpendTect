@@ -177,4 +177,3 @@ int OD::ModDepMgr::getLoadIdx( const char* nm ) const
 {
     return loadedmods_.indexOf( nm );
 }
-

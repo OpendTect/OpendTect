@@ -27,4 +27,3 @@ MMProc::ExecProxy::Status MMProc::ExecProxy::update()
 {
     return NotStarted;
 }
-

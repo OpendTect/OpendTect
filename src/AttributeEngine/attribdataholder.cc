@@ -280,4 +280,3 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
 
 
 } // namespace Attrib
-

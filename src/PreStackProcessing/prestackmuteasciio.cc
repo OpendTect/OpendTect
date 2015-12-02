@@ -128,4 +128,3 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 }
 
 } // namespace PreStack
-

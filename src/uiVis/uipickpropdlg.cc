@@ -133,4 +133,3 @@ bool uiPickPropDlg::acceptOK( CallBacker* )
 {
     return true;
 }
-

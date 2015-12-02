@@ -265,4 +265,3 @@ private:
 } // namespace visBase
 
 #endif
-

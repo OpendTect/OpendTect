@@ -259,5 +259,3 @@ private:
 };
 
 #endif
-
-

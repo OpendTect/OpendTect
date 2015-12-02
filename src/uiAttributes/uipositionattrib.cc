@@ -137,4 +137,3 @@ void uiPositionAttrib::steerTypeSel( CallBacker* )
 	}
     }
 }
-

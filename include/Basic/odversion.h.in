@@ -23,4 +23,3 @@ permanent changes.
 #define mODVersion		@OpendTect_VERSION_MAJOR@@OpendTect_VERSION_MINOR@@OpendTect_VERSION_PATCH@
 
 #endif
-

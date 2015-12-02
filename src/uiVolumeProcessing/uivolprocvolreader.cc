@@ -78,4 +78,3 @@ bool uiVolumeReader::acceptOK( CallBacker* cb )
 }
 
 } // namespace VolProc
-

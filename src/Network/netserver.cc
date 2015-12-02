@@ -214,4 +214,3 @@ bool Network::Server::waitForNewConnection( int msec )
     return false;
 #endif
 }
-

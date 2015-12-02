@@ -481,4 +481,3 @@ void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 
     interpol_->setFillType( Array2DInterpol::Full );
 }
-

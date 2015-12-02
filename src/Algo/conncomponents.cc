@@ -639,5 +639,3 @@ void ConnComponents3D::addToComponent(
 	    addToComponent( comps, nextslice, idx, usedcomps, rescomp );
     }
 }
-
-

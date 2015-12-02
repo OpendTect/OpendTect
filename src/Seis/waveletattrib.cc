@@ -279,4 +279,3 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
     for ( int idx=0; idx<wvltsz_; idx++ )
 	timedata.set( idx, ctimearr.get( idx + padshift ).real() );
 }
-

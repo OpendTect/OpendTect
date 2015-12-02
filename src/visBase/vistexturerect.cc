@@ -255,4 +255,3 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
     }
     
 }
-

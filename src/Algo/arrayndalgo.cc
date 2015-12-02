@@ -287,5 +287,3 @@ void PolyTrend::initCenter( const TypeSet<Coord>& pos )
     posc_.x /= (double)sz;
     posc_.y /= (double)sz;
 }
-
-

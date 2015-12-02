@@ -199,5 +199,3 @@ protected:
 };
 
 #endif
-
-

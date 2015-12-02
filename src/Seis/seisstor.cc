@@ -404,4 +404,3 @@ bool Seis::ODSeqOut::put( const SeisTrc& trc )
     }
     return true;
 }
-

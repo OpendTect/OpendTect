@@ -292,4 +292,3 @@ void uiSurveyMap::reDraw( bool deep )
 {
     uiBaseMap::reDraw( deep );
 }
-

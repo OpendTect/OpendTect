@@ -25,4 +25,3 @@ mDefModInitFn(Strat)
     
     Strat::SingleLayerGenerator::initClass();
 }
-

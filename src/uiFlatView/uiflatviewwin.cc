@@ -201,4 +201,3 @@ uiFlatViewDockWin::uiFlatViewDockWin( uiParent* p,
 uiFlatViewDockWin::~uiFlatViewDockWin()
 {
 }
-

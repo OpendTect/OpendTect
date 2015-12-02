@@ -798,4 +798,3 @@ mDefFltisCompat(float)
 mDefFltisCompat(double)
 
 #endif
-

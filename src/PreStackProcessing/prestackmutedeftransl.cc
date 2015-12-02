@@ -268,4 +268,3 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 
     return "Error during write to output Mute Definition file";
 }
-

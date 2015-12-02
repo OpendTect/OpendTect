@@ -19,4 +19,3 @@ mDefModInitFn(uiVis)
     
     uiHorizonSettings::initClass();
 }
-

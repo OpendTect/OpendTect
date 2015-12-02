@@ -99,5 +99,3 @@ protected:
 };
 
 #endif
-
-

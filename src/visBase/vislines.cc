@@ -21,4 +21,3 @@ Lines::Lines()
 {}
 
 } // namspace visBase
-

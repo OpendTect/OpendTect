@@ -835,4 +835,3 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
     Strat::eLVLS().levelChanged.trigger();
     return true;
 }
-

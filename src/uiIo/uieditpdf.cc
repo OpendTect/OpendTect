@@ -852,4 +852,3 @@ bool uiEditGaussianProbDenFunc::commitChanges()
     const_cast<ProbDenFunc&>(inpdf_).copyFrom( pdf_ );
     return true;
 }
-

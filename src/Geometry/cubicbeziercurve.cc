@@ -364,5 +364,3 @@ Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
 
 
 }; //Namespace
-
-

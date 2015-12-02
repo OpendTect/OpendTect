@@ -202,5 +202,3 @@ void uiLegendItem::setProperties()
     setItemIgnoresTransformations( true );
     setMovable( true );
 }
-
-

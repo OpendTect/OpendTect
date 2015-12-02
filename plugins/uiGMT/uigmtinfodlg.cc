@@ -102,4 +102,3 @@ void uiGMTInfoDlg::selCB( CallBacker* )
 	gmtpath_->display( chkbut_->isChecked() );
     }
 }
-

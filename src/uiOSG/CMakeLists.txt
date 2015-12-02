@@ -22,4 +22,3 @@ set(OD_MODULE_SOURCES
 
 set(OD_MODULE_PROGS od_osgfileviewer.cc )
 OD_INIT_MODULE()
-

@@ -822,4 +822,3 @@ int Table::AscIO::columnOf( bool hdr, int iinf,int ielem ) const
 
     return tis[iinf]->selection_.elems_[ielem].pos_.col();
 }
-

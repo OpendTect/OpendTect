@@ -201,4 +201,3 @@ bool ODMad::Proc::usePar( const IOPar& par )
     makeProc( cmd, auxcmd );
     return true;
 }
-

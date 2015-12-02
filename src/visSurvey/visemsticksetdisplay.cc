@@ -318,4 +318,3 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	}
     }
 }
-

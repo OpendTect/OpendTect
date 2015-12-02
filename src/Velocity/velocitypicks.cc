@@ -1159,4 +1159,3 @@ const char* PicksMgr::errMsg() const
 
 
 };
-

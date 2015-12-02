@@ -59,5 +59,3 @@ protected:
 
 
 #endif
-
-

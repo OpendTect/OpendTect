@@ -22,4 +22,3 @@ uiString PickSetTranslatorGroup::sTypeName( int num)
 { return uiStrings::sPickSet( num ); }
 
 #endif
-

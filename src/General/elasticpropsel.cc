@@ -621,4 +621,3 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 
     return true;
 }
-

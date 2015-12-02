@@ -368,4 +368,3 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 
     return true;
 }
-

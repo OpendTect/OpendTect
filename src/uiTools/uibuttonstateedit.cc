@@ -82,5 +82,3 @@ uiString uiButtonStateEdit::createName( int status )
 
     return res;
 }
-
-

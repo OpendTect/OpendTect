@@ -582,4 +582,3 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     seq.layers() += newlay;
     return true;
 }
-

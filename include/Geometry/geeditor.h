@@ -65,6 +65,3 @@ protected:
 };
 
 #endif
-
-
-

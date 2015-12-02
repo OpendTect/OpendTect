@@ -97,4 +97,3 @@ bool uiPreStackMMProc::initWork( bool retry )
     jobrunner_ = new JobRunner( dp, "od_process_prestack" );
     return true;
 }
-

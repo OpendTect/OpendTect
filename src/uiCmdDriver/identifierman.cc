@@ -345,4 +345,3 @@ const char* IdentifierManager::lastLinkedIdentStr() const
 
 
 }; // namespace CmdDrive
-

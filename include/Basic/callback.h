@@ -461,5 +461,3 @@ Notifier<clss>& clss::instanceCreated() \
 
 
 #endif
-
-

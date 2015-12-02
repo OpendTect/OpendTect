@@ -29,5 +29,3 @@ set(OD_MODULE_SOURCES
 		welltieunitfactors.cc
 )
 OD_INIT_MODULE()
-
-

@@ -56,4 +56,3 @@ bool PosID::usePar( const IOPar& par )
 }
 
 } // namespace EM
-

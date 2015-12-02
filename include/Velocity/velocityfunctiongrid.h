@@ -117,4 +117,3 @@ protected:
 } // namespace Vel
 
 #endif
-

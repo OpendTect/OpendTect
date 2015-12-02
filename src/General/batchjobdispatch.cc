@@ -257,4 +257,3 @@ bool Batch::SingleJobDispatcher::launch()
     jobspec_.execpars_.monitorfnm( logfile );
     return cl.execute( jobspec_.execpars_ );
 }
-

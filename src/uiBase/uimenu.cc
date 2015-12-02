@@ -281,4 +281,3 @@ void uiMenu::doRemoveAction( mQtclass(QAction)* action )
 
 QWidget* uiMenu::getWidget()
 { return qmenu_; }
-

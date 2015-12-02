@@ -27,4 +27,3 @@ mExportTemplClassInst(Algo) MathFunction<float,float>;
 # endif
 
 #endif
-

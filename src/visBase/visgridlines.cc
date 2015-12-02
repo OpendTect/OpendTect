@@ -352,5 +352,3 @@ void GridLines::setPixelDensity( float dpi )
 
 
 } // namespace visBase
-
-

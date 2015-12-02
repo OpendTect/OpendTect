@@ -345,5 +345,3 @@ protected:
 };
 
 #endif
-
-

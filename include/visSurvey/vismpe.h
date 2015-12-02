@@ -276,6 +276,3 @@ protected:
 }; // namespace visSurvey
 
 #endif
-
-
-

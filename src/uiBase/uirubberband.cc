@@ -54,4 +54,3 @@ void uiRubberBand::stop( QMouseEvent* event )
     handleEv( event, false );
     qrubberband_->hide();
 }
-

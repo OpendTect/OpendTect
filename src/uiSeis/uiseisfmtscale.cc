@@ -270,4 +270,3 @@ void uiSeisFmtScale::fillOtherPars( IOPar& iop ) const
     scalefld_->fillPar( iop );
     iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcToSI() );
 }
-

@@ -1735,5 +1735,3 @@ void uiTable::popupVirtualKeyboard( int globalx, int globaly )
 	virkeyboard.show();
     }
 }
-
-

@@ -822,5 +822,3 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
 
     return true;
 }
-
-

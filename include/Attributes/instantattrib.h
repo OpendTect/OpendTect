@@ -74,5 +74,3 @@ private:
 }; // namespace Attrib
 
 #endif
-
-

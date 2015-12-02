@@ -172,4 +172,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

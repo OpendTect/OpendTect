@@ -398,7 +398,3 @@ bool uiEditSEGYFileDataDlg::acceptOK( CallBacker* )
     return SEGY::DirectDef::updateFooter( ioobj_.fullUserExpr(true), filepars_,
 					  fileparsoffset_ );
 }
-
-
-
-

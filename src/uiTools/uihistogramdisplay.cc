@@ -296,4 +296,3 @@ void uiHistogramDisplay::putN()
     nitm_->setPenColor( Color::Black() );
     nitm_->setZValue( 99999 );
 }
-

@@ -757,4 +757,3 @@ int uiStratRefTree::getChildIdxFromTime( const Strat::NodeUnitRef& nur,
     }
     return nur.nrRefs();
 }
-

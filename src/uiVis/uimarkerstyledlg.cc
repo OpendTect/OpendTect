@@ -39,4 +39,3 @@ bool uiMarkerStyleDlg::acceptOK( CallBacker* )
     stylefld_->getMarkerStyle( style ); //just to process text input on fld
     return true;
 }
-

@@ -896,4 +896,3 @@ void uiMarkerViewDlg::exportCB( CallBacker* )
 
     uiMarkerDlg::exportMarkerSet( this, wd_->markers(), wd_->track() );
 }
-

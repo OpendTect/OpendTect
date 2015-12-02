@@ -184,4 +184,3 @@ bool RowColIterator::nextSection()
 }
 
 } // namespace EM
-

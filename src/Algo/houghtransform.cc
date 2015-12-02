@@ -611,7 +611,3 @@ bool LineFrom2DSpaceHoughTransform::setLineFlag(float radius, float theta)
 
     return true;
 }*/
-
-
-
-

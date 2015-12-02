@@ -43,4 +43,3 @@ set(OD_MODULE_SOURCES
 		viswelldisplay.cc
 )
 OD_INIT_MODULE()
-

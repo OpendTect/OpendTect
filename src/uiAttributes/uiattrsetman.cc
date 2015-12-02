@@ -98,4 +98,3 @@ void uiAttrSetMan::mkFileInfo()
     txt += getFileInfo();
     setInfo(txt);
 }
-

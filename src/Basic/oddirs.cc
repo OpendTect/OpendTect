@@ -607,4 +607,3 @@ mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
     ret = FilePath( GetSettingsDir(), fnm ).fullPath();
     return ret;
 }
-

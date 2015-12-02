@@ -27,5 +27,3 @@ struct ProcessTime2Depth
 
 
 #endif
-
-

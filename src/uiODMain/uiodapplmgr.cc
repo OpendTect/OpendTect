@@ -1961,4 +1961,3 @@ void uiODApplMgr::MiscSurvInfo::refresh()
     zunit_ = SI().zUnit();
     zstep_ = SI().zStep();
 }
-

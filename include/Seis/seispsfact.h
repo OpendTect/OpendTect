@@ -37,4 +37,3 @@ defineTranslator(SEGYDirect,SeisPS2D,mSEGYDirectTranslNm);
 
 
 #endif
-

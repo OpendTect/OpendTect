@@ -334,4 +334,3 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
     IOM().commitChanges( *iostrm );
     return ret;
 }
-

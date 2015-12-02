@@ -993,5 +993,3 @@ int CubicBezierSurface::nrCols() const
 { return positions ? positions->info().getSize(colDim()) : 0; }
 
 };
-
-

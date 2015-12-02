@@ -116,4 +116,3 @@ inline bool BinID::fromString( const char* str )
 }
 
 #endif
-

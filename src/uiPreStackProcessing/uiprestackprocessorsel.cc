@@ -132,4 +132,3 @@ void uiProcSel::editPushCB( CallBacker* )
 
 
 }; //namespace
-

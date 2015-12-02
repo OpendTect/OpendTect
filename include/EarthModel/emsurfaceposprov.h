@@ -363,4 +363,3 @@ protected:
 } // namespace Pos
 
 #endif
-

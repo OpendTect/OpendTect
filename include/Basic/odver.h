@@ -39,5 +39,3 @@ mGlobal(Basic) void			AddLegalInformation(const char*);
 
 
 #endif
-
-

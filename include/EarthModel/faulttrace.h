@@ -259,4 +259,3 @@ protected:
 };
 
 #endif
-

@@ -95,4 +95,3 @@ void uiListBoxFilter::getChosen( TypeSet<int>& idxs ) const
 	idxs += availitems_.indexOf( lb_.textOfItem(chidx) );
     }
 }
-

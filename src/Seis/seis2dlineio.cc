@@ -538,4 +538,3 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
 	}
     }
 }
-

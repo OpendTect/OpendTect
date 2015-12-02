@@ -78,4 +78,3 @@ mGlobal(Well) WellDataIOProviderFactory& WDIOPF();
 
 
 #endif
-

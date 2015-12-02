@@ -98,4 +98,3 @@ bool RemoveZDomainTag( IOObj& ioobj, BufferString& res )
     ioobj.pars().removeWithKey( ZDomain::sKey() );
     return IOM().commitChanges( ioobj );
 }
-

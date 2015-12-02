@@ -74,4 +74,3 @@ void KeyboardEventHandler::trigger##fn( const KeyboardEvent& ev ) \
 
 mImplKeyboardEventHandlerFn(KeyPressed,keyPressed)
 mImplKeyboardEventHandlerFn(KeyReleased,keyReleased)
-

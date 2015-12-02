@@ -130,4 +130,3 @@ bool uiWellLogAttrib::getOutput( Attrib::Desc& desc )
 void uiWellLogAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
 }
-

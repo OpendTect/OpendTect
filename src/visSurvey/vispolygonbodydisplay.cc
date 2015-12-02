@@ -1012,4 +1012,3 @@ void PolygonBodyDisplay::setPixelDensity( float dpi )
 
 
 }; // namespace visSurvey
-

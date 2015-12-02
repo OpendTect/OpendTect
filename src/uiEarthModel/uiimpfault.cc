@@ -386,4 +386,3 @@ bool uiImportFaultStickSet2D::acceptOK( CallBacker* )
     if ( !checkInpFlds() ) return false;
     return handleAscii();
 }
-

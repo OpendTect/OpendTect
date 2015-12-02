@@ -261,4 +261,3 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 
 
 } //namespace
-

@@ -162,4 +162,3 @@ bool uiStratEditLayer::acceptOK( CallBacker* )
 
     return true;
 }
-

@@ -276,4 +276,3 @@ void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
 
     selChg( 0 );
 }
-

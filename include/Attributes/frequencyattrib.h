@@ -147,5 +147,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-
-

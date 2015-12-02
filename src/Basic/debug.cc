@@ -576,4 +576,3 @@ FixedString CrashDumper::sUiSenderAppl()
 } // namespace System
 
 #endif // mUseCrashDumper
-

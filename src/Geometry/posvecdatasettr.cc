@@ -25,4 +25,3 @@ bool odPosVecDataSetTranslator::write( const IOObj& ioobj,
 {
     return vds.putTo( ioobj.fullUserExpr(false), errmsg_, false );
 }
-

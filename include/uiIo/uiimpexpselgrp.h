@@ -223,5 +223,3 @@ protected:
 };
 
 #endif
-
-

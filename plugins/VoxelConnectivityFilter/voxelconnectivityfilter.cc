@@ -611,4 +611,3 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
 }
 
 }; //Namespace
-

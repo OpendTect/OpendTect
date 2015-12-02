@@ -126,4 +126,3 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
 
     return true;
 }
-

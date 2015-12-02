@@ -20,6 +20,7 @@ final class TextLinter extends ArcanistLinter {
   const LINT_FORBIDDEN_WORD		= 9;
   const LINT_LOCAL_STATIC		= 10;
   const LINT_TR_IN_MACRO		= 11;
+  const LINT_NEWLINES_BEFORE_EOF	= 12;
 
   private $maxLineLength = 80;
   private $nrautofixes = 0;
@@ -43,13 +44,12 @@ final class TextLinter extends ArcanistLinter {
 
   public function getLintSeverityMap() {
     if ( $this->nrautofixes>1 )
-      return array(
-	self::LINT_TRAILING_WHITESPACE =>ArcanistLintSeverity::SEVERITY_AUTOFIX,
-      );
+      return array();
 
     return array(
       self::LINT_TRAILING_WHITESPACE => ArcanistLintSeverity::SEVERITY_AUTOFIX,
       self::LINT_SPACE_ALIGNMENT     => ArcanistLintSeverity::SEVERITY_AUTOFIX,
+      self::LINT_NEWLINES_BEFORE_EOF => ArcanistLintSeverity::SEVERITY_AUTOFIX
     );
   }
 
@@ -66,6 +66,7 @@ final class TextLinter extends ArcanistLinter {
       self::LINT_FORBIDDEN_WORD 	=> pht('Forbidden words'),
       self::LINT_LOCAL_STATIC 		=> pht('Local static variable'),
       self::LINT_TR_IN_MACRO 		=> pht('tr() statement in macro'),
+      self::LINT_NEWLINES_BEFORE_EOF 	=> pht('Empty lines at end of file'),
     );
   }
 
@@ -109,6 +110,7 @@ final class TextLinter extends ArcanistLinter {
 
     $this->lintEOFNewline($path);
     $this->lintTrailingWhitespace($path);
+    $this->lintNewlineAtEOF($path);
     $this->lintTrInMacro($path);
 
     if (!$iscmake) {
@@ -211,6 +213,31 @@ final class TextLinter extends ArcanistLinter {
       if ($this->isMessageEnabled(self::LINT_EOF_NEWLINE)) {
         $this->stopAllLinters();
       }
+    }
+  }
+
+
+  protected function lintNewlineAtEOF($path) {
+    $data = $this->getData($path);
+     
+    for ( $idx=strlen($data)-2; $idx>=0; $idx-- )
+    {
+	if ( $data[$idx]!="\n" )
+	{
+	    if ( $idx<strlen($data)-2 )
+	    {
+	      $this->raiseLintAtOffset(
+		$idx+2,
+		self::LINT_NEWLINES_BEFORE_EOF,
+		'There are empty lines at end of file. Please remove.',
+		"\n",
+		"");
+
+		$this->nrautofixes++;
+		return;
+	    }
+	    break;
+	}
     }
   }
 
@@ -384,8 +411,6 @@ final class TextLinter extends ArcanistLinter {
         self::LINT_TR_IN_MACRO,
         'This line a tr() call inside a macro, which is not allowed.' );
     }
-
-    $this->nrautofixes++;
   }
 
   private function lintNoCommit($path) {

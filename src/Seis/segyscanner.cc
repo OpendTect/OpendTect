@@ -290,4 +290,3 @@ void SEGY::Scanner::initFileData()
 
     fds_.addFile( fnms_.get(curfidx_) );
 }
-

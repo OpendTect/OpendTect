@@ -219,5 +219,3 @@ bool SincInterpolator::initTable( float fmax, int lmax )
 
     return table_;
 }
-
-

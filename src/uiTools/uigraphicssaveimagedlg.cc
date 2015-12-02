@@ -122,4 +122,3 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
     }
 }
-

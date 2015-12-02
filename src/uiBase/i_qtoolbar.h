@@ -59,4 +59,3 @@ void orientationChanged( Qt::Orientation )
 QT_END_NAMESPACE
 
 #endif
-

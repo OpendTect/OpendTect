@@ -467,4 +467,3 @@ void PolygonSurface::addUdfPolygon( int polygonnr, int firstknotnr, int nrknots)
 
 
 } // namespace Geometry
-

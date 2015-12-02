@@ -433,4 +433,3 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
 
     return true;
 }
-

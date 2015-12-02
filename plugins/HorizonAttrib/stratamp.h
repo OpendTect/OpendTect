@@ -73,5 +73,3 @@ protected:
     Attrib::Processor*		proc_;
 };
 #endif
-
-

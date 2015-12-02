@@ -773,5 +773,3 @@ bool EventTracker::usePar( const IOPar& iopar )
 
     return true;
 }
-
-

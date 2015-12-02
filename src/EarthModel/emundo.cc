@@ -338,4 +338,3 @@ bool EM::SetPrefColorEvent::reDo()
     emobj->setPreferredColor( newcolor_, false );
     return true;
 }
-

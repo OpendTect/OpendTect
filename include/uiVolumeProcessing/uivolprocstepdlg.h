@@ -58,5 +58,3 @@ protected:
 } // namespace VolProc
 
 #endif
-
-

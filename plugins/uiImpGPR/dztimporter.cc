@@ -187,4 +187,3 @@ int DZT::Importer::nextStep()
     nrdone_++;
     return istream_.isOK() ? MoreToDo() : closeAll();
 }
-

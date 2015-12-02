@@ -139,5 +139,3 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 
 
 #endif
-
-

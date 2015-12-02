@@ -177,5 +177,3 @@ float getGUIDefaultVelocity()
 {
     return SI().depthsInFeet() ? 8000.f : 2000.f;
 }
-
-

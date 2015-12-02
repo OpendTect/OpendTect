@@ -269,4 +269,3 @@ void JobCommunic::dumpSystemInfo()
     *logstream_ << "Server Address     : " << masterhost_	     <<od_endl;
     *logstream_ << "-----------------------------------------------" <<od_endl;
 }
-

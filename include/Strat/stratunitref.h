@@ -274,5 +274,3 @@ inline const NodeUnitRef* UnitRef::topNode() const
 }; // namespace Strat
 
 #endif
-
-

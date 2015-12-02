@@ -13,6 +13,3 @@ set(OD_MODULE_SOURCES
     nlacrdesc.cc nladataprep.cc
 )
 OD_INIT_MODULE()
-
-
-

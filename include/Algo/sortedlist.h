@@ -228,4 +228,3 @@ void SortedList<T>::removeRange( size_type p1, size_type p2 )
 
 
 #endif
-

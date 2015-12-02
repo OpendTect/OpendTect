@@ -1328,5 +1328,3 @@ bool MPEDisplay::isPickingEnabled() const
 }
 
 } // namespace vissurvey
-
-

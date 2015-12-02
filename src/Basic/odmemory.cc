@@ -176,4 +176,3 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
     free = status.ullAvailPhys;
 #endif
 }
-

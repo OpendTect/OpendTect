@@ -424,4 +424,3 @@ void SurfaceAuxData::fillPar( IOPar& par ) const
 {}
 
 }; //namespace
-

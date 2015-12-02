@@ -598,4 +598,3 @@ void uiODVolrenSubTreeItem::selChgCB( CallBacker* cb )
 {
     visserv_->getUiSlicePos()->setDisplay( getParentDisplayID() );
 }
-

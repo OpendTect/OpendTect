@@ -238,4 +238,3 @@ void PresentationSpec::getPythonScript( BufferString& script ) const
 
     script.add( "prs.save('" ).add( outputfilename_ ).add( "')\n" );
 }
-

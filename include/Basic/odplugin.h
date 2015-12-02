@@ -38,5 +38,3 @@ extern "C" {
 
 
 #endif
-
-

@@ -98,4 +98,3 @@ void uiTutODMad::createAndDisplay2DViewer()
 	    new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(fvwin)) );
     fvwin->show();
 }
-

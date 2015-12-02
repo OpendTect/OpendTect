@@ -83,4 +83,3 @@ bool uiIcon::isEmpty() const
 
 const char* uiIcon::source() const
 { return srcnm_.buf(); }
-

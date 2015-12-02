@@ -524,4 +524,3 @@ void SelectionGrp::getInfo( BufferString& info ) const
 	info += "\n";
     }
 }
-

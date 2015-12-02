@@ -248,5 +248,3 @@ private:
 };
 
 #endif
-
-

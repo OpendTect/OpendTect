@@ -226,4 +226,3 @@ mGlobal(Velocity) PicksMgr& VPM();
 } // namespace Vel
 
 #endif
-

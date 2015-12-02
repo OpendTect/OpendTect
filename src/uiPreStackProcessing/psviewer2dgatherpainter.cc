@@ -91,4 +91,3 @@ void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
 
 
 }; //namespace
-

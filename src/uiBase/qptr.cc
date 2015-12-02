@@ -80,5 +80,3 @@ i_QPtrImpl::~i_QPtrImpl()
     Threads::Locker lock( lock_ );
     set( 0 );
 }
-
-

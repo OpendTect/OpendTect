@@ -106,4 +106,3 @@ bool ODNetworkReply::uploadStatus( CallBacker* )
     return false;
 #endif
 }
-

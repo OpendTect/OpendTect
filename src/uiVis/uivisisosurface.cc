@@ -318,4 +318,3 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	isovallineitem_->setLine( valx, valytop, valx, valybottom );
     }
 }
-

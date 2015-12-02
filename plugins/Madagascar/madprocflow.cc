@@ -242,4 +242,3 @@ const char* dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
     par.putTo( astrm );
     return astrm.isOK() ? 0 : "Error during write to Processing flow file";
 }
-

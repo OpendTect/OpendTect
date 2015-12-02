@@ -132,4 +132,3 @@ const char* StreamConn::fileName() const
 {
     return strm_ ? strm_->fileName() : "";
 }
-

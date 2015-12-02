@@ -811,5 +811,3 @@ protected:
 };
 
 #endif
-
-

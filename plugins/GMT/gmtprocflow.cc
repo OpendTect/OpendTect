@@ -111,4 +111,3 @@ const char* dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
     pf.pars().putTo( astrm );
     return astrm.isOK() ? 0 : "Error during write to GMT flow file";
 }
-

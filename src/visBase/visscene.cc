@@ -350,4 +350,3 @@ void Scene::fillOffsetPar( IOPar& par ) const
 }
 
 }; // namespace visBase
-

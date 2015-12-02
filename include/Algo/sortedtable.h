@@ -210,4 +210,3 @@ void SortedPointers<T>::erase()
 
 
 #endif
-

@@ -455,4 +455,3 @@ bool uiEvaluateDlg::storeSlices() const
 {
     return enabstore_ ? storefld->isChecked() : false;
 }
-

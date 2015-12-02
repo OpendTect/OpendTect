@@ -95,5 +95,3 @@ protected:
 }; //namespace
 
 #endif
-
-

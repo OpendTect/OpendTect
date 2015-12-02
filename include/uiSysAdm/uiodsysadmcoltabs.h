@@ -41,5 +41,3 @@ protected:
 
 
 #endif
-
-

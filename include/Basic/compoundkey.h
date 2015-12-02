@@ -74,4 +74,3 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
 
 
 #endif
-

@@ -394,4 +394,3 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
 
     return foundcommon;
 }
-

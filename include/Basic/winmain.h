@@ -27,4 +27,3 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 #endif
 	
-

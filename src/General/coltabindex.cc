@@ -54,4 +54,3 @@ int ColTab::IndexedLookUpTable::indexForValue( float v ) const
 {
     return ColTab::Mapper::snappedPosition( mapper_, v, nrcols_, -1 );
 }
-

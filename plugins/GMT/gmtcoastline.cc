@@ -154,5 +154,3 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     StreamProvider(tmpfilenm).remove();
     return true;
 }
-
-

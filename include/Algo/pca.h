@@ -158,6 +158,3 @@ void PCA::getEigenVector(int idy, IDXABL& vec ) const
 }
 
 #endif
-
-
-

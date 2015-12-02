@@ -621,4 +621,3 @@ mExternC(Basic) void sleepSeconds( double secs )
     if ( secs > 0 )
 	Threads::sleep( secs );
 }
-

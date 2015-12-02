@@ -651,4 +651,3 @@ bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 
     return rv;
 }
-

@@ -588,4 +588,3 @@ bool BulkD2TModelAscIO::identifierIsUWI() const
 { return formOf( false, 0 ) == 1; }
 
 } // namespace Well
-

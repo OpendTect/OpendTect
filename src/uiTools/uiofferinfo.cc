@@ -96,4 +96,3 @@ void uiOfferInfo::winClose( CallBacker* )
 {
     infowin_ = 0;
 }
-

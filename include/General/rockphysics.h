@@ -127,5 +127,3 @@ mGlobal(General) inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
 
 
 #endif
-
-

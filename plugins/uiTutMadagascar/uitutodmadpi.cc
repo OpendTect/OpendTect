@@ -61,4 +61,3 @@ mDefODInitPlugin(uiTutMadagascar)
     (void)new uiMadTutMgr( *ODMainWin() );
     return 0; // All OK - no error messages
 }
-

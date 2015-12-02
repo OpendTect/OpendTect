@@ -119,4 +119,3 @@ int Seis2DFrom3DExtractor::handleTrace()
     nrdone_++;
     return MoreToDo();
 }
-

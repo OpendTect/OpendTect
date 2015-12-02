@@ -266,4 +266,3 @@ int Hor2DTo3D::nextStep()
 }
 
 } // namespace OD
-

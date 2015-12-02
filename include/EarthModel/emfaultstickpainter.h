@@ -128,6 +128,3 @@ protected:
 } //namespace EM
 
 #endif
-
-
-

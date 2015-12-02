@@ -229,6 +229,3 @@ bool OD::ArrowStyle::hasHead() const
 
 bool OD::ArrowStyle::hasTail() const
 { return tailstyle_.sz_ > 0 && (type_ == TwoSided || type_ == TailOnly); }
-
-
-

@@ -331,4 +331,3 @@ void uiSessionMan::mkFileInfo()
     txt += getFileInfo();
     setInfo( txt );
 }
-

@@ -271,4 +271,3 @@ bool MultiCubeSeisPSReader::getGather( const BinID& bid, SeisTrcBuf& buf ) const
 void MultiCubeSeisPSReader::usePar( const IOPar& iop )
 {
 }
-

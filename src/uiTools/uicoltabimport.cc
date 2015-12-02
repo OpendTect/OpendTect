@@ -261,4 +261,3 @@ void uiColTabImport::showList()
     messagelbl_->display( false );
     listfld_->display( true );
 }
-

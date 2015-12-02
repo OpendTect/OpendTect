@@ -165,4 +165,3 @@ void uiAttrEMOut::updateAttributes( const Attrib::DescSet& descset,
     attrfld_->setNLAModel( nlamodel_ );
     nlaid_ = nlaid;
 }
-

@@ -361,4 +361,3 @@ bool uiMadagascarMain::acceptOK( CallBacker* )
 {
     return fillPar() && batchfld_->start();
 }
-

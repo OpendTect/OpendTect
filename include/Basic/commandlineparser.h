@@ -132,5 +132,3 @@ bool CommandLineParser::getVal( const char* key, T& val,
 
 
 #endif
-
-

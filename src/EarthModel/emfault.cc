@@ -374,4 +374,3 @@ bool FaultKnotUndoEvent::reDo()
 
 
 } // namespace EM
-

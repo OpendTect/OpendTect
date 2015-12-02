@@ -60,4 +60,3 @@ protected:
 } // namespace
 
 #endif
-

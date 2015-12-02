@@ -437,4 +437,3 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 
     uiDesktopServices::openUrl( outputfnm.buf() );
 }
-

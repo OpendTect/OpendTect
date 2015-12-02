@@ -220,4 +220,3 @@ bool uiImpAttrSet::acceptOK( CallBacker* )
 			   "\n\nDo you want to import more Attribute Sets?") );
     return !res;
 }
-

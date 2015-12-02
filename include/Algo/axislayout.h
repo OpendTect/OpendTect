@@ -158,4 +158,3 @@ T AxisLayout<T>::findEnd( T datastop ) const
 }
 
 #endif
-

@@ -143,4 +143,3 @@ void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
     datapackinpfld_->display( true );
     seisinpfld_->display( false );
 }
-

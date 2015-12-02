@@ -23,4 +23,3 @@ mDefModInitFn(uiWell)
 
     uiODWellWriteOpts::initClass();
 }
-

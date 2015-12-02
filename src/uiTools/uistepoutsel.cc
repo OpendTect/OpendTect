@@ -210,5 +210,3 @@ void uiStepout3DSel::setZFieldName( const char* nmzfld )
     if ( nmzfld && *nmzfld )
 	fld3_->setName( nmzfld );
 }
-
-

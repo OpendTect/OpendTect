@@ -112,4 +112,3 @@ void BaseMapMarkers::updateGeometry()
 {
     changed.trigger();
 }
-

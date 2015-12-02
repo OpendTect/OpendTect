@@ -27,4 +27,3 @@ mDefModInitFn(uiSeis)
     uiCBVSVolOpts::initClass();
     uiCBVSPS3DOpts::initClass();
 }
-

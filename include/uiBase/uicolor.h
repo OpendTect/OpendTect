@@ -105,5 +105,3 @@ private:
 };
 
 #endif
-
-

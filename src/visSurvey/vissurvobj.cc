@@ -358,5 +358,3 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 }
 
 } // namespace visSurvey
-
-

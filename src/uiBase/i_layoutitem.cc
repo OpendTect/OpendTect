@@ -798,4 +798,3 @@ bool i_LayoutItem::isAligned() const
 
     return false;
 }
-

@@ -19,4 +19,3 @@ mDefModInitFn(Velocity)
     Vel::VolumeFunctionSource::initClass();
     Vel::StoredFunctionSource::initClass();
 }
-

@@ -416,5 +416,3 @@ float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 	return pr.apply( factor );
     }
 }
-
-

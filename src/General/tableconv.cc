@@ -491,4 +491,3 @@ bool Table::StartStopManipulator::accept( BufferStringSet& cols ) const
 
     return true;
 }
-

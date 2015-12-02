@@ -658,4 +658,3 @@ void Horizon2DDisplay::removeVolumesOfInterest()
 }
 
 } // namespace visSurvey
-

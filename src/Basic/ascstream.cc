@@ -392,4 +392,3 @@ mDeclGetFn(od_uint64,UI64Value)
 mDeclGetFn(float,FValue)
 mDeclGetFn(double,DValue)
 mDeclGetFn(bool,YN)
-

@@ -302,4 +302,3 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 
     firstcachesample_ = range.start;
 }
-

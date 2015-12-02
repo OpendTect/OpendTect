@@ -169,4 +169,3 @@ const char* OD::IconFile::notFoundIconFileName()
 
     return ret.str();
 }
-

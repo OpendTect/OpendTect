@@ -33,5 +33,3 @@ namespace ColTab
 }
 
 #endif
-
-

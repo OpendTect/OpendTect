@@ -55,5 +55,3 @@ protected:
 };
 
 #endif
-
-

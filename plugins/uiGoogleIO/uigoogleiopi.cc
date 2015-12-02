@@ -205,4 +205,3 @@ mDefODInitPlugin(uiGoogleIO)
                               = new uiGoogleIOMgr( *ODMainWin() ) );
     return 0;
 }
-

@@ -62,5 +62,3 @@ mGlobal(General) bool GetZDomainTag(const IOObj&,BufferString&);
 mGlobal(General) bool RemoveZDomainTag(IOObj&);
 
 #endif
-
-

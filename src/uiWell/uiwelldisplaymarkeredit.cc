@@ -558,6 +558,3 @@ bool uiWellDispCtrlEditMarkerDlg::removeMrkrFromList()
     }
     return false;
 }
-
-
-

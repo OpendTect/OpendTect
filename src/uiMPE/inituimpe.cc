@@ -20,5 +20,3 @@ mDefModInitFn(uiMPE)
 
     MPE::uiBaseHorizonSetupGroup::initClass();
 }
-
-

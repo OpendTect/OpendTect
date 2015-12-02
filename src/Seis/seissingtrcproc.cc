@@ -496,4 +496,3 @@ void SeisSingleTraceProc::wrapUp()
 {
     wrr_.close();
 }
-

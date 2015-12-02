@@ -49,4 +49,3 @@ mDefModInitFn(Basic)
     System::CrashDumper::getInstance();
 #endif
 }
-

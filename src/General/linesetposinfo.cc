@@ -147,4 +147,3 @@ void PosInfo::LineSet2DData::compDistBetwTrcsStats()
 	trcdiststatsperlines_ += ltrcdiststats;
     }
 }
-

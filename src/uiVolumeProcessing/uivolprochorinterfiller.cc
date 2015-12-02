@@ -164,5 +164,3 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 }
 
 } // namespace VolProc
-
-

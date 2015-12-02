@@ -807,4 +807,3 @@ void ODPolygon<T>::keepBendPoints( float eps )
 }
 
 #endif
-

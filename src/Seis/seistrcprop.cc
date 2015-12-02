@@ -471,4 +471,3 @@ double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
 
     return 1.f - (Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)));
 }
-

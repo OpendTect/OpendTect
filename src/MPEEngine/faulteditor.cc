@@ -684,4 +684,3 @@ void FaultEditor::cloneMovingNode()
 
 
 };  // namespace MPE
-

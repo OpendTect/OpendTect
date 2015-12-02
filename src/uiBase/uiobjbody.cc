@@ -604,4 +604,3 @@ void uiObjectBody::gtFntWdtHgt() const
 	    { pErrMsg( "Font maxwidth no good -> 15." ); self.fnt_maxwdt = 15; }
     }
 }
-

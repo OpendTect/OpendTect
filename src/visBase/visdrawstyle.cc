@@ -129,4 +129,3 @@ void DrawStyle::setPixelDensity( float dpi )
 }
 
 }; // namespace visBase
-

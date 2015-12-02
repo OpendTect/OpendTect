@@ -82,5 +82,3 @@ protected:
 } // namespace visBase
 
 #endif
-
-

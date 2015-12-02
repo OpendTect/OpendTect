@@ -730,4 +730,3 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
 	segment = nrsegments_-1;
     return segment*segmentsize;
 }
-

@@ -61,4 +61,3 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 	   				     initialx2pospercm_ );
     return true;
 }
-

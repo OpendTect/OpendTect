@@ -393,4 +393,3 @@ const Interval<int>* DipFilter::desZSampMargin( int, int ) const
 { return &zmargin_; }
 
 } // namespace Attrib
-

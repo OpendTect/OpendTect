@@ -1014,4 +1014,3 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
 
     return true;
 }
-

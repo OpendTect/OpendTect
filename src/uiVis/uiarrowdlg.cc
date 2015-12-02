@@ -98,4 +98,3 @@ void uiArrowDialog::changeCB( CallBacker* )
 {
     propertyChange.trigger();
 }
-

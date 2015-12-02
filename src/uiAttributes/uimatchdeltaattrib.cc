@@ -82,4 +82,3 @@ void uiMatchDeltaAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( "maxshift", MatchDelta::maxshiftStr() );
 }
-

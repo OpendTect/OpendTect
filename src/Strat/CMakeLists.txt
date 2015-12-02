@@ -16,6 +16,3 @@ set(OD_MODULE_SOURCES
 	   initstrat.cc
 )
 OD_INIT_MODULE()
-
-
-

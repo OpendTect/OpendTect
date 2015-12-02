@@ -13,4 +13,3 @@ if ( EXISTS ${ITTNOTIFY_DIR} )
 	add_definitions( -D__ittnotify__ )
     endif ( ITTNOTIFY_FOUND )
 endif ()
-

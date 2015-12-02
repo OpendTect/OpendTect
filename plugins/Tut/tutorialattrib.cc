@@ -243,5 +243,3 @@ const Interval<int>* Tutorial::desZSampMargin(int,int) const
 
 
 } // namespace Attrib
-
-

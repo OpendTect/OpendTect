@@ -44,4 +44,3 @@ mDefModInitFn(visBase)
     //Notify threads to shut down at program end.
     NotifyExitProgram(osgGeo::LayeredTexture::shutdownThreading);
 }
-

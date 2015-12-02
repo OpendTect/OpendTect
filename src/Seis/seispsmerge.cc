@@ -191,4 +191,3 @@ void SeisPSMerger::stackGathers( SeisTrcBuf& resgather,
 	}
     }
 }
-

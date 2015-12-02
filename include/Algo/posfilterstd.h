@@ -165,5 +165,3 @@ public:
 } // namespace
 
 #endif
-
-

@@ -137,5 +137,3 @@ void OD_2DEMDataConverter_FromOD4ToOD5::writeToFile( const char* fullpath,
     ostrm.close();
     return;
 }
-
-

@@ -159,5 +159,3 @@ protected:
 };
 
 #endif
-
-

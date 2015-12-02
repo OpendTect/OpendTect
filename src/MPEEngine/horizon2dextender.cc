@@ -116,4 +116,3 @@ float Horizon2DExtender::getDepth( const TrcKey& src, const TrcKey& ) const
 }
 
 }  // namespace MPE
-

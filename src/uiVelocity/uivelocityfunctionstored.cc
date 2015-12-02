@@ -117,4 +117,3 @@ FunctionSource* uiStoredFunction::getSource()
 
 
 }; //namespace
-

@@ -373,4 +373,3 @@ void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
     uiSingleBatchJobDispatcherPars dlg( p, sjd_, jobspec_ );
     dlg.go();
 }
-

@@ -445,4 +445,3 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 
 
 } // namespace Attrib
-

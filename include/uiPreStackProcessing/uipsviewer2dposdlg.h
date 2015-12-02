@@ -136,5 +136,3 @@ protected:
 }; //namespace
 
 #endif
-
-

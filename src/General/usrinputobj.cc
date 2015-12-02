@@ -31,4 +31,3 @@ bool UserInputObj::notifyUpdateRequested( const CallBack& cb )
 
 bool UserInputObj::update( const DataInpSpec& s )
 { return update_(s); }
-

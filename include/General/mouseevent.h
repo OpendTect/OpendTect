@@ -298,5 +298,3 @@ private:
 			    
 
 #endif
-
-

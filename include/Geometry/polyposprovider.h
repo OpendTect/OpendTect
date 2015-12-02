@@ -90,5 +90,3 @@ public:
 } // namespace
 
 #endif
-
-

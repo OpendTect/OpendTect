@@ -117,4 +117,3 @@ void uiWellPosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Well() );
 }
-

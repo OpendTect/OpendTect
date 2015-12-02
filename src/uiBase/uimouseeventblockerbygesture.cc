@@ -121,5 +121,3 @@ bool uiMouseEventBlockerByGestures::updateFromEvent( const QEvent* qev )
 
     return false;
 }
-
-

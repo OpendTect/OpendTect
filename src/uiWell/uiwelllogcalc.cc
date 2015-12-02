@@ -661,4 +661,3 @@ void uiWellLogCalc::setOutputLogName( const char* nm )
 
 const char* uiWellLogCalc::getOutputLogName() const
 { return nmfld_ ? nmfld_->text() : 0; }
-

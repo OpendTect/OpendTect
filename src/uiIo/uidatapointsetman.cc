@@ -140,4 +140,3 @@ void uiDataPointSetMan::mkFileInfo()
     delete dps;
     setInfo( txt );
 }
-

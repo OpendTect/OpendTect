@@ -108,4 +108,3 @@ void uiSubsampPosFiltGroup::initClass()
 {
     uiPosFiltGroup::factory().addCreator( create, sKey::Subsample() );
 }
-

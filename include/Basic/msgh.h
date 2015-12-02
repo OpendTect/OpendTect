@@ -49,5 +49,3 @@ mGlobal(Basic)  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 
 
 #endif
-
-

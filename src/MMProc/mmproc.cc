@@ -40,6 +40,3 @@ int MMProc::ProgSpec::add( ProgSpec* ps )
     mgrs += ps;
     return mgrs.size() - 1;
 }
-
-
-

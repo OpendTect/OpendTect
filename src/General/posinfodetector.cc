@@ -759,4 +759,3 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	}
     }
 }
-

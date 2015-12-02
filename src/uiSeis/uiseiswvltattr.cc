@@ -359,5 +359,3 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
     const StepInterval<float> phaserg( -180.f, 180.f, 45.f );
     attrdisps_[2]->yAxis(false)->setRange( phaserg );
 }
-
-

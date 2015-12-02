@@ -598,4 +598,3 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 
     return tr("Data");
 }
-

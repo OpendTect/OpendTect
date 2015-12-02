@@ -228,4 +228,3 @@ int ArrowDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 
 
 }; // namespace visSurvey
-

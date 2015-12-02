@@ -51,4 +51,3 @@ mDefModInitFn(uiIo)
 
     uiProcSettings::initClass();
 }
-

@@ -113,5 +113,3 @@ protected:
 };
 
 #endif
-
-

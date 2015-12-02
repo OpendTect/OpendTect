@@ -165,4 +165,3 @@ void KeyBindMan::updateTrackballKeyBindings()
     manipulator_->setPanModKeyMask( getModKeyMask(pan_.keybut_) );
     manipulator_->setZoomModKeyMask( getModKeyMask(zoom_.keybut_) );
 }
-

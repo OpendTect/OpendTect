@@ -202,4 +202,3 @@ void Tut::SeisTools::handleTrace()
 
     nrdone_++;
 }
-

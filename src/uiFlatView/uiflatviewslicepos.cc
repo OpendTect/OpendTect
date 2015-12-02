@@ -83,4 +83,3 @@ void uiSlicePos2DView::sliceStepChg( CallBacker* )
 {
     sliceStepChanged( curorientation_ );
 }
-

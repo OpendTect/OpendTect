@@ -188,5 +188,3 @@ bool System::IssueReporter::parseCommandLine()
 
     return readReport( filename );
 }
-
-

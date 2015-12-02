@@ -142,4 +142,3 @@ BufferString uiWellParSel::getSummary() const
 
     return names.getDispString( -1, false );
 }
-

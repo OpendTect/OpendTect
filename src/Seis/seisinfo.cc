@@ -557,4 +557,3 @@ IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
 
     return ret;
 }
-

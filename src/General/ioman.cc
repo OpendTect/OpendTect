@@ -1057,4 +1057,3 @@ bool IOMan::isValidSurveyDir( const char* d )
 
     return true;
 }
-

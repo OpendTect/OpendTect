@@ -376,5 +376,3 @@ uiTreeItem* uiODVW2DVariableDensityTreeItemFactory::createForVis(
 {
     return 0;
 }
-
-

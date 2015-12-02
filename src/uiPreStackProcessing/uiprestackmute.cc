@@ -74,4 +74,3 @@ bool uiMute::acceptOK( CallBacker* )
 }
 
 } // namespace PreStack
-

@@ -191,4 +191,3 @@ const Interval<float>* Shift::desZMargin( int inp, int ) const
 }
 
 }; // namespace Attrib
-

@@ -332,5 +332,3 @@ uiEventFilter::EventType uiEventFilterImpl::translate( QEvent::Type tp )
 {
     mImpTransform( QEvent, uiEventFilter );
 }
-
-

@@ -126,5 +126,3 @@ bool RowColSurface::isDefined( GeomPosID pid ) const
 { return isKnotDefined( RowCol::fromInt64(pid) ); }
 
 }; //namespace
-
-

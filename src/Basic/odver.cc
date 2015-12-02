@@ -209,4 +209,3 @@ void AddLegalInformation( const char* txt )
 {
     legalinfo_.add( txt );
 }
-

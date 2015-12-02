@@ -90,4 +90,3 @@ bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
 
 
 }; //namespace
-

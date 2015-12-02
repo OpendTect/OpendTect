@@ -318,4 +318,3 @@ bool uiTaskRunner::rejectOK( CallBacker* )
     execres_ = false;
     return true;
 }
-

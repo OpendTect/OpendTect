@@ -329,4 +329,3 @@ bool RockPhysics::FormulaSet::writeTo( ascostream& astrm ) const
     }
     return astrm.isOK();
 }
-

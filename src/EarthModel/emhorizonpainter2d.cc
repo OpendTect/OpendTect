@@ -296,4 +296,3 @@ void HorizonPainter2D::enableSeed( bool yn )
 }
 
 } //namespace EM
-

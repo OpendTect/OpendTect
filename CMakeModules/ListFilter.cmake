@@ -48,4 +48,3 @@ function(list_filter var regex)
 	endforeach()
 	set(${var} "${_out}" PARENT_SCOPE)
 endfunction()
-

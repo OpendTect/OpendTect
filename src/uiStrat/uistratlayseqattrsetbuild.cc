@@ -196,4 +196,3 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     usrchg_ = anychg_ = false;
     return true;
 }
-

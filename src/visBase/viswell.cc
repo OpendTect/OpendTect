@@ -1047,4 +1047,3 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 
 
 }; // namespace visBase
-

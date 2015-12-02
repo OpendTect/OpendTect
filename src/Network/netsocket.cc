@@ -489,4 +489,3 @@ bool Network::Socket::waitForNewData() const
 
     return true;
 }
-

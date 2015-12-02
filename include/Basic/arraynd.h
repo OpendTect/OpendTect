@@ -531,4 +531,3 @@ void ArrayND<T>::getAll( T* ptr ) const
 
 
 #endif
-

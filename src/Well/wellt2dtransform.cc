@@ -141,4 +141,3 @@ bool WellT2DTransform::usePar( const IOPar& par )
 
     return true;
 }
-

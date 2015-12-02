@@ -332,5 +332,3 @@ void clss::setNewName() \
 }
 
 #endif
-
-

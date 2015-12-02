@@ -539,4 +539,3 @@ void uiAttrVolOut::getJobName( BufferString& jobnm ) const
 {
     jobnm = objfld_->getInput();
 }
-

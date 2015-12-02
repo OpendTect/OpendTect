@@ -18,4 +18,3 @@ mDefModInitFn(uiOSG)
 
     uiOsgFontCreator::initClass();
 }
-

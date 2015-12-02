@@ -673,5 +673,3 @@ void VDA2DBitMapGenerator::drawVal( int ix, int iy, float val )
 			      + valratio * cNrFillSteps - .5);
     bitmap_->set( ix, iy, bmval );
 }
-
-

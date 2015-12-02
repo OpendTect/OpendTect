@@ -158,5 +158,3 @@ protected:
 #undef mRetNoneIfEmpty
 
 #endif
-
-

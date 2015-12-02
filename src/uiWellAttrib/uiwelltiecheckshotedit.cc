@@ -454,4 +454,3 @@ bool DahObjUndoEvent::reDo()
 }
 
 } // namespace WellTie
-

@@ -1843,4 +1843,3 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
 
     setLine( *regrlineitm_, ls.lp, xah, yah, &xvalrg );
 }
-

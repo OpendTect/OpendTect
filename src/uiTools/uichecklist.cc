@@ -232,4 +232,3 @@ void uiCheckList::setBox( int idx, bool chkd, bool shw )
     cb->setChecked( chkd );
     cb->display( shw );
 }
-

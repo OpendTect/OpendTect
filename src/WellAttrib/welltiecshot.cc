@@ -50,4 +50,3 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
 }
 
 } // namespace WellTie
-

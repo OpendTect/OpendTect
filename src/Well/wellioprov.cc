@@ -75,4 +75,3 @@ const WellDataIOProvider& odWellTranslator::getProv() const
 {
     return *WDIOPF().providers()[odWellDataIOProvider::factid_];
 }
-

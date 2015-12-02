@@ -505,4 +505,3 @@ int Strat::LayModAttribCalc::doFinish()
     dps_.purgeInactive();
     return Finished();
 }
-

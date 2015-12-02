@@ -92,5 +92,3 @@ inline void EmptyFunction()			{}
 
 
 #endif
-
-

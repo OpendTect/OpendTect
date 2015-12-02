@@ -265,5 +265,3 @@ bool testAnglesForDifferentSurveys()
 
     return true;
 }
-
-

@@ -95,4 +95,3 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
     const bool res = uiMSG().askGoOn( msg );
     return !res;
 }
-

@@ -264,4 +264,3 @@ bool uiIsochronMakerDlg::doWork()
     h1->unRef(); h2->unRef();
     return rv;
 }
-

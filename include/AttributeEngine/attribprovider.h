@@ -435,5 +435,3 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
     desc->unRef();
 
 #endif
-
-

@@ -405,4 +405,3 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
 	intv += Interval<float>(-1,1);
     setRange( intv );
 }
-

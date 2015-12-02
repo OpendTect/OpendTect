@@ -153,4 +153,3 @@ BinIDSorting BinIDSortingAnalyser::getSorting() const
 
     return BinIDSorting( false, 0 );
 }
-

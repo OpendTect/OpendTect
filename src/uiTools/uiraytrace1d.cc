@@ -333,6 +333,3 @@ void uiVrmsRayTracer1D::initClass()
 				VrmsRayTracer1D::sFactoryKeyword(),
 				VrmsRayTracer1D::sFactoryDisplayName() );
 }
-
-
-

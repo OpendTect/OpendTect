@@ -124,5 +124,3 @@ mCreateVw2DFactoryEntryNoInitClass( clss );
 
 
 #endif
-
-

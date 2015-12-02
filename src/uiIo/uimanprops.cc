@@ -547,4 +547,3 @@ bool uiSelectPropRefsGrp::acceptOK()
 
     return true;
 }
-

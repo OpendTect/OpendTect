@@ -198,4 +198,3 @@ int uiFlatViewAuxDataEditorList::findEditorIDPair(
 
     return -1;
 }
-

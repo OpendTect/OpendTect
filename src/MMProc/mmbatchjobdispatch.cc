@@ -131,4 +131,3 @@ bool Batch::MMJobDispatcher::launch()
 			   .isconsoleuiprog( GetEnvVarYN("DTECT_DEBUG") );
     return cl.execute( ep );
 }
-

@@ -310,4 +310,3 @@ void CBVSWriteMgr::setForceTrailers( bool yn )
     for ( int idx=0; idx<writers_.size(); idx++ )
 	writers_[idx]->forceTrailer( forcetrailers_ );
 }
-

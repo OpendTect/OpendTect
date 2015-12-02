@@ -644,7 +644,3 @@ macro ( OD_ADD_SOURCE_FILES )
 	file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
     endforeach()
 endmacro()
-
-
-
-

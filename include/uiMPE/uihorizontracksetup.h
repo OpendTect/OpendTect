@@ -185,5 +185,3 @@ protected:
 } // namespace MPE
 
 #endif
-
-

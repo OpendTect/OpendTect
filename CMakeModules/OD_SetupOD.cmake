@@ -23,5 +23,3 @@ SET( INCLUDES
 FOREACH( INC ${INCLUDES} )
     INCLUDE( ${OpendTect_DIR}/CMakeModules/${INC}.cmake )
 ENDFOREACH()
-
-

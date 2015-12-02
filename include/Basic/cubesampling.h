@@ -18,5 +18,3 @@ typedef TrcKeyZSampling CubeSampling;
 
 
 #endif
-
-

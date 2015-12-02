@@ -193,4 +193,3 @@ const Geom::Point2D<T>& LineRectangleClipper<T>::getStop() const
 
 
 #endif
-

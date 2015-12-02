@@ -105,5 +105,3 @@ protected:
 } // namespace Attrib
 
 #endif
-
-

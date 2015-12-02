@@ -117,6 +117,3 @@ int SeisEventSnapper3D::nextStep()
 
     return Finished();
 }
-
-
-

@@ -225,4 +225,3 @@ bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 
     return true;
 }
-

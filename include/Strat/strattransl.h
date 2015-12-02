@@ -18,4 +18,3 @@ mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceAttribSet,od,"lsa")
 
 
 #endif
-

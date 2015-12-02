@@ -346,4 +346,3 @@ Strat::LeavedUnitRef* Strat::RefTree::getByLevel( int lvlid ) const
     }
     return 0;
 }
-

@@ -256,6 +256,3 @@ void uiPolarDiagram::updatePointer()
       pointeritm_->setPos( mCast(float,center_.x+x), mCast(float,center_.y-y) );
         // y-axis direction on the canvas is the opposite of that in geometry
 }
-
-
-

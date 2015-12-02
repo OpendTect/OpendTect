@@ -51,4 +51,3 @@ void uiSplitter::addGroup( uiGroup* grp )
     if ( grp && grp->attachObj() )
 	body_->addWidget( grp->attachObj()->qwidget() );
 }
-

@@ -43,4 +43,3 @@ set(OD_MODULE_SOURCES
 	uisurfacesel.cc
 )
 OD_INIT_MODULE()
-

@@ -216,4 +216,3 @@ Executor* uiFilterHorizonDlg::getWorker( Array2D<float>& a2d,
     Array2DFilterPars pars = ((uiArr2DFilterPars*)parsgrp_)->getInput();
     return new Array2DFilterer<float>( a2d, pars );
 }
-

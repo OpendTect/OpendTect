@@ -264,4 +264,3 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 
     return ret;
 }
-

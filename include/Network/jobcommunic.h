@@ -137,5 +137,3 @@ private:
 #undef mTryMaxtries
 
 #endif
-
-

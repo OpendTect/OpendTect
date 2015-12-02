@@ -178,4 +178,3 @@ void uiTreeItemTBHandler::butClickCB( CallBacker* cb )
     handlenotifier.trigger( butid, this );
     executeQueue();
 }
-

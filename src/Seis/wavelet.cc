@@ -707,4 +707,3 @@ bool WaveletAscIO::put( od_ostream& ) const
     errmsg_ = tr("TODO: WaveletAscIO::put not implemented");
     return false;
 }
-

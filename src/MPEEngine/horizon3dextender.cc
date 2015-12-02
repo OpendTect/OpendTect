@@ -179,4 +179,3 @@ const TrcKeyZSampling& BaseHorizon3DExtender::getExtBoundary() const
 	? engine().activeVolume() : extboundary_; }
 
 } // namespace MPE
-

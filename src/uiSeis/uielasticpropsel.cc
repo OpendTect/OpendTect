@@ -506,4 +506,3 @@ bool uiElasticPropSelDlg::doRead( const MultiID& mid )
 
     return true;
 }
-

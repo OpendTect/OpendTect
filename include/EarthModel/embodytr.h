@@ -88,5 +88,3 @@ mDefineIndividualBodyTranslator(randpos)
 
 
 #endif
-
-

@@ -152,4 +152,3 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
 
     return true;
 }
-

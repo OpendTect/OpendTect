@@ -102,5 +102,3 @@ public:
 } // namespace Pos
 
 #endif
-
-

@@ -424,4 +424,3 @@ bool EMSeedPicker::lineTrackDirection( BinID& dir,
 
 
 } // namespace MPE
-

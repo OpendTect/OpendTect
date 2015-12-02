@@ -833,4 +833,3 @@ bool MultiDimStorage<T>::sort( TypeSet<IDXS>& indices ) const
 
 
 #endif
-

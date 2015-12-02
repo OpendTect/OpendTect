@@ -804,4 +804,3 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	}
     }
 }
-

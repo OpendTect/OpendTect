@@ -226,4 +226,3 @@ int RGBImage::bufferSize() const
 
 
 };
-

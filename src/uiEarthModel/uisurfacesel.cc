@@ -134,4 +134,3 @@ uiHorizon3DSel::uiHorizon3DSel( uiParent* p )
 {
     getFullList();
 }
-

@@ -41,4 +41,3 @@ DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&,const LineKey&,
 
 
 } // namespace Attrib
-

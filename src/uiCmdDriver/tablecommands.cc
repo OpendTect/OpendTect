@@ -1764,4 +1764,3 @@ void TableCmdComposer::getExecPrefix( CmdRecEvent& ev, const RowCol& rc )
 
 
 }; // namespace CmdDrive
-

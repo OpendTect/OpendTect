@@ -436,5 +436,3 @@ uiString dgbSurfDataReader::uiNrDoneText() const
 { return tr("Positions Read"); }
 
 } // namespace EM
-
-

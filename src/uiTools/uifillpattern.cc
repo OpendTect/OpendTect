@@ -83,4 +83,3 @@ void uiFillPattern::set( const OD::FillPattern& fp )
     reDrawPattern();
     patternChanged.trigger();
 }
-

@@ -152,4 +152,3 @@ inline ValueSeries<float>* WaveletValueSeries::clone() const
 
 
 #endif
-

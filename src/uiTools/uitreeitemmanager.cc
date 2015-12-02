@@ -643,4 +643,3 @@ int uiTreeItemRemover::nextStep()
     parent_->removeChild( child_ );
     return Finished();
 }
-

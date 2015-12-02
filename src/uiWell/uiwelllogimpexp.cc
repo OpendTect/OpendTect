@@ -478,4 +478,3 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	strm << od_newline;
     }
 }
-

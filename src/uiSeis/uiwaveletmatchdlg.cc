@@ -211,4 +211,3 @@ bool uiWaveletMatchDlg::acceptOK( CallBacker* )
 
     return true;
 }
-

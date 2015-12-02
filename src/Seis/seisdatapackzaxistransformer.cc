@@ -181,5 +181,3 @@ bool SeisDataPackZAxisTransformer::doFinish( bool success )
 
     return true;
 }
-
-

@@ -102,6 +102,3 @@ public:
 } // namespace MPE
 
 #endif
-
-
-

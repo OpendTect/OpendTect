@@ -31,4 +31,3 @@ set(OD_MODULE_PROGS
 )
 
 OD_INIT_MODULE()
-

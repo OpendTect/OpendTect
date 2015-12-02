@@ -403,4 +403,3 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
     markerChanged.trigger();
     meh_.setHandled( true );
 }
-

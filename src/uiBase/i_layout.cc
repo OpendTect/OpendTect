@@ -795,4 +795,3 @@ void i_LayoutMngr::startPoptimer()
     poptimer.start( 100, true );
     timer_running = true;
 }
-

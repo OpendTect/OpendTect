@@ -65,5 +65,3 @@ protected:
 }; // namespace Attrib
 
 #endif
-
-

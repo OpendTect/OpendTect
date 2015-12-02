@@ -242,4 +242,3 @@ bool uiEditFunction::acceptOK(CallBacker*)
 
 
 }; //namespace
-

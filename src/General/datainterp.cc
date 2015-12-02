@@ -696,6 +696,3 @@ mImpl( int )
 mImpl( od_int64 )
 mImpl( float )
 mImpl( double )
-
-
-

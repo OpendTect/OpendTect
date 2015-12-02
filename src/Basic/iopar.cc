@@ -1335,4 +1335,3 @@ void IOPar::dumpPretty( BufferString& res ) const
 
 int IOPar::odVersion() const
 { return 100*majorversion_ + 10*minorversion_; }
-

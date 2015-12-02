@@ -355,6 +355,3 @@ void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
 						      : cliprg_.stop;
     rangeChanged.trigger();
 }
-
-
-

@@ -246,4 +246,3 @@ bool TrimStatics::usePar( const IOPar& par )
 }
 
 } // namespace PreStack
-

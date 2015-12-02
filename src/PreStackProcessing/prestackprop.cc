@@ -292,4 +292,3 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 }
 
 }
-

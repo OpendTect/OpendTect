@@ -75,4 +75,3 @@ uiGMTOverlayGrpFactory& uiGMTOF();
     str += "/"; str += (int) col.b();
 
 #endif
-

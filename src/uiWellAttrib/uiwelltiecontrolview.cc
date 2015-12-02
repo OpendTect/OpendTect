@@ -317,4 +317,3 @@ void uiControlView::applyProperties(CallBacker*)
 }
 
 } // namespace WellTie
-

@@ -89,4 +89,3 @@ SeisEventSnapper2D::~SeisEventSnapper2D()
 {
     delete hor2diterator_;
 }
-

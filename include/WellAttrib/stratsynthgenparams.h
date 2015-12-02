@@ -62,4 +62,3 @@ bool operator==( const SynthGenParams& gp ) const
 
 
 #endif
-

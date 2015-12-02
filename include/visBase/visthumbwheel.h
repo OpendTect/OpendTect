@@ -56,5 +56,3 @@ protected:
 } // namespace visBase
 
 #endif
-
-

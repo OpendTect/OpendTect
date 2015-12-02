@@ -531,4 +531,3 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
 }
 
 } //namespace EM
-

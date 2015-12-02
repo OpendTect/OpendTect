@@ -64,4 +64,3 @@ inline const char* className( const T& t )
 #endif
 
 #endif
-

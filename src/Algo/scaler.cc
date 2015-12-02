@@ -212,4 +212,3 @@ void AsymptScaler::fromString( const char* str )
 
     set( center_, width_, linedge_ );
 }
-

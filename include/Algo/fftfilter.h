@@ -101,6 +101,3 @@ protected:
 };
 
 #endif
-
-
-

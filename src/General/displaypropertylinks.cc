@@ -280,4 +280,3 @@ void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 
     holders_ -= hldr;
 }
-

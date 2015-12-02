@@ -143,4 +143,3 @@ Coord OffsetAzimuth::srcRcvPos( const Coord& center, bool add ) const
     if ( add ) return center+vector;
     return center-vector;
 }
-

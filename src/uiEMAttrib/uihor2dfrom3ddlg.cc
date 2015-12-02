@@ -154,4 +154,3 @@ bool uiHor2DFrom3DDlg::doDisplay() const
 {
     return displayfld_->isChecked();
 }
-

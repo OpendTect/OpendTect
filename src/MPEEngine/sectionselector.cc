@@ -33,4 +33,3 @@ const TypeSet<TrcKey>& SectionSourceSelector::selectedPositions() const
 { return selpos_;}
 
 } // namespace MPE
-

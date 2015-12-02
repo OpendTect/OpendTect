@@ -162,5 +162,3 @@ protected:
 }; //namespace
 
 #endif
-
-

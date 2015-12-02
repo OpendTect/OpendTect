@@ -451,4 +451,3 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
     genNewReq.trigger();
     return true;
 }
-

@@ -386,4 +386,3 @@ int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
     const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
     return hassteerplug ? withconstdir_ ? 4 : 3 : 1;
 }
-

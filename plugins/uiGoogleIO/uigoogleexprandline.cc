@@ -84,4 +84,3 @@ bool uiGoogleExportRandomLine::acceptOK( CallBacker* )
     wrr.close();
     return true;
 }
-

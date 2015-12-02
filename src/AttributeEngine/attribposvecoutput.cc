@@ -102,4 +102,3 @@ int PosVecOutputGen::nextStep()
 }
 
 };//namespace
-

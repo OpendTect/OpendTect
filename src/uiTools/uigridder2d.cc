@@ -157,4 +157,3 @@ bool uiInverseDistanceGridder2D::revertChanges()
     idg_.setSearchRadius( initialsearchradius_ );
     return true;
 }
-

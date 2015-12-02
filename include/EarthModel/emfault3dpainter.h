@@ -129,6 +129,3 @@ protected:
 } //namespace EM
 
 #endif
-
-
-

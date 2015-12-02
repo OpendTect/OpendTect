@@ -398,4 +398,3 @@ bool WaveletExtractor::taperWavelet()
 
 const Wavelet& WaveletExtractor::getWavelet() const
 { return wvlt_; }
-

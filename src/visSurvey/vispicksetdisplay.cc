@@ -811,4 +811,3 @@ bool PickSetDisplay::removeSelections( TaskRunner* taskr )
 }
 
 } // namespace visSurvey
-

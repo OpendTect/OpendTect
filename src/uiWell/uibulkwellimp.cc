@@ -570,4 +570,3 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 	d2t->twts_ += twt;
     }
 }
-

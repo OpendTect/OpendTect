@@ -116,4 +116,3 @@ mDefODInitPlugin(uiDPSDemo)
     mgr = new uiDPSDemoMgr( *ODMainWin() );
     return 0;
 }
-

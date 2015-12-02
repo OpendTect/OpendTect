@@ -644,4 +644,3 @@ float CWT::getScale( int nrsamples, float dt, float freq ) const
 
     return (float) ( freqidx * (2*M_PI) / omega0 );
 }
-

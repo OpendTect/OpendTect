@@ -239,4 +239,3 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
     setButSensitive( true );
     return !res;
 }
-

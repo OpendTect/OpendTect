@@ -634,4 +634,3 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
     hinfofetched_ = false;
     return !strm_.isBad();
 }
-

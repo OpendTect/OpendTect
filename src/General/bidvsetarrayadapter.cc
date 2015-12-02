@@ -44,4 +44,3 @@ float BIDValSetArrAdapter::get( int inlidx, int crlidx ) const
 
     return bidvs_.getVal( pos, targetcolidx_ );
 }
-

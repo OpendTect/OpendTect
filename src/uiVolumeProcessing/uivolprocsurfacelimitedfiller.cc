@@ -379,5 +379,3 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 }
 
 } // namespace VolProc
-
-

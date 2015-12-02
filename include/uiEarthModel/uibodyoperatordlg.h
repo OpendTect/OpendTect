@@ -100,6 +100,3 @@ protected:
 
 
 #endif
-
-
-

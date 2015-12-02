@@ -166,4 +166,3 @@ StreamData GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
 
     return sd;
 }
-

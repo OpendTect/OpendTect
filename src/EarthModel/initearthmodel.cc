@@ -73,4 +73,3 @@ mDefModInitFn(EarthModel)
     ZDomain::Def::add( new ZDomain::Def("Depth-Flattened",uiStrings::sDepth(),
 					"",1) );
 }
-

@@ -70,4 +70,3 @@ private:
 }; // namespace Well
 
 #endif
-

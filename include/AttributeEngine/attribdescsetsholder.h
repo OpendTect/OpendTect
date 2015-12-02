@@ -72,5 +72,3 @@ public:
 } // namespace Attrib
 
 #endif
-
-

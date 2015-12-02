@@ -539,5 +539,3 @@ void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData(
 	File::remove( fp.fullPath() );
     }
 }
-
-

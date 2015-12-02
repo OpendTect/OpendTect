@@ -296,4 +296,3 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 
 
 }; //namespace
-

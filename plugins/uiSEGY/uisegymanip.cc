@@ -779,4 +779,3 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
 	fname_ = fnm;
     return rv;
 }
-

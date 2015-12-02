@@ -97,7 +97,3 @@ bool Spectrogram::transform( const ArrayND< float_complex > &in,
 
     return true;
 }
-
-
-
-

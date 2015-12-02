@@ -141,4 +141,3 @@ void ImageSubItem::selectFileName() const
     const int setidx = mgr.indexOf( *set_ );
     mgr.setUnChanged( setidx, false );
 }
-

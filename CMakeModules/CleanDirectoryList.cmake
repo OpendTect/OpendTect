@@ -46,4 +46,3 @@ function(clean_directory_list _var)
 		set(${_var} "${_out}" PARENT_SCOPE)
 	endif()
 endfunction()
-

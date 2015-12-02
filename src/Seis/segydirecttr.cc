@@ -600,4 +600,3 @@ void SEGYDirectSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
     tmptr->toSupported( dc );
     delete tmptr;
 }
-

@@ -883,4 +883,3 @@ inline void Rectangle<T>::include( const Rectangle<T>& r )
 }; // namespace Geom
 
 #endif
-

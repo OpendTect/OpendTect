@@ -109,4 +109,3 @@ void SelectionManager::updateSel( int id, bool lock )
 
 
 }; // namespace visBase
-

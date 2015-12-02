@@ -215,4 +215,3 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
 
     return true;
 }
-

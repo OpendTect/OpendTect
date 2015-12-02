@@ -272,5 +272,3 @@ mGlobal(Basic) bool isUdfImpl(double);
 
 
 #endif
-
-

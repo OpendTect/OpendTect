@@ -454,4 +454,3 @@ bool SpecDecomp::areAllOutputsEnabled() const
 
 
 }//namespace
-

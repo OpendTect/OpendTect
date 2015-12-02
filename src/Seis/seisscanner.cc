@@ -482,5 +482,3 @@ int SeisStatsCalc::nextStep()
     nrdone_++;
     return MoreToDo();
 }
-
-

@@ -879,4 +879,3 @@ bool uiBasicLayerSequenceGenDesc::laygenRemoveReq()
     delete disps_.removeSingle( curidx );
     return true;
 }
-

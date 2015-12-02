@@ -234,4 +234,3 @@ void uiZAxisTransformSel::selCB( CallBacker* )
 	transflds_[idx]->display( idx==selidx );
     }
 }
-

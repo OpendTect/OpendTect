@@ -178,5 +178,3 @@ protected:
     uiGenInput*                 nrstepsfld_;
 };
 #endif
-
-

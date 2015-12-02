@@ -379,4 +379,3 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     return true;
 }
-

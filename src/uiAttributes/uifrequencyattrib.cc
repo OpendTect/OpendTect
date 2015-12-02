@@ -152,4 +152,3 @@ bool uiFrequencyAttrib::areUIParsOK()
 
     return true;
 }
-

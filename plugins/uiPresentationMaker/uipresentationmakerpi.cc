@@ -78,4 +78,3 @@ mDefODInitPlugin(uiPresentationMaker)
 
     return 0;
 }
-

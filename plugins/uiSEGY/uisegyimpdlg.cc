@@ -404,4 +404,3 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     SEGY::TxtHeader::info2D() = false;
     return rv;
 }
-

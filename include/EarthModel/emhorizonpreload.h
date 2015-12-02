@@ -54,5 +54,3 @@ mGlobal(EarthModel) HorizonPreLoader& HPreL();
 } //namespace EM
 
 #endif
-
-

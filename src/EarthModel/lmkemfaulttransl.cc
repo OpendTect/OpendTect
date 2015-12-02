@@ -278,4 +278,3 @@ Executor* lmkEMFault3DTranslator::writer( const EM::Fault3D& hor, Conn* conn,
 {
     return 0;
 }
-

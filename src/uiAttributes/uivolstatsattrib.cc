@@ -223,4 +223,3 @@ void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	params += EvalParam( "Optical stack stepout",
 			     VolStats::optstackstepStr() );
 }
-

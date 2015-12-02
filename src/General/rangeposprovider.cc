@@ -647,4 +647,3 @@ void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 
 void Pos::RangeProvider2D::initClass()
 { Pos::Provider2D::factory().addCreator( create, sKey::Range() ); }
-

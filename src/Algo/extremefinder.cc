@@ -513,4 +513,3 @@ float ExtremeFinderND::linExtreme( float* vec )
 
     return finder.extremeVal();
 }
-

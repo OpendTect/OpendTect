@@ -16,4 +16,3 @@ mDefODInitPlugin(Hello)
     od_cout() << "Hello world" << od_endl;
     return 0; // All OK - no error messages
 }
-

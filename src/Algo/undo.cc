@@ -363,6 +363,3 @@ const BinID& BinIDUndoEvent::getBinID() const
     static BinID res( mUdf(int), mUdf(int) );
     return res;
 }
-
-
-

@@ -184,4 +184,3 @@ void uiSurfacePosProvGroup::initClass()
     uiPosProvGroup::factory().addCreator( create, sKey::Surface(),
 					  uiStrings::sHorizon() );
 }
-

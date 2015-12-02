@@ -407,4 +407,3 @@ bool selectFont( FontData& fd, uiParent* par, const uiString& nm )
     uiFont::getFontData( fd, qfont );
     return true;
 }
-

@@ -749,4 +749,3 @@ void MPEClickInfo::setObjLineData( const Attrib::Data2DHolder* ad2dh )
 { linedata_ = ad2dh; }
 
 } // namespce visSurvey
-

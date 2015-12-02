@@ -213,4 +213,3 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 
     setInputText( fullpath );
 }
-

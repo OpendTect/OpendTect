@@ -49,4 +49,3 @@ uiArr2DFilterParsDlg::uiArr2DFilterParsDlg( uiParent* p,
 {
     fld = new uiArr2DFilterPars( this, prs );
 }
-

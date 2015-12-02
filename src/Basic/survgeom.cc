@@ -484,4 +484,3 @@ Geometry::ID GeometryManager::findRelated( const Geometry& ref,
 
 
 } // namespace Survey
-

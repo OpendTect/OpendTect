@@ -343,4 +343,3 @@ function(guess_runtime_library_dirs _var)
 	# Return _dlldirs
 	set(${_var} "${_dlldirs}" PARENT_SCOPE)
 endfunction()
-

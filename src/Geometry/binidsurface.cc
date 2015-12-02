@@ -531,5 +531,3 @@ int BinIDSurface::nrCols() const
 
 
 };
-
-

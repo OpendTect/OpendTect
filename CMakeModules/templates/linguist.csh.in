@@ -18,5 +18,3 @@ else
 
     @QTDIR@/bin/linguist $*
 endif
-
-

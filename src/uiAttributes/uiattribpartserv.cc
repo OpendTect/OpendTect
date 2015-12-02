@@ -1911,4 +1911,3 @@ void uiAttribPartServer::loadDefaultAttrSet( const char* attrsetnm )
     if ( attrsetdlg_ )
 	attrsetdlg_->loadDefaultAttrSet( attrsetnm );
 }
-

@@ -141,5 +141,3 @@ inline bool RowCol::fromString( const char* str )
 
 
 #endif
-
-

@@ -299,4 +299,3 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     if ( linenmfld_->nrChosen() == 0 )
 	linenmfld_->chooseAll();
 }
-

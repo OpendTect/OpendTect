@@ -274,4 +274,3 @@ void uiODAttribTreeItem::updateColumnText( int col )
 
     uiODDataTreeItem::updateColumnText( col );
 }
-

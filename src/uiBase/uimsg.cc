@@ -540,5 +540,3 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 
 uiString uiMsg::sDontShowAgain()
 { return tr("Don't show this message again"); }
-
-

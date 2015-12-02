@@ -1522,6 +1522,3 @@ bool convertToVintIfNeeded( const float* inpvel, const VelocityDesc& veldesc,
 
     return true;
 }
-
-
-

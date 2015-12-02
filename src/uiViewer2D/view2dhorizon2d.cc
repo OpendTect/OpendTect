@@ -222,4 +222,3 @@ void Vw2DHorizon2D::getHorEditors(
 	    eds += horeds_[ivwr];
     }
 }
-

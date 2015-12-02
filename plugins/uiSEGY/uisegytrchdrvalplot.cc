@@ -126,4 +126,3 @@ void uiSEGYTrcHdrValPlot::getBendPoints( const float* inp, int sz )
 	previdx = idx;
     }
 }
-

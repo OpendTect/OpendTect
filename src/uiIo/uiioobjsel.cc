@@ -667,4 +667,3 @@ IOObj* uiIOObjSel::createEntry( const char* nm )
     workctio_.fillObj( false );
     return workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0;
 }
-

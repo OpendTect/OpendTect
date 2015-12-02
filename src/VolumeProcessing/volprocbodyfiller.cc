@@ -441,4 +441,3 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 }
 
 } // namespace VolProc
-

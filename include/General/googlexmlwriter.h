@@ -75,5 +75,3 @@ protected:
 } // namespace ODGoogle
 
 #endif
-
-

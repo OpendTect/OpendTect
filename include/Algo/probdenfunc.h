@@ -167,5 +167,3 @@ protected:
 
 
 #endif
-
-

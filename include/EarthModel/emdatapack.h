@@ -106,5 +106,3 @@ protected:
 } // namespace EM
 
 #endif
-
-

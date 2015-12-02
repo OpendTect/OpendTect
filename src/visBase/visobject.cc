@@ -284,4 +284,3 @@ const TypeSet<int>* VisualObject::rightClickedPath() const
 }
 
 }; //namespace
-

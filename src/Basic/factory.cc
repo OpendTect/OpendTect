@@ -94,4 +94,3 @@ int FactoryBase::indexOf( const char* name ) const
 
     return -1;
 }
-

@@ -452,4 +452,3 @@ bool Event::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 }; // namespace Attrib
-

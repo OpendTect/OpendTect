@@ -202,4 +202,3 @@ void uiCursorManager::restoreInternal()
     mStoreOverrideShape();
     QApplication::setOverrideCursor( topcursor );
 }
-

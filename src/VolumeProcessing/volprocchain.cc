@@ -1268,5 +1268,3 @@ od_int64 Step::getOuputMemSize( int outputidx ) const
 
 
 } // namespace Volproc
-
-

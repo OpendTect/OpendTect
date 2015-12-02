@@ -262,5 +262,3 @@ uiVariogramDisplay::~uiVariogramDisplay()
     if ( axes_ ) delete axes_;
     if ( labels_ ) delete labels_;
 }
-
-

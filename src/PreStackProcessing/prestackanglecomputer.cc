@@ -542,4 +542,3 @@ Gather* ModelBasedAngleComputer::computeAngles()
 }
 
 } // namespace PreStack
-

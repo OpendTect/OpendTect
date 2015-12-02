@@ -75,6 +75,3 @@ private:
 } // namespace EM
 
 #endif
-
-
-

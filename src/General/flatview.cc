@@ -703,4 +703,3 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
     Interval<float> mapperrange = mapper.range_;
     return mapperrange;
 }
-

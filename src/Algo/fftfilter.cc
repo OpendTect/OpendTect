@@ -607,5 +607,3 @@ void FFTFilter::restoreSize( const Array1DImpl<float>& inp,
     for ( int idx=0; idx<sz; idx++ )
 	outp.set( idx, inp.get( idx + shift ) );
 }
-
-

@@ -1114,4 +1114,3 @@ char* lastOcc( char* str, int character )
 {
     return const_cast<char*>( lastOcc(const_cast<const char*>(str),character) );
 }
-

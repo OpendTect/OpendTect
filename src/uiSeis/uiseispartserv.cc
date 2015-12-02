@@ -515,4 +515,3 @@ bool uiSeisPartServer::usePar( const IOPar& par )
     Seis::PreLoader::load( newpar, &uitr );
     return true;
 }
-

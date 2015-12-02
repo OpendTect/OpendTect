@@ -577,4 +577,3 @@ T PolyReg2DWithUdf<T>::apply( float x, float y ) const
 }// namespace Interpolate
 
 #endif
-

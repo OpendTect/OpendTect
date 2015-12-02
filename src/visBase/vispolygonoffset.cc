@@ -66,4 +66,3 @@ void PolygonOffset::setMode( unsigned int modevalue )
 }
 
 }; //namespace
-

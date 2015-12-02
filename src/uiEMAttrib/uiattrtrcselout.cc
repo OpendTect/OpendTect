@@ -631,4 +631,3 @@ void uiAttrTrcSelOut::lineSel( CallBacker* )
 
     batchjobfld_->jobSpecUpdated();
 }
-

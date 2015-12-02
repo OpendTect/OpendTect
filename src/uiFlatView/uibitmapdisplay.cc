@@ -353,5 +353,3 @@ Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 void uiBitMapDisplay::dynamicTaskFinishCB( CallBacker* )
 {
 }
-
-

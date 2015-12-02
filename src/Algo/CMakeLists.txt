@@ -86,4 +86,3 @@ set( OD_MODULE_SOURCES
 )
 
 OD_INIT_MODULE()
-

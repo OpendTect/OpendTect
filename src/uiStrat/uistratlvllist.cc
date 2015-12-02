@@ -197,5 +197,3 @@ void uiStratLvlList::editLevel( bool create )
 	anychange_ = true;
     }
 }
-
-

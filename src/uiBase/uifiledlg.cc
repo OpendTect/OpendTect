@@ -491,6 +491,3 @@ void uiFileDialog::setDefaultExtension( const char* ext )
 
 const char* uiFileDialog::getDefaultExtension() const
 { return defaultextension_.buf(); }
-
-
-

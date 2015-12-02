@@ -639,7 +639,3 @@ uiString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
 
     return uiODAttribTreeItem::createDisplayName();
 }
-
-
-
-

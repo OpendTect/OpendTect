@@ -118,4 +118,3 @@ bool uiSEGYReadDlg::acceptOK( CallBacker* )
 
     return doWork( *inioobj );
 }
-

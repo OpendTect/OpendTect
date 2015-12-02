@@ -131,4 +131,3 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 	selid_ = ioobj->key();
     return rv;
 }
-

@@ -198,4 +198,3 @@ mGlobal(MPEEngine) Engine&	engine();
 } // namespace MPE
 
 #endif
-

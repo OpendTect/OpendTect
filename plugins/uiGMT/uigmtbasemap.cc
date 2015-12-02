@@ -303,4 +303,3 @@ bool uiGMTBaseMapGrp::usePar( const IOPar& par )
 
     return true;
 }
-

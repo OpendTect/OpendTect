@@ -185,5 +185,3 @@ inline ValueSeries<float>* SeisTrcValueSeries::clone() const
 { return new SeisTrcValueSeries( trc_, icomp_ ); }
 
 #endif
-
-

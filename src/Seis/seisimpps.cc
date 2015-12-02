@@ -196,4 +196,3 @@ bool SeisPSImpDataMgr::writeGather()
 	wrr_->psWriter()->setSampleNames( samplenms_ );
     return res;
 }
-

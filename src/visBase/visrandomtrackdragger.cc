@@ -1414,4 +1414,3 @@ int RandomTrackDragger::getTransDragKeys( bool trans1d, int groupidx ) const
 
 
 }; // namespace visBase
-

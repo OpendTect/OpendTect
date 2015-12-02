@@ -77,5 +77,3 @@ inline float ReflectivitySpike::time( bool isnmo ) const
 }
 
 #endif
-
-

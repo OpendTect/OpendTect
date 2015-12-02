@@ -161,5 +161,3 @@ void uiWellLogInterpolator::initWellLogSel()
 }
 
 } // namespace VolProc
-
-

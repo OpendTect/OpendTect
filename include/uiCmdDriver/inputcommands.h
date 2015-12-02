@@ -102,5 +102,3 @@ mEndDeclComposerClass
 }; // namespace CmdDrive
 
 #endif
-
-

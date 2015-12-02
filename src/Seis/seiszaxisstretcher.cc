@@ -597,4 +597,3 @@ bool SeisZAxisStretcher::doFinish( bool success )
 
     return success;
 }
-

@@ -267,4 +267,3 @@ bool uiSEGYStoreImpParsDlg::doIO()
 
     return true;
 }
-

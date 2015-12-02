@@ -545,4 +545,3 @@ void uiExportHorizon::settingsCB( CallBacker* )
 	return;
     }
 }
-

@@ -90,4 +90,3 @@ bool MadAGC::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 }; //namespace
-

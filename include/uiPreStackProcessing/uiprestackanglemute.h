@@ -123,5 +123,3 @@ protected:
 }; //namespace
 
 #endif
-
-

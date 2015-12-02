@@ -62,5 +62,3 @@ const char* GetOSGVersion()
        .add( OPENSCENEGRAPH_PATCH_VERSION );
     return ret.buf();
 }
-
-

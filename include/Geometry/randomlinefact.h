@@ -21,4 +21,3 @@ uiString RandomLineSetTranslatorGroup::sTypeName( int num )
 
 
 #endif
-

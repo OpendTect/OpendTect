@@ -1604,4 +1604,3 @@ uiViewer2DControl::~uiViewer2DControl()
 
 
 }; //namespace
-

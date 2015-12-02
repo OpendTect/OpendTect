@@ -93,5 +93,3 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
 
     return res;
 }
-
-

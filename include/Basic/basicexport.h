@@ -28,4 +28,3 @@ mExportTemplClassInst( Basic ) PerThreadObjectRepository<BufferString>;
 
 # endif
 #endif
-

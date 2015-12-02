@@ -95,4 +95,3 @@ void uiMadAGCAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     params += EvalParam( "smoothing stepout", MadAGC::smoothradiusStr() );
     params += EvalParam( "nr times", MadAGC::nrrepeatStr() );
 }
-

@@ -85,4 +85,3 @@ void uiSEGYDirectPS3DOpts::initClass()
 {
     factory().addCreator( create, mSEGYDirectTranslNm );
 }
-

@@ -30,5 +30,3 @@ public:
 } // namespace WellTie
 
 #endif
-
-

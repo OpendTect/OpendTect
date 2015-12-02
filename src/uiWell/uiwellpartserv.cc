@@ -572,4 +572,3 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     delete ctio->ioobj_;
     return true;
 }
-

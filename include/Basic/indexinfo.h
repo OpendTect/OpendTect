@@ -111,5 +111,3 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 
 
 #endif
-
-

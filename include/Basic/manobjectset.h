@@ -134,4 +134,3 @@ T* ManagedObjectSet<T>::removeAndTake(int idx, bool kporder )
 
 
 #endif
-

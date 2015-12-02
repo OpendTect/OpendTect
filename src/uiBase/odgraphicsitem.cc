@@ -1002,4 +1002,3 @@ void ODGraphicsDynamicImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
     snapToSceneRect ( this );
 }
-

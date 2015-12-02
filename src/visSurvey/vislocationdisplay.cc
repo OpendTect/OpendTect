@@ -991,4 +991,3 @@ const Coord3 LocationDisplay::getActivePlaneNormal(
 }
 
 } // namespace visSurvey
-

@@ -24,5 +24,3 @@ and provide a user interface via the uiNLA interface. Then use the
 setNlaServer() method on the uiODApplMgr to make your UI active.
 
 */
-
-

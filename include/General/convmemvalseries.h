@@ -187,4 +187,3 @@ BinDataDesc ConvMemValueSeries<T>::dataDesc() const
 
 
 #endif
-

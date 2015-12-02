@@ -331,4 +331,3 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 
     return res;
 }
-

@@ -117,5 +117,3 @@ public:
 } // namespace
 
 #endif
-
-

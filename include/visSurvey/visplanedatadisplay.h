@@ -242,5 +242,3 @@ protected:
 } // namespace visSurvey
 
 #endif
-
-

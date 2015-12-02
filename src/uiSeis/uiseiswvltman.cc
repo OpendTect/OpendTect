@@ -417,4 +417,3 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
     intxval.scale( zfac );
     waveletdisplay_->setVals( intxval, resampledwvlt.samples() , wvltsz );
 }
-

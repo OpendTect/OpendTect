@@ -227,4 +227,3 @@ protected:
 } // namespace EM
 
 #endif
-

@@ -383,4 +383,3 @@ void uiSEGYExamine::outInfo( const char* txt )
 {
     toStatusBar( txt, 0 );
 }
-

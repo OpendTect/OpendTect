@@ -263,4 +263,3 @@ int HorizonSorter::nextStep()
     nrdone_++;
     return MoreToDo();
 }
-

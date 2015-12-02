@@ -29,4 +29,3 @@ mDefModInitFn(uiViewer2D)
     Vw2DHorizon3D::initClass();
     VW2DPickSet::initClass();
 }
-

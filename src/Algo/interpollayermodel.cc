@@ -68,4 +68,3 @@ void ZSliceInterpolationModel::getAllZ( const BinID& bid,
 
 float ZSliceInterpolationModel::getLayerIndex( const BinID& bid, float z ) const
 { return hasPosition(bid) ? tkzs_.zsamp_.getfIndex( z ) : mUdf(float); }
-

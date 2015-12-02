@@ -325,5 +325,3 @@ private:
 } // namespace visSurvey
 
 #endif
-
-

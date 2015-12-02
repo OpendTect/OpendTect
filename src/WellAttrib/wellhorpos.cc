@@ -114,4 +114,3 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
     }
     return  mUdf( float );
 }
-

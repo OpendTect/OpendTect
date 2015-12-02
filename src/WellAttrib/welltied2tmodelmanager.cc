@@ -157,4 +157,3 @@ void D2TModelMgr::setFromData( float* dahs, float* times, int sz )
 }
 
 } // namespace WellTie
-

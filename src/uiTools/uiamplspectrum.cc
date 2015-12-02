@@ -371,4 +371,3 @@ void uiAmplSpectrum::ceptrumCB( CallBacker* )
     ampl->setData( *specvals_ );
     ampl->show();
 }
-

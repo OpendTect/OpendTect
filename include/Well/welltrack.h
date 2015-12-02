@@ -99,5 +99,3 @@ protected:
 }; // namespace Well
 
 #endif
-
-

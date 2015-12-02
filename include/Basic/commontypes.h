@@ -57,4 +57,3 @@ typedef double		Distance_Type;
 }
 
 #endif
-

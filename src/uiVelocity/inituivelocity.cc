@@ -21,4 +21,3 @@ mDefModInitFn(uiVelocity)
 
     Vel::uiLinearVelTransform::initClass();
 }
-

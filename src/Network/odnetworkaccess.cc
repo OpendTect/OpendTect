@@ -570,4 +570,3 @@ QNetworkAccessManager& ODNA()
 }
 
 #endif
-

@@ -1326,4 +1326,3 @@ int Pos::IdxPairValueSet::nrDuplicateIdxPairs() const
 
     return nrdupips;
 }
-

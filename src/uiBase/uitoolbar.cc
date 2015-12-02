@@ -330,4 +330,3 @@ void uiToolBar::getEntityList( ObjectSet<const CallBacker>& entities ) const
 	    entities += action;
     }
 }
-

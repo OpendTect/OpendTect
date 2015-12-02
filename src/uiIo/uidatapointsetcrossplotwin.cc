@@ -687,4 +687,3 @@ void uiDataPointSetCrossPlotWin::changeColCB( CallBacker* )
     else
 	uiMSG().message( tr("Cannot change color in this mode.") );
 }
-

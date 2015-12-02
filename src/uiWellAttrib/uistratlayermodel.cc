@@ -1225,4 +1225,3 @@ void uiStratLayerModel::selPropChgCB( CallBacker* )
 {
     seqdisp_->setDispProp( modtools_->selPropIdx() );
 }
-

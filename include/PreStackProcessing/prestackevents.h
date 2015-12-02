@@ -306,6 +306,3 @@ protected:
 }; //namespace
 
 #endif
-
-
-

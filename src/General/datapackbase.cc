@@ -604,5 +604,3 @@ const Array3DImpl<float>& SeisDataPack::data( int component ) const
 
 Array3DImpl<float>& SeisDataPack::data( int component )
 { return *arrays_[component]; }
-
-

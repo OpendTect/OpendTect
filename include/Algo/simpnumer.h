@@ -449,5 +449,3 @@ inline bool is8BitesData( const T* vals, od_int64 sz,
 }
 
 #endif
-
-

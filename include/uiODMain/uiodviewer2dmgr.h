@@ -173,5 +173,3 @@ protected:
 };
 
 #endif
-
-

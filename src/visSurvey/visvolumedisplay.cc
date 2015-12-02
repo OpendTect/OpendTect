@@ -1772,4 +1772,3 @@ const visBase::TextureChannel2RGBA* VolumeDisplay::getChannels2RGBA() const
 
 
 } // namespace visSurvey
-

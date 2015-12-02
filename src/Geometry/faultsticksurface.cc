@@ -46,4 +46,3 @@ bool FaultStickSurface::areSticksVertical() const
 
 
 } // namespace Geometry
-

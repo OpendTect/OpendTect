@@ -98,5 +98,3 @@ mGlobal(uiBase) bool isMainThread(const void*);
 mGlobal(uiBase) bool isMainThreadCurrent();
 
 #endif
-
-

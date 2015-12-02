@@ -800,4 +800,3 @@ Geometry::PrimitiveSet*
 }
 
 } // namespace visBase
-

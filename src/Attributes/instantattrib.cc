@@ -312,4 +312,3 @@ const Interval<int>* Instantaneous::reqZSampMargin( int inp, int out ) const
 
 
 }; // namespace Attrib
-

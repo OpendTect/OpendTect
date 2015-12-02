@@ -226,4 +226,3 @@ inline void interpolateXPeriodicReg( const T& idxabl, int sz, float pos,
 } // namespace IdxAble
 
 #endif
-

@@ -34,5 +34,3 @@ protected:
 } // namespace
 
 #endif
-
-

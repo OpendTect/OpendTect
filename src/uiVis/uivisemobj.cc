@@ -559,4 +559,3 @@ bool uiHorizonSettings::acceptOK()
 		    sKeyHorizonColTab );
     return true;
 }
-

@@ -178,5 +178,3 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 	bivs.add( bid, vals );
     }
 }
-
-

@@ -288,4 +288,3 @@ void uiWellDisplayControl::setCtrlPressed( bool yn )
     }
     isctrlpressed_ = yn;
 }
-

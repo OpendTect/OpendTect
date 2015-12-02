@@ -112,5 +112,3 @@ public:
 } // namespace
 
 #endif
-
-

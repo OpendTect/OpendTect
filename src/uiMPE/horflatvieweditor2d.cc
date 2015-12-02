@@ -854,4 +854,3 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 }
 
 } // namespace MPE
-

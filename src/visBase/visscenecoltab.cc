@@ -245,4 +245,3 @@ bool SceneColTab::turnOn( bool yn )
 
 
 } // namespace visBase
-

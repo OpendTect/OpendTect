@@ -373,4 +373,3 @@ void uiPickPartServer::fillZValsFrmHor( Pick::Set* ps, int horidx )
     horid_ = hinfos_[horidx]->multiid;
     sendEvent( evFillPickSet() );
 }
-

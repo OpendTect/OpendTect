@@ -359,4 +359,3 @@ void TraceData::handleDataSwapping()
 	    interp_[icomp]->swap( data_[icomp]->data(), data_[icomp]->size() );
     }
 }
-

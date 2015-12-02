@@ -204,4 +204,3 @@ void uiSurvTopBotImageDlg::setTransparency( bool istop, float val )
     if ( scene_->getTopBotImage(istop) )
 	scene_->getTopBotImage(istop)->setTransparency( val );
 }
-

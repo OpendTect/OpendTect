@@ -100,4 +100,3 @@ bool uiEventExport::acceptOK( CallBacker* )
 }
 
 }; //namespace
-

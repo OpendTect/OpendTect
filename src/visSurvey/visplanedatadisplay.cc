@@ -1211,4 +1211,3 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
 
 
 } // namespace visSurvey
-

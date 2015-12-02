@@ -251,4 +251,3 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 
     defs_ += def;
 }
-

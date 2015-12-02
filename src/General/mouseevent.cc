@@ -228,4 +228,3 @@ const GestureEvent*	GestureEventHandler::getPinchEventInfo() const
 {
     return currentevent_;
 }
-

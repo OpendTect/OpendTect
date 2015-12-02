@@ -245,4 +245,3 @@ void HorizonSectionTileGlue::setDisplayTransformation( const mVisTrans* nt )
     gluegeom_->dirtyBound();
     gluegeom_->dirtyDisplayList();
 }
-

@@ -50,4 +50,3 @@ bool uiAttribTransDlg::acceptOK( CallBacker* )
 {
     return true;
 }
-

@@ -108,4 +108,3 @@ void BendPoints2Coords::getIndexes( float pos, Interval<int>& idxs ) const
 	    idxs.start = mididx;
     }
 }
-

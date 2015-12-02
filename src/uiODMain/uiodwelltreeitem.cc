@@ -438,4 +438,3 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
     return true;
 }
-

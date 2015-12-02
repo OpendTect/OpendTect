@@ -74,4 +74,3 @@ public:
 } // namespace Batch
 
 #endif
-

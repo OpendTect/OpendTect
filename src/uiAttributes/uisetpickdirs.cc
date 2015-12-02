@@ -393,4 +393,3 @@ void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
 
     createdset_->addDesc( desc, did );
 }
-

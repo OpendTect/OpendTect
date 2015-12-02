@@ -558,4 +558,3 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
     result_ = res;
     return true;
 }
-

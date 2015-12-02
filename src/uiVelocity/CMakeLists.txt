@@ -17,4 +17,3 @@ set(OD_MODULE_SOURCES
 		uivelocityfunctionimp.cc
 )
 OD_INIT_MODULE()
-

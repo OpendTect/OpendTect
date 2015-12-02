@@ -136,4 +136,3 @@ uiString VelocityDesc::getVelVolumeLabel()
 {
     return tr( "Velocity model %1").arg( getVelUnit(true) );
 }
-

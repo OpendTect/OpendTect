@@ -237,5 +237,3 @@ public:
 } // namespace PosInfo
 
 #endif
-
-

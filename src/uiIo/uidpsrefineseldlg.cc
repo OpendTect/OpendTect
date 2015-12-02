@@ -175,4 +175,3 @@ bool uiDPSRefineSelDlg::acceptOK( CallBacker* )
     setPlotter();
     return true;
 }
-

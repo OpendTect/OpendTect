@@ -163,5 +163,3 @@ protected:
 };
 
 #endif
-
-

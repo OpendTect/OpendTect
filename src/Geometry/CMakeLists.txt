@@ -50,6 +50,3 @@ set(OD_MODULE_SOURCES
 
 OD_ADD_SOURCE_FILES( marchingcubeslist.cc )
 OD_INIT_MODULE()
-
-
-

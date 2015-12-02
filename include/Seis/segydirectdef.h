@@ -138,5 +138,3 @@ protected:
 }; //Namespace
 
 #endif
-
-

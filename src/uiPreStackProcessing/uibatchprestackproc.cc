@@ -151,4 +151,3 @@ bool uiBatchProcSetup::fillPar( IOPar& par )
     return true;
 }
 } // namespace PreStack
-

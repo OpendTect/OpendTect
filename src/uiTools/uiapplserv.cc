@@ -38,4 +38,3 @@ bool uiApplPartServer::sendEvent( int evid ) const
 
 void* uiApplPartServer::getObject( int objid ) const
 { return const_cast<uiApplService&>(appserv()).getObject(this,objid); }
-

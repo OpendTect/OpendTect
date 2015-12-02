@@ -30,5 +30,3 @@ set(OD_MODULE_SOURCES
 	wellwriter.cc
 )
 OD_INIT_MODULE()
-
-

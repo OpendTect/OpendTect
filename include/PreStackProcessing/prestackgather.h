@@ -176,4 +176,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

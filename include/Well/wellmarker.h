@@ -183,5 +183,3 @@ public:
 } // namespace Well
 
 #endif
-
-

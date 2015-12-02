@@ -201,4 +201,3 @@ void columnDoubleClicked( int idx )
 QT_END_NAMESPACE
 
 #endif
-

@@ -80,5 +80,3 @@ public:
 } // namespace
 
 #endif
-
-

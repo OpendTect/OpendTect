@@ -135,5 +135,3 @@ protected:
 } // namespace visSurvey
 
 #endif
-
-

@@ -34,5 +34,3 @@ protected:
 } // namespace ODMad
 
 #endif
-
-

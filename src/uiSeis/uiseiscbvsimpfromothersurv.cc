@@ -131,5 +131,3 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 				 tr("No, close window") );
     return !ret;
 }
-
-

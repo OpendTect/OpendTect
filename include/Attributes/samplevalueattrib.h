@@ -50,5 +50,3 @@ protected:
 } // namespace Attrib
 
 #endif
-
-

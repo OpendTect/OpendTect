@@ -475,4 +475,3 @@ void Horizon2DLine::trimUndefParts()
 
 
 } // namespace Geometry
-

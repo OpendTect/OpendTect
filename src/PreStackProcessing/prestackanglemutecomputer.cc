@@ -189,4 +189,3 @@ const AngleMuteComputer::AngleMuteCompPars& AngleMuteComputer::params() const
 { return static_cast<AngleMuteComputer::AngleMuteCompPars&>(*params_); }
 
 } // namespace PreStack
-

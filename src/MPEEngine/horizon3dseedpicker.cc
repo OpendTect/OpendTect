@@ -603,5 +603,3 @@ TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 }
 
 } // namespace MPE
-
-

@@ -573,4 +573,3 @@ void CoordListAdapter::remove(const TypeSet<int>& idxs)
 }
 
 };
-

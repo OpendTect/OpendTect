@@ -204,4 +204,3 @@ void uiDPSSelGrpDlg::calcSelectedness( CallBacker* )
 
     plotter_.uidps().calcSelectedness();
 }
-

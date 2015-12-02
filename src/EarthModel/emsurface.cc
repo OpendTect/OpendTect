@@ -304,4 +304,3 @@ void Surface::fillPar( IOPar& par ) const
 }
 
 } // namespace EM
-

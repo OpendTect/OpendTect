@@ -143,5 +143,3 @@ protected:
 } // namespace
 
 #endif
-
-

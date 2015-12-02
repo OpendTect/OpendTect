@@ -229,4 +229,3 @@ MultiID uiSEGYScanDlg::outputID() const
 {
     return outfld_ ? outfld_->key(true) : MultiID::udf();
 }
-

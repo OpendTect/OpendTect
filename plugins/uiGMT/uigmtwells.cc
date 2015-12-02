@@ -147,5 +147,3 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     choiceSel( 0 );
     return true;
 }
-
-

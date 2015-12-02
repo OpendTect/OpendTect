@@ -244,5 +244,3 @@ protected:
 }; // namespace Table
 
 #endif
-
-

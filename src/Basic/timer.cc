@@ -130,4 +130,3 @@ mImplStaticNotifier( timerStarts )
 mImplStaticNotifier( timerStopped )
 mImplStaticNotifier( timerShoots )
 mImplStaticNotifier( timerShot )
-

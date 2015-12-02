@@ -36,6 +36,3 @@ protected:
 };
 
 #endif
-
-
-

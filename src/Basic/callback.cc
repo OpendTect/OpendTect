@@ -599,4 +599,3 @@ void NotifyStopper::disable()
 
 void NotifyStopper::restore()
 { thenotif_.cbs_.doEnable(oldst_);}
-

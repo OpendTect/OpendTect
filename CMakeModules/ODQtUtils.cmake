@@ -179,5 +179,3 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	
     endif()
 endmacro( SETUP_QT_TRANSLATION )
-
-

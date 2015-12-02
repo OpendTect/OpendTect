@@ -165,5 +165,3 @@ bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
 
     return uiMSG().askOverwrite( errmsg );
 }
-
-

@@ -319,4 +319,3 @@ bool uiSeisMMProc::needConfirmEarlyStop() const
 {
     return outioobjinfo_ && jobrunner_;
 }
-

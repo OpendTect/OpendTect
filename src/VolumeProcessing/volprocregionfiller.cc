@@ -133,4 +133,3 @@ bool RegionFiller::usePar( const IOPar& par )
 }
 
 } // namespace VolProc
-

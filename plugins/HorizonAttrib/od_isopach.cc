@@ -111,4 +111,3 @@ bool BatchProgram::go( od_ostream& strm )
     horizon1->unRef(); horizon2->unRef();
     return true;
 }
-

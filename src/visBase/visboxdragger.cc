@@ -492,4 +492,3 @@ bool BoxDragger::isInDepthTranslationUsedForResize() const
 
 
 }; // namespace visBase
-

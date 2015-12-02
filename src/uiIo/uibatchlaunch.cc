@@ -275,4 +275,3 @@ bool uiStartBatchJobDialog::acceptOK( CallBacker* )
 
     return batchfld_->start();
 }
-

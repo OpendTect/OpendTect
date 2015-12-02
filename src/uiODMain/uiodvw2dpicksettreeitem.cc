@@ -323,5 +323,3 @@ uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis(
     mDynamicCastGet(const VW2DPickSet*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DPickSetTreeItem(id,false) : 0;
 }
-
-

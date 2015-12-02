@@ -75,4 +75,3 @@ bool uiEventFreqAttrib::getOutput( Attrib::Desc& desc )
     fillOutput( desc, typfld_->getBoolValue() ? 0 : 1 );
     return true;
 }
-

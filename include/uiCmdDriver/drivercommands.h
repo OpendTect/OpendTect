@@ -64,4 +64,3 @@ mStartDeclCmdClass( uiCmdDriver, End, StealthCmd )		mEndDeclCmdClass
 }; // namespace CmdDrive
 
 #endif
-

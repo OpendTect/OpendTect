@@ -81,4 +81,3 @@ bool uiSeis2DFrom3D::acceptOK( CallBacker* )
 
     return true;
 }
-

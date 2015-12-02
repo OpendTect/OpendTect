@@ -113,4 +113,3 @@ bool BatchProgram::go( od_ostream& strm )
     sd.close();
     return true;
 }
-

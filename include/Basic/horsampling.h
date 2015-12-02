@@ -23,5 +23,3 @@ typedef TrcKeySampling HorSampling;
 typedef TrcKeySamplingIterator HorSamplingIterator;
 
 #endif
-
-

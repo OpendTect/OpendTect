@@ -739,4 +739,3 @@ void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
     OBJDISP()->go( uimenu_ );
     uimenu_ = mnu;
 }
-

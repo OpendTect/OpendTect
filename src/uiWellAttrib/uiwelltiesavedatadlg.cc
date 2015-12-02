@@ -247,5 +247,3 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 }
 
 } // namespace WellTie
-
-

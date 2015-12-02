@@ -1334,4 +1334,3 @@ bool Seis2DDisplay::usePar( const IOPar& par )
 }
 
 } // namespace visSurvey
-

@@ -555,4 +555,3 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
     DPM(DataPackMgr::PointID()).release( dps->id() );
     return false;
 }
-

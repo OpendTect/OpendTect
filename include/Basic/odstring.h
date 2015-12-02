@@ -120,4 +120,3 @@ template <class T> inline bool String::operator <( const T& t ) const
 
 
 #endif
-

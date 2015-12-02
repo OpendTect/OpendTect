@@ -177,5 +177,3 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
     const bool hasparam = varinpflds_.validIdx( winidx ) && varinpflds_[winidx];
     viewbut_->display( !onlytaper_ || hasparam );
 }
-
-

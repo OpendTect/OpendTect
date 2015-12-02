@@ -57,5 +57,3 @@ protected:
 } // namespace
 
 #endif
-
-

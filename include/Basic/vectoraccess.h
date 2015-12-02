@@ -292,4 +292,3 @@ bool VectorAccess<T,I>::isPresent( const T& t ) const
 }
 
 #endif
-

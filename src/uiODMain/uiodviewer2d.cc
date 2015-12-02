@@ -1325,4 +1325,3 @@ void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
 	    pickitem->addPickSets( mids );
     }
 }
-

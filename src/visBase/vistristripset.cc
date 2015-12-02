@@ -21,4 +21,3 @@ TriangleStripSet::TriangleStripSet()
 {}
 
 }; // namespace visBase
-

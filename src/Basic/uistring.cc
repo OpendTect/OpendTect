@@ -924,6 +924,3 @@ uiString getUiYesNoString( bool res )
 {
     return res ? uiStrings::sYes() : uiStrings::sNo();
 }
-
-
-

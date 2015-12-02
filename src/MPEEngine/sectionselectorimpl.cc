@@ -32,4 +32,3 @@ SurfaceSourceSelector::SurfaceSourceSelector(
 {}
 
 } // namespace MPE
-

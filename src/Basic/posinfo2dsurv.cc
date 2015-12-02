@@ -1023,4 +1023,3 @@ BufferString Survey::Geometry2D::makeUniqueLineName( const char* lsnm,
     newlnm.add( lnm );
     return newlnm;
 }
-

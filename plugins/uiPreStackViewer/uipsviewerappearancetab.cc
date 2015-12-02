@@ -289,5 +289,3 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 }
 
 } // namespace PreStackView
-
-

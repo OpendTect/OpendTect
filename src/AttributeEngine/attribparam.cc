@@ -316,4 +316,3 @@ bool SeisStorageRefParam::isOK() const
 }
 
 }; // namespace Attrib
-

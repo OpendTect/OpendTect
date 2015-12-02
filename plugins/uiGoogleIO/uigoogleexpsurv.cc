@@ -69,4 +69,3 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
 
     return true;
 }
-

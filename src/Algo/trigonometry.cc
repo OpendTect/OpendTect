@@ -669,4 +669,3 @@ Coord3 spherical2Cartesian( const Sphere& sph, bool math )
 
     return Coord3(x,y,z);
 }
-

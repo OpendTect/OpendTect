@@ -181,4 +181,3 @@ protected:
 } // namespace Seis
 
 #endif
-

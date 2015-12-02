@@ -93,9 +93,3 @@ RowCol RowCol::getDirection() const
     else if ( col()<0 ) res.col()=-1;
     return res;
 }
-
-
-
-
-
-

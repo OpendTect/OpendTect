@@ -235,4 +235,3 @@ void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
 		"\t\t</Polygon>\n"
 		"\t</Placemark>\n" << od_endl;
 }
-

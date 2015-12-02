@@ -176,4 +176,3 @@ void AnnotBufferFiller::eraseGridLines( bool hor )
 	}
     }
 }
-

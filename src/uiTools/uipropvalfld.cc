@@ -115,4 +115,3 @@ const char* uiPropertyValFld::propName() const
 {
     return valfld_->titleText().getFullString();
 }
-

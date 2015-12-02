@@ -1030,4 +1030,3 @@ bool uiInfoDlg::isInitWvltActive() const
 }
 
 } // namespace WellTie
-

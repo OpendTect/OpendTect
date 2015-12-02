@@ -196,4 +196,3 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 
     changed.trigger(cb);
 }
-

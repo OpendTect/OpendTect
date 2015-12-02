@@ -505,4 +505,3 @@ bool CurWindowFunc::eval( const BufferStringSet& args, BufferString& res ) const
 
 
 }; // namespace CmdDrive
-

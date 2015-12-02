@@ -64,4 +64,3 @@ mDefModInitFn(uiAttributes)
     uiTextureAttrib::initClass();
     uiVolumeStatisticsAttrib::initClass();
 }
-

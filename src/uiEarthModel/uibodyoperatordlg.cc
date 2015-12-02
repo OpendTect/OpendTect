@@ -518,4 +518,3 @@ const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
 
     return inpiobj->clone();
 }
-

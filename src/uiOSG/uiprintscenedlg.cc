@@ -529,5 +529,3 @@ const char* uiPrintSceneDlg::getExtension()
 {
     return uiSaveImageDlg::getExtension();
 }
-
-

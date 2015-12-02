@@ -236,5 +236,3 @@ void clss::initClass()						\
 
 
 #endif
-
-

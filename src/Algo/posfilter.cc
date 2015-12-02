@@ -425,4 +425,3 @@ Pos::Provider2D* Pos::Provider2D::make( const IOPar& iop )
 	prov->usePar( iop );
     return prov;
 }
-

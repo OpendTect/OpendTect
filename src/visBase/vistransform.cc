@@ -297,5 +297,3 @@ mDeclConvTrans( Coord3, osg::Vec3f )
 mDeclConvTrans( osg::Vec3f, Coord3 )
 #undef mToOsgVec
 #undef mFromOsgVec
-
-

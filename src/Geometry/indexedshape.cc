@@ -373,5 +373,3 @@ void ExplicitIndexedShape::removeFromGeometries( int idx )
 }
 
 } // namespace Geometry
-
-

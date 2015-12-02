@@ -131,4 +131,3 @@ void uiCheckedCompoundParSel::checkCB( CallBacker* )
 
     checked.trigger();
 }
-

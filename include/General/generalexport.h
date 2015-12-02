@@ -19,5 +19,3 @@ mExportTemplClassInst( General ) Array2D<float>;
 
 # endif
 #endif
-
-

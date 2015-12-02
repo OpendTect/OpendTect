@@ -561,4 +561,3 @@ od_int64 Seis2DTo3D::totalNr() const
 {
     return totnr_;
 }
-

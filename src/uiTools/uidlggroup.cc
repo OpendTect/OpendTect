@@ -105,4 +105,3 @@ bool uiTabStackDlg::rejectOK(CallBacker*)
 
     return true;
 }
-

@@ -28,4 +28,3 @@ mDefModInitFn(uiEarthModel)
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();
 }
-

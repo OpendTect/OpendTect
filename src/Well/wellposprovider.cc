@@ -238,4 +238,3 @@ void WellProvider3D::initClass()
 }
 
 } // namespace Pos
-

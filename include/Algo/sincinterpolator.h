@@ -645,4 +645,3 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 }
 
 #endif
-

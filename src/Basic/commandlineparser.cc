@@ -252,4 +252,3 @@ bool CommandLineParser::getVal( const char* key, BufferString& val,
     val.set( argv_[validx]->buf() );
     return true;
 }
-

@@ -234,4 +234,3 @@ void uiLineEdit::popupVirtualKeyboard( int globalx, int globaly )
 
     editingFinished.trigger();
 }
-

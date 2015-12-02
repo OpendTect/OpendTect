@@ -107,5 +107,3 @@ void uiSeisTrcBufViewer::handleBufChange()
 {
     viewer().handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
-
-

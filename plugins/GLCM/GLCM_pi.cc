@@ -29,5 +29,3 @@ mDefODInitPlugin(GLCM)
     Attrib::GLCM_attrib::initClass();
     return 0;
 }
-
-

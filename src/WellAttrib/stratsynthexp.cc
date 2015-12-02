@@ -224,4 +224,3 @@ int StratSynthExporter::writePreStackTraces()
     posdone_++;
     return Executor::MoreToDo();
 }
-

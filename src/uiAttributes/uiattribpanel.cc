@@ -163,4 +163,3 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     else
 	{ pErrMsg("Error during attribute computation"); }
 }
-

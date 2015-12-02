@@ -255,4 +255,3 @@ bool Horizon2DScanner::getLineNames( BufferStringSet& nms ) const
     nms = validnms_;
     return nms.size();
 }
-

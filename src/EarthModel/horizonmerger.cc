@@ -129,4 +129,3 @@ bool Horizon3DMerger::doFinish( bool success )
 }
 
 } // namespace EM
-

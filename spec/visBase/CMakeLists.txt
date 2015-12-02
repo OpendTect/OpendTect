@@ -18,4 +18,3 @@ else()
 endif( UNIX )
 
 OD_INIT_MODULE()
-

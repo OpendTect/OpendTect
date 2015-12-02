@@ -602,4 +602,3 @@ EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
 
 
 }; //namespace
-

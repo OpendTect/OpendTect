@@ -37,5 +37,3 @@ protected:
 } // namespace Geometry
 
 #endif
-
-

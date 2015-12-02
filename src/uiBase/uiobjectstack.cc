@@ -60,4 +60,3 @@ void uiObjectStack::setCurrentObject( int idx )
 
 int uiObjectStack::size() const
 { return body_->count(); }
-

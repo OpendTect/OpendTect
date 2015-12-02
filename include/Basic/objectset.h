@@ -487,4 +487,3 @@ template <class T> inline const T* ObjectSet<T>::last() const
 
 
 #endif
-

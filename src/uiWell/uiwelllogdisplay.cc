@@ -434,4 +434,3 @@ uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
     dlg->show();
     return dlg;
 }
-

@@ -587,4 +587,3 @@ void uiVisDataPointSetDisplayMgr::getIconInfo( BufferString& fnm,
     fnm = "picks";
     tooltip = "Show points in 3D scene";
 }
-

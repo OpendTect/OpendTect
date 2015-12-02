@@ -131,5 +131,3 @@ bool EventTracker::usePar( const IOPar& par )
 
 
 } //namespace
-
-

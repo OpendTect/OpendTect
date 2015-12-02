@@ -84,4 +84,3 @@ protected:
 } // namespace Attrib
 
 #endif
-

@@ -106,5 +106,3 @@ protected:
 mGlobal(Basic) TextTranslateMgr& TrMgr();
 
 #endif
-
-

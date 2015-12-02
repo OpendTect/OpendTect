@@ -246,4 +246,3 @@ void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 
     if ( lbl ) lbl->setText( lbltxt.getQString() );
 }
-

@@ -144,4 +144,3 @@ void uiPickSetMan::mergeSets( CallBacker* )
     if ( !curkey.isEmpty() )
 	selgrp_->fullUpdate( curkey );
 }
-

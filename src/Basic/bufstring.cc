@@ -912,4 +912,3 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
     if ( ptr && *ptr )
 	add( ptr );
 }
-

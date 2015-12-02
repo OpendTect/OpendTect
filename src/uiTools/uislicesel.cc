@@ -732,4 +732,3 @@ const TrcKeyZSampling& uiLinePosSelDlg::getTrcKeyZSampling() const
 
 const char* uiLinePosSelDlg::getLineName() const
 { return linesfld_ ? linesfld_->text() : ""; }
-

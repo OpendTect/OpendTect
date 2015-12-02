@@ -57,6 +57,3 @@ mGlobal(AttributeEngine) extern ProviderFactory& PF();
 }; //Namespace
 
 #endif
-
-
-

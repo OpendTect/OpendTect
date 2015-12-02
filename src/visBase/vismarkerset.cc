@@ -457,6 +457,3 @@ void MarkerSet::removePolygonOffsetNodeState()
     offset_ = 0;
 
 }
-
-
-

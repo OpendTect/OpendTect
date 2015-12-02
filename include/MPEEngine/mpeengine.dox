@@ -18,5 +18,3 @@ ________________________________________________________________________
   a static instance of that can be retrieved by MPE::engine().
 
 */
-
-

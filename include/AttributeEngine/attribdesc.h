@@ -345,4 +345,3 @@ protected:
     mGetDoubleFromDesc( desc_, var, varstring )
 
 #endif
-

@@ -273,4 +273,3 @@ const Interval<float>* Position::desZMargin(int input,int output) const
 
 
 } // namespace Attrib
-

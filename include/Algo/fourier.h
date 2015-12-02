@@ -163,5 +163,3 @@ protected:
 } // namespace Fourier
 
 #endif
-
-

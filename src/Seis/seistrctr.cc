@@ -600,4 +600,3 @@ void SeisTrcTranslator::addWarn( int nr, const char* msg )
     warnnrs_ += nr;
     warnings_.add( msg );
 }
-

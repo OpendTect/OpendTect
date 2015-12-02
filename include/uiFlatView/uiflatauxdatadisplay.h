@@ -60,5 +60,3 @@ protected:
 } // namespace FlatView
 
 #endif
-
-

@@ -471,4 +471,3 @@ void uiGLCM_attrib::determineMinMax( const SeisTrcBuf& bufs )
     checkAndSetSymmetric( range );
 	limitfld_->setValues( range.start, range.stop);
 }
-

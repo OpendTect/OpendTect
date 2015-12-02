@@ -16,4 +16,3 @@ set(OD_MODULE_SOURCES
 	madpi.cc madstream.cc)
 set( OD_MODULE_BATCHPROGS od_madexec.cc )
 OD_INIT_MODULE()
-

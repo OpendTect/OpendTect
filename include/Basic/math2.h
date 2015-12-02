@@ -140,4 +140,3 @@ mGlobal(Basic) float IntPowerOf(float,int);
 
 
 #endif
-

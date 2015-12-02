@@ -92,5 +92,3 @@ public:
 } // namespace Strat
 
 #endif
-
-

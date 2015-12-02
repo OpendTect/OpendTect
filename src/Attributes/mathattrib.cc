@@ -273,5 +273,3 @@ const Interval<float>* Attrib::Mathematics::desZMargin( int inp, int ) const
 {
     return &desintv_;
 }
-
-

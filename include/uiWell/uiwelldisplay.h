@@ -139,5 +139,3 @@ private:
 };
 
 #endif
-
-

@@ -361,4 +361,3 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 
     return true;
 }
-

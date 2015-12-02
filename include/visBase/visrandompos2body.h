@@ -60,5 +60,3 @@ protected:
 
 
 #endif
-
-

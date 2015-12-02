@@ -464,5 +464,3 @@ PreLoadDataManager& PLDM()
 }
 
 } // namespace Seis
-
-

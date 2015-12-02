@@ -843,4 +843,3 @@ void uiSurfaceMan::man2dCB( CallBacker* )
     uiSurface2DMan dlg( this, eminfo );
     dlg.go();
 }
-

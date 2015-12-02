@@ -454,4 +454,3 @@ MultiID IODir::newKey() const
     id += toString( curid_ );
     return id;
 }
-

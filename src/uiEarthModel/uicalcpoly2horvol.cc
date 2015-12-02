@@ -250,4 +250,3 @@ const Pick::Set* uiCalcHorPolyVol::getPickSet()
 	psSel( 0 );
     return ps_;
 }
-

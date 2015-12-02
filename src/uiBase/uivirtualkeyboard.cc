@@ -367,4 +367,3 @@ void uiVirtualKeyboard::restoreSelection()
     if ( selectionstart_ >= 0 )
 	textline_->setSelection( selectionstart_, selectionlength_ );
 }
-

@@ -126,4 +126,3 @@ void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
     te->setText( strstrm.result() );
     dlg->setDeleteOnClose( true ); dlg->go();
 }
-

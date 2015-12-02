@@ -66,4 +66,3 @@ const char* DirList::fullPath( int idx ) const
 	ret.setEmpty();
     return ret.buf();
 }
-

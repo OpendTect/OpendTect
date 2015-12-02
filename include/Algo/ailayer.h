@@ -216,4 +216,3 @@ inline const Interval<float> validImpRange()
 }
 
 #endif
-

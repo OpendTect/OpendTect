@@ -168,4 +168,3 @@ Executor* Tut::HorSmoother::dataSaver( const MultiID& id )
 {
     return horizon1_->geometry().saver( 0, &id );
 }
-

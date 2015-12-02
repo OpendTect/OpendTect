@@ -85,6 +85,3 @@ protected:
 
 
 #endif
-
-
-

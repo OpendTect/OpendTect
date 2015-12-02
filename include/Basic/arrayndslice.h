@@ -305,5 +305,3 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
 
 
 #endif
-
-

@@ -34,4 +34,3 @@ mDefODInitPlugin(uiGLCM)
     uiGLCM_attrib::initClass();
     return 0;
 }
-

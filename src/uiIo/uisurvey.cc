@@ -1165,4 +1165,3 @@ bool uiSurvey::writeSurvInfoFileIfCommentChanged()
 
     return true;
 }
-

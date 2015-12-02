@@ -21,4 +21,3 @@ uiString PosVecDataSetTranslatorGroup::sTypeName( int num )
 { return tr( "Positioned Vector Data", 0, num ); }
 
 #endif
-

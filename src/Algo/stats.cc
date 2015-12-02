@@ -243,4 +243,3 @@ double Stats::NormalRandGen::get( double e, double s ) const
 {
     return e + get() * s;
 }
-

@@ -315,5 +315,3 @@ void MenuItemHandler::handleMenuCB( CallBacker* cb )
 
 void MenuItemHandler::setIcon( const char* fnm )
 { menuitem_.iconfnm = fnm; }
-
-

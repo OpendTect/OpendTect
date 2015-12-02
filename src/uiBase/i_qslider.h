@@ -68,4 +68,3 @@ void valueChanged(int)	{ mTrigger(valueChanged); }
 QT_END_NAMESPACE
 
 #endif
-

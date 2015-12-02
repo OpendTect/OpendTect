@@ -114,4 +114,3 @@ const char* PickRemoveEvent::getStandardDesc() const
 
 
 };//namespace
-

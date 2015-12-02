@@ -86,4 +86,3 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 }
 
 }; //namespace
-

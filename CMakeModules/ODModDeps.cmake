@@ -124,5 +124,3 @@ file( APPEND ${OD_PROJECT_FILE} "</Project>${OD_LINESEP}")
 file( APPEND ${OD_SUBPROJECT_LISTFILE} ")${OD_LINESEP}" )
 
 endmacro()
-
-

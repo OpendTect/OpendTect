@@ -1120,4 +1120,3 @@ void TextureChannels::unfreezeOldData( int channel )
 
 
 }; // namespace visBase
-

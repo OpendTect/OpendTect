@@ -739,5 +739,3 @@ od_ostream& od_cerr()
 			     (new od_ostream( std::cerr )) );
     return *cout;
 }
-
-

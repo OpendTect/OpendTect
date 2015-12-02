@@ -255,5 +255,3 @@ void uiDialExtra::editRetPress( CallBacker* )
 {
     processInput();
 }
-
-

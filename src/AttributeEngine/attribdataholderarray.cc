@@ -241,4 +241,3 @@ void DataHolderArray::getAll( ValueSeries<float>& outvs ) const
 }
  
 } // namespace Attrib
-

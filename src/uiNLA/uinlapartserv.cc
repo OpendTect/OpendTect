@@ -601,4 +601,3 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 
     mErrRet(sKeyUsrCancel())
 }
-

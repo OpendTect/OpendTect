@@ -58,4 +58,3 @@ mDefModInitFn(General)
 
     Batch::SingleJobDispatcher::initClass();
 }
-

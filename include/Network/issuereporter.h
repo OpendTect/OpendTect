@@ -60,5 +60,3 @@ protected:
 } //Namespace
 
 #endif
-
-

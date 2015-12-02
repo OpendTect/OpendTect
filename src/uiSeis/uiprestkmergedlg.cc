@@ -420,4 +420,3 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* )
     outgrp_->setInput( *inioobj );
     return outgrp_->go();
 }
-

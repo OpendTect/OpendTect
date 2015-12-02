@@ -168,5 +168,3 @@ bool uiGMTRandLinesGrp::usePar( const IOPar& par )
     labelSel( 0 );
     return true;
 }
-
-

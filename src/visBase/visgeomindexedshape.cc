@@ -533,4 +533,3 @@ void GeomIndexedShape::setPixelDensity( float dpi )
 
 
 }; // namespace visBase
-

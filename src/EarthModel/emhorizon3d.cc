@@ -1354,4 +1354,3 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 
 
 } // namespace EM
-

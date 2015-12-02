@@ -149,5 +149,3 @@ private:
 } // namespace Attrib
 
 #endif
-
-

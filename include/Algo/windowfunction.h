@@ -138,5 +138,3 @@ mDefineFactory(Algo,WindowFunction,WINFUNCS);
 
 
 #endif
-
-

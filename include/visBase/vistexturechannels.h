@@ -144,5 +144,3 @@ protected:
 }; // Namespace
 
 #endif
-
-

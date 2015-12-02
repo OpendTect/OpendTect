@@ -924,4 +924,3 @@ DescID uiImagAttrSel::imagID() const
 
     return descset.addDesc( newdesc );
 }
-

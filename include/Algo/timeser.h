@@ -36,5 +36,3 @@ mGlobal(Algo) void Hilbert(int n,float* x,float* y);
 
 
 #endif
-
-

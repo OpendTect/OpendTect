@@ -125,6 +125,3 @@ protected:
 } // namepace MPE
 
 #endif
-
-
-

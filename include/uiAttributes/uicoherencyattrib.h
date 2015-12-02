@@ -54,5 +54,3 @@ protected:
 
 
 #endif
-
-

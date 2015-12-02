@@ -54,4 +54,3 @@ StepInterval<tp> uiZRangeInput::get##fn##ZRange() const \
 
 mImplGet( F, float )
 mImplGet( D, double )
-

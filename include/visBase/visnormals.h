@@ -108,6 +108,3 @@ protected:
 };
 
 #endif
-
-
-

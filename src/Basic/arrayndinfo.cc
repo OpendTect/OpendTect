@@ -338,4 +338,3 @@ bool ArrayNDIter::inc( int dim )
 
     return true;
 }
-

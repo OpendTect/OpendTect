@@ -127,4 +127,3 @@ void TopList<VT,AVT>::addValue( VT val, AVT aval )
     }
 }
 #endif
-

@@ -476,4 +476,3 @@ void HorizonPainter3D::enableSeed( bool yn )
 }
 
 } // namespace EM
-

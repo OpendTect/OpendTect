@@ -145,5 +145,3 @@ inline bool atEndOfSection( const ascistream& strm )
 
 
 #endif
-
-

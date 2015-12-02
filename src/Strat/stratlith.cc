@@ -150,4 +150,3 @@ int Strat::LithologySet::idxOf( const char* nm, Lithology::ID id ) const
     }
     return -1;
 }
-

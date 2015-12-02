@@ -969,4 +969,3 @@ MarchingCubesDisplay::PlaneIntersectInfo::~PlaneIntersectInfo()
 
 
 }; // namespace visSurvey
-

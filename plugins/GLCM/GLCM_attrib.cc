@@ -2130,4 +2130,3 @@ const Interval<float>* GLCM_attrib::desZMargin( int inp, int ) const
 }
 
 }
-

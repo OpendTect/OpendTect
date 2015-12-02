@@ -206,4 +206,3 @@ void Hilbert( int n, float* x, float* y )
 
     Convolve( mHilbertLength, -hlen, h, n, 0, x, n, 0, y );
 }
-

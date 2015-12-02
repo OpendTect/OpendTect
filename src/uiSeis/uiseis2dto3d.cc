@@ -147,8 +147,3 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     batchfld_->setJobName( outfld_->getInput() );
     return batchfld_->start();
 }
-
-
-
-
-

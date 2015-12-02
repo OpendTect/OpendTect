@@ -307,4 +307,3 @@ bool PCA::calculate()
 
 
 float PCA::getEigenValue(int idx) const { return -eigenvalues_[idx]; }
-

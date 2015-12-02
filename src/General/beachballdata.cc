@@ -219,5 +219,3 @@ bool BallDynamics::operator != (const BallDynamics& bd) const
 }
 
 };
-
-

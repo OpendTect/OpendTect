@@ -80,4 +80,3 @@ bool uiDeltaResampleAttrib::getInput( Attrib::Desc& desc )
     fillInp( deltacubefld_, desc, 1 );
     return true;
 }
-

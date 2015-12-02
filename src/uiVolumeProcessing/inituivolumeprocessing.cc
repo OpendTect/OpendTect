@@ -47,4 +47,3 @@ mDefModInitFn(uiVolumeProcessing)
 
     Batch::MMJobDispatcher::addDef( new Batch::VolMMProgDef );
 }
-

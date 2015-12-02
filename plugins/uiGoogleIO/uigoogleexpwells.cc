@@ -89,4 +89,3 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
     wrr.close();
     return true;
 }
-

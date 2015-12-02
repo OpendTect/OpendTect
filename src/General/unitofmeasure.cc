@@ -445,4 +445,3 @@ const UnitOfMeasure* UnitOfMeasureRepository::getDefault( const char* ky,
 	ret = getCurDefaultFor( PropertyRef::toString(st) );
     return ret ? ret : getInternalFor( st );
 }
-

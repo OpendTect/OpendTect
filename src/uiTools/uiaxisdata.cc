@@ -111,4 +111,3 @@ uiAxisData::AutoScalePars::AutoScalePars()
     }
     clipratio_ = defclipratio_;
 }
-

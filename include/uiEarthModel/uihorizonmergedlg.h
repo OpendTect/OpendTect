@@ -38,6 +38,3 @@ protected:
 };
 
 #endif
-
-
-

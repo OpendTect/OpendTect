@@ -36,4 +36,3 @@ bool uiConstraint::operator!=( const uiConstraint& oth ) const
 
 bool uiConstraint::enabled() const		{ return enabled_ ; }
 void uiConstraint::disable( bool yn=true )	{ enabled_ = !yn; }
-

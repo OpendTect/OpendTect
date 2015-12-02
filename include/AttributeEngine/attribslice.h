@@ -75,5 +75,3 @@ public:
 }; //namespace
 
 #endif
-
-

@@ -315,5 +315,3 @@ inline int GetGoldenMinor( int inp )
 
 
 #endif
-
-

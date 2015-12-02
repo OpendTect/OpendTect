@@ -147,5 +147,3 @@ void uiSimilaritybyAW::steerTypeSel( CallBacker* )
 	}
     }
 }
-
-

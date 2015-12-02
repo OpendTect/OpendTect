@@ -194,5 +194,3 @@ void uiSEGYDirectPS3DInserter::initClass()
     const Translator& transl = mSEGYDirectPS3DTranslInstance;
     factory().addCreator( create, transl.getDisplayName() );
 }
-
-

@@ -4262,4 +4262,3 @@ int CC::npfaro( int nmin, int nmax )
 }
 
 } // namespace Fourier
-

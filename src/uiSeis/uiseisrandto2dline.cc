@@ -155,5 +155,3 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 }
 
 #undef mErrRet
-
-

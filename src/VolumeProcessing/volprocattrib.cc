@@ -245,4 +245,3 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 
 
 } // namespace VolProc
-

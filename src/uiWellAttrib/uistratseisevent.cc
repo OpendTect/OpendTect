@@ -244,5 +244,3 @@ const StepInterval<float> uiStratSeisEvent::getFullExtrWin() const
     return StepInterval<float> ( ev_.extrWin().start, ev_.extrWin().stop,
 				 ev_.extrStep() );
 }
-
-

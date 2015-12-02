@@ -140,5 +140,3 @@ const char* EnumDef::convert(int idx) const
 
 int EnumDef::convert(const char* txt) const
 { return indexOf(txt); }
-
-

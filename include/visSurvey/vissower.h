@@ -121,5 +121,3 @@ protected:
 }; // namespace visSurvey
 
 #endif
-
-

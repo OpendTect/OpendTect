@@ -371,4 +371,3 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 
 void AttributeSetCreator::setStorageHint( const MultiID& m )
 { storhint_ = m; }
-

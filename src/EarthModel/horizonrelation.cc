@@ -325,4 +325,3 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
 }
 
 } // namespace EM
-

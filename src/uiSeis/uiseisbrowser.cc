@@ -938,4 +938,3 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	a1d.set( idx, vals[idx] );
     setData( a1d );
 }
-

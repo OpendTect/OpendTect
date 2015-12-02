@@ -32,4 +32,3 @@ mDefODInitPlugin(uiPreStackViewer)
     mgr = new PreStackView::uiViewer3DMgr();
     return 0;
 }
-

@@ -331,4 +331,3 @@ const MultiID VW2DPickSet::pickSetID() const
 {
     return pickset_ ? Pick::Mgr().get( *pickset_ ) : -1;
 }
-

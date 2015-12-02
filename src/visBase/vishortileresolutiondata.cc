@@ -614,5 +614,3 @@ TileResolutionData::getPrimitiveSet( GeometryType type ) const
 
     return geom->getPrimitiveSet( 0 );
 }
-
-

@@ -638,4 +638,3 @@ int SeisBufReader::nextStep()
     buf_.add( newtrc );
     return Executor::MoreToDo();
 }
-

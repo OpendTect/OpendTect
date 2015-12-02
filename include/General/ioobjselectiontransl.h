@@ -17,4 +17,3 @@ ________________________________________________________________________
 mDeclEmptyTranslatorBundle(General,IOObjSelection,od,"objsel")
 
 #endif
-

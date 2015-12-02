@@ -207,6 +207,3 @@ bool HorizonSectionTilePosSetup::doFinish( bool sucess )
 
     return sucess;
 }
-
-
-

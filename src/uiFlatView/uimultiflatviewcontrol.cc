@@ -368,4 +368,3 @@ uiToolButton* uiMultiFlatViewControl::parsButton( const uiFlatViewer* vwr )
     const int vwridx = vwrs_.indexOf( vwr );
     return vwridx >=0 && parsbuts_.validIdx(vwridx) ? parsbuts_[ vwridx ] : 0;
 }
-

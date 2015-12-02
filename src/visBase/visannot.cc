@@ -612,4 +612,3 @@ bool Annotation::usePar( const IOPar& par )
 }
 
 } // namespace visBase
-

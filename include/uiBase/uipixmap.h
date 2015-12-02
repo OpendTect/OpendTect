@@ -80,4 +80,3 @@ mGlobal(uiBase) void getImageFileFilter(BufferString& filter,bool forread,
 					bool withprintformats=false);
 
 #endif
-

@@ -126,4 +126,3 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 
     return true;
 }
-

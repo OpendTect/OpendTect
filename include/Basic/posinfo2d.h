@@ -153,5 +153,3 @@ public:
 } // namespace PosInfo
 
 #endif
-
-

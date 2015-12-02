@@ -162,4 +162,3 @@ bool uiImportMute::haveInpPosData() const
 }
 
 };// namespace PreStack
-

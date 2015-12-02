@@ -114,4 +114,3 @@ virtual streamsize xsputn( const char_type* s, streamsize n )
 
 
 #endif
-

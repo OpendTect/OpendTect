@@ -145,5 +145,3 @@ public:
 } // namespace EM
 
 #endif
-
-

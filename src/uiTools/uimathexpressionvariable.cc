@@ -331,4 +331,3 @@ void uiMathExpressionVariable::selectSubInput( int idx )
 
     subinpfld_->setCurrentItem( idx );
 }
-

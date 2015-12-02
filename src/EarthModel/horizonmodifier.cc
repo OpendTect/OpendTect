@@ -242,4 +242,3 @@ void HorizonModifier::removeNode( const BinID& bid )
 			      bid.crl(), mUdf(float), false );
     }
 }
-

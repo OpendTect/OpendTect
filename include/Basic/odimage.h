@@ -110,5 +110,3 @@ public:
 }; // namespace OD
 
 #endif
-
-

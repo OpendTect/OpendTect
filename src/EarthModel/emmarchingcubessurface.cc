@@ -490,4 +490,3 @@ void MarchingCubesSurface::setZSampling( const SamplingData<float>& s )
 { zsampling_ = s; }
 
 } // namespace EM
-

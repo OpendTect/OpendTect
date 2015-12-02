@@ -143,4 +143,3 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx ) const
 
 const char* ZipArchiveInfo::errorMsg() const
 { return errormsg_.buf(); }
-

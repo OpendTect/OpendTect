@@ -657,7 +657,3 @@ bool uiODPolygonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
     return true;
 }
-
-
-
-

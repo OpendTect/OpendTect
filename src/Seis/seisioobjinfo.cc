@@ -680,4 +680,3 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 	}
     }
 }
-

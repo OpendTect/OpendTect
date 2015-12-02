@@ -58,4 +58,3 @@ bool uiFaultDisplayOptGrp::applyCB( CallBacker* )
 
 bool uiFaultDisplayOptGrp::acceptOK()
 { return applyCB(0); }
-

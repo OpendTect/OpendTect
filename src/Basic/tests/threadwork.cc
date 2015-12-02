@@ -231,4 +231,3 @@ int main( int argc, char** argv )
     Threads::WorkManager::twm().shutdown();
     return ExitProgram( res ? 0 : 1 );
 }
-

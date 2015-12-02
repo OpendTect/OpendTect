@@ -282,4 +282,3 @@ void uiPickSetMgr::keyPressedCB( CallBacker* )
     if ( KeyboardEvent::isReDo(kbe) )
 	setmgr_.undo().reDo( 1, true );
 }
-

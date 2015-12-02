@@ -1046,4 +1046,3 @@ void uiOD2DLineSetAttribItem::clearAttrib()
     updateColumnText(0);
     applMgr()->updateColorTable( displayID(), attribNr() );
 }
-

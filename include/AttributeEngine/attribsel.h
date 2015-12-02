@@ -189,5 +189,3 @@ protected:
 } // namespace Attrib
 
 #endif
-
-

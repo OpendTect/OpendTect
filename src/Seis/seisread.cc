@@ -963,4 +963,3 @@ bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
     delete rdr3d;
     return true;
 }
-

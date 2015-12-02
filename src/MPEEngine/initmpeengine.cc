@@ -37,4 +37,3 @@ mDefModInitFn(MPEEngine)
     MPE::Horizon3DExtender::initClass();
     MPE::PolygonBodyEditor::initClass();
 }
-

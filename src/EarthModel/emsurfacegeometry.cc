@@ -1200,4 +1200,3 @@ EMObjectIterator* RowColSurfaceGeometry::createIterator(
 }
 
 }; //namespace
-

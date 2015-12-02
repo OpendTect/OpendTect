@@ -829,5 +829,3 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 }; // namespace Stats
 
 #endif
-
-

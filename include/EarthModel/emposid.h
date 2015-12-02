@@ -107,5 +107,3 @@ inline void PosID::setSubID( SubID id )
 
 
 #endif
-
-

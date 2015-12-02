@@ -55,4 +55,3 @@ mDefModInitFn(visSurvey)
     visSurvey::VolumeDisplay::initClass();
     visSurvey::WellDisplay::initClass();
 }
-

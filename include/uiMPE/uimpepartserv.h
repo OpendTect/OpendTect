@@ -170,5 +170,3 @@ private:
 };
 
 #endif
-
-

@@ -219,4 +219,3 @@ const mVisTrans* RandomPosBodyDisplay::getDisplayTransformation() const
 
 
 }; // namespace visSurvey
-

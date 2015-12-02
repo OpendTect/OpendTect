@@ -200,4 +200,3 @@ bool uiEventAttrib::getOutput( Attrib::Desc& desc )
     fillOutput( desc, outp );
     return true;
 }
-

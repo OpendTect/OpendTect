@@ -71,5 +71,3 @@ protected:
 } // namespace Attrib
 
 #endif
-
-

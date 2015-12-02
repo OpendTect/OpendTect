@@ -214,4 +214,3 @@ void ReflectivitySampler::getRefModelInterpolator( PointBasedMathFunction& func,
 	    func.add( time, depth );
     }
 }
-

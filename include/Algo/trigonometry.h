@@ -581,5 +581,3 @@ bool ParamLineBase<T>::isOnLine(const T& pt) const
 
 
 #endif
-
-

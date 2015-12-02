@@ -16,4 +16,3 @@ ________________________________________________________________________
 #include "@OD_MODULE_NAME_LOWER@mod.h"
 
 @EXPORTFILEHEADER@
-

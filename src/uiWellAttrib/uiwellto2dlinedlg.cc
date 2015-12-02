@@ -204,4 +204,3 @@ const IOObj* uiWellTo2DLineDlg::get2DDataSetObj() const
 {
     return randto2dlinefld_->getOutputIOObj();
 }
-

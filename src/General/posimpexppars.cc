@@ -230,4 +230,3 @@ bool PosImpExpPars::haveYChg() const
 {
     return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.y,1e-6);
 }
-

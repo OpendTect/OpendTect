@@ -161,4 +161,3 @@ void VW2DFault::triggerDeSel()
     knotenabled_ = false;
     deselted_.trigger();
 }
-

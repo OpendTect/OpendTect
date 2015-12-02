@@ -621,4 +621,3 @@ const char* Color::largeUserInfoString() const
 
     return ret.buf();
 }
-

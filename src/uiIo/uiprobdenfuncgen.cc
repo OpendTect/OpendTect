@@ -482,4 +482,3 @@ bool uiProbDenFuncGenGaussian::acceptOK( CallBacker* )
     ioobjky_ = pdfioobj->key();
     return writePDF( *pdf_, *pdfioobj );
 }
-

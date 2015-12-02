@@ -297,4 +297,3 @@ void uiViewer2D::doReSize( const uiSize& sz )
 
 
 }; //namespace
-

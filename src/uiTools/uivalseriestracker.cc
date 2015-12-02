@@ -193,4 +193,3 @@ bool uiEventTracker::updateTracker( bool domsg )
     tracker_.setAllowedVariance( var );
     return true;
 }
-

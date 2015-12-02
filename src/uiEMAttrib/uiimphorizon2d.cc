@@ -498,4 +498,3 @@ bool uiImportHorizon2D::checkInpFlds()
 
 void uiImportHorizon2D::getEMObjIDs( TypeSet<EM::ObjectID>& ids ) const
 { ids = emobjids_; }
-

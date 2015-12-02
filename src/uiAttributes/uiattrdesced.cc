@@ -396,4 +396,3 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     param->setValue( dpidstr.buf() );
     return inpdesc;
 }
-
