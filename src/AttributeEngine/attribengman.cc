@@ -344,7 +344,6 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
 }
 
 
-
 class DataPackCopier : public ParallelTask
 {
 public:
@@ -363,7 +362,7 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     , bytestocopy_(0)
 {
     worktkzs_ = out.sampling();
-    worktkzs_.limitTo( in.sampling() );
+    worktkzs_.limitTo( in.sampling(), true );
     totalnr_ = worktkzs_.hsamp_.totalNr();
 }
 
@@ -424,8 +423,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	const BinID bid = worktkzs_.hsamp_.atIndex( gidx );
 	const int outinlidx = outtks.lineIdx( bid.inl() );
 	const int outcrlidx = outtks.trcIdx( bid.crl() );
-	const int ininlidx = intks.lineIdx( bid.inl() );
-	const int incrlidx = intks.trcIdx( bid.crl() );
+
+	const int nearestinl = bid.lineNr() + intks.step_.lineNr()/2;
+	const int ininlidx = intks.lineIdx( nearestinl );
+	const int nearestcrl = bid.trcNr() + intks.step_.trcNr()/2;
+	const int incrlidx = intks.trcIdx( nearestcrl );
 
 	if ( domemcopy_ )
 	{
@@ -514,6 +516,15 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
 	TrcKeyZSampling outputtkzs = packset[0]->sampling();
 	for ( int idx=1; idx<packset.size(); idx++ )
 	    outputtkzs.include( packset[idx]->sampling() );
+
+	// But only in the running dimensions of the requested cube sampling
+	if ( tkzs_.nrLines() == 1 )
+	    outputtkzs.hsamp_.setLineRange( tkzs_.hsamp_.lineRange() );
+	if ( tkzs_.nrTrcs() == 1 )
+	    outputtkzs.hsamp_.setTrcRange( tkzs_.hsamp_.trcRange() );
+	if ( tkzs_.nrZ() == 1 )
+	    outputtkzs.zsamp_ = tkzs_.zsamp_;
+
 	outputtkzs.limitTo( tkzs_ );
 	output->setSampling( outputtkzs );
     }
