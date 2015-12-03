@@ -68,6 +68,7 @@ set( OD_MODULE_SOURCES
 	iopar.cc
 	initbasic.cc
 	latlong.cc
+	legal.cc
 	math2.cc
 	moddepmgr.cc
 	namedobj.cc

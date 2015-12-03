@@ -9,8 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fourier.h"
 #include "odmemory.h"
 #include "odcomplex.h"
-
-
+#include "legal.h"
 
 #define mFloatOrDouble( val ) val##f
 #define mType		      float
@@ -4259,6 +4258,62 @@ int CC::npfao( int nmin, int nmax )
 int CC::npfaro( int nmin, int nmax )
 {
     return 2*npfao((nmin+1)/2,(nmax+1)/2);
+}
+
+uiString* CC::legalInfo()
+{
+        uiString* res = new uiString;
+	    *res = toUiString(
+		    "Copyright (C) 2007, Colorado School of Mines,\n"
+		    "All rights reserved.\n"
+		    "\n"
+		    "\n"
+		    "Redistribution and use in source and binary forms, with or \n"
+		    "without modification, are permitted provided that the following \n"
+		    "conditions are met:\n"
+		    "\n"
+		    "*  Redistributions of source code must retain the above copyright \n"
+		    "   notice, this list of conditions and the following disclaimer.\n"
+		    "*  Redistributions in binary form must reproduce the above \n"
+		    "   copyright notice, this list of conditions and the following \n"
+		    "   disclaimer in the documentation and/or other materials provided \n"
+		    "   with the distribution.\n"
+		    "*  Neither the name of the Colorado School of Mines nor the names of\n"
+		    "   its contributors may be used to endorse or promote products \n"
+		    "   derived from this software without specific prior written permission.\n"
+		    "\n"
+		    "Warranty Disclaimer:\n"
+		    "THIS SOFTWARE IS PROVIDED BY THE COLORADO SCHOOL OF MINES AND CONTRIBUTORS \n"
+		    "\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT \n"
+		    "LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS \n"
+		    "FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE \n"
+		    "COLORADO SCHOOL OF MINES OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,\n"
+		    "INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, \n"
+		    "BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; \n"
+		    "LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER \n"
+		    "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, \n"
+		    "STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING \n"
+		    "IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE \n"
+		    "POSSIBILITY OF SUCH DAMAGE.\n"
+		    "\n"
+		    "\n"
+		    "Export Restriction Disclaimer:\n"
+		    "We believe that CWP/SU: Seismic Un*x is a low technology product that does\n"
+		    "not appear on the Department of Commerce CCL list of restricted exports.\n"
+		    "Accordingly, we believe that our product meets the qualifications of\n"
+		    "an ECCN (export control classification number) of EAR99 and we believe\n"
+		    "it fits the qualifications of NRR (no restrictions required), and\n"
+		    "is thus not subject to export restrictions of any variety.\n" );
+
+	        return res;
+}
+
+
+void CC::initClass()
+{
+    CC::factory().addCreator(createInstance,sFactoryKeyword(),
+			     sFactoryDisplayName());
+    legalInformation().addCreator( CC::legalInfo, "CWF/Seismic Unix");
 }
 
 } // namespace Fourier
