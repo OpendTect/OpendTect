@@ -11,16 +11,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodhelpmenumgr.h"
 
+#include "uidialog.h"
 #include "uidesktopservices.h"
+#include "uigeninput.h"
 #include "uihelpview.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
+#include "uitextedit.h"
 
 #include "buildinfo.h"
 #include "filepath.h"
 #include "file.h"
+#include "legal.h"
 #include "oddirs.h"
 #include "od_istream.h"
 #include "odver.h"
@@ -58,7 +63,10 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
 		 mShortcutsMnuItm, "?" );
-    mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0)
+    mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0);
+
+    if ( legalInformation().size() )
+	mInsertItem( helpmnu_, m3Dots(tr("Legal")), mLegalMnuItm, 0);
 }
 
 
@@ -75,6 +83,10 @@ void uiODHelpMenuMgr::handle( int id )
 {
     switch( id )
     {
+	case mLegalMnuItm:
+	{
+	    showLegalInfo();
+	} break;
 	case mAboutMnuItm:
 	{
 	    uiMSG().aboutOpendTect( getAboutString() );
@@ -142,4 +154,56 @@ uiString uiODHelpMenuMgr::getAboutString()
 	     "here</a>.<br>" );
     str.add( "</html>" );
     return mToUiStringTodo(str);
+}
+
+
+class uiODLegalInfo : public uiDialog
+{ mODTextTranslationClass(uiODLegalInfo);
+public:
+    uiODLegalInfo(uiParent* p)
+	: uiDialog(p,
+		uiDialog::Setup(tr("Legal information"),
+				mNoDlgTitle, mNoHelpKey ))
+    {
+	uiLabel* label = new uiLabel(this,
+		tr("OpendTect has incorporated code from various "
+		   "open source projects that are licensed under different "
+		   "licenses." ) );
+
+	textsel_ = new uiGenInput( this, tr("Project"),
+		StringListInpSpec(legalInformation().getUserNames()) );
+	textsel_->valuechanged.notify( mCB( this, uiODLegalInfo,selChgCB ) );
+	textsel_->attach( alignedBelow, label );
+
+	textfld_ = new uiTextEdit(this);
+	textfld_->attach( alignedBelow, textsel_ );
+
+	selChgCB( 0 );
+    }
+
+private:
+
+    void selChgCB(CallBacker*)
+    {
+	const int sel = textsel_->getIntValue();
+	const BufferString key = legalInformation().getNames()[sel]->buf();
+
+	textfld_->setText("");
+
+	PtrMan<uiString> newtext = legalInformation().create( key );
+	if ( !newtext )
+	    return;
+
+	textfld_->setText( *newtext );
+    }
+
+    uiGenInput*		textsel_;
+    uiTextEdit*		textfld_;
+};
+
+
+void uiODHelpMenuMgr::showLegalInfo()
+{
+    uiODLegalInfo dlg( ODMainWin() );
+    dlg.go();
 }

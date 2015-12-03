@@ -30,7 +30,8 @@ class FFTCC1D;
 mExpClass(Algo) CC : public GenericTransformND
 { mODTextTranslationClass(CC);
 public:
-    mDefaultFactoryInstantiation( CC, CC, "PFAFFT", tr("FFT") );
+    mDefaultFactoryCreatorImpl( CC, CC );
+    mDefaultFactoryInstanciationBase( "PFAFFT", tr("FFT") );
     static ::Factory<CC>& factory();
 
     static CC*		createDefault();
@@ -52,6 +53,7 @@ public:
     static int npfao(int nmin, int nmax);
 
 protected:
+    static uiString* legalInfo();
     static void pfacc(char dir,int sz,int step,float_complex* signal);
     /*!<Prime number size FFT where the signal has a sampling not equal to 1,
       i.e. every Nth value should be used.

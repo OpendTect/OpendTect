@@ -34,7 +34,7 @@ public:
 
     bool			hasName(const char* n) {return indexOf(n)>=0;}
     const BufferStringSet&	getNames() const;
-    const uiStringSet& getUserNames() const;
+    const uiStringSet&		getUserNames() const;
     void			setDefaultName(int idx);
 				//!<idx refers to names in names_,
 				//!<or -1 for none

@@ -8,6 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "checksum.h"
+#include "legal.h"
+
 /*
  * Redis uses the CRC64 variant with "Jones" coefficients and init value of 0.
  *
@@ -21,7 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
  * Xor_Out: 0x0
  * Check("123456789"): 0xe9c6d914c4b8d9ca " */
 
-static const char* legaltext =
+static uiString* legalText()
+{
+    return new uiString(toUiString(
 " Copyright (c) 2012, Salvatore Sanfilippo <antirez at gmail dot com> \n"
 " All rights reserved. \n"
 " \n"
@@ -47,7 +51,8 @@ static const char* legaltext =
 " INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN \n"
 " CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) \n"
 " ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE \n"
-" POSSIBILITY OF SUCH DAMAGE. */ \n";
+" POSSIBILITY OF SUCH DAMAGE. */ \n" ) );
+}
 
 #include <stdint.h>
 #include <odver.h>
@@ -186,7 +191,7 @@ static const uint64_t crc64_tab[256] = {
 
 void initChecksum()
 {
-    AddLegalInformation( legaltext );
+    legalInformation().addCreator( legalText, "CRC64 Checksum" );
 }
 
 od_uint64 checksum64( const unsigned char *s, od_uint64 l, od_uint64 crc )
