@@ -335,13 +335,12 @@ public:
     T		start() const { return getPoint(0); }
     T		stop() const { return getPoint(1); }
     double	closestParam(const T& point) const;
-		/*!<\returns the point on the line that is closest to
-		 the given point. If t is given, it will be
-		 filled with the t-value of the closest point. */
+		/*!<\returns the t-value of the point on the line that is
+		 closest to the given point. */
 
     T		closestPoint(const T&) const;
-		//!<\returns the point on the line that is closest to pt.
-
+		/*!<\returns the coordinates of the point on the line that
+		  is closest to the given point. */
     double	distanceToPoint(const T&) const;
     double	sqDistanceToPoint(const T&) const;
 		/*!<Returns the squared distance, which is cheaper to compute.*/
