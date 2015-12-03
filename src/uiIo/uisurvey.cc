@@ -614,7 +614,8 @@ extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 bool uiSurvey::acceptOK( CallBacker* )
 {
-    if ( !dirfld_ ) mRetExitWin
+    if ( !dirfld_ )
+	mRetExitWin
     if ( dirfld_->isEmpty() )
 	mErrRet(tr("Please create a survey (or press Cancel)"))
 
@@ -817,8 +818,11 @@ void uiSurvey::rmButPushed( CallBacker* )
     if ( ptr && selnm == ptr )
     {
 	cursurvremoved_ = true;
-	if ( button(CANCEL) ) button(CANCEL)->setSensitive( false );
+	if ( button(CANCEL) )
+	    button(CANCEL)->setSensitive( false );
     }
+
+    selChange( 0 );
 }
 
 
@@ -960,20 +964,29 @@ void uiSurvey::updateDataRootLabel()
 void uiSurvey::updateSurvList()
 {
     NotifyStopper ns( dirfld_->selectionChanged );
+    int newselidx = dirfld_->currentItem();
     const BufferString prevsel( dirfld_->getText() );
     dirfld_->setEmpty();
     BufferStringSet dirlist; getSurveyList( dirlist, dataroot_ );
     dirfld_->addItems( dirlist );
 
-    if ( !dirfld_->isEmpty() )
-    {
-	int selidx = -1;
-	if ( cursurvinfo_ )
-	    selidx = dirfld_->indexOf( cursurvinfo_->getDirName() );
-	if ( selidx < 0 )
-	    selidx = dirfld_->indexOf( prevsel );
-	dirfld_->setCurrentItem( selidx < 0 ? 0 : selidx );
-    }
+    if ( dirfld_->isEmpty() )
+	return;
+
+    const int idxofprevsel = dirfld_->indexOf( prevsel );
+    const int idxofcursi = cursurvinfo_ ? dirfld_->indexOf(
+	    				cursurvinfo_->getDirName() ) : -1;
+    if ( idxofcursi >= 0 )
+	newselidx = idxofcursi;
+    else if ( idxofprevsel >= 0 )
+	newselidx = idxofprevsel;
+
+    if ( newselidx < 0 )
+	newselidx = 0;
+    if ( newselidx >= dirfld_->size() )
+	newselidx = dirfld_->size()-1 ;
+
+    dirfld_->setCurrentItem( newselidx );
 }
 
 
