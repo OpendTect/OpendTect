@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "sorting.h"
 #include "survinfo.h"
 #include "uiflatviewer.h"
 
@@ -36,6 +37,8 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , activestickid_(mUdf(int))
     , path_(0)
     , seedhasmoved_(false)
+    , makenewstick_(false)
+    , doubleclicked_(false)
     , mousepid_( EM::PosID::udf() )
 {
     f3dpainter_->abouttorepaint_.notify(
@@ -61,6 +64,8 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 //	setMouseEventHandler( 0 );
     cleanActStkContainer();
@@ -88,6 +93,8 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 
     meh_ = meh;
@@ -106,6 +113,8 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.notify(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
@@ -357,7 +366,8 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 
 void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 {
-    if ( editor_ && editor_->sower().accept(meh_->event(), false) )
+    if ( (editor_ && editor_->sower().accept(meh_->event(),false)) ||
+	 meh_->event().middleButton() )
 	return;
 
     if ( !editor_->viewer().appearance().annot_.editable_
@@ -429,11 +439,40 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 	EM::EMM().undo().setUserInteractionEnd( \
 					EM::EMM().undo().currentEventID() );
 
-void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
+void Fault3DFlatViewEditor::doubleClickedCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    makenewstick_ = true;
+    doubleclicked_ = true;
+}
+
+
+void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
     if ( !editor_->viewer().appearance().annot_.editable_ 
 	 || editor_->isSelActive() )
 	return;
+
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    if ( doubleclicked_ )
+    {
+	doubleclicked_ = false;
+	return;
+    }
 
     if ( seedhasmoved_ )
     {
@@ -465,7 +504,8 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !getMousePosInfo(mouseevent.pos(),pos) )
 	return;
 
-    bool makenewstick = !mouseevent.ctrlStatus() && mouseevent.shiftStatus();
+    bool makenewstick =
+	(!mouseevent.ctrlStatus() && mouseevent.shiftStatus()) || makenewstick_;
     EM::PosID interactpid;
     mGetNormal( normal );
     f3deditor->setScaleVector( getScaleVector() );
@@ -498,6 +538,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     if ( makenewstick )
     {
+	makenewstick_ = false;
 	mGetNormal( editnormal );
 	if ( editnormal.isUdf() ) return;
 
@@ -584,9 +625,9 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
-
     if ( !selectedids.size() ) return;
 
+    sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
     RefMan<EM::EMObject> emobject =
 			EM::EMM().getObject( f3dpainter_->getFaultID() );
 
@@ -602,7 +643,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     emf3d->setBurstAlert( true );
 
     RowCol rc;
-    for ( int ids=0; ids<selectedids.size(); ids++ )
+    for ( int ids=selectedids.size()-1; ids>=0; ids-- )
     {
 	rc.row() = getStickId( selectedids[ids] );
 	const StepInterval<int> colrg = fss->colRange( rc.row() );

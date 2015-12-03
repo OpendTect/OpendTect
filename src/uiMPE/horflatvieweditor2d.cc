@@ -250,7 +250,9 @@ void HorizonFlatViewEditor2D::mouseMoveCB( CallBacker* )
 
 void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 {
-    if ( editor_ && editor_->sower().accept(mehandler_->event(), false) )
+    const MouseEvent& mouseevent = mehandler_->event();
+    if ( (editor_ && editor_->sower().accept(mehandler_->event(),false)) ||
+	  mouseevent.middleButton() )
 	return;
 
     if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
@@ -279,7 +281,6 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
     mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
     if ( !vwr ) return;
 
-    const MouseEvent& mouseevent = mehandler_->event();
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
@@ -316,8 +317,16 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 }
 
 
-void HorizonFlatViewEditor2D::doubleClickedCB( CallBacker* )
+void HorizonFlatViewEditor2D::doubleClickedCB( CallBacker* cb )
 {
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
     handleMouseClicked( true );
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
     if ( !seedpicker )
@@ -349,8 +358,16 @@ EMSeedPicker* HorizonFlatViewEditor2D::getEMSeedPicker() const
 }
 
 
-void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
+void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* cb )
 {
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
     handleMouseClicked( false );
 }
 

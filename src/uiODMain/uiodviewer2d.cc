@@ -746,15 +746,16 @@ void uiODViewer2D::trackSetupCB( CallBacker* cb )
 
 void uiODViewer2D::selectionMode( CallBacker* cb )
 {
-    if ( !viewstdcontrol_ || !viewstdcontrol_->toolBar() )
+    if ( !viewstdcontrol_ || !viewstdcontrol_->editToolBar() )
 	return;
 
-    viewstdcontrol_->toolBar()->setIcon( polyseltbid_, ispolyselect_ ?
+    viewstdcontrol_->editToolBar()->setIcon( polyseltbid_, ispolyselect_ ?
 				"polygonselect" : "rectangleselect" );
-    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_,
+    viewstdcontrol_->editToolBar()->setToolTip( polyseltbid_,
                                 ispolyselect_ ? tr("Polygon Selection mode")
                                               : tr("Rectangle Selection mode"));
-    const bool ispolyseltbon = viewstdcontrol_->toolBar()->isOn( polyseltbid_ );
+    const bool ispolyseltbon =
+	viewstdcontrol_->editToolBar()->isOn( polyseltbid_ );
     if ( ispolyseltbon )
 	viewstdcontrol_->setEditMode( true );
 
@@ -778,7 +779,7 @@ void uiODViewer2D::handleToolClick( CallBacker* cb )
 
 void uiODViewer2D::removeSelected( CallBacker* cb )
 {
-    if ( !viewstdcontrol_->toolBar()->isOn(polyseltbid_) )
+    if ( !viewstdcontrol_->editToolBar()->isOn(polyseltbid_) )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )

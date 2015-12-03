@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "flatauxdataeditor.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "sorting.h"
 #include "survinfo.h"
 #include "uiflatviewer.h"
 
@@ -35,6 +36,8 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , path_(0)
     , activestickid_(-1)
     , seedhasmoved_(false)
+    , makenewstick_(false)
+    , doubleclicked_(false)
     , mousepid_( EM::PosID::udf() )
 {
     fsspainter_->abouttorepaint_.notify(
@@ -60,6 +63,8 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
     }
 //	setMouseEventHandler( 0 );
     cleanActStkContainer();
@@ -87,6 +92,8 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
     }
 
     meh_ = meh;
@@ -105,6 +112,8 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.notify(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.notify(
+		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
@@ -406,7 +415,8 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 {
-    if ( editor_ && editor_->sower().accept(meh_->event(), false) )
+    if ( (editor_ && editor_->sower().accept(meh_->event(), false)) ||
+	  meh_->event().middleButton() )
 	return;
 
     if ( !editor_->viewer().appearance().annot_.editable_
@@ -433,17 +443,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 	return;
     }
 
-    int stickid = -1;
-
-    for ( int idx=0; idx<markeridinfo_.size(); idx++ )
-    {
-	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
-	    stickid = markeridinfo_[idx]->stickid_;
-	    break;
-	}
-    }
-
+    int stickid = getStickId( edidauxdataid );
     if ( stickid == -1 ) return;
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -478,9 +478,23 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
-    if ( !editor_->viewer().appearance().annot_.editable_ 
-	 || editor_->isSelActive() )
+    if ( !editor_->viewer().appearance().annot_.editable_ ||
+	 editor_->isSelActive() )
 	return;
+
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    if ( doubleclicked_ )
+    {
+	doubleclicked_ = false;
+	return;
+    }
 
     if ( seedhasmoved_ )
     {
@@ -542,8 +556,9 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mousepid_.isUdf() || mouseevent.ctrlStatus() )
 	return;
 
-    if ( mouseevent.shiftStatus() || interactpid.isUdf() )
+    if ( mouseevent.shiftStatus() || interactpid.isUdf() || makenewstick_ )
     {
+	makenewstick_ = false;
 	mGetNormal( editnormal );
 
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
@@ -578,6 +593,21 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 }
 
 
+void FaultStickSetFlatViewEditor::doubleClickedCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    makenewstick_ = true;
+    doubleclicked_ = true;
+}
+
+
 int FaultStickSetFlatViewEditor::getStickId( int markerid ) const
 {
     if ( !markeridinfo_.size() )
@@ -601,7 +631,8 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
     if ( !selectedids.size() ) return;
-
+    
+    sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
     RefMan<EM::EMObject> emobject = 
 			EM::EMM().getObject( fsspainter_->getFaultSSID() );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -615,7 +646,7 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     emfss->setBurstAlert( true );
 
     RowCol rc;
-    for ( int ids=0; ids<selectedids.size(); ids++ )
+    for ( int ids=selectedids.size()-1; ids>=0; ids-- )
     {
 	rc.row() = getStickId( selectedids[ids] );
 	const StepInterval<int> colrg = fss->colRange( rc.row() );

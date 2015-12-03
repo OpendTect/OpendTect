@@ -64,6 +64,7 @@ protected:
     void			mouseMoveCB(CallBacker*);
     void			mousePressCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
+    void			doubleClickedCB(CallBacker*);
 
 	mStruct(uiMPE) StkMarkerIdInfo
 	{
@@ -85,6 +86,8 @@ protected:
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;
+    bool			makenewstick_;
+    bool			doubleclicked_;
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<StkMarkerIdInfo>	markeridinfo_;
