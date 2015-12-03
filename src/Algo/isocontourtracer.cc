@@ -111,7 +111,7 @@ void IsoContourTracer::findCrossings( Array3DImpl<float>& crossings,
     {
         for ( int idy=0; idy<ysize; idy++ )
         {
-            float z0;
+	    float z0 = mUdf(float);
 
             if ( mOnEdge(x,idx) || mOnEdge(y,idy) )
             {
@@ -120,23 +120,20 @@ void IsoContourTracer::findCrossings( Array3DImpl<float>& crossings,
                 z0 = edgevalue_;
             }
             else
-            {
                 z0 = field_.get(mFieldIdx(x,idx), mFieldIdx(y,idy));
-
-                if ( mIsUdf(z0) )
-                    continue;
-            }
 
             for ( int hor=0; hor<=1; hor++ )
             {
                 crossings.set( idx, idy, hor, mUdf(float) );
+		if ( mIsUdf(z0) )
+		    continue;
 
                 if  ( (hor && idx==xsize-1) || (!hor && idy==ysize-1) )
                     continue;
 
                 const int tmpidx = idx+hor;
                 const int tmpidy = idy+1-hor;
-                float z1;
+		float z1= mUdf(float);
                 if ( mOnEdge(x,tmpidx) || mOnEdge(y,tmpidy) )
                 {
                     if ( edge_==0 )
@@ -144,12 +141,10 @@ void IsoContourTracer::findCrossings( Array3DImpl<float>& crossings,
                     z1 = edgevalue_;
                 }
                 else
-                {
                     z1 = field_.get(mFieldIdx(x,tmpidx), mFieldIdx(y,tmpidy));
 
-                    if ( mIsUdf(z1) )
-                        continue;
-                }
+		if ( mIsUdf(z1) )
+		    continue;
 		    
                 if ( (z0<z && z<=z1) || (z1<z && z<=z0) )
                 {

@@ -65,8 +65,8 @@ protected:
 
     int				minnrvertices_;
     int				nrlargestonly_;
-    float			edgevalue_;
     float			bendpointeps_;
+    float			edgevalue_;
     unsigned int		edge_;
     const ODPolygon<float>*	polyroi_;
 };
