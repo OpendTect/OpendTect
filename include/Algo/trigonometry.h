@@ -172,14 +172,11 @@ inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
 			const Coord3& b, const Coord3& c, double epsilon )
 {
     Coord3 ap = a - p;
-    const double norm1 = ap.abs();
-    if ( norm1>=1e-10 ) ap /= norm1;
-    Coord3 bp = b - p; bp.normalize();
-    const double norm2 = bp.abs();
-    if ( norm2>=1e-10 ) bp /= norm2;
-    Coord3 cp = c - p; cp.normalize();
-    const double norm3 = cp.abs();
-    if ( norm3>=1e-10 ) cp /= norm3;
+    ap = ap.normalize();
+    Coord3 bp = b - p;
+    bp = bp.normalize();
+    Coord3 cp = c - p;
+    cp = cp.normalize();
     const double d1 = ap.dot( bp );
     const double d2 = bp.dot( cp );
     const double d3 = cp.dot( ap );
