@@ -556,9 +556,14 @@ void uiChain::addStep( const char* steptype )
 
 void uiChain::emptyChain()
 {
-    steplist_->chooseAll(false);
-    int curitm = steplist_->size()-1;
+    if ( chain_.nrSteps()<1 )
+	return;
 
+    if ( !uiMSG().askGoOn( tr("You have existing setup steps in your volume "
+		    "builder, do you want to remove them?") ) )
+	return;
+
+    int curitm = steplist_->size()-1;
     while ( curitm>=0 )
     {
 	steplist_->removeItem(curitm);
