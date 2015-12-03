@@ -151,8 +151,9 @@ public:
 
     void	  appendCoordIndices(const TypeSet<int>&,bool reverse=true);
     void	  setCoordIndices(const TypeSet<int>&);
-    PrimitiveSet* getCoordsPrimitiveSet()		{ return primitiveset_;}
-
+    PrimitiveSet* getCoordsPrimitiveSet()	{ return primitiveset_; }
+    Type	  getPrimitiveType() const	{ return primitivetype_; }
+    SetType	  getPrimitiveSetType() const	{ return primitivesettype_; }
 
     mutable Threads::Lock		lock_;
     mutable bool			ischanged_;
