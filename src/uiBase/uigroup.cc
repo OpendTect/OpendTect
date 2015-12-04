@@ -657,6 +657,10 @@ void uiGroupObj::bodyDel( CallBacker* cb )
 }
 
 
+void uiGroupObj::translateText()
+{ if ( uigrp_ ) uigrp_->translateText();}
+
+
 void uiGroupObj::grpDel( CallBacker* cb )
 {
     if ( cb == uigrp_ )

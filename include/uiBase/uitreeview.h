@@ -117,7 +117,6 @@ public:
     void		insertItem(int,uiTreeViewItem*);
 
     uiParent*		parent()		{ return parent_; }
-    void		translateText();
     bool		handleLongTabletPress();
 
 			//! re-draws at next X-loop
@@ -163,7 +162,12 @@ protected:
     uiTreeViewBody*		lvbody()	{ return body_; }
     const uiTreeViewBody*	lvbody() const	{ return body_; }
 
+    void			translateText();
+    void			updateHeaderLabels();
+
+
 private:
+
 
     friend class	i_treeVwMessenger;
     friend class	uiTreeViewBody;
@@ -179,7 +183,7 @@ private:
 public:
 
     const char*		columnText(int column) const;
-				//Commandline driver usage only
+			//Commandline driver usage only
 
 };
 

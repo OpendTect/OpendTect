@@ -42,6 +42,7 @@ public:
     const ObjectSet<uiBaseObject>* childList() const;
 
 protected:
+    void		translateText();
 
     uiGroupObjBody*	body_;
     uiGroup*		uigrp_;

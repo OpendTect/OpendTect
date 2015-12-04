@@ -94,6 +94,8 @@ uiDockWin::uiDockWin( uiParent* parnt, const uiString& nm )
     body_= new uiDockWinBody( *this, parnt, nm );
     setBody( body_ );
     body_->construct();
+
+    if ( parnt ) parnt->addChild( *this );
 }
 
 
