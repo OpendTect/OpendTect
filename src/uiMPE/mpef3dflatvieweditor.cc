@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emfault3d.h"
 #include "emfault3dpainter.h"
 #include "emmanager.h"
+#include "hiddenparam.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
 #include "mouseevent.h"
@@ -30,6 +31,8 @@ ________________________________________________________________________
 namespace MPE
 {
 
+static HiddenParam<Fault3DFlatViewEditor,BoolTypeSetType> makenewstick( false );
+static HiddenParam<Fault3DFlatViewEditor,BoolTypeSetType> doubleclicked( false);
 Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 			    FlatView::AuxDataEditor* ed,
 			    const EM::ObjectID& oid )
@@ -42,6 +45,8 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , seedhasmoved_(false)
     , mousepid_( EM::PosID::udf() )
 {
+    makenewstick.setParam( this, false );
+    doubleclicked.setParam( this, false );
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify(
@@ -65,6 +70,8 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 //	setMouseEventHandler( 0 );
     cleanActStkContainer();
@@ -92,6 +99,8 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 
     meh_ = meh;
@@ -110,6 +119,8 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.notify(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.notify(
+		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
@@ -458,11 +469,40 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 	EM::EMM().undo().setUserInteractionEnd( \
 					EM::EMM().undo().currentEventID() );
 
-void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
+void Fault3DFlatViewEditor::doubleClickedCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    makenewstick.setParam( this, true );
+    doubleclicked.setParam( this, true );
+}
+
+
+void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
+
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    if ( doubleclicked.getParam(this) )
+    {
+	doubleclicked.setParam( this, false );
+	return;
+    }
 
     if ( seedhasmoved_ )
     {
@@ -495,11 +535,13 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
 	return;
 
-    bool makenewstick = !mouseevent.ctrlStatus() && mouseevent.shiftStatus();
+    bool domakenewstick =
+	(!mouseevent.ctrlStatus() && mouseevent.shiftStatus()) ||
+	makenewstick.getParam( this );
     EM::PosID interactpid;
     mGetNormal( normal );
     f3deditor->setScaleVector( getScaleVector() );
-    f3deditor->getInteractionInfo( makenewstick, interactpid, pos, &normal );
+    f3deditor->getInteractionInfo( domakenewstick, interactpid, pos, &normal );
 
     if ( !mousepid_.isUdf() && mouseevent.ctrlStatus()
 	 && !mouseevent.shiftStatus() )
@@ -526,8 +568,9 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !mousepid_.isUdf() || interactpid.isUdf() || mouseevent.ctrlStatus() )
 	return;
 
-    if ( makenewstick )
+    if ( domakenewstick )
     {
+	makenewstick.setParam( this, false );
 	mGetNormal( editnormal );
 	if ( editnormal.isUdf() ) return;
 

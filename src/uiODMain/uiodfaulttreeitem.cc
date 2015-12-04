@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiodviewer2dmgr.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -145,6 +146,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
+	applMgr()->viewer2DMgr().addNewTempFault( emo->id() );
 	return true;
     }
     else if ( mnuid>=mDispInFull && mnuid<=mDispPSBoth )
@@ -468,6 +470,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
+	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
 	return true;
     }
     else if ( mnuid==mDispInFull || mnuid==mDispAtSect )

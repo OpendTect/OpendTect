@@ -70,11 +70,7 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 	emo->setPreferredColor( getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
-	uiODVw2DFaultSSTreeItem* treeitem =
-	    new uiODVw2DFaultSSTreeItem( emo->id() );
-	addChld( treeitem, false, false );
-	viewer2D()->viewControl()->setEditMode( true );
-	treeitem->select();
+	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
     }
     else if ( mnuid == 1 || mnuid==2 )
     {

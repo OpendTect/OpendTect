@@ -58,6 +58,7 @@ protected:
     void			mouseMoveCB(CallBacker*);
     void			mousePressCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
+    void			doubleClickedCB(CallBacker*);
 
 	mStruct(uiMPE) StkMarkerIdInfo
 	{
