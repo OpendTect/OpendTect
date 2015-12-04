@@ -197,15 +197,3 @@ bool OD::Platform::isValidName( const char* s, bool isshort )
 	|| cmp == "lux32" || cmp == "win32"
 	|| cmp == "mac";
 }
-
-
-static BufferStringSet legalinfo_;
-
-const BufferStringSet&	 GetLegalInformation()
-{ return legalinfo_; }
-
-
-void AddLegalInformation( const char* txt )
-{
-    legalinfo_.add( txt );
-}
