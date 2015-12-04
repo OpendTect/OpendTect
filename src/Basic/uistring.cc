@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifndef OD_NO_QT
 # include <QString>
+# include <QStringList>
 # include <QTranslator>
 # include <QLocale>
 #endif
@@ -735,6 +736,14 @@ uiStringSet::uiStringSet( const uiString* strings )
     for ( int idx=0; !strings[idx].isEmpty(); idx++ )
 	add( strings[idx] );
 }
+
+
+void uiStringSet::fill( QStringList& qlist ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	qlist.append( (*this)[idx].getQString() );
+}
+
 
 
 uiString uiStringSet::createOptionString( bool use_and,

@@ -21,6 +21,7 @@ ________________________________________________________________________
 class uiStringData;
 
 mFDQtclass( QString );
+mFDQtclass( QStringList );
 mFDQtclass( QTranslator );
 
 
@@ -225,7 +226,7 @@ public:
     uiString	createOptionString(bool use_and=true,int maxnritems=-1,
 				   char space = ' ') const;
 		//!<Returns a string with "option1, option2, and/or option 3"
-
+    void	fill(mQtclass(QStringList)&) const;
 };
 
 

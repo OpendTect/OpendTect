@@ -407,16 +407,26 @@ void uiTreeView::addColumns( const uiStringSet& lbls )
     for ( int idx=0; idx<nrcol; idx++ )
 	body_->model()->removeColumn( idx, body_->currentIndex() );
 
-    labels_ = lbls;
-    QStringList qlist;
-    for ( int idx=0; idx<lbls.size(); idx++ )
-    {
-	body_->fixedColWidth() += 0;
-	qlist.append( lbls[idx].getQString() );
-    }
+    body_->fixedColWidth().setSize( lbls.size(),  0 );
 
+    labels_ = lbls;
+    updateHeaderLabels();
+}
+
+
+void uiTreeView::updateHeaderLabels()
+{
+    QStringList qlist;
+    labels_.fill( qlist );
     body_->setHeaderLabels( qlist );
 }
+
+/*
+void uiTreeView::translateText()
+{
+    updateHeaderLabels();
+}
+*/
 
 
 void uiTreeView::removeColumn( int col )

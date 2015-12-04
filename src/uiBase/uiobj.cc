@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "i_layoutitem.h"
 #include "uimain.h"
+#include "uigroup.h"
+#include "uitreeview.h"
 
 #include "color.h"
 #include "settingsaccess.h"
@@ -225,7 +227,21 @@ void uiParent::translateText()
 	return;
 
     for ( int idx=0; idx<childList()->size(); idx++ )
-	const_cast<uiBaseObject*>((*childList())[idx])->translateText();
+    {
+	uiBaseObject* child = const_cast<uiBaseObject*>((*childList())[idx]);
+	
+	//Workaround for missing function on uiTreeView
+	mDynamicCastGet( uiTreeView*, treeview, child );
+	if ( treeview )
+	    treeview->updateHeaderLabels();
+
+	//Workaround for missing function on uiGroupObj
+	mDynamicCastGet( uiGroupObj*, groupobj, child );
+	if ( groupobj && groupobj->group() )
+	    groupobj->group()->translateText();
+
+	child->translateText();
+    }
 }
 
 

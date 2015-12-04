@@ -549,7 +549,10 @@ void uiODMain::newSurvInitTimerCB( CallBacker* )
 
 
 void uiODMain::translateText()
-{ applMgr().sceneMgr().translateText(); }
+{
+    uiMainWin::translateText();
+    applMgr().sceneMgr().translateText();
+}
 
 
 void uiODMain::memTimerCB( CallBacker* )
