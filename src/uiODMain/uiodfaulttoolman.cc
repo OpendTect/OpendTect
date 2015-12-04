@@ -1411,6 +1411,7 @@ void uiODFaultToolMan::undoCB( CallBacker* )
 	uiMSG().error(tr("Could not undo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
+    uiMain::keyboardEventHandler().setHandled( true );
 }
 
 
@@ -1424,6 +1425,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
 	uiMSG().error(tr("Could not redo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
+    uiMain::keyboardEventHandler().setHandled( true );
 }
 
 
