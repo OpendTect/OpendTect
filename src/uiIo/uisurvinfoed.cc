@@ -834,9 +834,9 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 
 void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
 {
-    BufferString msg;
+    uiString msg;
     System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(dirnm), msg );
-    toStatusBar( mToUiStringTodo(msg) );
+    toStatusBar( msg );
 }
 
 

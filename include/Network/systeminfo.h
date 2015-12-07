@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class IOObj;
+class uiString;
 
 namespace System
 {
@@ -34,7 +35,7 @@ namespace System
 
     mGlobal(Network) int		getFreeMBOnDisk(const char* path);
     mGlobal(Network) int		getFreeMBOnDisk(const IOObj&);
-    mGlobal(Network) void		getFreeMBOnDiskMsg(int,BufferString&);
+    mGlobal(Network) void		getFreeMBOnDiskMsg(int,uiString&);
     mGlobal(Network) const char*	getFileSystemName(const char* path);
 
     mGlobal(Network) od_uint64		uniqueSystemID();

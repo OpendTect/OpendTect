@@ -206,10 +206,10 @@ void uiObjFileMan::selChg( CallBacker* cb )
 	setInfo( "" );
 
     readNotes();
-    BufferString msg;
+    uiString msg;
     if ( curioobj_ )
 	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
-    toStatusBar( mToUiStringTodo(msg) );
+    toStatusBar( msg );
 }
 
 

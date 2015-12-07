@@ -162,9 +162,8 @@ protected:
     uiTreeViewBody*		lvbody()	{ return body_; }
     const uiTreeViewBody*	lvbody() const	{ return body_; }
 
-    void			translateText();
-    void			updateHeaderLabels();
-
+    void		updateHeaderLabels();
+    void		translateText();
 
 private:
 

@@ -990,6 +990,13 @@ NrBytesToStringCreator::NrBytesToStringCreator()
 }
 
 
+NrBytesToStringCreator::NrBytesToStringCreator( od_uint64 nrbytes )
+    : unit_( Bytes )
+{
+    setUnitFrom( nrbytes );
+}
+
+
 void NrBytesToStringCreator::setUnitFrom( od_uint64 number, bool max )
 {
     int nrshifts = 0;

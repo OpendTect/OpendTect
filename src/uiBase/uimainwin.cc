@@ -1211,23 +1211,27 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 				    QWidget* forwindow,
 				    BufferString* outputaddendum )
 {
-    BufferString wintitle;
     const QWidgetList toplevelwigs = qApp->topLevelWidgets();
 
+    uiString res;
     for ( int count=1; true; count++ )
     {
 	bool unique = true;
-	wintitle = txt.getFullString();
-
-	if ( wintitle.isEmpty() )
-	    wintitle = "<no title>";
+	uiString beginning = txt.isEmpty() ? tr("<no title>") : txt;
 
 	if ( count>1 )
 	{
+	    res = toUiString( "%1 {%2}").arg( beginning )
+		                        .arg( toUiString(count) );
 	    BufferString addendum( "  {", toString(count), "}" );
-	    wintitle += addendum.buf();
 	    if ( outputaddendum ) *outputaddendum = addendum;
 	}
+	else
+	{
+	    res = beginning;
+	}
+
+	QString wintitle = res.getQString();
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
 	{
@@ -1236,13 +1240,16 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 		continue;
 
 	    if ( qw->windowTitle() == wintitle )
+	    {
 		unique = false;
+		break;
+	    }
 	}
 
 	if ( unique ) break;
     }
 
-    return toUiString(wintitle.str());
+    return res;
 }
 
 
@@ -1274,6 +1281,9 @@ void uiMainWin::activateInGUIThread( const CallBack& cb, bool busywait )
 void uiMainWin::translateText()
 {
     uiParent::translateText();
+
+    for ( int idx=0; idx<body_->toolbars_.size(); idx++ )
+	body_->toolbars_[idx]->translateText();
 
     //Don't know if anything special needs to be done here.
 }

@@ -23,6 +23,8 @@ mExpClass(Basic) NrBytesToStringCreator
 {
 public:
 			NrBytesToStringCreator();
+			NrBytesToStringCreator(od_uint64 nrbytes);
+			/*!< Unit is set from nrbytes*/
     enum Unit		{ Bytes=0, KB=1, MB=2, GB=3, TB=4, PB=5 };
 
     void		setUnitFrom(od_uint64 number,bool maximum=true);
