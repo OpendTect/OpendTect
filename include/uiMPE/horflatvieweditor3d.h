@@ -50,6 +50,7 @@ public:
 
     void		enableLine(bool);
     void		enableSeed(bool);
+    bool		seedEnable() const;
     void		paint();
 
     void		setSeedPicking( bool yn )	{}

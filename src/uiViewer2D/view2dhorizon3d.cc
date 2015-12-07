@@ -161,7 +161,6 @@ void Vw2DHorizon3D::selected( bool enabled )
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
 		horeds_[ivwr]->setMouseEventHandler( 0 );
-	    horeds_[ivwr]->enableSeed( trackerenbed && enabled );
 	}
     }
 
@@ -199,7 +198,7 @@ void Vw2DHorizon3D::triggerDeSel()
 	if ( horeds_[ivwr] )
 	{
 	    horeds_[ivwr]->setMouseEventHandler( 0 );
-	    horeds_[ivwr]->enableSeed( false );
+	    horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );
 	}
     }
 
