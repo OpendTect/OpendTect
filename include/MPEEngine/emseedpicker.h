@@ -36,6 +36,7 @@ mExpClass(MPEEngine) Patch
 public:
 			    Patch(const EMSeedPicker*);
     const TypeSet<TrcKeyValue>&  getPath() const;
+    void		    getTrcKeySampling(TrcKeySampling&) const;
     int                     nrSeeds();
     Coord3                  seedCoord(int) const;
     int			    addSeed(const TrcKeyValue&);

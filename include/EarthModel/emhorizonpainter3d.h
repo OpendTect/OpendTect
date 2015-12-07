@@ -41,8 +41,10 @@ public:
 
     void		enableLine(bool);
     void		enableSeed(bool);
+    bool		seedEnable() const { return  seedenabled_; }
 
     void		paint();
+    void		setUpdateTrcKeySampling(const TrcKeySampling&);
     void		displayIntersection(bool yn) { intersection_ = yn; }
 
     	mStruct(EarthModel) Marker3D
