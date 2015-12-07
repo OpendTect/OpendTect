@@ -413,7 +413,9 @@ public:
 				{ needstatusbarupd_ = false; }
     bool			needStatusBarUpdate() const
 				{ return needstatusbarupd_; }
+    void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
 
+    const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const { return geom2dids_; }
 protected:
 
     TypeSet< ::DataPack::ID>	ids_;
@@ -430,6 +432,7 @@ private:
 
     const FlatDataPack*		wvapack_;
     const FlatDataPack*		vdpack_;
+    TypeSet<Pos::GeomID>	geom2dids_;
 
 };
 

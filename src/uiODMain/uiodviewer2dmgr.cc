@@ -75,6 +75,8 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DFaultTreeItemFactory, 4500 );
     tifs3d_->addFactory( new uiODVw2DFaultSSTreeItemFactory, 5500 );
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
+    BufferStringSet lnms;
+    SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
 }
 
 
@@ -187,6 +189,8 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
+    if ( geom2dids_.size()>0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
     return vwr2d->id_;
 }
@@ -232,6 +236,8 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+	if ( geom2dids_.size()>0 )
+	    vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
 	attachNotifiersAndSetAuxData( vwr2d );
     }
 
@@ -581,6 +587,8 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
 
+    if ( geom2dids_.size()>0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
 }
 
@@ -620,10 +628,7 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
 	l2dintersections_ = new Line2DInterSectionSet;
-	BufferStringSet lnms;
-	TypeSet<Pos::GeomID> geomids;
-	SeisIOObjInfo::getLinesWithData( lnms, geomids );
-	BendPointFinder2DGeomSet bpfinder( geomids );
+	BendPointFinder2DGeomSet bpfinder( geom2dids_ );
 	bpfinder.execute();
 	Line2DInterSectionFinder intfinder( bpfinder.bendPoints(),
 					    *l2dintersections_ );

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "emposid.h"
 #include "flatview.h"
+#include "geom2dintersections.h"
 
 namespace EM
 {
@@ -36,12 +37,13 @@ public:
 
     void		enableLine(bool);
     void		enableSeed(bool);
+    bool		seedEnable() const { return seedenabled_; }
 
     TypeSet<int>&	getTrcNos()			{ return trcnos_; }
     TypeSet<float>&	getDistances()			{ return distances_; }
 
     void		paint();
-    void		displayIntersection(bool yn) { intersection_ = yn; }
+    void		displayIntersection(bool yn);
 
 	mStruct(EarthModel)	Marker2D
 	{
@@ -65,9 +67,14 @@ protected:
 
     bool		addPolyLine();
     void		removePolyLine();
+    void		removeIntersectionMarkers();
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
+    void		updateIntersectionMarkers(int sid);
+    Marker2D*		create2DMarker(const EM::SectionID&,float,float);
+    bool		calcLine2DIntersections();
+
 
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
@@ -83,10 +90,11 @@ protected:
     typedef ObjectSet<Marker2D> 	SectionMarker2DLine;
     ObjectSet<SectionMarker2DLine>	markerline_;
     Marker2D*				markerseeds_;
+    ObjectSet<Marker2D>			intsectmarks_;
 
     bool		linenabled_;
     bool		seedenabled_;
-    bool		intersection_;
+    Line2DInterSectionSet intsectset_;
 };
 
 } // namespace EM

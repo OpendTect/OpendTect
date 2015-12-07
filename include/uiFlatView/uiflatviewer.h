@@ -76,6 +76,7 @@ public:
 			{ return updatebitmapsonresize_; }
 
     void		handleChange(unsigned int);
+    void		setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
 
     FlatView::AuxData*		createAuxData(const char* nm) const;
     int				nrAuxData() const;
@@ -85,6 +86,7 @@ public:
     FlatView::AuxData*		removeAuxData(FlatView::AuxData* a);
     FlatView::AuxData*		removeAuxData(int idx);
     void			reGenerate(FlatView::AuxData&);
+
 
     Notifier<uiFlatViewer> 	viewChanged; //!< setView called
     Notifier<uiFlatViewer> 	dataChanged; //!< new DataPack set

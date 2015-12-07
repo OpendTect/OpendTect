@@ -134,6 +134,7 @@ void Vw2DHorizon2D::draw()
 
 	horeds_[ivwr]->paint();
 	horeds_[ivwr]->enableSeed( trackerenbed );
+	horeds_[ivwr]->enableIntersectionMarker( true );
     }
 }
 
@@ -147,6 +148,7 @@ void Vw2DHorizon2D::enablePainting( bool yn )
 	    horeds_[idx]->enableLine( yn );
 	    horeds_[idx]->enableSeed( yn
 		    && (MPE::engine().getTrackerByObject(emid_) != -1) );
+	    horeds_[idx]->enableIntersectionMarker( yn );
 	}
     }
 }
@@ -205,7 +207,7 @@ void Vw2DHorizon2D::triggerDeSel()
 	if ( horeds_[ivwr] )
 	{
 	    horeds_[ivwr]->setMouseEventHandler( 0 );
-	    horeds_[ivwr]->enableSeed( false );
+	    horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );
 	}
     }
 

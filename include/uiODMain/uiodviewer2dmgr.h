@@ -124,6 +124,7 @@ protected:
     ObjectSet<uiODViewer2D>     viewers2d_;
     Line2DInterSectionSet*	l2dintersections_;
     SelectedAuxAnnot		selauxannot_;
+    TypeSet<Pos::GeomID>	geom2dids_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;

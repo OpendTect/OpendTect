@@ -703,3 +703,11 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
     Interval<float> mapperrange = mapper.range_;
     return mapperrange;
 }
+
+
+void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
+{
+    geom2dids_ = geomids;
+}
+
+
