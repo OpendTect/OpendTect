@@ -421,13 +421,6 @@ void uiTreeView::updateHeaderLabels()
     body_->setHeaderLabels( qlist );
 }
 
-/*
-void uiTreeView::translateText()
-{
-    updateHeaderLabels();
-}
-*/
-
 
 void uiTreeView::removeColumn( int col )
 {
@@ -735,6 +728,7 @@ void uiTreeView::setNotifiedItem( QTreeWidgetItem* itm )
 
 void uiTreeView::translateText()
 {
+    updateHeaderLabels();
     for ( int idx=0; idx<nrItems(); idx++ )
     {
         uiTreeViewItem* itm = getItem( idx );

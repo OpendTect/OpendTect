@@ -37,6 +37,18 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 mDefineEnumUtils(Viewer2DPosDataSel,PosType,"Position Type")
 { "In-line", "Cross-line", "2D line", "Z-slice", "Random line", 0 };
 
+
+template <>
+void EnumDefImpl<Viewer2DPosDataSel::PosType>::init()
+{
+    uistrings_ += uiStrings::sInline();
+    uistrings_ += uiStrings::sCrossline();
+    uistrings_ += uiStrings::s2DLine();
+    uistrings_ += uiStrings::sZSlice();
+    uistrings_ += uiStrings::sRandomLine();
+}
+
+
 #define mToPosTypeStr( postype ) \
     Viewer2DPosDataSel::toString( postype )
 

@@ -230,11 +230,6 @@ void uiParent::translateText()
     {
 	uiBaseObject* child = const_cast<uiBaseObject*>((*childList())[idx]);
 	
-	//Workaround for missing function on uiTreeView
-	mDynamicCastGet( uiTreeView*, treeview, child );
-	if ( treeview )
-	    treeview->updateHeaderLabels();
-
 	//Workaround for missing function on uiGroupObj
 	mDynamicCastGet( uiGroupObj*, groupobj, child );
 	if ( groupobj && groupobj->group() )

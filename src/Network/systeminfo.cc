@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "bufstringset.h"
+#include "nrbytes2string.h"
 #include "checksum.h"
 #include "file.h"
 #include "filepath.h"
@@ -222,21 +223,25 @@ int getFreeMBOnDisk( const IOObj& ioobj )
 }
 
 
+void getFreeMBOnDiskMsg( int mb, uiString& str )
+{
+    od_uint64 bytes = mb;
+    bytes <<= 20;
+    NrBytesToStringCreator converter( bytes );
+    str = od_static_tr( "getFreeMBOnDiskMsg",
+    			"Free space on disk: %1")
+	.arg( converter.getString( bytes ) );
+}
+
+
 void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 {
     bs = "Free space on disk: ";
-    if ( mb < 1024 )
-	{ bs += mb; bs += " MB"; }
-    else
-    {
-	int gb = mb / 1024;
-	bs += gb; bs += ".";
-	float fmb = (mb % 1024) / 102.4;
-	int tenthsofgb = mNINT32(fmb);
-	bs += tenthsofgb; bs += " GB";
-    }
+    od_uint64 bytes = mb;
+    bytes <<= 20;
+    NrBytesToStringCreator converter( bytes );
+    bs += converter.getString( bytes );
 }
-
 
 
 const char* getFileSystemName( const char* path )

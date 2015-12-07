@@ -148,8 +148,6 @@ public:
     Notifier<uiTreeView> collapsed;
     Notifier<uiTreeView> unusedKey;
 
-    void		updateHeaderLabels();
-
 protected:
 
     mutable BufferString rettxt;
@@ -165,8 +163,7 @@ protected:
     uiTreeViewBody*		lvbody()	{ return body_; }
     const uiTreeViewBody*	lvbody() const	{ return body_; }
 
-    //void			translateText();
-    				//Canntot be added because of ABI
+    void		updateHeaderLabels();
 
 private:
 

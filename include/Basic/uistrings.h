@@ -155,6 +155,7 @@ public:
 
 //Words
     static uiString s2D();
+    static uiString s2DLine()		{ return tr("2D line"); }
     static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
     static uiString sAbove()		{ return tr("Above"); }

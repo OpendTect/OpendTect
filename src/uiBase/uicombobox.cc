@@ -370,7 +370,11 @@ void uiComboBox::addItems( const uiStringSet& items )
 
 
 void uiComboBox::addSeparator()
-{ body_->insertSeparator( size() ); }
+{
+    body_->insertSeparator( size() );
+    itemids_ += -1;
+    itemstrings_ += uiString::emptyString();
+}
 
 
 void uiComboBox::insertItem( const uiString& txt, int index, int id )
