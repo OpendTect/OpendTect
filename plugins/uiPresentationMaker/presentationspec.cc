@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "presentationspec.h"
 
 #include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "uimain.h"
