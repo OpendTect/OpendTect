@@ -23,6 +23,7 @@ class uiComboBox;
 class uiFileInput;
 class uiGenInput;
 class uiTable;
+class uiToolButton;
 
 mExpClass(uiPresentationMaker) uiPresentationMakerDlg : public uiDialog
 { mODTextTranslationClass(uiPresentationMakerDlg)
@@ -33,8 +34,9 @@ public:
 protected:
     bool		acceptOK(CallBacker*);
 
-    void		typeCB(CallBacker*);
-    void		layoutCB(CallBacker*);
+    void		templateCB(CallBacker*);
+    void		imageTypeCB(CallBacker*);
+    void		settingsCB(CallBacker*);
     void		addCB(CallBacker*);
     void		moveUpCB(CallBacker*);
     void		moveDownCB(CallBacker*);
@@ -45,15 +47,17 @@ protected:
     void		updateSceneList();
 
     PresentationSpec	specs_;
+    BufferString	pythonpptxdir_;
 
     uiGenInput*		titlefld_;
+    uiGenInput*		templatefld_;
+    uiToolButton*	settingsbut_;
     uiButtonGroup*	typegrp_;
     uiComboBox*		windowfld_;
     uiComboBox*		scenefld_;
     uiTable*		slidestbl_;
     uiFileInput*	masterfld_;
     uiFileInput*	outputfld_;
-    uiFileInput*	imagestorfld_;
 };
 
 #endif

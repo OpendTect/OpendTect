@@ -24,12 +24,10 @@ public:
 
     void		saveToSettings();
     void		readFromSettings();
+    void		forBlankPresentation();
 
     float		availableWidth() const;
     float		availableHeigth() const;
-
-    int			layoutindex_;
-    int			masterindex_;
 
     int			format_;
     float		width_;
@@ -48,7 +46,11 @@ public:
 			~SlideContent();
 
     void		setTitle(const char*);
-    void		getPythonScript(const SlideLayout&,BufferString&) const;
+    bool		setImageSizePos(const SlideLayout&);
+
+    void		addBlankSlide(BufferString&);
+    void		addAsFirstSlide(BufferString&);
+    void		addWithFirstSlideLayout(BufferString&);
 
 protected:
     BufferString	title_;
@@ -56,7 +58,8 @@ protected:
     Geom::Size2D<float>	imagesz_;
     Geom::Point2D<float> imagepos_;
 
-    bool		setImageSizePos(const SlideLayout&);
+    void		addTitle(BufferString&);
+    void		addImage(BufferString&);
 };
 
 
@@ -67,6 +70,7 @@ public:
 			~PresentationSpec();
 
     SlideLayout&	getSlideLayout()	{ return slidelayout_; }
+
     void		setEmpty();
     int			nrSlides() const;
     void		addSlide(SlideContent&);
@@ -75,15 +79,17 @@ public:
     void		removeSlide(int);
 
     void		setTitle(const char*);
-    void		doAddTitleSlide( bool yn )	{ addtitleslide_ = yn; }
+    void		setSlideTitle(int,const char*);
 
     void		setOutputFilename(const char*);
     void		setMasterFilename(const char*);
 
-    void		getPythonScript(BufferString&) const;
+    void		getPythonScript(BufferString&);
 
-    int			titlemasterindex_;
-    int			titlelayoutindex_;
+    static BufferString	getTemplate();
+    static void		setTemplate(const char*);
+    static BufferString	getPyDir();
+    static void		setPyDir(const char*);
 
 protected:
     ObjectSet<SlideContent>	slides_;

@@ -32,8 +32,10 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uivispartserv.h"
 #include "ui3dviewer.h"
 
+#include "attribsel.h"
 #include "file.h"
 #include "filepath.h"
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "od_ostream.h"
 #include "oscommand.h"
@@ -94,23 +96,6 @@ uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
     bf->attach( rightTo, tf );
     bf->attach( alignedBelow, rf );
 
-    uiSeparator* sep2 = new uiSeparator( this, "Sep2" );
-    sep2->attach( stretchedBelow, tf );
-
-    uiLabel* mlbl = new uiLabel( this, tr("Master/Layout Index:") );
-    mlbl->attach( leftBorder );
-    mlbl->attach( ensureBelow, sep2 );
-
-    titlemasterfld_ = new uiGenInput( this, tr("Title Master"), IntInpSpec() );
-    titlelayoutfld_ = new uiGenInput( this, tr("Layout"), IntInpSpec() );
-    masterfld_ = new uiGenInput( this, tr("Slide Master"), IntInpSpec() );
-    layoutfld_ = new uiGenInput( this, tr("Layout"), IntInpSpec() );
-    titlemasterfld_->attach( alignedBelow, tf );
-    titlemasterfld_->attach( ensureBelow, mlbl );
-    titlelayoutfld_->attach( rightTo, titlemasterfld_ );
-    masterfld_->attach( alignedBelow, titlemasterfld_ );
-    layoutfld_->attach( rightTo, masterfld_ );
-
     SlideLayout& layout = spec_.getSlideLayout();
     formatfld_->setCurrentItem( layout.format_ );
     formatCB(0);
@@ -124,11 +109,6 @@ uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
     rightfld_->setValue( layout.right_ );
     topfld_->setValue( layout.top_ );
     bottomfld_->setValue( layout.bottom_ );
-
-    titlemasterfld_->setValue( spec_.titlemasterindex_ );
-    titlelayoutfld_->setValue( spec_.titlelayoutindex_ );
-    masterfld_->setValue( layout.masterindex_ );
-    layoutfld_->setValue( layout.layoutindex_ );
 }
 
 
@@ -159,10 +139,6 @@ bool acceptOK( CallBacker* )
     layout.top_ = topfld_->getFValue();
     layout.bottom_ = bottomfld_->getFValue();
 
-    layout.masterindex_ = masterfld_->getIntValue();
-    layout.layoutindex_ = layoutfld_->getIntValue();
-    spec_.titlemasterindex_ = titlemasterfld_->getIntValue();
-    spec_.titlelayoutindex_ = titlelayoutfld_->getIntValue();
     layout.saveToSettings();
     return true;
 }
@@ -175,11 +151,6 @@ bool acceptOK( CallBacker* )
     uiSpinBox*		rightfld_;
     uiSpinBox*		topfld_;
     uiSpinBox*		bottomfld_;
-
-    uiGenInput*		titlemasterfld_;
-    uiGenInput*		titlelayoutfld_;
-    uiGenInput*		masterfld_;
-    uiGenInput*		layoutfld_;
 };
 
 
@@ -192,35 +163,37 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     titlefld_ = new uiGenInput( this, tr("Presentation Title") );
     titlefld_->setElemSzPol( uiObject::Wide );
 
-    uiToolButton* layoutbut =
+    const BufferString templfnm = PresentationSpec::getTemplate();
+    const bool isblank = templfnm.isEmpty();
+    templatefld_ = new uiGenInput( this, tr("Template"),
+	BoolInpSpec(isblank,tr("Blank"),tr("Custom")) );
+    templatefld_->valuechanged.notify(
+		mCB(this,uiPresentationMakerDlg,templateCB) );
+    templatefld_->attach( alignedBelow, titlefld_ );
+
+    settingsbut_ =
 	new uiToolButton( this, "settings", tr("Slide Layout"),
-			  mCB(this,uiPresentationMakerDlg,layoutCB) );
-    layoutbut->attach( rightTo, titlefld_ );
+			  mCB(this,uiPresentationMakerDlg,settingsCB) );
+    settingsbut_->attach( rightTo, templatefld_ );
 
     BufferString filter( "PowerPoint (*.pptx)" );
     uiFileInput::Setup fis;
     fis.forread(true).filter( filter );
-    masterfld_ = new uiFileInput( this, tr("Master pptx"), fis );
-    masterfld_->attach( alignedBelow, titlefld_ );
+    masterfld_ = new uiFileInput( this, tr("Template pptx"), fis );
+    masterfld_->setFileName( templfnm );
+    masterfld_->attach( alignedBelow, templatefld_ );
 
     fis.forread(false);
     outputfld_ = new uiFileInput( this, tr("Output pptx"), fis );
     outputfld_->attach( alignedBelow, masterfld_ );
 
-    const BufferString imgpath =
-		FilePath( GetDataDir() ).add( "Misc" ).fullPath();
-    fis.forread(true).directories(true).filter("");
-    imagestorfld_ = new uiFileInput( this, tr("Image Storage Location"), fis );
-    imagestorfld_->setFileName( imgpath.buf() );
-    imagestorfld_->attach( alignedBelow, outputfld_ );
-
     uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
-    sep->attach( stretchedBelow, imagestorfld_ );
+    sep->attach( stretchedBelow, outputfld_ );
 
     typegrp_ = new uiButtonGroup( this, "Type", OD::Horizontal );
-    typegrp_->attach( alignedBelow, imagestorfld_ );
+    typegrp_->attach( alignedBelow, outputfld_ );
     typegrp_->attach( ensureBelow, sep );
-    CallBack cb = mCB(this,uiPresentationMakerDlg,typeCB);
+    CallBack cb = mCB(this,uiPresentationMakerDlg,imageTypeCB);
     new uiRadioButton( typegrp_, tr("Scene"), cb );
     new uiRadioButton( typegrp_, tr("Window"), cb );
     new uiRadioButton( typegrp_, tr("Desktop"), cb );
@@ -244,6 +217,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     ts.rowdesc("Slide");
     slidestbl_ = new uiTable( this, ts, "Slides table" );
     slidestbl_->setColumnLabel( 0, tr("Title") );
+    slidestbl_->setPrefHeightInChar( 4 );
     slidestbl_->attach( ensureBelow, windowfld_ );
 
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
@@ -255,11 +229,12 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 		      mCB(this,uiPresentationMakerDlg,removeCB) );
     butgrp->attach( rightTo, slidestbl_ );
 
-    uiPushButton* createbut = new uiPushButton( this, uiStrings::sCreate(),
+    uiPushButton* createbut = new uiPushButton( this, tr("Create Presentation"),
 	mCB(this,uiPresentationMakerDlg,createCB), true );
-    createbut->attach( alignedBelow, slidestbl_ );
+    createbut->attach( centeredBelow, slidestbl_ );
 
-    typeCB(0);
+    templateCB(0);
+    imageTypeCB(0);
 }
 
 
@@ -296,7 +271,15 @@ void uiPresentationMakerDlg::updateSceneList()
 }
 
 
-void uiPresentationMakerDlg::typeCB(CallBacker *)
+void uiPresentationMakerDlg::templateCB( CallBacker* )
+{
+    const bool isblank = templatefld_->getBoolValue();
+    masterfld_->display( !isblank );
+    settingsbut_->display( !isblank );
+}
+
+
+void uiPresentationMakerDlg::imageTypeCB( CallBacker* )
 {
     scenefld_->display( typegrp_->selectedId()==0 );
     windowfld_->display( typegrp_->selectedId()==1 );
@@ -306,18 +289,51 @@ void uiPresentationMakerDlg::typeCB(CallBacker *)
 }
 
 
-void uiPresentationMakerDlg::layoutCB( CallBacker* )
+void uiPresentationMakerDlg::settingsCB( CallBacker* )
 {
     uiSlideLayoutDlg dlg( this, specs_ );
     dlg.go();
 }
 
 
+static void createSlideName( BufferString& slidename )
+{
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const int visid = visserv->getSelObjectId();
+    visserv->getObjectInfo( visid, slidename );
+    if ( slidename.isEmpty() )
+    {
+	uiString objnm = visserv->getObjectName( visid );
+	slidename = objnm.getFullString();
+    }
+
+    const int attrib = visserv->getSelAttribNr();
+    if ( attrib >= 0 )
+    {
+	uiString dispnm =
+		uiODAttribTreeItem::createDisplayName( visid, attrib );
+	BufferString attribnm = dispnm.getFullString();
+	if ( attribnm.isEmpty() )
+	{
+	    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
+	    attribnm = as ? as->userRef() : "";
+	}
+
+	if ( !attribnm.isEmpty() )
+	    slidename.add( " - " ).add( attribnm.buf() );
+    }
+}
+
+
 static int slideidx = 1;
+static const char* datefmt = "yyyyMMddhhsszzz";
+
 void uiPresentationMakerDlg::addCB( CallBacker* )
 {
-    FilePath imagefp( imagestorfld_->fileName() );
-    imagefp.add( BufferString("image",slideidx) );
+    MouseCursorChanger mcc( MouseCursor::Wait );
+
+    FilePath imagefp( PresentationSpec::getPyDir() );
+    imagefp.add( BufferString("image-",Time::getDateTimeString(datefmt)) );
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
 
@@ -334,20 +350,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 	ui3DViewer2Image vwr2image( *vwrs[selitm], imagefnm.buf() );
 	vwr2image.create();
 
-
-	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-	const int visid = visserv->getSelObjectId();
-	const int attrib = visserv->getSelAttribNr();
-	uiString objnm = visserv->getObjectName( visid );
-	slidename = objnm.getFullString();
-
-	if ( attrib >= 0 )
-	{
-	    uiString dispnm =
-		uiODAttribTreeItem::createDisplayName( visid, attrib );
-	    slidename.add( " : " );
-	    slidename.add( dispnm.getFullString() );
-	}
+	createSlideName( slidename );
     }
     else
     {
@@ -378,6 +381,15 @@ void uiPresentationMakerDlg::moveUpCB( CallBacker* )
 {
     const int currow = slidestbl_->currentRow();
     if ( currow < 1 ) return;
+
+    specs_.swapSlides( currow, currow-1 );
+    const RowCol from = RowCol(currow,0);
+    const RowCol to = RowCol(currow-1,0);
+    const BufferString txt0 = slidestbl_->text( from );
+    const BufferString txt1 = slidestbl_->text( to );
+    slidestbl_->setText( from, txt1 );
+    slidestbl_->setText( to, txt0 );
+    slidestbl_->setCurrentCell( to );
 }
 
 
@@ -385,6 +397,15 @@ void uiPresentationMakerDlg::moveDownCB( CallBacker* )
 {
     const int currow = slidestbl_->currentRow();
     if ( currow > slidestbl_->nrRows() -1 ) return;
+
+    specs_.swapSlides( currow, currow+1 );
+    const RowCol from = RowCol(currow,0);
+    const RowCol to = RowCol(currow+1,0);
+    const BufferString txt0 = slidestbl_->text( from );
+    const BufferString txt1 = slidestbl_->text( to );
+    slidestbl_->setText( from, txt1 );
+    slidestbl_->setText( to, txt0 );
+    slidestbl_->setCurrentCell( to );
 }
 
 
@@ -412,22 +433,60 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	return;
     }
 
+    if ( File::exists(outputfnm) )
+    {
+	const bool res = File::remove( outputfnm );
+	if ( !res )
+	{
+	    uiMSG().error( tr("Output file exists but cannot be removed."
+		"File is possibly in use. Please close before overwriting.") );
+	    return;
+	}
+    }
+
     specs_.setTitle( title );
     specs_.setOutputFilename( outputfnm );
 
-    const BufferString masterfnm = masterfld_->fileName();
-    specs_.setMasterFilename( masterfnm.buf() );
+    const bool isblankpres = templatefld_->getBoolValue();
+    const BufferString templfnm = !isblankpres ? masterfld_->fileName() : "";
+    // TODO: merge 2 calls below
+    specs_.setMasterFilename( templfnm.buf() );
+    PresentationSpec::setTemplate( templfnm.buf() );
+    if ( !isblankpres && !File::exists(templfnm.buf()) )
+    {
+	uiMSG().error( tr("Template pptx does not exist. "
+	    "Select another template pptx or create a blank presentation.") );
+	return;
+    }
+
+    const int nrslides = specs_.nrSlides();
+    for ( int idx=0; idx<nrslides; idx++ )
+    {
+	const BufferString slidetitle = slidestbl_->text( RowCol(idx,0) );
+	specs_.setSlideTitle( idx, slidetitle.buf() );
+    }
 
     BufferString script;
     specs_.getPythonScript( script );
-    BufferString scriptfnm = FilePath::getTempName("py");
-    od_ostream strm( scriptfnm );
+    FilePath scriptfp( PresentationSpec::getPyDir() );
+    BufferString fnm( "python-pptx-" );
+    fnm.add( Time::getDateTimeString(datefmt) );
+    scriptfp.add( fnm ); scriptfp.setExtension( "py" );
+    od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
-    BufferString cmd( "python ", scriptfnm );
-    if ( !OS::ExecCommand( cmd.buf() ) )
+    BufferString cmd( "python ", scriptfp.fullPath() );
+    if ( !OS::ExecCommand(cmd.buf(),OS::Wait4Finish) )
     {
-	uiMSG().error( tr("Could not execute\n: "), cmd.buf() );
+	uiMSG().error( tr("Could not execute\n: "), cmd.buf(),
+	    tr("\nPlease check if Python is correctly installed.") );
+	return;
+    }
+
+    if ( !File::exists(outputfnm) )
+    {
+	uiMSG().error( tr("Output file does not exist. An error might have "
+	    "occured while running the python script.") );
 	return;
     }
 
