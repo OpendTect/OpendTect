@@ -897,9 +897,9 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
+	const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
 	if ( datatransform_->needsVolumeOfInterest() )
 	{
-	    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
@@ -911,6 +911,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 	transformer.setInput( regsdp.ptr() );
 	transformer.setOutput( outputid );
 	transformer.setInterpolate( textureInterpolationEnabled() );
+	transformer.setOutputZRange( tkzs.zsamp_ );
 	transformer.execute();
     }
 

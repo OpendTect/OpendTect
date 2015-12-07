@@ -500,9 +500,9 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
+	const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, attrib );
 	if ( datatransform_->needsVolumeOfInterest() )
 	{
-	    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, attrib );
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
@@ -514,6 +514,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 	transformer.setInput( regsdp.ptr() );
 	transformer.setOutput( outputid );
 	transformer.setInterpolate( textureInterpolationEnabled() );
+	transformer.setOutputZRange( tkzs.zsamp_ );
 	transformer.execute();
     }
 
@@ -538,7 +539,7 @@ void Seis2DDisplay::updatePanelStripPath()
 	    (!tdi.alljoints_.isEmpty() && tdi.alljoints_.last()<tdi.rg_.start) )
 	    tdi.alljoints_ += tdi.rg_.start;
 
-	if ( bends[idx]>tdi.rg_.stop && 
+	if ( bends[idx]>tdi.rg_.stop &&
 	    (!tdi.alljoints_.isEmpty() && tdi.alljoints_.last()<tdi.rg_.stop) )
 	    tdi.alljoints_ += tdi.rg_.stop;
 

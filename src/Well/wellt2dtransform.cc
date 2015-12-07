@@ -82,10 +82,15 @@ void WellT2DTransform::transformTrc( const TrcKey&,
 
 
 void WellT2DTransform::transformTrcBack( const TrcKey&,
-					    const SamplingData<float>& sd,
-					    int ressz, float* res ) const
+					 const SamplingData<float>& sd,
+					 int ressz, float* res ) const
 {
     doTransform( sd, ressz, res, true );
+}
+
+
+float WellT2DTransform::getGoodZStep() const
+{
 }
 
 

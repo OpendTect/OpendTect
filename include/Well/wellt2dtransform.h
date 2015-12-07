@@ -46,6 +46,7 @@ public:
     bool			canTransformSurv(Pos::SurvID) const
 				{ return true; }
 
+    float			getGoodZStep() const;
     Interval<float>		getZInterval(bool time) const;
     bool			needsVolumeOfInterest() const { return false; }
 

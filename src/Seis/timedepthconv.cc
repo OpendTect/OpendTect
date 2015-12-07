@@ -285,7 +285,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* trans )
 {
     if ( !velreader_ )
 	return true;
-    
+
     mDynamicCastGet( SeisTrcTranslator*, veltranslator,
 		     velreader_->translator() );
 
@@ -538,11 +538,13 @@ Interval<float> Time2DepthStretcher::getTimeInterval( const BinID& bid,
     if ( voiintime_[idx] )
 	return voivols_[idx].zsamp_;
 
-    return
-	Interval<float>( voidata_[idx]->get(
-		     voivols_[idx].hsamp_.inlIdx(bid.inl()),
-		     voivols_[idx].hsamp_.crlIdx(bid.crl()), 0 ),
-		     voidata_[idx]->get( voivols_[idx].hsamp_.inlIdx(bid.inl()),
+    return Interval<float>(
+		voidata_[idx]->get(
+			voivols_[idx].hsamp_.inlIdx(bid.inl()),
+			voivols_[idx].hsamp_.crlIdx(bid.crl()),
+			0 ),
+		voidata_[idx]->get(
+			voivols_[idx].hsamp_.inlIdx(bid.inl()),
 			voivols_[idx].hsamp_.crlIdx(bid.crl()),
 			voidata_[idx]->info().getSize(2)-1 ) );
 }
@@ -644,7 +646,7 @@ bool Depth2TimeStretcher::needsVolumeOfInterest() const
 
 
 void Depth2TimeStretcher::fillPar( IOPar& par ) const
-{ 
+{
     stretcher_->fillPar( par );
     ZAxisTransform::fillPar( par );
 }
@@ -724,7 +726,7 @@ const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
 
 
-VelocityModelScanner::VelocityModelScanner( const IOObj& input, 
+VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 					    const VelocityDesc& vd )
     : obj_( input )
     , vd_( vd )
@@ -763,10 +765,10 @@ int VelocityModelScanner::nextStep()
 	    msg_ = tr("Velocity volume is not defined for the selected type.");
 	    return ErrorOccurred();
 	}
-	
+
 	return Finished();
     }
-   
+
     mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
     if ( !veltranslator || !veltranslator->supportsGoTo() )
     {
@@ -774,8 +776,8 @@ int VelocityModelScanner::nextStep()
 	return ErrorOccurred();
     }
 
-    nrdone_++; 
-    
+    nrdone_++;
+
     SeisTrc veltrace;
     if ( !veltranslator->goTo(curbid) || !reader_->get(veltrace) )
 	return MoreToDo();
@@ -784,15 +786,15 @@ int VelocityModelScanner::nextStep()
 
     const int sz = veltrace.size();
     if ( sz<2 ) return MoreToDo();
-    
-    const SamplingData<double> sd = veltrace.info().sampling;    
+
+    const SamplingData<double> sd = veltrace.info().sampling;
 
     TimeDepthConverter tdconverter;
     if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
 	return MoreToDo();
-	
+
     ArrayValueSeries<float, float> resvs( sz );
-    
+
     if ( zistime_ )
     {
 	if ( !tdconverter.calcDepths( resvs, sz, sd ) )
@@ -835,7 +837,7 @@ int VelocityModelScanner::nextStep()
 				  : 1500 );
     	else
     	{
-	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
+	    const float diff0 = resvs.value(first+1) - resvs.value(first);
 	    v0 = (float)( zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0);
     	}
 
