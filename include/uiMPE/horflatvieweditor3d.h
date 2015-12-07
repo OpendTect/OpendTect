@@ -51,6 +51,7 @@ public:
     void		enableLine(bool);
     void		enableSeed(bool);
     void		paint();
+    bool		seedEnable() const;
 
     void		setSeedPicking( bool yn )	{}
     void		setTrackerSetupActive(bool yn)
