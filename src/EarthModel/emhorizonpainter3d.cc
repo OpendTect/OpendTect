@@ -41,6 +41,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 	emobj->ref();
 	emobj->change.notify( mCB(this,HorizonPainter3D,horChangeCB) );
     }
+    updatesamplings_.init( false );
 }
 
 
@@ -50,6 +51,8 @@ HorizonPainter3D::~HorizonPainter3D()
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
     {
+	emobj->removePosAttribList(
+	    EM::EMObject::sIntersectionNode(), false );
 	emobj->change.remove( mCB(this,HorizonPainter3D,horChangeCB) );
 	emobj->unRef();
     }
@@ -100,6 +103,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     repaintdone_.trigger();
+    updatesamplings_.init( false );
 }
 
 
@@ -129,7 +133,6 @@ bool HorizonPainter3D::addPolyLine()
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
-
     nrseeds_ = 0;
     for ( int ids=0; ids<hor3d->nrSections(); ids++ )
     {
@@ -161,11 +164,6 @@ bool HorizonPainter3D::addPolyLine()
 		{
 		    coorddefined = true;
 		    newmarker = true;
-		    const EM::PosID pid = EM::PosID(
-			emobj->id(), sid,bid.toInt64() );
-		    if ( intersection_ )
-			 emobj->setPosAttrib(
-				pid, EM::EMObject::sIntersectionNode(),true );
 		}
 
 		if ( newmarker )
@@ -198,8 +196,10 @@ bool HorizonPainter3D::addPolyLine()
 		newmarker = true;
 		const EM::PosID pid = EM::PosID(emobj->id(),sid,bid.toInt64());
 		if ( intersection_ )
+		{
 		    emobj->setPosAttrib(
-		    pid,EM::EMObject::sIntersectionNode(), true, false );
+		    pid, EM::EMObject::sIntersectionNode(), true, false );
+		}
 	    }
 
 	    if ( newmarker )
@@ -208,10 +208,16 @@ bool HorizonPainter3D::addPolyLine()
 		newmarker = false;
 	    }
 
+	    const bool intsectnode = emobj->isPosAttrib(
+		posid,EM::EMObject::sIntersectionNode() );
+	    const TrcKey tk(TrcKey(hor3d->getSurveyID(),bid));
+
+	    if ( updatesamplings_.includes(tk) && intsectnode )
+		emobj->setPosAttrib( posid ,EM::EMObject::sIntersectionNode(), 
+		false );
+
 	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
 		nrseeds_++;
-	    emobj->removePosAttribList(
-		EM::EMObject::sIntersectionNode(), false );
 	}
     }
 
@@ -473,6 +479,13 @@ void HorizonPainter3D::enableSeed( bool yn )
 	markerseeds_->marker_->enabled_ = yn;
     seedenabled_ = yn;
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+}
+
+
+void HorizonPainter3D::setUpdateTrcKeySampling( 
+    const TrcKeySampling& samplings )
+{
+    updatesamplings_ = TrcKeySampling( samplings );
 }
 
 } // namespace EM

@@ -71,6 +71,14 @@ const TypeSet<TrcKeyValue>&  Patch::getPath() const
 { return seeds_; }
 
 
+void Patch::getTrcKeySampling( TrcKeySampling& samplings ) const
+{
+    samplings.init( false );
+    for ( int idx=0; idx<seeds_.size(); idx++ )
+	samplings.include( seeds_[idx].tk_ );
+}
+
+
 int Patch::nrSeeds()
 { return seeds_.size(); }
 

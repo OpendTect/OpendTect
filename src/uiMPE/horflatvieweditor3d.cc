@@ -187,6 +187,12 @@ void HorizonFlatViewEditor3D::enableSeed( bool yn )
 }
 
 
+bool HorizonFlatViewEditor3D::seedEnable() const 
+{
+    return horpainter_->seedEnable();
+}
+
+
 void HorizonFlatViewEditor3D::paint()
 {
     horpainter_->paint();
@@ -383,7 +389,9 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
 
-    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )
+     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() && 
+	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds &&
+	seedpicker->getTrackMode()!=EMSeedPicker::DrawAndSnap )
 	emobj->setBurstAlert( false );
 
     if ( dbl &&
@@ -419,9 +427,20 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* cb )
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds ||
 	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
+	const Patch* patch = seedpicker->getPatch();
+	if ( patch )
+	{
+    	    TrcKeySampling tckpath;
+	    patch->getTrcKeySampling( tckpath );
+	    horpainter_->setUpdateTrcKeySampling( tckpath );
+	}
+	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	if ( emobj ) 
+	    emobj->setBurstAlert( false );
 	seedpicker->endPatch( false );
 	updatePatchDisplay();
     }
+    horpainter_->paint();
 }
 
 
@@ -521,10 +540,21 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 	const MouseEvent& mouseevent = mehandler_->event();
 	const bool doerase =
 	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
+	
+	const Patch* patch = seedpicker->getPatch();
+	if ( patch )
+	{
+	    TrcKeySampling tckpath;
+	    patch->getTrcKeySampling( tckpath );
+	    horpainter_->setUpdateTrcKeySampling( tckpath );
+	}
+	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	if ( emobj ) 
+	    emobj->setBurstAlert( false );
 	seedpicker->endPatch( doerase );
 	updatePatchDisplay();
     }
-
+    horpainter_->paint();
 }
 
 
@@ -717,7 +747,6 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 	patchdata_->poly_ += FlatView::Point( x, tkzs.val_ );
     }
     editor_->viewer().handleChange( FlatView::Viewer::Auxdata );
-    horpainter_->paint();
 }
 
 
