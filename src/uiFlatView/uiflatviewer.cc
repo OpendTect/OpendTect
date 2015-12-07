@@ -406,3 +406,10 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
     yseldatarange_ = yrg;
     viewChanged.trigger();
 }
+
+
+void uiFlatViewer::setSeisGeomidsToViewer(TypeSet<Pos::GeomID>& geomids)
+{
+    FlatView::Viewer::setSeisGeomidsToViewer(geomids);
+}
+

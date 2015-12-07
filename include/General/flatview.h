@@ -413,6 +413,8 @@ public:
 				{ needstatusbarupd_ = false; }
     bool			needStatusBarUpdate() const
 				{ return needstatusbarupd_; }
+    void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
+    const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const; 
 
 protected:
 

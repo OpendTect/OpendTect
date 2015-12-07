@@ -50,6 +50,8 @@ public:
     TypeSet<float>&	getPaintingCanDistances();
     void		enableLine(bool);
     void		enableSeed(bool);
+    void		enableIntersectionMarker(bool);
+    bool		seedEnable() const;
     void		paint();
 
     void		setMouseEventHandler(MouseEventHandler*);

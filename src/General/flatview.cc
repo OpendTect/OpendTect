@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "zaxistransform.h"
 #include "randcolor.h"
+#include "hiddenparam.h"
+
 
 namespace FlatView
 {
@@ -431,6 +433,8 @@ FlatView::Viewer& vwr_;
 };
 
 
+HiddenParam< FlatView::Viewer,TypeSet<Pos::GeomID>* > geom2dids_( 0 );
+
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
     , dpm_(DPM(DataPackMgr::FlatID()))
@@ -442,6 +446,7 @@ FlatView::Viewer::Viewer()
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
+    geom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
 }
 
 
@@ -458,6 +463,8 @@ FlatView::Viewer::~Viewer()
     {
 	dpm_.release( ids_[idx] );
     }
+    delete geom2dids_.getParam(this);
+    geom2dids_.removeParam( this );
 }
 
 
@@ -720,4 +727,19 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
 	      : appearance().ddpars_.vd_.mappersetup_;
     Interval<float> mapperrange = mapper.range_;
     return mapperrange;
+}
+
+
+
+void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
+{
+    delete geom2dids_.getParam(this);
+    geom2dids_.removeParam( this );
+    geom2dids_.setParam( this , new TypeSet<Pos::GeomID>(geomids) );
+}
+
+
+const TypeSet<Pos::GeomID>& FlatView::Viewer::getAllSeisGeomids() const 
+{ 
+    return *geom2dids_.getParam(this); 
 }

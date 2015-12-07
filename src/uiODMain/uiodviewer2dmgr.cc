@@ -53,6 +53,9 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 #include "visrandomtrackdisplay.h"
 
+#include "hiddenparam.h"
+
+HiddenParam< uiODViewer2DMgr, TypeSet<Pos::GeomID>* > geom2dids_( 0 );
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : appl_(*a)
@@ -75,6 +78,12 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DFaultTreeItemFactory, 4500 );
     tifs3d_->addFactory( new uiODVw2DFaultSSTreeItemFactory, 5500 );
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
+    
+    geom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
+
+    BufferStringSet lnms;
+    SeisIOObjInfo::getLinesWithData( lnms, *geom2dids_.getParam(this) );
+
 }
 
 
@@ -86,6 +95,9 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     deleteAndZeroPtr( l2dintersections_ );
     deepErase( viewers2d_ );
     delete tifs2d_; delete tifs3d_;
+
+    delete geom2dids_.getParam(this);
+    geom2dids_.removeParam( this );
 }
 
 void uiODViewer2DMgr::setupHorizon3Ds( uiODViewer2D* vwr2d )
@@ -187,6 +199,9 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
+    if ( geom2dids_.getParam(this)->size()>0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( 
+	*geom2dids_.getParam(this) );
     attachNotifiersAndSetAuxData( vwr2d );
     return vwr2d->id_;
 }
@@ -232,6 +247,9 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+    if ( geom2dids_.getParam(this)->size()>0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( 
+	*geom2dids_.getParam(this) );
 	attachNotifiersAndSetAuxData( vwr2d );
     }
 
@@ -580,7 +598,9 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 	vwr.appearance().ddpars_.wva_.allowuserchange_ = vwr2d->isVertical();
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
-
+    if ( geom2dids_.getParam(this)->size()>0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( 
+	*geom2dids_.getParam(this) );
     attachNotifiersAndSetAuxData( vwr2d );
 }
 
@@ -620,10 +640,7 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
 	l2dintersections_ = new Line2DInterSectionSet;
-	BufferStringSet lnms;
-	TypeSet<Pos::GeomID> geomids;
-	SeisIOObjInfo::getLinesWithData( lnms, geomids );
-	BendPointFinder2DGeomSet bpfinder( geomids );
+	BendPointFinder2DGeomSet bpfinder( *geom2dids_.getParam(this) );
 	bpfinder.execute();
 	Line2DInterSectionFinder intfinder( bpfinder.bendPoints(),
 					    *l2dintersections_ );
