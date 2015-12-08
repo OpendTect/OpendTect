@@ -242,12 +242,13 @@ const MultiID& Strat::LayerSequenceGenDesc::elasticPropSel() const
 
 bool Strat::LayerSequenceGenDesc::prepareGenerate() const
 {
+    errmsg_.setEmpty();
     for ( int idx=0; idx<size(); idx++ )
     {
 	LayerGenerator& lgen = *const_cast<LayerGenerator*>(((*this)[idx]));
 	lgen.gendesc_ = this;
 	if ( !lgen.reset() )
-	    { errmsg_ = lgen.errMsg(); return false; }
+	    errmsg_ = lgen.errMsg();
     }
     return true;
 }
