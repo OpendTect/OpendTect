@@ -232,10 +232,10 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	    : uiString::emptyString() );
     if ( as && as->isNLA() )
     {
-    dispname = toUiString(as->objectRef());
-    uiString nodenm =toUiString( as->userRef());
+	dispname = toUiString(as->objectRef());
+	uiString nodenm = toUiString( as->userRef());
 	if ( IOObj::isKey(as->userRef()) )
-	nodenm = toUiString(IOM().nameOf( as->userRef() ));
+	    nodenm = toUiString(IOM().nameOf( as->userRef() ));
 	dispname = toUiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 
@@ -244,7 +244,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
     else if ( !as )
 	dispname = visserv->getObjectName( visid );
     else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
-        dispname=uiString::emptyString();
+        dispname = uiString::emptyString();
 
     return dispname;
 }
