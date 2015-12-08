@@ -209,25 +209,27 @@ MathProperty::~MathProperty()
 }
 
 
-bool MathProperty::hasCyclicalDependency( BufferStringSet& inputnms ) const
+bool MathProperty::hasCyclicalDependency( BufferStringSet& parentnms ) const
 {
+    parentnms.add( name() );
     for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
 	const Property* inpprop = inps_[iinp];
-	mDynamicCastGet(const MathProperty*,mathprop,inpprop)
-	if ( !mathprop ) continue;
-	BufferString mathpropnm( mathprop->name() );
-	if ( inputnms.isPresent(mathpropnm) )
+	if ( parentnms.isPresent(inpprop->name()) )
 	{
 	    errmsg_ =
-		tr ( "Input '%1' is dependent on itself" ).arg( mathpropnm );
+		tr( "Input '%1' is dependent on itself" ).arg(name());
 	    return true;
 	}
-	inputnms.add( mathpropnm );
-	if (mathprop->hasCyclicalDependency(inputnms) )
+
+	mDynamicCastGet(const MathProperty*,mathprop,inpprop)
+	if ( !mathprop ) continue;
+	
+	BufferStringSet newthrpnms( parentnms );
+	if ( mathprop->hasCyclicalDependency(newthrpnms) )
 	{
 	    errmsg_ =
-		tr ( "Input '%1' is dependent on itself" ).arg( mathpropnm );
+		tr( "Input '%1' is dependent on itself" ).arg(name());
 	    return true;
 	}
     }
