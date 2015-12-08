@@ -120,7 +120,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 {
     const Pick::Set* ps = getPickSet();
     if ( !ps ) mErrRet( tr("No PickSet selected") );
-    
+
     const EM::Horizon3D* hor = getHorizon();
     if ( !hor ) mErrRet( tr("No Horizon selected") );
 
@@ -147,9 +147,9 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	, hor_(0)
 {
     if ( ps_.size() < 3 )
-	{ 
-	    new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) ); 
-	    return; 
+	{
+	    new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) );
+	    return;
 	}
 
     horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
@@ -204,9 +204,9 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	, hor_(h)
 {
     if ( hor_.nrSections() < 1 )
-    { 
-	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1))); 
-	return; 
+    {
+	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1)));
+	return;
     }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
@@ -233,10 +233,11 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
     const IOObj* ioobj = pssel_->ioobj( true );
     if ( !ioobj ) return;
 
-    ps_ = new Pick::Set; BufferString msg;
-    if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
+    ps_ = new Pick::Set;
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,errmsg) )
     {
-	uiMSG().error( mToUiStringTodo(msg) );
+	uiMSG().error( errmsg );
 	delete ps_; ps_ = 0;
     }
 

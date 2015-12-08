@@ -148,8 +148,8 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 	PtrMan<IOObj> ioobj = IOM().get( res );
 	if ( ioobj )
 	{
-	    BufferString msg;
-	    ret = PickSetTranslator::getPolygon(*ioobj,msg);
+	    uiString errmsg;
+	    ret = PickSetTranslator::getPolygon(*ioobj,errmsg);
 	}
     }
 

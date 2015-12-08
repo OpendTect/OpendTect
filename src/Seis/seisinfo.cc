@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "strmprov.h"
 #include "file.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "trckeyzsampling.h"
 #include "enums.h"
@@ -209,14 +210,21 @@ void SeisPacketInfo::clear()
     nr = 0;
     fullyrectandreg = false;
     cubedata = 0;
-    SI().sampling(false).hsamp_.get( inlrg, crlrg );
-    zrg = SI().zRange(false);
+    if ( !IOM().isBad() )
+    {
+	SI().sampling(false).hsamp_.get( inlrg, crlrg );
+	zrg = SI().zRange(false);
+    }
+
     inlrev = crlrev = false;
 }
 
 
 float SeisTrcInfo::defaultSampleInterval( bool forcetime )
 {
+    if ( IOM().isBad() )
+	return mUdf(float);
+
     float defsr = SI().zStep();
     if ( SI().zIsTime() || !forcetime )
 	return defsr;

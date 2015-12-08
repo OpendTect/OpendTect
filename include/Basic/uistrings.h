@@ -70,8 +70,11 @@ public:
     static uiString phrCannotWrite(const uiString& string);
     //!<"Cannot write <string>"
     static uiString phrCannotWriteDBEntry(const uiString&);
+    //!<"Cannot write database entry for <string>"
     static uiString phrCannotStart(const uiString&);
     //!<"Cannot Start <string>"
+    static uiString phrColonString(const uiString&);
+    //!<": <string>"
     static uiString phrCheck(const uiString&);
     //!<"Check <string>"
     static uiString phrCreateNew(const uiString&);
@@ -139,6 +142,8 @@ public:
     //!<"Save <string>"
     static uiString phrSelect(const uiString& string);
     //!<"Select <string>"
+    static uiString phrSelectObjectWrongType(const uiString& string);
+    //!<"Selected object is not a <string>"
     static uiString phrSelectPos(const uiString& string);
     //!<"Select Position <string>"
     static uiString phrSetAs(const uiString&);
@@ -220,6 +225,7 @@ public:
     static uiString sCannotWrite();
     static uiString sCannotUnZip();
     static uiString sCheck();
+    static uiString sCheckPermissions();
     static uiString sCannotZip();
     static uiString sCreateNew();
     static uiString sCreateOutput();

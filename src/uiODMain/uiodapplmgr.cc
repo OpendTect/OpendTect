@@ -395,6 +395,9 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 
 bool uiODApplMgr::survChgReqAttrUpdate()
 {
+    if ( IOM().isBad() )
+	return true;
+
     return !( SI().xyUnit() == tmpprevsurvinfo_.xyunit_ &&
 		SI().zUnit() == tmpprevsurvinfo_.zunit_ &&
 		mIsEqual( SI().zStep(),tmpprevsurvinfo_.zstep_, 1e-6 ) );
@@ -1957,6 +1960,9 @@ void uiODApplMgr::process2D3D( int opt )
 
 void uiODApplMgr::MiscSurvInfo::refresh()
 {
+    if ( IOM().isBad() )
+	return;
+
     xyunit_ = SI().xyUnit();
     zunit_ = SI().zUnit();
     zstep_ = SI().zStep();

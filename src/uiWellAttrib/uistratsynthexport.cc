@@ -201,7 +201,7 @@ BufferString uiStratSynthExport::getWinTitle( const StratSynth& ss ) const
 void uiStratSynthExport::fillGeomGroup()
 {
     StringListInpSpec inpspec;
-    inpspec.addString(tr("Straight line")); 
+    inpspec.addString(tr("Straight line"));
     inpspec.addString(uiStrings::sPolygon());
     const bool haverl = SI().has3D();
     if ( haverl )
@@ -385,10 +385,10 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		pickset = Pick::Mgr().get( picksetobj->key() );
 	    else
 	    {
-		BufferString errmsg;
+		uiString errmsg;
 		if ( !PickSetTranslator::retrieve(
 			    pickset,IOM().get(picksetobj->key()),true,errmsg) )
-		    mErrRet( mToUiStringTodo(errmsg), false )
+		    mErrRet( errmsg, false )
 	    }
 	    for ( int idx=0; idx<pickset.size(); idx++ )
 		ptlist += pickset[idx].pos_;

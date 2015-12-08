@@ -158,6 +158,9 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 					 TaskRunner* tr ) const
 {
+    if ( IOM().isBad() )
+	return false;
+
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
     const IODir iodir( iocontext.getSelKey() );
     if ( iodir.isBad() )

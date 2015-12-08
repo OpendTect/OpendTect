@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "geometrymod.h"
 #include "transl.h"
 #include "bufstringset.h"
@@ -26,7 +26,7 @@ mExpClass(Geometry) PickSetTranslatorGroup : public TranslatorGroup
 {   isTranslatorGroup(PickSet);
     mODTextTranslationClass(PickSetTranslatorGroup);
 public:
-    			mDefEmptyTranslatorGroupConstructor(PickSet)
+			mDefEmptyTranslatorGroupConstructor(PickSet)
 
     const char*		defExtension() const		{ return "pck"; }
     static const char*	sKeyPickSet()			{ return "PickSet"; }
@@ -36,28 +36,32 @@ public:
 mExpClass(Geometry) PickSetTranslator : public Translator
 { mODTextTranslationClass(PickSetTranslator);
 public:
-    			mDefEmptyTranslatorBaseConstructor(PickSet)
+			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    virtual const char*	read(Pick::Set&,Conn&,bool checkdir=true)	= 0;
+    virtual uiString	read(Pick::Set&,Conn&,bool checkdir=true)	= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const Pick::Set&,Conn&)			= 0;
+    virtual uiString	write(const Pick::Set&,Conn&)			= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
-	    			 BufferString&);
-    static bool		store(const Pick::Set&,const IOObj*,BufferString&);
+				 uiString& errmsg);
+    static bool		store(const Pick::Set&,const IOObj*,
+				 uiString& errmsg);
 
-    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&);
-    			//!< Utility function
+    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
+				    uiString& errmsg);
+			//!< Utility function
     static void		createBinIDValueSets(const BufferStringSet& ioobjids,
-					     ObjectSet<BinIDValueSet>&);
-    			//!< Utility function
+					     ObjectSet<BinIDValueSet>&,
+					     uiString& errmsg);
+			//!< Utility function
     static void		createDataPointSets(const BufferStringSet&,
 					     ObjectSet<DataPointSet>&,
+					     uiString& errmsg,
 					     bool is2d,bool mini=false);
-    			//!< Utility function
-    static ODPolygon<float>* getPolygon(const IOObj&,BufferString& errmsg);
-    			//!< Returns null on failure
+			//!< Utility function
+    static ODPolygon<float>* getPolygon(const IOObj&,uiString& errmsg);
+			//!< Returns null on failure
 };
 
 
@@ -65,10 +69,10 @@ mExpClass(Geometry) dgbPickSetTranslator : public PickSetTranslator
 {			     isTranslator(dgb,PickSet)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,PickSet)
+			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
-    const char*		read(Pick::Set&,Conn&,bool checkdir=true);
-    const char*		write(const Pick::Set&,Conn&);
+    uiString		read(Pick::Set&,Conn&,bool checkdir=true);
+    uiString		write(const Pick::Set&,Conn&);
 
 };
 

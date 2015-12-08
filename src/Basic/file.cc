@@ -332,18 +332,34 @@ bool isHidden( const char* fnm )
 }
 
 
+bool isReadable( const char* fnm )
+{
+#ifdef OD_NO_QT
+    struct stat st_buf;
+    int status = stat(fnm, &st_buf);
+    if (status != 0)
+	return false;
+
+    return st_buf.st_mode & S_IRUSR;
+#else
+    QFileInfo qfi( fnm );
+    return qfi.isReadable();
+#endif
+}
+
+
 bool isWritable( const char* fnm )
 {
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    return qfi.isWritable();
-#else
+#ifdef OD_NO_QT
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
     if (status != 0)
 	return false;
 
     return st_buf.st_mode & S_IWUSR;
+#else
+    QFileInfo qfi( fnm );
+    return qfi.isWritable();
 #endif
 }
 
@@ -442,40 +458,48 @@ bool saveCopy( const char* from, const char* to )
 }
 
 
-bool copy( const char* from, const char* to, BufferString* errmsg )
+bool copy( const char* from, const char* to, uiString* errmsg )
 {
-#ifndef OD_NO_QT
-
     if ( isDirectory(from) || isDirectory(to)  )
 	return copyDir( from, to, errmsg );
+
+    uiString errmsgloc;
+    if ( !checkDirectory(from,true,errmsg ? *errmsg:errmsgloc) ||
+	 !checkDirectory(to,false,errmsg ? *errmsg:errmsgloc) )
+	return false;
 
     if ( exists(to) && !isDirectory(to) )
 	File::remove( to );
 
+#ifdef OD_NO_QT
+    pFreeFnErrMsg(not_implemented_str);
+    return false;
+#else
     QFile qfile( from );
     bool ret = qfile.copy( to );
     if ( !ret && errmsg )
-	errmsg->add( qfile.errorString() );
+	errmsg->setFrom( qfile.errorString() );
 
     return ret;
-
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
 #endif
 }
 
 
-bool copyDir( const char* from, const char* to, BufferString* errmsg )
+bool copyDir( const char* from, const char* to, uiString* errmsg )
 {
     if ( !from || !exists(from) || !to || !*to || exists(to) )
+	return false;
+
+    uiString errmsgloc;
+    if ( !checkDirectory(from,true,errmsg ? *errmsg:errmsgloc) ||
+	 !checkDirectory(to,false,errmsg ? *errmsg:errmsgloc) )
 	return false;
 
 #ifndef OD_NO_QT
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
     if ( !res && errmsg )
-	errmsg->add( copier->uiMessage().getFullString() );
+	*errmsg = copier->uiMessage();
 #else
 
     BufferString cmd;
@@ -554,6 +578,22 @@ bool changeDir( const char* dir )
 #else
     return chdir( dir )==0;
 #endif
+}
+
+
+bool checkDirectory( const char* filenm, bool forread, uiString& errmsg )
+{
+    FilePath fp( filenm );
+    BufferString dirnm( fp.pathOnly() );
+
+    const bool success = forread ? isReadable( dirnm ) : isWritable( dirnm );
+    uiString postfix = od_static_tr( "FilecheckDirectory", "in folder: %1" )
+				   .arg( dirnm );
+    errmsg = forread ? uiStrings::phrCannotRead( postfix )
+		     : uiStrings::phrCannotWrite( postfix );
+    errmsg.append( uiStrings::sCheckPermissions(), true );
+
+    return success;
 }
 
 

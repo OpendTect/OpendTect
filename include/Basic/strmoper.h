@@ -14,7 +14,9 @@ ________________________________________________________________________
 */
 
 #include "basicmod.h"
+
 #include "gendefs.h"
+#include "uistring.h"
 #include <iostream>
 class StreamData;
 
@@ -33,7 +35,7 @@ namespace StrmOper
     mGlobal(Basic) bool		readLine(std::istream&,BufferString* b=0,
 					 bool* newline_found=0);
     mGlobal(Basic) bool		readFile(std::istream&,BufferString&);
-    mGlobal(Basic) bool 	skipWhiteSpace(std::istream&);
+    mGlobal(Basic) bool		skipWhiteSpace(std::istream&);
 
     mGlobal(Basic) od_int64	tell(std::istream&);
     mGlobal(Basic) od_int64	tell(std::ostream&);
@@ -48,8 +50,8 @@ namespace StrmOper
     mGlobal(Basic) bool		resetSoftError(std::istream&,int& retrycount);
     mGlobal(Basic) bool		resetSoftError(std::ostream&,int& retrycount);
     mGlobal(Basic) void		clear(std::ios&);
-    mGlobal(Basic) const char*	getErrorMessage(std::ios&);
-    mGlobal(Basic) const char*	getErrorMessage(const StreamData&);
+    mGlobal(Basic) uiString	getErrorMessage(std::ios&);
+    mGlobal(Basic) uiString	getErrorMessage(const StreamData&);
 
 }
 

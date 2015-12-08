@@ -56,7 +56,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     rlsctio_.ctxt_.forread_ = false;
     polyctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
-    infld_ = new uiIOObjSel( this, horctio_, 
+    infld_ = new uiIOObjSel( this, horctio_,
 			     uiStrings::phrInput(uiStrings::sHorizon(1)));
     uiIOObjSel::Setup osu( tr("Within polygon") ); osu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctio_, osu );
@@ -160,18 +160,18 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     if ( polyfld_->isChecked() )
     {
 	polyfld_->commitInput();
-	BufferString msg;
+	uiString errmsg;
 	if ( polyctio_.ioobj_ )
-	    poly = PickSetTranslator::getPolygon( *polyctio_.ioobj_, msg );
+	    poly = PickSetTranslator::getPolygon( *polyctio_.ioobj_, errmsg );
 	else
-	    msg = "Please select the polygon, or uncheck";
+	    errmsg = tr("Please select the polygon, or uncheck");
 	if ( !poly )
-	   mErrRet(mToUiStringTodo(msg))
+	   mErrRet(errmsg)
     }
 
     uiTaskRunner taskrunner( this ); EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.loadIfNotFullyLoaded( horctio_.ioobj_->key(),
-	    					   &taskrunner );
+						   &taskrunner );
     mDynamicCastGet( EM::Horizon3D*, hor, emobj )
     if ( !hor ) return false;
     hor->ref();
@@ -218,7 +218,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 {
     outctio_.ctxt_.forread_ = false;
 
-    infld_ = new uiIOObjSel( this, inctio_, 
+    infld_ = new uiIOObjSel( this, inctio_,
 			     uiStrings::phrInput(uiStrings::sRandomLine()));
 
     const BinID bid1( 1, 1 );
@@ -230,12 +230,12 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     distfld_->attach( alignedBelow, infld_ );
 
     const char* strs[] = { "Left", "Right", "Both", 0 };
-    sidefld_ = new uiGenInput(this, tr("Direction"), 
+    sidefld_ = new uiGenInput(this, tr("Direction"),
 			     StringListInpSpec(strs));
     sidefld_->setValue( 2 );
     sidefld_->attach( alignedBelow, distfld_ );
 
-    outfld_ = new uiIOObjSel( this, outctio_, 
+    outfld_ = new uiIOObjSel( this, outctio_,
 			      uiStrings::phrOutput(uiStrings::sRandomLine()));
     outfld_->attach( alignedBelow, sidefld_ );
 
@@ -317,9 +317,9 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     outctio_.ctxt_.forread_ = false;
     inctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
-    infld_ = new uiIOObjSel( this, inctio_, 
+    infld_ = new uiIOObjSel( this, inctio_,
 			     uiStrings::phrInput(uiStrings::sPolygon()) );
-    
+
     zrgfld_ = new uiSelZRange( this, true );
     zrgfld_->attach( alignedBelow, infld_ );
     outfld_ = new uiIOObjSel( this, outctio_,
@@ -363,10 +363,10 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 		: uiStrings::sEmptyString()))
 
     PtrMan< ODPolygon<float> > poly = 0;
-    BufferString msg;
-    poly = PickSetTranslator::getPolygon( *inctio_.ioobj_, msg );
+    uiString errmsg;
+    poly = PickSetTranslator::getPolygon( *inctio_.ioobj_, errmsg );
     if ( !poly )
-       mErrRet(mToUiStringTodo(msg))
+       mErrRet(errmsg)
 
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
     for ( int idx=0; idx<poly->size(); idx++ )
@@ -381,6 +381,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
+    BufferString msg;
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg) )
 	mErrRet(mToUiStringTodo(msg))
 

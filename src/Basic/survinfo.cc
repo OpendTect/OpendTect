@@ -316,7 +316,8 @@ const SurveyInfo& SI()
     int cursurvinfoidx = survinfostack.size() - 1;
     if ( cursurvinfoidx < 0 )
     {
-	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
+	uiString errmsg;
+	SurveyInfo* newsi = SurveyInfo::read( GetDataDir(), errmsg );
 	if ( !newsi )
 	    newsi = new SurveyInfo;
 	survinfostack += newsi;
@@ -340,6 +341,15 @@ SurveyInfo* SurveyInfo::popSI()
 {
     return survinfostack.isEmpty() ? 0
 	 : survinfostack.removeSingle( survinfostack.size()-1 );
+}
+
+
+void SurveyInfo::deleteOriginal()
+{
+    if ( survinfostack.size() < 2 )
+	return;
+
+    delete survinfostack.removeSingle( 0 );
 }
 
 
@@ -429,23 +439,25 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 }
 
 
-SurveyInfo* SurveyInfo::read( const char* survdir )
+SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
 {
     FilePath fpsurvdir( survdir );
     FilePath fp( fpsurvdir, sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
+    {
+	errmsg = sfio.errMsg();
 	return 0;
+    }
 
     ascistream astream( sfio.istrm() );
     if ( !astream.isOfFileType(sKeySI) )
     {
-	BufferString errmsg( "Survey definition file cannot be read.\n"
-			     "Survey file '" );
-	errmsg += fp.fullPath(); errmsg += "' has file type '";
-	errmsg += astream.fileType();
-	errmsg += "'.\nThe file may be corrupt or not accessible.";
-	ErrMsg( errmsg );
+	errmsg = tr("Survey definition file cannot be read.\n"
+		    "Survey file '%1'  has file type '%2'.\n"
+		    "The file may be corrupt or not accessible.")
+		   .arg(fp.fullPath())
+		   .arg(astream.fileType());
 	sfio.closeFail();
 	return 0;
     }
@@ -978,18 +990,21 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 }
 
 
-void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& tr, const char* str )
+void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& trans,
+			const char* str )
 {
     FileMultiString fms( str );
-    tr.a = fms.getDValue(0); tr.b = fms.getDValue(1); tr.c = fms.getDValue(2);
+    trans.a = fms.getDValue(0);
+    trans.b = fms.getDValue(1);
+    trans.c = fms.getDValue(2);
 }
 
 
-void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& tr,
+void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& trans,
 			  ascostream& astream, const char* key ) const
 {
     char buf[1024];
-    sprintf( buf, "%.10lg`%.10lg`%.10lg", tr.a, tr.b, tr.c );
+    sprintf( buf, "%.10lg`%.10lg`%.10lg", trans.a, trans.b, trans.c );
     astream.put( key, buf );
 }
 
@@ -1007,8 +1022,8 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !sfio.open(false) )
     {
 	BufferString msg( "Cannot open survey info file for write!" );
-	if ( *sfio.errMsg() )
-	    { msg += "\n\t"; msg += sfio.errMsg(); }
+	if ( sfio.errMsg().isSet() )
+	    { msg += "\n\t"; msg += sfio.errMsg().getFullString(); }
 	ErrMsg( msg );
 	return false;
     }
@@ -1070,7 +1085,7 @@ bool SurveyInfo::write( const char* basedir ) const
     else if ( !sfio.closeSuccess() )
     {
 	BufferString msg( "Error closing survey info file:\n" );
-	msg += sfio.errMsg();
+	msg += sfio.errMsg().getFullString();
 	ErrMsg( msg );
 	return false;
     }

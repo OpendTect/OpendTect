@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "attribdescsetsholder.h"
 #include "attribdesc.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "zdomain.h"

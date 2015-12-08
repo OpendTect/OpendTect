@@ -119,7 +119,8 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    const bool have2d = IOM().isBad() || SI().has2D();
+    const bool only2d = !IOM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
     uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
     impseismnu->insertItem( impsgymnu );

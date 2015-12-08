@@ -150,10 +150,12 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 
 bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 {
-    IOM().commitChanges( ioobj );
-    BufferString bs;
-    if ( !PickSetTranslator::store( ps, &ioobj, bs ) )
-	{ uiMSG().error(mToUiStringTodo(bs)); return false; }
+    if ( !IOM().commitChanges(ioobj) )
+	{ uiMSG().error( IOM().errMsg() ); return false; }
+
+    uiString errmsg;
+    if ( !PickSetTranslator::store(ps,&ioobj,errmsg) )
+	{ uiMSG().error( errmsg ); return false; }
 
     return true;
 }
@@ -236,11 +238,11 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 	{
 	    Pick::Set* newset = new Pick::Set;
 	    IOObj* ioobj = IOM().get( ky );
-	    BufferString msg;
-	    if ( PickSetTranslator::retrieve(*newset,ioobj,true, msg) )
+	    uiString errmsg;
+	    if ( PickSetTranslator::retrieve(*newset,ioobj,true,errmsg) )
 		{ pss += newset; pssread += newset; }
 	    else
-		uiMSG().warning( mToUiStringTodo(msg) );
+		uiMSG().warning( errmsg );
 	    delete ioobj;
 	}
     }
@@ -256,13 +258,15 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
     for ( int idx=1; idx<pss.size(); idx ++ )
 	resset.append( *pss[idx] );
 
-    BufferString msg;
-    if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj_,msg) )
-	uiMSG().error( mToUiStringTodo(msg) );
+    uiString errmsg;
+    if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj_,errmsg) )
+	uiMSG().error( errmsg );
 
     dlg.ctioout_.ioobj_->pars().set( sKey::Type(),
 	    PickSetTranslatorGroup::sKeyPickSet() );
-    IOM().commitChanges( *dlg.ctioout_.ioobj_);
+    if ( !IOM().commitChanges(*dlg.ctioout_.ioobj_) )
+	{ uiMSG().error( IOM().errMsg() ); }
+
     deepErase( pssread );
 }
 

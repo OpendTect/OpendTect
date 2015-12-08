@@ -7,12 +7,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
+
+#include "ascstream.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "iosubdir.h"
-#include "ascstream.h"
-#include "separstr.h"
 #include "safefileio.h"
-#include "filepath.h"
+#include "separstr.h"
+#include "uistrings.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -36,7 +38,7 @@ IODir::IODir( const MultiID& ky )
 	: isok_(false)
 	, curid_(0)
 {
-    IOObj* ioobj = getObj( ky );
+    IOObj* ioobj = getObj( ky, errmsg_ );
     if ( !ioobj ) return;
     dirname_ = ioobj->dirName();
     FilePath fp( dirname_ );
@@ -60,13 +62,13 @@ IODir::~IODir()
 
 bool IODir::build()
 {
-    return doRead( dirname_, this );
+    return doRead( dirname_, this, errmsg_ );
 }
 
 
-IOObj* IODir::getMain( const char* dirnm )
+IOObj* IODir::getMain( const char* dirnm, uiString& errmsg )
 {
-    return doRead( dirnm, 0, 1 );
+    return doRead( dirnm, 0, errmsg, 1 );
 }
 
 
@@ -81,15 +83,13 @@ const IOObj* IODir::main() const
 }
 
 
-IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
+IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, uiString& errmsg,
+		      int needid )
 {
     SafeFileIO sfio( FilePath(dirnm,".omf").fullPath(), false );
     if ( !sfio.open(true) )
     {
-	BufferString msg( "\nError during read of Object Management info!" );
-	msg += "\n-> Please check directory (read permissions, existence):\n'";
-	msg += dirnm; msg += "'";
-	ErrMsg( msg );
+	errmsg = sfio.errMsg();
 	return 0;
     }
 
@@ -168,7 +168,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 }
 
 
-IOObj* IODir::getObj( const MultiID& ky )
+IOObj* IODir::getObj( const MultiID& ky, uiString& errmsg )
 {
     BufferString dirnm( IOM().rootDir() );
     if ( dirnm.isEmpty() )
@@ -178,7 +178,7 @@ IOObj* IODir::getObj( const MultiID& ky )
     for ( int idx=0; idx<nrkeys; idx++ )
     {
 	int id = ky.ID( idx );
-	IOObj* ioobj = doRead( dirnm, 0, id );
+	IOObj* ioobj = doRead( dirnm, 0, errmsg, id );
 	if ( !ioobj || idx == nrkeys-1 || !ioobj->isSubdir() )
 	    return ioobj;
 
@@ -360,15 +360,10 @@ bool IODir::ensureUniqueName( IOObj& ioobj )
 }
 
 
-#define mAddDirWarn(msg) \
-    msg += "\n-> Please check write permissions for directory:\n   "; \
-    msg += dirname_
-
 #define mErrRet() \
 { \
-    BufferString msg( "\nError during write of Object Management info!" ); \
-    mAddDirWarn(msg); \
-    ErrMsg( msg ); \
+    errmsg_ = uiStrings::phrCannotWriteDBEntry( toUiString(dirname_) ); \
+    errmsg_.append( uiStrings::sCheckPermissions(), true ); \
     return false; \
 }
 
@@ -418,13 +413,9 @@ bool IODir::wrOmf( od_ostream& strm ) const
 
 
 #undef mErrRet
-#define mErrRet(addsfiomsg) \
+#define mErrRet() \
 { \
-    BufferString msg( "\nError during write of Object Management info!" ); \
-    mAddDirWarn(msg); \
-    if ( addsfiomsg ) \
-	{ msg += "\n"; msg += sfio.errMsg(); } \
-    ErrMsg( msg ); \
+    errmsg_ = sfio.errMsg(); \
     return false; \
 }
 
@@ -432,16 +423,13 @@ bool IODir::doWrite() const
 {
     SafeFileIO sfio( FilePath(dirname_,".omf").fullPath(), false );
     if ( !sfio.open(false) )
-	mErrRet(true)
+	mErrRet()
 
     if ( !wrOmf(sfio.ostrm()) )
-    {
-	sfio.closeFail();
-	mErrRet(false)
-    }
+	return false;
 
     if ( !sfio.closeSuccess() )
-	mErrRet(true)
+	mErrRet()
 
     return true;
 }

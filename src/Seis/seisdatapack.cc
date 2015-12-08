@@ -178,7 +178,8 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
-{ sampling_.init( false ); }
+    , sampling_(false) //MUST be set to false in the constructor
+{}
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 { return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }

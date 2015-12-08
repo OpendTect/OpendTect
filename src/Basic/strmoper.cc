@@ -8,9 +8,11 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmoper.h"
+
+#include "genc.h"
 #include "strmdata.h"
 #include "perthreadrepos.h"
-#include "genc.h"
+#include "uistrings.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -140,11 +142,11 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
     return strm.good();
 }
 
-    
+
 bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
     readPrep(strm);
-  
+
     int ich = strm.peek();
     if ( ich == 255 )
 	ich = (int)' '; // Non-breaking-space.
@@ -417,54 +419,58 @@ od_int64 StrmOper::lastNrBytesRead( std::istream& strm )
 }
 
 
-const char* StrmOper::getErrorMessage( std::ios& strm )
+uiString StrmOper::getErrorMessage( std::ios& strm )
 {
-    mDeclStaticString( ret );
+    uiString msg;
     if ( strm.good() )
-	{ ret.setEmpty(); return ret; }
+	{ msg.setEmpty(); return msg; }
 
     if ( strm.rdstate() & std::ios::eofbit )
-	ret = "File ended unexpectedly";
+	msg = od_static_tr( "StrmOperGetErrorMessage",
+			    "File ended unexpectedly" );
     else
     {
-	ret = GetLastSystemErrorMessage();
-	if ( ret.isEmpty() )
+	msg = mToUiStringTodo( GetLastSystemErrorMessage() );
+	if ( msg.isEmpty() )
 	{
 	    if ( strm.rdstate() & std::ios::failbit )
-		ret = "Recoverable error encountered";
+		msg = od_static_tr( "StrmOperGetErrorMessage",
+				    "Recoverable error encountered" );
 	    else if ( strm.rdstate() & std::ios::badbit )
-		ret = "Unrecoverable error encountered";
+		msg = od_static_tr( "StrmOperGetErrorMessage",
+				    "Unrecoverable error encountered" );
 	    else
-		ret = "Unknown error encountered";
+		msg = od_static_tr( "StrmOperGetErrorMessage",
+				    "Unknown error encountered" );
 	}
     }
 
-    return ret.buf();
+    return msg;
 }
 
 
-const char* StrmOper::getErrorMessage( const StreamData& sd )
+uiString StrmOper::getErrorMessage( const StreamData& sd )
 {
-    mDeclStaticString( ret );
-    ret.setEmpty();
+    uiString msg;
 
     const int iotyp = sd.istrm ? -1 : (sd.ostrm ? 1 : 0);
+    if ( iotyp == 0 )
+    {
+	uiString addedmsg = od_static_tr( "StrmOpergetErrorMessage", "file: " );
+	msg = uiStrings::phrCannotOpen( addedmsg );
+    }
+    else if ( sd.streamPtr()->good() )
+	msg = od_static_tr( "StrmOpergetErrorMessage", "Successfully opened" );
+    else
+	msg = getErrorMessage( *sd.streamPtr() );
 
     if ( sd.fileName() && *sd.fileName() )
-    {
-	if ( iotyp )
-	    ret.add( iotyp > 0 ? "Writing " : "Reading " );
-	ret.add( "'" ).add( sd.fileName() ).add( "': " );
-    }
+	msg.append( toUiString(sd.fileName()), false );
 
-    if ( iotyp == 0 )
-	ret.add( "Cannot open file" );
-    else if ( sd.streamPtr()->good() )
-	ret.add( "Successfully opened" );
-    else
-	ret.add( getErrorMessage(*sd.streamPtr()) );
+    if ( iotyp == 0 || !sd.streamPtr()->good() )
+	msg.append( uiStrings::sCheckPermissions(), true );
 
-    return ret.buf();
+    return msg;
 }
 
 

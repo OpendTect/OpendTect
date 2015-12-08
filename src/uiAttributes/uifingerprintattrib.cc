@@ -103,7 +103,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     calcobj_ = new calcFingParsObject( this );
 
     refgrp_ = new uiButtonGroup( this, "", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( refgrp_, 
+    uiRadioButton* manualbut = new uiRadioButton( refgrp_,
                                                   uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,tr("Reference position"));
@@ -114,7 +114,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     lbl->attach( centeredLeftOf, refgrp_ );
 
     refposfld_ = new uiGenInput( this,
-			is2d_ ? tr("%1 Number").arg(uiStrings::sTrace()) 
+			is2d_ ? tr("%1 Number").arg(uiStrings::sTrace())
 			: tr("Position (Inl/Crl)"),
 			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
 			.setName("Inl position",0).setName("Crl position",1) );
@@ -581,11 +581,13 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 
 	BufferStringSet ioobjids;
 	ioobjids.add( ioobj->key() );
-	PickSetTranslator::createBinIDValueSets( ioobjids, values );
-	if ( values.isEmpty() )
+	errmsg.setEmpty();
+	PickSetTranslator::createBinIDValueSets( ioobjids, values, errmsg );
+	if ( values.isEmpty() || errmsg.isSet() )
 	{
-	    uiMSG().error(tr("Cannot extract values at PickSet locations."
-		     " PickSet might be empty."));
+	    uiMSG().error( uiStrings::phrJoinStrings(
+			   tr("Cannot extract values at PickSet locations." ),
+			   errmsg ) );
 	    return 0;
 	}
 
@@ -642,7 +644,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_, 
+    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_,
                                                   uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPickSet());
@@ -689,7 +691,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	wgtflds_ += spinbox;
 	spinbox->setName( BufferString("Weight ",attrnm) );
 
-	minmaxflds_ += new uiGenInput( attrvalsgrp, uiStrings::sEmptyString(), 
+	minmaxflds_ += new uiGenInput( attrvalsgrp, uiStrings::sEmptyString(),
 				       FloatInpIntervalSpec()
 				      .setName(BufferString("Min ",attrnm),0)
 				      .setName(BufferString("Max ",attrnm),1));

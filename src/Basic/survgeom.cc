@@ -37,13 +37,12 @@ const GeometryManager& GM()
 
 Geometry::Geometry()
     : id_(mUdf(ID))
-{
-}
+    , sampling_(false)
+{}
 
 
 Geometry::~Geometry()
-{
-}
+{}
 
 
 const Geometry& Geometry::default3D()

@@ -25,7 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
-    , zfactor_(SI().zDomain().userFactor())
+    , curcs_(!IOM().isBad())
+    , zfactor_(mUdf(int))
 {
     toolbar_ = new uiToolBar( p, uiStrings::phrJoinStrings(uiStrings::sSlice(),
 			      uiStrings::sPosition()) );
@@ -57,6 +58,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     toolbar_->addObject( nextbut_ );
 
     IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
+
     SCMgr().shortcutsChanged.notify( mCB(this,uiSlicePos,shortcutsChg) );
     initSteps();
     shortcutsChg( 0 );
@@ -85,13 +87,17 @@ void uiSlicePos::shortcutsChg( CallBacker* )
 
 void uiSlicePos::initSteps( CallBacker* )
 {
+    if ( IOM().isBad() )
+	return;
+
+    zfactor_ = mCast(int,SI().zDomain().userFactor());
     laststeps_[0] = SI().inlStep();
     laststeps_[1] = SI().crlStep();
     laststeps_[2] = mNINT32( SI().zStep()*zfactor_ );
 }
 
 
-void uiSlicePos::setLabels( const uiString& inl, const uiString& crl, 
+void uiSlicePos::setLabels( const uiString& inl, const uiString& crl,
 			    const uiString& z )
 {
     boxlabels_[0] = inl;
@@ -133,7 +139,7 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 		curcs_.hsamp_.stop_.crl() = posbox->getIntValue();
     }
     else
-	curcs_.zsamp_.start = curcs_.zsamp_.stop 
+	curcs_.zsamp_.start = curcs_.zsamp_.stop
 			    = posbox->getFValue()/zfactor_;
 
     if ( oldcs == curcs_ )

@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
+#include "ioman.h"
 #include "keyboardevent.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
@@ -63,13 +64,11 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
     mAttachCB( engine().actionFinished, uiMPEMan::mpeActionFinishedCB );
-
     mAttachCB( visBase::DM().selMan().selnotifier, uiMPEMan::treeItemSelCB );
-    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
-    mAttachCB( si.workRangeChg, uiMPEMan::workAreaChgCB );
     mAttachCB( visserv_->mouseEvent, uiMPEMan::mouseEventCB );
     mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
+    mAttachCB( IOM().surveyChanged, uiMPEMan::survChgCB );
 }
 
 
@@ -1066,6 +1065,16 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
     {
 	engine().setActiveVolume( SI().sampling(true) );
     }
+}
+
+
+void uiMPEMan::survChgCB( CallBacker* )
+{
+    if ( IOM().isBad() )
+	return;
+
+    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
+    mAttachCB( si.workRangeChg, uiMPEMan::workAreaChgCB );
 }
 
 

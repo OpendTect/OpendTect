@@ -114,7 +114,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	uiSeparator* sep = new uiSeparator( this, "H sep" );
 	sep->attach( stretchedBelow, constzfld_ );
 
-	dataselfld_ = new uiTableImpDataSel( this, fd_, 
+	dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mTableImpDataSelpicksHelpID) );
 	dataselfld_->attach( alignedBelow, constzfld_ );
 	dataselfld_->attach( ensureBelow, sep );
@@ -200,10 +200,12 @@ bool uiImpExpPickSet::doImport()
 	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
     }
 
-    IOM().commitChanges( *ioobj );
-    BufferString errmsg;
+    if ( !IOM().commitChanges(*ioobj) )
+	mErrRet(IOM().errMsg())
+
+    uiString errmsg;
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
-	mErrRet(mToUiStringTodo(errmsg));
+	mErrRet(errmsg);
 
     storedid_ = ioobj->key();
     if ( saveButtonChecked() )
@@ -238,9 +240,9 @@ bool uiImpExpPickSet::doExport()
     if ( !objfldioobj ) return false;
 
     PtrMan<IOObj> ioobj = objfldioobj->clone();
-    BufferString errmsg; Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,ioobj,true, errmsg) )
-	mErrRet(mToUiStringTodo(errmsg));
+    uiString errmsg; Pick::Set ps;
+    if ( !PickSetTranslator::retrieve(ps,ioobj,true,errmsg) )
+	mErrRet(errmsg)
 
     const char* fname = filefld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();

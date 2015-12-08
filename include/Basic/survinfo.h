@@ -42,7 +42,7 @@ class LatLong2Coord;
 */
 
 mExpClass(Basic) SurveyInfo : public NamedObject
-{
+{ mODTextTranslationClass(SurveyInfo);
 
     mGlobal(Basic) friend const SurveyInfo&	SI();
 
@@ -75,7 +75,7 @@ public:
 
     inline bool		xyInFeet() const	{ return xyinfeet_;}
     const char*		getXYUnitString(bool withparens=true) const;
-    uiString		getUiXYUnitString(bool abbrviated=true, 
+    uiString		getUiXYUnitString(bool abbrviated=true,
 						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
@@ -266,7 +266,7 @@ public:
 			//!< Write to .survey file
     void		savePars(const char* basedir=0) const;
 			//!< Write to .defs file
-    static SurveyInfo*	read(const char*);
+    static SurveyInfo*	read(const char*,uiString& errmsg);
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
@@ -276,8 +276,16 @@ public:
 
 			// No, you really don't need these!
     static void		pushSI(SurveyInfo*);
+			/*!<Adds a SI at the top of the stack.
+			    It thus becomes THE SI() */
     static SurveyInfo*	popSI();
+			/*!<Undo of pushSI: THE SI() is removed
+			    Note that there may not remain any SI
+			    in the stack */
     static void		deleteInstance()		{ delete popSI(); }
+			/*!<Shortcut to popSI, with deletion of the object */
+    static void		deleteOriginal();
+			/*!<Removes the first SI from the stack */
 
 };
 

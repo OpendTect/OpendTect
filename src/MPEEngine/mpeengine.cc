@@ -58,6 +58,7 @@ Engine::Engine()
     , state_(Stopped)
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
+    , activevolume_(!IOM().isBad())
 {
     trackers_.allowNull();
     trackermgrs_.allowNull();

@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "genc.h"
 #include "oddirs.h"
-#include "msgh.h"
+#include "uistrings.h"
 
 
 SafeFileIO::SafeFileIO( const char* fnm, bool l )
@@ -82,34 +82,52 @@ bool SafeFileIO::openRead( bool ignorelock )
 	return false;
     mkLock( true );
 
+    if ( !File::checkDirectory(filenm_,true,errmsg_) )
+	return false;
+
     const char* toopen = filenm_.buf();
     if ( File::isEmpty(toopen) )
     {
 	if ( usebakwhenmissing_ )
 	    toopen = bakfnm_.buf();
-	if ( File::isEmpty(toopen) )
+	const bool cannotread = !File::exists( toopen ) ||
+				!File::isReadable( toopen ) ||
+				File::isEmpty( toopen );
+	if ( cannotread )
 	{
-	    errmsg_.set( "Input file '" ).add( filenm_ )
-		   .add( "' is not present or empty" );
+	    uiString postfix;
+	    if ( !File::exists(toopen) )
+		postfix = tr("missing");
+	    else if ( !File::isReadable(toopen) )
+		postfix = tr("not readable");
+	    else if (  File::isEmpty(toopen) )
+		postfix = tr("empty" );
+
+	    errmsg_ = tr("File '%1' is %2").arg( filenm_ ).arg( postfix );
 	    rmLock();
 	    return false;
 	}
 	else
 	{
-	    const BufferString msg( "Using backup file '", bakfnm_, "'" );
-	    UsrMsg( errmsg_.buf(), MsgClass::Warning );
+	    warnmsg_ = tr("Using backup file: '%1'").arg( bakfnm_ );
 	}
     }
 
     strm_ = new od_istream( toopen );
     if ( !strm_ || !strm_->isOK() )
     {
-	errmsg_.set( "Cannot open '" ).add( toopen ).add( "' for read" );
 	if ( strm_ )
 	{
-	    errmsg_.add( ".\n" ).add( strm_->errMsg().getFullString() );
-	    delete strm_; strm_ = 0;
+	    errmsg_ = strm_->errMsg();
+	    deleteAndZeroPtr(strm_);
 	}
+	else
+	{
+	    errmsg_ = uiStrings::phrJoinStrings( uiStrings::sCantOpenInpFile(1),
+				 toUiString(BufferString(": ",toopen)) );
+	    errmsg_.append( uiStrings::sCheckPermissions(), true );
+	}
+
 	rmLock();
 	return false;
     }
@@ -127,18 +145,28 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	return false;
     mkLock( false );
 
+    if ( !File::checkDirectory(newfnm_,false,errmsg_) )
+	return false;
+
     if ( File::exists(newfnm_) )
 	File::remove( newfnm_ );
 
     strm_ = new od_ostream( newfnm_ );
     if ( !strm_ || !strm_->isOK() )
     {
-	errmsg_.set( "Cannot open '" ).add( newfnm_ ).add( "' for write" );
 	if ( strm_ )
 	{
-	    errmsg_.add( ".\n" ).add( strm_->errMsg().getFullString() );
-	    delete strm_; strm_ = 0;
+	    errmsg_ = strm_->errMsg();
+	    deleteAndZeroPtr(strm_);
 	}
+	else
+	{
+	    errmsg_ = uiStrings::phrJoinStrings(
+			       uiStrings::sCantOpenOutpFile(1),
+			       uiStrings::phrColonString(toUiString(newfnm_)) );
+	    errmsg_.append( uiStrings::sCheckPermissions(), true );
+	}
+
 	rmLock();
 	return false;
     }
@@ -151,23 +179,22 @@ bool SafeFileIO::commitWrite()
 {
     if ( File::isEmpty(newfnm_) )
     {
-	errmsg_.set( "File '" ).add( filenm_ )
-		.add( "' not overwritten with empty new file" );
+	errmsg_ = tr("File '%1' not overwritten with empty new file")
+		    .arg( filenm_ );
 	return false;
     }
 
-    if ( File::exists( bakfnm_ ) )
+    if ( File::exists(bakfnm_) )
 	File::remove( bakfnm_ );
 
-    if ( File::exists(filenm_) && !File::rename( filenm_, bakfnm_ ) )
+    if ( File::exists(filenm_) && !File::rename(filenm_,bakfnm_) )
     {
-	const BufferString msg( "Cannot create backup file '", bakfnm_, "'" );
-	UsrMsg( msg.buf(), MsgClass::Warning );
+	warnmsg_ = tr("Cannot create backup file: %1").arg( bakfnm_ );
     }
-    if ( !File::rename( newfnm_, filenm_ ) )
+    if ( !File::rename(newfnm_,filenm_) )
     {
-	errmsg_.set( "Changes in '" ).add( filenm_ )
-	       .add( "' could not be commited" );
+	errmsg_ = tr("Changes in '%1' could not be commited ")
+		    .arg( filenm_ );
 	return false;
     }
     if ( removebakonsuccess_ )
@@ -246,8 +273,8 @@ bool SafeFileIO::waitForLock() const
 	return true;
     }
 
-    errmsg_ = "File '"; errmsg_ += filenm_;
-    errmsg_ = "' is currently locked.\n";
+    errmsg_ = tr("File '%1' is currently locked.").arg( filenm_ );
+
     return false;
 }
 

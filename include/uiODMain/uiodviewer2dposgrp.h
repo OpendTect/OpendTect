@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 #include "attribsel.h"
+#include "ioman.h"
 #include "multiid.h"
 #include "survgeom.h"
 #include "survinfo.h"
@@ -42,7 +43,9 @@ mStruct(uiODMain) Viewer2DPosDataSel
     enum PosType	{InLine=0, CrossLine=1, Line2D=2, ZSlice=3, RdmLine=4 };
 			mDeclareEnumUtils(PosType);
 
-			Viewer2DPosDataSel() { clean(); }
+			Viewer2DPosDataSel()
+			    : tkzs_(false)
+			{ clean(); }
     virtual		~Viewer2DPosDataSel() {}
 			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
 			{
@@ -57,10 +60,11 @@ mStruct(uiODMain) Viewer2DPosDataSel
 
     virtual void	clean()
 			{
-			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
-						: Viewer2DPosDataSel::Line2D;
+			    postype_ = IOM().isBad() || SI().has3D()
+				     ? Viewer2DPosDataSel::InLine
+				     : Viewer2DPosDataSel::Line2D;
 			    selspec_	    = Attrib::SelSpec();
-			    tkzs_	    = TrcKeyZSampling(true);
+			    tkzs_.init( !IOM().isBad() );
 			    rdmlineid_	    = -1;
 			    rdmlinemultiid_ = MultiID::udf();
 			    rdmlineid_ = mUdf(int);

@@ -14,10 +14,12 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
+
 #include "multiid.h"
 #include "objectset.h"
 #include "namedobj.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 class IOObj;
 
 
@@ -34,7 +36,7 @@ the service access point.
 
 
 mExpClass(General) IODir : public NamedObject
-{
+{ mODTextTranslationClass(IODir);
 public:
 			IODir(const char*);
 			IODir(const MultiID&);
@@ -64,12 +66,14 @@ public:
     bool		permRemove(const MultiID&);
     bool		ensureUniqueName(IOObj&);
 
-    static IOObj*	getObj(const MultiID&);
-    static IOObj*	getMain(const char*);
+    static IOObj*	getObj(const MultiID&,uiString& errmsg);
+    static IOObj*	getMain(const char*,uiString& errmsg);
 
 			// Use this if you know there's no contingency
 			// Therefore, only in special-purpose programs
     bool		doWrite() const;
+
+    uiString		errMsg() const		{ return errmsg_; }
 
 private:
 
@@ -78,10 +82,11 @@ private:
     MultiID		key_;
     bool		isok_;
     mutable int		curid_;
+    mutable uiString	errmsg_;
 
 			IODir();
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
-    static IOObj*	doRead(const char*,IODir*,int id=-1);
+    static IOObj*	doRead(const char*,IODir*,uiString& errmsg,int id=-1);
     static void		setDirName(IOObj&,const char*);
     static IOObj*	readOmf(od_istream&,const char*,IODir*,int);
 

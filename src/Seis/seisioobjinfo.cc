@@ -460,6 +460,9 @@ void SeisIOObjInfo::initDefault( const char* typ )
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     ctxt.toselect_.require_.set( sKey::Type(), typ );
     int nrpresent = 0;
+    if ( IOM().isBad() )
+	return;
+
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )
 	return;

@@ -13,13 +13,15 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "od_iostream.h"
+#include "uistring.h"
 
 
 /*!
 \brief Protects file IO when you can't afford to have partly written things
 after write errors or have a file garbled by multiple access.
- 
+
   Use the locking only when multiple processes can concurrently write to
   the same file. For most purposes, you won't need the locking, which is kind
   of expensive, too.
@@ -42,14 +44,15 @@ after write errors or have a file garbled by multiple access.
 */
 
 mExpClass(Basic) SafeFileIO
-{
+{ mODTextTranslationClass(SafeFileIO);
 public:
 
 			SafeFileIO(const char*,bool locked=false);
 			~SafeFileIO();
 
     bool		open(bool forread,bool ignorelock=false);
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
+    uiString		warnMsg() const		{ return warnmsg_; }
     od_istream&		istrm();
     od_ostream&		ostrm();
 
@@ -66,9 +69,9 @@ public:
     int			lockretries_;		//!< default=10
     double		lockwaitincr_;		//!< default=0.5 (seconds)
     bool		allowlockremove_;	//!< default=true
-    			//!< when true, will remove the lock after retries
-    			//!< i.e. we'll assume the lock is phony then
-    			//!< this is --safety but ++robustness
+			//!< when true, will remove the lock after retries
+			//!< i.e. we'll assume the lock is phony then
+			//!< this is --safety but ++robustness
 
     bool		remove();
 
@@ -79,8 +82,9 @@ protected:
     const BufferString	lockfnm_;
     const BufferString	bakfnm_;
     const BufferString	newfnm_;
-    mutable BufferString errmsg_;
     od_stream*		strm_;
+    mutable uiString	errmsg_;
+    mutable uiString	warnmsg_;
 
     bool		openRead(bool);
     bool		openWrite(bool);

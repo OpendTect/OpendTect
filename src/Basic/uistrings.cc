@@ -38,6 +38,9 @@ uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 uiString uiStrings::phrSelect( const uiString& string )
 { return toUiString(joinstring).arg( sSelect() ).arg( string ); }
 
+uiString uiStrings::phrSelectObjectWrongType( const uiString& string )
+{ return toUiString(joinstring).arg(tr("Select object is not a ")).arg(string);}
+
 uiString uiStrings::phrDoesntExist(const uiString& string, int num )
 { return tr( "%1 does not exist", 0, num ).arg( string ); }
 
@@ -121,6 +124,9 @@ uiString uiStrings::phrCreateNew( const uiString& string )
 
 uiString uiStrings::phrCrossPlot( const uiString& string )
 { return toUiString(joinstring).arg(sCrossPlot()).arg(string); }
+
+uiString uiStrings::phrColonString( const uiString& string )
+{ return tr(": %1").arg( string ); }
 
 uiString uiStrings::phrData( const uiString& string )
 { return toUiString(joinstring).arg(sData()).arg(string); }
@@ -315,6 +321,9 @@ uiString uiStrings::sCannotStart()
 
 uiString uiStrings::sCheck()
 { return tr("Check"); }
+
+uiString uiStrings::sCheckPermissions()
+{ return tr("Please check your permissions."); }
 
 uiString uiStrings::sOutput()
 { return tr("Output"); }

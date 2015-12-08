@@ -930,7 +930,8 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 
     BufferString fname = FilePath( GetBaseDataDir() )
 			 .add( seldlg->selFld()->getText() ).fullPath();
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
+    uiString errmsg;
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, errmsg );
     if ( !survinfo ) return false;
 
     cs = survinfo->sampling( false );
@@ -942,5 +943,6 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = survinfo->zIsTime() ? Time
 				 : (survinfo->zInFeet() ? DepthFeet : Depth);
     inft_ = survinfo->xyInFeet();
+
     return true;
 }

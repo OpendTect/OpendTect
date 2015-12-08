@@ -166,7 +166,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 			      sssu );
 
     const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
-	    			      : mIOObjContext(EMHorizon3D) );
+				      : mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg(lvlnm));
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
@@ -259,7 +259,7 @@ bool uiSynthToRealScale::getEvent()
 	return false;
     seisev_ = evfld_->event();
     const bool isrms = evfld_->getFullExtrWin().nrSteps() > 0;
-    valislbl_->setText( isrms ? tr("[Amplitude RMS values]")  
+    valislbl_->setText( isrms ? tr("[Amplitude RMS values]")
 			      : tr("       [Amplitude values]       ") );
     return true;
 }
@@ -275,15 +275,15 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     {
 	const IOObj* ioobj = polyfld_->ioobj();
 	if ( !ioobj ) return false;
-	BufferString errmsg;
+	uiString errmsg;
 	polygon_ = PickSetTranslator::getPolygon( *ioobj, errmsg );
 	if ( !polygon_ )
-	    mErrRetBool( mToUiStringTodo(errmsg) );
+	    mErrRetBool( errmsg );
     }
 
     const IOObj* ioobj = horfld_->ioobj();
     if ( !ioobj ) return false;
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), 
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
 							  &taskr );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;

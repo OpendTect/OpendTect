@@ -85,9 +85,6 @@ public:
     void			addErrMsgTo(BufferString&) const;
     void			addErrMsgTo(uiString&)const;
     static od_stream*		create(const char*,bool forread,
-					BufferString& errmsg);
-				//!< returns null on failure, never a bad stream
-    static od_stream*		create(const char*,bool forread,
 					   uiString& errmsg);
 				//!< returns null on failure, never a bad stream
     static const char*		sStdIO();

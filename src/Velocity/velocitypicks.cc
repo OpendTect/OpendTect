@@ -421,8 +421,12 @@ bool Picks::store( const IOObj* ioobjarg )
     fillPar( ps.pars_ );
     ps.pars_.set( sKey::Version(), 2 );
 
-    if ( !PickSetTranslator::store( ps, ioobj, errmsg_ ) )
+    uiString errmsg;
+    if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
+    {
+	errmsg_ = mFromUiStringTodo( errmsg );
 	return false;
+    }
 
     fillIOObjPar( ioobj->pars() );
 
@@ -786,8 +790,12 @@ bool Picks::load( const IOObj* ioobj )
     storageid_ = ioobj->key();
 
     ::Pick::Set pickset( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( pickset, ioobj, true, errmsg_ ) )
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(pickset,ioobj,true,errmsg) )
+    {
+	errmsg_ = mFromUiStringTodo( errmsg );
 	return false;
+    }
 
     if ( !usePar( pickset.pars_ ) )
     {

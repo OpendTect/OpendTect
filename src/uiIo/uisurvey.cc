@@ -405,7 +405,8 @@ uiSurvey::uiSurvey( uiParent* p )
 		"\nor contact support@opendtect.org.") );
     }
 
-    setCurrentSurvInfo( new SurveyInfo(SI()) );
+    if ( !IOM().isBad() )
+	setCurrentSurvInfo( new SurveyInfo(SI()) );
 
     mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
 	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
@@ -616,6 +617,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 {
     if ( !dirfld_ )
 	mRetExitWin
+
     if ( dirfld_->isEmpty() )
 	mErrRet(tr("Please create a survey (or press Cancel)"))
 
@@ -626,7 +628,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
 	mErrRet(uiString::emptyString())
-    if ( samedataroot && samesurvey && !parschanged_ )
+    if ( samedataroot && samesurvey && !parschanged_ && !IOM().isBad() )
 	mRetExitWin
 
     // Step 2: write default/current survey file
@@ -638,7 +640,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	updateDataRootInSettings();
 
     // Step 4: Do the IOMan changes necessary
-    if ( samesurvey )
+    if ( samesurvey && !IOM().isBad() )
     {
 	if ( cursurvinfo_ )
 	    eSI() = *cursurvinfo_;
@@ -652,7 +654,9 @@ bool uiSurvey::acceptOK( CallBacker* )
 	    if ( !uiSetDataDir::setRootDataDir(this,dataroot_) )
 		return false;
 	}
-	if ( IOMan::newSurvey(cursurvinfo_) )
+
+	uiString errmsg;
+	if ( IOMan::newSurvey(cursurvinfo_,&errmsg) )
 	{
 	    cursurvinfo_ = 0; // it's not ours anymore
 	    if ( survmap_ )
@@ -668,9 +672,11 @@ bool uiSurvey::acceptOK( CallBacker* )
 		    survmap_->setSurveyInfo( 0 );
 	    }
 
-	    const bool isblocked = IOM().message().isEmpty();
-	    if ( !isblocked )
-		uiMSG().error( mToUiStringTodo(IOM().message()) );
+	    cursurvinfo_ = 0;
+	    const bool isblocked = errmsg.isSet();
+	    if ( isblocked )
+		uiMSG().error( errmsg );
+
 	    return false;
 	}
     }
@@ -746,12 +752,14 @@ void uiSurvey::newButPushed( CallBacker* )
     if ( !rootDirWritable() ) return;
 
     const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
-    SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath() );
+    uiString errmsg;
+    SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath(), errmsg );
     if ( !newsurvinfo )
     {
-	uiString errmsg = tr("Cannot read software default survey\n"
-			     "Try to reinstall the OpendTect package");
-	mErrRetVoid( errmsg )
+	uiString msg = tr("Cannot read software default survey\n"
+			  "Try to reinstall the OpendTect package");
+	uiMSG().errorWithDetails( uiStringSet(&errmsg), msg );
+	return;
     }
 
     uiStartNewSurveySetup dlg( this, dataroot_, *newsurvinfo );
@@ -783,7 +791,7 @@ void uiSurvey::newButPushed( CallBacker* )
     else
     {
 	readSurvInfoFromFile(); // essential
-	putToScreen();
+	    putToScreen();
     }
 
     rmbut_->setSensitive(true);
@@ -842,9 +850,14 @@ void uiSurvey::copyButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_) );
+    uiString errmsg;
+    setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_,errmsg) );
     if ( !cursurvinfo_ )
-	mErrRetVoid(tr("Could not read the copied survey"))
+    {
+	uiString msg = tr("Could not read the copied survey");
+	uiMSG().errorWithDetails( uiStringSet(&errmsg), msg );
+	return;
+    }
 
     cursurvinfo_->setName( FilePath(dlg.newdirnm_).fileName() );
     cursurvinfo_->updateDirName();
@@ -975,7 +988,7 @@ void uiSurvey::updateSurvList()
 
     const int idxofprevsel = dirfld_->indexOf( prevsel );
     const int idxofcursi = cursurvinfo_ ? dirfld_->indexOf(
-	    				cursurvinfo_->getDirName() ) : -1;
+					  cursurvinfo_->getDirName() ) : -1;
     if ( idxofcursi >= 0 )
 	newselidx = idxofcursi;
     else if ( idxofprevsel >= 0 )
@@ -1026,10 +1039,10 @@ void uiSurvey::readSurvInfoFromFile()
     {
 	const BufferString fname = FilePath( dataroot_ )
 			    .add( selectedSurveyName() ).fullPath();
-	newsi = SurveyInfo::read( fname );
+	uiString errmsg;
+	newsi = SurveyInfo::read( fname, errmsg );
 	if ( !newsi )
-	    uiMSG().warning(
-		    tr("Cannot read survey setup file: %1").arg(fname) );
+	    uiMSG().error( errmsg );
     }
 
     if ( newsi )
@@ -1098,12 +1111,7 @@ void uiSurvey::putToScreen()
     BufferString survtypeinfo( "Survey type: " );
     BufferString orientinfo( "In-line Orientation: " );
 
-    if ( !cursurvinfo_ )
-    {
-	notesfld_->setText( "" );
-	zinfo.add( ":" ); bininfo.add( ":" ); areainfo.add( ":" );
-    }
-    else
+    if ( cursurvinfo_ )
     {
 	const SurveyInfo& si = *cursurvinfo_;
 	notesfld_->setText( si.comment() );
@@ -1150,6 +1158,11 @@ void uiSurvey::putToScreen()
 
 	const float usrang = Math::degFromNorth( si.angleXInl() );
 	orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
+    }
+    else
+    {
+	notesfld_->setText( "" );
+	zinfo.add( ":" ); bininfo.add( ":" ); areainfo.add( ":" );
     }
 
     BufferString infostr;

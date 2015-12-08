@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "interpol2d.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "scaler.h"
@@ -422,10 +423,16 @@ void VolumeDataPack::dumpInfo( IOPar& par ) const
 // SeisDataPack
 SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
+    , zdomaininfo_(new ZDomain::Info(ZDomain::Time()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
     , scaler_(0)
-{}
+{
+    if ( !IOM().isBad() )
+    {
+	delete zdomaininfo_;
+	zdomaininfo_ = new ZDomain::Info( ZDomain::SI() );
+    }
+}
 
 
 SeisDataPack::~SeisDataPack()

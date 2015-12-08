@@ -80,6 +80,7 @@ protected:
     void			trackFromSeedsAndEdges();
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
+    void			survChgCB(CallBacker*);
 
     void			updateSeedPickState();
     void			mouseCursorCallCB(CallBacker*);

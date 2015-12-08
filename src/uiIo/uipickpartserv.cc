@@ -139,8 +139,8 @@ Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
     if ( setidx<0 )
     {
 	Pick::Set* ps = new Pick::Set;
-	BufferString bs;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,bs) )
+	uiString errmsg;
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
 	{
 	    psmgr_.set( mid, ps );
 	    return ps;
@@ -190,8 +190,8 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	}
 
 	Pick::Set* ps = new Pick::Set;
-	BufferString bs;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,bs) )
+	uiString errmsg;
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
 	{
 	    psmgr_.set( ioobj->key(), ps );
 	    psids.addIfNew( id );
@@ -202,8 +202,8 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	    delete ps;
 	    psmgr_.set( id, 0 ); //Remove from Mgr if present.
 
-	    uiString msg = toUiString("%1 : %2").arg(ioobj->uiName()).
-						 arg(mToUiStringTodo(bs));
+	    uiString msg =
+		     uiStrings::phrJoinStrings( ioobj->uiName(), errmsg );
 	    errmsgs.add( msg );
 	}
     }

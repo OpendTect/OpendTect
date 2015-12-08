@@ -96,7 +96,11 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     const NLACreationDesc& crdesc = creationDesc();
 
     if ( !crdesc.isdirect )
-	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2d_ );
+    {
+	uiString errmsg;
+	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, errmsg,
+						is2d_ );
+    }
     else
     {
 	Well::TrackSampler* ts = new Well::TrackSampler( crdesc.outids, dpss,
@@ -148,7 +152,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     statsfld_ = new uiStatsDisplay( graphgrp, su );
     statsfld_->setData( datavals.arr(), datavals.size() );
     bsetup_.nrptsperclss = statsfld_->funcDisp()->nrClasses() > 0
-		? statsfld_->funcDisp()->nrInpVals() / 
+		? statsfld_->funcDisp()->nrInpVals() /
 		  statsfld_->funcDisp()->nrClasses() : 1;
     statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
 
@@ -167,7 +171,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     rg_.start = datavals[0];
     rg_.stop = datavals[datavals.size()-1];
     valrgfld = new uiGenInput( datagrp, uiStrings::phrData(tr("range to use")),
-	    			FloatInpIntervalSpec(rg_) );
+				FloatInpIntervalSpec(rg_) );
     valrgfld->attach( alignedBelow, percnoisefld );
     valrgfld->valuechanged.notify( mCB(this,uiPrepNLAData,valrgChg) );
 
@@ -275,8 +279,8 @@ class uiLithCodeMan : public uiDialog
 public:
 
 uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
-       		const char* lognm )
-    	: uiDialog(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sCode(2)),
+		const char* lognm )
+	: uiDialog(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sCode(2)),
 				     uiStrings::phrSpecify(tr(
 				     "how to handle codes")),
 				     mODHelpKey(mLithCodeManHelpID)))
@@ -561,7 +565,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	    if ( !res.isEmpty() ) mErrRet(res)
 	    // change design output nodes to new nodes
 	    BufferStringSet& outps = const_cast<BufferStringSet&>(
-		    				crdesc.design.outputs );
+						crdesc.design.outputs );
 	    outps.erase();
 	    const int newnrvals = vds.data().nrVals();
 	    for ( int idx=orgnrvals; idx<newnrvals; idx++ )

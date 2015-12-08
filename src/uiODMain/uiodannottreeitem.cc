@@ -113,8 +113,8 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	Pick::Set* ps = new Pick::Set;
-	BufferString bs;
-	PickSetTranslator::retrieve(*ps,ioobj,true,bs);
+	uiString errmsg;
+	PickSetTranslator::retrieve(*ps,ioobj,true,errmsg);
 	mgr.set( mid, ps );
 
 	setidx = mgr.indexOf(mid);
@@ -287,9 +287,9 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
     if ( defScale()!=-1 )
 	ps.disp_.pixsize_= defScale();
 
-    BufferString bs;
-    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,bs) )
-    { uiMSG().error( mToUiStringTodo(bs) ); mDelCtioRet; }
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,errmsg) )
+    { uiMSG().error( errmsg ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     if ( mgr.indexOf(dlg.ioObj()->key() ) == -1 )
@@ -431,9 +431,9 @@ void uiODAnnotSubItem::store() const
     IOM().commitChanges( *ioobj );
 
     fillStoragePar( set_->pars_ );
-    BufferString bs;
-    if ( !PickSetTranslator::store( *set_, ioobj, bs ) )
-    uiMSG().error(mToUiStringTodo(bs));
+    uiString errmsg;
+    if ( !PickSetTranslator::store(*set_,ioobj,errmsg ) )
+	uiMSG().error( errmsg );
     else
 	mgr.setUnChanged( setidx );
 }

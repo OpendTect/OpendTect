@@ -7,17 +7,17 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "od_strstream.h"
-#include "filepath.h"
-#include "strmprov.h"
-#include "strmoper.h"
-#include "bufstring.h"
-#include "fixedstring.h"
-#include "separstr.h"
-#include "compoundkey.h"
-#include "iopar.h"
 #include "ascstream.h"
+#include "bufstring.h"
+#include "compoundkey.h"
+#include "filepath.h"
+#include "fixedstring.h"
+#include "iopar.h"
+#include "separstr.h"
+#include "strmoper.h"
+#include "strmprov.h"
 #include "perthreadrepos.h"
-#include "uistring.h"
+#include "uistrings.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -185,10 +185,7 @@ bool od_istream::atEOF() const
 uiString od_stream::errMsg() const
 {
     if ( errmsg_.isEmpty() )
-    {
-	const char* sysmsg = StrmOper::getErrorMessage( streamData() );
-	return toUiString( sysmsg && *sysmsg ? sysmsg : 0 );
-    }
+	return StrmOper::getErrorMessage( streamData() );
 
     return errmsg_;
 }
@@ -340,53 +337,32 @@ bool od_ostream::open( const char* fnm, bool useexist )
 	{ close(); setFileName(fnm); return false; }
 }
 
-od_stream* od_stream::create( const char* fnm, bool forread,
-			     BufferString& errmsg )
-{
-    uiString uimsg;
-    od_stream* res = create( fnm, forread, uimsg );
-    if ( !res )
-    {
-	errmsg = uimsg.getFullString();
-    }
-
-    return res;
-}
-
 
 od_stream* od_stream::create( const char* fnm, bool forread,
 			      uiString& errmsg )
 {
     od_stream* ret = 0;
-    if ( forread )
+    if ( !fnm || !*fnm )
     {
-	if ( !fnm || !*fnm )
+	if ( forread )
 	    return new od_istream( od_istream::nullStream() );
-
-	ret = new od_istream( fnm );
-	if ( !ret )
-	    errmsg = tr("Out of memory");
-	else if ( !ret->isOK() )
-	{
-	    errmsg = tr( "Cannot open %1 for read" ).arg( fnm );
-	    ret->addErrMsgTo( errmsg );
-	    delete ret; return 0;
-	}
-    }
-    else
-    {
-	if ( !fnm || !*fnm )
+	else
 	    return new od_ostream( od_ostream::nullStream() );
+    }
 
+    if ( forread )
+	ret = new od_istream( fnm );
+    else
 	ret = new od_ostream( fnm );
-	if ( !ret )
-	    errmsg = tr("Out of memory");
-	else if ( !ret->isOK() )
-	{
-	    errmsg = tr( "Cannot open %1 for write" ).arg( fnm );
-	    ret->addErrMsgTo( errmsg );
-	    delete ret; return 0;
-	}
+
+    if ( !ret )
+	errmsg = tr("Out of memory");
+    else if ( !ret->isOK() )
+    {
+	uiString addedmsg = tr( "file: %1" ).arg( fnm );
+	errmsg = uiStrings::phrCannotOpen( addedmsg );
+	ret->addErrMsgTo( errmsg );
+	delete ret; return 0;
     }
 
     return ret;

@@ -114,7 +114,7 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
     uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
     if ( !itm || !itm->getMenu() ) return;
 
-    if ( SI().has3D() )
+    if ( IOM().isBad() || SI().has3D() )
 	itm->getMenu()->insertItem( new uiAction("Stratal Amplitude ...",
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 

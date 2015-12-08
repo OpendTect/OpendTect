@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Executor;
+class uiString;
 
 
 /*!\brief Interface for several file and directory related services */
@@ -27,6 +28,9 @@ namespace File
 {
 
 mGlobal(Basic) bool		exists(const char*);
+				/*!< note: existing but unreadable
+				     may be of little use */
+mGlobal(Basic) bool		isReadable(const char*);
 mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
@@ -57,16 +61,20 @@ mGlobal(Basic) bool		isFileInUse(const char* fnm);
 mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname);
 mGlobal(Basic) bool		copy(const char* from,const char* to,
-					BufferString* errmsg=0);
+				     uiString* errmsg=0);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 					       const char* to);
 mGlobal(Basic) bool		resize(const char*,od_int64);
 mGlobal(Basic) bool		remove(const char*);
 mGlobal(Basic) bool		saveCopy(const char* from,const char* to);
 mGlobal(Basic) bool		copyDir(const char* from,const char* to,
-					BufferString* errmsg=0);
+					uiString* errmsg=0);
 mGlobal(Basic) bool		removeDir(const char*);
 mGlobal(Basic) bool		changeDir(const char* path);
+mGlobal(Basic) bool		checkDirectory(const char* fnm,bool forread,
+					       uiString& errmsg);
+				/*!< checks if the parent directory of a file
+				     is readable/writable */
 
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
 mGlobal(Basic) od_int64		getFileSize(const char* fnm,

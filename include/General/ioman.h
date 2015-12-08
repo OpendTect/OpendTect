@@ -14,8 +14,10 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-#include "namedobj.h"
+
 #include "multiid.h"
+#include "namedobj.h"
+#include "uistring.h"
 
 class CtxtIOObj;
 class IODir;
@@ -34,12 +36,12 @@ more instances is probably not a good idea.
 */
 
 mExpClass(General) IOMan : public NamedObject
-{
+{ mODTextTranslationClass(IOMan);
 public:
 
     bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
-    const OD::String&	message() const		{ return msg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;
@@ -101,7 +103,8 @@ public:
 			{ return selkey_ == cdd.selkey_; }
     };
 
-    static const MultiID& addCustomDataDir(const CustomDirData&);
+    static const MultiID& addCustomDataDir(const CustomDirData&,
+					   uiString& errmsg);
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
@@ -124,9 +127,10 @@ private:
     State		state_;
     IODir*		dirptr_;
     int			curlvl_;
-    BufferString	msg_;
+    mutable uiString	errmsg_;
     bool		survchgblocked_;
     mutable Threads::Lock lock_;
+
 
     void		init();
     void		reInit(bool dotrigger);
@@ -134,7 +138,7 @@ private:
 			~IOMan();
 
     static IOMan*	theinst_;
-    static void		setupCustomDataDirs(int);
+    static void		setupCustomDataDirs(int,uiString& errmsg);
 
     bool		setDir(const char*);
     int			levelOf(const char* dirnm) const;
@@ -150,7 +154,7 @@ public:
     // Don't use these functions unless you really know what you're doing
 
     bool		setRootDir(const char*);
-    static bool		validSurveySetup(BufferString& errmsg);
+    static bool		validSurveySetup(uiString& errmsg,uiString& warnmsg);
     static IOSubDir*	getIOSubDir(const CustomDirData&);
 
     void		setChangeSurveyBlocked( bool yn )
@@ -158,9 +162,9 @@ public:
     bool		changeSurveyBlocked() const
 					{ return survchgblocked_; }
     void		applClosing()	{ applicationClosing.trigger(); }
-    static bool		newSurvey(SurveyInfo* newsi=0);
+    static bool		newSurvey(SurveyInfo* newsi=0,uiString* errmsg=0);
 			/*!< set new SurveyInfo; force re-read the data tree. */
-    static bool		setSurvey(const char*);
+    static bool		setSurvey(const char*,uiString* errmsg=0);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */

@@ -208,16 +208,21 @@ bool uiODMain::ensureGoodSurveySetup()
     if ( !ensureGoodDataDir() )
 	return false;
 
-    BufferString errmsg;
     int res = 0;
-    if ( !IOMan::validSurveySetup(errmsg) )
+    uiString errmsg, warnmsg;
+    if ( !IOM().isBad() && !IOMan::validSurveySetup(errmsg,warnmsg) )
     {
-	std::cerr << errmsg << std::endl;
-	uiMSG().error( toUiString(errmsg) );
+	std::cerr << errmsg.getFullString() << std::endl;
+	uiMSG().error( errmsg );
+	if ( warnmsg.isSet() )
+	    uiMSG().warning( warnmsg );
+
 	return false;
     }
-    else if ( !IOM().isReady() )
+
+    if ( IOM().isBad() )
     {
+	uiMSG().error( IOM().errMsg() );
 	while ( res == 0 )
 	{
 	    res = uiODApplMgr::manageSurvey();
@@ -669,7 +674,7 @@ void uiODMain::updateCaption()
 	capt.append( tr(" [%1] ").arg( usr ) );
     }
 
-    if ( !SI().name().isEmpty() )
+    if ( !IOM().isBad() && !SI().name().isEmpty() )
 	capt.append( ": %1" ).arg( SI().name() );
 
     setCaption( capt );

@@ -12,22 +12,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iodir.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "iosubdir.h"
 #include "keystrs.h"
-#include "msgh.h"
 #include "oddirs.h"
 #include "od_ostream.h"
+#include "safefileio.h"
 #include "separstr.h"
 #include "settings.h"
 #include "perthreadrepos.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "timefun.h"
-#include "genc.h"
 #include "transl.h"
+#include "uistrings.h"
 
 
 IOMan* IOMan::theinst_	= 0;
@@ -64,31 +65,38 @@ IOMan::IOMan( const char* rd )
 void IOMan::init()
 {
     state_ = Bad;
+    errmsg_.setEmpty();
     if ( rootdir_.isEmpty() )
     {
-	msg_ = "Directory for data storage is not set";
+	errmsg_ = tr( "Directory for data storage is not set" );
 	return;
     }
 
-    if ( !to( emptykey, true ) )
+    if ( !to(emptykey,true) )
     {
         FilePath surveyfp( GetDataDir(), ".omf" );
-        if ( File::exists(surveyfp.fullPath().buf()) )
-        {
-            msg_ = "Warning: Invalid '.omf' found in:\n";
-	    msg_ += rootdir_;
-            msg_ += ".\nThis survey is corrupt.";
-	    return;
-        }
+	if ( !File::exists(surveyfp.fullPath().buf()) )
+	{
+	    errmsg_.append( tr("Trying to restoring default .omf file:"), true);
+	    FilePath basicfp(
+		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()), ".omf" );
+	    uiString cperrmsg;
+	    if ( !File::copy(basicfp.fullPath(),surveyfp.fullPath(),&cperrmsg) )
+	    {
+		errmsg_.append( cperrmsg, true );
+		return;
+	    }
 
-        FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
-			  ".omf" );
-        File::copy( basicfp.fullPath(),surveyfp.fullPath() );
-        if ( !to( emptykey, true ) )
+	    if ( !to(emptykey,true) )
+		return;
+	}
+	else if ( !File::isReadable(surveyfp.fullPath().buf()) )
+	    return;
+	else if ( File::exists(surveyfp.fullPath().buf()) &&
+		  File::isReadable(surveyfp.fullPath().buf()) )
         {
-            msg_ = "Warning: Invalid or no '.omf' found in:\n";
-	    msg_ += rootdir_;
-            msg_ += ".\nThis survey is corrupt.";
+	    errmsg_.append( tr( "Invalid '.omf': You may try to (re)move it to "
+				"force its regeneration on next start" ), true);
 	    return;
         }
     }
@@ -155,7 +163,6 @@ void IOMan::init()
 	rootfp.setFileName( dd->dirnm_ );
 	BufferString dirnm = rootfp.fullPath();
 
-#define mErrMsgRet(s) ErrMsg(s); msg_ = s; state_ = Bad; return
 	if ( !File::exists(dirnm) )
 	{
 	    // This directory should have been in the survey.
@@ -163,14 +170,19 @@ void IOMan::init()
 	    // continue. Otherwise, we want to copy the Basic Survey directory.
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
-		BufferString msg( "Corrupt survey: missing directory: " );
-		msg += dirnm; mErrMsgRet( msg );
+		errmsg_ = tr("Corrupt survey: missing directory: %1")
+			    .arg( dirnm );
+		state_ = Bad;
+		return;
 	    }
 	    else if ( !File::copy(basicdirnm,dirnm) )
 	    {
-		BufferString msg( "Cannot create directory: " ); msg += dirnm;
-		msg += ". You probably do not have write permissions in ";
-		msg += rootfp.pathOnly(); mErrMsgRet( msg );
+		errmsg_ = tr("Cannot create directory: %1.\n"
+			     "You probably do not have write permissions in %2")
+			    .arg( dirnm )
+			    .arg( rootfp.pathOnly() );
+		state_ = Bad;
+		return;
 	    }
 	}
 
@@ -224,14 +236,13 @@ void IOMan::reInit( bool dotrigger )
     if ( !IOM().isBad() )
     {
 	SurveyInfo::setSurveyName( SI().getDirName() );
-	setupCustomDataDirs(-1);
+	setupCustomDataDirs(-1,errmsg_);
 	if ( dotrigger )
 	{
 	    IOM().surveyChanged.trigger();
 	    IOM().afterSurveyChange.trigger();
 	}
     }
-
 }
 
 
@@ -247,9 +258,12 @@ bool IOMan::isReady() const
 }
 
 
-bool IOMan::newSurvey( SurveyInfo* newsi )
+bool IOMan::newSurvey( SurveyInfo* newsi, uiString* errmsg )
 {
-    SurveyInfo::deleteInstance();
+    SurveyInfo oldsi;
+    if ( !IOM().isBad() )
+	oldsi = SI();
+
     if ( !newsi )
 	SurveyInfo::setSurveyName( "" );
     else
@@ -259,17 +273,43 @@ bool IOMan::newSurvey( SurveyInfo* newsi )
     }
 
     IOM().reInit( true );
-    return !IOM().isBad();
+    if ( !IOM().isBad() )
+    {
+	SurveyInfo::deleteOriginal();
+	return true;
+    }
+
+    if ( errmsg )
+	*errmsg = IOM().errMsg();
+
+    SurveyInfo::deleteInstance();
+    SurveyInfo::setSurveyName( oldsi.getDirName() );
+    IOM().reInit( true );
+
+    return false;
 }
 
 
-bool IOMan::setSurvey( const char* survname )
+bool IOMan::setSurvey( const char* survname, uiString* errmsg )
 {
-    SurveyInfo::deleteInstance();
+    SurveyInfo oldsi( SI() );
     SurveyInfo::setSurveyName( survname );
 
     IOM().reInit( true );
-    return !IOM().isBad();
+    if ( !IOM().isBad() )
+    {
+	SurveyInfo::deleteOriginal();
+	return true;
+    }
+
+    if ( errmsg )
+	*errmsg = IOM().errMsg();
+
+    SurveyInfo::deleteInstance();
+    SurveyInfo::setSurveyName( oldsi.getDirName() );
+    IOM().reInit( true );
+
+    return false;
 }
 
 
@@ -289,52 +329,86 @@ const char* IOMan::surveyName() const
 }
 
 
-static bool validOmf( const char* dir )
+static bool validOmf( const char* dir, uiString& msg )
 {
     FilePath fp( dir ); fp.add( ".omf" );
     BufferString fname = fp.fullPath();
-    if ( File::isEmpty(fname) )
+    if ( !File::checkDirectory(fname,true,msg) )
+	return false;
+
+    SafeFileIO fstrm( fname );
+    const bool success = fstrm.open( true, true );
+    msg = fstrm.errMsg();
+    fstrm.closeSuccess();
+    if ( success )
+	return true;
+
+    fp.setFileName( ".omb" );
+    BufferString fnamebak = fp.fullPath();
+    SafeFileIO fstrmback( fnamebak );
+    const bool cancopy = fstrmback.open( true, true );
+    fstrmback.closeSuccess();
+    if ( !cancopy )
+	return false;
+
+    msg = od_static_tr("IOManvalidOmf",
+		       "Restoring .omf file from .omb file");
+    uiString msg2;
+    if ( !File::copy(fname,fnamebak,&msg2) )
     {
-	fp.setFileName( ".omb" );
-	if ( File::isEmpty(fp.fullPath()) )
-	    return false;
-	else
-	    File::copy( fname, fp.fullPath() );
+	msg.append( msg2, true );
+	return false;
     }
+
     return true;
 }
 
 
-#define mErrRet(str) \
-    { errmsg = str; return false; }
-
-#define mErrRetNotODDir(fname) \
-    { \
-        errmsg = "$DTECT_DATA="; errmsg += GetBaseDataDir(); \
-        errmsg += "\nThis is not a valid OpendTect data storage directory."; \
-	if ( fname ) \
-	    { errmsg += "\n[Cannot find: "; errmsg += fname; errmsg += "]"; } \
-        return false; \
-    }
-
-bool IOMan::validSurveySetup( BufferString& errmsg )
+static bool validSurveyFile( const char* dir, uiString& msg )
 {
-    errmsg = "";
+    FilePath fp( dir ); fp.add( SurveyInfo::sKeySetupFileName() );
+    BufferString fname = fp.fullPath();
+    SafeFileIO fstrm( fname );
+    const bool success = fstrm.open( true, true );
+    msg = fstrm.errMsg();
+    fstrm.closeSuccess();
+
+    return success;
+}
+
+
+bool IOMan::validSurveySetup( uiString& errmsg, uiString& warnmsg )
+{
+    errmsg.setEmpty();
     const BufferString basedatadir( GetBaseDataDir() );
     if ( basedatadir.isEmpty() )
-	mErrRet("Please set the environment variable DTECT_DATA.")
+    {
+	errmsg = tr("Please set the environment variable DTECT_DATA.");
+	return false;
+    }
     else if ( !File::exists(basedatadir) )
-	mErrRetNotODDir(0)
-    else if ( !validOmf(basedatadir) )
-	mErrRetNotODDir(".omf")
+    {
+	errmsg = tr("$DTECT_DATA=%1\n"
+		    "This is not a valid OpendTect data storage directory.")
+		   .arg( toUiString(GetBaseDataDir()) );
+	return false;
+    }
+    else if ( !validOmf(basedatadir,errmsg) )
+    {
+	errmsg.append( tr("$DTECT_DATA=%1\n"
+	       "This is not a valid OpendTect data storage directory.\n"),true);
+	return false;
+    }
 
     const BufferString projdir = GetDataDir();
     if ( projdir != basedatadir && File::isDirectory(projdir) )
     {
-	const bool noomf = !validOmf( projdir );
-	const bool nosurv = File::isEmpty( FilePath(projdir).
-					   add(SurveyInfo::sKeySetupFileName()).
-					   fullPath() );
+	const bool noomf = !validOmf( projdir, warnmsg );
+	uiString warnmsg2;
+	const bool nosurv = !validSurveyFile( projdir, warnmsg2 );
+	if ( warnmsg2.isSet() )
+	    warnmsg.append( warnmsg2, true );
+
 	if ( !noomf && !nosurv )
 	{
 	    if ( !IOM().isBad() )
@@ -342,22 +416,9 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
 	    // But what's wrong here? In any case - survey is not good.
 	}
-
 	else
 	{
-	    BufferString msg;
-	    if ( nosurv && noomf )
-		msg = "Warning: Essential data files not found in ";
-	    else if ( nosurv )
-	    {
-		msg = BufferString( "Warning: Invalid or no '",
-				    SurveyInfo::sKeySetupFileName(),
-				    "' found in " );
-	    }
-	    else if ( noomf )
-		msg = "Warning: Invalid or no '.omf' found in ";
-	    msg += projdir; msg += ".\nThis survey is corrupt.";
-	    UsrMsg( msg );
+	    warnmsg.append( tr("This survey cannot be used."), true );
 	}
     }
 
@@ -365,8 +426,9 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     const BufferString survfname = SurveyInfo::surveyFileName();
     if ( File::exists(survfname) && !File::remove(survfname) )
     {
-	errmsg.set( "The file:\n" ).add( survfname )
-	    .add( "\ncontains an invalid survey.\n\nPlease remove this file" );
+	errmsg = tr("The file:\n%1\ncontains an invalid survey.\n\n"
+		    "Please remove this file")
+		   .arg( survfname );
 	return false;
     }
 
@@ -431,13 +493,13 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 	return true;
 
     MultiID dirkey;
-    IOObj* refioobj = IODir::getObj( ky );
+    IOObj* refioobj = IODir::getObj( ky, errmsg_ );
     if ( refioobj )
 	dirkey = refioobj->isSubdir() ? ky : MultiID(ky.upLevel());
     else
     {
 	dirkey = ky.upLevel();
-	refioobj = IODir::getObj( dirkey );
+	refioobj = IODir::getObj( dirkey, errmsg_ );
 	if ( !refioobj )
 	    dirkey = "";
     }
@@ -445,7 +507,12 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
     IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir_) : new IODir(dirkey);
     if ( !newdir || newdir->isBad() )
+    {
+	if ( newdir )
+	    errmsg_ = newdir->errMsg();
+
 	return false;
+    }
 
     bool needtrigger = dirptr_;
     if ( dirptr_ )
@@ -480,7 +547,7 @@ IOObj* IOMan::get( const MultiID& k ) const
 	if ( ioobj ) return ioobj->clone();
     }
 
-    return IODir::getObj( ky );
+    return IODir::getObj( ky, errmsg_ );
 }
 
 
@@ -831,7 +898,16 @@ bool IOMan::commitChanges( const IOObj& ioobj )
     Threads::Locker lock( lock_ );
     PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
-    return dirptr_ ? dirptr_->commitChanges( clone ) : false;
+    if ( !dirptr_ )
+	return false;
+
+    if ( !dirptr_->commitChanges(clone) )
+    {
+	errmsg_ = dirptr_->errMsg();
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -850,23 +926,19 @@ bool IOMan::permRemove( const MultiID& ky )
 
 
 class SurveyDataTreePreparer
-{
+{ mODTextTranslationClass(SurveyDataTreePreparer);
 public:
 			SurveyDataTreePreparer( const IOMan::CustomDirData& dd )
-			    : dirdata_(dd)		{}
+			    : dirdata_(dd)
+			{}
 
     bool		prepDirData();
     bool		prepSurv();
     bool		createDataTree();
 
     const IOMan::CustomDirData&	dirdata_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 };
-
-
-#undef mErrRet
-#define mErrRet(s1,s2,s3) \
-	{ errmsg_ = s1; errmsg_ += s2; errmsg_ += s3; return false; }
 
 
 bool SurveyDataTreePreparer::prepDirData()
@@ -878,7 +950,11 @@ bool SurveyDataTreePreparer::prepDirData()
 
     int nr = dd->selkey_.ID( 0 );
     if ( nr <= 200000 )
-	mErrRet("Invalid selection key passed for '",dd->desc_,"'")
+    {
+	errmsg_ = tr("Invalid selection key passed for '%1'")
+		    .arg( dd->desc_ );
+	return false;
+    }
 
     dd->selkey_ = "";
     dd->selkey_.setID( 0, nr );
@@ -889,14 +965,22 @@ bool SurveyDataTreePreparer::prepDirData()
 
 bool SurveyDataTreePreparer::prepSurv()
 {
-    if ( IOM().isBad() ) { errmsg_ = "Bad directory"; return false; }
+    if ( IOM().isBad() )
+    {
+	errmsg_ = tr("Bad directory");
+	return false;
+    }
 
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
     IOM().toRoot();
     if ( IOM().isBad() )
-	{ errmsg_ = "Can't go to root of survey"; return false; }
+    {
+	errmsg_ = tr("Can't go to root of survey");
+	return false;
+    }
+
     IODir* topdir = IOM().dirptr_;
     if ( !topdir || !topdir->main() || topdir->main()->name() == "Appl dir" )
 	return true;
@@ -909,14 +993,24 @@ bool SurveyDataTreePreparer::prepSurv()
     if ( ioobj ) return true;
 
     if ( !IOM().dirptr_->addObj(IOMan::getIOSubDir(dirdata_),true) )
-	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
+    {
+	errmsg_ = tr("Couldn't add '%1' directory to root .omf")
+		    .arg( dirdata_.dirname_ );
+	errmsg_.append( uiStrings::sCheckPermissions(), true );
+	return false;
+    }
+
     return true;
 }
 
 
 bool SurveyDataTreePreparer::createDataTree()
 {
-    if ( !IOM().dirptr_ ) { errmsg_ = "Invalid current survey"; return false; }
+    if ( !IOM().dirptr_ )
+    {
+	errmsg_ = tr("Invalid current survey");
+	return false;
+    }
 
     FilePath fp( IOM().dirptr_->dirName() );
     fp.add( dirdata_.dirname_ );
@@ -925,8 +1019,13 @@ bool SurveyDataTreePreparer::createDataTree()
     if ( !File::exists(thedirnm) )
     {
 	if ( !File::createDir(thedirnm) )
-	    mErrRet( "Cannot create '", dirdata_.dirname_,
-		     "' directory in survey");
+	{
+	    errmsg_ = tr("Cannot create '%1' directory in survey")
+			.arg( dirdata_.dirname_ );
+	    errmsg_.append( uiStrings::sCheckPermissions(), true );
+	    return false;
+	}
+
 	dircreated = true;
     }
 
@@ -940,8 +1039,11 @@ bool SurveyDataTreePreparer::createDataTree()
     {
 	if ( dircreated )
 	    File::remove( thedirnm );
-	mErrRet( "Could not create '.omf' file in ", dirdata_.dirname_,
-		 " directory" );
+
+	errmsg_ = tr("Could not create '.omf' file in %1")
+		    .arg( dirdata_.dirname_ );
+	errmsg_.append( uiStrings::sCheckPermissions(), true );
+	return false;
     }
 
     strm << GetProjectVersionName();
@@ -964,12 +1066,13 @@ static TypeSet<IOMan::CustomDirData>& getCDDs()
 }
 
 
-const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
+const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd,
+					uiString& errmsg )
 {
     SurveyDataTreePreparer sdtp( dd );
     if ( !sdtp.prepDirData() )
     {
-	ErrMsg( sdtp.errmsg_ );
+	errmsg = sdtp.errmsg_;
 	mDefineStaticLocalObject( MultiID, none, ("") );
 	return none;
     }
@@ -986,12 +1089,13 @@ const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
     int idx = cdds.size() - 1;
     const char* survnm = IOM().surveyName();
     if ( survnm && *survnm )
-	setupCustomDataDirs( idx );
+	setupCustomDataDirs( idx, errmsg );
+
     return cdds[idx].selkey_;
 }
 
 
-void IOMan::setupCustomDataDirs( int taridx )
+void IOMan::setupCustomDataDirs( int taridx, uiString& errmsg )
 {
     const TypeSet<IOMan::CustomDirData>& cdds = getCDDs();
     for ( int idx=0; idx<cdds.size(); idx++ )
@@ -1001,7 +1105,7 @@ void IOMan::setupCustomDataDirs( int taridx )
 
 	SurveyDataTreePreparer sdtp( cdds[idx] );
 	if ( !sdtp.prepSurv() )
-	    ErrMsg( sdtp.errmsg_ );
+	    errmsg = sdtp.errmsg_;
     }
 }
 

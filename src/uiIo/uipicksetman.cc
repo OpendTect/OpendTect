@@ -74,10 +74,12 @@ void uiPickSetMan::mkFileInfo()
 
     BufferString txt;
     Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,curioobj_,true, txt) )
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(ps,curioobj_,true,errmsg) )
     {
-	BufferString msg( "Read error: '" ); msg += txt; msg += "'";
-	txt = msg;
+	BufferString msg( "Read error: '" );
+	msg.add( errmsg.getFullString() );
+	msg.add( "'" ).add( "\n<No specific info available>\n" );
     }
     else
     {
@@ -124,8 +126,9 @@ void uiPickSetMan::mkFileInfo()
 	Color col( ps.disp_.color_ ); col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
 	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
-	txt.add( "\nMarker type: " ) .add( OD::MarkerStyle3D::toString(
-				(OD::MarkerStyle3D::Type)ps.disp_.markertype_) );
+	txt.add( "\nMarker type: " );
+	txt.add( OD::MarkerStyle3D::toString(
+		 (OD::MarkerStyle3D::Type)ps.disp_.markertype_) );
     }
 
     txt.add( "\n" ).add( getFileInfo() );

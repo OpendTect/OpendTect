@@ -97,6 +97,9 @@ DescID DescSet::ensureDefStoredPresent() const
 {
     BufferString idstr; DescID retid;
 
+    if ( IOM().isBad() )
+	return defattribid_;
+
     PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
     if ( defpars )
     {

@@ -322,7 +322,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-	    		visBase::DM().getObject( eventinfo.pickedobjids[idx] );
+			visBase::DM().getObject( eventinfo.pickedobjids[idx] );
 	if ( dataobj == this )
 	    continue;
 
@@ -567,7 +567,7 @@ void LocationDisplay::setChg( CallBacker* cb )
     if ( !ps )
     {
 	pErrMsg("Wrong pointer passed");
-       	return;
+	return;
     }
     else if ( ps != set_ )
 	return;
@@ -586,14 +586,14 @@ void LocationDisplay::dispChg( CallBacker* )
 void LocationDisplay::setColor( Color nc )
 {
     if ( set_ )
-    	set_->disp_.color_ = nc;
+	set_->disp_.color_ = nc;
 }
 
 
 Color LocationDisplay::getColor() const
 {
     if ( set_ )
-    	return set_->disp_.color_;
+	return set_->disp_.color_;
 
     return Color::DgbColor();
 }
@@ -635,7 +635,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 		continue;
 
 	    const float dist = findDistance( world2Display((*set_)[pidx].pos_),
-		    			     world2Display((*set_)[idx].pos_),
+					     world2Display((*set_)[idx].pos_),
 					     displaypos );
 	    if ( mIsUdf(dist) ) continue;
 
@@ -937,10 +937,10 @@ bool LocationDisplay::usePar( const IOPar& par )
     {
 	mDeclareAndTryAlloc( Pick::Set*, newps, Pick::Set );
 
-	BufferString bs;
+	uiString errmsg;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
 	if ( ioobj )
-	    PickSetTranslator::retrieve( *newps, ioobj, true, bs );
+	    PickSetTranslator::retrieve( *newps, ioobj, true, errmsg );
 
 	if ( !newps->name() || !*newps->name() )
 	    newps->setName( mFromUiStringTodo(name()) );

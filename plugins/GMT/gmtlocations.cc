@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "picksettr.h"
 #include "strmprov.h"
+#include "uistrings.h"
 #include "welldata.h"
 #include "wellreader.h"
 
@@ -171,11 +172,12 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     MultiID id;
     get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
-    if ( !setobj ) mErrStrmRet("Cannot find pickset")
+    if ( !setobj )
+	mErrStrmRet(uiStrings::phrCannotFindDBEntry(uiStrings::sPolygon()))
 
     strm << "Posting Locations " << setobj->name() << " ...  ";
     Pick::Set ps;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
@@ -264,13 +266,14 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     MultiID id;
     get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
-    if ( !setobj ) mErrStrmRet("Cannot find pickset")
+    if ( !setobj )
+	mErrStrmRet(uiStrings::phrCannotFindDBEntry(uiStrings::sPolygon()))
 
     strm << "Posting Polyline " << setobj->name() << " ...  ";
     Pick::Set ps;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
-	mErrStrmRet( errmsg )
+	mErrStrmRet(errmsg)
 
     OD::LineStyle ls;
     const char* lsstr = find( ODGMT::sKeyLineStyle() );

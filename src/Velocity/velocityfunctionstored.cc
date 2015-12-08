@@ -45,7 +45,7 @@ IOObjContext& StoredFunctionSource::ioContext()
 
     if ( !ret )
     {
-	IOObjContext* newret = 
+	IOObjContext* newret =
 		    new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "RMO picks" );
 	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction() );
@@ -105,7 +105,7 @@ bool StoredFunctionSource::zIsTime() const
 
 
 void StoredFunctionSource::initClass()
-{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }    
+{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }
 
 
 void StoredFunctionSource::setData( const BinIDValueSet& bvs,
@@ -143,12 +143,16 @@ bool StoredFunctionSource::store( const MultiID& velid )
 
 	ps += pickloc;
     }
-    
+
     ps.pars_.setYN( sKeyZIsTime(), zit_ );
     desc_.fillPar( ps.pars_ );
 
-    if ( !PickSetTranslator::store( ps, ioobj, errmsg_ ) )
+    uiString errmsg;
+    if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
+    {
+	errmsg_ = mFromUiStringTodo( errmsg );
 	return false;
+    }
 
     fillIOObjPar( ioobj->pars() );
 
@@ -178,8 +182,12 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	return false;
 
     ::Pick::Set pickset( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( pickset, ioobj, false, errmsg_ ) )
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(pickset,ioobj,false,errmsg) )
+    {
+	errmsg_ = mFromUiStringTodo( errmsg );
 	return false;
+    }
 
     if ( !pickset.pars_.getYN( sKeyZIsTime(), zit_ ) ||
 	 !desc_.usePar( pickset.pars_ ) )
@@ -188,7 +196,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
     veldata_.setEmpty();
     veldata_.setNrVals( 2, false );
     float vals[2];
-    
+
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = pickset[idx];
@@ -251,7 +259,7 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 	return false;
 
     BinIDValueSet::SPos pos = veldata_.find( binid );
-    do 
+    do
     {
 	if ( veldata_.getBinID(pos)!=binid )
 	    break;
@@ -266,7 +274,7 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 
 
 bool StoredFunction::computeVelocity( float z0, float dz, int nr,
-       				      float* res ) const
+				      float* res ) const
 {
     if ( vel_.isEmpty() )
 	return false;
@@ -312,7 +320,7 @@ bool StoredFunction::computeVelocity( float z0, float dz, int nr,
 
 StepInterval<float> StoredFunction::getAvailableZ() const
 {
-    return desiredrg_; 
+    return desiredrg_;
 }
 
 }; //namespace

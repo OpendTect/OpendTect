@@ -232,6 +232,15 @@ void uiODMenuMgr::fillSurveyMenu()
 }
 
 
+#define mGet2D3D() \
+{ \
+    if ( !IOM().isBad() ) \
+    { \
+	has3d = SI().has3D(); \
+	has2d = SI().has2D(); \
+    } \
+}
+
 
 void uiODMenuMgr::fillImportMenu()
 {
@@ -278,25 +287,28 @@ void uiODMenuMgr::fillImportMenu()
     mInsertPixmapItem( imppdf, m3Dots(tr("ASCII (RokDoc)")),
 		       mImpPDFAsciiMnuItm, ascic );
 
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    bool has2d = true;
+    bool has3d = true;
+    mGet2D3D()
+
     uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
-    if ( have2d )
+    if ( has2d )
     {
 	mInsertPixmapItem( impseissimple,
-		only2d ? m3Dots(tr("Line")) : m3Dots(uiStrings::s2D()),
+		!has3d ? m3Dots(tr("Line")) : m3Dots(uiStrings::s2D()),
 		mImpSeisSimple2DMnuItm, "seismicline2d" );
-	mInsertPixmapItem( impseissimple, only2d
+	mInsertPixmapItem( impseissimple, !has3d
 		? m3Dots(tr("Pre-Stack Data")) : m3Dots(tr("Pre-Stack 2D")),
 		mImpSeisSimplePS2DMnuItm, "prestackdataset2d" );
     }
-    if ( !only2d )
+    if ( has3d )
     {
 	mInsertPixmapItem( impseissimple,
-			   have2d ? m3Dots(uiStrings::s3D())
+			   has2d ? m3Dots(uiStrings::s3D())
 				  : m3Dots(uiStrings::sVolume()),
 			   mImpSeisSimple3DMnuItm, "seismiccube" );
 	mInsertPixmapItem( impseissimple,
-			   have2d ? m3Dots(tr("PreStack 3D"))
+			   has2d ? m3Dots(tr("PreStack 3D"))
 				  : m3Dots(tr("Pre-Stack Volume")),
 			   mImpSeisSimplePS3DMnuItm, "prestackdataset" );
     }
@@ -310,26 +322,26 @@ void uiODMenuMgr::fillImportMenu()
     impseis->insertItem( impcbvsseis );
 
     uiMenu* imphorasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
-    if ( have2d )
+    if ( has2d )
 	mInsertItem( imphorasc, m3Dots(tr("Geometry 2D")),
 		     mImpHor2DAsciiMnuItm );
-    mInsertItem( imphorasc, have2d ? m3Dots(tr("Geometry 3D"))
-				   : m3Dots(tr("Geometry")),
+    mInsertItem( imphorasc, has2d ? m3Dots(tr("Geometry 3D"))
+				  : m3Dots(tr("Geometry")),
 		 mImpHorAsciiMnuItm );
-    mInsertItem( imphorasc, have2d ? m3Dots(tr("Attributes 3D"))
-				   : m3Dots(tr("Attributes")),
+    mInsertItem( imphorasc, has2d ? m3Dots(tr("Attributes 3D"))
+				  : m3Dots(tr("Attributes")),
 		mImpHorAsciiAttribMnuItm );
-    mInsertItem( imphorasc, have2d ? m3Dots(tr("Bulk 3D"))
-				   : m3Dots(tr("Bulk")),
+    mInsertItem( imphorasc, has2d ? m3Dots(tr("Bulk 3D"))
+				  : m3Dots(tr("Bulk")),
 		 mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
     mInsertPixmapItem( impfault, ascii, mImpFaultMnuItm, ascic );
-    if ( have2d )
+    if ( has2d )
 	mInsertPixmapItem( impfaultstick, m3Dots(tr("ASCII 2D")),
 		     mImpFaultSSAscii2DMnuItm, ascic );
     mInsertPixmapItem( impfaultstick,
-		 have2d ? m3Dots(tr("ASCII 3D")) : m3Dots(uiStrings::sASCII()),
+		 has2d ? m3Dots(tr("ASCII 3D")) : m3Dots(uiStrings::sASCII()),
 		 mImpFaultSSAscii3DMnuItm, ascic );
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
@@ -401,9 +413,13 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expwvlt );
     expmnu_->insertSeparator();
 
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    bool has2d = true;
+    bool has3d = true;
+    mGet2D3D()
+    const bool only2d = !has3d;
+
     uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
-    if ( have2d )
+    if ( has2d )
     {
 	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Line"))
 			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm,
@@ -412,12 +428,12 @@ void uiODMenuMgr::fillExportMenu()
 			: m3Dots(tr("Pre-Stack 2D")), mExpSeisSimplePS2DMnuItm,
 			"prestackdataset2d" );
     }
-    if ( !only2d )
+    if ( has3d )
     {
-	mInsertPixmapItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
+	mInsertPixmapItem( expseissimple, has2d ? m3Dots(uiStrings::s3D())
 		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm,
 		   "seismiccube" );
-	mInsertPixmapItem( expseissimple, have2d ? m3Dots(tr("PreStack 3D"))
+	mInsertPixmapItem( expseissimple, has2d ? m3Dots(tr("PreStack 3D"))
 		   : m3Dots(tr("Pre-Stack Volume")), mExpSeisSimplePS3DMnuItm
 		   , "prestackdataset" );
     }
@@ -425,10 +441,10 @@ void uiODMenuMgr::fillExportMenu()
 
     const uiString sascii = m3Dots(uiStrings::sASCII());
 
-    if ( have2d )
+    if ( has2d )
 	mInsertPixmapItem( exphor, m3Dots(tr("ASCII 2D")),
 		     mExpHorAscii2DMnuItm, ascic );
-    mInsertPixmapItem( exphor, have2d ? m3Dots(tr("ASCII 3D")) : sascii,
+    mInsertPixmapItem( exphor, has2d ? m3Dots(tr("ASCII 3D")) : sascii,
 		 mExpHorAscii3DMnuItm, ascic );
     mInsertPixmapItem( expflt, sascii, mExpFltAsciiMnuItm, ascic );
     mInsertPixmapItem( expfltss, sascii, mExpFltSSAsciiMnuItm, ascic );
@@ -476,7 +492,7 @@ void uiODMenuMgr::fillManMenu()
 			"man_fltss" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Geometry 2D")),
 		       mManGeomItm, "man2dgeom" );
-    if ( SI().survDataType() == SurveyInfo::No2D )
+    if ( !IOM().isBad() && SI().survDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_,
 			   m3Dots(uiStrings::sHorizon(mPlural)),
 			   mManHor3DMnuItm, "man_hor" )
@@ -529,7 +545,11 @@ void uiODMenuMgr::fillProcMenu()
 
     add2D3DMenuItem( *attritm, "seisout", tr("Single Attribute"),
 		     mSeisOut2DMnuItm, mSeisOut3DMnuItm );
-    if ( SI().has3D() )
+    bool has3d = true;
+    bool has2d = true;
+    mGet2D3D()
+
+    if ( has3d )
     {
 	attritm->insertItem(
 	    new uiAction( m3Dots(tr("Multi Attribute")),
@@ -548,7 +568,7 @@ void uiODMenuMgr::fillProcMenu()
 // 2D <-> 3D
     uiMenu* itm2d3d = 0;
     const uiString menutext = tr("2D <=> 3D");
-    if ( SI().has3D() )
+    if ( has3d )
     {
     itm2d3d = new uiMenu( menutext );
 	csoitm_->insertItem( itm2d3d );
@@ -558,7 +578,7 @@ void uiODMenuMgr::fillProcMenu()
 		     m2DFrom3DMnuItm );
     }
 #ifdef __debug__
-    if ( SI().has2D() )
+    if ( has2d )
     {
 	if ( !itm2d3d )
 	{
@@ -569,7 +589,7 @@ void uiODMenuMgr::fillProcMenu()
     }
 #endif
 
-    if ( SI().has3D() )
+    if ( has3d )
     {
 // Other 3D items
 	csoitm_->insertItem(
@@ -586,7 +606,7 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *csoitm_, "empty", tr("Prestack Processing"),
 		     mPSProc2DMnuItm, mPSProc3DMnuItm );
 
-    if ( SI().has3D() )
+    if ( has3d )
     {
 // Velocity
 	uiMenu* velitm = new uiMenu( tr("Velocity") );
@@ -623,7 +643,10 @@ void uiODMenuMgr::fillProcMenu()
 void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
-    SurveyInfo::Pol2D survtype = SI().survDataType();
+    SurveyInfo::Pol2D survtype( SurveyInfo::Both2DAnd3D );
+    if ( !IOM().isBad() )
+	survtype = SI().survDataType();
+
     const char* attrpm = "attributes";
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
@@ -663,7 +686,7 @@ void uiODMenuMgr::fillAnalMenu()
     analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     analwellmnu_->insertItem( new uiAction( m3Dots(tr("Edit Logs")),
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
-    if (  SI().zIsTime() )
+    if (  !IOM().isBad() && SI().zIsTime() )
 	analwellmnu_->insertItem(
 	    new uiAction( m3Dots(tr("Tie Well to Seismic")),
 		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ));
@@ -746,7 +769,8 @@ void uiODMenuMgr::updateSceneMenu()
     }
 
     uiString itmtxt = tr( "New [%1]" )
-	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
+	 .arg( !IOM().isBad() && SI().zIsTime() ? uiStrings::sDepth()
+						: uiStrings::sTime() );
     addtimedepthsceneitm_->setText( itmtxt );
 }
 
@@ -890,10 +914,14 @@ int uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
 				    const CallBack& cb2d, const CallBack& cb3d,
 				    int itmid2d, int itmid3d )
 {
-    if ( !SI().has2D() )
+    bool has3d = true;
+    bool has2d = true;
+    mGet2D3D()
+
+    if ( !has2d )
 	return tb.addButton( iconnm, tt, cb3d, false, itmid3d );
 
-    if ( !SI().has3D() )
+    if ( !has3d )
 	return tb.addButton( iconnm, tt, cb2d, false, itmid2d );
 
     const int butid = tb.addButton( iconnm, tt );
@@ -912,7 +940,11 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
 				   const CallBack& cb2d, const CallBack& cb3d,
 				   int itmid2d, int itmid3d )
 {
-    if ( SI().has2D() && SI().has3D() )
+    bool has2d = true;
+    bool has3d = true;
+    mGet2D3D()
+
+    if ( has2d && has3d )
     {
 	uiMenu* mnu = new uiMenu( itmtxt, iconnm );
 	mnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d),itmid2d);
@@ -923,9 +955,9 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
     {
 	uiString titledots( itmtxt );
 	titledots.append( " ..." );
-	if ( SI().has2D() )
+	if ( has2d )
 	    menu.insertAction( new uiAction(titledots,cb2d,iconnm), itmid2d );
-	else if ( SI().has3D() )
+	else if ( has3d )
 	    menu.insertAction( new uiAction(titledots,cb3d,iconnm), itmid3d );
     }
 }
@@ -954,7 +986,11 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		       mCB(appman,uiODApplMgr,seisOut2DCB),
 		       mCB(appman,uiODApplMgr,seisOut3DCB) );
 
-    if ( SI().has3D() )
+    bool mUnusedVar has2d = true;
+    bool has3d = true;
+    mGet2D3D()
+
+    if ( has3d )
     {
 	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
 		tr("Volume Builder"),false,doVolProcCB);
@@ -973,7 +1009,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
 			false,launchRockPhysics);
 
-    dTectTBChanged.trigger();
+//    dTectTBChanged.trigger();
 }
 
 
@@ -1016,14 +1052,18 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_strat",uiStrings::phrManage( uiStrings::sStratigraphy()),
            false,manStrat);
 
+    bool has2d = true;
+    bool has3d = true;
+    mGet2D3D()
+
     uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
-    if ( SI().has2D() )
+    if ( has2d )
     {
 	mAddPopupMnu( seispopmnu, tr("2D Seismics"), mManSeis2DMnuItm )
 	mAddPopupMnu( seispopmnu, tr("2D Prestack Seismics"),
 		      mManSeisPS2DMnuItm )
     }
-    if ( SI().has3D() )
+    if ( has3d )
     {
 	mAddPopupMnu( seispopmnu, tr("3D Seismics"), mManSeis3DMnuItm )
 	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
@@ -1031,7 +1071,7 @@ void uiODMenuMgr::fillManTB()
     }
     mantb_->setButtonMenu( seisid, seispopmnu, uiToolButton::InstantPopup );
 
-    if ( SI().survDataType() != SurveyInfo::No2D )
+    if ( has2d )
 	mAddPopUp( tr("Horizon Menu"), tr("2D Horizons"),
 		   tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
@@ -1449,10 +1489,14 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 int uiODMenuMgr::ask2D3D( const uiString& txt, int res2d, int res3d,
 			  int rescncl )
 {
+    bool has2d = true;
+    bool has3d = true;
+    mGet2D3D()
+
     int res = rescncl;
-    if ( !SI().has2D() )
+    if ( !has2d )
 	res = res3d;
-    else if ( !SI().has3D() )
+    else if ( !has3d )
 	res = res2d;
     else
     {
@@ -1477,7 +1521,11 @@ void uiODMenuMgr::manHor( CallBacker* )
 
 void uiODMenuMgr::manSeis( CallBacker* )
 {
-    appl_.applMgr().seisServer()->manageSeismics( !SI().has2D() ? 0 : 2 );
+    bool has2d = true;
+    bool mUnusedVar has3d = true;
+    mGet2D3D()
+
+    appl_.applMgr().seisServer()->manageSeismics( !has2d ? 0 : 2 );
 }
 
 #define mDefManCBFn(typ) \

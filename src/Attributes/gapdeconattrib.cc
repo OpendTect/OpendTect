@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "ioman.h"
 #include "survinfo.h"
 #include "genericnumer.h"
 #include "convmemvalseries.h"
@@ -113,9 +114,12 @@ void GapDecon::initClass()
     desc->addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
-    StepInterval<float> zrange = SI().zRange( true );
-    zrange.scale( mCast(float,SI().zDomain().userFactor()) );
-    gate->setLimits( zrange );
+    if ( !IOM().isBad() )
+    {
+	StepInterval<float> zrange = SI().zRange( true );
+	zrange.scale( mCast(float,SI().zDomain().userFactor()) );
+	gate->setLimits( zrange );
+    }
     desc->addParam( gate );
 
     BoolParam* isinputzerophase = new BoolParam( isinp0phaseStr() );

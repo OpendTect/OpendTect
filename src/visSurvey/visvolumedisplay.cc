@@ -752,9 +752,9 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	seeds = Pick::Mgr().get( isosurfsettings_[idx].seedsid_ );
     else
     {
-	BufferString ermsg;
-	if ( !PickSetTranslator::retrieve( seeds,
-		    IOM().get(isosurfsettings_[idx].seedsid_), true, ermsg ) )
+	uiString errmsg;
+	if ( !PickSetTranslator::retrieve(seeds,
+		    IOM().get(isosurfsettings_[idx].seedsid_),true,errmsg) )
 	    return false;
     }
 
@@ -1044,9 +1044,9 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !res )
     {
 	dpm.release( dpid );
-	return false; 
+	return false;
     }
-    
+
     dpm.release( attribs_[attrib]->cache_->id() );
     attribs_[attrib]->cache_ = cdp;
     return true;

@@ -289,8 +289,7 @@ bool RockPhysics::FormulaSet::save( Repos::Source src ) const
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
     {
-	BufferString msg( "Cannot write to " ); msg += fnm;
-	ErrMsg( sfio.errMsg() );
+	ErrMsg( sfio.errMsg().getFullString() );
 	return false;
     }
 

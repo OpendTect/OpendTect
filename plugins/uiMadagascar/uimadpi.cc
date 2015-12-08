@@ -30,7 +30,6 @@ mDefODPluginInfo(uiMadagascar)
 	"OpendTect",
 	"dGB (Bert, Raman)",
 	"3.2",
-    	"A link to the Madagascar system."
 	    "\nSee http://opendtect.org/links/madagascar.html"
 	    " for info on Madagascar."));
     return &retpi;
@@ -99,8 +98,8 @@ void uiMadagascarLink::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0; ishidden_ = false;
     uiAction* newitem = new uiAction( m3Dots(tr("Madagascar")),
-	    				  mCB(this,uiMadagascarLink,doMain),
-	   				  "madagascar" );
+					  mCB(this,uiMadagascarLink,doMain),
+					  "madagascar" );
     mnumgr.procMnu()->insertItem( newitem );
 }
 
@@ -146,8 +145,12 @@ mDefODInitPlugin(uiMadagascar)
     if ( lnk ) return 0;
 
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
-	    		      "Madagascar data" );
-    MultiID id = IOMan::addCustomDataDir( cdd );
+			      "Madagascar data" );
+    uiString errmsg;
+    MultiID id = IOMan::addCustomDataDir( cdd, errmsg );
+    if ( errmsg.isSet() )
+	return errmsg.getFullString().str();
+
     if ( id != ODMad::sKeyMadSelKey() )
 	return "Cannot create 'Madagascar' directory in survey";
 

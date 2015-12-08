@@ -71,7 +71,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , prevnr_(mUdf(int))
     , pinfo_(*new SeisPacketInfo)
     , trcblock_(*new SeisTrcBuf(false))
-    , lastinlwritten_(SI().sampling(false).hsamp_.start_.inl())
+    , lastinlwritten_(mUdf(int))
     , read_mode(Seis::Prod)
     , is_prestack(false)
     , is_2d(false)
@@ -81,6 +81,8 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , compnms_(0)
     , warnings_(*new BufferStringSet)
 {
+    if ( !IOM().isBad() )
+	lastinlwritten_ = SI().sampling(false).hsamp_.start_.inl();
 }
 
 
