@@ -361,16 +361,29 @@ public:
     bool			useCoords() const;
     bool			wantsOutput(const BinID&) const;
     bool			wantsOutput(const Coord&) const;
+    bool			wantsOutput(const TrcKey&) const;
+
     virtual void		collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&);
+
+    //ABI frozen: special function for 6.0 only, replaces the virtual one above
+    void			collectDataSpecial60(const DataHolder&,
+						     float step,
+						     const SeisTrcInfo&,
+						     const TrcKey&);
+
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 						TypeSet<float>&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
 						TypeSet<float>&) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const TrcKey&,float,
+						TypeSet<float>&) const;
 
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
+    void			setMedianDistBetwTrcs(float mediandist);
     void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
+    void			initPairsTable();
 
 protected:
     DataPointSet&		datapointset_;
@@ -393,6 +406,11 @@ protected:
 	Pos::TraceID		tid_;
 	DataPointSet::RowID	rid_;
 
+				PosAndRowIDPair()
+				    : gid_(-1)
+				    , tid_(-1)
+				    , rid_(-1)			{};
+
 				PosAndRowIDPair( Pos::GeomID gid,
 						 Pos::TraceID tid,
 						 DataPointSet::RowID rid )
@@ -409,6 +427,10 @@ protected:
 	bool			operator > ( PosAndRowIDPair other ) const
 	    			{ return gid_ > other.gid_ ||
 				   ( gid_==other.gid_ && tid_ > other.tid_ ); }
+
+	bool			matchesTrcKey( const TrcKey& tkey ) const
+				{ return gid_ == tkey.geomID()
+				      && tid_ == tkey.trcNr(); }
     };
 
     TypeSet<PosAndRowIDPair>	parpset_;

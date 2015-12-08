@@ -831,7 +831,12 @@ void StorageProvider::adjust2DLineStoredVolume()
 
 
 Pos::GeomID StorageProvider::getGeomID() const
-{ return geomid_; }
+{
+    if ( mIsUdf(geomid_) && desc_.is2D() && mscprov_ )
+	return mscprov_->reader().geomID();
+
+    return geomid_;
+}
 
 
 void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const

@@ -321,6 +321,7 @@ public:
 
 mExpClass(Algo) ParamLine2
 {
+public:
 			ParamLine2(double slope=0,double intcpt=0);
 			ParamLine2(const Coord&,double slope);
 			ParamLine2(const Coord& p0,const Coord& p1);

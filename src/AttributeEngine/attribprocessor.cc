@@ -165,11 +165,11 @@ void Processor::useFullProcess( int& res )
 
 void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 {
+    mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
     BinID curbid = provider_->getCurrentPosition();
     if ( is2d_ && curtrcinfo )
     {
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
-	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( locoutp || taboutp ) 
 	    curbid = curtrcinfo->binid;
 	else
@@ -179,31 +179,37 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	}
     }
 
+    TrcKey tracekey;
     SeisTrcInfo mytrcinfo;
     if ( !curtrcinfo )
-    {
 	mytrcinfo.binid = curbid;
-	if ( is2d_ )
-	{
-	    mytrcinfo.nr = curbid.crl();
-	    const Pos::GeomID geomid = provider_->getGeomID();
-	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-		    	     Survey::GM().getGeometry(geomid) );
-	    PosInfo::Line2DPos pos2d;
-	    if ( geom2d && geom2d->data().getPos(curbid.crl(),pos2d) )
-		mytrcinfo.coord = pos2d.coord_;
-	    else
-	    {
-		mytrcinfo.coord = SI().transform( mytrcinfo.binid );
-		//for synthetic data. synth data = 2D without geomid
-	    }
-	}
 
-	curtrcinfo = &mytrcinfo;
+    if ( is2d_ )
+    {
+	if ( !curtrcinfo )
+	    mytrcinfo.nr = curbid.crl();
+	const Pos::GeomID geomid = provider_->getGeomID();
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomid) );
+	PosInfo::Line2DPos pos2d;
+	if ( geom2d && geom2d->data().getPos(curtrcinfo->nr,pos2d) )
+	{
+	    if ( !curtrcinfo )
+		mytrcinfo.coord = pos2d.coord_;
+	    if ( taboutp )
+		tracekey = TrcKey( geomid, curtrcinfo->nr );
+	}
+	else if ( !curtrcinfo )
+	    mytrcinfo.coord = SI().transform( mytrcinfo.binid );
+	    //for synthetic data. synth data = 2D without geomid
     }
 
+    if ( !curtrcinfo )
+	curtrcinfo = &mytrcinfo;
+
     TypeSet< Interval<int> > localintervals;
-    bool isset = setZIntervals( localintervals, curbid, curtrcinfo->coord );
+    bool isset = setZIntervalsSpecial60( localintervals, curbid,
+					 curtrcinfo->coord, tracekey );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
@@ -212,8 +218,16 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	if ( data )
 	{
 	    for ( int idx=0; idx<outputs_.size(); idx++ )
-		outputs_[idx]->collectData( *data, provider_->getRefStep(),
-					    *curtrcinfo );
+	    {
+		mDynamicCastGet( TableOutput*, taboutpn, outputs_[idx] );
+		if ( !tracekey.isUdf() && taboutpn )
+		    taboutpn->collectDataSpecial60(
+						*data, provider_->getRefStep(),
+						*curtrcinfo, tracekey );
+		else
+		    outputs_[idx]->collectData( *data, provider_->getRefStep(),
+						*curtrcinfo );
+	    }
 	}
 	
 	if ( isset )
@@ -256,13 +270,17 @@ void Processor::init()
     {
 	provider_->adjust2DLineStoredVolume();
 	provider_->compDistBetwTrcsStats();
+	float maxdist = provider_->getDistBetwTrcs(true);
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
-	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
-	if ( trcvarzoutp || taboutp )
-	{
-	    float maxdist = provider_->getDistBetwTrcs(true);
+	if ( trcvarzoutp )
 	    if ( trcvarzoutp ) trcvarzoutp->setMaxDistBetwTrcs( maxdist );
-	    if ( taboutp ) taboutp->setMaxDistBetwTrcs( maxdist );
+	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
+	if ( taboutp )
+	{
+	    taboutp->setMaxDistBetwTrcs( maxdist );
+	    float mediandist = provider_->getDistBetwTrcs(false);
+	    taboutp->setMedianDistBetwTrcs( mediandist );
+	    taboutp->initPairsTable();
 	}
 
     }
@@ -443,27 +461,43 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals, 
 			       const BinID& curbid, const Coord& curcoords )
 {
+TrcKey tkey;
+return setZIntervalsSpecial60( localintervals, curbid, curcoords, tkey );
+}
+
+
+bool Processor::setZIntervalsSpecial60(
+			TypeSet< Interval<int> >& localintervals,
+			const BinID& curbid, const Coord& curcoords,
+			const TrcKey& tkey )
+{
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
     TypeSet<float> exactz;
-    mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
     mDynamicCastGet( Trc2DVarZStorOutput*, trc2dvarzoutp, outputs_[0] );
+
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	bool wantout = outputs_[idx]->useCoords()
-	    			? outputs_[idx]->wantsOutput(curcoords)
+	mDynamicCastGet( TableOutput*, taboutp, outputs_[idx] );
+	bool wantsout = !tkey.isUdf() && taboutp
+			   ? taboutp->wantsOutput(tkey)
+			   : outputs_[idx]->useCoords()
+				? outputs_[idx]->wantsOutput(curcoords)
 				: outputs_[idx]->wantsOutput(curbid);
 
-	if ( ( taboutp || trc2dvarzoutp ) && is2d_ )		//tmp patch
-	    wantout = true;
+	if ( trc2dvarzoutp && is2d_ )		//tmp patch -> ??
+	    wantsout = true;
 
-	if ( !wantout || (curbid == prevbid_ && !is2d_) ) //!is2d = tmp patch 
+	if ( !wantsout || (curbid == prevbid_ && !is2d_) ) //!is2d = tmp patch
 	    continue;
 
 	const float refzstep = provider_->getRefStep();
-	TypeSet< Interval<int> > localzrange = outputs_[idx]->useCoords()
+	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp
+	    ? taboutp->getLocalZRanges( tkey, refzstep, exactz )
+	    : outputs_[idx]->useCoords()
 	    	? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
+
 	if ( isset )
 	    localintervals.append ( localzrange );
 	else

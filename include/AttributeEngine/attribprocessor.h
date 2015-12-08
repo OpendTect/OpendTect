@@ -53,6 +53,9 @@ public:
     void			addOutputInterest(int sel);
     bool			setZIntervals(TypeSet< Interval<int> >&,
 					      const BinID&,const Coord&);
+    bool			setZIntervalsSpecial60(
+					TypeSet< Interval<int> >&,const BinID&,
+					const Coord&,const TrcKey&);
     void			computeAndSetRefZStepAndZ0();
     
     Notifier<Attrib::Processor>	moveonly;
