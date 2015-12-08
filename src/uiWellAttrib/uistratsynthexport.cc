@@ -465,6 +465,8 @@ bool uiStratSynthExport::createHor2Ds()
     if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	return false;
 
+    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
     for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
     {
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
@@ -476,7 +478,8 @@ bool uiStratSynthExport::createHor2Ds()
 	horizon2d->geometry().addLine( geomid );
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
-	    horizon2d->setPos( horizon2d->sectionID(0), geomid, trcidx,
+	    const int trcnr = trcnrrg.atIndex( trcidx );
+	    horizon2d->setPos( horizon2d->sectionID(0), geomid, trcnr,
 			       stratlvl->zvals_[trcidx], false );
 	}
 
