@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "faultstickseteditor.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
+#include "hiddenparam.h"
 #include "keystrs.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
@@ -31,6 +32,11 @@ ________________________________________________________________________
 namespace MPE
 {
 
+static HiddenParam<FaultStickSetFlatViewEditor,BoolTypeSetType>
+	makenewstick( false );
+static HiddenParam<FaultStickSetFlatViewEditor,BoolTypeSetType>
+	doubleclicked( false );
+
 FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 				FlatView::AuxDataEditor* ed,
 				const EM::ObjectID& oid )
@@ -43,6 +49,8 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , seedhasmoved_(false)
     , mousepid_( EM::PosID::udf() )
 {
+    makenewstick.setParam( this, false );
+    doubleclicked.setParam( this, false );
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify(
@@ -66,6 +74,8 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
     }
 //	setMouseEventHandler( 0 );
     cleanActStkContainer();
@@ -93,6 +103,8 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.remove(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.remove(
+		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
     }
 
     meh_ = meh;
@@ -111,6 +123,8 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.notify(
 		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
+	meh_->doubleClick.notify(
+		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
@@ -457,17 +471,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 	return;
     }
 
-    int stickid = -1;
-
-    for ( int idx=0; idx<markeridinfo_.size(); idx++ )
-    {
-	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{
-	    stickid = markeridinfo_[idx]->stickid_;
-	    break;
-	}
-    }
-
+    int stickid = getStickId( edidauxdataid );
     if ( stickid == -1 ) return;
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -505,6 +509,20 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
+
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    if ( doubleclicked.getParam(this) )
+    {
+	doubleclicked.setParam( this, false );
+	return;
+    }
 
     if ( seedhasmoved_ )
     {
@@ -567,8 +585,10 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mousepid_.isUdf() || mouseevent.ctrlStatus() )
 	return;
 
-    if ( mouseevent.shiftStatus() || interactpid.isUdf() )
+    if ( mouseevent.shiftStatus() || interactpid.isUdf() ||
+	 makenewstick.getParam(this) )
     {
+	makenewstick.setParam( this, false );
 	mGetNormal( editnormal );
 
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
@@ -600,6 +620,21 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	fsseditor->setLastClicked( interactpid );
 	mSetUserInteractionEnd();
     }
+}
+
+
+void FaultStickSetFlatViewEditor::doubleClickedCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,meh,cb);
+    if ( !meh )
+	return;
+
+    const MouseEvent& mev = meh->event();
+    if ( !mev.leftButton() )
+	return;
+
+    makenewstick.setParam(this, true );
+    doubleclicked.setParam( this, true );
 }
 
 
