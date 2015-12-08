@@ -91,6 +91,7 @@ void WellT2DTransform::transformTrcBack( const TrcKey&,
 
 float WellT2DTransform::getGoodZStep() const
 {
+    return mUdf(float); // Well::getDefaultVelocity() * SI().zStep();
 }
 
 
