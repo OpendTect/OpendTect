@@ -75,7 +75,12 @@ void SEGY::HdrEntry::setName( const char* nm )
     if ( !nm )
 	name_ = 0;
     else
-	{ name_ = new char [FixedString(nm).size()+1]; strcpy(name_,nm); }
+    {
+	const int sz = 256;  //Ugly but necessary in od6.0
+	name_ = new char [sz];
+	OD::memZero( name_, sz*sizeof(char) );
+	strcpy( name_, nm );
+    }
 }
 
 
@@ -85,7 +90,12 @@ void SEGY::HdrEntry::setDescription( const char* d )
     if ( !d )
 	desc_ = 0;
     else
-	{ desc_ = new char [FixedString(d).size()+1]; strcpy(desc_,d); }
+    {
+	const int sz = 256; //Ugly but necessary in od6.0
+	desc_ = new char [sz];
+	OD::memZero( desc_, sz*sizeof(char) );
+	strcpy( desc_, d );
+    }
 }
 
 
@@ -204,9 +214,7 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 
 
 #define mAddHdr(nm,issmll,desc) \
-    he = new HdrEntry( 0, issmll, dtyp ); \
-    he->setName( nm ); he->setDescription( desc ); \
-    *this += he
+    *this += new HdrEntry( nm, desc, 0, issmll, dtyp );
 #define mAddHead(nm,desc) mAddHdr(nm,true,desc)
 #define mAddHead4(nm,desc) mAddHdr(nm,false,desc)
 
@@ -214,7 +222,6 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 void SEGY::HdrDef::mkTrc()
 {
     HdrEntry::DataType dtyp = HdrEntry::SInt;
-    HdrEntry* he;
     mAddHead4( "tracl", "trace sequence number within line" );
     mAddHead4( "tracr", "trace sequence number within reel" );
     mAddHead4( "fldr", "field record number" );
@@ -342,7 +349,6 @@ void SEGY::HdrDef::mkTrc()
 void SEGY::HdrDef::mkBin()
 {
     HdrEntry::DataType dtyp = HdrEntry::SInt;
-    HdrEntry* he;
     mAddHead4( "jobid", "job identification number" );
     mAddHead4( "lino", "line number" );
     mAddHead4( "reno", "reel number" );

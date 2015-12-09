@@ -42,6 +42,12 @@ public:
 				  DataType dt=SInt )
 			    : bytepos_(bp), issmall_(issmll), type_(dt)
 			    , desc_(0), name_(0)	{}
+			HdrEntry( const char* nm, const char* desc,
+				  BytePos bp=udfBP(), bool issmll=false,
+				  DataType dt=SInt )
+			    : bytepos_(bp), issmall_(issmll), type_(dt)
+			    , desc_(0), name_(0)
+			{ setDescription( desc ); setName( nm ); }
 			HdrEntry( const HdrEntry& he )
 			    : desc_(0), name_(0)	{ *this = he; }
 			~HdrEntry() { delete [] desc_; delete [] name_; }
@@ -83,6 +89,7 @@ protected:
 mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
+			~HdrDef()		{ deepErase( *this ); }
 
 			HdrDef(bool binhead);
     bool		isBin() const		{ return isbin_; }
