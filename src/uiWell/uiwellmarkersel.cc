@@ -45,8 +45,8 @@ uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
 
 uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	: uiGroup(p,"Well Marker selection")
-    	, setup_(su)
-    	, botfld_(0)
+	, setup_(su)
+	, botfld_(0)
 	, mrkSelDone(this)
 {
     CallBack mrkselcb( mCB(this,uiWellMarkerSel,mrkSel) );
@@ -71,6 +71,8 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	botfld_->selectionChanged.notify( mrkselcb );
 	botfld_->setHSzPol( uiObject::Medium );
 	topfld_->setHSzPol( uiObject::Medium );
+	topfld_->setToolTip( tr("Top of the zone") );
+	botfld_->setToolTip( tr("Bottom of the zone") );
     }
 
     setHAlignObj( topfld_ );
