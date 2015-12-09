@@ -433,7 +433,8 @@ FlatView::Viewer& vwr_;
 };
 
 
-HiddenParam< FlatView::Viewer,TypeSet<Pos::GeomID>* > geom2dids_( 0 );
+static HiddenParam< FlatView::Viewer,TypeSet<Pos::GeomID>* >
+				     flatviewergeom2dids_( 0 );
 
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
@@ -446,7 +447,7 @@ FlatView::Viewer::Viewer()
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
-    geom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
+    flatviewergeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
 }
 
 
@@ -463,8 +464,8 @@ FlatView::Viewer::~Viewer()
     {
 	dpm_.release( ids_[idx] );
     }
-    delete geom2dids_.getParam(this);
-    geom2dids_.removeParam( this );
+    delete flatviewergeom2dids_.getParam(this);
+    flatviewergeom2dids_.removeParam( this );
 }
 
 
@@ -733,13 +734,13 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
 
 void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
 {
-    delete geom2dids_.getParam(this);
-    geom2dids_.removeParam( this );
-    geom2dids_.setParam( this , new TypeSet<Pos::GeomID>(geomids) );
+    delete flatviewergeom2dids_.getParam(this);
+    flatviewergeom2dids_.removeParam( this );
+    flatviewergeom2dids_.setParam( this , new TypeSet<Pos::GeomID>(geomids) );
 }
 
 
-const TypeSet<Pos::GeomID>& FlatView::Viewer::getAllSeisGeomids() const 
-{ 
-    return *geom2dids_.getParam(this); 
+const TypeSet<Pos::GeomID>& FlatView::Viewer::getAllSeisGeomids() const
+{
+    return *flatviewergeom2dids_.getParam(this);
 }
