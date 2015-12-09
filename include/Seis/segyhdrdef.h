@@ -13,6 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
+
+#include "bufstring.h"
 #include "objectset.h"
 
 
@@ -38,13 +40,13 @@ public:
     enum DataType	{ SInt, UInt, Float };
 			//!< Note that Float is against the standard
 
-			HdrEntry( BytePos bp=udfBP(), bool issmall=false,
+			HdrEntry( const char* desc, const char* nm,
+				  BytePos bp=udfBP(), bool issmall=false,
 				  DataType dt=SInt )
 			    : bytepos_(bp), issmall_(issmall), type_(dt)
-			    , desc_(0), name_(0)	{}
+			    , desc_(desc), name_(nm)	{}
 			HdrEntry( const HdrEntry& he )
-			    : desc_(0), name_(0)	{ *this = he; }
-			~HdrEntry() { delete [] desc_; delete [] name_; }
+							{ *this = he; }
     HdrEntry&		operator =(const HdrEntry&);
 
     const char*		description() const;
@@ -72,8 +74,8 @@ public:
 
 protected:
 
-    char*		desc_;
-    char*		name_;
+    BufferString	desc_;
+    BufferString	name_;
 
     inline static	BytePos udfBP()		{ return -32768; }
 
@@ -83,6 +85,7 @@ protected:
 mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
+			~HdrDef()		{ deepErase( *this ); }
 
 			HdrDef(bool binhead);
     bool		isBin() const		{ return isbin_; }

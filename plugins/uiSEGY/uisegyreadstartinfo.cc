@@ -65,7 +65,7 @@ uiSEGYByteNr( uiParent* p, const char* nm )
 SEGY::HdrEntry hdrEntry() const
 {
     const int selidx = currentItem();
-    SEGY::HdrEntry ret;
+    SEGY::HdrEntry ret(0,0);
     if ( selidx >= 0 )
     {
 	ret = *hdef_[ heidxs_[selidx] ];

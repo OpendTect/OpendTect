@@ -48,8 +48,8 @@ SEGY::HdrEntry& SEGY::HdrEntry::operator =( const SEGY::HdrEntry& he )
 
 const char* SEGY::HdrEntry::description() const
 {
-    if ( desc_ )
-	return desc_;
+    if ( !desc_.isEmpty() )
+	return desc_.str();
     else if ( isUdf() )
 	return "";
 
@@ -65,27 +65,19 @@ const char* SEGY::HdrEntry::description() const
 
 const char* SEGY::HdrEntry::name() const
 {
-    return name_ ? name_ : "";
+    return name_.str();
 }
 
 
 void SEGY::HdrEntry::setName( const char* nm )
 {
-    delete [] name_;
-    if ( !nm )
-	name_ = 0;
-    else
-	{ name_ = new char [FixedString(nm).size()+1]; strcpy(name_,nm); }
+    name_.set( nm );
 }
 
 
-void SEGY::HdrEntry::setDescription( const char* d )
+void SEGY::HdrEntry::setDescription( const char* desc )
 {
-    delete [] desc_;
-    if ( !d )
-	desc_ = 0;
-    else
-	{ desc_ = new char [FixedString(d).size()+1]; strcpy(desc_,d); }
+    desc_.set( desc );
 }
 
 
@@ -204,9 +196,7 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 
 
 #define mAddHdr(nm,issmll,desc) \
-    he = new HdrEntry( 0, issmll, dtyp ); \
-    he->setName( nm ); he->setDescription( desc ); \
-    *this += he
+    *this += new HdrEntry( desc, nm, 0, issmll, dtyp );
 #define mAddHead(nm,desc) mAddHdr(nm,true,desc)
 #define mAddHead4(nm,desc) mAddHdr(nm,false,desc)
 
@@ -214,7 +204,6 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 void SEGY::HdrDef::mkTrc()
 {
     HdrEntry::DataType dtyp = HdrEntry::SInt;
-    HdrEntry* he;
     mAddHead4( "tracl", "trace sequence number within line" );
     mAddHead4( "tracr", "trace sequence number within reel" );
     mAddHead4( "fldr", "field record number" );
@@ -342,7 +331,6 @@ void SEGY::HdrDef::mkTrc()
 void SEGY::HdrDef::mkBin()
 {
     HdrEntry::DataType dtyp = HdrEntry::SInt;
-    HdrEntry* he;
     mAddHead4( "jobid", "job identification number" );
     mAddHead4( "lino", "line number" );
     mAddHead4( "reno", "reel number" );
@@ -468,21 +456,16 @@ void SEGY::HdrDef::swapValues( unsigned char* buf ) const
 
 
 SEGY::TrcHeaderDef::TrcHeaderDef()
-    : inl_(9), crl_(21), xcoord_(73), ycoord_(77), trnr_(5), offs_(37)
-{
-    azim_.setUdf(); pick_.setUdf(); refnr_.setUdf();
-
-#   define mDefHdr(hdr,nm,desc) hdr##_.setName(nm); hdr##_.setDescription(desc)
-    mDefHdr(inl,"In-line","Inline number");
-    mDefHdr(crl,"Cross-line","Crossline number");
-    mDefHdr(xcoord,"X-Coordinate","X coordinate");
-    mDefHdr(ycoord,"Y-Coordinate","Y coordinate");
-    mDefHdr(trnr,"Trace Number","Trace identification number");
-    mDefHdr(offs,"Offset","Distance between source and receiver");
-    mDefHdr(azim,"Azimuth","Direction of line between source and receiver");
-    mDefHdr(pick,"Pick","Picked Z position");
-    mDefHdr(refnr,"Ref/SP Number","Auxiliary number for trace identification");
-}
+    : inl_("Inline number","In-line",9)
+    , crl_("Crossline number","Cross-line",21)
+    , xcoord_("X coordinate","X-Coordinate",73)
+    , ycoord_("Y coordinate","Y-Coordinate",77)
+    , trnr_("Trace identification number","Trace Number",5)
+    , offs_("Distance between source and receiver","Offset",37)
+    , azim_("Direction of line between source and receiver","Azimuth")
+    , pick_("Picked Z position","Pick")
+    , refnr_("Auxiliary number for trace identification","Ref/SP Number")
+{}
 
 
 #define mSgyByteKey(nm) s##nm##Byte()
