@@ -352,8 +352,17 @@ void SEGY::BinHeader::unSwap()
 
 const SEGY::HdrDef& SEGY::BinHeader::hdrDef()
 {
-    mDefineStaticLocalObject( SEGY::HdrDef, def, (true) );
-    return def;
+    mDefineStaticLocalObject( PtrMan<SEGY::HdrDef>, bindef, = 0 );
+    if ( bindef ) return *(bindef.ptr());
+
+    bindef = new SEGY::HdrDef( true );
+    if ( !bindef )
+    {
+	pFreeFnErrMsg( "Could not instantiate SEG-Y Binary Header definition",
+		       "SEGY::HdrDef" );
+    }
+
+    return *(bindef.ptr());
 }
 
 
@@ -416,8 +425,17 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
 
 const SEGY::HdrDef& SEGY::TrcHeader::hdrDef()
 {
-    mDefineStaticLocalObject( SEGY::HdrDef, def, (false) );
-    return def;
+    mDefineStaticLocalObject( PtrMan<SEGY::HdrDef>, trcdef, = 0 );
+    if ( trcdef ) return *(trcdef.ptr());
+
+    trcdef = new SEGY::HdrDef( false );
+    if ( !trcdef )
+    {
+	pFreeFnErrMsg( "Could not instantiate SEG-Y Trace Header definition",
+		       "SEGY::HdrDef" );
+    }
+
+    return *(trcdef.ptr());
 }
 
 

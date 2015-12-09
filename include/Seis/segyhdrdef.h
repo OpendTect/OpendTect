@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "objectset.h"
- 
+
 
 namespace SEGY
 {
@@ -27,12 +27,18 @@ public:
 
     typedef short	BytePos;
     enum DataType	{ SInt, UInt, Float };
-    			//!< Note that Float is against the standard
+			//!< Note that Float is against the standard
 
 			HdrEntry( BytePos bp=udfBP(), bool issmall=false,
 				  DataType dt=SInt )
 			    : bytepos_(bp), small_(issmall), type_(dt)
 			    , desc_(0), name_(0)	{}
+			HdrEntry( const char* nm, const char* desc,
+				  BytePos bp=udfBP(), bool issmall=false,
+				  DataType dt=SInt )
+			    : bytepos_(bp), small_(issmall), type_(dt)
+			    , desc_(0), name_(0)
+			{ setDescription( desc ); setName( nm ); }
 			HdrEntry( const HdrEntry& he )
 			    : desc_(0), name_(0)	{ *this = he; }
 			~HdrEntry() { delete [] desc_; delete [] name_; }
@@ -65,7 +71,7 @@ protected:
     char*		desc_;
     char*		name_;
 
-    inline static 	BytePos udfBP()		{ return -32768; }
+    inline static	BytePos udfBP()		{ return -32768; }
 
 };
 
@@ -73,13 +79,14 @@ protected:
 mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
+			~HdrDef()		{ deepErase( *this ); }
 
-    			HdrDef(bool binhead);
+			HdrDef(bool binhead);
     bool		isBin() const		{ return isbin_; }
 
     int			indexOf(const char* nm) const;
     int			idxOfBytePos(HdrEntry::BytePos,
-	    			     unsigned char& offs) const;
+				     unsigned char& offs) const;
 
     void		swapValues(unsigned char*) const;
 
@@ -99,4 +106,3 @@ protected:
 } // namespace
 
 #endif
-

@@ -70,21 +70,31 @@ const char* SEGY::HdrEntry::name() const
 
 void SEGY::HdrEntry::setName( const char* nm )
 {
-    delete name_;
+    delete [] name_;
     if ( !nm )
 	name_ = 0;
     else
-	{ name_ = new char [strlen(nm)+1]; strcpy(name_,nm); }
+    {
+	const int sz = 256;  //Ugly but necessary in od5.0
+	name_ = new char [sz];
+	OD::memZero( name_, sz*sizeof(char) );
+	strcpy( name_, nm );
+    }
 }
 
 
 void SEGY::HdrEntry::setDescription( const char* d )
 {
-    delete desc_;
+    delete [] desc_;
     if ( !d )
 	desc_ = 0;
     else
-	{ desc_ = new char [strlen(d)+1]; strcpy(desc_,d); }
+    {
+	const int sz = 256; //Ugly but necessary in od5.0
+	desc_ = new char [sz];
+	OD::memZero( desc_, sz*sizeof(char) );
+	strcpy( desc_, d );
+    }
 }
 
 
@@ -178,9 +188,7 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 
 
 #define mAddHdr(nm,issmll,desc) \
-    he = new HdrEntry( 0, issmll, dtyp ); \
-    he->setName( nm ); he->setDescription( desc ); \
-    *this += he
+    *this += new HdrEntry( nm, desc, 0, issmll, dtyp );
 #define mAddHead(nm,desc) mAddHdr(nm,true,desc)
 #define mAddHead4(nm,desc) mAddHdr(nm,false,desc)
 
@@ -188,7 +196,6 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 void SEGY::HdrDef::mkTrc()
 {
     HdrEntry::DataType dtyp = HdrEntry::SInt;
-    HdrEntry* he;
     mAddHead4( "tracl", "trace sequence number within line" );
     mAddHead4( "tracr", "trace sequence number within reel" );
     mAddHead4( "fldr", "field record number" );
@@ -200,21 +207,30 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "nvs", "number of vertically summed traces" );
     mAddHead( "nhs", "number of horizontally summed traces" );
     mAddHead( "duse", "data use: 1 = production 2 = test" ); // 10
-    mAddHead4( "offset", "distance from source point to receiver group (negative if opposite to direction in which the line was shot)" );
-    mAddHead4( "gelev", "receiver group elevation from sea level (above sea level is positive)" );
-    mAddHead4( "selev", "source elevation from sea level (above sea level is positive)" );
+    mAddHead4( "offset", "distance from source point to receiver group "
+	     "(negative if opposite to direction in which the line was shot)" );
+    mAddHead4( "gelev", "receiver group elevation from sea level (above sea "
+			"level is positive)" );
+    mAddHead4( "selev", "source elevation from sea level (above sea level is "
+			"positive)" );
     mAddHead4( "sdepth", "source depth (positive)" );
     mAddHead4( "gdel", "datum elevation at receiver group" ); // 15
     mAddHead4( "sdel", "datum elevation at source" );
     mAddHead4( "swdep", "water depth at source" );
     mAddHead4( "gwdep", "water depth at receiver group" );
-    mAddHead( "scalel", "scale factor for gelev-gwdep fields with value plus or minus 10 to the power 0, 1, 2, 3, or 4 (if positive, multiply, if negative divide)" );
-    mAddHead( "scalco", "scale factor for coordinate fields (sx, sy, gx and gy) with value plus or minus 10 to the power 0, 1, 2, 3, or 4 (if positive, multiply, if negative divide)" ); // 20
+    mAddHead( "scalel", "scale factor for gelev-gwdep fields with value plus "
+			"or minus 10 to the power 0, 1, 2, 3, or 4 (if "
+			"positive, multiply, if negative divide)" );
+    mAddHead( "scalco", "scale factor for coordinate fields (sx, sy, gx and "
+			"gy) with value plus or minus 10 to the power 0, 1, 2, "
+	      "3, or 4 (if positive, multiply, if negative divide)" ); // 20
     mAddHead4( "sx", "X source coordinate" );
     mAddHead4( "sy", "Y source coordinate" );
     mAddHead4( "gx", "X group coordinate" );
     mAddHead4( "gy", "Y group coordinate" );
-    mAddHead( "counit", "coordinate units code for sx, sy, gx and gy: 1 = length (meters or feet), 2 = seconds of arc, 3 = decimal degrees, 4 = degrees, minutes, seconds" ); // 25
+    mAddHead( "counit", "coordinate units code for sx, sy, gx and gy: 1 = "
+	      "length (meters or feet), 2 = seconds of arc, 3 = decimal "
+	      "degrees, 4 = degrees, minutes, seconds" ); // 25
     mAddHead( "wevel", "weathering velocity" );
     mAddHead( "swevel", "subweathering velocity" );
     mAddHead( "sut", "uphole time at source" );
@@ -222,9 +238,14 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "sstat", "source " "static correction" ); // 30
     mAddHead( "gstat", "group " "static correction" );
     mAddHead( "tstat", "total " "static applied" );
-    mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace identification header and time break, positive if time break occurs after end of header" );
-    mAddHead( "lagb", "lag time B, time in ms between the time break and the initiation time of the energy source, may be positive or negative" );
-    mAddHead( "delrt", "delay recording time, time in ms between initiation time of energy source and time when recording of data samples begins" ); // 35
+    mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace "
+	      "identification header and time break, positive if time break "
+	      "occurs after end of header" );
+    mAddHead( "lagb", "lag time B, time in ms between the time break and the "
+	  "initiation time of the energy source, may be positive or negative" );
+    mAddHead( "delrt", "delay recording time, time in ms between initiation "
+	      "time of energy source and time when recording of data samples "
+	      "begins" ); // 35
     mAddHead( "muts", "mute time--start" );
     mAddHead( "mute", "mute time--end" ); // 37
 
@@ -265,8 +286,10 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "timbas", "time basis code" );
     mAddHead( "trwf", "trace weighting factor" );
     mAddHead( "grnors", "geophone group number of roll switch position one" );
-    mAddHead( "grnofr", "geophone group number of trace one within original field record" );
-    mAddHead( "grnlof", "geophone group number of last trace within original field record" );
+    mAddHead( "grnofr", "geophone group number of trace one within original "
+			"field record" );
+    mAddHead( "grnlof", "geophone group number of last trace within original "
+			"field record" );
     mAddHead( "gaps", "gap size (total number of groups dropped)" );
     mAddHead( "otrav", "overtravel taper code" ); // 70
     mAddHead4( "Xcdp", "X coordinate of CDP (scalco applies)" ); // 71
@@ -300,7 +323,6 @@ void SEGY::HdrDef::mkTrc()
 void SEGY::HdrDef::mkBin()
 {
     HdrEntry::DataType dtyp = HdrEntry::SInt;
-    HdrEntry* he;
     mAddHead4( "jobid", "job identification number" );
     mAddHead4( "lino", "line number" );
     mAddHead4( "reno", "reel number" );
