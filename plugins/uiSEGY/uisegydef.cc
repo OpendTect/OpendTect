@@ -452,7 +452,7 @@ uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
     he_.usePar( iop, ky );
     if ( wfr ) setFrame( wfr );
 
-    const BufferString fldnm( he.name(), " byte" );
+    const char* fldnm = ky;
     bytefld_ = new uiSpinBox( this, 0, BufferString(fldnm," value") );
     if ( !isopt )
 	new uiLabel( this, fldnm, bytefld_ );
