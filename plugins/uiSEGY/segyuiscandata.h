@@ -204,7 +204,7 @@ public:
     void		finish();
 
     bool		is2D() const		{ return is2d_; }
-    bool		isEmpty() const		{ return nrtrcs_ < 1; }
+    bool		isEmpty() const		{ return size() < 1; }
     int			nrTraces() const	{ return nrtrcs_; }
     bool		inFeet() const		{ return infeet_; }
     bool		isFull() const;
