@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ibmformat.h"
 #include "separstr.h"
 #include "od_istream.h"
-#include <string.h>
+#include <limits>
 
 mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
 	"0 - auto",
@@ -134,6 +134,28 @@ DataCharacteristics::UserType DataCharacteristics::userType() const
     case N8: return isInteger() ? SI64 : F64;
     }
     return Auto;
+}
+
+
+#define mGetLimitVal( typ, max ) mCast(double,max ? \
+	std::numeric_limits<typ>::max() : std::numeric_limits<typ>::min());
+
+double DataCharacteristics::getLimitValue( bool max ) const
+{
+    switch ( userType() )
+    {
+	case SI8:	return mGetLimitVal( int8_t, max );
+	case UI8:	return mGetLimitVal( uint8_t, max );
+	case SI16:	return mGetLimitVal( int16_t, max );
+	case UI16:	return mGetLimitVal( uint16_t, max );
+	case SI32:	return mGetLimitVal( od_int32, max );
+	case UI32:	return mGetLimitVal( od_uint32, max );
+	case F32:	return mGetLimitVal( float, max );
+	case SI64:	return mGetLimitVal( od_int64, max );
+	case F64:	return mGetLimitVal( double, max );
+	default:	return mGetLimitVal( od_int32, max );
+    }
+    return 0;
 }
 
 

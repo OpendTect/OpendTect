@@ -588,7 +588,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstDataPackRef<SeisDataPack> seisdp = dpm.obtain( dpid );
-    if ( !seisdp ) return dpid;
+    if ( !seisdp || !(comp<seisdp->nrComponents()) ) return dpid;
 
     const FixedString zdomainkey( seisdp->zDomain().key() );
     const bool alreadytransformed =
