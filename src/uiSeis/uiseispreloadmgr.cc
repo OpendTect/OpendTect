@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
+#include "coltabmapper.h"
 #include "datapack.h"
 #include "file.h"
 #include "filepath.h"
@@ -167,6 +168,7 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
 
     scalerfld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
     scalerfld_->attach( alignedBelow, subselfld_ );
+    scalerfld_->setUnscaled();
 
     typefld_ = new uiGenInput( this, tr("Load as"),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
@@ -190,12 +192,13 @@ void seisSel( CallBacker* )
 
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
-    updateEstUsage();
+    selChangeCB( 0 );
 }
 
 
 void selChangeCB( CallBacker* )
 {
+    updateScaleFld();
     updateEstUsage();
 }
 
@@ -211,6 +214,43 @@ void getDataChar( DataCharacteristics& dc )
     }
     else
 	dc = DataCharacteristics( type );
+}
+
+
+#define mGetExtremeVal( rg, positiveextreme ) \
+    ((samesign && positiveextreme^(rg.start>0)) ? 0 : \
+    (positiveextreme ? mMAX(rg.start,rg.stop) : mMIN(rg.start,rg.stop)));
+
+void updateScaleFld()
+{
+    double scale = 1.0;
+    SeisIOObjInfo info( seissel_->ioobj() );
+    DataCharacteristics dcstor; info.getDataChar( dcstor );
+    DataCharacteristics dc; getDataChar( dc );
+    if ( dc.getLimitValue(true) < dcstor.getLimitValue(true) )
+    {
+	ColTab::MapperSetup mapper;
+	FilePath fp( seissel_->ioobj()->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	IOPar iop;
+	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
+	    mapper.usePar( iop );
+
+	const Interval<float>& rg = mapper.range_;
+	if ( !rg.isUdf() )
+	{
+	    const bool samesign = (rg.start*rg.stop > 0);
+	    const float posextreme = mGetExtremeVal( rg, true );
+	    if ( !mIsZero(posextreme,mDefEpsF) )
+		scale = fabs( dc.getLimitValue(true)/posextreme );
+	    const float negextreme = mGetExtremeVal( rg, false );
+	    if ( dc.isSigned() && !mIsZero(negextreme,mDefEpsF) )
+		scale = mMIN(scale,fabs(dc.getLimitValue(false)/negextreme));
+	    if ( scale > 1.0 ) scale = 1.0;
+	}
+    }
+
+    scalerfld_->setInput( LinScaler(0.0,scale) );
 }
 
 

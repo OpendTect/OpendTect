@@ -90,6 +90,7 @@ public:
 			mDeclareEnumUtils(UserType)
 			DataCharacteristics(UserType);
     UserType		userType() const; //!< will return 'nearest'
+    double		getLimitValue(bool max) const;
 
 };
 
