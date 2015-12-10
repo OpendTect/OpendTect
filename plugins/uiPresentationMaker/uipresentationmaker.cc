@@ -412,6 +412,9 @@ void uiPresentationMakerDlg::moveDownCB( CallBacker* )
 void uiPresentationMakerDlg::removeCB( CallBacker* )
 {
     const int currow = slidestbl_->currentRow();
+    if ( currow < 0 || currow >= specs_.nrSlides() )
+	return;
+
     slidestbl_->removeRow( currow );
     specs_.removeSlide( currow );
 }
