@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "math2.h"
 #include "task.h"
+#include "uistrings.h"
 
 namespace ColTab
 {
@@ -154,7 +155,7 @@ bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 	if ( range_!=b.range_ )
 	    return false;
     }
-    else 
+    else
     {
 	if ( !mIsUdf(symmidval_) || !mIsUdf(b.symmidval_) )
 	{
@@ -359,6 +360,12 @@ bool isSymmAroundZero() const
     return max/min - 1 < 0.05;
 }
 
+
+uiString uiNrDoneText() const
+{
+    return uiStrings::sDone();
+}
+
     od_int64			sz_;
     od_int64			above0_;
     od_int64			below0_;
@@ -398,9 +405,9 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
     Interval<float> intv( -1, 1 );
     mIsUdf(setup_.symmidval_) ?
 	       clipper_.getRange( setup_.cliprate_.start, setup_.cliprate_.stop,
-		       		  intv )
+				  intv )
 	     : clipper_.getSymmetricRange( setup_.cliprate_.start,
-		     			   setup_.symmidval_, intv );
+					   setup_.symmidval_, intv );
     if ( mIsZero(intv.width(),mDefEps) )
 	intv += Interval<float>(-1,1);
     setRange( intv );

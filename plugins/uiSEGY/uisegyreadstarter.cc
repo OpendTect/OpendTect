@@ -902,14 +902,12 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 
 #define mErrRetResetStream(str) { \
     strm.setPosition( firsttrcpos ); \
-    if ( emiterr ) \
-	mErrRetFileName( str ) \
+    uiMSG().error( uiString(str).arg(strm.fileName()) ); \
     return false; }
 
 bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
-				      SEGY::BasicFileInfo& bfi, bool emiterr )
+				      SEGY::BasicFileInfo& bfi, bool isfirst )
 {
-    const bool isfirst = true; // for mErrRetFileName
     const od_stream::Pos firsttrcpos = strm.position();
 
     PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
@@ -917,12 +915,13 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 	mErrRetResetStream( "File:\n%1\nNo traces found" )
 
     if ( bfi.ns_ < 1 )
-    {
 	bfi.ns_ = (int)thdr->nrSamples();
-	if ( bfi.ns_ > mMaxReasonableNS )
-	    mErrRetResetStream(
-		    "File:\n%1\nNo proper 'number of samples per trace' found" )
-    }
+    if ( bfi.ns_ > mMaxReasonableNS )
+	mErrRetResetStream(
+	    "File:\n%1\nNo proper 'number of samples per trace' found" )
+    else if ( !isfirst && bfi.ns_ != loaddef_.ns_ )
+	mErrRetResetStream(
+	    "File:\n%1\nSamples per trace is different from earlier file(s)" )
 
     if ( mIsUdf(bfi.sampling_.step) )
     {
