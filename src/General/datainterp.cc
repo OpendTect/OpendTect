@@ -144,10 +144,10 @@ double DataCharacteristics::getLimitValue( bool max ) const
 {
     switch ( userType() )
     {
-	case SI8:	return mGetLimitVal( int8_t, max );
-	case UI8:	return mGetLimitVal( uint8_t, max );
-	case SI16:	return mGetLimitVal( int16_t, max );
-	case UI16:	return mGetLimitVal( uint16_t, max );
+	case SI8:	return mGetLimitVal( signed char, max );
+	case UI8:	return mGetLimitVal( unsigned char, max );
+	case SI16:	return mGetLimitVal( od_int16, max );
+	case UI16:	return mGetLimitVal( od_uint16, max );
 	case SI32:	return mGetLimitVal( od_int32, max );
 	case UI32:	return mGetLimitVal( od_uint32, max );
 	case F32:	return mGetLimitVal( float, max );
@@ -155,7 +155,6 @@ double DataCharacteristics::getLimitValue( bool max ) const
 	case F64:	return mGetLimitVal( double, max );
 	default:	return mGetLimitVal( od_int32, max );
     }
-    return 0;
 }
 
 
