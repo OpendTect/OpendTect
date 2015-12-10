@@ -155,7 +155,6 @@ double DataCharacteristics::getLimitValue( bool max ) const
 	case F64:	return mGetLimitVal( double, max );
 	default:	return mGetLimitVal( od_int32, max );
     }
-    return 0;
 }
 
 
