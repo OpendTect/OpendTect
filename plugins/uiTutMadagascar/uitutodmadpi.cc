@@ -58,6 +58,11 @@ void uiMadTutMgr::dispDlg( CallBacker* )
 
 mDefODInitPlugin(uiTutMadagascar)
 {
-    (void)new uiMadTutMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiMadTutMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiMadTutMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Madagascar tutorial plugin";
+
     return 0; // All OK - no error messages
-}

@@ -38,28 +38,19 @@ uiBouncyMgr::uiBouncyMgr( uiODMain* appl )
     mnumgr.toolsMnu()->insertItem(
 	    new uiAction("B&ouncy",mCB(this,uiBouncyMgr,doWork)) );
 
-    visBase::DM().removeallnotify.notify(
-	    mCB(this, uiBouncyMgr, destroyAllBounciesCB) );
+    mAttachCB( visBase::DM().removeallnotify,uiBouncyMgr::destroyAllBounciesCB);
     maindlg_ = new uiBouncyMain( appl_, &settingsdlg_ );
-    const CallBack propchgCB ( mCB(this, uiBouncyMgr, propertyChangeCB) );
-    settingsdlg_->propertyChanged.notify( propchgCB );
+    const CallBack propchgCB( mCB(this, uiBouncyMgr, propertyChangeCB) );
+    mAttachCB( settingsdlg_->propertyChanged, propchgCB );
 }
 
 
 uiBouncyMgr::~uiBouncyMgr()
 {
+    detachAllNotifiers();
     destroyAllBounciesCB( 0 );
-    visBase::DM().removeallnotify.remove(
-		   mCB(this, uiBouncyMgr, destroyAllBounciesCB) ); 
-
-    gamecontroller_->newPosAvailable.remove(
-	    mCB(this, uiBouncyMgr, newPosAvailableCB));
     delete gamecontroller_;
-
-    const CallBack propchgCB ( mCB(this, uiBouncyMgr, propertyChangeCB) );
-    settingsdlg_->propertyChanged.remove( propchgCB );
     delete settingsdlg_;
-    
     delete maindlg_;
 }
 
@@ -71,7 +62,7 @@ void uiBouncyMgr::createBouncy()
     bouncydisp_->ref();
     bouncydisp_->setSceneID( sceneid_ );
     bouncydisp_->addBouncy( settingsdlg_->getBallProperties() );
-    ODMainWin()->applMgr().visServer()->addObject( 
+    ODMainWin()->applMgr().visServer()->addObject(
 	    bouncydisp_, sceneid_, true );
 }
 
@@ -81,7 +72,7 @@ void uiBouncyMgr::destroyBouncy()
     if ( bouncydisp_ )
     {
 	bouncydisp_->removeBouncy();
-	ODMainWin()->applMgr().visServer()->removeObject( 
+	ODMainWin()->applMgr().visServer()->removeObject(
 		bouncydisp_, sceneid_ );
 	bouncydisp_->unRef();
 	bouncydisp_->newEvent.remove( mCB(this, uiBouncyMgr, neweventCB) );
@@ -102,10 +93,10 @@ void uiBouncyMgr::doWork( CallBacker *cb )
     bool firsttime = ( !bouncydisp_ );
 
     sceneid_ = ODMainWin()->sceneMgr().getActiveSceneID();
-    mDynamicCastGet( visSurvey::Scene*, scene, 
+    mDynamicCastGet( visSurvey::Scene*, scene,
 		ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
 
-    if ( !scene ) 
+    if ( !scene )
     {
 	uiMSG().message( "Cannot start game because there is no scene!" );
 	return;
@@ -119,7 +110,7 @@ void uiBouncyMgr::doWork( CallBacker *cb )
     {
 	if ( firsttime )
 	{
-	    uiMSG().message( "Welcome to the Bouncy game, ", 
+	    uiMSG().message( "Welcome to the Bouncy game, ",
 		    maindlg_->getPlayerName(), " !" );
 	    if ( !bouncydisp_ )
 		createBouncy();
@@ -133,7 +124,7 @@ void uiBouncyMgr::doWork( CallBacker *cb )
 	    // remove beachball added for preview
 	    destroyBouncy();
 	}
-	else 
+	else
 	    // revert settings as user might have changed something
             bouncydisp_->setBallProperties( currbp );
     }
@@ -146,12 +137,12 @@ void uiBouncyMgr::startGame()
 	return;
 
     bool work = true;
-    gamecontroller_->init( bouncydisp_->getBallPosition(), 
-	    SI().minCoord( work ), SI().maxCoord( work ), 
+    gamecontroller_->init( bouncydisp_->getBallPosition(),
+	    SI().minCoord( work ), SI().maxCoord( work ),
 	    SI().zRange( work ).start, SI().zRange( work ).stop, true );
     gamecontroller_->newPosAvailable.notify(
 	    mCB(this, uiBouncyMgr, newPosAvailableCB));
-    
+
     bouncydisp_->newEvent.notify( mCB(this, uiBouncyMgr, neweventCB) );
     bouncydisp_->start();
 }
@@ -162,13 +153,13 @@ void uiBouncyMgr::stopGame()
     gamecontroller_->stop();
     gamecontroller_->newPosAvailable.remove(
 	    mCB(this, uiBouncyMgr, newPosAvailableCB));
-	
+
     bouncydisp_->newEvent.remove( mCB(this, uiBouncyMgr, neweventCB) );
 }
 
 
 void uiBouncyMgr::pauseGame( bool pause )
-{ 
+{
     gamecontroller_->pause( pause );
 }
 
@@ -186,9 +177,9 @@ void uiBouncyMgr::propertyChangeCB( CallBacker* )
 	createBouncy();
     else
     {
-	if ( bouncydisp_->getBallProperties() != 
+	if ( bouncydisp_->getBallProperties() !=
 		settingsdlg_->getBallProperties() )
-	    bouncydisp_->setBallProperties( 
+	    bouncydisp_->setBallProperties(
 		    settingsdlg_->getBallProperties() );
     }
 }
@@ -236,8 +227,5 @@ void uiBouncyMgr::surveyChangeCB( CallBacker* )
 
 void uiBouncyMgr::shutdownCB( CallBacker* )
 {
-    // 
+    //
 }
-
-}
-

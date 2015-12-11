@@ -37,7 +37,7 @@ mDefODPluginInfo(uiTut)
 	"OpendTect",
 	"dGB (Raman/Bert)",
 	"3.2",
-    	"Shows some simple plugin development basics."
+	"Shows some simple plugin development basics."
 	    "\nCan be loaded into od_main only.") );
     return &retpi;
 }
@@ -65,17 +65,17 @@ public:
 uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
-		  	     *a->applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
-			     mCB(this,uiTutMgr,doWells),0,cTutIdx)
+			 *a->applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
+			 mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
     uiMenu* mnu = new uiMenu( appl_, tr("Tut Tools") );
-    if ( SI().has2D() && SI().has3D() ) 
+    if ( SI().has2D() && SI().has3D() )
     {
 	mnu->insertItem( new uiAction(m3Dots(tr("Seismic 2D (Direct)")),
 					mCB(this,uiTutMgr,do2DSeis)) );
 	mnu->insertItem( new uiAction(m3Dots(tr("Seismic 3D (Direct)")),
 					mCB(this,uiTutMgr,do3DSeis)) );
-    }	
+    }
     else
 	mnu->insertItem( new uiAction(m3Dots(tr("Seismic (Direct)")),
 					mCB(this,uiTutMgr,doSeis)) );
@@ -116,7 +116,7 @@ void uiTutMgr::doWells( CallBacker* )
 {
     const int displayid = wellmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
-	    		appl_->applMgr().visServer()->getObject(displayid))
+			appl_->applMgr().visServer()->getObject(displayid))
     if ( !wd )
 	return;
 
@@ -136,10 +136,13 @@ void uiTutMgr::doWells( CallBacker* )
 
 mDefODInitPlugin(uiTut)
 {
-    mDefineStaticLocalObject( uiTutMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiTutMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiTutMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Tutorial plugin";
 
     uiTutorialAttrib::initClass();
+
     return 0;
-}

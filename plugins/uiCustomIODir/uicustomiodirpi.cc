@@ -21,7 +21,10 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiCustomIODir)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-      "Custom Data directory usage", "dGB", "0.0.3",
+      "Custom Data directory usage",
+      "OpendTect",
+      "dGB",
+      "0.0.3",
       "Test of Custom Data directory usage." ) );
     return &retpi;
 }
@@ -106,8 +109,14 @@ void uiCustomIODirMgr::doDlg( CallBacker* )
 
 mDefODInitPlugin(uiCustomIODir)
 {
-    // These factory adds are necessary since 4.6:
+    mDefineStaticLocalObject( PtrMan<uiCustomIODirMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
 
+    theinst_ = new uiCustomIODirMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate CustomDir plugin";
+
+    // These factory adds are necessary since 4.6:
     MyObjTranslatorGroup::initClass();
     MyFmtMyObjTranslator::initClass();
 
@@ -129,7 +138,4 @@ mDefODInitPlugin(uiCustomIODir)
     // will show you where the parameters for the mDef...Translators... macros
     // go.
 
-    (void)new uiCustomIODirMgr( *ODMainWin() );
     return 0;
-}
-

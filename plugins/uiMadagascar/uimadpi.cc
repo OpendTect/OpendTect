@@ -30,6 +30,7 @@ mDefODPluginInfo(uiMadagascar)
 	"OpendTect",
 	"dGB (Bert, Raman)",
 	"3.2",
+	"A link to the Madagascar system."
 	    "\nSee http://opendtect.org/links/madagascar.html"
 	    " for info on Madagascar."));
     return &retpi;
@@ -75,9 +76,9 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
     , ishidden_(false)
     , appl_(a)
 {
-    mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,updateToolBar) );
-    mnumgr.dTectMnuChanged.notify( mCB(this,uiMadagascarLink,updateMenu) );
-    IOM().surveyToBeChanged.notify( mCB(this,uiMadagascarLink,survChg) );
+    mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLink::updateToolBar );
+    mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLink::updateMenu );
+    mAttachCB( IOM().surveyToBeChanged, uiMadagascarLink::survChg );
     updateToolBar(0);
     updateMenu(0);
 }
@@ -85,6 +86,7 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
 
 uiMadagascarLink::~uiMadagascarLink()
 {
+    detachAllNotifiers();
     delete madwin_;
 }
 
@@ -141,8 +143,12 @@ void uiMadagascarLink::doMain( CallBacker* )
 
 mDefODInitPlugin(uiMadagascar)
 {
-    mDefineStaticLocalObject( uiMadagascarLink*, lnk, = 0 );
-    if ( lnk ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiMadagascarLink>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiMadagascarLink( *ODMainWin() );
+    if ( !theinst_ )
+	return ODMad::PI().errMsg().getFullString().str();
 
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
@@ -155,10 +161,8 @@ mDefODInitPlugin(uiMadagascar)
 	return "Cannot create 'Madagascar' directory in survey";
 
 #ifdef MAD_UIMSG_IF_FAIL
-    if ( !ODMad::PI().errMsg().isEmpty() )
+    if ( ODMad::PI().errMsg().isSet() )
 	uiMSG().error( ODMad::PI().errMsg() );
 #endif
 
-    lnk = new uiMadagascarLink( *ODMainWin() );
-    return lnk ? 0 : (const char*)ODMad::PI().errMsg().getFullString();
-}
+    return 0;

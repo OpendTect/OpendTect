@@ -52,6 +52,7 @@ class uiImpGPRMgr :  public CallBacker
 public:
 
 			uiImpGPRMgr(uiODMain&);
+			~uiImpGPRMgr();
 
     uiODMain&		appl_;
     void		updMnu(CallBacker*);
@@ -62,9 +63,16 @@ public:
 uiImpGPRMgr::uiImpGPRMgr( uiODMain& a )
 	: appl_(a)
 {
-    appl_.menuMgr().dTectMnuChanged.notify( mCB(this,uiImpGPRMgr,updMnu) );
+    mAttachCB( appl_.menuMgr().dTectMnuChanged, uiImpGPRMgr::updMnu );
     updMnu(0);
 }
+
+
+uiImpGPRMgr::~uiImpGPRMgr()
+{
+    detachAllNotifiers();
+}
+
 
 void uiImpGPRMgr::updMnu( CallBacker* )
 {
@@ -185,6 +193,11 @@ void uiImpGPRMgr::doWork( CallBacker* )
 
 mDefODInitPlugin(uiImpGPR)
 {
-    (void)new uiImpGPRMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiImpGPRMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate ImpGPR plugin";
+
     return 0; // All OK - no error messages
-}

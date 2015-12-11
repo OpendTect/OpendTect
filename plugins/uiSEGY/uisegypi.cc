@@ -55,6 +55,7 @@ class uiSEGYMgr	: public CallBacker
 public:
 
 			uiSEGYMgr(uiODMain*);
+			~uiSEGYMgr();
 
     uiODMain*		appl_;
     uiODMenuMgr&	mnumgr_;
@@ -79,13 +80,10 @@ public:
     void		linkClassicCB( CallBacker* )	{ impClassic( true ); }
     void		impClassic(bool);
 
-    static uiSEGYMgr*	theinst_;
     static const uiString sSEGYString( bool imm )
 			 { return imm ? tr("SEG-Y") : m3Dots(tr("SEG-Y")); }
 
 };
-
-uiSEGYMgr* uiSEGYMgr::theinst_ = 0;
 
 
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
@@ -109,13 +107,21 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    mnumgr_.dTectTBChanged.notify( muiSEGYMgrCB(updateToolBar) );
-    IOM().surveyChanged.notify( muiSEGYMgrCB(updateMenu) );
+    mAttachCB( mnumgr_.dTectTBChanged, uiSEGYMgr::updateToolBar );
+    mAttachCB( IOM().surveyChanged, uiSEGYMgr::updateMenu );
 
     updateMenu(0);
     updateToolBar(0);
 }
 
+
+uiSEGYMgr::~uiSEGYMgr()
+{
+    detachAllNotifiers();
+}
+
+
+#define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
@@ -256,7 +262,12 @@ void uiSEGYMgr::readStarterCB( CallBacker* )
 
 mDefODInitPlugin(uiSEGY)
 {
-    if ( !uiSEGYMgr::theinst_ )
-	uiSEGYMgr::theinst_ = new uiSEGYMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiSEGYMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate SEG-Y plugin";
+
     return 0;
 }
