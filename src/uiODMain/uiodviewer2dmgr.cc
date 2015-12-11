@@ -90,6 +90,19 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     delete tifs2d_; delete tifs3d_;
 }
 
+
+bool uiODViewer2DMgr::isItemPresent( const uiTreeItem* item ) const
+{
+    for ( int ivwr=0; ivwr<viewers2d_.size(); ivwr++ )
+    {
+	if ( viewers2d_[ivwr]->isItemPresent(item) )
+	    return true;
+    }
+
+    return false;
+}
+
+
 void uiODViewer2DMgr::setupHorizon3Ds( uiODViewer2D* vwr2d )
 {
     TypeSet<EM::ObjectID> emids;

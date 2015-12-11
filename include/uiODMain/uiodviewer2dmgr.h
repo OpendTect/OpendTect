@@ -65,6 +65,7 @@ public:
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
+    bool			isItemPresent(const uiTreeItem*) const;
 
     //3D Horizons
     void			getHor3DVwr2DIDs( EM::ObjectID emid,

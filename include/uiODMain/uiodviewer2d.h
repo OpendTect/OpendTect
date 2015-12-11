@@ -27,6 +27,7 @@ class uiODVw2DTreeTop;
 class uiParent;
 class uiSlicePos2DView;
 class uiToolBar;
+class uiTreeItem;
 class uiTreeFactorySet;
 class MouseCursorExchange;
 class TaskRunner;
@@ -62,6 +63,7 @@ public:
     uiODVw2DTreeTop*		treeTop()		{ return treetp_; }
 
     const uiTreeFactorySet*	uiTreeItemFactorySet() const { return tifs_; }
+    bool			isItemPresent(const uiTreeItem*) const;
 
     const ObjectSet<uiFlatViewAuxDataEditor>&	dataEditor()
 				{ return auxdataeditors_; }

@@ -69,6 +69,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	emo->setPreferredColor( getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
+	addNewTempFault( emo->id() );
 	applMgr()->viewer2DMgr().addNewTempFault( emo->id() );
     }
     else if ( mnuid == 1 || mnuid==2 )
@@ -80,7 +81,10 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	    emids += objs[idx]->id();
 
 	if ( mnuid==1 )
+	{
+	    addFaults( emids );
 	    applMgr()->viewer2DMgr().addFaults( emids );
+	}
 	else
 	    addFaults( emids );
 
@@ -162,6 +166,11 @@ void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 
 void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
 {
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedFaults( emidsloaded );
+    if ( emidsloaded.isPresent(emid) )
+	return;
+
     uiODVw2DFaultTreeItem* faulttreeitem = new uiODVw2DFaultTreeItem( emid );
     addChld( faulttreeitem,false, false );
     viewer2D()->viewControl()->setEditMode( true );
@@ -321,7 +330,12 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 2 )
+    {
+	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ );
 	applMgr()->viewer2DMgr().removeFault( emid_ );
+	if ( doremove )
+	    parent_->removeChild( this );
+    }
     else if ( mnuid == 3 )
 	parent_->removeChild( this );
 
