@@ -61,6 +61,7 @@ class uiHorAttribPIMgr :  public CallBacker
 { mODTextTranslationClass(uiHorAttribPIMgr);
 public:
 			uiHorAttribPIMgr(uiODMain*);
+			~uiHorAttribPIMgr();
 
     void		updateMenu(CallBacker*);
     void		makeStratAmp(CallBacker*);
@@ -107,8 +108,14 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));
+    mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenu );
     updateMenu(0);
+}
+
+
+uiHorAttribPIMgr::~uiHorAttribPIMgr()
+{
+    detachAllNotifiers();
 }
 
 
@@ -325,9 +332,15 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
 
 mDefODInitPlugin(uiHorizonAttrib)
 {
+    mDefineStaticLocalObject( PtrMan<uiHorAttribPIMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiHorAttribPIMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate HorizonAttrib plugin";
+
     uiHorizonAttrib::initClass();
     uiContourTreeItem::initClass();
 
-    mDefineStaticLocalObject( uiHorAttribPIMgr, mgr, (ODMainWin()) );
     return 0;
 }

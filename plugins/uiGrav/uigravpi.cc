@@ -65,6 +65,11 @@ void uiGravMgr::doDlg( CallBacker* )
 
 mDefODInitPlugin(uiGrav)
 {
-    (void)new uiGravMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiGravMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiGravMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Gravity plugin";
+
     return 0; // All OK - no error messages
-}

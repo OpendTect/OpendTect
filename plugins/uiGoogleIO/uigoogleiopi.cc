@@ -57,6 +57,7 @@ class uiGoogleIOMgr : public CallBacker
 public:
 
 			uiGoogleIOMgr(uiODMain&);
+			~uiGoogleIOMgr();
 
     uiODMain&		appl_;
     uiSeis2DFileMan*	cur2dfm_;
@@ -92,10 +93,15 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     uiSurvey::add( uiSurvey::Util( "google",
 				   tr("Export to Google Earth/Maps"),
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
-    uiWellMan::instanceCreated().notify(
-				mCB(this,uiGoogleIOMgr,mkExportWellsIcon) );
-    uiSeis2DFileMan::instanceCreated().notify(
-				mCB(this,uiGoogleIOMgr,mkExportLinesIcon) );
+    mAttachCB( uiWellMan::instanceCreated(), uiGoogleIOMgr::mkExportWellsIcon );
+    mAttachCB( uiSeis2DFileMan::instanceCreated(),
+	       uiGoogleIOMgr::mkExportLinesIcon );
+}
+
+
+uiGoogleIOMgr::~uiGoogleIOMgr()
+{
+    detachAllNotifiers();
 }
 
 
@@ -201,7 +207,12 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 
 mDefODInitPlugin(uiGoogleIO)
 {
-    mDefineStaticLocalObject( uiGoogleIOMgr* mUsedVar, mgr,
-                              = new uiGoogleIOMgr( *ODMainWin() ) );
+    mDefineStaticLocalObject( PtrMan<uiGoogleIOMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiGoogleIOMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate GoogleIO plugin";
+
     return 0;
 }

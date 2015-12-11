@@ -53,13 +53,14 @@ class uiDPSDemoMgr :  public CallBacker
 public:
 
 			uiDPSDemoMgr(uiODMain&);
+			~uiDPSDemoMgr();
 
     uiODMain&		appl_;
 
     void		insertMenuItem(CallBacker* cb=0);
     void		insertIcon(CallBacker* cb=0);
     void		doIt(CallBacker*);
-    
+
 private:
 
     const uiString	sDPSDemo();
@@ -72,16 +73,23 @@ uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
-    mnumgr.dTectMnuChanged.notify( mCB(this,uiDPSDemoMgr,insertMenuItem) );
-    mnumgr.dTectTBChanged.notify( mCB(this,uiDPSDemoMgr,insertIcon) );
+    mAttachCB( mnumgr.dTectMnuChanged, uiDPSDemoMgr::insertMenuItem );
+    mAttachCB( mnumgr.dTectTBChanged, uiDPSDemoMgr::insertIcon );
 
     insertMenuItem();
     insertIcon();
 }
 
-const uiString uiDPSDemoMgr::sDPSDemo() 
+
+uiDPSDemoMgr::~uiDPSDemoMgr()
 {
-    return tr("DataPointSet Demo"); 
+    detachAllNotifiers();
+}
+
+
+const uiString uiDPSDemoMgr::sDPSDemo()
+{
+    return tr("DataPointSet Demo");
 }
 
 void uiDPSDemoMgr::insertMenuItem( CallBacker* )
@@ -111,8 +119,12 @@ void uiDPSDemoMgr::doIt( CallBacker* )
 
 mDefODInitPlugin(uiDPSDemo)
 {
-    mDefineStaticLocalObject( uiDPSDemoMgr*, mgr,(0) );
-    if ( mgr ) return 0;
-    mgr = new uiDPSDemoMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiDPSDemoMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiDPSDemoMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate DPS Demo plugin";
+
     return 0;
 }

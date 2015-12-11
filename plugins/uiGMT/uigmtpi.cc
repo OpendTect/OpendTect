@@ -111,8 +111,8 @@ uiGMTMgr::uiGMTMgr( uiODMain* a )
 	: appl_(a)
 	, dlg_(0)
 {
-    appl_->menuMgr().dTectTBChanged.notify( mCB(this,uiGMTMgr,updateToolBar) );
-    appl_->menuMgr().dTectMnuChanged.notify( mCB(this,uiGMTMgr,updateMenu) );
+    mAttachCB( appl_->menuMgr().dTectTBChanged, uiGMTMgr::updateToolBar );
+    mAttachCB( appl_->menuMgr().dTectMnuChanged, uiGMTMgr::updateMenu );
     updateToolBar(0);
     updateMenu(0);
 }
@@ -120,6 +120,7 @@ uiGMTMgr::uiGMTMgr( uiODMain* a )
 
 uiGMTMgr::~uiGMTMgr()
 {
+    detachAllNotifiers();
     delete dlg_;
 }
 
@@ -160,9 +161,12 @@ void uiGMTMgr::createMap( CallBacker* )
 
 mDefODInitPlugin(uiGMT)
 {
-    mDefineStaticLocalObject( uiGMTMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiGMTMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiGMTMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate GMT plugin";
 
     IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
 			      "GMT data" );

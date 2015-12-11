@@ -17,11 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(uiQtApp)
 {
-    static PluginInfo retpi = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"QT Application plugin",
+	"OpendTect",
 	"dGB (Bert)",
 	"0.001",
-    	"Example of how to call a Qt something from a plugin." };
+	"Example of how to call a Qt something from a plugin.") );
     return &retpi;
 }
 
@@ -58,7 +59,11 @@ void uiQtAppMgr::doStuff( CallBacker* )
 
 mDefODInitPlugin(uiQtApp)
 {
-    static uiQtAppMgr* mgr = 0; if ( mgr ) return 0;
-    mgr = new uiQtAppMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiQtAppMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiQtAppMgr( ODMainWin() );
+    if ( !theinst_ )
+	"Cannot instantiate QtApp plugin";
+
     return 0;
-}

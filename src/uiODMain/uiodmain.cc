@@ -147,8 +147,8 @@ uiODMain::uiODMain( uiMain& a )
     if ( buildUI() )
 	failed_ = false;
 
-    IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
-    sesstimer_.tick.notify( mCB(this,uiODMain,sessTimerCB) );
+    mAttachCB( IOM().afterSurveyChange, uiODMain::afterSurveyChgCB );
+    mAttachCB( sesstimer_.tick, uiODMain::sessTimerCB );
 
     const int systemnrcpus = Threads::getSystemNrProcessors();
     const int odnrcpus = Threads::getNrProcessors();
@@ -169,6 +169,7 @@ uiODMain::uiODMain( uiMain& a )
 
 uiODMain::~uiODMain()
 {
+    detachAllNotifiers();
     memtimer_.stop();
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
