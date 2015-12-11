@@ -9,20 +9,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidpsdemo.h"
 
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
-
-#include "odver.h"
-#include "datapointset.h"
 #include "uivisdatapointsetdisplaymgr.h"
-#include "pixmap.h"
+
+#include "datapointset.h"
+#include "odplugin.h"
+#include "odver.h"
 #include "randcolor.h"
 #include "survinfo.h"
-
-#include "odplugin.h"
 
 
 mDefODPluginInfo(uiDPSDemo)
@@ -54,6 +53,7 @@ class uiDPSDemoMgr :  public CallBacker
 public:
 
 			uiDPSDemoMgr(uiODMain&);
+			~uiDPSDemoMgr();
 
     uiODMain&		appl_;
 
@@ -69,11 +69,17 @@ uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
-    mnumgr.dTectMnuChanged.notify( mCB(this,uiDPSDemoMgr,insertMenuItem) );
-    mnumgr.dTectTBChanged.notify( mCB(this,uiDPSDemoMgr,insertIcon) );
+    mAttachCB( mnumgr.dTectMnuChanged, uiDPSDemoMgr::insertMenuItem );
+    mAttachCB( mnumgr.dTectTBChanged, uiDPSDemoMgr::insertIcon );
 
     insertMenuItem();
     insertIcon();
+}
+
+
+uiDPSDemoMgr::~uiDPSDemoMgr()
+{
+    detachAllNotifiers();
 }
 
 
@@ -103,8 +109,12 @@ void uiDPSDemoMgr::doIt( CallBacker* )
 
 mDefODInitPlugin(uiDPSDemo)
 {
-    mDefineStaticLocalObject( uiDPSDemoMgr*, mgr,(0) );
-    if ( mgr ) return 0;
-    mgr = new uiDPSDemoMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiDPSDemoMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiDPSDemoMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate DPS Demo plugin";
+
     return 0;
 }

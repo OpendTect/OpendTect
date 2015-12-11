@@ -15,16 +15,22 @@ mDefODPluginInfo(uiBouncy)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Bouncy thingy",
+	"OpendTect",
 	"dGB (Karthika)",
 	"4.0",
-    	"Having some fun in OpendTect.") );
+	"Having some fun in OpendTect.") );
     return &retpi;
 }
 
 
 mDefODInitPlugin(uiBouncy)
 {
-    mDefineStaticLocalObject( uiBouncy::uiBouncyMgr* mUsedVar, mgr,
-		= new uiBouncy::uiBouncyMgr( ODMainWin() ) );
+    mDefineStaticLocalObject( PtrMan<uiBouncy::uiBouncyMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiBouncy::uiBouncyMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Bouncy plugin";
+
     return 0;
 }

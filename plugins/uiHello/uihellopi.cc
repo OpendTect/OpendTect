@@ -110,9 +110,14 @@ void uiHelloMgr::dispMsg( CallBacker* )
 
 mDefODInitPlugin(uiHello)
 {
-    (void)new uiHelloMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiHelloMgr( *ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Hello plugin";
+
     return 0; // All OK - no error messages
 }
-
 
 #endif /* ifdef PLAN_A */

@@ -37,7 +37,7 @@ mDefODPluginInfo(uiTut)
 	"OpendTect",
 	"dGB (Raman/Bert)",
 	"3.2",
-    	"Shows some simple plugin development basics."
+	"Shows some simple plugin development basics."
 	    "\nCan be loaded into od_main only.") );
     return &retpi;
 }
@@ -136,10 +136,14 @@ void uiTutMgr::doWells( CallBacker* )
 
 mDefODInitPlugin(uiTut)
 {
-    mDefineStaticLocalObject( uiTutMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiTutMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiTutMgr( ODMainWin() );
+    if ( !theinst_ )
+	return "Cannot instantiate Tutorial plugin";
 
     uiTutorialAttrib::initClass();
+
     return 0;
 }

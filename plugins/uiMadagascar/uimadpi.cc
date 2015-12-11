@@ -76,9 +76,9 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
     , ishidden_(false)
     , appl_(a)
 {
-    mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,updateToolBar) );
-    mnumgr.dTectMnuChanged.notify( mCB(this,uiMadagascarLink,updateMenu) );
-    IOM().surveyToBeChanged.notify( mCB(this,uiMadagascarLink,survChg) );
+    mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLink::updateToolBar );
+    mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLink::updateMenu );
+    mAttachCB( IOM().surveyToBeChanged, uiMadagascarLink::survChg );
     updateToolBar(0);
     updateMenu(0);
 }
@@ -86,6 +86,7 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
 
 uiMadagascarLink::~uiMadagascarLink()
 {
+    detachAllNotifiers();
     delete madwin_;
 }
 
@@ -144,8 +145,12 @@ void uiMadagascarLink::doMain( CallBacker* )
 
 mDefODInitPlugin(uiMadagascar)
 {
-    mDefineStaticLocalObject( uiMadagascarLink*, lnk, = 0 );
-    if ( lnk ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiMadagascarLink>, theinst_, = 0 );
+    if ( theinst_ ) return 0;
+
+    theinst_ = new uiMadagascarLink( *ODMainWin() );
+    if ( !theinst_ )
+	return ODMad::PI().errMsg().buf();
 
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
@@ -158,6 +163,5 @@ mDefODInitPlugin(uiMadagascar)
 	uiMSG().error( ODMad::PI().errMsg() );
 #endif
 
-    lnk = new uiMadagascarLink( *ODMainWin() );
-    return lnk ? 0 : ODMad::PI().errMsg().buf();
+    return 0;
 }

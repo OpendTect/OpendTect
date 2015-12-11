@@ -65,34 +65,22 @@ uiViewer3DMgr::uiViewer3DMgr()
 
     posdialogs_.allowNull();
     settingdlgs_.allowNull();
-    visserv_->removeAllNotifier().notify( mCB(this,uiViewer3DMgr,removeAllCB) );
-    visserv_->objectaddedremoved.notify( mCB(this,uiViewer3DMgr,sceneChangeCB));
+    mAttachCB( visserv_->removeAllNotifier(), uiViewer3DMgr::removeAllCB );
+    mAttachCB( visserv_->objectaddedremoved, uiViewer3DMgr::sceneChangeCB );
+
+    mAttachCB( IOM().surveyToBeChanged, uiViewer3DMgr::surveyToBeChangedCB );
+    mAttachCB( ODMainWin()->sessionSave, uiViewer3DMgr::sessionSaveCB );
+    mAttachCB( ODMainWin()->sessionRestore, uiViewer3DMgr::sessionRestoreCB );
+
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
-
-    IOM().surveyToBeChanged.notify(mCB(this,uiViewer3DMgr,surveyToBeChangedCB));
-    ODMainWin()->sessionSave.notify( mCB(this,uiViewer3DMgr,sessionSaveCB) );
-    ODMainWin()->sessionRestore.notify(
-	    mCB(this,uiViewer3DMgr,sessionRestoreCB) );
-
-    menuhandler->createnotifier.notify( mCB(this,uiViewer3DMgr,createMenuCB) );
-    menuhandler->handlenotifier.notify( mCB(this,uiViewer3DMgr,handleMenuCB) );
+    mAttachCB( menuhandler->createnotifier, uiViewer3DMgr::createMenuCB );
+    mAttachCB( menuhandler->handlenotifier, uiViewer3DMgr::handleMenuCB );
 }
 
 
 uiViewer3DMgr::~uiViewer3DMgr()
 {
-    visserv_->removeAllNotifier().remove( mCB(this,uiViewer3DMgr,removeAllCB) );
-    visserv_->objectaddedremoved.remove( mCB(this,uiViewer3DMgr,sceneChangeCB));
-    RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
-
-    IOM().surveyToBeChanged.remove(mCB(this,uiViewer3DMgr,surveyToBeChangedCB));
-    ODMainWin()->sessionSave.remove( mCB(this,uiViewer3DMgr,sessionSaveCB) );
-    ODMainWin()->sessionRestore.remove(
-	    mCB(this,uiViewer3DMgr,sessionRestoreCB) );
-    menuhandler->createnotifier.remove( mCB(this,uiViewer3DMgr,createMenuCB) );
-    menuhandler->handlenotifier.remove( mCB(this,uiViewer3DMgr,handleMenuCB) );
-
-    delete visserv_;
+    detachAllNotifiers();
     removeAllCB( 0 );
 }
 
