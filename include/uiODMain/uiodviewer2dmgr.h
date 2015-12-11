@@ -170,6 +170,9 @@ protected:
     void			usePar(const IOPar&);
 
     friend class                uiODMain;
+
+public:
+    bool			isItemPresent(const uiTreeItem*) const;
 };
 
 #endif

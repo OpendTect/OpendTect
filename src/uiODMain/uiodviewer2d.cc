@@ -981,6 +981,24 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     }
 }
 
+bool uiODViewer2D::isItemPresent( const uiTreeItem* item ) const
+{
+    for ( int ip=0; ip<treetp_->nrChildren(); ip++ )
+    {
+	const uiTreeItem* parentitm = treetp_->getChild( ip );
+	if ( parentitm == item )
+	    return true;
+	for ( int ich=0; ich<parentitm->nrChildren(); ich++ )
+	{
+	    const uiTreeItem* childitm = parentitm->getChild( ich );
+	    if ( childitm == item )
+		return true;
+	}
+    }
+
+    return false;
+}
+
 
 void uiODViewer2D::getHor3DVwr2DIDs( EM::ObjectID emid,
 				     TypeSet<int>& vw2dobjids ) const

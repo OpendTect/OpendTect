@@ -27,6 +27,7 @@ class uiODVw2DTreeTop;
 class uiParent;
 class uiSlicePos2DView;
 class uiToolBar;
+class uiTreeItem;
 class uiTreeFactorySet;
 class MouseCursorExchange;
 class TaskRunner;
@@ -238,6 +239,9 @@ protected:
     void			removeSelected(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
+
+public:
+    bool			isItemPresent(const uiTreeItem*) const;
 };
 
 #endif

@@ -90,6 +90,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 						EventTracker::AdjacentParent );
 	const int trackid = mps->activeTrackerID();
 	const int emid = mps->getEMObjectID( trackid );
+	addNewTrackingHorizon3D( emid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon3D( emid );
     }
     else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
@@ -100,7 +101,10 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 	if ( mnuid==mAddInAllIdx )
+	{
+	    addHorizon3Ds( emids );
 	    applMgr()->viewer2DMgr().addHorizon3Ds( emids );
+	}
 	else
 	    addHorizon3Ds( emids );
 
@@ -181,6 +185,11 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 
 void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
 {
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedHorizon3Ds( emidsloaded );
+    if ( emidsloaded.isPresent(emid) )
+	return;
+
     uiODVw2DHor3DTreeItem* hortreeitem = new uiODVw2DHor3DTreeItem( emid );
     addChld( hortreeitem,false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
@@ -439,7 +448,12 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	}
     }
     else if ( mnuid == 3 )
+    {
+	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ );
 	applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
+	if ( doremove )
+	    parent_->removeChild( this );
+    }
     else if ( mnuid==4 )
 	parent_->removeChild( this );
 
