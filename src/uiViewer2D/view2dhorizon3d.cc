@@ -147,10 +147,6 @@ void Vw2DHorizon3D::enablePainting( bool yn )
 
 void Vw2DHorizon3D::selected( bool enabled )
 {
-    bool trackerenbed = false;
-    if (  MPE::engine().getTrackerByObject(emid_) != -1 )
-	trackerenbed = true;
-
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( horeds_[ivwr] )
