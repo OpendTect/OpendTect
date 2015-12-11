@@ -735,3 +735,4 @@ void uiODMain::exit()
     if ( !closeOK() ) return;
 
     uiapp_.exit(0);
+}

@@ -127,3 +127,4 @@ mDefODInitPlugin(uiDPSDemo)
 	return "Cannot instantiate DPS Demo plugin";
 
     return 0;
+}

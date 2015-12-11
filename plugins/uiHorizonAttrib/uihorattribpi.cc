@@ -326,3 +326,4 @@ mDefODInitPlugin(uiHorizonAttrib)
     uiContourTreeItem::initClass();
 
     return 0;
+}

@@ -192,3 +192,4 @@ mDefODInitPlugin(uiGMT)
     uiGMTNearNeighborGrid::initClass();
 
     return 0;
+}

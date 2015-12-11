@@ -201,3 +201,4 @@ mDefODInitPlugin(uiImpGPR)
 	return "Cannot instantiate ImpGPR plugin";
 
     return 0; // All OK - no error messages
+}

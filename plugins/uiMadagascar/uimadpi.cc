@@ -166,3 +166,4 @@ mDefODInitPlugin(uiMadagascar)
 #endif
 
     return 0;
+}

@@ -66,3 +66,4 @@ mDefODInitPlugin(uiTutMadagascar)
 	return "Cannot instantiate Madagascar tutorial plugin";
 
     return 0; // All OK - no error messages
+}

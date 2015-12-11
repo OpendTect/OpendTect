@@ -215,3 +215,4 @@ mDefODInitPlugin(uiGoogleIO)
 	return "Cannot instantiate GoogleIO plugin";
 
     return 0;
+}
