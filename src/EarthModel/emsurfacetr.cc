@@ -44,8 +44,7 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 	newctxt->stdseltype_ = IOObjContext::Surf;
 	newctxt->trgroup_ = &theInst();
 
-        if ( !ctxt.setIfNull( newctxt ) )
-            delete newctxt;
+        ctxt.setIfNull( newctxt, true );
     }
 
     return *ctxt;
@@ -66,8 +65,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 	newctxt->stdseltype_ = IOObjContext::Surf;
 	newctxt->trgroup_ = &theInst();
 
-        if ( !ctxt.setIfNull( newctxt ) )
-            delete newctxt;
+        ctxt.setIfNull( newctxt, true );
     }
 
     return *ctxt;

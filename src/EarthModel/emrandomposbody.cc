@@ -362,8 +362,7 @@ const IOObjContext& RandomPosBody::getIOObjContext() const
 	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
 	newres->fixTranslator( typeStr() );
 
-	if ( !res.setIfNull(newres) )
-	    delete newres;
+	res.setIfNull(newres,true);
     }
 
     return *res;

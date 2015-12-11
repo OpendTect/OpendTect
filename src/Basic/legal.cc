@@ -20,8 +20,7 @@ static PtrMan< ::Factory<uiString> > inst;
     if ( !inst )
     {
 	::Factory<uiString>* newfact = new ::Factory<uiString>;
-	if ( !inst.setIfNull(newfact) )
-	    delete newfact;
+	inst.setIfNull(newfact,true);
     }
 
     return *inst;

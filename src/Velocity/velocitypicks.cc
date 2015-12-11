@@ -1069,8 +1069,7 @@ const IOObjContext& Picks::getStorageContext()
 	newret->setName( "Velocity picks" );
 	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityPicks() );
 
-	if ( !ret.setIfNull(newret) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
 
     return *ret;

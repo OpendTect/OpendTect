@@ -59,9 +59,9 @@ const Strat::Lithology& Strat::Lithology::undef()
 	Strat::Lithology* newudf = new Strat::Lithology( -1, "-", true );
 	newudf->color() = Color::LightGrey();
 
-	if ( !udf.setIfNull(newudf) )
-	    delete newudf;
+	udf.setIfNull(newudf,true);
     }
+
     return *udf;
 }
 

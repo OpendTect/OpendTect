@@ -20,12 +20,6 @@ ________________________________________________________________________
 # include "debug.h"
 #endif
 
-#define mImpPtrManPointerAccess( qual, type ) \
-    inline qual type*	ptr() qual		{ return this->ptr_; } \
-    inline		operator qual type*() qual { return this->ptr_; }\
-    inline qual type*	operator ->() qual	{ return this->ptr_; } \
-    inline qual type&	operator *() qual	{ return *this->ptr_; }
-
 /*!Convenience function to delete and zero pointer. */
 
 template <class T>
@@ -48,14 +42,15 @@ mClass(Basic) PtrManBase
 {
 public:
     inline bool		operator !() const	{ return !ptr_; }
-
     inline T*		set(T* p, bool doerase=true);
 			//!<Returns old pointer if not erased
     inline T*		release() { return  set(0,false); }
 			//!<Returns pointer. I won't take care of it any longer
     inline void		erase() { set( 0, true ); }
 
-    inline bool		setIfNull(T* p);
+    inline bool		setIfNull(T* p,bool takeover);
+    			/*!<If takeover==true, pointer will be deleted if
+			    object was not set. */
 
     typedef T* 		(*PointerCreator)();
     inline T*		createIfNull(PointerCreator=createSingleObject<T>);
@@ -74,9 +69,46 @@ protected:
 };
 
 
+template<class T>
+mClass(Basic) ConstPtrManBase : public PtrManBase<T>
+{
+public:
+    inline const T*	ptr() const		{ return this->ptr_; }
+    inline		operator const T*() const { return this->ptr_; }
+    inline const T*	operator->() const	{ return this->ptr_; }
+    inline const T&	operator*() const	{ return *this->ptr_; }
+protected:
+    typedef void	(*PtrFunc)(T*);
+    inline		ConstPtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
+			    : PtrManBase<T>( setfunc, deletor, p )
+			{}
+};
+
+
+template<class T>
+mClass(Basic) NonConstPtrManBase : public PtrManBase<T>
+{
+public:
+    inline const T*	ptr() const		{ return this->ptr_; }
+    inline		operator const T*() const { return this->ptr_; }
+    inline const T*	operator->() const	{ return this->ptr_; }
+    inline const T&	operator*() const	{ return *this->ptr_; }
+    inline T*		ptr() 			{ return this->ptr_; }
+    inline		operator T*() 		{ return this->ptr_; }
+    inline T*		operator ->() 		{ return this->ptr_; }
+    inline T&		operator *() 		{ return *this->ptr_; }
+protected:
+    typedef void	(*PtrFunc)(T*);
+    inline		NonConstPtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
+			    : PtrManBase<T>( setfunc, deletor, p )
+			{}
+};
+
+
+
 /*!Smart pointer for normal pointers. */
 template <class T>
-mClass(Basic) PtrMan : public PtrManBase<T>
+mClass(Basic) PtrMan : public NonConstPtrManBase<T>
 {
 public:
 			PtrMan(const PtrMan<T>&);
@@ -86,8 +118,6 @@ public:
 
     PtrMan<T>&		operator=(const PtrMan<T>&);
 			//!<Don't use
-			mImpPtrManPointerAccess( const, T )
-			mImpPtrManPointerAccess( , T )
 
 private:
 
@@ -98,7 +128,7 @@ private:
 
 /*!Smart pointer for normal const pointers. */
 template <class T>
-mClass(Basic) ConstPtrMan : public PtrManBase<T>
+mClass(Basic) ConstPtrMan : public ConstPtrManBase<T>
 {
 public:
 			ConstPtrMan(const ConstPtrMan<T>&);
@@ -107,7 +137,6 @@ public:
     ConstPtrMan<T>&	operator=(const T* p);
     ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&);
 			//!<Don't use
-			mImpPtrManPointerAccess( const, T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -116,7 +145,7 @@ private:
 
 /*!Smart pointer for pointers allocated as arrays. */
 template <class T>
-mClass(Basic) ArrPtrMan : public PtrManBase<T>
+mClass(Basic) ArrPtrMan : public NonConstPtrManBase<T>
 {
 public:
 				ArrPtrMan(const ArrPtrMan<T>&);
@@ -126,8 +155,6 @@ public:
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//!<Don't use
 
-				mImpPtrManPointerAccess( const, T )
-				mImpPtrManPointerAccess( , T )
 #ifdef __debug__
     T&				operator[](int);
     const T&			operator[](int) const;
@@ -147,7 +174,7 @@ private:
 
 /*!Smart pointer for const pointers allocated as arrays. */
 template <class T>
-mClass(Basic) ConstArrPtrMan : public PtrManBase<T>
+mClass(Basic) ConstArrPtrMan : public ConstPtrManBase<T>
 {
 public:
 			ConstArrPtrMan(const ConstArrPtrMan<T>&);
@@ -156,7 +183,6 @@ public:
     ConstArrPtrMan<T>&	operator=(const T* p);
     ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&);
 			//!< Will give linkerror if used
-			mImpPtrManPointerAccess( const, T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -165,7 +191,7 @@ private:
 
 /*!Smart pointer for reference counted objects. */
 template <class T>
-mClass(Basic) RefMan : public PtrManBase<T>
+mClass(Basic) RefMan : public NonConstPtrManBase<T>
 {
 public:
 
@@ -174,8 +200,6 @@ public:
     inline RefMan<T>&	operator=( T* p )
 			{ this->set( p, true ); return *this; }
     inline RefMan<T>&	operator=(const RefMan<T>&);
-			mImpPtrManPointerAccess( const, T )
-			mImpPtrManPointerAccess( , T )
 
 private:
 
@@ -187,7 +211,7 @@ private:
 
 /*!Smart pointer for reference counted objects. */
 template <class T>
-mClass(Basic) ConstRefMan : public PtrManBase<T>
+mClass(Basic) ConstRefMan : public ConstPtrManBase<T>
 {
 public:
     inline			ConstRefMan(const ConstRefMan<T>&);
@@ -195,15 +219,12 @@ public:
     ConstRefMan<T>&		operator=(const T* p);
     inline ConstRefMan<T>&	operator=(const ConstRefMan<T>&);
 
-				mImpPtrManPointerAccess( const, T )
 
 private:
     static void		ref(T* p) { p->ref(); }
     static void		unRef(T* p) { if ( p ) p->unRef(); }
 
 };
-
-#undef mImpPtrManPointerAccess
 
 //Implementations below
 
@@ -234,13 +255,19 @@ T* PtrManBase<T>::set( T* p, bool doerase )
 
 
 template <class T> inline
-bool PtrManBase<T>::setIfNull( T* p )
+bool PtrManBase<T>::setIfNull( T* p, bool takeover )
 {
     if ( ptr_.setIfEqual( 0, p ) )
     {
 	if ( setfunc_ && p )
 	    setfunc_(p);
 	return true;
+    }
+
+    if ( takeover && p )
+    {
+	if ( setfunc_ ) setfunc_(p);
+	if ( deletefunc_ ) deletefunc_(p);
     }
 
     return false;
@@ -257,11 +284,7 @@ T* PtrManBase<T>::createIfNull(PointerCreator creator)
     if ( !newptr )
 	return 0;
 
-    if ( !setIfNull(newptr) )
-    {
-	if ( setfunc_ ) setfunc_(newptr);
-	if ( deletefunc_ ) deletefunc_(newptr);
-    }
+    setIfNull(newptr,true);
 
     return ptr_;
 }
@@ -269,7 +292,7 @@ T* PtrManBase<T>::createIfNull(PointerCreator creator)
 
 template <class T> inline
 PtrMan<T>::PtrMan( const PtrMan<T>& )
-    : PtrManBase<T>( 0, deleteFunc, 0 )
+    : NonConstPtrManBase<T>( 0, deleteFunc, 0 )
 {
     pErrMsg("Should not be called");
 }
@@ -286,7 +309,7 @@ PtrMan<T>& PtrMan<T>::operator=( const PtrMan<T>& )
 
 template <class T> inline
 PtrMan<T>::PtrMan( T* p )
-    : PtrManBase<T>( 0, deleteFunc, p )
+    : NonConstPtrManBase<T>( 0, deleteFunc, p )
 {}
 
 
@@ -300,7 +323,7 @@ PtrMan<T>& PtrMan<T>::operator=( T* p )
 
 template <class T> inline
 ConstPtrMan<T>::ConstPtrMan( const ConstPtrMan<T>& )
-    : PtrManBase<T>( 0, deleteFunc, 0 )
+    : ConstPtrManBase<T>( 0, deleteFunc, 0 )
 {
     pErrMsg("Should not be called");
 }
@@ -317,7 +340,7 @@ ConstPtrMan<T>& ConstPtrMan<T>::operator=( const ConstPtrMan<T>& )
 
 template <class T> inline
 ConstPtrMan<T>::ConstPtrMan( const T* p )
-    : PtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
+    : ConstPtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
 {}
 
 
@@ -331,7 +354,7 @@ ConstPtrMan<T>& ConstPtrMan<T>::operator=( const T* p )
 
 template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( const ArrPtrMan<T>& )
-    : PtrManBase<T>( 0, deleteFunc, 0 )
+    : NonConstPtrManBase<T>( 0, deleteFunc, 0 )
 {
     pErrMsg("Should not be called");
 }
@@ -348,7 +371,7 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( const ArrPtrMan<T>& )
 
 template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( T* p )
-    : PtrManBase<T>( 0, deleteFunc, p )
+    : NonConstPtrManBase<T>( 0, deleteFunc, p )
     , size_(-1)
 {}
 
@@ -411,7 +434,7 @@ const T& ArrPtrMan<T>::operator[]( od_int64 idx ) const
 
 template <class T> inline
 ConstArrPtrMan<T>::ConstArrPtrMan( const ConstArrPtrMan<T>& p )
-    : PtrManBase<T>( 0, deleteFunc, 0 )
+    : ConstPtrManBase<T>( 0, deleteFunc, 0 )
 {
     pErrMsg("Shold not be called");
 }
@@ -419,7 +442,7 @@ ConstArrPtrMan<T>::ConstArrPtrMan( const ConstArrPtrMan<T>& p )
 
 template <class T> inline
 ConstArrPtrMan<T>::ConstArrPtrMan( const T* p )
-    : PtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
+    : ConstPtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
 {}
 
 
@@ -433,13 +456,13 @@ ConstArrPtrMan<T>& ConstArrPtrMan<T>::operator=( const T* p )
 
 template <class T> inline
 RefMan<T>::RefMan( const RefMan<T>& p )
-    : PtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
+    : NonConstPtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
 {}
 
 
 template <class T> inline
 RefMan<T>::RefMan( T* p )
-    : PtrManBase<T>( ref, unRef, p )
+    : NonConstPtrManBase<T>( ref, unRef, p )
 {}
 
 
@@ -453,13 +476,13 @@ RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
 
 template <class T> inline
 ConstRefMan<T>::ConstRefMan( const ConstRefMan<T>& p )
-    : PtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
+    : ConstPtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
 {}
 
 
 template <class T> inline
 ConstRefMan<T>::ConstRefMan( const T* p )
-    : PtrManBase<T>( ref, unRef, const_cast<T*>(p) )
+    : ConstPtrManBase<T>( ref, unRef, const_cast<T*>(p) )
 {}
 
 

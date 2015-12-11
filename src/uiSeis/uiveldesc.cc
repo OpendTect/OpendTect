@@ -274,8 +274,7 @@ const IOObjContext& uiVelSel::ioContext()
 	newvelctxt->toselect_.require_.setYN(
 		VelocityDesc::sKeyIsVelocity(), true );
 
-	if ( !velctxt.setIfNull(newvelctxt) )
-	    delete newvelctxt;
+	velctxt.setIfNull(newvelctxt,true);
     }
 
     return *velctxt;

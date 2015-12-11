@@ -84,10 +84,9 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 				"Setup geographical coordinates"), CallBack() );
 
 
-	if ( !utils.setIfNull(newutils) )
-	    delete newutils;
-
+	utils.setIfNull(newutils,true);
     }
+
     return *utils;
 }
 

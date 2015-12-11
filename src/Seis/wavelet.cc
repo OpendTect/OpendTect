@@ -211,8 +211,7 @@ const ValueSeriesInterpolator<float>& Wavelet::interpolator() const
 	newdefintpol->smooth_ = true;
 	newdefintpol->extrapol_ = false;
 	newdefintpol->udfval_ = 0;
-	if ( !defintpol.setIfNull(newdefintpol) )
-	    delete newdefintpol;
+	defintpol.setIfNull(newdefintpol,true);
     }
     ValueSeriesInterpolator<float>& ret
 	= const_cast<ValueSeriesInterpolator<float>&>(

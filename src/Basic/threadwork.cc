@@ -32,11 +32,7 @@ Threads::WorkManager& WorkManager::twm()
     {
 	Threads::WorkManager* newtwm =
 	    new Threads::WorkManager( Threads::getNrProcessors()*2 );
-	if ( !twm_.setIfNull( newtwm ) )
-	{
-	    delete newtwm;
-	}
-	else
+	if ( twm_.setIfNull( newtwm,true ) )
 	{
 	    thetwm = newtwm;
 	    NotifyExitProgram( &shutdownTWM );

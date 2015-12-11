@@ -99,8 +99,7 @@ ElasticFormulaRepository& ElFR()
 	newrepos->addRockPhysicsFormulas();
 	newrepos->addPreDefinedFormulas();
 
-        if ( !elasticrepos.setIfNull( newrepos ) )
-            delete newrepos;
+        elasticrepos.setIfNull( newrepos, true );
     }
 
     return *elasticrepos;

@@ -392,8 +392,7 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 	Well::DisplayProperties* newret = new DisplayProperties;
 	newret->usePar( setts );
 
-	if ( !ret.setIfNull(newret) )
-	    delete newret;
+	ret.setIfNull(newret,true);
     }
 
     return *ret;

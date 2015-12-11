@@ -36,8 +36,7 @@ ObjectSet<ZDomain::Def>& DEFS()
 	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(),
 				      uiStrings::sDepth(), "", 1 );
 
-        if ( !defs.setIfNull( newdefs ) )
-            delete newdefs;
+        defs.setIfNull( newdefs, true );
     }
 
     return *defs;

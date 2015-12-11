@@ -60,8 +60,7 @@ const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 	newintpol->extrapol_ = false;
 	newintpol->udfval_ = 0;
 
-	if ( !intpol_.setIfNull(newintpol) )
-	    delete newintpol;
+	intpol_.setIfNull(newintpol,true);
     }
 
     intpol_->maxidx_ = size()-1;

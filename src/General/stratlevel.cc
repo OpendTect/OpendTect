@@ -34,9 +34,9 @@ const Level& Level::undef()
 	newlvl->id_ = -1;
 	newlvl->color_ = Color::Black();
 
-	if ( !lvl.setIfNull(newlvl) )
-	    delete newlvl;
+	lvl.setIfNull(newlvl,true);
     }
+
     return *lvl;
 }
 

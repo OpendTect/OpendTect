@@ -28,8 +28,7 @@ const IOObjContext& PSEventTranslatorGroup::ioContext()
 	IOObjContext* newctxt = new IOObjContext( 0 );
 	newctxt->stdseltype_ = IOObjContext::Surf;
 
-	if ( !ctxt.setIfNull(newctxt) )
-	    delete newctxt;
+	ctxt.setIfNull(newctxt,true);
     }
 
     ctxt->trgroup_ = &theInst();

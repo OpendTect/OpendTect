@@ -27,12 +27,11 @@ const PosImpExpPars& PosImpExpPars::SVY()
 	PosImpExpPars* newthinst = new PosImpExpPars;
 	newthinst->getFromSI();
 
-	if ( !thinst.setIfNull(newthinst) )
-	    delete newthinst;
-	else
+	if ( thinst.setIfNull(newthinst,true) )
 	    IOM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
 
     }
+
     return *thinst;
 }
 
