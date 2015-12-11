@@ -189,7 +189,6 @@ PresentationSpec::~PresentationSpec()
 {}
 
 
-static const char* sPyDir()	{ return "python-pptx directory"; }
 static const char* sTemplate()	{ return "template pptx"; }
 
 BufferString PresentationSpec::getPyDir()
