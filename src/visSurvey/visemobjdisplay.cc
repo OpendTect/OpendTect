@@ -571,6 +571,16 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 }
 
 
+void EMObjectDisplay::getObjectInfo( BufferString& info ) const
+{
+    info.setEmpty();
+    if ( !emobject_ ) return;
+
+    info = emobject_->getTypeStr(); info += ": ";
+    info += mFromUiStringTodo(name());
+}
+
+
 void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       Coord3& pos,
 				       BufferString& val,
@@ -584,7 +594,8 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
     const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
 
-    if ( sid==-1 ) return;
+    if ( sid==-1 || emobject_->nrSections()==1 )
+	return;
 
     BufferString sectionname = emobject_->sectionName(sid);
     if ( sectionname.isEmpty() ) sectionname = sid;

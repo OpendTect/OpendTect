@@ -82,6 +82,7 @@ public:
 
     bool			allowsPicks() const	{ return true; }
 
+    void			getObjectInfo(BufferString&) const;
     void			getMousePosInfo(const visBase::EventInfo& ei,
 						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}

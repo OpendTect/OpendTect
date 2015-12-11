@@ -67,8 +67,8 @@ LocationDisplay::LocationDisplay()
     , undoloccoord_( Coord3(0,0,0) )
     , undomove_( false )
     , storedmid_(MultiID::udf())
-    , selectionmodel_( false )
-    , ctrldown_( false )
+    , selectionmodel_(false)
+    , ctrldown_(false)
 {
     setSetMgr( &Pick::Mgr() );
 
@@ -173,7 +173,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     getMaterial()->setColor( set_->disp_.color_ );
     invalidpicks_.erase();
-    
+
     if ( set_->isEmpty() )
     {
 	removeAll();
@@ -276,9 +276,9 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	eventcatcher_->setHandled();
     }
     else if ( waitsforpositionid_!=-1 ) // dragging
-    { 
-	// when dragging it will receive multi times coords from visevent: 
-	// mouse move and mouse release. we need the last one and the begin 
+    {
+	// when dragging it will receive multi times coords from visevent:
+	// mouse move and mouse release. we need the last one and the begin
 	// one for undo issue
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
@@ -567,7 +567,7 @@ void LocationDisplay::setChg( CallBacker* cb )
     if ( !ps )
     {
 	pErrMsg("Wrong pointer passed");
-       	return;
+	return;
     }
     else if ( ps != set_ )
 	return;
@@ -586,14 +586,14 @@ void LocationDisplay::dispChg( CallBacker* )
 void LocationDisplay::setColor( Color nc )
 {
     if ( set_ )
-    	set_->disp_.color_ = nc;
+	set_->disp_.color_ = nc;
 }
 
 
 Color LocationDisplay::getColor() const
 {
     if ( set_ )
-    	return set_->disp_.color_;
+	return set_->disp_.color_;
 
     return Color::DgbColor();
 }
@@ -708,9 +708,14 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = "PickSet: "; str += mFromUiStringTodo(name());
+    BufferString str = set_ && set_->isPolygon() ? "Polygon: " : "PickSet: ";
+    str += mFromUiStringTodo(name());
     return str;
 }
+
+
+void LocationDisplay::getObjectInfo( BufferString& info ) const
+{ info = getManipulationString(); }
 
 
 void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,

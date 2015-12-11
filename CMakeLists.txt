@@ -96,6 +96,7 @@ set( OD_PLUGINS
 	uiMadagascar
 	uiMadagascarAttribs
 	uiMATLABLink
+	uiPresentationMaker
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
