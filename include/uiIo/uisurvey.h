@@ -20,6 +20,7 @@ class BufferStringSet;
 class SurveyInfo;
 class uiButton;
 class uiLabel;
+class uiLineEdit;
 class uiListBox;
 class uiSurveyMap;
 class uiSurvInfoProvider;
@@ -74,7 +75,7 @@ protected:
     IOPar*		impiop_;
     uiSurvInfoProvider*	impsip_;
 
-    uiLabel*		datarootlbl_;
+    uiLineEdit*		datarootlbl_;
     uiListBox*		dirfld_;
     uiButton*		editbut_;
     uiButton*		rmbut_;
@@ -94,6 +95,7 @@ protected:
     void		importButPushed(CallBacker*);
     void		exportButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
+    void		odSettsButPush(CallBacker*);
     void		utilButPush(CallBacker*);
     void		selChange(CallBacker*);
     void		updateInfo( CallBacker* )	{ putToScreen(); }
