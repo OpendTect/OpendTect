@@ -786,7 +786,7 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 }
 
 
-bool IOMan::isPresent( const char* objname, const char* tgname ) const
+IOObj* IOMan::get( const char* objname, const char* tgname ) const
 {
     for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )
     {
@@ -798,11 +798,17 @@ bool IOMan::isPresent( const char* objname, const char* tgname ) const
 	if ( iodir.isBad() )
 	    continue;
 
-	if ( iodir.get(objname,tgname) )
-	    return true;
+	return iodir.get( objname, tgname )->clone();
     }
 
-    return false;
+    return 0;
+}
+
+
+bool IOMan::isPresent( const char* objname, const char* tgname ) const
+{
+    PtrMan<IOObj> obj = get( objname, tgname );
+    return obj != 0;
 }
 
 

@@ -53,6 +53,7 @@ public:
     IOObj*		getFromPar(const IOPar&,const char* basekey,
 				   const IOObjContext&,bool mknew,
 				   BufferString& errmsg) const;
+    IOObj*		get(const char* objname,const char* tgname) const;
 
     bool		isPresent(const char*,const char* tgname=0) const;
 			/*!< Use before creating a named object
