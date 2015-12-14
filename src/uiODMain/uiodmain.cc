@@ -83,6 +83,72 @@ uiODMain* ODMainWin()
 }
 
 
+static const char* sKeyShowLowRes = "UI.LowRes.Show";
+static const char* sKeyShowSubRes = "Ui.SubRes.Show";
+static const int cScreenLowRes = 768;
+static const int cScreenSubRes = 920;
+
+static void checkScreenRes()
+{
+    uiMain& uimain = uiMain::theMain();
+    const int nrscreens = uimain.nrScreens();
+
+    bool anyacceptable = false, anysubstd = false, anyok = false;
+    for ( int idx=0; idx<nrscreens; idx++ )
+    {
+	const uiSize sz( uimain.getScreenSize(idx,true) );
+	if ( sz.height() < cScreenLowRes )
+	    { anysubstd = true; continue; }
+
+	anyacceptable = true;
+	if ( sz.height() < cScreenSubRes )
+	    anysubstd = true;
+	else
+	    anyok = true;
+    }
+
+    Settings& setts = Settings::common();
+    bool dontshowagain = false;
+    const uiString& es = uiString::emptyString();
+    if ( !anyacceptable )
+    {
+	if ( !setts.isFalse(sKeyShowLowRes) )
+	    dontshowagain = uiMSG().error( od_static_tr("checkScreenRes",
+		"Your vertical screen resolution is lower than %1 pixels."
+		"\nYou can probably not use OpendTect properly.")
+		    .arg( cScreenLowRes ), es, es, true );
+    }
+    else if ( !anyok )
+    {
+	if ( !setts.isFalse(sKeyShowSubRes) )
+	    dontshowagain = uiMSG().warning( od_static_tr("checkScreenRes",
+	    "Your vertical screen resolution is lower than %1 pixels."
+	    "\nOpendTect may be unusable without using small screen fonts."
+	    "\n\nYou can set font sizes in the 'General Settings' window,"
+	    "\nor menu Utilities-Settings-Look&Feel.")
+		    .arg( cScreenSubRes ), es, es, true );
+    }
+    else if ( anysubstd )
+    {
+	if ( !setts.isFalse(sKeyShowSubRes) )
+	    dontshowagain = uiMSG().warning( od_static_tr("checkScreenRes",
+	    "One of your screens has a vertical screen resolution < %1 "
+	    "pixels.\nOpendTect may only be usable by making the screen "
+	    "fonts smaller."
+	    "\n\nYou can set font sizes in the 'General Settings' window,"
+	    "\nor menu Utilities-Settings-Look&Feel.")
+		    .arg( cScreenSubRes ), es, es, true );
+    }
+
+    if ( dontshowagain )
+    {
+	const char* ky = !anyacceptable ? sKeyShowLowRes : sKeyShowSubRes;
+	setts.setYN( ky, false );
+	setts.write();
+    }
+}
+
+
 int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
@@ -91,6 +157,8 @@ int ODMain( int argc, char** argv )
 
     PtrMan<uiODMain> odmain = new uiODMain( *new uiMain(argc,argv) );
     manODMainWin( odmain );
+
+    checkScreenRes();
 
     bool dodlg = true;
     Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );

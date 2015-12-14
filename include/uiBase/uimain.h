@@ -33,28 +33,30 @@ public:
 			uiMain(int& argc,char** argv);
 private:
 			uiMain(mQtclass(QApplication*));
-    void 		init(mQtclass(QApplication*),int& argc,char **argv);
+    void		init(mQtclass(QApplication*),int& argc,char **argv);
 
 public:
 
     virtual		~uiMain();
 
-    virtual int		exec();	
-    void 		exit(int retcode=0);
+    virtual int		exec();
+    void		exit(int retcode=0);
     void*		thread();
 
     void		getCmdLineArgs(BufferStringSet&) const;
     void		setTopLevel(uiMainWin*);
     uiMainWin*		topLevel()			{ return mainobj_; }
-    void		setFont(const uiFont&,bool passtochildren);    
+    void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
     Color		windowColor() const;
 
+    int			nrScreens() const;
+    uiSize		getScreenSize(int screennr,bool availablesz) const;
     uiSize		desktopSize() const;
-    			//!<\returns mUdf(int) if unknown
+			//!<\returns mUdf(int) if unknown
 
     static uiMain&	theMain();
-    static void		setXpmIconData( const char** xpmdata ); 
+    static void		setXpmIconData( const char** xpmdata );
     static const char**	XpmIconData;
     static void		cleanQtOSEnv();
 
@@ -81,12 +83,12 @@ protected:
     static mQtclass(QApplication*)  app_;
     static const uiFont*  font_;
 
-    static KeyboardEventHandler* keyhandler_;
-    static KeyboardEventFilter*  keyfilter_;
     static mQtclass(QtTabletEventFilter*)  tabletfilter_;
+    static KeyboardEventHandler*	keyhandler_;
+    static KeyboardEventFilter*		keyfilter_;
 
 			//! necessary for uicMain coin inialisation
-    virtual void	init( mQtclass(QWidget*) mainwidget )             {}
+    virtual void	init( mQtclass(QWidget*) mainwidget )	{}
 };
 
 
