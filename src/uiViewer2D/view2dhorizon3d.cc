@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "view2dhorizon3d.h"
 
 #include "emseedpicker.h"
+#include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "horflatvieweditor3d.h"
 #include "mpeengine.h"
@@ -147,6 +148,25 @@ void Vw2DHorizon3D::enablePainting( bool yn )
 
 void Vw2DHorizon3D::selected( bool enabled )
 {
+    bool setenableseed = true;
+    MPE::EMTracker* activetracker = MPE::engine().getActiveTracker();
+    if ( activetracker )
+    {
+	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
+	if ( seedpicker && 
+	     seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
+	     seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap )
+	    setenableseed = false;
+	else
+	    setenableseed = true;
+    }
+    else
+	setenableseed = false;
+
+    bool trackerenbed = false;
+    if (  MPE::engine().getTrackerByObject(emid_) != -1 )
+	trackerenbed = true;
+
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( horeds_[ivwr] )
@@ -157,6 +177,10 @@ void Vw2DHorizon3D::selected( bool enabled )
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
 		horeds_[ivwr]->setMouseEventHandler( 0 );
+   	    if ( setenableseed )
+		horeds_[ivwr]->enableSeed( trackerenbed && enabled );
+	    else
+		horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );
 	}
     }
 
