@@ -36,7 +36,7 @@ public:
     void		mergeSets(MultiID&, const BufferStringSet* nms=0);
     bool		pickSetsStored() const;
 
-    virtual bool	storeNewSet(Pick::Set*&) const;
+    virtual bool	storeNewSet(Pick::Set*&,bool noconf=false) const;
     void		keyPressedCB(CallBacker*);
 
 protected:

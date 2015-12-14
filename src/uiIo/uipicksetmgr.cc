@@ -44,11 +44,11 @@ uiPickSetMgr::~uiPickSetMgr()
 }
 
 
-bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
+bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->setName( ps->name() );
-    if ( uiIOObj::fillCtio(*ctio,true) )
+    if ( uiIOObj::fillCtio(*ctio,!noconf) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj_;
 	if ( ps->disp_.connect_ == Pick::Set::Disp::None )
