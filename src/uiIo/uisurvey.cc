@@ -21,12 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uilatlong2coord.h"
+#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uimain.h"
 #include "uimsg.h"
 #include "uipixmap.h"
 #include "uiseparator.h"
 #include "uisetdatadir.h"
+#include "uisettings.h"
 #include "uisip.h"
 #include "uisplitter.h"
 #include "uisurveyselect.h"
@@ -82,7 +84,6 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 		.arg(uiStrings::sCrossline()), CallBack() );
 	*newutils += new uiSurvey::Util( "spherewire", od_static_tr("getUtils",
 				"Setup geographical coordinates"), CallBack() );
-
 
 	utils.setIfNull(newutils,true);
     }
@@ -420,9 +421,16 @@ uiSurvey::uiSurvey( uiParent* p )
     datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
     datarootbut->attach( leftBorder );
 
-    datarootlbl_ = new uiLabel( topgrp, uiString::emptyString() );
+    datarootlbl_ = new uiLineEdit( topgrp, "Data Root Label" );
     datarootlbl_->setHSzPol( uiObject::WideMax );
-    datarootlbl_->attach( rightTo, datarootbut );
+    datarootlbl_->setReadOnly();
+    datarootlbl_->setBackgroundColor( backgroundColor() );
+    datarootlbl_->attach( rightOf, datarootbut );
+
+    uiPushButton* settbut = new uiPushButton( topgrp, tr("General Settings"),
+				mCB(this,uiSurvey,odSettsButPush), false );
+    settbut->setIcon( "settings" );
+    settbut->attach( rightBorder );
 
     uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
     sep1->attach( stretchedBelow, datarootbut );
@@ -935,6 +943,13 @@ void uiSurvey::dataRootPushed( CallBacker* )
 }
 
 
+void uiSurvey::odSettsButPush( CallBacker* )
+{
+    uiSettingsDlg dlg( this );
+    dlg.go();
+}
+
+
 void uiSurvey::utilButPush( CallBacker* cb )
 {
     if ( !cursurvinfo_ )
@@ -969,7 +984,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 
 void uiSurvey::updateDataRootLabel()
 {
-    datarootlbl_->setText( toUiString(dataroot_) );
+    datarootlbl_->setText( dataroot_ );
 }
 
 
