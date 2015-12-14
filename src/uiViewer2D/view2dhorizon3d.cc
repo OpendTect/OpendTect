@@ -148,7 +148,7 @@ void Vw2DHorizon3D::enablePainting( bool yn )
 
 void Vw2DHorizon3D::selected( bool enabled )
 {
-    bool setenableseed = false;
+    bool setenableseed = true;
     MPE::EMTracker* activetracker = MPE::engine().getActiveTracker();
     if ( activetracker )
     {
@@ -160,6 +160,8 @@ void Vw2DHorizon3D::selected( bool enabled )
 	else
 	    setenableseed = true;
     }
+    else
+	setenableseed = false;
 
     bool trackerenbed = false;
     if (  MPE::engine().getTrackerByObject(emid_) != -1 )
