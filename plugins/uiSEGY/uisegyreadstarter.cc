@@ -46,7 +46,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 
 #define mForSurvSetup forsurvsetup
-#define mSurvMapHeight 350
+#define mSurvMapHeight 300
 #define mDefSize 250
 #define mClipSamplerBufSz 100000
 
