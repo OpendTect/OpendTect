@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "iopar.h"
+#include "ctxtioobj.h"
+#include "iodir.h"
 #include "keystrs.h"
 #include "rowcolsurface.h"
 #include "survinfo.h"
@@ -29,15 +31,32 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
-
+#include "seisioobjinfo.h"
+#include "geom2dintersections.h"
+#include "hiddenparam.h"
 
 namespace visSurvey
 {
+static HiddenParam< Horizon2DDisplay,visBase::MarkerSet* > intersectmkset_(0);
+static HiddenParam< Horizon2DDisplay,char > updateintsectmarkers_(true);
+static HiddenParam< Horizon2DDisplay,int > nr2dlines_(0);
+static HiddenParam< Horizon2DDisplay,Line2DInterSectionSet* > ln2dset_(0);
 
 Horizon2DDisplay::Horizon2DDisplay()
 {
+    intersectmkset_.setParam( this, visBase::MarkerSet::create() );
+    updateintsectmarkers_.setParam( this, true );
+    nr2dlines_.setParam( this, 0 );
+    ln2dset_.setParam( this, 0 );
+    
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,5 ) );
+    visBase::MarkerSet* mkset = intersectmkset_.getParam(this);
+    mkset->ref();
+    addChild( mkset->osgNode() );
+    mkset->setMaterial( new visBase::Material );
+    mkset->setMarkerStyle( MarkerStyle3D::Sphere );
+    mkset->setScreenSize( 4.0 );
 }
 
 
@@ -49,6 +68,15 @@ Horizon2DDisplay::~Horizon2DDisplay()
 	removeSectionDisplay( sids_[idx] );
 
     removeEMStuff();
+    intersectmkset_.getParam(this)->unRef();
+    intersectmkset_.removeParam( this );
+    updateintsectmarkers_.removeParam( this );
+
+    if ( ln2dset_.getParam( this ) )
+	delete ln2dset_.getParam( this );
+    ln2dset_.removeParam( this );
+
+    nr2dlines_.removeParam( this );
 }
 
 
@@ -64,6 +92,8 @@ void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
 	if( points_[idx] )
 	    points_[idx]->setDisplayTransformation(transformation_);
     }
+
+    intersectmkset_.getParam(this)->setDisplayTransformation( transformation_ );
 }
 
 
@@ -283,11 +313,13 @@ bool doWork( od_int64 start, od_int64 stop, int )
     while ( true )
     {
 	const int rowidx = getNextRow();
-	if ( !geomids_.validIdx(rowidx) || mIsUdf(rc.row()) )
+	if ( mIsUdf(rc.row()) )
 	    break;
 
 	rc.row() = rowidx;
-	const Pos::GeomID geomid = geomids_[rowidx];
+	const Pos::GeomID geomid = 
+	    geomids_.validIdx(rowidx) ? geomids_[rowidx] : Pos::GeomID();
+
 	TypeSet<Coord3> positions;
 	const StepInterval<int> colrg = surf_->colRange( rowidx );
 
@@ -407,7 +439,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
     LineRanges linergs;
     mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
-    const bool redo = h2d && geomids.isEmpty();
+    const bool redo = h2d && zaxistransform_ && geomids.isEmpty();
     if ( redo )
     {
 	const EM::Horizon2DGeometry& emgeo = h2d->geometry();
@@ -453,6 +485,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
 void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 {
+    updateintsectmarkers_.setParam( this, true );
     EMObjectDisplay::emChangeCB( cb );
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
@@ -467,6 +500,7 @@ void Horizon2DDisplay::updateLinesOnSections(
     {
 	for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	    updateSection( sidx );
+	intersectmkset_.getParam(this)->turnOn( displayonlyatsections_ );
 	return;
     }
 
@@ -512,6 +546,123 @@ void Horizon2DDisplay::updateLinesOnSections(
 
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	updateSection( sidx, &linergs );
+
+    if ( updateintsectmarkers_.getParam(this) )
+	updateIntersectionMarkers( seis2dlist );
+
+    intersectmkset_.getParam(this)->turnOn( displayonlyatsections_ );
+}
+
+
+
+
+void Horizon2DDisplay::updateIntersectionMarkers( 
+    const ObjectSet<const Seis2DDisplay>& seis2dlist )
+{
+    intersectmkset_.getParam(this)->clearMarkers();
+    calcLine2DInterSectionSet();
+
+    const Line2DInterSectionSet* ln2dset = ln2dset_.getParam(this);
+    if ( !ln2dset )
+	return;
+
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
+    if ( !hor2d ) return;
+
+    TypeSet<Pos::GeomID> geomids;
+    const int nrlns = hor2d->geometry().nrLines();
+    for ( int idx=0; idx<nrlns; idx++ )
+	geomids += hor2d->geometry().geomID(idx);
+
+    for ( int idx=0; idx<ln2dset->size(); idx++ )
+    {
+	const Line2DInterSection* intsect = (*ln2dset)[idx];
+	if ( !intsect )  continue;
+
+	for ( int idy=0; idy<seis2dlist.size(); idy++ )
+	{
+	    if ( intsect->geomID() != seis2dlist[idy]->getGeomID() )
+		    continue;
+	    for ( int idz=0; idz<geomids.size(); idz++ )
+		updateIntersectionPoint( 
+		geomids[idz], seis2dlist[idy]->getGeomID(), intsect );
+	}
+
+    }
+
+    updateintsectmarkers_.setParam( this, false );
+}
+
+
+void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid, 
+    const Pos::GeomID seisgid, const Line2DInterSection* intsect )
+{
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
+    if ( !hor2d ) return;
+
+    TypeSet<Coord3> intsectpnts;
+    for ( int idx=0; idx<intsect->size(); idx++ )
+    {
+	const Line2DInterSection::Point& intpoint = intsect->getPoint(idx);
+	
+	if ( lngid != seisgid && intpoint.line != lngid )   
+	    continue;
+
+	for ( int idy=0; idy<sids_.size(); idy++ )
+	{
+	    const int trcnr =
+		lngid != seisgid ? intpoint.linetrcnr : intpoint.mytrcnr;
+	    const Coord3 crd = hor2d->getPos( sids_[idy], lngid, trcnr );
+	    if ( crd.isDefined() )
+		intsectpnts += crd;
+	}
+
+    }
+    if ( intsectpnts.size()==1 )
+    {
+	visBase::MarkerSet* mkset = intersectmkset_.getParam(this);
+	const int mid = mkset->addPos( intsectpnts[0] );
+	mkset->getMaterial()->setColor( hor2d->preferredColor(), mid );
+    }
+}
+
+
+
+bool Horizon2DDisplay::calcLine2DIntersections( 
+    const TypeSet<Pos::GeomID>& geom2dids, 
+    Line2DInterSectionSet& intsectset )
+{
+    BendPointFinder2DGeomSet bpfinder( geom2dids );
+    bpfinder.execute();
+    intsectset.erase();
+    Line2DInterSectionFinder intfinder( bpfinder.bendPoints(), intsectset );
+    intfinder.execute();
+
+    return intsectset.size()>0;
+}
+
+
+void Horizon2DDisplay::calcLine2DInterSectionSet()
+{
+    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::Geom)->id_ );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    const bool needcalc = 
+	nr2dlines_.getParam(this) !=ioobjs.size() ? true : false;
+    nr2dlines_.setParam( this, ioobjs.size() );
+
+    if ( needcalc )
+    {
+	BufferStringSet lnms;
+	TypeSet<Pos::GeomID> geom2dids;
+	SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
+	Line2DInterSectionSet* ln2dset = ln2dset_.getParam(this);
+	if ( ln2dset )
+	    delete ln2dset_.getParam(this);	
+	ln2dset_.setParam( this, new Line2DInterSectionSet );
+	calcLine2DIntersections( geom2dids, *ln2dset_.getParam(this) );
+    }
+    
 }
 
 
@@ -567,6 +718,7 @@ void Horizon2DDisplay::otherObjectsMoved(
 
     if ( !refresh ) return;
 
+    updateintsectmarkers_.setParam( this, true);
     updateLinesOnSections( seis2dlist );
     updateSeedsOnSections( seis2dlist );
 }
