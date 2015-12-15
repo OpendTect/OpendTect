@@ -72,7 +72,7 @@ endif()
 if ( BUILD_USERDOC )
     if ( WIN32 )
         set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
-	set( USERDOC_TARGET "HTML5" CACHE STRING "Documentation target" )
+	set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
 	find_program( MADCAP_FLARE_EXEC madbuild.exe
 		  HINTS "C:/Program Files (x86)/MadCap Software/MadCap Flare V10/Flare.app"
 			"C:/Program Files (x86)/MadCap Software/MadCap Flare V9/Flare.app"
