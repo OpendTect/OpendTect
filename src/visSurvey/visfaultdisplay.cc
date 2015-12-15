@@ -372,11 +372,10 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 
 bool FaultDisplay::removeSelections( TaskRunner* taskr )
 {
-    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
-    if ( !selector || !faulteditor_ )
+    if ( !fault_ )
 	return false;
-
-    faulteditor_->removeSelection( *selector );
+    fault_->geometry().removeSelectedSticks( true );
+    fault_->setChangedFlag();
     return true;
 }
 

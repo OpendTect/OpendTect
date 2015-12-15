@@ -872,11 +872,11 @@ bool  FaultStickSetDisplay::isManipulatorShown() const
 
 bool FaultStickSetDisplay::removeSelections( TaskRunner* taskr )
 {
-    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
-    if ( !selector || !fsseditor_ )
+    if ( !fault_ )
 	return false;
 
-    fsseditor_->removeSelection( *selector );
+    fault_->geometry().removeSelectedSticks( true );
+    fault_->setChangedFlag();
     return true;
 }
 
