@@ -45,19 +45,7 @@ public:
 
 protected:
 
-    void			findCrossings(Array3DImpl<float>& crossings,
-					      float z) const;
-
-    void			traceContours(Array3DImpl<float>& crossings,
-					      ObjectSet<ODPolygon<float> >&,
-					      bool closedonly) const;
-
-    void			addVertex(ODPolygon<float>& contour,
-					  bool headinsert,int idx,int idy,
-					  int hor,float frac) const;
-    
     const Array2D<float>&	field_;
-
     StepInterval<int>		xsampling_;
     StepInterval<int>		ysampling_;
     Interval<int>		xrange_;
