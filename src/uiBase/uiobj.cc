@@ -60,7 +60,7 @@ bool CmdRecStopper::isInStopperList( const uiBaseObject* obj )
 { return cmdrecstopperlist_.isPresent(obj); }
 
 
-mDefineEnumUtils(uiRect,Side,"Side") { "Left", "Top", "Right", "Bottom", 0 };
+mDefineEnumUtils(uiRect,Side,"Side") { "Left", "Right", "Top", "Bottom", 0 };
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )

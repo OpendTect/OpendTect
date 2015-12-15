@@ -40,9 +40,8 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     hfld->attach( rightOf, wfld );
 
     BufferStringSet positms;
-    positms.add( "Left" ).add( "Right" )
-	   .add( "Top" ).add( "Bottom" );
-    posfld_ = new uiGenInput( this, tr("Position"), StringListInpSpec(positms));
+    posfld_ = new uiGenInput( this, uiStrings::sPosition(),
+			    StringListInpSpec(uiRect::SideDef()) );
     posfld_->attach( alignedBelow, wfld );
     posfld_->setValue( scenecoltab_->getPos() );
     posfld_->valuechanged.notify(
