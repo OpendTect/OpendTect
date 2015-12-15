@@ -20,20 +20,20 @@ bool Strat::SeisEvent::snapPick( SeisTrc& trc ) const
     float reftm = snappedTime( trc );
     if ( mIsUdf(reftm) )
 	return false;
-    trc.info().pick = reftm;
+    trc.info().pick_ = reftm;
     return true;
 }
 
 
 float Strat::SeisEvent::snappedTime( const SeisTrc& trc ) const
 {
-    float reftm = trc.info().pick;
+    float reftm = trc.info().pick_;
     reftm += offs_;
     if ( evtype_ == VSEvent::None )
 	return reftm;
 
     const SeisTrcValueSeries tvs( trc, 0 );
-    const SamplingData<float> sd( trc.info().sampling );
+    const SamplingData<float> sd( trc.info().sampling_ );
     const int trcsz = trc.size();
 
     ValueSeriesEvFinder<float,float> evf( tvs, trcsz-1, sd );

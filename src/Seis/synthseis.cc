@@ -259,7 +259,7 @@ bool SynthGenerator::setOutSampling( const StepInterval<float>& si )
 {
     SynthGenBase::setOutSampling( si );
     outtrc_.reSize( si.nrSteps()+1, false );
-    outtrc_.info().sampling = si;
+    outtrc_.info().sampling_ = si;
 
     convolvesize_ = 0;
     freqwavelet_.erase();
@@ -443,7 +443,7 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
     if ( firsttime > 0.f )
 	stretchfunc.add( 0.f, 0.f );
 
-    outtrc_.info().sampling.indexOnOrAfter( mutelevel );
+    outtrc_.info().sampling_.indexOnOrAfter( mutelevel );
 
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
 	    insz, outputsampling_.start,
@@ -451,7 +451,7 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 
     for ( int idx=0; idx<outsz; idx++ )
     {
-	const float corrtime = outtrc_.info().sampling.atIndex( idx );
+	const float corrtime = outtrc_.info().sampling_.atIndex( idx );
 	const float uncorrtime = stretchfunc.getValue( corrtime );
 
 	const float stretch = corrtime>0
@@ -514,7 +514,7 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
 
 	wavelettrcs += new Array1DImpl<float> ( outsz );
 	getWaveletTrace( *wavelettrcs[nrspikes], spike.time_,
-			 spike.reflectivity_.real(), outtrc_.info().sampling );
+			 spike.reflectivity_.real(), outtrc_.info().sampling_ );
 	nrspikes++;
     }
 
@@ -544,7 +544,7 @@ void SynthGenerator::getWaveletTrace( Array1D<float>& trc, float z,
 void SynthGenerator::sortOutput( float_complex* cres, ValueSeries<float>& res,
 				 int outsz ) const
 {
-    const float step = outtrc_.info().sampling.step;
+    const float step = outtrc_.info().sampling_.step;
     float start = mCast( float, mCast( int, outtrc_.startPos()/step ) ) * step;
     if ( start < outtrc_.startPos() - 1e-4f )
 	start += step;
@@ -553,7 +553,7 @@ void SynthGenerator::sortOutput( float_complex* cres, ValueSeries<float>& res,
     const int nperiods = mCast( int, Math::Floor( start/width ) ) + 1;
     const SamplingData<float> fftsampling( start, step );
     SeisTrc fftout( convolvesize_ );
-    fftout.info().sampling = fftsampling;
+    fftout.info().sampling_ = fftsampling;
     fftout.zero();
 
     const float stoptwt = start + width;
@@ -844,12 +844,12 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	    if ( !rm.outtrcs_.validIdx( idoff ) )
 	    {
 		rm.outtrcs_ += new SeisTrc( outputsampling_.nrSteps() + 1 );
-		rm.outtrcs_[idoff]->info().sampling = outputsampling_;
+		rm.outtrcs_[idoff]->info().sampling_ = outputsampling_;
 		for ( int idz=0; idz<rm.outtrcs_[idoff]->size(); idz++ )
 		    rm.outtrcs_[idoff]->set( idz, mUdf(float), 0 );
 	    }
-	    rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
-	    rm.outtrcs_[idoff]->info().nr = idx+1;
+	    rm.outtrcs_[idoff]->info().offset_ = offsets_[idoff];
+	    rm.outtrcs_[idoff]->info().nr_ = idx+1;
 	}
     }
 
@@ -1030,8 +1030,8 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 	{
 	    SeisTrc* trc = trcs[idx];
 	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
-	    trc->info().nr = imdl+1;
-	    trc->info().coord = SI().transform( trc->info().binid );
+	    trc->info().nr_ = imdl+1;
+	    trc->info().coord_ = SI().transform( trc->info().binid );
 	    tbuf->add( trc );
 	}
 	seisbufs += tbuf;
@@ -1051,8 +1051,8 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
     {
 	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
 	trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
-	trc->info().nr = imdl+1;
-	trc->info().coord = SI().transform( trc->info().binid );
+	trc->info().nr_ = imdl+1;
+	trc->info().coord_ = SI().transform( trc->info().binid );
 	seisbuf.add( trc );
     }
 }

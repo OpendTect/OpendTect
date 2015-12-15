@@ -227,8 +227,8 @@ void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 	}
     }
 
-    trc->info().nr = tnr;
-    trc->info().binid = SI().transform( trc->info().coord );
+    trc->info().nr_ = tnr;
+    trc->info().binid = SI().transform( trc->info().coord_ );
     tbuf_.add( trc );
 }
 
@@ -380,7 +380,7 @@ SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl() = info.nr;
+    bid_.crl() = info.nr_;
     const BinID oldbid = info.binid;
     info.binid = bid_;
 

@@ -147,24 +147,24 @@ int main( int argc, char** argv )
 	if ( !tri->read(trc) )
 	    { od_cout() << "Cannot read trace!" << od_endl; continue; }
 
-	if ( !mIsZero(trc.info().pick,mDefEps)
-		&& !mIsUdf(trc.info().pick) )
-	    od_cout() << "Pick position: " << trc.info().pick << od_endl;
-	if ( !mIsZero(trc.info().refnr,mDefEps)
-		&& !mIsUdf(trc.info().refnr) )
-	    od_cout() << "Reference number: " << trc.info().refnr
+	if ( !mIsZero(trc.info().pick_,mDefEps)
+		&& !mIsUdf(trc.info().pick_) )
+	    od_cout() << "Pick position: " << trc.info().pick_ << od_endl;
+	if ( !mIsZero(trc.info().refnr_,mDefEps)
+		&& !mIsUdf(trc.info().refnr_) )
+	    od_cout() << "Reference number: " << trc.info().refnr_
 		      << od_endl;
-	if ( !mIsZero(trc.info().offset,mDefEps)
-		&& !mIsUdf(trc.info().offset) )
-	    od_cout() << "Offset: " << trc.info().offset << od_endl;
-	if ( !mIsZero(trc.info().azimuth,mDefEps)
-		&& !mIsUdf(trc.info().azimuth) )
-	    od_cout() << "Azimuth: " << (Math::toDegrees(trc.info().azimuth))
+	if ( !mIsZero(trc.info().offset_,mDefEps)
+		&& !mIsUdf(trc.info().offset_) )
+	    od_cout() << "Offset: " << trc.info().offset_ << od_endl;
+	if ( !mIsZero(trc.info().azimuth_,mDefEps)
+		&& !mIsUdf(trc.info().azimuth_) )
+	    od_cout() << "Azimuth: " << (Math::toDegrees(trc.info().azimuth_))
 		      << od_endl;
-	if ( !mIsZero(trc.info().coord.x,0.1) )
+	if ( !mIsZero(trc.info().coord_.x,0.1) )
 	{
-	    od_cout() << "Coordinate: " << trc.info().coord.toPrettyString();
-	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );
+	    od_cout() << "Coordinate: " << trc.info().coord_.toPrettyString();
+	    BinID b = info.geom_.b2c.transformBack( trc.info().coord_ );
 	    if ( b != trc.info().binid )
 		od_cout() << " --> " << b.toString();
 	    od_cout() << od_endl;

@@ -131,7 +131,7 @@ bool DataPlayer::extractSeismics()
     SeisTrc rawseis = SeisTrc( seisextr.result() );
     const int newsz = tracerg.nrSteps()+1;
     data_.seistrc_ = SeisTrc( newsz );
-    data_.seistrc_.info().sampling = tracerg;
+    data_.seistrc_.info().sampling_ = tracerg;
     for ( int idx=0; idx<newsz; idx++ )
     {
 	const float twt = tracerg.atIndex(idx);
@@ -228,7 +228,7 @@ bool DataPlayer::computeCrossCorrelation()
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.erase();
-    const float step = data_.seistrc_.info().sampling.step;
+    const float step = data_.seistrc_.info().sampling_.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     cd.vals_.setSize( nrsamps, 0 );
     GeoCalculator gccc;
@@ -254,7 +254,7 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
     if ( !extractWvf(false) )
 	mErrRet( tr( "Cannot extract seismic for wavelet estimation" ) )
 
-    const float step = data_.seistrc_.info().sampling.step;
+    const float step = data_.seistrc_.info().sampling_.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     mDeclareAndTryAlloc( float*, wvltarrfull, float[nrsamps] );
     if ( !wvltarrfull )
@@ -340,7 +340,7 @@ bool DataPlayer::extractReflectivity()
     if ( zrg_.isUdf() )
 	mErrRet( tr( "Extraction window not set for reflectivity computation") )
 
-    const float step = data_.seistrc_.info().sampling.step;
+    const float step = data_.seistrc_.info().sampling_.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     const int totnrspikes = refmodel_.size();
     if ( totnrspikes < nrsamps )

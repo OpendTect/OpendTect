@@ -216,7 +216,7 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 
     for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {
-	const int curtrcnr = trcinfoset_[idx]->nr;
+	const int curtrcnr = trcinfoset_[idx]->nr_;
 	const int start = dataset_[idx]->z0_;
 	const int stop = dataset_[idx]->z0_ + dataset_[idx]->nrsamples_-1;
 
@@ -225,7 +225,7 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	    trcrange.start = trcrange.stop = curtrcnr;
 	    zrange.start = start;
 	    zrange.stop = stop;
-	    zstep = trcinfoset_[idx]->sampling.step;
+	    zstep = trcinfoset_[idx]->sampling_.step;
 	}
 	else
 	{
@@ -264,14 +264,14 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
     if ( trcinfoset_.isEmpty() )
 	return -1;
 
-    const int guessedidx = trcno-trcinfoset_[0]->nr;
+    const int guessedidx = trcno-trcinfoset_[0]->nr_;
     if ( trcinfoset_.validIdx(guessedidx) &&
-		trcno == trcinfoset_[guessedidx]->nr )
+		trcno == trcinfoset_[guessedidx]->nr_ )
 	return guessedidx;
 
     for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {
-	if ( trcno == trcinfoset_[idx]->nr )
+	if ( trcno == trcinfoset_[idx]->nr_ )
 	    return idx;
     }
 

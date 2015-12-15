@@ -379,10 +379,10 @@ int SeisSingleTraceProc::getFillTrc()
 	}
 	filltrc_ = new SeisTrc( *worktrc_ );
 	filltrc_->zero();
-	filltrc_->info().nr = 0;
-	filltrc_->info().offset = 0;
-	filltrc_->info().azimuth = 0;
-	filltrc_->info().refnr = filltrc_->info().pick = mUdf(float);
+	filltrc_->info().nr_ = 0;
+	filltrc_->info().offset_ = 0;
+	filltrc_->info().azimuth_ = 0;
+	filltrc_->info().refnr_ = filltrc_->info().pick_ = mUdf(float);
     }
 
     if ( fillbid_.inl() > fillhs_.stop_.inl() )
@@ -402,7 +402,7 @@ int SeisSingleTraceProc::getFillTrc()
 	worktrc_ = &intrc_;
 	*worktrc_ = *filltrc_;
 	worktrc_->info().binid = fillbid_;
-	worktrc_->info().coord = SI().transform( fillbid_ );
+	worktrc_->info().coord_ = SI().transform( fillbid_ );
     }
 
     fillbid_.crl() += fillhs_.step_.crl();

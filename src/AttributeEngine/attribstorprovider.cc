@@ -351,7 +351,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
     curtrcinfo_ = 0;
     const SeisTrcInfo& newti = trc->info();
-    currentbid_ = desc_.is2D()? BinID( 0, newti.nr ) : newti.binid;
+    currentbid_ = desc_.is2D()? BinID( 0, newti.nr_ ) : newti.binid;
     trcinfobid_ = newti.binid;
     if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
 	    || newti.binid == startpos )
@@ -691,7 +691,7 @@ bool StorageProvider::computeData( const DataHolder& output,
 	Interval<float> poszrg = possiblevolume_->zsamp_;
 	const float desonlyzrgstart = deszrg.start - poszrg.start;
 	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
-	Interval<float> trcrange = trc->info().sampling.interval(trc->size());
+	Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
 	const float diffstart = z0*refstep_ - trcrange.start;
 	const float diffstop = (z0+nrsamples-1)*refstep_ - trcrange.stop;
 	bool isdiffacceptable =
@@ -759,8 +759,8 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	const_cast<DataHolder&>(data).extrazfromsamppos_ = extrazfromsamppos;
     }
 
-    Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
+    trcrange.widen( 0.001f * trc->info().sampling_.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
 	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
@@ -847,8 +847,8 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     const SeisTrc* trc = mscprov_->get(0,0);
     if ( !trc ) return;
 
-    Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
+    trcrange.widen( 0.001f * trc->info().sampling_.step );
     const BinID bid = trc->info().binid;
     if ( !dc->sampling().hsamp_.includes(bid) )
 	return;

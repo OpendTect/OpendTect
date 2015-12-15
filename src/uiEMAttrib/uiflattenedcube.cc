@@ -148,17 +148,17 @@ int nextStep()
 	const Interval<float> inzrg( intrc_.zRange() );
 	const StepInterval<float> outzrg( zval_ + inzrg.start - horzrg_.stop,
 					  zval_ + inzrg.stop - horzrg_.start,
-					  intrc_.info().sampling.step );
+					  intrc_.info().sampling_.step );
 	const int nrsamps = outzrg.nrSteps() + 1;
 	outtrc_.reSize( nrsamps, false );
-	outtrc_.info().sampling.start = outzrg.start;
+	outtrc_.info().sampling_.start = outzrg.start;
     }
 
-    const float horz = pp_.adjustedZ( intrc_.info().coord, zval_ );
+    const float horz = pp_.adjustedZ( intrc_.info().coord_, zval_ );
     outtrc_.info().binid = intrc_.info().binid;
-    outtrc_.info().coord = intrc_.info().coord;
-    outtrc_.info().nr = intrc_.info().nr;
-    outtrc_.info().pick = horz;
+    outtrc_.info().coord_ = intrc_.info().coord_;
+    outtrc_.info().nr_ = intrc_.info().nr_;
+    outtrc_.info().pick_ = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<outtrc_.size(); isamp++ )

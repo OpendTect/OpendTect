@@ -152,7 +152,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	if ( !next2DLine() )
 	    return false;
 
-	SamplingData<float> sd = trc.info().sampling;
+	SamplingData<float> sd = trc.info().sampling_;
 	StepInterval<float> zrg( sd.start, 0, sd.step );
 	zrg.stop = sd.start + sd.step * (trc.size()-1);
 	linedata_->setZRange( zrg );
@@ -166,7 +166,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    const Pos::GeomID geomid = mCurGeomID;
 	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
 	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
-	    SamplingData<float> sd = trc.info().sampling;
+	    SamplingData<float> sd = trc.info().sampling_;
 	    StepInterval<float> zrg( sd.start, 0, sd.step );
 	    if ( linedata_ ) linedata_->setZRange( zrg );
 	}
@@ -248,7 +248,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( !neednewconn && isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet )
+	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet_ )
 	{
 	    const int connidx = iostrm->connIdxFor( trc.info().binid.inl() );
 	    neednewconn = connidx != iostrm->curConnIdx();
@@ -305,8 +305,8 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     if ( !res )
 	errmsg_ = putter_->errMsg();
 
-    PosInfo::Line2DPos pos( trc.info().nr );
-    pos.coord_ = trc.info().coord;
+    PosInfo::Line2DPos pos( trc.info().nr_ );
+    pos.coord_ = trc.info().coord_;
     linedata_->add( pos );
 
     return res;
@@ -324,7 +324,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     {
 	BinID selbid = trc.info().binid;
 	if ( is2d_ )
-	    selbid = BinID( seldata_->inlRange().start, trc.info().nr );
+	    selbid = BinID( seldata_->inlRange().start, trc.info().nr_ );
 
 	if ( seldata_->selRes(selbid) )
 	    return true;
@@ -340,10 +340,10 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    return false;
 	}
 
-	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().nr) < 0 )
+	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().nr_) < 0 )
 	{
-	    PosInfo::Line2DPos pos( trc.info().nr );
-	    pos.coord_ = trc.info().coord;
+	    PosInfo::Line2DPos pos( trc.info().nr_ );
+	    pos.coord_ = trc.info().coord_;
 	    linedata_->add( pos );
 	}
     }
@@ -512,7 +512,7 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
 		const bool samepos = writer_->is2D()
-		    ? bid.crl() == outputs_[idy]->info().nr
+		    ? bid.crl() == outputs_[idy]->info().nr_
 		    : outputs_[idy]->info().binid == bid;
 		if ( samepos )
 		{

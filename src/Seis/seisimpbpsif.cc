@@ -191,15 +191,15 @@ int SeisImpBPSIF::readAscii()
     std::istream& strm = *cursd_.istrm;
     const int nrshotattrs = shotattrs_.size();
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
-    tmpltrc.info().sampling.start = SI().zRange(true).start;
-    tmpltrc.info().sampling.step = SI().zStep();
-    strm >> tmpltrc.info().coord.x >> tmpltrc.info().coord.y;
+    tmpltrc.info().sampling_.start = SI().zRange(true).start;
+    tmpltrc.info().sampling_.step = SI().zStep();
+    strm >> tmpltrc.info().coord_.x >> tmpltrc.info().coord_.y;
     for ( int idx=0; idx<nrshotattrs; idx++ )
     {
 	float val; strm >> val;
 	tmpltrc.set( idx, val, 0 );
 	if ( idx == 0 )
-	    tmpltrc.info().nr = mNINT32(val);
+	    tmpltrc.info().nr_ = mNINT32(val);
     }
 
     BufferString rcvdata;
@@ -228,13 +228,13 @@ int SeisImpBPSIF::readBinary()
     const int nrrcvattrs = rcvattrs_.size();
     mAllocVarLenArr( float, vbuf, 2+nrshotattrs );
     SeisTrc tmpltrc( nrshotattrs + nrrcvattrs );
-    tmpltrc.info().sampling.start = SI().zRange(true).start;
-    tmpltrc.info().sampling.step = SI().zStep();
+    tmpltrc.info().sampling_.start = SI().zRange(true).start;
+    tmpltrc.info().sampling_.step = SI().zStep();
     StrmOper::readBlock( strm, vbuf, (2+nrshotattrs)*sizeof(float) );
-    tmpltrc.info().coord.x = vbuf[0]; tmpltrc.info().coord.y = vbuf[1];
+    tmpltrc.info().coord_.x = vbuf[0]; tmpltrc.info().coord_.y = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
-    tmpltrc.info().nr = mNINT32(vbuf[0]);
+    tmpltrc.info().nr_ = mNINT32(vbuf[0]);
 
     if ( !addTrcsBinary(tmpltrc) )
 	return fileEnded();
@@ -278,7 +278,7 @@ int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
 	    newtrc->set( nrshotattrs+idx, val, 0 );
 	}
 
-	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
+	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord_, true );
 	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binid) )
 	    datamgr_.add( newtrc );
 	else
@@ -312,7 +312,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	for ( int iattr=0; iattr<nrrcvattrs; iattr++ )
 	    newtrc->set( nrshotattrs+iattr, vbuf[2+iattr], 0 );
 
-	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
+	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord_, true );
 	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binid) )
 	    datamgr_.add( newtrc );
 	else

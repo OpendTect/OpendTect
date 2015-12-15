@@ -167,7 +167,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	    "No proper 'number of samples per trace' found" )
 
     SeisTrcInfo ti; thdr->fill( ti, 1.0f );
-    sampling_ = ti.sampling;
+    sampling_ = ti.sampling_;
 
     return uiString::emptyString();
 }
@@ -246,9 +246,9 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
     thdr.fill( ti, coordscale_ );
     offscalc.setOffset( ti, thdr );
     if ( icvsxytype_ == FileReadOpts::ICOnly )
-	ti.coord = SI().transform( ti.binid );
+	ti.coord_= SI().transform( ti.binid );
     else if ( icvsxytype_ == FileReadOpts::XYOnly )
-	ti.binid = SI().transform( ti.coord );
+	ti.binid = SI().transform( ti.coord_);
 }
 
 
@@ -564,16 +564,16 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
 
     const bool isfirst = nrinfile == idxfirstlive_;
     if ( !def.havetrcnrs_ )
-	ti.nr = def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ );
+	ti.nr_ = def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ );
 
     keydata_.add( thdr, def.hdrsswapped_, isfirst );
-    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset );
+    pidetector_->add( ti.coord_, ti.binid, ti.nr_, ti.offset_ );
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )
-	rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
+	rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr_;
     else
-	rgs_.refnrs_.include( ti.refnr, false );
+	rgs_.refnrs_.include( ti.refnr_, false );
 }
 
 

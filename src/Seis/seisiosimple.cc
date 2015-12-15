@@ -260,7 +260,7 @@ void SeisIOSimple::startImpRead()
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
     }
 
-    trc_.info().sampling = data_.sd_;
+    trc_.info().sampling_ = data_.sd_;
     importer_ = new SeisImporter( new SeisIOSimpleImportReader(*this),
 				  *wrr_, data_.geom_ );
 }
@@ -389,11 +389,11 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
     trc.info().binid = bid;
     prevbid_ = bid;
-    trc.info().coord = coord;
-    trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
-    trc.info().azimuth = azim;
-    trc.info().nr = nr;
-    trc.info().refnr = refnr;
+    trc.info().coord_ = coord;
+    trc.info().offset_ = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
+    trc.info().azimuth_ = azim;
+    trc.info().nr_ = nr;
+    trc.info().refnr_ = refnr;
     prevnr_ = nr;
 #   define mApplyScalerAndSetTrcVal \
 	if ( data_.scaler_ ) \
@@ -470,7 +470,7 @@ int SeisIOSimple::writeExpTrc()
 	data_.nrsamples_ = trc_.size();
 	if ( data_.havesd_ )
 	{
-	    SamplingData<float> datasd = trc_.info().sampling;
+	    SamplingData<float> datasd = trc_.info().sampling_;
 	    if ( zistm_ )
 		{ datasd.start *= 1000; datasd.step *= 1000; }
 	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
@@ -485,8 +485,8 @@ int SeisIOSimple::writeExpTrc()
 
     if ( data_.havenr_ )
     {
-	int nr = trc_.info().nr;
-	const float refnr = trc_.info().refnr;
+	int nr = trc_.info().nr_;
+	const float refnr = trc_.info().refnr_;
 	mPIEPAdj(TrcNr,nr,false);
 	binstrm.add( nr );
 	if ( data_.haverefnr_ )
@@ -497,7 +497,7 @@ int SeisIOSimple::writeExpTrc()
     {
 	if ( data_.isxy_ )
 	{
-	    Coord coord = trc_.info().coord;
+	    Coord coord = trc_.info().coord_;
 	    mPIEPAdj(Coord,coord,false);
 	    binstrm.add( coord.x ).add( coord.y );
 	}
@@ -513,13 +513,13 @@ int SeisIOSimple::writeExpTrc()
     {
 	if ( data_.haveoffs_ )
 	{
-	    float offs = trc_.info().offset;
+	    float offs = trc_.info().offset_;
 	    mPIEPAdj(Offset,offs,false);
 	    if ( SI().xyInFeet() ) offs *= mToFeetFactorF;
 	    binstrm.add( offs );
 	}
 	if ( data_.haveazim_ )
-	    binstrm.add( trc_.info().azimuth );
+	    binstrm.add( trc_.info().azimuth_ );
     }
 
     float val;

@@ -498,12 +498,12 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 
     headerpars_->set( "n3", nrbids );
 
-    headerpars_->set( "o2", firsttrc->info().offset );
-    headerpars_->set( "d2", nexttrc->info().offset - firsttrc->info().offset );
+    headerpars_->set( "o2", firsttrc->info().offset_ );
+    headerpars_->set( "d2", nexttrc->info().offset_ - firsttrc->info().offset_ );
     headerpars_->set( "n2", nroffsets_ );
 
-    headerpars_->set( "o1", firsttrc->info().sampling.start );
-    headerpars_->set( "d1", firsttrc->info().sampling.step );
+    headerpars_->set( "o1", firsttrc->info().sampling_.start );
+    headerpars_->set( "d1", firsttrc->info().sampling_.step );
     headerpars_->set( "n1", firsttrc->size() );
     mSetFormat;
     headerpars_->set( sKeyIn, sKeyStdIn );
@@ -766,12 +766,12 @@ bool MadStream::writeTraces( bool writetofile )
 		{
 		    readRSFTrace( buf, nrsamps );
 		    SeisTrc* trc = new SeisTrc( nrsamps );
-		    trc->info().sampling = sd;
+		    trc->info().sampling_ = sd;
 		    trc->info().binid = BinID( inl, crl );
 		    if ( isps_ )
 		    {
-			trc->info().nr = trcidx;
-			trc->info().offset = offsetsd.atIndex( trcidx - 1 );
+			trc->info().nr_ = trcidx;
+			trc->info().offset_ = offsetsd.atIndex( trcidx - 1 );
 		    }
 
 		    for ( int isamp=0; isamp<nrsamps; isamp++ )
@@ -841,12 +841,12 @@ bool MadStream::write2DTraces( bool writetofile )
 	{
 	    readRSFTrace( buf, nrsamps );
 	    SeisTrc* trc = new SeisTrc( nrsamps );
-	    trc->info().sampling = sd;
-	    trc->info().coord = posns[idx].coord_;
+	    trc->info().sampling_ = sd;
+	    trc->info().coord_ = posns[idx].coord_;
 	    trc->info().binid.crl() = trcnr;
-	    trc->info().nr = trcnr;
+	    trc->info().nr_ = trcnr;
 	    if ( isps_ )
-		trc->info().offset = offsetsd.atIndex( offidx );
+		trc->info().offset_ = offsetsd.atIndex( offidx );
 
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 		trc->set( isamp, buf[isamp], 0 );

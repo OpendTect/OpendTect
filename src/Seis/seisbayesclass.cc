@@ -423,7 +423,7 @@ float SeisBayesClass::getPDFValue( int ipdf, int isamp, int icomp,
 {
     const SeisTrc& inptrc0 = *inptrcs_.get( 0 );
     const SeisTrc& outtrc = *outtrcs_.get( ipdf );
-    const float eps = inptrc0.info().sampling.step * 0.0001f;
+    const float eps = inptrc0.info().sampling_.step * 0.0001f;
 
     for ( int idim0=0; idim0<nrdims_; idim0++ )
     {

@@ -163,7 +163,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
     if ( innrsamples_ < 1 )
 	{ errmsg_ = tr("Empty first trace"); return false; }
 
-    insd_ = outsd_ = trc.info().sampling;
+    insd_ = outsd_ = trc.info().sampling_;
 
     if ( !initConn(c) || !initWrite_( trc ) )
     {
@@ -315,12 +315,12 @@ bool SeisTrcTranslator::writeBlock()
 					: SeisTrcInfo::BinIDCrl;
 	bool sort_asc = true;
 	if ( is_2d )
-	    sort_asc = trcblock_.get(0)->info().nr
-		     < trcblock_.get(trcblock_.size()-1)->info().nr;
+	    sort_asc = trcblock_.get(0)->info().nr_
+		     < trcblock_.get(trcblock_.size()-1)->info().nr_;
 	    // for 2D we're buffering only 100 traces, not an entire line
 	trcblock_.sort( sort_asc, keyfld );
 	firsttrc = trcblock_.get( 0 );
-	const int firstnr = is_2d ? firsttrc->info().nr
+	const int firstnr = is_2d ? firsttrc->info().nr_
 				 : firsttrc->info().binid.crl();
 	int nrperpos = 1;
 	if ( !is_2d )
@@ -369,7 +369,7 @@ bool SeisTrcTranslator::writeBlock()
 	    else
 	    {
 		filltrc->info().binid = binid;
-		filltrc->info().coord = SI().transform(binid);
+		filltrc->info().coord_ = SI().transform(binid);
 	    }
 	    if ( !writeTrc_(*filltrc) )
 		return false;
@@ -509,14 +509,14 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 
     SeisTrc* newtrc = new SeisTrc;
     newtrc->info().binid = binid;
-    newtrc->info().coord = SI().transform( binid );
+    newtrc->info().coord_ = SI().transform( binid );
 
     newtrc->data().delComponent(0);
     for ( int idx=0; idx<nrout_; idx++ )
     {
 	newtrc->data().addComponent( outnrsamples_,
 				     outcds_[idx]->datachar, true );
-	newtrc->info().sampling = outsd_;
+	newtrc->info().sampling_ = outsd_;
     }
 
     return newtrc;

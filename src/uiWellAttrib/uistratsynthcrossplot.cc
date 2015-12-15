@@ -174,7 +174,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		mpErrRet( "DataPack does not have a TD model" )
 
 	    float dpth = lm_.sequence(imod).depthPositionOf( lvl );
-	    trc.info().pick = d2tmodels[imod]->getTime( dpth );
+	    trc.info().pick_ = d2tmodels[imod]->getTime( dpth );
 	    const float twt = ssev.snappedTime( trc );
 	    dpth = d2tmodels[imod]->getDepth( twt );
 
@@ -242,8 +242,8 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 	uiMSG().error( tr("No valid step provided for data extraction"));
 
     const float halfstep = step / 2.f;
-    const int trcnr = trcinfo.nr;
-    const Coord trcpos = trcinfo.coord;
+    const int trcnr = trcinfo.nr_;
+    const Coord trcpos = trcinfo.coord_;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
     const StepInterval<float> win( extrwin.start, extrwin.stop, step );
@@ -292,8 +292,8 @@ void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
     if ( subseq.isEmpty() )
 	return;
 
-    const int trcnr = trcinfo.nr;
-    const Coord trcpos = trcinfo.coord;
+    const int trcnr = trcinfo.nr_;
+    const Coord trcpos = trcinfo.coord_;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
     float dah = subseq.startDepth();

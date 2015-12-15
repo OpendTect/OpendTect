@@ -217,8 +217,8 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 	    vals[1] = vals[2] = mUdf(float);
 	else
 	{
-	    const float vm1 = trc.getValue( z-trc.info().sampling.step, icomp );
-	    const float v1  = trc.getValue( z+trc.info().sampling.step, icomp );
+	    const float vm1 = trc.getValue( z-trc.info().sampling_.step, icomp );
+	    const float v1  = trc.getValue( z+trc.info().sampling_.step, icomp );
 	    vals[1] = (vm1 + v1) * .5f;
 	    vals[2] = vm1 - v1;
 	    vals[1] /= vals[0]; vals[2] /= vals[0];

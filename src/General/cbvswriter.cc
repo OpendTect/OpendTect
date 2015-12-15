@@ -78,9 +78,9 @@ void CBVSWriter::init( const CBVSInfo& i )
 	  errmsg_ = "Internal error"; return; }
 
     if ( auxinfo_ && survgeom_.fullyrectandreg
-      && !auxinfosel_.startpos && !auxinfosel_.coord
-      && !auxinfosel_.offset && !auxinfosel_.azimuth
-      && !auxinfosel_.pick && !auxinfosel_.refnr )
+      && !auxinfosel_.startpos_ && !auxinfosel_.coord_
+      && !auxinfosel_.offset_ && !auxinfosel_.azimuth_
+      && !auxinfosel_.pick_ && !auxinfosel_.refnr_ )
 	auxinfo_ = 0;
 
     writeHdr( i ); if ( errmsg_ ) return;
@@ -151,16 +151,16 @@ void CBVSWriter::putAuxInfoSel( unsigned char* ptr ) const
 	auxbts += sizeof(auxinfo_->memb); \
     }
 
-    mDoMemb(startpos,1)
-    if ( coordpol_ == InAux && auxinfosel_.coord )
+    mDoMemb(startpos_,1)
+    if ( coordpol_ == InAux && auxinfosel_.coord_ )
     {
 	*ptr |= (unsigned char)2;
 	auxbts += 2 * sizeof(double);
     }
-    mDoMemb(offset,4)
-    mDoMemb(pick,8)
-    mDoMemb(refnr,16)
-    mDoMemb(azimuth,32)
+    mDoMemb(offset_,4)
+    mDoMemb(pick_,8)
+    mDoMemb(refnr_,16)
+    mDoMemb(azimuth_,32)
 
     const_cast<CBVSWriter*>(this)->auxnrbytes_ = auxbts;
 }
@@ -261,7 +261,7 @@ void CBVSWriter::getBinID()
     }
     else if ( !(trcswritten_ % nrtrcpp) )
     {
-	curbinid_ = auxinfo_->binid;
+	curbinid_ = auxinfo_->trckey_.pos();
 	if ( !trcswritten_ || prevbinid_.inl() != curbinid_.inl() )
 	    newSeg( true );
 	else
@@ -374,18 +374,18 @@ bool CBVSWriter::writeAuxInfo()
     if ( auxinfosel_.memb ) \
 	strm_.addBin( &auxinfo_->memb, sizeof(auxinfo_->memb) );
 
-	mDoWrAI(startpos)
+	mDoWrAI(startpos_)
 	if ( coordpol_ == InTrailer )
-	    trailercoords_ += auxinfo_->coord;
-	else if ( coordpol_ == InAux && auxinfosel_.coord )
+	    trailercoords_ += auxinfo_->coord_;
+	else if ( coordpol_ == InAux && auxinfosel_.coord_ )
 	{
-	    strm_.addBin( &auxinfo_->coord.x, sizeof(double) );
-	    strm_.addBin( &auxinfo_->coord.y, sizeof(double) );
+	    strm_.addBin( &auxinfo_->coord_.x, sizeof(double) );
+	    strm_.addBin( &auxinfo_->coord_.y, sizeof(double) );
 	}
-	mDoWrAI(offset)
-	mDoWrAI(pick)
-	mDoWrAI(refnr)
-	mDoWrAI(azimuth)
+	mDoWrAI(offset_)
+	mDoWrAI(pick_)
+	mDoWrAI(refnr_)
+	mDoWrAI(azimuth_)
     }
 
     return strm_.isOK();

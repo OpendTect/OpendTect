@@ -285,7 +285,7 @@ void uiSeisBrowser::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
     else if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
     {
 	newtrc->info().binid = bid;
-	newtrc->info().coord = SI().transform( bid );
+	newtrc->info().coord_ = SI().transform( bid );
 	fillUdf( *newtrc );
     }
     tbuf.add( newtrc );
@@ -345,7 +345,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 	tbuf_.add( tbufafter_.get(idx) );
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
-	tbuf_.get(idx)->info().nr = idx;
+	tbuf_.get(idx)->info().nr_ = idx;
 
     fillTable();
     return true;
@@ -890,13 +890,13 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 
 void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 {
-    coordfld_->setValue( trc.info().coord );
+    coordfld_->setValue( trc.info().coord_ );
     if ( !is2d_ )
 	trcnrbinidfld_->setValue( trc.info().binid );
     else
     {
 	trcnrbinidfld_->setValue( trc.info().binid.crl(), 0 );
-	trcnrbinidfld_->setValue( trc.info().refnr, 1 );
+	trcnrbinidfld_->setValue( trc.info().refnr_, 1 );
     }
 
     if ( trc.size() < 1 ) return;
@@ -932,7 +932,7 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
     maxamplfld_->setValue( amplrg.stop );
     maxamplatfld_->setText( getZValStr(peakzs.stop,zfac) );
 
-    setup_.nyqvistspspace_ = trc.info().sampling.step;
+    setup_.nyqvistspspace_ = trc.info().sampling_.step;
     Array1DImpl<float> a1d( vals.size() );
     for ( int idx=0; idx<vals.size(); idx++ )
 	a1d.set( idx, vals[idx] );

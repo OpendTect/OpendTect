@@ -381,12 +381,12 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     ti.getFrom( auxinf_ );
-    ti.sampling.start = outsd_.start;
-    ti.sampling.step = outsd_.step;
-    ti.nr = ++nrdone_;
+    ti.sampling_.start = outsd_.start;
+    ti.sampling_.step = outsd_.step;
+    ti.nr_ = ++nrdone_;
 
     if ( ti.binid.inl() == 0 && ti.binid.crl() == 0 )
-	ti.binid = SI().transform( ti.coord );
+	ti.binid = SI().transform( ti.coord_);
 
     return (headerdone_ = true);
 }

@@ -580,7 +580,7 @@ void uiStratSynthDisp::drawLevel()
 	    if ( tbuf.get(imdl)->isNull() )
 		continue;
 	    const float tval =
-		dispflattened_ ? 0 :  tbuf.get(imdl)->info().pick;
+		dispflattened_ ? 0 :  tbuf.get(imdl)->info().pick_;
 
 	    auxd->markerstyles_ += OD::MarkerStyle2D( OD::MarkerStyle2D::Target,
 						  cMarkerSize, lvl->col_ );
@@ -765,8 +765,8 @@ float uiStratSynthDisp::centralTrcShift() const
 	    return 0.0f;
 	const int centrcidx = forward ? forwardidx : backwardidx;
 	const SeisTrc* centtrc = trcbuf.size() ? trcbuf.get( centrcidx ) :  0;
-	if ( centtrc && !mIsUdf(centtrc->info().pick) )
-	    return centtrc->info().pick;
+	if ( centtrc && !mIsUdf(centtrc->info().pick_) )
+	    return centtrc->info().pick_;
 	forward ? forwardidx++ : backwardidx--;
 	forward = !forward;
     }
@@ -1034,11 +1034,11 @@ void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
     {
 	SeisTrc& trc = *tbuf.get( idx );
 
-	const float lastzval = trc.info().sampling.atIndex( trc.size()-1 );
+	const float lastzval = trc.info().sampling_.atIndex( trc.size()-1 );
 	const int lastsz = trc.size();
 	if ( lastzval > reqlastzval )
 	    continue;
-	const int newsz = trc.info().sampling.nearestIndex( reqlastzval );
+	const int newsz = trc.info().sampling_.nearestIndex( reqlastzval );
 	trc.reSize( newsz, true );
 	if ( spsd )
 	{

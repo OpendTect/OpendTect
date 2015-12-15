@@ -436,9 +436,9 @@ void CBVSReadMgr::getPositions( TypeSet<Coord>& posns ) const
     {
 	CBVSReadMgr* ncthis = const_cast<CBVSReadMgr*>( this );
 	ncthis->toStart(); PosAuxInfo pai;
-	ncthis->getAuxInfo( pai ); posns += pai.coord;
+	ncthis->getAuxInfo( pai ); posns += pai.coord_;
 	while ( ncthis->toNext() )
-	    { ncthis->getAuxInfo( pai ); posns += pai.coord; }
+	    { ncthis->getAuxInfo( pai ); posns += pai.coord_; }
 	ncthis->toStart();
     }
 }

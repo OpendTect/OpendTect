@@ -195,9 +195,9 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 	SeisTrc* outputtrc = new SeisTrc( trc );
 	float* outptr = (float*) outputtrc->data().getComponent( 0 )->data();
-	const SamplingData<double>& sd = trc.info().sampling;
+	const SamplingData<double>& sd = trc.info().sampling_;
 	TypeSet<float> timesamps;
-	const float sampstep = trc.info().sampling.step;
+	const float sampstep = trc.info().sampling_.step;
 	for ( int idx=0; idx<trc.size(); idx++ )
 	    timesamps += trc.startPos() + idx * sampstep;
 

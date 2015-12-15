@@ -195,7 +195,7 @@ void Tut::SeisTools::handleTrace()
 
     } break;
     case ChgSD: {
-	trcout_.info().sampling = newsd_;
+	trcout_.info().sampling_ = newsd_;
     } break;
 
     }

@@ -373,7 +373,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
     const SamplingData<float> sampling( SI().zRange( true ) );
     const int trcsz = SI().zRange( true ).nrSteps() + 1;
     SeisTrc undeftrc( trcsz );
-    undeftrc.info().sampling = sampling;
+    undeftrc.info().sampling_ = sampling;
     for ( int idx=0; idx<undeftrc.size(); idx++ )
 	undeftrc.set( idx, mUdf(float), 0 );
 
@@ -389,7 +389,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 	    mErrRet( msg, errmsg_.isEmpty(), return false )
 	}
 
-	logtrcs[ilog]->info().sampling = sampling;
+	logtrcs[ilog]->info().sampling_ = sampling;
 	welldata_[iwll]->trcs_ += new SeisTrcBuf( true );
 	logispresent += wd->logs().getLog( lognms.get(ilog) );
     }

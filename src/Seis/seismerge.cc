@@ -318,12 +318,12 @@ int SeisMerger::writeTrc( SeisTrc* trc )
     if ( nrsamps_ < 0 )
     {
 	nrsamps_ = trc->size();
-	sd_ = trc->info().sampling;
+	sd_ = trc->info().sampling_;
     }
-    else if ( trc->size() != nrsamps_ || trc->info().sampling != sd_ )
+    else if ( trc->size() != nrsamps_ || trc->info().sampling_ != sd_ )
     {
 	SeisTrc* newtrc = new SeisTrc(*trc);
-	newtrc->info().sampling = sd_;
+	newtrc->info().sampling_ = sd_;
 	newtrc->reSize( nrsamps_, false );
 	const int nrcomps = trc->nrComponents();
 	for ( int isamp=0; isamp<nrsamps_; isamp++ )
@@ -360,12 +360,12 @@ int SeisMerger::writeFromBuf()
 
     SeisTrcBuf tmp( false );
     SeisTrc* trc0 = trcbuf_.remove( 0 );
-    const int tnr = trc0->info().nr;
+    const int tnr = trc0->info().nr_;
     tmp.add( trc0 );
 
     while ( !trcbuf_.isEmpty() )
     {
-	if ( trcbuf_.get(0)->info().nr != tnr )
+	if ( trcbuf_.get(0)->info().nr_ != tnr )
 	    break;
 	tmp.add( trcbuf_.remove(0) );
     }

@@ -136,12 +136,12 @@ void SeisCubeCopier::doProc( CallBacker* )
 	const SeisTrc& intrc = stp_->getInputTrace();
 	TypeSet<float> timevals;
 	const int sizein = intrc.size();
-	const SamplingData<float>& sdin = intrc.info().sampling;
+	const SamplingData<float>& sdin = intrc.info().sampling_;
 	for ( int idx=0; idx<sizein; idx++ )
 	    timevals += sdin.atIndex( idx );
 
 	const int nrcomps = trc.nrComponents();
-	const SamplingData<double> sdout = trc.info().sampling;
+	const SamplingData<double> sdout = trc.info().sampling_;
 	const float* tin = timevals.arr();
 	const Scaler* scaler = stp_->scaler();
 

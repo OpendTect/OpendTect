@@ -229,7 +229,7 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
     if ( !goTo(filenr,trcidx) )
 	return 0;
     SeisTrc* trc = new SeisTrc;
-    if ( !tr_->readInfo(trc->info()) || trc->info().nr != trcnr )
+    if ( !tr_->readInfo(trc->info()) || trc->info().nr_ != trcnr )
 	{ delete trc; return 0; }
     if ( tr_->read(*trc) )
 	return trc;
@@ -494,7 +494,7 @@ bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
     if ( !tr_->write(trc) )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    fds_->addTrace( 0, trc.info().posKey(Seis::Vol), trc.info().coord, true );
+    fds_->addTrace( 0, trc.info().posKey(Seis::Vol), trc.info().coord_, true );
     return true;
 }
 

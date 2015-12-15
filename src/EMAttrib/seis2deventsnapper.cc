@@ -53,8 +53,8 @@ int Seis2DLineEventSnapper::nextStep()
 	return MoreToDo();
 
     EM::SectionID sid(0);
-    Coord3 coord = orghor_.getPos( sid, geomid_, trc_.info().nr );
-    newhor_.setPos( sid, geomid_, trc_.info().nr,
+    Coord3 coord = orghor_.getPos( sid, geomid_, trc_.info().nr_ );
+    newhor_.setPos( sid, geomid_, trc_.info().nr_,
 	    	    findNearestEvent(trc_,(float) coord.z), false );
     nrdone_ ++;
 

@@ -239,7 +239,7 @@ protected:
 
 	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
 	tdc_.setVelocityModel( trcvs, velocitytrc.size(),
-				velocitytrc.info().sampling, veldesc_,
+				velocitytrc.info().sampling_, veldesc_,
 				velintime_ );
 
 
@@ -790,7 +790,7 @@ int VelocityModelScanner::nextStep()
     const int sz = veltrace.size();
     if ( sz<2 ) return MoreToDo();
 
-    const SamplingData<double> sd = veltrace.info().sampling;
+    const SamplingData<double> sd = veltrace.info().sampling_;
 
     TimeDepthConverter tdconverter;
     if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )

@@ -58,7 +58,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     const BinID pbid = bid;
     spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
     spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
-    spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling.step );
+    spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling_.step );
 
     bool doneinl = false, donecrl = false;
     for ( int idx=0; idx<sz; idx++ )
@@ -66,7 +66,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	trc = get( idx ); bid = trc->info().binid;
 	spi.inlrg.include( bid.inl(), false );
 	spi.crlrg.include( bid.crl(), false);
-	const SamplingData<float> trcsd = trc->info().sampling;
+	const SamplingData<float> trcsd = trc->info().sampling_;
 	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
 	     !mIsZero(trcsd.step,mDefEps) )
 	{
@@ -268,7 +268,7 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
 	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
 	    return idx;
 	else if ( is2d &&
-		  ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl() )
+		  ((SeisTrcBuf*)this)->get(idx)->info().nr_ == binid.crl() )
 	    return idx;
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
@@ -306,8 +306,8 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     if ( is2d )
     {
 	start.inl() = stop.inl() = 0;
-	start.crl() = trcs_[0]->info().nr;
-	stop.crl() = trcs_[sz-1]->info().nr;
+	start.crl() = trcs_[0]->info().nr_;
+	stop.crl() = trcs_[sz-1]->info().nr_;
     }
 
     BinID dist( start.inl() - stop.inl(), start.crl() - stop.crl() );
@@ -335,8 +335,8 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
         return false;
 
     const SeisTrc& trc0 = *first();
-    strm << trc0.info().sampling.start
-	 << ' ' << trc0.info().sampling.step * SI().zDomain().userFactor()
+    strm << trc0.info().sampling_.start
+	 << ' ' << trc0.info().sampling_.step * SI().zDomain().userFactor()
 	 << ' ' << trc0.size();
 
     for ( int itrc=0; itrc<size(); itrc++ )
@@ -348,13 +348,13 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	else
 	{
 	    BufferString postxt;
-	    postxt += trc.info().nr; postxt += " ";
-	    postxt += trc.info().coord.x; postxt += " ";
-	    postxt += trc.info().coord.y;
+	    postxt += trc.info().nr_; postxt += " ";
+	    postxt += trc.info().coord_.x; postxt += " ";
+	    postxt += trc.info().coord_.y;
 	    strm << postxt;
 	}
 	if ( isps )
-	    strm << ' ' << trc.info().offset;
+	    strm << ' ' << trc.info().offset_;
 
 	for ( int isamp=0; isamp<trc.size(); isamp++ )
 	    strm << ' ' << trc.get( isamp, icomp );
@@ -580,7 +580,7 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
     if ( itrc >= buf.size() ) itrc = buf.size() - 1;
     if ( itrc < 0 ) itrc = 0;
     const SeisTrc* trc = buf.get( itrc );
-    return Coord3( trc->info().coord, trc->info().samplePos(isamp) );
+    return Coord3( trc->info().coord_, trc->info().samplePos(isamp) );
 }
 
 

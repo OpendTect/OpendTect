@@ -155,7 +155,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     trc->data().handleDataSwapping();
 
     SeisTrcBuf* addbuf = tbufs_.isEmpty() ? 0 : tbufs_[ tbufs_.size()-1 ];
-    if ( is2D() && trc->info().new_packet )
+    if ( is2D() && trc->info().new_packet_ )
 	addbuf = 0;
     if ( !is2D() && addbuf &&
 	 addbuf->get(0)->info().binid.inl() != trc->info().binid.inl() )
@@ -296,7 +296,7 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	{
 	    BufferString msg( "Trace " );
 	    if ( is2D() )
-		msg += trc.info().nr;
+		msg += trc.info().nr_;
 	    else
 		msg += trc.info().binid.toString();
 	    msg.add( ": " ).add( rdr_.errMsg().getFullString() );
@@ -316,7 +316,7 @@ BinID SeisMSCProvider::getPos() const
 int SeisMSCProvider::getTrcNr() const
 {
     return !is2D() || bufidx_==-1
-	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().nr;
+	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().nr_;
 }
 
 
@@ -329,7 +329,7 @@ SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
 
     BinID bidtofind( deltainl*stepoutstep_.row(), deltacrl*stepoutstep_.col() );
     bidtofind += !is2D() ? tbufs_[bufidx_]->get(trcidx_)->info().binid :
-		 BinID( bufidx_, tbufs_[bufidx_]->get(trcidx_)->info().nr );
+		 BinID( bufidx_, tbufs_[bufidx_]->get(trcidx_)->info().nr_ );
 
     int idx = mMIN( mMAX(0,bufidx_+deltainl), tbufs_.size()-1 );
     while ( !is2D() )
@@ -369,10 +369,10 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 // Distances to box borders: 0 on border, >0 outside, <0 inside.
 #define mCalcBoxDistances(idx,idy,stepout) \
     const BinID curbid = is2D() ? \
-	    BinID( idx, tbufs_[idx]->get(idy)->info().nr ) : \
+	    BinID( idx, tbufs_[idx]->get(idy)->info().nr_ ) : \
 	    tbufs_[idx]->get(idy)->info().binid; \
     const BinID pivotbid = is2D() ? \
-	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr ) : \
+	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr_ ) : \
 	    tbufs_[pivotidx_]->get(pivotidy_)->info().binid; \
     RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
     const int bottomdist mUnusedVar = \
@@ -502,7 +502,7 @@ int nextStep()
     {
 	const BinID bid = trc->info().binid;
 	const int inlidx = is2d_ ? 0 : hs_.inlIdx( bid.inl() );
-	const int crlidx = hs_.crlIdx( is2d_ ? trc->info().nr : bid.crl() );
+	const int crlidx = hs_.crlIdx( is2d_ ? trc->info().nr_ : bid.crl() );
 	arr_.set( inlidx, crlidx, trc );
     }
     else

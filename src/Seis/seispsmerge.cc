@@ -157,7 +157,7 @@ int SeisPSMerger::nextStep()
 	for ( int tdx=0; tdx<gather->size(); tdx++ )
 	{
 	    const SeisTrc& gathtrc = *gather->get( tdx );
-	    const float offs = gathtrc.info().offset;
+	    const float offs = gathtrc.info().offset_;
 	    if ( offs < offsrg_.start - offseps
 	      || offs > offsrg_.stop + offseps )
 		continue;

@@ -66,13 +66,13 @@ public:
     float	pick_;
     float	refnr_;
 
-    BinID&      binid;      //!<Old syntax. Will be deprecated
-    Coord&	coord;      //!<Old syntax. Will be deprecated
-    float&	startpos;   //!<Old syntax. Will be deprecated
-    float&	offset;     //!<Old syntax. Will be deprecated
-    float&	azimuth;    //!<Old syntax. Will be deprecated
-    float&	pick;       //!<Old syntax. Will be deprecated
-    float&	refnr;      //!<Old syntax. Will be deprecated
+    mDeprecated BinID&      binid;      //!<Old syntax. Will be deprecated
+    mDeprecated Coord&      coord;      //!<Old syntax. Will be deprecated
+    mDeprecated float&      startpos;   //!<Old syntax. Will be deprecated
+    mDeprecated float&      offset;     //!<Old syntax. Will be deprecated
+    mDeprecated float&      azimuth;    //!<Old syntax. Will be deprecated
+    mDeprecated float&      pick;       //!<Old syntax. Will be deprecated
+    mDeprecated float&      refnr;      //!<Old syntax. Will be deprecated
 
 };
 
@@ -115,19 +115,19 @@ public:
 		void setAll( bool yn )
 		{startpos_ = coord_ = offset_ = azimuth_ = pick_ = refnr_ = yn;}
 
-    bool	startpos_;
-    bool	coord_;
-    bool	offset_;
-    bool	azimuth_;
-    bool	pick_;
-    bool	refnr_;
+    bool                startpos_;
+    bool                coord_;
+    bool                offset_;
+    bool                azimuth_;
+    bool                pick_;
+    bool                refnr_;
 
-    bool&	startpos;   //!<Old syntax. Will be deprecated
-    bool&	coord;      //!<Old syntax. Will be deprecated
-    bool&	offset;     //!<Old syntax. Will be deprecated
-    bool&	azimuth;    //!<Old syntax. Will be deprecated
-    bool&	pick;       //!<Old syntax. Will be deprecated
-    bool&	refnr;      //!<Old syntax. Will be deprecated
+    mDeprecated bool&	startpos;   //!<Old syntax. Will be deprecated
+    mDeprecated bool&	coord;      //!<Old syntax. Will be deprecated
+    mDeprecated bool&	offset;     //!<Old syntax. Will be deprecated
+    mDeprecated bool&	azimuth;    //!<Old syntax. Will be deprecated
+    mDeprecated bool&	pick;       //!<Old syntax. Will be deprecated
+    mDeprecated bool&	refnr;      //!<Old syntax. Will be deprecated
 };
 
 

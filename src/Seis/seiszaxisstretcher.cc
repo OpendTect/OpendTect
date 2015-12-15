@@ -191,7 +191,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	int outsz = trcrg.nrSteps()+1;
 	int insz = intrc.size();
 	SeisTrc* outtrc = new SeisTrc( outsz );
-	outtrc->info().sampling = sd;
+	outtrc->info().sampling_ = sd;
 
 	if ( stretchz_ )
 	{
@@ -200,7 +200,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    if ( isvrms_ )
 	    {
 		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
-		SamplingData<double> inputsd( intrc.info().sampling );
+		SamplingData<double> inputsd( intrc.info().sampling_ );
 		mAllocVarLenArr( float, vintarr, insz );
 		if ( !mIsVarLenArrOK(vintarr) ) return false;
 
@@ -225,7 +225,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    mAllocVarLenArr(float, twt, insz);
 	    mAllocVarLenArr(float, depths, insz);
 
-	    SamplingData<float> inputsd( intrc.info().sampling );
+	    SamplingData<float> inputsd( intrc.info().sampling_ );
 	    SeisTrcValueSeries inputvs( intrc, 0 );
 
 
@@ -413,9 +413,9 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		outtrc->set( idx, outputptr[idx], 0 );
 	}
 
-	outtrc->info().nr = intrc.info().nr;
+	outtrc->info().nr_ = intrc.info().nr_;
 	outtrc->info().binid = intrc.info().binid;
-	outtrc->info().coord = intrc.info().coord;
+	outtrc->info().coord_ = intrc.info().coord_;
 	if ( !sequentialwriter_->submitTrace( outtrc, true ) )
 	    return false;
 
@@ -455,7 +455,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 
 	if ( is2d_ )
 	{
-	    trckey = TrcKey( seisreader_->selData()->geomID(), trc.info().nr );
+	    trckey = TrcKey( seisreader_->selData()->geomID(), trc.info().nr_ );
 	}
 	else
 	{
@@ -520,7 +520,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 	if ( is2d_ )
 	{
 	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					    trc.info().nr );
+					    trc.info().nr_ );
 	}
 	else
 	{

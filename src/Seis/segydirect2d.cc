@@ -201,7 +201,7 @@ const SeisTrcTranslator* SEGYDirect2DLineGetter::translator() const
 
 void SEGYDirect2DLineGetter::addTrc( SeisTrc* trc )
 {
-    const int tnr = trc->info().nr;
+    const int tnr = trc->info().nr_;
     if ( !isEmpty(seldata_) )
     {
 	if ( seldata_->type() == Seis::Range )
@@ -322,7 +322,7 @@ SEGYDirect2DLinePutter::~SEGYDirect2DLinePutter()
 bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl() = info.nr;
+    bid_.crl() = info.nr_;
     const BinID oldbid = info.binid;
     info.binid = bid_;
 

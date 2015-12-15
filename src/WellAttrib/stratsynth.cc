@@ -617,8 +617,8 @@ for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 { \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
     SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
-    trcinfo.coord = SI().transform( bid ); \
-    trcinfo.nr = trcidx+1; \
+    trcinfo.coord_ = SI().transform( bid ); \
+    trcinfo.nr_ = trcidx+1; \
 } \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
@@ -1005,7 +1005,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
 	    {
 		const SeisTrc* trc = sd->getTrace( idx );
-		const SamplingData<float>& trcsd = trc->info().sampling;
+		const SamplingData<float>& trcsd = trc->info().sampling_;
 		if ( !idx )
 		{
 		    cs.zsamp_.start = trcsd.start;
@@ -1558,7 +1558,7 @@ void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
 	SeisTrcPropCalc stp( trc );
 	const int d2tidx = dispeach==-1 ? idx : idx*dispeach;
 	float z = times.validIdx( d2tidx ) ? times[d2tidx] : mUdf( float );
-	trcs.get( idx )->info().zref = z;
+	trcs.get( idx )->info().zref_ = z;
 	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
 	{
 	    Interval<float> tg( z, trc.startPos() );
@@ -1577,7 +1577,7 @@ void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
 
 	    z = tmpz;
 	}
-	trcs.get( idx )->info().pick = z;
+	trcs.get( idx )->info().pick_ = z;
     }
 }
 
@@ -1627,20 +1627,20 @@ void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
     if ( tbuf.isEmpty() )
 	return;
 
-    float tmax = tbuf.get(0)->info().sampling.start;
-    float tmin = tbuf.get(0)->info().sampling.atIndex( tbuf.get(0)->size() );
+    float tmax = tbuf.get(0)->info().sampling_.start;
+    float tmin = tbuf.get(0)->info().sampling_.atIndex( tbuf.get(0)->size() );
     for ( int idx=tbuf.size()-1; idx>=1; idx-- )
     {
-	if ( mIsUdf(tbuf.get(idx)->info().pick) ) continue;
-	tmin = mMIN(tmin,tbuf.get(idx)->info().pick);
-	tmax = mMAX(tmax,tbuf.get(idx)->info().pick);
+	if ( mIsUdf(tbuf.get(idx)->info().pick_) ) continue;
+	tmin = mMIN(tmin,tbuf.get(idx)->info().pick_);
+	tmax = mMAX(tmax,tbuf.get(idx)->info().pick_);
     }
 
     for ( int idx=tbuf.size()-1; idx>=0; idx-- )
     {
 	const SeisTrc* trc = tbuf.get( idx );
-	const float start = trc->info().sampling.start - tmax;
-	const float stop  = trc->info().sampling.atIndex(trc->size()-1) -tmax;
+	const float start = trc->info().sampling_.start - tmax;
+	const float stop  = trc->info().sampling_.atIndex(trc->size()-1) -tmax;
 	SeisTrc* newtrc = trc->getRelTrc( ZGate(start,stop) );
 	if ( !newtrc )
 	{

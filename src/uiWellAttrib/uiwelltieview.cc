@@ -197,8 +197,8 @@ void uiTieView::drawTraces()
 	const bool issynth = idx < midtrc;
 	SeisTrc* trc = new SeisTrc;
 	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
-	trc->info().sampling = data_.getTraceRange();
-	trc->info().sampling.scale( mCast(float,SI().zDomain().userFactor()) );
+	trc->info().sampling_ = data_.getTraceRange();
+	trc->info().sampling_.scale( mCast(float,SI().zDomain().userFactor()) );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
 	if ( udf )

@@ -94,9 +94,9 @@ int SeisDataPackWriter::nextStep()
 	trc_ = new SeisTrc( trcsz );
 
 	const float step = cube_.sampling().zsamp_.step;
-	trc_->info().sampling.start = zrg_.start * step;
-	trc_->info().sampling.step = step;
-	trc_->info().nr = 0;
+	trc_->info().sampling_.start = zrg_.start * step;
+	trc_->info().sampling_.step = step;
+	trc_->info().nr_ = 0;
 
 	BufferStringSet compnames;
 	compnames.add( cube_.getComponentName() );
@@ -117,7 +117,7 @@ int SeisDataPackWriter::nextStep()
     const TrcKeySampling& hs = cube_.sampling().hsamp_;
 
     trc_->info().binid = currentpos;
-    trc_->info().coord = SI().transform( currentpos );
+    trc_->info().coord_ = SI().transform( currentpos );
     const int inlidx = hs.inlRange().nearestIndex( currentpos.inl() );
     const int crlidx = hs.crlRange().nearestIndex( currentpos.crl() );
 
@@ -140,6 +140,6 @@ int SeisDataPackWriter::nextStep()
 	return ErrorOccurred();
 
     nrdone_++;
-    trc_->info().nr++;
+    trc_->info().nr_++;
     return MoreToDo();
 }

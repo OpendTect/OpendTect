@@ -191,21 +191,21 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
     for ( int idx=tbuf.size()-1; idx>-1; idx-- )
     {
 	const SeisTrc* trc = tbuf.get( idx );
-	if ( mIsUdf( trc->info().offset ) )
+	if ( mIsUdf( trc->info().offset_ ) )
 	    delete tbuf.remove( idx );
 
 	const int trcsz = trc->size();
 	if ( !isset )
 	{
 	    isset = true;
-	    zrg.setFrom( trc->info().sampling.interval( trcsz ) );
-	    crd = trc->info().coord;
+	    zrg.setFrom( trc->info().sampling_.interval( trcsz ) );
+	    crd = trc->info().coord_;
 	}
 	else
 	{
-	    zrg.start = mMIN( trc->info().sampling.start, zrg.start );
-	    zrg.stop = mMAX( trc->info().sampling.atIndex(trcsz-1), zrg.stop );
-	    zrg.step = mMIN( trc->info().sampling.step, zrg.step );
+	    zrg.start = mMIN( trc->info().sampling_.start, zrg.start );
+	    zrg.stop = mMAX( trc->info().sampling_.atIndex(trcsz-1), zrg.stop );
+	    zrg.step = mMIN( trc->info().sampling_.step, zrg.step );
 	}
     }
 
@@ -249,7 +249,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 	    arr2d_->set( trcidx, idx, val );
 	}
 
-	azimuths_[trcidx] = trc->info().azimuth;
+	azimuths_[trcidx] = trc->info().azimuth_;
     }
 
     double offset;
@@ -414,10 +414,10 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 	const int gathersz = gathers_[idx]->size(false);
 	SeisTrc* trc = new SeisTrc( gathersz );
 	trc->info().binid = gathers_[idx]->getBinID();
-	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
-	trc->info().nr = idx+1;
+	trc->info().coord_ = SI().transform( gathers_[idx]->getBinID() );
+	trc->info().nr_ = idx+1;
 	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
-	trc->info().sampling.set((float) sd.start, (float) sd.step );
+	trc->info().sampling_.set((float) sd.start, (float) sd.step );
 	const Array2D<float>& data = gathers_[idx]->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );

@@ -40,9 +40,9 @@ The next 8 bytes are reserved for 2 integers:
     auxinf.memb = finterp_.get( buf, 0 )
 
 #define mGetCoordAuxFromStrm(auxinf,buf,strm) \
-    strm.getBin( buf, 2*sizeof(auxinf.coord.x) ); \
-    auxinf.coord.x = dinterp_.get( buf, 0 ); \
-    auxinf.coord.y = dinterp_.get( buf, 1 )
+    strm.getBin( buf, 2*sizeof(auxinf.coord_.x) ); \
+    auxinf.coord_.x = dinterp_.get( buf, 0 ); \
+    auxinf.coord_.y = dinterp_.get( buf, 1 )
 
 #define mAuxSetting(ptr,n) (*ptr & (unsigned char)n)
 
@@ -205,26 +205,26 @@ const char* CBVSReader::check( od_istream& strm )
 
 void CBVSReader::getAuxInfoSel( const char* ptr )
 {
-    info_.auxinfosel_.startpos =	mAuxSetting(ptr,1);
-    info_.auxinfosel_.coord =	mAuxSetting(ptr,2);
-    info_.auxinfosel_.offset =	mAuxSetting(ptr,4);
-    info_.auxinfosel_.pick =	mAuxSetting(ptr,8);
-    info_.auxinfosel_.refnr =	mAuxSetting(ptr,16);
-    info_.auxinfosel_.azimuth =	mAuxSetting(ptr,32);
+    info_.auxinfosel_.startpos_ =	mAuxSetting(ptr,1);
+    info_.auxinfosel_.coord_ =	mAuxSetting(ptr,2);
+    info_.auxinfosel_.offset_ =	mAuxSetting(ptr,4);
+    info_.auxinfosel_.pick_ =	mAuxSetting(ptr,8);
+    info_.auxinfosel_.refnr_ =	mAuxSetting(ptr,16);
+    info_.auxinfosel_.azimuth_ =	mAuxSetting(ptr,32);
 
 #define mAddBytes(memb,t) \
     if ( info_.auxinfosel_.memb ) auxnrbytes_ += sizeof(t)
     auxnrbytes_ = 0;
-    mAddBytes(startpos,float);
+    mAddBytes(startpos_,float);
     if ( coordpol_ == InAux )
     {
-	mAddBytes(coord,double); // x
-	mAddBytes(coord,double); // y
+	mAddBytes(coord_,double); // x
+	mAddBytes(coord_,double); // y
     }
-    mAddBytes(offset,float);
-    mAddBytes(pick,float);
-    mAddBytes(refnr,float);
-    mAddBytes(azimuth,float);
+    mAddBytes(offset_,float);
+    mAddBytes(pick_,float);
+    mAddBytes(refnr_,float);
+    mAddBytes(azimuth_,float);
 }
 
 
@@ -528,11 +528,11 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     od_stream::Pos curfo mUnusedVar = strm_.position();
 #endif
 
-    auxinf.binid = curbinid_;
-    auxinf.coord = info_.geom_.b2c.transform( curbinid_ );
-    auxinf.startpos = info_.sd_.start;
-    auxinf.offset = auxinf.azimuth = 0;
-    auxinf.pick = mSetUdf(auxinf.refnr);
+    auxinf.trckey_.setPos(curbinid_);
+    auxinf.coord_ = info_.geom_.b2c.transform( curbinid_ );
+    auxinf.startpos_ = info_.sd_.start;
+    auxinf.offset_ = auxinf.azimuth_ = 0;
+    auxinf.pick_ = mSetUdf(auxinf.refnr_);
 
     if ( auxnrbytes_ < 1 )
 	return true;
@@ -541,15 +541,15 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	strm_.setPosition(-auxnrbytes_, od_stream::Rel );
 
     char buf[2*sizeof(double)];
-    mCondGetAux(startpos)
-    if ( coordpol_ == InAux && info_.auxinfosel_.coord )
+    mCondGetAux(startpos_)
+    if ( coordpol_ == InAux && info_.auxinfosel_.coord_ )
 	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
     else if ( coordpol_ == InTrailer )
-	auxinf.coord = getTrailerCoord( auxinf.binid );
-    mCondGetAux(offset)
-    mCondGetAux(pick)
-    mCondGetAux(refnr)
-    mCondGetAux(azimuth)
+	auxinf.coord_ = getTrailerCoord( auxinf.trckey_.pos() );
+    mCondGetAux(offset_)
+    mCondGetAux(pick_)
+    mCondGetAux(refnr_)
+    mCondGetAux(azimuth_)
 
     hinfofetched_ = true;
     return strm_.isOK();

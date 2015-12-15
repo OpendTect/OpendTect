@@ -345,11 +345,11 @@ bool SeisScanner::addTrc()
     if ( nrsamples_ < 1 )
     {
 	nrsamples_ = trc_.size();
-	sampling_ = trc_.info().sampling;
+	sampling_ = trc_.info().sampling_;
     }
 
-    if ( !dtctor_.add(trc_.info().coord,trc_.info().binid,
-		      trc_.info().nr,trc_.info().offset) )
+    if ( !dtctor_.add(trc_.info().coord_,trc_.info().binid,
+		      trc_.info().nr_,trc_.info().offset_) )
     {
 	curmsg_ = dtctor_.errMsg();
 	return false;
@@ -377,7 +377,7 @@ StatsFiller( const Pos::Provider& prov,
 
 int nextStep()
 {
-    const Coord crd = trc_.info().coord;
+    const Coord crd = trc_.info().coord_;
     const StepInterval<float> zrg = trc_.zRange();
     for ( int cidx=0; cidx<trc_.nrComponents(); cidx++ )
     {

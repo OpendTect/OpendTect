@@ -931,7 +931,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
     if ( mIsUdf(bfi.sampling_.step) )
     {
 	SeisTrcInfo ti; thdr->fill( ti, 1.0f );
-	bfi.sampling_ = ti.sampling;
+	bfi.sampling_ = ti.sampling_;
     }
 
     strm.setPosition( firsttrcpos );

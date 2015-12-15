@@ -563,17 +563,17 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 
 void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 {
-    Coord crd( ti.coord ); mPIEPAdj(Coord,crd,false);
+    Coord crd( ti.coord_ ); mPIEPAdj(Coord,crd,false);
     const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
     BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
     setEntryVal( EntryInline(), bid.inl() );
     setEntryVal( EntryCrossline(), bid.crl() );
-    int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
-    if ( ti.refnr != 0 && !mIsUdf(ti.refnr) )
+    int tnr = ti.nr_; mPIEPAdj(TrcNr,tnr,false);
+    if ( ti.refnr_ != 0 && !mIsUdf(ti.refnr_) )
     {
-	tnr = mNINT32(ti.refnr*10);
+	tnr = mNINT32(ti.refnr_*10);
 	setEntryVal( EntrySPscale(), -10 );
     }
     setEntryVal( EntrySP(), tnr );
@@ -598,12 +598,12 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryTracr(), seqnr_ );
     seqnr_++; lineseqnr_++;
     if ( is2d )
-	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
+	{ nr2put = ti.nr_; mPIEPAdj(TrcNr,nr2put,false); }
     else
 	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
     setEntryVal( EntryCdp(), nr2put );
 
-    Coord crd( ti.coord );
+    Coord crd( ti.coord_ );
     if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
     mPIEPAdj(Coord,crd,false);
     static bool noscalco = GetEnvVarYN( "OD_SEGY_NO_SCALCO" );
@@ -620,23 +620,23 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
     hdef_.inl_.putValue( buf_, ti.binid.inl() );
     hdef_.crl_.putValue( buf_, ti.binid.crl() );
-    int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
+    int intval = ti.nr_; mPIEPAdj(TrcNr,intval,false);
     hdef_.trnr_.putValue( buf_, intval );
-    float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
+    float tioffs = ti.offset_; mPIEPAdj(Offset,tioffs,false);
     intval = mNINT32( tioffs );
     hdef_.offs_.putValue( buf_, intval );
-    intval = mNINT32( ti.azimuth * 360 / M_PI );
+    intval = mNINT32( ti.azimuth_ * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
     const float zfac = mCast( float, SI().zDomain().userFactor() );
 #define mSetScaledMemb(nm,fac) \
-    if ( !mIsUdf(ti.nm) ) \
-	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
+    if ( !mIsUdf(ti.nm##_) ) \
+	{ intval = mNINT32(ti.nm##_*fac); hdef_.nm##_.putValue( buf_, intval ); }
     mSetScaledMemb(pick,zfac)
     mSetScaledMemb(refnr,10)
 
     // Absolute priority, therefore possibly overwriting previous
-    putSampling( ti.sampling, 0 ); // 0=ns must be set elsewhere
+    putSampling( ti.sampling_, 0 ); // 0=ns must be set elsewhere
 
     if ( !isrev0_ ) // Now this overrules everything
 	putRev1Flds( ti );
@@ -671,20 +671,20 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
 void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
-    ti.coord.x = entryVal( EntryXcdp() );
-    ti.coord.y = entryVal( EntryYcdp() );
+    ti.coord_.x = entryVal( EntryXcdp() );
+    ti.coord_.y = entryVal( EntryYcdp() );
     ti.binid.inl() = entryVal( EntryInline() );
     ti.binid.crl() = entryVal( EntryCrossline() );
-    ti.refnr = mCast( float, entryVal( EntrySP() ) );
+    ti.refnr_ = mCast( float, entryVal( EntrySP() ) );
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr )
     {
-	ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
-	ti.nr = mNINT32(ti.refnr);
+	ti.refnr_ *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
+	ti.nr_ = mNINT32(ti.refnr_);
     }
-    mPIEPAdj(Coord,ti.coord,true);
+    mPIEPAdj(Coord,ti.coord_,true);
     mPIEPAdj(BinID,ti.binid,true);
-    mPIEPAdj(TrcNr,ti.nr,true);
+    mPIEPAdj(TrcNr,ti.nr_,true);
 }
 
 
@@ -718,42 +718,42 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	if ( startz < -5000 || startz > 10000 )
 	    delrt = 0;
     }
-    ti.sampling.start = delrt * zfac;
-    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001f;
-    mPIEPAdj(Z,ti.sampling.start,true);
-    mPIEPAdj(Z,ti.sampling.step,true);
+    ti.sampling_.start = delrt * zfac;
+    ti.sampling_.step = entryVal(EntryDt()) * zfac * 0.001f;
+    mPIEPAdj(Z,ti.sampling_.start,true);
+    mPIEPAdj(Z,ti.sampling_.step,true);
 
-    ti.pick = ti.refnr = mUdf(float);
-    ti.nr = (int)entryVal( EntryTracl() );
+    ti.pick_ = ti.refnr_ = mUdf(float);
+    ti.nr_ = (int)entryVal( EntryTracl() );
 
 #define mGetFloatVal(memb,fac) \
     if ( !hdef_.memb##_.isUdf() ) \
     {\
 	float ftemp = (float)hdef_.memb##_.getValue(buf_,needswap_); \
-	ti.memb = ftemp * fac; \
+	ti.memb##_ = ftemp * fac; \
     }
     mGetFloatVal(pick,0.001f);
-    mPIEPAdj(Z,ti.pick,true);
+    mPIEPAdj(Z,ti.pick_,true);
     float nrfac = 1;
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
 	nrfac = 1.f / ((float)(-scalnr));
     mGetFloatVal(refnr,nrfac);
 
-    ti.coord.x = ti.coord.y = 0;
-    ti.coord.x = hdef_.xcoord_.getValue(buf_,needswap_);
-    ti.coord.y = hdef_.ycoord_.getValue(buf_,needswap_);
+    ti.coord_.x = ti.coord_.y = 0;
+    ti.coord_.x = hdef_.xcoord_.getValue(buf_,needswap_);
+    ti.coord_.y = hdef_.ycoord_.getValue(buf_,needswap_);
     ti.binid.inl() = ti.binid.crl() = 0;
     ti.binid.inl() = hdef_.inl_.getValue(buf_,needswap_);
     ti.binid.crl() = hdef_.crl_.getValue(buf_,needswap_);
     mPIEPAdj(BinID,ti.binid,true);
 
-    ti.offset = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
-    if ( ti.offset < 0 ) ti.offset = -ti.offset;
-    ti.azimuth = mCast( float, hdef_.azim_.getValue(buf_,needswap_) );
-    ti.azimuth *= M_PI / 360;
+    ti.offset_ = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
+    if ( ti.offset_ < 0 ) ti.offset_ = -ti.offset_;
+    ti.azimuth_ = mCast( float, hdef_.azim_.getValue(buf_,needswap_) );
+    ti.azimuth_ *= M_PI / 360;
     if ( hdef_.trnr_.bytepos_ >= 0 )
-	ti.nr = hdef_.trnr_.getValue(buf_,needswap_);
+	ti.nr_ = hdef_.trnr_.getValue(buf_,needswap_);
     else
     {
 	// Trick to set trace number to sequence number when no trnr_ defined
@@ -763,20 +763,20 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	else
 	    { seqnr = 1;
 		const_cast<SEGY::TrcHeaderDef&>(hdef_).trnr_.bytepos_ = -5; }
-	ti.nr = seqnr;
+	ti.nr_ = seqnr;
     }
-    mPIEPAdj(TrcNr,ti.nr,true);
+    mPIEPAdj(TrcNr,ti.nr_,true);
 
     if ( !isrev0_ )
     {
-	const int oldnr = ti.nr;
+	const int oldnr = ti.nr_;
 	getRev1Flds( ti ); // if >= rev 1, then those fields are holy
-	if ( oldnr ) ti.nr = oldnr;
+	if ( oldnr ) ti.nr_ = oldnr;
     }
 
     const double scale = getCoordScale( extcoordsc );
-    ti.coord.x *= scale; ti.coord.y *= scale;
-    mPIEPAdj(Coord,ti.coord,true);
+    ti.coord_.x *= scale; ti.coord_.y *= scale;
+    mPIEPAdj(Coord,ti.coord_,true);
 }
 
 

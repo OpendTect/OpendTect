@@ -41,7 +41,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     AxisLayout<float> al( scalerg );
     scalerg = Interval<float>( al.sd_.start, al.stop_ );
 
-    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
+    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling_;
     Interval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1) );
     
     uiFunctionDisplay::Setup su;
@@ -102,7 +102,7 @@ void uiGainAnalysisDlg::setData( bool sety )
     TypeSet<float> zvals;
     TypeSet<float> scalefactors;
     
-    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
+    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling_;
     StepInterval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1),
 	    		     zsd.step );
 

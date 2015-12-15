@@ -1004,7 +1004,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const ObjectSet<SeisTrcInfo>& trcinfoset = input_.trcinfoset_;
 	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
 	{
-	    const int trcidx = sampling_.hsamp_.trcIdx( trcinfoset[tidx]->nr );
+	    const int trcidx = sampling_.hsamp_.trcIdx( trcinfoset[tidx]->nr_ );
 	    if ( trcidx<0 || trcidx>sampling_.hsamp_.nrTrcs()-1 )
 		continue;
 
@@ -1030,7 +1030,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 
 	    if ( idx == 0 )
-		refnrs_[trcidx] = trcinfoset[tidx]->refnr;
+		refnrs_[trcidx] = trcinfoset[tidx]->refnr_;
 	}
     }
 

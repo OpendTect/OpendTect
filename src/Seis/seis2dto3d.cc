@@ -181,8 +181,8 @@ bool Seis2DTo3D::read()
 	    SeisTrc* trc = new SeisTrc( intrc );
 	    const int ns = tkzs_.zsamp_.nrSteps() + 1;
 	    trc->reSize( ns, false );
-	    trc->info().sampling.start = tkzs_.zsamp_.start;
-	    trc->info().sampling.step = tkzs_.zsamp_.step;
+	    trc->info().sampling_.start = tkzs_.zsamp_.start;
+	    trc->info().sampling_.step = tkzs_.zsamp_.step;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
@@ -531,7 +531,7 @@ bool Seis2DTo3D::writeOutput()
     BinID binid;
     SeisTrc& trc( *seisbuf_.get(0) );
 
-    trc.info().sampling = tkzs_.zsamp_;
+    trc.info().sampling_ = tkzs_.zsamp_;
     trc.info().binid = binid;
 
     while(iter.next(binid))

@@ -152,7 +152,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	    outtrc->zero();
 	}
 
-	outtrc->info().sampling = olddata_.tkzs_.zsamp_;
+	outtrc->info().sampling_ = olddata_.tkzs_.zsamp_;
     }
     else
     {
@@ -168,7 +168,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	int outtrcidx = 0;
 	for ( int idx=0; idx<trcsset_.size(); idx++ )
 	{
-	    const Coord trccoord = trcsset_[idx]->info().coord;
+	    const Coord trccoord = trcsset_[idx]->info().coord_;
 	    float dist = (float) trccoord.sqDistTo( curcoord );
 	    if ( dist < mindist || mIsUdf( mindist ) )
 	    {
@@ -305,9 +305,9 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     Array3DImpl<float_complex> padarr( newszx, newszy, szz_ );
     mDoFFT( false, padfftarr, padarr, newszx, newszy, szz_ )
 
-    const Coord startcrd = trcs[0]->info().coord;
-    const Coord nextcrlcrd = trcs[1]->info().coord;
-    const Coord nextinlcrd = trcs[sz_]->info().coord;
+    const Coord startcrd = trcs[0]->info().coord_;
+    const Coord nextcrlcrd = trcs[1]->info().coord_;
+    const Coord nextinlcrd = trcs[sz_]->info().coord_;
     const double xcrldist = (nextcrlcrd.x-startcrd.x)/padfac_;
     const double ycrldist = (nextcrlcrd.y-startcrd.y)/padfac_;
     const double xinldist = (nextinlcrd.x-startcrd.x)/padfac_;
@@ -320,9 +320,9 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	for ( int idy=0; idy<newszy; idy++ )
 	{
 	    SeisTrc* trc = new SeisTrc( szz_ );
-	    trc->info().sampling = olddata_.tkzs_.zsamp_;
-	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
-	    trc->info().coord.y = startcrd.y + idy*ycrldist + idx*yinldist;
+	    trc->info().sampling_ = olddata_.tkzs_.zsamp_;
+	    trc->info().coord_.x = startcrd.x + idy*xcrldist + idx*xinldist;
+	    trc->info().coord_.y = startcrd.y + idy*ycrldist + idx*yinldist;
 	    trcs += trc;
 	    for ( int idz=0; idz<szz_; idz++ )
 	    {

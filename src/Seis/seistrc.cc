@@ -118,7 +118,7 @@ float SeisTrc::getValue( float t, int icomp ) const
     if ( sampidx < 0 || sampidx >= sz )
 	return interpolator().udfval_;
 
-    const float pos = ( t - startPos() ) / info_.sampling.step;
+    const float pos = ( t - startPos() ) / info_.sampling_.step;
     if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
 	return get( sampidx, icomp );
 
@@ -140,17 +140,17 @@ SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
 
 SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 {
-    const float pick = info_.pick;
+    const float pick = info_.pick_;
     if ( mIsUdf(pick) )
 	return 0;
 
     ZGate zg( zgate ); zg.sort();
     SeisTrc* ret = new SeisTrc;
     ret->info_ = info_;
-    ret->info_.sampling.start = zg.start;
-    if ( mIsUdf(sr) ) sr = info_.sampling.step;
-    ret->info_.sampling.step = sr;
-    ret->info_.pick = 0;
+    ret->info_.sampling_.start = zg.start;
+    if ( mIsUdf(sr) ) sr = info_.sampling_.step;
+    ret->info_.sampling_.step = sr;
+    ret->info_.pick_ = 0;
 
     const int nrsamps = (int)( (zg.stop - zg.start) / sr + 1.5);
     ret->reSize( nrsamps, false );
@@ -172,7 +172,7 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 
 SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 {
-    const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling.step + 1;
+    const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling_.step + 1;
     const int outnrsamps = mNINT32( fnrsamps );
     const TraceDataInterpreter* tdi = data_.getInterpreter(0);
     DataCharacteristics dc( tdi ? tdi->dataChar() : DataCharacteristics() );
@@ -184,9 +184,9 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 	{ newtrc->zero(); return newtrc; }
 
     newtrc->info_ = info_;
-    newtrc->info_.sampling.start = zgate.start;
-    const float z0 = startPos() - snapdist * info_.sampling.step;
-    const float z1 = endPos() + snapdist * info_.sampling.step;
+    newtrc->info_.sampling_.start = zgate.start;
+    const float z0 = startPos() - snapdist * info_.sampling_.step;
+    const float z1 = endPos() + snapdist * info_.sampling_.step;
 
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {

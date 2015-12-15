@@ -277,7 +277,7 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
     for ( int idx=0; idx<velocitytrc.size(); idx++ )
 	trcdata[idx] = velocitytrc.get( idx, 0 );
 
-    sd = velocitytrc.info().sampling;
+    sd = velocitytrc.info().sampling_;
 
     return true;
 }

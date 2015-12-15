@@ -326,27 +326,27 @@ bool BatchProgram::go( od_ostream& strm )
 		const StepInterval<double> zrg =
 		    gather->posData().range( Gather::offsetDim() );
 		SeisTrc trc( nrsamples );
-		trc.info().sampling.start = (float) zrg.start;
-		trc.info().sampling.step = (float) zrg.step;
+		trc.info().sampling_.start = (float) zrg.start;
+		trc.info().sampling_.step = (float) zrg.step;
 
 		if ( reader2d )
 		{
-		    trc.info().nr = curbid.crl();
+		    trc.info().nr_ = curbid.crl();
 		    PosInfo::Line2DPos linepos;
 		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )
-			trc.info().coord = linepos.coord_;
+			trc.info().coord_ = linepos.coord_;
 		}
 		else
 		{
 		    trc.info().binid = curbid;
-		    trc.info().coord = SI().transform( curbid );
+		    trc.info().coord_ = SI().transform( curbid );
 		}
 
 		for ( int idx=0; idx<nrtraces; idx++ )
 		{
 		    if ( needpsinput )
-			trc.info().azimuth = gather->getAzimuth( idx );
-		    trc.info().offset = gather->getOffset( idx );
+			trc.info().azimuth_ = gather->getAzimuth( idx );
+		    trc.info().offset_ = gather->getOffset( idx );
 		    for ( int idy=0; idy<nrsamples; idy++ )
 			trc.set( idy, gather->data().get( idx, idy ), 0 );
 

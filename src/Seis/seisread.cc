@@ -332,7 +332,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return nextConn( ti );
     }
 
-    ti.new_packet = false;
+    ti.new_packet_ = false;
 
     if ( mIsUdf(prev_inl) )
 	prev_inl = ti.binid.inl();
@@ -341,7 +341,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	foundvalidcrl = false;
 	prev_inl = ti.binid.inl();
 	if ( !entryis2d )
-	    ti.new_packet = true;
+	    ti.new_packet_ = true;
     }
 
     int selres = 0;
@@ -351,7 +351,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    selres = seldata_->selRes(ti.binid);
 	else
 	{
-	    BinID bid( seldata_->inlRange().start, ti.nr );
+	    BinID bid( seldata_->inlRange().start, ti.nr_ );
 	    selres = seldata_->selRes( bid );
 	}
     }
@@ -380,7 +380,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     nrtrcs_++;
     if ( new_packet )
     {
-	ti.new_packet = true;
+	ti.new_packet_ = true;
 	new_packet = false;
     }
     needskip = true;
@@ -643,7 +643,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
-    trcti.new_packet = mIsUdf(prev_inl);
+    trcti.new_packet_ = mIsUdf(prev_inl);
     ti = trcti;
     prev_inl = 0;
 
@@ -710,7 +710,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     const int rv = get( ti );
     if ( rv < 1 )	return rv;
     else if ( rv == 2 )	new_packet = true;
-    else		ti.new_packet = true;
+    else		ti.new_packet_ = true;
     return rv;
 }
 

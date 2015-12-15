@@ -354,8 +354,8 @@ int Seis2DLineMerger::doWork()
 
 	if ( !curattridx_ )
 	{
-	    PosInfo::Line2DPos pos( trc.info().nr );
-	    pos.coord_ = trc.info().coord;
+	    PosInfo::Line2DPos pos( trc.info().nr_ );
+	    pos.coord_ = trc.info().coord_;
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
@@ -407,7 +407,7 @@ void Seis2DLineMerger::mergeBufs()
     if ( renumber_ )
     {
 	for ( int idx=0; idx<outbuf_.size(); idx++ )
-	    outbuf_.get( idx )->info().nr = numbering_.atIndex( idx );
+	    outbuf_.get( idx )->info().nr_ = numbering_.atIndex( idx );
     }
 }
 
@@ -420,10 +420,10 @@ void Seis2DLineMerger::makeBufsCompat()
     const SeisTrc& trc10 = *tbuf1_.get( 0 );
     const int trcsz = trc10.size();
     const int trcnc = trc10.nrComponents();
-    const SamplingData<float> trcsd = trc10.info().sampling;
+    const SamplingData<float> trcsd = trc10.info().sampling_;
 
     const SeisTrc& trc20 = *tbuf2_.get( 0 );
-    if ( trc20.size() == trcsz && trc20.info().sampling == trcsd
+    if ( trc20.size() == trcsz && trc20.info().sampling_ == trcsd
       && trc20.nrComponents() == trcnc )
 	return;
 
@@ -433,7 +433,7 @@ void Seis2DLineMerger::makeBufsCompat()
 	SeisTrc cptrc( trc );		// Copy old data for values
 	trc = trc10;			// Get entire structure as trc10
 	trc.info() = cptrc.info();	// Yet, keep old info
-	trc.info().sampling = trcsd;	// ... but do take the samplingdata
+	trc.info().sampling_ = trcsd;	// ... but do take the samplingdata
 
 	for ( int icomp=0; icomp<trcnc; icomp++ )
 	{
@@ -464,10 +464,10 @@ void Seis2DLineMerger::mergeOnCoords()
 {
     const int nrtrcs1 = tbuf1_.size() - 1;
     const int nrtrcs2 = tbuf2_.size() - 1;
-    const Coord c10( tbuf1_.get(0)->info().coord );
-    const Coord c11( tbuf1_.get(nrtrcs1)->info().coord );
-    const Coord c20( tbuf2_.get(0)->info().coord );
-    const Coord c21( tbuf2_.get(nrtrcs2)->info().coord );
+    const Coord c10( tbuf1_.get(0)->info().coord_ );
+    const Coord c11( tbuf1_.get(nrtrcs1)->info().coord_ );
+    const Coord c20( tbuf2_.get(0)->info().coord_ );
+    const Coord c21( tbuf2_.get(nrtrcs2)->info().coord_ );
     const double sqd10 = c10.sqDistTo( c20 ) + c10.sqDistTo( c21 );
     const double sqd11 = c11.sqDistTo( c20 ) + c11.sqDistTo( c21 );
     const double sqd20 = c20.sqDistTo( c10 ) + c20.sqDistTo( c11 );
@@ -487,7 +487,7 @@ void Seis2DLineMerger::mergeOnCoords()
 	for ( int idx=0; idx<ntr; idx++ )
 	{
 	    const SeisTrcBuf& tb( ibuf ? tbuf2_ : tbuf1_ );
-	    const Coord& ctrc( tb.get(idx)->info().coord );
+	    const Coord& ctrc( tb.get(idx)->info().coord_ );
 	    const Coord crel( ctrc.x - lnstart.x, ctrc.y - lnstart.y );
 	    const double lpar = (lndelta.x * crel.x + lndelta.y * crel.y)
 			      / sqabs;
@@ -522,8 +522,8 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
     {
 	SeisTrc* prvtrc = outbuf_.get( itrc-1 );
 	SeisTrc* curtrc = outbuf_.get( itrc );
-	const double sqdist = curtrc->info().coord.sqDistTo(
-			      prvtrc->info().coord );
+	const double sqdist = curtrc->info().coord_.sqDistTo(
+			      prvtrc->info().coord_ );
 	if ( sqdist > sqsnapdist )
 	    nrsnapped = 0;
 	else

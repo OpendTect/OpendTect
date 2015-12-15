@@ -171,9 +171,9 @@ int StratSynthExporter::writePostStackTrace()
 	mErrRetPErr( "Cannot find the trace in the required position" )
 
     SeisTrc trc( *synthrc );
-    trc.info().nr = linepos.nr_;
+    trc.info().nr_ = linepos.nr_;
     trc.info().binid = SI().transform( linepos.coord_ );
-    trc.info().coord = linepos.coord_;
+    trc.info().coord_ = linepos.coord_;
     if ( !writer_->put(trc) )
     {
 	errmsg_ = writer_->errMsg();
@@ -210,10 +210,10 @@ int StratSynthExporter::writePreStackTraces()
     {
 	const float offset = gather->getOffset( offsidx );
 	SeisTrc trc( *gsdp.getTrace(posdone_,offsidx) );
-	trc.info().nr = linepos.nr_;
+	trc.info().nr_ = linepos.nr_;
 	trc.info().binid = SI().transform( linepos.coord_ );
-	trc.info().coord = linepos.coord_;
-	trc.info().offset = offset;
+	trc.info().coord_ = linepos.coord_;
+	trc.info().offset_ = offset;
 	if ( !writer_->put(trc) )
 	{
 	    errmsg_ = writer_->errMsg();

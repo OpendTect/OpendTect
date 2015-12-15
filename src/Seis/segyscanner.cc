@@ -187,7 +187,7 @@ int SEGY::Scanner::readNext()
     }
 
     const SeisTrcInfo& ti = trc_.info();
-    dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
+    dtctor_.add( ti.coord_, ti.binid, ti.nr_, ti.offset_ );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
 		    trc_.size() );
     nrdone_++;
@@ -195,7 +195,7 @@ int SEGY::Scanner::readNext()
     if ( notrcinfo_ )
 	return Executor::MoreToDo();
 
-    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.coord,
+    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.coord_,
 		   tr_->trcHeader().isusable );
 
     return Executor::MoreToDo();

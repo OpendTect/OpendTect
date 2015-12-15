@@ -81,12 +81,12 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 
 void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 {
-    ti.nr = traceNr( trcidx );
-    ti.sampling.start = position;
-    ti.sampling.step = ((float)range) / (nsamp-1);
-    ti.sampling.scale( cNanoFac );
-    ti.coord.x = cstart_.x + cstep_.x * trcidx;
-    ti.coord.y = cstart_.y + cstep_.y * trcidx;
+    ti.nr_ = traceNr( trcidx );
+    ti.sampling_.start = position;
+    ti.sampling_.step = ((float)range) / (nsamp-1);
+    ti.sampling_.scale( cNanoFac );
+    ti.coord_.x = cstart_.x + cstep_.x * trcidx;
+    ti.coord_.y = cstart_.y + cstep_.y * trcidx;
 }
 
 
@@ -170,7 +170,7 @@ int DZT::Importer::nextStep()
 	return closeAll();
 
     fh_.fillInfo( trc_.info(), mCast(int,nrdone_) );
-    trc_.info().sampling.scale( zfac_ );
+    trc_.info().sampling_.scale( zfac_ );
 
     for ( int ichan=0; ichan<fh_.nchan; ichan++ )
     {

@@ -118,7 +118,7 @@ static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
     for ( int idx=0; idx<buf->size(); idx++ )
     {
 	const SeisTrc* buftrc = buf->get( idx );
-	if ( buftrc->info().nr > trc->info().nr )
+	if ( buftrc->info().nr_ > trc->info().nr_ )
 	{
 	    buf->insert( trc, idx );
 	    return;
@@ -175,8 +175,8 @@ int SeisRandLineTo2D::nextStep()
     seldata_.binidValueSet().get( pos_, bid, vals );
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT32( vals[3] );
-    trc->info().nr = trcnr;
-    trc->info().coord = coord;
+    trc->info().nr_ = trcnr;
+    trc->info().coord_ = coord;
     addTrcToBuffer( trc, buf_ );
 
     nrdone_++;
@@ -190,8 +190,8 @@ int SeisRandLineTo2D::nextStep()
 	const Coord nextcoord( vals[1], vals[2] );
 	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT32( vals[3] );
-	nexttrc->info().nr = nexttrcnr;
-	nexttrc->info().coord = nextcoord;
+	nexttrc->info().nr_ = nexttrcnr;
+	nexttrc->info().coord_ = nextcoord;
 	addTrcToBuffer( nexttrc, buf_ );
 	nrdone_++;
     }

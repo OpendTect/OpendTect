@@ -91,8 +91,8 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 	{
 	    worktrc = intrc;
 	    worktrc.info() = intrc.info();
-	    worktrc.info().sampling.start = reqzrg.start;
-	    worktrc.info().sampling.step = reqzrg.step;
+	    worktrc.info().sampling_.start = reqzrg.start;
+	    worktrc.info().sampling_.step = reqzrg.step;
 	    int nrsamps = (int)( (reqzrg.stop-reqzrg.start)/reqzrg.step + 1.5 );
 	    for ( int idx=0; idx<intrc.data().nrComponents(); idx++ )
 		worktrc.data().getComponent(idx)->reSize( nrsamps );
@@ -107,8 +107,8 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 
     const int nrsamps = worktrc.size();
     worktrc.info() = intrc.info();
-    worktrc.info().sampling.start = cs.zsamp_.start;
-    worktrc.info().sampling.step = cs.zsamp_.step;
+    worktrc.info().sampling_.start = cs.zsamp_.start;
+    worktrc.info().sampling_.step = cs.zsamp_.step;
     for ( int icomp=0; icomp<worktrc.data().nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<nrsamps; isamp++ )

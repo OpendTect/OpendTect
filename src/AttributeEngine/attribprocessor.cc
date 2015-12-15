@@ -175,7 +175,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	else
 	{
 	    curbid.inl() = 0;
-	    curbid.crl() = curtrcinfo->nr;
+	    curbid.crl() = curtrcinfo->nr_;
 	}
     }
 
@@ -185,16 +185,16 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	mytrcinfo.binid = curbid;
 	if ( is2d_ )
 	{
-	    mytrcinfo.nr = curbid.crl();
+	    mytrcinfo.nr_ = curbid.crl();
 	    const Pos::GeomID geomid = provider_->getGeomID();
 	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		    	     Survey::GM().getGeometry(geomid) );
 	    PosInfo::Line2DPos pos2d;
 	    if ( geom2d && geom2d->data().getPos(curbid.crl(),pos2d) )
-		mytrcinfo.coord = pos2d.coord_;
+		mytrcinfo.coord_ = pos2d.coord_;
 	    else
 	    {
-		mytrcinfo.coord = SI().transform( mytrcinfo.binid );
+		mytrcinfo.coord_ = SI().transform( mytrcinfo.binid );
 		//for synthetic data. synth data = 2D without geomid
 	    }
 	}
@@ -203,7 +203,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     }
 
     TypeSet< Interval<int> > localintervals;
-    bool isset = setZIntervals( localintervals, curbid, curtrcinfo->coord );
+    bool isset = setZIntervals( localintervals, curbid, curtrcinfo->coord_ );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {

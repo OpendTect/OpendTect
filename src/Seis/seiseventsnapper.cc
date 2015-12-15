@@ -31,7 +31,7 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 {
     SeisTrcValueSeries valseries( trc, 0 );
     ValueSeriesEvFinder<float,float> evfinder( valseries, trc.size(),
-					       trc.info().sampling );
+					       trc.info().sampling_ );
     if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
     {
 	Interval<float> gate( searchgate_ );

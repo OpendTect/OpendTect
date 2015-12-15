@@ -262,13 +262,13 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info; trchead_.fill( info, fileopts_.coordscale_ );
     if ( othdomain_ )
-	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
+	info.sampling_.step *= SI().zIsTime() ? 1000 : 0.001f;
 
-    insd_.start = info.sampling.start;
+    insd_.start = info.sampling_.start;
     insd_.step = pinfo_.zrg.step;
     if ( mIsZero(insd_.step,1e-8) )
     {
-	insd_.step = info.sampling.step;
+	insd_.step = info.sampling_.step;
 	if ( mIsZero(insd_.step,1e-8) )
 	    insd_.step = SI().zRange(false).step;
     }
@@ -303,8 +303,8 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
-	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
-    if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactorF;
+	ti.sampling_.step *= SI().zIsTime() ? 1000 : 0.001f;
+    if ( binhead_.isInFeet() ) ti.offset_ *= mFromFeetFactorF;
 
     float scfac = trchead_.postScale( filepars_.fmt_ ? filepars_.fmt_ : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
@@ -317,9 +317,9 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
 
     if ( !mIsUdf(fileopts_.timeshift_) )
-	ti.sampling.start = fileopts_.timeshift_;
+	ti.sampling_.start = fileopts_.timeshift_;
     if ( !mIsUdf(fileopts_.sampleintv_) )
-	ti.sampling.step = fileopts_.sampleintv_;
+	ti.sampling_.step = fileopts_.sampleintv_;
 
     if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
     {
@@ -327,7 +327,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    curcoord_ = fileopts_.startcoord_;
 	else
 	    curcoord_ += fileopts_.stepcoord_;
-	ti.coord = curcoord_;
+	ti.coord_ = curcoord_;
     }
     else if ( fileopts_.coorddef_ == SEGY::FileReadOpts::ReadFile )
     {
@@ -358,11 +358,11 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 		return;
 	    }
 	}
-	ti.coord = bp2c_->coordAt( mCast(float,ti.nr) );
+	ti.coord_ = bp2c_->coordAt( mCast(float,ti.nr_) );
     }
 
-    if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
-	addWarn( cSEGYWarnSuspiciousCoord, ti.coord.toPrettyString() );
+    if ( ti.coord_.x > 1e9 || ti.coord_.y > 1e9 )
+	addWarn( cSEGYWarnSuspiciousCoord, ti.coord_.toPrettyString() );
 }
 
 
@@ -416,7 +416,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     if ( SI().xyInFeet() )
     {
 	SeisTrcInfo info = trc.info();
-	info.offset *= mToFeetFactorF;
+	info.offset_ *= mToFeetFactorF;
 	trchead_.use( info );
     }
     else
@@ -424,7 +424,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 	trchead_.use( trc.info() );
     }
 
-    SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd_ );
+    SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling_ : outsd_ );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples_;
     if ( othdomain_ )
 	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
@@ -638,7 +638,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 
 
 #define mBadCoord(ti) \
-	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
+	(ti.coord_.x < 0.01 && ti.coord_.y < 0.01)
 #define mBadBid(ti) \
 	(ti.binid.inl() <= 0 && ti.binid.crl() <= 0)
 #define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
@@ -665,7 +665,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    curtrcnr_ = fileopts_.trcnrdef_.start;
 	else
 	    curtrcnr_ = prevtrcnr_ + fileopts_.trcnrdef_.step;
-	ti.nr = curtrcnr_;
+	ti.nr_ = curtrcnr_;
     }
 
     bool goodpos = true;
@@ -679,7 +679,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadCoord(ti) )
 		mSkipThisTrace()
 	}
-	ti.binid = SI().transform( ti.coord );
+	ti.binid = SI().transform( ti.coord_ );
     }
     else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
     {
@@ -690,7 +690,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadBid(ti) )
 		mSkipThisTrace()
 	}
-	ti.coord = SI().transform( ti.binid );
+	ti.coord_ = SI().transform( ti.binid );
     }
     else
     {
@@ -701,16 +701,16 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadBid(ti) && mBadCoord(ti) )
 		mSkipThisTrace()
 	    if ( mBadBid(ti) )
-		ti.binid = SI().transform( ti.coord );
+		ti.binid = SI().transform( ti.coord_ );
 	    else if ( mBadCoord(ti) )
-		ti.coord = SI().transform( ti.binid );
+		ti.coord_ = SI().transform( ti.binid );
 	}
     }
 
     if ( trchead_.isusable )
 	trchead_.isusable = goodpos;
 
-    if ( !useinpsd_ ) ti.sampling = outsd_;
+    if ( !useinpsd_ ) ti.sampling_ = outsd_;
 
     offsetcalc_.setOffset( ti, trchead_ );
 
@@ -719,15 +719,15 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( goodpos )
     {
-	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr;
+	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr_;
 	prevbid_ = curbid_; curbid_ = ti.binid;
-	prevoffs_ = curoffs_; curoffs_ = ti.offset;
+	prevoffs_ = curoffs_; curoffs_ = ti.offset_;
     }
 
-    if ( mIsZero(ti.sampling.step,mDefEps) )
+    if ( mIsZero(ti.sampling_.step,mDefEps) )
     {
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
-	ti.sampling.step = insd_.step;
+	ti.sampling_.step = insd_.step;
     }
 
     if ( trchead_.nonrectcoords )

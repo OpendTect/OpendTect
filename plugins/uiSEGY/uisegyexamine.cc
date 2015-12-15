@@ -318,7 +318,7 @@ void uiSEGYExamine::updateInp()
 	}
 
 	nrdone++;
-	trc.info().nr = nrdone;
+	trc.info().nr_ = nrdone;
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );

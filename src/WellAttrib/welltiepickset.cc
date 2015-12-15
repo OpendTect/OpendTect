@@ -86,7 +86,7 @@ float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
     const int maxidx = trc.size();
     Interval<float> intvup ( zpos, zpos - mTimeGate );
     Interval<float> intvdown ( zpos, zpos + mTimeGate );
-    SamplingData<float> sd = trc.info().sampling;
+    SamplingData<float> sd = trc.info().sampling_;
     Array1DImpl<float> vals( trc.size() );
     for ( int idx=0; idx<trc.size(); idx++ )
 	vals.set( idx, trc.get( idx, 0 ) );

@@ -440,8 +440,8 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     {
 	trc_ = new SeisTrc( sz, dc );
 	trc_->info() = info;
-	trc_->info().sampling.step = refstep;
-	trc_->info().sampling.start = data.z0_*refstep;
+	trc_->info().sampling_.step = refstep;
+	trc_->info().sampling_.start = data.z0_*refstep;
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( sz, dc, false );
     }
@@ -479,7 +479,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	}
     }
 
-    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling.step,1e-6) )
+    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling_.step,1e-6) )
     {
 	StepInterval<float> reqzrg = desiredvolume_.zsamp_;
 	reqzrg.limitTo( trc_->zRange() );
@@ -487,7 +487,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
 	{
 	    SeisTrc temptrc( *trc_ );
-	    trc_->info().sampling.step = desiredvolume_.zsamp_.step;
+	    trc_->info().sampling_.step = desiredvolume_.zsamp_.step;
 	    trc_->data().getComponent(icomp)->reSize( nrsamps );
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 	    {
@@ -659,8 +659,8 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
     output_->dataset_ += data.clone();
 
     SeisTrcInfo* trcinfo = new SeisTrcInfo(info);
-    trcinfo->sampling.step = refstep;
-    //trcinfo->sampling.start = 0;
+    trcinfo->sampling_.step = refstep;
+    //trcinfo->sampling_.start = 0;
     output_->trcinfoset_ += trcinfo;
 }
 
@@ -859,8 +859,8 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	    trc->data().addComponent( trcsz, dc, false );
 
 	trc->info() = info;
-	trc->info().sampling.start = trcstarttime;
-	trc->info().sampling.step = refstep;
+	trc->info().sampling_.start = trcstarttime;
+	trc->info().sampling_.step = refstep;
     }
     else
 	trc = outpbuf_->get( index );
@@ -1051,8 +1051,8 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
     {
 	trc_ = new SeisTrc( trcsz, dc );
 	trc_->info() = info;
-	trc_->info().sampling.step = refstep;
-	trc_->info().sampling.start = trcstarttime;
+	trc_->info().sampling_.step = refstep;
+	trc_->info().sampling_.start = trcstarttime;
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( trcsz, dc, false );
     }
@@ -1180,7 +1180,7 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    const Coord coord = info.coord;
+    const Coord coord = info.coord_;
     DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(coord)
 					  : datapointset_.findFirst(info.binid);
     if ( rid< 0 && datapointset_.is2D() )

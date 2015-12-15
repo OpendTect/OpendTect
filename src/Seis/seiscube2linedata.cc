@@ -111,8 +111,8 @@ int Seis2DFrom3DExtractor::handleTrace()
     if ( !rdr_.get(trc) )
 	return MoreToDo();
 
-    trc.info().nr = curpos.nr_;
-    trc.info().coord = curpos.coord_;
+    trc.info().nr_ = curpos.nr_;
+    trc.info().coord_ = curpos.coord_;
     if ( !wrr_.put(trc) )
 	mErrRet( wrr_.errMsg() )
 

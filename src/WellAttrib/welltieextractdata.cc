@@ -54,7 +54,7 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
     extrintv_ = itv;
     delete outtrc_;
     outtrc_ = new SeisTrc( itv.nrSteps() + 1 );
-    outtrc_->info().sampling = itv;
+    outtrc_->info().sampling_ = itv;
     outtrc_->zero();
 }
 
@@ -132,7 +132,7 @@ int SeismicExtractor::nextStep()
 	const SeisTrc* trc = trcbuf_->get(idx);
 	BinID b = trc->info().binid;
 
-	const SamplingData<float>& sd = trc->info().sampling;
+	const SamplingData<float>& sd = trc->info().sampling_;
 	const int trcidx = sd.nearestIndex( zval );
 
 	int xx0 = b.inl()-curbid.inl(); xx0 *= xx0;

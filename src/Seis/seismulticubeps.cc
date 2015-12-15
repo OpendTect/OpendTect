@@ -248,7 +248,7 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
     else if ( !rdr.get(*trc) )
 	{ errmsg_ = rdr.errMsg(); delete trc; trc = 0; }
     else
-	trc->info().offset = offs_[nr];
+	trc->info().offset_ = offs_[nr];
 
     return trc;
 }

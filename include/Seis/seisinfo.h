@@ -73,44 +73,37 @@ public:
     bool		new_packet_;	// not stored
 
 
-    float&			pick;
-                                /*!<For backward compatibility. Will be
-                                    removed in future releases. */
+    mDeprecated float&			pick;
 
-    SamplingData<float>&	sampling;
+    mDeprecated SamplingData<float>&	sampling;
                                         /*!<For backward compatibility. Will be
                                             removed in future releases. */
-    int&			nr;
+    mDeprecated int&			nr;
                                         /*!<For backward compatibility. Will be
                                             removed in future releases. */
     BinID&                              binid;
                                         /*!<Reference into the trckey.
                                             For backward compatibility. Will be
                                             deprecated in future releases. */
-    Coord&                  coord;
+    mDeprecated Coord&                  coord;
                                         /*!<For backward compatibility. Will be
                                             removed in future releases. */
 
-    float&                  offset;
-                                        /*!<Reference into the trckey.
-                                         For backward compatibility. Will be
-                                         deprecated in future releases. */
-    float&                  azimuth;
-                                    /*!<Reference into the trckey.
-                                     For backward compatibility. Will be
-                                     deprecated in future releases. */
-    float&                  refnr;
-                                    /*!<Reference into the trckey.
-                                     For backward compatibility. Will be
-                                     deprecated in future releases. */
-    float&                  zref;
-                                    /*!<Reference into the trckey.
-                                     For backward compatibility. Will be
-                                     deprecated in future releases. */
-    bool&                   new_packet;
-                                    /*!<Reference into the trckey.
-                                     For backward compatibility. Will be
-                                     deprecated in future releases. */
+    mDeprecated float&                  offset;
+                                        /*!<For backward compatibility. Will be
+                                         removed in future releases. */
+    mDeprecated float&                  azimuth;
+                                        /*!<For backward compatibility. Will be
+                                         removed in future releases. */
+    mDeprecated float&                  refnr;
+                                        /*!<For backward compatibility. Will be
+                                         removed in future releases. */
+    mDeprecated float&                  zref;
+                                        /*!<For backward compatibility. Will be
+                                         removed in future releases. */
+    mDeprecated bool&                   new_packet;
+                                        /*!<For backward compatibility. Will be
+                                         removed in future releases. */
 };
 
 

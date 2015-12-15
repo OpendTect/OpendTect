@@ -326,7 +326,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     TypeSet<float> offss;
     if ( !doRead(trc_,&offss) )
 	return false;
-    insd_ = trc_.info().sampling;
+    insd_ = trc_.info().sampling_;
     innrsamples_ = trc_.size();
     for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
 	addComp( trc_.data().getInterpreter(icomp)->dataChar(),
@@ -418,7 +418,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 	    const DataCharacteristics trcdc(
 		    newtrc->data().getInterpreter(0)->dataChar() );
 	    if ( offss )
-		*offss += newtrc->info().offset;
+		*offss += newtrc->info().offset_;
 	    for ( int icomp=1; icomp<tbuf.size(); icomp++ )
 	    {
 		const SeisTrc& btrc = *tbuf.get(icomp);
@@ -426,7 +426,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		for ( int isamp=0; isamp<trcsz; isamp++ )
 		    newtrc->set( isamp, btrc.get(isamp,0), icomp );
 		if ( offss )
-		    *offss += btrc.info().offset;
+		    *offss += btrc.info().offset_;
 	    }
 	}
     }
@@ -437,8 +437,8 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
     {
 	trc.info() = newtrc->info();
 	const Interval<float> zrg( seldata_->zRange() );
-	trc.info().sampling.start = zrg.start;
-	const float sr = trc.info().sampling.step;
+	trc.info().sampling_.start = zrg.start;
+	const float sr = trc.info().sampling_.step;
 	const int nrsamps = (int)(zrg.width() / sr + 1.5);
 	trc.reSize( nrsamps, false );
 	for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
