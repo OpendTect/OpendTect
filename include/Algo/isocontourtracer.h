@@ -27,7 +27,7 @@ mExpClass(Algo) IsoContourTracer
 public:
 		
 		IsoContourTracer(const Array2D<float>&);
-		~IsoContourTracer()					{}
+		~IsoContourTracer();
 
     void	setSampling(const StepInterval<int>& xsamp,
 	    		    const StepInterval<int>& ysamp);
