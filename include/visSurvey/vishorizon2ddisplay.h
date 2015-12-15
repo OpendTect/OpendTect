@@ -18,10 +18,11 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "visemobjdisplay.h"
 
-namespace visBase { class PolyLine3D; class PointSet;  }
+namespace visBase { class PolyLine3D; class PointSet; class MarkerSet; }
 namespace EM { class Horizon2D; }
 class ZAxisTransform;
-
+class Line2DInterSection;
+class Line2DInterSectionSet;
 namespace visSurvey
 {
 
@@ -92,11 +93,26 @@ protected:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    bool			calcLine2DIntersections(
+						const TypeSet<Pos::GeomID>&, 
+						    Line2DInterSectionSet&);
+
+    void			calcLine2DInterSectionSet();
+
+    void			updateIntersectionMarkers(
+					const ObjectSet<const Seis2DDisplay>&);
+    void			updateIntersectionPoint(const Pos::GeomID,
+							const Pos::GeomID,
+						const Line2DInterSection*);
 
     ObjectSet<visBase::PolyLine3D>		lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
     TypeSet<int>				volumeofinterestids_;
+    visBase::MarkerSet*				intersectmkset_;
+    bool					updateintsectmarkers_;
+    int						nr2dlines_;
+    Line2DInterSectionSet*			ln2dset_;
 };
 
 } // namespace visSurvey
