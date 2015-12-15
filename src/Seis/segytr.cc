@@ -100,7 +100,6 @@ void SEGYSeisTrcTranslator::cleanUp()
     delete bp2c_; bp2c_ = 0;
     headerdone_ = false;
 
-    forcedrev_ = -1;
     mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
     curtrcnr_ = prevtrcnr_ = -1;
     prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
@@ -523,6 +522,8 @@ bool SEGYSeisTrcTranslator::initRead_()
     if ( !readTapeHeader() || !readTraceHeadBuffer() )
 	return false;
 
+    if ( forcedrev_ < 1 )
+	trchead_.isrev0_ = true;
     trchead_.initRead();
     if ( tarcds_.isEmpty() )
 	updateCDFromBuf();
