@@ -63,7 +63,7 @@ uiSeisWvltSliderDlg::~uiSeisWvltSliderDlg()
 uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
     : uiSeisWvltSliderDlg(p,wvlt)
 {
-    setCaption( tr("Phase rotation Slider") );
+    setCaption( tr("Rotate '%1'").arg(wvlt.name()) );
     uiSlider::Setup su;
     su.lbl_ = tr("Rotate phase (degrees)");
     su.isvertical_ = true;
