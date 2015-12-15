@@ -1500,8 +1500,7 @@ int uiODMenuMgr::ask2D3D( const uiString& txt, int res2d, int res3d,
 	res = res2d;
     else
     {
-	const int msg = uiMSG().askGoOnAfter( txt, uiStrings::sCancel(),
-				uiStrings::s2D(), uiStrings::s3D() );
+	const int msg = uiMSG().ask2D3D( txt, true );
 	res = msg == -1 ? rescncl : ( msg == 1 ? res2d : res3d );
     }
 
