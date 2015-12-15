@@ -523,10 +523,28 @@ Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
     const FlatPosData& pd = fdp->posData();
     const IndexInfo ix = pd.indexInfo( true, wp.x );
     const IndexInfo iy = pd.indexInfo( false, wp.y );
-    if ( fdp->data().info().validPos(ix.nearest_,iy.nearest_) )
+    if ( !fdp->data().info().validPos(ix.nearest_,iy.nearest_) )
+	return Coord3::udf();
+
+    const int floorx = ix.roundedtolow_ ? ix.nearest_ : ix.nearest_ - 1;
+    const int floory = iy.roundedtolow_ ? iy.nearest_ : iy.nearest_ - 1;
+    const int ceilx = ix.roundedtolow_ ? ix.nearest_ + 1 : ix.nearest_;
+    const int ceily = iy.roundedtolow_ ? iy.nearest_ + 1 : ix.nearest_;
+    if ( !fdp->data().info().validPos(floorx,floory) ||
+	    !fdp->data().info().validPos(ceilx,ceily) )
 	return fdp->getCoord( ix.nearest_, iy.nearest_ );
 
-    return Coord3::udf();
+    Coord3 pos1 = fdp->getCoord( floorx, floory );
+    Coord3 pos2 = fdp->getCoord( floorx, ceily );
+    Coord3 pos3 = fdp->getCoord( ceilx, floory );
+    Coord3 pos4 = fdp->getCoord( ceilx, ceily );
+    const double xfac = ( wp.x - pd.position(true,floorx) ) /
+		       ( pd.position(true,ceilx) - pd.position(true,floorx) );
+    const double yfac = ( wp.y - pd.position(false,floory) ) /
+		       ( pd.position(false,ceily) - pd.position(false,floory) );
+    Coord3 realpos = pos1*(1-xfac)*(1-yfac) + pos2*(1-xfac)*yfac
+			+ pos3*xfac*(1-yfac) + pos4*xfac*yfac;
+    return realpos;
 }
 
 

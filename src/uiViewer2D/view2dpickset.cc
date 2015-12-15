@@ -205,6 +205,8 @@ void VW2DPickSet::drawAll()
 
     if ( isownremove_ ) return;
 
+    RefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
+    const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
 	uiFlatViewer& vwr = *viewers_[ivwr];
@@ -224,13 +226,13 @@ void VW2DPickSet::drawAll()
 	{
 	    const int pickidx = picksetidxs_[idx];
 	    const Coord3& pos = (*pickset_)[pickidx].pos_;
-	    const BinID bid = SI().transform(pos);
 	    const double z = zat ? zat->transform(pos) : pos.z;
 	    if ( regfdp )
 	    {
 		BufferString dipval;
 		(*pickset_)[pickidx].getText( "Dip" , dipval );
 		SeparString dipstr( dipval );
+		const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
 		const bool oninl =
 		    regfdp->sampling().defaultDir() == TrcKeyZSampling::Inl;
 		const float dip = oninl ? dipstr.getFValue( 1 )
@@ -241,11 +243,12 @@ void VW2DPickSet::drawAll()
 		const float xfac = nrxpixels / xdiff;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
-		FlatView::Point point( oninl ? bid.crl():bid.inl(), z );
+		FlatView::Point point( oninl ? bidf.y:bidf.x, z );
 		picks->poly_ += point;
 	    }
 	    else if ( randfdp )
 	    {
+		const BinID bid = SI().transform(pos);
 		const FlatPosData& flatposdata = randfdp->posData();
 		const TrcKey trckey = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
