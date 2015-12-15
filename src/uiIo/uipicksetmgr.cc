@@ -45,10 +45,14 @@ uiPickSetMgr::~uiPickSetMgr()
 
 
 bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
+{ return storeNewSet( ps, false ); }
+
+
+bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->setName( ps->name() );
-    if ( uiIOObj::fillCtio(*ctio,true) )
+    if ( uiIOObj::fillCtio(*ctio,!noconf) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj_;
 	if ( ps->disp_.connect_ == Pick::Set::Disp::None )
@@ -57,7 +61,7 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
 	else
 	    ioobj->pars().set( sKey::Type(), sKey::Polygon() );
 
-	if ( !doStore( *ps, *ioobj ) )
+	if ( !doStore(*ps,*ioobj) )
 	    { delete ps; ps = 0; return false; }
 
 	setmgr_.set( ioobj->key(), ps );
@@ -196,7 +200,7 @@ bool acceptOK( CallBacker* )
     { uiMSG().error(tr("Please select at least two sets")); return false; }
     else if (!outfld->commitInput())
     {
-	uiMSG().error(uiStrings::phrCannotCreate( 
+	uiMSG().error(uiStrings::phrCannotCreate(
 					mToUiStringTodo(outfld->getInput()) ));
 	return false;
     }

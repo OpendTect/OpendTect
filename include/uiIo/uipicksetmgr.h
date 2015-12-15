@@ -37,6 +37,7 @@ public:
     bool		pickSetsStored() const;
 
     virtual bool	storeNewSet(Pick::Set*&) const;
+    bool		storeNewSet(Pick::Set*&,bool noconf) const;
     void		keyPressedCB(CallBacker*);
 
 protected:
