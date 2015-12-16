@@ -61,7 +61,6 @@ public:
     uiODMenuMgr&	mnumgr_;
 
     void		updateMenu(CallBacker*);
-    void		updateToolBar(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
     void		imp2DCB(CallBacker*);
@@ -107,11 +106,9 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    mAttachCB( mnumgr_.dTectTBChanged, uiSEGYMgr::updateToolBar );
     mAttachCB( IOM().surveyChanged, uiSEGYMgr::updateMenu );
 
     updateMenu(0);
-    updateToolBar(0);
 }
 
 
@@ -189,14 +186,11 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 		   muiSEGYMgrCB(impClassicCB), "import") );
     impclassmnu->insertItem( new uiAction( tr("Link"),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
-}
 
-
-void uiSEGYMgr::updateToolBar( CallBacker* )
-{
     mnumgr_.dtectTB()->addButton( segy_iconid, tr("SEG-Y import"),
 				  mCB(this,uiSEGYMgr,readStarterCB) );
 }
+
 
 #define mImplImpCB(typ,arg) \
 void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
