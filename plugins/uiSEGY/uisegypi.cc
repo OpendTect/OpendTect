@@ -61,7 +61,6 @@ public:
     uiODMenuMgr&	mnumgr_;
 
     void		updateMenu(CallBacker*);
-    void		updateToolBar(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
     void		imp2DCB(CallBacker*);
@@ -107,11 +106,9 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    mAttachCB( mnumgr_.dTectTBChanged, uiSEGYMgr::updateToolBar );
     mAttachCB( IOM().surveyChanged, uiSEGYMgr::updateMenu );
 
     updateMenu(0);
-    updateToolBar(0);
 }
 
 
@@ -125,7 +122,8 @@ uiSEGYMgr::~uiSEGYMgr()
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    const bool have2d = IOM().isBad() || SI().has2D();
+    const bool only2d = !IOM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
     uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
     impseismnu->insertItem( impsgymnu );
@@ -188,14 +186,11 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 		   muiSEGYMgrCB(impClassicCB), "import") );
     impclassmnu->insertItem( new uiAction( tr("Link"),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
-}
 
-
-void uiSEGYMgr::updateToolBar( CallBacker* )
-{
     mnumgr_.dtectTB()->addButton( segy_iconid, tr("SEG-Y import"),
 				  mCB(this,uiSEGYMgr,readStarterCB) );
 }
+
 
 #define mImplImpCB(typ,arg) \
 void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
