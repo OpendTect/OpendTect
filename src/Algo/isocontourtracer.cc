@@ -125,11 +125,12 @@ private:
 class ContourTracer : public ParallelTask
 { 
 public:
-			    ContourTracer(ObjectSet<ODPolygon<float>>& contours,
-					  Array3DImpl<float>* crossings,
-					  unsigned int edge,float bendpointeps,
-					  int nrlargestonly,int minnrvertices,
-					  bool closedonly);
+			    ContourTracer(
+					 ObjectSet<ODPolygon<float> >& contours,
+					 Array3DImpl<float>* crossings,
+					 unsigned int edge,float bendpointeps,
+					 int nrlargestonly,int minnrvertices,
+					 bool closedonly);
     void		    setRanges(const Interval<int>&,
 				      const Interval<int>&);
     void		    setSamplings(const StepInterval<int>&,
@@ -196,7 +197,6 @@ void SameZFinder::setSamplings( const StepInterval<int>& xsampling,
 
 bool SameZFinder::doWork( od_int64 start, od_int64 stop, int )
 {
-    const int ysize = zarray_->info().getSize(1);
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
 	findDataWithTheZ( (int)idx, zval_ );
     return true;
@@ -322,17 +322,17 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 	    contour->setClosed( false );
 	    for ( int pup=0; pup<=1; pup++ )
 	    {
-		int idx = pidx; int idy = pidy; int hor = phor;
+		int idxx = pidx; int idyy = pidy; int hor = phor;
 		int up = pup; float frac = pfrac;
-		if ( !pup && !nextCrossing(*crossings_,idx,idy,hor,up,frac) )
+		if ( !pup && !nextCrossing(*crossings_,idxx,idyy,hor,up,frac) )
 		    continue;
 		do
 		{
-		    addVertex( *contour, pup, idx, idy, hor, frac );
-		    crossings_->set( idx, idy, hor, mUdf(float) );
+		    addVertex( *contour, pup, idxx, idyy, hor, frac );
+		    crossings_->set( idxx, idyy, hor, mUdf(float) );
 		}
-		while( nextCrossing(*crossings_,idx,idy,hor,up,frac) );
-		if ( !pup && idx==pidx && idy==pidy && hor==phor )
+		while( nextCrossing(*crossings_,idxx,idyy,hor,up,frac) );
+		if ( !pup && idxx==pidx && idyy==pidy && hor==phor )
 		{
 		    contour->setClosed( true );
 		    break;
@@ -346,15 +346,8 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		Threads::MutexLocker lock( lock_ );
-		const int oldnrcontours = contours_.size();
-		int idx = 0;
-		while ( idx<oldnrcontours && contours_[idx]->size()>=sz )
-		    idx++;
 		contours_ += contour;
 		lock.unLock();
-
-		if ( oldnrcontours == nrlargestonly_ )
-		    delete contours_.removeSingle( oldnrcontours );
 	    }
 	}
     }
