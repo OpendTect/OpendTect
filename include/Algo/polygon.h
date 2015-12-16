@@ -94,6 +94,8 @@ public:
     double	maxDistToBorderEstimate(double maxrelerr=0.001) const;
 
     bool	operator==(const ODPolygon<T>&) const;
+    bool	operator>( const ODPolygon<T>& plg ) const
+		{ return poly_.size()>plg.size(); }
 
 protected:
  

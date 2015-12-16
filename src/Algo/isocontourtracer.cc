@@ -436,6 +436,16 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 	tracer.executeParallel( multithread2 );
     }
     delete crossings;
+
+    if ( nrlargestonly_>0 && contours.size()>nrlargestonly_ )
+    {
+	sort( contours );
+	contours.reverse();
+
+	for ( int idx=contours.size()-1; idx>=nrlargestonly_; idx-- )
+	    contours.removeSingle( idx );
+    }
+
     return !contours.isEmpty();
 }
 
