@@ -349,15 +349,8 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		Threads::MutexLocker lock( lock_ );
-		const int oldnrcontours = contours_.size();
-		int idxc = 0;
-		while ( idxc<oldnrcontours && contours_[idxc]->size()>=sz )
-		    idxc++;
 		contours_ += contour;
 		lock.unLock();
-
-		if ( oldnrcontours == nrlargestonly_ )
-		    delete contours_.removeSingle( oldnrcontours );
 	    }
 	}
     }
@@ -454,6 +447,16 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 	tracer.executeParallel( multithread2 );
     }
     delete crossings;
+    
+    if ( nrlargestonly_>0 && contours.size()>nrlargestonly_ )
+    {
+	sort( contours );
+	contours.reverse();
+
+	for ( int idx=contours.size()-1; idx>=nrlargestonly_; idx-- )
+	    contours.removeSingle( idx );
+    }
+
     return !contours.isEmpty();
 }
 
