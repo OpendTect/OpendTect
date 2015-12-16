@@ -865,7 +865,11 @@ IOObj* IOMan::get( const char* objname, const char* tgname ) const
 	if ( iodir.isBad() )
 	    continue;
 
-	return iodir.get( objname, tgname )->clone();
+	const IOObj* res = iodir.get( objname, tgname );
+	if ( !res )
+	    continue;
+
+	return res->clone();
     }
 
     return 0;
