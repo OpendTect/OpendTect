@@ -69,6 +69,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 
 HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 {
+    detachAllNotifiers();
     if ( mehandler_ )
     {
 	editor_->removeSelected.remove(
@@ -202,6 +203,9 @@ void HorizonFlatViewEditor3D::paint()
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
+    if ( !mouseevent.leftButton() )
+	return;
+
     if ( !pickedpos_.isUdf() )
     {
 	const Geom::Point2D<int>& mousepos = mouseevent.pos();
@@ -244,7 +248,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
     if ( (editor_ && editor_->sower().accept(mouseevent,false)) ||
-	 mouseevent.middleButton() )
+	 !mouseevent.leftButton() )
 	return;
 
     const bool haspath = curtkpath_ && !curtkpath_->isEmpty();

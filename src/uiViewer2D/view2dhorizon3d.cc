@@ -119,6 +119,13 @@ void Vw2DHorizon3D::draw()
 
 	    if ( randfdp )
 	    {
+		TrcKeyZSampling tkzs( false );
+		const TrcKeyPath& tkpath = randfdp->getPath();
+		for ( int ipath=0; ipath<tkpath.size(); ipath++ )
+		    tkzs.hsamp_.include( tkpath[ipath] );
+
+		tkzs.zsamp_ = randfdp->getZRange();
+		horeds_[ivwr]->setTrcKeyZSampling( tkzs );
 		horeds_[ivwr]->setPath( randfdp->getPath() );
 		horeds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
