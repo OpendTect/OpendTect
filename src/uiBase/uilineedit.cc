@@ -161,6 +161,12 @@ void uiLineEdit::setCompleter( const BufferStringSet& bs, bool cs )
 }
 
 
+void uiLineEdit::setPlaceholderText( const uiString& txt )
+{
+    body_->setPlaceholderText( txt.getQString() );
+}
+
+
 void uiLineEdit::setReadOnly( bool yn )
 { body_->setReadOnly( yn ); }
 

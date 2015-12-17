@@ -204,6 +204,7 @@ void uiSEGYReadStarter::createTools()
 	coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
 	    "the coordinate scaling in the trace headers."
 	    "\nAll coordinates read will then be multiplied by that factor." ));
+	coordscalefld_->setPlaceholderText( "scale XY" );
 	coordscalefld_->editingFinished.notify(
 				mCB(this,uiSEGYReadStarter,coordscaleChg) );
 	if ( usexybut_ )
