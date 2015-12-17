@@ -425,8 +425,10 @@ protected:
 				}
 
 	bool			operator > ( PosAndRowIDPair other ) const
-	    			{ return gid_ > other.gid_ ||
-				   ( gid_==other.gid_ && tid_ > other.tid_ ); }
+				{ return gid_ > other.gid_
+				    || (gid_==other.gid_ && tid_>other.tid_)
+				    || (gid_==other.gid_ && tid_==other.tid_
+							 && rid_>other.rid_); }
 
 	bool			matchesTrcKey( const TrcKey& tkey ) const
 				{ return gid_ == tkey.geomID()

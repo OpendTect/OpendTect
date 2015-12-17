@@ -1366,10 +1366,11 @@ void TableOutput::collectDataSpecial60( const DataHolder& data,
 		Pos::GeomID refgid = parpset_[pairidx].gid_;
 		Pos::TraceID reftid = parpset_[pairidx].tid_;
 		{
+		    const int movingpairidx = pairidx + idx - rid;
 		    //approximation rid#pairidx valid since parpset_ is sorted
-		    if ( idx<parpset_.size() &&
-			    ( refgid != parpset_[idx].gid_
-			   || reftid != parpset_[idx].tid_ ) )
+		    if ( movingpairidx<parpset_.size() &&
+			    ( refgid != parpset_[movingpairidx].gid_
+			   || reftid != parpset_[movingpairidx].tid_ ) )
 			break;
 		}
 	    }
@@ -1589,12 +1590,12 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     Pos::GeomID refgid = parpset_[pairidx].gid_;
     Pos::TraceID reftid = parpset_[pairidx].tid_;
     addLocalInterval( sampleinterval, exactz, rid, zstep );
-    for ( int idx=rid+1; idx<parpset_.size(); idx++ )
+    for ( int idx=pairidx+1; idx<parpset_.size(); idx++ )
     {
 	if ( refgid != parpset_[idx].gid_ || reftid != parpset_[idx].tid_ )
 	    break;
 
-	addLocalInterval( sampleinterval, exactz, idx, zstep );
+	addLocalInterval( sampleinterval, exactz, parpset_[idx].rid_, zstep );
     }
 
     return sampleinterval;
