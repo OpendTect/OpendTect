@@ -62,6 +62,7 @@ public:
 
     void		setCompleter(const BufferStringSet& bs,
 				     bool casesensitive=false);
+    void		setPlaceholderText(const uiString&);
 
     virtual void	setReadOnly(bool=true);
     virtual bool	isReadOnly() const;
@@ -104,7 +105,7 @@ public:
     virtual void	setvalue_( const char* );
 
     void		setToolTip( const uiString& tt )
-    			{ uiObject::setToolTip(tt); }
+			{ uiObject::setToolTip(tt); }
 
 protected:
 
@@ -113,7 +114,7 @@ protected:
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			{ editingFinished.notify( cb ); return true;}
     virtual bool	notifyUpdateRequested_( const CallBack& cb )
-    			{ returnPressed.notify( cb ); return true; }
+			{ returnPressed.notify( cb ); return true; }
 
 private:
 
