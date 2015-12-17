@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uistrings.h"
 #include "commandlineparser.h"
+#include "texttranslator.h"
 
 #ifdef __msvc__
 #include "winmain.h"
@@ -25,6 +26,8 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     CommandLineParser parser;
+
+    TextTranslateMgr::loadTranslations();
 
     if ( parser.nrArgs()<1 )
 	return ExitProgram( 1 );

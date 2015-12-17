@@ -56,6 +56,11 @@ public:
     bool			addLanguage(TextTranslatorLanguage*);
 				//!<Returns false if it was not added.
 
+    static bool			loadTranslations();
+    				/*!<Can be called from executables to load
+				    The dGBCommon plugin, wich loads all
+				    languages. */
+
 protected:
     friend class				TextTranslatorLanguage;
 

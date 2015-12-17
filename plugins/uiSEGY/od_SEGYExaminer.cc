@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "prog.h"
 #include "moddepmgr.h"
+#include "texttranslator.h"
 
 #ifdef __win__
 #include "file.h"
@@ -24,6 +25,8 @@ int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiSeis" );
+
+    TextTranslateMgr::loadTranslations();
 
     bool dofork = true;
     uiSEGYExamine::Setup su;

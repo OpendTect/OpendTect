@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "plugins.h"
 
 #ifndef OD_NO_QT
 # include <QTranslator>
@@ -294,3 +295,13 @@ void TextTranslateMgr::loadUSEnglish()
 				new TextTranslatorLanguage("en-us");
     addLanguage( english );
 }
+
+
+bool TextTranslateMgr::loadTranslations()
+{
+    BufferString libname;
+    libname.setBufSize( 256 );
+    SharedLibAccess::getLibName( "dGBCommon", libname.getCStr() );
+    return PIM().load( FilePath( GetLibPlfDir(), libname ).fullPath() );
+}
+     

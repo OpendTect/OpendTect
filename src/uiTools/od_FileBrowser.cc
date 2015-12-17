@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "prog.h"
+#include "texttranslator.h"
 
 #ifdef __win__
 # include "file.h"
@@ -23,6 +24,8 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiTools" );
+
+    TextTranslateMgr::loadTranslations();
 
     int argidx = 1;
     File::ViewPars vp;

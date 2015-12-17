@@ -21,12 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "prog.h"
 
+#include "texttranslator.h"
 
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
 
     OD::ModDeps().ensureLoaded( "uiTools" );
+    TextTranslateMgr::loadTranslations();
 
     CommandLineParser clp( argc, argv );
     BufferStringSet args;

@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "sighndl.h"
 #include "timer.h"
+#include "texttranslator.h"
 #include "varlenarray.h"
 
 #include <iostream>
@@ -256,6 +257,8 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiBase" );
+   
+    TextTranslateMgr::loadTranslations();
 
     CommandLineParser cl( argc, argv );
     cl.setKeyHasValue( "pid" );
