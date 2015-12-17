@@ -484,7 +484,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 bool uiSEGYReadFinisher::doBatch( bool doimp )
 {
     const BufferString jobname( doimp ? "Import SEG-Y (" : "Scan SEG-Y (",
-	    			objname_, ")" );
+				objname_, ")" );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
     const bool isps = Seis::isPS( fs_.geomType() );
@@ -650,7 +650,7 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
 	else if ( !SI().isReasonable(startcrd) )
 	    mErrRet(tr("The start coordinate is too far from the survey"))
 
-	Coord stepcrd( coordsstartfld_->getCoord() );
+	Coord stepcrd( coordsstepfld_->getCoord() );
 	if ( mIsUdf(stepcrd.x) ) stepcrd.x = 0;
 	if ( mIsUdf(stepcrd.y) ) stepcrd.y = 0;
 	if ( mIsZero(stepcrd.x,0.001) && mIsZero(stepcrd.y,0.001) )
