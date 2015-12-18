@@ -413,6 +413,7 @@ public:
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift();
     static uiString sShow()             { return tr("Show"); }
+    static uiString sShowIn();
     static uiString sSlice()		{ return tr("Slice"); }
     static uiString sSouth(bool abb)	{ return abb ? tr("S"):tr("South"); }
     static uiString sSpecify();
