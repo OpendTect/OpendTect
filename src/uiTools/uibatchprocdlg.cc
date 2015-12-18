@@ -38,10 +38,11 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
     if ( !prepareProcessing() )
 	return false;
 
+    IOPar& par = batchjobfld_->jobSpec().pars_;
+    par.setEmpty();
     BufferString jobnm;
     getJobName( jobnm );
     batchjobfld_->setJobName( jobnm );
-    IOPar& par = batchjobfld_->jobSpec().pars_;
     if ( !fillPar(par) )
 	return false;
 
