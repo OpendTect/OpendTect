@@ -443,9 +443,9 @@ void uiIOSelect::setLabelText( const uiString& s )
 {
     if ( lbl_ )
     {
-	lbl_->setPrefWidthInChar(
-			(int)(FixedString(s.getFullString()).size()+1) );
-	return lbl_->setText( s );
+	lbl_->setText( s );
+	lbl_->setPrefWidthInChar( s.size() + 3 );
+	return ;
     }
     else if ( optbox_ )
 	optbox_->setText( s );
@@ -472,7 +472,7 @@ uiIOFileSelect::uiIOFileSelect( uiParent* p, const uiString& txt, bool frrd,
 
 void uiIOFileSelect::doFileSel( CallBacker* c )
 {
-    uiString caption = uiStrings::sSelect().arg( labelText() );
+    uiString caption = uiStrings::phrSelect(labelText());
     uiFileDialog fd( this, forread, getInput(),
 		     filter.isEmpty() ? 0 : (const char*)filter, caption );
     if ( seldir )
