@@ -70,6 +70,8 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
     if ( File::exists(targetlibnm) )
     {
+	const UINT oldmod = GetErrorMode();
+	SetErrorMode( SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS );
 	handle_ = LoadLibrary( targetlibnm );
 	if ( !handle_ )
 	{
@@ -79,6 +81,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
 	    errmsg_ = BufferString( ptr );
 	}
+	SetErrorMode( oldmod );
     }
 
 #else
