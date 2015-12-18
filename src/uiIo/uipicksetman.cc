@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "picksettr.h"
 #include "pickset.h"
 #include "keystrs.h"
-#include "polygon.h"
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
@@ -108,13 +107,9 @@ void uiPickSetMan::mkFileInfo()
 
 	    if ( ispoly && sz > 2 )
 	    {
-		ODPolygon<double> odpoly;
-		for ( int idx=0; idx<sz; idx++ )
-		{
-		    const Coord c( ps[idx].pos_ );
-		    odpoly.add( Geom::Point2D<double>( c.x, c.y ) );
-		}
-		txt.add( ", area=" ).add( odpoly.area() );
+		const float area = ps.getXYArea();
+		if ( !mIsUdf(area) )
+		    txt.add( ", area=" ).add( area );
 	    }
 
 	    if ( havetype )

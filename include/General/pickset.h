@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "trckey.h"
 #include "trigonometry.h"
 #include "undo.h"
+template <class T> class ODPolygon;
 
 
 namespace Pick
@@ -49,14 +50,14 @@ public:
     void		operator =(const Location&);
 
     bool		fromString(const char*,bool doxy=true,
-	    			   bool checkdir=true);
-    			/*!<If checkdir is true, a more rigourous test is done
+				   bool checkdir=true);
+			/*!<If checkdir is true, a more rigourous test is done
 			    on dir. */
     void		toString(BufferString&,bool forexport=false) const;
 
     Coord3		pos_;
     TrcKey		trckey_;
-    			/*!<If Undef, defined by pos_.
+			/*!<If Undef, defined by pos_.
 			    If defined, z-value is defined in pos_.z */
     Sphere		dir_;/*!< Optional direction at location.
 			          phi is defined as the direction's
@@ -66,7 +67,7 @@ public:
 				  the upward pointing z axis (i.e. opposite to
 				  survey-z-axis).
 			     \note theta and the radius are defined after thes
-			    	  SI().zFactor is applied to the z-coordinate.
+				  SI().zFactor is applied to the z-coordinate.
 			     */
 
     BufferString*	text_; //!<Optional text at location
@@ -80,7 +81,7 @@ public:
     float		crlDip() const;
 
     inline bool		hasDir() const
-    			{ return !mIsZero(dir_.radius,mDefEps)
+			{ return !mIsZero(dir_.radius,mDefEps)
 			      || !mIsZero(dir_.theta,mDefEps)
 			      || !mIsZero(dir_.phi,mDefEps); }
 
@@ -118,8 +119,9 @@ public:
     IOPar&		pars_;
 
     bool		isPolygon() const;
+    void		getPolygon(ODPolygon<double>&) const;
     float		getXYArea() const;
-    			//!<Only for closed polygons. Returns in m^2.
+			//!<Only for closed polygons. Returns in m^2.
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -169,9 +171,9 @@ public:
     const Set&		get( const char* s ) const	{ return *find(s); }
 
     void		set(const MultiID&,Set*);
-    			//!< add, replace or remove (pass null Set ptr).
-    			//!< Set is already, or becomes *mine*
-    			//!< Note that replacement will trigger two callbacks
+			//!< add, replace or remove (pass null Set ptr).
+			//!< Set is already, or becomes *mine*
+			//!< Note that replacement will trigger two callbacks
     void		setID(int idx,const MultiID&);
 
     struct ChangeData : public CallBacker
@@ -209,7 +211,7 @@ public:
 
     static SetMgr&	getMgr(const char*);
 
-    			SetMgr( const char* nm );
+			SetMgr( const char* nm );
 			//!< creates an unmanaged SetMgr
 			//!< Normally you don't want that, use getMgr() instead
 
@@ -241,7 +243,7 @@ inline SetMgr& Mgr()
 mExpClass(General) PickSetAscIO : public Table::AscIO
 {
 public:
-    				PickSetAscIO( const Table::FormatDesc& fd )
+				PickSetAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)          {}
 
     static Table::FormatDesc*   getDesc(bool iszreq);
@@ -250,7 +252,7 @@ public:
 
     bool			isXY() const;
     bool			get(od_istream&,Pick::Set&,bool iszreq,
-	    			    float zval) const;
+				    float zval) const;
 };
 
 #endif

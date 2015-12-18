@@ -516,7 +516,7 @@ public:
 
     void init( UnDoType type, const MultiID& mid, int sidx,
 	const Pick::Location& pos )
-    { 
+    {
 	type_ = type;
 	newpos_ = Coord3::udf();
 	pos_ = Coord3::udf();
@@ -568,9 +568,9 @@ public:
 	    index_ == set.size()-1 && type_ != Move )
 	    type_ = PolygonClose;
 
-	Pick::SetMgr::ChangeData::Ev ev = type_ == Move ? 
-	    Pick::SetMgr::ChangeData::Changed : 
-	    ( type_ == Remove 
+	Pick::SetMgr::ChangeData::Ev ev = type_ == Move ?
+	    Pick::SetMgr::ChangeData::Changed :
+	    ( type_ == Remove
 	    ? Pick::SetMgr::ChangeData::Added
 	    : Pick::SetMgr::ChangeData::ToBeRemoved );
 
@@ -648,7 +648,7 @@ protected:
     Pick::Location  pos_;
     Pick::Location  newpos_;
     MultiID	    mid_;
-    int	    	    index_;
+    int		    index_;
     UnDoType	    type_;
 };
 
@@ -685,6 +685,17 @@ bool Set::isPolygon() const
     const FixedString typ = pars_.find( sKey::Type() );
     return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
 			 : typ == sKey::Polygon();
+}
+
+
+void Set::getPolygon( ODPolygon<double>& poly ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const Coord c( (*this)[idx].pos_ );
+	poly.add( Geom::Point2D<double>( c.x, c.y ) );
+    }
 }
 
 
@@ -767,13 +778,13 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
     const MultiID mid = mgr.get(*this);
     if ( !mid.isEmpty() )
     {
-	PickSetKnotUndoEvent::UnDoType undotype = 
-	    (PickSetKnotUndoEvent::UnDoType) type; 
+	PickSetKnotUndoEvent::UnDoType undotype =
+	    (PickSetKnotUndoEvent::UnDoType) type;
 
 	const Pick::Location pos = type == Insert
 				   ? Coord3::udf()
 				   : loc;
-	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent( 
+	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent(
 	undotype, mid, idx, pos );
 	Pick::Mgr().undo().addEvent( undo, 0 );
     }
@@ -802,7 +813,7 @@ void Set::removeSingleWithUndo( int idx )
 }
 
 
-void Set::moveWithUndo( int idx, const Pick::Location& undoloc, 
+void Set::moveWithUndo( int idx, const Pick::Location& undoloc,
     const Pick::Location& loc )
 {
     if ( size()<idx ) return;
