@@ -47,6 +47,12 @@ uiString uiStrings::phrExport( const uiString& string )
 uiString uiStrings::phrImport( const uiString& string )
 { return toUiString(joinstring).arg( sImport() ).arg( string ); }
 
+uiString uiStrings::phrCannotAdd( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
+
+uiString uiStrings::phrCannotCopy( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotCopy()).arg(string); }
+
 uiString uiStrings::phrCannotCreate( const uiString& string )
 { return tr("Cannot create %1").arg( string ); }
 
@@ -55,6 +61,9 @@ uiString uiStrings::phrCannotCreateDBEntryFor(const uiString& string)
 
 uiString uiStrings::phrCannotCreateDirectory( const uiString& string )
 { return phrCannotCreate( tr("directory %1").arg(string) ); }
+
+uiString uiStrings::phrCannotEdit( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotEdit()).arg(string); }
 
 uiString uiStrings::phrCannotExtract( const uiString& string )
 { return toUiString(joinstring).arg(sCannotExtract()).arg(string); }
@@ -65,6 +74,9 @@ uiString uiStrings::phrCannotFind( const uiString& string )
 uiString uiStrings::phrCannotImport( const uiString& string )
 { return toUiString(joinstring).arg(sCannotImport()).arg(string); }
 
+uiString uiStrings::phrCannotLoad( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotLoad()).arg(string); }
+
 uiString uiStrings::phrCannotOpen( const uiString& string )
 { return tr("Cannot open %1").arg( string ); }
 
@@ -73,6 +85,9 @@ uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
 
 uiString uiStrings::phrCannotRead( const uiString& string )
 { return tr("Cannot read %1").arg( string ); }
+
+uiString uiStrings::phrCannotRemove( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotRemove()).arg(string); }
 
 uiString uiStrings::phrCannotWrite( const uiString& string )
 { return toUiString(joinstring).arg(sCannotWrite()).arg( string ); }
@@ -91,6 +106,9 @@ uiString uiStrings::phrCannotUnZip( const uiString& string )
 
 uiString uiStrings::phrCannotZip( const uiString& string )
 { return toUiString(joinstring).arg(sCannotZip()).arg(string); }
+
+uiString uiStrings::phrCheck( const uiString& string )
+{ return toUiString(joinstring).arg(sCheck()).arg(string); }
 
 uiString uiStrings::phrCopy( const uiString& string )
 { return toUiString(joinstring).arg(sCopy()).arg(string); }
@@ -154,6 +172,9 @@ uiString uiStrings::phrModify( const uiString& string )
 uiString uiStrings::phrMerge( const uiString& string )
 { return toUiString(joinstring).arg(sMerge()).arg(string); }
 
+uiString uiStrings::phrOpen( const uiString& string )
+{ return toUiString(joinstring).arg(sOpen()).arg(string); }
+
 uiString uiStrings::phrOutput( const uiString& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
@@ -186,6 +207,9 @@ uiString uiStrings::phrWriting( const uiString& string )
 
 uiString uiStrings::phrSave( const uiString& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }
+
+uiString uiStrings::phrShowIn( const uiString& string )
+{ return toUiString(joinstring).arg(sShowIn()).arg(string); }
 
 uiString uiStrings::phrSpecify( const uiString& string )
 { return toUiString(joinstring).arg(sSpecify()).arg(string); }
@@ -229,6 +253,15 @@ uiString uiStrings::sCreate()
 uiString uiStrings::sCalculate()
 { return tr("Calculate"); }
 
+uiString uiStrings::sCannotAdd()
+{ return tr("Cannot add"); }
+
+uiString uiStrings::sCannotCopy()
+{ return tr("Cannot copy"); }
+
+uiString uiStrings::sCannotEdit()
+{ return tr("Cannot edit"); }
+
 uiString uiStrings::sCannotExtract()
 { return tr("Cannot extract"); }
 
@@ -237,6 +270,9 @@ uiString uiStrings::sCalculateFrom()
 
 uiString uiStrings::sCannotImport()
 { return tr("Cannot Import"); }
+
+uiString uiStrings::sCannotLoad()
+{ return tr("Cannot load"); }
 
 uiString uiStrings::sCannotSave()
 { return tr("Cannot Save"); }
@@ -277,11 +313,17 @@ uiString uiStrings::sCantOpenInpFile( int num )
 uiString uiStrings::sCannotStart()
 { return tr("Cannot Start"); }
 
+uiString uiStrings::sCheck()
+{ return tr("Check"); }
+
 uiString uiStrings::sOutput()
 { return tr("Output"); }
 
 uiString uiStrings::sCantOpenOutpFile( int num )
 { return phrCannotOpen( tr("output file", 0, num ) ); }
+
+uiString uiStrings::sCannotRemove()
+{ return tr("Cannot remove"); }
 
 uiString uiStrings::sCopy()
 { return tr("Copy"); }
@@ -311,7 +353,7 @@ uiString uiStrings::sEnter()
 { return tr("Enter"); }
 
 uiString uiStrings::sEnterValidName()
-{ return tr("Please enter a valid name"); }
+{ return uiStrings::phrEnter(tr("a valid name")); }
 
 uiString uiStrings::sExport()
 { return tr("Export"); }
@@ -455,6 +497,9 @@ uiString uiStrings::sSetAs()
 
 uiString uiStrings::sShift()
 { return tr("Shift" ); }
+
+uiString uiStrings::sShowIn()
+{ return tr("Show in"); }
 
 uiString uiStrings::sSpecify()
 { return tr("Specify"); }

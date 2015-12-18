@@ -105,7 +105,7 @@ public:
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
-
+    int		size() const;
     static const uiString& emptyString()	{ return emptystring_; }
 
 
@@ -273,6 +273,7 @@ mGlobal(Basic) mDeprecated inline uiString mkUiString(const char* var)
 
 mGlobal(Basic) uiString od_static_tr( const char* function, const char* text,
 	const char* disambiguation = 0, int pluralnr=-1 );
+mGlobal(Basic) uiString getUiYesNoString(bool res);
 
 template <class T> inline
 uiString& uiString::arg( const T& var )

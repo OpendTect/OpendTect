@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "gendefs.h"
+#include "uistrings.h"
 class BufferStringSet;
 
 
@@ -55,6 +56,8 @@ protected:
     Data&		wd_;
 
     bool		addToLogSet(Log*) const;
+    bool		updateDTModel(D2TModel*,bool ischeckshot,
+					uiString& errmsg) const;
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					BufferString& errmsg) const;
 			//!< D2TModel will become mine and may even be deleted

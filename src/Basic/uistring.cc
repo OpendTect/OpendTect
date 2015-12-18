@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "refcount.h"
 #include "texttranslator.h"
 #include "typeset.h"
+#include "uistrings.h"
 
 #ifndef OD_NO_QT
 # include <QString>
@@ -925,3 +926,18 @@ uiString od_static_tr( const char* func, const char* text,
 		     uiString::sODLocalizationApplication(),
 		     disambiguation, pluralnr );
 }
+
+
+uiString getUiYesNoString( bool res )
+{
+    return res ? uiStrings::sYes() : uiStrings::sNo();
+}
+
+
+int uiString::size() const
+{
+    return getQString().size();
+}
+
+
+

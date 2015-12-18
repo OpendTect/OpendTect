@@ -170,15 +170,16 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 {
     if ( inputfld_ && !inputfld_->commitInput() )
     {
-	uiMSG().error( uiStrings::phrSelect(uiStrings::phrInput(
-		       uiStrings::sHorizon(1))) );
+	uiMSG().error( uiStrings::phrSelect(mJoinUiStrs(
+				    sInput().toLower(),sHorizon().toLower())) );
 	return false;
     }
 	 
 
     if ( !horizon_ && !readHorizon() )
     {
-	uiMSG().error( uiStrings::phrCannotRead(uiStrings::sHorizon(1)) );
+	uiMSG().error(uiStrings::phrCannotRead(
+					    uiStrings::sHorizon().toLower()));
 	return false;
     }
    

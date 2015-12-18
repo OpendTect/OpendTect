@@ -33,12 +33,18 @@ public:
     //!<"Calculate <string>"
     static uiString phrCalculateFrom(const uiString& string);
     //!<"Calculate from <string>"
+    static uiString phrCannotAdd(const uiString&);
+    //!<"Cannot Add <string>"
+    static uiString phrCannotCopy(const uiString&);
+    //!<"Cannot Copy <string>"
     static uiString phrCannotCreate(const uiString& string);
     //!<"Cannot create <string>"
     static uiString phrCannotCreateDBEntryFor(const uiString& string);
     //!<"Cannot create database entry for <string>"
     static uiString phrCannotCreateDirectory(const uiString& string);
     //!<"Cannot create directory <string>"
+    static uiString phrCannotEdit(const uiString&);
+    //!<"Cannot edit <string>"
     static uiString phrCannotExtract(const uiString&);
     //!<"Cannot extract <string>"
     static uiString phrCannotFind(const uiString& string);
@@ -47,6 +53,8 @@ public:
     //!<"Cannot find database entry for
     static uiString phrCannotImport(const uiString&);
     //!"Cannot Import <string>"
+    static uiString phrCannotLoad(const uiString&);
+    //!"Cannot Load <string>"
     static uiString phrCannotOpen(const uiString& string);
     //!<"Cannot open <string>"
     static uiString phrCannotRead(const uiString& string);
@@ -64,6 +72,8 @@ public:
     static uiString phrCannotWriteDBEntry(const uiString&);
     static uiString phrCannotStart(const uiString&);
     //!<"Cannot Start <string>"
+    static uiString phrCheck(const uiString&);
+    //!<"Check <string>"
     static uiString phrCreateNew(const uiString&);
     //!<"Create New <string>"
     static uiString phrCrossline(const uiString&);
@@ -113,6 +123,8 @@ public:
     //!<"Merge <string>"
     static uiString phrModify(const uiString&);
     //!<"Modify <string>"
+    static uiString phrOpen(const uiString&);
+    //!<"Open <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
     static uiString phrReading(const uiString&);
@@ -131,6 +143,8 @@ public:
     //!<"Select Position <string>"
     static uiString phrSetAs(const uiString&);
     //<!"Set As <string>"
+    static uiString phrShowIn(const uiString&);
+    //<!"Show in <string>"
     static uiString phrSpecify(const uiString&);
     //<!"Specify <string>"
     static uiString phrStorageDir(const uiString& string);
@@ -163,8 +177,9 @@ public:
     static uiString sAdd();
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
+    static uiString sAlignment()	{ return tr("OD::Alignment"); }
     static uiString sAll()		{ return tr("All"); }
-    static uiString sAmplitude()	{ return tr("Amplitude"); }
+    static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sASCII();
@@ -196,10 +211,16 @@ public:
     static uiString sCantWriteSettings();
     static uiString sCantOpenInpFile(int num=1);
     static uiString sCantOpenOutpFile(int num=1);
+    static uiString sCannotAdd();
+    static uiString sCannotCopy();
+    static uiString sCannotEdit();
+    static uiString sCannotLoad();
+    static uiString sCannotRemove();
     static uiString sCannotSave();
     static uiString sCannotStart();
     static uiString sCannotWrite();
     static uiString sCannotUnZip();
+    static uiString sCheck();
     static uiString sCannotZip();
     static uiString sCreateNew();
     static uiString sCreateOutput();
@@ -211,6 +232,7 @@ public:
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConstant()		{ return tr("Constant"); }
     static uiString sContinue()		{ return tr("Continue"); }
+    static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
     static uiString sCopy();
     static uiString sCreateGroup()	{ return tr("Create Group"); }

@@ -87,7 +87,7 @@ bool getData( BufferString& hornm, Coord3& crd )
 
 
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Multiple Horizons"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("Multiple Horizons")),
 				 mNoDlgTitle,
 				 mODHelpKey(mBulkHorizonImportHelpID) )
 			    .modal(false))
@@ -96,8 +96,7 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiFileInput( this, 
-		      uiStrings::phrInput(uiStrings::phrASCII(
-		      uiStrings::sFile())),
+		      uiStrings::sInputASCIIFile(),
 		      uiFileInput::Setup().withexamine(true)
 		      .examstyle(File::Table) );
 
@@ -119,11 +118,10 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( tr("Please enter the input file name") )
+	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet(uiStrings::phrCannotOpen(uiStrings::phrInput(
-		uiStrings::sFile())))
+	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
 
     if ( !dataselfld_->commit() )
 	return false;
