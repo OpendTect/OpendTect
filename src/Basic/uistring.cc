@@ -811,6 +811,15 @@ uiString uiStringSet::createOptionString( bool use_and,
 }
 
 
+uiString uiStringSet::cat( const char* sepstr ) const
+{
+    uiString str;
+    for (int idx=0; idx<size(); idx++)
+	str.append(toUiString(sepstr)).append((*this)[idx]);
+    return str;
+}
+
+
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
@@ -933,3 +942,12 @@ uiString getUiYesNoString( bool res )
 {
     return res ? uiStrings::sYes() : uiStrings::sNo();
 }
+
+
+int uiString::size() const
+{
+    return getQString().size();
+}
+
+
+
