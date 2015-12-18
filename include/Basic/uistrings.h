@@ -210,6 +210,7 @@ public:
     static uiString sCantFindSurf();
     static uiString sCannot()		{ return tr("Cannot"); }
     static uiString sCannotImport();
+    static uiString sCannotOpen();
     static uiString sCantReadHor();
     static uiString sCantReadInp();
     static uiString sCantWriteSettings();

@@ -105,7 +105,7 @@ public:
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
-
+    int		size() const;
     static const uiString& emptyString()	{ return emptystring_; }
 
 
@@ -226,6 +226,7 @@ public:
 				   char space = ' ') const;
 		//!<Returns a string with "option1, option2, and/or option 3"
     void	fill(mQtclass(QStringList)&) const;
+    uiString	cat(const char* sepstr="\n") const;
 };
 
 
