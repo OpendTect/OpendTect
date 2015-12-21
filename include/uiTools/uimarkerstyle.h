@@ -40,7 +40,6 @@ public:
     void		getMarkerStyle(OD::MarkerStyle3D& style) const;
 
 protected:
-    TypeSet<OD::MarkerStyle3D::Type>	types_;
 
     uiSlider*				sliderfld_;
     uiGenInput*				typefld_;

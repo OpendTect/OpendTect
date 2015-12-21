@@ -28,7 +28,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 {
     for ( int idx=markertypedef_.size()-1; idx>=0; idx-- )
     {
-	const OD::MarkerStyle3D::Type type = markertypedef_.getEnumForIndex(idx);
+	const OD::MarkerStyle3D::Type type=markertypedef_.getEnumForIndex(idx);
 
 	bool exclude = false;
 	for ( int idy=0; idy<nrexcluded; idy++ )
@@ -78,14 +78,14 @@ NotifierAccess* uiMarkerStyle3D::colSel()
 
 void uiMarkerStyle3D::getMarkerStyle( OD::MarkerStyle3D& st ) const
 {
-    st.type_ = types_[typefld_->getIntValue()];
+    st.type_ = getType();
     st.size_ = getSize();
     if ( colselfld_ ) st.color_ = colselfld_->color();
 }
 
 
 OD::MarkerStyle3D::Type uiMarkerStyle3D::getType() const
-{ return types_[typefld_->getIntValue()]; }
+{ return markertypedef_.getEnumForIndex( typefld_->getIntValue() ); }
 
 
 Color uiMarkerStyle3D::getColor() const
@@ -98,7 +98,7 @@ int uiMarkerStyle3D::getSize() const
 
 void uiMarkerStyle3D::setMarkerStyle( const OD::MarkerStyle3D& st )
 {
-    int idx = types_.indexOf( st.type_ );
+    int idx = markertypedef_.indexOf( st.type_ );
     if ( idx<0 )
 	idx = 0;
 
