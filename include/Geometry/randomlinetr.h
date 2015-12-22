@@ -30,7 +30,7 @@ public:
 
 
 mExpClass(Geometry) RandomLineSetTranslator : public Translator
-{
+{ mODTextTranslationClass(RandomLineSetTranslator)
 public:
     			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
 
@@ -41,8 +41,12 @@ public:
 
     static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
 	    			 BufferString&);
+    static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
+	    			 uiString&);
     static bool		store(const Geometry::RandomLineSet&,const IOObj*,
 	    		      BufferString&);
+    static bool		store(const Geometry::RandomLineSet&,const IOObj*,
+	    		      uiString&);
 };
 
 
