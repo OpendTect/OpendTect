@@ -65,6 +65,44 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 }
 
 
+bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
+				     const IOObj* ioobj, uiString& msg )
+{
+    if ( !ioobj )
+	{ msg = uiStrings::phrCannotFind(tr("object in data base")); 
+								return false; }
+
+    PtrMan<RandomLineSetTranslator> trnsltr
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
+    if ( !trnsltr )
+	{ msg = tr("Selected object is not a Random Line"); return false; }
+
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+	{ msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
+								return false; }
+
+    msg = toUiString(trnsltr->read( rdls, *conn ));
+    if ( msg.isEmpty() )
+    {
+	for ( int iln=0; iln<rdls.lines().size(); iln++ )
+	{
+	    const Geometry::RandomLine& rdl = *rdls.lines()[iln];
+	    if ( rdl.name().isEmpty() )
+	    {
+		BufferString nm( ioobj->name() );
+		if ( rdls.lines().size() > 1 )
+		    { nm += " - "; nm += iln + 1; }
+		const_cast<Geometry::RandomLine&>(rdl).setName( nm );
+	    }
+	}
+	return true;
+    }
+
+    return false;
+}
+
+
 bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 				  const IOObj* ioobj, BufferString& bs )
 {
@@ -84,6 +122,26 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
     return bs.isEmpty();
 }
 
+
+bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
+				  const IOObj* ioobj, uiString& msg )
+{
+    if ( !ioobj )
+	{ msg = tr("No object to store set in data base"); return false; }
+
+    PtrMan<RandomLineSetTranslator> trnsltr
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
+    if ( !trnsltr )
+	{ msg = tr("Selected object is not an Attribute Set"); return false; }
+
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
+    if ( !conn )
+	{msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
+								  return false;}
+
+    msg = toUiString(trnsltr->write( rdl, *conn ));
+    return msg.isEmpty();
+}
 
 static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
 			   BufferString& nm )
