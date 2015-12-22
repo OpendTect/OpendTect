@@ -933,7 +933,7 @@ void Scene::setMarkerPos( const TrcKeyValue& trkv, int sceneid )
     if ( sceneid==id() )
 	displaypos = Coord3::udf();
 
-    if ( datatransform_ && !trkv.tk_.isUdf() && mIsUdf(trkv.val_) )
+    if ( datatransform_ && !trkv.tk_.isUdf() && !mIsUdf(trkv.val_) )
         displaypos.z = datatransform_->transformTrc( trkv.tk_, trkv.val_ );
 
     const bool defined = displaypos.isDefined();
