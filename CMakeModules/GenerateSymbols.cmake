@@ -64,12 +64,13 @@ endif()
 #Convert symbols to a list and check for sanity and 
 #checksum
 string ( REPLACE " " ";" SYMBOL_LIST ${SYMBOL_STRING} )
-list ( GET SYMBOL_LIST 0 MODULE_STRING )
+set ( WORDS ${SYMBOL_LIST} )
+list ( GET WORDS 0 MODULE_STRING )
 if ( NOT (${MODULE_STRING} STREQUAL "MODULE" ) )
     message( FATAL_ERROR "Invalid output from ${LIBRARY}" )
 endif()
 
-list ( GET SYMBOL_LIST 3 CHECKSUM )
+list ( GET WORDS 3 CHECKSUM )
 
 set ( DIRNAME ${OUTDIR}/${LIBNAME} )
 if ( WIN32 )
