@@ -655,7 +655,14 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	     spk.getTrackMode()==spk.DrawAndSnap )
 	{
 	    spk.addSeedToPatch( tkv );
-	    updatePatchDisplay();
+	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+	    if ( tracker )
+	    {
+		const MPE::EMSeedPicker* seedpicker = 
+		    tracker->getSeedPicker(true);
+		if ( seedpicker && !seedpicker->getSowerMode() )
+		    updatePatchDisplay();
+	    }
 	}
 	else if ( spk.addSeed(tkv,drop,tkv2) )
 	    return true;    
