@@ -907,10 +907,18 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(const MouseCursorExchange::Info&,info,
 			       caller,cb);
-    if ( caller==this )
-	return;
-
     uiFlatViewer& vwr = viewwin()->viewer(0);
+    if ( caller==this )
+    {
+	if ( marker_ )
+	{
+	    marker_->poly_[0] = FlatView::Point(0,0);
+	    vwr.handleChange( FlatView::Viewer::Auxdata );
+	}
+
+	return;
+    }
+
     if ( !marker_ )
     {
 	marker_ = vwr.createAuxData( "XYZ Marker" );
