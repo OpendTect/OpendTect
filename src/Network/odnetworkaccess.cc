@@ -529,8 +529,24 @@ void Network::setHttpProxyFromSettings()
 	setts.get( Network::sKeyProxyUserName(), username );
 
 	BufferString password;
-	setts.get( Network::sKeyProxyPassword(), password );
+	bool isplaintext = false;
+	if ( setts.get(Network::sKeyCryptProxyPassword(),password) )
+	{
+	    uiString str;
+	    str.setFromHexEncoded( password );
+	    password = str.getFullString();
+	}
+	else if ( setts.get(Network::sKeyProxyPassword(),password) )
+	    isplaintext = true;
+
 	Network::setHttpProxy( host, port, auth, username, password );
+	if ( isplaintext ) // Convert existing plain text pwd to Hex.
+	{
+	    uiString str = toUiString( password );
+	    str.getHexEncoded( password );
+	    setts.set( Network::sKeyCryptProxyPassword(), password );
+	    setts.write();
+	}
     }
     else
 	Network::setHttpProxy( host, port );
