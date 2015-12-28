@@ -210,6 +210,8 @@ public:
 
     static uiString getOrderString(int);
 		//Returns 1st, 2nd, 3rd
+
+    uiString&	addSpace(int nr=1);
 };
 
 

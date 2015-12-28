@@ -950,4 +950,11 @@ int uiString::size() const
 }
 
 
+ uiString& uiString::addSpace( int nr )
+ {
+     uiString spaces;
+     for(int i=0; i<nr; i++)
+	 spaces.append(toUiString(" "));
 
+     return  (*this).append(spaces);
+ }
