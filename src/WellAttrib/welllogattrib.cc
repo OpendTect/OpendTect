@@ -102,7 +102,7 @@ void WellLog::prepareForComputeData()
 				    : !haslog ? uiStrings::sWellLog()
 					      : tr("time-depth model") );
 	    if ( wd->name() )
-		errmsg_.append( " for well ").append( wd->name() );
+		errmsg_.append(tr(" for well ")).append( wd->name() );
 
 	    return;
 	}

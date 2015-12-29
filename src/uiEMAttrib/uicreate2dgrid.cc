@@ -339,7 +339,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 			       : BinID::udf();
     baseline_ = new Grid2D::Line( startnode, stopnode );
     uiString parlbl(
-	    tr( "Parallel line spacing %1" ).arg( SI().getXYUnitString() ) );
+	    tr( "Parallel line spacing %1" ).arg( SI().getUiXYUnitString() ) );
     const StepInterval<int> spacinglimits( 500, 1000000, 500 );
     pardistfld_ = new uiGenInput( this, parlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
@@ -395,7 +395,7 @@ bool ui2DGridLinesFromRandLine::computeGrid()
     {
 	uiString msg = tr( "There are too many lines in the grid" );
 	msg.append( "You may want to increase the grid spacing "
-		    "to get fewer lines." );
+		    "to get fewer lines.", true );
 	if ( !uiMSG().askGoOn(msg,tr("Continue anyway"),uiStrings::sCancel()) )
 	    return false;
     }

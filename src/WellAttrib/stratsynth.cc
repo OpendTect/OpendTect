@@ -289,9 +289,7 @@ void StratSynth::clearSynthetics()
 
 #define mErrRet( msg, act )\
 {\
-    errmsg_ = toUiString("Can not generate synthetics %1 : %2\n") \
-		    .arg( synthgenpar.name_ ) \
-		    .arg( msg ); \
+    errmsg_ = sErrRetMsg().arg( synthgenpar.name_ ).arg( msg ); \
     act;\
 }
 

@@ -49,7 +49,7 @@ uiString uiSurveyInfoEditor::getSRDString( bool infeet )
     uiString lbl = uiString( tr("%1%2%3") )
 		 .arg( SurveyInfo::sKeySeismicRefDatum() )
 		 .arg( infeet ? "  " : " " ) //to keep string always same length
-		 .arg( getDistUnitString(infeet,true) );
+		 .arg( uiStrings::sDistUnitString(infeet,true,true) );
 
     return lbl;
 }

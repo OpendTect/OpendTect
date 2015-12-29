@@ -234,7 +234,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 	if ( cb )
 	{
 	    BufferString logstr( notokpropnms.size()>1 ? "logs " : "log " );
-	    uiString errmsg = tr("No valid %1 found for%2. Create missing %3"
+	    uiString errmsg = tr("No valid %1 found for %2. Create missing %3"
 				 " here or import through well manager")
 			    .arg(logstr.buf())
 			    .arg(notokpropnms.getDispString())

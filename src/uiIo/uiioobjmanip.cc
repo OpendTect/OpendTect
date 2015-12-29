@@ -273,7 +273,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 
 bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 {
-    uiString titl = toUiString("%1Rename '%2'").arg(uiStrings::sRename())
+    uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
 					       .arg(ioobj.uiName());
     uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(), sName()),
 			new StringInpSpec(ioobj.name()) );
@@ -365,7 +365,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 	uiString msg = tr("'%1'is not writable; the actual data "
 			  "will not be deleted.\nThe entry will only "
 			  "disappear from the list.\nContinue?")
-		     .arg(ioobj.name());
+		     .arg(ioobj.uiName());
 	if ( !uiMSG().askContinue(msg) )
 	    return false;
 	shldrm = false;

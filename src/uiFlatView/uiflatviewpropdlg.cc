@@ -947,3 +947,4 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 
     return true;
 }
+

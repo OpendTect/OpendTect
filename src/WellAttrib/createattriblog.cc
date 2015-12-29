@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-#define mErrRet(m) errmsg.append(m); return false;
+#define mErrRet(m) errmsg.append(m,true); return false;
 
 
 bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
@@ -43,7 +43,7 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
     AttribLogExtractor ale( wd );
     if ( !ale.fillPositions(dahrg) )
     { 
-	msg.arg(tr("No positions extracted ").arg(wd.name()));
+	msg.arg(tr("No positions extracted").arg(wd.name()));
 	mErrRet(msg)
     }
 

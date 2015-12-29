@@ -638,7 +638,7 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
 	const float endz = loaddef_.sampling_.start
 			 + (bi.ns_-1) * loaddef_.sampling_.step;
 	txt.arg( loaddef_.sampling_.start ).arg( endz )
-		 .arg( sis.inFeet() ? "ft" : "m" );
+		 .arg( sis.inFeet() ? tr("ft") : tr("m") );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 

@@ -191,7 +191,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !ioobj )
 	{
 	    errms.append(tr("Cannot get database entry for "
-			    "selected horizon"));
+			    "selected horizon"), true);
 	    return;
 	}
 
@@ -215,7 +215,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    else
 	    {
 		errms = tr("Cannot load %1.")
-		      .arg(ioobj->name());
+		      .arg(ioobj->uiName());
 		return;
 	    }
 	}

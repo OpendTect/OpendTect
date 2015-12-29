@@ -56,7 +56,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     {
 	const float defstep = SI().zIsTime() ? SI().zStep()/mToSecFactorF : 4;
 	extrwinfld_ = new uiGenInput( this, tr("Extraction window %1")
-					  .arg(SI().getZUnitString()),
+					  .arg(SI().getUiZUnitString()),
 				  FloatInpIntervalSpec(Interval<float>(0,0)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
 

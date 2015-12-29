@@ -380,7 +380,8 @@ bool uiEditSEGYFileDataDlg::acceptOK( CallBacker* )
 {
     int nrfiles = 0;
     if ( !filepars_.get("Number of files",nrfiles) || !nrfiles )
-	mErrRet(tr("No SEGY Files were found linked to %1").arg(ioobj_.name()))
+	mErrRet(tr("No SEGY Files were found linked to %1")
+							  .arg(ioobj_.uiName()))
 
     const BufferString seldir = dirsel_->fileName();
     for ( int idx=0; idx<nrfiles; idx++ )

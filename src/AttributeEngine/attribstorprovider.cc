@@ -87,7 +87,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	if ( !rdr.dataSet() )
 	{
 	    uiString errmsg = tr("No dataset available for '%1'")
-	                    .arg(ioobj->name());
+	                    .arg(ioobj->uiName());
 //	    desc.setErrMsg( errmsg );
 	    return;
 	}
@@ -131,7 +131,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	if ( !transl )
 	{
 	    uiString errmsg = tr("No data interpreter available for '%1'")
-	                    .arg(ioobj->name());
+	                    .arg(ioobj->uiName());
 //	    desc.setErrMsg ( errmsg );
 	    return;
 	}

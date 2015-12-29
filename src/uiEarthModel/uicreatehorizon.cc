@@ -40,7 +40,7 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
     }
 
     uiString lbl = tr("Z Value ");
-    lbl.append( SI().getZUnitString() );
+    lbl.append( SI().getUiZUnitString() );
     zfld_ = new uiGenInput( this, lbl, FloatInpSpec(SI().zRange(true).start) );
 
     uiSurfaceWrite::Setup swsu( EM::Horizon3D::typeStr(),

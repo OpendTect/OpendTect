@@ -366,7 +366,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
     Well::LogSampler logsamp( *wd, extractparams_, lognms );
     if ( !logsamp.execute() )
     {
-	msg = tr( "%1 for well $2" ).arg( logsamp.errMsg() ).arg( wllnm );
+	msg = tr( "%1 for well %2" ).arg( logsamp.errMsg() ).arg( wllnm );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 

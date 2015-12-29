@@ -1042,7 +1042,7 @@ void uiODMenuMgr::fillManTB()
            uiStrings::phrManage( uiStrings::sWells()),false,manWll);
     mAddTB(mantb_,"man_picks", uiStrings::phrManage(
 			toUiString("%1/%2")
-			   .arg(uiStrings::sPolygon(mPlural))
+			   .arg(uiStrings::sPickSet(mPlural))
 			   .arg(uiStrings::sPolygon(mPlural))),
                             false,manPick);
     mAddTB(mantb_,"man_body",

@@ -189,7 +189,7 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
     rdr->usePar( pars_ );
     if ( !rdr->prepareWork() )
     {
-	msg_ = tr( "For %1:\n%2" ).arg( ioobj->name() ).arg( rdr->errMsg() );
+	msg_ = tr( "For %1:\n%2" ).arg( ioobj->uiName() ).arg( rdr->errMsg() );
 	delete rdr; return 0;
     }
 

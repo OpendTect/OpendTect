@@ -400,7 +400,7 @@ bool ProcessManager::usePar( const IOPar& par )
 	    if ( !proc || proc->errMsg().isSet() )
 		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
 	    else
-		errmsg_.append( proc->errMsg() );
+		errmsg_.append( proc->errMsg(), true );
 	    delete proc;
 	    return false;
 	}

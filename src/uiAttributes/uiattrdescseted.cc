@@ -945,7 +945,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	if ( attrset.is2D() != is2D() )
 	{
 	    bs = tr("Attribute Set %1 is of type %2")
-	       .arg(setctio_.ioobj_->name())
+	       .arg(setctio_.ioobj_->uiName())
 	       .arg(attrset.is2D() ? uiStrings::s2D()
 				   : uiStrings::s3D());
 	    mErrRetFalse(bs)

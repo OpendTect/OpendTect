@@ -771,7 +771,8 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 			     "track range\n[%2, %3] %4%5")
 			.arg( inval * zfac ).arg( trckrg.start * zfac )
 			.arg( trckrg.stop * zfac )
-			.arg( !unitfld_->isChecked() ? "m" : "ft" )
+			.arg( uiStrings::sDistUnitString(!unitfld_->isChecked(),
+			true,false))
 			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD()
 							  : sKeyTVDSS() );
 	Well::Marker* marker = getMarker( row, true );

@@ -126,7 +126,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     {
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = tr("No data interpreter available for '%1'")
-		    .arg(ioobj_->name());
+		    .arg(ioobj_->uiName());
 	return false;
     }
 
@@ -138,7 +138,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     if ( !conn )
     {
 	errmsg_ = tr("Cannot open data files for '%1'")
-		.arg(ioobj_->name());
+		.arg(ioobj_->uiName());
 	return false;
     }
 

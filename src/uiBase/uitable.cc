@@ -1243,8 +1243,8 @@ void uiTable::popupMenu( CallBacker* )
 
 	if ( notifcols_.size() > 1 )
 	{
-	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2%3")
-		     .arg(setup_.coldesc_).arg(tr("s")));
+	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2s")
+		     .arg(setup_.coldesc_));
 	    delcols = mnu->insertItem( new uiAction(itmtxt), 6 );
 	}
     }
@@ -1274,8 +1274,8 @@ void uiTable::popupMenu( CallBacker* )
 
 	if ( notifrows_.size() > 1 )
 	{
-	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2%3")
-		     .arg(setup_.rowdesc_).arg(tr("s")));
+	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2s")
+		     .arg(setup_.rowdesc_));
 	    delrows = mnu->insertItem( new uiAction(itmtxt), 7 );
 	}
     }

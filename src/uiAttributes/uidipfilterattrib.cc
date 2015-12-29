@@ -69,7 +69,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     fltrtpfld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
     fltrtpfld_->attach( alignedBelow, szfld_ );
 
-    uiString lbl = tr("Min/max %1").arg(zIsTime() ? tr("%1 %2")
+    uiString lbl = tr("Min/max %1").arg(zIsTime() ? toUiString("%1 %2")
 				   .arg(uiStrings::sVelocity().toLower())
 				   .arg(VelocityDesc::getVelUnit(true))
 				   : tr("%1 (deg)")

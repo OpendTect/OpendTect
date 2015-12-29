@@ -135,7 +135,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
 	const Interval<float> offsets( 0, 100 );
 	const uiString lbl = tr( "Offset (start/step) %1" )
-					.arg( SI().getXYUnitString() );
+					.arg( SI().getUiXYUnitString() );
 	offsetfld_ = new uiGenInput( pargrp_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );

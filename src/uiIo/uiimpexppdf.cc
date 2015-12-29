@@ -135,7 +135,7 @@ int getNrDims()
 
     if ( nrdims != 1 && nrdims != 2 )
     {
-	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimension found: ")
+	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimension found: %1")
 		     .arg( nrdims );
 	return 0;
     }

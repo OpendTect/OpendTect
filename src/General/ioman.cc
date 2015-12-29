@@ -396,7 +396,8 @@ bool IOMan::validSurveySetup( uiString& errmsg, uiString& warnmsg )
     else if ( !validOmf(basedatadir,errmsg) )
     {
 	errmsg.append( tr("$DTECT_DATA=%1\n"
-	       "This is not a valid OpendTect data storage directory.\n"),true);
+	       "This is not a valid OpendTect data storage directory.\n")
+	       .arg(toUiString(GetBaseDataDir())),true);
 	return false;
     }
 

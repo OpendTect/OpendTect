@@ -518,7 +518,8 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 		selids += ioobj->key();
 	    else
 	    {
-		uiString msg = tr("Can not find %1").arg(selgnms[idx]->buf());
+		uiString msg = uiStrings::phrCannotFind(toUiString("%1")
+				    .arg(selgnms[idx]->buf()));
 		uiMSG().error( msg );
 	    }
 	}

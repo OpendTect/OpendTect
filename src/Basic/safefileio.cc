@@ -123,7 +123,7 @@ bool SafeFileIO::openRead( bool ignorelock )
 	}
 	else
 	{
-	    errmsg_ = uiStrings::phrJoinStrings( uiStrings::sCantOpenInpFile(1),
+	    errmsg_ = uiStrings::phrJoinStrings( uiStrings::sCantOpenInpFile(),
 				 toUiString(BufferString(": ",toopen)) );
 	    errmsg_.append( uiStrings::sCheckPermissions(), true );
 	}

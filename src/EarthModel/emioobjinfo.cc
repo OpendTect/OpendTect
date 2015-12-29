@@ -315,7 +315,8 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
     {
 	uiString msg( str->errMsg() );
 	if ( msg.isEmpty() )
-	    msg = tr( "Cannot read '%1'").arg( ioobj_->name() );
+	    msg = uiStrings::phrCannotRead(
+				    ::toUiString("'%1'").arg(ioobj_->uiName()));
 	mErrRet( msg )
     }
 

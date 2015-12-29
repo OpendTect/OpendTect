@@ -975,9 +975,10 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 void uiD2TModelDlg::fillReplVel( CallBacker* )
 {
     NotifyStopper ns( replvelfld_->updateRequested );
-    uiString lbl = toUiString("%1 %2").arg(Well::Info::sKeyReplVel()).arg(
-				VelocityDesc::getVelUnit(true));
-    if ( zinftfld_->isChecked() ) lbl = toUiString("%1 ").arg(lbl);
+    uiString lbl = toUiString("%1 (%2/%3)").arg(Well::Info::sKeyReplVel())
+		   .arg(uiStrings::sDistUnitString(
+		   zinftfld_->isChecked(),true,false))
+		   .arg(uiStrings::sTimeUnitString());
     replvelfld_->setTitleText( lbl );
     replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
 }
@@ -1771,3 +1772,4 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
     return setUoMValues();
 }
+

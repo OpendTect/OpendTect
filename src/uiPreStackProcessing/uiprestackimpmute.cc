@@ -43,11 +43,8 @@ uiImportMute::uiImportMute( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, toUiString("%1 %2 %3")
-				.arg(uiStrings::sInput())
-				.arg(uiStrings::sASCII())
-				.arg(uiStrings::sFile()),
-	                       uiFileInput::Setup().withexamine(true)
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
+				uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
@@ -61,7 +58,7 @@ uiImportMute::uiImportMute( uiParent* p )
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, 
-                      mODHelpKey(mPreStackImportMuteParsHelpID) );
+				    mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
     ctio_.ctxt_.forread_ = false;
@@ -162,3 +159,4 @@ bool uiImportMute::haveInpPosData() const
 }
 
 };// namespace PreStack
+

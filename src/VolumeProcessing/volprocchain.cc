@@ -991,7 +991,7 @@ uiString Chain::name() const
 {
     PtrMan<IOObj>  ioobj = IOM().get( storageid_ );
     return !ioobj ? uiString::emptyString() :
-	tr("Executing volume builder chain \'%1\'").arg(ioobj->name());
+	tr("Executing volume builder chain \'%1\'").arg(ioobj->uiName());
 }
 
 

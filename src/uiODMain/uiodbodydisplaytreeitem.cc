@@ -163,7 +163,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 
 	uiString msg = tr("The geobody '%1' is made in OpendTect V%2, "
 			  "do you want to convert it to current version?")
-		     .arg(ioobj->name()).arg(astream.version());
+		     .arg(ioobj->uiName()).arg(astream.version());
 	if ( !uiMSG().askGoOn(msg) )
 	    continue;
 

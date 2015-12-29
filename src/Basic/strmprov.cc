@@ -149,7 +149,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     , msg_(tr("Reading '"))
     , fnm_(nm)
 {
-    FilePath fp(nm); msg_.append(fp.fileName()).arg(uiString::emptyString());
+    FilePath fp(nm); msg_.append(fp.fileName()).append(toUiString("'"));
 
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )

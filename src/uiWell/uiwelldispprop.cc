@@ -396,7 +396,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     sep2->attach( stretchedBelow, coltablistfld_ );
 
     const uiString lbl =
-       tr("Log display width %1").arg(getDistUnitString(SI().xyInFeet(),true));
+       tr("Log display width %1").arg(SI().getUiXYUnitString(true,true));
     logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl).withedit(true) );
     logwidthslider_->attach( alignedBelow, coltablistfld_ );
     logwidthslider_->attach( ensureBelow, sep2 );

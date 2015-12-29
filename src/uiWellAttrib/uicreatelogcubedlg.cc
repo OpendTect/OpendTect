@@ -72,8 +72,8 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
 	mErrRet( lcr.errMsg() )
 
-    uiMSG().message( tr( "Successfully created the log cube(s)", 0,
-                         lognms.size() ) );
+    uiMSG().message( tr( "Successfully created the %1 log cube(s)" )
+                         .arg( lognms.size() ) );
 
     return false;
 }

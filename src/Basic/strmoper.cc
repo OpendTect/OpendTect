@@ -427,7 +427,7 @@ uiString StrmOper::getErrorMessage( std::ios& strm )
 
     if ( strm.rdstate() & std::ios::eofbit )
 	msg = od_static_tr( "StrmOperGetErrorMessage",
-			    "File ended unexpectedly" );
+			    "File ended unexpectedly " );
     else
     {
 	msg = mToUiStringTodo( GetLastSystemErrorMessage() );
@@ -435,13 +435,13 @@ uiString StrmOper::getErrorMessage( std::ios& strm )
 	{
 	    if ( strm.rdstate() & std::ios::failbit )
 		msg = od_static_tr( "StrmOperGetErrorMessage",
-				    "Recoverable error encountered" );
+				    "Recoverable error encountered " );
 	    else if ( strm.rdstate() & std::ios::badbit )
 		msg = od_static_tr( "StrmOperGetErrorMessage",
-				    "Unrecoverable error encountered" );
+				    "Unrecoverable error encountered " );
 	    else
 		msg = od_static_tr( "StrmOperGetErrorMessage",
-				    "Unknown error encountered" );
+				    "Unknown error encountered " );
 	}
     }
 
@@ -460,12 +460,12 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 	msg = uiStrings::phrCannotOpen( addedmsg );
     }
     else if ( sd.streamPtr()->good() )
-	msg = od_static_tr( "StrmOpergetErrorMessage", "Successfully opened" );
+	msg = od_static_tr( "StrmOpergetErrorMessage", "Successfully opened " );
     else
 	msg = getErrorMessage( *sd.streamPtr() );
 
     if ( sd.fileName() && *sd.fileName() )
-	msg.append( toUiString(sd.fileName()), false );
+	msg.append( toUiString(sd.fileName()) );
 
     if ( iotyp == 0 || !sd.streamPtr()->good() )
 	msg.append( uiStrings::sCheckPermissions(), true );

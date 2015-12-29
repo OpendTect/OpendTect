@@ -199,7 +199,7 @@ bool acceptOK( CallBacker* )
 	    if ( !iscompat )
 	    {
 		uiMSG().error(tr("'%1'\nis not compatible with the first")
-			    .arg(ioobj->name()));
+			    .arg(ioobj->uiName()));
 		return false;
 	    }
 	}
