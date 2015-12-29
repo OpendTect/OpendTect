@@ -16,6 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fixedstring.h"
 #include <iostream>
 
+#ifdef __mac__
+#include "envvars.h"
+#include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
+#endif
 
 extern int ODMain(int,char**);
 extern Export_Basic int gLogFilesRedirectCode;
@@ -48,6 +54,18 @@ int main( int argc, char** argv )
 	    UsrMsg( msg );
 #endif
 	}
+
+#ifdef __mac__
+	BufferString datfile( FilePath(GetSoftwareDir(0),
+			      "Resources/license.dgb.dat").fullPath());
+	if ( File::exists(datfile.buf()) )
+	{
+	    BufferString valstr = GetEnvVar( "LM_LICENSE_FILE" );
+	    if ( !valstr.isEmpty() ) valstr += ":";
+	    valstr += datfile;
+	    SetEnvVar( "LM_LICENSE_FILE", valstr.buf() );
+	}
+#endif
 
 	ret = ODMain( argc, argv );
     }

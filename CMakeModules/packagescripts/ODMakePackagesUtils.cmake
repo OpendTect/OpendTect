@@ -1,8 +1,8 @@
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to build a release
-# Author:       Nageswara
+# Description:	CMake script to build a release
+# Author:	Nageswara
 # Date:		August 2012		
-#RCS:           $Id$
+#RCS:		$Id$
 
 #TODO Change macro names to CAPITAL letters.
 
@@ -26,7 +26,7 @@ macro ( create_package PACKAGE_NAME )
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
    endif()
 
-        copy_thirdpartylibs()
+	copy_thirdpartylibs()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
@@ -113,7 +113,7 @@ macro ( create_package PACKAGE_NAME )
 			      ${COPYTODATADIR}/. )
 	endforeach()
 	foreach( FILES ${ODSCRIPTS} )
-	     file( GLOB SCRIPTS ${CMAKE_INSTALL_PREFIX}/bin/${FILES} )
+	     file( GLOB SCRIPTS ${COPYFROMDATADIR}/bin/${FILES} )
 	     foreach( SCRIPT ${SCRIPTS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${SCRIPT}
 					 ${COPYTODATADIR}/bin/. )
@@ -231,29 +231,29 @@ macro( init_destinationdir  PACKAGE_NAME )
     set( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
-        set( VER_FILENAME "basedata" )
-        set( PACKAGE_FILENAME "basedata.zip" )
+	set( VER_FILENAME "basedata" )
+	set( PACKAGE_FILENAME "basedata.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "basedata_mac.zip" )
 	    set( VER_FILENAME "basedata_mac" )
 	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-        set( VER_FILENAME "dgbbasedata" )
-        set( PACKAGE_FILENAME "dgbbasedata.zip" )
+	set( VER_FILENAME "dgbbasedata" )
+	set( PACKAGE_FILENAME "dgbbasedata.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "dgbbasedata_mac.zip" )
 	    set( VER_FILENAME "dgbbasedata_mac" )
 	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "doc" )
-        set( VER_FILENAME "doc" )
-        set( PACKAGE_FILENAME "doc.zip" )
+	set( VER_FILENAME "doc" )
+	set( PACKAGE_FILENAME "doc.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "doc_mac.zip" )
 	    set( VER_FILENAME "doc_mac" )
 	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-        set( VER_FILENAME "dgbdoc" )
-        set( PACKAGE_FILENAME "dgbdoc.zip" )
+	set( VER_FILENAME "dgbdoc" )
+	set( PACKAGE_FILENAME "dgbdoc.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "dgbdoc_mac.zip" )
 	    set( VER_FILENAME "dgbdoc_mac" )
@@ -318,7 +318,7 @@ macro( create_develpackages )
     file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
 			 ${DESTINATION_DIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-	    	     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
+		     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/batchprogexample
 		     ${DESTINATION_DIR}/doc/Programmer/batchprogexample )
@@ -433,7 +433,7 @@ macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
 	message( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${SOURCE_DIR}/bin/win64/zip -r -q
-			 	 "${PACKAGE_FILENAME}" ${REL_DIR}
+				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     else()

@@ -566,7 +566,12 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 #endif
 
     // Set this so that scripts run from the program have it available
+# ifdef __mac__
+    BufferString datfp( FilePath(GetSoftwareDir(0), "Resources").fullPath());
+    SetEnvVar( "DTECT_APPL", datfp );
+#else
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
+#endif
 }
 
 

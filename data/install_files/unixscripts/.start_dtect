@@ -75,9 +75,6 @@ if ( $status == 0 ) then
     endif
     
     set mainapp=od_main
-    if ( ! -x "${bindir}"/$mainapp ) then
-	set mainapp=odmain
-    endif
 
     if ( $?DTECT_START_DEBUGGER ) then
 	echo "Original cmd: $CSHCMD $DTECT_APPL/bin/od_exec $mainapp $*"
