@@ -226,6 +226,7 @@ public:
     static uiString sCannotWrite();
     static uiString sCannotUnZip();
     static uiString sCheck();
+    static uiString sCheckPermissions();
     static uiString sCannotZip();
     static uiString sCreateNew();
     static uiString sCreateOutput();
