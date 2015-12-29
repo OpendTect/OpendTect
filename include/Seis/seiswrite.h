@@ -153,7 +153,7 @@ protected:
 
     bool			iterateBuffer(bool waitforbuffer);
     void			reportWrite(const char*);
-    void			reportWrite(const uiString);
+    void			reportWrite(const uiString&);
     friend class		SeisSequentialWriterTask;
 
     SeisTrcWriter*		writer_;

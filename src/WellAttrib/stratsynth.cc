@@ -1400,8 +1400,8 @@ bool doWork( od_int64 start , od_int64 stop , int )
 	if ( tmpmodel.isEmpty() )
 	{
 	    uiString startstr(
-		checksvel_ ? tr("Cannot generate prestack synthetics as all")
-			   : tr("All") );
+		checksvel_ ? uiStrings::phrCannotCreate(
+			   tr("prestack synthetics as all")) : tr("All") );
 	    uiString propstr( checksvel_ ? tr("Swave velocity")
 					 : tr("Pwave velocity/Density") );
 	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "

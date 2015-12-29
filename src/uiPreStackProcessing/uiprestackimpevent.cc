@@ -71,7 +71,7 @@ bool uiEventImport::acceptOK( CallBacker* )
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, importer ) )
     {
-	uiMSG().error( tr("Cannot import PreStack Events") );
+	uiMSG().error(uiStrings::phrCannotImport(uiStrings::sPreStackEvents()));
 	return false;
     }
 

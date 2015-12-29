@@ -584,7 +584,7 @@ void SeisSequentialWriter::reportWrite( const char* errmsg )
 }
 
 
-void SeisSequentialWriter::reportWrite( const uiString errmsg )
+void SeisSequentialWriter::reportWrite( const uiString& errmsg )
 {
     Threads::MutexLocker lock( lock_ );
     if ( !errmsg.isEmpty() )
