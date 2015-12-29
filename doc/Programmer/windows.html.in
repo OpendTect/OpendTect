@@ -93,7 +93,7 @@ Procedure:</p>
 
 
 <a name="buildod"><h3 id="heading3">Building OpendTect (only for die hards)</h3></a>
-<p id="text">To build OpendTect from source you need to check-out the source code from the Subversion repository from this URL  <a href="https://code.google.com/p/opendtect/source/checkout">https://code.google.com/p/opendtect/source/checkout</a>. Once the check-out is complete build the solution with CMake. In this case launch CMake and browse to your OpendTect source folder and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
+<p id="text">To build OpendTect from source you need to pull the source code from <a href="https://github.com/OpendTect/OpendTect">https://github.com/OpendTect/OpendTect</a>. Then build the solution with CMake. In this case launch CMake and browse to your OpendTect source folder and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
 
 <h3 id="heading3">Qt</h3>
 <p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependent on Qt or you want to build OpendTect from scratch. Download Windows Qt package from the <a href="http://qt-project.org/">Qt website</a>. </p>
