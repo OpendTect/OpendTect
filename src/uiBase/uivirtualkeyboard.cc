@@ -66,7 +66,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
 	setCornerPos( x, y );
 
     uiString wintitle = tr("Virtual Keyboard [%1]").
-					arg(mToUiStringTodo(inputobj_.name()));
+					arg(toUiString(inputobj_.name()));
     setCaption( wintitle );
 
     const BufferString pmfnm = mGetSetupFileName( "virtualkeyboard.png" );
@@ -126,7 +126,8 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    const OD::MarkerStyle2D ms( OD::MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
+    const OD::MarkerStyle2D ms( OD::MarkerStyle2D::Circle,
+						    mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
     uiMarkerItem* led = new uiMarkerItem( point, ms );
     led->setFillColor( color );

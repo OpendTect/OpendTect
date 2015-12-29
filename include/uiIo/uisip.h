@@ -49,7 +49,7 @@ class uiDialog;
  */
 
 mExpClass(uiIo) uiSurvInfoProvider
-{
+{ mODTextTranslationClass(uiSurvInfoProvider)
 public:
 
     virtual const char*		usrText() const		= 0;
@@ -72,6 +72,8 @@ public:
     virtual void		startImport(uiParent*,const IOPar&) {}
     virtual const char*		importAskQuestion() const
 				{ return "Proceed to import?"; }
+    virtual const uiString	importAskUiQuestion() const
+				{ return tr("Proceed to import?"); }
 
 };
 

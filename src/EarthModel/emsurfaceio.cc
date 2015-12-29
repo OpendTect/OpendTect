@@ -326,7 +326,8 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     od_istream& strm = sconn.iStream();
     if ( !strm.isOK() )
     {
-	msg_ = tr("Could not open horizon file"); strm.addErrMsgTo( msg_ );
+	msg_ = uiStrings::phrCannotOpen(tr("horizon file")); 
+	strm.addErrMsgTo( msg_ );
 	delete conn_; conn_ = 0; return false;
     }
     ascistream astream( strm );
@@ -771,7 +772,7 @@ int dgbSurfaceReader::nextStep()
 	    setsurfacepar_ = true;
 	    if ( !surface_->usePar(*par_) )
 	    {
-		msg_ = tr("Could not parse header");
+		msg_ = tr("Cannot parse header");
 		return ErrorOccurred();
 	    }
 

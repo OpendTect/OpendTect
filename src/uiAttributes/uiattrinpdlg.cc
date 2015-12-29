@@ -119,7 +119,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
 
 bool uiAttrInpDlg::acceptOK( CallBacker* )
 {
-    const uiString errmsg = tr("Please select the input for the attributes");
+    const uiString errmsg = uiStrings::phrSelect(tr("the input for the "
+								"attributes"));
 
     if ( steerinpfld_ && !steerinpfld_->commitInput() && !multiinpcube_ )
 	mErrRetSelInp();

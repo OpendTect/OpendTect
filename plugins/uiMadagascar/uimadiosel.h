@@ -70,6 +70,7 @@ public:
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&);
+    uiString		sSelFileErrMsg(const uiString&);
 
 protected:
 
@@ -97,7 +98,6 @@ protected:
 
     bool		getInp();
     bool		acceptOK(CallBacker*);
-
 };
 
 

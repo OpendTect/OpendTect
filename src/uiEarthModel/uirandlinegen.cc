@@ -164,7 +164,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	if ( polyctio_.ioobj_ )
 	    poly = PickSetTranslator::getPolygon( *polyctio_.ioobj_, errmsg );
 	else
-	    errmsg = tr("Please select the polygon, or uncheck");
+	    errmsg = uiStrings::phrSelect(tr("the polygon, or uncheck"));
 	if ( !poly )
 	   mErrRet(errmsg)
     }
@@ -198,9 +198,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
        mErrRet(uiStrings::phrCannotFind(tr("a contour in range")))
     else
     {
-	BufferString emsg;
+	uiString emsg;
 	if ( !RandomLineSetTranslator::store(rls,rlsctio_.ioobj_,emsg) )
-	   mErrRet(mToUiStringTodo(emsg))
+	   mErrRet(emsg)
     }
 
     uiMSG().message(tr("Created %1%2").arg(rls.size())
@@ -276,9 +276,9 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	       uiStrings::phrJoinStrings(uiStrings::sRandomLine(),tr("(Set)"))))
 	       : uiStrings::sEmptyString()) )
 
-    Geometry::RandomLineSet inprls; BufferString msg;
+    Geometry::RandomLineSet inprls; uiString msg;
     if ( !RandomLineSetTranslator::retrieve(inprls,inctio_.ioobj_,msg) )
-	mErrRet(mToUiStringTodo(msg))
+	mErrRet(msg)
 
     int lnr = 0;
     if ( inprls.size() > 1 )
@@ -301,7 +301,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	mErrRet(tr("Not enough input points to create output"))
 
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg) )
-	mErrRet(mToUiStringTodo(msg))
+	mErrRet(msg)
 
     return true;
 }
@@ -381,9 +381,9 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
-    BufferString msg;
+    uiString msg;
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg) )
-	mErrRet(mToUiStringTodo(msg))
+	mErrRet(msg)
 
     return true;
 }

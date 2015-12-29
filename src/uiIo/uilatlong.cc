@@ -251,15 +251,18 @@ uiLatLong2CoordFileTransDlg( uiParent* p, const LatLong2Coord& ll2c )
 bool acceptOK( CallBacker* )
 {
     const BufferString inpfnm = inpfld_->fileName();
-    if ( inpfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))
+    if ( inpfnm.isEmpty() ) mErrRet(uiStrings::phrEnter(mJoinUiStrs(
+				    sInput().toLower(),sFileName().toLower())))
     if ( !File::exists(inpfnm) ) mErrRet(tr("Input file does not exist"))
     const BufferString outfnm = outfld_->fileName();
-    if ( outfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))
+    if ( outfnm.isEmpty() ) mErrRet(uiStrings::phrEnter(mJoinUiStrs(
+				    sOutput().toLower(),sFileName().toLower())))
 
     od_istream inpstrm( inpfnm );
     if ( !inpstrm.isOK() ) mErrRet(tr("Empty input file"))
     od_ostream outstrm( outfnm );
-    if ( !outstrm.isOK() ) mErrRet(tr("Cannot open output file"))
+    if ( !outstrm.isOK() ) mErrRet(uiStrings::phrCannotOpen(
+					    uiStrings::sOutputFile().toLower()))
 
     const bool toll = tollfld_->getBoolValue();
 
@@ -351,10 +354,10 @@ bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
     si_->getLatlong2Coord() = ll2c_;
     if ( !si_->write() )
     {
-	uiMSG().error(tr("Could not write the definitions "
+	uiMSG().error(uiStrings::phrCannotWrite(tr("the definitions "
 			 "to your '.survey' file"
 			 "\nThe definition will work this "
-			 "OpendTect session only"));
+			 "OpendTect session only")));
 	return false;
     }
 

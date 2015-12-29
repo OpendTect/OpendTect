@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "ascstream.h"
+#include "uistrings.h"
 
 
 namespace MPE {
@@ -77,6 +78,30 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
     err = tr->read( setup, *conn );
     bool rv = err.isEmpty();
     if ( rv ) err = tr->warningMsg();
+    return rv;
+}
+
+
+bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
+				   uiString& err )
+{
+    if ( !ioobj ) { err = uiStrings::phrCannotFind(tr("object in data base")); 
+								return false; }
+
+    PtrMan<MPESetupTranslator> trnsltr =
+		dynamic_cast<MPESetupTranslator*>(ioobj->createTranslator());
+    if ( !trnsltr ) {err = tr("Selected object is not a Setup"); return false;}
+
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+    {
+	err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true))); 
+	return false;
+    }
+
+    err = toUiString(trnsltr->read( setup, *conn ));
+    bool rv = err.isEmpty();
+    if ( rv ) err = mToUiStringTodo(trnsltr->warningMsg());
     return rv;
 }
 

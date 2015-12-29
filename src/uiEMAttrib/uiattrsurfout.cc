@@ -143,7 +143,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
     const FixedString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
-	uiMSG().error( tr("Please provide output attribute name") );
+	uiMSG().error( tr("Provide output attribute name") );
 	return false;
     }
 

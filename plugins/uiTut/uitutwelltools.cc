@@ -82,7 +82,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     Well::LogSet& logset = wd_->logs();
     const int inpidx = logset.indexOf( inplognm );
     if ( inpidx<0 || inpidx>=logset.size() )
-	mErrRet( tr("Please select a valid Input Log") )
+	mErrRet( uiStrings::phrSelect(tr("a valid Input Log")) )
 
     const char* lognm = outplogfld_->text();
     const int outpidx = logset.indexOf( lognm );
@@ -90,7 +90,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	mErrRet( tr("Output Log already exists\n Enter a new name") )
 
     if ( !lognm || !*lognm )
-	mErrRet( tr("Please enter a valid name for Output log") )
+	mErrRet( uiStrings::phrEnter(tr("a valid name for Output log")) )
 
     const int gate = gatefld_->box()->getIntValue();
     Well::Log* outputlog = new Well::Log( lognm );
@@ -100,15 +100,14 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	logset.add( outputlog );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
 	if ( !ioobj )
-	    mErrRet( tr("Cannot find object in I/O Manager") )
+	    mErrRet( uiStrings::phrCannotFind(tr("object in I/O Manager")) )
 
 	Well::Writer wtr( *ioobj, *wd_ );
 	const Well::Log& newlog = logset.getLog( logset.size()-1 );
 	if ( !wtr.putLog(newlog) )
 	{
-	    uiString errmsg = tr("Could not write log: %1"
-				 "\n Check write permissions.")
-			    .arg(newlog.name());
+	    uiString errmsg = uiStrings::phrCannotWrite(tr("log: %1"
+			     "\n Check write permissions.").arg(newlog.name()));
 	    mErrRet( errmsg )
 	}
     }

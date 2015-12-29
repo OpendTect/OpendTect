@@ -232,11 +232,11 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     const int nrinlperjob = nrinlfld_->getIntValue();
     if ( mIsUdf(nrinlperjob) || nrinlperjob < 1 )
-	mErrRet( tr("Please specify number of inlines per job"))
+	mErrRet( uiStrings::phrSpecify(tr("number of inlines per job")) )
 
     BufferString parfnm = parfilefld_->fileName();
     if ( parfnm.isEmpty() )
-	mErrRet( tr("Please enter a valid par file name"))
+	mErrRet( uiStrings::phrEnter(tr("a valid par file name")) )
 
     BufferString tmpdir = tmpstordirfld_->fileName();
     if ( tmpdir.isEmpty() || !File::isDirectory(tmpdir) )
@@ -261,7 +261,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     iopar_.set( sKey::TmpStor(), tmpdir.buf() );
     const char* cmd = cmdfld_->text();
     if ( !cmd || !*cmd )
-	mErrRet(tr("Please enter a valid command for submitting jobs"))
+	mErrRet(uiStrings::phrEnter(tr("a valid command for submitting jobs")))
 
     iopar_.set( "Command", cmd );
     if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )

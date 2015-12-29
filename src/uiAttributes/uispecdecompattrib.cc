@@ -255,7 +255,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 {
     if ( inpfld_->attribID() == DescID::undef() )
     {
-	uiMSG().error( tr("Please, first, fill in the Input Data field") );
+	uiMSG().error( tr("Please fill in the Input Data field") );
 	return;
     }
 

@@ -44,9 +44,11 @@ public:
 			//!< returns err msg or null on success
 
     static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
-				 uiString& errmsg);
-    static bool		store(const Pick::Set&,const IOObj*,
-				 uiString& errmsg);
+	    			 BufferString&);
+    static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
+				 uiString&);
+    static bool		store(const Pick::Set&,const IOObj*,BufferString&);
+    static bool		store(const Pick::Set&,const IOObj*,uiString&);
 
     static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
 				    uiString& errmsg);

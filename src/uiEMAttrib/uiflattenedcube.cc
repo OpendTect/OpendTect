@@ -40,7 +40,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
                   .arg(uiStrings::sVolDataName(true, true, false)
                      .toLower())),
                  uiStrings::phrCreate(tr("Seismics flattened on '%2'")
-			   .arg(mToUiStringTodo(getHorNm(horid))))
+			   .arg(getHorNm(horid)))
 			  , mODHelpKey(mFlattenedCubeHelpID) ))
 	, hormid_(EM::EMM().getMultiID(horid))
 	, pp_(*new Pos::EMSurfaceProvider3D)

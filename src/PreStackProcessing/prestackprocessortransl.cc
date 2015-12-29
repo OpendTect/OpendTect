@@ -98,7 +98,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return uiStrings::phrCannotRead( mToUiStringTodo(userName()) );
+	return uiStrings::phrCannotRead( toUiString(userName()) );
     if ( !astrm.isOfFileType(mTranslGroupName(PreStackProc)) )
 	return tr("Input file is not a Mute Definition file");
     if ( atEndOfSection(astrm) ) astrm.next();
@@ -107,7 +107,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
     if ( md.usePar( par ) ) return uiString::emptyString();
 
     return md.errMsg().isSet() ? md.errMsg()
-			       : tr("Could not read processing info.");
+			     : uiStrings::phrCannotRead(tr("processing info."));
 }
 
 

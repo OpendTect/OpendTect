@@ -642,6 +642,10 @@ const char* controllerTitle()
 { return "Command controller (Ctrl-R)"; }
 
 
+const uiString controllerUiTitle()
+{ return od_static_tr("controllerUiTitle","Command controller (Ctrl-R)"); }
+
+
 //=============================================================================
 
 

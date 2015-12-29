@@ -124,7 +124,7 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
     fname_ = fileinpfld->fileName();
     if ( fname_.isEmpty() || !File::exists(fname_) )
     {
-	uiMSG().error( tr("Please enter the filename") );
+	uiMSG().error( uiStrings::phrEnter(tr("the filename")) );
 	return false;
     }
     selChg(0);
@@ -190,7 +190,7 @@ bool uiImpAttrSet::acceptOK( CallBacker* )
     const char* fnm = fileinpfld_->fileName();
     if ( !File::exists(fnm) )
     {
-	uiMSG().error( tr("Please select existing file.") );
+	uiMSG().error( uiStrings::phrSelect(tr("existing file.")) );
 	return false;
     }
 

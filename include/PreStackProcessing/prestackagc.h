@@ -38,6 +38,8 @@ public:
     const Interval<float>&	getWindow() const;
     void			getWindowUnit(BufferString&,
 	    				      bool withparens) const;
+    void			getWindowUiUnit(uiString&,
+	    				      bool withparens) const;
 
     void			setLowEnergyMute(float fraction);
     float			getLowEnergyMute() const;

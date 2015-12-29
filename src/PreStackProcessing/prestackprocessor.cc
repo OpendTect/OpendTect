@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "prestackgather.h"
 #include "separstr.h"
+#include "uistrings.h"
 
 namespace PreStack
 {
@@ -387,15 +388,15 @@ bool ProcessManager::usePar( const IOPar& par )
 	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
 	if ( !steppar || !steppar->get( sKey::Name(), name ) )
 	{
-	    errmsg_ = tr( "Could not find name for processing step %1." )
-			.arg(toString(idx));
+	    errmsg_ = uiStrings::phrCannotFind(tr(
+			   "name for processing step %1." ).arg(toString(idx)));
 	    return false;
 	}
 
 	Processor* proc = Processor::factory().create( name.buf() );
 	if ( !proc || proc->errMsg().isSet() || !proc->usePar( *steppar ) )
 	{
-	    errmsg_ = tr("Could not parse processing step %1.").arg(name);
+	    errmsg_ = tr("Cannot parse processing step %1.").arg(name);
 	    if ( !proc || proc->errMsg().isSet() )
 		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
 	    else

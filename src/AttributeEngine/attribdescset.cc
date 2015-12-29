@@ -658,7 +658,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			.arg( depattribnm.isEmpty() ? uiString::emptyString()
 						    : tr("called"))
 			.arg( depattribnm.isEmpty() ? uiString::emptyString()
-					    : mToUiStringTodo(depattribnm));
+					    : toUiString(depattribnm));
 	    }
 	    else
 	    {

@@ -80,7 +80,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     getSelectedHorizons( horids );
     if ( horids.size() < 2 )
     {
-	uiMSG().error( tr("Please select at least two horizons") );
+	uiMSG().error( uiStrings::phrSelect(tr("at least two horizons")) );
 	return false;
     }
 

@@ -133,7 +133,8 @@ void AxesDrawer::updateViewRect()
     else
 	rectitem_->setRect( rect.left(), rect.top(),
 			    rect.width(), rect.height() );
-    rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid, 3, annot.color_) );
+    rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid, 3, 
+								annot.color_) );
     
     OD::ArrowStyle arrowstyle;
     arrowstyle.headstyle_.type_ = OD::ArrowHeadStyle::Triangle;
@@ -149,15 +150,16 @@ void AxesDrawer::updateViewRect()
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );
 	arrowitem1_->setVisible( true );
-    	arrowitem1_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,annot.color_) );
+    	arrowitem1_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,
+								annot.color_) );
     	arrowitem1_->setTailHeadPos( from, to );
     	
     	if ( !axis1nm_ )
 	    axis1nm_ = view_.scene().addItem(
-		    new uiTextItem(mToUiStringTodo(ad1.name_),
+		    new uiTextItem(toUiString(ad1.name_),
 				  mAlignment(Right,Top)) );
     	else
-    	    axis1nm_->setText( mToUiStringTodo(ad1.name_) );
+    	    axis1nm_->setText( toUiString(ad1.name_) );
 
 	axis1nm_->setVisible( true );
 	axis1nm_->setTextColor( annot.color_ );
@@ -186,10 +188,10 @@ void AxesDrawer::updateViewRect()
 	
 	if ( !axis2nm_ )
 	    axis2nm_ = view_.scene().addItem(
-		    new uiTextItem(mToUiStringTodo(ad2.name_),
+		    new uiTextItem(toUiString(ad2.name_),
 				   mAlignment(Left,Top)) );
 	else
-	    axis2nm_->setText( mToUiStringTodo(ad2.name_) );
+	    axis2nm_->setText( toUiString(ad2.name_) );
 
 	axis2nm_->setVisible( true );
 	axis2nm_->setTextColor( annot.color_ );

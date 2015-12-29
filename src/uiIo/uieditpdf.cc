@@ -46,10 +46,10 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 
 uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 					    bool ed, bool isnew )
-    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? tr("Edit") :
-	     tr("Browse")).arg(tr("Probability Density Function")),
-	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
-	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())),
+    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? uiStrings::sEdit()
+	     : tr("Browse")).arg(uiStrings::sProbDensFunc()),
+	     toUiString("%1 '%2'").arg(ed ? uiStrings::sEdit() : tr("Browse"))
+	     .arg(pdf.name().isEmpty() ? tr("PDF") : toUiString(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
 	     , edfld_(0)
 {
@@ -63,7 +63,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 	edfld_ = new uiEditGaussianProbDenFunc( this, pdf, ed, isnew );
     else
 	new uiLabel( this, tr("Unsupported PDF type: %1")
-						   .arg(mToUiStringTodo(typ)) );
+						   .arg(toUiString(typ)) );
 }
 
 
@@ -196,7 +196,7 @@ bool uiEditSampledProbDenFunc::getNamesFromScreen()
     {
 	const BufferString newnm( nmflds_[idim]->text() );
 	if ( newnm.isEmpty() )
-	    mErrRet(tr("Please enter all dimension names"))
+	    mErrRet(uiStrings::phrEnter(tr("all dimension names")))
 	    if (nms.isPresent(newnm))
 	    mErrRet(tr("No duplicate dimension names allowed"))
 	if ( newnm != pdf_.dimName(idim) )
@@ -417,7 +417,7 @@ void uiEditSampledProbDenFunc::setToolTips()
     {
 	mMkTT(0)
 	for ( int icol=0; icol<nrcols; icol++ )
-	    tbl_->setColumnToolTip( icol, mToUiStringTodo(tt) );
+	    tbl_->setColumnToolTip( icol, toUiString(tt) );
     }
 
     mMkTT(nrdims_ > 1 ? 1 : 0)
@@ -751,7 +751,7 @@ float uiEditGaussianProbDenFunc::getCC() const
 	return 0;
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() )
     {
-	uiMSG().error( mToUiStringTodo(sGaussianCCRangeErrMsg()) );
+	uiMSG().error( sUiGaussianCCRangeErrMsg() );
 	return mUdf(float);
     }
     return cc;
@@ -808,11 +808,12 @@ bool uiEditGaussianProbDenFunc::commitChanges()
 	const float exp = expflds_[idim]->getfValue();
 	const float stdev = stdflds_[idim]->getfValue();
 	if ( nm.isEmpty() )
-	    mErrRet(tr("Please enter a name for all dimensions"))
+	    mErrRet(uiStrings::phrEnter(tr("a name for all dimensions")))
 	else if (varnms.isPresent(nm))
-	    mErrRet(tr("Please enter different names for all dimensions"))
+	    mErrRet(uiStrings::phrEnter(
+				     tr("different names for all dimensions")))
 	if (mIsUdf(exp) || mIsUdf(stdev))
-	    mErrRet(tr("Please enter all distribution values"))
+	    mErrRet(uiStrings::phrEnter(tr("all distribution values")))
 	    if (stdev == 0)
 	    mErrRet(tr("Standard deviations cannot be zero"))
 	varnms.add( nm );

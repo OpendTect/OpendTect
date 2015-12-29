@@ -1084,8 +1084,8 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
 
     if ( !fileheader_.fromStream(strm) )
     {
-	errmsg_ = tr("Could not read file header from %1. %2")
-	    .arg(strm.fileName()).arg(fileheader_.errMsg());
+	errmsg_ = uiStrings::phrCannotRead(tr("file header from %1. %2")
+	    .arg(strm.fileName()).arg(fileheader_.errMsg()));
     }
 }
 
@@ -1169,9 +1169,9 @@ int EventPatchReader::nextStep()
 
 #   define mErrRetCantReadAt(s,more) \
     { \
-	errmsg_ = tr("Could not read %1 from %2 at %3") \
+	errmsg_ = uiStrings::phrCannotRead(tr("%1 from %2 at %3") \
 		.arg(s).arg(strm.fileName()) \
-		.arg(curbid.toString()); \
+		.arg(curbid.toString())); \
 	more; \
 	return ErrorOccurred(); \
     }

@@ -62,7 +62,7 @@ public:
 */
 
 mExpClass(MPEEngine) MPESetupTranslator : public Translator
-{
+{ mODTextTranslationClass(MPESetupTranslator)
 public:
     			mDefEmptyTranslatorBaseConstructor(MPESetup)
 
@@ -75,6 +75,7 @@ public:
     static bool		retrieve(MPESetup&,const IOObj*,BufferString&);
     			//!< BufferString has errmsg, if any
     			//!< If true returned, errmsg contains warnings
+    static bool		retrieve(MPESetup&,const IOObj*,uiString&);
     static bool		store(const MPESetup&,const IOObj*,BufferString&);
     			//!< BufferString has errmsg, if any
     			//!< If true returned, errmsg contains warnings

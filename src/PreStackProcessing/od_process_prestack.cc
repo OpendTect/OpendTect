@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistype.h"
 #include "survinfo.h"
 #include "trckeysampling.h"
+#include "uistrings.h"
 
 #include <iostream>
 
@@ -44,7 +45,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
-    { mRetError("\nCannot execute pre-3.2 par files"); }
+    { tr("\nCannot execute pre-3.2 par files"); }
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
@@ -64,30 +65,30 @@ bool BatchProgram::go( od_ostream& strm )
     Seis::GeomType geomtype;
     if ( !Seis::getFromPar(pars(),geomtype) )
     {
-	mRetError("\nCannot read geometry type");
+	mRetError(tr("\nCannot read geometry type"));
     }
 
     if ( geomtype!=Seis::VolPS && geomtype!=Seis::LinePS )
     {
-	mRetError("\nGeometry is not prestack");
+	mRetError(tr("\nGeometry is not prestack"));
     }
 
     MultiID setupmid;
     if ( !pars().get(ProcessManager::sKeySetup(),setupmid) )
     {
-	mRetError( "\nCannot read setup" );
+	mRetError(tr("\nCannot read setup"));
     }
 
     PtrMan<IOObj> setupioobj = IOM().get( setupmid );
     if ( !setupioobj )
     {
-	mRetError("\nCannot create setup object");
+	mRetError(tr("\nCannot create setup object"));
     }
 
     procman = new ProcessManager;
     if ( !procman )
     {
-	mRetError( "Cannot create processor");
+	mRetError(uiStrings::phrCannotCreate(tr("processor")));
     }
 
     uiString errmsg;
@@ -98,7 +99,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( geomtype==Seis::LinePS && linekey.isEmpty() )
     {
-	mRetError("\nNo linekey set" );
+	mRetError(tr("\nNo linekey set"));
     }
 
     PtrMan<IOObj> inputioobj = 0;
@@ -107,26 +108,26 @@ bool BatchProgram::go( od_ostream& strm )
 	MultiID inputmid;
 	if ( !pars().get(ProcessManager::sKeyInputData(),inputmid) )
 	{
-	    mRetError("\nCannot read input id");
+	    mRetError(tr("\nCannot read input id"));
 	}
 
 	inputioobj = IOM().get( inputmid );
 	if ( !inputioobj )
 	{
-	    mRetError("\nCannot create input object");
+	    mRetError(tr("\nCannot create input object"));
 	}
     }
 
     MultiID outputmid;
     if ( !pars().get(ProcessManager::sKeyOutputData(),outputmid) )
     {
-	mRetError("\nCannot read output id");
+	mRetError(tr("\nCannot read output id"));
     }
 
     PtrMan<IOObj> outputioobj = IOM().get( outputmid );
     if ( !outputioobj )
     {
-	mRetError("\nCannot create output object");
+	mRetError(tr("\nCannot create output object"));
     }
 
     SeisPSReader* reader = 0;
@@ -180,7 +181,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !reader )
 	{
-	    mRetError("\nCannot create input reader");
+	    mRetError(tr("\nCannot create input reader"));
 	}
     }
     else
@@ -196,7 +197,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !writer )
     {
-	mRetError("\nCannot create output writer");
+	mRetError(tr("\nCannot create output writer"));
     }
 
     BinID curbid; //inl not used if 2D
@@ -212,7 +213,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	if ( !hiter.next(curbid) )
 	{
-	    mRetError("\nNo CDP's to process");
+	    mRetError(tr("\nNo CDP's to process"));
 	}
 
 	step.inl() = SI().inlRange(true).step;
@@ -248,7 +249,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !procman->prepareWork() )
 	{
-	    mRetError(mToUiStringTodo("\nCannot prepare processing."));
+	    mRetError(tr("\nCannot prepare processing."));
 	}
 
 	const BinID stepout = procman->getInputStepout();
@@ -351,7 +352,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 		    if ( !writer->put( trc ) )
 		    {
-			mRetError("\nCannot write output");
+			mRetError(tr("\nCannot write output"));
 		    }
 		}
 

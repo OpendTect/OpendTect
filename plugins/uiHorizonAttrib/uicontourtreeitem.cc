@@ -896,8 +896,8 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         oldintv += Interval<float>( zshift_, zshift_ );
 
         uiContourParsDlg dlg( ODMainWin(), attrnm_, range, oldintv,
-                              OD::LineStyle(OD::LineStyle::Solid,linewidth_,color_),
-                              sceneID() );
+                              OD::LineStyle(OD::LineStyle::Solid,
+			      linewidth_,color_), sceneID() );
         if ( labels_ )
 	{
             dlg.setShowLabels( labels_->isOn() );
@@ -1008,7 +1008,7 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 
         if ( stream.isBad() )
         {
-	    uiString errmsg = tr("Could not save file %1");
+	    uiString errmsg = uiStrings::phrCannotSave(tr("file %1"));
 
 	    if ( stream.errMsg().getFullString() )
                 stream.addErrMsgTo( errmsg );

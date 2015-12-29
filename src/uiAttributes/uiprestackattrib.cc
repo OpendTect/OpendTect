@@ -295,7 +295,8 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	MultiID mid;
 	if ( !preprocsel_->getSel(mid))
-	    { errmsg_ = tr("Please select preprocessing setup"); return false; }
+	    { errmsg_ = uiStrings::phrSelect(tr("preprocessing setup")); 
+								return false; }
 	mSetString(Attrib::PSAttrib::preProcessStr(), mid );
     }
 

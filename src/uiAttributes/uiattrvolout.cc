@@ -312,7 +312,7 @@ bool uiAttrVolOut::prepareProcessing()
 	sel_.outputnr_ = todofld_->outputNr();
 	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
 	{
-	    uiMSG().error( tr("Please select the output quantity") );
+	    uiMSG().error( uiStrings::phrSelect(tr("the output quantity")) );
 	    return false;
 	}
 

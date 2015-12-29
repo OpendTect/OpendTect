@@ -106,11 +106,11 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
 {
     const int nrsel = welllistfld_->nrChosen();
     if ( !nrsel )
-	mErrRet(tr("Please select at least one well"))
+	mErrRet(uiStrings::phrSelect(tr("at least one well")))
 
     const char* namestr = namefld_->text();
     if ( !namestr || !*namestr )
-	mErrRet(tr(" Please enter name"))
+	mErrRet(uiStrings::phrEnter(uiStrings::sName().toLower()))
     par.set( sKey::Name(), namefld_->text() );
 
     BufferStringSet selnames;

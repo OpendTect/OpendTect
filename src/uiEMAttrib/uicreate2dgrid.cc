@@ -412,10 +412,10 @@ void ui2DGridLinesFromRandLine::paramsChgCB( CallBacker* cb )
 	    return;
 
 	Geometry::RandomLineSet geom;
-	BufferString msg;
+	uiString msg;
 	if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
 	{
-	    uiMSG().error( mToUiStringTodo(msg) );
+	    uiMSG().error( msg );
 	    return;
 	}
 

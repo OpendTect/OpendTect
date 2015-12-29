@@ -63,7 +63,7 @@ int main( int argc, char** argv )
 	uiMSG().error( msg );
     else if ( typ == 3 )
     {
-	msg = mToUiStringTodo(getYesNoString(uiMSG().askGoOn(msg)));
+	msg = getUiYesNoString(uiMSG().askGoOn(msg));
 	od_cout() << msg << od_endl;
     }
 

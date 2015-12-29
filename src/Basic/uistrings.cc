@@ -485,7 +485,7 @@ uiString uiStrings::sSelectPos()
 { return tr("Select Position"); }
 
 uiString uiStrings::sSelOutpFile()
-{ return tr("Please select output file"); }
+{ return uiStrings::phrSelect(tr("output file")); }
 
 uiString uiStrings::sSelection( int num )
 { return tr("Selection", 0, num ); }

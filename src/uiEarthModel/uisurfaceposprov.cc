@@ -143,7 +143,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     if ( !surf1fld_ ) return false;
 
     if ( !surf1fld_->commitInput() )
-	mErrRet(tr("Please select the surface"))
+	mErrRet(uiStrings::phrSelect(uiStrings::sSurface().toLower()))
     iop.set( mGetSurfKey(id1), ctio1_.ioobj_->key() );
 
     Interval<float> ez( 0, 0 );
@@ -152,9 +152,9 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     else
     {
 	if ( !surf2fld_->commitInput() )
-	    mErrRet(tr("Please select the bottom horizon"))
+	    mErrRet(uiStrings::phrSelect(tr("the bottom horizon")))
 	 if (  ctio2_.ioobj_->key() ==	ctio1_.ioobj_->key() )
-	     mErrRet(tr("Please select two different horizons"))
+	     mErrRet(uiStrings::phrSelect(tr("two different horizons")))
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj_->key() );
     }
 

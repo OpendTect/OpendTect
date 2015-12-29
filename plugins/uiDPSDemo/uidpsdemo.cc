@@ -71,7 +71,7 @@ bool uiDPSDemo::acceptOK( CallBacker* )
 
     const int nrpts = nrptsfld_->getIntValue();
     if ( nrpts < 2 )
-	mErrRet( tr("Please enter a valid number of points") )
+	mErrRet( uiStrings::phrEnter(tr("a valid number of points")) )
 
     return doWork( *horioobj, *seisioobj, nrpts );
 }

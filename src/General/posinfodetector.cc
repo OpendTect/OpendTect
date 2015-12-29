@@ -323,6 +323,84 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 }
 
 
+const uiString PosInfo::Detector::getUiSurvInfo( TrcKeySampling& hs,
+					    Coord crd[3] ) const
+{
+    static uiString errmsg ;
+    if ( setup_.is2d_ )
+    {
+	if ( nruniquepos_ < 2 )
+	    errmsg = uiStrings::phrCannotFind(tr("enough unique positions"));
+
+	double grdsp = 4. * avgdist_;
+	if ( grdsp < 50 ) grdsp = 50;
+
+	const Coord cmin = minCoord();
+	Coord cmax = maxCoord();
+	const Coord delta( cmax.x - cmin.x, cmax.y - cmin.y );
+	const bool xisinl = delta.x > delta.y;
+	const Coord icdelta( xisinl ? delta.x : delta.y,
+			     xisinl ? delta.y : delta.x );
+	int nrinl = (int)(icdelta.x / grdsp + 1.5);
+	if ( nrinl < 3 ) nrinl = 3;
+	int nrcrl = (int)(icdelta.y / grdsp + 1.5);
+	if ( nrcrl < 3 ) nrcrl = 3;
+	cmax = Coord( cmin.x + grdsp * ( (xisinl?nrinl:nrcrl) - 1 ),
+		      cmin.y + grdsp * ( (xisinl?nrcrl:nrinl) - 1 ) );
+
+	crd[0] = cmin;
+	crd[1] = cmax;
+	crd[2].x = xisinl ? cmin.x : cmax.x;
+	crd[2].y = xisinl ? cmax.y : cmin.y;
+	hs.start_.inl() = hs.start_.crl() = 10000;
+	hs.step_.inl() = hs.step_.crl() = 1;
+	hs.stop_.inl() = 10000 + nrinl - 1;
+	hs.stop_.crl() = 10000 + nrcrl -1;
+    }
+    else
+    {
+	if ( nruniquepos_ < 3 )
+	    errmsg = uiStrings::phrCannotFind(tr("enough unique positions"));
+
+	hs.start_ = start_; hs.stop_ = stop_; hs.step_ = step_;
+
+	if ( hs.start_.inl() == hs.stop_.inl() )
+	    errmsg = tr("The input data contains only one in-line: %1").arg(
+		      hs.start_.inl());
+	else if ( hs.start_.crl() == hs.stop_.crl() )
+	    errmsg = tr("The input data contains only one cross-line: %1").arg(
+		    hs.start_.crl());
+
+	const CrdBidOffs llnstart( userCBO(llnstart_) );
+	const CrdBidOffs llnstop( userCBO(llnstop_) );
+	const CrdBidOffs firstcbo( userCBO(firstcbo_) );
+	const CrdBidOffs lastcbo( userCBO(lastcbo_) );
+
+	const CrdBidOffs& usecbo(
+		  abs(firstcbo.binid_.inl()-llnstart.binid_.inl())
+		< abs(lastcbo.binid_.inl()-llnstart.binid_.inl())
+		? lastcbo : firstcbo );
+	Coord c[3]; BinID b[2];
+	c[0] = llnstart.coord_;	b[0] = llnstart.binid_;
+	c[2] = llnstop.coord_;
+	c[1] = usecbo.coord_;	b[1] = usecbo.binid_;
+
+	Pos::IdxPair2Coord b2c;
+	if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl()) )
+	    return tr("The input data does not contain the required information"
+		"\nto establish a relation between\nthe inline/crossline system"
+		"\nand the coordinates.");
+
+	// what coords would have been on the corners
+	crd[0] = b2c.transform( hs.start_ );
+	crd[1] = b2c.transform( hs.stop_ );
+	crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    }
+
+    return uiStrings::sEmptyString();
+}
+
+
 bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
 {
     if ( !sortanal_ )

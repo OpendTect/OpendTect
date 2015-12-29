@@ -130,9 +130,9 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 bool uiSetPickDirs::acceptOK( CallBacker* )
 {
     if ( usesteering_ && !*steerfld_->getInput() )
-	mErrRet( tr("Please, select SteeringCube") )
+	mErrRet( uiStrings::phrSelect(toUiString("SteeringCube")) )
     if ( !usesteering_ && ( !*phifld_->getInput() || !*thetafld_->getInput() ) )
-	mErrRet( tr("Please, select input attribute(s) for Phi and Theta") )
+	mErrRet(uiStrings::phrSelect(tr("input attributes for Phi and Theta")))
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> dcds;

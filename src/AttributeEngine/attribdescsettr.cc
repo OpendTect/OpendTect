@@ -21,11 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "uistrings.h"
 
-static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
-			        uiString& warningmsg )
+uiString AttribDescSetTranslator::readFromStream( ascistream& astream, 
+				  Attrib::DescSet& ads, uiString& warningmsg )
 {
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
-	return mToUiStringTodo("File has wrong file type");
+	return tr("File has wrong file type");
 
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
@@ -36,7 +36,7 @@ static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
     {
 	ads.usePar( bupar );
 	return
-	    mToUiStringTodo("Could not find any attribute definitions in file");
+	    uiStrings::phrCannotFind(tr("any attribute definitions in file"));
     }
 
     if ( parseerrmsgs.size() )
@@ -97,9 +97,9 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 	return false;
     }
 
-    bs = mToUiStringTodo(trans->read( ads, *conn ));
+    bs = toUiString(trans->read( ads, *conn ));
     bool rv = bs.isEmpty();
-    if ( rv ) bs = mToUiStringTodo(trans->warningMsg());
+    if ( rv ) bs = trans->warningUiMsg();
     return rv;
 }
 
@@ -125,7 +125,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     }
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
     IOM().commitChanges( *ioobj );
-    bs = mToUiStringTodo(trans->write( ads, *conn ));
+    bs = toUiString(trans->write( ads, *conn ));
     return bs.isEmpty();
 }
 

@@ -110,6 +110,7 @@ public:
     void		getCubeData(CubeData&) const;
 			//!< if crlSorted(), inl and crl are swapped
     const char*		getSurvInfo(TrcKeySampling&,Coord crd[3]) const;
+    const uiString	getUiSurvInfo(TrcKeySampling&,Coord crd[3]) const;
 
     StepInterval<int>	getRange(bool inldir=false) const;
     bool		haveStep(bool) const; // to check during detection

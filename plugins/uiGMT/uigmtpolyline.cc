@@ -89,7 +89,7 @@ void uiGMTPolylineGrp::objSel( CallBacker* )
 bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
-	mErrRet(tr("Please select a polygon"))
+	mErrRet(uiStrings::phrSelect(uiStrings::sPolygon().toLower()))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

@@ -79,7 +79,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
 bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
-	mErrRet(tr("Please select a pickset"))
+	mErrRet(uiStrings::phrSelect(uiStrings::sPickSet().toLower()))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

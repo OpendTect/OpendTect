@@ -161,7 +161,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 					.arg( ctio.ctxt_.trgroup_->typeName() );
 	else
 	    titletext = toUiString("%1 %2").arg(titletext)
-				   .arg( mToUiStringTodo( ctio.ctxt_.name() ) );
+				   .arg( toUiString( ctio.ctxt_.name() ) );
 
 	titletext = toUiString("%1 %2").arg(titletext)
 	         .arg( setup_.multisel_ ? tr("(s)") : uiString::emptyString() );
@@ -183,7 +183,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName() );
     else
-	captn = captn.arg( mToUiStringTodo(ctio.ctxt_.name()) );
+	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(
@@ -491,9 +491,9 @@ void uiIOObjSel::doCommit( bool noerr ) const
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr);
     if ( !setup_.optional_ && !inctio_.ioobj_ && !alreadyerr )
     {
-	uiString txt( inctio_.ctxt_.forread_
-			 ? tr( "Please select the %1")
-			 : tr( "Please enter a valid name for the %1" ) );
+	uiString txt(inctio_.ctxt_.forread_
+			 ? uiStrings::phrSelect(toUiString("%1"))
+			 : uiStrings::phrEnter(tr("a valid name for the %1" )));
 	uiMSG().error( txt.arg( workctio_.ctxt_.objectTypeName() ) );
     }
 }

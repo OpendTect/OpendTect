@@ -291,11 +291,19 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 
     return true;
 }
+	     
+		   
+uiString uiMadIOSelDlg::sSelFileErrMsg( const uiString& inptext )
+{
+    return uiStrings::phrSelect(toUiString("%1 %2").arg(isinp_ ? 
+	   uiStrings::sInput().toLower() : uiStrings::sOutput().toLower())
+	   .arg(inptext));
+}
 
 
 #define mErrRet(s) \
 { \
-    uiMSG().error( "Please select the ", isinp_ ? "input " : "output ", s ); \
+    uiMSG().error( uiMadIOSelDlg::sSelFileErrMsg(s) ); \
     return false; \
 }
 

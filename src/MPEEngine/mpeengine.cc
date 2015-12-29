@@ -206,7 +206,7 @@ void Engine::undo( uiString& errmsg )
     }
 
     if ( !emundo->unDo(1,true) )
-	errmsg = tr("Could not undo everything.");
+	errmsg = tr("Cannot undo everything.");
 
     if ( emobj )
     {
@@ -233,7 +233,7 @@ void Engine::redo( uiString& errmsg )
     }
 
     if ( !emundo->reDo(1,true) )
-	errmsg = tr("Could not redo everything.");
+	errmsg = tr("Cannot redo everything.");
 
     if ( emobj )
     {

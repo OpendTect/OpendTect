@@ -359,7 +359,8 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
     FilePath newfp( dlg.fileName() );
     if ( newfp.pathOnly() != fp.pathOnly() )
     {
-	uiMSG().error( tr("Please select a file from %1").arg(fp.pathOnly()) );
+	uiMSG().error( uiStrings::phrSelect(tr("a file from %1")
+							.arg(fp.pathOnly())) );
 	return;
     }
 

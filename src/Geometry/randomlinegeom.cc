@@ -399,7 +399,7 @@ void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
 void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
-    Geometry::RandomLineSet rls; BufferString errmsg;
+    Geometry::RandomLineSet rls; uiString errmsg;
     const PtrMan<IOObj> rdmline = IOM().get( rdlsid );
     RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
     if ( !errmsg.isEmpty() || rls.isEmpty() )

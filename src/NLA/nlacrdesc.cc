@@ -114,10 +114,10 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	if ( !ioobj )
 	    return tr("Cannot find training data set specified");
 
-	BufferString errmsg;
+	uiString errmsg;
 	PosVecDataSet vds;
 	if ( !vds.getFrom(ioobj->fullUserExpr(true),errmsg) )
-	    return mToUiStringTodo( errmsg );
+	    return  errmsg ;
 	if ( vds.pars().isEmpty() || vds.data().isEmpty() )
 	    return tr("Invalid input data set specified");
 

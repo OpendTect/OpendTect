@@ -630,7 +630,7 @@ void uiMainWinBody::renewToolbarsMenu()
     {
 	uiToolBar& tb = *toolbars_[idx];
 	uiAction* itm =
-	    new uiAction( mToUiStringTodo(tb.name()),
+	    new uiAction( toUiString(tb.name()),
 	    mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
 	tb.setToolBarMenuAction( itm );
@@ -1807,7 +1807,7 @@ uiObject* uiDialogBody::createChildren()
 				mCB(this,uiDialogBody,provideHelp), true );
 	if ( shwhid )
 	    helpbut_->setToolTip( uiStrings::phrJoinStrings(
-	    mToUiStringTodo(dlg.helpKey().providername_),
+	    toUiString(dlg.helpKey().providername_),
 	    mToUiStringTodo(dlg.helpKey().argument_)) );
 	else
 	    helpbut_->setToolTip( tr("Help on this window") );

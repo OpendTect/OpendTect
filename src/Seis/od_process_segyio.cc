@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prog.h"
 
 
-static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
+bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
@@ -47,13 +47,13 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"SEG-Y importer", outpar,
-				mToUiStringTodo("Importing traces") );
+				tr("Importing traces") );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }
 
 
-static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
+bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
     if ( !inppar || inppar->isEmpty() )
@@ -80,7 +80,7 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
     fp.fillPar( outioobj->pars() );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 			    "SEG-Y exporter", outpar,
-			    mToUiStringTodo("Exporting traces"), compnr );
+			    tr("Exporting traces"), compnr );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }

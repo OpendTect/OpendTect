@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mUseQtnamespace
 
 uiTab::uiTab( uiGroup& grp, const uiString& caption )
-    : caption_( caption.isEmpty() ? mToUiStringTodo(grp.name()) : caption )
+    : caption_( caption.isEmpty() ? toUiString(grp.name()) : caption )
     , grp_( grp )
 {}
 

@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace Attrib
 {
@@ -337,14 +338,15 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 
     if ( !outppar )
     {
-	errmsg_ = tr("Could not find Output keyword in parameter file");
+	errmsg_ = uiStrings::phrCannotFind(tr(
+					  "Output keyword in parameter file"));
 	return false;
     }
 
     const char* storid = outppar->find( seisidkey() );
     if ( !setStorageID( storid ) )
     {
-	errmsg_ = tr("Could not find output ID: %1").arg( storid );
+	errmsg_ = uiStrings::phrCannotFind(tr("output ID: %1").arg( storid ));
         return false;
     }
 

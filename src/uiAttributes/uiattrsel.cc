@@ -138,7 +138,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const Setup& stp )
     mImplInitVar
 {
-    initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
+    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -147,7 +147,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
     mImplInitVar
 {
     dpfids_ = dpfids;
-    initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
+    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
 
@@ -554,10 +554,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    : descset->getStoredID( ioobjkey, attrdata_.compnr_, true );
 	if ( needattrmatch && !attrdata_.attribid_.isValid() )
 	{
-	    uiString msg = tr("Could not find the seismic data %1")
+	    uiString msg = uiStrings::phrCannotFind(tr("the seismic data %1")
 			 .arg(attrdata_.attribid_ == DescID::undef()
 			 ? tr("in object manager")
-			 : tr("on disk"));
+			 : tr("on disk")));
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -839,7 +839,7 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 {
     if ( !attrdata_.attribid_.isValid() && attrdata_.outputnr_ < 0 )
     {
-	uiMSG().error( tr("Please select the input") );
+	uiMSG().error( uiStrings::phrSelect(tr("the input")) );
 	return false;
     }
 

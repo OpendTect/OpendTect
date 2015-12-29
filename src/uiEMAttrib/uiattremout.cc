@@ -62,7 +62,7 @@ bool uiAttrEMOut::prepareProcessing()
     attrfld_->processInput();
     if ( !attrfld_->attribID().isValid() && attrfld_->outputNr() < 0 )
     {
-	uiMSG().error( tr("Please select the output quantity") );
+	uiMSG().error( uiStrings::phrSelect(tr("the output quantity")) );
 	return false;
     }
 

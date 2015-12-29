@@ -882,7 +882,7 @@ void uiBodyRegionGrp::updateTable()
 bool uiBodyRegionGrp::accept()
 {
     if ( region3d_.isEmpty() )
-	mRetErr(tr("Please select at least one boundary"));
+	mRetErr(uiStrings::phrSelect(tr("at least one boundary")));
 
     for ( int idx=0; idx<region3d_.size(); idx++ )
     {

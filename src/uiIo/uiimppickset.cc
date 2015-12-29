@@ -168,7 +168,7 @@ bool uiImpExpPickSet::doImport()
     const char* fname = filefld_->fileName();
     od_istream strm( fname );
     if ( !strm.isOK() )
-	mErrRet( tr("Could not open input file") )
+	mErrRet( uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()) )
 
     const char* psnm = objfld_->getInput();
     Pick::Set ps( psnm );
@@ -287,7 +287,7 @@ bool uiImpExpPickSet::checkInpFlds()
 {
     BufferString filenm = filefld_->fileName();
     if ( import_ && !File::exists(filenm) )
-	mErrRet( tr("Please select input file") );
+	mErrRet( uiStrings::phrSelect(uiStrings::sInputFile().toLower()) );
 
     if ( !import_ && filenm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() );
@@ -298,7 +298,7 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( import_ )
     {
 	if ( !dataselfld_->commit() )
-	    mErrRet( tr("Please specify data format") );
+	    mErrRet( uiStrings::phrSpecify(tr("data format")) );
 
 	const int zchoice = zfld_->box()->currentItem();
 	if ( zchoice == 1 )
@@ -307,7 +307,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	    if ( SI().zIsTime() ) constz /= 1000;
 
 	    if ( !SI().zRange(false).includes( constz,false ) )
-		mErrRet( tr("Please enter a valid Z value") );
+		mErrRet( uiStrings::phrEnter(tr("a valid Z value")) );
 	}
     }
 

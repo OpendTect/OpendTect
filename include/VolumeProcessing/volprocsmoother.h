@@ -27,11 +27,11 @@ namespace VolProc
 */
 
 mExpClass(VolumeProcessing) Smoother : public Step
-{
+{ mODTextTranslationClass(Smoother)
 public:
 			mDefaultFactoryInstantiation(
 				VolProc::Step, Smoother,
-				"Smoother", mToUiStringTodo(sFactoryKeyword()))
+				"Smoother", tr("Smoother"))
 
     			~Smoother();
 			Smoother();

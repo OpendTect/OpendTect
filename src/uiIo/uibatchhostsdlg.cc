@@ -485,8 +485,8 @@ bool uiBatchHostsDlg::acceptOK( CallBacker* )
 	hostdatalist_.writeHostFile( hostdatalist_.getBatchHostsFilename() );
     if ( !res )
     {
-	uiMSG().error(tr("Could not write BatchHosts file. "
-			 "Please check file permissions."));
+	uiMSG().error(uiStrings::phrCannotWrite(tr("BatchHosts file. "
+			 "Please check file permissions.")));
 	return false;
     }
 

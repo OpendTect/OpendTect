@@ -209,7 +209,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	    uiString txt;
 	    const BatchProgPar& bpp = *bpi.args[iarg];
 	    if ( !bpp.mandatory ) 
-		txt = toUiString("[%1]").arg(mToUiStringTodo(bpp.desc));
+		txt = toUiString("[%1]").arg(bpp.desc);
 	    else
 		txt = mToUiStringTodo(bpp.desc);
 
@@ -359,7 +359,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     OS::MachineCommand mc( BufferString(prognm," ",args) );
     OS::CommandLauncher cl( mc );
     if ( !cl.execute( execpars ) )
-	uiMSG().error(tr("Could not execute command:\n%1").arg(mc.command()));
+	uiMSG().error(tr("Cannot execute command:\n%1").arg(mc.command()));
 
     return false;
 }

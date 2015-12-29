@@ -62,6 +62,11 @@ const Interval<float>& AGC::getWindow() const
 void AGC::getWindowUnit( BufferString& buf, bool parens ) const
 { buf = SI().getZUnitString( parens ); }
 
+
+void AGC::getWindowUiUnit( uiString& buf, bool parens ) const
+{ buf = SI().getUiZUnitString( parens ); }
+
+
 void AGC::setLowEnergyMute( float iv )
 { mutefraction_ = iv; }
 

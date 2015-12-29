@@ -177,7 +177,7 @@ Sampled1DProbDenFunc* get1DPDF()
 
     if ( nr < 0 )
     {
-	errmsg_ = tr("Could not find size for X variable");
+	errmsg_ = uiStrings::phrCannotFind(tr("size for X variable"));
 	return 0;
     }
 
@@ -238,8 +238,8 @@ Sampled2DProbDenFunc* get2DPDF()
     }
     if ( nr0 < 0 || nr1 < 0 )
     {
-	errmsg_ = tr("Could not find size for %1")
-		.arg(nr0 < 0 ? tr("X variable") : tr("Y variable"));
+	errmsg_ = uiStrings::phrCannotFind(tr("size for %1")
+		.arg(nr0 < 0 ? tr("X variable") : tr("Y variable")));
 	return 0;
     }
 

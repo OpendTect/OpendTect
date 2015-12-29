@@ -54,7 +54,8 @@ public:
         if ( showsel_ )
 	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
         else
-	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,dpscolid_);
+	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,
+								    dpscolid_);
     }
 
    int				dpsColID() const	{ return dpscolid_; }
@@ -125,6 +126,8 @@ public:
 
     virtual void		getIconInfo(BufferString& fnm,
 					    BufferString& tootltip) const = 0;
+    virtual void		getIconInfo(BufferString&, 
+					    uiString& tooltip) const = 0;
 
     const DataPointSetDisplayProp* dispProp() const
 				{ return dispprop_; }

@@ -49,7 +49,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
     const BufferString fnm = maddatafld_->fileName();
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	uiMSG().error( tr("Please select an existing input file") );
+	uiMSG().error( uiStrings::phrSelect(tr("an existing input file")) );
 	return false;
     }
 

@@ -728,6 +728,20 @@ bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
 }
 
 
+bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
+				  uiString& msg )
+{
+    const bool trccoldefined = fd.bodyinfos_[2]->selection_.isInFile( 0 );
+    const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 )
+			       &&  fd.bodyinfos_[1]->selection_.isInFile( 1 );
+     if ( trccoldefined || xycolsdefined )
+	 return true;
+
+     msg = tr("At least one of 'Trace Nr' and 'X Y' columns need to be "
+								    "defined");
+     return false;
+}
+
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 				     const BufferStringSet& hornms )
 {

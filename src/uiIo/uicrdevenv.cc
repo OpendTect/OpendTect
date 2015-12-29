@@ -216,13 +216,13 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 {
     BufferString workdir = basedirfld->text();
     if ( workdir.isEmpty() || !File::isDirectory(workdir) )
-	mErrRet( tr("Please enter a valid (existing) location") )
+	mErrRet( uiStrings::phrEnter(tr("a valid (existing) location")) )
 
     if ( workdirfld )
     {
 	BufferString workdirnm = workdirfld->text();
 	if ( workdirnm.isEmpty() )
-	    mErrRet( tr("Please enter a (sub-)directory name") )
+	    mErrRet( uiStrings::phrEnter(tr("a (sub-)directory name")) )
 
 	workdir = FilePath( workdir ).add( workdirnm ).fullPath();
     }
@@ -233,7 +233,7 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	if ( workdir.contains( "Program Files" )
 	  || workdir.contains( "program files" )
 	  || workdir.contains( "PROGRAM FILES" ) )
-	  mErrRet(tr("Please do not use 'Program Files'.\n"
+	  mErrRet(tr("Do not use 'Program Files'.\n"
 		     "Instead, a directory like 'My Documents' would be OK."))
 #endif
     }

@@ -72,7 +72,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     float zval = zfld_->getFValue();
     if ( mIsUdf(zval) )
     {
-	uiMSG().error( tr("Z value is undefined. Please enter a valid value") );
+	uiMSG().error( tr("Z value is undefined. Enter a valid value") );
 	return false;
     }
 

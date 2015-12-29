@@ -232,7 +232,22 @@ void getFreeMBOnDiskMsg( int mb, uiString& str )
     			"Free space on disk: %1")
 	.arg( converter.getString( bytes ) );
 }
+  
 
+void getFreeMBOnDiskUiMsg( int mb, uiString& msg )
+{
+    msg = od_static_tr("getFreeMBOnDiskUiMsg","Free space on disk:");
+    if( mb < 1024 )
+	msg = od_static_tr("getFreeMBOnDiskUiMsg","%1 %2 MB").arg(msg).arg(mb);
+    else
+    {
+	int gb = mb / 1024;
+	float fmb = (mb % 1024) / 102.4;
+	int tenthsofgb = mNINT32(fmb);
+	msg = od_static_tr("getFreeMBOnDiskUiMsg","%1 %2.%3 GB").arg(msg)
+						    .arg(gb).arg(tenthsofgb);
+    }
+}
 
 const char* getFileSystemName( const char* path )
 {

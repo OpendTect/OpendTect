@@ -473,7 +473,7 @@ bool acceptOK( CallBacker* )
 {
     const char* txt = formfld_->text();
     if ( !txt || !*txt )
-	mErrRet(tr("Please enter a formula"))
+	mErrRet(uiStrings::phrEnter(tr("a formula")))
 
     const SEGY::HdrEntry& he = hc_.he_;
     const int hidx = calcset_.indexOf( he.name() );
@@ -576,8 +576,9 @@ void uiSEGYFileManip::saveReq( CallBacker* )
 
     calcset_.setName( dlg.text() );
     if ( !calcset_.storeInSettings() )
-	uiMSG().error(tr("Could not write to the user settings file:\n%1")
-		 .arg(GetSettingsFileName(SEGY::HdrCalcSet::sKeySettsFile())));
+	uiMSG().error(uiStrings::phrCannotWrite(
+		 tr("to the user settings file:\n%1")
+		 .arg(GetSettingsFileName(SEGY::HdrCalcSet::sKeySettsFile()))));
 }
 
 
@@ -754,7 +755,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     FilePath inpfp( fname_ );
     FilePath outfp( fnmfld_->fileName() );
     if ( outfp.isEmpty() )
-	mErrRet(tr("Please enter an output filename") )
+	mErrRet(uiStrings::phrEnter(tr("an output filename")))
     if ( !outfp.isAbsolute() )
 	outfp.setPath( inpfp.pathOnly() );
     if ( inpfp == outfp )

@@ -156,7 +156,7 @@ bool uiSEGYImpParsDlg::acceptOK( CallBacker* )
     if ( setchgd_ && !parset_.write(cSrcToManage) )
     {
 	uiMSG().error(
-		tr("Could not write changes.\nPlease check permissions on %1.")
+		tr("Cannot write changes.\nPlease check permissions on %1.")
 		     .arg( parset_.fileName(cSrcToManage) ) );
 	return false;
     }
@@ -256,7 +256,7 @@ bool uiSEGYStoreImpParsDlg::doIO()
 {
     const BufferString parnm( namefld_->text() );
     if ( parnm.isEmpty() )
-	mErrRet( tr("Please enter a name for this entry") )
+	mErrRet( uiStrings::phrEnter(tr("a name for this entry")) )
 
     parstostore_->setName( parnm );
     parstostore_->setStdCreationEntries();

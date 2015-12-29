@@ -108,7 +108,7 @@ bool uiIsochronMakerGrp::chkInputFlds()
     BufferString attrnm =  attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
-	uiMSG().message( tr("Please enter attribute name") );
+	uiMSG().message( uiStrings::phrEnter(tr("attribute name")) );
 	attrnm.add( "I: " ).add( horsel_->ioobj()->name() );
 	attrnmfld_->setText( attrnm );
 	return false;

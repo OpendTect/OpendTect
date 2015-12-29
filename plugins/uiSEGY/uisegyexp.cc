@@ -363,7 +363,7 @@ bool doExp( const FilePath& fp )
     }
     if ( lnms.size() < 1 )
     {
-	uiMSG().error( tr("Please select lines to export") );
+	uiMSG().error( uiStrings::phrSelect(tr("lines to export")) );
 	return false;
     }
 
@@ -398,10 +398,10 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
-	mErrRet( tr("Please select the data to export") )
+	mErrRet( uiStrings::phrSelect(tr("the data to export")) )
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.isEmpty() )
-	mErrRet( tr("Please select the output file") )
+	mErrRet( uiStrings::phrSelect(uiStrings::sOutputFile().toLower()) )
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );

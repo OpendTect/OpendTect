@@ -81,7 +81,7 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() || File::isEmpty(fnm) )
-	mErrRet(tr("Please select an existing input file"))
+	mErrRet(uiStrings::phrSelect(tr("an existing input file")))
     if ( !dataselfld_->commit() )
 	return false;
     const IOObj* ioobj = outfld_->ioobj();
@@ -243,13 +243,13 @@ bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
     if ( dps.isEmpty() )
 	mErrRet(tr("No data read"))
 
-    BufferString errmsg;
+    uiString errmsg;
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool isok = dps.dataSet().putTo( ioobj.fullUserExpr(false), errmsg,
 					   false);
     MouseCursorManager::restoreOverride();
     if ( !isok )
-	mErrRet(mToUiStringTodo(errmsg))
+	mErrRet(errmsg)
 
     return true;
 }

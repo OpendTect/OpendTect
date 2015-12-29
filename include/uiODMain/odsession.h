@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "transl.h"
 #include "iopar.h"
+#include "uistrings.h"
 
 /*!\brief dTect session save/restore */
 
@@ -100,6 +101,8 @@ public:
     virtual const char*	write(const ODSession&,Conn&)	= 0;
 			//!< returns err msg or null on success
     virtual const char*	warningMsg() const		{ return ""; }
+    virtual const uiString warningUiMsg() const		{ return uiStrings::
+							      sEmptyString(); }
 
     static bool		retrieve(ODSession&,const IOObj*,uiString&);
 			//!< BufferString has errmsg, if any

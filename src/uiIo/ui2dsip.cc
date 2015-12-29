@@ -33,8 +33,7 @@ class ui2DDefSurvInfoDlg : public uiDialog
 public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"),
-				 mToUiStringTodo(dlgtitle),
+    : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"), sDlgTitle(),
                                  mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
     FloatInpSpec fis;
@@ -129,7 +128,10 @@ bool acceptOK( CallBacker* )
     uiGenInput*		ismfld_;
     uiGenInput*		zmaxfld_;
     uiGenInput*		srfld_;
-
+    static const uiString sDlgTitle() {return tr("Specify working area values."
+		  "\nNo need to be precise, parts can lie outside the ranges.\n"
+		  "The values will determine the size of the display box,\n"
+		  "and provide some defaults a.o. for 3D horizon generation.");}
 };
 
 

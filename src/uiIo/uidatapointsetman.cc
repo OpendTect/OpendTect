@@ -97,10 +97,10 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     }
 
     PosVecDataSet spvds;
-    BufferString errmsg;
+    uiString errmsg;
     bool rv = spvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     if ( !rv )
-    { uiMSG().error( mToUiStringTodo(errmsg) ); return; }
+    { uiMSG().error( errmsg ); return; }
     if ( spvds.data().isEmpty() )
     { uiMSG().error(sSelDataSetEmpty()); return; }
 

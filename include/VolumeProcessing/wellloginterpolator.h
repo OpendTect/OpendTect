@@ -33,12 +33,12 @@ class WellLogInfoSetup;
 /*! Fills a volume with well log values. */
 
 mExpClass(VolumeProcessing) WellLogInterpolator : public Step
-{
+{ mODTextTranslationClass(WellLogInterpolator)
 public:
 				mDefaultFactoryInstantiation( Step,
 				    WellLogInterpolator,
 				    "WellLog Interpolator",
-				    mToUiStringTodo(sFactoryKeyword()) )
+				    tr("WellLog Interpolator") )
 
 				WellLogInterpolator();
 				~WellLogInterpolator();

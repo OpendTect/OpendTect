@@ -185,7 +185,7 @@ void uiIOObjManipGroup::selChg()
     if ( !cond ) \
 	tt.setEmpty(); \
     else \
-	tt = toUiString("%1 %2").arg(oper).arg(mToUiStringTodo( \
+	tt = toUiString("%1 %2").arg(oper).arg(toUiString( \
 						chosennames.getDispString(3)));\
     tb->setToolTip( tt )
 
@@ -458,7 +458,7 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* trans,
     }
 
     if ( oldreadonly == newreadonly )
-	uiMSG().warning(tr("Could not change the read-only status"));
+	uiMSG().warning(tr("Cannot change the read-only status"));
 
     selChg();
     return false;

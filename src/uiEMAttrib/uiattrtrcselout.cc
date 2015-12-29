@@ -308,13 +308,13 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
     if ( !objfld_->commitInput() )
     {
-	uiMSG().error( tr("Please select first Horizon") );
+	uiMSG().error( uiStrings::phrSelect(tr("first Horizon")) );
 	return false;
     }
 
     if ( !usesinglehor_ && !obj2fld_->commitInput() )
     {
-	uiMSG().error( tr("Please select second Horizon") );
+	uiMSG().error( uiStrings::phrSelect(tr("second Horizon")) );
 	return false;
     }
 

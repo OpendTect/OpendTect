@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "gendefs.h"
+#include "uistrings.h"
 
 class BufferStringSet;
 class IOObj;
@@ -36,6 +37,7 @@ namespace System
     mGlobal(Network) int		getFreeMBOnDisk(const char* path);
     mGlobal(Network) int		getFreeMBOnDisk(const IOObj&);
     mGlobal(Network) void		getFreeMBOnDiskMsg(int,uiString&);
+    mGlobal(Network) void		getFreeMBOnDiskUiMsg(int,uiString&);
     mGlobal(Network) const char*	getFileSystemName(const char* path);
 
     mGlobal(Network) od_uint64		uniqueSystemID();

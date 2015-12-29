@@ -991,7 +991,7 @@ void uiDataPointSet::reDoTable()
     {
 	const UnitOfMeasure* mu = dps_.colDef(dcid).unit_;
 	if ( mu )
-	    tbl_->setColumnToolTip( tColID(dcid), mToUiStringTodo(mu->name()) );
+	    tbl_->setColumnToolTip( tColID(dcid), toUiString(mu->name()) );
     }
 
     const int nrrows = tbl_->nrRows();
@@ -1333,11 +1333,11 @@ void uiDataPointSet::retrieve( CallBacker* )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PosVecDataSet pvds;
-    BufferString errmsg;
+    uiString errmsg;
     bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     MouseCursorManager::restoreOverride();
     if ( !rv )
-	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
+	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -1415,12 +1415,12 @@ bool acceptOK( CallBacker* )
     {
 	fname_ = txtfld_->fileName();
 	if ( fname_.isEmpty() )
-	    mErrRet(tr("Please select the output file name"))
+	    mErrRet(uiStrings::phrSelect(tr("the output file name")))
     }
     else
     {
 	if ( !selgrp_->updateCtxtIOObj() )
-	    mErrRet(tr("Please enter a name for the output"))
+	    mErrRet(uiStrings::phrEnter(tr("a name for the output")))
 	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj_->clone() );
 	if ( !type_.isEmpty() )
 	{
@@ -1462,12 +1462,12 @@ bool uiDataPointSet::doSave()
     if ( !grpnames_.isEmpty() )
 	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
     savedps.purgeInactive();
-    BufferString errmsg;
+    uiString errmsg;
     const bool ret = savedps.dataSet().
 			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
     MouseCursorManager::restoreOverride();
     if ( !ret )
-	uiMSG().error( mToUiStringTodo(errmsg) );
+	uiMSG().error( errmsg );
     else
     {
 	unsavedchgs_ = false;
@@ -1613,10 +1613,10 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	dps_.dataChanged();
     if ( nrrem < 1 )
     {
-       uiMSG().message(tr("Please select the row(s) you want to remove."
-			  "\nby clicking on the row label(s)."
-			  "\nYou can select multiple rows by dragging,"
-			  "\nor by holding down the shift key when clicking."));
+       uiMSG().message(uiStrings::phrSelect(tr("the rows you want to remove."
+			 "\nby clicking on the row labels."
+			 "\nYou can select multiple rows by dragging,"
+			 "\nor by holding down the shift key when clicking.")));
 	return;
     }
 
@@ -1789,7 +1789,7 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     const DColID dcid = dColID();
     if ( dcid<1 )
     {
-	uiMSG().error( tr("Please select an attribute column") );
+	uiMSG().error( uiStrings::phrSelect(tr("an attribute column")) );
 	return;
     }
 

@@ -128,7 +128,7 @@ void uiGMTRandLinesGrp::labelSel( CallBacker* )
 bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj_ )
-	mErrRet(tr("Please select the Random line(set)"))
+	mErrRet(uiStrings::phrSelect(tr("Random line(set)")))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

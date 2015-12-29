@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uisettings.h"
 #include "bufstringset.h"
+#include "uistrings.h"
 
 class uiBatchJobDispatcherSel;
 class uiGenInput;
@@ -30,7 +31,7 @@ public:
 		uiProcSettings,
 		uiParent*,Settings&,
 		"Processing",
-		mToUiStringTodo(sFactoryKeyword()))
+		uiStrings::sProcessing())
 
 			uiProcSettings(uiParent*,Settings&);
     bool		acceptOK();

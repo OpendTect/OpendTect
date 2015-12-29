@@ -348,7 +348,8 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     initVars( false );
     mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn || strmconn->isBad() )
-	{ errmsg_ = tr("Could not open new definition file"); return false; }
+	{ errmsg_ = uiStrings::phrCannotOpen(tr("new definition file")); 
+								return false; }
     segydeffilename_ = strmconn->fileName();
 
     delete tr_;
@@ -487,7 +488,7 @@ bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
 	return false;
 
     if ( !tr_ || !def_ || !fds_ )
-	{ errmsg_ = uiStrings::phrCannotWrite( mToUiStringTodo("trace") );
+	{ errmsg_ = uiStrings::phrCannotWrite( uiStrings::sTrace().toLower() );
 		return false; }
 
     if ( !tr_->write(trc) )

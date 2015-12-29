@@ -876,7 +876,8 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 
     const FixedString fsnewnm( newnm );
     if ( fsnewnm.size() < 2 )
-	mErrRetFalse( tr("Please enter a name of at least 2 characters.") );
+	mErrRetFalse( uiStrings::phrEnter(tr(
+					"a name of at least 2 characters.")) );
 
     TypeSet<DescID> ids;
     attrset_->getIds( ids );

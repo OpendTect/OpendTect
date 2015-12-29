@@ -302,10 +302,10 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 
     if ( !dataselfld_->commit() ) return;
 
-    BufferString msg;
+    uiString msg;
     if ( !EM::Horizon2DAscIO::isFormatOK(fd_, msg) )
     {
-	uiMSG().message( mToUiStringTodo(msg) );
+	uiMSG().message( msg );
 	return;
     }
 
@@ -390,7 +390,8 @@ bool uiImportHorizon2D::doImport()
 	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
 	if ( !hor )
 	{
-	    uiMSG().error( tr("Could not load horizon") );
+	    uiMSG().error( uiStrings::phrCannotLoad(
+					    uiStrings::sHorizon().toLower()) );
 	    mDeburstRet( false, unRef );
 	}
 
@@ -462,7 +463,7 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {
     if ( !*inpfld_->fileName() )
-	mErrRet( tr("Please select input file(s)") )
+	mErrRet( uiStrings::phrSelect(tr("input files")) )
 
     inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
@@ -470,8 +471,8 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 	const char* fnm = filenames[idx]->buf();
 	if ( !File::exists(fnm) )
 	{
-	    uiString errmsg = tr("Cannot find input file:\n%1")
-	                    .arg(fnm);
+	    uiString errmsg = uiStrings::phrCannotFind(tr("input file:\n%1")
+	                    .arg(fnm));
 	    deepErase( filenames );
 	    mErrRet( errmsg );
 	}

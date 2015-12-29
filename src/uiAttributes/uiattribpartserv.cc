@@ -379,7 +379,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     }
     else
     {
-	uiAttrSelDlg::Setup setup( mToUiStringTodo(seltxt) );
+	uiAttrSelDlg::Setup setup( seltxt );
 	setup.showsteeringdata(true);
 	uiAttrSelDlg dlg( parent(), attrdata, setup );
 	if ( !dlg.go() )

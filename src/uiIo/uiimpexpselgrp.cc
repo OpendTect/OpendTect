@@ -271,7 +271,7 @@ void uiSGSelGrp::selChangedCB( CallBacker* )
 
 void uiSGSelGrp::showInfo( CallBacker* )
 {
-    BufferString info;
+    uiString info;
     ObjectSet<SelectionGrp> selgrpset;
     getCurSelGrpSet( selgrpset );
 
@@ -279,7 +279,7 @@ void uiSGSelGrp::showInfo( CallBacker* )
 	selgrpset[idx]->getInfo( info );
 
     deepErase( selgrpset );
-    uiMSG().message( mToUiStringTodo(info) );
+    uiMSG().message( info );
 }
 
 
@@ -994,7 +994,7 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
 {
     if ( !outfld_->isOK() )
     {
-	uiMSG().error(tr("Please select an ouput name"));
+	uiMSG().error(uiStrings::phrSelect(tr("an ouput name")));
 	return false;
     }
 

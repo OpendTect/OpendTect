@@ -238,7 +238,7 @@ bool uiExportFault::writeAscii()
 bool uiExportFault::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
-	mErrRet( tr("Please select the input fault") );
+	mErrRet( uiStrings::phrSelect(tr("the input fault")) );
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() );

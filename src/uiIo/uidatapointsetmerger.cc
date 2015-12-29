@@ -424,12 +424,12 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     merger.addNewCols( newcolnms );
     TaskRunner::execute( &taskrunner, merger );
 
-    BufferString errmsg;
+    uiString errmsg;
     const bool ret =
 	merger.getNewDPS()->dataSet().putTo( dpsobj->fullUserExpr(false),
 					     errmsg, false );
     if ( !ret )
-	uiMSG().error( mToUiStringTodo(errmsg) );
+	uiMSG().error( errmsg );
 
     return true;
 }

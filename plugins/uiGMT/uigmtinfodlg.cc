@@ -73,7 +73,7 @@ bool uiGMTInfoDlg::acceptOK( CallBacker* )
     const BufferString path = gmtpath_->text();
     if ( path.isEmpty() )
     {
-	uiMSG().message( tr("Please enter path") );
+	uiMSG().message( uiStrings::phrEnter(tr("path")) );
 	return false;
     }
 

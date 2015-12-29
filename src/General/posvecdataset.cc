@@ -280,6 +280,26 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 }
 
 
+static od_istream getUiInpStrm( const char* fnm, uiString& errmsg, 
+				bool& tabstyle )
+{
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	errmsg = uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower());
+    BufferString firstword; strm >> firstword;
+    strm.setPosition( 0 );
+    tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
+    if ( !tabstyle )
+    {
+	ascistream astrm( strm );
+	if ( !astrm.isOfFileType(mPosVecDataSetFileType) )
+	    errmsg = uiStrings::phrInvalid(uiStrings::sInputFile().toLower());
+    }
+    return strm;
+
+}
+
+
 static const UnitOfMeasure* parseColName( const char* inp, BufferString& nm )
 {
     nm = inp;
@@ -444,6 +464,91 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     delete [] vals;
 
     return true;
+}								      
+
+bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
+{
+    bool tabstyle = false;
+    od_istream strm = getUiInpStrm( fnm, errmsg, tabstyle );
+    if ( !strm.isOK() )
+	return false;
+
+    setEmpty(); pars_.setEmpty(); setName( "" );
+    int valstartcol = 2;
+    if ( tabstyle )
+    {
+	BufferString buf; strm.getLine( buf );
+	SeparString ss( buf, '\t' );
+	const int nrcols = ss.size();
+	const BufferString xcolnm( ss[2] ); const BufferString ycolnm( ss[3] );
+	if ( xcolnm=="X-coord" && ycolnm=="Y-corrd" )
+	    valstartcol = 4;
+	for ( int idx=valstartcol; idx<nrcols; idx++ )
+	{
+	    BufferString nm;
+	    DataColDef* cd = new DataColDef( "" );
+	    cd->unit_ = parseColName( ss[idx], nm );
+	    cd->name_ = nm;
+	    add( cd );
+	}
+    }
+    else
+    {
+	ascistream astrm( strm, false );
+	while ( !atEndOfSection(astrm.next()) )
+	{
+	    if ( astrm.type() == ascistream::Keyword )
+	    {
+		DataColDef* cd = new DataColDef( "" );
+		cd->getFrom( astrm.keyWord() );
+		if ( cd->name_ != "Z" )
+		    add( cd );
+		else
+		{
+		    colDef(0) = *cd;
+		    delete cd;
+		}
+	    }
+	    else if ( astrm.hasKeyword( sKey::Name() ) )
+		setName( astrm.value() );
+	}
+	if ( !atEndOfSection(astrm.next()) )
+	    pars().getFrom( astrm );
+    }
+
+    const int nrvals = nrCols();
+    if ( nrvals < 1 )
+    {
+	add( new DataColDef("Z") );
+	data().setNrVals(1);
+	return true;
+    }
+
+    data().setNrVals( nrvals );
+    BinID bid; float* vals = new float [ nrvals ];
+    while ( strm.isOK() )
+    {
+	bid.inl() = bid.crl() = 0;
+	strm >> bid.inl() >> bid.crl();
+	if ( !bid.inl() && !bid.crl() )
+	    { strm.skipUntil( '\n' ); continue; }
+
+	if ( valstartcol == 4 ) // also has X, Y coordinates.
+	{
+	    float x, y;
+	    strm >> x >> y;
+	}
+
+	for ( int idx=0; idx<nrvals; idx++ )
+	    strm >> vals[idx];
+	if ( !strm.isBad() )
+	    data().add( bid, vals );
+	if ( !strm.isOK() )
+	    break;
+    }
+    delete [] vals;
+
+    return true;
 }
 
 
@@ -520,6 +625,83 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 	strm << '\n';
 	if ( !strm.isOK() )
 	    mErrRet("Error during write of data")
+    }
+    delete [] vals;
+
+    return true;
+}
+
+
+bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
+                         bool tabstyle ) const
+{
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+      errmsg = uiStrings::phrCannotOpen(uiStrings::sOutputFile().toLower());
+
+    BufferString str;
+    if ( tabstyle )
+    {
+ strm << "\"In-line\"\t\"X-line\"\t\"X-coord\"\t\"Y-Coord\"";
+        for ( int idx=0; idx<nrCols(); idx++ )
+        {
+            const DataColDef& cd = colDef(idx);
+            strm << "\t\"" << cd.name_;
+            if ( cd.unit_ )
+                strm << " (" << cd.unit_->symbol() << ")";
+            strm << '"';
+        }
+        strm << '\n';
+    }
+    else
+    {
+        ascostream astrm( strm );
+        if ( !astrm.putHeader(mPosVecDataSetFileType) )
+          errmsg = uiStrings::phrCannotWrite(tr("header to output file"));
+
+        if ( *name() )
+            astrm.put( sKey::Name(), name() );
+        astrm.put( "--\n-- Column definitions:" );
+        for ( int idx=0; idx<nrCols(); idx++ )
+        {
+            colDef(idx).putTo( str );
+            astrm.put( str );
+        }
+        astrm.newParagraph();
+        pars().putTo(astrm);
+        // iopar does a newParagraph()
+    }
+
+    const int nrvals = data().nrVals();
+    BinIDValueSet::SPos pos;
+    float* vals = new float [nrvals];
+    BinID bid;
+    while ( data().next(pos) )
+    {
+        data().get( pos, bid, vals );
+        strm << bid.inl() << '\t' << bid.crl();
+        if ( tabstyle )
+        {
+            Coord crd = SI().transform( bid );
+            if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
+                                          && colDef(1).name_=="Y Offset" )
+            {
+                crd.x += vals[0];
+                crd.y += vals[1];
+            }
+
+            strm << '\t' << toString(crd.x);
+            strm << '\t' << toString(crd.y);
+        }
+
+        for ( int idx=0; idx<nrvals; idx++ )
+        {
+            str = vals[idx];
+            strm << '\t' << str;
+        }
+        strm << '\n';
+        if ( !strm.isOK() )
+          errmsg = uiStrings::phrCannotWrite(uiStrings::sData().toLower());
     }
     delete [] vals;
 

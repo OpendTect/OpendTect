@@ -482,7 +482,7 @@ void uiTable::setDefaultColLabels()
     const int nrcols = nrCols();
     for ( int idx=0; idx<nrcols; idx++ )
     {
-	uiString lbl = toUiString("%1 %2").arg(mToUiStringTodo(setup_.coldesc_))
+	uiString lbl = toUiString("%1 %2").arg(toUiString(setup_.coldesc_))
 					  .arg(idx+1);
 	setColumnLabel( idx, lbl );
     }
@@ -1076,7 +1076,7 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
     body_->setColumnCount( labels.size() );
 
     for ( int i=0; i<labels.size(); i++ )
-        setColumnLabel( i, mToUiStringTodo(labels[i]->buf()) );
+        setColumnLabel( i, toUiString(labels[i]->buf()) );
 }
 
 
@@ -1101,7 +1101,7 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
 	itm->setToolTip( tt.getQString() );
     }
     else
-	cellobj->setToolTip( mToUiStringTodo(tt) );
+	cellobj->setToolTip( tt );
 }
 
 

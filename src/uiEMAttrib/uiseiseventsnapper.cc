@@ -94,7 +94,8 @@ bool uiSeisEventSnapper::readHorizon()
 
     const MultiID& mid = horinfld_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
-    if ( !hor ) mErrRet( tr("Could not load horizon") );
+    if ( !hor ) mErrRet( uiStrings::phrCannotLoad(
+					    uiStrings::sHorizon().toLower()) );
 
     if ( horizon_ ) horizon_->unRef();
     horizon_ = hor;

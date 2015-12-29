@@ -74,7 +74,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     {
 	if ( !silent_ )
 	{
-	    uiString mess = tr("Could not delete data file(s).\n"
+	    uiString mess = tr("Cannot delete data file(s).\n"
 			       "Remove entry from list anyway?");
 	    if ( !uiMSG().askRemove(mess) )
 		return false;

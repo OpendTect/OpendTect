@@ -244,7 +244,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 	    if ( !ioobj ) { idx++; continue; }
 
 	    MPE::Setup setup;
-	    BufferString bs;
+	    uiString bs;
 	    if ( !MPESetupTranslator::retrieve(setup,ioobj,bs) )
 		{ idx++; continue; }
 

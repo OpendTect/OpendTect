@@ -199,7 +199,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
 		dpm_.obtain( vwr_.availablePacks()[idx]);
 	if ( dp )
 	{
-	    dispfld_->addItem( mToUiStringTodo(dp->name()) );
+	    dispfld_->addItem( toUiString(dp->name()) );
 	    if ( dp->name() == dataName() )
 		dispfld_->setCurrentItem( dispfld_->size() - 1 );
 	}
@@ -530,7 +530,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     , annotselfld_(0)
     , reversedfld_(0)
 {
-    uiString lbltxt = tr("Axis '%1'").arg(mToUiStringTodo(ad_.name_));
+    uiString lbltxt = tr("Axis '%1'").arg(ad_.name_);
     uiLabel* lbl;
     const bool haveannotchoices = annotnms && annotnms->size() > 1;
     if ( !haveannotchoices )

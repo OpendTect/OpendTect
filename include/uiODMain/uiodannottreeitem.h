@@ -26,6 +26,9 @@ public:
 			~uiODAnnotParentTreeItem();
 
     int			sceneID() const;
+    static uiString	sImage() { return tr("Image"); }
+    static uiString	sArrows() { return tr("Arrows"); }
+    static uiString	sScalebar() { return tr("Scale Bar"); }
 
 protected:
     bool		init();
@@ -221,9 +224,9 @@ protected: \
 }
 
 
-mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000);
-mDefineParentItem(Image,mToUiStringTodo("Image"),1000);
-mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000);
+mDefineParentItem(Arrow,uiODAnnotParentTreeItem::sArrows(),1000);
+mDefineParentItem(Image,uiODAnnotParentTreeItem::sImage(),1000);
+mDefineParentItem(ScaleBar,uiODAnnotParentTreeItem::sScalebar(),1000);
 
 
 #endif

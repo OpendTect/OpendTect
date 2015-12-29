@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
@@ -186,7 +187,7 @@ int HorizonSorter::nextStep()
 	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
 	    EM::EMObject* emobj = EM::EMM().getObject( objid );
 	    if ( !emobj )
-		mErrRet( tr("Could not load all horizons") );
+		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 
 	    emobj->ref();
 	    mDynamicCastGet(EM::Horizon*,horizon,emobj);

@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "threadlock.h"
 #include "trckeysampling.h"
+#include "uistrings.h"
 
 class RegularSeisDataPack;
 class VelocityDesc;
@@ -281,6 +282,9 @@ public:
 
     const RegularSeisDataPack*	getOutput() const;
     int				nextStep();
+    static uiString		sGetStepErrMsg() { return 
+				uiStrings::phrCannotFind(tr(
+				"output step with id:%1")); }
 
 private:
     class Epoch

@@ -269,6 +269,7 @@ public:
     static SurveyInfo*	read(const char*,uiString& errmsg);
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
+    const uiString	set3PtsUiMsg(const Coord c[3],const BinID b[2],int);
     void		gen3Pts();
     void		update3DGeometry();
 

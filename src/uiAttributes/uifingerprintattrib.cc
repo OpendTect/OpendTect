@@ -149,8 +149,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
 
-    manlbl_ = new uiLabel( this,
-	          tr("Please select some attributes and go to Advanced"));
+    manlbl_ = new uiLabel( this, uiStrings::phrSelect(tr(
+					"some attributes and go to Advanced")));
     manlbl_->attach( alignedBelow, refgrp_ );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute")
@@ -518,8 +518,8 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
     if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
     {
-	uiMSG().error(tr("Please choose the pickset from which\n"
-	                 "the ranges will be computed"));
+	uiMSG().error(uiStrings::phrSelect(tr("the pickset from which\n"
+	                 "the ranges will be computed")));
     }
     if ( !errmsg.isEmpty() )
     {
@@ -574,8 +574,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    uiMSG().error(tr("Please choose the pickset from which\n"
-	    "the values will be extracted"));
+	    uiMSG().error(uiStrings::phrSelect(tr("the pickset from which\n"
+	    "the values will be extracted")));
 	    return 0;
 	}
 

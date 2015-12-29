@@ -75,7 +75,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     horselfld_->getSelSurfaceIds( mids );
     if ( mids.size() < 2 )
     {
-	uiMSG().error( tr("Please select at least 2 horizons") );
+	uiMSG().error( uiStrings::phrSelect(tr("at least 2 horizons")) );
 	return false;
     }
 

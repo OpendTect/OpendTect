@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
+#include "uistrings.h"
 class DataColDef;
 
 
@@ -28,7 +29,7 @@ class DataColDef;
 */
 
 mExpClass(General) PosVecDataSet
-{
+{ mODTextTranslationClass(PosVecDataSet)
 public:
     			PosVecDataSet(const char* nm=0);
     			PosVecDataSet(const PosVecDataSet&);
@@ -65,9 +66,11 @@ public:
     IOPar&		pars()			{ return pars_; }
     const IOPar&	pars() const		{ return pars_; }
 
-    bool		getFrom(const char*,BufferString& errmsg);
+    bool		getFrom(const char*,BufferString& errmsg); 
+    bool		getFrom(const char*,uiString& errmsg);
     bool		putTo(const char*,BufferString& errmsg,
 	    			bool tabstyle) const;
+    bool		putTo(const char*,uiString& errmsg,bool tabstyle) const;
     			//!< tabstyle -> for spreadsheet import (looses info)
     			//!< !tabstyle: dTect style (preserves all)
     static bool		getColNames(const char*,BufferStringSet& bss,

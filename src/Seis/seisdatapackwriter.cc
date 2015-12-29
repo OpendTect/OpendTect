@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
@@ -56,8 +57,9 @@ od_int64 SeisDataPackWriter::nrDone() const
 
 uiString SeisDataPackWriter::uiMessage() const
 {
-    return !writer_ ? tr("Could not write the output, check permission?") :
-	tr("Writing out seismic volume \'%1\'").arg(writer_->ioObj()->name());
+    return !writer_ ? uiStrings::phrCannotWrite(tr(
+	"the output, check permission?")) : 
+	tr("Writing out seismic volume \'%1\'").arg(writer_->ioObj()->uiName());
 }
 
 

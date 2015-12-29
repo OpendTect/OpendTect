@@ -91,7 +91,7 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Body() );
     if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body()) )
-	mErrRet(tr("Please select the body"));
+	mErrRet(uiStrings::phrSelect(tr("the body")));
 
     iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(),
 	    inoutbut_->getBoolValue() );

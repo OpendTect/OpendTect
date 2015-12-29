@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 #include "thread.h"
 #include "threadwork.h"
+#include "uistrings.h"
 
 
 #define mCurGeomID (gidp_ \
@@ -282,7 +283,7 @@ bool SeisTrcWriter::next2DLine()
 
     if ( !putter_ )
     {
-	errmsg_ = toUiString("Cannot create 2D line writer");
+	errmsg_ = uiStrings::phrCannotCreate(tr("2D line writer"));
 	return false;
     }
 
@@ -441,21 +442,22 @@ public:
 
     bool execute()
     {
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !writer_.put(*trc_) )
 	{
-	    errmsg = writer_.errMsg().getFullString();
+	    errmsg = writer_.errMsg();
 	    if ( errmsg.isEmpty() )
 	    {
 		pErrMsg( "Need an error message from writer" );
-		errmsg = "Cannot write trace";
+		errmsg = uiStrings::phrCannotWrite(
+						uiStrings::sTrace().toLower());
 	    }
 	}
 
 	delete trc_;
 
-	ssw_.reportWrite( errmsg.str() );
-	return !errmsg.str();
+	ssw_.reportWrite( errmsg );
+	return !errmsg;
     }
 
 
@@ -579,4 +581,22 @@ void SeisSequentialWriter::reportWrite( const char* errmsg )
 			outputs_.size();
     if ( bufsize<maxbuffersize_ )
 	lock_.signal( true );
+}
+
+
+void SeisSequentialWriter::reportWrite( const uiString errmsg )
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( !errmsg.isEmpty() )
+    {
+      errmsg_ = errmsg;
+        Threads::WorkManager::twm().emptyQueue( queueid_, false );
+        lock_.signal( true );
+        return;
+    }
+
+    const int bufsize = Threads::WorkManager::twm().queueSize( queueid_ ) +
+                        outputs_.size();
+    if ( bufsize<maxbuffersize_ )
+        lock_.signal( true );
 }

@@ -53,6 +53,7 @@ public:
     void	clearDisplays();
 
     void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
+    void	getIconInfo(BufferString& fnm,uiString& tooltip) const;
 
     CNotifier<uiVisDataPointSetDisplayMgr,int>	treeToBeAdded;
     mClass(uiVis) DisplayInfo

@@ -58,7 +58,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     horselfld_->setHSzPol( uiObject::MedVar );
     horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,horChg) );
     for ( int idx=0; idx<hinfos_.size(); idx++ )
-	horselfld_->addItem( mToUiStringTodo(hinfos_[idx]->name) );
+	horselfld_->addItem( toUiString(hinfos_[idx]->name) );
 
     uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Select lines") );
     linenmfld_ = new uiListBox( this, su );
@@ -103,7 +103,7 @@ bool uiExport2DHorizon::doExport()
     BufferStringSet linenms;
     linenmfld_->getChosen( linenms );
     if ( !linenms.size() )
-	mErrRet(tr("Please select at least one line to proceed"))
+	mErrRet(uiStrings::phrSelect(tr("at least one line to proceed")))
 
     const int horidx = horselfld_->currentItem();
     if ( horidx < 0 || horidx > hinfos_.size() )

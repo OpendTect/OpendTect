@@ -93,7 +93,7 @@ const char* optstrs[] = { "Run", "Record", 0 };
 
 uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			    const char* defscriptsdir, const char* deflogdir )
-        : uiDialog( 0, Setup( mToUiStringTodo(controllerTitle()),
+        : uiDialog( 0, Setup( controllerUiTitle(),
 			      tr("Specify your command script"),
 			      mODHelpKey(mmcmddriverimpsHelpID) ).modal(false))
 	, drv_(d), rec_(r)

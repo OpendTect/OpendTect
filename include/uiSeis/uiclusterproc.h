@@ -32,6 +32,8 @@ public:
 
     static bool		mergeOutput(const IOPar&,TaskRunner*,BufferString&,
 	    			    bool withdel=true);
+    static bool		mergeOutput(const IOPar&,TaskRunner*,uiString&,
+	    			    bool withdel=true);
     static const char*	sKeyScriptDir()		{ return "Script dir"; }
     uiString		sNrDoneText(const uiString& nrdone, 
 				    const uiString& totnr, 

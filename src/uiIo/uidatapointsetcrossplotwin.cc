@@ -124,9 +124,10 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     if ( uidps_.displayMgr() )
     {
-	BufferString fnm, tooltip;
+	BufferString fnm;
+	uiString tooltip;
 	uidps_.displayMgr()->getIconInfo( fnm, tooltip );
-	showselptswstbid_ = seltb_.addButton( fnm, mToUiStringTodo(tooltip),
+	showselptswstbid_ = seltb_.addButton( fnm, tooltip,
 		      mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace) );
     }
 
@@ -175,7 +176,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	maniptb_.setButtonMenu( multicolcodtbid_, mnu );
 
 	grpfld_ = new uiComboBox( 0, "Group selection" );
-	uiString grpstr = mToUiStringTodo(uidps_.groupType());
+	uiString grpstr = toUiString(uidps_.groupType());
 	uiString txt =  tr("%1 %2").arg(nrgrps==2?tr("Both"):uiStrings::sAll())
 				   .arg(!grpstr.isEmpty()? tr("%1").arg(grpstr)
 				   : uiStrings::sEmptyString());

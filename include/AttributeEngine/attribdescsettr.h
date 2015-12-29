@@ -46,6 +46,7 @@ public:
     virtual const char*	read(Attrib::DescSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
     virtual const char*	warningMsg() const			= 0;
+    virtual const uiString  warningUiMsg() const		= 0;
     virtual const char*	write(const Attrib::DescSet&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
@@ -59,6 +60,7 @@ public:
     static bool 	store(const Attrib::DescSet&,const IOObj*,
 			      uiString&);
 			//!< BufferString has errmsg, if any
+    static uiString	readFromStream(ascistream&,Attrib::DescSet&,uiString&);
 };
 
 
@@ -74,6 +76,7 @@ public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
     const char*		read(Attrib::DescSet&,Conn&);
     const char* 	warningMsg() const {return warningmsg_.getFullString();}
+    const uiString	warningUiMsg() const { return warningmsg_; } 
     const char*		write(const Attrib::DescSet&,Conn&);
 
     uiString		warningmsg_;

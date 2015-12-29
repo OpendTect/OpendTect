@@ -428,7 +428,7 @@ bool uiGMTMainWin::fillPar()
 {
     BufferString fnm = filefld_->fileName();
     if ( fnm.isEmpty() )
-	mErrRet(tr("Please specify an output file name"))
+	mErrRet(uiStrings::phrSpecify(tr("an output file name")))
 
     FilePath fp( fnm );
     BufferString dirnm = fp.pathOnly();

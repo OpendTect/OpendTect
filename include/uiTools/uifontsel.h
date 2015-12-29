@@ -33,7 +33,7 @@ public:
 		uiFontSettingsGroup,
 		uiParent*,Settings&,
 		"Fonts",
-		mToUiStringTodo(sFactoryKeyword()))
+		tr("Fonts"))
 
 			uiFontSettingsGroup(uiParent*,Settings&);
 

@@ -289,7 +289,8 @@ void uiImportHorizon::clearListCB( CallBacker* )
 void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !isgeom_ && !attrlistfld_->nrChosen() )
-	{ uiMSG().error(tr("Please select at least one attribute")); return; }
+	{ uiMSG().error(uiStrings::phrSelect(tr("at least one attribute"))); 
+								return; }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
 
@@ -527,7 +528,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 {
     if ( !*inpfld_->fileName() )
-	mErrRet( tr("Please select input file(s)") )
+	mErrRet( uiStrings::phrSelect(tr("input files")) )
 
     inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
@@ -535,8 +536,9 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 	const char* fnm = filenames[idx]->buf();
 	if ( !File::exists(fnm) )
 	{
-	    uiString errmsg = tr("Cannot find input file:\n%1")
-			    .arg(fnm);
+	    uiString errmsg = uiStrings::phrCannotFind(toUiString("%1:\n%2")
+			      .arg(uiStrings::sInputFile().toLower())
+			      .arg(fnm));
 	    deepErase( filenames );
 	    mErrRet( errmsg );
 	}
@@ -554,7 +556,8 @@ bool uiImportHorizon::checkInpFlds()
 
     const char* outpnm = outputfld_->getInput();
     if ( !outpnm || !*outpnm )
-	mErrRet( tr("Please select output horizon") )
+	mErrRet( uiStrings::phrSelect(mJoinUiStrs(sOutput().toLower(), 
+							sHorizon().toLower())) )
 
     if ( !outputfld_->commitInput() )
 	return false;

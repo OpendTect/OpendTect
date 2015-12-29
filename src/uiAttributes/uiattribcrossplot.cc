@@ -317,7 +317,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     }
 
     if ( dcds.isEmpty() )
-	mErrRet(tr("Please select at least one attribute to evaluate"))
+	mErrRet(uiStrings::phrSelect(tr("at least one attribute to evaluate")))
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );

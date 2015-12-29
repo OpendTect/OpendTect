@@ -794,8 +794,8 @@ bool uiSEGYReadStarter::getFileSpec()
     {
 	FilePath fp( userfilename_ );
 	if ( !fp.isAbsolute() )
-	    mErrRet(
-	    tr("Please specify the absolute file name when using a wildcard.") )
+	    mErrRet(uiStrings::phrSpecify(tr(
+			    "the absolute file name when using a wildcard.")) )
 
 	DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
 	for ( int idx=0; idx<dl.size(); idx++ )

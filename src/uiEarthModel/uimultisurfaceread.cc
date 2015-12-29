@@ -26,8 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
-   : uiDialog(p,uiDialog::Setup( tr("Select Input %1 (s)").arg(
-				 mToUiStringTodo(type)),mNoDlgTitle,
+   : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(tr("Input %1").arg(
+				 mToUiStringTodo(type))),mNoDlgTitle,
                                  mODHelpKey(mMultiSurfaceReadDlgHelpID) )
                                  .nrstatusflds(1) )
 {

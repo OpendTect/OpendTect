@@ -48,6 +48,7 @@ public:
 
     bool		anyChange() const	{ return anychg_; }
     bool		nameChanged() const	{ return nmchgd_; }
+   
 
 protected:
 

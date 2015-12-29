@@ -313,7 +313,7 @@ bool uiImportFault::checkInpFlds()
 {
     FixedString fnm = infld_->fileName();
     if ( fnm.isEmpty() )
-	mErrRet( tr("Please select the input file") )
+	mErrRet( uiStrings::phrSelect(tr("the input file")) )
     else if ( !File::exists(fnm) )
 	mErrRet( tr("Input file does not exist") )
 
@@ -322,7 +322,7 @@ bool uiImportFault::checkInpFlds()
 	if ( typefld_->getIntValue() == 1 )
 	{
 	    if ( !*formatfld_->fileName() )
-		mErrRet( tr("Please select the format file") )
+		mErrRet( uiStrings::phrSelect(tr("the format file")) )
 	    else if ( !File::exists(formatfld_->fileName()) )
 		mErrRet( tr("Format file does not exist") )
 	}

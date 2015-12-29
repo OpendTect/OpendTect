@@ -64,7 +64,7 @@ protected:
 
 
 mExpClass(uiIo) SelectionGrp : public NamedObject
-{
+{ mODTextTranslationClass(SelectionGrp)
 public:
 				SelectionGrp(const char* nm, const Color& col)
 				    : NamedObject(nm), col_(col)	{}
@@ -91,6 +91,7 @@ public:
 	void			usePar(const IOPar&);
 	void			fillPar(IOPar&) const;
 	void			getInfo(BufferString&) const;
+	void			getInfo(uiString&) const;
 protected:
 	TypeSet<SelectionArea> selareas_;
 };

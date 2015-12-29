@@ -129,6 +129,7 @@ protected:
     void		init(const Setup&,const uiTextFile::Setup&,const char*);
     bool		okToExit();
     int			doMsg(const char*,bool iserr=true);
+    int			doMsg(const uiString&,bool iserr=true);
 };
 
 

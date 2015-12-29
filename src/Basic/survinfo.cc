@@ -942,7 +942,7 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
         return "No Cross-line range present";
 
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
-	return "Cannot construct a valid transformation matrix from this input"
+	return "Cannot construct a valid transformation matrix from this input."
 	       "\nPlease check whether the data is on a single straight line.";
 
     set3binids_[0] = b[0];
@@ -953,6 +953,29 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
     set3coords_[2] = c[2];
     return 0;
 }
+
+
+const uiString SurveyInfo::set3PtsUiMsg( const Coord c[3], const BinID b[2],
+				 int xline )
+{
+    if ( b[1].inl() == b[0].inl() )
+        return tr("Need two different in-lines");
+    if ( b[0].crl() == xline )
+        return tr("No Cross-line range present");
+
+    if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
+	return tr("Cannot construct a valid transformation matrix from this "
+	 "input.\nPlease check whether the data is on a single straight line.");
+
+    set3binids_[0] = b[0];
+    set3binids_[1] = b[1];
+    set3binids_[2] = BinID( b[0].inl(), xline );
+    set3coords_[0] = c[0];
+    set3coords_[1] = c[1];
+    set3coords_[2] = c[2];
+    return uiStrings::sEmptyString();
+}
+
 
 
 void SurveyInfo::gen3Pts()
