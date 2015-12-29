@@ -38,6 +38,9 @@ uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 uiString uiStrings::phrSelect( const uiString& string )
 { return toUiString(joinstring).arg( sSelect() ).arg( string ); }
 
+uiString uiStrings::phrSelectObjectWrongType( const uiString& string )
+{ return toUiString(joinstring).arg(tr("Select object is not a ")).arg(string);}
+
 uiString uiStrings::phrDoesntExist(const uiString& string, int num )
 { return tr( "%1 does not exist", 0, num ).arg( string ); }
 
@@ -78,7 +81,7 @@ uiString uiStrings::phrCannotLoad( const uiString& string )
 { return toUiString(joinstring).arg(sCannotLoad()).arg(string); }
 
 uiString uiStrings::phrCannotOpen( const uiString& string )
-{ return tr("Cannot open %1").arg( string ); }
+{ return toUiString(joinstring).arg(sCannotOpen()).arg( string ); }
 
 uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
 { return phrCannotFind( tr("database entry for %1").arg( string ) ); }
@@ -121,6 +124,9 @@ uiString uiStrings::phrCreateNew( const uiString& string )
 
 uiString uiStrings::phrCrossPlot( const uiString& string )
 { return toUiString(joinstring).arg(sCrossPlot()).arg(string); }
+
+uiString uiStrings::phrColonString( const uiString& string )
+{ return tr(": %1").arg( string ); }
 
 uiString uiStrings::phrData( const uiString& string )
 { return toUiString(joinstring).arg(sData()).arg(string); }
@@ -298,6 +304,9 @@ uiString uiStrings::sCantFindODB()
 uiString uiStrings::sCantFindSurf()
 { return phrCannotFind( tr("surface") ); }
 
+uiString uiStrings::sCannotOpen()
+{ return tr("Cannot open"); }
+
 uiString uiStrings::sCantReadHor()
 { return phrCannotRead( tr("horizon") ); }
 
@@ -315,6 +324,9 @@ uiString uiStrings::sCannotStart()
 
 uiString uiStrings::sCheck()
 { return tr("Check"); }
+
+uiString uiStrings::sCheckPermissions()
+{ return tr("Please check your permissions."); }
 
 uiString uiStrings::sOutput()
 { return tr("Output"); }
@@ -484,7 +496,7 @@ uiString uiStrings::sSelectPos()
 { return tr("Select Position"); }
 
 uiString uiStrings::sSelOutpFile()
-{ return tr("Please select output file"); }
+{ return uiStrings::phrSelect(tr("output file")); }
 
 uiString uiStrings::sSelection( int num )
 { return tr("Selection", 0, num ); }
