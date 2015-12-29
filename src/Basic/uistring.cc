@@ -815,7 +815,11 @@ uiString uiStringSet::cat( const char* sepstr ) const
 {
     uiString str;
     for (int idx=0; idx<size(); idx++)
-	str.append(toUiString(sepstr)).append((*this)[idx]);
+    {
+	if (idx)
+	    str.append( toUiString(sepstr) );
+    str.append((*this)[idx]);
+    }
     return str;
 }
 
