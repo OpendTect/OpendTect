@@ -210,6 +210,8 @@ public:
 
     static uiString getOrderString(int);
 		//Returns 1st, 2nd, 3rd
+
+    uiString&	addSpace(int nr=1);
 };
 
 
@@ -227,6 +229,7 @@ public:
 				   char space = ' ') const;
 		//!<Returns a string with "option1, option2, and/or option 3"
     void	fill(mQtclass(QStringList)&) const;
+    uiString	cat(const char* sepstr="\n") const;
 };
 
 

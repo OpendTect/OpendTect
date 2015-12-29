@@ -809,6 +809,19 @@ uiString uiStringSet::createOptionString( bool use_and,
 }
 
 
+uiString uiStringSet::cat( const char* sepstr ) const
+{
+    uiString str;
+    for (int idx=0; idx<size(); idx++)
+    {
+	if (idx)
+	    str.append( toUiString(sepstr) );
+    str.append((*this)[idx]);
+    }
+    return str;
+}
+
+
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
@@ -940,4 +953,11 @@ int uiString::size() const
 }
 
 
+ uiString& uiString::addSpace( int nr )
+ {
+     uiString spaces;
+     for(int i=0; i<nr; i++)
+	 spaces.append(toUiString(" "));
 
+     return  (*this).append(spaces);
+ }
