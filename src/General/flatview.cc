@@ -538,9 +538,9 @@ Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
     Coord3 pos2 = fdp->getCoord( floorx, ceily );
     Coord3 pos3 = fdp->getCoord( ceilx, floory );
     Coord3 pos4 = fdp->getCoord( ceilx, ceily );
-    const double xfac = ( wp.x - pd.position(true,floorx) ) /
+    const double xfac = ceilx==floorx ? 0 : ( wp.x - pd.position(true,floorx) )/
 		       ( pd.position(true,ceilx) - pd.position(true,floorx) );
-    const double yfac = ( wp.y - pd.position(false,floory) ) /
+    const double yfac = ceily==floory ? 0 : ( wp.y - pd.position(false,floory))/
 		       ( pd.position(false,ceily) - pd.position(false,floory) );
     Coord3 realpos = pos1*(1-xfac)*(1-yfac) + pos2*(1-xfac)*yfac
 			+ pos3*xfac*(1-yfac) + pos4*xfac*yfac;
