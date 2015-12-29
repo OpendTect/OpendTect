@@ -169,7 +169,7 @@ bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
     }
     BufferString linenm = linenmfld_->text();
     if ( linenm.isEmpty() )
-	mErrRet(tr("Please enter a Line Name"))
+	mErrRet(uiStrings::phrEnter(tr("a Line Name")))
 
     rl_->setName( linenm );
     if ( !randto2dlinefld_->checkInputs() )

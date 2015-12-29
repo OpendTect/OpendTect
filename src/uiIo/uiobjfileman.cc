@@ -208,7 +208,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     readNotes();
     uiString msg;
     if ( curioobj_ )
-	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
+	System::getFreeMBOnDiskUiMsg(System::getFreeMBOnDisk(*curioobj_), msg);
     toStatusBar( msg );
 }
 

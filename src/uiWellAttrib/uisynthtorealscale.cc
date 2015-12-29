@@ -75,7 +75,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     valueslider_->attach( alignedBelow, dispfld_ );
     valueslider_->setStretch( 2, 1 );
 
-    uiLabel* lbl = new uiLabel( this, mToUiStringTodo(nm) );
+    uiLabel* lbl = new uiLabel( this, toUiString(nm) );
     dispfld_->attach( centeredBelow, lbl );
     setHAlignObj( dispfld_ );
 }
@@ -514,7 +514,8 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
     const float scalefac = finalscalefld_->getFValue();
     if ( mIsUdf(scalefac) )
-	{ uiMSG().error(tr("Please enter the scale factor")); return false; }
+	{ uiMSG().error(uiStrings::phrEnter(tr("the scale factor"))); 
+								return false; }
 
     const IOObj* ioobj = wvltfld_->ioobj();
     if ( !ioobj )

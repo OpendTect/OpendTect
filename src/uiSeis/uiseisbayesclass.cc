@@ -353,7 +353,7 @@ bool getFromScreen( bool permissive )
 	    if ( scl <= 0 )
 	    {
 		if ( permissive ) continue;
-		mErrRet(tr("Please enter only valid scales (> 0)"))
+		mErrRet(uiStrings::phrEnter(tr("only valid scales (> 0)")))
 	    }
 	    if ( mIsUdf(scl) ) scl = 1;
 	    pars_.set( mGetSeisBayesPreScaleKey(idx), scl );
@@ -594,7 +594,7 @@ bool getFromScreen( bool permissive )
 	    if ( permissive )
 		continue;
 	    else
-		mErrRet(tr("Please specify all selected outputs"))
+		mErrRet(uiStrings::phrSpecify(tr("all selected outputs")))
 	}
 
 	if ( ioobj )
@@ -609,7 +609,7 @@ bool getFromScreen( bool permissive )
     subselfld_->fillPar( pars_ );
 
     if ( !permissive && nrout < 1 )
-	mErrRet(tr("Please specify at least one output"))
+	mErrRet(uiStrings::phrSpecify(tr("at least one output")))
 
     return true;
 }

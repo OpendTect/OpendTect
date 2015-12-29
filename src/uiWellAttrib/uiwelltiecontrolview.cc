@@ -106,7 +106,7 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
 			   zrg( bbox.bottom(), bbox.top() );
     if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) )
 	{
-	mErrRet(tr("Please select your pick inside the work area"),
+	mErrRet(uiStrings::phrSelect(tr("your pick inside the work area")),
 	    return false);
 	}
     return true;

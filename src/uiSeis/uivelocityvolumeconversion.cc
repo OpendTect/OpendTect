@@ -114,7 +114,8 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     VelocityDesc inputveldesc;
     if ( !inputveldesc.usePar( velioobj->pars() ) )
     {
-	uiMSG().error(tr("Could not read velocity information on input") );
+	uiMSG().error(uiStrings::phrCannotRead(
+					tr("velocity information on input")) );
 	return false;
     }
 

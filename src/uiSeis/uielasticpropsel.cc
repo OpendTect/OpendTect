@@ -380,7 +380,7 @@ bool uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
 
 	BufferString quantitynm( propflds_[idx]->quantityName() );
 	if ( quantitynm.isEmpty() )
-	    mErrRet( tr("Please select a name for the new quantity"),
+	    mErrRet( uiStrings::phrSelect(tr("a name for the new quantity")),
 			ts_->setCurrentPage(idx); return false; )
 	else if( propnms_.isPresent( quantitynm.buf() ) )
 	{
@@ -454,7 +454,7 @@ bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
     if ( !sd.usable() )
 	uiMSG().error( uiStrings::sCantOpenOutpFile() );
     else if ( !elpropsel_.put(&ioobj) )
-	uiMSG().error( tr("Cann not write file") );
+	uiMSG().error(uiStrings::phrCannotWrite(uiStrings::sFile().toLower()));
     else
 	rv = true;
 

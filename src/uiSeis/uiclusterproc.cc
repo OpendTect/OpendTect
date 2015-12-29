@@ -293,9 +293,9 @@ void uiClusterProc::progressCB( CallBacker* )
 		return;
 	    }
 	}
-
-	mergeOutput( pars_, &dlg, msg );
-	label_->setText( mToUiStringTodo(msg.buf()) );
+	uiString mrgmsg;
+	mergeOutput( pars_, &dlg, mrgmsg );
+	label_->setText( mrgmsg );
     }
 }
 
@@ -338,6 +338,48 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     FixedString tmpdir = pars.find( sKey::TmpStor() );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )
 	File::removeDir( tmpdir.str() );
+
+    return true;
+}
+
+
+bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
+                               uiString& msg, bool withdelete )
+{
+    MultiID key;
+    if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
+      msg = tr("Missing ID of Temporary storage in the parameters file");
+    PtrMan<IOObj> inobj = IOM().get( key );
+    if ( !pars.get("Output.ID",key) )
+      msg = tr("Missing ID of output dataset in the parameters file");
+    PtrMan<IOObj> outobj = IOM().get( key );
+    if ( !inobj || !outobj )
+      msg = uiStrings::phrCannotOpen(uiStrings::sOutput().toLower());
+    PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
+          "Data transfer", &pars, uiStrings::phrWriting(tr(
+          "results to output cube")) );
+
+    if ( !exec )
+ return false;
+
+    if ( !TaskRunner::execute( trans, *exec ) )
+      msg = tr("Cannot merge output data");
+    else
+      msg = tr("Merging output data complete");
+
+    if ( !withdelete )
+ return true;
+
+    MultiID tempid;
+    if ( pars.get("Output.0.Seismic.ID",tempid) )
+    {
+ IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
+ IOM().permRemove( tempid );
+    }
+
+    FixedString tmpdir = pars.find( sKey::TmpStor() );
+    if ( tmpdir && File::isDirectory(tmpdir.str()) )
+ File::removeDir( tmpdir.str() );
 
     return true;
 }

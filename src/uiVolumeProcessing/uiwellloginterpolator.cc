@@ -140,7 +140,8 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 
     if ( wellids.isEmpty() || lognms.isEmpty() )
     {
-	uiMSG().error( tr("Please select at least one well and one log") );
+	uiMSG().error(uiStrings::phrSelect(tr(
+					     "at least one well and one log")));
 	return false;
     }
 

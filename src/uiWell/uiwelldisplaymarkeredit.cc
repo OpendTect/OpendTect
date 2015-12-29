@@ -58,7 +58,7 @@ bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
 {
     BufferString nm = namefld_->text();
     if ( nm.isEmpty() )
-	mErrRet( tr("Please specify a marker name"), return false );
+	mErrRet( uiStrings::phrSpecify(tr("a marker name")), return false );
 
     marker_.setName( nm );
     marker_.setColor( colorfld_->color() );

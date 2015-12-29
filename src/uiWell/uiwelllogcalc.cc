@@ -91,10 +91,25 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 }
 
 
+static uiString getDlgUiTitle( const TypeSet<MultiID>& wllids )
+{
+    const int sz = wllids.size();
+    if ( sz < 1 )
+	return od_static_tr( "getDlgUiTitle","No wells selected" );
+
+    BufferString ret( IOM().nameOf(wllids[0]), "'");
+    for ( int idx=1; idx<sz; idx++ )
+	ret.add( ", '" ).add( IOM().nameOf(wllids[idx]) ).add( "'" );
+
+    ret = getLimitedDisplayString( ret, 50, true );
+    return od_static_tr("getDlgUiTitle","Calculate new logs for '%1").arg(ret);
+}
+
+
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup(tr("Calculate new logs"),
-				     mToUiStringTodo(getDlgTitle(wllids)),
+				     getDlgUiTitle(wllids),
 				     mODHelpKey(mWellLogCalcHelpID) ))
 	, superwls_(*new Well::LogSet)
 	, form_(*new Math::Formula(true,getSpecVars()))

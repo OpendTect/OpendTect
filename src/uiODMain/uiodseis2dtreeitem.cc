@@ -429,7 +429,7 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
     , positionitm_(m3Dots(tr("Position")))
     , geomid_(geomid)
 {
-    name_ = mToUiStringTodo(Survey::GM().getName( geomid ));
+    name_ = toUiString(Survey::GM().getName( geomid ));
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";
@@ -476,7 +476,7 @@ bool uiOD2DLineTreeItem::init()
 	return false;
 
     s2d->setGeomID( geomid_ );
-    s2d->setName( mToUiStringTodo(geom2d->getName()) );
+    s2d->setName( toUiString(geom2d->getName()) );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );
@@ -811,7 +811,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     for ( int idx=0; idx<datasets.size(); idx++ )
     {
 	FixedString nm = datasets.get(idx).buf();
-    MenuItem* item = new MenuItem(mToUiStringTodo(nm));
+    MenuItem* item = new MenuItem(toUiString(nm));
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &storeditm_,item,true,docheck);
@@ -833,7 +833,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
     {
 	FixedString nm = steerdatanames.get(idx).buf();
-    MenuItem* item = new MenuItem(mToUiStringTodo(nm));
+    MenuItem* item = new MenuItem(toUiString(nm));
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &steeringitm_,item,true,docheck);
@@ -855,7 +855,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	    for ( int idx=0; idx<zattribnms.size(); idx++ )
 	    {
 		FixedString nm = zattribnms.get(idx).buf();
-	MenuItem* item = new MenuItem(mToUiStringTodo(nm));
+	MenuItem* item = new MenuItem(toUiString(nm));
 		const bool docheck = isstored && nm==as.userRef();
 		if ( docheck ) docheckparent=true;
 		mAddManagedMenuItem( &zattritm_,item,true,docheck);

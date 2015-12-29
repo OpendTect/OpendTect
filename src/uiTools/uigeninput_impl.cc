@@ -301,7 +301,7 @@ void uiGenInputBoolFld::init( uiParent* p, const uiString& truetext,
     if ( truetxt_.isEmpty()  || falsetxt_.isEmpty() )
     {
 	checkbox_ = new uiCheckBox( p, (truetxt_.isEmpty()) ?
-				mToUiStringTodo(name()) : truetxt_ );
+				toUiString(name()) : truetxt_ );
 	checkbox_->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
 	setvalue_( yn );
 	return;

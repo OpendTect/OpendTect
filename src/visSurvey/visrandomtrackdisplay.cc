@@ -205,7 +205,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->ref();
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
-    setName( mToUiStringTodo(rl_->name()) );
+    setName( toUiString(rl_->name()) );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids );

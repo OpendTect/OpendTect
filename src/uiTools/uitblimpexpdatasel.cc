@@ -81,7 +81,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	rightmostfld_ = rightmostleftfld_;
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
 	if ( formfld_ )
-	    formfld_->addItem( mToUiStringTodo(form.name()) );
+	    formfld_->addItem( toUiString(form.name()) );
 	mkColFlds( iform );
     }
 
@@ -711,8 +711,8 @@ bool uiTableImpDataSel::commitHdr( bool witherror )
 	BufferString tok = hdrtokfld_->text();
 	if ( tok.isEmpty() && witherror )
 	{
-	    uiMSG().error(
-		tr("Please enter the string marking the end-of-header"));
+	    uiMSG().error(uiStrings::phrEnter(tr(
+				    "the string marking the end-of-header")));
 	    return false;
 	}
 	if ( tok.contains(' ') && witherror )

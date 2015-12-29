@@ -409,7 +409,7 @@ bool uiManPROPS::rejectOK( CallBacker* )
 						: Repos::User);
 
     if ( !PROPS().save(repsrc) )
-	uiMSG().warning( tr("Could not store the definitions to file."
+	uiMSG().warning( tr("Cannot store the definitions to file."
 			 "\nPlease check file/directory permissions.") );
     else if ( repsrc != Repos::Survey )
     {

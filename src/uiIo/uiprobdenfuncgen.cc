@@ -250,7 +250,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
     float cc = ccflds_[ifld]->getfValue(); \
     if ( mIsUdf(cc) ) cc = 0; \
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() ) \
-	mErrRet( mToUiStringTodo(sGaussianCCRangeErrMsg()) ) \
+	mErrRet( sUiGaussianCCRangeErrMsg() ) \
     ccs_ += cc; \
 }
 
@@ -272,7 +272,7 @@ bool uiProbDenFuncGenSampled::getFromScreen()
     {
 	dimnms_.add( nmflds_[idim]->text() );
 	if ( dimnms_.get(idim).isEmpty() )
-	    mErrRet(tr("Please enter a name for each variable"))
+	    mErrRet(uiStrings::phrEnter(tr("a name for each variable")))
 
 	Interval<float> rg;
 	rg.start = rgflds_[idim]->getfValue(0);

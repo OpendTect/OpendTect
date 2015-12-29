@@ -262,15 +262,15 @@ bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
 {
     if ( !un )
-	return mToUiStringTodo(sDispNone);
+	return toUiString(sDispNone);
     else if ( setup_.mode_ == Setup::SymbolsOnly )
-	return mToUiStringTodo(un->symbol());
+	return toUiString(un->symbol());
     else if ( setup_.mode_ == Setup::NamesOnly )
-	return mToUiStringTodo(un->name().buf());
+	return toUiString(un->name());
 
     mDeclStaticString( ret );
     ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );
-    return mToUiStringTodo(ret);
+    return toUiString(ret);
 }
 
 

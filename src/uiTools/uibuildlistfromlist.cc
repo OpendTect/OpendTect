@@ -293,7 +293,7 @@ void uiBuildListFromList::setItemName( const char* newnm )
     const BufferString orgnm( deffld_->textOfItem(itmidx) );
     if ( orgnm != newnm )
     {
-	deffld_->setItemText( itmidx, mToUiStringTodo(newnm) );
+	deffld_->setItemText( itmidx, toUiString(newnm) );
 	usrchg_ = true;
     }
 }
@@ -301,7 +301,7 @@ void uiBuildListFromList::setItemName( const char* newnm )
 
 void uiBuildListFromList::addItem( const char* itmnm )
 {
-    deffld_->addItem( mToUiStringTodo(itmnm) );
+    deffld_->addItem( toUiString(itmnm) );
     const int itmidx = deffld_->size() - 1;
     if ( setup_.singleuse_ )
     {

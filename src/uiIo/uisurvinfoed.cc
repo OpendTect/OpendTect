@@ -209,7 +209,7 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     for ( int idx=0; idx<nrprovs; idx++ )
     {
 	uiSurvInfoProvider& sip = *sips_[idx];
-	sipfld_->addItem( mToUiStringTodo(sip.usrText()) );
+	sipfld_->addItem( toUiString(sip.usrText()) );
 	const char* icnm = sip.iconName();
 	if ( icnm && *icnm )
 	    sipfld_->setIcon( sipfld_->size()-1, icnm );
@@ -571,7 +571,7 @@ bool uiSurveyInfoEditor::setSurvName()
     BufferString newsurvnm( survnmfld_->text() );
     if ( newsurvnm.size() < 2 )
     {
-	uiMSG().error( tr("Please specify a valid survey name") );
+	uiMSG().error( uiStrings::phrSpecify(tr("a valid survey name")) );
 	return false;
     }
     si_.setName( newsurvnm );
@@ -665,8 +665,10 @@ bool uiSurveyInfoEditor::setRanges()
 {
     const StepInterval<int> irg( inlfld_->getIStepInterval() );
     const StepInterval<int> crg( crlfld_->getIStepInterval() );
-    if ( irg.isUdf() ) mErrRet(tr("Please enter a valid range for inlines"))
-    if ( crg.isUdf() ) mErrRet(tr("Please enter a valid range for crosslines"))
+    if ( irg.isUdf() ) mErrRet(uiStrings::phrEnter(tr(
+						  "a valid range for inlines")))
+    if ( crg.isUdf() ) mErrRet(uiStrings::phrEnter(tr(
+					       "a valid range for crosslines")))
     TrcKeyZSampling cs( si_.sampling(false) );
     TrcKeySampling& hs = cs.hsamp_;
     hs.start_.inl() = irg.start; hs.start_.crl() = crg.start;
@@ -681,7 +683,7 @@ bool uiSurveyInfoEditor::setRanges()
     cs.zsamp_ = zfld_->getFStepInterval();
     if (mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop)
 				|| mIsUdf(cs.zsamp_.step))
-	mErrRet(tr("Please enter the Z Range"))
+	mErrRet(uiStrings::phrEnter(uiStrings::sZRange()))
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
     {
@@ -691,9 +693,9 @@ bool uiSurveyInfoEditor::setRanges()
 	cs.zsamp_.step = si_.zIsTime() ? 0.004f : 1;
     cs.normalise();
     if ( !hs.totalNr() )
-	mErrRet(tr("Please specify in-line/cross-line ranges"))
+	mErrRet(uiStrings::phrSpecify(tr("in-line/cross-line ranges")))
     if ( cs.zsamp_.nrSteps() == 0 )
-	mErrRet(tr("Please specify a valid Z range"))
+	mErrRet(uiStrings::phrSpecify(tr("a valid Z range")))
 
     si_.setRange( cs, false );
     si_.setRange( cs, true );
@@ -711,8 +713,8 @@ bool uiSurveyInfoEditor::setCoords()
     c[1] = xy2fld_->getCoord();
     c[2] = xy1fld_->getCoord();
 
-    const char* msg = si_.set3Pts( c, b, xline );
-    if ( msg ) { uiMSG().error( mToUiStringTodo(msg) ); return false; }
+    const uiString msg = si_.set3PtsUiMsg( c, b, xline );
+    if ( !msg.isEmpty() ) { uiMSG().error( msg ); return false; }
     else if ( mUseAdvanced() )
 	si_.gen3Pts();
 

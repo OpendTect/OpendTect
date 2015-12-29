@@ -270,7 +270,7 @@ void uiBaseMapObject::update()
 
 	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));
 	    if ( !itm ) return;
-	    itm->setText( mToUiStringTodo(shapenm) );
+	    itm->setText( toUiString(shapenm) );
 	    itm->setPos( crds[0] );
 	    const OD::Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );

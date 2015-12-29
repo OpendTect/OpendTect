@@ -284,7 +284,7 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	attrsel->processInput();
 	BufferString attrnm = attrsel->getAttrName();
 	if ( attrnm.isEmpty() )
-	    { mErrRet( tr("Please select a valid attribute") ) }
+	    { mErrRet( uiStrings::phrSelect(tr("a valid attribute")) ) }
 
 	attrsel->fillSelSpec( posdatasel_->selspec_ );
 	posdatasel_->selspec_.setUserRef( attrnm );

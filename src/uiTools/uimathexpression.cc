@@ -54,7 +54,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	const ObjectSet<const Math::ExpressionOperatorDescGroup>& grps =
 		    Math::ExpressionOperatorDescGroup::supported();
 	for ( int idx=0; idx<grps.size(); idx++ )
-	    grpfld_->addItem( mToUiStringTodo(grps[idx]->name_) );
+	    grpfld_->addItem( toUiString(grps[idx]->name_) );
 	if ( setup_.specvars_ )
 	    grpfld_->addItem( tr("Other") );
 	grpfld_->setCurrentItem( 2 );
@@ -143,8 +143,8 @@ void uiMathExpression::grpSel( CallBacker* )
 	for ( int idx=0; idx<setup_.specvars_->size(); idx++ )
 	{
 	    const Math::SpecVar& specvar = (*setup_.specvars_)[idx];
-	    uiString str = tr("%1 (%2)").arg(mToUiStringTodo(specvar.varnm_)).
-			   arg(mToUiStringTodo(specvar.dispnm_));
+	    uiString str = tr("%1 (%2)").arg(specvar.varnm_).
+			   arg(specvar.dispnm_);
 	    fnfld_->addItem( str );
 	}
     }
@@ -154,8 +154,8 @@ void uiMathExpression::grpSel( CallBacker* )
 	for ( int idx=0; idx<grp.opers_.size(); idx++ )
 	{
 	    const Math::ExpressionOperatorDesc& oper = *grp.opers_[idx];
-	    uiString str = tr("%1 (%2)").arg(mToUiStringTodo( oper.symbol_)).
-			   arg(mToUiStringTodo(oper.desc_));
+	    uiString str = tr("%1 (%2)").arg( oper.symbol_).
+			   arg(oper.desc_);
 	    fnfld_->addItem( str );
 	}
     }

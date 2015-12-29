@@ -137,7 +137,8 @@ void uiAHPlotAnnotSet::setVisible( bool yn )
 }
 
 
-const OD::LineStyle& uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah )const
+const OD::LineStyle& uiAHPlotAnnotSet::getLineStyle( 
+						const uiAHPlotAnnot& pah )const
 {
     if ( !pah.isAux() ) return setup_.style_;
     const bool ishighlighted = pah.linetype_ == OD::PlotAnnotation::HighLighted;
@@ -162,7 +163,7 @@ void uiAHPlotAnnotSet::add( float val, uiAHPlotAnnot::Type type )
 {
     uiAHPlotAnnot pah( type );
     pah.pos_ = val;
-    pah.txt_ = mToUiStringTodo(toStringLim( val, val < 0 ? axh_.reqnrchars_+1
+    pah.txt_ = toUiString(toStringLim( val, val < 0 ? axh_.reqnrchars_+1
 					 : axh_.reqnrchars_ ));
     pah.txtwdth_ = font().width( pah.txt_ );
     pah.linetype_ = OD::PlotAnnotation::Normal;
@@ -264,15 +265,17 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
     const int p1 = axh_.tickEndPix( true );
     if ( axh_.isHor() )
     {
-	const OD::Alignment al( OD::Alignment::HCenter, setup_.side_ == uiRect::Top
-	    ? (setup_.annotinside_ ? OD::Alignment::Top : OD::Alignment::Bottom)
-	    : (setup_.annotinside_ ? OD::Alignment::Bottom : OD::Alignment::Top) );
+	const OD::Alignment al( OD::Alignment::HCenter, setup_.side_ == 
+	      uiRect::Top ? (setup_.annotinside_ ? OD::Alignment::Top :
+	      OD::Alignment::Bottom) : (setup_.annotinside_ ? 
+	      OD::Alignment::Bottom : OD::Alignment::Top) );
 	txtitm = new uiTextItem( uiPoint(pix,p1), pah.txt_, al );
     }
     else
     {
 	const OD::Alignment al( setup_.side_==uiRect::Left ?
-		OD::Alignment::Right : OD::Alignment::Left, OD::Alignment::VCenter );
+		OD::Alignment::Right : OD::Alignment::Left, 
+		OD::Alignment::VCenter );
 	txtitm = new uiTextItem( uiPoint(p1,pix), pah.txt_, al );
     }
 
@@ -804,15 +807,16 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 	xpix = devsz_ - pixAfter() - 2;
 	ypix = setup_.side_ == uiRect::Top ? pix2edge  : height_ - pix2edge - 2;
 	al.set( OD::Alignment::Left,
-		setup_.side_==uiRect::Top ? OD::Alignment::Bottom : OD::Alignment::Top);
+		setup_.side_==uiRect::Top ? OD::Alignment::Bottom : 
+		OD::Alignment::Top);
     }
     else
     {
 	xpix = setup_.side_ == uiRect::Left  ? pix2edge + 5
 					     : width_ - pix2edge - 5;
 	ypix = pixBefore() + 5;
-	al.set( setup_.side_==uiRect::Left ? OD::Alignment::Left : OD::Alignment::Right,
-		OD::Alignment::VCenter );
+	al.set( setup_.side_==uiRect::Left ? OD::Alignment::Left : 
+	        OD::Alignment::Right, OD::Alignment::VCenter );
     }
 
     if ( !endannotitm_ )

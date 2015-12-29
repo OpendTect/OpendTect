@@ -66,7 +66,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 
     if ( !mutedeffld_->commitInput() || !outctio_.ioobj_ )
     {
-	uiMSG().error(tr("Please select a valid output mute function"));
+	uiMSG().error(uiStrings::phrSelect(tr("a valid output mute function")));
 	return false;
     }
     TrcKeySampling hrg;

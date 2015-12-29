@@ -476,7 +476,8 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     if ( !outfld_->commitInput() || !outctio_.ioobj_ )
     {
 	if ( outfld_->isEmpty() )
-	    uiMSG().error( tr("Please specify the output") );
+	    uiMSG().error(uiStrings::phrSpecify(
+					       uiStrings::sOutput().toLower()));
 	return false;
     }
 
@@ -501,7 +502,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
-    BufferString msg;
+    uiString msg;
     const bool res = RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg);
     if ( !res )
 	uiMSG().error(mToUiStringTodo(msg));

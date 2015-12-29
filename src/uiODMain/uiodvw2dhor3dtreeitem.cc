@@ -301,7 +301,7 @@ bool uiODVw2DHor3DTreeItem::init()
     emobj->change.notify( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
     displayMiniCtab();
 
-    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor3DTreeItem,checkCB) );

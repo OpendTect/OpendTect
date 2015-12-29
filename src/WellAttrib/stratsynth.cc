@@ -1400,7 +1400,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 	if ( tmpmodel.isEmpty() )
 	{
 	    uiString startstr(
-		checksvel_ ? tr("Could not generate prestack synthetics as all")
+		checksvel_ ? tr("Cannot generate prestack synthetics as all")
 			   : tr("All") );
 	    uiString propstr( checksvel_ ? tr("Swave velocity")
 					 : tr("Pwave velocity/Density") );

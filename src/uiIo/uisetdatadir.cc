@@ -114,7 +114,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 {
     seldir_ = basedirfld_->text();
     if ( seldir_.isEmpty() || !File::isDirectory(seldir_) )
-	mErrRet( tr("Please enter a valid (existing) location") )
+	mErrRet( uiStrings::phrEnter(tr("a valid (existing) location")) )
 
     if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
 	return true;
@@ -237,7 +237,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 
 	File::copy( stdomf, omffnm );
 	if ( !File::exists(omffnm) )
-	    mErrRet(tr("Could not convert the directory.\n"
+	    mErrRet(tr("Cannot convert the directory.\n"
 		       "Most probably you have no write permissions for:\n%1")
 		  .arg(datadir))
 

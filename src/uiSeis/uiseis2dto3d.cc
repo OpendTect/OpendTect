@@ -131,8 +131,8 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 {
     if ( taperfld_->getFValue() < 0 || taperfld_->getFValue() > 90 )
     {
-	uiMSG().error( tr("Please enter a taper angle"
-			  "value between 0 and 90 degrees") );
+	uiMSG().error( uiStrings::phrEnter(tr("a taper angle"
+			  "value between 0 and 90 degrees")) );
 	return false;
     }
 

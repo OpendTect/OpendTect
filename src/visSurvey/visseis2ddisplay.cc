@@ -161,7 +161,7 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
-    uiString lnm = mToUiStringTodo(Survey::GM().getName( geomid_ ));
+    uiString lnm = toUiString(Survey::GM().getName( geomid_ ));
     if ( lnm.isEmpty() )
 	lnm = toUiString(geomid);
 

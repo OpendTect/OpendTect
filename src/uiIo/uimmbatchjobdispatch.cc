@@ -681,7 +681,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 
     const int nrsel = avmachfld_ ? avmachfld_->nrChosen() : 1;
     if ( nrsel < 1 )
-	mErrRet(tr("Please select one or more hosts"))
+	mErrRet(uiStrings::phrSelect(tr("one or more hosts")))
 
     if ( !jobrunner_ )
     {
@@ -714,7 +714,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 
 	if ( !jobrunner_->addHost(*hd) && jobrunner_->jobsLeft() > 0 )
 	{
-	    uiString msg = tr("Could not start job");
+	    uiString msg = uiStrings::phrCannotStart(tr("job"));
 	    if ( isMultiHost() )
 		msg.arg( " on %1" ).arg( hnm );
 	    if ( jobrunner_->errorMsg().isSet() )

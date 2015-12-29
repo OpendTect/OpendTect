@@ -62,7 +62,8 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 {
     BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
-    if ( wellids.isEmpty() ) mErrRet( tr("Please select at least one well") )
+    if ( wellids.isEmpty() ) 
+	mErrRet( uiStrings::phrSelect(tr("at least one well")) )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
     BufferStringSet msgs;

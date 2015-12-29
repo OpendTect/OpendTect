@@ -133,8 +133,7 @@ uiString ChainExecutor::errMsg() const
 Step* var = chain_.getStepFromID( id ); \
 if ( !var ) \
 { \
-    errmsg_ = mToUiStringTodo("Cannot find output step with id %1") \
-		  .arg( toString(id) ); \
+    errmsg_ = sGetStepErrMsg().arg(toString(id)); \
     return errret; \
 }
 
@@ -933,7 +932,7 @@ bool Chain::usePar( const IOPar& par )
 	if ( !par.get(sKey::Output(),outputstepid,outputslotid) ||
 	     !setOutputSlot(outputstepid,outputslotid) )
 	{
-	    errmsg_ = tr("Could not parse or set output slot.");
+	    errmsg_ = tr("Cannot parse or set output slot.");
 	    return false;
 	}
 
@@ -949,7 +948,8 @@ bool Chain::usePar( const IOPar& par )
 
 	    if ( !addConnection(newconn) )
 	    {
-		errmsg_ = tr( "Cannot add connection %1").arg( toString(idx) );
+		errmsg_ = uiStrings::phrCannotAdd(tr("connection %1")
+				    .arg( toString(idx)) );
 		return false;
 	    }
 	}

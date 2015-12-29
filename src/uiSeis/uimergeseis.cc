@@ -88,7 +88,8 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     TypeSet<MultiID> chosenids;
     inpfld_->getChosen( chosenids );
     if ( chosenids.size()  < 2 )
-	{ uiMSG().error( tr("Please select at least 2 inputs") ); return false;}
+	{ uiMSG().error( uiStrings::phrSelect(tr("at least 2 inputs")) ); 
+								return false;}
 
     outpar.set( sKey::ID(), outioobj->key() );
 

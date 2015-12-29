@@ -67,7 +67,7 @@ bool uiSeis2DFrom3D::acceptOK( CallBacker* )
     subselfld_->selectedGeomIDs( geomids );
     if ( geomids.isEmpty() )
     {
-	uiMSG().error( tr("Please select at least one line") );
+	uiMSG().error( uiStrings::phrSelect(tr("at least one line")) );
 	return false;
     }
 

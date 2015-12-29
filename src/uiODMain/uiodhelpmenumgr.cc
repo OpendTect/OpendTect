@@ -153,7 +153,7 @@ uiString uiODHelpMenuMgr::getAboutString()
 	     "<a href=\"http://dgbes.com/index.php/products/licenses\">"
 	     "here</a>.<br>" );
     str.add( "</html>" );
-    return mToUiStringTodo(str);
+    return toUiString(str);
 }
 
 

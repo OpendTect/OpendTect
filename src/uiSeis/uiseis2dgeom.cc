@@ -85,7 +85,7 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
     BufferString fnm( outfld_->fileName() );
     if ( fnm.isEmpty() )
     {
-        uiMSG().error( tr("Please enter the output file name") );
+        uiMSG().error( uiStrings::phrEnter(tr(" the output file name")) );
         return false;
     }
 

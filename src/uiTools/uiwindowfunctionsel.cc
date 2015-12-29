@@ -50,12 +50,12 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	uiGenInput* varinpfld = 0;
 	if ( winfunc && winfunc->hasVariable() )
 	{
-	    uiString varname (toUiString("%1%").arg(mToUiStringTodo(
+	    uiString varname (toUiString("%1%").arg(toUiString(
 						    winfunc->variableName())) );
 	    float v = winfunc->getVariable() * 100;
 	    if ( su.with2fldsinput_ )
 	    {
-		uiString twosidedvarname( mToUiStringTodo(su.inpfldtxt_) );
+		uiString twosidedvarname( toUiString(su.inpfldtxt_) );
 		varinpfld = new uiGenInput( this, twosidedvarname,
 					FloatInpSpec(v), FloatInpSpec(v) );
 	    }

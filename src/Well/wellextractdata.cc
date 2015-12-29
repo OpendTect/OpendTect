@@ -398,7 +398,7 @@ void Well::ExtractParams::setEmpty()
 bool Well::ExtractParams::isOK( uiString* errmsg ) const
 {
     if ( !mIsUdf( zstep_ ) && zstep_ < 0 )
-	 mErrRet( tr("Please Enter a valid step value") );
+	 mErrRet( uiStrings::phrEnter(tr("a valid step value")) );
 
     return ZRangeSelector::isOK( errmsg );
 }

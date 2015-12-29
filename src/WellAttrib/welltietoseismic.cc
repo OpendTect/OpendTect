@@ -84,13 +84,14 @@ bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
 	mErrRet( tr( "No depth/time model computed" ) )
 
     if ( !setAIModel() )
-	mErrRet( tr( "Could not setup for raytracing" ) )
+	mErrRet( tr( "Cannot setup for raytracing" ) )
 
     if ( !doFullSynthetics(wvlt) )
-	mErrRet( tr( "Could not compute the synthetic trace" ) )
+	mErrRet( tr( "Cannot compute the synthetic trace" ) )
 
     if ( !copyDataToLogSet() )
-	mErrRet( tr( "Could not copy the AI model to composite logs" ) )
+	mErrRet( uiStrings::phrCannotCopy(tr(
+					   "the AI model to composite logs")) )
 
     return true;
 }
@@ -499,7 +500,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     ObjectSet<const ReflectivityModel> refmodels;
     rm.getRefs( refmodels, true );
     if ( refmodels.isEmpty() )
-	mErrRet( tr("Could not retrieve the reflectivities after ray-tracing") )
+	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )
 
     refmodel_ = *refmodels[0];
     data_.synthtrc_ = *rm.stackedTrc();

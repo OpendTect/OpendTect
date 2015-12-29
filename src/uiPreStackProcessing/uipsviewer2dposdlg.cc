@@ -516,7 +516,7 @@ bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
 {
     if ( selgatherfld_->isEmpty() )
     {
-	uiMSG().error( tr("Please select at least one dataset") );
+	uiMSG().error( uiStrings::phrSelect(tr("at least one dataset")) );
 	return false;
     }
     selgathers_.erase();

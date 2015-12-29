@@ -157,7 +157,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
     getFromScreen();
     BufferString unnm( unitnmfld_->text() );
     if ( unnm.isEmpty() || unnm == Strat::RefTree::sKeyNoCode() )
-	{ mErrRet( tr("Please specify a valid unit name"), return false ) }
+	{mErrRet(uiStrings::phrSpecify(tr("a valid unit name")), return false)}
     else
     {
 	if(!checkWrongChar( unnm.getCStr())) return false;
@@ -181,7 +181,7 @@ bool uiStratUnitEditDlg::acceptOK( CallBacker* )
 
     if ( unit_.isLeaved() && lithids_.size() <= 0 )
     {
-	mErrRet( tr("Please specify at least one lithology"),
+	mErrRet( uiStrings::phrSpecify(tr("at least one lithology")),
 	    if ( !unitlithfld_->size() )
 		selLithCB( 0 );
 	    return false; );
@@ -318,7 +318,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     if ( selfld_->isPresent( nm ) || lithos.isPresent( nm.buf() ) )
-	{ mErrRet( tr("Please specify a new, unique name"), return ) }
+	{ mErrRet(uiStrings::phrSpecify(tr("a new, unique name")), return)  }
 
     const int lithid = selfld_->size();
     const bool isporous = isporbox_->isChecked();
@@ -760,8 +760,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	     errmsg.append(tr("Unit name previously used in the list. "));
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg.append(tr("Please specify a new name for the unit number %1")
-			.arg(idx+1));
+	    errmsg.append(uiStrings::phrSpecify(tr(
+			    "a new name for the unit number %1").arg(idx+1)));
 	    mErrRet( errmsg, deepErase( units); return false )
 	}
     }

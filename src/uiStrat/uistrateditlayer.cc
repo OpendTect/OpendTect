@@ -103,10 +103,10 @@ bool uiStratEditLayer::getFromScreen( bool emituierrs )
 	const float val = valflds_[ival]->getValue();
 	uiString msg;
 	if ( mIsUdf(val) )
-	    msg =  tr("Please enter a value for %1") 
-		 .arg( valflds_[ival]->propName() );
+	    msg =  uiStrings::phrEnter(tr("a value for %1") 
+		 .arg( valflds_[ival]->propName()));
 	else if ( ival == 0 && val <= 0 )
-	    msg = tr("Please set the thickness to a positive number");
+	    msg = tr("Please Set the thickness to a positive number");
 	if ( !msg.isEmpty() )
 	    { if ( emituierrs ) uiMSG().error( msg ); return false; }
 

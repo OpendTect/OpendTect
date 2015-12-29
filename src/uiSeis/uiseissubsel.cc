@@ -252,7 +252,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     {
 	if ( !multilnmsel_->nrSelected() )
 	{
-	    uiMSG().error( tr("Please select at least one line") );
+	    uiMSG().error( uiStrings::phrSelect(tr("at least one line")) );
 	    return false;
 	}
 
@@ -262,7 +262,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     const FixedString sellinenm( singlelnmsel_->getInput() );
     if ( sellinenm.isEmpty() )
     {
-	uiMSG().error( tr("Please select the line") );
+	uiMSG().error( uiStrings::phrSelect(tr("the line")) );
 	return false;
     }
 

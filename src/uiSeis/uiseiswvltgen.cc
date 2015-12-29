@@ -51,7 +51,7 @@ uiSeisWvltCreate::~uiSeisWvltCreate()
 bool uiSeisWvltCreate::putWvlt( const Wavelet& wvlt )
 {
     if ( !wvltfld_->commitInput() )
-	mErrRet( tr("Please enter a name for the new Wavelet") );
+	mErrRet( uiStrings::phrEnter(tr("a name for the new Wavelet")) );
 
     if ( !wvlt.put(ctio_.ioobj_) )
 	mErrRet( tr("Cannot write wavelet") )

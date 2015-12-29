@@ -37,9 +37,9 @@ uiAGC::uiAGC( uiParent* p, AGC* sgagc )
                                     mODHelpKey(mPreStackAGCHelpID) ) )
     , processor_( sgagc )
 {
-    BufferString unit;
-    processor_->getWindowUnit( unit, true );
-    uiString label = tr("Window width %1").arg(mToUiStringTodo(unit));
+    uiString unit;
+    processor_->getWindowUiUnit( unit, true );
+    uiString label = tr("Window width %1").arg(unit);
     windowfld_ = new uiGenInput( this, label,
 			     FloatInpSpec(processor_->getWindow().width() ));
     lowenergymute_ = new uiGenInput( this, tr("Low energy mute (%)"),

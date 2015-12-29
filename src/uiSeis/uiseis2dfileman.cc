@@ -333,7 +333,7 @@ bool acceptOK( CallBacker* )
 {
     const char* outnm = outfld_->text();
     if ( !outnm || !*outnm )
-	mErrRet( tr("Please enter a name for the merged line") );
+	mErrRet( uiStrings::phrEnter(tr("a name for the merged line")) );
 
     Pos::GeomID outgeomid = Geom2DImpHandler::getGeomID( outnm );
     if ( outgeomid == mUdfGeomID )
@@ -366,7 +366,7 @@ bool acceptOK( CallBacker* )
     {
 	lmrgr.snapdist_ = snapdistfld_->getdValue();
 	if ( mIsUdf(lmrgr.snapdist_) || lmrgr.snapdist_ < 0 )
-	    mErrRet( tr("Please specify a valid snap distance") );
+	    mErrRet( uiStrings::phrSpecify(tr("a valid snap distance")) );
     }
 
     uiTaskRunner taskrun( this );

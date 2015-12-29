@@ -278,7 +278,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     {
 	if ( mIsUdf(table_->getfValue(rc)) )
 	{
-	    uiMSG().error( tr("Please enter a valid number") );
+	    uiMSG().error( uiStrings::phrEnter(tr("a valid number")) );
 	    table_->clearCell( rc );
 	    return;
 	}

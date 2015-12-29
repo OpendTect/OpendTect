@@ -459,7 +459,7 @@ bool acceptOK( CallBacker* )
     pos_ = posfld_->getBinID();
     if ( !SI().isReasonable(pos_) )
     {
-	uiMSG().error( tr("Please specify a valid position") );
+	uiMSG().error(uiStrings::phrSpecify(tr("a valid position")));
 	return false;
     }
 

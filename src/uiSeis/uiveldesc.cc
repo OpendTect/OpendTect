@@ -209,14 +209,14 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
     PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );
     if ( !ioobj )
     {
-	uiMSG().error(tr("Please select a valid volume cube."));
+	uiMSG().error(uiStrings::phrSelect(tr("a valid volume cube.")));
 	return false;
     }
 
     VelocityDesc desc;
     if ( !veldescfld_->get( desc, true ) )
     {
-	uiMSG().error(tr("Please provide valid velocity type"));
+	uiMSG().error(tr("Provide valid velocity type"));
 	return false;
     }
 
@@ -454,7 +454,7 @@ bool uiVelModelZAxisTransform::acceptOK()
     }
 
     if ( !transform_ )
-	mErrRet(tr("Could not allocate memory"));
+	mErrRet(tr("Cannot allocate memory"));
 
     transform_->ref();
     if ( !transform_->setVelData( ioobj->key()  ) || !transform_->isOK() )

@@ -70,7 +70,7 @@ public:
 
 uiVendorTreeItem::uiVendorTreeItem( uiTreeView* p,
 				    const char* vendorname, bool issel )
-    : uiTreeViewItem(p,Setup(mToUiStringTodo(vendorname)).
+    : uiTreeViewItem(p,Setup(toUiString(vendorname)).
 				    type(uiTreeViewItem::CheckBox))
 {
     setChecked( issel, true );
@@ -104,7 +104,7 @@ protected:
 
 uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* p,
 					PluginProduct& prod )
-    : uiTreeViewItem(p, Setup(mToUiStringTodo(prod.productname_))
+    : uiTreeViewItem(p, Setup(toUiString(prod.productname_))
 		    .iconname(prod.pckgnm_).type(uiTreeViewItem::CheckBox))
     , product_(prod)
 {

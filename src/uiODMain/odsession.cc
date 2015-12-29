@@ -234,9 +234,9 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 	return false;
     }
 
-    err = mToUiStringTodo(trans->read( session, *conn ));
+    err = toUiString(trans->read( session, *conn ));
     bool rv = err.isEmpty();
-    if ( rv ) err = mToUiStringTodo(trans->warningMsg());
+    if ( rv ) err = trans->warningUiMsg();
     return rv;
 }
 
@@ -261,7 +261,7 @@ bool ODSessionTranslator::store( const ODSession& session,
        return false;
     }
 
-    err = mToUiStringTodo(trans->write( session, *conn ) );
+    err = toUiString(trans->write( session, *conn ) );
     return err.isEmpty();
 }
 

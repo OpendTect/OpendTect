@@ -71,14 +71,14 @@ bool uiEventImport::acceptOK( CallBacker* )
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, importer ) )
     {
-	uiMSG().error( tr("Could not import PreStack Events") );
+	uiMSG().error( tr("Cannot import PreStack Events") );
 	return false;
     }
 
     EventWriter writer( outputfld_->getIOObj(), *mgr );
     if( !TaskRunner::execute( &taskrunner, writer ) )
     {
-	uiMSG().error( tr("Could not write PreStack Events") );
+	uiMSG().error( uiStrings::phrCannotWrite(tr("PreStack Events")) );
 	return false;
     }
 

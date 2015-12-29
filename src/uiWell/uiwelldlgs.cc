@@ -432,7 +432,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
     if ( dlg.fnm_.isEmpty() )
     {
-	uiMSG().error( tr("Please select a file") );
+	uiMSG().error( uiStrings::phrSelect(tr("a file")) );
 	return;
     }
 
@@ -531,7 +531,7 @@ void uiWellTrackDlg::updatePos( bool isx )
     const double newpos = posfld->getdValue();
     if ( mIsUdf(newpos) )
     {
-	uiMSG().error( tr("Please enter a valid coordinate") );
+	uiMSG().error( uiStrings::phrEnter(tr("a valid coordinate")) );
 	posfld->setValue( surfacepos );
 	return;
     }
@@ -574,8 +574,8 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
     float kbelevorig = track_.isEmpty() ? 0.f : track_.getKbElev();
     if ( mIsUdf(newkbelev) )
     {
-	uiMSG().error( tr("Please enter a valid %1")
-				  .arg(Well::Info::sKBElev()) );
+	uiMSG().error( uiStrings::phrEnter(tr("a valid %1")
+				  .arg(Well::Info::sKBElev())) );
 	kbelevfld_->setValue( mConvertVal(kbelevorig,true) );
 	return;
     }
@@ -1077,7 +1077,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const RowCol rcin(row,incol);
     if ( mIsUdf(getDepthValue(row,incol)) )
     {
-	uiMSG().error( tr("Please enter a valid number") );
+	uiMSG().error( uiStrings::phrEnter(tr("a valid number")) );
 	if ( !newrow )
 	    setDepthValue( row, incol, oldval );
 
@@ -1183,7 +1183,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     const float oldval = newrow ? mUdf(float) : d2t->value( row );
     if ( mIsUdf(getTimeValue(row)) )
     {
-	uiMSG().error( tr("Please enter a valid number") );
+	uiMSG().error( uiStrings::phrEnter(tr("a valid number")) );
 	if ( !newrow )
 	    setTimeValue( row, oldval );
 
@@ -1474,8 +1474,8 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     const float replvel = mConvertVal(replvelfld_->getfValue(),false);
     if ( mIsUdf(replvel) || replvel < 0.001f )
     {
-	uiMSG().error( tr("Please enter a valid %1")
-		       .arg(Well::Info::sReplVel()) );
+	uiMSG().error( uiStrings::phrEnter(tr("a valid %1")
+		       .arg(Well::Info::sReplVel())) );
 	replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
 	return;
     }
@@ -1661,11 +1661,11 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
 {
     BufferString newnm( text() );
     if ( newnm.trimBlanks().isEmpty() )
-	mErrRet( tr("Please enter a name") )
+	mErrRet( uiStrings::phrEnter(tr("a name")) )
 
     if ( nms_->isPresent(newnm) )
-	mErrRet( tr("Please specify a new name.\n"
-		    "Wells can be removed in 'Manage wells'") )
+	mErrRet( uiStrings::phrSpecify(tr("a new name.\n"
+		    "Wells can be removed in 'Manage wells'")) )
 
     name_ = newnm;
     return true;

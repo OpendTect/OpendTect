@@ -809,7 +809,7 @@ bool acceptOK( CallBacker* )
 
     const Strat::UnitRef* ur = unfld_->firstChosen();
     if ( !ur || !ur->isLeaf() )
-	{ uiMSG().error(tr("Please select the layer")); return false; }
+	{ uiMSG().error(uiStrings::phrSelect(tr("the layer"))); return false; }
 
     edun_->setUnit( static_cast<const Strat::LeafUnitRef*>(ur) );
     edun_->properties() = workprops_;

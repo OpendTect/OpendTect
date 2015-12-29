@@ -240,7 +240,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     if ( !outpfld_->commitInput() )
     {
 	if ( outpfld_->isEmpty() )
-	    uiMSG().error( tr("Please enter an output data set name") );
+	    uiMSG().error( uiStrings::phrEnter(tr("an output data set name")) );
 	return false;
     }
 

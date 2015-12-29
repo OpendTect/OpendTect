@@ -367,7 +367,7 @@ bool uiSaveImageDlg::filenameOK() const
     BufferString filename = fileinputfld_->fileName();
     if ( filename.isEmpty() )
     {
-	uiMSG().error( tr("Please select filename") );
+	uiMSG().error( uiStrings::phrSelect(tr("filename")) );
 	return false;
     }
 

@@ -180,7 +180,7 @@ bool uiStepDialog::acceptOK( CallBacker* )
     const BufferString nm( namefld_->text() );
     if ( nm.isEmpty() )
     {
-	uiMSG().error( tr("Please enter a name for this step") );
+	uiMSG().error( uiStrings::phrEnter(tr("a name for this step")) );
 	return false;
     }
 

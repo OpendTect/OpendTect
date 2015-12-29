@@ -33,12 +33,20 @@ static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
 }
 
 
+ static uiString gtDlgUiTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
+ { 
+     return od_static_tr("gtDlgUiTitle","%1 parameters for %2 attribute")
+		 .arg(isnew ? uiStrings::sDefine() : uiStrings::sEdit())
+		 .arg(lsa.LaySeqAttrib::prop_.name()); 
+ }
+
+
 uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
 				   const uiLaySeqAttribEd::Setup& edsu )
     : uiDialog(p,uiDialog::Setup(edsu.isnew_ ? tr("Add attribute")
                                              : tr("Edit attribute"),
-		                 mToUiStringTodo(gtDlgTitle(lsa,edsu.isnew_)),
+		                 gtDlgUiTitle(lsa,edsu.isnew_),
                                  mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
     , reftree_(rt)
@@ -239,8 +247,8 @@ bool uiLaySeqAttribEd::getFromScreen()
 
 	if ( uns.isEmpty() || (!lithofld_->isEmpty() && liths.isEmpty()) )
 	{
-	    uiMSG().error(tr("Please select at least"
-                             " one unit and one lithology"));
+	    uiMSG().error(uiStrings::phrSelect(tr("at least"
+                             " one unit and one lithology")));
 	    return false;
 	}
     }
@@ -252,8 +260,8 @@ bool uiLaySeqAttribEd::getFromScreen()
     if ( havetr
       && (trval == 0 || (tridx == (int)(Strat::LaySeqAttrib::Log) && trval<0)))
     {
-	uiMSG().error(
-		tr("Please enter a correct %1").arg( valfld_->titleText() ));
+	uiMSG().error(uiStrings::phrEnter(tr("a correct %1")
+						.arg(valfld_->titleText())));
 	return false;
     }
 

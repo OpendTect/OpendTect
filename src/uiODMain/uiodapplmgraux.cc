@@ -462,12 +462,12 @@ void uiODApplMgrDispatcher::openXPlot()
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
     PosVecDataSet pvds;
-    BufferString errmsg;
+    uiString errmsg;
     bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     MouseCursorManager::restoreOverride();
 
     if ( !rv )
-	{ uiMSG().error(mToUiStringTodo( errmsg ) ); return; }
+	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 

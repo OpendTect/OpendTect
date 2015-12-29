@@ -154,7 +154,8 @@ void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
     const float newpos = table_->getFValue( rc );
     if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
-	uiMSG().error( tr("Please enter position between 0 & 1 for Markers ") );
+	uiMSG().error( uiStrings::phrEnter(tr(
+				    "position between 0 & 1 for Markers ")) );
 	table_->setValue( rc, ctab_.position(rc.row()) );
 	return;
     }

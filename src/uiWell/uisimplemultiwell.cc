@@ -346,7 +346,8 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 	vel_ = zun_->internalValue( vel_ );
 
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
-	{ uiMSG().error(tr("Please enter a valid velocity")); return false; }
+	{ uiMSG().error(uiStrings::phrEnter(tr("a valid velocity"))); 
+								return false; }
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
 

@@ -309,7 +309,7 @@ bool uiSeisMMProc::removeTmpProcFiles()
     }
 
     if ( !removed )
-	errmsg_ = tr("Could not remove all temporary seismics");
+	errmsg_ = uiStrings::phrCannotRemove(tr("all temporary seismics"));
 
     return removed;
 }

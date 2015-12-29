@@ -1653,8 +1653,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	attrserv_->getDirectShowAttrSpec( as );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( tr("Please select an attribute"
-                              " element in the tree") );
+	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
+                              " element in the tree")) );
 	    return false;
 	}
 
@@ -1687,13 +1687,13 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( tr("Please select an attribute"
-                              " element in the tree") );
+	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
+                              " element in the tree")) );
 	    return false;
 	}
 	if ( !calcMultipleAttribs( as ) )
 	{
-	    uiMSG().error( tr("Could not evaluate this attribute") );
+	    uiMSG().error( tr("Cannot evaluate this attribute") );
 	    return false;
 	}
 

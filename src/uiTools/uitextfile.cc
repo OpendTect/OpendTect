@@ -372,7 +372,7 @@ bool uiTextFileDlg::rejectOK( CallBacker* cb )
 	return false;
 
     if ( !editor_->reLoad() )
-	doMsg( "Cannot re-load file. Possibly the file no longer exists." );
+	doMsg( tr("Cannot re-load file. Possibly the file no longer exists.") );
 
     return false;
 }
@@ -391,9 +391,24 @@ int uiTextFileDlg::doMsg( const char* msg, bool iserr )
     uiMsgMainWinSetter setter( this );
 
     if ( iserr )
-	uiMSG().error( mToUiStringTodo(msg) );
+	uiMSG().error( toUiString(msg) );
     else
-	ret = uiMSG().askGoOnAfter( mToUiStringTodo(msg) );
+	ret = uiMSG().askGoOnAfter( toUiString(msg) );
+
+    return ret;
+}
+
+
+int uiTextFileDlg::doMsg( const uiString& msg, bool iserr )
+{
+    int ret = 0;
+
+    uiMsgMainWinSetter setter( this );
+
+    if ( iserr )
+	uiMSG().error( msg );
+    else
+	ret = uiMSG().askGoOnAfter( msg );
 
     return ret;
 }
@@ -404,13 +419,14 @@ bool uiTextFileDlg::okToExit()
     if ( !editor_->isModified() )
 	return true;
 
-    const BufferString msg( "File:\n", editor_->fileName(),
-			"\nwas modified. Save now?" );
+    const uiString msg = tr( "File:\n%1\nwas modified. Save now?")
+						    .arg(editor_->fileName());
     int opt = doMsg( msg, false );
     if ( opt == -1 )
 	return false;
     else if ( opt == 1 && !editor_->save() )
-	{ doMsg( "Could not save.\nPlease try 'Save As'" ); return false; }
+	{ doMsg( uiStrings::phrCannotSave(tr(".\nPlease try 'Save As'")) ); 
+								return false; }
 
     return true;
 }

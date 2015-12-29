@@ -151,7 +151,8 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     const int res = MPE::engine().addTracker( emobj );
     if ( res == -1 )
     {
-	uiMSG().error(tr("Could not create tracker for this object"));
+	uiMSG().error(uiStrings::phrCannotCreate(
+						tr("tracker for this object")));
 	return -1;
     }
 

@@ -89,8 +89,8 @@ bool uiAngleCompGrp::acceptOK()
 	params_.mutecutoff_ = anglefld_->getfValue();
 	if ( !normalanglevalrange.includes(params_.mutecutoff_,false) )
 	{
-	    uiMSG().error(
-		   tr("Please select the mute cutoff between 0 and 90 degree"));
+	    uiMSG().error(uiStrings::phrSelect(tr("the mute cutoff between "
+							   "0 and 90 degree")));
 	    return false;
 	}
     }
@@ -101,7 +101,7 @@ bool uiAngleCompGrp::acceptOK()
 
 	if ( !normalanglevalrange.includes(anglerange,false) )
 	{
-	    uiMSG().error(tr("Please provide angle range"
+	    uiMSG().error(tr("Provide angle range"
                 " between 0 and 90 degree"));
 	    return false;
 	}

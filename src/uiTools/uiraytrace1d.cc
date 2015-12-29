@@ -42,7 +42,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     {
 	const OD::String& facnm( facnms.get(idx) );
 	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] : 
-			       mToUiStringTodo(facnm) );
+			       toUiString(facnm) );
 
 	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
 	if ( grp )

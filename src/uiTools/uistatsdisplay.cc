@@ -95,7 +95,7 @@ void uiStatsDisplay::setDataName( const char* nm )
 {
     if ( namefld_ )
     {
-	namefld_->setText( mToUiStringTodo(nm) );
+	namefld_->setText( toUiString(nm) );
 	namefld_->setAlignment( OD::Alignment::HCenter );
     }
 }
@@ -330,8 +330,8 @@ void uiStatsDisplayWin::setDataName( const char* nm, int idx )
 {
     if ( statnmcb_ )
     {
-	idx > statnmcb_->size()-1 ? statnmcb_->addItem(mToUiStringTodo(nm))
-			 : statnmcb_->setItemText(idx,mToUiStringTodo(nm));
+	idx > statnmcb_->size()-1 ? statnmcb_->addItem(toUiString(nm))
+			 : statnmcb_->setItemText(idx,toUiString(nm));
 	return;
     }
 

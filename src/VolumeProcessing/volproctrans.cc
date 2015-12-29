@@ -46,7 +46,7 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
     if ( !conn )
     { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
 
-    bs = mToUiStringTodo(tr->read( vr, *conn ));
+    bs = toUiString(tr->read( vr, *conn ));
     if ( bs.isEmpty() )
     {
 	vr.setStorageID( ioobj->key() );
@@ -79,7 +79,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
     if ( !conn )
     { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); }
     else
-	bs = mToUiStringTodo(tr->write( vr, *conn ));
+	bs = toUiString(tr->write( vr, *conn ));
 
     return bs.isEmpty();
 }

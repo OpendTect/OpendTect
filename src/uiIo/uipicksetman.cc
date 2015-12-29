@@ -59,7 +59,7 @@ void uiPickSetMan::ownSelChg()
     selgrp_->getChosen( chsnnms );
     uiString tt;
     if ( chsnnms.size() > 1 )
-	tt = uiStrings::phrMerge( mToUiStringTodo(chsnnms.getDispString(2)) );
+	tt = uiStrings::phrMerge( toUiString(chsnnms.getDispString(2)) );
     else
 	tt = uiStrings::phrMerge(uiStrings::sPickSet());
 

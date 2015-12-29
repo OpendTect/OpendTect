@@ -68,7 +68,7 @@ void update( const RockPhysics::Formula::ConstDef* pcd )
     cstnm_ = cd.name();
 
     nmlbl_->setText( od_static_tr("update",
-			      "Value for '%1'").arg(mToUiStringTodo(cstnm_)) );
+			      "Value for '%1'").arg(cstnm_) );
     infofld_->setInfo( cd.desc_, od_static_tr("update","Information on '%1'").
 						      arg(toUiString(cstnm_)) );
     valfld_->setValue( cd.defaultval_ );

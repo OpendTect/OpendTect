@@ -128,9 +128,9 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 	mErrRet(tr("Please provide the Bottom value"))
 
     if ( (usetophor && !tophorfld_->commitInput()) )
-	mErrRet(tr("Please select the top horizon"))
+	mErrRet(uiStrings::phrSelect(tr("the top horizon")))
     if ( (usebothor && !bottomhorfld_->commitInput()) )
-	mErrRet(tr("Please select the bottom horizon"))
+	mErrRet(uiStrings::phrSelect(tr("the bottom horizon")))
 
     if ( usetophor && usebothor && tophorfld_->ctxtIOObj().ioobj_->key()
 				== bottomhorfld_->ctxtIOObj().ioobj_->key() )

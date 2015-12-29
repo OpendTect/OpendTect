@@ -66,7 +66,7 @@ bool uiLateralStack::acceptOK( CallBacker* )
 
     if ( !processor_->setPattern( stepout, iscrossfld_->getBoolValue() ) )
     {
-	uiMSG().error(tr("Could not set stack pattern"));
+	uiMSG().error(tr("Cannot set stack pattern"));
 	return false;
     }
 

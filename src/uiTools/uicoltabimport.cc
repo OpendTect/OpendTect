@@ -116,9 +116,9 @@ void uiColTabImport::usrSel( CallBacker* )
     FilePath fp( dirfld_->fileName() );
     if ( !File::exists(fp.fullPath()) )
     {
-	uiMSG().error(tr("Please select an existing %1")
+	uiMSG().error(uiStrings::phrSelect(tr("an existing %1")
 		    .arg(fromuser ? uiStrings::sDirectory().toLower()
-			          : uiStrings::sFile().toLower() ));
+			          : uiStrings::sFile().toLower() )));
 	return;
     }
 

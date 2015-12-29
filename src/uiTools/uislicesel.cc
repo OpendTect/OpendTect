@@ -154,7 +154,7 @@ public:
 
 uiSliceScroll( uiSliceSel* ss )
 	: uiDialog(ss,uiDialog::Setup(tr("Scrolling"),
-				      mToUiStringTodo(getTitle(ss)),
+				      getTitle(ss),
                                       mODHelpKey(mSliceScrollHelpID) )
 				      .modal(false))
 	, slcsel_(ss)

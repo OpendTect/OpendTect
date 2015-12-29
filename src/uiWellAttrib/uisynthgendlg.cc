@@ -343,7 +343,7 @@ bool uiSynthGenDlg::getFromScreen()
 {
     const char* nm = namefld_->text();
     if ( !nm )
-	mErrRet(tr("Please specify a valid name"),return false);
+	mErrRet(uiStrings::phrSpecify(tr("a valid name")),return false);
 
     stratsynth_.genParams().raypars_.setEmpty();
 
@@ -438,7 +438,7 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
     if ( !getFromScreen() ) return false;
 
     if ( stratsynth_.genParams().name_ == SynthGenParams::sKeyInvalidInputPS() )
-	mErrRet( tr("Please enter a different name"), return false );
+	mErrRet( uiStrings::phrEnter(tr("a different name")), return false );
 
     if ( synthnmlb_->isPresent(stratsynth_.genParams().name_) )
     {

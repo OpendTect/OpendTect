@@ -207,7 +207,7 @@ bool uiODVw2DPickSetTreeItem::init()
 	vw2dpickset_ = pickdisplay;
     }
 
-    name_ = mToUiStringTodo(pickset_.name());
+    name_ = toUiString(pickset_.name());
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     displayMiniCtab();

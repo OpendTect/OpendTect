@@ -75,7 +75,7 @@ bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Well() );
     if ( !wellfld_->nrSelected() )
-	mErrRet(tr("Please select at least one well"))
+	mErrRet(uiStrings::phrSelect(tr("at least one well")))
 
     wellfld_->fillPar( iop );
     float zext = 0; bool onlysurfacecoords = true;

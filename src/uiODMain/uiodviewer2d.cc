@@ -806,12 +806,12 @@ void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 	{
 	    const Geometry::RandomLine* rdmline =
 			Geometry::RLM().get( rdmlineid_ );
-	    if ( rdmline ) info = mToUiStringTodo( rdmline->name() );
+	    if ( rdmline ) info = toUiString( rdmline->name() );
 	}
 	else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
 	{
 	    info.arg( tr("Line") )
-		.arg( mToUiStringTodo( Survey::GM().getName(geomID()) ) );
+		.arg( toUiString( Survey::GM().getName(geomID()) ) );
 	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	{
@@ -830,8 +830,7 @@ void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 	}
     }
 
-    uiString title = toUiString("%1%2").arg( mToUiStringTodo(basetxt_) )
-				       .arg( info );
+    uiString title = toUiString("%1%2").arg(basetxt_).arg(info);
     if ( viewwin() )
 	viewwin()->setWinTitle( title );
 }

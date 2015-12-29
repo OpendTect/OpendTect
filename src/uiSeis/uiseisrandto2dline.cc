@@ -88,9 +88,9 @@ bool uiSeisRandTo2DBase::getRandomLineGeom( Geometry::RandomLineSet& geom) const
     if ( !rdlfld_ || !rdlfld_->ioobj(true) )
 	return false;
 
-    BufferString msg;
+    uiString msg;
     if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
-	mErrRet( mToUiStringTodo(msg) );
+	mErrRet( msg );
 
     return true;
 }
@@ -120,11 +120,11 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 
     const BufferString linenm = linenmfld_->getInput();
     if ( linenm.isEmpty() )
-	mErrRet( tr("Please enter a Line Name") )
+	mErrRet( uiStrings::phrEnter(tr("a Line Name")) )
 
     const int trcnrstart = trcnrfld_->getIntValue();
     if ( mIsUdf(trcnrstart) || trcnrstart <= 0 )
-	mErrRet( tr("Please specify a valid start trace number") )
+	mErrRet( uiStrings::phrSpecify(tr("a valid start trace number")) )
 
     Geometry::RandomLineSet geom;
     const Geometry::RandomLine* rdl = rdlgeom_;

@@ -194,11 +194,12 @@ bool acceptOK( CallBacker* )
 {
     nrsel = selfld->nrChosen();
     if ( nrsel < 2 )
-    { uiMSG().error(tr("Please select at least two sets")); return false; }
+    { uiMSG().error(uiStrings::phrSelect(tr("at least two sets"))); 
+								return false; }
     else if (!outfld->commitInput())
     {
 	uiMSG().error(uiStrings::phrCannotCreate(
-					mToUiStringTodo(outfld->getInput()) ));
+					toUiString(outfld->getInput()) ));
 	return false;
     }
 

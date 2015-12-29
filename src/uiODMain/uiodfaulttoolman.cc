@@ -1408,7 +1408,7 @@ void uiODFaultToolMan::undoCB( CallBacker* )
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().unDo( 1, true  ) )
-	uiMSG().error(tr("Could not undo everything."));
+	uiMSG().error(tr("Cannot undo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
     uiMain::keyboardEventHandler().setHandled( true );
@@ -1421,7 +1421,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().reDo( 1, true  ) )
-	uiMSG().error(tr("Could not redo everything."));
+	uiMSG().error(tr("Cannot redo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
     uiMain::keyboardEventHandler().setHandled( true );

@@ -86,8 +86,8 @@ bool acceptOK( CallBacker* )
 {
     if ( !rtd_->createFromPolyLine() )
     {
-	uiMSG().error(tr("Please select at least two points"
-			 " on TimeSlice/Horizon"));
+	uiMSG().error(uiStrings::phrSelect(tr("at least two points"
+			 " on TimeSlice/Horizon")));
 	return false;
     }
     rtd_->setPolyLineMode( false );
@@ -558,9 +558,9 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    const IOObj* ioobj = dlg.ioObj();
 	    if ( !ioobj ) return;
 
-	    BufferString bs;
+	    uiString bs;
 	    if ( !RandomLineSetTranslator::store(lset,ioobj,bs) )
-		uiMSG().error( mToUiStringTodo(bs) );
+		uiMSG().error( bs );
 	    else
 	    {
 		uiString rdlname = ioobj->uiName();

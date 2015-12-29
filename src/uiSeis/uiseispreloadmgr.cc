@@ -352,7 +352,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     bool skiploadedgeomids = false;
     if ( !loadedgeomids.isEmpty() )
     {
-	uiString msg( mToUiStringTodo(IOM().nameOf(key)) );
+	uiString msg( toUiString(IOM().nameOf(key)) );
 	msg.append( " dataset for " );
 	msg.append( loadedgeomids.size()>1 ? "lines " : "line " );
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
@@ -452,14 +452,14 @@ bool acceptOK( CallBacker* )
 {
     if ( !ioObj() )
     {
-	uiMSG().error( tr("Please select a 2D Prestack Data Store") );
+	uiMSG().error( uiStrings::phrSelect(tr("a 2D Prestack Data Store")) );
 	return false;
     }
     lnms_.erase();
     lnmsfld_->getChosen( lnms_ );
     if ( lnms_.isEmpty() )
     {
-	uiMSG().error( tr("Please select one or more lines") );
+	uiMSG().error( uiStrings::phrSelect(tr("one or more lines")) );
 	return false;
     }
 

@@ -296,8 +296,8 @@ void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
 {
     Well::Writer wr( key, w );
     if ( !wr.putDispProps() )
-	uiMSG().error(tr("Could not write display properties for \n%1")
-		    .arg(w.name()));
+	uiMSG().error(uiStrings::phrCannotWrite(
+		      tr("display properties for \n%1").arg(w.name())));
 }
 
 
@@ -392,7 +392,7 @@ void uiWellPartServer::launchRockPhysics()
     uiWellRockPhysLauncher dlg( parent() );
     const int sz = dlg.selgrp_->size();
     if ( sz == 0 )
-	uiMSG().error( tr("Please create one or more wells first") );
+	uiMSG().error( uiStrings::phrCreate(tr("one or more wells first")) );
     else if ( sz > 1 )
 	dlg.go();
     else

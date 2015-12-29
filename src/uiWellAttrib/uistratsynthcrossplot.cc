@@ -220,13 +220,13 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	mErrRet( tr("No positions for data extraction") )
 
     if ( !seisattrs.isEmpty() && !extractSeisAttribs(*dps,seisattrs) )
-	mErrRet( tr("Could not extract any seismic attribute") )
+	mErrRet( uiStrings::phrCannotExtract(tr("any seismic attribute")) )
 
     if ( !seqattrs.isEmpty() && !extractLayerAttribs(*dps,seqattrs,stoplvl) )
-	mErrRet( tr("Could not extract any layer attribute") );
+	mErrRet( uiStrings::phrCannotExtract(tr("any layer attribute")) );
 
     if ( !extractModelNr(*dps) )
-	uiMSG().warning( tr("Could not extract the model numbers") );
+	uiMSG().warning( uiStrings::phrCannotExtract(tr("the model numbers")) );
 
     return dps;
 }

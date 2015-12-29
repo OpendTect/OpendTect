@@ -217,7 +217,8 @@ void uiDirectionalPlot::drawScale()
     {
 	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt) );
 	scalestartptitem_ = scene().addItem(
-	    new uiMarkerItem(startpt,OD::MarkerStyle2D(OD::MarkerStyle2D::Circle,3)) );
+	    new uiMarkerItem(startpt,OD::MarkerStyle2D(
+						OD::MarkerStyle2D::Circle,3)) );
     }
     else
     {
@@ -240,7 +241,7 @@ void uiDirectionalPlot::drawScale()
     {
 	OD::Alignment al( mAlignment(HCenter,VCenter) );
 	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,
-						     mToUiStringTodo(nm),al) );
+						     toUiString(nm),al) );
 	al.set( OD::Alignment::Left );
 	scalestartitm_ = scene().addItem( new uiTextItem(startpt,
 						uiStrings::sEmptyString(),al) );
@@ -264,7 +265,7 @@ void uiDirectionalPlot::drawHeader()
     else if ( !hdrannotitm1_ )
     {
 	hdrannotitm1_ = scene().addItem( 
-			new uiTextItem(mToUiStringTodo(setup_.nameforval_),al));
+			new uiTextItem(toUiString(setup_.nameforval_),al));
 	hdrannotitm1_->setPos( uiPoint(0,0) );
     }
 
@@ -325,10 +326,11 @@ void uiDirectionalPlot::drawDirAnnot()
 			      : (idx == 1 ? uiStrings::sEast(true) 
 			      : (idx == 2 ? uiStrings::sSouth(true)
 			      		  : uiStrings::sWest(true)));
-	    OD::Alignment al( isew ? (idx==1 ? OD::Alignment::Left : OD::Alignment::Right)
-					  : OD::Alignment::HCenter,
+	    OD::Alignment al( isew ? (idx==1 ? OD::Alignment::Left : 
+				OD::Alignment::Right) : OD::Alignment::HCenter,
 		          isew ? OD::Alignment::VCenter
-			  : (idx == 2 ? OD::Alignment::Top : OD::Alignment::Bottom) );
+			  : (idx == 2 ? OD::Alignment::Top : 
+			  			  OD::Alignment::Bottom) );
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 

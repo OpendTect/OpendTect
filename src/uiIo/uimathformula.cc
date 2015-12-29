@@ -376,7 +376,7 @@ bool acceptOK( CallBacker* )
     {
 	const double val = inpflds_[idx]->getdValue();
 	if ( mIsUdf(val) )
-	{ uiMSG().error(tr("Please specify all values")); return false;	}
+	{uiMSG().error(uiStrings::phrSpecify(tr("all values"))); return false;}
 	form_.recStartVals()[idx] = val;
     }
     return true;

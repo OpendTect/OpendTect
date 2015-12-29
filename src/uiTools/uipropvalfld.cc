@@ -23,7 +23,7 @@ uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
     , lastsetvalue_(defval)
     , valueChanged(this)
 {
-    valfld_ = new uiGenInput(this, mToUiStringTodo(pr.name()), FloatInpSpec());
+    valfld_ = new uiGenInput(this, toUiString(pr.name()), FloatInpSpec());
     unfld_ = new uiUnitSel( this, pr.stdType() );
     if ( defunit )
 	unfld_->setUnit( defunit );

@@ -253,7 +253,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 
     if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180)
     {
-	uiMSG().error( tr("Please enter Phase between -180 and 180") );
+	uiMSG().error( uiStrings::phrEnter(tr("Phase between -180 and 180")) );
 	wvltphasefld_->setValue( 0 );
 	return false;
     }

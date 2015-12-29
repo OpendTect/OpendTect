@@ -44,7 +44,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     , setup_(su)
     , fd_( *Well::D2TModelAscIO::getDesc(setup_.withunitfld_) )
 {
-    filefld_ = new uiFileInput( this, mToUiStringTodo(setup_.filefldlbl_),
+    filefld_ = new uiFileInput( this, toUiString(setup_.filefldlbl_),
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
@@ -92,8 +92,8 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     if ( setup_.fileoptional_ && !filefld_->isChecked() )
     {
 	if ( velfld_->isUndef() )
-	    mErrRet( tr("Please enter the velocity for "
-			"generating the D2T model") )
+	    mErrRet( uiStrings::phrEnter(tr("the velocity for "
+			"generating the D2T model")) )
     }
 
     if ( wd.track().isEmpty() )
@@ -122,10 +122,10 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const char* fname = filefld_->fileName();
 	od_istream strm( fname );
 	if ( !strm.isOK() )
-	    mErrRet( tr("Could not open input file") )
+	    mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
 
 	if ( !dataselfld_->commit() )
-	    mErrRet( tr("Please specify data format") )
+	    mErrRet( uiStrings::phrSpecify(tr("data format")) )
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );

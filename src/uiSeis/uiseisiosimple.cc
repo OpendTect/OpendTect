@@ -447,7 +447,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	else
 	    linenm = lnmfld_->getInput();
 	if ( linenm.isEmpty() )
-	    mErrRet( tr("Please enter a line name") )
+	    mErrRet( uiStrings::phrEnter(tr("a line name")) )
 	if ( isimp_ )
 	{
 	    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );

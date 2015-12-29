@@ -366,14 +366,14 @@ void uiSelNrRange::doFinalise( CallBacker* )
     if ( withchk_ )
     {
 	cbox_ = new uiCheckBox( this, toUiString("%1 %2")
-		      .arg(mToUiStringTodo(lbltxt_)).arg(uiStrings::sRange()) );
+		      .arg(lbltxt_).arg(uiStrings::sRange()) );
 	cbox_->attach( leftTo, startfld_ );
 	cbox_->activated.notify( mCB(this,uiSelNrRange,checkBoxSel) );
 	setChecked( checked_ );
 	checkBoxSel(0);
     }
     else
-	new uiLabel( this,  toUiString("%1 %2").arg(mToUiStringTodo(lbltxt_))
+	new uiLabel( this,  toUiString("%1 %2").arg(lbltxt_)
 					.arg(uiStrings::sRange()), startfld_ );
 
     finalised_ = true;

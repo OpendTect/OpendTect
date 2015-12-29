@@ -136,8 +136,8 @@ void uiBulkTrackImport::addD2T( uiString& errmsg )
     const float vel = velocityfld_->getfValue();
     if ( vel<=0 || mIsUdf(vel) )
     {
-	errmsg = tr("Please enter a positive velocity "
-		    "for generating the D2T model");
+	errmsg = uiStrings::phrEnter(tr("a positive velocity "
+		    "for generating the D2T model"));
 	return;
     }
 
@@ -221,7 +221,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     }
 
     uiMSG().errorWithDetails( errors,
-		tr("Could not import all wells (see details)") );
+		uiStrings::phrCannotImport(tr("all wells (see details)")) );
     return false;
 }
 
@@ -258,7 +258,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     inpfld_->getFileNames( filenms );
     if ( filenms.isEmpty() )
     {
-	uiMSG().error( tr("Please select at least one file") );
+	uiMSG().error( uiStrings::phrSelect(tr("at least one file")) );
 	return false;
     }
 
@@ -310,7 +310,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     }
 
     uiMSG().errorWithDetails( errors,
-		tr("Could not import all LAS files (See details)") );
+		uiStrings::phrCannotImport(tr("all LAS files (See details)")) );
     return false;
 }
 
@@ -410,7 +410,8 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
     }
 
     uiMSG().errorWithDetails( errors,
-		tr("Could not import all marker files (See details)") );
+		uiStrings::phrCannotImport(
+					tr("all marker files (See details)")) );
     return false;
 }
 
@@ -530,7 +531,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
     }
 
     uiMSG().errorWithDetails( errors,
-		tr("Could not import all model files (See details)") );
+	      uiStrings::phrCannotImport(tr("all model files (See details)")));
     return false;
 }
 

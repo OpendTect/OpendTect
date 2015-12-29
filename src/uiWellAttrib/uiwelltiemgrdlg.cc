@@ -437,7 +437,7 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 {
     WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
-	uiMSG().error( tr("Could not write parameters") );
+	uiMSG().error( uiStrings::phrCannotWrite(tr("parameters")) );
 }
 
 

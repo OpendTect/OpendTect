@@ -660,10 +660,10 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     if ( !currentwvasynthetic_ || currentwvasynthetic_->isPS() )
     {
-	uiMSG().error(tr("Please select a post-stack synthetic in wiggle view. "
-		         "The scaling tool compares the amplitudes of the "
-		         "synthetic data at the selected Stratigraphic Level "
-		         "to real amplitudes along a horizon"));
+	uiMSG().error(uiStrings::phrSelect(tr("a post-stack synthetic in wiggle"
+			" view. The scaling tool compares the amplitudes of the"
+		        " synthetic data at the selected Stratigraphic Level"
+		        " to real amplitudes along a horizon")));
 	return false;
     }
 
@@ -681,9 +681,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	levelname = curSS().getLevel()->name();
     if ( levelname.isEmpty() || levelname.startsWith( "--" ) )
     {
-	uiMSG().error(tr("Please select a Stratigraphic Level.\n"
+	uiMSG().error(uiStrings::phrSelect(tr("a Stratigraphic Level.\n"
 			 "The scaling tool compares the amplitudes there\n"
-			 "to real amplitudes along a horizon"));
+			 "to real amplitudes along a horizon")));
 	return false;
     }
 

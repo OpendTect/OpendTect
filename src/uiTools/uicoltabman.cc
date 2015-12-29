@@ -213,7 +213,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	    status = sKeyOwn();
 
 	uiTreeViewItem* itm mUnusedVar = new uiTreeViewItem( coltablistfld_,
-		uiTreeViewItem::Setup().label(mToUiStringTodo(seq->name()))
+		uiTreeViewItem::Setup().label(toUiString(seq->name()))
 		.label(status) );
     }
 

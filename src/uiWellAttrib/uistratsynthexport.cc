@@ -364,8 +364,8 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		Survey::GM().getGeometry( linegeom.lineName() );
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
-		mErrRet(tr("Could not find the geometry of specified line"),
-			false)
+		mErrRet(uiStrings::phrCannotFind(tr(
+				    "the geometry of specified line")), false)
 	    linegeom = geom2d->data();
 	    return true;
 	}
@@ -400,9 +400,9 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	    if ( !randlineobj )
 		mErrRet( tr("No random line selected"), false )
 	    Geometry::RandomLineSet lset;
-	    BufferString errmsg;
+	    uiString errmsg;
 	    if ( !RandomLineSetTranslator::retrieve(lset,randlineobj,errmsg) )
-		mErrRet( mToUiStringTodo(errmsg), false )
+		mErrRet( errmsg, false )
 	    const ObjectSet<Geometry::RandomLine>& lines = lset.lines();
 	    BufferStringSet linenames;
 	    for ( int idx=0; idx<lines.size(); idx++ )

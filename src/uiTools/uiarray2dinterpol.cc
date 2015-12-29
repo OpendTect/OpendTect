@@ -544,8 +544,8 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 
     if ( mIsUdf(radius) || radius<=0 )
     {
-	uiMSG().error(tr("Please enter a positive value for the search radius\n"
-		         "(or uncheck the field)") );
+	uiMSG().error(uiStrings::phrEnter(tr("a positive value for the search "
+			 "radius\n(or uncheck the field)")) );
 	return false;
     }
 

@@ -118,7 +118,7 @@ bool uiPreStackSel::commitInput()
     }
 
     if ( selid_.isUdf() )
-	mErrRet( tr("Please select a valid input") )
+	mErrRet( uiStrings::phrSelect(tr("a valid input")) )
 
     return true;
 }

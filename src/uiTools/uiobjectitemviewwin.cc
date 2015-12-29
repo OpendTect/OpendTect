@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
-    : uiMainWin(p,mToUiStringTodo(su.wintitle_))
+    : uiMainWin(p,toUiString(su.wintitle_))
     , startwidth_(su.startwidth_)
     , startheight_(su.startheight_)
     , infoheight_(su.infoheight_)

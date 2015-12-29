@@ -152,7 +152,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     BufferString fname = inpfld_->text();
     if ( !fname.str() )
     {
-	uiMSG().error( tr("Please select the input filename") );
+	uiMSG().error( uiStrings::phrSelect(tr("the input filename")) );
 	return false;
     }
 

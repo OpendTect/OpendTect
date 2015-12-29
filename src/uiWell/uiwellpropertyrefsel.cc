@@ -288,7 +288,7 @@ bool uiWellPropSel::isOK() const
     {
 	if ( FixedString(propflds_[idx]->logName()) == sKeyPlsSel )
 	{
-	    uiMSG().error(tr("Please create/select a log for %1")
+	    uiMSG().error(tr("Create/select a log for %1")
 			.arg(propflds_[idx]->normPropRef().name()));
 	    return false;
 	}

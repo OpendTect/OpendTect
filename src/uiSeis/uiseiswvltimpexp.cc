@@ -81,10 +81,10 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( tr("Please enter the input file name") )
+	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
     if ( !wvltfld_->commitInput() )
 	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
-		: tr("Please enter a name for the new wavelet") )
+		: uiStrings::phrEnter(tr("a name for the new wavelet")) )
     if ( !dataselfld_->commit() )
 	return false;
     od_istream strm( fnm );
@@ -169,7 +169,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     if ( !ioobj ) return false;
     const BufferString fnm( outpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( tr("Please enter the output file name") )
+	mErrRet( uiStrings::phrEnter(tr("the output file name")) )
 
     PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
     if ( !wvlt )

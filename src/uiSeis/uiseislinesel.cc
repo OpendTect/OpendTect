@@ -358,7 +358,7 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
     if ( selidxs_.isEmpty() )
     {
 	if ( doerr )
-	    uiMSG().error( tr("Please select the line") );
+	    uiMSG().error( uiStrings::phrSelect(tr("the line")) );
 	return false;
     }
 

@@ -52,7 +52,7 @@ bool uiWellT2DTransform::acceptOK()
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
     {
-	uiMSG().error( tr("Could not create well-transform") );
+	uiMSG().error( uiStrings::phrCannotCreate(tr("well-transform")) );
 	unRefAndZeroPtr( transform_ );
 	return false;
     }

@@ -311,7 +311,7 @@ uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
 {
-    name_ = mToUiStringTodo(set_->name());
+    name_ = toUiString(set_->name());
     displayid_ = displayid;
 
     storemnuitem_.iconfnm = "save";

@@ -132,7 +132,7 @@ uiSelFonts::~uiSelFonts()
 void uiSelFonts::add( const char* nm, const char* stdfontkey )
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids_, 
-							 mToUiStringTodo(nm) );
+							 toUiString(nm) );
     if ( !sels_.isEmpty() )
 	lcb->attach( alignedBelow, sels_.last() );
     lcb->box()->setCurrentItem( stdfontkey );

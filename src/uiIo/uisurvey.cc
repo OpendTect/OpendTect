@@ -288,7 +288,7 @@ bool uiStartNewSurveySetup::isOK()
 {
     BufferString survnm = survName();
     if ( survnm.isEmpty() )
-	mErrRet(tr("Please enter a new survey name"))
+	mErrRet(uiStrings::phrEnter(tr("a new survey name")))
 
     survnm.clean( BufferString::AllowDots );
     const BufferString storagedir = FilePath(dataroot_).add(survnm).fullPath();
@@ -611,8 +611,8 @@ void uiSurvey::updateDataRootInSettings()
 {
     Settings::common().set( "Default DATA directory", dataroot_ );
     if ( !Settings::common().write() )
-	uiMSG().warning( tr("Could not save Survey Data Root "
-			    "location in the settings file") );
+	uiMSG().warning( uiStrings::phrCannotSave(tr("Survey Data Root "
+			    "location in the settings file")) );
 }
 
 
@@ -693,8 +693,8 @@ bool uiSurvey::acceptOK( CallBacker* )
     {
 	freshsurveyselected_ = true;
 	readSurvInfoFromFile();
-	const char* askq = impsip_->importAskQuestion();
-	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
+	const uiString askq = impsip_->importAskUiQuestion();
+	if ( !askq.isEmpty() && uiMSG().askGoOn(askq) )
 	{
 	    IOM().to( "100010" );
 	    impsip_->startImport( parent(), *impiop_ );
@@ -738,9 +738,9 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
     if ( !errmsg.isEmpty()  )
     {
 	const uiString tousr = haverem ? tr("New survey removed because:\n%1")
-		.arg(mToUiStringTodo(errmsg))
+		.arg(errmsg)
 		: tr("New survey directory is invalid because:\n%1")
-		.arg(mToUiStringTodo(errmsg) );
+		.arg(errmsg);
 	uiMSG().error( tousr );
     }
 }
@@ -826,7 +826,8 @@ void uiSurvey::rmButPushed( CallBacker* )
 
     if ( seldirnm != truedirnm ) // must have been a link
 	if ( !File::remove(seldirnm) )
-	    uiMSG().error( tr("Could not remove link to the removed survey") );
+	    uiMSG().error( uiStrings::phrCannotRemove(tr(
+					    "link to the removed survey")) );
 
     updateSurvList();
     const char* ptr = GetSurveyName();
@@ -861,7 +862,7 @@ void uiSurvey::copyButPushed( CallBacker* )
     setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_,errmsg) );
     if ( !cursurvinfo_ )
     {
-	uiString msg = tr("Could not read the copied survey");
+	uiString msg = uiStrings::phrCannotRead(tr("the copied survey"));
 	uiMSG().errorWithDetails( uiStringSet(&errmsg), msg );
 	return;
     }
@@ -869,7 +870,7 @@ void uiSurvey::copyButPushed( CallBacker* )
     cursurvinfo_->setName( FilePath(dlg.newdirnm_).fileName() );
     cursurvinfo_->updateDirName();
     if ( !cursurvinfo_->write() )
-	uiMSG().warning( tr("Could not write updated survey info") );
+	uiMSG().warning( uiStrings::phrCannotWrite(tr("updated survey info")) );
 
     updateSurvList();
     dirfld_->setCurrentItem( dlg.newdirnm_ );
@@ -972,7 +973,8 @@ void uiSurvey::utilButPush( CallBacker* cb )
 	uiLatLong2CoordDlg dlg( this, cursurvinfo_->latlong2Coord(),
 					cursurvinfo_ );
 	if ( dlg.go() && !cursurvinfo_->write() )
-	    mErrRetVoid(tr("Could not write the setup"))
+	    mErrRetVoid(uiStrings::phrCannotWrite(
+						uiStrings::sSetup().toLower()))
     }
     else
     {

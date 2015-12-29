@@ -161,11 +161,11 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
-	mErrRet( tr("Please enter a valid file name") )
+	mErrRet( uiStrings::phrEnter(tr("a valid file name")) )
 
     BufferStringSet lognms; logsfld_->getChosen( lognms );
     if ( lognms.isEmpty() )
-	mErrRet( tr("Please select at least one log to import") )
+	mErrRet( uiStrings::phrSelect(tr("at least one log to import")) )
 
     BufferStringSet existlogs;
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
@@ -342,16 +342,16 @@ bool uiExportLogs::acceptOK( CallBacker* )
 {
     BufferString fname = outfld_->fileName();
     if ( fname.isEmpty() )
-	 mErrRet( tr("Please select valid entry for the output") );
+	 mErrRet( uiStrings::phrSelect(tr("valid entry for the output")) );
 
     BufferStringSet fnames;
     if ( wds_.size() > 1 )
     {
 	if ( !File::isDirectory(fname) )
-	    mErrRet( tr("Please enter a valid (existing) location") )
+	    mErrRet( uiStrings::phrEnter(tr("a valid (existing) location")) )
 	BufferString suffix = multiwellsnamefld_->text();
 	if ( suffix.isEmpty() )
-	    mErrRet( tr("Please enter a valid file name") )
+	    mErrRet( uiStrings::phrEnter(tr("a valid file name")) )
 
 	for ( int idx=0; idx<wds_.size(); idx++ )
 	{

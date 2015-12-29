@@ -133,7 +133,7 @@ public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrData(tr("preparation")),
-	       mToUiStringTodo(gtTitle(dps)), mODHelpKey(mPrepNLADataHelpID)))
+	       gtUiTitle(dps), mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -189,6 +189,18 @@ const char* gtTitle( const DataPointSet& dps ) const
     return ret.buf();
 }
 
+
+const uiString gtUiTitle( const DataPointSet& dps ) const
+ {
+    const PosVecDataSet& pvds = dps.dataSet();
+    const DataColDef& dcd = pvds.colDef( pvds.nrCols()-1 );
+    static uiString ret;
+    ret = uiStrings::phrSpecify(od_static_tr("dtUiTitle",
+				  "data preparation for '%1'").arg(dcd.name_));
+    return ret;
+}
+
+
 void doBalChg( CallBacker* )
 {
     const bool dobal = dobalfld->getBoolValue();
@@ -229,12 +241,13 @@ bool acceptOK( CallBacker* )
 	rg_.sort();
 	bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
 	if ( bsetup_.nrptsperclss < 1 || mIsUdf(bsetup_.nrptsperclss) )
-	    mErrRet(tr("Please enter a valid number of points per class"))
+	    mErrRet(uiStrings::phrEnter(tr(
+					"a valid number of points per class")))
 	bsetup_.noiselvl = percnoisefld->getFValue();
 	if ( mIsUdf(bsetup_.noiselvl) )
 	    bsetup_.noiselvl = 0;
 	if ( bsetup_.noiselvl > 100 || bsetup_.noiselvl < -1e-6 )
-	    mErrRet(tr("Please enter a valid noise level"))
+	    mErrRet(uiStrings::phrEnter(tr("a valid noise level")))
 	bsetup_.noiselvl *= 0.01;
     }
 

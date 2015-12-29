@@ -136,7 +136,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
-    wd->setName( mToUiStringTodo(wellname));
+    wd->setName( toUiString(wellname));
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
@@ -249,7 +249,7 @@ bool uiODWellTreeItem::init()
 	    visserv_->removeObject( wd, sceneID() );
 	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
 	    const char* nm = ioobj ? ioobj->name().buf() : 0;
-	    uiMSG().error(tr("Could not load well %1").arg( nm ) );
+	    uiMSG().error(uiStrings::phrCannotLoad(tr("well %1").arg(nm)) );
 	    return false;
 	}
     }
@@ -309,7 +309,7 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
-    logmnuitems_ += new MenuItem( mToUiStringTodo(lognms.get( logidx ) ));
+    logmnuitems_ += new MenuItem( toUiString(lognms.get( logidx ) ));
 	mAddMenuItem(&amplspectrummnuitem_,logmnuitems_[logidx],true,false);
     }
 

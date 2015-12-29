@@ -285,7 +285,7 @@ const char* Scene::zDomainKey() const
 { return zdomaininfo_->key(); }
 
 uiString Scene::zDomainUserName() const
-{ return mToUiStringTodo(zdomaininfo_->userName()); }
+{ return toUiString(zdomaininfo_->userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
 { return zdomaininfo_->unitStr( withparens ); }

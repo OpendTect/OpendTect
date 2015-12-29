@@ -440,7 +440,7 @@ bool uiWellImportAsc::checkInpFlds()
     if ( havetrckbox_->isChecked() )
     {
 	if ( !*trckinpfld_->fileName() )
-	    mErrRet(tr("Please specify a well track file"))
+	    mErrRet(uiStrings::phrSpecify(tr("a well track file")))
 
 	if ( !dataselfld_->commit() )
 	    return false;
@@ -456,15 +456,15 @@ bool uiWellImportAsc::checkInpFlds()
 	}
 
 	if ( !kbelevfld_->isChecked() )
-	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKBElev()))
+	    mErrRet(uiStrings::phrSpecify(toUiString(Well::Info::sKBElev())))
 
 	if ( !tdfld_->isChecked() )
-	    mErrRet(tr("Please specify a %1").arg(Well::Info::sTD()))
+	    mErrRet(uiStrings::phrSpecify(toUiString(Well::Info::sTD())))
     }
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty()
-		? tr("Please enter a name for the well")
+		? uiStrings::phrEnter(tr("a name for the well"))
 		: uiString::emptyString() )
 
     return true;
