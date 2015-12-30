@@ -204,7 +204,6 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
             .arg(detail) );
 	if ( toInt(detail) > 254 )
 	    msg.append("\n-> The file may not be SEG-Y, or byte-swapped");
-	    msg.arg(tr("\n-> The file may not be SEG-Y, or byte-swapped"));
     }
     else if ( nr == cSEGYWarnPos )
     {	
