@@ -45,7 +45,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
-    { tr("\nCannot execute pre-3.2 par files"); }
+    { mRetError(tr("\nCannot execute pre-3.2 par files")); }
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
