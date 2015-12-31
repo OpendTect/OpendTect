@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscopy.h"
+#include "seis2ddata.h"
 #include "seistrc.h"
 #include "seisread.h"
 #include "seiswrite.h"
@@ -225,8 +226,22 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
     if ( !scalestr.isEmpty() )
 	scaler_ = Scaler::get( scalestr );
 
-    for ( int idx=0; idx<trcrgs_.size(); idx++ )
-	totalnr_ += ( trcrgs_[idx].nrSteps() + 1 );
+    if ( trcrgs_.isEmpty() )
+    {
+	Seis2DDataSet dset( inobj );
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	for ( int idx=0; idx<selgeomids_.size(); idx++ )
+	{
+	    if ( dset.getRanges(selgeomids_[idx],trcrg,zrg) )
+		totalnr_ += ( trcrg.nrSteps() + 1 );
+	}
+    }
+    else
+    {
+	for ( int idx=0; idx<trcrgs_.size(); idx++ )
+	    totalnr_ += ( trcrgs_[idx].nrSteps() + 1 );
+    }
 
     if ( totalnr_ < 1 )
 	msg_ = tr("No traces to copy");
