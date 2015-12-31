@@ -463,7 +463,7 @@ public:
     static uiString sVelocity()		{ return tr("Velocity"); }
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sVolume();
-    static uiString sVolume(int num=1);
+    static uiString sVolumep(int num=1);
     static uiString sView()		{ return tr("View"); }
     static uiString sUseSingleColor()	{ return tr("Use Single Color"); }
     static uiString sWarning()		{ return tr("Warning"); }

@@ -535,7 +535,7 @@ uiString uiStrings::sTrack()
 uiString uiStrings::sVolume()
 { return tr("Volume"); }
 
-uiString uiStrings::sVolume(int num)
+uiString uiStrings::sVolumep(int num)
 { return tr("Volume",0,num); }
 
 uiString uiStrings::sWaveNumber( int num )
