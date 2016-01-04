@@ -80,6 +80,7 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
 
     TypeSet<BinID>*		getPath()		{ return &trcspath_; }
+    TrcKeyPath*			getTrcKeyPath()		{ return &tkpath_; }
 				//!<BinID-based coding: inner nodes single
     void			getDataTraceBids(TypeSet<BinID>&) const;
 				//!<Segment-based coding: inner nodes doubled
@@ -232,6 +233,8 @@ protected:
     TypeSet<DataPack::ID>	datapackids_;
     TypeSet<DataPack::ID>	transfdatapackids_;
     TypeSet<BinID>		trcspath_;
+    TrcKeyPath			tkpath_;
+    				//TODO replace trcspath_ by tkpath_;
     TypeSet<BinID>		nodes_;
 
     ZAxisTransform*		datatransform_;

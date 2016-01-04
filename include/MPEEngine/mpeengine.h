@@ -50,6 +50,10 @@ public:
 
     const TrcKeyZSampling&	activeVolume() const;
     void			setActiveVolume(const TrcKeyZSampling&);
+    const TrcKeyPath*		activePath() const
+    				{ return rdmlinetkpath_; }
+    void			setActivePath( const TrcKeyPath* tkp )
+				{ rdmlinetkpath_ = tkp; }
     Notifier<Engine>		activevolumechange;
 
     void			setActive2DLine(Pos::GeomID);
@@ -137,6 +141,7 @@ protected:
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
+    const TrcKeyPath*		rdmlinetkpath_;
 
     Pos::GeomID			activegeomid_;
 

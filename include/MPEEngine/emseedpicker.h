@@ -45,6 +45,8 @@ public:
     
 protected:
     EM::PosID               seedNode(int) const;
+    int			    findClosestSeedRdmIdx(const EM::PosID&);
+    int			    getNearestRdmLineIdx(const TrcKey&) const;
     int			    findClosedSeed3d(const EM::PosID&);
     int			    findClosedSeed2d(const TrcKeyValue&);
     const EMSeedPicker*     seedpicker_;

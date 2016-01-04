@@ -119,6 +119,13 @@ void Vw2DHorizon3D::draw()
 
 	    if ( randfdp )
 	    {
+		TrcKeyZSampling tkzs( false );
+		const TrcKeyPath& tkpath = randfdp->getPath();
+		for ( int ipath=0; ipath<tkpath.size(); ipath++ )
+		    tkzs.hsamp_.include( tkpath[ipath] );
+
+		tkzs.zsamp_ = randfdp->getZRange();
+		horeds_[ivwr]->setTrcKeyZSampling( tkzs );
 		horeds_[ivwr]->setPath( randfdp->getPath() );
 		horeds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
@@ -154,8 +161,8 @@ void Vw2DHorizon3D::selected( bool enabled )
     {
 	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
 	if ( seedpicker && 
-	     seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
-	     seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap )
+	     (seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
+	      seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap) )
 	    setenableseed = false;
 	else
 	    setenableseed = true;

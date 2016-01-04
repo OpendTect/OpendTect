@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "undo.h"
 
@@ -203,6 +204,9 @@ void HorizonFlatViewEditor3D::paint()
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
+    if ( !mouseevent.leftButton() )
+	return;
+
     if ( !pickedpos_.isUdf() )
     {
 	const Geom::Point2D<int>& mousepos = mouseevent.pos();
@@ -245,7 +249,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
     if ( (editor_ && editor_->sower().accept(mouseevent,false)) ||
-	 mouseevent.middleButton() )
+	 !mouseevent.leftButton() )
 	return;
 
     const bool haspath = curtkpath_ && !curtkpath_->isEmpty();
@@ -620,6 +624,8 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
 
     NotifyStopper notifystopper( MPE::engine().activevolumechange );
     MPE::engine().setActiveVolume( curcs_ );
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,&dp);
+    MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
     notifystopper.restore();
 
     seedpicker.setSelSpec( as );
@@ -736,6 +742,9 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
     if ( !emobj ) return;
 
     TypeSet<TrcKeyValue> path = patch->getPath();
+    ConstDataPackRef<FlatDataPack> fdp =
+	editor_->viewer().obtainPack( true, true );
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     for ( int idx=0; idx<path.size(); idx++ )
     {
 	const TrcKeyValue tkzs = path[idx];
@@ -746,8 +755,15 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 	    x = tkzs.tk_.pos().crl();
 	else if ( curcs_.nrCrl()==1 )
 	    x = tkzs.tk_.pos().inl();
-	else
-	    return;
+	else if ( randfdp )
+	{
+	    mDynamicCastGet(const RandomSeisDataPack&,rdmsdp,
+			    randfdp->getSourceDataPack());
+	    const int bidindex = rdmsdp.getNearestGlobalIdx( tkzs.tk_ );
+	    const FlatPosData& flatposdata = randfdp->posData();
+	    x = flatposdata.position( true, bidindex );
+	}
+
 	OD::MarkerStyle2D markerstyle(
 	    OD::MarkerStyle2D::Square, 4, emobj->preferredColor() );
 	patchdata_->markerstyles_ += markerstyle;

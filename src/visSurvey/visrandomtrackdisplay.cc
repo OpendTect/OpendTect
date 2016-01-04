@@ -573,6 +573,7 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 					   TypeSet<int>* segments ) const
 {
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
+    const_cast<RandomTrackDisplay*>(this)->tkpath_.erase();
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
     const Pos::SurvID survid = s3dgeom_->getSurvID();
@@ -580,7 +581,10 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	if ( !idx || bids[idx]!=trcspath_.last() )
+	{
 	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add( bids[idx] );
+	    const_cast<RandomTrackDisplay*>(this)->tkpath_.add( TrcKey(bids[idx]) );
+	}
     }
 }
 
@@ -851,7 +855,8 @@ void RandomTrackDisplay::updatePanelStripPath()
     int nodeidx = 0;
     for ( int trcidx=0; trcidx<trcspath_.size(); trcidx++ )
     {
-	while ( nodeidx<nodes_.size() && trcspath_[trcidx]==nodes_[nodeidx] )
+	while ( nodeidx<nodes_.size() &&
+		trcspath_[trcidx]==nodes_[nodeidx] )
 	{
 	    pathcrds += Coord( nodes_[nodeidx].inl(), nodes_[nodeidx].crl() );
 	    mapping += mCast( float, trcidx*(resolution_+1) );

@@ -59,6 +59,7 @@ public:
     int				getObjID() const;
     EM::ObjectID		getEMObjID() const; // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
+    const TrcKeyPath*		getObjTKPath() const;
     DataPack::ID		getObjDataPackID() const;
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
@@ -81,6 +82,7 @@ protected:
     void			setEMObjID(EM::ObjectID);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
+    void			setObjTKPath(const TrcKeyPath*);
     void			setObjDataPackID(DataPack::ID);
     void			setObjData(const RegularSeisDataPack*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
@@ -103,6 +105,7 @@ protected:
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
+    const TrcKeyPath*			rdltkpath_;
     Attrib::SelSpec			attrsel_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
