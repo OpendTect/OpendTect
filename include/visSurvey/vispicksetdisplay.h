@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
  RCS:		$Id$
-________________________________________________________________________
+_______________________________________________________________________
 
 
 -*/
@@ -107,6 +107,9 @@ protected:
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
 					    const visBase::PolygonSelection*);
+    bool			updateMarkerAtSection(const SurveyObject*,int);
+    void			updateLineAtSection();
+
     virtual bool		removeSelections(TaskRunner*);
     virtual bool		draggerNormal() const;
     virtual void		setDraggerNormal(const Coord3&);

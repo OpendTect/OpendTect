@@ -135,6 +135,7 @@ void MarkerSet::removeMarker( int idx )
     if ( material_ ) material_->removeColor( idx );
     if ( coords_ ) coords_->removePos( idx, false );
     if ( coords_ ) coords_->dirty();
+    markerset_->removeMarkerOnOff( idx );
     markerset_->forceRedraw( true );
     
 }
@@ -355,6 +356,12 @@ void MarkerSet::turnMarkerOn( unsigned int idx,bool yn )
 }
 
 
+bool MarkerSet::markerOn( unsigned int idx )
+{
+    return markerset_->markerOn( idx );
+}
+
+
 int MarkerSet::findClosestMarker( const Coord3& tofindpos, 
 				 const bool scenespace )
 {
@@ -395,6 +402,7 @@ int MarkerSet::addPos( const Coord3& crd, bool draw )
     if ( coords_ )
 	index = coords_->addPos( crd );
     
+    markerset_->turnMarkerOn( index, draw );
     if ( draw && markerset_ )
         markerset_->forceRedraw( true );
 
@@ -406,6 +414,7 @@ void MarkerSet::setPos( int idx, const Coord3& crd, bool draw )
 {
     if ( coords_ )
 	coords_->setPos( idx, crd );
+    markerset_->turnMarkerOn( idx, draw );
     if ( draw && markerset_ )
 	markerset_->forceRedraw( true );
 }
@@ -415,6 +424,7 @@ void MarkerSet::insertPos( int idx, const Coord3& crd, bool draw )
 {
     if ( coords_ ) 
 	coords_->insertPos( idx, crd );
+    markerset_->turnMarkerOn( idx, draw );
     if ( draw && markerset_ )
 	markerset_->forceRedraw( true );
 }

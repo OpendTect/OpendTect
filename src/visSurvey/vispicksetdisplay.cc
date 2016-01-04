@@ -194,9 +194,9 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 	return;
     }
     if ( add )
-	markerset_->insertPos( idx, loc.pos_, false );
+	markerset_->insertPos( idx, loc.pos_, true );
     else
-	markerset_->setPos( idx, loc.pos_, false );
+	markerset_->setPos( idx, loc.pos_, true );
     if ( set_->disp_.markertype_ == OD::MarkerStyle3D::Arrow ||
 	 set_->disp_.markertype_ == OD::MarkerStyle3D::Plane )
 	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
@@ -518,58 +518,71 @@ void PickSetDisplay::otherObjectsMoved(
     TypeSet<Coord3> polycoords;
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
     {
-	Coord3 pos = set_->validIdx(idx) ? (*set_)[idx].pos_ : Coord3::udf();
-	if ( datatransform_ ) pos.z = datatransform_->transform( pos );
-
-	if ( scene_ )
-	    scene_->getUTM2DisplayTransform()->transform( pos );
-
-	bool newstatus;
-	if ( !pos.isDefined() )
-	    newstatus = false;
-	else if ( showall_ )
-	    newstatus = true;
-	else
+	for ( int idy=0; idy<objs.size(); idy++ )
 	{
-	    newstatus = false;
-	    for ( int idy=0; idy<objs.size(); idy++ )
-	    {
-		mDynamicCastGet(const EMObjectDisplay*,emobj,objs[idy])
-		if ( emobj && emobj->displayedOnlyAtSections() )
-		    continue;
-
-		const float dist = objs[idy]->calcDist( pos );
-		if ( dist < objs[idy]->maxDist() )
-		{
-		    newstatus = true;
-		    break;
-		}
-	    }
+	    if ( updateMarkerAtSection(objs[idy],idx) )
+		invalidpicks_ += idx;
+	    else
+		invalidpicks_ -= idx;
 	}
+    }
+    updateLineAtSection();
+}
 
-	markerset_->turnMarkerOn( idx, newstatus );
-	if ( newstatus )
-	{
-	    invalidpicks_ -= idx;
-	    polycoords += markerset_->getCoordinates()->getPos( idx );
-	}
-	else
-	    invalidpicks_ += idx;
 
+bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
+{
+    if ( !obj ) return false;
+
+    Coord3 pos = set_->validIdx(idx) ? (*set_)[idx].pos_ : Coord3::udf();
+    if ( !pos.isDefined()) return false;
+
+    if ( datatransform_ ) 
+	pos.z = datatransform_->transform( pos );
+
+    if ( scene_ )
+	scene_->getUTM2DisplayTransform()->transform( pos );
+
+    bool onsection = false;
+    if ( !pos.isDefined() )
+	return false;
+    else if ( showall_ )
+	onsection = true;
+    else
+    {
+	mDynamicCastGet( const EMObjectDisplay*,emobj,obj )
+	if ( emobj && emobj->displayedOnlyAtSections() )
+	    return false;
+
+	const float dist = obj->calcDist( pos );
+	if ( dist<obj->maxDist() )
+	    onsection = true;
     }
 
-    if ( polyline_ )
-    {
+    markerset_->turnMarkerOn( idx, onsection );
+    return onsection;
+}
+
+
+void PickSetDisplay::updateLineAtSection()
+{
+   if ( polyline_ )
+   {
+       TypeSet<Coord3> polycoords;
+       for ( int idx = 0; idx<markerset_->getCoordinates()->size(); idx++ )
+	   polycoords += markerset_->getCoordinates()->getPos(idx);
+
 	polyline_->removeAllPoints();
 	int pidx = 0;
 	for ( pidx=0; pidx<polycoords.size(); pidx++ )
-	    polyline_->addPoint( polycoords[pidx] );
+	{
+	    if ( markerset_->markerOn(pidx) )
+		polyline_->addPoint( polycoords[pidx] );
+	}
 
 	if ( pidx && set_->disp_.connect_ == Pick::Set::Disp::Close )
 	    polyline_->setPoint( pidx, polyline_->getPoint(0) );
     }
-
-    requestSingleRedraw();
 }
 
 
