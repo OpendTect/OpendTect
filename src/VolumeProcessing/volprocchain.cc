@@ -344,8 +344,8 @@ bool ChainExecutor::Epoch::doPrepareWithProgressMeter( ProgressMeter* pm )
 	TrcKeyZSampling csamp;
 	csamp.hsamp_ = stepoutputhrg;
 	const StepInterval<float> fullzrg = csamp.zsamp_;
-	csamp.zsamp_.start = fullzrg.atIndex( stepoutputzrg.start );
-	csamp.zsamp_.stop = fullzrg.atIndex( stepoutputzrg.stop );
+	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step;
+	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step;
 
 	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
