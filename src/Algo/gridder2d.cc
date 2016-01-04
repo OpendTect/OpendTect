@@ -691,7 +691,7 @@ bool RadialBasisFunctionGridder2D::updateSolution()
     for ( int idx=0; idx<sz; idx++ )
 	(*globalweights_)[idx] = x[idx];
 
-    delete x;
+    delete [] x;
     return true;
 }
 
