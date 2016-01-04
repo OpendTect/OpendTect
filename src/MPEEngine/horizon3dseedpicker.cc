@@ -579,7 +579,7 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    {
 		const int startidx = rdlpath->indexOf(seedlist_[sortidx[vtx]]);
 		tk = (*rdlpath)[ startidx + idx ];
-		const float interpz = (1-frac) * seed1.z + frac  * seed2.z;
+		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
 		interpos = Coord3( SI().transform(tk.pos()), interpz );
 	    }
 	    else
