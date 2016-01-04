@@ -285,6 +285,8 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
     Wavelet resampledwvlt( *wvlt );
     reSampleWavelet( resampledwvlt );
     wvltpropdlg_ = new uiWaveletDispPropDlg( this, resampledwvlt );
+    wvltpropdlg_->setCaption( tr("Wavelet '%1' Properties")
+						    .arg(curioobj_->uiName()) );
     if ( wvltpropdlg_ ->go() )
     { delete wvltpropdlg_; wvltpropdlg_ = 0; }
 
@@ -334,7 +336,8 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
 	samps[idx] *= -1;
 
     if ( !wvlt->put(curioobj_) )
-	uiMSG().error(tr("Cannot write new polarity reversed wavelet to disk"));
+	uiMSG().error(uiStrings::phrCannotWrite(tr(
+				    "new polarity reversed wavelet to disk")));
     else
 	selgrp_->fullUpdate( curioobj_->key() );
 
