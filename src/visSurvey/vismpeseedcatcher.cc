@@ -47,7 +47,8 @@ MPEClickCatcher::MPEClickCatcher()
     , editor_( 0 )
     , cureventinfo_( 0 )
     , endSowing( this )
-{}
+{
+}
 
 
 MPEClickCatcher::~MPEClickCatcher()
@@ -254,6 +255,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 	    info().setLegalClick( legalclick0 );
 	    info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	    info().setObjTKPath( rtd->getTrcKeyPath() );
 	    info().setObjDataPackID( datapackid );
 
 	    const Attrib::SelSpec* as = rtd->getSelSpec( attrib );
@@ -522,6 +524,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	}
 
 	info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	info().setObjTKPath( rtd->getTrcKeyPath() );
 	info().setObjDataPackID( datapackid );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
 
@@ -678,6 +681,7 @@ void MPEClickInfo::clear()
     linename_ = "";
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
+    rdltkpath_ = 0;
 }
 
 
@@ -747,5 +751,11 @@ void MPEClickInfo::setObjLineName( const char* str )
 
 void MPEClickInfo::setObjLineData( const Attrib::Data2DHolder* ad2dh )
 { linedata_ = ad2dh; }
+
+void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
+{ rdltkpath_ = tkp; }
+
+const TrcKeyPath* MPEClickInfo::getObjTKPath() const
+{ return rdltkpath_; }
 
 } // namespce visSurvey
