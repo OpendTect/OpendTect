@@ -380,7 +380,7 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
 	return;
     if ( vssz_ == 1 )
     {
-	setup_.range_.start = vs_->value(0) - 1;
+	setup_.range_.start = mIsUdf(vs_->value(0)) ? -1 : vs_->value(0)-1;
 	setup_.range_.stop = setup_.range_.start + 2;
 	return;
     }
