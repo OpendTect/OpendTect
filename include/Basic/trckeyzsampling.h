@@ -102,6 +102,9 @@ public:
 
     mDeprecated TrcKeySampling&		hrg;
     mDeprecated StepInterval<float>&	zrg;
+
+    void		shrinkTo(const TrcKeyZSampling& innertkzs,
+				 float releps=1e-4);
 };
 
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "color.h"
 #include "ranges.h"
+#include "trckeyzsampling.h"
 #include "visdata.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
@@ -49,7 +50,7 @@ public:
     const TextureChannel2RGBA*	getChannels2RGBA() const;
 
     void			setScalarField(int attr,const Array3D<float>*,
-					       bool mine,TaskRunner*);
+					   bool mine,TaskRunner*); // obsolete
 
     void			setColTabMapperSetup(int attr,
 						     const ColTab::MapperSetup&,
@@ -97,6 +98,7 @@ protected:
     				~VolumeRenderScalarField();
 
     void			makeIndices(int attr,bool doset,TaskRunner*);
+				// doset argument obsolete now
     void			clipData(int attr,TaskRunner*);
 
     void			updateFragShaderType();
@@ -110,10 +112,10 @@ protected:
 					AttribData();
 					~AttribData();
 
-	od_int64			totalSz() const;
+	od_int64			totalSz() const;	// obsolete
 	bool				isInVolumeCache() const;
 
-	int				sz0_, sz1_, sz2_;
+	int				sz0_, sz1_, sz2_;	// obsolete
 	ColTab::Mapper			mapper_;
 	unsigned char*			indexcache_;
 	int				indexcachestep_;
@@ -121,6 +123,9 @@ protected:
 	const ValueSeries<float>*	datacache_;
 	bool				ownsdatacache_;
 	TypeSet<float>			histogram_;
+
+	void				clearDataCache();
+	void				clearIndexCache();
     };
 
     ObjectSet<AttribData>		attribs_;
@@ -141,6 +146,13 @@ protected:
     osg::TransferFunction1D*		osgtransfunc_;
     osgVolume::TransparencyProperty*	osgtransprop_;
     osgGeo::RayTracedTechnique*		raytt_;
+
+    void			updateResizeCache(int attr,TaskRunner*);
+public:
+    void			setScalarField(int attr,const Array3D<float>*,
+					       bool mine,const TrcKeyZSampling&,
+					       TaskRunner*);
+    TrcKeyZSampling		getMultiAttribTrcKeyZSampling() const;
 };
 
 }

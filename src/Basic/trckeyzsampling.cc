@@ -377,6 +377,29 @@ void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 }
 
 
+#define mSnapStop( start, stop, step, eps ) \
+    stop = start + step * mCast( int, (stop-start+eps)/step );
+
+#define mShrink( diff, var, assignoper, step ) \
+    if ( diff>0 ) \
+	var assignoper step * mCast( int, (diff)/step );
+
+void TrcKeySampling::shrinkTo( const TrcKeySampling& innertks )
+{
+    normalise();
+    TrcKeySampling tks( innertks  );
+    tks.normalise();
+
+    mSnapStop( start_.inl(), stop_.inl(), step_.inl(), 0 );
+    mSnapStop( start_.crl(), stop_.crl(), step_.crl(), 0 );
+
+    mShrink( tks.start_.inl()-start_.inl(), start_.inl(), +=, step_.inl() );
+    mShrink( stop_.inl() - tks.stop_.inl(),  stop_.inl(), -=, step_.inl() );
+    mShrink( tks.start_.crl()-start_.crl(), start_.crl(), +=, step_.crl() );
+    mShrink( stop_.crl() - tks.stop_.crl(),  stop_.crl(), -=, step_.crl() );
+}
+
+
 void TrcKeySampling::expand( int nrlines, int nrtrcs )
 {
     start_.lineNr() -= nrlines*step_.lineNr();
@@ -999,6 +1022,22 @@ void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )
     hsamp_.limitToWithUdf( tkzs.hsamp_ );
     mAdjustIf(zsamp_.start,<,tkzs.zsamp_.start);
     mAdjustIf(zsamp_.stop,>,tkzs.zsamp_.stop);
+}
+
+
+void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
+{
+    normalise();
+    TrcKeyZSampling tkzs( innertkzs );
+    tkzs.normalise();
+
+    hsamp_.shrinkTo( tkzs.hsamp_ );
+
+    const float eps = releps * zsamp_.step;
+    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
+
+    mShrink( tkzs.zsamp_.start-zsamp_.start+eps, zsamp_.start, +=, zsamp_.step);
+    mShrink( zsamp_.stop - tkzs.zsamp_.stop+eps, zsamp_.stop,  -=, zsamp_.step);
 }
 
 

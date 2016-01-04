@@ -144,6 +144,8 @@ public:
     mDeprecated BinID&	start;
     mDeprecated BinID&	stop;
     mDeprecated BinID&	step;
+
+    void		shrinkTo(const TrcKeySampling& innertks);
 };
 
 
