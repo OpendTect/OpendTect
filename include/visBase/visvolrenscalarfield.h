@@ -13,11 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "color.h"
-#include "ranges.h"
-#include "visdata.h"
+
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "color.h"
+#include "ranges.h"
+#include "trckeyzsampling.h"
+#include "visdata.h"
 #include "visosg.h"
 
 class TaskRunner;
@@ -49,7 +51,10 @@ public:
     const TextureChannel2RGBA*	getChannels2RGBA() const;
 
     void			setScalarField(int attr,const Array3D<float>*,
-					       bool mine,TaskRunner*);
+					    bool mine,const TrcKeyZSampling&,
+					    TaskRunner*);
+
+    TrcKeyZSampling		getMultiAttribTrcKeyZSampling() const;
 
     void			setColTabMapperSetup(int attr,
 						     const ColTab::MapperSetup&,
@@ -96,7 +101,8 @@ public:
 protected:
     				~VolumeRenderScalarField();
 
-    void			makeIndices(int attr,bool doset,TaskRunner*);
+    void			updateResizeCache(int attr,TaskRunner*);
+    void			makeIndices(int attr,TaskRunner*);
     void			clipData(int attr,TaskRunner*);
 
     void			updateFragShaderType();
@@ -110,16 +116,21 @@ protected:
 					AttribData();
 					~AttribData();
 
-	od_int64			totalSz() const;
 	bool				isInVolumeCache() const;
 
-	int				sz0_, sz1_, sz2_;
+	void				clearDataCache();
+	void				clearResizeCache();
+	void				clearIndexCache();
+
 	ColTab::Mapper			mapper_;
 	unsigned char*			indexcache_;
 	int				indexcachestep_;
 	bool				ownsindexcache_;
 	const ValueSeries<float>*	datacache_;
 	bool				ownsdatacache_;
+	TrcKeyZSampling			datatkzs_;
+	const ValueSeries<float>*	resizecache_;
+	bool				ownsresizecache_;
 	TypeSet<float>			histogram_;
     };
 

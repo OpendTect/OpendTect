@@ -545,18 +545,30 @@ int VolumeDisplay::volRenID() const
 }
 
 
-#define mSetVolumeTransform( name, center, width, trans, scale ) \
+#define mSetVolumeTransform( name, center, width, cs, extrasteps ) \
+\
+    const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0, \
+			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0, \
+			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 ); \
+\
+    const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(), \
+			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(), \
+			cs.zsamp_.stop - cs.zsamp_.start ); \
+{ \
+    const Coord3 step( cs.hsamp_.step_.inl(), cs.hsamp_.step_.crl(), \
+		       cs.zsamp_.step ); \
 \
     Coord3 trans( center ); \
     mVisTrans::transform( displaytrans_, trans ); \
-    Coord3 scale( width ); \
+    Coord3 scale( width + extrasteps*step ); \
     mVisTrans::transformSize( displaytrans_, scale ); \
     trans += 0.5 * scale; \
     scale = Coord3( scale.z, -scale.y, -scale.x ); \
-    scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale );
+    scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale ); \
+}
 
 void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
-				     bool dragmode )
+					bool dragmode )
 {
     TrcKeyZSampling cs( desiredcs );
 
@@ -565,24 +577,18 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
     else if ( scene_ )
 	cs.limitTo( scene_->getTrcKeyZSampling() );
 
-    const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0,
-			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0,
-			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 );
-
-    const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
-			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
-			cs.zsamp_.stop - cs.zsamp_.start );
-
-    const Coord3 step( cs.hsamp_.step_.inl(), cs.hsamp_.step_.crl(),
-		       cs.zsamp_.step );
-
     updateDraggerLimits( dragmode );
-    mSetVolumeTransform( ROIVolume, center, width, trans, scale );
+    mSetVolumeTransform( ROIVolume, center, width, cs, 0 );
 
     if ( dragmode )
 	return;
 
-    mSetVolumeTransform( TexVolume, center, width+step, textrans, texscale );
+    TrcKeyZSampling texcs = scalarfield_->getMultiAttribTrcKeyZSampling();
+    if ( !texcs.isDefined() || texcs.isEmpty() )
+	texcs = cs;
+
+    mSetVolumeTransform( TexVolume, texcenter, texwidth, texcs, 1 );
+
     texturecs_ = cs;
     scalarfield_->turnOn( false );
 
@@ -1019,7 +1025,10 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
     attribs_[attrib]->cache_ = 0;
 
-    scalarfield_->setScalarField( attrib, 0, true, 0 );
+    TrcKeyZSampling emptytkzs( false );
+    emptytkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
+    scalarfield_->setScalarField( attrib, 0, true, emptytkzs, 0 );
+
     updateAttribEnabling();
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
@@ -1091,7 +1100,9 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	arrayismine = false;
     }
 
-    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tr );
+    TrcKeyZSampling tkzs = attribdata->sampling();
+    tkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
+    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, tr );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 

@@ -511,21 +511,34 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
     }
     else
     {
-	// Steps of TrcKeyZSampling (Inl, Crl and Z) should be same as that of
-	// datapack (packset) that is preloaded and this will ensure that.
+	// For running dimensions, steps of TrcKeyZSampling (Inl, Crl and Z)
+	// should be same as that of datapack (packset) that is preloaded.
 	TrcKeyZSampling outputtkzs = packset[0]->sampling();
 	for ( int idx=1; idx<packset.size(); idx++ )
 	    outputtkzs.include( packset[idx]->sampling() );
 
-	// But only in the running dimensions of the requested cube sampling
-	if ( tkzs_.nrLines() == 1 )
-	    outputtkzs.hsamp_.setLineRange( tkzs_.hsamp_.lineRange() );
-	if ( tkzs_.nrTrcs() == 1 )
-	    outputtkzs.hsamp_.setTrcRange( tkzs_.hsamp_.trcRange() );
-	if ( tkzs_.nrZ() == 1 )
-	    outputtkzs.zsamp_ = tkzs_.zsamp_;
+	TrcKeyZSampling clippedtkzs( outputtkzs );
+	clippedtkzs.limitTo( tkzs_, true );
 
-	outputtkzs.limitTo( tkzs_ );
+	if ( clippedtkzs.isDefined() )
+	{
+	    outputtkzs.shrinkTo( tkzs_ );
+
+	    if ( tkzs_.nrLines() == 1 )
+		outputtkzs.hsamp_.setLineRange( tkzs_.hsamp_.lineRange() );
+	    if ( tkzs_.nrTrcs() == 1 )
+		outputtkzs.hsamp_.setTrcRange( tkzs_.hsamp_.trcRange() );
+	    if ( tkzs_.nrZ() == 1 )
+		outputtkzs.zsamp_ = tkzs_.zsamp_;
+	}
+	else
+	{
+	    // To create dummy with a single undefined voxel
+	    outputtkzs = tkzs_;
+	    outputtkzs.hsamp_.stop_ = outputtkzs.hsamp_.start_;
+	    outputtkzs.zsamp_.stop = outputtkzs.zsamp_.start;
+	}
+
 	output->setSampling( outputtkzs );
     }
 

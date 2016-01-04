@@ -45,36 +45,59 @@ namespace visBase
 
 
 VolumeRenderScalarField::AttribData::AttribData()
-    : sz0_( 1 )
-    , sz1_( 1 )
-    , sz2_( 1 )
-    , indexcache_( 0 )
+    : indexcache_( 0 )
     , indexcachestep_( 0 )
     , ownsindexcache_( false )
     , datacache_( 0 )
     , ownsdatacache_( false )
+    , datatkzs_( false )
+    , resizecache_( 0 )
+    , ownsresizecache_( false )
 {}
 
 
 VolumeRenderScalarField::AttribData::~AttribData()
 {
-    if ( ownsindexcache_ && indexcache_ )
-	delete [] indexcache_;
-
-    if ( ownsdatacache_ && datacache_ )
-	delete datacache_;
-}
-
-
-od_int64 VolumeRenderScalarField::AttribData::totalSz() const
-{
-    return sz0_ * sz1_ * sz2_;
+    clearDataCache();
+    clearResizeCache();
+    clearIndexCache();
 }
 
 
 bool VolumeRenderScalarField::AttribData::isInVolumeCache() const
 {
     return indexcachestep_==4;
+}
+
+
+void VolumeRenderScalarField::AttribData::clearDataCache()
+{
+    if ( ownsdatacache_ && datacache_ )
+	delete datacache_;
+
+    datacache_ = 0;
+    ownsdatacache_ = false;
+}
+
+
+void VolumeRenderScalarField::AttribData::clearResizeCache()
+{
+    if ( ownsresizecache_ && resizecache_ )
+	delete resizecache_;
+
+    resizecache_ = 0;
+    ownsresizecache_ = false;
+}
+
+
+void VolumeRenderScalarField::AttribData::clearIndexCache()
+{
+    if ( ownsindexcache_ && indexcache_ )
+	delete [] indexcache_;
+
+    indexcache_ = 0;
+    indexcachestep_ = 0;
+    ownsindexcache_ = false;
 }
 
 
@@ -299,10 +322,15 @@ bool VolumeRenderScalarField::usesShading() const
 
 void VolumeRenderScalarField::updateFragShaderType()
 {
+    const osg::Vec4 rgbabordercolor( 0.0, 0.0, 0.0, 1.0 );
+
     if ( raytt_ )
     {
 	if ( isrgba_ )
+	{
 	    raytt_->setFragShaderType( osgGeo::RayTracedTechnique::RGBA );
+	    raytt_->setBorderColor( rgbabordercolor );
+	}
 	else
 	{
 	    raytt_->setFragShaderType( osgGeo::RayTracedTechnique::ColTab );
@@ -310,7 +338,15 @@ void VolumeRenderScalarField::updateFragShaderType()
 	    raytt_->setColTabUndefChannel( 3 );
 	    raytt_->setColTabUndefValue( 1.0 );
 	    raytt_->invertColTabUndefChannel( true );
+	    raytt_->setBorderColor( osg::Vec4d(1.0,1.0,1.0,0.0) );
 	}
+    }
+    else
+    {
+	mDynamicCastGet( osgGeo::FixedFunctionTechnique*, fft,
+			 osgvoltile_->getVolumeTechnique() );
+	if ( fft && isrgba_ )
+	    fft->setBorderColor( rgbabordercolor );
     }
 }
 
@@ -322,12 +358,14 @@ void VolumeRenderScalarField::updateVolumeSlicing()
     if ( !fft )
 	return;
 
+    const TrcKeyZSampling matkzs = getMultiAttribTrcKeyZSampling();
+
     int maxlen = 1;
     for ( int idx=0; idx<attribs_.size(); idx++ )
     {
-	maxlen = mMAX( attribs_[idx]->sz0_,
-		       mMAX( attribs_[idx]->sz1_,
-			     mMAX( attribs_[idx]->sz2_, maxlen ) ) );
+	maxlen = mMAX( matkzs.nrLines(),
+		       mMAX( matkzs.nrTrcs(),
+			     mMAX( matkzs.nrZ(), maxlen ) ) );
     }
 
     fft->setNumSlices( 8*maxlen );     // Empirical
@@ -349,52 +387,36 @@ bool VolumeRenderScalarField::isOn() const
 
 
 void VolumeRenderScalarField::setScalarField( int attr,
-					      const Array3D<float>* sc,
-					      bool mine, TaskRunner* tr )
+				  const Array3D<float>* sc, bool mine,
+				  const TrcKeyZSampling& tkzs, TaskRunner* tr )
 {
     mCheckAttribStore( attr );
 
+    attribs_[attr]->clearDataCache();
+    attribs_[attr]->clearResizeCache();
+
     if ( !sc )
+	return;
+
+    if ( sc->info().getSize(0)!=tkzs.nrLines() ||
+	 sc->info().getSize(1)!=tkzs.nrTrcs() ||
+	 sc->info().getSize(2)!=tkzs.nrZ() )
     {
-	if ( attribs_[attr]->ownsdatacache_ )
-	    delete attribs_[attr]->datacache_;
-	attribs_[attr]->datacache_ = 0;
-	attribs_[attr]->ownsdatacache_ = false;
+	pErrMsg( "Unexpected volume data sampling mismatch" );
 	return;
     }
 
-    const bool isresize = sc->info().getSize(0)!=attribs_[attr]->sz0_ ||
-			  sc->info().getSize(1)!=attribs_[attr]->sz1_ ||
-			  sc->info().getSize(2)!=attribs_[attr]->sz2_;
-
-    const od_int64 totalsz = sc->info().getTotalSz();
-
-    bool doset = false;
-    if ( isresize )
-    {
-	attribs_[attr]->sz0_ = sc->info().getSize( 0 );
-	attribs_[attr]->sz1_ = sc->info().getSize( 1 );
-	attribs_[attr]->sz2_ = sc->info().getSize( 2 );
-	doset = true;
-
-	if ( attribs_[attr]->ownsindexcache_ )
-	    delete [] attribs_[attr]->indexcache_;
-	attribs_[attr]->indexcache_ = 0;
-	attribs_[attr]->indexcachestep_ = 0;
-	attribs_[attr]->ownsindexcache_ = false;
-
-	updateVolumeSlicing();
-    }
-
-    if ( attribs_[attr]->ownsdatacache_ )
-	delete attribs_[attr]->datacache_;
+    const TrcKeyZSampling oldmatkzs = getMultiAttribTrcKeyZSampling();
 
     attribs_[attr]->ownsdatacache_ = mine;
     attribs_[attr]->datacache_ = sc->getStorage();
+    attribs_[attr]->datatkzs_ = tkzs;
+
     if ( !attribs_[attr]->datacache_ || !attribs_[attr]->datacache_->arr() )
     {
 	MultiArrayValueSeries<float,float>* myvalser =
-	    new MultiArrayValueSeries<float,float>( totalsz );
+		    new MultiArrayValueSeries<float,float>( tkzs.totalNr() );
+
 	if ( !myvalser || !myvalser->isOK() )
 	    delete myvalser;
 	else
@@ -406,12 +428,141 @@ void VolumeRenderScalarField::setScalarField( int attr,
 	}
     }
 
+    if ( oldmatkzs != getMultiAttribTrcKeyZSampling() )
+    {
+	for ( int attridx=0; attridx<attribs_.size(); attridx++ )
+	{
+	    // Reset datatkzs_ now. In case sc==0, the old datatkzs_ is kept
+	    // until a multi-attrib resizecache_ update is needed anyway.
+	    if ( !attribs_[attr]->datacache_ )
+		attribs_[attr]->datatkzs_.setEmpty();
+	}
+    }
+
+    if ( oldmatkzs == getMultiAttribTrcKeyZSampling() )
+	updateResizeCache( attr, tr );
+    else
+    {
+	for ( int attridx=0; attridx<attribs_.size(); attridx++ )
+	{
+	    attribs_[attridx]->clearIndexCache();
+	    updateResizeCache( attridx, tr );
+	}
+
+	updateVolumeSlicing();
+    }
+}
+
+
+class VolumeDataResizer : public ParallelTask
+{
+public:
+VolumeDataResizer(const ValueSeries<float>& in,const TrcKeyZSampling& intkzs,
+		  ValueSeries<float>& out,const TrcKeyZSampling& outtkzs)
+    : in_( in )
+    , intkzs_( intkzs )
+    , out_( out )
+    , outtkzs_( outtkzs )
+{
+    out_.setAll( mUdf(float) );
+    worktkzs_ = outtkzs;
+    worktkzs_.limitTo( intkzs, true );
+    totalnr_ = worktkzs_.hsamp_.totalNr();
+}
+
+od_int64 nrIterations() const		{ return totalnr_; }
+
+bool doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    // TODO: sysMemCopy if possible & trilinear interpolation if necessary
+
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	const BinID bid = worktkzs_.hsamp_.atIndex( idx );
+	const int outinlidx = outtkzs_.hsamp_.lineIdx( bid.inl() );
+	const int outcrlidx = outtkzs_.hsamp_.trcIdx( bid.crl() );
+	const int outoffset =
+		    (outcrlidx + outinlidx*outtkzs_.nrTrcs()) * outtkzs_.nrZ();
+
+	const int nearestinl = bid.lineNr() + intkzs_.hsamp_.step_.lineNr()/2;
+	const int ininlidx = intkzs_.hsamp_.lineIdx( nearestinl );
+	const int nearestcrl = bid.trcNr() + intkzs_.hsamp_.step_.trcNr()/2;
+	const int incrlidx = intkzs_.trcIdx( nearestcrl );
+	const int inoffset =
+		    (incrlidx + ininlidx*intkzs_.nrTrcs()) * intkzs_.nrZ();
+
+	for ( int idz=0; idz<worktkzs_.nrZ(); idz++ )
+	{
+	    const float zval = worktkzs_.zsamp_.atIndex( idz );
+	    const int inzidx = intkzs_.zsamp_.nearestIndex( zval );
+	    const int outzidx = outtkzs_.zsamp_.nearestIndex( zval );
+
+	    const float datavalue = in_.value( inoffset + inzidx );
+	    out_.setValue( outoffset + outzidx, datavalue );
+	}
+    }
+    return true;
+}
+
+protected:
+    const ValueSeries<float>&	in_;
+    const TrcKeyZSampling&	intkzs_;
+    ValueSeries<float>&		out_;
+    const TrcKeyZSampling&	outtkzs_;
+    TrcKeyZSampling		worktkzs_;
+    od_int64			totalnr_;
+};
+
+
+void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tr )
+{
+    mCheckAttribStore( attr );
+
+    attribs_[attr]->clearResizeCache();
+
+    if ( !attribs_[attr]->datacache_ )
+	return;
+
+    const TrcKeyZSampling matkzs = getMultiAttribTrcKeyZSampling();
+    if ( attribs_[attr]->datatkzs_ == matkzs )
+	attribs_[attr]->resizecache_ = attribs_[attr]->datacache_;
+    else
+    {
+	MultiArrayValueSeries<float,float>* myvalser =
+		    new MultiArrayValueSeries<float,float>( matkzs.totalNr() );
+	VolumeDataResizer resizer( *attribs_[attr]->datacache_,
+				   attribs_[attr]->datatkzs_,
+				   *myvalser, matkzs );
+	resizer.execute();
+	attribs_[attr]->resizecache_ = myvalser;
+	attribs_[attr]->ownsresizecache_ = true;
+    }
+
     //TODO: if 8-bit data & some flags, use data itself
     if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-//	attribs_[attr]->mapper_.setData(attribs_[attr]->datacache_,totalsz,tr);
 	clipData( attr, tr );
 
-    makeIndices( attr, doset, tr );
+    makeIndices( attr, tr );
+}
+
+
+TrcKeyZSampling VolumeRenderScalarField::getMultiAttribTrcKeyZSampling() const
+{
+    TrcKeyZSampling res( false );
+
+    for ( int attr=0; attr<attribs_.size(); attr++ )
+    {
+	const TrcKeyZSampling& tkzs = attribs_[attr]->datatkzs_;
+	if ( !tkzs.isDefined() || tkzs.isEmpty() )
+	    continue;
+
+	if ( res.isEmpty() )
+	    res = tkzs;
+	else
+	    res.include( tkzs );
+    }
+
+    return res;
 }
 
 
@@ -442,7 +593,7 @@ void VolumeRenderScalarField::setColTabMapperSetup( int attr,
     if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
 	clipData( attr, tr );
 
-    makeIndices( attr, false, tr );
+    makeIndices( attr, tr );
 }
 
 
@@ -456,11 +607,11 @@ void VolumeRenderScalarField::clipData( int attr, TaskRunner* tr )
 {
     mCheckAttribStore( attr );
 
-    if ( !attribs_[attr]->datacache_ )
+    if ( !attribs_[attr]->resizecache_ )
 	return;
 
-    attribs_[attr]->mapper_.setData( attribs_[attr]->datacache_,
-				     attribs_[attr]->totalSz(), tr );
+    const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
+    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_, totalsz, tr);
     attribs_[attr]->mapper_.setup_.triggerRangeChange();
 }
 
@@ -489,7 +640,7 @@ void VolumeRenderScalarField::makeColorTables( int attr )
 	raytt_->setColTabUndefColor( colmap[1.0] );
 
     if ( !useshading_ )
-	makeIndices( attr, false, 0 );
+	makeIndices( attr, 0 );
 }
 
 
@@ -533,24 +684,27 @@ void VolumeRenderScalarField::setDefaultRGBAValue( int channel )
 }
 
 
-void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
+void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tr )
 {
     mCheckAttribStore( attr );
 
-    if ( !attribs_[attr]->datacache_ )
+    if ( !attribs_[attr]->resizecache_ )
 	return;
 
-    const od_int64 totalsz = attribs_[attr]->totalSz();
+    const TrcKeyZSampling matkzs = getMultiAttribTrcKeyZSampling();
+    const od_int64 totalsz = matkzs.totalNr();
+
+    const bool resize = matkzs.nrZ()!=osgvoldata_->s() ||
+			matkzs.nrTrcs()!=osgvoldata_->t() ||
+			matkzs.nrLines()!=osgvoldata_->r();
 
     if ( !useshading_ || isrgba_ )
     {
-	if ( attribs_[attr]->sz2_!=osgvoldata_->s() ||
-	     attribs_[attr]->sz1_!=osgvoldata_->t() ||
-	     attribs_[attr]->sz0_!=osgvoldata_->r() )
+	if ( resize )
 	{
-	    osgvoldata_->allocateImage( attribs_[attr]->sz2_,
-					attribs_[attr]->sz1_,
-					attribs_[attr]->sz0_,
+	    osgvoldata_->allocateImage( matkzs.nrZ(),
+					matkzs.nrTrcs(),
+					matkzs.nrLines(),
 					GL_RGBA, GL_UNSIGNED_BYTE );
 	    if ( isrgba_ && !useshading_ )
 	    {
@@ -589,7 +743,7 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 //    unsigned char* idxptr = attribs_[attr]->indexcache_;
     unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
     ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
-			    totalsz, mNrColors-1, *attribs_[attr]->datacache_,
+			    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
 			    idxptr, idxstep, udfptr, idxstep );
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )
@@ -637,11 +791,16 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 	    OD::memCopy( ptr , coltab+4*attribs_[attr]->indexcache_[idx], 4 );
 	    ptr += 4;
 	}
+
+	mDynamicCastGet( osgGeo::FixedFunctionTechnique*, fft,
+			 osgvoltile_->getVolumeTechnique() );
+	if ( fft )
+	    fft->setBorderColor( osgtransfunc_->getColor(1.0) );
     }
-    else if ( doset && !isrgba_ )
+    else if ( resize && !isrgba_ )
     {
-	osgvoldata_->setImage( attribs_[attr]->sz2_, attribs_[attr]->sz1_,
-			       attribs_[attr]->sz0_, GL_LUMINANCE_ALPHA,
+	osgvoldata_->setImage( matkzs.nrZ(), matkzs.nrTrcs(),
+			       matkzs.nrLines(), GL_LUMINANCE_ALPHA,
 			       GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
 			       attribs_[attr]->indexcache_,
 			       osg::Image::NO_DELETE, 1 );
@@ -664,7 +823,7 @@ void VolumeRenderScalarField::enableAttrib( int attr, bool yn )
     else if ( isrgba_ && osgvoldata_->data() && attribs_[attr]->indexcache_ &&
 	      yn!=attribs_[attr]->isInVolumeCache() )
     {
-	const od_int64 totalsz = attribs_[attr]->totalSz();
+	const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
 	const int deststep = yn ? 4 : 1;
 	unsigned char* destptr = yn ? osgvoldata_->data()+attr
 				    : new unsigned char[totalsz];
@@ -672,7 +831,7 @@ void VolumeRenderScalarField::enableAttrib( int attr, bool yn )
 	copyDataStepwise( totalsz, attribs_[attr]->indexcache_,
 			  attribs_[attr]->indexcachestep_, destptr, deststep );
 	if ( yn )
-	    delete [] attribs_[attr]->indexcache_;
+	    attribs_[attr]->clearIndexCache();
 	else
 	    setDefaultRGBAValue( attr );
 
@@ -682,6 +841,8 @@ void VolumeRenderScalarField::enableAttrib( int attr, bool yn )
 
 	osgvoldata_->dirty();
     }
+
+    requestSingleRedraw();
 }
 
 
@@ -731,6 +892,7 @@ void VolumeRenderScalarField::setAttribTransparency( int attr,
     const float rescaledtrans = pow( mCast(float,trans)/255.0,
 				     mTransparencyBendPower );
     osgtransprop_->setValue( 1.0 - rescaledtrans );
+    requestSingleRedraw();
 
     /* As long as only single layer textures are supported, setting OSG's
     transparency property will do. The FixedFunctionTechnique ignores this
@@ -825,9 +987,11 @@ const char* VolumeRenderScalarField::writeVolumeFile( int attr,
 	hton_float(0.0f), hton_float(0.0f), hton_float(0.0f)
       };
 
-    vh.width = hton_uint32( attribs_[attr]->sz2_ );
-    vh.height = hton_uint32( attribs_[attr]->sz1_ );
-    vh.images = hton_uint32( attribs_[attr]->sz0_ );
+    const TrcKeyZSampling matkzs = getMultiAttribTrcKeyZSampling();
+
+    vh.width = hton_uint32( matkzs.nrZ() );
+    vh.height = hton_uint32( matkzs.nrTrcs() );
+    vh.images = hton_uint32( matkzs.nrLines() );
     vh.bits_per_voxel = hton_uint32(8);
 
     if ( strm.addBin(vh).isBad() )
@@ -838,7 +1002,7 @@ const char* VolumeRenderScalarField::writeVolumeFile( int attr,
 
     if ( indexcachestep!=1 )
     {
-	for ( int count=attribs_[attr]->totalSz(); count>0; count-- )
+	for ( int count=matkzs.totalNr(); count>0; count-- )
 	{
 	    if ( !strm.addBin(indexcacheptr,1) )
 		return writeerr;
@@ -846,7 +1010,7 @@ const char* VolumeRenderScalarField::writeVolumeFile( int attr,
 	    indexcacheptr += indexcachestep;
 	}
     }
-    else if ( !strm.addBin(indexcacheptr,attribs_[attr]->totalSz()) )
+    else if ( !strm.addBin(indexcacheptr,matkzs.totalNr()) )
 	return writeerr;
 
     return 0;

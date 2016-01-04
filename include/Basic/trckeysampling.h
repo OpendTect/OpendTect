@@ -64,6 +64,7 @@ public:
     void		limitToWithUdf(const TrcKeySampling&);
 			    /*!< handles undef values +returns reference HS
 				 nearest limit if HS's do not intersect */
+    void		shrinkTo(const TrcKeySampling& innertks);
     void		expand(int nrlines,int nrtrcs);
 
     int			lineIdx(Pos::LineID) const;

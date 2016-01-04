@@ -78,6 +78,8 @@ public:
     void		limitToWithUdf(const TrcKeyZSampling&);
 			/*!< handles undef values + returns reference cube
 			     nearest limit if the 2 cubes do not intersect */
+    void		shrinkTo(const TrcKeyZSampling& innertkzs,
+				 float releps=1e-4);
     void		expand(int nrlines,int nrtrcs,int nrz);
 
     void		snapToSurvey();
