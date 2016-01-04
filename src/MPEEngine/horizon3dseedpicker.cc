@@ -527,7 +527,9 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     mGetHorizon( hor3d, false )
 
     BinID dir;
-    if ( !lineTrackDirection(dir) ) return false;
+    const TrcKeyPath* rdlpath = 0;
+    if ( !lineTrackDirection(dir) )
+	rdlpath = engine().activePath();
 
     const int nrseeds = seedlist_.size();
     if ( nrseeds<2 )
@@ -539,23 +541,26 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const TrcKey& seed = seedlist_[idx];
-	sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
+	if ( rdlpath )
+	    sortval[idx] = rdlpath->indexOf( seed );
+	else
+	    sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
 	sortidx[idx] = idx;
     }
 
     sort_coupled( mVarLenArr(sortval), mVarLenArr(sortidx), nrseeds );
 
     TypeSet<TrcKey> snaplist;
-    const int step = dir.inl() ? dir.inl() : dir.crl();
+    const int step = rdlpath ? 1 : dir.inl() ? dir.inl() : dir.crl();
     for ( int vtx=0; vtx<nrseeds-1; vtx++ )
     {
 	const int diff = sortval[vtx+1] - sortval[vtx];
 	if ( fltdataprov_ )
 	{
-	    const float z1 = hor3d->getZ( seedlist_[vtx+1] );
-	    const float z2 = hor3d->getZ( seedlist_[vtx] );
-	    const BinID seed1bid = seedlist_[vtx+1].pos();
-	    const BinID seed2bid = seedlist_[vtx].pos();
+	    const float z1 = hor3d->getZ( seedlist_[sortidx[vtx+1]] );
+	    const float z2 = hor3d->getZ( seedlist_[sortidx[vtx]] );
+	    const BinID seed1bid = seedlist_[sortidx[vtx+1]].pos();
+	    const BinID seed2bid = seedlist_[sortidx[vtx]].pos();
 	    if ( seed1bid!=seed2bid && (
 		 fltdataprov_->isOnFault(seed1bid,z1,1.0f) ||
 		 fltdataprov_->isOnFault(seed2bid,z2,1.0f) ||
@@ -567,9 +572,21 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	const Coord3 seed2 = hor3d->getCoord( seedlist_[sortidx[vtx+1]] );
 	for ( int idx=step; idx<diff; idx+=step )
 	{
+	    TrcKey tk;
+	    Coord3 interpos;
 	    const double frac = (double) idx / diff;
-	    const Coord3 interpos = (1-frac) * seed1 + frac  * seed2;
-	    const TrcKey tk = SI().transform( interpos );
+	    if ( rdlpath )
+	    {
+		const int startidx = rdlpath->indexOf(seedlist_[sortidx[vtx]]);
+		tk = (*rdlpath)[ startidx + idx ];
+		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
+		interpos = Coord3( SI().transform(tk.pos()), interpz );
+	    }
+	    else
+	    {
+		interpos = (1-frac) * seed1 + frac  * seed2;
+		tk = SI().transform( interpos );
+	    }
 	    if ( tk.isUdf() )
 		continue;
 	    hor3d->setZ( tk, (float)interpos.z, true );

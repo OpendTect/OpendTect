@@ -109,6 +109,10 @@ protected:
     Pos::GeomID 			geomid_;
     BufferString			linename_;
     DataPack::ID			datapackid_;
+
+    void			setObjTKPath(const TrcKeyPath*);
+public:
+    const TrcKeyPath*		getObjTKPath() const;
 };
 
 

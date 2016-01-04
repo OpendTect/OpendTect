@@ -268,6 +268,8 @@ protected:
     void			updateTexOriginAndScale(
 					    int attrib,const TrcKeyPath&,
 					    const StepInterval<float>& zrg);
+public:
+    const TrcKeyPath*		getTrcKeyPath();
 };
 
 } // namespace visSurvey

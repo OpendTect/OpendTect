@@ -32,11 +32,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "visplanedatadisplay.h"
 
+#include "hiddenparam.h"
+
 mCreateFactoryEntry( visSurvey::MPEClickCatcher )
 
 
 namespace visSurvey
 {
+
+static HiddenParam< MPEClickInfo, const TrcKeyPath* > rdmtkpaths( 0 );
 
 MPEClickCatcher::MPEClickCatcher()
     : visBase::VisualObjectImpl( false )
@@ -47,7 +51,9 @@ MPEClickCatcher::MPEClickCatcher()
     , editor_( 0 )
     , cureventinfo_( 0 )
     , endSowing( this )
-{}
+{
+    rdmtkpaths.setParam( &info_, 0 );
+}
 
 
 MPEClickCatcher::~MPEClickCatcher()
@@ -55,6 +61,7 @@ MPEClickCatcher::~MPEClickCatcher()
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
     setEditor( 0 );
+    rdmtkpaths.removeParam( &info_ );
 }
 
 
@@ -254,6 +261,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 	    info().setLegalClick( legalclick0 );
 	    info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	    info().setObjTKPath( rtd->getTrcKeyPath() );
 	    info().setObjDataPackID( datapackid );
 
 	    const Attrib::SelSpec* as = rtd->getSelSpec( attrib );
@@ -522,6 +530,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	}
 
 	info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	info().setObjTKPath( rtd->getTrcKeyPath() );
 	info().setObjDataPackID( datapackid );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
 
@@ -679,6 +688,7 @@ void MPEClickInfo::clear()
     linename_ = "";
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
+    rdmtkpaths.setParam( this, 0 );
 }
 
 
@@ -748,5 +758,11 @@ void MPEClickInfo::setObjLineName( const char* str )
 
 void MPEClickInfo::setObjLineData( const Attrib::Data2DHolder* ad2dh )
 { linedata_ = ad2dh; }
+
+void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
+{ rdmtkpaths.setParam( this, tkp ); }
+
+const TrcKeyPath* MPEClickInfo::getObjTKPath() const
+{ return rdmtkpaths.getParam( this ); }
 
 } // namespce visSurvey

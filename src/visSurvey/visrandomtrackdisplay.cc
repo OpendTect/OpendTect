@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturepanelstrip.h"
 #include "zaxistransform.h"
 
+#include "hiddenparam.h"
 
 namespace visSurvey
 {
@@ -44,6 +45,8 @@ const char* RandomTrackDisplay::sKeyNrKnots()	    { return "Nr. Knots"; }
 const char* RandomTrackDisplay::sKeyKnotPrefix()    { return "Knot "; }
 const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
+
+static HiddenParam< RandomTrackDisplay, TrcKeyPath* > trckeypaths( 0 );
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
@@ -66,6 +69,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , rl_(0)
     , nrgeomchangecbs_(0)
 {
+    trckeypaths.setParam( this, new TrcKeyPath() );
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
     int highestnamenr = 0;
@@ -186,6 +190,9 @@ RandomTrackDisplay::~RandomTrackDisplay()
 	rl_->unRef();
     }
 
+    TrcKeyPath* tkpath = trckeypaths.getParam( this );
+    trckeypaths.removeParam( this );
+    delete tkpath;
     setZAxisTransform( 0, 0 );
 }
 
@@ -571,7 +578,9 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 					   TypeSet<int>* segments ) const
 {
+    TrcKeyPath& tkpath = *trckeypaths.getParam( this );
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
+    tkpath.erase();
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
     const Pos::SurvID survid = s3dgeom_->getSurvID();
@@ -579,7 +588,10 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	if ( !idx || bids[idx]!=trcspath_.last() )
+	{
 	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add( bids[idx] );
+	    tkpath.add( TrcKey(bids[idx]) );
+	}
     }
 }
 
@@ -1647,4 +1659,8 @@ void RandomTrackDisplay::draggerRightClick( CallBacker* )
     triggerRightClick( dragger_->rightClickedEventInfo() );
 }
 
+const TrcKeyPath* RandomTrackDisplay::getTrcKeyPath()
+{
+    return trckeypaths.getParam( this );
+}
 } // namespace visSurvey

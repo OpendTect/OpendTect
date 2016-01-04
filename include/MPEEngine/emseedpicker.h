@@ -50,6 +50,9 @@ protected:
     const EMSeedPicker*     seedpicker_;
 private:
     TypeSet<TrcKeyValue>    seeds_;
+protected:
+    int			    findClosestSeedRdmIdx(const EM::PosID&);
+    int			    getNearestRdmLineIdx(const TrcKey&) const;
 };
 /*!
 \brief Handles adding of seeds and retracking of events based on new seeds. An

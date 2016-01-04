@@ -33,6 +33,8 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "seispreload.h"
 #include "survinfo.h"
 
+#include "hiddenparam.h"
+
 #define mRetErr( msg, retval ) { errmsg_ = msg; return retval; }
 
 MPE::Engine& MPE::engine()
@@ -44,6 +46,8 @@ MPE::Engine& MPE::engine()
 
 namespace MPE
 {
+
+static HiddenParam< Engine, const TrcKeyPath* > rdmlinetkpaths( 0 );
 
 // MPE::Engine
 Engine::Engine()
@@ -59,6 +63,7 @@ Engine::Engine()
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
+    rdmlinetkpaths.setParam( this, 0 );
     trackers_.allowNull();
     trackermgrs_.allowNull();
     flatcubescontainer_.allowNull();
@@ -80,6 +85,19 @@ Engine::~Engine()
 	dpm_.release( attribcachedatapackids_[idx] );
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribbkpcachedatapackids_[idx] );
+    rdmlinetkpaths.removeParam( this );
+}
+
+
+const TrcKeyPath* Engine::activePath() const
+{
+    return rdmlinetkpaths.getParam( this );
+}
+
+
+void Engine::setActivePath( const TrcKeyPath* tkp )
+{
+    rdmlinetkpaths.setParam( this, tkp );
 }
 
 

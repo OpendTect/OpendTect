@@ -161,8 +161,8 @@ void Vw2DHorizon3D::selected( bool enabled )
     {
 	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
 	if ( seedpicker && 
-	     seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
-	     seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap )
+	     (seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
+	      seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap) )
 	    setenableseed = false;
 	else
 	    setenableseed = true;

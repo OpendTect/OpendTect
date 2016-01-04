@@ -192,6 +192,10 @@ protected:
     static const char*		sKeyEnabled()	{ return "Is enabled"; }
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
     static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
+
+public:
+    const TrcKeyPath*		activePath() const;
+    void			setActivePath(const TrcKeyPath*);
 };
 
 
