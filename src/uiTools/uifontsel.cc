@@ -103,7 +103,15 @@ void uiFontSettingsGroup::butPushed( CallBacker* obj )
 void uiFontSettingsGroup::resetCB( CallBacker* )
 {
     if ( uiMSG().askGoOn(tr("Reset to application defaults?")) )
+    {
 	FontList().setDefaults();
+	uiMain::theMain().setFont( FontList().get(), true );
+	for ( int idx=0; idx<lbls_.size(); idx++ )
+	{
+	    const uiFont& selfont = FontList().get( types_[idx] );
+	    lbls_[idx]->setFont( selfont );
+	}
+    }
 }
 
 
