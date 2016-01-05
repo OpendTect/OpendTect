@@ -14,22 +14,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 
 
-#define mRunTest( desc, test ) \
-{ \
-    if ( (test) ) \
-    { \
-	if ( !quiet ) \
-	{ \
-	    od_cout() << desc << ":"; \
-	    od_cout() << " OK\n"; \
-	} \
-    } \
-    else \
-    { \
-	od_cout() << desc << ":"; \
-	od_cout() << " Fail\n"; \
-	return false; \
-    } \
+#define mRunTest( desc, test ) mRunStandardTest( test, desc );
+
+static bool testTruncate()
+{
+    BufferString longstring( "Hello world! Lets solve all powerty today!");
+    truncateString( longstring.getCStr(), 16 );
+
+    mRunStandardTest( longstring=="Hello world! ...", "Truncate string" );
+    mRunStandardTest( longstring.size()==16, "Truncate string size" );
+
+    return true;
 }
 
 
@@ -267,6 +262,7 @@ int main( int argc, char** argv )
 
     if ( !testBytes2String()
       || !testStringPrecisionInAscII()
+      || !testTruncate()
       || !testBufferStringFns()
       || !testOccFns()
       || !testLimFToStringFns()

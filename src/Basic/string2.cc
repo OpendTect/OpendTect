@@ -1042,3 +1042,14 @@ FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
     return units[(int) unit];
 }
+
+
+char* truncateString( char* str, int maxlen )
+{
+    if ( maxlen>4 && strlen(str)>maxlen-4)
+    {
+	memcpy( str+maxlen-4, " ...", 5 );
+    }
+
+    return str;
+}
