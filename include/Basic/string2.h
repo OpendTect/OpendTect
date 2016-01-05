@@ -150,5 +150,9 @@ mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 	/*!<Returns a string with an area and its unit, depending on survey and
 	    area size, unit is ft^2, m^2, km^2 or mile^2. */
 
+mGlobal(Basic) char* truncateString(char* str, int maxlen );
+	/*!<If str is longer than maxlen-4, string will be truncated and a
+	 * " ..." will be appended". */
+
 
 #endif
