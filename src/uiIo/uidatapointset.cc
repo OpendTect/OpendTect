@@ -194,10 +194,11 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     const int nrcols = initVars();
     mkToolBars();
 
-    const char* dpsnm = dps.name();
+    BufferString dpsnm = dps.name();
     uiLabel* titllbl = 0;
     if ( *dpsnm != '<' )
     {
+	truncateString( dpsnm.getCStr(), 130 );
 	titllbl = new uiLabel( this, toUiString(dpsnm) );
 	titllbl->attach( hCentered );
     }

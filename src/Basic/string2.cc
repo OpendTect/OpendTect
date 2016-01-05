@@ -1121,3 +1121,13 @@ char* lastOcc( char* str, int character )
 {
     return const_cast<char*>( lastOcc(const_cast<const char*>(str),character) );
 }
+
+char* truncateString( char* str, int maxlen )
+{
+    if ( maxlen>4 && strlen(str)>maxlen-4)
+    {
+	memcpy( str+maxlen-4, " ...", 5 );
+    }
+
+    return str;
+}
