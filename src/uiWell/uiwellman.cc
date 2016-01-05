@@ -438,6 +438,7 @@ void uiWellMan::defD2T( bool chkshot )
 
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
+    wrdr->getTrack();
 
     if ( chkshot )
 	wrdr->getCSMdl();
