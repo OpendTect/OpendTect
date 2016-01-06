@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fftfilter.h"
 #include "flatposdata.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "mathfunc.h"
 #include "prestackattrib.h"
 #include "prestackgather.h"
@@ -907,7 +908,17 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
     synthgen.setName( capt.buf() );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
-    if ( wvlt_ )
+    bool needsetwvlt = synthgenpar.wvltnm_.isEmpty();
+    if ( !needsetwvlt )
+    {
+	PtrMan<IOObj> ioobj = Wavelet::getIOObj( synthgenpar.wvltnm_ );
+	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+	if ( !wvlt || (wvlt_->name()==wvlt->name()) )
+	    needsetwvlt = true;
+	else 
+	    synthgen.setWavelet( wvlt, OD::CopyPtr );
+    }
+    if ( wvlt_ && needsetwvlt )
 	synthgen.setWavelet( wvlt_, OD::UsePtr );
     synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
 
