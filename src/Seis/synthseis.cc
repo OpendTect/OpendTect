@@ -125,16 +125,11 @@ bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
 }
 
 
-bool SynthGenBase::getOutSamplingFromModel(
-			     const ObjectSet<const ReflectivityModel>& models,
-			     StepInterval<float>& sampling,
-			     bool usenmo )
+bool SynthGenBase::isInputOK()
 {
-    if ( models.isEmpty() )
-	mpErrRet( "No models given to make synthetics", false );
-
     if ( !wavelet_ )
-	mpErrRet( "Wavelet required to compute trace range from model(s)",false)
+	mErrRet(tr("Wavelet required to compute trace range from model(s)"),
+		false)
 
     const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
 							: outputsampling_.step;
@@ -148,6 +143,17 @@ bool SynthGenBase::getOutSamplingFromModel(
 	mErrRet(tr("Wavelet length must be larger than output sampling rate"),
 		false)
 
+    return true;
+}
+
+
+bool SynthGenBase::getOutSamplingFromModel(
+			     const ObjectSet<const ReflectivityModel>& models,
+			     StepInterval<float>& sampling,
+			     bool usenmo )
+{
+    const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
+							: outputsampling_.step;
     sampling.set( mUdf(float), -mUdf(float), outputsr );
     for ( int imod=0; imod<models.size(); imod++ )
     {
@@ -312,6 +318,12 @@ int SynthGenerator::setConvolveSize()
     {
 	ObjectSet<const ReflectivityModel> mod;
 	mod += refmodel_;
+	if ( mod.isEmpty() )
+	    mpErrRet( "No models given to make synthetics", false );
+
+	if ( !SynthGenBase::isInputOK() )
+	    return mErrOccRet;
+
 	if ( !SynthGenBase::getOutSamplingFromModel(mod,cursampling) )
 	    mErrRet(tr("Cannot determine trace size from model"), mErrOccRet)
 
@@ -778,8 +790,15 @@ bool RaySynthGenerator::doPrepare( int )
     getAllRefls( models );
     const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
     StepInterval<float> cursampling( outputsampling_ );
+    if ( models.isEmpty() )
+	mErrRet( tr("No models given to make synthetics"), false );
+
+    if ( !SynthGenBase::isInputOK() )
+	return mErrOccRet;
+
     if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
-						applynmo_ || zerooffset) )
+						applynmo_ || zerooffset) &&
+	  aimodels_ )
     {
 	Interval<float> modelsampling;
 	ElasticModel::getTimeSampling( *aimodels_, modelsampling );
