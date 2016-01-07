@@ -21,12 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "od_helpids.h"
 
-static const char* dlgtitle =
-"Specify working area values.\n"
-"No need to be precise, parts can lie outside the ranges.\n"
-"The values will determine the size of the display box,\n"
-"and provide some defaults a.o. for 3D horizon generation.";
-
 
 class ui2DDefSurvInfoDlg : public uiDialog
 { mODTextTranslationClass(ui2DDefSurvInfoDlg);

@@ -208,7 +208,7 @@ public:
 protected:
 
     od_int64            totalNr() const
-			{ return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl(); }
+			{return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl();}
     od_int64            nrDone() const { return nrdone_; }
     uiString	uiMessage() const { return tr("Reading velocity model"); };
     uiString	uiNrDoneText() const { return tr("Position read"); }
@@ -390,6 +390,9 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 	return;
 
     const BinID bid = trckey.pos();
+
+    if ( bid.isUdf() )
+	return;
 
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;

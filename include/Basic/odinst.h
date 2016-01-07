@@ -26,6 +26,8 @@ namespace ODInst
     mGlobal(Basic) BufferString GetRelInfoDir();
     mGlobal(Basic) bool		canInstall();
     mGlobal(Basic) void		startInstManagement();
+    mGlobal(Basic) void		startInstManagementWithRelDir(const char*);
+
     mGlobal(Basic) bool		updatesAvailable();
     mGlobal(Basic) bool		runInstMgrForUpdt();
     mGlobal(Basic) const char*	getPkgVersion(const char* file_pkg_basenm);

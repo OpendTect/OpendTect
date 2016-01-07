@@ -102,6 +102,8 @@ protected:
     float			surfreflcoeff_;
 
     uiString			errmsg_;
+
+    bool			isInputOK();
 };
 
 

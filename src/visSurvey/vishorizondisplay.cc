@@ -1466,24 +1466,28 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 
             if ( !mIsUdf(horsubid) )
             {
-                Coord3 horpos = hor->getPos(sid,horsubid);
+		//As zrg is in the non-transformed z-domain, we have to do the
+		//comparison there.
+                const Coord3 horpos = hor->getPos(sid,horsubid);
+		Coord3 displayhorpos = horpos;
                 if ( horpos.isDefined() )
                 {
                     if ( zaxistransform_ )
-                        horpos.z = zaxistransform_->transformTrc( hortrc,
+		    {
+                        displayhorpos.z = zaxistransform_->transformTrc( hortrc,
 						      (float) horpos.z );
+		    }
                 }
 
-                if ( horpos.isDefined() && zrg.includes(horpos.z,false) )
+                if ( displayhorpos.isDefined() && zrg.includes(horpos.z,false) )
                 {
                     //Take coord from intersection, and z from horizon
                     //Gives nice intersection when geometry is different
                     //such as on 2D lines
-                    
-                    curline += Coord3( intersectioncoord, horpos.z );
-                    continue;
-                }
-            }
+                    curline += Coord3( intersectioncoord, displayhorpos.z );
+		    continue;
+		}
+	    }
         }
 
 	res.addLine( curline );

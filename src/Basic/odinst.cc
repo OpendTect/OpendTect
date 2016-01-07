@@ -168,6 +168,22 @@ void ODInst::startInstManagement()
 }
 
 
+void ODInst::startInstManagementWithRelDir( const char* reldir )
+{
+#ifdef __win__
+    FilePath installerdir( getInstallerPlfDir() );
+    if ( installerdir.isEmpty() )
+	return;
+    installerdir.add( "od_instmgr" );
+    BufferString cmd( installerdir.fullPath() );
+    BufferString parm( " --instdir "  );
+    parm.add( "\"" ).add( reldir ).add( "\"" );
+
+    executeWinProg( cmd, parm, installerdir.pathOnly() );
+#endif
+}
+
+
 BufferString ODInst::getInstallerPlfDir()
 {
     FilePath installerbasedir( GetInstallerDir() );
