@@ -1,34 +1,20 @@
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to build a release
-# Author:       Nageswara
+# Description:	CMake script to build a release
+# Author:	Nageswara
 # Date:		August 2012		
-#RCS:           $Id$
+#RCS:		$Id$
 
 #TODO Change macro names to CAPITAL letters.
 
 macro ( create_package PACKAGE_NAME )
-    file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin )
-
-    file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
-    file( MAKE_DIRECTORY ${DESTINATION_DIR}/plugins
-			  ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
-    if( APPLE )
-	set( MACBINDIR "Contents/MacOS" )
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}/Contents )
-    endif()
-
     if( ${PACKAGE_NAME} STREQUAL "base" )
 	if( APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/Contents/Resources/qt_menu.nib
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/qt_menu.nib )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E chdir ${DESTINATION_DIR}/Contents
-			     ln -s ../bin/mac/Release MacOS
-			     RESULT_VARIABLE STATUS )
-	    if( NOT ${STATUS} EQUAL "0" )
-		message( FATAL_ERROR "Failed to create MacOS link" )
-	    endif()
+			     ${COPYFROMDATADIR}/qt_menu.nib
+			     ${COPYTODATADIR}/qt_menu.nib )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMDATADIR}/od.icns
+			     ${COPYTODATADIR}/. )
 	endif()
     if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
 	copy_unix_systemlibs()
@@ -40,11 +26,10 @@ macro ( create_package PACKAGE_NAME )
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
    endif()
 
-        copy_thirdpartylibs()
+	copy_thirdpartylibs()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
-    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     message( "Copying ${OD_PLFSUBDIR} libraries" )
     foreach( FILE ${LIBLIST} )
 	string( FIND ${FILE} "osgGeo" ISOSGGEO )
@@ -57,17 +42,18 @@ macro ( create_package PACKAGE_NAME )
 	endif()
 
 	if (  NOT ${ISOSGGEO} EQUAL -1 )
-	   #Added osgGeo lib to OD_THIRD_PARTY_LIBS. Will use create devel package
+	   #Added osgGeo lib to OD_THIRD_PARTY_LIBS. Will be used to create devel package
 	    set( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} ${LIB} )
 	endif()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${LIB}
-		    ${COPYTODIR} )
-	file( GLOB ALOFILES ${CMAKE_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
+			 ${COPYFROMLIBDIR}/${LIB}
+			 ${COPYTOLIBDIR}/${LIB} )
+	file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
 	foreach( ALOFILE ${ALOFILES} )
-	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
-				    ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
+	    get_filename_component( ALOFILENAME ${ALOFILE} NAME )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
+				     ${COPYTODATADIR}/plugins/${OD_PLFSUBDIR}/${ALOFILENAME} )
 	endforeach()
     endforeach()
 
@@ -75,22 +61,22 @@ macro ( create_package PACKAGE_NAME )
 #Inslall lm 
 	foreach( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			      ${CMAKE_INSTALL_PREFIX}/${SPECFILE}
-			      ${DESTINATION_DIR} )
+			      ${COPYFROMDATADIR}/${SPECFILE}
+			      ${COPYTODATADIR}/. )
 	endforeach()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
-			 copy_directory ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
-	if( UNIX OR APPLE )
+			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+	if( UNIX )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_INSTALL_PREFIX}/mk_flexlm_links.csh
-                             ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	    execute_process( COMMAND
-		${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh
-		WORKING_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb
-		RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh )
+		    ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh
+		    WORKING_DIRECTORY ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
+		    RESULT_VARIABLE STATUS )
+	    file( REMOVE_RECURSE ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh )
 	    if( NOT ${STATUS} EQUAL "0" )
 		message( "Failed to create license related links" )
 	    endif()
@@ -109,29 +95,38 @@ macro ( create_package PACKAGE_NAME )
 		set( EXE "${EXE}.exe" )
 	endif()
 
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${EXE} 
-		    ${COPYTODIR} )
+	if ( NOT APPLE )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/${EXE}
+			     ${COPYTOLIBDIR}/${EXE} )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMEXEDIR}/${EXE}
+			     ${COPYTOEXEDIR}/${EXE} )
+	endif()
     endforeach()
 
     if( ${PACKAGE_NAME} STREQUAL "base" )
 	foreach( SPECFILE ${SPECFILES} )
 	     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			      ${CMAKE_INSTALL_PREFIX}/${SPECFILE}
-			      ${DESTINATION_DIR} )
+			      ${COPYFROMDATADIR}/${SPECFILE}
+			      ${COPYTODATADIR}/. )
 	endforeach()
 	foreach( FILES ${ODSCRIPTS} )
-	     file( GLOB SCRIPTS ${CMAKE_INSTALL_PREFIX}/bin/${FILES} )
+	     file( GLOB SCRIPTS ${COPYFROMDATADIR}/bin/${FILES} )
 	     foreach( SCRIPT ${SCRIPTS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${SCRIPT}
-					 ${DESTINATION_DIR}/bin )
+					 ${COPYTODATADIR}/bin/. )
 	     endforeach()
 	endforeach()
 
 	if( WIN32 )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				     ${CMAKE_INSTALL_PREFIX}/rsm
-				     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/rsm )
+				     ${COPYFROMDATADIR}/rsm
+				     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/rsm )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/od_main_debug.bat
+			     ${COPYTOLIBDIR}/od_main_debug.bat )
 	endif()
     endif()
 
@@ -141,16 +136,14 @@ endmacro( create_package )
 
 
 macro( copy_thirdpartylibs )
-    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
-    set( FROMDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
     foreach( LIB ${OD_THIRD_PARTY_LIBS} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FROMDIR}/${LIB} ${COPYTODIR} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
     endforeach()
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/imageformats
-		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
+		     ${COPYFROMDATADIR}/imageformats
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
 endmacro( copy_thirdpartylibs )
 
 macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
@@ -174,62 +167,59 @@ endmacro()
 
 macro( copy_unix_systemlibs )
     message( "Copying ${OD_PLFSUBDIR} system libraries" )
-    set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
-    set( FROMDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
     if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
 	foreach( SYSLIB ${SYSTEMLIBS} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FROMDIR}/${SYSLIB} ${COPYTODIR} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR} )
 	endforeach()
     endif()
 endmacro()
 
 macro( create_basepackages PACKAGE_NAME )
-   if( EXISTS ${DESTINATION_DIR}/Contents )
-	file( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
-   endif()
-   if( NOT EXISTS ${DESTINATION_DIR}/doc )
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User
-			     ${DESTINATION_DIR}/doc/ReleaseInfo)
-   endif()
-
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_INSTALL_PREFIX}/doc/system_requirements.html
-			${DESTINATION_DIR}/doc )
+			${COPYFROMDATADIR}/doc/system_requirements.html
+			${COPYTODATADIR}/doc/system_requirements.html )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.txt
-				${DESTINATION_DIR}/doc/ReleaseInfo )
+				${COPYFROMDATADIR}/relinfo/RELEASE.txt
+				${COPYTODATADIR}/doc/ReleaseInfo/RELEASE.txt )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASEINFO.txt
-				${DESTINATION_DIR}/doc/ReleaseInfo )
+				${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
+				${COPYTODATADIR}/doc/ReleaseInfo/RELEASEINFO.txt )
 	foreach( LIBS ${LIBLIST} )
-	    file( GLOB DATAFILES ${CMAKE_INSTALL_PREFIX}/data/${LIBS} )
+	    file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
 	    foreach( DATA ${DATAFILES} )
     #TODO if possible copy files instead of INSTALL
-		  file( INSTALL DESTINATION ${DESTINATION_DIR}/data
+		  file( INSTALL DESTINATION ${COPYTODATADIR}/data
 				TYPE DIRECTORY FILES ${DATA}
 				REGEX ".svn" EXCLUDE )
 	    endforeach()
 	endforeach()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
-			 ${DESTINATION_DIR}/relinfo )
+			 ${COPYFROMDATADIR}/relinfo/README.txt
+			 ${COPYTODATADIR}/relinfo/README.txt )
    endif()
    if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/relinfo/RELEASE.dgb.txt
-				${DESTINATION_DIR}/doc/ReleaseInfo )
+				${COPYFROMDATADIR}/relinfo/RELEASE.dgb.txt
+				${COPYTODATADIR}/doc/ReleaseInfo/RELEASE.dgb.txt )
        foreach( LIB ${LIBLIST} )
-	  if( IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/data/${LIB}" )
+	  if( IS_DIRECTORY "${COPYFROMDATADIR}/data/${LIB}" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/data/${LIB}
-			     ${DESTINATION_DIR}/data/${LIB} )
+			     ${COPYFROMDATADIR}/data/${LIB}
+			     ${COPYTODATADIR}/data/${LIB} )
 	  else()
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${CMAKE_INSTALL_PREFIX}/data/${LIB}
-			     ${DESTINATION_DIR}/data/${LIB} )
+			     ${COPYFROMDATADIR}/data/${LIB}
+			     ${COPYTODATADIR}/data/${LIB} )
 	  endif()
        endforeach()
+       file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
+	foreach( QMFILE ${QMFILES} )
+	    get_filename_component( QMFILENM ${QMFILE} NAME )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMDATADIR}/data/localizations/${QMFILENM}
+			     ${COPYTODATADIR}/data/localizations/${QMFILENM} )
+	endforeach()
    endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
@@ -241,29 +231,29 @@ macro( init_destinationdir  PACKAGE_NAME )
     set( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
-        set( VER_FILENAME "basedata" )
-        set( PACKAGE_FILENAME "basedata.zip" )
+	set( VER_FILENAME "basedata" )
+	set( PACKAGE_FILENAME "basedata.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "basedata_mac.zip" )
 	    set( VER_FILENAME "basedata_mac" )
 	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-        set( VER_FILENAME "dgbbasedata" )
-        set( PACKAGE_FILENAME "dgbbasedata.zip" )
+	set( VER_FILENAME "dgbbasedata" )
+	set( PACKAGE_FILENAME "dgbbasedata.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "dgbbasedata_mac.zip" )
 	    set( VER_FILENAME "dgbbasedata_mac" )
 	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "doc" )
-        set( VER_FILENAME "doc" )
-        set( PACKAGE_FILENAME "doc.zip" )
+	set( VER_FILENAME "doc" )
+	set( PACKAGE_FILENAME "doc.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "doc_mac.zip" )
 	    set( VER_FILENAME "doc_mac" )
 	endif()
     elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-        set( VER_FILENAME "dgbdoc" )
-        set( PACKAGE_FILENAME "dgbdoc.zip" )
+	set( VER_FILENAME "dgbdoc" )
+	set( PACKAGE_FILENAME "dgbdoc.zip" )
 	if( APPLE )
 	    set( PACKAGE_FILENAME "dgbdoc_mac.zip" )
 	    set( VER_FILENAME "dgbdoc_mac" )
@@ -287,7 +277,7 @@ macro( init_destinationdir  PACKAGE_NAME )
     set( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
     set( FULLVER_NAME "${OpendTect_FULL_VERSION}" )
     if( APPLE )
-	set( REL_DIR "OpendTect\ ${REL_DIR}.app" )
+	set( REL_DIR "OpendTect\ ${REL_DIR}.app/Contents" )
     endif()
 
     set( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
@@ -295,14 +285,29 @@ macro( init_destinationdir  PACKAGE_NAME )
 	file( REMOVE_RECURSE ${DESTINATION_DIR} )
     endif()
 
-    file( MAKE_DIRECTORY ${DESTINATION_DIR} ${DESTINATION_DIR}/relinfo )
-    file( WRITE ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
-    file( APPEND ${DESTINATION_DIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
+    if ( NOT APPLE )
+	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
+	set( COPYTOLIBDIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX} )
+	set( COPYTODATADIR ${DESTINATION_DIR} )
+    else()
+	file( MAKE_DIRECTORY ${DESTINATION_DIR}
+			     ${DESTINATION_DIR}/MacOS ${DESTINATION_DIR}/Frameworks )
+	set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/Contents/Frameworks )
+	set( COPYTOLIBDIR ${DESTINATION_DIR}/Frameworks )
+	set( COPYFROMEXEDIR ${CMAKE_INSTALL_PREFIX}/Contents/MacOS )
+	set( COPYTOEXEDIR ${DESTINATION_DIR}/MacOS )
+	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX}/Contents/Resources )
+	set( COPYTODATADIR ${DESTINATION_DIR}/Resources )
+    endif()
 
+    file( WRITE ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
+    file( APPEND ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
     if( APPLE )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/Contents
-			     ${DESTINATION_DIR}/Contents )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist
+			     ${DESTINATION_DIR}/. )
     endif()
 
     message( "Preparing package ${VER_FILENAME}.zip ......" )
@@ -313,7 +318,7 @@ macro( create_develpackages )
     file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
 			 ${DESTINATION_DIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-	    	     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
+		     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/batchprogexample
 		     ${DESTINATION_DIR}/doc/Programmer/batchprogexample )
@@ -428,7 +433,7 @@ macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
 	message( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${SOURCE_DIR}/bin/win64/zip -r -q
-			 	 "${PACKAGE_FILENAME}" ${REL_DIR}
+				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     else()
@@ -465,7 +470,7 @@ if( UNIX )
 	set( LIBNAMES ${LIBNAMES} ${SOLIB} )
     endforeach()
     set( ALLLIBSBINS ${LIBNAMES} ${EXECS} )
-    set( SYMGENCMD ${BREAKPAD_DIR}/tools/linux/dump_syms/dump_syms )
+    set( SYMGENCMD ${BREAKPAD_DIR}/bin/dump_syms )
 elseif( WIN32 )
     set( LIBSBINS ${ALLLIBS} ${EXECS} )
     set( ALLLIBSBINS "" )
@@ -475,7 +480,7 @@ elseif( WIN32 )
 	endif()
 	set( ALLLIBSBINS ${ALLLIBSBINS} ${LIBNM} )
     endforeach()
-    set( SYMGENCMD ${BREAKPAD_DIR}/tools/windows/binaries/dump_syms.exe )
+    set( SYMGENCMD ${BREAKPAD_DIR}/bin/dump_syms.exe )
 endif()
 
     foreach( FILENAME ${ALLLIBSBINS} )
@@ -505,5 +510,4 @@ endif()
 	endif()
     endforeach()
 endmacro() #OD_GENERATE_BREAKPAD_SYMBOLS
-
 
