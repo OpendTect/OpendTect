@@ -1062,6 +1062,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 
     s2d->setSelSpec( attribNr(), myas );
     s2d->setDataPackID( attribNr(), dpid, 0 );
+    s2d->showPanel( true );
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
