@@ -42,12 +42,12 @@ public:
 				const char* nm="Trace processor",
 				const IOPar* iniopar=0,
 				const uiString& msg=uiStrings::sProcessing(),
-				int compnr=0);
+				int compnr=-1);
 			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj&,
 				const char* nm="Trace processor",
 				ObjectSet<IOPar>* iniopars=0,
 				const uiString& msg=uiStrings::sProcessing(),
-				int compnr=0);
+				int compnr=-1);
 			SeisSingleTraceProc(const IOObj& out,const char* nm,
 					    const uiString& msg);
     virtual		~SeisSingleTraceProc();
