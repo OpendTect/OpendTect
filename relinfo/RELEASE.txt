@@ -1,5 +1,17 @@
-OpendTect V4.6.x : Release info
+OpendTect V6.0.x : Release info
 
-In general, all fixes in the stable 4.4 are also applied in the 4.6 releases.
+In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+v6.0.0: January 11, 2016
+ * Greatly improved user interaction
+  (no need to switch modes; more short keys)
+ * Completely new (GeoViz-like) 3D horizon tracker (Sponsored by BG)
+ * RGB+RGBA color blending in volumes
+ * SEG-Y Import and Survey Setup are improved
+ * Movie-style Random Line Visualization
+ * Interpretation on Random Lines
+ * Overhaul of existing 2D viewers
+ * Improved 2D seismic interpretation workflows
+ * Improved fault interpretation workflows
+ * New Workflows document with PowerPoint-style workflows
