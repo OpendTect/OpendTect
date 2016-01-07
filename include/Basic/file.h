@@ -28,6 +28,7 @@ namespace File
 
 mGlobal(Basic) bool		exists(const char*);
 mGlobal(Basic) bool		isEmpty(const char*);
+mGlobal(Basic) bool		isDirEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
 
@@ -60,6 +61,9 @@ mGlobal(Basic) bool		copy(const char* from,const char* to,
 					BufferString* errmsg=0);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 					       const char* to);
+mGlobal(Basic) Executor*	getRecursiveDeleter(const char* dirnm,
+					const BufferStringSet* externallist=0,
+					bool filesonly=false);
 mGlobal(Basic) bool		resize(const char*,od_int64);
 mGlobal(Basic) bool		remove(const char*);
 mGlobal(Basic) bool		saveCopy(const char* from,const char* to);

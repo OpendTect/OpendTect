@@ -125,8 +125,89 @@ int RecursiveCopier::nextStep()
 }
 
 
+class RecursiveDeleter : public Executor
+{
+public:
+			RecursiveDeleter(const char* dirnm,
+					 const BufferStringSet* externallist=0,
+					 bool filesonly=false)
+			    : Executor("Removing Files")
+			    , dirname_(dirnm)
+			    , nrdone_(0)
+			    , fileidx_(0)
+			    , filesonly_(filesonly)
+			{
+			    if ( !externallist )
+			    {
+				filelist_.add( dirname_ );
+				makeRecursiveFileList( dirname_, filelist_  );
+			    }
+			    else
+				filelist_.copy( *externallist );
+
+			    totalnr_ = filelist_.size();
+			}
+
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const		{ return totalnr_; }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const 
+			{ return mToUiStringTodo( "Files removed" ); }
+
+    int			nextStep();
+
+protected:
+
+    od_int64		fileidx_;
+    od_int64		totalnr_;
+    od_int64		nrdone_;
+    BufferStringSet	filelist_;
+    BufferString	dirname_;
+    uiString		msg_;
+    bool		filesonly_;
+};
+
+
+int RecursiveDeleter::nextStep()
+{
+    if ( nrdone_ >= totalnr_ )
+	return Finished();
+    
+    fileidx_ = totalnr_ - ( nrdone_ + 1 );
+    const BufferString& filename = filelist_.get( fileidx_ );
+    bool res = true;
+    if ( File::isDirectory(filename) )
+    {
+	if ( filesonly_ )
+	{
+	    if ( isDirEmpty(filename) )
+		res = File::removeDir( filename );
+	}
+	else 
+	    res = File::removeDir( filename );
+    }
+    else if( File::exists(filename) && !File::isDirectory(filename) )
+	res = File::remove( filename );
+    
+    if ( !res )
+    {
+	uiString msg( mToUiStringTodo("Failed to remove ") );
+	msg.append( filename );
+	msg_ = msg;
+    }
+
+    nrdone_++;
+    return MoreToDo();
+}
+
+
 Executor* getRecursiveCopier( const char* from, const char* to )
 { return new RecursiveCopier( from, to ); }
+
+Executor* getRecursiveDeleter( const char* dirname,
+			       const BufferStringSet* externallist,
+			       bool filesonly )
+{ return new RecursiveDeleter( dirname, externallist, filesonly ); }
 
 
 void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
@@ -210,6 +291,14 @@ bool exists( const char* fnm )
 bool isEmpty( const char* fnm )
 {
     return getFileSize( fnm ) < 1;
+}
+
+
+bool isDirEmpty( const char* dirnm )
+{
+    const QDir qdir( dirnm );
+    return qdir.entryInfoList(QDir::NoDotAndDotDot|
+			      QDir::AllEntries).count() == 0;
 }
 
 

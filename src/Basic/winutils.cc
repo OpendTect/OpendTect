@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "string2.h"
 
-#ifdef __win_
+#ifdef __win__
 # include <windows.h>
 # include <shlobj.h>
 # include <process.h>
@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <winreg.h>
 
 # include <iostream>
-
+# include <QSettings>
 #endif
 
 
@@ -371,5 +371,23 @@ static bool getDefaultApplication( const char* filetype,
 bool getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
 { return getDefaultApplication( "HTTP", cmd, errmsg ); }
 
+
+bool setRegKeyVal( const char* ky, const char* vanrnm, const char *val )
+{
+    QSettings regkey( ky, QSettings::NativeFormat );
+    regkey.setValue("Default", "");
+    regkey.setValue( vanrnm, val );
+    regkey.sync();
+    const bool ret = regkey.status() == QSettings::NoError;
+    return ret;
+}
+
+bool removeRegKey( const char* ky )
+{
+    QSettings regkey( ky, QSettings::NativeFormat );
+    regkey.clear();
+    regkey.sync();
+    return regkey.status() == QSettings::NoError;
+}
 
 #endif // __win__
