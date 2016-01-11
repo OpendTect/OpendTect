@@ -55,18 +55,30 @@ if [ -e $tmpoddir ]; then
 fi
 
 mkdir $tmpoddir
+
+#Copy all src, include and pluginfiles (excluding CMake-stuff) to temp folder
+olddir=`pwd`
+cd ${sourcedir}
 if [ -e ${sourcedir}/src ]; then
-    cp -a ${sourcedir}/src ${tmpoddir}/.
+    find src -depth -type f | grep -v CMake | \
+	cpio --pass-through --preserve-modification-time \
+	--make-directories --quiet ${tmpoddir}
 fi
 if [ -e ${sourcedir}/include ]; then
-    cp -a ${sourcedir}/include ${tmpoddir}/.
+    find include -depth -type f | grep -v CMake | \
+	cpio --pass-through --preserve-modification-time \
+	--make-directories --quiet ${tmpoddir}
 fi
 if [ -e ${sourcedir}/plugins ]; then
-    cp -a ${sourcedir}/plugins ${tmpoddir}/.
+    find plugins -depth -type f | grep -v CMake | \
+	cpio --pass-through --preserve-modification-time \
+	--make-directories --quiet ${tmpoddir}
 fi
 
 projectdir="${tmpoddir}/data/localizations/source"
 mkdir -p ${projectdir}
+
+cd ${olddir}
 
 shopt -s nullglob
 #Copy existing ts-files ot project dir
@@ -74,7 +86,6 @@ cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
 
 profnm=${projectdir}/normaltrans.pro
 
-olddir=`pwd`
 cd ${projectdir}
 
 headers=`find $tmpoddir -path "*.h"`
