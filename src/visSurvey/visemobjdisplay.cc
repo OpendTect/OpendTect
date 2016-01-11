@@ -709,6 +709,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	markerset->addPos( pos, false );
     }
 
+    markerset->turnAllMarkersOn( true );
     markerset->forceRedraw( true );
     markerset->getCoordinates()->removeAfter( pids->size()-1 );
 }

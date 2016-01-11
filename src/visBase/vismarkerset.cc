@@ -362,6 +362,12 @@ bool MarkerSet::markerOn( unsigned int idx )
 }
 
 
+void MarkerSet::turnAllMarkersOn( bool yn )
+{
+    markerset_->turnAllMarkersOn( yn );
+}
+
+
 int MarkerSet::findClosestMarker( const Coord3& tofindpos, 
 				 const bool scenespace )
 {

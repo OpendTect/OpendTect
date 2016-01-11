@@ -112,6 +112,7 @@ public:
     			//!<Removes all markers
     void		turnMarkerOn(unsigned int idx,bool);
     bool		markerOn(unsigned int);
+    void		turnAllMarkersOn(bool);
 
     int			findClosestMarker(const Coord3&, bool scenespace=false);
     int			findMarker(const Coord3&, const Coord3& eps,
