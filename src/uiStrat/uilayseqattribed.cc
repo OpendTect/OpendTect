@@ -25,15 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "od_helpids.h"
 
-static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
-{
-    BufferString ret( isnew ? "Define" : "Edit" );
-    ret.add( " parameters for " ).add( lsa.prop_.name() ).add( " attribute" );
-    return ret;
-}
-
-
- static uiString gtDlgUiTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
+static uiString gtDlgUiTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
  { 
      return od_static_tr("gtDlgUiTitle","%1 parameters for %2 attribute")
 		 .arg(isnew ? uiStrings::sDefine() : uiStrings::sEdit())
