@@ -420,6 +420,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
+	    eventmarkerset_->turnAllMarkersOn( true );
 	    eventmarkerset_->forceRedraw( true );
 	}
 
@@ -591,6 +592,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pao->lines_->getCoordinates()->addPos( pos );
 	    }
 
+	    pao->markerset_->turnAllMarkersOn( true );
 	    pao->markerset_->forceRedraw( true );
 
 	    const int size = pao->lines_ ? pao->lines_->getCoordinates()->size()

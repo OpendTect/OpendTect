@@ -356,6 +356,12 @@ void MarkerSet::turnMarkerOn( unsigned int idx,bool yn )
 }
 
 
+void MarkerSet::turnAllMarkersOn( bool yn )
+{
+    markerset_->turnAllMarkersOn( yn );
+}
+
+
 bool MarkerSet::markerOn( unsigned int idx )
 {
     return markerset_->markerOn( idx );

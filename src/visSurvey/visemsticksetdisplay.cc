@@ -156,7 +156,10 @@ void StickSetDisplay::polygonSelectionCB()
 
 #define mForceDrawMarkerSet()\
 for ( int idx = 0; idx<knotmarkersets_.size(); idx++ )\
+{\
+    knotmarkersets_[idx]->turnAllMarkersOn( true );\
     knotmarkersets_[idx]->forceRedraw( true );\
+}\
 
 
 void StickSetDisplay::updateStickMarkerSet()
