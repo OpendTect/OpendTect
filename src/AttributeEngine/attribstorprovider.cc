@@ -93,36 +93,43 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	}
 
 	FixedString datatype = rdr.dataSet()->dataType();
-	if ( datatype != sKey::Steering() )
+	const bool issteering = datatype == sKey::Steering();
+	SeisTrcTranslator* transl = rdr.seisTranslator();
+	if ( !transl )
 	{
-	    SeisTrcTranslator* transl = rdr.seisTranslator();
-	    if ( !transl )
-	       desc.setNrOutputs( Seis::UnknowData, 1 );//why only 1 ?
-	    else if ( transl->componentInfo().isEmpty() )
+	    if ( issteering )
 	    {
-		BufferStringSet complist;
-		SeisIOObjInfo::getCompNames(key, complist);
-		if ( complist.isEmpty() )
-		    desc.setNrOutputs( Seis::UnknowData, 1 );
+		desc.setNrOutputs( Seis::Dip, 2 );
+		if ( compnms )
+		    compnms->add( rdr.dataSet()->name() );
+	    }
+	    else
+		desc.setNrOutputs( Seis::UnknowData, 1 );
+	}
+	else if ( transl->componentInfo().isEmpty() )
+	{
+	    BufferStringSet complist;
+	    SeisIOObjInfo::getCompNames(key, complist);
+	    if ( complist.isEmpty() )
+	    {
+		if ( issteering )
+		    desc.setNrOutputs( Seis::Dip, 2 );
 		else
-		{
-		    desc.setNrOutputs( Seis::UnknowData, complist.size() );
-		    if ( compnms )
-			compnms->operator =( complist );
-		}
+		    desc.setNrOutputs( Seis::UnknowData, 1 );
 	    }
 	    else
 	    {
-		for ( int idx=0; idx<transl->componentInfo().size(); idx++ )
-		    desc.addOutputDataType( (Seis::DataType)
-					transl->componentInfo()[0]->datatype );
+		desc.setNrOutputs( issteering ? Seis::Dip : Seis::UnknowData,
+				   complist.size() );
+		if ( compnms )
+		    compnms->operator =( complist );
 	    }
 	}
 	else
 	{
-	    desc.setNrOutputs( Seis::Dip, 2 );
-	    if ( compnms )
-		compnms->add( rdr.dataSet()->name() );
+	    for ( int idx=0; idx<transl->componentInfo().size(); idx++ )
+		desc.addOutputDataType( (Seis::DataType)
+					transl->componentInfo()[0]->datatype );
 	}
     }
     else
