@@ -39,11 +39,13 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     , sdout_(sout)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
+    , min_time_between_msgupdates_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",1))
 {
+    lastupdate_ = timestamp_;
     dumpSystemInfo();
     socket_ = new Network::Socket( false );
     socket_->setTimeout( socktimeout_ );
-    
+
     const bool ret = socket_->connectToHost( masterhost_, masterport_ );
     BufferString logmsg( "Connection to", masterhost_, " port " );
     logmsg.add( masterport_ ).add( " : " );
@@ -108,6 +110,12 @@ bool JobCommunic::sendState_( State st, bool isexit, bool immediate )
 }
 
 
+void JobCommunic::setTimeBetweenMsgUpdates( int ms )
+{
+    min_time_between_msgupdates_ = ms;
+}
+
+
 bool JobCommunic::updateMsg( char tag , int status, const char* msg )
 {
     const int elapsed_succ = Time::passedSince( lastsucces_ );
@@ -121,6 +129,10 @@ bool JobCommunic::updateMsg( char tag , int status, const char* msg )
         return true;
     }
 
+    if ( Time::passedSince(lastupdate_) < min_time_between_msgupdates_ )
+	return true;
+
+    lastupdate_ = Time::getMilliSeconds();
     return sendMsg( tag , status, msg );
 }
 

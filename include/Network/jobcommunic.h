@@ -72,6 +72,8 @@ public:
     bool		updateProgress( int p )
 			    { bool ret = sendProgress_(p,false); mReturn(ret) }
 
+    void		setTimeBetweenMsgUpdates(int);
+
     bool		sendState(  bool isexit=false )
 			    { mTryMaxtries( sendState_(stat_,isexit,true) ) }
     bool		sendProgress( int p )
@@ -125,7 +127,9 @@ private:
     int			failtimeout_;
     int			min_time_between_update_;
     int			lastsucces_;
-    
+    int			min_time_between_msgupdates_;
+    int			lastupdate_;
+
     void		logMsg(bool stat,const char* msg, const char* details);
     od_ostream*		logstream_;
     od_ostream*		createLogStream();
