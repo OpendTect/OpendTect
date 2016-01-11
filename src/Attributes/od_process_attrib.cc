@@ -207,7 +207,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( alllinenames.isEmpty() && !is2d )	//all other cases
 	alllinenames.add("");
 
-    TextStreamProgressMeter progressmeter(strm);
+    TextStreamProgressMeter progressmeter( strm );
     for ( int idx=0; idx<alllinenames.size(); idx++ )
     {
 	uiString errmsg;
@@ -233,11 +233,16 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !proc )
 	    mRetJobErr( errmsg.getFullString() );
 
+	progressmeter.setName( proc->name() );
+	progressmeter.setMessage( proc->uiMessage() );
+
 	mSetCommState(Working);
 
 	double startup_wait = 0;
 	pars().get( "Startup delay time", startup_wait );
 	sleepSeconds( startup_wait );
+	if ( comm_ )
+	    comm_->setTimeBetweenMsgUpdates( 5000 );
 
 	const double pause_sleep_time =
 				GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );

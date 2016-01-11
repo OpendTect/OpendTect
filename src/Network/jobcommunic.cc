@@ -22,6 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include "mmcommunicdefs.h"
+#include "hiddenparam.h"
+
+
+static HiddenParam<JobCommunic,int> jbcommmin_time_between_msgupdates_( 0 );
+static HiddenParam<JobCommunic,int> jcommlastupdate_( 0 );
 
 JobCommunic::JobCommunic( const char* host, int port, int jid,
 			  StreamData& sout )
@@ -40,10 +45,13 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
 {
+    jbcommmin_time_between_msgupdates_.setParam( this,
+				 1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",1) );
+    jcommlastupdate_.setParam( this, timestamp_ );
     dumpSystemInfo();
     socket_ = new Network::Socket( false );
     socket_->setTimeout( socktimeout_ );
-    
+
     const bool ret = socket_->connectToHost( masterhost_, masterport_ );
     BufferString logmsg( "Connection to", masterhost_, " port " );
     logmsg.add( masterport_ ).add( " : " );
@@ -55,6 +63,8 @@ JobCommunic::~JobCommunic()
 {
     delete socket_;
     delete logstream_;
+    jbcommmin_time_between_msgupdates_.removeParam( this );
+    jcommlastupdate_.removeParam( this );
 }
 
 
@@ -108,6 +118,12 @@ bool JobCommunic::sendState_( State st, bool isexit, bool immediate )
 }
 
 
+void JobCommunic::setTimeBetweenMsgUpdates( int ms )
+{
+    jbcommmin_time_between_msgupdates_.setParam( this, ms );
+}
+
+
 bool JobCommunic::updateMsg( char tag , int status, const char* msg )
 {
     const int elapsed_succ = Time::passedSince( lastsucces_ );
@@ -121,6 +137,14 @@ bool JobCommunic::updateMsg( char tag , int status, const char* msg )
         return true;
     }
 
+    const int min_time_between_msgupdates =
+			jbcommmin_time_between_msgupdates_.getParam( this );
+    const int lastupdate = jcommlastupdate_.getParam( this );
+
+    if ( Time::passedSince(lastupdate) < min_time_between_msgupdates )
+	return true;
+
+    jcommlastupdate_.setParam( this, Time::getMilliSeconds() );
     return sendMsg( tag , status, msg );
 }
 
