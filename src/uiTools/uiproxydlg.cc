@@ -120,6 +120,7 @@ bool uiProxyDlg::saveInSettings()
 	BufferString password = useproxy ? pwdfld_->text() : "";
 	uiString str = toUiString( password );
 	str.getHexEncoded( password );
+	setts.removeWithKey( Network::sKeyProxyPassword() );
 	setts.set( Network::sKeyCryptProxyPassword(), password );
     }
 
