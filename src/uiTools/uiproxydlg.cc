@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "od_helpids.h"
 
-
 uiProxyDlg::uiProxyDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Connection Settings"),mNoDlgTitle,
     mODHelpKey(mProxyDlgHelpID) ))
@@ -40,7 +39,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
 
     authenticationfld_ =
 	new uiCheckBox( this, tr("Use authentication") );
-    authenticationfld_->activated.notify( 
+    authenticationfld_->activated.notify(
 				    mCB(this,uiProxyDlg,useProxyCB) );
     authenticationfld_->attach( alignedBelow, hostfld_ );
 
@@ -86,8 +85,16 @@ void uiProxyDlg::initFromSettings()
     setts.get( Network::sKeyProxyUserName(), username );
     usernamefld_->setText( username );
 
+    bool iscrypt = false;
     BufferString password;
     setts.get( Network::sKeyProxyPassword(), password );
+    if ( setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
+    {
+	uiString str;
+	str.setFromHexEncoded( password );
+	password = str.getFullString();
+    }
+
     pwdfld_->setText( password );
 }
 
@@ -111,7 +118,10 @@ bool uiProxyDlg::saveInSettings()
 	BufferString username = useproxy ? usernamefld_->text() : "";
 	setts.set( Network::sKeyProxyUserName(), username );
 	BufferString password = useproxy ? pwdfld_->text() : "";
+	uiString str = toUiString( password );
+	str.getHexEncoded( password );
 	setts.set( Network::sKeyProxyPassword(), password );
+	setts.setYN( Network::sKeyCryptProxyPassword(), true );
     }
 
     return setts.write();

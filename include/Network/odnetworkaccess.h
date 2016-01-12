@@ -50,7 +50,7 @@ namespace Network
 
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
-				       const char* ftype,const IOPar& postvars, 
+				       const char* ftype,const IOPar& postvars,
 				       uiString& errmsg,TaskRunner* taskr=0,
 				       uiString* returnedmessage = 0);
 
@@ -58,7 +58,7 @@ namespace Network
 					uiString& errmsg,TaskRunner* taskr=0,
 					uiString* returnedmessage = 0);
 
-    mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size, 
+    mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size,
 					      uiString& errmsg);
 
     mGlobal(Network) bool   ping(const char* url, uiString& msg );
@@ -71,16 +71,18 @@ namespace Network
     mGlobal(Network) void   setHttpProxyFromSettings();
 
     inline const char*	    sKeyUseProxy()  { return "Use Proxy"; };
-    inline const char*	    sKeyUseAuthentication() 
+    inline const char*	    sKeyUseAuthentication()
 					    { return "Use Authentication";};
-    inline const char*	    sKeyProxyHost()	    
+    inline const char*	    sKeyProxyHost()
 					    { return "Http Proxy Host"; };
-    inline const char*	    sKeyProxyPort()	    
+    inline const char*	    sKeyProxyPort()
 					    { return "Http Proxy Port"; };
-    inline const char*	    sKeyProxyUserName()  
+    inline const char*	    sKeyProxyUserName()
 					    { return "Http Proxy User Name"; };
-    inline const char*	    sKeyProxyPassword()  
+    inline const char*	    sKeyProxyPassword()
 					    { return "Http Proxy Password"; };
+    inline const char*	    sKeyCryptProxyPassword()
+					{ return "Http Crypt Proxy Password"; };
 
 }
 
