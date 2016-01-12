@@ -85,15 +85,15 @@ void uiProxyDlg::initFromSettings()
     setts.get( Network::sKeyProxyUserName(), username );
     usernamefld_->setText( username );
 
+    bool iscrypt = false;
     BufferString password;
-    if ( setts.get(Network::sKeyCryptProxyPassword(),password) )
+    setts.get( Network::sKeyProxyPassword(), password );
+    if ( setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
     {
 	uiString str;
 	str.setFromHexEncoded( password );
 	password = str.getFullString();
     }
-    else
-	setts.get( Network::sKeyProxyPassword(), password );
 
     pwdfld_->setText( password );
 }
@@ -120,8 +120,8 @@ bool uiProxyDlg::saveInSettings()
 	BufferString password = useproxy ? pwdfld_->text() : "";
 	uiString str = toUiString( password );
 	str.getHexEncoded( password );
-	setts.removeWithKey( Network::sKeyProxyPassword() );
-	setts.set( Network::sKeyCryptProxyPassword(), password );
+	setts.set( Network::sKeyProxyPassword(), password );
+	setts.setYN( Network::sKeyCryptProxyPassword(), true );
     }
 
     return setts.write();
