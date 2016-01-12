@@ -144,7 +144,8 @@ bool uiSurveySelectDlg::isNewSurvey() const
 uiSurveySelect::uiSurveySelect( uiParent* p, bool forread,
 				bool needvalidrootdir, const char* lbl )
     : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? mToUiStringTodo(lbl)
-						  : uiStrings::sSurvey() ),
+						  : uiStrings::sSurvey() )
+						  .keepmytxt(true),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
     , forread_(forread)
@@ -206,7 +207,7 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 	mErrRet(tr("Selected directory does not exist.\n"
 		   "Please specify the full path"));
     if (!File::isDirectory(fullpath))
-	mErrRet(tr("Please select a valid directory"));
+	mErrRet(uiStrings::phrSelect(tr("a valid directory")));
     if (!File::exists(FilePath(fullpath, SurveyInfo::sKeySetupFileName()).
 	fullPath()))
 	mErrRet(tr("This is not an OpendTect survey directory"));

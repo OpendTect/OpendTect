@@ -176,6 +176,7 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 				new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
 
 		impcbvsothsurvdlg_->show();
+		break;
 	    }
 	case 5:
 	    {
