@@ -144,7 +144,8 @@ bool uiSurveySelectDlg::isNewSurvey() const
 uiSurveySelect::uiSurveySelect( uiParent* p, bool forread,
 				bool needvalidrootdir, const char* lbl )
     : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? mToUiStringTodo(lbl)
-						  : uiStrings::sSurvey() ),
+						  : uiStrings::sSurvey() )
+						  .keepmytxt(true),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
     , forread_(forread)
