@@ -25,6 +25,7 @@ PointSet::PointSet()
 {
     drawstyle_ = addNodeState( new DrawStyle );
     refPtr( drawstyle_ );
+    drawstyle_->setDrawStyle( visBase::DrawStyle::Points );
     drawstyle_->setPointSize( 5.0 );
 
     setMaterial( new Material );
