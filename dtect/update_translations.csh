@@ -60,6 +60,9 @@ mkdir -p ${projectdir}
 
 #Copy existing ts-files ot project dir
 cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
+if ( -d ${tsbasedir}/data/localizations/inprogress ) then
+    cp -a ${tsbasedir}/data/localizations/inprogress/${application}*.ts ${projectdir}
+endif
 
 set profnm=${projectdir}/normaltrans.pro
 
