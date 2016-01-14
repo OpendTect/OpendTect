@@ -83,6 +83,9 @@ cd ${olddir}
 shopt -s nullglob
 #Copy existing ts-files ot project dir
 cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
+if ( -d ${tsbasedir}/data/localizations/inprogress ) then
+    cp -a ${tsbasedir}/data/localizations/inprogress/${application}*.ts ${projectdir}
+endif
 
 profnm=${projectdir}/normaltrans.pro
 
