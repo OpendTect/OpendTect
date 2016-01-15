@@ -33,3 +33,4 @@ mDefODInitPlugin(uiBouncy)
 	return "Cannot instantiate Bouncy plugin";
 
     return 0;
+}

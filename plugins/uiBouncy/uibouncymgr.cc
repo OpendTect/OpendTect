@@ -227,5 +227,6 @@ void uiBouncyMgr::surveyChangeCB( CallBacker* )
 
 void uiBouncyMgr::shutdownCB( CallBacker* )
 {
-    //
 }
+
+} //namespace

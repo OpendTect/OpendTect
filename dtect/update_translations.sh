@@ -39,6 +39,7 @@ binarydir=$3
 application=$4
 lupdate=$5
 tmpoddir=/tmp/lupdate_tmp_$$
+outputdir=${binarydir}/data/localizations/generated
 
 removetmpoddirsed="s/\/tmp\/"
 removetmpoddirsed+=`basename $tmpoddir`
@@ -78,14 +79,29 @@ fi
 projectdir="${tmpoddir}/data/localizations/source"
 mkdir -p ${projectdir}
 
+#Get the newest file in the tree, and compare that to the oldest output
+oldest_output=`find ${outputdir} -name "${application}*.ts" -type f -printf '%T@ %p\n' | sort -rn | tail -1 | cut -f2- -d" "`
+
+cd ${tmpoddir}
+newest_input=`find . \( -path "*.h" -o -path "*.cc" \) -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "`
+
+if [ -e "${newest_input}" ] && [ -e "${oldest_output}" ]; then
+    if [ "${oldest_output}" -nt "${newest_input}" ]; then
+	echo "Nothing to do: Dependencies are older than target."
+	#Remvoe temporary dir
+	rm -rf  ${tmpoddir}
+	exit 0;
+    fi
+fi
+
 cd ${olddir}
 
 shopt -s nullglob
 #Copy existing ts-files ot project dir
 cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
-if ( -d ${tsbasedir}/data/localizations/inprogress ) then
+if [ -d ${tsbasedir}/data/localizations/inprogress ]; then
     cp -a ${tsbasedir}/data/localizations/inprogress/${application}*.ts ${projectdir}
-endif
+fi
 
 profnm=${projectdir}/normaltrans.pro
 
@@ -168,10 +184,10 @@ if [ -e ${application}_en-us.ts ]; then
 fi
 
 #Remove the filelist
-\rm -rf ${filelist}
+rm -rf ${filelist}
 
 #Filter the sources for patterns
-echo ${sources} | xargs -P ${nrcpu} sed \
+echo ${sources} | xargs -n 100 -P ${nrcpu} sed \
 	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mTextTranslationClass(.*)/Q_OBJECT/g' \
@@ -189,7 +205,7 @@ echo ${sources} | xargs -P ${nrcpu} sed \
 	-e 's/"__endquote//g' -iTMP
 
 #Filter the headers for patterns
-echo ${headers} | xargs -P ${nrcpu} sed \
+echo ${headers} | xargs -n 100 -P ${nrcpu} sed \
 	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mTextTranslationClass(.*)/Q_OBJECT/g' \
@@ -207,34 +223,41 @@ echo ${headers} | xargs -P ${nrcpu} sed \
         -e 's/"__endquote//g' -iTMP
 
 result=0
-#Run lupdate
+#Run lupdate in the background and save jobid
 errfile=${tmpoddir}/stderr
-${lupdate} -silent -locations relative ${profnm} 2> ${errfile}
-errors=`cat ${tmpoddir}/stderr`
-if [ "${errors}" != "" ]; then
-    echo "Errors during non-plural processing:"
-    cat ${tmpoddir}/stderr | sed -e $removetmpoddirsed
-    result=1
-fi
+${lupdate} -silent -locations relative ${profnm} 2> ${errfile} &
+update_pid=$!
 
 if [ -e ${pluralpro} ]; then
-    ${lupdate} -silent -locations relative -pluralonly ${pluralpro} 2> ${errfile}
-    errors=`cat ${tmpoddir}/stderr`
+    #Run this in the forground, and the other job is going in the background
+    plural_errfile=${tmpoddir}/stderr_plural
+    ${lupdate} -silent -locations relative -pluralonly ${pluralpro} 2> ${plural_errfile}
+    errors=`cat ${plural_errfile}`
     if [ "${errors}" != "" ]; then
 	echo "Errors during plural processing:"
-	cat ${tmpoddir}/stderr | sed -e $removetmpoddirsed
+	cat ${plural_errfile} | sed -e $removetmpoddirsed
 	result=1
     fi
 fi
 
+#Wait for background job to complete
+wait ${update_pid}
+
+errors=`cat ${errfile}`
+if [ "${errors}" != "" ]; then
+    echo "Errors during non-plural processing:"
+    cat ${errfile} | sed -e $removetmpoddirsed
+    result=1
+fi
+
 #Copy results back
-rsync --checksum *.ts ${binarydir}/data/localizations/generated
+rm -f ${outputdir}/${application}*.ts
+rsync *.ts ${outputdir}
 
 #Remvoe temporary dir
-\rm -rf  ${tmpoddir}
+rm -rf  ${tmpoddir}
 
 #Go back to starting dir
 cd ${olddir}
-
 
 exit ${result}

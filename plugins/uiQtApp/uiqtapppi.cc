@@ -67,3 +67,4 @@ mDefODInitPlugin(uiQtApp)
 	"Cannot instantiate QtApp plugin";
 
     return 0;
+}

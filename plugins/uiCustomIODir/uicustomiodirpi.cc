@@ -139,3 +139,4 @@ mDefODInitPlugin(uiCustomIODir)
     // go.
 
     return 0;
+}
