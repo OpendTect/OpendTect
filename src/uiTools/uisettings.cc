@@ -516,13 +516,19 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    needsrestart_ = false;
-    needsrenewal_ = false;
+    needsrestart_ = false; needsrenewal_ = false;
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
 	needsrestart_ = needsrestart_ || grps_[idx]->needsRestart();
 	needsrenewal_ = needsrenewal_ || grps_[idx]->needsRenewal();
     }
+
+    if ( needsrestart_ )
+	uiMSG().message(tr("Your new settings will become active\n"
+			   "the next time OpendTect is started."));
+    else if ( needsrenewal_ )
+	uiMSG().message(tr("Your new settings will become active\n"
+			   "only for newly launched objects."));
 
     return true;
 }

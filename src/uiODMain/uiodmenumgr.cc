@@ -1405,14 +1405,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mSettLkNFlMnuItm: {
 	uiSettingsDlg dlg( &appl_ );
-	if ( !dlg.go() ) return;
-
-	if ( dlg.needsRestart() )
-	    uiMSG().message(tr("Your new settings will become active\n"
-			       "the next time OpendTect is started."));
-	else if ( dlg.needsRenewal() )
-	    uiMSG().message(tr("Your new settings will become active\n"
-			       "only for newly launched objects."));
+	dlg.go();
     } break;
 
     case mDumpDataPacksMnuItm: {
