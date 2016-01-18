@@ -4,7 +4,7 @@
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/MPEEngine/mpesetup.cc" line="+55"/>
+        <location filename="../../../src/MPEEngine/mpesetup.cc" line="+56"/>
         <source>Tracking setup</source>
         <translation>
             <numerusform>Tracking setup</numerusform>
@@ -91,9 +91,8 @@
 <context>
     <name>uiCreateLogCubeDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uicreatelogcubedlg.cc" line="+75"/>
         <source>Successfully created the log cube(s)</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Successfully created the log cube</numerusform>
             <numerusform>Successfully created the log cubes</numerusform>
         </translation>
@@ -134,7 +133,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+39"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+45"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -142,7 +141,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+206"/>
+        <location line="+209"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -150,7 +149,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+63"/>
+        <location line="+66"/>
         <source>input file</source>
         <translation>
             <numerusform>input file</numerusform>
@@ -158,7 +157,8 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+12"/>
+        <location line="+15"/>
+        <location line="+153"/>
         <source>output file</source>
         <translation>
             <numerusform>output file</numerusform>
@@ -166,7 +166,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+42"/>
+        <location line="-111"/>
         <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
@@ -313,7 +313,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+179"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+187"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
@@ -337,7 +337,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+33"/>
+        <location line="+35"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
@@ -420,7 +420,7 @@
     <message numerus="yes">
         <location line="+5"/>
         <source>Geometry</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Geometry</numerusform>
             <numerusform>Geometries</numerusform>
         </translation>

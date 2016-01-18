@@ -18,16 +18,14 @@
 # - remove the temporary copy
 
 if [ $# -lt 5 ]; then
-    echo "Usage : $0 <sourcedir> <tsbasedir> <binarydir> <application> <lupdate>"
+    echo "Usage : $0 <sourcedir> <tsbasedir> <binarydir> <application> <lupdate> [--quiet]"
     exit 1
 fi
 
+quiet=off
 
-if [ $?DTECT_SCRIPT_VERBOSE ]; then
-    echo "$0  ++++++"
-    echo "args: $*"
-    verbose=yes
-    echo=on
+if [ $# -gt 5 ] && [ "$6" == "--quiet" ]; then
+    quiet=on
 fi
 
 scriptdir=`dirname $0`
@@ -79,21 +77,6 @@ fi
 projectdir="${tmpoddir}/data/localizations/source"
 mkdir -p ${projectdir}
 
-#Get the newest file in the tree, and compare that to the oldest output
-oldest_output=`find ${outputdir} -name "${application}*.ts" -type f -printf '%T@ %p\n' | sort -rn | tail -1 | cut -f2- -d" "`
-
-cd ${tmpoddir}
-newest_input=`find . \( -path "*.h" -o -path "*.cc" \) -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "`
-
-if [ -e "${newest_input}" ] && [ -e "${oldest_output}" ]; then
-    if [ "${oldest_output}" -nt "${newest_input}" ]; then
-	echo "Nothing to do: Dependencies are older than target."
-	#Remvoe temporary dir
-	rm -rf  ${tmpoddir}
-	exit 0;
-    fi
-fi
-
 cd ${olddir}
 
 shopt -s nullglob
@@ -101,6 +84,40 @@ shopt -s nullglob
 cp -a ${tsbasedir}/data/localizations/source/${application}*.ts ${projectdir}
 if [ -d ${tsbasedir}/data/localizations/inprogress ]; then
     cp -a ${tsbasedir}/data/localizations/inprogress/${application}*.ts ${projectdir}
+fi
+
+#Check if all projects exist in destination if so, check dates
+missing=0
+for fnm in ${projectdir}/${application}*.ts ; do
+    basefnm=`basename ${fnm}`
+    if [ ! -e "${outputdir}/${basefnm}" ]; then
+	missing=1
+    fi
+done
+
+if [ ${missing} -eq 0 ]; then
+
+    #Get the newest file in the tree, and compare that to the oldest output
+    oldest_output=`find ${outputdir} -name "${application}*.ts" -type f \
+		    -printf '%T@ %p\n' \
+		    | sort -rn \
+		    | tail -1 \
+		    | cut -f2- -d" "`
+
+    newest_input=`find ${tmpoddir} \
+		\( -path "*.h" -o -path "*.cc" -o -name "${application}*.ts" \) \
+		-type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "`
+
+    if [ -e "${newest_input}" ] && [ -e "${oldest_output}" ]; then
+	if [ "${oldest_output}" -nt "${newest_input}" ]; then
+	    if [ "${quiet}" == "off" ]; then
+		echo "Nothing to do: Dependencies are older than target."
+	    fi
+	    #Remvoe temporary dir
+	    rm -rf ${tmpoddir}
+	    exit 0;
+	fi
+    fi
 fi
 
 profnm=${projectdir}/normaltrans.pro
@@ -144,10 +161,12 @@ echo -n "    ${application}_template.ts" >> ${profnm}
 
 nonomatch=1
 for fnm in ${application}*.ts ; do
+    #Don't run any plural here, as that is handled in plural project
     if [[ "${fnm}" =~ .*en-us.ts ]]; then
 	continue
     fi
 
+    #Is explicitly added above, so remove eventual entry from the list to avoid duplicates
     if [[ "${fnm}" =~ .*_template.ts ]]; then
 	continue
     fi
@@ -168,10 +187,11 @@ done
 
 #Create a list of .ts files for plural operations
 pluralpro=$projectdir/plural.pro
-if [ -e ${application}_en-us.ts ]; then
+pluralfile=${application}_en-us.ts
+if [ -e ${pluralfile} ]; then
     echo -n "TRANSLATIONS = " > ${pluralpro}
     echo " \\" >> ${pluralpro}
-    echo -n "    ${application}_en-us.ts" >> ${pluralpro}
+    echo -n "    ${pluralfile}" >> ${pluralpro}
     cat ${filelist} >> ${pluralpro}
 
     echo "" >> ${pluralpro}
@@ -238,6 +258,26 @@ if [ -e ${pluralpro} ]; then
 	cat ${plural_errfile} | sed -e $removetmpoddirsed
 	result=1
     fi
+
+    #Test if unfinished entries are found
+    grep 'type="unfinished"' --before-context=1 ${application}_en-us.ts > /dev/null
+    if [ $? -eq 0 ]; then
+	echo "The following plural phrase(s) are not translated:"
+	grep 'type="unfinished"' --before-context=1 ${application}_en-us.ts \
+			| head -1 \
+			| sed 's/<source>//g' \
+			| sed 's/<\/source>//g' \
+			| sed 's/ //g'
+	echo
+	echo "Please run:"
+	echo
+	echo  1. cp ${outputdir}/${application}_en-us.ts ${tsbasedir}/data/localizations/source/${application}_en-us.ts
+	echo  2. ${scriptdir}/linguist.csh ${tsbasedir}/data/localizations/source/${application}_en-us.ts
+	echo  3. Fix the problem
+	echo  4. Commit
+	echo
+	result=1
+    fi
 fi
 
 #Wait for background job to complete
@@ -254,8 +294,8 @@ fi
 rm -f ${outputdir}/${application}*.ts
 rsync *.ts ${outputdir}
 
-#Remvoe temporary dir
-rm -rf  ${tmpoddir}
+#Remove temporary dir
+rm -rf ${tmpoddir}
 
 #Go back to starting dir
 cd ${olddir}
