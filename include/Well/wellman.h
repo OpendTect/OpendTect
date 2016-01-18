@@ -48,6 +48,7 @@ public:
     ObjectSet<Data>&	wells()			{ return wells_; }
 
     static bool		getLogNames(const MultiID&,BufferStringSet&);
+    static bool		getMarkerNames(BufferStringSet&);
 
 protected:
 
