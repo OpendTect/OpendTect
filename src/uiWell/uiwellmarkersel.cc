@@ -12,9 +12,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellmarkersel.h"
 
-#include "uicombobox.h"
-#include "wellmarker.h"
 #include "wellextractdata.h"
+#include "wellman.h"
+#include "wellmarker.h"
+#include "welltransl.h"
+
+#include "uicombobox.h"
+#include "uiioobjselgrp.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uiseparator.h"
+
 
 const char* uiWellMarkerSel::sKeyUdfLvl()
 		{ return "-"; }
@@ -55,7 +63,7 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	topfld_ = new uiComboBox( this, "Top marker" );
     else
     {
-	lcb = new uiLabeledComboBox( this, toUiString(setup_.seltxt_), 
+	lcb = new uiLabeledComboBox( this, toUiString(setup_.seltxt_),
 								"Top marker" );
 	topfld_ = lcb->box();
     }
@@ -233,4 +241,53 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 	}
     }
     mrkSelDone.trigger();
+}
+
+
+uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
+				    const uiWellMarkersDlg::Setup& su )
+    : uiDialog(p,uiDialog::Setup(tr("Select well markers"),
+		isMultiChoice( su.markerschoicemode_ ) ?
+		tr("Select markers from one or several wells")
+		: tr("Select a well marker"),
+		mTODOHelpKey))
+{
+    markersselgrp_ = new uiListBox( this, "Markers", su.markerschoicemode_ );
+    BufferStringSet markernms;
+    Well::MGR().getMarkerNames( markernms );
+    markersselgrp_->addItems( markernms );
+
+    if ( !su.withwellfilter_ )
+	return;
+
+    uiSeparator* sep = new uiSeparator( this, "Well to markers" );
+    sep->attach( stretchedBelow, markersselgrp_ );
+
+    uiLabel* txt = new uiLabel( this, tr("For selected wells:") );
+    txt->attach( ensureBelow, sep );
+    txt->attach( alignedBelow, markersselgrp_ );
+    wellselgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
+		      uiIOObjSelGrp::Setup(su.wellschoicemode_));
+    wellselgrp_->attach( alignedBelow, txt );
+}
+
+
+void uiWellMarkersDlg::getNames( BufferStringSet& markernms )
+{
+    markersselgrp_->getChosen( markernms );
+}
+
+
+void uiWellMarkersDlg::getWellNames( BufferStringSet& wllnms )
+{
+    if ( wellselgrp_ )
+	wellselgrp_->getChosen( wllnms );
+
+}
+
+
+void uiWellMarkersDlg::getWellIDs( TypeSet<MultiID>& wllids )
+{
+    if ( wellselgrp_ )
+	wellselgrp_->getChosen( wllids );
 }

@@ -12,10 +12,17 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
+#include "uidialog.h"
 #include "uigroup.h"
-#include "bufstringset.h"
 #include "uistring.h"
+
+#include "bufstringset.h"
+
+
 class uiComboBox;
+class uiIOObjSelGrp;
+class uiListBox;
 namespace Well { class Marker; class MarkerSet; }
 
 
@@ -61,7 +68,7 @@ public:
     static const char*	sKeyDataEnd();
 
     uiComboBox*		getFld( bool top )
-    			{ return top ? topfld_ : botfld_; }
+			{ return top ? topfld_ : botfld_; }
 
     Notifier<uiWellMarkerSel> mrkSelDone;
 
@@ -76,5 +83,41 @@ protected:
 
 };
 
+
+/*!\brief Select a list of markers from the well database */
+
+mExpClass(uiWell) uiWellMarkersDlg : public uiDialog
+{ mODTextTranslationClass(uiWellMarkersDlg);
+public:
+
+    mExpClass(uiWell) Setup
+    {
+    public:
+			Setup( OD::ChoiceMode markerscm=OD::ChooseAtLeastOne,
+			       bool withwllfilt=true,
+			       OD::ChoiceMode wellscm=OD::ChooseAtLeastOne )
+			  : markerschoicemode_(markerscm)
+			  , withwellfilter_(withwllfilt)
+			  , wellschoicemode_(wellscm)	{}
+
+	mDefSetupMemb(OD::ChoiceMode,markerschoicemode);
+	mDefSetupMemb(bool,withwellfilter);
+	mDefSetupMemb(OD::ChoiceMode,wellschoicemode);
+
+    };
+
+			uiWellMarkersDlg(uiParent*,
+					 const uiWellMarkersDlg::Setup&);
+
+			//Available after dlg.go():
+    void		getNames(BufferStringSet&);
+    void		getWellNames(BufferStringSet&);
+    void		getWellIDs(TypeSet<MultiID>&);
+
+private:
+
+    uiIOObjSelGrp*	wellselgrp_;
+    uiListBox*		markersselgrp_;
+};
 
 #endif

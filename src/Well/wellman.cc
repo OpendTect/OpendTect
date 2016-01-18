@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellreader.h"
 #include "welllogset.h"
+#include "wellmarker.h"
 
 
 Well::Man* Well::Man::mgr_ = 0;
@@ -140,6 +141,31 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
 	if ( nms.isEmpty() )
 	    return wr.getInfo(); // returning whether the well exists
     }
+    return true;
+}
+
+
+bool Well::Man::getMarkerNames( BufferStringSet& nms )
+{
+    nms.setEmpty();
+    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
+    const IODir iodir( mid );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
+    const IODirEntryList del( iodir, ctio->ctxt_ );
+    RefMan<Well::Data> data = new Well::Data;
+    for ( int idx=0; idx<del.size(); idx++ )
+    {
+	const IOObj* ioobj = del[idx]->ioobj_;
+	if ( !ioobj ) continue;
+
+	Well::Reader wr( *ioobj, *data );
+	if ( !wr.getTrack() || !wr.getMarkers() ) continue;
+
+	BufferStringSet wllmarkernms;
+	data->markers().getNames( wllmarkernms );
+	nms.add( wllmarkernms, false );
+    }
+
     return true;
 }
 
