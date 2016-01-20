@@ -121,7 +121,6 @@ uiGMTMgr::uiGMTMgr( uiODMain* a )
 uiGMTMgr::~uiGMTMgr()
 {
     detachAllNotifiers();
-    delete dlg_;
 }
 
 

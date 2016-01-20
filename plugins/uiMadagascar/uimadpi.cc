@@ -87,7 +87,6 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
 uiMadagascarLink::~uiMadagascarLink()
 {
     detachAllNotifiers();
-    delete madwin_;
 }
 
 
