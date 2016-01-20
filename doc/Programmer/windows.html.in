@@ -31,7 +31,7 @@
 								<tr><td valign="top">
 <center>
 <h1>OpendTect development on MS Windows</h1>
-  <a href=#vs10>Visual Studio 10</a>
+  <a href=#vs12>Visual Studio 2013(12)</a>
  | <a href=#cmake>CMake</a>
 | <a href=#tutplugin>Building the Tutorial plugin</a>
 | <a href=#ownplugin>Building your own plugin</a>
@@ -41,9 +41,9 @@
 <br>
 
 
-<a name="vs10"><h3 id="heading3">Visual Studio 10</h3></a>
+<a name="vs12"><h3 id="heading3">Visual Studio 2013(12_</h3></a>
 
-<p id="text">OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@ is built with Visual Studio 2010 (version 10), and it also supports Visual Studio 2010 express edition. The express edition can be downloaded from <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express">Microsoft's official web site </a></p>
+<p id="text">OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@ is built with Visual Studio 2013 (version 12), and it also supports Visual Studio 2013 express edition. The express edition can be downloaded from <a href="https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx">Microsoft's official web site </a></p>
 
 <a name="cmake"><h3 id="heading3">CMake</h3></a>
 <p id="text">CMake is a cross-platform tool that takes care of generating system-dependent project files. It can be downloaded from <a href="http://www.cmake.org/cmake/resources/software.html">CMake's web site</a>.</p>
