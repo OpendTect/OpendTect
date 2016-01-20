@@ -41,7 +41,7 @@
 <br>
 
 
-<a name="vs12"><h3 id="heading3">Visual Studio 2013(12_</h3></a>
+<a name="vs12"><h3 id="heading3">Visual Studio 2013</h3></a>
 
 <p id="text">OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@ is built with Visual Studio 2013 (version 12), and it also supports Visual Studio 2013 express edition. The express edition can be downloaded from <a href="https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx">Microsoft's official web site </a></p>
 
