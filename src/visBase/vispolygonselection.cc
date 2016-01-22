@@ -185,14 +185,12 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
     if ( !displayspace && utm2disptransform_ )
 	utm2disptransform_->transform( checkcoord3d );
 
-    const osg::Vec2 coord2d = selector_->projectPointToScreen(
-					    osg::Vec3((float) checkcoord3d.x,
-						      (float) checkcoord3d.y,
-						      (float) checkcoord3d.z) );
-
-    const Coord checkcoord2d( coord2d.x(), coord2d.y() );
-    if ( !checkcoord2d.isDefined() )
+    const osg::Vec3 coord3d = Conv::to<osg::Vec3>( checkcoord3d ); 
+    osg::Vec2 coord2d( mUdf(float), mUdf(float) );
+    if ( !selector_->projectPointToScreen(coord3d,coord2d) )
 	return false;
+
+    const Coord checkcoord2d = Conv::to<Coord>( coord2d );
 
     polygonlock_.readLock();
     if ( !polygon_ )
@@ -250,13 +248,11 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     int nrundefs = 0;
     for ( int idx=0; idx<8; idx++ )
     {
-	const osg::Vec2 pt = selector_->projectPointToScreen(
-		      osg::Vec3((float) coords[idx].x,
-		      (float) coords[idx].y,(float) coords[idx].z ) );
+        const osg::Vec3 coord3d = Conv::to<osg::Vec3>( coords[idx] );
+	osg::Vec2 coord2d( mUdf(float), mUdf(float) );
 
-	const Coord vertex( pt[0], pt[1] );
-	if ( vertex.isDefined() )
-	    screenpts.add( vertex );
+	if ( selector_->projectPointToScreen(coord3d,coord2d) )
+	    screenpts.add( Conv::to<Coord>(coord2d) );
 	else
 	    nrundefs++;
     }
