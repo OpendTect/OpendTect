@@ -17,6 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "uiaction.h"
 #include "uitreeview.h"
+#ifdef __mac__
+# include "uimacinit.h"
+#endif
 
 #include "applicationdata.h"
 #include "bufstringset.h"
@@ -38,21 +41,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QToolTip>
 #include <QTreeWidget>
 
-#ifdef __mac__
-# include "odlogo128x128.xpm"
-  const char** uiMain::XpmIconData = od_logo_128x128;
-#else
-# include "uimainicon.xpm"
-  const char** uiMain::XpmIconData = uimainicon_xpm_data;
-#endif
-void uiMain::setXpmIconData( const char** xpmdata )
-{
-    XpmIconData = xpmdata;
-}
+const char** uiMain::XpmIconData = 0;
+static BufferString icon_filename;
+static bool usenametooltip_ = false;
+static Color normaltooltipbackgroundcolor_;
+static Color normaltooltipforegroundcolor_;
 
-#ifdef __mac__
-# include "uimacinit.h"
-#endif
+void uiMain::setXpmIconData( const char** buf )	{ XpmIconData = buf; }
+void uiMain::setIconFileName( const char* fnm )	{ icon_filename = fnm; }
+const char* uiMain::iconFileName()		{ return icon_filename; }
 
 
 class KeyboardEventFilter : public QObject
@@ -238,7 +235,6 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 const uiFont* uiMain::font_ = 0;
 QApplication* uiMain::app_ = 0;
 uiMain*	uiMain::themain_ = 0;
-
 KeyboardEventHandler* uiMain::keyhandler_ = 0;
 KeyboardEventFilter* uiMain::keyfilter_ = 0;
 QtTabletEventFilter* uiMain::tabletfilter_ = 0;
@@ -263,30 +259,27 @@ static void initQApplication()
 }
 
 
-uiMain::uiMain( int& argc, char **argv )
-    : mainobj_(0)
+static bool setAppIcon( QApplication* app )
 {
-#ifdef __mac__
-    uiInitMac();
-#endif
+    if ( !app )
+	{ pFreeFnErrMsg( "No QApplication!" ); return false; }
 
-    initQApplication();
-    init( 0, argc, argv );
+    if ( !uiMain::XpmIconData )
+    {
+	if ( !File::exists(icon_filename) )
+	    icon_filename = GetSetupDataFileName(
+				ODSetupLoc_ApplSetupPref, "od.svg", true );
+    }
 
-    const QPixmap pixmap( XpmIconData );
-    app_->setWindowIcon( QIcon(pixmap) );
-    qdesktop_ = app_->desktop();
-}
+    if ( uiMain::XpmIconData )
+    {
+	const QPixmap pixmap( uiMain::XpmIconData );
+	app->setWindowIcon( QIcon(pixmap) );
+    }
+    else if ( File::exists(icon_filename) )
+	app->setWindowIcon( QIcon(QString(icon_filename.str())) );
 
-
-uiMain::uiMain( QApplication* qapp )
-    : mainobj_(0)
-{
-    initQApplication();
-    app_ = qapp;
-    const QPixmap pixmap( XpmIconData );
-    app_->setWindowIcon( QIcon(pixmap) );
-    qdesktop_ = app_->desktop();
+    return true;
 }
 
 
@@ -321,12 +314,6 @@ static const char* getStyleFromSettings()
 }
 
 
-void uiMain::cleanQtOSEnv()
-{
-    UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
-}
-
-
 #if QT_VERSION >= 0x050000
 static void qtMessageOutput( QtMsgType type, const QMessageLogContext&,
 			     const QString& msg )
@@ -352,6 +339,37 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
 	default:
 	    break;
     }
+}
+
+
+uiMain::uiMain( int& argc, char **argv )
+    : mainobj_(0)
+{
+#ifdef __mac__
+    uiInitMac();
+#endif
+
+    initQApplication();
+    init( 0, argc, argv );
+
+    if ( setAppIcon(app_) )
+	qdesktop_ = app_->desktop();
+}
+
+
+uiMain::uiMain( QApplication* qapp )
+    : mainobj_(0)
+{
+    initQApplication();
+    app_ = qapp;
+    if ( setAppIcon(app_) )
+	qdesktop_ = app_->desktop();
+}
+
+
+void uiMain::cleanQtOSEnv()
+{
+    UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
 }
 
 
@@ -573,10 +591,6 @@ void uiMain::processEvents( int msec )
 	app_->processEvents( QEventLoop::AllEvents, msec );
 }
 
-
-static bool usenametooltip_ = false;
-static Color normaltooltipbackgroundcolor_;
-static Color normaltooltipforegroundcolor_;
 
 void uiMain::useNameToolTip( bool yn )
 {

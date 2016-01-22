@@ -50,6 +50,10 @@ public:
     void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
     Color		windowColor() const;
+    static void		setIconFileName(const char* full_path);
+    static const char*	iconFileName();
+    /*mDeprecated*/ static void setXpmIconData(const char**);
+    /*mDeprecated*/ static const char** XpmIconData;
 
     int			nrScreens() const;
     uiSize		getScreenSize(int screennr,bool availablesz) const;
@@ -57,8 +61,6 @@ public:
 			//!<\returns mUdf(int) if unknown
 
     static uiMain&	theMain();
-    static void		setXpmIconData( const char** xpmdata );
-    static const char**	XpmIconData;
     static void		cleanQtOSEnv();
 
     static void		flushX();
