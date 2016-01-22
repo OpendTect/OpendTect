@@ -41,13 +41,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QToolTip>
 #include <QTreeWidget>
 
-const char** uiMain::XpmIconData = 0;
 static BufferString icon_filename;
+static const char** xpm_icon_data = 0;
 static bool usenametooltip_ = false;
 static Color normaltooltipbackgroundcolor_;
 static Color normaltooltipforegroundcolor_;
 
-void uiMain::setXpmIconData( const char** buf )	{ XpmIconData = buf; }
+void uiMain::setXpmIconData( const char** buf )	{ xpm_icon_data = buf; }
 void uiMain::setIconFileName( const char* fnm )	{ icon_filename = fnm; }
 const char* uiMain::iconFileName()		{ return icon_filename; }
 
@@ -264,20 +264,20 @@ static bool setAppIcon( QApplication* app )
     if ( !app )
 	{ pFreeFnErrMsg( "No QApplication!" ); return false; }
 
-    if ( !uiMain::XpmIconData )
-    {
-	if ( !File::exists(icon_filename) )
-	    icon_filename = GetSetupDataFileName(
+    if ( !xpm_icon_data && !File::exists(icon_filename) )
+	icon_filename = GetSetupDataFileName(
 				ODSetupLoc_ApplSetupPref, "od.svg", true );
-    }
 
-    if ( uiMain::XpmIconData )
+    if ( File::exists(icon_filename) )
+	app->setWindowIcon( QIcon(QString(icon_filename.str())) );
+    else if ( !xpm_icon_data )
+	pFreeFnErrMsg( "No application icon available" );
+    else
     {
-	const QPixmap pixmap( uiMain::XpmIconData );
+	pFreeFnErrMsg( "XPM icons don't scale. Try uiMain::setIconFileName" );
+	const QPixmap pixmap( xpm_icon_data );
 	app->setWindowIcon( QIcon(pixmap) );
     }
-    else if ( File::exists(icon_filename) )
-	app->setWindowIcon( QIcon(QString(icon_filename.str())) );
 
     return true;
 }

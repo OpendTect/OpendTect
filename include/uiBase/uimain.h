@@ -52,8 +52,6 @@ public:
     Color		windowColor() const;
     static void		setIconFileName(const char* full_path);
     static const char*	iconFileName();
-    /*mDeprecated*/ static void setXpmIconData(const char**);
-    /*mDeprecated*/ static const char** XpmIconData;
 
     int			nrScreens() const;
     uiSize		getScreenSize(int screennr,bool availablesz) const;
@@ -77,6 +75,7 @@ public:
     static void		useNameToolTip(bool);
     static bool		isNameToolTipUsed();
     static void		formatNameToolTipString(BufferString&);
+    static void		setXpmIconData(const char**);
 
 protected:
 
