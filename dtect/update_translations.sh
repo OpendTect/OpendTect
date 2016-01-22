@@ -46,7 +46,7 @@ removetmpoddirsed+="\///g"
 kernel=`uname -a | awk '{print $1}'`
 if [ "${kernel}" == "Darwin" ]; then
     lupdate_dir=`dirname ${lupdate}`
-    setenv DYLD_LIBRARY_PATH ${lupdate_dir}/../lib
+    export DYLD_LIBRARY_PATH=${lupdate_dir}/../lib
 fi
 
 if [ -e $tmpoddir ]; then
@@ -292,7 +292,7 @@ fi
 
 #Copy results back
 rm -f ${outputdir}/${application}*.ts
-rsync *.ts ${outputdir}
+rsync *.ts ${outputdir}/
 
 #Remove temporary dir
 rm -rf ${tmpoddir}
