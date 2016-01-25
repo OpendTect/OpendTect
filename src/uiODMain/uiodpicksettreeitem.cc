@@ -221,8 +221,8 @@ bool uiODPickSetTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_.disp_.pixsize_>100 )
-	    set_.disp_.pixsize_ = 3;
+	if ( set_.disp_.mkstyle_.size_>100 )
+	    set_.disp_.mkstyle_.size_= 3;
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
     }
@@ -325,7 +325,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	emps->copyFrom( set_ );
-	emps->setPreferredColor( set_.disp_.color_ );
+	emps->setPreferredColor( set_.disp_.mkstyle_.color_ );
 	emps->setName( BufferString("Body from ",set_.name()) );
 	emps->setChangedFlag();
 
@@ -530,8 +530,8 @@ bool uiODPolygonTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_.disp_.pixsize_>100 )
-	    set_.disp_.pixsize_ = 3;
+	if ( set_.disp_.mkstyle_.size_>100 )
+	    set_.disp_.mkstyle_.size_ = 3;
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
     }

@@ -235,7 +235,7 @@ void uiODVw2DPickSetTreeItem::displayMiniCtab()
 {
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				pickset_.disp_.color_ );
+				pickset_.disp_.mkstyle_.color_ );
 }
 
 

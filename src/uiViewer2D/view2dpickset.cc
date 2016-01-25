@@ -126,9 +126,9 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 
 OD::MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 {
-    OD::MarkerStyle2D style( OD::MarkerStyle2D::Square, ps.disp_.pixsize_,
-			 ps.disp_.color_ );
-    switch( ps.disp_.markertype_ )
+    OD::MarkerStyle2D style( OD::MarkerStyle2D::Square, ps.disp_.mkstyle_.size_,
+			 ps.disp_.mkstyle_.color_ );
+    switch( ps.disp_.mkstyle_.type_ )
     {
 	case OD::MarkerStyle3D::Plane:
 	    style.type_ = OD::MarkerStyle2D::Plane;

@@ -130,7 +130,8 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(const visBase::ImageRect*,imagerect,group_->getObject(idx));
+	mDynamicCastGet(
+	    const visBase::ImageRect*,imagerect,group_->getObject(idx));
 	if ( imagerect && evi.pickedobjids.isPresent(imagerect->id()) )
 	    return idx;
     }
@@ -141,7 +142,7 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 
 void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
 {
-    const int size = set_ ? set_->disp_.pixsize_ : 100;
+    const int size = set_ ? set_->disp_.mkstyle_.size_ : 100;
 
     const Coord3 topleft(-size,0,size);
     const Coord3 bottomright(size,0,-size);
@@ -180,7 +181,7 @@ void ImageDisplay::removePosition( int idx )
 
 void ImageDisplay::updateCoords(CallBacker*)
 {
-    const int size = set_ ? set_->disp_.pixsize_ : 100;
+    const int size = set_ ? set_->disp_.mkstyle_.size_: 100;
 
     const Coord3 topleft(-size,0,size);
     const Coord3 bottomright(size,0,-size);

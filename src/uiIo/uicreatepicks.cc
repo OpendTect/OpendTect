@@ -75,7 +75,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 Pick::Set* uiCreatePicks::getPickSet() const
 {
     Pick::Set* ret = new Pick::Set( name_ );
-    ret->disp_.color_ = colsel_->color();
+    ret->disp_.mkstyle_.color_ = colsel_->color();
     ret->disp_.connect_ = aspolygon_ ? Pick::Set::Disp::Open
 				  : Pick::Set::Disp::None;
     return ret;

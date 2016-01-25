@@ -327,7 +327,7 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
     else
     {
 	ps = new Pick::Set( pickset.name() );
-	ps->disp_.color_.set( 240, 0, 0 );
+	ps->disp_.mkstyle_.color_.set( 240, 0, 0 );
     }
 
     *ps = pickset;
@@ -353,7 +353,7 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     else
     {
 	ps = new Pick::Set( sKeyMisClass );
-	ps->disp_.color_.set( 240, 0, 0 );
+	ps->disp_.mkstyle_.color_.set( 240, 0, 0 );
     }
 
     for ( int idx=0; idx<dps.size(); idx++ )

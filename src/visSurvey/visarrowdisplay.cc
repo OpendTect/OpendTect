@@ -149,7 +149,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 	return;
 
     displayvector /= len;
-    displayvector *= set_->disp_.pixsize_;
+    displayvector *= set_->disp_.mkstyle_.size_;
     //Note: pos.vec points in the direction of the tail, not the arrow.
     d1 = d0+displayvector;
     lines->getCoordinates()->setPos( 1, display2World(d1) );

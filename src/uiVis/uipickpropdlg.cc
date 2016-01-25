@@ -94,9 +94,7 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 
 void uiPickPropDlg::doFinalise( CallBacker* )
 {
-    const OD::MarkerStyle3D style( (OD::MarkerStyle3D::Type) set_.disp_.markertype_,
-	    set_.disp_.pixsize_, set_.disp_.color_ );
-    stylefld_->setMarkerStyle( style );
+    stylefld_->setMarkerStyle( set_.disp_.mkstyle_ );
 }
 
 
@@ -105,7 +103,7 @@ void uiPickPropDlg::sliderMove( CallBacker* )
     OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
 
-    set_.disp_.pixsize_ = style.size_;
+    set_.disp_.mkstyle_.size_ = style.size_;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
@@ -115,7 +113,7 @@ void uiPickPropDlg::typeSel( CallBacker* )
     OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
 
-    set_.disp_.markertype_ = style.type_;
+    set_.disp_.mkstyle_.type_ = style.type_;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
@@ -124,7 +122,7 @@ void uiPickPropDlg::colSel( CallBacker* )
 {
     OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
-    set_.disp_.color_ = style.color_;
+    set_.disp_.mkstyle_.color_ = style.color_;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 

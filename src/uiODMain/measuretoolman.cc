@@ -167,7 +167,7 @@ void MeasureToolMan::addScene( int sceneid )
 
     Pick::Set* ps = new Pick::Set( "Measure picks" );
     ps->disp_.connect_ = Pick::Set::Disp::Open;
-    ps->disp_.color_ = Color( 255, 0, 0 );
+    ps->disp_.mkstyle_.color_ = Color( 255, 0, 0 );
     psd->setSet( ps );
     psd->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid), ps );
@@ -285,8 +285,8 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 	if ( !ps ) continue;
 
 	OD::LineStyle ls( measuredlg_->getLineStyle() );
-	ps->disp_.color_ = ls.color_;
-	ps->disp_.pixsize_ = ls.width_;
+	ps->disp_.mkstyle_.color_ = ls.color_;
+	ps->disp_.mkstyle_.size_ = ls.width_;
 	picksetmgr_.reportDispChange( this, *ps );
     }
 }

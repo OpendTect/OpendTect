@@ -118,12 +118,11 @@ void uiPickSetMan::mkFileInfo()
 		txt += ">";
 	}
 
-	Color col( ps.disp_.color_ ); col.setTransparency( 0 );
+	Color col( ps.disp_.mkstyle_.color_ ); col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
-	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
+	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.mkstyle_.size_ );
 	txt.add( "\nMarker type: " );
-	txt.add( OD::MarkerStyle3D::toString(
-		 (OD::MarkerStyle3D::Type)ps.disp_.markertype_) );
+	txt.add(OD::MarkerStyle3D::TypeDef().getKey(ps.disp_.mkstyle_.type_));
     }
 
     txt.add( "\n" ).add( getFileInfo() );

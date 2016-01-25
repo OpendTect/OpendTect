@@ -253,8 +253,8 @@ bool uiODAnnotTreeItem::showSubMenu()
 		return false;
 
 	    Pick::Set* set = new Pick::Set(txt);
-	    set->disp_.color_ = getRandStdDrawColor();
-	    if ( defScale()!=-1 ) set->disp_.pixsize_ = defScale();
+	    set->disp_.mkstyle_.color_ = getRandStdDrawColor();
+	    if ( defScale()!=-1 ) set->disp_.mkstyle_.size_ = defScale();
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
 	    uiTreeItem* item = createSubItem( -1, *set );
@@ -285,7 +285,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 	mDelCtioRet;
 
     if ( defScale()!=-1 )
-	ps.disp_.pixsize_= defScale();
+	ps.disp_.mkstyle_.size_= defScale();
 
     uiString errmsg;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,errmsg) )
@@ -306,7 +306,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
 uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     : set_( &set )
-    , defscale_(mCast(float,set.disp_.pixsize_))
+    , defscale_(mCast(float,set.disp_.mkstyle_.size_))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
@@ -512,10 +512,10 @@ void uiODAnnotSubItem::setScale( float ns )
 
     const int newscale = mNINT32( ns );
     Pick::Set* set = ld->getSet();
-    if ( set->disp_.pixsize_==newscale )
+    if ( set->disp_.mkstyle_.size_==newscale )
 	return;
 
-    set->disp_.pixsize_ = newscale;
+    set->disp_.mkstyle_.size_ = newscale;
 
     Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
 }
@@ -528,10 +528,10 @@ void uiODAnnotSubItem::setColor( Color nc )
     if ( !ld ) return;
 
     Pick::Set* set = ld->getSet();
-    if ( set->disp_.color_==nc )
+    if ( set->disp_.mkstyle_.color_==nc )
 	return;
 
-    set->disp_.color_ = nc;
+    set->disp_.mkstyle_.color_ = nc;
 
     Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
 }

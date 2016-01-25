@@ -27,7 +27,7 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( m3Dots(tr("Select image")) )
 {
-    defscale_ = mCast(float,set_->disp_.pixsize_);
+    defscale_ = mCast(float,set_->disp_.mkstyle_.size_);
 }
 
 

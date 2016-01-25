@@ -229,7 +229,7 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 	pars.orientation_ = ad->getOrientation();
 	pars.length_ = ad->getLength();
 	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,ad->getLineWidth(),
-			     set_->disp_.color_);
+			     set_->disp_.mkstyle_.color_);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	uiScaleBarDialog dlg( getUiParent(), scene->zDomainInfo() );
 	dlg.setPars( pars );

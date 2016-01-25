@@ -397,7 +397,7 @@ bool Picks::store( const IOObj* ioobjarg )
     }
 
     ::Pick::Set ps( ioobj->name() );
-    ps.disp_.color_ = color_;
+    ps.disp_.mkstyle_.color_ = color_;
     RowCol arrpos( 0, 0 );
     if ( picks_.isValidPos( arrpos ) )
     {
@@ -826,7 +826,7 @@ bool Picks::load( const IOObj* ioobj )
 	picks_.add( &pick, bid );
     }
 
-    color_ = pickset.disp_.color_;
+    color_ = pickset.disp_.mkstyle_.color_;
 
     changed_ = false;
     change.trigger( BinID(-1,-1) );

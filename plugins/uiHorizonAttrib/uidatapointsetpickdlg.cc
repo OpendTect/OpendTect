@@ -130,7 +130,7 @@ void uiDataPointSetPickDlg::initPickSet()
     psd_->ref();
 
     Pick::Set* ps = new Pick::Set( "DPS picks" );
-    ps->disp_.color_ = Color( 255, 0, 0 );
+    ps->disp_.mkstyle_.color_ = Color( 255, 0, 0 );
     psd_->setSet( ps );
     psd_->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid_), ps );

@@ -171,7 +171,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	datatransform_->loadDataIfMissing( voiidx_ );
     }
 
-    getMaterial()->setColor( set_->disp_.color_ );
+    getMaterial()->setColor( set_->disp_.mkstyle_.color_ );
     invalidpicks_.erase();
 
     if ( set_->isEmpty() )
@@ -375,7 +375,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    }
 	    else
 	    {
-		const Color& color = set_->disp_.color_;
+		const Color& color = set_->disp_.mkstyle_.color_;
 		if ( sowerenabled && sower_->activate(color, eventinfo) )
 		    return;
 	    }
@@ -579,21 +579,21 @@ void LocationDisplay::setChg( CallBacker* cb )
 
 void LocationDisplay::dispChg( CallBacker* )
 {
-    getMaterial()->setColor( set_->disp_.color_ );
+    getMaterial()->setColor( set_->disp_.mkstyle_.color_);
 }
 
 
 void LocationDisplay::setColor( Color nc )
 {
     if ( set_ )
-	set_->disp_.color_ = nc;
+	set_->disp_.mkstyle_.color_ = nc;
 }
 
 
 Color LocationDisplay::getColor() const
 {
     if ( set_ )
-	return set_->disp_.color_;
+	return set_->disp_.mkstyle_.color_;
 
     return Color::DgbColor();
 }
@@ -909,9 +909,9 @@ void LocationDisplay::fillPar( IOPar& par ) const
     par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_) : "" );
     par.set( sKeyMgrName(), picksetmgr_->name() );
     par.setYN( sKeyShowAll(), showall_ );
-    par.set( sKeyMarkerType(), set_->disp_.markertype_ );
-    par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
-
+    BufferString mkststr;
+    set_->disp_.mkstyle_.toString( mkststr );
+    par.set( sKey::MarkerStyle(), mkststr );
 }
 
 
@@ -920,11 +920,6 @@ bool LocationDisplay::usePar( const IOPar& par )
     if ( !visBase::VisualObjectImpl::usePar( par ) ||
 	 !visSurvey::SurveyObject::usePar( par ) )
 	 return false;
-
-    int markertype = 0;
-    int pixsize = 3;
-    par.get( sKeyMarkerType(), markertype );
-    par.get( sKeyMarkerSize(), pixsize );
 
     bool shwallpicks = true;
     par.getYN( sKeyShowAll(), shwallpicks );
@@ -950,8 +945,26 @@ bool LocationDisplay::usePar( const IOPar& par )
 	if ( !newps->name() || !*newps->name() )
 	    newps->setName( mFromUiStringTodo(name()) );
 
-	newps->disp_.markertype_ = markertype;
-	newps->disp_.pixsize_ = pixsize;
+	const bool v6_or_earlier = 
+	    ( par.majorVersion()+par.minorVersion()*0.1 )>0 && 
+	    ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
+
+	if ( v6_or_earlier )
+	{
+	    int markertype = 0;
+	    int pixsize = 3;
+	    par.get( sKeyMarkerType(), markertype );
+	    markertype ++;
+	    par.get( sKeyMarkerSize(), pixsize );
+	    newps->disp_.mkstyle_.type_=OD::MarkerStyle3D::Type(markertype);
+	    newps->disp_.mkstyle_.size_ = pixsize;
+	}
+	else
+	{
+	    BufferString mkststr;
+	    par.get( sKey::MarkerStyle(), mkststr );
+	    newps->disp_.mkstyle_.fromString( mkststr );
+	}
 
 	if ( picksetmgr_ ) picksetmgr_->set( storedmid_, newps );
 	setSet( newps );

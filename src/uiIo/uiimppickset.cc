@@ -176,7 +176,7 @@ bool uiImpExpPickSet::doImport()
     float constz = zchoice==1 ? constzfld_->getfValue() : 0;
     if ( SI().zIsTime() ) constz /= 1000;
 
-    ps.disp_.color_ = colorfld_->color();
+    ps.disp_.mkstyle_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
     aio.get( strm, ps, zchoice==0, constz );
 
