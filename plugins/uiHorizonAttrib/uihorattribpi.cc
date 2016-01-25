@@ -255,7 +255,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 	uiMSG().error(tr("Cannot add extra attribute layers"));
 	return;
     }
-
+    
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
 			  false, 0 );
