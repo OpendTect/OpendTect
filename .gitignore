@@ -94,6 +94,7 @@ CTestCustom.cmake
 #Temporary files
 *.sw?
 *~
+.directory
 
 #Platform dependent files
 # Windows
