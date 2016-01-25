@@ -804,8 +804,19 @@ uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
 					     const char* parenttype )
 {
     BufferString defstr = as.defString();
-    return defstr == sKeyContourDefString() ? new uiContourTreeItem(parenttype)
-					    : 0;
+    if ( defstr != sKeyContourDefString() )
+	return 0;
+
+    BufferString zkeystr = as.zDomainKey();
+    // for old session file
+    if ( zkeystr.isEmpty() )
+	zkeystr = sKeyZValue();
+
+    uiContourTreeItem* ctitem = new uiContourTreeItem( parenttype );
+    if ( ctitem )
+	ctitem->setAttribName( zkeystr );
+
+    return ctitem ? ctitem : 0;
 }
 
 

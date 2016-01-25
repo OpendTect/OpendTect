@@ -259,6 +259,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
 			  false, 0 );
+    spec.setZDomainKey( dlg.getAttribName() );
     spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
     visserv->setSelSpec( displayid, attrib, spec );
 
