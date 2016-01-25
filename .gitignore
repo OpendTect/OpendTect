@@ -25,7 +25,9 @@ data/localizations/generated
 test/
 Contents/
 plugins/lux64
+moc*.cpp*
 moc*.cxx
+
 lib*.dylib
 Info.plist
 Testing/
