@@ -104,6 +104,8 @@ protected:
     void			updateIntersectionPoint(const Pos::GeomID,
 							const Pos::GeomID,
 						const Line2DInterSection*);
+    bool			shouldDisplayIntersections(
+							const Seis2DDisplay&);
 
     ObjectSet<visBase::PolyLine3D>		lines_;
     ObjectSet<visBase::PointSet>		points_;
