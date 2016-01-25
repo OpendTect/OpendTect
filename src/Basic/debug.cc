@@ -60,20 +60,42 @@ static bool crashonprogerror = false;
 static PtrMan<od_ostream> dbglogstrm = 0;
 
 
-static ObjectSet<const OD::String> staticstrings_;
-static Threads::Lock staticstringslock_;
+class StaticStringRepos
+{
+public:
+    void			addIfNew( const OD::String* str )
+				{
+				    Threads::Locker locker( lock_ );
+				    strings_.addIfNew( str );
+				}
+
+    bool			isPresent( const OD::String* str ) const
+				{
+				    Threads::Locker locker( lock_ );
+				    return strings_.isPresent(str); 
+				}
+
+private:
+    ObjectSet<const OD::String>	strings_;
+    mutable Threads::Lock	lock_;
+};
+
+static StaticStringRepos getStaticStringRepos()
+{
+    mDefineStaticLocalObject( StaticStringRepos, repos, );
+    return repos;
+}
+
 
 Export_Basic void addToStaticStringRepos( const OD::String* str )
 {
-    Threads::Locker locker( staticstringslock_ );
-    staticstrings_.addIfNew( str );
+    getStaticStringRepos().addIfNew( str );
 }
 
 
 Export_Basic bool isStaticString( const OD::String* str )
 {
-    Threads::Locker locker( staticstringslock_ );
-    return staticstrings_.isPresent(str); 
+    return getStaticStringRepos().isPresent( str );
 }
 
 void od_test_prog_crash_handler(int)
