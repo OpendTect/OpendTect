@@ -76,21 +76,6 @@ static Math::SpecVarSet& getSpecVars()
 }
 
 
-static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
-{
-    const int sz = wllids.size();
-    if ( sz < 1 )
-	return BufferString( "No wells selected" );
-
-    BufferString ret( "Calculate new logs for '", IOM().nameOf(wllids[0]), "'");
-    for ( int idx=1; idx<sz; idx++ )
-	ret.add( ", '" ).add( IOM().nameOf(wllids[idx]) ).add( "'" );
-
-    ret = getLimitedDisplayString( ret.buf(), 80, true );
-    return ret;
-}
-
-
 static uiString getDlgUiTitle( const TypeSet<MultiID>& wllids )
 {
     const int sz = wllids.size();
