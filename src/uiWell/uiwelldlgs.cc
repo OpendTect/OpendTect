@@ -1394,9 +1394,10 @@ void uiD2TModelDlg::expData( CallBacker* )
 	return;
     }
 
-    const float kbelev = wd_.track().getKbElev();
-    const float groundevel = wd_.info().groundelev;
-    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float kbelev = mConvertVal( wd_.track().getKbElev(), true );
+    const float groundevel = mConvertVal( wd_.info().groundelev, true );
+    const float srd = mConvertVal( mCast(float,SI().seismicReferenceDatum()),
+				   true );
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     BufferStringSet header;
@@ -1415,25 +1416,25 @@ void uiD2TModelDlg::expData( CallBacker* )
     float vint;
     for ( int idx=0; idx<d2t->size(); idx++ )
     {
-	const float dah = mConvertVal(d2t->dah(idx),true);
+	const float dah = d2t->dah(idx);
 	const float tvdss = mConvertVal(
 				mCast(float,wd_.track().getPos(dah).z), true );
-	const float tvd = mConvertVal(tvdss + kbelev,true);
-	const float twt = mConvertTimeVal(d2t->t(idx),true);
+	const float tvd = tvdss + kbelev;
 	mGetVel(dah,d2t);
-	strm << dah << od_tab << tvd << od_tab;
+	strm << mConvertVal(dah,true) << od_tab << tvd << od_tab;
 	if ( hastvdgl )
 	{
-	    const float tvdgl = mConvertVal( tvdss + groundevel, true );
+	    const float tvdgl = tvdss + groundevel;
 	    strm << tvdgl << od_tab;
 	}
 	strm << tvdss << od_tab;
 	if ( hastvdsd )
 	{
-	    const float tvdsd = mConvertVal( tvdss + srd, true );
+	    const float tvdsd = tvdss + srd;
 	    strm << tvdsd << od_tab;
 	}
-	strm << twt << od_tab << mConvertVal( vint, true ) << od_newline;
+	strm << mConvertTimeVal( d2t->t(idx), true ) << od_tab;
+	strm << mConvertVal( vint, true ) << od_newline;
     }
 }
 
