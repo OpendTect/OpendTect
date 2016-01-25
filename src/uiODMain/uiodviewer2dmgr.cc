@@ -640,6 +640,13 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 	if ( l2dintersections_ )
 	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
+	if ( geom2dids_.size()==0 )
+	{
+	    BufferStringSet lnms;
+	    SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
+	}
+	if ( geom2dids_.size()==0 ) return;
+
 	l2dintersections_ = new Line2DInterSectionSet;
 	BendPointFinder2DGeomSet bpfinder( geom2dids_ );
 	bpfinder.execute();
