@@ -746,11 +746,11 @@ bool Set::usePar( const IOPar& par )
     BufferString colstr;
     if ( par.get(sKey::Color(),colstr) )
 	disp_.color_.use( colstr.buf() );
-
+    else
+	disp_.color_ = Color::Red(); // change default color from none to red
     disp_.pixsize_ = 3;
     par.get( sKey::Size(), disp_.pixsize_ );
     par.get( sKeyMarkerType(), disp_.markertype_ );
-
     bool doconnect;
     par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
     if ( doconnect ) disp_.connect_ = Disp::Close;
