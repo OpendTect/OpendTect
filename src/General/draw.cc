@@ -103,11 +103,9 @@ void clss::fromString( const char* s ) \
 
 
 mToStringImpl( OD::MarkerStyle2D, size_ )
-mToStringImpl( OD::MarkerStyle3D, size_ )
 mToStringImpl( OD::LineStyle, width_ )
 
 mFromStringImpl( OD::MarkerStyle2D, size_ )
-mFromStringImpl( OD::MarkerStyle3D, size_ )
 mFromStringImpl( OD::LineStyle, width_ )
 
 OD::MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
@@ -122,7 +120,8 @@ bool OD::MarkerStyle2D::operator==( const OD::MarkerStyle2D& b ) const
 }
 
 
-const OD::MarkerStyle2D& OD::MarkerStyle2D::operator=( const OD::MarkerStyle2D& a )
+const OD::MarkerStyle2D& OD::MarkerStyle2D::operator=( 
+    const OD::MarkerStyle2D& a )
 {
     type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
     rotation_ = a.rotation_; return *this;
@@ -136,6 +135,35 @@ bool OD::MarkerStyle2D::isVisible() const
 OD::MarkerStyle3D::MarkerStyle3D(Type tp, int sz, Color col )
     : type_(tp), size_(sz), color_(col)
 {}
+
+
+void OD::MarkerStyle3D::toString( BufferString& bs ) const
+{
+    FileMultiString fms; 
+    fms = toString( type_ ); 
+    fms += size_; 
+    color_.fill( bs ); 
+    fms += FileMultiString( bs );
+    bs = fms;
+}
+
+
+void OD::MarkerStyle3D::fromString( const char* s, bool v6_or_earlier )
+{
+    FileMultiString fms( s ); 
+    TypeDef().parse( fms[0], type_ ); 
+
+    if ( v6_or_earlier )
+    {
+	const int typeidx = TypeDef().indexOf( type_ ) + 1;
+	if ( typeidx<TypeDef().size() )
+	    type_ = TypeDef().getEnumForIndex( typeidx );
+    }
+
+    size_ = fms.getIValue(1); 
+    FileMultiString colfms( fms.from(2) ); 
+    color_.use( colfms ); 
+}
 
 
 bool OD::MarkerStyle3D::operator==(const OD::MarkerStyle3D& b) const

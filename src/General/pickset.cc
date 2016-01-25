@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "pickset.h"
+#include "draw.h"
 
 #include "ioman.h"
 #include "iopar.h"
@@ -727,15 +728,9 @@ static const char* sKeyConnect = "Connect";
 
 void Set::fillPar( IOPar& par ) const
 {
-    BufferString colstr;
-    if ( disp_.color_ != Color::NoColor() )
-    {
-	disp_.color_.fill( colstr );
-	par.set( sKey::Color(), colstr );
-    }
-
-    par.set( sKey::Size(), disp_.pixsize_ );
-    par.set( sKeyMarkerType(), disp_.markertype_ );
+    BufferString parstr;
+    disp_.mkstyle_.toString( parstr );
+    par.set( sKey::MarkerStyle(), parstr );
     par.set( sKeyConnect, Disp::toString(disp_.connect_) );
     par.merge( pars_ );
 }
@@ -743,14 +738,26 @@ void Set::fillPar( IOPar& par ) const
 
 bool Set::usePar( const IOPar& par )
 {
-    BufferString colstr;
-    if ( par.get(sKey::Color(),colstr) )
-	disp_.color_.use( colstr.buf() );
+    const bool v6_or_earlier = ( par.majorVersion()+par.minorVersion()*0.1 )>0
+	&& ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
 
-    disp_.pixsize_ = 3;
-    par.get( sKey::Size(), disp_.pixsize_ );
-    par.get( sKeyMarkerType(), disp_.markertype_ );
-
+    BufferString mkststr;
+    if ( !par.get(sKey::MarkerStyle(),mkststr) && v6_or_earlier ) 
+    {
+	BufferString colstr;
+	if ( par.get(sKey::Color(),colstr) )
+	    disp_.mkstyle_.color_.use( colstr.buf() );
+	par.get( sKey::Size(),disp_.mkstyle_.size_ );
+	int type = 0;
+	par.get( sKeyMarkerType(),type );
+	type++;
+	disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type) type;
+    }
+    else
+    {
+	disp_.mkstyle_.fromString( mkststr );
+    }
+    
     bool doconnect;
     par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
     if ( doconnect ) disp_.connect_ = Disp::Close;

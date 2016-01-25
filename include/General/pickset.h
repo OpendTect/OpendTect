@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "trckey.h"
 #include "trigonometry.h"
+#include "draw.h"
 #include "undo.h"
 template <class T> class ODPolygon;
 
@@ -102,17 +103,12 @@ public:
 
     struct Disp
     {
-			Disp()
-			    : color_(Color::NoColor())
-			    , markertype_(3) // Sphere
-			    , connect_(None)
-			    , pixsize_(3)		{}
 	enum Connection { None, Open, Close };
 			mDeclareEnumUtils(Connection);
-	Color		color_;		//!< color
-	int		pixsize_;	//!< size in pixels
-	int		markertype_;	//!< OD::MarkerStyle3D
-	Connection	connect_;	//!< connect picks in set order
+			Disp() : connect_(None) {}
+
+	Connection		connect_;	//!< connect picks in set order
+	OD::MarkerStyle3D	mkstyle_;
     };
 
     Disp		disp_;

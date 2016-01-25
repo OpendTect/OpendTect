@@ -94,8 +94,8 @@ mExpClass(General) MarkerStyle3D
 {
 public:
 
-    enum Type		{ None=-1,
-			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross,
+    enum Type		{ None=0,
+			  Cube, Cone, Cylinder, Sphere, Arrow, Cross,
 			  Point, Plane };
 			mDeclareEnumUtils(Type)
 
@@ -109,7 +109,7 @@ public:
     bool		isVisible() const;
 
     void		toString(BufferString&) const;
-    void		fromString(const char*);
+    void		fromString(const char*,bool v6_or_earlier=false);
 
     bool		operator==(const OD::MarkerStyle3D& b) const;
     bool		operator!=(const OD::MarkerStyle3D& b) const;

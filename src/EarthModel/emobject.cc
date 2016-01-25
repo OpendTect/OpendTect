@@ -635,7 +635,9 @@ void EMObject::useDisplayPars( const IOPar& par )
     OD::MarkerStyle3D mkst;
     if( displaypar.get(sKey::MarkerStyle(),mkststr) )
     {
-	mkst.fromString( mkststr );
+	const double versionnr = 
+	    displaypar.majorVersion()+displaypar.minorVersion()*0.1;
+	mkst.fromString( mkststr, versionnr>0 && versionnr<=6.0 );
 	setPreferredMarkerStyle3D( mkst );
     }
 }
