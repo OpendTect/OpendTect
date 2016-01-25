@@ -654,6 +654,16 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 	if ( l2dintersections_ )
 	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
+
+	if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()==0 )
+	{
+	    BufferStringSet lnms;
+	    SeisIOObjInfo::getLinesWithData( lnms,
+		*uiodviewer2dmgrgeom2dids_.getParam(this) );
+	}
+	if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()==0 )
+	    return;
+
 	l2dintersections_ = new Line2DInterSectionSet;
 	BendPointFinder2DGeomSet bpfinder(
 		*uiodviewer2dmgrgeom2dids_.getParam(this) );
