@@ -483,6 +483,21 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 }
 
 
+bool Horizon2DDisplay::shouldDisplayIntersections( 
+    const Seis2DDisplay& seisdisp )
+{
+    for ( int idx=0; idx<seisdisp.nrAttribs(); idx++ )
+    {
+	const bool hasattribenable = seisdisp.isAttribEnabled(idx);
+	const DataPack::ID id = seisdisp.getDataPackID(idx);
+
+	if ( hasattribenable && id!=0 )
+	    return true;
+    }
+    return false;
+}
+
+
 void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 {
     updateintsectmarkers_.setParam( this, true );
@@ -581,6 +596,9 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 
 	for ( int idy=0; idy<seis2dlist.size(); idy++ )
 	{
+	    if ( !shouldDisplayIntersections(*seis2dlist[idy]) )
+		continue;
+
 	    if ( intsect->geomID() != seis2dlist[idy]->getGeomID() )
 		    continue;
 	    for ( int idz=0; idz<geomids.size(); idz++ )
