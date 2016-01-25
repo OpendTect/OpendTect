@@ -819,8 +819,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 
     if ( polysel->hasPolygon() )
     {
-	visBase::PolygonSelection* copyselection = polysel->copy();
-	copyselection->ref();
+	RefMan<visBase::PolygonSelection> copyselection = polysel->copy();
 	visBase::PolygonCoord3Selector* selector =
 	    new visBase::PolygonCoord3Selector( *copyselection );
 	if ( selector )
@@ -892,7 +891,7 @@ void EMObjectDisplay::unSelectAll()
 {
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
 	posattribmarkers_[idx]->setMarkersSingleColor( Color::White() );
-    deepErase( selectors_ );
+    clearSelections();
 }
 
 

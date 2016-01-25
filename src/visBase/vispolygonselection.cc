@@ -51,8 +51,11 @@ PolygonSelection::PolygonSelection()
     , selector_( new osgGeo::PolygonSelection )
     , drawstyle_( new DrawStyle )
     , polygon_( 0 )
+    , mastercamera_( 0 )
+    , selectorcb_( 0 )
 {
     drawstyle_->ref();
+    selector_->ref();
     addChild( selector_ );
     selectorcb_ = new SelectionCallBack;
     selectorcb_->ref();
@@ -70,16 +73,25 @@ PolygonSelection::~PolygonSelection()
     unRefPtr( mastercamera_ );
     selector_->removeCallBack( selectorcb_ );
     selectorcb_->unref();
+    selector_->unref();
     delete polygon_;
 }
 
 
 PolygonSelection* PolygonSelection::copy() const
 {
-    PolygonSelection* polysel = new PolygonSelection();
-    polysel->selector_ = new osgGeo::PolygonSelection( *selector_ );
-    polysel->setUTMCoordinateTransform( utm2disptransform_ );
-    return polysel;
+    if ( !hasPolygon() )
+	return 0;
+    PolygonSelection* polsel = PolygonSelection::create();
+    if ( polsel->selector_ )
+    {
+	polsel->selector_->removeCallBack( polsel->selectorcb_ );
+	polsel->selector_->unref();
+    }
+    polsel->selector_ = new osgGeo::PolygonSelection( *selector_ );
+    polsel->selector_->addCallBack( polsel->selectorcb_ );
+    polsel->setUTMCoordinateTransform( utm2disptransform_ );
+    return polsel;
 }
 
 
@@ -346,8 +358,16 @@ bool PolygonCoord3Selector::includes( const Coord3& c ) const
 
 char PolygonCoord3Selector::includesRange( const Coord3& start,
 					  const Coord3& stop ) const
-{ return vissel_.includesRange( start, stop, false ); }
+{
+    const char res = vissel_.includesRange( start, stop, false );
+    if ( res==3 )
+	return 0;
 
+    if ( res==4 )
+	return 1;
+
+    return res;
+}
 
 bool PolygonCoord3Selector::isEq( const Selector<Coord3>& comp ) const
 {
