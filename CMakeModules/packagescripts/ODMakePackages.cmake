@@ -1,8 +1,8 @@
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:  CMake script to build a release
-# Author:       K. Tingdahl
+# Description:	CMake script to build a release
+# Author:	K. Tingdahl
 # Date:		August 2012		
-#RCS:           $Id$
+#RCS:		$Id$
 
 message( "SOURCE_DIR: ${SOURCE_DIR}" )
 message( "BINARY_DIR: ${BINARY_DIR}" )
@@ -12,7 +12,7 @@ if ( EXISTS  CMakeModules/packagescripts/packages.cmake )
 	include( CMakeModules/packagescripts/packages.cmake ) 
 elseif ( EXISTS ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake ) 
 	#to read file on od if CMAKE_BUILD_DIR is different from CMAKE_SOURCE_DIR
-    include( ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake ) 
+    include( ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake )	
 else()
     message( FATAL_ERROR "File packages.cmake not found" )
 endif()
@@ -20,7 +20,7 @@ include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
     if ( EXISTS  CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
-        include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake) 
+	include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake) 
     elseif( EXISTS ${SOURCE_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
        include( ${SOURCE_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
     endif()
@@ -59,7 +59,7 @@ foreach ( PACKAGE ${PACKAGELIST} )
 
     init_destinationdir( ${PACK} )
     if( ${PACK} STREQUAL "devel" )
-        create_develpackages()
+	create_develpackages()
     elseif( ${PACK} STREQUAL "doc" )
 	    create_docpackages( doc )
     elseif( ${PACK} STREQUAL "dgbdoc" )
@@ -67,16 +67,14 @@ foreach ( PACKAGE ${PACKAGELIST} )
     elseif( ${PACK} STREQUAL "classdoc" )
 	    create_docpackages( classdoc )
     else()
-	if ( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
-	    #Genarate Symbols on Win and Linux platofrms. Also strip libs in Linux
-	    set( ALLLIBS ${LIBLIST} ${PLUGINS} )
-	    OD_GENERATE_BREAKPAD_SYMBOLS( "${ALLLIBS}" "${EXECLIST}" )
-	endif()
-
 	create_package( ${PACK} )
     endif()
 endforeach()
 if ( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
+    set( SYMBOLDIRNM symbols_${OD_PLFSUBDIR}_${OpendTect_FULL_VERSION} )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/symbols
+		     ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
     zippackage( ${SYMBOLDIRNM}.zip ${SYMBOLDIRNM} ${PACKAGE_DIR}/symbols )
 endif()
 message( "\n Created packages are available under ${PACKAGE_DIR}" )
