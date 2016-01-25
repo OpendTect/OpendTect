@@ -46,9 +46,27 @@ macro ( create_package PACKAGE_NAME )
 	    set( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} ${LIB} )
 	endif()
 
+	if( UNIX )
+	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
+	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${COPYFROMLIBDIR}/${LIB}
 			 ${COPYTOLIBDIR}/${LIB} )
+#copying breakpad symbols
+	if ( OD_ENABLE_BREAKPAD )
+	    if( WIN32 )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/symbols/${FILE}.pdb
+				 ${COPYTOLIBDIR}/symbols/${FILE}.pdb )
+	    elseif( APPLE )
+		#TODO
+	    else()
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/symbols/${LIB}
+				 ${COPYTOLIBDIR}/symbols/${LIB} )
+	    endif()
+	endif()
+
 	file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
 	foreach( ALOFILE ${ALOFILES} )
 	    get_filename_component( ALOFILENAME ${ALOFILE} NAME )
@@ -91,18 +109,36 @@ macro ( create_package PACKAGE_NAME )
 
     message( "Copying ${OD_PLFSUBDIR} executables" )
     foreach( EXE ${EXECLIST} )
-	if( WIN32 )
-		set( EXE "${EXE}.exe" )
+	if( UNIX )
+	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${EXE} )
 	endif()
-
-	if ( NOT APPLE )
+	if( WIN32 )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMLIBDIR}/${EXE}
-			     ${COPYTOLIBDIR}/${EXE} )
-	else()
+			     ${COPYTOLIBDIR}/${EXE}.exe )
+	elseif( APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMEXEDIR}/${EXE}
 			     ${COPYTOEXEDIR}/${EXE} )
+
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/${EXE}
+			     ${COPYTOLIBDIR}/${EXE} )
+	endif()
+#copying breakpad symbols
+	if ( OD_ENABLE_BREAKPAD )
+	    if ( WIN32 )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/symbols/${EXE}
+				 ${COPYTOLIBDIR}/symbols/${EXE}.pdb )
+	    elseif( APPLE )
+		#TODO
+	    else()
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/symbols/${EXE}
+				 ${COPYTOLIBDIR}/symbols/${EXE} )
+	    endif()
 	endif()
     endforeach()
 

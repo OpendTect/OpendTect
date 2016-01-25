@@ -45,6 +45,9 @@ if(OD_ENABLE_BREAKPAD)
     endif()
 
     set(OD_BREAKPADLIBS ${BREAKPADLIB} ${BREAKPADCOMMONLIB} ${BREAKPADCLIENTLIB} )
+    if ( WIN64 )
+	set(OD_BREAKPADBINS cyggcc_s-1.dll cygstdc++-6.dll cygwin1.dll )
+    endif()
 
     find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms 
 		  PATHS ${BREAKPAD_DIR}/bin )
@@ -55,5 +58,11 @@ if(OD_ENABLE_BREAKPAD)
     install( DIRECTORY ${CMAKE_BINARY_DIR}/${OD_LIB_RELPATH_RELEASE}/symbols
 	     DESTINATION ${CMAKE_INSTALL_PREFIX}/${OD_LIB_INSTALL_PATH_RELEASE}
 	     CONFIGURATIONS Release )
+    if ( WIN64 )
+	foreach( BPDLL ${OD_BREAKPADBINS} )
+	    install( FILES ${BREAKPAD_DIR}/bin/${BPDLL}
+		     DESTINATION ${CMAKE_INSTALL_PREFIX}/${OD_LIB_INSTALL_PATH_RELEASE} )
+	endforeach()
+    endif()
 
 endif(OD_ENABLE_BREAKPAD)
