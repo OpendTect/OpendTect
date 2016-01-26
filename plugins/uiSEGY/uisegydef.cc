@@ -378,6 +378,7 @@ void uiSEGYFilePars::writeParsPush( CallBacker* )
 FilePars uiSEGYFilePars::getPars() const
 {
     FilePars fp( forread_ );
+    fp.ns_ = 0;
     if ( nrsamplesfld_ && nrsamplesfld_->isChecked() )
 	fp.ns_ = nrsamplesfld_->getIntValue();
     fp.fmt_ = FilePars::fmtOf( fmtfld_->text(), forread_ );

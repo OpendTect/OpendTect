@@ -89,6 +89,7 @@ protected:
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
     uiCheckBox*		inc0sbox_;
+    uiCheckBox*		keepzsampbox_;
     uiLabel*		nrfileslbl_;
     Timer*		timer_;
 
@@ -144,6 +145,7 @@ protected:
     void		examineCB(CallBacker*);
     void		readParsCB(CallBacker*);
     void		writeParsCB(CallBacker*);
+    void		keepZChg(CallBacker*);
     void		icxyCB(CallBacker*);
     void		coordscaleChg(CallBacker*);
     void		updateAmplDisplay(CallBacker*);

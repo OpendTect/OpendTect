@@ -39,7 +39,7 @@ class OffsetCalculator;
 /*!\brief Basic data from a SEG-Y fle */
 
 mExpClass(uiSEGY) BasicFileInfo
-{
+{ mODTextTranslationClass(BasicFileInfo);
 public:
 
 			BasicFileInfo()			{ init(); }
@@ -60,10 +60,19 @@ public:
     StepInterval<float>	getZRange() const
 			{ return sampling_.interval(ns_); }
 
+    TrcHeader*		getTrcHdr(od_istream&) const;
     int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
     bool		goToTrace(od_istream&,od_stream_Pos,int) const;
+    uiString		getFrom(od_istream&,bool& zinft,
+				const bool* knownhdrswap=0);
+			//!< try returned isEmpty(), if not error occurred
+			//!< on success leaves stream at start of first trace
 
-    void		getFilePars(FilePars&) const;
+    virtual void	getFilePars(FilePars&) const;
+
+protected:
+
+    virtual const TrcHeaderDef& getHDef() const; // returns default
 
 };
 
@@ -76,6 +85,9 @@ public:
 
 			LoadDef();
 			~LoadDef();
+			LoadDef( const LoadDef& oth )
+			    : hdrdef_(0)	{ *this = oth; }
+    LoadDef&		operator =(const LoadDef&);
     void		reInit(bool alsohdef);
 
     float		coordscale_;
@@ -84,20 +96,26 @@ public:
     SamplingData<int>	trcnrdef_;
     FileReadOpts::PSDefType psoffssrc_;
     SamplingData<float>	psoffsdef_;
+    bool		filezsampling_;
 
     TrcHeaderDef*	hdrdef_;
 
-    TrcHeader*		getTrcHdr(od_istream&) const;
+    LoadDef		getPrepared(od_istream&) const;
     bool		getData(od_istream&,char*,float* vals=0) const;
     TrcHeader*		getTrace(od_istream&,char*,float*) const;
     bool		skipData(od_istream&) const;
     void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
 				   const OffsetCalculator&) const;
 
+    virtual void	getFilePars(FilePars&) const;
     void		getFileReadOpts(FileReadOpts&) const;
     void		usePar(const IOPar&);
 
     bool		needXY() const;
+
+protected:
+
+    virtual const TrcHeaderDef& getHDef() const	{ return *hdrdef_; }
 
 };
 

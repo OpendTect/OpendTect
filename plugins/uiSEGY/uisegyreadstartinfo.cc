@@ -503,6 +503,14 @@ void uiSEGYReadStartInfo::updateCellTexts()
 }
 
 
+void uiSEGYReadStartInfo::showZSamplingSetting( bool yn )
+{
+    nsfld_->display( yn );
+    zstartfld_->display( yn );
+    srfld_->display( yn );
+}
+
+
 void uiSEGYReadStartInfo::setByteFldContents( const SEGY::HdrEntryKeyData& hkd )
 {
 #define mSetBFCont(nm,cont) \
@@ -558,10 +566,13 @@ void uiSEGYReadStartInfo::parChanged( bool revchg )
 
 void uiSEGYReadStartInfo::setImpTypIdx( int idx, bool doupd )
 {
-    if ( inptypfixed_ )
-	{ pErrMsg( "Input type fixed, cannot set" ); return; }
+    if ( idx != imptype_.tidx_ )
+    {
+	if ( inptypfixed_ )
+	    { pErrMsg( "Input type fixed, should not set" ); }
+	imptype_.tidx_ = idx;
+    }
 
-    imptype_.tidx_ = idx;
     if ( doupd )
 	parChanged( false );
 }

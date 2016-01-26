@@ -97,6 +97,82 @@ void SEGY::BasicFileInfo::getFilePars( SEGY::FilePars& fpars ) const
 }
 
 
+const SEGY::TrcHeaderDef& SEGY::BasicFileInfo::getHDef() const
+{
+    mDefineStaticLocalObject( TrcHeaderDef, trcdef, );
+    return trcdef;
+}
+
+
+SEGY::TrcHeader* SEGY::BasicFileInfo::getTrcHdr( od_istream& strm ) const
+{
+    char* thbuf = new char[ SegyTrcHeaderLength ];
+    strm.getBin( thbuf, SegyTrcHeaderLength );
+    if ( !strm.isOK() )
+	return 0;
+
+    SEGY::TrcHeader* th = new SEGY::TrcHeader( (unsigned char*)thbuf,
+						getHDef(), isRev0(), true );
+    th->initRead();
+    return th;
+}
+
+
+#define mErrRetWithFileName(s) \
+    return uiString( "File:\n%1\n" s ).arg( strm.fileName() );
+
+
+uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
+					const bool* knownhdrswap )
+{
+    strm.setPosition( 0 );
+    if ( !strm.isOK() )
+	mErrRetWithFileName( "is empty" )
+
+    SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
+    strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
+    if ( !strm.isOK() )
+	mErrRetWithFileName( "has no textual header" )
+    strm.getBin( binhdr.buf(), SegyBinHeaderLength );
+    if ( strm.isBad() )
+	mErrRetWithFileName( "has no binary header" )
+
+    binhdr.guessIsSwapped();
+    hdrsswapped_ = dataswapped_ = binhdr.isSwapped();
+    if ( (knownhdrswap && *knownhdrswap) || (!knownhdrswap && hdrsswapped_) )
+	binhdr.unSwap();
+    if ( !binhdr.isRev0() )
+	binhdr.skipRev1Stanzas( strm );
+    inft = binhdr.isInFeet();
+
+    ns_ = binhdr.nrSamples();
+    if ( ns_ < 1 || ns_ > mMaxReasonableNS )
+	ns_ = -1;
+    revision_ = binhdr.revision();
+    short fmt = binhdr.format();
+    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
+	fmt = 1;
+    format_ = fmt;
+
+    od_stream_Pos firsttrcpos = strm.position();
+    PtrMan<SEGY::TrcHeader> thdr = getTrcHdr( strm );
+    strm.setPosition( firsttrcpos );
+    if ( !thdr )
+	mErrRetWithFileName( "No traces found" )
+
+    if ( ns_ < 1 )
+	ns_ = (int)thdr->nrSamples();
+    if ( ns_ > mMaxReasonableNS )
+	mErrRetWithFileName(
+	    "No proper 'number of samples per trace' found" )
+
+    SeisTrcInfo ti; thdr->fill( ti, 1.0f );
+    sampling_ = ti.sampling;
+
+    return uiString::emptyString();
+}
+
+
 
 SEGY::LoadDef::LoadDef()
     : hdrdef_(0)
@@ -115,6 +191,7 @@ void SEGY::LoadDef::reInit( bool alsohdef )
     trcnrdef_ = SamplingData<int>( 1000, 1 );
     psoffssrc_ = FileReadOpts::InFile;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
+    filezsampling_ = false;
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }
@@ -126,19 +203,41 @@ SEGY::LoadDef::~LoadDef()
 }
 
 
-SEGY::TrcHeader* SEGY::LoadDef::getTrcHdr( od_istream& strm ) const
+SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 {
-    char* thbuf = new char[ SegyTrcHeaderLength ];
-    strm.getBin( thbuf, SegyTrcHeaderLength );
-    if ( !strm.isOK() )
-	return 0;
-
-    SEGY::TrcHeader* th = new SEGY::TrcHeader(
-			 (unsigned char*)thbuf, *hdrdef_, isRev0(), true );
-    th->initRead();
-    return th;
+    if ( this != &oth )
+    {
+	((BasicFileInfo&)(*this)) = ((const BasicFileInfo&)oth);
+	coordscale_ = oth.coordscale_;
+	icvsxytype_ = oth.icvsxytype_;
+	havetrcnrs_ = oth.havetrcnrs_;
+	trcnrdef_ = oth.trcnrdef_;
+	psoffssrc_ = oth.psoffssrc_;
+	psoffsdef_ = oth.psoffsdef_;
+	filezsampling_ = oth.filezsampling_;
+	hdrdef_ = new TrcHeaderDef( *oth.hdrdef_ );
+    }
+    return *this;
 }
 
+
+SEGY::LoadDef SEGY::LoadDef::getPrepared( od_istream& strm ) const
+{
+    if ( !filezsampling_ )
+	return *this;
+
+    od_stream_Pos orgpos = strm.position();
+    LoadDef rddef( *this ); bool dum;
+    uiString msg = rddef.getFrom( strm, dum, &hdrsswapped_ );
+    strm.setPosition( orgpos );
+    if ( !msg.isEmpty() )
+	return *this;
+
+    LoadDef ret( *this );
+    ret.ns_ = rddef.ns_;
+    ret.sampling_ = rddef.sampling_;
+    return ret;
+}
 
 
 void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
@@ -192,12 +291,20 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 }
 
 
+void SEGY::LoadDef::getFilePars( SEGY::FilePars& fpars ) const
+{
+    BasicFileInfo::getFilePars( fpars );
+    if ( filezsampling_ )
+	fpars.ns_ = 0;
+}
+
+
 void SEGY::LoadDef::getFileReadOpts( SEGY::FileReadOpts& readopts ) const
 {
     readopts.thdef_ = *hdrdef_;
     readopts.coordscale_ = coordscale_;
-    readopts.timeshift_ = sampling_.start;
-    readopts.sampleintv_ = sampling_.step;
+    readopts.timeshift_ = filezsampling_ ? mUdf(float) : sampling_.start;
+    readopts.sampleintv_ = filezsampling_ ? mUdf(float) : sampling_.step;
     readopts.icdef_ = icvsxytype_;
     readopts.psdef_ = psoffssrc_;
     readopts.havetrcnrs_ = havetrcnrs_;
@@ -386,11 +493,12 @@ virtual int nextStep()
 } // namespace SEGY
 
 
-void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
+void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
 			bool forsurvsetup,
 		    DataClipSampler& clipsampler, TaskRunner* fullscanrunner )
 {
     reInit();
+    const LoadDef def( indef.getPrepared(strm) );
 
     startpos_ = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos_ );
