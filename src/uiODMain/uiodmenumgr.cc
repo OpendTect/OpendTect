@@ -546,7 +546,7 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *attritm, "seisout", tr("Single Attribute"),
 		     mSeisOut2DMnuItm, mSeisOut3DMnuItm );
     bool has3d = true;
-    bool has2d = true;
+    bool has2d mUsedVar = true; //Mark as used as it is only in debug code
     mGet2D3D()
 
     if ( has3d )
@@ -570,7 +570,7 @@ void uiODMenuMgr::fillProcMenu()
     const uiString menutext = tr("2D <=> 3D");
     if ( has3d )
     {
-    itm2d3d = new uiMenu( menutext );
+	itm2d3d = new uiMenu( menutext );
 	csoitm_->insertItem( itm2d3d );
 	mInsertItem( itm2d3d, m3Dots(tr("Create 2D from 3D")),
 		     mCreate2DFrom3DMnuItm );
