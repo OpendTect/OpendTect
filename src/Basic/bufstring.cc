@@ -87,6 +87,8 @@ BufferString& BufferString::setEmpty()
 {
     if ( len_ != minlen_ )
 	{ destroy(); init(); }
+    else if ( !buf_ )
+	{ pErrMsg("Probably working with deleted string"); }
     else
 	buf_[0] = '\0';
 
