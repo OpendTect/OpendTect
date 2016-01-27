@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "mpefssflatvieweditor.h"
 
+#include "bendpointfinder.h"
 #include "emeditor.h"
 #include "emfaultstickset.h"
 #include "emfaultstickpainter.h"
@@ -19,8 +20,10 @@ ________________________________________________________________________
 #include "flatauxdataeditor.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "randomlinegeom.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "trigonometry.h"
 #include "uiflatviewer.h"
 
 namespace MPE
@@ -34,6 +37,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , fsspainter_( new EM::FaultStickPainter(ed->viewer(),oid) )
     , meh_(0)
     , path_(0)
+    , rdlid_(-1)
     , activestickid_(-1)
     , seedhasmoved_(false)
     , makenewstick_(false)
@@ -49,7 +53,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
-    if ( !path_ && meh_ )
+    if ( meh_ )
     {
 	editor_->movementStarted.remove(
 		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
@@ -75,9 +79,6 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 
 void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
-    if ( path_ )
-	return;
-
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -132,6 +133,13 @@ void FaultStickSetFlatViewEditor::setPath( const TrcKeyPath& path )
 {
     path_ = &path;
     fsspainter_->setPath( path );
+}
+
+
+void FaultStickSetFlatViewEditor::setRandomLineID( int rdlid )
+{
+    rdlid_ = rdlid;
+    fsspainter_->setRandomLineID( rdlid );
 }
 
 
@@ -361,9 +369,27 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
 }
 
 
-#define mGetNormal(var) \
-    Coord3 var( Coord3::udf() ); \
-    if ( !tkzs_.isEmpty() ) tkzs_.getDefaultNormal( var )
+Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
+{
+    Coord3 normal = Coord3( Coord3::udf() );
+    if ( path_ && mousepos )
+    {
+	const BinID mousebid = SI().transform( *mousepos );
+	TrcKey mousetk( mousebid );
+	RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid_ );
+	if ( !rlgeom || !path_ )
+	    return Coord3::udf();
+
+	TrcKeyPath nodes;
+	rlgeom->allNodePositions( nodes );
+	return Coord3( Geometry::RandomLine::getNormal(nodes,mousetk), 0.0f );
+    }
+    else if ( !tkzs_.isEmpty() )
+	tkzs_.getDefaultNormal( normal );
+
+    return normal;
+}
+
 
 void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 {
@@ -395,7 +421,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 	return;
 
     EM::PosID pid;
-    mGetNormal( normal );
+    Coord3 normal = getNormal( &pos );
     fsseditor->setScaleVector( getScaleVector() );
     fsseditor->getInteractionInfo( pid, 0, 0, fsspainter_->getGeomID(), pos,
 				   &normal );
@@ -529,7 +555,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
     EM::PosID interactpid;
-    mGetNormal( normal );
+    Coord3 normal = getNormal( &pos );
     fsseditor->setScaleVector( getScaleVector() );
     fsseditor->getInteractionInfo( interactpid, 0, 0, fsspainter_->getGeomID(),
 				   pos, &normal );
@@ -559,10 +585,10 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( mouseevent.shiftStatus() || interactpid.isUdf() || makenewstick_ )
     {
 	makenewstick_ = false;
-	mGetNormal( editnormal );
+	Coord3 editnormal = getNormal( &pos );
 
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
-	if ( tkzs_.isEmpty() )
+	if ( tkzs_.isEmpty() && editnormal.isUdf() )
 	{
 	    geomid = fsspainter_->getGeomID();
 	    editnormal = Coord3( fsspainter_->getNormalToTrace(trcnr), 0 );

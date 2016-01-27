@@ -89,6 +89,8 @@ protected:
     EM::ObjectID	emid_;
     Vw2DHorizon2D*	horview_;
     bool		trackerefed_;
+
+    void		renameVisObj();
 };
 
 #endif

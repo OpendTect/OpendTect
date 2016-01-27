@@ -87,6 +87,7 @@ protected:
 
     EM::ObjectID        emid_;
     VW2DFault*		faultview_;
+    void		renameVisObj();
 };
 
 

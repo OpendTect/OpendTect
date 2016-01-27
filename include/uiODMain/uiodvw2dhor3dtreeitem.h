@@ -84,6 +84,7 @@ protected:
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
     void		displayMiniCtab();
+    void		renameVisObj();
 
     void		emobjChangeCB(CallBacker*);
 
