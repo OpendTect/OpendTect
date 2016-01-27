@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uitreeview.h"
 #include "uistrings.h"
+#include "uivispartserv.h"
 
 #include "emfaultstickset.h"
 #include "emmanager.h"
@@ -271,10 +272,16 @@ void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::Undef:
 	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		displayMiniCtab();
-		break;
-	    }
+	{
+	    displayMiniCtab();
+	    break;
+	}
+	case EM::EMObjectCallbackData::NameChange:
+	{
+	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	    break;
+	}
 	default: break;
     }
 }
@@ -298,6 +305,17 @@ bool uiODVw2DFaultSSTreeItem::select()
     }
 
     return true;
+}
+
+
+void uiODVw2DFaultSSTreeItem::renameVisObj()
+{
+    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+    TypeSet<int> visobjids;
+    applMgr()->visServer()->findObject( midintree, visobjids );
+    for ( int idx=0; idx<visobjids.size(); idx++ )
+	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+    applMgr()->visServer()->triggerTreeUpdate();
 }
 
 
@@ -328,16 +346,20 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	renameVisObj();
     }
-    else if ( mnuid == 2 )
+    else if ( mnuid == 2 || mnuid == 3 )
     {
+	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
+	    return true;
+	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ );
-	applMgr()->viewer2DMgr().removeFaultSS( emid_ );
+	if ( mnuid == 2 )
+	    applMgr()->viewer2DMgr().removeFaultSS( emid_ );
 	if ( doremove )
 	    parent_->removeChild( this );
     }
-    else if ( mnuid == 3 )
-	parent_->removeChild( this );
 
     return true;
 }

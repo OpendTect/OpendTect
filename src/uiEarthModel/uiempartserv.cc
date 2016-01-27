@@ -892,6 +892,10 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	}
     }
 
+    EM::EMObjectCallbackData cbdata;
+    cbdata.event = EM::EMObjectCallbackData::NameChange;
+    object->change.trigger( cbdata );
+    object->resetChangedFlag();
     storagekey = key;
     uiTaskRunner exdlg( parent() );
     const bool ret = TaskRunner::execute( &exdlg, *exec );

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uitreeview.h"
 #include "uistrings.h"
+#include "uivispartserv.h"
 
 #include "emfault3d.h"
 #include "emmanager.h"
@@ -153,13 +154,13 @@ void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 	    emidstobeloaded.addIfNew( emids[idx] );
     }
 
-    for ( int idx=0; idx<emidsloaded.size(); idx++ )
+    for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emidsloaded[idx] );
+	const EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
-	addChld( new uiODVw2DFaultTreeItem(emidsloaded[idx]), false, false);
+	addChld( new uiODVw2DFaultTreeItem(emidstobeloaded[idx]), false, false);
     }
 }
 
@@ -272,10 +273,16 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::Undef:
 	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		displayMiniCtab();
-		break;
-	    }
+	{
+	    displayMiniCtab();
+	    break;
+	}
+	case EM::EMObjectCallbackData::NameChange:
+	{
+	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	    break;
+	}
 	default: break;
     }
 }
@@ -299,6 +306,17 @@ bool uiODVw2DFaultTreeItem::select()
 	faultview_->selected();
     }
     return true;
+}
+
+
+void uiODVw2DFaultTreeItem::renameVisObj()
+{
+    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+    TypeSet<int> visobjids;
+    applMgr()->visServer()->findObject( midintree, visobjids );
+    for ( int idx=0; idx<visobjids.size(); idx++ )
+	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+    applMgr()->visServer()->triggerTreeUpdate();
 }
 
 
@@ -328,16 +346,22 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	renameVisObj();
     }
-    else if ( mnuid == 2 )
+    else if ( mnuid == 2 || mnuid == 3 )
     {
-	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ );
-	applMgr()->viewer2DMgr().removeFault( emid_ );
+	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
+	    return true;
+
+	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	renameVisObj();
+	bool doremove =
+	    !applMgr()->viewer2DMgr().isItemPresent( parent_ ) || mnuid==3;
+	if ( mnuid==2 )
+	    applMgr()->viewer2DMgr().removeFault( emid_ );
 	if ( doremove )
 	    parent_->removeChild( this );
     }
-    else if ( mnuid == 3 )
-	parent_->removeChild( this );
 
     return true;
 }

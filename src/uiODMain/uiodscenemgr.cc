@@ -49,6 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emrandomposbody.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mpeengine.h"
 #include "pickset.h"
 #include "ptrman.h"
 #include "randomlinegeom.h"
@@ -1218,6 +1219,9 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     else
 	return -1;
 
+    if (  MPE::engine().getTrackerByObject(obj->id()) != -1 )
+	MPE::engine().addTracker( obj );
+    
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
