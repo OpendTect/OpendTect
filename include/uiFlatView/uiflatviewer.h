@@ -106,6 +106,7 @@ public:
     static int		bitMapZVal()			{ return 0; }
     static int		auxDataZVal()			{ return 100; }
     static int		annotZVal()			{ return 200; }
+    uiBitMapDisplay*	bitmapDisp()			{ return bitmapdisp_; }
 
 protected:
 

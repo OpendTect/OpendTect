@@ -139,6 +139,7 @@ protected:
     void		updatePosButtonStates();
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setViewToCustomZoomLevel(uiFlatViewer&);
+    void		setVwrCursor(uiFlatViewer&,const MouseCursor&);
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);

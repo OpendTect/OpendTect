@@ -94,6 +94,8 @@ bool HorizonPainter2D::addPolyLine()
 	markerline_ += secmarkerln;
 	FlatView::AuxData* seedauxdata =
 	    viewer_.createAuxData( "Horizon2D Marker" );
+	seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
+	    				    : MouseCursor::Arrow;
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
@@ -138,6 +140,8 @@ bool HorizonPainter2D::addPolyLine()
 		FlatView::AuxData* auxdata =
 		    viewer_.createAuxData( "Horizon2D marker" );
 		viewer_.addAuxData( auxdata );
+		auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
+						: MouseCursor::Arrow;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
 		Color prefcol = hor2d->preferredColor();
@@ -274,6 +278,8 @@ HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
     const EM::SectionID& sid, float x, float z )
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData( 0 );
+    seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
+					: MouseCursor::Arrow;
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
     EM::EMObject* emobj = EM::EMM().getObject(id_);

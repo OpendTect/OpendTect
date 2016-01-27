@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewstdcontrol.h"
+#include "uibitmapdisplay.h"
 
 #include "uicolortable.h"
 #include "uiflatviewcoltabed.h"
@@ -507,6 +508,24 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 }
 
 
+void uiFlatViewStdControl::setVwrCursor( uiFlatViewer& vwr,
+					     const MouseCursor& cursor )
+{
+    vwr.rgbCanvas().setCursor( cursor );
+    vwr.setCursor( cursor );
+
+    for ( int idx=0; idx<vwr.nrAuxData(); idx++ )
+    {
+	FlatView::AuxData* ad = vwr.getAuxData( idx );
+	if ( !ad )
+	    continue;
+	ad->cursor_ = cursor;
+    }
+
+    vwr.bitmapDisp()->getDisplay()->setCursor( cursor );
+}
+
+
 void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
@@ -514,10 +533,7 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 
     MouseCursor cursor( MouseCursor::ClosedHand );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	vwrs_[idx]->rgbCanvas().setDragMode(uiGraphicsViewBase::ScrollHandDrag);
-	vwrs_[idx]->setCursor( cursor );
-    }
+	setVwrCursor( *vwrs_[idx], cursor );
 
     MouseCursorManager::setOverride( cursor.shape_ );
     mousedownpt_ = meh->event().pos();
@@ -541,17 +557,7 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     const uiWorldPoint curwpt = w2ui.transform( meh->event().pos() );
     mousedownpt_ = meh->event().pos();
     if ( !mousepressed_ )
-    {
-	uiRect viewarea = vwr->getViewRect( false );
-	Interval<int> pixwidthrg( viewarea.topLeft().x, viewarea.topRight().x );
-	Interval<int> pixgeightrg( viewarea.topLeft().y,
-				   viewarea.bottomLeft().y );
-	if ( !pixwidthrg.includes(mousedownpt_.x,false) ||
-	     !pixgeightrg.includes(mousedownpt_.y,false) )
-	    MouseCursorManager::restoreOverride();
 	return;
-    }
-
 
     uiWorldRect newwr( vwr->curView() );
     newwr.translate( startwpt-curwpt );
@@ -572,13 +578,8 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
     MouseCursor cursor( !isEditModeOn() ? MouseCursor::Arrow
 	    				: MouseCursor::Cross );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	vwrs_[idx]->rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
-	vwrs_[idx]->setCursor( cursor );
-    }
+	setVwrCursor( *vwrs_[idx], cursor );
     
-    MouseCursorManager::setOverride( cursor.shape_ );
-
     mousepressed_ = false;
 }
 
@@ -631,11 +632,10 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* )
     if ( iszoommode )
 	mode = uiGraphicsViewBase::RubberBandDrag;
 
-    MouseCursorManager::setOverride( cursor.shape_ );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
-	vwrs_[idx]->setCursor( cursor );
+	setVwrCursor( *vwrs_[idx], cursor );
 	vwrs_[idx]->appearance().annot_.editable_ = editable;
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
     }
@@ -649,16 +649,12 @@ void uiFlatViewStdControl::editModeCB( CallBacker* )
     if ( iszoommode )
 	rubbandzoombut_->setOn( false );
 
-    uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::NoDrag );
     MouseCursor cursor( iseditmode ? MouseCursor::Cross : MouseCursor::Arrow );
-
-    MouseCursorManager::setOverride( cursor.shape_ );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	vwrs_[idx]->rgbCanvas().setDragMode( mode );
-	vwrs_[idx]->setCursor( cursor );
-	vwrs_[idx]->appearance().annot_.editable_ = iseditmode &&
-					!vwrs_[idx]->hasZAxisTransform();
+	setVwrCursor( *vwrs_[idx], cursor );
+	vwrs_[idx]->appearance().annot_.editable_ =
+	    iseditmode && !vwrs_[idx]->hasZAxisTransform();
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
     }
 }
