@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "flatposdata.h"
+#include "randomlinegeom.h"
 #include "zaxistransform.h"
 #include "positionlist.h"
 #include "survinfo.h"
@@ -33,6 +34,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , markerstyle_(OD::MarkerStyle2D::Square, 4, Color(255,255,0) )
     , activestickid_( mUdf(int) )
     , path_(0)
+    , rdlid_(-1)
     , flatposdata_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
@@ -273,16 +275,19 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 {
     BinID bid;
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid_ );
+    if ( !path_ || !rlgeom )
+	return false;
+
     for ( rc.col()=crg.start;rc.col()<=crg.stop;rc.col()+=crg.step )
     {
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.coord() );
 	const TrcKey trckey = Survey::GM().traceKey(
 		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-	const int idx = path_->indexOf( trckey );
-	if ( idx < 0 ) continue;
-
-	Coord3 editnormal( getNormalInRandLine(idx), 0 );
+	TrcKeyPath knots;
+	rlgeom->allNodePositions( knots );
+	Coord3 editnormal( Geometry::RandomLine::getNormal(knots,trckey), 0 );
 	const Coord3 nzednor = editnormal.normalize();
 
 	const bool equinormal =
@@ -293,8 +298,11 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 	if ( !equinormal )
 	    return false;
 
-	stickauxdata.poly_ += FlatView::Point(flatposdata_->position(true,idx),
-					      zat ? zat->transform(pos):pos.z);
+	const int posidx = Geometry::RandomLine::getNearestPathPosIdx(
+		knots, *path_, trckey );
+	stickauxdata.poly_ +=
+	    FlatView::Point( flatposdata_->position(true,posidx),
+			     zat ? zat->transform(pos) : pos.z );
     }
     return true;
 }

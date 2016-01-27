@@ -39,6 +39,7 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setPath(const TrcKeyPath&);
+    void		setRandomLineID(int rdlid);
     void                setFlatPosData(const FlatPosData*);
     void		drawFault();
     void		enableLine(bool);
@@ -73,8 +74,10 @@ protected:
 					Coord3& worldpos) const;
     Coord3			getScaleVector() const;
     				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+    Coord3			getNormal(const Coord3* mousepos=0) const;
 
     const TrcKeyPath*		path_;
+    int 			rdlid_;
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;

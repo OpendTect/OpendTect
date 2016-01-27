@@ -660,8 +660,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    attrserv_->setTargetSelSpec( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
-	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
-	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getNodes() : 0;
 	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -671,8 +669,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		break;
 	    }
 
-	    const DataPack::ID newid =
-		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos );
+	    const DataPack::ID newid = attrserv_->createRdmTrcsOutput(
+		    zrg, rdmtdisp->getRandomLineID() );
 	    res = true;
 	    if ( newid == -1 )
 		res = false;
@@ -891,10 +889,8 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 	visserv_->getDataTraceBids( visid, bids );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			visserv_->getObject(visid) );
-	TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
-	TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getNodes() : 0;
-	const DataPack::ID dpid =
-		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos);
+	const DataPack::ID dpid = attrserv_->createRdmTrcsOutput(
+		zrg, rdmtdisp->getRandomLineID() );
 	visserv_->setDataPackID( visid, attrib, dpid );
     }
     else if ( format==uiVisPartServer::RandomPos )

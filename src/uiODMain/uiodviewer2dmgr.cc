@@ -171,12 +171,10 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 
 	if ( !rdmline )
 	    return -1;
-	TypeSet<BinID> knots, path;
-	rdmline->allNodePositions( knots );
-	rdmline->getPathBids( knots, rdmline->getSurvID(), path );
+
 	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
 	dpid = attrserv->createRdmTrcsOutput(
-		posdatasel.tkzs_.zsamp_, &path, &knots );
+		posdatasel.tkzs_.zsamp_, rdmline->ID() );
     }
     else
 	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );

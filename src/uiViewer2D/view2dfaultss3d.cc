@@ -104,6 +104,7 @@ void VW2DFaultSS3D::draw()
 	    if ( randfdp )
 	    {
 		fsseds_[ivwr]->setPath( randfdp->getPath() );
+		fsseds_[ivwr]->setRandomLineID( randfdp->getRandomLineID() );
 		fsseds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
 

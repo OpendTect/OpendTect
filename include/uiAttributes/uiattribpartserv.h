@@ -119,6 +119,8 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
+    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+	    				    int rdlidx);
     static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,

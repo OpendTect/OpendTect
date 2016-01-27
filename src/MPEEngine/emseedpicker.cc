@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "emhorizon2d.h"
 #include "emtracker.h"
 #include "horizonadjuster.h"
+#include "randomlinegeom.h"
 #include "sectiontracker.h"
 #include "mpeengine.h"
 #include "undo.h"
@@ -135,32 +136,61 @@ int Patch::addSeed( const TrcKeyValue& tckv )
     if ( !emobj || !tckv.isDefined() || seeds_.indexOf(tckv) !=-1 )
 	return -1;
 
-    if ( seeds_.size()==0 )
-    {
-	seeds_ += tckv;
-	return seeds_.size()-1;
-    }
-
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     const bool is2d = hor2d;
+    TrcKeyValue seedtckv = tckv;
+    if ( seeds_.size()==0 )
+    {
+	if ( !is2d && !seedpicker_->lineTrackDirection(dir) )
+	{
+	    const TrcKeyPath* rdmlinepath = engine().activePath();
+	    const int rdlid = engine().activeRandomLineID();
+	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
+	    if ( !rlgeom || !rdmlinepath )
+		return -1;
+
+	    TrcKeyPath nodes;
+	    rlgeom->allNodePositions( nodes );
+	    const int rdlposidx = Geometry::RandomLine::getNearestPathPosIdx(
+		    nodes, *rdmlinepath,tckv.tk_);
+	    const TrcKey rdltk = (*rdmlinepath)[rdlposidx];
+	    seedtckv.tk_ = rdltk;
+	}
+
+	seeds_ += seedtckv;
+	return seeds_.size()-1;
+    }
 
     int idx = 0;
     if ( !is2d )
     {
 	const EM::PosID pid = EM::PosID( emobj->id(), emobj->sectionID(0),
-					 tckv.tk_.pos().toInt64() );
+					 seedtckv.tk_.pos().toInt64() );
 	if ( !seedpicker_->lineTrackDirection(dir) )
 	{
 	    idx = findClosestSeedRdmIdx( pid );
 	    if ( idx<0 )
 		return -1;
+	    
+	    const int rdlid = engine().activeRandomLineID();
+	    const TrcKeyPath* rdmlinepath = engine().activePath();
+	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
+	    if ( !rlgeom || !rdmlinepath )
+		return -1;
+
+	    TrcKeyPath nodes;
+	    rlgeom->allNodePositions( nodes );
+	    const int rdlposidx = Geometry::RandomLine::getNearestPathPosIdx(
+		    nodes, *rdmlinepath,tckv.tk_);
+	    const TrcKey rdltk = (*rdmlinepath)[rdlposidx];
+	    seedtckv.tk_ = rdltk;
 	}
 	else
 	{
 	    const bool crdir = dir.col()>0;
 
 	    idx = findClosedSeed3d( pid );
-	    if ( tckv.tk_==seeds_[idx].tk_ )
+	    if ( seedtckv.tk_==seeds_[idx].tk_ )
 		return -1;
 
 	    const EM::PosID& pos = seedNode( idx );
@@ -175,12 +205,12 @@ int Patch::addSeed( const TrcKeyValue& tckv )
     }
     else
     {
-	idx = findClosedSeed2d( tckv );
-	if ( tckv.trcNr()>= seeds_[idx].trcNr() )
+	idx = findClosedSeed2d( seedtckv );
+	if ( seedtckv.trcNr()>= seeds_[idx].trcNr() )
 	    idx++;
     }
 
-    seeds_.insert( idx, tckv );
+    seeds_.insert( idx, seedtckv );
     return idx;
 }
 
@@ -193,72 +223,13 @@ void Patch::removeSeed( int idx )
 }
 
 
-int Patch::getNearestRdmLineIdx( const TrcKey& tk ) const
-{
-    const TrcKeyPath* rdmlinepath = engine().activePath();
-    const int posidx = rdmlinepath->indexOf( tk );
-    if ( posidx>=0 )
-	return posidx;
-
-    //to find seeds which do not lie exactly on the rdm line in 3d
-    const Coord poscrd = SI().transform( tk.pos() );
-    StepInterval<int> linesegrg( 0, rdmlinepath->size()-1, 20 );
-    double minsqdist = mUdf(double);
-    int minsqdistsegidx = 0;
-    for ( int idx=0; idx<linesegrg.nrSteps(); idx++ )
-    {
-	const int firstidx = linesegrg.atIndex( idx );
-	int secondidx = linesegrg.atIndex( idx+1 );
-	if ( secondidx>rdmlinepath->size()-1 )
-	    secondidx = rdmlinepath->size()-1;
-	const BinID firstbid = (*rdmlinepath)[firstidx].pos();
-	const BinID secondbid = (*rdmlinepath)[secondidx].pos();
-	const Coord firstcrd = SI().transform( firstbid );
-	const Coord secondcrd = SI().transform( secondbid );
-	Line2 linesegment( firstcrd, secondcrd );
-	const Coord closestcrd = linesegment.closestPoint( poscrd );
-	const BinID closestbid = SI().transform( closestcrd );
-	Interval<int> inlrg( firstbid.inl(), secondbid.inl() );
-	Interval<int> crlrg( firstbid.crl(), secondbid.crl() );
-	if ( !inlrg.includes(closestbid.inl(),false) ||
-	     !crlrg.includes(closestbid.crl(),false) )
-	    continue;
-
-	const double sqdist = closestcrd.sqDistTo( poscrd );
-	if ( minsqdist > sqdist )
-	{
-	    minsqdist = sqdist;
-	    minsqdistsegidx = idx;
-	}
-    }
-
-    const int mindistlinestartidx = linesegrg.atIndex( minsqdistsegidx ) + 1;
-    int mindistlinestoptidx = linesegrg.atIndex( minsqdistsegidx+1 );
-    if ( mindistlinestoptidx > rdmlinepath->size()-1 )
-	mindistlinestoptidx = rdmlinepath->size()-1;
-
-    minsqdist = mUdf(double);
-    int nearestposidx = mindistlinestartidx;
-    for ( int idx=mindistlinestartidx; idx<=mindistlinestoptidx; idx++ )
-    {
-	const Coord rdlposcrd = SI().transform( (*rdmlinepath)[idx].pos() );
-	const double sqdist = rdlposcrd.sqDistTo( poscrd );
-	if ( minsqdist > sqdist )
-	{
-	    minsqdist = sqdist;
-	    nearestposidx = idx;
-	}
-    }
-
-    return nearestposidx;
-}
-
-
 #define nMaxInteger 2109876543
 int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
 {
     const TrcKeyPath* rdmlinepath = engine().activePath();
-    if ( !rdmlinepath )
+    const int rdlid = engine().activeRandomLineID();
+    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
+    if ( !rdmlinepath || !rlgeom )
 	return -1;
 
     if ( seeds_.size()==0  )
@@ -267,13 +238,17 @@ int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
     const RowCol& currc = pid.getRowCol();
     const BinID curbid( currc );
     const TrcKey curtk( curbid );
-    const int curidx = getNearestRdmLineIdx( curtk );
+    TrcKeyPath nodes;
+    rlgeom->allNodePositions( nodes );
+    const int curidx = Geometry::RandomLine::getNearestPathPosIdx(
+	    nodes, *rdmlinepath, curtk );
     for ( int idx=0; idx<seeds_.size(); idx++ )
     {
 	const RowCol& fisrtrc = seedNode( idx ).getRowCol();
 	const BinID firstbid( fisrtrc );
 	const TrcKey firsttk( firstbid );
-	const int firstidx = getNearestRdmLineIdx( firsttk );
+	const int firstidx = Geometry::RandomLine::getNearestPathPosIdx(
+		nodes, *rdmlinepath, firsttk );
 	if ( !idx && firstidx>curidx )
 	    return 0;
 
@@ -283,7 +258,8 @@ int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
 	const RowCol& secondrc = seedNode( idx+1 ).getRowCol();
 	const BinID secondbid( secondrc );
 	const TrcKey secondtk( secondbid );
-	const int secondidx = getNearestRdmLineIdx( secondtk );
+	const int secondidx = Geometry::RandomLine::getNearestPathPosIdx(
+		nodes, *rdmlinepath, secondtk );
 
 	if ( firstidx<curidx && curidx<secondidx )
 	    return idx+1;
@@ -397,6 +373,8 @@ void EMSeedPicker::endPatch( bool yn )
 	updatePatchLine( yn );
 	patch_->clear();
     }
+
+    seedToBeAddedRemoved.trigger();
     patchundo_.removeAll();
 }
 

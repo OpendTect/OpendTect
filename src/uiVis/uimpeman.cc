@@ -567,6 +567,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    NotifyStopper notifystopper( engine.activevolumechange );
 	    engine.setActiveVolume( newvolume );
 	    engine.setActivePath( clickcatcher_->info().getObjTKPath() );
+	    engine.setActiveRandomLineID(
+		    clickcatcher_->info().getObjRandomLineID() );
 	    notifystopper.restore();
 
 	    if ( clickedas )

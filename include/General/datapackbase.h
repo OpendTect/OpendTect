@@ -204,6 +204,7 @@ public:
     virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
     virtual int			getGlobalIdx(const TrcKey&) const	= 0;
     virtual int			getNearestGlobalIdx(const TrcKey&) const;
+    virtual int			getRandomLineID() const		{ return -1; }
 
     void			getPath(TrcKeyPath&) const;
 

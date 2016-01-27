@@ -44,6 +44,7 @@ public:
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
     void		setPath(const TrcKeyPath&);
+    void		setRandomLineID(int rdlid)	{ rdlid_ = rdlid; }
     void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
@@ -110,6 +111,7 @@ protected:
      
     TrcKeyZSampling	tkzs_;
     const TrcKeyPath*	path_;
+    int			rdlid_;
     const FlatPosData*  flatposdata_;
     TypeSet<int>	bendpts_;
 
