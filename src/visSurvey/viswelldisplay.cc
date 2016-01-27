@@ -246,28 +246,15 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
-
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
-    {
-	if ( !wd->markers()[idx] ) continue;
-
-	const char* mrkrnm = wd->markers()[idx]->name();
-	wd->displayProperties().markers_.selmarkernms_.add( mrkrnm );
-    }
-
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * mCast(float,SI().seismicReferenceDatum());
-    if ( zistime_ )
-    {
-	if ( !d2t && !trackabovesrd )
-	    mErrRet( "No depth to time model defined" )
-    }
+    if ( zistime_ && !d2t && !trackabovesrd )
+	mErrRet( "No depth to time model defined" )
 
     wellid_ = multiid;
     fullRedraw(0);
     changed_.trigger();
-
     return true;
 }
 
