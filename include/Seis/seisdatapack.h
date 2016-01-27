@@ -127,10 +127,10 @@ public:
 
     virtual bool		isVertical() const			= 0;
     virtual const TrcKeyPath&	getPath() const				= 0;
-    virtual int			getRandomLineID() const			= 0;
 				//!< Will be empty if isVertical() is false 
     				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
+    int				getRandomLineID() const	{ return rdlid_; }
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
 
     bool			dimValuesInInt(const char* keystr) const;
@@ -157,6 +157,7 @@ protected:
 
     const SeisDataPack&		source_;
     int				comp_;
+    int				rdlid_;
     const StepInterval<float>&	zsamp_;
 
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
@@ -175,7 +176,6 @@ public:
 
     bool			isVertical() const
 				{ return dir_ != TrcKeyZSampling::Z; }
-    int				getRandomLineID() const	{ return rdlid_; }
     const TrcKeyPath&		getPath() const		{ return path_; }
 
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
@@ -189,7 +189,6 @@ protected:
     void			setSourceData();
     void			setTrcInfoFlds();
 
-    int				rdlid_;
     TrcKeyPath			path_;
     const TrcKeyZSampling&	sampling_;
     TrcKeyZSampling::Dir	dir_;
@@ -209,7 +208,6 @@ public:
 						   int component);
 
     bool			isVertical() const	{ return true; }
-    int				getRandomLineID() const	{ return rdlid_; }
     const TrcKeyPath&		getPath() const		{ return path_; }
     Coord3			getCoord(int i0,int i1) const;
 
@@ -221,7 +219,6 @@ protected:
     void			setSourceData();
     void			setTrcInfoFlds();
     const TrcKeyPath&		path_;
-    int				rdlid_;
 };
 
 #endif

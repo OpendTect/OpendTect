@@ -551,8 +551,12 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
 	    TrcKeyPath nodes;
 	    rlgeom->allNodePositions( nodes );
-	    sortval[idx] = Geometry::RandomLine::getNearestPathPosIdx(
+	    const int sortvalidx = Geometry::RandomLine::getNearestPathPosIdx(
 						    nodes, *rdlpath, seed );
+	    if ( sortvalidx<0 )
+		continue;
+
+	    sortval[idx] = sortvalidx;
 	}
 	else
 	    sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
@@ -595,6 +599,9 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 		const int startidx =
 		    Geometry::RandomLine::getNearestPathPosIdx(
 				    nodes, *rdlpath, seedlist_[sortidx[vtx]] );
+		if ( startidx<0 )
+		    continue;
+
 		tk = (*rdlpath)[ startidx + idx ];
 		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
 		interpos = Coord3( SI().transform(tk.pos()), interpz );

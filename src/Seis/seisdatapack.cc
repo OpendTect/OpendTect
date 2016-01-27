@@ -404,6 +404,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     , source_(source)
     , comp_(comp)
     , zsamp_(source.getZRange())
+    , rdlid_(source.getRandomLineID())
 {
     DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
@@ -521,7 +522,6 @@ RegularFlatDataPack::RegularFlatDataPack(
     , dir_(sampling_.defaultDir())
     , usemulticomps_(comp_==-1)
     , hassingletrace_(nrTrcs()==1)
-    , rdlid_(-1)
 {
     if ( usemulticomps_ )
 	setSourceDataFromMultiCubes();
@@ -628,7 +628,6 @@ RandomFlatDataPack::RandomFlatDataPack(
 		const RandomSeisDataPack& source, int comp )
     : SeisFlatDataPack(source,comp)
     , path_(source.getPath())
-    , rdlid_(source.getRandomLineID())
 {
     setSourceData();
 }

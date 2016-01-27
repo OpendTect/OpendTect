@@ -235,6 +235,7 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     double minsqdist = mUdf(double);
     BinID linestart, linestop;
     int linestartidx, linestopidx;
+    linestartidx = linestopidx = -1;
     TrcKey intsecpos;
     Line2 closestlineseg;
     for ( int idx=0; idx<knots.size()-1; idx++ )
@@ -263,6 +264,9 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
 	    closestlineseg = linesegment;
 	}
     }
+
+    if ( linestopidx<0 )
+	return -1;
 
     BinID intsecbid = intsecpos.pos();
     posidx = path.indexOf( intsecbid );

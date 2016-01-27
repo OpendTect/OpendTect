@@ -153,6 +153,9 @@ int Patch::addSeed( const TrcKeyValue& tckv )
 	    rlgeom->allNodePositions( nodes );
 	    const int rdlposidx = Geometry::RandomLine::getNearestPathPosIdx(
 		    nodes, *rdmlinepath,tckv.tk_);
+	    if ( rdlposidx<0 )
+		return -1;
+
 	    const TrcKey rdltk = (*rdmlinepath)[rdlposidx];
 	    seedtckv.tk_ = rdltk;
 	}
@@ -182,6 +185,9 @@ int Patch::addSeed( const TrcKeyValue& tckv )
 	    rlgeom->allNodePositions( nodes );
 	    const int rdlposidx = Geometry::RandomLine::getNearestPathPosIdx(
 		    nodes, *rdmlinepath,tckv.tk_);
+	    if ( rdlposidx<0 )
+		return -1;
+
 	    const TrcKey rdltk = (*rdmlinepath)[rdlposidx];
 	    seedtckv.tk_ = rdltk;
 	}
@@ -242,6 +248,9 @@ int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
     rlgeom->allNodePositions( nodes );
     const int curidx = Geometry::RandomLine::getNearestPathPosIdx(
 	    nodes, *rdmlinepath, curtk );
+    if ( curidx<0 )
+	return -1;
+
     for ( int idx=0; idx<seeds_.size(); idx++ )
     {
 	const RowCol& fisrtrc = seedNode( idx ).getRowCol();

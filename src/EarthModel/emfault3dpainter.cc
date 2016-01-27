@@ -300,6 +300,9 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 
 	const int posidx = Geometry::RandomLine::getNearestPathPosIdx(
 		knots, *path_, trckey );
+	if ( posidx<0 )
+	    return false;
+
 	stickauxdata.poly_ +=
 	    FlatView::Point( flatposdata_->position(true,posidx),
 			     zat ? zat->transform(pos) : pos.z );
