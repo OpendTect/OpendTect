@@ -119,6 +119,8 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
     seedauxdata->enabled_ = seedenabled_;
+    seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
+					: MouseCursor::Arrow;
     seedauxdata->poly_.erase();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     markerstyle_.color_ = 
@@ -240,6 +242,7 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
     FlatView::AuxData* auxdata = viewer_.createAuxData( 0 );
     viewer_.addAuxData( auxdata );
     auxdata->poly_.erase();
+    auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross : MouseCursor::Arrow;
     auxdata->linestyle_ = markerlinestyle_;
     Color prefcol = hor3d.preferredColor();
     prefcol.setTransparency( 0 );

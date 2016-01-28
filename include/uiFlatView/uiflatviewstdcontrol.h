@@ -171,6 +171,8 @@ protected:
     void                handleMenuCB(CallBacker*);
 
     HelpKey		helpkey_;
+
+    void		setVwrCursor(uiFlatViewer&,const MouseCursor&);
 };
 
 #endif

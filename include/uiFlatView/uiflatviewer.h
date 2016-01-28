@@ -144,6 +144,9 @@ protected:
 
     ObjectSet<FlatView::uiAuxDataDisplay>	auxdata_;
 
+public:
+    uiBitMapDisplay*	bitmapDisp()			{ return bitmapdisp_; }
+
 };
 
 #endif
