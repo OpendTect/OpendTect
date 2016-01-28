@@ -86,6 +86,7 @@ protected:
 
     EM::ObjectID	emid_;
     VW2DFaultSS3D*	fssview_;
+    void			renameVisObj();
 };
 
 #endif

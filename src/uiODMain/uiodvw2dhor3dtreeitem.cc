@@ -82,16 +82,22 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 		applMgr()->attrServer()->curDescSet(false) );
-	if ( !mps->addTracker( EM::Horizon3D::typeStr(), -1 ) )
+	int trackid = mps->activeTrackerID();
+	int emid = mps->getEMObjectID( trackid );
+	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	if ( emobj )
+	    MPE::engine().addTracker( emobj );
+	else if ( !mps->addTracker(EM::Horizon3D::typeStr(),-1) )
 	    return true;
 
+	trackid = mps->activeTrackerID();
+	emid = mps->getEMObjectID( trackid );
 	if ( mps->getSetupGroup() )
 	    mps->getSetupGroup()->setTrackingMethod(
 						EventTracker::AdjacentParent );
-	const int trackid = mps->activeTrackerID();
-	const int emid = mps->getEMObjectID( trackid );
 	addNewTrackingHorizon3D( emid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon3D( emid );
+	MPE::engine().removeTracker( trackid );
     }
     else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
     {
@@ -174,6 +180,7 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 		continue;
 
 	    MPE::engine().addTracker( emobj );
+	    MPE::engine().getEditor( emobj->id(), true );
 	    if ( viewer2D() && viewer2D()->viewControl() )
 		viewer2D()->viewControl()->setEditMode( true );
 	}
@@ -191,7 +198,14 @@ void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
 	return;
 
     uiODVw2DHor3DTreeItem* hortreeitem = new uiODVw2DHor3DTreeItem( emid );
-    addChld( hortreeitem,false, false );
+    const int trackid = applMgr()->mpeServer()->getTrackerID( emid );
+    if ( trackid>=0 )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	MPE::engine().addTracker( emobj );
+	MPE::engine().getEditor( emid, true );
+    }
+    addChld( hortreeitem, false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
     viewer2D()->viewControl()->setEditMode( true );
     hortreeitem->select();
@@ -215,10 +229,7 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
     , trackerefed_(false)
 {
     if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-    {
-	MPE::engine().getEditor( emid_, true );
 	trackerefed_ = true;
-    }
 }
 
 
@@ -352,10 +363,16 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::Undef:
 	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		displayMiniCtab();
-		break;
-	    }
+	{
+	    displayMiniCtab();
+	    break;
+	}
+	case EM::EMObjectCallbackData::NameChange:
+	{
+	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	    break;
+	}
 	default: break;
     }
 }
@@ -382,6 +399,17 @@ bool uiODVw2DHor3DTreeItem::select()
     }
 
     return true;
+}
+
+
+void uiODVw2DHor3DTreeItem::renameVisObj()
+{
+    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+    TypeSet<int> visobjids;
+    applMgr()->visServer()->findObject( midintree, visobjids );
+    for ( int idx=0; idx<visobjids.size(); idx++ )
+	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+    applMgr()->visServer()->triggerTreeUpdate();
 }
 
 
@@ -421,6 +449,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	applMgr()->mpeServer()->saveSetup( mid );
     name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	renameVisObj();
     }
     else if ( mnuid == 1 )
     {
@@ -437,6 +466,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	EM::EMM().getObject(emid_)->setMultiID( midintree );
 
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	renameVisObj();
     }
     else if ( mnuid == 2 )
     {
@@ -447,15 +477,20 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	    applMgr()->mpeServer()->showSetupDlg( emid_, sid );
 	}
     }
-    else if ( mnuid == 3 )
+    else if ( mnuid == 3 || mnuid==4 )
     {
-	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ );
-	applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
+	applMgr()->EMServer()->askUserToSave( emid_, true );
+	const int trackerid = applMgr()->mpeServer()->getTrackerID( emid_ );
+	if ( trackerid>= 0 )
+	    renameVisObj();
+	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	bool doremove =
+	    !applMgr()->viewer2DMgr().isItemPresent( parent_ ) || mnuid==4;
+	if ( mnuid == 3 )
+	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
 	if ( doremove )
 	    parent_->removeChild( this );
     }
-    else if ( mnuid==4 )
-	parent_->removeChild( this );
 
     return true;
 }

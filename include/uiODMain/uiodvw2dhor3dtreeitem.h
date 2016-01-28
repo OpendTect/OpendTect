@@ -92,6 +92,7 @@ protected:
     bool		oldactivevolupdated_;
     bool		trackerefed_;
     void                emobjAbtToDelCB(CallBacker*);
+    void		renameVisObj();
 };
 
 #endif
