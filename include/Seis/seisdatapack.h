@@ -98,6 +98,10 @@ protected:
     TrcKeyPath			path_;
     StepInterval<float>		zsamp_;
 
+public:
+    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
+						   int rdlidx,
+						   const Interval<float>& zrg);
 };
 
 
@@ -153,6 +157,9 @@ protected:
     const StepInterval<float>&	zsamp_;
 
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
+
+public:
+    int				getRandomLineID() const;
 };
 
 

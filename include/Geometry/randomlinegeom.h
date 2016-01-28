@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "refcount.h"
+#include "trckeysampling.h"
 
 class TrcKeyZSampling;
 class Line2;
@@ -101,6 +102,12 @@ protected:
 
 private:
     int			id_;
+
+public:
+    void		allNodePositions(TrcKeyPath&) const;
+    static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
+    static int		getNearestPathPosIdx(const TrcKeyPath&,
+					     const TrcKeyPath&,const TrcKey&);
 };
 
 

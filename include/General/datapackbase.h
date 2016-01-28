@@ -259,6 +259,9 @@ protected:
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
     const Scaler*			scaler_;
+public:
+    void				setRandomLineID(int);
+    int					getRandomLineID() const;
 };
 
 #endif

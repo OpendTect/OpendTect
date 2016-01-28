@@ -124,6 +124,9 @@ protected:
     int			activestickid_;
     bool		linenabled_;
     bool		knotenabled_;
+
+public:
+    void		setRandomLineID(int rdlid);
 };
 
 } //namespace EM

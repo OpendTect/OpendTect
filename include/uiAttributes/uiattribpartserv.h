@@ -256,6 +256,9 @@ private:
     DataPack::ID		create2DOutput(const TrcKeyZSampling&,
 					       const Pos::GeomID&,TaskRunner&);
 				//!< Use createOutput() instead.
+public:
+    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+					    int rdlidx);
 };
 
 #endif

@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "nlamodel.h"
 #include "datapointset.h"
 #include "rangeposprovider.h"
+#include "randomlinegeom.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
 #include "seistrc.h"
@@ -842,6 +843,67 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
     deepErase( aems );
     return res;
+}
+
+
+DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
+	const Interval<float>& zrg, int rdlid )
+{
+    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
+    if ( !rdmline )
+	return DataPack::cNoID();
+
+    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
+    const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
+	: attrds->getDesc(targetspecs_[0].id());
+
+    TypeSet<BinID> knots, path;
+    rdmline->allNodePositions( knots );
+    rdmline->getPathBids( knots, path );
+    TrcKeyPath trckeys;
+    for ( int idx=0; idx<path.size(); idx++ )
+	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
+					  path[idx].inl(), path[idx].crl() );
+
+    const MultiID mid( targetdesc->getStoredID() );
+    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+    if ( sdp )
+	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg );
+
+    BinIDValueSet bidset( 2, false );
+    for ( int idx = 0; idx<path.size(); idx++ )
+	bidset.add( path[idx],zrg.start,zrg.stop );
+
+    SeisTrcBuf output( true );
+    if ( !createOutput(bidset,output,&knots,&path) )
+	return DataPack::cNoID();
+
+    RandomSeisDataPack* newpack = new RandomSeisDataPack(
+				SeisDataPack::categoryStr(true,false) );
+    newpack->setRandomLineID( rdlid );
+    newpack->setPath( trckeys );
+    newpack->setZRange( output.get(0)->zRange() );
+    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
+    {
+	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
+	    continue;
+
+	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
+	{
+	    const int trcidx = output.find( path[idy] );
+	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
+	    if ( !trc ) continue;
+	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
+		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
+	}
+    }
+
+    newpack->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
+    newpack->setName( targetspecs_[0].userRef() );
+    DPM(DataPackMgr::SeisID()).add( newpack );
+    return newpack->id();
 }
 
 

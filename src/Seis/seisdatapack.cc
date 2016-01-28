@@ -18,10 +18,13 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "paralleltask.h"
+#include "randomlinegeom.h"
 #include "seistrc.h"
 #include "survinfo.h"
 
 #include <limits.h>
+
+#include "hiddenparam.h"
 
 
 class Regular2RandomDataCopier : public ParallelTask
@@ -298,6 +301,48 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 
 DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
+					int rdlidx,
+					const Interval<float>& zrg )
+{
+    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlidx );
+    if ( !rdmline || regsdp.isEmpty() )
+	return DataPack::cNoID();
+
+    RandomSeisDataPack* randsdp = new RandomSeisDataPack(
+		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
+    randsdp->setRandomLineID( rdlidx );
+    if ( regsdp.getScaler() )
+	randsdp->setScaler( *regsdp.getScaler() );
+
+    StepInterval<float> newzrg = regsdp.getZRange();
+    newzrg.start = newzrg.atIndex( newzrg.getIndex(zrg.start) );
+    newzrg.stop  = newzrg.atIndex( newzrg.indexOnOrAfter(zrg.stop,0.0) );
+    randsdp->setZRange( newzrg );
+
+    TypeSet<BinID> knots, path;
+    rdmline->allNodePositions( knots );
+    Geometry::RandomLine::getPathBids( knots, path );
+    TrcKeyPath tkpath;
+    tkpath.setSize( path.size(), TrcKey::udf() );
+    for ( int idx=0; idx<tkpath.size(); idx++ )
+	tkpath[idx] = TrcKey( path[idx] );
+
+    for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
+    {
+	randsdp->addComponent( regsdp.getComponentName(idx) );
+	Regular2RandomDataCopier copier( *randsdp, regsdp, tkpath, idx );
+	copier.execute();
+    }
+
+    randsdp->setZDomain( regsdp.zDomain() );
+    randsdp->setName( regsdp.name() );
+    DPM(DataPackMgr::SeisID()).add( randsdp );
+    return randsdp->id();
+}
+
+
+DataPack::ID RandomSeisDataPack::createDataPackFrom(
+					const RegularSeisDataPack& regsdp,
 					const TrcKeyPath& path,
 					const Interval<float>& zrg )
 {
@@ -337,12 +382,15 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 #define mKeyRefNr	SeisTrcInfo::toString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
+static HiddenParam<SeisFlatDataPack,int> rdlids( -1 );
+
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
     , zsamp_(source.getZRange())
 {
+    rdlids.setParam( this, -1 );
     DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
 }
@@ -350,6 +398,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
 
 SeisFlatDataPack::~SeisFlatDataPack()
 {
+    rdlids.removeParam( this );
     DPM(DataPackMgr::SeisID()).release( source_.id() );
 }
 
@@ -448,6 +497,11 @@ void SeisFlatDataPack::setPosData()
 }
 
 
+int SeisFlatDataPack::getRandomLineID() const
+{
+    return rdlids.getParam( this );
+}
+
 
 #define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrTrcs()-1))/ \
 	posdata_.position(true,nrTrcs()-1))>0.99)
@@ -536,6 +590,7 @@ void RegularFlatDataPack::setSourceData()
 	    path_ += source_.getTrcKey( idx );
     }
 
+    rdlids.setParam( this, source_.getRandomLineID() );
     if ( !is2D() )
     {
 	const bool isinl = dir_==TrcKeyZSampling::Inl;
@@ -565,6 +620,7 @@ RandomFlatDataPack::RandomFlatDataPack(
     : SeisFlatDataPack(source,comp)
     , path_(source.getPath())
 {
+    rdlids.setParam( this, source_.getRandomLineID() );
     setSourceData();
 }
 

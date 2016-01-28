@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "faulttrace.h"
 #include "mpeengine.h"
 #include "horizonadjuster.h"
+#include "randomlinegeom.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
 #include "sorting.h"
@@ -324,7 +325,7 @@ void Horizon3DSeedPicker::processJunctions()
 }
 
 
-bool Horizon3DSeedPicker:: updatePatchLine( bool doerase )
+bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 {
     if ( trackmode_ != DrawBetweenSeeds && trackmode_ != DrawAndSnap )
 	return false;
@@ -528,8 +529,12 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 
     BinID dir;
     const TrcKeyPath* rdlpath = 0;
+    int rdlid = -1;
     if ( !lineTrackDirection(dir) )
+    {
 	rdlpath = engine().activePath();
+	rdlid = engine().activeRandomLineID();
+    }
 
     const int nrseeds = seedlist_.size();
     if ( nrseeds<2 )
@@ -541,8 +546,18 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const TrcKey& seed = seedlist_[idx];
-	if ( rdlpath )
-	    sortval[idx] = rdlpath->indexOf( seed );
+	if ( rdlpath && rdlid>=0 )
+	{
+	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
+	    TrcKeyPath nodes;
+	    rlgeom->allNodePositions( nodes );
+	    const int sortvalidx = Geometry::RandomLine::getNearestPathPosIdx(
+						    nodes, *rdlpath, seed );
+	    if ( sortvalidx<0 )
+		continue;
+
+	    sortval[idx] = sortvalidx;
+	}
 	else
 	    sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
 	sortidx[idx] = idx;
@@ -575,9 +590,18 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    TrcKey tk;
 	    Coord3 interpos;
 	    const double frac = (double) idx / diff;
-	    if ( rdlpath )
+	    if ( rdlpath && rdlid>=0 )
 	    {
-		const int startidx = rdlpath->indexOf(seedlist_[sortidx[vtx]]);
+		RefMan<Geometry::RandomLine> rlgeom =
+		    Geometry::RLM().get( rdlid );
+		TrcKeyPath nodes;
+		rlgeom->allNodePositions( nodes );
+		const int startidx =
+		    Geometry::RandomLine::getNearestPathPosIdx(
+				    nodes, *rdlpath, seedlist_[sortidx[vtx]] );
+		if ( startidx<0 )
+		    continue;
+
 		tk = (*rdlpath)[ startidx + idx ];
 		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
 		interpos = Coord3( SI().transform(tk.pos()), interpz );

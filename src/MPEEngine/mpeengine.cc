@@ -48,6 +48,7 @@ namespace MPE
 {
 
 static HiddenParam< Engine, const TrcKeyPath* > rdmlinetkpaths( 0 );
+static HiddenParam< Engine, int > rdlids( -1 );
 
 // MPE::Engine
 Engine::Engine()
@@ -64,6 +65,7 @@ Engine::Engine()
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
     rdmlinetkpaths.setParam( this, 0 );
+    rdlids.setParam( this, -1 );
     trackers_.allowNull();
     trackermgrs_.allowNull();
     flatcubescontainer_.allowNull();
@@ -86,6 +88,7 @@ Engine::~Engine()
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribbkpcachedatapackids_[idx] );
     rdmlinetkpaths.removeParam( this );
+    rdlids.removeParam( this );
 }
 
 
@@ -98,6 +101,17 @@ const TrcKeyPath* Engine::activePath() const
 void Engine::setActivePath( const TrcKeyPath* tkp )
 {
     rdmlinetkpaths.setParam( this, tkp );
+}
+
+
+int Engine::activeRandomLineID() const
+{
+    return rdlids.getParam( this );
+}
+
+void Engine::setActiveRandomLineID( int rdlid )
+{
+    rdlids.setParam( this, rdlid );
 }
 
 

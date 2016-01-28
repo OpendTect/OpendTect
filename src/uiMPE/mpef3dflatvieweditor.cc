@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
+#include "randomlinegeom.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "undo.h"
@@ -33,6 +34,8 @@ namespace MPE
 
 static HiddenParam<Fault3DFlatViewEditor,BoolTypeSetType> makenewstick( false );
 static HiddenParam<Fault3DFlatViewEditor,BoolTypeSetType> doubleclicked( false);
+static HiddenParam<Fault3DFlatViewEditor,int> rdlids( -1 );
+
 Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 			    FlatView::AuxDataEditor* ed,
 			    const EM::ObjectID& oid )
@@ -47,6 +50,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 {
     makenewstick.setParam( this, false );
     doubleclicked.setParam( this, false );
+    rdlids.setParam( this, -1 );
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify(
@@ -56,7 +60,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
-    if ( !path_ && meh_ )
+    if ( meh_ )
     {
 	editor_->movementStarted.remove(
 		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
@@ -82,9 +86,6 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 
 void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
-    if ( path_ )
-	return;
-
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -139,6 +140,13 @@ void Fault3DFlatViewEditor::setPath( const TrcKeyPath& path )
 {
     path_ = &path;
     f3dpainter_->setPath( path );
+}
+
+
+void Fault3DFlatViewEditor::setRandomLineID( int rdlid )
+{
+    rdlids.setParam( this, rdlid );
+    f3dpainter_->setRandomLineID( rdlid );
 }
 
 
@@ -341,9 +349,27 @@ Coord3 Fault3DFlatViewEditor::getScaleVector() const
 }
 
 
-#define mGetNormal(var) \
-    Coord3 var( Coord3::udf() ); \
-    if ( !tkzs_.isEmpty() ) tkzs_.getDefaultNormal( var )
+Coord3 Fault3DFlatViewEditor::getNormal( const Coord3* mousepos ) const
+{
+    Coord3 normal = Coord3( Coord3::udf() );
+    if ( path_ && mousepos )
+    {
+	const BinID mousebid = SI().transform( *mousepos );
+	TrcKey mousetk( mousebid );
+	RefMan<Geometry::RandomLine> rlgeom =
+	    Geometry::RLM().get( rdlids.getParam(this) );
+	if ( !rlgeom || !path_ )
+	    return Coord3::udf();
+
+	TrcKeyPath nodes;
+	rlgeom->allNodePositions( nodes );
+	return Coord3( Geometry::RandomLine::getNormal(nodes,mousetk), 0.0f );
+    }
+    else if ( !tkzs_.isEmpty() )
+	tkzs_.getDefaultNormal( normal );
+
+    return normal;
+}
 
 
 void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
@@ -377,7 +403,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 
     bool shdmakenewstick = false;
     EM::PosID pid;
-    mGetNormal( normal );
+    Coord3 normal = getNormal( &pos );
     f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( shdmakenewstick, pid, pos, &normal );
 
@@ -539,7 +565,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	(!mouseevent.ctrlStatus() && mouseevent.shiftStatus()) ||
 	makenewstick.getParam( this );
     EM::PosID interactpid;
-    mGetNormal( normal );
+    Coord3 normal = getNormal( &pos );
     f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( domakenewstick, interactpid, pos, &normal );
 
@@ -571,7 +597,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( domakenewstick )
     {
 	makenewstick.setParam( this, false );
-	mGetNormal( editnormal );
+	Coord3 editnormal = getNormal( &pos );
 	if ( editnormal.isUdf() ) return;
 
 	const int insertsticknr = interactpid.isUdf()

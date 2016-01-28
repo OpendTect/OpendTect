@@ -43,6 +43,7 @@ public:
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
     void		setPath(const TrcKeyPath&);
+    void		setRandomLineID(int rdlid);
     void		setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
     void		enableKnots(bool);

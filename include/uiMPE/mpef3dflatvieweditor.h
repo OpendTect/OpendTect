@@ -87,6 +87,9 @@ protected:
     int				activestickid_;
     MouseEventHandler*		meh_;
     EM::PosID			mousepid_;
+    Coord3			getNormal(const Coord3* mousepos=0) const;
+public:
+    void			setRandomLineID(int rdlid);
 };
 
 }; //namespace MPE

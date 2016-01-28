@@ -41,6 +41,7 @@ namespace visSurvey
 {
 
 static HiddenParam< MPEClickInfo, const TrcKeyPath* > rdmtkpaths( 0 );
+static HiddenParam< MPEClickInfo, int > rdlids( -1 );
 
 MPEClickCatcher::MPEClickCatcher()
     : visBase::VisualObjectImpl( false )
@@ -262,6 +263,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    info().setLegalClick( legalclick0 );
 	    info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
 	    info().setObjTKPath( rtd->getTrcKeyPath() );
+	    info().setObjRandomLineID( rtd->getRandomLineID() );
 	    info().setObjDataPackID( datapackid );
 
 	    const Attrib::SelSpec* as = rtd->getSelSpec( attrib );
@@ -531,6 +533,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
 	info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
 	info().setObjTKPath( rtd->getTrcKeyPath() );
+	info().setObjRandomLineID( rtd->getRandomLineID() );
 	info().setObjDataPackID( datapackid );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
 
@@ -689,6 +692,7 @@ void MPEClickInfo::clear()
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
     rdmtkpaths.setParam( this, 0 );
+    rdlids.setParam( this, -1 );
 }
 
 
@@ -764,5 +768,11 @@ void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
 
 const TrcKeyPath* MPEClickInfo::getObjTKPath() const
 { return rdmtkpaths.getParam( this ); }
+
+void MPEClickInfo::setObjRandomLineID( int rdlid )
+{ rdlids.setParam( this, rdlid ); }
+
+int MPEClickInfo::getObjRandomLineID() const
+{ return rdlids.getParam( this ); }
 
 } // namespce visSurvey

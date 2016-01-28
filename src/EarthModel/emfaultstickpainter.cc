@@ -16,12 +16,17 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "flatposdata.h"
+#include "randomlinegeom.h"
 #include "zaxistransform.h"
 #include "survinfo.h"
 #include "trigonometry.h"
 
+#include "hiddenparam.h"
+
 namespace EM
 {
+
+static HiddenParam<FaultStickPainter,int> rdlids( -1 );
 
 FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 				      const EM::ObjectID& oid )
@@ -39,6 +44,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , linenabled_(true)
     , knotenabled_(false)
 {
+    rdlids.setParam( this, -1 );
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -51,6 +57,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 
 FaultStickPainter::~FaultStickPainter()
 {
+    rdlids.removeParam( this );
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -71,6 +78,10 @@ void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 
 void FaultStickPainter::setPath( const TrcKeyPath& path )
 { path_ = &path; }
+
+void FaultStickPainter::setRandomLineID( int rdlid )
+{ rdlids.setParam( this, rdlid ); }
+
 
 void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
 {
@@ -143,8 +154,12 @@ bool FaultStickPainter::addPolyLine()
 
 	    if ( tkzs_.isEmpty() ) // this means this is a 2D or random Line
 	    {
-		if ( path_ )
+		RefMan<Geometry::RandomLine> rlgeom =
+		    Geometry::RLM().get( rdlids.getParam(this) );
+		if ( path_ && rlgeom )
 		{
+		    TrcKeyPath knots;
+		    rlgeom->allNodePositions( knots );
 		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
 			  rc.col()+=colrg.step )
 		    {
@@ -152,10 +167,8 @@ bool FaultStickPainter::addPolyLine()
 			const BinID bid = SI().transform( pos.coord() );
 			const TrcKey trckey = Survey::GM().traceKey(
 			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
-			const int idx = path_->indexOf( trckey );
-			if ( idx < 0 ) continue;
-
-			Coord3 editnormal( getNormalInRandLine(idx), 0 );
+			Coord3 editnormal(
+			    Geometry::RandomLine::getNormal(knots,trckey), 0.f);
 			const Coord3 nzednor = editnormal.normalize();
 			const Coord3 stkednor =
 			    emfss->geometry().getEditPlaneNormal(sid,rc.row());
@@ -166,9 +179,12 @@ bool FaultStickPainter::addPolyLine()
 
 			if ( !equinormal ) continue;
 
+			const int posidx =
+			    Geometry::RandomLine::getNearestPathPosIdx(
+				    knots, *path_, trckey );
 			const double z = zat ? zat->transform(pos) : pos.z;
 			stickauxdata->poly_ += FlatView::Point(
-					flatposdata_->position(true,idx), z );
+					flatposdata_->position(true,posidx),z);
 		    }
 		}
 		else

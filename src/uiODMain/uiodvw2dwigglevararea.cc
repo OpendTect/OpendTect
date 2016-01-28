@@ -300,12 +300,9 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
     }
     else if ( randfdp )
     {
-	TypeSet<BinID> bids;
-	for ( int idx=0; idx<randfdp->getPath().size(); idx++ )
-	    bids += randfdp->getPath()[idx].pos();
-
-	const DataPack::ID dpid = attrserv->createRdmTrcsOutput(
-					randfdp->getZRange(), &bids, &bids );
+	const DataPack::ID dpid =
+	    attrserv->createRdmTrcsOutput( randfdp->getZRange(),
+					   randfdp->getRandomLineID() );
 	return viewer2D()->createFlatDataPack( dpid, 0 );
     }
 

@@ -130,6 +130,12 @@ const BinID& RandomLine::nodePosition( int idx ) const
 void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 { bids = nodes_; }
 
+void RandomLine::allNodePositions( TrcKeyPath& tks ) const
+{
+    tks.setSize( nodes_.size(), TrcKey::udf() );
+    for ( int idx=0; idx<nodes_.size(); idx++ )
+	tks[idx] = TrcKey( nodes_[idx] );
+}
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
@@ -183,6 +189,113 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 }
 
 
+Coord RandomLine::getNormal( const TrcKeyPath& knots, const TrcKey& trcpos )
+{
+    const Coord poscrd = SI().transform( trcpos.pos() );
+    double minsqdist = mUdf(double);
+    Coord linestart, linestop;
+    for ( int idx=0; idx<knots.size()-1; idx++ )
+    {
+	const BinID firstbid = knots[idx].pos();
+	const BinID secondbid = knots[idx+1].pos();
+	Interval<int> inlrg( firstbid.inl(), secondbid.inl() );
+	Interval<int> crlrg( firstbid.crl(), secondbid.crl() );
+	if ( !inlrg.includes(trcpos.pos().inl(),true) ||
+	     !crlrg.includes(trcpos.pos().crl(),true) )
+	    continue;
+
+	const Coord firstcrd = SI().transform( firstbid );
+	const Coord secondcrd = SI().transform( secondbid );
+	Line2 linesegment( firstcrd, secondcrd );
+	const Coord closestcrd = linesegment.closestPoint( poscrd );
+	const double sqdist = closestcrd.sqDistTo( poscrd );
+	if ( minsqdist > sqdist )
+	{
+	    linestart = firstcrd;
+	    linestop = secondcrd;
+	    minsqdist = sqdist;
+	}
+    }
+
+    const Coord dir = linestart - linestop;
+    return Coord( dir.y, -dir.x );
+}
+
+
+int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
+				      const TrcKeyPath& path,
+				      const TrcKey& trcpos )
+{
+    int posidx = path.indexOf( trcpos );
+    if ( posidx>=0 )
+	return posidx;
+
+    const Coord poscrd = SI().transform( trcpos.pos() );
+    double minsqdist = mUdf(double);
+    BinID linestart, linestop;
+    int linestartidx, linestopidx;
+    linestartidx = linestopidx = -1;
+    TrcKey intsecpos;
+    Line2 closestlineseg;
+    for ( int idx=0; idx<knots.size()-1; idx++ )
+    {
+	const BinID firstbid = knots[idx].pos();
+	const BinID secondbid = knots[idx+1].pos();
+	Interval<int> inlrg( firstbid.inl(), secondbid.inl() );
+	Interval<int> crlrg( firstbid.crl(), secondbid.crl() );
+	if ( !inlrg.includes(trcpos.pos().inl(),true) ||
+	     !crlrg.includes(trcpos.pos().crl(),true) )
+	    continue;
+
+	const Coord firstcrd = SI().transform( firstbid );
+	const Coord secondcrd = SI().transform( secondbid );
+	Line2 linesegment( firstcrd, secondcrd );
+	const Coord closestcrd = linesegment.closestPoint( poscrd );
+	const double sqdist = closestcrd.sqDistTo( poscrd );
+	if ( minsqdist > sqdist )
+	{
+	    linestart = firstbid;
+	    linestop = secondbid;
+	    linestartidx = path.indexOf( firstbid );
+	    linestopidx = path.indexOf( secondbid );
+	    minsqdist = sqdist;
+	    intsecpos = TrcKey( SI().transform(closestcrd) );
+	    closestlineseg = linesegment;
+	}
+    }
+
+    if ( linestopidx<0 )
+	return -1;
+
+    BinID intsecbid = intsecpos.pos();
+    posidx = path.indexOf( intsecbid );
+    if ( posidx>=0 )
+	return posidx;
+
+    const float disttointsec = Math::Sqrt((float)linestart.sqDistTo(intsecbid));
+    const float disttostop = Math::Sqrt( (float)linestart.sqDistTo(linestop) );
+    const int nearestpathidx =
+	linestartidx + mNINT32( (linestopidx-linestartidx) *
+				(disttointsec/disttostop) );
+    StepInterval<int> linesegrg( nearestpathidx-10, nearestpathidx+10, 1 );
+    Interval<int> limitrg( 0, path.size() );
+    linesegrg.limitTo( limitrg );
+    minsqdist = mUdf(double);
+    int nearestposidx = -1;
+    for ( int ipath=linesegrg.start; ipath<=linesegrg.stop; ipath++ )
+    {
+	const BinID rdlpos = path[ipath].pos();
+	const double sqdist = mCast(double,rdlpos.sqDistTo( intsecbid ));
+	if ( minsqdist > sqdist )
+	{
+	    minsqdist = sqdist;
+	    nearestposidx = ipath;
+	}
+    }
+
+    return nearestposidx;
+}
+
 void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 			    TypeSet<BinID>& bids,
 			    bool allowduplicate,
@@ -191,8 +304,6 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
     getPathBids( knots, Survey::GM().default3DSurvID(), bids,
 		 allowduplicate, segments );
 }
-
-
 void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 			     Pos::SurvID survid,
 			    TypeSet<BinID>& bids,

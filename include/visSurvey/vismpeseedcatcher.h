@@ -111,8 +111,10 @@ protected:
     DataPack::ID			datapackid_;
 
     void			setObjTKPath(const TrcKeyPath*);
+    void			setObjRandomLineID(int);
 public:
     const TrcKeyPath*		getObjTKPath() const;
+    int				getObjRandomLineID() const;
 };
 
 

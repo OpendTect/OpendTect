@@ -196,6 +196,8 @@ protected:
 public:
     const TrcKeyPath*		activePath() const;
     void			setActivePath(const TrcKeyPath*);
+    int				activeRandomLineID() const;
+    void			setActiveRandomLineID(int);
 };
 
 
