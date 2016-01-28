@@ -93,7 +93,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    new uiAction( tr("Display Only at Sections") );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( tr("Display Always") );
+	uiAction* shwallitem = new uiAction( tr("Display in Full") );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
@@ -156,7 +156,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
 	    if ( !itm ) continue;
 
-	    itm->setOnlyAtSectionsDisplay( showall );
+	    itm->setOnlyAtSectionsDisplay( !showall );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
@@ -421,7 +421,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	    new uiAction( tr("Display Only at Sections") );
 	mnu.insertItem( filteritem, mOnlyAtPolyIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( tr("Display Always") );
+	uiAction* shwallitem = new uiAction( tr("Display in Full") );
 	mnu.insertItem( shwallitem, mAlwaysPolyIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
@@ -468,7 +468,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	    mDynamicCastGet(uiODPolygonTreeItem*,itm,children_[idx])
 	    if ( !itm ) continue;
 
-	    itm->setOnlyAtSectionsDisplay( showall );
+	    itm->setOnlyAtSectionsDisplay( !showall );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
