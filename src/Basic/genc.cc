@@ -547,6 +547,7 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
+//Implemented in src/Basic/qpaths.cc
 void setQtPaths();
 
 
