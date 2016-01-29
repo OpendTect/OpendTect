@@ -40,6 +40,7 @@ public:
 
     void		setImpTypIdx(int,bool updnow=true);
     void		setScanInfo(const SEGY::ScanInfoSet&);
+    void		showZSamplingSetting(bool);
 
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();

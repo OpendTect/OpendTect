@@ -18,7 +18,7 @@ ________________________________________________________________________
 /* uiSurvInfoProvider taking it's source in (a) SEG-Y file(s) */
 
 mExpClass(uiSEGY) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
-{
+{ mODTextTranslationClass(uiSEGYSurvInfoProvider)
 public:
 
 			uiSEGYSurvInfoProvider()
@@ -34,6 +34,7 @@ public:
 			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
+    const uiString	importAskUiQuestion() const;
 
     IOPar		imppars_;
     bool		xyinft_;

@@ -17,10 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SEGY::HdrCalcSet::HdrCalcSet( const SEGY::HdrDef& hd )
     : hdef_(hd)
+    , trcidxhe_("Trace index (sequence) number in file","INDEXNR")
 {
-    trcidxhe_.setUdf();
-    trcidxhe_.setName("INDEXNR");
-    trcidxhe_.setDescription("Trace index (sequence) number in file");
     reSetSeqNr();
 }
 

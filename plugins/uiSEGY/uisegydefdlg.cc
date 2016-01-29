@@ -359,7 +359,8 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
     FilePath newfp( dlg.fileName() );
     if ( newfp.pathOnly() != fp.pathOnly() )
     {
-	uiMSG().error( tr("Please select a file from %1").arg(fp.pathOnly()) );
+	uiMSG().error( uiStrings::phrSelect(tr("a file from %1")
+							.arg(fp.pathOnly())) );
 	return;
     }
 
@@ -379,7 +380,8 @@ bool uiEditSEGYFileDataDlg::acceptOK( CallBacker* )
 {
     int nrfiles = 0;
     if ( !filepars_.get("Number of files",nrfiles) || !nrfiles )
-	mErrRet(tr("No SEGY Files were found linked to %1").arg(ioobj_.name()))
+	mErrRet(tr("No SEGY Files were found linked to %1")
+							  .arg(ioobj_.uiName()))
 
     const BufferString seldir = dirsel_->fileName();
     for ( int idx=0; idx<nrfiles; idx++ )

@@ -56,14 +56,15 @@ static const char* sKeyIncludeZeros = "Amplitudes.Include Zeros";
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
-    : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),
-			imptyp ? uiString("Import %1").arg(imptyp->dispText())
-				: mNoDlgTitle,
-				  mTODOHelpKey ).nrstatusflds(1) )
+    : uiDialog(p,uiDialog::Setup(forsurvsetup
+	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
+	    imptyp ? uiString("Import %1").arg(imptyp->dispText())
+				: mNoDlgTitle, mTODOHelpKey ).nrstatusflds(1) )
     , filereadopts_(0)
     , typfld_(0)
     , useicbut_(0)
     , usexybut_(0)
+    , keepzsampbox_(0)
     , coordscalefld_(0)
     , ampldisp_(0)
     , survmap_(0)
@@ -176,8 +177,9 @@ void uiSEGYReadStarter::createTools()
     examinegrp->attach( alignedBelow, fullscanbut_ );
     examinegrp->setFrame( true );
 
+    const bool imptypfixed = imptypeFixed();
     bool needicvsxy = !mForSurvSetup;
-    if ( imptypeFixed() && (fixedimptype_.isVSP() || fixedimptype_.is2D()) )
+    if ( imptypfixed && (fixedimptype_.isVSP() || fixedimptype_.is2D()) )
 	needicvsxy = false;
     if ( needicvsxy )
     {
@@ -197,7 +199,19 @@ void uiSEGYReadStarter::createTools()
 	usexybut_->attach( alignedBelow, useicbut_ );
     }
 
-    if ( !imptypeFixed() || !fixedimptype_.isVSP() )
+    if ( !imptypfixed || fixedimptype_.is2D() )
+    {
+	keepzsampbox_ = new uiCheckBox( midgrp_, tr("File Z's") );
+	keepzsampbox_->setHSzPol( uiObject::Small );
+	keepzsampbox_->setToolTip(
+		tr("Use Z sampling as it appears in each SEG-Y file") );
+	keepzsampbox_->setChecked( false );
+	keepzsampbox_->activated.notify(
+			mCB(this,uiSEGYReadStarter,keepZChg) );
+	keepzsampbox_->attach( alignedBelow, examinegrp );
+    }
+
+    if ( !imptypfixed || !fixedimptype_.isVSP() )
     {
 	coordscalefld_ = new uiLineEdit( midgrp_, FloatInpSpec(), "CoordScale");
 	coordscalefld_->setHSzPol( uiObject::Small );
@@ -209,6 +223,8 @@ void uiSEGYReadStarter::createTools()
 				mCB(this,uiSEGYReadStarter,coordscaleChg) );
 	if ( usexybut_ )
 	    coordscalefld_->attach( alignedBelow, usexybut_ );
+	else if ( keepzsampbox_ )
+	    coordscalefld_->attach( alignedBelow, keepzsampbox_ );
 	else
 	    coordscalefld_->attach( alignedBelow, examinegrp );
     }
@@ -236,7 +252,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
     clipfld_->attach( rightOf, ampldisp_ );
     clipfld_->valueChanging.notify( adupcb );
 
-    inc0sbox_ = new uiCheckBox( amplgrp, "Zeros" );
+    inc0sbox_ = new uiCheckBox( amplgrp, tr("Zeros") );
     inc0sbox_->attach( alignedBelow, clipfld_ );
     inc0sbox_->setHSzPol( uiObject::Small );
     inc0sbox_->setToolTip( tr("Include value '0' for histogram display") );
@@ -328,7 +344,10 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 
     const int nrfiles = filespec_.nrFiles();
     for ( int idx=1; idx<nrfiles; idx++ )
-	scanFile( filespec_.fileName(idx), KeepAll, trunner );
+    {
+	if ( !scanFile(filespec_.fileName(idx),KeepAll,trunner) )
+	    break;
+    }
 
     scaninfos_->finish();
     displayScanResults();
@@ -365,10 +384,17 @@ bool uiSEGYReadStarter::incZeros() const
 void uiSEGYReadStarter::setToolStates()
 {
     const int nrfiles = filespec_.nrFiles();
-    examinebut_->setSensitive( nrfiles > 0 );
-    fullscanbut_->setSensitive( nrfiles > 0 );
-    examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
-					 : tr("Examine input file") );
+    const bool haveany = nrfiles > 0;
+    const bool ismulti = nrfiles > 1;
+    examinebut_->setSensitive( haveany );
+    fullscanbut_->setSensitive( haveany );
+    examinebut_->setToolTip( ismulti ? tr("Examine first input file")
+				     : tr("Examine input file") );
+    if ( keepzsampbox_ )
+    {
+	keepzsampbox_->display( impType().is2D() && ismulti );
+	keepZChg( 0 );
+    }
     if ( useicbut_ )
     {
 	const bool isneeded = needICvsXY();
@@ -602,6 +628,17 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 }
 
 
+void uiSEGYReadStarter::keepZChg( CallBacker* cb )
+{
+    loaddef_.filezsampling_ = keepzsampbox_ && keepzsampbox_->isChecked();
+    infofld_->showZSamplingSetting( !loaddef_.filezsampling_
+				    || filespec_.nrFiles() < 2 );
+
+    if ( cb )
+	forceRescan();
+}
+
+
 void uiSEGYReadStarter::icxyCB( CallBacker* cb )
 {
     if ( !useicbut_ ) return;
@@ -794,8 +831,8 @@ bool uiSEGYReadStarter::getFileSpec()
     {
 	FilePath fp( userfilename_ );
 	if ( !fp.isAbsolute() )
-	    mErrRet(
-	    tr("Please specify the absolute file name when using a wildcard.") )
+	    mErrRet(uiStrings::phrSpecify(tr(
+			    "the absolute file name when using a wildcard.")) )
 
 	DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
 	for ( int idx=0; idx<dl.size(); idx++ )
@@ -845,56 +882,26 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 }
 
 
-#define mErrRetFileName(s) \
-{ \
-    if ( isfirst ) \
-	uiMSG().error( uiString(s).arg(strm.fileName()) ); \
-    return false; \
-}
-
 bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 				  TaskRunner* trunner )
 {
-    const bool isfirst = scaninfos_->isEmpty();
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRetFileName( "Cannot open file: %1" )
-
-    SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
-    strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
-    if ( !strm.isOK() )
-	mErrRetFileName( "File:\n%1\nhas no textual header" )
-    strm.getBin( binhdr.buf(), SegyBinHeaderLength );
-    if ( strm.isBad() )
-	mErrRetFileName( "File:\n%1\nhas no binary header" )
+	{ uiMSG().error( tr("Cannot open file: %1").arg(fnm) ); return false; }
 
     SEGY::ScanInfo& si = scaninfos_->add( fnm );
     SEGY::BasicFileInfo& bfi = si.basicInfo();
-
-    const bool useloaddef = ct != KeepNone;
-    if ( !useloaddef )
-	binhdr.guessIsSwapped();
-    bfi.hdrsswapped_ = bfi.dataswapped_ = binhdr.isSwapped();
-    if ( (useloaddef && loaddef_.hdrsswapped_)
-	|| (!useloaddef && bfi.hdrsswapped_) )
-	binhdr.unSwap();
-    if ( !binhdr.isRev0() )
-	binhdr.skipRev1Stanzas( strm );
-    scaninfos_->setInFeet( binhdr.isInFeet() );
-
-    bfi.ns_ = binhdr.nrSamples();
-    if ( bfi.ns_ < 1 || bfi.ns_ > mMaxReasonableNS )
-	bfi.ns_ = -1;
-    bfi.revision_ = binhdr.revision();
-    short fmt = binhdr.format();
-    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
-	fmt = 1;
-    bfi.format_ = fmt;
-    if ( !completeFileInfo(strm,bfi,isfirst) )
-	{ scaninfos_->removeLast(); return false; }
-
-    if ( isfirst && ct == KeepNone )
-	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
+    bool zinft = false;
+    uiString errmsg = bfi.getFrom( strm, zinft,
+			       ct != KeepNone ? &loaddef_.hdrsswapped_ : 0 );
+    if ( !errmsg.isEmpty() )
+	{ uiMSG().error( errmsg ); scaninfos_->removeLast(); return false; }
+    else if ( scaninfos_->size() == 1 )
+    {
+	scaninfos_->setInFeet( zinft );
+	if ( ct == KeepNone )
+	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
+    }
 
     si.getFromSEGYBody( strm, loaddef_, mForSurvSetup, clipsampler_, trunner );
     return true;
@@ -920,9 +927,6 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
     if ( bfi.ns_ > mMaxReasonableNS )
 	mErrRetResetStream(
 	    "File:\n%1\nNo proper 'number of samples per trace' found" )
-    else if ( !isfirst && bfi.ns_ != loaddef_.ns_ )
-	mErrRetResetStream(
-	    "File:\n%1\nSamples per trace is different from earlier file(s)" )
 
     if ( mIsUdf(bfi.sampling_.step) )
     {
@@ -959,6 +963,9 @@ bool uiSEGYReadStarter::commit( bool permissive )
     }
 
     loaddef_.getFilePars( filepars_ );
+    loaddef_.filezsampling_ = keepzsampbox_ && keepzsampbox_->isChecked();
+    if ( loaddef_.filezsampling_ )
+	filepars_.ns_ = 0;
 
     delete filereadopts_;
     filereadopts_ = new FileReadOpts( impType().geomType() );

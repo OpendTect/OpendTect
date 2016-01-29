@@ -203,17 +203,21 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
                 "found.\n\tReplaced with '1' (4-byte floating point)")
             .arg(detail) );
 	if ( toInt(detail) > 254 )
-	    msg.arg("\n-> The file may not be SEG-Y, or byte-swapped");
+	    msg.append("\n-> The file may not be SEG-Y, or byte-swapped");
     }
     else if ( nr == cSEGYWarnPos )
-    {
-	msg.append( tr("Bad position found. Such traces are "
+    {	
+	if (nr<=1)
+	    msg.append( tr("Bad position found. Such traces are "
+                "ignored.\nFirst occurrence %1").arg(detail) );
+	else
+	    msg.append( tr("Bad positions found. Such traces are "
                 "ignored.\nFirst occurrence %1").arg(detail) );
     }
     else if ( nr == cSEGYWarnZeroSampIntv )
     {
 	msg.append( tr("Zero sample interval found in trace header.\n"
-	         "First occurrence ").arg(detail) );
+	         "First occurrence %1").arg(detail) );
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {

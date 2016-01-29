@@ -65,7 +65,7 @@ uiSEGYByteNr( uiParent* p, const char* nm )
 SEGY::HdrEntry hdrEntry() const
 {
     const int selidx = currentItem();
-    SEGY::HdrEntry ret;
+    SEGY::HdrEntry ret(0,0);
     if ( selidx >= 0 )
     {
 	ret = *hdef_[ heidxs_[selidx] ];
@@ -503,6 +503,14 @@ void uiSEGYReadStartInfo::updateCellTexts()
 }
 
 
+void uiSEGYReadStartInfo::showZSamplingSetting( bool yn )
+{
+    nsfld_->display( yn );
+    zstartfld_->display( yn );
+    srfld_->display( yn );
+}
+
+
 void uiSEGYReadStartInfo::setByteFldContents( const SEGY::HdrEntryKeyData& hkd )
 {
 #define mSetBFCont(nm,cont) \
@@ -558,10 +566,13 @@ void uiSEGYReadStartInfo::parChanged( bool revchg )
 
 void uiSEGYReadStartInfo::setImpTypIdx( int idx, bool doupd )
 {
-    if ( inptypfixed_ )
-	{ pErrMsg( "Input type fixed, cannot set" ); return; }
+    if ( idx != imptype_.tidx_ )
+    {
+	if ( inptypfixed_ )
+	    { pErrMsg( "Input type fixed, should not set" ); }
+	imptype_.tidx_ = idx;
+    }
 
-    imptype_.tidx_ = idx;
     if ( doupd )
 	parChanged( false );
 }
@@ -638,7 +649,7 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
 	const float endz = loaddef_.sampling_.start
 			 + (bi.ns_-1) * loaddef_.sampling_.step;
 	txt.arg( loaddef_.sampling_.start ).arg( endz )
-		 .arg( sis.inFeet() ? "ft" : "m" );
+		 .arg( sis.inFeet() ? tr("ft") : tr("m") );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 

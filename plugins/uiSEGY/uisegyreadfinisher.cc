@@ -322,7 +322,7 @@ bool uiSEGYReadFinisher::doVSP()
 	return false;
     const BufferString lognm( lognmfld_->text() );
     if ( lognm.isEmpty() )
-	mErrRet(tr("Please enter a valid name for the new log"))
+	mErrRet(uiStrings::phrEnter(tr("a valid name for the new log")))
 
     PtrMan<SEGYSeisTrcTranslator> trl = SEGYSeisTrcTranslator::getInstance();
     trl->filePars() = fs_.pars_; trl->fileReadOpts() = fs_.readopts_;
@@ -646,7 +646,7 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
     {
 	const Coord startcrd( coordsstartfld_->getCoord() );
 	if ( mIsUdf(startcrd.x) || mIsUdf(startcrd.y) )
-	    mErrRet(tr("Please enter the start coordinate"))
+	    mErrRet(uiStrings::phrEnter(tr("the start coordinate")))
 	else if ( !SI().isReasonable(startcrd) )
 	    mErrRet(tr("The start coordinate is too far from the survey"))
 
@@ -716,7 +716,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     {
 	lnm = transffld_->selFld2D()->selectedLine();
 	if ( lnm.isEmpty() )
-	    mErrRet( tr("Please enter a line name") )
+	    mErrRet( uiStrings::phrEnter(tr("a line name")) )
 	if ( !putCoordChoiceInSpec() )
 	    return false;
     }

@@ -179,7 +179,7 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     const char* fnm = outfld_->fileName();
     if ( !fnm || !*fnm )
     {
-	uiMSG().error( tr("Please enter the output file name") );
+	uiMSG().error( uiStrings::phrEnter(tr("the output file name")) );
 	return false;
     }
 
