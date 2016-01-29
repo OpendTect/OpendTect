@@ -174,6 +174,20 @@ endmacro( create_package )
 macro( copy_thirdpartylibs )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     foreach( LIB ${OD_THIRD_PARTY_LIBS} )
+	if ( OD_ENABLE_BREAKPAD )
+	    if ( WIN32 )
+		#TODO
+	    elseif ( APPLE )
+		#TODO
+	    else()
+		execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
+		if ( EXISTS ${COPYFROMLIBDIR}/symbols/${LIB} ) #including thirdparty symbols if present
+		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				     ${COPYFROMLIBDIR}/symbols/${LIB}
+				     ${COPYTOLIBDIR}/symbols/${LIB} )
+		endif()
+	    endif()
+	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR} )
     endforeach()
 
