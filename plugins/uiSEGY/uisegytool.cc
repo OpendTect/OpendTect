@@ -146,4 +146,3 @@ void uiSEGYTool::toolEnded( CallBacker* )
     isnext_ = true;
     go();
 }
-
