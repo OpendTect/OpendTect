@@ -136,7 +136,7 @@ macro(OD_SETUP_OSG)
 								-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
 				   get_filename_component( FILEPATH ${FILENM} PATH )
 				   install( DIRECTORY ${FILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
-			   endif()
+			    endif()
 			endif()
 			list( REMOVE_ITEM ARGS ${ARGS} )
 			set( ALLLIBS "" )
@@ -152,6 +152,14 @@ macro(OD_SETUP_OSG)
 			    install( PROGRAMS ${LIB}
 				DESTINATION ${OD_LIB_OUTPUT_RELPATH}
 				CONFIGURATIONS ${BUILD_TYPE} )
+			    if ( OD_ENABLE_BREAKPAD AND ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
+				    execute_process( COMMAND ${CMAKE_COMMAND}
+								-DLIBRARY=${DLLFILE}
+								-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+								-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
+				   get_filename_component( DLLFILEPATH ${DLLFILE} PATH )
+				   install( DIRECTORY ${DLLFILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
+			    endif()
 			endif()
 		    endif()
 		endforeach()

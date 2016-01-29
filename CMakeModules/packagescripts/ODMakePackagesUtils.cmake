@@ -176,7 +176,13 @@ macro( copy_thirdpartylibs )
     foreach( LIB ${OD_THIRD_PARTY_LIBS} )
 	if ( OD_ENABLE_BREAKPAD )
 	    if ( WIN32 )
-		#TODO
+		get_filename_component( PDBFILE ${LIB} NAME_WE )
+		set( PDBFILE ${PDBFILE}.pdb )
+		if ( EXISTS ${COPYFROMLIBDIR}/symbols/${PDBFILE} ) #including thirdparty symbols if present
+		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				     ${COPYFROMLIBDIR}/symbols/${PDBFILE}
+				     ${COPYTOLIBDIR}/symbols/${PDBFILE} )
+		endif()
 	    elseif ( APPLE )
 		#TODO
 	    else()
