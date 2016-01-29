@@ -31,7 +31,7 @@ macro(OD_SETUP_QT)
 
 	#Try to find Qt5
 	list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
-	find_package( Qt5Core QUIET NO_DEFAULT_PATH )
+	find_package( Qt5Core QUIET )
 	if ( Qt5Core_FOUND )
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
 
