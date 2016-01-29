@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifndef OD_NO_QT
 # include <QCoreApplication>
+# include <QStringList>
 #endif
 
 void setQtPaths()
