@@ -547,6 +547,9 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
+void setQtPaths();
+
+
 mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 {
     getcwd( initialdir.getCStr(), initialdir.minBufSize() );
@@ -575,6 +578,8 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 #else
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
 #endif
+
+    setQtPaths();
 }
 
 

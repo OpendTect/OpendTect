@@ -35,6 +35,7 @@ bin/lux64/Debug/
 bin/lux64/Release/
 doc/Programmer/Generated
 include/General/od_helpids.h
+src/Basic/qpaths.cc
 install_manifest.txt
 inst
 Null
@@ -73,6 +74,7 @@ doc/Programmer/Generated
 #CMakes stuff
 *.ninja
 .ninja_log
+.ninja_deps
 develdefs.cmake
 cmake_install.cmake
 CTestTestfile.cmake

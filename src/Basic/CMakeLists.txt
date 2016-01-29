@@ -19,6 +19,8 @@ set( QT_MOC_HEADERS
 	qtimercomm.h
 )
 
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/qpaths.cc.in ${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc @ONLY )
+
 set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
@@ -88,6 +90,7 @@ set( OD_MODULE_SOURCES
 	position.cc
 	progressmeter.cc
 	qstreambuf.cc
+	${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc
 	repos.cc
 	rowcol.cc
 	safefileio.cc
@@ -141,3 +144,4 @@ if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
 endif()
 
 OD_INIT_MODULE()
+

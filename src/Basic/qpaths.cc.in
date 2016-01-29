@@ -1,0 +1,28 @@
+/*+
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : A.H. Bril
+ * DATE     : March 1994
+ * FUNCTION : general utilities
+-*/
+static const char* rcsID mUsedVar = "$Id$";
+
+#include <oddirs.h>
+
+#ifndef OD_NO_QT
+# include <QCoreApplication>
+#endif
+
+void setQtPaths()
+{
+#ifndef OD_NO_QT
+    QStringList list;
+
+    //First, always user our own env
+    list += QString( GetLibPlfDir() );
+
+    //Secondly, we may be in the build env, and can use that
+    list += QString("@QTDIR@/plugins");
+
+    QCoreApplication::setLibraryPaths( list );
+#endif
+}

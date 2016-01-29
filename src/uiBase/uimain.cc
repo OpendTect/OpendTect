@@ -252,10 +252,6 @@ static void initQApplication()
 #ifdef __mac__
     ApplicationData::swapCommandAndCTRL( true );
 #endif
-
-#ifndef __win__
-    QCoreApplication::addLibraryPath( GetExecPlfDir() ); // Qt plugin libraries
-#endif
 }
 
 
