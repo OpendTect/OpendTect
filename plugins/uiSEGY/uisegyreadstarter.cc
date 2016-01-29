@@ -630,8 +630,9 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 
 void uiSEGYReadStarter::keepZChg( CallBacker* cb )
 {
-    infofld_->showZSamplingSetting( !keepzsampbox_
-	    || !keepzsampbox_->isChecked() || filespec_.nrFiles() < 2 );
+    loaddef_.filezsampling_ = keepzsampbox_ && keepzsampbox_->isChecked();
+    infofld_->showZSamplingSetting( !loaddef_.filezsampling_
+				    || filespec_.nrFiles() < 2 );
 
     if ( cb )
 	forceRescan();
