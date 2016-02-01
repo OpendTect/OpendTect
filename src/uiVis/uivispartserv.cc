@@ -1146,10 +1146,10 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 	    scene->getPolySelection()->setSelectionType(
 	    (visBase::PolygonSelection::SelectionType) seltype_ );
 	}
-	if ( getEventObjId()>=0 )
+	if ( getSelObjectId()>=0 )
 	{
 	    mDynamicCastGet(
-	      visSurvey::SurveyObject*, so, getObject(getEventObjId()) );
+	      visSurvey::SurveyObject*, so, getObject(getSelObjectId()) );
 	    if ( so )
 	    {
 		for ( int idx=0; idx<scene->size(); idx++ )
