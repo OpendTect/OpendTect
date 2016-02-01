@@ -109,7 +109,6 @@ protected:
 
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
-    void		updatePar(CallBacker*);
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);

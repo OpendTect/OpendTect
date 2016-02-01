@@ -59,6 +59,7 @@ public:
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
 							{ return false; }
     virtual bool		getSRD(float&)		{ return false; }
+				//!< return value must be in SI units (meters)
 
     virtual void		fillPar(IOPar&)		{}
     virtual bool		isAvailable() const	{ return true; }
