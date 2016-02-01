@@ -75,7 +75,7 @@ public:
 
     inline bool		xyInFeet() const	{ return xyinfeet_;}
     const char*		getXYUnitString(bool withparens=true) const;
-    uiString		getUiXYUnitString(bool abbrviated=true, 
+    uiString		getUiXYUnitString(bool abbrviated=true,
 						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
@@ -129,7 +129,7 @@ public:
 
     float		seismicReferenceDatum() const	 {return seisrefdatum_;}
 			/*!<In depth units (m or ft), positive upward
-			    from sea level */
+			    from sea level. Always in meters for time surveys */
     void		setSeismicReferenceDatum( float d ) { seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
