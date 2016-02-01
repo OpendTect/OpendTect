@@ -197,6 +197,7 @@ public:
     void			tieWellToSeismic(CallBacker*);
     void			doWellLogTools(CallBacker*);
     void			launchRockPhysics(CallBacker*);
+    void			launch2DViewer(CallBacker*);
     void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();

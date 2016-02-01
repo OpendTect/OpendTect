@@ -1873,6 +1873,8 @@ void uiODApplMgr::doWellLogTools( CallBacker* )
 { wellserv_->doLogTools(); }
 void uiODApplMgr::launchRockPhysics( CallBacker* )
 { wellserv_->launchRockPhysics(); }
+void uiODApplMgr::launch2DViewer( CallBacker* )
+{ show2DViewer(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(); }
 
