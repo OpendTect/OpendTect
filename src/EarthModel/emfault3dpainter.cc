@@ -147,6 +147,8 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
     {
 	StepInterval<int> colrg = fss->colRange( rc.row() );
 	FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
+	stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
+	    				     : MouseCursor::Arrow;
 	stickauxdata->poly_.erase();
 	stickauxdata->linestyle_ = markerlinestyle_;
 	if ( rc.row() == activestickid_ )
@@ -454,6 +456,8 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 
 	FlatView::AuxData* intsecauxdat = viewer_.createAuxData( 0 );
 	intsecauxdat->poly_.erase();
+	intsecauxdat->cursor_ = knotenabled_ ? MouseCursor::Cross
+	    				     : MouseCursor::Arrow;
 	intsecauxdat->linestyle_ = markerlinestyle_;
 	intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
 	intsecauxdat->linestyle_.color_ = f3d.preferredColor();

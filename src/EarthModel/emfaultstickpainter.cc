@@ -118,6 +118,8 @@ bool FaultStickPainter::addPolyLine()
 	    StepInterval<int> colrg = fss->colRange( rc.row() );
 
 	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
+	    stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
+						 : MouseCursor::Arrow;
 	    stickauxdata->poly_.erase();
 	    stickauxdata->linestyle_ = markerlinestyle_;
 	    if ( rc.row() == activestickid_ )
@@ -173,6 +175,9 @@ bool FaultStickPainter::addPolyLine()
 			const int posidx =
 			    Geometry::RandomLine::getNearestPathPosIdx(
 				    knots, *path_, trckey );
+			if ( posidx < 0 )
+			    continue;
+
 			const double z = zat ? zat->transform(pos) : pos.z;
 			stickauxdata->poly_ += FlatView::Point(
 					flatposdata_->position(true,posidx),z );
