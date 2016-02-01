@@ -127,6 +127,8 @@ bool FaultStickPainter::addPolyLine()
 	    StepInterval<int> colrg = fss->colRange( rc.row() );
 
 	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
+	    stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
+						 : MouseCursor::Arrow;
 	    stickauxdata->poly_.erase();
 	    stickauxdata->linestyle_ = markerlinestyle_;
 	    if ( rc.row() == activestickid_ )
