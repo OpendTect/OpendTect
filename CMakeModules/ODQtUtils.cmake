@@ -21,6 +21,10 @@ macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
     endif()
 endmacro(ADD_TO_LIST_IF_NEW)
 
+#Try to find Qt5
+list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
+find_package( Qt5Core QUIET )
+
 macro(OD_SETUP_QT)
     if ( OD_NO_QT )
 	add_definitions( -DOD_NO_QT )
@@ -29,9 +33,7 @@ macro(OD_SETUP_QT)
 	    MESSAGE( FATAL_ERROR "QTDIR not set")
 	endif()
 
-	#Try to find Qt5
-	list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
-	find_package( Qt5Core QUIET )
+	#Setup Qt5
 	if ( Qt5Core_FOUND )
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
 

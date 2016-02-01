@@ -145,6 +145,11 @@ if(WIN32)
 	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
     endif()
 
+    #If Qt4, we use wchar_t-
+    if ( NOT Qt5Core_FOUND )
+	set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
+    endif()
+
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
     #set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
@@ -155,7 +160,6 @@ if(WIN32)
     set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
     set ( CMAKE_CXX_FLAGS  "/wd4018 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed compare
