@@ -21,11 +21,13 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uivispartserv.h"
 
+#include "emeditor.h"
 #include "emfault3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mpeengine.h"
 #include "randcolor.h"
 
 #include "view2dfault.h"
@@ -160,7 +162,17 @@ void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
-	addChld( new uiODVw2DFaultTreeItem(emidstobeloaded[idx]), false, false);
+	MPE::ObjectEditor* editor =
+	    MPE::engine().getEditor( emobj->id(), false );
+	uiODVw2DFaultTreeItem* childitem =
+	    new uiODVw2DFaultTreeItem( emidstobeloaded[idx] );
+	addChld( childitem, false, false);
+	if ( editor )
+	{
+	    editor->addUser();
+	    viewer2D()->viewControl()->setEditMode( true );
+	    childitem->select();
+	}
     }
 }
 
@@ -175,6 +187,7 @@ void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
     uiODVw2DFaultTreeItem* faulttreeitem = new uiODVw2DFaultTreeItem( emid );
     addChld( faulttreeitem,false, false );
     viewer2D()->viewControl()->setEditMode( true );
+    MPE::engine().getEditor( emid, true );
     faulttreeitem->select();
 }
 
@@ -198,6 +211,7 @@ uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
 uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 {
     detachAllNotifiers();
+    MPE::engine().removeEditor( emid_ );
     if ( faultview_ )
 	viewer2D()->dataMgr()->removeObject( faultview_ );
 }
@@ -297,8 +311,7 @@ void uiODVw2DFaultTreeItem::enableKnotsCB( CallBacker* )
 
 bool uiODVw2DFaultTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
-	return false;
+    uitreeviewitem_->setSelected( true );
 
     if ( faultview_ )
     {

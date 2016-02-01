@@ -173,7 +173,9 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	if ( MPE::engine().getTrackerByObject(emidstobeloaded[idx]) != -1 )
+	const bool istracking =
+	    MPE::engine().getTrackerByObject(emidstobeloaded[idx]) != -1;
+	if ( istracking )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
 	    if ( !emobj || findChild(emobj->name()) )
@@ -185,7 +187,11 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 		viewer2D()->viewControl()->setEditMode( true );
 	}
 
-	addChld( new uiODVw2DHor3DTreeItem(emidstobeloaded[idx]), false, false);
+	uiODVw2DHor3DTreeItem* childitem =
+	    new uiODVw2DHor3DTreeItem( emidstobeloaded[idx] );
+	addChld( childitem, false, false);
+	if ( istracking )
+	    childitem->select();
     }
 }
 
