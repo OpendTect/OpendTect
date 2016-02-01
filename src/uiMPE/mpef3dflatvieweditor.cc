@@ -270,7 +270,10 @@ bool Fault3DFlatViewEditor::getMousePosInfo( const Geom::Point2D<int>& mousepos,
     mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
     if ( !vwr ) return false;
 
-    worldpos = vwr->getCoord( vwr->getWorld2Ui().transform(mousepos) );
+    Geom::Point2D<double> w2uipos = vwr->getWorld2Ui().transform( mousepos );
+    w2uipos.x = vwr->posRange( true ).limitValue( w2uipos.x );
+    w2uipos.y = vwr->posRange( false ).limitValue( w2uipos.y );
+    worldpos = vwr->getCoord( w2uipos );
     return true;
 }
 
