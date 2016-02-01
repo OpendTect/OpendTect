@@ -309,6 +309,9 @@ protected:
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;
     friend class		uiODApplMgrAttrVisHandler;
+
+public:
+    void			launch2DViewer(CallBacker*);
 };
 
 #endif

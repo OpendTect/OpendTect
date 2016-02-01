@@ -968,6 +968,8 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
 			false,launchRockPhysics);
+    mAddTB(dtecttb_,"2dlaunch",tr("Launch 2D Viewer"),
+			false,launch2DViewer);
 
     dTectTBChanged.trigger();
 }
