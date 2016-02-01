@@ -86,7 +86,8 @@ void uiMPEMan::mpeActionCalledCB( CallBacker* )
 
     if ( engine().getState() == Engine::Started )
     {
-	hd->setOnlyAtSectionsDisplay( false );
+	if ( hd->displayedOnlyAtSections() )
+	    hd->setOnlyAtSectionsDisplay( false );
     }
 }
 
@@ -481,8 +482,15 @@ void uiMPEMan::seedClick( CallBacker* )
 	    if ( !isdatasame )
 	    {
 		const bool res = uiMSG().askContinue( msg );
-		if ( !res )
-		    mSeedClickReturn();
+		if ( res )
+		{
+		    DataPack::ID datapackid =
+				clickcatcher_->info().getObjDataPackID();
+		    if ( datapackid > DataPack::cNoID() )
+			engine.setAttribData( *clickedas, datapackid );
+		    seedpicker->setSelSpec( clickedas );
+		}
+		mSeedClickReturn();
 	    }
 	}
     }
