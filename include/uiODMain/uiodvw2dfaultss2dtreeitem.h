@@ -39,6 +39,16 @@ protected:
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			tempObjAddedCB(CallBacker*);
+
+public:
+    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
+						     TypeSet<int>& vids ) const;
+    void			getLoadedFaultSS2Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			removeFaultSS2D(EM::ObjectID);
+    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFaultSS2D(EM::ObjectID emid);
+
 };
 
 
@@ -62,6 +72,8 @@ public:
 
     bool		showSubMenu();
     bool		select();
+    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const VW2DFaultSS2D* vw2DObject() const	{ return fssview_; }
 
 protected:
 

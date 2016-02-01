@@ -179,6 +179,7 @@ public:
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID emid);
 
+
     //PickSets
     void			getPickSetVwr2DIDs(const MultiID& mid,
 						   TypeSet<int>& vw2ids ) const;
@@ -241,7 +242,15 @@ protected:
     void			mouseMoveCB(CallBacker*);
 
 public:
+
     bool			isItemPresent(const uiTreeItem*) const;
+
+//FaultStickeSet2D
+    void			removeFaultSS2D(EM::ObjectID emid);
+    void			getLoadedFaultSS2Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFaultSS2D(EM::ObjectID emid);
 };
 
 #endif

@@ -608,6 +608,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     {
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
 	vwr.appearance().ddpars_ = curvwr.appearance().ddpars_;
+	vwr.appearance().annot_ = curvwr.appearance().annot_;
 	vwr.appearance().ddpars_.wva_.allowuserchange_ = vwr2d->isVertical();
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
@@ -615,6 +616,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer(
 	*uiodviewer2dmgrgeom2dids_.getParam(this) );
     attachNotifiersAndSetAuxData( vwr2d );
+    vwr2d->viewControl()->setEditMode( curvwr2d.viewControl()->isEditModeOn() );
 }
 
 
@@ -1201,6 +1203,40 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
 	return;
     appl_.sceneMgr().addEMItem( emid );
 }
+
+
+void uiODViewer2DMgr::removeFaultSS2D( EM::ObjectID emid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->removeFaultSS2D( emid );
+}
+
+
+void uiODViewer2DMgr::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getLoadedFaultSS2Ds( emids );
+}
+
+
+void uiODViewer2DMgr::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addFaultSS2Ds( emids );
+}
+
+
+void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addNewTempFaultSS2D( emid );
+    TypeSet<EM::ObjectID> emids;
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::FaultStickSet::typeStr());
+    if ( emids.isPresent(emid) )
+	return;
+    appl_.sceneMgr().addEMItem( emid );
+}
+
 
 
 void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
