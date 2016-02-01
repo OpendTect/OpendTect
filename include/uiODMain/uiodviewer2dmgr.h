@@ -98,6 +98,13 @@ public:
     void			addNewTempFaultSS(EM::ObjectID mid);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
+    //FaultStickSet2D
+    void			removeFaultSS2D(EM::ObjectID emid);
+    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFaultSS2D(EM::ObjectID mid);
+    void			getLoadedFaultSS2Ds(
+	   				 TypeSet<EM::ObjectID>&) const;
+    
     //PickSets
     void			getPickSetVwr2DIDs(const MultiID& mid,
 						   TypeSet<int>& vw2ids) const;
