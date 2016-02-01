@@ -22,11 +22,13 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uivispartserv.h"
 
+#include "emeditor.h"
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mpeengine.h"
 #include "randcolor.h"
 
 #include "view2dfaultss3d.h"
@@ -162,7 +164,17 @@ void uiODVw2DFaultSSParentTreeItem::addFaultSSs(
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
-	addChld( new uiODVw2DFaultSSTreeItem(emidstobeloaded[idx]),false,false);
+	MPE::ObjectEditor* editor =
+	    MPE::engine().getEditor( emobj->id(), false );
+	uiODVw2DFaultSSTreeItem* childitem =
+	    new uiODVw2DFaultSSTreeItem( emidstobeloaded[idx] );
+	addChld( childitem ,false, false );
+	if ( editor )
+	{
+	    editor->addUser();
+	    viewer2D()->viewControl()->setEditMode( true );
+	    childitem->select();
+	}
     }
 }
 
@@ -199,6 +211,7 @@ uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( int id, bool )
 uiODVw2DFaultSSTreeItem::~uiODVw2DFaultSSTreeItem()
 {
     detachAllNotifiers();
+    MPE::engine().removeEditor( emid_ );
     if ( fssview_ )
 	viewer2D()->dataMgr()->removeObject( fssview_ );
 }
