@@ -485,7 +485,6 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsrev( revertlogfld_->activated );
     NotifyStopper nsslf( logfilltypefld_->box()->selectionChanged );
     NotifyStopper nsstylefld( stylefld_->changed );
-    NotifyStopper nssliderfld( logwidthslider_->valueChanged );
 
     revertlogfld_->setChecked( logprops().islogreverted_ );
     logsfld_->box()->setText( logprops().name_ );
