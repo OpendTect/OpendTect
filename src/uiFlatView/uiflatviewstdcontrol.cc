@@ -263,6 +263,7 @@ void uiFlatViewStdControl::clearToolBar()
 
 void uiFlatViewStdControl::updatePosButtonStates()
 {
+    if ( setup_.withfixedaspectratio_ ) return;
     const bool yn = !zoommgr_.atStart();
     if ( zoomoutbut_ ) zoomoutbut_->setSensitive( yn );
     if ( vertzoomoutbut_ ) vertzoomoutbut_->setSensitive( yn );
@@ -389,8 +390,23 @@ void uiFlatViewStdControl::doZoom( bool zoomin, bool onlyvertzoom,
 
 void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 {
-    while( !zoommgr_.atStart() )
-	setNewView( vwr_.curView().centre(), zoommgr_.back(0,false,true), vwr_);
+    if ( !setup_.withfixedaspectratio_ )
+	{ reInitZooms(); return; }
+
+    const uiRect bbrect = vwr_.getWorld2Ui().transform( vwr_.boundingBox() );
+    const float aspectratio = mCast(float,bbrect.width())/bbrect.height();
+    const uiRect viewrect = vwr_.getViewRect( false );
+    int height = viewrect.height();
+    int width = mCast(int,aspectratio*height);
+    if ( width > viewrect.width() )
+    {
+	width = viewrect.width();
+	height = mCast(int,width/aspectratio);
+    }
+
+    vwr_.setBoundingRect( uiRect(0,0,width,height) );
+    vwr_.setViewToBoundingBox();
+    updateZoomManager();
 }
 
 
