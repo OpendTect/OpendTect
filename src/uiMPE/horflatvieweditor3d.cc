@@ -863,20 +863,30 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 
     BinID bid;
 
+    ConstDataPackRef<FlatDataPack> fdp =
+	editor_->viewer().obtainPack( true, true );
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
 	const FlatView::AuxData* auxdata = getAuxData(selectedids[ids]);
 	if ( !auxdata || !auxdata->poly_.validIdx(selectedidxs[ids]) ) continue;
 
+	const double posx = auxdata->poly_[selectedidxs[ids]].x;
 	if ( curcs_.nrInl() == 1 )
 	{
 	    bid.inl() = curcs_.hsamp_.start_.inl();
-	    bid.crl() = mNINT32(auxdata->poly_[selectedidxs[ids]].x);
+	    bid.crl() = mNINT32(posx);
 	}
 	else if ( curcs_.nrCrl() == 1 )
 	{
-	    bid.inl() = mNINT32(auxdata->poly_[selectedidxs[ids]].x);
+	    bid.inl() = mNINT32(posx);
 	    bid.crl() = curcs_.hsamp_.start_.crl();
+	}
+	else if ( randfdp )
+	{
+	    const TrcKeyPath& rdlpath = randfdp->getPath();
+	    IndexInfo ix = randfdp->posData().indexInfo( true, posx );
+	    bid = rdlpath[ix.nearest_].pos();
 	}
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
