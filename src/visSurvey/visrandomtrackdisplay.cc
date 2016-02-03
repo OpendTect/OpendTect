@@ -1565,7 +1565,7 @@ void RandomTrackDisplay::updateMouseCursorCB( CallBacker* cb )
 
 
 bool RandomTrackDisplay::isPicking() const
-{ return ispicking_.getParam(this)==true; }
+{ return ispicking_.getParam(this); }
 
 
 void RandomTrackDisplay::mouseCB( CallBacker* cb )
