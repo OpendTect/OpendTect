@@ -483,13 +483,14 @@ CrashDumper* CrashDumper::theinst_ = 0;
 static uiString* legalText();
 static const char* breakpadname = "Google Breakpad";
 
+static Threads::Atomic<int> dumpsent( 0 );
+
 #ifdef __win__
 
 static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
 {
-    static Threads::Atomic<int> dumpsent( 0 );
     if ( !dumpsent.setIfValueIs(0,1,0) )
 	return succeeded;
 
@@ -522,7 +523,6 @@ void CrashDumper::init()
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
 			void* context, bool succeeded )
 {
-    static Threads::Atomic<int> dumpsent( 0 );
     if ( !dumpsent.setIfValueIs(0,1,0) )
 	return succeeded;
 
