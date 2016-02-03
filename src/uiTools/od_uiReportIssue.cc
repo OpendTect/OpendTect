@@ -21,17 +21,21 @@ int main( int argc, char ** argv )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiTools" );
     uiMain app( argc, argv );
-    
+
+#ifdef mUseCrashDumper
+    //Disable IssueReporter for IssueReporter itself.
+    System::CrashDumper::getInstance().setSendAppl( "" );
+#endif
     uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0 );
 
     if ( !dlg->reporter().parseCommandLine() )
     {
 	uiMSG().error( dlg->reporter().errMsg() );
-	return ExitProgram( 1 );	
+	return ExitProgram( 1 );
     }
-    
+
     app.setTopLevel( dlg );
     dlg->show();
-    
+
     return ExitProgram( app.exec() );
 }

@@ -12,6 +12,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
+#include "atomic.h"
 #include "genc.h"
 #include "bufstring.h"
 #include "timefun.h"
@@ -72,7 +73,7 @@ public:
     bool			isPresent( const OD::String* str ) const
 				{
 				    Threads::Locker locker( lock_ );
-				    return strings_.isPresent(str); 
+				    return strings_.isPresent(str);
 				}
 
 private:
@@ -488,6 +489,10 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
 {
+    static Threads::Atomic<int> dumpsent( 0 );
+    if ( !dumpsent.setIfValueIs(0,1,0) )
+	return succeeded;
+
     const BufferString dmppath( QString::fromWCharArray(dump_path) );
     const BufferString dmpid( QString::fromWCharArray(id) );
     FilePath dmpfp( dmppath, dmpid );
@@ -517,6 +522,10 @@ void CrashDumper::init()
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
 			void* context, bool succeeded )
 {
+    static Threads::Atomic<int> dumpsent( 0 );
+    if ( !dumpsent.setIfValueIs(0,1,0) )
+	return succeeded;
+
     FilePath dmpfp( minidumpdesc.path() );
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
