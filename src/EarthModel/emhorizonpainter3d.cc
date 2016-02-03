@@ -116,7 +116,11 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
 					: MouseCursor::Arrow;
     seedauxdata->poly_.erase();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    markerstyle_.color_ =
+    OD::MarkerStyle3D ms3d =
+	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
+    markerstyle_.color_ = ms3d.color_;
+    markerstyle_.size_ = ms3d.size_;
+    markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
 	emobj->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).color_;
     seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData(seedauxdata);
@@ -293,6 +297,11 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::PrefColorChange:
 	    {
 		changePolyLineColor();
+		break;
+	    }
+	case EM::EMObjectCallbackData::AttribChange:
+	    {
+		paint();
 		break;
 	    }
 	case EM::EMObjectCallbackData::PositionChange:

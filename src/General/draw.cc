@@ -178,6 +178,27 @@ bool OD::MarkerStyle3D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
 
 
+OD::MarkerStyle2D::Type OD::MarkerStyle3D::getMS2DType(
+	MarkerStyle3D::Type ms3d )
+{
+    switch ( ms3d )
+    {
+	case None: 	return MarkerStyle2D::None;
+	case Cube:	return MarkerStyle2D::Square;
+	case Cone:	return MarkerStyle2D::Triangle;
+	case Cylinder:	return MarkerStyle2D::Square;
+	case Sphere:	return MarkerStyle2D::Circle;
+	case Arrow:	return MarkerStyle2D::Arrow;
+	case Cross:	return MarkerStyle2D::Cross;
+	case Point:	return MarkerStyle2D::Target;
+	case Plane:	return MarkerStyle2D::HLine;
+	break;
+    }
+
+    return MarkerStyle2D::None;
+}
+
+
 OD::LineStyle::LineStyle( Type t, int w, Color c )
     : type_(t), width_(w), color_(c)
 {}
