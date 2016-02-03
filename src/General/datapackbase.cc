@@ -482,7 +482,7 @@ const OffsetValueSeries<float>
 {
     const Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
-				globaltrcidx * array->info().getSize(2) );
+			(od_int64)globaltrcidx * array->info().getSize(2) );
 }
 
 
@@ -490,7 +490,7 @@ OffsetValueSeries<float> SeisDataPack::getTrcStorage(int comp, int globaltrcidx)
 {
     Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
-				globaltrcidx * array->info().getSize(2) );
+			(od_int64)globaltrcidx * array->info().getSize(2) );
 }
 
 
@@ -498,7 +498,7 @@ const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
     const Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
-    return array->getData() + globaltrcidx * array->info().getSize(2);
+    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
 }
 
 
@@ -506,7 +506,7 @@ float* SeisDataPack::getTrcData( int comp, int globaltrcidx )
 {
     Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
-    return array->getData() + globaltrcidx * array->info().getSize(2);
+    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
 }
 
 
