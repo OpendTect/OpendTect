@@ -25,6 +25,7 @@ mGlobal(Algo) inline float cMinLayerThickness() { return 1e-4f; }
 mGlobal(Algo) inline const Interval<float> validThicknessRange();
 mGlobal(Algo) inline const Interval<float> validDensityRange();
 mGlobal(Algo) inline const Interval<float> validVelocityRange();
+mGlobal(Algo) inline const Interval<float> validImpRange();
 
 
 /*!
@@ -206,5 +207,11 @@ inline const Interval<float> validDensityRange()
 inline const Interval<float> validVelocityRange()
 { return Interval<float> ( 10.f, 10000.f ); }
 
+inline const Interval<float> validImpRange()
+{
+    return Interval<float> (
+	    validDensityRange().start*validVelocityRange().start,
+	    validDensityRange().stop*validVelocityRange().stop );
+}
 #endif
 

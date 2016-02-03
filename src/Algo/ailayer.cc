@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 ( !mIsUdf(val) && validThicknessRange().includes(val,false) )
 #define mIsValidDen(val) ( validDensityRange().includes(val,false) )
 #define mIsValidVel(val) ( validVelocityRange().includes(val,false) )
+#define mIsValidImp(val) ( validImpRange().includes(val,false) )
 
 
 AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
@@ -90,7 +91,7 @@ ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
 			    bool needcompthkness )
     : AILayer( thkness, ai, den, needcompthkness )
 {
-    svel_ = si / den_;
+    svel_ = mIsValidImp(si) && mIsValidDen(den) ? si / den_ : mUdf(float);
 }
 
 
@@ -563,6 +564,9 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 				  const float* pvel, const float* svel,
 				  const float* den )
 {
+    if ( !pvel )
+	return false;
+
     setEmpty();
     const bool zit =  SI().zDomain().isTime();
     const int zsize = zrange.nrSteps();
@@ -570,20 +574,24 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
     const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
 
     int firstidx = 0; float firstlayerthickness;
-    if ( zrange.start < srddepth )
+    if (  zit )
     {
-	firstidx = zrange.getIndex( srddepth );
-	if ( firstidx < 0 )
-	    firstidx = 0;
-
-	firstlayerthickness =
-		zit ? (zrange.atIndex(firstidx+1)-srddepth)*pvel[firstidx]/2.0f
-		    :  zrange.atIndex(firstidx+1)-srddepth;
+	firstlayerthickness = zrange.start<0.f ? 0.0f : zrange.start;
+	firstlayerthickness = firstlayerthickness*pvel[firstidx]/2.0f;
     }
     else
-	firstlayerthickness =
-		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f
-		    :  zrange.start+zrange.step-srddepth;
+    {
+	if ( zrange.start < srddepth )
+	{
+	    firstidx = zrange.getIndex( srddepth );
+	    if ( firstidx < 0 )
+		firstidx = 0;
+
+	    firstlayerthickness = zrange.atIndex(firstidx+1)-srddepth;
+	}
+	else
+	    firstlayerthickness = zrange.start+zrange.step-srddepth;
+    }
 
     ElasticLayer firstlayer( firstlayerthickness, pvel[firstidx],
 			     svel ? svel[firstidx] : mUdf(float),
@@ -621,16 +629,21 @@ bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
     const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
 
     int firstidx = 0; float firstlayerthickness;
-    if ( zrange.start < srddepth )
-    {
-	firstidx = zrange.getIndex( srddepth );
-	if ( firstidx < 0 )
-	    firstidx = 0;
-
-	firstlayerthickness = zrange.atIndex(firstidx+1)-srddepth;
-    }
+    if ( zit )
+	firstlayerthickness = zrange.start<0.f ? 0.0f : zrange.start;
     else
-	firstlayerthickness = zrange.start+zrange.step-srddepth;
+    {
+	if ( zrange.start < srddepth )
+	{
+	    firstidx = zrange.getIndex( srddepth );
+	    if ( firstidx < 0 )
+		firstidx = 0;
+
+	    firstlayerthickness = zrange.atIndex(firstidx+1)-srddepth;
+	}
+	else
+	    firstlayerthickness = zrange.start+zrange.step-srddepth;
+    }
 
     ElasticLayer firstlayer( firstlayerthickness, ai[firstidx],
 			     si ? si[firstidx] : mUdf(float),
