@@ -115,7 +115,8 @@ public:
 				const ObjectSet<const TimeDepthModel>&,
 				TypeSet<float>&) const;
     void		getLevelTimes(SeisTrcBuf&,
-				const ObjectSet<const TimeDepthModel>&) const;
+				const ObjectSet<const TimeDepthModel>&,
+				int dispeach=-1) const;
     bool		setLevelTimes(const char* sdnm);
 
     void		flattenTraces(SeisTrcBuf&) const;

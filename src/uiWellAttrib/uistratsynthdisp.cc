@@ -572,7 +572,7 @@ void uiStratSynthDisp::drawLevel()
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
-	curSS().getLevelTimes( tbuf, curd2tmodels );
+	curSS().getLevelTimes( tbuf, curd2tmodels, dispeach_ );
 
 	auxd->linestyle_.type_ = OD::LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
@@ -943,7 +943,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     reSampleTraces( sd, *disptbuf );
     if ( dispflattened_ )
     {
-	curSS().getLevelTimes( *disptbuf, curd2tmodels );
+	curSS().getLevelTimes( *disptbuf, curd2tmodels, dispeach_ );
 	curSS().flattenTraces( *disptbuf );
     }
     else
