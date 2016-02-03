@@ -157,7 +157,7 @@ void FileSpec::ensureBaseDir( const char* dirnm )
     for ( int idx=0; idx<sz; idx++ )
     {
 	FilePath fp( absFileName(idx) );
-        const int nrlvls = fp.nrLevels();
+	const int nrlvls = fp.nrLevels();
 	if ( nrlvls <= basenrlvls )
 	    fp.setPath( dirnm );
 	else
