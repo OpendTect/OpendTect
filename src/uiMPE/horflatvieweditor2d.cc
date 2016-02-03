@@ -399,39 +399,64 @@ void HorizonFlatViewEditor2D::undo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
-    if ( seedpicker && seedpicker->canUndo() )
+    if ( !seedpicker )
+	return;
+
+    bool changed = false;
+    if ( seedpicker->canUndo() )
     {
 	 seedpicker->horPatchUndo().unDo();
 	 updatePatchDisplay();
+	 changed = true;
     }
-    else
+    else 
     {
-	uiString undoerrmsg;
-	engine().undo( undoerrmsg );
-	if ( !undoerrmsg.isEmpty() )
-	    uiMSG().message( undoerrmsg );
+	if ( engine().canUnDo() )
+	{
+	    uiString undoerrmsg;
+	    engine().undo( undoerrmsg );
+	    if ( !undoerrmsg.isEmpty() )
+		uiMSG().message( undoerrmsg );
+	    horpainter_->paint();
+	    changed = true;
+	}
     }
 
-   if ( editor_ )
+    if ( editor_ && changed )
 	editor_->viewer().handleChange( FlatView::Viewer::Auxdata );
-
 }
 
 
 void HorizonFlatViewEditor2D::redo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-    uiString redoerrmsg;
-    engine().redo( redoerrmsg );
-    if ( !redoerrmsg.isEmpty() )
-	uiMSG().message( redoerrmsg );
-
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
-    if ( seedpicker && seedpicker->canReDo() )
+    if ( !seedpicker )
+	return;
+
+    bool changed = false;
+    if ( seedpicker->canReDo() )
     {
 	 seedpicker->horPatchUndo().reDo();
 	 updatePatchDisplay();
+	 changed = true;
     }
+    else 
+    {
+	if ( engine().canReDo() )
+	{
+	    uiString redoerrmsg;
+	    engine().redo(redoerrmsg);
+	    if ( !redoerrmsg.isEmpty() )
+		uiMSG().message( redoerrmsg );
+	    horpainter_->paint();
+	    changed = true;
+	}
+    }
+
+    if ( editor_ && changed )
+	editor_->viewer().handleChange( FlatView::Viewer::Auxdata );
+
 }
 
 
