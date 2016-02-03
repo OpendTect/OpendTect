@@ -110,6 +110,7 @@ public:
 		EventCatchHandler( EventCatcher& eventcatcher )
 		    : eventcatcher_( eventcatcher )
 		    , wasdragging_( false )
+		    , wasdoublepressed_( false )
 		{
 		    initKeyMap();
 		}
@@ -124,6 +125,7 @@ protected:
 
     EventCatcher&				eventcatcher_;
     bool					wasdragging_;
+    bool					wasdoublepressed_;
 
     typedef std::map<int,OD::KeyboardKey>	KeyMap;
     KeyMap					keymap_;
@@ -298,17 +300,20 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     {
 	eventinfo.type = MouseClick;
 	eventinfo.pressed = true;
+	wasdoublepressed_ = false;
 	wasdragging_ = false;
     }
     else if ( ea.getEventType() == osgGA::GUIEventAdapter::RELEASE )
     {
-	eventinfo.type = MouseClick;
+	eventinfo.type = wasdoublepressed_ ? MouseDoubleClick : MouseClick;
 	eventinfo.pressed = false;
+	wasdoublepressed_ = false;
     }
     else if ( ea.getEventType() == osgGA::GUIEventAdapter::DOUBLECLICK )
     {
 	eventinfo.type = MouseDoubleClick;
-	eventinfo.pressed = false;
+	eventinfo.pressed = true;
+	wasdoublepressed_ = true;
 	wasdragging_ = false;
     }
     else
