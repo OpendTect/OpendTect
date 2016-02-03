@@ -194,6 +194,18 @@ void Engine::trackingFinishedCB( CallBacker* )
 }
 
 
+bool Engine::canUnDo()
+{
+    return EM::EMM().undo().canUnDo();
+}
+
+
+bool Engine::canReDo()
+{
+    return EM::EMM().undo().canReDo();
+}
+
+
 void Engine::undo( uiString& errmsg )
 {
     mDynamicCastGet(EM::EMUndo*,emundo,&EM::EMM().undo())
