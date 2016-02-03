@@ -76,6 +76,8 @@ public:
     bool			trackingInProgress() const;
     void			undo(uiString& errmsg);
     void			redo(uiString& errmsg);
+    bool			canUnDo();
+    bool			canReDo();
     void			enableTracking(bool yn);
     Notifier<Engine>		actionCalled;
     Notifier<Engine>		actionFinished;
