@@ -95,7 +95,9 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	emid = mps->getEMObjectID( trackid );
 	addNewTrackingHorizon2D( emid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon2D( emid );
+	trackid = mps->activeTrackerID();
 	MPE::engine().removeTracker( trackid );
+	mps->enableTracking( trackid, true );
     }
     else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
     {
