@@ -267,13 +267,14 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
     if ( !evtracker_.isOK() )
 	return false;
 
-    const bool res = evtracker_.track();
+    evtracker_.track();
     const float resz = sd.atIndex( evtracker_.targetDepth() );
-    if ( !searchWindow().includes(resz-startz,false) )
+
+    if ( mIsUdf(resz) )
 	return false;
 
-    if ( res ) targetz = resz;
-    return res;
+    targetz = resz;
+    return true;
 }
 
 
