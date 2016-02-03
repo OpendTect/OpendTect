@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "odnetworkaccess.h"
 
 class uiCheckBox;
 class uiGenInput;
@@ -32,6 +33,9 @@ public:
     void		setPort(int);
     int			getPort() const;
 
+    bool		fillPar(IOPar&,bool) const;
+    bool		usePar(const IOPar&);
+
 protected:
 
     void		initFromSettings();
@@ -43,9 +47,26 @@ protected:
     uiGenInput*		usernamefld_;
     uiLineEdit*		pwdfld_;
     uiLabel*		pwdlabel_;
+    uiCheckBox*		savepwdfld_;
     uiGenInput*		useproxyfld_;
     uiGenInput*		hostfld_;
     uiLabeledSpinBox*	portfld_;
 };
+
+mExpClass(uiTools) uiNetworkUserQuery : public NetworkUserQuery
+{ mODTextTranslationClass(uiNetworkUserQuery);
+public:
+
+			uiNetworkUserQuery();
+
+    bool		setFromUser();
+
+    void		setMainWin(uiMainWin* mw)	{ mainwin_ = mw; }
+
+protected:
+
+    uiMainWin*		mainwin_;
+};
+
 
 #endif

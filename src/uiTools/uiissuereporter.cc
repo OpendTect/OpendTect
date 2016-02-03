@@ -57,20 +57,24 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     emailfld_ = new uiGenInput( usrinpgrp, tr("[E-mail address]") );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
-    
-    uiButton* proxybut = new uiPushButton( usrinpgrp, tr("Proxy settings"), 
+
+    uiButton* proxybut = new uiPushButton( usrinpgrp, tr("Proxy settings"),
 					   false );
     proxybut->setIcon( "proxysettings" );
     proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
     proxybut->attach( rightOf, emailfld_ );
-    
+
     usrinpgrp->setHAlignObj( emailfld_ );
     usrinpgrp->attach( alignedBelow, lblgrp );
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
+
+    uiNetworkUserQuery* uinetquery = new uiNetworkUserQuery;
+    uinetquery->setMainWin( this );
+    NetworkUserQuery::setNetworkUserQuery( uinetquery );
 }
-	       
+
 
 void uiIssueReporterDlg::viewReportCB( CallBacker* )
 {
@@ -95,10 +99,10 @@ void uiIssueReporterDlg::viewReport( const uiString& cap )
 {
     BufferString report;
     getReport( report );
-    
-    uiDialog dlg( this, uiDialog::Setup(tr("View report"), 
+
+    uiDialog dlg( this, uiDialog::Setup(tr("View report"),
 				    uiStrings::sEmptyString(), mNoHelpKey ) );
-    uiLabel* label = cap.isEmpty() 
+    uiLabel* label = cap.isEmpty()
 	? (uiLabel*) 0
 	: new uiLabel( &dlg, cap );
 
@@ -146,7 +150,7 @@ void uiIssueReporterDlg::setButSensitive( bool yn )
     if ( cancelbut )
 	cancelbut->setSensitive( yn );
 }
-	       
+
 
 
 void uiIssueReporterDlg::getReport( BufferString& res ) const
