@@ -52,6 +52,8 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     pwdfld_->setPasswordMode();
     pwdlabel_ = new uiLabel( this, tr("Password") );
     pwdlabel_->attach( leftOf, pwdfld_ );
+    savepwdfld_ = new uiCheckBox( this, tr("Save password") );
+    savepwdfld_->attach( alignedBelow, pwdfld_ );
 
     initFromSettings();
     useProxyCB(0);
@@ -65,30 +67,36 @@ uiProxyDlg::~uiProxyDlg()
 void uiProxyDlg::initFromSettings()
 {
     Settings& setts = Settings::common();
+    usePar( setts );
+}
+
+
+bool uiProxyDlg::usePar( const IOPar& pars )
+{
     bool useproxy = false;
-    setts.getYN( Network::sKeyUseProxy(), useproxy );
+    pars.getYN( Network::sKeyUseProxy(), useproxy );
     useproxyfld_->setValue( useproxy );
 
     BufferString host;
-    setts.get( Network::sKeyProxyHost(), host );
+    pars.get( Network::sKeyProxyHost(), host );
     hostfld_->setText( host );
 
     int port = 1;
-    setts.get( Network::sKeyProxyPort(), port );
+    pars.get( Network::sKeyProxyPort(), port );
     portfld_->box()->setValue( port );
 
     bool needauth = false;
-    setts.getYN( Network::sKeyUseAuthentication(), needauth );
+    pars.getYN( Network::sKeyUseAuthentication(), needauth );
     authenticationfld_->setChecked( needauth );
 
     BufferString username;
-    setts.get( Network::sKeyProxyUserName(), username );
+    pars.get( Network::sKeyProxyUserName(), username );
     usernamefld_->setText( username );
 
     bool iscrypt = false;
     BufferString password;
-    setts.get( Network::sKeyProxyPassword(), password );
-    if ( setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
+    pars.get( Network::sKeyProxyPassword(), password );
+    if ( pars.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
     {
 	uiString str;
 	str.setFromHexEncoded( password );
@@ -96,35 +104,47 @@ void uiProxyDlg::initFromSettings()
     }
 
     pwdfld_->setText( password );
+    savepwdfld_->setChecked( !password.isEmpty() );
+    return true;
 }
 
 
 bool uiProxyDlg::saveInSettings()
 {
     Settings& setts = Settings::common();
-    const bool useproxy = useproxyfld_->getBoolValue();
-    setts.setYN( Network::sKeyUseProxy(), useproxy );
-
-    BufferString host = useproxy ? hostfld_->text() : "";
-    setts.set( Network::sKeyProxyHost(), host );
-
-    const int port = useproxy ? portfld_->box()->getIntValue() : 1;
-    setts.set( Network::sKeyProxyPort(), port );
-
-    const bool needauth = useproxy ? authenticationfld_->isChecked() : false;
-    setts.setYN( Network::sKeyUseAuthentication(), needauth );
-    if ( needauth )
-    {
-	BufferString username = useproxy ? usernamefld_->text() : "";
-	setts.set( Network::sKeyProxyUserName(), username );
-	BufferString password = useproxy ? pwdfld_->text() : "";
-	uiString str = toUiString( password );
-	str.getHexEncoded( password );
-	setts.set( Network::sKeyProxyPassword(), password );
-	setts.setYN( Network::sKeyCryptProxyPassword(), true );
-    }
+    if ( !fillPar(setts,true) )
+	return false;
 
     return setts.write();
+}
+
+
+bool uiProxyDlg::fillPar( IOPar& pars, bool store ) const
+{
+    const bool useproxy = useproxyfld_->getBoolValue();
+    pars.setYN( Network::sKeyUseProxy(), useproxy );
+
+    BufferString host = useproxy ? hostfld_->text() : "";
+    pars.set( Network::sKeyProxyHost(), host );
+
+    const int port = useproxy ? portfld_->box()->getIntValue() : 1;
+    pars.set( Network::sKeyProxyPort(), port );
+
+    const bool needauth = useproxy ? authenticationfld_->isChecked() : false;
+    pars.setYN( Network::sKeyUseAuthentication(), needauth );
+    if ( needauth )
+    {
+	const bool savepwd = !store || savepwdfld_->isChecked();
+	BufferString username = useproxy ? usernamefld_->text() : "";
+	pars.set( Network::sKeyProxyUserName(), username );
+	BufferString password = useproxy && savepwd ? pwdfld_->text() : "";
+	uiString str = toUiString( password );
+	str.getHexEncoded( password );
+	pars.set( Network::sKeyProxyPassword(), password );
+	pars.setYN( Network::sKeyCryptProxyPassword(), savepwd );
+    }
+
+    return true;
 }
 
 
@@ -138,17 +158,32 @@ void uiProxyDlg::useProxyCB( CallBacker* )
     usernamefld_->setSensitive( ison && needauth );
     pwdfld_->setSensitive( ison && needauth );
     pwdlabel_->setSensitive( ison && needauth );
+    savepwdfld_->setSensitive( ison && needauth );
 }
 
 
 bool uiProxyDlg::acceptOK( CallBacker* )
 {
-    if ( !saveInSettings() )
-    {
-	uiMSG().error( tr("Cannot write to settings file") );
+    IOPar pars;
+    if ( !fillPar(pars,false) )
 	return false;
-    }
 
-    Network::setHttpProxyFromSettings();
+    Network::setHttpProxyFromIOPar( pars );
+    saveInSettings();
     return true;
+}
+
+
+uiNetworkUserQuery::uiNetworkUserQuery()
+    : mainwin_(0)
+{
+}
+
+bool uiNetworkUserQuery::setFromUser()
+{
+    if ( !mainwin_ )
+	return false;
+
+    uiProxyDlg dlg( mainwin_ );
+    return dlg.go();
 }

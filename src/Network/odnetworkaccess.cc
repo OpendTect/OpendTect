@@ -66,7 +66,6 @@ bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
     if ( urls.size() != outputpaths.size() )
 	return false;
 
-    Network::setHttpProxyFromSettings();
     FileDownloader dl( urls, outputpaths );
     const bool res = taskr ? taskr->execute( dl ) : dl.execute();
     if ( !res ) errmsg = dl.uiMessage();
@@ -368,7 +367,6 @@ bool Network::uploadFile( const char* url, const char* localfname,
     databuffer->reSize( prev_size + bsdata.size() );
     OD::memCopy( databuffer->data()+prev_size, bsdata.buf(), bsdata.size() );
     BufferString header( "multipart/form-data; boundary=", mBoundary );
-    Network::setHttpProxyFromSettings();
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
@@ -389,7 +387,6 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     DataBuffer db( data.size(), 1 );
     OD::memCopy( db.data(), data.buf(), data.size() );
     BufferString header( "multipart/form-data; boundary=", mBoundary );
-    Network::setHttpProxyFromSettings();
     DataUploader up( url, db, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
@@ -500,8 +497,40 @@ od_int64 DataUploader::totalNr() const
 void Network::setHttpProxyFromSettings()
 {
     Settings& setts = Settings::common();
+    bool auth = false;
+    setts.getYN( Network::sKeyUseAuthentication(), auth );
+    if ( !auth )
+    {
+	setHttpProxyFromIOPar( setts );
+	return;
+    }
+
+    IOPar parcp( setts );
+    BufferString password;
+    bool iscrypt = false;
+    parcp.get( Network::sKeyProxyPassword(), password );
+    if ( password.isEmpty() )
+    {
+	getProxySettingsFromUser();
+	return;
+    }
+    else if ( !setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
+    {
+	uiString str = toUiString( password );
+	str.getHexEncoded( password );
+	setts.set( Network::sKeyProxyPassword(), password );
+	setts.setYN( Network::sKeyCryptProxyPassword(), true );
+	setts.write();
+    }
+
+    setHttpProxyFromIOPar( parcp );
+}
+
+
+void Network::setHttpProxyFromIOPar( const IOPar& pars )
+{
     bool useproxy = false;
-    setts.getYN( Network::sKeyUseProxy(), useproxy );
+    pars.getYN( Network::sKeyUseProxy(), useproxy );
     if ( !useproxy )
     {
 #ifndef OD_NO_QT
@@ -513,25 +542,25 @@ void Network::setHttpProxyFromSettings()
     }
 
     BufferString host;
-    setts.get( Network::sKeyProxyHost(), host );
+    pars.get( Network::sKeyProxyHost(), host );
     if ( host.isEmpty() )
 	return;
 
     int port = 1;
-    setts.get( Network::sKeyProxyPort(), port );
+    pars.get( Network::sKeyProxyPort(), port );
 
     bool auth = false;
-    setts.getYN( Network::sKeyUseAuthentication(), auth );
+    pars.getYN( Network::sKeyUseAuthentication(), auth );
 
     if ( auth )
     {
 	BufferString username;
-	setts.get( Network::sKeyProxyUserName(), username );
+	pars.get( Network::sKeyProxyUserName(), username );
 
 	BufferString password;
 	bool iscrypt = false;
-	setts.get( Network::sKeyProxyPassword(), password );
-	if ( setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
+	pars.get( Network::sKeyProxyPassword(), password );
+	if ( pars.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
 	{
 	    uiString str;
 	    str.setFromHexEncoded( password );
@@ -539,19 +568,19 @@ void Network::setHttpProxyFromSettings()
 	}
 
 	Network::setHttpProxy( host, port, auth, username, password );
-	if ( !iscrypt ) // Convert existing plain text pwd to Hex.
-	{
-	    uiString str = toUiString( password );
-	    str.getHexEncoded( password );
-	    setts.set( Network::sKeyProxyPassword(), password );
-	    setts.setYN( Network::sKeyCryptProxyPassword(), true );
-	    setts.write();
-	}
     }
     else
 	Network::setHttpProxy( host, port );
 }
 
+
+bool Network::getProxySettingsFromUser()
+{
+    NetworkUserQuery* inst = NetworkUserQuery::getNetworkUserQuery();
+    if ( !inst ) return false;
+
+    return inst->setFromUser();
+}
 
 void Network::setHttpProxy( const char* hostname, int port, bool auth,
 			    const char* username, const char* password )
@@ -571,6 +600,19 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
 #endif
 }
 
+
+NetworkUserQuery* NetworkUserQuery::inst_ = 0;
+
+void NetworkUserQuery::setNetworkUserQuery( NetworkUserQuery* newinst )
+{
+    delete inst_;
+    inst_ = newinst;
+}
+
+NetworkUserQuery* NetworkUserQuery::getNetworkUserQuery()
+{
+    return inst_;
+}
 
 #ifndef OD_NO_QT
 QNetworkAccessManager& ODNA()

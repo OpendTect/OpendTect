@@ -69,20 +69,22 @@ namespace Network
 					 const char* password=0);
 
     mGlobal(Network) void   setHttpProxyFromSettings();
+    mGlobal(Network) void   setHttpProxyFromIOPar(const IOPar&);
+    mGlobal(Network) bool   getProxySettingsFromUser();
 
-    inline const char*	    sKeyUseProxy()  { return "Use Proxy"; };
+    inline const char*	    sKeyUseProxy()  { return "Use Proxy"; }
     inline const char*	    sKeyUseAuthentication()
-					    { return "Use Authentication";};
+					    { return "Use Authentication";}
     inline const char*	    sKeyProxyHost()
-					    { return "Http Proxy Host"; };
+					    { return "Http Proxy Host"; }
     inline const char*	    sKeyProxyPort()
-					    { return "Http Proxy Port"; };
+					    { return "Http Proxy Port"; }
     inline const char*	    sKeyProxyUserName()
-					    { return "Http Proxy User Name"; };
+					    { return "Http Proxy User Name"; }
     inline const char*	    sKeyProxyPassword()
-					    { return "Http Proxy Password"; };
+					    { return "Http Proxy Password"; }
     inline const char*	    sKeyCryptProxyPassword()
-					{ return "Http Crypt Proxy Password"; };
+					{ return "Http Crypt Proxy Password"; }
 
 }
 
@@ -160,6 +162,18 @@ protected:
     uiString		msg_;
 };
 
+
+mExpClass(Network) NetworkUserQuery
+{
+public:
+    virtual bool	setFromUser()		= 0;
+
+    static void			setNetworkUserQuery(NetworkUserQuery*);
+    static NetworkUserQuery*	getNetworkUserQuery();
+protected:
+
+    static NetworkUserQuery*	inst_;
+};
 
 #ifndef OD_NO_QT
 mGlobal(Network) QNetworkAccessManager&  ODNA();
