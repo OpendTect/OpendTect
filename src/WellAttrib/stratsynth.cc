@@ -1548,6 +1548,14 @@ void StratSynth::getLevelTimes( const Strat::Level& lvl,
 void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
 			const ObjectSet<const TimeDepthModel>& d2ts ) const
 {
+    getLevelTimes( trcs, d2ts, -1 );
+}
+
+
+void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
+			const ObjectSet<const TimeDepthModel>& d2ts,
+			int dispeach ) const
+{
     if ( !level_ ) return;
 
     TypeSet<float> times = level_->zvals_;
@@ -1557,7 +1565,8 @@ void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
     {
 	const SeisTrc& trc = *trcs.get( idx );
 	SeisTrcPropCalc stp( trc );
-	float z = times.validIdx( idx ) ? times[idx] : mUdf( float );
+	const int d2tmidx = dispeach==-1 ? idx : idx*dispeach;
+	float z = times.validIdx( d2tmidx ) ? times[d2tmidx] : mUdf( float );
 	trcs.get( idx )->info().zref = z;
 	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
 	{

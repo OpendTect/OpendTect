@@ -179,6 +179,10 @@ protected:
 
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
 	    					const IOPar& raypar) const;
+public:
+    void		getLevelTimes(SeisTrcBuf&,
+				const ObjectSet<const TimeDepthModel>&,
+				int dispeach) const;
 };
 
 #endif
