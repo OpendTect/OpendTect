@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "oddirs.h"
 
 #include "uiioobjseldlg.h"
@@ -60,6 +60,9 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
     {
 	ctio_.setObj( objdlg.ioObj()->clone() );
 	ctio_.setName( ctio_.ioobj_->name() );
+	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj_);
+	if ( iostrm )
+	    iostrm->fileSpec().ensureBaseDir( othersurveyrootdir_ );
 	fulluserexpression_ = ctio_.ioobj_->fullUserExpr();
 	success = true;
     }

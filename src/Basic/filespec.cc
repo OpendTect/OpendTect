@@ -143,6 +143,45 @@ const char* FileSpec::dispName() const
 }
 
 
+void FileSpec::ensureBaseDir( const char* dirnm )
+{
+    if ( !dirnm || !*dirnm )
+	return;
+
+    FilePath basefp( dirnm );
+    if ( !basefp.isAbsolute() )
+	return;
+
+    const int basenrlvls = basefp.nrLevels();
+    const int sz = nrFiles();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	FilePath fp( absFileName(idx) );
+        const int nrlvls = fp.nrLevels();
+	if ( nrlvls <= basenrlvls )
+	    fp.setPath( dirnm );
+	else
+	{
+	    BufferString oldpath( fp.dirUpTo(basenrlvls-1) );
+	    const int oldpathsz = oldpath.size();
+	    BufferString oldfnm( fp.fullPath() );
+	    const int oldfnmsz = oldfnm.size();
+	    oldfnm[oldpathsz] = '\0';
+	    fp = basefp;
+	    if ( oldfnmsz > oldpathsz )
+		fp.add( oldfnm.str() + oldpathsz + 1 );
+
+	    const BufferString newfnm( fp.fullPath() );
+	    if ( idx == 0 )
+		setFileName( newfnm );
+	    else
+		*fnames_[idx] = newfnm;
+	}
+    }
+
+}
+
+
 void FileSpec::fillPar( IOPar& iop ) const
 {
     iop.removeWithKey( sKeyFileNrs() );
