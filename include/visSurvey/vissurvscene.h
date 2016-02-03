@@ -74,7 +74,7 @@ inl/crl/t to display coords, so the objects does not need any own transform.
 */
 
 mExpClass(visSurvey) Scene : public visBase::Scene
-{
+{ mODTextTranslationClass(Scene);
 public:
     static Scene*		create()
 				mCreateDataObj(Scene);
@@ -193,6 +193,14 @@ public:
 
     void			createTopBotImage(bool istop);
     visBase::TopBotImage*	getTopBotImage(bool istop);
+
+    Coord3			getTopBottomIntersection(
+				    const visBase::EventInfo&,
+				    bool outerface,bool ignoreocclusion) const;
+    Coord3			getTopBottomSurveyPos(
+				    const visBase::EventInfo&, bool outerface,
+				    bool ignoreocclusion,bool inlcrlspace=true,
+				    BufferString* topbotstr=0 ) const;
 
     void			fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

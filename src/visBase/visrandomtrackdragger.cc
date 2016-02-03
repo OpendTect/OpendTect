@@ -107,7 +107,7 @@ PlaneDragCBHandler::PlaneDragCBHandler( RandomTrackDragger& rtd )
 				osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON |
 				osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON );
     planedragger_->setupDefaultGeometry();
-    planedragger_->setHandleEvents( true );
+    planedragger_->setHandleEvents( rtd.isHandlingEvents() );
 
     for ( int idx=planedragger_->getNumDraggers()-1; idx>=0; idx-- )
     {
@@ -758,6 +758,18 @@ Coord RandomTrackDragger::getKnot( int knotidx ) const
 }
 
 
+int RandomTrackDragger::getKnotIdx( const TypeSet<int>& pickpath ) const
+{
+    for ( int idx=0; idx<draggers_.size(); idx++ )
+    {
+	if ( pickpath.isPresent(draggers_[idx]->id()) )
+	    return idx/4;
+    }
+
+    return -1;
+}
+
+
 void RandomTrackDragger::doSetKnot( int knotidx, const Coord& pos )
 {
     if ( !draggers_.validIdx(4*knotidx) )
@@ -796,6 +808,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	dragger->setSize( 20 );
 	dragger->setDisplayTransformation( displaytrans_ );
 	dragger->setSpaceLimits( limits_[0], limits_[1], limits_[2] );
+	dragger->handleEvents( isHandlingEvents() );
 	mAttachCB( dragger->started, RandomTrackDragger::startCB );
 	mAttachCB( dragger->motion, RandomTrackDragger::moveCB );
 	mAttachCB( dragger->finished, RandomTrackDragger::finishCB );
@@ -1125,6 +1138,8 @@ void RandomTrackDragger::updatePlaneDraggers()
 	removePlaneDraggerCBHandler( 0 );
     }
 
+    bool showverticalknotdraggers = true;
+
     for ( int knotidx=0; knotidx<nrKnots()-1; knotidx++ )
     {
 	if ( knotidx >= planedraghandlers_.size() )
@@ -1135,6 +1150,9 @@ void RandomTrackDragger::updatePlaneDraggers()
 					    draggers_[knotidx*4+6]->getPos() );
 	bool horoverlap = !ok;
 	const bool show = ok && canShowPlaneDragger(knotidx,horoverlap);
+
+	if ( show )
+	    showverticalknotdraggers = false;
 
 	planedraghandlers_[knotidx]->showDraggerTabs( show );
 	planedraghandlers_[knotidx]->showDraggerBorder(
@@ -1155,6 +1173,12 @@ void RandomTrackDragger::updatePlaneDraggers()
 	    updateKnotColor( knotidx+1, true );
 	    updateKnotColor( knotidx, true );
 	}
+    }
+
+    for ( int idx=1; idx<4*nrKnots(); idx+=2 )
+    {
+	if ( !draggers_[idx]->isMoving() )
+	    draggers_[idx]->turnOn( showverticalknotdraggers );
     }
 }
 
@@ -1410,6 +1434,22 @@ int RandomTrackDragger::getTransDragKeys( bool trans1d, int groupidx ) const
 	state |= OD::AltButton;
 
     return (OD::ButtonState) state;
+}
+
+
+void RandomTrackDragger::handleEvents( bool yn )
+{
+    for ( int idx=0; idx<draggers_.size(); idx++ )
+	draggers_[idx]->handleEvents( yn );
+
+    for ( int idx=0; idx<planedraghandlers_.size(); idx++ )
+	planedraghandlers_[idx]->osgDragger().setHandleEvents( yn );
+}
+
+
+bool RandomTrackDragger::isHandlingEvents() const
+{
+    return draggers_.isEmpty() ? true : draggers_[0]->isHandlingEvents();
 }
 
 

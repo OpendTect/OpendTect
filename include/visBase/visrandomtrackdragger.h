@@ -48,6 +48,8 @@ public:
     void			insertKnot(int,const Coord&);
     void			removeKnot(int);
 
+    int				getKnotIdx(const TypeSet<int>& pickpath) const;
+
     void			showAdjacentPanels(int knotidx,bool yn);
     bool			areAdjacentPanelsShown(int knotidx) const;
     void			showAllPanels(bool yn);
@@ -76,6 +78,9 @@ public:
     NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
     const TypeSet<int>*		rightClickedPath() const;
     const EventInfo*		rightClickedEventInfo() const;
+
+    void			handleEvents(bool yn);
+    bool			isHandlingEvents() const;
 
 protected:
     				~RandomTrackDragger();

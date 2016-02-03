@@ -239,6 +239,10 @@ public:
     virtual void		selectTexture(int attrib,int texture) {}
     virtual int			selectedTexture(int attrib) const { return 0; }
     virtual void		allowShading(bool)		{}
+    virtual bool		getSelMousePosInfo(const visBase::EventInfo&,
+						   Coord3&, BufferString&,
+						   BufferString&) const
+				{ return false; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    Coord3& xyzpos,
 					    BufferString& val,

@@ -159,7 +159,7 @@ void DraggerBase::initDragger( osgManipulator::Dragger* d )
 	osgdragger_->addDraggerCallback( cbhandler_ );
 	osgdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
     }
- }
+}
 
 
 void DraggerBase::setDisplayTransformation( const mVisTrans* nt )
@@ -175,7 +175,6 @@ void DraggerBase::setDisplayTransformation( const mVisTrans* nt )
     {
 	displaytrans_->ref();
     }
-
 }
 
 
@@ -193,6 +192,18 @@ void DraggerBase::setSpaceLimits( const Interval<float>& x,
 }
 
 
+void DraggerBase::handleEvents( bool yn )
+{
+    if ( osgdragger_ ) osgdragger_->setHandleEvents( yn );
+}
+
+
+bool DraggerBase::isHandlingEvents() const
+{
+    return osgdragger_ ? osgdragger_->getHandleEvents() : true;
+}
+
+
 Dragger::Dragger()
     : rightclicknotifier_(this)
     , rightclickeventinfo_( 0 )
@@ -203,6 +214,7 @@ Dragger::Dragger()
     , rotation_( 0, 0, 0 )
     , rotangle_( 0.0 )
     , arrowcolor_( Color(255,255,0) )
+    , ismoving_( false )
 {
     setDefaultRotation();
     turnOn( true );
@@ -227,7 +239,8 @@ Dragger::~Dragger()
 }
 
 
-bool Dragger::selectable() const { return true; }
+bool Dragger::selectable() const
+{ return isHandlingEvents(); }
 
 
 void Dragger::setDraggerType( Type tp )
@@ -255,6 +268,7 @@ void Dragger::setDraggerType( Type tp )
 
 void Dragger::notifyStart()
 {
+    ismoving_ = false;
     updateDragger( false );
     started.trigger();
 }
@@ -262,6 +276,7 @@ void Dragger::notifyStart()
 
 void Dragger::notifyStop()
 {
+    ismoving_ = false;
     finished.trigger();
     updateDragger( true );
 }
@@ -269,6 +284,7 @@ void Dragger::notifyStop()
 
 void Dragger::notifyMove()
 {
+    ismoving_ = true;
     setScaleAndTranslation( true );
     motion.trigger();
 }

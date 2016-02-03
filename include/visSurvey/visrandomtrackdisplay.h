@@ -127,11 +127,14 @@ public:
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
-    void			getMousePosInfo(const visBase::EventInfo&,
-						IOPar&) const;
+    bool			getSelMousePosInfo(const visBase::EventInfo&,
+						   Coord3&, BufferString&,
+						   BufferString&) const;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&, BufferString&,
 						BufferString&) const;
+    void			getMousePosInfo(const visBase::EventInfo&,
+						IOPar&) const;
 
     int				getSelNodeIdx() const	{ return selnodeidx_; }
 				//!<knotidx>=0, panelidx<0
@@ -139,7 +142,8 @@ public:
     virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &nodemoving_;}
 
-    int				getClosestPanelIdx(const Coord&) const;
+    int				getClosestPanelIdx(const Coord&,
+						   double* fracptr=0) const;
     Coord3			getNormal(const Coord3&) const;
     virtual float		calcDist(const Coord3&) const;
     virtual bool		allowsPicks() const		{ return true; }
@@ -155,7 +159,7 @@ public:
     Notifier<RandomTrackDisplay> nodemoving_;
 
     const char*			errMsg() const { return errmsg_.str(); }
-    void			setPolyLineMode(bool mode );
+    void			setPolyLineMode(bool yn);
     bool			createFromPolyLine();
     void			setColor(Color);
 
@@ -202,11 +206,14 @@ protected:
     void			nodeMoved(CallBacker*);
     void			draggerRightClick(CallBacker*);
 
+    void			mouseCB(CallBacker*);
     void			pickCB(CallBacker*);
-    bool			checkValidPick(const visBase::EventInfo&,
-					       const Coord3& pos) const;
-    void			setPickPos(const Coord3& pos);
+    bool			isPicking() const;
+
+    bool			checkValidPick(const visBase::EventInfo&) const;
+    void			addPickPos(const Coord3& pos);
     void			removePickPos(const Coord3&);
+    void			removePickPos(int polyidx);
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool,bool);
 
@@ -250,7 +257,11 @@ protected:
     bool			lockgeometry_;
     bool			ismanip_;
     int				namenr_;
+
+    bool			ispicking_;
     bool			polylinemode_;
+    int				pickstartnodeidx_;
+
     bool			interactivetexturedisplay_;
     int				originalresolution_;
 

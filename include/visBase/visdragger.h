@@ -49,6 +49,9 @@ public:
 					       const Interval<float>& y,
 					       const Interval<float>& z);
 
+    void			handleEvents(bool yn);
+    bool			isHandlingEvents() const;
+
 protected:
     friend			class DraggerCallbackHandler;
 				DraggerBase();
@@ -106,6 +109,8 @@ public:
     void			updateDragger( bool active );
     void			setDisplayTransformation( const mVisTrans* );
 
+    bool			isMoving() const	{ return ismoving_; }
+
 protected:
     				~Dragger();
     void			triggerRightClick(const EventInfo* eventinfo);
@@ -126,6 +131,8 @@ protected:
     Coord3			markerpos_;
     float			draggersizescale_;
     float			defaultdraggergeomsize_;
+
+    bool			ismoving_;
 
     Coord3			rotation_;
     float			rotangle_;
