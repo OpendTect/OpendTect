@@ -267,6 +267,15 @@ protected:
     static const char*		sKeyAppAllowShading();
     static const char*		sKeyTopImageID();
     static const char*		sKeyBotImageID();
+
+public:
+    Coord3			getTopBottomIntersection(
+				    const visBase::EventInfo&,
+				    bool outerface,bool ignoreocclusion) const;
+    Coord3			getTopBottomSurveyPos(
+				    const visBase::EventInfo&, bool outerface,
+				    bool ignoreocclusion,
+				    bool inlcrlspace=true ) const;
 };
 
 } // namespace visSurvey

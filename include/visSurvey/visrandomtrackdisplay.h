@@ -164,7 +164,7 @@ public:
     Notifier<RandomTrackDisplay> nodemoving_;
 
     const char*			errMsg() const { return errmsg_.str(); }
-    void			setPolyLineMode(bool mode );
+    void			setPolyLineMode(bool yn);
     bool			createFromPolyLine();
     void			setColor(Color);
 
@@ -270,6 +270,16 @@ protected:
 					    const StepInterval<float>& zrg);
 public:
     const TrcKeyPath*		getTrcKeyPath();
+
+    bool			getSelMousePosInfo(const visBase::EventInfo&,
+						   Coord3&, BufferString&,
+						   BufferString&) const;
+protected:
+    int				getClosestPanelIdx(const Coord&,
+						   double* fracptr) const;
+    void			mouseCB(CallBacker*);
+    bool			isPicking() const;
+    void			removePickPos(int polyidx);
 };
 
 } // namespace visSurvey

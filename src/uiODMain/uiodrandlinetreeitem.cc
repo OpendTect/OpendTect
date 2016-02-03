@@ -64,7 +64,10 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 {
     showAlwaysOnTop();
 
-    label_ = new uiLabel( this, tr("Pick Nodes on Z-Slices or Horizons") );
+    label_ = new uiLabel( this,
+	tr("Pick Nodes on Z-Slices, Horizons, or Survey Inner Top/Bottom.\n"
+	   "(Shift-Click for Outer Top/Bottom)") );
+
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, label_ );
@@ -86,9 +89,16 @@ bool acceptOK( CallBacker* )
     if ( !rtd_->createFromPolyLine() )
     {
 	uiMSG().error(tr("Please select at least two points"
-			 " on TimeSlice/Horizon"));
+			 " on Z-Slice, Horizon, or Survey Top/Bottom"));
 	return false;
     }
+    rtd_->setPolyLineMode( false );
+    return true;
+}
+
+
+bool rejectOK( CallBacker* )
+{
     rtd_->setPolyLineMode( false );
     return true;
 }

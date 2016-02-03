@@ -69,7 +69,9 @@ protected:
 private:
     DraggerCallbackHandler*	cbhandler_;
 
-
+public:
+    void			handleEvents(bool yn);
+    bool			isHandlingEvents() const;
 };
 
 
@@ -130,6 +132,9 @@ protected:
     Coord3			rotation_;
     float			rotangle_;
     Color			arrowcolor_;
+
+public:
+    bool			isMoving() const;
 };
 
 } // namespace visBase

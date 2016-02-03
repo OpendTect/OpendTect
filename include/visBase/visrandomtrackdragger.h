@@ -162,6 +162,11 @@ protected:
     ObjectSet<DragControl>	dragcontrols_;
 
     static const char*		sKeyDraggerScale() { return "subDraggerScale"; }
+
+public:
+    int				getKnotIdx(const TypeSet<int>& pickpath) const;
+    void			handleEvents(bool yn);
+    bool			isHandlingEvents() const;
 };
 
 } // namespace visBase

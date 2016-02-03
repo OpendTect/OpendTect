@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
+#include "visrandomtrackdisplay.h"
 #include "visvolumedisplay.h"
 #include "vistopbotimage.h"
 #include "zaxistransform.h"
@@ -769,6 +770,26 @@ void Scene::mouseCB( CallBacker* cb )
     xytmousepos_ = Coord3::udf();
     mousetrckey_ = TrcKey::udf();
 
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    for ( int idx=0; idx<selectedids.size(); idx++ )
+    {
+	const visBase::DataObject* dataobj =
+				visBase::DM().getObject( selectedids[idx] );
+	mDynamicCastGet( const SurveyObject*, so, dataobj );
+	mDynamicCastGet( const RandomTrackDisplay*, rtd, so );
+
+	if ( rtd && rtd->getSelMousePosInfo(eventinfo, xytmousepos_,
+		    mouseposval_, mouseposstr_) )
+	{
+	    if ( !xytmousepos_.isUdf() )
+		mousetrckey_ = SI().transform(
+				    Coord(xytmousepos_.x,xytmousepos_.y) );
+
+	    mouseposchange.trigger();
+	    return;
+	}
+    }
+
     const int sz = eventinfo.pickedobjids.size();
     if ( sz )
     {
@@ -794,7 +815,7 @@ void Scene::mouseCB( CallBacker* cb )
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
 					 newmouseposval, newstr );
 		    IOPar infopar;
-		    so->getMousePosInfo( eventinfo ,infopar );
+		    so->getMousePosInfo( eventinfo, infopar );
 		    if ( !infopar.get(sKey::TraceKey(),mousetrckey_) )
 			mousetrckey_ = TrcKey::udf();
 
@@ -877,7 +898,7 @@ const MouseCursor* Scene::getMouseCursor() const
 { return mousecursor_; }
 
 
-void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
     if ( datatransform_==zat ) return;
 
@@ -1346,5 +1367,97 @@ void Scene::savePropertySettings()
     mSaveProp( set, sKeyAnnotColor(), getAnnotColor() );
     setts.write( false );
 }
+
+
+Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
+				bool outerside, bool ignoreocclusion ) const
+{
+    const Survey::Geometry3D* s3dgeom = SI().get3DGeometry( true );
+    if ( !s3dgeom || !utm2disptransform_ || !tempzstretchtrans_ )
+	return Coord3::udf();
+
+    const StepInterval<int> inlrg = s3dgeom->inlRange();
+    const StepInterval<int> crlrg = s3dgeom->crlRange();
+
+    for ( int top=0; top<=1; top++ )
+    {
+	const double z = top ? s3dgeom->zRange().start : s3dgeom->zRange().stop;
+
+	Coord3 p0( s3dgeom->toCoord(inlrg.start,crlrg.start), z );
+	utm2disptransform_->transform( p0 );
+	tempzstretchtrans_->transform( p0 );
+
+	Coord3 p1( s3dgeom->toCoord(inlrg.start,crlrg.stop), z );
+	utm2disptransform_->transform( p1 );
+	tempzstretchtrans_->transform( p1 );
+
+	Coord3 p2( s3dgeom->toCoord(inlrg.stop,crlrg.start), z );
+	utm2disptransform_->transform( p2 );
+	tempzstretchtrans_->transform( p2 );
+
+	if ( mCast(bool,top) == (outerside == s3dgeom->isRightHandSystem()) )
+	    Swap( p1, p2 );
+
+	const Plane3 plane( p0, p1, p2 );
+	double t;
+
+	if ( !eventinfo.mouseline.intersectWith(plane,t) )
+	    continue;
+
+	if ( !ignoreocclusion && !mIsUdf(eventinfo.pickdepth) &&
+	     t>eventinfo.pickdepth )
+	    continue;
+
+	const Coord3 viewpoint = eventinfo.mouseline.getPoint( t-0.001 );
+
+	if ( plane.distanceToPoint(viewpoint,true) < 0.0 )
+	{
+	    Coord3 pos = eventinfo.mouseline.getPoint( t );
+	    tempzstretchtrans_->transformBack( pos );
+	    utm2disptransform_->transformBack( pos );
+	    return pos;
+	}
+    }
+
+    return Coord3::udf();
+}
+
+
+#define mMapMarginToSurvey( bid, ic, relativesurveymargin ) \
+{ \
+    const StepInterval<int> rg = s3dgeom->ic##Range(); \
+    const float margin = fabs( (relativesurveymargin) * rg.width() ); \
+    if ( bid.ic()>=rg.start-margin && bid.ic()<rg.start ) \
+	bid.ic() = rg.start; \
+    if ( bid.ic()>rg.stop && bid.ic()<=rg.stop+margin ) \
+	bid.ic() = rg.stop; \
+}
+
+Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
+			    bool outerside, bool ignoreocclusion,
+			    bool inlcrlspace ) const
+{
+    const Survey::Geometry3D* s3dgeom = SI().get3DGeometry( true );
+    const Coord3 pos =
+	    getTopBottomIntersection( eventinfo, outerside, ignoreocclusion );
+
+    if ( mIsUdf(pos) )
+	return pos;
+
+    BinID bid = s3dgeom->transform( pos );
+
+    const float relativesurveymargin = 0.05;
+    mMapMarginToSurvey( bid, inl, relativesurveymargin );
+    mMapMarginToSurvey( bid, crl, relativesurveymargin );
+
+    if ( !s3dgeom->includes(bid.inl(),bid.crl()) )
+	return Coord3::udf();
+
+    if ( inlcrlspace )
+	return Coord3( bid.inl(), bid.crl(), pos.z);
+
+    return Coord3( s3dgeom->transform(bid), pos.z );
+}
+
 
 } // namespace visSurvey

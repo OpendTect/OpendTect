@@ -159,7 +159,7 @@ void DraggerBase::initDragger( osgManipulator::Dragger* d )
 	osgdragger_->addDraggerCallback( cbhandler_ );
 	osgdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
     }
- }
+}
 
 
 void DraggerBase::setDisplayTransformation( const mVisTrans* nt )
@@ -175,7 +175,6 @@ void DraggerBase::setDisplayTransformation( const mVisTrans* nt )
     {
 	displaytrans_->ref();
     }
-
 }
 
 
@@ -190,6 +189,18 @@ void DraggerBase::setSpaceLimits( const Interval<float>& x,
 				  const Interval<float>& z )
 {
     spaceranges_[0] = x; spaceranges_[1] = y; spaceranges_[2] = z;
+}
+
+
+void DraggerBase::handleEvents( bool yn )
+{
+    if ( osgdragger_ ) osgdragger_->setHandleEvents( yn );
+}
+
+
+bool DraggerBase::isHandlingEvents() const
+{
+    return osgdragger_ ? osgdragger_->getHandleEvents() : true;
 }
 
 
@@ -227,7 +238,8 @@ Dragger::~Dragger()
 }
 
 
-bool Dragger::selectable() const { return true; }
+bool Dragger::selectable() const
+{ return isHandlingEvents(); }
 
 
 void Dragger::setDraggerType( Type tp )
@@ -253,8 +265,17 @@ void Dragger::setDraggerType( Type tp )
 }
 
 
+static Dragger* movingdragger_ = 0;
+
+bool Dragger::isMoving() const
+{
+    return movingdragger_==this;
+}
+
+
 void Dragger::notifyStart()
 {
+    movingdragger_ = 0;
     updateDragger( false );
     started.trigger();
 }
@@ -262,6 +283,7 @@ void Dragger::notifyStart()
 
 void Dragger::notifyStop()
 {
+    movingdragger_ = 0;
     finished.trigger();
     updateDragger( true );
 }
@@ -269,6 +291,7 @@ void Dragger::notifyStop()
 
 void Dragger::notifyMove()
 {
+    movingdragger_ = this;
     setScaleAndTranslation( true );
     motion.trigger();
 }
