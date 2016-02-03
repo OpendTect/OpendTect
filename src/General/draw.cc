@@ -30,7 +30,8 @@ mDefineEnumUtils(MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", 0 };
 mDefineEnumUtils(MarkerStyle3D,Type,"Marker type")
-{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", "Point", "Plane", 0 };
+{ "None", "Cube","Cone", "Cylinder", "Sphere", "Arrow",
+  "Cross", "Point", "Plane", 0 };
 mDefineEnumUtils(LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
@@ -147,6 +148,26 @@ bool MarkerStyle3D::operator!=(const MarkerStyle3D& b) const
 
 bool MarkerStyle3D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
+
+
+MarkerStyle2D::Type MarkerStyle3D::getMS2DType( MarkerStyle3D::Type ms3d )
+{
+    switch ( ms3d )
+    {
+	case None:	return MarkerStyle2D::None;
+	case Cube:	return MarkerStyle2D::Square;
+	case Cone:	return MarkerStyle2D::Triangle;
+	case Cylinder:	return MarkerStyle2D::Square;
+	case Sphere:	return MarkerStyle2D::Circle;
+	case Arrow:	return MarkerStyle2D::Arrow;
+	case Cross:	return MarkerStyle2D::Cross;
+	case Point:	return MarkerStyle2D::Target;
+	case Plane:	return MarkerStyle2D::HLine;
+	break;
+    }
+
+    return MarkerStyle2D::None;
+}
 
 
 LineStyle::LineStyle( Type t, int w, Color c )

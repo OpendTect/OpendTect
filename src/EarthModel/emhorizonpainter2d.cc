@@ -206,6 +206,11 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 		changePolyLineColor();
 		break;
 	    }
+	case EM::EMObjectCallbackData::AttribChange:
+	    {
+		paint();
+		break;
+	    }
 	case EM::EMObjectCallbackData::BurstAlert:
 	    {
 		if ( emobject->hasBurstAlert() )
@@ -298,8 +303,11 @@ HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
     EM::EMObject* emobj = EM::EMM().getObject(id_);
-    markerstyle_.color_ =
-	emobj->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).color_;
+    MarkerStyle3D ms3d =
+	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
+    markerstyle_.color_ = ms3d.color_;
+    markerstyle_.size_ = ms3d.size_;
+    markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
     seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData( seedauxdata );
     Marker2D* marker = new Marker2D;

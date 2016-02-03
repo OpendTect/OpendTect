@@ -108,6 +108,7 @@ public:
 
     bool		operator==(const MarkerStyle3D& b) const;
     bool		operator!=(const MarkerStyle3D& b) const;
+    static  MarkerStyle2D::Type getMS2DType(MarkerStyle3D::Type);
 };
 
 
