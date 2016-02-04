@@ -406,7 +406,7 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
     wvnamdisp_->setText( curioobj_->uiName() );
     wvnamdisp_->setPrefWidthInChar( 60 );
-    if( !wvlt )
+    if( !wvlt || !wvlt->samples() )
     {
 	waveletdisplay_->setEmpty();
 	return;
