@@ -101,14 +101,12 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
     mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
 
     tabSel( 0 );
-    wd_->ref();
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
     detachAllNotifiers();
-    wd_->unRef();
 }
 
 

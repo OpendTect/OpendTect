@@ -125,23 +125,16 @@ public:
 				    , zistime_(SI().zIsTime())
 				    , dispzinft_(SI().depthsInFeet())
 				    , wd_(wd)
-				    { if ( wd_ ) wd_->ref(); }
-				    ~Data()
-				    { if ( wd_ ) wd_->unRef(); }
+				    {}
 
 	void copyFrom(const uiWellDahDisplay::Data& d)
 	{
 	    if ( &d == this )
 		return;
-
 	    zrg_     	= d.zrg_;
 	    zistime_ 	= d.zistime_;
 	    dispzinft_ 	= d.dispzinft_;
-	    if ( wd_ )
-		wd_->unRef();
 	    wd_ 	= d.wd_;
-	    if ( wd_ )
-		wd_->ref();
 	}
 	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
 	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
@@ -150,7 +143,7 @@ public:
 	Interval<float>		zrg_;
 	bool			dispzinft_;
 	bool			zistime_;
-	const Well::Data*	wd_;
+	ConstRefMan<Well::Data> wd_;
     };
 
     mStruct(uiWell) PickData

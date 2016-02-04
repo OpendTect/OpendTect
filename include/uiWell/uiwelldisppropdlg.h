@@ -34,15 +34,15 @@ public:
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
 
-    Well::Data*			wellData()		{ return wd_; }
-    const Well::Data*		wellData() const	{ return wd_; }
+    Well::Data*			wellData()		{ return wd_.ptr(); }
+    const Well::Data*		wellData() const	{ return wd_.ptr(); }
 
 
     bool 			savedefault_;
  
 protected:
 
-    Well::Data*			wd_;
+    RefMan<Well::Data>		wd_;
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
