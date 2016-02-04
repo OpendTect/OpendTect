@@ -170,6 +170,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
+    dlg.showAlwaysOnTop();
     if ( !dlg.go() )
 	return false;
 
