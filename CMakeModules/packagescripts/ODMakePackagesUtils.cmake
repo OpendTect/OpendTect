@@ -114,7 +114,7 @@ macro ( create_package PACKAGE_NAME )
 	endif()
 	if( WIN32 )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMLIBDIR}/${EXE}
+			     ${COPYFROMLIBDIR}/${EXE}.exe
 			     ${COPYTOLIBDIR}/${EXE}.exe )
 	elseif( APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
