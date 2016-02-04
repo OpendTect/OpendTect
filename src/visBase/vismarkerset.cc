@@ -35,15 +35,17 @@ MarkerSet::MarkerSet()
     , markerset_( new osgGeo::MarkerSet )
     , displaytrans_( 0 )
     , coords_( Coordinates::create() )
+    , onoffarr_( new osg::ByteArray() )
     , pixeldensity_( getDefaultPixelDensity() )
     , rotationvec_( 1.0, 0.0, 0.0 )
     , rotationangle_( mUdf(float) )
     , offset_( 0 )
 {
     markerset_->ref();
+    onoffarr_->ref();
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
-
+    markerset_->setOnOffArray( (osg::ByteArray*)onoffarr_ );
     setMinimumScale( 1.0f );
 
     const Coord worksize = SI().maxCoord(true) - SI().minCoord(true);
@@ -61,6 +63,7 @@ MarkerSet::~MarkerSet()
 {
     removeChild( markerset_ );
     clearMarkers();
+    onoffarr_->unref();
     markerset_->unref();
     removePolygonOffsetNodeState();
 }
@@ -125,6 +128,7 @@ void MarkerSet::clearMarkers()
     if ( coords_ ) coords_->setEmpty();
     if ( normals_ ) normals_->clear();
     if ( material_ ) material_->clear();
+    if ( onoffarr_ ) ((osg::ByteArray*)onoffarr_)->clear();
     markerset_->forceRedraw( true );
 }
 
@@ -135,7 +139,11 @@ void MarkerSet::removeMarker( int idx )
     if ( material_ ) material_->removeColor( idx );
     if ( coords_ ) coords_->removePos( idx, false );
     if ( coords_ ) coords_->dirty();
-    markerset_->removeMarkerOnOff( idx );
+    if ( onoffarr_ )
+    {
+	osg::ByteArray* onoffarr = (osg::ByteArray*)onoffarr_;
+	onoffarr->erase( onoffarr->begin()+idx );
+    }
     markerset_->forceRedraw( true );
     
 }
