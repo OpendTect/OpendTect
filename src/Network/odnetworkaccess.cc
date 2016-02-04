@@ -605,7 +605,6 @@ NetworkUserQuery* NetworkUserQuery::inst_ = 0;
 
 void NetworkUserQuery::setNetworkUserQuery( NetworkUserQuery* newinst )
 {
-    delete inst_;
     inst_ = newinst;
 }
 
