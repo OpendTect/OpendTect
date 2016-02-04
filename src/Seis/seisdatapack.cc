@@ -299,6 +299,24 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 }
 
 
+void RandomSeisDataPack::setRandomLineID( int rdlid )
+{
+    path_.erase();
+    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
+    if ( !rdmline )
+	return;
+
+    TypeSet<BinID> knots, rdlpath;
+    rdmline->allNodePositions( knots );
+    Geometry::RandomLine::getPathBids( knots, rdlpath );
+    path_.setSize( rdlpath.size(), TrcKey::udf() );
+    for ( int idx=0; idx<rdlpath.size(); idx++ )
+	path_[idx] = TrcKey( rdlpath[idx] );
+
+    setSDPRandomLineID( rdlid );
+}
+
+
 DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					int rdlidx,
