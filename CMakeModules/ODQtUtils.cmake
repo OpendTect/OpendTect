@@ -25,6 +25,15 @@ endmacro(ADD_TO_LIST_IF_NEW)
 list ( APPEND CMAKE_PREFIX_PATH ${QTDIR} )
 find_package( Qt5Core QUIET )
 
+#Setup Qt5 Language tools
+if ( Qt5Core_FOUND )
+    find_package( Qt5 REQUIRED LinguistTools )
+    get_target_property( QT_LRELEASE_EXECUTABLE Qt5::lrelease
+			 IMPORTED_LOCATION )
+    get_target_property( QT_LUPDATE_EXECUTABLE Qt5::lupdate
+			 IMPORTED_LOCATION )
+endif( Qt5Core_FOUND )
+
 macro(OD_SETUP_QT)
     if ( OD_NO_QT )
 	add_definitions( -DOD_NO_QT )
