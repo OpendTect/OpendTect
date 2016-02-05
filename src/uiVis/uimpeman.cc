@@ -87,7 +87,8 @@ void uiMPEMan::mpeActionCalledCB( CallBacker* )
 
     if ( engine().getState() == Engine::Started )
     {
-	hd->setOnlyAtSectionsDisplay( false );
+	if ( hd->displayedOnlyAtSections() )
+	    hd->setOnlyAtSectionsDisplay( false );
     }
 }
 
