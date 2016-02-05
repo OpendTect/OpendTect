@@ -837,6 +837,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	if ( surface )
 	{
 	    uiWriteSurfaceDlg dlg( parent(), *surface, shift );
+	    dlg.showAlwaysOnTop(); // hack to show on top of tracking window
 	    if ( !dlg.go() ) return false;
 
 	    EM::SurfaceIOData sd;
