@@ -854,6 +854,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	if ( surface )
 	{
 	    uiWriteSurfaceDlg dlg( parent(), *surface, shift );
+	    dlg.showAlwaysOnTop();
 	    if ( !dlg.go() ) return false;
 
 	    EM::SurfaceIOData sd;
@@ -1274,7 +1275,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	return false;
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
-    const uiString infomsg = 
+    const uiString infomsg =
 			interp ? interp->infoMsg() : uiStrings::sEmptyString();
     if ( infomsg.isSet() )
 	uiMSG().message( infomsg );
