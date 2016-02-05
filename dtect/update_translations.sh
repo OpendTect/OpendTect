@@ -208,9 +208,7 @@ rm -rf ${filelist}
 
 #Filter the sources for patterns
 echo ${sources} | xargs -n 100 -P ${nrcpu} sed \
-	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/m.*TextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mExpClass(.*)/class /g' \
 	-e 's/mClass(.*)/class /g' \
 	-e 's/mStruct(.*)/struct /g' \
@@ -224,11 +222,14 @@ echo ${sources} | xargs -n 100 -P ${nrcpu} sed \
 	-e 's/__begquote"//g' \
 	-e 's/"__endquote//g' -iTMP
 
+
+#Filter away macros in sources
+echo ${sources} | xargs -n 100 -P ${nrcpu} php ${scriptdir}/remove_macros.php
+
+
 #Filter the headers for patterns
 echo ${headers} | xargs -n 100 -P ${nrcpu} sed \
-	-e 's/mODTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mdGBTextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mTextTranslationClass(.*)/Q_OBJECT/g' \
+	-e 's/m.*TextTranslationClass(.*)/Q_OBJECT/g' \
 	-e 's/mExpClass(.*)/class /g' \
 	-e 's/mClass(.*)/class /g' \
 	-e 's/mStruct(.*)/struct /g' \
@@ -241,6 +242,9 @@ echo ${headers} | xargs -n 100 -P ${nrcpu} sed \
         -e 's/::tr(,/::tr(/g' \
         -e 's/__begquote"//g' \
         -e 's/"__endquote//g' -iTMP
+
+#Filter away macros in headers
+echo ${headers} | xargs -n 100 -P ${nrcpu} php ${scriptdir}/remove_macros.php
 
 result=0
 #Run lupdate in the background and save jobid
@@ -255,7 +259,7 @@ if [ -e ${pluralpro} ]; then
     errors=`cat ${plural_errfile}`
     if [ "${errors}" != "" ]; then
 	echo "Errors during plural processing:"
-	cat ${plural_errfile} | sed -e $removetmpoddirsed
+	cat ${plural_errfile} | sed -e $removetmpoddirsed -e 's/Q_OBJECT/*TextTranslationClass/g'
 	result=1
     fi
 
@@ -286,7 +290,7 @@ wait ${update_pid}
 errors=`cat ${errfile}`
 if [ "${errors}" != "" ]; then
     echo "Errors during non-plural processing:"
-    cat ${errfile} | sed -e $removetmpoddirsed
+    cat ${errfile} | sed -e $removetmpoddirsed -e 's/Q_OBJECT/*TextTranslationClass/g'
     result=1
 fi
 
