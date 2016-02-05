@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 class Dip3DCalculator : public ParallelTask
 { mODTextTranslationClass(Dip3DCalculator);
 public:
-Dip3DCalculator( Dip3D& fd )    
+Dip3DCalculator( Dip3D& fd )
     : fd_(fd)
 {}
 
@@ -31,25 +31,29 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     const float threshold = fd_.setup_.threshold_;
     const bool isabove = fd_.setup_.isabove_;
-    const int ngate_2 = fd_.setup_.boxlength_;
+    const int xgate = fd_.setup_.boxlength_;
+    const int ygate = fd_.setup_.boxwidth_;
+    const int zgate = fd_.setup_.boxheight_;
 
-    for ( int idx=mCast(int, start); idx<=stop && shouldContinue(); 
+    for ( int idx=mCast(int, start); idx<=stop && shouldContinue();
 						idx++,addToNrDone(1) )
     {
-	const int z = idx%fd_.zsz_;
-	const int y = (idx/fd_.zsz_)%fd_.ysz_;
-	const int x = (idx/fd_.zsz_)/fd_.ysz_;
-	if ( (isabove && fd_.input_.get(x,y,z)<threshold) ||
-	     (!isabove && fd_.input_.get(x,y,z)>threshold) )
+	int pos[3];
+	if ( !fd_.input_.info().getArrayPos( idx, pos ) )
 	    continue;
-    
-	const int x_left = mMAX(0,x-ngate_2);
-	const int x_right = mMIN(fd_.xsz_-1,x+ngate_2);
-	const int y_left = mMAX(0,y-ngate_2);
-	const int y_right = mMIN(fd_.ysz_-1,y+ngate_2);
-	const int z_left = mMAX(0,z-ngate_2);
-	const int z_right = mMIN(fd_.zsz_-1,z+ngate_2);
-    
+
+	const float curval = fd_.input_.get( pos[0], pos[1], pos[2] );
+	if ( mIsUdf(curval) || (isabove && curval<threshold) ||
+	     (!isabove && curval>threshold) )
+	    continue;
+
+	const int x_left = mMAX(0,pos[0]-xgate);
+	const int x_right = mMIN(fd_.xsz_-1,pos[0]+xgate);
+	const int y_left = mMAX(0,pos[1]-ygate);
+	const int y_right = mMIN(fd_.ysz_-1,pos[1]+ygate);
+	const int z_left = mMAX(0,pos[2]-zgate);
+	const int z_right = mMIN(fd_.zsz_-1,pos[2]+zgate);
+
 	float x_mean = 0.0;
 	float y_mean = 0.0;
 	float z_mean = 0.0;
@@ -66,10 +70,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 			xs += kx;
 			ys += ky;
 			zs += kz;
-	    
+
 			x_mean += kx;
-	    		y_mean += ky;
-	    		z_mean += kz;
+			y_mean += ky;
+			z_mean += kz;
 		    }
 		}
 	    }
@@ -78,9 +82,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( npoints<2 )
 	    continue;
 
-	x_mean /= npoints;
-	y_mean /= npoints;
-	z_mean /= npoints;
+	x_mean /= (float)npoints;
+	y_mean /= (float)npoints;
+	z_mean /= (float)npoints;
 
 	/*get the covariance for x and y*/
 	float var_xx = 0.0;
@@ -104,7 +108,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	var_xy /= (npoints-1);
 	var_yz /= (npoints-1);
 	var_zx /= (npoints-1);
-	
+
 	/* get the eigen value and eigen vector */
 	const float d0[] = { var_xx, var_xy, var_zx };
 	const float d1[] = { var_xy, var_yy, var_yz };
@@ -127,15 +131,34 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	const float edenominator = Math::Sqrt(eigenvec0[0]*eigenvec0[0]+
 		eigenvec0[1]*eigenvec0[1]);
-	const float absdip = (float)(atan(edenominator/eigenvec0[2])*mRad2DegF);
-	const float inldip = eigenvec0[0]*fd_.xdist_/(fd_.zdist_*eigenvec0[2]);
-	const float crldip = eigenvec0[1]*fd_.ydist_/(fd_.zdist_*eigenvec0[2]);
-	const float azimuth =(float)(atan(eigenvec0[1]/eigenvec0[0])*mRad2DegF);
+	const bool ishorizontal = mIsZero(eigenvec0[2],1e-8);
+	const float absdip = ishorizontal ? 0.0f :
+	    (float)(atan(edenominator/eigenvec0[2])*mRad2DegF);
+	const float inldip = ishorizontal ? 0.0f :
+	    eigenvec0[0]*fd_.xdist_/(fd_.zdist_*eigenvec0[2]);
+	const float crldip = ishorizontal ? 0.0f :
+	    eigenvec0[1]*fd_.ydist_/(fd_.zdist_*eigenvec0[2]);
+	float azimuth = mUdf(float);
+	if ( mIsZero(eigenvec0[0],1e-8) )
+	    azimuth = eigenvec0[1]<0 ? 270.0f : 90.0f;
+	else
+	{
+	    azimuth = (float)(atan(eigenvec0[1]/eigenvec0[0])*mRad2DegF);
+	    if ( eigenvec0[0]>0 )
+	    {
+		if ( eigenvec0[1]<0 )
+		    azimuth += 360.0f;
+	    }
+	    else
+	    {
+		azimuth += 180.0f;
+	    }
+	}
 
-	fd_.absdip_->set( x, y, z, absdip );
-	fd_.inldip_->set( x, y, z, inldip );
-	fd_.crldip_->set( x, y, z, crldip );
-	fd_.azimuth_->set( x, y, z, azimuth );
+	fd_.absdip_->set( pos[0], pos[1], pos[2], absdip );
+	fd_.inldip_->set( pos[0], pos[1], pos[2], inldip );
+	fd_.crldip_->set( pos[0], pos[1], pos[2], crldip );
+	fd_.azimuth_->set( pos[0], pos[1], pos[2], azimuth );
     }
 
     return true;
@@ -148,7 +171,7 @@ Dip3D& fd_;
 class Dip2DCalculator : public ParallelTask
 { mODTextTranslationClass(Dip2DCalculator);
 public:
-Dip2DCalculator( Dip2D& fd )    
+Dip2DCalculator( Dip2D& fd )
     : fd_(fd)
 {}
 
@@ -160,22 +183,25 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     const float threshold = fd_.setup_.threshold_;
     const bool isabove = fd_.setup_.isabove_;
-    const int ngate_2 = fd_.setup_.boxlength_;
-    
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); 
+    const int xgate = fd_.setup_.boxlength_;
+    const int ygate = fd_.setup_.boxwidth_;
+
+    for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
 							idx++,addToNrDone(1) )
     {
-	const int x = idx/fd_.ysz_;
-	const int y = idx%fd_.ysz_;
-	if ( (isabove && fd_.input_.get(x,y)<threshold) ||
-	     (!isabove && fd_.input_.get(x,y)>threshold) )
+	int pos[2];
+	if ( !fd_.input_.info().getArrayPos( idx, pos ) )
 	    continue;
-    
-	const int x_left = mMAX(0,x-ngate_2);
-	const int x_right = mMIN(fd_.xsz_-1,x+ngate_2);
-	const int y_left = mMAX(0,y-ngate_2);
-	const int y_right = mMIN(fd_.ysz_-1,y+ngate_2);
-    
+
+	if ( (isabove && fd_.input_.get(pos[0],pos[1])<threshold) ||
+	     (!isabove && fd_.input_.get(pos[0],pos[1])>threshold) )
+	    continue;
+
+	const int x_left = mMAX(0,pos[0]-xgate);
+	const int x_right = mMIN(fd_.xsz_-1,pos[0]+xgate);
+	const int y_left = mMAX(0,pos[1]-ygate);
+	const int y_right = mMIN(fd_.ysz_-1,pos[1]+ygate);
+
 	float x_mean = 0.0;
 	float y_mean = 0.0;
 	TypeSet<int> xs, ys;
@@ -188,7 +214,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		{
 		    xs += kx;
 		    ys += ky;
-	    
+
 		    x_mean += kx;
 		    y_mean += ky;
 		}
@@ -201,7 +227,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	x_mean /= npoints;
 	y_mean /= npoints;
-	
+
 	/*get the covariance for x and y*/
 	float var_xx = 0.0;
 	float var_yy = 0.0;
@@ -216,7 +242,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	var_xx /= (npoints-1);
 	var_yy /= (npoints-1);
 	var_xy /= (npoints-1);
-	
+
 	const float d0[] = { var_xx, var_xy };
 	const float d1[] = { var_xy, var_yy };
 	PCA pca(2);
@@ -234,10 +260,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( eratio<0.5 )
 	    continue;
 
-	float dip = 
+	float dip =
 	    fd_.xdist_*eigenvec0[0]/(fd_.ydist_*eigenvec0[1]);
 	//dip = atan(eigenvec1[1]/eigenvec1[0])*mRad2Angle;
-    	fd_.dip_->set( x, y, dip );
+	fd_.dip_->set( pos[0], pos[1], dip );
     }
 
     return true;
@@ -280,9 +306,9 @@ Dip2D::Dip2D( const Array2D<float>& input, float xdist, float ydist )
     : input_(input)
     , xsz_(input.info().getSize(0))
     , ysz_(input.info().getSize(1))
-    , xdist_(xdist)  
-    , ydist_(ydist)  
-{ 
+    , xdist_(xdist)
+    , ydist_(ydist)
+{
     dip_ = new Array2DImpl<float>( xsz_, ysz_ );
     if ( !dip_ ) return;
     dip_->setAll( 0 );
@@ -317,8 +343,8 @@ Dip2D::~Dip2D()
 
 
 const Array2D<float>* Dip2D::get( Output ro ) const
-{ 
-    return ro==Dip ? dip_ : (ro==Dilation ? dilation_ : dthinner_); 
+{
+    return ro==Dip ? dip_ : (ro==Dilation ? dilation_ : dthinner_);
 }
 
 
@@ -339,14 +365,14 @@ bool Dip2D::fillGap()
 {
     // generate the angle set
     TypeSet<int> angleset;
-    for ( int angle=setup_.thetarg_.start; angle<=setup_.thetarg_.stop; 
+    for ( int angle=setup_.thetarg_.start; angle<=setup_.thetarg_.stop;
 	    angle += setup_.thetarg_.step )
 	angleset += angle;
     for ( int angle=-setup_.thetarg_.stop; angle<=-setup_.thetarg_.start;
 	    angle += setup_.thetarg_.step )
 	angleset += angle;
     const int nangle = angleset.size();
-    if ( !nangle ) 
+    if ( !nangle )
 	return false;
 
     const int min_npoixsz_needed = setup_.boxlength_*setup_.boxwidth_;
@@ -365,37 +391,37 @@ bool Dip2D::fillGap()
 
     mDeclareAndTryAlloc( PtrMan<Array3D<int> >, accumulator,
 	    Array3DImpl<int>(xsz_,ysz_,nangle) );
-    if ( !accumulator ) 
+    if ( !accumulator )
 	return false;
 
     fault_dip_collection->setAll(0);
     accumulator->setAll(0);
 
     const double fault_dip_threshold = 10;
-    
+
     for (int jtrace=0; jtrace<ysz_; jtrace++ )
     {
 	for ( int jt=xsz_-1; jt>=0; jt-- )
 	{
 	    if ( fabs(dip_->get(jt,jtrace))>fault_dip_threshold )
 		continue;
-	    
+
 	    for ( int jangle=0; jangle<nangle; jangle++ )
 	    {
-                /*find the line function passing current point using curent 
+		/*find the line function passing current point using curent
 		  angle, ax + by + c = 0 */
 		float arc = (float)( mDeg2RadF*angleset[jangle] );
 		float slope =  tan(arc);
 		float a_term = -slope;
 		float b_term = 1;
 		float c_term = slope*jtrace-jt;
-		
+
                 // check the boundary
 		int jt_left = mMAX(0,jt-setup_.boxlength_);
 		int jt_right = mMIN(xsz_-1,jt+setup_.boxlength_);
 		int jtrace_left = mMAX(0,jtrace-setup_.boxlength_);
 		int jtrace_right = mMIN(ysz_-1,jtrace+setup_.boxlength_);
-		
+
                 // collect points in current window
 		for ( int ktrace=jtrace_left; ktrace<=jtrace_right; ktrace++ )
 		{
@@ -406,17 +432,17 @@ bool Dip2D::fillGap()
 			    Math::Sqrt(a_term*a_term+b_term*b_term);
 			float numerator = fabs(a_term*ktrace+b_term*kt+c_term);
 			float distance = numerator/denominator;
-			
+
 			//collection the non-zero value points
-			if ( distance<=setup_.boxwidth_ && 
+			if ( distance<=setup_.boxwidth_ &&
 			     fabs(dip_->get(kt,ktrace))>fault_dip_threshold )
 			{
-    			    accumulator->set( jt, jtrace, jangle, 
-    				    accumulator->get(jt,jtrace,jangle)+1 );
-    			    int jpoint = accumulator->get(jt,jtrace,jangle);
-    			    int pos[4] = { jt, jtrace, jangle, jpoint };
-    			    fault_dip_collection->setND(pos,
-				    dip_->get(kt,ktrace));	
+			    accumulator->set( jt, jtrace, jangle,
+				    accumulator->get(jt,jtrace,jangle)+1 );
+			    int jpoint = accumulator->get(jt,jtrace,jangle);
+			    int pos[4] = { jt, jtrace, jangle, jpoint };
+			    fault_dip_collection->setND(pos,
+				    dip_->get(kt,ktrace));
 			}
 		    }
 		}
@@ -427,7 +453,7 @@ bool Dip2D::fillGap()
 /*
     dot produce to get the energy in each angle zone
     angle_zone_energy:		the energy in current angle zone
-    min_npoixsz_needed: 	minimum point number needed for a valid zone
+    min_npoixsz_needed: minimum point number needed for a valid zone
 				identified
 */
 
@@ -444,7 +470,7 @@ bool Dip2D::fillGap()
 	{
 	    if ( fabs(dip_->get(jt,jtrace))>fault_dip_threshold )
 		continue;
-	    
+
 	    for ( int jangle=0; jangle<nangle; jangle++ )
 	    {
 		float arc = (float)( angleset[jangle]*mDeg2RadF );
@@ -453,7 +479,7 @@ bool Dip2D::fillGap()
 		int npoint = accumulator->get(jt,jtrace,jangle);
 		if ( npoint<min_npoixsz_needed )
 		    continue;
-		
+
 		for ( int jpoint=0; jpoint<npoint; jpoint++ )
 		{
 		    int pos[4] = { jt, jtrace, jangle, jpoint };
@@ -472,33 +498,33 @@ bool Dip2D::fillGap()
     /*value current zero degree point*/
     mDynamicCastGet(Array2DImpl<float>*, dilationcp, dilation_);
     dilationcp->copyFrom( *dip_ );
-    
+
     /*energy threshold
       energy_threshold:         threshold based on angle diffrence
-      energy_threshold_percent: the point percent which have the value of 
+      energy_threshold_percent: the point percent which have the value of
       energy_threshold */
     const float energy_threshold = (float) cos(30*mDeg2RadF);
     const float energy_threshold_percent = 0.7;
-    
+
     for ( int jtrace=0; jtrace<ysz_; jtrace++ )
     {
 	for ( int jt=xsz_-1; jt>=0; jt-- )
 	{
 	    if ( fabs(dip_->get(jt,jtrace))>fault_dip_threshold )
 		continue;
-	    
+
 	    /*find the maximu and minimum*/
 	    float max_energy_angle mUnusedVar = 0;
 	    /*max_energy = angle_zone_energy->jt,jtrace,1);
 	      min_energy = angle_zone_energy->jt,jtrace,1);*/
-	      
+
 	    int max_energy_index = 1;
 	    int min_energy_index mUnusedVar = 1;
-	    
+
 	    float max_energy = -999;
 	    float min_energy = 999;
 	    int angle_flag = 0;
-	    
+
 	    for ( int jangle=0; jangle<nangle; jangle++ )
 	    {
 		int npoint = accumulator->get(jt,jtrace,jangle);
@@ -515,24 +541,24 @@ bool Dip2D::fillGap()
 		if ( cureng<min_energy )
 		{
 		    min_energy = cureng;
-    		    min_energy_index = jangle;
-		}	
+		    min_energy_index = jangle;
+		}
 
 		angle_flag = 1;
 	    }
 
 	    const int npoint = accumulator->get(jt,jtrace,max_energy_index);
-	    const float energy_thresholdCurrent = 
+	    const float energy_thresholdCurrent =
 		npoint*energy_threshold*energy_threshold_percent;
 	    if  ( max_energy<energy_thresholdCurrent || angle_flag!=1 )
 		continue;
 
-	    /* angle_index = fabs(min_energy)>fabs(max_energy) ? 
+	    /* angle_index = fabs(min_energy)>fabs(max_energy) ?
 		min_energy_index : max_energy_index;*/
 	    dilation_->set(jt,jtrace,mCast(float,angleset[max_energy_index]));
 	}
     }
-    
+
     /*skeletonization*/
     mDeclareAndTryAlloc( PtrMan<Array2D<char> >, invalid_marker,
 	    Array2DImpl<char>(xsz_,ysz_) );
@@ -540,7 +566,7 @@ bool Dip2D::fillGap()
 	return false;
 
     invalid_marker->setAll(0);
-    const int min_pixel_width = setup_.boxlength_*2+1;		
+    const int min_pixel_width = setup_.boxlength_*2+1;
     for ( int jtrace=0; jtrace<ysz_; jtrace++ )
     {
 	for ( int jt=0; jt<xsz_; jt++ )
@@ -550,7 +576,7 @@ bool Dip2D::fillGap()
 		continue;
 
 	    int positive_negative_flag = dilation>fault_dip_threshold ? 1 : -1;
-     
+
 	    /*find the left most point location which has the same sign with
 	      dip vaule of current point */
 
@@ -588,12 +614,12 @@ bool Dip2D::fillGap()
 		if ( positive_negative_flag!=positive_negative_flag_local )
 		    break;
 	    }
-	
+
 	    /*check the pixel width after dilation*/
 	    int pixel_width = jtrace_right-jtrace_left;
 	    if ( pixel_width<=min_pixel_width )
 		continue;
-	    
+
 	    int jtrace_right_original = jtrace_right;
 	    int jtrace_left_original = jtrace_left;
 	    /*get the pixel width before dilation*/
@@ -606,10 +632,10 @@ bool Dip2D::fillGap()
 			 positive_negative_flag_local1 = -1;
 		    else
 			 positive_negative_flag_local1 = 0;
-	     
+
 		    if ( positive_negative_flag_local1!=positive_negative_flag )
 		    break;*/
-		
+
 		if ( fabs(dip_->get(jt,ktrace))>fault_dip_threshold )
 		    break;
 	    }
@@ -623,21 +649,21 @@ bool Dip2D::fillGap()
 			positive_negative_flag_local1 = -1;
 		else
 			positive_negative_flag_local1 = 0;
-		
+
 		if abs(positive_negative_flag_local1-positive_negative_flag)>0.1
 		    break;*/
-		
+
 		if ( fabs(dip_->get(jt,ktrace))>fault_dip_threshold )
 		    break;
 	    }
-	
+
 	    /*maker the useless interpolated value*/
 	    for (int ktrace=jtrace_left;ktrace<=jtrace_left_original; ktrace++)
 		invalid_marker->set(jt,ktrace,1);
-	
+
 	    for (int ktrace=jtrace_right_original;ktrace<=jtrace_right;ktrace++)
 		invalid_marker->set(jt,ktrace, 1);
-    	}        
+	}
     }
 
     mDynamicCastGet(Array2DImpl<float>*, dthin, dthinner_);
@@ -655,16 +681,16 @@ bool Dip2D::fillGap()
 }
 
 
-Dip3D::Dip3D( const Array3D<float>& input, 
-	float xdist, float ydist, float zdist )
+Dip3D::Dip3D( const Array3D<float>& input, float xdist, float ydist,
+	float zdist )
     : input_(input)
     , xsz_(input.info().getSize(0))
     , ysz_(input.info().getSize(1))
     , zsz_(input.info().getSize(2))
-    , xdist_(xdist)  
-    , ydist_(ydist)  
-    , zdist_(zdist)  
-{ 
+    , xdist_(xdist)
+    , ydist_(ydist)
+    , zdist_(zdist)
+{
     absdip_ = new Array3DImpl<float>( xsz_, ysz_, zsz_ );
     inldip_ = new Array3DImpl<float>( xsz_, ysz_, zsz_ );
     crldip_ = new Array3DImpl<float>( xsz_, ysz_, zsz_ );
@@ -678,11 +704,11 @@ Dip3D::Dip3D( const Array3D<float>& input,
 	delete azimuth_; azimuth_ = 0;
 	return;
     }
-    
-    inldip_->setAll( 0 );
-    crldip_->setAll( 0 );
-    azimuth_->setAll( 0 );
-    absdip_->setAll( 0 );
+
+    inldip_->setAll( mUdf(float) );
+    crldip_->setAll( mUdf(float) );
+    azimuth_->setAll( mUdf(float) );
+    absdip_->setAll( mUdf(float) );
 
     setSetup( setup_ );
 }
@@ -699,8 +725,8 @@ Dip3D::~Dip3D()
 
 const Array3D<float>* Dip3D::get( Output opt ) const
 {
-    return opt==AbsDip ? absdip_ : 
-	(opt==InlDip ? inldip_ : (CrlDip==2 ? crldip_ : azimuth_)); 
+    return opt==AbsDip ? absdip_ :
+	(opt==InlDip ? inldip_ : (opt==CrlDip ? crldip_ : azimuth_));
 }
 
 
