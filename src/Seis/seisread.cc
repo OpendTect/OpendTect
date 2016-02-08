@@ -17,7 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
-#include "seistrctr.h"
+#include "segydirecttr.h"
+#include "segydirectdef.h"
 #include "seis2ddata.h"
 
 #include "binidvalset.h"
@@ -949,7 +950,24 @@ bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
 	if ( !isPrepared() &&
 		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
 	    return false;
-	return strl() ? strl()->getGeometryInfo( cd ) : false;
+
+	// Kludge for 6.0 - because I could not add a virtual function to the
+	// SEGYDirect translator
+
+	SeisTrcTranslator* seistrl = strl();
+	if ( !seistrl )
+	    return false;
+
+	const bool haveinfo = seistrl->getGeometryInfo( cd );
+	if ( haveinfo )
+	    return true;
+
+	mDynamicCastGet(SEGYDirectSeisTrcTranslator*,sgytr,seistrl)
+	if ( !sgytr )
+	    return false;
+
+	cd = sgytr->getDef()->cubeData();
+	return true;
     }
     else if ( !ioobj_ )
 	return false;
