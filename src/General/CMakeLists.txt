@@ -7,7 +7,7 @@
 add_definitions( -DmNoAutoUiString )
 add_custom_command( OUTPUT od_helpids.h
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    ${CMAKE_SOURCE_DIR}/external/doc_csh/od_helpids.h
+                    ${CMAKE_SOURCE_DIR}/external/doc_csh/od_helpids_orig.h
                     ${PROJECT_BINARY_DIR}/include/General/od_helpids.h )
 
 #Force the copy of od_helpids.h before building General
