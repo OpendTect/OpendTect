@@ -178,6 +178,7 @@ public:
 					 const MultiID&) const;
     virtual const char*	iconName() const		{ return "segy"; }
 
+    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
     virtual SEGY::DirectDef* getDef()	{ return def_; }
     virtual bool	goTo(const BinID&);
     virtual uiString	errMsg() const	{ return SeisTrcTranslator::errMsg(); }

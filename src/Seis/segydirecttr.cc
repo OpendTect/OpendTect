@@ -601,3 +601,13 @@ void SEGYDirectSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
     tmptr->toSupported( dc );
     delete tmptr;
 }
+
+
+bool SEGYDirectSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
+{
+    if ( !def_ )
+	return false;
+
+    cd = def_->cubeData();
+    return true;
+}
