@@ -30,7 +30,6 @@ set(OD_MODULE_SOURCES
 	uiconvolveattrib.cc
 	uicrossattrevaluatedlg.cc
 	uideltaresampleattrib.cc
-	uidipfilterattrib.cc
 	uienergyattrib.cc
 	uievaluatedlg.cc
 	uieventattrib.cc

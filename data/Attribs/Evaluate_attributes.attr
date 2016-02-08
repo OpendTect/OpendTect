@@ -19,10 +19,6 @@ Attribute Descriptions
 3.UserRef: Energy
 3.Hidden: No
 3.Input.0: 0
-4.Definition: DipFilter size=9 type=LowPass maxvel=2000 filterazi=no taperlen=10 output=0
-4.UserRef: Velocity fan
-4.Hidden: No
-4.Input.0: 0
 5.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=2
 5.UserRef: Amplitude variance
 5.Hidden: No

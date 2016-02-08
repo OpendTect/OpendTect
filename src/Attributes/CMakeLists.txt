@@ -13,7 +13,6 @@ set(OD_MODULE_SOURCES
 	initattributes.cc
 	convolveattrib.cc
 	deltaresampleattrib.cc
-	dipfilterattrib.cc
 	energyattrib.cc
 	evaluateattrib.cc
 	eventattrib.cc
