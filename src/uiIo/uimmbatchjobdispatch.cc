@@ -203,7 +203,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrpstartfld_ = new uiGenInput( jrppolgrp, uiString::emptyString(),
 				   envstr ? envstr : "18:00" );
 
-    jrpstartfld_->attach( rightOf, jrppolselfld_ );
+    jrpstartfld_->attach( rightOf, jrpworklbl_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
     jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"),
@@ -385,7 +385,7 @@ void uiMMBatchJobDispatcher::jrpSel( CallBacker* )
     const bool doschedule = jrppolselfld_->currentItem() == 2;
     jrpstartfld_->display( doschedule );
     jrpstopfld_->display( doschedule );
-    jrpworklbl_->display( !doschedule );
+    jrpworklbl_->setText( doschedule ? tr("Between") : tr("Processes") );
 }
 
 
