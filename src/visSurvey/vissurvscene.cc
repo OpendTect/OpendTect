@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "binidvalue.h"
+#include "hiddenparam.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
 #include "fontdata.h"
@@ -67,6 +68,8 @@ static const char* sKeyTopImage()	{ return "TopImage"; }
 static const char* sKeyBottomImage()	{ return "BottomImage"; }
 
 
+static HiddenParam<Scene,Threads::Lock*> updatelocks( 0 );
+
 Scene::Scene()
     : tempzstretchtrans_(0)
     , annot_(0)
@@ -102,6 +105,8 @@ Scene::Scene()
 
     setCameraAmbientLight( 1 );
     setup();
+
+    updatelocks.setParam( this, new Threads::Lock );
 }
 
 
@@ -193,6 +198,9 @@ Scene::~Scene()
 
     mRemoveSelector;
     delete zdomaininfo_;
+
+    delete updatelocks.getParam( this );
+    updatelocks.removeParam( this );
 }
 
 
@@ -627,6 +635,9 @@ BufferString Scene::getMousePosString() const
 
 void Scene::objectMoved( CallBacker* cb )
 {
+    Threads::Lock* updatelock = updatelocks.getParam( this );
+    Threads::Locker locker( *updatelock );
+
     ObjectSet<const SurveyObject> activeobjects;
     int movedid = -1;
     for ( int idx=0; idx<size(); idx++ )
@@ -829,7 +840,7 @@ void Scene::mouseCB( CallBacker* cb )
 		break;
 	    }
 	    if ( mousetrckey_.isUdf() )
-		mousetrckey_ = 
+		mousetrckey_ =
 		SI().transform( Coord(xytmousepos_.x,xytmousepos_.y) );
 	}
     }
