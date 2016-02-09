@@ -275,11 +275,13 @@ void uiIOObjSel::init()
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
+    mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
 }
 
 
 uiIOObjSel::~uiIOObjSel()
 {
+    detachAllNotifiers();
     deepErase( inserters_ );
     if ( inctiomine_ )
 	{ delete inctio_.ioobj_; delete &inctio_; }
@@ -288,6 +290,21 @@ uiIOObjSel::~uiIOObjSel()
 
 
 void uiIOObjSel::preFinaliseCB( CallBacker* )
+{
+    initRead();
+}
+
+
+void uiIOObjSel::survChangedCB( CallBacker* )
+{
+    if ( workctio_.ioobj_ )
+	deleteAndZeroPtr( workctio_.ioobj_ );
+
+    initRead();
+}
+
+
+void uiIOObjSel::initRead()
 {
     {
 	NotifyStopper ns( selectionDone );
@@ -340,7 +357,7 @@ void uiIOObjSel::fillEntries()
     }
 
     setEntries( keys, names );
-    if ( !hadselioobj )
+    if ( !hadselioobj && !keys.isEmpty() )
 	workctio_.setObj( 0 );
 }
 
