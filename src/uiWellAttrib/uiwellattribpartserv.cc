@@ -199,9 +199,14 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 {
     WellTie::Setup* wtsetup = new WellTie::Setup();
     wtsetup->wellid_ = wid;
+    if( welltiedlg_ && (welltiedlg_->getWellId()!=wid) )
+    {
+	delete welltiedlg_;
+	welltiedlg_ = 0;
+    }
+
     if ( !welltiedlg_ )
 	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), *wtsetup );
-
     welltiedlg_->raise();
     welltiedlg_->show();
     return true;

@@ -610,4 +610,8 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
     return !is2D && !islineset;
 }
 
+const MultiID& uiTieWinMGRDlg::getWellId() const
+{
+    return wtsetup_.wellid_;
+}
 } // namespace WellTie
