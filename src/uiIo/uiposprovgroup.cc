@@ -149,7 +149,7 @@ void uiRangePosProvGroup::setExtractionDefaults()
 
 void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
-    cs = SI().sampling( false );
+    cs = SI().sampling( true );
     if ( hrgfld_ )
 	cs.hsamp_ = hrgfld_->getSampling();
     if ( nrrgfld_ )
@@ -281,14 +281,14 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
     selfld_ = new uiGenInput(this, tr("Data from"),
-		    BoolInpSpec(true,uiStrings::sPickSet(), 
+		    BoolInpSpec(true,uiStrings::sPickSet(),
 		    uiStrings::phrJoinStrings(uiStrings::sTable(),
 					      uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiIOObjSel( this, ctio_ );
     psfld_->attach( alignedBelow, selfld_ );
     tffld_ = new uiIOFileSelect( this, toUiString(sKey::FileName()), true,
-	    			 GetDataDir(), true );
+				 GetDataDir(), true );
     tffld_->getHistory( uiIOFileSelect::ixtablehistory() );
     tffld_->attach( alignedBelow, selfld_ );
 
