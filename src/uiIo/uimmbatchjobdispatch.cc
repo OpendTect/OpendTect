@@ -242,6 +242,8 @@ uiMMBatchJobDispatcher::~uiMMBatchJobDispatcher()
 void uiMMBatchJobDispatcher::initWin( CallBacker* cb )
 {
     jrpSel( cb );
+    if ( !avmachfld_ )
+	addPush( 0 );
 }
 
 
@@ -380,10 +382,10 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
 
 void uiMMBatchJobDispatcher::jrpSel( CallBacker* )
 {
-    const bool isgo = *jrppolselfld_->text() == 'G';
-    jrpstartfld_->display( isgo );
-    jrpstopfld_->display( isgo );
-    jrpworklbl_->display( !isgo );
+    const bool doschedule = jrppolselfld_->currentItem() == 2;
+    jrpstartfld_->display( doschedule );
+    jrpstopfld_->display( doschedule );
+    jrpworklbl_->display( !doschedule );
 }
 
 
@@ -593,9 +595,9 @@ static int getSecs( const char* txt )
 
 bool uiMMBatchJobDispatcher::isPaused() const
 {
-    const char* txt = jrppolselfld_->text();
-    bool dopause = *txt == 'P';
-    if ( *txt == 'G' )
+    const int jrpol = jrppolselfld_->currentItem();
+    bool dopause = jrpol == 1;
+    if ( jrpol == 2 )
     {
 	const int t = getSecs( Time::getDateTimeString() );
 	const int t0 = getSecs( jrpstartfld_->text() );

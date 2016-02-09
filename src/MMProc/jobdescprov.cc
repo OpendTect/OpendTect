@@ -252,7 +252,7 @@ void InlineSplitJobDescProv::dump( od_ostream& strm ) const
 
 int InlineSplitJobDescProv::defaultNrInlPerJob()
 {
-    int nrinljob = 10;
+    int nrinljob = 25;
     Settings::common().get( IOPar::compKey(mMMKey,mNrInlPerJobKey), nrinljob );
     return nrinljob;
 }
