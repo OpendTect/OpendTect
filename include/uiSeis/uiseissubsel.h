@@ -41,7 +41,7 @@ mExpClass(uiSeis) uiSeisSubSel : public uiGroup
 public:
 
     static uiSeisSubSel* get(uiParent*,const Seis::SelSetup&);
-    virtual		~uiSeisSubSel()					{}
+    virtual		~uiSeisSubSel();
 
     bool		isAll() const;
     void		getSampling(TrcKeyZSampling&) const;
@@ -66,9 +66,10 @@ public:
 
 protected:
 
-    			uiSeisSubSel(uiParent*,const Seis::SelSetup&);
+			uiSeisSubSel(uiParent*,const Seis::SelSetup&);
 
     void		selChangeCB(CallBacker*);
+    void		afterSurveyChangedCB(CallBacker*);
     uiPosSubSel*	selfld_;
 
 };
@@ -78,7 +79,7 @@ mExpClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
 { mODTextTranslationClass(uiSeis3DSubSel);
 public:
 
-    			uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
+			uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
 			    : uiSeisSubSel(p,ss)		{}
 
     void		setInput(const IOObj&);

@@ -52,11 +52,28 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
     selfld_ = new uiPosSubSel( this, pss );
     selfld_->selChange.notify( mCB(this,uiSeisSubSel,selChangeCB) );
     setHAlignObj( selfld_ );
+
+    mAttachCB( IOM().afterSurveyChange, uiSeisSubSel::afterSurveyChangedCB);
+}
+
+
+uiSeisSubSel::~uiSeisSubSel()
+{
+    detachAllNotifiers();
 }
 
 
 void uiSeisSubSel::selChangeCB( CallBacker* )
 { selChange.trigger(); }
+
+
+void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
+{
+    if ( IOM().isBad() )
+	return;
+
+    selfld_->setInputLimit( SI().sampling( true ) );
+}
 
 
 bool uiSeisSubSel::isAll() const

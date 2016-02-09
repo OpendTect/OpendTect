@@ -91,7 +91,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	if ( !setup_.is2d_ )
 	{
 	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
-				tr("Set ranges to full survey"),
+				tr("Set ranges to work area"),
 				 mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );
 	}
@@ -120,7 +120,8 @@ void uiPosProvider::fullSurvPush( CallBacker* )
     const int selidx = selfld_->getIntValue();
     if ( selidx < 0 ) return;
 
-    IOPar iop; SI().sampling(false).fillPar( iop );
+    IOPar iop;
+    SI().sampling( true ).fillPar( iop );
     grps_[selidx]->usePar( iop );
 }
 
@@ -229,7 +230,7 @@ void uiPosProvSel::setCSToAll() const
     if ( setup_.is2d_ )
 	tkzs_.set2DDef();
     else
-	tkzs_ = TrcKeyZSampling(true);
+	tkzs_ = SI().sampling( true );
 }
 
 
@@ -345,7 +346,7 @@ void uiPosProvSel::setToAll()
 
 void uiPosProvSel::doDlg( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup(uiStrings::sPosition(mPlural), 
+    uiDialog dlg( this, uiDialog::Setup(uiStrings::sPosition(mPlural),
 			   uiStrings::phrSpecify(uiStrings::sPosition(mPlural)),
 			   mODHelpKey(mPosProvSelHelpID) ) );
     uiPosProvider* pp = new uiPosProvider( &dlg, setup_ );
