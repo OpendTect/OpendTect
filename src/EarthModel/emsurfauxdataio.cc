@@ -256,6 +256,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , valsleftonsection_(0)
     , shift_(0)
     , stream_(0)
+    , nrsections_(0)
 {
     stream_ = new od_istream( filename );
     if ( !stream_ || !stream_->isOK() )
@@ -358,12 +359,12 @@ int dgbSurfDataReader::nextStep()
 	    if ( nrdone_ )
 	    {
 		sectionindex_++;
-		if ( sectionindex_ >= nrsections_ )
+		if ( sectionindex_ >= nrsections_ || nrsections_ < 0 )
 		    return Finished();
 	    }
 	    else
 	    {
-		if ( !readInt(nrsections_) )
+		if ( !readInt(nrsections_) || nrsections_ < 0 )
 		    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 	    }
 
