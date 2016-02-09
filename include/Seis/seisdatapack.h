@@ -102,7 +102,6 @@ public:
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
 						   int rdlidx,
 						   const Interval<float>& zrg);
-    void			setRandomLineID(int);
 };
 
 

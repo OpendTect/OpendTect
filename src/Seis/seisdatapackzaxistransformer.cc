@@ -69,6 +69,7 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
     else if ( randsdp )
     {
 	RandomSeisDataPack* output = new RandomSeisDataPack( category, desc );
+	output->setRandomLineID( randsdp->getRandomLineID() );
 	output->setPath( randsdp->getPath() );
 	output->setZRange( zrange_ );
 	outputdp_ = output;

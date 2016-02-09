@@ -260,7 +260,7 @@ protected:
     BinDataDesc				desc_;
     const Scaler*			scaler_;
 public:
-    void				setSDPRandomLineID(int);
+    void				setRandomLineID(int);
     int					getRandomLineID() const;
 };
 
