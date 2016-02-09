@@ -235,7 +235,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 	if ( cb )
 	{
 	    BufferString logstr( notokpropnms.size()>1 ? "logs " : "log " );
-	    uiString errmsg = tr("No valid %1 found for%2. Create missing %3"
+	    uiString errmsg = tr("No valid %1 found for %2. Create missing %3"
 				 " here or import through well manager")
 			    .arg(logstr.buf())
 			    .arg(notokpropnms.getDispString())
@@ -440,7 +440,7 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 {
     WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
-	uiMSG().error( tr("Could not write parameters") );
+	uiMSG().error( uiStrings::phrCannotWrite(tr("parameters")) );
 }
 
 
@@ -613,4 +613,9 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
     return !is2D && !islineset;
 }
 
+
+const MultiID& uiTieWinMGRDlg::getWellId() const
+{
+    return wtsetup_.wellid_;
+}
 } // namespace WellTie
