@@ -165,8 +165,10 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt_.forread_ = true;
-    ctio->ctxt_.toselect_.require_.set( sKey::Type(),
-			poly ? sKey::Polygon() : sKey::PickSet() );
+    if ( poly )
+	ctio->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    else
+	ctio->ctxt_.toselect_.dontallow_.set( sKey::Type(), sKey::Polygon() );
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
