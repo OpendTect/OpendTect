@@ -155,6 +155,9 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	return;
 
     const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
+    if ( sectionidx < 0 )
+	return;
+
     if ( !auxdata_.validIdx(sectionidx) )
     {
 	for ( int idx=auxdata_.size(); idx<horizon_.nrSections(); idx++ )
@@ -167,6 +170,9 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
     const BinID geomrc( posid.getRowCol() );
+    if ( geomrc.isUdf() )
+	return;
+
     const BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
     if ( !pos.isValid() )
     {
