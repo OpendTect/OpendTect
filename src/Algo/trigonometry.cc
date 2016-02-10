@@ -308,7 +308,8 @@ Line2::Line2( const Coord& pt, double slope )
     , stop_(mUdf(double),mUdf(double))
 {
     isvertical_ = mIsUdf(slope_) ? true : false;
-    xintcpt_ = isvertical_ ? pt.x : mUdf(double);
+    xintcpt_ = isvertical_ ? pt.x :
+	(mIsZero(slope,mDefEps) ? mUdf(double) : pt.x-pt.y/slope);
     yintcpt_ = isvertical_ ? mUdf(double) : pt.y - slope_ * pt.x;
 }
 
@@ -452,7 +453,8 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 
 bool Line2::isOnLine( const Coord& pt ) const
 {
-    return mIsEqual(pt.y,slope_*pt.x+yintcpt_,0.0001);
+    return isvertical_ ? mIsEqual(pt.x,xintcpt_,0.0001) :
+	mIsEqual(pt.y,slope_*pt.x+yintcpt_,0.0001);
 }
 
 
