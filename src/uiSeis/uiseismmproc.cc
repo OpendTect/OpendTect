@@ -66,7 +66,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
 
 	if ( !insettings )
 	{
-	    nr_inl_job = 3;
+	    nr_inl_job = InlineSplitJobDescProv::defaultNrInlPerJob();
 	    iopar->set( mNrInlPerJobSettKey, nr_inl_job );
 
 	    Settings::common().mergeComp( *iopar, mMMKey );
@@ -149,7 +149,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	    uiString msg = uiStrings::sTmpStor();
 	    uiLabel* tmpstorloc = new uiLabel( specparsgroup_, msg );
 
-	    inlperjobattach = new uiLabel( specparsgroup_, 
+	    inlperjobattach = new uiLabel( specparsgroup_,
 						    toUiString(tmpstordir) );
 	    inlperjobattach->attach( rightOf, tmpstorloc );
 	}
