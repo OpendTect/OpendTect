@@ -26,6 +26,7 @@ public:
 			~uiODHorizonParentTreeItem();
 
     virtual void	removeChild(uiTreeItem*);
+    MenuItem		newmenu_;
 
 protected:
 			mMenuOnAnyButton
@@ -36,6 +37,8 @@ protected:
 			{ return typeid(uiODTreeTop).name(); }
 
     void		sort();
+    MenuItem		trackitem_;
+    MenuItem		constzitem_;
 };
 
 

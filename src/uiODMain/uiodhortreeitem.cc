@@ -57,10 +57,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mFullIdx	6
 #define mSectFullIdx	7
 
+#define mTrackIdx	100
+#define mConstIdx	10
+
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem(
-	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()) )
+	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()))
+    , newmenu_(uiStrings::sNew())
+    , trackitem_(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx)
+    , constzitem_(m3Dots(tr("With Constant Z")),mConstIdx)
 {
+    newmenu_.addItem( &trackitem_ );
+    newmenu_.addItem( &constzitem_ );
 }
 
 
@@ -101,15 +109,13 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
     mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),
-                    mAddAtSectIdx);
+		    mAddAtSectIdx);
     mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
-    mnu.insertItem( newmenu, mNewIdx );
+    uiMenu* newmenu = new uiMenu( newmenu_ );
+    mnu.insertItem( newmenu );
     newmenu->setEnabled( !hastransform && SI().has3D() );
 
-    mnu.insertItem( new uiAction(m3Dots(tr("Create with Constant Z"))),
-		    mCreateIdx );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -148,7 +154,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
 	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), false );
     }
-    else if ( mnuid == mNewIdx )
+    else if ( mnuid == trackitem_.id )
     {
 	if ( !applMgr()->visServer()->
 			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
@@ -181,7 +187,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
-    else if ( mnuid == mCreateIdx )
+    else if ( mnuid == constzitem_.id )
     {
 	applMgr()->EMServer()->createHorWithConstZ( false );
     }
@@ -328,7 +334,7 @@ uiString uiODHorizonTreeItem::createDisplayName() const
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
 	res.append( toUiString(" (%1)").arg(
-          toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
+	  toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
     }
 
     return res;

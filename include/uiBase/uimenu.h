@@ -68,9 +68,10 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 public:
 			uiMenu(const uiString& txt=uiString::emptyString(),
 			       const char* iconnm=0);
-
+			uiMenu(const MenuItem&);
 			~uiMenu();
 
+    void		addItems(const ObjectSet<MenuItem>&);
     bool		isStandAlone() const { return !submenuaction_; }
 			/*!\returns true if this menu is not
 			    inserted into a menu with an item that
