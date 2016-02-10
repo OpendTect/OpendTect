@@ -90,9 +90,9 @@ int Processor::nextStep()
 	return ErrorOccurred();
     }
 
-    if ( useshortcuts_ ) 
+    if ( useshortcuts_ )
 	provider_->setUseSC();
-    
+
     int res;
     res = provider_->moveToNextTrace();
     if ( res < 0 || !nriter_ )
@@ -110,7 +110,7 @@ int Processor::nextStep()
     nriter_++;
     return res;
 }
-    
+
 
 void Processor::useFullProcess( int& res )
 {
@@ -126,8 +126,8 @@ void Processor::useFullProcess( int& res )
 	else
 	{
 	    const BinID step = provider_->getStepoutStep();
-	    firstpos.inl() = step.inl()/abs(step.inl())>0 ? 
-			   provider_->getDesiredVolume()->hsamp_.start_.inl() :	
+	    firstpos.inl() = step.inl()/abs(step.inl())>0 ?
+			   provider_->getDesiredVolume()->hsamp_.start_.inl() :
 			   provider_->getDesiredVolume()->hsamp_.stop_.inl();
 	    firstpos.crl() = step.crl()/abs(step.crl())>0
 		? provider_->getDesiredVolume()->hsamp_.start_.crl()
@@ -135,7 +135,7 @@ void Processor::useFullProcess( int& res )
 	}
 	provider_->resetMoved();
 	res = provider_->moveToNextTrace( firstpos, true );
-	
+
 	if ( res < 0 )
 	{
 	    errmsg_ = tr("Error during data read");
@@ -170,7 +170,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     if ( is2d_ && curtrcinfo )
     {
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
-	if ( locoutp || taboutp ) 
+	if ( locoutp || taboutp )
 	    curbid = curtrcinfo->binid;
 	else
 	{
@@ -192,12 +192,14 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 			 Survey::GM().getGeometry(geomid) );
 	PosInfo::Line2DPos pos2d;
-	if ( geom2d && geom2d->data().getPos(curtrcinfo->nr,pos2d) )
+	const int trcnr = curtrcinfo ? curtrcinfo->nr : mytrcinfo.nr;
+	if ( geom2d && geom2d->data().getPos(trcnr,pos2d) )
 	{
 	    if ( !curtrcinfo )
 		mytrcinfo.coord = pos2d.coord_;
+
 	    if ( taboutp )
-		tracekey = TrcKey( geomid, curtrcinfo->nr );
+		tracekey = TrcKey( geomid, trcnr );
 	}
 	else if ( !curtrcinfo )
 	    mytrcinfo.coord = SI().transform( mytrcinfo.binid );
@@ -213,7 +215,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
-	const DataHolder* data = isset ? 
+	const DataHolder* data = isset ?
 				provider_->getData( BinID(0,0), idi ) : 0;
 	if ( data )
 	{
@@ -229,7 +231,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 						*curtrcinfo );
 	    }
 	}
-	
+
 	if ( isset )
 	    nrdone_++;
     }
@@ -285,7 +287,7 @@ void Processor::init()
 
     }
     computeAndSetRefZStepAndZ0();
-    provider_->prepPriorToBoundsCalc();    
+    provider_->prepPriorToBoundsCalc();
 
     prepareForTableOutput();
 
@@ -302,7 +304,7 @@ void Processor::init()
 
     mDynamicCastGet(const DataPackOutput*,dpoutput,outputs_[0]);
     if ( dpoutput && provider_->getDesc().isStored() )
-    	useshortcuts_ = true;
+	useshortcuts_ = true;
     else
 	provider_->prepareForComputeData();
 
@@ -320,7 +322,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	    if ( provider_->isOutputEnabled(idx) )
 		outpinterest_.addIfNew( idx );
     }
-    
+
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	TrcKeyZSampling cs;
@@ -395,8 +397,8 @@ void Processor::prepareForTableOutput()
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( locoutp || taboutp )
 	{
-	    Interval<float> extraz( -2*provider_->getRefStep(), 
-		    		    2*provider_->getRefStep() );
+	    Interval<float> extraz( -2*provider_->getRefStep(),
+				    2*provider_->getRefStep() );
 	    provider_->setExtraZ( extraz );
 	    provider_->setNeedInterpol(true);
 	}
@@ -452,13 +454,13 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 
 	provider_->resetDesiredVolume();
 	globalcs.limitToWithUdf( possvol );
-	
+
 	provider_->setDesiredVolume( globalcs );
     }
 }
 
 
-bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals, 
+bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 			       const BinID& curbid, const Coord& curcoords )
 {
 TrcKey tkey;
@@ -495,7 +497,7 @@ bool Processor::setZIntervalsSpecial60(
 	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp
 	    ? taboutp->getLocalZRanges( tkey, refzstep, exactz )
 	    : outputs_[idx]->useCoords()
-	    	? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
+		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
 
 	if ( isset )
@@ -507,7 +509,7 @@ bool Processor::setZIntervalsSpecial60(
 	}
     }
 
-    if ( isset ) 
+    if ( isset )
     {
 	provider_->addLocalCompZIntervals( localintervals );
 	if ( !exactz.isEmpty() )
