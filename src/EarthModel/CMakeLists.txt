@@ -44,6 +44,7 @@ set(OD_MODULE_SOURCES
 		emrandlinegen.cc
 		emregion.cc
 		emrowcoliterator.cc
+		emstoredobjaccess.cc
 		emsurface.cc
 		emsurfaceauxdata.cc
 		emsurfacegeometry.cc
