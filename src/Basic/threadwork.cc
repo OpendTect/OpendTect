@@ -46,22 +46,22 @@ Threads::WorkManager& WorkManager::twm()
 class SimpleWorker : public CallBacker
 {
 public:
-			SimpleWorker() : retval_( false )	{}
+			SimpleWorker() : exitstatus_( false )	{}
     virtual		~SimpleWorker()				{}
 
     void		runWork(Work& w,CallBack* cb)
 			{
-			    retval_ = w.doRun();
+			    exitstatus_ = w.doRun();
 			    if ( cb ) cb->doCall( this );
 			}
 
-    bool		getRetVal() const	{ return retval_; }
+    bool		getExitStatus() const	{ return exitstatus_; }
 			/*!< Do only call when task is finished,
 			     i.e. from the cb or
 			     Threads::WorkManager::imFinished()
 			*/
 protected:
-    bool		retval_;
+    bool		exitstatus_;
 };
 
 
@@ -190,7 +190,7 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    controlcond_.unLock(); //Allow someone to set the exitflag
 	    bool retval = cancelflag_ ? false : task_.doRun();
 	    controlcond_.lock();
-	    retval_ = retval;
+	    exitstatus_ = retval;
 
 	    finishedcb_.doCall( this );
 	    manager_.workloadcond_.lock();
@@ -620,16 +620,15 @@ bool Threads::WorkManager::removeWork( const ::Threads::Work& task )
 
 const ::Threads::Work* Threads::WorkManager::getWork(CallBacker* cb) const
 {
-    if ( !cb ) return 0;
+    mDynamicCastGet( ::Threads::WorkThread*, wthread, cb );
+    return wthread ?  wthread->getTask() : 0;
+}
 
-    //Why not go through workload?
-    for ( int idx=0; idx<threads_.size(); idx++ )
-    {
-	if ( threads_[idx]==cb )
-	    return threads_[idx]->getTask();
-    }
 
-    return 0;
+bool Threads::WorkManager::getWorkExitStatus(CallBacker* cb) const
+{
+    mDynamicCastGet( ::Threads::WorkThread*, wthread, cb );
+    return wthread ?  wthread->getExitStatus() : false;
 }
 
 
@@ -653,7 +652,7 @@ public:
 			Threads::SimpleWorker* worker =
 				    dynamic_cast<Threads::SimpleWorker*>( cb );
 			rescond_.lock();
-			if ( error_ || !worker->getRetVal() )
+			if ( error_ || !worker->getExitStatus() )
 			    error_ = true;
 
 			nrfinished_++;
