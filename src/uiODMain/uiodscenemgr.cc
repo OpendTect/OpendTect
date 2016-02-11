@@ -568,7 +568,7 @@ void uiODSceneMgr::setStereoType( int type )
 	    {
 		return;
 	    }
-		    
+
 	    if ( !dontaskagain )
 	    {
 		Settings::common().setYN( sKeyWarnStereo, false );
@@ -1221,7 +1221,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 
     if (  MPE::engine().getTrackerByObject(obj->id()) != -1 )
 	MPE::engine().addTracker( obj );
-    
+
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
@@ -1491,6 +1491,9 @@ HelpKey uiKeyBindingSettingsGroup::helpKey() const
 
 bool uiKeyBindingSettingsGroup::acceptOK()
 {
+    if ( !keybindingfld_ )
+	return true;
+
     TypeSet<int> sceneids;
     if ( ODMainWin()->applMgr().visServer() )
 	ODMainWin()->applMgr().visServer()->getSceneIds( sceneids );
@@ -1513,7 +1516,7 @@ bool uiKeyBindingSettingsGroup::acceptOK()
     for ( int idx=0; idx<allviewers.size(); idx++ )
     {
 	const_cast<uiGraphicsViewBase*>(allviewers[idx])
-        		->setMouseWheelReversal( reversedwheel );
+		->setMouseWheelReversal( reversedwheel );
     }
 
     if ( trackpadzoomspeedfld_ )
