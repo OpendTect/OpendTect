@@ -64,7 +64,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DFaultSS2DTreeItem);
 public:
     			uiODVw2DFaultSS2DTreeItem(const EM::ObjectID&);
 			uiODVw2DFaultSS2DTreeItem(int dispid,bool dummy);
@@ -92,6 +92,7 @@ protected:
 
     EM::ObjectID	emid_;
     VW2DFaultSS2D*	fssview_;
+    void		renameVisObj();
 };
 
 

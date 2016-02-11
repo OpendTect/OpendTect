@@ -181,6 +181,8 @@ public:
     void			addNewTempFaultSS2D(EM::ObjectID mid);
     void			getLoadedFaultSS2Ds(
 					 TypeSet<EM::ObjectID>&) const;
+    void			getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+						    TypeSet<int>& vw2ids) const;
 };
 
 #endif

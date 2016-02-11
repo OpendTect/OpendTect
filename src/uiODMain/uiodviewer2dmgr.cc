@@ -149,8 +149,10 @@ void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
 {
     TypeSet<EM::ObjectID> emids;
     getLoadedFaultSSs( emids );
+    getLoadedFaultSS2Ds( emids );
     appl_.sceneMgr().getLoadedEMIDs(emids,EM::FaultStickSet::typeStr());
     vwr2d->addFaultSSs( emids );
+    vwr2d->addFaultSS2Ds( emids );
 }
 
 
@@ -1202,6 +1204,14 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
     if ( emids.isPresent(emid) )
 	return;
     appl_.sceneMgr().addEMItem( emid );
+}
+
+
+void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+					TypeSet<int>& vw2dobjids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getFaultSS2DVwr2DIDs( emid, vw2dobjids );
 }
 
 

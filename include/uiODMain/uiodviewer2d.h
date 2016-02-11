@@ -251,6 +251,8 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID emid);
+    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
+						TypeSet<int>& vw2ds) const;
 };
 
 #endif
