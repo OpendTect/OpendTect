@@ -452,6 +452,9 @@ bool ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	currentstep->setOutput( outputslotid, outcube,
 				stepoutputhrg, stepoutputzrg );
 
+	//The step should have reffed it, so we can forget it now.
+	outcube->release();
+
 	TypeSet<Chain::Connection> outputconnections;
 	chainexec_.web_.getConnections( currentstep->getID(),
 					false, outputconnections );

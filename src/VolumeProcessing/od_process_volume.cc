@@ -124,7 +124,8 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    const RegularSeisDataPack* cube = pce->getOutput();
+    ConstDataPackRef<RegularSeisDataPack> cube = pce->getOutput();
+    if ( cube ) DPM( DataPackMgr::SeisID() ).obtain( cube->id() );
     ConstPtrMan<VelocityDesc> veldesc = chain->getVelDesc()
 	? new VelocityDesc( *chain->getVelDesc() )
 	: 0;
