@@ -151,10 +151,10 @@ DataPackMgr::DataPackMgr( DataPackMgr::ID dpid )
 DataPackMgr::~DataPackMgr()
 {
 #ifdef __debug__
-    //Don't do in release mode, as we may have race conditions of static
+    //Don't do in release mode, as we may have race conditions of sta-tic
     //variables deleting at different times
     for ( int idx=0; idx<packs_.size(); idx++ )
-    {
+    { //Using std C++ function because we cannot use pErrMsg or BufferString
 	std::cerr << "(PE) DataPackMgr | Datapack " << packs_[idx]->id();
 	if ( packs_[idx]->category() )
 	    std::cerr << " with category " << packs_[idx]->category();

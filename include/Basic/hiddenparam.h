@@ -84,7 +84,7 @@ HiddenParam<O,V>::~HiddenParam()
 #ifdef __debug__
     Threads::Locker locker( lock_ );
     if ( objects_.size() )
-    {
+    { //Using std C++ function because we cannot use pErrMsg or BufferString
 	std::cerr << "(PE) HiddenParam | Deleting a HiddenParam prematurely\n";
     }
 #endif
