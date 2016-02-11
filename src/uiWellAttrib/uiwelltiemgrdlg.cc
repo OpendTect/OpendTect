@@ -336,6 +336,14 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 {
     if ( !wtsetup_.seisid_.isEmpty() )
     {
+	PtrMan<IOObj> ioobj = IOM().get( wtsetup_.seisid_ );
+	if ( !ioobj )
+	{
+	    uiString errmsg = tr("The Seismic data in the stored setup "
+				 "does not exist anymore.");
+	    mErrRet( errmsg );
+	}
+
 	const bool idinsetupis2d = !seisIDIs3D( wtsetup_.seisid_ );
 	const bool surveyhastype = idinsetupis2d ? SI().has2D() : SI().has3D();
 	if ( !surveyhastype )
@@ -607,6 +615,9 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( seisid );
+    if ( !ioobj )
+	return true;
+
     const bool is2D = SeisTrcTranslator::is2D(*ioobj,true);
     const bool islineset = SeisTrcTranslator::isLineSet(*ioobj);
 
