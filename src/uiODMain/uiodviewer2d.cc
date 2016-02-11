@@ -1304,6 +1304,21 @@ void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 }
 
 
+void uiODViewer2D::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+				     TypeSet<int>& vw2dobjids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,faultsspitem,
+			treetp_->getChild(idx))
+	if ( faultsspitem )
+	    faultsspitem->getFaultSS2DVwr2DIDs( emid, vw2dobjids );
+    }
+}
+
+
 void uiODViewer2D::removeFaultSS2D( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;

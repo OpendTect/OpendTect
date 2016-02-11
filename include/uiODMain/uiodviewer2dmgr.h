@@ -99,6 +99,8 @@ public:
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
     //FaultStickSet2D
+    void			getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+						    TypeSet<int>& vw2ids) const;
     void			removeFaultSS2D(EM::ObjectID emid);
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID mid);

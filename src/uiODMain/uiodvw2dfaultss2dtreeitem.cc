@@ -73,6 +73,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addNewTempFaultSS2D( emo->id() );
+	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
 	applMgr()->viewer2DMgr().addNewTempFaultSS2D( emo->id() );
     }
     else if ( mnuid == 1 || mnuid == 2 )
@@ -86,6 +87,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 	{
 	    addFaultSS2Ds( emids );
 	    applMgr()->viewer2DMgr().addFaultSS2Ds( emids );
+	    applMgr()->viewer2DMgr().addFaultSSs( emids );
 	}
 	else
 	    addFaultSS2Ds( emids );
@@ -337,6 +339,17 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 }
 
 
+void uiODVw2DFaultSS2DTreeItem::renameVisObj()
+{
+    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+    TypeSet<int> visobjids;
+    applMgr()->visServer()->findObject( midintree, visobjids );
+    for ( int idx=0; idx<visobjids.size(); idx++ )
+	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+    applMgr()->visServer()->triggerTreeUpdate();
+}
+
+
 bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
@@ -345,7 +358,10 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 			 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction( uiStrings::sSaveAs()), 1 );
-    mnu.insertItem( new uiAction( uiStrings::sRemove()), 2 );
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove() );
+    removemenu->insertItem( new uiAction(tr("From all 2D Viewers")), 2 );
+    removemenu->insertItem( new uiAction(tr("Only from this 2D Viewer")), 3 );
+    mnu.insertItem( removemenu );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 || mnuid == 1 )
@@ -361,9 +377,25 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	name_ = applMgr()->EMServer()->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	renameVisObj();
     }
-    else if ( mnuid == 2 )
-	parent_->removeChild( this );
+    else if ( mnuid == 2 || mnuid == 3 )
+    {
+	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
+	    return true;
+	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	renameVisObj();
+	bool doremove =
+	    !applMgr()->viewer2DMgr().isItemPresent( parent_ ) || mnuid == 3;
+	if ( mnuid == 2 )
+	{
+	    applMgr()->viewer2DMgr().removeFaultSS( emid_ );
+	    applMgr()->viewer2DMgr().removeFaultSS2D( emid_ );
+	}
+
+	if ( doremove )
+	    parent_->removeChild( this );
+    }
 
     return true;
 }

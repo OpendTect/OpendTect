@@ -75,6 +75,7 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 	emo->setFullyLoaded( true );
 	addNewTempFaultSS( emo->id() );
 	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
+	applMgr()->viewer2DMgr().addNewTempFaultSS2D( emo->id() );
     }
     else if ( mnuid == 1 || mnuid==2 )
     {
@@ -88,6 +89,7 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 	{
 	    addFaultSSs( emids );
 	    applMgr()->viewer2DMgr().addFaultSSs( emids );
+	    applMgr()->viewer2DMgr().addFaultSS2Ds( emids );
 	}
 	else
 	    addFaultSSs( emids );
@@ -367,9 +369,14 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	    return true;
 	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 	renameVisObj();
-	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ );
+	bool doremove =
+	    !applMgr()->viewer2DMgr().isItemPresent( parent_ ) || mnuid == 3;
 	if ( mnuid == 2 )
+	{
+	    applMgr()->viewer2DMgr().removeFaultSS2D( emid_ );
 	    applMgr()->viewer2DMgr().removeFaultSS( emid_ );
+	}
+
 	if ( doremove )
 	    parent_->removeChild( this );
     }
