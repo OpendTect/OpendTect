@@ -10,28 +10,40 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emobject.h"
 #include "executor.h"
+#include "threadwork.h"
 
 
 namespace EM
 {
 
-class StoredObjAccessData
+class StoredObjAccessData : public CallBacker
 { mODTextTranslationClass(StoredObjAccessData)
 public:
 
 		    StoredObjAccessData(const MultiID&);
 		    ~StoredObjAccessData();
 
-    bool	    isErr() const	{ return !errmsg_.isEmpty(); }
+    bool		isErr() const	{ return !errmsg_.isEmpty(); }
 
-    MultiID	    key_;
-    EM::EMObject*   obj_;
-    Executor*	    rdr_;
-    uiString	    errmsg_;
+    MultiID		key_;
+    EM::EMObject*	obj_;
+    Executor*		rdr_;
+    Threads::Work*	work_;
+    uiString		errmsg_;
+
+    EMObject*		getEMObjFromEMM();
+    void		workFinished(CallBacker*);
 
 };
 
 } // namespace EM
+
+
+EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
+{
+    ObjectID objid = EMM().getObjectID( key_ );
+    return objid < 0 ? 0 : EMM().getObject( objid );
+}
 
 
 EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky )
@@ -39,12 +51,10 @@ EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky )
     , obj_(0)
     , rdr_(0)
 {
-    ObjectID objid = EMM().getObjectID( key_ );
-    EMObject* obj = objid < 0 ? 0 : EMM().getObject( objid );
+    EMObject* obj = getEMObjFromEMM();
     if ( obj && obj->isFullyLoaded() )
     {
-	obj_ = obj;
-	obj_->ref();
+	obj_ = obj; obj_->ref();
     }
     else
     {
@@ -52,8 +62,9 @@ EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky )
 	if ( !rdr_ )
 	    { errmsg_ = tr("No loader for %1").arg(key_); return; }
 
-	//TODO get the rdr_ going
-	//TODO and obj_?
+	work_ = new Threads::Work( *rdr_, false );
+	CallBack finishedcb( mCB(this,StoredObjAccessData,workFinished) );
+	Threads::WorkManager::twm().addWork( *work_, &finishedcb );
     }
 }
 
@@ -62,6 +73,30 @@ EM::StoredObjAccessData::~StoredObjAccessData()
 {
     if ( obj_ )
 	obj_->unRef();
+    if ( work_ )
+	Threads::WorkManager::twm().removeWork( *work_ );
+    delete work_;
+}
+
+
+void EM::StoredObjAccessData::workFinished( CallBacker* cb )
+{
+    const bool isfail = Threads::WorkManager::twm().getWorkExitStatus( cb );
+    if ( isfail )
+    {
+	if ( rdr_ )
+	    errmsg_ = rdr_->uiMessage();
+	else
+	    errmsg_ = tr("Error in work executioon");
+    }
+    else
+    {
+	EMObject* obj = getEMObjFromEMM();
+	if ( !obj || !obj->isFullyLoaded() )
+	    errmsg_ = tr("Could not get object from EMM");
+	else
+	    { obj_ = obj; obj_->ref(); }
+    }
 }
 
 
@@ -83,8 +118,40 @@ EM::StoredObjAccess::~StoredObjAccess()
 }
 
 
+EM::StoredObjAccessData* EM::StoredObjAccess::get( const MultiID& ky )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	StoredObjAccessData* data = data_[idx];
+	if ( data->key_ == ky )
+	    return data;
+    }
+    return 0;
+}
+
+
+bool EM::StoredObjAccess::set( const MultiID& ky )
+{
+    StoredObjAccessData* data = get( ky );
+    if ( data )
+	data_ -= data;
+    deepErase( data_ );
+    if ( data )
+    {
+	data_ += data;
+    	return true;
+    }
+
+    return add( ky );
+}
+
+
 bool EM::StoredObjAccess::add( const MultiID& ky )
 {
+    StoredObjAccessData* data = get( ky );
+    if ( data )
+	return true;
+
     StoredObjAccessData* newdata = new StoredObjAccessData( ky );
     data_ += newdata;
     return !newdata->isErr();
@@ -93,15 +160,11 @@ bool EM::StoredObjAccess::add( const MultiID& ky )
 
 void EM::StoredObjAccess::dismiss( const MultiID& ky )
 {
-    for ( int idx=0; idx<size(); idx++ )
+    StoredObjAccessData* data = get( ky );
+    if ( data )
     {
-	StoredObjAccessData* data = data_[idx];
-	if ( data->key_ == ky )
-	{
-	    data_.removeSingle( idx );
-	    delete data;
-	    return;
-	}
+	data_ -= data;
+	delete data;
     }
 }
 

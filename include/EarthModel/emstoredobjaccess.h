@@ -35,8 +35,9 @@ mExpClass(EarthModel) StoredObjAccess
 { mODTextTranslationClass(StoredObjAccess)
 public:
 
-		StoredObjAccess(const MultiID&);
 		StoredObjAccess();
+		StoredObjAccess(const MultiID&);
+    bool	set(const MultiID&);
     virtual	~StoredObjAccess();
 
     bool	isReady(int iobj=-1) const;
@@ -59,7 +60,8 @@ public:
 
 protected:
 
-    ObjectSet<StoredObjAccessData>  data_;
+    ObjectSet<StoredObjAccessData>	data_;
+    StoredObjAccessData*		get(const MultiID&);
 
 };
 
