@@ -282,7 +282,7 @@ void uiSynthCorrectionsGrp::setValues( bool donmo, float mutelen,
 
 uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Synthetic Corrections advanced options"),
-		tr("Specify advanced options"), mTODOHelpKey) )
+    tr("Specify advanced options"), mODHelpKey(mSynthCorrAdvancedDlgHelpID)))
 {
     FloatInpSpec inpspec;
     inpspec.setLimits( Interval<float>(1,500) );

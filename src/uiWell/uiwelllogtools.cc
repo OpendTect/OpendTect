@@ -554,7 +554,8 @@ void uiWellLogToolWin::displayLogs()
 
 // uiWellLogEditor
 uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
-    : uiDialog(p,Setup(tr("Edit Well log"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p, Setup(tr("Edit Well log"), mNoDlgTitle,
+    mODHelpKey(mWellLogEditorHelpID)))
     , log_(log)
     , changed_(false)
     , valueChanged(this)

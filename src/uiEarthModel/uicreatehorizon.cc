@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
     : uiDialog(p,Setup(uiStrings::phrCreate(uiStrings::sHorizon(1)),mNoDlgTitle
-		      ,mTODOHelpKey).modal(false))
+    , mODHelpKey(mCreateHorizonHelpID)).modal(false))
     , zfld_(0)
     , ready(this)
 {

@@ -122,7 +122,7 @@ public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
 	: uiDialog(p,uiDialog::Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
-						    mNoDlgTitle,mTODOHelpKey))
+        mNoDlgTitle, mODHelpKey(mNewSurveyByCopyHelpID)))
 	, dataroot_(dataroot)
 {
     BufferString curfnm;
@@ -240,7 +240,8 @@ void zdomainChg( CallBacker* cb )
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
 	: uiDialog(p,uiDialog::Setup(tr("Create New Survey"),
-		    tr("Specify new survey parameters"),mTODOHelpKey))
+        tr("Specify new survey parameters"),
+        mODHelpKey(mStartNewSurveySetupHelpID)))
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())

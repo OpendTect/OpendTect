@@ -59,7 +59,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     : uiDialog(p,uiDialog::Setup(forsurvsetup
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
 	    imptyp ? uiString("Import %1").arg(imptyp->dispText())
-				: mNoDlgTitle, mTODOHelpKey ).nrstatusflds(1) )
+            : mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
     , filereadopts_(0)
     , typfld_(0)
     , useicbut_(0)

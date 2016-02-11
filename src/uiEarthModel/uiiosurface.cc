@@ -687,7 +687,8 @@ public:
 		    tr( "%1 selection" ).arg( fltpar.is2d_
 					    ? uiStrings::sFaultStickSet()
 					    : uiStrings::sFault() ),
-		    mNoDlgTitle,mTODOHelpKey) )
+                                            mNoDlgTitle,
+                                            mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).fillrow(

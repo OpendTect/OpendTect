@@ -45,7 +45,8 @@ class uiSlideLayoutDlg : public uiDialog
 { mODTextTranslationClass(uiSlideLayoutDlg)
 public:
 uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
-    : uiDialog(p,Setup(tr("Settings"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p, Setup(tr("Settings"), mNoDlgTitle,
+    mODHelpKey(mSlideLayoutDlgHelpID)))
     , spec_(spec)
 {
     uiLabel* lbl = new uiLabel( this, tr("Slide Format:") );
@@ -155,7 +156,8 @@ bool acceptOK( CallBacker* )
 
 
 uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
-    : uiDialog(0,Setup(tr("Presentation Maker"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(0, Setup(tr("Presentation Maker"), mNoDlgTitle,
+    mODHelpKey(mPresentationMakerDlgHelpID)))
 {
     setModal( false );
     setCtrlStyle( CloseOnly );

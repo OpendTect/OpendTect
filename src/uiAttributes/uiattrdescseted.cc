@@ -1317,7 +1317,8 @@ class uiWhereIsDotDlg : public uiDialog
 { mODTextTranslationClass(uiWhereIsDotDlg)
 public:
 uiWhereIsDotDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Graphviz/Dot "),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p, Setup(tr("Graphviz/Dot "), mNoDlgTitle,
+    mODHelpKey(mWhereIsDotDlgHelpID)))
 {
     uiString txt = tr("To display the attribute graph an installation of \n"
 	"Graphviz is required. Graphviz can be downloaded from:\n%1")

@@ -231,7 +231,7 @@ static const char* getFileNameKey( int index )
 #define mErrLabelRet(s) { lbl = new uiLabel( this, s ); return; }
 uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     : uiDialog(p,uiDialog::Setup(tr("SEGYDirect File Editor"),obj.name(),
-				 mTODOHelpKey))
+    mODHelpKey(mEditSEGYFileDataDlgHelpID)))
     , dirsel_(0),filetable_(0)
     , ioobj_(obj)
     , filepars_(*new IOPar)

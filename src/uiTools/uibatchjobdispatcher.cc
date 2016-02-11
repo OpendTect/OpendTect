@@ -319,7 +319,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 				Batch::JobSpec& js )
     : uiDialog(p,Setup(tr("Batch execution parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
-			mTODOHelpKey))
+                       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
     , sjd_(sjd)
     , execpars_(js.execpars_)
     , remhostfld_(0)

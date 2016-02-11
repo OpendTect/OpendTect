@@ -133,7 +133,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
 void uiMathAttrib::rockPhysReq( CallBacker* )
 {
     uiDialog rpdlg( this, uiDialog::Setup(uiStrings::sRockPhy(),
-					  mNoDlgTitle,mTODOHelpKey) );
+        mNoDlgTitle, mODHelpKey(mrockPhysReqHelpID)));
     uiRockPhysForm* rpform = new uiRockPhysForm( &rpdlg );
     if ( !rpdlg.go() )
 	return;

@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
     : uiDialog(p,uiDialog::Setup("DataPointSet picking",
-				 mNoDlgTitle,mTODOHelpKey).modal(false))
+    mNoDlgTitle, mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
     , dps_(*new DataPointSet(false,false))
     , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))

@@ -250,7 +250,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		isMultiChoice( su.markerschoicemode_ ) ?
 		tr("Select markers from one or several wells")
 		: tr("Select a well marker"),
-		mTODOHelpKey))
+                mODHelpKey(mWellMarkersDlgHelpID)))
 {
     markersselgrp_ = new uiListBox( this, "Markers", su.markerschoicemode_ );
     BufferStringSet markernms;

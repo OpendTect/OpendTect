@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mInitAttribUI(uiVolProcAttrib,VolProcAttrib,"VolumeProcessing",sKeyBasicGrp())
 
 uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,mTODOHelpKey)
+: uiAttrDescEd(p, is2d, mODHelpKey(mVolProcAttribHelpID))
 
 {
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();

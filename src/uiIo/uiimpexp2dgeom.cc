@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiExp2DGeom::uiExp2DGeom( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Geometry")),
-		       mNoDlgTitle,mTODOHelpKey)
+    mNoDlgTitle, mODHelpKey(mExp2DGeomHelpID))
 		 .modal(false))
 {
     setOkText( uiStrings::sExport() );

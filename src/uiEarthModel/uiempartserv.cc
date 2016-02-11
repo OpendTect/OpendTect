@@ -1380,7 +1380,7 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
 {
     uiDialog dlg( parent(),
 		 uiDialog::Setup( uiStrings::phrSelect( uiStrings::sHorizon() ),
-                                  mNoDlgTitle,mTODOHelpKey) );
+                 mNoDlgTitle, mODHelpKey(mgetHorizonZAxisTransformHelpID)));
     const IOObjContext ctxt = is2d
 	? EMHorizon2DTranslatorGroup::ioContext()
 	: EMHorizon3DTranslatorGroup::ioContext();
