@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "threadlock.h"
 
+#include <iostream>
 
 /*!
 \brief Workaround manager when you cannot add class members to a class due to
@@ -56,8 +57,13 @@ public:
 		HiddenParam( const V& undefval )
 		    : lock_(true)
 		    , undef_(undefval)		{}
+		~HiddenParam();
 
     void	setParam(O* obj,const V& val);
+    bool	setParamIfValueIs(O* obj,const V& curval, const V& newval );
+		/*!<Sets value if current value is equal to curval. Otherwise
+		    the value is not changed.
+		    \returns true if value is changed. */
     const V&	getParam(const O* obj) const;
     bool	hasParam(const O* obj) const;
     void	removeParam(O* obj);
@@ -73,6 +79,19 @@ protected:
 
 
 template <class O, class V>
+HiddenParam<O,V>::~HiddenParam()
+{
+#ifdef __debug__
+    Threads::Locker locker( lock_ );
+    if ( objects_.size() )
+    {
+	std::cerr << "(PE) HiddenParam | Deleting a HiddenParam prematurely\n";
+    }
+#endif
+}
+
+
+template <class O, class V>
 void HiddenParam<O,V>::setParam( O* obj, const V& val )
 {
     Threads::Locker locker( lock_ );
@@ -85,6 +104,29 @@ void HiddenParam<O,V>::setParam( O* obj, const V& val )
     }
 
     params_[idx] = val;
+}
+
+
+template <class O, class V>
+bool HiddenParam<O,V>::setParamIfValueIs( O* obj, const V& curval,
+					  const V& newval )
+{
+    Threads::Locker locker( lock_ );
+    const int idx = objects_.indexOf( obj );
+    if ( idx==-1 )
+    {
+	objects_ += obj;
+	params_ += newval;
+	return true;
+    }
+
+    if ( params_[idx]==curval )
+    {
+	params_[idx] = newval;
+	return true;
+    }
+
+    return false;
 }
 
 
