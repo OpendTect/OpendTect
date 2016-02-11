@@ -361,6 +361,9 @@ bool ChainExecutor::Epoch::doPrepareWithProgressMeter( ProgressMeter* pm )
 	currentstep->setOutput( outputslotid, outcube,
 				stepoutputhrg, stepoutputzrg );
 
+	//The step should have reffed it, so we can forget it now.
+	outcube->release();
+
 	TypeSet<Chain::Connection> outputconnections;
 	chainexec_.web_.getConnections( currentstep->getID(),
 					false, outputconnections );
@@ -956,6 +959,9 @@ Step::~Step()
 	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
 
     DPM( DataPackMgr::SeisID() ).release( output_ );
+
+    needreportprogmanager.removeParam( this );
+    progmetermanager.removeParam( this );
 }
 
 

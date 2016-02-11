@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "od_ostream.h"
 
+#include <iostream>
+
 DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
 DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
 DataPackMgr::ID DataPackMgr::SeisID()		{ return 3; }
@@ -148,7 +150,19 @@ DataPackMgr::DataPackMgr( DataPackMgr::ID dpid )
 
 DataPackMgr::~DataPackMgr()
 {
+#ifdef __debug__
+    //Don't do in release mode, as we may have race conditions of static
+    //variables deleting at different times
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	std::cerr << "(PE) DataPackMgr | Datapack " << packs_[idx]->id();
+	if ( packs_[idx]->category() )
+	    std::cerr << " with category " << packs_[idx]->category();
+	std::cerr << " is still referenced.\n";
+    }
+
     deepErase( packs_ );
+#endif
 }
 
 
