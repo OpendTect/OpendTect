@@ -323,11 +323,20 @@ void SEGY::HdrEntryKeyData::setCurOrPref(
 	    { he = *hdrdef[ ds.idxs_[idx] ]; return; }
     }
 
+    // Added some safeguards; no idea how this can happen but not worth a crash
+    if ( ds.idxs_.isEmpty() )
+	return;
+
     // none of the preferred ones there, use default
     if ( defidx >= ds.idxs_.size() )
 	defidx = ds.idxs_.size() - 1;
-	if ( defidx >= 0 )
-	he = *hdrdef[ ds.idxs_[defidx] ];
+
+    int hdrdefidx = ds.idxs_[defidx];
+    if ( hdrdefidx >= hdrdef.size() )
+	hdrdefidx = hdrdef.size() - 1;
+
+    if ( hdrdefidx >= 0 )
+	he = *hdrdef[ hdrdefidx ];
 }
 
 
