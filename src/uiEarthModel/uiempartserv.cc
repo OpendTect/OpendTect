@@ -125,6 +125,7 @@ uiEMPartServer::~uiEMPartServer()
     delete ma3dfaultdlg_;
     delete manfssdlg_;
     delete manbodydlg_;
+    delete crhordlg_;
 }
 
 
@@ -141,6 +142,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete ma3dfaultdlg_; ma3dfaultdlg_ = 0;
     delete manfssdlg_; manfssdlg_ = 0;
     delete manbodydlg_; manbodydlg_ = 0;
+    delete crhordlg_; crhordlg_ = 0;
     deepErase( variodlgs_ );
 }
 
