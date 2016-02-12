@@ -197,6 +197,7 @@ SectionTracker* HorizonTrackerMgr::getFreeSectionTracker()
 
 void HorizonTrackerMgr::freeSectionTracker( const SectionTracker* st )
 {
+    Threads::Locker locker( getfreestlock_ );
     const int stidx = sectiontrackers_.indexOf( st );
     trackerinuse_[stidx] = false;
 }
