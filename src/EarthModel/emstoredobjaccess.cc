@@ -20,8 +20,8 @@ class StoredObjAccessData : public CallBacker
 { mODTextTranslationClass(StoredObjAccessData)
 public:
 
-		    StoredObjAccessData(const MultiID&);
-		    ~StoredObjAccessData();
+			StoredObjAccessData(const MultiID&);
+			~StoredObjAccessData();
 
     bool		isErr() const	{ return !errmsg_.isEmpty(); }
 
@@ -76,18 +76,19 @@ EM::StoredObjAccessData::~StoredObjAccessData()
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
     delete work_;
+    delete rdr_;
 }
 
 
 void EM::StoredObjAccessData::workFinished( CallBacker* cb )
 {
-    const bool isfail = Threads::WorkManager::twm().getWorkExitStatus( cb );
+    const bool isfail = !Threads::WorkManager::twm().getWorkExitStatus( cb );
     if ( isfail )
     {
 	if ( rdr_ )
 	    errmsg_ = rdr_->uiMessage();
-	else
-	    errmsg_ = tr("Error in work executioon");
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = tr("Error during background read");
     }
     else
     {
@@ -97,6 +98,8 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
 	else
 	    { obj_ = obj; obj_->ref(); }
     }
+    delete work_; work_ = 0;
+    delete rdr_; rdr_ = 0;
 }
 
 
@@ -137,10 +140,7 @@ bool EM::StoredObjAccess::set( const MultiID& ky )
 	data_ -= data;
     deepErase( data_ );
     if ( data )
-    {
-	data_ += data;
-    	return true;
-    }
+	{ data_ += data; return true; }
 
     return add( ky );
 }
@@ -311,11 +311,4 @@ int nextStep()
 Executor* EM::StoredObjAccess::reader()
 {
     return new StoredObjAccessReader( *this );
-}
-
-
-Executor* EM::StoredObjAccess::saver( int iobj )
-{
-    //TODO
-    return 0;
 }

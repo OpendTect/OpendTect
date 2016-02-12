@@ -48,13 +48,12 @@ public:
     bool	finishRead();	//!< may take a long time
     Executor*	reader();	//!< will 'run' until reading is finished
 
+    EMObject*	object(int iobj=0); //!< returns null until ready
     const EMObject* object(int iobj=0) const;
-    EMObject*	object(int iobj=0);
-
-    Executor*	saver(int iobj=0);
 
 		// Interesting for multi-read only
     int		size() const		{ return data_.size(); }
+    bool	isEmpty() const		{ return data_.isEmpty(); }
     bool	add(const MultiID&);
     void	dismiss(const MultiID&);
 
