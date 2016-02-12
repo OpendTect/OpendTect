@@ -70,6 +70,7 @@ public:
     static uiString phrCannotWrite(const uiString& string);
     //!<"Cannot write <string>"
     static uiString phrCannotWriteDBEntry(const uiString&);
+    //!<"Cannot write database entry for <string>"
     static uiString phrCannotStart(const uiString&);
     //!<"Cannot Start <string>"
     static uiString phrColonString(const uiString&);
@@ -102,6 +103,8 @@ public:
     //!<"Export <string>"
     static uiString phrExtract(const uiString&);
     //!<"Extract <string>"
+    static uiString phrGenerating(const uiString&);
+    //!<"Generating <string>"
     static uiString phrImport(const uiString& string);
     //!<"Import <string>"
     static uiString phrInline(const uiString&);
@@ -291,6 +294,7 @@ public:
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
+    static uiString sGenerating() 	{ return tr("Generating"); }
     static uiString sGeometry()		{ return tr("Geometry"); }
     static uiString sGo()	        { return tr("Go"); }
     static uiString sGreen()		{ return tr("Green"); }
@@ -385,6 +389,7 @@ public:
     static uiString sRemove();
     static uiString sRemoveSelected();
     static uiString sRename();
+    static uiString sReservoir()	{ return tr("Reservoir"); }
     static uiString sReset()		{ return tr("Reset"); }
     static uiString sResume()		{ return tr("Resume"); }
     static uiString sRight()		{ return tr("Right"); }
@@ -445,6 +450,7 @@ public:
 							       "location :"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
+    static uiString sTop()		{ return tr("Top"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrace(int num=1)	{ return tr("Trace", 0, num); }
     static uiString sTrack();

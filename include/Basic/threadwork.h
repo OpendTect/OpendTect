@@ -85,13 +85,21 @@ public:
 				    before it had started.*/
 
     const Work*			getWork(CallBacker*) const;
-				/*!When a work is sumbmitted with a
-				   callback, the callback is called with a
-				   callbacker. If called from the callback and
-				   the callbacker is non-zero, a pointer to the
-				   work that was completed is returned.
-				   If not possible, a zero pointer will be
-				   returned. */
+				/*!<When a work is sumbmitted with a
+				    callback, the callback is called with a
+				    callbacker. If called from the callback and
+				    the callbacker is non-zero, a pointer to the
+				    work that was completed is returned.
+				    If not possible, a zero pointer will be
+				    returned. */
+    bool			getWorkExitStatus(CallBacker*) const;
+				/*!<When a work is sumbmitted with a
+				    callback, the callback is called with a
+				    callbacker. If called from the callback and
+				    the callbacker is non-zero, the exit status
+				    of the work will be returned. Otherwise
+				    false.
+				*/
 
     int				nrThreads() const { return threads_.size(); }
     int				nrFreeThreads() const;

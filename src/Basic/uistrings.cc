@@ -150,6 +150,9 @@ uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 uiString uiStrings::phrExtract( const uiString& string )
 { return toUiString(joinstring).arg(sExtract()).arg(string); }
 
+uiString uiStrings::phrGenerating( const uiString& string )
+{ return toUiString(joinstring).arg(sGenerating()).arg(string); }
+
 uiString uiStrings::phrInline( const uiString& string )
 { return phrJoinStrings( sInline(), string ); }
 

@@ -8,8 +8,8 @@
 add_definitions( -DmNoAutoUiString )
 
 
-SET(OD_MODULE_DEPS Geometry )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS Geometry )
+set(OD_MODULE_SOURCES
 		em2ddatafmtconverter.cc
 		embody.cc
 		embodyoperator.cc
@@ -44,6 +44,7 @@ SET(OD_MODULE_SOURCES
 		emrandlinegen.cc
 		emregion.cc
 		emrowcoliterator.cc
+		emstoredobjaccess.cc
 		emsurface.cc
 		emsurfaceauxdata.cc
 		emsurfacegeometry.cc
