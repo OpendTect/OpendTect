@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "paralleltask.h"
+#include "posinfo.h"
 #include "randomlinegeom.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -178,10 +179,44 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 //=============================================================================
 
 // RegularSeisDataPack
+
+static HiddenParam<RegularSeisDataPack,PosInfo::CubeData*> rgldpckposinfo( 0 );
+
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
-{ sampling_.init( false ); }
+{
+    sampling_.init( false );
+    rgldpckposinfo.setParam( this, 0 );
+}
+
+
+RegularSeisDataPack::~RegularSeisDataPack()
+{
+    delete rgldpckposinfo.getParam( this );
+    rgldpckposinfo.removeParam( this );
+}
+
+
+void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
+{
+    if ( is2D() )
+	return;
+
+    PosInfo::CubeData* oldval = rgldpckposinfo.getParam(this);
+
+    while ( !rgldpckposinfo.setParamIfValueIs( this, oldval, newposdata ) )
+	oldval = rgldpckposinfo.getParam(this);
+
+    delete oldval;
+}
+
+
+const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
+{
+    return is2D() ? 0 : rgldpckposinfo.getParam( this );
+}
+
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 { return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
