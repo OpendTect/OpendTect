@@ -626,13 +626,15 @@ BufferString Scene::getMousePosString() const
 
 void Scene::objectMoved( CallBacker* cb )
 {
+    Threads::Locker locker( updatelock_ );
     ObjectSet<const SurveyObject> activeobjects;
     int movedid = -1;
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
-	if ( !so ) continue;
-	if ( !so->getMovementNotifier() ) continue;
+	if ( !so || !so->getMovementNotifier()
+		 || !so->isAnyAttribEnabled() )
+	    continue;
 
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx))
 	if ( !vo ) continue;

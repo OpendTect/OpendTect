@@ -511,21 +511,34 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 void PickSetDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
-
     if ( showall_ && invalidpicks_.isEmpty() )
 	return;
 
-    TypeSet<Coord3> polycoords;
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
     {
-	for ( int idy=0; idy<objs.size(); idy++ )
+	bool showmarker = false;
+	if ( showall_ )
+	    showmarker = true;
+	else
 	{
-	    if ( updateMarkerAtSection(objs[idy],idx) )
-		invalidpicks_ += idx;
-	    else
-		invalidpicks_ -= idx;
+	    for ( int idy=0; idy<objs.size(); idy++ )
+	    {
+		if ( updateMarkerAtSection(objs[idy],idx) )
+		{
+		    showmarker = true;
+		    break;
+		}
+	    }
 	}
+
+	if ( showmarker )
+	    invalidpicks_ -= idx;
+	else
+	    invalidpicks_ += idx;
+
+	markerset_->turnMarkerOn( idx, showmarker );
     }
+
     updateLineAtSection();
 }
 
@@ -537,7 +550,7 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
     Coord3 pos = set_->validIdx(idx) ? (*set_)[idx].pos_ : Coord3::udf();
     if ( !pos.isDefined()) return false;
 
-    if ( datatransform_ ) 
+    if ( datatransform_ )
 	pos.z = datatransform_->transform( pos );
 
     if ( scene_ )
@@ -559,7 +572,6 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 	    onsection = true;
     }
 
-    markerset_->turnMarkerOn( idx, onsection );
     return onsection;
 }
 
@@ -698,7 +710,7 @@ bool PickSetDisplay::usePar( const IOPar& par )
 }
 
 
-void PickSetDisplay::turnOnSelectionMode(bool yn)
+void PickSetDisplay::turnOnSelectionMode( bool yn )
 {
     ctrldown_ = false;
 
@@ -739,7 +751,10 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
     if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
-    {	unSelectAll();  return;  }
+    {
+	unSelectAll();
+	return;
+    }
 
     if ( !ctrldown_ )
 	unSelectAll();
