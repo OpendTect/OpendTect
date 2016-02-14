@@ -50,6 +50,7 @@ EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky )
     : key_(ky)
     , obj_(0)
     , rdr_(0)
+    , work_(0)
 {
     EMObject* obj = getEMObjFromEMM();
     if ( obj && obj->isFullyLoaded() )
@@ -285,7 +286,7 @@ StoredObjAccessReader( StoredObjAccess& oa )
 }
 
 od_int64 totalNr() const	{ return 100; }
-od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()/100.f); }
+od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()*100.f); }
 uiString uiMessage() const	{ return tr("Reading object data"); }
 uiString uiNrDoneText() const	{ return tr("Percentage done"); }
 
