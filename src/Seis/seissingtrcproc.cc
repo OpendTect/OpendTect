@@ -311,7 +311,13 @@ int SeisSingleTraceProc::getNextTrc()
 	return MoreToDo();
     }
     else if ( rv < 0 )
-	{ curmsg_ = currdr.errMsg(); return ErrorOccurred(); }
+    {
+	curmsg_ = currdr.errMsg();
+	if ( !nrDone() && currdridx_ == rdrs_.size()-1 )
+	    return ErrorOccurred();
+
+	 currdridx_++; return MoreToDo(); 
+    }
     else if ( rv == 2 )
 	return 2;
 
