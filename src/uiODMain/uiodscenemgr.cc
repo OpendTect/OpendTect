@@ -75,6 +75,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodvolrentreeitem.h"
 #include "uiodwelltreeitem.h"
 
+#include "hiddenparam.h"
+
 #define mPosField	0
 #define mValueField	1
 #define mNameField	2
@@ -89,6 +91,7 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
     for ( int idx=0; idx<scenes_.size(); idx++ ) \
 	scenes_[idx]->memb->fn( arg )
 
+static HiddenParam<uiODSceneMgr,CNotifier<uiODSceneMgr,int>* > treeaddedmgr_(0);
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     : appl_(*a)
@@ -102,6 +105,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , viewModeChanged(this)
     , tiletimer_(new Timer)
 {
+    treeaddedmgr_.setParam( this, new CNotifier<uiODSceneMgr,int>( this ) );
+
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 1100,
@@ -144,10 +149,18 @@ uiODSceneMgr::~uiODSceneMgr()
 {
     detachAllNotifiers();
     cleanUp( false );
+    delete treeaddedmgr_.getParam( this );
+    treeaddedmgr_.removeParam( this );
     delete tifs_;
     delete mdiarea_;
     delete wingrabber_;
     delete tiletimer_;
+}
+
+
+CNotifier<uiODSceneMgr,int>& uiODSceneMgr::treeAdded()
+{
+    return *treeaddedmgr_.getParam( this );
 }
 
 
@@ -210,6 +223,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     actMode(0);
     treeToBeAdded.trigger( sceneid );
     initTree( scn, vwridx_ );
+    treeAdded().trigger( sceneid );
 
     if ( scenes_.size()>1 && scenes_[0] )
     {

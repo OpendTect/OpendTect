@@ -25,6 +25,9 @@ public:
 			uiODHorizonParentTreeItem();
 			~uiODHorizonParentTreeItem();
 
+    MenuItem*		getNewMenu();
+    CNotifier<uiODHorizonParentTreeItem,int>& handleMenu();
+
     virtual void	removeChild(uiTreeItem*);
 
 protected:
@@ -32,7 +35,7 @@ protected:
     const char*		iconName() const;
     bool		showSubMenu();
     virtual bool	addChld(uiTreeItem*,bool,bool);
-    const char* 	parentType() const
+    const char* parentType() const
 			{ return typeid(uiODTreeTop).name(); }
 
     void		sort();
@@ -62,7 +65,7 @@ protected:
     bool		init();
     void		initMenuItems();
     void		initNotify();
-    uiString    	createDisplayName() const;
+    uiString	createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizonParentTreeItem).name(); }
@@ -112,7 +115,7 @@ mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODHorizon2DParentTreeItem; }
+			{ return new uiODHorizon2DParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 

@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistring.h"
 
 #include "keystrs.h"
+#include "menuhandler.h"
 #include "texttranslator.h"
 
 #include <climits>
@@ -125,10 +126,81 @@ uiMenu::uiMenu( const uiString& txt, const char* pmnm )
 }
 
 
+uiMenu::uiMenu( const MenuItem& itm )
+    : uiBaseObject(itm.text.getFullString())
+    , submenuaction_( 0 )
+    , qmenu_(new mQtclass(QMenu)(itm.text.getQString()))
+    , text_(itm.text)
+{
+    setIcon( itm.iconfnm );
+    addItems( itm.getItems() );
+}
+
+
 uiMenu::~uiMenu()
 {
     removeAllActions();
     delete qmenu_;
+}
+
+
+void uiMenu::addItems( const ObjectSet<MenuItem>& subitms )
+{
+    ObjectSet<const MenuItem> validsubitms;
+    for ( int idx=0; idx<subitms.size(); idx++ )
+    {
+	if ( subitms[idx]->id >= 0 )
+	    validsubitms += subitms[idx];
+    }
+
+    if ( validsubitms.isEmpty() )
+	return;
+
+    BoolTypeSet handled( validsubitms.size(), false );
+
+    while ( true )
+    {
+	int lowest = mUdf(int);
+	int lowestitem = -1;
+	for ( int idx=0; idx<validsubitms.size(); idx++ )
+	{
+	    if ( lowestitem==-1 || lowest<validsubitms[idx]->placement )
+	    {
+		if ( handled[idx] ) continue;
+
+		lowest = validsubitms[idx]->placement;
+		lowestitem = idx;
+	    }
+	}
+
+	if ( lowestitem==-1 )
+	    break;
+
+	const MenuItem& subitm = *validsubitms[lowestitem];
+	if ( subitm.nrItems() )
+	{
+	    uiMenu* submenu = new uiMenu( subitm );
+	    if ( submenu )
+	    {
+		insertItem( submenu );
+		submenu->setEnabled( subitm.enabled );
+		submenu->setCheckable( subitm.checkable );
+		submenu->setChecked( subitm.checked );
+	    }
+	}
+	else
+	{
+	    uiAction* mnuitem = new uiAction(subitm.text);
+	    insertItem( mnuitem, subitm.id );
+	    mnuitem->setEnabled( subitm.enabled );
+	    mnuitem->setCheckable( subitm.checkable );
+	    mnuitem->setChecked( subitm.checked );
+	    if ( !subitm.iconfnm.isEmpty() )
+		mnuitem->setIcon( subitm.iconfnm );
+	}
+
+	handled[lowestitem] = true;
+    }
 }
 
 

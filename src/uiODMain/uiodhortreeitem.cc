@@ -47,6 +47,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 
 #define mAddIdx		0
 #define mAddAtSectIdx	1
@@ -57,15 +59,60 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mFullIdx	6
 #define mSectFullIdx	7
 
+#define mTrackIdx	100
+#define mConstIdx	10
+
+
+static HiddenParam<uiODHorizonParentTreeItem,MenuItem*> newmenumgr_(0);
+static HiddenParam<uiODHorizonParentTreeItem,MenuItem*> trackitmmgr_(0);
+static HiddenParam<uiODHorizonParentTreeItem,MenuItem*> constzitmmgr_(0);
+static HiddenParam<uiODHorizonParentTreeItem,
+       CNotifier<uiODHorizonParentTreeItem,int>* > handlehor3dmenumgr_(0);
+
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem(
-	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()) )
+	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()))
 {
+    handlehor3dmenumgr_.setParam( this,
+			new CNotifier<uiODHorizonParentTreeItem,int>( this ) );
+    MenuItem* newmenu = new MenuItem( uiStrings::sNew() );
+    MenuItem* trackitem =
+	      new MenuItem(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx);
+    MenuItem* constzitem =
+	      new MenuItem(m3Dots(tr("With Constant Z")),mConstIdx);
+
+    newmenu->addItem( trackitem );
+    newmenu->addItem( constzitem );
+
+    newmenumgr_.setParam( this, newmenu );
+    trackitmmgr_.setParam( this, trackitem );
+    constzitmmgr_.setParam( this, constzitem );
 }
 
 
 uiODHorizonParentTreeItem::~uiODHorizonParentTreeItem()
 {
+    delete handlehor3dmenumgr_.getParam( this );
+    delete newmenumgr_.getParam( this );
+    delete trackitmmgr_.getParam( this );
+    delete constzitmmgr_.getParam( this );
+    handlehor3dmenumgr_.removeParam( this );
+    newmenumgr_.removeParam( this );
+    trackitmmgr_.removeParam( this );
+    constzitmmgr_.removeParam( this );
+}
+
+
+MenuItem* uiODHorizonParentTreeItem::getNewMenu()
+{
+    return newmenumgr_.getParam( this );
+}
+
+
+CNotifier<uiODHorizonParentTreeItem,int>&
+				uiODHorizonParentTreeItem::handleMenu()
+{
+    return *handlehor3dmenumgr_.getParam( this );
 }
 
 
@@ -101,15 +148,13 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
     mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),
-                    mAddAtSectIdx);
+		    mAddAtSectIdx);
     mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
-    mnu.insertItem( newmenu, mNewIdx );
+    uiMenu* newmenu = new uiMenu( *newmenumgr_.getParam(this) );
+    mnu.insertItem( newmenu );
     newmenu->setEnabled( !hastransform && SI().has3D() );
 
-    mnu.insertItem( new uiAction(m3Dots(tr("Create with Constant Z"))),
-		    mCreateIdx );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -126,6 +171,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
+    handlehor3dmenumgr_.getParam( this )->trigger( mnuid );
     if ( mnuid == mAddIdx || mnuid==mAddAtSectIdx || mnuid==mAddCBIdx )
     {
 	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), true );
@@ -148,7 +194,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
 	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), false );
     }
-    else if ( mnuid == mNewIdx )
+    else if ( mnuid == trackitmmgr_.getParam(this)->id )
     {
 	if ( !applMgr()->visServer()->
 			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
@@ -181,7 +227,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
-    else if ( mnuid == mCreateIdx )
+    else if ( mnuid == constzitmmgr_.getParam(this)->id )
     {
 	applMgr()->EMServer()->createHorWithConstZ( false );
     }
@@ -328,7 +374,7 @@ uiString uiODHorizonTreeItem::createDisplayName() const
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
 	res.append( toUiString(" (%1)").arg(
-          toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
+	  toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
     }
 
     return res;
