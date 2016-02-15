@@ -932,13 +932,13 @@ private:
    Returns UDF if empty or only udfs encountered. */
 
 template <class T>
-inline T getSum( const ArrayND<T>& in, bool noudf )
+inline T getSum( const ArrayND<T>& in, bool noudf, bool parallel )
 {
     const T* inpvals = in.getData();
     if ( inpvals )
     {
 	CumSumExec<T> applycumsum( inpvals, in.info().getTotalSz(), noudf );
-	if ( !applycumsum.execute() )
+	if ( !applycumsum.executeParallel(parallel) )
 	    return mUdf(T);
 
 	return applycumsum.getSum();
@@ -959,27 +959,45 @@ inline T getSum( const ArrayND<T>& in, bool noudf )
     return count == 0 ? mUdf(T) : sum;
 }
 
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline T mDeprecated getSum( const ArrayND<T>& in, bool noudf )
+{ return getSum<T>( in, noudf, true ); }
+
+
 
 /*!\brief returns the average amplitude of the array */
 
 template <class T>
-inline T getAverage( const ArrayND<T>& in, bool noudf )
+inline T getAverage( const ArrayND<T>& in, bool noudf, bool parallel )
 {
     const od_uint64 sz = in.info().getTotalSz();
-    const T sumvals = getSum( in, noudf );
+    const T sumvals = getSum( in, noudf, parallel );
     return mIsUdf(sumvals) ? mUdf(T) : sumvals / mCast(T,sz);
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline T mDeprecated getAverage( const ArrayND<T>& in, bool noudf )
+{ return getAverage<T>( in, noudf, true ); }
+
 
 
 //!Specialization for complex numbers.
 template <>
 inline float_complex getAverage<float_complex>(const ArrayND<float_complex>& in,
-					       bool noudf )
+					       bool noudf, bool parallel )
 {
     const od_uint64 sz = in.info().getTotalSz();
-    const float_complex sumvals = getSum( in, noudf );
+    const float_complex sumvals = getSum( in, noudf, parallel );
     return mIsUdf(sumvals) ? mUdf(float_complex) : sumvals / mCast(float,sz);
 }
+
+/*!\brief will be removed after 6.0 */
+template <>
+inline float_complex mDeprecated getAverage<float_complex>(
+				 const ArrayND<float_complex>& in, bool noudf )
+{ return getAverage<float_complex>( in, noudf, true ); }
 
 
 
@@ -996,7 +1014,7 @@ mDefParallelCalcBody(,const T inpval = arrin_[idx]; \
 
 template <class T>
 inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift,
-		       bool noudf )
+		       bool noudf, bool parallel )
 {
     ArrayND<T>& out = out_ ? *out_ : const_cast<ArrayND<T>&>( in );
     const od_uint64 sz = in.info().getTotalSz();
@@ -1006,7 +1024,7 @@ inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift,
     {
 	ScalingExec<T> applyscaler( sz, inpvals, outvals, fact, shift, noudf );
 	applyscaler.setReport( false );
-	applyscaler.execute();
+	applyscaler.executeParallel( parallel );
 	return;
     }
 
@@ -1023,6 +1041,13 @@ inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift,
 }
 
 
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getScaled( const ArrayND<T>& in, ArrayND<T>* out_,
+				   T fact, T shift, bool noudf )
+{ return getScaled<T>( in, out_, fact, shift, noudf, true ); }
+
+
 template <class T>
 mDefParallelCalc6Pars(SumExec,
 		      od_static_tr("SumExec","Array addition executor"),
@@ -1036,7 +1061,8 @@ mDefParallelCalcBody(,const T val1 = arr1_[idx]; const T val2 = arr2_[idx]; \
 
 template <class T>
 inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-		    ArrayND<T>& out, T fact1, T fact2, bool noudf )
+		    ArrayND<T>& out, T fact1, T fact2, bool noudf,
+		    bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1047,9 +1073,9 @@ inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
     T* outvals = out.getData();
     if ( vals1 && vals2 && outvals )
     {
-	SumExec<T> applysum( sz, vals1, vals2, outvals, fact1, fact2,noudf);
+	SumExec<T> applysum( sz, vals1, vals2, outvals, fact1, fact2, noudf );
 	applysum.setReport( false );
-	applysum.execute();
+	applysum.executeParallel( parallel );
 	return;
     }
 
@@ -1066,6 +1092,13 @@ inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
     } while ( iter.next() );
 }
 
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				ArrayND<T>& out, T fact1, T fact2, bool noudf )
+{ return getSum<T>( in1, in2, out, fact1, fact2, noudf, true ); }
+
+
 
 template <class T>
 mDefParallelCalc4Pars(ProdExec,
@@ -1081,7 +1114,7 @@ mDefParallelCalcBody(,const T val1 = arr1_[idx]; const T val2 = arr2_[idx]; \
 
 template <class T>
 inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
-			ArrayND<T>& out, bool noudf )
+			ArrayND<T>& out, bool noudf, bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1094,7 +1127,7 @@ inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     {
 	ProdExec<T> applyprod( sz, vals1, vals2, outvals, noudf );
 	applyprod.setReport( false );
-	applyprod.execute();
+	applyprod.executeParallel( parallel );
 	return;
     }
 
@@ -1111,20 +1144,34 @@ inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     } while ( iter.next() );
 }
 
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getProduct( const ArrayND<T>& in1,const ArrayND<T>& in2,
+				    ArrayND<T>& out, bool noudf )
+{ return getProduct<T>( in1, in2, out, noudf, true ); }
+
+
 
 /*!\brief computes the sum array between two arrays */
 
 template <class T>
 inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-		    ArrayND<T>& out, bool noudf )
-{ getSum( in1, in2, out, (T)1, (T)1, noudf ); }
+		    ArrayND<T>& out, bool noudf, bool parallel )
+{ getSum( in1, in2, out, (T)1, (T)1, noudf, parallel ); }
+
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				ArrayND<T>& out, bool noudf )
+{ return getSum<T>( in1, in2, out, noudf, true ); }
 
 
 /*!\brief returns the sum of product amplitudes between two vectors */
 
 template <class T>
 inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
-			bool noudf )
+			bool noudf, bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1134,43 +1181,67 @@ inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     if ( !prodvec.isOK() )
 	return mUdf(T);
 
-    getProduct( in1, in2, prodvec, noudf );
-    return getSum( prodvec, noudf );
+    getProduct( in1, in2, prodvec, noudf, parallel );
+    return getSum( prodvec, noudf, parallel );
 }
+
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getSumProduct( const ArrayND<T>& in1,
+				       const ArrayND<T>& in2, bool noudf )
+{ return getSumProduct<T>( in1, in2, noudf, true ); }
+
 
 
 /*!\brief returns the sum of squarred amplitudes of the array */
 
 template <class T>
-inline T getSumSq( const ArrayND<T>& in, bool noudf )
-{ return getSumProduct( in, in, noudf ); }
+inline T getSumSq( const ArrayND<T>& in, bool noudf, bool parallel )
+{ return getSumProduct( in, in, noudf, parallel ); }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated T getSumSq( const ArrayND<T>& in, bool noudf )
+{ return getSumSq<T>( in, noudf, true ); }
 
 
 /*!\brief return the Norm-2 of the array */
 
 template <class T>
-inline T getNorm2( const ArrayND<T>& in, bool noudf )
+inline T getNorm2( const ArrayND<T>& in, bool noudf, bool parallel )
 {
-    const T sumsqvals = getSumSq( in, noudf );
+    const T sumsqvals = getSumSq( in, noudf, parallel );
     return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals );
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated T getNorm2( const ArrayND<T>& in, bool noudf )
+{ return getNorm2<T>( in, noudf, true ); }
 
 
 /*!\brief return the RMS of the array */
 
 template <class T>
-inline T getRMS( const ArrayND<T>& in, bool noudf )
+inline T getRMS( const ArrayND<T>& in, bool noudf, bool parallel )
 {
     const od_uint64 sz = in.info().getTotalSz();
-    const T sumsqvals = getSumSq( in, noudf );
+    const T sumsqvals = getSumSq( in, noudf, parallel );
     return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals/mCast(T,sz) );
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated T getRMS( const ArrayND<T>& in, bool noudf )
+{ return getRMS<T>( in, noudf, true ); }
 
 
 /*!\brief returns the residual differences of two arrays */
 
 template <class T>
-inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
+inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
+		      bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1180,7 +1251,7 @@ inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
     if ( !diffvec.isOK() )
 	return mUdf(T);
 
-    getSum( in1, in2, diffvec, (T)1, (T)-1, noudf );
+    getSum( in1, in2, diffvec, (T)1, (T)-1, noudf, parallel );
     T* diffdata = diffvec.getData();
     if ( diffdata )
     {
@@ -1197,14 +1268,21 @@ inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
 	} while ( iter.next() );
     }
 
-    return getAverage( diffvec, noudf );
+    return getAverage( diffvec, noudf, parallel );
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				  bool noudf )
+{ return getResidual<T>( in1, in2, noudf, true ); }
 
 
 /*!\brief returns the sum of squarred differences of two arrays */
 
 template <class T>
-inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
+inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
+		     bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1214,15 +1292,22 @@ inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
-    getSum( in1, in2, sumvec, (T)1, (T)-1, noudf );
-    return getSumSq( sumvec, noudf );
+    getSum( in1, in2, sumvec, (T)1, (T)-1, noudf, parallel );
+    return getSumSq( sumvec, noudf, parallel );
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline T mDeprecated getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				 bool noudf )
+{ return getSumXMY2<T>( in1, in2, noudf, true ); }
 
 
 /*!\brief returns the sum of summed squarred amplitudes of two arrays */
 
 template <class T>
-inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
+inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
+		      bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1232,21 +1317,28 @@ inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
     if ( !sqvec1.isOK() || !sqvec2.isOK() )
 	return mUdf(T);
 
-    getProduct( in1, in1, sqvec1, noudf );
-    getProduct( in2, in2, sqvec2, noudf );
+    getProduct( in1, in1, sqvec1, noudf, parallel );
+    getProduct( in2, in2, sqvec2, noudf, parallel );
     Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
-    getSum( sqvec1, sqvec2, sumvec, noudf );
-    return getSum( sumvec, noudf );
+    getSum( sqvec1, sqvec2, sumvec, noudf, parallel );
+    return getSum( sumvec, noudf, parallel );
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline T mDeprecated getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				  bool noudf )
+{ return getSumX2PY2<T>( in1, in2, noudf, true ); }
 
 
 /*!\brief returns the sum of subtracted squarred amplitudes of two arrays */
 
 template <class T>
-inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
+inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
+		      bool parallel )
 {
     const od_uint64 sz = in1.info().getTotalSz();
     if ( in2.info().getTotalSz() != sz )
@@ -1256,15 +1348,21 @@ inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf )
     if ( !sqvec1.isOK() || !sqvec2.isOK() )
 	return mUdf(T);
 
-    getProduct( in1, in1, sqvec1, noudf );
-    getProduct( in2, in2, sqvec2, noudf );
+    getProduct( in1, in1, sqvec1, noudf, parallel );
+    getProduct( in2, in2, sqvec2, noudf, parallel );
     Array1DImpl<T> sumvec( mCast(int,sz) );
     if ( !sumvec.isOK() )
 	return mUdf(T);
 
-    getSum( sqvec1, sqvec2, sumvec, (T)1, (T)-1, noudf );
-    return getSum( sumvec, noudf );
+    getSum( sqvec1, sqvec2, sumvec, (T)1, (T)-1, noudf, parallel );
+    return getSum( sumvec, noudf, parallel );
 }
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline T mDeprecated getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				  bool noudf )
+{ return getSumX2MY2<T>( in1, in2, noudf, true ); }
 
 
 /*!\brief returns the intercept and gradient of two arrays */
