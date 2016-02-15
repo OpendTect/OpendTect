@@ -643,8 +643,9 @@ void Scene::objectMoved( CallBacker* cb )
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
-	if ( !so ) continue;
-	if ( !so->getMovementNotifier() ) continue;
+	if ( !so || !so->getMovementNotifier()
+		 || !so->isAnyAttribEnabled() )
+	    continue;
 
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx))
 	if ( !vo ) continue;
