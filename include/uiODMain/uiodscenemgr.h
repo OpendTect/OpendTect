@@ -55,6 +55,7 @@ public:
     uiString			getSceneName(int sceneid) const;
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
+    CNotifier<uiODSceneMgr,int>& treeAdded();
 
     void			getScenePars(IOPar&);
     void			useScenePars(const IOPar&);
@@ -129,7 +130,7 @@ public:
     void			disabTrees( bool yn );
 
     void			getLoadedPickSetIDs(TypeSet<MultiID>&,bool poly,
-	    					    int scnid=-1) const;
+						    int scnid=-1) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
 					       const char* emtypestr=0,
 					       int sceneid=-1) const;
@@ -162,7 +163,7 @@ public:
 
     void			translateText();
 
-    static uiString		sElements() 	{ return tr("Elements"); }
+    static uiString		sElements()	{ return tr("Elements"); }
 
 protected:
 
