@@ -22,6 +22,7 @@ namespace EM
 {
 class EMObject;
 class StoredObjAccessData;
+class SurfaceIODataSelection;
 
 
 /*!\brief Access to stored EM Objects.
@@ -37,8 +38,10 @@ public:
 
 		StoredObjAccess();
 		StoredObjAccess(const MultiID&);
-    bool	set(const MultiID&);
     virtual	~StoredObjAccess();
+
+    void	setLoadHint(const SurfaceIODataSelection&);
+    bool	set(const MultiID&);
 
     bool	isReady(int iobj=-1) const;
     bool	isError(int iobj=-1) const;
@@ -60,6 +63,7 @@ public:
 protected:
 
     ObjectSet<StoredObjAccessData>	data_;
+    SurfaceIODataSelection*		surfiodsel_;
     StoredObjAccessData*		get(const MultiID&);
 
 };
