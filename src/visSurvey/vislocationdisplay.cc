@@ -579,7 +579,8 @@ void LocationDisplay::setChg( CallBacker* cb )
 
 void LocationDisplay::dispChg( CallBacker* )
 {
-    getMaterial()->setColor( set_->disp_.mkstyle_.color_);
+    if ( set_ )
+	getMaterial()->setColor( set_->disp_.mkstyle_.color_);
 }
 
 
@@ -945,8 +946,8 @@ bool LocationDisplay::usePar( const IOPar& par )
 	if ( !newps->name() || !*newps->name() )
 	    newps->setName( mFromUiStringTodo(name()) );
 
-	const bool v6_or_earlier = 
-	    ( par.majorVersion()+par.minorVersion()*0.1 )>0 && 
+	const bool v6_or_earlier =
+	    ( par.majorVersion()+par.minorVersion()*0.1 )>0 &&
 	    ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
 
 	if ( v6_or_earlier )
