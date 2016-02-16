@@ -288,7 +288,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
 		const Pick::Location undoloc( undoloccoord_, dir );
 		const Pick::Location newloc( newpos, dir );
-		set_->moveWithUndo( 
+		set_->moveWithUndo(
 		    waitsforpositionid_, undoloc, newloc );
 		Pick::Mgr().undo().setUserInteractionEnd(
 		    Pick::Mgr().undo().currentEventID() );
@@ -322,7 +322,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-	    		visBase::DM().getObject( eventinfo.pickedobjids[idx] );
+			visBase::DM().getObject( eventinfo.pickedobjids[idx] );
 	if ( dataobj == this )
 	    continue;
 
@@ -579,7 +579,8 @@ void LocationDisplay::setChg( CallBacker* cb )
 
 void LocationDisplay::dispChg( CallBacker* )
 {
-    getMaterial()->setColor( set_->disp_.color_ );
+    if ( set_ )
+	getMaterial()->setColor( set_->disp_.color_ );
 }
 
 
@@ -635,7 +636,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 		continue;
 
 	    const float dist = findDistance( world2Display((*set_)[pidx].pos_),
-		    			     world2Display((*set_)[idx].pos_),
+					     world2Display((*set_)[idx].pos_),
 					     displaypos );
 	    if ( mIsUdf(dist) ) continue;
 
@@ -963,7 +964,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 }
 
 
-const Coord3 LocationDisplay::getActivePlaneNormal( 
+const Coord3 LocationDisplay::getActivePlaneNormal(
     const visBase::EventInfo& eventinfo ) const
 {
     Coord3 normal = Coord3::udf();
