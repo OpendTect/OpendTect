@@ -127,12 +127,14 @@ void VisualObjectImpl::materialChangeCB( CallBacker* )
 	blendFunc->setFunction( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	ss->setAttributeAndModes( blendFunc );
 	ss->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+	ss->setMode( GL_BLEND, osg::StateAttribute::ON );
     }
 
     if ( !transparent && ss->getRenderingHint()!=osg::StateSet::OPAQUE_BIN )
     {
 	ss->removeAttribute( osg::StateAttribute::BLENDFUNC );
 	ss->setRenderingHint( osg::StateSet::OPAQUE_BIN );
+	ss->setMode( GL_BLEND, osg::StateAttribute::OFF );
     }
 }
 

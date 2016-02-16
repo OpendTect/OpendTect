@@ -240,7 +240,7 @@ float Material::getTransparency( int idx ) const
        return color_.tF();
 
    osg::Vec4Array* colarr = mGetOsgVec4Arr( osgcolorarray_ );
-   return idx< colarr->size()-1 ? (1.0f-(*colarr)[idx].a()) : 0.0f;
+   return idx < colarr->size() ? (1.0f-(*colarr)[idx].a()) : 0.0f;
 }
 
 
