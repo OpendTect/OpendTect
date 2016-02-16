@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emstoredobjaccess.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emsurfaceiodata.h"
 #include "executor.h"
 #include "threadwork.h"
 
@@ -20,7 +21,8 @@ class StoredObjAccessData : public CallBacker
 { mODTextTranslationClass(StoredObjAccessData)
 public:
 
-			StoredObjAccessData(const MultiID&);
+			StoredObjAccessData(const MultiID&,
+					    const SurfaceIODataSelection*);
 			~StoredObjAccessData();
 
     bool		isErr() const	{ return !errmsg_.isEmpty(); }
@@ -46,10 +48,12 @@ EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
 }
 
 
-EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky )
+EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky,
+				    const EM::SurfaceIODataSelection* siods )
     : key_(ky)
     , obj_(0)
     , rdr_(0)
+    , work_(0)
 {
     EMObject* obj = getEMObjFromEMM();
     if ( obj && obj->isFullyLoaded() )
@@ -58,7 +62,7 @@ EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky )
     }
     else
     {
-	rdr_ = EMM().objectLoader( key_ );
+	rdr_ = EMM().objectLoader( key_, siods );
 	if ( !rdr_ )
 	    { errmsg_ = tr("No loader for %1").arg(key_); return; }
 
@@ -105,6 +109,7 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
 
 
 EM::StoredObjAccess::StoredObjAccess()
+    : surfiodsel_(0)
 {
 }
 
@@ -117,7 +122,15 @@ EM::StoredObjAccess::StoredObjAccess( const MultiID& ky )
 
 EM::StoredObjAccess::~StoredObjAccess()
 {
+    delete surfiodsel_;
     deepErase( data_ );
+}
+
+
+void EM::StoredObjAccess::setLoadHint( const EM::SurfaceIODataSelection& sio )
+{
+    delete surfiodsel_;
+    surfiodsel_ = new SurfaceIODataSelection( sio );
 }
 
 
@@ -152,7 +165,7 @@ bool EM::StoredObjAccess::add( const MultiID& ky )
     if ( data )
 	return true;
 
-    StoredObjAccessData* newdata = new StoredObjAccessData( ky );
+    StoredObjAccessData* newdata = new StoredObjAccessData( ky, surfiodsel_ );
     data_ += newdata;
     return !newdata->isErr();
 }
@@ -285,7 +298,7 @@ StoredObjAccessReader( StoredObjAccess& oa )
 }
 
 od_int64 totalNr() const	{ return 100; }
-od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()/100.f); }
+od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()*100.f); }
 uiString uiMessage() const	{ return tr("Reading object data"); }
 uiString uiNrDoneText() const	{ return tr("Percentage done"); }
 
