@@ -858,6 +858,11 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 	: attrds->getDesc(targetspecs_[0].id());
 
+    const MultiID mid( targetdesc->getStoredID() );
+    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+    if ( sdp )
+	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg );
+
     TypeSet<BinID> knots, path;
     rdmline->allNodePositions( knots );
     rdmline->getPathBids( knots, path );
@@ -865,11 +870,6 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     for ( int idx=0; idx<path.size(); idx++ )
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 					  path[idx].inl(), path[idx].crl() );
-
-    const MultiID mid( targetdesc->getStoredID() );
-    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
-    if ( sdp )
-	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg );
 
     BinIDValueSet bidset( 2, false );
     for ( int idx = 0; idx<path.size(); idx++ )
@@ -1112,10 +1112,10 @@ bool doFinish( bool success )
 protected:
 
     const Data2DHolder&			input_;
+    const TrcKeyZSampling		inputsampling_;
     const TrcKeyZSampling&		sampling_;
     const ZDomain::Def&			zdef_;
     const BufferStringSet&		compnames_;
-    const TrcKeyZSampling		inputsampling_;
     RegularSeisDataPack*		outputdp_;
     DataPack::ID&			outputid_;
     TypeSet<float>			refnrs_;
