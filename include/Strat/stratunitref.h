@@ -172,6 +172,8 @@ public:
 
     virtual void	getPropsFrom(const IOPar&);
     virtual void	putPropsTo(IOPar&) const;
+protected:
+    void		changeTimeRange(float dtime);
 
 };
 
