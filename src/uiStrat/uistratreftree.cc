@@ -552,6 +552,10 @@ void uiStratRefTree::moveUnit( bool up )
     {
 	int curidx = lv_->indexOfItem(curit);
 	if ( curidx<0 ) return;
+	if ( (up && curidx==0) || (!up && curidx==lv_->nrItems()-1) )
+	    return;
+
+	targetit = lv_->getItem( up ? curidx-1 : curidx+1 );
 	lv_->takeItem( curit );
 	lv_->insertItem( up ? curidx-1 : curidx+1, curit );
     }

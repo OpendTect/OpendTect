@@ -243,10 +243,58 @@ void Strat::NodeUnitRef::incTimeRange( const Interval<float>& rg )
 }
 
 
+void Strat::NodeUnitRef::changeTimeRange( float dtime )
+{
+    Strat::UnitRefIter childitr( *this );
+    Interval<float> nurtimerg = timeRange();
+    nurtimerg.start += dtime;
+    nurtimerg.stop += dtime;
+    setTimeRange( nurtimerg );
+    while ( childitr.next() )
+    {
+	mDynamicCastGet(Strat::NodeUnitRef*,nur,childitr.unit())
+	if ( nur )
+	{
+	    Interval<float> newtimerg = nur->timeRange();
+	    newtimerg.start += dtime;
+	    newtimerg.stop += dtime;
+	    nur->setTimeRange( newtimerg );
+	}
+    }
+}
+
+
 void Strat::NodeUnitRef::swapChildren( int idx1, int idx2 )
 {
     if ( idx1 == idx2 ) return;
-    refs_.swap( idx1, idx2 ); notifChange();
+    if ( !refs_.validIdx(idx1) || !refs_.validIdx(idx2) )
+	return;
+
+    mDynamicCastGet(Strat::NodeUnitRef*,idx1nur,refs_[idx1]);
+    mDynamicCastGet(Strat::NodeUnitRef*,idx2nur,refs_[idx2]);
+    if ( !idx1nur || !idx2nur )
+	return;
+
+    if ( abs(idx1-idx2)>1 )
+    {
+	pErrMsg( "swapping distant children not allowed" );
+	return;
+    }
+
+    const int topidx = idx1 < idx2 ? idx1 : idx2;
+    const int bottomidx = idx1 < idx2 ? idx2 : idx1;
+    mDynamicCastGet(Strat::NodeUnitRef*,topnur,refs_[topidx]);
+    mDynamicCastGet(Strat::NodeUnitRef*,bottomnur,refs_[bottomidx]);
+    if ( !topnur || !bottomnur )
+	return;
+
+    const float topdtime = bottomnur->timeRange().width();
+    const float bottomdtime = -topnur->timeRange().width();
+    topnur->changeTimeRange( topdtime );
+    bottomnur->changeTimeRange( bottomdtime );
+
+    refs_.swap( idx1, idx2 );
+    notifChange();
 }
 
 

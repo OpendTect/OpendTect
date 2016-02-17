@@ -161,8 +161,11 @@ void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
     BufferString lithnm;
     for ( int idx=0; idx<ur.nrRefs(); idx++ )
     {
-	Strat::LeafUnitRef& lref = (Strat::LeafUnitRef&)ur.ref( idx );
-	const int lithidx = lref.lithology();
+	mDynamicCastGet(const Strat::LeafUnitRef*,lref,&ur.ref(idx));
+	if ( !lref )
+	    continue;
+
+	const int lithidx = lref->lithology();
 	const Strat::Lithology* lith = lithidx >= 0 ? lithos.get( lithidx ) : 0;
 	if ( lith ) { if ( idx ) lithnm += ", "; lithnm += lith->name(); }
     }
@@ -194,15 +197,24 @@ uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree )
     : uitree_(uitree)
 {}
 
-#define mGetLItem(t) uiTreeViewItem* lit = uitree_.getLVItFromFullCode( txt);\
-if ( lit ) { uitree_.treeView()->setCurrentItem(lit); } else return;
+
+uiTreeViewItem* uiStratDispToTree::setCurrentTreeItem( const char* txt )
+{
+    uiTreeViewItem* lit = uitree_.getLVItFromFullCode( txt);
+    if ( lit )
+	uitree_.treeView()->setCurrentItem(lit);
+
+    return lit;
+}
+
 
 void uiStratDispToTree::handleUnitMenu( const char* txt )
 {
     if ( txt )
     {
-	mGetLItem( txt )
-	uitree_.handleMenu( lit );
+	uiTreeViewItem* lit = setCurrentTreeItem( txt );
+	if ( lit )
+	    uitree_.handleMenu( lit );
     }
 }
 
@@ -211,8 +223,9 @@ void uiStratDispToTree::addUnit( const char* txt )
 {
     if ( txt )
     {
-	mGetLItem( txt )
-	uitree_.insertSubUnit( lit );
+	uiTreeViewItem* lit = setCurrentTreeItem( txt );
+	if ( lit )
+	    uitree_.insertSubUnit( lit );
     }
     else
 	uitree_.insertSubUnit( 0 );
