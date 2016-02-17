@@ -243,10 +243,46 @@ void Strat::NodeUnitRef::incTimeRange( const Interval<float>& rg )
 }
 
 
-void Strat::NodeUnitRef::swapChildren( int idx1, int idx2 )
+void Strat::NodeUnitRef::changeTimeRange( float dtime )
 {
-    if ( idx1 == idx2 ) return;
-    refs_.swap( idx1, idx2 ); notifChange();
+    Strat::UnitRefIter childitr( *this );
+    Interval<float> nurtimerg = timeRange();
+    nurtimerg.start += dtime;
+    nurtimerg.stop += dtime;
+    setTimeRange( nurtimerg );
+    while ( childitr.next() )
+    {
+	mDynamicCastGet(Strat::NodeUnitRef*,nur,childitr.unit())
+	if ( nur )
+	{
+	    Interval<float> newtimerg = nur->timeRange();
+	    newtimerg.start += dtime;
+	    newtimerg.stop += dtime;
+	    nur->setTimeRange( newtimerg );
+	} 
+    }
+}
+
+
+void Strat::NodeUnitRef::moveChild( int idx, bool moveup )
+{
+    const int idx2 = moveup ? idx-1 : idx+1;
+    if ( !refs_.validIdx(idx) || !refs_.validIdx(idx2) )
+	return;
+
+    const int topidx = idx < idx2 ? idx : idx2;
+    const int bottomidx = idx < idx2 ? idx2 : idx;
+    mDynamicCastGet(Strat::NodeUnitRef*,topnur,refs_[topidx]);
+    mDynamicCastGet(Strat::NodeUnitRef*,bottomnur,refs_[bottomidx]);
+    if ( !topnur || !bottomnur )
+	return;
+
+    const float topdtime = bottomnur->timeRange().width();
+    const float bottomdtime = -topnur->timeRange().width();
+    topnur->changeTimeRange( topdtime );
+    bottomnur->changeTimeRange( bottomdtime );
+    refs_.swap( idx, idx2 );
+    notifChange();
 }
 
 

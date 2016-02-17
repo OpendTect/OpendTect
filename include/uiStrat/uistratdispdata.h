@@ -187,7 +187,8 @@ protected:
 };
 
 
-/*!brief used to write directly in the treeView of the uiStratRefTree as if we were handling the uiTree directly*/
+/*!brief used to write directly in the treeView of the uiStratRefTree
+   as if we were handling the uiTree directly*/
 
 mExpClass(uiStrat) uiStratDispToTree : public CallBacker
 {
@@ -200,6 +201,7 @@ public:
     void		handleUnitMenu(const char*);
     void		setUnitLvl(const char*);
     void		addUnit(const char*);
+    uiTreeViewItem*	setCurrentTreeItem(const char*);
 
 protected:
 

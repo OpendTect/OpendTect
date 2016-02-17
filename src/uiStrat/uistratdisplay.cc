@@ -277,6 +277,9 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	}
 	return true;
     }
+    else if ( ev.leftButton() && getUnitFromPos() )
+	return uidatawriter_.setCurrentTreeItem( getUnitFromPos()->fullCode() );
+
     return false;
 }
 

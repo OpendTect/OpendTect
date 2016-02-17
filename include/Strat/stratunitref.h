@@ -155,6 +155,7 @@ protected:
 
     UnitRef*		fnd(const char*) const;
     void		takeChildrenFrom(NodeUnitRef*);
+    void		changeTimeRange( float dtime);
     friend class	RefTree;
 
 public:
@@ -162,7 +163,7 @@ public:
     virtual bool	add(UnitRef*,bool rev=false);
     virtual bool	insert(UnitRef*,int posidx);
     virtual UnitRef*	replace(int uridx,UnitRef*);
-    void		swapChildren(int,int);
+    void		moveChild(int,bool up);
     void		remove( int uridx )
 			{ delete refs_.removeSingle(uridx); }
     void		remove( const UnitRef* ur )

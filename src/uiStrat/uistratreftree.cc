@@ -552,6 +552,10 @@ void uiStratRefTree::moveUnit( bool up )
     {
 	int curidx = lv_->indexOfItem(curit);
 	if ( curidx<0 ) return;
+	if ( (up && curidx==0) || (!up && curidx==lv_->nrItems()-1) )
+	    return;
+
+	targetit = lv_->getItem( up ? curidx-1 : curidx+1 );
 	lv_->takeItem( curit );
 	lv_->insertItem( up ? curidx-1 : curidx+1, curit );
     }
@@ -560,12 +564,14 @@ void uiStratRefTree::moveUnit( bool up )
     lv_->setCurrentItem(curit);
     
     Strat::UnitRef* curun = tree_->find( getFullCodeFromLVIt(curit) );
-    Strat::UnitRef* targetun = tree_->find( getFullCodeFromLVIt(targetit) );
-    if ( !curun || !targetun ) return;
-    Strat::NodeUnitRef* upnode = curun->upNode();
-    if ( !upnode ) return;
+    if ( !curun )
+	return;
 
-    upnode->swapChildren( upnode->indexOf(curun), upnode->indexOf(targetun) );
+    Strat::NodeUnitRef* upnode = curun->upNode();
+    if ( !upnode )
+	return;
+
+    upnode->moveChild( upnode->indexOf(curun), up );
     anychange_ = true;
     //tree_->move( getFullCodeFromLVIt( curit ).buf(), up );
 }
