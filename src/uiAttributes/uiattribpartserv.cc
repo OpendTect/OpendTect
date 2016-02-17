@@ -858,14 +858,14 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 	: attrds->getDesc(targetspecs_[0].id());
 
-    TypeSet<BinID> knots, path;
-    rdmline->allNodePositions( knots );
-    rdmline->getPathBids( knots, rdmline->getSurvID(), path );
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
     if ( sdp )
 	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg );
 
+    TypeSet<BinID> knots, path;
+    rdmline->allNodePositions( knots );
+    rdmline->getPathBids( knots, rdmline->getSurvID(), path );
     BinIDValueSet bidset( 2, false );
     for ( int idx = 0; idx<path.size(); idx++ )
 	bidset.add( path[idx],zrg.start,zrg.stop );
@@ -886,61 +886,6 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
 	{
 	    const int trcidx = output.find( path[idy] );
-	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
-	    if ( !trc ) continue;
-	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
-		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
-	}
-    }
-
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
-    newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
-    return newpack->id();
-}
-
-
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
-				const Interval<float>& zrg,
-				TypeSet<BinID>* path,
-				TypeSet<BinID>* trueknotspos )
-{
-    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
-    const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-	: attrds->getDesc(targetspecs_[0].id());
-
-    TrcKeyPath trckeys;
-    for ( int idx=0; idx<path->size(); idx++ )
-	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
-				       (*path)[idx].inl(), (*path)[idx].crl() );
-
-    const MultiID mid( targetdesc->getStoredID() );
-    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
-    if ( sdp )
-	return RandomSeisDataPack::createDataPackFrom( *sdp, trckeys, zrg );
-
-    BinIDValueSet bidset( 2, false );
-    for ( int idx = 0; idx<path->size(); idx++ )
-	bidset.add( ( *path )[idx],zrg.start,zrg.stop );
-
-    SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,trueknotspos,path) )
-	return DataPack::cNoID();
-
-    RandomSeisDataPack* newpack = new RandomSeisDataPack(
-				SeisDataPack::categoryStr(true,false) );
-    newpack->setPath( trckeys );
-    newpack->setZRange( output.get(0)->zRange() );
-    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
-    {
-	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
-	    continue;
-
-	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
-	{
-	    const int trcidx = output.find( (*path)[idy] );
 	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
 	    if ( !trc ) continue;
 	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
@@ -1106,10 +1051,10 @@ bool doFinish( bool success )
 protected:
 
     const Data2DHolder&			input_;
+    const TrcKeyZSampling		inputsampling_;
     const TrcKeyZSampling&		sampling_;
     const ZDomain::Def&			zdef_;
     const BufferStringSet&		compnames_;
-    const TrcKeyZSampling		inputsampling_;
     RegularSeisDataPack*		outputdp_;
     DataPack::ID&			outputid_;
     TypeSet<float>			refnrs_;

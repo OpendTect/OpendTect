@@ -92,10 +92,7 @@ public:
     bool			addComponent(const char* nm);
 
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
-						   const TrcKeyPath& path,
-						   const Interval<float>& zrg);
-    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
-						   int rdlidx,
+						   int rdmlineid,
 						   const Interval<float>& zrg);
 
 protected:

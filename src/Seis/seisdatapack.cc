@@ -78,7 +78,7 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( !regsdp_.getZRange().isCompatible(ransdp_.getZRange(),1e-3) )
     {
 	pErrMsg( "Unexpected incompatibility of datapack Z-ranges" );
-	return true;
+	return false;
     }
 
     if ( regsdp_.getDataDesc() != ransdp_.getDataDesc() )
@@ -133,32 +133,28 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 				       int thread )
 {
-    unsigned char* dstptr = dstptr_ + start * dsttrcbytes_;
-
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	const TrcKeySampling& hsamp = regsdp_.sampling().hsamp_;
+	if ( !hsamp.lineRange().includes(path_[idx].lineNr(),true) ||
+	     !hsamp.trcRange().includes(path_[idx].trcNr(),true) )
+	    continue;
+
 	const int nearestinl = path_[idx].lineNr() + hsamp.step_.lineNr()/2;
-	const int inlidx = hsamp.inlIdx( nearestinl );
+	const int inlidx = hsamp.lineIdx( nearestinl );
 	const int nearestcrl = path_[idx].trcNr() + hsamp.step_.trcNr()/2;
-	const int crlidx = hsamp.crlIdx( nearestcrl );
+	const int crlidx = hsamp.trcIdx( nearestcrl );
 
 	if ( domemcopy_ )
 	{
-	    if ( hsamp.lineRange().includes(path_[idx].lineNr(),true) &&
-		 hsamp.trcRange().includes(path_[idx].trcNr(),true) )
-	    {
-		const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
-						      + crlidx*srctrcbytes_;
-
-		OD::sysMemCopy( dstptr, srcptr, bytestocopy_ );
-	    }
-
-	    dstptr += dsttrcbytes_;
+	    const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
+						  + crlidx*srctrcbytes_;
+	    unsigned char* dstptr = dstptr_ + idx*dsttrcbytes_;
+	    OD::sysMemCopy( dstptr, srcptr, bytestocopy_ );
 	    continue;
 	}
 
-	for ( int newidz=0; newidz<=regsdp_.getZRange().nrfSteps(); newidz++ )
+	for ( int newidz=0; newidz<=ransdp_.getZRange().nrfSteps(); newidz++ )
 	{
 	    const int oldidz = newidz + idzoffset_;
 	    const float val =
@@ -318,69 +314,32 @@ void RandomSeisDataPack::setRandomLineID( int rdlid )
 
 DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
-					int rdlidx,
-					const Interval<float>& zrg )
+					int rdmlineid,
+					const Interval<float>& zrange )
 {
-    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlidx );
+    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdmlineid );
     if ( !rdmline || regsdp.isEmpty() )
 	return DataPack::cNoID();
 
     RandomSeisDataPack* randsdp = new RandomSeisDataPack(
-		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
-    randsdp->setRandomLineID( rdlidx );
+		SeisDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
+    randsdp->setRandomLineID( rdmlineid );
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    StepInterval<float> newzrg = regsdp.getZRange();
-    newzrg.start = newzrg.atIndex( newzrg.getIndex(zrg.start) );
-    newzrg.stop  = newzrg.atIndex( newzrg.indexOnOrAfter(zrg.stop,0.0) );
-    randsdp->setZRange( newzrg );
-
-    TypeSet<BinID> knots, path;
-    rdmline->allNodePositions( knots );
-    Geometry::RandomLine::getPathBids( knots, rdmline->getSurvID(), path );
-    TrcKeyPath tkpath;
-    tkpath.setSize( path.size(), TrcKey::udf() );
-    for ( int idx=0; idx<tkpath.size(); idx++ )
-	tkpath[idx] = TrcKey( path[idx] );
+    const StepInterval<float>& regzrg = regsdp.getZRange();
+    StepInterval<float> overlapzrg = regzrg;
+    overlapzrg.limitTo( zrange ); // DataPack should be created only for
+				  // overlap z-range.
+    overlapzrg.start = regzrg.atIndex( regzrg.getIndex(overlapzrg.start) );
+    overlapzrg.stop =regzrg.atIndex(regzrg.indexOnOrAfter(overlapzrg.stop,0.0));
+    randsdp->setZRange( overlapzrg );
 
     for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
     {
 	randsdp->addComponent( regsdp.getComponentName(idx) );
-	Regular2RandomDataCopier copier( *randsdp, regsdp, tkpath, idx );
-	copier.execute();
-    }
-
-    randsdp->setZDomain( regsdp.zDomain() );
-    randsdp->setName( regsdp.name() );
-    DPM(DataPackMgr::SeisID()).add( randsdp );
-    return randsdp->id();
-}
-
-
-DataPack::ID RandomSeisDataPack::createDataPackFrom(
-					const RegularSeisDataPack& regsdp,
-					const TrcKeyPath& path,
-					const Interval<float>& zrg )
-{
-    if ( path.isEmpty()  || regsdp.isEmpty() )
-	return DataPack::cNoID();
-
-    RandomSeisDataPack* randsdp = new RandomSeisDataPack(
-		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
-    randsdp->setPath( path );
-    if ( regsdp.getScaler() )
-	randsdp->setScaler( *regsdp.getScaler() );
-
-    StepInterval<float> newzrg = regsdp.getZRange();
-    newzrg.start = newzrg.atIndex( newzrg.getIndex(zrg.start) );
-    newzrg.stop  = newzrg.atIndex( newzrg.indexOnOrAfter(zrg.stop,0.0) );
-    randsdp->setZRange( newzrg );
-
-    for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
-    {
-	randsdp->addComponent( regsdp.getComponentName(idx) );
-	Regular2RandomDataCopier copier( *randsdp, regsdp, path, idx );
+	Regular2RandomDataCopier copier(
+		*randsdp, regsdp, randsdp->getPath(), idx );
 	copier.execute();
     }
 
