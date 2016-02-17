@@ -74,9 +74,7 @@ void uiWellDisplayControl::removeDahDisplay( uiWellDahDisplay& disp )
 
 void uiWellDisplayControl::clear()
 {
-    for ( int idx=logdisps_.size()-1; idx>=0; idx-- )
-	removeDahDisplay( *logdisps_[idx] );
-
+    logdisps_.erase();
     seldisp_ = 0;
     lastselmarker_ = 0;
 }

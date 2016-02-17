@@ -92,25 +92,7 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 	    return (float)horpos.z;
     }
     else if ( hor2d_ )
-    {
-	mDynamicCastGet( const Geometry::RowColSurface*, rcs, 
-			 hor2d_->sectionGeometry(0));
-	if ( !rcs ) return mUdf(float);
-
-	const StepInterval<int> rowrg = rcs->rowRange();
-	RowCol rc;
-	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
-	{
-	    const StepInterval<int> colrg = rcs->colRange( rc.row() );
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
-	    {
-		const Coord3& horpos = hor2d_->getPos( 
-					hor2d_->sectionID(0), rc.toInt64() );
-		const BinID horbid = SI().transform( horpos );
-		if ( bid == horbid )
-		    return (float) pos.z;
-	    }
-	}
-    }
+	return hor2d_->getZValue( pos );
+    
     return  mUdf( float );
 }
