@@ -427,8 +427,9 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     lb_->body().setNrLines( setup.prefnrlines_ );
     lb_->body().fieldwidth_ = setup.prefwidth_;
 
-    mkLabel( setup.lbl_, setup.lblpos_ );
     mkCheckGroup();
+    mkLabel( setup.lbl_, setup.lblpos_ );
+    
 
     mStdConstrEnd;
 }
@@ -536,7 +537,13 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
 	labl->attach( centeredRightOf, lb_ );	lblct = alignedBelow;
     break;
     case AboveLeft:
-	lb_->attach( alignedBelow, labl );	lblct = alignedAbove;
+    if( isMultiChoice() )
+    {
+	labl->attach( rightOf, checkgrp_ );
+	break;
+    }
+    lb_->attach( alignedBelow, labl );	lblct = alignedAbove;
+
     break;
     case AboveMid:
 	lb_->attach( centeredBelow, labl );	lblct = centeredAbove;
