@@ -148,7 +148,7 @@ void dgbSurfaceReader::setOutput( EM::Surface& ns )
 {
     if ( surface_ ) surface_->unRef();
     surface_ = &ns;
-    surface_->ref();
+    if ( surface_ ) surface_->ref();
 }
 
 
