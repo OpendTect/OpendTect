@@ -30,11 +30,10 @@ class Regular2RandomDataCopier : public ParallelTask
 public:
 		Regular2RandomDataCopier( RandomSeisDataPack& ransdp,
 					  const RegularSeisDataPack& regsdp,
-					  const TrcKeyPath& path,
 					  int compidx )
 		    : ransdp_( ransdp )
 		    , regsdp_( regsdp )
-		    , path_( path )
+		    , path_( ransdp.getPath() )
 		    , compidx_( compidx )
 		    , domemcopy_( false )
 		    , samplebytes_( sizeof(float) )
@@ -338,8 +337,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
     {
 	randsdp->addComponent( regsdp.getComponentName(idx) );
-	Regular2RandomDataCopier copier(
-		*randsdp, regsdp, randsdp->getPath(), idx );
+	Regular2RandomDataCopier copier( *randsdp, regsdp, idx );
 	copier.execute();
     }
 
