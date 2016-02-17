@@ -148,7 +148,7 @@ void dgbSurfaceReader::setOutput( EM::Surface& ns )
 {
     if ( surface_ ) surface_->unRef();
     surface_ = &ns;
-    surface_->ref();
+    if ( surface_) surface_->ref();
 }
 
 
@@ -326,7 +326,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     od_istream& strm = sconn.iStream();
     if ( !strm.isOK() )
     {
-	msg_ = uiStrings::phrCannotOpen(tr("horizon file")); 
+	msg_ = uiStrings::phrCannotOpen(tr("horizon file"));
 	strm.addErrMsgTo( msg_ );
 	delete conn_; conn_ = 0; return false;
     }
