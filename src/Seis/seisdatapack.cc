@@ -12,12 +12,14 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 
 #include "seisdatapack.h"
 
+#include "atomic.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "paralleltask.h"
+#include "posinfo.h"
 #include "randomlinegeom.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -175,7 +177,29 @@ RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
     , sampling_(false) //MUST be set to false in the constructor
+    , trcssampling_(0)
 {}
+
+
+RegularSeisDataPack::~RegularSeisDataPack()
+{
+}
+
+
+void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
+{
+    if ( is2D() )
+	return;
+
+    trcssampling_ = newposdata;
+}
+
+
+const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
+{
+    return is2D() ? 0 : trcssampling_;
+}
+
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 { return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
@@ -294,7 +318,7 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 }
 
 
-void RandomSeisDataPack::setRandomLineID( int rdlid ) 
+void RandomSeisDataPack::setRandomLineID( int rdlid )
 {
     path_.erase();
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );

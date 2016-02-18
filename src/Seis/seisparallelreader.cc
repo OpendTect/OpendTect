@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "convmemvalseries.h"
 #include "datapackbase.h"
 #include "ioobj.h"
+#include "posinfo.h"
 #include "samplingdata.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
@@ -155,10 +156,17 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
-    //Set ranges, at least z-range
-    mDynamicCastGet( SeisTrcTranslator*, translator,
-		     reader->translator() );
+    if ( !threadid && !dp_->is2D() )
+    {
+	PosInfo::CubeData cubedata;
+	if ( reader->get3DGeometryInfo(cubedata) )
+	{
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+	}
+    }
 
+    //Set ranges, at least z-range
+    mDynamicCastGet( SeisTrcTranslator*, translator, reader->translator() );
     if ( !translator || !translator->supportsGoTo() )
     {
 	errmsg_ = tr("Storage does not support random access");

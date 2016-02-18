@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 
 class BinIDValueSet;
+namespace PosInfo { class CubeData; }
 
 /*!
 \brief SeisDataPack for 2D and 3D seismic data.
@@ -29,11 +30,17 @@ mExpClass(Seis) RegularSeisDataPack : public SeisDataPack
 public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
+				~RegularSeisDataPack();
 
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
+
+    void			setTrcsSampling(PosInfo::CubeData*);
+				//!<Becomes mine
+    const PosInfo::CubeData*	getTrcsSampling() const;
+				//!<Only for 3D
     bool			is2D() const;
 
     bool			addComponent(const char* nm);
@@ -49,10 +56,10 @@ public:
 				{ return sampling_.zsamp_; }
 
     static DataPack::ID		createDataPackForZSlice(const BinIDValueSet*,
-	    					const TrcKeyZSampling&,
- 						const ZDomain::Info&,
- 						const BufferStringSet& nms=0);
-    				/*!< Creates RegularSeisDataPack from
+						const TrcKeyZSampling&,
+						const ZDomain::Info&,
+						const BufferStringSet& nms=0);
+				/*!< Creates RegularSeisDataPack from
 				BinIDValueSet for z-slices in z-axis transformed
 				domain. nrComponents() in the created datapack
 				will be one less than BinIDValueSet::nrVals(),
@@ -61,6 +68,7 @@ public:
 protected:
 
     TrcKeyZSampling		sampling_;
+    PtrMan<PosInfo::CubeData>	trcssampling_;
 };
 
 
@@ -124,8 +132,8 @@ public:
 
     virtual bool		isVertical() const			= 0;
     virtual const TrcKeyPath&	getPath() const				= 0;
-				//!< Will be empty if isVertical() is false 
-    				//!< Eg: Z-slices. Or if the data corresponds
+				//!< Will be empty if isVertical() is false
+				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
     int				getRandomLineID() const	{ return rdlid_; }
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
