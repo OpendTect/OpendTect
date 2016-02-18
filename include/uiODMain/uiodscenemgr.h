@@ -50,11 +50,12 @@ public:
     int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
 		     const uiString& nm=uiString::emptyString());
-				//!<Returns scene id
     void			setSceneName(int sceneid,const uiString&);
     uiString			getSceneName(int sceneid) const;
+				//!<Returns scene id
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
+    CNotifier<uiODSceneMgr,int> treeAdded;
 
     void			getScenePars(IOPar&);
     void			useScenePars(const IOPar&);
@@ -129,11 +130,11 @@ public:
     void			disabTrees( bool yn );
 
     void			getLoadedPickSetIDs(TypeSet<MultiID>&,bool poly,
-	    					    int scnid=-1) const;
+						    int scnid=-1) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
-	    				       const char* emtypestr=0,
+					       const char* emtypestr=0,
 					       int sceneid=-1) const;
-    				// if sceneid==-1, then all scenes
+				// if sceneid==-1, then all scenes
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
     int				addPickSetItem(const MultiID&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
@@ -144,7 +145,7 @@ public:
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
     int				addZSliceItem(const TrcKeyZSampling&,
-	    				      int sceneid=-1);
+					      int sceneid=-1);
 
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
@@ -162,7 +163,7 @@ public:
 
     void			translateText();
 
-    static uiString		sElements() 	{ return tr("Elements"); }
+    static uiString		sElements()	{ return tr("Elements"); }
 
 protected:
 

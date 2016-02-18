@@ -66,6 +66,7 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     , newmenu_(uiStrings::sNew())
     , trackitem_(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx)
     , constzitem_(m3Dots(tr("With Constant Z")),mConstIdx)
+    , handleMenu(this)
 {
     newmenu_.addItem( &trackitem_ );
     newmenu_.addItem( &constzitem_ );
@@ -132,6 +133,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
+    handleMenu.trigger( mnuid );
     if ( mnuid == mAddIdx || mnuid==mAddAtSectIdx || mnuid==mAddCBIdx )
     {
 	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), true );

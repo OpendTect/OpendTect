@@ -99,6 +99,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , activeSceneChanged(this)
     , sceneClosed(this)
     , treeToBeAdded(this)
+    , treeAdded(this)
     , viewModeChanged(this)
     , tiletimer_(new Timer)
 {
@@ -210,6 +211,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     actMode(0);
     treeToBeAdded.trigger( sceneid );
     initTree( scn, vwridx_ );
+    treeAdded.trigger( sceneid );
 
     if ( scenes_.size()>1 && scenes_[0] )
     {
