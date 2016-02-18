@@ -9,7 +9,7 @@ add_definitions( -DmNoAutoUiString )
 
 
 set(OD_MODULE_DEPS Geometry )
-list ( APPEND OD_TEST_PROGS emstoredobjaccess.cc )
+list ( APPEND OD_NIGHTLY_TEST_PROGS emstoredobjaccess.cc )
 set(OD_MODULE_SOURCES
 		em2ddatafmtconverter.cc
 		embody.cc
