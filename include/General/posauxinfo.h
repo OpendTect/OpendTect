@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "position.h"
 
+mStartAllowDeprecatedSection
 
 /*!\brief Auxiliray data possibly needed at location. Mostly a seismic thing. */
 
@@ -130,5 +131,6 @@ public:
     mDeprecated bool&	refnr;      //!<Old syntax. Will be deprecated
 };
 
+mStopAllowDeprecatedSection
 
 #endif

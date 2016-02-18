@@ -203,6 +203,7 @@ mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 	0
 };
 
+mStartAllowDeprecatedSection
 
 SeisTrcInfo::SeisTrcInfo()
     : sampling_(0,defaultSampleInterval()), nr_(0)
@@ -235,6 +236,9 @@ SeisTrcInfo::SeisTrcInfo( const SeisTrcInfo& b )
 {
     *this = b;
 }
+
+
+mStopAllowDeprecatedSection
 
 
 SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& b )
