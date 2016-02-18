@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "seismod.h"
 
 #include "datapackbase.h"
-#include "trckeyzsampling.h"
+#include "posinfo.h"
 #include "seisinfo.h"
+#include "trckeyzsampling.h"
 
 class BinIDValueSet;
 namespace PosInfo { class CubeData; }
