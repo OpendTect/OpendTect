@@ -674,12 +674,39 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 {
     Survey::GMAdmin().updateGeometries( 0 );
     Survey::GM().getList( lnms, gids, true );
-    for ( int idx=gids.size()-1; idx>=0; idx-- )
+    BoolTypeSet hasdata( gids.size(), false );
+
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
-	if ( !SeisIOObjInfo::hasData(gids[idx]) )
+	const IOObj& ioobj = *ioobjs[idx];
+	TypeSet<Pos::GeomID> dsgids;
+	if ( SeisTrcTranslator::isPS(ioobj) )
+	    SPSIOPF().getGeomIDs( ioobj, dsgids );
+	else if ( *ioobj.group() == '2' )
 	{
-	    lnms.removeSingle( idx );
-	    gids.removeSingle( idx );
+	    Seis2DDataSet dset( ioobj );
+	    dset.getGeomIDs( dsgids );
+	}
+
+	if ( dsgids.isEmpty() )
+	    continue;
+
+	for ( int idl=0; idl<gids.size(); idl++ )
+	{
+	    if ( !hasdata[idl] && dsgids.isPresent(gids[idl]) )
+		hasdata[idl] = true;
+	}
+    }
+
+    for ( int idl=gids.size()-1; idl>=0; idl-- )
+    {
+	if ( !hasdata[idl] )
+	{
+	    lnms.removeSingle( idl );
+	    gids.removeSingle( idl );
 	}
     }
 }
