@@ -204,6 +204,55 @@ mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 };
 
 
+SeisTrcInfo::SeisTrcInfo()
+    : sampling_(0,defaultSampleInterval()), nr_(0)
+    , refnr_(mUdf(float)), pick_(mUdf(float))
+    , offset_(0), azimuth_(0), zref_(0), new_packet_(false)
+    , binid(trckey_.pos())
+    , sampling( sampling_ )
+    , coord( coord_ )
+    , nr( nr_ )
+    , pick( pick_ )
+    , offset( offset_ )
+    , azimuth( azimuth_ )
+    , refnr( refnr_ )
+    , zref( zref_ )
+    , new_packet( new_packet_ )
+{}
+
+
+SeisTrcInfo::SeisTrcInfo( const SeisTrcInfo& b )
+    : binid(trckey_.pos())
+    , sampling( sampling_ )
+    , coord( coord_ )
+    , nr( nr_ )
+    , pick( pick_ )
+    , offset( offset_ )
+    , azimuth( azimuth_ )
+    , refnr( refnr_ )
+    , zref( zref_ )
+    , new_packet( new_packet_ )
+{
+    *this = b;
+}
+
+
+SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& b )
+{
+    sampling_ = b.sampling_;
+    nr_ = b.nr_;
+    trckey_ = b.trckey_;
+    coord_ = b.coord_;
+    offset_ = b.offset_;
+    azimuth_ = b.azimuth_;
+    refnr_ = b.refnr_;
+    pick_ = b.pick_;
+    zref_ = b.zref_;
+    new_packet_ = b.new_packet_;
+    return *this;
+}
+
+
 void SeisPacketInfo::clear()
 {
     usrinfo = defaultusrinfo;
@@ -239,15 +288,15 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
 {
     switch ( fld )
     {
-    case CoordX:	return coord.x;
-    case CoordY:	return coord.y;
+    case CoordX:	return coord_.x;
+    case CoordY:	return coord_.y;
     case BinIDInl:	return binid.inl();
     case BinIDCrl:	return binid.crl();
-    case Offset:	return offset;
-    case Azimuth:	return azimuth;
-    case RefNr:		return refnr;
-    case Pick:		return pick;
-    default:		return nr;
+    case Offset:	return offset_;
+    case Azimuth:	return azimuth_;
+    case RefNr:		return refnr_;
+    case Pick:		return pick_;
+    default:		return nr_;
     }
 }
 
@@ -277,9 +326,9 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
     if ( !ti )
 	return isps ? Offset : (is2d ? TrcNr : BinIDCrl);
 
-    if ( isps && !mIsZero(ti->offset-offset,1e-4) )
+    if ( isps && !mIsZero(ti->offset_-offset_,1e-4) )
 	return Offset;
-    if ( is2d && ti->nr != nr )
+    if ( is2d && ti->nr_ != nr_ )
 	return TrcNr;
     if ( !is2d && ti->binid.crl() != binid.crl() )
 	return BinIDCrl;
@@ -287,7 +336,7 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 	return BinIDInl;
 
     // 'normal' doesn't apply, try coordinates
-    return mIsZero(ti->coord.x-coord.x,.1) ? CoordY : CoordX;
+    return mIsZero(ti->coord_.x-coord_.x,.1) ? CoordY : CoordX;
 }
 
 
@@ -300,15 +349,15 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 
     if ( isps )
     {
-	mIOIOPar( set, Offset, offset );
-	mIOIOPar( set, Azimuth, azimuth );
+	mIOIOPar( set, Offset, offset_ );
+	mIOIOPar( set, Azimuth, azimuth_ );
     }
 
     if ( is2d )
     {
-	mIOIOPar( set, TrcNr, nr );
-	if ( refnr && !mIsUdf(refnr) )
-	    mIOIOPar( set, RefNr, refnr );
+	mIOIOPar( set, TrcNr, nr_ );
+	if ( refnr_ && !mIsUdf(refnr_) )
+	    mIOIOPar( set, RefNr, refnr_ );
     }
     else
     {
@@ -317,69 +366,70 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 	iopar.set( sKey::Position(), binid.toString() );
     }
 
-    mIOIOPar( set, CoordX, coord.x );
-    mIOIOPar( set, CoordY, coord.y );
+    mIOIOPar( set, CoordX, coord_.x );
+    mIOIOPar( set, CoordY, coord_.y );
 
-    if ( pick && !mIsUdf(pick) )
-	mIOIOPar( set, Pick, pick );
-    if ( refnr && !mIsUdf(refnr) )
-	mIOIOPar( set, RefNr, refnr );
+    if ( pick_ && !mIsUdf(pick_) )
+	mIOIOPar( set, Pick, pick_ );
+    if ( refnr_ && !mIsUdf(refnr_) )
+	mIOIOPar( set, RefNr, refnr_ );
 }
 
 
 void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 {
-    offset = (float) rcv.distTo( src );
-    azimuth = mCast(float, Math::Atan2( rcv.y - src.y, rcv.x - src.x ) );
+    offset_ = (float) rcv.distTo( src );
+    azimuth_ = mCast(float, Math::Atan2( rcv.y - src.y, rcv.x - src.x ) );
     if ( setpos )
     {
-	coord.x = .5 * (rcv.x + src.x);
-	coord.y = .5 * (rcv.y + src.y);
-	binid = SI().transform( coord );
+	coord_.x = .5 * (rcv.x + src.x);
+	coord_.y = .5 * (rcv.y + src.y);
+	binid = SI().transform( coord_ );
     }
 }
 
 
 void SeisTrcInfo::usePar( const IOPar& iopar )
 {
-    mIOIOPar( get, TrcNr,	nr );
+    mIOIOPar( get, TrcNr,	nr_ );
     mIOIOPar( get, BinIDInl,	binid.inl() );
     mIOIOPar( get, BinIDCrl,	binid.crl() );
-    mIOIOPar( get, CoordX,	coord.x );
-    mIOIOPar( get, CoordY,	coord.y );
-    mIOIOPar( get, Offset,	offset );
-    mIOIOPar( get, Azimuth,	azimuth );
-    mIOIOPar( get, Pick,	pick );
-    mIOIOPar( get, RefNr,	refnr );
+    mIOIOPar( get, CoordX,	coord_.x );
+    mIOIOPar( get, CoordY,	coord_.y );
+    mIOIOPar( get, Offset,	offset_ );
+    mIOIOPar( get, Azimuth,	azimuth_ );
+    mIOIOPar( get, Pick,	pick_ );
+    mIOIOPar( get, RefNr,	refnr_ );
 
-    iopar.get( sSamplingInfo, sampling.start, sampling.step );
+    iopar.get( sSamplingInfo, sampling_.start, sampling_.step );
 }
+
 
 void SeisTrcInfo::fillPar( IOPar& iopar ) const
 {
-    mIOIOPar( set, TrcNr,	nr );
+    mIOIOPar( set, TrcNr,	nr_ );
     mIOIOPar( set, BinIDInl,	binid.inl() );
     mIOIOPar( set, BinIDCrl,	binid.crl() );
-    mIOIOPar( set, CoordX,	coord.x );
-    mIOIOPar( set, CoordY,	coord.y );
-    mIOIOPar( set, Offset,	offset );
-    mIOIOPar( set, Azimuth,	azimuth );
-    mIOIOPar( set, Pick,	pick );
-    mIOIOPar( set, RefNr,	refnr );
+    mIOIOPar( set, CoordX,	coord_.x );
+    mIOIOPar( set, CoordY,	coord_.y );
+    mIOIOPar( set, Offset,	offset_ );
+    mIOIOPar( set, Azimuth,	azimuth_ );
+    mIOIOPar( set, Pick,	pick_ );
+    mIOIOPar( set, RefNr,	refnr_ );
 
-    iopar.set( sSamplingInfo, sampling.start, sampling.step );
+    iopar.set( sSamplingInfo, sampling_.start, sampling_.step );
 }
 
 
 bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 {
-    return t > sampling.start-1e-6 && t < samplePos(trcsz-1) + 1e-6;
+    return t > sampling_.start-1e-6 && t < samplePos(trcsz-1) + 1e-6;
 }
 
 
 int SeisTrcInfo::nearestSample( float t ) const
 {
-    float s = mIsUdf(t) ? 0 : (t - sampling.start) / sampling.step;
+    float s = mIsUdf(t) ? 0 : (t - sampling_.start) / sampling_.step;
     return mNINT32(s);
 }
 
@@ -393,8 +443,8 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
 	return sg;
 
     Interval<float> vals(
-	mIsUdf(tg.start) ? 0 : (tg.start-sampling.start) / sampling.step,
-	mIsUdf(tg.stop) ? 0 : (tg.stop-sampling.start) / sampling.step );
+	mIsUdf(tg.start) ? 0 : (tg.start-sampling_.start) / sampling_.step,
+	mIsUdf(tg.stop) ? 0 : (tg.stop-sampling_.start) / sampling_.step );
 
     if ( vals.start < vals.stop )
     {
@@ -418,9 +468,9 @@ Seis::PosKey SeisTrcInfo::posKey( Seis::GeomType gt ) const
 {
     switch ( gt )
     {
-    case Seis::VolPS:	return Seis::PosKey( binid, offset );
-    case Seis::Line:	return Seis::PosKey( nr );
-    case Seis::LinePS:	return Seis::PosKey( nr, offset );
+    case Seis::VolPS:	return Seis::PosKey( binid, offset_ );
+    case Seis::Line:	return Seis::PosKey( nr_ );
+    case Seis::LinePS:	return Seis::PosKey( nr_, offset_ );
     default:		return Seis::PosKey( binid );
     }
 }
@@ -430,9 +480,9 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
 {
     Seis::GeomType gt = pk.geomType();
     if ( Seis::isPS(gt) )
-	offset = pk.offset();
+	offset_ = pk.offset();
     if ( Seis::is2D(gt) )
-	nr = pk.trcNr();
+	nr_ = pk.trcNr();
     else
 	binid = pk.binID();
 }
@@ -440,25 +490,25 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
 
 void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
 {
-    auxinf.binid = binid;
-    auxinf.startpos = sampling.start;
-    auxinf.coord = coord;
-    auxinf.offset = offset;
-    auxinf.azimuth = azimuth;
-    auxinf.pick = pick;
-    auxinf.refnr = refnr;
+    auxinf.trckey_ = trckey_;
+    auxinf.startpos_ = sampling_.start;
+    auxinf.coord_ = coord_;
+    auxinf.offset_ = offset_;
+    auxinf.azimuth_ = azimuth_;
+    auxinf.pick_ = pick_;
+    auxinf.refnr_ = refnr_;
 }
 
 
 void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
 {
-    binid = auxinf.binid;
-    sampling.start = auxinf.startpos;
-    coord = auxinf.coord;
-    offset = auxinf.offset;
-    azimuth = auxinf.azimuth;
-    pick = auxinf.pick;
-    refnr = auxinf.refnr;
+    trckey_ = auxinf.trckey_;
+    sampling_.start = auxinf.startpos_;
+    coord_ = auxinf.coord_;
+    offset_ = auxinf.offset_;
+    azimuth_ = auxinf.azimuth_;
+    pick_ = auxinf.pick_;
+    refnr_ = auxinf.refnr_;
 }
 
 

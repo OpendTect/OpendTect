@@ -27,24 +27,22 @@ class PosAuxInfo;
 mExpClass(Seis) SeisTrcInfo
 {
 public:
-			SeisTrcInfo()
-			: sampling(0,defaultSampleInterval()), nr(0)
-			, refnr(mUdf(float)), pick(mUdf(float))
-			, offset(0), azimuth(0), zref(0), new_packet(false)
-			{}
+			SeisTrcInfo();
+			SeisTrcInfo(const SeisTrcInfo&);
+    SeisTrcInfo&	operator=(const SeisTrcInfo&);
 
-    SamplingData<float>	sampling;
-    int			nr;
-    BinID		binid;
-    Coord		coord;
-    float		offset;
-    float		azimuth;
-    float		refnr;
-    float		pick;
+    SamplingData<float>	sampling_;
+    int			nr_;
+    TrcKey		trckey_;
+    Coord		coord_;
+    float		offset_;
+    float		azimuth_;
+    float		refnr_;
+    float		pick_;
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
-			{ return sampling.atIndex( idx ); }
+			{ return sampling_.atIndex( idx ); }
     SampleGate		sampleGate(const Interval<float>&) const;
     bool		dataPresent(float pos,int trcsize) const;
 
@@ -71,9 +69,48 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    float		zref;		// not stored
-    bool		new_packet;	// not stored
+    float		zref_;		// not stored
+    bool		new_packet_;	// not stored
 
+
+    float&			pick;
+                                /*!<For backward compatibility. Will be
+                                    removed in future releases. */
+
+    SamplingData<float>&	sampling;
+                                        /*!<For backward compatibility. Will be
+                                            removed in future releases. */
+    int&			nr;
+                                        /*!<For backward compatibility. Will be
+                                            removed in future releases. */
+    BinID&                              binid;
+                                        /*!<Reference into the trckey.
+                                            For backward compatibility. Will be
+                                            deprecated in future releases. */
+    Coord&                  coord;
+                                        /*!<For backward compatibility. Will be
+                                            removed in future releases. */
+
+    float&                  offset;
+                                        /*!<Reference into the trckey.
+                                         For backward compatibility. Will be
+                                         deprecated in future releases. */
+    float&                  azimuth;
+                                    /*!<Reference into the trckey.
+                                     For backward compatibility. Will be
+                                     deprecated in future releases. */
+    float&                  refnr;
+                                    /*!<Reference into the trckey.
+                                     For backward compatibility. Will be
+                                     deprecated in future releases. */
+    float&                  zref;
+                                    /*!<Reference into the trckey.
+                                     For backward compatibility. Will be
+                                     deprecated in future releases. */
+    bool&                   new_packet;
+                                    /*!<Reference into the trckey.
+                                     For backward compatibility. Will be
+                                     deprecated in future releases. */
 };
 
 

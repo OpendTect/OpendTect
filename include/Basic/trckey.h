@@ -71,7 +71,11 @@ public:
 private:
     SurvID		survid_;
     BinID		pos_;
+public:
 
+    BinID&		pos()			{ return pos_; }
+    						//Not for everyday use
+						//may be deprecated soon
 };
 
 
