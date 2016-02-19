@@ -137,9 +137,10 @@ mClass(Basic) MemValReplacer : public ParallelTask
 { mODTextTranslationClass(MemValReplacer);
 public:
 		MemValReplacer();
-		MemValReplacer(T*,const T& fromval,const T& toval,od_int64 sz);
+		MemValReplacer(T*,const T& fromval,const T& toval,od_int64 sz,
+			       TypeSet<od_int64>* repids=0);
 		MemValReplacer(ValueSeries<T>&,const T& from,const T& to,
-			       od_int64 sz);
+			       od_int64 sz,TypeSet<od_int64>* repids=0);
 
     void        setFromValue(const T& val)	{ fromval_ = val; }
     void        setToValue(const T& val)	{ toval_ = val; }
@@ -162,12 +163,14 @@ protected:
     od_int64            sz_;
     T                   toval_;
     T                   fromval_;
+    TypeSet<od_int64>*	repids_;
+    TypeSet<TypeSet<od_int64> > threadrepids_;
 
 private:
 
     bool	doPrepare(int);
     bool	doWork(od_int64,od_int64,int);
-
+    bool	doFinish(bool yn);
 };
 
 
@@ -387,46 +390,89 @@ bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
 
 template <class T> inline
 MemValReplacer<T>::MemValReplacer( T* ptr, const T& fromval, const T& toval,
-				   od_int64 sz )
+				   od_int64 sz, TypeSet<od_int64>* repids )
     : ptr_( ptr )
     , vs_( 0 )
     , fromval_( fromval )
     , toval_( toval )
     , sz_( sz )
+    , repids_(repids)
 {}
 
 
 template <class T> inline
 MemValReplacer<T>::MemValReplacer(ValueSeries<T>& vs, const T& fromval,
 				  const T& toval,
-				  od_int64 sz)
+				  od_int64 sz, TypeSet<od_int64>* repids )
     : ptr_( vs.arr() )
     , vs_( &vs )
     , toval_( toval )
     , fromval_( fromval )
     , sz_( sz )
+    , repids_(repids)
 {}
 
 
 template <class T> inline
-bool MemValReplacer<T>::doPrepare( int )
-{ return ptr_ || vs_; }
+bool MemValReplacer<T>::doPrepare( int nrthreds )
+{
+   if ( repids_ )
+      threadrepids_.setSize( nrthreds );
+
+   return ptr_ || vs_;
+}
 
 
 template <class T> inline
-bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
+bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int thread )
 {
     if ( ptr_ )
-	return setPtr( start, stop-start+1 );
+    {
+	if ( !repids_ )
+	    return setPtr( start, stop-start+1 );
+	else
+	{
+	    for ( od_int64 idx=start; idx<=stop; idx++ )
+	    {
+		if ( ptr_[idx]==fromval_ )
+		{
+		    ptr_[idx] = toval_;
+		    threadrepids_[thread] += idx;
+		}
+	    }
+	    return true;
+	}
+    }
 
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	if ( vs_->value(idx)==fromval_ )
+	{
 	    vs_->setValue( idx, toval_ );
+	    if ( repids_ )
+		threadrepids_[thread] += idx;
+	}
     }
 
     return true;
 }
+
+template <class T> inline
+bool MemValReplacer<T>::doFinish( bool yn )
+{
+    if ( repids_ )
+    {
+	repids_->erase();
+	for ( int idx=0; idx<threadrepids_.size(); idx++ )
+	{
+	    for ( int idy=0; idy<threadrepids_[idx].size(); idy++ )
+		repids_->add( threadrepids_[idx][idy] );
+	}
+    }
+
+    return yn;
+}
+
 
 template <class T> inline
 bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
