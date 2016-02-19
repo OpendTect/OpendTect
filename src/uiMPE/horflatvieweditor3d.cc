@@ -247,9 +247,37 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 {
+    if ( !editor_ ) return;
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+    if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
+	return;
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
     const MouseEvent& mouseevent = mehandler_->event();
-    if ( (editor_ && editor_->sower().accept(mouseevent,false)) ||
-	 !mouseevent.leftButton() )
+    const Geom::Point2D<int>& mousepos = mouseevent.pos();
+    if ( mouseevent.rightButton() && mouseevent.ctrlStatus() )
+    {
+	const uiWorldPoint wp = vwr->getWorld2Ui().transform( mousepos );
+	const TrcKey tk( SI().transform(vwr->getCoord(wp)) );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
+	if ( hor3d && hor3d->hasZ(tk) )
+	{
+	    uiMenu menu;
+	    menu.insertAction( new uiAction(tr("Select Children")), 0 );
+	    if ( menu.exec() ==0 )
+	    {
+		hor3d->selectChildren( tk );
+		return;
+	    }
+	}
+    }
+
+    if ( editor_->sower().accept(mouseevent,false) || !mouseevent.leftButton() )
 	return;
 
     const bool haspath = curtkpath_ && !curtkpath_->isEmpty();
@@ -259,13 +287,6 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 	return;
 
     //if ( !seedpickingon_ ) return;
-
-    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker || tracker->objectID() != emid_ || tracker->is2D() )
-	return;
-
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker )
@@ -277,10 +298,6 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( !checkSanity(*tracker,*seedpicker,pickinvd) )
 	return;
 
-    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
-    if ( !vwr ) return;
-
-    const Geom::Point2D<int>& mousepos = mouseevent.pos();
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
@@ -314,21 +331,6 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 	    return;
     }
 
-    const uiWorldPoint wp = vwr->getWorld2Ui().transform( mousepos );
-    const TrcKey tk( SI().transform(vwr->getCoord(wp)) );
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
-    if ( !hor3d || !hor3d->hasZ(tk) )
-	return;
-
-    if ( mouseevent.rightButton() && mouseevent.ctrlStatus() )
-    {
-	uiMenu menu;
-	menu.insertAction( new uiAction(tr("Select Children")), 0 );
-	if ( menu.exec() ==0 )
-	{
-	    hor3d->selectChildren( tk );
-	}
-    }
 }
 
 
@@ -391,7 +393,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
 
-    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() && 
+    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawAndSnap )
 	emobj->setBurstAlert( false );
@@ -437,7 +439,7 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* cb )
 	    horpainter_->setUpdateTrcKeySampling( tckpath );
 	}
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( emobj ) 
+	if ( emobj )
 	    emobj->setBurstAlert( false );
 	seedpicker->endPatch( false );
 	updatePatchDisplay();
@@ -705,7 +707,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	    if ( tracker )
 	    {
-		const MPE::EMSeedPicker* seedpicker = 
+		const MPE::EMSeedPicker* seedpicker =
 		    tracker->getSeedPicker(true);
 		if ( seedpicker && !seedpicker->getSowerMode() )
 		    updatePatchDisplay();
