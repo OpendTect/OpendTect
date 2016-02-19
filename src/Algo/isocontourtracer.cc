@@ -32,7 +32,7 @@ static HiddenParam< IsoContourTracer, unsigned int > edgepar_( 0 );
 
 
 static bool nextCrossing( Array3DImpl<float>& crossings, int& idx, int& idy,
-			  int& hor, int& up, float& frac ) 
+			  int& hor, int& up, float& frac )
 {
     const int xsize = crossings.info().getSize(0);
     const int ysize = crossings.info().getSize(1);
@@ -42,12 +42,12 @@ static bool nextCrossing( Array3DImpl<float>& crossings, int& idx, int& idy,
     const int ridx = up!=hor ? idx : ( hor ? idx+1 : idx-1 );	/* [r]ight */
     const int ridy =   up    ? idy : ( hor ? idy-1 : idy+1 );
 
-    float lfrac = mUdf(float); 
-    if ( lidx>=0 && lidx<xsize && lidy>=0 && lidy<ysize ) 
+    float lfrac = mUdf(float);
+    if ( lidx>=0 && lidx<xsize && lidy>=0 && lidy<ysize )
 	lfrac = crossings.get( lidx, lidy, 1-hor );
 
-    float rfrac = mUdf(float); 
-    if ( ridx>=0 && ridx<xsize && ridy>=0 && ridy<ysize ) 
+    float rfrac = mUdf(float);
+    if ( ridx>=0 && ridx<xsize && ridy>=0 && ridy<ysize )
 	rfrac = crossings.get( ridx, ridy, 1-hor );
 
     if ( !mIsUdf(lfrac) && !mIsUdf(rfrac) )			/* Tie-break */
@@ -75,28 +75,28 @@ static bool nextCrossing( Array3DImpl<float>& crossings, int& idx, int& idy,
 	up = up==hor ? 0 : 1;
 	return true;
     }
-		
+
     const int sidx =  hor ? idx : ( up ? idx+1 : idx-1 );	/* [s]traight */
     const int sidy = !hor ? idy : ( up ? idy+1 : idy-1 );
 
-    float sfrac = mUdf(float); 
-    if ( sidx>=0 && sidx<xsize && sidy>=0 && sidy<ysize ) 
+    float sfrac = mUdf(float);
+    if ( sidx>=0 && sidx<xsize && sidy>=0 && sidy<ysize )
 	sfrac = crossings.get( sidx, sidy, hor );
-    
+
     if ( mIsUdf(sfrac) )
 	return false;
-    
+
     idx = sidx; idy = sidy; frac = sfrac;
     return true;
 }
 
 
 class SameZFinder : public ParallelTask
-{ 
+{
 public:
 				SameZFinder( const Array2D<float>* field,
-					     Array3DImpl<float>* zarray, 
-					     const ODPolygon<float>*polyroi, 
+					     Array3DImpl<float>* zarray,
+					     const ODPolygon<float>*polyroi,
 					     const float zval,
 					     const float edgevalue);
     void			setRanges(const Interval<int>&,
@@ -126,7 +126,7 @@ private:
 
 
 class ContourTracer : public ParallelTask
-{ 
+{
 public:
 			    ContourTracer(
 					ObjectSet<ODPolygon<float> >& contours,
@@ -168,7 +168,7 @@ private:
 };
 
 
-SameZFinder::SameZFinder( const Array2D<float>* field, 
+SameZFinder::SameZFinder( const Array2D<float>* field,
     Array3DImpl<float>* zarray, const ODPolygon<float>*polyroi,
     const float zval, const float edgevalue )
     : field_( field )
@@ -182,7 +182,7 @@ SameZFinder::SameZFinder( const Array2D<float>* field,
     totalnr_ = zarray_ ? zarray_->info().getSize(0) : 0 ;
 }
 
-void SameZFinder::setRanges( const Interval<int>&xrange, 
+void SameZFinder::setRanges( const Interval<int>&xrange,
     const Interval<int>& yrange )
 {
     xrange_ = xrange;
@@ -430,7 +430,7 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 {
     deepErase( contours );
     const unsigned int edge = edgepar_.getParam(this);
-    Array3DImpl<float>* crossings = new Array3DImpl<float>( 
+    Array3DImpl<float>* crossings = new Array3DImpl<float>(
 	xrange_.width()+2*edge+1, yrange_.width()+2*edge+1, 2 );
 
     const bool multithread1 = !Threads::WorkManager::twm().isWorkThread();
@@ -439,7 +439,10 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
     finder.setSamplings( xsampling_, ysampling_ );
     if ( finder.executeParallel( multithread1 ) )
     {
-	const bool multithread2 = !Threads::WorkManager::twm().isWorkThread();
+	const bool multithread2 = false;
+	// Line below leads to a freeze of the system. No clue why. Making the
+	// ContourTracer single threaded solves the problem for now.
+	//const bool multithread2 = !Threads::WorkManager::twm().isWorkThread();
 	ContourTracer tracer( contours, crossings, edge, bendpointeps_,
 	    nrlargestonly_, minnrvertices_, closedonly );
 	tracer.setRanges( xrange_, yrange_ );
@@ -447,7 +450,7 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 	tracer.executeParallel( multithread2 );
     }
     delete crossings;
-    
+
     if ( nrlargestonly_>0 && contours.size()>nrlargestonly_ )
     {
 	sort( contours );
