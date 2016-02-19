@@ -655,9 +655,9 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
 
 ~uiSeisBrowseWriter()
 {
-    delete safeio_;
     delete tri_;
-    delete tro_;
+    delete tro_; // tro_ may depend on a 'living' safeio_
+    delete safeio_;
 }
 
 
