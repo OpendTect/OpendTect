@@ -277,6 +277,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    mapper.usePar( iop );
 	}
 
+	if ( iop.isEmpty() )
+	    mapper = ColTab::MapperSetup();
+
 	DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
 	ConstDataPackRef<SeisDataPack> seisdp =
 	    dpm.obtain( am_.visserv_->getDataPackID(visid,attrib) );
