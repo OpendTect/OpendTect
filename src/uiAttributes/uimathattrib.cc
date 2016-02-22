@@ -153,26 +153,37 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 
     formSel(0);
 
+    int constidx = 0;
     if ( desc.getParam(Attrib::Mathematics::cstStr()) )
     {
 	mDescGetConstParamGroup(Attrib::DoubleParam,cstset,desc,
 				Attrib::Mathematics::cstStr());
-	for ( int idx=0; idx<cstset->size(); idx++ )
+	while ( constidx<cstset->size() )
 	{
-	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
+	    bool found = false;
+	    const ValParam& param = (ValParam&)(*cstset)[constidx];
+	    for ( int iinp=constidx; iinp<form_.nrInputs() && !found; iinp++ )
 	    {
-		BufferString cststr ( "c", idx );
-		if ( (BufferString) form_.variableName(iinp) == cststr )
+		if ( !form_.isConst(iinp) ) continue;
+
+		for ( int idx=0; !found; idx++ )
 		{
-		    form_.setInputDef( iinp, toString(param.getDValue()) );
-		    formfld_->inpFld(iinp)->use( form_ );
-		}
-		BufferString ccststr ( "C", idx );
-		if ( (BufferString) form_.variableName(iinp) == ccststr )
-		{
-		    form_.setInputDef( iinp, toString(param.getDValue()) );
-		    formfld_->inpFld(iinp)->use( form_ );
+		    BufferString cststr ( "c", idx );
+		    if ( (BufferString) form_.variableName(iinp) == cststr )
+		    {
+			form_.setInputDef( iinp, toString(param.getDValue()) );
+			formfld_->inpFld(iinp)->use( form_ );
+			constidx++;
+			found = true;
+		    }
+		    BufferString ccststr ( "C", idx );
+		    if ( (BufferString) form_.variableName(iinp) == ccststr )
+		    {
+			form_.setInputDef( iinp, toString(param.getDValue()) );
+			formfld_->inpFld(iinp)->use( form_ );
+			constidx++;
+			found = true;
+		    }
 		}
 	    }
 	}
@@ -287,7 +298,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 		constidx++;
 		DoubleParam& dparam = (DoubleParam&)(*cstset)[constidx];
 		dparam.setValue( formfld_->getConstVal(idx) );
-    }
+	    }
 	}
     }
 

@@ -117,18 +117,19 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     if ( formula_->isBad() )
     { errmsg_ = mToUiStringTodo(formula_->errMsg()); return; }
 
+    int curinpidx = 0;
     mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*cstset)[idx];
-	for ( int iinp=0; iinp<formula_->nrInputs(); iinp++ )
+	for ( int iinp=curinpidx; iinp<formula_->nrInputs(); iinp++ )
 	{
-	    BufferString cststr ( "c", idx );
-	    if ( (BufferString) formula_->variableName(iinp) == cststr )
+	    if ( formula_->isConst(iinp) )
+	    {
 		formula_->setInputDef( iinp, toString(param.getDValue()) );
-	    BufferString ccststr ( "C", idx );
-	    if ( (BufferString) formula_->variableName(iinp) == ccststr )
-		formula_->setInputDef( iinp, toString(param.getDValue()) );
+		curinpidx++;
+		break;
+	    }
 	}
     }
 
