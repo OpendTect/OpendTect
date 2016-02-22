@@ -51,7 +51,9 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
 	setbut_->attach( rightTo, inpfld_ );
 
-	vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
+	uiGroup* tblgrp = new uiGroup( this );
+	tblgrp->attach( alignedBelow, inpfld_ );
+	vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3.0f*uiObject::baseFldSize())
 					.maxcolwdt(3.5f*uiObject::baseFldSize())
@@ -61,7 +63,6 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 	const char* xcollbls[] = { "Select input for", 0 };
 	vartable_->setColumnLabels( xcollbls );
 	vartable_->setNrRows( 2 );
-	vartable_->attach( alignedBelow, inpfld_ );
 	vartable_->display( false );
     }
 }
