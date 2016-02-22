@@ -327,8 +327,13 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 
     const bool havetrc = tr_->goTo( binid );
     const bool canread = havetrc && tr_->read( ctrc_ );
-    if ( !canread && !veryfirst )
-	uiMSG().error( tr("Cannot read data at specified location") );
+    if ( !canread )
+    {
+	if ( !veryfirst )
+	    uiMSG().error( tr("Cannot read data at specified location") );
+	else
+	    fillUdf( ctrc_ );
+    }
     if ( !havetrc || !canread )
 	binid = ctrc_.info().binid;
 

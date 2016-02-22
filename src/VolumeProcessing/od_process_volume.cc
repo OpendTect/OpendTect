@@ -125,7 +125,8 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     ConstDataPackRef<RegularSeisDataPack> cube = pce->getOutput();
-    if ( cube ) DPM( DataPackMgr::SeisID() ).obtain( cube->id() );
+    if ( cube )
+	DPM( DataPackMgr::SeisID() ).obtain( cube->id() );
     ConstPtrMan<VelocityDesc> veldesc = chain->getVelDesc()
 	? new VelocityDesc( *chain->getVelDesc() )
 	: 0;
@@ -170,10 +171,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     if ( !cube )
-    {
-	strm << "Could not retrieve output";
-	return false;
-    }
+	{ strm << tr("No output generated."); return false; }
 
     TypeSet<int> indices;
     for ( int idx=0; idx<cube->nrComponents(); idx++ )

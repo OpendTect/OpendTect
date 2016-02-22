@@ -35,9 +35,11 @@ class Chain;
 class StepExecutor;
 class StepTask;
 
-/*!
- \brief An algorithm/calculation/transformation that takes one scalar volume as
- input, processes it, and puts the output in another volume.
+/*!\brief An algorithm/calculation/transformation that takes one scalar volume
+  as input, processes it, and puts the output in another volume.
+
+  Every step will be part of a Chain, which will give the step its ID.
+
  */
 
 mExpClass(VolumeProcessing) Step
@@ -46,18 +48,15 @@ public:
 				typedef int ID;
 				typedef int InputSlotID;
 				typedef int OutputSlotID;
+    static ID			cUndefID()		{ return mUdf(int); }
+    static int			cUndefSlotID()		{ return mUdf(int); }
 
 				mDefineFactoryInClass( Step, factory );
     virtual			~Step();
 
-    static ID			cUndefID()		{ return mUdf(int); }
-    static int			cUndefSlotID()		{ return mUdf(int); }
     ID				getID() const		{ return id_; }
-
     Chain&			getChain();
     const Chain&		getChain() const;
-    void			setChain(Chain&);
-
     virtual const char*		userName() const;
     virtual void		setUserName(const char* nm);
 
@@ -78,7 +77,7 @@ public:
 				/*!<When computing TrcKeySampling, how
 				 big input is needed? */
     virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
-				/*!<When computing TrcKeySampling, how
+				/*!<When computing Z Sampling, how
 				 big input is needed?*/
 
     virtual void		setInput(InputSlotID,
@@ -119,7 +118,8 @@ public:
 				{ return uiString::emptyString(); }
 
 protected:
-				Step();
+
+			Step();
 
     friend		class BinIDWiseTask;
     virtual bool	prefersBinIDWise() const		{ return false;}
@@ -140,7 +140,11 @@ protected:
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 
 private:
-    RegularSeisDataPack*		output_;
+
+    RegularSeisDataPack*	output_;
+    friend class		Chain;
+    void			setChain(Chain&);
+
 };
 
 
@@ -272,19 +276,23 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
+    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
+						const StepInterval<int>&);
+
     uiString			errMsg() const;
     uiString			uiNrDoneText() const;
 
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
-    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
-						const StepInterval<int>&);
 
     const RegularSeisDataPack*	getOutput() const;
     int				nextStep();
     static uiString		sGetStepErrMsg() { return 
 				uiStrings::phrCannotFind(tr(
 				"output step with id:%1")); }
+
+    bool			areSamplesIndependent() const;
+    bool			needsFullVolume() const;
 
 private:
     class Epoch
