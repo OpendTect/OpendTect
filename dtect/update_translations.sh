@@ -28,8 +28,6 @@ if [ $# -gt 5 ] && [ "$6" == "--quiet" ]; then
     quiet=on
 fi
 
-scriptdir=`dirname $0`
-nrcpu=`${scriptdir}/GetNrProc`
 
 sourcedir=$1
 tsbasedir=$2
@@ -38,6 +36,10 @@ application=$4
 lupdate=$5
 tmpoddir=/tmp/lupdate_tmp_$$
 outputdir=${binarydir}/data/localizations/generated
+
+scriptdir=`dirname $0`
+scriptdir="${sourcedir}/${scriptdir}"
+nrcpu=`${scriptdir}/GetNrProc`
 
 removetmpoddirsed="s/\/tmp\/"
 removetmpoddirsed+=`basename $tmpoddir`
