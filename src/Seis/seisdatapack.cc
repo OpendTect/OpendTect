@@ -185,7 +185,7 @@ RegularSeisDataPack::~RegularSeisDataPack()
 }
 
 
-void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
+void RegularSeisDataPack::setTrcsSampling( const PosInfo::CubeData* newposdata )
 {
     if ( is2D() )
 	return;
@@ -196,7 +196,7 @@ void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 
 const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
 {
-    return is2D() ? 0 : trcssampling_;
+    return is2D() ? 0 : trcssampling_.ptr();
 }
 
 

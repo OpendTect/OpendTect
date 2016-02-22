@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "multiid.h"
 
+namespace PosInfo { class CubeData; }
 class RegularSeisDataPack;
 class SeisTrcWriter;
 class SeisTrc;
@@ -47,6 +48,7 @@ private:
    const RegularSeisDataPack&	cube_;
    TrcKeySamplingIterator	iterator_;
    MultiID			mid_;
+   const PosInfo::CubeData*	trcssampling_;
    SeisTrcWriter*		writer_;
    SeisTrc*			trc_;
    TypeSet<int>			cubeindices_;

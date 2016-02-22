@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "posinfo.h"
 #include "seisdatapack.h"
 #include "seiswrite.h"
 #include "seistrc.h"
@@ -32,12 +33,19 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , cube_( dp )
     , iterator_( dp.sampling().hsamp_ )
     , mid_( mid )
+    , trcssampling_(0)
     , trc_( 0 )
     , cubeindices_( cubeindices )
 {
     const int startz =
 	mNINT32(dp.sampling().zsamp_.start/dp.sampling().zsamp_.step);
     zrg_ = Interval<int>( startz, startz+dp.sampling().nrZ()-1 );
+
+    if ( dp.getTrcsSampling() && !dp.getTrcsSampling()->isFullyRectAndReg() )
+    {
+	trcssampling_ = dp.getTrcsSampling();
+	totalnr_ = trcssampling_->totalSizeInside( tks_ );
+    }
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
@@ -58,7 +66,7 @@ od_int64 SeisDataPackWriter::nrDone() const
 uiString SeisDataPackWriter::uiMessage() const
 {
     return !writer_ ? uiStrings::phrCannotWrite(tr(
-	"the output, check permission?")) : 
+	"the output, check permission?")) :
 	tr("Writing out seismic volume \'%1\'").arg(writer_->ioObj()->uiName());
 }
 
@@ -70,7 +78,8 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     tks_ = hrg;
 
     iterator_.setSampling( hrg );
-    totalnr_ = (int) hrg.totalNr();
+    totalnr_ = trcssampling_ ? trcssampling_->totalSizeInside( hrg )
+			     : mCast(int,hrg.totalNr());
 }
 
 
@@ -118,8 +127,13 @@ int SeisDataPackWriter::nextStep()
 
     trc_->info().binid = currentpos;
     trc_->info().coord_ = SI().transform( currentpos );
-    const int inlidx = hs.inlRange().nearestIndex( currentpos.inl() );
-    const int crlidx = hs.crlRange().nearestIndex( currentpos.crl() );
+    const int inl = currentpos.inl();
+    const int crl = currentpos.crl();
+    if ( trcssampling_ && !trcssampling_->includes(inl,crl) )
+	return MoreToDo();
+
+    const int inlidx = hs.inlRange().nearestIndex( inl );
+    const int crlidx = hs.crlRange().nearestIndex( crl );
 
     for ( int idx=0; idx<cubeindices_.size(); idx++ )
     {
@@ -136,7 +150,7 @@ int SeisDataPackWriter::nextStep()
 	}
     }
 
-    if ( !writer_->put( *trc_ ) )
+    if ( !writer_->put(*trc_) )
 	return ErrorOccurred();
 
     nrdone_++;

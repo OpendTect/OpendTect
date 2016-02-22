@@ -38,7 +38,7 @@ public:
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
 
-    void			setTrcsSampling(PosInfo::CubeData*);
+    void			setTrcsSampling(const PosInfo::CubeData*);
 				//!<Becomes mine
     const PosInfo::CubeData*	getTrcsSampling() const;
 				//!<Only for 3D
@@ -69,7 +69,7 @@ public:
 protected:
 
     TrcKeyZSampling		sampling_;
-    PtrMan<PosInfo::CubeData>	trcssampling_;
+    PtrMan<const PosInfo::CubeData>	trcssampling_;
 };
 
 
