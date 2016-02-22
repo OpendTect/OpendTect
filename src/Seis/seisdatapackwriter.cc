@@ -14,11 +14,17 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "posinfo.h"
 #include "seisdatapack.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+
+#include "hiddenparam.h"
+
+static HiddenParam<SeisDataPackWriter,const PosInfo::CubeData*>
+       trcssamplingdpckwritermgr( 0 );
 
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
@@ -34,9 +40,17 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , trc_( 0 )
     , cubeindices_( cubeindices )
 {
+    trcssamplingdpckwritermgr.setParam( this, 0 );
     const int startz =
 	mNINT32(dp.sampling().zsamp_.start/dp.sampling().zsamp_.step);
     zrg_ = Interval<int>( startz, startz+dp.sampling().nrZ()-1 );
+
+    const PosInfo::CubeData* trcssampling = dp.getTrcsSampling();
+    if ( trcssampling && !trcssampling->isFullyRectAndReg() )
+    {
+	trcssamplingdpckwritermgr.setParam( this, trcssampling );
+	totalnr_ = trcssampling->totalSizeInside( tks_ );
+    }
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
@@ -47,6 +61,7 @@ SeisDataPackWriter::~SeisDataPackWriter()
 {
     delete trc_;
     delete writer_;
+    trcssamplingdpckwritermgr.removeParam( this );
 }
 
 
@@ -68,7 +83,10 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     tks_ = hrg;
 
     iterator_.setSampling( hrg );
-    totalnr_ = (int) hrg.totalNr();
+    const PosInfo::CubeData* trcssampling =
+			     trcssamplingdpckwritermgr.getParam( this );
+    totalnr_ = trcssampling ? trcssampling->totalSizeInside( hrg )
+			    : mCast(int,hrg.totalNr());
 }
 
 
@@ -115,8 +133,15 @@ int SeisDataPackWriter::nextStep()
 
     trc_->info().binid = currentpos;
     trc_->info().coord = SI().transform( currentpos );
-    const int inlidx = hs.inlRange().nearestIndex( currentpos.inl() );
-    const int crlidx = hs.crlRange().nearestIndex( currentpos.crl() );
+    const int inl = currentpos.inl();
+    const int crl = currentpos.crl();
+    const PosInfo::CubeData* trcssampling =
+			     trcssamplingdpckwritermgr.getParam( this );
+    if ( trcssampling && !trcssampling->includes(inl,crl) )
+	return MoreToDo();
+
+    const int inlidx = hs.inlRange().nearestIndex( inl );
+    const int crlidx = hs.crlRange().nearestIndex( crl );
 
     for ( int idx=0; idx<cubeindices_.size(); idx++ )
     {
@@ -133,7 +158,7 @@ int SeisDataPackWriter::nextStep()
 	}
     }
 
-    if ( !writer_->put( *trc_ ) )
+    if ( !writer_->put(*trc_) )
 	return ErrorOccurred();
 
     nrdone_++;
