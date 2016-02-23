@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "pickset.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodpicksettreeitem.h"
 #include "uiodviewer2d.h"
@@ -150,7 +151,7 @@ void uiODVw2DPickSetParentTreeItem::addPickSets(
 
 uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
     : uiODVw2DTreeItem(uiString::emptyString())
-    , pickset_(* new Pick::Set(Pick::Mgr().get(picksetid)))
+    , pickset_(Pick::Mgr().get(picksetid))
     , picksetmgr_(Pick::Mgr())
     , vw2dpickset_(0)
 {
@@ -163,18 +164,22 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
 
 uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int id, bool )
     : uiODVw2DTreeItem(uiString::emptyString())
-    , pickset_( *new Pick::Set(""))
+    , pickset_( const_cast<Pick::Set&> (*applMgr()->pickServer()->
+					createEmptySet(false)) )
     , picksetmgr_(Pick::Mgr())
     , vw2dpickset_(0)
 {
     displayid_ = id;
+    mAttachCB( picksetmgr_.setToBeRemoved,
+	       uiODVw2DPickSetTreeItem::removePickSetCB );
+    mAttachCB( picksetmgr_.setDispChanged,
+	       uiODVw2DPickSetTreeItem::displayChangedCB );
 }
 
 
 uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 {
     detachAllNotifiers();
-    delete &pickset_;
     if ( vw2dpickset_ )
 	viewer2D()->dataMgr()->removeObject( vw2dpickset_ );
 }
@@ -196,8 +201,6 @@ bool uiODVw2DPickSetTreeItem::init()
     }
     else
     {
-	delete &pickset_;
-	pickset_ = *new Pick::Set();
 	mDynamicCastGet(VW2DPickSet*,pickdisplay,
 			viewer2D()->dataMgr()->getObject(displayid_))
 	if ( !pickdisplay )
@@ -284,7 +287,22 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 	    applMgr()->storePickSetAs( pickset_ );
 	    break;
 	case 4:
-	    parent_->removeChild( this );
+	    const int picksetidx  = picksetmgr_.indexOf( pickset_ );
+	    if ( picksetidx>=0 )
+	    {
+		if ( picksetmgr_.isChanged(picksetidx) )
+		{
+		    const int res = uiMSG().askSave(
+			tr("Pickset '%1' has been modified. "
+			   "Do you want to save it?").arg(pickset_.name()) );
+		    if ( res==-1 )
+			return false;
+		    else if ( res==1 )
+			applMgr()->storePickSet( pickset_ );
+		}
+
+		parent_->removeChild( this );
+	    }
 	    break;
     }
 
