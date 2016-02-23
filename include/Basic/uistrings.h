@@ -370,6 +370,7 @@ public:
     static uiString sParFile()		{ return tr("Par File"); }
     static uiString sPause()            { return tr("Pause"); }
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
+    static uiString sPercentageDone()	{ return tr("Percentage done"); }
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }

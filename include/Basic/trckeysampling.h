@@ -37,6 +37,8 @@ public:
 			    //!< steps copied if available
     void		get(Interval<int>& linerg,Interval<int>& trcnrrg) const;
 			    //!< steps filled if available
+    TrcKeySampling	getLineChunk(int totalchunks,int chunknr) const;
+			//!< totalchunks > 0, 0 <= chunknr < totalchunks
 
     StepInterval<int>	lineRange() const;
     StepInterval<int>	trcRange() const;
