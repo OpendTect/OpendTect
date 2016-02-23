@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "executor.h"
 #include "mousecursor.h"
 #include "seisdatapack.h"
 #include "survinfo.h"

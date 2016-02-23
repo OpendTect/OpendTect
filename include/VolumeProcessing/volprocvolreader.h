@@ -13,9 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+#include "volprocstep.h"
 #include "multiid.h"
-#include "samplingdata.h"
-#include "volprocchain.h"
 
 class SeisTrcReader;
 class SeisTrcTranslator;
@@ -47,6 +46,7 @@ public:
     bool		needsFullVolume() const		{ return false; }
 
 protected:
+
     Task*		createTask();
 
     bool		prefersBinIDWise() const        { return false; }
@@ -56,6 +56,7 @@ protected:
     MultiID				mid_;
     ObjectSet<SeisTrcReader>		readers_;
     ObjectSet<SeisTrcTranslator>	translators_;
+
 };
 
 } // namespace VolProc

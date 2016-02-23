@@ -13,18 +13,22 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+#include "volprocstep.h"
 #include "multiid.h"
-#include "volprocchain.h"
 
 namespace Geometry { class FaultStickSurface; }
 namespace EM { class Fault; class Horizon; class Horizon3D; }
 
 namespace VolProc
 {
-/*!Fills a volume with values. The borders are given by a set of horizons
-   or faults with pre set side to calculate. The values are calculated based on
-   v0+g*d, where for each variable we use either fixed values or from some
-   fixed horizon reference data. */
+
+/*!Fills a volume with values.
+
+  The borders are given by a set of horizons
+  or faults with pre set side to calculate. The values are calculated based on
+  v0+g*d, where for each variable we use either fixed values or from some
+  fixed horizon reference data.
+*/
 
 
 mExpClass(VolumeProcessing) SurfaceLimitedFiller : public Step

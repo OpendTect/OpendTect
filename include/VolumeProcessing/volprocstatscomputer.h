@@ -15,10 +15,9 @@ ________________________________________________________________________
 
 
 #include "volumeprocessingmod.h"
-#include "paralleltask.h"
+#include "volprocstep.h"
 #include "trckeyzsampling.h"
-#include "uistring.h"
-#include "volprocchain.h"
+#include "paralleltask.h"
 
 template<class T> class Array3D;
 

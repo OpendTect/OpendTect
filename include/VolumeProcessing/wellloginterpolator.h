@@ -13,10 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+#include "volprocstep.h"
 
 #include "enums.h"
 #include "multiid.h"
-#include "volprocchain.h"
 
 class BufferStringSet;
 class Gridder2D;

@@ -13,9 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "multiid.h"
-#include "samplingdata.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 
 class BinID;
 namespace EM { class EMObject; class Horizon; }
@@ -23,11 +21,12 @@ namespace EM { class EMObject; class Horizon; }
 namespace VolProc
 {
 
-/*!
-\brief Fills a volume with values. The top and bottom of the volume are either
-the survey top/bottom or horizons. The values are fixed at the top boundary
-(either horizon or survey top) and change either with a fixed gradient or to a
-fixed value at the bottom boundary.
+/*!\brief Fills a volume with values.
+
+  The top and bottom of the volume are either the survey top/bottom,
+  or horizons. The values are fixed at the top boundary (either horizon or
+  survey top) and change either with a fixed gradient or to a fixed value at
+  the bottom boundary.
 */
 
 mExpClass(VolumeProcessing) HorInterFiller : public Step

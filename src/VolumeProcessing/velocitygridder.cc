@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "task.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
 #include "uistrings.h"
@@ -86,8 +87,8 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
-    uiString			uiNrDoneText() const 
-    						{ return tr("CDPs gridded"); }
+    uiString			uiNrDoneText() const
+						{ return tr("CDPs gridded"); }
 
     VelocityGridder&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }

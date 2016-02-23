@@ -14,9 +14,8 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocchain.h"
-#include "arrayndimpl.h"
-#include "coord.h"
+#include "volprocstep.h"
+#include "multiid.h"
 
 namespace EM { class Region3D; }
 

@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: volprocbodyfiller.cc 36479 2014-09-16 
 #include "emmanager.h"
 #include "emregion.h"
 #include "iopar.h"
+#include "arrayndimpl.h"
 #include "seisdatapack.h"
 
 

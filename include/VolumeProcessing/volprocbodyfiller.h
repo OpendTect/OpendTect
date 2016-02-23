@@ -14,10 +14,11 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 
 #include "arrayndimpl.h"
 #include "coord.h"
+#include "multiid.h"
 #include "trckeyzsampling.h"
 
 namespace EM { class EMObject; class Body; class ImplicitBody; }
@@ -25,11 +26,7 @@ namespace EM { class EMObject; class Body; class ImplicitBody; }
 namespace VolProc
 {
 
-class Step;
-
-/*!
-\brief Body filler
-*/
+/*!\brief Body filler */
 
 mExpClass(VolumeProcessing) BodyFiller : public Step
 { mODTextTranslationClass(BodyFiller);

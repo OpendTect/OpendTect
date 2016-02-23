@@ -14,144 +14,18 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+#include "volprocstep.h"
 #include "multiid.h"
 #include "executor.h"
-#include "factory.h"
 #include "refcount.h"
 #include "samplingdata.h"
 #include "threadlock.h"
-#include "trckeysampling.h"
-#include "uistrings.h"
 
-class RegularSeisDataPack;
-class VelocityDesc;
-class Executor;
-template <class T> class ValueSeries;
 
 namespace VolProc
 {
 
-class Chain;
-class StepExecutor;
-class StepTask;
-
-/*!\brief An algorithm/calculation/transformation that takes one scalar volume
-  as input, processes it, and puts the output in another volume.
-
-  Every step will be part of a Chain, which will give the step its ID.
-
- */
-
-mExpClass(VolumeProcessing) Step
-{
-public:
-				typedef int ID;
-				typedef int InputSlotID;
-				typedef int OutputSlotID;
-    static ID			cUndefID()		{ return mUdf(int); }
-    static int			cUndefSlotID()		{ return mUdf(int); }
-
-				mDefineFactoryInClass( Step, factory );
-    virtual			~Step();
-
-    ID				getID() const		{ return id_; }
-    Chain&			getChain();
-    const Chain&		getChain() const;
-    virtual const char*		userName() const;
-    virtual void		setUserName(const char* nm);
-
-    void			resetInput();
-    virtual bool		needsInput() const		= 0;
-    virtual int			getNrInputs() const;
-    virtual InputSlotID		getInputSlotID(int idx) const;
-    virtual void		getInputSlotName(InputSlotID,
-						 BufferString&) const;
-    virtual bool		isInputPrevStep() const { return needsInput(); }
-
-    virtual int			getNrOutputs() const		{ return 1; }
-    virtual OutputSlotID	getOutputSlotID(int idx) const;
-    bool			validInputSlotID(InputSlotID) const;
-    bool			validOutputSlotID(OutputSlotID) const;
-
-    virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-				/*!<When computing TrcKeySampling, how
-				 big input is needed? */
-    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
-				/*!<When computing Z Sampling, how
-				 big input is needed?*/
-
-    virtual void		setInput(InputSlotID,
-					 const RegularSeisDataPack*);
-    const RegularSeisDataPack*	getInput(InputSlotID) const;
-    virtual void		setOutput(OutputSlotID,RegularSeisDataPack*,
-				      const TrcKeySampling&,
-				      const StepInterval<int>&);
-    const RegularSeisDataPack*	getOutput(OutputSlotID) const;
-    RegularSeisDataPack*		getOutput(OutputSlotID);
-
-    int				getOutputIdx(OutputSlotID) const;
-    void			enableOutput(OutputSlotID);
-
-    virtual bool		canInputAndOutputBeSame() const { return false;}
-    virtual bool		needsFullVolume() const { return true; }
-    const RegularSeisDataPack*	getOutput() const	{ return output_; }
-    RegularSeisDataPack*	getOutput()		{ return output_; }
-
-    virtual const VelocityDesc*	getVelDesc() const	{ return 0; } // old
-
-    virtual bool		areSamplesIndependent() const { return true; }
-				/*!<returns whether samples in the output
-				 are independent from each other.*/
-
-    virtual Task*		createTask();
-    virtual Task*		createTaskWithProgMeter(ProgressMeter*);
-    virtual bool		needReportProgress()	{ return false; }
-
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
-
-    virtual void		releaseData();
-    virtual od_int64		getOuputMemSize(int) const;
-    virtual od_int64		getProcTimeExtraMemory() const	{ return 0; }
-
-    virtual uiString		errMsg() const
-				{ return uiString::emptyString(); }
-
-protected:
-
-			Step();
-
-    friend		class BinIDWiseTask;
-    virtual bool	prefersBinIDWise() const		{ return false;}
-    virtual bool	computeBinID(const BinID&,int threadid)	{ return false;}
-    virtual bool	prepareComp(int nrthreads)		{ return true;}
-
-    Chain*				chain_;
-
-    ObjectSet<const RegularSeisDataPack> inputs_;
-    TypeSet<InputSlotID>		inputslotids_;
-
-    BufferString			username_;
-    ID					id_;
-    uiString				errmsg_;
-
-    TrcKeySampling			tks_;
-    StepInterval<int>			zrg_;
-    TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
-
-private:
-
-    RegularSeisDataPack*	output_;
-    friend class		Chain;
-    void			setChain(Chain&);
-
-};
-
-
-
-/*!
-\brief A chain of Steps that can be applied to a volume of scalars.
-*/
+/*!\brief A chain of Steps that can be applied to a volume of scalars.  */
 
 mExpClass(VolumeProcessing) Chain
 { mRefCountImpl(Chain); mODTextTranslationClass(Chain);
@@ -287,7 +161,7 @@ public:
 
     const RegularSeisDataPack*	getOutput() const;
     int				nextStep();
-    static uiString		sGetStepErrMsg() { return 
+    static uiString		sGetStepErrMsg() { return
 				uiStrings::phrCannotFind(tr(
 				"output step with id:%1")); }
 

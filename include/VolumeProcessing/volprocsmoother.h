@@ -13,9 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "multiid.h"
-#include "samplingdata.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 
 template <class T> class Smoother3D;
 
@@ -33,7 +31,7 @@ public:
 				VolProc::Step, Smoother,
 				"Smoother", tr("Smoother"))
 
-    			~Smoother();
+			~Smoother();
 			Smoother();
 
     bool		needsInput() const { return true; }
@@ -41,8 +39,8 @@ public:
     StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 
     bool		setOperator(const char*,float param,
-	    			    int inlsz,int crlsz,int zsz);
-    			//!<Size is set in multiples of inl/crl/z-step from SI.
+				    int inlsz,int crlsz,int zsz);
+			//!<Size is set in multiples of inl/crl/z-step from SI.
     int			inlSz() const;
     int			crlSz() const;
     int			zSz() const;
@@ -54,16 +52,18 @@ public:
 
     void		releaseData();
     bool		canInputAndOutputBeSame() const	{ return false; }
-    bool		needsFullVolume() const 	{ return true; }
+    bool		needsFullVolume() const	{ return true; }
 
     Task*		createTask();
 
 protected:
+
     static const char*	sKeyZStepout()		{ return "ZStepout"; }
 
     bool		prepareComp(int)	{ return true; }
 
     Smoother3D<float>*	smoother_;
+
 };
 
 } // namespace VolProc

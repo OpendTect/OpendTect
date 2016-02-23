@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "mousecursor.h"
+#include "multiid.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 

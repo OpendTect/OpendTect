@@ -13,13 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "multiid.h"
-#include "samplingdata.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 #include "array2dfilter.h"
-#include "uistring.h"
 
-template <class T> class Smoother3D;
 
 namespace VolProc
 {

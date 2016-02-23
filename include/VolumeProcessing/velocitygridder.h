@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 #include "veldesc.h"
 
 class Gridder2D;
@@ -41,7 +41,7 @@ public:
 				"Gridding", tr("Velocity gridder") )
 
 			VelocityGridder();
-    			~VelocityGridder();
+			~VelocityGridder();
 
     const VelocityDesc* getVelDesc() const;
 

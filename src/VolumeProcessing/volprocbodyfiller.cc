@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "empolygonbody.h"
+#include "executor.h"
 #include "iopar.h"
 #include "embody.h"
 #include "rowcol.h"
