@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseismmjobdispatch.h"
 #include "uiseisioobjinfo.h"
 #include "seisjobexecprov.h"
+#include "commondefs.h"
 #include "jobrunner.h"
 #include "jobdescprov.h"
 #include "iopar.h"
@@ -55,19 +56,25 @@ static const char* outlsfilename = "outls.2ds";
 
 static int defltNrInlPerJob( const IOPar& inputpar )
 {
+    const InlineSplitJobDescProv jdp( inputpar );
+    StepInterval<int> inlrg; jdp.getRange( inlrg );
+    const int nrinls = inlrg.nrSteps() + 1;
+    
     int nr_inl_job = -1;
     inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
+    nr_inl_job = mMIN( nrinls, nr_inl_job );
     if ( nr_inl_job <= 0 )
     {
 	IOPar* iopar = Settings::common().subselect( mMMKey );
 	if ( !iopar ) iopar = new IOPar;
 
 	bool insettings = iopar->get( mNrInlPerJobSettKey, nr_inl_job );
-
+	nr_inl_job = mMIN( nrinls, nr_inl_job );
 	if ( !insettings )
 	{
 	    nr_inl_job = InlineSplitJobDescProv::defaultNrInlPerJob();
 	    iopar->set( mNrInlPerJobSettKey, nr_inl_job );
+	    nr_inl_job = mMIN( nrinls, nr_inl_job );
 
 	    Settings::common().mergeComp( *iopar, mMMKey );
 	    Settings::common().write();
@@ -115,9 +122,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	mRetInvJobSpec(tr("Cannot find output cube (%1) in object management.")
 		     .arg(idres));
 
-    nrinlperjob_ = InlineSplitJobDescProv::defaultNrInlPerJob();
-    jobpars_.get( "Nr of Inlines per Job", nrinlperjob_ );
-
+    nrinlperjob_ = defltNrInlPerJob( jobpars_ );
+   
     const_cast<bool&>(is2d_) = outioobjinfo_->is2D();
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
@@ -167,7 +173,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 
 	inlperjobfld_ = new uiGenInput( specparsgroup_,
                         tr("Nr of inlines per job"),
-			IntInpSpec( defltNrInlPerJob(jobpars_) ) );
+			IntInpSpec(nrinlperjob_) );
 
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
     }
