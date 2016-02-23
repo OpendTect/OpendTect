@@ -144,10 +144,7 @@ int BaseHorizon3DExtender::nextStep()
 		    continue;
 		}
 */
-		const bool hasz = horizon_.isDefined( neighbor );
-		const bool isintersection = horizon_.isPosAttrib(
-			neighbor, EM::EMObject::sIntersectionNode() );
-		if ( hasz && !isintersection )
+		if ( horizon_.isDefined(neighbor) )
 		    continue;
 
 		if ( !isExcludedPos(neighbbid) )
