@@ -103,13 +103,6 @@ uiSeisWvltMan::~uiSeisWvltMan()
 }
 
 
-static void reSampleWavelet( Wavelet &resampledwvlt )
-{
-    const float minstepval = 1.f/SI().zDomain().userFactor();
-    resampledwvlt.reSample(minstepval);
-}
-
-
 void uiSeisWvltMan::addButtons()
 {
     uiButtonGroup* grp = extraButtonGroup();
@@ -282,9 +275,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 
     wvlt->setName( curioobj_->name().buf() );
 
-    Wavelet resampledwvlt( *wvlt );
-    reSampleWavelet( resampledwvlt );
-    wvltpropdlg_ = new uiWaveletDispPropDlg( this, resampledwvlt );
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
     wvltpropdlg_->setCaption( tr("Wavelet '%1' Properties")
 						    .arg(curioobj_->uiName()) );
     if ( wvltpropdlg_ ->go() )
@@ -411,12 +402,10 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 	waveletdisplay_->setEmpty();
 	return;
     }
-    Wavelet resampledwvlt( *wvlt );
-    reSampleWavelet( resampledwvlt );
-    const int wvltsz = resampledwvlt.size();
+    const int wvltsz = wvlt->size();
     StepInterval<float> intxval;
-    intxval.setFrom( resampledwvlt.samplePositions() );
+    intxval.setFrom( wvlt->samplePositions() );
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
-    waveletdisplay_->setVals( intxval, resampledwvlt.samples() , wvltsz );
+    waveletdisplay_->setVals( intxval, wvlt->samples(), wvltsz );
 }
