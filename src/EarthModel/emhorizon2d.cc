@@ -443,7 +443,7 @@ void Horizon2D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
 bool Horizon2D::isAttrib( const TrcKey& tk, int attr ) const
 {
     const int lineidx = geometry().lineIndex( tk.geomID() );
-    if ( lineidx<0 ) return;
+    if ( lineidx<0 ) return false;
 
     const BinID bid( lineidx, tk.trcNr() );
     const PosID pid( id(), sectionID(0), bid.toInt64() );
