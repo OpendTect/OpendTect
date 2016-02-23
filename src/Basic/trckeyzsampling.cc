@@ -274,6 +274,29 @@ void TrcKeySampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 }
 
 
+TrcKeySampling TrcKeySampling::getLineChunk( int nrchunks, int chunknr ) const
+{
+    TrcKeySampling ret( *this );
+    if ( nrchunks < 1 )
+	return ret;
+
+    int nrlines = (stop_.lineNr() - start_.lineNr()) / step_.lineNr();
+    float fnrlinesperchunk = ((float)nrlines) / nrchunks;
+    if ( chunknr > 0 )
+    {
+	const float fnrsteps = fnrlinesperchunk * chunknr;
+	ret.start_.lineNr() += mNINT32(fnrsteps) * step_.lineNr();
+    }
+    if ( chunknr < nrchunks-1 )
+    {
+	const float fnrsteps = fnrlinesperchunk * (chunknr+1);
+	ret.stop_.lineNr() += ( mNINT32(fnrsteps) - 1 ) * step_.lineNr();
+    }
+
+    return ret;
+}
+
+
 bool TrcKeySampling::isDefined() const
 {
     return !mIsUdf(start_.lineNr()) && !mIsUdf(start_.trcNr()) &&

@@ -37,6 +37,8 @@ public:
 			    //!< steps copied if available
     void		get(Interval<int>& linerg,Interval<int>& trcnrrg) const;
 			    //!< steps filled if available
+    TrcKeySampling	getLineChunk(int totalchunks,int chunknr) const;
+			//!< totalchunks > 0, 0 <= chunknr < totalchunks
 
     StepInterval<int>	lineRange() const;
     StepInterval<int>	trcRange() const;
@@ -180,7 +182,7 @@ public:
     bool	next(BinID&) const;
 
     od_int64	curIdx() const		     { return curpos_; }
-    TrcKey	curTrcKey() const 	     { return tks_.atIndex( curIdx() );}
+    TrcKey	curTrcKey() const	     { return tks_.atIndex( curIdx() );}
 
 protected:
 
