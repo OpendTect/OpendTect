@@ -1062,9 +1062,16 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 				uiDataPointSet::DColID dcid ) const
 {
     static Stats::RunCalc<float> empty( Stats::CalcSetup(false) );
-    if ( dcid < -nrPosCols() ) return empty;
+    if ( dcid < -nrPosCols() )
+	return empty;
 
     const int tcid = tColID( dcid );
+    if ( tcid<0 )
+	return empty;
+
+    while ( !runcalcs_.validIdx(tcid) )
+	runcalcs_ += 0;
+
     Stats::RunCalc<float>* rc = runcalcs_[tcid];
     if ( !rc )
     {
@@ -1733,7 +1740,6 @@ void uiDataPointSet::addColumn( CallBacker* )
 
 	unsavedchgs_ = true;
 	dps_.dataChanged();
-	runcalcs_ += 0;
 	tbl_->setColumnLabel( tbl_->nrCols()-1,
 					      toUiString(dlg.newAttribName()) );
 	reDoTable();
