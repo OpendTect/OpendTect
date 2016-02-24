@@ -262,6 +262,9 @@ protected:
 public:
     void				setRandomLineID(int);
     int					getRandomLineID() const;
+
+    int				getComponentIdx(const char* nm,
+						int defcompidx=-1) const;
 };
 
 #endif

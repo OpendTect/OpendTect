@@ -861,7 +861,14 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
     if ( sdp )
-	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg );
+    {
+	BufferStringSet componentnames;
+	for ( int idx=0; idx<targetspecs_.size(); idx++ )
+	    componentnames.add( targetspecs_[idx].userRef() );
+
+	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg,
+						       &componentnames );
+    }
 
     TypeSet<BinID> knots, path;
     rdmline->allNodePositions( knots );
@@ -925,7 +932,14 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
     if ( sdp )
-	return RandomSeisDataPack::createDataPackFrom( *sdp, trckeys, zrg );
+    {
+	BufferStringSet componentnames;
+	for ( int idx=0; idx<targetspecs_.size(); idx++ )
+	    componentnames.add( targetspecs_[idx].userRef() );
+
+	return RandomSeisDataPack::createDataPackFrom( *sdp, trckeys, zrg,
+						       &componentnames );
+    }
 
     BinIDValueSet bidset( 2, false );
     for ( int idx = 0; idx<path->size(); idx++ )

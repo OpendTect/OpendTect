@@ -36,6 +36,27 @@ namespace Seis
 {
 
 
+static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
+			   TypeSet<int>& selcomponents )
+{
+    BufferStringSet cnames;
+    SeisIOObjInfo::getCompNames( ioobj.key(), cnames );
+
+    for ( int idx=0; idx<selcomponents.size(); idx++ )
+    {
+	const int cidx = selcomponents[idx];
+	const char* cnm = cnames.size()>1 && cnames.validIdx(cidx) ?
+			  cnames.get(cidx).buf() : BufferString::empty().buf();
+
+	// LineKey assembles composite "<attribute>|<component>" name
+	if ( !dp.addComponent( LineKey(ioobj.name().str(),cnm) ) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     : dp_(0)
     , bidvals_(0)
@@ -119,21 +140,11 @@ bool ParallelReader::doPrepare( int nrthreads )
 	dp_->setSampling( tkzs_ );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
 
-	BufferStringSet cnames;
-	SeisIOObjInfo::getCompNames( ioobj_->key(), cnames );
-
-        for ( int idx=0; idx<components_.size(); idx++ )
-        {
-	    const int cidx = components_[idx];
-	    const char* cnm =
-		cnames.validIdx(cidx) ? cnames.get(cidx).buf()
-				      : BufferString::empty().buf();
-	    if ( !dp_->addComponent(cnm) )
-	    {
-		errmsg_ = allocprob;
-		return false;
-	    }
-        }
+	if ( !addComponents(*dp_,*ioobj_,components_) )
+	{
+	    errmsg_ = allocprob;
+	    return false;
+	}
     }
 
     return true;
@@ -321,16 +332,8 @@ bool ParallelReader2D::init()
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
-    BufferStringSet cnames;
-    info.getComponentNames( cnames );
-    for ( int idx=0; idx<components_.size(); idx++ )
-    {
-	const int cidx = components_[idx];
-	const char* cnm = cnames.validIdx(cidx) ? cnames.get(cidx).buf()
-						: sKey::EmptyString().buf();
-	if ( !dp_->addComponent(cnm) )
-	    return false;
-    }
+    if ( !addComponents(*dp_,*ioobj_,components_) )
+	return false;
 
     msg_ = uiStrings::phrReading( ioobj_->uiName() );
 
@@ -632,17 +635,8 @@ bool SequentialReader::init()
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
-    BufferStringSet cnames;
-    info.getComponentNames( cnames );
-    for ( int idx=0; idx<components_.size(); idx++ )
-    {
-	const int cidx = components_[idx];
-	const char* cnm =
-		cnames.validIdx(cidx) ? cnames.get(cidx).buf()
-				      : BufferString::empty().buf();
-	if ( !dp_->addComponent(cnm) )
-	    return false;
-    }
+    if ( !addComponents(*dp_,*ioobj_,components_) )
+	return false;
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( uiStrings::sData() );
