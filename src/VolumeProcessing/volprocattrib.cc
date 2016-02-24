@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
-#include "volprocchain.h"
+#include "volprocchainexec.h"
 #include "volproctrans.h"
 
 using namespace Attrib;

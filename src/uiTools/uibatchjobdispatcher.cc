@@ -156,6 +156,15 @@ void uiBatchJobDispatcherSel::jobSpecUpdated()
 }
 
 
+void uiBatchJobDispatcherSel::setWantBatch( bool yn )
+{
+    if ( selfld_ && selfld_->isCheckable() )
+	selfld_->setChecked( yn );
+    if ( dobatchbox_ )
+	dobatchbox_->setChecked( yn );
+}
+
+
 bool uiBatchJobDispatcherSel::wantBatch() const
 {
     if ( noLaunchersAvailable() )
@@ -190,7 +199,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 
     const BufferString cursel( selfld_->text() );
     if ( cursel.isEmpty() )
-	{ pErrMsg("No dispatchers available"); return -1; }
+	return -1;
 
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {

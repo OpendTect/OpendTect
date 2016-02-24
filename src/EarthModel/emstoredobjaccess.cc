@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "threadwork.h"
+#include "uistrings.h"
 
 
 namespace EM
@@ -300,7 +301,7 @@ StoredObjAccessReader( StoredObjAccess& oa )
 od_int64 totalNr() const	{ return 100; }
 od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()*100.f); }
 uiString uiMessage() const	{ return tr("Reading object data"); }
-uiString uiNrDoneText() const	{ return tr("Percentage done"); }
+uiString uiNrDoneText() const	{ return uiStrings::sPercentageDone(); }
 
 int nextStep()
 {

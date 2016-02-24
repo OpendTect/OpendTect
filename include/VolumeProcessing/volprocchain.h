@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
 #include "multiid.h"
-#include "executor.h"
 #include "refcount.h"
-#include "samplingdata.h"
 #include "threadlock.h"
 
 
@@ -115,6 +113,7 @@ public:
     Step::ID			getNewStepID() { return freeid_++; }
 
 private:
+
     friend			class ChainExecutor;
 
     bool			validConnection(const Connection&) const;
@@ -136,98 +135,9 @@ private:
 
     uiString			errmsg_;
     Threads::Atomic<int>	freeid_;
+
 };
 
-
-
-/*!
-\brief Chain Executor
-*/
-
-mExpClass(VolumeProcessing) ChainExecutor : public Executor
-{ mODTextTranslationClass(ChainExecutor);
-public:
-				ChainExecutor(Chain&);
-				~ChainExecutor();
-
-    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
-						const StepInterval<int>&);
-
-    uiString			errMsg() const;
-    uiString			uiNrDoneText() const;
-
-    bool			setCalculationScope(const TrcKeySampling&,
-						    const StepInterval<int>&);
-
-    const RegularSeisDataPack*	getOutput() const;
-    int				nextStep();
-    static uiString		sGetStepErrMsg() { return
-				uiStrings::phrCannotFind(tr(
-				"output step with id:%1")); }
-
-    bool			areSamplesIndependent() const;
-    bool			needsFullVolume() const;
-
-private:
-    class Epoch
-    {
-    public:
-				Epoch(const ChainExecutor& c)
-				    : taskgroup_( *new TaskGroup )
-				    , chainexec_( c )
-				{
-				    taskgroup_.setParallel(true);
-				    taskgroup_.setName( c.name() );
-				}
-
-				~Epoch()		{ delete &taskgroup_; }
-
-	void			addStep(Step* s)	{ steps_ += s; }
-	const ObjectSet<Step>&	getSteps() const	{ return steps_; }
-
-	bool			doPrepare(ProgressMeter* progmeter=0);
-	Task&			getTask()		{ return taskgroup_; }
-
-	bool			needsStepOutput(Step::ID) const;
-	const RegularSeisDataPack* getOutput() const;
-
-    private:
-
-	BufferString		errmsg_;
-	const ChainExecutor&	chainexec_;
-	TaskGroup&		taskgroup_;
-	ObjectSet<Step>		steps_;
-    };
-
-    bool			scheduleWork();
-    int				computeLatestEpoch(Step::ID) const;
-    void			computeComputationScope(Step::ID stepid,
-				    TrcKeySampling& stepoutputhrg,
-				    StepInterval<int>& stepoutputzrg ) const;
-
-    void			controlWork(Task::Control);
-    od_int64			nrDone() const;
-    od_int64			totalNr() const;
-    uiString			uiMessage() const;
-
-    void			releaseMemory();
-
-    Epoch*			curepoch_;
-
-    bool			isok_;
-    Chain&			chain_;
-
-    TrcKeySampling		outputhrg_;
-    StepInterval<int>		outputzrg_;
-
-    mutable uiString		errmsg_;
-    ObjectSet<Step>		scheduledsteps_;
-    ObjectSet<Epoch>		epochs_;
-    Chain::Web			web_;
-    int				totalnrepochs_;
-
-    const RegularSeisDataPack*	outputvolume_;
-};
 
 } // namespace VolProc
 

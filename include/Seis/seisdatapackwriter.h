@@ -27,12 +27,14 @@ mExpClass(Seis) SeisDataPackWriter : public Executor
 { mODTextTranslationClass(SeisDataPackWriter);
 public:
 			SeisDataPackWriter(const MultiID&,
-					   const RegularSeisDataPack&,
-					   const TypeSet<int>& cubeindices);
+			       const RegularSeisDataPack&,
+			       const TypeSet<int>& components=TypeSet<int>());
 			~SeisDataPackWriter();
 
     void		setSelection(const TrcKeySampling&,
 				     const Interval<int>&);
+    const RegularSeisDataPack* dataPack() const	{ return dp_; }
+    void		setNextDataPack(const RegularSeisDataPack&);
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;
@@ -43,18 +45,24 @@ public:
 
 private:
 
+   TypeSet<int>			compidxs_;
+   MultiID			mid_;
+   const RegularSeisDataPack*	dp_;
+
    int				nrdone_;
    int				totalnr_;
-   const RegularSeisDataPack&	cube_;
    TrcKeySamplingIterator	iterator_;
-   MultiID			mid_;
-   const PosInfo::CubeData*	trcssampling_;
+   const PosInfo::CubeData*	posinfo_;
    SeisTrcWriter*		writer_;
    SeisTrc*			trc_;
-   TypeSet<int>			cubeindices_;
 
    TrcKeySampling		tks_;
    Interval<int>		zrg_;
+
+   void				getPosInfo();
+   void				obtainDP();
+   void				releaseDP();
+
 };
 
 

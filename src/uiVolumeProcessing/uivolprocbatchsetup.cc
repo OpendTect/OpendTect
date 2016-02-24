@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselection.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
+#include "volprocchainoutput.h"
 
 #include "uibutton.h"
 #include "uibatchjobdispatchersel.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiveldesc.h"
 #include "uivolprocchain.h"
+#include "uitaskrunner.h"
 #include "od_helpids.h"
 
 namespace VolProc
@@ -56,9 +58,9 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
 
-    batchfld_ = new uiBatchJobDispatcherSel( this, false,
-					     Batch::JobSpec::Vol );
+    batchfld_ = new uiBatchJobDispatcherSel( this, true, Batch::JobSpec::Vol );
     batchfld_->attach( alignedBelow, outputsel_ );
+    batchfld_->setWantBatch( true );
 
     setupSelCB( 0 );
 }
@@ -156,8 +158,16 @@ bool uiBatchSetup::acceptOK( CallBacker* )
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
-    batchfld_->setJobName( outputsel_->ioobj()->name() );
-    return batchfld_->start();
+    if ( batchfld_->wantBatch() )
+    {
+	batchfld_->setJobName( outputsel_->ioobj()->name() );
+	return batchfld_->start();
+    }
+
+    VolProc::ChainOutput vco;
+    vco.usePar( batchfld_->jobSpec().pars_ );
+    uiTaskRunner taskrunner( this );
+    return taskrunner.execute( vco );
 }
 
 } // namespace VolProc
