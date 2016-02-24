@@ -217,7 +217,7 @@ int VolProc::ChainOutput::setupChunking()
     }
     if ( needsplit )
     {
-	nrexecs_ = (nrbytes / freemem) + 1;
+	nrexecs_ = (int)(nrbytes / freemem) + 1;
 	if ( nrexecs_ > cs_.hsamp_.nrLines() )
 	    nrexecs_ = cs_.hsamp_.nrLines(); // and pray!
     }
