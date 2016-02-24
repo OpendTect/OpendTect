@@ -672,6 +672,16 @@ void Horizon2DDisplay::updateSeedsOnSections(
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	visBase::MarkerSet* markerset = posattribmarkers_[idx];
+	if ( !displayonlyatsections_ )
+	{
+	    markerset->turnAllMarkersOn( true );
+	    continue;
+	}
+	else
+	{
+	    markerset->turnAllMarkersOn( false );
+	}
+
 	for ( int idy=0; idy<markerset->getCoordinates()->size(); idy++ )
 	{
 	    markerset->turnMarkerOn( idy, !displayonlyatsections_ );
