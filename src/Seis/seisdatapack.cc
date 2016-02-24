@@ -31,11 +31,12 @@ class Regular2RandomDataCopier : public ParallelTask
 public:
 		Regular2RandomDataCopier( RandomSeisDataPack& ransdp,
 					  const RegularSeisDataPack& regsdp,
-					  int compidx )
+					  int rancompidx )
 		    : ransdp_( ransdp )
 		    , regsdp_( regsdp )
 		    , path_( ransdp.getPath() )
-		    , compidx_( compidx )
+		    , regidx_( -1 )
+		    , ranidx_( rancompidx )
 		    , domemcopy_( false )
 		    , samplebytes_( sizeof(float) )
 		    , srcptr_( 0 )
@@ -58,7 +59,8 @@ protected:
     RandomSeisDataPack&		ransdp_;
     const RegularSeisDataPack&	regsdp_;
     const TrcKeyPath&		path_;
-    int				compidx_;
+    int				regidx_;
+    int				ranidx_;
     bool			domemcopy_;
     int				samplebytes_;
     const unsigned char*	srcptr_;
@@ -73,6 +75,12 @@ protected:
 
 bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 {
+    regidx_ = regsdp_.getComponentIdx( ransdp_.getComponentName(ranidx_),
+				       ranidx_ );
+
+    if ( !regsdp_.validComp(regidx_) || !ransdp_.validComp(ranidx_) )
+	return false;
+
     idzoffset_ = regsdp_.getZRange().nearestIndex( ransdp_.getZRange().start );
 
     if ( !regsdp_.getZRange().isCompatible(ransdp_.getZRange(),1e-3) )
@@ -84,18 +92,18 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( regsdp_.getDataDesc() != ransdp_.getDataDesc() )
 	return true;
 
-    srcptr_ = mCast( const unsigned char*, regsdp_.data().getData() );
+    srcptr_ = mCast( const unsigned char*, regsdp_.data(regidx_).getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, regstorage,
-		     regsdp_.data().getStorage() );
+		     regsdp_.data(regidx_).getStorage() );
     if ( regstorage )
     {
 	srcptr_ = mCast( const unsigned char*, regstorage->storArr() );
 	samplebytes_ = regsdp_.getDataDesc().nrBytes();
     }
 
-    dstptr_ = mCast( unsigned char*, ransdp_.data().getData() );
+    dstptr_ = mCast( unsigned char*, ransdp_.data(ranidx_).getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, ranstorage,
-		     ransdp_.data().getStorage() );
+		     ransdp_.data(ranidx_).getStorage() );
     if ( ranstorage )
 	dstptr_ = mCast( unsigned char*, ranstorage->storArr() );
 
@@ -105,9 +113,6 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(TrcKeyZSampling::Z);
     srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(TrcKeyZSampling::Crl);
     dsttrcbytes_ = samplebytes_ * (ransdp_.getZRange().nrSteps()+1);
-
-    srcptr_ += compidx_ * samplebytes_ * regsdp_.sampling().totalNr();
-    dstptr_ += compidx_ * ransdp_.nrTrcs() * dsttrcbytes_;
 
     bytestocopy_ = dsttrcbytes_;
 
@@ -140,10 +145,12 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 	     !hsamp.trcRange().includes(path_[idx].trcNr(),true) )
 	    continue;
 
-	const int nearestinl = path_[idx].lineNr() + hsamp.step_.lineNr()/2;
-	const int inlidx = hsamp.lineIdx( nearestinl );
-	const int nearestcrl = path_[idx].trcNr() + hsamp.step_.trcNr()/2;
-	const int crlidx = hsamp.trcIdx( nearestcrl );
+	const int shiftedtogetnearestinl = path_[idx].lineNr() +
+					   hsamp.step_.lineNr()/2;
+	const int inlidx = hsamp.inlIdx( shiftedtogetnearestinl );
+	const int shiftedtogetnearestcrl = path_[idx].trcNr() +
+					   hsamp.step_.trcNr()/2;
+	const int crlidx = hsamp.crlIdx( shiftedtogetnearestcrl );
 
 	if ( domemcopy_ )
 	{
@@ -158,10 +165,10 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 	{
 	    const int oldidz = newidz + idzoffset_;
 	    const float val =
-		regsdp_.data(compidx_).info().validPos(inlidx,crlidx,oldidz) ?
-		regsdp_.data(compidx_).get(inlidx,crlidx,oldidz) : mUdf(float);
+		regsdp_.data(regidx_).info().validPos(inlidx,crlidx,oldidz) ?
+		regsdp_.data(regidx_).get(inlidx,crlidx,oldidz) : mUdf(float);
 
-	    ransdp_.data(compidx_).set( 0, idx, newidz, val );
+	    ransdp_.data(ranidx_).set( 0, idx, newidz, val );
 	}
     }
 
@@ -337,7 +344,8 @@ void RandomSeisDataPack::setRandomLineID( int rdlid )
 DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					int rdmlineid,
-					const Interval<float>& zrange )
+					const Interval<float>& zrange,
+					const BufferStringSet* compnames )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdmlineid );
     if ( !rdmline || regsdp.isEmpty() )
@@ -357,11 +365,19 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     overlapzrg.stop =regzrg.atIndex(regzrg.indexOnOrAfter(overlapzrg.stop,0.0));
     randsdp->setZRange( overlapzrg );
 
-    for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
+    const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();
+    for ( int idx=0; idx<nrcomps; idx++ )
     {
-	randsdp->addComponent( regsdp.getComponentName(idx) );
-	Regular2RandomDataCopier copier( *randsdp, regsdp, idx );
-	copier.execute();
+	const char* compnm = compnames ? compnames->get(idx).buf()
+				       : regsdp.getComponentName(idx);
+
+	if ( regsdp.getComponentIdx(compnm,idx) >= 0 )
+	{
+	    randsdp->addComponent( compnm );
+	    Regular2RandomDataCopier copier( *randsdp, regsdp,
+					     randsdp->nrComponents()-1 );
+	    copier.execute();
+	}
     }
 
     randsdp->setZDomain( regsdp.zDomain() );

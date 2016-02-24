@@ -227,6 +227,8 @@ public:
 				{ return arrays_.validIdx( comp ); }
     void			setComponentName(const char*,int comp=0);
     const char*			getComponentName(int comp=0) const;
+    int				getComponentIdx(const char* nm,
+						int defcompidx=-1) const;
 
     static const char*		categoryStr(bool isvertical,bool is2d);
 

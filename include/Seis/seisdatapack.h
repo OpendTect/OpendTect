@@ -101,8 +101,9 @@ public:
     bool			addComponent(const char* nm);
 
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
-						   int rdmlineid,
-						   const Interval<float>& zrg);
+						int rdmlineid,
+						const Interval<float>& zrg,
+						const BufferStringSet* nms=0);
 
 protected:
 

@@ -351,14 +351,10 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     : in_(in), out_(out)
     , domemcopy_(false)
     , samplebytes_(sizeof(float))
-    , inptr_(0)
-    , outptr_(0)
     , intracebytes_(0)
     , inlinebytes_(0)
-    , incompbytes_(0)
     , outtracebytes_(0)
     , outlinebytes_(0)
-    , outcompbytes_(0)
     , bytestocopy_(0)
 {
     worktkzs_ = out.sampling();
@@ -370,45 +366,57 @@ od_int64 nrIterations() const		{ return totalnr_; }
 
 bool doPrepare( int nrthreads )
 {
-    if ( in_.getDataDesc() != out_.getDataDesc() )
-	return true;
-
     if ( in_.isEmpty() || out_.isEmpty() )
 	return false;
 
-    inptr_ = mCast( const unsigned char*, in_.data().getData() );
-    mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
-		     in_.data().getStorage() );
-    if ( instorage )
+    for ( int idc=0; idc<out_.nrComponents(); idc++ )
     {
-	inptr_ = mCast( const unsigned char*, instorage->storArr() );
-	samplebytes_ = in_.getDataDesc().nrBytes();
+	incomp_ += in_.getComponentIdx( out_.getComponentName(idc), idc );
+	if ( incomp_[idc] < 0 )
+	    return false;
     }
 
-    outptr_ = mCast( unsigned char*, out_.data().getData() );
-    mDynamicCastGet( const ConvMemValueSeries<float>*, outstorage,
-		     out_.data().getStorage() );
-    if ( outstorage )
-	outptr_ = mCast( unsigned char*, outstorage->storArr() );
-
-    domemcopy_ = inptr_ && outptr_ && mIsEqual(in_.sampling().zsamp_.step,
-					out_.sampling().zsamp_.step,mDefEpsF);
-    if ( !domemcopy_ )
+    if ( in_.getDataDesc() != out_.getDataDesc() )
 	return true;
+
+    if ( !mIsEqual(in_.sampling().zsamp_.step,
+		   out_.sampling().zsamp_.step,mDefEpsF) )
+	return true;
+
+    for ( int idc=0; idc<out_.nrComponents(); idc++ )
+    {
+	inptr_ += mCast(const unsigned char*, in_.data(incomp_[idc]).getData());
+	mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
+			 in_.data(incomp_[idc]).getStorage() );
+	if ( instorage )
+	{
+	    inptr_[idc] = mCast( const unsigned char*, instorage->storArr() );
+	    samplebytes_ = in_.getDataDesc().nrBytes();
+	}
+
+	outptr_ += mCast( unsigned char*, out_.data(idc).getData() );
+	mDynamicCastGet( const ConvMemValueSeries<float>*, outstorage,
+			 out_.data(idc).getStorage() );
+	if ( outstorage )
+	    outptr_[idc] = mCast( unsigned char*, outstorage->storArr() );
+
+	if ( !inptr_[idc] || !outptr_[idc] )
+	    return true;
+
+	const float start = worktkzs_.zsamp_.start;
+	inptr_[idc] += samplebytes_ * in_.getZRange().nearestIndex( start );
+	outptr_[idc] += samplebytes_ * out_.getZRange().nearestIndex( start );
+    }
 
     intracebytes_ = samplebytes_ * in_.sampling().size(TrcKeyZSampling::Z);
     inlinebytes_ = intracebytes_ * in_.sampling().size(TrcKeyZSampling::Crl);
-    incompbytes_ = samplebytes_ * in_.sampling().totalNr();
 
     outtracebytes_ = samplebytes_ * out_.sampling().size(TrcKeyZSampling::Z);
     outlinebytes_ = outtracebytes_ * out_.sampling().size(TrcKeyZSampling::Crl);
-    outcompbytes_ = samplebytes_ * out_.sampling().totalNr();
 
     bytestocopy_ = samplebytes_ * worktkzs_.nrZ();
 
-    const float start = worktkzs_.zsamp_.start;
-    inptr_ += samplebytes_ * in_.getZRange().nearestIndex( start );
-    outptr_ += samplebytes_ * out_.getZRange().nearestIndex( start );
+    domemcopy_ = true;
     return true;
 }
 
@@ -424,23 +432,23 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 	const int outinlidx = outtks.lineIdx( bid.inl() );
 	const int outcrlidx = outtks.trcIdx( bid.crl() );
 
-	const int nearestinl = bid.lineNr() + intks.step_.lineNr()/2;
-	const int ininlidx = intks.lineIdx( nearestinl );
-	const int nearestcrl = bid.trcNr() + intks.step_.trcNr()/2;
-	const int incrlidx = intks.trcIdx( nearestcrl );
+	const int shiftedtogetnearestinl = bid.lineNr() +
+					   intks.step_.lineNr()/2;
+	const int ininlidx = intks.lineIdx( shiftedtogetnearestinl );
+	const int shiftedtogetnearestcrl = bid.trcNr() +
+					   intks.step_.trcNr()/2;
+	const int incrlidx = intks.trcIdx( shiftedtogetnearestcrl );
 
 	if ( domemcopy_ )
 	{
-	    const unsigned char* curinptr =
-		inptr_ + ininlidx*inlinebytes_ + incrlidx*intracebytes_;
-	    unsigned char* curoutptr =
-		outptr_ + outinlidx*outlinebytes_ + outcrlidx*outtracebytes_;
-
 	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
 	    {
+		const unsigned char* curinptr = inptr_[idc] +
+		    ininlidx*inlinebytes_ + incrlidx*intracebytes_;
+		unsigned char* curoutptr = outptr_[idc] +
+		    outinlidx*outlinebytes_ + outcrlidx*outtracebytes_;
+
 		OD::sysMemCopy( curoutptr, curinptr, bytestocopy_ );
-		curinptr += incompbytes_;
-		curoutptr += outcompbytes_;
 	    }
 
 	    continue;
@@ -458,8 +466,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 
 	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
 	    {
-		const float val = in_.data(idc).get( ininlidx, incrlidx,
-						     inzidx );
+		const float val =
+		    in_.data(incomp_[idc]).get( ininlidx, incrlidx, inzidx );
 		if ( !mIsUdf(val) )
 		    out_.data(idc).set( outinlidx, outcrlidx, outzidx, val );
 	    }
@@ -479,14 +487,13 @@ protected:
     bool			domemcopy_;
 
     int				samplebytes_;
-    const unsigned char*	inptr_;
-    unsigned char*		outptr_;
+    TypeSet<int>		incomp_;
+    TypeSet<const unsigned char*> inptr_;
+    TypeSet<unsigned char*>	outptr_;
     od_int64			intracebytes_;
     od_int64			inlinebytes_;
-    od_int64			incompbytes_;
     od_int64			outtracebytes_;
     od_int64			outlinebytes_;
-    od_int64			outcompbytes_;
     od_int64			bytestocopy_;
 };
 
@@ -542,9 +549,12 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
 	output->setSampling( outputtkzs );
     }
 
-    for ( int idx=0; idx<packset[0]->nrComponents() && idx<attrspecs_.size();
-									idx++ )
-	output->addComponent( attrspecs_[idx].userRef() );
+    for ( int idx=0; idx<attrspecs_.size(); idx++ )
+    {
+	const char* compnm = attrspecs_[idx].userRef();
+	if ( packset[0]->getComponentIdx(compnm,idx) >= 0 )
+	    output->addComponent( compnm );
+    }
 
     output->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(attrspecs_[0].zDomainKey())) );

@@ -524,6 +524,25 @@ const char* SeisDataPack::getComponentName( int component ) const
 }
 
 
+int SeisDataPack::getComponentIdx( const char* nm, int defcompidx ) const
+{
+    const int compidx = componentnames_.indexOf( nm );
+    if ( compidx >= 0 )
+	return compidx;
+
+    // Trick for old steering cubes (see uiatribpartserv.cc)
+    if ( stringEndsWith("Inline Dip",nm) && componentnames_.size()==2 )
+	return 0;
+    if ( stringEndsWith("Crossline Dip",nm) && componentnames_.size()==2 )
+	return 1;
+
+    if ( componentnames_.validIdx(defcompidx) )
+	return defcompidx;
+
+    return -1;
+}
+
+
 const char* SeisDataPack::categoryStr( bool isvertical, bool is2d )
 {
     mDeclStaticString( vret );
