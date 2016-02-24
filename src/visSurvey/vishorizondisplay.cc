@@ -100,7 +100,7 @@ HorizonDisplay::HorizonDisplay()
     curshiftidx_ += 0;
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->allowNull();
-    userrefs_.addIfNew( attrnms );
+    userrefs_ += attrnms;
     shifts_ += new TypeSet<float>;
     enabled_ += true;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
@@ -508,7 +508,7 @@ bool HorizonDisplay::removeAttrib( int channel )
 	sections_[idx]->removeChannel( channel );
 
     curshiftidx_.removeSingle( channel );
-    userrefs_.removeSingle( channel );
+    delete userrefs_.removeSingle( channel );
     enabled_.removeSingle( channel );
     delete shifts_.removeSingle( channel );
 
@@ -752,7 +752,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<data->nrCols(); idx++ )
 	attrnms->add( data->colDef(idx).name_ );
-    userrefs_.replace( channel, attrnms );
+    delete userrefs_.replace( channel, attrnms );
 
     createDisplayDataPacks( channel, data );
 }
