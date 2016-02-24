@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribpartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uistrings.h"
@@ -205,8 +206,27 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
     {
 	if ( dousemulticomp )
 	{
+	    mDynamicCastGet( visSurvey::SurveyObject*, so,
+			     visserv->getObject(visid));
+
+	    if ( so && !so->canHaveMultipleTextures() )
+	    {
+		const TypeSet<Attrib::SelSpec>& selspecs =
+						attrserv->getTargetSelSpecs();
+		if ( selspecs.size() )
+		{
+		    uiMSG().warning( tr("This object cannot yet display more "
+				      "than the first component selected") );
+		    myas = selspecs[0];
+		    dousemulticomp = false;
+		}
+	    }
+	}
+
+	if ( dousemulticomp )
+	{
 	    Attrib::SelSpec mtas( "Multi-Textures",
-		    		Attrib::SelSpec::cOtherAttrib() );
+				  Attrib::SelSpec::cOtherAttrib() );
 	    if ( !ODMainWin()->applMgr().calcMultipleAttribs( mtas ) )
 		return false;
 	}

@@ -79,6 +79,8 @@ public:
     void			displaySurfaceData(int attrib,int auxdatanr);
 
     virtual bool		canHaveMultipleAttribs() const;
+
+    virtual bool		canHaveMultipleTextures() const { return true; }
     virtual int			nrTextures(int attrib) const;
     virtual void		selectTexture(int attrib,int textureidx);
     virtual int			selectedTexture(int attrib) const;

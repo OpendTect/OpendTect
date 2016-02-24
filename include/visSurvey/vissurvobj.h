@@ -355,7 +355,8 @@ public:
     static const char*		sKeySurvey()	{ return "Survey"; }
 
     void			setUserRefs( int attrib, BufferStringSet* nms )
-				{ userrefs_.replace( attrib, nms ); }
+				{ delete (userrefs_.validIdx(attrib) ?
+					 userrefs_.replace(attrib,nms) : nms); }
 
     void			setSaveInSessionsFlag( bool yn )
 				{ saveinsessionsflag_ = yn; }
