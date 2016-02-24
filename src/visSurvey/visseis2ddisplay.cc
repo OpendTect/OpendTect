@@ -686,9 +686,9 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     mVisTrans::transformBack( scene_ ? scene_->getUTM2DisplayTransform() : 0,
 			      pos, xytpos );
 
-    int trcidx; float mindist;
-    getNearestTrace( xytpos, trcidx, mindist );
-    if ( mindist<0 || mIsUdf(mindist) )
+    int trcidx; float minsqdist;
+    getNearestTrace( xytpos, trcidx, minsqdist );
+    if ( minsqdist<0 || mIsUdf(minsqdist) )
 	return mUdf(float);
 
     StepInterval<float> zrg = getZRange( true );
@@ -702,7 +702,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 	zdif *= zscale;
     }
 
-    return Math::Sqrt( mindist + zdif*zdif );
+    return Math::Sqrt( minsqdist + zdif*zdif );
 }
 
 
@@ -839,8 +839,8 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
     par.set( sKey::LineKey(), name() );
 
     int dataidx = -1;
-    float mindist;
-    if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
+    float minsqdist;
+    if ( getNearestTrace(evinfo.worldpickedpos,dataidx,minsqdist) )
 	par.set( sKey::TraceKey(),
 		TrcKey(geomid_,geometry_.positions()[dataidx].nr_) );
 }
@@ -854,8 +854,8 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     getValueString( pos, val );
 
     int dataidx = -1;
-    float mindist;
-    if ( getNearestTrace(pos,dataidx,mindist) )
+    float minsqdist;
+    if ( getNearestTrace(pos,dataidx,minsqdist) )
 	info.add( " [" ).add( geometry_.positions()[dataidx].nr_ ).add( "]" );
 }
 
@@ -876,8 +876,8 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	return false;
 
     int traceidx = -1;
-    float mindist;
-    if ( !getNearestTrace(pos, traceidx, mindist) )
+    float minsqdist;
+    if ( !getNearestTrace(pos, traceidx, minsqdist) )
 	return false;
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
@@ -896,8 +896,8 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 int Seis2DDisplay::getNearestTraceNr( const Coord3& pos ) const
 {
     int trcidx = -1;
-    float mindist;
-    getNearestTrace( pos, trcidx, mindist );
+    float minsqdist;
+    getNearestTrace( pos, trcidx, minsqdist );
 
     return  geometry_.positions()[trcidx].nr_;
 }
@@ -998,8 +998,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 {
     int trcidx = -1;
-    float mindist;
-    getNearestTrace( pos, trcidx, mindist );
+    float minsqdist;
+    getNearestTrace( pos, trcidx, minsqdist );
 
     if ( trcidx<0 ) return;
 
@@ -1009,7 +1009,7 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 
 
 bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
-				     int& trcidx, float& mindist ) const
+				     int& trcidx, float& minsqdist ) const
 {
     if ( geometry_.isEmpty() ) return false;
 
@@ -1017,7 +1017,7 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start],
 	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop]);
     const int nidx = geometry_.nearestIdx( pos, trcnrrg );
-    mindist = (float) geometry_.positions()[nidx].coord_.distTo( pos );
+    minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
 }
