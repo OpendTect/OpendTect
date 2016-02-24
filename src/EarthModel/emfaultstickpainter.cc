@@ -20,12 +20,13 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+#include "hiddenparam.h"
 
 #include "hiddenparam.h"
 
 namespace EM
 {
-
+static HiddenParam< FaultStickPainter,char >paintenable_(true);
 static HiddenParam<FaultStickPainter,int> rdlids( -1 );
 
 FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
@@ -52,6 +53,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 	emobj->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
     }
     tkzs_.setEmpty();
+    paintenable_.setParam( this, true );
 }
 
 
@@ -67,6 +69,7 @@ FaultStickPainter::~FaultStickPainter()
 
     removePolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    paintenable_.removeParam( this );
 }
 
 
@@ -92,9 +95,7 @@ void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
 
 void FaultStickPainter::paint()
 {
-    removePolyLine();
-    addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintFSS();
 }
 
 
@@ -343,11 +344,22 @@ void FaultStickPainter::enableKnots( bool yn )
 }
 
 
+
+void FaultStickPainter::enablePaint(bool paintenable)
+{
+    paintenable_.setParam( this, paintenable );
+}
+
+
 void FaultStickPainter::repaintFSS()
 {
+    if ( !paintenable_.getParam(this) )
+	return;
+    abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintdone_.trigger();
 }
 
 
@@ -404,18 +416,14 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	{
 	    if ( emfss->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFSS();
-	    repaintdone_.trigger();
 	    break;
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
 	    if (  emobject->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFSS();
-	    repaintdone_.trigger();
 	    break;
 	}
 	default:

@@ -51,7 +51,7 @@ void VW2DFault::setEditors()
 
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
-	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
+	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
 	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
@@ -64,6 +64,9 @@ void VW2DFault::setEditors()
 	MPE::Fault3DFlatViewEditor* faulted =
 	    new MPE::Fault3DFlatViewEditor(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
+	faulted->setMouseEventHandler(
+		&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	faulted->enableKnots( true );
 	faulteds_ += faulted;
     }
 }

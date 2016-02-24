@@ -88,6 +88,7 @@ public:
     TypeSet<Coord>&	getCoords()			{ return coords_; }
 
     void		paint();
+    void		enablePaint(bool paintenable);
 
 protected:
 

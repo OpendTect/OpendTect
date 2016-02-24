@@ -606,6 +606,9 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     else if ( curvwr.isVisible(false) )
 	vwr2d->setUpView( vwr2d->createDataPack(false), false );
 
+    if ( vwr2d->viewControl() )
+	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );
+
     for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
     {
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );

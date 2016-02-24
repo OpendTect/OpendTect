@@ -23,11 +23,13 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+#include "hiddenparam.h"
 
 #include "hiddenparam.h"
 
 namespace EM
 {
+static HiddenParam< Fault3DPainter,char >paintenable_(true);
 
 static HiddenParam< Fault3DPainter, int > rdlids( -1 );
 
@@ -52,6 +54,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
 	emobj->change.notify( mCB(this,Fault3DPainter,fault3DChangedCB) );
     }
     tkzs_.setEmpty();
+    paintenable_.setParam( this, true );
 }
 
 
@@ -67,6 +70,8 @@ Fault3DPainter::~Fault3DPainter()
 
     removePolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+
+    paintenable_.removeParam( this );
 }
 
 
@@ -133,9 +138,7 @@ bool Fault3DPainter::addPolyLine()
 
 void Fault3DPainter::paint()
 {
-    removePolyLine();
-    addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintFault3D();
 }
 
 
@@ -624,11 +627,21 @@ void Fault3DPainter::removePolyLine()
 }
 
 
+void Fault3DPainter::enablePaint( bool paintenable )
+{
+    paintenable_.setParam( this, paintenable );
+}
+
+
 void Fault3DPainter::repaintFault3D()
 {
+    if ( !paintenable_.getParam(this) )
+	return;
+    abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintdone_.trigger();
 }
 
 void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
@@ -679,18 +692,14 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 	{
 	    if ( emf3d->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFault3D();
-	    repaintdone_.trigger();
 	    break;
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
 	    if (  emobject->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFault3D();
-	    repaintdone_.trigger();
 	    break;
 	}
 	default: break;

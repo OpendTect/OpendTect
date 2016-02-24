@@ -68,6 +68,7 @@ public:
     Notifier<Fault3DPainter>	repaintdone_;
 
     void		paint();
+    void		enablePaint(bool paintenable);
 
 protected:
     bool		addPolyLine();
