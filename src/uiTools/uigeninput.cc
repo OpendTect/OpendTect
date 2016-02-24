@@ -1174,7 +1174,7 @@ void uiGenInput::setChecked( bool yn )
 }
 
 
-bool uiGenInput::isChecked()
+/*mDeprecated*/ bool uiGenInput::isChecked()
 { return checked_; }
 
 

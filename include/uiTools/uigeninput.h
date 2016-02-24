@@ -206,9 +206,8 @@ Returns true, if changes are accepted.
     virtual void		setTitleText(const uiString&);
 
     void		setChecked(bool yn);
-    bool		isChecked();
-    bool		isCheckable()
-			{ return cbox_ ? true : false; }
+    bool		isChecked() const	{ return checked_; }
+    bool		isCheckable() const	{ return withchk_ || cbox_; }
 
     virtual bool	isSingleLine() const		{ return true; }
 
@@ -279,6 +278,8 @@ public:
 			    { return getFValue( nr, udfval ); }
     /*mDeprecated*/ float getfValue( float undefval ) const
 			    { return getFValue(0,undefval); }
+    /*mDeprecated*/ bool isChecked();
+    /*mDeprecated*/ bool isCheckable()		{ return withchk_ || cbox_; }
 };
 
 

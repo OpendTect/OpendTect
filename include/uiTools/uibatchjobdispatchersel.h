@@ -37,6 +37,7 @@ public:
     void		jobSpecUpdated();
     void		setJobSpec(const Batch::JobSpec&);
     void		setJobName(const char*);
+    void		setWantBatch(bool);	//! useful if isoptional
 
     Batch::JobSpec&	jobSpec()		{ return jobspec_; }
     uiString		selected() const;

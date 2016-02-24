@@ -164,9 +164,10 @@ od_int64 TaskGroup::totalNr() const
 uiString TaskGroup::uiMessage() const
 {
     Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_)
-	? tasks_[curtask_]->uiMessage()
-	: uiString::emptyString();
+    if ( !tasks_.validIdx(curtask_) )
+	return uiStrings::sProcessing();
+
+    return tasks_[curtask_]->uiMessage();
 }
 
 

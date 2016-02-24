@@ -20,37 +20,35 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
-
-#include "hiddenparam.h"
-
-static HiddenParam<SeisDataPackWriter,const PosInfo::CubeData*>
-       trcssamplingdpckwritermgr( 0 );
+#include "uistrings.h"
 
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 				  const RegularSeisDataPack& dp,
-				  const TypeSet<int>& cubeindices )
+				  const TypeSet<int>& compidxs )
     : Executor( "Attribute volume writer" )
     , nrdone_( 0 )
     , tks_( dp.sampling().hsamp_ )
     , totalnr_( (int) dp.sampling().hsamp_.totalNr() )
-    , cube_( dp )
+    , dp_( &dp )
     , iterator_( dp.sampling().hsamp_ )
     , mid_( mid )
+    , posinfo_(0)
+    , compidxs_( compidxs )
     , trc_( 0 )
-    , cubeindices_( cubeindices )
 {
-    trcssamplingdpckwritermgr.setParam( this, 0 );
-    const int startz =
-	mNINT32(dp.sampling().zsamp_.start/dp.sampling().zsamp_.step);
-    zrg_ = Interval<int>( startz, startz+dp.sampling().nrZ()-1 );
+    obtainDP();
+    getPosInfo();
 
-    const PosInfo::CubeData* trcssampling = dp.getTrcsSampling();
-    if ( trcssampling && !trcssampling->isFullyRectAndReg() )
+    if ( compidxs_.isEmpty() )
     {
-	trcssamplingdpckwritermgr.setParam( this, trcssampling );
-	totalnr_ = trcssampling->totalSizeInside( tks_ );
+	for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+	    compidxs_ += idx;
     }
+
+    const int startz =
+	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
+    zrg_ = Interval<int>( startz, startz+dp_->sampling().nrZ()-1 );
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
@@ -59,66 +57,104 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
 SeisDataPackWriter::~SeisDataPackWriter()
 {
+    releaseDP();
     delete trc_;
     delete writer_;
-    trcssamplingdpckwritermgr.removeParam( this );
+}
+
+
+void SeisDataPackWriter::getPosInfo()
+{
+    const PosInfo::CubeData* pi = dp_->getTrcsSampling();
+    if ( pi && !pi->isFullyRectAndReg() )
+    {
+	posinfo_ = pi;
+	totalnr_ = posinfo_->totalSizeInside( tks_ );
+    }
 }
 
 
 od_int64 SeisDataPackWriter::nrDone() const
-{ return nrdone_; }
+{
+    return nrdone_;
+}
 
 
 uiString SeisDataPackWriter::uiMessage() const
 {
-    return !writer_ ? tr("Could not write the output, check permission?") :
-	tr("Writing out seismic volume \'%1\'").arg(writer_->ioObj()->name());
+    if ( !writer_ )
+	return uiStrings::phrCannotWrite( tr("the output data to disk.") );
+
+    return tr("Writing seismic volume \'%1\'").arg( writer_->ioObj()->uiName());
+}
+
+
+void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
+{
+    releaseDP();
+    dp_ = &dp;
+    obtainDP();
+    getPosInfo();
+    nrdone_ = 0;
+    setSelection( tks_, zrg_ );
+}
+
+
+void SeisDataPackWriter::obtainDP()
+{
+    DPM( DataPackMgr::SeisID() ).obtain( dp_->id() );
+}
+
+
+void SeisDataPackWriter::releaseDP()
+{
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
 }
 
 
 void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
 				    const Interval<int>& zrg )
 {
-    zrg_ = zrg;
-    tks_ = hrg;
+    zrg_ = zrg; tks_ = hrg;
 
     iterator_.setSampling( hrg );
-    const PosInfo::CubeData* trcssampling =
-			     trcssamplingdpckwritermgr.getParam( this );
-    totalnr_ = trcssampling ? trcssampling->totalSizeInside( hrg )
-			    : mCast(int,hrg.totalNr());
+    totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
+			: mCast(int,hrg.totalNr());
 }
 
 
 od_int64 SeisDataPackWriter::totalNr() const
-{ return totalnr_; }
+{
+    return totalnr_;
+}
 
 
 int SeisDataPackWriter::nextStep()
 {
     const int cubestartz =
-	mNINT32(cube_.sampling().zsamp_.start/cube_.sampling().zsamp_.step);
+	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
     const Interval<int> cubezrg( cubestartz,
-				 cubestartz+cube_.sampling().nrZ()-1 );
+				 cubestartz+dp_->sampling().nrZ()-1 );
+
     if ( !trc_ )
     {
-	if ( !writer_ || cube_.isEmpty() )
+	if ( !writer_ || dp_->isEmpty() )
 	    return ErrorOccurred();
 
 	const int trcsz = zrg_.width()+1;
 	trc_ = new SeisTrc( trcsz );
 
-	const float step = cube_.sampling().zsamp_.step;
+	const float step = dp_->sampling().zsamp_.step;
 	trc_->info().sampling.start = zrg_.start * step;
 	trc_->info().sampling.step = step;
 	trc_->info().nr = 0;
 
 	BufferStringSet compnames;
-	compnames.add( cube_.getComponentName() );
-	for ( int idx=1; idx<cubeindices_.size(); idx++ )
+	compnames.add( dp_->getComponentName() );
+	for ( int idx=1; idx<compidxs_.size(); idx++ )
 	{
 	    trc_->data().addComponent( trcsz, DataCharacteristics() );
-	    compnames.add( cube_.getComponentName(idx) );
+	    compnames.add( dp_->getComponentName(idx) );
 	}
 
 	SeisTrcTranslator* transl = writer_->seisTranslator();
@@ -129,21 +165,19 @@ int SeisDataPackWriter::nextStep()
     if ( !iterator_.next( currentpos ) )
 	return Finished();
 
-    const TrcKeySampling& hs = cube_.sampling().hsamp_;
+    const TrcKeySampling& hs = dp_->sampling().hsamp_;
 
     trc_->info().binid = currentpos;
     trc_->info().coord = SI().transform( currentpos );
     const int inl = currentpos.inl();
     const int crl = currentpos.crl();
-    const PosInfo::CubeData* trcssampling =
-			     trcssamplingdpckwritermgr.getParam( this );
-    if ( trcssampling && !trcssampling->includes(inl,crl) )
+    if ( posinfo_ && !posinfo_->includes(inl,crl) )
 	return MoreToDo();
 
     const int inlidx = hs.inlRange().nearestIndex( inl );
     const int crlidx = hs.crlRange().nearestIndex( crl );
 
-    for ( int idx=0; idx<cubeindices_.size(); idx++ )
+    for ( int idx=0; idx<compidxs_.size(); idx++ )
     {
 	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
 	{
@@ -151,7 +185,7 @@ int SeisDataPackWriter::nextStep()
 	    const int cubesample = zsample - cubestartz;
 
 	    const float value = cubezrg.includes( zsample, false )
-		? cube_.data(cubeindices_[idx]).get(inlidx,crlidx,cubesample)
+		? dp_->data(compidxs_[idx]).get(inlidx,crlidx,cubesample)
 		: mUdf(float);
 
 	    trc_->set( zidx, value, idx );
