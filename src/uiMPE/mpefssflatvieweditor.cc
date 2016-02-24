@@ -48,6 +48,8 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintedCB) );
+    mAttachCB( editor_->sower().sowingEnd,
+	FaultStickSetFlatViewEditor::sowingFinishedCB );
 }
 
 
@@ -422,7 +424,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     Coord3 pos = Coord3::udf();
     if ( !getMousePosInfo(mouseevent.pos(),pos) )
 	return;
-
+    
     EM::PosID pid;
     Coord3 normal = getNormal( &pos );
     fsseditor->setScaleVector( getScaleVector() );
@@ -504,6 +506,15 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( !editor_->sower().moreToSow() ) \
 	EM::EMM().undo().setUserInteractionEnd( \
 					EM::EMM().undo().currentEventID() );
+
+
+void FaultStickSetFlatViewEditor::sowingFinishedCB( CallBacker* cb )
+{
+    fsspainter_->enablePaint( true );
+    fsspainter_->paint();
+    makenewstick_ = true;
+}
+
 
 void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
@@ -587,6 +598,11 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     if ( mouseevent.shiftStatus() || interactpid.isUdf() || makenewstick_ )
     {
+	if ( editor_->sower().moreToSow() )
+	    fsspainter_->enablePaint( false );
+	else
+	    fsspainter_->enablePaint( true );
+
 	makenewstick_ = false;
 	Coord3 editnormal = getNormal( &pos );
 

@@ -79,7 +79,7 @@ public:
     Coord		getNormalToTrace( int trcnr ) const;
     Coord		getNormalInRandLine( int idx ) const;
     			//<! idx of BinID in path_ of RandomLine
-
+    
     Notifier<FaultStickPainter>	abouttorepaint_;
     Notifier<FaultStickPainter> repaintdone_;
 
@@ -88,6 +88,8 @@ public:
     TypeSet<Coord>&	getCoords()			{ return coords_; }
 
     void		paint();
+    void		enablePaint(bool paintenable)
+			{ paintenable_ = paintenable; }
 
 protected:
 
@@ -125,6 +127,7 @@ protected:
 
     bool		linenabled_;
     bool		knotenabled_;
+    bool		paintenable_;
 };
 
 } //namespace EM

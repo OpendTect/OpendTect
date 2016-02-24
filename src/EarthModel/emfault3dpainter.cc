@@ -40,6 +40,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , repaintdone_(this)
     , linenabled_(true)
     , knotenabled_(false)
+    , paintenable_(true)
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
@@ -124,9 +125,7 @@ bool Fault3DPainter::addPolyLine()
 
 void Fault3DPainter::paint()
 {
-    removePolyLine();
-    addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintFault3D();
 }
 
 
@@ -616,9 +615,13 @@ void Fault3DPainter::removePolyLine()
 
 void Fault3DPainter::repaintFault3D()
 {
+    if ( !paintenable_ )
+	return;
+    abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintdone_.trigger();
 }
 
 void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
@@ -669,18 +672,14 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 	{
 	    if ( emf3d->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFault3D();
-	    repaintdone_.trigger();
 	    break;
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
 	    if (  emobject->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFault3D();
-	    repaintdone_.trigger();
 	    break;
 	}
 	default: break;

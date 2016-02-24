@@ -69,7 +69,8 @@ public:
     Notifier<Fault3DPainter>	repaintdone_;
 
     void		paint();
-
+    void		enablePaint(bool paintenable)
+			{ paintenable_=paintenable; }
 protected:
     bool		addPolyLine();
 
@@ -126,6 +127,7 @@ protected:
     int			activestickid_;
     bool		linenabled_;
     bool		knotenabled_;
+    bool		paintenable_;
 };
 
 } //namespace EM

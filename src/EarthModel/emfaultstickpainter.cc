@@ -40,6 +40,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , repaintdone_( this )
     , linenabled_(true)
     , knotenabled_(false)
+    , paintenable_(true)
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
@@ -83,9 +84,7 @@ void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
 
 void FaultStickPainter::paint()
 {
-    removePolyLine();
-    addPolyLine();
-    viewer_.handleChange( FlatView::Viewer::Auxdata );
+ repaintFSS();
 }
 
 
@@ -339,9 +338,13 @@ void FaultStickPainter::enableKnots( bool yn )
 
 void FaultStickPainter::repaintFSS()
 {
+    if ( !paintenable_ )
+	return;
+    abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+    repaintdone_.trigger();
 }
 
 
@@ -398,18 +401,14 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 	{
 	    if ( emfss->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFSS();
-	    repaintdone_.trigger();
 	    break;
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
 	    if (  emobject->hasBurstAlert() )
 		return;
-	    abouttorepaint_.trigger();
 	    repaintFSS();
-	    repaintdone_.trigger();
 	    break;
 	}
 	default:

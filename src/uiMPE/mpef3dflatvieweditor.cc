@@ -46,6 +46,8 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify( 
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
+    mAttachCB( editor_->sower().sowingEnd,
+	Fault3DFlatViewEditor::sowingFinishedCB );
 }
 
 
@@ -485,6 +487,14 @@ void Fault3DFlatViewEditor::doubleClickedCB( CallBacker* cb )
 }
 
 
+void Fault3DFlatViewEditor::sowingFinishedCB( CallBacker* cb )
+{
+    f3dpainter_->enablePaint( true );
+    f3dpainter_->paint();
+    makenewstick_ = true;
+}
+
+
 void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
     if ( !editor_->viewer().appearance().annot_.editable_ 
@@ -569,6 +579,11 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
     if ( makenewstick )
     {
+	if ( editor_->sower().moreToSow() )
+	    f3dpainter_->enablePaint( false );
+	else
+	    f3dpainter_->enablePaint( true );
+
 	makenewstick_ = false;
 	Coord3 editnormal = getNormal( &pos ); 
 	if ( editnormal.isUdf() ) return;
