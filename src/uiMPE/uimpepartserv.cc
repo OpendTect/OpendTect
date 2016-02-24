@@ -852,7 +852,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker ) return false;
 
-    uiDialog* setupdlg  = new uiDialog( parent(),
+    uiDialog* setupdlg  = new uiDialog( 0,
 		uiDialog::Setup(tr("Horizon Tracking Settings"),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
@@ -867,7 +867,18 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
 
-    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
+    if ( freshdlg )
+    {
+	seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
+    }
+    else
+    {
+	const bool setupavailable = sectracker &&
+				    sectracker->hasInitializedSetup();
+	if ( !setupavailable )
+	    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
+    }
+
     setupgrp_->setSectionTracker( sectracker );
     setupgrp_->setMode( seedpicker->getTrackMode() );
     setupgrp_->setColor( emobj->preferredColor() );
