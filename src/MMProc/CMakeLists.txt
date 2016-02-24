@@ -18,6 +18,7 @@ set(OD_MODULE_SOURCES
 	jobiomgr.cc
 	jobrunner.cc
 	initmmproc.cc
+	clusterjobdispatch.cc
 	mmbatchjobdispatch.cc
 	mmproc.cc
 	mmexecproxy.cc

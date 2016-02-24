@@ -48,7 +48,7 @@ public:
     virtual bool	canHandle(const JobSpec&) const;
     virtual bool	canResume(const JobSpec&) const;
 
-    static void         addDef(MMProgDef*);
+    static void         addDef(ClusterProgDef*);
 
 protected:
 
