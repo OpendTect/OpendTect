@@ -225,6 +225,13 @@ else()
 	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
 endif()
 
+execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	       ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
+	       ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_RELEASE}/ )
+execute_process( COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	       ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
+	       ${CMAKE_BINARY_DIR}/${OD_EXEC_RELPATH_DEBUG}/ )
+
 if( EXISTS ${MSVCPATH} )
     file( GLOB MSVCDLLS ${MSVCPATH}/*.dll )
     foreach( DLL ${MSVCDLLS} )
