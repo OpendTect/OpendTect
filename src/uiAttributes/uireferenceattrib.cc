@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "survinfo.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -24,31 +25,29 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-static const char* outpstrs3d[] =
+static void getOutputNames( uiStringSet& strs3d, uiStringSet& strs2d )
 {
-    "X",
-    "Y",
-    "Z",
-    "In-line nr",
-    "Cross-line nr",
-    "Sample nr",
-    "In-line index",
-    "Cross-line index",
-    "Z index",
-    0
-};
+    uiString zstr;
+    if ( SI().zIsTime() )
+	zstr = toUiString("%1 (%2)").arg( uiStrings::sZ())
+				    .arg( uiStrings::sSec() );
+    else
+	zstr = uiStrings::sZ();
 
-static const char* outpstrs2d[] =
-{
-    "X",
-    "Y",
-    "Z",
-    "Trace nr",
-    "Sample nr",
-    "Trace index",
-    "Z index",
-    0
-};
+    strs3d.add( uiStrings::sX() ).add( uiStrings::sY() ).add( zstr )
+	  .add( uiStrings::phrInline( od_static_tr("getOutputNames","number")) )
+	  .add( uiStrings::phrCrossline( od_static_tr("getOutputNames",
+						      "number")) )
+	  .add( od_static_tr("getOutputNames", "Sample number") )
+	  .add( uiStrings::phrInline( od_static_tr("getOutputNames", "index") ))
+	  .add( uiStrings::phrCrossline( od_static_tr("getOutputNames",
+						      "index" )) )
+	  .add( od_static_tr("getOutputNames","Z index") );
+    strs2d.add( uiStrings::sX() ).add( uiStrings::sY() ).add( zstr )
+	  .add( od_static_tr("getOutputNames", "Trace number") )
+	  .add( od_static_tr("getOutputNames", "Sample number") )
+	  .add( od_static_tr("getOutputNames", "Trace index") );
+}
 
 
 mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp())
@@ -58,6 +57,8 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mReferenceAttribHelpID) )
 
 {
+    uiStringSet outpstrs3d, outpstrs2d;
+    getOutputNames( outpstrs3d, outpstrs2d );
     inpfld = createInpFld( is2d );
 
     outpfld3d = new uiGenInput( this, tr("Desired Output"), 
