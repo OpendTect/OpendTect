@@ -766,7 +766,10 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	si_.getLatlong2Coord().set( llll, llcrd );
 
     const bool xyinfeet = sip->xyInFeet();
-    const bool zistime = sip->tdInfo() == uiSurvInfoProvider::Time;
+    uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
+    bool zistime = si_.zIsTime();
+    if ( tdinfo >= uiSurvInfoProvider::Time )
+	zistime = tdinfo == uiSurvInfoProvider::Time;
     bool zinfeet = !depthdispfld_->getBoolValue();
     if ( zistime )
     {

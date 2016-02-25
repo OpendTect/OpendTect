@@ -799,7 +799,7 @@ void uiSurvey::newButPushed( CallBacker* )
     else
     {
 	readSurvInfoFromFile(); // essential
-	    putToScreen();
+	putToScreen();
     }
 
     rmbut_->setSensitive(true);
