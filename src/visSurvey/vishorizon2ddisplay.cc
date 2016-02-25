@@ -477,7 +477,11 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     EMObjectDisplay::emChangeCB( cb );
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    {
 	getMaterial()->setColor( emobject_->preferredColor() );
+
+	setLineStyle( emobject_->preferredLineStyle() );
+    }
 }
 
 
