@@ -407,6 +407,9 @@ Undo& EMSeedPicker::horPatchUndo()		{ return patchundo_; }
 
 void EMSeedPicker::setSelSpec( const Attrib::SelSpec* as )
 {
+    if ( selspec_==*as )
+	return;
+
     selspec_ = as ? *as : Attrib::SelSpec();
 
     SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
