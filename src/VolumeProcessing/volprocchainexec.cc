@@ -222,6 +222,7 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 	return -1;
 
     TypeSet<VolumeMemory> activevolumes;
+    const od_int64 basesize = Step::getBaseMemoryUsage( hrg, zrg );
 
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
     {
@@ -234,8 +235,10 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 		if ( !step->validOutputSlotID(step->getOutputSlotID(outputidx)))
 		    continue;
 
-		const od_int64 outputsize = step->getOuputMemSize( outputidx );
+		const od_int64 extrasize = step->extraMemoryUsage( outputidx,
+								    hrg, zrg );
 
+		od_int64 outputsize = basesize + extrasize;
 		VolumeMemory volmem( step->getID(), outputidx, outputsize,
 				     epochidx, epochidx );
 
@@ -253,6 +256,7 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 	}
     }
 
+    od_int64 res = 0;
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
     {
 	od_int64 memneeded = 0;
@@ -267,15 +271,10 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 
 	    memneeded += activevolumes[idx].nrbytes_;
 	}
-
-	const ObjectSet<Step>& steps = epochs_[epochidx]->getSteps();
-	for ( int idx=0; idx<steps.size(); idx++ )
-	{
-	    memneeded += steps[idx]->getProcTimeExtraMemory();
-	}
+	res += memneeded;
     }
-    //TODO finish
-    return 0;
+
+    return res;
 }
 
 
@@ -513,7 +512,7 @@ od_int64 VolProc::ChainExecutor::nrDone() const
 	return 0;
 
     const float percentperepoch = 100.f / totalnrepochs_;
-    const int epochsdone = totalnrepochs_ - epochs_.size();
+    const int epochsdone = totalnrepochs_ - epochs_.size() - 1;
     float percentagedone = percentperepoch * epochsdone;
 
     if ( curepoch_ )
@@ -535,8 +534,7 @@ od_int64 VolProc::ChainExecutor::nrDone() const
 
 uiString VolProc::ChainExecutor::uiNrDoneText() const
 {
-    return curepoch_
-	? curepoch_->getTask().uiNrDoneText() : uiStrings::sPercentageDone();
+    return uiStrings::sPercentageDone();
 }
 
 

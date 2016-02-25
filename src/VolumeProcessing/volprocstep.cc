@@ -344,10 +344,41 @@ Task* VolProc::Step::createTaskWithProgMeter( ProgressMeter* )
 }
 
 
-od_int64 VolProc::Step::getOuputMemSize( int outputidx ) const
+/* mDeprecated od_int64 VolProc::Step::getOuputMemSize( int outputidx ) const
 {
-    const RegularSeisDataPack* output = getOutput( getOutputSlotID(outputidx) );
-    if ( !output ) return 0;
+    const RegularSeisDataPack* dp = getOutput( getOutputSlotID(outputidx) );
+    if ( !dp ) return 0;
+    // Ouch. When this function is called, dp is always null.
 
-    return output->sampling().totalNr() * sizeof(float);
+    // Therefore, this is not going to work:
+    return dp->sampling().totalNr() * sizeof(float);
+}
+*/
+
+
+od_int64 VolProc::Step::getBaseMemoryUsage(
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp )
+{
+    const od_int64 nrtrcs = hsamp.totalNr();
+    return nrtrcs * (zsamp.nrSteps()+1) * sizeof(float);
+}
+
+
+od_int64 VolProc::Step::getExtraMemoryUsage(
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp,
+	const TypeSet<OutputSlotID>& ids ) const
+{
+    TypeSet<OutputSlotID> tocalc( ids );
+    if ( tocalc.isEmpty() )
+    {
+	const int nroutputs = getNrOutputs();
+	for ( int idx=0; idx<nroutputs; idx++ )
+	    tocalc += getOutputSlotID( idx );
+    }
+
+    od_int64 ret = 0;
+    for ( int idx=0; idx<tocalc.size(); idx++ )
+	ret += extraMemoryUsage( tocalc[idx], hsamp, zsamp );
+
+    return ret;
 }

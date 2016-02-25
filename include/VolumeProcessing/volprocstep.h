@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "factory.h"
 #include "trckeysampling.h"
 #include "uistrings.h"
-
-class ProgressMeter;
-class RegularSeisDataPack;
 class Task;
 class VelocityDesc;
+class ProgressMeter;
+class TrcKeyZSampling;
+class RegularSeisDataPack;
 
 
 namespace VolProc
@@ -106,8 +106,18 @@ public:
     virtual bool		usePar(const IOPar&);
 
     virtual void		releaseData();
-    virtual od_int64		getOuputMemSize(int) const;
-    virtual od_int64		getProcTimeExtraMemory() const	{ return 0; }
+    /* mDeprecated virtual od_int64 getOuputMemSize(int) const; */
+    /* mDeprecated virtual od_int64 getProcTimeExtraMemory() const
+				{ return 0; } */
+
+    static od_int64		getBaseMemoryUsage(const TrcKeySampling&,
+						   const StepInterval<int>&);
+    od_int64			getExtraMemoryUsage(const TrcKeySampling&,
+					const StepInterval<int>&,
+					const TypeSet<OutputSlotID>&
+					=TypeSet<OutputSlotID>()) const;
+				/*!< returns total amount of bytes needed
+				     on top of the base consumption */
 
     virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
@@ -116,10 +126,11 @@ protected:
 
 			Step();
 
-    friend class	BinIDWiseTask;
     virtual bool	prefersBinIDWise() const		{ return false;}
     virtual bool	computeBinID(const BinID&,int threadid)	{ return false;}
     virtual bool	prepareComp(int nrthreads)		{ return true;}
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+				const StepInterval<int>&) const	{ return 0; }
 
     Chain*				chain_;
 
@@ -137,8 +148,12 @@ protected:
 private:
 
     RegularSeisDataPack*	output_;
-    friend class		Chain;
+
     void			setChain(Chain&);
+
+    friend class		Chain;
+    friend class		ChainExecutor;
+    friend class		BinIDWiseTask;
 
 };
 

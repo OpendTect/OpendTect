@@ -64,6 +64,9 @@ protected:
 
     Smoother3D<float>*	smoother_;
 
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+	                                    const StepInterval<int>&) const;
+
 };
 
 } // namespace VolProc

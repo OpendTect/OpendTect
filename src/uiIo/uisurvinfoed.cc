@@ -768,7 +768,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     const bool xyinfeet = sip->xyInFeet();
     uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
     bool zistime = si_.zIsTime();
-    if ( tdinfo >= uiSurvInfoProvider::Time )
+    if ( tdinfo != uiSurvInfoProvider::Uknown )
 	zistime = tdinfo == uiSurvInfoProvider::Time;
     bool zinfeet = !depthdispfld_->getBoolValue();
     if ( zistime )
