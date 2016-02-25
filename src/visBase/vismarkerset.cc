@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/MarkerShape>
 
 #include <math.h>
+#include "hiddenparam.h"
 
 #define mOSGMarkerScaleFactor 2.5f
 
@@ -29,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 mCreateFactoryEntry( visBase::MarkerSet );
 
 using namespace visBase;
+
+static HiddenParam< MarkerSet,osg::ref_ptr<osg::ByteArray>> onoffarr_(0);
 
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
@@ -41,8 +44,10 @@ MarkerSet::MarkerSet()
     , offset_( 0 )
 {
     markerset_->ref();
+    onoffarr_.setParam( this, new osg::ByteArray );
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
+    markerset_->setOnOffArray( onoffarr_.getParam(this) );
 
     setMinimumScale( 1.0f );
 
@@ -63,6 +68,7 @@ MarkerSet::~MarkerSet()
     clearMarkers();
     markerset_->unref();
     removePolygonOffsetNodeState();
+    onoffarr_.removeParam( this );
 }
 
 
@@ -125,6 +131,8 @@ void MarkerSet::clearMarkers()
     if ( coords_ ) coords_->setEmpty();
     if ( normals_ ) normals_->clear();
     if ( material_ ) material_->clear();
+    if (onoffarr_.getParam(this) )
+	onoffarr_.getParam(this)->clear();
     markerset_->forceRedraw( true );
 }
 
@@ -135,9 +143,10 @@ void MarkerSet::removeMarker( int idx )
     if ( material_ ) material_->removeColor( idx );
     if ( coords_ ) coords_->removePos( idx, false );
     if ( coords_ ) coords_->dirty();
-    markerset_->removeMarkerOnOff( idx );
-    markerset_->forceRedraw( true );
-    
+    osg::ByteArray* onoffarr = onoffarr_.getParam(this);
+    if ( onoffarr )
+	onoffarr->erase( onoffarr->begin()+idx );
+    markerset_->forceRedraw( true );    
 }
 
 
