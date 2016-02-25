@@ -408,6 +408,8 @@ protected:
     void			updateDraggers();
     int				getTypeSetIdx(int);
 
+    void			triggerObjectMoved(int id);
+
     ObjectSet<visSurvey::Scene>	scenes_;
 
     uiMenuHandler&		menu_;

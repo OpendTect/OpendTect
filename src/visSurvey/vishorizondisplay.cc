@@ -1458,7 +1458,8 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
                     ? mUdf(EM::SubID)
                     : hortrc.pos().toInt64();
 
-            if ( seedposids && !mIsUdf(horsubid) &&
+            if ( showsPosAttrib(EM::PosAttrib::SeedNode) &&
+		 seedposids && !mIsUdf(horsubid) &&
                  seedposids->isPresent(EM::PosID(hor->id(),sid,horsubid)))
             {
                 horsubid = mUdf(EM::SubID);
@@ -2159,6 +2160,13 @@ void HorizonDisplay::setPixelDensity( float dpi )
 
     for ( int idx=0; idx<intersectiondata_.size(); idx++ )
 	intersectiondata_[idx]->setPixelDensity( dpi );
+}
+
+
+void HorizonDisplay::showPosAttrib( int attr, bool yn )
+{
+    EMObjectDisplay::showPosAttrib( attr, yn );
+    setOnlyAtSectionsDisplay( displayonlyatsections_ );	/* retrigger */
 }
 
 

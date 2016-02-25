@@ -643,8 +643,11 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( newid == DataPack::cNoID() )
 	    {
 		// clearing texture and set back original selspec
+		const bool isattribenabled =
+				    visserv_->isAttribEnabled( visid, attrib );
 		visserv_->setSelSpec( visid, attrib, Attrib::SelSpec() );
 		visserv_->setSelSpec( visid, attrib, myas );
+		visserv_->enableAttrib( visid, attrib, isattribenabled );
 		return false;
 	    }
 

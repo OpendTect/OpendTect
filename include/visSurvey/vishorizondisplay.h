@@ -197,6 +197,8 @@ public:
     virtual void		clearSelections();
     void			updateAuxData();
 
+    void			showPosAttrib(int attr,bool yn);
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 

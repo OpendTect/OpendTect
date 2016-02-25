@@ -56,7 +56,7 @@ public:
     virtual bool		updateFromEM(TaskRunner*);
     virtual void		updateFromMPE();
 
-    void			showPosAttrib( int attr, bool yn);
+    virtual void		showPosAttrib( int attr, bool yn);
 				/*!<Turns position attributes (as defined in
 				    EM::EMObject) to be marked with a marker. */
     bool			showsPosAttrib( int attr ) const;
