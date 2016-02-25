@@ -473,6 +473,8 @@ protected:
     MouseCursorExchange*	mousecursorexchange_;
 
     uiDirLightDlg*		dirlightdlg_;
+
+    void			triggerObjectMoved(int id);
 };
 
 

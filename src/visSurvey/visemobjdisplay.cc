@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visdrawstyle.h"
 #include "visevent.h"
+#include "vishorizondisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
@@ -385,6 +386,10 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	removeChild(posattribmarkers_[attribindex]->osgNode());
 	posattribmarkers_.removeSingle(attribindex)->unRef();
     }
+
+    mDynamicCastGet( HorizonDisplay*, hd, this );
+    if ( hd )						/* retrigger */
+	hd->setOnlyAtSectionsDisplay( hd->displayedOnlyAtSections() );
 }
 
 

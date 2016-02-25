@@ -1045,10 +1045,36 @@ bool uiVisPartServer::isAttribEnabled( int id, int attrib ) const
 }
 
 
+void uiVisPartServer::triggerObjectMoved( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObject( id );
+    if ( !dobj )
+	return;
+
+    TypeSet<int> sceneids;
+    getChildIds( -1, sceneids );
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	visSurvey::Scene* scene =
+	    (visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
+
+	if ( scene )
+	    scene->objectMoved( dobj );
+    }
+}
+
+
 void uiVisPartServer::enableAttrib( int id, int attrib, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->enableAttrib( attrib, yn );
+    if ( so )
+    {
+	const bool wasanyattribenabled = so->isAnyAttribEnabled();
+	so->enableAttrib( attrib, yn );
+
+	if ( wasanyattribenabled != so->isAnyAttribEnabled() )
+	    triggerObjectMoved( id );
+    }
 }
 
 
@@ -1536,23 +1562,12 @@ void uiVisPartServer::turnOn( int id, bool yn, bool doclean )
     if ( !vismgr_->allowTurnOn(id,doclean) )
 	yn = false;
 
-    visBase::DataObject* dobj = visBase::DM().getObject( id );
-    if ( !dobj ) return;
-
-    mDynamicCastGet(visBase::VisualObject*,vo,dobj)
+    mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( !vo || vo->isOn()==yn )
 	return;
 
     vo->turnOn( yn );
-
-    TypeSet<int> sceneids;
-    getChildIds( -1, sceneids );
-    for ( int idx=0; idx<sceneids.size(); idx++ )
-    {
-	visSurvey::Scene* scene =
-		(visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
-	if ( scene ) scene->objectMoved(dobj);
-    }
+    triggerObjectMoved( id );
 }
 
 

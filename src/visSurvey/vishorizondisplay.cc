@@ -1458,7 +1458,8 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
                     ? mUdf(EM::SubID)
                     : hortrc.pos().toInt64();
 
-            if ( seedposids && !mIsUdf(horsubid) &&
+            if ( showsPosAttrib(EM::PosAttrib::SeedNode) &&
+		 seedposids && !mIsUdf(horsubid) &&
                  seedposids->isPresent(EM::PosID(hor->id(),sid,horsubid)))
             {
                 horsubid = mUdf(EM::SubID);
