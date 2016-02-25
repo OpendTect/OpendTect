@@ -596,7 +596,9 @@ const char* uiSGSel::selGrpFileNm()
     {
 	BufferString cleannm( inpfld_->text() );
 	cleannm.clean();
-	return FilePath(SGM().basePath(),cleannm).fullPath();
+	FilePath fp( SGM().basePath(), cleannm );
+	mDefineStaticLocalObject( BufferString, selgrpfnm, (fp.fullPath()) );
+	return selgrpfnm;
 	//selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
     }
 
@@ -1006,7 +1008,8 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
     }
 
     SGM().addSelGrpSet( outfld_->selGrpSetNm() );
-    SelGrpExporter exp( outfld_->selGrpFileNm() );
+    FixedString sgfnm( outfld_->selGrpFileNm() );
+    SelGrpExporter exp( sgfnm );
     BufferString yaxisnm;
     if ( !exp.putSelections(selgrps_,setup_.xname_,
 			    setup_.yname_,setup_.y2name_) )
