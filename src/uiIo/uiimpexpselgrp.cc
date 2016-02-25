@@ -596,7 +596,9 @@ const char* uiSGSel::selGrpFileNm()
     {
 	BufferString cleannm( inpfld_->text() );
 	cleannm.clean();
-	return FilePath(SGM().basePath(),cleannm).fullPath();
+	FilePath fp( SGM().basePath(), cleannm );
+	mDefineStaticLocalObject( BufferString, selgrpfnm, (fp.fullPath()) );
+	return selgrpfnm;
 	//selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
     }
 
