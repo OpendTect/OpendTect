@@ -131,22 +131,23 @@ od_int64 SeisDataPackWriter::totalNr() const
 
 int SeisDataPackWriter::nextStep()
 {
-    const int cubestartz =
-	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
-    const Interval<int> cubezrg( cubestartz,
-				 cubestartz+dp_->sampling().nrZ()-1 );
+    const StepInterval<float> survrg = SI().zRange( true ); 
+    const StepInterval<int> cubezrgidx // real -> index
+			    ( mNINT32(dp_->sampling().zsamp_.start/survrg.step),
+			      mNINT32(dp_->sampling().zsamp_.stop/survrg.step),
+			      mNINT32(dp_->sampling().zsamp_.step/survrg.step));
+			      
 
     if ( !trc_ )
     {
 	if ( !writer_ || dp_->isEmpty() )
 	    return ErrorOccurred();
 
-	const int trcsz = zrg_.width()+1;
+	const int trcsz = cubezrgidx.nrSteps() + 1;
 	trc_ = new SeisTrc( trcsz );
 
-	const float step = dp_->sampling().zsamp_.step;
-	trc_->info().sampling_.start = zrg_.start * step;
-	trc_->info().sampling_.step = step;
+	trc_->info().sampling_.start = dp_->sampling().zsamp_.start;
+	trc_->info().sampling_.step = dp_->sampling().zsamp_.step;
 	trc_->info().nr_ = 0;
 
 	BufferStringSet compnames;
@@ -179,12 +180,12 @@ int SeisDataPackWriter::nextStep()
 
     for ( int idx=0; idx<compidxs_.size(); idx++ )
     {
-	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
+	for ( int zidx=0; zidx<=cubezrgidx.nrSteps(); zidx++ )
 	{
 	    const int zsample = zidx+zrg_.start;
-	    const int cubesample = zsample - cubestartz;
+	    const int cubesample = zsample - cubezrgidx.start;
 
-	    const float value = cubezrg.includes( zsample, false )
+	    const float value = cubezrgidx.includes( zsample, false )
 		? dp_->data(compidxs_[idx]).get(inlidx,crlidx,cubesample)
 		: mUdf(float);
 

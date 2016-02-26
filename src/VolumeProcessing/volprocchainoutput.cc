@@ -201,9 +201,10 @@ int VolProc::ChainOutput::setupChunking()
 
     const float zstep = chain_->getZStep();
     outputzrg_ = StepInterval<int>( mNINT32(cs_.zsamp_.start/zstep),
-				 mNINT32(cs_.zsamp_.stop/zstep),
-				 mMIN(mNINT32(cs_.zsamp_.step/zstep),1) );
-
+				 mNINT32(Math::Ceil(cs_.zsamp_.stop/zstep)),
+			   mMAX(mNINT32(Math::Ceil(cs_.zsamp_.step/zstep)),1) );
+			   //real -> index, outputzrg_ is the index of z-samples
+    
     // We will be writing while a new chunk will be calculated
     // Thus, we need to keep the output datapack alive while the next chunk
     // is calculated. Therefore, lets double the computed mem need:

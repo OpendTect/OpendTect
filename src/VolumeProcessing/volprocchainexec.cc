@@ -375,8 +375,9 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	TrcKeyZSampling csamp;
 	csamp.hsamp_ = stepoutputhrg;
 	const StepInterval<float> fullzrg = csamp.zsamp_;
-	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step;
-	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step;
+	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step; //index -> real
+	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
+	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
 
 	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
