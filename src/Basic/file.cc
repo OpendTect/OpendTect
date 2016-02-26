@@ -296,9 +296,13 @@ bool isEmpty( const char* fnm )
 
 bool isDirEmpty( const char* dirnm )
 {
+#ifndef OD_NO_QT
     const QDir qdir( dirnm );
     return qdir.entryInfoList(QDir::NoDotAndDotDot|
 			      QDir::AllEntries).count() == 0;
+#else
+    return false;
+#endif
 }
 
 
