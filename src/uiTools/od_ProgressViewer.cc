@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "od_istream.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "sighndl.h"
 #include "timer.h"
 #include "varlenarray.h"
@@ -195,7 +195,7 @@ void uiProgressViewer::doWork( CallBacker* )
 	    strm_.getAll( curline_ );
 	    txtfld->setText( curline_ );
 	    txtfld->scrollToBottom();
-	    statusBar()->message( processEnded() ? tr("Processing ended") 
+	    statusBar()->message( processEnded() ? tr("Processing ended")
 						 : uiString::emptyString() );
 	    return;
 	}

@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "timefun.h"
 #include "threadlock.h"
 #include "od_ostream.h"

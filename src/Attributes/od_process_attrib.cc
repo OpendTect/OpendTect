@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "ptrman.h"
 #include "seisjobexecprov.h"
 #include "seis2ddata.h"

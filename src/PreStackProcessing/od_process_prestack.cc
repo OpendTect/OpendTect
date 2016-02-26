@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "jobcommunic.h"
 #include "moddepmgr.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "prestackgather.h"

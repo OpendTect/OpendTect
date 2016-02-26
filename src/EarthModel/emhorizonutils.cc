@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
 #include "posprovider.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
 #include "od_ostream.h"
@@ -180,7 +180,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	BufferStringSet nms;
 	res = new DataPointSet( pts, nms, true );
 	data += res;
-	SectionID sid = 0; 		//multiple sections not used here
+	SectionID sid = 0;		//multiple sections not used here
 	for ( int idx=hsamp.start_.crl(); idx<=hsamp.stop_.crl(); idx++ )
 	{
 	    Coord3 coords = hor2d->getPos( sid, geomid, idx);

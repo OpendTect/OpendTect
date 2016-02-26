@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "veldesc.h"
 #include "odsysmem.h"
 #include "threadwork.h"
+#include "progressmeterimpl.h"
 
 
 VolProc::ChainOutput::ChainOutput()

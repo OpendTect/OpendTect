@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 #include "oddirs.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "thread.h"
 #include "od_ostream.h"
 

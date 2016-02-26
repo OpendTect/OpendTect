@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -67,7 +67,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     PtrMan<IOPar> ztranspar =
-    	pars().subselect( ProcessTime2Depth::sKeyZTransPar() );
+	pars().subselect( ProcessTime2Depth::sKeyZTransPar() );
 
     if ( !ztranspar )
     {
@@ -101,8 +101,8 @@ bool BatchProgram::go( od_ostream& strm )
 			veldesc.isVelocity();
 
     PtrMan<SeisZAxisStretcher> exec =
-    	new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-			    	*ztransform, true, isvel );
+	new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
+				*ztransform, true, isvel );
     if ( isvel )
     {
 	strm << "\nDetected that the stretching will be done on velocities.\n"

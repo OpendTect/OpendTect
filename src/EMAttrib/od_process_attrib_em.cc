@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linesetposinfo.h"
 #include "posinfo2d.h"
 #include "posprovider.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "multiid.h"
 #include "moddepmgr.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "seisioobjinfo.h"
 #include "uistrings.h"
 

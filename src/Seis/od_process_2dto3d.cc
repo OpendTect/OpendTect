@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
 #include "seis2dto3d.h"
@@ -118,18 +118,18 @@ bool BatchProgram::go( od_ostream& strm )
 
     TextStreamProgressMeter progressmeter(strm);
     TextTaskRunner taskr( strm );
-	
+
 	BufferString type;
 	if (!paramspar->get(Seis2DTo3D::sKeyType(), type) || type.isEmpty())
 		mRetJobErr("Cannot determine type of seismic"
 					"interpolator from parameter file")
-	
+
 	proc = Seis2DTo3D::factory().create(type);
 
 	if (!proc)
 		mRetJobErr("Cannot create seismic interpolator"
 		 ",perhaps not all plugins are loaded?")
-	
+
 	proc->setStream(strm);
 	proc->setTaskRunner(&taskr);
 
