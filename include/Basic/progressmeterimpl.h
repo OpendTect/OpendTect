@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "callback.h"
 #include "od_iosfwd.h"
+class Task;
 
 
-/*!\brief ProgressMeter recording the progress. Can also forward to another. */
+/*!\brief ProgressMeter that helps unifying different tasks */
 
 mExpClass(Basic) ProgressRecorder : public ProgressMeter
 {
@@ -39,6 +40,8 @@ public:
     od_int64		nrdone_;
     od_int64		totalnr_;
     ProgressMeter*	forwardto_;
+
+    void		setFrom(const Task&);
 
     virtual void	setStarted();
     virtual void	setFinished();

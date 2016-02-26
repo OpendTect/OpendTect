@@ -6,9 +6,9 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "timefun.h"
-#include "threadlock.h"
+#include "task.h"
 #include "od_ostream.h"
 
 static const char progress_symbols[] = ".:=|*#>}].:=|*#>}].:=|*#>}].:=|*#>}]";
@@ -63,6 +63,19 @@ void ProgressRecorder::operator++()
 {
     mSetLock();
     nrdone_++;
+}
+
+
+void ProgressRecorder::setFrom( const Task& t )
+{
+    mSetLock();
+    name_ = t.name();
+    nrdone_ = t.nrDone();
+    totalnr_ = t.totalNr();
+    message_ = t.uiMessage();
+    nrdonetext_ = t.uiNrDoneText();
+    if ( nrdone_ > 0 )
+	isstarted_ = true;
 }
 
 

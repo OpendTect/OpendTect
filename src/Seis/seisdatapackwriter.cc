@@ -91,12 +91,16 @@ uiString SeisDataPackWriter::uiMessage() const
 
 void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
-    releaseDP();
-    dp_ = &dp;
-    obtainDP();
+    if ( dp_ != &dp )
+    {
+	releaseDP();
+	dp_ = &dp;
+	obtainDP();
+    }
+
     getPosInfo();
     nrdone_ = 0;
-    setSelection( tks_, zrg_ );
+    setSelection( dp_->sampling().hsamp_, zrg_ );
 }
 
 
