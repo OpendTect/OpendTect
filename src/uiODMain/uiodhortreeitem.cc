@@ -224,6 +224,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
 	    hd->displayIntersectionLines( both );
 	    hd->setOnlyAtSectionsDisplay( onlyatsection );
+	    hd->enableAttrib( (hd->nrAttribs()-1), !onlyatsection );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
