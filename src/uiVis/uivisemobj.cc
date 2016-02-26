@@ -430,12 +430,14 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	setOnlyAtSectionsDisplay( false );
 	if ( hordisp ) hordisp->displayIntersectionLines( false );
+	hordisp->enableAttrib( (hordisp->nrAttribs()-1), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==showbothmnuitem_.id )
     {
 	setOnlyAtSectionsDisplay( false );
 	if ( hordisp ) hordisp->displayIntersectionLines( true );
+	hordisp->enableAttrib( (hordisp->nrAttribs()-1), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid == showsurfacegridmnuitem_.id )
