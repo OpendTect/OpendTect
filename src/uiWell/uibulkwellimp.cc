@@ -324,7 +324,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     , fd_(BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(
-			       mJoinUiStrs(sMarker(),sFile())), 
+			       mJoinUiStrs(sMarker(),sFile())),
 			       uiFileInput::Setup().withexamine(true)
 			       .examstyle(File::Table) );
 
@@ -446,8 +446,8 @@ D2TModelData( const char* wellnm )
     : wellnm_(wellnm)	{}
 
     BufferString	wellnm_; // can be UWI as well
-    TypeSet<float>	mds_;
-    TypeSet<float>	twts_;
+    TypeSet<double>	mds_;
+    TypeSet<double>	twts_;
 };
 
 // uiBulkD2TModelImport
@@ -458,7 +458,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 {
     uiFileInput::Setup fs;
     fs.withexamine(true).examstyle(File::Table);
-    inpfld_ = new uiFileInput( this, 
+    inpfld_ = new uiFileInput( this,
 			 uiStrings::phrInput(tr("Depth/Time Model file")), fs );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
@@ -490,14 +490,19 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	mErrRet( uiStrings::phrCannotRead(uiStrings::sFile()) )
 
     uiStringSet errors;
-    for ( int idx=0; idx<d2tdata.size(); idx++ )
+    for ( int idx=d2tdata.size()-1; idx>=0; idx-- )
     {
 	const BufferString& wellnm = d2tdata[idx]->wellnm_;
-	if ( wellnm.isEmpty() ) continue;
+	if ( wellnm.isEmpty() )
+	{
+	    delete d2tdata.removeSingle(idx,true);
+	    continue;
+	}
 
 	const IOObj* ioobj = findIOObj( wellnm, wellnm );
 	if ( !ioobj )
 	{
+	    delete d2tdata.removeSingle(idx,true);
 	    errors.add( tr("Cannot find %1 in database").arg(wellnm) );
 	    continue;
 	}
@@ -505,16 +510,21 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
 	if ( !wd )
 	{
+	    delete d2tdata.removeSingle(idx,true);
 	    errors.add(tr("%1: Cannot load well").arg(wellnm));
 	    continue;
 	}
 
-	// D2TModel* d2t = new D2TModel();
-	// fill d2t
+	uiString msg;
+	D2TModel* d2t = new D2TModel( d2tdata[idx]->wellnm_.buf() );
+	d2t->ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
+	wd->setD2TModel( d2t );
+
 	const BufferString wellfnm = ioobj->fullUserExpr();
 	Writer ww( *ioobj, *wd );
 	if ( !ww.putD2T() )
 	{
+	    delete d2tdata.removeSingle(idx,true);
 	    errors.add( toUiString("%1: %2").arg(toUiString(wellnm))
 					    .arg(toUiString(ww.errMsg())) );
 	    continue;
@@ -557,6 +567,9 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
     float twt = mUdf(float);
     while ( aio.get(wellnm,md,twt) )
     {
+	if ( wellnm.isEmpty() )
+	    continue;
+
 	int wellidx = getIndex( data, wellnm );
 	if ( wellidx<0 )
 	{
@@ -566,7 +579,7 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 	}
 
 	D2TModelData* d2t = data[wellidx];
-	d2t->mds_ += md;
-	d2t->twts_ += twt;
+	d2t->mds_ += mCast(double,md);
+	d2t->twts_ += mCast(double,twt);
     }
 }
