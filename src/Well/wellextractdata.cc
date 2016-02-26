@@ -398,7 +398,7 @@ void Well::ExtractParams::setEmpty()
 bool Well::ExtractParams::isOK( uiString* errmsg ) const
 {
     if ( !mIsUdf( zstep_ ) && zstep_ < 0 )
-	 mErrRet( tr("Please Enter a valid step value") );
+	 mErrRet( uiStrings::phrEnter(tr("a valid step value")) );
 
     return ZRangeSelector::isOK( errmsg );
 }
@@ -661,7 +661,7 @@ int Well::LogDataExtracter::nextStep()
     if ( dps.isEmpty() ) mRetNext()
 
     RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
-    PtrMan<Well::Track> track = 0;
+    Well::Track* track = 0;
     if ( !wd )
     {
 	msg_ = mToUiStringTodo(Well::MGR().errMsg());
@@ -677,6 +677,8 @@ int Well::LogDataExtracter::nextStep()
 	track = &wd->track();
 
     getData( dps, *wd, *track );
+    if( zistime_ ) delete track;
+
     mRetNext();
 }
 
