@@ -8,10 +8,63 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "progressmeter.h"
 #include "timefun.h"
+#include "threadlock.h"
 #include "od_ostream.h"
 
-
 static const char progress_symbols[] = ".:=|*#>}].:=|*#>}].:=|*#>}].:=|*#>}]";
+
+
+ProgressRecorder::ProgressRecorder()
+    : forwardto_(0)
+    , lock_(*new Threads::Lock)
+{
+    reset();
+}
+
+
+ProgressRecorder::~ProgressRecorder()
+{
+    if ( !isfinished_ )
+	setFinished();
+    delete &lock_;
+}
+
+
+void ProgressRecorder::reset()
+{
+    nrdone_ = 0;
+    totalnr_ = -1;
+    isstarted_ = isfinished_ = false;
+    message_.setEmpty(); nrdonetext_.setEmpty();
+    // if ( forwardto_ ) forwardto_->reset();
+}
+
+
+#define mSetLock() Threads::Locker lock( lock_ );
+
+#define mImplProgressRecorderStartStopFn(nm,memb) \
+void ProgressRecorder::nm() \
+    { mSetLock(); memb = true; if ( forwardto_ ) forwardto_->nm(); }
+mImplProgressRecorderStartStopFn(setStarted,isstarted_)
+mImplProgressRecorderStartStopFn(setFinished,isfinished_)
+
+#define mImplProgressRecorderFn(nm,typ,arg,memb) \
+void ProgressRecorder::nm( typ arg ) \
+    { mSetLock(); memb = arg; if ( forwardto_ ) forwardto_->nm( arg ); }
+
+mImplProgressRecorderFn(setName,const char*,newnm,name_)
+mImplProgressRecorderFn(setTotalNr,od_int64,tnr,totalnr_)
+mImplProgressRecorderFn(setNrDone,od_int64,nr,nrdone_)
+mImplProgressRecorderFn(setMessage,const uiString&,msg,message_)
+mImplProgressRecorderFn(setNrDoneText,const uiString&,txt,nrdonetext_)
+
+
+void ProgressRecorder::operator++()
+{
+    mSetLock();
+    nrdone_++;
+}
+
 
 
 TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
@@ -20,19 +73,22 @@ TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
     , rowlen_(rowlen)
     , finished_(true)
     , totalnr_(0)
-    , skipprog_(false)
-{ reset(); }
+{
+    skipprog_ = false;
+    reset();
+}
 
 
 TextStreamProgressMeter::~TextStreamProgressMeter()
 {
-    if ( !finished_ ) setFinished();
+    if ( !finished_ )
+	setFinished();
 }
 
 
 void TextStreamProgressMeter::setFinished()
 {
-    Threads::Locker lock( lock_ );
+    mSetLock();
     if ( finished_ )
 	return;
 
@@ -47,7 +103,7 @@ void TextStreamProgressMeter::setFinished()
 
 void TextStreamProgressMeter::reset()
 {
-    Threads::Locker lock( lock_ );
+    mSetLock();
     nrdone_ = 0;
     oldtime_ = Time::getMilliSeconds();
     inited_ = false;
@@ -103,14 +159,14 @@ void TextStreamProgressMeter::addProgress( int nr )
 
 void TextStreamProgressMeter::operator++()
 {
-    Threads::Locker lock( lock_ );
+    mSetLock();
     addProgress( 1 );
 }
 
 
 void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 {
-    Threads::Locker lock( lock_ );
+    mSetLock();
     if ( nrdone<=nrdone_ )
 	return;
 
