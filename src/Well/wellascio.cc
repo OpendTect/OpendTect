@@ -595,7 +595,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm,
     const int tmopt = formOf( false, 1 );
 
     if ( dpthopt == 0 )
-	md = wd->track().getPos( mCast(float,md) ).z;
+	md = mCast(float,wd->track().getPos(mCast(float,md)).z);
     if ( dpthopt == 2 )
 	md -= SI().seismicReferenceDatum();
     if ( dpthopt == 3 )
