@@ -12,19 +12,22 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+#include "uibatchjobdispatcherlauncher.h"
 #include "uidialog.h"
+#include "clusterjobdispatch.h"
 #include "multiid.h"
 
 class InlineSplitJobDescProv;
 class uiGenInput;
 class uiFileInput;
 class uiLabel;
+namespace Batch { class ClusterJobDispatcher; }
 
 
 mExpClass(uiIo) uiClusterJobProv : public uiDialog
 { mODTextTranslationClass(uiClusterJobProv);
 public:
-    			uiClusterJobProv(uiParent* p,const IOPar& iop,
+			uiClusterJobProv(uiParent* p,const IOPar& iop,
 					 const char* prog,const char* parfnm);
 			~uiClusterJobProv();
 
@@ -52,5 +55,41 @@ protected:
     const char*		getOutPutIDKey() const;
     MultiID		getTmpID(const char*) const;
 };
+
+
+namespace Batch
+{
+mExpClass(uiIo) SimpleClusterProgDef : public ClusterProgDef
+{
+public:
+			SimpleClusterProgDef() {}
+
+    bool		isSuitedFor(const char*) const;
+};
+}
+
+
+mExpClass(uiIo) uiClusterJobDispatcherLauncher
+					: public uiBatchJobDispatcherLauncher
+{ mODTextTranslationClass(uiClusterJobDispatcherLauncher)
+public:
+			uiClusterJobDispatcherLauncher(Batch::JobSpec&);
+			~uiClusterJobDispatcherLauncher();
+
+    mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
+				       uiClusterJobDispatcherLauncher,
+				       Batch::JobSpec&,
+				       "Cluster Processing",
+				       tr("Cluster Processing"));
+
+    virtual bool	go(uiParent*);
+
+protected:
+
+    virtual Batch::JobDispatcher&	gtDsptchr();
+    Batch::ClusterJobDispatcher&	jd_;
+
+};
+
 
 #endif

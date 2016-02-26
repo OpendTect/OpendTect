@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "uibatchjobdispatcherlauncher.h"
 #include "uibatchlaunch.h"
+#include "uiclusterjobprov.h"
 #include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
@@ -48,6 +49,8 @@ mDefModInitFn(uiIo)
     uiSubsampPosFiltGroup::initClass();
 
     uiMMBatchJobDispatcherLauncher::initClass();
+    uiClusterJobDispatcherLauncher::initClass();
+    Batch::ClusterJobDispatcher::addDef( new Batch::SimpleClusterProgDef );
 
     uiProcSettings::initClass();
 }

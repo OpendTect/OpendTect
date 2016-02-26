@@ -334,3 +334,35 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
     IOM().commitChanges( *iostrm );
     return ret;
 }
+
+
+bool Batch::SimpleClusterProgDef::isSuitedFor( const char* pnm ) const
+{
+    FixedString prognm = pnm;
+    return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib )
+	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM )
+	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Vol );
+}
+
+
+uiClusterJobDispatcherLauncher::uiClusterJobDispatcherLauncher(
+						Batch::JobSpec& js )
+    : uiBatchJobDispatcherLauncher(js)
+    , jd_(*new Batch::ClusterJobDispatcher)
+{}
+
+uiClusterJobDispatcherLauncher::~uiClusterJobDispatcherLauncher()
+{ delete &jd_; }
+
+Batch::JobDispatcher& uiClusterJobDispatcherLauncher::gtDsptchr()
+{ return jd_; }
+
+bool uiClusterJobDispatcherLauncher::go( uiParent* p )
+{
+    jobspec_.pars_.set( sKey::DataRoot(), GetBaseDataDir() );
+    jobspec_.pars_.set( sKey::Survey(), IOM().surveyName() );
+    uiClusterJobProv dlg( p, jobspec_.pars_, jobspec_.prognm_,
+			  jd_.parfnm_ );
+    return dlg.go();
+}
+

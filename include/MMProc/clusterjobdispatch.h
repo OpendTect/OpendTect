@@ -48,11 +48,13 @@ public:
     virtual bool	canHandle(const JobSpec&) const;
     virtual bool	canResume(const JobSpec&) const;
 
+    mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
+				 "Cluster Process",tr("Cluster Process"));
+
     static void         addDef(ClusterProgDef*);
 
 protected:
 
-    virtual bool	init();
     virtual bool	launch();
 
     int			defIdx(const char* pnm=0) const;

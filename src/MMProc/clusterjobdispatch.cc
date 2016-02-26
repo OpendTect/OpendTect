@@ -93,40 +93,8 @@ bool Batch::ClusterJobDispatcher::canResume( const Batch::JobSpec& js ) const
 }
 
 
-bool Batch::ClusterJobDispatcher::init()
-{
-    if ( parfnm_.isEmpty() )
-	setToDefParFileName();
-
-    const int pdidx = defIdx();
-    if ( pdidx < 0 || !progdefs_[pdidx]->canHandle(jobspec_) )
-    {
-	errmsg_ = tr( "The job cannot be handled using Cluster processing." );
-	return false;
-    }
-
-    return true;
-}
-
-
 bool Batch::ClusterJobDispatcher::launch()
 {
-    const int pdidx = defIdx();
-    if ( pdidx < 0 )
-	{ errmsg_ = toUiString("Internal: init() not used"); return false; }
-
-    if ( !writeParFile() )
-	return false;
-
-    const BufferString clusterprog =
-		FilePath(GetExecPlfDir(),"od_clusterproc").fullPath();
-    BufferString cmd( "\"", clusterprog, "\" " ); cmd.add( jobspec_.clargs_ );
-    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
-    cmd.add( " " ).add( qtdparfnm );
-    OS::MachineCommand mc( cmd );
-    OS::CommandLauncher cl( mc );
-    OS::CommandExecPars ep( jobspec_.execpars_ );
-    ep.needmonitor( false ).launchtype( OS::RunInBG )
-			   .isconsoleuiprog( GetEnvVarYN("DTECT_DEBUG") );
-    return cl.execute( ep );
+    pErrMsg("Do not call: Launching is handled in UI dispatcher itself");
+    return false;
 }

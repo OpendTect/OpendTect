@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
+#include "clusterjobdispatch.h"
 #include "mmbatchjobdispatch.h"
 
 mDefModInitFn(MMProc)
@@ -17,4 +18,5 @@ mDefModInitFn(MMProc)
     mIfNotFirstTime( return );
 
     Batch::MMJobDispatcher::initClass();
+    Batch::ClusterJobDispatcher::initClass();
 }

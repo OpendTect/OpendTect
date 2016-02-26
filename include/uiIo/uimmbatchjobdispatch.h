@@ -73,7 +73,7 @@ private:
     uiGenInput*		jrpstartfld_;
     uiGenInput*		jrpstopfld_;
     uiLabel*		jrpworklbl_;
-    
+
     bool		retFullFailGoOnMsg();
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
