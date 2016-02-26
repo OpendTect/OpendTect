@@ -9,12 +9,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellimpasc.h"
 
 #include "idxable.h"
+#include "ioobj.h"
 #include "mathfunc.h"
 #include "od_ostream.h"
 #include "sorting.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
+#include "wellman.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -578,8 +580,31 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm,
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
+    const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
+    if ( !ioobj ) return false;
+
     md = getFValue( 1 );
     twt = getFValue( 2 );
+    if ( mIsUdf(md) || mIsUdf(twt) )
+	return false;
+
+    RefMan<Data> wd = MGR().get( ioobj->key() );
+    if ( wd->track().isEmpty() ) return false;
+
+    const int dpthopt = formOf( false, 0 );
+    const int tmopt = formOf( false, 1 );
+
+    if ( dpthopt == 0 )
+	md = wd->track().getPos( mCast(float,md) ).z;
+    if ( dpthopt == 2 )
+	md -= SI().seismicReferenceDatum();
+    if ( dpthopt == 3 )
+	md -= wd->track().getKbElev();
+    if ( dpthopt == 4 )
+	md -= wd->info().groundelev;
+    if ( tmopt == 1 )
+	twt *= 2;
+
     return true;
 }
 
