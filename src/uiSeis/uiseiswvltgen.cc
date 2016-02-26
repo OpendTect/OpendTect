@@ -66,7 +66,15 @@ MultiID uiSeisWvltCreate::storeKey() const
 }
 
 
-
+static float getFreqScaler()
+{
+    return SI().zIsTime() ? 1.f
+			  : SI().depthsInFeet() ? 5280.f : 1000.f;
+    /*
+       /ft are converted to /miles
+       /m are converted to /km
+   */
+}
 
 uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     : uiSeisWvltCreate(p,uiDialog::Setup(tr("Create Wavelet"),
@@ -77,11 +85,14 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 				BoolInpSpec(true,tr("Ricker"),tr("Sinc")) );
 
     const float sisr = SI().zStep();
-    float deffrq = 0.1f / sisr; int ideffr = mNINT32(deffrq);
-    if ( ideffr > 0 && mIsZero(deffrq-ideffr,1e-4) )
-	deffrq = mCast( float, ideffr ); // avoid awkward 99.999 display
-    uiString txt= tr("Central %1").arg(SI().zIsTime() ? uiStrings::sFrequency() 
-						    : uiStrings::sWaveNumber());
+    const float deffrq = mCast( float, mNINT32(getFreqScaler()*0.1f/sisr) );
+    // 20% of nyquist frequency
+
+    uiString txt= tr("Central %1 (%2)")
+	.arg( SI().zIsTime() ? uiStrings::sFrequency()
+			     : uiStrings::sWaveNumber() )
+	.arg( SI().zIsTime() ? "Hz" : SI().depthsInFeet() ? "/miles" : "/km" );
+
     freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq) );
     freqfld_->attach( alignedBelow, isrickfld_ );
 
@@ -99,9 +110,9 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 
 bool uiSeisWvltGen::acceptOK( CallBacker* )
 {
-    const float sr = srfld_->getfValue();
-    const float peakampl = peakamplfld_->getfValue();
-    const float freq = freqfld_->getfValue();
+    float freq = freqfld_->getFValue();
+    float sr = srfld_->getFValue();
+    const float peakampl = peakamplfld_->getFValue();
 
     if ( mIsUdf(sr) || sr <= 0 )
 	mErrRet( tr("The sample interval is not valid") )
@@ -110,8 +121,10 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
     else if ( mIsUdf(freq) || freq <= 0 )
 	mErrRet( tr("The frequency must be positive") )
 
-    const float realsr = sr / SI().zDomain().userFactor();
-    Wavelet wvlt( isrickfld_->getBoolValue(), freq, realsr, peakampl );
+    freq /= getFreqScaler();
+    sr /= SI().zDomain().userFactor();
+
+    Wavelet wvlt( isrickfld_->getBoolValue(), freq, sr, peakampl );
     return putWvlt( wvlt );
 }
 
