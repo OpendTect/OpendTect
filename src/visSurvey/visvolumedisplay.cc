@@ -13,39 +13,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visvolumedisplay.h"
 
 #include "visboxdragger.h"
-#include "visdataman.h"
 #include "visevent.h"
 #include "vismarchingcubessurface.h"
 #include "vismaterial.h"
 #include "visselman.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "vistransform.h"
-#include "vistransmgr.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
 
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
-#include "binidvalue.h"
-#include "coltabsequence.h"
-#include "coltabmapper.h"
-#include "trckeyzsampling.h"
 #include "ioman.h"
-#include "iopar.h"
 #include "marchingcubes.h"
 #include "picksettr.h"
 #include "pickset.h"
 #include "od_ostream.h"
 #include "seisdatapack.h"
 #include "settings.h"
-#include "sorting.h"
-#include "survinfo.h"
 #include "uistrings.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
-
-#include <fstream>
 
 /* OSG-TODO: Port VolrenDisplay volren_ and set of OrthogonalSlice slices_
    to OSG in case of prolongation. */
@@ -1048,16 +1037,16 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack* datapack = dpm.obtain( dpid );
-    mDynamicCastGet(const RegularSeisDataPack*,cdp,datapack);
-    const bool res = setDataVolume( attrib, cdp ? cdp : 0, tr );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack);
+    const bool res = setDataVolume( attrib, regsdp, tr );
     if ( !res )
     {
 	dpm.release( dpid );
-	return false; 
+	return false;
     }
-    
+
     dpm.release( attribs_[attrib]->cache_->id() );
-    attribs_[attrib]->cache_ = cdp;
+    attribs_[attrib]->cache_ = regsdp;
     return true;
 }
 
@@ -1066,7 +1055,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 				   const RegularSeisDataPack* attribdata,
 				   TaskRunner* tr )
 {
-    if ( !attribs_.validIdx(attrib) || !attribdata )
+    if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
 	return false;
 
     const Array3D<float>* usedarray = 0;
