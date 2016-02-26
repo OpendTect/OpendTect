@@ -1,4 +1,4 @@
-    /*+
+/*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : April 2007
@@ -30,8 +30,9 @@ VolProc::ChainOutput::ChainOutput()
     , neednextchunk_(true)
     , nrexecs_(-1)
     , curexecnr_(-1)
-    , calculating_(true)
+    , calculating_(false)
     , storererr_(false)
+    , progressrecorder_(*new ProgressRecorder)
 {
     msg_ = tr("Reading Volume Processing Specification");
 }
@@ -43,6 +44,7 @@ VolProc::ChainOutput::~ChainOutput()
     delete chainexec_;
     delete wrr_;
     deepErase( storers_ );
+    delete &progressrecorder_;
 }
 
 
@@ -64,8 +66,7 @@ od_int64 VolProc::ChainOutput::nrDone() const
     if ( curexecnr_ < 0 )
 	return 0;
     if ( calculating_ )
-	return curexecnr_*100
-	     + (chainexec_ ? chainexec_->nrDone() : 0) / nrexecs_;
+	return progressrecorder_.nrdone_;
 
     Threads::Locker slock( storerlock_ );
     if ( storers_.isEmpty() )
@@ -79,7 +80,7 @@ od_int64 VolProc::ChainOutput::totalNr() const
     if ( curexecnr_ < 0 )
 	return -1;
     if ( calculating_ )
-	return 100;
+	return progressrecorder_.totalnr_;
 
     Threads::Locker slock( storerlock_ );
     if ( storers_.isEmpty() )
@@ -90,11 +91,17 @@ od_int64 VolProc::ChainOutput::totalNr() const
 
 uiString VolProc::ChainOutput::uiNrDoneText() const
 {
-    if ( calculating_ && chainexec_ )
-	return chainexec_->uiNrDoneText();
+    if ( calculating_ )
+	return progressrecorder_.nrdonetext_;
     else if ( wrr_ )
 	return wrr_->uiNrDoneText();
     return uiString::emptyString();
+}
+
+
+uiString VolProc::ChainOutput::uiMessage() const
+{
+    return calculating_ ? progressrecorder_.message_ : msg_;
 }
 
 
@@ -117,7 +124,7 @@ int VolProc::ChainOutput::nextStep()
     {
 	int res = chainexec_->doStep();
 	if ( res < 0 )
-	    { msg_ = chainexec_->uiMessage(); return ErrorOccurred(); }
+	    return ErrorOccurred();
 
 	if ( res == 0 )
 	{
@@ -128,7 +135,6 @@ int VolProc::ChainOutput::nextStep()
 	    startWriteChunk();
 	}
 
-	msg_ = chainexec_->uiMessage();
 	return MoreToDo();
     }
 
@@ -187,6 +193,10 @@ int VolProc::ChainOutput::getChain()
 int VolProc::ChainOutput::setupChunking()
 {
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
+    calculating_ = true;
+    progressrecorder_.forwardto_ = progressmeter_;
+    progressmeter_ = 0;
+    chainexec_->setProgressMeter( &progressrecorder_ );
 
     const float zstep = chain_->getZStep();
     outputzrg_ = StepInterval<int>( mNINT32(cs_.zsamp_.start/zstep),
@@ -211,7 +221,8 @@ int VolProc::ChainOutput::setupChunking()
 	needsplit = nrbytes > freemem;
 	if ( needsplit )
 	{
-	    msg_ = tr("Processing aborted; not enough available memory.");
+	    progressrecorder_.setMessage(
+		    tr("Processing aborted; not enough available memory.") );
 	    return ErrorOccurred();
 	}
     }
@@ -222,8 +233,9 @@ int VolProc::ChainOutput::setupChunking()
 	    nrexecs_ = cs_.hsamp_.nrLines(); // and pray!
     }
 
-    msg_ = tr("Allocating memory");
     neednextchunk_ = true;
+    chainexec_->setProgressMeter( &progressrecorder_ );
+    progressmeter_ = 0;
     return MoreToDo();
 }
 
@@ -235,6 +247,8 @@ int VolProc::ChainOutput::setNextChunk()
     if ( curexecnr_ >= nrexecs_ )
     {
 	calculating_ = false;
+	delete chainexec_; chainexec_ = 0;
+	progressmeter_ = progressrecorder_.forwardto_;
 	return MoreToDo();
     }
 
@@ -247,57 +261,42 @@ int VolProc::ChainOutput::setNextChunk()
     const TrcKeySampling hsamp( cs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
     if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
     {
-	msg_ = tr("Could not set calculation scope."
-		"\nProbably there is not enough memory available.");
+	progressrecorder_.setMessage( tr("Could not set calculation scope."
+		    "\nProbably there is not enough memory available.") );
+	delete chainexec_; chainexec_ = 0;
 	return ErrorOccurred();
     }
 
-    msg_ = chainexec_->uiMessage();
     return MoreToDo();
 }
 
+
+#define mErrRet( msg ) { progressrecorder_.setMessage( msg ); return false; }
 
 bool VolProc::ChainOutput::openOutput()
 {
     ConstDataPackRef<RegularSeisDataPack> seisdp = chainexec_->getOutput();
     if ( !seisdp )
-	{ msg_ = tr("No output data available"); return false; }
-
-    const VelocityDesc* vd = chain_->getVelDesc();
-    ConstPtrMan<VelocityDesc> veldesc = vd ? new VelocityDesc( *vd ) : 0;
+	mErrRet( tr("No output data available") )
 
     PtrMan<IOObj> ioobj = IOM().get( outid_ );
     if ( !ioobj )
-    {
-	msg_ = uiStrings::phrCannotFind( tr("output cube ID in database") );
-	return false;
-    }
+	mErrRet( uiStrings::phrCannotFind( tr("output cube ID in database") ) )
 
+    const VelocityDesc* vd = chain_->getVelDesc();
+    ConstPtrMan<VelocityDesc> veldesc = vd ? new VelocityDesc( *vd ) : 0;
     bool docommit = false;
     VelocityDesc omfdesc;
     const bool hasveldesc = omfdesc.usePar( ioobj->pars() );
     if ( veldesc )
     {
-	if ( !hasveldesc || omfdesc!=*veldesc )
-	{
-	    veldesc->fillPar( ioobj->pars() );
-	    docommit = true;
-	}
+	if ( !hasveldesc || omfdesc != *veldesc )
+	    { veldesc->fillPar( ioobj->pars() ); docommit = true; }
     }
     else if ( hasveldesc )
-    {
-	VelocityDesc::removePars( ioobj->pars() );
-	docommit = true;
-    }
-
+	{ VelocityDesc::removePars( ioobj->pars() ); docommit = true; }
     if ( docommit )
-    {
-	if ( !IOM().commitChanges( *ioobj ) )
-	{
-	    msg_ = uiStrings::phrCannotWriteDBEntry( ioobj->uiName() );
-	    return false;
-	}
-    }
+	IOM().commitChanges( *ioobj );
 
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );

@@ -114,9 +114,12 @@ mExpClass(Basic) SequentialTask : public Task
 public:
 		SequentialTask(const char* nm=0)
 		    : Task(nm), progressmeter_( 0 )	{}
-
     virtual	~SequentialTask()			{}
+
     void	setProgressMeter(ProgressMeter*);
+    ProgressMeter* progressMeter()		{ return progressmeter_; }
+    const ProgressMeter* progressMeter() const	{ return progressmeter_; }
+
     virtual int	doStep();
 		/*!<\retval MoreToDo()		Not finished. Call me again.
 		    \retval Finished()		Nothing more to do.
@@ -141,6 +144,7 @@ protected:
 			  it should be interpreted as cMoreToDo(). */
 
     ProgressMeter* progressmeter_;
+
 };
 
 

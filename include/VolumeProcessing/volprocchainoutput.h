@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "threadlock.h"
 class SeisDataPackWriter;
+class ProgressRecorder;
 
 
 namespace VolProc
@@ -45,7 +46,7 @@ public:
 
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const	{ return msg_; }
+    virtual uiString		uiMessage() const;
     virtual uiString		uiNrDoneText() const;
     virtual int			nextStep();
 
@@ -61,6 +62,7 @@ protected:
     int				curexecnr_;
     StepInterval<int>		outputzrg_;
     bool			calculating_;
+    ProgressRecorder&		progressrecorder_;
 
     mutable Threads::Lock	storerlock_;
     ObjectSet<ChainOutputStorer> storers_;
