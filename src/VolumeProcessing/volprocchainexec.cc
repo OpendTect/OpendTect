@@ -314,6 +314,15 @@ bool VolProc::ChainExecutor::needsFullVolume() const
 }
 
 
+VolProc::ChainExecutor::Epoch::Epoch( const ChainExecutor& ce )
+    : taskgroup_(*new TaskGroup)
+    , chainexec_(ce)
+{
+    taskgroup_.setParallel( true );
+    taskgroup_.setName( ce.name() );
+}
+
+
 bool VolProc::ChainExecutor::Epoch::needsStepOutput( Step::ID stepid ) const
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
@@ -451,7 +460,6 @@ int VolProc::ChainExecutor::nextStep()
     if ( epochs_.isEmpty() )
 	return Finished();
 
-    releaseMemory();
     curepoch_ = epochs_.pop();
 
     if ( !curepoch_->doPrepare(progressmeter_) )

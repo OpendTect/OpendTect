@@ -31,21 +31,22 @@ VolProc::ChainOutput::ChainOutput()
     , neednextchunk_(true)
     , nrexecs_(-1)
     , curexecnr_(-1)
-    , calculating_(false)
     , storererr_(false)
-    , progressrecorder_(*new ProgressRecorder)
+    , progresskeeper_(*new ProgressRecorder)
+    , workcontrolenabled_(false)
 {
-    msg_ = tr("Reading Volume Processing Specification");
+    progressmeter_ = &progresskeeper_;
+    progresskeeper_.message_ = tr("Reading Volume Processing Specification");
 }
 
 
 VolProc::ChainOutput::~ChainOutput()
 {
     chain_->unRef();
-    delete chainexec_;
+    delete chainexec_; chainexec_ = 0;
     delete wrr_;
     deepErase( storers_ );
-    delete &progressrecorder_;
+    delete &progresskeeper_;
 }
 
 
@@ -62,47 +63,84 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
 }
 
 
+void VolProc::ChainOutput::setProgressMeter( ProgressMeter* pm )
+{
+    progresskeeper_.forwardto_ = pm;
+}
+
+
+void VolProc::ChainOutput::enableWorkControl( bool yn )
+{
+    workcontrolenabled_ = yn;
+    if ( chainexec_ )
+	chainexec_->enableWorkControl( workcontrolenabled_ );
+    if ( wrr_ )
+	wrr_->enableWorkControl( workcontrolenabled_ );
+
+    Executor::enableWorkControl( yn );
+}
+
+
+void VolProc::ChainOutput::controlWork( Control ctrl )
+{
+    if ( !workcontrolenabled_ )
+	return;
+
+    if ( chainexec_ )
+	chainexec_->controlWork( ctrl );
+    if ( wrr_ )
+	wrr_->controlWork( ctrl );
+
+    Executor::controlWork( ctrl );
+}
+
+
+void VolProc::ChainOutput::createNewChainExec()
+{
+    delete chainexec_;
+    chainexec_ = new VolProc::ChainExecutor( *chain_ );
+    chainexec_->enableWorkControl( workcontrolenabled_ );
+    chainexec_->setProgressMeter( &progresskeeper_ );
+}
+
+
+int VolProc::ChainOutput::retError( const uiString& msg )
+{
+    progresskeeper_.message_ = msg;
+    return ErrorOccurred();
+}
+
+
+int VolProc::ChainOutput::retMoreToDo()
+{
+    if ( !chainexec_ && wrr_ )
+	progresskeeper_.setFrom( *wrr_ );
+
+    return MoreToDo();
+}
+
+
 od_int64 VolProc::ChainOutput::nrDone() const
 {
-    if ( curexecnr_ < 0 )
-	return 0;
-    if ( calculating_ )
-	return progressrecorder_.nrdone_;
-
-    Threads::Locker slock( storerlock_ );
-    if ( storers_.isEmpty() )
-	return 0;
-    return wrr_ ? wrr_->nrDone() : 0;
+    return progresskeeper_.nrdone_;
 }
 
 
 od_int64 VolProc::ChainOutput::totalNr() const
 {
-    if ( curexecnr_ < 0 )
-	return -1;
-    if ( calculating_ )
-	return progressrecorder_.totalnr_;
-
-    Threads::Locker slock( storerlock_ );
-    if ( storers_.isEmpty() )
-	return -1;
-    return wrr_ ? wrr_->totalNr() : -1;
+    return progresskeeper_.totalnr_;
 }
 
 
 uiString VolProc::ChainOutput::uiNrDoneText() const
 {
-    if ( calculating_ )
-	return progressrecorder_.nrdonetext_;
-    else if ( wrr_ )
-	return wrr_->uiNrDoneText();
-    return uiString::emptyString();
+    return progresskeeper_.nrdonetext_;
 }
 
 
 uiString VolProc::ChainOutput::uiMessage() const
 {
-    return calculating_ ? progressrecorder_.message_ : msg_;
+    return progresskeeper_.message_;
 }
 
 
@@ -121,7 +159,7 @@ int VolProc::ChainOutput::nextStep()
 	return ErrorOccurred();
     slock.unlockNow();
 
-    if ( calculating_ )
+    if ( chainexec_ )
     {
 	int res = chainexec_->doStep();
 	if ( res < 0 )
@@ -136,16 +174,15 @@ int VolProc::ChainOutput::nextStep()
 	    startWriteChunk();
 	}
 
-	return MoreToDo();
+	return retMoreToDo();
     }
 
     slock.reLock();
     if ( !storers_.isEmpty() )
     {
-	msg_ = wrr_->uiMessage();
 	slock.unlockNow();
 	Threads::sleep( 0.1 );
-	return MoreToDo();
+	return retMoreToDo();
     }
 
     // no calculations going on, no storers left ...
@@ -156,48 +193,34 @@ int VolProc::ChainOutput::nextStep()
 int VolProc::ChainOutput::getChain()
 {
     if ( chainid_.isEmpty() )
-    {
-	msg_ = tr( "No Volume Processing ID specified" );
-	return ErrorOccurred();
-    }
+	return retError( tr("No Volume Processing ID specified") );
 
     PtrMan<IOObj> ioobj = IOM().get( chainid_ );
     if ( !ioobj )
-    {
-	msg_ = uiStrings::phrCannotFind(
-		tr("Volume Processing with id: %1").arg(chainid_) );
-	return ErrorOccurred();
-    }
+	return retError( uiStrings::phrCannotFind(
+		tr("Volume Processing with id: %1").arg(chainid_) ) );
 
     chain_ = new Chain; chain_->ref();
-    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,msg_) )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,
+					    progresskeeper_.message_) )
 	return ErrorOccurred();
     else if ( chain_->nrSteps() < 1 )
-    {
-	msg_ = tr("Empty Volume Processing Chain - nothing to do.");
-	return Finished();
-    }
+	return retError( tr("Empty Volume Processing Chain - nothing to do.") );
 
     const Step& step0 = *chain_->getStep(0);
     if ( step0.needsInput() )
-    {
-	msg_ = tr("First step in Volume Processing Chain (%1) requires input."
-		"\nIt can thus not be first.").arg( step0.userName() );
-	return ErrorOccurred();
-    }
+	return retError(
+		tr("First step in Volume Processing Chain (%1) requires input."
+		    "\nIt can thus not be first.").arg( step0.userName() ) );
 
-    msg_ = tr("Creating Volume Processor");
+    progresskeeper_.message_ = tr("Creating Volume Processor");
     return MoreToDo();
 }
 
 
 int VolProc::ChainOutput::setupChunking()
 {
-    chainexec_ = new VolProc::ChainExecutor( *chain_ );
-    calculating_ = true;
-    progressrecorder_.forwardto_ = progressmeter_;
-    progressmeter_ = 0;
-    chainexec_->setProgressMeter( &progressrecorder_ );
+    createNewChainExec();
 
     const float zstep = chain_->getZStep();
     outputzrg_ = StepInterval<int>( mNINT32(cs_.zsamp_.start/zstep),
@@ -212,6 +235,12 @@ int VolProc::ChainOutput::setupChunking()
     od_uint64 nrbytes = 2 * chainexec_->computeMaximumMemoryUsage( cs_.hsamp_,
 								   outputzrg_ );
     od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
+
+    /* handy for test:
+	if ( freemem > nrbytes ) freemem = nrbytes - 100; // min 2 chunks
+	if ( freemem > nrbytes/2 ) freemem = nrbytes/2 - 100; // min 3 chunks
+    */
+
     bool needsplit = freemem >= 0 && nrbytes > freemem;
     const bool cansplit = chainexec_->areSamplesIndependent()
 			&& !chainexec_->needsFullVolume();
@@ -222,11 +251,8 @@ int VolProc::ChainOutput::setupChunking()
 	nrbytes /= 2;
 	needsplit = nrbytes > freemem;
 	if ( needsplit )
-	{
-	    progressrecorder_.setMessage(
+	    return retError(
 		    tr("Processing aborted; not enough available memory.") );
-	    return ErrorOccurred();
-	}
     }
     if ( needsplit )
     {
@@ -236,8 +262,6 @@ int VolProc::ChainOutput::setupChunking()
     }
 
     neednextchunk_ = true;
-    chainexec_->setProgressMeter( &progressrecorder_ );
-    progressmeter_ = 0;
     return MoreToDo();
 }
 
@@ -248,38 +272,41 @@ int VolProc::ChainOutput::setNextChunk()
     curexecnr_++;
     if ( curexecnr_ >= nrexecs_ )
     {
-	calculating_ = false;
 	delete chainexec_; chainexec_ = 0;
-	progressmeter_ = progressrecorder_.forwardto_;
-	return MoreToDo();
+	return retMoreToDo();
     }
 
     if ( curexecnr_ > 0 )
-    {
-	delete chainexec_;
-	chainexec_ = new VolProc::ChainExecutor( *chain_ );
-    }
+	createNewChainExec();
 
     const TrcKeySampling hsamp( cs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
+
     if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
     {
-	progressrecorder_.setMessage( tr("Could not set calculation scope."
-		    "\nProbably there is not enough memory available.") );
 	delete chainexec_; chainexec_ = 0;
-	return ErrorOccurred();
+	return retError( tr("Could not set calculation scope."
+		    "\nProbably there is not enough memory available.") );
     }
 
+    if ( nrexecs_ < 2 )
+	return retMoreToDo();
+
+    progresskeeper_.message_ =
+	    tr("\nStarting new Volume Processing chunk %1-%2.\n")
+	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() );
     return MoreToDo();
 }
 
 
-#define mErrRet( msg ) { progressrecorder_.setMessage( msg ); return false; }
+#define mErrRet( msg ) { retError( msg ); return false; }
 
 bool VolProc::ChainOutput::openOutput()
 {
-    ConstDataPackRef<RegularSeisDataPack> seisdp = chainexec_->getOutput();
+    const RegularSeisDataPack* seisdp = chainexec_->getOutput();
     if ( !seisdp )
 	mErrRet( tr("No output data available") )
+    DPM( DataPackMgr::SeisID() ).obtain( seisdp->id() );
+    ConstDataPackRef<RegularSeisDataPack> seisdpcref = seisdp;
 
     PtrMan<IOObj> ioobj = IOM().get( outid_ );
     if ( !ioobj )
@@ -302,6 +329,7 @@ bool VolProc::ChainOutput::openOutput()
 
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );
+    wrr_->enableWorkControl( workcontrolenabled_ );
     return true;
 }
 
@@ -381,7 +409,9 @@ void VolProc::ChainOutput::reportFinished( ChainOutputStorer& storer )
     storers_ -= &storer;
     if ( !storer.errmsg_.isEmpty() )
     {
-	msg_ = storer.errmsg_;
+	if ( chainexec_ )
+	    chainexec_->setProgressMeter( 0 );
+	progresskeeper_.message_ = storer.errmsg_;
 	storererr_ = true;
     }
 }

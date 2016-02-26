@@ -50,33 +50,38 @@ public:
     virtual uiString		uiNrDoneText() const;
     virtual int			nextStep();
 
+    virtual void		setProgressMeter(ProgressMeter*);
+    virtual void		controlWork(Control);
+    virtual void		enableWorkControl(bool yn=true);
+
 protected:
 
     MultiID			chainid_;
     MultiID			outid_;
     TrcKeyZSampling		cs_;
 
-    uiString			msg_;
+    Chain*			chain_;
+    ChainExecutor*		chainexec_;
+    SeisDataPackWriter*		wrr_;
     bool			neednextchunk_;
     int				nrexecs_;
     int				curexecnr_;
     StepInterval<int>		outputzrg_;
-    bool			calculating_;
-    ProgressRecorder&		progressrecorder_;
+    ProgressRecorder&		progresskeeper_;
+    bool			workcontrolenabled_;
 
     mutable Threads::Lock	storerlock_;
     ObjectSet<ChainOutputStorer> storers_;
     ObjectSet<ChainOutputStorer> toremstorers_;
     bool			storererr_;
 
-    Chain*			chain_;
-    ChainExecutor*		chainexec_;
-    SeisDataPackWriter*		wrr_;
-
     int				getChain();
     int				setupChunking();
     int				setNextChunk();
     bool			openOutput();
+    void			createNewChainExec();
+    int				retError(const uiString&);
+    int				retMoreToDo();
     void			startWriteChunk();
     void			manageStorers();
     void			reportFinished(ChainOutputStorer&);

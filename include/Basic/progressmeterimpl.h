@@ -16,10 +16,11 @@ ________________________________________________________________________
 #include "progressmeter.h"
 #include "bufstring.h"
 #include "od_iosfwd.h"
+class Task;
 namespace Threads { class Lock; }
 
 
-/*!\brief ProgressMeter recording the progress. Can also forward to another. */
+/*!\brief ProgressMeter that helps unifying different tasks */
 
 mExpClass(Basic) ProgressRecorder : public ProgressMeter
 {
@@ -31,13 +32,15 @@ public:
     void		reset();
 
     BufferString	name_;
+    od_int64		nrdone_;
+    od_int64		totalnr_;
     uiString		message_;
     uiString		nrdonetext_;
     bool		isstarted_;
     bool		isfinished_;
-    od_int64		nrdone_;
-    od_int64		totalnr_;
     ProgressMeter*	forwardto_;
+
+    void		setFrom(const Task&);
 
     virtual void	setStarted();
     virtual void	setFinished();

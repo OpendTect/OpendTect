@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-/*!\brief creates output for a single VolProc::Chain. */
+/*!\brief executes the work for a single VolProc::Chain. */
 
 mExpClass(VolumeProcessing) ChainExecutor : public Executor
 { mODTextTranslationClass(ChainExecutor);
@@ -48,18 +48,14 @@ public:
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
 
+    void			controlWork(Task::Control);
+
 private:
+
     class Epoch
     {
     public:
-				Epoch(const ChainExecutor& c)
-				    : taskgroup_( *new TaskGroup )
-				    , chainexec_( c )
-				{
-				    taskgroup_.setParallel(true);
-				    taskgroup_.setName( c.name() );
-				}
-
+				Epoch(const ChainExecutor&);
 				~Epoch()		{ delete &taskgroup_; }
 
 	void			addStep(Step* s)	{ steps_ += s; }
@@ -80,23 +76,17 @@ private:
     };
 
     bool			scheduleWork();
+    void			releaseMemory();
     int				computeLatestEpoch(Step::ID) const;
     void			computeComputationScope(Step::ID stepid,
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
 
-    void			controlWork(Task::Control);
-
-    void			releaseMemory();
-
     Epoch*			curepoch_;
-
     bool			isok_;
     Chain&			chain_;
-
     TrcKeySampling		outputhrg_;
     StepInterval<int>		outputzrg_;
-
     mutable uiString		errmsg_;
     ObjectSet<Step>		scheduledsteps_;
     ObjectSet<Epoch>		epochs_;
@@ -104,6 +94,7 @@ private:
     int				totalnrepochs_;
 
     const RegularSeisDataPack*	outputdp_;
+
 };
 
 } // namespace VolProc
