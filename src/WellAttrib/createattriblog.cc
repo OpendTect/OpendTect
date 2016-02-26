@@ -43,19 +43,19 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
     AttribLogExtractor ale( wd );
     if ( !ale.fillPositions(dahrg) )
     { 
-	msg.arg(tr("No positions extracted").arg(wd.name()));
+	msg.arg(tr("No positions extracted")).arg(wd.name());
 	mErrRet(msg)
     }
 
     if ( !ale.extractData( aem, setup_.tr_ ) )
     { 
-	msg.arg(tr("No data extracted").arg(wd.name()));
+	msg.arg(tr("No data extracted")).arg(wd.name());
 	mErrRet(msg) 
     }
 
     if ( !createLog( wd, ale ) )
     {
-	msg.arg(tr("Unable to create Log").arg(wd.name()));
+	msg.arg(tr("Unable to create Log")).arg(wd.name());
 	mErrRet(msg)
     }
 
