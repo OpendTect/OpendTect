@@ -591,8 +591,7 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
 	return false;
 
-    const float scfac = 1000;
-    int cidx = 0; float sr = scfac * SI().zStep();
+    int cidx = 0; float sr = SI().zStep();
     while ( !atEndOfSection( astream.next() ) )
     {
         if ( astream.hasKeyword( sLength ) )
@@ -602,9 +601,9 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
         else if ( astream.hasKeyword(sKey::Name()) )
 	    wv->setName( astream.value() );
         else if ( astream.hasKeyword( sSampRate ) )
-	    sr = astream.getFValue();
+	    sr = astream.getFValue() / SI().showZ2UserFactor();
     }
-    wv->setSampleRate( sr / scfac );
+    wv->setSampleRate( sr );
     wv->setCenterSample( cidx );
 
     for ( int idx=0; idx<wv->size(); idx++ )
@@ -629,10 +628,12 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
     if ( *(const char*)wv.name() ) astream.put( sKey::Name(), wv.name() );
     astream.put( sLength, wv.size() );
     astream.put( sIndex, -wv.centerSample() );
+    astream.put( IOPar::compKey(sSampRate,sKey::Unit()),
+		 SI().zDomain().unitStr() );
     astream.put( sSampRate, wv.sampleRate() * SI().zDomain().userFactor() );
     astream.newParagraph();
     for ( int idx=0; idx<wv.size(); idx++ )
-	astream.stream() << wv.samples()[idx] << '\n';
+	astream.stream() << wv.samples()[idx] << od_newline;
     astream.newParagraph();
 
     return astream.isOK();

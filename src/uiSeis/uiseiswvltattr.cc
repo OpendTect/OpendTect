@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifreqtaper.h"
 #include "uislider.h"
 
-#include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "fftfilter.h"
 #include "survinfo.h"
@@ -92,6 +91,16 @@ void uiSeisWvltRotDlg::act( CallBacker* )
 }
 
 
+static float getFreqXAxisScaler()
+{
+    return SI().zIsTime() ? 1.f
+			  : SI().depthsInFeet() ? 5280.f : 1000.f;
+    /*		Hz unchanged
+		/ft are converted to /miles
+		/m are converted to /km
+     */
+}
+
 //Wavelet taper dialog
 #define mPaddFac 3
 #define mPadSz mPaddFac*wvltsz_/2
@@ -122,10 +131,12 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     wvltvals_ = new Array1DImpl<float>( wvltsz_ );
     OD::memCopy( wvltvals_->getData(), wvlt_->samples(),sizeof(float)*wvltsz_);
 
+    const float zstep = wvlt_->sampleRate();
+    const float maxfreq = getFreqXAxisScaler() * 0.5f / zstep;
     uiFuncTaperDisp::Setup s;
-    bool istime = SI().zIsTime();
-    s.datasz_ = istime ? (int) ( 0.5/SI().zStep() ) : 100;
-    s.xaxcaption_ = istime ? tr("Time (s)") : tr("Depth (m)");
+    const bool istime = SI().zIsTime();
+    s.datasz_ = mNINT32(Math::Ceil( maxfreq ));
+    s.xaxcaption_ = SI().zDomain().getLabel();
     s.yaxcaption_ = tr("Taper Amplitude");
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
@@ -133,7 +144,9 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1),
 				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
-    s.xaxcaption_ = istime ? tr("Frequency (Hz)") : tr("Wavenumber(/m)");
+    s.xaxcaption_ = istime ? tr("Frequency (Hz)")
+			   : SI().depthsInFeet() ? tr("Wavenumber (/miles)")
+						 : tr("Wavenumber (/km)");
     s.yaxcaption_ = tr("Gain (dB)");
     s.fillbelowy2_ = true;
     s.drawliney_ = false;
@@ -142,20 +155,19 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     freqdrawer_->taperChanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
 
     typefld_ = new uiGenInput( this, tr("Taper"),
-		    BoolInpSpec(true, istime ? uiStrings::sTime() 
+		    BoolInpSpec(true, istime ? uiStrings::sTime()
                                              : uiStrings::sDepth(),
                                                tr("Frequency")));
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
 
-    float zstep = wvlt_->sampleRate();
+    const float zfact = SI().showZ2UserFactor();
     timerange_.set( wvlt_->samplePositions().start,
 		    wvlt_->samplePositions().stop );
+    timerange_.scale( zfact );
     timedrawer_->setFunction( *wvltvals_, timerange_ );
 
-    float maxfreq = 0.5f/zstep;
-    if ( SI().zIsTime() ) maxfreq = mCast( float, mNINT32( maxfreq ) );
-    freqrange_.set( 0, maxfreq );
+    freqrange_.set( 0.f, Math::Ceil( maxfreq ) );
 
     FreqTaperSetup ftsu; ftsu.hasmin_ = true,
     ftsu.minfreqrg_ = s.leftrg_;
@@ -270,10 +282,12 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    ,wvltattr_(new WaveletAttrib(wvlt))
 	    ,wvltsz_(wvlt.size())
 {
-   
+
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
+    timerange_.scale( SI().showZ2UserFactor() );
     const float maxfreq = 1.f / wvlt.sampleRate();
-    freqrange_.set( 0, maxfreq );
+    const float zfac = getFreqXAxisScaler();
+    freqrange_.set( 0.f, Math::Ceil( maxfreq*zfac ) );
 
     for ( int iattr=0; iattr<3; iattr++ )
 	addAttrDisp( iattr );
@@ -293,20 +307,24 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 {
     uiFunctionDisplay::Setup fdsu;
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    uiString xname = SI().zIsTime() ? tr("Frequency (Hz)") 
-				    : tr("Wavenumber (/m)");
-    uiString yname = tr("Amplitude");
     fdsu.ywidth_ = 2;
 
-    if ( attridx == 0 )
-	xname = SI().zIsTime() ? tr("Time (s)") : tr("Depth (m)");
-    else if ( attridx == 1 )
+    const uiString xname = attridx==0
+			 ? SI().zDomain().getLabel()
+			 : SI().zIsTime() ? tr("Frequency (Hz)")
+					  : SI().depthsInFeet()
+						 ? tr("Wavenumber (/miles)")
+						 : tr("Wavenumber (/km)");
+
+    const uiString yname = attridx == 0 || attridx == 1
+			 ? uiStrings::sAmplitude()
+			 : tr("Phase (degrees)");
+
+    if ( attridx == 1 )
     {
 	fdsu.fillbelow( true );
 	attrarrays_[attridx]->setSize( mPadSz );
     }
-    else if ( attridx == 2 )
-	yname =  tr("Phase (degrees)");
 
     attrdisps_ += new uiFunctionDisplay( this, fdsu );
     if ( attridx )
@@ -351,7 +369,8 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 				  attrarrays_[idx]->arr(), sz );
     }
 
-    const float freqstep = SI().zIsTime() ? 10.f : 5.f;
+    const float freqstep = SI().zIsTime() ? 10.f
+					  : SI().depthsInFeet() ? 5.f : 10.f;
     const StepInterval<float> freqrg( 0.f, maxfreq, freqstep );
     attrdisps_[1]->xAxis()->setRange( freqrg );
     attrdisps_[2]->xAxis()->setRange( freqrg );
