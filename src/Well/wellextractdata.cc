@@ -661,7 +661,7 @@ int Well::LogDataExtracter::nextStep()
     if ( dps.isEmpty() ) mRetNext()
 
     RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
-    PtrMan<Well::Track> track = 0;
+    Well::Track* track = 0;
     if ( !wd )
     {
 	msg_ = mToUiStringTodo(Well::MGR().errMsg());
@@ -677,6 +677,8 @@ int Well::LogDataExtracter::nextStep()
 	track = &wd->track();
 
     getData( dps, *wd, *track );
+    if( zistime_ ) delete track;
+
     mRetNext();
 }
 
