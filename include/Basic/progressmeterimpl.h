@@ -44,13 +44,16 @@ public:
 
     virtual void	setStarted();
     virtual void	setFinished();
-    virtual od_int64	nrDone() const			{ return nrdone_; }
     virtual void	setName(const char*);
     virtual void	setTotalNr(od_int64);
     virtual void	setNrDone(od_int64);
     virtual void	setMessage(const uiString&);
     virtual void	setNrDoneText(const uiString&);
     virtual void	operator++();
+
+    virtual od_int64	nrDone() const			{ return nrdone_; }
+    virtual void	skipProgress( bool yn )
+			{ if ( forwardto_ ) forwardto_->skipProgress( yn ); }
 
 protected:
 
