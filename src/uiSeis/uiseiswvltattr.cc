@@ -135,7 +135,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     const float maxfreq = getFreqXAxisScaler() * 0.5f / zstep;
     uiFuncTaperDisp::Setup s;
     const bool istime = SI().zIsTime();
-    s.datasz_ = Math::Ceil( maxfreq );
+    s.datasz_ = mNINT32(Math::Ceil( maxfreq ));
     s.xaxcaption_ = SI().zDomain().getLabel();
     s.yaxcaption_ = tr("Taper Amplitude");
 
@@ -167,7 +167,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     timerange_.scale( zfact );
     timedrawer_->setFunction( *wvltvals_, timerange_ );
 
-    freqrange_.set( 0, Math::Ceil( maxfreq ) );
+    freqrange_.set( 0.f, Math::Ceil( maxfreq ) );
 
     FreqTaperSetup ftsu; ftsu.hasmin_ = true,
     ftsu.minfreqrg_ = s.leftrg_;
@@ -287,7 +287,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
     timerange_.scale( SI().showZ2UserFactor() );
     const float maxfreq = 1.f / wvlt.sampleRate();
     const float zfac = getFreqXAxisScaler();
-    freqrange_.set( 0, Math::Ceil( maxfreq*zfac ) );
+    freqrange_.set( 0.f, Math::Ceil( maxfreq*zfac ) );
 
     for ( int iattr=0; iattr<3; iattr++ )
 	addAttrDisp( iattr );
