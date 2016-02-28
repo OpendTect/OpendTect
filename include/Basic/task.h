@@ -70,9 +70,45 @@ private:
 };
 
 
+/*!Helper class that facilitates a task that has multiple sub-tasks that
+   are either run in parallel or in sequence.
+
+   The class takes care of progress reporting as well as work
+   control.
+*/
+
+
+mExpClass(Basic) TaskGroupController : public Task
+{ mODTextTranslationClass(TaskGroupController);
+public:
+
+    od_int64		nrDone() const;
+    			//!<Percentage
+    od_int64		totalNr() const	{ return 100; }
+
+    uiString		uiNrDoneText() const
+			{ return tr("Percentage done"); }
+
+    void		enableWorkControl(bool=true);
+
+    void		controlWork(Control);
+    			//!<Relays to controlled tasks
+
+    int			nrTasks() const { return controlledtasks_.size();}
+    const Task*		getTask(int idx) const { return controlledtasks_[idx]; }
+
+protected:
+    void		controlTask(Task*);
+    			//!<Does not take over memory management
+private:
+    ObjectSet<Task>	controlledtasks_;
+    TypeSet<float>	nrdoneweights_;
+};
+
+
 /*!\brief A collection of tasks, that behave as a single task.  */
 
-mExpClass(Basic) TaskGroup : public Task
+mExpClass(Basic) TaskGroup : public TaskGroupController
 {
 public:
 			TaskGroup();
@@ -83,17 +119,10 @@ public:
     void		setParallel(bool);
 
     void		setProgressMeter(ProgressMeter*);
-    virtual od_int64	nrDone() const;
-    virtual od_int64	totalNr() const;
 
     uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
 
     virtual bool	execute();
-
-    void		enableWorkControl(bool=true);
-    virtual void	controlWork(Control);
-    virtual Control	getState() const;
 
 protected:
 

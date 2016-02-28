@@ -129,6 +129,56 @@ uiString Task::uiNrDoneText() const
 }
 
 
+void TaskGroupController::controlTask( Task*  t )
+{
+    if ( workcontrolcondvar_ ) t->enableWorkControl( true );
+
+    controlledtasks_ += t; 
+    nrdoneweights_ += 1;
+}
+
+
+od_int64 TaskGroupController::nrDone() const
+{
+    const int nrtasks = controlledtasks_.size();
+
+    float progress = 0;
+    float weightsum = 0;
+    for ( int idx=0; idx<nrtasks; idx++ )
+    {
+	const od_int64 taskprogress = controlledtasks_[idx]->nrDone();
+	const od_int64 tasktotal = controlledtasks_[idx]->totalNr();
+
+	if ( taskprogress>=0 && tasktotal>0 )
+	{
+	    progress += nrdoneweights_[idx] * taskprogress / tasktotal;
+	    weightsum += nrdoneweights_[idx];
+	}
+    }
+
+    if ( !weightsum )
+	return Task::nrDone();
+
+    return (int) (100*progress/weightsum+0.5f);
+}
+
+
+void TaskGroupController::enableWorkControl( bool yn )
+{
+    Task::enableWorkControl( yn );
+
+    for ( int idx=0; idx<controlledtasks_.size(); idx++ )
+	controlledtasks_[idx]->enableWorkControl( yn );
+}
+
+
+void TaskGroupController::controlWork( Task::Control t )
+{
+    for ( int idx=0; idx<controlledtasks_.size(); idx++ )
+	controlledtasks_[idx]->controlWork( t );
+}
+
+
 TaskGroup::TaskGroup()
     : curtask_(-1)
     , lock_(true)
@@ -137,27 +187,16 @@ TaskGroup::TaskGroup()
 
 
 void TaskGroup::addTask( Task* t )
-{ tasks_ += t; }
+{
+    tasks_ += t;
+    controlTask( t );
+}
 
 
 void TaskGroup::setProgressMeter( ProgressMeter* p )
 {
     for ( int idx=0; idx<tasks_.size(); idx++ )
 	tasks_[idx]->setProgressMeter( p );
-}
-
-
-od_int64 TaskGroup::nrDone() const
-{
-    Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
-}
-
-
-od_int64 TaskGroup::totalNr() const
-{
-    Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
 }
 
 
@@ -168,15 +207,6 @@ uiString TaskGroup::uiMessage() const
 	return uiStrings::sProcessing();
 
     return tasks_[curtask_]->uiMessage();
-}
-
-
-uiString TaskGroup::uiNrDoneText() const
-{
-    Threads::Locker locker( lock_ );
-    return tasks_.validIdx(curtask_)
-	? tasks_[curtask_]->uiNrDoneText()
-	: uiString::emptyString();
 }
 
 
@@ -196,27 +226,6 @@ bool TaskGroup::execute()
     return true;
 }
 
-
-void TaskGroup::enableWorkControl( bool yn )
-{
-    for ( int idx=0; idx<tasks_.size(); idx++ )
-	tasks_[idx]->enableWorkControl( yn );
-}
-
-
-void TaskGroup::controlWork( Task::Control t )
-{
-    Threads::Locker lock( lock_ );
-    if ( tasks_.validIdx(curtask_) ) tasks_[curtask_]->controlWork( t );
-}
-
-
-Task::Control TaskGroup::getState() const
-{
-    Threads::Locker lock( lock_ );
-    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->getState()
-				     : Task::Stop;
-}
 
 void TaskGroup::setParallel(bool)
 {
