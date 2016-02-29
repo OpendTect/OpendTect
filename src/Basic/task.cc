@@ -45,6 +45,12 @@ void Task::enableWorkControl( bool yn )
 }
 
 
+bool Task::workControlEnabled() const
+{
+    return workcontrolcondvar_;
+}
+
+
 void Task::controlWork( Task::Control c )
 {
     if ( !workcontrolcondvar_ )

@@ -28,6 +28,7 @@ namespace Threads { class ConditionVar; }
 mExpClass(Basic) Task : public NamedObject
 { mODTextTranslationClass(Task);
 public:
+
     virtual		~Task();
 
     virtual void	setProgressMeter(ProgressMeter*)	{}
@@ -49,13 +50,15 @@ public:
 
     virtual bool	execute()			= 0;
 
+    enum Control	{ Run, Pause, Stop };
     virtual void	enableWorkControl(bool=true);
 			//!<Must be called before execute()
-    enum Control	{ Run, Pause, Stop };
+    bool		workControlEnabled() const;
     virtual void	controlWork(Control);
     virtual Control	getState() const;
 
 protected:
+
 				Task(const char* nm=0);
     virtual bool		shouldContinue();
 					//!<\returns wether we should continue
@@ -63,10 +66,12 @@ protected:
     Threads::ConditionVar*	workcontrolcondvar_;
 
 private:
+
     //Use uiMessage instead. Kept to make old code working
     virtual const char* message() const			{ return 0; }
     //Use uiNrDoneText instead. Kept to make old code working
     virtual const char* nrDoneText() const		{ return 0; }
+
 };
 
 

@@ -289,8 +289,12 @@ TrcKeySampling TrcKeySampling::getLineChunk( int nrchunks, int chunknr ) const
     }
     if ( chunknr < nrchunks-1 )
     {
-	const float fnrsteps = fnrlinesperchunk * (chunknr+1);
-	ret.stop_.lineNr() += ( mNINT32(fnrsteps) - 1 ) * step_.lineNr();
+	// return one step before the next start
+	const float fnrsteps = fnrlinesperchunk * (chunknr + 1);
+	ret.stop_.lineNr() = start_.lineNr()
+			   + mNINT32(fnrsteps-1) * step_.lineNr();
+	if ( ret.stop_.lineNr() > stop_.lineNr() )
+	    ret.stop_.lineNr() = stop_.lineNr();
     }
 
     return ret;

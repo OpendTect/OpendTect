@@ -43,25 +43,28 @@ public:
 			{ return tr("Traces written:"); }
     int			nextStep();
 
+    TrcKeySampling	hSampling() const	{ return tks_; }
+    Interval<int>	zSampling() const       { return zrg_; }
+
 private:
 
-   TypeSet<int>			compidxs_;
-   MultiID			mid_;
-   const RegularSeisDataPack*	dp_;
+    TypeSet<int>			compidxs_;
+    MultiID			mid_;
+    const RegularSeisDataPack*	dp_;
 
-   int				nrdone_;
-   int				totalnr_;
-   TrcKeySamplingIterator	iterator_;
-   const PosInfo::CubeData*	posinfo_;
-   SeisTrcWriter*		writer_;
-   SeisTrc*			trc_;
+    int				nrdone_;
+    int				totalnr_;
+    TrcKeySamplingIterator	iterator_;
+    const PosInfo::CubeData*	posinfo_;
+    SeisTrcWriter*		writer_;
+    SeisTrc*			trc_;
 
-   TrcKeySampling		tks_;
-   Interval<int>		zrg_;
+    TrcKeySampling		tks_;
+    Interval<int>		zrg_;
 
-   void				getPosInfo();
-   void				obtainDP();
-   void				releaseDP();
+    void			getPosInfo();
+    void			obtainDP();
+    void			releaseDP();
 
 };
 
