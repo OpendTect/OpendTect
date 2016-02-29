@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS uiODMain)
 set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES

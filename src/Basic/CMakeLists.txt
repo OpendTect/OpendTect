@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set( OD_USEQT Core )
 
 if ( OD_ENABLE_BREAKPAD )

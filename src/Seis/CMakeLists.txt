@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS Geometry MMProc )
 
 set ( OD_TEST_PROGS seisbuf.cc )

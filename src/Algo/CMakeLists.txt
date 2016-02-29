@@ -4,7 +4,6 @@
 # 	July 1995	A.H. Bril
 #	RCS :		$Id$
 #_______________________________________________________________________________
-add_definitions( -DmNoAutoUiString )
 set(OD_MODULE_DEPS Basic )
 
 set( OD_TEST_PROGS

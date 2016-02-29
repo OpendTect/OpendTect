@@ -160,17 +160,11 @@ private:
 public:
 
 		//Only for expert users
-#ifdef mNoAutoUiString
     mDeprecated			uiString(const char* inp);
     mDeprecated			uiString(const OD::String&);
     mDeprecated uiString&	operator=(const char*);
     mDeprecated uiString&	operator=(const OD::String&);
-#else
-				uiString(const char*);
-				uiString(const OD::String&);
-    uiString&			operator=(const char*);
-    uiString&			operator=(const OD::String&);
-#endif
+
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */
 

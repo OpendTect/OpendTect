@@ -5,8 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS Network )
 set(OD_USEQT Widgets PrintSupport)
 set(OD_TEST_PROGS  )

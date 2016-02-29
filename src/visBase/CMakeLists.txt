@@ -8,8 +8,6 @@
 set(OD_MODULE_DEPS Geometry)
 set(OD_USEOSG 1)
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_SOURCES
 	   initvisbase.cc
 	   visannot.cc

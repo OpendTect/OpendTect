@@ -6,22 +6,20 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
-SET(OD_MODULE_DEPS General )
-SET(OD_MODULE_SOURCES 
+set(OD_MODULE_DEPS General )
+set(OD_MODULE_SOURCES 
 	sqldatabase.cc sqlquery.cc
 	mantisdatabase.cc mantistables.cc
 	databaseobject.cc )
 
-# SET(USESQL 1)
+# set(USESQL 1)
 
-IF(USESQL)
-    SET(OD_USEQT Sql)
-    ADD_DEFINITIONS("-D__have_qsql__")
-ELSE()
-    SET(OD_USEQT Core)
-ENDIF()
+if(USESQL)
+    set(OD_USEQT Sql)
+    add_definitions("-D__have_qsql__")
+else()
+    set(OD_USEQT Core)
+endif()
 
 OD_INIT_MODULE()
 

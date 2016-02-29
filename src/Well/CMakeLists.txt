@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS General)
 set(OD_MODULE_SOURCES
 	initwell.cc

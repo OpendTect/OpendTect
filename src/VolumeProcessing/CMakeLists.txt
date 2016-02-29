@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set( OD_MODULE_DEPS Velocity Well )
 set( OD_TEST_PROGS volprocchain.cc )
 set( OD_MODULE_SOURCES

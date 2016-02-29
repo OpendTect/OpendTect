@@ -5,7 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-add_definitions( -DmNoAutoUiString )
 set(OD_MODULE_DEPS visSurvey uiTools )
 set(OD_USEQT OpenGL)
 set(OD_USEOSG 1)

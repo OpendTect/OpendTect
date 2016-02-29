@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 set(OD_MODULE_DEPS Well Attributes Strat )
 set(OD_MODULE_SOURCES
 		createattriblog.cc

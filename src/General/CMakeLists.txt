@@ -4,7 +4,7 @@
 # 	July 1995	A.H. Bril
 #	RCS :		$Id$
 #_______________________________________________________________________________
-add_definitions( -DmNoAutoUiString )
+
 add_custom_command( OUTPUT od_helpids.h
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     ${CMAKE_SOURCE_DIR}/external/doc_csh/od_helpids_orig.h

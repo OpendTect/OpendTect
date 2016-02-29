@@ -20,5 +20,5 @@ set(OD_MODULE_SOURCES
 	initgmt.cc
 	gmtprocflow.cc
 	gmtpi.cc)
-SET ( OD_MODULE_BATCHPROGS od_gmtexec.cc )
+set ( OD_MODULE_BATCHPROGS od_gmtexec.cc )
 OD_INIT_MODULE()

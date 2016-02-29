@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET( OD_MODULE_DEPS General )
-SET( OD_MODULE_SOURCES )
-SET( OD_MODULE_PROGS GenModDeps.cc GetNrProc.cc )
+set( OD_MODULE_DEPS General )
+set( OD_MODULE_SOURCES )
+set( OD_MODULE_PROGS GenModDeps.cc GetNrProc.cc )
 OD_INIT_MODULE()
 

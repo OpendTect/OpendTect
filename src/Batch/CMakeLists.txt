@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-add_definitions( -DmNoAutoUiString )
-
 ADD_DEFINITIONS( -D_CONSOLE )
 set(OD_MODULE_DEPS Network )
 set(OD_USEBATCH 1)
