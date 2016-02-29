@@ -257,6 +257,7 @@ private:
         visBase::MarkerSet*		markerset_;
         ZAxisTransform*			zaxistransform_;
         int				voiid_;
+	int				objid_;
     };
 
     IntersectionData*		getOrCreateIntersectionData(
@@ -274,7 +275,13 @@ private:
 					     const EM::SectionID&,
 					     IntersectionData&) const;
 
-
+    bool			isValidIntersectionObject(
+				   const ObjectSet<const SurveyObject>&,
+				   int& objidx,int objid) const;
+				/*!<Check if the active object is one of 
+				planedata, z-slice, 2dline,..., if it is
+				get the the idx in the stored object 
+				collection.*/
     ManagedObjectSet<IntersectionData>	intersectiondata_;
     					//One per object we intersect with
 

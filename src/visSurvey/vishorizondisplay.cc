@@ -1492,10 +1492,13 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
             }
         }
 
-	res.addLine( curline );
+	if ( curline.size()>0 )
+	    res.addLine( curline );
 	curline.erase();
     }
 
+    if ( curline.size()>0 )
+	res.addLine( curline );
     res.addLine( curline );
 }
 
@@ -1588,28 +1591,78 @@ HorizonDisplay::getOrCreateIntersectionData(
 }
 
 
+#define mHandleIndex(obj)\
+{ if ( obj && obj->id() == objid ) { objidx = idx; return true;}  }
+
+bool HorizonDisplay::isValidIntersectionObject( 
+    const ObjectSet<const SurveyObject>&objs, int& objidx, int objid ) const
+{
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
+	mHandleIndex( plane )
+
+	mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
+	mHandleIndex( mped )
+
+	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, objs[idx] );
+	mHandleIndex( rtdisplay )
+	
+	mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, objs[idx] );
+	mHandleIndex( seis2ddisplay )
+    }
+
+    return false;
+}
+
+
 void HorizonDisplay::updateIntersectionLines(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
     if ( !horizon ) return;
 
+    int objidx = -1;
+    const bool doall = whichobj==-1 || 
+	!isValidIntersectionObject( objs, objidx, whichobj );
+
     ManagedObjectSet<IntersectionData> lines;
-    while ( intersectiondata_.size() )
-	lines += intersectiondata_.removeAndTake(0,false);
+    if ( doall )
+    {
+	while ( intersectiondata_.size() )
+	    lines += intersectiondata_.removeAndTake( 0, false );
+    }
+    else
+    {
+	for ( int idx=0; idx<intersectiondata_.size(); idx++ )
+	{
+	    if ( intersectiondata_[idx]->objid_ == whichobj )
+	    {
+		removeChild( intersectiondata_[idx]->line_->osgNode() );
+		removeChild( intersectiondata_[idx]->markerset_->osgNode() );
+		intersectiondata_.removeSingle(idx);
+		break;
+	    }
+	}
+    }
 
     if ( displayonlyatsections_ || displayintersectionlines_ )
     {
-	for ( int idx=0; idx<objs.size(); idx++ )
+	const int size = doall ? objs.size() : 1;
+	for ( int idx=0; idx<size; idx++ )
 	{
-            const TrcKeyZSampling trzs = objs[idx]->getTrcKeyZSampling(-1);
+	    objidx = doall ? idx : objidx;
+	    mDynamicCastGet(const VisualObject*, vo, objs[objidx] );
+	    if ( !vo )
+		continue;
 
+            const TrcKeyZSampling trzs = objs[objidx]->getTrcKeyZSampling(-1);
             TrcKeyPath trckeypath;
             TypeSet<Coord> trccoords;
-            objs[idx]->getTraceKeyPath( trckeypath, &trccoords );
+            objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
 
             if ( trckeypath.isEmpty() && trzs.isEmpty() )
-                continue;
+                return;
 
 	    IntersectionData* data = 0;
 
@@ -1619,16 +1672,19 @@ void HorizonDisplay::updateIntersectionLines(
 		const EM::SectionID sid = horizon->sectionID(sectionidx);
 		if ( trckeypath.size() )
 		{
-		    const Interval<float> zrg = objs[idx]->getDataTraceRange();
+		    const Interval<float> zrg = 
+			objs[objidx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
+		    data->objid_ = vo->id();
 		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
             	    continue;
 		}
 		else
 		{
 		    if ( mIsZero(trzs.zsamp_.width(),1e-5) )
-		    { //Timeslice
+		    {
 			data = getOrCreateIntersectionData( lines );
+			data->objid_ = vo->id();
 			drawHorizonOnZSlice( trzs, sid, *data );
 		    }
 		}
@@ -1636,6 +1692,7 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    intersectiondata_ += data;
 	}
+
     }
 
     //These lines were not used, hance remove from scene.
@@ -2125,6 +2182,7 @@ HorizonDisplay::IntersectionData::IntersectionData( const LineStyle& lst )
     , markerset_( visBase::MarkerSet::create() )
     , voiid_(-2)
     , zaxistransform_(0)
+    , objid_(0)
 {
     line_->ref();
     markerset_->ref();
