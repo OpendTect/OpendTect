@@ -147,9 +147,8 @@ public:
 				//!Reads hex-data and sets the translated str.
 private:
 
-#ifdef __debug__
-    char*	debugstr_;	//!< Contains getFullString() for easy debugging
-#endif
+    char*	debugstr_;	/*<!< Contains getFullString() for easy debugging
+				      Only filled in in debug builds. */
     bool			isCacheValid() const;
     const mQtclass(QString)&	getQStringInternal() const;
 

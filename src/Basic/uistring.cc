@@ -275,9 +275,7 @@ if ( !data_ ) \
 uiString::uiString()
     : data_( 0 )
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     mSetDBGStr;
 }
@@ -285,9 +283,7 @@ uiString::uiString()
 uiString::uiString( const char* str )
     : data_( 0	)
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     set(str);
 }
@@ -299,9 +295,7 @@ uiString::uiString( const char* originaltext, const char* context,
     : data_( new uiStringData(originaltext, context, application,
 			      disambiguation, pluralnr ))
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     refPtr( data_ );
     mSetDBGStr;
@@ -311,9 +305,7 @@ uiString::uiString( const char* originaltext, const char* context,
 uiString::uiString( const uiString& str )
     : data_( str.data_ )
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     refPtr( data_ );
     mSetDBGStr;
@@ -323,9 +315,7 @@ uiString::uiString( const uiString& str )
 uiString::uiString( const OD::String& str )
     : data_( 0 )
     , datalock_( true )
-#ifdef __debug__
     , debugstr_( 0 )
-#endif
 {
     set(str);
 }
@@ -335,9 +325,7 @@ uiString::~uiString()
 {
     unRefAndZeroPtr(data_);
 
-#ifdef __debug__
     delete [] debugstr_;
-#endif
 }
 
 
