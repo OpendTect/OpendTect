@@ -128,7 +128,6 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     }
     
     MouseCursorManager::restoreOverride();
-    visserv_->setWorkMode( uiVisPartServer::View );
     finished_.trigger();
 
     if ( status_ != Waiting )
