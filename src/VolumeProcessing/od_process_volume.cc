@@ -70,9 +70,11 @@ bool BatchProgram::go( od_ostream& strm )
 
     const float zstep = chain->getZStep();
     TrcKeySampling inputhrg = cs.hsamp_;
+
     const StepInterval<int> outputzrg( mNINT32(cs.zsamp_.start/zstep),
-				 mNINT32(cs.zsamp_.stop/zstep),
-				 mMIN(mNINT32(cs.zsamp_.step/zstep),1) );
+				 mNINT32(Math::Ceil(cs.zsamp_.stop/zstep)),
+			   mMAX(mNINT32(Math::Ceil(cs.zsamp_.step/zstep)),1) );
+			   //real -> index, outputzrg is the index of z-samples
     StepInterval<int> inputzrg = outputzrg;
 
     od_uint64 nrbytes = 0;
