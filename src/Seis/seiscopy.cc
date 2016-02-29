@@ -79,7 +79,7 @@ void SeisCubeCopier::init()
 	    errmsg_ = "Input cube is unreadable";
 	delete stp_; stp_ = 0;
     }
-    if ( !stp_->writer() )
+    else if ( !stp_->writer() )
     {
 	errmsg_ = stp_->uiMessage();
 	if ( errmsg_.isEmpty() )
