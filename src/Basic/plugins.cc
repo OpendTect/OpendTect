@@ -471,7 +471,11 @@ bool PluginManager::load( const char* libnm )
     Data* data = new Data( libnmonly );
     data->sla_ = new SharedLibAccess( libnm );
     if ( !data->sla_->isOK() )
-	{ delete data; return false; }
+    {
+	ErrMsg( data->sla_->errMsg(), true );
+	delete data;
+	return false;
+    }
 
     data->info_ = getPluginInfo( data->sla_, libnmonly );
     if ( !data->info_ )
