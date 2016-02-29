@@ -8,16 +8,15 @@
 
 add_definitions( -DmNoAutoUiString )
 
-
-
-SET(OD_MODULE_DEPS Network)
-SET(OD_USEQT Core)
+set(OD_MODULE_DEPS Network)
+set(OD_USEQT Core)
 
 SET(OD_MODULE_SOURCES
 	jobdescprov.cc
 	jobiomgr.cc
 	jobrunner.cc
 	initmmproc.cc
+	clusterjobdispatch.cc
 	mmbatchjobdispatch.cc
 	mmproc.cc
 	mmexecproxy.cc
