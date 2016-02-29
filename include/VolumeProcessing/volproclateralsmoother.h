@@ -35,16 +35,16 @@ public:
 			~LateralSmoother();
 
     bool		needsInput() const;
-    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+    TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
 
     void		setPars(const Array2DFilterPars&);
     void		setMirrorEdges(bool yn) { mirroredges_=yn; }
     void		setFixedValue(float v) { fixedvalue_=v; }
     void		setInterpolateUdfs(bool b) {interpolateundefs_=b;}
 
-    const Array2DFilterPars&	getPars() const	{ return pars_; }
-    bool		getMirrorEdges() const { return mirroredges_; }
-    float		getFixedValue() const { return fixedvalue_; }
+    const Array2DFilterPars& getPars() const	{ return pars_; }
+    bool		getMirrorEdges() const	{ return mirroredges_; }
+    float		getFixedValue() const	{ return fixedvalue_; }
     bool		getInterpolateUdfs() const {return interpolateundefs_;}
 
     void		fillPar(IOPar&) const;
@@ -56,11 +56,14 @@ public:
     Task*		createTask();
 
 protected:
+
     static const char*	sKeyIsMedian()		{ return "Is Median"; }
     static const char*	sKeyIsWeighted()	{ return "Is Weighted"; }
     static const char*	sKeyMirrorEdges()	{ return "Mirror Edges"; }
     static const char*	sKeyInterpolateUdf()	{ return "Interpolate Udf";}
     static const char*	sKeyFixedValue()	{ return "Fixed Value"; }
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
     Array2DFilterPars	pars_;
 

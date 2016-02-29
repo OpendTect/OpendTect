@@ -52,6 +52,8 @@ protected:
 
 			MatlabStep();
 			~MatlabStep();
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
     uiString		errmsg_;
     BufferString	sharedlibfnm_;

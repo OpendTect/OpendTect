@@ -589,4 +589,10 @@ bool SurfaceLimitedFiller::isOK() const
     return true;
 }
 
+
+od_int64 SurfaceLimitedFiller::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+
+
 } // namespace VolProc

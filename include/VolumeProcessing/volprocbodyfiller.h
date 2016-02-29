@@ -74,7 +74,9 @@ protected:
     bool			computeBinID(const BinID&,int);
     bool			getFlatPlgZRange(const BinID&,
 						 Interval<double>& result);
-
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+					const TrcKeySampling&,
+					const StepInterval<int>&) const;
     EM::Body*			body_;
     EM::EMObject*		emobj_;
     EM::ImplicitBody*		implicitbody_;

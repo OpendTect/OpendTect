@@ -133,4 +133,10 @@ bool RegionFiller::usePar( const IOPar& par )
     return region_.usePar( par );
 }
 
+
+od_int64 RegionFiller::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+
+
 } // namespace VolProc

@@ -190,8 +190,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )
     {
-	alloutside = !flatpolygon_.hsamp_.inlRange().includes(bid.inl(),false) ||
-		     !flatpolygon_.hsamp_.crlRange().includes(bid.crl(),false);
+	alloutside = !flatpolygon_.hsamp_.inlRange().includes(bid.inl(),false)
+		  || !flatpolygon_.hsamp_.crlRange().includes(bid.crl(),false);
 	if ( !alloutside )
 	{
 	    if ( !getFlatPlgZRange( bid, plgzrg ) )
@@ -201,9 +201,9 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     else
     {
 	bodyinlidx =
-		implicitbody_->tkzs_.hsamp_.inlRange().nearestIndex( bid.inl() );
+	    implicitbody_->tkzs_.hsamp_.inlRange().nearestIndex( bid.inl() );
 	bodycrlidx =
-		implicitbody_->tkzs_.hsamp_.crlRange().nearestIndex( bid.crl() );
+	    implicitbody_->tkzs_.hsamp_.crlRange().nearestIndex( bid.crl() );
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -440,5 +440,18 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 
     return true;
 }
+
+
+od_int64 BodyFiller::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    if ( !implicitbody_ ) return 0;
+
+    const TrcKeyZSampling bodycs = implicitbody_->tkzs_;
+    const StepInterval<int> bodyzrg(0, bodycs.zsamp_.nrSteps(), 1 );
+    return 2 * getBaseMemoryUsage( bodycs.hsamp_, bodyzrg ) +
+	   getBaseMemoryUsage( hsamp, zsamp );
+}
+
 
 } // namespace VolProc

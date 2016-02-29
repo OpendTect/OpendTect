@@ -83,6 +83,9 @@ protected:
     bool			prefersBinIDWise() const	{ return true; }
     bool			prepareComp(int);
     bool			computeBinID(const BinID&,int);
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+					const TrcKeySampling&,
+					const StepInterval<int>&) const;
 
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;

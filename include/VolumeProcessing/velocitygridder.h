@@ -71,7 +71,9 @@ public:
 
 protected:
 
-    Task*				createTask();
+    Task*		createTask();
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;

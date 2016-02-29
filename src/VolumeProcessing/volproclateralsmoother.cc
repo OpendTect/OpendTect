@@ -432,9 +432,9 @@ Task* LateralSmoother::createTask()
     Interval<int> crlsamples(inphs.crlRange().nearestIndex(tks_.start_.crl()),
 			     inphs.crlRange().nearestIndex(tks_.stop_.crl()));
 
-    const int inpz0 = 
+    const int inpz0 =
 	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
-    const int outpz0 = 
+    const int outpz0 =
 	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
 
     return new LateralSmootherTask( input->data( 0 ),
@@ -448,5 +448,11 @@ Task* LateralSmoother::createTask()
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 }
+
+
+od_int64 LateralSmoother::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{ return  2 * getBaseMemoryUsage( hsamp, zsamp ); }
+
 
 } // namespace VolProc

@@ -75,6 +75,9 @@ protected:
     bool			prefersBinIDWise() const        { return true; }
     bool                        prepareComp(int)		{ return true; }
     bool			computeBinID(const BinID&, int);
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+					const TrcKeySampling&,
+					const StepInterval<int>&) const;
 
     static const char*		sKeyTopHorID()	{ return "Top horizon"; }
     static const char*		sKeyBotHorID()	{ return "Bottom horizon"; }

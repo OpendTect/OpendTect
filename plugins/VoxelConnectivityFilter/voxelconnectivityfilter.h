@@ -30,20 +30,20 @@ public:
 				"Voxel Connectivity Filter" );
 
     enum		Connectivity { Faces, Edges, Corners };
-    			mDeclareEnumUtils( Connectivity );
+			mDeclareEnumUtils( Connectivity );
 
     enum		AcceptOutput { Ranking, BodySize, Value, Transparent };
-    			mDeclareEnumUtils( AcceptOutput );
+			mDeclareEnumUtils( AcceptOutput );
 
     void		setConnectivity(Connectivity val){connectivity_ = val;}
-    			/*!<Must be either 6, 12 or 26 */
+			/*!<Must be either 6, 12 or 26 */
     Connectivity	getConnectivity() const		{ return connectivity_;}
 
     void		setMinimumBodySize(od_int64 val){ minbodysize_ = val; }
     od_int64		getMinimumBodySize() const	{ return minbodysize_; }
 
     void		setAcceptRange(const Interval<float>& v) { range_ = v; }
-    			/*!<If start is udf, kept range is less than stop.
+			/*!<If start is udf, kept range is less than stop.
                           If stop is udf, kept range is more than start.
                           If range is reversed, outside range is kept.
                           Otherwise, inside range is kept. */
@@ -63,7 +63,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    bool		needsInput() const 		{ return true; }
+    bool		needsInput() const		{ return true; }
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true; }
     bool		areSamplesIndependent() const	{ return false; }
@@ -82,6 +82,8 @@ protected:
     static const char*	sKeyRejectValue()	{ return "Rejected Value"; }
     static const char*	sKeyAcceptOutput()	{ return "Accepted Output"; }
     static const char*	sKeyAcceptValue()	{ return "Accepted Value"; }
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
     uiString		errmsg_;
     od_int64		minbodysize_;

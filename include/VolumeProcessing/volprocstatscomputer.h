@@ -57,6 +57,10 @@ public:
 
 protected:
 
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+					const TrcKeySampling&,
+					const StepInterval<int>&) const;
+
     BinID			stepout_;
     int				nzsampextra_;	//extra on both sides
     BufferString		statstype_;

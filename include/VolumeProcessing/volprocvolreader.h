@@ -48,6 +48,8 @@ public:
 protected:
 
     Task*		createTask();
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
     bool		prefersBinIDWise() const        { return false; }
 

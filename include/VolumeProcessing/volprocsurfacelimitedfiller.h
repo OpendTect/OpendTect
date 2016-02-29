@@ -103,6 +103,8 @@ public:
 
 protected:
 
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
     bool		prepareComp(int);
     bool		computeBinID(const BinID&, int);
     EM::Horizon*	loadHorizon(const MultiID&) const;

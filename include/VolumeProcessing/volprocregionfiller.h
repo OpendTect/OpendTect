@@ -64,6 +64,9 @@ protected:
     bool			prefersBinIDWise() const	{ return true; }
     bool			prepareComp(int nrthreads);
     bool			computeBinID(const BinID&,int);
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+					const TrcKeySampling&,
+					const StepInterval<int>&) const;
 
     EM::Region3D&		region_;
     float			insideval_;

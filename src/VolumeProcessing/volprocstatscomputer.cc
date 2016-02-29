@@ -108,6 +108,12 @@ Task* StatsCalculator::createTask()
     return taskgrp;
 }
 
+
+od_int64 StatsCalculator::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+
+
 //--------- StatsCalculatorTask -------------
 
 
@@ -215,5 +221,6 @@ void StatsCalculatorTask::prepareWork()
 	}
     }
 }
+
 
 }//namespace
