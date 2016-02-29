@@ -33,7 +33,6 @@ VolProc::ChainOutput::ChainOutput()
     , curexecnr_(-1)
     , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
-    , workcontrolenabled_(false)
 {
     progressmeter_ = &progresskeeper_;
     progresskeeper_.message_ = tr("Reading Volume Processing Specification");
@@ -71,11 +70,10 @@ void VolProc::ChainOutput::setProgressMeter( ProgressMeter* pm )
 
 void VolProc::ChainOutput::enableWorkControl( bool yn )
 {
-    workcontrolenabled_ = yn;
     if ( chainexec_ )
-	chainexec_->enableWorkControl( workcontrolenabled_ );
+	chainexec_->enableWorkControl( workControlEnabled() );
     if ( wrr_ )
-	wrr_->enableWorkControl( workcontrolenabled_ );
+	wrr_->enableWorkControl( workControlEnabled() );
 
     Executor::enableWorkControl( yn );
 }
@@ -83,7 +81,7 @@ void VolProc::ChainOutput::enableWorkControl( bool yn )
 
 void VolProc::ChainOutput::controlWork( Control ctrl )
 {
-    if ( !workcontrolenabled_ )
+    if ( !workControlEnabled() )
 	return;
 
     if ( chainexec_ )
@@ -99,7 +97,7 @@ void VolProc::ChainOutput::createNewChainExec()
 {
     delete chainexec_;
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
-    chainexec_->enableWorkControl( workcontrolenabled_ );
+    chainexec_->enableWorkControl( workControlEnabled() );
     chainexec_->setProgressMeter( &progresskeeper_ );
 }
 
@@ -146,6 +144,9 @@ uiString VolProc::ChainOutput::uiMessage() const
 
 int VolProc::ChainOutput::nextStep()
 {
+    if ( !shouldContinue() )
+	return Finished();
+
     if ( !chain_ )
 	return getChain();
     else if ( nrexecs_<0 )
@@ -227,7 +228,7 @@ int VolProc::ChainOutput::setupChunking()
 				 mNINT32(Math::Ceil(cs_.zsamp_.stop/zstep)),
 			   mMAX(mNINT32(Math::Ceil(cs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
-    
+
     // We will be writing while a new chunk will be calculated
     // Thus, we need to keep the output datapack alive while the next chunk
     // is calculated. Therefore, lets double the computed mem need:
@@ -329,7 +330,7 @@ bool VolProc::ChainOutput::openOutput()
 
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );
-    wrr_->enableWorkControl( workcontrolenabled_ );
+    wrr_->enableWorkControl( workControlEnabled() );
     return true;
 }
 
@@ -361,6 +362,8 @@ void startWork()
     SeisDataPackWriter& wrr = *co_.wrr_;
     if ( wrr.dataPack() != &dp_ )
 	wrr.setNextDataPack( dp_ );
+    else
+	wrr.setSelection( dp_.sampling().hsamp_, wrr.zSampling() );
 
     work_ = new Threads::Work( wrr, false );
     CallBack finishedcb( mCB(this,VolProc::ChainOutputStorer,workFinished) );

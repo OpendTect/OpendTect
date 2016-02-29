@@ -68,7 +68,6 @@ protected:
     int				curexecnr_;
     StepInterval<int>		outputzrg_;
     ProgressRecorder&		progresskeeper_;
-    bool			workcontrolenabled_;
 
     mutable Threads::Lock	storerlock_;
     ObjectSet<ChainOutputStorer> storers_;

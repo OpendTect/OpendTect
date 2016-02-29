@@ -45,6 +45,12 @@ void Task::enableWorkControl( bool yn )
 }
 
 
+bool Task::workControlEnabled() const
+{
+    return workcontrolcondvar_;
+}
+
+
 void Task::controlWork( Task::Control c )
 {
     if ( !workcontrolcondvar_ )
@@ -133,7 +139,7 @@ void TaskGroupController::controlTask( Task*  t )
 {
     if ( workcontrolcondvar_ ) t->enableWorkControl( true );
 
-    controlledtasks_ += t; 
+    controlledtasks_ += t;
     nrdoneweights_ += 1;
 }
 
