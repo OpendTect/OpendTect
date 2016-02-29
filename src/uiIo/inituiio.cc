@@ -16,7 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
+#include "envvars.h"
 #include "mmbatchjobdispatch.h"
+#include "settings.h"
+
+
+static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
+static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
 
 
 class uiMMBatchJobDispatcherLauncher : public uiBatchJobDispatcherLauncher
@@ -36,6 +42,16 @@ mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 };
 
 
+static bool enabClusterProc()
+{
+    bool enabclusterproc = false;
+    const bool hassetting =
+	Settings::common().getYN( sKeyClusterProc, enabclusterproc );
+    if ( !hassetting )
+	enabclusterproc = GetEnvVarYN( sKeyClusterProcEnv );
+    return enabclusterproc;
+}
+
 
 mDefModInitFn(uiIo)
 {
@@ -49,8 +65,9 @@ mDefModInitFn(uiIo)
     uiSubsampPosFiltGroup::initClass();
 
     uiMMBatchJobDispatcherLauncher::initClass();
-    uiClusterJobDispatcherLauncher::initClass();
     Batch::ClusterJobDispatcher::addDef( new Batch::SimpleClusterProgDef );
+    if ( enabClusterProc() )
+	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettings::initClass();
 }
