@@ -564,7 +564,7 @@
     <message numerus="yes">
         <location line="+9"/>
         <source>Source</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Source</numerusform>
             <numerusform>Sources</numerusform>
         </translation>
