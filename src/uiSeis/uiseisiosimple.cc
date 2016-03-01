@@ -123,7 +123,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     if ( is2d )
     {
 	uiString txt= tr("%1 (preceding X/Y)").arg( isimp_ ?
-		      tr("Trace number included") : tr("Include trace number"));
+		      tr("%1 included").arg( uiStrings::sTraceNumber() )
+		      : tr("Include %1").arg( uiStrings::sTraceNumber() ) );
 	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
@@ -183,12 +184,14 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	else
 	{
 	    nrdeffld_ = new uiGenInput( this,
-		    tr("Trace number definition: start, step"),
+		    tr("%1 definition: start, step")
+			.arg( uiStrings::sTraceNumber() ),
 		    IntInpSpec(data().nrdef_.start).setName("Trc def start"),
 		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
 	    nrdeffld_->attach( alignedBelow, havenrfld_ );
 	    startposfld_ = new uiGenInput( this,
-			    tr("Start position (X, Y, Trace number)"),
+			    tr("Start position (X, Y, %1)")
+				.arg(uiStrings::sTraceNumber() ),
 					  PositionInpSpec(data().startpos_) );
 	    startposfld_->attach( alignedBelow, haveposfld_ );
 	    stepposfld_ = new uiGenInput( this, tr("Step in X/Y/Number"),

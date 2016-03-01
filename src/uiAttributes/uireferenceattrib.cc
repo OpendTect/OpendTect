@@ -44,7 +44,7 @@ static void getOutputNames( uiStringSet& strs3d, uiStringSet& strs2d )
 						      "index" )) )
 	  .add( od_static_tr("getOutputNames","Z index") );
     strs2d.add( uiStrings::sX() ).add( uiStrings::sY() ).add( zstr )
-	  .add( od_static_tr("getOutputNames", "Trace number") )
+	  .add( uiStrings::sTraceNumber() )
 	  .add( od_static_tr("getOutputNames", "Sample number") )
 	  .add( od_static_tr("getOutputNames", "Trace index") );
 }

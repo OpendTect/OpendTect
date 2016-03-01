@@ -449,7 +449,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	, inlfld_(0)
 {
     BinID stp( 0, 1 );
-    uiString lbl = tr("Trace number step");
+    uiString lbl = mJoinUiStrs( sTraceNumber(), sStep() );
     uiSpinBox* firstbox = 0;
     if ( !is2d )
     {

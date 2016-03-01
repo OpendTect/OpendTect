@@ -313,8 +313,12 @@ bool SeisCBVSPSIO::prepGather( int crlnr, SeisTrcBuf& gath ) const
     if ( !tr_ ) return false;
 
     gath.deepErase(); gath.setIsOwner( true );
-    if ( !tr_->goTo( BinID(crlnr,1) ) )
-    { errmsg_ = tr("Trace number not present"); return false; }
+    if ( !tr_->goTo(BinID(crlnr,1)) )
+    {
+	errmsg_ = tr("%1 not present").arg( uiStrings::sTraceNumber() );
+	return false;
+    }
+
     return true;
 }
 
