@@ -216,6 +216,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids );
+    setDepthInterval( rl_->zRange() );
 }
 
 
