@@ -194,7 +194,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
     toolbar_->setSensitive( startbutid_, invol && stopped );
     toolbar_->setSensitive( stopbutid_, invol && !stopped );
     toolbar_->setSensitive( savebutid_, stopped );
-    toolbar_->setSensitive( retrackbutid_, stopped && doauto );
+    toolbar_->setSensitive( retrackbutid_, invol && stopped );
 
     toolbar_->setSensitive( undobutid_, EM::EMM().undo().canUnDo() );
     toolbar_->setSensitive( redobutid_, EM::EMM().undo().canReDo() );
