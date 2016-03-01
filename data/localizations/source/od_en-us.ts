@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.0" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -450,6 +450,14 @@
         </translation>
     </message>
     <message numerus="yes">
+        <location line="+1"/>
+        <source>Line Name</source>
+        <translation>
+            <numerusform>Line Name</numerusform>
+            <numerusform>Line Names</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <location line="+2"/>
         <source>Lithology</source>
         <translation>
@@ -562,7 +570,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+9"/>
+        <location line="+10"/>
         <source>Source</source>
         <translation>
             <numerusform>Source</numerusform>
@@ -610,7 +618,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Unit</source>
         <translation>
             <numerusform>Unit</numerusform>
