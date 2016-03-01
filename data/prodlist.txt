@@ -16,10 +16,13 @@ Seismic Coloured Inversion`arkclssciplugin
 Seismic Spectral Blueing`arkclsssbplugin
 Seismic Feature Enhancement`arkclssfe
 Seismic Net Pay`arkclssnp
+Seismic Broadband`seisbb
+Spotlight`arkclsmvse
+Petrel Connector`arkclsodc
 GeoDataSync Accelerate`arkclsgdsa
 MPSI UltraFast Stochastic Inversion`arkclsmpsi
 MPSI`arkclsmpsi
+Multi-Point Stochastic Inversion`arkclsmpsi
 XField`arkclsxf2
 CLAS Computer Log Analysis Software`clas
 ethos(TM) Processing System`ethos
-
