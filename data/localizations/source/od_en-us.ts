@@ -48,9 +48,8 @@
 <context>
     <name>SeisPS2DTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../include/Seis/seispsfact.h" line="+31"/>
         <source>2D Pre-Stack Seismic</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>2D Pre-Stack Seismic</numerusform>
             <numerusform>2D Pre-Stack Seismic</numerusform>
         </translation>
@@ -59,9 +58,8 @@
 <context>
     <name>SeisPS3DTranslatorGroup</name>
     <message numerus="yes">
-        <location line="-9"/>
         <source>Pre-Stack Seismic</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Pre-Stack Seismic</numerusform>
             <numerusform>Pre-Stack Seismic</numerusform>
         </translation>
@@ -70,9 +68,8 @@
 <context>
     <name>SeisTrc2DTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/Seis/initseis.cc" line="+40"/>
         <source>2D Seismic Data</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>2D Seismic Data</numerusform>
             <numerusform>2D Seismic Data</numerusform>
         </translation>
@@ -81,9 +78,8 @@
 <context>
     <name>SeisTrcTranslatorGroup</name>
     <message numerus="yes">
-        <location line="-14"/>
         <source>Seismic Data</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Seismic Data</numerusform>
             <numerusform>Seismic Data</numerusform>
         </translation>
@@ -113,7 +109,7 @@
 <context>
     <name>TextTranslatorLanguage</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+59"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+60"/>
         <source>Language Name</source>
         <translation>
             <numerusform>English</numerusform>
@@ -189,7 +185,15 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+170"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+189"/>
+        <source>Amplitude</source>
+        <translation>
+            <numerusform>Amplitude</numerusform>
+            <numerusform>Amplitudes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+7"/>
         <source>Attribute</source>
         <translation>
             <numerusform>Attribute</numerusform>
@@ -205,7 +209,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+27"/>
+        <location line="+35"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
@@ -222,6 +226,14 @@
     </message>
     <message numerus="yes">
         <location line="+4"/>
+        <source>Contour</source>
+        <translation>
+            <numerusform>Contour</numerusform>
+            <numerusform>Contours</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
         <source>Coordinate</source>
         <translation>
             <numerusform>Coordinate</numerusform>
@@ -246,7 +258,7 @@
     </message>
     <message numerus="yes">
         <location line="+2"/>
-        <location filename="../../../src/Basic/uistrings.cc" line="+559"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+625"/>
         <source>Cube</source>
         <translation>
             <numerusform>Cube</numerusform>
@@ -278,7 +290,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+18"/>
+        <location line="+19"/>
         <source>In-line</source>
         <translation>
             <numerusform>In-line</numerusform>
@@ -291,6 +303,14 @@
         <translation>
             <numerusform>Line</numerusform>
             <numerusform>Lines</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>Line Name</source>
+        <translation>
+            <numerusform>Line Name</numerusform>
+            <numerusform>Line Names</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -334,7 +354,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+1"/>
+        <location line="+2"/>
         <source>PickSet</source>
         <translation>
             <numerusform>PickSet</numerusform>
@@ -374,7 +394,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+20"/>
+        <location line="+21"/>
         <source>Scene</source>
         <translation>
             <numerusform>Scene</numerusform>
@@ -406,7 +426,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+13"/>
+        <location line="+10"/>
+        <source>Source</source>
+        <translation>
+            <numerusform>Source</numerusform>
+            <numerusform>Sources</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+6"/>
         <source>Step</source>
         <translation>
             <numerusform>Step</numerusform>
@@ -430,7 +458,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Trace</source>
         <translation>
             <numerusform>Trace</numerusform>
@@ -438,7 +466,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Unit</source>
         <translation>
             <numerusform>Unit</numerusform>
@@ -454,7 +482,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+27"/>
+        <location line="+28"/>
         <source>Z-slice</source>
         <translation>
             <numerusform>Z-slice</numerusform>
@@ -477,7 +505,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="-520"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="-580"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -485,7 +513,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+182"/>
+        <location line="+212"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -493,7 +521,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+51"/>
+        <location line="+66"/>
         <source>input file</source>
         <translation>
             <numerusform>Input file</numerusform>
@@ -501,7 +529,8 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+9"/>
+        <location line="+15"/>
+        <location line="+164"/>
         <source>output file</source>
         <translation>
             <numerusform>output file</numerusform>
@@ -509,7 +538,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+39"/>
+        <location line="-122"/>
         <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
@@ -565,7 +594,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+34"/>
+        <location line="+40"/>
         <source>Wavenumber</source>
         <translation>
             <numerusform>Wavenumber</numerusform>
@@ -595,7 +624,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="-151"/>
+        <location line="-157"/>
         <source>Horizon</source>
         <translation>
             <numerusform>Horizon</numerusform>
@@ -626,7 +655,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+34"/>
+        <location line="+40"/>
         <source>Wavelet</source>
         <translation>
             <numerusform>Wavelet</numerusform>
