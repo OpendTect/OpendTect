@@ -21,9 +21,6 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
 	      od_uiReportIssue od_gmtexec od_madexec
 	      od_process_2dto3d od_BatchHosts od_copy_seis od_PreStackMMBatch)
-if ( UNIX )
-    set( EXECLIST ${EXECLIST} od_batch_launcher )
-endif()
 
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter

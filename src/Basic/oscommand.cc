@@ -491,23 +491,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    redirectoutput_ = true;
 	}
 #endif
-
 	if ( File::exists(monitorfnm_) )
 	    File::remove(monitorfnm_);
-
-#ifndef __win__
-	monitorfnm_.quote( '\"' );
-	localcmd.add( " --needmonitor" );
-	if ( !monitorfnm_.isEmpty() )
-	    localcmd.add( " --monitorfnm " ).add( monitorfnm_.buf() );
-
-	BufferString launchercmd( "\"",
-		FilePath(GetExecPlfDir(),"od_batch_launcher").fullPath() );
-	launchercmd.add( "\" " ).add( localcmd );
-	return doExecute( launchercmd, pars.launchtype_==Wait4Finish, false,
-			  pars.createstreams_ );
-#endif
-
     }
 
     ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
@@ -702,9 +687,12 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 	args.append( QString(parser.getArg(idx).str()) );
     }
 
-    qint64 qpid = pid_;
-    return QProcess::startDetached( parser.getExecutable().str(), args, "",
-	    			    &qpid );
+    qint64 qpid = 0;
+    if ( !QProcess::startDetached(parser.getExecutable().str(),args,"",&qpid) )
+	return false;
+
+    pid_ = mCast(od_int64,qpid);
+    return true;
 #else
     return false;
 #endif
