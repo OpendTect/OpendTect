@@ -92,7 +92,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 	    nodes_[nrcols_*ridx+cidx]
 		? *sdmask_.ostrm << ridx << " " << cidx << " " << 1
 		: *sdmask_.ostrm << ridx << " " << cidx << " " << "NaN";
-	    *sdmask_.ostrm << std::endl;
+	    *sdmask_.ostrm << "\n";
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
@@ -101,7 +101,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    addToNrDone( 1 );
 	    *sd_.ostrm << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
-						     << std::endl;
+						     << "\n";
 	}
 
 	nrdone_++;

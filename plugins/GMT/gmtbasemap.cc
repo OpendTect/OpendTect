@@ -90,16 +90,16 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
 
-    *sd.ostrm << "H 16 4 " << maptitle.buf() << std::endl;
-    *sd.ostrm << "G 0.5l" << std::endl;
+    *sd.ostrm << "H 16 4 " << maptitle.buf() << "\n";
+    *sd.ostrm << "G 0.5l" << "\n";
     int scaleval = 1;
     get( ODGMT::sKeyMapScale(), scaleval );
-    *sd.ostrm << "L 10 4 C Scale  1:" << scaleval << std::endl;
-    *sd.ostrm << "D 0 1p" << std::endl;
+    *sd.ostrm << "L 10 4 C Scale  1:" << scaleval << "\n";
+    *sd.ostrm << "D 0 1p" << "\n";
     BufferStringSet remset;
     get( ODGMT::sKeyRemarks(), remset );
     for ( int idx=0; idx<remset.size(); idx++ )
-	*sd.ostrm << "L 12 4 C " << remset.get(idx) << std::endl;
+	*sd.ostrm << "L 12 4 C " << remset.get(idx) << "\n";
 
     sd.close();
     strm << "Done" << od_endl;
@@ -256,8 +256,8 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 
 	legendstring += " "; legendstring += 1.3;
 	legendstring += " "; legendstring += namestr;
-	*sd.ostrm << legendstring << std::endl;
-	*sd.ostrm << "G0.2c" << std::endl;
+	*sd.ostrm << legendstring << "\n";
+	*sd.ostrm << "G0.2c" << "\n";
     }
 
     sd.close();

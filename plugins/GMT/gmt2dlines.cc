@@ -98,12 +98,12 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	const PosInfo::Line2DData& geom = geom2d->data();
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
-	*sd.ostrm << "> " << geom2d->getName() << std::endl;
+	*sd.ostrm << "> " << geom2d->getName() << "\n";
 
 	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
 	    Coord pos = posns[tdx].coord_;
-	    *sd.ostrm << pos.x << " " << pos.y << std::endl;
+	    *sd.ostrm << pos.x << " " << pos.y << "\n";
 	}
     }
 
@@ -153,7 +153,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
-	    *sd.ostrm << " " << al.buf() << geom2d->getName() << std::endl;
+	    *sd.ostrm << " " << al.buf() << geom2d->getName() << "\n";
 	}
 
 	bool poststop = false;
@@ -171,7 +171,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
 	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
-	    *sd.ostrm << " " << al.buf() << geom2d->getName() << std::endl;
+	    *sd.ostrm << " " << al.buf() << geom2d->getName() << "\n";
 	}
 
 	bool postnrs = true;
@@ -194,7 +194,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 
 		*sd.ostrm << posc.x << " " << posc.y << " " << sz << " " ;
 		*sd.ostrm << perpangle << " " << 4;
-		*sd.ostrm << " " << "ML " << lbl.buf() << std::endl;
+		*sd.ostrm << " " << "ML " << lbl.buf() << "\n";
 	    }
 	}
     }
@@ -279,11 +279,11 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	if ( !rdl || linenms.indexOf(rdl->name()) < 0 )
 	    continue;
 
-	*sd.ostrm << "> " << rdl->name() << std::endl;
+	*sd.ostrm << "> " << rdl->name() << "\n";
 	for ( int tdx=0; tdx<rdl->nrNodes(); tdx++ )
 	{
 	    Coord posc = SI().transform( rdl->nodePosition(tdx) );
-	    *sd.ostrm << posc.x << " " << posc.y << std::endl;
+	    *sd.ostrm << posc.x << " " << posc.y << "\n";
 	}
     }
 
@@ -323,7 +323,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	posc += Coord( -distfactor*dx, distfactor*dy );
 	*sd.ostrm << posc.x << " " << posc.y << " " << sz << " " ;
 	*sd.ostrm << rotangle << " " << 4;
-	*sd.ostrm << " " << al.buf() << rdl->name() << std::endl;
+	*sd.ostrm << " " << al.buf() << rdl->name() << "\n";
     }
 
     sd.close();
