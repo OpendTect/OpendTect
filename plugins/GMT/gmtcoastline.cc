@@ -139,10 +139,10 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) return false;
 
-    *sd.ostrm << xrg.start << " " << yrg.start << std::endl;
-    *sd.ostrm << xrg.stop << " " << yrg.start << std::endl;
-    *sd.ostrm << xrg.start << " " << yrg.stop << std::endl;
-    *sd.ostrm << xrg.stop << " " << yrg.stop << std::endl;
+    *sd.ostrm << xrg.start << " " << yrg.start << "\n";
+    *sd.ostrm << xrg.stop << " " << yrg.start << "\n";
+    *sd.ostrm << xrg.start << " " << yrg.stop << "\n";
+    *sd.ostrm << xrg.stop << " " << yrg.stop << "\n";
     sd.close();
 
     comm = "minmax \""; comm += tmpfilenm; comm += "\" -I0.0001/0.0001 1> ";
