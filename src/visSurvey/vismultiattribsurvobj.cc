@@ -254,6 +254,8 @@ const Attrib::SelSpec* MultiTextureSurveyObject::getSelSpec( int attrib ) const
 void MultiTextureSurveyObject::setSelSpec( int attrib,
 					   const Attrib::SelSpec& as )
 {
+    SurveyObject::setSelSpec( attrib, as );
+
     if ( !as_.validIdx(attrib) )
 	return;
 

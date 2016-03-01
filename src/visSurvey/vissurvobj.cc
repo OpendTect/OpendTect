@@ -357,4 +357,13 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 	iopar.set( sKey::TraceKey(), trck );
 }
 
+
+void SurveyObject::setSelSpec( int attrib, const Attrib::SelSpec& newselspec )
+{
+    const Attrib::SelSpec* oldselspec = getSelSpec( attrib );
+    if ( !oldselspec || (*oldselspec)!=newselspec )
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+}
+
+
 } // namespace visSurvey

@@ -240,6 +240,8 @@ bool MPEDisplay::getPlanePosition( TrcKeyZSampling& planebox ) const
 
 void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
+    SurveyObject::setSelSpec( attrib, as );
+
     if ( attrib  || as_ == as )
 	return;
 

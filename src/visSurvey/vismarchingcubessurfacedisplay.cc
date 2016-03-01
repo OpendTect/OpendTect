@@ -254,6 +254,8 @@ bool MarchingCubesDisplay::canSetColTabSequence() const
 
 void MarchingCubesDisplay::setSelSpec( int attrib, const Attrib::SelSpec& spec )
 {
+    SurveyObject::setSelSpec( attrib, spec );
+
     if ( !attrib )
 	selspec_ = spec;
 }

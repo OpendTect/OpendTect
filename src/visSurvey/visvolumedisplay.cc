@@ -1007,6 +1007,8 @@ const Attrib::SelSpec* VolumeDisplay::getSelSpec( int attrib ) const
 
 void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
+    SurveyObject::setSelSpec( attrib, as );
+
     if ( !attribs_.validIdx(attrib) || attribs_[attrib]->as_==as )
 	return;
 
