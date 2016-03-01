@@ -423,6 +423,7 @@ public:
     static uiString sShow()             { return tr("Show"); }
     static uiString sShowIn();
     static uiString sSlice()		{ return tr("Slice"); }
+    static uiString sSource(int num=1)	{ return tr("Source",0,num); }
     static uiString sSouth(bool abb)	{ return abb ? tr("S"):tr("South"); }
     static uiString sSpecify();
     static uiString sSpecifyOut();
