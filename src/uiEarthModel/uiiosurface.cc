@@ -122,7 +122,6 @@ void uiIOSurface::mkObjFld( const uiString& lbl )
 bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 {
     EM::SurfaceIOData sd;
-
     if ( forread_ )
     {
 	EM::IOObjInfo oi( id );
@@ -136,6 +135,7 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
     }
     else
     {
+	if ( id.isUdf() ) return false;
 	const EM::ObjectID emid = EM::EMM().getObjectID( id );
 	mDynamicCastGet(EM::Surface*,emsurf,EM::EMM().getObject(emid));
 	if ( emsurf )
@@ -152,6 +152,23 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
     fillSectionFld( sd.sections );
     fillRangeFld( sd.rg );
     return true;
+}
+
+
+void uiIOSurface::fillFields( const EM::ObjectID& emid )
+{
+    EM::SurfaceIOData sd;
+    mDynamicCastGet( EM::Surface*, emsurf,EM::EMM().getObject(emid) );
+    if ( emsurf )
+	sd.use(*emsurf);
+    else
+    {
+	uiMSG().error( tr("Temporal surface not existing") );
+	    return;
+    }
+    fillAttribFld( sd.valnames );
+    fillSectionFld( sd.sections );
+    fillRangeFld( sd.rg );
 }
 
 
@@ -368,7 +385,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
        displayfld_->setChecked( true );
     }
 
-    fillFields( surf.multiID() );
+    if ( !fillFields(surf.multiID()) )
+	fillFields( surf.id() );
 
     ioDataSelChg( 0 );
 }

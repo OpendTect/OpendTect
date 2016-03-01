@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "faulttrace.h"
 #include "trckeysampling.h"
 #include "posinfo2dsurv.h"
+#include "emposid.h"
 
 class CtxtIOObj;
 class IODirEntryList;
@@ -62,6 +63,7 @@ protected:
 				    const char* type);
 
     bool		fillFields(const MultiID&,bool showerrmsg=true);
+    void		fillFields(const EM::ObjectID&);
     void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const TrcKeySampling&);
