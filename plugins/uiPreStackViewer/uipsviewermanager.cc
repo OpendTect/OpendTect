@@ -252,12 +252,15 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
 	asd->setDeleteOnClose( true );
 	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID() );
-	BufferString capt( "Amplitude spectrum for " );
-	capt += psv->getObjectName();
-	capt += " at ";
-	if ( psv->is3DSeis() )
-	    { capt += psv->getPosition().inl(); capt += "/"; }
-	capt += psv->getPosition().crl();
+        const uiString pos = psv->is3DSeis()
+            ? toUiString( "%1/%2")
+                .arg( psv->getPosition().inl() ).arg( psv->getPosition().crl() )
+            : toUiString( psv->getPosition().crl() );
+        
+	const uiString capt = tr( "Amplitude spectrum for %1 at %2" )
+            .arg( psv->getObjectName() )
+            .arg( pos );
+
 	asd->setCaption( capt );
 	asd->show();
     }
@@ -671,7 +674,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( is3d )
 	    getSeis3DTitle( bid, ioobj->uiName(), title );
 	else
-	    getSeis2DTitle( trcnr, name2d, title );
+	    getSeis2DTitle( trcnr, mToUiStringTodo( name2d ), title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
 	DPM(DataPackMgr::FlatID()).release( gather );
 	if ( !viewwin )

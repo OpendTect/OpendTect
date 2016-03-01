@@ -338,7 +338,7 @@ void uiMadagascarBldCmd::setGroupProgs( const BufferString* curgrp )
     {
 	const ODMad::ProgDef& def = *defs[idx];
 	if ( !curgrp || def.group_ == curgrp )
-	    progfld_->addItem( def.name_ );
+	    progfld_->addItem( mToUiStringTodo(def.name_) );
     }
 }
 
@@ -362,7 +362,7 @@ void uiMadagascarBldCmd::doSearch( CallBacker* )
     if ( defs.size() < 1 ) return;
 
     for ( int idx=0; idx<defs.size(); idx++ )
-	progfld_->addItem( defs[idx]->name_ );
+	progfld_->addItem( mToUiStringTodo(defs[idx]->name_) );
 
     progfld_->setCurrentItem( 0 );
     progChg( 0 );

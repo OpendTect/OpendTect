@@ -65,8 +65,8 @@ void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
 
 uiString Tut::SeisTools::uiMessage() const
 {
-    static const char* acts[] = { "Scaling", "Squaring", "Smoothing",
-				  "Changing" };
+    static uiString acts[] = { tr("Scaling"), tr("Squaring"), tr("Smoothing"),
+				  tr("Changing") };
     return errmsg_.isEmpty() ? acts[action_] : errmsg_;
 }
 

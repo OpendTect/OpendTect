@@ -169,7 +169,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     BufferString errmsg;
     const bool rv = pvds.getFrom( ioobj->fullUserExpr(true), errmsg );
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
+	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
@@ -194,7 +194,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     changed_ = false;
     updateButtons();
 
-    setCaption( ioobj->name() );
+    setCaption( ioobj->uiName() );
 }
 
 

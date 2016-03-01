@@ -349,7 +349,7 @@ void MadStream::fillHeaderParsFromSeis()
 	    Survey::GM().getGeometry( seldata->geomID() );
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
 	if ( !geom2d )
-	    mErrRet( "Line geometry not available" );
+	    mErrRet( tr("Line geometry not available") );
 	PosInfo::Line2DData l2dd = geom2d->data();
 
 	if ( !seldata->isAll() )

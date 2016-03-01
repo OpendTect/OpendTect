@@ -56,7 +56,7 @@ void uiGoogleExportWells::initWin( CallBacker* )
 	const IODirEntry* de = del[idx];
 	if ( de && de->ioobj_ )
 	{
-	    selfld_->addItem( de->name() );
+	    selfld_->addItem( mToUiStringTodo(de->name()) );
 	    wellids_ += new MultiID( de->ioobj_->key() );
 	}
     }

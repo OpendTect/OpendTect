@@ -70,7 +70,8 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
     TypeSet<int> suppress;
     Settings::common().get( sKeySuppress, suppress );
 
-    uiString msg = "The operation was successful, but there %1:";
+    uiString msg = od_static_tr("uiSEGY_displayWarnings",
+                                "The operation was successful, but there %1:");
     msg.arg( warns.size() > 1 ? "were warnings" : "was a warning" );
 
     TypeSet<int> curwarnnrs;

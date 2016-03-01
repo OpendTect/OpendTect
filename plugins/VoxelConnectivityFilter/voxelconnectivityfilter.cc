@@ -551,13 +551,13 @@ Task* VoxelConnectivityFilter::createTask()
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !input || input->isEmpty() )
     {
-	errmsg_ = "No input provided.";
+	errmsg_ = tr("No input provided.");
 	return 0;
     }
 
     if ( !output || output->isEmpty() )
     {
-	errmsg_ = "No output provided.";
+	errmsg_ = tr("No output provided.");
 	return 0;
     }
 
@@ -594,18 +594,18 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
     if ( !Step::usePar( par ) )
 	return false;
 
-    mTryParse( par.get( sKeyRange(), range_) , "Cannot parse value range" );
+    mTryParse( par.get( sKeyRange(), range_) , tr("Cannot parse value range") );
     mTryParse( ConnectivityDef().parse(par, sKeyConnectivity(), connectivity_ ),
-	    "Cannot parse connectivity" );
+	    tr("Cannot parse connectivity") );
     mTryParse( AcceptOutputDef().parse( par, sKeyAcceptOutput(),acceptoutput_ ),
-	    "Cannot parse kept output type" );
+	    tr("Cannot parse kept output type") );
     if ( acceptoutput_==Value )
 	mTryParse( par.get( sKeyAcceptValue(), acceptvalue_),
-		"Cannot parse kept value" );
+		tr("Cannot parse kept value") );
     mTryParse( par.get( sKeyMinimumSize(), minbodysize_ ),
-	    "Cannot parse minimum body size" );
+	    tr("Cannot parse minimum body size") );
     mTryParse( par.get( sKeyRejectValue(), rejectvalue_ ),
-	    "Cannot parse rejected value" );
+	    tr("Cannot parse rejected value") );
 
     return true;
 }

@@ -119,7 +119,7 @@ SEGY::TrcHeader* SEGY::BasicFileInfo::getTrcHdr( od_istream& strm ) const
 
 
 #define mErrRetWithFileName(s) \
-    return uiString( "File:\n%1\n" s ).arg( strm.fileName() );
+    return mToUiStringTodo( "File:\n%1\n%2" ).arg( strm.fileName() ).arg( s );
 
 
 uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
@@ -127,15 +127,15 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 {
     strm.setPosition( 0 );
     if ( !strm.isOK() )
-	mErrRetWithFileName( "is empty" )
+	mErrRetWithFileName( tr("is empty") )
 
     SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
     strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
     if ( !strm.isOK() )
-	mErrRetWithFileName( "has no textual header" )
+	mErrRetWithFileName( tr("has no textual header") )
     strm.getBin( binhdr.buf(), SegyBinHeaderLength );
     if ( strm.isBad() )
-	mErrRetWithFileName( "has no binary header" )
+	mErrRetWithFileName( tr("has no binary header") )
 
     binhdr.guessIsSwapped();
     hdrsswapped_ = dataswapped_ = binhdr.isSwapped();

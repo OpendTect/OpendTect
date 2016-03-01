@@ -21,13 +21,13 @@ namespace VolProc
 {
 
 mExpClass(VoxelConnectivityFilter) VoxelConnectivityFilter : public Step
-{
+{ mODTextTranslationClass(VoxelConnectivityFilter);
 public:
 
 			mDefaultFactoryInstantiation( Step,
 				VoxelConnectivityFilter,
 				"VoxelConnectivityFilter",
-				"Voxel Connectivity Filter" );
+				tr("Voxel Connectivity Filter") );
 
     enum		Connectivity { Faces, Edges, Corners };
 			mDeclareEnumUtils( Connectivity );

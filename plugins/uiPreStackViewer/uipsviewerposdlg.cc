@@ -27,7 +27,7 @@ namespace PreStackView
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      visSurvey::PreStackDisplay& vwr )
-    : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,
+    : uiDialog( p, Setup(toUiString(vwr.getObjectName()),mNoDlgTitle,
                          mODHelpKey(mViewer3DPositionsDlgHelpID) )
 			.modal(false) )
     , viewer_(vwr)

@@ -124,7 +124,7 @@ void uiMadagascarLink::doMain( CallBacker* )
     BufferString errmsg;
     if ( !checkEnvVars(errmsg) )
     {
-	uiMSG().error( errmsg );
+	uiMSG().error( mToUiStringTodo(errmsg) );
 	return;
     }
 

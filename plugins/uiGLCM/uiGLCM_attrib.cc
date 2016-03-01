@@ -288,7 +288,7 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 	objinfo.getLineNames( linenames );
 	linesfld_ = new uiLabeledComboBox( this, tr("Analyisis on line") );
 	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( linenames.get(idx) );
+	    linesfld_->box()->addItem( mToUiStringTodo(linenames.get(idx)) );
 
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
