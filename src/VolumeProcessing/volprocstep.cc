@@ -344,16 +344,6 @@ Task* VolProc::Step::createTaskWithProgMeter( ProgressMeter* )
 }
 
 
-/* mDeprecated od_int64 VolProc::Step::getOuputMemSize( int outputidx ) const
-{
-    const RegularSeisDataPack* dp = getOutput( getOutputSlotID(outputidx) );
-    if ( !dp ) return 0;
-    // Ouch. When this function is called, dp is always null.
-
-    // Therefore, this is not going to work:
-    return dp->sampling().totalNr() * sizeof(float);
-}
-*/
 
 
 od_int64 VolProc::Step::getBaseMemoryUsage(
