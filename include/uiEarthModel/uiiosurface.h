@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "faulttrace.h"
 #include "trckeysampling.h"
 #include "posinfo2dsurv.h"
+#include "emposid.h"
+
 
 class CtxtIOObj;
 class IODirEntryList;
@@ -34,7 +36,9 @@ class uiListBox;
 class uiPosSubSel;
 class uiStratLevelSel;
 
-namespace EM { class Surface; class SurfaceIODataSelection; }
+
+namespace EM { class Surface; class SurfaceIODataSelection; 
+	       class SurfaceIOData;}
 
 
 /*! \brief Base group for Surface input and output */
@@ -56,12 +60,16 @@ public:
     bool		haveAttrSel() const;
     uiIOObjSel*		getObjSel()		{ return objfld_; }
     uiPosSubSel*	getPosSubSel()		{ return rgfld_; }
-
+    
 protected:
 			uiIOSurface(uiParent*,bool forread,
 				    const char* type);
 
-    bool		fillFields(const MultiID&,bool showerrmsg=true);
+    void		fillFields(const EM::SurfaceIOData&);
+    bool		getSurfaceIOData(const MultiID&,EM::SurfaceIOData&,
+					 bool showmsg=true) const;
+    bool		getSurfaceIOData(const EM::ObjectID&,
+					 EM::SurfaceIOData&) const;
     void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const TrcKeySampling&);

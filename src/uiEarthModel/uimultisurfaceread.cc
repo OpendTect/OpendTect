@@ -121,7 +121,11 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
     }
 
     if ( processInput() )
-	fillFields( ioobjselgrp_->chosenID(0), cb );
+    {
+	EM::SurfaceIOData sd;
+	if ( getSurfaceIOData(ioobjselgrp_->chosenID(0),sd,cb) )
+	    fillFields( sd );
+    }
 }
 
 

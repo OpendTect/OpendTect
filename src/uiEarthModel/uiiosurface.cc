@@ -119,38 +119,50 @@ void uiIOSurface::mkObjFld( const uiString& lbl )
 }
 
 
-bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
+void uiIOSurface::fillFields( const EM::SurfaceIOData& sd )
 {
-    EM::SurfaceIOData sd;
+    fillAttribFld( sd.valnames );
+    fillSectionFld( sd.sections );
+    fillRangeFld( sd.rg );
+}
 
+bool uiIOSurface::getSurfaceIOData(const MultiID& mid, EM::SurfaceIOData& sd, 
+    bool showmsg ) const
+{
     if ( forread_ )
     {
-	EM::IOObjInfo oi( id );
+	EM::IOObjInfo oi( mid );
 	uiString errmsg;
 	if ( !oi.getSurfaceData(sd,errmsg) )
 	{
-	    if ( showerrmsg )
+	    if ( showmsg )
 		uiMSG().error( errmsg );
 	    return false;
 	}
     }
     else
     {
-	const EM::ObjectID emid = EM::EMM().getObjectID( id );
-	mDynamicCastGet(EM::Surface*,emsurf,EM::EMM().getObject(emid));
-	if ( emsurf )
-	    sd.use(*emsurf);
-	else
-	{
-	    if ( showerrmsg )
-		uiMSG().error( tr("Surface not loaded") );
-	    return false;
-	}
+	if ( mid.isUdf() ) return false;
+	const EM::ObjectID emid = EM::EMM().getObjectID( mid );
+	return getSurfaceIOData( emid, sd );
     }
 
-    fillAttribFld( sd.valnames );
-    fillSectionFld( sd.sections );
-    fillRangeFld( sd.rg );
+    return true;
+}
+
+
+bool uiIOSurface::getSurfaceIOData(const EM::ObjectID& objid, 
+    EM::SurfaceIOData& sd ) const
+{
+    mDynamicCastGet( EM::Surface*, emsurf,EM::EMM().getObject(objid) );
+    if ( emsurf )
+	sd.use(*emsurf);
+    else
+    {
+	uiMSG().error( tr("Temporal surface not existing") );
+	    return false;
+    }
+    
     return true;
 }
 
@@ -256,7 +268,10 @@ void uiIOSurface::objSel( CallBacker* )
     IOObj* ioobj = objfld_->ctxtIOObj().ioobj_;
     if ( !ioobj ) return;
 
-    fillFields( ioobj->key() );
+    EM::SurfaceIOData sd;
+    if ( getSurfaceIOData(ioobj->key(),sd) )
+	fillFields( sd );
+
     inpChanged();
 }
 
@@ -368,7 +383,10 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
        displayfld_->setChecked( true );
     }
 
-    fillFields( surf.multiID() );
+    EM::SurfaceIOData sd;
+    if ( !getSurfaceIOData(surf.multiID(),sd) )
+	getSurfaceIOData( surf.id(), sd );
+    fillFields( sd );
 
     ioDataSelChg( 0 );
 }
