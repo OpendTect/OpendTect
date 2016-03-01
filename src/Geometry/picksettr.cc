@@ -80,8 +80,6 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 
     ps.setName( IOM().nameOf(conn.linkedTo()) );
 
-    Pick::Location loc;
-
     if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
     {
 	// In old format we can find mulitple pick sets. Just gather them all
@@ -106,8 +104,10 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	    }
 	    while ( !atEndOfSection(astrm) )
 	    {
-		if ( !loc.fromString( astrm.keyWord() ) )
+		Pick::Location loc;
+		if ( !loc.fromString(astrm.keyWord()) )
 		    break;
+
 		ps += loc;
 		astrm.next();
 	    }
@@ -119,11 +119,14 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
     {
 	IOPar iopar; iopar.getFrom( astrm );
 	ps.usePar( iopar );
+	const Pos::SurvID survid( ps.getSurvID() );
 
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
-	    if ( loc.fromString( astrm.keyWord(), true, checkdir ) )
+	    Pick::Location loc;
+	    loc.trckey_.setSurvID( survid );
+	    if ( loc.fromString(astrm.keyWord()) )
 		ps += loc;
 
 	    astrm.next();
@@ -211,6 +214,14 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 
 bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
 {
+    TypeSet<TrcKey> tks;
+    return getCoordSet( id, crds, tks );
+}
+
+
+bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
+				     TypeSet<TrcKey>& tks )
+{
     const MultiID key( id );
     const int setidx = Pick::Mgr().indexOf( key );
     const Pick::Set* ps = setidx < 0 ? 0 : &Pick::Mgr().get( setidx );
@@ -230,7 +241,10 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
+    {
 	crds += ((*ps)[ipck]).pos_;
+	tks += ((*ps)[ipck]).trckey_;
+    }
 
     delete createdps;
     return true;

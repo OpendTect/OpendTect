@@ -11,13 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "multiid.h"
+#include "od_iostream.h"
 #include "polygon.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
-#include "od_iostream.h"
 #include <ctype.h>
 
 
@@ -120,15 +120,18 @@ void Location::unSetText( const char* key )
 }
 
 
-static double getNextVal( char*& str )
-{
-    if ( !*str ) return mUdf(double);
-    char* endptr = str; mSkipNonBlanks( endptr );
-    if ( *endptr ) *endptr++ = '\0';
-    double v = toDouble( str );
-    str = endptr; mSkipBlanks(str);
-    return v;
+#define mReadVal(type,readFunc) \
+{ \
+    if ( !*str ) return mUdf(type); \
+    char* endptr = str; mSkipNonBlanks( endptr ); \
+    if ( *endptr ) *endptr++ = '\0'; \
+    type v = readFunc( str ); \
+    str = endptr; mSkipBlanks(str); \
+    return v; \
 }
+
+static double getNextVal( char*& str )	{ mReadVal( double, toDouble ) }
+static int getNextInt( char*& str )	{ mReadVal( int, toInt ) }
 
 
 bool Location::fromString( const char* s, bool doxy, bool testdir )
@@ -166,46 +169,55 @@ bool Location::fromString( const char* s, bool doxy, bool testdir )
     char* str = bufstr.getCStr();
     mSkipBlanks(str);
 
-    double xread = getNextVal( str );
-    double yread = getNextVal( str );
-    double zread = getNextVal( str );
-    if ( mIsUdf(zread) )
+    Coord3 posread;
+    posread.x = getNextVal( str );
+    posread.y = getNextVal( str );
+    posread.z = getNextVal( str );
+    if ( posread.isUdf() )
 	return false;
 
-    pos_.x = xread;
-    pos_.y = yread;
-    pos_.z = zread;
+    pos_ = posread;
 
-    // Check if data is in inl/crl rather than X and Y
-    if ( !SI().isReasonable(pos_) || !doxy )
-    {
-	BinID bid( mNINT32(pos_.x), mNINT32(pos_.y) );
-	SI().snap( bid, BinID(0,0) );
-	Coord newpos_ = SI().transform( bid );
-	if ( SI().isReasonable(newpos_) )
+    mSkipBlanks(str);
+    const FixedString data( str );
+    if ( data.count( '\t' ) > 1 )
+    { // Read the direction too before any trace key information
+	Coord3 dirread;
+	dirread.x = getNextVal( str );
+	dirread.y = getNextVal( str );
+	dirread.z = getNextVal( str );
+
+	if ( !mIsUdf(dirread.y) )
 	{
-	    pos_.x = newpos_.x;
-	    pos_.y = newpos_.y;
+	    if ( mIsUdf(dirread.z) ) dirread.z = 0.;
+	    dir_ = Sphere( dirread );
 	}
     }
 
-    // See if there's a direction, too
-    xread = getNextVal( str );
-    yread = getNextVal( str );
-    zread = getNextVal( str );
+    mSkipBlanks(str);
 
-    if ( testdir )
+    //Old files: trckey_ left undef
+    const Pos::SurvID survid( trckey_.survID() );
+    if ( survid == TrcKey::cUndefSurvID() || !str )
+	return true;
+
+    const int firstkey = getNextInt( str );
+    if ( trckey_.is2D() )
     {
-	if ( !mIsUdf(yread) )
-	{
-	    if ( mIsUdf(zread) ) zread = 0;
-	    dir_ = Sphere( ( float ) xread,( float )  yread,( float )  zread );
-	}
+	if ( Survey::GM().getGeometry(firstkey) )
+	    trckey_.lineNr() = firstkey;
     }
     else
-	dir_ = Sphere( ( float )  xread,( float )  yread,( float )  zread );
+    {
+	if ( !Survey::GM().getGeometry3D(survid) )
+	    return false;
 
-    return true;
+	trckey_.lineNr() = firstkey; //No check for valid inline number ?
+    }
+
+    trckey_.trcNr() = getNextInt( str ); //No check for valid trace number ?
+
+    return !trckey_.pos().isUdf();
 }
 
 
@@ -233,10 +245,24 @@ void Location::toString( BufferString& str, bool forexport ) const
 	usepos.z = usepos.z * SI().showZ2UserFactor();
     }
 
-    str.add( usepos.x ).add( "\t" ).add( usepos.y ).add( "\t" ).add( usepos.z );
+    str.add( usepos.x ).add( od_tab ).add( usepos.y );
+    str.add( od_tab ).add( usepos.z );
     if ( hasDir() )
-	str.add( "\t" ).add( dir_.radius ).add( "\t" ).add( dir_.theta )
-	   .add( "\t" ).add( dir_.phi );
+    {
+	str.add( od_tab ).add( dir_.radius ).add( od_tab );
+	str.add( dir_.theta ).add( od_tab ).add( dir_.phi );
+    }
+
+    if ( trckey_.isUdf() || trckey_.pos().isUdf() )
+	return;
+
+    //actually both calls return the same, but for the clarity
+    if ( trckey_.is2D() )
+	str.add( od_tab ).add( trckey_.geomID() );
+    else
+	str.add( od_tab ).add( trckey_.lineNr() );
+
+    str.add( od_tab ).add( trckey_.trcNr() );
 }
 
 
@@ -657,6 +683,7 @@ protected:
 };
 
 
+
 // Pick::Set
     mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
@@ -664,15 +691,21 @@ protected:
 Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
-{}
+{
+    pars_.set( sKey::SurveyID(), TrcKey::cUndefSurvID() );
+}
 
 
 Set::Set( const Set& s )
     : pars_(*new IOPar)
-{ *this = s; }
+{
+    *this = s;
+}
 
 Set::~Set()
-{ delete &pars_; }
+{
+    delete &pars_;
+}
 
 
 Set& Set::operator=( const Set& s )
@@ -681,6 +714,21 @@ Set& Set::operator=( const Set& s )
     copy( s ); setName( s.name() );
     disp_ = s.disp_; pars_ = s.pars_;
     return *this;
+}
+
+
+Pos::SurvID Set::getSurvID() const
+{
+    Pos::SurvID survid( TrcKey::cUndefSurvID() );
+    pars_.get( sKey::SurveyID(), survid );
+
+    return survid;
+}
+
+
+bool Set::is2D() const
+{
+    return TrcKey::is2D( getSurvID() );
 }
 
 
@@ -741,6 +789,7 @@ void Set::fillPar( IOPar& par ) const
     par.set( sKey::Size(), disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
     par.set( sKeyConnect, Disp::getConnectionString(disp_.connect_) );
+
     par.merge( pars_ );
 }
 
@@ -769,6 +818,7 @@ bool Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKey::Size() );
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
+
     return true;
 }
 
