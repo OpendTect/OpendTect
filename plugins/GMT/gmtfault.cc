@@ -159,16 +159,17 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 		continue;
 	    }
 
-	    for ( int cidx=0; cidx<sz; cidx++ )
+	    for ( int cidx=1; cidx<sz; cidx+=2 )
 	    {
-		if ( coordps->get(cidx) == -1 )
-		    *sd.ostrm << "> " << "\n";
-		else
-		{
-		    double x = clist->get( coordps->get(cidx) ).x;
-		    double y = clist->get( coordps->get(cidx) ).y;
-		    *sd.ostrm << x << " " << y << "\n";
-		}
+		double x = clist->get( coordps->get(cidx-1) ).x;
+		double y = clist->get( coordps->get(cidx-1) ).y;
+		*sd.ostrm << x << " " << y << "\n";
+
+		x = clist->get( coordps->get(cidx) ).x;
+		y = clist->get( coordps->get(cidx) ).y;
+		*sd.ostrm << x << " " << y << "\n";
+
+		*sd.ostrm << "> " << "\n";
 	    }
 	}
 	else
