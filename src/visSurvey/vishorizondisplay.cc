@@ -602,6 +602,8 @@ const Attrib::SelSpec* HorizonDisplay::getSelSpec( int channel ) const
 
 void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
 {
+    SurveyObject::setSelSpec( channel, as );
+
     if ( as_.validIdx(channel) && as_[channel] )
 	(*as_[channel]) = as;
 }

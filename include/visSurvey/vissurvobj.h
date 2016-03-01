@@ -230,7 +230,7 @@ public:
     virtual bool		removeSelections(TaskRunner*)	{ return false;}
     virtual void		clearSelections()		{}
 
-    virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
+    virtual void		   setSelSpec(int,const Attrib::SelSpec&);
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }
 
 
