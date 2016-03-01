@@ -85,8 +85,11 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	const Coord3 pos = horsection_->geometry_->getKnot(absrc,false);
 
 	bool addoldtile = false;
+	if ( !horsection_->tiles_.info().validPos(tilerowidx,tilecolidx) )
+	    continue;
+
 	HorizonSectionTile* tile = horsection_->tiles_.get(
-	    tilerowidx, tilecolidx );
+						    tilerowidx, tilecolidx );
 	if ( !tile )
 	{
 	    tile = createOneTile( tilerowidx, tilecolidx );
