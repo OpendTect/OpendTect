@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -141,7 +141,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+209"/>
+        <location line="+212"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -313,7 +313,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+187"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+189"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
@@ -418,7 +418,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Geometry</source>
         <translation>
             <numerusform>Geometry</numerusform>
@@ -490,7 +490,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+1"/>
+        <location line="+2"/>
         <source>PickSet</source>
         <translation>
             <numerusform>PickSet</numerusform>
@@ -530,7 +530,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+20"/>
+        <location line="+21"/>
         <source>Scene</source>
         <translation>
             <numerusform>Scene</numerusform>
@@ -562,7 +562,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+14"/>
+        <location line="+9"/>
+        <source>Source</source>
+        <translation type="unfinished">
+            <numerusform>Source</numerusform>
+            <numerusform>Sources</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+6"/>
         <source>Step</source>
         <translation>
             <numerusform>Step</numerusform>
@@ -594,7 +602,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Trace</source>
         <translation>
             <numerusform>Trace</numerusform>
