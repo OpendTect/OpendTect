@@ -294,7 +294,7 @@ public:
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
-    static uiString sGenerating() 	{ return tr("Generating"); }
+    static uiString sGenerating()	{ return tr("Generating"); }
     static uiString sGeometry()		{ return tr("Geometry"); }
     static uiString sGo()	        { return tr("Go"); }
     static uiString sGreen()		{ return tr("Green"); }
@@ -427,6 +427,7 @@ public:
     static uiString sShow()             { return tr("Show"); }
     static uiString sShowIn();
     static uiString sSlice()		{ return tr("Slice"); }
+    static uiString sSource(int num=1)	{ return tr("Source",0,num); }
     static uiString sSouth(bool abb)	{ return abb ? tr("S"):tr("South"); }
     static uiString sSpecify();
     static uiString sSpecifyOut();
