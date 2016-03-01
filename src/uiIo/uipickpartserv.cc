@@ -53,12 +53,13 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , exppsdlg_(0)
     , manpicksetsdlg_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiPickPartServer,survChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
 }
 
 
 uiPickPartServer::~uiPickPartServer()
 {
+    detachAllNotifiers();
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );

@@ -313,9 +313,8 @@ SetMgr& SetMgr::getMgr( const char* nm )
 
     if ( !newmgr )
 	newmgr = new SetMgr( nm );
+
     *mgrs += newmgr;
-    IOM().surveyToBeChanged.notify( mCB(newmgr,SetMgr,survChg) );
-    IOM().entryRemoved.notify( mCB(newmgr,SetMgr,objRm) );
     return *newmgr;
 }
 
@@ -326,11 +325,16 @@ SetMgr::SetMgr( const char* nm )
     , setAdded(this), setChanged(this)
     , setDispChanged(this)
     , undo_( *new Undo() )
-{}
+{
+    mAttachCB( IOM().entryRemoved, SetMgr::objRm );
+    mAttachCB( IOM().surveyToBeChanged, SetMgr::survChg );
+    mAttachCB( IOM().applicationClosing, SetMgr::survChg );
+}
 
 
 SetMgr::~SetMgr()
 {
+    detachAllNotifiers();
     undo_.removeAll();
     delete &undo_;
 }

@@ -39,34 +39,29 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     for ( int ids=0; ids<sceneids.size(); ids++ )
 	addScene( sceneids[ids] );
 
-    appl.sceneMgr().treeToBeAdded.notify(
-			mCB(this,MeasureToolMan,sceneAdded) );
-    appl.sceneMgr().sceneClosed.notify(
-			mCB(this,MeasureToolMan,sceneClosed) );
-    appl.sceneMgr().activeSceneChanged.notify(
-			mCB(this,MeasureToolMan,sceneChanged) );
-    visBase::DM().selMan().selnotifier.notify(
-			mCB(this,MeasureToolMan,objSelected) );
-    IOM().surveyChanged.notify( mCB(this,MeasureToolMan,surveyChanged) );
-    picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
+    uiODSceneMgr& scenemgr = appl.sceneMgr();
+    mAttachCB( scenemgr.treeToBeAdded, MeasureToolMan::sceneAdded );
+    mAttachCB( scenemgr.sceneClosed, MeasureToolMan::sceneClosed );
+    mAttachCB( scenemgr.activeSceneChanged, MeasureToolMan::sceneChanged );
+    mAttachCB( visBase::DM().selMan().selnotifier, MeasureToolMan::objSelected);
+    mAttachCB( IOM().surveyChanged, MeasureToolMan::surveyChanged );
+    mAttachCB( picksetmgr_.locationChanged, MeasureToolMan::changeCB );
 }
 
 
 MeasureToolMan::~MeasureToolMan()
 {
-    appl_.sceneMgr().treeToBeAdded.remove(
-			mCB(this,MeasureToolMan,sceneAdded) );
-    appl_.sceneMgr().sceneClosed.remove(
-			mCB(this,MeasureToolMan,sceneClosed) );
-    appl_.sceneMgr().activeSceneChanged.remove(
-			mCB(this,MeasureToolMan,sceneChanged) );
-
-    visBase::DM().selMan().selnotifier.remove(
-			mCB(this,MeasureToolMan,objSelected) );
-    IOM().surveyChanged.remove( mCB(this,MeasureToolMan,surveyChanged) );
-    picksetmgr_.locationChanged.remove( mCB(this,MeasureToolMan,changeCB) );
-
+    detachAllNotifiers();
     delete measuredlg_;
+    if ( !appl_.applMgr().visServer() )
+	return;
+
+    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+    {
+	const int sceneid = sceneids_[idx];
+	appl_.applMgr().visServer()->removeObject( displayobjs_[idx], sceneid );
+	displayobjs_[idx]->unRef();
+    }
 }
 
 
@@ -296,6 +291,4 @@ void MeasureToolMan::surveyChanged( CallBacker* )
 {
     if ( measuredlg_ )
 	measuredlg_->close();
-
-    picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 }
