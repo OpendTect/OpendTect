@@ -659,7 +659,9 @@ bool VelocityGridder::usePar( const IOPar& par )
 
 od_int64 VelocityGridder::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
-{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+{
+    return 0;
+}
 
 
 } // namespace VolProc

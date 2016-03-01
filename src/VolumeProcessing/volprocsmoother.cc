@@ -142,7 +142,9 @@ Task* Smoother::createTask()
 
 od_int64 Smoother::extraMemoryUsage( OutputSlotID, const TrcKeySampling& hsamp,
 				     const StepInterval<int>& zsamp ) const
-{ return 2 * getBaseMemoryUsage( hsamp, zsamp ); }
+{
+    return getBaseMemoryUsage( hsamp, zsamp );
+}
 
 
 } // namespace VolProc

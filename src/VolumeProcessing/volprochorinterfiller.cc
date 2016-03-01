@@ -308,7 +308,9 @@ bool HorInterFiller::isOK() const
 
 od_int64 HorInterFiller::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
-{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+{
+    return 0;
+}
 
 
 } // namespace VolProc

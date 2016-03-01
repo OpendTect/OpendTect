@@ -449,8 +449,7 @@ od_int64 BodyFiller::extraMemoryUsage( OutputSlotID,
 
     const TrcKeyZSampling bodycs = implicitbody_->tkzs_;
     const StepInterval<int> bodyzrg(0, bodycs.zsamp_.nrSteps(), 1 );
-    return 2 * getBaseMemoryUsage( bodycs.hsamp_, bodyzrg ) +
-	   getBaseMemoryUsage( hsamp, zsamp );
+    return 2 * getBaseMemoryUsage( bodycs.hsamp_, bodyzrg );
 }
 
 

@@ -68,7 +68,9 @@ bool VolumeReader::usePar( const IOPar& pars )
 
 od_int64 VolumeReader::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
-{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+{
+    return 0;
+}
 
 
 } // namespace VolProc

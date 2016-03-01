@@ -111,7 +111,9 @@ Task* StatsCalculator::createTask()
 
 od_int64 StatsCalculator::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
-{ return  getBaseMemoryUsage( hsamp, zsamp ); }
+{
+    return 0;
+}
 
 
 //--------- StatsCalculatorTask -------------
