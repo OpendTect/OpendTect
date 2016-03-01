@@ -329,7 +329,8 @@ void uiSEGYReadStartInfo::man2DDefFlds()
 	    trcnrgengrp_ = new uiGroup( 0, "Trace number Generation" );
 	    trcnrgenstartfld_ = new uiLineEdit( trcnrgengrp_,
 		    IntInpSpec(1000), "Trace Number Start" );
-	    trcnrgenstartfld_->setToolTip( tr("Trace number start value") );
+	    trcnrgenstartfld_->setToolTip( tr("%1 start value")
+					   .arg( uiStrings::sTraceNumber() ) );
 	    trcnrgenstartfld_->editingFinished.notify( parchgcb );
 	    trcnrgenstartfld_->setStretch( 2, 1 );
 	    trcnrgenstepfld_ = new uiLineEdit( trcnrgengrp_,
@@ -442,6 +443,9 @@ void uiSEGYReadStartInfo::manPSDefFlds()
 }
 
 
+#define mJoinUiStrRange( txt )\
+    uiStrings::phrJoinStrings( uiStrings::txt, rangestr )
+
 void uiSEGYReadStartInfo::updateCellTexts()
 {
     mGetGeomType( gt );
@@ -460,11 +464,15 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	nrtrcsusrtxt = tr("(1 trace used)");
     else
     {
-	xittxt = tr("X-Coordinate range"); yittxt = tr("Y-Coordinate range");
-	ky1ittxt = is2d ? tr("Trace number range") : tr("Inline range");
-	ky2ittxt = is2d ? tr("Ref/SP number range") : tr("Crossline range");
+	const uiString rangestr = tr("range");
+	xittxt = mJoinUiStrRange( sXcoordinate() );
+	yittxt = mJoinUiStrRange( sYcoordinate() );
+	ky1ittxt = is2d ? mJoinUiStrRange( sTraceNumber() )
+			: mJoinUiStrRange( sInline() );
+	ky2ittxt = is2d ? mJoinUiStrRange( sSPNumber() )
+			: mJoinUiStrRange( sCrossline() );
 	if ( isps )
-	    offsittxt = tr("Offset range");
+	    offsittxt = mJoinUiStrRange( sOffset() );
 
 	if ( loaddef_.isRev0() )
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;

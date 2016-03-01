@@ -41,7 +41,7 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 	: mDefConstrList(isrel)
 {
     const StepInterval<float> limitrg( SI().zRange(false) );
-    makeInpFields( mToUiStringTodo(lbltxt), wstep, !othdom_ && 
+    makeInpFields( mToUiStringTodo(lbltxt), wstep, !othdom_ &&
 						       !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
@@ -449,7 +449,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	, inlfld_(0)
 {
     BinID stp( 0, 1 );
-    uiString lbl = tr("Trace number step");
+    uiString lbl = mJoinUiStrs( sTraceNumber(), sStep() );
     uiSpinBox* firstbox = 0;
     if ( !is2d )
     {

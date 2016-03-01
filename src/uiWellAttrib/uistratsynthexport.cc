@@ -135,7 +135,8 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     crnewfld_->valuechanged.notify( mCB(this,uiStratSynthExport,crNewChg) );
 
 
-    newlinenmfld_ = new uiGenInput( this, tr("New Line Name"), StringInpSpec());
+    newlinenmfld_ = new uiGenInput( this, mJoinUiStrs(sNew(),sLineName()),
+				    StringInpSpec() );
     newlinenmfld_->attach( alignedBelow, crnewfld_ );
     existlinenmsel_ = new uiSeis2DLineNameSel( this, true );
     existlinenmsel_->fillWithAll();
@@ -201,7 +202,7 @@ BufferString uiStratSynthExport::getWinTitle( const StratSynth& ss ) const
 void uiStratSynthExport::fillGeomGroup()
 {
     StringListInpSpec inpspec;
-    inpspec.addString(tr("Straight line")); 
+    inpspec.addString(tr("Straight line"));
     inpspec.addString(uiStrings::sPolygon());
     const bool haverl = SI().has3D();
     if ( haverl )

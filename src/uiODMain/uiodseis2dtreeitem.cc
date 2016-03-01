@@ -169,13 +169,13 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 
 	mnu.insertSeparator();
 	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
-	mInsertItm( dispmnu, tr("Line Names"), mDispNames, true );
+	mInsertItm( dispmnu, uiStrings::sLineName(mPlural), mDispNames, true );
 	mInsertItm( dispmnu, tr("2D Planes"), mDispPanels, true );
 	mInsertItm( dispmnu, tr("Line Geometry"), mDispPolyLines, true );
 	mnu.insertItem( dispmnu );
 
 	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
-	mInsertItm( hidemnu, tr("Line Names"), mHideNames, true );
+	mInsertItm( hidemnu, uiStrings::sLineName(mPlural), mHideNames, true );
 	mInsertItm( hidemnu, tr("2D Planes"), mHidePanels, true );
 	mInsertItm( hidemnu, tr("Line Geometry"), mHidePolyLines, true );
 	mnu.insertItem( hidemnu );

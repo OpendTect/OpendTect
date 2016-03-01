@@ -77,7 +77,8 @@ void uiWellTo2DLineDlg::createFields()
     rl_->ref();
     randto2dlinefld_ = new uiSeisRandTo2DBase( this, false );
 
-    linenmfld_ = new uiGenInput( this, tr("Line Name"),StringInpSpec("") );
+    linenmfld_ = new uiGenInput( this, uiStrings::sLineName(),
+				 StringInpSpec("") );
 }
 
 
@@ -169,7 +170,10 @@ bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
     }
     BufferString linenm = linenmfld_->text();
     if ( linenm.isEmpty() )
-	mErrRet(tr("Please enter a Line Name"))
+    {
+	mErrRet(tr("Please enter a %1")
+		   .arg(uiStrings::sLineName()))
+    }
 
     rl_->setName( linenm );
     if ( !randto2dlinefld_->checkInputs() )

@@ -321,6 +321,7 @@ public:
     static uiString sLat()		{ return tr("Latitude"); }
     static uiString sLayer()		{ return tr("Layer"); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
+    static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
     static uiString sLeft()		{ return tr("Left"); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
     static uiString sLoad();
@@ -424,6 +425,7 @@ public:
     static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift();
+    static uiString sSPNumber()		{ return tr("Shot-Point number"); }
     static uiString sShow()             { return tr("Show"); }
     static uiString sShowIn();
     static uiString sSlice()		{ return tr("Slice"); }
@@ -454,7 +456,8 @@ public:
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTop()		{ return tr("Top"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
-    static uiString sTrace(int num=1)	{ return tr("Trace", 0, num); }
+    static uiString sTrace(int num=1)	{ return tr("Trace",0,num); }
+    static uiString sTraceNumber()	{ return tr("Trace number"); }
     static uiString sTrack();
     static uiString sTracking()		{ return tr("Tracking"); }
     static uiString sTransparency()     { return tr("Transparency"); }

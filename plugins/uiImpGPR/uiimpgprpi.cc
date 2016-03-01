@@ -100,7 +100,8 @@ uiDZTImporter( uiParent* p )
     inpfld_ = new uiFileInput( this, "Input DZT file", fisu );
     inpfld_->valuechanged.notify( mCB(this,uiDZTImporter,inpSel) );
 
-    nrdeffld_ = new uiGenInput( this, "Trace number definition: start, step",
+    nrdeffld_ = new uiGenInput( this, tr("%1 definition: start, step")
+					.arg( uiStrings::sTraceNumber() ),
 				IntInpSpec(1), IntInpSpec(1) );
     nrdeffld_->attach( alignedBelow, inpfld_ );
     startposfld_ = new uiGenInput( this, "Start position (X,Y)",

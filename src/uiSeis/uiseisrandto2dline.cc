@@ -120,7 +120,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 
     const BufferString linenm = linenmfld_->getInput();
     if ( linenm.isEmpty() )
-	mErrRet( tr("Please enter a Line Name") )
+	mErrRet( tr("Please enter a %1").arg(uiStrings::sLineName()) )
 
     const int trcnrstart = trcnrfld_->getIntValue();
     if ( mIsUdf(trcnrstart) || trcnrstart <= 0 )
