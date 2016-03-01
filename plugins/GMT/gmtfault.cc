@@ -121,7 +121,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	strm << "Creating Fault --> " << fault3d->name() << " ...\n";
 	BufferString clr( " -W" );
 	usecoloryn ? clr.add( styles.get(midx) ) : clr.add( styles.get(0) );
-	*sd.ostrm << "> " << clr.buf() << std::endl;
+	*sd.ostrm << "> " << clr.buf() << "\n";
 
 	if( onzslice )
 	{
@@ -162,12 +162,12 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	    for ( int cidx=0; cidx<sz; cidx++ )
 	    {
 		if ( coordps->get(cidx) == -1 )
-		    *sd.ostrm << "> " << std::endl;
+		    *sd.ostrm << "> " << "\n";
 		else
 		{
 		    double x = clist->get( coordps->get(cidx) ).x;
 		    double y = clist->get( coordps->get(cidx) ).y;
-		    *sd.ostrm << x << " " << y << std::endl;
+		    *sd.ostrm << x << " " << y << "\n";
 		}
 	    }
 	}
@@ -190,7 +190,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	    {
 		double x = clist.get( idx ).x;
 		double y = clist.get( idx ).y;
-		*sd.ostrm << x << " " << y << std::endl;
+		*sd.ostrm << x << " " << y << "\n";
 	    }
 	}
     }

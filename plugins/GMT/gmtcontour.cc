@@ -183,7 +183,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 			      : hor->auxdata.getAuxDataVal( dataidx, posid );
 	if ( mIsUdf(val) ) continue;
 
-	*sdata.ostrm << pos.x << " " << pos.y << " " << val << std::endl;
+	*sdata.ostrm << pos.x << " " << pos.y << " " << val << "\n";
     }
 
     hor->unRef();
@@ -267,7 +267,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     StreamData sd = StreamProvider(cptfnm).makeOStream();
     if ( !sd.usable() ) return false;
 
-    *sd.ostrm << "#COLOR_MODEL = RGB" << std::endl;
+    *sd.ostrm << "#COLOR_MODEL = RGB" << "\n";
     const int nrsteps = rg.nrSteps();
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
@@ -277,7 +277,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	if ( idx )
 	{
 	    *sd.ostrm << val << "\t";
-	    mPrintCol( col, std::endl );
+	    mPrintCol( col, "\n" );
 	}
 
 	if ( idx < nrsteps )
@@ -289,8 +289,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 
     const Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
     const Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
-    *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, std::endl );
-    *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, std::endl );
+    *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, "\n" );
+    *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, "\n" );
     sd.close();
     return true;
 }

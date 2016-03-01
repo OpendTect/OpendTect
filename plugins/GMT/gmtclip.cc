@@ -101,7 +101,7 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
 	mErrStrmRet("Failed")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
+	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << "\n";
 
     sd.close();
     strm << "Done" << od_endl;

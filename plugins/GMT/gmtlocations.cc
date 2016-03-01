@@ -211,7 +211,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
+	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << "\n";
 
     sd.close();
     strm << "Done" << od_endl;
@@ -312,7 +312,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
+	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << "\n";
 
     sd.close();
 
@@ -443,7 +443,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 	    mErrStrmRet(BufferString("Cannot get location for ",ioobj->name()))
 
 	surfcoords += maploc;
-	*sd.ostrm << maploc.x << " " << maploc.y << " " << sz << std::endl;
+	*sd.ostrm << maploc.x << " " << maploc.y << " " << sz << "\n";
     }
 
     sd.close();
@@ -482,7 +482,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     {
 	Coord pos = surfcoords[idx];
 	*sd.ostrm << pos.x << " " << pos.y << " " << fontsz << " " << 0 << " ";
-	*sd.ostrm << 4 << " " << alstr << " " << wellnms.get(idx) << std::endl;
+	*sd.ostrm << 4 << " " << alstr << " " << wellnms.get(idx) << "\n";
     }
 
     sd.close();
