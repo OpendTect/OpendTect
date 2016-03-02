@@ -28,20 +28,11 @@ public:
 
 			ProgressRecorder();
 			~ProgressRecorder();
-
     void		reset();
-
-    BufferString	name_;
-    od_int64		nrdone_;
-    od_int64		totalnr_;
-    uiString		message_;
-    uiString		nrdonetext_;
-    bool		isstarted_;
-    bool		isfinished_;
-    ProgressMeter*	forwardto_;
 
     void		setFrom(const Task&);
 
+    void		setForwardTo(ProgressMeter*);
     virtual void	setStarted();
     virtual void	setFinished();
     virtual void	setName(const char*);
@@ -51,11 +42,27 @@ public:
     virtual void	setNrDoneText(const uiString&);
     virtual void	operator++();
 
-    virtual od_int64	nrDone() const			{ return nrdone_; }
-    virtual void	skipProgress( bool yn )
-			{ if ( forwardto_ ) forwardto_->skipProgress( yn ); }
+    const char*		name() const;
+    virtual od_int64	nrDone() const;
+    od_int64		totalNr() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
+    bool		isStarted() const;
+    bool		isFinished() const;
+    ProgressMeter*	forwardTo() const;
+
+    virtual void	skipProgress(bool);
 
 protected:
+
+    BufferString	name_;
+    od_int64		nrdone_;
+    od_int64		totalnr_;
+    uiString		message_;
+    uiString		nrdonetext_;
+    bool		isstarted_;
+    bool		isfinished_;
+    ProgressMeter*	forwardto_;
 
     Threads::Lock&	lock_;
 

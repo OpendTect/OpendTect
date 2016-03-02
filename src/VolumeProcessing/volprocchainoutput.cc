@@ -35,7 +35,7 @@ VolProc::ChainOutput::ChainOutput()
     , progresskeeper_(*new ProgressRecorder)
 {
     progressmeter_ = &progresskeeper_;
-    progresskeeper_.message_ = tr("Reading Volume Processing Specification");
+    progresskeeper_.setMessage( tr("Reading Volume Processing Specification") );
 }
 
 
@@ -64,7 +64,7 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
 
 void VolProc::ChainOutput::setProgressMeter( ProgressMeter* pm )
 {
-    progresskeeper_.forwardto_ = pm;
+    progresskeeper_.setForwardTo( pm );
 }
 
 
@@ -104,7 +104,7 @@ void VolProc::ChainOutput::createNewChainExec()
 
 int VolProc::ChainOutput::retError( const uiString& msg )
 {
-    progresskeeper_.message_ = msg;
+    progresskeeper_.setMessage( msg );
     return ErrorOccurred();
 }
 
@@ -120,25 +120,25 @@ int VolProc::ChainOutput::retMoreToDo()
 
 od_int64 VolProc::ChainOutput::nrDone() const
 {
-    return progresskeeper_.nrdone_;
+    return progresskeeper_.nrDone();
 }
 
 
 od_int64 VolProc::ChainOutput::totalNr() const
 {
-    return progresskeeper_.totalnr_;
+    return progresskeeper_.totalNr();
 }
 
 
 uiString VolProc::ChainOutput::uiNrDoneText() const
 {
-    return progresskeeper_.nrdonetext_;
+    return progresskeeper_.nrDoneText();
 }
 
 
 uiString VolProc::ChainOutput::uiMessage() const
 {
-    return progresskeeper_.message_;
+    return progresskeeper_.message();
 }
 
 
@@ -202,9 +202,12 @@ int VolProc::ChainOutput::getChain()
 		tr("Volume Processing with id: %1").arg(chainid_) ) );
 
     chain_ = new Chain; chain_->ref();
-    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,
-					    progresskeeper_.message_) )
+    uiString errmsg;
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
+    {
+	progresskeeper_.setMessage( errmsg );
 	return ErrorOccurred();
+    }
     else if ( chain_->nrSteps() < 1 )
 	return retError( tr("Empty Volume Processing Chain - nothing to do.") );
 
@@ -214,7 +217,7 @@ int VolProc::ChainOutput::getChain()
 		tr("First step in Volume Processing Chain (%1) requires input."
 		    "\nIt can thus not be first.").arg( step0.userName() ) );
 
-    progresskeeper_.message_ = tr("Creating Volume Processor");
+    progresskeeper_.setMessage( tr("Creating Volume Processor") );
     return MoreToDo();
 }
 
@@ -292,9 +295,9 @@ int VolProc::ChainOutput::setNextChunk()
     if ( nrexecs_ < 2 )
 	return retMoreToDo();
 
-    progresskeeper_.message_ =
+    progresskeeper_.setMessage(
 	    tr("\nStarting new Volume Processing chunk %1-%2.\n")
-	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() );
+	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ) );
     return MoreToDo();
 }
 
@@ -414,7 +417,7 @@ void VolProc::ChainOutput::reportFinished( ChainOutputStorer& storer )
     {
 	if ( chainexec_ )
 	    chainexec_->setProgressMeter( 0 );
-	progresskeeper_.message_ = storer.errmsg_;
+	progresskeeper_.setMessage( storer.errmsg_ );
 	storererr_ = true;
     }
 }

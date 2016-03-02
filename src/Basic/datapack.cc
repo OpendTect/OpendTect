@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "od_ostream.h"
 #include "envvars.h"
+#include "msgh.h"
 
 #include <iostream>
 
