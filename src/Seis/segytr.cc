@@ -526,7 +526,7 @@ bool SEGYSeisTrcTranslator::initRead_()
     if ( !readTapeHeader() || !readTraceHeadBuffer() )
 	return false;
 
-    if ( forcedrev_ < 1 )
+    if ( forcedrev_ == 0 )
 	trchead_.isrev0_ = true;
     trchead_.initRead();
     if ( tarcds_.isEmpty() )
