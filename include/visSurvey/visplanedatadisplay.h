@@ -18,13 +18,14 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "oduicommon.h"
 #include "undo.h"
+#include "visdepthtabplanedragger.h"
+#include "vistexturerect.h"
+#include "vistransform.h"
 
 template <class T> class Array2D;
 namespace visBase
 {
-    class DepthTabPlaneDragger;
     class GridLines;
-    class TextureRectangle;
 }
 
 class BinIDValueSet;
