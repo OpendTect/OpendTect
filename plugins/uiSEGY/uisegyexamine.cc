@@ -94,9 +94,9 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
 	const int tidx = icol + 1;
-	BufferString tt( "Trace header info from ", tidx );
-	tt.add( getRankPostFix(tidx) ).add( " trace" );
-	tbl_->setColumnLabel( icol, toString(tidx) );
+	uiString tt( tr("Trace header info from %1").arg(tidx) );
+	tt.append(" %1 trace").arg(getRankPostFix(tidx));
+	tbl_->setColumnLabel( icol, toUiString(tidx) );
 	tbl_->setColumnToolTip( icol, tt );
 	tbl_->setColumnReadOnly( icol, true );
     }
@@ -117,7 +117,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     hsplit->addGroup( txtgrp );
     hsplit->addGroup( logrp );
 
-    toStatusBar( setup_.fs_.dispName(), 1 );
+    toStatusBar( toUiString(setup_.fs_.dispName()), 1 );
     outInfo( "Opening input" );
     rdr_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
@@ -162,16 +162,19 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 }
 
 
-#define mGetWinTile() \
-    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() ); \
-    BufferString wintitle( "First ", tbuf_.size(), " traces from " ); \
-    wintitle.add( fnm )
+uiString uiSEGYExamine::sGetWinTitle()
+{
+    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() ); 
+    
+    return ( tr("First %1 traces from %2").arg(tbuf_.size())
+			     .arg(fnm) );
+}
 
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
-    mGetWinTile();
+    sGetWinTitle();
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
-				uiSeisTrcBufViewer::Setup(wintitle) );
+				uiSeisTrcBufViewer::Setup(sGetWinTitle()) );
     vwr->selectDispTypes( true, true );
     vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "sample value" );
     vwr->start(); vwr->handleBufChange();
@@ -180,13 +183,13 @@ void uiSEGYExamine::dispSeis( CallBacker* )
 
 void uiSEGYExamine::dispHist( CallBacker* )
 {
-    mGetWinTile();
+    sGetWinTitle();
     SeisTrcBufArray2D a2d( &tbuf_, 0 );
     uiStatsDisplay::Setup su; su.withname( false );
     uiStatsDisplayWin* mw = new uiStatsDisplayWin( this, su, 1, false );
     mw->statsDisplay(0)->setData( &a2d );
     mw->setDeleteOnClose( true );
-    mw->setCaption( wintitle );
+    mw->setCaption( sGetWinTitle() );
     mw->show();
 }
 
@@ -236,6 +239,30 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
     if ( !trans )
 	{ emsg = "Internal: cannot obtain SEG-Y Translator";
+		delete rdr; return 0; }
+
+    return rdr;
+}
+
+
+SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
+					 uiString& emsg )
+{
+    IOObj* ioobj = su.fs_.getIOObj( true );
+    if ( !ioobj )
+	return 0;
+
+    IOM().commitChanges( *ioobj );
+    su.fp_.fillPar( ioobj->pars() );
+
+    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
+    delete ioobj;
+    if ( !rdr->errMsg().isEmpty() || !rdr->prepareWork(Seis::PreScan) )
+	{ emsg = rdr->errMsg(); delete rdr; return 0; }
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
+    if ( !trans )
+	{ emsg = tr("Internal: cannot obtain SEG-Y Translator");
 		delete rdr; return 0; }
 
     return rdr;
@@ -381,5 +408,5 @@ bool uiSEGYExamine::rejectOK(CallBacker*)
 
 void uiSEGYExamine::outInfo( const char* txt )
 {
-    toStatusBar( txt, 0 );
+    toStatusBar( mToUiStringTodo(txt), 0 );
 }

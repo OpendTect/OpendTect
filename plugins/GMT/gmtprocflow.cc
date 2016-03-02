@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gmtprocflowtr.h"
 #include "ascstream.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
 uiString ODGMTProcFlowTranslatorGroup::sTypeName(int num)
@@ -73,6 +74,48 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
 	bs = tr->write( pf, *conn );
 
     return bs.isEmpty();
+}
+
+
+bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
+					uiString& str )
+{
+    if ( !ioobj ) { str = uiStrings::phrCannotFind(tr("object in data base")); 
+								return false; }
+    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> trans,
+		 ioobj->createTranslator());
+    if ( !trans ) { str = tr("Selected object is not a GMT flow"); 
+								return false; }
+
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+        { str = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
+								 return false; }
+    str = mToUiStringTodo(trans->read( pf, *conn ));
+    return str.isEmpty();
+}
+
+
+bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
+				     const IOObj* ioobj, uiString& str )
+{
+    if ( !ioobj ) { str = uiStrings::phrCannotCreateDBEntryFor(
+					   tr("current flow")); return false; }
+    mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> trans,
+		 ioobj->createTranslator());
+
+    if ( !trans ) { str = tr("Selected object is not a GMT flow");
+								return false;}
+
+    str = uiStrings::sEmptyString();
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
+    if ( !conn )
+        { str = uiStrings::phrCannotOpen(
+				    toUiString(ioobj->fullUserExpr(false))); }
+    else
+	str = mToUiStringTodo(trans->write( pf, *conn ));
+
+    return str.isEmpty();
 }
 
 
