@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -15,7 +15,7 @@
 <context>
     <name>ODGMTProcFlowTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../plugins/GMT/gmtprocflow.cc" line="+17"/>
+        <location filename="../../../plugins/GMT/gmtprocflow.cc" line="+18"/>
         <source>GMT process flow</source>
         <translation>
             <numerusform>GMT process flow</numerusform>
@@ -141,7 +141,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+212"/>
+        <location line="+215"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -149,7 +149,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+66"/>
+        <location line="+69"/>
         <source>input file</source>
         <translation>
             <numerusform>input file</numerusform>
@@ -313,7 +313,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+189"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+191"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
@@ -337,7 +337,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+35"/>
+        <location line="+36"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
@@ -459,6 +459,14 @@
     </message>
     <message numerus="yes">
         <location line="+2"/>
+        <source>Line Style</source>
+        <translation>
+            <numerusform>Line Style</numerusform>
+            <numerusform>Line Styles</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
         <source>Lithology</source>
         <translation>
             <numerusform>Lithology</numerusform>
