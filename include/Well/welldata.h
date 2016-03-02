@@ -107,9 +107,8 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public NamedObject
-{ mRefCountImplWithDestructor(Data, virtual ~Data(),
-{prepareForDelete(); delete this; } );
+mExpClass(Well) Data : public NamedObject, public RefCount::Referenced
+{
 public:
 
 				Data(const char* nm=0);
@@ -158,7 +157,8 @@ public:
     Notifier<Well::Data>	reloaded;
 
 protected:
-    void		prepareForDelete() const;
+			~Data();
+    void		prepareForDelete();
 
     Info		info_;
     mutable MultiID	mid_;

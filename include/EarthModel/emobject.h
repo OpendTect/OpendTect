@@ -106,10 +106,8 @@ public:
 \brief Base class for all EarthModel objects.
 */
 
-mExpClass(EarthModel) EMObject : public CallBacker
+mExpClass(EarthModel) EMObject : public CallBacker, public RefCount::Referenced
 {
-mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
-{ prepareForDelete(); delete this; } );
 public:
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
@@ -245,10 +243,11 @@ public:
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
 protected:
+				~EMObject();
     				EMObject( EMManager& );
     				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
-    virtual void		prepareForDelete() const;
+    virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
     const OD::MarkerStyle3D&	preferredMarkerStyle3D() const;
     void			setPreferredMarkerStyle3D(

@@ -193,7 +193,7 @@ Well::Data::~Data()
 }
 
 
-void Well::Data::prepareForDelete() const
+void Well::Data::prepareForDelete()
 {
     Well::MGR().removeObject( this );
 }

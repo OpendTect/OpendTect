@@ -89,6 +89,7 @@ set( OD_MODULE_SOURCES
 	progressmeter.cc
 	qstreambuf.cc
 	${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc
+	refcount.cc
 	repos.cc
 	rowcol.cc
 	safefileio.cc

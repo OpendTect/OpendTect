@@ -86,8 +86,8 @@ a definition string that defines what the attribute calculates.
 Each Desc has DescID that is unique within it's DescSet.
 */
 
-mExpClass(AttributeEngine) Desc
-{ mRefCountImpl(Desc)
+mExpClass(AttributeEngine) Desc : public RefCount::Referenced
+{
 public:
 
     enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
@@ -209,6 +209,7 @@ public:
     static const char*		sKeyLineDipComp();
 
 protected:
+				~Desc();
 
     bool			setInput_(int,Desc*);
     Param*			findParam(const char* key);

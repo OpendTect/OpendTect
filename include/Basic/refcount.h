@@ -15,9 +15,10 @@ ________________________________________________________________________
 
 #include "atomic.h"
 #include "objectset.h"
+#include "thread.h"
 
-
-#define mInvalidRefCount (-1)
+template <class T> class ObsPtr;
+template <class T> class RefMan;
 
 
 /*!
@@ -32,49 +33,23 @@ ________________________________________________________________________
 \section example Example usage       
   A refcount class is set up by:
   \code
-  class A
+  class A : public RefCount::Referenced
   {
-     mRefCountImpl(A);
      public:
         //Your class stuff
   };
   \endcode
 
-  This expands to a number of class variables and functions:
+  This gives access to a number of class variables and functions:
   \code
   public:
-      void			A::ref() const;
-      void			A::unRef() const;
+      void			ref() const;
+      void			unRef() const;
 
-      void			A::unRefNoDelete() const;
+      void			unRefNoDelete() const;
+   \endcode
 
-				//For debugging only Don't use
-      bool			A::refIfReffed() const;
-
-      int			A::nrRefs() const;
-  private:
-    virtual void		A::refNotify() const {}
-    virtual void		A::unRefNotify() const {}
-    virtual void		A::unRefNoDeleteNotify() const {}
-    mutable ReferenceCounter	A::refcount_;
-  protected:
-    				A::~A();
-  \endcode
-
-  The macro will define a protected destructor, so you have to implement one
-  (even if it's a dummy {}).
-
-  If you don't want a destructor on your class use the mRefCountImplNoDestructor
-  instead:
-
-  \code
-  class A
-  {
-      mRefCountImplNoDestructor(A);
-  public:
-          //Your class stuff
-  };
-  \endcode
+  You should ensure that the destructor is not public in your class.
 
 \section unrefnodel unRefNoDelete
   The unRefNoDelete() is only used when you want to bring the class back to the
@@ -116,58 +91,146 @@ ________________________________________________________________________
   \code
       RefMan<A> variable = new A;
   \endcode
+
+  Further, there are Observation pointers that can observe your ref-counted
+  objects.
+
+  \code
+     A* variable = new A;
+     variable->ref();
+
+     ObsPtr<A> ptr = variable; //ptr is set
+     variable->unRef();        //ptr becomes null
+  \endcode
+
 */
 
 //!\cond
-#define mRefCountImplWithDestructor(ClassName, DestructorImpl, delfunc ) \
-public: \
-    void	ref() const \
-		{ \
-		    refcount_.ref(); \
-		    refNotify(); \
-		} \
-    bool	refIfReffed() const \
-		{ \
-		    if ( !refcount_.refIfReffed() ) \
-			return false; \
-		    \
-		    refNotify(); \
-		    return true; \
-		} \
-    void	unRef() const \
-		{ \
-		    unRefNotify(); \
-		    if ( refcount_.unRef() ) \
-		    	delfunc; \
-		    return; \
-		} \
- \
-    void	unRefNoDelete() const \
-		{ \
-    		    unRefNoDeleteNotify(); \
-		    refcount_.unRefDontInvalidate(); \
-		} \
-    int		nrRefs() const { return refcount_.count(); } \
-private: \
-    virtual void		refNotify() const {} \
-    virtual void		unRefNotify() const {} \
-    virtual void		unRefNoDeleteNotify() const {} \
-    mutable ReferenceCounter	refcount_;	\
-protected: \
-    		DestructorImpl; \
+namespace RefCount
+{
+class ObsPtrBase;
+
+/*! Actual implementation of the reference counting. Normally not used by
+    application developers. Use mRefCountImpl marcro instead. */
+
+mClass(Basic) Counter
+{
+public:
+    void		ref();
+    bool		tryRef();
+			/*!<Refs if not invalid. Note that you have to have
+			    guarantees that object is not dead. *. */
+
+    bool		unRef();
+			/*!<Unref to zero will set it to an deleted state,
+			 and return true. */
+
+    void		unRefDontInvalidate();
+			//!<Will allow it to go to zero
+
+    od_int32		count() const { return count_.get(); }
+    bool		refIfReffed();
+			//!<Don't use in production, for debugging
+
+    void		clearAllObservers();
+    void		addObserver(ObsPtrBase* obj);
+    void		removeObserver(ObsPtrBase* obj);
+
+			Counter() : count_( 0 ) {}
+			Counter(const Counter& a);
+
+    static od_int32		cInvalidRefCount();
+
 private:
+    ObjectSet<ObsPtrBase>	observers_;
+    Threads::SpinLock		observerslock_;
 
-//!\endcond
+    Threads::Atomic<od_int32>	count_;
+};
 
-//!Macro to setup a class with destructor for reference counting
-#define mRefCountImpl(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
+/*!Base class for reference counted object. Inhereit and refcounting will be
+   enabled. Ensure to make your destructor protected to enforce correct
+   usage. */
 
-//!Macro to setup a class without destructor for reference counting
-#define mRefCountImplNoDestructor(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
+mExpClass(Basic) Referenced
+{
+public:
+    void			ref() const;
+    void			unRef() const;
+    void			unRefNoDelete() const;
 
-//!Un-reference class pointer, and set it to zero. Works for null-pointers. 
+protected:
+    virtual			~Referenced()			{}
+private:
+    friend			class ObsPtrBase;
+    virtual void		refNotify() const		{}
+    virtual void		unRefNotify() const		{}
+    virtual void		unRefNoDeleteNotify() const	{}
+    virtual void		prepareForDelete()		{}
+				/*!<Override to be called just before delete */
+
+    mutable Counter		refcount_;
+
+public:
+    int				nrRefs() const;
+				//!<Don't use in production, for debugging
+    bool			refIfReffed() const;
+				//!<Don't use in production, for debugging
+    bool			tryRef() const;
+				//!<Not for normal use. May become private
+
+    void			addObserver(ObsPtrBase* obs);
+				//!<Not for normal use. May become private
+    void			removeObserver(ObsPtrBase* obs);
+				//!<Not for normal use. May become private
+
+};
+
+
+mExpClass(Basic) ObsPtrBase
+{
+public:
+				operator bool()  const;
+    bool			operator!() const;
+protected:
+				ObsPtrBase();
+    void			set(Referenced*);
+
+    friend class		Counter;
+
+    void			clearPtr();
+    mutable Threads::SpinLock	lock_;
+    Referenced*			ptr_;
+};
+
+
+}; //RefCount namespace end
+
+
+/*!Observes a refereence counted object. If you wish to use the pointer,
+   you have to obtain it using get().
+*/
+template <class T>
+mClass(Basic) ObsPtr : public RefCount::ObsPtrBase
+{
+public:
+			ObsPtr(RefCount::Referenced* p = 0) { set(p); }
+			ObsPtr(const ObsPtr<T>& p) { set( p.get().ptr() ); }
+			ObsPtr(const RefMan<T>& p) { set( p.ptr() ); }
+			~ObsPtr() { set( 0 ); }
+
+    ObsPtr<T>&		operator=(const ObsPtr<T>& p)
+			{ set(p.get().ptr()); return *this; }
+    RefMan<T>&		operator=(RefMan<T>& p)
+			{ set(p.ptr()); return p; }
+    T*			operator=(T* p)
+			{ set(p); return p; }
+
+    RefMan<T>		get() const;
+};
+
+
+//!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline
 void unRefAndZeroPtr( T*& ptr )
 {
@@ -205,141 +268,97 @@ void refPtr( const T* ptr )
 
 mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
 mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDeletePtr( os[idx] ),
-			  os.plainErase() )
+			 os.plainErase() )
 mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
 
 
-/*! Actual implementation of the reference counting. Normally not used by
-    application developers. Use mRefCountImpl marcro instead. */
 
-mClass(Basic) ReferenceCounter
+//Implementations and legacy stuff below
+
+template <class T>
+RefMan<T> ObsPtr<T>::get() const
 {
-public:
-    inline void		ref();
-    inline bool		unRef();
-			/*!<Unref to zero will set it to an deleted state,
-			 and return true. */
+    RefMan<T> res = 0;
+    if ( ptr_ && ptr_->tryRef() )
+    {
+	//reffed once through tryRef
+	res = (T*) ptr_;
+	
+	//unref the ref from tryRef
+	ptr_->unRef();
+    }
     
-    inline void		unRefDontInvalidate();
-			//!<Will allow it to go to zero
-    
-    od_int32		count() const { return count_.get(); }
-    inline bool		refIfReffed();
-    			//!<Don't use in production, for debugging
-    
+    return res;
+}
+
+//Legacy macros with old implementations. Deprecated soon.
+#define mRefCountImplWithDestructor(ClassName, DestructorImpl, delfunc ) \
+public: \
+    void	ref() const \
+		{ \
+		    refcount_.ref(); \
+		    refNotify(); \
+		} \
+    bool	refIfReffed() const \
+		{ \
+		    if ( !refcount_.refIfReffed() ) \
+			return false; \
+		    \
+		    refNotify(); \
+		    return true; \
+		} \
+    void	unRef() const \
+		{ \
+		    unRefNotify(); \
+		    if ( refcount_.unRef() ) \
+		    { \
+			refcount_.clearAllObservers(); \
+			delfunc; \
+		    } \
+		    return; \
+		} \
+ \
+    void	unRefNoDelete() const \
+		{ \
+		    unRefNoDeleteNotify(); \
+		    refcount_.unRefDontInvalidate(); \
+		} \
+    int		nrRefs() const { return refcount_.count(); } \
+    \
+private: \
+    virtual void		refNotify() const {} \
+    virtual void		unRefNotify() const {} \
+    virtual void		unRefNoDeleteNotify() const {} \
+    mutable RefCount::Counter	refcount_;	\
+protected: \
+    friend class ObsPtr<ClassName>; \
+    bool	tryRef() const \
+    { \
+	if ( refcount_.tryRef() ) { refNotify(); return true; } \
+	    return false; \
+    }\
+    void	addObserver(RefCount::ObsPtrBase* obs) \
+    { \
+	refcount_.addObserver( obs ); \
+    } \
+    void removeObserver(RefCount::ObsPtrBase* obs) \
+    { \
+	refcount_.removeObserver( obs ); \
+    } \
+		DestructorImpl; \
 private:
-    
-    Threads::Atomic<od_int32>	count_;
-};
+
+//!\endcond
+
+//!Macro to setup a class with destructor for reference counting
+#define mRefCountImpl(ClassName) \
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
+
+//!Macro to setup a class without destructor for reference counting
+#define mRefCountImplNoDestructor(ClassName) \
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
 
 
-#ifdef __win__
-# define mDeclareCounters	od_int32 oldcount = count_.get(), newcount = 0
-#else
-# define mDeclareCounters    	od_int32 oldcount = count_.get(), newcount;
-#endif
-
-inline void ReferenceCounter::ref()
-{
-    mDeclareCounters;
-
-    do
-    {
-	if ( oldcount==mInvalidRefCount )
-	{
-	    pErrMsg("Invalid ref");
-#ifdef __debug__
-	    DBG::forceCrash(false);
-	    newcount = 0; //To fool unitialized code warning
-#else
-	    newcount = 1; //Hoping for the best
-#endif
-	}
-	else
-	{
-	    newcount = oldcount+1;
-	}
-	
-    } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
-}
-
-
-inline bool ReferenceCounter::unRef()
-{
-    mDeclareCounters;
-
-    do
-    {
-	if ( oldcount==mInvalidRefCount )
-	{
-	    pErrMsg("Invalid reference.");
-#ifdef __debug__
-	    DBG::forceCrash(false);
-	    newcount = 0; //To fool unitialized code warning
-#else
-	    return false;
-#endif
-	}
-	else if ( oldcount==1 )
-	    newcount = mInvalidRefCount;
-	else
-	    newcount = oldcount-1;
-	
-    } while ( !count_.setIfValueIs(oldcount,newcount, &oldcount ) );
-    
-    return newcount==mInvalidRefCount;
-}
-
-
-inline bool ReferenceCounter::refIfReffed()
-{
-    mDeclareCounters;
-
-    do
-    {
-	if ( oldcount==mInvalidRefCount )
-	{
-	    pErrMsg("Invalid ref");
-#ifdef __debug__
-	    DBG::forceCrash(false);
-#else
-	    return false; //Hoping for the best
-#endif
-	}
-	else if ( !oldcount )
-	    return false;
-	
-	newcount = oldcount+1;
-	
-    } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
-    
-    return true;
-}
-
-
-inline void ReferenceCounter::unRefDontInvalidate()
-{
-    mDeclareCounters;
-
-    do
-    {
-	if ( oldcount==mInvalidRefCount )
-	{
-	    pErrMsg("Invalid reference.");
-#ifdef __debug__
-	    DBG::forceCrash(false);
-	    newcount = 0; //Fool the unitialized warning
-#else
-	    newcount = 0; //Hope for the best
-#endif
-	}
-	else
-	    newcount = oldcount-1;
-	
-    } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
-}
-
-#undef mDeclareCounters
 
 
 #endif

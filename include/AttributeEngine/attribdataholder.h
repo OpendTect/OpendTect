@@ -77,8 +77,8 @@ protected:
 \brief Class that holds 2d seismic data or attribute data.
 */
 
-mExpClass(AttributeEngine) Data2DHolder
-{ mRefCountImpl(Data2DHolder);
+mExpClass(AttributeEngine) Data2DHolder : public RefCount::Referenced
+{
 public:
 
     inline int			size() const	{ return dataset_.size(); }
@@ -92,6 +92,8 @@ public:
 					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }
+protected:
+				~Data2DHolder();
 };
 
 

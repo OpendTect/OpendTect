@@ -62,8 +62,8 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-mExpClass(visBase) DataObject : public CallBacker
-{ mRefCountImpl(DataObject);
+mExpClass(visBase) DataObject : public CallBacker, public RefCount::Referenced
+{
 public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
@@ -163,7 +163,7 @@ public:
     static osgViewer::CompositeViewer* getCommonViewer();
 
 protected:
-
+				~DataObject();
     virtual osg::StateSet*	getStateSet();
     void			doAddNodeState(NodeState* ns);
 

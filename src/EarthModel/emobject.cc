@@ -72,7 +72,7 @@ EMObject::~EMObject()
 }
 
 
-void EMObject::prepareForDelete() const
+void EMObject::prepareForDelete()
 {
     manager_.removeObject( this );
 }
