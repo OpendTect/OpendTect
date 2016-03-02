@@ -206,7 +206,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 	    msg.append("\n-> The file may not be SEG-Y, or byte-swapped");
     }
     else if ( nr == cSEGYWarnPos )
-    {	
+    {
 	if (nr<=1)
 	    msg.append( tr("Bad position found. Such traces are "
                 "ignored.\nFirst occurrence %1").arg(detail) );
@@ -526,7 +526,7 @@ bool SEGYSeisTrcTranslator::initRead_()
     if ( !readTapeHeader() || !readTraceHeadBuffer() )
 	return false;
 
-    if ( forcedrev_ < 1 )
+    if ( forcedrev_ == 0 )
 	trchead_.isrev0_ = true;
     trchead_.initRead();
     if ( tarcds_.isEmpty() )
