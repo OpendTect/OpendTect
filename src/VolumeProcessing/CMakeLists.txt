@@ -13,15 +13,18 @@ set( OD_TEST_PROGS volprocchain.cc )
 set( OD_MODULE_SOURCES
 	initvolumeprocessing.cc
 	velocitygridder.cc
-	volprocchain.cc
 	volprocattrib.cc
+	volprocbodyfiller.cc
+	volprocchain.cc
+	volprocchainexec.cc
+	volprocchainoutput.cc
 	volprochorinterfiller.cc
 	volproclateralsmoother.cc
 	volprocsmoother.cc
 	volprocstatscomputer.cc
-	volproctrans.cc
-	volprocbodyfiller.cc
 	volprocsurfacelimitedfiller.cc
+	volproctrans.cc
+	volprocstep.cc
 	volprocvolreader.cc
 	wellloginterpolator.cc
 )

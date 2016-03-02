@@ -338,8 +338,8 @@ LateralSmoother::~LateralSmoother()
 TrcKeySampling LateralSmoother::getInputHRg( const TrcKeySampling& hrg ) const
 {
     TrcKeySampling res = hrg;
-    res.start_.inl() = hrg.start_.inl() - res.step_.inl() * pars_.stepout_.row();
-    res.start_.crl() = hrg.start_.crl() - res.step_.crl() * pars_.stepout_.col();
+    res.start_.inl() = hrg.start_.inl() - res.step_.inl() *pars_.stepout_.row();
+    res.start_.crl() = hrg.start_.crl() - res.step_.crl() *pars_.stepout_.col();
     res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * pars_.stepout_.row();
     res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * pars_.stepout_.col();
     return res;
@@ -432,9 +432,9 @@ Task* LateralSmoother::createTask()
     Interval<int> crlsamples(inphs.crlRange().nearestIndex(tks_.start_.crl()),
 			     inphs.crlRange().nearestIndex(tks_.stop_.crl()));
 
-    const int inpz0 = 
+    const int inpz0 =
 	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
-    const int outpz0 = 
+    const int outpz0 =
 	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
 
     return new LateralSmootherTask( input->data( 0 ),
@@ -448,5 +448,13 @@ Task* LateralSmoother::createTask()
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 }
+
+
+od_int64 LateralSmoother::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return getBaseMemoryUsage( hsamp, zsamp );
+}
+
 
 } // namespace VolProc

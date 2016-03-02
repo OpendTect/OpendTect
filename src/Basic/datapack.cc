@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "od_ostream.h"
+#include "envvars.h"
+#include "msgh.h"
 
 #include <iostream>
 
@@ -30,6 +32,27 @@ Threads::Lock DataPackMgr::mgrlistlock_;
 ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 
 Threads::Atomic<int> curid( DataPack::cNoID() );
+
+#ifdef __debug__
+# define mTrackDPMsg(msg) \
+    if ( trackDataPacks() ) \
+	DBG::message( msg )
+#else
+# define mTrackDPMsg(msg) \
+    if ( trackDataPacks() ) \
+	UsrMsg( msg, MsgClass::Info )
+#endif
+
+static bool trackDataPacks()
+{
+    mDefineStaticLocalObject( bool, dotrack,
+			      = GetEnvVarYN( "OD_TRACK_DATAPACKS" ) );
+#ifdef __debug__
+    if ( !DBG::isOn() )
+	DBG::turnOn( DBG_DBG );
+#endif
+    return dotrack;
+}
 
 
 DataPack::ID DataPack::getNewID()
@@ -212,6 +235,7 @@ void DataPackMgr::add( DataPack* dp )
 
     mGetWriteLocker( rwlock_, lckr );
     packs_ += dp;
+    mTrackDPMsg( BufferString("[DP]: add ",dp->id()) );
     lckr.unlockNow();
     newPack.trigger( dp );
 }
@@ -224,12 +248,18 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
     Threads::Locker lckr( dp->nruserslock_ );
     dp->nrusers_++;
     dp->setManager( this );
+    mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id()) );
     lckr.unlockNow();
 
     mGetWriteLocker( rwlock_, rwlckr );
     const int idx = packs_.indexOf( dp );
     if ( idx==-1 )
 	packs_ += dp;
+    else
+    {
+	mTrackDPMsg( BufferString("[DP]:    (was already present, nrusers=",
+			dp->nrusers_,")") );
+    }
     rwlckr.unlockNow();
 
     if ( idx==-1 )
@@ -252,6 +282,8 @@ DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 	{
 	    Threads::Locker ulckr( res->nruserslock_ );
 	    res->nrusers_++;
+	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id(),
+			 BufferString(" nrusers=",res->nrusers_)) );
 	}
     }
 
@@ -296,7 +328,11 @@ void DataPackMgr::release( DataPack::ID dpid )
     usrslckr.reLock();
 
     if ( pack->nrusers_>0 )
+    {
+	mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
+		     BufferString(" nrusers=",pack->nrusers_)) );
 	return;
+    }
 
     //We lost our lock, so idx may have changed.
     if ( !packs_.isPresent( pack ) )
@@ -305,6 +341,8 @@ void DataPackMgr::release( DataPack::ID dpid )
     pack->setManager( 0 );
     usrslckr.unlockNow();
 
+
+    mTrackDPMsg( BufferString("[DP]: release/delete ",pack->id()) );
     packs_ -= pack;
     delete pack;
 }

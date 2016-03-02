@@ -7,20 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: initvolumeprocessing.cc 37082 2014-10-29 16:52:02Z nanne.hemstra@dgbes.com $";
 
 
 #include "moddepmgr.h"
 #include "velocitygridder.h"
 #include "volprocattrib.h"
+#include "volprocbodyfiller.h"
 #include "volprochorinterfiller.h"
 #include "volproclateralsmoother.h"
 #include "volprocsmoother.h"
-#include "volprocbodyfiller.h"
 #include "volprocstatscomputer.h"
 #include "volprocsurfacelimitedfiller.h"
-#include "volprocvolreader.h"
 #include "volproctrans.h"
+#include "volprocvolreader.h"
 #include "wellloginterpolator.h"
 
 
@@ -31,15 +31,15 @@ mDefModInitFn(VolumeProcessing)
     VolProcessingTranslatorGroup::initClass();
     dgbVolProcessingTranslator::initClass();
 
-    VolProc::LateralSmoother::initClass();
-    VolProc::Smoother::initClass();
-    VolProc::ExternalAttribCalculator::initClass();
+    VolProc::VolumeReader::initClass();
     VolProc::BodyFiller::initClass();
     VolProc::HorInterFiller::initClass();
-    VolProc::StatsCalculator::initClass();
     VolProc::SurfaceLimitedFiller::initClass();
+    VolProc::LateralSmoother::initClass();
+    VolProc::Smoother::initClass();
+    VolProc::StatsCalculator::initClass();
+    VolProc::ExternalAttribCalculator::initClass();
     VolProc::VelocityGridder::initClass();
-    VolProc::VolumeReader::initClass();
     VolProc::WellLogInterpolator::initClass();
 
 #ifdef __debug__

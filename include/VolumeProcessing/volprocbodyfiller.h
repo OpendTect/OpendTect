@@ -14,10 +14,11 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 
 #include "arrayndimpl.h"
 #include "coord.h"
+#include "multiid.h"
 #include "trckeyzsampling.h"
 
 namespace EM { class EMObject; class Body; class ImplicitBody; }
@@ -25,11 +26,7 @@ namespace EM { class EMObject; class Body; class ImplicitBody; }
 namespace VolProc
 {
 
-class Step;
-
-/*!
-\brief Body filler
-*/
+/*!\brief Body filler */
 
 mExpClass(VolumeProcessing) BodyFiller : public Step
 { mODTextTranslationClass(BodyFiller);
@@ -69,6 +66,10 @@ public:
     Task*			createTask();
 
     static const char*		sKeyOldType();
+
+    /* mDeprecated (this function will be protected virtual after 6.0) */
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
 protected:
 

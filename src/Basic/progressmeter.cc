@@ -42,21 +42,43 @@ void ProgressRecorder::reset()
 
 #define mSetLock() Threads::Locker lock( lock_ );
 
-#define mImplProgressRecorderStartStopFn(nm,memb) \
+#define mImplProgressRecorderStartStopSetFn(nm,memb) \
 void ProgressRecorder::nm() \
     { mSetLock(); memb = true; if ( forwardto_ ) forwardto_->nm(); }
-mImplProgressRecorderStartStopFn(setStarted,isstarted_)
-mImplProgressRecorderStartStopFn(setFinished,isfinished_)
-
-#define mImplProgressRecorderFn(nm,typ,arg,memb) \
+mImplProgressRecorderStartStopSetFn(setStarted,isstarted_)
+mImplProgressRecorderStartStopSetFn(setFinished,isfinished_)
+#define mImplProgressRecorderSetFn(nm,typ,arg,memb) \
 void ProgressRecorder::nm( typ arg ) \
     { mSetLock(); memb = arg; if ( forwardto_ ) forwardto_->nm( arg ); }
+mImplProgressRecorderSetFn(setName,const char*,newnm,name_)
+mImplProgressRecorderSetFn(setTotalNr,od_int64,tnr,totalnr_)
+mImplProgressRecorderSetFn(setNrDone,od_int64,nr,nrdone_)
+mImplProgressRecorderSetFn(setMessage,const uiString&,msg,message_)
+mImplProgressRecorderSetFn(setNrDoneText,const uiString&,txt,nrdonetext_)
 
-mImplProgressRecorderFn(setName,const char*,newnm,name_)
-mImplProgressRecorderFn(setTotalNr,od_int64,tnr,totalnr_)
-mImplProgressRecorderFn(setNrDone,od_int64,nr,nrdone_)
-mImplProgressRecorderFn(setMessage,const uiString&,msg,message_)
-mImplProgressRecorderFn(setNrDoneText,const uiString&,txt,nrdonetext_)
+#define mImplProgressRecorderStartStopGetFn(typ,nm,memb) \
+typ ProgressRecorder::nm() const { mSetLock(); return memb; }
+mImplProgressRecorderStartStopGetFn(const char*,name,name_)
+mImplProgressRecorderStartStopGetFn(od_int64,nrDone,nrdone_)
+mImplProgressRecorderStartStopGetFn(od_int64,totalNr,totalnr_)
+mImplProgressRecorderStartStopGetFn(uiString,message,message_)
+mImplProgressRecorderStartStopGetFn(uiString,nrDoneText,nrdonetext_)
+mImplProgressRecorderStartStopGetFn(bool,isStarted,isstarted_)
+mImplProgressRecorderStartStopGetFn(bool,isFinished,isfinished_)
+mImplProgressRecorderStartStopGetFn(ProgressMeter*,forwardTo,forwardto_)
+
+void ProgressRecorder::setForwardTo( ProgressMeter* pm )
+{
+    mSetLock();
+    forwardto_ = pm;
+}
+
+void ProgressRecorder::skipProgress( bool yn )
+{
+    mSetLock();
+    if ( forwardto_ )
+	forwardto_->skipProgress( yn );
+}
 
 
 void ProgressRecorder::operator++()

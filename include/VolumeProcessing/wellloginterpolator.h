@@ -13,10 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+#include "volprocstep.h"
 
 #include "enums.h"
 #include "multiid.h"
-#include "volprocchain.h"
 
 class BufferStringSet;
 class Gridder2D;
@@ -33,12 +33,12 @@ class WellLogInfoSetup;
 /*! Fills a volume with well log values. */
 
 mExpClass(VolumeProcessing) WellLogInterpolator : public Step
-{
+{ mODTextTranslationClass(WellLogInterpolator)
 public:
 				mDefaultFactoryInstantiation( Step,
 				    WellLogInterpolator,
 				    "WellLog Interpolator",
-				    mToUiStringTodo(sFactoryKeyword()) )
+				    tr("WellLog Interpolator") )
 
 				WellLogInterpolator();
 				~WellLogInterpolator();
@@ -77,6 +77,10 @@ public:
     bool			needsFullVolume() const		{ return false;}
 
     uiString			errMsg() const	{ return errmsg_; }
+
+    /* mDeprecated (this function will be protected virtual after 6.0) */
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
 protected:
 

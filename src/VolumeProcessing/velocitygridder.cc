@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "task.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
 #include "uistrings.h"
@@ -46,7 +47,7 @@ public:
 protected:
     ObjectSet<Vel::Function>	velfuncs_;
     Vel::GriddedSource*		velfuncsource_;
-    VelGriddingTask&	task_;
+    VelGriddingTask&		task_;
 
     Threads::Mutex		lock_;
     BinIDValueSet		completedbids_;
@@ -654,5 +655,13 @@ bool VelocityGridder::usePar( const IOPar& par )
 
     return true;
 }
+
+
+od_int64 VelocityGridder::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return 0;
+}
+
 
 } // namespace VolProc

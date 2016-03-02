@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "mousecursor.h"
+#include "multiid.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 
@@ -303,5 +304,13 @@ bool HorInterFiller::isOK() const
 
     return true;
 }
+
+
+od_int64 HorInterFiller::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return 0;
+}
+
 
 } // namespace VolProc

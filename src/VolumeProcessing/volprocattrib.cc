@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
-#include "volprocchain.h"
+#include "volprocchainexec.h"
 #include "volproctrans.h"
 
 using namespace Attrib;
@@ -81,10 +81,10 @@ void VolProcAttrib::prepareForComputeData()
     executor_ = new VolProc::ChainExecutor( *chain_ );
     const TrcKeyZSampling cs = *getDesiredVolume();
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
-    const StepInterval<float> geometryzrg = geometry.sampling().zsamp_;
-    StepInterval<int> zrg( mNINT32(cs.zsamp_.start/geometryzrg.step),
-			   mNINT32(cs.zsamp_.stop/geometryzrg.step),
-			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
+    const float zstep = geometry.sampling().zsamp_.step;
+    StepInterval<int> zrg( mNINT32( cs.zsamp_.start/zstep ),
+			   mNINT32( cs.zsamp_.stop/zstep ),
+			   mNINT32( cs.zsamp_.step/zstep ) );
     if ( !executor_->setCalculationScope(cs.hsamp_,zrg) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
@@ -214,12 +214,10 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 
     ChainExecutor executor( *chain_ );
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
-    const StepInterval<float> geometryzrg = geometry.sampling().zsamp_;
-
-    StepInterval<int> zrg( mNINT32(cs.zsamp_.start/geometryzrg.step),
-			   mNINT32(cs.zsamp_.stop/geometryzrg.step),
-			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
-
+    const float zstep = geometry.sampling().zsamp_.step;
+    StepInterval<int> zrg( mNINT32( cs.zsamp_.start/zstep ),
+			   mNINT32( cs.zsamp_.stop/zstep ),
+			   mNINT32( cs.zsamp_.step/zstep ) );
     if ( !executor.setCalculationScope(cs.hsamp_,zrg) )
     {
 	errmsg_ = tr("Cannot calculate at this location");

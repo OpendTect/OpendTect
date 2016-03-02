@@ -275,4 +275,10 @@ bool MatlabStep::usePar( const IOPar& par )
     return true;
 }
 
+
+od_int64 MatlabStep::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{ return getBaseMemoryUsage( hsamp, zsamp ); }
+
+
 } // namespace VolProc

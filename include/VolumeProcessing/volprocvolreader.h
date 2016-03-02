@@ -13,9 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+#include "volprocstep.h"
 #include "multiid.h"
-#include "samplingdata.h"
-#include "volprocchain.h"
 
 class SeisTrcReader;
 class SeisTrcTranslator;
@@ -46,9 +45,13 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return false; }
 
-protected:
-    Task*		createTask();
+    /* mDeprecated (this function will be protected virtual after 6.0) */
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
+protected:
+
+    Task*		createTask();
     bool		prefersBinIDWise() const        { return false; }
 
     static const char*	sKeyVolumeID()			{ return "Volume ID"; }
@@ -56,6 +59,7 @@ protected:
     MultiID				mid_;
     ObjectSet<SeisTrcReader>		readers_;
     ObjectSet<SeisTrcTranslator>	translators_;
+
 };
 
 } // namespace VolProc

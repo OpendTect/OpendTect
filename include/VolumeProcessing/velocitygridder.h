@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocchain.h"
+#include "volprocstep.h"
 #include "veldesc.h"
 
 class Gridder2D;
@@ -41,7 +41,7 @@ public:
 				"Gridding", tr("Velocity gridder") )
 
 			VelocityGridder();
-    			~VelocityGridder();
+			~VelocityGridder();
 
     const VelocityDesc* getVelDesc() const;
 
@@ -69,9 +69,13 @@ public:
     static const char*	sKeyNrSources()		{ return "NrSources"; }
     static const char*	sKeyGridder()		{ return "Gridder"; }
 
+    /* mDeprecated (this function will be protected virtual after 6.0) */
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
+
 protected:
 
-    Task*				createTask();
+    Task*		createTask();
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;

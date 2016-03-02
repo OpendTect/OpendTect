@@ -448,4 +448,12 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     return true;
 }
 
+
+od_int64 WellLogInterpolator::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return 0;
+}
+
+
 } // namespace VolProc

@@ -33,7 +33,7 @@ Task* VolumeReader::createTask()
     if ( !output || !ioobj )
 	return 0;
 
-    Seis::ParallelReader* rdr = 
+    Seis::ParallelReader* rdr =
 	new Seis::ParallelReader( *ioobj, output->sampling() );
     rdr->setDataPack( output );
     return rdr;
@@ -64,5 +64,13 @@ bool VolumeReader::usePar( const IOPar& pars )
     pars.get( sKeyVolumeID(), mid );
     return setVolumeID( mid );
 }
+
+
+od_int64 VolumeReader::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return 0;
+}
+
 
 } // namespace VolProc

@@ -38,7 +38,7 @@ mDefineEnumUtils( VoxelConnectivityFilter, Connectivity, "Connectivity")
 
 
 class VoxelConnectivityFilterTask : public ParallelTask
-{mODTextTranslationClass(VoxelConnectivityFilterTask)
+{ mODTextTranslationClass(VoxelConnectivityFilterTask);
 public:
     VoxelConnectivityFilterTask( VoxelConnectivityFilter& step,
 				const Array3D<float>& input,
@@ -61,8 +61,7 @@ public:
     ~VoxelConnectivityFilterTask() { releaseData(); }
 
     uiString	uiNrDoneText() const { return tr("Positions done"); }
-    uiString	uiMessage() const
-		{ return tr("Computing voxel connectivity"); }
+    uiString	uiMessage() const { return tr("Computing voxel connectivity"); }
 
     od_int64	nrIterations() const { return input_.info().getTotalSz(); }
     int		maxNrThreads() const { return 1; } //Todo: remove
@@ -610,5 +609,13 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
 
     return true;
 }
+
+
+od_int64 VoxelConnectivityFilter::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return 3 * getBaseMemoryUsage( hsamp, zsamp );
+}
+
 
 }; //Namespace

@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "executor.h"
 #include "mousecursor.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
@@ -110,23 +111,26 @@ const MultiID* SurfaceLimitedFiller::getRefHorizonID() const
 { return refhormid_ && !refhormid_.isEmpty() ? &refhormid_ : 0; }
 
 
-#define mRetSetBinID( targetmid ) \
-    if ( mid->isEmpty() ) \
-	return false; \
-    targetmid = *mid; \
-    return true
+static bool setTargetMultiID( const MultiID* mid, MultiID& targetmid )
+{
+    if ( !mid || mid->isEmpty() )
+	return false;
+
+    targetmid = *mid;
+    return true;
+}
 
 
 bool SurfaceLimitedFiller::setStartValueHorizon( const MultiID* mid )
-{ mRetSetBinID( starthormid_ ); }
+{ return setTargetMultiID( mid, starthormid_ ); }
 
 
 bool SurfaceLimitedFiller::setGradientHorizon( const MultiID* mid )
-{ mRetSetBinID( gradhormid_ ); }
+{ return setTargetMultiID( mid, gradhormid_ ); }
 
 
 bool SurfaceLimitedFiller::setRefHorizon( const MultiID* mid )
-{ mRetSetBinID( refhormid_ ); }
+{ return setTargetMultiID( mid, refhormid_ ); }
 
 
 bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
@@ -584,5 +588,13 @@ bool SurfaceLimitedFiller::isOK() const
 
     return true;
 }
+
+
+od_int64 SurfaceLimitedFiller::extraMemoryUsage( OutputSlotID,
+	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+{
+    return 0;
+}
+
 
 } // namespace VolProc

@@ -15,10 +15,9 @@ ________________________________________________________________________
 
 
 #include "volumeprocessingmod.h"
-#include "paralleltask.h"
+#include "volprocstep.h"
 #include "trckeyzsampling.h"
-#include "uistring.h"
-#include "volprocchain.h"
+#include "paralleltask.h"
 
 template<class T> class Array3D;
 
@@ -55,6 +54,10 @@ public:
 
     Task*			createTask();
     virtual bool		needsFullVolume() const { return false; }
+
+    /* mDeprecated (this function will be protected virtual after 6.0) */
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
 
 protected:
 

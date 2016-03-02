@@ -48,6 +48,10 @@ public:
     void		getParameters(BufferStringSet& nms,
 				      BufferStringSet& vals) const;
 
+    virtual od_int64	getProcTimeExtraMemory() const	{ return 2; }
+    od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
+
 protected:
 
 			MatlabStep();
