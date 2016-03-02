@@ -140,6 +140,7 @@ StatsCalculatorTask::StatsCalculatorTask( const Array3D<float>& input,
 bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 {
     //for now only median and shape Ellipse for dip filtering
+    //We might reconsider the handling of undefs in corners
     BinID curbid;
     const int incr = mCast( int, stop-start+1 );
     const int nrinlines = input_.info().getSize( 0 );
@@ -154,6 +155,9 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     rcsetup.require( Stats::Median );
     const int statsz = nrpos * (nzsampextra_*2+1);
     Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
+    TypeSet<double> values( statsz, mUdf(double) );
+    const bool needmed = rcsetup.needMedian();
+    const int midway = statsz/2;
     for ( int idx=0; idx<incr; idx++ )
     {
 	int inpinlidx = tkzsin_.lineIdx( curbid.inl() );
@@ -181,10 +185,26 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 		    const int valididxz =
 			idxz+idz<0 ? 0 : idxz+idz>=nrsamples ? nrsamples-1
 							     : idxz+idz;
-		    wcalc += input_.get( valididxi, valididxc, valididxz );
+		    double value = input_.get( valididxi, valididxc, valididxz);
+		    if ( needmed )
+		    {
+			const int valposidx  = posidx*(nzsampextra_*2+1)
+					       + idxz + nzsampextra_;
+			values[valposidx] = value;
+		    }
+		    else
+			wcalc += value;
 		}
 	    }
-	    const float outval = (float) wcalc.getValue(Stats::Median);
+	    float outval;
+	    if ( needmed )
+	    {
+		sort( values );
+		outval = values[midway];
+	    }
+	    else
+		outval = (float) wcalc.getValue(Stats::Median);
+
 	    Threads::Locker locker( datalock_ );
 	    output_.set( outpinlidx, outpcrlidx, idz, outval );
 	    locker.unlockNow();
