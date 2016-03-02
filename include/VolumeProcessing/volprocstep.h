@@ -106,9 +106,6 @@ public:
     virtual bool		usePar(const IOPar&);
 
     virtual void		releaseData();
-    /* mDeprecated virtual od_int64 getOuputMemSize(int) const; */
-    /* mDeprecated virtual od_int64 getProcTimeExtraMemory() const
-				{ return 0; } */
 
     static od_int64		getBaseMemoryUsage(const TrcKeySampling&,
 						   const StepInterval<int>&);
