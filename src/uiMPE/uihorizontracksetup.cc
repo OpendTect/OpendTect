@@ -298,6 +298,8 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     sep->attach( stretchedBelow, modeselgrp_ );
     uiStringSet strs; strs.add( tr("Seed Trace") ).add( tr("Adjacent Parent") );
     methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
+    methodfld_->valuechanged.notify(
+			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
 
@@ -463,6 +465,7 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 	(MarkerStyle3D::Type)(MarkerStyle3D::None+seedtypefld_->getIntValue());
     if ( markerstyle_.type_ == newtype )
 	return;
+
     markerstyle_.type_ = newtype;
     propertyChanged_.trigger();
 }
@@ -474,6 +477,7 @@ void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
     const int newsize = mNINT32(sldrval);
     if ( markerstyle_.size_ == newsize )
 	return;
+
     markerstyle_.size_ = newsize;
     propertyChanged_.trigger();
 }
@@ -484,6 +488,7 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
     const Color newcolor = seedcolselfld_->color();
     if ( markerstyle_.color_ == newcolor )
 	return;
+
     markerstyle_.color_ = newcolor;
     propertyChanged_.trigger();
 }
@@ -616,8 +621,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	return true;
     }
 
-    horadj_->setCompareMethod( methodfld_->getIntValue()==0 ?
-		EventTracker::SeedTrace : EventTracker::AdjacentParent );
+    horadj_->setCompareMethod( getTrackingMethod() );
 
     return true;
 }

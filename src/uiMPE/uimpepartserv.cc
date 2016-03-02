@@ -262,7 +262,10 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
     if ( !seedpicker) return;
 
     if ( setupgrp_ )
+    {
 	seedpicker->setTrackMode( setupgrp_->getMode() );
+	setupgrp_->commitToTracker();
+    }
 }
 
 
