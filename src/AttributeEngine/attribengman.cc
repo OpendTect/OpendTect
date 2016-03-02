@@ -236,13 +236,17 @@ void EngineMan::setExecutorName( Executor* ex )
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    const LineKey& lkey,
 					    uiString& errmsg )
+{ return createOutput( pars, Survey::GM().getGeomID(lkey.lineName()), errmsg); }
+
+SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
+					    Pos::GeomID geomid,
+					    uiString& errmsg )
 {
     const FixedString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr==sKey::Cube() )
     {
-	SeisTrcStorOutput* outp = new SeisTrcStorOutput( tkzs_,
-				    Survey::GM().getGeomID(lkey.lineName()) );
+	SeisTrcStorOutput* outp = new SeisTrcStorOutput( tkzs_, geomid );
 	outp->setGeometry(tkzs_);
 	const bool res = outp->doUsePar( pars );
 	if ( !res )

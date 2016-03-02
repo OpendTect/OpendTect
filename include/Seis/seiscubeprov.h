@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 class IOObj;
-class LineKey;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcReader;

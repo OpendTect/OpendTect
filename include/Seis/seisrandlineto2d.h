@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class IOObj;
 class od_ostream;
-class LineKey;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisTrcBuf;

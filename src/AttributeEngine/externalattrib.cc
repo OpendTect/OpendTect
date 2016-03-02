@@ -39,4 +39,9 @@ RefMan<RegularSeisDataPack> ExtAttribCalc::createAttrib( const TrcKeyZSampling&,
 { return 0; }
 
 
+DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&,Pos::GeomID,
+					  TaskRunner* )
+{ return DataPack::cNoID(); }
+
+
 } // namespace Attrib

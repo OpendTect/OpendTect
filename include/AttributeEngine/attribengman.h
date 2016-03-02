@@ -58,7 +58,7 @@ public:
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
-    SeisTrcStorOutput*	createOutput(const IOPar&,const LineKey&,uiString&);
+    SeisTrcStorOutput*	createOutput(const IOPar&,Pos::GeomID,uiString&);
 
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
@@ -121,6 +121,10 @@ public:
     const char*		getCurUserRef() const;
     void		computeIntersect2D(ObjectSet<BinIDValueSet>&) const;
 
+    mDeprecated SeisTrcStorOutput*	createOutput(const IOPar&,
+						     const LineKey&,uiString&);
+					/*!<For backward compatibility. Will be
+					  removed in future releases. */
 protected:
 
     const DescSet*	inpattrset_;

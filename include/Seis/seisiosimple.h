@@ -68,7 +68,7 @@ public:
 			// 2D only
 	Coord		startpos_;
 	Coord		steppos_;
-	LineKey&	linekey_;
+	Pos::GeomID	geomid_;
 
 	Scaler*		scaler_;
 	SeisResampler*	resampler_;

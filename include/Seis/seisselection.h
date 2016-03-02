@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "binid.h"
 #include "bufstring.h"
-class LineKey;
 namespace Pos { class Provider; }
 
 
