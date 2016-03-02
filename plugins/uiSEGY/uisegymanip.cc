@@ -59,12 +59,12 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     const int nrrows = def_.size();
     tbl_ = new uiTable( this, uiTable::Setup(nrrows,3).manualresize(true),
 			      "Bin header table" );
-    tbl_->setColumnLabel( 0, "Byte" );
-    tbl_->setColumnToolTip( 0, "Byte location in binary header" );
+    tbl_->setColumnLabel( 0, tr("Byte") );
+    tbl_->setColumnToolTip( 0, tr("Byte location in binary header") );
     tbl_->setColumnReadOnly( 0, true );
-    tbl_->setColumnLabel( 1, "Value" );
-    tbl_->setColumnToolTip( 1, "Value (initially from file)" );
-    tbl_->setColumnLabel( 2, "Description" );
+    tbl_->setColumnLabel( 1, tr("Value") );
+    tbl_->setColumnToolTip( 1, tr("Value (initially from file)") );
+    tbl_->setColumnLabel( 2, tr("Description") );
     tbl_->setColumnReadOnly( 2, true );
 
     for ( int irow=0; irow<nrrows; irow++ )
@@ -187,7 +187,7 @@ void doDlg( CallBacker* )
 
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     : uiDialog(p,uiDialog::Setup(tr("Manipulate SEG-Y File"),
-				  BufferString("Manipulate '",fnm,"'"),
+				  tr("Manipulate '%1'").arg(fnm),
 				  mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
     , txthdr_(*new SEGY::TxtHeader)
@@ -197,7 +197,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , errlbl_(0)
 {
     if ( !openInpFile() )
-	{ errlbl_ = new uiLabel( this, errmsg_ ); return; }
+	{ errlbl_ = new uiLabel( this, mToUiStringTodo(errmsg_) ); return; }
 
     uiGroup* filehdrgrp = new uiGroup( this, "File header group" );
     txthdrfld_ = new uiTextEdit( filehdrgrp, "Text Header Editor" );
@@ -221,9 +221,9 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     sep->attach( stretchedBelow, spl );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.forread( false ).objtype( tr("SEG-Y") )
+    fisu.forread( false ).objtype( uiStrings::sSEGY() )
 	.filter( uiSEGYFileSpec::fileFilter() );
-    fnmfld_ = new uiFileInput( this, "Output file", fisu );
+    fnmfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fisu );
     FilePath inpfp( fname_ );
     fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );
     fnmfld_->attach( ensureBelow, sep );
@@ -284,11 +284,11 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const int nrrows = def.size();
     uiTable::Setup tsu( nrrows, 2 ); tsu.selmode( uiTable::SingleRow );
     thtbl_ = new uiTable( grp, tsu, "Trace header table" );
-    thtbl_->setColumnLabel( 0, "Byte" );
-    thtbl_->setColumnToolTip( 0, "Byte location in trace header" );
+    thtbl_->setColumnLabel( 0, tr("Byte") );
+    thtbl_->setColumnToolTip( 0, tr("Byte location in trace header") );
     thtbl_->setColumnReadOnly( 0, true );
-    thtbl_->setColumnLabel( 1, "Value" );
-    thtbl_->setColumnToolTip( 1, "Resulting value" );
+    thtbl_->setColumnLabel( 1, tr("Value") );
+    thtbl_->setColumnToolTip( 1, tr("Resulting value") );
     thtbl_->setColumnReadOnly( 1, true );
     for ( int irow=0; irow<nrrows; irow++ )
     {
@@ -358,7 +358,7 @@ void uiSEGYFileManip::fillAvTrcHdrFld( int selidx )
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
     {
 	if ( !trchdrdefined_[idx] )
-	    avtrchdrsfld_->addItem( calcset_.hdrDef()[idx]->name() );
+	    avtrchdrsfld_->addItem(toUiString(calcset_.hdrDef()[idx]->name()));
     }
 
     if ( selidx < 0 ) selidx = 0;
@@ -383,7 +383,8 @@ void uiSEGYFileManip::fillDefCalcs( int selidx )
     for ( int idx=0; idx<calcset_.size(); idx++ )
     {
 	const SEGY::HdrCalc& hc = *calcset_[idx];
-	trchdrfld_->addItem( BufferString( hc.he_.name(), " = ", hc.def_ ) );
+	trchdrfld_->addItem( toUiString("%1 = %2").arg(hc.he_.name())
+						  .arg(hc.def_ ) );
     }
 
     if ( selidx < 0 ) selidx = 0;
@@ -439,14 +440,15 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Available"),
 			 uiListBox::AboveMid );
     hdrfld_ = new uiListBox( this, su );
-    hdrfld_->addItem( calcset_.trcIdxEntry().name() );
+    hdrfld_->addItem( toUiString(calcset_.trcIdxEntry().name()) );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
-	hdrfld_->addItem( calcset_.hdrDef()[idx]->name() );
+	hdrfld_->addItem( toUiString(calcset_.hdrDef()[idx]->name()) );
     hdrfld_->setCurrentItem( hc.he_.name() );
     hdrfld_->doubleClicked.notify( cb );
 
     uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
-					     "Insert in formula", cb );
+					     uiStrings::phrInsert(
+					     tr("in formula")), cb );
     addbut->attach( centeredRightOf, hdrfld_ );
     formfld_ = new uiLineEdit( this, "Formula" );
     formfld_->setText( hc_.def_ );
@@ -554,7 +556,8 @@ void uiSEGYFileManip::openReq( CallBacker* )
     if ( nms.isEmpty() )
 	{ uiMSG().error(tr("No manipulation sets defined yet")); return; }
 
-    uiSelectFromList::Setup sflsu( "Select header manipulation", nms );
+    uiSelectFromList::Setup sflsu( uiStrings::phrSelect(
+					      tr("header manipulation")), nms );
     uiSelectFromList dlg( this, sflsu );
     if ( !dlg.go() || dlg.selection() < 0 )
 	return;
@@ -570,7 +573,7 @@ void uiSEGYFileManip::openReq( CallBacker* )
 void uiSEGYFileManip::saveReq( CallBacker* )
 {
     BufferStringSet nms; calcset_.getStoredNames( nms );
-    uiGetObjectName::Setup su( "Store manipulation set", nms );
+    uiGetObjectName::Setup su( tr("Store manipulation set"), nms );
     uiGetObjectName dlg( this, su );
     if ( !dlg.go() ) return;
 
@@ -638,7 +641,8 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     if ( !plotall )
     {
 	DataInpSpec* spec = new IntInpIntervalSpec( trcrg_ );
-	uiGenInputDlg dlg(p, tr("Specify range"), "Trace range to plot", spec);
+	uiGenInputDlg dlg(p, tr("Specify range"), tr("Trace range to plot"), 
+									spec);
 	if ( !dlg.go() )
 	    { totalnr_ = -1; return; }
 	trcrg_ = dlg.getFld(0)->getIInterval();

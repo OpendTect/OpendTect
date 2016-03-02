@@ -31,7 +31,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     titlefld_ = new uiGenInput( this, tr("Map title"),
                                 StringInpSpec("Basemap") );
 
-    xrgfld_ = new uiGenInput( this, "X range",
+    xrgfld_ = new uiGenInput( this, tr("X range"),
 			      IntInpIntervalSpec(false) );
     xrgfld_->setElemSzPol( uiObject::Medium );
     xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );

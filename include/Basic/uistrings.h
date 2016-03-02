@@ -57,6 +57,8 @@ public:
     //!"Cannot Load <string>"
     static uiString phrCannotOpen(const uiString& string);
     //!<"Cannot open <string>"
+    static uiString phrCannotParse(const uiString&);
+    //!<"Cannot parse <string>"
     static uiString phrCannotRead(const uiString& string);
     //!<"Cannot read <string>"
     static uiString phrCannotSave(const uiString&);
@@ -222,6 +224,7 @@ public:
     static uiString sCannotCopy();
     static uiString sCannotEdit();
     static uiString sCannotLoad();
+    static uiString sCannotParse();
     static uiString sCannotRemove();
     static uiString sCannotSave();
     static uiString sCannotStart();
@@ -321,6 +324,7 @@ public:
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
     static uiString sLeft()		{ return tr("Left"); }
+    static uiString sLineStyle(int num=1) { return tr("Line Style",0,num); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
     static uiString sLoad();
     static uiString sLock()		{ return tr("Lock"); }

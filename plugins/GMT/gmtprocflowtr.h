@@ -24,7 +24,7 @@ public:
 
 
 mExpClass(GMT) ODGMTProcFlowTranslator : public Translator
-{
+{ mODTextTranslationClass(ODGMTProcFlowTranslator)
 public:
     			mDefEmptyTranslatorBaseConstructor(ODGMTProcFlow)
 
@@ -36,6 +36,9 @@ public:
     static bool		retrieve(ODGMT::ProcFlow&,const IOObj*,BufferString&);
     static bool		store(const ODGMT::ProcFlow&,const IOObj*,
 	    		      BufferString&);
+    static bool		retrieve(ODGMT::ProcFlow&,const IOObj*,uiString&);
+    static bool		store(const ODGMT::ProcFlow&,const IOObj*,
+	    		      uiString&);
 
 };
 

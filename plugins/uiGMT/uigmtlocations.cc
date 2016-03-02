@@ -40,7 +40,7 @@ uiGMTOverlayGrp* uiGMTLocationsGrp::createInstance( uiParent* p )
 
 
 uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Locations")
+    : uiGMTOverlayGrp(p,tr("Locations"))
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
     inpfld_ = new uiIOObjSel( this, ctio_,uiStrings::sPickSet() );

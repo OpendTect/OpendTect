@@ -59,6 +59,13 @@ protected:
     friend class	uiSEGYExpTxtHeader;
     bool		doWork(const IOObj&,const IOObj&,const char*);
 
+public:
+    static uiString	sTxtHeadTxt() 
+			{ return tr("Define the SEG-Y text header. Note that:"
+			    "\n- The Cnn line start and Rev.1 indicators will "
+			    "always be retained \n- You can only define " 
+			    "40 lines of 80 characters"); }
+
 };
 
 

@@ -30,6 +30,7 @@ public :
 			uiResortSEGYDlg(uiParent*);
 
     Seis::GeomType	geomType() const;
+    uiString		sFldNm() { return tr("Scanned input"); } 
 
 protected:
 

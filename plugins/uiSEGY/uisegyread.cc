@@ -217,7 +217,7 @@ class uiSEGYReadPreScanner : public uiDialog
 public:
 
 uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
-    : uiDialog(p,uiDialog::Setup(tr("SEG-Y Scan"),0,
+    : uiDialog(p,uiDialog::Setup(tr("SEG-Y Scan"),uiStrings::sEmptyString(),
                                  mODHelpKey(mSEGYReadPreScannerHelpID) ))
     , pars_(pars)
     , geom_(gt)
@@ -236,7 +236,7 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     FilePath fp( fnm ); fp.setExtension( "txt" );
     uiFileInput::Setup fisu( GetProcFileName(fp.fileName()) );
     fisu.forread( false ).objtype( tr("Report") );
-    saveasfld_ = new uiFileInput( this, "Save report as", fisu );
+    saveasfld_ = new uiFileInput( this, tr("Save report as"), fisu );
     saveasfld_->setWithCheck( true );
     saveasfld_->attach( alignedBelow, nrtrcsfld_ );
     saveasfld_->setChecked( true );
@@ -318,10 +318,12 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread ) const
 }
 
 
-static const char* rev1info =
-    "The file was marked as SEG-Y Revision 1 by the producer."
-    "\nUnfortunately, not all files are correct in this respect."
-    "\n\nPlease specify:";
+static const uiString rev1info()
+{
+    return od_static_tr("rev1info","The file was marked as SEG-Y Revision 1 by "
+	"the producer.\nUnfortunately, not all files are correct in this "
+	"respect.\n\nPlease specify:");
+}
 static const char* rev1txts[] =
 {
     "No: The file is NOT SEG-Y Rev.1 - treat as legacy (i.e. Rev. 0)",
@@ -335,7 +337,7 @@ class uiSEGYReadRev1Question : public uiVarWizardDlg
 public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
-    : uiVarWizardDlg(p,Setup(tr("Determine SEG-Y revision"),rev1info,
+    : uiVarWizardDlg(p,Setup(tr("Determine SEG-Y revision"),rev1info(),
                              mODHelpKey(mSEGYReadRev1QuestionHelpID) ),
 				iop,Middle)
     , initialpol_(pol)
@@ -395,7 +397,7 @@ void uiSEGYRead::basicOptsGot()
     const int exrev = uiSEGYExamine::getRev( exsu, emsg );
     if ( exrev < 0 )
     {
-	rev_ = Rev0; uiMSG().error( emsg );
+	rev_ = Rev0; uiMSG().error( mToUiStringTodo(emsg) );
 	getBasicOpts(); newdefdlg_ = defdlg_;
 	return;
     }

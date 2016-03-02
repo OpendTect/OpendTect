@@ -55,7 +55,7 @@ mDefODInitPlugin(CmdDriver)
 
     mDefineStaticLocalObject( uiAction*, cmdmnuitm, = 0 );
     if ( cmdmnuitm ) return 0;
-    cmdmnuitm = new uiAction( "Command &Driver ..." );
+    cmdmnuitm = new uiAction( toUiString("Command &Driver ...") );
 
     ODMainWin()->menuMgr().toolsMnu()->insertItem( cmdmnuitm );
     cmdmnuitm->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );

@@ -158,13 +158,14 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     PtrMan<SEGY::TrcHeader> thdr = getTrcHdr( strm );
     strm.setPosition( firsttrcpos );
     if ( !thdr )
-	mErrRetWithFileName( "No traces found" )
+	mErrRetWithFileName( uiStrings::phrCannotFind(
+					uiStrings::sTrace(mPlural).toLower()) )
 
     if ( ns_ < 1 )
 	ns_ = (int)thdr->nrSamples();
     if ( ns_ > mMaxReasonableNS )
 	mErrRetWithFileName(
-	    "No proper 'number of samples per trace' found" )
+	    tr("No proper 'number of samples per trace' found") )
 
     SeisTrcInfo ti; thdr->fill( ti, 1.0f );
     sampling_ = ti.sampling_;

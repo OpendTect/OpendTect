@@ -43,18 +43,18 @@ uiGMTOverlayGrp* uiGMTRandLinesGrp::createInstance( uiParent* p )
 
 
 uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Random Lines")
+    : uiGMTOverlayGrp(p,uiStrings::sRandomLine(mPlural))
     , ctio_(*mMkCtxtIOObj(RandomLineSet))
     , linenms_(*new BufferStringSet)
 {
-    inpfld_ = new uiIOObjSel( this, ctio_, "Line(s)" );
+    inpfld_ = new uiIOObjSel( this, ctio_, uiStrings::sLine(mPlural) );
     inpfld_->selectionDone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, inpfld_ );
 
-    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle(this, OD::LineStyle(), uiStrings::sLineStyle());
     lsfld_->attach( alignedBelow, namefld_ );
 
     labelfld_ = new uiCheckBox( this, tr("Post label"),
@@ -109,7 +109,7 @@ void uiGMTRandLinesGrp::objSel( CallBacker* )
                                             mNoHelpKey) );
 	uiListBox* lb = new uiListBox( &dlg, "Linelist", OD::ChooseAtLeastOne);
 	for ( int idx=0; idx<inprls.size(); idx++ )
-	    lb->addItem( inprls.lines()[idx]->name() );
+	    lb->addItem( toUiString(inprls.lines()[idx]->name()) );
 
 	if ( !dlg.go() ) return;
 	lb->getChosen( linenms_ );

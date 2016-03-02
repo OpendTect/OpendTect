@@ -50,7 +50,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     }
 
     ctio_.ctxt_.forread_ = true;
-    horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
+    horsel_ = new uiIOObjSel( this, ctio_, uiStrings::phrCalculate(tr("to")) );
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
@@ -203,9 +203,8 @@ uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
     , dps_( new DataPointSet(false,true) )
 {
     grp_ = new uiIsochronMakerGrp( this, emid );
-    BufferString title( "Create Isochron for '" );
-    title += grp_->getHorNm( emid );
-    title += "'";
+    uiString title( uiStrings::phrCreate(tr("Isochron for '%1'")
+						.arg(grp_->getHorNm(emid))) );
     setTitleText( title );
 }
 

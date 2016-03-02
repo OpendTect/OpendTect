@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "od_helpids.h"
+#include "uilabel.h"
 
 
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
@@ -57,8 +58,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
-    BufferString lbltxt = "Z Offset ";
-    lbltxt += SI().getZUnitString(); lbltxt += " Top";
+    uiString lbltxt = tr("Z Offset %1 Top").arg(SI().getUiZUnitString());
     tophorshiftfld_ = new uiGenInput( this, lbltxt,
 	    			      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
@@ -112,7 +112,7 @@ void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
     horfld1_->setLabelText( usesingle_ ? uiStrings::sHorizon()
-				       : uiStrings::sTopHor() );
+			    : uiStrings::sTopHor() );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );
 }

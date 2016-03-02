@@ -41,14 +41,14 @@ uiGMTOverlayGrp* uiGMT2DLinesGrp::createInstance( uiParent* p )
 
 
 uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"2D Lines")
+    : uiGMTOverlayGrp(p,mJoinUiStrs(s2D(),sLine(mPlural)))
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     namefld_->setElemSzPol( uiObject::Wide );
     lineselfld_ = new uiSeis2DLineSel( this, true );
     lineselfld_->attach( alignedBelow, namefld_ );
 
-    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle(this, OD::LineStyle(), uiStrings::sLineStyle());
     lsfld_->attach( alignedBelow, lineselfld_ );
 
     labelfld_ = new uiCheckBox( this, tr("Post Line names"),

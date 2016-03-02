@@ -594,18 +594,19 @@ bool VoxelConnectivityFilter::usePar( const IOPar& par )
     if ( !Step::usePar( par ) )
 	return false;
 
-    mTryParse( par.get( sKeyRange(), range_) , tr("Cannot parse value range") );
+    mTryParse( par.get( sKeyRange(), range_) , uiStrings::phrCannotParse(
+							   tr("value range")) );
     mTryParse( ConnectivityDef().parse(par, sKeyConnectivity(), connectivity_ ),
-	    tr("Cannot parse connectivity") );
+	    uiStrings::phrCannotParse(tr("connectivity")) );
     mTryParse( AcceptOutputDef().parse( par, sKeyAcceptOutput(),acceptoutput_ ),
-	    tr("Cannot parse kept output type") );
+	    uiStrings::phrCannotParse(tr("kept output type")) );
     if ( acceptoutput_==Value )
 	mTryParse( par.get( sKeyAcceptValue(), acceptvalue_),
-		tr("Cannot parse kept value") );
+		uiStrings::phrCannotParse(tr("kept value")) );
     mTryParse( par.get( sKeyMinimumSize(), minbodysize_ ),
-	    tr("Cannot parse minimum body size") );
+	    uiStrings::phrCannotParse(tr("minimum body size")) );
     mTryParse( par.get( sKeyRejectValue(), rejectvalue_ ),
-	    tr("Cannot parse rejected value") );
+	    uiStrings::phrCannotParse(tr("rejected value")) );
 
     return true;
 }

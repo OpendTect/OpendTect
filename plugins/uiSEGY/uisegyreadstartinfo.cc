@@ -100,9 +100,8 @@ void setEntries( const SEGY::HdrEntryDataSet& ds )
     {
 	const int heidx = ds.idxs_[idx];
 	const SEGY::HdrEntry& he = *hdef_[ heidx ];
-	BufferString txt( he.name(), " (byte " );
-        txt.add( he.bytepos_+1 ).add( ") - \"" );
-        txt.add( he.description() ).add( "\"" );
+	uiString txt( od_static_tr("setEnteries","%1 (byte %2) - \"%3\"")
+		     .arg(he.name()).arg(he.bytepos_+1).arg(he.description()) );
 
 	addItem( txt ); heidxs_ += heidx;
     }
@@ -149,9 +148,9 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     tbl_ = new uiTable( this, uiTable::Setup(nrrows_,mNrInfoCols)
 				  .manualresize(true), "Info table" );
     tbl_->setColumnLabel( mItemCol, sEmpty );
-    tbl_->setColumnLabel( mQSResCol, "Quick scan result" );
+    tbl_->setColumnLabel( mQSResCol, tr("Quick scan result") );
     tbl_->setColumnLabel( mUseTxtCol, sEmpty );
-    tbl_->setColumnLabel( mUseCol, "Actually use" );
+    tbl_->setColumnLabel( mUseCol, tr("Actually use") );
     tbl_->setColumnStretchable( mItemCol, false );
     tbl_->setColumnStretchable( mQSResCol, true );
     tbl_->setColumnStretchable( mUseTxtCol, false );
@@ -305,8 +304,8 @@ void uiSEGYReadStartInfo::man2DDefFlds()
     if ( !trcnrsrcfld_ )
     {
 	trcnrsrcfld_ = new uiComboBox( 0, "Trace number source" );
-	trcnrsrcfld_->addItem( "In file" );
-	trcnrsrcfld_->addItem( "Generate" );
+	trcnrsrcfld_->addItem( tr("In file") );
+	trcnrsrcfld_->addItem( tr("Generate") );
 	trcnrsrcfld_->selectionChanged.notify( parchgcb );
 	mAdd2Tbl( trcnrsrcfld_, mKey1Row, mUseTxtCol );
     }
@@ -392,9 +391,9 @@ void uiSEGYReadStartInfo::manPSDefFlds()
 	if ( !psoffsrcfld_ )
 	{
 	    psoffsrcfld_ = new uiComboBox( 0, "Offset source" );
-	    psoffsrcfld_->addItem( "In file" );
-	    psoffsrcfld_->addItem( "From Src/Rcv (X,Y)" );
-	    psoffsrcfld_->addItem( "Generate" );
+	    psoffsrcfld_->addItem( tr("In file") );
+	    psoffsrcfld_->addItem( tr("From Src/Rcv (X,Y)") );
+	    psoffsrcfld_->addItem( tr("Generate") );
 	    psoffsrcfld_->selectionChanged.notify( parchgcb );
 	    mAdd2Tbl( psoffsrcfld_, mPSRow, mUseTxtCol );
 	}
@@ -601,8 +600,8 @@ void uiSEGYReadStartInfo::clearInfo()
 
 void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
 {
-    tbl_->setColumnLabel( mQSResCol, sis.isFull() ? "Full scan result"
-						  : "Quick scan result" );
+    tbl_->setColumnLabel( mQSResCol, sis.isFull() ? tr("Full scan result")
+						  : tr("Quick scan result") );
 
     const int nrfiles = sis.size();
     uiString txt = nrfiles < 1	? uiString::emptyString()

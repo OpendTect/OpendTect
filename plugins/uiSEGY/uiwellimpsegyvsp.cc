@@ -77,7 +77,7 @@ void selPush( CallBacker* )
     if ( nrexam > 0 )
 	uiSEGYExamine::launch( exsu );
 
-    BufferString emsg;
+    uiString emsg;
     PtrMan<SeisTrcReader> rdr = uiSEGYExamine::getReader( exsu, emsg );
     if ( !rdr )
     {

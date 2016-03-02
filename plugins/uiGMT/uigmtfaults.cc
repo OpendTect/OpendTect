@@ -62,13 +62,13 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, faultfld_ );
 
-    optionfld_ = new uiGenInput( this, "Intersection with ",
-				 BoolInpSpec("true", "Z Slice",
+    optionfld_ = new uiGenInput( this, tr("Intersection with "),
+				 BoolInpSpec("true", tr("Z Slice"),
 				 uiStrings::sHorizon()) );
     optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );
 
-    BufferString lbl( "Z Value ", SI().getZUnitString() );
+    uiString lbl( tr("Z Value %1").arg(SI().getUiZUnitString()) );
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
@@ -77,7 +77,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     horfld_->attach( alignedBelow, optionfld_ );
 
     linestfld_ = new uiSelLineStyle( this, OD::LineStyle(),
-				     uiSelLineStyle::Setup("Line Style" )
+				     uiSelLineStyle::Setup(tr("Line Style") )
 						     .color(false) );
     linestfld_->attach( alignedBelow, horfld_ );
 
@@ -85,7 +85,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 				.lbltxt(uiStrings::sColor()) );
     colorfld_->attach( alignedBelow, linestfld_ );
 
-    usecolorbut_ = new uiCheckBox( this, "Use fault color",
+    usecolorbut_ = new uiCheckBox( this, tr("Use fault color"),
 				   mCB(this,uiGMTFaultsGrp,useColorCB) );
     usecolorbut_->attach( rightOf, colorfld_ );
     postFinalise().notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );

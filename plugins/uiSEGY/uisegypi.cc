@@ -100,7 +100,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = uiString( "Change file/directory names in SEG-Y file %1" );
+    bdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
 

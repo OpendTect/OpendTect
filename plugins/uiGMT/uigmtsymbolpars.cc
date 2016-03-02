@@ -78,7 +78,8 @@ void uiGMTSymbolPars::fillShapes()
 	{
 	    BufferString iconfilenm = GMTWSR().get( idx )->iconfilenm_;
 	    BufferString nm = GMTWSR().get( idx )->name();
-	    shapefld_->insertItem( uiPixmap(iconfilenm), nm.buf(), idx );
+	    shapefld_->insertItem( uiPixmap(iconfilenm), toUiString(nm.buf()), 
+									  idx );
 	}
     }
     else

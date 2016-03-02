@@ -42,9 +42,9 @@ uiGMTOverlayGrp* uiGMTWellsGrp::createInstance( uiParent* p )
 
 
 uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Wells")
+    : uiGMTOverlayGrp(p,uiStrings::sWell(mPlural))
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Well(s)") );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sWell(mPlural) );
     welllistfld_ = new uiListBox( this, su );
     Well::InfoCollector wic( false, false );
     wic.execute();
@@ -52,7 +52,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     {
 	PtrMan<IOObj> ioobj = IOM().get( *wic.ids()[idx] );
 	if ( ioobj )
-	    welllistfld_->addItem( ioobj->name() );
+	    welllistfld_->addItem( ioobj->uiName() );
     }
 
     namefld_ = new uiGenInput( this, uiStrings::sName(),

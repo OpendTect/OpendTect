@@ -31,7 +31,8 @@ static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(tr("Processing %1").arg(isinp?"input":"output"),
-                            tr("Specify the %1 the processing flow").arg(isinp?"input to":"output of"), 
+                            tr("Specify the %1 the processing flow").arg(isinp?
+			    tr("input to"):tr("output of")), 
                                          mODHelpKey(mMadIOSelDlgHelpID) ) )
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
@@ -105,10 +106,11 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 
     uiFileInput::Setup fisu;
     fisu.defseldir( ODMad::FileSpec::defPath() ).forread( isinp );
-    madfld_ = new uiFileInput( this, "Select file", fisu );
+    madfld_ = new uiFileInput( this, uiStrings::phrSelect(
+					 uiStrings::sFile().toLower()), fisu );
     madfld_->attach( alignedBelow, typfld_ );
 
-    sconsfld_ = new uiCheckBox( this, "SCons script",
+    sconsfld_ = new uiCheckBox( this, tr("SCons script"),
 	    			mCB(this,uiMadIOSelDlg,sconsCB) );
     sconsfld_->attach( rightTo, madfld_ );
 
@@ -334,7 +336,7 @@ bool uiMadIOSelDlg::acceptOK( CallBacker* )
 
 
 uiMadIOSel::uiMadIOSel( uiParent* p, bool isinp )
-	: uiCompoundParSel(p,isinp ? "INPUT" : "OUTPUT")
+	: uiCompoundParSel(p,isinp ? tr("INPUT") : tr("OUTPUT"))
 	, iop_(BufferString("Madagascar ",isinp?"input":"output"," selection"))
 	, isinp_(isinp)
         , selectionMade(this)

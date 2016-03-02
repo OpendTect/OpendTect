@@ -53,7 +53,7 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Contour")
+    : uiGMTOverlayGrp(p,uiStrings::sContour())
     , sd_(*new EM::SurfaceIOData)
     , hor_(0)
     , lsfld_(0)
@@ -150,7 +150,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	uiString msg = uiStrings::phrCannotRead( ioobj->name() );
+	uiString msg = uiStrings::phrCannotRead( ioobj->uiName() );
 	uiMSG().error( msg );
 	return;
     }
@@ -163,7 +163,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     cs.hsamp_ = sd_.rg;
     subselfld_->setInput( cs );
     attribfld_->setEmpty();
-    attribfld_->addItem( ODGMT::sKeyZVals() );
+    attribfld_->addItem( mToUiStringTodo(ODGMT::sKeyZVals()) );
 
     if ( sd_.valnames.isEmpty() )
 	attribfld_->setSensitive( false );

@@ -48,18 +48,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom.h"
 #include "zdomain.h"
 
-
-static const char* txtheadtxt =
-"Define the SEG-Y text header. Note that:"
-"\n- The Cnn line start and Rev.1 indicators will always be retained"
-"\n- You can only define 40 lines of 80 characters";
-
 class uiSEGYExpTxtHeaderDlg : public uiDialog
 { mODTextTranslationClass(uiSEGYExpTxtHeaderDlg);
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),txtheadtxt,
+    : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),uiSEGYExp::sTxtHeadTxt(),
                         mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
@@ -179,7 +173,7 @@ BufferString getSummary() const
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),
-				     uiStrings::phrExport( "to SEG-Y"),
+				     uiStrings::phrExport(tr("to SEG-Y")),
                                      mODHelpKey(mSEGYExpHelpID) ))
 	, geom_(gt)
 	, morebox_(0)
@@ -216,8 +210,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     if ( is2dline )
     {
-	morebox_ = new uiCheckBox( this,
-		    uiStrings::phrExport( "more lines from the same dataset") );
+	morebox_ = new uiCheckBox( this, uiStrings::phrExport(
+				    tr("more lines from the same dataset")) );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
@@ -285,18 +279,18 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     BufferStringSet lnms;
     sii.getLineNames( lnms );
     for ( int idx=0; idx<lnms.size(); idx++ )
-	lnmsfld_->addItem( lnms.get(idx) );
+	lnmsfld_->addItem( toUiString(lnms.get(idx)) );
     lnmsfld_->chooseAll();
 
     BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken() );
     newfnm += "_"; newfnm += inioobj_.name();
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
-    BufferString txt( "Output (Line name replaces '" );
-    txt += uiSEGYFileSpec::sKeyLineNmToken(); txt += "')";
+    uiString txt( tr("Output (Line name replaces '%1'")
+				    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
 
     uiFileInput::Setup fisu( fp.fullPath() );
-    fisu.forread( false ).objtype( tr("SEG-Y") );
+    fisu.forread( false ).objtype( uiStrings::sSEGY() );
     fnmfld_ = new uiFileInput( this, txt, fisu );
     fnmfld_->attach( alignedBelow, lnmsfld_ );
 }

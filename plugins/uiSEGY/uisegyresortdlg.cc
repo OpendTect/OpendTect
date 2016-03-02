@@ -60,7 +60,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 #define mDefSeisSelFld(fldnm,geom,trtyp) \
     IOObjContext ctxt##fldnm( mIOObjContext(trtyp) ); \
     ctxt##fldnm.fixTranslator( mSEGYDirectTranslNm ); \
-    uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
+    uiIOObjSel::Setup ossu##fldnm( sFldNm() ); \
     ossu##fldnm.filldef( false ); \
     fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
     if ( geomfld_ ) fldnm##fld_->attach( alignedBelow, geomfld_ ); \
@@ -92,7 +92,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.forread( false ).objtype( tr("SEG-Y") )
 	.filter( uiSEGYFileSpec::fileFilter() );
-    outfld_ = new uiFileInput( this, "Output file (s)", fisu );
+    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fisu );
     outfld_->attach( ensureBelow, sep );
     outfld_->attach( alignedWith, algrp );
 

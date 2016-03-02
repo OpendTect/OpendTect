@@ -63,12 +63,12 @@ static void createUi( uiArray2DInterpol* p, const CallBack& cb )
 
 
 uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
-    : uiArray2DInterpol( p, "GMT grid" )
+    : uiArray2DInterpol( p, tr("GMT grid") )
     , tensionfld_(0)
 {
     if ( hasGMTInst() )
     {
-	tensionfld_ = new uiGenInput( this, "Tension", FloatInpSpec(0.25) );
+	tensionfld_ = new uiGenInput( this, tr("Tension"), FloatInpSpec(0.25) );
 	setHAlignObj( tensionfld_ );
     }
     else
@@ -136,13 +136,13 @@ uiArray2DInterpol* uiGMTNearNeighborGrid::create( uiParent* p )
 
 
 uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
-    : uiArray2DInterpol( p, "GMT grid" )
+    : uiArray2DInterpol( p, tr("GMT grid") )
     , radiusfld_(0)
 {
     if ( hasGMTInst() )
     {
-	BufferString lbl( "Search radius " );
-	lbl.add( SI().getXYUnitString() );
+	uiString lbl( tr("Search radius ") );
+	lbl.append( SI().getUiXYUnitString() );
 	radiusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
 	const int maxval = (int)mMAX(SI().inlDistance(), SI().crlDistance());
 	radiusfld_->setValue( maxval );

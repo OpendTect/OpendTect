@@ -51,6 +51,7 @@ public:
     const char*		errMsg() const		{ return txtinfo_; }
 
     static SeisTrcReader* getReader(const Setup&,BufferString& errmsg);
+    static SeisTrcReader* getReader(const Setup&,uiString& errmsg);
     static int		getRev(const SeisTrcReader&); // -1 = err, 1 = Rev 1
     static int		getRev(const Setup&,BufferString& emsg);
 
@@ -83,6 +84,9 @@ protected:
     bool		rejectOK(CallBacker*);
 
     void		outInfo(const char*);
+
+public:
+    uiString		sGetWinTitle();
 
 };
 

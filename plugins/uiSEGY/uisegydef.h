@@ -141,6 +141,9 @@ protected:
     void		readParsPush(CallBacker*);
     void		writeParsPush(CallBacker*);
 
+public:
+    static const uiString sRetSavedGrp() { return tr("Retrieve Saved Group"); }
+
 };
 
 
@@ -243,6 +246,9 @@ protected:
 					  bool isz=false);
     void		setToggled(IOPar&,const char*,uiGenInput*,
 				   bool isz=false) const;
+
+public: 
+    const uiString	sPreScanFiles() { return tr("Pre-scan the files"); }
 
 };
 

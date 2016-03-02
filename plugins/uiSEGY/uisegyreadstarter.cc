@@ -58,7 +58,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
     : uiDialog(p,uiDialog::Setup(forsurvsetup
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
-	    imptyp ? uiString("Import %1").arg(imptyp->dispText())
+	    imptyp ? tr("Import %1").arg(imptyp->dispText())
             : mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
     , filereadopts_(0)
     , typfld_(0)
@@ -89,8 +89,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
 	.objtype( tr("SEG-Y") );
-    inpfld_ = new uiFileInput( topgrp_, "Input file(s) (*=wildcard)",
-				fisu );
+    inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
+			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 			         mCB(this,uiSEGYReadStarter,editFile), false );
@@ -218,7 +218,7 @@ void uiSEGYReadStarter::createTools()
 	coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
 	    "the coordinate scaling in the trace headers."
 	    "\nAll coordinates read will then be multiplied by that factor." ));
-	coordscalefld_->setPlaceholderText( "scale XY" );
+	coordscalefld_->setPlaceholderText( tr("scale XY") );
 	coordscalefld_->editingFinished.notify(
 				mCB(this,uiSEGYReadStarter,coordscaleChg) );
 	if ( usexybut_ )
@@ -247,7 +247,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
     clipfld_->setInterval( 0.f, 49.9f, 0.1f );
     clipfld_->setValue( 0.1f );
     clipfld_->setToolTip( tr("Percentage clip for display") );
-    clipfld_->setSuffix( uiString("%") );
+    clipfld_->setSuffix( toUiString("%") );
     clipfld_->setHSzPol( uiObject::Small );
     clipfld_->attach( rightOf, ampldisp_ );
     clipfld_->valueChanging.notify( adupcb );
@@ -437,8 +437,8 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     execoldbut->attach( leftTo, okbut );
     execoldbut->attach( leftBorder );
     uiMenu* mnu = new uiMenu;
-    mnu->insertAction( new uiAction("Import",impcb) );
-    mnu->insertAction( new uiAction("Link",linkcb) );
+    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
+    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
     execoldbut->setMenu( mnu );
 }
 
@@ -786,7 +786,7 @@ void uiSEGYReadStarter::updateSurvMap()
 	}
     }
 
-    toStatusBar( stbarmsg );
+    toStatusBar( mToUiStringTodo(stbarmsg) );
     survmap_->setSurveyInfo( survinfo_ );
 }
 
@@ -856,7 +856,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 	if ( !File::exists(fnm) )
 	{
 	    if ( emiterr )
-		uiMSG().error( uiString(
+		uiMSG().error( tr(
 			    "SEG-Y file does not exist:\n%1").arg(fnm) );
 	    return false;
 	}
@@ -910,7 +910,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 
 #define mErrRetResetStream(str) { \
     strm.setPosition( firsttrcpos ); \
-    uiMSG().error( uiString(str).arg(strm.fileName()) ); \
+    uiMSG().error( str.arg(strm.fileName()) ); \
     return false; }
 
 bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
@@ -920,13 +920,13 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
     PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
     if ( !thdr )
-	mErrRetResetStream( "File:\n%1\nNo traces found" )
+	mErrRetResetStream( tr("File:\n%1\nNo traces found") )
 
     if ( bfi.ns_ < 1 )
 	bfi.ns_ = (int)thdr->nrSamples();
     if ( bfi.ns_ > mMaxReasonableNS )
 	mErrRetResetStream(
-	    "File:\n%1\nNo proper 'number of samples per trace' found" )
+	    tr("File:\n%1\nNo proper 'number of samples per trace' found") )
 
     if ( mIsUdf(bfi.sampling_.step) )
     {

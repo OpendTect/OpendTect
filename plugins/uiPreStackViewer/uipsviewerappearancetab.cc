@@ -65,7 +65,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 	    FloatInpSpec(), FloatInpSpec() );
     zgridrangefld_->attach( alignedBelow, zgridfld_ );
 
-    zgridrangelbl_ = new uiLabel( this, SI().getZUnitString(true) );
+    zgridrangelbl_ = new uiLabel( this, SI().getUiZUnitString(true) );
     zgridrangelbl_->attach( rightOf, zgridrangefld_ );
 
     SamplingData<float> curoffssmp = vwr_->appearance().annot_.x1_.sampling_;
@@ -89,7 +89,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
             FloatInpSpec(),FloatInpSpec());
     offsgridrangefld_->attach( alignedBelow, offsgridfld_ );
 
-    offsgridrangelbl_ = new uiLabel( this, SI().getXYUnitString(true) );
+    offsgridrangelbl_ = new uiLabel( this, SI().getUiXYUnitString(true) );
     offsgridrangelbl_->attach( rightOf, offsgridrangefld_ );
 
     applybut_ = uiButton::getStd( this, OD::Apply,

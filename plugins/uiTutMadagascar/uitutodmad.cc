@@ -31,7 +31,8 @@ uiTutODMad::uiTutODMad( uiParent* p )
     uiFileInput::Setup fisu;
     fisu.defseldir( ODMad::FileSpec::defPath() );
     fisu.forread( true );
-    maddatafld_ = new uiFileInput( this, "Data file", fisu );
+    maddatafld_ = new uiFileInput( this, mJoinUiStrs(sData(),sFile().toLower()),
+									fisu );
     maddatafld_->setFilter( "*.rsf" );
 
     dowigglesfld_ = new uiGenInput ( this, uiStrings::sDisplay(),

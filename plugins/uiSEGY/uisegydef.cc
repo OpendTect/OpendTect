@@ -60,9 +60,9 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 {
     SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
 
-    BufferString disptxt( forread_ ? "Input" : "Output" );
-    disptxt += " SEG-Y file";
-    if ( needmulti_ ) disptxt += "(s)";
+    uiString disptxt( forread_ ? uiStrings::sInput() : uiStrings::sOutput() );
+    disptxt.append(tr(" SEG-Y file"));
+    if ( needmulti_ ) disptxt.append("(s)");
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.forread( forread_ ).filter( fileFilter() ).objtype( tr("SEG-Y") );
     fnmfld_ = new uiFileInput( this, disptxt, fisu );
@@ -289,14 +289,18 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     {
 	IntInpSpec iis( ispresent ? mNINT32(val)
 				  : SI().zRange(false).nrSteps() + 1 );
-	inp = new uiGenInput( grp, txt, iis );
+	inp = new uiGenInput( grp, mToUiStringTodo(txt), iis );
     }
     else
     {
 	if ( !mIsUdf(val) && isz ) val *= SI().zDomain().userFactor();
 	FloatInpSpec fis( val );
-	BufferString fldtxt( txt );
-	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnitString(); }
+	uiString fldtxt( mToUiStringTodo(txt) );
+	if ( isz ) 
+	{ 
+	    fldtxt.append(" "); 
+	    fldtxt.append(SI().getUiZUnitString()); 
+	}
 	inp = new uiGenInput( grp, fldtxt, fis );
     }
 
@@ -311,10 +315,11 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
-      "open", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
+      "open", uiSEGYFilePars::sRetSavedGrp(), mCB(this,clss,readParsPush) );\
     rtb->attach( rightOf, sep ); \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-      "save", "Save setup", mCB(this,clss,writeParsPush) );\
+			"save", mJoinUiStrs(sSave(),sSetup().toLower()), \
+			mCB(this,clss,writeParsPush) );\
     stb->attach( alignedBelow, rtb ); \
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
@@ -348,7 +353,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
 	int bs = 0;
 	if ( iop ) iop->get( FilePars::sKeyByteSwap(), bs );
 	const char* strs[] = { "No", "Only data", "All", "Only headers", 0 };
-	const char* txt = forread ? "Bytes swapped" : "Swap bytes";
+	const uiString txt = forread ? tr("Bytes swapped") : tr("Swap bytes");
 	byteswapfld_ = new uiGenInput( grp, txt, StringListInpSpec(strs) );
 	byteswapfld_->setValue( bs );
 	byteswapfld_->attach( alignedBelow, fmtfld_ );
@@ -456,10 +461,10 @@ uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
     const char* fldnm = ky;
     bytefld_ = new uiSpinBox( this, 0, BufferString(fldnm," value") );
     if ( !isopt )
-	new uiLabel( this, fldnm, bytefld_ );
+	new uiLabel( this, mToUiStringTodo(fldnm), bytefld_ );
     else
     {
-	isselbox_ = new uiCheckBox( this, fldnm );
+	isselbox_ = new uiCheckBox( this, mToUiStringTodo(fldnm) );
 	bytefld_->attach( rightOf, isselbox_ );
 	isselbox_->setChecked( true );
 	isselbox_->activated.notify( mCB(this,uiSEGYByteSpec,byteChck) );
@@ -469,7 +474,7 @@ uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
 
     if ( wsz )
     {
-	BoolInpSpec bszspec( !he_.issmall_, "4", "2" );
+	BoolInpSpec bszspec( !he_.issmall_, toUiString("4"), toUiString("2") );
 	issmallfld_ = new uiCheckBox( this, tr(" 2 bytes") );
 	issmallfld_->attach( rightOf, bytefld_ );
     }
@@ -591,7 +596,7 @@ bool getVals()
     mDefSaveRetrTBs(uiSEGYFileOpts,grp); \
 \
     uiToolButton* pstb = new uiToolButton( grp->attachObj()->parent(), \
-			     "prescan","Pre-scan the file(s)", \
+			     "prescan",sPreScanFiles(), \
 				    mCB(this,uiSEGYFileOpts,preScanPush) );\
     pstb->attach( alignedBelow, stb ); \
 \
@@ -811,9 +816,9 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
-	    coordsfnmfld_ = new uiFileInput( grp, "Name",
+	    coordsfnmfld_ = new uiFileInput( grp, uiStrings::sName(),
 			uiFileInput::Setup(uiFileDialog::Gen)
-			.forread(forread_).objtype("Bend Points") );
+			.forread(forread_).objtype(tr("Bend Points")) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
 					    StringInpSpec("crd") );

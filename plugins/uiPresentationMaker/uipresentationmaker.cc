@@ -483,7 +483,7 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     BufferString cmd( "python ", scriptfp.fullPath() );
     if ( !OS::ExecCommand(cmd.buf(),OS::Wait4Finish) )
     {
-	uiMSG().error( tr("Could not execute\n: "), cmd.buf(),
+	uiMSG().error( tr("Could not execute\n: "), mToUiStringTodo(cmd.buf()),
 	    tr("\nPlease check if Python is correctly installed.") );
 	return;
     }

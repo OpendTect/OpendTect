@@ -18,6 +18,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiLabeledComboBox;
 class uiPosSubSel;
+class uiLabel;
 
 
 mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog

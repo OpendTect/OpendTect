@@ -21,13 +21,15 @@ class uiFileInput;
     FilePath deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
     uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
     fiinpsu.forread( false ).filter( "*.kml" ); \
-    fnmfld_ = new uiFileInput( this, "Output file", fiinpsu )
+    fnmfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fiinpsu );
 
 
 #define mCreateWriter(typ,survnm) \
     const BufferString fnm( fnmfld_->fileName() ); \
     if ( fnm.isEmpty() ) \
-	{ uiMSG().error("please enter the output file name"); return false; } \
+	{ uiMSG().error(uiStrings::phrEnter(mJoinUiStrs( \
+		    sOutputFile().toLower(), sName().toLower()))); \
+	  return false; } \
  \
     ODGoogle::XMLWriter wrr( typ, fnm, survnm ); \
     if ( !wrr.isOK() ) \

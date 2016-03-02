@@ -132,6 +132,8 @@ public:
 
     static const char*	sKeyNrInlPerFile()
 			{ return "Number of inlines per file"; }
+    static const uiString sNrInlPerFile() 
+			{ return tr("Number of inlines per file"); } 
 
 };
 

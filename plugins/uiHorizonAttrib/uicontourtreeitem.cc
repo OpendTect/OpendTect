@@ -469,7 +469,7 @@ void uiContourTreeItemContourGenerator::addContourLabel(
     {
 	BufferString labelonpole( lbl );
 	labelonpole += "\n|";
-	label->setText( labelonpole );
+	label->setText( mToUiStringTodo(labelonpole) );
 	label->setJustification( visBase::Text::BottomLeft );
 	label->setPosition( pos, true );
 	label->setFontData( FontData(18), labels_->getPixelDensity() );
@@ -485,7 +485,7 @@ public:
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 		  const StepInterval<float>& intv, const OD::LineStyle& ls,
 		  int sceneid )
-    : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Contour Display Options"),mNoDlgTitle,
                         mODHelpKey(mContourParsDlgHelpID) )
 		 .nrstatusflds(1))
     , rg_(rg)
@@ -506,18 +506,20 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 
 #define mAddZUnitStr(str) \
     if ( iszval_ ) \
-	str.add( " " ).add( scene->zDomainInfo().unitStr(true) )
+	str.append( " " ).append( scene->zDomainInfo().uiUnitStr(true) )
 
-    BufferString lbltxt( "Total ", attrnm, " range" );
-    mAddZUnitStr(lbltxt); lbltxt.add( ": " );
+    uiString lbltxt( tr("Total %1 range").arg(attrnm) );
+    mAddZUnitStr(lbltxt); lbltxt.append( ": " );
+    BufferString lbltxtapnd;
     if ( iszval_ )
-	lbltxt.add( rg_.start, 2 ).add( " - " ).add( rg_.stop, 2 );
+	lbltxtapnd.add( rg_.start, 2 ).add( " - " ).add( rg_.stop, 2 );
     else
-	lbltxt.add( rg_.start ).add( " - " ).add( rg_.stop );
+	lbltxtapnd.add( rg_.start ).add( " - " ).add( rg_.stop );
 
-    uiLabel* lbl = new uiLabel( this, lbltxt );
+    uiLabel* lbl = new uiLabel( this, lbltxt.append(lbltxtapnd) );
 
-    lbltxt = "Contour range "; mAddZUnitStr(lbltxt);
+    lbltxt = toUiString("%1 ").arg(mJoinUiStrs(sContour(), sRange().toLower()));
+    mAddZUnitStr(lbltxt);
     intvfld_ = new uiGenInput(this,lbltxt,FloatInpIntervalSpec(contourintv_));
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
     intvfld_->attach( leftAlignedBelow, lbl );
@@ -531,11 +533,11 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     lsfld_->attach( alignedBelow, intvfld_ );
     lsfld_->changed.notify( mCB(this,uiContourParsDlg,dispChanged) );
 
-    showlblsfld_ = new uiCheckBox( this, "Show labels" );
+    showlblsfld_ = new uiCheckBox( this, tr("Show labels") );
     showlblsfld_->activated.notify( mCB(this,uiContourParsDlg,uiDisplayCB) );
     showlblsfld_->attach( alignedBelow, lsfld_ );
 
-    fontfld_ = new uiPushButton( this, "Font",
+    fontfld_ = new uiPushButton( this, tr("Font"),
 			    mCB(this,uiContourParsDlg,selectFontCB), false );
     fontfld_->attach( rightOf, showlblsfld_ );
 
@@ -543,21 +545,23 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 				       OD::Horizontal );
     alignbutsfld_->attach( alignedBelow, showlblsfld_ );
 
-    alignlblfld_ = new uiLabel( this, "Label alignment" );
+    alignlblfld_ = new uiLabel( this, tr("Label alignment") );
     alignlblfld_->attach( leftOf, alignbutsfld_ );
 
-    uiRadioButton* leftbut = new uiRadioButton( alignbutsfld_, "Left" );
+    uiRadioButton* leftbut = new uiRadioButton( alignbutsfld_, 
+							   uiStrings::sLeft() );
     leftbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
-    uiRadioButton* centerbut = new uiRadioButton( alignbutsfld_, "Center" );
+    uiRadioButton* centerbut = new uiRadioButton( alignbutsfld_, tr("Center") );
     centerbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
-    uiRadioButton* rightbut = new uiRadioButton( alignbutsfld_, "Right" );
+    uiRadioButton* rightbut = new uiRadioButton( alignbutsfld_, 
+							  uiStrings::sRight() );
     rightbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
     alignbutsfld_->selectButton( 0 );
 
-    elevationfld_ = new uiLabeledSpinBox( this, "Label elevation" );
+    elevationfld_ = new uiLabeledSpinBox( this, tr("Label elevation") );
     elevationfld_->attach( alignedBelow, alignbutsfld_ );
 
-    degreeslblfld_ = new uiLabel( this, "degrees" );
+    degreeslblfld_ = new uiLabel( this, tr("degrees") );
     degreeslblfld_->attach( rightOf, elevationfld_ );
 
     elevationfld_->box()->setSpecialValueText( "Off" );
@@ -714,7 +718,7 @@ void intvChanged( CallBacker* cb )
     intv = intvfld_->getFStepInterval();
     contourintv_.step = intv.step;
 
-    BufferString txt( "Number of contours: ", intv.nrSteps()+1 );
+    uiString txt( tr("Number of contours: %1").arg(intv.nrSteps()+1) );
     toStatusBar( txt );
 }
 
@@ -878,9 +882,10 @@ void uiContourTreeItem::createMenu( MenuHandler* menu, bool istb )
                      &areamenuitm_, lines_ && areas_.size(), false );
 }
 
-const char* areaString()
+const uiString areaString()
 {
-    return SI().xyInFeet() ? "Area (sqft)" : "Area (m^2)";
+    return od_static_tr("areaString",
+			      SI().xyInFeet() ? "Area (sqft)" : "Area (m^2)");
 }
 
 
@@ -944,9 +949,9 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         TypeSet<float> zvals, areas;
         getZVSAreaValues( zvals, areas );
 
-        uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"), 0,
-				   mNoHelpKey ) );
-        dlg.setCancelText( 0 );
+        uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"), 
+				   uiString::emptyString(), mNoHelpKey ) );
+        dlg.setCancelText( uiString::emptyString() );
 
         RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
                         applMgr()->visServer()->getObject(sceneID()) );
@@ -1336,7 +1341,7 @@ void uiContourTreeItem::updateZShift()
 	    BufferString txt = labels_->text(idx)->getText().getFullString();
 	    float labelval = txt.toFloat();
 	    labelval += deltaz * SI().zDomain().userFactor();
-	    labels_->text(idx)->setText( toString( (int)labelval ) );
+	    labels_->text(idx)->setText( toUiString( (int)labelval ) );
 	}
     }
 

@@ -71,14 +71,14 @@ class uiHelloMsgBringer : public uiDialog
 public:
 
 uiHelloMsgBringer( uiParent* p )
-    : uiDialog(p,Setup("Hello Message Window","Specify hello message",
+    : uiDialog(p,Setup(tr("Hello Message Window"),tr("Specify hello message"),
 			mNoHelpKey))
 {
-    txtfld = new uiGenInput( this, "Hello message",
+    txtfld = new uiGenInput( this, tr("Hello message"),
 				StringInpSpec("Hello world") );
-    typfld = new uiGenInput( this, "Message type",
+    typfld = new uiGenInput( this, tr("Message type"),
 				BoolInpSpec(true,uiStrings::sInfo(),
-					    "Warning") );
+					    uiStrings::sWarning()) );
     typfld->attach( alignedBelow, txtfld );
 }
 
@@ -91,9 +91,9 @@ bool acceptOK( CallBacker* )
 	return false;
     }
     if ( typfld->getBoolValue() )
-	uiMSG().message( typedtxt );
+	uiMSG().message( mToUiStringTodo(typedtxt) );
     else
-	uiMSG().warning( typedtxt );
+	uiMSG().warning( mToUiStringTodo(typedtxt) );
     return true;
 }
 

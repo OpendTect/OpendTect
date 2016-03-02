@@ -49,10 +49,9 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     uiObject* attobj = 0;
     if ( setup_.dlgtitle_.isEmpty() )
     {
-	BufferString ttl( "Scan " );
-	ttl += Seis::nameOf( setup_.geom_ );
 	FileSpec fs; fs.usePar( iop );
-	ttl += " "; ttl += fs.dispName();
+	uiString ttl( tr("Scan %1 %2").arg(Seis::nameOf( setup_.geom_ ))
+				      .arg(fs.dispName()) );
 	setTitleText( ttl );
     }
 
@@ -117,7 +116,11 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 }
 
 
-#define mErrRet(s1,s2) { if ( s1 ) uiMSG().error(s1,s2); return false; }
+#define mErrRet(s1,s2)  \
+{ 			 \
+    if ( !s1.isEmpty() ) uiMSG().error(s1,s2); \
+    return false; 	  \
+}
 
 
 bool uiSEGYScanDlg::doWork( const IOObj& )
@@ -129,17 +132,22 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	{
 	    lnm = lnmfld_->getInput();
 	    if ( lnm.isEmpty() )
-		mErrRet("Please select the line name",0)
+		mErrRet(uiStrings::phrSelect(tr("the line name")),
+						    uiStrings::sEmptyString())
 	}
 
         if ( !outfld_->commitInput() )
 	{
 	    if ( !outfld_->isEmpty() )
-		mErrRet(0,0)
+		mErrRet(uiStrings::sEmptyString(),uiStrings::sEmptyString())
 	    else if ( Seis::isPS( setup_.geom_ ) )
-		mErrRet("Please enter a name for the output data store scan",0)
+		mErrRet(uiStrings::phrEnter(
+			tr("a name for the output data store scan")),
+			uiStrings::sEmptyString())
 	    else
-		mErrRet("Please enter a name for the output cube scan",0)
+		mErrRet(uiStrings::phrEnter(
+			tr("a name for the output cube scan")),
+			uiStrings::sEmptyString())
 	}
 
 	pathnm = outfld_->ioobj(true)->fullUserExpr( Conn::Write );
@@ -149,15 +157,18 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	    {
 		File::createDir(pathnm);
 		if ( !File::isDirectory(pathnm) )
-		    mErrRet("Cannot create directory for output:\n",pathnm)
+		    mErrRet(uiStrings::phrCannotCreate(
+			    tr("directory for output:\n")),toUiString(pathnm))
 	    }
 	    if ( !File::isWritable(pathnm) )
-		mErrRet("Output directory is not writable:\n",pathnm)
+		mErrRet(uiStrings::phrOutput(
+			tr("directory is not writable:\n")),toUiString(pathnm))
 	}
 	else
 	{
 	    if ( File::exists(pathnm) && !File::isWritable(pathnm) )
-		mErrRet("Cannot overwrite output file:\n",pathnm)
+		mErrRet(tr("Cannot overwrite output file:\n"),
+			toUiString(pathnm))
 	}
     }
 
@@ -180,7 +191,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 		PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
 				SEGYDirectSurvGeom2DTranslator::translKey() );
 		if ( !geomobj )
-		    mErrRet("Cannot create geometry entry for 2D line",lnm)
+		    mErrRet(uiStrings::phrCannotCreate(
+			    tr("geometry entry for 2D line")),toUiString(lnm))
 
 		geomobj->pars().set(
 			SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),

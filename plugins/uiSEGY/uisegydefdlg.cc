@@ -72,7 +72,8 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("File type") );
 	geomfld_ = lcb->box();
 	for ( int idx=0; idx<su.geoms_.size(); idx++ )
-	    geomfld_->addItem( Seis::nameOf( (Seis::GeomType)su.geoms_[idx] ) );
+	    geomfld_->addItem( toUiString(Seis::nameOf( 
+					 (Seis::GeomType)su.geoms_[idx])) );
 	geomfld_->setCurrentItem( setup_.geoms_.indexOf(setup_.defgeom_) );
 	geomfld_->selectionChanged.notify( mCB(this,uiSEGYDefDlg,geomChg) );
 	lcb->attach( alignedBelow, filespecfld_ );
@@ -230,8 +231,9 @@ static const char* getFileNameKey( int index )
 
 #define mErrLabelRet(s) { lbl = new uiLabel( this, s ); return; }
 uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
-    : uiDialog(p,uiDialog::Setup(tr("SEGYDirect File Editor"),obj.name(),
-    mODHelpKey(mEditSEGYFileDataDlgHelpID)))
+    : uiDialog(p,uiDialog::Setup(tr("SEGYDirect File Editor"),
+				 toUiString(obj.name()),
+				 mODHelpKey(mEditSEGYFileDataDlgHelpID)))
     , dirsel_(0),filetable_(0)
     , ioobj_(obj)
     , filepars_(*new IOPar)
@@ -249,7 +251,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
 			.arg(fp.pathOnly()) );
     lbl = new uiLabel( this, olddirtxt );
 
-    dirsel_ = new uiFileInput( this, "New location", fp.pathOnly() );
+    dirsel_ = new uiFileInput( this, tr("New location"), fp.pathOnly() );
     dirsel_->setSelectMode( uiFileDialog::Directory );
     dirsel_->setObjType( tr("Location") );
     dirsel_->valuechanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
@@ -268,9 +270,9 @@ void uiEditSEGYFileDataDlg::fillFileTable()
 
     uiTable::Setup su( nrfiles, 3 );
     filetable_ = new uiTable( this, su, "FileTable" );
-    filetable_->setColumnLabel( 0, "Old File Name" );
-    filetable_->setColumnLabel( 1, "New File Name" );
-    filetable_->setColumnLabel( 2, " " );
+    filetable_->setColumnLabel( 0, tr("Old File Name") );
+    filetable_->setColumnLabel( 1, tr("New File Name") );
+    filetable_->setColumnLabel( 2, toUiString(" ") );
     filetable_->setColumnReadOnly( 0, true );
     filetable_->valueChanged.notify( mCB(this,uiEditSEGYFileDataDlg,editCB) );
 
@@ -316,12 +318,13 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	FilePath fp( seldir, newfnm );
 	if ( File::exists(fp.fullPath()) )
 	{
-	    filetable_->setCellToolTip( rc, 0 );
+	    filetable_->setCellToolTip( rc, uiStrings::sEmptyString() );
 	    filetable_->setColor( rc, Color::White() );
 	}
 	else
 	{
-	    BufferString tttext( "File ", fp.fullPath(), " does not exist" );
+	    uiString tttext( uiStrings::phrCannotFind(uiStrings::phrJoinStrings
+			     (uiStrings::sFile(),toUiString(fp.fullPath()))) );
 	    filetable_->setCellToolTip( rc, tttext );
 	    filetable_->setColor( rc, Color::Red() );
 	}

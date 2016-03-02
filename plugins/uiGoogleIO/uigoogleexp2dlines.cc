@@ -49,7 +49,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
 
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
-    putlnmfld_ = new uiGenInput( this, "Put line names",
+    putlnmfld_ = new uiGenInput( this, tr("Put line names"),
 				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 1 );
     if ( putallfld_ )

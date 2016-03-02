@@ -24,12 +24,14 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     , slbl2_(0)
     , trcnr0_(tnr0)
 {
-    tlbl1_ = new uiLabel( this, "" );
+    tlbl1_ = new uiLabel( this, uiString::emptyString() );
     tlbl1_->setStretch( 2, 0 ); tlbl1_->setAlignment( OD::Alignment::HCenter );
     if ( !issingle_ )
     {
-	tlbl2_ = new uiLabel( this, "" ); tlbl2_->attach( ensureBelow, tlbl1_ );
-	tlbl2_->setStretch( 2, 0 ); tlbl2_->setAlignment( OD::Alignment::HCenter );
+	tlbl2_ = new uiLabel( this, uiString::emptyString() ); 
+	tlbl2_->attach( ensureBelow, tlbl1_ );
+	tlbl2_->setStretch( 2, 0 ); 
+	tlbl2_->setAlignment( OD::Alignment::HCenter );
     }
 
     uiFunctionDisplay::Setup fdsu;
@@ -40,15 +42,16 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     if ( tlbl2_ )
 	tlbl2_->attach( widthSameAs, disp_ );
 
-    slbl1_ = new uiLabel( this, "" );
+    slbl1_ = new uiLabel( this, uiString::emptyString() );
     slbl1_->attach( ensureBelow, disp_ ); slbl1_->attach( widthSameAs, disp_ );
     slbl1_->setStretch( 2, 0 ); slbl1_->setAlignment( OD::Alignment::HCenter );
     if ( !issingle_ )
     {
-	slbl2_ = new uiLabel( this, "" );
+	slbl2_ = new uiLabel( this, uiString::emptyString() );
 	slbl2_->attach( ensureBelow, slbl1_ );
 	slbl2_->attach( widthSameAs, disp_ );
-	slbl2_->setStretch( 2, 0 ); slbl2_->setAlignment( OD::Alignment::HCenter );
+	slbl2_->setStretch( 2, 0 ); slbl2_->setAlignment( 
+						      OD::Alignment::HCenter );
     }
 }
 
@@ -64,7 +67,7 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
     if ( issingle_ && !first ) return;
 
     (first ? tlbl1_ : tlbl2_)->setText(
-	    BufferString(he.name()," (",he.description()).add(")") );
+	    toUiString(BufferString(he.name()," (",he.description()).add(")")));
 
     Stats::CalcSetup rcsu( false );
     rcsu.require( Stats::Min ).require( Stats::Max );
@@ -81,7 +84,7 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
     else
 	lbltxt.add( "[" ).add( rg.start ).add( "," ).add( rg.stop ).add( "]" );
     lbltxt.add( " (N=" ).add( sz ).add( ")" );
-    (first ? slbl1_ : slbl2_)->setText( lbltxt );
+    (first ? slbl1_ : slbl2_)->setText( toUiString(lbltxt) );
 
     getBendPoints( data, sz );
     if ( first )

@@ -86,7 +86,8 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
 	    continue;
 
 	curwarnnrs += msgnr;
-	msg.append("\n\n%1").arg( msgptr );
+	msg.append(od_static_tr("displayWarnings",
+						      "\n\n%1").arg( msgptr ));
     }
 
     if ( curwarnnrs.isEmpty() ) // all suppressed
@@ -99,7 +100,7 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
 					    uiString::emptyString(), true );
     else
     {
-	msg.append("\n\nContinue?");
+	msg.append(od_static_tr("displayWarnings","\n\nContinue?"));
 	res = uiMSG().askGoOn( msg, true, &suppresscurwarns );
     }
 
@@ -117,10 +118,12 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
 void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
 {
     if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty()) )
-	uiMSG().warning( "Cannot write report to specified file" );
+	uiMSG().warning( uiStrings::phrCannotWrite(
+	  od_static_tr("displayReport",("report to specified file"))) );
 
     uiDialog* dlg = new uiDialog( p,
-	    uiDialog::Setup(rep.name(),mNoDlgTitle,mNoHelpKey).modal(false) );
+	    uiDialog::Setup(toUiString(rep.name()),
+					mNoDlgTitle,mNoHelpKey).modal(false) );
     dlg->setCtrlStyle( uiDialog::CloseOnly );
     od_ostrstream strstrm; rep.dumpPretty( strstrm );
     uiTextEdit* te = new uiTextEdit( dlg, rep.name() );

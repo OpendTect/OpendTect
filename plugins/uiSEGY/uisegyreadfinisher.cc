@@ -74,7 +74,7 @@ uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
 
 uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 {
-    uiString ret( "Importing %1" );
+    uiString ret( tr("Importing %1") );
     ret.arg( usrspec );
     return ret;
 }
@@ -121,7 +121,8 @@ void uiSEGYReadFinisher::crSeisFields()
     uiGroup* attgrp = 0;
     if ( gt != Seis::Line )
     {
-	docopyfld_ = new uiGenInput( this, "Copy data",
+	docopyfld_ = new uiGenInput( this, uiStrings::phrCopy(
+				     uiStrings::sData().toLower()),
 		BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
 	docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
 	attgrp = docopyfld_;
@@ -230,7 +231,7 @@ void uiSEGYReadFinisher::crVSPFields()
     const char* doms[] = { "TWT", "TVDSS", "MD", 0 };
     inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(doms) );
     inpdomfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );
-    isfeetfld_ = new uiCheckBox( this, "in Feet" );
+    isfeetfld_ = new uiCheckBox( this, tr("in Feet") );
     isfeetfld_->attach( rightOf, inpdomfld_ );
     isfeetfld_->setChecked( fs_.zinfeet_ );
 
@@ -373,7 +374,7 @@ bool uiSEGYReadFinisher::doVSP()
 
     Well::Writer wwr( wllkey, *wd );
     if ( !wwr.putLog(*wl) )
-	mErrRet( wwr.errMsg() )
+	mErrRet( mToUiStringTodo(wwr.errMsg()) )
     else if ( wasloaded )
 	Well::MGR().reload( wllkey );
 

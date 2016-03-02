@@ -77,7 +77,8 @@ uiImpGPRMgr::~uiImpGPRMgr()
 void uiImpGPRMgr::updMnu( CallBacker* )
 {
     appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->insertItem(
-		new uiAction(menunm,mCB(this,uiImpGPRMgr,doWork),"gpr") );
+		new uiAction(toUiString(menunm),mCB(this,uiImpGPRMgr,doWork),
+									"gpr"));
 }
 
 
@@ -86,35 +87,36 @@ class uiDZTImporter : public uiDialog
 public:
 
 uiDZTImporter( uiParent* p )
-    : uiDialog(p,Setup("Import GPR-DZT Seismics",mNoDlgTitle,
+    : uiDialog(p,Setup(uiStrings::phrImport(tr("GPR-DZT Seismics")),mNoDlgTitle,
                         mODHelpKey(mDZTImporterHelpID) ))
     , inpfld_(0)
 {
     setOkText( uiStrings::sImport() );
 
     if ( !SI().has2D() )
-	{ new uiLabel(this,"TODO: implement 3D loading"); return; }
+	{ new uiLabel(this,tr("TODO: implement 3D loading")); return; }
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( "*.dzt" ).forread( true );
-    inpfld_ = new uiFileInput( this, "Input DZT file", fisu );
+    inpfld_ = new uiFileInput(this, uiStrings::phrInput(tr("DZT file")), fisu);
     inpfld_->valuechanged.notify( mCB(this,uiDZTImporter,inpSel) );
 
     nrdeffld_ = new uiGenInput( this, tr("%1 definition: start, step")
 					.arg( uiStrings::sTraceNumber() ),
 				IntInpSpec(1), IntInpSpec(1) );
     nrdeffld_->attach( alignedBelow, inpfld_ );
-    startposfld_ = new uiGenInput( this, "Start position (X,Y)",
+    startposfld_ = new uiGenInput( this, tr("Start position (X,Y)"),
 				PositionInpSpec(SI().minCoord(true)) );
     startposfld_->attach( alignedBelow, nrdeffld_ );
-    stepposfld_ = new uiGenInput( this, "Step in X/Y", FloatInpSpec(),
+    stepposfld_ = new uiGenInput( this, tr("Step in X/Y"), FloatInpSpec(),
 					FloatInpSpec(0) );
     stepposfld_->attach( alignedBelow, startposfld_ );
 
-    zfacfld_ = new uiGenInput( this, "Z Factor", FloatInpSpec(1) );
+    zfacfld_ = new uiGenInput( this, tr("Z Factor"), FloatInpSpec(1) );
     zfacfld_->attach( alignedBelow, stepposfld_ );
 
-    lnmfld_ = new uiGenInput( this, "Output Line name" );
+    lnmfld_ = new uiGenInput( this, uiStrings::phrOutput(mJoinUiStrs(sLine(), 
+							sName().toLower())) );
     lnmfld_->attach( alignedBelow, zfacfld_ );
 
     outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),

@@ -103,7 +103,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = FilePath(GetDataDir()).add("Misc").fullPath();
-    filefld_ = new uiFileInput( this, "Output file",
+    filefld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(false).filter("*.ps").defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
@@ -125,7 +125,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     batchfld_->setJobName( "GMT_Proc" );
     batchfld_->display( false );
 
-    uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
+    uiToolBar* toolbar = new uiToolBar( this, tr("Flow Tools") );
     toolbar->addButton( "new", tr("New flow"),
 			mCB(this,uiGMTMainWin,newFlow) );
     toolbar->addButton( "open", tr("Open Flow"),
@@ -187,7 +187,7 @@ void uiGMTMainWin::openFlow( CallBacker* )
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg; ODGMT::ProcFlow pf;
+	uiString emsg; ODGMT::ProcFlow pf;
 	if ( !ODGMTProcFlowTranslator::retrieve(pf,ctio_.ioobj_,emsg) )
 	    uiMSG().error( emsg );
 	else
@@ -206,7 +206,7 @@ void uiGMTMainWin::saveFlow( CallBacker* )
     if ( !dlg.go() ) return;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    BufferString emsg; ODGMT::ProcFlow pf;
+    uiString emsg; ODGMT::ProcFlow pf;
     IOPar& par = pf.pars();
 
     BufferString fnm = filefld_->fileName();
@@ -257,8 +257,10 @@ void uiGMTMainWin::butPush( CallBacker* cb )
 	const int newcur = curidx + (isup ? -1 : 1);
 	if ( newcur >= 0 && newcur < sz )
 	{
-	    const BufferString curtxt( flowfld_->textOfItem(curidx) );
-	    const BufferString newcurtxt( flowfld_->textOfItem(newcur) );
+	    const uiString curtxt( 
+				mToUiStringTodo(flowfld_->textOfItem(curidx)) );
+	    const uiString newcurtxt( 
+				mToUiStringTodo(flowfld_->textOfItem(newcur)) );
 	    flowfld_->setItemText( newcur, curtxt );
 	    flowfld_->setItemText( curidx, newcurtxt );
 	    pars_.swap( curidx, newcur );
@@ -327,7 +329,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     GMTPar* par = GMTPF().create( iop );
     if ( !par ) return;
 
-    flowfld_->addItem( par->userRef() );
+    flowfld_->addItem( mToUiStringTodo(par->userRef()) );
     pars_ += par;
     flowfld_->setCurrentItem( flowfld_->size() - 1 );
     needsave_ = true;
@@ -353,7 +355,7 @@ void uiGMTMainWin::editCB( CallBacker* )
 	return;
 
     GMTPar* par = GMTPF().create( iop );
-    flowfld_->setItemText( selidx, par->userRef() );
+    flowfld_->setItemText( selidx, mToUiStringTodo(par->userRef()) );
     GMTPar* tmppar = pars_.replace( selidx, par );
     delete tmppar;
     needsave_ = true;
@@ -515,7 +517,7 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 	if ( !gmtpar )
 	    continue;
 
-	flowfld_->addItem( gmtpar->userRef() );
+	flowfld_->addItem( mToUiStringTodo(gmtpar->userRef()) );
 	pars_ += gmtpar;
     }
 

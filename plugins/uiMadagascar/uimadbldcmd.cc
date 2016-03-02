@@ -49,7 +49,7 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
 
 
 class uiMadagascarBldPlotCmd : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiMadagascarBldPlotCmd)
 public:
 
 			uiMadagascarBldPlotCmd(uiParent*);
@@ -71,7 +71,7 @@ protected:
 
 
 uiMadagascarBldPlotCmd::uiMadagascarBldPlotCmd( uiParent* p )
-  : uiCompoundParSel(p,"Plot Command","Create")
+  : uiCompoundParSel(p,tr("Plot Command"),uiStrings::sCreate())
   , cmdlist_(*new BufferStringSet)
 {
     const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
@@ -124,16 +124,17 @@ BufferString uiMadagascarBldPlotCmd::getSummary() const
 
 void uiMadagascarBldPlotCmd::doDlg( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Create plot command", 0, mNoHelpKey) );
-    BufferString lbltxt = "Command to generate plot (e.g. sfwiggle)";
-    uiLabel* lbl1 = new uiLabel( &dlg, lbltxt.buf() );
+    uiDialog dlg(this, uiDialog::Setup(uiStrings::phrCreate(tr("plot command")),
+						    mNoDlgTitle, mNoHelpKey));
+    uiString lbltxt = tr("Command to generate plot (e.g. sfwiggle)");
+    uiLabel* lbl1 = new uiLabel( &dlg, lbltxt );
     uiLineEdit* genplotfld = new uiLineEdit( &dlg, "gen cmd" );
     genplotfld->setCompleter( cmdlist_, true );
     genplotfld->setvalue_( createplotcmd_.buf() );
     genplotfld->attach( rightTo, lbl1 );
 
-    lbltxt = "Command to show plot (e.g. xtpen)";
-    uiLabel* lbl2 = new uiLabel( &dlg, lbltxt.buf() );
+    lbltxt = tr("Command to show plot (e.g. xtpen)");
+    uiLabel* lbl2 = new uiLabel( &dlg, lbltxt );
     lbl2->attach( alignedBelow, lbl1 );
     BufferStringSet penlist;
     penlist.add( "xtpen" );

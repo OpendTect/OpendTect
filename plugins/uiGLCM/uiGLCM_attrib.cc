@@ -125,17 +125,17 @@ uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
     stepoutfld_->setInterval( intv, intv );
     stepoutfld_->attach( alignedBelow,numbergreyfld_ );
 
-    samprangefld_ = new uiGenInput( this, "Vertical Search Window (+/-)",
+    samprangefld_ = new uiGenInput( this, tr("Vertical Search Window (+/-)"),
 				    IntInpSpec() );
     samprangefld_->attach( alignedBelow, stepoutfld_ );
 
-    attributefld_ = new uiGenInput( this, "GLCM Attribute",
+    attributefld_ = new uiGenInput( this, tr("GLCM Attribute"),
 				    StringListInpSpec(attribstr) );
     attributefld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib,
 					 GLCMattributeSel) );
     attributefld_ ->attach( alignedBelow, samprangefld_ );
 
-    directfld_ = new uiGenInput( this, "Direction of Calculation",
+    directfld_ = new uiGenInput( this, tr("Direction of Calculation"),
 				 StringListInpSpec(directionstr) );
     directfld_ ->valuechanged.notify( mCB( this, uiGLCM_attrib,
 				      GLCMdirectionSel) );

@@ -34,7 +34,7 @@ uiGMTOverlayGrp* uiGMTAdvGrp::createInstance( uiParent* p )
 
 
 uiGMTAdvGrp::uiGMTAdvGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Advanced")
+    : uiGMTOverlayGrp(p,tr("Advanced"))
 {
     uiLabel* lbl = new uiLabel( this, tr("Customized GMT command") );
     inpfld_ = new uiLineEdit( this, "GMT Command" );

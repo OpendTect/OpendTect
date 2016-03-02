@@ -55,7 +55,7 @@ class uiGMTIntro : public uiDialog
 public:
 
 uiGMTIntro( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,mNoHelpKey))
 {
     setOkText( uiStrings::sContinue() );
 
@@ -68,10 +68,10 @@ uiGMTIntro( uiParent* p )
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( OD::Alignment::HCenter );
 
-    uiPushButton* gmtbut = new uiPushButton( this, "Download GMT",
+    uiPushButton* gmtbut = new uiPushButton( this, tr("Download GMT"),
 					     mCB(this,uiGMTIntro,gmtPush),
 					     true );
-    gmtbut->setToolTip( "Click to go to the Download centre" );
+    gmtbut->setToolTip( tr("Click to go to the Download centre") );
     gmtbut->attach( centeredBelow, lbl );
 }
 
@@ -93,7 +93,7 @@ bool acceptOK( CallBacker* )
 
 
 class uiGMTMgr :  public CallBacker
-{
+{ mODTextTranslationClass(uiGMTMgr)
 public:
 			uiGMTMgr(uiODMain*);
 			~uiGMTMgr();
@@ -132,7 +132,7 @@ void uiGMTMgr::updateToolBar( CallBacker* )
 void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
-    uiAction* newitem = new uiAction( "GMT Mapping Tool ...",
+    uiAction* newitem = new uiAction( m3Dots(tr("GMT Mapping Tool")),
 				mCB(this,uiGMTMgr,createMap), "gmt_logo" );
     appl_->menuMgr().procMnu()->insertItem( newitem );
 }

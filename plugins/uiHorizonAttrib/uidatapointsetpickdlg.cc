@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
-    : uiDialog(p,uiDialog::Setup("DataPointSet picking",
+    : uiDialog(p,uiDialog::Setup(tr("DataPointSet picking"),
     mNoDlgTitle, mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
     , dps_(*new DataPointSet(false,false))
@@ -50,14 +50,14 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
 {
     setCtrlStyle( CloseOnly );
 
-    tb_ = new uiToolBar( this, "ToolBar" );
-    pickbutid_ = tb_->addButton( "seedpickmode", 0,
+    tb_ = new uiToolBar( this, tr("ToolBar") );
+    pickbutid_ = tb_->addButton( "seedpickmode", uiStrings::sEmptyString(),
 	mCB(this,uiDataPointSetPickDlg,pickModeCB), true );
-    tb_->addButton( "open", "Open DataPointSet",
+    tb_->addButton( "open", tr("Open DataPointSet"),
 	mCB(this,uiDataPointSetPickDlg,openCB) );
-    savebutid_ = tb_->addButton( "save", "Save DataPointSet",
+    savebutid_ = tb_->addButton( "save", tr("Save DataPointSet"),
 	mCB(this,uiDataPointSetPickDlg,saveCB) );
-    tb_->addButton( "saveas", "Save DataPointSet As",
+    tb_->addButton( "saveas", uiStrings::phrSave(tr("DataPointSet As")),
 	mCB(this,uiDataPointSetPickDlg,saveasCB) );
 
     table_ = new uiTable( this, uiTable::Setup(10,6), "Position table" );
@@ -221,9 +221,9 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
     const bool rv = dps_.dataSet().putTo( ioobj->fullUserExpr(true),
 					  errmsg, false );
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
+	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
 
-    setCaption( ioobj->name() );
+    setCaption( ioobj->uiName() );
     changed_ = false;
     updateButtons();
 }
@@ -370,15 +370,16 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
     , interpol_(0)
     , dataidx_(-1)
 {
-    setCaption( "Surface data picking" );
+    setCaption( tr("Surface data picking") );
 
-    uiPushButton* interpolbut = new uiPushButton( this, "Interpolate", true );
+    uiPushButton* interpolbut = new uiPushButton( this, tr("Interpolate"), 
+									true );
     interpolbut->activated.notify(
 	mCB(this,uiEMDataPointSetPickDlg,interpolateCB) );
     interpolbut->attach( alignedBelow, table_ );
 
     uiToolButton* settbut = new uiToolButton( this, "settings",
-	"Interpolation settings", mCB(this,uiEMDataPointSetPickDlg,settCB) );
+    tr("Interpolation settings"), mCB(this,uiEMDataPointSetPickDlg,settCB) );
     settbut->attach( rightOf, interpolbut );
 
     emdps_.dataSet().add( new DataColDef("Section ID") );
@@ -468,7 +469,7 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this,
-		uiDialog::Setup( "Interpolate Horizon Data",
+		uiDialog::Setup( tr("Interpolate Horizon Data"),
 		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
     uiArray2DInterpolSel* settings =
 	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );

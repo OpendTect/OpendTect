@@ -83,6 +83,9 @@ uiString uiStrings::phrCannotLoad( const uiString& string )
 uiString uiStrings::phrCannotOpen( const uiString& string )
 { return toUiString(joinstring).arg(sCannotOpen()).arg( string ); }
 
+uiString uiStrings::phrCannotParse( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotParse()).arg(string); }
+
 uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
 { return phrCannotFind( tr("database entry for %1").arg( string ) ); }
 
@@ -309,6 +312,9 @@ uiString uiStrings::sCantFindSurf()
 
 uiString uiStrings::sCannotOpen()
 { return tr("Cannot open"); }
+
+uiString uiStrings::sCannotParse()
+{ return tr("Cannot parse"); }
 
 uiString uiStrings::sCantReadHor()
 { return phrCannotRead( tr("horizon") ); }

@@ -38,7 +38,7 @@ uiGMTOverlayGrp* uiGMTClipGrp::createInstance( uiParent* p )
 
 
 uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,"Clipping")
+    : uiGMTOverlayGrp(p,tr("Clipping"))
 {
     actionfld_ = new uiGenInput(this, uiString::emptyString(),
                                 BoolInpSpec(true,tr("Start clipping"),
@@ -49,8 +49,9 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
     polygonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPolygon() );
     polygonfld_->attach( alignedBelow, actionfld_ );
 
-    optionfld_ = new uiGenInput(this, "", BoolInpSpec(true,tr("Clip Outside"),
-						      tr("Clip Inside"),true) );
+    optionfld_ = new uiGenInput(this, uiStrings::sEmptyString(), 
+				BoolInpSpec(true,tr("Clip Outside"),
+				tr("Clip Inside"),true) );
     optionfld_->attach( alignedBelow, polygonfld_ );
     actionfld_->valuechanged.notify( mCB(this,uiGMTClipGrp,actionSel) );
     postFinalise().notify( mCB(this,uiGMTClipGrp,actionSel) );

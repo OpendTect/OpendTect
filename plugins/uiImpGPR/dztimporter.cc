@@ -109,7 +109,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     BufferString msg;
     if ( !fh_.getFrom( istream_, msg ) )
     {
-	msg_ = msg;
+	msg_ = mToUiStringTodo(msg);
 	return;
     }
 

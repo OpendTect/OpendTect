@@ -43,7 +43,7 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
     inplogfld_ = new uiListBox( this, su );
     inplogfld_->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
-	inplogfld_->addItem( logs.getLog(idx).name() );
+	inplogfld_->addItem( toUiString(logs.getLog(idx).name()) );
     inplogfld_->selectionChanged.notify(
 				mCB(this,uiTutWellTools,inpchg) );
 
