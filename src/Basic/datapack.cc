@@ -45,7 +45,8 @@ Threads::Atomic<int> curid( DataPack::cNoID() );
 
 static bool trackDataPacks()
 {
-    static bool dotrack = GetEnvVarYN( "OD_TRACK_DATAPACKS" );
+    mDefineStaticLocalObject( bool, dotrack,
+			      = GetEnvVarYN( "OD_TRACK_DATAPACKS" ) );
 #ifdef __debug__
     if ( !DBG::isOn() )
 	DBG::turnOn( DBG_DBG );

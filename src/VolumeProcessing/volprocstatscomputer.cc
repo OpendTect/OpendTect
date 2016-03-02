@@ -200,10 +200,10 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 	    if ( needmed )
 	    {
 		sort( values );
-		outval = values[midway];
+		outval = (float)values[midway];
 	    }
 	    else
-		outval = (float) wcalc.getValue(Stats::Median);
+		outval = (float)wcalc.getValue(Stats::Median);
 
 	    Threads::Locker locker( datalock_ );
 	    output_.set( outpinlidx, outpcrlidx, idz, outval );
