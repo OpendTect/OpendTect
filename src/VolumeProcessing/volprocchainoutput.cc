@@ -132,7 +132,14 @@ od_int64 VolProc::ChainOutput::totalNr() const
 
 uiString VolProc::ChainOutput::uiNrDoneText() const
 {
+#ifdef __debug__
+    uiString ret = progresskeeper_.nrDoneText();
+    if ( FixedString(ret.getFullString())=="Nr Done" )
+	ret = toUiString("# done");
+    return ret;
+#else
     return progresskeeper_.nrDoneText();
+#endif
 }
 
 

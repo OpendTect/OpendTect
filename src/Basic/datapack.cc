@@ -235,7 +235,8 @@ void DataPackMgr::add( DataPack* dp )
 
     mGetWriteLocker( rwlock_, lckr );
     packs_ += dp;
-    mTrackDPMsg( BufferString("[DP]: add ",dp->id()) );
+    mTrackDPMsg( BufferString("[DP]: add ",dp->id(),
+		 BufferString(" '",dp->name(),"'")) );
     lckr.unlockNow();
     newPack.trigger( dp );
 }
@@ -248,17 +249,20 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
     Threads::Locker lckr( dp->nruserslock_ );
     dp->nrusers_++;
     dp->setManager( this );
-    mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id()) );
     lckr.unlockNow();
 
     mGetWriteLocker( rwlock_, rwlckr );
     const int idx = packs_.indexOf( dp );
     if ( idx==-1 )
+    {
+	mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id(),
+		     BufferString(" '",dp->name(),"'")) );
 	packs_ += dp;
+    }
     else
     {
-	mTrackDPMsg( BufferString("[DP]:    (was already present, nrusers=",
-			dp->nrusers_,")") );
+	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",dp->id(),
+			BufferString(" nrusers=",dp->nrusers_)) );
     }
     rwlckr.unlockNow();
 
@@ -315,7 +319,11 @@ void DataPackMgr::release( DataPack::ID dpid )
     pack->nrusers_--;
 
     if ( pack->nrusers_>0 )
+    {
+	mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
+		     BufferString(" nrusers=",pack->nrusers_)) );
 	return;
+    }
 
     //We should be unlocked during callback
     //to avoid deadlocks
