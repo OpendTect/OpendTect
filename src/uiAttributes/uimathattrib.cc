@@ -104,11 +104,10 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !ads_ ) return;	//?
 
     int inpidx = formfld_->inpSelNotifNr();
-    if ( inpidx<0 || inpidx>=formfld_->nrInpFlds() )
+    if ( inpidx<0 || inpidx>=formfld_->nrInpFlds() || !dpfids_.isEmpty() )
 	return;
 
-    if ( !dpfids_.isEmpty() )
-	return;
+    formfld_->setNonSpecSubInputs( BufferStringSet(), inpidx );
 
     Desc* inpdesc = ads_->getDescFromUIListEntry(
 				    formfld_->inpFld(inpidx)->getInput() );
