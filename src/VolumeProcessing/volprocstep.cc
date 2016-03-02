@@ -194,7 +194,8 @@ int VolProc::Step::getInputSlotID( int idx ) const
 }
 
 
-void VolProc::Step::getInputSlotName( InputSlotID slotid, BufferString& res ) const
+void VolProc::Step::getInputSlotName( InputSlotID slotid,
+					BufferString& res ) const
 {
     res.set( "Input " ).add( slotid );
 }

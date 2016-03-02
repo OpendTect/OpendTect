@@ -52,7 +52,7 @@ public:
 
     void		releaseData();
     bool		canInputAndOutputBeSame() const	{ return false; }
-    bool		needsFullVolume() const	{ return true; }
+    bool		needsFullVolume() const		{ return true; }
 
     Task*		createTask();
 
