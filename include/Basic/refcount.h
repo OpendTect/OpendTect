@@ -137,7 +137,7 @@ public:
     void		removeObserver(ObsPtrBase* obj);
 
 			Counter() : count_( 0 ) {}
-                        Counter(const Counter& a);
+                        Counter(const Counter& a) : count_( 0 ) {}
 
     static od_int32		cInvalidRefCount();
 
