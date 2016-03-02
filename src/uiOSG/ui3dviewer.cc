@@ -682,16 +682,17 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
     hudview_->getCamera()->setProjectionMatrix(
 	osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
 
-    horthumbwheel_->setPosition( true, mShortSideDistance+mThumbWheelLen/2,
-                                 mLongSideDistance+mThumbWheelWidth/2,
+    const float longsideoffset = mLongSideDistance+mThumbWheelWidth/2.0;
+    const float shortsideoffset = mShortSideDistance+mThumbWheelLen/2.0;
+
+    horthumbwheel_->setPosition( true, shortsideoffset, longsideoffset,
                                  mThumbWheelLen, mThumbWheelWidth, mZCoord );
-    verthumbwheel_->setPosition( false, mLongSideDistance+mThumbWheelWidth/2,
-                                 mShortSideDistance+mThumbWheelLen/2,
+     verthumbwheel_->setPosition( false, longsideoffset, shortsideoffset,
                                  mThumbWheelLen, mThumbWheelWidth, mZCoord );
-    distancethumbwheel_->setPosition( false,
-        mLongSideDistance+mThumbWheelWidth/2,
-        widget->height()-mShortSideDistance-mThumbWheelLen/2,
-        mThumbWheelLen, mThumbWheelWidth, mZCoord );
+     distancethumbwheel_->setPosition( false, longsideoffset,
+			mMAX(widget->height()-shortsideoffset,shortsideoffset),
+			mThumbWheelLen, mThumbWheelWidth, mZCoord );
+
     const float offset = axes_->getLength() + 10;
     axes_->setPosition( widget->width()-offset, offset );
 
