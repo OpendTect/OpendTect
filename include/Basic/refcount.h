@@ -113,7 +113,7 @@ class ObsPtrBase;
 /*! Actual implementation of the reference counting. Normally not used by
     application developers. Use mRefCountImpl marcro instead. */
 
-mClass(Basic) Counter
+mExpClass(Basic) Counter
 {
 public:
     void		ref();
@@ -137,7 +137,7 @@ public:
     void		removeObserver(ObsPtrBase* obj);
 
 			Counter() : count_( 0 ) {}
-                        Counter(const Counter& a) : count_( 0 ) {}
+                        Counter(const Counter& a);
 
     static od_int32		cInvalidRefCount();
 
