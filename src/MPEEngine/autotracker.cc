@@ -146,7 +146,7 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
     if ( !hor || !hor->hasZ(source.tk_) )
 	return;
 
-    Threads::Locker locker( addlock_ );
+    Threads::Locker locker( tasklock_ );
     nrtodo_++;
     tasknr_++;
     CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
@@ -158,7 +158,7 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 
 void HorizonTrackerMgr::taskFinished( CallBacker* )
 {
-    Threads::Locker locker( finishlock_ );
+    Threads::Locker locker( tasklock_ );
     nrtodo_--;
     nrdone_++;
 

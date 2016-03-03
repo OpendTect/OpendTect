@@ -79,8 +79,7 @@ protected:
     Threads::Atomic<int>	nrtodo_;
     Threads::Atomic<int>	tasknr_;
 
-    Threads::Lock		addlock_;
-    Threads::Lock		finishlock_;
+    Threads::Lock		tasklock_;
     Threads::Lock		getfreestlock_;
 };
 
