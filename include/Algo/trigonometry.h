@@ -169,24 +169,35 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 
 /*!<Only when four points are coplanar. */
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
-			const Coord3& b, const Coord3& c, double epsilon )
+			const Coord3& b, const Coord3& c, double epsilon,
+			bool useangularmethod )
 {
+    if ( !useangularmethod )
+    {
+	return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) &&
+	       sameSide3D(p,c,a,b,epsilon);
+    }
+
     Coord3 ap = a - p;
     ap = ap.normalize();
     Coord3 bp = b - p;
     bp = bp.normalize();
     Coord3 cp = c - p;
     cp = cp.normalize();
+
     const double d1 = ap.dot( bp );
     const double d2 = bp.dot( cp );
     const double d3 = cp.dot( ap );
     const double angle = Math::ACos(d1) + Math::ACos(d2) + Math::ACos(d3);
-    return mIsEqual(angle,M_2PI,epsilon);
 
-    /*Method 2
-    return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) &&
-	   sameSide3D(p,c,a,b,epsilon);*/
+    return mIsEqual(angle,M_2PI,epsilon);
 }
+
+
+/*!<Only when four points are coplanar. */
+inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
+			const Coord3& b, const Coord3& c, double epsilon )
+{ return pointInTriangle3D( p, a, b, c, epsilon, false ); }
 
 
 /*!< Check to see if the point P is on the edge AB or not.*/
