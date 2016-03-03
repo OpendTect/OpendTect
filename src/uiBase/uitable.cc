@@ -34,8 +34,32 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QDesktopWidget>
 #include <QHeaderView>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QStyledItemDelegate>
 
 mUseQtnamespace
+
+
+class BackgroundDelegate : public QStyledItemDelegate
+{
+public:
+BackgroundDelegate( QObject* qobj )
+    : QStyledItemDelegate(qobj)
+{
+}
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index) const
+{
+    QVariant background = index.data( Qt::BackgroundRole );
+    if ( background.canConvert<QBrush>() )
+	painter->fillRect( option.rect, background.value<QBrush>() );
+
+    QStyledItemDelegate::paint( painter, option, index );
+}
+
+};
+
 
 class CellObject
 {
@@ -144,6 +168,10 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     setHorizontalScrollMode( QAbstractItemView::ScrollPerPixel );
 
     setMouseTracking( true );
+
+    setItemDelegate( new BackgroundDelegate(this) );
+    setStyleSheet( "selection-background-color: rgba(128, 128, 128, 40);"
+		   "selection-color: black;" );
 }
 
 
