@@ -158,7 +158,7 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 
 void HorizonTrackerMgr::taskFinished( CallBacker* )
 {
-    Threads::Locker locker( finishlock_ );
+    Threads::Locker locker( addlock_ );
     nrtodo_--;
     nrdone_++;
 
