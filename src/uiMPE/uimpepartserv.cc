@@ -95,10 +95,11 @@ uiMPEPartServer::~uiMPEPartServer()
     setupbeingupdated_ = false;
 
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    if ( setupgrp_ && setupgrp_->mainwin() )
+    if ( setupgrp_ )
     {
 	setupgrp_->setMPEPartServer( 0 );
-	setupgrp_->mainwin()->close();
+	uiMainWin* mw = setupgrp_->mainwin();
+	delete mw;
     }
 }
 
@@ -855,6 +856,12 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker ) return false;
 
+    if ( setupgrp_ )
+    {
+	uiMainWin* mw = setupgrp_->mainwin();
+	delete mw;
+    }
+
     uiDialog* setupdlg  = new uiDialog( 0,
 		uiDialog::Setup(tr("Horizon Tracking Settings"),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
@@ -864,7 +871,11 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg,
 						  emobj->getTypeStr() );
-    if ( !setupgrp_ ) return false;
+    if ( !setupgrp_ )
+    {
+	delete setupdlg;
+	return false;
+    }
 
     setupgrp_->setMPEPartServer( this );
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
