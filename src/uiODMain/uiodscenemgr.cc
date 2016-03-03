@@ -371,8 +371,9 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    continue;
 	}
 
+	const int sceneid = scn.vwr3d_->sceneID();
 	visBase::DataObject* obj =
-	    visBase::DM().getObject( scn.vwr3d_->sceneID() );
+	    visBase::DM().getObject( sceneid );
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
 	if ( visscene )
@@ -386,10 +387,10 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
 	visServ().turnSelectionModeOn( false );
 
-    const uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
-						      toUiString( vwridx_ ));
+	const uiString title = uiStrings::phrJoinStrings(
+		uiStrings::sScene(), toUiString(vwridx_) );
 	scn.mdiwin_->setTitle( title );
-	visServ().setObjectName( scn.vwr3d_->sceneID(), title );
+	visServ().setObjectName( sceneid, title );
 
 	scn.vwr3d_->display( true );
 	scn.vwr3d_->showRotAxis( true );
@@ -397,8 +398,9 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	scn.vwr3d_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.mdiwin_->display( true, false );
 
-	treeToBeAdded.trigger( scn.vwr3d_->sceneID() );
+	treeToBeAdded.trigger( sceneid );
 	initTree( scn, vwridx_ );
+	treeAdded().trigger( sceneid );
     }
 
     ObjectSet<ui3DViewer> vwrs;
