@@ -39,7 +39,7 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 		      mCB(this,uiStratLvlList,addCB) );
     new uiToolButton( grp, "edit", uiStrings::sEdit(),
                       mCB(this,uiStratLvlList,editCB) );
-    new uiToolButton( grp, "stop", uiStrings::sRemove(),
+    new uiToolButton( grp, "remove", uiStrings::sRemove(),
 		      mCB(this,uiStratLvlList,removeCB) );
     new uiToolButton( grp, "clear", uiStrings::phrRemove(uiStrings::sAll()),
 		      mCB(this,uiStratLvlList,removeAllCB) );
