@@ -19,45 +19,44 @@ ________________________________________________________________________
 class SeisTrcReader;
 class SeisTrcTranslator;
 
+
 namespace VolProc
 {
 
-/*!
-\brief Reads in a volume. Will replace previous values if data is present in
-the read volume.
-*/
+/*!\brief Reads a volume. Will replace previous values if data is present in
+	    the read volume. */
 
 mExpClass(VolumeProcessing) VolumeReader : public Step
 { mODTextTranslationClass(VolumeReader);
 public:
-			mDefaultFactoryInstantiation(
-				Step, VolumeReader,
-				"VolumeReader", tr("Input Volume") )
-			~VolumeReader();
+				mDefaultFactoryInstantiation(
+					Step, VolumeReader,
+					"VolumeReader", tr("Input Volume") )
+				~VolumeReader();
 
-    bool		needsInput() const		{ return false; }
-    bool		setVolumeID(const MultiID&);
-    const MultiID&	getVolumeID() const		{ return mid_; }
+    bool			setVolumeID(const MultiID&);
+    const MultiID&		getVolumeID() const		{ return mid_; }
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+    virtual Task*		createTask();
 
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return false; }
+    virtual bool		needsFullVolume() const		{ return false;}
+    virtual bool		canInputAndOutputBeSame() const	{ return true; }
+    virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		needsInput() const		{ return false;}
 
 protected:
 
-    Task*		createTask();
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+	    				 const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
-    bool		prefersBinIDWise() const        { return false; }
+    static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 
-    static const char*	sKeyVolumeID()			{ return "Volume ID"; }
-
-    MultiID				mid_;
-    ObjectSet<SeisTrcReader>		readers_;
-    ObjectSet<SeisTrcTranslator>	translators_;
+    MultiID			mid_;
+    ObjectSet<SeisTrcReader>	readers_;
+    ObjectSet<SeisTrcTranslator> translators_;
 
 };
 

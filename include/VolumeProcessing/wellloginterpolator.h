@@ -17,18 +17,18 @@ ________________________________________________________________________
 
 #include "enums.h"
 #include "multiid.h"
-
 class BufferStringSet;
 class Gridder2D;
 class InterpolationLayerModel;
-
 namespace Well { class Data; class Log; }
+
 
 namespace VolProc
 {
 
 class WellLogInfo;
 class WellLogInfoSetup;
+
 
 /*! Fills a volume with well log values. */
 
@@ -42,8 +42,7 @@ public:
 
 				WellLogInterpolator();
 				~WellLogInterpolator();
-
-    bool			needsInput() const	{ return false;}
+    virtual void		releaseData();
 
     bool			is2D() const;
 
@@ -69,20 +68,20 @@ public:
     bool			useLogExtension() const  { return extlog_; }
     void			useLogExtension(bool yn) { extlog_ = yn; }
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+    virtual uiString		errMsg() const		{ return errmsg_; }
 
-    void			releaseData();
-    bool			canInputAndOutputBeSame() const { return true; }
-    bool			needsFullVolume() const		{ return false;}
-
-    uiString			errMsg() const	{ return errmsg_; }
+    virtual bool		canInputAndOutputBeSame() const { return true; }
+    virtual bool		needsFullVolume() const		{ return false;}
+    virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		needsInput() const		{ return false;}
+    virtual bool		prefersBinIDWise() const	{ return true; }
 
 protected:
 
-    bool			prefersBinIDWise() const	{ return true; }
-    bool			prepareComp(int);
-    bool			computeBinID(const BinID&,int);
+    virtual bool		prepareComp(int);
+    virtual bool		computeBinID(const BinID&,int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
 					const TrcKeySampling&,
 					const StepInterval<int>&) const;
@@ -99,6 +98,7 @@ protected:
     uiString			errmsg_;
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
+
 };
 
 } // namespace VolProc

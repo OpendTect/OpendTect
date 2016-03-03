@@ -40,14 +40,16 @@ class Chain;
 mExpClass(VolumeProcessing) Step
 {
 public:
-				typedef int ID;
-				typedef int InputSlotID;
-				typedef int OutputSlotID;
+
+    typedef int			ID;
+    typedef int			InputSlotID;
+    typedef int			OutputSlotID;
     static ID			cUndefID()		{ return mUdf(int); }
     static int			cUndefSlotID()		{ return mUdf(int); }
 
 				mDefineFactoryInClass( Step, factory );
     virtual			~Step();
+    virtual void		releaseData();
 
     ID				getID() const		{ return id_; }
     Chain&			getChain();
@@ -56,24 +58,22 @@ public:
     virtual void		setUserName(const char* nm);
 
     void			resetInput();
-    virtual bool		needsInput() const		= 0;
     virtual int			getNrInputs() const;
+    bool			validInputSlotID(InputSlotID) const;
     virtual InputSlotID		getInputSlotID(int idx) const;
     virtual void		getInputSlotName(InputSlotID,
 						 BufferString&) const;
-    virtual bool		isInputPrevStep() const { return needsInput(); }
 
     virtual int			getNrOutputs() const		{ return 1; }
-    virtual OutputSlotID	getOutputSlotID(int idx) const;
-    bool			validInputSlotID(InputSlotID) const;
     bool			validOutputSlotID(OutputSlotID) const;
+    virtual OutputSlotID	getOutputSlotID(int idx) const;
 
     virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
 				/*!<When computing TrcKeySampling, how
-				 big input is needed? */
+				     big input is needed? */
     virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 				/*!<When computing Z Sampling, how
-				 big input is needed?*/
+				     big input is needed?*/
 
     virtual void		setInput(InputSlotID,
 					 const RegularSeisDataPack*);
@@ -87,60 +87,62 @@ public:
     int				getOutputIdx(OutputSlotID) const;
     void			enableOutput(OutputSlotID);
 
-    virtual bool		canInputAndOutputBeSame() const { return false;}
-    virtual bool		needsFullVolume() const { return true; }
     const RegularSeisDataPack*	getOutput() const	{ return output_; }
     RegularSeisDataPack*	getOutput()		{ return output_; }
 
-    virtual const VelocityDesc*	getVelDesc() const	{ return 0; } // old
-
-    virtual bool		areSamplesIndependent() const { return true; }
-				/*!<returns whether samples in the output
-				 are independent from each other.*/
-
-    virtual Task*		createTask();
-    virtual Task*		createTaskWithProgMeter(ProgressMeter*);
-    virtual bool		needReportProgress()	{ return false; }
-
-    virtual void		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&);
-
-    virtual void		releaseData();
-
     static od_int64		getBaseMemoryUsage(const TrcKeySampling&,
 						   const StepInterval<int>&);
-    od_int64			getExtraMemoryUsage(const TrcKeySampling&,
+    od_int64                    getExtraMemoryUsage(const TrcKeySampling&,
 					const StepInterval<int>&,
 					const TypeSet<OutputSlotID>&
 					=TypeSet<OutputSlotID>()) const;
 				/*!< returns total amount of bytes needed
 				     on top of the base consumption */
 
+    virtual const VelocityDesc*	getVelDesc() const		{ return 0; }
+
+    virtual Task*		createTask();
+    virtual Task*		createTaskWithProgMeter(ProgressMeter*);
+    				//!< only called when needReportProgress()
     virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
 
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    				// Processing properties
+    virtual bool		needsFullVolume() const		= 0;
+    virtual bool		canInputAndOutputBeSame() const	= 0;
+    virtual bool		areSamplesIndependent() const	= 0;
+    virtual bool		needsInput() const		{ return true; }
+    virtual bool		prefersBinIDWise() const	{ return false;}
+    virtual bool		needReportProgress()		{ return false;}
+    virtual bool		isInputPrevStep() const
+    				{ return needsInput(); }
 protected:
 
-			Step();
+				Step();
 
-    virtual bool	prefersBinIDWise() const		{ return false;}
-    virtual bool	computeBinID(const BinID&,int threadid)	{ return false;}
-    virtual bool	prepareComp(int nrthreads)		{ return true;}
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-				const StepInterval<int>&) const	{ return 0; }
+    // Only called if prefersBinIDWise() returns true
+    virtual bool		prepareComp(int nrthreads)	{ return true;}
+    virtual bool		computeBinID(const BinID&,int threadid)
+    								{ return false;}
 
-    Chain*				chain_;
+    // The memory needed on top of the 'base' memory usage. Can be 0.
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+						 const TrcKeySampling&,
+						 const StepInterval<int>&) const
+    								= 0;
 
+    ID				id_;
+    Chain*			chain_;
+    BufferString		username_;
     ObjectSet<const RegularSeisDataPack> inputs_;
-    TypeSet<InputSlotID>		inputslotids_;
-
-    BufferString			username_;
-    ID					id_;
-    uiString				errmsg_;
-
-    TrcKeySampling			tks_;
-    StepInterval<int>			zrg_;
-    TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
+    TypeSet<InputSlotID>	inputslotids_;
+    uiString			errmsg_;
+    TrcKeySampling		tks_;
+    StepInterval<int>		zrg_;
+    TypeSet<OutputSlotID>	outputslotids_; // enabled slotids
 
 private:
 

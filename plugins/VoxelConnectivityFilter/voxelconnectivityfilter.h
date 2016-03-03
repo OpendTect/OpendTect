@@ -60,28 +60,21 @@ public:
     float		getAcceptValue() const  { return acceptvalue_; }
 
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual uiString	errMsg() const			{ return errmsg_; }
+    virtual Task*	createTask();
 
-    bool		needsInput() const		{ return true; }
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return true; }
-    bool		areSamplesIndependent() const	{ return false; }
-    uiString		errMsg() const			{ return errmsg_; }
-
-    Task*		createTask();
+    virtual bool	needsFullVolume() const		{ return true; }
+    virtual bool	canInputAndOutputBeSame() const	{ return true; }
+    virtual bool	areSamplesIndependent() const	{ return false; }
+    virtual bool	needsInput() const		{ return true; }
 
 protected:
 
-		    VoxelConnectivityFilter();
-		    ~VoxelConnectivityFilter();
+			VoxelConnectivityFilter();
+			~VoxelConnectivityFilter();
 
-    static const char*	sKeyRange()		{ return "Range"; }
-    static const char*	sKeyConnectivity()	{ return "Connectivity"; }
-    static const char*	sKeyMinimumSize()	{ return "Minimum size"; }
-    static const char*	sKeyRejectValue()	{ return "Rejected Value"; }
-    static const char*	sKeyAcceptOutput()	{ return "Accepted Output"; }
-    static const char*	sKeyAcceptValue()	{ return "Accepted Value"; }
     virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
@@ -92,6 +85,14 @@ protected:
     AcceptOutput	acceptoutput_;
     float		acceptvalue_;
     Connectivity	connectivity_;
+
+    static const char*	sKeyRange()		{ return "Range"; }
+    static const char*	sKeyConnectivity()	{ return "Connectivity"; }
+    static const char*	sKeyMinimumSize()	{ return "Minimum size"; }
+    static const char*	sKeyRejectValue()	{ return "Rejected Value"; }
+    static const char*	sKeyAcceptOutput()	{ return "Accepted Output"; }
+    static const char*	sKeyAcceptValue()	{ return "Accepted Value"; }
+
 };
 
 }; //namespace

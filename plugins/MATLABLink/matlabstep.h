@@ -26,32 +26,34 @@ public:
 				"MatlabStep",
 				"MATLAB" );
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
-    bool		needsInput() const		{ return true; }
-    int			getNrInputs() const;
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		isInputPrevStep() const		{ return false; }
-
-    bool		needsFullVolume() const		{ return true; }
-    uiString		errMsg() const			{ return errmsg_; }
-
-    Task*		createTask();
-
     void		setSharedLibFileName(const char*);
     const char*		sharedLibFileName() const;
 
+    int			getNrInputs() const;
     void		setNrInputs(int);
     void		setParameters(const BufferStringSet& nms,
 				      const BufferStringSet& vals);
     void		getParameters(BufferStringSet& nms,
 				      BufferStringSet& vals) const;
 
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+
+    virtual bool	needsFullVolume() const		{ return true; }
+    virtual bool	canInputAndOutputBeSame() const	{ return true; }
+    virtual bool	areSamplesIndependent() const	{ return true; }
+    virtual bool	needsInput() const		{ return true; }
+    virtual bool	isInputPrevStep() const		{ return false; }
+
+    virtual uiString	errMsg() const			{ return errmsg_; }
+
+    virtual Task*	createTask();
+
 protected:
 
 			MatlabStep();
 			~MatlabStep();
+
     virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
@@ -61,9 +63,10 @@ protected:
     int			nrinputs_;
     BufferStringSet	parnames_;
     BufferStringSet	parvalues_;
+
 };
 
 } // namespace VolProc
 
-#endif
 
+#endif

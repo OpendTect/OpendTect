@@ -40,7 +40,6 @@ public:
 
     static const char*		sZSampMargin()	{ return "Z samples margin"; }
 
-    bool			needsInput() const	{ return true; }
     void			setStepout( BinID bid ) { stepout_ = bid; }
     void			setZMargin( int nsamp ) { nzsampextra_ = nsamp;}
     void			setStatsType( BufferString str )
@@ -50,10 +49,13 @@ public:
     bool			usePar(const IOPar&);
 
     TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
-//    StepInterval<int>		getInputZRg(const StepInterval<int>&) const;
 
     Task*			createTask();
-    virtual bool		needsFullVolume() const { return false; }
+
+    virtual bool		needsInput() const		{ return true; }
+    virtual bool		needsFullVolume() const		{ return false;}
+    virtual bool		canInputAndOutputBeSame() const { return false;}
+    virtual bool		areSamplesIndependent() const	{ return true; }
 
 protected:
 
@@ -64,12 +66,14 @@ protected:
     BinID			stepout_;
     int				nzsampextra_;	//extra on both sides
     BufferString		statstype_;
+
 };
 
 
 mClass(VolumeProcessing) StatsCalculatorTask : public ParallelTask
 { mODTextTranslationClass(StatsCalculatorTask);
 public:
+
 				StatsCalculatorTask(const Array3D<float>&,
 						const TrcKeyZSampling& tkzsin,
 						const TrcKeyZSampling& tkzsout,
@@ -83,6 +87,7 @@ public:
     uiString			uiMessage() const;
 
 protected:
+
     bool			doWork(od_int64,od_int64,int);
     void			prepareWork();
 

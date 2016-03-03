@@ -20,9 +20,8 @@ template <class T> class Smoother3D;
 namespace VolProc
 {
 
-/*!
-\brief A subclass of Step to smoothen volumes.
-*/
+
+/*!\brief a Step that smooths the input data. */
 
 mExpClass(VolumeProcessing) Smoother : public Step
 { mODTextTranslationClass(Smoother)
@@ -31,12 +30,9 @@ public:
 				VolProc::Step, Smoother,
 				"Smoother", tr("Smoother"))
 
-			~Smoother();
 			Smoother();
-
-    bool		needsInput() const { return true; }
-    TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-    StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
+			~Smoother();
+    virtual void	releaseData();
 
     bool		setOperator(const char*,float param,
 				    int inlsz,int crlsz,int zsz);
@@ -47,25 +43,26 @@ public:
     const char*		getOperatorName() const;
     float		getOperatorParam() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
+    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 
-    void		releaseData();
-    bool		canInputAndOutputBeSame() const	{ return false; }
-    bool		needsFullVolume() const		{ return true; }
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+
+    virtual bool	needsFullVolume() const		{ return true; }
+    virtual bool	canInputAndOutputBeSame() const	{ return false; }
+    virtual bool	areSamplesIndependent() const	{ return true; }
 
     Task*		createTask();
 
 protected:
 
-    static const char*	sKeyZStepout()		{ return "ZStepout"; }
-
-    bool		prepareComp(int)	{ return true; }
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+	                                    const StepInterval<int>&) const;
 
     Smoother3D<float>*	smoother_;
 
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-	                                    const StepInterval<int>&) const;
+    static const char*	sKeyZStepout()		{ return "ZStepout"; }
 
 };
 

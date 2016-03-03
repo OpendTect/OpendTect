@@ -29,26 +29,24 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
-    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
-						const StepInterval<int>&);
-
-    uiString			errMsg() const;
-    uiString			uiNrDoneText() const;
-
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
+    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
+						const StepInterval<int>&);
+    bool			areSamplesIndependent() const;
+    bool			needsFullVolume() const;
 
     const RegularSeisDataPack*	getOutput() const;
+    uiString			errMsg() const;
+
     virtual int			nextStep();
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
     virtual uiString		uiMessage() const;
+    virtual uiString		uiNrDoneText() const;
+    virtual void		controlWork(Control);
+
     static uiString		sGetStepErrMsg();
-
-    bool			areSamplesIndependent() const;
-    bool			needsFullVolume() const;
-
-    void			controlWork(Task::Control);
 
 private:
 

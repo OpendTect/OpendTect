@@ -37,17 +37,7 @@ public:
 
 				BodyFiller();
 				~BodyFiller();
-
-    bool			needsInput() const		{ return false;}
-    bool			isInputPrevStep() const		{ return true; }
-    bool			areSamplesIndependent() const	{ return true; }
-
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-
-    void			releaseData();
-    bool			canInputAndOutputBeSame() const { return true; }
-    bool			needsFullVolume() const		{ return false;}
+    virtual void		releaseData();
 
     enum ValueType		{ Constant, PrevStep, Undefined };
 
@@ -63,20 +53,31 @@ public:
 
     bool			setSurface(const MultiID&);
     MultiID			getSurfaceID() { return mid_; }
-    Task*			createTask();
 
     static const char*		sKeyOldType();
 
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    virtual Task*		createTask();
+
+    virtual bool		needsFullVolume() const		{ return false;}
+    virtual bool		canInputAndOutputBeSame() const { return true; }
+    virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		needsInput() const		{ return false;}
+    virtual bool		isInputPrevStep() const		{ return true; }
+    virtual bool		prefersBinIDWise() const	{ return true; }
+
 protected:
 
-    bool			prefersBinIDWise() const	{ return true; }
-    bool			prepareComp(int nrthreads)	{ return true; }
-    bool			computeBinID(const BinID&,int);
+    virtual bool		prepareComp(int nrthreads)	{ return true; }
+    virtual bool		computeBinID(const BinID&,int);
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+						const TrcKeySampling&,
+						const StepInterval<int>&) const;
+
     bool			getFlatPlgZRange(const BinID&,
 						 Interval<double>& result);
-    virtual od_int64		extraMemoryUsage(OutputSlotID,
-					const TrcKeySampling&,
-					const StepInterval<int>&) const;
     EM::Body*			body_;
     EM::EMObject*		emobj_;
     EM::ImplicitBody*		implicitbody_;

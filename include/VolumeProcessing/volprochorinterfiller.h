@@ -36,13 +36,11 @@ public:
 				    HorInterFiller, "HorInterFiller",
 				    tr("Horizon-based painter - Simple") )
 
-				~HorInterFiller();
 				HorInterFiller();
+				~HorInterFiller();
+    virtual void		releaseData();
 
     bool			isOK() const;
-
-    bool			needsInput() const	{ return false; }
-    bool			isInputPrevStep() const { return true; }
 
     bool			setTopHorizon(const MultiID*);
     const MultiID*		getTopHorizonID() const;
@@ -63,29 +61,22 @@ public:
     float			getGradient() const;
     void			setGradient(float);
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
-    void			releaseData();
-    bool			canInputAndOutputBeSame() const { return true; }
-    bool			needsFullVolume() const		{ return false;}
-
+    virtual bool		needsFullVolume() const		{ return false;}
+    virtual bool		canInputAndOutputBeSame() const	{ return true; }
+    virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		needsInput() const		{ return false;}
+    virtual bool		isInputPrevStep() const		{ return true; }
+    virtual bool		prefersBinIDWise() const        { return true; }
 
 protected:
-    bool			prefersBinIDWise() const        { return true; }
-    bool                        prepareComp(int)		{ return true; }
-    bool			computeBinID(const BinID&, int);
+
+    virtual bool		computeBinID(const BinID&, int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
 					const TrcKeySampling&,
 					const StepInterval<int>&) const;
-
-    static const char*		sKeyTopHorID()	{ return "Top horizon"; }
-    static const char*		sKeyBotHorID()	{ return "Bottom horizon"; }
-    static const char*		sKeyTopValue()	{ return "Top Value"; }
-    static const char*		sKeyBotValue()	{ return "Bottom Value"; }
-    static const char*		sKeyGradient()  { return "Gradient"; }
-    static const char*		sKeyUseGradient() { return "Use Gradient"; }
-
 
     EM::Horizon*		loadHorizon(const MultiID&) const;
 
@@ -95,6 +86,14 @@ protected:
     EM::Horizon*		bottomhorizon_;
     bool			usegradient_;
     float			gradient_;
+
+    static const char*		sKeyTopHorID()	{ return "Top horizon"; }
+    static const char*		sKeyBotHorID()	{ return "Bottom horizon"; }
+    static const char*		sKeyTopValue()	{ return "Top Value"; }
+    static const char*		sKeyBotValue()	{ return "Bottom Value"; }
+    static const char*		sKeyGradient()  { return "Gradient"; }
+    static const char*		sKeyUseGradient() { return "Use Gradient"; }
+
 };
 
 } // namespace VolProc

@@ -23,25 +23,29 @@ ________________________________________________________________________
 
 namespace VolProc { class Chain; class ChainExecutor; }
 
+
 mExpClass(VolumeProcessing) VolProcAttrib : public Attrib::Provider
 { mODTextTranslationClass(VolProcAttrib);
 public:
+
     static void		initClass();
 
     static const char*	attribName()		{ return "VolumeProcessing"; }
     static const char*	sKeySetup()		{ return "setup"; }
 
 protected:
+
 			VolProcAttrib(Attrib::Desc&);
 			~VolProcAttrib();
-    static Attrib::Provider*	createInstance(Attrib::Desc&);
 
-    bool		allowParallelComputation() const;
-    bool		computeData(const Attrib::DataHolder&,
+    static Attrib::Provider* createInstance(Attrib::Desc&);
+
+    virtual bool	allowParallelComputation() const;
+    virtual bool	computeData(const Attrib::DataHolder&,
 				    const BinID&,int z0,
 				    int nrsamples,int threadid) const;
 
-    void		prepareForComputeData();
+    virtual void	prepareForComputeData();
 
     VolProc::Chain*	chain_;
     MultiID		setupmid_;
@@ -50,9 +54,7 @@ protected:
 
 
 
-/*!
-\brief Adapter for a VolProc chain to external attribute calculation.
-*/
+/*!\brief Adapter for a VolProc chain to external attribute calculation. */
 
 namespace VolProc
 {
@@ -61,7 +63,9 @@ mExpClass(VolumeProcessing) ExternalAttribCalculator
 					: public Attrib::ExtAttribCalc
 { mODTextTranslationClass(ExternalAttribCalculator);
 public:
+
     static void		initClass();
+
 			ExternalAttribCalculator();
 			~ExternalAttribCalculator();
 
@@ -80,11 +84,12 @@ public:
     virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
 				      TaskRunner* trans )
 			{ 
-		    return Attrib::ExtAttribCalc::createAttrib(b,tb,trans); 
+			return Attrib::ExtAttribCalc::createAttrib(b,tb,trans); 
 			}
     virtual DataPack::ID createAttrib( const TrcKeyZSampling& cs, 
-				       const LineKey& l, TaskRunner* trans )
-			{ return Attrib::ExtAttribCalc::createAttrib(cs,l,trans); }
+				       const LineKey& lk, TaskRunner* trans )
+			{ return Attrib::ExtAttribCalc::createAttrib(
+						cs, lk, trans ); }
 
 protected:
 

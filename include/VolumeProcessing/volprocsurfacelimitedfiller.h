@@ -38,13 +38,11 @@ public:
 		mDefaultFactoryInstanciationBase( "SurfaceLimitedFiller",
 				tr("Horizon-based painter - Advanced") );
 
-			~SurfaceLimitedFiller();
 			SurfaceLimitedFiller();
+			~SurfaceLimitedFiller();
+    virtual void	releaseData();
 
     bool		isOK() const;
-
-    bool		needsInput() const		{ return false; }
-    bool		isInputPrevStep() const		{ return true; }
 
     bool		setSurfaces(const TypeSet<MultiID>&,
 				    const TypeSet<char>& fillside);
@@ -92,45 +90,30 @@ public:
     bool		setRefHorizon(const MultiID*);
     const MultiID*	getRefHorizonID() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
     bool		useHorInterFillerPar(const IOPar&);
 
-    void		releaseData();
-    bool		canInputAndOutputBeSame() const { return true; }
-    bool		needsFullVolume() const		{ return false; }
-    uiString		errMsg() const			{return errmsg_;}
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual uiString	errMsg() const			{ return errmsg_; }
+
+    virtual bool	needsFullVolume() const		{ return false; }
+    virtual bool	canInputAndOutputBeSame() const { return true; }
+    virtual bool	areSamplesIndependent() const	{ return true; }
+    virtual bool	needsInput() const		{ return false; }
+    virtual bool	isInputPrevStep() const		{ return true; }
+    virtual bool	prefersBinIDWise() const	{ return true; }
 
 protected:
 
+    virtual bool	prepareComp(int);
+    virtual bool	computeBinID(const BinID&, int);
     virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
-    bool		prepareComp(int);
-    bool		computeBinID(const BinID&, int);
+
     EM::Horizon*	loadHorizon(const MultiID&) const;
 			//!<\note horizon is reffed on return.
     int			setDataHorizon(const MultiID&,EM::Horizon3D*&,
 				       int auxdataidx) const;
-    bool		prefersBinIDWise() const	{ return true; }
-
-    static const char*	sKeySurfaceID()		{ return "Surface MID"; }
-    static const char*	sKeySurfaceFillSide()	{ return "Surface fill side"; }
-    static const char*	sKeyNrSurfaces()	{ return "Nr of surfaces"; }
-
-    static const char*	sKeyUseStartValue() { return "Use start value"; }
-    static const char*	sKeyStartValue()    { return "Start value"; }
-    static const char*	sKeyStartValHorID() { return "Start value horizon"; }
-    static const char*	sKeyStartAuxDataID(){ return "Start auxdata id"; }
-
-    static const char*	sKeyUseGradValue()  { return "Use gradient value"; }
-    static const char*	sKeyGradValue()	    { return "Gradient value"; }
-    static const char*	sKeyGradHorID()	    { return "Gradient horizon"; }
-    static const char*	sKeyGradAuxDataID() { return "Gradient auxdata id"; }
-    static const char*	sKeyGradType()	    { return "Gradient type"; }
-
-    static const char*	sKeyRefHorID()	    { return "Reference horizon"; }
-    static const char*	sKeyRefZ()	    { return "Reference z"; }
-    static const char*	sKeyUseRefZ()	    { return "Use reference z"; }
 
     MultiID		gradhormid_;
     EM::Horizon3D*	gradhorizon_;
@@ -153,15 +136,35 @@ protected:
     bool		userefz_;
     uiString		errmsg_;
 
-			/*The following four have the same size, for any idx,
-			  faults_[idx] or hors_[idx] is 0. */
+			/* The following four have the same size, for any idx,
+			      faults_[idx] or hors_[idx] is 0. */
     TypeSet<char>	side_;
     TypeSet<MultiID>	surfacelist_;
-    ObjectSet<EM::Horizon>			hors_;
-    ObjectSet<Geometry::FaultStickSurface>	faults_;
+    ObjectSet<EM::Horizon> hors_;
+    ObjectSet<Geometry::FaultStickSurface> faults_;
 
     bool		usebottomval_;
     double		valrange_;
+
+    static const char*	sKeySurfaceID()	    { return "Surface MID"; }
+    static const char*	sKeySurfaceFillSide() { return "Surface fill side"; }
+    static const char*	sKeyNrSurfaces()    { return "Nr of surfaces"; }
+
+    static const char*	sKeyUseStartValue() { return "Use start value"; }
+    static const char*	sKeyStartValue()    { return "Start value"; }
+    static const char*	sKeyStartValHorID() { return "Start value horizon"; }
+    static const char*	sKeyStartAuxDataID(){ return "Start auxdata id"; }
+
+    static const char*	sKeyUseGradValue()  { return "Use gradient value"; }
+    static const char*	sKeyGradValue()	    { return "Gradient value"; }
+    static const char*	sKeyGradHorID()	    { return "Gradient horizon"; }
+    static const char*	sKeyGradAuxDataID() { return "Gradient auxdata id"; }
+    static const char*	sKeyGradType()	    { return "Gradient type"; }
+
+    static const char*	sKeyRefHorID()	    { return "Reference horizon"; }
+    static const char*	sKeyRefZ()	    { return "Reference z"; }
+    static const char*	sKeyUseRefZ()	    { return "Use reference z"; }
+
 };
 
 } // namespace VolProc

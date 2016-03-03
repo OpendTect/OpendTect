@@ -34,9 +34,6 @@ public:
 			LateralSmoother();
 			~LateralSmoother();
 
-    bool		needsInput() const;
-    TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-
     void		setPars(const Array2DFilterPars&);
     void		setMirrorEdges(bool yn) { mirroredges_=yn; }
     void		setFixedValue(float v) { fixedvalue_=v; }
@@ -47,29 +44,33 @@ public:
     float		getFixedValue() const	{ return fixedvalue_; }
     bool		getInterpolateUdfs() const {return interpolateundefs_;}
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    virtual TrcKeySampling getInputHRg(const TrcKeySampling&) const;
+    virtual Task*	createTask();
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
-    bool		canInputAndOutputBeSame() const {return true;}
-    bool		needsFullVolume() const		{return false;}
+    virtual bool	needsFullVolume() const		{ return false; }
+    virtual bool	canInputAndOutputBeSame() const	{ return true; }
+    virtual bool	areSamplesIndependent() const	{ return true; }
+    virtual bool	needsInput() const;
 
-    Task*		createTask();
 
 protected:
+
+    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
+					 const StepInterval<int>&) const;
+
+    Array2DFilterPars	pars_;
+    bool		mirroredges_;
+    bool		interpolateundefs_;
+    float		fixedvalue_;
 
     static const char*	sKeyIsMedian()		{ return "Is Median"; }
     static const char*	sKeyIsWeighted()	{ return "Is Weighted"; }
     static const char*	sKeyMirrorEdges()	{ return "Mirror Edges"; }
     static const char*	sKeyInterpolateUdf()	{ return "Interpolate Udf";}
     static const char*	sKeyFixedValue()	{ return "Fixed Value"; }
-    virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-					 const StepInterval<int>&) const;
 
-    Array2DFilterPars	pars_;
-
-    bool		mirroredges_;
-    bool		interpolateundefs_;
-    float		fixedvalue_;
 };
 
 } // namespace VolProc

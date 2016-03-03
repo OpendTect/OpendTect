@@ -22,24 +22,19 @@ namespace EM { class Region3D; }
 namespace VolProc
 {
 
-/*!
-\brief Region filler
-*/
+/*!\brief Region filler */
 
 mExpClass(VolumeProcessing) RegionFiller : public Step
 { mODTextTranslationClass(RegionFiller);
 public:
+
 				mDefaultFactoryInstantiation( VolProc::Step,
 				    RegionFiller, "RegionFiller",
 				    tr("Region painter") )
 
 				RegionFiller();
 				~RegionFiller();
-
-    bool			needsInput() const		{ return false;}
-    bool			isInputPrevStep() const		{ return true; }
-    bool			needsFullVolume() const		{ return false;}
-    void			releaseData();
+    virtual void		releaseData();
 
     void			setInsideValue(float);
     float			getInsideValue() const;
@@ -56,17 +51,23 @@ public:
     EM::Region3D&		region();
     const EM::Region3D&		region() const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    virtual bool		needsFullVolume() const		{ return false;}
+    virtual bool		canInputAndOutputBeSame() const	{ return false;}
+    virtual bool		areSamplesIndependent() const	{ return true;}
+    virtual bool		needsInput() const		{ return false;}
+    virtual bool		isInputPrevStep() const		{ return true; }
+    virtual bool		prefersBinIDWise() const	{ return true; }
 
 protected:
 
-    bool			prefersBinIDWise() const	{ return true; }
-    bool			prepareComp(int nrthreads);
-    bool			computeBinID(const BinID&,int);
+    virtual bool		prepareComp(int nrthreads);
+    virtual bool		computeBinID(const BinID&,int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-					const TrcKeySampling&,
-					const StepInterval<int>&) const;
+						const TrcKeySampling&,
+						const StepInterval<int>&) const;
 
     EM::Region3D&		region_;
     float			insideval_;
@@ -78,6 +79,7 @@ protected:
     MultiID			gradvalkey_;
     int				startvalauxidx_;
     int				gradvalauxidx_;
+
 };
 
 } // namespace VolProc

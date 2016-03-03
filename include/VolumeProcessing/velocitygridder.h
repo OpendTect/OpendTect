@@ -29,9 +29,7 @@ namespace Vel
 namespace VolProc
 {
 
-/*!
-\brief VolProc::Step for velocity gridding.
-*/
+/*!\brief VolProc::Step for velocity gridding. */
 
 mExpClass(VolumeProcessing) VelocityGridder : public Step
 { mODTextTranslationClass(VelocityGridder)
@@ -42,8 +40,7 @@ public:
 
 			VelocityGridder();
 			~VelocityGridder();
-
-    const VelocityDesc* getVelDesc() const;
+    virtual void	releaseData();
 
     void		setSources(ObjectSet<Vel::FunctionSource>&);
     const ObjectSet<Vel::FunctionSource>&	getSources() const;
@@ -54,24 +51,24 @@ public:
     void		setLayerModel(InterpolationLayerModel*); //becomes mine
     const InterpolationLayerModel* getLayerModel() const;
 
-    bool		needsInput() const;
-    void		releaseData();
-    bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return true;}
+    virtual const VelocityDesc* getVelDesc() const;
+    virtual uiString	errMsg() const			{ return errmsg_; }
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
-    uiString		errMsg() const		{ return errmsg_; }
+    virtual bool	needsInput() const;
+    virtual bool	canInputAndOutputBeSame() const	{ return true; }
+    virtual bool	needsFullVolume() const		{ return true;}
+    virtual bool	areSamplesIndependent() const	{ return true; }
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
-    static const char*	sKeyType()		{ return "Type"; }
-    static const char*	sKeyID()		{ return "ID"; }
-    static const char*	sKeyNrSources()		{ return "NrSources"; }
-    static const char*	sKeyGridder()		{ return "Gridder"; }
+    static const char*	sKeyType()			{ return "Type"; }
+    static const char*	sKeyID()			{ return "ID"; }
+    static const char*	sKeyNrSources()			{ return "NrSources"; }
+    static const char*	sKeyGridder()			{ return "Gridder"; }
 
 protected:
 
-    Task*		createTask();
+    virtual Task*	createTask();
     virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
@@ -79,6 +76,7 @@ protected:
     Gridder2D*				gridder_;
     ObjectSet<Vel::FunctionSource>	sources_;
     uiString				errmsg_;
+
 };
 
 } // namespace VolProc
