@@ -189,10 +189,11 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 	    output_.set( outpinlidx, outpcrlidx, idz, outval );
 	    locker.unlockNow();
 	}
+
 	iter.next( curbid );
+	addToNrDone( 1 );
     }
 
-    addToNrDone( incr );
     return true;
 }
 
