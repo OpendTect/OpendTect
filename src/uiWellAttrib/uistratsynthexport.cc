@@ -388,7 +388,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	    {
 		uiString errmsg;
 		if ( !PickSetTranslator::retrieve(
-			    pickset,IOM().get(picksetobj->key()),true,errmsg) )
+			    pickset,IOM().get(picksetobj->key()),errmsg) )
 		    mErrRet( errmsg, false )
 	    }
 	    for ( int idx=0; idx<pickset.size(); idx++ )

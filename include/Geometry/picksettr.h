@@ -38,20 +38,20 @@ mExpClass(Geometry) PickSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    virtual uiString	read(Pick::Set&,Conn&,bool checkdir=true)	= 0;
+    virtual uiString	read(Pick::Set&,Conn&)	= 0;
 			//!< returns err msg or null on success
     virtual uiString	write(const Pick::Set&,Conn&)			= 0;
 			//!< returns err msg or null on success
 
-    static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
-	    			 BufferString&);
-    static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
+    static bool		retrieve(Pick::Set&,const IOObj*,
+				 BufferString&);
+    static bool		retrieve(Pick::Set&,const IOObj*,
 				 uiString&);
     static bool		store(const Pick::Set&,const IOObj*,BufferString&);
     static bool		store(const Pick::Set&,const IOObj*,uiString&);
 
     static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
-				    uiString& errmsg);
+				    TypeSet<TrcKey>&,uiString& errmsg);
 			//!< Utility function
     static void		createBinIDValueSets(const BufferStringSet& ioobjids,
 					     ObjectSet<BinIDValueSet>&,
@@ -73,7 +73,7 @@ public:
 
 			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
-    uiString		read(Pick::Set&,Conn&,bool checkdir=true);
+    uiString		read(Pick::Set&,Conn&);
     uiString		write(const Pick::Set&,Conn&);
 
 };

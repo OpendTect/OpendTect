@@ -30,7 +30,7 @@ mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
 mDefSimpleTranslatorSelector( PickSet );
 
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
-				  bool checkdir, uiString& bs )
+				  uiString& bs )
 {
     if ( !ioobj )
     {
@@ -53,7 +53,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 	return false;
     }
 
-    bs = tr->read( ps, *conn, checkdir );
+    bs = tr->read( ps, *conn );
     return bs.isEmpty();
 }
 
@@ -86,8 +86,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 }
 
 
-uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
-				     bool checkdir )
+uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
 	return uiStrings::sCantOpenInpFile();
@@ -102,8 +101,6 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	return uiStrings::sNoValidData();
 
     ps.setName( IOM().nameOf(conn.linkedTo()) );
-
-    Pick::Location loc;
 
     if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
     {
@@ -124,14 +121,16 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	    }
 	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
 	    {
-		ps.disp_.mkstyle_.type_ = 
+		ps.disp_.mkstyle_.type_ =
 		    (OD::MarkerStyle3D::Type)astrm.getIValue();
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) )
 	    {
-		if ( !loc.fromString( astrm.keyWord() ) )
+		Pick::Location loc;
+		if ( !loc.fromString(astrm.keyWord()) )
 		    break;
+
 		ps += loc;
 		astrm.next();
 	    }
@@ -143,11 +142,14 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
     {
 	IOPar iopar; iopar.getFrom( astrm );
 	ps.usePar( iopar );
+	const Pos::SurvID survid( ps.getSurvID() );
 
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
-	    if ( loc.fromString( astrm.keyWord(), true, checkdir ) )
+	    Pick::Location loc;
+	    loc.trckey_.setSurvID( survid );
+	    if ( loc.fromString(astrm.keyWord()) )
 		ps += loc;
 
 	    astrm.next();
@@ -194,17 +196,15 @@ void PickSetTranslator::createBinIDValueSets(
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
 	TypeSet<Coord3> crds;
-	if ( !getCoordSet(ioobjids.get(idx),crds,errmsg) )
+	TypeSet<TrcKey> tks;
+	if ( !getCoordSet(ioobjids.get(idx),crds,tks,errmsg) )
 	    continue;
 
 	BinIDValueSet* bs = new BinIDValueSet( 1, true );
 	bivsets += bs;
 
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
-	{
-	    const Coord3& crd( crds[idx] );
-	    bs->add( SI().transform(crd), (float) crd.z );
-	}
+	    bs->add( tks[idx].pos(), mCast(float, crds[idx].z ) );
     }
 }
 
@@ -217,7 +217,8 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
 	TypeSet<Coord3> crds;
-	if ( !getCoordSet(ioobjids.get(idx),crds,errmsg) )
+    TypeSet<TrcKey> tks;
+	if ( !getCoordSet(ioobjids.get(idx),crds,tks,errmsg) )
 	    continue;
 
 	DataPointSet* dps = new DataPointSet( is2d, mini );
@@ -227,7 +228,7 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
 	    const Coord3& crd( crds[ipck] );
-	    dr.pos_.set( crd );
+	    dr.pos_.set( crd ); //TODO: update with TrcKey
 	    dps->addRow( dr );
 	}
 	dps->dataChanged();
@@ -236,7 +237,7 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 
 
 bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
-				     uiString& errmsg )
+				     TypeSet<TrcKey>& tks, uiString& errmsg )
 {
     const MultiID key( id );
     const int setidx = Pick::Mgr().indexOf( key );
@@ -252,12 +253,15 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 	}
 
 	ps = createdps = new Pick::Set;
-	if ( !retrieve(*createdps,ioobj,true,errmsg) )
+	if ( !retrieve(*createdps,ioobj,errmsg) )
 	    { delete createdps; return false; }
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
+    {
 	crds += ((*ps)[ipck]).pos_;
+	tks += ((*ps)[ipck]).trckey_;
+    }
 
     delete createdps;
     return true;
@@ -268,7 +272,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 						 uiString& errmsg )
 {
     Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,&ioobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,&ioobj,errmsg) )
 	return 0;
 
     if ( ps.size() < 2 )

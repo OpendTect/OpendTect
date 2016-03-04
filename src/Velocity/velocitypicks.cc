@@ -791,7 +791,7 @@ bool Picks::load( const IOObj* ioobj )
 
     ::Pick::Set pickset( ioobj->name() );
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(pickset,ioobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(pickset,ioobj,errmsg) )
     {
 	errmsg_ = mFromUiStringTodo( errmsg );
 	return false;

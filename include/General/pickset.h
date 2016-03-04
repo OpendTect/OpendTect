@@ -50,10 +50,7 @@ public:
 			{ return !(*this == pl); }
     void		operator =(const Location&);
 
-    bool		fromString(const char*,bool doxy=true,
-				   bool checkdir=true);
-			/*!<If checkdir is true, a more rigourous test is done
-			    on dir. */
+    bool		fromString(const char*);
     void		toString(BufferString&,bool forexport=false) const;
 
     Coord3		pos_;
@@ -113,6 +110,8 @@ public:
 
     Disp		disp_;
     IOPar&		pars_;
+    bool		is2D() const;
+			//!<Default is 3D.
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&) const;
@@ -121,6 +120,9 @@ public:
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+
+    Pos::SurvID		getSurvID() const;
+			//!<Only defined for post 6.0.1 sets
 
     void		removeSingleWithUndo(int idx);
     void		insertWithUndo(int,const Pick::Location&);

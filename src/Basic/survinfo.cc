@@ -58,7 +58,7 @@ Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 
 TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 {
-    TrcKey tk = TrcKey( getID(), transform(crd) );
+    TrcKey tk( getSurvID(), transform(crd) );
     if ( dist )
     {
 	if ( sampling_.hsamp_.includes(tk.pos()) )

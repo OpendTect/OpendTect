@@ -87,7 +87,7 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
     strm << "Activating clipping with polygon " << setobj->name() << " ...  ";
     Pick::Set ps;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,setobj,errmsg) )
 	mErrStrmRet( errmsg )
 
     bool clipoutside = false;

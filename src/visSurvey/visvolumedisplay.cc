@@ -760,7 +760,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     {
 	uiString errmsg;
 	if ( !PickSetTranslator::retrieve(seeds,
-		    IOM().get(isosurfsettings_[idx].seedsid_),true,errmsg) )
+		    IOM().get(isosurfsettings_[idx].seedsid_),errmsg) )
 	    return false;
     }
 

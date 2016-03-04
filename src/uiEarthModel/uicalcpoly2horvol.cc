@@ -235,7 +235,7 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
 
     ps_ = new Pick::Set;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,errmsg) )
+    if ( !PickSetTranslator::retrieve(*ps_,ioobj,errmsg) )
     {
 	uiMSG().error( errmsg );
 	delete ps_; ps_ = 0;

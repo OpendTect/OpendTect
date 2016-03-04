@@ -194,7 +194,7 @@ bool acceptOK( CallBacker* )
 {
     nrsel = selfld->nrChosen();
     if ( nrsel < 2 )
-    { uiMSG().error(uiStrings::phrSelect(tr("at least two sets"))); 
+    { uiMSG().error(uiStrings::phrSelect(tr("at least two sets")));
 								return false; }
     else if (!outfld->commitInput())
     {
@@ -240,7 +240,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 	    Pick::Set* newset = new Pick::Set;
 	    IOObj* ioobj = IOM().get( ky );
 	    uiString errmsg;
-	    if ( PickSetTranslator::retrieve(*newset,ioobj,true,errmsg) )
+	    if ( PickSetTranslator::retrieve(*newset,ioobj,errmsg) )
 		{ pss += newset; pssread += newset; }
 	    else
 		uiMSG().warning( errmsg );

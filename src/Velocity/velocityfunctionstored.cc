@@ -182,7 +182,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 
     ::Pick::Set pickset( ioobj->name() );
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(pickset,ioobj,false,errmsg) )
+    if ( !PickSetTranslator::retrieve(pickset,ioobj,errmsg) )
     {
 	errmsg_ = mFromUiStringTodo( errmsg );
 	return false;

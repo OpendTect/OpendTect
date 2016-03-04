@@ -241,7 +241,7 @@ bool uiImpExpPickSet::doExport()
 
     PtrMan<IOObj> ioobj = objfldioobj->clone();
     uiString errmsg; Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,ioobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,ioobj,errmsg) )
 	mErrRet(errmsg)
 
     const char* fname = filefld_->fileName();

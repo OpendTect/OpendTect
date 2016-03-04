@@ -906,7 +906,7 @@ void LocationDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    
+
     if ( picksetmgr_ )
     {
 	const int setidx = picksetmgr_->indexOf( *set_ );
@@ -946,7 +946,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 	uiString errmsg;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
 	if ( ioobj )
-	    PickSetTranslator::retrieve( *newps, ioobj, true, errmsg );
+	    PickSetTranslator::retrieve( *newps, ioobj, errmsg );
 
 	if ( !newps->name() || !*newps->name() )
 	    newps->setName( mFromUiStringTodo(name()) );

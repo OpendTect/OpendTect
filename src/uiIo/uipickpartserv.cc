@@ -53,12 +53,13 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , exppsdlg_(0)
     , manpicksetsdlg_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiPickPartServer,survChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
 }
 
 
 uiPickPartServer::~uiPickPartServer()
 {
+    detachAllNotifiers();
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
@@ -140,7 +141,7 @@ Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
     {
 	Pick::Set* ps = new Pick::Set;
 	uiString errmsg;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
 	{
 	    psmgr_.set( mid, ps );
 	    return ps;
@@ -194,7 +195,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 
 	Pick::Set* ps = new Pick::Set;
 	uiString errmsg;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
 	{
 	    psmgr_.set( ioobj->key(), ps );
 	    psids.addIfNew( id );
@@ -223,7 +224,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 
 #define mHandleDlg() \
     if ( !dlg.go() ) \
-        return 0; \
+	return 0; \
     Pick::Set* newps = dlg.getPickSet();
 
 const Pick::Set* uiPickPartServer::createEmptySet( bool aspolygon )

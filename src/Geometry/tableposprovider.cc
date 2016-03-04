@@ -86,7 +86,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	if ( ioobj )
 	{
 	    uiString msg; Pick::Set ps;
-	    if ( PickSetTranslator::retrieve(ps,ioobj,true,msg) )
+	    if ( PickSetTranslator::retrieve(ps,ioobj,msg) )
 	    {
 		for ( int idx=0; idx<ps.size(); idx++ )
 		{

@@ -178,7 +178,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     strm << "Posting Locations " << setobj->name() << " ...  ";
     Pick::Set ps;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,setobj,errmsg) )
 	mErrStrmRet( errmsg )
 
     Color outcol; get( sKey::Color(), outcol );
@@ -272,7 +272,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     strm << "Posting Polyline " << setobj->name() << " ...  ";
     Pick::Set ps;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,setobj,errmsg) )
 	mErrStrmRet(errmsg)
 
     OD::LineStyle ls;

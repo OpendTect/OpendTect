@@ -114,7 +114,7 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	Pick::Set* ps = new Pick::Set;
 	uiString errmsg;
-	PickSetTranslator::retrieve(*ps,ioobj,true,errmsg);
+	PickSetTranslator::retrieve(*ps,ioobj,errmsg);
 	mgr.set( mid, ps );
 
 	setidx = mgr.indexOf(mid);
@@ -288,7 +288,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 	ps.disp_.mkstyle_.size_= defScale();
 
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),errmsg) )
     { uiMSG().error( errmsg ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );

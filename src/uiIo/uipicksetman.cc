@@ -74,7 +74,7 @@ void uiPickSetMan::mkFileInfo()
     BufferString txt;
     Pick::Set ps;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,curioobj_,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,curioobj_,errmsg) )
     {
 	BufferString msg( "Read error: '" );
 	msg.add( errmsg.getFullString() );

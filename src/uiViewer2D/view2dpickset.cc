@@ -319,7 +319,7 @@ bool VW2DPickSet::usePar( const IOPar& iop )
     if ( Pick::Mgr().indexOf(ioobj->key()) >= 0 )
 	return false;
     Pick::Set* newps = new Pick::Set; uiString errmsg;
-    if ( PickSetTranslator::retrieve(*newps,ioobj,true,errmsg) )
+    if ( PickSetTranslator::retrieve(*newps,ioobj,errmsg) )
     {
 	Pick::Mgr().set( ioobj->key(), newps );
 	pickset_ = newps;
