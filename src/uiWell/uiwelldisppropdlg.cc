@@ -100,6 +100,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
     setWDNotifiers( true );
     mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
 
+    wd_->ref();
     tabSel( 0 );
 }
 
@@ -107,6 +108,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
     detachAllNotifiers();
+    wd_->unRef();
 }
 
 
@@ -236,8 +238,9 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	if ( logfld )
 	{
 	    logfld->setLogSet( &wd_->logs() );
-	    logfld->resetProps( first ? prop.logs_[logidx]->left_
-				      :	prop.logs_[logidx]->right_ );
+	    if ( !prop.logs_.isEmpty() )
+		logfld->resetProps( first ? prop.logs_[logidx]->left_
+					  :	prop.logs_[logidx]->right_ );
 	    first = false;
 	}
 	else if ( trckfld )
@@ -258,8 +261,16 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 
 void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 {
+    if ( wd_ )
+	wd_->unRef();
+
     const int selidx = wellselfld_ ? wellselfld_->box()->currentItem() : 0;
+    uiWellDispPropDlg::setWDNotifiers( false );
     wd_ = wds_[selidx];
+    if ( wd_ )
+	wd_->ref();
+
+    uiWellDispPropDlg::setWDNotifiers( true );
     resetProps( 0 );
 }
 
