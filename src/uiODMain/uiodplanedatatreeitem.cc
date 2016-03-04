@@ -351,7 +351,7 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 	{
 	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
 	    const float zval = cs.zsamp_.start * zdef.userFactor();
-	    res = toUiString( zdef.isTime() || zdef.userFactor()==1000
+	    res = toUiString( zdef.isDepth() || zdef.userFactor()==1000
 		    ? (float)(mNINT32(zval)) : zval );
 	}
     }
