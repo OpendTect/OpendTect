@@ -100,6 +100,9 @@ protected:
     void		fileSelCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
+    int			nrfiles_;
+    bool		isusable_;
+
 };
 
 #endif

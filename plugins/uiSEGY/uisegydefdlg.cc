@@ -228,13 +228,18 @@ static const char* getFileNameKey( int index )
 }
 
 
-#define mErrLabelRet(s) { lbl = new uiLabel( this, s ); return; }
+#define mErrLabelRet(s) \
+	{ isusable_ = false; lbl = new uiLabel( this, s ); return; }
+
 uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
-    : uiDialog(p,uiDialog::Setup(tr("SEGYDirect File Editor"),obj.name(),
-				 mTODOHelpKey))
-    , dirsel_(0),filetable_(0)
+    : uiDialog(p,uiDialog::Setup(tr("SEGYDirect File Editor"),
+				 toUiString(obj.name()),mTODOHelpKey))
+    , dirsel_(0)
+    , filetable_(0)
     , ioobj_(obj)
     , filepars_(*new IOPar)
+    , nrfiles_(0)
+    , isusable_(true)
 {
     const BufferString deffnm = obj.fullUserExpr( true );
     uiLabel* lbl = 0;
@@ -249,7 +254,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
 			.arg(fp.pathOnly()) );
     lbl = new uiLabel( this, olddirtxt );
 
-    dirsel_ = new uiFileInput( this, "New location", fp.pathOnly() );
+    dirsel_ = new uiFileInput( this, tr("New location"), fp.pathOnly() );
     dirsel_->setSelectMode( uiFileDialog::Directory );
     dirsel_->setObjType( tr("Location") );
     dirsel_->valuechanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
@@ -257,26 +262,35 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
 
     fillFileTable();
     filetable_->attach( stretchedBelow, dirsel_ );
+    if ( !isusable_ )
+    {
+	lbl = new uiLabel( this, tr("Invalid SEG-Y Definition file:\n%1")
+				.arg(deffnm) );
+	lbl->attach( alignedBelow, dirsel_ );
+    }
 }
 
 
 void uiEditSEGYFileDataDlg::fillFileTable()
 {
-    int nrfiles = 0;
-    if ( !filepars_.get("Number of files",nrfiles) || !nrfiles )
-	return;
+    filepars_.get( "Number of files", nrfiles_ );
+    if ( nrfiles_ < 1 )
+	nrfiles_ = 1;
 
-    uiTable::Setup su( nrfiles, 3 );
+    uiTable::Setup su( nrfiles_, 3 );
     filetable_ = new uiTable( this, su, "FileTable" );
-    filetable_->setColumnLabel( 0, "Old File Name" );
-    filetable_->setColumnLabel( 1, "New File Name" );
-    filetable_->setColumnLabel( 2, " " );
+    filetable_->setColumnLabel( 0, tr("Old File Name") );
+    filetable_->setColumnLabel( 1, tr("New File Name") );
+    filetable_->setColumnLabel( 2, toUiString(" ") );
     filetable_->setColumnReadOnly( 0, true );
-    filetable_->valueChanged.notify( mCB(this,uiEditSEGYFileDataDlg,editCB) );
 
-    FilePath oldfp = filepars_.find( getFileNameKey(0) );
+    const BufferString fnm0 = filepars_.find( getFileNameKey(0) );
+    if ( fnm0.isEmpty() )
+	{ isusable_ = false; return; }
+
+    FilePath oldfp( fnm0 );
     const BufferString olddir = oldfp.pathOnly();
-    for ( int idx=0; idx<nrfiles; idx++ )
+    for ( int idx=0; idx<nrfiles_; idx++ )
     {
 	FilePath fp = filepars_.find( getFileNameKey(idx) );
 	const BufferString oldfilename = fp.fileName();
@@ -288,17 +302,18 @@ void uiEditSEGYFileDataDlg::fillFileTable()
     }
 
     updateFileTable( -1 );
+    filetable_->valueChanged.notify( mCB(this,uiEditSEGYFileDataDlg,editCB) );
 }
 
 
 void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 {
-    int nrfiles = 0;
-    if ( !filepars_.get("Number of files",nrfiles) || !nrfiles )
+    if ( !isusable_ )
 	return;
 
+    NotifyStopper ns( filetable_->valueChanged );
     const BufferString seldir = dirsel_->fileName();
-    for ( int idx=0; idx<nrfiles; idx++ )
+    for ( int idx=0; idx<nrfiles_; idx++ )
     {
 	if ( rowidx >= 0 && rowidx != idx )
 	    continue;
@@ -316,12 +331,13 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	FilePath fp( seldir, newfnm );
 	if ( File::exists(fp.fullPath()) )
 	{
-	    filetable_->setCellToolTip( rc, 0 );
+	    filetable_->setCellToolTip( rc, uiStrings::sEmptyString() );
 	    filetable_->setColor( rc, Color::White() );
 	}
 	else
 	{
-	    BufferString tttext( "File ", fp.fullPath(), " does not exist" );
+	    uiString tttext( uiStrings::phrCannotFind(uiStrings::phrJoinStrings
+			     (uiStrings::sFile(),toUiString(fp.fullPath()))) );
 	    filetable_->setCellToolTip( rc, tttext );
 	    filetable_->setColor( rc, Color::Red() );
 	}
@@ -331,7 +347,7 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 
 void uiEditSEGYFileDataDlg::editCB( CallBacker* )
 {
-    if ( filetable_->currentCol() == 0 )
+    if ( !isusable_ || filetable_->currentCol() == 0 )
 	return;
 
     updateFileTable( filetable_->currentRow() );
@@ -341,7 +357,7 @@ void uiEditSEGYFileDataDlg::editCB( CallBacker* )
 void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
 {
     mDynamicCastGet(uiObject*,uiobj,cb)
-    if ( !uiobj ) return;
+    if ( !uiobj || !isusable_ ) return;
 
     const int rowidx = filetable_->getCell( uiobj ).row();
     if ( rowidx < 0 ) return;
@@ -378,13 +394,11 @@ void uiEditSEGYFileDataDlg::dirSelCB( CallBacker* )
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 bool uiEditSEGYFileDataDlg::acceptOK( CallBacker* )
 {
-    int nrfiles = 0;
-    if ( !filepars_.get("Number of files",nrfiles) || !nrfiles )
-	mErrRet(tr("No SEGY Files were found linked to %1")
-							  .arg(ioobj_.uiName()))
+    if ( !isusable_ )
+	return true;
 
     const BufferString seldir = dirsel_->fileName();
-    for ( int idx=0; idx<nrfiles; idx++ )
+    for ( int idx=0; idx<nrfiles_; idx++ )
     {
 	BufferString newfnm = filetable_->text( RowCol(idx,1) );
 	if ( newfnm.isEmpty() )
