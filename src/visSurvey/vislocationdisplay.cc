@@ -906,10 +906,14 @@ void LocationDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
+    
+    if ( picksetmgr_ )
+    {
+	const int setidx = picksetmgr_->indexOf( *set_ );
+	par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_) : "" );
+	par.set( sKeyMgrName(), picksetmgr_->name() );
+    }
 
-    const int setidx = picksetmgr_->indexOf( *set_ );
-    par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_) : "" );
-    par.set( sKeyMgrName(), picksetmgr_->name() );
     par.setYN( sKeyShowAll(), showall_ );
     par.set( sKeyMarkerType(), set_->disp_.markertype_ );
     par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
