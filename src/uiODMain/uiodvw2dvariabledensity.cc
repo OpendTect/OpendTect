@@ -97,6 +97,7 @@ void uiODVW2DVariableDensityTreeItem::initColTab()
 	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
     uitreeviewitem_->setSelected( true );
     select(); coltabinitialized_ = true;
+    uitreeviewitem_->setSelected( false );
 }
 
 
