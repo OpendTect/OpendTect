@@ -37,11 +37,15 @@ static const char* rcsID mUsedVar = "$Id$";
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( uiStrings::sPickSet())
 {
+    mAttachCB( Pick::Mgr().setToBeRemoved,
+		uiODPickSetParentTreeItem::setRemovedCB );
+
 }
 
 
 uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 {
+    detachAllNotifiers();
 }
 
 
@@ -58,6 +62,24 @@ void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
     item->setChecked( true );
 }
 
+
+void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps ) return;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
+	if ( !itm ) continue;
+	if ( itm->getSet() == ps )
+	{
+	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
+	    uiTreeItem::removeChild( itm );
+	    return;
+	}
+    }
+}
 
 
 #define mLoadIdx	0
@@ -375,11 +397,15 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
     : uiODTreeItem( uiStrings::sPolygon() )
 {
+    
+    mAttachCB( Pick::Mgr().setToBeRemoved,
+		uiODPickSetParentTreeItem::setRemovedCB );
 }
 
 
 uiODPolygonParentTreeItem::~uiODPolygonParentTreeItem()
 {
+    detachAllNotifiers();
 }
 
 
@@ -395,6 +421,24 @@ void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
     addChild( item, false );
 }
 
+
+void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps ) return;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
+	if ( !itm ) continue;
+	if ( itm->getSet() == ps )
+	{
+	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
+	    uiTreeItem::removeChild( itm );
+	    return;
+	}
+    }
+}
 
 
 #define mLoadPolyIdx	11
