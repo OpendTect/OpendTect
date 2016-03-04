@@ -618,13 +618,15 @@ bool StorageProvider::checkDesiredVolumeOK()
 		.arg( desc_.userRef() );
 
     if ( inlwrong )
-	errmsg_.append( tr( "Inline range is: %1-%2\n")
+	errmsg_.append( tr( "Inline range is: %1-%2 [%3]\n")
 		      .arg( storedvolume_.hsamp_.start_.inl() )
-		      .arg( storedvolume_.hsamp_.stop_.inl() ) );
+		      .arg( storedvolume_.hsamp_.stop_.inl() )
+		      .arg( storedvolume_.hsamp_.step_.inl() ) );
     if ( crlwrong )
-	errmsg_.append( tr( "Crossline range is: %1-%2\n")
+	errmsg_.append( tr( "Crossline range is: %1-%2 [%3]\n")
 		      .arg( storedvolume_.hsamp_.start_.crl() )
-		      .arg( storedvolume_.hsamp_.stop_.crl() ) );
+		      .arg( storedvolume_.hsamp_.stop_.crl() )
+		      .arg( storedvolume_.hsamp_.step_.crl() ) );
     if ( zwrong )
 	errmsg_.append( tr( "Z range is: %1-%2\n")
 		      .arg( storedvolume_.zsamp_.start )
@@ -861,20 +863,20 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     const TrcKeyZSampling& sampling = dc->sampling();
     const int inlidx = sampling.hsamp_.lineRange().nearestIndex( bid.inl() );
     const int crlidx = sampling.hsamp_.trcRange().nearestIndex( bid.crl() );
-    for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
+    int cubeidx = -1;
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	const float curt = sampling.zsamp_.atIndex( zidx );
-	int cubeidx = -1;
-	for ( int idx=0; idx<outputinterest_.size(); idx++ )
+	if ( !outputinterest_[idx] )
+	    continue;
+
+	cubeidx++;
+	if ( cubeidx>=dc->nrComponents() &&
+		!dc->addComponent(sKey::EmptyString()) )
+	    continue;
+
+	for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
 	{
-	    if ( !outputinterest_[idx] )
-		continue;
-
-	    cubeidx++;
-	    if ( cubeidx >= dc->nrComponents() &&
-		    !dc->addComponent(sKey::EmptyString()) )
-		continue;
-
+	    const float curt = sampling.zsamp_.atIndex( zidx );
 	    if ( !trcrange.includes(curt,false) )
 		continue;
 
