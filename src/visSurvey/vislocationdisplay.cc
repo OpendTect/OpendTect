@@ -79,6 +79,7 @@ LocationDisplay::LocationDisplay()
 
 LocationDisplay::~LocationDisplay()
 {
+    detachAllNotifiers();
     setSceneEventCatcher( 0 );
 
     if ( transformation_ ) transformation_->unRef();
@@ -139,9 +140,9 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 
     if ( picksetmgr_ )
     {
-	picksetmgr_->locationChanged.notify( mCB(this,LocationDisplay,locChg) );
-	picksetmgr_->setChanged.notify( mCB(this,LocationDisplay,setChg) );
-	picksetmgr_->setDispChanged.notify( mCB(this,LocationDisplay,dispChg) );
+	mAttachCB( picksetmgr_->locationChanged , LocationDisplay::locChg );
+	mAttachCB( picksetmgr_->setChanged, LocationDisplay::setChg );
+	mAttachCB( picksetmgr_->setDispChanged, LocationDisplay::dispChg );
     }
 }
 

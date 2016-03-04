@@ -26,6 +26,7 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODTreeItem
     mShowMenu;
     mMenuOnAnyButton;
     void addPickSet(Pick::Set*);
+    void setRemovedCB(CallBacker*);
     ~uiODPickSetParentTreeItem();
 };
 
@@ -80,6 +81,8 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODTreeItem
     mMenuOnAnyButton;
     ~uiODPolygonParentTreeItem();
     void addPolygon(Pick::Set*);
+    void setRemovedCB(CallBacker*);
+
 };
 
 
