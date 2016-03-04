@@ -72,7 +72,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("File type") );
 	geomfld_ = lcb->box();
 	for ( int idx=0; idx<su.geoms_.size(); idx++ )
-	    geomfld_->addItem( toUiString(Seis::nameOf( 
+	    geomfld_->addItem( toUiString(Seis::nameOf(
 					 (Seis::GeomType)su.geoms_[idx])) );
 	geomfld_->setCurrentItem( setup_.geoms_.indexOf(setup_.defgeom_) );
 	geomfld_->selectionChanged.notify( mCB(this,uiSEGYDefDlg,geomChg) );
@@ -285,7 +285,6 @@ void uiEditSEGYFileDataDlg::fillFileTable()
     filetable_->setColumnLabel( 1, tr("New File Name") );
     filetable_->setColumnLabel( 2, toUiString(" ") );
     filetable_->setColumnReadOnly( 0, true );
-    filetable_->valueChanged.notify( mCB(this,uiEditSEGYFileDataDlg,editCB) );
 
     const BufferString fnm0 = filepars_.find( getFileNameKey(0) );
     if ( fnm0.isEmpty() )
@@ -305,6 +304,7 @@ void uiEditSEGYFileDataDlg::fillFileTable()
     }
 
     updateFileTable( -1 );
+    filetable_->valueChanged.notify( mCB(this,uiEditSEGYFileDataDlg,editCB) );
 }
 
 
@@ -313,6 +313,7 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
     if ( !isusable_ )
 	return;
 
+    NotifyStopper ns( filetable_->valueChanged );
     const BufferString seldir = dirsel_->fileName();
     for ( int idx=0; idx<nrfiles_; idx++ )
     {

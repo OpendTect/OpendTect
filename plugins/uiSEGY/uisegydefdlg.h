@@ -89,6 +89,8 @@ protected:
     const IOObj&	ioobj_;
     IOPar&		filepars_;
     od_int64		fileparsoffset_;
+    int			nrfiles_;
+    bool		isusable_;
 
     uiFileInput*	dirsel_;
     uiTable*		filetable_;
@@ -99,9 +101,6 @@ protected:
     void		dirSelCB(CallBacker*);
     void		fileSelCB(CallBacker*);
     bool		acceptOK(CallBacker*);
-
-    int			nrfiles_;
-    bool		isusable_;
 
 };
 
