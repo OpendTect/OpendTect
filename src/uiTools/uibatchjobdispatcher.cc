@@ -144,15 +144,8 @@ void uiBatchJobDispatcherSel::jobSpecUpdated()
 
     const BufferString oldsel = selfld_->text();
     selfld_->newSpec( StringListInpSpec(nms), 0 );
-    if ( (nms.size() > 1)&&
-	 ((jobspec_.procTypeFor(jobspec_.prognm_) == Batch::JobSpec::Vol) ||
-	 (jobspec_.procTypeFor(jobspec_.prognm_) == Batch::JobSpec::Attrib)) )
-	selfld_->setValue( 1 );
-
     if ( !oldsel.isEmpty() )
 	selfld_->setText( oldsel );
-
-    selChg( 0 );
 }
 
 
