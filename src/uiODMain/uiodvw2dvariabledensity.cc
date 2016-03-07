@@ -93,8 +93,14 @@ bool uiODVW2DVariableDensityTreeItem::init()
 void uiODVW2DVariableDensityTreeItem::initColTab()
 {
     if ( coltabinitialized_ ) return;
+
     mAttachCB( viewer2D()->viewControl()->colTabEd()->colTabChgd,
 	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
+
+    if ( uitreeviewitem_->treeView() &&
+	 uitreeviewitem_->treeView()->nrSelected() > 0 )
+	return;
+
     uitreeviewitem_->setSelected( true );
     select(); coltabinitialized_ = true;
 }
