@@ -914,8 +914,23 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 				   BufferString& auxdatanm, bool storeas ) const
 {
     EM::EMObject* object = em_.getObject( id );
-    mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,object);
     if ( !hor3d )
+	return false;
+
+    const ObjectSet<BinIDValueSet>& datastor = hor3d->auxdata.getData();
+    if ( datastor.isEmpty() )
+	return false;
+
+    bool hasdata = true;
+    for ( int idx=0; idx<datastor.size(); idx++ )
+    {
+	const BinIDValueSet* bvs = datastor[idx];
+	if ( bvs && !bvs->isEmpty() )
+	    hasdata = true;
+    }
+
+    if ( !hasdata )
 	return false;
 
     uiTaskRunner exdlg( parent() );
