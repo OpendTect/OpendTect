@@ -40,6 +40,10 @@ static const char* rcsID mUsedVar = "$Id$";
 mUseQtnamespace
 
 
+/* Idea from:
+http://www.qtforum.org/article/34125/disable-qtablewidget-selection-color.html
+*/
+
 class BackgroundDelegate : public QStyledItemDelegate
 {
 public:
@@ -51,6 +55,7 @@ BackgroundDelegate( QObject* qobj )
 void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	    const QModelIndex& index) const
 {
+    // Give cells their original background color
     QVariant background = index.data( Qt::BackgroundRole );
     if ( background.canConvert<QBrush>() )
 	painter->fillRect( option.rect, background.value<QBrush>() );
