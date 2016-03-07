@@ -68,8 +68,9 @@ void HorizonPainter2D::setGeomID( Pos::GeomID geomid )
 }
 
 
-void HorizonPainter2D::paint()
+void HorizonPainter2D::paint( CallBacker* )
 {
+    mEnsureExecutedInMainThread( HorizonPainter2D::paint );
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();

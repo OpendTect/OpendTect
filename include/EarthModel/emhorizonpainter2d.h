@@ -42,7 +42,7 @@ public:
     TypeSet<int>&	getTrcNos()			{ return trcnos_; }
     TypeSet<float>&	getDistances()			{ return distances_; }
 
-    void		paint();
+    void		paint(CallBacker* =0);
     void		displayIntersection(bool yn);
 
 	mStruct(EarthModel)	Marker2D
