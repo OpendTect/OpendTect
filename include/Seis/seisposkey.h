@@ -30,11 +30,13 @@ public:
     inline		PosKey( int trcnr, float offs=mUdf(float) )
 			    : binid_(mUdf(int),trcnr), offset_(offs)	{}
     inline bool		operator ==(const PosKey&) const;
+    inline bool		operator !=( const PosKey& oth ) const
+						{ return !(*this == oth); }
 
     inline bool		is2D() const		{ return mIsUdf(binid_.inl()); }
     inline bool		isPS() const		{ return !mIsUdf(offset_); }
     inline Seis::GeomType geomType() const	{ return geomTypeOf(
-	    						 is2D(),isPS()); }
+							 is2D(),isPS()); }
     inline bool		isUndef() const		{ return mIsUdf(binid_.crl()); }
     inline void		setUndef()		{ mSetUdf(binid_.crl()); }
 
@@ -56,7 +58,7 @@ public:
 			{ binid_.inl() = mUdf(int); binid_.crl() = trcnr;
 			    offset_ = offs; }
     inline void		set(int trcnr,const BinID&,float);
-    			//!< set what's relevant for GeomType
+			//!< set what's relevant for GeomType
 
     inline int&		trcNr()			{ return binid_.crl(); }
     inline BinID&	binID()			{ return binid_; }
@@ -102,15 +104,15 @@ inline void PosKey::set( int nr, const BinID& bid, float offs )
 
 }
 
-inline bool PosKey::operator ==( const PosKey& pk ) const
+inline bool PosKey::operator ==( const PosKey& oth ) const
 {
-    if ( binid_ != pk.binid_ )
+    if ( binid_ != oth.binid_ )
 	return false;
 
-    if ( mIsUdf(pk.offset_) )
+    if ( mIsUdf(oth.offset_) )
 	return mIsUdf( offset_ );
 
-    return mIsEqual(offset_,pk.offset_,1e-4); }
+    return mIsEqual(offset_,oth.offset_,1e-4); }
 
 };
 

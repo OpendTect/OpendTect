@@ -51,6 +51,9 @@ public:
     typedef StepInterval<int>	Segment;
 
 				LineData( int i ) : linenr_(i)	{}
+    bool			operator ==(const LineData&) const;
+    bool			operator !=( const LineData& oth ) const
+				{ return !(*this == oth); }
 
     const int			linenr_;
     TypeSet<Segment>		segments_;

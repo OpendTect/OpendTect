@@ -9,6 +9,7 @@
 set(OD_MODULE_DEPS Geometry MMProc )
 
 set ( OD_TEST_PROGS seisbuf.cc )
+# set ( OD_TEST_PROGS seisbuf.cc compare_sgydefs.cc )
 set ( OD_BATCH_TEST_PROGS synthseis.cc )
 
 set(OD_MODULE_SOURCES
@@ -83,4 +84,5 @@ set(OD_MODULE_BATCHPROGS
 	    od_process_time2depth.cc
 	    od_process_segyio.cc
 )
+
 OD_INIT_MODULE()

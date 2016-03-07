@@ -21,13 +21,38 @@ int PosInfo::LineData::size() const
 }
 
 
+bool PosInfo::LineData::operator ==( const PosInfo::LineData& oth ) const
+{
+    if ( this == &oth )
+	return true;
+
+    if ( linenr_ != oth.linenr_ )
+	return false;
+
+    const int nrsegs = segments_.size();
+    if ( nrsegs != oth.segments_.size() )
+	return false;
+
+    for ( int iseg=0; iseg<nrsegs; iseg++ )
+    {
+	const PosInfo::LineData::Segment& myseg = segments_[iseg];
+	const PosInfo::LineData::Segment& othseg = oth.segments_[iseg];
+	if ( myseg != othseg )
+	    return false;
+    }
+
+    return true;
+}
+
+
 int PosInfo::LineData::nearestSegment( double x ) const
 {
-    if ( segments_.size() < 1 )
+    const int nrsegs = segments_.size();
+    if ( nrsegs < 1 )
 	return -1;
 
     int ret = 0; float mindist = mUdf(float);
-    for ( int iseg=0; iseg<segments_.size(); iseg++ )
+    for ( int iseg=0; iseg<nrsegs; iseg++ )
     {
 	const PosInfo::LineData::Segment& seg = segments_[iseg];
 
@@ -589,7 +614,7 @@ bool PosInfo::CubeData::isCrlReversed() const
 	    if ( ld.segments_[0].start==ld.segments_[1].start )
 	    {
 		BufferString msg( "Two segemnts in line nr " );
-		msg += ld.linenr_; msg += " have same start"; 
+		msg += ld.linenr_; msg += " have same start";
 		pErrMsg( msg );
 		continue;
 	    }

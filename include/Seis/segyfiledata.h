@@ -46,6 +46,12 @@ public:
 			    : filenr_(fnr), trcidx_(tnr)	{}
 	bool		isValid() const		{ return filenr_>=0; }
 	void		toNextFile()		{ filenr_++; trcidx_ = 0; }
+	bool		operator ==( const TrcIdx& oth ) const
+			{ return filenr_ == oth.filenr_
+			      && trcidx_ == oth.trcidx_; }
+	bool		operator !=( const TrcIdx& oth ) const
+			{ return filenr_ != oth.filenr_
+			      || trcidx_ != oth.trcidx_; }
 
 	int		filenr_;
 	od_int64	trcidx_;
@@ -78,8 +84,8 @@ public:
     bool		addTrace(int fileidx,const Seis::PosKey&,const Coord&,
 				 bool usable);
 
-    const SamplingData<float>&	getSampling() const { return sampling_; }
-    int				getTrcSz() const { return trcsz_; }
+    const SamplingData<float>&	getSampling() const	{ return sampling_; }
+    int				getTrcSz() const	{ return trcsz_; }
 
 				//Auxdata
     int				nrFiles() const;
@@ -96,9 +102,6 @@ public:
     Coord			get2DCoord(int trcnr) const;
     TrcIdx			getFileIndex(od_int64) const;
 
-
-    //bool		toNext(TrcIdx&,bool allownull=true,
-				//bool allownotusable=false) const;
 
     void			setIndexer(Seis::PosIndexer* n);
 				/*!<addTrace will send the trace info to the
