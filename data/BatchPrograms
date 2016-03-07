@@ -7,10 +7,6 @@ od_cbvs_browse
 	Comment: Browse seismic cubes (in the default 'CBVS' format)
 	UI: Text
 !
-lmhostid
-	Comment: Display the FlexLM hostid of this machine
-	Comment: May be required for commercial plugins.
-!
 od_glxinfo
 	Comment: Display OpenGL information
 !
