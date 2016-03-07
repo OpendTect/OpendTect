@@ -42,6 +42,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 
 HorizonPainter2D::~HorizonPainter2D()
 {
+    detachAllNotifiers();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
     {
@@ -82,6 +83,12 @@ bool HorizonPainter2D::addPolyLine()
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( !emobj ) return false;
+
+    const OD::MarkerStyle3D ms3d =
+	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
+    markerstyle_.color_ = ms3d.color_;
+    markerstyle_.size_ = ms3d.size_*2;
+    markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType(ms3d.type_);
 
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return false;
@@ -288,11 +295,6 @@ HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
     EM::EMObject* emobj = EM::EMM().getObject(id_);
-    OD::MarkerStyle3D ms3d =
-	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
-    markerstyle_.color_ = ms3d.color_;
-    markerstyle_.size_ = ms3d.size_;
-    markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
     seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData( seedauxdata );
     Marker2D* marker = new Marker2D;

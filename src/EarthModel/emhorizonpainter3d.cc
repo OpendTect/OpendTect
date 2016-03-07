@@ -119,7 +119,7 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
     OD::MarkerStyle3D ms3d =
 	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
     markerstyle_.color_ = ms3d.color_;
-    markerstyle_.size_ = ms3d.size_;
+    markerstyle_.size_ = ms3d.size_*2;
     markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
 	emobj->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).color_;
     seedauxdata->markerstyles_ += markerstyle_;
