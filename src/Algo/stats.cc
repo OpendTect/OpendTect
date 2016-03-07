@@ -15,6 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "settings.h"
 
+
+Threads::Atomic<int> partsortglobalseed( 0 );
+
+
 mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
 {
 	"Count",

@@ -12,6 +12,7 @@ set( OD_TEST_PROGS
 	contcurvinterpol.cc
 	gaussianprobdenfunc.cc
 	simpnumer.cc
+	sorting.cc
 	trigonometry.cc
 	velocitycalc.cc
 )

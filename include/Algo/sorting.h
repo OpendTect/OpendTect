@@ -158,18 +158,30 @@ protected:
 #define FC 1663
 #define NSTACK 50
 
+mExtern(Algo) Threads::Atomic<int> partsortglobalseed;
+
+inline float getPartSortSeed()
+{
+    const int localseed = (partsortglobalseed * FA + FC) % FM;
+
+    //This is not really atomic, so a MT environment may alter the
+    //global seed, but who cares as it is a seed, and should be
+    //a random number
+
+    partsortglobalseed = localseed;
+
+    return (float) localseed;
+}
+
+
 template <class T,class I> inline
 void partSort( T* arr, I istart, I istop,
 		      I* jstart, I* jstop )
 {
     I ipivot, ileft, iright;
     T pivotval, tmp;
-    mDefineStaticLocalObject( long int, seed, = 0L );
-    mDefineStaticLocalObject( Threads::SpinLock, seedlock, );
 
-    seedlock.lock();
-    long int localseed = seed = (seed * FA + FC) % FM;
-    seedlock.unLock();
+    const float localseed = getPartSortSeed();
 
     ipivot = (int)(istart + (istop-istart) * (float)localseed / (float)FM + .5);
     if ( ipivot < istart ) ipivot = istart;
@@ -285,12 +297,8 @@ void partSort( T* arr, IT* iarr, int istart, int istop, int* jstart, int* jstop)
     int ipivot, ileft, iright;
     T pivotval, tmp;
     IT itmp;
-    mDefineStaticLocalObject( long int, seed, = 0L );
-    mDefineStaticLocalObject( Threads::SpinLock, seedlock, );
 
-    seedlock.lock();
-    long int localseed = seed = (seed * FA + FC) % FM;
-    seedlock.unLock();
+    const float localseed = getPartSortSeed();
 
     ipivot = (int)(istart + (istop-istart) * (float)localseed / (float)FM);
     if ( ipivot < istart ) ipivot = istart;
