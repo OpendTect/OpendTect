@@ -482,6 +482,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
 
     refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );
     getposbut_->setSensitive( true );
+    pickretriever_->reset();
 }
 
 
