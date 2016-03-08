@@ -176,7 +176,6 @@ if ( QT_QJPEG_PLUGIN_RELEASE )
     set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
 endif()
 
-set( LMHOSTID lmhostid )
 if( WIN32 )
     if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 	set( QJPEG ${QTDIR}/plugins/imageformats/qjpegd4.dll )
@@ -206,23 +205,13 @@ if( WIN32 )
 	    FILES_MATCHING
 	    PATTERN *.lib
 	)
-    set( LMHOSTID "lmhostid.exe" )
 endif()
 
 install( PROGRAMS ${QJPEG} DESTINATION ${MISC_INSTALL_PREFIX}/imageformats )
 if ( WIN32 )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
-	     CONFIGURATIONS Release )
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
-	     CONFIGURATIONS Debug )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/od_main_debug.bat
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
 	     CONFIGURATIONS Release )
-else()
-    install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
-	     DESTINATION ${OD_EXEC_OUTPUT_RELPATH} )
 endif()
 
 if( EXISTS ${MSVCPATH} )
