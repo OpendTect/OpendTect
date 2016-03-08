@@ -173,36 +173,38 @@ void Annotation::setScene( visBase::Scene* scene )
 
 void Annotation::firstTraversal(CallBacker*)
 {
-    /*  Force system never to use the shader as it has a bug
-        http://bugs.dgbes.com/view.php?id=5014
-            
-        This does however enable bug 
-                         
-        http://bugs.dgbes.com/view.php?id=4723
-                                       
-	To resolve the bug, remove the "false" and start debugging
-    */
-        
-    if ( false &&
-         allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
+    if ( allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
     {
-	float factor = 1.1;
-	BufferString code( "void main(void)\n"
-			  "{\n"
-			  "    gl_FragDepth = gl_FragCoord.z");
+	osg::ref_ptr<osg::Program> program = new osg::Program;
+
+	BufferString code =
+	    "void main(void)\n"
+	    "{\n"
+	    "	 gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+	    "	 gl_FrontColor = gl_FrontMaterial.diffuse;"
+	    "}\n";
+
+	osg::ref_ptr<osg::Shader> vertexShader =
+		new osg::Shader( osg::Shader::VERTEX, code.str() );
+	program->addShader( vertexShader.get() );
+
+	const float factor = 1.1;
+	code = "void main(void)\n"
+	       "{\n"
+	       "    gl_FragDepth = gl_FragCoord.z";
 
 	code.add(" * ").add(toString(factor,1) );
 	code.add(";\n");
 	code.add(""
 		 "    if ( gl_FragDepth>0.999999 ) gl_FragDepth = 0.999999; \n"
-		 "	  gl_FragColor = gl_FrontMaterial.diffuse;\n"
+		 "    gl_FragColor.a = gl_FrontMaterial.diffuse.a;\n"
+		 "    gl_FragColor.rgb = gl_Color.rgb;\n"
 		 "}\n");
+
 	osg::ref_ptr<osg::Shader> fragmentShader =
 		new osg::Shader( osg::Shader::FRAGMENT, code.str() );
-
-	osg::ref_ptr<osg::Program> program = new osg::Program;
-
 	program->addShader( fragmentShader.get() );
+
 	gridlines_->getOrCreateStateSet()->setAttributeAndModes(program.get());
     }
 
