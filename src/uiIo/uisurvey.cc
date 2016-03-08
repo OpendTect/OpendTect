@@ -507,10 +507,10 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 				 mCB(this,uiSurvey,editButPushed) );
     new uiToolButton( butgrp, "copyobj",
 	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
-    new uiToolButton( butgrp, "export",
+    new uiToolButton( butgrp, "compress",
 	tr("Compress survey as zip archive"),
 	mCB(this,uiSurvey,exportButPushed) );
-    new uiToolButton( butgrp, "import",
+    new uiToolButton( butgrp, "extract",
 	tr("Extract survey from zip archive"),
 	mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
