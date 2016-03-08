@@ -16,30 +16,31 @@ else()
 endif()
 
 
-macro( DEFINE_SVN_EXTERNAL DIR URL )
+macro( DEFINE_SVN_EXTERNAL DIR URL REVISION )
+
     if ( NOT EXISTS ${DIR} )
 	execute_process(
-	    COMMAND ${SUBVERSION_EXEC} checkout ${EXTRA_SVN_ARGS} ${URL} ${DIR}
+	    COMMAND ${SUBVERSION_EXEC} checkout ${EXTRA_SVN_ARGS} -r ${REVISION} ${URL} ${DIR}
 	    TIMEOUT 120
 	    OUTPUT_VARIABLE OUTPUT
 	    ERROR_VARIABLE OUTPUT
 	    RESULT_VARIABLE RESULT )
 	if ( ${RESULT} EQUAL 0 )
-	     message( "${DIR} is updated" )
+	     message( "${DIR} is updated to ${URL} revision ${REVISION}" )
 	else()
 	     message( "${DIR} is not up to date:\n${OUTPUT}" )
 	endif()
     else()
 	if ( UPDATE STREQUAL "Yes" )
 	    execute_process(
-		COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS}
+		COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS} -r ${REVISION}
 		WORKING_DIRECTORY ${DIR}
 		TIMEOUT 120
 		OUTPUT_VARIABLE OUTPUT
 		ERROR_VARIABLE OUTPUT
 		RESULT_VARIABLE RESULT )
 	    if ( ${RESULT} EQUAL 0 )
-		 message( "${DIR} is updated" )
+		 message( "${DIR} is updated to ${URL} revision ${REVISION}" )
 	    else()
 		 message( "${DIR} is not up to date:\n${OUTPUT}" )
 	    endif()
