@@ -168,6 +168,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
     SeisTrcInfo ti; thdr->fill( ti, 1.0f );
     sampling_ = ti.sampling;
+    if ( mIsZero(sampling_.step,1.e-8) )
+	sampling_.step = binhdr.sampleRate( false );
 
     return uiString::emptyString();
 }
