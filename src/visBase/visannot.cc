@@ -175,23 +175,36 @@ void Annotation::firstTraversal(CallBacker*)
 {
     if ( allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
     {
-	float factor = 1.1;
-	BufferString code( "void main(void)\n"
-			  "{\n"
-			  "    gl_FragDepth = gl_FragCoord.z");
+	osg::ref_ptr<osg::Program> program = new osg::Program;
 
-	code.add(" * ").add(toString(factor,1) );
+	BufferString code =
+	    "void main(void)\n"
+	    "{\n"
+	    "	 gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"	
+	    "	 gl_FrontColor = gl_FrontMaterial.diffuse;"
+	    "}\n";
+
+	osg::ref_ptr<osg::Shader> vertexShader =
+		new osg::Shader( osg::Shader::VERTEX, code.str() );
+	program->addShader( vertexShader.get() );
+
+	const float factor = 1.1;
+	code = "void main(void)\n"
+	       "{\n"
+	       "    gl_FragDepth = gl_FragCoord.z";
+
+	code.add(" * ").add(toString(factor,1));
 	code.add(";\n");
 	code.add(""
 		 "    if ( gl_FragDepth>0.999999 ) gl_FragDepth = 0.999999; \n"
-		 "	  gl_FragColor = gl_FrontMaterial.diffuse;\n"
+		 "    gl_FragColor.a = gl_FrontMaterial.diffuse.a;\n"
+		 "    gl_FragColor.rgb = gl_Color.rgb;\n"
 		 "}\n");
+
 	osg::ref_ptr<osg::Shader> fragmentShader =
 		new osg::Shader( osg::Shader::FRAGMENT, code.str() );
-
-	osg::ref_ptr<osg::Program> program = new osg::Program;
-
 	program->addShader( fragmentShader.get() );
+
 	gridlines_->getOrCreateStateSet()->setAttributeAndModes(program.get());
     }
 
