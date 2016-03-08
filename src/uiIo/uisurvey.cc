@@ -507,12 +507,12 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 				 mCB(this,uiSurvey,editButPushed) );
     new uiToolButton( butgrp, "copyobj",
 	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
-    new uiToolButton( butgrp, "export",
+    new uiToolButton( butgrp, "compress",
 	tr("Compress survey as zip archive"),
-	mCB(this,uiSurvey,exportButPushed) );
-    new uiToolButton( butgrp, "import",
+	mCB(this,uiSurvey,compressButPushed) );
+    new uiToolButton( butgrp, "extract",
 	tr("Extract survey from zip archive"),
-	mCB(this,uiSurvey,importButPushed) );
+	mCB(this,uiSurvey,extractButPushed) );
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );
@@ -878,7 +878,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 }
 
 
-void uiSurvey::importButPushed( CallBacker* )
+void uiSurvey::extractButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
@@ -893,14 +893,14 @@ void uiSurvey::importButPushed( CallBacker* )
 }
 
 
-void uiSurvey::exportButPushed( CallBacker* )
+void uiSurvey::compressButPushed( CallBacker* )
 {
     const char* survnm( selectedSurveyName() );
     const uiString title = tr("Compress %1 survey as zip archive")
 						.arg(survnm);
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,
-                    mODHelpKey(mSurveyexportButPushedHelpID) ));
+		    mODHelpKey(mSurveyCompressButPushedHelpID) ));
     uiFileInput* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
 		    uiStrings::phrOutput(tr("Destination"))),
 		    uiFileInput::Setup().directories(false).forread(false)
@@ -917,12 +917,12 @@ void uiSurvey::exportButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    FilePath exportzippath( fnmfld->fileName() );
-    BufferString zipext = exportzippath.extension();
+    FilePath zippath( fnmfld->fileName() );
+    BufferString zipext = zippath.extension();
     if ( zipext != "zip" )
 	mErrRetVoid(tr("Please add .zip extension to the file name"))
 
-    uiSurvey_ZipDirectory( this, survnm, exportzippath.fullPath() );
+    uiSurvey_ZipDirectory( this, survnm, zippath.fullPath() );
 }
 
 

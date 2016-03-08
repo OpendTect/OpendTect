@@ -91,8 +91,8 @@ protected:
     void		rmButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
     void		copyButPushed(CallBacker*);
-    void		importButPushed(CallBacker*);
-    void		exportButPushed(CallBacker*);
+    void		extractButPushed(CallBacker*);
+    void		compressButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		odSettsButPush(CallBacker*);
     void		utilButPush(CallBacker*);
