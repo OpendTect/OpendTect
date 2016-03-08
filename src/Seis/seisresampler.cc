@@ -74,6 +74,10 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
     {
 	const StepInterval<float> trczrg( intrc.zRange() );
 	StepInterval<float> reqzrg( cs.zsamp_ );
+	if ( mIsUdf(reqzrg.start) )
+	    reqzrg.start = trczrg.start;
+	if ( mIsUdf(reqzrg.stop) )
+	    reqzrg.stop = trczrg.stop;
 	if ( reqzrg.step < 1e-8 )
 	    reqzrg.step = trczrg.step;
 
@@ -91,6 +95,7 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 	{
 	    worktrc = intrc;
 	    worktrc.info() = intrc.info();
+
 	    worktrc.info().sampling_.start = reqzrg.start;
 	    worktrc.info().sampling_.step = reqzrg.step;
 	    int nrsamps = (int)( (reqzrg.stop-reqzrg.start)/reqzrg.step + 1.5 );
