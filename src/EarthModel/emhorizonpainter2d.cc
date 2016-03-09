@@ -97,7 +97,7 @@ bool HorizonPainter2D::addPolyLine()
     if ( !emobj ) return false;
 
     const MarkerStyle3D ms3d =
-    emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
+	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
     markerstyle_.color_ = ms3d.color_;
     markerstyle_.size_ = ms3d.size_*2;
     markerstyle_.type_ = MarkerStyle3D::getMS2DType(ms3d.type_);
@@ -309,9 +309,6 @@ HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
 					: MouseCursor::Arrow;
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
-    EM::EMObject* emobj = EM::EMM().getObject(id_);
-    MarkerStyle3D ms3d =
-	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
     seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData( seedauxdata );
     Marker2D* marker = new Marker2D;
