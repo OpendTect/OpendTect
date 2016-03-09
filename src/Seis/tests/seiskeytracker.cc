@@ -1,0 +1,79 @@
+/*+
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ * AUTHOR   : Bert
+ * DATE     : Aug 2013
+-*/
+
+static const char* rcsID mUsedVar = "$Id$";
+
+#include "testprog.h"
+#include "seiskeytracker.h"
+
+#define mErrRet(strmstuff) \
+{ od_cout() << strmstuff << od_endl; return ExitProgram(1); }
+
+int main( int argc, char** argv )
+{
+    mInitTestProg();
+
+    const int nrargs = clparser.nrArgs();
+    if ( nrargs < 1 )
+	mErrRet("Please pass output filename")
+
+    const BufferString fnm( clparser.getArg(0) );
+    od_ostream strm( fnm );
+
+    Seis::GeomType geom;
+    Seis::KeyTracker* trckr = 0;
+#define mStartNewGeomType(gt) \
+    delete trckr; \
+    geom = Seis::gt; \
+    strm << "\n\n** " << Seis::nameOf(geom) << " **\n\n"; \
+    trckr = new Seis::KeyTracker( strm, geom )
+
+    mStartNewGeomType(Vol);
+    trckr->add( BinID(100,311) );
+    trckr->add( BinID(100,312) );
+    trckr->add( BinID(100,313) );
+    trckr->add( BinID(100,315) );
+    trckr->add( BinID(100,316) );
+    trckr->add( BinID(100,317) );
+    trckr->add( BinID(100,319) );
+    trckr->add( BinID(102,312) );
+    trckr->add( BinID(103,313) );
+    trckr->add( BinID(103,314) );
+    trckr->add( BinID(103,315) );
+    trckr->add( BinID(104,315) );
+    trckr->add( BinID(106,315) );
+    trckr->add( BinID(108,315) );
+    trckr->add( BinID(108,316) );
+    trckr->add( BinID(108,317) );
+    trckr->add( BinID(108,319) );
+
+    mStartNewGeomType(VolPS);
+    trckr->add( BinID(100,311), 100.f );
+    trckr->add( BinID(100,311), 200.f );
+    trckr->add( BinID(100,311), 300.f );
+    trckr->add( BinID(100,311), 500.f );
+    trckr->add( BinID(100,312), 100.f );
+    trckr->add( BinID(100,312), 200.f );
+    trckr->add( BinID(100,312), 300.f );
+    trckr->add( BinID(100,312), 500.f );
+    trckr->add( BinID(100,313), 100.f );
+    trckr->add( BinID(100,313), 200.f );
+    trckr->add( BinID(100,313), 300.f );
+    trckr->add( BinID(100,313), 500.f );
+    trckr->add( BinID(100,314), 100.f );
+    trckr->add( BinID(100,314), 200.f );
+    trckr->add( BinID(100,314), 300.f );
+    trckr->add( BinID(100,314), 500.f );
+    trckr->add( BinID(100,314), 700.f );
+    trckr->add( BinID(100,315), 100.f );
+    trckr->add( BinID(100,315), 200.f );
+    trckr->add( BinID(100,315), 300.f );
+    trckr->add( BinID(100,315), 500.f );
+    trckr->add( BinID(100,315), 700.f );
+
+    delete trckr;
+    return ExitProgram( 0 );
+}
