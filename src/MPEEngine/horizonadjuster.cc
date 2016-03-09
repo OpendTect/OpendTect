@@ -179,11 +179,15 @@ int HorizonAdjuster::nextStep()
 	    EventTracker::CompareMethod curmethod =
 				evtracker_.getCompareMethod();
 	    evtracker_.setCompareMethod( EventTracker::None );
+	    const Interval<float> searchwin = searchWindow();
+	    const float winsz = SI().zStep() * 50; // should be sufficient
+	    setSearchWindow( Interval<float>(-winsz,winsz) );
 
 	    res = track( BinID(-1,-1), target, targetz );
 
 	    evtracker_.useSimilarity( wasusingsim );
 	    evtracker_.setCompareMethod( curmethod );
+	    setSearchWindow( searchwin );
 
 	    if ( res )
 		setSeedPosition( target );
@@ -267,13 +271,12 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
     if ( !evtracker_.isOK() )
 	return false;
 
-    evtracker_.track();
+    const bool res = evtracker_.track();
     const float resz = sd.atIndex( evtracker_.targetDepth() );
-
-    if ( mIsUdf(resz) )
+    if ( !searchWindow().includes(resz-startz,false) )
 	return false;
 
-    targetz = resz;
+    if ( res ) targetz = resz;
     return true;
 }
 
