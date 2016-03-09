@@ -176,9 +176,9 @@ void uiIOObjManipGroup::selChg()
     if ( locbut )
     {
 	const bool canreloc = curiostrm && !curiostrm->implReadOnly();
-	mSetTBStateAndTT4Cur( locbut, canreloc, "Relocate" );
+	mSetTBStateAndTT4Cur( locbut, canreloc, uiStrings::sMove() );
     }
-    mSetTBStateAndTT4Cur( renbut, curiostrm, "Rename" );
+    mSetTBStateAndTT4Cur( renbut, curiostrm, uiStrings::sRename() );
 
 #define mSetTBStateAndTT4Chosen(tb,cond,oper) \
     tb->setSensitive( cond ); \
@@ -194,12 +194,13 @@ void uiIOObjManipGroup::selChg()
 			&& firstchoseniostrm->implExists(true);
     const bool isro = cantoggro && firstchoseniostrm->implReadOnly();
     useAlternative( robut, !isro );
-    mSetTBStateAndTT4Chosen( robut, cantoggro, isro ? "Unlock":"Lock" );
+    mSetTBStateAndTT4Chosen( robut, cantoggro,
+			     isro ? uiStrings::sUnlock() : uiStrings::sLock() );
 
     if ( rembut )
     {
 	const bool canrm = firstchosenioobj;
-	mSetTBStateAndTT4Chosen( rembut, canrm, "Delete" );
+	mSetTBStateAndTT4Chosen( rembut, canrm, uiStrings::sDelete() );
     }
 
     delete curioobj;
