@@ -379,7 +379,6 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     singlfillcolfld_ = new uiCheckBox( this, tr("single color") );
     singlfillcolfld_->attach( rightOf, logfilltypefld_ );
 
-    setLogSet( wl );
 
     coltablistfld_ = new uiColorTableSel( this, "Table selection" );
     coltablistfld_->attach( alignedBelow, filllogsfld_ );
@@ -423,6 +422,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     fillcolorfld_->attach( alignedBelow, logfilltypefld_ );
     fillcolorfld_->display(false);
 
+    setLogSet( wl );
     putToScreen();
 
     CallBack propchgcb = mCB(this,uiWellLogDispProperties,propChg);
@@ -632,6 +632,7 @@ void uiWellLogDispProperties::setWellLogSel()
 	setStyleSensitive( false );
     else
 	setStyleSensitive( true );
+
     singlfillcolfld_->display( true );
     coltablistfld_->display( true );
     logfilltypefld_->display( true );
@@ -678,6 +679,7 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 {
+    const BufferString curlognm = logsfld_->box()->text();
     wl_ = wls;
     BufferStringSet lognames;
     for ( int idx=0; idx< wl_->size(); idx++ )
@@ -688,6 +690,10 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
     logsfld_->box()->addItems( lognames );
     filllogsfld_->box()->setEmpty();
     filllogsfld_->box()->addItems( lognames );
+    if ( lognames.isPresent(curlognm) )
+	logsfld_->box()->setText( curlognm );
+
+    logSel( 0 );
 }
 
 

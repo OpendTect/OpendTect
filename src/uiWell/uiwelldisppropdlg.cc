@@ -127,6 +127,19 @@ void uiWellDispPropDlg::tabSel(CallBacker*)
 }
 
 
+void uiWellDispPropDlg::updateLogs()
+{
+    const Well::LogSet& wls = wd_->logs();
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	mDynamicCastGet(
+	    uiWellLogDispProperties*, curwelllogproperty,propflds_[idx]);
+	if ( curwelllogproperty )
+	    curwelllogproperty->setLogSet( &wls );
+    }
+}
+
+
 void uiWellDispPropDlg::setWDNotifiers( bool yn )
 {
     if ( !wd_ ) return;

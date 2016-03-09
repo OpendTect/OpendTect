@@ -223,7 +223,11 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 
     const int dlgidx = getPropDlgIndex( mid );
     if ( dlgidx != -1 )
-	return wellpropdlgs_[dlgidx]->go();
+    {
+	uiWellDispPropDlg* dispdlg = wellpropdlgs_[dlgidx];
+	dispdlg->updateLogs();
+	return dispdlg->go();
+    }
 
     uiWellDispPropDlg* uiwellpropdlg = new uiWellDispPropDlg( parent(), wd );
     uiwellpropdlg->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
