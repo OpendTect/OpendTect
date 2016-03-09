@@ -37,7 +37,11 @@ lupdate=$5
 tmpoddir=/tmp/lupdate_tmp_$$
 outputdir=${binarydir}/data/localizations/generated
 
-scriptdir="${sourcedir}/dtect"
+#Get the directory where the scripts are
+pushd `dirname $0` > /dev/null
+scriptdir=`pwd`
+popd > /dev/null
+
 nrcpu=`${scriptdir}/GetNrProc`
 
 removetmpoddirsed="s/\/tmp\/"
