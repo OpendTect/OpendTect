@@ -38,7 +38,10 @@ namespace Seis
 class SelData;
 
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
-   into a BinIDValueSet */
+   into a BinIDValueSet
+   Consider using the SequentialReader class for better performance
+   and additional functionality
+*/
 
 mExpClass(Seis) ParallelReader : public ParallelTask
 { mODTextTranslationClass(ParallelReader)
@@ -59,6 +62,12 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
+    bool		setOutputComponents(const TypeSet<int>&);
+			/*!< If and only if different from components_
+			     For instance to map the input component 3
+			     with the output component 2
+			     Returns false if size different from components_
+			  */
 
     void		 setDataPack(RegularSeisDataPack*);
     RegularSeisDataPack* getDataPack();

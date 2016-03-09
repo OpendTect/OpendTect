@@ -30,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 
+#include "hiddenparam.h"
+
 #include <string.h>
 
 namespace Seis
@@ -57,6 +59,8 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 }
 
 
+HiddenParam<ParallelReader,TypeSet<int>* > seisrdroutcompmgr( 0 );
+
 ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     : dp_(0)
     , bidvals_(0)
@@ -64,6 +68,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     , ioobj_( ioobj.clone() )
     , totalnr_( cs.hsamp_.totalNr() )
 {
+    seisrdroutcompmgr.setParam( this, 0 );
     SeisIOObjInfo seisinfo( ioobj );
     const int nrcomponents = seisinfo.nrComponents();
     for ( int idx=0; idx<nrcomponents; idx++ )
@@ -80,6 +85,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
     , ioobj_( ioobj.clone() )
     , totalnr_( bidvals.totalSize() )
 {
+    seisrdroutcompmgr.setParam( this, 0 );
     errmsg_ = uiStrings::phrReading( ioobj_->uiName() );
 }
 
@@ -88,6 +94,20 @@ ParallelReader::~ParallelReader()
 {
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete ioobj_;
+    delete seisrdroutcompmgr.getParam( this );
+    seisrdroutcompmgr.removeParam( this );
+}
+
+
+bool ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
+{
+    if ( compnrs.size() != components_.size() )
+	return false;
+
+    delete seisrdroutcompmgr.getParam( this );
+    seisrdroutcompmgr.setParam( this, new TypeSet<int>( compnrs ) );
+
+    return true;
 }
 
 
@@ -184,6 +204,9 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
+    const TypeSet<int>& outcompnrs = seisrdroutcompmgr.getParam( this )
+				   ? *seisrdroutcompmgr.getParam( this )
+				   : components_;
     TrcKeySamplingIterator iter;
     BinIDValueSet::SPos bidvalpos;
     BinID curbid;
@@ -229,9 +252,10 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 
 		if ( !mIsUdf(z) && trczrg.includes( z, false ) )
 		{
-		    for ( int idc=components_.size()-1; idc>=0; idc-- )
+		    for ( int idcx=outcompnrs.size()-1; idcx>=0; idcx-- )
 		    {
-			vals[idc+1] = trc.getValue( z, components_[idc] );
+			const int idc = outcompnrs[idcx];
+			vals[idc+1] = trc.getValue( z, components_[idcx] );
 		    }
 		}
             }
@@ -246,11 +270,12 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 		    const double z = tkzs_.zsamp_.atIndex( idz );
 		    if ( trczrg.includes( z, false ) )
 		    {
-			for ( int idc=dp_->nrComponents()-1; idc>=0; idc-- )
+			for ( int idcx=outcompnrs.size()-1; idcx>=0; idcx-- )
 			{
-			    val = trc.getValue( (float) z, components_[idc] );
+			    val = trc.getValue( (float) z, components_[idcx] );
 			    if ( !mIsUdf(val) )
 			    {
+				const int idc = outcompnrs[idcx];
 				Array3D<float>& arr3d = dp_->data( idc );
 				arr3d.set( inlidx, crlidx, idz, val);
 			    }
