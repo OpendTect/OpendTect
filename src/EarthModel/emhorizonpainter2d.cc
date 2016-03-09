@@ -295,7 +295,6 @@ HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
 					: MouseCursor::Arrow;
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
-    EM::EMObject* emobj = EM::EMM().getObject(id_);
     seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData( seedauxdata );
     Marker2D* marker = new Marker2D;
