@@ -25,8 +25,8 @@ void Seis::KeyTracker::finish()
 {
     if ( !finished_ )
     {
-	recordPos( prevbid_, false );
 	recordOffsets();
+	recordPos( prevbid_, false );
 	finished_ = true;
     }
 }
@@ -213,6 +213,7 @@ void Seis::KeyTracker::addNextPS( const BinID& bid, float offs )
 	// we're past last offset, now we should be at a new position
 	if ( !atprevbid )
 	{
+	    recordOffsets();
 	    offsidx_ = 0;
 	    checkCurOffset( offs );
 	}
@@ -222,15 +223,12 @@ void Seis::KeyTracker::addNextPS( const BinID& bid, float offs )
 	    offsetschanged_ = true;
 	}
     }
-
-    if ( !atprevbid )
-	recordOffsets();
 }
 
 
 void Seis::KeyTracker::add( int trcnr, float offs )
 {
-    add( BinID(0,trcnr) );
+    add( BinID(0,trcnr), offs );
 }
 
 
