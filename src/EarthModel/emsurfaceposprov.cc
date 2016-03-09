@@ -663,7 +663,7 @@ bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
 
     const TrcKeyZSampling& cs = useinside_ ? tkzs_ : bbox_;
     curbid_ = cs.hsamp_.start_;
-    curz_ = tkzs_.zsamp_.start;
+    curz_ = mUdf(float);
 
     initializedbody_ = true;
     return imparr_;
@@ -822,23 +822,20 @@ bool EMImplicitBodyProvider::toNextPos()
 
 bool EMImplicitBodyProvider::toNextZ()
 {
-    if ( mIsUdf(curz_) )
-	return toNextPos();
-
     const TrcKeyZSampling& bb = useinside_ ? tkzs_ : bbox_;
-    curz_ += bb.zsamp_.step;
-    if ( curz_ > bb.zsamp_.stop )
-	return toNextPos();
-
-    if ( useinside_ )
+    if ( !mIsUdf(curz_) )
+	curz_ += bb.zsamp_.step;
+    if ( mIsUdf(curz_) || curz_ > bb.zsamp_.stop )
     {
-	const int idx = tkzs_.lineIdx( curbid_.inl() );
-	const int idy = tkzs_.lineIdx( curbid_.crl() );
-	const int idz = tkzs_.zIdx( curz_ );
-	const bool inbody = imparr_->info().validPos(idx,idy,idz) &&
-	    imparr_->get(idx,idy,idz)<=threshold_;
-	if ( !inbody )
-	    return toNextZ();
+	if ( !toNextPos() )
+	    return false;
+    }
+
+    while ( !includes(curbid_,curz_) )
+    {
+	curz_ += bb.zsamp_.step;
+	if ( curz_ > bb.zsamp_.stop && !toNextPos() )
+	    return false;
     }
 
     return true;
