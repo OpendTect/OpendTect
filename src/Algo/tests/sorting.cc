@@ -41,8 +41,8 @@ static bool test_quicksort()
 	vals[idx] = gen.getInt();
     }
 
-    quickSort( vals.ptr(), sz );
-    return checkSorting( vals.ptr(), sz );
+    quickSort( mVarLenArr(vals), sz );
+    return checkSorting( mVarLenArr(vals), sz );
 }
 
 #define mNrTesters 100
