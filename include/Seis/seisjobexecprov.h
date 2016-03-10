@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "bufstring.h"
 #include "uistring.h"
 #include "multiid.h"
@@ -63,7 +63,7 @@ public:
     bool		removeTempSeis();
 
     bool		emitLSFile(const char*) const;
-    			//!< Not usable in 'normal' work.
+			//!< Not usable in 'normal' work.
     void		preparePreSet(IOPar&,const char*) const;
 
     const MultiID&	outputID() const	{ return seisoutid_; }

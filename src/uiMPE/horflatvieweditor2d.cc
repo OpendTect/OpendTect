@@ -62,11 +62,11 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor2D,horRepaintATSCB) );
     horpainter_->repaintdone_.notify(
 	    mCB(this,HorizonFlatViewEditor2D,horRepaintedCB) );
-    mAttachCB( editor_->sower().sowingEnd, 
+    mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor2D::sowingFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     if ( vwr )
-    mAttachCB( 
+    mAttachCB(
 	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
 	HorizonFlatViewEditor2D::keyPressedCB );
 }
@@ -297,7 +297,7 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
-    
+
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds &&
 	 markerpos && !ctrlorshifclicked )
     {
@@ -408,7 +408,7 @@ void HorizonFlatViewEditor2D::undo()
 	 updatePatchDisplay();
 	 changed = true;
     }
-    else 
+    else
     {
 	if ( engine().canUnDo() )
 	{
@@ -440,7 +440,7 @@ void HorizonFlatViewEditor2D::redo()
 	 updatePatchDisplay();
 	 changed = true;
     }
-    else 
+    else
     {
 	if ( engine().canReDo() )
 	{
@@ -468,7 +468,7 @@ void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
 	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
 	const MouseEvent& mouseevent = mehandler_->event();
-	const bool doerase = 
+	const bool doerase =
 	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
 
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -539,8 +539,8 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
     clickedcrd.z = wp.y;
     doTheSeed( *seedpicker, clickedcrd, mouseevent );
 
-    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() && 
-	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds && 
+    if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
+	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawAndSnap )
 	emobj->setBurstAlert( false );
 
@@ -682,14 +682,14 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	    if ( tracker )
 	    {
-		const MPE::EMSeedPicker* seedpicker = 
+		const MPE::EMSeedPicker* seedpicker =
 		    tracker->getSeedPicker(true);
 		if ( seedpicker && !seedpicker->getSowerMode() )
 		    updatePatchDisplay();
 	    }
 	}
 	else if ( spk.addSeed(tkv,drop,tkv2) )
-	    return true;    
+	    return true;
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {
@@ -749,13 +749,13 @@ void HorizonFlatViewEditor2D::updatePatchDisplay()
 	const TrcKeyValue tkzs = path[idx];
 	if ( tkzs.isUdf() )
 	    continue;
-	const BinID bid = tkzs.tk_.pos();
+	const BinID bid = tkzs.tk_.binID();
 	const int pidx = horpainter_->getTrcNos().indexOf(bid.crl());
 	if ( pidx == -1 )
 	    continue;
 	const double x = horpainter_->getDistances()[pidx];
 
-	OD::MarkerStyle2D markerstyle( 
+	OD::MarkerStyle2D markerstyle(
 	    OD::MarkerStyle2D::Square, 4, emobj->preferredColor() );
 	patchdata_->markerstyles_ += markerstyle;
 	patchdata_->poly_ += FlatView::Point( x, tkzs.val_ );

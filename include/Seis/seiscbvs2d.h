@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seis2dlineio.h"
 #include "uistring.h"
 
@@ -34,13 +33,13 @@ public:
     bool		getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const;
     Executor*		getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-	    			   const Seis::SelData* sd=0);
+				   const Seis::SelData* sd=0);
     Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID);
 
     bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
-	    			   BufferString&) const;
+				   BufferString&) const;
     bool		getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
-	    			  StepInterval<float>&) const;
+				  StepInterval<float>&) const;
 
     bool		removeImpl(const IOObj&,Pos::GeomID) const;
     bool		renameImpl(const IOObj&,const char*) const;
@@ -65,11 +64,11 @@ public:
     bool		put(const SeisTrc&);
     bool		close();
 
-    int                 		nrwr_;
-    BufferString        		fname_;
+    int		nrwr_;
+    BufferString		fname_;
     uiString				errmsg_;
     CBVSSeisTrcTranslator*		tr_;
-    BinID               		bid_;
+    BinID		bid_;
     DataCharacteristics::UserType	preseldt_;
 
 };

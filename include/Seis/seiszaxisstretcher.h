@@ -13,7 +13,7 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "trckeyzsampling.h"
 #include "paralleltask.h"
 #include "thread.h"

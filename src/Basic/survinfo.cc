@@ -61,14 +61,14 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
     TrcKey tk( getSurvID(), transform(crd) );
     if ( dist )
     {
-	if ( sampling_.hsamp_.includes(tk.pos()) )
+	if ( sampling_.hsamp_.includes(tk.binID()) )
 	{
-	    const Coord projcoord( transform(tk.pos()) );
+	    const Coord projcoord( transform(tk.binID()) );
 	    *dist = (float)projcoord.distTo( crd );
 	}
 	else
 	{
-	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.pos()) );
+	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.binID()) );
 	    const Coord nearcoord( transform(nearbid.pos()) );
 	    *dist = (float)nearcoord.distTo( crd );
 	}

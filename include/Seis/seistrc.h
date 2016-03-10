@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisinfo.h"
 #include "tracedata.h"
 #include "datachar.h"
@@ -73,10 +72,6 @@ public:
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
 				     bool forcefloats=false);
 			//!< icomp -1 (default) is all components
-
-    static const float	snapdist; //!< Default 1e-4
-			//!< relative distance from a sample below which no
-			//!< interpolation is done. 99.9% chance default is OK.
 
     const ValueSeriesInterpolator<float>& interpolator() const;
     void		setInterpolator(ValueSeriesInterpolator<float>*);

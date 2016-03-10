@@ -237,7 +237,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	    tk.trcNr() = (Pos::TraceID)(coord.y + 0.5);
 	}
 
-	float* vals = getVals( add(tk.pos()) );
+	float* vals = getVals( add(tk.binID()) );
 	if ( !vals ) continue;
 	for ( int idx=0; idx<nrVals(); idx++ )
 	{
@@ -973,7 +973,7 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 }
 
 
-void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg, 
+void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg,
 				   bool removeinside )
 {
     const StepInterval<IdxType> frstrg = hrg.inlRange();

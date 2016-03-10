@@ -54,7 +54,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     const int sz = size();
     if ( sz < 1 ) return;
     const SeisTrc* trc = first();
-    BinID bid = trc->info().binid;
+    BinID bid = trc->info().binID();
     const BinID pbid = bid;
     spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
     spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
@@ -63,12 +63,12 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     bool doneinl = false, donecrl = false;
     for ( int idx=0; idx<sz; idx++ )
     {
-	trc = get( idx ); bid = trc->info().binid;
+	trc = get( idx ); bid = trc->info().binID();
 	spi.inlrg.include( bid.inl(), false );
 	spi.crlrg.include( bid.crl(), false);
 	const SamplingData<float> trcsd = trc->info().sampling_;
 	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
-	     !mIsZero(trcsd.step,mDefEps) )
+	     !mIsZero(trcsd.step,Seis::DefZEps) )
 	{
 	    StepInterval<float> zrg(trcsd.start, trcsd.atIndex(trc->size()-1),
 				    trcsd.step );
@@ -175,8 +175,8 @@ void SeisTrcBuf::sortForWrite( bool is2d )
     for ( int idx=1; idx<sz; idx++ )
     {
 	SeisTrc* trc = get( idx );
-	const bool issameinl = trc->info().binid.inl()
-				== singinlbuf.get(0)->info().binid.inl();
+	const bool issameinl = trc->info().inl()
+				== singinlbuf.get(0)->info().inl();
 	if ( issameinl )
 	    singinlbuf.add( trc );
 	else
@@ -265,7 +265,7 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     int idx = startidx, pos = 0;
     while ( idx<sz && idx>=0 )
     {
-	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
+	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
 	    return idx;
 	else if ( is2d &&
 		  ((SeisTrcBuf*)this)->get(idx)->info().nr_ == binid.crl() )
@@ -284,7 +284,7 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 {
     if ( !trc ) return -1;
 
-    int tryidx = probableIdx( trc->info().binid, is2d );
+    int tryidx = probableIdx( trc->info().binID(), is2d );
     if ( trcs_[tryidx] == trc ) return tryidx;
 
     // Bugger. brute force then
@@ -301,8 +301,8 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 {
     int sz = size(); if ( sz < 2 ) return 0;
-    BinID start = trcs_[0]->info().binid;
-    BinID stop = trcs_[sz-1]->info().binid;
+    BinID start = trcs_[0]->info().binID();
+    BinID stop = trcs_[sz-1]->info().binID();
     if ( is2d )
     {
 	start.inl() = stop.inl() = 0;
@@ -317,7 +317,7 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int n1  = dist.inl() ? start.inl() : start.crl();
     int n2  = dist.inl() ? stop.inl()  : stop.crl();
     int pos = dist.inl() ? bid.inl()   : bid.crl();
- 
+
     float fidx = ((sz-1.f) * (pos - n1)) / (n2-n1);
     int idx = mNINT32(fidx);
     if ( idx < 0 ) idx = 0;
@@ -344,7 +344,7 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	strm << od_newline;
 	const SeisTrc& trc = *get( itrc );
 	if ( !is2d )
-	    strm << trc.info().binid.inl() << ' ' << trc.info().binid.crl();
+	    strm << trc.info().inl() << ' ' << trc.info().crl();
 	else
 	{
 	    BufferString postxt;
@@ -504,7 +504,7 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
     setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
     setName( b.name() );
 }
-    
+
 
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
@@ -591,14 +591,14 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 	return false;
 
     cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() =
-	buf.first()->info().binid.inl();
+	buf.first()->info().inl();
     cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() =
-	buf.first()->info().binid.crl();
+	buf.first()->info().crl();
     cs.hsamp_.step_.inl() = SI().inlStep();
     cs.hsamp_.step_.crl() = SI().crlStep();
 
     for ( int idx=1; idx<buf.size(); idx++ )
-	cs.hsamp_.include( buf.get( idx )->info().binid );
+	cs.hsamp_.include( buf.get( idx )->info().binID() );
 
     cs.zsamp_.setFrom( posData().range(false) );
 

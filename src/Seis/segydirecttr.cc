@@ -141,7 +141,7 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
 	return 0;
 
     SeisTrc* trc = new SeisTrc;
-    if ( !tr_->readInfo(trc->info()) || trc->info().binid != bid )
+    if ( !tr_->readInfo(trc->info()) || trc->info().binID() != bid )
 	{ delete trc; return 0; }
     if ( tr_->read(*trc) )
 	return trc;
@@ -348,7 +348,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     initVars( false );
     mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn || strmconn->isBad() )
-	{ errmsg_ = uiStrings::phrCannotOpen(tr("new definition file")); 
+	{ errmsg_ = uiStrings::phrCannotOpen(tr("new definition file"));
 								return false; }
     segydeffilename_ = strmconn->fileName();
 
@@ -448,7 +448,7 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !def_ || def_->isEmpty() || ild_ < 0 || !positionTranslator() )
 	return false;
 
-    if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
+    if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
     headerread_ = true;

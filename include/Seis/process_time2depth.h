@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "seismod.h"
+#include "seiscommon.h"
 
 //!Keys for od_process_time2depth.cc
 

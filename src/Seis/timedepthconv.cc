@@ -265,15 +265,15 @@ protected:
 	return MoreToDo();
     }
 
-    TrcKeyZSampling        	readcs_;
-    SeisTrcReader&      	reader_;
-    Array3D<float>&     	arr_;
-    TimeDepthConverter  	tdc_;
-    VelocityDesc        	veldesc_;
-    bool                	velintime_;
-    bool                	voiintime_;
+    TrcKeyZSampling	readcs_;
+    SeisTrcReader&	reader_;
+    Array3D<float>&	arr_;
+    TimeDepthConverter	tdc_;
+    VelocityDesc	veldesc_;
+    bool	velintime_;
+    bool	voiintime_;
 
-    int                 	nrdone_;
+    int	nrdone_;
 
     SamplingData<double>	voisd_;
 
@@ -389,8 +389,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     if ( trckey.is2D() )
 	return;
 
-    const BinID bid = trckey.pos();
-
+    const BinID bid = trckey.binID();
     if ( bid.isUdf() )
 	return;
 
@@ -467,8 +466,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     if ( trckey.is2D() )
 	return;
 
-    const BinID bid = trckey.pos();
-
+    const BinID bid = trckey.binID();
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
     float largestwidth = mUdf(float);
@@ -833,16 +831,16 @@ int VelocityModelScanner::nextStep()
     {
 	const float firsttime = (float) sd.atIndex(first);
 	float v0 = -1;
-    	if ( firsttime>0 )
-    	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
+	if ( firsttime>0 )
+	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
 			  : ( resvs.value(first)>0.0001
 				  ?  2*firsttime/resvs.value(first)
 				  : 1500 );
-    	else
-    	{
+	else
+	{
 	    const float diff0 = resvs.value(first+1) - resvs.value(first);
 	    v0 = (float)( zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0);
-    	}
+	}
 
 	if ( v0 > 0 )
 	{

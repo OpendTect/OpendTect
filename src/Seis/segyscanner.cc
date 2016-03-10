@@ -187,7 +187,7 @@ int SEGY::Scanner::readNext()
     }
 
     const SeisTrcInfo& ti = trc_.info();
-    dtctor_.add( ti.coord_, ti.binid, ti.nr_, ti.offset_ );
+    dtctor_.add( ti.coord_, ti.binID(), ti.nr_, ti.offset_ );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
 		    trc_.size() );
     nrdone_++;

@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seispsread.h"
+#include "seispswrite.h"
 #include "uistring.h"
 #include "manobjectset.h"
 #include "transl.h"
 #include "bufstring.h"
-#include "seispsread.h"
-#include "seispswrite.h"
 
 
 class IOObj;

@@ -198,7 +198,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 
     const BinIDValueSet& bvis = tsd->binidValueSet();
     Interval<float> extz = tsd->extraZ();
-    BinID bid = trc.info().binid;
+    BinID bid = trc.info().binID();
     float z1(mUdf(float)), z2(mUdf(float));
     BinID duplicatebid;
     BinIDValueSet::SPos pos = bvis.find( bid );

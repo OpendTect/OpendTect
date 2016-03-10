@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "executor.h"
 #include "bufstringset.h"
 class SeisTrc;
@@ -42,8 +42,8 @@ mExpClass(Seis) SeisBayesClass : public Executor
 { mODTextTranslationClass(SeisBayesClass)
 public:
 
-    				SeisBayesClass(const IOPar&);
-    				~SeisBayesClass();
+				SeisBayesClass(const IOPar&);
+				~SeisBayesClass();
 
     static const char*		sKeyPDFID();
     static const char*		sKeyAPProbID();
@@ -98,7 +98,7 @@ protected:
     int				closeDown();
 
     float			getPDFValue(int ipdf,int isamp,int icomp,
-	    				    bool inp=false) const;
+					    bool inp=false) const;
     float			getAPTrcVal(int ipdf,int isamp,int icomp);
     void			calcPerBinProbs();
     void			calcProbs(int);
@@ -107,7 +107,7 @@ protected:
     void			cleanUp();
     void			prepOutTrc(SeisTrc&,bool) const;
     void			getClass(const TypeSet<float>&,int&,
-	    				 float&) const;
+					 float&) const;
 
 };
 

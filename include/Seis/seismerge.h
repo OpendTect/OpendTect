@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "executor.h"
 #include "binid.h"
 #include "samplingdata.h"
@@ -30,7 +30,7 @@ mExpClass(Seis) SeisMerger : public Executor
 { mODTextTranslationClass(SeisMerger);
 public:
 
-    			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
+			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
 				   bool is2d);
 			SeisMerger(const IOPar&);	//For post-processing
     virtual		~SeisMerger();
@@ -38,8 +38,8 @@ public:
     uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrpos_; }
     od_int64		totalNr() const		{ return totnrpos_; }
-    uiString		uiNrDoneText() const	{ 
-					    return tr("Positions handled"); 
+    uiString		uiNrDoneText() const	{
+					    return tr("Positions handled");
 						}
     int			nextStep();
     void		setScaler(Scaler*);

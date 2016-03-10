@@ -13,11 +13,10 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
 #include "seisbuf.h"
+#include "seisinfo.h"
 #include "arraynd.h"
 #include "datapackbase.h"
-#include "seisinfo.h"
 
 class TrcKeyZSampling;
 
@@ -28,8 +27,8 @@ mExpClass(Seis) SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
-    			SeisTrcBufArray2D(SeisTrcBuf*,bool mine,int compnr);
-    			SeisTrcBufArray2D(const SeisTrcBuf*,int compnr);
+			SeisTrcBufArray2D(SeisTrcBuf*,bool mine,int compnr);
+			SeisTrcBufArray2D(const SeisTrcBuf*,int compnr);
 			~SeisTrcBufArray2D();
 
     bool		isOK() const		{ return true; }
@@ -66,18 +65,18 @@ mExpClass(Seis) SeisTrcBufDataPack : public FlatDataPack
 {
 public:
 
-    			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
+			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
 			//!< buf becomes mine
-    			SeisTrcBufDataPack(const SeisTrcBuf&,Seis::GeomType,
+			SeisTrcBufDataPack(const SeisTrcBuf&,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
 			//!< buf stays yours (and must remain alive!)
 			SeisTrcBufDataPack(const SeisTrcBufDataPack&);
 
     void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
-	    			  int icomp=0,bool manage_buf=true);
+				  int icomp=0,bool manage_buf=true);
 
     bool		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
@@ -90,9 +89,9 @@ public:
     bool		posDataIsCoord() const		{ return false; }
 
     SeisTrcBufArray2D&	trcBufArr2D()
-    			{ return *((SeisTrcBufArray2D*)arr2d_); }
+			{ return *((SeisTrcBufArray2D*)arr2d_); }
     const SeisTrcBufArray2D& trcBufArr2D() const
-    			{ return *((SeisTrcBufArray2D*)arr2d_); }
+			{ return *((SeisTrcBufArray2D*)arr2d_); }
     SeisTrcBuf&		trcBuf()
 			{ return trcBufArr2D().trcBuf(); }
     const SeisTrcBuf&	trcBuf() const

@@ -102,7 +102,7 @@ int BaseHorizon3DExtender::nextStep()
 	    }
 	    else
 	    {
-		directions += RowCol( direction_.tk_.pos() );
+		directions += RowCol( direction_.tk_.binID() );
 		directions += RowCol( direction_.lineNr()*-1,
 				      direction_.trcNr()*-1 );
 	    }

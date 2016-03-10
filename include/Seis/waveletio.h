@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "transl.h"
 #include "tableascio.h"
 class Wavelet;

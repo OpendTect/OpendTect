@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "ranges.h"
 #include "coord.h"
 class TrcKeyZSampling;
@@ -25,7 +25,7 @@ namespace Seis
 
   start, stop end step are for either first key (Inline or Trace Number) or
   second key (Crossline or aux trace number).
- 
+
  */
 
 mExpClass(Seis) Bounds
@@ -38,11 +38,11 @@ public:
     int			expectedNrTraces() const;
 
     virtual int		start(bool first=true) const		= 0;
-    			//!< Inl, TrcNr (first) or Crl (2nd)
+			//!< Inl, TrcNr (first) or Crl (2nd)
     virtual int		stop(bool first=true) const		= 0;
-    			//!< Inl, TrcNr (first) or Crl (2nd)
+			//!< Inl, TrcNr (first) or Crl (2nd)
     virtual int		step(bool first=true) const		= 0;
-    			//!< Inl, TrcNr (first) or Crl (2nd)
+			//!< Inl, TrcNr (first) or Crl (2nd)
     virtual StepInterval<float> getZRange() const		= 0;
 
     virtual void	getCoordRange(Coord& min,Coord&) const	= 0;
@@ -54,9 +54,9 @@ mExpClass(Seis) Bounds3D : public Bounds
 {
 public:
 
-    			Bounds3D();
-    			Bounds3D(const Bounds3D&);
-    			~Bounds3D();
+			Bounds3D();
+			Bounds3D(const Bounds3D&);
+			~Bounds3D();
     bool		is2D() const			{ return false; }
 
     int			start(bool first=true) const;
@@ -75,7 +75,7 @@ mExpClass(Seis) Bounds2D : public Bounds
 {
 public:
 
-    			Bounds2D();
+			Bounds2D();
     bool		is2D() const			{ return true; }
 
     int			start( bool firstrg = true ) const

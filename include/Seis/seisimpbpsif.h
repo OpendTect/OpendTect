@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -67,7 +67,7 @@ mExpClass(Seis) SeisImpBPSIF : public Executor
 { mODTextTranslationClass(SeisImpBPSIF);
 public:
 
-    			SeisImpBPSIF(const char* filenm,const MultiID&);
+			SeisImpBPSIF(const char* filenm,const MultiID&);
     virtual		~SeisImpBPSIF();
     void		setMaxInlOffset(int);
 
@@ -77,11 +77,11 @@ public:
     int			nextStep();
 
     int			nrFiles() const		{ return fnames_.size(); }
-    			// Available after first nextStep():
+			// Available after first nextStep():
     const BufferStringSet& header() const	{ return hdrlines_; }
     const BufferStringSet& shotAttrs() const	{ return shotattrs_; }
     const BufferStringSet& rcvAttrs() const	{ return rcvattrs_; }
-    			// Available after execution:
+			// Available after execution:
     bool		isIrregular() const	{ return irregular_; }
     int			nrShots() const		{ return nrshots_; }
     int			nrRcvrs() const		{ return nrrcvpershot_; }

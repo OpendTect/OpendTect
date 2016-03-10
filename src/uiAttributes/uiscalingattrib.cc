@@ -94,13 +94,13 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     nfld->attach( alignedBelow, typefld );
 
     sqrgfld = new uiGenInput( this, tr("Value range (empty=unlimited)"),
-	    			FloatInpIntervalSpec() );
+				FloatInpIntervalSpec() );
     sqrgfld->attach( alignedBelow, typefld );
     squrgfld = new uiGenInput( this, tr("Untouched range (empty=all)"),
-	    			FloatInpIntervalSpec() );
+				FloatInpIntervalSpec() );
     squrgfld->attach( alignedBelow, sqrgfld );
 
-    statsfld = new uiGenInput( this, tr("Basis"), 
+    statsfld = new uiGenInput( this, tr("Basis"),
         StringListInpSpec(statstypestr) );
     statsfld->attach( alignedBelow, typefld );
     statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
@@ -131,13 +131,13 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     windowfld->attach( alignedBelow, typefld );
 
     lowenergymute = new uiGenInput( this, tr("Low energy mute (%)"),
-	    			    FloatInpSpec() );
+				    FloatInpSpec() );
     lowenergymute->setValue( 0 );
     lowenergymute->attach( alignedBelow, windowfld );
 
     // for Gain Correction
     analysebut_ = new uiPushButton( this, tr("Analyse"),
-	    			    mCB(this,uiScalingAttrib,analyseCB), false);
+				    mCB(this,uiScalingAttrib,analyseCB), false);
     analysebut_->attach( alignedBelow, typefld );
 
     typeSel(0);
@@ -160,7 +160,7 @@ void uiScalingAttrib::typeSel( CallBacker* )
 
     sqrgfld->display( typeval==3 );
     squrgfld->display( typeval==3 );
-    
+
     analysebut_->display( typeval==4 );
 }
 
@@ -180,12 +180,12 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     mIfGetEnum( Scaling::scalingTypeStr(), scalingtype,
 	        typefld->setValue(scalingtype) );
     mIfGetFloat( Scaling::powervalStr(), powerval, nfld->setValue(powerval) );
-    mIfGetEnum( Scaling::statsTypeStr(), statstype, 
-	    			statsfld->setValue(statstype) );
-    mIfGetFloat( Scaling::widthStr(), wndwidthval, 
-	    	 windowfld->setValue(wndwidthval) );
+    mIfGetEnum( Scaling::statsTypeStr(), statstype,
+				statsfld->setValue(statstype) );
+    mIfGetFloat( Scaling::widthStr(), wndwidthval,
+		 windowfld->setValue(wndwidthval) );
     mIfGetFloat( Scaling::mutefractionStr(), mutefactor,
-				lowenergymute->setValue(mutefactor*100));    
+				lowenergymute->setValue(mutefactor*100));
 
     const Attrib::ValParam* vp = desc.getValParam(Scaling::sqrangeStr());
     if ( vp )
@@ -200,7 +200,7 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr())
 	nrtgs = gateset->size();
     }
-    
+
     table->clearTable();
     while ( nrtgs > table->nrRows() )
 	table->insertRows( 0, 1 );
@@ -209,12 +209,12 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     if ( desc.getParam(Scaling::gateStr()) )
     {
 	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr());
-	
+
 	zvals_.erase();
 	for ( int idx=0; idx<gateset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*gateset)[idx];
-	    
+
 	    if ( typefld->getIntValue() == 4 )
 	    {
 		if ( idx==0 )
@@ -277,7 +277,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	int start = table->getIntValue( RowCol(idx,startcol) );
 	int stop = table->getIntValue( RowCol(idx,stopcol) );
 	if ( mIsUdf(start) && mIsUdf(stop) ) continue;
-	
+
 	tgs += ZGate( mCast(float,start), mCast(float,stop) );
 
 	if ( statsfld->getIntValue() == 3 )
@@ -296,7 +296,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	{
 	    float zstart = zvals_[idx];
 	    float zstop = zvals_[idx+1];
-	    
+
 	    tgs += ZGate( zstart, zstop );
 	    if ( scalefactors_.validIdx(idx) )
 		factors += scalefactors_[idx];
@@ -320,7 +320,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	ValParam& valparam = (ValParam&)(*factorset)[idx];
 	valparam.setValue(factors[idx] );
     }
-    
+
     return true;
 }
 
@@ -422,7 +422,7 @@ void createSelFields( DataType type )
     IntInpSpec nrtrcinpspec( 50 );
     nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				nrtrcinpspec );
-    
+
     if ( type==uiSelectPositionDlg::Stored2D )
     {
 	SeisIOObjInfo seisinfo( mid_ );
@@ -431,7 +431,7 @@ void createSelFields( DataType type )
 	linesfld_ = new uiLabeledComboBox(this, tr("Gain Analyisis on line:"));
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
-	
+
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
     else if ( type==uiSelectPositionDlg::DataPack2D )
@@ -481,7 +481,7 @@ bool acceptOK( CallBacker* )
     BufferString	attribnm_;
     DataPack::FullID	dpfid_;
     MultiID		mid_;
-    
+
     uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
     uiLabeledComboBox*	linesfld_;
@@ -502,7 +502,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	     : new DescSet( is2D() );
     if ( !descset )
 	return;
-    
+
     Attrib::Desc& desc = *voldesc;
     desc.setInput( 0, inpdesccp );
     Interval<float> timegate(-28,28);
@@ -526,7 +526,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     attribspecs += sp;
     aem->setAttribSet( descset );
     aem->setAttribSpecs( attribspecs );
-    
+
     TrcKeyZSampling cs( false );
     const bool isinpindp = dpfids_.size();
     TypeSet<TrcKey> trckeys;
@@ -609,7 +609,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
-       bidvals.add( trckeys[idx].pos() );
+       bidvals.add( trckeys[idx].binID() );
 
     uiString errmsg;
     SeisTrcBuf bufs( true );

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "trckeyzsampling.h"
 #include "executor.h"
 #include "multiid.h"

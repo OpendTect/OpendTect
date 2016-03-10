@@ -335,11 +335,11 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     ti.new_packet_ = false;
 
     if ( mIsUdf(prev_inl) )
-	prev_inl = ti.binid.inl();
-    else if ( prev_inl != ti.binid.inl() )
+	prev_inl = ti.inl();
+    else if ( prev_inl != ti.inl() )
     {
 	foundvalidcrl = false;
-	prev_inl = ti.binid.inl();
+	prev_inl = ti.inl();
 	if ( !entryis2d )
 	    ti.new_packet_ = true;
     }
@@ -348,7 +348,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     if ( seldata_ )
     {
 	if ( !entryis2d )
-	    selres = seldata_->selRes(ti.binid);
+	    selres = seldata_->selRes(ti.binID());
 	else
 	{
 	    BinID bid( seldata_->inlRange().start, ti.nr_ );
@@ -365,7 +365,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     {
 	if ( !entryis2d && sttrl.inlCrlSorted() )
 	{
-	    bool neednewinl = outer && !outer->includes(ti.binid);
+	    bool neednewinl = outer && !outer->includes(ti.binID());
 	    if ( neednewinl )
 	    {
 		mDynamicCastGet(IOStream*,iostrm,ioobj_)
@@ -654,7 +654,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 	    // Not handled by fetcher
 	{
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-	    isincl = tsd->binidValueSet().includes(trcti.binid);
+	    isincl = tsd->binidValueSet().includes(trcti.binID());
 	}
     }
     return isincl ? 1 : 2;

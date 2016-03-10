@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "seistype.h"
+#include "seiscommon.h"
 #include "binid.h"
 #include "od_iosfwd.h"
 

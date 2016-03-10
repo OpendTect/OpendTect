@@ -316,7 +316,7 @@ int SeisSingleTraceProc::getNextTrc()
 	if ( !nrDone() && currdridx_ == rdrs_.size()-1 )
 	    return ErrorOccurred();
 
-	 currdridx_++; return MoreToDo(); 
+	 currdridx_++; return MoreToDo();
     }
     else if ( rv == 2 )
 	return 2;
@@ -401,7 +401,7 @@ int SeisSingleTraceProc::getFillTrc()
     {
 	worktrc_ = &intrc_;
 	*worktrc_ = *filltrc_;
-	worktrc_->info().binid = fillbid_;
+	worktrc_->info().setBinID( fillbid_ );
 	worktrc_->info().coord_ = SI().transform( fillbid_ );
     }
 

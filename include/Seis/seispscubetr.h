@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seistrctr.h"
 #include "binid.h"
 class IOObj;

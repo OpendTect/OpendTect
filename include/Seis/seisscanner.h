@@ -12,12 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "dataclipper.h"
 #include "executor.h"
 #include "position.h"
 #include "samplingdata.h"
-#include "seistype.h"
 #include "statruncalc.h"
 #include "uistring.h"
 
@@ -37,7 +36,7 @@ mExpClass(Seis) SeisScanner : public Executor
 { mODTextTranslationClass(SeisScanner)
 public:
 
-    			SeisScanner(const IOObj&,Seis::GeomType,
+			SeisScanner(const IOObj&,Seis::GeomType,
 				    int max_nr_trcs=-1);
 			~SeisScanner();
 
@@ -49,7 +48,7 @@ public:
 
     void		report(IOPar&) const;
     bool		getSurvInfo(TrcKeyZSampling&,Coord crd[3]) const;
-    			//!< Z range will be exclusive start/end null samples
+			//!< Z range will be exclusive start/end null samples
 
     Interval<float>	zRange() const		{ return Interval<float>
 			( sampling_.start, sampling_.atIndex(nrsamples_-1) ); }
@@ -57,7 +56,7 @@ public:
     unsigned int	nrNullTraces() const	{ return nrnulltraces_; }
 
     void		launchBrowser(const IOPar&,const char* fnm) const;
-    			//!< Passed IOPar will be the start of the display
+			//!< Passed IOPar will be the start of the display
 
 protected:
 

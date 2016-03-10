@@ -296,7 +296,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	float depth = (float) horizon_->getPos( pid ).z;
 	if ( mIsUdf( depth ) && hor3d )
 	{
-	    const BinID bid = hortrckey.pos();
+	    const BinID bid = hortrckey.binID();
 	    const Geometry::BinIDSurface* geom =
 		hor3d->geometry().sectionGeometry(sid);
 	    depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z;

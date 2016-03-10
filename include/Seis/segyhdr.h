@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "segythdef.h"
 #include "coord.h"
 #include "samplingdata.h"

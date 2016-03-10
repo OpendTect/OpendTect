@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisposkey.h"
 #include "threadlock.h"
 #include "ranges.h"
@@ -38,7 +37,7 @@ public:
 
 /*!\brief builds an index of a list of positions, making it easy to find a
   specific position.
-  
+
   In principle, no sorting is required.
   While at it, in/xline and offset ranges are determined.
 
@@ -55,20 +54,20 @@ public:
     virtual			~PosIndexer();
 
     od_int64			findFirst(const BinID&) const;
-    				//!< -1 = inl not found
-   				//!< -2 crl/trcnr not found
+				//!< -1 = inl not found
+				//!< -2 crl/trcnr not found
     od_int64			findFirst(int) const;
-    				//!< -1 = empty
-   				//!< -2 trcnr not found
+				//!< -1 = empty
+				//!< -2 trcnr not found
     od_int64			findFirst(const PosKey&,
 					  bool chckoffs=true) const;
-    				//!< -1 = inl not found or empty
-   				//!< -2 crl/trcnr not found
-   				//!< -3 offs not found
+				//!< -1 = inl not found or empty
+				//!< -2 crl/trcnr not found
+				//!< -3 offs not found
     od_int64			findOcc(const PosKey&,int occ) const;
-    				//!< ignores offset
+				//!< ignores offset
     TypeSet<od_int64>		findAll(const PosKey&) const;
-    				//!< ignores offset
+				//!< ignores offset
 
     inline bool			validIdx( od_int64 idx ) const
 				{ return idx >= 0 && idx < maxidx_; }
@@ -77,7 +76,7 @@ public:
     void			reIndex();
 
     inline Seis::GeomType	geomType() const
-    				{ return Seis::geomTypeOf(is2d_,isps_); }
+				{ return Seis::geomTypeOf(is2d_,isps_); }
 
     const Interval<int>&	inlRange() const	{ return inlrg_; }
     const Interval<int>&	crlRange() const	{ return crlrg_; }
@@ -87,8 +86,8 @@ public:
 
     bool			dumpTo(od_ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,
-	    				bool all,
-	    				DataInterpreter<int>*  =0,
+					bool all,
+					DataInterpreter<int>*  =0,
 					DataInterpreter<od_int64>* =0,
 					DataInterpreter<float>* =0 );
 
@@ -96,7 +95,7 @@ public:
     void			getCrls(int inl,TypeSet<int>&) const;
 
     void			add(const Seis::PosKey&, od_int64 offset );
-    				//!<Adds the pk to index. Called from reIndex
+				//!<Adds the pk to index. Called from reIndex
     void			empty();
 protected:
     bool			readHeader(DataInterpreter<int>*,

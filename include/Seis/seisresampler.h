@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "gendefs.h"
 class SeisTrc;
 class TrcKeyZSampling;
@@ -32,7 +32,7 @@ public:
 
 			SeisResampler(const TrcKeyZSampling&,bool is2d=false,
 				      const Interval<float>* valrange=0);
-    			//!< valrange will be copied. null == no checks
+			//!< valrange will be copied. null == no checks
 			SeisResampler(const SeisResampler&);
     virtual		~SeisResampler();
     SeisResampler&	operator =(const SeisResampler&);

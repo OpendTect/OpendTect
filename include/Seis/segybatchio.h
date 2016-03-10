@@ -5,16 +5,14 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		18-10-1995
- Contents:	Selectors
+ Author:	Bert
+ Date:		2015
  RCS:		$Id$
 ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "gendefs.h"
+#include "seiscommon.h"
 
 
 /*!\brief Keys that should be used with od_process_segyio.cc */

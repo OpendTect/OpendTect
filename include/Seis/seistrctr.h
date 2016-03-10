@@ -14,13 +14,11 @@ Translators for seismic traces.
 
 -*/
 
-#include "seismod.h"
+#include "seisinfo.h"
 #include "transl.h"
 #include "ctxtioobj.h"
 #include "samplingdata.h"
 #include "basiccompinfo.h"
-#include "seisinfo.h"
-#include "seistype.h"
 #include "linekey.h"
 
 class SeisTrc;

@@ -235,8 +235,9 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 		return false;
 	}
 
-        if ( translator->goTo( curbid ) && reader->get( trc ) &&
-            trc.info().binid==curbid )
+        if ( translator->goTo( curbid )
+	  && reader->get( trc )
+	  && trc.info().binID() == curbid )
         {
 	    const StepInterval<float> trczrg = trc.zRange();
 
@@ -504,8 +505,8 @@ ArrayFiller( RegularSeisDataPack& dp, SeisTrc& trc )
 
 bool execute()
 {
-    const int idx0 = dp_.sampling().hsamp_.lineIdx( trc_.info().binid.inl() );
-    const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
+    const int idx0 = dp_.sampling().hsamp_.lineIdx( trc_.info().inl() );
+    const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().crl() );
 
     const StepInterval<float>& zsamp = dp_.sampling().zsamp_;
     const int zstartidx = trc_.nearestSample( zsamp.start );

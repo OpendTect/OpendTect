@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -38,14 +38,14 @@ mExpClass(Seis) SeisPSImpDataMgr
 { mODTextTranslationClass(SeisPSImpDataMgr);
 public:
 
-    			SeisPSImpDataMgr(const MultiID& pswrid);
+			SeisPSImpDataMgr(const MultiID& pswrid);
     virtual		~SeisPSImpDataMgr();
 
     void		add(SeisTrc*);		//!< trc becomes mine
     void		endReached();		//!< call after last 'add'
     bool		needWrite() const	{ return !towrite_.isEmpty(); }
     bool		writeGather();
-    			//!< Write possibly incomplete gather if !needWrite()
+			//!< Write possibly incomplete gather if !needWrite()
     bool		isEmpty() const		{ return lines_.isEmpty(); }
 
     int			maxInlOffset() const	{ return maxinloffs_; }

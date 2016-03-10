@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
-#include "seismod.h"
+
+#include "seiscommon.h"
 #include "executor.h"
 #include "samplingdata.h"
 #include "uistring.h"
@@ -31,9 +31,9 @@ public:
 
     enum Opt		{ MatchTrcNr, MatchCoords, SimpleAppend };
 
-    			Seis2DLineMerger(const BufferStringSet& datanms,
+			Seis2DLineMerger(const BufferStringSet& datanms,
 					 const Pos::GeomID&);
-    			~Seis2DLineMerger();
+			~Seis2DLineMerger();
 
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return nrdonemsg_; }

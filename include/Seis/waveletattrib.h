@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "gendefs.h"
 #include "odcomplex.h"
 

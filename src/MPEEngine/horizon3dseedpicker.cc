@@ -68,8 +68,8 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     if ( fltdataprov_ && hrg.includes(lastsowseed_.tk_) )
     {
 	if ( sowermode_ &&
-	     fltdataprov_->isCrossingFault(seed.tk_.pos(),seed.val_,
-					   lastsowseed_.tk_.pos(),
+	     fltdataprov_->isCrossingFault(seed.tk_.binID(),seed.val_,
+					   lastsowseed_.tk_.binID(),
 					   lastsowseed_.val_) )
 	{
 	    lastseed_ = seed;
@@ -124,8 +124,8 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	    seedlist_ += propagatelist_[idx];
 
 	    const bool startwasdef = idx ? true : pickedposwasdef;
-	    res = retrackOnActiveLine( propagatelist_[idx].pos(), startwasdef)
-			&& res;
+	    res = retrackOnActiveLine( propagatelist_[idx].binID(),
+					startwasdef) && res;
 	}
     }
 
@@ -147,14 +147,14 @@ bool Horizon3DSeedPicker::removeSeed( const TrcKey& seed, bool environment,
     hor3d->setAttrib( seed, EM::EMObject::sSeedNode(), false, true );
 
     if ( environment ||
-	 nrLineNeighbors(seed.pos())+nrLateralNeighbors(seed.pos())==0 )
+	 nrLineNeighbors(seed.binID())+nrLateralNeighbors(seed.binID())==0 )
 	hor3d->setZ( seed, mUdf(float), true );
 
     int res = true;
     if ( environment )
     {
 	propagatelist_.erase(); seedlist_.erase();
-	res = retrackOnActiveLine( seed.pos(), true, !retrack );
+	res = retrackOnActiveLine( seed.binID(), true, !retrack );
     }
 
     return res;
@@ -199,8 +199,8 @@ TrcKey Horizon3DSeedPicker::replaceSeed( const TrcKey& oldseed,
 
     hor3d->setBurstAlert( true );
     BinID prevseed=BinID::udf(), nextseed=BinID::udf();
-    getNextSeed( oldseed.pos(), -dir, prevseed );
-    getNextSeed( oldseed.pos(), dir, nextseed );
+    getNextSeed( oldseed.binID(), -dir, prevseed );
+    getNextSeed( oldseed.binID(), dir, nextseed );
     if ( prevseed.isUdf() && nextseed.isUdf() )
     {
 	hor3d->setBurstAlert( false );
@@ -350,8 +350,8 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 	    tracker_.snapPositions( seed );
 	}
 
-	if ( path[idx].tk_.isUdf() || 
-	    !zrg.includes(path[idx].val_,false) || 
+	if ( path[idx].tk_.isUdf() ||
+	    !zrg.includes(path[idx].val_,false) ||
 	    !hrg.includes(path[idx].tk_) )
 	continue;
 	seedlist_ += path[idx].tk_;
@@ -574,8 +574,8 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	{
 	    const float z1 = hor3d->getZ( seedlist_[sortidx[vtx+1]] );
 	    const float z2 = hor3d->getZ( seedlist_[sortidx[vtx]] );
-	    const BinID seed1bid = seedlist_[sortidx[vtx+1]].pos();
-	    const BinID seed2bid = seedlist_[sortidx[vtx]].pos();
+	    const BinID seed1bid = seedlist_[sortidx[vtx+1]].binID();
+	    const BinID seed2bid = seedlist_[sortidx[vtx]].binID();
 	    if ( seed1bid!=seed2bid && (
 		 fltdataprov_->isOnFault(seed1bid,z1,1.0f) ||
 		 fltdataprov_->isOnFault(seed2bid,z2,1.0f) ||
@@ -604,7 +604,7 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 
 		tk = (*rdlpath)[ startidx + idx ];
 		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
-		interpos = Coord3( SI().transform(tk.pos()), interpz );
+		interpos = Coord3( SI().transform(tk.binID()), interpz );
 	    }
 	    else
 	    {

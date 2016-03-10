@@ -86,7 +86,7 @@ Seis2DTo3D::~Seis2DTo3D()
     delete outioobj_;
     delete trcarr_;
     delete butterfly_;
-    delete geom_; 
+    delete geom_;
 }
 
 
@@ -174,10 +174,10 @@ bool Seis2DTo3D::read()
 	for ( int idx=tmpbuf.size()-1; idx>=0; idx-- )
 	{
 	    const SeisTrc& intrc = *tmpbuf.get( idx );
-	    if ( !tkzs_.hsamp_.includes(intrc.info().binid) )
+	    if ( !tkzs_.hsamp_.includes(intrc.info().binID()) )
 		continue;
 
-	    const BinID bid = intrc.info().binid;
+	    const BinID bid = intrc.info().binID();
 	    SeisTrc* trc = new SeisTrc( intrc );
 	    const int ns = tkzs_.zsamp_.nrSteps() + 1;
 	    trc->reSize( ns, false );
@@ -224,7 +224,7 @@ bool Seis2DTo3D::readInputCube(const int szfastx,
     for( int trcidx=0; trcidx<seisbuf_.size(); trcidx++ )
     {
 	const SeisTrc* trc = seisbuf_.get( trcidx );
-	const BinID bid = trc->info().binid;
+	const BinID bid = trc->info().binID();
 	const int idx = tkzs_.hsamp_.lineIdx(bid.inl());
 	const int idy = tkzs_.hsamp_.trcIdx(bid.crl());
 	for ( int idz = 0; idz < trc->size(); idz++ )
@@ -414,7 +414,7 @@ int Seis2DTo3D::nextStep()
 	*strm_ << " \nFinished constructing 3D cube \n";
 	if (!preProcessArray())
 		return ErrorOccurred();
-    
+
 	if (nrdone_ == 0)
 		if (!butterflyOperator())
 			return ErrorOccurred();
@@ -455,7 +455,7 @@ int Seis2DTo3D::nextStep()
 
     if (nrdone_ == totalNr() )
 	return Finished();
-  
+
 	return MoreToDo();
 }
 
@@ -521,8 +521,9 @@ bool Seis2DTo3D::writeOutput()
     delete wrr_;
     wrr_ = new SeisTrcWriter( outioobj_ );
 
-    if (nrdone_ != 0)
-    {	delete rdr_;
+    if ( nrdone_ != 0 )
+    {
+	delete rdr_;
 	rdr_ = new SeisTrcReader( outioobj_ );
     }
 
@@ -532,23 +533,21 @@ bool Seis2DTo3D::writeOutput()
     SeisTrc& trc( *seisbuf_.get(0) );
 
     trc.info().sampling_ = tkzs_.zsamp_;
-    trc.info().binid = binid;
+    trc.info().setBinID( binid );
 
-    while(iter.next(binid))
+    while( iter.next(binid) )
     {
 	const int idx = hrg.inlIdx(binid.inl());
 	const int idy = hrg.crlIdx(binid.crl());
 
-	if (nrdone_ != 0)
-	{
-	rdr_->get(trc);
-	}
+	if ( nrdone_ != 0 )
+	    rdr_->get(trc);
 
+	trc.info().setBinID( binid );
 	for ( int idz=0; idz<tkzs_.nrZ(); idz++ )
 	{
-	    trc.info().binid = binid;
 	    const float val = trcarr_->get(idx,idy,idz).real();
-	    trc.set(idz,val,nrdone_);
+	    trc.set( idz, val, nrdone_ );
 	}
 	if ( !wrr_->put(trc) )
 	    mErrRet( uiStrings::phrCannotWrite( uiStrings::sTrace(mPlural)));

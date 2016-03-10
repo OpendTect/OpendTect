@@ -12,11 +12,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "executor.h"
-#include "seistype.h"
-#include "bufstringset.h"
 #include "segyfiledef.h"
+#include "executor.h"
+#include "bufstringset.h"
 #include "uistring.h"
 class SeisTrc;
 class DataClipSampler;

@@ -145,7 +145,7 @@ int SeisImporter::nextStep()
 	if ( !atend )
 	{
 	    const bool is2d = Seis::is2D(geomtype_);
-	    if ( !is2d && !SI().isReasonable(trc_.info().binid) )
+	    if ( !is2d && !SI().isReasonable(trc_.info().binID()) )
 	    {
 		nrskipped_++;
 		return Executor::MoreToDo();
@@ -260,7 +260,7 @@ int SeisImporter::readIntoBuf()
     }
 
     const bool is2d = Seis::is2D(geomtype_);
-    if ( !is2d && !SI().isReasonable(trc->info().binid) )
+    if ( !is2d && !SI().isReasonable(trc->info().binID()) )
     {
 	delete trc;
 	nrskipped_++;
@@ -277,13 +277,13 @@ int SeisImporter::readIntoBuf()
 	if ( !Seis::isPS(geomtype_) && buf_.size() > 1000 )
 	{
 	    SeisTrc* btrc = buf_.get( buf_.size() - 1 );
-	    const BinID trcbid( btrc->info().binid );
+	    const BinID trcbid( btrc->info().binID() );
 	    const int trcnr = btrc->info().nr_;
 	    int nreq = 0;
 	    for ( int idx=buf_.size()-2; idx!=-1; idx-- )
 	    {
 		btrc = buf_.get( idx );
-		if ( (!is2d && btrc->info().binid == trcbid)
+		if ( (!is2d && btrc->info().binID() == trcbid)
 		  || (is2d && btrc->info().nr_ == trcnr) )
 		    nreq++;
 		else
@@ -305,7 +305,7 @@ int SeisImporter::readIntoBuf()
 bool SeisImporter::sortingOk( const SeisTrc& trc )
 {
     const bool is2d = Seis::is2D(geomtype_);
-    BinID bid( trc.info().binid );
+    BinID bid( trc.info().binID() );
     if ( is2d )
     {
 	bid.crl() = trc.info().nr_;

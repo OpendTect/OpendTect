@@ -218,7 +218,7 @@ bool Location::fromString( const char* s )
 
     trckey_.trcNr() = getNextInt( str ); //No check for valid trace number ?
 
-    return !trckey_.pos().isUdf();
+    return !trckey_.position().isUdf();
 }
 
 
@@ -254,7 +254,7 @@ void Location::toString( BufferString& str, bool forexport ) const
 	str.add( dir_.theta ).add( od_tab ).add( dir_.phi );
     }
 
-    if ( trckey_.isUdf() || trckey_.pos().isUdf() )
+    if ( trckey_.isUdf() || trckey_.position().isUdf() )
 	return;
 
     //actually both calls return the same, but for the clarity
@@ -794,7 +794,7 @@ bool Set::usePar( const IOPar& par )
 	&& ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
 
     BufferString mkststr;
-    if ( !par.get(sKey::MarkerStyle(),mkststr) && v6_or_earlier ) 
+    if ( !par.get(sKey::MarkerStyle(),mkststr) && v6_or_earlier )
     {
 	BufferString colstr;
 	if ( par.get(sKey::Color(),colstr) )
@@ -809,7 +809,7 @@ bool Set::usePar( const IOPar& par )
     {
 	disp_.mkstyle_.fromString( mkststr );
     }
-    
+
     bool doconnect;
     par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
     if ( doconnect ) disp_.connect_ = Disp::Close;

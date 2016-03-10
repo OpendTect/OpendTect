@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "od_iosfwd.h"

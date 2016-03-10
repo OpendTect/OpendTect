@@ -386,8 +386,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     ti.sampling_.step = outsd_.step;
     ti.nr_ = ++nrdone_;
 
-    if ( ti.binid.inl() == 0 && ti.binid.crl() == 0 )
-	ti.binid = SI().transform( ti.coord_);
+    if ( ti.inl() == 0 && ti.crl() == 0 )
+	ti.setBinID( SI().transform(ti.coord_) );
 
     return (headerdone_ = true);
 }

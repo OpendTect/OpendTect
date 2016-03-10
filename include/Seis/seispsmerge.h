@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "executor.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"

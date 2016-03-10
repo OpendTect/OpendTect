@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
-#include "seistype.h"
+#include "seiscommon.h"
 #include "binid.h"
 
 
@@ -86,8 +85,9 @@ inline PosKey::PosKey( Seis::GeomType gt )
 
 inline bool PosKey::hasOffset( float offs ) const
 {
-    const float diff = offs - offset_;
-    return mIsZero(diff,1e-4);
+    if ( mIsUdf(offs) )
+	return mIsUdf(offset_);
+    return equalOffset( offs, offset_ );
 }
 
 inline void PosKey::set( int nr, const BinID& bid, float offs )
@@ -112,9 +112,11 @@ inline bool PosKey::operator ==( const PosKey& oth ) const
     if ( mIsUdf(oth.offset_) )
 	return mIsUdf( offset_ );
 
-    return mIsEqual(offset_,oth.offset_,1e-4); }
+    return mIsEqual(offset_,oth.offset_,1e-4);
+}
 
-};
+
+} // namespace Seis
 
 
 #endif

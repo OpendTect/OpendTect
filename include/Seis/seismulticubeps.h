@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seispsread.h"
 #include "seispsioprov.h"
 #include "uistring.h"

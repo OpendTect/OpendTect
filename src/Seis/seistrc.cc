@@ -15,8 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 #include <float.h>
 
-const float SeisTrc::snapdist = 1e-3;
-
 
 SeisTrc::~SeisTrc()
 {
@@ -55,7 +53,7 @@ const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
     {
 	ValueSeriesInterpolator<float>* newintpol =
 				new ValueSeriesInterpolator<float>();
-	newintpol->snapdist_ = snapdist;
+	newintpol->snapdist_ = Seis::DefSampleSnapDist;
 	newintpol->smooth_ = true;
 	newintpol->extrapol_ = false;
 	newintpol->udfval_ = 0;
@@ -119,7 +117,8 @@ float SeisTrc::getValue( float t, int icomp ) const
 	return interpolator().udfval_;
 
     const float pos = ( t - startPos() ) / info_.sampling_.step;
-    if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
+    if ( sampidx-pos > -Seis::DefSampleSnapDist
+      && sampidx-pos < Seis::DefSampleSnapDist )
 	return get( sampidx, icomp );
 
     return interpolator().value( SeisTrcValueSeries(*this,icomp), pos );
@@ -185,8 +184,8 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 
     newtrc->info_ = info_;
     newtrc->info_.sampling_.start = zgate.start;
-    const float z0 = startPos() - snapdist * info_.sampling_.step;
-    const float z1 = endPos() + snapdist * info_.sampling_.step;
+    const float z0 = startPos() - Seis::DefSampleSnapDist*info_.sampling_.step;
+    const float z1 = endPos() + Seis::DefSampleSnapDist*info_.sampling_.step;
 
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {

@@ -11,8 +11,7 @@ ________________________________________________________________________
 
 */
 
-#include "seismod.h"
-
+#include "seiscommon.h"
 #include "datachar.h"
 #include "executor.h"
 #include "fixedstring.h"

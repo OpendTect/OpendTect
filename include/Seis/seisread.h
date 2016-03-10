@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisstor.h"
-#include "seistype.h"
 #include "linekey.h"
 #include "uistring.h"
 class SeisTrc;

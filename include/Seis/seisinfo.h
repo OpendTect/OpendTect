@@ -11,8 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
-#include "seismod.h"
+
 #include "seisposkey.h"
 #include "samplingdata.h"
 #include "position.h"
@@ -27,18 +26,32 @@ class PosAuxInfo;
 mExpClass(Seis) SeisTrcInfo
 {
 public:
-			SeisTrcInfo();
-			SeisTrcInfo(const SeisTrcInfo&);
-    SeisTrcInfo&	operator=(const SeisTrcInfo&);
 
-    SamplingData<float>	sampling_;
-    int			nr_;
+    typedef IdxPair::IdxType IdxType;
+
+			SeisTrcInfo();
+			SeisTrcInfo( const SeisTrcInfo& oth )
+			    : binid(trckey_.pos())  { *this = oth; }
+    SeisTrcInfo&	operator =(const SeisTrcInfo&);
+
     TrcKey		trckey_;
+    IdxType		nr_;
     Coord		coord_;
+    SamplingData<float>	sampling_;
     float		offset_;
     float		azimuth_;
     float		refnr_;
     float		pick_;
+
+    inline const BinID&	binID() const		{ return trckey_.binID(); }
+    inline IdxType	inl() const		{ return trckey_.inl(); }
+    inline IdxType	crl() const		{ return trckey_.crl(); }
+    inline SeisTrcInfo&	setBinID( const BinID& bid )
+			{ trckey_.setPos(bid); return *this; }
+    inline SeisTrcInfo&	setInl( IdxType nr )
+			{ trckey_.setInl(nr); return *this; }
+    inline SeisTrcInfo&	setCrl( IdxType nr )
+			{ trckey_.setCrl(nr); return *this; }
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
@@ -49,14 +62,14 @@ public:
     enum Fld		{ TrcNr=0, Pick, RefNr,
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
 			  Offset, Azimuth };
-    			mDeclareEnumUtils(Fld)
+			mDeclareEnumUtils(Fld)
     double		getValue(Fld) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
     int			getDefaultAxisFld(Seis::GeomType,
 					  const SeisTrcInfo* next) const;
     void		getInterestingFlds(Seis::GeomType,IOPar&) const;
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
-	    			  bool setpos=false);
+				  bool setpos=false);
 
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;
@@ -72,38 +85,9 @@ public:
     float		zref_;		// not stored
     bool		new_packet_;	// not stored
 
+    /* mDeprecated */ BinID& binid;
+			//!< in new code, use binID()/setBinID() instead
 
-    mDeprecated float&			pick;
-
-    mDeprecated SamplingData<float>&	sampling;
-                                        /*!<For backward compatibility. Will be
-                                            removed in future releases. */
-    mDeprecated int&			nr;
-                                        /*!<For backward compatibility. Will be
-                                            removed in future releases. */
-    BinID&                              binid;
-                                        /*!<Reference into the trckey.
-                                            For backward compatibility. Will be
-                                            deprecated in future releases. */
-    mDeprecated Coord&                  coord;
-                                        /*!<For backward compatibility. Will be
-                                            removed in future releases. */
-
-    mDeprecated float&                  offset;
-                                        /*!<For backward compatibility. Will be
-                                         removed in future releases. */
-    mDeprecated float&                  azimuth;
-                                        /*!<For backward compatibility. Will be
-                                         removed in future releases. */
-    mDeprecated float&                  refnr;
-                                        /*!<For backward compatibility. Will be
-                                         removed in future releases. */
-    mDeprecated float&                  zref;
-                                        /*!<For backward compatibility. Will be
-                                         removed in future releases. */
-    mDeprecated bool&                   new_packet;
-                                        /*!<For backward compatibility. Will be
-                                         removed in future releases. */
 };
 
 

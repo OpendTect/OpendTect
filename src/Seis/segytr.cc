@@ -266,10 +266,10 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
     insd_.start = info.sampling_.start;
     insd_.step = pinfo_.zrg.step;
-    if ( mIsZero(insd_.step,1e-8) )
+    if ( mIsZero(insd_.step,Seis::DefZEps) )
     {
 	insd_.step = info.sampling_.step;
-	if ( mIsZero(insd_.step,1e-8) )
+	if ( mIsZero(insd_.step,Seis::DefZEps) )
 	    insd_.step = SI().zRange(false).step;
     }
     if ( !mIsUdf(fileopts_.timeshift_) )
@@ -504,8 +504,8 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     inpcd_ = inpcds_[0]; outcd_ = outcds_[0];
     storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
 						   : outcd_->datachar );
-    if ( mIsEqual(outsd_.start,insd_.start,mDefEps)
-      && mIsEqual(outsd_.step,insd_.step,mDefEps) )
+    if ( mIsEqual(outsd_.start,insd_.start,Seis::DefZEps)
+      && mIsEqual(outsd_.step,insd_.step,Seis::DefZEps) )
 	useinpsd_ = true;
 
     if ( blockbuf_ )
@@ -640,7 +640,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 #define mBadCoord(ti) \
 	(ti.coord_.x < 0.01 && ti.coord_.y < 0.01)
 #define mBadBid(ti) \
-	(ti.binid.inl() <= 0 && ti.binid.crl() <= 0)
+	(ti.inl() <= 0 && ti.crl() <= 0)
 #define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
 
 
@@ -679,7 +679,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadCoord(ti) )
 		mSkipThisTrace()
 	}
-	ti.binid = SI().transform( ti.coord_ );
+	ti.setBinID( SI().transform(ti.coord_) );
     }
     else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
     {
@@ -690,7 +690,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadBid(ti) )
 		mSkipThisTrace()
 	}
-	ti.coord_ = SI().transform( ti.binid );
+	ti.coord_ = SI().transform( ti.binID() );
     }
     else
     {
@@ -701,9 +701,9 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadBid(ti) && mBadCoord(ti) )
 		mSkipThisTrace()
 	    if ( mBadBid(ti) )
-		ti.binid = SI().transform( ti.coord_ );
+		ti.setBinID( SI().transform(ti.coord_) );
 	    else if ( mBadCoord(ti) )
-		ti.coord_ = SI().transform( ti.binid );
+		ti.coord_ = SI().transform( ti.binID() );
 	}
     }
 
@@ -720,11 +720,11 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( goodpos )
     {
 	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr_;
-	prevbid_ = curbid_; curbid_ = ti.binid;
+	prevbid_ = curbid_; curbid_ = ti.binID();
 	prevoffs_ = curoffs_; curoffs_ = ti.offset_;
     }
 
-    if ( mIsZero(ti.sampling_.step,mDefEps) )
+    if ( mIsZero(ti.sampling_.step,Seis::DefZEps) )
     {
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
 	ti.sampling_.step = insd_.step;

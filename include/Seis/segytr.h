@@ -14,7 +14,6 @@ Translators for SEGY files traces.
 
 -*/
 
-#include "seismod.h"
 #include "segyfiledef.h"
 #include "seistrctr.h"
 #include "tracedata.h"

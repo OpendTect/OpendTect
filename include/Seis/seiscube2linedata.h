@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
-#include "seismod.h"
+
+#include "seiscommon.h"
 #include "executor.h"
 #include "uistring.h"
 
@@ -35,17 +35,17 @@ public:
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return tr("Traces written"); }
     od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const 	{ return totalnr_; }
+    od_int64		totalNr() const	{ return totalnr_; }
     Pos::GeomID		curGeomID() const;
 
-    int 		nextStep();
+    int		nextStep();
 
 protected:
 
     SeisTrcReader&	rdr_;
     SeisTrcWriter&	wrr_;
     uiString		msg_;
-    
+
     od_int64		nrdone_;
     od_int64		totalnr_;
 

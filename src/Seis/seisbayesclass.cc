@@ -35,7 +35,7 @@ const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
-    	: Executor( "Bayesian classification" )
+	: Executor( "Bayesian classification" )
 	, pars_(*new IOPar(iop))
 	, needclass_(false)
 	, nrdone_(0)
@@ -303,7 +303,7 @@ int SeisBayesClass::nextStep()
     if ( initstep_ )
 	return (initstep_ == 1 ? getPDFs()
 	     : (initstep_ == 2 ? getReaders()
-		 	       : getWriters()))
+			       : getWriters()))
 	     ? MoreToDo() : ErrorOccurred();
 
     int ret = readInpTrcs();
@@ -335,7 +335,7 @@ int SeisBayesClass::readInpTrcs()
 
     for ( int idx=0; idx<rdrs_.size(); idx++ )
     {
-	if ( idx && !rdrs_[idx]->seisTranslator()->goTo( ti0.binid ) )
+	if ( idx && !rdrs_[idx]->seisTranslator()->goTo( ti0.binID() ) )
 	    return 2;
 	if ( !rdrs_[idx]->get(*inptrcs_.get(idx)) )
 	{
@@ -349,7 +349,7 @@ int SeisBayesClass::readInpTrcs()
 	SeisTrcReader* rdr = aprdrs_[idx];
 	if ( !rdr ) continue;
 
-	if ( !rdr->seisTranslator()->goTo( ti0.binid ) )
+	if ( !rdr->seisTranslator()->goTo( ti0.binID() ) )
 	    return 2;
 	if ( !rdr->get(*aptrcs_.get(idx)) )
 	{
@@ -363,7 +363,7 @@ int SeisBayesClass::readInpTrcs()
 
 
 #define mWrTrc(nr) { \
-    	wrr = wrrs_[nr]; \
+	wrr = wrrs_[nr]; \
 	if ( wrr && !wrr->put(*outtrcs_.get(nr)) ) \
 	    { msg_ = wrr->errMsg(); return ErrorOccurred(); } }
 

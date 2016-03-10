@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seisbuf.h"
 #include "executor.h"
 #include "trckeyzsampling.h"
 #include "arrayndimpl.h"
 #include "fourier.h"
 #include "binid.h"
-#include "seisbuf.h"
 #include "uistring.h"
 #include "od_ostream.h"
 #include "factory.h"
@@ -38,7 +37,7 @@ public:
 
 			Seis2DTo3D();
 			~Seis2DTo3D();
-	
+
     uiString		uiMessage() const
 			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }

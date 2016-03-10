@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seisposkey.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "iopar.h"
 #include "manobjectset.h"
 #include "coord.h"
 #include "samplingdata.h"
-#include "seisposkey.h"
 #include "sortedtable.h"
 #include "threadlock.h"
 #include "od_iosfwd.h"

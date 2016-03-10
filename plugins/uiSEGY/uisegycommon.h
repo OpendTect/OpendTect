@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uisegymod.h"
-#include "seistype.h"
 #include "segyfiledef.h"
 class uiParent;
 

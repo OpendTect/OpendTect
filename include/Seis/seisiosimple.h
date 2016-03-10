@@ -7,12 +7,11 @@
  * SVN      : $Id$
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "samplingdata.h"
 #include "multiid.h"
 #include "position.h"
 #include "executor.h"
-#include "seistype.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
 class Scaler;

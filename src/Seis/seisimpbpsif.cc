@@ -279,7 +279,7 @@ int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
 	}
 
 	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord_, true );
-	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binid) )
+	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binID()) )
 	    datamgr_.add( newtrc );
 	else
 	{
@@ -313,7 +313,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	    newtrc->set( nrshotattrs+iattr, vbuf[2+iattr], 0 );
 
 	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord_, true );
-	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binid) )
+	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binID()) )
 	    datamgr_.add( newtrc );
 	else
 	{

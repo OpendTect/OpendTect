@@ -7,8 +7,7 @@
  * ID       : $Id$
 -*/
 
-#include "seismod.h"
-#include "seistype.h"
+#include "seiscommon.h"
 #include "bufstring.h"
 #include "factory.h"
 #include "uistring.h"
@@ -70,11 +69,11 @@ protected:
 
 
 /*!\brief OpendTect-internal Seismic Sequential input
- 
+
   Set the reader via usePar or explicitly. The idea is to either provide
   a PreStackReader or a SeisTrcReader. If both present, SeisTrcReader will
   be used.
- 
+
  */
 
 
@@ -82,8 +81,8 @@ mExpClass(Seis) ODSeqInp : public SeqInp
 { mODTextTranslationClass(ODSeqInp);
 public:
 
-    			ODSeqInp();
-    			~ODSeqInp();
+			ODSeqInp();
+			~ODSeqInp();
 
     virtual const char*	type() const		{ return sKeyODType; }
 
@@ -132,15 +131,15 @@ public:
 /*!\brief Seismic Sequential output via SeistrcWriter
 
   The wrr_ will be deleted on destruction.
- 
+
  */
 
 mExpClass(Seis) ODSeqOut : public SeqOut
 { mODTextTranslationClass(ODSeqOut);
 public:
 
-    			ODSeqOut() : wrr_(0)	{}
-    			~ODSeqOut();
+			ODSeqOut() : wrr_(0)	{}
+			~ODSeqOut();
 
     virtual const char*	type() const		{ return sKeyODType; }
     virtual Seis::GeomType geomType() const;

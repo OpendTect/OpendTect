@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "datachar.h"
 #include "datapackbase.h"
 #include "multiid.h"
@@ -39,9 +39,9 @@ public:
 
     IOObj*		getIOObj() const;
     Interval<int>	inlRange() const;
-    			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
+			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
     void		getLineNames(BufferStringSet&) const;
-    			//!< Line 2D only.
+			//!< Line 2D only.
 
     bool		load(const TrcKeyZSampling&,
 				DataCharacteristics::UserType=
@@ -55,9 +55,9 @@ public:
     uiString		errMsg() const			{ return errmsg_; }
 
     static void		load(const IOPar&,TaskRunner* tr=0);
-    			//!< Seis.N.[loadObj_fmt]
+			//!< Seis.N.[loadObj_fmt]
     static void		loadObj(const IOPar&,TaskRunner* tr=0);
-    			//!< sKey::ID() and optional subselections
+			//!< sKey::ID() and optional subselections
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
@@ -72,7 +72,7 @@ protected:
     mutable uiString	errmsg_;
 
     TaskRunner&		getTr() const
-    			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }
+			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }
 };
 
 

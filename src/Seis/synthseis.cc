@@ -125,7 +125,7 @@ bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
 }
 
 
-bool SynthGenBase::isInputOK() 
+bool SynthGenBase::isInputOK()
 {
     if ( !wavelet_ )
 	mErrRet(tr("Wavelet required to compute trace range from model(s)"),
@@ -142,7 +142,7 @@ bool SynthGenBase::isInputOK()
     if ( wavelet_->samplePositions().width(false) < outputsr )
 	mErrRet(tr("Wavelet length must be larger than output sampling rate"),
 		false)
-    
+
     return true;
 }
 
@@ -788,7 +788,7 @@ bool RaySynthGenerator::doPrepare( int )
     resetNrDone();
     ObjectSet<const ReflectivityModel> models;
     getAllRefls( models );
-    const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
+    const bool zerooffset = offsets_.size() == 1 && equalOffset(offsets_[0],0);
     StepInterval<float> cursampling( outputsampling_ );
     if ( models.isEmpty() )
 	mErrRet( tr("No models given to make synthetics"), false );
@@ -796,9 +796,8 @@ bool RaySynthGenerator::doPrepare( int )
     if ( !SynthGenBase::isInputOK() )
 	return mErrOccRet;
 
-    if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
-						applynmo_ || zerooffset) &&
-	  aimodels_ )
+    if ( aimodels_ && !SynthGenBase::getOutSamplingFromModel(
+				models,cursampling,applynmo_||zerooffset) )
     {
 	Interval<float> modelsampling;
 	ElasticModel::getTimeSampling( *aimodels_, modelsampling );
@@ -1029,9 +1028,10 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
-	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
+	    trc->info().setInl( bid0.inl() );
+	    trc->info().setCrl( bid0.crl() + imdl*crlstep );
 	    trc->info().nr_ = imdl+1;
-	    trc->info().coord_ = SI().transform( trc->info().binid );
+	    trc->info().coord_ = SI().transform( trc->info().binID() );
 	    tbuf->add( trc );
 	}
 	seisbufs += tbuf;
@@ -1050,10 +1050,12 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
     for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
 	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
-	trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
+	trc->info().setInl( bid0.inl() );
+	trc->info().setCrl( bid0.crl() + imdl*crlstep );
 	trc->info().nr_ = imdl+1;
-	trc->info().coord_ = SI().transform( trc->info().binid );
+	trc->info().coord_ = SI().transform( trc->info().binID() );
 	seisbuf.add( trc );
     }
 }
+
 } // namespace Seis

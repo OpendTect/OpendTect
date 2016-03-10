@@ -255,7 +255,7 @@ int SeisScanner::nextStep()
     {
 	dtctor_.finish();
 
-	const BinID& bid( trc_.info().binid );
+	const BinID& bid( trc_.info().binID() );
 	uiString posmsg;
 	if ( dtctor_.is2D() )
 	{ posmsg = tr("trace number %1").arg(toString(bid.crl())); }
@@ -315,7 +315,7 @@ bool SeisScanner::doValueWork()
 	    if ( invalidsamplenr_ < 0 )
 	    {
 		invalidsamplenr_ = idx;
-		invalidsamplebid_ = trc_.info().binid;
+		invalidsamplebid_ = trc_.info().binID();
 	    }
 	    continue;
 	}
@@ -348,7 +348,7 @@ bool SeisScanner::addTrc()
 	sampling_ = trc_.info().sampling_;
     }
 
-    if ( !dtctor_.add(trc_.info().coord_,trc_.info().binid,
+    if ( !dtctor_.add(trc_.info().coord_,trc_.info().binID(),
 		      trc_.info().nr_,trc_.info().offset_) )
     {
 	curmsg_ = dtctor_.errMsg();

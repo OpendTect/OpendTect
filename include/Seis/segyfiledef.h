@@ -12,12 +12,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "segythdef.h"
 #include "filespec.h"
 #include "coord.h"
 #include "samplingdata.h"
-#include "seistype.h"
-#include "segythdef.h"
 #include "binid.h"
 class IOObj;
 class Scaler;

@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
-#include "seismod.h"
+
+#include "seiscommon.h"
 #include "bufstring.h"
 #include "ranges.h"
 class PosAuxInfo;
@@ -26,7 +26,7 @@ mExpClass(Seis) SeisPacketInfo
 {
 public:
     static void		initClass();
-    
+
 			SeisPacketInfo()	{ clear(); }
 
     BufferString	usrinfo;

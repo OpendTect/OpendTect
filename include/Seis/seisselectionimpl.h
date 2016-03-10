@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "seisselection.h"
 #include "binid.h"
 #include "objectset.h"

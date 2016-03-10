@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "mathfunc.h"
 #include "namedobj.h"
 #include "ranges.h"

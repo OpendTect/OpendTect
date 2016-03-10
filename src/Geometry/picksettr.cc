@@ -204,7 +204,7 @@ void PickSetTranslator::createBinIDValueSets(
 	bivsets += bs;
 
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
-	    bs->add( tks[idx].pos(), mCast(float, crds[idx].z ) );
+	    bs->add( tks[idx].binID(), mCast(float, crds[idx].z ) );
     }
 }
 

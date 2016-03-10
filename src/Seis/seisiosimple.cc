@@ -379,7 +379,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	else
 	    offsnr_++;
     }
-    
+
     trc.info() = trc_.info();
     if ( !strm_->isOK() || !trc.reSize(data_.nrsamples_,0) )
 	return Finished();
@@ -387,7 +387,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
 
-    trc.info().binid = bid;
+    trc.info().setBinID( bid );
     prevbid_ = bid;
     trc.info().coord_ = coord;
     trc.info().offset_ = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
@@ -503,7 +503,7 @@ int SeisIOSimple::writeExpTrc()
 	}
 	else
 	{
-	    BinID bid = trc_.info().binid;
+	    BinID bid = trc_.info().binID();
 	    mPIEPAdj(BinID,bid,false);
 	    binstrm.add( bid.inl() ).add( bid.crl() );
 	}

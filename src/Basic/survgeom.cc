@@ -69,14 +69,14 @@ bool Geometry::includes( const TrcKey& tk ) const
 Coord Geometry::toCoord( const TrcKey& tk )
 {
     const Geometry* geom = GM().getGeometry( tk.geomID() );
-    return geom ? geom->toCoord( tk.pos() ) : Coord::udf();
+    return geom ? geom->toCoord( tk.binID() ) : Coord::udf();
 }
 
 
 bool Geometry::exists( const TrcKey& tk )
 {
     const Geometry* geom = GM().getGeometry( tk.geomID() );
-    return geom && geom->includes( tk.pos() );
+    return geom && geom->includes( tk.binID() );
 }
 
 

@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "executor.h"
 #include "seisposkey.h"
+#include "executor.h"
 #include "ranges.h"
 #include "multiid.h"
 #include "strmdata.h"
@@ -30,7 +29,7 @@ class FileDataSet;
 class DirectReader;
 
 /*!\brief Re-sorts SEG-Y files, input must be 'scanned'.
- 
+
   For 2D, use 'Crl' when you want trace number
 
  */
@@ -59,8 +58,8 @@ public:
 
     };
 
-    			ReSorter(const Setup&,const char* linename=0);
-    			~ReSorter();
+			ReSorter(const Setup&,const char* linename=0);
+			~ReSorter();
 
     void		setFilter(const Pos::Filter&);
 

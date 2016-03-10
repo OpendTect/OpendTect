@@ -2,16 +2,16 @@
 #define waveletextractor_h
 /*+
 ________________________________________________________________________
-           
+
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
- RCS:           $Id$ 
+ RCS:           $Id$
  ________________________________________________________________________
-                 
--*/   
 
-#include "seismod.h"
+-*/
+
+#include "seiscommon.h"
 #include "executor.h"
 #include "uistring.h"
 
@@ -41,10 +41,10 @@ protected:
     void			init2D();
     void			init3D();
     bool			getSignalInfo(const SeisTrc&,
-	    				      int& start,int& signalsz) const;
+					      int& start,int& signalsz) const;
     bool			getNextLine(); //2D
     bool			processTrace(const SeisTrc&,
-	    				     int start, int signalsz);
+					     int start, int signalsz);
     void			normalisation(Array1DImpl<float>&);
     bool			finish(int nrusedtrcs);
     bool			doWaveletIFFT();

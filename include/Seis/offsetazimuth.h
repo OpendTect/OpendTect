@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "coord.h"
 
 /*!Stores offset and azimuth as an int, wich makes it easy to compare them
@@ -26,7 +26,7 @@ circle).
 mExpClass(Seis) OffsetAzimuth
 {
 public:
-			OffsetAzimuth() : offsetazi_( 0 ) 		{}
+			OffsetAzimuth() : offsetazi_( 0 )		{}
 			OffsetAzimuth(float off,float azi);
     bool		operator==(const OffsetAzimuth&) const;
     bool		operator!=(const OffsetAzimuth&) const;
@@ -41,7 +41,7 @@ public:
     void		setOffset(float);
     void		setAzimuth(float);
     float		distanceTo(const OffsetAzimuth&,bool sq=false) const;
-    			/*!\If sq is true, the square distance is returned. */
+			/*!\If sq is true, the square distance is returned. */
 
     Coord		srcRcvPos(const Coord& center,bool add=true) const;
 			/*!<\returns center + (or - depending on variable add)

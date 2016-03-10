@@ -177,7 +177,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	}
 	outtrc = new SeisTrc( *trcsset_[outtrcidx] );
     }
-    outtrc->info().binid = data_.curbid_;
+    outtrc->info().setBinID( data_.curbid_ );
 
     if ( !wrr_ )
 	wrr_ = new SeisTrcWriter(outioobj_);
@@ -201,7 +201,7 @@ SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
     if ( tr_->goTo( bid )  )
     {
 	trc = new SeisTrc;
-	trc->info().binid = bid;
+	trc->info().setBinID( bid );
 	tr_->readInfo( trc->info() );
 	tr_->read( *trc );
     }

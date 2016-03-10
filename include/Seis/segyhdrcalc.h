@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "namedobj.h"
 #include "segyhdrdef.h"
+#include "namedobj.h"
 #include "typeset.h"
 #include "od_iosfwd.h"
 #include "uistring.h"

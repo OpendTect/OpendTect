@@ -13,7 +13,7 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "zaxistransform.h"
 #include "uistring.h"
 #include "trckeyzsampling.h"
@@ -41,7 +41,7 @@ public:
     static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
 
 protected:
-    				VelocityStretcher(const ZDomain::Def& from,
+				VelocityStretcher(const ZDomain::Def& from,
 						  const ZDomain::Def& to);
 };
 
@@ -53,7 +53,7 @@ mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
 { mODTextTranslationClass(Time2DepthStretcher);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
-				  "VelocityT2D", 
+				  "VelocityT2D",
 				  toUiString(sFactoryKeyword()));
 
 			Time2DepthStretcher();
@@ -66,7 +66,7 @@ public:
     void		removeVolumeOfInterest(int);
     bool		loadDataIfMissing(int,TaskRunner* =0);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
-	    			  int,float*) const;
+				  int,float*) const;
     void		transformTrcBack(const TrcKey&,
 				const SamplingData<float>&,int,float*) const;
     Interval<float>	getZInterval(bool from) const;
@@ -112,7 +112,7 @@ mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
 { mODTextTranslationClass(Depth2TimeStretcher);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
-				  "VelocityD2T", 
+				  "VelocityD2T",
 				  toUiString(sFactoryKeyword()));
 
 			Depth2TimeStretcher();
@@ -125,7 +125,7 @@ public:
     void		removeVolumeOfInterest(int);
     bool		loadDataIfMissing(int,TaskRunner* =0);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
-	    			  int,float*) const;
+				  int,float*) const;
     void		transformTrcBack(const TrcKey&,
 				  const SamplingData<float>&,int,float*) const;
     Interval<float>	getZInterval(bool from) const;
@@ -148,14 +148,14 @@ protected:
 mExpClass(Seis) VelocityModelScanner : public SequentialTask
 { mODTextTranslationClass(VelocityModelScanner);
 public:
-    			VelocityModelScanner(const IOObj&,
+			VelocityModelScanner(const IOObj&,
 				const VelocityDesc&);
 			~VelocityModelScanner();
 
     uiString		uiMessage() const	{ return msg_; }
     od_int64		totalNr() const		{ return subsel_.totalNr(); }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	
+    uiString		uiNrDoneText() const
 						{
 						return tr("Position scanned");
 						}
@@ -202,7 +202,7 @@ protected:
 					     int sz,float* res) const;
     void			transformD2T(const SamplingData<float>&,
 					     int sz,float* res) const;
-    
+
     float			startvel_;
     float			dv_;
 
@@ -213,22 +213,22 @@ mExpClass(Seis) LinearT2DTransform : public LinearVelTransform
 { mODTextTranslationClass(LinearT2DTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearT2D", tr("Linear velocity") );
+				  "LinearT2D", tr("Linear velocity") );
 
-    				LinearT2DTransform(float v0=0, float dv=0);
+				LinearT2DTransform(float v0=0, float dv=0);
 
     void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
+					  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
+					      const SamplingData<float>&,
 					      int sz,float* res) const;
 
     Interval<float>		getZInterval(bool time) const;
     float			getGoodZStep() const;
- 
+
     bool			needsVolumeOfInterest() const
-    				{ return false; }
+				{ return false; }
 };
 
 
@@ -236,21 +236,21 @@ mExpClass(Seis) LinearD2TTransform : public LinearVelTransform
 { mODTextTranslationClass(LinearD2TTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearD2T", tr("Linear velocity") );
+				  "LinearD2T", tr("Linear velocity") );
 
-    				LinearD2TTransform(float v0=0, float dv=0);
+				LinearD2TTransform(float v0=0, float dv=0);
 
     void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
+					  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
+					      const SamplingData<float>&,
 					      int sz,float* res) const;
     Interval<float>		getZInterval(bool depth) const;
     float			getGoodZStep() const;
 
     bool			needsVolumeOfInterest() const
-    				{ return false; }
+				{ return false; }
 };
 
 #endif

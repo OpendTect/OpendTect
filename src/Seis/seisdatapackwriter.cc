@@ -135,12 +135,12 @@ od_int64 SeisDataPackWriter::totalNr() const
 
 int SeisDataPackWriter::nextStep()
 {
-    const StepInterval<float> survrg = SI().zRange( true ); 
+    const StepInterval<float> survrg = SI().zRange( true );
     const StepInterval<int> cubezrgidx // real -> index
 			    ( mNINT32(dp_->sampling().zsamp_.start/survrg.step),
 			      mNINT32(dp_->sampling().zsamp_.stop/survrg.step),
 			      mNINT32(dp_->sampling().zsamp_.step/survrg.step));
-			      
+
 
     if ( !trc_ )
     {
@@ -172,7 +172,7 @@ int SeisDataPackWriter::nextStep()
 
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
 
-    trc_->info().binid = currentpos;
+    trc_->info().setBinID( currentpos );
     trc_->info().coord_ = SI().transform( currentpos );
     const int inl = currentpos.inl();
     const int crl = currentpos.crl();

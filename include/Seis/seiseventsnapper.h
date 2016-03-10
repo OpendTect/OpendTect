@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "executor.h"
 #include "samplingdata.h"
 #include "valseriesevent.h"
@@ -28,7 +28,7 @@ public:
 				SeisEventSnapper( const Interval<float>& gate);
 
     void			setEvent( VSEvent::Type tp )
-    				{ eventtype_ = tp; }
+				{ eventtype_ = tp; }
     VSEvent::Type		getEvent() const	{ return eventtype_; }
 
     void			setSearchGate( const Interval<float>& gate )
@@ -41,7 +41,7 @@ public:
 protected:
 
     float			findNearestEvent(const SeisTrc&,
-	    					 float tarz) const;
+						 float tarz) const;
 
     Interval<float>		searchgate_;
     VSEvent::Type		eventtype_;

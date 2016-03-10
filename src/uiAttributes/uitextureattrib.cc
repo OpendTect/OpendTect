@@ -92,7 +92,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 			       mJoinUiStrs(sData(),sRange())), FloatInpSpec() );
     globalminfld_->setElemSzPol(uiObject::Small);
     globalminfld_->attach( alignedBelow, glcmsizefld_ );
-    globalmaxfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    globalmaxfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 							      FloatInpSpec() );
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
@@ -331,7 +331,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
-	bidvals.add( trckeys[idx].pos() );
+	bidvals.add( trckeys[idx].binID() );
 
     uiString errmsg;
     Interval<float> zrg( cs.zsamp_ );

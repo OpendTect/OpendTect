@@ -29,9 +29,10 @@ mExpClass(Basic) TrcKey
 {
 public:
 
-    typedef Pos::SurvID	SurvID;
+    typedef Pos::SurvID		SurvID;
+    typedef IdxPair::IdxType	IdxType;
 
-			TrcKey()		{ *this = udf(); }
+			TrcKey()			{ *this = udf(); }
 
 			//3D
 			TrcKey(const BinID&); // default 3D surv ID
@@ -43,39 +44,50 @@ public:
     bool		is2D() const { return is2D(survid_); }
     static bool		is2D(SurvID);
 
-    Pos::TraceID&	trcNr();
-    Pos::TraceID	trcNr() const;
-    Pos::LineID&	lineNr();
-			//!<Not valid for 2D. Returns bogus
-    Pos::LineID		lineNr() const;
-			//!<Not valid for 2D. Returns bogus
-
     Pos::GeomID&	geomID();
     Pos::GeomID		geomID() const;
     static Pos::GeomID	geomID(SurvID,const BinID&);
 
     bool		operator==(const TrcKey&) const;
 
-    inline bool		isUdf() const		{ return *this==udf(); }
+    inline bool		isUdf() const			{ return *this==udf(); }
     static const TrcKey& udf();
     static SurvID	std2DSurvID();
     static SurvID	std3DSurvID();
     static SurvID	cUndefSurvID();
 
-    SurvID		survID() const		{ return survid_; }
-    void		setSurvID( SurvID id )	{ survid_ = id; }
-    const BinID&	pos() const		{ return pos_; }
-    void		setPos( const BinID& bid )	{ pos_ = bid; }
     double		distTo(const TrcKey&) const;
+    SurvID		survID() const			{ return survid_; }
+    inline TrcKey&	setSurvID( SurvID id )
+			{ survid_ = id; return *this; }
+
+    const BinID&	position() const		{ return pos_; }
+    const BinID&	binID() const			{ return pos_; }
+    IdxType		inl() const			{ return pos_.row(); }
+    IdxType		lineNr() const			{ return pos_.row(); }
+    IdxType		crl() const			{ return pos_.col(); }
+    IdxType		trcNr() const			{ return pos_.col(); }
+    inline TrcKey&	setPos( const BinID& bid )
+			{ pos_ = bid; return *this; }
+    inline TrcKey&	setInl( IdxType nr )
+			{ pos_.row() = nr; return *this; }
+    inline TrcKey&	setLineNr( IdxType nr )
+			{ pos_.row() = nr; return *this; }
+    inline TrcKey&	setCrl( IdxType nr )
+			{ pos_.col() = nr; return *this; }
+    inline TrcKey&	setTrcNr( IdxType nr )
+			{ pos_.col() = nr; return *this; }
+
+    /* mDeprecated */ BinID& pos()			{ return pos_; }
+			//!< Don't use. Use one of the 'set' fns.
+    /* mDeprecated */ IdxType& lineNr()			{ return pos_.row(); }
+    /* mDeprecated */ IdxType& trcNr()			{ return pos_.col(); }
 
 private:
+
     SurvID		survid_;
     BinID		pos_;
-public:
 
-    BinID&		pos()			{ return pos_; }
-    						//Not for everyday use
-						//may be deprecated soon
 };
 
 

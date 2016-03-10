@@ -728,11 +728,11 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 	return;
 
     int idx0 = 0;
-    while ( idx0<trcspath_.size() && path.first().pos()!=trcspath_[idx0] )
+    while ( idx0<trcspath_.size() && path.first().binID()!=trcspath_[idx0] )
 	idx0++;
 
     int idx1 = trcspath_.size()-1;
-    while ( idx1>=0 && path.last().pos()!=trcspath_[idx1] )
+    while ( idx1>=0 && path.last().binID()!=trcspath_[idx1] )
 	idx1--;
 
     if ( idx0>=trcspath_.size() || idx1<0 || idx1-idx0!=path.size()-1 )
@@ -823,7 +823,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 	    const TrcKeyPath& path = randsdp->getPath();
 	    TrcKeyZSampling tkzs( false );
 	    for ( int idx=0; idx<path.size(); idx++ )
-		tkzs.hsamp_.include( path[idx].pos() );
+		tkzs.hsamp_.include( path[idx].binID() );
 	    tkzs.zsamp_ = panelstrip_->getZRange();
 	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
 				      : datatransform_->getGoodZStep();

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "segyfiledata.h"
 #include "bufstringset.h"
 #include "executor.h"

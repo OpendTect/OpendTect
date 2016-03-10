@@ -11,8 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-
+#include "seiscommon.h"
 #include "arrayndimpl.h"
 #include "executor.h"
 #include "fourier.h"

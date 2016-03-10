@@ -15,7 +15,6 @@ Trace storage objects handle seismic data storage.
 -*/
 
 
-#include "seismod.h"
 #include "seisinfo.h"
 #include "uistring.h"
 

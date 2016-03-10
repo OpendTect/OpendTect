@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "seistype.h"
+#include "seiscommon.h"
 #include "ranges.h"
 #include "binid.h"
 #include "bufstring.h"

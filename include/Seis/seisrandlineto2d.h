@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "executor.h"
 #include "binidvalset.h"
 #include "randomlinegeom.h"
@@ -31,7 +31,7 @@ namespace Geometry { class RandomLine; }
 mExpClass(Seis) SeisRandLineTo2D : public Executor
 { mODTextTranslationClass(SeisRandLineTo2D)
 public:
-    			SeisRandLineTo2D(const IOObj&,const IOObj&,
+			SeisRandLineTo2D(const IOObj&,const IOObj&,
 					 const Pos::GeomID, int trcinit,
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();

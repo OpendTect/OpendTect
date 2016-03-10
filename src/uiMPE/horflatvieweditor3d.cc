@@ -188,7 +188,7 @@ void HorizonFlatViewEditor3D::enableSeed( bool yn )
 }
 
 
-bool HorizonFlatViewEditor3D::seedEnable() const 
+bool HorizonFlatViewEditor3D::seedEnable() const
 {
     return horpainter_->seedEnable();
 }
@@ -395,7 +395,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
 
-     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() && 
+     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawAndSnap )
 	emobj->setBurstAlert( false );
@@ -436,12 +436,12 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* cb )
 	const Patch* patch = seedpicker->getPatch();
 	if ( patch )
 	{
-    	    TrcKeySampling tckpath;
+	    TrcKeySampling tckpath;
 	    patch->getTrcKeySampling( tckpath );
 	    horpainter_->setUpdateTrcKeySampling( tckpath );
 	}
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( emobj ) 
+	if ( emobj )
 	    emobj->setBurstAlert( false );
 	seedpicker->endPatch( false );
 	updatePatchDisplay();
@@ -500,7 +500,7 @@ void HorizonFlatViewEditor3D::undo()
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
     if ( !seedpicker )
 	return;
-    
+
     bool changed = false;
     if ( seedpicker->canUndo() )
     {
@@ -570,7 +570,7 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 	const MouseEvent& mouseevent = mehandler_->event();
 	const bool doerase =
 	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
-	
+
 	const Patch* patch = seedpicker->getPatch();
 	if ( patch )
 	{
@@ -579,7 +579,7 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 	    horpainter_->setUpdateTrcKeySampling( tckpath );
 	}
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( emobj ) 
+	if ( emobj )
 	    emobj->setBurstAlert( false );
 	seedpicker->endPatch( doerase );
 	updatePatchDisplay();
@@ -653,7 +653,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,&dp);
     MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
     MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
-	    					 : -1 );
+						 : -1 );
     notifystopper.restore();
 
     seedpicker.setSelSpec( as );
@@ -712,7 +712,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	    if ( tracker )
 	    {
-		const MPE::EMSeedPicker* seedpicker = 
+		const MPE::EMSeedPicker* seedpicker =
 		    tracker->getSeedPicker(true);
 		if ( seedpicker && !seedpicker->getSowerMode() )
 		    updatePatchDisplay();
@@ -780,9 +780,9 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 	    continue;
 	double x= 0.0;
 	if ( curcs_.nrInl()==1 )
-	    x = tkzs.tk_.pos().crl();
+	    x = tkzs.tk_.crl();
 	else if ( curcs_.nrCrl()==1 )
-	    x = tkzs.tk_.pos().inl();
+	    x = tkzs.tk_.inl();
 	else if ( randfdp )
 	{
 	    mDynamicCastGet(const RandomSeisDataPack&,rdmsdp,
@@ -912,7 +912,7 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 	{
 	    const TrcKeyPath& rdlpath = randfdp->getPath();
 	    IndexInfo ix = randfdp->posData().indexInfo( true, posx );
-	    bid = rdlpath[ix.nearest_].pos();
+	    bid = rdlpath[ix.nearest_].binID();
 	}
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );

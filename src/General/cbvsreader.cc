@@ -545,7 +545,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     if ( coordpol_ == InAux && info_.auxinfosel_.coord_ )
 	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
     else if ( coordpol_ == InTrailer )
-	auxinf.coord_ = getTrailerCoord( auxinf.trckey_.pos() );
+	auxinf.coord_ = getTrailerCoord( auxinf.trckey_.binID() );
     mCondGetAux(offset_)
     mCondGetAux(pick_)
     mCondGetAux(refnr_)

@@ -157,7 +157,7 @@ bool HorizonPainter3D::addPolyLine()
 	{
 	    for ( int idx = 0; idx<path_->size(); idx++ )
 	    {
-		bid = (*path_)[idx].pos();
+		bid = (*path_)[idx].binID();
 		const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
 		EM::PosID posid( id_, sid, bid.toInt64() );
 
@@ -219,7 +219,7 @@ bool HorizonPainter3D::addPolyLine()
 	    const TrcKey tk(TrcKey(hor3d->getSurveyID(),bid));
 
 	    if ( updatesamplings_.includes(tk) && intsectnode )
-		emobj->setPosAttrib( posid ,EM::EMObject::sIntersectionNode(), 
+		emobj->setPosAttrib( posid ,EM::EMObject::sIntersectionNode(),
 		false );
 
 	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
@@ -286,7 +286,7 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 void HorizonPainter3D::horChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -494,7 +494,7 @@ void HorizonPainter3D::enableSeed( bool yn )
 }
 
 
-void HorizonPainter3D::setUpdateTrcKeySampling( 
+void HorizonPainter3D::setUpdateTrcKeySampling(
     const TrcKeySampling& samplings )
 {
     updatesamplings_ = TrcKeySampling( samplings );

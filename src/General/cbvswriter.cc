@@ -261,7 +261,7 @@ void CBVSWriter::getBinID()
     }
     else if ( !(trcswritten_ % nrtrcpp) )
     {
-	curbinid_ = auxinfo_->trckey_.pos();
+	curbinid_ = auxinfo_->trckey_.binID();
 	if ( !trcswritten_ || prevbinid_.inl() != curbinid_.inl() )
 	    newSeg( true );
 	else

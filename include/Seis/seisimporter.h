@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "seistype.h"
+#include "seiscommon.h"
 #include "executor.h"
 #include "bufstring.h"
 class IOObj;

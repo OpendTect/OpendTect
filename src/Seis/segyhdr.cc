@@ -220,7 +220,7 @@ void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
 
 void SEGY::TxtHeader::setStartPos( float sp )
 {
-    if ( mIsZero(sp,mDefEps) ) return;
+    if ( mIsZero(sp,Seis::DefZEps) ) return;
 
     BufferString txt( "First sample at:", sp );
     putAt( 10, 6, 75, txt );
@@ -567,7 +567,7 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
-    BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+    BinID bid( ti.binID() ); mPIEPAdj(BinID,bid,false);
     setEntryVal( EntryInline(), bid.inl() );
     setEntryVal( EntryCrossline(), bid.crl() );
     int tnr = ti.nr_; mPIEPAdj(TrcNr,tnr,false);
@@ -590,9 +590,9 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryCoUnit(), 1 );
 
     const bool is2d = SEGY::TxtHeader::info2D();
-    if ( !is2d && ti.binid.inl() != previnl_ )
+    if ( !is2d && ti.inl() != previnl_ )
 	lineseqnr_ = 1;
-    previnl_ = ti.binid.inl();
+    previnl_ = ti.inl();
     int nr2put = is2d ? seqnr_ : lineseqnr_;
     setEntryVal( EntryTracl(), nr2put );
     setEntryVal( EntryTracr(), seqnr_ );
@@ -600,7 +600,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( is2d )
 	{ nr2put = ti.nr_; mPIEPAdj(TrcNr,nr2put,false); }
     else
-	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
+	{ nr2put = ti.crl(); mPIEPAdj(Inl,nr2put,false); }
     setEntryVal( EntryCdp(), nr2put );
 
     Coord crd( ti.coord_ );
@@ -617,9 +617,9 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     hdef_.xcoord_.putValue( buf_, icx );
     hdef_.ycoord_.putValue( buf_, icy );
 
-    BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-    hdef_.inl_.putValue( buf_, ti.binid.inl() );
-    hdef_.crl_.putValue( buf_, ti.binid.crl() );
+    BinID bid( ti.binID() ); mPIEPAdj(BinID,bid,false);
+    hdef_.inl_.putValue( buf_, ti.inl() );
+    hdef_.crl_.putValue( buf_, ti.crl() );
     int intval = ti.nr_; mPIEPAdj(TrcNr,intval,false);
     hdef_.trnr_.putValue( buf_, intval );
     float tioffs = ti.offset_; mPIEPAdj(Offset,tioffs,false);
@@ -673,8 +673,7 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
     ti.coord_.x = entryVal( EntryXcdp() );
     ti.coord_.y = entryVal( EntryYcdp() );
-    ti.binid.inl() = entryVal( EntryInline() );
-    ti.binid.crl() = entryVal( EntryCrossline() );
+    BinID tibid( entryVal( EntryInline() ), entryVal( EntryCrossline() ) );
     ti.refnr_ = mCast( float, entryVal( EntrySP() ) );
     short scalnr = (short)entryVal( EntrySPscale() );
     if ( scalnr )
@@ -683,8 +682,9 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 	ti.nr_ = mNINT32(ti.refnr_);
     }
     mPIEPAdj(Coord,ti.coord_,true);
-    mPIEPAdj(BinID,ti.binid,true);
+    mPIEPAdj(BinID,tibid,true);
     mPIEPAdj(TrcNr,ti.nr_,true);
+    ti.setBinID( tibid );
 }
 
 
@@ -743,10 +743,10 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.coord_.x = ti.coord_.y = 0;
     ti.coord_.x = hdef_.xcoord_.getValue(buf_,needswap_);
     ti.coord_.y = hdef_.ycoord_.getValue(buf_,needswap_);
-    ti.binid.inl() = ti.binid.crl() = 0;
-    ti.binid.inl() = hdef_.inl_.getValue(buf_,needswap_);
-    ti.binid.crl() = hdef_.crl_.getValue(buf_,needswap_);
-    mPIEPAdj(BinID,ti.binid,true);
+    BinID tibid( hdef_.inl_.getValue(buf_,needswap_),
+		 hdef_.crl_.getValue(buf_,needswap_) );
+    mPIEPAdj(BinID,tibid,true);
+    ti.setBinID( tibid );
 
     ti.offset_ = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset_ < 0 ) ti.offset_ = -ti.offset_;

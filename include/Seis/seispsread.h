@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "bufstring.h"
 #include "binid.h"
 #include "uistring.h"

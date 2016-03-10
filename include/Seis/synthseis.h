@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "ailayer.h"
 #include "factory.h"
 #include "reflectivitymodel.h"
@@ -181,7 +181,7 @@ public:
     void			getSampledRMs(
 					ObjectSet<const ReflectivityModel>&);
 
-    uiString			uiMessage() const { 
+    uiString			uiMessage() const {
 				    return m3Dots(tr("Generating synthetics"));
 						  }
 

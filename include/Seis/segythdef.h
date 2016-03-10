@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
 #include "segyhdrdef.h"
 #include "bufstring.h"
 class SeisPacketInfo;

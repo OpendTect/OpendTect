@@ -158,7 +158,7 @@ int SeisRandLineTo2D::nextStep()
 
     if ( !rdr_->get(*trc) ) return Executor::ErrorOccurred();
 
-    BinID bid = trc->info().binid;
+    BinID bid = trc->info().binID();
     bool geommatching = false;
     do
     {
@@ -249,7 +249,7 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 	mNotOKRet("Error: Grid spacing not specified")
 
     PtrMan<IOPar> randlnpar = par.subselect(
-	    			SeisRandLineTo2DGrid::sKeyRandomLine() );
+				SeisRandLineTo2DGrid::sKeyRandomLine() );
     if ( !randlnpar )
 	mNotOKRet("Error: Base Random line missing")
 
@@ -289,7 +289,7 @@ bool SeisRandLineTo2DGrid::createGrid()
 
 
 bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
-       				      bool parll )
+				      bool parll )
 {
     BufferString strsuffix;
     int numsuffix = 1;

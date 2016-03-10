@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "seiscommon.h"
 #include "datachar.h"
 class SeisTrc;
 class BufferStringSet;
@@ -42,7 +42,7 @@ public:
     virtual bool	fullSortingRequired() const	{ return true; }
     virtual void	setPrefStorType( DataCharacteristics::UserType ) {}
     virtual bool	setSampleNames(const BufferStringSet&) const
-    			{ return false; }
+			{ return false; }
 
     virtual bool	put(const SeisTrc&)		= 0;
     virtual uiString	errMsg() const			= 0;

@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "seismod.h"
+#include "seiscommon.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
@@ -113,7 +112,7 @@ public:
 			//!< Function useful in attribute environments
 			//!< The 'MultiID' must be IOObj_ID
     static void		getLinesWithData(BufferStringSet& lnms,
-	    				 TypeSet<Pos::GeomID>& gids);
+					 TypeSet<Pos::GeomID>& gids);
 
 protected:
 

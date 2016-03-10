@@ -1443,7 +1443,7 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
         const Coord intersectioncoord = idx>=crds.size()
             ? pathgeom->toCoord( path[idx] )
             : crds[idx];
-        
+
         if ( intersectioncoord.isDefined() )
         {
             if ( pathgeomid==horgeomid ) //We are on the same grid
@@ -1458,7 +1458,7 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 
             EM::SubID horsubid = hortrc.isUdf()
                     ? mUdf(EM::SubID)
-                    : hortrc.pos().toInt64();
+                    : hortrc.binID().toInt64();
 
             if ( showsPosAttrib(EM::PosAttrib::SeedNode) &&
 		 seedposids && !mIsUdf(horsubid) &&
@@ -1591,7 +1591,7 @@ HorizonDisplay::getOrCreateIntersectionData(
 #define mHandleIndex(obj)\
 { if ( obj && obj->id() == objid ) { objidx = idx; return true;}  }
 
-bool HorizonDisplay::isValidIntersectionObject( 
+bool HorizonDisplay::isValidIntersectionObject(
     const ObjectSet<const SurveyObject>&objs, int& objidx, int objid ) const
 {
     for ( int idx=0; idx<objs.size(); idx++ )
@@ -1604,7 +1604,7 @@ bool HorizonDisplay::isValidIntersectionObject(
 
 	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, objs[idx] );
 	mHandleIndex( rtdisplay )
-	
+
 	mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, objs[idx] );
 	mHandleIndex( seis2ddisplay )
     }
@@ -1620,7 +1620,7 @@ void HorizonDisplay::updateIntersectionLines(
     if ( !horizon ) return;
 
     int objidx = -1;
-    const bool doall = whichobj==-1 || 
+    const bool doall = whichobj==-1 ||
 	!isValidIntersectionObject( objs, objidx, whichobj );
 
     ManagedObjectSet<IntersectionData> lines;
@@ -1669,12 +1669,12 @@ void HorizonDisplay::updateIntersectionLines(
 		const EM::SectionID sid = horizon->sectionID(sectionidx);
 		if ( trckeypath.size() )
 		{
-		    const Interval<float> zrg = 
+		    const Interval<float> zrg =
 			objs[objidx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
 		    data->objid_ = vo->id();
 		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
-            	    continue;
+	    continue;
 		}
 		else
 		{
@@ -1830,7 +1830,8 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	const TrcKey& curnode = parents[idx];
-	const Coord3 crd( SI().transform(curnode.pos()), hor3d->getZ(curnode) );
+	const Coord3 crd( SI().transform(curnode.binID()),
+			    hor3d->getZ(curnode) );
 	parentline_->getCoordinates()->addPos( crd );
 	idxps.add( cii++ );
     }
@@ -1879,7 +1880,7 @@ void HorizonDisplay::selectChildren()
 	    continue;
 
 	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
+	const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
 	const int pidx = selections_->addPoint( pos );
 	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
 	pidxs += pidx;
@@ -1944,7 +1945,7 @@ void HorizonDisplay::showLocked( bool yn )
 	    continue;
 
 	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
+	const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
 	const int pidx = lockedpts_->addPoint( pos );
 	pidxs += pidx;
     }
@@ -1987,8 +1988,8 @@ void HorizonDisplay::updateSelections()
 
     for ( int idx=0; idx<selids.size(); idx++ )
     {
-    	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
-    	if ( pos.isUdf() ) continue;
+	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
+	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );
 	pidxs += pidx;
@@ -2315,7 +2316,7 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 	    newline->ref();
 	    newline->setRightHandSystem( line_->isRightHandSystem() );
 	    newline->setDisplayTransformation(
-		    			line_->getDisplayTransformation());
+					line_->getDisplayTransformation());
 	    newline->getCoordinates()->copyFrom( *line_->getCoordinates() );
 	    if ( line_->getMaterial() )
 		newline->setMaterial( line_->getMaterial() );

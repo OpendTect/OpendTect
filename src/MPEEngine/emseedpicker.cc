@@ -94,7 +94,7 @@ EM::PosID Patch::seedNode( int idx ) const
 
     const TrcKey tck = seeds_[idx].tk_;
 
-    return EM::PosID( emobj->id(), emobj->sectionID(0), tck.pos().toInt64() );
+    return EM::PosID( emobj->id(), emobj->sectionID(0), tck.binID().toInt64() );
 }
 
 
@@ -112,7 +112,7 @@ Coord3 Patch::seedCoord( int idx ) const
     {
 	const TrcKey tck = seeds_[idx].tk_;
 	const EM::PosID pid =
-	    EM::PosID( emobj->id(),emobj->sectionID(0),tck.pos().toInt64() );
+	    EM::PosID( emobj->id(),emobj->sectionID(0),tck.binID().toInt64() );
 	pos = emobj->getPos( pid );
     }
     else
@@ -168,13 +168,13 @@ int Patch::addSeed( const TrcKeyValue& tckv )
     if ( !is2d )
     {
 	const EM::PosID pid = EM::PosID( emobj->id(), emobj->sectionID(0),
-					 seedtckv.tk_.pos().toInt64() );
+					 seedtckv.tk_.binID().toInt64() );
 	if ( !seedpicker_->lineTrackDirection(dir) )
 	{
 	    idx = findClosestSeedRdmIdx( pid );
 	    if ( idx<0 )
 		return -1;
-	    
+
 	    const int rdlid = engine().activeRandomLineID();
 	    const TrcKeyPath* rdmlinepath = engine().activePath();
 	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );

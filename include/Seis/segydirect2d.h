@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
-#include "survgeometrytransl.h"
 #include "seis2dlineio.h"
+#include "survgeometrytransl.h"
 #include "uistring.h"
 
 class SeisTrc;

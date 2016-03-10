@@ -282,9 +282,9 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     const bool haveprev = !mIsUdf( prevnr_ );
     const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
-				: prevnr_ != trc.info().binid.inl());
+				: prevnr_ != trc.info().inl());
     if ( !is_2d )
-	prevnr_ = trc.info().binid.inl();
+	prevnr_ = trc.info().inl();
     else if ( wrblk || !haveprev )
 	prevnr_ = 1;
     else
@@ -307,7 +307,7 @@ bool SeisTrcTranslator::writeBlock()
     int sz = trcblock_.size();
     SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
     if ( firsttrc )
-	lastinlwritten_ = firsttrc->info().binid.inl();
+	lastinlwritten_ = firsttrc->info().inl();
 
     if ( sz && enforce_regular_write )
     {
@@ -321,13 +321,13 @@ bool SeisTrcTranslator::writeBlock()
 	trcblock_.sort( sort_asc, keyfld );
 	firsttrc = trcblock_.get( 0 );
 	const int firstnr = is_2d ? firsttrc->info().nr_
-				 : firsttrc->info().binid.crl();
+				 : firsttrc->info().crl();
 	int nrperpos = 1;
 	if ( !is_2d )
 	{
 	    for ( int idx=1; idx<sz; idx++ )
 	    {
-		if ( trcblock_.get(idx)->info().binid.crl() != firstnr )
+		if ( trcblock_.get(idx)->info().crl() != firstnr )
 		    break;
 		nrperpos++;
 	    }
@@ -352,7 +352,7 @@ bool SeisTrcTranslator::writeBlock()
     int nrwritten = 0;
     for ( ; binid.crl() != firstafter; binid.crl() += stp )
     {
-	while ( trc && trc->info().binid.crl() < binid.crl() )
+	while ( trc && trc->info().crl() < binid.crl() )
 	{
 	    bufidx++;
 	    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
@@ -368,7 +368,7 @@ bool SeisTrcTranslator::writeBlock()
 		filltrc = getFilled( binid );
 	    else
 	    {
-		filltrc->info().binid = binid;
+		filltrc->info().setBinID( binid );
 		filltrc->info().coord_ = SI().transform(binid);
 	    }
 	    if ( !writeTrc_(*filltrc) )
@@ -508,7 +508,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 	return 0;
 
     SeisTrc* newtrc = new SeisTrc;
-    newtrc->info().binid = binid;
+    newtrc->info().setBinID( binid );
     newtrc->info().coord_ = SI().transform( binid );
 
     newtrc->data().delComponent(0);

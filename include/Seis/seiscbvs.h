@@ -14,7 +14,6 @@ CBVS-based seimic translator.
 
 -*/
 
-#include "seismod.h"
 #include "seistrctr.h"
 #include "tracedata.h"
 #include "cbvsinfo.h"
