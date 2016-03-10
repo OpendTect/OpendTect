@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 #include <float.h>
 
-const float SeisTrc::snapdist = Seis::DefSampleSnapDist;
+const float SeisTrc::snapdist = Seis::cDefSampleSnapDist();
 
 
 SeisTrc::~SeisTrc()
