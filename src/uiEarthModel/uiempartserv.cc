@@ -922,12 +922,15 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
     if ( datastor.isEmpty() )
 	return false;
 
-    bool hasdata = true;
+    bool hasdata = false;
     for ( int idx=0; idx<datastor.size(); idx++ )
     {
 	const BinIDValueSet* bvs = datastor[idx];
 	if ( bvs && !bvs->isEmpty() )
+	{
 	    hasdata = true;
+	    break;
+	}
     }
 
     if ( !hasdata )
