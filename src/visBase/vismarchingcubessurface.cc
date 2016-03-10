@@ -50,6 +50,7 @@ MarchingCubesSurface::~MarchingCubesSurface()
     shape_->unRef();
     surface_->removeAll( false );
     delete surface_;
+    unRefAndZeroPtr( transform_ );
 }
 
 
