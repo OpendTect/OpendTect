@@ -176,7 +176,7 @@ void uiIOObjManipGroup::selChg()
     if ( locbut )
     {
 	const bool canreloc = curiostrm && !curiostrm->implReadOnly();
-	mSetTBStateAndTT4Cur( locbut, canreloc, uiStrings::sMove() );
+	mSetTBStateAndTT4Cur( locbut, canreloc, tr("Relocate" );
     }
     mSetTBStateAndTT4Cur( renbut, curiostrm, uiStrings::sRename() );
 
