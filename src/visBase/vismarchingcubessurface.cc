@@ -32,6 +32,7 @@ MarchingCubesSurface::MarchingCubesSurface()
     , xrg_( mUdf(float), mUdf(float), 0 )
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
+    , transform_( 0 )
 {
 
     shape_->ref();
@@ -140,9 +141,18 @@ void MarchingCubesSurface::setBoxBoundary( float maxx, float maxy, float maxz )
 
 void MarchingCubesSurface::setDisplayTransformation( const mVisTrans* trans )
 {
+    if ( transform_ ) transform_->unRef();
+       transform_ = trans;
+    if ( transform_ ) transform_->ref();
     shape_->setDisplayTransformation( trans );
-
 }
+
+
+const mVisTrans* MarchingCubesSurface::getDisplayTransformation() const
+{
+    return transform_;
+}
+
 
 void MarchingCubesSurface::getTransformCoord( Coord3& pos )
 {

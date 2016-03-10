@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visevent.h"
 #include "vismaterial.h"
 #include "visnormals.h"
+#include "vistransform.h"
 #include "vistexturechannels.h"
 #include "vistexturecoords.h"
 
@@ -449,6 +450,34 @@ void VertexShape::dirtyCoordinates()
 	osggeom_->setNormalBinding(
 	    osg::Geometry::AttributeBinding(normalbindtype_) );
     }
+}
+
+
+Coord3 VertexShape::getOsgNormal( int idx ) const
+{
+    Coord3 nm = Coord3( 0, 0, 0 );
+    if ( osggeom_ )
+    {
+	const osg::Array* arr = osggeom_->getNormalArray();
+	osg::Vec3Array* osgnormals = mGetOsgVec3Arr( arr );
+	if ( osgnormals->size()>idx )
+	{
+	    if ( getDisplayTransformation() )
+	    {
+		getDisplayTransformation()->transformBackNormal( 
+		(*osgnormals)[idx], nm );
+		const double normalsqlen = nm.sqAbs();
+		if ( !normalsqlen )
+		    nm = Coord3( 1, 0, 0 );
+		else
+		    nm /= Math::Sqrt(normalsqlen);
+	    }
+	    else
+		nm = Conv::to<Coord3>( (*osgnormals)[idx] );
+	}
+    }
+
+    return nm;
 }
 
 

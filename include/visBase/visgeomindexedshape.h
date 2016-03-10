@@ -91,6 +91,7 @@ public:
     void			setTextureChannels(TextureChannels*);
     virtual void	        setPixelDensity(float);
 
+    VertexShape*		getVertexShape() const { return vtexshape_; }
 
 protected:
 				~GeomIndexedShape();

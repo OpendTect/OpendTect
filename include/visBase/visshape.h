@@ -121,7 +121,9 @@ public:
     void		enableCoordinatesChangedCB(bool yn)
 			{ usecoordinateschangedcb_ = yn; }
     void		useOsgAutoNormalComputation(bool);
-
+    bool		useOsgAutoNormalComputation() const
+			    { return useosgsmoothnormal_; }
+    Coord3		getOsgNormal(int) const;
     enum		BindType{ BIND_OFF = 0,BIND_OVERALL,
 				       BIND_PER_PRIMITIVE_SET,
 				       BIND_PER_PRIMITIVE, BIND_PER_VERTEX};

@@ -63,6 +63,8 @@ public:
 
     GeomIndexedShape*		getShape()		{ return shape_; }
     virtual void		setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*		getDisplayTransformation() const;
+
     void			getTransformCoord(Coord3&);
 
 
