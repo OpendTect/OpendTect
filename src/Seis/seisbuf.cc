@@ -68,7 +68,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	spi.crlrg.include( bid.crl(), false);
 	const SamplingData<float> trcsd = trc->info().sampling_;
 	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
-	     !mIsZero(trcsd.step,Seis::DefZEps) )
+	     !mIsZero(trcsd.step,Seis::cDefZEps()) )
 	{
 	    StepInterval<float> zrg(trcsd.start, trcsd.atIndex(trc->size()-1),
 				    trcsd.step );

@@ -220,7 +220,7 @@ void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
 
 void SEGY::TxtHeader::setStartPos( float sp )
 {
-    if ( mIsZero(sp,Seis::DefZEps) ) return;
+    if ( mIsZero(sp,Seis::cDefZEps()) ) return;
 
     BufferString txt( "First sample at:", sp );
     putAt( 10, 6, 75, txt );

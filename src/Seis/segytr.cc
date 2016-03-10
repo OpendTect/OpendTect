@@ -266,10 +266,10 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
     insd_.start = info.sampling_.start;
     insd_.step = pinfo_.zrg.step;
-    if ( mIsZero(insd_.step,Seis::DefZEps) )
+    if ( mIsZero(insd_.step,Seis::cDefZEps()) )
     {
 	insd_.step = info.sampling_.step;
-	if ( mIsZero(insd_.step,Seis::DefZEps) )
+	if ( mIsZero(insd_.step,Seis::cDefZEps()) )
 	    insd_.step = SI().zRange(false).step;
     }
     if ( !mIsUdf(fileopts_.timeshift_) )
@@ -504,8 +504,8 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     inpcd_ = inpcds_[0]; outcd_ = outcds_[0];
     storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
 						   : outcd_->datachar );
-    if ( mIsEqual(outsd_.start,insd_.start,Seis::DefZEps)
-      && mIsEqual(outsd_.step,insd_.step,Seis::DefZEps) )
+    if ( mIsEqual(outsd_.start,insd_.start,Seis::cDefZEps())
+      && mIsEqual(outsd_.step,insd_.step,Seis::cDefZEps()) )
 	useinpsd_ = true;
 
     if ( blockbuf_ )
@@ -724,7 +724,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	prevoffs_ = curoffs_; curoffs_ = ti.offset_;
     }
 
-    if ( mIsZero(ti.sampling_.step,Seis::DefZEps) )
+    if ( mIsZero(ti.sampling_.step,Seis::cDefZEps()) )
     {
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
 	ti.sampling_.step = insd_.step;
