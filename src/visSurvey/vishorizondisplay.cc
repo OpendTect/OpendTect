@@ -1725,14 +1725,22 @@ void HorizonDisplay::updateSectionSeeds(
 	    const ObjectSet<const SurveyObject>& objs, int movedobj )
 {
     bool refresh = movedobj==-1 || movedobj==id();
-    TypeSet<int> planelist;
+    TypeSet<int> verticalsections;
 
     for ( int idx=0; idx<objs.size(); idx++ )
     {
+	mDynamicCastGet(const RandomTrackDisplay*,randomtrack,objs[idx]);
+	if ( randomtrack )
+	{
+	    verticalsections += idx;
+	    if ( movedobj==randomtrack->id() )
+		refresh = true;
+	}
+
 	mDynamicCastGet(const PlaneDataDisplay*,plane,objs[idx]);
 	if ( plane && plane->getOrientation()!=OD::ZSlice )
 	{
-	    planelist += idx;
+	    verticalsections += idx;
 	    if ( movedobj==plane->id() )
 		refresh = true;
 	}
@@ -1743,7 +1751,7 @@ void HorizonDisplay::updateSectionSeeds(
 	    TrcKeyZSampling tkzs;
 	    if ( mped->getPlanePosition(tkzs) && tkzs.nrZ()!=1 )
 	    {
-		planelist += idx;
+		verticalsections += idx;
 		if ( movedobj==mped->id() )
 		    refresh = true;
 	    }
@@ -1778,11 +1786,13 @@ void HorizonDisplay::updateSectionSeeds(
 		    continue;
 		}
 
-		for ( int idz=0; idz<planelist.size(); idz++ )
+		for ( int idz=0; idz<verticalsections.size(); idz++ )
 		{
 		    const float dist =
-			objs[planelist[idz]]->calcDist( markerpos );
-		    if ( dist < objs[planelist[idz]]->maxDist() )
+			objs[verticalsections[idz]]->calcDist( markerpos );
+
+		    if ( !mIsUdf(dist) &&
+			 dist<objs[verticalsections[idz]]->maxDist() )
 		    {
 			markerset->turnMarkerOn( idy,true );
 			break;
