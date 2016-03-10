@@ -3,6 +3,48 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+v6.0.1: March 10, 2016
+ * Added Presentation Maker plugin
+ * Package removal is supported in installer
+ * Fix for manual horizon tracking in complicated random lines
+ * Fix for false error message while importing checkshot data to a well
+ * Fix for displaying horizon at section in depth scene
+ * Fix for displaying 2D attribute immediately after adding line to the tree
+ * Fix for importing CBVS from other surveys
+ * Fix for crash while closing OpendTect main window after
+   opening GMT or Madagascar windows
+ * Fix for displaying 2D horizon intersection on all lines
+ * Fix for crash while restoring session
+ * Fix for export of time-depth model from wells
+ * Fix for displaying of default markers which are saved by selecting
+   'Save as Default' option in well display properties window
+ * Fix for inconsistent mouse cursor while tracking
+   horizons/faults/faultsticksets in 2D Viewer
+ * Adding a new tracking horizon/fault/faultstickset automatically enables
+   tracking mode in 2D Viewers
+ * Fault/FaultStickset picking in 2D Viewers now synchronised with
+  the 3D scene
+ * Fix for converting seismic reference datum if survey is in feet
+ * Fix for seed size & shape for a tracking horizon in 2D Viewer
+ * Fix for removal of horizon using polygon selector on a randomline displayed
+   in 2D Viewer
+ * Fix for importing wavelets from other surveys
+ * Fix for crash while displaying preloaded data on random line
+ * Fix for crash in Horizon tracking
+ * Removed the Velocity Fan Filter attribute from the list
+ * Fix for skipping failed traces while merging after multi-machine
+   processing
+ * Fix for displaying picksets only at sections
+ * Fix for crash while saving general settings with no active scenes
+ * Fix for crash while restoring stored Well-tie setup
+ * Made the 2D line selection window pop-up faster
+ * Fix for freezing of OpendTect while tracking a new horizon on 2D Viewer
+ * Distributed (multi-machine) computing of attributes made faster
+ * Fix for missing legacy PickSets from the list
+ * Random track editing in 3D scene made easier
+ * Fix for 'SEGY Rev 1' window not popping up
+ * Fix for Horizon tracking window blocking other pop-ups
+
 v6.0.0: January 11, 2016
  * Greatly improved user interaction
   (no need to switch modes; more short keys)
