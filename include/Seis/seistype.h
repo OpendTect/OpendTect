@@ -18,8 +18,7 @@ ________________________________________________________________________
 
 class IOObjContext;
 
-
-/*!\brief Seismics*/
+/*!\brief Seismics */
 
 namespace Seis
 {
@@ -63,7 +62,8 @@ namespace Seis
     mGlobal(Seis) const char*		nameOf(WaveType);
     mGlobal(Seis) WaveType		waveTypeOf(const char*);
     mGlobal(Seis) const char**	waveTypeNames();
-};
+
+} // namespace Seis
 
 
 #endif

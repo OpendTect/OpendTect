@@ -74,7 +74,7 @@ public:
 				     bool forcefloats=false);
 			//!< icomp -1 (default) is all components
 
-    static const float	snapdist; //!< Default 1e-4
+    static const float	snapdist; //!< Default 1e-4 /* mDeprecated */
 			//!< relative distance from a sample below which no
 			//!< interpolation is done. 99.9% chance default is OK.
 

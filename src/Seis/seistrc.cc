@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seistrc.h"
+#include "seiscommon.h"
 #include "simpnumer.h"
 #include "iopar.h"
 #include "valseriesinterpol.h"
@@ -15,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 #include <float.h>
 
-const float SeisTrc::snapdist = 1e-3;
+const float SeisTrc::snapdist = Seis::DefSampleSnapDist;
 
 
 SeisTrc::~SeisTrc()

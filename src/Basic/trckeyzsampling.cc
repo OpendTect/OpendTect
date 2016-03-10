@@ -665,8 +665,8 @@ TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
 	return TrcKey::udf();
 
 
-    BinID relbid( trckey.pos().first - start_.first,
-		  trckey.pos().second - start_.second );
+    BinID relbid( trckey.position().first - start_.first,
+		  trckey.position().second - start_.second );
 
     BinID ret( 0, 0 );
 
@@ -803,7 +803,7 @@ od_int64 TrcKeySampling::globalIdx( const TrcKey& trk ) const
     if ( trk.survID()!=survid_ )
 	return -1;
 
-    return globalIdx( trk.pos() );
+    return globalIdx( trk.position() );
 }
 
 

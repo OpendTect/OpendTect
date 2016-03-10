@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "seismod.h"
 #include "seisposkey.h"
 #include "samplingdata.h"
@@ -27,6 +27,9 @@ class PosAuxInfo;
 mExpClass(Seis) SeisTrcInfo
 {
 public:
+
+    typedef Index_Type	IdxType;
+
 			SeisTrcInfo()
 			: sampling(0,defaultSampleInterval()), nr(0)
 			, refnr(mUdf(float)), pick(mUdf(float))
@@ -35,12 +38,24 @@ public:
 
     SamplingData<float>	sampling;
     int			nr;
-    BinID		binid;
+    BinID		binid;			/* mDeprecated */
     Coord		coord;
     float		offset;
     float		azimuth;
     float		refnr;
     float		pick;
+
+			// New functions that will be used more and more.
+			// Try to avoid using binid directly!
+    inline const BinID& binID() const		{ return binid; }
+    inline IdxType	inl() const		{ return binid.inl(); }
+    inline IdxType	crl() const		{ return binid.crl(); }
+    inline SeisTrcInfo& setBinID( const BinID& bid )
+			{ binid = bid; return *this; }
+    inline SeisTrcInfo& setInl( IdxType inr )
+			{ binid.inl() = inr; return *this; }
+    inline SeisTrcInfo& setCrl( IdxType inr )
+			{ binid.crl() = inr; return *this; }
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
@@ -51,14 +66,14 @@ public:
     enum Fld		{ TrcNr=0, Pick, RefNr,
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
 			  Offset, Azimuth };
-    			mDeclareEnumUtils(Fld)
+			mDeclareEnumUtils(Fld)
     double		getValue(Fld) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
     int			getDefaultAxisFld(Seis::GeomType,
 					  const SeisTrcInfo* next) const;
     void		getInterestingFlds(Seis::GeomType,IOPar&) const;
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
-	    			  bool setpos=false);
+				  bool setpos=false);
 
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;
