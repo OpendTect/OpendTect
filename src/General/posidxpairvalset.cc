@@ -296,39 +296,42 @@ Interval<Pos::IdxPairValueSet::IdxType> Pos::IdxPairValueSet::secondRange(
 							IdxType frst ) const
 {
     Interval<IdxType> ret( mUdf(IdxType), mUdf(IdxType) );
-    if ( frsts_.isEmpty() ) return ret;
+    if ( frsts_.isEmpty() )
+	return ret;
 
-    const int frstidx = frsts_.indexOf( frst );
+    const bool isall = frst < 0;
+    const int frstidx = isall ? -1 : frsts_.indexOf( frst );
     if ( frstidx >= 0 )
     {
-	const TypeSet<IdxType>& scndset = getScndSet(frstidx);
+	const TypeSet<IdxType>& scndset = getScndSet( frstidx );
 	const int nrscnd = scndset.size();
-	if ( nrscnd>=1 )
+	if ( nrscnd > 0 )
+	{
 	    ret.start = ret.stop = scndset[0];
-	if ( nrscnd>1 )
-	    ret.include( scndset[nrscnd-1], false );
+	    if ( nrscnd > 1 )
+		ret.include( scndset[nrscnd-1], false );
+	}
 
     }
-    else
+    else if ( isall )
     {
-	bool found = false;
+	bool anyseenyet = false;
 	for ( int idx=0; idx<frsts_.size(); idx++ )
 	{
 	    const TypeSet<IdxType>& scndset = getScndSet(idx);
 	    const int nrscnd = scndset.size();
-	    if ( nrscnd>=1 )
+	    if ( nrscnd > 0 )
 	    {
-		if ( found )
+		if ( anyseenyet )
 		    ret.include( scndset[0], false );
 		else
 		{
+		    anyseenyet = true;
 		    ret.start = ret.stop = scndset[0];
-		    found = true;
 		}
+		if ( nrscnd > 1 )
+		    ret.include( scndset[nrscnd-1], false );
 	    }
-
-	    if ( nrscnd>1 )
-		ret.include( scndset[nrscnd-1], false );
 	}
     }
 
@@ -371,12 +374,15 @@ void Pos::IdxPairValueSet::copyStructureFrom( const IdxPairValueSet& vs )
 Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findOccurrence(
 					const IdxPair& ip, int occ ) const
 {
-    bool found; int idx = findIndexFor(frsts_,ip.first,&found);
+    bool found; int idx = findIndexFor( frsts_, ip.first, &found );
     SPos pos( found ? idx : -1, -1 );
+    if ( !found )
+	return pos;
+
     if ( pos.i >= 0 )
     {
-	const TypeSet<IdxType>& scnds = getScndSet(pos);
-	idx = findIndexFor(scnds,ip.second,&found);
+	const TypeSet<IdxType>& scnds = getScndSet( pos );
+	idx = findIndexFor( scnds, ip.second, &found );
 	pos.j = found ? idx : -1;
 	if ( found )
 	{
@@ -386,8 +392,12 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::findOccurrence(
 	}
     }
 
-    while ( occ > 0 && next(pos) )
-	occ--;
+    if ( found && occ )
+    {
+	while ( occ > 0 && next(pos) )
+	    occ--;
+    }
+
     return pos;
 }
 
@@ -396,7 +406,8 @@ bool Pos::IdxPairValueSet::next( SPos& pos, bool skip_dup ) const
 {
     if ( pos.i < 0 )
     {
-	if ( frsts_.size() < 1 ) return false;
+	if ( frsts_.size() < 1 )
+	    return false;
 	pos.i = pos.j = 0;
 	return true;
     }
@@ -405,7 +416,7 @@ bool Pos::IdxPairValueSet::next( SPos& pos, bool skip_dup ) const
     else if ( pos.j < 0 )
 	{ pos.j = 0; return true; }
 
-    const TypeSet<IdxType>& scnds = getScndSet(pos);
+    const TypeSet<IdxType>& scnds = getScndSet( pos );
     if ( pos.j > scnds.size()-2 )
     {
 	pos.j = 0;
@@ -425,21 +436,25 @@ bool Pos::IdxPairValueSet::next( SPos& pos, bool skip_dup ) const
 
 bool Pos::IdxPairValueSet::prev( SPos& pos, bool skip_dup ) const
 {
-    if ( !pos.isValid() )
-	return false;
-    if ( pos.i == 0 && pos.j == 0)
-	{ pos.i = pos.j = -1; return false; }
-
-    IdxType curscnd = getScnd(pos);
-    if ( pos.j )
-	pos.j--;
-    else
+    if ( pos.j < 0 )
     {
 	pos.i--;
-	pos.j = getScndSet(pos).size() - 1;
+	if ( pos.i >= 0 )
+	    pos.j = getScndSet(pos).size() - 1;
     }
+    if ( pos.i < 0 || pos.j < 0 )
+	return false;
+    else if ( pos.i == 0 && pos.j == 0 )
+	{ pos.i = pos.j = -1; return false; }
 
-    if ( !skip_dup ) return true;
+    IdxType curscnd = getScnd( pos );
+    if ( pos.j > 0 )
+	pos.j--;
+    else
+	{ pos.i--; pos.j = getScndSet(pos).size() - 1; }
+
+    if ( !skip_dup )
+	return true;
 
     while ( getScnd(pos) == curscnd )
 	return prev( pos, true );
