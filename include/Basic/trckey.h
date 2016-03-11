@@ -62,24 +62,28 @@ public:
 			{ survid_ = id; return *this; }
 
     const BinID&	position() const		{ return pos_; }
-    const BinID&	binID() const			{ return pos_; }
-    IdxType		inl() const			{ return pos_.row(); }
-    IdxType		lineNr() const; //		{ return pos_.row(); }
-    IdxType		crl() const			{ return pos_.col(); }
-    IdxType		trcNr() const;	//		{ return pos_.col(); }
-    inline TrcKey&	setPos( const BinID& bid )
+    IdxType		lineNr() const;		//	{ return pos_.row(); }
+    IdxType		trcNr() const;		//	{ return pos_.col(); }
+    const BinID&	binID() const			{ return position(); }
+    IdxType		inl() const			{ return lineNr(); }
+    IdxType		crl() const			{ return trcNr(); }
+    inline TrcKey&	setPosition( const BinID& bid )
 			{ pos_ = bid; return *this; }
-    inline TrcKey&	setInl( IdxType nr )
-			{ pos_.row() = nr; return *this; }
     inline TrcKey&	setLineNr( IdxType nr )
 			{ pos_.row() = nr; return *this; }
-    inline TrcKey&	setCrl( IdxType nr )
-			{ pos_.col() = nr; return *this; }
     inline TrcKey&	setTrcNr( IdxType nr )
 			{ pos_.col() = nr; return *this; }
+    inline TrcKey&	setBinID( const BinID& bid )
+			{ return setPosition(bid); }
+    inline TrcKey&	setInl( IdxType nr )
+			{ return setLineNr(nr); }
+    inline TrcKey&	setCrl( IdxType nr )
+			{ return setTrcNr(nr); }
 
-    /* mDeprecated */ const BinID& pos() const		{ return pos_; }
+    /* mDeprecated */ const BinID& pos() const	{ return pos_; }
 			//!< Will go after 6.0. Use position() or binID()
+    /* mDeprecated */ void setPos( const BinID& bid )	{ pos_ = bid; }
+			//!< Will go after 6.0. Use setPosition()
     /* mDeprecated */ IdxType& lineNr();	//	{ return pos_.row(); }
 			//!< Will go after 6.0. Use a set function
     /* mDeprecated */ IdxType& trcNr();		//	{ return pos_.col(); }
