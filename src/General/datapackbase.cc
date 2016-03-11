@@ -572,6 +572,21 @@ void SeisDataPack::setScaler( const Scaler& scaler )
 }
 
 
+void SeisDataPack::deleteScaler()
+{
+    deleteAndZeroPtr( scaler_ );
+}
+
+
+void SeisDataPack::setDataDesc( const BinDataDesc& dc )
+{
+    if ( dc != desc_ && !isEmpty() )
+	deepErase( arrays_ );
+
+    desc_ = dc;
+}
+
+
 float SeisDataPack::nrKBytes() const
 {
     const int nrcomps = nrComponents();

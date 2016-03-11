@@ -240,6 +240,7 @@ public:
 				{ return *zdomaininfo_; }
 
     void			setScaler(const Scaler&);
+    void			deleteScaler();
     const Scaler*		getScaler() const	{ return scaler_; }
 
     void			setRefNrs( const TypeSet<float>& refnrs )
@@ -247,6 +248,8 @@ public:
     float			getRefNr(int globaltrcidx) const;
 
     const BinDataDesc&		getDataDesc() const	{ return desc_; }
+    void			setDataDesc(const BinDataDesc&);
+				//<! Will remove incompatible arrays if any
 
     float			nrKBytes() const;
     void			dumpInfo(IOPar&) const;
