@@ -206,17 +206,17 @@ bool Location::fromString( const char* s )
     if ( trckey_.is2D() )
     {
 	if ( Survey::GM().getGeometry(firstkey) )
-	    trckey_.lineNr() = firstkey;
+	    trckey_.setLineNr( firstkey );
     }
     else
     {
 	if ( !Survey::GM().getGeometry3D(survid) )
 	    return false;
 
-	trckey_.lineNr() = firstkey; //No check for valid inline number ?
+	trckey_.setLineNr( firstkey ); //No check for valid inline number ?
     }
 
-    trckey_.trcNr() = getNextInt( str ); //No check for valid trace number ?
+    trckey_.setTrcNr( getNextInt(str) ); //No check for valid trace number ?
 
     return !trckey_.position().isUdf();
 }

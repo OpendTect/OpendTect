@@ -313,9 +313,9 @@ TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
     TrcKeyValue newseed = newseedin;
     TrcKey& newtk = newseed.tk_;
     if ( !mIsUdf(prevseedpos) && newtk.trcNr()<=prevseedpos )
-	newtk.trcNr() = prevseedpos + colrg.step;
+	newtk.setTrcNr( prevseedpos + colrg.step );
     else if ( !mIsUdf(nextseedpos) && newtk.trcNr()>=nextseedpos )
-	newtk.trcNr() = nextseedpos - colrg.step;
+	newtk.setTrcNr( nextseedpos - colrg.step );
 
     removeSeed( oldseed, true, false );
     addSeed( newseed, false, newseed );
@@ -379,7 +379,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	const TrcKey prevtk = curtk;
 	const bool prevdefined = curdefined;
 
-	curtk.trcNr() += step;
+	curtk.setTrcNr( curtk.trcNr() + step );
 
 	// reaching end of line
 	if ( !colrg.includes(curtk.trcNr(),false) )
@@ -530,10 +530,10 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 
 	double totarclen = 0.0;
 	Coord prevpos = startpos;
-	tk.trcNr() = sortval[vtx];
+	tk.setTrcNr( sortval[vtx] );
 	while ( tk.trcNr()<sortval[vtx+1] )
 	{
-	    tk.trcNr() += colrg.step;
+	    tk.setTrcNr( tk.trcNr() + colrg.step );
 	    const Coord curpos = hor->getCoord( tk );
 	    if ( !curpos.isDefined() )
 		continue;
@@ -544,9 +544,10 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 
 	double arclen = 0.0;
 	prevpos = startpos;
-	tk.trcNr() = sortval[vtx] + colrg.step;
-	for ( ; tk.trcNr()<sortval[vtx+1]; tk.trcNr() += colrg.step  )
+	for ( Pos::TraceID tnr=sortval[vtx] + colrg.step;
+		tnr<sortval[vtx+1]; tnr += colrg.step  )
 	{
+	    tk.setTrcNr( tnr );
 	    const Coord curpos = hor->getCoord( tk );
 	    if ( !curpos.isDefined() )
 		continue;

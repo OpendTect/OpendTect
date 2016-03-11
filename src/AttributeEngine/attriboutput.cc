@@ -175,7 +175,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
     }
 
     const TrcKeyZSampling& tkzs = output_->sampling();
-    if ( !tkzs.hsamp_.includes(info.binid) )
+    if ( !tkzs.hsamp_.includes(info.binID()) )
 	return;
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
@@ -198,8 +198,8 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
 				 mMIN(inputrg.stop, outrg.stop ) );
-    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.binid.inl());
-    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.binid.crl() );
+    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.inl());
+    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.crl() );
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -445,7 +445,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( sz, dc, false );
     }
-    else if ( trc_->info().binid != info.binid )
+    else if ( trc_->info().binID() != info.binID() )
     {
 	errmsg_ = tr("merge components of two different traces!");
 	return;
@@ -703,7 +703,7 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 void LocationOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( info.binid );
+    BinIDValueSet::SPos pos = bidvalset_.find( info.binID() );
     if ( !pos.isValid() ) return;
 
     const int desnrvals = desoutputs_.size()+1;
@@ -732,7 +732,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	    computeAndSetVals( data, refstep, vals );
 
 	bidvalset_.next( pos );
-	if ( info.binid != bidvalset_.getBinID(pos) )
+	if ( info.binID() != bidvalset_.getBinID(pos) )
 	    break;
     }
 }
@@ -848,7 +848,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     const int trcsz = mNINT32(stdtrcsz_/refstep) + 1;
     const float trcstarttime = mNINT32(stdstarttime_/refstep) * refstep;
     const int startidx = data.z0_ - mNINT32(trcstarttime/refstep);
-    const int index = outpbuf_->find( info.binid );
+    const int index = outpbuf_->find( info.binID() );
 
     SeisTrc* trc;
     if ( index == -1 )
@@ -1056,7 +1056,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( trcsz, dc, false );
     }
-    else if ( trc_->info().binid != info.binid )
+    else if ( trc_->info().binID() != info.binID() )
     {
 	errmsg_ = tr("merge components of two different traces!");
 	return;
@@ -1182,10 +1182,10 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 {
     const Coord coord = info.coord_;
     DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(coord)
-					  : datapointset_.findFirst(info.binid);
+				      : datapointset_.findFirst(info.binID());
     if ( rid< 0 && datapointset_.is2D() )
     {
-	//TODO remove when datapointset is snaped
+	//TODO remove when datapointset is snapped
 	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
 	{
 	    if ( coord > datapointset_.coord(idx) &&

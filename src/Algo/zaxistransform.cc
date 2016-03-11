@@ -233,7 +233,7 @@ bool ZAxisTransform::usePar( const IOPar& par )
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 					      bool b,
 					      const SamplingData<double>& nsd,
-       					      bool is2d	)
+					      bool is2d	)
     : transform_(trans)
     , back_(b)
     , trckey_(0,BinID(0,0))
@@ -256,11 +256,11 @@ void ZAxisTransformSampler::setLineName( const char* lnm )
 
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ trckey_.trcNr() = trcnr; }
+{ trckey_.setTrcNr( trcnr ); }
 
 
 void ZAxisTransformSampler::setBinID( const BinID& bid )
-{ trckey_ = TrcKey( bid ); }
+{ trckey_.setBinID( bid ); }
 
 
 float ZAxisTransformSampler::operator[](int idx) const

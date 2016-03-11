@@ -431,8 +431,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( !source )
 	return 0;
 
-    ConstRefMan<Vel::Function> func =
-	source->getFunction( BinID(trckey_.lineNr(),trckey_.trcNr()) );
+    ConstRefMan<Vel::Function> func = source->getFunction( trckey_.binID() );
     if ( !func )
 	return 0;
 

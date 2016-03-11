@@ -62,26 +62,30 @@ public:
 			{ survid_ = id; return *this; }
 
     const BinID&	position() const		{ return pos_; }
-    const BinID&	binID() const			{ return pos_; }
-    IdxType		inl() const			{ return pos_.row(); }
     IdxType		lineNr() const			{ return pos_.row(); }
-    IdxType		crl() const			{ return pos_.col(); }
     IdxType		trcNr() const			{ return pos_.col(); }
-    inline TrcKey&	setPos( const BinID& bid )
+    const BinID&	binID() const			{ return position(); }
+    IdxType		inl() const			{ return lineNr(); }
+    IdxType		crl() const			{ return trcNr(); }
+    inline TrcKey&	setPosition( const BinID& bid )
 			{ pos_ = bid; return *this; }
-    inline TrcKey&	setInl( IdxType nr )
-			{ pos_.row() = nr; return *this; }
     inline TrcKey&	setLineNr( IdxType nr )
 			{ pos_.row() = nr; return *this; }
-    inline TrcKey&	setCrl( IdxType nr )
-			{ pos_.col() = nr; return *this; }
     inline TrcKey&	setTrcNr( IdxType nr )
 			{ pos_.col() = nr; return *this; }
+    inline TrcKey&	setBinID( const BinID& bid )
+			{ return setPosition(bid); }
+    inline TrcKey&	setInl( IdxType nr )
+			{ return setLineNr(nr); }
+    inline TrcKey&	setCrl( IdxType nr )
+			{ return setTrcNr(nr); }
 
-    /* mDeprecated */ BinID& pos()			{ return pos_; }
+    // mDeprecated  BinID& pos()			{ return pos_; }
 			//!< Don't use. Use one of the 'set' fns.
-    /* mDeprecated */ IdxType& lineNr()			{ return pos_.row(); }
-    /* mDeprecated */ IdxType& trcNr()			{ return pos_.col(); }
+    // mDeprecated IdxType& lineNr()			{ return pos_.row(); }
+			//!< Don't use. Use one of the 'set' fns.
+    // mDeprecated IdxType& trcNr()			{ return pos_.col(); }
+			//!< Don't use. Use one of the 'set' fns.
 
 private:
 

@@ -31,7 +31,7 @@ public:
                     , azimuth( azimuth_ )
                     , pick( pick_ )
                     , refnr( refnr_ )
-                    , binid( trckey_.pos() )
+                    , binid( const_cast<BinID&>(trckey_.binID()) )
                 { clear(); }
 
                 PosAuxInfo( const PosAuxInfo& b)
@@ -47,13 +47,13 @@ public:
                     , azimuth( azimuth_ )
                     , pick( pick_ )
                     , refnr( refnr_ )
-                    , binid( trckey_.pos() )
+                    , binid( const_cast<BinID&>(trckey_.binID()) )
                 {}
 
     void	clear()
 		{
-                    trckey_.setPos(BinID(0,0));
-                    trckey_.setSurvID( mUdf(Pos::SurvID) );
+                    trckey_.setBinID(BinID(0,0))
+			   .setSurvID( mUdf(Pos::SurvID) );
 		    coord_.x = coord_.y = 0;
 		    startpos_ = offset_ = azimuth_ = 0;
 		    pick_ = refnr_ = mUdf(float);

@@ -74,7 +74,7 @@ int BaseHorizon3DExtender::nextStep()
     TypeSet<BinID> sourcenodes;
 
     for ( int idx=0; idx<startpos_.size(); idx++ )
-	sourcenodes += startpos_[idx].pos();
+	sourcenodes += startpos_[idx].binID();
 
     if ( sourcenodes.size() == 0 )
 	return 0;

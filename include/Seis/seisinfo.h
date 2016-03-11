@@ -30,8 +30,7 @@ public:
     typedef IdxPair::IdxType IdxType;
 
 			SeisTrcInfo();
-			SeisTrcInfo( const SeisTrcInfo& oth )
-			    : binid(trckey_.pos())  { *this = oth; }
+			SeisTrcInfo(const SeisTrcInfo&);
     SeisTrcInfo&	operator =(const SeisTrcInfo&);
 
     TrcKey		trckey_;
@@ -47,11 +46,11 @@ public:
     inline IdxType	inl() const		{ return trckey_.inl(); }
     inline IdxType	crl() const		{ return trckey_.crl(); }
     inline SeisTrcInfo&	setBinID( const BinID& bid )
-			{ trckey_.setPos(bid); return *this; }
-    inline SeisTrcInfo&	setInl( IdxType nr )
-			{ trckey_.setInl(nr); return *this; }
-    inline SeisTrcInfo&	setCrl( IdxType nr )
-			{ trckey_.setCrl(nr); return *this; }
+			{ trckey_.setBinID(bid); return *this; }
+    inline SeisTrcInfo&	setInl( IdxType inr )
+			{ trckey_.setInl(inr); return *this; }
+    inline SeisTrcInfo&	setCrl( IdxType inr )
+			{ trckey_.setCrl(inr); return *this; }
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
@@ -85,6 +84,13 @@ public:
     float		zref_;		// not stored
     bool		new_packet_;	// not stored
 
+    mDeprecated IdxType& nr;
+    mDeprecated Coord&	coord;
+    mDeprecated SamplingData<float>& sampling;
+    mDeprecated float&	offset;
+    mDeprecated float&	azimuth;
+    mDeprecated float&	refnr;
+    mDeprecated float&	pick;
     /* mDeprecated */ BinID& binid;
 			//!< in new code, use binID()/setBinID() instead
 

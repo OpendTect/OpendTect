@@ -69,7 +69,7 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 	else
 	{
 	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.binID()) );
-	    const Coord nearcoord( transform(nearbid.pos()) );
+	    const Coord nearcoord( transform(nearbid.binID()) );
 	    *dist = (float)nearcoord.distTo( crd );
 	}
     }

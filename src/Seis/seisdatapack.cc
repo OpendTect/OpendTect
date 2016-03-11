@@ -455,7 +455,8 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     if ( is2D() )
     {
 	const int trcidx = nrTrcs()==1 ? 0 : i0;
-	iop.set( mKeyTrcNr, getTrcKey(trcidx).trcNr() );
+	const TrcKey& tk = getTrcKey( trcidx );
+	iop.set( mKeyTrcNr, tk.trcNr() );
 	iop.set( mKeyRefNr, source_.getRefNr(trcidx) );
     }
     else

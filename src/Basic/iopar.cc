@@ -903,13 +903,13 @@ bool IOPar::get( const char* keyw, TrcKey& tk ) const
     if ( !get( keyw, sid, linenr, trcnr ) )
 	return false;
 
-    tk.setSurvID( sid );
-    tk.trcNr() = trcnr;
-    tk.lineNr() = linenr;
+    tk.setSurvID( sid ).setLineNr( linenr ).setTrcNr( trcnr );
     return true;
 }
 void IOPar::set( const char* keyw, const TrcKey& tk )
-{ set( keyw, tk.survID(), tk.lineNr(), tk.trcNr() ); }
+{
+    set( keyw, tk.survID(), tk.lineNr(), tk.trcNr() );
+}
 
 
 bool IOPar::get( const char* keyw, SeparString& ss ) const

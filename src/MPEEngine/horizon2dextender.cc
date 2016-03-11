@@ -90,13 +90,14 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
     const StepInterval<int> colrange =
 	hor2d_.geometry().colRange( sid_, geomid_ );
     TrcKey neighbor = src;
-    neighbor.trcNr() += upwards ? colrange.step : -colrange.step;
+    neighbor.setTrcNr( neighbor.trcNr()
+	    + (upwards ? colrange.step : -colrange.step) );
     if ( !colrange.includes(neighbor.trcNr(),false) )
 	return;
 
     const TrcKeyZSampling& boundary = getExtBoundary();
     if ( !boundary.isEmpty() &&
-	    !boundary.hsamp_.includes(neighbor.pos()) )
+	    !boundary.hsamp_.includes(neighbor.position()) )
 	return;
 
     const bool hasz = hor2d_.hasZ( neighbor );

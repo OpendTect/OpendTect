@@ -351,10 +351,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
     curtrcinfo_ = 0;
     const SeisTrcInfo& newti = trc->info();
-    currentbid_ = desc_.is2D()? BinID( 0, newti.nr_ ) : newti.binid;
-    trcinfobid_ = newti.binid;
+    currentbid_ = desc_.is2D()? BinID( 0, newti.nr_ ) : newti.binID();
+    trcinfobid_ = newti.binID();
     if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
-	    || newti.binid == startpos )
+	    || newti.binID() == startpos )
     {
 	advancefurther = false;
 	curtrcinfo_ = &trc->info();
@@ -849,7 +849,7 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
 
     Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
     trcrange.widen( 0.001f * trc->info().sampling_.step );
-    const BinID bid = trc->info().binid;
+    const BinID bid = trc->info().binID();
     if ( !dc->sampling().hsamp_.includes(bid) )
 	return;
 

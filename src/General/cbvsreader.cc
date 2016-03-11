@@ -528,17 +528,17 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     od_stream::Pos curfo mUnusedVar = strm_.position();
 #endif
 
-    auxinf.trckey_.setPos(curbinid_);
+    auxinf.trckey_.setBinID( curbinid_ );
     auxinf.coord_ = info_.geom_.b2c.transform( curbinid_ );
     auxinf.startpos_ = info_.sd_.start;
     auxinf.offset_ = auxinf.azimuth_ = 0;
-    auxinf.pick_ = mSetUdf(auxinf.refnr_);
+    auxinf.pick_ = mSetUdf( auxinf.refnr_ );
 
     if ( auxnrbytes_ < 1 )
 	return true;
 
     if ( hinfofetched_ )
-	strm_.setPosition(-auxnrbytes_, od_stream::Rel );
+	strm_.setPosition( -auxnrbytes_, od_stream::Rel );
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos_)
