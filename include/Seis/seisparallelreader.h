@@ -155,14 +155,30 @@ public:
 					 const TypeSet<int>* components=0);
 			~SequentialReader();
 
+    void		setComponents( const TypeSet<int>& compnrs )
+			{ components_ = compnrs; }
+    bool		setOutputComponents(const TypeSet<int>&);
+			/*!< If and only if different from components_
+			     For instance to map the input component 3
+			     with the output component 2
+			     Returns false if size different from components_
+			 */
+
     void		setDataChar(DataCharacteristics::UserType);
     void		setScaler(Scaler*); //!< Scaler becomes mine
+
     bool		init();
+    bool		setDataPack(RegularSeisDataPack&,od_ostream* strm=0);
+			/*!< No need for init if setDataPack is called
+			     Will allocate memory if not done already
+			     Scaler and sampling get forwarded to the reader
+			     DataChar is not forwarded
+			*/
 
     RegularSeisDataPack* getDataPack();
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+    uiString		uiNrDoneText() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
     int			nextStep();
