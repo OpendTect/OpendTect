@@ -50,6 +50,10 @@ namespace Pos
   \endcode
   but that will be very inefficient.
 
+  Note that you can use null pointers to add or set 'empty' slots.
+  Note also: ObjSz is od_int64. Keep it like that as it ensures good index
+  arithmetic for the buffers.
+
  */
 
 
@@ -57,34 +61,34 @@ mExpClass(General) IdxPairDataSet
 {
 public:
 
-    typedef IdxPair::IdxType	IdxType;
+    typedef IdxPair::IdxType		IdxType;
+    typedef TypeSet<IdxType>::size_type	ArrIdxType;
+    typedef od_int64			ObjSzType;
+    typedef od_int64			GlobIdxType;
 
-    /*!\brief position in IdxPairDataSet; an iterator.
+    /*!\brief Set Position: position in IdxPairDataSet
 
       Note that the iterator becomes invalid when adding or removing from
       the set.
      */
     struct SPos
     {
-			SPos( int ii=-1, int jj=-1 )
+			SPos( ArrIdxType ii=-1, ArrIdxType jj=-1 )
 			    : i(ii), j(jj)	{}
-	void		reset()			{ i = j = -1; }
-	inline bool	operator ==( const SPos& p ) const
-						{ return i == p.i && j == p.j; }
-	inline bool	operator !=( const SPos& p ) const
-						{ return i != p.i || j != p.j; }
-	inline bool	operator>( const SPos& p ) const
-			{ if ( i>p.i ) return true; return i==p.i && j>p.j; }
-	inline bool	operator<( const SPos& p ) const
-			{ if ( i<p.i ) return true; return i==p.i && j<p.j; }
-	inline bool	isValid() const		{ return i > -1 && j > -1; }
+	void		reset()		{ i = j = -1; }
+	inline bool	operator ==( const SPos& oth ) const
+					{ return i == oth.i && j == oth.j; }
+	inline bool	operator !=( const SPos& oth ) const
+					{ return i != oth.i || j != oth.j; }
+	inline bool	operator>(const SPos&) const;
+	inline bool	operator<(const SPos&) const;
+	inline bool	isValid() const	{ return i > -1 && j > -1; }
 
-	int		i, j;
+	ArrIdxType	i, j;
     };
 
 
-			IdxPairDataSet(od_int64 objsz,
-					bool allow_duplicate_idxpairs,
+			IdxPairDataSet(ObjSzType,bool allow_duplicate_idxs,
 					bool manage_data=true);
 			IdxPairDataSet(const IdxPairDataSet&);
     virtual		~IdxPairDataSet();
@@ -101,45 +105,52 @@ public:
     bool		append(const IdxPairDataSet&);
     void		remove(const IdxPairDataSet&);
     void		remove(const TrcKeySampling& hrg,bool inside);
-    void		remove(const SPos&);
-			//!< afterwards, SPos may be invalid
+    void		remove(SPos); //!< afterwards, input SPos may be invalid
     void		remove(const TypeSet<SPos>&);
 			//!< You cannot remove while iterating, so ...
 			//!< collect the to-be-removed and use this instead
 
     inline SPos		find( const IdxPair& ip ) const
-			{ return findOccurrence( ip, 0 ); }
+						{ return findFirst(ip); }
+    inline SPos		findFirst( const IdxPair& ip ) const
+						{ return findOccurrence(ip,0); }
     SPos		findOccurrence(const IdxPair&,int occ=0) const;
-			//!< not found: j < 0.
-			//!< still, i can be >= 0 , then the inline is present
-			//!< Then, next(pos) will return the first on that inl.
     bool		next(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		prev(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		isValid(const IdxPair&) const;
 
-    IdxPair		getIdxPair(const SPos&) const;
-    const void*		getObj(const SPos&) const;
-    SPos		getPos(od_int64 global_idx) const; //!< Very slow.
+    IdxPair		getIdxPair(SPos) const;
+    const void*		getObj(SPos) const;
+    SPos		getPos(GlobIdxType) const; //!< Very slow.
     SPos		add(const IdxPair&,const void* obj=0);
+			    //!< If returned SPos is not valid memory was full
     void		set(SPos,const void* obj=0);
-			    //!< no checks on whether SPos is actually in set!
-			    //!< in doubt, use isValid(SPos) .
+			    //!< Will *not* check whether SPos is in set
+			    //!< When iterating, this is not an issue
+			    //!< If unsure, check isValid(SPos)
+    void		set( const IdxPair& ip, const void* obj=0 )
+						{ set( findFirst(ip), obj ); }
+			    //!< May do the wrong thing if you have duplicates
+    SPos		update(const IdxPair&,const void* obj=0);
+			    //!< May do the wrong thing if you have duplicates
+			    //!< Will add if necessary
+			    //!< If returned SPos is not valid memory was full
 
-    inline int		nrFirst() const		{ return frsts_.size(); }
-    int			nrSecond(IdxType firstidx) const;
+    inline ArrIdxType	nrFirst() const		{ return frsts_.size(); }
+    ArrIdxType		nrSecond(IdxType firstidx) const;
     inline bool		includes( const IdxPair& ip ) const
 						{ return find(ip).j > -1; }
     bool		hasFirst(IdxType) const;
     bool		hasSecond(IdxType) const;
     IdxPair		firstIdxPair() const; //!< when empty returns udf()
-    od_int64		totalSize() const;
+    GlobIdxType		totalSize() const;
     Interval<IdxType>	firstRange() const;
     Interval<IdxType>	secondRange(IdxType firsidx=-1) const;
 
     bool		hasDuplicateIdxPairs() const;
-    int			nrDuplicateIdxPairs() const;
+    ArrIdxType		nrDuplicateIdxPairs() const;
     void		removeDuplicateIdxPairs();
-    int			nrPos(int lineidx) const; //!< nth line in the set
+    ArrIdxType		nrPos(ArrIdxType lineidx) const;
 
 			// Convenience stuff
     void		extend(const IdxPairDelta& stepout,const IdxPairStep&);
@@ -151,67 +162,109 @@ public:
     bool		slurp(od_istream&,bool binary);
 
 			// aliases
-    inline int		nrInls() const		    { return nrFirst(); }
-    inline int		nrCrls( IdxType inl ) const { return nrSecond(inl); }
-    inline int		nrRows() const		    { return nrFirst(); }
-    inline int		nrCols( IdxType row ) const { return nrSecond(row); }
+    inline ArrIdxType	nrInls() const		    { return nrFirst(); }
+    inline ArrIdxType	nrCrls( IdxType inl ) const { return nrSecond(inl); }
+    inline ArrIdxType	nrRows() const		    { return nrFirst(); }
+    inline ArrIdxType	nrCols( IdxType row ) const { return nrSecond(row); }
     bool		hasInl( IdxType inl ) const { return hasFirst(inl); }
     bool		hasCrl( IdxType crl ) const { return hasSecond(crl); }
     inline bool		hasRow( IdxType row ) const { return hasFirst(row); }
     inline bool		hasCol( IdxType col ) const { return hasSecond(col); }
-    Interval<int>	inlRange() const	    { return firstRange(); }
-    Interval<int>	rowRange() const	    { return firstRange(); }
-    Interval<int>	crlRange( IdxType inl=-1 ) const
+    Interval<IdxType>	inlRange() const	    { return firstRange(); }
+    Interval<IdxType>	rowRange() const	    { return firstRange(); }
+    Interval<IdxType>	crlRange( IdxType inl=-1 ) const
 						    { return secondRange(inl); }
-    Interval<int>	colRange( IdxType row=-1 ) const
+    Interval<IdxType>	colRange( IdxType row=-1 ) const
 						    { return secondRange(row); }
 
 protected:
 
     typedef TypeSet<IdxType>	IdxSet;
-    typedef ObjectSet<const void> ObjSet;
-    typedef unsigned char	StorType;
+    typedef od_int64		BufSzType;
 
-    const od_int64	objsz_;
+    class ObjData
+    {
+    public:
+	typedef unsigned char	BufType;
+
+				ObjData() : buf_(0), bufsz_(0), lastidx_(-1)
+						    { objs_.allowNull(true); }
+				ObjData(const ObjData&);
+				~ObjData()	    { delete [] buf_; }
+
+	const void*		getObj(bool,ArrIdxType,ObjSzType) const;
+	bool			putObj(bool,ArrIdxType,ObjSzType,const void*);
+	void			removeObj(bool,ArrIdxType,ObjSzType);
+
+    private:
+
+	ObjectSet<const void>	objs_; // used if not mandata
+
+	BufType*		buf_;
+	BufSzType		bufsz_;
+	ArrIdxType		lastidx_;
+	bool			isNull(ArrIdxType,ObjSzType) const;
+	void			setIsNull(ArrIdxType,ObjSzType,bool);
+	bool			manageBufCapacity(ObjSzType);
+				//Note: we alloc 1 extra byte per obj for isnull
+
+    };
+
+    const ObjSzType	objsz_;
     const bool		mandata_;
     bool		allowdup_;
 
     IdxSet		frsts_;
     ObjectSet<IdxSet>	scndsets_;
-    ObjectSet<ObjSet>	objsets_;
+    ObjectSet<ObjData>	objdatas_;
 
-    void*		getObjCopy(const void*) const;
-    void		addNew(SPos&,IdxType,const void*);
-    void		deleteObj( const void* obj )
-				{ delete [] ((StorType*)obj); }
-    void		retireObj( const void* obj )
-				{ if ( mandata_ ) deleteObj( obj ); }
+    static ArrIdxType	findIndexFor(const IdxSet&,IdxType,bool* found=0);
+    const void*		gtObj(const SPos&) const;
+    bool		putObj(const SPos&,const void*);
+    bool		addObj(SPos&,IdxType,const void*);
+    void		addEntry(const Pos::IdxPair&,const void*,SPos&);
 
     // All 'gt' functions return unchecked
     inline IdxType	gtFrst( const SPos& pos ) const
 				{ return frsts_[pos.i]; }
     inline IdxType	gtScnd( const SPos& pos ) const
 				{ return gtScndSet(pos)[pos.j]; }
-    inline const void*	gtObj( const SPos& pos ) const
-				{ return gtObjSet(pos)[pos.j]; }
+    inline IdxPair	gtIdxPair( const SPos& pos ) const
+				{ return IdxPair( gtFrst(pos), gtScnd(pos) ); }
     inline IdxSet&	gtScndSet( const SPos& pos )
 				{ return *scndsets_[pos.i]; }
     inline const IdxSet& gtScndSet( const SPos& pos ) const
 				{ return *scndsets_[pos.i]; }
-    inline ObjSet&	gtObjSet( const SPos& pos )
-				{ return *objsets_[pos.i]; }
-    inline const ObjSet& gtObjSet( const SPos& pos ) const
-				{ return *objsets_[pos.i]; }
-    inline IdxSet&	gtScndSet( int idx )
+    inline ObjData&	gtObjData( const SPos& pos )
+				{ return *objdatas_[pos.i]; }
+    inline const ObjData& gtObjData( const SPos& pos ) const
+				{ return *objdatas_[pos.i]; }
+    inline IdxSet&	gtScndSet( ArrIdxType idx )
 				{ return *scndsets_[idx]; }
-    inline const IdxSet& gtScndSet( int idx ) const
+    inline const IdxSet& gtScndSet( ArrIdxType idx ) const
 				{ return *scndsets_[idx]; }
-    inline ObjSet&	gtObjSet( int idx )
-				{ return *objsets_[idx]; }
-    inline const ObjSet& gtObjSet( int idx ) const
-				{ return *objsets_[idx]; }
+    inline ObjData&	gtObjData( ArrIdxType idx )
+				{ return *objdatas_[idx]; }
+    inline const ObjData& gtObjData( ArrIdxType idx ) const
+				{ return *objdatas_[idx]; }
 
 };
+
+
+inline bool IdxPairDataSet::SPos::operator >( const SPos& oth ) const
+{
+    if ( i > oth.i )
+	return true;
+    return i == oth.i && j > oth.j;
+}
+
+
+inline bool IdxPairDataSet::SPos::operator <( const SPos& oth ) const
+{
+    if ( i < oth.i )
+	return true;
+    return i == oth.i && j < oth.j;
+}
 
 
 } // namespace Pos
