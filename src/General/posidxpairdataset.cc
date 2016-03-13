@@ -40,7 +40,7 @@ const void* Pos::IdxPairDataSet::ObjData::getObj( bool mandata, ArrIdxType idx,
     if ( !mandata )
 	return objs_[idx];
 
-    return objsz == 0 || isNull(objsz,idx) ? 0 : buf_ + (objsz+1)*idx;
+    return objsz == 0 || isNull(idx,objsz) ? 0 : buf_ + (objsz+1)*idx;
 }
 
 
