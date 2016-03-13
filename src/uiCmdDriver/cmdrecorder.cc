@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 #include <sstream>
-#include <string.h>
 
 #include "ascstream.h"
 #include "oddirs.h"
@@ -809,7 +808,8 @@ void CmdRecorder::flush()
     }
 
     if ( nrvoidchars )
-	memmove( bufstr_.getCStr(), bufstr_.buf()+nrvoidchars,sz-nrvoidchars+1);
+	OD::memMove( bufstr_.getCStr(),
+		     bufstr_.buf()+nrvoidchars,sz-nrvoidchars+1);
 }
 
 

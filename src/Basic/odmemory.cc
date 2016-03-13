@@ -76,6 +76,19 @@ void OD::memCopy( void* dest, const void* org, od_int64 sz )
 }
 
 
+void OD::memMove( void* dest, const void* org, od_int64 sz )
+{
+    if ( sz <= 0 )
+	return;
+    else if ( !dest )
+	{ pFreeFnErrMsg("dest null"); return; }
+    else if ( !org )
+	{ pFreeFnErrMsg("org null"); return; }
+
+    memmove( dest, org, (size_t)sz );
+}
+
+
 void OD::memSet( void* data, char setto, od_int64 sz )
 {
     if ( sz <= 0 )

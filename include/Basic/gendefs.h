@@ -41,14 +41,16 @@ ________________________________________________________________________
 
 namespace OD
 {
-    // For large memory operations: consider using odmemory.h tools.
+    // For guaranteed small or large operations: consider using odmemory.h
 
-    //! Simple function; use if your data is measured in kBs or less
+    //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memCopy(void*,const void*,od_int64);
-    //! Simple function; use if your data is measured in kBs or less
+    //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memSet(void*,char,od_int64);
-    //! Simple function; use if your data is measured in kBs or less
+    //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memZero(void*,od_int64);
+    //! Function will figure out which is fastest depending on size
+    mGlobal(Basic) void	memMove(void*,const void*,od_int64);
 
 }
 
