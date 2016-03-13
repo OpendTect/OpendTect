@@ -125,7 +125,7 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
 
     const ObjSzType recsz = objsz + 1;
     const ArrIdxType newnrobjs = lastidx_ + 1;
-    ArrIdxType nrobjs = bufsz_ / recsz;
+    ArrIdxType nrobjs = (ArrIdxType)(bufsz_ / recsz);
     const bool needmore = newnrobjs > nrobjs;
     if ( !needmore && newnrobjs > nrobjs/2 )
 	return true;
