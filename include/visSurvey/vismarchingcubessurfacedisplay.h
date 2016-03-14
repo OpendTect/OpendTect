@@ -95,6 +95,8 @@ public:
     void			removeSelection(const Selector<Coord3>&,
 						TaskRunner*);
     EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
+    visBase::MarchingCubesSurface* getDisplaySurface() const
+						{ return displaysurface_; }
 
 protected:
 
