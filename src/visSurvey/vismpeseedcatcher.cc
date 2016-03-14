@@ -63,6 +63,7 @@ MPEClickCatcher::~MPEClickCatcher()
     setDisplayTransformation( 0 );
     setEditor( 0 );
     rdmtkpaths.removeParam( &info_ );
+    rdlids.removeParam( &info_ );
 }
 
 

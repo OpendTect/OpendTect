@@ -83,6 +83,7 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
     cleanActStkContainer();
     delete f3dpainter_;
     deepErase( markeridinfo_ );
+    rdlids.removeParam( this );
 }
 
 
