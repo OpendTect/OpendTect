@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribposvecoutput.h"
 #include "attribprocessor.h"
 #include "attribsel.h"
-#include "uiattrsetman.h"
 #include "attribsetcreator.h"
 #include "attribstorprovider.h"
 
@@ -35,24 +34,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "ioman.h"
 #include "nlamodel.h"
-#include "datapointset.h"
-#include "rangeposprovider.h"
 #include "randomlinegeom.h"
+#include "rangeposprovider.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
-#include "seistrc.h"
 #include "seispreload.h"
-#include "survinfo.h"
+#include "seistrc.h"
 #include "settingsaccess.h"
+#include "survinfo.h"
 #include "zdomain.h"
 
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
 #include "uiattrgetfile.h"
-#include "uiattrsel.h"
-#include "uiattr2dsel.h"
-#include "uiattrvolout.h"
 #include "uiattribcrossplot.h"
+#include "uiattrsel.h"
+#include "uiattrsetman.h"
+#include "uiattrvolout.h"
+#include "uiattr2dsel.h"
+#include "uicrossattrevaluatedlg.h"
 #include "uievaluatedlg.h"
 #include "uigeninputdlg.h"
 #include "uiioobjseldlg.h"
@@ -60,10 +60,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uimultcomputils.h"
 #include "uimultoutsel.h"
+#include "uirgbattrseldlg.h"
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
-#include "uicrossattrevaluatedlg.h"
 
 int uiAttribPartServer::evDirectShowAttr()	{ return 0; }
 int uiAttribPartServer::evNewAttrSet()		{ return 1; }
@@ -412,6 +412,26 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	selspec.setRefFromID( attrdata.attrSet() );
     //selspec.setZDomainKey( dlg.zDomainKey() );
 
+    return true;
+}
+
+
+bool uiAttribPartServer::selectRGBAttribs( TypeSet<Attrib::SelSpec>& rgbtas,
+					   const ZDomain::Info* zinf,
+					   Pos::GeomID geomid )
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const bool is2d = geom && geom->is2D();
+    DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
+    if ( !adsman->descSet() )
+	return false;
+
+    uiRGBAttrSelDlg dlg( parent(), *adsman->descSet() );
+    dlg.setSelSpec( rgbtas );
+    if ( !dlg.go() )
+	return false;
+
+    dlg.fillSelSpec( rgbtas );
     return true;
 }
 
