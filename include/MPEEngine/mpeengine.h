@@ -144,6 +144,7 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
+    void			applClosingCB(CallBacker*);
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;

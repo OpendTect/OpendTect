@@ -67,11 +67,14 @@ Engine::Engine()
     flatcubescontainer_.allowNull();
 
     init();
+    mAttachCB( IOM().applicationClosing, Engine::applClosingCB );
 }
 
 
 Engine::~Engine()
 {
+    detachAllNotifiers();
+
     deepUnRef( trackers_ );
     deepUnRef( editors_ );
     deepErase( attribcachespecs_ );
@@ -997,5 +1000,13 @@ void Engine::init()
     attribcachedatapackids_.erase();
     attribbkpcachedatapackids_.erase();
 }
+
+
+void Engine::applClosingCB( CallBacker* )
+{
+    for ( int idx=trackers_.size()-1; idx>=0; idx-- )
+	removeTracker( idx );
+}
+
 
 } // namespace MPE
