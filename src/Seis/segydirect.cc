@@ -35,7 +35,7 @@ namespace SEGY
 const char* DirectDef::sKeyDirectDef()  { return "DirectSEG-Y"; }
 const char* DirectDef::sKeyFileType()   { return "SEG-Y Direct Definition"; }
 const char* DirectDef::sKeyNrFiles()	{ return "Number of files"; }
-const char* DirectDef::sKeyIOCompr()	{ return "Compress Fileoffset Table"; }
+const char* DirectDef::sKeyIOCompr()	{ return "Compressed Fileoffset Table";}
 const char* DirectDef::sKeyFloatDataChar()  { return "Float datachar"; }
 const char* DirectDef::sKeyInt32DataChar()  { return "Int32 datachar"; }
 const char* DirectDef::sKeyInt64DataChar()  { return "Int64 datachar"; }

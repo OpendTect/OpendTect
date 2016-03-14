@@ -344,9 +344,15 @@ bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
 		      .getBin( crlseg.step ).getBin( fiseg.start )
 		      .getBin( fiseg.stop ).getBin( fiseg.step );
 
+		if ( (crlseg.step > 0 && crlseg.start > crlseg.stop)
+		  || (crlseg.step < 0 && crlseg.start < crlseg.stop) )
+		    { pErrMsg("Huh"); continue; }
+
 		while ( crlseg.start <= crlseg.stop )
 		{
 		    crlset += crlseg.start; fileidxs += fiseg.start;
+		    if ( crlseg.step == 0 )
+			break;
 		    crlseg.start += crlseg.step; fiseg.start += fiseg.step;
 		}
 	    }
