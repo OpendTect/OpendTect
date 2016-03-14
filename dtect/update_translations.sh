@@ -43,6 +43,15 @@ scriptdir=`pwd`
 popd > /dev/null
 
 nrcpu=`${scriptdir}/GetNrProc`
+if [ "${nrcpu}" == "" ]; then
+    nrcpu=1
+fi
+
+php=`which php`
+if [ "${php}" == "" ]; then
+    echo "PHP is not installed"
+    exit 1
+fi
 
 removetmpoddirsed="s/\/tmp\/"
 removetmpoddirsed+=`basename $tmpoddir`
@@ -229,7 +238,7 @@ echo ${sources} | xargs -n 100 -P ${nrcpu} sed \
 
 
 #Filter away macros in sources
-echo ${sources} | xargs -n 100 -P ${nrcpu} php ${scriptdir}/remove_macros.php
+echo ${sources} | xargs -n 100 -P ${nrcpu} ${php} ${scriptdir}/remove_macros.php
 
 
 #Filter the headers for patterns
@@ -249,7 +258,7 @@ echo ${headers} | xargs -n 100 -P ${nrcpu} sed \
         -e 's/"__endquote//g' -iTMP
 
 #Filter away macros in headers
-echo ${headers} | xargs -n 100 -P ${nrcpu} php ${scriptdir}/remove_macros.php
+echo ${headers} | xargs -n 100 -P ${nrcpu} ${php} ${scriptdir}/remove_macros.php
 
 result=0
 #Run lupdate in the background and save jobid

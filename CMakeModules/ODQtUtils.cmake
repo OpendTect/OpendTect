@@ -38,10 +38,6 @@ macro(OD_SETUP_QT)
     if ( OD_NO_QT )
 	add_definitions( -DOD_NO_QT )
     else()
-	if ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
-	    MESSAGE( FATAL_ERROR "QTDIR not set")
-	endif()
-
 	#Setup Qt5
 	if ( Qt5Core_FOUND )
 	    find_package( Qt5 REQUIRED ${OD_USEQT} )
@@ -75,31 +71,34 @@ macro(OD_SETUP_QT)
 	    endif( WIN32 )
 	else() # Use Qt4
 
-	    set( ENV{QTDIR} ${QTDIR} )
-	    set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
-	    find_package(Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
+	    if ( QTDIR )
+	        set( ENV{QTDIR} ${QTDIR} )
+		set ( QT_QMAKE_EXECUTABLE ${QTDIR}/bin/qmake${CMAKE_EXECUTABLE_SUFFIX} )
+		list( APPEND OD_MODULE_INCLUDESYSPATH ${QTDIR}/include )
+	    endif()
+
+	    find_package( Qt4 REQUIRED QtGui QtCore QtSql QtNetwork )
 
 	    include(${QT_USE_FILE})
 
 	    STRING( FIND "${OD_USEQT}" "Core" USE_QT_CORE )
 	    if( NOT "${USE_QT_CORE}" EQUAL -1 )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH
-		    ${QT_QTCORE_INCLUDE_DIR} ${QTDIR}/include )
+		    ${QT_QTCORE_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTCORE_LIBRARY}" )
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "Network" USE_QT_NETWORK )
 	    if( NOT "${USE_QT_NETWORK}" EQUAL -1 )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTNETWORK_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTNETWORK_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTNETWORK_LIBRARY}" )
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "Sql" USE_QT_SQL )
 	    if( NOT "${USE_QT_SQL}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTSQL_INCLUDE_DIR}
-		${QTDIR}/include )
+		${QT_QTSQL_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTSQL_LIBRARY}")
 	    endif()
 
@@ -107,21 +106,21 @@ macro(OD_SETUP_QT)
 	    if( NOT "${USE_QT_GUI}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
 		${QT_QTCORE_INCLUDE_DIR}
-		${QT_QTGUI_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTGUI_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTGUI_LIBRARY}")
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "OpenGL" USE_QT_OPENGL )
 	    if( NOT "${USE_QT_OPENGL}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTOPENGL_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTOPENGL_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTOPENGL_LIBRARY}")
 	    endif()
 
 	    STRING( FIND "${OD_USEQT}" "Xml" USE_QT_XML )
 	    if( NOT "${USE_QT_XML}" EQUAL -1 )
 	    list(APPEND OD_MODULE_INCLUDESYSPATH
-		${QT_QTXML_INCLUDE_DIR} ${QTDIR}/include )
+		${QT_QTXML_INCLUDE_DIR} )
 	    ADD_TO_LIST_IF_NEW( OD_QT_LIBS "${QT_QTXML_LIBRARY}")
 	    endif()
 
