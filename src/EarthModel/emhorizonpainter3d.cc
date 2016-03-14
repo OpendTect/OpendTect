@@ -59,6 +59,8 @@ HorizonPainter3D::~HorizonPainter3D()
 
     removePolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
+
+    CallBack::removeFromMainThread( this );
 }
 
 
