@@ -207,7 +207,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
 	    return;
     }
-
+    
     info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
@@ -232,6 +232,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    info().setEMObjID( hor2ddisp->getObjectID() );
 	    sendUnderlying2DSeis( hor2ddisp, eventinfo );
 	    eventcatcher_->setHandled();
+	    click.trigger();
 	    break;
 	}
 
