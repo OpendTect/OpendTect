@@ -195,6 +195,8 @@ protected:
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
     static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
 
+    void			applClosingCB(CallBacker*);
+
 public:
     const TrcKeyPath*		activePath() const;
     void			setActivePath(const TrcKeyPath*);
