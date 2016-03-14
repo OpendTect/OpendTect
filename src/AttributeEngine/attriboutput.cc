@@ -143,20 +143,11 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 }
 
 
-void DataPackOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
+void DataPackOutput::adjustInlCrlStep( const TrcKeyZSampling& possvol )
 {
-    if ( cs.hsamp_.step_.inl() > desiredvolume_.hsamp_.step_.inl() )
-    {
-	desiredvolume_.hsamp_.step_.inl() = cs.hsamp_.step_.inl();
-	dcsampling_.hsamp_.step_.inl() = cs.hsamp_.step_.inl();
-	desiredvolume_.hsamp_.start_.inl() = cs.hsamp_.start_.inl();
-    }
-    if ( cs.hsamp_.step_.crl() > desiredvolume_.hsamp_.step_.crl() )
-    {
-	desiredvolume_.hsamp_.step_.crl() = cs.hsamp_.step_.crl();
-	dcsampling_.hsamp_.step_.crl() = cs.hsamp_.step_.crl();
-	desiredvolume_.hsamp_.start_.crl() = cs.hsamp_.start_.crl();
-    }
+    dcsampling_ = possvol;
+    dcsampling_.limitTo( desiredvolume_ );
+    desiredvolume_ = dcsampling_;
 }
 
 

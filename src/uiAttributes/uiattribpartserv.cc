@@ -644,25 +644,17 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 
 
 const RegularSeisDataPack* uiAttribPartServer::createOutput(
-				const TrcKeyZSampling& sampling,
+				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
+    if ( !aem ) return 0;
+
     bool atsamplepos = true;
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 				: attrds->getDesc( targetspecs_[0].id() );
-    TrcKeyZSampling tkzs = sampling;
-    if ( targetdesc )
-    {
-	SeisIOObjInfo info( MultiID(targetdesc->getStoredID()) );
-	info.getRanges( tkzs );
-	tkzs.limitTo( sampling );
-    }
-
-    PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
-    if ( !aem ) return 0;
-
     if ( targetdesc )
     {
 	BufferString defstr;
