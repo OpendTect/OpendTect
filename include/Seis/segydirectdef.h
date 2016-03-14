@@ -64,6 +64,7 @@ public:
     static const char*	sKeyDirectDef();
     static const char*	sKeyFileType();
     static const char*	sKeyNrFiles();
+    static const char*	sKeyIOCompr();
     static const char*	sKeyInt64DataChar();
     static const char*	sKeyInt32DataChar();
     static const char*	sKeyFloatDataChar();

@@ -615,5 +615,5 @@ bool SEGY::FileDataSet::getDetails( od_int64 idx, Seis::PosKey& pk,
 void SEGY::FileDataSet::setIndexer( Seis::PosIndexer* n )
 {
     indexer_ = n;
-    if ( indexer_ ) indexer_->empty();
+    if ( indexer_ ) indexer_->setEmpty();
 }

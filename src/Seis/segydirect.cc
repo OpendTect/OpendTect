@@ -35,6 +35,7 @@ namespace SEGY
 const char* DirectDef::sKeyDirectDef()  { return "DirectSEG-Y"; }
 const char* DirectDef::sKeyFileType()   { return "SEG-Y Direct Definition"; }
 const char* DirectDef::sKeyNrFiles()	{ return "Number of files"; }
+const char* DirectDef::sKeyIOCompr()	{ return "Compress Fileoffset Table"; }
 const char* DirectDef::sKeyFloatDataChar()  { return "Float datachar"; }
 const char* DirectDef::sKeyInt32DataChar()  { return "Int32 datachar"; }
 const char* DirectDef::sKeyInt64DataChar()  { return "Int64 datachar"; }
@@ -220,9 +221,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-    {
 	mErrRet( uiStrings::phrCannotOpen( toUiString(fnm)) )
-    }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
@@ -231,11 +230,10 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     IOPar iop1; iop1.getFrom( astrm );
     int version = 1;
     iop1.get( sKey::Version(), version );
-    if ( version<1 || version>2 )
-    {
+    if ( version<1 || version>3 )
 	mErrRet(tr("Input file '%1' is written by a later version of OpendTect")
 		  .arg(fnm) );
-    }
+
     if ( version==1 )
     {
 	delete myfds_;
@@ -245,6 +243,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	keylist_->setFDS( fds_ );
 
 	indexer_ = new Seis::PosIndexer( *keylist_, true, true );
+	indexer_->setIOCompressed( false );
 	getPosData( cubedata_ );
 	getPosData( linedata_ );
     }
@@ -286,31 +285,25 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	int32type.set( int32typestr );
 	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
 	if ( !fds->usePar(iop2) )
-	{
-	    delete fds;
-	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
-	}
+	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm)));}
 
 	const od_stream::Pos curpos = strm.position();
 	if ( curpos!=cubedatastart )
 	    strm.setPosition( cubedatastart );
 
 	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
-	{
-	    delete fds;
-	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
-	}
+	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm))); }
 
 	delete keylist_;
 	delete indexer_;
 
 	delete myfds_;
 	fds_ = myfds_ = fds;
-
 	keylist_ = new SEGY::PosKeyList;
 	keylist_->setFDS( fds_ );
 
 	indexer_ = new Seis::PosIndexer( *keylist_, false, true );
+	indexer_->setIOCompressed( iop1.isTrue(sKeyIOCompr()) );
 
 	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
 				  int64interp, floatinterp ) )
@@ -367,7 +360,8 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     astrm.putHeader( sKeyFileType() );
 
     IOPar iop1;
-    iop1.set( sKey::Version(), 2 );
+    iop1.set( sKey::Version(), 3 );
+    iop1.setYN( sKeyIOCompr(), !indexer_ || indexer_->ioCompressed() );
     BufferString dc;
     mSetDc( iop1, od_int64, sKeyInt64DataChar() );
     mSetDc( iop1, od_int32, sKeyInt32DataChar() );

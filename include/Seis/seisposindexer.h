@@ -29,9 +29,11 @@ mExpClass(Seis) PosKeyList
 {
 public:
 
+    typedef od_int64	FileIdxType;
+
     virtual		~PosKeyList()			{}
-    virtual od_int64	size() const			= 0;
-    virtual bool	key(od_int64,PosKey&) const	= 0;
+    virtual FileIdxType	size() const			= 0;
+    virtual bool	key(FileIdxType,PosKey&) const	= 0;
 
 };
 
@@ -40,101 +42,115 @@ public:
 
   In principle, no sorting is required.
   While at it, in/xline and offset ranges are determined.
-
 */
 
 mExpClass(Seis) PosIndexer
 {
 public:
 
+    typedef Index_Type			KeyIdxType;
+    typedef TypeSet<KeyIdxType>		KeyIdxSet;
+    typedef PosKeyList::FileIdxType	FileIdxType;
+    typedef TypeSet<FileIdxType>	FileIdxSet;
+    typedef od_stream_Pos		FileOffsType;
+    typedef TypeSet<FileOffsType>	FileOffsSet;
+    typedef DataInterpreter<int>	Int32Interpreter;
+    typedef DataInterpreter<od_int64>	Int64Interpreter;
+    typedef DataInterpreter<float>	FloatInterpreter;
+
+
 				PosIndexer(const PosKeyList&,bool doindex,
 					   bool excludeunreasonable);
 				/*!<\param excludeunreasonable enables rejection
 					   of traces far outside survey. */
     virtual			~PosIndexer();
+    void			setEmpty();
 
-    od_int64			findFirst(const BinID&) const;
+    inline GeomType		geomType() const
+				{ return geomTypeOf(is2d_,isps_); }
+    const Interval<KeyIdxType>&	inlRange() const	{ return inlrg_; }
+    const Interval<KeyIdxType>&	crlRange() const	{ return crlrg_; }
+    const Interval<KeyIdxType>&	trcNrRange() const	{ return crlrg_; }
+    const Interval<float>&	offsetRange() const	{ return offsrg_; }
+    FileIdxType			nrRejected() const	{ return nrrejected_; }
+
+    FileIdxType			findFirst(const BinID&) const;
 				//!< -1 = inl not found
 				//!< -2 crl/trcnr not found
-    od_int64			findFirst(int) const;
+    FileIdxType			findFirst(KeyIdxType) const;
 				//!< -1 = empty
 				//!< -2 trcnr not found
-    od_int64			findFirst(const PosKey&,
+    FileIdxType			findFirst(const PosKey&,
 					  bool chckoffs=true) const;
 				//!< -1 = inl not found or empty
 				//!< -2 crl/trcnr not found
 				//!< -3 offs not found
-    od_int64			findOcc(const PosKey&,int occ) const;
+    FileIdxType			findOcc(const PosKey&,int occ) const;
 				//!< ignores offset
-    TypeSet<od_int64>		findAll(const PosKey&) const;
+    FileIdxSet			findAll(const PosKey&) const;
 				//!< ignores offset
 
-    inline bool			validIdx( od_int64 idx ) const
+    inline bool			validIdx( FileIdxType idx ) const
 				{ return idx >= 0 && idx < maxidx_; }
-    inline od_int64		maxIdx() const		{ return maxidx_; }
-
+    inline FileIdxType		maxIdx() const		{ return maxidx_; }
     void			reIndex();
 
-    inline Seis::GeomType	geomType() const
-				{ return Seis::geomTypeOf(is2d_,isps_); }
+    bool			ioCompressed() const	{ return iocompressed_;}
+    void			setIOCompressed(bool yn=true)
+							{ iocompressed_ = yn; }
+    bool			dumpTo(od_ostream&) const;
+    bool			readFrom(const char* fnm,FileIdxType,bool all,
+				     Int32Interpreter* =0,Int64Interpreter* =0,
+				     FloatInterpreter* =0);
 
-    const Interval<int>&	inlRange() const	{ return inlrg_; }
-    const Interval<int>&	crlRange() const	{ return crlrg_; }
-    const Interval<int>&	trcNrRange() const	{ return crlrg_; }
-    const Interval<float>&	offsetRange() const	{ return offsrg_; }
-    od_int64			nrRejected() const	{ return nrrejected_; }
+    const KeyIdxSet&		getInls() const		{ return inls_; }
+    void			getCrls(KeyIdxType,KeyIdxSet&) const;
 
-    bool			dumpTo(od_ostream& strm) const;
-    bool			readFrom(const char* nm, od_int64 offset,
-					bool all,
-					DataInterpreter<int>*  =0,
-					DataInterpreter<od_int64>* =0,
-					DataInterpreter<float>* =0 );
-
-    const TypeSet<int>&		getInls() const { return inls_; }
-    void			getCrls(int inl,TypeSet<int>&) const;
-
-    void			add(const Seis::PosKey&, od_int64 offset );
+    void			add(const PosKey&,FileIdxType);
 				//!<Adds the pk to index. Called from reIndex
-    void			empty();
+
 protected:
-    bool			readHeader(DataInterpreter<int>*,
-					DataInterpreter<od_int64>*,
-					DataInterpreter<float>* );
-    bool			readLine(TypeSet<int>& crl,
-				    TypeSet<od_int64>&,
-				    DataInterpreter<int>*,
-				    DataInterpreter<od_int64>* ) const;
+
+    bool			readHeader(Int32Interpreter*,Int64Interpreter*,
+				    FloatInterpreter*);
+    bool			readLine(KeyIdxSet& crls,FileIdxSet&,
+				    Int32Interpreter*,Int64Interpreter*) const;
 
     od_istream*			strm_;
-    DataInterpreter<int>*	int32interp_;
-    DataInterpreter<od_int64>*	int64interp_;
-    TypeSet<od_int64>		inlfileoffsets_;
+    Int32Interpreter*		int32interp_;
+    Int64Interpreter*		int64interp_;
+    FileOffsSet			inlfileoffsets_;
 
     mutable Threads::Lock	lock_;
-    TypeSet<od_int64>		curidxset_;
-    TypeSet<int>		curcrlset_;
-    int				curinl_;
+    mutable FileIdxSet		curfileidxs_;
+    mutable KeyIdxSet		curcrlset_;
+    mutable KeyIdxType		curinl_;
 
     const PosKeyList&		pkl_;
-    bool			is2d_;
-    bool			isps_;
+    const bool			is2d_;
+    const bool			isps_;
+    bool			iocompressed_;
     bool			excludeunreasonable_;
-    TypeSet<int>		inls_;
-    ObjectSet< TypeSet<int> >	crlsets_;
-    ObjectSet< TypeSet<od_int64> > idxsets_;
-    od_int64			maxidx_;
+    KeyIdxSet			inls_;
+    ObjectSet<KeyIdxSet>	crlsets_;
+    ObjectSet<FileIdxSet>	fileidxsets_;
+    FileIdxType			maxidx_;
 
-    Interval<int>		inlrg_;
-    Interval<int>		crlrg_;
+    Interval<KeyIdxType>	inlrg_;
+    Interval<KeyIdxType>	crlrg_;
     Interval<float>		offsrg_;
 
-    Interval<int>		goodinlrg_;
-    Interval<int>		goodcrlrg_;
-    od_int64			nrrejected_;
+    Interval<KeyIdxType>	goodinlrg_;
+    Interval<KeyIdxType>	goodcrlrg_;
+    FileIdxType			nrrejected_;
 
     bool			isReasonable(const BinID&) const;
-    int				getFirstIdxs(const BinID&,int&,int&);
+    int				getFirstIdxs(const BinID&,int&,int&) const;
+    void			dumpLineCompressed(od_ostream&,const KeyIdxSet&,
+						   const FileIdxSet&) const;
+    bool			readLineCompressed(KeyIdxSet&,
+						   FileIdxSet&) const;
+
 };
 
 
