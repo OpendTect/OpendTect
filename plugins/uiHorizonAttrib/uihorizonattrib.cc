@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "survinfo.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -30,8 +31,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-static const char* sDefHorOut[] = { "Z", "Horizon Data", 0 };
-static const char* sDefHorNoSurfdtOut[] = { "Z", 0 };
+static void getOutputNames( uiStringSet& strs, bool surfdata )
+{
+    uiString zstr;
+    if ( SI().zIsTime() )
+	zstr = toUiString("%1 (%2)").arg( uiStrings::sZ())
+				    .arg( uiStrings::sSec() );
+    else
+	zstr = uiStrings::sZ();
+
+    strs.add( zstr );
+    if ( surfdata )
+	strs.add( toUiString( "%1 %2").arg( uiStrings::sHorizon() )
+				      .arg( uiStrings::sData() ) );
+}
 
 mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
@@ -48,8 +61,10 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 
+    uiStringSet strs;
+    getOutputNames( strs, true );
     typefld_ = new uiGenInput( this, uiStrings::sOutput(), 
-			       StringListInpSpec(sDefHorOut) );
+			       StringListInpSpec(strs) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
 
@@ -162,9 +177,10 @@ void uiHorizonAttrib::horSel( CallBacker* )
 			   (!surfdatanms_.size() && nrouttypes_>1);
     if ( actionreq )
     {
+	uiStringSet strs;
+	getOutputNames( strs, surfdatanms_.size() );
 	nrouttypes_ = surfdatanms_.size() ? 2 : 1;
-	typefld_->newSpec( StringListInpSpec(surfdatanms_.size() 
-		    			? sDefHorOut : sDefHorNoSurfdtOut), 0);
+	typefld_->newSpec( StringListInpSpec( strs ), 0 );
 	typeSel(0);
     }
 }
