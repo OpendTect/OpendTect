@@ -45,6 +45,7 @@ set(OD_MODULE_SOURCES
 	uipositionattrib.cc
 	uiprestackattrib.cc
 	uireferenceattrib.cc
+	uirgbattrseldlg.cc
 	uisamplevalueattrib.cc
 	uiscalingattrib.cc
 	uisemblanceattrib.cc
