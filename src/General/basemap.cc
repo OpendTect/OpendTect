@@ -11,6 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "task.h"
 
 #include "uistrings.h"
+#include "hiddenparam.h"
+
+static HiddenParam< BaseMapObject, CNotifier<BaseMapObject,const uiString&>* >
+				nameChanged( 0 );
 
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
@@ -20,11 +24,18 @@ BaseMapObject::BaseMapObject( const char* nm )
     , stylechanged(this)
     , depth_(0)
 {
+    CNotifier<BaseMapObject,const uiString&>* notfier =
+	new CNotifier<BaseMapObject,const uiString&>( this );
+    nameChanged.setParam( this, notfier );
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
     id_ = treeitmid++;
 }
 
 
+CNotifier<BaseMapObject,const uiString&>* BaseMapObject::namechanged()
+{
+    return nameChanged.getParam( this );
+}
 int BaseMapObject::nrShapes() const
 { return 0; }
 

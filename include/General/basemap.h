@@ -100,6 +100,8 @@ protected:
     int				depth_;
     int				id_;
     BufferString		typenm_;
+public:
+    CNotifier<BaseMapObject,const uiString&>*	namechanged();
 };
 
 
