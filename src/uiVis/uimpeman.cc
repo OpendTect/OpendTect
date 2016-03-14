@@ -526,7 +526,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	seedpicker->getTrackMode()==seedpicker->DrawAndSnap ?
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
-	 clickcatcher_->activateSower( sowclr, &seedpicker->getSeedPickArea()) )
+	 clickcatcher_->activateSower( sowclr, 
+	 tracker->is2D() ? 0 : &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
     }

@@ -223,6 +223,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setEMObjID( hor2ddisp->getObjectID() );
 	    sendUnderlying2DSeis( hor2ddisp, eventinfo );
+	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
 	}
