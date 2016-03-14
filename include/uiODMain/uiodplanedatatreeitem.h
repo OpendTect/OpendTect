@@ -56,8 +56,6 @@ protected:
     void		updatePlanePos(CallBacker*);
     void		updatePositionDlg(CallBacker*);
     void		posDlgClosed(CallBacker*);
-    void		keyPressCB(CallBacker*);
-    void		movePlane(bool forward,int step=1);
 
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);

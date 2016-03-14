@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
-#include "uishortcutsmgr.h"
 #include "uislicesel.h"
 #include "uistrings.h"
 #include "uitreeview.h"
@@ -29,23 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "visplanedatadisplay.h"
 #include "visrgbatexturechannel2rgba.h"
-#include "vissurvscene.h"
 
 #include "attribdescsetsholder.h"
-#include "attribsel.h"
-#include "iodir.h"
-#include "ioman.h"
-#include "keystrs.h"
-#include "linekey.h"
-#include "seisioobjinfo.h"
-#include "seistrctr.h"
 #include "settings.h"
-#include "survinfo.h"
 #include "welldata.h"
 #include "wellman.h"
-#include "zaxistransform.h"
-#include "callback.h"
-#include "keyboardevent.h"
 
 
 static const int cPositionIdx = 990;
@@ -556,54 +543,6 @@ void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 
     if ( KeyboardEvent::isReDo(kbe) )
 	pdd->undo().reDo();
-}
-
-
-void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
-{
-    mCBCapsuleGet(uiKeyDesc,caps,cb)
-    if ( !caps ) return;
-
-    const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
-    const BufferString act( scl.nameOf(caps->data) );
-    const bool fwd = act == "Move slice forward";
-    const bool bwd = fwd ? false : act == "Move slice backward";
-    if ( !fwd && !bwd ) return;
-
-    const int step = scl.valueOf( caps->data );
-    caps->data.setKey( 0 );
-    movePlane( fwd, step );
-}
-
-
-void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
-
-    TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
-    const int dir = forward ? step : -step;
-
-    if ( pdd->getOrientation() == OD::InlineSlice )
-    {
-	cs.hsamp_.start_.inl() += cs.hsamp_.step_.inl() * dir;
-	cs.hsamp_.stop_.inl() = cs.hsamp_.start_.inl();
-    }
-    else if ( pdd->getOrientation() == OD::CrosslineSlice )
-    {
-	cs.hsamp_.start_.crl() += cs.hsamp_.step_.crl() * dir;
-	cs.hsamp_.stop_.crl() = cs.hsamp_.start_.crl();
-    }
-    else if ( pdd->getOrientation() == OD::ZSlice )
-    {
-	cs.zsamp_.start += cs.zsamp_.step * dir;
-	cs.zsamp_.stop = cs.zsamp_.start;
-    }
-    else
-	return;
-
-    movePlaneAndCalcAttribs( cs );
 }
 
 

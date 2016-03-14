@@ -70,7 +70,7 @@ public:
     virtual void		deleteTrc()		{}
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     Pos::GeomID			curGeomID() const;
-    virtual void		adjustInlCrlStep(const TrcKeyZSampling&) {}
+    virtual void		setPossibleVolume(const TrcKeyZSampling&) {}
     virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
@@ -121,7 +121,7 @@ public:
 				mImplDefAttribOutputFns(Coord)
     virtual void		collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&);
-    virtual void		adjustInlCrlStep(const TrcKeyZSampling&);
+    void			setPossibleVolume(const TrcKeyZSampling&);
 
 protected:
     TrcKeyZSampling		desiredvolume_;

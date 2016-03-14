@@ -141,20 +141,11 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 }
 
 
-void DataPackOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
+void DataPackOutput::setPossibleVolume( const TrcKeyZSampling& possvol )
 {
-    if ( cs.hsamp_.step_.inl() > desiredvolume_.hsamp_.step_.inl() )
-    {
-	desiredvolume_.hsamp_.step_.inl() = cs.hsamp_.step_.inl();
-	dcsampling_.hsamp_.step_.inl() = cs.hsamp_.step_.inl();
-	desiredvolume_.hsamp_.start_.inl() = cs.hsamp_.start_.inl();
-    }
-    if ( cs.hsamp_.step_.crl() > desiredvolume_.hsamp_.step_.crl() )
-    {
-	desiredvolume_.hsamp_.step_.crl() = cs.hsamp_.step_.crl();
-	dcsampling_.hsamp_.step_.crl() = cs.hsamp_.step_.crl();
-	desiredvolume_.hsamp_.start_.crl() = cs.hsamp_.start_.crl();
-    }
+    TrcKeyZSampling tkzs = possvol;
+    tkzs.limitTo( desiredvolume_ );
+    desiredvolume_ = dcsampling_ = tkzs;
 }
 
 
@@ -479,7 +470,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	}
     }
 
-    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling_.step,1e-6) )
+    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling_.step,1e-6))
     {
 	StepInterval<float> reqzrg = desiredvolume_.zsamp_;
 	reqzrg.limitTo( trc_->zRange() );

@@ -280,7 +280,7 @@ void Processor::init()
 
     computeAndSetPosAndDesVol( globalcs );
     for ( int idx=0; idx<outputs_.size(); idx++ )
-	outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
+	outputs_[idx]->setPossibleVolume( *provider_->getPossibleVolume() );
 
     mDynamicCastGet(const DataPackOutput*,dpoutput,outputs_[0]);
     if ( dpoutput && provider_->getDesc().isStored() )
@@ -416,10 +416,10 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	    possvol = globalcs;
 	else if ( is2d_ && possvol == globalcs )
 	{
-	    possvol.hsamp_.stop_.inl() = possvol.hsamp_.start_.inl() = 0;
-	    possvol.hsamp_.start_.crl() = 0;
-	    possvol.hsamp_.stop_.crl() = INT_MAX/3*2;
-			//unlikely;still, a limitation.
+	    const Pos::GeomID geomid = provider_->getGeomID();
+	    possvol.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	    possvol.hsamp_.setTrcRange( Interval<int>(0,INT_MAX/3*2) );
+					//unlikely;still, a limitation.
 	    globalcs = possvol;
 	}
 
@@ -433,7 +433,7 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	}
 
 	provider_->resetDesiredVolume();
-	globalcs.limitToWithUdf( possvol );
+	globalcs.limitTo( possvol );
 
 	provider_->setDesiredVolume( globalcs );
     }

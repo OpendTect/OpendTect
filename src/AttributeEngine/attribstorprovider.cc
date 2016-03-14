@@ -238,20 +238,21 @@ bool StorageProvider::checkInpAndParsAtStart()
 	bool foundone = false;
 	for ( int idx=0; idx<dset->nrLines(); idx++ )
 	{
+	    const Pos::GeomID geomid = dset->geomID( idx );
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !dset->getRanges(dset->geomID(idx),trcrg,zrg) )
+	    if ( !dset->getRanges(geomid,trcrg,zrg) )
 		continue;
 
 	    if ( foundone )
 	    {
-		storedvolume_.hsamp_.include( BinID(0,trcrg.start) );
-		storedvolume_.hsamp_.include( BinID(0,trcrg.stop) );
+		storedvolume_.hsamp_.include( BinID(geomid,trcrg.start) );
+		storedvolume_.hsamp_.include( BinID(geomid,trcrg.stop) );
 		storedvolume_.zsamp_.include( zrg );
 	    }
 	    else
 	    {
-		storedvolume_.hsamp_.start_.crl() = trcrg.start;
-		storedvolume_.hsamp_.stop_.crl() = trcrg.stop;
+		storedvolume_.hsamp_.setLineRange(Interval<int>(geomid,geomid));
+		storedvolume_.hsamp_.setTrcRange( trcrg );
 		storedvolume_.zsamp_ = zrg;
 		foundone = true;
 	    }
@@ -381,20 +382,8 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 	possiblevolume_ = new TrcKeyZSampling;
 
     *possiblevolume_ = storedvolume_;
-    globpv.limitToWithUdf( *possiblevolume_ );
-
-    if ( mscprov_ && mscprov_->is2D() )
-    {
-	globpv.hsamp_.stop_.inl() = globpv.hsamp_.start_.inl() = 0;
-	globpv.hsamp_.setCrlRange( storedvolume_.hsamp_.crlRange() );
-	return globpv.nrCrl() > 0;
-    }
-    else
-	globpv.limitToWithUdf( *possiblevolume_ );
-
-    const bool haveinls = globpv.hsamp_.inlRange().width(false) >= 0;
-    const bool havecrls = globpv.hsamp_.crlRange().width(false) >= 0;
-    return haveinls && havecrls;
+    globpv.limitTo( *possiblevolume_ );
+    return globpv.nrLines() && globpv.nrTrcs();
 }
 
 
@@ -618,13 +607,15 @@ bool StorageProvider::checkDesiredVolumeOK()
 		.arg( desc_.userRef() );
 
     if ( inlwrong )
-	errmsg_.append( tr( "Inline range is: %1-%2\n")
+	errmsg_.append( tr( "Inline range is: %1-%2 [%3]\n")
 		      .arg( storedvolume_.hsamp_.start_.inl() )
-		      .arg( storedvolume_.hsamp_.stop_.inl() ) );
+		      .arg( storedvolume_.hsamp_.stop_.inl() )
+		      .arg( storedvolume_.hsamp_.step_.inl() ) );
     if ( crlwrong )
-	errmsg_.append( tr( "Crossline range is: %1-%2\n")
+	errmsg_.append( tr( "Crossline range is: %1-%2 [%3]\n")
 		      .arg( storedvolume_.hsamp_.start_.crl() )
-		      .arg( storedvolume_.hsamp_.stop_.crl() ) );
+		      .arg( storedvolume_.hsamp_.stop_.crl() )
+		      .arg( storedvolume_.hsamp_.step_.crl() ) );
     if ( zwrong )
 	errmsg_.append( tr( "Z range is: %1-%2\n")
 		      .arg( storedvolume_.zsamp_.start )
@@ -823,16 +814,12 @@ void StorageProvider::adjust2DLineStoredVolume()
     const SeisTrcReader& reader = mscprov_->reader();
     if ( !reader.is2D() ) return;
 
-    const Seis2DDataSet* dset = reader.dataSet();
     StepInterval<int> trcrg;
     StepInterval<float> zrg;
-    if ( dset->getRanges(geomid_,trcrg,zrg) )
+    if ( reader.dataSet()->getRanges(geomid_,trcrg,zrg) )
     {
-	storedvolume_.hsamp_.start_.crl() = trcrg.start;
-	storedvolume_.hsamp_.stop_.crl() = trcrg.stop;
-	storedvolume_.zsamp_.start = zrg.start;
-	storedvolume_.zsamp_.stop = zrg.stop;
-	storedvolume_.zsamp_.step = zrg.step;
+	storedvolume_.hsamp_.setTrcRange( trcrg );
+	storedvolume_.zsamp_ = zrg;
     }
 }
 
@@ -856,20 +843,20 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     const TrcKeyZSampling& sampling = dc->sampling();
     const int inlidx = sampling.hsamp_.lineRange().nearestIndex( bid.inl() );
     const int crlidx = sampling.hsamp_.trcRange().nearestIndex( bid.crl() );
-    for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
+    int cubeidx = -1;
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	const float curt = sampling.zsamp_.atIndex( zidx );
-	int cubeidx = -1;
-	for ( int idx=0; idx<outputinterest_.size(); idx++ )
+	if ( !outputinterest_[idx] )
+	    continue;
+
+	cubeidx++;
+	if ( cubeidx>=dc->nrComponents() &&
+		!dc->addComponent(sKey::EmptyString()) )
+	    continue;
+
+	for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
 	{
-	    if ( !outputinterest_[idx] )
-		continue;
-
-	    cubeidx++;
-	    if ( cubeidx >= dc->nrComponents() &&
-		    !dc->addComponent(sKey::EmptyString()) )
-		continue;
-
+	    const float curt = sampling.zsamp_.atIndex( zidx );
 	    if ( !trcrange.includes(curt,false) )
 		continue;
 
