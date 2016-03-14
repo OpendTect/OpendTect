@@ -66,6 +66,8 @@ HorizonPainter3D::~HorizonPainter3D()
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     delete updatesamplings_.getParam(this);
     updatesamplings_.removeParam( this );
+
+    CallBack::removeFromMainThread( this );
 }
 
 
