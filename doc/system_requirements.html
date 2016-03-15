@@ -41,8 +41,8 @@
 <p>OpendTect needs good hardware with up-to-date drivers - especially for 3D graphics. You can run on:</p>
 
 <ol>
-  <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (64 bits) or MS Windows (7, 8/8.1, and 10 - 32 or 64 bits)</li>
-  <li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.5) and up</li>
+  <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (64 bits) or MS Windows (7 / 8 / 8.1 / 10 - 32 or 64 bits)</li>
+  <li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.6) and up</li>
 </ol>
 
   <br /><a name="hardware"></a><h2>Hardware requirements</h2>
@@ -91,12 +91,20 @@ The access to these options is in the user's menu 'Utilities-Settings-Look&amp;F
   <a name="mem"></a><h3>Memory</h3>
 
 <p>OpendTect needs at least have 2 GB internal (RAM) memory available.
-Therefore we would recommend machines with at least 4GB RAM, as the operating systems (especially Windows) will need their share of this, too. <br /><br />
+Therefore we would recommend machines with at least 4GB RAM, as the operating systems (especially Windows) will need their 
+share of this, too. <br /><br />
 
+<strong>Please note:</strong><br /> We are seeing an increasing number of crash reports from users attempting to use OpendTect 
+v6 on machines with only 4GB RAM. With versions 4.6 &amp; 5, machines of this grade appeared to be capable but we do see this 
+difference when v6 is installed.<br /><br />
+
+<strong>Therefore:</strong>
 Depending on the size of the surveys we recommend 8-16 GB+. In
-special cases (big surveys or many data cubes) more memory may be required and  data processing in larger surveys may require considerably more RAM.
+special cases (big surveys or many data cubes) more memory may be required and  data processing in larger surveys may require 
+considerably more RAM.
   <br /><br />
-A rule of thumb is to have at least 10 times the displayed number of samples available. Thus, to be able to display 10 inlines with 2000 crosslines and 1000 samples per trace, you'll need a minimum of 200 million bytes of memory (i.e. 200 MB).</p>
+(A rule of thumb is to have at least 10 times the displayed number of samples available. Thus, to be able to display 10 inlines 
+with 2000 crosslines and 1000 samples per trace, you'll need a minimum of 200 million bytes of memory, i.e. 200 MB.)</p>
 
 
   <a name="proc"></a><h3>Processor</h3>
@@ -116,17 +124,18 @@ Although OpendTect will run on 2 GHz processors or even less, we
 </ul>
 <p>Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. There is documentation on <a href="http://opendtect.org/lic/doc/flexnet_installation_guide.html">installing license files for commercial plugins</a>, and there is a page with <a href="http://opendtect.org/lic/doc/flexnet_explained.html">background information</a>.</p>
 <p>
-For both SuSE and Red Hat-based distributions a 64 bits release is
+For both SuSE and Red Hat-based distributions 64 bits releases are
 available. OpendTect is known to work under <a href="http://www.debian.org">Debian</a>, <a href="http://www.ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too. <a href="http://fedoraproject.org">Fedora</a> usage is not recommended - although it may work it's the only distro that regularly fails to work in combination with OpendTect. This is probably because the graphics vendors do not support it well in terms of drivers.
 </p>
 
   <a name="mac"></a><h3>Mac OS X</h3>
 
-<p>Minimum is Mac OS X (10.5) - thus Mac/Intel. Mac/PowerPC support is not available. A 3-button mouse is highly recomended.</p>
+<p>Minimum is Mac OS X (10.6) - thus Mac/Intel. Mac/PowerPC support is not available. A 3-button mouse is highly recommended.</p>
+<p><b>Note:</b> OpendTect v5 supports Mac OS X from 10.6 up to, and including, Yosemite. But El Capitan will not run OpendTect v5. OpendTect v6 supports all Mac OS X from 10.6 onwards, including El Capitan.</p>
 
   <a name="win"></a><h3>MS Windows</h3>
-<p> Windows 7, 8/8.1, and 10 are supported. Windows needs to be updated with the latest updates from Microsoft.<br />
-Releases are available for in both 32 and 64 bits.</p>
+<p> Windows 7, 8, 8.1 and 10 are supported. Windows needs to be updated with the latest updates from Microsoft.<br />
+Releases are available in both 32 and 64 bits.</p>
 
   <a name="recommendations"></a><h2>Recommendations</h2>
 
