@@ -455,6 +455,7 @@ void uiODApplMgrDispatcher::openXPlot()
 {
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
+    ctio.ctxt_.setName( "Cross-plot Data" );
     uiIOObjSelDlg seldlg( par_, ctio );
     seldlg.setHelpKey( mODHelpKey(mOpenCossplotHelpID) );
     if ( !seldlg.go() || !seldlg.ioObj() ) return;
