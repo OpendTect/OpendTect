@@ -78,12 +78,20 @@ static bool memCanOverCommit()
 
     char* contents = (char*) malloc( sizeof(char) * 1 );
     rewind(file);
-    fread(&contents[0],1,1,file);
+    const size_t readres = fread(&contents[0],1,1,file);
     fclose( file );
 
-    //https://www.win.tue.nl/~aeb/linux/lk/lk-9.html
-    // values valid since kernel 2.5.30
-    canovercommit = contents[0] == '\0' || contents[0] == '\1' ? 1 : -1;
+    if ( readres>0 )
+    {
+	//https://www.win.tue.nl/~aeb/linux/lk/lk-9.html
+	// values valid since kernel 2.5.30
+	canovercommit = contents[0] == '\0' || contents[0] == '\1' ? 1 : -1;
+    }
+    else
+    {
+	canovercommit = -1; 
+    }
+	
     free( contents );
 
     return canovercommit == 1;
@@ -326,7 +334,7 @@ int ExitProgram( int ret )
     {
 	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
 #ifndef __win__
-	system( "date" );
+	int dateres mUnusedVar = system( "date" );
 #endif
     }
 
@@ -553,7 +561,9 @@ void setQtPaths();
 
 mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 {
-    getcwd( initialdir.getCStr(), initialdir.minBufSize() );
+    char* getcwdres = getcwd( initialdir.getCStr(), initialdir.minBufSize() );
+    if ( !getcwdres )
+    { pErrMsg("Cannot read current directory"); }
 
     argc = newargc;
     argv = newargv;
