@@ -61,7 +61,6 @@ protected:
     bool		getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int z0,int nrsamples,int threadid) const;
-    const BinID*        desStepout(int,int) const;
     const BinID*	reqStepout(int,int) const;
     const Interval<int>* desZSampMargin(int,int) const;
     int			scaleVal(float) const;

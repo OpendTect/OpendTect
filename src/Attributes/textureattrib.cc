@@ -148,9 +148,6 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
 }
 
 
-const BinID* Texture::desStepout( int inp, int out ) const
-{ return inp==0 ? &stepout_ : 0; }
-
 const BinID* Texture::reqStepout( int inp, int out ) const
 { return inp==0 ? &stepout_ : 0; }
 
