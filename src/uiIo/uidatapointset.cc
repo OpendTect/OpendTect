@@ -1330,6 +1330,7 @@ void uiDataPointSet::retrieve( CallBacker* )
 
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
+    ctio.ctxt_.setName( "Cross-plot Data" );
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
 		uiStrings::phrManage(mJoinUiStrs(sCrossPlot(),sData())),
