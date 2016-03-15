@@ -26,8 +26,8 @@ static const char* rcsID mUnusedVar = "$Id$";
 namespace Attrib
 {
 
-mAttrDefCreateInstance(Texture)    
-    
+mAttrDefCreateInstance(Texture)
+
 void Texture::initClass()
 {
     mAttrStartInitClass
@@ -58,7 +58,7 @@ void Texture::initClass()
     desc->addParam( steering );
 
     desc->addInput( InputSpec("Input data",true) );
-    
+
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
@@ -151,6 +151,8 @@ bool Texture::getInputData( const BinID& relpos, int zintv )
 const BinID* Texture::desStepout( int inp, int out ) const
 { return inp==0 ? &stepout_ : 0; }
 
+const BinID* Texture::reqStepout( int inp, int out ) const
+{ return inp==0 ? &stepout_ : 0; }
 
 const Interval<int>* Texture::desZSampMargin( int inp, int outp ) const
 { return inp==0 ? &dessampgate_ : 0; }
@@ -159,7 +161,7 @@ const Interval<int>* Texture::desZSampMargin( int inp, int outp ) const
 int Texture::scaleVal( float val ) const
 {
     val = val * scalingfactor_ + scalingshift_ ;
-    if ( val <= 0 ) 
+    if ( val <= 0 )
 	val = 0 ;
     else if ( val > glcmsize_ - 1 )
 	val = mCast( float, glcmsize_-1 );
@@ -167,7 +169,7 @@ int Texture::scaleVal( float val ) const
 }
 
 
-bool Texture::allowParallelComputation () const 
+bool Texture::allowParallelComputation () const
 { return true; }
 
 
@@ -247,7 +249,7 @@ void Texture::prepareForComputeData()
     const float safeextrasamp = mCast(float, biggestdist * mMAXDIP / refstep_);
     dessampgate_ = Interval<int>( mNINT32(sampgate_.start-safeextrasamp),
 				  mNINT32(sampgate_.stop+safeextrasamp) );
-}	
+}
 
 
 bool Texture::computeData( const DataHolder& output, const BinID& relpos,
@@ -255,7 +257,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 {
     Array2DImpl<int> glcm( glcmsize_, glcmsize_ );
 
-    for ( int idx=0; idx<nrsamples; idx++ ) 
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float normprob=0;
 	glcm.setAll( 0 );
@@ -324,7 +326,7 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 		for ( int n=0; n<glcmsize_; n++ )
 		{
 		    normprob = glcm.get( n, m )/(float)(2*glcmcount);
-		    glcm_var += normprob * (n-glcm_mean) * (n-glcm_mean); 
+		    glcm_var += normprob * (n-glcm_mean) * (n-glcm_mean);
 		}
 	    }
 

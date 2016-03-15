@@ -40,8 +40,8 @@ public:
 			Texture(Desc&);
 
     static const char*	attribName()		{ return "Texture"; }
-    static const char*  steeringStr()   	{ return "steering"; }
-    static const char*  stepoutStr()      	{ return "stepout"; }
+    static const char*	steeringStr()	{ return "steering"; }
+    static const char*	stepoutStr()	{ return "stepout"; }
     static const char*  gateStr()		{ return "gate"; }
     static const char*	glcmsizeStr()		{ return "glcmsize"; }
     static const char*	globalminStr()		{ return "globalmin"; }
@@ -55,13 +55,14 @@ protected:
     static Provider*	createInstance(Desc&);
     static void		updateDefaults(Desc&);
 
-    bool		allowParallelComputation() const;  
+    bool		allowParallelComputation() const;
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int z0,int nrsamples,int threadid) const;
     const BinID*        desStepout(int,int) const;
+    const BinID*	reqStepout(int,int) const;
     const Interval<int>* desZSampMargin(int,int) const;
     int			scaleVal(float) const;
     void		setFactorShift(float,float);
@@ -91,7 +92,7 @@ protected:
     const DataHolder*   steeringdata_;
     int			computeGLCM(int idx,int z0,Array2D<int>&) const;
     void		fillGLCM(int sampleidx,int z0,int posidx1,int posidx2,
-	    			 int& glcmcount,Array2D<int>& glcm) const;
+				 int& glcmcount,Array2D<int>& glcm) const;
 };
 
 } // namespace Attrib
