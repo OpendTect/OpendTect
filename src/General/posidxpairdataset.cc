@@ -511,69 +511,6 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::update( const IdxPair& ip,
 }
 
 
-namespace Pos
-{
-class IdxPairDataSetFromCubeData : public ::ParallelTask
-{
-public:
-
-typedef Pos::IdxPairDataSet::IdxType IdxType;
-typedef Pos::IdxPairDataSet::ArrIdxType ArrIdxType;
-
-IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
-			       const PosInfo::CubeData& cubedata )
-    : ds_( ds )
-    , cubedata_( cubedata )
-{
-    // Add first spos on each line so all lines are in, thus
-    // threadsafe to add things as long as each line is separate
-    for ( ArrIdxType idx=0; idx<cubedata.size(); idx++ )
-    {
-	const PosInfo::LineData& line = *cubedata_[idx];
-	const ArrIdxType frst = line.linenr_;
-	if ( !line.segments_.isEmpty() )
-	    ds.add( IdxPair(frst,line.segments_[0].start) );
-    }
-}
-
-od_int64 nrIterations() const { return cubedata_.size(); }
-
-bool doWork( od_int64 start, od_int64 stop, int )
-{
-    for ( IdxPair::IdxType idx=(IdxPair::IdxType)start; idx<=stop; idx++ )
-    {
-	const PosInfo::LineData& line = *cubedata_[idx];
-	const IdxType frst = line.linenr_;
-	for ( int idy=0; idy<line.segments_.size(); idy++ )
-	{
-	    StepInterval<IdxType> crls = line.segments_[idy];
-	    if ( idy == 0 )
-		crls.start += crls.step; //We added first scnd in constructor
-	    for ( IdxType scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
-		if ( !ds_.add( IdxPair(frst,scnd) ).isValid() )
-		    return false;
-	}
-    }
-
-    return true;
-}
-
-    IdxPairDataSet&	ds_;
-    PosInfo::CubeData	cubedata_;
-
-};
-
-} // namespace Pos
-
-
-void Pos::IdxPairDataSet::add( const PosInfo::CubeData& cubedata )
-{
-    Pos::IdxPairDataSetFromCubeData task( *this, cubedata );
-    if ( !task.execute() )
-	mHandleMemFull()
-}
-
-
 Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrPos(
 						ArrIdxType frstidx ) const
 {
@@ -675,7 +612,8 @@ void Pos::IdxPairDataSet::removeDuplicateIdxPairs()
 
 
 void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
-				   const Pos::IdxPairStep& sostep )
+				  const Pos::IdxPairStep& sostep,
+				  ObjInitFn initfn )
 {
     if ( (!so.first && !so.second) || (!sostep.first && !sostep.second) )
 	return;
@@ -699,13 +637,98 @@ void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
 		    continue;
 
 		ip.second = centralip.second + iscndoffs * sostep.second;
-		add( ip, 0 );
+		SPos newspos = ds.find( ip );
+		if ( newspos.isValid() )
+		    continue;
+		newspos = ds.add( ip );
+		if ( !newspos.isValid() )
+		    { mHandleMemFull(); return; }
+
+		if ( initfn )
+		    initfn( *this, newspos.i, newspos.j );
 	    }
 	}
     }
 
     allowdup_ = kpdup;
 }
+
+
+namespace Pos
+{
+class IdxPairDataSetFromCubeData : public ::ParallelTask
+{
+public:
+
+typedef Pos::IdxPairDataSet::IdxType IdxType;
+typedef Pos::IdxPairDataSet::ArrIdxType ArrIdxType;
+
+IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
+			    const PosInfo::CubeData& cubedata,
+			    ObjInitFn initfn )
+    : ds_( ds )
+    , cubedata_( cubedata )
+    , initfn_( initfn )
+{
+    // Add first spos on each line so all lines are in, thus
+    // threadsafe to add things as long as each line is separate
+    for ( ArrIdxType idx=0; idx<cubedata.size(); idx++ )
+    {
+	const PosInfo::LineData& line = *cubedata_[idx];
+	const ArrIdxType frst = line.linenr_;
+	if ( !line.segments_.isEmpty() )
+	    ds.add( IdxPair(frst,line.segments_[0].start) );
+    }
+}
+
+od_int64 nrIterations() const { return cubedata_.size(); }
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( IdxPair::IdxType idx=(IdxPair::IdxType)start; idx<=stop; idx++ )
+    {
+	const PosInfo::LineData& line = *cubedata_[idx];
+	const IdxType frst = line.linenr_;
+	for ( int idy=0; idy<line.segments_.size(); idy++ )
+	{
+	    StepInterval<IdxType> crls = line.segments_[idy];
+	    if ( idy == 0 )
+		crls.start += crls.step; //We added first scnd in constructor
+	    for ( IdxType scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
+	    {
+		IdxPair ip( frst, scnd );
+		IdxPairDataSet::SPos spos = ds_.find( ip );
+		if ( spos.isValid() )
+		    continue;
+		spos = ds_.add( ip );
+		if ( !spos.isValid() )
+		    return false;
+		else if ( initfn_ )
+		    initfn_( ds_, spos.i, spos.j );
+	    }
+	}
+    }
+
+    return true;
+}
+
+    IdxPairDataSet&	ds_;
+    PosInfo::CubeData	cubedata_;
+    ObjInitFn		initfn_;
+
+};
+
+} // namespace Pos
+
+
+void Pos::IdxPairDataSet::add( const PosInfo::CubeData& cubedata,
+			       ObjInitFn initfn )
+{
+    Pos::IdxPairDataSetFromCubeData task( *this, cubedata, initfn );
+    if ( !task.execute() )
+	mHandleMemFull()
+}
+
 
 
 void Pos::IdxPairDataSet::remove( const TrcKeySampling& hrg,

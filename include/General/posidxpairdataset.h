@@ -5,7 +5,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		July 2004/Oct 2013/Mar 2016
  RCS:		$Id$
 ________________________________________________________________________
@@ -24,6 +24,8 @@ class TrcKeySampling;
 namespace Pos
 {
 
+class IdxPairDataSet;
+typedef void (*EntryCreatedFn)(IdxPairDataSet&,int spos_i,int spos_j);
 
 /*!\brief A sorted set of IdxPairs and associated data buffer.
 
@@ -66,6 +68,7 @@ public:
     typedef od_int64			ObjSzType;
     typedef od_int64			GlobIdxType;
 
+
     /*!\brief Set Position: position in IdxPairDataSet
 
       Note that the iterator becomes invalid when adding or removing from
@@ -99,6 +102,7 @@ public:
     void		copyStructureFrom(const IdxPairDataSet&);
 			//!< will also empty this set
 
+    ObjSzType		objSize() const		{ return objsz_; }
     bool		managesData() const	{ return mandata_; };
     inline void		allowDuplicateIdxPairs( bool yn )
 			{ allowdup_ = yn; if ( !yn ) removeDuplicateIdxPairs();}
@@ -154,10 +158,11 @@ public:
     void		removeDuplicateIdxPairs();
     ArrIdxType		nrPos(ArrIdxType lineidx) const;
 
-			// Convenience stuff
-    void		extend(const IdxPairDelta& stepout,const IdxPairStep&);
+    void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
+				EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair postions not yet in set
-    void		add(const PosInfo::CubeData&);
+    void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
+			    //!< Adds only IdxPair postions not yet in set
 
 			// I/O
     bool		dump(od_ostream&,bool binary) const;
@@ -187,6 +192,7 @@ protected:
     class ObjData
     {
     public:
+
 	typedef unsigned char	BufType;
 
 				ObjData() : buf_(0), bufsz_(0), lastidx_(-1)
