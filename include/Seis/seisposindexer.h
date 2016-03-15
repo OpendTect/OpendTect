@@ -30,6 +30,8 @@ mExpClass(Seis) PosKeyList
 {
 public:
 
+    typedef od_int64	FileIdxType;
+
     virtual		~PosKeyList()			{}
     virtual od_int64	size() const			= 0;
     virtual bool	key(od_int64,PosKey&) const	= 0;
@@ -38,15 +40,25 @@ public:
 
 /*!\brief builds an index of a list of positions, making it easy to find a
   specific position.
-  
+
   In principle, no sorting is required.
   While at it, in/xline and offset ranges are determined.
-
 */
 
 mExpClass(Seis) PosIndexer
 {
 public:
+
+    typedef Index_Type			KeyIdxType;
+    typedef TypeSet<KeyIdxType>		KeyIdxSet;
+    typedef PosKeyList::FileIdxType	FileIdxType;
+    typedef TypeSet<FileIdxType>	FileIdxSet;
+    typedef od_stream_Pos		FileOffsType;
+    typedef TypeSet<FileOffsType>	FileOffsSet;
+    typedef DataInterpreter<int>	Int32Interpreter;
+    typedef DataInterpreter<od_int64>	Int64Interpreter;
+    typedef DataInterpreter<float>	FloatInterpreter;
+
 
 				PosIndexer(const PosKeyList&,bool doindex,
 					   bool excludeunreasonable);
@@ -55,20 +67,20 @@ public:
     virtual			~PosIndexer();
 
     od_int64			findFirst(const BinID&) const;
-    				//!< -1 = inl not found
-   				//!< -2 crl/trcnr not found
+				//!< -1 = inl not found
+				//!< -2 crl/trcnr not found
     od_int64			findFirst(int) const;
-    				//!< -1 = empty
-   				//!< -2 trcnr not found
+				//!< -1 = empty
+				//!< -2 trcnr not found
     od_int64			findFirst(const PosKey&,
 					  bool chckoffs=true) const;
-    				//!< -1 = inl not found or empty
-   				//!< -2 crl/trcnr not found
-   				//!< -3 offs not found
+				//!< -1 = inl not found or empty
+				//!< -2 crl/trcnr not found
+				//!< -3 offs not found
     od_int64			findOcc(const PosKey&,int occ) const;
-    				//!< ignores offset
+				//!< ignores offset
     TypeSet<od_int64>		findAll(const PosKey&) const;
-    				//!< ignores offset
+				//!< ignores offset
 
     inline bool			validIdx( od_int64 idx ) const
 				{ return idx >= 0 && idx < maxidx_; }
@@ -77,7 +89,7 @@ public:
     void			reIndex();
 
     inline Seis::GeomType	geomType() const
-    				{ return Seis::geomTypeOf(is2d_,isps_); }
+				{ return Seis::geomTypeOf(is2d_,isps_); }
 
     const Interval<int>&	inlRange() const	{ return inlrg_; }
     const Interval<int>&	crlRange() const	{ return crlrg_; }
@@ -85,10 +97,12 @@ public:
     const Interval<float>&	offsetRange() const	{ return offsrg_; }
     od_int64			nrRejected() const	{ return nrrejected_; }
 
+    bool			ioCompressed() const;
+    void			setIOCompressed(bool yn=true);
     bool			dumpTo(od_ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,
-	    				bool all,
-	    				DataInterpreter<int>*  =0,
+					bool all,
+					DataInterpreter<int>*  =0,
 					DataInterpreter<od_int64>* =0,
 					DataInterpreter<float>* =0 );
 
@@ -96,9 +110,13 @@ public:
     void			getCrls(int inl,TypeSet<int>&) const;
 
     void			add(const Seis::PosKey&, od_int64 offset );
-    				//!<Adds the pk to index. Called from reIndex
-    void			empty();
+				//!<Adds the pk to index. Called from reIndex
+
+    /* mDeprecated */ void	empty();
+    void			setEmpty()	{ empty(); }
+
 protected:
+
     bool			readHeader(DataInterpreter<int>*,
 					DataInterpreter<od_int64>*,
 					DataInterpreter<float>* );
@@ -136,6 +154,11 @@ protected:
 
     bool			isReasonable(const BinID&) const;
     int				getFirstIdxs(const BinID&,int&,int&);
+    void			dumpLineCompressed(od_ostream&,const KeyIdxSet&,
+						   const FileIdxSet&) const;
+    bool			readLineCompressed(KeyIdxSet&,
+						   FileIdxSet&) const;
+
 };
 
 

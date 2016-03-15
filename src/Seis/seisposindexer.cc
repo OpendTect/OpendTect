@@ -9,7 +9,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "datainterp.h"
 #include "survinfo.h"
+#include "hiddenparam.h"
 #include "od_iostream.h"
+
+static const int cMaxReasonableNrSegs = 100000;
+
+HiddenParam<Seis::PosIndexer,char> iocompressedmgr_( 0 );
+bool Seis::PosIndexer::ioCompressed() const
+{ return iocompressedmgr_.getParam( this ); }
+void Seis::PosIndexer::setIOCompressed( bool yn )
+{ iocompressedmgr_.setParam( this, yn ? 1 : 0 ); }
 
 
 Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
@@ -22,7 +31,10 @@ Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
     , excludeunreasonable_( excludeunreasonable )
     , goodinlrg_( SI().inlRange(false) )
     , goodcrlrg_( SI().crlRange(false) )
+    , is2d_(false), isps_(false)
 {
+    iocompressedmgr_.setParam( this, 0 );
+
     int inlwidth = goodinlrg_.width();
     if ( inlwidth<1 )
 	inlwidth = 100;
@@ -52,6 +64,7 @@ Seis::PosIndexer::~PosIndexer()
     delete strm_;
     delete int32interp_;
     delete int64interp_;
+    iocompressedmgr_.removeParam( this );
 }
 
 
@@ -75,13 +88,12 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
 {
     mWrite( is2d_ );
     mWrite( isps_ );
-    mWrite ( inlrg_.start );
-    mWrite ( inlrg_.stop );
-    mWrite ( crlrg_.start );
-    mWrite ( crlrg_.stop );
-    mWrite ( offsrg_.start );
-    mWrite ( offsrg_.stop );
-
+    mWrite( inlrg_.start );
+    mWrite( inlrg_.stop );
+    mWrite( crlrg_.start );
+    mWrite( crlrg_.stop );
+    mWrite( offsrg_.start );
+    mWrite( offsrg_.stop );
     mWrite( maxidx_ );
 
     TypeSet<od_stream::Pos> inloffsets( inls_.size(), 0 );
@@ -106,8 +118,13 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
 	const int nrtrcs = crlset.size();
 	if ( !is2d_ ) inloffsets[lineidx] = strm.position();
 	mWrite( nrtrcs );
-	strm.addBin( crlset.arr(), sizeof(int) * nrtrcs );
-	strm.addBin( idxset.arr(), sizeof(od_int64) * nrtrcs );
+	if ( ioCompressed() )
+	    dumpLineCompressed( strm, crlset, idxset );
+	else
+	{
+	    strm.addBin( crlset.arr(), sizeof(int) * nrtrcs );
+	    strm.addBin( idxset.arr(), sizeof(od_int64) * nrtrcs );
+	}
     }
 
     if ( !is2d_ )
@@ -147,11 +164,9 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     od_istream* strm = new od_istream( fnm );
     if ( !strm->isOK() )
 	mRet( false )
-
     strm->setPosition( offset );
     if ( !strm->isOK() )
 	mRet( false )
-
 
     strm_ = strm;
     if ( !readHeader( int32interp, int64interp, floatinterp ) )
@@ -169,7 +184,6 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     }
 
     inlfileoffsets_.erase();
-
     const int nrlines = is2d_ ? 1 : inls_.size();
 
     for ( int lineidx=0; lineidx<nrlines; lineidx++ )
@@ -199,8 +213,14 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
     int nrtrcs = DataInterpreter<int>::get( int32interp, *strm_ );
     if ( strm_->isBad() )
 	return false;
+    else if ( nrtrcs < 1 )
+	return true;
 
     crlset.setSize( nrtrcs, 0 );
+    idxset.setSize( nrtrcs, 0 );
+    if ( ioCompressed() )
+	return readLineCompressed( crlset, idxset );
+
     char* buf;
     int sz;
     ArrPtrMan<char> mybuf = 0;
@@ -225,7 +245,6 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	    crlset[idx] = int32interp->get( buf, idx );
     }
 
-    idxset.setSize( nrtrcs, 0 );
     if ( int64interp )
     {
 	buf = mybuf = new char[sizeof(int)*int64interp->nrBytes()];
@@ -247,6 +266,105 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 	    idxset[idx] = int64interp->get( buf, idx );
     }
 
+    return !strm_->isBad();
+}
+
+
+void Seis::PosIndexer::dumpLineCompressed( od_ostream& strm,
+		    const KeyIdxSet& crlset, const FileIdxSet& fileidxs ) const
+{
+    const int nrtrcs = crlset.size();
+    if ( nrtrcs < 1 )
+	return;
+
+    StepInterval<KeyIdxType> crlseg; StepInterval<FileIdxType> fiseg;
+    crlseg.start = crlset[0]; fiseg.start = fileidxs[0];
+    if ( nrtrcs < 2 ) // one crl: can be crl-sorted, keep it short
+	{ strm.addBin( crlseg.start ).addBin( fiseg.start ); return; }
+
+    crlseg.stop = crlset[1]; fiseg.stop = fileidxs[1];
+    crlseg.step = crlseg.stop - crlseg.start;
+    fiseg.step = fiseg.stop - fiseg.start;
+
+    TypeSet< StepInterval<KeyIdxType> > crlsegs;
+    TypeSet< StepInterval<FileIdxType> > fisegs;
+    for ( int itrc=2; itrc<nrtrcs; itrc++ )
+    {
+	const KeyIdxType crl = crlset[itrc];
+	const FileIdxType fidx = fileidxs[itrc];
+	const KeyIdxType predcrl = crlseg.stop + crlseg.step;
+	const FileIdxType predfidx = fiseg.stop + fiseg.step;
+	if ( crl == predcrl && fidx == predfidx )
+	    { crlseg.stop = crl; fiseg.stop = fidx; }
+	else
+	{
+	    crlsegs += crlseg; fisegs += fiseg;
+
+	    crlseg.step = crl - crlseg.stop;
+	    fiseg.step = fidx - fiseg.stop;
+	    crlseg.start = crlseg.stop = crl;
+	    fiseg.start = fiseg.stop = fidx;
+	}
+    }
+    crlsegs += crlseg; fisegs += fiseg;
+
+    const int nrsegs = crlsegs.size();
+    mWrite( nrsegs );
+    for ( int iseg=0; iseg<nrsegs; iseg++ )
+    {
+	crlseg = crlsegs[iseg]; fiseg = fisegs[iseg];
+	strm.addBin( crlseg.start ).addBin( crlseg.stop ).addBin( crlseg.step )
+	    .addBin( fiseg.start ).addBin( fiseg.stop ).addBin( fiseg.step );
+    }
+}
+
+
+bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
+					   FileIdxSet& fileidxs ) const
+{
+    const int nrtrcs = crlset.size(); // already set
+    StepInterval<KeyIdxType> crlseg; StepInterval<FileIdxType> fiseg;
+    if ( nrtrcs < 2 )
+    {
+	if ( nrtrcs > 0 )
+	{
+	    // single crl; special case ...
+	    strm_->getBin( crlseg.start ).getBin( fiseg.start );
+	    crlset += crlseg.start;
+	    fileidxs += fiseg.start;
+	}
+    }
+    else
+    {
+	int nrsegs = 0;
+	strm_->getBin( nrsegs );
+	if ( nrsegs > cMaxReasonableNrSegs )
+	{
+	    ErrMsg( BufferString("Found ",nrsegs," trace segments.") );
+	    return false;
+	}
+	if ( nrsegs > 0 && strm_->isOK() )
+	{
+	    for ( int iseg=0; iseg<nrsegs; iseg++ )
+	    {
+		strm_->getBin( crlseg.start ).getBin( crlseg.stop )
+		      .getBin( crlseg.step ).getBin( fiseg.start )
+		      .getBin( fiseg.stop ).getBin( fiseg.step );
+
+		if ( (crlseg.step > 0 && crlseg.start > crlseg.stop)
+		  || (crlseg.step < 0 && crlseg.start < crlseg.stop) )
+		    { pErrMsg("Huh"); continue; }
+
+		while ( crlseg.start <= crlseg.stop )
+		{
+		    crlset += crlseg.start; fileidxs += fiseg.start;
+		    if ( crlseg.step == 0 )
+			break;
+		    crlseg.start += crlseg.step; fiseg.start += fiseg.step;
+		}
+	    }
+	}
+    }
     return !strm_->isBad();
 }
 
