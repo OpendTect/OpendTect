@@ -89,9 +89,9 @@ static bool memCanOverCommit()
     }
     else
     {
-	canovercommit = -1; 
+	canovercommit = -1;
     }
-	
+
     free( contents );
 
     return canovercommit == 1;
@@ -563,7 +563,7 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 {
     char* getcwdres = getcwd( initialdir.getCStr(), initialdir.minBufSize() );
     if ( !getcwdres )
-    { pErrMsg("Cannot read current directory"); }
+	{ pFreeFnErrMsg("Cannot read current directory"); }
 
     argc = newargc;
     argv = newargv;
