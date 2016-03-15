@@ -86,6 +86,10 @@ if(UNIX) #Apple an Linux
 	    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
+	#Make all targets look for dependent libraries in the same location as they are in
+	set( CMAKE_INSTALL_RPATH "\$ORIGIN")
+	set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
     endif()
 
     set ( OD_LINESEP "\n" )
@@ -125,7 +129,6 @@ if(UNIX) #Apple an Linux
 	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 
     else() # Intel compiler
-	set ( CMAKE_SKIP_RPATH TRUE )
 	set (EXTRA_LIBS "imf" "m") #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
     endif( OD_GCC_COMPILER )
 

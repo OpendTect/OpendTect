@@ -12,7 +12,31 @@ configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
 configure_file (${CMAKE_SOURCE_DIR}/CMakeModules/templates/.arcconfig.in
 		${CMAKE_SOURCE_DIR}/.arcconfig @ONLY )
 
- if ( NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR ) )
+set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT OFF )
+if ( OSG_DIR )
+    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
+endif( OSG_DIR )
+
+if ( QTDIR )
+    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
+endif( QTDIR )
+
+
+# This option does two things
+#
+# 1. It installs the QT, OSG and other libraries to the installation structure when
+#    building the "install" target. On systems where these dependencies are provided
+#    through the operating system, this is not needed.
+#
+# 2. It copies dependencies into the build environment (bin/PLF/Debug and bin/PLF/Release)
+#    This is as the build environemnt should be as similar to the runtime envrironment as
+#    possible
+#
+# Default is to have it OFF when QTDIR and OSGDIR are not set
+
+option( OD_INSTALL_DEPENDENT_LIBS "Install dependent libs" ${OD_INSTALL_DEPENDENT_LIBS_DEFAULT} )
+
+if ( NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR ) )
     if ( UNIX )
 	if ( APPLE )
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
@@ -233,16 +257,18 @@ install( PROGRAMS ${SCRIPTS} DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 
-#Installing unix syatem libraries
-if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-    if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
-	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
-    elseif( ${OD_PLFSUBDIR} STREQUAL "lux32" )
-	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib/libstdc++.so.6 Release )
-	OD_INSTALL_SYSTEM_LIBRARY( /lib/libgcc_s.so.1 Release )
+#Installing unix system libraries
+if ( OD_INSTALL_DEPENDENT_LIBS )
+    if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
+	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+	    OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
+	    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
+	elseif( ${OD_PLFSUBDIR} STREQUAL "lux32" )
+	    OD_INSTALL_SYSTEM_LIBRARY( /usr/lib/libstdc++.so.6 Release )
+	    OD_INSTALL_SYSTEM_LIBRARY( /lib/libgcc_s.so.1 Release )
+	endif()
     endif()
-endif()
+endif( OD_INSTALL_DEPENDENT_LIBS )
 
 OD_CURRENT_DATE( DATE )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in

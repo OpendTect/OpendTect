@@ -98,7 +98,7 @@ macro(OD_SETUP_OSG)
 	list ( APPEND OD_OSG_LIBS osgGeo )
 	list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OSGGEO_LIBRARY_PATH} )
 
-	if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+	if ( OD_INSTALL_DEPENDENT_LIBS )
 	    foreach ( BUILD_TYPE Debug Release )
 
 		set( OARGS  ${OD_OSG_LIBS} )
@@ -167,7 +167,7 @@ macro(OD_SETUP_OSG)
 		endforeach()
 
 	    endforeach()
-	endif()
+	endif( OD_INSTALL_DEPENDENT_LIBS )
     endif()
 
     list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
