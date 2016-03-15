@@ -333,14 +333,12 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* )
 }
 
 
-#define mCloseReturn { setupgrp_ = 0; return; }
-
 void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
     cleanSetupDependents();
     seedswithoutattribsel_ = false;
 
-    if ( trackercurrentobject_ == -1 ) mCloseReturn;
+    if ( trackercurrentobject_ == -1 ) return;
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
     if ( trackerid == -1 )
@@ -349,14 +347,14 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	initialundoid_ = mUdf(int);
 	seedhasbeenpicked_ = false;
 	setupbeingupdated_ = false;
-	mCloseReturn;
+	return;
     }
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    if ( !tracker ) mCloseReturn;
+    if ( !tracker ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !seedpicker ) mCloseReturn;
+    if ( !seedpicker ) return;
 
     if ( setupbeingupdated_ )
     {
@@ -365,7 +363,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	trackercurrentobject_ = -1;
 	setupbeingupdated_ = false;
 	sendEvent( ::uiMPEPartServer::evSetupClosed() );
-	mCloseReturn;
+	return;
     }
 
     if ( !seedhasbeenpicked_ )
@@ -376,7 +374,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	if ( !res )
 	{
 	    noTrackingRemoval();
-	    mCloseReturn;
+	    return;
 	}
     }
 
@@ -384,14 +382,12 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	if ( !seedhasbeenpicked_ )
 	{
 	    seedswithoutattribsel_ = true;
-	    mCloseReturn;
+	    return;
 	}
 
     seedpicker->seedToBeAddedRemoved.remove(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
     seedpicker->seedAdded.remove( mCB(this,uiMPEPartServer,seedAddedCB) );
-
-    setupgrp_ = 0;
 
     if ( !seedhasbeenpicked_ || !seedpicker->doesModeUseVolume() )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
@@ -444,10 +440,7 @@ void uiMPEPartServer::noTrackingRemoval()
     seedhasbeenpicked_ = false;
 
     if ( cursceneid_ == -1 )
-    {
 	setupbeingupdated_ = false;
-	setupgrp_ = 0;
-    }
 
     MPE::engine().trackeraddremove.enable();
     MPE::engine().trackeraddremove.trigger();
