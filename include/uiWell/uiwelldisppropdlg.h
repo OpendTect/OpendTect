@@ -39,6 +39,7 @@ public:
 
 
     bool 			savedefault_;
+    void			updateLogs();
  
 protected:
 
