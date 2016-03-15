@@ -171,13 +171,26 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 
-    if ( mnuid==0 || mnuid==1 )
+    if ( mnuid==0 )
+    {
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
+	ctio->ctxt_.forread_ = true;
+	ctio->fillDefault();
+	if ( !ctio->ioobj_ )
+	{
+	    uiODRandomLineTreeItem* itm =
+		    new uiODRandomLineTreeItem(-1, getType(mnuid) );
+	    addChild( itm, false );
+	    itm->displayDefaultData();
+	}
+	else
+	    load( *ctio->ioobj_, mnuid );
+    }
+    else if ( mnuid==1 )
     {
 	uiODRandomLineTreeItem* itm =
 		new uiODRandomLineTreeItem(-1, getType(mnuid) );
 	addChild( itm, false );
-	if ( mnuid==0 )
-	    itm->displayDefaultData();
     }
     else if ( mnuid==2 || mnuid==3 )
 	addStored( mnuid );
