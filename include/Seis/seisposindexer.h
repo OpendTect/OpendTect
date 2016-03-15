@@ -50,6 +50,7 @@ public:
 
     typedef Index_Type			KeyIdxType;
     typedef TypeSet<KeyIdxType>		KeyIdxSet;
+    typedef KeyIdxSet::size_type	SetIdxType;
     typedef PosKeyList::FileIdxType	FileIdxType;
     typedef TypeSet<FileIdxType>	FileIdxSet;
     typedef od_stream_Pos		FileOffsType;
@@ -60,54 +61,48 @@ public:
 
 
 				PosIndexer(const PosKeyList&,bool doindex,
-					   bool excludeunreasonable);
-				/*!<\param excludeunreasonable enables rejection
-					   of traces far outside survey. */
+					   bool exclude_unreasonable_traces);
+					//!< unreasonable == far outside survey
     virtual			~PosIndexer();
     void			setEmpty();
-
-    inline GeomType		geomType() const
-				{ return geomTypeOf(is2d_,isps_); }
-    const Interval<KeyIdxType>&	inlRange() const	{ return inlrg_; }
-    const Interval<KeyIdxType>&	crlRange() const	{ return crlrg_; }
-    const Interval<KeyIdxType>&	trcNrRange() const	{ return crlrg_; }
-    const Interval<float>&	offsetRange() const	{ return offsrg_; }
-    FileIdxType			nrRejected() const	{ return nrrejected_; }
-
-    FileIdxType			findFirst(const BinID&) const;
-				//!< -1 = inl not found
-				//!< -2 crl/trcnr not found
-    FileIdxType			findFirst(KeyIdxType) const;
-				//!< -1 = empty
-				//!< -2 trcnr not found
-    FileIdxType			findFirst(const PosKey&,
-					  bool chckoffs=true) const;
-				//!< -1 = inl not found or empty
-				//!< -2 crl/trcnr not found
-				//!< -3 offs not found
-    FileIdxType			findOcc(const PosKey&,int occ) const;
-				//!< ignores offset
-    FileIdxSet			findAll(const PosKey&) const;
-				//!< ignores offset
-
-    inline bool			validIdx( FileIdxType idx ) const
-				{ return idx >= 0 && idx < maxidx_; }
-    inline FileIdxType		maxIdx() const		{ return maxidx_; }
-    void			reIndex();
 
     bool			ioCompressed() const	{ return iocompressed_;}
     void			setIOCompressed(bool yn=true)
 							{ iocompressed_ = yn; }
+
+    void			add(const PosKey&,FileIdxType);
+    void			reIndex(); //!<Calls add() multiple times
+
+    inline GeomType		geomType() const
+				{ return geomTypeOf(is2d_,isps_); }
+    const Interval<KeyIdxType>&	inlRange() const	{ return inlrg_; }
+    const KeyIdxSet&		getInls() const		{ return inls_; }
+    const Interval<KeyIdxType>&	crlRange() const	{ return crlrg_; }
+    const Interval<KeyIdxType>&	trcNrRange() const	{ return crlrg_; }
+    void			getCrls(KeyIdxType,KeyIdxSet&) const;
+    const Interval<float>&	offsetRange() const	{ return offsrg_; }
+
+    FileIdxType			nrRejected() const	{ return nrrejected_; }
+    inline bool			validFileIdx( FileIdxType idx ) const
+				{ return idx >= 0 && idx < maxfileidx_; }
+    inline FileIdxType		maxFileIdx() const	{ return maxfileidx_; }
+
+				    // -1 = inl not found (or empty in poskey)
+				    // -2 crl/trcnr not found
+    FileIdxType			findFirst(const BinID&) const;
+    FileIdxType			findFirst(KeyIdxType trcnr) const;
+    FileIdxType			findFirst(const PosKey&,
+					  bool chckoffs=true) const;
+				    //!< -3 offs not found
+    FileIdxType			findOcc(const PosKey&,int occ) const;
+				    //!< ignores offset
+    FileIdxSet			findAll(const PosKey&) const;
+				    //!< ignores offset
+
     bool			dumpTo(od_ostream&) const;
     bool			readFrom(const char* fnm,FileIdxType,bool all,
 				     Int32Interpreter* =0,Int64Interpreter* =0,
 				     FloatInterpreter* =0);
-
-    const KeyIdxSet&		getInls() const		{ return inls_; }
-    void			getCrls(KeyIdxType,KeyIdxSet&) const;
-
-    void			add(const PosKey&,FileIdxType);
-				//!<Adds the pk to index. Called from reIndex
 
 protected:
 
@@ -134,7 +129,7 @@ protected:
     KeyIdxSet			inls_;
     ObjectSet<KeyIdxSet>	crlsets_;
     ObjectSet<FileIdxSet>	fileidxsets_;
-    FileIdxType			maxidx_;
+    FileIdxType			maxfileidx_;
 
     Interval<KeyIdxType>	inlrg_;
     Interval<KeyIdxType>	crlrg_;
@@ -154,7 +149,6 @@ protected:
 };
 
 
-
-} // namespace
+} // namespace Seis
 
 #endif
