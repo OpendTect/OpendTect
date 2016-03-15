@@ -613,7 +613,7 @@ void Pos::IdxPairDataSet::removeDuplicateIdxPairs()
 
 void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
 				  const Pos::IdxPairStep& sostep,
-				  ObjInitFn initfn )
+				  EntryCreatedFn crfn )
 {
     if ( (!so.first && !so.second) || (!sostep.first && !sostep.second) )
 	return;
@@ -644,8 +644,8 @@ void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
 		if ( !newspos.isValid() )
 		    { mHandleMemFull(); return; }
 
-		if ( initfn )
-		    initfn( *this, newspos.i, newspos.j );
+		if ( crfn )
+		    crfn( *this, newspos.i, newspos.j );
 	    }
 	}
     }
@@ -665,10 +665,10 @@ typedef Pos::IdxPairDataSet::ArrIdxType ArrIdxType;
 
 IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
 			    const PosInfo::CubeData& cubedata,
-			    ObjInitFn initfn )
+			    EntryCreatedFn crfn )
     : ds_( ds )
     , cubedata_( cubedata )
-    , initfn_( initfn )
+    , crfn_( crfn )
 {
     // Add first spos on each line so all lines are in, thus
     // threadsafe to add things as long as each line is separate
@@ -703,8 +703,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		spos = ds_.add( ip );
 		if ( !spos.isValid() )
 		    return false;
-		else if ( initfn_ )
-		    initfn_( ds_, spos.i, spos.j );
+		else if ( crfn_ )
+		    crfn_( ds_, spos.i, spos.j );
 	    }
 	}
     }
@@ -714,7 +714,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
     IdxPairDataSet&	ds_;
     PosInfo::CubeData	cubedata_;
-    ObjInitFn		initfn_;
+    EntryCreatedFn	crfn_;
 
 };
 
@@ -722,9 +722,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 
 void Pos::IdxPairDataSet::add( const PosInfo::CubeData& cubedata,
-			       ObjInitFn initfn )
+			       EntryCreatedFn crfn )
 {
-    Pos::IdxPairDataSetFromCubeData task( *this, cubedata, initfn );
+    Pos::IdxPairDataSetFromCubeData task( *this, cubedata, crfn );
     if ( !task.execute() )
 	mHandleMemFull()
 }
