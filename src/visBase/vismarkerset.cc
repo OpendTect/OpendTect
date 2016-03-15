@@ -44,7 +44,9 @@ MarkerSet::MarkerSet()
     , offset_( 0 )
 {
     markerset_->ref();
-    onoffarr_.setParam( this, new osg::ByteArray );
+    osg::ByteArray* arr = new osg::ByteArray;
+    arr->ref();
+    onoffarr_.setParam( this, arr );
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
     markerset_->setOnOffArray( onoffarr_.getParam(this) );
@@ -68,6 +70,8 @@ MarkerSet::~MarkerSet()
     clearMarkers();
     markerset_->unref();
     removePolygonOffsetNodeState();
+    osg::ByteArray* arr = onoffarr_.getParam( this );
+    arr->unref();
     onoffarr_.removeParam( this );
 }
 
