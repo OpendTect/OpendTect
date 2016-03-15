@@ -131,11 +131,20 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
 	return true;
 
     if ( needmore )
+    {
+	if ( nrobjs == 0 )
+	    nrobjs = 1;
 	while ( newnrobjs > nrobjs )
 	    nrobjs *= 2;
+    }
     else // need less
-	while ( newnrobjs < nrobjs )
-	    nrobjs /= 2;
+    {
+	if ( nrobjs == 1 )
+	    nrobjs = 0;
+	else
+	    while ( newnrobjs < nrobjs )
+		nrobjs /= 2;
+    }
 
     BufSzType newsz = nrobjs * recsz;
     BufType* orgbuf = buf_; const BufSzType orgsz = bufsz_;
@@ -432,6 +441,15 @@ bool Pos::IdxPairDataSet::prev( SPos& spos, bool skip_dup ) const
 	return prev( spos, true );
 
     return true;
+}
+
+
+const void* Pos::IdxPairDataSet::get( SPos spos, IdxPair& ip ) const
+{
+    if ( !spos.isValid() )
+	{ ip.setUdf(); return 0; }
+    ip = gtIdxPair( spos );
+    return gtObj( spos );
 }
 
 

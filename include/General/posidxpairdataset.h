@@ -99,6 +99,7 @@ public:
     void		copyStructureFrom(const IdxPairDataSet&);
 			//!< will also empty this set
 
+    bool		managesData() const	{ return mandata_; };
     inline void		allowDuplicateIdxPairs( bool yn )
 			{ allowdup_ = yn; if ( !yn ) removeDuplicateIdxPairs();}
     bool		allowsDuplicateIdxPairs() const { return allowdup_; }
@@ -121,6 +122,7 @@ public:
 
     IdxPair		getIdxPair(SPos) const;
     const void*		getObj(SPos) const;
+    const void*		get(SPos,IdxPair&) const;
     SPos		getPos(GlobIdxType) const; //!< Very slow.
     SPos		add(const IdxPair&,const void* obj=0);
 			    //!< If returned SPos is not valid memory was full

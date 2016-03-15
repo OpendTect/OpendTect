@@ -17,7 +17,7 @@ set ( OD_MODULE_DEPS Algo )
 if ( NOT DEFINED WIN32 )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()
-list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc )
+list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc posidxpairdataset.cc )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 list ( APPEND OD_MODULE_SOURCES
 	array2dbitmap.cc
