@@ -25,8 +25,8 @@ namespace VolProc
 
 /*!\brief A chain of Steps that can be applied to a volume of scalars.  */
 
-mExpClass(VolumeProcessing) Chain
-{ mRefCountImpl(Chain); mODTextTranslationClass(Chain);
+mExpClass(VolumeProcessing) Chain : public RefCount::Referenced
+{ mODTextTranslationClass(Chain);
 public:
 				Chain();
 
@@ -113,6 +113,7 @@ public:
     Step::ID			getNewStepID() { return freeid_++; }
 
 private:
+				~Chain();
 
     friend			class ChainExecutor;
 

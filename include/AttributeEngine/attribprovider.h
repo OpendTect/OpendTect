@@ -41,12 +41,9 @@ class ProviderTask;
 \brief Provides the actual output to ...
 */
 
-mExpClass(AttributeEngine) Provider
-{ mRefCountImpl(Provider);
-  mODTextTranslationClass(Attrib::Provider)
-
+mExpClass(AttributeEngine) Provider : public RefCount::Referenced
+{   mODTextTranslationClass(Attrib::Provider)
     friend class		ProviderTask;
-
 public:
 
     static Provider*		create(Desc&,uiString& errmsg);
@@ -181,6 +178,8 @@ public:
 protected:
 
 				Provider(Desc&);
+                                ~Provider();
+
     virtual bool		checkInpAndParsAtStart();
     				/*!< Should be used for check _after_ inputs
 				  are set, for extra checks at other time

@@ -38,8 +38,8 @@ class Gather;
 \brief Computes angles for PreStack::Gather.
 */
 
-mExpClass(PreStackProcessing) AngleComputer
-{ mRefCountImpl(AngleComputer)
+mExpClass(PreStackProcessing) AngleComputer :  public RefCount::Referenced
+{
 public:
 				AngleComputer();
 
@@ -69,6 +69,7 @@ public:
     static const char*		sKeyFreqF4();
 
 protected:
+                                ~AngleComputer();
 
     bool			fillandInterpArray(Array2D<float>& angledata);
     Gather*			computeAngleData();

@@ -83,7 +83,8 @@ private:
    can create Functions at certian BinID locations. */
 
 mExpClass(Velocity) FunctionSource : public CallBacker
-{ mRefCountImplNoDestructor(FunctionSource)
+				   , public RefCount::Referenced
+{
 public:
 				mDefineFactory1ParamInClass(
 					FunctionSource,const MultiID&,factory)

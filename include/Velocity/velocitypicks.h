@@ -55,7 +55,8 @@ public:
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
 mExpClass(Velocity) Picks : public CallBacker
-{ mRefCountImpl(Picks)
+			  , public RefCount::Referenced
+{
 public:
     			Picks();
     			Picks(bool zit);
@@ -164,6 +165,7 @@ public:
     static const char*		sKeyPickType();
 
 protected:
+				~Picks();
     void			getColorKey(BufferString&) const;
     void			removeHorizons();
     friend			class PicksMgr;

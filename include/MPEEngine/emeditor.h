@@ -45,7 +45,8 @@ be moved, and in what manner.
 */
 
 mExpClass(MPEEngine) ObjectEditor : public CallBacker
-{ mRefCountImpl( ObjectEditor );
+                                  , public RefCount::Referenced
+{
 public:
 			ObjectEditor(EM::EMObject&);
 
@@ -109,6 +110,7 @@ public:
     static void			enableNodeCloning(bool yn=true);
 
 protected:
+					~ObjectEditor();
 
     virtual bool			setPosition(const EM::PosID&,
 	    					    const Coord3&);

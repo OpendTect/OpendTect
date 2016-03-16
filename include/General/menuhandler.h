@@ -185,7 +185,8 @@ inserted into the menu.
 */
 
 mExpClass(General) MenuHandler : public MenuItemHolder
-{				mRefCountImpl(MenuHandler);
+                               , public RefCount::Referenced
+{
 public:
 				MenuHandler( int id );
 
@@ -217,6 +218,7 @@ public:
 				    execute a queue, identified by this id. */
 
 protected:
+    				~MenuHandler();
     void			assignItemID(MenuItem&);
     void			executeQueue();
 

@@ -111,7 +111,7 @@ namespace RefCount
 class ObsPtrBase;
 
 /*! Actual implementation of the reference counting. Normally not used by
-    application developers. Use mRefCountImpl marcro instead. */
+    application developers.  */
 
 mExpClass(Basic) Counter
 {
@@ -173,7 +173,7 @@ private:
 
 public:
     int				nrRefs() const;
-				//!<Don't use in production, for debugging
+				//!<Only for expert use
     bool			refIfReffed() const;
 				//!<Don't use in production, for debugging
     bool			tryRef() const;
@@ -290,75 +290,6 @@ RefMan<T> ObsPtr<T>::get() const
     
     return res;
 }
-
-//Legacy macros with old implementations. Deprecated soon.
-#define mRefCountImplWithDestructor(ClassName, DestructorImpl, delfunc ) \
-public: \
-    void	ref() const \
-		{ \
-		    refcount_.ref(); \
-		    refNotify(); \
-		} \
-    bool	refIfReffed() const \
-		{ \
-		    if ( !refcount_.refIfReffed() ) \
-			return false; \
-		    \
-		    refNotify(); \
-		    return true; \
-		} \
-    void	unRef() const \
-		{ \
-		    unRefNotify(); \
-		    if ( refcount_.unRef() ) \
-		    { \
-			refcount_.clearAllObservers(); \
-			delfunc; \
-		    } \
-		    return; \
-		} \
- \
-    void	unRefNoDelete() const \
-		{ \
-		    unRefNoDeleteNotify(); \
-		    refcount_.unRefDontInvalidate(); \
-		} \
-    int		nrRefs() const { return refcount_.count(); } \
-    \
-private: \
-    virtual void		refNotify() const {} \
-    virtual void		unRefNotify() const {} \
-    virtual void		unRefNoDeleteNotify() const {} \
-    mutable RefCount::Counter	refcount_;	\
-protected: \
-    friend class ObsPtr<ClassName>; \
-    bool	tryRef() const \
-    { \
-	if ( refcount_.tryRef() ) { refNotify(); return true; } \
-	    return false; \
-    }\
-    void	addObserver(RefCount::ObsPtrBase* obs) \
-    { \
-	refcount_.addObserver( obs ); \
-    } \
-    void removeObserver(RefCount::ObsPtrBase* obs) \
-    { \
-	refcount_.removeObserver( obs ); \
-    } \
-		DestructorImpl; \
-private:
-
-//!\endcond
-
-//!Macro to setup a class with destructor for reference counting
-#define mRefCountImpl(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
-
-//!Macro to setup a class without destructor for reference counting
-#define mRefCountImplNoDestructor(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
-
-
 
 
 #endif

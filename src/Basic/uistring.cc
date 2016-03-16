@@ -57,8 +57,8 @@ const uiString uiString::emptystring_( toUiString(sKey::EmptyString()) );
 static const QString emptyqstring;
 #endif
 
-class uiStringData
-{ mRefCountImplNoDestructor(uiStringData)
+class uiStringData : public RefCount::Referenced
+{ 
   friend class uiString;
 public:
     uiStringData( const char* originalstring, const char* context,
@@ -691,7 +691,7 @@ uiString uiString::getOrderString( int val )
 void uiString::makeIndependent()
 {
     Threads::Locker datalocker( datalock_ );
-    if ( !data_ || data_->refcount_.count()==1 )
+    if ( !data_ || data_->nrRefs()==1 )
 	return;
 
     RefMan<uiStringData> olddata = data_;

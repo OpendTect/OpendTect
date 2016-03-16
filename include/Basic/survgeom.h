@@ -37,8 +37,8 @@ will end up in the lineNr() of the TrcKey.
 
 */
 
-mExpClass(Basic) Geometry
-{ mRefCountImpl(Geometry)
+mExpClass(Basic) Geometry : public RefCount::Referenced
+{
 public:
 
     typedef Pos::GeomID	ID;
@@ -83,13 +83,13 @@ public:
     const Geometry3D*		as3D() const;
 
 protected:
-
+				~Geometry();
 				Geometry();
 
     TrcKeyZSampling		sampling_;
 private:
 
-    ID			id_;
+    ID				id_;
 
 };
 

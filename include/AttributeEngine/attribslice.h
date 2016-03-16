@@ -29,7 +29,8 @@ namespace Attrib
 
 
 mExpClass(AttributeEngine) Slice : public Array2DImpl<float>
-{ mRefCountImplNoDestructor(Slice);
+                                 , public RefCount::Referenced
+{
 public:
 
     			Slice(int nrows,int ncols,float udfval=0);
@@ -53,7 +54,8 @@ protected:
 */
 
 mExpClass(AttributeEngine) SliceSet : public ObjectSet<Slice>
-{ mRefCountImpl(SliceSet);
+                                    , public RefCount::Referenced
+{
 public:
 
 			SliceSet();
@@ -70,6 +72,8 @@ public:
 			 */
     float               getValue(int inl,int crl,float z) const;
 
+protected:
+    			~SliceSet();
 };
 
 }; //namespace

@@ -21,8 +21,8 @@ ________________________________________________________________________
 \brief Base class for vertex attribute list.
 */
 
-mExpClass(Algo) FloatVertexAttribList
-{ mRefCountImpl(FloatVertexAttribList)
+mExpClass(Algo) FloatVertexAttribList : public RefCount::Referenced
+{
 public:
 
 
@@ -39,13 +39,14 @@ public:
     virtual void	getTCoord(int,float*) const		= 0;
 
 protected:
+                        ~FloatVertexAttribList();
 };
 
 
 /*!\brief Interface for a list of Coords with automatically maintained IDs. */
 
-mExpClass(Algo) Coord2List
-{ mRefCountImplNoDestructor(Coord2List);
+mExpClass(Algo) Coord2List : public RefCount::Referenced
+{
 public:
 
     virtual int		nextID(int previd) const			= 0;
@@ -69,8 +70,8 @@ class Coord3;
 
 /*!\brief Interface for a list of Coord3 with automatically maintained IDs. */
 
-mExpClass(Algo) Coord3List
-{ mRefCountImplNoDestructor(Coord3List);
+mExpClass(Algo) Coord3List : public RefCount::Referenced
+{ 
 public:
 
     virtual int		nextID(int previd) const			= 0;

@@ -31,8 +31,8 @@ namespace MPE
 
 class EMTracker;
 class EMSeedPicker;
-mExpClass(MPEEngine) Patch
-{ mRefCountImpl(Patch);
+mExpClass(MPEEngine) Patch : public RefCount::Referenced
+{
 public:
 			    Patch(const EMSeedPicker*);
     const TypeSet<TrcKeyValue>&  getPath() const;
@@ -44,6 +44,7 @@ public:
     void		    clear();
     
 protected:
+                            ~Patch();
     EM::PosID               seedNode(int) const;
     int			    findClosestSeedRdmIdx(const EM::PosID&);
     int			    findClosedSeed3d(const EM::PosID&);

@@ -22,7 +22,8 @@ ________________________________________________________________________
    be accessed via PickRetriever::getInstance(). */
 
 mExpClass(General) PickRetriever : public CallBacker
-{ mRefCountImpl(PickRetriever);
+				 , public RefCount::Referenced
+{
 public:
     				PickRetriever();
 
@@ -55,6 +56,7 @@ public:
     virtual const ZAxisTransform* getZAxisTransform() const		= 0;
 
 protected:
+    				~PickRetriever();
     static RefMan<PickRetriever> instance_;
 };
 

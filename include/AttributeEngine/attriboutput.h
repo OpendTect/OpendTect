@@ -40,8 +40,8 @@ class Data2DHolder;
 \brief Base class for attribute Output.
 */
 
-mExpClass(AttributeEngine) Output
-{ mRefCountImpl(Output);
+mExpClass(AttributeEngine) Output : public RefCount::Referenced
+{
 public:
 				Output();
 
@@ -83,6 +83,7 @@ public:
     virtual const char*		errMsg() const	{ return ""; }
 
 protected:
+                                ~Output();
 
     Seis::SelData*		seldata_;
     TypeSet<int>		desoutputs_;

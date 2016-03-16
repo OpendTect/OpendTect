@@ -34,8 +34,8 @@ namespace ZDomain { class Def; class Info; }
   The various transforms can be retrieved from factory ZATF().
 */
 
-mExpClass(Algo) ZAxisTransform
-{ mRefCountImpl(ZAxisTransform);
+mExpClass(Algo) ZAxisTransform : public RefCount::Referenced
+{
 public:
 				mDefineFactoryInClass(ZAxisTransform,factory);
 
@@ -100,6 +100,7 @@ public:
 protected:
 				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
+    				~ZAxisTransform();
 
     ZDomain::Info&		tozdomaininfo_;
     ZDomain::Info&		fromzdomaininfo_;

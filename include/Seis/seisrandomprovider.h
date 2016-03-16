@@ -72,11 +72,14 @@ public:
 
 protected:
 
-    struct TraceHolder
-    { mRefCountImpl( TraceHolder );
+    struct TraceHolder : public RefCount::Referenced
+    {
+    public:
 				TraceHolder() : trc_( 0 ) {}
 
 	SeisTrc*		trc_;
+    protected:
+        			~TraceHolder();
     };
 
     void				incomingTrace( CallBacker* );

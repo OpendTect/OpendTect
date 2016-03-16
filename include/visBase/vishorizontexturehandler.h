@@ -30,9 +30,8 @@ namespace visBase
     class TextureChannels;
     class HorizonSection;
 
-class HorizonTextureHandler
-{ 
-    mRefCountImpl(HorizonTextureHandler)
+class HorizonTextureHandler : public RefCount::Referenced
+{
 public:
 				HorizonTextureHandler(const HorizonSection*);
     osg::Node*		        getOsgNode();
@@ -76,6 +75,7 @@ public:
 
 
 protected:
+                                ~HorizonTextureHandler();
 
     const HorizonSection*       horsection_;
     ObjectSet<BinIDValueSet>	cache_;

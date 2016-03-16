@@ -22,7 +22,8 @@ class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
 mExpClass(uiViewer2D) Vw2DDataObject : public CallBacker
-{ mRefCountImpl(Vw2DDataObject)
+				     , public RefCount::Referenced
+{
 public:
 
     virtual const char*         getClassName() const    { return "Not impl"; }
@@ -41,7 +42,8 @@ public:
     static const char*		sKeyMID()		{ return "ID"; }
 
 protected:
-				Vw2DDataObject();
+			~Vw2DDataObject();
+			Vw2DDataObject();
 
     virtual void	triggerDeSel()			{}
 

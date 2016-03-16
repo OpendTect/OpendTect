@@ -80,9 +80,9 @@ public:
 
 
 mExpClass(Geometry) MarchingCubesSurface : public CallBacker
-{ mRefCountImpl(MarchingCubesSurface);
+                                         , public RefCount::Referenced
+{
 public:
-
     			MarchingCubesSurface();
 
     bool		setVolumeData(int xorigin,int yorigin,int zorigin,
@@ -112,6 +112,8 @@ public:
     						//!<set when change is trig.
     Interval<int>				changepos_[3];
     						//!<set when change is trig.
+protected:
+						~MarchingCubesSurface();
 };
 
 

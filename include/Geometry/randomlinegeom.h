@@ -29,7 +29,8 @@ namespace Geometry
 class RandomLineSet;
 
 mExpClass(Geometry) RandomLine : public NamedObject
-{ mRefCountImpl(RandomLine)
+                               , public RefCount::Referenced
+{
 public:
     			RandomLine(const char* nm=0);
 
@@ -93,6 +94,7 @@ public:
     const RandomLineSet* lineSet() const	{ return lset_; }
 
 protected:
+    			~RandomLine();
 
     Pos::SurvID		survid_;
 

@@ -13,23 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "refcount.h"
 
 
-class MacroReferencedClass
-{ mRefCountImpl(MacroReferencedClass);
-public:
-    MacroReferencedClass(bool* delflag )
-	: deleteflag_( delflag )
-    {}
-
-
-    bool*		deleteflag_;
-};
-
-
-MacroReferencedClass::~MacroReferencedClass()
-{
-    *deleteflag_ = true;
-}
-
 
 class ReferencedClass : public RefCount::Referenced
 {
@@ -60,11 +43,11 @@ else if ( !quiet ) \
     od_cout() << "Test " << #voiddo << " " << #test << " - SUCCESS\n"; \
 }
 
-template <class T>
+
 bool testRefCount()
 {
     bool deleted = false;
-    T* refclass = new T( &deleted );
+    ReferencedClass* refclass = new ReferencedClass( &deleted );
 
     mRunTest( , refclass->refIfReffed()==false, false, 0 );
     mRunTest( refclass->ref(), true, false, 1 );
@@ -81,8 +64,8 @@ bool testRefCount()
     mRunTest( unRefPtr(refclass), true, false,
 	      RefCount::Counter::cInvalidRefCount() );
 
-    refclass = new T( &deleted );
-    RefMan<T> rptr = refclass;
+    refclass = new ReferencedClass( &deleted );
+    RefMan<ReferencedClass> rptr = refclass;
     mRunTest( refPtr(refclass), true, false, 2 );
     mRunTest( refPtr(refclass), true, false, 3 );
     mRunTest( unRefPtr(refclass), true, false, 2 );
@@ -92,17 +75,16 @@ bool testRefCount()
 }
 
 
-template <class T>
 bool testObsPtr()
 {
     bool deleted = false;
-    T* refclass = new T( &deleted );
+    ReferencedClass* refclass = new ReferencedClass( &deleted );
 
-    ObsPtr<T> obsptr = refclass;
+    ObsPtr<ReferencedClass> obsptr = refclass;
     mRunStandardTest( obsptr.get().ptr()==0,
 		      "Setting unreffed class should give NULL");
 
-    RefMan<T> refman1 = new T( &deleted );
+    RefMan<ReferencedClass> refman1 = new ReferencedClass( &deleted );
     obsptr = refman1;
 
     mRunStandardTest( obsptr.get().ptr(), "ObsPtr is set" );
@@ -111,10 +93,10 @@ bool testObsPtr()
 
     mRunStandardTest( !obsptr.get().ptr(), "ObsPtr is is unset on last unref" );
 
-    refman1 = new T( &deleted );
+    refman1 = new ReferencedClass( &deleted );
     obsptr = refman1;
 
-    RefMan<T> refman2 = new T( &deleted );
+    RefMan<ReferencedClass> refman2 = new ReferencedClass( &deleted );
     obsptr = refman2;
 
     refman1 = 0;
@@ -128,9 +110,8 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testRefCount<MacroReferencedClass>() ||
-	 !testRefCount<ReferencedClass>() ||
-	 !testObsPtr<ReferencedClass>() )
+    if ( !testRefCount() ||
+	 !testObsPtr() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );

@@ -32,10 +32,10 @@ namespace visBase
     class HorizonSectionTile;
 
 
-class HorTilesCreatorAndUpdator
-{mRefCountImpl(HorTilesCreatorAndUpdator)
+class HorTilesCreatorAndUpdator : public RefCount::Referenced
+{
 public: 
-    HorTilesCreatorAndUpdator( HorizonSection*);
+            HorTilesCreatorAndUpdator(HorizonSection*);
 
     void    updateTiles(const TypeSet<GeomPosID>*,TaskRunner*);
     void    createAllTiles(TaskRunner* tr);
@@ -45,6 +45,7 @@ public:
 
 
 protected:
+            ~HorTilesCreatorAndUpdator();
     void    updateTileArray(const StepInterval<int>& rrg,
 			    const StepInterval<int>& crg);
     HorizonSectionTile* createOneTile(int tilerowidx, int tilecolidx);

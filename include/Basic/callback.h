@@ -126,7 +126,8 @@ CallBack::callInMainThread( CallBack( this, ((CallBackFunction)(&func) ) ), 0)
 */
 
 mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
-{ mRefCountImpl(CallBackSet)
+                             , public RefCount::Referenced
+{
 public:
 		CallBackSet();
 		CallBackSet(const CallBackSet&);
@@ -149,6 +150,8 @@ public:
     		//!<Returns old state
 
     mutable Threads::Lock   	lock_;
+protected:
+				~CallBackSet();
 private:
     bool			enabled_;
 };

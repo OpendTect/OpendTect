@@ -25,7 +25,8 @@ namespace visBase
 /*!Baseclass for objects manipulating the osg::StateSet. */
 
 mExpClass(visBase) NodeState : public CallBacker
-{ mRefCountImpl(NodeState);
+                             , public RefCount::Referenced
+{
 public:
 
     void			attachStateSet(osg::StateSet*);
@@ -34,6 +35,7 @@ public:
 
 protected:
 				NodeState();
+    				~NodeState();
     
     template <class T> T*	addAttribute(T* a) { doAdd(a); return a; }
     template <class T> void	removeAttribute(T* a) {doRemove(a);}

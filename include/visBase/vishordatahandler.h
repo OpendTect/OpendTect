@@ -25,28 +25,29 @@ namespace visBase
     class Coordinates;
     class HorizonSection;
 
-class HorizonSectionDataHandler
-{ mRefCountImpl(HorizonSectionDataHandler)
+class HorizonSectionDataHandler : public RefCount::Referenced
+{
 public:
 
-    HorizonSectionDataHandler( const HorizonSection* );
+			HorizonSectionDataHandler( const HorizonSection* );
 
-    void updateZAxisVOI();
-    void setZAxisTransform( ZAxisTransform* );
-    ZAxisTransform* getZAxistransform() { return zaxistransform_; }
-    void generatePositionData( DataPointSet& dtpntset, double zshift,
-			       int sectionid ) const;
+    void		updateZAxisVOI();
+    void		setZAxisTransform( ZAxisTransform* );
+    ZAxisTransform*	getZAxistransform() { return zaxistransform_; }
+    void		generatePositionData( DataPointSet& dtpntset,
+					double zshift, int sectionid ) const;
 
-
+protected:
+				~HorizonSectionDataHandler();
 private:
-      void removeZTransform();
+      void			removeZTransform();
 
-      ZAxisTransform*   zaxistransform_;
-      int		zaxistransformvoi_; 
-      //-1 not needed by zaxistransform, -2 not set
+      ZAxisTransform*  		zaxistransform_;
+      int			zaxistransformvoi_; 
+		       		//-1 not needed by zaxistransform, -2 not set
       const HorizonSection*	horsection_;
 
-      friend class HorizonSection;
+      friend class		HorizonSection;
 
 };
 }

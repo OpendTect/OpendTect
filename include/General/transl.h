@@ -53,8 +53,8 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 
  */
 
-mExpClass(General) TranslatorGroup
-{ mRefCountImpl(TranslatorGroup);
+mExpClass(General) TranslatorGroup : public RefCount::Referenced
+{
 public:
 
 				TranslatorGroup( const char* clssnm );
@@ -92,6 +92,7 @@ public:
     virtual const char*		translationApplication() const;
 
 protected:
+    				~TranslatorGroup();
 
     const OD::String&		clssName() const	{ return clssname_; }
 

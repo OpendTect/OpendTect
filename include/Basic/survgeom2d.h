@@ -51,7 +51,7 @@ public:
 
     Geometry2D*			as2D()			{ return this; }
 
-protected:
+private:
 
 				~Geometry2D();
 

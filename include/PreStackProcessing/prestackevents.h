@@ -80,8 +80,8 @@ public:
 \brief A EventSet is a set of Events on a single PreStack gather.
 */
 
-mExpClass(PreStackProcessing) EventSet
-{ mRefCountImpl(EventSet);
+mExpClass(PreStackProcessing) EventSet : public RefCount::Referenced
+{
 public:
     			EventSet();
     			EventSet(const EventSet&);
@@ -91,6 +91,8 @@ public:
 
     ObjectSet<Event>	events_;
     bool		ischanged_;
+protected:
+    			~EventSet();
 };
 
 
@@ -100,7 +102,9 @@ are identified under the same MultiID.
 */
 
 mExpClass(PreStackProcessing) EventManager : public CallBacker
-{ mRefCountImpl(EventManager);
+                                           , public RefCount::Referenced
+{
+    				~EventManager();
 public:
     mStruct(PreStackProcessing) DipSource
     {

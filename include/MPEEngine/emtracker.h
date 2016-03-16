@@ -37,9 +37,8 @@ class SectionTracker;
 \brief Tracks EM objects.
 */
 
-mExpClass(MPEEngine) EMTracker
-{ mRefCountImpl(EMTracker)
-mODTextTranslationClass(EMTracker)
+mExpClass(MPEEngine) EMTracker : public RefCount::Referenced
+{ mODTextTranslationClass(EMTracker);
 public:
 				EMTracker(EM::EMObject*);
 
@@ -76,6 +75,7 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
+                                ~EMTracker();
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;
