@@ -692,7 +692,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 	const BinIDValueSet* cache = sections_[idx]->getCache( channel );
 	if ( cache )
 	{
-	    data.bivSet().setNrVals( cache->nrVals(), false );
+	    data.bivSet().setNrVals( cache->nrVals() );
 	    data.bivSet().append( *cache );
 	}
     }

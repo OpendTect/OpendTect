@@ -108,7 +108,7 @@ int SurfaceAuxData::addAuxData( const char* name )
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
 	if ( auxdata_[idx] )
-	    auxdata_[idx]->setNrVals( nrAuxData(), true );
+	    auxdata_[idx]->setNrVals( nrAuxData() );
     }
 
     changed_ = true;

@@ -363,7 +363,7 @@ Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
     , extraz_(0,0)
     , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
-    bvs_.setNrVals( 1, true );
+    bvs_.setNrVals( 1 );
     if ( extraz ) extraz_ = *extraz;
 }
 

@@ -92,7 +92,7 @@ int FunctionAscIO::nextStep()
 	first_ = false;
 	bool hasanisotropy = cnvrtr_->selcols_.size()>4;
 	output_->setEmpty();
-	output_->setNrVals( hasanisotropy ? 2 : 3, false );
+	output_->setNrVals( hasanisotropy ? 2 : 3 );
     }
 
     BinID binid;

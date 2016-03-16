@@ -100,13 +100,12 @@ public:
     inline bool		isEmpty() const		{ return frsts_.isEmpty(); }
     void		setEmpty();
     void		copyStructureFrom(const IdxPairDataSet&);
-			//!< will also empty this set
+						//!< will also empty this set
 
-    ObjSzType		objSize() const		{ return objsz_; }
-    bool		managesData() const	{ return mandata_; };
-    inline void		allowDuplicateIdxPairs( bool yn )
-			{ allowdup_ = yn; if ( !yn ) removeDuplicateIdxPairs();}
-    bool		allowsDuplicateIdxPairs() const { return allowdup_; }
+    ObjSzType		objSize() const			{ return objsz_; }
+    bool		managesData() const		{ return mandata_; };
+    bool		allowsDuplicateIdxPairs() const	{ return allowdup_; }
+    void		allowDuplicateIdxPairs(bool);
     bool		append(const IdxPairDataSet&);
     void		remove(const IdxPairDataSet&);
     void		remove(const TrcKeySampling& hrg,bool inside);
@@ -127,7 +126,7 @@ public:
     IdxPair		getIdxPair(SPos) const;
     const void*		getObj(SPos) const;
     const void*		get(SPos,IdxPair&) const;
-    SPos		getPos(GlobIdxType) const; //!< Very slow.
+    SPos		getPos(GlobIdxType) const;  //!< Very slow.
     SPos		add(const IdxPair&,const void* obj=0);
 			    //!< If returned SPos is not valid memory was full
     void		set(SPos,const void* obj=0);
@@ -163,6 +162,7 @@ public:
 			    //!< Adds only IdxPair postions not yet in set
     void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair postions not yet in set
+    void		randomSubselect(GlobIdxType maxsz);
 
 			// I/O
     bool		dump(od_ostream&,bool binary) const;
@@ -184,6 +184,13 @@ public:
     Interval<IdxType>	colRange( IdxType row=-1 ) const
 						    { return secondRange(row); }
 
+			// Maybe messing with managed objects in buf.
+    bool		setObjSize(ObjSzType sz,ObjSzType offs_in_objs=-1,
+				    const void* initwith=0);
+			// offs_in_objs < 0: operate at end
+    void		decrObjSize(ObjSzType,ObjSzType offs=-1);
+    bool		incrObjSize(ObjSzType,ObjSzType offs=-1,const void* =0);
+
 protected:
 
     typedef TypeSet<IdxType>	IdxSet;
@@ -195,7 +202,7 @@ protected:
 
 	typedef unsigned char	BufType;
 
-				ObjData() : buf_(0), bufsz_(0), lastidx_(-1)
+				ObjData() : buf_(0), bufsz_(0)
 						    { objs_.allowNull(true); }
 				ObjData(const ObjData&);
 				~ObjData()	    { delete [] buf_; }
@@ -203,18 +210,18 @@ protected:
 	const void*		getObj(bool,ArrIdxType,ObjSzType) const;
 	bool			putObj(bool,ArrIdxType,ObjSzType,const void*);
 	void			removeObj(bool,ArrIdxType,ObjSzType);
+	void			decrObjSize(ObjSzType orgsz,ObjSzType newsz,
+					    ObjSzType at_offs);
+	bool			incrObjSize(ObjSzType,ObjSzType,ObjSzType,
+					    const void*);
 
     private:
 
-	ObjectSet<const void>	objs_; // used if not mandata
+	ObjectSet<const void>	objs_; // contains const bool* when mandata
 
-	BufType*		buf_;
-	BufSzType		bufsz_;
-	ArrIdxType		lastidx_;
-	bool			isNull(ArrIdxType,ObjSzType) const;
-	void			setIsNull(ArrIdxType,ObjSzType,bool);
-	bool			manageBufCapacity(ObjSzType);
-				//Note: we alloc 1 extra byte per obj for isnull
+	BufType*	buf_;
+	BufSzType	bufsz_;
+	bool		manageBufCapacity(ObjSzType,bool kporg=false);
 
     };
 

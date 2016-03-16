@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpairdataset.h"
 #include "idxable.h"
 #include "posinfo.h"
+#include "statrand.h"
 #include "od_iostream.h"
 
 
@@ -19,6 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
     ErrMsg( "Dataset emptied due to full memory." ); \
 }
 #define mErrRetMemFull() { mHandleMemFull(); return false; }
+
+static bool isnull = false;
+static bool isnotnull = true;
 
 
 Pos::IdxPairDataSet::ObjData::ObjData( const ObjData& oth )
@@ -39,38 +43,36 @@ const void* Pos::IdxPairDataSet::ObjData::getObj( bool mandata, ArrIdxType idx,
 {
     if ( !mandata )
 	return objs_[idx];
+    else if ( objsz == 0 )
+	return 0;
 
-    return objsz == 0 || isNull(idx,objsz) ? 0 : buf_ + (objsz+1)*idx;
+    const bool* isnullptr = static_cast<const bool*>( objs_[idx] );
+    return !isnullptr || !*isnullptr ? 0 : buf_ + objsz*idx;
 }
 
 
 bool Pos::IdxPairDataSet::ObjData::putObj( bool mandata, ArrIdxType idx,
 					   ObjSzType objsz, const void* obj )
 {
-    if ( !mandata )
+    while ( objs_.size() <= idx )
     {
-	while ( objs_.size() <= idx )
-	{
-	    try { objs_ += 0; }
-	    catch ( std::bad_alloc )
-		{ return false; }
-	}
-
-	objs_.replace( idx, obj );
-	return true;
+	try { objs_ += 0; }
+	catch ( std::bad_alloc )
+	    { return false; }
     }
 
-    if ( idx > lastidx_ )
-	lastidx_ = idx;
+    if ( !mandata )
+	{ objs_.replace( idx, obj ); return true; }
 
     if ( objsz < 1 )
 	return true;
-    else if ( !manageBufCapacity(objsz) )
+    objs_.replace( idx, obj ? &isnotnull : &isnull );
+    if ( !manageBufCapacity(objsz) )
 	return false;
 
     if ( obj )
-	OD::memCopy( buf_ + idx*(objsz+1), obj, objsz );
-    setIsNull( idx, objsz, !obj );
+	OD::memCopy( buf_+idx*objsz, obj, objsz );
+
     return true;
 }
 
@@ -78,75 +80,128 @@ bool Pos::IdxPairDataSet::ObjData::putObj( bool mandata, ArrIdxType idx,
 void Pos::IdxPairDataSet::ObjData::removeObj( bool mandata, ArrIdxType idx,
 					      ObjSzType objsz )
 {
-    if ( objsz < 1 || idx < 0 )
+    if ( objsz < 1 || !objs_.validIdx(idx) )
 	return;
-
+    const int oldnrobjs = objs_.size();
+    objs_.removeSingle( idx );
     if ( !mandata )
-    {
-	if ( objs_.validIdx(idx) )
-	    objs_.removeSingle( idx );
 	return;
-    }
 
-    if ( idx > lastidx_ )
-	return;
-    else if ( idx < lastidx_ )
+    if ( idx < oldnrobjs-1 )
     {
-	const ObjSzType recsz = objsz + 1;
-	BufType* ptrobj2rem = buf_ + recsz * idx;
-	const BufType* ptrfirstmove = buf_ + recsz * (idx + 1);
-	const BufType* ptrafterlastmove = buf_ + recsz * (lastidx_ + 1);
+	BufType* ptrobj2rem = buf_ + objsz * idx;
+	const BufType* ptrfirstmove = buf_ + objsz * (idx + 1);
+	const BufType* ptrafterlastmove = buf_ + objsz * oldnrobjs;
 	OD::memMove( ptrobj2rem, ptrfirstmove, ptrafterlastmove-ptrfirstmove );
     }
 
-    lastidx_--;
     manageBufCapacity( objsz );
 }
 
 
-void Pos::IdxPairDataSet::ObjData::setIsNull( ArrIdxType idx, ObjSzType objsz,
-					      bool yn )
+bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
+					ObjSzType newsz, ObjSzType offs,
+					const void* initbytes )
 {
-    *(buf_ + (objsz+1)*idx + objsz) = (BufType)(yn ? 1 : 0);
+    if ( newsz < 1 )
+	return true;
+
+    BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
+    buf_ = 0; bufsz_ = 0;
+    if ( !manageBufCapacity(newsz,true) )
+	{ buf_ = orgbuf; bufsz_ = orgbufsz; return false; }
+    if ( !orgbuf )
+	return true;
+
+    if ( offs )
+	OD::memCopy( buf_, orgbuf, offs );
+
+    const ObjSzType gapsz = newsz - orgsz;
+    ObjSzType offsorg = offs;
+    ObjSzType offsnew = offs + gapsz;
+
+    while ( offsnew < bufsz_ )
+    {
+	ObjSzType nrbytes2copy = newsz;
+	if ( offsnew + nrbytes2copy > bufsz_ )
+	    nrbytes2copy = bufsz_ - offsnew;
+	if ( nrbytes2copy > 0 )
+	{
+	    OD::memCopy( buf_+offsnew, orgbuf+offsorg, nrbytes2copy );
+	    if ( initbytes )
+		OD::memCopy( buf_+offsnew-gapsz, initbytes, gapsz );
+	}
+	offsorg += orgsz; offsnew += newsz;
+    }
+
+    delete [] orgbuf;
+    return true;
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::isNull( ArrIdxType idx,
-					   ObjSzType objsz ) const
+void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
+					ObjSzType newsz, ObjSzType offs )
 {
-    return *(buf_ + (objsz+1)*idx + objsz) != 0;
+    BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
+    if ( !manageBufCapacity(newsz,true) )
+	{ buf_ = orgbuf; bufsz_ = orgbufsz; }
+    if ( !orgbuf )
+	return;
+
+    if ( offs )
+	OD::memCopy( buf_, orgbuf, offs );
+
+    const ObjSzType gapsz = orgsz - newsz;
+    ObjSzType offsorg = offs + gapsz;
+    ObjSzType offsnew = offs;
+
+    while ( offsnew < bufsz_ )
+    {
+	ObjSzType nrbytes2copy = orgsz;
+	if ( offsorg + nrbytes2copy > orgbufsz )
+	    nrbytes2copy = orgbufsz - offsorg;
+	if ( nrbytes2copy > 0 )
+	    OD::memCopy( buf_+offsnew, orgbuf+offsorg, nrbytes2copy );
+	offsorg += orgsz; offsnew += newsz;
+    }
+
+    if ( orgbuf != buf_ )
+	delete [] orgbuf;
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
+bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz,
+						      bool kporg )
 {
     if ( objsz < 1 )
 	{ pErrMsg("Should not be called"); return true; }
 
-    const ObjSzType recsz = objsz + 1;
-    const ArrIdxType newnrobjs = lastidx_ + 1;
-    ArrIdxType nrobjs = (ArrIdxType)(bufsz_ / recsz);
-    const bool needmore = newnrobjs > nrobjs;
-    if ( !needmore && newnrobjs > nrobjs/2 )
+    const ArrIdxType needednrobjs = objs_.size();
+    ArrIdxType curnrobjs = (ArrIdxType)(bufsz_ / objsz);
+    const bool needmore = needednrobjs > curnrobjs;
+    if ( !needmore && needednrobjs > curnrobjs/2 )
 	return true;
 
+    ArrIdxType newnrobjs = curnrobjs;
     if ( needmore )
     {
-	if ( nrobjs == 0 )
-	    nrobjs = 1;
-	while ( newnrobjs > nrobjs )
-	    nrobjs *= 2;
+	if ( newnrobjs == 0 )
+	    newnrobjs = 1;
+	while ( newnrobjs < needednrobjs )
+	    newnrobjs *= 2;
     }
     else // need less
     {
-	if ( nrobjs == 1 )
-	    nrobjs = 0;
+	if ( newnrobjs == 1 )
+	    newnrobjs = 0;
 	else
-	    while ( newnrobjs < nrobjs )
-		nrobjs /= 2;
+	    while ( newnrobjs > needednrobjs )
+		newnrobjs /= 2;
+	if ( newnrobjs < needednrobjs )
+	    newnrobjs *= 2;
     }
 
-    BufSzType newsz = nrobjs * recsz;
+    BufSzType newsz = newnrobjs * objsz;
     BufType* orgbuf = buf_; const BufSzType orgsz = bufsz_;
     bufsz_ = newsz;
 
@@ -156,19 +211,17 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
     {
 	try {
 	    buf_ = new BufType[ bufsz_ ];
-	    if ( orgbuf )
+	    if ( !kporg && orgbuf )
 		OD::memCopy( buf_, orgbuf, orgsz < bufsz_ ? orgsz : bufsz_ );
 	} catch ( std::bad_alloc )
 	    { return false; }
     }
 
-#ifdef __debug__
-    // keep valgrind happy and make mem recognisable when debugging
     if ( bufsz_ > orgsz )
 	OD::memZero( buf_+orgsz, bufsz_-orgsz );
-#endif
 
-    delete [] orgbuf;
+    if ( !kporg )
+	delete [] orgbuf;
     return true;
 }
 
@@ -236,6 +289,65 @@ Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::findIndexFor(
     if ( found )
 	*found = fnd;
     return ret;
+}
+
+
+bool Pos::IdxPairDataSet::setObjSize( ObjSzType newsz, ObjSzType offs,
+				      const void* initbytes )
+{
+    if ( newsz == objsz_ )
+	return true;
+
+    if ( newsz < objsz_ )
+	decrObjSize( objsz_-newsz, offs );
+    else if ( !incrObjSize(newsz-objsz_,offs,initbytes) )
+	return false;
+
+    return true;
+}
+
+
+void Pos::IdxPairDataSet::decrObjSize( ObjSzType nrbytes, ObjSzType offs )
+{
+    if ( nrbytes == 0 )
+	return;
+    else if ( nrbytes < 0 )
+	{ incrObjSize( -nrbytes, offs ); return; }
+    else if ( mandata_ )
+    {
+	for ( IdxType ifst=0; ifst<objdatas_.size(); ifst++ )
+	    objdatas_[ifst]->decrObjSize( objsz_, objsz_-nrbytes, offs );
+    }
+
+    const_cast<ObjSzType&>(objsz_) -= nrbytes;
+}
+
+
+bool Pos::IdxPairDataSet::incrObjSize( ObjSzType nrbytes, ObjSzType offs,
+					const void* initbytes )
+{
+    if ( nrbytes == 0 )
+	return true;
+    else if ( nrbytes < 0 )
+	{ decrObjSize( -nrbytes, offs ); return true; }
+    else if ( mandata_ )
+    {
+	for ( IdxType ifst=0; ifst<objdatas_.size(); ifst++ )
+	    if ( !objdatas_[ifst]->incrObjSize(objsz_,objsz_+nrbytes,offs,
+					       initbytes) )
+		mErrRetMemFull()
+    }
+
+    const_cast<ObjSzType&>(objsz_) += nrbytes;
+    return true;
+}
+
+
+void Pos::IdxPairDataSet::allowDuplicateIdxPairs( bool yn )
+{
+    if ( !yn )
+	removeDuplicateIdxPairs();
+    allowdup_ = yn;
 }
 
 
@@ -727,6 +839,51 @@ void Pos::IdxPairDataSet::add( const PosInfo::CubeData& cubedata,
     Pos::IdxPairDataSetFromCubeData task( *this, cubedata, crfn );
     if ( !task.execute() )
 	mHandleMemFull()
+}
+
+
+void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
+{
+    const GlobIdxType orgsz = totalSize();
+    if ( orgsz <= maxsz )
+	return;
+    if ( maxsz < 1 )
+	{ setEmpty(); return; }
+
+    mGetIdxArr( GlobIdxType, idxs, orgsz );
+    if ( !idxs )
+	{ setEmpty(); return; }
+
+    const bool buildnew = ((GlobIdxType)maxsz) < (orgsz / ((GlobIdxType)2));
+    Stats::randGen().subselect( idxs, orgsz, maxsz );
+    TypeSet<SPos> poss;
+    if ( buildnew )
+    {
+	for ( GlobIdxType idx=0; idx<maxsz; idx++ )
+	    poss += getPos( idxs[idx] );
+    }
+    else
+    {
+	for ( GlobIdxType idx=maxsz; idx<orgsz; idx++ )
+	    poss += getPos( idxs[idx] );
+    }
+    delete [] idxs;
+
+    if ( !buildnew )
+	remove( poss );
+    else
+    {
+	IdxPairDataSet newds( objsz_, allowdup_, mandata_ );
+	IdxPair ip;
+	for ( GlobIdxType idx=0; idx<poss.size(); idx++ )
+	{
+	    const void* data = get( poss[idx], ip );
+	    SPos newspos = newds.add( ip, data );
+	    if ( !newspos.isValid() )
+		{ mHandleMemFull() return; }
+	}
+	*this = newds;
+    }
 }
 
 

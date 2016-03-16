@@ -133,6 +133,7 @@ static bool chckDs( Pos::IdxPairDataSet& ds, bool isrem, const char* msg )
     return true;
 }
 
+
 static bool checkContents( Pos::IdxPairDataSet& ds )
 {
 
@@ -150,10 +151,12 @@ static bool checkContents( Pos::IdxPairDataSet& ds )
 	}
     }
 
-    chckDs( ds, false, BufferString( "** Before remove ", iptorem.first,
-				BufferString("/",iptorem.second) ) );
+    if ( !chckDs(ds,false,BufferString( "** Before remove ", iptorem.first,
+				BufferString("/",iptorem.second)) ) )
+	return false;
     ds.remove( spostorem );
-    chckDs( ds, true, "** After remove:" );
+    if ( !chckDs(ds, true, "** After remove:") )
+	return false;
 
     return true;
 }

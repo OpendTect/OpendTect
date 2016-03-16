@@ -164,7 +164,7 @@ bool ParallelReader::doPrepare( int nrthreads )
 	const int nrvals = 1+components_.size();
         if ( bidvals_->nrVals()!=nrvals )
 	{
-	    if ( !bidvals_->setNrVals( nrvals, true ) )
+	    if ( !bidvals_->setNrVals( nrvals ) )
 	    {
 		errmsg_ = allocprob;
 		return false;

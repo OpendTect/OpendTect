@@ -193,7 +193,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	return false;
 
     veldata_.setEmpty();
-    veldata_.setNrVals( 2, false );
+    veldata_.setNrVals( 2 );
     float vals[2];
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )

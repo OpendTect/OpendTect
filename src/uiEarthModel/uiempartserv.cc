@@ -1462,7 +1462,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
 				    const TrcKeySampling& hs ) const
 {
-    bivs.setEmpty(); bivs.setNrVals( 2, false );
+    bivs.setEmpty(); bivs.setNrVals( 2 );
 
     const EM::ObjectID& id = selhorids[0];
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(id))

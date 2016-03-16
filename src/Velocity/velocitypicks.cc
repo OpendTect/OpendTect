@@ -703,7 +703,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	return true;
 
     if ( res.nrVals()<2 )
-	res.setNrVals( 2, true );
+	res.setNrVals( 2 );
 
     TypeSet<RowCol> picks;
     get( emid, picks );
