@@ -606,11 +606,11 @@ void uiMPEMan::seedClick( CallBacker* )
 		    engine.setAttribData( *clickedas, datapackid );
 	    }
 
-
 	    engine.setOneActiveTracker( tracker );
 	    engine.activevolumechange.trigger();
 	}
     }
+    
     seedpicker->setSelSpec( clickedas );
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
     beginSeedClickEvent( emobj );
