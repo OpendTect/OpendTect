@@ -495,9 +495,9 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		    }
 		}
 	    }
-	}
 
-	addToNrDone( 1 );
+	    addToNrDone( 1 );
+	}
     }
 
     return true;
