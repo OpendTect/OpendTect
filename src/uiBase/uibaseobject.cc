@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 #include "uibody.h"
 
+#include <limits.h>
+
 static CallBackSet& cmdrecorders_ = *new CallBackSet;
 
 static ObjectSet<const uiBaseObject> cmdrecstopperstack_;
