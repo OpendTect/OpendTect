@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "transl.h"
 #include "bufstringset.h"
-class Conn;
+
 class BinIDValueSet;
+class Conn;
 class DataPointSet;
 namespace Pick { class Set; }
 template <class T> class ODPolygon;
@@ -38,16 +39,7 @@ mExpClass(Geometry) PickSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    virtual uiString	read(Pick::Set&,Conn&)	= 0;
-			//!< returns err msg or null on success
-    virtual uiString	write(const Pick::Set&,Conn&)			= 0;
-			//!< returns err msg or null on success
-
-    static bool		retrieve(Pick::Set&,const IOObj*,
-				 BufferString&);
-    static bool		retrieve(Pick::Set&,const IOObj*,
-				 uiString&);
-    static bool		store(const Pick::Set&,const IOObj*,BufferString&);
+    static bool		retrieve(Pick::Set&,const IOObj*,uiString&);
     static bool		store(const Pick::Set&,const IOObj*,uiString&);
 
     static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
@@ -64,6 +56,14 @@ public:
 			//!< Utility function
     static ODPolygon<float>* getPolygon(const IOObj&,uiString& errmsg);
 			//!< Returns null on failure
+
+    static void		fillConstraints(IOObjContext&,bool ispoly);
+
+protected:
+    virtual uiString	read(Pick::Set&,Conn&)				= 0;
+			//!< returns err msg or null on success
+    virtual uiString	write(const Pick::Set&,Conn&)			= 0;
+			//!< returns err msg or null on success
 };
 
 
@@ -73,6 +73,7 @@ public:
 
 			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
+protected:
     uiString		read(Pick::Set&,Conn&);
     uiString		write(const Pick::Set&,Conn&);
 

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "picksettr.h"
 #include "keyboardevent.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "od_helpids.h"
 
 
@@ -51,11 +52,6 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
     if ( uiIOObj::fillCtio(*ctio,!noconf) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj_;
-	if ( ps->disp_.connect_ == Pick::Set::Disp::None )
-	    ioobj->pars().set( sKey::Type(), sKey::PickSet() );
-	else
-	    ioobj->pars().set( sKey::Type(), sKey::Polygon() );
-
 	if ( !doStore(*ps,*ioobj) )
 	    { delete ps; ps = 0; return false; }
 
@@ -123,13 +119,12 @@ bool uiPickSetMgr::pickSetsStored() const
 
 bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 {
-    const bool ispoly = ps.disp_.connect_ != Pick::Set::Disp::None;
+    const bool ispoly =
+	ps.isPolygon() || ps.disp_.connect_ != Pick::Set::Disp::None;
     const BufferString oldname = ps.name();
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( PickSet );
     ctio->ctxt_.forread_ = false;
-
-    if ( ispoly )
-	ctio->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    PickSetTranslator::fillConstraints( ctio->ctxt_, ispoly );
     ctio->setName( oldname );
     uiIOObjSelDlg dlg( parent_, *ctio );
     if ( !dlg.go() )
@@ -262,11 +257,6 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
     uiString errmsg;
     if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj_,errmsg) )
 	uiMSG().error( errmsg );
-
-    dlg.ctioout_.ioobj_->pars().set( sKey::Type(),
-	    PickSetTranslatorGroup::sKeyPickSet() );
-    if ( !IOM().commitChanges(*dlg.ctioout_.ioobj_) )
-	{ uiMSG().error( IOM().errMsg() ); }
 
     deepErase( pssread );
 }

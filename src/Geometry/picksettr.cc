@@ -24,10 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "polygon.h"
 #include "keystrs.h"
 
-mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
-	ctxt->toselect_.require_.set( sKey::Type(), "PickSet``Polygon" ) )
-
-mDefSimpleTranslatorSelector( PickSet );
+mDefSimpleTranslatorioContext( PickSet, Loc )
+mDefSimpleTranslatorSelector( PickSet )
 
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  uiString& bs )
@@ -82,6 +80,15 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
     else
 	bs = tr->write( ps, *conn );
 
+    BufferString pstype;
+    ioobj->pars().get( sKey::Type(), pstype );
+    if ( pstype.isEmpty() )
+    {
+	ioobj->pars().set( sKey::Type(), ps.isPolygon() ? sKey::Polygon()
+							: sKey::PickSet() );
+	IOM().commitChanges( *ioobj );
+    }
+
     return bs.isEmpty();
 }
 
@@ -112,6 +119,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	    if ( astrm.hasKeyword(sKey::Color()) )
 	    {
 		ps.disp_.mkstyle_.color_.use( astrm.value() );
+		ps.disp_.mkstyle_.color_.setTransparency( 0 );
 		astrm.next();
 	    }
 	    if ( astrm.hasKeyword(sKey::Size()) )
@@ -121,8 +129,10 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	    }
 	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
 	    {
-		ps.disp_.mkstyle_.type_ =
-		    (OD::MarkerStyle3D::Type)astrm.getIValue();
+		// OD::MarkerStyle3D::Type used to start with -1. This has
+		// changed and thus a '+1' is needed to keep the same shapes
+		const int markertype = astrm.getIValue() + 1;
+		ps.disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type)markertype;
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) )
@@ -265,6 +275,19 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 
     delete createdps;
     return true;
+}
+
+
+void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
+{
+    if ( ispoly )
+	ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    else
+    {
+	BufferString types = sKey::PickSet();
+	types += "`"; // Allow Type to be empty or missing
+	ctxt.toselect_.require_.set( sKey::Type(), types.buf() );
+    }
 }
 
 
