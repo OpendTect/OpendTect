@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "trckeyvalue.h"
 
-namespace EM { class EMObject; class Horizon2D; class Horizon3D; }
+namespace EM { class EMObject; class Horizon; class Horizon2D; class Horizon3D;}
 namespace MPE { class EMTracker; }
 namespace visSurvey
 {
+    class EMObjectDisplay;
     class Horizon2DDisplay;
     class HorizonDisplay;
     class MPEClickCatcher;
@@ -66,13 +67,13 @@ protected:
     void			startTracking();
     void			startRetrack();
     void			stopTracking();
-    void			undo();
-    void			redo();
     void			changePolySelectionMode();
+    void			showParentsPath();
     void			clearSelection();
     void			deleteSelection();
+    void			undo();
+    void			redo();
     void			removeInPolygon();
-    void			showParentsPath();
     void			showSetupDlg();
     void			restrictCurrentHorizon();
 
@@ -89,10 +90,13 @@ protected:
     bool			isPickingWhileSetupUp() const;
 
     MPE::EMTracker*		getSelectedTracker();
-    visSurvey::Horizon2DDisplay* getSelected2DDisplay();
-    visSurvey::HorizonDisplay*	getSelectedDisplay();
+    EM::Horizon*		getSelectedHorizon();
     EM::Horizon2D*		getSelectedHorizon2D();
     EM::Horizon3D*		getSelectedHorizon3D();
+
+    visSurvey::EMObjectDisplay* getSelectedDisplay();
+    visSurvey::Horizon2DDisplay* getSelectedDisplay2D();
+    visSurvey::HorizonDisplay*	getSelectedDisplay3D();
 
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);

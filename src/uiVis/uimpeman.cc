@@ -81,7 +81,7 @@ uiMPEMan::~uiMPEMan()
 
 void uiMPEMan::mpeActionCalledCB( CallBacker* )
 {
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
     if ( !hd ) return;
 
     if ( engine().getState() == Engine::Started )
@@ -94,7 +94,7 @@ void uiMPEMan::mpeActionCalledCB( CallBacker* )
 
 void uiMPEMan::mpeActionFinishedCB( CallBacker* )
 {
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
     if ( !hd ) return;
 
     hd->updateAuxData();
@@ -169,14 +169,6 @@ void uiMPEMan::keyEventCB( CallBacker* )
 }
 
 
-#define mAddAction(txt,sc,id,icon,enab) \
-{ \
-    uiAction* action = new uiAction( txt ); \
-    mnu.insertAction( action, id ); \
-    action->setEnabled( enab ); \
-    action->setIcon( icon ); \
-}
-
 void uiMPEMan::mouseEventCB( CallBacker* )
 {
     if ( MPE::engine().nrTrackersAlive() == 0 ) return;
@@ -191,56 +183,80 @@ void uiMPEMan::mouseEventCB( CallBacker* )
 }
 
 
+static void addAction( uiMenu& mnu, uiString txt, const char* sc, int id,
+			const char* icon, bool enab, bool doadd )
+{
+    if ( !doadd ) return;
+
+    uiAction* action = new uiAction( txt );
+    mnu.insertAction( action, id );
+    action->setEnabled( enab );
+    action->setIcon( icon );
+}
+
+
 int uiMPEMan::popupMenu()
 {
+    EM::Horizon* hor = getSelectedHorizon();
+    EM::Horizon2D* hor2d = getSelectedHorizon2D();
     EM::Horizon3D* hor3d = getSelectedHorizon3D();
-    if ( !hor3d ) return -1;
+    if ( !hor2d && !hor3d ) return -1;
 
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
-    visSurvey::Scene* scene = hd ? hd->getScene() : 0;
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    visSurvey::Scene* scene = emod ? emod->getScene() : 0;
     if ( !scene ) return -1;
 
     uiMenu mnu( tr("Tracking Menu") );
     const bool istracking = MPE::engine().trackingInProgress();
     if ( istracking )
-	mAddAction( tr("Stop Auto Tracking"), "k", sStop, "stop", true )
-    else
     {
-	const Coord3& clickedpos = scene->getMousePos( true );
-	const bool haspos = !clickedpos.isUdf();
-	mAddAction( tr("Start Auto Tracking"), "k", sStart, "autotrack", true )
-	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack,
-		    "retrackhorizon", true )
-	mAddAction( tr("Select With Polygon"), "y", sPoly,
-		    "polygonselect", true )
-	if ( haspos )
-	{
-	    mAddAction( tr("Select Parents"), "", sParent, 0, true )
-	    mAddAction( tr("Show Parents Path"), "", sParPath, 0, true )
-	    mAddAction( tr("Select Children"), "", sChild, 0, true )
-	}
-	mAddAction( tr("Clear Selection"), "a", sClear, "clear", true )
-	mAddAction( tr("Delete Selected"), "d", sDelete, "clearselection", true)
-	mAddAction( tr("Undo"), "ctrl+z", sUndo, "undo",
-		    EM::EMM().undo().canUnDo())
-	mAddAction( tr("Redo"), "ctrl+y", sRedo, "redo",
-		    EM::EMM().undo().canReDo())
-	mAddAction( tr("Lock"), "l", sLock, "lock", true )
-	mAddAction( tr("Unlock"), "u", sUnlock, "unlock", true )
-	if ( hd->lockedShown() )
-	    mAddAction( tr("Hide Locked"), "", sHideLocked, 0, true )
-	else
-	    mAddAction( tr("Show Locked"), "", sShowLocked, 0, true )
-
-	mAddAction( tr("Save"), "ctrl+s", sSave, "save", hor3d->isChanged() )
-	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, "saveas", true )
-	if ( !hd->displayedOnlyAtSections() )
-	    mAddAction( tr("Display Only at Sections"), "v", sAtSect,
-			"sectiononly", true )
-	else
-	    mAddAction( tr("Display in Full"), "v", sFull, "sectionoff", true )
-	mAddAction( tr("Show Settings ..."), "", sSett, "tools", true )
+	addAction( mnu, tr("Stop Auto Tracking"), "k", sStop, "stop",
+		   true, hor3d );
+	return mnu.exec();
     }
+
+    const Coord3& clickedpos = scene->getMousePos( true );
+    const bool haspos = !clickedpos.isUdf();
+    addAction( mnu, tr("Start Auto Tracking"), "k", sStart, "autotrack",
+	       true, hor3d );
+    addAction( mnu, tr("Retrack From Seeds"), "ctrl+k", sRetrack,
+		"retrackhorizon", true, hor3d );
+    addAction( mnu, tr("Select With Polygon"), "y", sPoly,
+		"polygonselect", true, true );
+    if ( haspos )
+    {
+	addAction( mnu, tr("Select Parents"), "", sParent, 0, true, hor3d );
+	addAction( mnu, tr("Show Parents Path"), "", sParPath, 0, true, hor3d );
+	addAction( mnu, tr("Select Children"), "", sChild, 0, true, hor3d );
+    }
+
+    addAction( mnu, tr("Clear Selection"), "a", sClear, "clear", true, hor3d );
+    addAction( mnu, tr("Delete Selected"), "d", sDelete,
+	       "clearselection", true, hor3d );
+    addAction( mnu, tr("Undo"), "ctrl+z", sUndo, "undo",
+		EM::EMM().undo().canUnDo(), true );
+    addAction( mnu, tr("Redo"), "ctrl+y", sRedo, "redo",
+		EM::EMM().undo().canReDo(), true );
+    addAction( mnu, tr("Lock"), "l", sLock, "lock", true, hor3d );
+    addAction( mnu, tr("Unlock"), "u", sUnlock, "unlock", true, hor3d );
+
+    visSurvey::HorizonDisplay* hd3d = getSelectedDisplay3D();
+    addAction( mnu, tr("Hide Locked"), "", sHideLocked, 0, true,
+	       hd3d && hd3d->lockedShown() );
+    addAction( mnu, tr("Show Locked"), "", sShowLocked, 0, true,
+	       hd3d && !hd3d->lockedShown() );
+
+    addAction( mnu, tr("Save"), "ctrl+s", sSave,
+	       "save", hor->isChanged(), true );
+    addAction( mnu, tr("Save As ..."), "ctrl+shift+s", sSaveAs,
+	       "saveas", true, true );
+    if ( !emod->displayedOnlyAtSections() )
+	addAction( mnu, tr("Display Only at Sections"), "v", sAtSect,
+		    "sectiononly", true, true );
+    else
+	addAction( mnu, tr("Display in Full"), "v", sFull,
+		   "sectionoff", true, true );
+    addAction( mnu, tr("Show Settings ..."), "", sSett, "tools", true, true );
 
     return mnu.exec();
 }
@@ -252,36 +268,38 @@ void uiMPEMan::handleAction( int res )
     EM::EMObject* emobj =
 		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-    if ( !hor3d ) return;
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
+    if ( !hor2d && !hor3d ) return;
 
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
-    visSurvey::Scene* scene = hd ? hd->getScene() : 0;
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    visSurvey::Scene* scene = emod ? emod->getScene() : 0;
     if ( !scene ) return;
 
     const Coord3& clickedpos = scene->getMousePos( true );
     const TrcKey tk = SI().transform( clickedpos.coord() );
 
+    visSurvey::HorizonDisplay* hd3d = getSelectedDisplay3D();
     switch ( res )
     {
     case sStart: startTracking(); break;
     case sRetrack: startRetrack(); break;
     case sStop: stopTracking(); break;
     case sPoly: changePolySelectionMode(); break;
-    case sChild: hor3d->selectChildren(tk); break;
-    case sParent: hd->selectParent(tk); break;
+    case sChild: if ( hor3d ) hor3d->selectChildren(tk); break;
+    case sParent: if ( hd3d ) hd3d->selectParent(tk); break;
     case sParPath: showParentsPath(); break;
     case sClear: clearSelection(); break;
     case sDelete: deleteSelection(); break;
     case sUndo: undo(); break;
     case sRedo: redo(); break;
-    case sLock: hor3d->lockAll(); break;
-    case sUnlock: hor3d->unlockAll(); break;
-    case sShowLocked: hd->showLocked( true ); break;
-    case sHideLocked: hd->showLocked( false ); break;
+    case sLock: if ( hor3d ) hor3d->lockAll(); break;
+    case sUnlock: if ( hor3d ) hor3d->unlockAll(); break;
+    case sShowLocked: if ( hd3d ) hd3d->showLocked( true ); break;
+    case sHideLocked: if ( hd3d ) hd3d->showLocked( false ); break;
     case sSave: visserv_->storeEMObject( false ); break;
     case sSaveAs: visserv_->storeEMObject( true ); break;
-    case sAtSect: hd->setOnlyAtSectionsDisplay( true ); break;
-    case sFull: hd->setOnlyAtSectionsDisplay( false ); break;
+    case sAtSect: emod->setOnlyAtSectionsDisplay( true ); break;
+    case sFull: emod->setOnlyAtSectionsDisplay( false ); break;
     case sSett: showSetupDlg(); break;
     default:
 	break;
@@ -690,7 +708,7 @@ void uiMPEMan::changePolySelectionMode()
 
 void uiMPEMan::clearSelection()
 {
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
     if ( visserv_->isSelectionModeOn() )
     {
 	visserv_->turnSelectionModeOn( false );
@@ -713,7 +731,7 @@ void uiMPEMan::clearSelection()
 
 void uiMPEMan::deleteSelection()
 {
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
     if ( visserv_->isSelectionModeOn() )
     {
 	removeInPolygon();
@@ -845,7 +863,7 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
 
 void uiMPEMan::treeItemSelCB( CallBacker* )
 {
-    if ( !getSelectedDisplay() && !getSelected2DDisplay() )
+    if ( !getSelectedDisplay3D() && !getSelectedDisplay2D() )
     {
 	turnSeedPickingOn( false );
 	updateClickCatcher( false );
@@ -881,14 +899,10 @@ void uiMPEMan::validateSeedConMode()
 
 void uiMPEMan::cleanPatchDisplay()
 {
-    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
-    if ( hor || hor2d )
-    {
-	visSurvey::MPEEditor* editor =
-	    hor ? hor->getEditor() : hor2d->getEditor();
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    visSurvey::MPEEditor* editor = emod ? emod->getEditor() : 0;
+    if ( editor )
 	editor->cleanPatch();
-    }
 }
 
 
@@ -910,17 +924,10 @@ void uiMPEMan::undo()
 	if ( !undoerrmsg.isEmpty() )
 	    uiMSG().message( undoerrmsg );
     }
-    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    if ( hor )
-    {
-	hor->requestSingleRedraw();
-	return;
-    }
 
-    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
-    if ( hor2d )
-	hor2d->requestSingleRedraw();
-
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    if ( emod )
+	emod->requestSingleRedraw();
 }
 
 
@@ -949,14 +956,10 @@ void uiMPEMan::updatePatchDisplay()
     if ( !tracker || !seedpicker )
 	return;
 
-    visSurvey::HorizonDisplay* hor = getSelectedDisplay();
-    visSurvey::Horizon2DDisplay* hor2d = getSelected2DDisplay();
-    if ( hor || hor2d )
-    {
-	visSurvey::MPEEditor* editor =
-	    hor ? hor->getEditor() : hor2d->getEditor();
-	editor->displayPatch(seedpicker->getPatch());
-    }
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    visSurvey::MPEEditor* editor = emod ? emod->getEditor() : 0;
+    if ( editor )
+	editor->displayPatch( seedpicker->getPatch() );
 }
 
 
@@ -979,46 +982,52 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 }
 
 
-visSurvey::HorizonDisplay* uiMPEMan::getSelectedDisplay()
+visSurvey::EMObjectDisplay* uiMPEMan::getSelectedDisplay()
 {
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size() != 1 )
 	return 0;
 
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 		    visserv_->getObject(selectedids[0]))
+    return emod;
+}
+
+
+visSurvey::HorizonDisplay* uiMPEMan::getSelectedDisplay3D()
+{
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,getSelectedDisplay())
     return hd;
 }
 
 
-visSurvey::Horizon2DDisplay* uiMPEMan::getSelected2DDisplay()
+visSurvey::Horizon2DDisplay* uiMPEMan::getSelectedDisplay2D()
 {
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size() != 1 )
-	return 0;
-
-    mDynamicCastGet(visSurvey::Horizon2DDisplay*,hd,
-		    visserv_->getObject(selectedids[0]))
+    mDynamicCastGet(visSurvey::Horizon2DDisplay*,hd,getSelectedDisplay())
     return hd;
+}
+
+
+EM::Horizon* uiMPEMan::getSelectedHorizon()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    EM::EMObject* emobj =
+		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    return hor;
 }
 
 
 EM::Horizon3D* uiMPEMan::getSelectedHorizon3D()
 {
-    MPE::EMTracker* tracker = getSelectedTracker();
-    EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,getSelectedHorizon())
     return hor3d;
 }
 
 
 EM::Horizon2D* uiMPEMan::getSelectedHorizon2D()
 {
-    MPE::EMTracker* tracker = getSelectedTracker();
-    EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
-    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
+    mDynamicCastGet(EM::Horizon2D*,hor2d,getSelectedHorizon())
     return hor2d;
 }
 
