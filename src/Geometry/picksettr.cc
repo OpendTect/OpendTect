@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "streamconn.h"
 #include "polygon.h"
@@ -80,9 +81,9 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
     else
 	bs = tr->write( ps, *conn );
 
-    BufferString pstype;
+    FileMultiString pstype;
     ioobj->pars().get( sKey::Type(), pstype );
-    if ( pstype.isEmpty() )
+    if ( pstype.isEmpty() || pstype.size() > 1 )
     {
 	ioobj->pars().set( sKey::Type(), ps.isPolygon() ? sKey::Polygon()
 							: sKey::PickSet() );
