@@ -684,7 +684,7 @@ void uiGraphicsViewBase::setNoBackGround()
     setBackgroundColor( col );
     scene_->setBackGroundColor( col );
 
-    QPalette qpal( qwidget()->palette() );
+    QPalette qpal( getWidget(0)->palette() );
     qpal.setColor( QPalette::Base, QColor(col.r(),col.g(),col.b(),0) );
     body_->setPalette( qpal );
     scene_->qGraphicsScene()->setPalette( qpal );

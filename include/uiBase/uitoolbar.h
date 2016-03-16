@@ -100,7 +100,9 @@ public:
 
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
-    mQtclass(QToolBar*)	qwidget()		{ return qtoolbar_; }
+    int			getNrWidgets() const	{ return 1; }
+    mQtclass(QWidget)*	getWidget(int);
+    mQtclass(QToolBar)* getQToolbar()		{ return qtoolbar_; }
 
     static ObjectSet<uiToolBar>& toolBars();
 

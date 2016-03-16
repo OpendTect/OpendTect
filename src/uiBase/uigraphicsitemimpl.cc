@@ -64,7 +64,7 @@ uiObject* uiObjectItem::getObject()
 void uiObjectItem::setObject( uiObject* obj )
 {
     obj_ = obj;
-    qwidgetitem_->setWidget( obj_ ? obj_->qwidget() : 0 );
+    qwidgetitem_->setWidget( obj_ ? obj_->getWidget(0) : 0 );
 }
 
 
@@ -93,19 +93,20 @@ void uiObjectItem::setObjectSize( int szx, int szy )
     {
 	grp_->setSize( uiSize( szx, szy ) );
     }
-    else if ( obj_ )
+    else if ( obj_ && obj_->getWidget(0) )
     {
-	obj_->qwidget()->setMinimumSize( szx, szy );
-	obj_->qwidget()->setMaximumSize( szx, szy );
+	obj_->getWidget(0)->setMinimumSize( szx, szy );
+	obj_->getWidget(0)->setMaximumSize( szx, szy );
     }
 }
 
 
 const uiSize uiObjectItem::objectSize() const
 {
-    return ( obj_ ? uiSize(obj_->qwidget()->size().width(),
-			   obj_->qwidget()->size().height() )
-		  : uiSize(0,0) );
+    return ( obj_ && obj_->getWidget(0)
+	    ? uiSize(obj_->getWidget(0)->size().width(),
+			   obj_->getWidget(0)->size().height() )
+	    : uiSize(0,0) );
 }
 
 

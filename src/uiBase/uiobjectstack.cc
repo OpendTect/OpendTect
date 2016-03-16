@@ -43,7 +43,7 @@ uiObjStackBody& uiObjectStack::mkbody( uiParent* p, const char* txt )
 int uiObjectStack::addObject( uiObject* obj )
 {
     if ( !obj ) return -1;
-    return body_->addWidget( obj->qwidget() );
+    return body_->addWidget( obj->getWidget(0) );
 }
 
 

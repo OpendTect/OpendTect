@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "color.h"
 
-mFDQtclass(QWidget)
 mFDQtclass(QString)
 class MouseCursor;
 class uiFont;
@@ -144,10 +143,8 @@ public:
 
     uiMainWin*		mainwin();
 
-    mQtclass(QWidget*)	getWidget() { return qwidget(); }
-    mQtclass(QWidget*)	qwidget();
-    const mQtclass(QWidget*)	qwidget() const
-			      { return const_cast<uiObject*>(this)->qwidget(); }
+    int			getNrWidgets() const	{ return 1; }
+    mQtclass(QWidget*)	getWidget(int);
 
     virtual bool	handleLongTabletPress();
 

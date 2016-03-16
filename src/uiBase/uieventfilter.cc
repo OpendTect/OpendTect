@@ -92,10 +92,10 @@ const QEvent* uiEventFilter::getCurrentEvent() const
 
 void uiEventFilter::attach( uiBaseObject* obj )
 {
-    if ( !obj->getWidget() )
+    if ( !obj->getNrWidgets() || !obj->getWidget( 0 ) )
 	return;
 
-    attachToQObj( obj->getWidget() );
+    attachToQObj( obj->getWidget( 0 ) );
 }
 
 

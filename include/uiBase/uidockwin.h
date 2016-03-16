@@ -46,7 +46,9 @@ public:
 
     void		setMinimumWidth(int);
 
-    mQtclass(QDockWidget*)	qwidget();
+    int			getNrWidgets() const		{ return 1; }
+    mQtclass(QWidget*)	getWidget(int);
+    mQtclass(QDockWidget*) getDockWidget();
 
 protected:
 

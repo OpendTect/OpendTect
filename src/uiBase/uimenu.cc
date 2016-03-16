@@ -99,7 +99,7 @@ void uiMenuBar::doRemoveAction( mQtclass(QAction)* action )
 }
 
 
-QWidget* uiMenuBar::getWidget()
+QWidget* uiMenuBar::getWidget( int )
 { return qmenubar_; }
 
 // -----------------------------------------------------------------------
@@ -109,7 +109,8 @@ static CallBackSet& interceptors_ = *new CallBackSet;
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)(txt.getQString(),p ? p->getWidget() : 0))
+    , qmenu_( new mQtclass(QMenu)(txt.getQString(),
+	      p && p->getNrWidgets() ? p->getWidget(0) : 0))
     , text_(txt)
 {
     setIcon( pmnm );
@@ -351,5 +352,5 @@ void uiMenu::doRemoveAction( mQtclass(QAction)* action )
 }
 
 
-QWidget* uiMenu::getWidget()
+QWidget* uiMenu::getWidget(int)
 { return qmenu_; }

@@ -35,6 +35,7 @@ set(OD_MODULE_SOURCES
 	odgraphicsitem.cc
 	qptr.cc
 	uiaction.cc
+	uibaseobject.cc
 	uibutton.cc
 	uibuttongroup.cc
 	uiclipboard.cc
@@ -43,7 +44,6 @@ set(OD_MODULE_SOURCES
 	uicursor.cc
 	uidate.cc
 	uidesktopservices.cc
-
 	uidial.cc
 	uidockwin.cc
 	uieventfilter.cc

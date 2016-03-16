@@ -14,9 +14,15 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "namedobj.h"
+#include "rowcol.h"
 
 class uiBody;
 mFDQtclass(QWidget)
+
+/*! The main class for all UI-objects in OpendTect. Normally,
+    there is one widget per class, but there can be multiple. If
+    so, each widget has a relative position related to the others,
+    as returned from getWidgetOrigin and getWidgetSpan. */
 
 mExpClass(uiBase) uiBaseObject : public NamedObject
 {
@@ -51,24 +57,31 @@ public:
 				//!< triggered in destructor
 
     virtual Notifier<uiBaseObject>& preFinalise()
-				{ return finaliseStart; }
+				{ return finaliseStart_; }
     virtual Notifier<uiBaseObject>& postFinalise()
-				{ return finaliseDone; }
+				{ return finaliseDone_; }
     
-    
-    virtual mQtclass(QWidget*)	getWidget() { return 0; }
-    const mQtclass(QWidget*)	getWidget() const;
+    virtual int			getNrWidgets() const			= 0;
+    virtual mQtclass(QWidget)*	getWidget(int widgetindex);
+    const mQtclass(QWidget)*	getConstWidget(int widgetindex) const;
+
+    virtual RowCol		getWidgetOrigin(int widgetindex) const;
+    virtual RowCol		getWidgetSpan(int widgetindex) const;
+
+    int				getNrRows() const;
+    int				getNrCols() const;
 
 protected:
 
     void			setBody( uiBody* b )	{ body_ = b; }
 
-    Notifier<uiBaseObject>	finaliseStart;
+    Notifier<uiBaseObject>	finaliseStart_;
 				//!< triggered when about to start finalising
-    Notifier<uiBaseObject>	finaliseDone;
+    Notifier<uiBaseObject>	finaliseDone_;
     				//!< triggered when finalising finished
 
 private:
+    int				getNrRowCols( bool row ) const;
     int				cmdrecrefnr_;
     uiBody*			body_;
 };

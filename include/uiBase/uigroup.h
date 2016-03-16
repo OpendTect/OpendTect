@@ -105,6 +105,11 @@ public:
     virtual Notifier<uiBaseObject>& postFinalise()
 				{ return mainObject()->postFinalise(); }
 
+    int			getNrWidgets() const
+				{ return mainObject()->getNrWidgets(); }
+    mQtclass(QWidget*)	getWidget(int idx)
+				{ return mainObject()->getWidget(idx); }
+
 protected:
 
     uiGroupObj*		grpobj_;

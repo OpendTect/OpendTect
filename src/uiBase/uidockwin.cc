@@ -147,8 +147,14 @@ void uiDockWin::setFloating( bool yn )
 bool uiDockWin::isFloating() const
 { return body_->isFloating(); }
 
-QDockWidget* uiDockWin::qwidget()
+
+QDockWidget* uiDockWin::getDockWidget()
 { return body_; }
+
+
+QWidget* uiDockWin::getWidget(int)
+{ return getDockWidget(); }
+
 
 void uiDockWin::setMinimumWidth( int width )
 { if ( body_ ) body_->setMinimumWidth( width ); }

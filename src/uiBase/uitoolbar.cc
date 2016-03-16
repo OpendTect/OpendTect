@@ -44,7 +44,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     , buttonClicked(this)
     , orientationChanged(this)
     , toolbarmenuaction_(0)
-    , qtoolbar_(new QToolBar(nm.getQString(), parnt ? parnt->getWidget() : 0))
+    , qtoolbar_(new QToolBar(nm.getQString(),
+		parnt && parnt->getNrWidgets() ? parnt->getWidget(0) : 0))
 {
     qtoolbar_->setObjectName( nm.getQString() );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
@@ -262,6 +263,10 @@ void uiToolBar::clear()
 }
 
 
+QWidget* uiToolBar::getWidget(int)
+{ return getQToolbar(); }
+
+
 void uiToolBar::translateText()
 {
     if ( !label_.isEmpty() )
@@ -319,7 +324,7 @@ void uiToolBar::getEntityList( ObjectSet<const CallBacker>& entities ) const
 	    const QWidget* qw = qtoolbar_->widgetForAction( qaction );
 	    for ( int objidx=0; objidx<addedobjects_.size(); objidx++ )
 	    {
-		if ( qw==addedobjects_[objidx]->qwidget() )
+		if ( qw==addedobjects_[objidx]->getConstWidget(0) )
 		{
 		    entities += addedobjects_[objidx];
 		    break;

@@ -27,131 +27,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-static CallBackSet& cmdrecorders_ = *new CallBackSet;
-
-static ObjectSet<const uiBaseObject> cmdrecstopperstack_;
-static ObjectSet<const uiBaseObject> cmdrecstopperlist_;
-static ObjectSet<const CallBacker> cmdrecstrikeoutlist_;
-
-CmdRecStopper::CmdRecStopper( const uiBaseObject* obj )
-{
-    cmdrecstopperstack_.allowNull();
-    cmdrecstopperstack_.push( obj );
-
-    if ( !cmdrecorders_.isEmpty() && !cmdrecstopperlist_.isPresent(obj) )
-	cmdrecstopperlist_ += obj;
-}
-
-CmdRecStopper::~CmdRecStopper()
-{ cmdrecstopperstack_.pop(); }
-
-void CmdRecStopper::clearStopperList( const CallBacker* cmdrec )
-{
-    cmdrecstrikeoutlist_ -= cmdrec;
-    if ( cmdrecstrikeoutlist_.isEmpty() )
-    {
-	cmdrecstopperlist_.erase();
-	for ( int idx=0; idx<cmdrecorders_.size(); idx++ )
-	    cmdrecstrikeoutlist_ += cmdrecorders_[idx].cbObj();
-    }
-}
-
-bool CmdRecStopper::isInStopperList( const uiBaseObject* obj )
-{ return cmdrecstopperlist_.isPresent(obj); }
-
 
 mDefineEnumUtils(uiRect,Side,"Side") { "Left", "Right", "Top", "Bottom", 0 };
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )
 #define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
-
-uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
-    : NamedObject(nm)
-    , finaliseStart(this)
-    , finaliseDone(this)
-    , tobeDeleted(this)
-    , cmdrecrefnr_(0)
-    , body_(b)
-{}
-
-
-uiBaseObject::~uiBaseObject()
-{ tobeDeleted.trigger(); }
-
-
-void uiBaseObject::finalise()
-{ if ( body() ) body()->finalise(); }
-
-void uiBaseObject::clear()
-{ if ( body() ) body()->clear(); }
-
-bool uiBaseObject::finalised() const
-{ return body() ? body()->finalised() : false; }
-
-
-int uiBaseObject::beginCmdRecEvent( const char* msg )
-{ return beginCmdRecEvent( (od_uint64) 0, msg ); }
-
-
-int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
-{
-    if ( cmdrecorders_.isEmpty() ||
-	 (!id && cmdrecstopperstack_.isPresent(this)) )
-	return -1;
-
-    cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
-
-    BufferString actstr;
-    if ( id )
-	actstr += toString( id );
-
-    actstr += " Begin "; actstr += cmdrecrefnr_;
-    actstr += " "; actstr += msg;
-    CBCapsule<const char*> caps( actstr, this );
-    cmdrecorders_.doCall( &caps );
-    return cmdrecrefnr_;
-}
-
-
-const QWidget* uiBaseObject::getWidget() const
-{ return const_cast<uiBaseObject*>(this)->getWidget(); }
-
-
-void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
-{ endCmdRecEvent( (od_uint64) 0, refnr, msg ); }
-
-
-void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
-{
-    if ( cmdrecorders_.isEmpty() ||
-	 (!id && cmdrecstopperstack_.isPresent(this)) )
-	return;
-
-    BufferString actstr;
-    if ( id )
-	actstr += toString( id );
-
-    actstr += " End "; actstr += refnr;
-    actstr += " "; actstr += msg;
-    CBCapsule<const char*> caps( actstr, this );
-    cmdrecorders_.doCall( &caps );
-}
-
-
-void uiBaseObject::removeCmdRecorder( const CallBack& cb )
-{
-    cmdrecorders_ -= cb;
-    CmdRecStopper::clearStopperList( cb.cbObj() );
-}
-
-
-void uiBaseObject::addCmdRecorder( const CallBack& cb )
-{
-    cmdrecorders_ += cb;
-    cmdrecstrikeoutlist_ += cb.cbObj();
-}
-
 
 uiParent::uiParent( const char* nm, uiParentBody* b )
     : uiBaseObject( nm, b )
@@ -371,16 +252,16 @@ void uiObject::setToolTip( const uiString& txt )
 void uiObject::updateToolTip(CallBacker*)
 {
     mEnsureExecutedInMainThread( uiObject::updateToolTip );
-    if ( !qwidget() ) return;
+    if ( !getWidget(0) ) return;
 
     if ( uiMain::isNameToolTipUsed() && !name().isEmpty() )
     {
 	BufferString namestr = name().buf();
 	uiMain::formatNameToolTipString( namestr );
-	qwidget()->setToolTip( namestr.buf() );
+	getWidget(0)->setToolTip( namestr.buf() );
     }
     else
-	qwidget()->setToolTip( tooltip_.getQString() );
+	getWidget(0)->setToolTip( tooltip_.getQString() );
 }
 
 
@@ -405,8 +286,8 @@ bool uiObject::hasFocus() const
 
 void uiObject::disabFocus()
 {
-    if ( qwidget() )
-	qwidget()->setFocusPolicy( Qt::NoFocus );
+    if ( getWidget(0) )
+	getWidget(0)->setFocusPolicy( Qt::NoFocus );
 }
 
 
@@ -587,8 +468,8 @@ uiMainWin* uiObject::mainwin()
 }
 
 
-QWidget* uiObject::qwidget()
-{ return body() ? body()->qwidget() : 0 ; }
+QWidget* uiObject::getWidget( int idx )
+{ return !idx && body() ? body()->qwidget() : 0 ; }
 
 
 void uiObject::close()
@@ -600,13 +481,13 @@ void uiObject::close()
 
 int uiObject::width() const
 {
-    return qwidget() ? qwidget()->width() : 1;
+    return getConstWidget(0) ? getConstWidget(0)->width() : 1;
 }
 
 
 int uiObject::height() const
 {
-    return qwidget() ? qwidget()->height() : 1;
+    return getConstWidget(0) ? getConstWidget(0)->height() : 1;
 }
 
 
@@ -646,7 +527,7 @@ void uiObject::updateToolTips()
 void uiObject::reParent( uiParent* p )
 {
     if ( !p || !p->pbody() ) return;
-    qwidget()->setParent( p->pbody()->managewidg() );
+    getWidget(0)->setParent( p->pbody()->managewidg() );
     uiParentBody* b = dynamic_cast<uiParentBody*>( p->body() );
     if ( !b ) return;
     mBody()->reParent( b );

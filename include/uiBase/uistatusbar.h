@@ -51,6 +51,9 @@ public:
     void		setBGColor(int fldidx,const Color&);
     Color		getBGColor(int fldidx) const;
 
+    int			getNrWidgets() const		{ return 1; }
+    mQtclass(QWidget)*	getWidget(int);
+
 protected:
 
                         uiStatusBar(uiMainWin*,const char*,

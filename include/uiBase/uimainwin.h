@@ -145,8 +145,9 @@ public:
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
-    virtual uiMainWin*	mainwin()			{ return this; }
-    mQtclass(QWidget*)		qWidget() const;
+    virtual uiMainWin*	mainwin() { return this; }
+    int			getNrWidgets() const		{ return 1; }
+    mQtclass(QWidget*)	getWidget(int);
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 

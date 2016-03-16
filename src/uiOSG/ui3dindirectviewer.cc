@@ -258,6 +258,7 @@ public:
 
     void	requestWarpPointer( float x, float y );
 
+
     QWidget*	getWidget() { return qwidget_; }
     void	removeWidget() { qwidget_ = 0; }
     void	requestRedraw() { qwidget_->update(); }

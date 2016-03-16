@@ -37,7 +37,8 @@ public:
 				/*!< Works on complete menubar */
     bool			isSensitive() const;
 
-    mQtclass(QWidget*)		getWidget();
+    int				getNrWidgets() const	{ return 1; }
+    mQtclass(QWidget*)		getWidget(int);
     void			clear() { removeAllActions(); }
 
 protected:
@@ -104,7 +105,8 @@ public:
     const char*		getIconName() const;
 
     mQtclass(QMenu)*	getQMenu() { return qmenu_; }
-    mQtclass(QWidget*)	getWidget();
+    int			getNrWidgets() const	{ return 1; }
+    mQtclass(QWidget*)	getWidget(int);
 
 private:
     friend class	uiAction;

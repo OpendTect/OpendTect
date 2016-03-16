@@ -547,7 +547,7 @@ void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 {
     if ( !dwin ) return;
 
-    removeDockWidget( dwin->qwidget() );
+    removeDockWidget( dwin->getDockWidget() );
     dockwins_ -= dwin;
 }
 
@@ -559,7 +559,7 @@ void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
     else if ( dock == uiMainWin::Top ) dwa = Qt::TopDockWidgetArea;
     else if ( dock == uiMainWin::Bottom ) dwa =
 					     Qt::BottomDockWidgetArea;
-    addDockWidget( dwa, dwin.qwidget() );
+    addDockWidget( dwa, dwin.getDockWidget() );
     if ( dock == uiMainWin::TornOff )
 	dwin.setFloating( true );
     dockwins_ += &dwin;
@@ -600,7 +600,8 @@ void uiMainWinBody::addToolBar( uiToolBar* tb )
 {
     if ( toolbars_.isPresent(tb) )
 	{ pErrMsg("Toolbar is already added"); return; }
-    QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(), tb->qwidget() );
+    QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(),
+			      tb->getQToolbar() );
     toolbars_ += tb;
     renewToolbarsMenu();
 }
@@ -611,7 +612,7 @@ uiToolBar* uiMainWinBody::removeToolBar( uiToolBar* tb )
     if ( !toolbars_.isPresent(tb) )
 	return 0;
 
-    QMainWindow::removeToolBar( tb->qwidget() );
+    QMainWindow::removeToolBar( tb->getQToolbar() );
     toolbars_ -= tb;
     renewToolbarsMenu();
     return tb;
@@ -854,7 +855,7 @@ uiMainWin::~uiMainWin()
 }
 
 
-QWidget* uiMainWin::qWidget() const
+QWidget* uiMainWin::getWidget( int )
 { return body_; }
 
 
@@ -1375,7 +1376,7 @@ void shootImageCB( CallBacker* )
 
 void uiMainWin::copyToClipBoard()
 {
-    QWidget* qwin = qWidget();
+    QWidget* qwin = getWidget(0);
     if ( !qwin )
 	qwin = body_;
     WId wid = qwin->winId();
@@ -1389,7 +1390,7 @@ void uiMainWin::copyToClipBoard()
 
 void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 {
-    QWidget* qwin = qWidget();
+    QWidget* qwin = getWidget(0);
     if ( !qwin )
 	qwin = body_;
     WId wid = qwin->winId();
@@ -1416,7 +1417,7 @@ void uiMainWin::saveAsPDF_PS( const char* filename, bool aspdf, int w,
 
     QPainter* pdfpainter = new QPainter();
     pdfpainter->begin( pdfprinter );
-    QWidget* qwin = qWidget();
+    QWidget* qwin = getWidget(0);
     qwin->render( pdfpainter, pdfprinter->pageRect().topLeft(), qwin->rect() );
     pdfpainter->end();
     delete pdfpainter;

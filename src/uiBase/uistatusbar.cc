@@ -177,6 +177,10 @@ void uiStatusBar::setBGColor( int fldidx, const Color& col )
 }
 
 
+QWidget* uiStatusBar::getWidget(int)
+{ return body_->qthing(); }
+
+
 Color uiStatusBar::getBGColor( int fldidx ) const
 {
     return body_->getBGColor( fldidx );
@@ -211,7 +215,7 @@ bool uiStatusBar::addObject( uiObject* obj )
 {
     if ( !obj )
 	return false;
-    QWidget* qw = obj->qwidget();
+    QWidget* qw = obj->getWidget(0);
     if ( !qw )
 	return false;
 

@@ -21,7 +21,7 @@ uiTime2DepthZTransformBase::uiTime2DepthZTransformBase( uiParent* p, bool t2d )
     , rangefld_( 0 )
     , rangechanged_( false )
 {
-    mAttachCB( finaliseDone, uiTime2DepthZTransformBase::finalizeDoneCB );
+    mAttachCB( finaliseDone_, uiTime2DepthZTransformBase::finalizeDoneCB );
 }
 
 

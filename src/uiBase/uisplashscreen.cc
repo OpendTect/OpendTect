@@ -36,7 +36,7 @@ void uiSplashScreen::show()
 { qsplashscreen_->show(); }
 
 void uiSplashScreen::finish( uiMainWin* mw )
-{ qsplashscreen_->finish( mw->qWidget() ); }
+{ qsplashscreen_->finish( mw->getWidget(0) ); }
 
 void uiSplashScreen::showMessage( const char* msg )
 { qsplashscreen_->showMessage( msg ); }
