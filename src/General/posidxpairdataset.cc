@@ -143,6 +143,7 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
 					ObjSzType newsz, ObjSzType offs )
 {
     BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
+    buf_ = 0; bufsz_ = 0;
     if ( !manageBufCapacity(newsz,true) )
 	{ buf_ = orgbuf; bufsz_ = orgbufsz; }
     if ( !orgbuf )
@@ -155,7 +156,7 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
     ObjSzType offsorg = offs + gapsz;
     ObjSzType offsnew = offs;
 
-    while ( offsnew < bufsz_ )
+    while ( offsorg < orgbufsz )
     {
 	ObjSzType nrbytes2copy = orgsz;
 	if ( offsorg + nrbytes2copy > orgbufsz )
