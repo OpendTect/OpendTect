@@ -113,6 +113,8 @@ bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
     if ( !orgbuf )
 	return true;
 
+    if ( offs < 0 )
+	{ offs = orgsz + offs + 1; if ( offs < 0 ) offs = 0; }
     if ( offs )
 	OD::memCopy( buf_, orgbuf, offs );
 
@@ -120,17 +122,17 @@ bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
     ObjSzType offsorg = offs;
     ObjSzType offsnew = offs + gapsz;
 
-    while ( offsnew < bufsz_ )
+    while ( offsnew < bufsz_+gapsz )
     {
 	ObjSzType nrbytes2copy = newsz;
 	if ( offsnew + nrbytes2copy > bufsz_ )
 	    nrbytes2copy = bufsz_ - offsnew;
 	if ( nrbytes2copy > 0 )
-	{
 	    OD::memCopy( buf_+offsnew, orgbuf+offsorg, nrbytes2copy );
-	    if ( initbytes )
-		OD::memCopy( buf_+offsnew-gapsz, initbytes, gapsz );
-	}
+
+	if ( initbytes )
+	    OD::memCopy( buf_+offsnew-gapsz, initbytes, gapsz );
+
 	offsorg += orgsz; offsnew += newsz;
     }
 
@@ -149,6 +151,8 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
     if ( !orgbuf )
 	return;
 
+    if ( offs < 0 )
+	{ offs = newsz + offs + 1; if ( offs < 0 ) offs = 0; }
     if ( offs )
 	OD::memCopy( buf_, orgbuf, offs );
 

@@ -1703,48 +1703,45 @@ void uiDataPointSet::addColumn( CallBacker* )
 
     uiDPSAddColumnDlg dlg( this, true );
     dlg.setColInfos( colnames, dcids );
-    if ( dlg.go() )
+    if ( !dlg.go() )
+	return;
+
+    dps_.dataSet().add( new DataColDef(dlg.newAttribName()) );
+    BinIDValueSet& bvs = dps_.bivSet();
+    BinIDValueSet::SPos spos;
+    TypeSet<int> colids = dlg.usedColIDs();
+    Math::Expression* mathobj = dlg.mathObject();
+    if ( !mathobj )
+	return;
+
+    const int newcol = bvs.nrVals() - 1;
+    while ( bvs.next(spos,false) )
     {
-	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
-	BinIDValueSet& bvs = dps_.bivSet();
-	BinIDValueSet::SPos pos;
-	TypeSet<int> colids = dlg.usedColIDs();
-	Math::Expression* mathobj = dlg.mathObject();
-	if ( !mathobj ) return;
-	while ( bvs.next(pos,false) )
+	const DataPointSet::RowID rid = dps_.getRowID( spos );
+	for ( int idx=0; idx<colids.size(); idx++ )
 	{
-	    BinID curbid;
-	    TypeSet<float> vals;
-	    bvs.get( pos, curbid, vals );
-	    DataPointSet::RowID rid = dps_.getRowID( pos );
-
-	    for ( int idx=0; idx<colids.size(); idx++ )
+	    float yval = mUdf(float);
+	    if ( colids[idx] >= 0 )
+		yval = dps_.value( colids[idx], rid );
+	    else if ( colids[idx] == -1 )
 	    {
-		float yval = mUdf(float);
-		if ( colids[idx] >= 0 )
-		    yval = dps_.value( colids[idx], rid );
-		else if ( colids[idx] == -1 )
-		{
-		    yval = dps_.z( rid );
-		    if ( !mIsUdf(yval) )
-			yval *= zfac_;
-		}
-		else
-		    yval = mCast(float,mGetHPosVal(colids[idx],rid));
-
-		mathobj->setVariableValue( idx, yval );
+		yval = dps_.z( rid );
+		if ( !mIsUdf(yval) )
+		    yval *= zfac_;
 	    }
+	    else
+		yval = mCast(float,mGetHPosVal(colids[idx],rid));
 
-	    vals[ vals.size()-1 ] = mCast(float,mathobj->getValue());
-	    bvs.set( pos, vals );
+	    mathobj->setVariableValue( idx, yval );
 	}
 
-	unsavedchgs_ = true;
-	dps_.dataChanged();
-	tbl_->setColumnLabel( tbl_->nrCols()-1,
-					      toUiString(dlg.newAttribName()) );
-	reDoTable();
+	bvs.getVals(spos)[newcol] = (float)mathobj->getValue();
     }
+
+    unsavedchgs_ = true;
+    dps_.dataChanged();
+    tbl_->setColumnLabel( tbl_->nrCols()-1, toUiString(dlg.newAttribName()) );
+    reDoTable();
 }
 
 

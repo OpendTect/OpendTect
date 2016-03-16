@@ -54,6 +54,18 @@ static bool checkContents( Pos::IdxPairValueSet& ds )
     chckDs( ds, "** After remove col 2:" );
     ds.remove( spostorem );
     chckDs( ds, BufferString("** After remove row ",crltorem,":") );
+    ds.setNrVals( ds.nrVals() + 1 );
+
+    spos.reset();
+    const int lastcol = ds.nrVals() - 1;
+    float newval = 1000;
+    while ( ds.next(spos) )
+    {
+	float* vals = ds.getVals( spos );
+	vals[lastcol] = newval;
+	newval += 1;
+    }
+    chckDs( ds, BufferString("** After add col ",lastcol,":") );
 
     return true;
 }
