@@ -108,6 +108,7 @@ protected:
     void			cleanPatchDisplay();
     void			sowingFinishedCB(CallBacker*);
     void			updatePatchDisplay();
+
     bool			seedpickwason_;
     TrcKeyZSampling		oldactivevol_;
 };
