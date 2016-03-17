@@ -1396,7 +1396,7 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
 	if ( idx < 2 )
 	    setNodePos( idx, pos );
 	else
-	    addNode( pos );
+	    rl_->addNode( pos );
     }
 
     return true;
