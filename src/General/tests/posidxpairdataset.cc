@@ -191,7 +191,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     ObjectSet<TstObj> objs;
-    for ( int idx=0; idx<cNrObjs; idx++ )
+    for ( unsigned short idx=0; idx<cNrObjs; idx++ )
 	objs += new TstObj( idx, 100+idx );
     fillExpected();
 
