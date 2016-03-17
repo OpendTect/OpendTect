@@ -1016,6 +1016,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 			      hor2ddisplayids );
 
 	hordisplayids.append( hor2ddisplayids );
+	viewer2DMgr().removeHorizon3D( emid );
+	viewer2DMgr().removeHorizon2D( emid );
 
 	for ( int idx=0; idx<hordisplayids.size(); idx++ )
 	{

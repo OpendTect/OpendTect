@@ -73,6 +73,8 @@ public:
     void			removeHorizon3D(EM::ObjectID emid);
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID mid);
+    void			addNewTrackingHorizon3D(EM::ObjectID mid,
+	    						int sceneid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     // 2D Horizons
@@ -83,11 +85,14 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID mid);
+    void			addNewTrackingHorizon2D(EM::ObjectID mid,
+	    						int sceneid);
 
     //Faults
     void			removeFault(EM::ObjectID emid);
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID mid);
+    void			addNewTempFault(EM::ObjectID mid,int sceneid);
     void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
 
     //FaultStickSet
@@ -96,6 +101,7 @@ public:
     void			removeFaultSS(EM::ObjectID emid);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID mid);
+    void			addNewTempFaultSS(EM::ObjectID mid,int sceneid);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
     //FaultStickSet2D
@@ -104,6 +110,8 @@ public:
     void			removeFaultSS2D(EM::ObjectID emid);
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID mid);
+    void			addNewTempFaultSS2D(EM::ObjectID mid,
+	    					    int sceneid);
     void			getLoadedFaultSS2Ds(
 	   				 TypeSet<EM::ObjectID>&) const;
     

@@ -92,11 +92,34 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , mousecursorexchange_(0)
     , marker_(0)
     , datatransform_(0)
+    , syncsceneid_(-1)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_ = vwrid++;
 
     setWinTitle( true );
+
+    if ( visid_>=0 )
+	syncsceneid_ = appl_.applMgr().visServer()->getSceneID( visid_ );
+    else
+    {
+	TypeSet<int> sceneids;
+	appl_.applMgr().visServer()->getSceneIds( sceneids );
+	for ( int iscn=0; iscn<sceneids.size(); iscn++ )
+	{
+	    const int sceneid = sceneids[iscn];
+	    const ZAxisTransform* scntransform =
+		appl_.applMgr().visServer()->getZAxisTransform( sceneid );
+	    const ZDomain::Info* scnzdomaininfo =
+		appl_.applMgr().visServer()->zDomainInfo( sceneid );
+	    if ( datatransform_==scntransform ||
+		 (scnzdomaininfo && scnzdomaininfo->def_==zDomain()) )
+	    {
+		syncsceneid_ = sceneid;
+		break;
+	    }
+	}
+    }
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );

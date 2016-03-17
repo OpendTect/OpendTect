@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiodpicksettreeitem.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uiflatviewstdcontrol.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
 #include "uisetpickdirs.h"
@@ -62,6 +63,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
     handleStdSubMenu( menuid );
 
     TypeSet<MultiID> pickmidstoadd;
+    bool newpick = false;
     if ( menuid == 0  )
     {
 	const Pick::Set* newps =
@@ -70,6 +72,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 	    return false;
 
 	pickmidstoadd += picksetmgr_.get( *newps );
+	newpick = true;
     }
     else if ( menuid == 1 &&
 	      !applMgr()->pickServer()->loadSets(pickmidstoadd,false) )
@@ -77,6 +80,9 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 
     if ( !pickmidstoadd.isEmpty() )
 	addPickSets( pickmidstoadd );
+
+    if ( newpick )
+	viewer2D()->viewControl()->setEditMode( true );
 
     return true;
 }
@@ -144,7 +150,10 @@ void uiODVw2DPickSetParentTreeItem::addPickSets(
 	if ( findChild(ps.name()) )
 	    continue;
 
-	addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
+	uiODVw2DPickSetTreeItem* childitm =
+	    new uiODVw2DPickSetTreeItem( picksetidx );
+	addChld( childitm, false, false);
+	childitm->select();
     }
 }
 
@@ -244,8 +253,7 @@ void uiODVw2DPickSetTreeItem::displayMiniCtab()
 
 bool uiODVw2DPickSetTreeItem::select()
 {
-    if ( !uitreeviewitem_->isSelected() )
-	return false;
+    uitreeviewitem_->setSelected( true );
 
     if ( vw2dpickset_ )
     {

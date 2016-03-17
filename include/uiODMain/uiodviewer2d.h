@@ -125,6 +125,7 @@ public:
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
     const ZDomain::Def&		zDomain() const;
+    int				getSyncSceneID() const	{ return syncsceneid_;}
 
     int				id_; /*!<Unique identifier */
     int				visid_; /*!<ID from 3D visualization */
@@ -217,6 +218,7 @@ protected:
     uiODMain&			appl_;
     int				rdmlineid_;
     int				voiidx_;
+    int				syncsceneid_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;
