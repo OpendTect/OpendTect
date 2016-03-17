@@ -83,7 +83,8 @@ static bool testAdd( Pos::IdxPairValueSet& ds, float startval )
     {
 	for ( int ival=0; ival<ds.nrVals(); ival++ )
 	    vals[ival] = startval + idx * 100 + ival * 10;
-	ds.add( Pos::IdxPair(inl,crl), vals.arr() );
+	const float* toadd = idx != 1 ? vals.arr() : 0;
+	ds.add( Pos::IdxPair(inl,crl), toadd );
 	if ( idx == cNrObjs/2 )
 	    inl--;
 	else if ( idx != cNrObjs/4 )

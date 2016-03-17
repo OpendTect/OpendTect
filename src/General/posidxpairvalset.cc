@@ -228,9 +228,14 @@ void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vs,
 Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 						      const float* arr )
 {
-    SPos ret = data_.add( ip, arr );
-    if ( ret.isValid() && !arr )
-	setToUdf( gtVals(ret), nrvals_ );
+    SPos ret;
+    if ( arr )
+	ret = data_.add( ip, arr );
+    else
+    {
+	TypeSet<float> vals( nrvals_, mUdf(float) );
+	ret = data_.add( ip, vals.arr() );
+    }
     return ret;
 }
 
