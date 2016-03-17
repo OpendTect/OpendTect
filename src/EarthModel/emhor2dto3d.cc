@@ -103,6 +103,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	msg_ = tr("No data in selected area");
     else if ( curinterp_ )
     {
+	curinterp_->setOrigin( hrg.start_ );
 	const float inldist = hrg.step_.inl()*SI().inlDistance();
 	const float crldist = hrg.step_.crl()*SI().crlDistance();
 
@@ -111,7 +112,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 
 	curinterp_->setMaxHoleSize( mUdf(float) );
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
-  	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
+	curinterp_->setFillType( issingleline ? Array2DInterpol::Full
 					      : Array2DInterpol::ConvexHull );
 	curinterp_->setArray( sd_[cursectnr_]->arr_, taskrunner );
 
@@ -157,7 +158,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 	    int extendedsize = 1;
 	    mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
 	    if ( inv && !mIsUdf(inv->getNrSteps()) )
-		extendedsize = inv->getNrSteps(); 
+		extendedsize = inv->getNrSteps();
 
 	    minbid.inl() -= extendedsize;
 	    if ( minbid.inl()<0 ) minbid.inl() = 0;
@@ -242,18 +243,18 @@ int Hor2DTo3D::nextStep()
     {
 	for ( int crlidx=0; crlidx<sd.crlsz_; crlidx++ )
 	{
-	    const BinID bid( sd.hs_.inlRange().atIndex(inlidx), 
+	    const BinID bid( sd.hs_.inlRange().atIndex(inlidx),
 			     sd.hs_.crlRange().atIndex(crlidx) );
 	    const Coord3 pos( SI().transform(bid), sd.arr_.get(inlidx,crlidx) );
 
-	    if ( pos.isDefined() ) 
+	    if ( pos.isDefined() )
 		hor3d_.setPos( sid, bid.toInt64(), pos, false );
 	}
     }
 
-    hor3d_.geometry().sectionGeometry(sid)->trimUndefParts(); 
+    hor3d_.geometry().sectionGeometry(sid)->trimUndefParts();
     hor3d_.enableGeometryChecks( geowaschecked );
-    
+
     cursectnr_++;
     if ( cursectnr_ >= sd_.size() )
 	return Executor::Finished();
