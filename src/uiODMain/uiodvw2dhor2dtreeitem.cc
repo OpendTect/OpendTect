@@ -55,9 +55,31 @@ uiODVw2DHor2DParentTreeItem::~uiODVw2DHor2DParentTreeItem()
 }
 
 
+void uiODVw2DHor2DParentTreeItem::getNonLoadedTrackedHor2Ds(
+	TypeSet<EM::ObjectID>& emids )
+{
+    const int nrtracker = MPE::engine().nrTrackersAlive();
+    TypeSet<EM::ObjectID> loadedemids;
+    getLoadedHorizon2Ds( loadedemids );
+    for ( int idx=0; idx<nrtracker; idx++ )
+    {
+	MPE::EMTracker* tracker = MPE::engine().getTracker( idx );
+	if ( !tracker )
+	    continue;
+
+	EM::EMObject* emobj = tracker->emObject();
+	mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
+	if ( !hor2d || loadedemids.isPresent(emobj->id()) )
+	    continue;
+
+	emids.addIfNew( emobj->id() );
+    }
+}
+
+
 bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 {
-    const bool hastransform = false; // TODO: Check for zaxistransform
+    const bool hastransform = viewer2D()->hasZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
@@ -65,9 +87,29 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
     addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), mAddIdx );
     mnu.insertItem( addmenu );
 
-    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
-    newmenu->setEnabled( !hastransform );
-    mnu.insertItem( newmenu, mNewIdx );
+    TypeSet<EM::ObjectID> emids;
+    getNonLoadedTrackedHor2Ds( emids );
+    if ( emids.isEmpty() )
+    {
+	uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
+	newmenu->setEnabled( !hastransform );
+	mnu.insertItem( newmenu, mNewIdx );
+    }
+    else
+    {
+	uiMenu* trackmenu = new uiMenu( tr("Track") );
+	uiAction* newmenu = new uiAction( uiStrings::sNew() );
+	trackmenu->insertItem( newmenu, mNewIdx );
+	for ( int idx=0; idx<emids.size(); idx++ )
+	{
+	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
+	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
+	    trackexistingmnu->setEnabled( !hastransform );
+	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
+	}
+
+	mnu.insertItem( trackmenu );
+    }
 
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
@@ -78,24 +120,36 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
-    if ( mnuid == mNewIdx )
+    if ( mnuid >= mNewIdx )
     {
+	TypeSet<EM::ObjectID> emids;
+	getNonLoadedTrackedHor2Ds( emids );
+	const int emidx = mnuid - mNewIdx - 1;
+	if ( emidx >= emids.size() )
+	    return false;
+
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
-				applMgr()->attrServer()->curDescSet(true) );
-	int trackid = mps->activeTrackerID();
-	int emid = mps->getEMObjectID( trackid );
+		applMgr()->attrServer()->curDescSet(true) );
+	int emid = -1;
+	if ( emids.validIdx(emidx) )
+	    emid = emids[emidx];
+
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( emobj )
+	{
 	    MPE::engine().addTracker( emobj );
-	else if ( !mps->addTracker(EM::Horizon2D::typeStr(),-1) )
+	    MPE::engine().setActiveTracker( emobj->id() );
+	}
+	else if ( !mps->addTracker(EM::Horizon2D::typeStr(),
+				   viewer2D()->getSyncSceneID()) )
 	    return true;
 
-	trackid = mps->activeTrackerID();
+	const int trackid = mps->activeTrackerID();
 	emid = mps->getEMObjectID( trackid );
 	addNewTrackingHorizon2D( emid );
-	applMgr()->viewer2DMgr().addNewTrackingHorizon2D( emid );
-	trackid = mps->activeTrackerID();
+	applMgr()->viewer2DMgr().addNewTrackingHorizon2D(
+		emid, viewer2D()->getSyncSceneID() );
 	MPE::engine().removeTracker( trackid );
 	mps->enableTracking( trackid, true );
     }
