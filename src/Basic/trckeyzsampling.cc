@@ -4,7 +4,6 @@
  * DATE     : somewhere around 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "trckeyzsampling.h"
 

@@ -4,7 +4,6 @@
  *Date:		April 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocsurfacelimitedfiller.h"
 

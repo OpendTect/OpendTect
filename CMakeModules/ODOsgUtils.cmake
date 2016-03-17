@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 macro( OD_ADD_OSG )

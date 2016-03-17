@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 #Discover 64 or 32 bits

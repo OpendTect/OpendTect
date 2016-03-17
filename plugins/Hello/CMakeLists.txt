@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Hello plugin
 # 	Jan 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Basic)

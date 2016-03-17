@@ -4,12 +4,10 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
 #include "atomic.h"

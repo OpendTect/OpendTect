@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Experimental Attributes
 # 	March 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS ExpAttribs uiODMain)

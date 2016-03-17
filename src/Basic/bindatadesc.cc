@@ -5,7 +5,6 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "bindatadesc.h"
 #include "string2.h"

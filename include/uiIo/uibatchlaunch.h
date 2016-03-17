@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra/Bert
  Date:          Jan 2002/Mar 2014
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

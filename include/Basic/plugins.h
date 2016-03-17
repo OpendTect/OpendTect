@@ -8,7 +8,6 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id$
 
  For making your own plugins, no need to include this file. Use odplugin.h.
 ________________________________________________________________________

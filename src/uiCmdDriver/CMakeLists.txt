@@ -2,7 +2,6 @@
 #
 #	Makefile : 	uiCmdDriver
 # 	Sep 2012	Jaap
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiTools )

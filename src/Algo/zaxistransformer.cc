@@ -4,7 +4,6 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "zaxistransformer.h"
 

@@ -4,7 +4,6 @@
  * DATE     : August 2014
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiprestacktrimstatics.h"
 #include "uiprestackprocessor.h"

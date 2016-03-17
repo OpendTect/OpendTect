@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR

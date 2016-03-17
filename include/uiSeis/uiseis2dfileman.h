@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne/Bert
  Date:          April 2002/Nov 2009
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

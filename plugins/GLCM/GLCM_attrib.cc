@@ -6,7 +6,6 @@
  * DATE     : November 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "GLCM_attrib.h"
 #include "attribdataholder.h"

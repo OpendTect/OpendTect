@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibodyposprovgroup.h"
 #include "uigeninput.h"

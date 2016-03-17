@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

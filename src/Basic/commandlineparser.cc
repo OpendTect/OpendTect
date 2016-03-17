@@ -4,7 +4,6 @@
  * DATE     : March 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "commandlineparser.h"
 

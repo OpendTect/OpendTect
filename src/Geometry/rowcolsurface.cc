@@ -4,7 +4,6 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "rowcolsurface.h"
 

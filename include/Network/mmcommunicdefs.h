@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id$
 ________________________________________________________________________
 
 Defines for MM job communication status tags and codes

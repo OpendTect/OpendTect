@@ -2,7 +2,6 @@
 #
 #       Makefile :      uiViewer2D
 #       July 2002       Umesh Sinha
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiMPE )

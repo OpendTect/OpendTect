@@ -6,7 +6,6 @@
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki / Bert
  Date:          July 2013
- RCS:           $Id$
  _______________________________________________________________________
 
       -*/

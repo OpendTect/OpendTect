@@ -4,7 +4,6 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "geomelement.h"
 #include "survinfo.h"

@@ -3,7 +3,6 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seispreload.h"
 

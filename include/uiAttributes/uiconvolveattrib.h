@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          Nov 2006
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

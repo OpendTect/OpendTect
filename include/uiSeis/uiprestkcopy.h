@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh / Bert
  Date:          October 2007 / Mar 2015
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

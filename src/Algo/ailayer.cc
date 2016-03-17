@@ -7,7 +7,6 @@ Date:          5 March 2013
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "ailayer.h"
 #include "arrayndimpl.h"

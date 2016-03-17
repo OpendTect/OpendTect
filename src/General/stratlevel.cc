@@ -4,7 +4,6 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "stratlevel.h"
 #include "bufstringset.h"

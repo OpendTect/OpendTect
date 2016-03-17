@@ -5,7 +5,6 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "separstr.h"
 #include "keystrs.h"

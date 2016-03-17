@@ -3,7 +3,6 @@
  * AUTHOR   : D. Zheng
  * DATE     : Feb 2013
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "vishorthreadworks.h"

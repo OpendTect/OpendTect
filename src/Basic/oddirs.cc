@@ -5,7 +5,6 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 #include "oddirs.h"

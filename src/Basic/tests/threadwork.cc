@@ -5,7 +5,6 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "threadwork.h"
 #include "thread.h"

@@ -4,7 +4,6 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "pickretriever.h"
 

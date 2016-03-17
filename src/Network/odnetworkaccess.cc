@@ -7,7 +7,6 @@ Date:	    October 2012
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "odnetworkaccess.h"
 

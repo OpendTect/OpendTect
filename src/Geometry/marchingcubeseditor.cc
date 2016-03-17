@@ -4,7 +4,6 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"

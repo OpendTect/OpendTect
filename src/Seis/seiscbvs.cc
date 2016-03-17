@@ -5,7 +5,6 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscbvs.h"
 

@@ -2,7 +2,6 @@
 #
 #	Makefile: 	ui- MPE
 # 	May 2002	Nanne Hemstra
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiAttributes uiFlatView MPEEngine )

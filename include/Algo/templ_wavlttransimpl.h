@@ -4,7 +4,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          2001
- RCS:           $Id$
 ________________________________________________________________________
 
  This is part of another include file. Do not protect against multiple

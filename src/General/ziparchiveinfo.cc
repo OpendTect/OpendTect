@@ -7,7 +7,6 @@ Date:          27 August 2012
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "ziparchiveinfo.h"
 

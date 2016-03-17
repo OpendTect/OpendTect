@@ -5,7 +5,6 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "tutseistools.h"
 #include "tutorialattrib.h"

@@ -4,7 +4,6 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "delaunay.h"
 #include "sorting.h"

@@ -5,7 +5,6 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisread.h"
 

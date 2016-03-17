@@ -2,7 +2,6 @@
 #
 #	Makefile : 	uiEMAttrib
 # 	October 2004	N. Hemstra
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )

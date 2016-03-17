@@ -4,7 +4,6 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : June 2007
- * ID       : $Id$
 -*/
 
 #include "uitutmod.h"

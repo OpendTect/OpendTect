@@ -5,7 +5,6 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "ibmformat.h"
 

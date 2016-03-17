@@ -5,7 +5,6 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seistrctr.h"
 #include "keystrs.h"

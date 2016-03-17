@@ -29,7 +29,6 @@ uiString Translator::sSelObjectIsWrongType()
 }
 
 
-static const char* rcsID mUsedVar = "$Id$";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)

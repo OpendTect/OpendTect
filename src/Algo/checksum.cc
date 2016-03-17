@@ -4,7 +4,6 @@
  * DATE     : Jan 2015
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "checksum.h"

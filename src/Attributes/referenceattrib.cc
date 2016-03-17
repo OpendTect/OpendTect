@@ -4,7 +4,6 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "referenceattrib.h"

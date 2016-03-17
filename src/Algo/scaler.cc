@@ -5,7 +5,6 @@
  * FUNCTION : Scaler functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "scaler.h"
 #include "separstr.h"

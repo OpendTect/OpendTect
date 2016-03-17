@@ -4,7 +4,6 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"

@@ -5,7 +5,6 @@
  * FUNCTION : SynthSeis
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "synthseis.h"
 

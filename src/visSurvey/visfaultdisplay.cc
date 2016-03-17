@@ -4,7 +4,6 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visfaultdisplay.h"
 

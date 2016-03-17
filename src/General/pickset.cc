@@ -4,7 +4,6 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "pickset.h"
 #include "draw.h"

@@ -2,7 +2,6 @@
 #
 #	Makefile : 	VoxelConnectivityFilter plugin
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS VolumeProcessing)

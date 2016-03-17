@@ -4,7 +4,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Arnaud
  Date:		August 2014
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/

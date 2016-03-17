@@ -4,7 +4,6 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visvolrenscalarfield.h"
 

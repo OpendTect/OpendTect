@@ -3,7 +3,6 @@
  * AUTHOR   : Bert
  * DATE     : Dec 2009
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "bendpoints2coords.h"
 #include "sorting.h"

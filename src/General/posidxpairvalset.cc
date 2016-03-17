@@ -4,7 +4,6 @@
  * DATE     : 21-6-1996 / Mar 2016
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "posidxpairvalset.h"
 #include "posidxpairvalue.h"

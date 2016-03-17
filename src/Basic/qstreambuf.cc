@@ -4,7 +4,6 @@
  * DATE     : Dec 2014
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #ifndef OD_NO_QT
 

@@ -4,7 +4,6 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #define _CRT_RAND_S

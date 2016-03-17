@@ -2,7 +2,6 @@
 #
 #	Makefile : 	uiFlatView
 # 	Feb 2007	Bert
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiTools )

@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; No license.
  Author:	A.H.Bril
  Date:		June 2006
- RCS:		$Id$
 ________________________________________________________________________
 
  This header file is intended for programmers who want to use their code for

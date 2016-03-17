@@ -8,7 +8,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Ranojay Sen
  Date:		December  2011
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/

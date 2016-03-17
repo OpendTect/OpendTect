@@ -8,7 +8,6 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id$
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with

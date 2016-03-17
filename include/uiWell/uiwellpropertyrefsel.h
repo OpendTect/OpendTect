@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno / Bert
  Date:          April 2011 / May 2014
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	Jan 2012	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 OPTION( BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)

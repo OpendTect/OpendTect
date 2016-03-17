@@ -4,7 +4,6 @@
  * DATE     : Feb 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visosg.h"
 #include "vishorizonsection.h"

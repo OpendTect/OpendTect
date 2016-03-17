@@ -5,7 +5,6 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "cbvsinfo.h"
 #include "trckeyzsampling.h"

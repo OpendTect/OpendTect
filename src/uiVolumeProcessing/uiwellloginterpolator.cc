@@ -4,7 +4,6 @@
  * DATE     : Sep. 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellloginterpolator.h"
 #include "wellloginterpolator.h"

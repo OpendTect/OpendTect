@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink / Bert
  Date:          21/2/2002 / Sep 2011
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

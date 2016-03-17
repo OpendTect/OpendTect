@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Aug 2014
- RCS:		$Id$
 ________________________________________________________________________
 
 Wrapper class around QCoreApplication

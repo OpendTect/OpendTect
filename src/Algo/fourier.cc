@@ -7,7 +7,6 @@
  * Unix project. License is found below.
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "fourier.h"
 #include "odmemory.h"

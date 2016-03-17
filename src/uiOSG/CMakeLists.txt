@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Coin/Ui
 # 	Feb 2002	Arend Lammertink
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS visSurvey uiTools )

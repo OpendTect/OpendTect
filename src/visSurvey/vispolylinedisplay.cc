@@ -5,7 +5,6 @@
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispolylinedisplay.h"
 #include "survinfo.h"

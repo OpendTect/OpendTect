@@ -4,7 +4,6 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "gendefs.h"
 #include "displaypropertylinks.h"

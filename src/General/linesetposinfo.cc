@@ -4,7 +4,6 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "linesetposinfo.h"
 #include "survinfo.h"

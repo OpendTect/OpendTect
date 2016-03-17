@@ -6,7 +6,6 @@ ___________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          April 2010
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/

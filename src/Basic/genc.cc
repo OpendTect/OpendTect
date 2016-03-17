@@ -4,7 +4,6 @@
  * DATE     : March 1994
  * FUNCTION : general utilities
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 

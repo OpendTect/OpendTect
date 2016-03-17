@@ -2,7 +2,6 @@
 #
 #	Makefile: 	ui- based on EarthModel
 # 	May 2002	Nanne Hemstra
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiStrat EarthModel )

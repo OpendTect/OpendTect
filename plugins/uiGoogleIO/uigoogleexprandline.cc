@@ -4,7 +4,6 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigoogleexprandline.h"
 #include "googlexmlwriter.h"

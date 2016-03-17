@@ -8,7 +8,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"

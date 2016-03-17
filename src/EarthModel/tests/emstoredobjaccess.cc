@@ -4,7 +4,6 @@
  * DATE     : Feb 2016
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "emstoredobjaccess.h"
 #include "od_ostream.h"

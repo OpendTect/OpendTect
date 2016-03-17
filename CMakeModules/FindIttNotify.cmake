@@ -9,7 +9,6 @@
 #
 # Created by Kristofer Tingdahl, Copyright dGB Beheer B. V. 
 #
-# $Id$
 #
 
 find_path(ITTNOTIFY_INCLUDE_DIR ittnotify.h

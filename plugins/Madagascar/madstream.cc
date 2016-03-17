@@ -4,7 +4,6 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "madstream.h"
 #include "trckeyzsampling.h"

@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Horizon attributes and related
 # 	March 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiODMain HorizonAttrib)

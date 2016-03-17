@@ -8,7 +8,6 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Mar 2009
  Contents:	Angle functions
- RCS:		$Id$
 ________________________________________________________________________
 
  Converting degrees, radians and user degrees to one another.

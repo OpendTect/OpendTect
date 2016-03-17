@@ -2,7 +2,6 @@
 #
 #	Makefile : 	General utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 add_custom_command( OUTPUT od_helpids.h

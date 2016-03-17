@@ -2,7 +2,6 @@
 # Description:  CMake script to build a release
 # Author:       K. Tingdahl
 # Date:		August 2012		
-#RCS:           $Id$
 
 
 macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )

@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Attribute classes
 # 	May 2005	Helene Payraudeau
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 

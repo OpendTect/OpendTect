@@ -9,7 +9,6 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "emrandomposbody.h"
 

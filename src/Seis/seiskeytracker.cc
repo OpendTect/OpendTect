@@ -3,7 +3,6 @@
  * AUTHOR   : Bert
  * DATE     : Mar 2016
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiskeytracker.h"
 #include "od_ostream.h"

@@ -4,7 +4,6 @@
  * DATE     : Dec 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidsorting.h"
 #include "perthreadrepos.h"

@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 1995
- RCS:		$Id$
 ________________________________________________________________________
 
  This file contains general defines that are so basic they can (read: MUST)

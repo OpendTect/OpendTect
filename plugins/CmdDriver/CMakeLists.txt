@@ -2,7 +2,6 @@
 #
 #	Makefile : 	GapDecon plugin
 # 	Feb 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiCmdDriver uiODMain)

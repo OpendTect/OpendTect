@@ -4,7 +4,6 @@
  * DATE     : August 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "horizon3dtesselator.h"
 

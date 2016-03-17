@@ -5,7 +5,6 @@
  * FUNCTION : Unit IDs
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "multiid.h"
 #include "perthreadrepos.h"

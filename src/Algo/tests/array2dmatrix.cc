@@ -4,7 +4,6 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "array2dmatrix.h"
 #include "arraynddumper.h"

@@ -4,7 +4,6 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "emstoredobjaccess.h"
 #include "emmanager.h"
