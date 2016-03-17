@@ -60,6 +60,8 @@ public:
 			//!< Utility function
     static ODPolygon<float>* getPolygon(const IOObj&,BufferString& errmsg);
 			//!< Returns null on failure
+
+    static void		fillConstraints(IOObjContext&,bool ispoly);
 };
 
 

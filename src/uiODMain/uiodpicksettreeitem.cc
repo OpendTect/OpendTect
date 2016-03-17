@@ -71,8 +71,7 @@ void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
-	if ( !itm )
-	    continue;
+	if ( !itm ) continue;
 	if ( itm->getSet() == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
@@ -204,7 +203,7 @@ uiTreeItem*
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(uiStrings::sSave())
-    , storeasmnuitem_(uiStrings::sSaveAs())
+    , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , dirmnuitem_(m3Dots(tr("Set Directions")))
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )

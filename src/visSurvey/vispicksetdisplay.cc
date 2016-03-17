@@ -363,7 +363,7 @@ bool PickSetDisplay::needLine()
 
 void PickSetDisplay::showLine( bool yn )
 {
-    if ( !needLine() )
+    if ( !needLine() && !lineShown() )
 	return;
 
     if ( !polyline_ )
