@@ -847,8 +847,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		{
 		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
 		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
-		    intersecbid =
-			BinID( tkzs.hsamp_.inlRange().start, newannot.pos_ );
+		    intersecbid = BinID( tkzs.hsamp_.inlRange().start,
+			    		 mNINT32(newannot.pos_) );
 		    x1auxannot += newannot;
 		}
 		else
@@ -865,8 +865,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
 		    x1auxannot += newannot;
-		    intersecbid =
-			BinID( newannot.pos_, tkzs.hsamp_.crlRange().start );
+		    intersecbid = BinID( mNINT32(newannot.pos_),
+			    		 tkzs.hsamp_.crlRange().start );
 		}
 		else
 		{
