@@ -277,8 +277,13 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 		if ( didx>0 && didx<distances_.size() )
 		    x = distances_[didx];
 		if ( !mIsUdf(z) && x!=.0f )
-		    *intsectmarkers_.getParam(this) += 
-		    create2DMarker( EM::SectionID(sid), x, z );
+		{
+		    Marker2D* intsecmarker =
+			create2DMarker( EM::SectionID(sid), x, z );
+		    intsecmarker->marker_->markerstyles_.first().color_ =
+			emobj->preferredColor();
+		    *intsectmarkers_.getParam(this) += intsecmarker;
+		}
 	    }
 	}
     }

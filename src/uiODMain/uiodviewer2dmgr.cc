@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "emmanager.h"
 #include "emobject.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -920,6 +921,18 @@ void uiODViewer2DMgr::setAllIntersectionPositions()
     {
 	uiODViewer2D* vwr2d = viewers2d_[vwridx];
 	setVWR2DIntersectionPositions( vwr2d );
+    }
+
+    TypeSet<EM::ObjectID> hor3dids;
+    getLoadedHorizon3Ds( hor3dids );
+    for ( int idx=0; idx<hor3dids.size(); idx++ )
+    {
+	mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(hor3dids[idx]))
+	if ( !hor3d )
+	    continue;
+	EM::EMObjectCallbackData cbdata;
+	cbdata.event = EM::EMObjectCallbackData::AttribChange;
+	hor3d->change.trigger( cbdata );
     }
 }
 
