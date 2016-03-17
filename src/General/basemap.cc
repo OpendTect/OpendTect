@@ -18,6 +18,7 @@ BaseMapObject::BaseMapObject( const char* nm )
     , leftClicked(this)
     , rightClicked(this)
     , stylechanged(this)
+    , namechanged(this)
     , depth_(0)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
