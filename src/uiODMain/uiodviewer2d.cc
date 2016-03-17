@@ -59,11 +59,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "view2ddataman.h"
 #include "view2ddata.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
 
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
+
+static HiddenParam<uiODViewer2D,int> syncsceneid_( -1 );
 
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
@@ -93,10 +96,34 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , marker_(0)
     , datatransform_(0)
 {
+    syncsceneid_.setParam( this, -1 );
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_ = vwrid++;
 
     setWinTitle( true );
+
+    if ( visid_>=0 )
+	syncsceneid_.setParam(
+		this, appl_.applMgr().visServer()->getSceneID(visid_) );
+    else
+    {
+	TypeSet<int> sceneids;
+	appl_.applMgr().visServer()->getSceneIds( sceneids );
+	for ( int iscn=0; iscn<sceneids.size(); iscn++ )
+	{
+	    const int sceneid = sceneids[iscn];
+	    const ZAxisTransform* scntransform =
+		appl_.applMgr().visServer()->getZAxisTransform( sceneid );
+	    const ZDomain::Info* scnzdomaininfo =
+		appl_.applMgr().visServer()->zDomainInfo( sceneid );
+	    if ( datatransform_==scntransform ||
+		 (scnzdomaininfo && scnzdomaininfo->def_==zDomain()) )
+	    {
+		syncsceneid_.setParam( this, sceneid );
+		break;
+	    }
+	}
+    }
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );
@@ -108,6 +135,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 uiODViewer2D::~uiODViewer2D()
 {
     detachAllNotifiers();
+    syncsceneid_.removeParam( this );
     mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin())
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
@@ -132,6 +160,12 @@ uiODViewer2D::~uiODViewer2D()
     }
     delete marker_;
     delete viewwin();
+}
+
+
+int uiODViewer2D::getSyncSceneID() const
+{
+    return syncsceneid_.getParam( this );
 }
 
 

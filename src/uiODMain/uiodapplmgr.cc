@@ -989,9 +989,9 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	    return false;
 	const EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( EM::Horizon3D::typeStr()==emobj->getTypeStr() )
-	    viewer2DMgr().addNewTrackingHorizon3D( emid );
+	    viewer2DMgr().addNewTrackingHorizon3D( emid, sceneid );
 	else
-	    viewer2DMgr().addNewTrackingHorizon2D( emid );
+	    viewer2DMgr().addNewTrackingHorizon2D( emid, sceneid );
 
 	sceneMgr().updateTrees();
 	return true;
@@ -1013,6 +1013,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 			      hor2ddisplayids );
 
 	hordisplayids.append( hor2ddisplayids );
+	viewer2DMgr().removeHorizon3D( emid );
+	viewer2DMgr().removeHorizon2D( emid );
 
 	for ( int idx=0; idx<hordisplayids.size(); idx++ )
 	{
