@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "paralleltask.h"
 #include "seisdatapack.h"
 #include "statruncalc.h"
-#include "threadlock.h"
 
 namespace VolProc
 {
@@ -155,7 +154,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     rcsetup.require( Stats::Median );
     const int statsz = nrpos * (nzsampextra_*2+1);
     Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
-    TypeSet<double> values( statsz, mUdf(double) );
+    ArrPtrMan<float> values = new float[statsz];
     const bool needmed = rcsetup.needMedian();
     const int midway = statsz/2;
     for ( int idx=0; idx<incr; idx++ )
@@ -185,7 +184,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 		    const int valididxz =
 			idxz+idz<0 ? 0 : idxz+idz>=nrsamples ? nrsamples-1
 							     : idxz+idz;
-		    double value = input_.get( valididxi, valididxc, valididxz);
+		    float value = input_.get( valididxi, valididxc, valididxz);
 		    if ( needmed )
 		    {
 			const int valposidx  = posidx*(nzsampextra_*2+1)
@@ -199,15 +198,13 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 	    float outval;
 	    if ( needmed )
 	    {
-		sort( values );
-		outval = (float)values[midway];
+		quickSort( values.ptr(),statsz );
+		outval = values[midway];
 	    }
 	    else
 		outval = (float)wcalc.getValue(Stats::Median);
 
-	    Threads::Locker locker( datalock_ );
 	    output_.set( outpinlidx, outpcrlidx, idz, outval );
-	    locker.unlockNow();
 	}
 	iter.next( curbid );
 	addToNrDone( 1 );

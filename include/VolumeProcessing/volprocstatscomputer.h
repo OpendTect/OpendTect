@@ -107,8 +107,6 @@ protected:
 
     TrcKeyZSampling		tkzsin_;
     TrcKeyZSampling		tkzsout_;
-
-    Threads::Lock		datalock_;
 };
 
 } // namespace VolProc
