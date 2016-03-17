@@ -27,11 +27,23 @@ ________________________________________________________________________
 
 # ifdef __win__
 #  include "winmain.h"
-# endif 
+# endif
 
 
-static bool quiet = true;
-static PtrMan<CommandLineParser> theparser = 0;
+static mUsedVar bool quiet = true;
+static mUsedVar PtrMan<CommandLineParser> theparser = 0;
+
+static inline mUsedVar od_ostream& tstStream( bool err=false )
+{
+    if ( !quiet || err )
+    {
+	if ( err )
+	    od_ostream::logStream() << "[FAIL] ";
+	return od_ostream::logStream();
+    }
+    return od_ostream::nullStream();
+}
+
 
 #define mInitTestProg() \
     od_init_test_program( argc, argv ); \
@@ -63,6 +75,7 @@ else \
 \
     return false; \
 }
+
 #define mRunStandardTest( test, desc ) \
 	mRunStandardTestWithError( test, desc, BufferString().str() )
 
