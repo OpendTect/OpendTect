@@ -208,20 +208,20 @@ Interval<float> Pos::IdxPairValueSet::valRange( int valnr ) const
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vs,
+void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vals,
 				 int maxnrvals ) const
 {
     if ( maxnrvals < 0 || maxnrvals > nrvals_ )
 	maxnrvals = nrvals_;
 
     ip = getIdxPair( pos );
-    if ( !vs || maxnrvals == 0 )
+    if ( !vals || maxnrvals < 1 )
 	return;
 
     if ( pos.isValid() )
-	OD::memCopy( vs, gtVals(pos), maxnrvals * sizeof(float) );
+	OD::memCopy( vals, gtVals(pos), maxnrvals * sizeof(float) );
     else
-	setToUdf( vs, maxnrvals );
+	setToUdf( vals, maxnrvals );
 }
 
 
@@ -265,9 +265,13 @@ void Pos::IdxPairValueSet::set( SPos spos, const float* vals )
     if ( !spos.isValid() || nrvals_ < 1 )
 	return;
 
-    data_.set( spos, vals );
-    if ( !vals )
-	setToUdf( gtVals(spos), nrvals_ );
+    if ( vals )
+	data_.set( spos, vals );
+    else
+    {
+	TypeSet<float> valts( nrvals_, mUdf(float) );
+	data_.set( spos, valts.arr() );
+    }
 }
 
 
