@@ -28,6 +28,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "survinfo.h"
 #include "od_helpids.h"
+#include "ioman.h"
+#include "ioobj.h"
+
 
 #define mAddMSFld(txt,att) \
     if ( SI().zIsTime() ) \
@@ -73,8 +76,18 @@ BufferStringSet& uiHorGeom2Attr::getItems( const EM::Horizon3D& hor )
 
 bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 {
-    if ( !uiGetObjectName::acceptOK(cb) )
+    PtrMan<IOObj> ioobj = IOM().get( hor_.multiID() );
+    if ( !ioobj )
+    {
+	uiMSG().message( tr("Cannot create horizon data on this horizon") );
 	return false;
+    }
+
+    if ( !uiGetObjectName::acceptOK(cb) )
+    {
+	uiMSG().message( tr("Please enter attribute name") );
+	return false;
+    }
 
     int auxidx = hor_.auxdata.auxDataIndex( text() );
     if ( auxidx >= 0 )
@@ -101,6 +114,9 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
     }
 
     PtrMan<Executor> saver = hor_.auxdata.auxDataSaver( auxidx, true );
+    if ( !saver )
+	return false;
+
     uiTaskRunner taskrunner( this );
     return TaskRunner::execute( &taskrunner, *saver );
 }
