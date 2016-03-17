@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "tableconvimpl.h"
 
+#include <string.h>
+
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
 
 void uiTextFile::init( uiParent* p )
@@ -79,12 +81,20 @@ bool init()
     tbl_->clearTable();
     tbl_->setNrRows(0);
     tbl_->setNrCols(0);
+    maxcharincols_.erase();
     return true;
 }
 
 void finish()
 {
     tbl_->setCurrentCell( RowCol(0,0) );
+    const int maxlineswithoutscrolling = 20;
+    tbl_->setPrefHeightInRows( mMIN(nrlines_,maxlineswithoutscrolling) );
+
+    int charsum = 0;
+    for ( int col=0; col<maxcharincols_.size(); col++ )
+	charsum += maxcharincols_[col] + 1;
+    tbl_->setPrefWidthInChars( charsum );
 }
 
 bool putRow( const BufferStringSet& bss, uiString& msg )
@@ -95,7 +105,16 @@ bool putRow( const BufferStringSet& bss, uiString& msg )
 	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
 
     for ( ; rc.col()<bss.size(); rc.col()++ )
-	tbl_->setText( rc, bss.get(rc.col()) );
+    {
+	const BufferString txt = bss.get( rc.col() );
+	tbl_->setText( rc, txt );
+	const int txtlen = strlen( txt.buf() );
+
+	if ( maxcharincols_.validIdx(rc.col()) )
+	    maxcharincols_[rc.col()] = mMAX(txtlen,maxcharincols_[rc.col()]);
+	else
+	    maxcharincols_ += txtlen;
+    }
 
     nrlines_++;
     if ( nrlines_ >= maxlines_ )
@@ -112,8 +131,8 @@ bool putRow( const BufferStringSet& bss, uiString& msg )
     uiTable*	tbl_;
     int		maxlines_;
     int		nrlines_;
-    BufferString msg_;
 
+    TypeSet<int> maxcharincols_;
 };
 
 

@@ -365,6 +365,8 @@ public:
 			{ return getDValue( rc ); }
     /*mDeprecated*/ float	getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
+
+    void	       setPrefWidthInChars(int);
 };
 
 #endif
