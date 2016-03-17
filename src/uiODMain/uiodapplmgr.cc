@@ -820,9 +820,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const MultiID surfmid = visserv_->getMultiID(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
-        if ( auxdatanr<0 )
-	    uiMSG().error( tr("Cannot find stored data") );
-	else
+        if ( auxdatanr>=0 )
 	{
 	    DataPackRef<DataPointSet> data =
 		dpm.addAndObtain( new DataPointSet(false,true) );
