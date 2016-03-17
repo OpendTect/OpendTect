@@ -153,7 +153,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     rcsetup.require( Stats::Median );
     const int statsz = nrpos * (nzsampextra_*2+1);
     Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
-    ArrPtrMan<float> values = new float[statsz];
+    mAllocLargeVarLenArr( float, values, statsz );
     const bool needmed = rcsetup.needMedian();
     const int midway = statsz/2;
     for ( int idx=0; idx<incr; idx++ )
