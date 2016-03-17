@@ -302,12 +302,6 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     const bool ctrlorshifclicked =
 	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
 
-    if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds ||
-	seedpicker->getTrackMode()==EMSeedPicker::DrawAndSnap )
-	horpainter_->displayIntersection( false );
-    else
-	horpainter_->displayIntersection( true );
-
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds &&
 	 markerpos && !ctrlorshifclicked )
     {

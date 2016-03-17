@@ -45,7 +45,6 @@ public:
 
     void		paint();
     void		setUpdateTrcKeySampling(const TrcKeySampling&);
-    void		displayIntersection(bool yn) { intersection_ = yn; }
 
     	mStruct(EarthModel) Marker3D
 	{
@@ -99,7 +98,6 @@ protected:
     bool		linenabled_;
     bool		seedenabled_;
     int			nrseeds_;
-    bool		intersection_;
     TrcKeySampling	updatesamplings_;
 };
 

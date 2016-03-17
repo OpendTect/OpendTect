@@ -33,7 +33,6 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , flatposdata_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
-    , intersection_( true )
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -117,14 +116,6 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
     seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
 					: MouseCursor::Arrow;
     seedauxdata->poly_.erase();
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    OD::MarkerStyle3D ms3d =
-	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
-    markerstyle_.color_ = ms3d.color_;
-    markerstyle_.size_ = ms3d.size_*2;
-    markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
-	emobj->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).color_;
-    seedauxdata->markerstyles_ += markerstyle_;
     viewer_.addAuxData(seedauxdata);
 
     Marker3D* markerseed = new Marker3D;
@@ -202,12 +193,6 @@ bool HorizonPainter3D::addPolyLine()
 	    {
 		coorddefined = true;
 		newmarker = true;
-		const EM::PosID pid = EM::PosID(emobj->id(),sid,bid.toInt64());
-		if ( intersection_ )
-		{
-		    emobj->setPosAttrib(
-		    pid, EM::EMObject::sIntersectionNode(), true, false );
-		}
 	    }
 
 	    if ( newmarker )
@@ -215,14 +200,6 @@ bool HorizonPainter3D::addPolyLine()
 		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
 		newmarker = false;
 	    }
-
-	    const bool intsectnode = emobj->isPosAttrib(
-		posid,EM::EMObject::sIntersectionNode() );
-	    const TrcKey tk(TrcKey(hor3d->getSurveyID(),bid));
-
-	    if ( updatesamplings_.includes(tk) && intsectnode )
-		emobj->setPosAttrib( posid ,EM::EMObject::sIntersectionNode(),
-		false );
 
 	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
 		nrseeds_++;
@@ -273,12 +250,42 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
     else if ( tkzs_.nrCrl() == 1 )
 	x = bid.inl();
 
-    marker.marker_->poly_ += FlatView::Point( x, z );
-    if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) ||
-	hor3d.isPosAttrib(posid,EM::EMObject::sIntersectionNode()) )
+    const TypeSet<OD::PlotAnnotation>& intsecpositions =
+	viewer_.appearance().annot_.x1_.auxannot_;
+    bool isintersec = false;
+    for ( int ipos=0; ipos<intsecpositions.size(); ipos++ )
     {
-	 markerseeds_->marker_->poly_ += FlatView::Point( x, z );
-	 return true;
+	if ( path_ )
+	    break;
+
+	const bool isvwrinl = tkzs_.nrInl() == 1;
+	BinID intsecbid( isvwrinl ? tkzs_.hsamp_.inlRange().start
+				  : mNINT32(intsecpositions[ipos].pos_),
+			 isvwrinl ? mNINT32(intsecpositions[ipos].pos_)
+			 	  : tkzs_.hsamp_.crlRange().start );
+	if ( intsecbid == bid )
+	{
+	    isintersec = true;
+	    break;
+	}
+    }
+
+    marker.marker_->poly_ += FlatView::Point( x, z );
+    const bool isseed = hor3d.isPosAttrib( posid, EM::EMObject::sSeedNode() );
+    if ( isseed || isintersec )
+    {
+	const int postype = isseed ? EM::EMObject::sSeedNode()
+				   : EM::EMObject::sIntersectionNode();
+	EM::EMObject* emobj = EM::EMM().getObject( id_ );
+	OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
+	markerstyle_.color_ = ms3d.color_;
+	if ( isintersec )
+	    markerstyle_.color_ = emobj->preferredColor();
+	markerstyle_.size_ = ms3d.size_*2;
+	markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
+	markerseeds_->marker_->markerstyles_ += markerstyle_;
+	markerseeds_->marker_->poly_ += FlatView::Point( x, z );
+	return true;
     }
 
     return false;
