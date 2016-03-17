@@ -408,6 +408,9 @@ bool uiODHorizonTreeItem::init()
     }
 
     if ( hd ) hd->setOnlyAtSectionsDisplay( atsections_ );
+
+    // suppose attribute number is not 1 if it is restored from session
+    const bool isfromsession = hd ? hd->nrAttribs()!=1 : false;
     const bool res = uiODEarthModelSurfaceTreeItem::init();
     if ( !res ) return res;
 
@@ -415,19 +418,23 @@ bool uiODHorizonTreeItem::init()
     if ( hor3d )
     {
 	hd->setDepthAsAttrib( 0 );
-	const int nrauxdata = hor3d->auxdata.nrAuxData();
-	for ( int idx=0; idx<nrauxdata; idx++ )
+	if ( !isfromsession )
 	{
-	    if ( !hor3d->auxdata.auxDataName(idx) )
-		continue;
+	    const int nrauxdata = hor3d->auxdata.nrAuxData();
+	    for ( int idx=0; idx<nrauxdata; idx++ )
+	    {
+		if ( !hor3d->auxdata.auxDataName(idx) )
+		    continue;
 
-	    DataPointSet vals( false, true );
-	    float shift;
-	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
+		DataPointSet vals( false, true );
+		float shift;
+		applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
 
-	    uiODDataTreeItem* itm = addAttribItem();
-	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
-	    if ( emitm ) emitm->setDataPointSet( vals );
+		uiODDataTreeItem* itm = addAttribItem();
+		mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
+		if ( emitm ) emitm->setDataPointSet( vals );
+	    }
+
 	}
 
 	if ( MPE::engine().getTrackerByObject(hor3d->id()) != -1 )
