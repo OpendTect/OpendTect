@@ -23,6 +23,82 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "tableconvimpl.h"
 
+
+class uiTableExpHandler : public Table::ExportHandler
+{ mODTextTranslationClass(uiTableExpHandler);
+public:
+
+uiTableExpHandler( uiTable* t, int ml )
+    : Table::ExportHandler(od_ostream::nullStream())
+    , tbl_(t)
+    , nrlines_(0)
+    , maxlines_(ml)
+{
+}
+
+bool init()
+{
+    tbl_->clearTable();
+    tbl_->setNrRows(0);
+    tbl_->setNrCols(0);
+    maxcharincols_.erase();
+    return true;
+}
+
+void finish()
+{
+    tbl_->setCurrentCell( RowCol(0,0) );
+    const int maxlineswithoutscrolling = 20;
+    tbl_->setPrefHeightInRows( mMIN(nrlines_,maxlineswithoutscrolling) );
+
+    int charsum = 0;
+    for ( int col=0; col<maxcharincols_.size(); col++ )
+	charsum += maxcharincols_[col] + 1;
+    tbl_->setPrefWidthInChars( charsum );
+}
+
+bool putRow( const BufferStringSet& bss, uiString& msg )
+{
+    RowCol rc( tbl_->nrRows(), 0 );
+    tbl_->insertRows( rc.row(), 1 );
+    if ( bss.size() >= tbl_->nrCols() )
+	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
+
+    for ( ; rc.col()<bss.size(); rc.col()++ )
+    {
+	const BufferString txt = bss.get( rc.col() );
+	tbl_->setText( rc, txt );
+	const int txtlen = strLength( txt );
+
+	if ( maxcharincols_.validIdx(rc.col()) )
+	    maxcharincols_[rc.col()] = mMAX(txtlen,maxcharincols_[rc.col()]);
+	else
+	    maxcharincols_ += txtlen;
+    }
+
+    nrlines_++;
+    if ( nrlines_ >= maxlines_ )
+    {
+	rc.row()++; rc.col() = 0;
+	tbl_->insertRows( rc.row(), 1 );
+	tbl_->setText( rc, "[...]" );
+	return false;
+    }
+
+    return true;
+}
+
+    uiTable*	tbl_;
+    int		maxlines_;
+    int		nrlines_;
+
+    TypeSet<int> maxcharincols_;
+};
+
+
+//=============================================================================
+
+
 #define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
 
 void uiTextFile::init( uiParent* p )
@@ -59,61 +135,6 @@ void uiTextFile::valChg( CallBacker* )
 {
     ismodified_ = true;
 }
-
-
-class uiTableExpHandler : public Table::ExportHandler
-{ mODTextTranslationClass(uiTableExpHandler);
-public:
-
-uiTableExpHandler( uiTable* t, int ml )
-    : Table::ExportHandler(od_ostream::nullStream())
-    , tbl_(t)
-    , nrlines_(0)
-    , maxlines_(ml)
-{
-}
-
-bool init()
-{
-    tbl_->clearTable();
-    tbl_->setNrRows(0);
-    tbl_->setNrCols(0);
-    return true;
-}
-
-void finish()
-{
-    tbl_->setCurrentCell( RowCol(0,0) );
-}
-
-bool putRow( const BufferStringSet& bss, uiString& msg )
-{
-    RowCol rc( tbl_->nrRows(), 0 );
-    tbl_->insertRows( rc.row(), 1 );
-    if ( bss.size() >= tbl_->nrCols() )
-	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
-
-    for ( ; rc.col()<bss.size(); rc.col()++ )
-	tbl_->setText( rc, bss.get(rc.col()) );
-
-    nrlines_++;
-    if ( nrlines_ >= maxlines_ )
-    {
-	rc.row()++; rc.col() = 0;
-	tbl_->insertRows( rc.row(), 1 );
-	tbl_->setText( rc, "[...]" );
-	return false;
-    }
-
-    return true;
-}
-
-    uiTable*	tbl_;
-    int		maxlines_;
-    int		nrlines_;
-    BufferString msg_;
-
-};
 
 
 bool uiTextFile::open( const char* fnm )

@@ -148,6 +148,7 @@ public:
     void		setNrRows(int);
     void		setNrCols(int);
     void		setPrefHeightInRows(int);
+    void		setPrefWidthInChars(int);
 
     int			columnWidth(int) const;
     int			rowHeight(int) const;

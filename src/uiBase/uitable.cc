@@ -100,6 +100,7 @@ public:
 
     void		setNrLines(int);
     void		setPrefHeightInRows(int nrrows,int maxheight);
+    void		setPrefWidthInChars(int nrchars,int maxwidth);
     virtual int		nrTxtLines() const;
 
     QTableWidgetItem*	getItem(const RowCol&,bool createnew=true);
@@ -327,6 +328,20 @@ void uiTableBody::setPrefHeightInRows( int nrrows, int maxheight )
     const int rowh = rowHeight(0) + 1;
     const int prefh = rowh*nrrows + qsz.height();
     setPrefHeight( mMIN(prefh,maxheight) );
+}
+
+
+void uiTableBody::setPrefWidthInChars( int nrchars, int maxwidth )
+{
+    if ( finalised() || nrchars<=0 )
+	return;
+
+    QHeaderView* hhdr = horizontalHeader();
+    const QSize qsz = hhdr->sizeHint();
+    const float lookgoodfactor = 1.5;	// emperical
+    const int charw = mCast( int, fontWidth() * lookgoodfactor );
+    const int prefw = charw*nrchars + qsz.width();
+    setPrefWidth( mMIN(prefw,maxwidth) );
 }
 
 
@@ -685,6 +700,14 @@ void uiTable::setPrefHeightInRows( int nrrows )
     const QDesktopWidget* qdesktop = QApplication::desktop();
     const QRect geom = qdesktop->availableGeometry();
     body_->setPrefHeightInRows( nrrows, int(geom.height()*0.9) );
+}
+
+
+void uiTable::setPrefWidthInChars( int nrchars )
+{
+    const QDesktopWidget* qdesktop = QApplication::desktop();
+    const QRect geom = qdesktop->availableGeometry();
+    body_->setPrefWidthInChars( nrchars, int(geom.width()*0.9) );
 }
 
 

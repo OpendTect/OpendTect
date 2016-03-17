@@ -74,15 +74,17 @@ uiString Table::ExportHandler::getStrmMsg() const
 }
 
 
+#define mFinishReturn( retval )		{  exphndlr_.finish(); return retval; }
+
 int Table::Converter::nextStep()
 {
     if ( atend_ )
-	{ exphndlr_.finish(); return Finished(); }
+	mFinishReturn( Finished() );
 
     if ( selcolnr_ == -1 && !exphndlr_.init() )
     {
 	msg_ = tr("Cannot write first output");
-	return ErrorOccurred();
+	mFinishReturn( ErrorOccurred() );
     }
 
     selcolnr_ = colnr_ = 0;
@@ -93,12 +95,12 @@ int Table::Converter::nextStep()
 	if ( !c )
 	{
 	    msg_ = tr("The input file is probably not ASCII");
-	    return ErrorOccurred();
+	    mFinishReturn( ErrorOccurred() );
 	}
 
 	Table::ImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
-	    return msg_.isEmpty() ? Finished() : ErrorOccurred();
+	    mFinishReturn( msg_.isEmpty() ? Finished() : ErrorOccurred() );
 
 	if ( imphndlr_.atEnd() )
 	    atend_ = true;
