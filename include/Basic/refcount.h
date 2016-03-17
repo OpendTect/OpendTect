@@ -230,41 +230,24 @@ public:
 };
 
 
+/*! Un-reference class pointer. Works for null pointers. */
+mGlobal(Basic) void unRefPtr( const RefCount::Referenced* ptr );
+
+/*! Un-reference class pointer without delete. Works for null pointers. */
+mGlobal(Basic) void unRefNoDeletePtr( const RefCount::Referenced* ptr );
+
+//! Reference class pointer. Works for null pointers.
+mGlobal(Basic) void refPtr( const RefCount::Referenced* ptr );
+
 //!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline
 void unRefAndZeroPtr( T*& ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRef();
-    ptr = 0;
-}
+{ unRefPtr( static_cast<RefCount::Referenced*>( ptr ) ); ptr = 0; }
 
-
-/*! Un-reference class pointer. Works for null pointers. */
 template <class T> inline
-void unRefPtr( const T* ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRef();
-}
+void unRefAndZeroPtr( const T*& ptr )
+{ unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) ); ptr = 0; }
 
-
-/*! Un-reference class pointer without delete. Works for null pointers. */
-template <class T> inline
-void unRefNoDeletePtr( const T* ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRefNoDelete();
-}
-
-
-//! Reference class pointer. Works for null pointers.
-template <class T> inline
-void refPtr( const T* ptr )
-{
-    if ( !ptr ) return;
-    ptr->ref();
-}
 
 mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
 mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDeletePtr( os[idx] ),

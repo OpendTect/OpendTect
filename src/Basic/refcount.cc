@@ -314,3 +314,26 @@ void ObsPtrBase::set( Referenced* p )
     else
 	lock_.unLock();
 }
+
+
+void unRefPtr( const RefCount::Referenced* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRef();
+}
+
+
+void unRefNoDeletePtr( const RefCount::Referenced* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRefNoDelete();
+}
+
+
+void refPtr( const RefCount::Referenced* ptr )
+{
+    if ( !ptr ) return;
+    ptr->ref();
+}
+
+

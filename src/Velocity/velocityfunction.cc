@@ -33,26 +33,8 @@ Function::Function( FunctionSource& vfs )
 Function::~Function()
 {
     removeCache();
+    source_.removeFunction( this );
     source_.unRef();
-}
-
-
-void Function::ref() const
-{
-    source_.refFunction( this );
-}
-
-
-void Function::unRef() const
-{
-    if ( source_.unRefFunction( this ) )
-	delete const_cast<Function*>(this);
-}
-
-
-void Function::unRefNoDelete() const
-{
-    source_.unRefFunction( this );
 }
 
 
@@ -139,43 +121,17 @@ BufferString FunctionSource::userName() const
 }
 
 
-void FunctionSource::refFunction( const Function* func )
-{
-    Threads::Locker lckr( lock_ );
-    int idx = functions_.indexOf( func );
-    if ( idx==-1 )
-    {
-	idx = refcounts_.size();
-	functions_ += const_cast<Function*>( func );
-	refcounts_ += 0;
-    }
-
-    refcounts_[idx]++;
-}
-
-
-bool FunctionSource::unRefFunction( const Function* func )
+void FunctionSource::removeFunction( const Function* func )
 {
     bool remove = false;
     Threads::Locker lckr( lock_ );
+    
     int idx = functions_.indexOf( func );
-    if ( idx==-1 )
+    
+    if ( idx!=-1 )
     {
-	pErrMsg("Unknown function" );
+	functions_.removeSingle( idx );
     }
-    else
-    {
-	refcounts_[idx]--;
-	remove = !refcounts_[idx];
-
-	if ( remove )
-	{
-	    refcounts_.removeSingle( idx );
-	    functions_.removeSingle( idx );
-	}
-    }
-
-    return remove;
 }
 
 
@@ -211,7 +167,7 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 	return 0;
 
     Threads::Locker lckr( lock_ );
-    Function* tmpfunc = 0;
+    RefMan<Function> tmpfunc = 0;
     int idx = findFunction( bid );
     if ( idx==-1 )
     {
@@ -219,20 +175,13 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 	if ( !tmpfunc )
 	    return 0;
 
- 	functions_ += tmpfunc;
- 	refcounts_ += 1;
+ 	functions_ += tmpfunc.ptr();
     }
-    else
-    {
-       	tmpfunc = functions_[idx];
-       	refcounts_[idx]++;
-    }
+    
     lckr.unlockNow();
+    
+    return ConstRefMan<Function>( tmpfunc.ptr() );
 
-    ConstRefMan<Function> res = tmpfunc;
-    tmpfunc->unRef();
-
-    return res;
 }
 
 } // namespace Vel

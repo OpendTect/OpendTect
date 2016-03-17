@@ -38,13 +38,9 @@ class FunctionSource;
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
-mExpClass(Velocity) Function
+mExpClass(Velocity) Function : public RefCount::Referenced
 {
 public:
-    void			ref() const;
-    void			unRef() const;
-    void			unRefNoDelete() const;
-
 				Function(FunctionSource&);
     const FunctionSource&	getSource() const 	{ return source_; }
 
@@ -111,8 +107,7 @@ public:
 protected:
 
     friend			class Function;
-    void			refFunction(const Function* v);
-    bool			unRefFunction(const Function* v);
+    void			removeFunction(const Function*);
 
     int				findFunction(const BinID&) const;
     				//!<Caller must readlock before calling
@@ -122,7 +117,6 @@ protected:
     BufferString			errmsg_;
 
     ObjectSet<Function>			functions_;
-    TypeSet<int>			refcounts_;
     Threads::Lock			lock_;
 };
 
