@@ -10,22 +10,35 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpairvalue.h"
 #include "iopar.h"
 #include "separstr.h"
-#include "idxable.h"
 #include "posinfo.h"
-#include "sorting.h"
 #include "strmoper.h"
 #include "statrand.h"
 #include "survgeom.h"
-#include "varlenarray.h"
+#include "threadlock.h"
 #include "od_iostream.h"
 
 static const float cMaxDistFromGeom = 1000.f;
+static Threads::Lock udf_lock_(true);
+static TypeSet<float> udf_typeset_(64,mUdf(float));
+
+
+static const float* getUdfArr( int nrvals )
+{
+    Threads::Locker lckr( udf_lock_ );
+    if ( udf_typeset_.size() < nrvals )
+	udf_typeset_.setSize( nrvals, mUdf(float) );
+    return udf_typeset_.arr();
+}
 
 
 static inline void setToUdf( float* arr, int nvals )
 {
-    for ( int idx=0; idx<nvals; idx++ )
-	Values::setUdf( arr[idx] );
+    if ( nvals == 0 )
+	return;
+    else if ( !arr )
+	{ pFreeFnErrMsg("input arr should not be null"); return; }
+
+    OD::memCopy( arr, getUdfArr(nvals), nvals * sizeof(float) );
 }
 
 
@@ -37,10 +50,7 @@ static void initVals( Pos::IdxPairDataSet& ds, int spos_i, int spos_j )
     if ( vals )
 	setToUdf( vals, nrvals );
     else
-    {
-	TypeSet<float> tsvals( nrvals, mUdf(float) );
-	ds.set( spos, tsvals.arr() );
-    }
+	ds.set( spos, getUdfArr(nrvals) );
 }
 
 
@@ -148,11 +158,11 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 
 bool Pos::IdxPairValueSet::putTo( od_ostream& strm ) const
 {
-    SPos pos;
-    while ( next(pos) )
+    SPos spos;
+    while ( next(spos) )
     {
-	const IdxPair ip( getIdxPair(pos) );
-	const float* vals = gtVals(pos);
+	const IdxPair ip( getIdxPair(spos) );
+	const float* vals = gtVals(spos);
 	strm << ip.first << od_tab << ip.second;
 	for ( int idx=0; idx<nrvals_; idx++ )
 	    strm << od_tab << toString( vals[idx] );
@@ -190,16 +200,16 @@ Interval<float> Pos::IdxPairValueSet::valRange( int valnr ) const
     if ( valnr >= nrvals_ || valnr < 0 || isEmpty() )
 	return ret;
 
-    SPos pos;
-    while ( next(pos) )
+    SPos spos;
+    while ( next(spos) )
     {
-	const float val = gtVals(pos)[valnr];
+	const float val = gtVals(spos)[valnr];
 	if ( !mIsUdf(val) )
 	    { ret.start = ret.stop = val; break; }
     }
-    while ( next(pos) )
+    while ( next(spos) )
     {
-	const float val = gtVals(pos)[valnr];
+	const float val = gtVals(spos)[valnr];
 	if ( !mIsUdf(val) )
 	    ret.include( val, false );
     }
@@ -208,35 +218,37 @@ Interval<float> Pos::IdxPairValueSet::valRange( int valnr ) const
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, IdxPair& ip, float* vals,
+void Pos::IdxPairValueSet::get( const SPos& spos, float* vals,
 				 int maxnrvals ) const
 {
-    if ( maxnrvals < 0 || maxnrvals > nrvals_ )
+   if ( maxnrvals > nrvals_ )
 	maxnrvals = nrvals_;
-
-    ip = getIdxPair( pos );
+    if ( maxnrvals < 0 )
+	maxnrvals = nrvals_ + maxnrvals + 1;
     if ( !vals || maxnrvals < 1 )
 	return;
 
-    if ( pos.isValid() )
-	OD::memCopy( vals, gtVals(pos), maxnrvals * sizeof(float) );
+    if ( spos.isValid() )
+	OD::memCopy( vals, gtVals(spos), maxnrvals * sizeof(float) );
     else
 	setToUdf( vals, maxnrvals );
+}
+
+
+void Pos::IdxPairValueSet::get( const SPos& spos, IdxPair& ip, float* vals,
+				 int maxnrvals ) const
+{
+    get( spos, vals, maxnrvals );
+    ip = getIdxPair( spos );
 }
 
 
 Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 						      const float* arr )
 {
-    SPos ret;
-    if ( arr )
-	ret = data_.add( ip, arr );
-    else
-    {
-	TypeSet<float> vals( nrvals_, mUdf(float) );
-	ret = data_.add( ip, vals.arr() );
-    }
-    return ret;
+    if ( !arr )
+	arr = getUdfArr( nrvals_ );
+    return data_.add( ip, arr );
 }
 
 
@@ -265,13 +277,10 @@ void Pos::IdxPairValueSet::set( SPos spos, const float* vals )
     if ( !spos.isValid() || nrvals_ < 1 )
 	return;
 
-    if ( vals )
-	data_.set( spos, vals );
-    else
-    {
-	TypeSet<float> valts( nrvals_, mUdf(float) );
-	data_.set( spos, valts.arr() );
-    }
+    if ( !vals )
+	vals = getUdfArr( nrvals_ );
+
+    data_.set( spos, vals );
 }
 
 
@@ -323,10 +332,10 @@ void Pos::IdxPairValueSet::getColumn( int valnr, TypeSet<float>& vals,
 				bool incudf ) const
 {
     if ( valnr < 0 || valnr >= nrVals() ) return;
-    SPos pos;
-    while ( next(pos) )
+    SPos spos;
+    while ( next(spos) )
     {
-	const float* v = gtVals( pos );
+	const float* v = gtVals( spos );
 	if ( incudf || !mIsUdf(v[valnr]) )
 	    vals += v[ valnr ];
     }
@@ -337,14 +346,14 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 				 bool inside )
 {
     if ( valnr < 0 || valnr >= nrVals() ) return;
-    TypeSet<SPos> poss; SPos pos;
-    while ( next(pos) )
+    TypeSet<SPos> sposs; SPos spos;
+    while ( next(spos) )
     {
-	const float* v = gtVals( pos );
+	const float* v = gtVals( spos );
 	if ( inside == rg.includes(v[valnr],true) )
-	    poss += pos;
+	    sposs += spos;
     }
-    remove( poss );
+    remove( sposs );
 }
 
 
@@ -404,113 +413,129 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, DataRow& dr ) const
+void Pos::IdxPairValueSet::get( const SPos& spos, DataRow& dr ) const
 {
     dr.setSize( nrvals_ );
-    get( pos, dr, dr.values() );
+    get( spos, dr, dr.values() );
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, PairVal& pv ) const
+void Pos::IdxPairValueSet::get( const SPos& spos, PairVal& pv ) const
 {
     if ( nrvals_ < 2 )
-	get( pos, pv, &pv.val() );
+	get( spos, pv, &pv.val() );
     else
     {
-	DataRow dr; get( pos, dr );
+	DataRow dr; get( spos, dr );
 	pv.set( dr ); pv.set( dr.value(0) );
     }
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, Pos::IdxPair& ip,
+void Pos::IdxPairValueSet::get( const SPos& spos, Pos::IdxPair& ip,
 					float& v ) const
 {
     if ( nrvals_ < 2 )
-	get( pos, ip, &v );
+	get( spos, ip, &v );
     else
     {
-	DataRow dr; get( pos, dr );
+	DataRow dr; get( spos, dr );
 	ip = dr; v = dr.value(0);
     }
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, Pos::IdxPair& ip,
+void Pos::IdxPairValueSet::get( const SPos& spos, Pos::IdxPair& ip,
 				float& v1, float& v2 ) const
 {
     if ( nrvals_ < 3 )
     {
-	float v[2]; get( pos, ip, v );
+	float v[2]; get( spos, ip, v );
 	v1 = v[0]; v2 = v[1];
     }
     else
     {
-	DataRow dr; get( pos, dr );
+	DataRow dr; get( spos, dr );
 	ip = dr; v1 = dr.value(0); v2 = dr.value(1);
     }
 }
 
 
-void Pos::IdxPairValueSet::get( const SPos& pos, Pos::IdxPair& ip,
+void Pos::IdxPairValueSet::get( const SPos& spos,
 				TypeSet<float>& vals, int maxnrvals ) const
 {
-    if ( maxnrvals < 0 || maxnrvals > nrvals_ ) maxnrvals = nrvals_;
+   if ( maxnrvals > nrvals_ )
+	maxnrvals = nrvals_;
+    if ( maxnrvals < 0 )
+	maxnrvals = nrvals_ + maxnrvals + 1;
+    if ( maxnrvals < 1 )
+	{ vals.setEmpty(); return; }
 
     if ( vals.size() != maxnrvals )
     {
-	vals.erase();
+	vals.setEmpty();
 	for ( int idx=0; idx<maxnrvals; idx++ )
 	    vals += mUdf(float);
     }
-    get( pos, ip, vals.arr(), maxnrvals );
+    get( spos, vals.arr(), maxnrvals );
 }
 
 
-void Pos::IdxPairValueSet::set( const SPos& pos, float v )
+void Pos::IdxPairValueSet::get( const SPos& spos, Pos::IdxPair& ip,
+				TypeSet<float>& vals, int maxnrvals ) const
+{
+    ip = getIdxPair( spos );
+    get( spos, vals, maxnrvals );
+}
+
+
+void Pos::IdxPairValueSet::set( const SPos& spos, float v )
 {
     if ( nrvals_ < 1 ) return;
 
     if ( nrvals_ == 1 )
-	set( pos, &v );
+	set( spos, &v );
     else
     {
 	TypeSet<float> vals( nrvals_, mUdf(float) );
-	vals[0] = v; set( pos, vals );
+	vals[0] = v; set( spos, vals );
     }
 }
 
 
-void Pos::IdxPairValueSet::set( const SPos& pos, float v1, float v2 )
+void Pos::IdxPairValueSet::set( const SPos& spos, float v1, float v2 )
 {
-    if ( nrvals_ < 1 ) return;
-
-    if ( nrvals_ == 2 )
+    if ( nrvals_ < 1 )
+	return;
+    else if ( nrvals_ < 3 )
     {
 	float v[2]; v[0] = v1; v[1] = v2;
-	set( pos, v );
+	set( spos, v );
     }
     else
     {
 	TypeSet<float> vals( nrvals_, mUdf(float) );
-	vals[0] = v1; if ( nrvals_ > 1 ) vals[1] = v2; set( pos, vals );
+	vals[0] = v1;
+	if ( nrvals_ > 1 )
+	    vals[1] = v2;
+	set( spos, vals );
     }
 }
 
 
-void Pos::IdxPairValueSet::set( const SPos& pos, const TypeSet<float>& v )
+void Pos::IdxPairValueSet::set( const SPos& spos, const TypeSet<float>& v )
 {
     if ( nrvals_ < 1 ) return;
 
     if ( nrvals_ <= v.size() )
-	set( pos, v.arr() );
+	set( spos, v.arr() );
     else
     {
 	TypeSet<float> vals( nrvals_, mUdf(float) );
 	for ( int idx=0; idx<v.size(); idx++ )
 	    vals[idx] = v[idx];
 
-	set( pos, vals.arr() );
+	set( spos, vals.arr() );
     }
 }
 
@@ -601,27 +626,27 @@ void Pos::IdxPairValueSet::usePar( const IOPar& iop, const char* iopky )
 
 bool Pos::IdxPairValueSet::haveDataRow( const DataRow& dr ) const
 {
-    SPos pos = find( dr );
+    SPos spos = find( dr );
     bool found = false;
     IdxPair tmpip;
-    while ( !found && pos.isValid() )
+    while ( !found && spos.isValid() )
     {
-	if ( getIdxPair(pos) != dr )
+	if ( getIdxPair(spos) != dr )
 	    break;
 
-	TypeSet<float> valofset;
-	get( pos, tmpip, valofset );
-	if ( valofset.size() == dr.size() )
+	TypeSet<float> setvals;
+	get( spos, setvals );
+	if ( setvals.size() == dr.size() )
 	{
 	    bool diff = false;
-	    for ( int idx=0; idx<valofset.size(); idx++ )
+	    for ( int idx=0; idx<setvals.size(); idx++ )
 	    {
-		if ( dr.value(idx) != valofset[idx] )
+		if ( dr.value(idx) != setvals[idx] )
 		    diff = true;
 	    }
 	    found = !diff;
 	}
-	next( pos );
+	next( spos );
     }
 
     return found;

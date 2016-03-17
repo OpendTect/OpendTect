@@ -73,8 +73,8 @@ public:
     bool		isValid( const IdxPair& spos ) const
 			{ return data_.isValid( spos ); }
 
-    void		get(const SPos&,IdxPair&,float* v=0,
-				int mxnrvals=-1) const;
+    void		get(const SPos&,float* v=0,int mxnrvals=-1) const;
+    void		get(const SPos&,IdxPair&,float* v=0,int mxnrv=-1) const;
     IdxPair		getIdxPair( const SPos& spos ) const
 			{ return data_.getIdxPair( spos ); }
     SPos		getPos(GlobIdxType global_idx) const
@@ -148,7 +148,8 @@ public:
     void		get(const SPos&,IdxPair&,float&) const;
     void		get(const SPos&,IdxPair&,float&,float&) const;
     void		get(const SPos&,IdxPair&,TypeSet<float>&,
-			    int maxnrvals=-1) const; //!< max == -1 => all
+	    			int mxnrvals=-1) const;
+    void		get(const SPos&,TypeSet<float>&,int maxnrvals=-1) const;
     void		set(const SPos&,float);
     void		set(const SPos&,float,float);
     void		set(const SPos&,const TypeSet<float>&);

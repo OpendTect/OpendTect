@@ -861,28 +861,28 @@ void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
 
     const bool buildnew = ((GlobIdxType)maxsz) < (orgsz / ((GlobIdxType)2));
     Stats::randGen().subselect( idxs, orgsz, maxsz );
-    TypeSet<SPos> poss;
+    TypeSet<SPos> sposs;
     if ( buildnew )
     {
 	for ( GlobIdxType idx=0; idx<maxsz; idx++ )
-	    poss += getPos( idxs[idx] );
+	    sposs += getPos( idxs[idx] );
     }
     else
     {
 	for ( GlobIdxType idx=maxsz; idx<orgsz; idx++ )
-	    poss += getPos( idxs[idx] );
+	    sposs += getPos( idxs[idx] );
     }
     delete [] idxs;
 
     if ( !buildnew )
-	remove( poss );
+	remove( sposs );
     else
     {
 	IdxPairDataSet newds( objsz_, allowdup_, mandata_ );
 	IdxPair ip;
-	for ( GlobIdxType idx=0; idx<poss.size(); idx++ )
+	for ( GlobIdxType idx=0; idx<sposs.size(); idx++ )
 	{
-	    const void* data = get( poss[mCast(int,idx)], ip );
+	    const void* data = get( sposs[mCast(int,idx)], ip );
 	    SPos newspos = newds.add( ip, data );
 	    if ( !newspos.isValid() )
 		{ mHandleMemFull() return; }

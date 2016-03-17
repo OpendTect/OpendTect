@@ -123,7 +123,6 @@ BufferString FunctionSource::userName() const
 
 void FunctionSource::removeFunction( const Function* func )
 {
-    bool remove = false;
     Threads::Locker lckr( lock_ );
     
     int idx = functions_.indexOf( func );
