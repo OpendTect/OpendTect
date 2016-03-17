@@ -335,14 +335,21 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 {
     Batch::SingleJobDispatcher::getDefParFilename( js.prognm_, defparfnm_ );
 
-    BufferStringSet hnms; HostDataList hdl( false );
+    BufferStringSet hnms;
+    const HostDataList hdl( false );
     hdl.fill( hnms, false );
     if ( !hnms.isEmpty() )
     {
 	remhostfld_ = new uiGenInput( this, tr("Execute remote"),
 				      StringListInpSpec(hnms) );
 	remhostfld_->setWithCheck( true );
-	remhostfld_->setChecked( false );
+	const HostData* curhost = hdl.find( sjd_.remotehost_.str() );
+	remhostfld_->setChecked( curhost );
+	if ( curhost )
+	{
+	    const BufferString fullhostnm( curhost->getFullDispString() );
+	    remhostfld_->setText( fullhostnm.str() );
+	}
     }
 
     uiSlider::Setup ssu( tr("Job Priority (if available)") );
@@ -350,6 +357,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
     priofld_ = new uiSlider( this, ssu );
     if ( remhostfld_ )
 	priofld_->attach( alignedBelow, remhostfld_ );
+
     priofld_->setInterval( -cPrioBound, cPrioBound, 1.0f );
     priofld_->setTickMarks( uiSlider::NoMarks );
     priofld_->setValue( execpars_.prioritylevel_ * cPrioBound );
@@ -358,7 +366,19 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 bool acceptOK( CallBacker* )
 {
     if ( remhostfld_ && remhostfld_->isChecked() )
-	sjd_.remotehost_.set( remhostfld_->text() );
+    {
+	const HostDataList hdl( false );
+	const HostData* curhost = hdl.find( remhostfld_->text() );
+	if ( !curhost )
+	    return false;
+
+	if ( curhost->getHostName() )
+	    sjd_.remotehost_.set( curhost->getHostName() );
+	else if ( curhost->getIPAddress() )
+	    sjd_.remotehost_.set( curhost->getIPAddress() );
+	else
+	    return false;
+    }
     else
 	sjd_.remotehost_.setEmpty();
 
