@@ -554,14 +554,23 @@ void uiSurfaceMan::fillAttribList()
 
 void uiSurfaceMan::mkFileInfo()
 {
-#define mAddRangeTxt(inl) \
-    range = inl ? eminfo.getInlRange() : eminfo.getCrlRange(); \
+#define mAddInlCrlRangeTxt() \
     if ( range.isUdf() ) \
 	txt += "-\n"; \
     else \
     { \
 	txt += range.start; txt += " - "; txt += range.stop; \
 	txt += " - "; txt += range.step; txt += "\n"; \
+    }
+
+#define mAddZRangeTxt() \
+    if ( !zrange.isUdf() ) \
+    { \
+	txt += "Z range"; txt += SI().getZUnitString(); txt += ": "; \
+	txt += mNINT32( zrange.start * SI().zDomain().userFactor() ); \
+	txt += " - "; \
+	txt += mNINT32( zrange.stop * SI().zDomain().userFactor() ); \
+	txt += "\n"; \
     }
 
     fillAttribList();
@@ -599,20 +608,28 @@ void uiSurfaceMan::mkFileInfo()
 
 	txt += "\n";
     }
-    else if ( type_ != Body )
+    else if ( type_ == Body )
     {
-	StepInterval<int> range;
-	txt = "In-line range: "; mAddRangeTxt(true)
-	txt += "Cross-line range: "; mAddRangeTxt(false)
-	Interval<float> zrange = eminfo.getZRange();
-	if ( !zrange.isUdf() )
+	TrcKeyZSampling cs(false);
+	if ( eminfo.getBodyRange(cs) )
 	{
-	    txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
-	    txt += mNINT32( zrange.start * SI().zDomain().userFactor() );
-	    txt += " - ";
-	    txt += mNINT32( zrange.stop * SI().zDomain().userFactor() );
-	    txt += "\n";
+	    StepInterval<int> range = cs.hsamp_.lineRange();
+	    txt = "In-line range: "; mAddInlCrlRangeTxt()
+	    range = cs.hsamp_.trcRange();
+	    txt += "Cross-line range: "; mAddInlCrlRangeTxt()
+	    const Interval<float>& zrange = cs.zsamp_;
+	    mAddZRangeTxt()
 	}
+    }
+    else
+    {
+	StepInterval<int> range = eminfo.getInlRange();
+	txt = "In-line range: "; mAddInlCrlRangeTxt()
+	range = eminfo.getCrlRange();
+	txt += "Cross-line range: "; mAddInlCrlRangeTxt()
+
+        const Interval<float>& zrange = eminfo.getZRange();
+	mAddZRangeTxt()
     }
 
     txt += getFileInfo();
