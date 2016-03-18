@@ -415,7 +415,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 }
 
 
-bool uiAttribPartServer::selectRGBAttribs( TypeSet<Attrib::SelSpec>& rgbtas,
+bool uiAttribPartServer::selectRGBAttribs( TypeSet<Attrib::SelSpec>& rgbaspecs,
 					   const ZDomain::Info* zinf,
 					   Pos::GeomID geomid )
 {
@@ -426,11 +426,11 @@ bool uiAttribPartServer::selectRGBAttribs( TypeSet<Attrib::SelSpec>& rgbtas,
 	return false;
 
     uiRGBAttrSelDlg dlg( parent(), *adsman->descSet() );
-    dlg.setSelSpec( rgbtas );
+    dlg.setSelSpec( rgbaspecs );
     if ( !dlg.go() )
 	return false;
 
-    dlg.fillSelSpec( rgbtas );
+    dlg.fillSelSpec( rgbaspecs );
     return true;
 }
 
