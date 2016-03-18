@@ -532,6 +532,9 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 
 bool uiODVw2DHor2DTreeItem::select()
 {
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->clearSelection();
+
     uitreeviewitem_->setSelected( true );
 
     if ( !trackerefed_ )

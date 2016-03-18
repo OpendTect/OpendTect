@@ -449,6 +449,9 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DHor3DTreeItem::select()
 {
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->clearSelection();
+
     uitreeviewitem_->setSelected( true );
 
     if ( !trackerefed_ )

@@ -157,7 +157,7 @@ void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
     {
 	if ( ev->key() == Qt::Key_A )
 	    { lvhandle_.selectAll(); return; }
-	else if ( ev->key() == Qt::Key_Z )
+	else if ( ev->key() == Qt::Key_N )
 	    { lvhandle_.clearSelection(); return; }
     }
 
@@ -668,8 +668,8 @@ void uiTreeView::selectAll()
 {
     mBlockCmdRec;
     body_->selectAll();
-    for ( int idx=0; idx<nrItems(); idx++ )
-	getItem( idx )->checkAll( true, true );
+//    for ( int idx=0; idx<nrItems(); idx++ )
+//	getItem( idx )->checkAll( true, true );
 }
 
 
@@ -677,8 +677,8 @@ void uiTreeView::clearSelection()
 {
     mBlockCmdRec;
     body_->clearSelection();
-    for ( int idx=0; idx<nrItems(); idx++ )
-	getItem( idx )->checkAll( false, true );
+//    for ( int idx=0; idx<nrItems(); idx++ )
+//	getItem( idx )->checkAll( false, true );
 }
 
 
