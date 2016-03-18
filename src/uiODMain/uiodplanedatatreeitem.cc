@@ -171,6 +171,8 @@ bool uiODPlaneDataTreeItem::init()
 	    displayDefaultData();
 	if ( type_ == Select )
 	    displayGuidance();
+	if ( type_ == RGBA )
+	    selectRGBA();
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -290,6 +292,29 @@ bool uiODPlaneDataTreeItem::displayDataFromOther( int visid )
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return true;
+}
+
+
+void uiODPlaneDataTreeItem::selectRGBA()
+{
+    if ( !applMgr() || !applMgr()->attrServer() )
+	return;
+
+    Pos::GeomID geomid;
+    TypeSet<Attrib::SelSpec> rgbaspecs;
+    const bool selok =
+	applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, 0, geomid );
+    if ( !selok ) return;
+
+    for ( int idx=0; idx<rgbaspecs.size(); idx++ )
+    {
+	const Attrib::SelSpec& as = rgbaspecs[idx];
+	if ( !as.id().isValid() )
+	    continue;
+
+	visserv_->setSelSpec( displayid_, idx, as );
+	visserv_->calculateAttrib( displayid_, idx, false );
+    }
 }
 
 

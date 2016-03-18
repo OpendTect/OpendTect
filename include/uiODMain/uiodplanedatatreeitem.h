@@ -60,6 +60,7 @@ protected:
     void		posChange(CallBacker*);
     void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
     void		keyUnReDoPressedCB(CallBacker*);
+    void		selectRGBA();
 
     const OD::SliceType	orient_;
     const Type		type_;
