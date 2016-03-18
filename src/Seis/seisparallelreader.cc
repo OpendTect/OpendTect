@@ -293,8 +293,11 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 			    if ( !mIsUdf(val) )
 			    {
 				const int idc = outcompnrs[idcx];
-				Array3D<float>& arr3d = dp_->data( idc );
-				arr3d.set( inlidx, crlidx, idz, val);
+				if ( idc < dp_->nrComponents() )
+				{
+				    Array3D<float>& arr3d = dp_->data( idc );
+				    arr3d.set( inlidx, crlidx, idz, val);
+				}
 			    }
 			}
 		    }
