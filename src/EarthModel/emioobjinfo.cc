@@ -10,6 +10,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "embodytr.h"
 #include "emfaultauxdata.h"
+#include "emmanager.h"
+#include "emmarchingcubessurface.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
 #include "horizonrelation.h"
@@ -134,7 +138,7 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
     if ( !ioobj_ )
 	return false;
-    
+
     if ( type_==Fault )
     {
 	FaultAuxData fad( ioobj_->key() );
@@ -396,10 +400,23 @@ bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
     if ( type_ != IOObjInfo::Body )
 	return false;
 
-    // TODO: implement
-    pErrMsg( "TODO: implement IOObjInfo::getBodyRange" );
-    mGetReader
-    return reader_;
+    RefMan<EMObject> emobj = EMM().loadIfNotFullyLoaded( ioobj_->key() );
+    if ( !emobj )
+	return false;
+
+    mDynamicCastGet(MarchingCubesSurface*,emmcbody,emobj.ptr());
+    if ( emmcbody )
+	return emmcbody->getBodyRange( cs );
+
+    mDynamicCastGet(PolygonBody*,empolybody,emobj.ptr());
+    if ( empolybody )
+	return empolybody->getBodyRange( cs );
+
+    mDynamicCastGet(RandomPosBody*,emrrbody,emobj.ptr());
+    if ( emrrbody )
+	return emrrbody->getBodyRange( cs );
+
+    return false;
 }
 
 
@@ -415,7 +432,7 @@ int IOObjInfo::nrSticks() const
     {
 	if ( !emtr->startRead(*ioobj_) )
 	    return -1;
-	
+
 	const SurfaceIOData& newsd = emtr->selections().sd;
 	return newsd.nrfltsticks_;
     }
