@@ -300,10 +300,12 @@ void uiODPlaneDataTreeItem::selectRGBA()
     if ( !applMgr() || !applMgr()->attrServer() )
 	return;
 
-    Pos::GeomID geomid;
+    const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
+    const ZDomain::Info* zdinf =
+		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
     TypeSet<Attrib::SelSpec> rgbaspecs;
     const bool selok =
-	applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, 0, geomid );
+	applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, zdinf, geomid );
     if ( !selok ) return;
 
     for ( int idx=0; idx<rgbaspecs.size(); idx++ )
