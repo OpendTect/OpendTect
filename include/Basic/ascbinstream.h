@@ -35,6 +35,7 @@ public:
 			ascbinostream(od_ostream*,bool binary);
     virtual		~ascbinostream();
     bool		isOK() const;
+    bool		isBad() const;
 
 #   define		mDeclascbinostreamAddFns(typ) \
     ascbinostream&      add(typ,char post=od_tab); \
@@ -53,6 +54,11 @@ public:
 
     template <class T>
     ascbinostream&      addEOL( T t )		{ return add( t, od_newline ); }
+
+    template <class T,class IT>
+    inline ascbinostream& addArr(const T*,IT sz,const char* between="\t",
+				 const char* post="\n");
+			//!< Will write both sz and the array
 
     ascbinostream&	addBin(const void*,od_stream_Count nrbytes);
     template <class T>
@@ -80,6 +86,7 @@ public:
 			ascbinistream(od_istream*,bool binary);
     virtual		~ascbinistream();
     bool		isOK() const;
+    bool		isBad() const;
 
     ascbinistream&	get(char&);
     ascbinistream&	get(unsigned char&);
@@ -91,6 +98,10 @@ public:
     ascbinistream&	get(od_uint64&);
     ascbinistream&	get(float&);
     ascbinistream&	get(double&);
+
+    template <class T,class IT>
+    inline ascbinistream& getArr(T* arr,IT sz);
+			//!< Will NOT read the sz! Read sz and allocate first
 
     ascbinistream&	getBin(void*,od_stream_Count nrbytes);
     template <class T>
@@ -107,6 +118,33 @@ protected:
 
 };
 
+
+template <class T,class IT>
+inline ascbinostream& ascbinostream::addArr( const T* arr, IT sz,
+					     const char* between,
+					     const char* post )
+{
+    if ( binary_ )
+	return addBin( &sz, sizeof(IT) ).addBin( arr, sz * sizeof(T) );
+
+    strm_ << sz;
+    for ( int idx=0; idx<sz; idx++ )
+	strm_ << arr[idx] << (idx == sz-1 ? post : between);
+
+    return *this;
+}
+
+
+template <class T,class IT>
+inline ascbinistream& ascbinistream::getArr( T* arr, IT sz )
+{
+    if ( binary_ )
+	return getBin( arr, sz*sizeof(T) );
+
+    for ( int idx=0; idx<sz; idx++ )
+	strm_ >> arr[idx];
+    return *this;
+}
 
 
 #endif
