@@ -24,12 +24,17 @@ int main( int argc, char** argv )
     od_ostream strm( fnm );
 
     Seis::GeomType geom;
-    Seis::KeyTracker* trckr = 0;
+    Seis::KeyTracker* trckr;
 #define mStartNewGeomType(gt) \
-    delete trckr; \
     geom = Seis::gt; \
     strm << "\n\n** " << Seis::nameOf(geom) << " **\n\n"; \
-    trckr = new Seis::KeyTracker( strm, geom )
+    Seis::TrackRecord trckrec##gt( geom ); \
+    Seis::KeyTracker trckr##gt( trckrec##gt ); \
+    trckr = &trckr##gt
+
+#define mDumpTrackRecord() \
+    trckr->finish(); \
+    trckr->trackRecord().dump( strm, false )
 
     mStartNewGeomType(Vol);
     trckr->add( BinID(100,311) );
@@ -49,6 +54,7 @@ int main( int argc, char** argv )
     trckr->add( BinID(108,316) );
     trckr->add( BinID(108,317) );
     trckr->add( BinID(108,319) );
+    mDumpTrackRecord();
 
     mStartNewGeomType(VolPS);
     trckr->add( BinID(100,311), 100.f );
@@ -76,6 +82,7 @@ int main( int argc, char** argv )
     trckr->add( BinID(100,317), 500.f );
     trckr->add( BinID(100,317), 700.f );
     trckr->add( BinID(100,317), 900.f );
+    mDumpTrackRecord();
 
     mStartNewGeomType(Line);
     trckr->add( 311 );
@@ -89,6 +96,7 @@ int main( int argc, char** argv )
     trckr->add( 327 );
     trckr->add( 328 );
     trckr->add( 329 );
+    mDumpTrackRecord();
 
     mStartNewGeomType(LinePS);
     trckr->add( 311, 100.f );
@@ -116,7 +124,8 @@ int main( int argc, char** argv )
     trckr->add( 317, 500.f );
     trckr->add( 317, 700.f );
     trckr->add( 317, 900.f );
+    mDumpTrackRecord();
 
-    delete trckr;
+    strm.close();
     return ExitProgram( 0 );
 }
