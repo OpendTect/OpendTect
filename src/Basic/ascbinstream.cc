@@ -21,6 +21,8 @@ ascbinostream::~ascbinostream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascbinostream::isOK() const
     { return strm_.isOK(); }
+bool ascbinostream::isBad() const
+    { return strm_.isBad(); }
 
 #define mImplSingleAdd(typ,posttyp) \
 ascbinostream& ascbinostream::add( typ t, posttyp post ) \
@@ -63,6 +65,8 @@ ascbinistream::~ascbinistream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascbinistream::isOK() const
     { return strm_.isOK(); }
+bool ascbinistream::isBad() const
+    { return strm_.isBad(); }
 
 #define mImplGet(typ) \
 ascbinistream& ascbinistream::get( typ& t ) \
