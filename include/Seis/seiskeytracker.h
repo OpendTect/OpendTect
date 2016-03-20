@@ -1,5 +1,5 @@
-#ifndef seiskeytracker_h
-#define seiskeytracker_h
+#ifndef seistrackrecord_h
+#define seistrackrecord_h
 
 /*+
 ________________________________________________________________________
@@ -30,6 +30,7 @@ mExpClass(Seis) TrackRecord
 public:
 
     typedef Index_Type			IdxType;
+    typedef od_int64			SeqNrType;
 
     struct Entry
     {
@@ -40,22 +41,25 @@ public:
 	Type		type_;
 	IdxType		linenr_;
 	IdxType		trcnr_;
+	SeqNrType	seqnr_;
 
 	inline bool	isOffs() const		{ return type_ == OffsChg; }
 	inline bool	isStart() const		{ return type_ < Stop; }
-	inline bool	isTrcNrDir() const	{ return type_ != LStart; }
 	inline const char* fileKey() const	{ return fileKey( type_ ); }
+	inline SeqNrType seqNr() const		{ return seqnr_; }
 	inline IdxType	trcNr() const		{ return trcnr_; }
 	inline IdxType	lineNr() const		{ return linenr_; }
 	inline IdxType	crl() const		{ return trcnr_; }
 	inline IdxType	inl() const		{ return linenr_; }
 	inline BinID	binID() const		{ return BinID(linenr_,trcnr_);}
+	inline bool	isTrcNrDir() const	{ return type_ != LStart; }
 
 	bool		dump(ascbinostream&,bool is2d) const;
 
     protected:
-			Entry( Type typ, IdxType trcnr )
+			Entry( Type typ, SeqNrType seqnr, IdxType trcnr )
 			    : type_(typ)
+			    , seqnr_(seqnr)
 			    , trcnr_(trcnr)
 			    , linenr_(mUdf(int))    {}
 
@@ -73,15 +77,17 @@ public:
     inline EntrySet&	entries()		{ return entries_; }
     inline const EntrySet& entries() const	{ return entries_; }
 
-    TrackRecord&	addStartEntry(const BinID&,IdxType step,bool diriscrl);
-    inline TrackRecord&	addStartEntry( int trcnr, IdxType s, bool d )
-			{ return addStartEntry(BinID(mUdf(IdxType),trcnr),s,d);}
-    TrackRecord&	addEndEntry(const BinID&);
-    inline TrackRecord&	addEndEntry( int trcnr )
-			{ return addEndEntry(BinID(mUdf(IdxType),trcnr));}
+    TrackRecord&	addStartEntry(SeqNrType,const BinID&,IdxType step,
+				      bool diriscrl);
+    inline TrackRecord&	addStartEntry( SeqNrType s, int trcnr, IdxType st,
+					bool d )
+		{ return addStartEntry(s,BinID(mUdf(IdxType),trcnr),st,d);}
+    TrackRecord&	addEndEntry(SeqNrType,const BinID&);
+    inline TrackRecord&	addEndEntry( SeqNrType s, int trcnr )
+		{ return addEndEntry(s,BinID(mUdf(IdxType),trcnr));}
     TrackRecord&	addOffsetEntry(const BinID&,const TypeSet<float>&);
     inline TrackRecord&	addOffsetEntry( int t, const TypeSet<float>& o )
-			{ return addOffsetEntry( BinID(mUdf(IdxType),t), o ); }
+		{ return addOffsetEntry( BinID(mUdf(IdxType),t), o ); }
 
     bool		getFrom(od_istream&,bool binary);
     bool		dump(od_ostream&,bool binary) const;
@@ -92,43 +98,46 @@ protected:
     {
 	IdxType		step_;
     protected:
-			StartEntry( Type typ, IdxType trcnr, IdxType step )
-			    : Entry(typ,trcnr), step_(step)	{}
+			StartEntry( Type typ, SeqNrType seqnr,
+				    IdxType trcnr, IdxType step )
+			    : Entry(typ,seqnr,trcnr)
+			    , step_(step)			{}
     };
     struct StartEntry2D : public StartEntry
     {
-			StartEntry2D( IdxType crl, IdxType step )
-			    : StartEntry(TStart,crl,step)	{}
+			StartEntry2D( SeqNrType seqnr, IdxType crl,
+				      IdxType step )
+			    : StartEntry(TStart,seqnr,crl,step)	{}
     };
     struct StartEntry3D : public StartEntry
     {
-		    StartEntry3D( IdxType inl, IdxType crl, IdxType step,
-				   bool crldir )
-			: StartEntry(crldir?TStart:LStart,crl,step)
+		    StartEntry3D( SeqNrType seqnr, IdxType inl, IdxType crl,
+				  IdxType step, bool crldir )
+			: StartEntry(crldir?TStart:LStart,seqnr,crl,step)
 							    { linenr_ = inl; }
     };
     struct StopEntry : public Entry
     {
     protected:
-			StopEntry( IdxType trcnr )
-			    : Entry(Stop,trcnr)			{}
+			StopEntry( SeqNrType seqnr, IdxType trcnr )
+			    : Entry(Stop,seqnr,trcnr)		{}
     };
     struct StopEntry2D : public StopEntry
     {
-			StopEntry2D( IdxType trcnr )
-			    : StopEntry(trcnr)			{}
+			StopEntry2D( SeqNrType seqnr, IdxType trcnr )
+			    : StopEntry(seqnr,trcnr)		{}
     };
     struct StopEntry3D : public StopEntry
     {
-			StopEntry3D( IdxType inl, IdxType crl )
-			    : StopEntry(crl)		    { linenr_ = inl; }
+			StopEntry3D( SeqNrType seqnr, IdxType inl, IdxType crl )
+			    : StopEntry(seqnr,crl)	    { linenr_ = inl; }
     };
     struct OffsEntry : public Entry
     {
 	TypeSet<float>	offsets_;
     protected:
 			OffsEntry( IdxType trcnr )
-			    : Entry(OffsChg,trcnr)		{}
+			    : Entry(OffsChg,0,trcnr)		{}
     };
     struct OffsEntry2D : public OffsEntry
     {
@@ -138,7 +147,7 @@ protected:
     struct OffsEntry3D : public OffsEntry
     {
 			OffsEntry3D( IdxType inl, IdxType crl )
-			    : OffsEntry(crl)		    { linenr_ = inl; }
+			    : OffsEntry(crl)		{ linenr_ = inl; }
     };
 
     const bool		is2d_;
@@ -148,14 +157,12 @@ protected:
 };
 
 
-/*!\brief builds TrackRecord using provided positions; finds changes that
-	    cannot be predicted from previous changes. */
-
 mExpClass(Seis) KeyTracker
 {
 public:
 
     typedef Index_Type	IdxType;
+    typedef od_int64	SeqNrType;
 
 			KeyTracker(TrackRecord&);
     virtual		~KeyTracker()		{ finish(); }
@@ -167,8 +174,9 @@ public:
 
     void		add(int trcnr,float offs=0.f);
     void		add(const BinID&,float offs=0.f);
+    SeqNrType		lastSeqNr() const	{ return seqnr_; }
 
-    od_int64		nrDone() const	    { return nrhandled_; };
+    od_int64		nrDone() const		{ return seqnr_; };
     void		finish();
 			//!< after call, trackrecord will not be used anymore
 			//!< unless you call reset()
@@ -177,7 +185,7 @@ protected:
 
     TrackRecord&	trackrec_;
 
-    od_int64		nrhandled_;
+    od_int64		seqnr_;
     BinID		prevbid_;
     bool		diriscrl_;
     IdxType		step_;
@@ -194,8 +202,8 @@ protected:
     void		getNewIncs(const BinID&);
     void		getNextPredBinID(BinID&) const;
     bool		isSamePos(const BinID&,const BinID&) const;
-    void		addStartEntry(const BinID&);
-    void		addEndEntry(const BinID&);
+    void		addStartEntry(SeqNrType,const BinID&);
+    void		addEndEntry(SeqNrType,const BinID&);
     void		addOffsetEntry();
 
 };

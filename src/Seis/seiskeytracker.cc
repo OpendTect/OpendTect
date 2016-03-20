@@ -24,14 +24,16 @@ Seis::TrackRecord::Entry* Seis::TrackRecord::Entry::getFrom(
     if ( strm.isBad() )
 	return 0;
 
+const int seqnr = 0;
+
     const bool isstop = key == *fileKey( Stop );
     if ( isstop && is2d )
-	return new StopEntry2D( nr1 );
+	return new StopEntry2D( seqnr, nr1 );
     IdxType nr2; strm.get( nr2 );
     if ( strm.isBad() )
 	return 0;
     if ( isstop )
-	return new StopEntry3D( nr1, nr2 );
+	return new StopEntry3D( seqnr, nr1, nr2 );
 
     if ( key == *fileKey(OffsChg) )
     {
@@ -57,14 +59,14 @@ Seis::TrackRecord::Entry* Seis::TrackRecord::Entry::getFrom(
     }
 
     if ( is2d )
-	return new StartEntry2D( nr1, nr2 );
+	return new StartEntry2D( seqnr, nr1, nr2 );
 
     IdxType step; strm.get( step );
     if ( strm.isBad() )
 	return 0;
 
     const bool inldir = key == *fileKey( LStart );
-    return new StartEntry3D( nr1, nr2, step, !inldir );
+    return new StartEntry3D( seqnr, nr1, nr2, step, !inldir );
 }
 
 
@@ -83,6 +85,7 @@ bool Seis::TrackRecord::Entry::dump( ascbinostream& strm, bool is2d ) const
     else
     {
 	const bool isstart = isStart();
+	strm.add( seqnr_ );
 	if ( !is2d )
 	    strm.add( isstart ? static_cast<const StartEntry3D&>(*this).inl()
 			      : static_cast<const StopEntry3D&>(*this).inl() );
@@ -102,29 +105,30 @@ Seis::TrackRecord::TrackRecord( Seis::GeomType gt )
 }
 
 
-Seis::TrackRecord& Seis::TrackRecord::addStartEntry( const BinID& bid,
-						   IdxType step, bool diriscrl )
+Seis::TrackRecord& Seis::TrackRecord::addStartEntry( SeqNrType seqnr,
+				const BinID& bid, IdxType step, bool diriscrl )
 {
     Entry* entry;
 
     if ( is2d_ )
-	entry = new StartEntry2D( bid.crl(), step );
+	entry = new StartEntry2D( seqnr, bid.crl(), step );
     else
-	entry = new StartEntry3D( bid.inl(), bid.crl(), step, diriscrl );
+	entry = new StartEntry3D( seqnr, bid.inl(), bid.crl(), step, diriscrl);
 
     entries_ += entry;
     return *this;
 }
 
 
-Seis::TrackRecord& Seis::TrackRecord::addEndEntry( const BinID& bid )
+Seis::TrackRecord& Seis::TrackRecord::addEndEntry( SeqNrType seqnr,
+						   const BinID& bid )
 {
     Entry* entry;
 
     if ( is2d_ )
-	entry = new StopEntry2D( bid.crl() );
+	entry = new StopEntry2D( seqnr, bid.crl() );
     else
-	entry = new StopEntry3D( bid.inl(), bid.crl() );
+	entry = new StopEntry3D( seqnr, bid.inl(), bid.crl() );
 
     entries_ += entry;
     return *this;
@@ -195,7 +199,7 @@ void Seis::KeyTracker::finish()
     if ( !finished_ )
     {
 	addOffsetEntry();
-	addEndEntry( prevbid_ );
+	addEndEntry( seqnr_, prevbid_ );
 	finished_ = true;
     }
 }
@@ -204,7 +208,7 @@ void Seis::KeyTracker::finish()
 void Seis::KeyTracker::reset()
 {
     trackrec_.setEmpty();
-    nrhandled_ = 0;
+    seqnr_ = 0;
     prevbid_ = BinID( mUdf(int), mUdf(int) );
     diriscrl_ = true;
     step_ = 0;
@@ -235,7 +239,7 @@ void Seis::KeyTracker::addFirstFollowUp( const BinID& bid, float offs )
 
     diriscrl_ = bid.crl() != prevbid_.crl();
     getNewIncs( bid );
-    addStartEntry( prevbid_ );
+    addStartEntry( 0, prevbid_ );
     if ( isPS() )
     {
 	addOffsetEntry();
@@ -279,9 +283,9 @@ void Seis::KeyTracker::addNext( const BinID& bid, float offs )
 
     if ( !atexpectedbid )
     {
-	addEndEntry( prevbid_ );
+	addEndEntry( seqnr_-1, prevbid_ );
 	getNewIncs( bid );
-	addStartEntry( bid );
+	addStartEntry( seqnr_, bid );
     }
 
     if ( isPS() )
@@ -349,27 +353,27 @@ void Seis::KeyTracker::add( const BinID& bid, float offs )
     if ( finished_ )
 	return;
 
-    if ( nrhandled_ == 0 )
+    if ( seqnr_ == 0 )
 	addFirst( bid, offs );
-    else if ( nrhandled_ == 1 || (isPS() && step_ == 0) )
+    else if ( seqnr_ == 1 || (isPS() && step_ == 0) )
 	addFirstFollowUp( bid, offs );
     else
 	addNext( bid, offs );
 
-    nrhandled_++;
+    seqnr_++;
     prevbid_ = bid;
 }
 
 
-void Seis::KeyTracker::addStartEntry( const BinID& bid )
+void Seis::KeyTracker::addStartEntry( SeqNrType seqnr, const BinID& bid )
 {
-    trackrec_.addStartEntry( bid, step_, diriscrl_ );
+    trackrec_.addStartEntry( seqnr, bid, step_, diriscrl_ );
 }
 
 
-void Seis::KeyTracker::addEndEntry( const BinID& bid )
+void Seis::KeyTracker::addEndEntry( SeqNrType seqnr, const BinID& bid )
 {
-    trackrec_.addEndEntry( bid );
+    trackrec_.addEndEntry( seqnr, bid );
 }
 
 
