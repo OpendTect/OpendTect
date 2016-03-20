@@ -105,15 +105,15 @@ protected:
     };
     struct StartEntry2D : public StartEntry
     {
-			StartEntry2D( SeqNrType seqnr, IdxType crl,
+			StartEntry2D( SeqNrType seqnr, IdxType tnr,
 				      IdxType step )
-			    : StartEntry(TStart,seqnr,crl,step)	{}
+			    : StartEntry(TStart,seqnr,tnr,step)	{}
     };
     struct StartEntry3D : public StartEntry
     {
-		    StartEntry3D( SeqNrType seqnr, IdxType inl, IdxType crl,
+		    StartEntry3D( SeqNrType seqnr, IdxType inl, IdxType xln,
 				  IdxType step, bool crldir )
-			: StartEntry(crldir?TStart:LStart,seqnr,crl,step)
+			: StartEntry(crldir?TStart:LStart,seqnr,xln,step)
 							    { linenr_ = inl; }
     };
     struct StopEntry : public Entry
@@ -129,8 +129,8 @@ protected:
     };
     struct StopEntry3D : public StopEntry
     {
-			StopEntry3D( SeqNrType seqnr, IdxType inl, IdxType crl )
-			    : StopEntry(seqnr,crl)	    { linenr_ = inl; }
+			StopEntry3D( SeqNrType seqnr, IdxType inl, IdxType xln )
+			    : StopEntry(seqnr,xln)	    { linenr_ = inl; }
     };
     struct OffsEntry : public Entry
     {
@@ -146,8 +146,8 @@ protected:
     };
     struct OffsEntry3D : public OffsEntry
     {
-			OffsEntry3D( IdxType inl, IdxType crl )
-			    : OffsEntry(crl)		{ linenr_ = inl; }
+			OffsEntry3D( IdxType inl, IdxType xln )
+			    : OffsEntry(xln)		{ linenr_ = inl; }
     };
 
     const bool		is2d_;
