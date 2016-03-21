@@ -169,12 +169,16 @@ void SlideContent::addTitle( BufferString& script )
 
 void SlideContent::addImage( BufferString& script )
 {
-    script.add( "left = Inches(" ).add( imagepos_.x ).add( ")\n" )
+    BufferString picfnm = imagefnm_;
+#ifdef __win__
+    picfnm.replace( "\\", "/" );
+#endif
+    script.add( "picname = os.path.normpath('" ).add( picfnm ).add( "')\n" )
+	  .add( "left = Inches(" ).add( imagepos_.x ).add( ")\n" )
 	  .add( "top = Inches(" ).add( imagepos_.y ).add( ")\n" )
 	  .add( "width = Inches(" ).add( imagesz_.width() ).add( ")\n" )
 	  .add( "height = Inches(" ).add( imagesz_.height() ).add( ")\n" )
-	  .add( "pic = slide.shapes.add_picture('" )
-	  .add( imagefnm_.buf() ).add( "'," )
+	  .add( "pic = slide.shapes.add_picture( picname, " )
 	  .add( "left, top, width, height )\n\n" );
 }
 
@@ -269,12 +273,20 @@ static void init( BufferString& script, const char* fnm )
 	"from pptx.util import Inches, Cm\n"
 	"import os.path\n\n" );
 
-    script.add( "prs = Presentation(" );
-    const FixedString masterfnm = fnm;
-    if ( !masterfnm.isEmpty() )
-	script.add( "'" ).add( fnm ).add( "'" );
+    BufferString masterfnm = fnm;
+    if ( masterfnm.isEmpty() )
+	script.add( "prs = Presentation()" );
+    else
+    {
+#ifdef __win__
+	masterfnm.replace( "\\", "/" );
+#endif
+	script.add( "inputname = os.path.normpath('" )
+	      .add( masterfnm ).add( "')\n" );
+	script.add( "prs = Presentation(inputname)" );
+    }
 
-    script.add( ")\n\n" );
+    script.add( "\n\n" );
 }
 
 
