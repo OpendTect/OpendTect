@@ -58,7 +58,7 @@ OD_ADD_OSGGEO()
 
 
 set( OD_MODULES
-	Basic Algo General
+	Basic OpenCL Algo General
 	Strat Network Batch
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
