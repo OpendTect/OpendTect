@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "trckeyvalue.h"
 
-namespace EM { class EMObject; class Horizon2D; class Horizon3D; }
+namespace EM { class EMObject; class Horizon; class Horizon2D; class Horizon3D;}
 namespace MPE { class EMTracker; }
 namespace visSurvey
 {
+    class EMObjectDisplay;
     class Horizon2DDisplay;
     class HorizonDisplay;
     class MPEClickCatcher;
@@ -90,6 +91,9 @@ protected:
     MPE::EMTracker*		getSelectedTracker();
     visSurvey::Horizon2DDisplay* getSelected2DDisplay();
     visSurvey::HorizonDisplay*	getSelectedDisplay();
+    visSurvey::EMObjectDisplay* getSelectedEMDisplay();
+
+    EM::Horizon*		getSelectedHorizon();
     EM::Horizon2D*		getSelectedHorizon2D();
     EM::Horizon3D*		getSelectedHorizon3D();
 
