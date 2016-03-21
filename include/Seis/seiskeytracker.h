@@ -29,51 +29,57 @@ mExpClass(Seis) TrackRecord
 {
 public:
 
-    typedef Index_Type			IdxType;
-    typedef od_int64			SeqNrType;
+    typedef Index_Type	IdxType;
+    typedef od_int64	SeqNrType;
 
     struct Entry
     {
-	enum Type	{ TStart, LStart, Stop, OffsChg };
-	static const char* fileKey(Type);
 	static Entry*	getFrom(ascbinistream&,bool is2d);
+	virtual		~Entry()		{}
 
-	Type		type_;
-	IdxType		linenr_;
-	IdxType		trcnr_;
-	SeqNrType	seqnr_;
+	virtual const char* fileKey() const	= 0;
+	virtual bool	is2D() const		= 0;
 
-	inline bool	isOffs() const		{ return type_ == OffsChg; }
-	inline bool	isStart() const		{ return type_ < Stop; }
-	inline const char* fileKey() const	{ return fileKey( type_ ); }
+	virtual bool	isOffs() const		{ return false; }
+	virtual bool	isStart() const		{ return true; }
 	inline SeqNrType seqNr() const		{ return seqnr_; }
 	inline IdxType	trcNr() const		{ return trcnr_; }
-	inline IdxType	lineNr() const		{ return linenr_; }
-	inline IdxType	crl() const		{ return trcnr_; }
-	inline IdxType	inl() const		{ return linenr_; }
-	inline BinID	binID() const		{ return BinID(linenr_,trcnr_);}
-	inline bool	isTrcNrDir() const	{ return type_ != LStart; }
+	virtual IdxType	lineNr() const		{ return mUdf(IdxType); }
+	inline IdxType	inl() const		{ return lineNr(); }
+	inline IdxType	crl() const		{ return trcNr(); }
+	virtual bool	isTrcNrDir() const	{ return true; }
+	inline BinID	binID() const
+			{ return BinID(lineNr(),trcNr()); }
 
-	bool		dump(ascbinostream&,bool is2d) const;
+	inline void	setSeqNr( SeqNrType s )	{ seqnr_ = s; }
+	inline void	setTrcNr( IdxType t )	{ trcnr_ = t; }
+	virtual void	setLineNr(IdxType)	{}
+	inline void	setInl( IdxType i )	{ setLineNr( i ); }
+	inline void	setCrl( IdxType i )	{ setTrcNr( i ); }
+	virtual void	setIsTrcNrDir( bool )	{}
+
+	bool		dump(ascbinostream&) const;
 
     protected:
-			Entry( Type typ, SeqNrType seqnr, IdxType trcnr )
-			    : type_(typ)
-			    , seqnr_(seqnr)
-			    , trcnr_(trcnr)
-			    , linenr_(mUdf(int))    {}
+			Entry( SeqNrType seqnr, IdxType trcnr )
+			    : seqnr_(seqnr)
+			    , trcnr_(trcnr)	{}
+
+	SeqNrType	seqnr_;
+	IdxType		trcnr_;
 
     };
 
-    typedef ManagedObjectSet<Entry>	EntrySet;
-    typedef EntrySet::size_type		ArrIdxType;
+    typedef ObjectSet<Entry>	EntrySet;
+    typedef EntrySet::size_type	ArrIdxType;
 
 			TrackRecord(Seis::GeomType);
+			~TrackRecord()		{ setEmpty(); }
 
     inline bool		is2D() const		{ return is2d_; }
     inline bool		isPS() const		{ return isps_; }
 
-    inline void		setEmpty()		{ entries_.erase(); }
+    inline void		setEmpty()		{ deepErase(entries_); }
     inline EntrySet&	entries()		{ return entries_; }
     inline const EntrySet& entries() const	{ return entries_; }
 
@@ -98,56 +104,85 @@ protected:
     {
 	IdxType		step_;
     protected:
-			StartEntry( Type typ, SeqNrType seqnr,
-				    IdxType trcnr, IdxType step )
-			    : Entry(typ,seqnr,trcnr)
-			    , step_(step)			{}
+			StartEntry( SeqNrType seqnr, IdxType trcnr,
+				    IdxType step )
+			    : Entry(seqnr,trcnr)
+			    , step_(step)		{}
     };
     struct StartEntry2D : public StartEntry
     {
 			StartEntry2D( SeqNrType seqnr, IdxType tnr,
 				      IdxType step )
-			    : StartEntry(TStart,seqnr,tnr,step)	{}
+			    : StartEntry(seqnr,tnr,step) {}
+	virtual const char* fileKey() const		{ return "T"; }
+	virtual bool	is2D() const			{ return true; }
     };
     struct StartEntry3D : public StartEntry
     {
-		    StartEntry3D( SeqNrType seqnr, IdxType iln, IdxType xln,
+			StartEntry3D( SeqNrType seqnr, IdxType iln, IdxType xln,
 				  IdxType step, bool crldir )
-			: StartEntry(crldir?TStart:LStart,seqnr,xln,step)
-							    { linenr_ = iln; }
+			: StartEntry(seqnr,xln,step)
+			, inl_(iln)
+			, iscrldir_(crldir)		{}
+	virtual const char* fileKey() const
+			{ return iscrldir_ ? "T" : "L"; }
+
+	virtual bool	is2D() const			{ return false; }
+	virtual IdxType	lineNr() const			{ return inl_; }
+	virtual bool	isTrcNrDir() const		{ return iscrldir_; }
+	virtual void	setLineNr( IdxType i )		{ inl_ = i; }
+	virtual void	setIsTrcNrDir( bool yn )	{ iscrldir_ = yn; }
+	IdxType		inl_;
+	bool		iscrldir_;
     };
     struct StopEntry : public Entry
     {
     protected:
 			StopEntry( SeqNrType seqnr, IdxType trcnr )
-			    : Entry(Stop,seqnr,trcnr)		{}
+			    : Entry(seqnr,trcnr)	{}
+	virtual const char* fileKey() const		{ return "E"; }
+	virtual bool	isStart() const			{ return false;}
     };
     struct StopEntry2D : public StopEntry
     {
 			StopEntry2D( SeqNrType seqnr, IdxType trcnr )
-			    : StopEntry(seqnr,trcnr)		{}
+			    : StopEntry(seqnr,trcnr)	{}
+	virtual bool	is2D() const			{ return true; }
     };
     struct StopEntry3D : public StopEntry
     {
 			StopEntry3D( SeqNrType seqnr, IdxType iln, IdxType xln )
-			    : StopEntry(seqnr,xln)	    { linenr_ = iln; }
+			    : StopEntry(seqnr,xln)
+			    , inl_(iln)			{}
+	virtual bool	is2D() const			{ return false; }
+	virtual IdxType	lineNr() const			{ return inl_; }
+	virtual void	setLineNr( IdxType i )		{ inl_ = i; }
+	IdxType		inl_;
     };
     struct OffsEntry : public Entry
     {
 	TypeSet<float>	offsets_;
+	virtual const char* fileKey() const		{ return "O"; }
+	virtual bool	isOffs() const			{ return true; }
     protected:
 			OffsEntry( IdxType trcnr )
-			    : Entry(OffsChg,0,trcnr)		{}
+			    : Entry(0,trcnr)		{}
     };
     struct OffsEntry2D : public OffsEntry
     {
 			OffsEntry2D( IdxType trcnr )
-			    : OffsEntry(trcnr)			{}
+			    : OffsEntry(trcnr)		{}
+	virtual bool	is2D() const			{ return true; }
     };
     struct OffsEntry3D : public OffsEntry
     {
 			OffsEntry3D( IdxType iln, IdxType xln )
-			    : OffsEntry(xln)		{ linenr_ = iln; }
+			    : OffsEntry(xln)
+			    , inl_(iln)			{}
+	virtual bool	is2D() const			{ return false; }
+	virtual IdxType	lineNr() const			{ return inl_; }
+	virtual void	setLineNr( IdxType i )		{ inl_ = i; }
+	IdxType		inl_;
     };
 
     const bool		is2d_;

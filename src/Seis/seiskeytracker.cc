@@ -8,36 +8,26 @@
 #include "od_iostream.h"
 #include "ascbinstream.h"
 
-#define mOffsEps 1e-6
-static const char* filekeys_[] = { "T", "L", "E", "O", 0 };
-
-const char* Seis::TrackRecord::Entry::fileKey( Type t )
-{
-    return filekeys_[t];
-}
-
 
 Seis::TrackRecord::Entry* Seis::TrackRecord::Entry::getFrom(
 				    ascbinistream& strm, bool is2d )
 {
-    char key; IdxType nr1; strm.get( key ).get( nr1 );
+    char key; IdxType nr1, nr2; strm.get( key ).get( nr1 ).get( nr2 );
     if ( strm.isBad() )
 	return 0;
 
-const int seqnr = 0;
-
-    const bool isstop = key == *fileKey( Stop );
+    const bool isstop = key == 'E';
     if ( isstop && is2d )
-	return new StopEntry2D( seqnr, nr1 );
-    IdxType nr2; strm.get( nr2 );
+	return new StopEntry2D( nr1, nr2 );
+    IdxType nr3; strm.get( nr3 );
     if ( strm.isBad() )
 	return 0;
     if ( isstop )
-	return new StopEntry3D( seqnr, nr1, nr2 );
+	return new StopEntry3D( nr1, nr2, nr3 );
 
-    if ( key == *fileKey(OffsChg) )
+    if ( key == 'O' )
     {
-	int nroffs = nr2;
+	int nroffs = nr3;
 	if ( !is2d )
 	{
 	    strm.get( nroffs );
@@ -59,39 +49,41 @@ const int seqnr = 0;
     }
 
     if ( is2d )
-	return new StartEntry2D( seqnr, nr1, nr2 );
+	return new StartEntry2D( nr1, nr2, nr3 );
 
     IdxType step; strm.get( step );
     if ( strm.isBad() )
 	return 0;
 
-    const bool inldir = key == *fileKey( LStart );
-    return new StartEntry3D( seqnr, nr1, nr2, step, !inldir );
+    const bool inldir = key == 'L';
+    return new StartEntry3D( nr1, nr2, nr3, step, !inldir );
 }
 
 
-bool Seis::TrackRecord::Entry::dump( ascbinostream& strm, bool is2d ) const
+bool Seis::TrackRecord::Entry::dump( ascbinostream& strm ) const
 {
     strm.add( *fileKey() );
 
     if ( isOffs() )
     {
-	const OffsEntry& oentry = static_cast<const OffsEntry&>( *this );
-	if ( !is2d )
-	    strm.add( static_cast<const OffsEntry3D&>(oentry).inl() );
-	strm.add( trcnr_ );
-	strm.addArr( oentry.offsets_.arr(), oentry.offsets_.size() );
+	if ( !is2D() )
+	    strm.add( inl() );
+	strm.add( trcNr() );
+	mDynamicCastGet(const OffsEntry*,oentry,this)
+	strm.addArr( oentry->offsets_.arr(), oentry->offsets_.size() );
     }
     else
     {
 	const bool isstart = isStart();
-	strm.add( seqnr_ );
-	if ( !is2d )
-	    strm.add( isstart ? static_cast<const StartEntry3D&>(*this).inl()
-			      : static_cast<const StopEntry3D&>(*this).inl() );
+	strm.add( seqNr() );
+	if ( !is2D() )
+	    strm.add( inl() );
 	strm.add( trcnr_, isstart ? od_tab : od_newline );
 	if ( isstart )
-	    strm.add( static_cast<const StartEntry&>(*this).step_, od_newline );
+	{
+	    mDynamicCastGet(const StartEntry*,sentry,this)
+	    strm.add( sentry->step_, od_newline );
+	}
     }
 
     return strm.isOK();
@@ -180,7 +172,7 @@ bool Seis::TrackRecord::dump( od_ostream& instrm, bool bin ) const
     strm.add( nrentries, od_newline );
 
     for ( int ientry=0; ientry<nrentries; ientry++ )
-	if ( !entries_[ientry]->dump(strm,is2d_) )
+	if ( !entries_[ientry]->dump(strm) )
 	    return false;
 
     return true;
@@ -295,7 +287,7 @@ void Seis::KeyTracker::addNext( const BinID& bid, float offs )
 
 void Seis::KeyTracker::checkCurOffset( float offs )
 {
-    if ( !mIsEqual(offs,offsets_[offsidx_],mOffsEps) )
+    if ( !equalOffset(offs,offsets_[offsidx_]) )
     {
 	offsets_[offsidx_] = offs;
 	offsetschanged_ = true;
