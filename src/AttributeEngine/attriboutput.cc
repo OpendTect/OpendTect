@@ -812,10 +812,10 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 
     if ( !mIsUdf(zmin) && !mIsUdf(-zmax) )
     {
-	BinIDValueSet::SPos pos;
-	bidvalset.next( pos );
-	sd.binidValueSet().add( bidvalset.getBinID(pos), zmin );
-	sd.binidValueSet().add( bidvalset.getBinID(pos), zmax );
+	BinIDValueSet::SPos pos; bidvalset.next( pos );
+	const BinID bid0( bidvalset.getBinID(pos) );
+	sd.binidValueSet().add( bid0, zmin );
+	sd.binidValueSet().add( bid0, zmax );
 
 	stdtrcsz_ = zmax - zmin;
 	stdstarttime_ = zmin;

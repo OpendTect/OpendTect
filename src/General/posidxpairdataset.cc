@@ -50,29 +50,46 @@ const void* Pos::IdxPairDataSet::ObjData::getObj( bool mandata, ArrIdxType idx,
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::putObj( bool mandata, ArrIdxType idx,
-					   ObjSzType objsz, const void* obj )
+bool Pos::IdxPairDataSet::ObjData::addObjSpace( bool mandata, ArrIdxType idx,
+					        ObjSzType objsz )
 {
-    while ( objs_.size() <= idx )
-    {
-	try { objs_ += 0; }
-	catch ( std::bad_alloc )
-	    { return false; }
-    }
+    const ArrIdxType oldnrobjs = objs_.size();
+    const bool atend = idx >= oldnrobjs;
+    try {
+	if ( atend )
+	    objs_ += 0;
+	else
+	    objs_.insertAt( 0, idx );
+    } catch ( std::bad_alloc )
+	{ return false; }
 
     if ( !mandata )
-	{ objs_.replace( idx, obj ); return true; }
-
-    if ( objsz < 1 )
 	return true;
-    objs_.replace( idx, obj ? &isnotnull : &isnull );
+
     if ( !manageBufCapacity(objsz) )
 	return false;
+    else if ( !atend )
+    {
+	BufType* ptrnewobjpos = buf_ + objsz * (idx+1);
+	const BufType* ptroldobjpos = ptrnewobjpos - objsz;
+	const BufType* ptrafterlast = buf_ + objsz * objs_.size();
+	OD::memMove( ptrnewobjpos, ptroldobjpos, ptrafterlast-ptrnewobjpos );
+    }
+    return true;
+}
 
+
+void Pos::IdxPairDataSet::ObjData::putObj( bool mandata, ArrIdxType idx,
+					   ObjSzType objsz, const void* obj )
+{
+    if ( !mandata )
+	{ objs_.replace( idx, obj ); return; }
+    else if ( objsz < 1 )
+	return;
+
+    objs_.replace( idx, obj ? &isnotnull : &isnull );
     if ( obj )
 	OD::memCopy( buf_+idx*objsz, obj, objsz );
-
-    return true;
 }
 
 
@@ -610,8 +627,8 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::add( const Pos::IdxPair& ip,
 
 void Pos::IdxPairDataSet::set( SPos spos, const void* obj )
 {
-    if ( spos.isValid() && !putObj(spos,obj) )
-	mHandleMemFull()
+    if ( spos.isValid() )
+	putObj( spos, obj );
 }
 
 
@@ -986,17 +1003,17 @@ const void* Pos::IdxPairDataSet::gtObj( const SPos& spos ) const
 }
 
 
-bool Pos::IdxPairDataSet::putObj( const SPos& spos, const void* obj )
+void Pos::IdxPairDataSet::putObj( const SPos& spos, const void* obj )
 {
     if ( objdatas_.size() <= spos.i )
     {
 	pErrMsg("putObj shuld not have to alloc its own objdata");
 	try { objdatas_ += new ObjData; }
 	catch ( std::bad_alloc )
-	    mErrRetMemFull()
+	    { mHandleMemFull(); return; }
     }
 
-    return gtObjData(spos).putObj( mandata_, spos.j, objsz_, obj );
+    gtObjData(spos).putObj( mandata_, spos.j, objsz_, obj );
 }
 
 
@@ -1013,17 +1030,19 @@ bool Pos::IdxPairDataSet::addObj( SPos& spos, IdxType scnd, const void* obj )
 	    spos.j++;
     }
 
+    const bool atend = spos.j > scnds.size() - 1;
     try {
-	if ( spos.j > scnds.size() - 1 )
+	if ( atend )
 	    scnds += scnd;
 	else
 	    scnds.insert( spos.j, scnd );
     } catch ( std::bad_alloc )
 	mErrRetMemFull()
 
-    if ( !putObj(spos,obj) )
+    if ( !gtObjData(spos).addObjSpace(mandata_,spos.j,objsz_) )
 	mErrRetMemFull()
 
+    putObj( spos, obj );
     return true;
 }
 

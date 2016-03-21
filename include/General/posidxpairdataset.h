@@ -207,7 +207,8 @@ protected:
 				~ObjData()	    { delete [] buf_; }
 
 	const void*		getObj(bool,ArrIdxType,ObjSzType) const;
-	bool			putObj(bool,ArrIdxType,ObjSzType,const void*);
+	void			putObj(bool,ArrIdxType,ObjSzType,const void*);
+	bool			addObjSpace(bool,ArrIdxType,ObjSzType);
 	void			removeObj(bool,ArrIdxType,ObjSzType);
 	void			decrObjSize(ObjSzType orgsz,ObjSzType newsz,
 					    ObjSzType at_offs);
@@ -234,8 +235,8 @@ protected:
 
     static ArrIdxType	findIndexFor(const IdxSet&,IdxType,bool* found=0);
     const void*		gtObj(const SPos&) const;
-    bool		putObj(const SPos&,const void*);
     bool		addObj(SPos&,IdxType,const void*);
+    void		putObj(const SPos&,const void*);
     void		addEntry(const Pos::IdxPair&,const void*,SPos&);
 
     // All 'gt' functions return unchecked
