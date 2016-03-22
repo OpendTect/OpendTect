@@ -15,6 +15,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+static const Sphere nullsphere_;
+const Sphere& Sphere::nullSphere() { return nullsphere_; }
+
+bool Sphere::isNull() const
+{
+    return mIsZero(radius,mDefEpsF)
+        && mIsZero(theta,mDefEpsF)
+	&& mIsZero(phi,mDefEpsF);
+}
+
 
 TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 {

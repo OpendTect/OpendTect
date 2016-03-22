@@ -554,18 +554,22 @@ mExpClass(Algo) Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)
-			    : radius(r),theta(t),phi(p)
-			{}
+			    : radius(r),theta(t),phi(p)		{}
 
 			Sphere(const Coord3& crd)
 			    : radius((float) crd.x),theta((float) crd.y)
-			    , phi((float) crd.z)
-			{}
-    bool		operator ==( const Sphere& s ) const;
+			    , phi((float) crd.z)		{}
+    inline bool		operator ==(const Sphere&) const;
+    inline bool		operator !=( const Sphere& oth ) const
+			{ return !(oth == *this); }
 
     float		radius;
     float		theta;
     float		phi;
+
+    static const Sphere& nullSphere();
+    bool		isNull() const; //!< compares with epsilon
+
 };
 
 
