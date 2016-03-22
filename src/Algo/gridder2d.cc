@@ -544,9 +544,7 @@ bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
 
 bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* )
 {
-    updateSolver();
-
-    return true;
+    return updateSolver();
 }
 
 
@@ -645,6 +643,9 @@ bool RadialBasisFunctionGridder2D::updateSolver()
     }
 
     Array2DImpl<double> a( sz, sz );
+    if ( !a.isOK() )
+	return false;
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int indexX = usedpoints_[idx];
