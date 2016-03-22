@@ -611,7 +611,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.activevolumechange.trigger();
 	}
     }
-    
+
     seedpicker->setSelSpec( clickedas );
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
     beginSeedClickEvent( emobj );
@@ -997,14 +997,14 @@ visSurvey::EMObjectDisplay* uiMPEMan::getSelectedEMDisplay()
 
 visSurvey::HorizonDisplay* uiMPEMan::getSelectedDisplay()
 {
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,getSelectedDisplay())
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,getSelectedEMDisplay())
     return hd;
 }
 
 
 visSurvey::Horizon2DDisplay* uiMPEMan::getSelected2DDisplay()
 {
-    mDynamicCastGet(visSurvey::Horizon2DDisplay*,hd,getSelectedDisplay())
+    mDynamicCastGet(visSurvey::Horizon2DDisplay*,hd,getSelectedEMDisplay())
     return hd;
 }
 
