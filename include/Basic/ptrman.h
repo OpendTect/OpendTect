@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "atomic.h"
+#include "refcount.h"
 #include <stdlib.h>
 
 #ifdef __debug__
@@ -30,8 +31,8 @@ template <class T>
 void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
 { if ( isowner ) delete [] ptr; ptr = 0; }
 
-template <class T> T* createSingleObject() { return new T; }
-template <class T> T* createObjectArray(od_int64 sz) { return new T[sz]; }
+template <class T> T* createSingleObject()		{ return new T; }
+template <class T> T* createObjectArray(od_int64 sz)	{ return new T[sz]; }
 
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
     or RefMan instead. */
@@ -194,17 +195,22 @@ mClass(Basic) RefMan : public NonConstPtrManBase<T>
 {
 public:
 
-    inline		RefMan(const RefMan<T>&);
-    inline		RefMan(T* = 0);
-    inline RefMan<T>&	operator=( T* p )
-			{ this->set( p, true ); return *this; }
-    inline RefMan<T>&	operator=(const RefMan<T>&);
+    template <class TT> inline	RefMan(const RefMan<TT>&);
+    inline			RefMan(const RefMan<T>&);
+    inline			RefMan(T* = 0);
+    inline RefMan<T>&		operator=( T* p )
+				{ this->set( p, true ); return *this; }
+    template <class TT>
+    inline RefMan<T>&		operator=(const RefMan<TT>&);
+    inline RefMan<T>&		operator=(const RefMan<T>&);
+
+    void			setNoDelete(bool yn);
 
 private:
 
-    static void		ref(T* p) { p->ref(); }
-    static void		unRef(T* p) { if ( p ) p->unRef(); }
-
+    static void		ref(T* p);
+    static void		unRef(T* p);
+    static void		unRefNoDelete(T* p);
 };
 
 
@@ -214,14 +220,24 @@ mClass(Basic) ConstRefMan : public ConstPtrManBase<T>
 {
 public:
     inline			ConstRefMan(const ConstRefMan<T>&);
+    template <class TT> inline	ConstRefMan(const ConstRefMan<TT>&);
+    template <class TT> inline	ConstRefMan(const RefMan<TT>&);
+
     inline			ConstRefMan(const T* = 0);
     ConstRefMan<T>&		operator=(const T* p);
-    inline ConstRefMan<T>&	operator=(const ConstRefMan<T>&);
+    template <class TT>
+    ConstRefMan<T>&		operator=(const RefMan<TT>&);
+    template <class TT>
+    ConstRefMan<T>&		operator=(const ConstRefMan<TT>&);
+    ConstRefMan<T>&		operator=(const ConstRefMan<T>&);
 
+
+    void			setNoDelete(bool yn);
 
 private:
-    static void		ref(T* p) { p->ref(); }
-    static void		unRef(T* p) { if ( p ) p->unRef(); }
+    static void			ref(T* p);
+    static void			unRef(T* p);
+    static void			unRefNoDelete(T* p);
 
 };
 
@@ -459,6 +475,13 @@ RefMan<T>::RefMan( const RefMan<T>& p )
 {}
 
 
+template <class T>
+template <class TT> inline
+RefMan<T>::RefMan( const RefMan<TT>& p )
+    : NonConstPtrManBase<T>( ref, unRef, (T*) p.ptr() )
+{}
+
+
 template <class T> inline
 RefMan<T>::RefMan( T* p )
     : NonConstPtrManBase<T>( ref, unRef, p )
@@ -473,6 +496,37 @@ RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
 }
 
 
+template <class T>
+template <class TT> inline
+RefMan<T>& RefMan<T>::operator=( const RefMan<TT>& p )
+{
+    this->set( (T*) p.ptr() );
+    return *this;
+}
+
+
+
+template <class T> inline
+void RefMan<T>::setNoDelete( bool yn )
+{
+    this->deletefunc_ = yn ? unRefNoDelete : unRef;
+}
+
+
+template <class T> inline
+void RefMan<T>::ref(T* p) { refPtr((RefCount::Referenced*) p ); }
+
+
+template <class T> inline
+void RefMan<T>::unRef(T* p) { unRefPtr((RefCount::Referenced*) p); }
+
+
+template <class T> inline
+void RefMan<T>::unRefNoDelete(T* p)
+{ unRefNoDeletePtr((RefCount::Referenced*) p ); }
+
+
+
 template <class T> inline
 ConstRefMan<T>::ConstRefMan( const ConstRefMan<T>& p )
     : ConstPtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
@@ -485,10 +539,33 @@ ConstRefMan<T>::ConstRefMan( const T* p )
 {}
 
 
+template <class T>
+template <class TT> inline
+ConstRefMan<T>::ConstRefMan( const ConstRefMan<TT>& p )
+    : ConstPtrManBase<T>( ref, unRef, (T*) p.ptr() )
+{}
+
+
+template <class T>
+template <class TT> inline
+ConstRefMan<T>::ConstRefMan( const RefMan<TT>& p )
+    : ConstPtrManBase<T>( ref, unRef, (T*) p.ptr() )
+{}
+
+
+template <class T>
+template <class TT> inline
+ConstRefMan<T>& ConstRefMan<T>::operator=( const ConstRefMan<TT>& p )
+{
+    this->set( (T*) p.ptr() );
+    return *this;
+}
+
+
 template <class T> inline
 ConstRefMan<T>& ConstRefMan<T>::operator=( const ConstRefMan<T>& p )
 {
-    this->set( const_cast<T*>(p.ptr()) );
+    this->set( (T*) p.ptr() );
     return *this;
 }
 
@@ -499,5 +576,34 @@ ConstRefMan<T>&	ConstRefMan<T>::operator=(const T* p)
     this->set( const_cast<T*>( p ) );
     return *this;
 }
+
+
+template <class T>
+template <class TT> inline
+ConstRefMan<T>& ConstRefMan<T>::operator=( const RefMan<TT>& p )
+{
+    this->set( (T*) p.ptr() );
+    return *this;
+}
+
+
+template <class T> inline
+void ConstRefMan<T>::setNoDelete( bool yn )
+{
+    this->deletefunc_ = yn ? unRefNoDelete : unRef;
+}
+
+
+template <class T> inline
+void ConstRefMan<T>::ref(T* p) { refPtr((RefCount::Referenced*) p ); }
+
+
+template <class T> inline
+void ConstRefMan<T>::unRef(T* p) { unRefPtr((RefCount::Referenced*) p); }
+
+
+template <class T> inline
+void ConstRefMan<T>::unRefNoDelete(T* p)
+{ unRefNoDeletePtr((RefCount::Referenced*) p ); }
 
 #endif
