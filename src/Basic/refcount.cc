@@ -328,10 +328,12 @@ void unRefNoDeletePtr( const RefCount::Referenced* ptr )
 }
 
 
-void refPtr( const RefCount::Referenced* ptr )
+const RefCount::Referenced* refPtr( const RefCount::Referenced* ptr )
 {
-    if ( !ptr ) return;
-    ptr->ref();
+    if ( ptr )
+	ptr->ref();
+
+    return ptr;
 }
 
 

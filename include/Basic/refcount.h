@@ -236,7 +236,8 @@ mGlobal(Basic) void unRefPtr( const RefCount::Referenced* ptr );
 mGlobal(Basic) void unRefNoDeletePtr( const RefCount::Referenced* ptr );
 
 //! Reference class pointer. Works for null pointers.
-mGlobal(Basic) void refPtr( const RefCount::Referenced* ptr );
+mGlobal(Basic) const RefCount::Referenced*
+refPtr( const RefCount::Referenced* ptr );
 
 //!Un-reference class pointer, and set it to zero. Works for null-pointers.
 template <class T> inline
@@ -246,7 +247,6 @@ void unRefAndZeroPtr( T*& ptr )
 template <class T> inline
 void unRefAndZeroPtr( const T*& ptr )
 { unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) ); ptr = 0; }
-
 
 mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
 mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDeletePtr( os[idx] ),
