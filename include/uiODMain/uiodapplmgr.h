@@ -223,6 +223,7 @@ public:
     int				otherFormatAttrib() const
 				    { return otherformatattrib_; }
     void			useDefColTab(int visid,int attrib);
+    bool			isRestoringSession() const;
 
 protected:
 

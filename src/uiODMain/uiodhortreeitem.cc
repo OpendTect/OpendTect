@@ -376,19 +376,22 @@ bool uiODHorizonTreeItem::init()
     if ( hor3d )
     {
 	hd->setDepthAsAttrib( 0 );
-	const int nrauxdata = hor3d->auxdata.nrAuxData();
-	for ( int idx=0; idx<nrauxdata; idx++ )
+	if ( !applMgr()->isRestoringSession() )
 	{
-	    if ( !hor3d->auxdata.auxDataName(idx) )
-		continue;
+	    const int nrauxdata = hor3d->auxdata.nrAuxData();
+	    for ( int idx=0; idx<nrauxdata; idx++ )
+	    {
+		if ( !hor3d->auxdata.auxDataName(idx) )
+		    continue;
 
-	    DataPointSet vals( false, true );
-	    float shift;
-	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
+		DataPointSet vals( false, true );
+		float shift;
+		applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
 
-	    uiODDataTreeItem* itm = addAttribItem();
-	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
-	    if ( emitm ) emitm->setDataPointSet( vals );
+		uiODDataTreeItem* itm = addAttribItem();
+		mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
+		if ( emitm ) emitm->setDataPointSet( vals );
+	    }
 	}
 
 	if ( MPE::engine().getTrackerByObject(hor3d->id()) != -1 )
