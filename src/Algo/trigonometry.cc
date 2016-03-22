@@ -14,11 +14,20 @@
 
 #include <math.h>
 
+static const Sphere nullsphere_;
+const Sphere& Sphere::nullSphere() { return nullsphere_; }
+
+bool Sphere::isNull() const
+{
+    return mIsZero(radius,mDefEpsF)
+        && mIsZero(theta,mDefEpsF)
+	&& mIsZero(phi,mDefEpsF);
+}
+
 
 TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 {
     TypeSet<Vector3>& vectors(*new TypeSet<Vector3>);
-
 
     const int nrdips = mNINT32(M_PI_2/dradius)+1;
     const double ddip = M_PI_2/(nrdips-1);

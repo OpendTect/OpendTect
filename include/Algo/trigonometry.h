@@ -516,18 +516,22 @@ mExpClass(Algo) Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)
-			    : radius(r),theta(t),phi(p)
-			{}
+			    : radius(r),theta(t),phi(p)		{}
 
 			Sphere(const Coord3& crd)
 			    : radius((float) crd.x),theta((float) crd.y)
-			    , phi((float) crd.z)
-			{}
-    bool		operator ==( const Sphere& s ) const;
+			    , phi((float) crd.z)		{}
+    inline bool		operator ==(const Sphere&) const;
+    inline bool		operator !=( const Sphere& oth ) const
+			{ return !(oth == *this); }
 
     float		radius;
     float		theta;
     float		phi;
+
+    static const Sphere& nullSphere();
+    bool		isNull() const; //!< compares with epsilon
+
 };
 
 
@@ -540,9 +544,9 @@ mGlobal(Algo) Coord3 spherical2Cartesian(const Sphere&,bool math);
 
 inline bool Sphere::operator ==( const Sphere& s ) const
 {
-    const float dr = radius-s.radius;
-    const float dt = theta-s.theta;
-    const float dp = phi-s.phi;
+    const float dr = radius - s.radius;
+    const float dt = theta - s.theta;
+    const float dp = phi - s.phi;
     return mIsZero(dr,1e-8) && mIsZero(dt,1e-8) && mIsZero(dp,1e-8);
 }
 
