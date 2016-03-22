@@ -670,7 +670,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 	hor3d->auxdata.removeAll();
 
     ExecutorGroup exgrp( "Horizon Data loader" );
-    exgrp.setNrDoneText( Task::uiStdNrDoneText() );
+    exgrp.setNrDoneText( tr("Positions read") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
@@ -804,7 +804,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
     hor3d->auxdata.removeAll();
     ExecutorGroup exgrp( "Loading Horizon Data" );
-    exgrp.setNrDoneText( Task::uiStdNrDoneText() );
+    exgrp.setNrDoneText( tr("Positions read") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 

@@ -202,7 +202,8 @@ protected:
 */
 
 mExpClass(EarthModel) dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
-{				 isTranslator(dgb,EMHorizon3D)
+{	isTranslator(dgb,EMHorizon3D)
+	mODTextTranslationClass(dgbEMHorizon3DTranslator)
 public:
 				dgbEMHorizon3DTranslator(const char* unm,
 						       const char* nm)
