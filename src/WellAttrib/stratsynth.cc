@@ -794,7 +794,7 @@ bool StratSynth::createElasticModels()
     if ( !modelsvalid )
 	return false;
 
-    return adjustElasticModel( layMod(), aimodels_, false );
+    return adjustElasticModel( layMod(), aimodels_, useed_ );
 }
 
 
