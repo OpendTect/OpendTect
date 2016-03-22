@@ -183,7 +183,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
-    filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
     listfld_->box()->attach( centeredBelow, filtfld_ );
 
     topgrp_->setHAlignObj( listfld_ );
