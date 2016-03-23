@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "keyboardevent.h"
 #include "ptrman.h"
-#include "separstr.h"
 #include "od_helpids.h"
 
 
