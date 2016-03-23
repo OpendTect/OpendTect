@@ -1,24 +1,23 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril
- * DATE     : Mar 2001
+ * AUTHOR   : Bert
+ * DATE     : Mar 2001 / Mar 2016
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "pickset.h"
-
+#include "picksetmgr.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "multiid.h"
-#include "od_iostream.h"
 #include "polygon.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
+#include "od_iostream.h"
 #include <ctype.h>
 
+static const char* sKeyConnect = "Connect";
 
 namespace Pick
 {
@@ -483,8 +482,6 @@ float Set::getXYArea() const
 }
 
 
-static const char* sKeyConnect = "Connect";
-
 void Set::fillPar( IOPar& par ) const
 {
     BufferString colstr;
@@ -655,9 +652,57 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	    mPIEPAdj(Z,zread,true);
 	}
 
-	Pick::Location ploc( pos, zread );
-	ps += ploc;
+	ps += Pick::Location( pos, zread );
     }
 
     return true;
+}
+
+
+Pick::List::List( Pick::Set& ps, bool dofill )
+    : set_(ps)
+    , isconst_(false)
+{
+    if ( dofill )
+	reFill();
+}
+
+
+Pick::List::List( const Pick::Set& ps, bool dofill )
+    : set_(const_cast<Pick::Set&>(ps))
+    , isconst_(true)
+{
+    if ( dofill )
+	reFill();
+}
+
+
+ObjectSet<Pick::Location>& Pick::List::locations()
+{
+    if ( isconst_ )
+	{ pErrMsg("non-const called for const set"); }
+    return locs_;
+}
+
+
+ObjectSet<const Pick::Location>& Pick::List::locations() const
+{
+    return (ObjectSet<const Pick::Location>&)locs_;
+}
+
+
+Pick::Set& Pick::List::source()
+{
+    if ( isconst_ )
+	{ pErrMsg("non-const called for const set"); }
+    return set_;
+}
+
+
+void Pick::List::reFill()
+{
+    setEmpty();
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+	locs_ += &(set_[idx]);
 }

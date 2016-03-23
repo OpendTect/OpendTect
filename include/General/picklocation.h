@@ -5,7 +5,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		May 2001 / Mar 2016
 ________________________________________________________________________
 
@@ -96,6 +96,7 @@ public:
     Location&		setBinID(const BinID&,bool updcoord=false);
     Location&		setSurvID(Pos::SurvID,bool updfromcoord=true);
 
+    bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;
     void		setKeyedText(const char* key,const char* txt);
     void		removeTextKey(const char* key);
@@ -120,6 +121,10 @@ public:
     /* mDeprecated */ TrcKey		trckey_;
     /* mDeprecated */ Sphere		dir_;
     /* mDeprecated */ BufferString*	text_;
+
+protected:
+
+    bool		fndKeyTxt(const char*,BufferString*) const;
 
 };
 

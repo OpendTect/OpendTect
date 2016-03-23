@@ -5,8 +5,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
- Date:		May 2001
+ Author:	Bert
+ Date:		May 2001 / Mar 2016
  Contents:	PickSet base classes
  RCS:		$Id$
 ________________________________________________________________________
@@ -14,14 +14,11 @@ ________________________________________________________________________
 -*/
 
 #include "picklocation.h"
-
-#include "color.h"
 #include "enums.h"
-#include "multiid.h"
 #include "namedobj.h"
 #include "sets.h"
+#include "draw.h"
 #include "tableascio.h"
-#include "undo.h"
 template <class T> class ODPolygon;
 
 
@@ -62,8 +59,11 @@ public:
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&) const;
+    void		getLocations(ObjectSet<Location>&);
+    void		getLocations(ObjectSet<const Location>&) const;
     float		getXYArea() const;
 			//!<Only for closed polygons. Returns in m^2.
+
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -76,111 +76,51 @@ public:
     void		appendWithUndo(const Pick::Location&);
     void		moveWithUndo(int,const Pick::Location&,
 					const Pick::Location&);
+
 private:
+
     enum EventType      { Insert, PolygonClose, Remove, Move };
     void		addUndoEvent(EventType,int,const Pick::Location&);
 
 };
 
 
-/*!\brief Utility to manage pick set lifecycles.
-          Also supports change notifications.
+/*!\brief List of locations managed by a PickSet */
 
- You can create your own set manager for your own special pick sets.
- There is a OD-wide Mgr() available which is supposed to hold all 'plain'
- picksets loaded in the OD-tree.
-
- A new special-purpose manager is created by passing your own name to the
- static getMgr() method.
-
- */
-
-mExpClass(General) SetMgr : public NamedObject
+mExpClass(General) List : OD::Set
 {
 public:
-			~SetMgr();
-    int			size() const		{ return pss_.size(); }
-    Set&		get( int idx )		{ return *pss_[idx]; }
-    const Set&		get( int idx ) const	{ return *pss_[idx]; }
-    const MultiID&	id( int idx ) const;
 
-    int			indexOf(const char*) const;
-    int			indexOf(const Set&) const;
-    int			indexOf(const MultiID&) const;
+    typedef ObjectSet<Location>::size_type   size_type;
 
-    // Convenience. Check indexOf() if presence is not sure
-    Set&		get( const MultiID& i )		{ return *find(i); }
-    const Set&		get( const MultiID& i ) const	{ return *find(i); }
-    const MultiID&	get( const Set& s ) const	{ return *find(s); }
-    Set&		get( const char* s )		{ return *find(s); }
-    const Set&		get( const char* s ) const	{ return *find(s); }
+				List(Pick::Set&,bool addall=true);
+				List(const Pick::Set&,bool addall=true);
 
-    void		set(const MultiID&,Set*);
-			//!< add, replace or remove (pass null Set ptr).
-			//!< Set is already, or becomes *mine*
-			//!< Note that replacement will trigger two callbacks
-    void		setID(int idx,const MultiID&);
+    ObjectSet<Location>&	locations();
+    ObjectSet<const Location>&	locations() const;
 
-    struct ChangeData : public CallBacker
-    {
-	enum Ev		{ Added, Changed, ToBeRemoved };
+    Pick::Set&			source();
+    const Pick::Set&		source() const	    { return set_; }
 
-			ChangeData( Ev e, const Set* s, int l )
-			    : ev_(e), set_(s), loc_(l)		{}
+    inline size_type		size() const	    { return locs_.size(); }
 
-	Ev		ev_;
-	const Set*	set_;
-	const int	loc_;
-			//<refers to the idx in set_
-    };
+				// OD::Set interface
+    virtual od_int64		nrItems() const	    { return size(); }
+    virtual bool		validIdx( od_int64 i ) const
+						    { return locs_.validIdx(i);}
+    virtual void		swap( od_int64 i1, od_int64 i2 )
+						    { locs_.swap(i1,i2);}
+    virtual void		erase()		    { locs_.erase(); }
 
-    void		reportChange(CallBacker* sender,const ChangeData&);
-    void		reportChange(CallBacker* sender,const Set&);
-    void		reportDispChange(CallBacker* sender,const Set&);
-
-    Notifier<SetMgr>	locationChanged;//!< Passes ChangeData*
-    Notifier<SetMgr>	setToBeRemoved;	//!< Passes Set*
-    Notifier<SetMgr>	setAdded;	//!< passes Set*
-    Notifier<SetMgr>	setChanged;	//!< passes Set*
-    Notifier<SetMgr>	setDispChanged;	//!< passes Set*
-    void		removeCBs(CallBacker*);
-
-    bool		isChanged( int idx ) const
-			{ return idx < changed_.size()
-				? (bool) changed_[idx] : false;}
-    void		setUnChanged( int idx, bool yn=true )
-			{ if ( changed_.validIdx(idx) ) changed_[idx] = !yn; }
-
-    Undo&		undo();
-    const Undo&		undo() const;
-
-    static SetMgr&	getMgr(const char*);
-
-			SetMgr( const char* nm );
-			//!< creates an unmanaged SetMgr
-			//!< Normally you don't want that, use getMgr() instead
+    void			reFill();
 
 protected:
 
-    Undo&		undo_;
-    ObjectSet<Set>	pss_;
-    TypeSet<MultiID>	ids_;
-    BoolTypeSet		changed_;
+    const bool		isconst_;
+    ObjectSet<Location>	locs_;
+    Pick::Set&		set_;
 
-    void		add(const MultiID&,Set*);
-    Set*		find(const MultiID&) const;
-    MultiID*		find(const Set&) const;
-    Set*		find(const char*) const;
-
-    void		survChg(CallBacker*);
-    void		objRm(CallBacker*);
-    void		removeAll();
 };
-
-inline SetMgr& Mgr()
-{
-    return SetMgr::getMgr(0);
-}
 
 } // namespace Pick
 
@@ -199,5 +139,10 @@ public:
     bool			get(od_istream&,Pick::Set&,bool iszreq,
 				    float zval) const;
 };
+
+
+/* This include will go away after 6.0 */
+#include "picksetmgr.h"
+
 
 #endif

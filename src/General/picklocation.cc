@@ -223,24 +223,25 @@ Pick::Location& Pick::Location::setText( const char* txt )
 }
 
 
+bool Pick::Location::hasTextKey( const char* key ) const
+{ return fndKeyTxt( key, 0 ); }
+bool Pick::Location::getKeyedText( const char* key, BufferString& val ) const
+{ return fndKeyTxt( key, &val ); }
+
 bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 { return getKeyedText(idkey,val); }
-bool Pick::Location::getKeyedText( const char* idkey, BufferString& val ) const
+
+bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 {
     if ( !text_ || !*text_ )
-	{ val.setEmpty(); return false; }
+	{ if ( val ) val->setEmpty(); return false; }
 
     SeparString sepstr( *text_, '\'' );
     const int strsz = sepstr.size();
-    if ( !strsz ) return false;
-
     for ( int idx=0; idx<strsz; idx+=2 )
     {
-	if ( sepstr[idx] != idkey )
-	    continue;
-
-	val = sepstr[idx+1];
-	return true;
+	if ( sepstr[idx] == key )
+	    { if ( val ) *val = sepstr[idx+1]; return true; }
     }
 
     return false;
@@ -252,12 +253,14 @@ void Pick::Location::setText( const char* key, const char* txt )
 void Pick::Location::setKeyedText( const char* key, const char* txt )
 {
     removeTextKey( key );
+    if ( !txt || !*txt )
+	return;
+
     if ( !text_ )
 	text_ = new BufferString;
     SeparString sepstr( *text_, '\'' );
-    sepstr.add( key );
-    sepstr.add( txt );
-    *text_ = sepstr;
+    sepstr.add( key ).add( txt );
+    setText( sepstr );
 }
 
 
@@ -265,7 +268,7 @@ void Pick::Location::unSetText( const char* key )
 { removeTextKey(key); }
 void Pick::Location::removeTextKey( const char* key )
 {
-    if ( !text_ )
+    if ( !hasText() )
 	return;
 
     SeparString sepstr( *text_, '\'' );
@@ -278,32 +281,34 @@ void Pick::Location::removeTextKey( const char* key )
 	const int nrkeys = sepstr.size();
 	for ( int idy=0; idy<nrkeys; idy++ )
 	{
-	    if ( idy==idx || idy==idx+1 )
-		continue;
-
-	    copy.add( sepstr[idy] );
+	    if ( idy!=idx && idy!=idx+1 )
+		copy.add( sepstr[idy] );
 	}
 
 	sepstr = copy;
-	idx-=2;
+	idx -= 2;
     }
 
-    (*text_) = sepstr;
+    setText( sepstr );
 }
 
 
 #define mReadVal(type,readFunc) \
-{ \
     if ( !*str ) return mUdf(type); \
     char* endptr = str; mSkipNonBlanks( endptr ); \
     if ( *endptr ) *endptr++ = '\0'; \
     type v = readFunc( str ); \
     str = endptr; mSkipBlanks(str); \
-    return v; \
-}
+    return v
 
-static double getNextVal( char*& str )	{ mReadVal( double, toDouble ) }
-static int getNextInt( char*& str )	{ mReadVal( int, toInt ) }
+static double getNextVal( char*& str )
+{
+    mReadVal( double, toDouble );
+}
+static int getNextInt( char*& str )
+{
+    mReadVal( int, toInt );
+}
 
 
 bool Pick::Location::fromString( const char* s )
