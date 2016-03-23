@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "survgeom.h"
 #include "trckeyvalue.h"
+#include "survinfo.h" // convenient for fallback
 
 #include <ctype.h>
 #include <math.h>
@@ -386,6 +387,32 @@ TrcKey::SurvID TrcKey::cUndefSurvID()
 {
     return Survey::GeometryManager::cUndefGeomID();
 }
+
+
+TrcKey& TrcKey::setFrom( const Coord& crd )
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );
+    if ( !geom )
+    {
+	geom = Survey::GM().getGeometry( std3DSurvID() );
+	if ( !geom )
+	{
+	    pErrMsg( "No default Survey ID" );
+	    pos_ = SI().transform( crd );
+	    return *this;
+	}
+    }
+
+    *this = geom->getTrace( crd, mUdf(float) );
+    return *this;
+}
+
+
+Coord TrcKey::getCoord() const
+{
+    return Survey::Geometry::toCoord( *this );
+}
+
 
 
 double TrcKey::distTo( const TrcKey& trckey ) const

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
+#include "picklocation.h"
 
 #include "color.h"
 #include "enums.h"
@@ -21,70 +21,12 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "sets.h"
 #include "tableascio.h"
-#include "trckey.h"
-#include "trigonometry.h"
 #include "undo.h"
 template <class T> class ODPolygon;
 
 
 namespace Pick
 {
-
-/*!\brief Pick location in space */
-
-mExpClass(General) Location
-{
-public:
-			Location(double x=0,double y=0,double z=0);
-			Location(const Coord&,float z=0);
-			Location(const Coord3&);
-			Location(const Coord3& pos,const Coord3& dir);
-			Location(const Coord3& pos,const Sphere& dir);
-			Location(const Location&);
-			~Location();
-
-    inline bool		operator ==( const Location& pl ) const
-			{ return pos_ == pl.pos_ && dir_ == pl.dir_; }
-    inline bool		operator !=( const Location& pl ) const
-			{ return !(*this == pl); }
-    void		operator =(const Location&);
-
-    bool		fromString(const char*,bool doxy=true,
-				   bool checkdir=true);
-    void		toString(BufferString&,bool forexport=false) const;
-
-    Coord3		pos_;
-    TrcKey		trckey_;
-			/*!<If Undef, defined by pos_.
-			    If defined, z-value is defined in pos_.z */
-    Sphere		dir_;/*!< Optional direction at location.
-			          phi is defined as the direction's
-				  counter-clockwise angle from the x-axis in
-				  the x-y plane.
-				  theta is defined as the directions angle from
-				  the upward pointing z axis (i.e. opposite to
-				  survey-z-axis).
-			     \note theta and the radius are defined after thes
-				  SI().zFactor is applied to the z-coordinate.
-			     */
-
-    BufferString*	text_; //!<Optional text at location
-
-    void		setText(const char* key,const char* txt);
-    void		unSetText(const char* key);
-    bool		getText(const char* key,BufferString&) const;
-
-    void		setDip(float,float);
-    float		inlDip() const;
-    float		crlDip() const;
-
-    inline bool		hasDir() const
-			{ return !mIsZero(dir_.radius,mDefEps)
-			      || !mIsZero(dir_.theta,mDefEps)
-			      || !mIsZero(dir_.phi,mDefEps); }
-
-};
-
 
 /*!\brief Set of picks with something in common */
 

@@ -80,6 +80,9 @@ public:
     inline TrcKey&	setCrl( IdxType nr )
 			{ return setTrcNr(nr); }
 
+    TrcKey&		setFrom(const Coord&);	//!< Uses survID
+    Coord		getCoord() const;	//!< Uses survID
+
     /* mDeprecated */ const BinID& pos() const	{ return pos_; }
 			//!< Will go after 6.0. Use position() or binID()
     /* mDeprecated */ void setPos( const BinID& bid )	{ pos_ = bid; }
