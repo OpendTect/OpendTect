@@ -687,7 +687,8 @@ ObjectSet<Pick::Location>& Pick::List::locations()
 
 ObjectSet<const Pick::Location>& Pick::List::locations() const
 {
-    return (ObjectSet<const Pick::Location>&)locs_;
+    void* ptr = const_cast<ObjectSet<Pick::Location>*>( &locs_ );
+    return *((ObjectSet<const Pick::Location>*)ptr);
 }
 
 
