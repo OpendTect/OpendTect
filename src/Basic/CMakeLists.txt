@@ -63,6 +63,7 @@ set( OD_MODULE_SOURCES
 	filepath.cc
 	filespec.cc
 	genc.cc
+	gpuprog.cc
 	globexpr.cc
 	iopar.cc
 	initbasic.cc

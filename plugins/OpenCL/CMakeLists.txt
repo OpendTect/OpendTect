@@ -4,21 +4,20 @@
 # 	Mar 2016	K. Tingdahl
 #_______________________________________________________________________________
 
-set( OD_IS_PLUGIN TRUE )
+if ( OpenCL_FOUND )
+    set( OD_IS_PLUGIN TRUE )
+    set( OD_MODULE_DEPS Basic )
 
-set( OD_MODULE_DEPS Basic )
+    set( OD_TEST_PROGS
+	opencl.cc
+    )
 
-set( OD_TEST_PROGS
-)
+    set( OD_MODULE_SOURCES
+	openclplatform.cc
+	openclpi.cc
+    )
 
-set( OD_NIGHTLY_TEST_PROGS
-)
+    OD_SETUP_OPENCL()
 
-set( OD_MODULE_SOURCES
-    openclplatform.cc
-    openclpi.cc
-)
-
-OD_SETUP_OPENCL()
-
-OD_INIT_MODULE()
+    OD_INIT_MODULE()
+endif( OpenCL_FOUND )

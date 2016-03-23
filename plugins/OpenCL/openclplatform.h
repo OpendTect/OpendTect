@@ -12,22 +12,26 @@ ________________________________________________________________________
 -*/
 
 #include "openclmod.h"
-#include "commondefs.h"
-#include "bufstring.h"
 
-template <class T> class ObjectSet;
+#include "gpuprog.h"
+#include <OpenCL/cl.h>
 
 
 namespace OpenCL
 {
-    mExpClass(OpenCL) Platform
+    mExpClass(OpenCL) Device : public GPU::Device
     {
     public:
-        static void				initClass();
-        static const ObjectSet<Platform>&	getPlatforms();
+        cl_device_id			deviceid_;
+    };
     
-        BufferString                            vendor_;
-        BufferString                            name_;
+    
+    mExpClass(OpenCL) Platform : public GPU::Platform
+    {
+    public:
+        static bool			initClass();
+        
+        cl_platform_id 			platformid_;
     };
 
 }  //namespace
