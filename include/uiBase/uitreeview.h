@@ -105,6 +105,8 @@ public:
 
     void		clear();
     void		selectAll();
+    void		checkAll();
+    void		uncheckAll();
 
     void		expandAll();
     void		collapseAll();
