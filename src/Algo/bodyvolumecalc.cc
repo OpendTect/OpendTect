@@ -42,6 +42,10 @@ uiString BodyVolumeCalculator::uiMessage() const
 { return tr("Computing volume"); }
 
 
+uiString BodyVolumeCalculator::uiNrDoneText() const
+{ return tr("Nr of slices computed"); }
+
+
 bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( mIsUdf(unitvol_) || mIsUdf(threshold_) )
@@ -55,7 +59,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     {
 	for ( int idy=0; idy<crlsz-1; idy++ )
 	{
-	    for ( int idz=(int) start; idz<stop; idz++ )
+	    for ( int idz=(int) start; idz<=stop; idz++ )
 	    {
 		bool inside[8];
 		inside[0] = arr_.get(idx,idy,idz) <= threshold_;

@@ -37,6 +37,7 @@ public:
 protected:
 
     od_int64		nrIterations() const;
+    uiString		uiNrDoneText() const;
     bool		doWork(od_int64 start,od_int64 stop,int threadid);
     uiString		uiMessage() const;
 

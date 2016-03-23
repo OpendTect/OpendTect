@@ -163,6 +163,8 @@ public:
 		~MarchingCubes2Implicit();
 
     float	threshold() const { return 0; }
+    uiString	uiNrDoneText() const
+		{ return tr("Flood fills performed"); }
     uiString	uiMessage() const
 		{ return tr("Processing MarchingCubes2Implicit."); }
 
