@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "binid.h"
-class Coord;
 
 /*!
 \brief Represents a unique trace position in one of the surveys that OpendTect

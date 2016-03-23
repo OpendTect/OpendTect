@@ -60,17 +60,18 @@ Pick::Location::Location( const Coord3& c, const Sphere& d )
     dir_ = new Sphere( d );
 }
 
-Pick::Location::Location( const Location& pl )
+Pick::Location::Location( const Location& oth )
     : mInitPtrs
 {
-    *this = pl;
+    *this = oth;
 }
 
 
 Pick::Location::~Location()
 {
-    if ( text_ )
-	delete text_;
+    delete trckey_;
+    delete dir_;
+    delete text_;
 }
 
 
@@ -422,7 +423,7 @@ bool Pick::Location::fromString( const char* s )
 
 void Pick::Location::toString( BufferString& str, bool forexport ) const
 {
-    str = "";
+    str.setEmpty();
     if ( text_ && *text_ )
     {
 	BufferString txt( *text_ );
