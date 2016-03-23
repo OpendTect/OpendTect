@@ -100,7 +100,10 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
 	mErrStrmRet("Failed")
 
     for ( int idx=0; idx<ps.size(); idx++ )
-	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << "\n";
+    {
+	const Coord3 pos = ps[idx].pos();
+	*sd.ostrm << pos.x << " " << pos.y << "\n";
+    }
 
     sd.close();
     strm << "Done" << od_endl;

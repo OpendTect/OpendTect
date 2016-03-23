@@ -391,7 +391,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		    mErrRet( errmsg, false )
 	    }
 	    for ( int idx=0; idx<pickset.size(); idx++ )
-		ptlist += pickset[idx].pos_;
+		ptlist += pickset[idx].pos();
 	    break;
 	}
 	case RandomLine:

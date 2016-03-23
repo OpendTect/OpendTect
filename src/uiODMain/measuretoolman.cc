@@ -203,7 +203,7 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 {
     TypeSet<Coord3> crds;
     for ( int idx=0; idx<set.size(); idx++ )
-	crds += set[idx].pos_;
+	crds += set[idx].pos();
 
     dlg.fill( crds );
 }

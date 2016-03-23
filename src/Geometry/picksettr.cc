@@ -158,7 +158,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	while ( !atEndOfSection(astrm) )
 	{
 	    Pick::Location loc;
-	    loc.trckey_.setSurvID( survid );
+	    loc.setSurvID( survid, false );
 	    if ( loc.fromString(astrm.keyWord()) )
 		ps += loc;
 
@@ -226,8 +226,7 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
-	TypeSet<Coord3> crds;
-    TypeSet<TrcKey> tks;
+	TypeSet<Coord3> crds; TypeSet<TrcKey> tks;
 	if ( !getCoordSet(ioobjids.get(idx),crds,tks,errmsg) )
 	    continue;
 
@@ -237,8 +236,8 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 	DataPointSet::DataRow dr;
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
-	    const Coord3& crd( crds[ipck] );
-	    dr.pos_.set( crd ); //TODO: update with TrcKey
+	    dr.pos_ = crds[ipck];
+	    //TODO use tks[ipck] in some way;
 	    dps->addRow( dr );
 	}
 	dps->dataChanged();
@@ -269,8 +268,8 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
     {
-	crds += ((*ps)[ipck]).pos_;
-	tks += ((*ps)[ipck]).trckey_;
+	crds += ((*ps)[ipck]).pos();
+	tks += ((*ps)[ipck]).trcKey();
     }
 
     delete createdps;
@@ -309,7 +308,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     for ( int idx=0; idx<ps.size(); idx++ )
     {
 	const Pick::Location& pl = ps[idx];
-	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
+	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
 	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
     }
 

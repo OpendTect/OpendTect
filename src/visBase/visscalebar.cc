@@ -36,7 +36,7 @@ ScaleBar::ScaleBar()
     , markers_(new visBase::MarkerSet())
     , lines_(new visBase::Lines())
 {
-    firstloc_.pos_ = Coord3::udf();
+    firstloc_.setPos( Coord3::udf() );
 
     markers_->setMaterial( 0 );
     markers_->setMarkerStyle( OD::MarkerStyle3D::Sphere );
@@ -109,12 +109,12 @@ void ScaleBar::setPick( const Pick::Location& loc )
 
 void ScaleBar::updateVis( const Pick::Location& loc )
 {
-    if ( !loc.pos_.isDefined() || loc.dir_==Sphere() )
+    if ( !loc.hasPos() )
 	return;
 
-    pos_ = loc.pos_;
-    const Coord3 pos2 = getSecondPos( loc );  
-    if ( !pos_.isDefined() || !pos2.isDefined() )
+    pos_ = loc.pos();
+    const Coord3 pos2 = getSecondPos( loc );
+    if ( !pos2.isDefined() )
 	return;
 
     markers_->setPos( 0, pos_ );
@@ -139,12 +139,12 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
     {
 	if ( orientation_ == 1 )
 	{
-	    pos = loc.pos_;
+	    pos = loc.pos();
 	    pos.z += length_;
 	}
-	else
+	else if ( loc.hasDir() )
 	{
-	    const Coord3 vector = spherical2Cartesian( loc.dir_, true );
+	    const Coord3 vector = spherical2Cartesian( loc.dir(), true );
 	    const double signx = vector.x > 0 ? 1 : -1;
 	    const double signy = vector.y > 0 ? 1 : -1;
 
@@ -156,13 +156,13 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 	    const double dx2 = vx2 * factor;
 	    const double dy2 = vy2 * factor;
 
-	    pos = loc.pos_ +
+	    pos = loc.pos() +
 		Coord3( signx*Math::Sqrt(dx2), signy*Math::Sqrt(dy2), 0 );
 	}
     }
     else
     {
-	pos = loc.pos_;
+	pos = loc.pos();
 	if ( orientation_ == 0 )
 	    pos.x += length_;
 	else

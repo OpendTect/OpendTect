@@ -247,7 +247,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     int locidx = -1;
     for ( int idx=0; idx<set->size(); idx++ )
     {
-	const double dst = dpscrd.distTo( (*set)[idx].pos_ );
+	const double dst = dpscrd.distTo( (*set)[idx].pos() );
 	if ( dst > mindist ) continue;
 
 	mindist = dst;
@@ -322,7 +322,7 @@ void uiDataPointSetPickDlg::updateDPS()
     {
 	DataPointSet::Pos pos;
 	const Pick::Location loc = (*set)[idx];
-	pos.set( loc.pos_ );
+	pos.set( loc.pos() );
 	DataPointSet::DataRow row( pos );
 	row.data_ += values_[idx];
 	dps_.addRow( row );
@@ -371,7 +371,7 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
 {
     setCaption( tr("Surface data picking") );
 
-    uiPushButton* interpolbut = new uiPushButton( this, tr("Interpolate"), 
+    uiPushButton* interpolbut = new uiPushButton( this, tr("Interpolate"),
 									true );
     interpolbut->activated.notify(
 	mCB(this,uiEMDataPointSetPickDlg,interpolateCB) );

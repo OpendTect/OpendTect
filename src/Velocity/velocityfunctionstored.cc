@@ -182,10 +182,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
     ::Pick::Set pickset( ioobj->name() );
     uiString errmsg;
     if ( !PickSetTranslator::retrieve(pickset,ioobj,errmsg) )
-    {
-	errmsg_ = mFromUiStringTodo( errmsg );
-	return false;
-    }
+	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
 
     if ( !pickset.pars_.getYN( sKeyZIsTime(), zit_ ) ||
 	 !desc_.usePar( pickset.pars_ ) )
@@ -193,21 +190,20 @@ bool StoredFunctionSource::load( const MultiID& velid )
 
     veldata_.setEmpty();
     veldata_.setNrVals( 2 );
-    float vals[2];
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos_ );
-
-	vals[0] = (float) pspick.pos_.z;
-	vals[1] = pspick.dir_.radius;
-
-	veldata_.add( bid, vals );
+	const ::Pick::Location& ploc = pickset[idx];
+	if ( ploc.hasPos() && ploc.hasDir() )
+	{
+	    float vals[2];
+	    vals[0] = (float)ploc.pos().z;
+	    vals[1] = ploc.dir().radius;
+	    veldata_.add( ploc.binID(), vals );
+	}
     }
 
     mid_ = velid;
-
     return true;
 }
 
@@ -221,28 +217,20 @@ void StoredFunctionSource::getAvailablePositions( BinIDValueSet& binvals) const
 }
 
 
-StoredFunction* StoredFunctionSource::createFunction(const BinID& binid)
+StoredFunction* StoredFunctionSource::createFunction( const BinID& binid )
 {
     StoredFunction* res = new StoredFunction( *this );
     if ( !res->moveTo(binid) )
-    {
-	delete res;
-	return 0;
-    }
-
+	{ delete res; return 0; }
     return res;
 }
 
 
-FunctionSource* StoredFunctionSource::create(const MultiID& mid)
+FunctionSource* StoredFunctionSource::create( const MultiID& mid )
 {
     StoredFunctionSource* res = new StoredFunctionSource;
     if ( !res->load( mid ) )
-    {
-	delete res;
-	return 0;
-    }
-
+	{ delete res; return 0; }
     return res;
 }
 
@@ -250,9 +238,7 @@ FunctionSource* StoredFunctionSource::create(const MultiID& mid)
 bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 				   TypeSet<float>& vel )
 {
-    zval.erase();
-    vel.erase();
-
+    zval.erase(); vel.erase();
     if ( !veldata_.isValid(binid) )
 	return false;
 
@@ -265,6 +251,7 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 	const float* vals = veldata_.getVals( pos );
 	zval += vals[0];
 	vel += vals[1];
+
     } while ( veldata_.next(pos) );
 
     return true;
@@ -321,4 +308,4 @@ StepInterval<float> StoredFunction::getAvailableZ() const
     return desiredrg_;
 }
 
-}; //namespace
+} //namespace

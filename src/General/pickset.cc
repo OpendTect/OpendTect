@@ -7,316 +7,22 @@
 
 #include "pickset.h"
 #include "draw.h"
-
 #include "ioman.h"
 #include "iopar.h"
 #include "multiid.h"
 #include "od_iostream.h"
 #include "polygon.h"
-#include "separstr.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
 #include <ctype.h>
 
-
-static char pipechar = '|';
-static char newlinechar = '\n';
-static const char* sKeyDip = "Dip";
-
-
-namespace Pick
-{
-
-Location::Location( double x, double y, double z )
-    : pos_(x,y,z), text_(0)
-    , trckey_( TrcKey::udf() )
-{}
-
-Location::Location( const Coord& c, float z )
-    : pos_(c,z), text_(0)
-    , trckey_( TrcKey::udf() )
-{}
-
-Location::Location( const Coord3& c )
-    : pos_(c), text_(0)
-    , trckey_( TrcKey::udf() )
-{}
-
-Location::Location( const Coord3& c, const Coord3& d )
-    : pos_(c), dir_(d), text_(0)
-    , trckey_( TrcKey::udf() )
-{}
-
-Location::Location( const Coord3& c, const Sphere& d )
-    : pos_(c), dir_(d), text_(0)
-    , trckey_( TrcKey::udf() )
-{}
-
-Location::Location( const Location& pl )
-    : text_(0)
-{ *this = pl; }
-
-
-Location::~Location()
-{
-    if ( text_ ) delete text_;
-}
-
-
-void Location::operator=( const Location& pl )
-{
-    pos_ = pl.pos_;
-    dir_ = pl.dir_;
-    trckey_ = pl.trckey_;
-
-    if ( pl.text_ )
-    {
-	if ( !text_ )
-	    text_ = new BufferString( *pl.text_ );
-	else
-	    *text_ = *pl.text_;
-    }
-}
-
-
-void Location::setText( const char* key, const char* txt )
-{
-    unSetText( key );
-    if ( !text_ ) text_ = new BufferString;
-    SeparString sepstr( *text_, '\'' );
-
-    sepstr.add( key );
-    sepstr.add( txt );
-    *text_ = sepstr;
-}
-
-
-void Location::unSetText( const char* key )
-{
-    if ( !text_ ) return;
-    SeparString sepstr( *text_, '\'' );
-    for ( int idx=0; idx<sepstr.size(); idx+=2 )
-    {
-	if ( sepstr[idx] != key )
-	    continue;
-
-	SeparString copy( 0, '\'' );
-	const int nrkeys = sepstr.size();
-	for ( int idy=0; idy<nrkeys; idy++ )
-	{
-	    if ( idy==idx || idy==idx+1 )
-		continue;
-
-	    copy.add( sepstr[idy] );
-	}
-
-	sepstr = copy;
-	idx-=2;
-    }
-
-    (*text_) = sepstr;
-}
-
-
-#define mReadVal(type,readFunc) \
-{ \
-    if ( !*str ) return mUdf(type); \
-    char* endptr = str; mSkipNonBlanks( endptr ); \
-    if ( *endptr ) *endptr++ = '\0'; \
-    type v = readFunc( str ); \
-    str = endptr; mSkipBlanks(str); \
-    return v; \
-}
-
-static double getNextVal( char*& str )	{ mReadVal( double, toDouble ) }
-static int getNextInt( char*& str )	{ mReadVal( int, toInt ) }
-
-
-bool Location::fromString( const char* s )
-{
-    if ( !s || !*s ) return false;
-
-    if ( *s == '"' )
-    {
-	s++;
-
-	if ( !text_ ) text_ = new BufferString( s );
-	else *text_ = s;
-
-	char* start = text_->getCStr();
-	char* stop = firstOcc( start, '"' );
-	if ( !stop )
-	{
-	    delete text_;
-	    text_ = 0;
-	}
-	else
-	{
-	    *stop = '\0';
-	    s += stop - start + 1;
-	    text_->replace( newlinechar, pipechar );
-	}
-    }
-    else if ( text_ )
-    {
-	delete text_;
-	text_ = 0;
-    }
-
-    BufferString bufstr( s );
-    char* str = bufstr.getCStr();
-    mSkipBlanks(str);
-
-    Coord3 posread;
-    posread.x = getNextVal( str );
-    posread.y = getNextVal( str );
-    posread.z = getNextVal( str );
-    if ( posread.isUdf() )
-	return false;
-
-    pos_ = posread;
-
-    mSkipBlanks(str);
-    const FixedString data( str );
-    if ( data.count( '\t' ) > 1 )
-    { // Read the direction too before any trace key information
-	Coord3 dirread;
-	dirread.x = getNextVal( str );
-	dirread.y = getNextVal( str );
-	dirread.z = getNextVal( str );
-
-	if ( !mIsUdf(dirread.y) )
-	{
-	    if ( mIsUdf(dirread.z) ) dirread.z = 0.;
-	    dir_ = Sphere( dirread );
-	}
-    }
-
-    mSkipBlanks(str);
-
-    //Old files: trckey_ left undef
-    const Pos::SurvID survid( trckey_.survID() );
-    if ( survid == TrcKey::cUndefSurvID() || !str )
-	return true;
-
-    const int firstkey = getNextInt( str );
-    if ( trckey_.is2D() )
-    {
-	if ( Survey::GM().getGeometry(firstkey) )
-	    trckey_.setLineNr( firstkey );
-    }
-    else
-    {
-	if ( !Survey::GM().getGeometry3D(survid) )
-	    return false;
-
-	trckey_.setLineNr( firstkey ); //No check for valid inline number ?
-    }
-
-    trckey_.setTrcNr( getNextInt(str) ); //No check for valid trace number ?
-
-    return !trckey_.position().isUdf();
-}
-
-
-void Location::toString( BufferString& str, bool forexport ) const
-{
-    str = "";
-    if ( text_ && *text_ )
-    {
-	BufferString txt( *text_ );
-	txt.replace( newlinechar, pipechar );
-	str.set( "\"" ).add( txt ).add( "\"\t" );
-    }
-
-    Coord3 usepos( pos_ );
-    if ( forexport )
-    {
-	mPIEPAdj(Coord,usepos,false);
-	if ( mPIEP.haveZChg() )
-	{
-	    float z = (float)usepos.z;
-	    mPIEPAdj(Z,z,false);
-	    usepos.z = z;
-	}
-
-	usepos.z = usepos.z * SI().showZ2UserFactor();
-    }
-
-    str.add( usepos.x ).add( od_tab ).add( usepos.y );
-    str.add( od_tab ).add( usepos.z );
-    if ( hasDir() )
-    {
-	str.add( od_tab ).add( dir_.radius ).add( od_tab );
-	str.add( dir_.theta ).add( od_tab ).add( dir_.phi );
-    }
-
-    if ( trckey_.isUdf() || trckey_.position().isUdf() )
-	return;
-
-    //actually both calls return the same, but for the clarity
-    if ( trckey_.is2D() )
-	str.add( od_tab ).add( trckey_.geomID() );
-    else
-	str.add( od_tab ).add( trckey_.lineNr() );
-
-    str.add( od_tab ).add( trckey_.trcNr() );
-}
-
-
-bool Location::getText( const char* idkey, BufferString& val ) const
-{
-    if ( !text_ || !*text_ )
-	{ val.setEmpty(); return false; }
-
-    SeparString sepstr( *text_, '\'' );
-    const int strsz = sepstr.size();
-    if ( !strsz ) return false;
-
-    for ( int idx=0; idx<strsz; idx+=2 )
-    {
-	if ( sepstr[idx] != idkey )
-	    continue;
-
-	val = sepstr[idx+1];
-	return true;
-    }
-
-    return false;
-}
-
-
-void Location::setDip( float inldip, float crldip )
-{
-    SeparString dipvaluetext;
-    dipvaluetext += ::toString( inldip );
-    dipvaluetext += ::toString( crldip );
-    setText( sKeyDip, dipvaluetext.buf() );
-}
-
-
-float Location::inlDip() const
-{
-    BufferString dipvaluetext;
-    getText( sKeyDip, dipvaluetext );
-    const SeparString dipstr( dipvaluetext );
-    return dipstr.getFValue( 0 );
-}
-
-
-float Location::crlDip() const
-{
-    BufferString dipvaluetext;
-    getText( sKeyDip, dipvaluetext );
-    const SeparString dipstr( dipvaluetext );
-    return dipstr.getFValue( 1 );
-}
+static const char* sKeyConnect = "Connect";
 
 
 // Pick::SetMgr
-SetMgr& SetMgr::getMgr( const char* nm )
+Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 {
     mDefineStaticLocalObject( PtrMan<ManagedObjectSet<SetMgr> >, mgrs, = 0 );
     SetMgr* newmgr = 0;
@@ -345,7 +51,7 @@ SetMgr& SetMgr::getMgr( const char* nm )
 }
 
 
-SetMgr::SetMgr( const char* nm )
+Pick::SetMgr::SetMgr( const char* nm )
     : NamedObject(nm)
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
@@ -358,7 +64,7 @@ SetMgr::SetMgr( const char* nm )
 }
 
 
-SetMgr::~SetMgr()
+Pick::SetMgr::~SetMgr()
 {
     detachAllNotifiers();
     undo_.removeAll();
@@ -366,14 +72,14 @@ SetMgr::~SetMgr()
 }
 
 
-void SetMgr::add( const MultiID& ky, Set* st )
+void Pick::SetMgr::add( const MultiID& ky, Set* st )
 {
     pss_ += st; ids_ += ky; changed_ += false;
     setAdded.trigger( st );
 }
 
 
-void SetMgr::set( const MultiID& ky, Set* newset )
+void Pick::SetMgr::set( const MultiID& ky, Set* newset )
 {
     Set* oldset = find( ky );
     if ( !oldset )
@@ -397,28 +103,23 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 }
 
 
-
-const Undo& SetMgr::undo() const	{ return undo_; }
-Undo& SetMgr::undo()			{ return undo_; }
-
-
-const MultiID& SetMgr::id( int idx ) const
+const MultiID& Pick::SetMgr::id( int idx ) const
 { return ids_.validIdx(idx) ? ids_[idx] : MultiID::udf(); }
 
 
-void SetMgr::setID( int idx, const MultiID& mid )
+void Pick::SetMgr::setID( int idx, const MultiID& mid )
 {
     ids_[idx] = mid;
 }
 
 
-int SetMgr::indexOf( const Set& st ) const
+int Pick::SetMgr::indexOf( const Set& st ) const
 {
     return pss_.indexOf( &st );
 }
 
 
-int SetMgr::indexOf( const MultiID& ky ) const
+int Pick::SetMgr::indexOf( const MultiID& ky ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -429,7 +130,7 @@ int SetMgr::indexOf( const MultiID& ky ) const
 }
 
 
-int SetMgr::indexOf( const char* nm ) const
+int Pick::SetMgr::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -440,28 +141,28 @@ int SetMgr::indexOf( const char* nm ) const
 }
 
 
-Set* SetMgr::find( const MultiID& ky ) const
+Pick::Set* Pick::SetMgr::find( const MultiID& ky ) const
 {
     const int idx = indexOf( ky );
     return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
 }
 
 
-MultiID* SetMgr::find( const Set& st ) const
+MultiID* Pick::SetMgr::find( const Set& st ) const
 {
     const int idx = indexOf( st );
     return idx < 0 ? 0 : const_cast<MultiID*>( &ids_[idx] );
 }
 
 
-Set* SetMgr::find( const char* nm ) const
+Pick::Set* Pick::SetMgr::find( const char* nm ) const
 {
     const int idx = indexOf( nm );
     return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
 }
 
 
-void SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
+void Pick::SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
 {
     const int setidx = pss_.indexOf( cd.set_ );
     if ( setidx >= 0 )
@@ -472,7 +173,7 @@ void SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
 }
 
 
-void SetMgr::reportChange( CallBacker* sender, const Set& s )
+void Pick::SetMgr::reportChange( CallBacker* sender, const Set& s )
 {
     const int setidx = pss_.indexOf( &s );
     if ( setidx >= 0 )
@@ -483,7 +184,7 @@ void SetMgr::reportChange( CallBacker* sender, const Set& s )
 }
 
 
-void SetMgr::reportDispChange( CallBacker* sender, const Set& s )
+void Pick::SetMgr::reportDispChange( CallBacker* sender, const Set& s )
 {
     const int setidx = pss_.indexOf( &s );
     if ( setidx >= 0 )
@@ -494,7 +195,7 @@ void SetMgr::reportDispChange( CallBacker* sender, const Set& s )
 }
 
 
-void SetMgr::removeCBs( CallBacker* cb )
+void Pick::SetMgr::removeCBs( CallBacker* cb )
 {
     locationChanged.removeWith( cb );
     setToBeRemoved.removeWith( cb );
@@ -504,7 +205,7 @@ void SetMgr::removeCBs( CallBacker* cb )
 }
 
 
-void SetMgr::removeAll()
+void Pick::SetMgr::removeAll()
 {
     for ( int idx=pss_.size()-1; idx>=0; idx-- )
     {
@@ -515,7 +216,7 @@ void SetMgr::removeAll()
 }
 
 
-void SetMgr::survChg( CallBacker* )
+void Pick::SetMgr::survChg( CallBacker* )
 {
     removeAll();
     locationChanged.cbs_.erase();
@@ -528,7 +229,7 @@ void SetMgr::survChg( CallBacker* )
 }
 
 
-void SetMgr::objRm( CallBacker* cb )
+void Pick::SetMgr::objRm( CallBacker* cb )
 {
     mCBCapsuleUnpack(MultiID,ky,cb);
     if ( indexOf(ky) >= 0 )
@@ -536,159 +237,168 @@ void SetMgr::objRm( CallBacker* cb )
 }
 
 
-class PickSetKnotUndoEvent: public UndoEvent
+namespace Pick
+{
+
+class SetKnotUndoEvent: public UndoEvent
 {
 public:
+
     enum  UnDoType	    { Insert, PolygonClose, Remove, Move };
-    PickSetKnotUndoEvent( UnDoType type, const MultiID& mid, int sidx,
-	const Pick::Location& pos )
-    { init( type, mid, sidx, pos ); }
 
-    void init( UnDoType type, const MultiID& mid, int sidx,
-	const Pick::Location& pos )
+SetKnotUndoEvent( UnDoType type, const MultiID& mid, int sidx,
+		      const Location& loc )
+{
+    init( type, mid, sidx, loc );
+}
+
+void init( UnDoType type, const MultiID& mid, int sidx, const Location& loc )
+{
+    type_ = type;
+    newloc_ = Coord3::udf();
+    loc_ = Coord3::udf();
+
+    mid_ = mid;
+    index_ = sidx;
+    Pick::SetMgr& mgr = Pick::Mgr();
+    Pick::Set& set = mgr.get(mid);
+
+    if ( type == Insert || type == PolygonClose )
     {
-	type_ = type;
-	newpos_ = Coord3::udf();
-	pos_ = Coord3::udf();
+	if ( &set && set.size()>index_ )
+	    loc_ = set[index_];
+    }
+    else if ( type == Remove )
+    {
+	loc_ = loc;
+    }
+    else if ( type == Move )
+    {
+	if ( &set && set.size()>index_ )
+	    loc_ = set[index_];
+	newloc_ = loc;
+    }
+}
 
-	mid_ = mid;
-	index_ = sidx;
-	Pick::SetMgr& mgr = Pick::Mgr();
-	Pick::Set& set = mgr.get(mid);
 
-	if ( type == Insert || type == PolygonClose )
-	{
-	    if ( &set && set.size()>index_ )
-		pos_ = set[index_];
-	}
-	else if ( type == Remove )
-	{
-	    pos_ = pos;
-	}
-	else if ( type == Move )
-	{
-	    if ( &set && set.size()>index_ )
-		pos_ = set[index_];
-	    newpos_ = pos;
-	}
+const char* getStandardDesc() const
+{
+    if ( type_ == Insert )
+	return "Insert Knot";
+    else if ( type_ == Remove )
+	return "Remove";
+    else if ( type_ == Move )
+	return "move";
 
+    return "";
+}
+
+bool unDo()
+{
+    SetMgr& mgr = Pick::Mgr();
+    const int setidx = mgr.indexOf( mid_ );
+    if ( setidx < 0 )
+	return false;
+    Set& set = mgr.get( setidx );
+
+    if ( set.disp_.connect_ == Pick::Set::Disp::Close
+      && index_ == set.size()-1 && type_ != Move )
+	type_ = PolygonClose;
+
+    SetMgr::ChangeData::Ev ev =
+	    type_ == Move   ? SetMgr::ChangeData::Changed
+	: ( type_ == Remove ? SetMgr::ChangeData::Added
+			    : SetMgr::ChangeData::ToBeRemoved );
+
+    SetMgr::ChangeData cd( ev, &set, index_ );
+
+    if ( type_ == Move )
+    {
+       if ( &set && set.size()>index_  && loc_.pos().isDefined() )
+	   set[index_] = loc_;
+    }
+    else if ( type_ == Remove )
+    {
+       if ( loc_.pos().isDefined() )
+	 set.insert( index_, loc_ );
+    }
+    else if ( type_ == Insert  )
+    {
+	set.removeSingle( index_ );
+    }
+    else if ( type_ == PolygonClose )
+    {
+	set.disp_.connect_ = Pick::Set::Disp::Open;
+	set.removeSingle(index_);
     }
 
+    mgr.reportChange( 0, cd );
 
-    const char* getStandardDesc() const
+    return true;
+}
+
+
+bool reDo()
+{
+    SetMgr& mgr = Pick::Mgr();
+    const int setidx = mgr.indexOf( mid_ );
+    if ( setidx < 0 )
+	return false;
+    Set& set = mgr.get( setidx );
+
+    SetMgr::ChangeData::Ev ev =
+		type_ == Move	? SetMgr::ChangeData::Changed
+	    : ( type_ == Remove ? SetMgr::ChangeData::ToBeRemoved
+				: SetMgr::ChangeData::Added );
+
+    Pick::SetMgr::ChangeData cd( ev, &set, index_ );
+
+    if ( type_ == Move )
     {
-	if ( type_ == Insert )
-	    return "Insert Knot";
-	else if ( type_ == Remove )
-	    return "Remove";
-	else if ( type_ == Move )
-	    return "move";
-
-	return "";
+	if ( &set && set.size()>index_ && newloc_.pos().isDefined() )
+	    set[index_] = newloc_;
+    }
+    else if ( type_ == Remove )
+    {
+	set.removeSingle( index_ );
+    }
+    else if ( type_ == Insert )
+    {
+	if ( loc_.pos().isDefined() )
+	    set.insert( index_,loc_ );
+    }
+    else if ( type_ == PolygonClose )
+    {
+	if ( loc_.pos().isDefined() )
+	{
+	    set.disp_.connect_=Pick::Set::Disp::Close;
+	    set.insert( index_, loc_ );
+	}
     }
 
+    mgr.reportChange( 0, cd );
 
-    bool unDo()
-    {
-	Pick::SetMgr& mgr = Pick::Mgr();
-	Pick::Set& set = mgr.get(mid_);
-	if ( !&set ) return false;
-
-	if ( set.disp_.connect_==Pick::Set::Disp::Close &&
-	    index_ == set.size()-1 && type_ != Move )
-	    type_ = PolygonClose;
-
-	Pick::SetMgr::ChangeData::Ev ev = type_ == Move ?
-	    Pick::SetMgr::ChangeData::Changed :
-	    ( type_ == Remove
-	    ? Pick::SetMgr::ChangeData::Added
-	    : Pick::SetMgr::ChangeData::ToBeRemoved );
-
-	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
-
-	if ( type_ == Move )
-	{
-	   if ( &set && set.size()>index_  && pos_.pos_.isDefined() )
-	       set[index_] = pos_;
-	}
-	else if ( type_ == Remove )
-	{
-	   if ( pos_.pos_.isDefined() )
-	     set.insert( index_, pos_ );
-	}
-	else if ( type_ == Insert  )
-	{
-	    set.removeSingle( index_ );
-	}
-	else if ( type_ == PolygonClose )
-	{
-	    set.disp_.connect_ = Pick::Set::Disp::Open;
-	    set.removeSingle(index_);
-	}
-
-	mgr.reportChange( 0, cd );
-
-	return true;
-    }
-
-
-    bool reDo()
-    {
-	Pick::SetMgr& mgr = Pick::Mgr();
-	Pick::Set& set = mgr.get( mid_ );
-	if ( !&set ) return false;
-
-	Pick::SetMgr::ChangeData::Ev ev = type_== Move ?
-	    Pick::SetMgr::ChangeData::Changed :
-	    ( type_ == Remove
-	    ? Pick::SetMgr::ChangeData::ToBeRemoved
-	    : Pick::SetMgr::ChangeData::Added );
-
-	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
-
-	if ( type_ == Move )
-	{
-	    if ( &set && set.size()>index_ && newpos_.pos_.isDefined() )
-		set[index_] = newpos_;
-	}
-	else if ( type_ == Remove )
-	{
-	    set.removeSingle( index_ );
-	}
-	else if ( type_ == Insert )
-	{
-	    if ( pos_.pos_.isDefined() )
-		set.insert( index_,pos_ );
-	}
-	else if ( type_ == PolygonClose )
-	{
-	    if ( pos_.pos_.isDefined() )
-	    {
-		set.disp_.connect_=Pick::Set::Disp::Close;
-		set.insert( index_, pos_ );
-	    }
-	}
-
-	mgr.reportChange( 0, cd );
-
-	return true;
-    }
+    return true;
+}
 
 protected:
-    Pick::Location  pos_;
-    Pick::Location  newpos_;
-    MultiID	    mid_;
-    int		    index_;
-    UnDoType	    type_;
+
+    Location	loc_;
+    Location	newloc_;
+    MultiID	mid_;
+    int		index_;
+    UnDoType	type_;
+
 };
 
+} // namespace Pick
 
 
 // Pick::Set
-    mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
+mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
-Set::Set( const char* nm )
+Pick::Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
 {
@@ -696,19 +406,19 @@ Set::Set( const char* nm )
 }
 
 
-Set::Set( const Set& s )
+Pick::Set::Set( const Set& s )
     : pars_(*new IOPar)
 {
     *this = s;
 }
 
-Set::~Set()
+Pick::Set::~Set()
 {
     delete &pars_;
 }
 
 
-Set& Set::operator=( const Set& s )
+Pick::Set& Pick::Set::operator=( const Set& s )
 {
     if ( &s == this ) return *this;
     copy( s ); setName( s.name() );
@@ -717,7 +427,7 @@ Set& Set::operator=( const Set& s )
 }
 
 
-Pos::SurvID Set::getSurvID() const
+Pos::SurvID Pick::Set::getSurvID() const
 {
     Pos::SurvID survid( TrcKey::cUndefSurvID() );
     pars_.get( sKey::SurveyID(), survid );
@@ -726,13 +436,13 @@ Pos::SurvID Set::getSurvID() const
 }
 
 
-bool Set::is2D() const
+bool Pick::Set::is2D() const
 {
     return TrcKey::is2D( getSurvID() );
 }
 
 
-bool Set::isPolygon() const
+bool Pick::Set::isPolygon() const
 {
     const FixedString typ = pars_.find( sKey::Type() );
     return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
@@ -740,27 +450,27 @@ bool Set::isPolygon() const
 }
 
 
-void Set::getPolygon( ODPolygon<double>& poly ) const
+void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const Coord c( (*this)[idx].pos_ );
+	const Coord c( (*this)[idx].pos() );
 	poly.add( Geom::Point2D<double>( c.x, c.y ) );
     }
 }
 
 
-float Set::getXYArea() const
+float Pick::Set::getXYArea() const
 {
-    if ( size()<3 || disp_.connect_==Set::Disp::None )
+    if ( size()<3 || disp_.connect_==Disp::None )
 	return mUdf(float);
 
     TypeSet<Geom::Point2D<float> > posxy;
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	const Coord localpos = (*this)[idx].pos_;
-	posxy += Geom::Point2D<float>(( float )localpos.x,( float )localpos.y);
+	const Coord localpos = (*this)[idx].pos();
+	posxy += Geom::Point2D<float>( (float)localpos.x, (float)localpos.y );
     }
 
     ODPolygon<float> polygon( posxy );
@@ -775,9 +485,7 @@ float Set::getXYArea() const
 }
 
 
-static const char* sKeyConnect = "Connect";
-
-void Set::fillPar( IOPar& par ) const
+void Pick::Set::fillPar( IOPar& par ) const
 {
     BufferString parstr;
     disp_.mkstyle_.toString( parstr );
@@ -787,7 +495,7 @@ void Set::fillPar( IOPar& par ) const
 }
 
 
-bool Set::usePar( const IOPar& par )
+bool Pick::Set::usePar( const IOPar& par )
 {
     const bool v6_or_earlier = ( par.majorVersion()+par.minorVersion()*0.1 )>0
 	&& ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
@@ -829,61 +537,54 @@ bool Set::usePar( const IOPar& par )
 }
 
 
-void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
+void Pick::Set::addUndoEvent( EventType type, int idx, const Location& loc )
 {
-    Pick::SetMgr& mgr = Pick::Mgr();
+    SetMgr& mgr = Mgr();
     if ( mgr.indexOf(*this) == -1 )
 	return;
 
     const MultiID mid = mgr.get(*this);
     if ( !mid.isEmpty() )
     {
-	PickSetKnotUndoEvent::UnDoType undotype =
-	    (PickSetKnotUndoEvent::UnDoType) type;
-
-	const Pick::Location pos = type == Insert
-				   ? Coord3::udf()
-				   : loc;
-	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent(
-	undotype, mid, idx, pos );
+	SetKnotUndoEvent::UnDoType undotype = (SetKnotUndoEvent::UnDoType)type;
+	const Location touse = type == Insert ? Location(Coord3::udf()) : loc;
+	SetKnotUndoEvent* undo = new SetKnotUndoEvent( undotype, mid, idx,
+						       touse );
 	Pick::Mgr().undo().addEvent( undo, 0 );
     }
 }
 
 
-void Set::insertWithUndo( int idx, const Pick::Location& loc )
+void Pick::Set::insertWithUndo( int idx, const Location& loc )
 {
     insert( idx, loc );
     addUndoEvent( Insert, idx, loc );
  }
 
 
-void Set::appendWithUndo( const Pick::Location& loc )
+void Pick::Set::appendWithUndo( const Location& loc )
 {
     *this += loc;
     addUndoEvent( Insert, size()-1, loc );
  }
 
 
-void Set::removeSingleWithUndo( int idx )
+void Pick::Set::removeSingleWithUndo( int idx )
 {
-    const Pick::Location pos = (*this)[idx];
-    addUndoEvent( Remove, idx, pos );
+    const Location loc = (*this)[idx];
+    addUndoEvent( Remove, idx, loc );
     removeSingle( idx );
 }
 
 
-void Set::moveWithUndo( int idx, const Pick::Location& undoloc,
-    const Pick::Location& loc )
+void Pick::Set::moveWithUndo( int idx, const Location& undoloc,
+				const Location& loc )
 {
     if ( size()<idx ) return;
     (*this)[idx] = undoloc;
     addUndoEvent( Move, idx, loc );
     (*this)[idx] = loc;
 }
-
-
-} // namespace Pick
 
 
 // PickSetAscIO
@@ -953,8 +654,7 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	    mPIEPAdj(Z,zread,true);
 	}
 
-	Pick::Location ploc( pos, zread );
-	ps += ploc;
+	ps += Pick::Location( pos, zread );
     }
 
     return true;

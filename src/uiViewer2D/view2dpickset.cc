@@ -164,9 +164,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
     picksetidxs_.erase();
     for ( int idx=0; idx<pickset_->size(); idx++ )
     {
-	const Coord3& pos = (*pickset_)[idx].pos_;
-	const BinID bid = SI().transform( pos );
-	if ( cs.hsamp_.includes(bid) )
+	if ( cs.hsamp_.includes((*pickset_)[idx].binID()) )
 	    picksetidxs_ += idx;
     }
 }
@@ -178,11 +176,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyPath& trckeys )
     picksetidxs_.erase();
     for ( int idx=0; idx<pickset_->size(); idx++ )
     {
-	const Coord3& pos = (*pickset_)[idx].pos_;
-	const BinID bid = SI().transform( pos );
-	const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-	if ( trckeys.isPresent(trckey) )
+	if ( trckeys.isPresent((*pickset_)[idx].trcKey()) )
 	    picksetidxs_ += idx;
     }
 }
@@ -224,12 +218,12 @@ void VW2DPickSet::drawAll()
 	for ( int idx=0; idx<nrpicks; idx++ )
 	{
 	    const int pickidx = picksetidxs_[idx];
-	    const Coord3& pos = (*pickset_)[pickidx].pos_;
+	    const Coord3& pos = (*pickset_)[pickidx].pos();
 	    const double z = zat ? zat->transform(pos) : pos.z;
 	    if ( regfdp )
 	    {
 		BufferString dipval;
-		(*pickset_)[pickidx].getText( "Dip" , dipval );
+		(*pickset_)[pickidx].getKeyedText( "Dip" , dipval );
 		SeparString dipstr( dipval );
 		const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
 		const bool oninl =

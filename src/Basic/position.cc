@@ -16,6 +16,7 @@
 #include "undefval.h"
 #include "survgeom.h"
 #include "trckeyvalue.h"
+#include "survinfo.h" // fallback with pErrMsg only
 
 #include <ctype.h>
 #include <math.h>
@@ -375,6 +376,31 @@ double TrcKey::distTo( const TrcKey& trckey ) const
     const Coord from = Survey::GM().toCoord( *this );
     const Coord to = Survey::GM().toCoord( trckey );
     return from.isUdf() || to.isUdf() ? mUdf(double) : from.distTo(to);
+}
+
+
+TrcKey& TrcKey::setFrom( const Coord& crd )
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );
+    if ( !geom )
+    {
+	geom = Survey::GM().getGeometry( std3DSurvID() );
+	if ( !geom )
+	{
+	    pErrMsg( "No default Survey ID" );
+	    pos_ = SI().transform( crd );
+	    return *this;
+	}
+    }
+
+    *this = geom->getTrace( crd, mUdf(float) );
+    return *this;
+}
+
+
+Coord TrcKey::getCoord() const
+{
+    return Survey::Geometry::toCoord( *this );
 }
 
 

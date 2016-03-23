@@ -63,10 +63,11 @@ bool ArrowSubItem::init()
     //Read Old format orientation
     for ( int idx=set_->size()-1; idx>=0; idx-- )
     {
+	Pick::Location& ploc( (*set_)[idx] );
 	BufferString orientation;
-	if ( (*set_)[idx].getText("O", orientation ) )
+	if ( ploc.getKeyedText("O", orientation ) )
 	{
-	    Sphere& dir = (*set_)[idx].dir_;
+	    Sphere dir = ploc.dir();
 	    if ( orientation[0] == '2' )
 	    {
 		dir.phi = (float) (-M_PI_2-dir.phi);
@@ -77,10 +78,9 @@ bool ArrowSubItem::init()
 		dir.phi = (float) (M_PI_2-dir.phi);
 		dir.theta -= M_PI_2;
 	    }
+	    ploc.setDir( dir );
 	}
-
-	delete (*set_)[idx].text_;
-	(*set_)[idx].text_ = 0;
+	ploc.setText( 0 );
     }
 
     return uiODAnnotSubItem::init();

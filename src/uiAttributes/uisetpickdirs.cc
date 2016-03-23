@@ -71,7 +71,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     const bool havesteer = true;
     if ( havesteer )
     {
-	dirinpfld_ = new uiGenInput( this, tr("Direction from"), 
+	dirinpfld_ = new uiGenInput( this, tr("Direction from"),
 			BoolInpSpec(true,tr("SteeringCube"),
 				    uiStrings::sAttribute(mPlural)));
 	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
@@ -143,7 +143,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
 	Pick::Location pl( ps_[idx] );
-	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos_) );
+	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos()) );
 	dps.addRow( dtrow );
 	positions += dtrow.pos_;
     }
@@ -165,12 +165,12 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
 	float inldip = dps.value( 0, rid )/2;
 	float crldip = dps.value( 1, rid )/2;
-	
+
 	if ( mIsUdf(inldip) || mIsUdf(crldip) )
 	    inldip = crldip = 0;
-	    
+
 	ps_[idx].setDip( inldip, crldip );
-	
+
 	if ( usesteering_ )
 	{
 	    phi = calcPhi( inldip, crldip );
@@ -189,7 +189,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    { phi = 0; theta = 0; }
 	}
 
-	ps_[idx].dir_ = Sphere( 1, theta, phi );
+	ps_[idx].setDir( Sphere(1,theta,phi) );
     }
 
     ps_.disp_.mkstyle_.type_ = OD::MarkerStyle3D::Plane;

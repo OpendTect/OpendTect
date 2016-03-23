@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "binid.h"
+class Coord;
 
 /*!
 \brief Represents a unique trace position in one of the surveys that OpendTect
@@ -79,12 +80,8 @@ public:
     inline TrcKey&	setCrl( IdxType nr )
 			{ return setTrcNr(nr); }
 
-    // mDeprecated  BinID& pos()			{ return pos_; }
-			//!< Don't use. Use one of the 'set' fns.
-    // mDeprecated IdxType& lineNr()			{ return pos_.row(); }
-			//!< Don't use. Use one of the 'set' fns.
-    // mDeprecated IdxType& trcNr()			{ return pos_.col(); }
-			//!< Don't use. Use one of the 'set' fns.
+    TrcKey&		setFrom(const Coord&);  //!< Uses survID
+    Coord		getCoord() const;	//!< Uses survID
 
 private:
 

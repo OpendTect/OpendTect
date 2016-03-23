@@ -156,11 +156,12 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	TrcKeyZSampling cs( false );
 	for ( int pidx=0; pidx<set_->size(); pidx++ )
 	{
-	    Pick::Location loc = (*set_)[pidx];
-	    BinID bid = SI().transform( loc.pos_ );
-	    const float zval = mCast( float, loc.pos_.z );
-	    cs.hsamp_.include( bid );
-	    cs.zsamp_.include( zval, false );
+	    const Pick::Location& loc = (*set_)[pidx];
+	    if ( loc.hasPos() )
+	    {
+		cs.hsamp_.include( loc.binID() );
+		cs.zsamp_.include( (float)loc.pos().z, false );
+	    }
 	}
 
 	if ( voiidx_<0 )
@@ -175,22 +176,15 @@ void LocationDisplay::fullRedraw( CallBacker* )
     invalidpicks_.erase();
 
     if ( set_->isEmpty() )
-    {
-	removeAll();
-	return;
-    }
+	{ removeAll(); return; }
 
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Pick::Location loc = (*set_)[idx];
 	if ( !transformPos( loc ) )
-	{
 	    invalidpicks_ += idx;
-	}
 	else
-	{
 	    invalidpicks_ -= idx;
-	}
 
 	setPosition( idx, loc );
     }
@@ -259,13 +253,13 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
-	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos_;
+	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos();
 	    const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
 	    dir.z *= -zscale; //convert to right dir-domain
 	    if ( dir.sqAbs()>=0 )
 	    {
-		 (*set_)[waitsfordirectionid_].dir_ =
-		     cartesian2Spherical( dir, true );
+		 (*set_)[waitsfordirectionid_].setDir(
+					    cartesian2Spherical(dir,true) );
 		Pick::SetMgr::ChangeData cd(
 			Pick::SetMgr::ChangeData::Changed,
 			set_, waitsfordirectionid_ );
@@ -285,7 +279,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	{
 	    if ( eventinfo.type==visBase::MouseClick )
 	    {
-		const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
+		const ::Sphere dir = (*set_)[waitsforpositionid_].dir();
 		const Pick::Location undoloc( undoloccoord_, dir );
 		const Pick::Location newloc( newpos, dir );
 		set_->moveWithUndo(
@@ -298,10 +292,10 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    {
 		if ( !undomove_ )
 		{
-		    undoloccoord_ = (*set_)[waitsforpositionid_].pos_;
+		    undoloccoord_ = (*set_)[waitsforpositionid_].pos();
 		    undomove_ =  true;
 		}
-		(*set_)[waitsforpositionid_].pos_ = newpos;
+		(*set_)[waitsforpositionid_].setPos( newpos );
 	    }
 	    Pick::SetMgr::ChangeData cd(
 		    Pick::SetMgr::ChangeData::Changed,
@@ -500,18 +494,17 @@ Coord3 LocationDisplay::world2Display( const Coord3& pos ) const
 
 bool LocationDisplay::transformPos( Pick::Location& loc ) const
 {
-    if ( !datatransform_ ) return true;
+    if ( !datatransform_ )
+	return true;
 
-    const float newdepth = datatransform_->transform( loc.pos_ );
+    const float newdepth = datatransform_->transform( loc.pos() );
     if ( mIsUdf(newdepth) )
 	return false;
 
-    loc.pos_.z = newdepth;
+    loc.setZ( newdepth );
 
     if ( hasDirection() )
-    {
-	pErrMsg("Direction not impl");
-    }
+	{ pErrMsg("Direction not impl"); }
 
     return true;
 }
@@ -630,13 +623,13 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	{
 	    int pidx = idx>0 ? idx-1 : set_->size()-1;
 
-	    int nrmatches = sowinghistory.indexOf( (*set_)[idx].pos_ ) >= 0;
-	    nrmatches += sowinghistory.indexOf( (*set_)[pidx].pos_ ) >= 0;
+	    int nrmatches = sowinghistory.indexOf( (*set_)[idx].pos() ) >= 0;
+	    nrmatches += sowinghistory.indexOf( (*set_)[pidx].pos() ) >= 0;
 	    if ( nrmatches != sowinghistory.size() )
 		continue;
 
-	    const float dist = findDistance( world2Display((*set_)[pidx].pos_),
-					     world2Display((*set_)[idx].pos_),
+	    const float dist = findDistance( world2Display((*set_)[pidx].pos()),
+					     world2Display((*set_)[idx].pos()),
 					     displaypos );
 	    if ( mIsUdf(dist) ) continue;
 
@@ -678,13 +671,11 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	picksetmgr_->reportChange( 0, cd );
     }
 
-    if ( !hasText() ) return true;
+    if ( !hasText() )
+	return true;
 
-    if ( !(*set_)[locidx].text_ || !(*set_)[locidx].text_->size() )
-    {
-	removePick( locidx );
-	return false;
-    }
+    if ( !(*set_)[locidx].hasText() )
+	{ removePick( locidx ); return false; }
 
     return true;
 }
@@ -886,7 +877,7 @@ bool LocationDisplay::removeSelections( TaskRunner* taskr )
 	for ( int idx=set_->size()-1; idx>=0; idx-- )
 	{
 	    const Pick::Location& loc = (*set_)[idx];
-	    if ( selector->includes(loc.pos_) )
+	    if ( selector->includes(loc.pos()) )
 	    {
 		removePick( idx, false );
 		changed = true;

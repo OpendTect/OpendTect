@@ -411,7 +411,7 @@ bool Picks::store( const IOObj* ioobjarg )
 
 	    const int idx = emids.indexOf(pick.emobjid_);
 	    if ( idx!=-1 )
-		pickloc.text_ = new BufferString("",idx);
+		pickloc.setText( BufferString("",idx) );
 
 	    ps += pickloc;
 	} while ( picks_.next(arrpos,false) );
@@ -422,10 +422,7 @@ bool Picks::store( const IOObj* ioobjarg )
 
     uiString errmsg;
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
-    {
-	errmsg_ = mFromUiStringTodo( errmsg );
-	return false;
-    }
+	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
 
     fillIOObjPar( ioobj->pars() );
 
@@ -807,17 +804,20 @@ bool Picks::load( const IOObj* ioobj )
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos_ );
-	const float z = mCast(float,pspick.pos_.z);
-	Pick pick = version==1
-	    ? Pick( z, pspick.dir_.radius, refoffset_, -1 )
-	    : Pick( z, pspick.dir_.radius, pspick.dir_.theta-1 );
+	const ::Pick::Location& ploc = pickset[idx];
+	if ( !ploc.hasPos() || !ploc.hasDir() )
+	    continue;
 
-	if ( pspick.text_ )
+	const BinID bid = SI().transform( ploc.pos() );
+	const float z = mCast(float,ploc.pos().z);
+	const Sphere& dir = ploc.dir();
+	Pick pick = version==1	? Pick( z, dir.radius, refoffset_, -1 )
+				: Pick( z, dir.radius, dir.theta-1 );
+
+	if ( ploc.hasText() )
 	{
 	    int horidx;
-	    if ( getFromString(horidx,pspick.text_->buf(),-1) &&
+	    if ( getFromString(horidx,ploc.text().buf(),-1) &&
 		 horidx!=-1 && horizons_[horidx] )
 		pick.emobjid_ = horizons_[horidx]->id();
 	}

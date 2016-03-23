@@ -47,8 +47,9 @@ bool uiGoogleExportPolygon::acceptOK( CallBacker* )
 
     TypeSet<Coord> coords;
     for ( int idx=0; idx<ps_.size(); idx++ )
-	coords += ps_[idx].pos_;
-    coords += ps_[0].pos_;
+	coords += ps_[idx].pos();
+    if ( !ps_.isPolygon() )
+	coords += ps_[0].pos();
 
     const float reqwdth = lsfld_->getWidth() * 0.1f;
     wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );
