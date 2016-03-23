@@ -244,6 +244,9 @@ void WellDisplay::fullRedraw( CallBacker* )
 #define mErrRet(s) { errmsg_ = s; return false; }
 bool WellDisplay::setMultiID( const MultiID& multiid )
 {
+    if ( wd_ )
+	wd_->unRef();
+
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
     const Well::D2TModel* d2t = wd->d2TModel();
