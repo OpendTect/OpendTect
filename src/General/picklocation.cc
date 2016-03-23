@@ -24,15 +24,15 @@ static const char* sKeyDip = "Dip";
     , trckey_(0) \
     , text_(0)
 
-Pick::Location::Location( double x, double y, double z )
-    : pos_(x,y,z)
+Pick::Location::Location( double x, double y, double zval )
+    : pos_(x,y,zval)
     , mInitPtrs
 {
 }
 
 
-Pick::Location::Location( const Coord& c, float z )
-    : pos_(c,z)
+Pick::Location::Location( const Coord& c, float zval )
+    : pos_(c,zval)
     , mInitPtrs
 {
 }
@@ -436,9 +436,9 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 	mPIEPAdj(Coord,usepos,false);
 	if ( mPIEP.haveZChg() )
 	{
-	    float z = (float)usepos.z;
-	    mPIEPAdj(Z,z,false);
-	    usepos.z = z;
+	    float zval = (float)usepos.z;
+	    mPIEPAdj(Z,zval,false);
+	    usepos.z = zval;
 	}
 
 	usepos.z = usepos.z * SI().showZ2UserFactor();

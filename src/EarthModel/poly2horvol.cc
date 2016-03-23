@@ -70,7 +70,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	if ( !pl.hasPos() )
 	    continue;
 
-	pts += pl.pos(); zvals += (float) pl.pos().z;
+	pts += pl.pos(); zvals += (float) pl.z();
 	const BinID& bid = pl.binID();
 	poly.add( mPolyLoc(bid) );
 	if ( idx )

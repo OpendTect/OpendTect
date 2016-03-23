@@ -79,13 +79,13 @@ public:
 			{ pos_ = c; return *this; }
     inline Location&	setPos( const Coord& c )
 			{ pos_.x = c.x; pos_.y = c.y; return *this; }
-    inline Location&	setPos( double x, double y, double z )
-			{ setPos( Coord3(x,y,z) ); return *this; }
-    inline Location&	setPos( const Coord& c, float z )
-			{ setPos( c.x, c.y, z ); return *this; }
+    inline Location&	setPos( double x, double y, double zval )
+			{ setPos( Coord3(x,y,zval) ); return *this; }
+    inline Location&	setPos( const Coord& c, float zval )
+			{ setPos( c.x, c.y, zval ); return *this; }
     template <class FT>
-    inline Location&	setZ( FT z )
-			{ pos_.z = z; return *this; }
+    inline Location&	setZ( FT zval )
+			{ pos_.z = zval; return *this; }
 
     Location&		setTrcKey(const TrcKey&);
     Location&		setDir(const Sphere&);
