@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "picksetfact.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "ctxtioobj.h"
 #include "binidvalset.h"
 #include "datapointset.h"

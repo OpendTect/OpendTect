@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "picksettr.h"
 #include "seisdatapack.h"
 #include "separstr.h"

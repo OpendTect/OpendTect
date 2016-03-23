@@ -5,7 +5,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		May 2001 / Mar 2016
 ________________________________________________________________________
 
@@ -27,7 +27,7 @@ always get the corresponding TrcKey. But, the TrcKey may not be stored as
 such. If this matters, try hasTrcKey(). If there is no available TrcKey, then
 it will be generated from the default survey geometry.
 
-A Location has an optional text. This can be used as a keyed storage like:
+A Location has an optional text. This has to be used as a keyed storage like:
 key1'xx'key2'yy
 If no text is available, you'll get an empty string.
 
@@ -90,22 +90,20 @@ public:
     Location&		setTrcKey(const TrcKey&);
     Location&		setDir(const Sphere&);
     Location&		setDir(const Coord&);
-    Location&		setText(const char*);
     Location&		setLineNr(Pos::LineID);
     Location&		setTrcNr(Pos::LineID);
     Location&		setBinID(const BinID&,bool updcoord=false);
     Location&		setSurvID(Pos::SurvID,bool updfromcoord=true);
 
+    bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;
     void		setKeyedText(const char* key,const char* txt);
     void		removeTextKey(const char* key);
+    Location&		setText(const char*);
+			//!< make sure it's compatible with the keying system
 
     bool		fromString(const char*);
     void		toString(BufferString&,bool forexport=false) const;
-
-    void		setDip(float,float);
-    float		inlDip() const;
-    float		crlDip() const;
 
 protected:
 
@@ -116,7 +114,7 @@ protected:
 
     void		setTK(const TrcKey*);
     void		setD(const Sphere*);
-    void		setT(const char*);
+    bool		fndKeyTxt(const char*,BufferString*) const;
 
 };
 

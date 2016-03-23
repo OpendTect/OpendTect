@@ -49,7 +49,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "ptrman.h"
 #include "randomlinegeom.h"
 #include "sorting.h"

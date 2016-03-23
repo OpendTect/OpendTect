@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #include "draw.h"
 #include "ioman.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 
 
 MeasureToolMan::MeasureToolMan( uiODMain& appl )

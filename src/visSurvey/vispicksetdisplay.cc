@@ -7,9 +7,8 @@
 
 #include "vispicksetdisplay.h"
 
-
+#include "picksetmgr.h"
 #include "mousecursor.h"
-#include "pickset.h"
 #include "visemobjdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
@@ -23,6 +22,7 @@
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
 #include "callback.h"
+#include "separstr.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -395,6 +395,15 @@ static float getSurveyRotation()
 }
 
 
+static float getDip( const Pick::Location& ploc, bool inl )
+{
+    BufferString txt; ploc.getKeyedText( "Dip", txt );
+    const SeparString dipstr( txt );
+    float ret = dipstr.getFValue( inl ? 0 : 1 );
+    return mIsUdf(ret) ? 0.f : ret;
+}
+
+
 ::Quaternion PickSetDisplay::getDirection( const Pick::Location& loc ) const
 {
     const float survngle = getSurveyRotation();
@@ -412,8 +421,8 @@ static float getSurveyRotation()
     const float zscale = !scene_ ? 0 :
 		    scene_->getApparentVelocity(scene_->getFixedZStretch());
 
-    const float inldepth = (loc.inlDip()*cDipFactor()) * zscale;
-    const float crldepth = (loc.crlDip()*cDipFactor()) * zscale;
+    const float inldepth = (getDip(loc,true)*cDipFactor()) * zscale;
+    const float crldepth = (getDip(loc,false)*cDipFactor()) * zscale;
 
     const float inlangle = atan( (SI().isRightHandSystem()
 			? -inldepth

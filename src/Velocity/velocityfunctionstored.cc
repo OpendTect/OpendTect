@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "sorting.h"
 #include "varlenarray.h"
 #include "velocitycalc.h"
+#include "trigonometry.h"
 #include "uistrings.h"
 
 namespace Vel

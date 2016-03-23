@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "survinfo.h"
 
 #include "uidialog.h"
@@ -56,7 +56,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 	BoolInpSpec(true,tr("Inl/Crl"),uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
 
-    const BoolInpSpec horverspec( true, uiStrings::sHorizontal(), 
+    const BoolInpSpec horverspec( true, uiStrings::sHorizontal(),
                                   uiStrings::sVertical() );
     horverfld_ = new uiGenInput( this, tr("Orientation"), horverspec );
     horverfld_->attach( alignedBelow, objectfld_ );

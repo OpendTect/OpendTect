@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "picksettr.h"
 #include "keyboardevent.h"
 #include "ptrman.h"

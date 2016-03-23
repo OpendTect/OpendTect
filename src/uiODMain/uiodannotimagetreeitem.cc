@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "uivispartserv.h"
 #include "uifiledlg.h"
 #include "visimagedisplay.h"

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "pickset.h"
 #include "odimage.h"
+#include "trigonometry.h"
 
 #include "viscoord.h"
 #include "vismaterial.h"

@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "picksettr.h"
 #include "ptrman.h"
 #include "uicolor.h"

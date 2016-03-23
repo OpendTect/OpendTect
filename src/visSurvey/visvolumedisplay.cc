@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "marchingcubes.h"
 #include "picksettr.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "od_ostream.h"
 #include "seisdatapack.h"
 #include "settings.h"

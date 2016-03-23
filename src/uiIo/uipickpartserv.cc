@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mousecursor.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "picksettr.h"
 #include "posinfo2d.h"
 #include "ptrman.h"

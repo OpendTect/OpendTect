@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "keystrs.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 

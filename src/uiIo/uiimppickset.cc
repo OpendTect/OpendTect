@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "picksettr.h"
 #include "randcolor.h"
 #include "od_istream.h"

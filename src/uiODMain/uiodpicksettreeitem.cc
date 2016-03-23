@@ -12,7 +12,7 @@ ___________________________________________________________________
 
 #include "emmanager.h"
 #include "emrandomposbody.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "randcolor.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -396,7 +396,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
     : uiODTreeItem( uiStrings::sPolygon() )
 {
-    
+
     mAttachCB( Pick::Mgr().setToBeRemoved,
 		uiODPickSetParentTreeItem::setRemovedCB );
 }

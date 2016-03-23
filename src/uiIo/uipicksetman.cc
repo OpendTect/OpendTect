@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "draw.h"
 #include "picksettr.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "keystrs.h"
 #include "od_helpids.h"
 

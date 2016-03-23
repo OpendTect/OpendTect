@@ -25,6 +25,7 @@
 #include "survinfo.h"
 #include "velocitypicksundo.h"
 #include "zdomain.h"
+#include "trigonometry.h"
 #include "uistrings.h"
 
 #define mDepthIndex	0

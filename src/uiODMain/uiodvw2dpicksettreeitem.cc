@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiodvw2dpicksettreeitem.h"
 
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -203,7 +203,7 @@ bool uiODVw2DPickSetTreeItem::init()
 
 	vw2dpickset_ =
 	    VW2DPickSet::create( picksetidx, viewer2D()->viewwin(),
-		    		 viewer2D()->dataEditor() );
+				 viewer2D()->dataEditor() );
 	viewer2D()->dataMgr()->addObject( vw2dpickset_ );
 	displayid_ = vw2dpickset_->id();
     }

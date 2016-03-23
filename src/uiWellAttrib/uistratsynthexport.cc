@@ -27,7 +27,7 @@ _______________________________________________________________________
 #include "ioman.h"
 #include "prestackgather.h"
 #include "picksettr.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "seisbufadapters.h"

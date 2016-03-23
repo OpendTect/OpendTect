@@ -14,7 +14,8 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "ioobj.h"
-#include "pickset.h"
+#include "picksetmgr.h"
+#include "trigonometry.h"
 #include "visarrowdisplay.h"
 #include "uiarrowdlg.h"
 #include "uivispartserv.h"

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "draw.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimarkerstyle.h"
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "vistristripset.h"
 
 
-uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set, 
+uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
     : uiMarkerStyleDlg( p, tr("Pick properties") )
     , set_( set )
@@ -34,13 +34,13 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
-    drawstylefld_ = new uiGenInput( this, tr("with"), 
-	    			    BoolInpSpec( true, tr("Line"), 
+    drawstylefld_ = new uiGenInput( this, tr("with"),
+				    BoolInpSpec( true, tr("Line"),
                                     tr("Surface") ) );
     drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
-    
+
     stylefld_->attach( alignedBelow, usedrawstylefld_ );
 
     drawSel( 0 );
@@ -57,13 +57,13 @@ void uiPickPropDlg::drawSel( CallBacker* )
 	if ( set_.disp_.connect_==Pick::Set::Disp::Close )
 	{
 	    set_.disp_.connect_ = Pick::Set::Disp::None;
-    	    Pick::Mgr().reportDispChange( this, set_ );
+	    Pick::Mgr().reportDispChange( this, set_ );
 	}
 
 	if ( psd_ )
 	    psd_->displayBody( false );
     }
-    else 
+    else
 	drawStyleCB( 0 );
 }
 
@@ -72,20 +72,20 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 {
     const bool showline = drawstylefld_->getBoolValue();
     if ( psd_ )
-    	psd_->displayBody( !showline );
+	psd_->displayBody( !showline );
 
     if ( showline )
     {
 	set_.disp_.connect_ = Pick::Set::Disp::Close;
-    	Pick::Mgr().reportDispChange( this, set_ );
+	Pick::Mgr().reportDispChange( this, set_ );
     }
     else
     {
-     	if ( !psd_ ) return;
-    	set_.disp_.connect_ = Pick::Set::Disp::None;
-    	Pick::Mgr().reportDispChange( this, set_ );
-	
-    	if ( !psd_->getDisplayBody() )
+	if ( !psd_ ) return;
+	set_.disp_.connect_ = Pick::Set::Disp::None;
+	Pick::Mgr().reportDispChange( this, set_ );
+
+	if ( !psd_->getDisplayBody() )
 	    psd_->setBodyDisplay();
     }
 }

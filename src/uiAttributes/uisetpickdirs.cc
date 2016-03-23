@@ -24,12 +24,13 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "executor.h"
 #include "mousecursor.h"
-#include "pickset.h"
+#include "picksetmgr.h"
 #include "posidxpair2coord.h"
 #include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "undefval.h"
+#include "trigonometry.h"
 
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -169,7 +170,10 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	if ( mIsUdf(inldip) || mIsUdf(crldip) )
 	    inldip = crldip = 0;
 
-	ps_[idx].setDip( inldip, crldip );
+	SeparString dipvaluetext;
+	dipvaluetext += ::toString( inldip );
+	dipvaluetext += ::toString( crldip );
+	ps_[idx].setKeyedText( "Dip", dipvaluetext );
 
 	if ( usesteering_ )
 	{
