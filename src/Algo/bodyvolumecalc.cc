@@ -56,7 +56,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     {
 	for ( int idy=0; idy<crlsz-1; idy++ )
 	{
-	    for ( int idz=(int) start; idz<stop; idz++ )
+	    for ( int idz=(int) start; idz<=stop; idz++ )
 	    {
 		bool inside[8];
 		inside[0] = arr_.get(idx,idy,idz) <= threshold_;
