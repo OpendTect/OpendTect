@@ -701,7 +701,8 @@ ObjectSet<Pick::Location>& Pick::List::locations()
 
 ObjectSet<const Pick::Location>& Pick::List::locations() const
 {
-    return (ObjectSet<const Pick::Location>&)locs_;
+    return const_cast<ObjectSet<const Pick::Location>&>(
+	    reinterpret_cast<const ObjectSet<const Pick::Location>&>( locs_ ) );
 }
 
 
