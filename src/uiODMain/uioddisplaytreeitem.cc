@@ -335,17 +335,23 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
 	mAddMenuItem( &displaymnuitem_, &histogrammnuitem_, true, false );
-	const bool canaddvolproc = visserv_->canAddAttrib(displayid_,1) &&
-		visserv_->getAttributeFormat(displayid_,-1) ==
-						uiVisPartServer::Cube;
+    }
+    else
+    {
+	mResetMenuItem( &addattribmnuitem_ );
+	mResetMenuItem( &histogrammnuitem_ );
+    }
+
+    const bool canaddvolproc = visserv_->canAddAttrib(displayid_,1) &&
+	visserv_->getAttributeFormat(displayid_,-1) == uiVisPartServer::Cube;
+    if ( hasmultiattribs && canaddvolproc )
+    {
 	mAddMenuItem( &addmnuitem_, &addvolprocmnuitem_,
-		      !visserv_->isLocked(displayid_) && canaddvolproc, false );
+		      !visserv_->isLocked(displayid_), false );
     }
     else
     {
 	mResetMenuItem( &addvolprocmnuitem_ );
-	mResetMenuItem( &addattribmnuitem_ );
-	mResetMenuItem( &histogrammnuitem_ );
     }
 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
