@@ -464,10 +464,13 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	if ( nrlines > 1 )
 	    lnm = getWildcardSubstLineName( iln );
 
-	if ( !handleExistingGeometry(lnm,iln<nrlines-1,overwr_warn,overwr) )
+	const bool morelines = iln < nrlines - 1;
+	bool isnew = true;
+	if ( !handleExistingGeometry(lnm,morelines,overwr_warn,overwr,isnew) )
 	    return false;
 
-	Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm, true );
+	Pos::GeomID geomid = isnew ? Geom2DImpHandler::getGeomID(lnm)
+				   : Survey::GM().getGeomID(lnm);
 	if ( geomid == mUdfGeomID )
 	    mErrRet( tr("Internal: Cannot create line geometry in database") )
 
@@ -541,12 +544,14 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 
 
 bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
-					     bool& overwr_warn, bool& overwr )
+					     bool& overwr_warn, bool& overwr,
+					     bool& isnewline )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
     if ( geomid == mUdfGeomID )
 	return true;
 
+    isnewline = false;
     int choice = overwr ? 1 : 2;
     if ( overwr_warn )
     {
