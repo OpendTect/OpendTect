@@ -907,6 +907,8 @@ void LocationDisplay::fillPar( IOPar& par ) const
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
     
+    if ( !set_ ) return;
+
     if ( picksetmgr_ )
     {
 	const int setidx = picksetmgr_->indexOf( *set_ );
