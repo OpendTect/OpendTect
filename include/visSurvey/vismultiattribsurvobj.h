@@ -61,8 +61,12 @@ public:
     unsigned char		getAttribTransparency(int) const;
     virtual void		allowShading(bool);
 
-    const Attrib::SelSpec*	getSelSpec(int) const;
-    void			setSelSpec(int,const Attrib::SelSpec&);
+    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+
+    void			setSelSpec(int attrib,const Attrib::SelSpec&);
+    void			setSelSpecs(int attrib,
+					    const TypeSet<Attrib::SelSpec>&);
     void			clearTextures();
     				/*!<Blanks all textures. */
     
@@ -125,7 +129,9 @@ protected:
     int				resolution_;
 
 private:
-    ObjectSet<Attrib::SelSpec>	as_;
+
+    ObjectSet<TypeSet<Attrib::SelSpec> >	as_;
+
     bool			enabletextureinterp_;
     bool			onoffstatus_;
 

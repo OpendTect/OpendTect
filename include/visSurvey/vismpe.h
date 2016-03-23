@@ -82,7 +82,7 @@ public:
                     /*!<\returns the userRef, "None" if
                      selspec.id==NoAttrib, or a zeropointer
                      if selspec.id==notsel */
-    const Attrib::SelSpec*	getSelSpec(int attrib) const;
+    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
 
     const ColTab::MapperSetup*  getColTabMapperSetup(int, int version=0) const;
     void            setColTabMapperSetup(int,

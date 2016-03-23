@@ -326,8 +326,7 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 
 void RandomSeisDataPack::setRandomLineID( int rdlid )
 {
-    path_.erase();
-    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
+    ConstRefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )
 	return;
 
@@ -347,7 +346,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const Interval<float>& zrange,
 					const BufferStringSet* compnames )
 {
-    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdmlineid );
+    ConstRefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get(rdmlineid);
     if ( !rdmline || regsdp.isEmpty() )
 	return DataPack::cNoID();
 
@@ -596,7 +595,6 @@ void RegularFlatDataPack::setSourceData()
 	    path_ += source_.getTrcKey( idx );
     }
 
-    rdlid_ = source_.getRandomLineID();
     if ( !is2D() )
     {
 	const bool isinl = dir_==TrcKeyZSampling::Inl;

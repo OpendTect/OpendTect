@@ -583,20 +583,24 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 {
     if ( visid<0 ) return false;
 
-    const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+    const TypeSet<Attrib::SelSpec>* as = visserv_->getSelSpecs( visid, attrib );
     if ( !as )
     {
 	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
 
-    Attrib::SelSpec myas( *as );
-    if ( myas.id() != Attrib::DescID::undef() )
-	attrserv_->updateSelSpec( myas );
-    if ( myas.id().isUnselInvalid() )
+    TypeSet<Attrib::SelSpec> myas( *as );
+    for ( int idx=0; idx<myas.size(); idx++ )
     {
-	uiMSG().error( tr("Cannot find selected attribute") );
-	return false;
+	if ( myas[idx].id() != Attrib::DescID::undef() )
+	    attrserv_->updateSelSpec( myas[idx] );
+
+	if ( myas[idx].id().isUnselInvalid() )
+	{
+	    uiMSG().error( tr("Cannot find selected attribute") );
+	    return false;
+	}
     }
 
     const DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
@@ -609,16 +613,16 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( !cs.isDefined() )
 		return false;
 
-	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
+	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			    Attrib::ExtAttrFact().create( 0, myas, false );
+			    Attrib::ExtAttrFact().create( 0, myas[0], false );
 		if ( !calc )
 		{
 		    uiString errstr(tr("Selected attribute '%1'\nis not present"
 				       " in the set and cannot be created")
-				  .arg(myas.userRef()));
+				  .arg(myas[0].userRef()));
 		    uiMSG().error( errstr );
 		    return false;
 		}
@@ -637,15 +641,14 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		break;
 	    }
 
-	    attrserv_->setTargetSelSpec( myas );
+	    attrserv_->setTargetSelSpecs( myas );
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
 	    if ( newid == DataPack::cNoID() )
 	    {
 		// clearing texture and set back original selspec
 		const bool isattribenabled =
 				    visserv_->isAttribEnabled( visid, attrib );
-		visserv_->setSelSpec( visid, attrib, Attrib::SelSpec() );
-		visserv_->setSelSpec( visid, attrib, myas );
+		visserv_->setSelSpecs( visid, attrib, myas );
 		visserv_->enableAttrib( visid, attrib, isattribenabled );
 		return false;
 	    }
@@ -659,14 +662,14 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const Interval<float> zrg = visserv_->getDataTraceRange( visid );
 	    TypeSet<BinID> bids;
 	    visserv_->getDataTraceBids( visid, bids );
-	    attrserv_->setTargetSelSpec( myas );
+	    attrserv_->setTargetSelSpecs( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
-	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
+	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			    Attrib::ExtAttrFact().create( 0, myas, false );
+			    Attrib::ExtAttrFact().create( 0, myas[0], false );
 		// TODO implement
 		break;
 	    }
@@ -1791,7 +1794,11 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     as.setObjectRef( savedusrref );
     as.set2DFlag( attrserv_->is2DEvent() );
     as.setUserRef( tmpset[0].userRef() );
-    visserv_->setSelSpec( visid, attrib, as );
+    if ( tmpset.isEmpty() )
+	visserv_->setSelSpec( visid, attrib, as );
+    else
+	visserv_->setSelSpecs( visid, attrib, tmpset );
+
     BufferStringSet* refs = new BufferStringSet();
     for ( int idx=0; idx<tmpset.size(); idx++ )
 	refs->add( tmpset[idx].userRef() );

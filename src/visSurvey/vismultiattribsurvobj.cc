@@ -153,13 +153,13 @@ bool MultiTextureSurveyObject::addAttrib()
     BufferStringSet* aatrnms = new BufferStringSet();
     aatrnms->allowNull();
     userrefs_ += aatrnms;
-    Attrib::SelSpec* as = new Attrib::SelSpec;
-    as_ += as;
+    Attrib::SelSpec as;
     if ( getAllowedDataType() == Only2D )
     {
-	as->set2DFlag( true );
-	as->setObjectRef( getMultiID() );
+	as.set2DFlag( true );
+	as.setObjectRef( getMultiID() );
     }
+    as_ += new TypeSet<Attrib::SelSpec>( 1, as );
     addCache();
 
     while ( channels_->nrChannels()<as_.size() )
@@ -172,7 +172,7 @@ bool MultiTextureSurveyObject::addAttrib()
 
 bool MultiTextureSurveyObject::removeAttrib( int attrib )
 {
-    if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
+    if ( as_.size()<2 || !as_.validIdx(attrib) )
 	return false;
 
     channels_->removeChannel( attrib );
@@ -206,7 +206,7 @@ void MultiTextureSurveyObject::clearTextures()
 {
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
-	Attrib::SelSpec as; setSelSpec( idx, as );
+	setSelSpec( idx, Attrib::SelSpec() );
 
 	for ( int idy=nrTextures(idx)-1; idy>=0; idy-- )
 	    channels_->setUnMappedData( idx, idy, 0, OD::UsePtr, 0 );
@@ -246,14 +246,32 @@ unsigned char MultiTextureSurveyObject::getAttribTransparency(int attrib) const
 }
 
 
-const Attrib::SelSpec* MultiTextureSurveyObject::getSelSpec( int attrib ) const
-{ return attrib>=0 && attrib<as_.size() ? as_[attrib] : 0; }
+const TypeSet<Attrib::SelSpec>* MultiTextureSurveyObject::getSelSpecs(
+							int attrib ) const
+{
+    return as_.validIdx(attrib) ? as_[attrib] : 0;
+}
+
+
+const Attrib::SelSpec* MultiTextureSurveyObject::getSelSpec(
+					int attrib, int version ) const
+{
+    return as_.validIdx(attrib) && as_[attrib]->validIdx(version)
+		? &(*as_[attrib])[version] : 0;
+}
 
 
 void MultiTextureSurveyObject::setSelSpec( int attrib,
 					   const Attrib::SelSpec& as )
 {
-    SurveyObject::setSelSpec( attrib, as );
+    setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,as) );
+}
+
+
+void MultiTextureSurveyObject::setSelSpecs( int attrib,
+					   const TypeSet<Attrib::SelSpec>& as )
+{
+    SurveyObject::setSelSpecs( attrib, as );
 
     if ( !as_.validIdx(attrib) )
 	return;
@@ -262,12 +280,12 @@ void MultiTextureSurveyObject::setSelSpec( int attrib,
 
     emptyCache( attrib );
 
-    const char* usrref = as.userRef();
     BufferStringSet* attrnms = new BufferStringSet();
-    attrnms->add( usrref );
+    for ( int idx=0; idx<as.size(); idx++ )
+	attrnms->add( as[idx].userRef() );
     delete userrefs_.replace( attrib, attrnms );
 
-    if ( !usrref || !*usrref )
+    if ( FixedString(as[0].userRef()).isEmpty() )
 	channels_->getChannels2RGBA()->setEnabled( attrib, true );
 }
 
@@ -320,13 +338,10 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
 	return false;
 
     for ( int attrib=0; attrib<nrAttribs(); attrib++ )
-    {
-	const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
-	if ( !bdd )
+	if ( !getSelSpec(attrib)->getPreloadDataDesc() )
 	    return false;
-    }
 
-    return true;;
+    return true;
 }
 
 
@@ -415,19 +430,13 @@ int MultiTextureSurveyObject::nrTextures( int attrib ) const
 
 void MultiTextureSurveyObject::selectTexture( int attrib, int idx )
 {
-    if ( attrib<0 || attrib>=nrAttribs() || idx<0 )
+    if ( !as_.validIdx(attrib) || idx<0 )
 	return;
 
     if ( idx>=channels_->nrVersions(attrib) )
 	return;
 
     channels_->setCurrentVersion( attrib, idx );
-
-    if ( userrefs_[attrib]->validIdx(idx) )
-    {
- 	const BufferString& attrnm = userrefs_[attrib]->get( idx );
-	as_[attrib]->setUserRef( attrnm.buf() );
-    }
 }
 
 
@@ -445,10 +454,10 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
     visBase::VisualObjectImpl::fillPar( par );
     par.set( sKeyResolution(), resolution_ );
     par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
-    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
+    for ( int attrib=nrAttribs()-1; attrib>=0; attrib-- )
     {
 	IOPar attribpar;
-	as_[attrib]->fillPar( attribpar );
+	getSelSpec(attrib)->fillPar( attribpar );
 
 	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
 	{
@@ -479,8 +488,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 	par.mergeComp( attribpar, key );
     }
 
-    par.set( sKeyNrAttribs(), as_.size() );
-
+    par.set( sKeyNrAttribs(), nrAttribs() );
 }
 
 
@@ -551,7 +559,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	if ( nrAttribs()>1 )
 	{
 	    BufferString attribstr = "(";
-	    attribstr += as_[idx]->userRef();
+	    attribstr += getSelSpec(idx)->userRef();
 	    attribstr += ")";
 	    val.replaceAt( cValNameOffset(), (const char*)attribstr);
 	}

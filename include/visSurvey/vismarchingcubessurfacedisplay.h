@@ -75,8 +75,9 @@ public:
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int,const ColTab::Sequence&,
 					TaskRunner*);
-    void			setSelSpec(int,const Attrib::SelSpec&);
-    const Attrib::SelSpec*	getSelSpec(int attrib) const;
+    void			setSelSpecs(int attrib,
+					    const TypeSet<Attrib::SelSpec>&);
+    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
     void			setDepthAsAttrib(int);
     void			setIsoPatch(int);
     void			enableAttrib(int attrib,bool yn);

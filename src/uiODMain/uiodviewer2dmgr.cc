@@ -152,7 +152,8 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 {
     TypeSet<MultiID> pickmids;
     getLoadedPickSets( pickmids );
-    appl_.sceneMgr().getLoadedPickSetIDs( pickmids, false, vwr2d->getSyncSceneID() );
+    appl_.sceneMgr().getLoadedPickSetIDs(
+	    pickmids, false, vwr2d->getSyncSceneID() );
     vwr2d->addPickSets( pickmids );
 }
 
@@ -241,7 +242,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     vwr2d->setSelSpec( as, dowva );
     if ( isnewvwr ) vwr2d->setSelSpec( as, !dowva );
 
-    const int version = visServ().currentVersion( visid, attribid );
+    const int version = visServ().selectedTexture( visid, attribid );
     const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
     vwr2d->setUpView( dpid, dowva );
     vwr2d->setWinTitle( true );

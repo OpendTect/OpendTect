@@ -731,14 +731,6 @@ DataPackMgr::ID	uiVisPartServer::getDataPackMgrID( int id ) const
 }
 
 
-int uiVisPartServer::currentVersion( int id, int attrib ) const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so || !so->getChannels() ) return -1;
-    return so->getChannels()->currentVersion( attrib );
-}
-
-
 bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -795,11 +787,8 @@ void uiVisPartServer::selectTexture( int id, int attrib, int textureidx )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so )
-    {
-	if ( isAttribEnabled(id,attrib) )
-	    so->selectTexture( attrib, textureidx );
-    }
+    if ( so && isAttribEnabled(id,attrib) )
+	so->selectTexture( attrib, textureidx );
 }
 
 
@@ -999,10 +988,18 @@ int uiVisPartServer::getEventObjId() const { return eventobjid_; }
 int uiVisPartServer::getEventAttrib() const { return eventattrib_; }
 
 
+const TypeSet<Attrib::SelSpec>* uiVisPartServer::getSelSpecs(
+						int id, int attrib ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getSelSpecs( attrib ) : 0;
+}
+
+
 const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getSelSpec( attrib ) : 0;
+    return so ? so->getSelSpec( attrib, selectedTexture(id,attrib) ) : 0;
 }
 
 
@@ -1740,10 +1737,18 @@ bool uiVisPartServer::selectAttrib( int id, int attrib )
 
 
 void uiVisPartServer::setSelSpec( int id, int attrib,
-				  const Attrib::SelSpec& myattribspec )
+				  const Attrib::SelSpec& selspec )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setSelSpec( attrib, myattribspec );
+    if ( so ) so->setSelSpec( attrib, selspec );
+}
+
+
+void uiVisPartServer::setSelSpecs( int id, int attrib,
+				   const TypeSet<Attrib::SelSpec>& selspecs )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->setSelSpecs( attrib, selspecs );
 }
 
 

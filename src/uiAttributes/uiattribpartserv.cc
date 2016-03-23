@@ -670,13 +670,13 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     if ( !aem ) return 0;
 
     bool atsamplepos = true;
-    BufferString defstr;
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 				: attrds->getDesc( targetspecs_[0].id() );
     if ( targetdesc )
     {
+	BufferString defstr;
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;

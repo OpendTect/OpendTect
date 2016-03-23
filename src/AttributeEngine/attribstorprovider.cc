@@ -382,7 +382,7 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 
     *possiblevolume_ = storedvolume_;
     globpv.limitTo( *possiblevolume_ );
-    return globpv.nrLines() && globpv.nrTrcs();
+    return !globpv.isEmpty();
 }
 
 

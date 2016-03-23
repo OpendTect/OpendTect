@@ -1032,9 +1032,9 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	if ( !getSelSpec(idx) ) continue;
+	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
+	if ( selspecs ) pdd->setSelSpecs( idx, *selspecs );
 
-	pdd->setSelSpec( idx, *getSelSpec(idx) );
 	pdd->setDataPackID( idx, getDataPackID(idx), taskr );
 	if ( getColTabMapperSetup( idx ) )
 	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ),

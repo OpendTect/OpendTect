@@ -139,8 +139,13 @@ public:
     void		showAttribTransparencyDlg(int id,int attrib);
     unsigned char	getAttribTransparency(int id,int attrib) const;
     void		setAttribTransparency(int id,int attrib, unsigned char);
-    const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
+
+    const TypeSet<Attrib::SelSpec>*	getSelSpecs(int id,int attrib) const;
+    const Attrib::SelSpec*		getSelSpec(int id,int attrib) const;
+
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
+    void		setSelSpecs(int id,int attrib,
+				    const TypeSet<Attrib::SelSpec>&);
     void		setUserRefs(int id,int attrib,BufferStringSet*);
     bool		interpolationEnabled(int id) const;
 			/*!<Specifies that the data is integers that should
@@ -168,7 +173,6 @@ public:
     DataPack::ID	getDataPackID(int id,int attrib) const;
     DataPack::ID	getDisplayedDataPackID(int id,int attrib) const;
     DataPackMgr::ID	getDataPackMgrID(int id) const;
-    int			currentVersion(int id,int attrib) const;
 
 			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;

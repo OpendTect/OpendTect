@@ -359,8 +359,15 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 
 void SurveyObject::setSelSpec( int attrib, const Attrib::SelSpec& newselspec )
 {
-    const Attrib::SelSpec* oldselspec = getSelSpec( attrib );
-    if ( !oldselspec || (*oldselspec)!=newselspec )
+    setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,newselspec) );
+}
+
+
+void SurveyObject::setSelSpecs(
+	int attrib, const TypeSet<Attrib::SelSpec>& newselspecs )
+{
+    const Attrib::SelSpec* oldselspec = getSelSpec( attrib, 0 );
+    if ( !oldselspec || (*oldselspec)!=newselspecs[0] )
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
 }
 

@@ -106,8 +106,11 @@ public:
     void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
-    const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
-			    { return targetspecs_; }
+    void		setTargetSelSpecs(const TypeSet<Attrib::SelSpec>& specs)
+			{ targetspecs_ = specs; }
+
+    const TypeSet<Attrib::SelSpec>&	getTargetSelSpecs() const
+					{ return targetspecs_; }
 
     DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
     const RegularSeisDataPack*	createOutput(const TrcKeyZSampling&,

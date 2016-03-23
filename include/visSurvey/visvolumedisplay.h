@@ -119,9 +119,11 @@ public:
     BufferString		getManipulationString() const;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
-    const Attrib::SelSpec*	getSelSpec(int attrib) const;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+    const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
     const TypeSet<float>* 	getHistogram(int attrib) const;
-    void			setSelSpec(int attrib,const Attrib::SelSpec&);
+    void			setSelSpecs(int attrib,
+					    const TypeSet<Attrib::SelSpec>&);
 
     bool			canHaveMultipleAttribs() const { return true; }
     int				nrAttribs() const;
@@ -282,7 +284,7 @@ protected:
 					AttribData();
 					~AttribData();
 
-	Attrib::SelSpec&		as_;
+	TypeSet<Attrib::SelSpec>*	as_;
 	const RegularSeisDataPack*	cache_;
     };
 

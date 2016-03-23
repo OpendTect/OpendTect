@@ -667,8 +667,8 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	const Attrib::SelSpec* selspec = getSelSpec( idx );
-	if ( selspec ) s2dd->setSelSpec( idx, *selspec );
+	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
+	if ( selspecs ) s2dd->setSelSpecs( idx, *selspecs );
 	s2dd->setDataPackID( idx, getDataPackID(idx), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup ) s2dd->setColTabMapperSetup( idx,*mappersetup,taskr );

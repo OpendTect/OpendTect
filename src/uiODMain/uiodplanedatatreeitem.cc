@@ -271,11 +271,11 @@ bool uiODPlaneDataTreeItem::displayDataFromOther( int visid )
 
     for ( int attrib=0; attrib<nrattribs; attrib++ )
     {
-	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+	const TypeSet<Attrib::SelSpec>* as =visserv_->getSelSpecs(visid,attrib);
 	if ( !as )
 	    return displayDefaultData();
 
-	visserv_->setSelSpec( displayid_, attrib, *as );
+	visserv_->setSelSpecs( displayid_, attrib, *as );
 	visserv_->calculateAttrib( displayid_, attrib, false );
 
 	const ColTab::Sequence* ctseq =

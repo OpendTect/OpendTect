@@ -101,8 +101,9 @@ public:
     bool			hasSingleColorFallback() const	{ return true; }
 
     void			allowShading(bool);
-    const Attrib::SelSpec*	getSelSpec(int) const;
-    void			setSelSpec(int,const Attrib::SelSpec&);
+    const Attrib::SelSpec*	getSelSpec(int channel,int version=0) const;
+    void			setSelSpecs(int attrib,
+					   const TypeSet<Attrib::SelSpec>&);
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>&);
@@ -305,14 +306,13 @@ private:
     char				resolution_;
     int					curtextureidx_;
 
-    bool				displayintersectionlines_;
-
-    ObjectSet<Attrib::SelSpec>		as_;
+    ObjectSet<TypeSet<Attrib::SelSpec> >as_;
     ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
     bool				validtexture_;
+    bool				displayintersectionlines_;
     bool				displaysurfacegrid_;
 
     TypeSet<EM::SectionID>		oldsectionids_;
