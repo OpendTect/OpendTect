@@ -79,7 +79,8 @@ protected:
 					Pos::GeomID);
     bool		exec2Dimp(const IOObj&,const IOObj&,bool,const char*,
 				  const char*,Pos::GeomID);
-    bool		handleExistingGeometry(const char*,bool,bool&,bool&);
+    bool		handleExistingGeometry(const char*,bool,bool&,bool&,
+					       bool&);
     bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
     BufferString	getWildcardSubstLineName(int) const;
     bool		putCoordChoiceInSpec();
