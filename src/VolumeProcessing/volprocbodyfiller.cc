@@ -14,11 +14,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "iopar.h"
 #include "embody.h"
+#include "polygon.h"
 #include "rowcol.h"
 #include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+
+#include "hiddenparam.h"
+
 
 namespace VolProc
 {
@@ -40,6 +44,8 @@ const char* BodyFiller::sKeyOutsideType()	{ return "Outside Type"; }
 const char* BodyFiller::sKeyInsideValue()	{ return "Inside Value"; }
 const char* BodyFiller::sKeyOutsideValue()	{ return "Outside Value"; }
 
+
+HiddenParam<BodyFiller,ODPolygon<double>*> polygon_(0);
 
 void BodyFiller::initClass()
 {
@@ -83,6 +89,10 @@ void BodyFiller::releaseData()
 
     plgknots_.erase();
     plgbids_.erase();
+
+    delete polygon_.getParam( this );
+    polygon_.removeParam( this );
+    polygon_.setParam( this, 0 );
 }
 
 
@@ -187,16 +197,10 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 
     int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
     bool alloutside;
-    Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )
     {
 	alloutside = !flatpolygon_.hsamp_.inlRange().includes(bid.inl(),false)
 		  || !flatpolygon_.hsamp_.crlRange().includes(bid.crl(),false);
-	if ( !alloutside )
-	{
-	    if ( !getFlatPlgZRange( bid, plgzrg ) )
-		alloutside = true;
-	}
     }
     else
     {
@@ -219,8 +223,27 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	{
 	    const float z = zrg.atIndex( zidx );
 	    if ( flatbody )
-		val = plgzrg.includes( z * SI().zScale(), true )
-				? insideval_ : outsideval_;
+	    {
+		const float scaledz = z * SI().zScale();
+		bool isinside = false;
+		if ( plgdir_ == plgIsOther )
+		{
+		    Coord3 curpos((double)bid.inl(),(double)bid.crl(),scaledz);
+		    isinside = pointInPolygon( curpos, plgbids_, epsilon_ );
+		    /*If polygon is not convex, this will not work*/
+		}
+		else
+		{
+		    const double curx = plgdir_==plgIsInline ?
+			(double)bid.crl() : (double)bid.inl();
+		    const double cury = plgdir_==plgIsZSlice ?
+			(double)bid.crl() : scaledz;
+		    isinside = polygon_.getParam(this)->isInside(
+			    Coord(curx,cury), true, epsilon_ );
+		}
+
+		val = isinside ? insideval_ : outsideval_;
+	    }
 	    else
 	    {
 		const int bodyzidx =
@@ -353,6 +376,20 @@ Task* BodyFiller::createTask()
 	    plgdir_ = plgIsCrline;
 	else
 	    plgdir_ = plgIsZSlice;
+
+	ODPolygon<double>* newplg = new ODPolygon<double>();
+	for ( int idx=0; idx<plgbids_.size(); idx++ )
+	{
+	    const double curx = plgdir_==plgIsInline ? plgbids_[idx].y
+						     : plgbids_[idx].x;
+	    const double cury = plgdir_==plgIsZSlice ? plgbids_[idx].y
+						     : plgbids_[idx].z;
+	    newplg->add( Coord(curx,cury) );
+	}
+
+	delete polygon_.getParam( this );
+	polygon_.removeParam( this );
+	polygon_.setParam( this, newplg );
     }
     else
 	plgdir_ = plgIsOther;
