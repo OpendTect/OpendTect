@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "openclmod.h"
 
 #include "gpuprog.h"
+#include "bufstringset.h"
 #include <OpenCL/cl.h>
 
 
@@ -32,6 +33,29 @@ namespace OpenCL
         static bool			initClass();
         
         cl_platform_id 			platformid_;
+    };
+    
+    mExpClass(OpenCL) Context : public GPU::Context
+    { mODTextTranslationClass(Context);
+    public:
+        static GPU::Context*		createContext(const TypeSet<int>& deviceids);
+        				Context(const TypeSet<cl_device_id>&);
+                                        ~Context();
+        
+        cl_context			context_;
+        TypeSet<cl_command_queue>	queues_;
+        
+        BufferStringSet			contexterrors_;
+        Threads::Lock			contexterrorslock_;
+        
+        bool				checkForError(cl_int);
+        				//!<Sets error message
+
+        static void 			pfn_notify( const char* errinfo,
+                                            const void* private_info,
+                                            size_t cb,
+                                            void* user_data);
+        				//!<Callback on errors in context
     };
 
 }  //namespace

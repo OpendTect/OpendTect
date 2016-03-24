@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "bufstring.h"
-#include "bufstring.h"
+#include "uistring.h"
 #include "objectset.h"
 #include "refcount.h"
 
@@ -22,7 +22,11 @@ namespace GPU
 mExpClass(Basic) Device
 {
 public:
+    				Device();
     virtual			~Device() {}
+    
+    int				id_;
+    
     od_int64			totalmem_;
     od_int64			maxmemalloc_;
 
@@ -49,12 +53,16 @@ public:
 mExpClass(Basic) Context : public RefCount::Referenced
 {
 public:
-    static RefMan<Context> 		createContext( const Device& );
+    static RefMan<Context> 	createContext(const TypeSet<int>& deviceids);
+    uiString			errMsg() const { return errmsg_; }
+    virtual bool		isOK() const { return errmsg_.isEmpty(); }
+protected:
+    uiString			errmsg_;
 };
 
 
 //For internal implementation only.
-typedef Context* (*ContextCreateFunction)(const Device&);
+typedef Context* (*ContextCreateFunction)(const TypeSet<int>&);
 mGlobal(Basic) void setContextCreatorFunction(ContextCreateFunction);
 mGlobal(Basic) void setPlatforms(ObjectSet<Platform>&);
 

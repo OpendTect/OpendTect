@@ -7,10 +7,20 @@
 #include "gpuprog.h"
 
 #include "manobjectset.h"
+#include "ptrman.h"
 
 static ManagedObjectSet<GPU::Platform> platforms;
 
 static GPU::ContextCreateFunction contextCreateFunc = 0;
+
+static Threads::Atomic<int> nextid;
+
+GPU::Device::Device()
+    : id_( nextid++ )
+    , totalmem_( 0 )
+    , maxmemalloc_( 0 )
+    , iscpu_( false )
+{}
 
 
 const ObjectSet<GPU::Platform>& GPU::Platform::getPlatforms()
@@ -27,3 +37,10 @@ void GPU::setPlatforms( ObjectSet<GPU::Platform>& plfs )
     platforms = plfs;
 }
 
+RefMan<GPU::Context> GPU::Context::createContext(const TypeSet<int>& deviceids)
+{
+    if ( !contextCreateFunc )
+        return 0;
+    
+    return contextCreateFunc(deviceids);
+}

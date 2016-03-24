@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 #include <OpenCL/cl.h>
-#include <vector>
+#include <typeset.h>
 
 
 using namespace OpenCL;
@@ -122,6 +122,124 @@ bool Platform::initClass()
     }
     
     GPU::setPlatforms( platforms );
+    GPU::setContextCreatorFunction( Context::createContext );
     
     return true;
 }
+
+
+GPU::Context* Context::createContext( const TypeSet<int>& deviceids )
+{
+    const ObjectSet<GPU::Platform>& platforms = GPU::Platform::getPlatforms();
+    
+    TypeSet<cl_device_id> devices;
+    
+    for ( int idx=0; idx<platforms.size(); idx++ )
+    {
+        const Platform* platform = (const Platform*) platforms[idx];
+        
+        for ( int idy=0; idx<platform->devices_.size(); idy++ )
+        {
+            const Device* device = (const Device*) platform->devices_[idy];
+            
+            if ( deviceids.isPresent( device->id_ ) )
+                devices += device->deviceid_;
+        }
+    }
+    
+    if ( !devices.size() )
+        return 0;
+    
+    return new Context( devices );
+}
+
+
+OpenCL::Context::Context( const TypeSet<cl_device_id>& devices )
+{
+    cl_int errorcode;
+    context_ = clCreateContext( NULL,
+                    devices.size(),
+                    devices.arr(),
+                    pfn_notify,
+                    this, &errorcode );
+    
+    if ( checkForError( errorcode ) )
+    {
+        for ( int idx=0; idx<devices.size(); idx++ )
+        {
+            cl_command_queue queue = clCreateCommandQueue( context_,
+                                            devices[idx],
+                                            CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
+                                            &errorcode);
+            checkForError( errorcode );
+            if ( !checkForError( errorcode ) )
+                return;
+            
+            if ( !checkForError( clRetainCommandQueue( queue ) ) )
+                return;
+            
+            queues_ += queue;
+        }
+    }
+}
+
+
+Context::~Context()
+{
+    for ( int idx=0; idx<queues_.size(); idx++ )
+    {
+        clReleaseCommandQueue( queues_[idx] );
+    }
+}
+    
+    
+bool Context::checkForError( cl_int errorcode )
+{
+    switch ( errorcode )
+    {
+        case CL_SUCCESS:
+            errmsg_.setEmpty();
+            break;
+        case CL_INVALID_PLATFORM:
+            errmsg_ = tr("Invalid platform");
+            break;
+        case CL_INVALID_VALUE:
+            errmsg_ = tr("Invalid value");
+            break;
+        case CL_INVALID_DEVICE:
+            errmsg_ = tr("Invalid device");
+            break;
+        case CL_DEVICE_NOT_AVAILABLE:
+            errmsg_ = tr("Device not available");
+            break;
+        case CL_OUT_OF_HOST_MEMORY:
+            errmsg_ = tr("Out of host memory");
+            break;
+        case CL_INVALID_CONTEXT:
+            errmsg_ = tr("Invalid context");
+            break;
+        case CL_INVALID_QUEUE_PROPERTIES:
+            errmsg_ = tr("Invalid queue properties");
+            break;
+        default:
+            
+            break;
+            
+    };
+    
+    return isOK();
+}
+
+void Context::pfn_notify( const char* errinfo,
+                          const void* private_info,
+                          size_t cb,
+                          void* user_data)
+{
+    Context* context = (Context*) user_data;
+    if ( context )
+    {
+        Threads::Locker locker( context->contexterrorslock_ );
+        context->contexterrors_.add( errinfo );
+    }
+}
+
