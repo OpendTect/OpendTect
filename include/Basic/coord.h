@@ -44,12 +44,16 @@ public:
     bool	operator>(const Coord&crd) const
 		{ return x>crd.x || (x==crd.x && y>crd.y); }
 
+    DistType	horDistTo(const Coord&) const;
+    inline DistType sqHorDistTo(const Coord&) const;
+		//!< saves the expensive sqrt() call
     DistType	angle(const Coord& from,const Coord& to) const;
     DistType	cosAngle(const Coord& from,const Coord& to) const;
 		//!< saves the expensive acos() call
-		//
+
     Coord	normalize() const;
-    OrdType	dot(const Coord&) const;
+    inline OrdType dot( const Coord& oth ) const
+		{ return x*oth.x + y*oth.y; }
 
     const char*	toString() const;
     const char*	toPrettyString(int nrdec=2) const;

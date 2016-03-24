@@ -57,6 +57,8 @@ public:
     void		getLocations(ObjectSet<const Location>&) const;
     float		getXYArea() const;
 			//!<Only for closed polygons. Returns in m^2.
+    size_type		nearestLocation(const Coord&) const;
+    size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
 
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
@@ -65,16 +67,16 @@ public:
     Pos::SurvID		getSurvID() const;
 			//!<Only defined for post 6.0.1 sets
 
-    void		removeSingleWithUndo(int idx);
-    void		insertWithUndo(int,const Pick::Location&);
+    void		removeSingleWithUndo(size_type idx);
+    void		insertWithUndo(size_type,const Pick::Location&);
     void		appendWithUndo(const Pick::Location&);
-    void		moveWithUndo(int,const Pick::Location&,
+    void		moveWithUndo(size_type,const Pick::Location&,
 					const Pick::Location&);
 
 private:
 
     enum EventType      { Insert, PolygonClose, Remove, Move };
-    void		addUndoEvent(EventType,int,const Pick::Location&);
+    void		addUndoEvent(EventType,size_type,const Pick::Location&);
 
 };
 
@@ -89,6 +91,12 @@ public:
 
 				List(Pick::Set&,bool addall=true);
 				List(const Pick::Set&,bool addall=true);
+
+    inline Location&		location( int idx ) { return *locs_[idx]; }
+    inline const Location&	location( int idx ) const
+    				{ return *locations()[idx]; }
+    inline List&		add( int srcidx )
+				{ locs_ += &set_[srcidx]; return *this; }
 
     ObjectSet<Location>&	locations();
     ObjectSet<const Location>&	locations() const;

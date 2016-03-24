@@ -450,8 +450,8 @@ bool Pick::Set::isPolygon() const
 
 void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 {
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
+    const size_type sz = size();
+    for ( size_type idx=0; idx<sz; idx++ )
     {
 	const Coord c( (*this)[idx].pos() );
 	poly.add( Geom::Point2D<double>( c.x, c.y ) );
@@ -461,25 +461,26 @@ void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 
 void Pick::Set::getLocations( ObjectSet<Location>& locs )
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
 	locs += &((*this)[idx]);
 }
 
 
 void Pick::Set::getLocations( ObjectSet<const Location>& locs ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
 	locs += &((*this)[idx]);
 }
 
 
 float Pick::Set::getXYArea() const
 {
-    if ( size()<3 || disp_.connect_==Disp::None )
+    const size_type sz = size();
+    if ( sz < 3 || disp_.connect_ == Disp::None )
 	return mUdf(float);
 
     TypeSet<Geom::Point2D<float> > posxy;
-    for ( int idx=size()-1; idx>=0; idx-- )
+    for ( size_type idx=sz-1; idx>=0; idx-- )
     {
 	const Coord localpos = (*this)[idx].pos();
 	posxy += Geom::Point2D<float>( (float)localpos.x, (float)localpos.y );
@@ -494,6 +495,43 @@ float Pick::Set::getXYArea() const
 	area *= (mFromFeetFactorF*mFromFeetFactorF);
 
     return area;
+}
+
+
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
+{
+    return nearestLocation( Coord3(pos.x,pos.y,0.f), true );
+}
+
+
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
+						 bool ignorez ) const
+{
+    const size_type sz = size();
+    if ( sz < 2 )
+	return sz - 1;
+    if ( pos.isUdf() )
+	return 0;
+
+    size_type ret = 0;
+    const Coord3& p0 = (*this)[ret].pos();
+    double minsqdist = p0.isUdf() ? mUdf(double)
+		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
+
+    for ( size_type idx=1; idx<sz; idx++ )
+    {
+	const Coord3& curpos = (*this)[idx].pos();
+	if ( pos.isUdf() )
+	    continue;
+
+	const double sqdist = ignorez ? pos.sqHorDistTo( curpos )
+	    			      : pos.sqDistTo( curpos );
+	if ( sqdist == 0 )
+	    return idx;
+	else if ( sqdist < minsqdist )
+	    { minsqdist = sqdist; ret = idx; }
+    }
+    return ret;
 }
 
 
@@ -549,7 +587,8 @@ bool Pick::Set::usePar( const IOPar& par )
 }
 
 
-void Pick::Set::addUndoEvent( EventType type, int idx, const Location& loc )
+void Pick::Set::addUndoEvent( EventType type, size_type idx,
+				const Location& loc )
 {
     SetMgr& mgr = Mgr();
     if ( mgr.indexOf(*this) == -1 )
@@ -567,7 +606,7 @@ void Pick::Set::addUndoEvent( EventType type, int idx, const Location& loc )
 }
 
 
-void Pick::Set::insertWithUndo( int idx, const Location& loc )
+void Pick::Set::insertWithUndo( size_type idx, const Location& loc )
 {
     insert( idx, loc );
     addUndoEvent( Insert, idx, loc );
@@ -581,7 +620,7 @@ void Pick::Set::appendWithUndo( const Location& loc )
  }
 
 
-void Pick::Set::removeSingleWithUndo( int idx )
+void Pick::Set::removeSingleWithUndo( size_type idx )
 {
     const Location loc = (*this)[idx];
     addUndoEvent( Remove, idx, loc );
@@ -589,7 +628,7 @@ void Pick::Set::removeSingleWithUndo( int idx )
 }
 
 
-void Pick::Set::moveWithUndo( int idx, const Location& undoloc,
+void Pick::Set::moveWithUndo( size_type idx, const Location& undoloc,
 				const Location& loc )
 {
     if ( size()<idx ) return;

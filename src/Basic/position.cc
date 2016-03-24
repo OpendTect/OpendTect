@@ -129,6 +129,18 @@ BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
 }
 
 
+Coord::DistType Coord::sqHorDistTo( const Coord& oth ) const
+{
+    const DistType dx = x-oth.x, dy = y-oth.y;
+    return dx*dx + dy*dy;
+}
+
+
+Coord::DistType Coord::horDistTo( const Coord& oth ) const
+{
+    return Math::Sqrt( sqHorDistTo(oth) );
+}
+
 
 Coord Coord::normalize() const
 {
@@ -137,12 +149,6 @@ Coord Coord::normalize() const
 	return *this;
 
     return *this / Math::Sqrt(sqabsval);
-}
-
-
-Coord::DistType Coord::dot( const Coord& b ) const
-{
-    return x*b.x + y*b.y;
 }
 
 
@@ -166,7 +172,7 @@ Coord::DistType Coord::cosAngle( const Coord& from, const Coord& to ) const
 #include <iostream>
 
 
-Coord::DistType  Coord::angle( const Coord& from, const Coord& to ) const
+Coord::DistType Coord::angle( const Coord& from, const Coord& to ) const
 {
     const DistType cosang = cosAngle( from, to );
     if ( cosang >=  1 ) return 0;
