@@ -45,7 +45,7 @@ public:
 		{ return x>crd.x || (x==crd.x && y>crd.y); }
 
     DistType	horDistTo(const Coord&) const;
-    inline DistType sqHorDistTo(const Coord&) const;
+    DistType	sqHorDistTo(const Coord&) const;
 		//!< saves the expensive sqrt() call
     DistType	angle(const Coord& from,const Coord& to) const;
     DistType	cosAngle(const Coord& from,const Coord& to) const;
