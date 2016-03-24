@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 namespace EM { class EMObject; class Body; class ImplicitBody; }
+template <class T> class ODPolygon;
+
 
 namespace VolProc
 {
@@ -74,9 +76,6 @@ protected:
     virtual od_int64		extraMemoryUsage(OutputSlotID,
 						const TrcKeySampling&,
 						const StepInterval<int>&) const;
-
-    bool			getFlatPlgZRange(const BinID&,
-						 Interval<double>& result);
     EM::Body*			body_;
     EM::EMObject*		emobj_;
     EM::ImplicitBody*		implicitbody_;
@@ -94,6 +93,7 @@ protected:
     char			plgdir_;
 				/* inline=0; crosline=1; z=2; other=3 */
     double			epsilon_;
+    ODPolygon<double>*		polygon_;
 
     static const char*		sKeyOldMultiID();
     static const char*		sKeyOldInsideOutsideValue();

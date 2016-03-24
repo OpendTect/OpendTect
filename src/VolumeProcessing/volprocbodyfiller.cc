@@ -13,6 +13,7 @@
 #include "executor.h"
 #include "iopar.h"
 #include "embody.h"
+#include "polygon.h"
 #include "rowcol.h"
 #include "seisdatapack.h"
 #include "separstr.h"
@@ -61,6 +62,7 @@ BodyFiller::BodyFiller()
     , flatpolygon_(false)
     , plgdir_(0)
     , epsilon_(1e-4)
+    , polygon_(0)
 {}
 
 
@@ -82,6 +84,7 @@ void BodyFiller::releaseData()
 
     plgknots_.erase();
     plgbids_.erase();
+    delete polygon_; polygon_ = 0;
 }
 
 
@@ -185,17 +188,11 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	? input->data(0).info().getSize(2) : 0;
 
     int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
-    bool alloutside;
-    Interval<double> plgzrg( mUdf(double), mUdf(double) );
+    bool alloutside = true;
     if ( flatbody )
     {
 	alloutside = !flatpolygon_.hsamp_.inlRange().includes(bid.inl(),false)
 		  || !flatpolygon_.hsamp_.crlRange().includes(bid.crl(),false);
-	if ( !alloutside )
-	{
-	    if ( !getFlatPlgZRange( bid, plgzrg ) )
-		alloutside = true;
-	}
     }
     else
     {
@@ -218,8 +215,26 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	{
 	    const float z = zrg.atIndex( zidx );
 	    if ( flatbody )
-		val = plgzrg.includes( z * SI().zScale(), true )
-				? insideval_ : outsideval_;
+	    {
+		const float scaledz = z * SI().zScale();
+		bool isinside = false;
+		if ( plgdir_ == plgIsOther )
+		{
+		    Coord3 curpos((double)bid.inl(),(double)bid.crl(),scaledz);
+		    isinside = pointInPolygon( curpos, plgbids_, epsilon_ );
+		}
+		else
+		{
+		    const double curx = plgdir_==plgIsInline ?
+			(double)bid.crl() : (double)bid.inl();
+		    const double cury = plgdir_==plgIsZSlice ?
+			(double)bid.crl() : scaledz;
+		    isinside =
+			polygon_->isInside( Coord(curx,cury), true, epsilon_ );
+		}
+
+		val = isinside ? insideval_ : outsideval_;
+	    }
 	    else
 	    {
 		const int bodyzidx =
@@ -347,11 +362,43 @@ Task* BodyFiller::createTask()
     if ( surf->nrPolygons()==1 )
     {
 	if ( !flatpolygon_.hsamp_.inlRange().width() )
+	{
 	    plgdir_ = plgIsInline;
+	    for ( int idx=0; idx<plgbids_.size(); idx++ )
+	    {
+		polygon_->add( Geom::Point2D<double>(plgbids_[idx].y,
+						     plgbids_[idx].z) );
+	    }
+	}
 	else if ( !flatpolygon_.hsamp_.crlRange().width() )
+	{
 	    plgdir_ = plgIsCrline;
+	    for ( int idx=0; idx<plgbids_.size(); idx++ )
+	    {
+		polygon_->add( Geom::Point2D<double>(plgbids_[idx].x,
+						     plgbids_[idx].z) );
+	    }
+	}
 	else
+	{
 	    plgdir_ = plgIsZSlice;
+	    for ( int idx=0; idx<plgbids_.size(); idx++ )
+	    {
+		polygon_->add( Geom::Point2D<double>(plgbids_[idx].x,
+						     plgbids_[idx].y) );
+	    }
+	}
+
+	delete polygon_;
+	polygon_ = new ODPolygon<double>();
+	for ( int idx=0; idx<plgbids_.size(); idx++ )
+	{
+	    const double curx = plgdir_==plgIsInline ? plgbids_[idx].y
+						     : plgbids_[idx].x;
+	    const double cury = plgdir_==plgIsZSlice ? plgbids_[idx].y
+						     : plgbids_[idx].z;
+	    polygon_->add( Coord(curx,cury) );
+	}
     }
     else
 	plgdir_ = plgIsOther;
@@ -360,84 +407,6 @@ Task* BodyFiller::createTask()
 			 : plgknots_[0].distTo(plgknots_[1])*0.01;
 
     return Step::createTask();
-}
-
-
-bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
-{
-    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    if ( !output) return false;
-
-    const float zstep = output->sampling().zsamp_.step;
-    const Coord coord = SI().transform( bid );
-    if ( plgdir_ < 2 ) //Inline or Crossline case
-    {
-	int count = 0;
-	double z = flatpolygon_.zsamp_.start;
-	while ( z <= flatpolygon_.zsamp_.stop )
-	{
-	    if ( pointInPolygon( Coord3(coord,z), plgbids_, epsilon_ ) )
-	    {
-		if ( !count )
-		    res.start = res.stop = z;
-		else
-		    res.include( z );
-
-		count++;
-	    }
-
-	    z += zstep * SI().zScale();
-	}
-
-	if ( count==1 )
-	{
-	    res.start -= 0.5 * zstep;
-	    res.stop += 0.5 * zstep;
-	}
-
-	return count;
-    }
-    else
-    {
-	TypeSet<Coord3> knots;
-	for ( int idx=0; idx<plgknots_.size(); idx++ )
-	    knots += Coord3( plgknots_[idx].x, plgknots_[idx].y, 0 );
-
-	if ( !pointInPolygon( Coord3(coord,0), knots, epsilon_ ) )
-	    return false;
-
-	if ( plgdir_==plgIsZSlice )
-	{
-	    for ( int idx=0; idx<plgknots_.size(); idx++ )
-	    {
-		if ( !idx )
-		    res.start = res.stop = plgknots_[0].z;
-		else
-		    res.include( plgknots_[idx].z );
-	    }
-
-	    if ( mIsZero( res.width(), 1e-3 ) )
-	    {
-		res.start -= 0.5 * zstep;
-		res.stop += 0.5 * zstep;
-	    }
-	}
-	else //It is a case hard to see on the display.
-	{
-	    const Coord3 normal = (plgknots_[1] - plgknots_[0]).cross(
-		    plgknots_[2] - plgknots_[1] );
-	    if ( mIsZero(normal.z, 1e-4) ) //Should not happen case
-		return false;
-
-	    const Coord diff = coord - plgknots_[0].coord();
-	    const double z = plgknots_[0].z -
-		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
-	    res.start = z - 0.5 * zstep;
-	    res.stop = z + 0.5 * zstep;
-	}
-    }
-
-    return true;
 }
 
 
