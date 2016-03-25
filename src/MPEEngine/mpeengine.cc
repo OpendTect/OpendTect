@@ -1049,6 +1049,7 @@ void Engine::init()
 
     attribcachedatapackids_.erase();
     attribbkpcachedatapackids_.erase();
+    activevolume_.init( false );
 }
 
 
