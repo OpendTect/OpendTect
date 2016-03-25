@@ -704,20 +704,21 @@ public:
 		    tr( "%1 selection" ).arg( fltpar.is2d_
 					    ? uiStrings::sFaultStickSet()
 					    : uiStrings::sFault() ),
-		    mNoDlgTitle,mTODOHelpKey) )
+					    mNoDlgTitle,mTODOHelpKey))
 	, fltpar_(fltpar)
     {
-	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).fillrow(
-		    true).rightclickdisabled(true).selmode(uiTable::Single),"");
 	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";
-	const char* collbls[] = { fltnm, "Boundary Type", 0 };
+	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).
+		rowdesc(fltnm).defrowlbl("").selmode(uiTable::Multi).
+		rightclickdisabled(true), "Fault Boundary Table");
+	const char* collbls[] = { "Name", "Boundary Type", 0 };
 	table_->setColumnLabels( collbls );
-	table_->setLeftMargin( 0 );
-	table_->setSelectionBehavior( uiTable::SelectRows );
+	table_->setTableReadOnly( true );
+	table_->setPrefHeight( 150 );
+	table_->setPrefWidth( 350 );
 	table_->setColumnResizeMode( uiTable::ResizeToContents );
-	table_->setRowResizeMode( uiTable::Interactive );
-	table_->setColumnStretchable( 0, true );
 	table_->setColumnStretchable( 1, true );
+	table_->setSelectionBehavior( uiTable::SelectRows );
 
 	uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(),
 		mCB(this,uiFaultOptSel,addCB), false );
@@ -749,7 +750,8 @@ public:
 	{
 	    const MultiID& mid = dlg.chosenID( idx );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
-	    if ( !ioobj ) continue;
+	    if ( !ioobj || fltpar_.selfaultnms_.isPresent(ioobj->name()) )
+		continue;
 
 	    addObjEntry( fltpar_.selfaultids_.size(), *ioobj,
 		    fltpar_.defaultoptidx_ );
@@ -763,14 +765,15 @@ public:
 	if ( row==table_->nrRows() )
 	    table_->insertRows( row, 1 );
 
-	uiComboBox* actopts = new uiComboBox( 0, fltpar_.optnms_, 0 );
-	actopts->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB) );
-	actopts->setCurrentItem( optidx );
-	table_->setCellObject( RowCol(row,1), actopts );
+	uiLabeledComboBox* actopts = new uiLabeledComboBox( 0,
+		uiString::emptyString(), "Boundary Type" );
+	actopts->box()->addItems( fltpar_.optnms_ );
+	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
+	actopts->box()->setCurrentItem( optidx );
+	table_->setCellGroup( RowCol(row,1), actopts );
 
 	const char * fltnm = ioobj.name();
 	table_->setText( RowCol(row,0), fltnm );
-	table_->setCellReadOnly( RowCol(row,0), true );
 
 	if ( fltpar_.selfaultnms_.isPresent(fltnm) )
 	    return;
@@ -782,31 +785,56 @@ public:
 
     void removeCB( CallBacker* )
     {
-	const int currow = table_->currentRow();
-	if ( currow==-1 ) return;
+	TypeSet<int> selrows;
+	table_->getSelectedRows( selrows );
 
-	if ( currow<fltpar_.selfaultids_.size() )
+	const int firstselrow = selrows.isEmpty() ? -1 : selrows[0];
+	for ( int idx=selrows.size()-1; idx>=0; idx-- )
 	{
-	    fltpar_.selfaultids_.removeSingle( currow );
-	    fltpar_.selfaultnms_.removeSingle( currow );
-	    fltpar_.optids_.removeSingle( currow );
+	    const int currow = selrows[idx];
+	    if ( currow==-1 ) continue;
+
+	    if ( currow<fltpar_.selfaultids_.size() )
+	    {
+		fltpar_.selfaultids_.removeSingle( currow );
+		fltpar_.selfaultnms_.removeSingle( currow );
+		fltpar_.optids_.removeSingle( currow );
+	    }
+
+	    table_->removeRow( currow );
 	}
 
-	table_->removeRow( currow );
 	removebut_->setSensitive( fltpar_.selfaultids_.size() );
+	const int newselrow = firstselrow < fltpar_.selfaultids_.size()
+	    ? firstselrow : firstselrow-1;
+	table_->selectRow( newselrow );
     }
 
     void optCB( CallBacker* cb )
     {
 	for ( int idx=0; idx<fltpar_.optids_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiComboBox*, selbox,
-		    table_->getCellObject(RowCol(idx,1)) );
-	    if ( selbox==cb )
+	    mDynamicCastGet(uiLabeledComboBox*, selbox,
+		    table_->getCellGroup(RowCol(idx,1)) );
+	    if ( selbox->box()!=cb ) continue;
+
+	    const int optidx = selbox->box()->currentItem();
+
+	    TypeSet<int> selrows;
+	    table_->getSelectedRows( selrows );
+	    for ( int ridx=0; ridx<selrows.size(); ridx++ )
 	    {
-		fltpar_.optids_[idx] = selbox->currentItem();
-		return;
+		const int currow = selrows[ridx];
+		mDynamicCastGet(uiLabeledComboBox*,curselbox,
+			table_->getCellGroup(RowCol(currow,1)) );
+		if ( curselbox )
+		{
+		    curselbox->box()->setValue( optidx );
+		    fltpar_.optids_[currow] = optidx;
+		}
 	    }
+
+	    break;
 	}
     }
 
@@ -814,7 +842,6 @@ public:
     uiTable*		table_;
     uiPushButton*	removebut_;
 };
-
 
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
