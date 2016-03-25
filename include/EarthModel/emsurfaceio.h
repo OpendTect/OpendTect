@@ -173,7 +173,7 @@ protected:
 
     const IOPar*	par_;
 
-    uiString	        msg_;
+    uiString		msg_;
     bool		error_;
     int			nrdone_;
 
@@ -310,11 +310,11 @@ protected:
 
     bool			writeDouble(od_ostream&,double,
 					   const char*) const;
-    bool	writeInt16(od_ostream&,unsigned short,
+    bool			writeInt16(od_ostream&,unsigned short,
 					   const char*) const;
-    bool	writeInt32(od_ostream&,od_int32,
+    bool			writeInt32(od_ostream&,od_int32,
 					   const char*) const;
-    bool	writeInt64(od_ostream&,od_int64,
+    bool			writeInt64(od_ostream&,od_int64,
 					   const char*) const;
 
     void			finishWriting();
@@ -330,7 +330,7 @@ protected:
 
     IOPar*			par_;
 
-    uiString		        msg_;
+    uiString			msg_;
     BufferString		fulluserexpr_;
     MultiID			objectmid_;
     int				nrdone_;
@@ -366,6 +366,6 @@ protected:
     void			init(const char* fulluserexp);
 };
 
-};
+} // namespace EM
 
 #endif
