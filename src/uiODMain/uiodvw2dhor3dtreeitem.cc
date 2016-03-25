@@ -1,4 +1,4 @@
- /*+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
@@ -78,7 +78,7 @@ void uiODVw2DHor3DParentTreeItem::getNonLoadedTrackedHor3Ds(
 
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
-    const bool hastransform = viewer2D()->hasZAxisTransform(); 
+    const bool hastransform = viewer2D()->hasZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
@@ -109,7 +109,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 
 	mnu.insertItem( trackmenu );
     }
-    
+
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -141,7 +141,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    MPE::engine().setActiveTracker( emobj->id() );
 	}
 	else if ( !mps->addTracker(EM::Horizon3D::typeStr(),
-		    		   viewer2D()->getSyncSceneID()) )
+				   viewer2D()->getSyncSceneID()) )
 	    return true;
 
 	const MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
@@ -273,9 +273,11 @@ void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
 	MPE::engine().addTracker( emobj );
 	MPE::engine().getEditor( emid, true );
     }
+
     addChld( hortreeitem, false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
 	viewer2D()->viewControl()->setEditMode( true );
+
     hortreeitem->select();
 }
 
@@ -443,7 +445,6 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	default: break;
     }
-
 }
 
 

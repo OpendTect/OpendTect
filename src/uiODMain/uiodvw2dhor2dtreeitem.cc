@@ -141,7 +141,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	    MPE::engine().setActiveTracker( emobj->id() );
 	}
 	else if ( !mps->addTracker(EM::Horizon2D::typeStr(),
-		    		   viewer2D()->getSyncSceneID()) )
+				   viewer2D()->getSyncSceneID()) )
 	    return true;
 
 	const int trackid = mps->activeTrackerID();
