@@ -106,6 +106,9 @@ public:
 
     void		clear();
     void		selectAll();
+    void		deselectAll(); // added for compatibility only
+    void		checkAll();
+    void		uncheckAll();
 
     void		expandAll();
     void		collapseAll();
@@ -182,7 +185,7 @@ private:
 public:
 
     const char*		columnText(int column) const;
-				//Commandline driver usage only
+			//Commandline driver usage only
 
 };
 

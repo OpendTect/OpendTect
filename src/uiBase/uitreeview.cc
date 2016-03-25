@@ -140,7 +140,14 @@ void uiTreeViewBody::resizeEvent( QResizeEvent* ev )
 static bool isCtrlPressed( QInputEvent& ev )
 {
     const Qt::KeyboardModifiers modif = ev.modifiers();
-    return modif == Qt::ControlModifier;
+    return (modif & Qt::ControlModifier);
+}
+
+
+static bool isShiftPressed( QInputEvent& ev )
+{
+    const Qt::KeyboardModifiers modif = ev.modifiers();
+    return (modif & Qt::ShiftModifier);
 }
 
 
@@ -154,12 +161,16 @@ void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
 	lvhandle_.returnPressed.trigger();
 	return;
     }
-    else if ( isCtrlPressed(*ev) )
+
+    if ( isCtrlPressed(*ev) )
     {
 	if ( ev->key() == Qt::Key_A )
-	    { lvhandle_.selectAll(); return; }
-	else if ( ev->key() == Qt::Key_Z )
-	    { lvhandle_.clearSelection(); return; }
+	{
+	    if ( isShiftPressed(*ev) )
+	    { lvhandle_.uncheckAll(); return; }
+	    else
+	    { lvhandle_.checkAll(); return; }
+	}
     }
 
     uiTreeViewItem* currentitem = lvhandle_.currentItem();
@@ -558,7 +569,10 @@ bool uiTreeView::isSelected( const uiTreeViewItem* itm ) const
 
 
 uiTreeViewItem* uiTreeView::selectedItem() const
-{ return mItemFor( body_->currentItem() ); }
+{
+    QList<QTreeWidgetItem*> qitms = body_->selectedItems();
+    return qitms.isEmpty() ? 0 : mItemFor( qitms[0] );
+}
 
 
 int uiTreeView::nrSelected() const
@@ -674,10 +688,33 @@ void uiTreeView::selectAll()
 }
 
 
+void uiTreeView::deselectAll()
+{
+    mBlockCmdRec;
+    body_->clearSelection();
+}
+
+
 void uiTreeView::clearSelection()
 {
     mBlockCmdRec;
     body_->clearSelection();
+    for ( int idx=0; idx<nrItems(); idx++ )
+	getItem( idx )->checkAll( false, true );
+}
+
+
+void uiTreeView::checkAll()
+{
+    mBlockCmdRec;
+    for ( int idx=0; idx<nrItems(); idx++ )
+	getItem( idx )->checkAll( true, true );
+}
+
+
+void uiTreeView::uncheckAll()
+{
+    mBlockCmdRec;
     for ( int idx=0; idx<nrItems(); idx++ )
 	getItem( idx )->checkAll( false, true );
 }
@@ -688,6 +725,7 @@ void uiTreeView::expandAll()
     mBlockCmdRec;
     body_->expandAll();
 }
+
 
 void uiTreeView::expandTo( int dpth )
 {
@@ -887,17 +925,20 @@ int uiTreeViewItem::nrChildren() const
 bool uiTreeViewItem::isOpen() const
 { return qItem()->isExpanded(); }
 
+
 void uiTreeViewItem::setOpen( bool yn )
 {
     mTreeViewBlockCmdRec;
     qItem()->setExpanded( yn );
 }
 
+
 void uiTreeViewItem::setSelected( bool yn )
 {
     mTreeViewBlockCmdRec;
     qItem()->setSelected( yn );
 }
+
 
 bool uiTreeViewItem::isSelected() const
 { return qItem()->isSelected(); }

@@ -246,7 +246,6 @@ void uiODVw2DHor2DParentTreeItem::addHorizon2Ds(
 	if ( istracking )
 	    childitem->select();
     }
-
 }
 
 
@@ -527,12 +526,16 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	if ( doremove )
 	    parent_->removeChild( this );
     }
+
     return true;
 }
 
 
 bool uiODVw2DHor2DTreeItem::select()
 {
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->deselectAll();
+
     uitreeviewitem_->setSelected( true );
 
     if ( !trackerefed_ )

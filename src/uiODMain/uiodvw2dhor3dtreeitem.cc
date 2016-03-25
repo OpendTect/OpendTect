@@ -274,9 +274,11 @@ void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
 	MPE::engine().addTracker( emobj );
 	MPE::engine().getEditor( emid, true );
     }
+
     addChld( hortreeitem, false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
-    viewer2D()->viewControl()->setEditMode( true );
+	viewer2D()->viewControl()->setEditMode( true );
+
     hortreeitem->select();
 }
 
@@ -449,6 +451,9 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 
 bool uiODVw2DHor3DTreeItem::select()
 {
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->deselectAll();
+
     uitreeviewitem_->setSelected( true );
 
     if ( !trackerefed_ )
@@ -516,7 +521,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	applMgr()->EMServer()->storeObject( emid_, savewithname );
 	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 	applMgr()->mpeServer()->saveSetup( mid );
-    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	renameVisObj();
     }
@@ -527,7 +532,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
 	MultiID storedmid;
 	applMgr()->EMServer()->storeObject( emid_, true, storedmid );
-    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 
 	const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
 	EM::EMM().getObject(emid_)->setMultiID( storedmid);
