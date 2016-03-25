@@ -105,6 +105,9 @@ public:
     bool		fromString(const char*);
     void		toString(BufferString&,bool forexport=false) const;
 
+    static const Location& udf();
+    bool		isUdf() const	{ return *this == udf(); }
+
 protected:
 
     Coord3		pos_;

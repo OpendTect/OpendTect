@@ -13,10 +13,10 @@
 #include "posimpexppars.h"
 #include <ctype.h>
 
-
 static char pipechar = '|';
 static char newlinechar = '\n';
-
+static const Pick::Location udflocation_( Coord3::udf() );
+const Pick::Location& Pick::Location::udf() { return udflocation_; }
 
 #define mInitPtrs \
       dir_(0) \
