@@ -711,7 +711,8 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
 
 void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 {
-    const uiTreeViewItem* curitem = treetp_->getTreeView()->currentItem();
+    const uiTreeViewItem* curitem =
+	treetp_ ? treetp_->getTreeView()->currentItem() : 0;
     if ( !curitem )
     {
 	viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, false );
@@ -740,10 +741,10 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 }
 
 
-void uiODViewer2D::trackSetupCB( CallBacker* cb )
+void uiODViewer2D::trackSetupCB( CallBacker* )
 {
-    if ( !treetp_ ) return;
-    const uiTreeViewItem* curitem = treetp_->getTreeView()->currentItem();
+    const uiTreeViewItem* curitem =
+	treetp_ ? treetp_->getTreeView()->selectedItem() : 0;
     if ( !curitem )
 	return;
 
@@ -1105,8 +1106,6 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 	{
 	    hor3dpitem->addNewTrackingHorizon3D( emid );
 	    viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, true );
-	    treetp_->getTreeView()->setCurrentItem(
-		    hor3dpitem->lastChild()->getItem() );
 	}
     }
 }
