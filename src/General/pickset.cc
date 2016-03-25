@@ -390,6 +390,50 @@ protected:
 };
 
 
+// Both Pick set types
+
+template <class PicksType>
+static typename PicksType::size_type findIdx( const PicksType& picks,
+	                                      const TrcKey& tk )
+{
+    const typename PicksType::size_type sz = picks.size();
+    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
+	if ( picks.get(idx).trcKey() == tk )
+	    return idx;
+    return -1;
+}
+
+template <class PicksType>
+static typename PicksType::size_type getNearestLocation( const PicksType& ps,
+				    const Coord3& pos, bool ignorez )
+{
+    const typename PicksType::size_type sz = ps.size();
+    if ( sz < 2 )
+	return sz - 1;
+    if ( pos.isUdf() )
+	return 0;
+
+    typename PicksType::size_type ret = 0;
+    const Coord3& p0 = ps.get( ret ).pos();
+    double minsqdist = p0.isUdf() ? mUdf(double)
+		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
+
+    for ( typename PicksType::size_type idx=1; idx<sz; idx++ )
+    {
+	const Coord3& curpos = ps.get( idx ).pos();
+	if ( pos.isUdf() )
+	    continue;
+
+	const double sqdist = ignorez ? pos.sqHorDistTo( curpos )
+				      : pos.sqDistTo( curpos );
+	if ( sqdist == 0 )
+	    return idx;
+	else if ( sqdist < minsqdist )
+	    { minsqdist = sqdist; ret = idx; }
+    }
+    return ret;
+}
+
 
 // Pick::Set
     mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
@@ -427,15 +471,14 @@ Set& Set::operator=( const Set& s )
 Pos::SurvID Set::getSurvID() const
 {
     Pos::SurvID survid( TrcKey::cUndefSurvID() );
-    pars_.get( sKey::SurveyID(), survid );
-
-    return survid;
+    return pars_.get(sKey::SurveyID(),survid) ? survid
+	 : Pick::getSurvID( *this );
 }
 
 
 bool Set::is2D() const
 {
-    return TrcKey::is2D( getSurvID() );
+    return Pick::is2D( *this );
 }
 
 
@@ -479,6 +522,25 @@ float Set::getXYArea() const
 	area *= (mFromFeetFactorF*mFromFeetFactorF);
 
     return area;
+}
+
+
+Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
+{
+    return findIdx( *this, tk );
+}
+
+
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
+{
+    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
+}
+
+
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
+						 bool ignorez ) const
+{
+    return getNearestLocation( *this, pos, ignorez );
 }
 
 
@@ -659,51 +721,30 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 }
 
 
-Pick::List::List( Pick::Set& ps, bool dofill )
-    : set_(ps)
-    , isconst_(false)
+Pick::List& Pick::List::add( const Location& loc, bool mkcopy )
 {
-    if ( dofill )
-	reFill();
+    if ( mkcopy )
+	*this += new Location( loc );
+    else
+	*this += const_cast<Location*>( &loc );
+    return *this;
 }
 
 
-Pick::List::List( const Pick::Set& ps, bool dofill )
-    : set_(const_cast<Pick::Set&>(ps))
-    , isconst_(true)
+Pick::List::size_type Pick::List::find( const TrcKey& tk ) const
 {
-    if ( dofill )
-	reFill();
+    return findIdx( *this, tk );
 }
 
 
-ObjectSet<Pick::Location>& Pick::List::locations()
+Pick::List::size_type Pick::List::nearestLocation( const Coord& pos ) const
 {
-    if ( isconst_ )
-	{ pErrMsg("non-const called for const set"); }
-    return locs_;
+    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
 }
 
 
-ObjectSet<const Pick::Location>& Pick::List::locations() const
+Pick::List::size_type Pick::List::nearestLocation( const Coord3& pos,
+						 bool ignorez ) const
 {
-    void* ptr = const_cast<ObjectSet<Pick::Location>*>( &locs_ );
-    return *((ObjectSet<const Pick::Location>*)ptr);
-}
-
-
-Pick::Set& Pick::List::source()
-{
-    if ( isconst_ )
-	{ pErrMsg("non-const called for const set"); }
-    return set_;
-}
-
-
-void Pick::List::reFill()
-{
-    setEmpty();
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
-	locs_ += &(set_[idx]);
+    return getNearestLocation( *this, pos, ignorez );
 }

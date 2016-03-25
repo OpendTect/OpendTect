@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "picklocation.h"
 #include "enums.h"
 #include "namedobj.h"
+#include "trckey.h"
 #include "sets.h"
 #include "draw.h"
 #include "tableascio.h"
@@ -55,7 +56,9 @@ public:
     Disp		disp_;
     IOPar&		pars_;
     bool		is2D() const;
-			//!<Default is 3D.
+			//!< default is 3D
+    Pos::SurvID		getSurvID() const;
+			//!< pre-6.0.1 sets will return the survID of first loc
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&) const;
@@ -63,64 +66,71 @@ public:
     void		getLocations(ObjectSet<const Location>&) const;
     float		getXYArea() const;
 			//!<Only for closed polygons. Returns in m^2.
+    size_type		find(const TrcKey&) const;
+    size_type		nearestLocation(const Coord&) const;
+    size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
 
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    Pos::SurvID		getSurvID() const;
-			//!<Only defined for post 6.0.1 sets
-
-    void		removeSingleWithUndo(int idx);
-    void		insertWithUndo(int,const Pick::Location&);
+    void		removeSingleWithUndo(size_type idx);
+    void		insertWithUndo(size_type,const Pick::Location&);
     void		appendWithUndo(const Pick::Location&);
-    void		moveWithUndo(int,const Pick::Location&,
+    void		moveWithUndo(size_type,const Pick::Location&,
 					const Pick::Location&);
+
+    inline Location&	get( size_type idx )		{ return (*this)[idx]; }
+    inline const Location& get( size_type idx ) const	{ return (*this)[idx]; }
 
 private:
 
     enum EventType      { Insert, PolygonClose, Remove, Move };
-    void		addUndoEvent(EventType,int,const Pick::Location&);
+    void		addUndoEvent(EventType,size_type,const Pick::Location&);
 
 };
 
+/*!\brief ObjectSet of Pick::Location's. Does not manage. */
 
-/*!\brief List of locations managed by a PickSet */
-
-mExpClass(General) List : OD::Set
+mExpClass(General) List : public ObjectSet<Location>
 {
 public:
 
-    typedef ObjectSet<Location>::size_type   size_type;
+			List()				{}
+			List( const Pick::Set& ps )	{ addAll( ps ); }
 
-				List(Pick::Set&,bool addall=true);
-				List(const Pick::Set&,bool addall=true);
+    List&		add(const Pick::Location&,bool mkcopy=false);
+    inline void		addAll( const Pick::Set& ps )
+			{ const_cast<Pick::Set&>(ps).getLocations(*this); }
 
-    ObjectSet<Location>&	locations();
-    ObjectSet<const Location>&	locations() const;
+    inline bool		is2D() const;
+    inline Pos::SurvID	getSurvID() const;
+    size_type		find(const TrcKey&) const;
+    size_type		nearestLocation(const Coord&) const;
+    size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
 
-    Pick::Set&			source();
-    const Pick::Set&		source() const	    { return set_; }
-
-    inline size_type		size() const	    { return locs_.size(); }
-
-				// OD::Set interface
-    virtual od_int64		nrItems() const	    { return size(); }
-    virtual bool		validIdx( od_int64 i ) const
-						    { return locs_.validIdx(i);}
-    virtual void		swap( od_int64 i1, od_int64 i2 )
-						    { locs_.swap(i1,i2);}
-    virtual void		erase()		    { locs_.erase(); }
-
-    void			reFill();
-
-protected:
-
-    const bool		isconst_;
-    ObjectSet<Location>	locs_;
-    Pick::Set&		set_;
+    inline Location&	get( size_type idx )		{ return *(*this)[idx];}
+    inline const Location& get( size_type idx ) const	{ return *(*this)[idx];}
 
 };
+
+
+template <class PicksType>
+inline bool is2D( const PicksType& picks )
+{
+    return TrcKey::is2D( picks.getSurvID() );
+}
+
+template <class PicksType>
+inline bool getSurvID( const PicksType& picks )
+{
+    return picks.isEmpty() ? false : picks.get(0).trcKey().survID();
+}
+
+inline bool Pick::List::is2D() const		{ return Pick::is2D( *this ); }
+inline Pos::SurvID Pick::List::getSurvID() const
+{ return Pick::getSurvID( *this ); }
+
 
 } // namespace Pick
 

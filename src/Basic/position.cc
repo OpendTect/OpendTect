@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "survgeom.h"
 #include "trckeyvalue.h"
-#include "survinfo.h" // convenient for fallback
+#include "survinfo.h" // fallback with pErrMsg only
 
 #include <ctype.h>
 #include <math.h>
@@ -130,6 +130,18 @@ BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
 }
 
 
+Coord::DistType Coord::sqHorDistTo( const Coord& oth ) const
+{
+    const DistType dx = x-oth.x, dy = y-oth.y;
+    return dx*dx + dy*dy;
+}
+
+
+Coord::DistType Coord::horDistTo( const Coord& oth ) const
+{
+    return Math::Sqrt( sqHorDistTo(oth) );
+}
+
 
 Coord Coord::normalize() const
 {
@@ -167,7 +179,7 @@ Coord::DistType Coord::cosAngle( const Coord& from, const Coord& to ) const
 #include <iostream>
 
 
-Coord::DistType  Coord::angle( const Coord& from, const Coord& to ) const
+Coord::DistType Coord::angle( const Coord& from, const Coord& to ) const
 {
     const DistType cosang = cosAngle( from, to );
     if ( cosang >=  1 ) return 0;
