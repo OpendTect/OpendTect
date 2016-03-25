@@ -568,7 +568,10 @@ bool uiTreeView::isSelected( const uiTreeViewItem* itm ) const
 
 
 uiTreeViewItem* uiTreeView::selectedItem() const
-{ return mItemFor( body_->currentItem() ); }
+{
+    QList<QTreeWidgetItem*> qitms = body_->selectedItems();
+    return qitms.isEmpty() ? 0 : mItemFor( qitms[0] );
+}
 
 
 int uiTreeView::nrSelected() const
@@ -910,17 +913,20 @@ int uiTreeViewItem::nrChildren() const
 bool uiTreeViewItem::isOpen() const
 { return qItem()->isExpanded(); }
 
+
 void uiTreeViewItem::setOpen( bool yn )
 {
     mTreeViewBlockCmdRec;
     qItem()->setExpanded( yn );
 }
 
+
 void uiTreeViewItem::setSelected( bool yn )
 {
     mTreeViewBlockCmdRec;
     qItem()->setSelected( yn );
 }
+
 
 bool uiTreeViewItem::isSelected() const
 { return qItem()->isSelected(); }
