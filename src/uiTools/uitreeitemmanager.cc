@@ -150,8 +150,54 @@ NotifierAccess* uiTreeItem::keyPressed()
 void uiTreeItem::expand()
 { if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(true); }
 
+bool uiTreeItem::isExpanded() const
+{ return uitreeviewitem_ ? uitreeviewitem_->isOpen() : true; }
+
 void uiTreeItem::collapse()
 { if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(false); }
+
+bool uiTreeItem::isCollapsed() const
+{ return !isExpanded(); }
+
+
+bool uiTreeItem::allChildrenExpanded() const
+{
+    for ( int idx=0; idx<children_.size(); idx++ )
+	if ( !children_[idx]->isExpanded() )
+	    return false;
+
+    return true;
+}
+
+
+bool uiTreeItem::allChildrenCollapsed() const
+{
+    for ( int idx=0; idx<children_.size(); idx++ )
+	if ( !children_[idx]->isCollapsed() )
+	    return false;
+
+    return true;
+}
+
+
+bool uiTreeItem::allChildrenChecked() const
+{
+    for ( int idx=0; idx<children_.size(); idx++ )
+	if ( !children_[idx]->isChecked() )
+	    return false;
+
+    return true;
+}
+
+
+bool uiTreeItem::allChildrenUnchecked() const
+{
+    for ( int idx=0; idx<children_.size(); idx++ )
+	if ( children_[idx]->isChecked() )
+	    return false;
+
+    return true;
+}
 
 
 void uiTreeItem::updateColumnText( int col )
