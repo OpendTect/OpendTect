@@ -43,16 +43,10 @@ public:
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker(const char* trackertype,int sceneid);
-    int				addTracker(const EM::ObjectID&,
-					   const Coord3& pos);
+    int				addTracker(const EM::ObjectID&);
 				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it
-				    failed.
-				    \param pos should contain the clicked
-					   position. If the activevolume is not
-					   set before, it will be centered
-					   pos, otherwise, it will be expanded
-					   to include pos. */
+				    failed.*/
     EM::ObjectID		getEMObjectID(int trackerid) const;
     int				getCurSceneID() const { return cursceneid_; }
 

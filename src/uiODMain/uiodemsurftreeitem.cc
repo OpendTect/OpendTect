@@ -311,9 +311,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
 
-	const Coord3 pickedpos =
-	    uimenu ? uimenu->getPickedPos() : Coord3::udf();
-	if ( mps->addTracker(emid_,pickedpos) != -1 )
+	if ( mps->addTracker(emid_) != -1 )
 	{
 	    mps->useSavedSetupDlg( emid_, sectionid );
 	    uivisemobj_->checkTrackingStatus();

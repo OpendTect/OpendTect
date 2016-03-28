@@ -142,8 +142,7 @@ void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
 { MPE::engine().getAvailableTrackerTypes(res); }
 
 
-int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
-				 const Coord3& pickedpos )
+int uiMPEPartServer::addTracker( const EM::ObjectID& emid )
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj ) return -1;
@@ -151,8 +150,8 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     const int res = MPE::engine().addTracker( emobj );
     if ( res == -1 )
     {
-	uiMSG().error(uiStrings::phrCannotCreate(
-						tr("tracker for this object")));
+	uiMSG().error(
+		uiStrings::phrCannotCreate( tr("tracker for this object")) );
 	return -1;
     }
 
