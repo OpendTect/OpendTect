@@ -255,7 +255,8 @@ int uiMPEMan::popupMenu()
     else
 	addAction( mnu, tr("Display in Full"), "v", sFull,
 		   "sectionoff", true, true );
-    addAction( mnu, tr("Show Settings ..."), "", sSett, "tools", true, true );
+    addAction( mnu, tr("Change Settings ..."), "", sSett,
+	       "seedpicksettings", true, true );
 
     return mnu.exec();
 }
@@ -543,7 +544,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	seedpicker->getTrackMode()==seedpicker->DrawAndSnap ?
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
-	 clickcatcher_->activateSower( sowclr, 
+	 clickcatcher_->activateSower( sowclr,
 	 tracker->is2D() ? 0 : &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
@@ -609,7 +610,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.activevolumechange.trigger();
 	}
     }
-    
+
     seedpicker->setSelSpec( clickedas );
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
     beginSeedClickEvent( emobj );
