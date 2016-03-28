@@ -58,7 +58,14 @@ public:
     NotifierAccess*		checkStatusChange();
     NotifierAccess*		keyPressed();
     void			expand();
+    bool			isExpanded() const;
     void			collapse();
+    bool			isCollapsed() const;
+
+    bool			allChildrenExpanded() const;
+    bool			allChildrenCollapsed() const;
+    bool			allChildrenChecked() const;
+    bool			allChildrenUnchecked() const;
 
     virtual int			siblingIndex() const;
 				/*\returns the index of this item among
