@@ -41,7 +41,7 @@ bool ArrowSubItem::init()
 	visSurvey::ArrowDisplay* ad = visSurvey::ArrowDisplay::create();
 	visserv_->addObject( ad, sceneID(), true );
 	displayid_ = ad->id();
-    ad->setName( name_ );
+	ad->setName( name_ );
     }
 
     mDynamicCastGet(visSurvey::ArrowDisplay*,ad,visserv_->getObject(displayid_))
@@ -126,6 +126,7 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 			ad,visserv_->getObject(displayid_));
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
+	dlg.setScale( mCast(float,(set_->disp_.mkstyle_.size_/(defscale_))) );
 	dlg.go();
 	if ( set_->disp_.mkstyle_.color_!=dlg.getColor() )
 	{
@@ -135,7 +136,6 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	}
 
 	arrowtype_ = dlg.getArrowType();
-	defscale_ *= dlg.getScale();
 	updateColumnText( 1 );
     }
 }

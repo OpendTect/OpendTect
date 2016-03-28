@@ -85,6 +85,7 @@ int uiArrowDialog::getArrowType() const
 
 void uiArrowDialog::setScale( float scale )
 {
+    scalefld_->setValue( scale );
 }
 
 
