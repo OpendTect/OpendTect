@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "zaxistransform.h"
 #include "randcolor.h"
+#include "survinfo.h"
 
 namespace FlatView
 {
@@ -415,7 +416,8 @@ void FlatView::Appearance::setDarkBG( bool yn )
 
 void FlatView::Appearance::setGeoDefaults( bool isvert )
 {
-    annot_.x2_.reversed_ = isvert;
+    annot_.x2_.reversed_ = isvert || SI().isRightHandSystem();
+    annot_.x2_.annotinint_ = !isvert;
     ddpars_.wva_.allowuserchange_ = isvert;
 }
 

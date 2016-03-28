@@ -452,6 +452,7 @@ void selectPropCB( CallBacker* )
 
     vwrs[0]->appearance().annot_.allowuserchange_ = false;
     uiFlatViewPropDlg propdlg( this, *vwrs[0], cb_ );
+    propdlg.setModal( true );
     if ( propdlg.go() )
     {
 	 if ( propdlg.uiResult() == 1 )
