@@ -396,10 +396,9 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
-	sliderfld->setValue( 1 );
+	sliderfld->setValue( mCast(float,set_->disp_.pixsize_/defscale_));
 	sliderfld->valueChanged.notify( mCB(this,uiODAnnotSubItem,scaleChg) );
 	dlg.go();
-	defscale_ *= sliderfld->getValue();
     }
     else if ( mnuid==storemnuitem_.id )
     {
