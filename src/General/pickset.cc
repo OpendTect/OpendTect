@@ -501,6 +501,20 @@ void Set::getPolygon( ODPolygon<double>& poly ) const
 }
 
 
+void Set::getLocations( ObjectSet<Location>& locs )
+{
+    for ( int idx=0; idx<size(); idx++ )
+	locs += &((*this)[idx]);
+}
+
+
+void Set::getLocations( ObjectSet<const Location>& locs ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	locs += &((*this)[idx]);
+}
+
+
 float Set::getXYArea() const
 {
     if ( size()<3 || disp_.connect_==Set::Disp::None )
