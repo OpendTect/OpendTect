@@ -227,7 +227,7 @@ void VW2DPickSet::drawAll()
 	    const int pickidx = picksetidxs_[idx];
 	    const Coord3& pos = (*pickset_)[pickidx].pos_;
 	    const double z = zat ? zat->transform(pos) : pos.z;
-	    if ( regfdp )
+	    if ( regfdp && regfdp->isVertical() )
 	    {
 		BufferString dipval;
 		(*pickset_)[pickidx].getText( "Dip" , dipval );
@@ -244,6 +244,12 @@ void VW2DPickSet::drawAll()
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
 		FlatView::Point point( oninl ? bidf.y:bidf.x, z );
+		picks->poly_ += point;
+	    }
+	    else if ( regfdp && !regfdp->isVertical() )
+	    {
+		const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
+		FlatView::Point point( bidf.x, bidf.y );
 		picks->poly_ += point;
 	    }
 	    else if ( randfdp )

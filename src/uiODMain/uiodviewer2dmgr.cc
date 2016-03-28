@@ -619,8 +619,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     {
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
 	vwr.appearance().ddpars_ = curvwr.appearance().ddpars_;
-	vwr.appearance().annot_ = curvwr.appearance().annot_;
-	vwr.appearance().ddpars_.wva_.allowuserchange_ = vwr2d->isVertical();
+	vwr.appearance().setGeoDefaults( vwr2d->isVertical() );
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
     if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()>0 )
