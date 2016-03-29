@@ -8,12 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uimmbatchjobdispatch.h"
+#include "uibatchjobdispatcherlauncher.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
 #include "uislider.h"
 #include "uilabel.h"
+#include "uimmbatchjobdispatch.h"
 #include "uiseparator.h"
 #include "uibutton.h"
 #include "uitextedit.h"
@@ -90,7 +91,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     , jobpars_(*new IOPar(iop))
     , hdl_(*new const HostDataList(false))
     , avmachfld_(0), usedmachfld_(0)
-    , nicefld_(0)
+    , priofld_(0)
     , logvwer_(0)
     , progrfld_(0)
     , progbar_(0)
@@ -178,12 +179,28 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* jrppolgrp = new uiGroup( this, "Job run policy group" );
 
-    nicefld_ = new uiSlider( jrppolgrp,
-		uiSlider::Setup(tr("'Nice' level (0-19)")), "Nice level" );
-    nicefld_->setMinValue( -0.5 ); nicefld_->setMaxValue( 19.5 );
-    nicefld_->setValue( hdl_.niceLevel() );
-    if ( avmachfld_ )
-	nicefld_->setPrefWidthInChar( hostnmwdth );
+    bool hasunixhost = false;
+    for ( int ihost=0; ihost<hdl_.size(); ihost++ )
+    {
+	if ( !hdl_[ihost]->isWindows() )
+	    { hasunixhost = true; break; }
+    }
+
+    const StepInterval<int> unixmachpriorg(
+		    OS::CommandExecPars::cMachineUserPriorityRange(false) );
+    const StepInterval<int> winmachpriorg(
+		    OS::CommandExecPars::cMachineUserPriorityRange(true) );
+    const int nrsteps = hasunixhost ? unixmachpriorg.nrSteps()
+				    : winmachpriorg.nrSteps();
+
+    uiSlider::Setup ssu( tr("Job Priority") );
+    ssu.nrdec( 7 );
+    priofld_ = new uiSlider( jrppolgrp, ssu );
+    priofld_->setInterval( -1.f, 0.f, 1.f/nrsteps );
+    priofld_->setValue( hdl_.priorityLevel() );
+    uiLabel* sliderlbl = new uiLabel( jrppolgrp,
+				      tr("Left:Low, Right: Normal") );
+    sliderlbl->attach( rightOf, priofld_ );
 
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
     jrppolselfld_->addItem( tr("Run") );
@@ -192,7 +209,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrppolselfld_->setCurrentItem( ((int)0) );
     jrppolselfld_->selectionChanged.notify(
 				mCB(this,uiMMBatchJobDispatcher,jrpSel) );
-    jrppolselfld_->attach( alignedBelow, nicefld_ );
+    jrppolselfld_->attach( alignedBelow, priofld_ );
+
     if ( avmachfld_ ) jrppolselfld_->setPrefWidthInChar( hostnmwdth );
     jrpworklbl_ = new uiLabel( jrppolgrp, tr("Processes") );
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
@@ -209,7 +227,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 				  envstr ? envstr : "7:30" );
     jrpstopfld_->attach( rightOf, jrpstartfld_ );
 
-    jrppolgrp->setHAlignObj( nicefld_ );
+    jrppolgrp->setHAlignObj( priofld_ );
     jrppolgrp->attach( ensureBelow, machgrp );
 
     sep = new uiSeparator( this, "Hor sep 2" );
@@ -259,7 +277,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 
     jobrunner_->setFirstPort( hdl_.firstPort() );
     jobrunner_->setRshComm( hdl_.loginCmd() );
-    jobrunner_->setNiceNess( hdl_.niceLevel() );
+    jobrunner_->setPriority( hdl_.priorityLevel() );
 
     jobrunner_->preJobStart.notify( mCB(this,uiMMBatchJobDispatcher,jobPrep) );
     jobrunner_->postJobStart.notify( mCB(this,uiMMBatchJobDispatcher,jobStart));
@@ -337,10 +355,8 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 	updateAliveDisp();
     }
 
+    jobrunner_->setPriority( priofld_->getFValue() );
 
-    int niceval = nicefld_->getIntValue();
-    if ( niceval > 19 ) niceval = 19; if ( niceval < 0 ) niceval = 0;
-    jobrunner_->setNiceNess( niceval );
     timer_->start( 250, true );
 }
 

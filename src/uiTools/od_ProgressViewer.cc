@@ -91,6 +91,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
 	, delay_(1)
 	, nrcharsread_(0)
 {
+    sleepSeconds( delay_ );
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 

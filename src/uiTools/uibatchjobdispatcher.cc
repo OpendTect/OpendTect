@@ -11,13 +11,15 @@ ________________________________________________________________________
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
 
-#include "batchjobdispatch.h"
+#include "singlebatchjobdispatch.h"
 #include "hostdata.h"
+#include "oddirs.h"
 #include "settings.h"
 
 #include "uigeninput.h"
 #include "uidialog.h"
 #include "uibutton.h"
+#include "uilabel.h"
 #include "uislider.h"
 #include "uicombobox.h"
 #include "uimsg.h"
@@ -276,6 +278,7 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 		errmsg.isSet() ? errmsg : tr("Cannot start required program") );
 	return false;
     }
+
     return true;
 }
 
@@ -298,6 +301,7 @@ uiString uiBatchJobDispatcherLauncher::getInfo() const
 }
 
 
+
 const Batch::JobDispatcher& uiBatchJobDispatcherLauncher::dispatcher() const
 { return const_cast<uiBatchJobDispatcherLauncher*>(this)->gtDsptchr(); }
 
@@ -307,7 +311,9 @@ uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher(
 							Batch::JobSpec& js )
     : uiBatchJobDispatcherLauncher(js)
     , sjd_(*new Batch::SingleJobDispatcher)
+    , hdl_(false)
 {
+    jobspec_.execpars_.prioritylevel_ = hdl_.priorityLevel();
 }
 
 
@@ -323,34 +329,65 @@ Batch::JobDispatcher& uiSingleBatchJobDispatcherLauncher::gtDsptchr()
 }
 
 
-static const float cPrioBound = 19.0f; // happens to be UNIX choice
+bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p )
+{
+    if ( !sjd_.remotehost_.isEmpty() )
+    {
+	hdl_.refresh();
+	const HostData* localhost = hdl_.find( HostData::localHostName() );
+	if ( !localhost )
+	{
+	    uiMSG().error( tr("Cannot find configuration for localhost") );
+	    return false;
+	}
+
+	const FilePath localbasedatadir( GetBaseDataDir() );
+	if ( localbasedatadir != localhost->getDataRoot() )
+	{
+	    uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path in"
+			      " batch processing configuration file:\n'%2'\n"
+			      "Cannot continue")
+			    .arg( localbasedatadir.fullPath() )
+			    .arg( localhost->getDataRoot().fullPath() ) );
+	    return false;
+	}
+    }
+
+    return uiBatchJobDispatcherLauncher::go( p );
+}
+
 
 
 class uiSingleBatchJobDispatcherPars : public uiDialog
 { mODTextTranslationClass(uiSingleBatchJobDispatcherPars);
 public:
 
-uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
+uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
+				Batch::SingleJobDispatcher& sjd,
 				Batch::JobSpec& js )
     : uiDialog(p,Setup(tr("Batch execution parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
                        mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
     , sjd_(sjd)
     , execpars_(js.execpars_)
+    , hdl_(hdl)
     , remhostfld_(0)
 {
     Batch::SingleJobDispatcher::getDefParFilename( js.prognm_, defparfnm_ );
 
     BufferStringSet hnms;
-    const HostDataList hdl( false );
-    hdl.fill( hnms, false );
+    hdl_.fill( hnms, false );
     if ( !hnms.isEmpty() )
     {
 	remhostfld_ = new uiGenInput( this, tr("Execute remote"),
 				      StringListInpSpec(hnms) );
 	remhostfld_->setWithCheck( true );
-	const HostData* curhost = hdl.find( sjd_.remotehost_.str() );
+	const HostData* curhost = hdl_.find( sjd_.remotehost_.str() );
 	remhostfld_->setChecked( curhost );
+	remhostfld_->valuechanged.notify(
+		     mCB(this,uiSingleBatchJobDispatcherPars,hostChgCB) );
+	remhostfld_->checked.notify(
+		     mCB(this,uiSingleBatchJobDispatcherPars,hostChgCB) );
 	if ( curhost )
 	{
 	    const BufferString fullhostnm( curhost->getFullDispString() );
@@ -358,53 +395,99 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 	}
     }
 
-    uiSlider::Setup ssu( tr("Job Priority (if available)") );
-    ssu.withedit( true );
-    priofld_ = new uiSlider( this, ssu );
+    uiSlider::Setup ssu( tr("Job Priority") );
+    ssu.nrdec( 7 );
+    unixpriofld_ = new uiSlider( this, ssu );
+    const StepInterval<int> unixmachpriorg(
+			OS::CommandExecPars::cMachineUserPriorityRange(false) );
+    StepInterval<float> sliderrg( -1.f, 0.f, 1.f/
+				  mCast(float,unixmachpriorg.nrSteps()) );
+    unixpriofld_->setInterval( sliderrg );
+    unixpriofld_->setValue( js.execpars_.prioritylevel_ );
     if ( remhostfld_ )
-	priofld_->attach( alignedBelow, remhostfld_ );
+	unixpriofld_->attach( alignedBelow, remhostfld_ );
 
-    priofld_->setInterval( -cPrioBound, cPrioBound, 1.0f );
-    priofld_->setTickMarks( uiSlider::NoMarks );
-    priofld_->setValue( execpars_.prioritylevel_ * cPrioBound );
+    windowspriofld_ = new uiSlider( this, ssu );
+    const StepInterval<int> winmachpriorg(
+			OS::CommandExecPars::cMachineUserPriorityRange(true) );
+    sliderrg.step = 1.f / mCast(float,winmachpriorg.nrSteps() );
+    windowspriofld_->setInterval( sliderrg );
+    windowspriofld_->setValue( js.execpars_.prioritylevel_ );
+    if ( remhostfld_ )
+	windowspriofld_->attach( alignedBelow, remhostfld_ );
+
+    sliderlbl_ = new uiLabel( this, tr("Left:Low, Right: Normal") );
+    sliderlbl_->attach( rightOf, unixpriofld_ );
+
+    hostChgCB(0);
+}
+
+void hostChgCB( CallBacker* )
+{
+    const HostData* curhost = hdl_.find( remhostfld_ && remhostfld_->isChecked()
+					 ? remhostfld_->text()
+					 : HostData::localHostName() );
+    if ( !curhost )
+    {
+#ifdef __win__
+	unixpriofld_->display( false );
+	windowspriofld_->display( true );
+#else
+	unixpriofld_->display( true );
+	windowspriofld_->display( false );
+#endif
+	return;
+    }
+
+    const bool iswin = curhost->isWindows();
+
+    unixpriofld_->display( !iswin );
+    windowspriofld_->display( iswin );
 }
 
 bool acceptOK( CallBacker* )
 {
     if ( remhostfld_ && remhostfld_->isChecked() )
     {
-	const HostDataList hdl( false );
-	const HostData* curhost = hdl.find( remhostfld_->text() );
-	if ( !curhost )
+	const HostData* machine = hdl_.find( remhostfld_->text() );
+	if ( !machine )
 	    return false;
 
-	if ( curhost->getHostName() )
-	    sjd_.remotehost_.set( curhost->getHostName() );
-	else if ( curhost->getIPAddress() )
-	    sjd_.remotehost_.set( curhost->getIPAddress() );
+	if ( machine->getHostName() )
+	    sjd_.remotehost_.set( machine->getHostName() );
+	else if ( machine->getIPAddress() )
+	    sjd_.remotehost_.set( machine->getIPAddress() );
 	else
 	    return false;
     }
     else
 	sjd_.remotehost_.setEmpty();
 
-    execpars_.prioritylevel_ = priofld_->getFValue() / cPrioBound;
+    const uiSlider* priofld = windowspriofld_->isDisplayed()
+			    ? windowspriofld_
+			    : unixpriofld_;
+    execpars_.prioritylevel_ = priofld->getFValue();
 
     return true;
 }
 
+    const HostDataList&		hdl_;
     Batch::SingleJobDispatcher&	sjd_;
     OS::CommandExecPars&	execpars_;
     BufferString		defparfnm_;
 
     uiGenInput*			remhostfld_;
-    uiSlider*			priofld_;
+    uiSlider*			unixpriofld_;
+    uiSlider*			windowspriofld_;
+				/* Flipped priority: Low <---> Normal */
+    uiLabel*			sliderlbl_;
 
 };
 
 
 void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
 {
-    uiSingleBatchJobDispatcherPars dlg( p, sjd_, jobspec_ );
+    hdl_.refresh();
+    uiSingleBatchJobDispatcherPars dlg( p, hdl_, sjd_, jobspec_ );
     dlg.go();
 }

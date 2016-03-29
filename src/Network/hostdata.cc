@@ -277,6 +277,7 @@ void HostData::usePar( const IOPar& par )
 
 
 static const char* sKeyLoginCmd()	{ return "Remote login command"; }
+static const char* sKeyPriorityLevel()	{ return "Priority level"; }
 static const char* sKeyNiceLevel()	{ return "Nice level"; }
 static const char* sKeyFirstPort()	{ return "First port"; }
 static const char* sKeyUnixDataRoot()	{ return "Default Unix Data Root"; }
@@ -284,7 +285,7 @@ static const char* sKeyWinDataRoot()	{ return "Default Windows Data Root"; }
 
 HostDataList::HostDataList( bool foredit )
     : logincmd_("ssh")
-    , nicelvl_(19)
+    , prioritylevel_(-1.f)
     , firstport_(37500)
 {
     BufferString bhfnm = "BatchHosts";
@@ -297,13 +298,21 @@ HostDataList::HostDataList( bool foredit )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 
     batchhostsfnm_ = fname;
-    readHostFile( fname );
+    refresh( foredit );
+}
+
+
+bool HostDataList::refresh( bool foredit )
+{
+    readHostFile( batchhostsfnm_ );
 
     if ( !foredit )
     {
 	handleLocal();
 	initDataRoot();
     }
+
+    return true;
 }
 
 
@@ -349,8 +358,23 @@ void HostDataList::initDataRoot()
 }
 
 
-void HostDataList::setNiceLevel( int lvl )		{ nicelvl_ = lvl; }
-int HostDataList::niceLevel() const			{ return nicelvl_; }
+void HostDataList::setNiceLevel( int nicelevel )
+{
+   if ( mIsUdf(nicelevel) )
+       return;
+
+   const StepInterval<int> machpriorg(
+	   OS::CommandExecPars::cMachineUserPriorityRange(false) );
+
+   prioritylevel_ = -1.f * mCast(float,nicelevel) /
+		    mCast(float,machpriorg.stop);
+}
+
+
+int HostDataList::niceLevel() const
+{ return OS::CommandExecPars::getMachinePriority( prioritylevel_, false ); }
+
+float HostDataList::priorityLevel() const	{ return prioritylevel_; }
 void HostDataList::setFirstPort( int port )		{ firstport_ = port; }
 int HostDataList::firstPort() const			{ return firstport_; }
 void HostDataList::setLoginCmd( const char* cmd )	{ logincmd_ = cmd; }
@@ -386,7 +410,13 @@ bool HostDataList::readHostFile( const char* fnm )
     }
 
     par.get( sKeyLoginCmd(), logincmd_ );
-    par.get( sKeyNiceLevel(), nicelvl_ );
+    if ( !par.get(sKeyPriorityLevel(),prioritylevel_) )
+    {
+	int nicelvl;
+	if ( par.get(sKeyNiceLevel(),nicelvl) )
+	    setNiceLevel( nicelvl );
+    }
+
     par.get( sKeyFirstPort(), firstport_ );
     OS::MachineCommand::setDefaultRemExec( logincmd_ );
 
@@ -435,7 +465,11 @@ bool HostDataList::readOldHostFile( const char* fname )
 	if ( astrm.hasKeyword("Remote shell") )
 	    { logincmd_ = astrm.value(); foundrsh = !logincmd_.isEmpty(); }
 	if ( astrm.hasKeyword("Default nice level") )
-	    nicelvl_ = astrm.getIValue();
+	{
+	    const int nicelvl = astrm.getIValue();
+	    if ( !mIsUdf(nicelvl) )
+		setNiceLevel( nicelvl );
+	}
 	if ( astrm.hasKeyword("First port") )
 	    firstport_ = astrm.getIValue();
 	if ( astrm.hasKeyword("Win appl prefix") )
@@ -517,7 +551,9 @@ bool HostDataList::writeHostFile( const char* fnm )
 {
     IOPar par;
     par.set( sKeyLoginCmd(), logincmd_ );
-    par.set( sKeyNiceLevel(), nicelvl_ );
+    par.set( sKeyPriorityLevel(), prioritylevel_ );
+    par.set( sKeyNiceLevel(),
+	     OS::CommandExecPars::getMachinePriority(prioritylevel_,false) );
     par.set( sKeyFirstPort(), firstport_ );
     par.set( sKeyUnixDataRoot(), unx_data_pr_ );
     win_data_pr_.replace( ":", ";" );
@@ -552,7 +588,7 @@ void HostDataList::dump( od_ostream& strm ) const
 {
     strm << "\n\n-- Host data list:\n--\n";
     mPrMemb(this,logincmd_)
-    mPrMemb(this,nicelvl_)
+    mPrMemb(this,prioritylevel_)
     mPrMemb(this,firstport_)
     mPrMemb(this,win_appl_pr_)
     mPrMemb(this,unx_appl_pr_)

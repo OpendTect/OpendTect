@@ -19,6 +19,7 @@ set(OD_MODULE_SOURCES
 	mmexecproxy.cc
 	remcommhandler.cc
 	remjobexec.cc
+	singlebatchjobdispatch.cc
 )
 
 set(OD_MODULE_PROGS

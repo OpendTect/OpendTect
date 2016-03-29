@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "jobiomgr.h"
 
+#include "commandlineparser.h"
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
@@ -40,51 +41,57 @@ ________________________________________________________________________
 #define mDebugOn	(DBG::isOn(DBG_MM))
 
 #define mErrRet(msg) \
-    {\
-	msg_ = msg;\
-	DBG::message(DBG_MM,msg);\
-	return false;\
-    }
+{\
+    msg_ = msg;\
+    DBG::message(DBG_MM,msg);\
+    return false;\
+}
 
 
-class CommandString
+CommandString::CommandString( const HostData& hostdata, const char* init )
+    : hstdata_(hostdata)
+    , cmd_(init)
+{}
+
+
+CommandString& CommandString::operator=( const char* str )
 {
-public:
-			CommandString( const char* init=0 )
-			    : cmd( init ) {}
+    cmd_ = str;
+    return *this;
+}
 
-    void		addWoSpc( const char* txt ) { cmd += txt; }
-    void		add( const char* txt ) { cmd += " "; cmd += txt; }
-    void		addFlag( const char* f, const char* v )
-			{
-			    if ( !v || !*v ) return;
-			    add(f); add(v);
-			}
-    void		addFlag( const char* f, int v )
-			     { add(f); cmd += " "; cmd += v; }
 
-    void		addFilePath( const FilePath& fp, FilePath::Style stl )
-			{
-			    cmd += stl == FilePath::Unix ? " '" : " \"";
-			    cmd += fp.fullPath(stl);
-			    cmd += stl == FilePath::Unix ? "'" : "\"";
-			}
+void CommandString::add( const char* txt )
+{ cmd_.addSpace().add( txt ); }
 
-    void		addFilePathFlag( const char* flag, const FilePath& fp,
-					 FilePath::Style stl )
-			{
-			    cmd += " "; cmd += flag; cmd += " ";
-			    addFilePath( fp, stl );
-			}
+void CommandString::addFlag( const char* f, const char* v )
+{
+    if ( !v || !*v ) return;
 
-    const OD::String&	string() { return cmd; }
+    BufferString flag;
+    CommandLineParser::createKey( f, flag );
+    add( flag.str() );
+    add( v );
+}
 
-    inline CommandString& operator=( const char* str )
-			   { cmd = str; return *this; }
-protected:
 
-    BufferString	cmd;
-};
+void CommandString::addFlag( const char* f, int v )
+{
+    BufferString flag;
+    CommandLineParser::createKey( f, flag );
+    flag.addSpace().add( v );
+    add( flag.str() );
+}
+
+
+void CommandString::addFilePath( const FilePath& fp )
+{
+    const FilePath::Style stl( hstdata_.pathStyle() );
+    cmd_.add( stl == FilePath::Unix ? " '" : " \"" )
+	.add( fp.fullPath(stl) )
+	.add( stl == FilePath::Unix ? "'" : "\"" );
+}
+
 
 
 /*!\brief Connects job to host.
@@ -324,12 +331,13 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 
 
 // JobIOMgr
-JobIOMgr::JobIOMgr( int firstport, int niceval )
+JobIOMgr::JobIOMgr( int firstport, float prioritylevel )
     : iohdlr_(*new JobIOHandler(firstport))
-    , niceval_(niceval)
 {
     for ( int count=0; count<10 && !iohdlr_.ready(); count++ )
 	{ sleepSeconds( 0.1 ); }
+
+    setPriority( prioritylevel );
 
     if ( mDebugOn )
     {
@@ -349,6 +357,10 @@ JobIOMgr::JobIOMgr( int firstport, int niceval )
 
 JobIOMgr::~JobIOMgr()
 { delete &iohdlr_; }
+
+
+void JobIOMgr::setPriority( float p )
+{ execpars_.prioritylevel_ = p; }
 
 void JobIOMgr::reqModeForJob( const JobInfo& ji, Mode m )
 { iohdlr_.reqModeForJob(ji,m); }
@@ -373,28 +385,35 @@ bool JobIOMgr::startProg( const char* progname,
 
     const HostData& machine = *ji.hostdata_;
     FilePath ioparfp;
-    if ( !mkIOParFile(ioparfp,basefp,machine,iop) )
+    if ( !mkIOParFile(basefp,machine,iop,ioparfp,msg_) )
 	return false;
 
-    CommandString cmd;
-    mkCommand( cmd, machine, progname, basefp, ioparfp, ji, rshcomm );
+    OS::MachineCommand mc;
+    mkCommand( mc, machine, progname, basefp, ioparfp, ji, rshcomm );
 
     iohdlr_.addJobDesc( machine, ji.descnr_ );
+    const BufferString cmd( mc.getLocalCommand() );
     if ( mDebugOn )
     {
-	BufferString msg("Executing: ");
-	msg += cmd.string();
+	const BufferString msg( "Executing: ", cmd );
 	DBG::message(msg);
     }
 
-    const BufferString cmdbs( cmd.string() );
-    if ( !OS::ExecCommand(cmdbs,OS::RunInBG) )
+    OS::CommandLauncher cl( mc );
+    if ( !cl.execute(execpars_) )
     {
 	iohdlr_.removeJobDesc( machine.getHostName(), ji.descnr_ );
-	mErrRet( BufferString("Failed to submit command '", cmdbs, "'") )
+	mErrRet( BufferString("Failed to submit command '", cmd, "'") )
     }
 
     return true;
+}
+
+#undef mErrRet
+#define mErrRet() \
+{\
+    DBG::message(DBG_MM,msg);\
+    return false;\
 }
 
 
@@ -417,12 +436,13 @@ static FilePath getConvertedFilePath( const HostData& hd, const FilePath& fp )
 }
 
 
-bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
-			    const HostData& remotemachine, const IOPar& iop )
+bool JobIOMgr::mkIOParFile( const FilePath& basefp,
+			    const HostData& remotemachine, const IOPar& iop,
+			    FilePath& iopfp, BufferString& msg )
 {
     iopfp = basefp; iopfp.setExtension( ".par", false );
     IOPar newiop( iop );
-    const FilePath::Style machpathstyle(remotemachine.pathStyle());
+    const FilePath::Style machpathstyle( remotemachine.pathStyle() );
 
     FilePath remoteparfp = getConvertedFilePath( remotemachine, basefp );
     BufferString bs( remoteparfp.fullPath() );
@@ -460,13 +480,14 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     od_ostream iopstrm( remoteiopfnm );
     if ( !iopstrm.isOK() )
     {
-	const BufferString s( "Cannot open '", remoteiopfnm, "' for write ...");
-	mErrRet(s)
+	msg.set( "Cannot open '" ).add( remoteiopfnm ).add( "' for write ..." );
+	mErrRet()
     }
     else if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
-	const BufferString s("Cannot write parameters into '",remoteiopfnm,"'");
-	mErrRet(s)
+	msg.set( "Cannot write parameters into '" ).add( remoteiopfnm );
+	msg.add( "'" );
+	mErrRet()
     }
 
     iopfp.set( remoteparfp.fullPath(machpathstyle) );
@@ -475,8 +496,9 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
 #else
 
-bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
-			    const HostData& machine, const IOPar& iop )
+bool JobIOMgr::mkIOParFile( const FilePath& basefp,
+			    const HostData& machine, const IOPar& iop,
+			    FilePath& iopfp, BufferString& msg )
 {
     iopfp = basefp; iopfp.setExtension( ".par", false );
     const BufferString iopfnm( iopfp.fullPath() );
@@ -497,7 +519,6 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 		    remotetmpdir.fullPath(machine.pathStyle()) );
     }
 
-
     const FilePath remotedr =
 		machine.convPath( HostData::Data, GetBaseDataDir() );
     newiop.set( sKey::DataRoot(),
@@ -510,13 +531,13 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     od_ostream iopstrm( iopfnm );
     if ( !iopstrm.isOK() )
     {
-	const BufferString s( "Cannot open '", iopfnm, "' for write ..." );
-	mErrRet(s)
+	msg.set( "Cannot open '" ).add( iopfnm ).add( "' for write ..." );
+	mErrRet()
     }
     if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
-	const BufferString s( "Cannot write parameters into '", iopfnm, "'" );
-	mErrRet(s)
+	msg.set( "Cannot write parameters into '" ).add( iopfnm ).add( "'" );
+	mErrRet()
     }
 
     iopfp = machine.convPath( HostData::Data, iopfp );
@@ -526,71 +547,44 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 #endif
 
 
-void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
+void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 			  const char* progname, const FilePath& basefp,
 			  const FilePath& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
-    const bool remote = !machine.isKnownAs( HostData::localHostName() );
+    const BufferString remhostaddress =
+		       System::hostAddress( machine.getHostName() );
+    const HostData& localhost = machine.localHost();
+    const bool remote = !machine.isKnownAs( HostData::localHostName() ) ||
+			remhostaddress != System::localAddress();
+    const bool unixtounix = remote && !localhost.isWindows() &&
+			    !machine.isWindows();
 
-    cmd = "@";
-
-    if ( __iswin__ || machine.isWindows() ) // from or to Windows
+    if ( remote )
     {
-    // Do not use od_remexe if host is local
-	const BufferString remhostaddress =
-		System::hostAddress( machine.getHostName() );
-	if ( remhostaddress != System::localAddress() )
-	{
-	    cmd.add( "od_remexec" );
-	    cmd.add( machine.getIPAddress() );
-	}
-
-	cmd.add( progname );
-	cmd.addFlag( "-masterhost", System::localAddress() );
-	cmd.addFlag( "-masterport", iohdlr_.port() );
-	cmd.addFlag( "-jobid", ji.descnr_ );
-	FilePath parfp( iopfp );
-	cmd.addFilePath( parfp, machine.pathStyle() );
+	mc.setRemExec( unixtounix ? rshcomm
+				  : OS::MachineCommand::odRemExecCmd() );
+	mc.setHostName( machine.getHostName() );
     }
-    else
-    {
-	cmd.addWoSpc( GetExecScript(remote) );
 
-	if ( remote )
-	{
-	    cmd.add( machine.getIPAddress() );
-	    cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh
-	}
-
-	cmd.addFlag( "--nice", niceval_ );
-	cmd.addFlag( "--inbg", progname );
-	cmd.addFlag( "-masterhost", System::localAddress() );
-	cmd.addFlag( "-masterport", iohdlr_.port() );
-	cmd.addFlag( "-jobid", ji.descnr_ );
-
-	if ( remote )
-	{
-	    if ( machine.isWindows()  ) cmd.add( "--iswin" );
-
-	    cmd.addFilePathFlag( "--with-dtect-appl",
-			machine.convPath(HostData::Appl,GetSoftwareDir(0)),
-			FilePath::Unix );
-
-	    cmd.addFilePathFlag( "--with-dtect-data",
-			machine.convPath(HostData::Data,GetBaseDataDir()),
-			FilePath::Unix );
-
-	    cmd.addFilePathFlag( "--with-local-file-base", basefp,
-			FilePath::Unix);
-
-	    cmd.addFilePathFlag( "--with-remote-file-base",
-			machine.convPath(HostData::Data, basefp),
-			FilePath::Unix );
-	}
-
-	const FilePath riopfp(
-		remote ? machine.convPath(HostData::Data,iopfp) : iopfp );
-	cmd.addFilePath( riopfp, FilePath::Unix );
+    CommandString argstr( machine );
+    FilePath progfp( progname );
+    if ( unixtounix )
+    { //ssh-rsh requires full path to exec
+	progfp.insert( GetExecPlfDir() );
+	progfp = machine.convPath( HostData::Appl, progfp, &localhost );
     }
+
+    argstr.addFlag( OS::MachineCommand::sKeyMasterHost(),
+		 System::localAddress() );
+    argstr.addFlag( OS::MachineCommand::sKeyMasterPort(), iohdlr_.port() );
+    argstr.addFlag( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
+
+    BufferString cmd( unixtounix ? progfp.fullPath( machine.pathStyle() ).str()
+				 : progfp.fileName().str() );
+
+    argstr.addFilePath( iopfp );
+    cmd.addSpace().add( argstr.string() );
+
+    mc.setCommand( cmd.str() );
 }

@@ -29,7 +29,7 @@ class StatusInfo;
 mExpClass(MMProc) HostNFailInfo
 { mODTextTranslationClass(HostNFailInfo);
 public:
-    			HostNFailInfo( const HostData& hd )
+			HostNFailInfo( const HostData& hd )
 			    : hostdata_(hd)
 			    , nrfailures_(0)
 			    , nrsucces_(0)
@@ -54,7 +54,7 @@ mExpClass(MMProc) JobRunner : public Executor
 { mODTextTranslationClass(JobRunner);
 public:
 
-    				JobRunner(JobDescProv*,const char* cmd);
+				JobRunner(JobDescProv*,const char* cmd);
 				//!< JobDescProv becomes mine. Never pass null.
 				~JobRunner();
 
@@ -70,11 +70,11 @@ public:
     bool			isAssigned( const JobInfo& ji ) const;
 
     int				nrJobs( bool failed=false ) const
-    				{ return (failed ? failedjobs_ : jobinfos_)
-				    	 .size(); }
+				{ return (failed ? failedjobs_ : jobinfos_)
+					 .size(); }
     const JobInfo&		jobInfo( int idx, bool failed=false ) const
-    				{ return *(failed ? failedjobs_ : jobinfos_)
-				    	 [idx]; }
+				{ return *(failed ? failedjobs_ : jobinfos_)
+					 [idx]; }
 
     int				jobsDone() const;
     int				jobsInProgress() const;
@@ -90,12 +90,12 @@ public:
     uiString			uiMessage() const;
     uiString			nrDoneMessage() const;
 
-    				// Set these before first step
+				// Set these before first step
     void			setFirstPort( int n )	    { firstport_ = n; }
     void			setRshComm( const char* s ) { rshcomm_ = s; }
     void			setProg( const char* s )    { prog_ = s; }
-    				// Set this anytime
-    void			setNiceNess( int n );
+				// Set this anytime
+    void			setPriority(float);
 
     void			showMachStatus( BufferStringSet& ) const;
     const FilePath&		getBaseFilePath(JobInfo&, const HostData&);
@@ -128,7 +128,7 @@ protected:
     JobIOMgr&			iomgr();
     JobIOMgr*			iomgr_;
 
-    int				niceval_;
+    float			prioritylevel_;
     int				firstport_;
     BufferString		rshcomm_;
     int				maxhostfailures_; //!< host failrs B4 host bad
@@ -145,10 +145,10 @@ protected:
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;
 
     void			updateJobInfo();
-    void 			handleStatusInfo( StatusInfo& );
-    JobInfo* 			gtJob( int descnr );
+    void			handleStatusInfo( StatusInfo& );
+    JobInfo*			gtJob( int descnr );
 
-    void 			failedJob( JobInfo&, JobInfo::State );
+    void			failedJob( JobInfo&, JobInfo::State );
 
     enum StartRes		{ Started, NotStarted, JobBad, HostBad };
     StartRes			startJob( JobInfo& ji, HostNFailInfo& jhi );
@@ -163,5 +163,7 @@ protected:
     HostStat			hostStatus(const HostNFailInfo*) const;
 
 };
+
+mGlobal(MMProc) int& MMJob_getTempFileNr();
 
 #endif

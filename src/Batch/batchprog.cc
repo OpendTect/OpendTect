@@ -71,21 +71,22 @@ void BatchProgram::init()
     delete clparser_;
 
     OD::ModDeps().ensureLoaded( "Batch" );
+
     clparser_ = new CommandLineParser;
-    clparser_->setKeyHasValue( sKeyMasterHost() );
-    clparser_->setKeyHasValue( sKeyMasterPort() );
-    clparser_->setKeyHasValue( sKeyJobID() );
+    clparser_->setKeyHasValue( OS::MachineCommand::sKeyMasterHost() );
+    clparser_->setKeyHasValue( OS::MachineCommand::sKeyMasterPort() );
+    clparser_->setKeyHasValue( OS::MachineCommand::sKeyJobID() );
     clparser_->setKeyHasValue( sKeyDataDir() );
 
-    inbg_ = clparser_->hasKey( sKeyBG() );
+    inbg_ = clparser_->hasKey( OS::MachineCommand::sKeyBG() );
 
     BufferString masterhost;
-    clparser_->getVal( sKeyMasterHost(), masterhost );
+    clparser_->getVal( OS::MachineCommand::sKeyMasterHost(), masterhost );
 
     int masterport = -1;
-    clparser_->getVal( sKeyMasterPort(), masterport );
+    clparser_->getVal( OS::MachineCommand::sKeyMasterPort(), masterport );
 
-    clparser_->getVal( sKeyJobID(), jobid_ );
+    clparser_->getVal( OS::MachineCommand::sKeyJobID(), jobid_ );
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
 	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
@@ -157,24 +158,17 @@ void BatchProgram::init()
 	 File::exists(res) )
 	SetEnvVar( "DTECT_DATA", res );
 
-    res = iopar_->find( sKey::Survey() );
-    if ( res.isEmpty() )
-	IOMan::newSurvey();
-    else
+    if ( !iopar_->get(sKey::Survey(),res) )
     {
-	if ( DBG::isOn(DBG_PROGSTART) )
-	{
-	    const char* oldsnm = IOM().surveyName();
-	    if ( !oldsnm ) oldsnm = "<empty>";
-	    if ( res!=oldsnm )
-	    {
-		BufferString msg( "Using survey from par file: ", res,
-				  ". was: " ); msg += oldsnm;
-		infoMsg( msg );
-	    }
-	}
-	IOMan::setSurvey( res );
+	errorMsg( tr("Invalid paramater file %1\n"
+		     "Survey key is missing")
+			.arg( parfilnm ) );
+	return;
     }
+
+    uiString errmsg;
+    if ( !IOMan::setSurvey(res.str(),&errmsg) )
+	{ errorMsg( errmsg ); return; }
 
     killNotify( true );
 

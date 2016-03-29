@@ -29,7 +29,7 @@
 #ifdef __win__
 # include "winutils.h"
 # include <windows.h>
-#include <stdlib.h>
+# include <stdlib.h>
 #endif
 
 BufferString OS::MachineCommand::defremexec_( "ssh" );
@@ -140,6 +140,23 @@ void OS::CommandExecPars::removeFromPar( IOPar& iop ) const
 {
     iop.removeWithKeyPattern( BufferString(sKeyExecPars,".*") );
 }
+
+
+const StepInterval<int> OS::CommandExecPars::cMachineUserPriorityRange(
+					     bool iswin )
+{ return iswin ? StepInterval<int>( 6, 8, 1 ) :StepInterval<int>( 0, 19, 1 ); }
+
+
+int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
+{
+    const StepInterval<int> machpriorg( cMachineUserPriorityRange(iswin) );
+    const float scale = iswin ? 1.f : -1.f;
+
+    int machprio = mCast(int, mNINT32(scale * priority * machpriorg.width()) );
+
+    return machprio += iswin ? machpriorg.stop : machpriorg.start;
+}
+
 
 
 OS::MachineCommand::MachineCommand( const char* comm )
@@ -369,11 +386,25 @@ static const char* getCmd( const char* fnm )
 BufferString OS::MachineCommand::getLocalCommand() const
 {
     BufferString ret;
-	    //TODO handle hname_ != local host on Windows correctly
-    if ( hname_.isEmpty() || __iswin__ )
-	ret = mFullCommandStr;
-    else
-	ret.set( remexec_ ).add( " " ).add( hname_ ).add( " " ).add( comm_ );
+
+    const BufferString localhostnm( GetLocalHostName() );
+    if ( !remexec_.isEmpty() && !hname_.isEmpty() && hname_ != localhostnm )
+    {
+	if ( remexec_ == odRemExecCmd() ) //New mode
+	{
+	    ret.set( remexec_ ).addSpace();
+	    BufferString key;
+	    CommandLineParser::createKey( sKeyRemoteHost(), key );
+	    ret.add( key ).addSpace().add( hname_ ).addSpace();
+	    CommandLineParser::createKey(sKeyRemoteCmd(), key );
+	    ret.add( key ).addSpace();
+	}
+	else // Unix to Unix only (ssh/rsh)
+	    ret.set( remexec_ ).addSpace().add( hname_ ).addSpace();
+    }
+
+    ret.add( mFullCommandStr );
+
     return ret;
 }
 
@@ -464,6 +495,9 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( localcmd.isEmpty() )
 	{ errmsg_ = toUiString("Empty command to execute"); return false; }
 
+    if ( !mIsZero(pars.prioritylevel_,1e-2f) )
+	localcmd.add( " --priority " ).add( pars.prioritylevel_ );
+
     bool ret = false;
     if ( pars.isconsoleuiprog_ )
     {
@@ -490,8 +524,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    redirectoutput_ = true;
 	}
 #endif
-	if ( File::exists(monitorfnm_) )
-	    File::remove(monitorfnm_);
+	if ( File::exists(monitorfnm_) && !File::remove(monitorfnm_) )
+	    return false;
     }
 
     ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
@@ -503,8 +537,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     {
 	monitorfnm_.quote( '\"' );
 	progvwrcmd_.set( "\"" ).add( odprogressviewer_ )
-	    .add( "\" --inpfile " ).add( monitorfnm_ )
-	    .add( " --pid " ).add( processID() );
+		   .add( "\" --inpfile " ).add( monitorfnm_ )
+		   .add( " --pid " ).add( processID() );
 
 	redirectoutput_ = false;
 	if ( !ExecODProgram(progvwrcmd_) )
@@ -691,6 +725,7 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 	return false;
 
     pid_ = mCast(od_int64,qpid);
+
     return true;
 #else
     return false;
@@ -777,7 +812,7 @@ bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
     OS::CommandLauncher::addQuotesIfNeeded( cmd );
 
     if ( args )
-	cmd.add( " ").add( args );
+	cmd.addSpace().add( args );
 
     return doExecOSCmd( cmd, ltyp, true, 0, 0 );
 }

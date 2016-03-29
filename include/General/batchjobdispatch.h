@@ -50,7 +50,7 @@ public:
 
 /*!\brief Base class (with factory) for methods to kick-off an OD batch job.
 
-  Subclasses are expected to be ranging from simple single-prcess starters to
+  Subclasses are expected to be ranging from simple single-process starters to
   elaborate cluster-based job splitting monsters.
 
   isSuitedFor() determines whether a certain type of dispatcher can handle any
@@ -110,34 +110,6 @@ protected:
 
 };
 
-
-/*!\brief kicks off OD batch jobs in a single process. */
-
-mExpClass(General) SingleJobDispatcher : public JobDispatcher
-{ mODTextTranslationClass(SingleJobDispatcher);
-public:
-
-			SingleJobDispatcher();
-    virtual		~SingleJobDispatcher()		{}
-
-    virtual uiString	description() const;
-    virtual bool	isSuitedFor(const char*) const	{ return true; }
-
-    mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
-				 "Single Process",tr("Single Process"));
-
-    BufferString	remotehost_;
-    BufferString	remoteexec_;
-
-protected:
-
-    virtual bool	init();
-    virtual bool	launch();
-
-};
-
-
 } // namespace Batch
-
 
 #endif

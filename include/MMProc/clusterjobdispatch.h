@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
-#include "batchjobdispatch.h"
+#include "singlebatchjobdispatch.h"
 
 
 namespace Batch

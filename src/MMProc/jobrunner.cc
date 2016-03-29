@@ -64,7 +64,6 @@ int mkTmpFileNr()
 { return 1; }
 
 
-mGlobal(MMProc) int& MMJob_getTempFileNr(); // keep compiler happy
 int& MMJob_getTempFileNr()
 {
     mDefineStaticLocalObject( int, tmpfile_nr, = 1 );
@@ -77,7 +76,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, iomgr_(0)
 	, descprov_(p)
 	, rshcomm_("rsh")
-	, niceval_(19)
+	, prioritylevel_(-1.f)
 	, firstport_(19636)
 	, prog_(cmd)
 	, starttimeout_( 1000 * GetEnvVarIVal("DTECT_MM_START_TO",   45 ) )
@@ -272,7 +271,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
 JobIOMgr& JobRunner::iomgr()
 {
-    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, niceval_);
+    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, prioritylevel_ );
     return *iomgr_;
 }
 
@@ -533,10 +532,10 @@ uiString JobRunner::nrDoneMessage() const
 { return tr("Jobs completed"); }
 
 
-void JobRunner::setNiceNess( int n )
+void JobRunner::setPriority( float p )
 {
-    niceval_ = n;
-    if ( iomgr_ ) iomgr_->setNiceNess(n);
+    prioritylevel_ = p;
+    if ( iomgr_ ) iomgr_->setPriority( p );
 }
 
 

@@ -16,6 +16,7 @@ mDefModInitFn(MMProc)
 {
     mIfNotFirstTime( return );
 
+    Batch::SingleJobDispatcher::initClass();
     Batch::MMJobDispatcher::initClass();
     Batch::ClusterJobDispatcher::initClass();
 }

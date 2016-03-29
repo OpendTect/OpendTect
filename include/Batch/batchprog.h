@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "genc.h"
 #include "od_iostream.h"
+#include "oscommand.h"
 
 class CommandLineParser;
 class IOObj;
@@ -72,10 +73,6 @@ public:
     mExp(Batch) static void	deleteInstance();
 
 
-    static const char*	sKeyMasterHost()	{ return "masterhost"; }
-    static const char*	sKeyMasterPort()	{ return "masterport"; }
-    static const char*	sKeyBG()		{ return "bg"; }
-    static const char*	sKeyJobID()		{ return "jobid"; }
     static const char*	sKeyDataDir()		{ return "datadir"; }
     static bool		doImport( od_ostream& strm, IOPar& iop, bool is2d );
     static bool		doExport( od_ostream& strm, IOPar& iop, bool is2d );

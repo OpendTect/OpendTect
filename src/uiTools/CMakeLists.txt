@@ -4,7 +4,7 @@
 # 	Jan 2012	K. Tingdahl
 #_______________________________________________________________________________
 
-set( OD_MODULE_DEPS uiBase Network )
+set( OD_MODULE_DEPS uiBase MMProc )
 set( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc

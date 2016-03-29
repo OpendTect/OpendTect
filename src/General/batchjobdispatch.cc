@@ -9,7 +9,6 @@
 #include "keystrs.h"
 #include "filepath.h"
 #include "strmprov.h"
-#include "oscommand.h"
 #include "oddirs.h"
 #include "ascstream.h"
 #include "dirlist.h"
@@ -209,50 +208,4 @@ void Batch::JobDispatcher::setUserWantsResume( IOPar& iop, bool yn )
 bool Batch::JobDispatcher::userWantsResume( const IOPar& iop )
 {
     return iop.isTrue( sKeyResumeProcessing );
-}
-
-
-
-Batch::SingleJobDispatcher::SingleJobDispatcher()
-{
-}
-
-
-uiString Batch::SingleJobDispatcher::description() const
-{
-    return tr("The job will be executed on one computer, in a single process.");
-}
-
-
-bool Batch::SingleJobDispatcher::init()
-{
-    if ( parfnm_.isEmpty() )
-	getDefParFilename( jobspec_.prognm_, parfnm_ );
-
-    FilePath fp( parfnm_ );
-    fp.setExtension( 0 );
-    BufferString logfnm( fp.fullPath() );
-    logfnm.add( "_log.txt" );
-    jobspec_.pars_.update( sKey::LogFile(), logfnm );
-
-    return true;
-}
-
-
-bool Batch::SingleJobDispatcher::launch()
-{
-    if ( !writeParFile() )
-	return false;
-
-    BufferString cmd( jobspec_.prognm_, " ", jobspec_.clargs_ );
-    BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
-    cmd.add( qtdparfnm );
-    OS::MachineCommand mc( cmd, remotehost_ );
-    if ( !remoteexec_.isEmpty() )
-	mc.setRemExec( remoteexec_ );
-    OS::CommandLauncher cl( mc );
-    BufferString logfile;
-    jobspec_.pars_.get( sKey::LogFile(), logfile );
-    jobspec_.execpars_.monitorfnm( logfile );
-    return cl.execute( jobspec_.execpars_ );
 }

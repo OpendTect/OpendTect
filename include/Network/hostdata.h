@@ -116,6 +116,7 @@ public:
 
     void		setNiceLevel(int);
     int			niceLevel() const;
+    float		priorityLevel() const;
     void		setFirstPort(int);
     int			firstPort() const;
     void		setLoginCmd(const char*);
@@ -124,6 +125,8 @@ public:
     const char*		unixDataRoot() const;
     void		setWinDataRoot(const char*);
     const char*		winDataRoot() const;
+
+    bool		refresh(bool foredit=false);
 
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
@@ -139,7 +142,7 @@ public:
 protected:
 
     BufferString	logincmd_;
-    int			nicelvl_;
+    float		prioritylevel_;
     int			firstport_;
     BufferString	win_appl_pr_;
     BufferString	unx_appl_pr_;

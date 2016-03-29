@@ -291,24 +291,20 @@ bool IOMan::newSurvey( SurveyInfo* newsi, uiString* errmsg )
 
 bool IOMan::setSurvey( const char* survname, uiString* errmsg )
 {
-    SurveyInfo oldsi( SI() );
-    SurveyInfo::setSurveyName( survname );
+    SurveyInfo* newsi = 0;
 
-    IOM().reInit( true );
-    if ( !IOM().isBad() )
+    const FilePath surveyfp( GetBaseDataDir(), survname );
+    const BufferString surveyfnm( surveyfp.fullPath() );
+    if ( File::exists(surveyfnm.str()) && File::isReadable(surveyfnm.str()) )
     {
-	SurveyInfo::deleteOriginal();
-	return true;
+	uiString localerrmsg;
+	uiString& msg = errmsg ? *errmsg : localerrmsg;
+	newsi = SurveyInfo::read( surveyfnm.str(), msg );
+	if ( !newsi || msg.isSet() )
+	    return false;
     }
 
-    if ( errmsg )
-	*errmsg = IOM().errMsg();
-
-    SurveyInfo::deleteInstance();
-    SurveyInfo::setSurveyName( oldsi.getDirName() );
-    IOM().reInit( true );
-
-    return false;
+    return newSurvey( newsi, errmsg );
 }
 
 

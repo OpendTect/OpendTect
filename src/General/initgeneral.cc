@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "preloads.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
-#include "batchjobdispatch.h"
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
@@ -53,7 +52,5 @@ mDefModInitFn(General)
     SurvGeom2DTranslatorGroup::initClass();
     dgbSurvGeom2DTranslator::initClass();
 
-    IOM(); //Trigger createion & reading of geometries
-
-    Batch::SingleJobDispatcher::initClass();
+    IOM(); //Trigger creation & reading of geometries
 }

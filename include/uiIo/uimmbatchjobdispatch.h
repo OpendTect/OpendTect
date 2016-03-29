@@ -66,7 +66,7 @@ private:
     uiListBox*		usedmachfld_;
     uiTextEdit*		progrfld_;
     uiTextFileDlg*	logvwer_;
-    uiSlider*		nicefld_;
+    uiSlider*		priofld_;
     uiProgressBar*	progbar_;
     uiComboBox*		jrppolselfld_;
     uiGenInput*		jrpstartfld_;

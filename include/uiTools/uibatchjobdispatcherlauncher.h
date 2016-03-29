@@ -12,7 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "factory.h"
+#include "hostdata.h"
 #include "uistring.h"
 
 class uiBatchJobDispatcherSel;
@@ -38,7 +40,7 @@ public:
     virtual bool		go(uiParent*);
 
     Batch::JobSpec&		jobSpec()		{ return jobspec_; }
-    const Batch::JobSpec&	jobSpec() const 	{ return jobspec_; }
+    const Batch::JobSpec&	jobSpec() const { return jobspec_; }
     Batch::JobDispatcher&	dispatcher()		{ return gtDsptchr(); }
     const Batch::JobDispatcher& dispatcher() const;
 
@@ -66,8 +68,10 @@ public:
 			uiSingleBatchJobDispatcherLauncher(Batch::JobSpec&);
 			~uiSingleBatchJobDispatcherLauncher();
 
-    virtual bool	hasOptions() const			{ return true; }
+    virtual bool	hasOptions() const	{ return true; }
+
     virtual void	editOptions(uiParent*);
+    virtual bool	go(uiParent*);
 
     mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 			    uiSingleBatchJobDispatcherLauncher,
@@ -78,6 +82,7 @@ protected:
 
     virtual Batch::JobDispatcher&	gtDsptchr();
     Batch::SingleJobDispatcher&		sjd_;
+    HostDataList			hdl_;
 
 };
 

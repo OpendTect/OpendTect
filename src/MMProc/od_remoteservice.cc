@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "remcommhandler.h"
-#include "commandlineparser.h"
 #include "applicationdata.h"
+#include "commandlineparser.h"
+#include "oscommand.h"
+#include "remcommhandler.h"
 
 #include "prog.h"
 
@@ -21,7 +22,8 @@ int main( int argc, char** argv )
     SetProgramArgs( argc, argv );
     ApplicationData app;
 
-    const bool dofork = CommandLineParser().hasKey( "bg" );
+    const bool dofork = CommandLineParser().hasKey(
+			OS::MachineCommand::sKeyBG() );
     if ( dofork )
 	ForkProcess();
 

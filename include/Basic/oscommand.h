@@ -56,6 +56,14 @@ public:
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     void		removeFromPar(IOPar&) const;
+
+    static const StepInterval<int>	cMachineUserPriorityRange(bool iswin);
+			/*!< Restricted to OS-specific user available range
+			     Unix: 0-19 (0=normal)
+			     Windows: 6-8 (8=normal)
+			  */
+
+    static int		getMachinePriority(float priolevel,bool iswin);
 };
 
 
@@ -91,7 +99,7 @@ public:
 			   Assumes that arguments are space separated,
 			   and command with spaces in them are properly
 			   escaped. */
-			     
+
     const char*		getSingleStringRep() const;
 
     bool		hasHostName() const	{ return !hname_.isEmpty(); }
@@ -102,6 +110,14 @@ public:
     static const char*	extractHostName(const char*,BufferString&);
 			//!< returns remaining part
     BufferString	getLocalCommand() const;
+
+    static const char*	odRemExecCmd()		{ return "od_remexec"; }
+    static const char*	sKeyRemoteHost()	{ return "machine"; }
+    static const char*	sKeyRemoteCmd()		{ return "cmd"; }
+    static const char*	sKeyMasterHost()	{ return "masterhost"; }
+    static const char*	sKeyMasterPort()	{ return "masterport"; }
+    static const char*	sKeyBG()		{ return "bg"; }
+    static const char*	sKeyJobID()		{ return "jobid"; }
 
 protected:
 
@@ -138,10 +154,10 @@ protected:
 
     void		reset();
     bool		doExecute(const char* comm,bool wait4finish,
-				  bool incosole = false,
+				  bool inconsole = false,
 				  bool createstreams=false );
     int			catchError();
-    bool		startDetached(const char*,bool incosole = false);
+    bool		startDetached(const char*,bool inconsole=false);
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
@@ -163,14 +179,14 @@ protected:
     qstreambuf*		stdinputbuf_;
 public: //Extra utilities, not for general use
     static void		addShellIfNeeded(BufferString& cmd);
-    			/*!<Analyses the cmd and looks for pipes or redirects.
+			/*!<Analyses the cmd and looks for pipes or redirects.
 			    If these are found, the cmd is converted to a
 			    shell command. */
     static void		addQuotesIfNeeded(BufferString& cmd);
-    			/*!<Checks for spaces in command, and surrounds command
+			/*!<Checks for spaces in command, and surrounds command
 			    with quotes them if not already done. */
     static void		manageQProcess(QProcess*);
-    			/*!<Add a QProcess and it will be deleted one day. */
+			/*!<Add a QProcess and it will be deleted one day. */
 };
 
 

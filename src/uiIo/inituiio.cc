@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiposfiltgroupstd.h"
 #include "envvars.h"
 #include "mmbatchjobdispatch.h"
+#include "oddirs.h"
 #include "settings.h"
 
 
@@ -36,9 +37,37 @@ mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 		       Batch::JobSpec&,"Multi-Machine",tr("Multi-Job/Machine"));
 
     virtual Batch::JobDispatcher&	gtDsptchr() { return jd_; }
+    virtual bool			go(uiParent*);
     Batch::MMJobDispatcher		jd_;
 
 };
+
+
+bool uiMMBatchJobDispatcherLauncher::go( uiParent* p )
+{
+    const HostDataList hdl( false );
+    const HostData* localhost = hdl.find( HostData::localHostName() );
+    if ( !localhost )
+    {
+	if ( hdl.isEmpty() )
+	    return uiBatchJobDispatcherLauncher::go( p );
+
+	uiMSG().error( tr("Cannot find configuration for localhost") );
+	return false;
+    }
+
+    const FilePath localbasedatadir( GetBaseDataDir() );
+    if ( localbasedatadir != localhost->getDataRoot() )
+    {
+	uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path in "
+			  "batch processing configuration file:\n'%2'")
+			  .arg( localbasedatadir.fullPath() )
+			  .arg( localhost->getDataRoot().fullPath() ) );
+	return false;
+    }
+
+    return uiBatchJobDispatcherLauncher::go( p );
+}
 
 
 static bool enabClusterProc()
