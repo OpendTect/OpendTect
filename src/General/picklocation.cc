@@ -389,12 +389,14 @@ bool Pick::Location::fromString( const char* s )
 	if ( !Survey::GM().getGeometry3D(survid) )
 	    return false;
 
-	trckey_.setLineNr( firstkey ); //No check for valid inline number ?
+	trckey_.setLineNr( firstkey );
     }
 
-    trckey_.setTrcNr( getNextInt(str) ); //No check for valid trace number ?
+    trckey_.setTrcNr( getNextInt(str) );
+    if ( trckey_.position().isUdf() )
+	trckey_.setFrom( pos_ );
 
-    return !trckey_.pos().isUdf();
+    return true;
 }
 
 
