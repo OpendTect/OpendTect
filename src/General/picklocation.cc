@@ -414,14 +414,14 @@ bool Pick::Location::fromString( const char* s )
 	if ( !Survey::GM().getGeometry3D(survid) )
 	    return false;
 
-	trckey_->setLineNr( firstkey ); //No check for valid inline number ?
+	trckey_->setLineNr( firstkey );
     }
 
-    trckey_->setTrcNr( getNextInt(str) ); //No check for valid trace number ?
-
+    trckey_->setTrcNr( getNextInt(str) );
     if ( trckey_->position().isUdf() )
-	{ delete trckey_; trckey_ = 0; }
-    return trckey_;
+	trckey_->setFrom( pos_ );
+
+    return true;
 }
 
 
@@ -458,11 +458,6 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
     if ( !trckey_ || trckey_->isUdf() || trckey_->position().isUdf() )
 	return;
 
-    //actually both calls return the same, but for the clarity
-    if ( trckey_->is2D() )
-	str.add( od_tab ).add( trckey_->geomID() );
-    else
-	str.add( od_tab ).add( trckey_->lineNr() );
-
-    str.add( od_tab ).add( trckey_->trcNr() );
+    str.add( od_tab ).add( trckey_->geomID() )
+       .add( od_tab ).add( trckey_->trcNr() );
 }
