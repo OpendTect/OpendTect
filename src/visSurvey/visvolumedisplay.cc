@@ -861,8 +861,49 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	isosurfaces_[idx]->setScales( inlsampling, crlsampling, zsampling );
 
 	if ( isosurfsettings_[idx].mode_ )
-	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		    cache->data(), isosurfsettings_[idx].isovalue_, tr );
+	{
+	    const Array3D<float>& arr = cache->data();
+	    if ( !arr.isOK() )  return;
+
+	    const od_int64 size = arr.info().getTotalSz();
+	    PtrMan< Array3D<float> > newarr =
+		new Array3DImpl<float>(arr.info());
+	    if ( !newarr->isOK() )
+		return;
+
+	    const float threshold = isosurfsettings_[idx].isovalue_;
+	    const float* data = arr.getData();
+	    if ( data && newarr->getData() )
+	    {
+		float* newdata = newarr->getData();
+		for ( od_int64 idy=0; idy<size; idy++ )
+		    newdata[idy] = threshold - data[idy];
+	    }
+	    else if ( arr.getStorage() && newarr->getStorage() )
+	    {
+		ValueSeries<float>* newstor = newarr->getStorage();
+		const ValueSeries<float>* arrstor = arr.getStorage();
+
+		for ( od_int64 idy=0; idy<size; idy++ )
+		    newstor->setValue( idy, threshold - arrstor->value(idy) );
+	    }
+	    else
+	    {
+		for ( int id0=0; id0<arr.info().getSize(0); id0++ )
+		{
+		    for ( int idy=0; idy<arr.info().getSize(1); idy++ )
+		    {
+			for ( int idz=0; idz<arr.info().getSize(2); idz++ )
+			{
+			    newarr->set( id0, idy, idz,
+				    threshold - arr.get(id0,idy,idz) );
+			}
+		    }
+		}
+	    }
+
+	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
+	}
 	else
 	{
 	    if ( !updateSeedBasedSurface( idx, tr ) )
