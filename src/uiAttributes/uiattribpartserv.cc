@@ -883,7 +883,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	bidset.add( path[idx],zrg.start,zrg.stop );
 
     SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,&knots,&path) )
+    if ( !createOutput(bidset,output,&knots,&path) || output.isEmpty() )
 	return DataPack::cNoID();
 
     RandomSeisDataPack* newpack = new RandomSeisDataPack(
