@@ -28,7 +28,7 @@ ________________________________________________________________________
 #ifdef __win__
 # include <tchar.h>
 # include <tlhelp32.h>
-# include <windows.h>
+# include <Windows.h>
 #else
 # include "sys/resource.h"
 #endif
@@ -81,17 +81,17 @@ static void setBatchPriority( int argc, char** argv, int pid )
 
     threadlist.dwSize = sizeof(THREADENTRY32);
     if ( !Thread32First(curthread,&threadlist) )
-	{ closeHandle(curthread); return; }
+	{ CloseHandle(curthread); return; }
 
     do
     {
-	if ( threadlist.th32OwnerProcessID() != dwOwnerPID )
+	if ( threadlist.th32OwnerProcessID != dwOwnerPID )
 	    continue;
 
 	SetThreadPriority(curthread,threadpriority );
     } while ( Thread32Next(curthread,&threadlist) );
 
-    closeHandle( curthread );
+    CloseHandle( curthread );
 #endif
 }
 
@@ -111,7 +111,11 @@ int Execute_batch( int* pargc, char** argv )
     {
 	od_ostream logstrm( *bp.sdout_.ostrm );
 	const int pid = GetPID();
+#ifdef __win__
+	setBatchPriority( *pargc, argv );
+#else
 	setBatchPriority( *pargc, argv, pid );
+#endif
 	logstrm << "Starting program: " << argv[0] << " " << bp.name() << "\n";
 	logstrm << "Processing on: " << HostData::localHostName() << "\n";
 	logstrm << "Process ID: " << GetPID() << "\n";
