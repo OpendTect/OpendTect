@@ -178,6 +178,12 @@ public:
 protected:
 				~RandomTrackDisplay();
 
+    void			addNodeInternal(const BinID&);
+    void			insertNodeInternal(int,const BinID&);
+    void			removeNodeInternal(int);
+    void			movingNodeInternal(int selnodeidx);
+    void			finishNodeMoveInternal();
+
     bool			getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
 
@@ -202,6 +208,8 @@ protected:
     bool			checkPosition(const BinID&) const;
 
     void			geomChangeCB(CallBacker*);
+    void			geomNodeMoveCB( CallBacker*);
+
     void			nodeMoved(CallBacker*);
     void			draggerRightClick(CallBacker*);
 
@@ -223,6 +231,8 @@ protected:
     void			updateMouseCursorCB(CallBacker*);
 
     int				nrgeomchangecbs_;
+    TypeSet<int>*		premovingselids_;
+    bool			geomnodejustmoved_;
 
     Geometry::RandomLine*	rl_;
     visBase::TexturePanelStrip*	panelstrip_;

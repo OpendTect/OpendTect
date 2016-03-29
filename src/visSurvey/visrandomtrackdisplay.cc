@@ -32,6 +32,7 @@
 #include "vispolyline.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdragger.h"
+#include "visselman.h"
 #include "vistexturechannels.h"
 #include "vistexturepanelstrip.h"
 #include "vistopbotimage.h"
@@ -67,6 +68,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     , markerset_( visBase::MarkerSet::create() )
     , rl_(0)
     , nrgeomchangecbs_(0)
+    , premovingselids_(0)
+    , geomnodejustmoved_(false)
     , ispicking_(false)
     , pickstartnodeidx_(-1)
 {
@@ -194,6 +197,9 @@ RandomTrackDisplay::~RandomTrackDisplay()
     }
 
     setZAxisTransform( 0, 0 );
+
+    if ( premovingselids_ )
+	delete premovingselids_;
 }
 
 
@@ -322,24 +328,29 @@ int RandomTrackDisplay::nrNodes() const
     } \
 }
 
+
 void RandomTrackDisplay::addNode( const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
-    {
-	nodes_ += sbid;
-	dragger_->insertKnot( nodes_.size()-1, Coord(sbid.inl(),sbid.crl()) );
+	rl_->addNode( sbid );
+}
 
-	if ( ismanip_ )
-	    dragger_->showAdjacentPanels( nodes_.size()-1, true );
-	else
-	    updatePanelStripPath();
 
-	if ( nodes_.size() > 1 && !panelstrip_->isOn() )
-	    panelstrip_->turnOn( true );
+void RandomTrackDisplay::addNodeInternal( const BinID& bid )
+{
+    nodes_ += bid;
+    dragger_->insertKnot( nodes_.size()-1, Coord(bid.inl(),bid.crl()) );
 
-	moving_.trigger();
-    }
+    if ( ismanip_ )
+	dragger_->showAdjacentPanels( nodes_.size()-1, true );
+    else
+	updatePanelStripPath();
+
+    if ( nodes_.size() > 1 && !panelstrip_->isOn() )
+	panelstrip_->turnOn( true );
+
+    moving_.trigger();
 }
 
 
@@ -347,17 +358,21 @@ void RandomTrackDisplay::insertNode( int nodeidx, const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
-    {
-	nodes_.insert( nodeidx, sbid );
-	dragger_->insertKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
+	rl_->insertNode( nodeidx, sbid );
+}
 
-	if ( ismanip_ )
-	    dragger_->showAdjacentPanels( nodeidx, true );
-	else
-	    updatePanelStripPath();
 
-	moving_.trigger();
-    }
+void RandomTrackDisplay::insertNodeInternal( int nodeidx, const BinID& bid )
+{
+    nodes_.insert( nodeidx, bid );
+    dragger_->insertKnot( nodeidx, Coord(bid.inl(),bid.crl()) );
+
+    if ( ismanip_ )
+	dragger_->showAdjacentPanels( nodeidx, true );
+    else
+	updatePanelStripPath();
+
+    moving_.trigger();
 }
 
 
@@ -476,7 +491,7 @@ bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 	if ( idx < nrNodes() )
 	    setNodePos( idx, bid, false );
 	else
-	    addNode( bid );
+	    rl_->addNode( bid );
     }
 
     return true;
@@ -485,19 +500,26 @@ bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 
 void RandomTrackDisplay::removeNode( int nodeidx )
 {
-    if ( !nodes_.validIdx(nodeidx) )
-	return;
-
     if ( nrNodes()< 3 )
     {
 	pErrMsg("Can't remove node");
 	return;
     }
 
+    rl_->removeNode( nodeidx );
+}
+
+
+void RandomTrackDisplay::removeNodeInternal( int nodeidx )
+{
+    if ( !nodes_.validIdx(nodeidx) )
+	return;
+
     nodes_.removeSingle(nodeidx);
     dragger_->removeKnot( nodeidx );
-    mUpdateRandomLineGeometry( removeNode(nodeidx) );
     updatePanelStripPath();
+
+    moving_.trigger();
 }
 
 
@@ -1071,64 +1093,88 @@ void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
 
     if ( cd.ev_ == Geometry::RandomLine::ChangeData::Added )
     {
-	const int nodeidx = cd.nodeidx_;
 	if ( cd.nodeidx_ < nrNodes() )
-	{
-	    const BinID nodepos = rl_->nodePosition( nodeidx );
-	    nodes_[nodeidx] = nodepos;
-	    dragger_->setKnot( nodeidx, Coord(nodepos.inl(),nodepos.crl()) );
-	    dragger_->showAllPanels( true );
-	}
+	    geomNodeMoveCB( cb );
 	else
-	    addNode( rl_->nodePosition(nodeidx) );
+	    addNodeInternal( rl_->nodePosition(cd.nodeidx_) );
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Inserted )
     {
-	insertNode( cd.nodeidx_, rl_->nodePosition(cd.nodeidx_) );
-    }
-    else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moving )
-    {
-	const int nodeidx = cd.nodeidx_;
-	const BinID nodepos = rl_->nodePosition( nodeidx );
-	nodes_[nodeidx] = nodepos;
-	dragger_->setKnot( nodeidx, Coord(nodepos.inl(),nodepos.crl()) );
-	dragger_->showAllPanels( true );
-	if ( canDisplayInteractively() )
-	{
-	    if ( originalresolution_ < 0 )
-		originalresolution_ = resolution_;
-
-	    resolution_ = 0;
-	    interactivetexturedisplay_ = true;
-	    acceptManipulation();
-	    ismanip_ = true;
-	    updateSel();
-	}
-    }
-    else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moved )
-    {
-	if ( originalresolution_ >= 0 )
-	{
-	    resolution_ = originalresolution_;
-	    originalresolution_ = -1;
-	}
-
-	draggerMoveFinished(0);
+	insertNodeInternal( cd.nodeidx_, rl_->nodePosition(cd.nodeidx_) );
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Removed )
     {
-	removeNode( cd.nodeidx_ );
+	removeNodeInternal( cd.nodeidx_ );
+    }
+    else
+	geomNodeMoveCB( cb );
+
+    geomnodejustmoved_ = cd.ev_==Geometry::RandomLine::ChangeData::Moved &&
+			 cd.nodeidx_>=0;
+    nrgeomchangecbs_--;
+}
+
+
+void RandomTrackDisplay::geomNodeMoveCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const Geometry::RandomLine::ChangeData&, cd, cb );
+
+    if ( cd.ev_!=Geometry::RandomLine::ChangeData::Added &&
+	 cd.ev_!=Geometry::RandomLine::ChangeData::Moving &&
+	 cd.ev_!=Geometry::RandomLine::ChangeData::Moved )
+	return;
+
+    if ( cd.nodeidx_>=0 && cd.nodeidx_<rl_->nrNodes() )
+    {
+	const BinID nodepos = rl_->nodePosition( cd.nodeidx_ );
+
+	if ( nodepos != getManipNodePos(cd.nodeidx_) )
+	{
+	    dragger_->setKnot( cd.nodeidx_, Coord(nodepos.inl(),nodepos.crl()));
+	    dragger_->showAdjacentPanels( cd.nodeidx_, true );
+
+	    if ( !isSelected() )
+	    {
+		if ( premovingselids_ )
+		    delete premovingselids_;
+
+		premovingselids_ =
+			new TypeSet<int>( visBase::DM().selMan().selected() );
+		select();
+	    }
+
+	    movingNodeInternal( cd.nodeidx_ );
+	}
     }
 
-    nrgeomchangecbs_--;
+    if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moved )
+    {
+	if ( premovingselids_ )
+	{
+	    visBase::DM().selMan().deSelectAll();
+	    for ( int idx=0; idx<premovingselids_->size(); idx++ )
+		visBase::DM().selMan().select( (*premovingselids_)[idx], true );
+
+	    delete premovingselids_;
+	    premovingselids_ = 0;
+	}
+
+	if ( cd.nodeidx_ < 0 )
+	{
+	    if ( geomnodejustmoved_ )
+		return;
+
+	    ismanip_ = true;
+	}
+
+	finishNodeMoveInternal();
+    }
 }
 
 
 void RandomTrackDisplay::nodeMoved( CallBacker* cb )
 {
-    ismanip_ = true;
     mCBCapsuleUnpack(int,sel,cb);
-    selnodeidx_ = sel;
 
     for ( int idx=abs(sel); idx>=abs(sel)-1; idx-- )
     {
@@ -1143,6 +1189,15 @@ void RandomTrackDisplay::nodeMoved( CallBacker* cb )
 	dragger_->showAllPanels( false );
     else
 	dragger_->showAllPanels( true );
+
+    movingNodeInternal( sel );
+}
+
+
+void RandomTrackDisplay::movingNodeInternal( int selnodeidx )
+{
+    ismanip_ = true;
+    selnodeidx_ = selnodeidx;
 
     nodemoving_.trigger();
 
@@ -1376,9 +1431,9 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
 	key = sKeyKnotPrefix(); key += idx;
 	par.get( key, pos );
 	if ( idx < 2 )
-	    setNodePos( idx, pos );
+	    setNodePos( idx, pos, false );
 	else
-	    addNode( pos );
+	    rl_->addNode( pos );
     }
 
     return true;
@@ -1858,24 +1913,28 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* cb )
 {
-    if ( !cb )
-	ismanip_ = true;
-
     Interval<float> zrg = dragger_->getDepthRange();
     s3dgeom_->snapZ( zrg.start );
     s3dgeom_->snapZ( zrg.stop );
     dragger_->setDepthRange( zrg );
 
+    finishNodeMoveInternal();
+}
+
+
+void RandomTrackDisplay::finishNodeMoveInternal()
+{
     if ( originalresolution_ >= 0 )
     {
 	resolution_ = originalresolution_;
 	originalresolution_ = -1;
     }
 
-    interactivetexturedisplay_ = false;
+    if ( interactivetexturedisplay_ )
+	ismanip_ = true;
 
-    if ( ismanip_ )
-	updateSel();
+    interactivetexturedisplay_ = false;
+    updateSel();
 }
 
 
