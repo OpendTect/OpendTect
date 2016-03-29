@@ -689,8 +689,19 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 
 void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    well_->setDisplayTransformation( nt );
-    setDisplayTransformForPicks( nt );
+     if ( transformation_==nt  )
+	return;
+
+    if ( transformation_ )
+	transformation_->unRef();
+
+    transformation_ = nt;
+
+    if ( transformation_ )
+	transformation_->ref();
+    
+    well_->setDisplayTransformation( transformation_ );
+    setDisplayTransformForPicks( transformation_ );
     fullRedraw(0);
 }
 
@@ -815,14 +826,11 @@ void WellDisplay::addPick( Coord3 pos )
 
     if ( insertidx > -1 )
     {
-// Better would be to use:markerset_->getCoordinates()->insertPos
-// but insertPos is not implemented yet
 	markerset_->clearMarkers();
 	for ( int idx=0; idx<wcoords.size(); idx++ )
 	{
-	    const int mid =
-		markerset_->getCoordinates()->addPos( wcoords[idx] );
-	    markerset_->getMaterial()->setColor( lineStyle()->color_, mid ) ;
+	    const int mid = markerset_->addPos( wcoords[idx] );
+	    markerset_->getMaterial()->setColor( lineStyle()->color_, mid, false ) ;
 	}
     }
 }
@@ -848,18 +856,8 @@ void WellDisplay::addKnownPos()
 
 void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 {
-    if ( transformation_==newtr || !markerset_ )
-	return;
-
-    if ( transformation_ )
-	transformation_->unRef();
-
-    transformation_ = newtr;
-
-    if ( transformation_ )
-	transformation_->ref();
-
-    markerset_->setDisplayTransformation( transformation_ );
+    if ( markerset_ )
+	markerset_->setDisplayTransformation( newtr );
 }
 
 
@@ -888,6 +886,7 @@ void WellDisplay::setupPicking( bool yn )
     {
 	markerset_ = visBase::MarkerSet::create();
 	refPtr( markerset_ );
+	setDisplayTransformForPicks( transformation_ );
 	addChild( markerset_->osgNode() );
 	markerset_->setMaterial( new visBase::Material );
 	OD::MarkerStyle3D markerstyle;
