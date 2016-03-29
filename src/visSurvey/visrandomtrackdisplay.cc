@@ -52,6 +52,7 @@ static HiddenParam< RandomTrackDisplay, TrcKeyPath* > trckeypaths( 0 );
 
 static HiddenParam<RandomTrackDisplay,int> pickstartnodeidx_( 0 );
 static HiddenParam<RandomTrackDisplay,char> ispicking_( 0 );
+static HiddenParam<RandomTrackDisplay,int> oldstyledoubleclicked_( 0 );
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
@@ -76,6 +77,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 {
     pickstartnodeidx_.setParam( this, -1 );
     ispicking_.setParam( this, false );
+    oldstyledoubleclicked_.setParam( this, 0 );
 
     trckeypaths.setParam( this, new TrcKeyPath() );
     TypeSet<int> randomlines;
@@ -208,6 +210,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     pickstartnodeidx_.removeParam( this );
     ispicking_.removeParam( this );
+    oldstyledoubleclicked_.removeParam( this );
 }
 
 
@@ -1574,7 +1577,27 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
     if ( !isOn() || eventcatcher_->isHandled() || !isSelected() || locked_ )
 	return;
 
-    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+    mCBCapsuleUnpack( const visBase::EventInfo&, ei, cb );
+    visBase::EventInfo eventinfo( ei );
+
+    if ( eventinfo.type==visBase::MouseDoubleClick && eventinfo.pressed )
+	 oldstyledoubleclicked_.setParam( this, mUdf(int) );
+
+    if ( !mIsUdf(oldstyledoubleclicked_.getParam(this)) )
+    {
+	if ( eventinfo.type==visBase::MouseDoubleClick )
+	{
+	    oldstyledoubleclicked_.setParam( this, 1 );
+	    eventinfo.pressed = true;
+	}
+	if ( eventinfo.type==visBase::MouseClick )
+	{
+	    if ( oldstyledoubleclicked_.getParam(this) && !eventinfo.pressed )
+		eventinfo.type = visBase::MouseDoubleClick;
+
+	    oldstyledoubleclicked_.setParam( this, 0 );
+	}
+    }
 
     if ( !OD::leftMouseButton(eventinfo.buttonstate_) ||
 	 OD::altKeyboardButton(eventinfo.buttonstate_) )
@@ -1658,7 +1681,8 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
     {
 	if ( eventinfo.pressed )
 	{
-	    ispicking_ = false; // Makes geomChangeCB(.) keep polyline mode.
+	    // Makes geomChangeCB(.) keep polyline mode.
+	    ispicking_.setParam( this, false );
 	    return;
 	}
 
