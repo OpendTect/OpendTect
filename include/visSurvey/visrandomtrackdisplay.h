@@ -280,6 +280,13 @@ protected:
     void			mouseCB(CallBacker*);
     bool			isPicking() const;
     void			removePickPos(int polyidx);
+
+    void			addNodeInternal(const BinID&);
+    void			insertNodeInternal(int,const BinID&);
+    void			removeNodeInternal(int);
+    void			movingNodeInternal(int selnodeidx);
+    void			finishNodeMoveInternal();
+    void			geomNodeMoveCB( CallBacker*);
 };
 
 } // namespace visSurvey
