@@ -101,7 +101,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     const SeisIOObjInfo info( mid_ );
     if ( info.is2D() )
     {
-        ParallelReader2D rdr( *ioobj, geomid_, &tkzs );
+	ParallelReader2D rdr( *ioobj, geomid_, tkzs.isDefined() ? &tkzs : 0 );
 	rdr.setScaler( scaler );
 	rdr.setDataChar( type );
 	if ( !rdr.init() || !trunnr.execute(rdr) )
@@ -237,8 +237,9 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	    spl.load( tkzs, usertype, scaler );
 	} break;
 	case Line: {
-	    BufferStringSet lnms;
-	    iop.get( sKeyLines(), lnms );
+	    TrcKeyZSampling tkzs( false );
+	    tkzs.usePar( iop );
+	    spl.load( tkzs, usertype, scaler );
 	} break;
 	case VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;
