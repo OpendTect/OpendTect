@@ -146,6 +146,10 @@ public:
     mDeprecated BinID&	start;
     mDeprecated BinID&	stop;
     mDeprecated BinID&	step;
+private:
+    bool		doLimitTo(StepInterval<int>&, const StepInterval<int>&,
+				  const bool ignoresteps,
+				  const bool nostephandling);
 };
 
 
