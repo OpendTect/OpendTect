@@ -124,7 +124,7 @@ bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
 
     BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
     buf_ = 0; bufsz_ = 0;
-    if ( !manageBufCapacity(newsz,true) )
+    if ( !manageBufCapacity(newsz) )
 	{ buf_ = orgbuf; bufsz_ = orgbufsz; return false; }
     if ( !orgbuf )
 	return true;
@@ -152,7 +152,8 @@ bool Pos::IdxPairDataSet::ObjData::incrObjSize( ObjSzType orgsz,
 	offsorg += orgsz; offsnew += newsz;
     }
 
-    delete [] orgbuf;
+    if ( orgbuf != buf_ )
+	delete [] orgbuf;
     return true;
 }
 
@@ -162,7 +163,7 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
 {
     BufType* orgbuf = buf_; const BufSzType orgbufsz = bufsz_;
     buf_ = 0; bufsz_ = 0;
-    if ( !manageBufCapacity(newsz,true) )
+    if ( !manageBufCapacity(newsz) )
 	{ buf_ = orgbuf; bufsz_ = orgbufsz; }
     if ( !orgbuf )
 	return;
@@ -191,8 +192,7 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
 }
 
 
-bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz,
-						      bool kporg )
+bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
 {
     if ( objsz < 1 )
 	{ pErrMsg("Should not be called"); return true; }
@@ -222,7 +222,7 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz,
 	    newnrobjs *= 2;
     }
 
-    BufSzType newsz = newnrobjs * objsz;
+    const BufSzType newsz = newnrobjs * objsz;
     BufType* orgbuf = buf_; const BufSzType orgsz = bufsz_;
     bufsz_ = newsz;
 
@@ -232,7 +232,7 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz,
     {
 	try {
 	    buf_ = new BufType[ bufsz_ ];
-	    if ( !kporg && orgbuf )
+	    if ( orgbuf )
 		OD::memCopy( buf_, orgbuf, orgsz < bufsz_ ? orgsz : bufsz_ );
 	} catch ( std::bad_alloc )
 	    { return false; }
@@ -241,8 +241,7 @@ bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz,
     if ( bufsz_ > orgsz )
 	OD::memZero( buf_+orgsz, bufsz_-orgsz );
 
-    if ( !kporg )
-	delete [] orgbuf;
+    delete [] orgbuf;
     return true;
 }
 

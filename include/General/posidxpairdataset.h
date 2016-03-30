@@ -221,7 +221,7 @@ protected:
 
 	BufType*	buf_;
 	BufSzType	bufsz_;
-	bool		manageBufCapacity(ObjSzType,bool kporg=false);
+	bool		manageBufCapacity(ObjSzType);
 
     };
 

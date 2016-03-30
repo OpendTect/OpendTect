@@ -127,6 +127,7 @@ void PosVecDataSet::copyStructureFrom( const PosVecDataSet& vds )
 void PosVecDataSet::setEmpty()
 {
     deepErase(coldefs_);
+    data_.setEmpty();
     data_.setNrVals( 1 );
     coldefs_ += new DataColDef( "Z" );
 }
@@ -279,7 +280,7 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
 }
 
 
-static od_istream getUiInpStrm( const char* fnm, uiString& errmsg, 
+static od_istream getUiInpStrm( const char* fnm, uiString& errmsg,
 				bool& tabstyle )
 {
     od_istream strm( fnm );
@@ -463,7 +464,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     delete [] vals;
 
     return true;
-}								      
+}
 
 bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
 {
