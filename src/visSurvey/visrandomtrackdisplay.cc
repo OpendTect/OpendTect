@@ -1394,6 +1394,7 @@ void RandomTrackDisplay::fillPar( IOPar& par ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par );
 
+    par.set( sKey::Name(), name() );
     const Interval<float> depthrg = getDataTraceRange();
     par.set( sKeyDepthInterval(), depthrg );
 
@@ -1415,6 +1416,10 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
 {
     if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
 	return false;
+
+    uiString name;
+    par.get( sKey::Name(), name );
+    if ( !name.isEmpty() ) setName( name );
 
     par.getYN( sKeyLockGeometry(), lockgeometry_ );
 

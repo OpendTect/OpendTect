@@ -195,7 +195,10 @@ uiTreeItem*
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return !psd ? 0 : new uiODPickSetTreeItem( visid, *psd->getSet() );
+    if ( !psd ) return 0;
+
+    Pick::Set* pickset = psd->getSet();
+    return pickset->isPolygon() ? 0 : new uiODPickSetTreeItem(visid,*pickset);
 }
 
 
@@ -527,7 +530,10 @@ uiTreeItem*
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return !psd ? 0 : new uiODPolygonTreeItem( visid, *psd->getSet() );
+    if ( !psd ) return 0;
+
+    Pick::Set* pickset = psd->getSet();
+    return !pickset->isPolygon() ? 0 : new uiODPolygonTreeItem(visid,*pickset);
 }
 
 
