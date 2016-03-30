@@ -367,11 +367,25 @@ void uiDataPointSetCrossPlotter::reDrawSelections()
     removeSelections( false );
     reDrawSelArea();
 
-    drawData( y_, false );
-    if ( y2_.axis_ )
-	drawData( y2_, true );
-    else if ( y2ptitems_ )
-	y2ptitems_->removeAll( true );
+    if ( isdensityplot_ )
+    {
+	for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
+	{
+	    if ( dps_.isInactive(rid) ) continue;
+
+	    checkSelection( rid, 0, false, y_, false );
+	    if ( y2_.axis_ )
+		checkSelection( rid, 0, true, y2_, false );
+	}
+    }
+    else
+    {
+	drawData( y_, false );
+	if ( y2_.axis_ )
+	    drawData( y2_, true );
+	else if ( y2ptitems_ )
+	    y2ptitems_->removeAll( true );
+    }
 }
 
 
@@ -999,11 +1013,23 @@ void uiDataPointSetCrossPlotter::mouseReleasedCB( CallBacker* )
     if ( !curselarea.isValid() )
 	selgrpset_[curselgrp_]->removeSelection( curselarea_ );
 
-    drawData( y_, false );
-    if ( y2_.axis_ )
-	drawData( y2_, true );
-    else if ( y2ptitems_ )
-	y2ptitems_->removeAll( true );
+    if ( isdensityplot_ )
+    {
+	for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
+	{
+	    checkSelection( rid, 0, false, y_, false );
+	    if ( y2_.axis_ )
+		checkSelection( rid, 0, true, y2_, false );
+	}
+    }
+    else
+    {
+	drawData( y_, false );
+	if ( y2_.axis_ )
+	    drawData( y2_, true );
+	else if ( y2ptitems_ )
+	    y2ptitems_->removeAll( true );
+    }
 
     pointsSelected.trigger();
 }
@@ -1537,12 +1563,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 					   uidps_.tColID(yad.colid_) );
 
 		    if ( item )
-		    {
 			item->setPenColor( selgrp->col_ );
-			mDynamicCastGet(uiMarkerItem*,markeritem,item)
-			if ( markeritem && showy3_ )
-			    markeritem->setFillColor( selgrp->col_ );
-		    }
 		    selyitems_++;
 		    ptselected = true;
 		}
@@ -1567,12 +1588,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    }
 
 		    if ( item )
-		    {
 			item->setPenColor( selgrp->col_ );
-			mDynamicCastGet(uiMarkerItem*,markeritem,item)
-			if ( markeritem && showy4_ )
-			    markeritem->setFillColor( selgrp->col_ );
-		    }
 
 		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
 		    selrowcols_ += RowCol( uidps_.tRowID(rid),

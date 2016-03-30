@@ -151,7 +151,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
-	    selfld_->addItem( mToUiStringTodo(selgrpnms[0]->buf()) );
+	    selfld_->addItem( mToUiStringTodo(selgrpnms[idx]->buf()) );
 	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
@@ -198,7 +198,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
-	    selfld_->addItem( mToUiStringTodo(selgrpnms[0]->buf()) );
+	    selfld_->addItem( mToUiStringTodo(selgrpnms[idx]->buf()) );
 	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
