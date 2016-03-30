@@ -173,10 +173,11 @@ void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 
 void MPEEditor::setMarkerSize(float nsz)
 {
+    markersize_ = nsz;
     for ( int idx=0; idx<draggers_.size(); idx++ )
 	draggermarkers_[idx]->setScreenSize( nsz );
 
-    markersize_ = nsz;
+    patchmarkers_->setScreenSize( nsz );
 }
 
 
@@ -391,6 +392,7 @@ bool MPEEditor::clickCB( CallBacker* cb )
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	return true;
+
     int nodeidx = -1;
     for ( int idx=0; idx<draggers_.size(); idx++ )
     {
@@ -427,7 +429,6 @@ void MPEEditor::displayPatch( const MPE::Patch* patch )
 
     cleanPatch();
     TypeSet<TrcKeyValue> path = patch->getPath();
-
     for ( int idx=0; idx<path.size(); idx++ )
     {
 	const Coord3 pos = patch->seedCoord( idx );
