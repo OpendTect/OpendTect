@@ -444,8 +444,10 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !seedpicker )
 	mSeedClickReturn();
 
+    const bool shiftclicked = clickcatcher_->info().isShiftClicked();
+    const bool ctrlclicked = clickcatcher_->info().isCtrlClicked();
     if ( clickedhor && clickedhor==hor &&
-	!clickcatcher_->info().isDoubleClicked() )
+	!clickcatcher_->info().isDoubleClicked() && !ctrlclicked )
     {
 	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
@@ -533,7 +535,6 @@ void uiMPEMan::seedClick( CallBacker* )
     const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
 			 (float)seedcrd.z );
-    bool shiftclicked = clickcatcher_->info().isShiftClicked();
 
     Color clr = Color::Green();
     if ( Math::Abs(emobj->preferredColor().g()-Color::Green().g())<30 )
@@ -617,7 +618,6 @@ void uiMPEMan::seedClick( CallBacker* )
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
-	const bool ctrlclicked = clickcatcher_->info().isCtrlClicked();
 	if ( !clickcatcher_->info().getPickedNode().isUdf() )
 	{
 	    const TrcKey nexttk =
