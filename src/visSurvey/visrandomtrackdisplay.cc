@@ -1437,9 +1437,9 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
     if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
-    uiString name;
-    par.get( sKey::Name(), name );
-    if ( !name.isEmpty() ) setName( name );
+    uiString linename;
+    par.get( sKey::Name(), linename );
+    if ( !linename.isEmpty() ) setName( linename );
 
     par.getYN( sKeyLockGeometry(), lockgeometry_ );
 
