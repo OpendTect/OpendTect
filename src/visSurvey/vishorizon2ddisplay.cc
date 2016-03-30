@@ -304,7 +304,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    break;
 
 	rc.row() = rowidx;
-	const Pos::GeomID geomid = 
+	const Pos::GeomID geomid =
 	    geomids_.validIdx(rowidx) ? geomids_[rowidx] : Pos::GeomID();
 
 	TypeSet<Coord3> positions;
@@ -478,13 +478,12 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
 	getMaterial()->setColor( emobject_->preferredColor() );
-
 	setLineStyle( emobject_->preferredLineStyle() );
     }
 }
 
 
-bool Horizon2DDisplay::shouldDisplayIntersections( 
+bool Horizon2DDisplay::shouldDisplayIntersections(
     const Seis2DDisplay& seisdisp )
 {
     for ( int idx=0; idx<seisdisp.nrAttribs(); idx++ )
@@ -560,7 +559,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 }
 
 
-void Horizon2DDisplay::updateIntersectionMarkers( 
+void Horizon2DDisplay::updateIntersectionMarkers(
     const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
     intersectmkset_->clearMarkers();
@@ -590,7 +589,7 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 	    if ( intsect->geomID() != seis2dlist[idy]->getGeomID() )
 		    continue;
 	    for ( int idz=0; idz<geomids.size(); idz++ )
-		updateIntersectionPoint( 
+		updateIntersectionPoint(
 		geomids[idz], seis2dlist[idy]->getGeomID(), intsect );
 	}
 
@@ -600,18 +599,18 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 }
 
 
-void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid, 
+void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
     const Pos::GeomID seisgid, const Line2DInterSection* intsect )
 {
-    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobject_)
     if ( !hor2d ) return;
 
     TypeSet<Coord3> intsectpnts;
     for ( int idx=0; idx<intsect->size(); idx++ )
     {
 	const Line2DInterSection::Point& intpoint = intsect->getPoint(idx);
-	
-	if ( lngid != seisgid && intpoint.line != lngid )   
+
+	if ( lngid != seisgid && intpoint.line != lngid )
 	    continue;
 
 	for ( int idy=0; idy<sids_.size(); idy++ )
@@ -628,13 +627,15 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
     {
 	const int mid = intersectmkset_->addPos( intsectpnts[0] );
 	intersectmkset_->getMaterial()->setColor( hor2d->preferredColor(),mid );
+	intersectmkset_->setScreenSize(
+		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_ );
     }
 }
 
 
 
-bool Horizon2DDisplay::calcLine2DIntersections( 
-    const TypeSet<Pos::GeomID>& geom2dids, 
+bool Horizon2DDisplay::calcLine2DIntersections(
+    const TypeSet<Pos::GeomID>& geom2dids,
     Line2DInterSectionSet& intsectset )
 {
     BendPointFinder2DGeomSet bpfinder( geom2dids );
@@ -661,11 +662,11 @@ void Horizon2DDisplay::calcLine2DInterSectionSet()
 	TypeSet<Pos::GeomID> geom2dids;
 	SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
 	if ( ln2dset_ )
-	    delete ln2dset_;	
+	    delete ln2dset_;
 	ln2dset_ = new Line2DInterSectionSet;
 	calcLine2DIntersections( geom2dids, *ln2dset_ );
     }
-    
+
 }
 
 
@@ -690,19 +691,24 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    markerset->turnMarkerOn( idy, !displayonlyatsections_ );
 	    const visBase::Coordinates* markercoords =
 		markerset->getCoordinates();
-	    if ( markercoords->size() )
+	    if ( markercoords->isEmpty() )
+		continue;
+
+	    Coord3 markerpos = markercoords->getPos( idy, true );
+	    if ( zaxistransform_ )
+		markerpos.z = zaxistransform_->transform( markerpos );
+	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
-		Coord3 markerpos = markercoords->getPos( idy, true );
-		if ( zaxistransform_ )
-		    markerpos.z = zaxistransform_->transform( markerpos );
-		for ( int idz=0; idz<seis2dlist.size(); idz++ )
+		const Seis2DDisplay* s2dd = seis2dlist[idz];
+		const Survey::Geometry* geom2d =
+			Survey::GM().getGeometry( s2dd->getGeomID() );
+		const float max = geom2d ? geom2d->averageTrcDist()
+					 : s2dd->maxDist();
+		const float dist = s2dd->calcDist( markerpos );
+		if ( dist < max )
 		{
-		    const float dist = seis2dlist[idz]->calcDist( markerpos );
-		    if ( dist < seis2dlist[idz]->maxDist() )
-		    {
-			markerset->turnMarkerOn( idy, true );
-			break;
-		    }
+		    markerset->turnMarkerOn( idy, true );
+		    break;
 		}
 	    }
 	}
@@ -744,6 +750,7 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
 	return false;
 
     getMaterial()->setColor( emobject_->preferredColor() );
+    setLineStyle( emobject_->preferredLineStyle() );
     return true;
 }
 
