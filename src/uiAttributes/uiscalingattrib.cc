@@ -105,7 +105,9 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     statsfld->attach( alignedBelow, typefld );
     statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
-    table = new uiTable( this, uiTable::Setup().rowdesc("Gate")
+    uiGroup* tblgrp = new uiGroup( this );
+    tblgrp->attach( alignedBelow, statsfld );
+    table = new uiTable( tblgrp, uiTable::Setup().rowdesc("Gate")
 					       .rowgrow(true)
 					       .defrowlbl("")
 					       .fillcol(true)
@@ -120,7 +122,6 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     table->setNrRows( initnrrows );
     table->setColumnStretchable( startcol, true );
     table->setColumnStretchable( stopcol, true );
-    table->attach( alignedBelow, statsfld );
     table->setStretch( 2, 0 );
     table->setToolTip( tr("Right-click to add, insert or remove a gate") );
 

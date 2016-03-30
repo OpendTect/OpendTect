@@ -257,10 +257,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     if ( fltsz )
     {
 	corners += Coord3( SI().transform(tkzs_.hsamp_.start_), 0 );
-	const BinID cbid0( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.crl() );
+	const BinID cbid0(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.stop_.crl());
 	corners += Coord3( SI().transform(cbid0), 0 );
 	corners += Coord3( SI().transform(tkzs_.hsamp_.stop_), 0 );
-	const BinID cbid1( tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.start_.crl() );
+	const BinID cbid1(tkzs_.hsamp_.stop_.inl(),tkzs_.hsamp_.start_.crl());
 	corners += Coord3( SI().transform(cbid1), 0 );
     }
     const int cornersz = corners.size();
@@ -646,17 +646,18 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     singlehorfld_->valuechanged.notify(mCB(this,uiBodyRegionDlg,horModChg));
 
     uiTable::Setup tsu( 4, 4 );
-    table_ = new uiTable( this, tsu.rowdesc("Boundary").defrowlbl(true), "Sf" );
+    uiGroup* tblgrp = new uiGroup( this );
+    tblgrp->attach( alignedBelow, singlehorfld_ );
+    table_ = new uiTable( tblgrp, tsu.rowdesc("Boundary").defrowlbl(true),"Sf");
     BufferStringSet lbls; lbls.add("Name").add("Region location").add(
 	    "Relative horizon shift").add(" ");
-    table_->attach( alignedBelow, singlehorfld_ );
     table_->setColumnLabels( lbls );
     table_->setPrefWidth( 600 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->resizeColumnsToContents();
     table_->setTableReadOnly( true );
 
-    addhorbutton_ = new uiPushButton( this, tr("Add horizon"),
+    addhorbutton_ = new uiPushButton( tblgrp, tr("Add horizon"),
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addhorbutton_->attach( rightOf, table_ );
 

@@ -48,7 +48,9 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     setbut_->activated.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
     setbut_->attach( rightTo, inpfld_ );
 
-    vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
+    uiGroup* tblgrp = new uiGroup( this );
+    tblgrp->attach( alignedBelow, inpfld_ );
+    vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc("X")
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3.0f*uiObject::baseFldSize())
 					.maxcolwdt(3.5f*uiObject::baseFldSize())
@@ -61,7 +63,6 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     vartable_->setStretch( 2, 0 );
     vartable_->setRowResizeMode( uiTable::Fixed );
     vartable_->setColumnResizeMode( uiTable::Fixed );
-    vartable_->attach( alignedBelow, inpfld_ );
     vartable_->display( false );
     if ( !mathexprstring_.isEmpty() )
     {

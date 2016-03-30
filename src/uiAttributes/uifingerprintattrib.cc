@@ -153,7 +153,10 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	          tr("Please select some attributes and go to Advanced"));
     manlbl_->attach( alignedBelow, refgrp_ );
 
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute")
+    uiGroup* tblgrp = new uiGroup( this );
+    if ( linefld_ )	tblgrp->attach( alignedBelow, linefld_ );
+    else		tblgrp->attach( alignedBelow, statsfld_ );
+    table_ = new uiTable( tblgrp, uiTable::Setup().rowdesc("Attribute")
 				.rowgrow(true)
 				.minrowhgt(1.5)
 				.maxrowhgt(1.8)
@@ -170,23 +173,21 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     table_->setNrRows( cInitNrRows );
     table_->setStretch( 2, 0 );
     table_->setToolTip(tr("Right-click to add, insert or remove an attribute"));
-    if ( linefld_ )	table_->attach( alignedBelow, linefld_ );
-    else		table_->attach( alignedBelow, statsfld_ );
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
     table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 
     uiString str = tr("Right-click\nto add,\ninsert or\nremove\nan attribute");
-    uiLabel* tablelab = new uiLabel( this, str );
+    uiLabel* tablelab = new uiLabel( tblgrp, str );
     tablelab->attach( leftTo, table_ );
 
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
     uiPushButton* calcbut =
-		new uiPushButton( this, tr("Calculate parameters"),
+		new uiPushButton( tblgrp, tr("Calculate parameters"),
                                   cbcalc, true);
     calcbut->attach( alignedBelow, table_ );
 
     CallBack cbrg = mCB(this,uiFingerPrintAttrib,getAdvancedPush);
-    uiPushButton* advbut = new uiPushButton( this, uiStrings::sAdvanced(),
+    uiPushButton* advbut = new uiPushButton( tblgrp, uiStrings::sAdvanced(),
                                              cbrg, false );
     advbut->attach( rightAlignedBelow, table_ );
 
