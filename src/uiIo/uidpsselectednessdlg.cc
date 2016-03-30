@@ -157,6 +157,18 @@ void uiDPSSelectednessDlg::showIn3DScene()
 
 bool uiDPSSelectednessDlg::acceptOK( CallBacker* )
 {
+    DataPointSet& dps = plotter_.dps();
+    BufferStringSet colnms;
+    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
+	colnms.add( dps.colName(colidx) );
+
+    if ( colnms.isPresent(nmfld_->text()) )
+    {
+	uiMSG().error( tr( "Column '%1' already present, "
+		    	   "choose a different name").arg( nmfld_->text()) );
+	return false;
+    }
+
     addColumn();
     showOverlayAttrib();
     showIn3DScene();
