@@ -662,18 +662,19 @@ uiBodyRegionGrp::uiBodyRegionGrp( uiParent* p, const Setup& mysetup )
     }
 
     uiTable::Setup tsu( 0, 3 );
-    table_ = new uiTable( this, tsu.rowdesc("Boundary").defrowlbl(true), "Sf" );
+    uiGroup* tblgrp = new uiGroup( this );
+    if ( lastgrp )
+	tblgrp->attach( alignedBelow, lastgrp );
+    table_ = new uiTable( tblgrp, tsu.rowdesc("Boundary").defrowlbl(true),"Sf");
     BufferStringSet lbls; lbls.add("Type").add("Name").add("Region location");
     table_->setColumnLabels( lbls );
     table_->setPrefWidth( 300 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->resizeColumnsToContents();
     table_->setTableReadOnly( true );
-    if ( lastgrp )
-	table_->attach( alignedBelow, lastgrp );
 
     uiButtonGroup* butgrp =
-		new uiButtonGroup( this, "Add Buttons", OD::Vertical );
+		new uiButtonGroup( tblgrp, "Add Buttons", OD::Vertical );
     butgrp->attach( rightOf, table_ );
     if ( mysetup.withinlcrlz_ )
     {
