@@ -16,9 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "od_istream.h"
 #include "strmprov.h"
-#include "od_ostream.h"
-#include <iostream>
 
 
 GMTParFactory& GMTPF()
@@ -110,24 +109,21 @@ bool GMTPar::execCmd( const BufferString& comm, od_ostream& strm )
 
     if ( system(cmd) )
     {
-	StreamData sd = StreamProvider( errfilenm ).makeIStream();
-	if ( !sd.usable() )
-	    return false;
+	od_istream errstrm( errfilenm );
+	if ( !errstrm.isOK() )
+	    return true;
 
-	char buf[256];
+	BufferString buf;
 	strm << od_endl;
-	while ( sd.istrm->getline(buf,256) )
+	while ( errstrm.getLine(buf) )
 	    strm << buf << od_endl;
-
-	sd.close();
-	return false;
     }
 
     return true;
 }
 
 
-StreamData GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
+od_ostream GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
 {
     DBG::message( comm );
     BufferString cmd;
@@ -149,20 +145,18 @@ StreamData GMTPar::makeOStream( const BufferString& comm, od_ostream& strm )
     if ( needsbash )
 	cmd += "\'";
 
-    StreamData sd = StreamProvider(cmd).makeOStream();
-    if ( !sd.usable() )
+    od_ostream ret( cmd );
+    if ( !ret.isOK() )
     {
-	StreamData errsd = StreamProvider( errfilenm ).makeIStream();
-	if ( !errsd.usable() )
-	    return sd;
+	od_istream errstrm( errfilenm );
+	if ( !errstrm.isOK() )
+	    return ret;
 
-	char buf[256];
+	BufferString buf;
 	strm << od_endl;
-	while ( errsd.istrm->getline(buf,256) )
+	while ( errstrm.getLine(buf) )
 	    strm << buf << od_endl;
-
-	errsd.close();
     }
 
-    return sd;
+    return ret;
 }

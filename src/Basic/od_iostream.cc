@@ -492,11 +492,13 @@ od_ostream& od_ostream::add( typ t ) \
 od_istream& od_istream::get( typ& t ) \
 { getNumberWithRetry(*this,t,errmsg_); return *this; }
 
-#define mImplSimpleAddFn(typ) mImplStrmAddFn(typ,t)
-#define mImplSimpleAddGetFns(typ) mImplSimpleAddFn(typ) mImplNumberGetFn(typ)
+#define mImplSimpleAddGetFnsNoConv(typ) \
+    mImplStrmAddFn(typ,t) mImplNumberGetFn(typ)
+#define mImplSimpleAddGetFns(typ) \
+    mImplStrmAddFn(typ,toString(t)) mImplNumberGetFn(typ)
 
-mImplSimpleAddGetFns(char)
-mImplSimpleAddGetFns(unsigned char)
+mImplSimpleAddGetFnsNoConv(char)
+mImplSimpleAddGetFnsNoConv(unsigned char)
 mImplSimpleAddGetFns(od_int16)
 mImplSimpleAddGetFns(od_uint16)
 mImplSimpleAddGetFns(od_int32)
@@ -505,19 +507,17 @@ mImplSimpleAddGetFns(od_int64)
 mImplSimpleAddGetFns(od_uint64)
 
 #ifdef __lux64__
-mImplSimpleAddGetFns(long long)
-mImplSimpleAddGetFns(unsigned long long)
+mImplSimpleAddGetFnsNoConv(long long)
+mImplSimpleAddGetFnsNoConv(unsigned long long)
 #else
-mImplSimpleAddGetFns(long)
-mImplSimpleAddGetFns(unsigned long)
+mImplSimpleAddGetFnsNoConv(long)
+mImplSimpleAddGetFnsNoConv(unsigned long)
 #endif
 
-mImplStrmAddFn(float,toString(t))
-mImplNumberGetFn(float)
-mImplStrmAddFn(double,toString(t))
-mImplNumberGetFn(double)
+mImplSimpleAddGetFns(float)
+mImplSimpleAddGetFns(double)
 
-mImplSimpleAddFn(const char*)
+mImplStrmAddFn(const char*,t)
 od_istream& od_istream::get( char* str )
     { pErrMsg("Dangerous: od_istream::get(char*)"); return getC( str, 0 ); }
 

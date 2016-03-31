@@ -136,15 +136,15 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     BufferString tmpfilenm = FilePath::getTempName("dat");
     comm += tmpfilenm; comm += "\"";
 
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) return false;
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) return false;
 
-    *sd.ostrm << xrg.start << " " << yrg.start << "\n";
-    *sd.ostrm << xrg.stop << " " << yrg.start << "\n";
-    *sd.ostrm << xrg.start << " " << yrg.stop << "\n";
-    *sd.ostrm << xrg.stop << " " << yrg.stop << "\n";
-    sd.close();
+    procstrm << xrg.start << " " << yrg.start << "\n";
+    procstrm << xrg.stop << " " << yrg.start << "\n";
+    procstrm << xrg.start << " " << yrg.stop << "\n";
+    procstrm << xrg.stop << " " << yrg.stop << "\n";
 
+    procstrm.close();
     comm = "minmax \""; comm += tmpfilenm; comm += "\" -I0.0001/0.0001 1> ";
     comm += fileName( fnm );
     if ( !execCmd(comm,strm) )
