@@ -482,7 +482,7 @@ ret DataPackMgr::fn##Of( DataPack::ID dpid ) const \
 { \
     const int idx = indexOf( dpid ); if ( idx < 0 ) return 0; \
     const DataPack* pack = (const DataPack*) refPtr( packs_[idx].get().ptr() );\
-    ret res = pack ? pack->fn() : 0; \
+    ret res = pack ? (ret) pack->fn() : (ret) 0; \
     unRefNoDeletePtr( pack ); \
     return res; \
 }
