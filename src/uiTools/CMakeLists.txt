@@ -7,7 +7,7 @@
 
 add_definitions( -DmNoAutoUiString )
 
-SET( OD_MODULE_DEPS uiBase Network )
+SET( OD_MODULE_DEPS uiBase MMProc )
 SET( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc

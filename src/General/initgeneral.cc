@@ -56,5 +56,4 @@ mDefModInitFn(General)
 
     IOM(); //Trigger createion & reading of geometries
 
-    Batch::SingleJobDispatcher::initClass();
 }

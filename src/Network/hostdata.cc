@@ -298,13 +298,21 @@ HostDataList::HostDataList( bool foredit )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 
     batchhostsfnm_ = fname;
-    readHostFile( fname );
+    refresh( foredit );
+}
+
+
+bool HostDataList::refresh( bool foredit )
+{
+    readHostFile( batchhostsfnm_ );
 
     if ( !foredit )
     {
 	handleLocal();
 	initDataRoot();
     }
+
+    return true;
 }
 
 

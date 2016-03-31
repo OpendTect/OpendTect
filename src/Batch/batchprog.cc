@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "ascstream.h"
 #include "debug.h"
+#include "oscommand.h"
 
 #include <iostream>
 
@@ -37,6 +38,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "oddirs.h"
 
+const char* BatchProgram::sKeyMasterHost()
+{ return OS::MachineCommand::sKeyMasterHost(); }
+const char* BatchProgram::sKeyMasterPort()
+{ return OS::MachineCommand::sKeyMasterPort(); }
+const char* BatchProgram::sKeyBG()
+{ return OS::MachineCommand::sKeyBG(); }
+const char* BatchProgram::sKeyJobID()
+{ return OS::MachineCommand::sKeyJobID(); }
 
 BatchProgram* BatchProgram::inst_ = 0;
 

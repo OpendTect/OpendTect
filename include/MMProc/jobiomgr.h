@@ -22,6 +22,7 @@ class HostData;
 class JobInfo;
 class JobIOHandler;
 template <class T> class ObjQueue;
+namespace OS { class MachineCommand; }
 
 /*!
 \brief Encapsulates status message from a running client.
@@ -69,7 +70,6 @@ public:
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
     void		fetchMsg( BufferString& bs )	{ bs = msg_; msg_ = "";}
 
-
     bool		startProg(const char*,IOPar&,const FilePath&,
 				  const JobInfo&,const char*);
 
@@ -80,6 +80,9 @@ public:
 
     ObjQueue<StatusInfo>& statusQueue();
 
+    static bool		mkIOParFile(const FilePath& basefnm,
+				    const HostData&,const IOPar&,
+				    FilePath&,BufferString& msg);
 protected:
 
     JobIOHandler&	iohdlr_;
@@ -92,10 +95,40 @@ protected:
 				  const char* progname,const FilePath& basefp,
 				  const FilePath& iopfp,const JobInfo&,
 				  const char* rshcomm);
+    void		mkCommand(OS::MachineCommand&,const HostData&,
+				  const char* progname,const FilePath& basefp,
+				  const FilePath& iopfp,const JobInfo&,
+				  const char* rshcomm);
+
 };
 
 
 mGlobal(MMProc) const OD::String& getTempBaseNm();
 mGlobal(MMProc) int mkTmpFileNr();
+mGlobal(MMProc) int& MMJob_getTempFileNr();
+
+
+mClass(MMProc) CommandString
+{
+public:
+			CommandString(const HostData& targetmachine,
+				      const char* init=0);
+
+    CommandString&	operator=(const char*);
+
+    void		addFlag(const char* flag,const char* value);
+    void		addFlag(const char* flag,int value);
+    void		addFilePath(const FilePath&);
+
+    const OD::String&	string()		{ return cmd_; }
+
+private:
+
+    void		add(const char*);
+
+    BufferString	cmd_;
+    const HostData&	hstdata_;
+
+};
 
 #endif

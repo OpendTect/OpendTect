@@ -73,10 +73,10 @@ public:
     mExp(Batch) static void	deleteInstance();
 
 
-    static const char*	sKeyMasterHost()	{ return "masterhost"; }
-    static const char*	sKeyMasterPort()	{ return "masterport"; }
-    static const char*	sKeyBG()		{ return "bg"; }
-    static const char*	sKeyJobID()		{ return "jobid"; }
+    static const char*	sKeyMasterHost();
+    static const char*	sKeyMasterPort();
+    static const char*	sKeyBG();
+    static const char*	sKeyJobID();
     static const char*	sKeyDataDir()		{ return "datadir"; }
 
 protected:

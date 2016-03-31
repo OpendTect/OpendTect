@@ -126,6 +126,8 @@ public:
     void		setWinDataRoot(const char*);
     const char*		winDataRoot() const;
 
+    bool		refresh(bool foredit=false);
+
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
 

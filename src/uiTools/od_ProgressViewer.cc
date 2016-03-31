@@ -93,6 +93,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
 	, delay_(1)
 	, nrcharsread_(0)
 {
+    sleepSeconds( delay_ );
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
@@ -196,7 +197,7 @@ void uiProgressViewer::doWork( CallBacker* )
 	    strm_.getAll( curline_ );
 	    txtfld->setText( curline_ );
 	    txtfld->scrollToBottom();
-	    statusBar()->message( processEnded() ? tr("Processing ended") 
+	    statusBar()->message( processEnded() ? tr("Processing ended")
 						 : uiString::emptyString() );
 	    return;
 	}
@@ -257,7 +258,7 @@ int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiBase" );
-   
+
     TextTranslateMgr::loadTranslations();
 
     CommandLineParser cl( argc, argv );
