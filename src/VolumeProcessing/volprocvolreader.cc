@@ -33,9 +33,15 @@ Task* VolumeReader::createTask()
     if ( !output || !ioobj )
 	return 0;
 
-    Seis::ParallelReader* rdr =
-	new Seis::ParallelReader( *ioobj, output->sampling() );
-    rdr->setDataPack( output );
+    TypeSet<int> components;
+    for ( int idx=0; idx<output->nrComponents(); idx++ )
+	components += idx;
+
+    Seis::SequentialReader* rdr = new Seis::SequentialReader( *ioobj, 0,
+							      &components );
+    if ( !rdr->setDataPack(*output) )
+	{ delete rdr; return 0; }
+
     return rdr;
 }
 
