@@ -62,7 +62,6 @@ DataPack::ID DataPack::getNewID()
 
 void DataPack::setManager( const DataPackMgr* mgr )
 {
-    Threads::Locker lock ( nruserslock_ );
     if ( manager_ && mgr )
     {
 	if ( manager_!=mgr )
@@ -77,15 +76,15 @@ void DataPack::setManager( const DataPackMgr* mgr )
 
 void DataPack::release()
 {
-    const_cast<DataPackMgr*>(manager_)->release( this );
+    unRef();
 }
 
 
 DataPack* DataPack::obtain()
 {
-    Threads::Locker lock( nruserslock_ );
+    ref();
+
     if ( !manager_ ) return 0;
-    nrusers_++;
 
     return this;
 }
@@ -164,10 +163,10 @@ void DataPackMgr::dumpDPMs( od_ostream& strm )
 
 DataPackMgr::DataPackMgr( DataPackMgr::ID dpid )
     : id_(dpid)
+    , nrnull_(0)
     , newPack(this)
     , packToBeRemoved(this)
-{
-}
+{}
 
 
 DataPackMgr::~DataPackMgr()
@@ -176,14 +175,18 @@ DataPackMgr::~DataPackMgr()
     //Don't do in release mode, as we may have race conditions of sta-tic
     //variables deleting at different times
     for ( int idx=0; idx<packs_.size(); idx++ )
-    { //Using std C++ function because we cannot use pErrMsg or BufferString
-	std::cerr << "(PE) DataPackMgr | Datapack " << packs_[idx]->id();
-	if ( packs_[idx]->category() )
-	    std::cerr << " with category " << packs_[idx]->category();
+    {
+	ConstRefMan<DataPack> pack = packs_[idx].get();
+	if ( !pack )
+	    continue;
+
+	//Using std C++ function because we cannot use pErrMsg or BufferString
+	std::cerr << "(PE) DataPackMgr | Datapack " << pack->id();
+	if ( pack->category() )
+	    std::cerr << " with category " << pack->category();
 	std::cerr << " is still referenced.\n";
     }
 
-    deepErase( packs_ );
 #endif
 }
 
@@ -198,8 +201,47 @@ float DataPackMgr::nrKBytes() const
 {
     float res = 0;
     for ( int idx=0; idx<packs_.size(); idx++ )
-	res += packs_[idx]->nrKBytes();
+    {
+	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
+	if ( pack )
+	{
+	    res += pack->nrKBytes();
+	    pack->unRefNoDelete();
+	}
+    }
     return res;
+}
+
+
+RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
+{
+    RefMan<DataPack> res = 0;
+    packslock_.readLock();
+    const int idx = indexOf( dpid );
+    if ( idx>=0 )
+	res = packs_[idx].get();
+
+    packslock_.readUnlock();
+
+    return res;
+}
+
+
+void DataPackMgr::getPackIDs(TypeSet<DataPack::ID>& ids) const
+{
+    packslock_.readLock();
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
+
+	if ( pack )
+	{
+	    ids += pack->id();
+	    pack->unRefNoDelete();
+	}
+    }
+
+    packslock_.readUnlock();
 }
 
 
@@ -213,30 +255,48 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
     astrm.newParagraph();
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	const DataPack& pack = *packs_[idx];
+	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
+	if ( !pack )
+	    continue;
+
 	IOPar iop;
-	pack.dumpInfo( iop );
+	pack->dumpInfo( iop );
 	iop.putTo( astrm );
+	pack->unRefNoDelete();
     }
 }
 
+#define mMaxNrNull 30
 
-#define mGetWriteLocker(lck,var) \
-    Threads::Locker var( lck, Threads::Locker::WriteLock )
 
-void DataPackMgr::add( DataPack* dp )
+void DataPackMgr::doAdd( DataPack* dp )
 {
     if ( !dp ) return;
 
-    Threads::Locker usrlock( dp->nruserslock_ );
+    RefMan<DataPack> keeper = dp;
     dp->setManager( this );
-    usrlock.unlockNow();
 
-    mGetWriteLocker( rwlock_, lckr );
+    packslock_.writeLock();
+
+    //Do some cleanup while we are in writelock
+    if ( nrnull_>mMaxNrNull )
+    {
+	for ( int idx=packs_.size()-1; idx>=0; idx-- )
+	{
+	    if ( !packs_[idx] )
+		packs_.removeSingle( idx );
+	}
+
+	nrnull_ = 0;
+    }
+
     packs_ += dp;
+
+    packslock_.writeUnlock();
+
     mTrackDPMsg( BufferString("[DP]: add ",dp->id(),
 		 BufferString(" '",dp->name(),"'")) );
-    lckr.unlockNow();
+
     newPack.trigger( dp );
 }
 
@@ -245,12 +305,10 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 {
     if ( !dp ) return 0;
 
-    Threads::Locker lckr( dp->nruserslock_ );
-    dp->nrusers_++;
+    dp->ref();
     dp->setManager( this );
-    lckr.unlockNow();
 
-    mGetWriteLocker( rwlock_, rwlckr );
+    packslock_.writeLock();
     const int idx = packs_.indexOf( dp );
     if ( idx==-1 )
     {
@@ -261,9 +319,9 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
     else
     {
 	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",dp->id(),
-			BufferString(" nrusers=",dp->nrusers_)) );
+			BufferString(" nrusers=",dp->nrRefs())) );
     }
-    rwlckr.unlockNow();
+    packslock_.writeUnlock();
 
     if ( idx==-1 )
 	newPack.trigger( dp );
@@ -272,22 +330,83 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 }
 
 
+bool DataPackMgr::ref( DataPack::ID dpid )
+{
+    bool res;
+    packslock_.readLock();
+    const int idx = indexOf( dpid );
+    if ( packs_.validIdx(idx) )
+    {
+	RefMan<DataPack> pack = packs_[idx].get();
+	packslock_.readUnlock();
+	if ( pack )
+	{
+	    pack->ref();
+	    mTrackDPMsg( BufferString("[DP]: ref ",pack->id(),
+			 BufferString(" nrusers=",pack->nrRefs())) );
+
+	}
+	res = true;
+    }
+    else
+    {
+	packslock_.readUnlock();
+	res = false;
+    }
+
+    return res;
+}
+
+
+bool DataPackMgr::unRef( DataPack::ID dpid )
+{
+    bool res;
+    packslock_.readLock();
+    const int idx = indexOf( dpid );
+    if ( packs_.validIdx(idx) )
+    {
+	RefMan<DataPack> pack = packs_[idx].get();
+	packslock_.readUnlock();
+	if ( pack )
+	{
+	    mTrackDPMsg( BufferString("[DP]: unRef ",pack->id(),
+			 BufferString(" nrusers=",pack->nrRefs()-1)) );
+	    pack->unRef();
+	}
+
+	res = true;
+    }
+    else
+    {
+	packslock_.readUnlock();
+	res = false;
+    }
+
+    return res;
+}
+
+
 DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 {
-    Threads::Locker lckr( rwlock_ );
+    packslock_.readLock();
     const int idx = indexOf( dpid );
 
     DataPack* res = 0;
-    if ( idx!=-1 )
+    if ( packs_.validIdx(idx) )
     {
-	res = const_cast<DataPack*>( packs_[idx] );
+	RefMan<DataPack> pack = packs_[idx].get();
+	packslock_.readUnlock();
+	res = pack.ptr();
 	if ( !obs )
 	{
-	    Threads::Locker ulckr( res->nruserslock_ );
-	    res->nrusers_++;
+	    res->ref();
 	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id(),
-			 BufferString(" nrusers=",res->nrusers_)) );
+			 BufferString(" nrusers=",res->nrRefs())) );
 	}
+    }
+    else
+    {
+	packslock_.readUnlock();
     }
 
     return res;
@@ -296,77 +415,65 @@ DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 
 int DataPackMgr::indexOf( DataPack::ID dpid ) const
 {
+    //Count how many null pointers we have and update if need be.
+    int nrnullptr = 0;
+    int res = -1;
+
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	if ( packs_[idx]->id()==dpid )
-	    return idx;
+	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
+	if ( pack )
+	{
+	    if ( pack->id()==dpid )
+	    {
+		res = idx;
+		pack->unRefNoDelete();
+		break;
+	    }
+	}
+	else
+	{
+	    nrnullptr++;
+	}
+
+	unRefNoDeletePtr( pack );
     }
 
-    return -1;
+    //As we are in a locked section, we are sure no-one has set it to zero
+    //in the meanwhile.
+
+    nrnull_.setIfLarger( nrnullptr );
+
+    return res;
 }
 
 
 void DataPackMgr::release( DataPack::ID dpid )
 {
-    Threads::Locker lckr( rwlock_ );
+    packslock_.readLock();
     int idx = indexOf( dpid );
-    if ( idx==-1 )
-	return;
-
-    DataPack* pack = const_cast<DataPack*>( packs_[idx] );
-    Threads::Locker usrslckr( pack->nruserslock_ );
-    pack->nrusers_--;
-
-    if ( pack->nrusers_>0 )
+    if ( packs_.validIdx(idx) )
     {
-	mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
-		     BufferString(" nrusers=",pack->nrusers_)) );
-	return;
+	RefMan<DataPack> pack = packs_[idx].get();
+	packslock_.readUnlock();
+	pack.ptr()->unRef();
+
+	if ( pack->nrRefs()>0 )
+	{
+	    mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
+				    BufferString(" nrusers=",pack->nrRefs())) );
+	    return;
+	}
     }
-
-    //We should be unlocked during callback
-    //to avoid deadlocks
-    usrslckr.unlockNow();
-    lckr.unlockNow();
-
-    packToBeRemoved.trigger( pack );
-
-    mGetWriteLocker( rwlock_, wrlckr );
-    usrslckr.reLock();
-
-    if ( pack->nrusers_>0 )
+    else
     {
-	mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
-		     BufferString(" nrusers=",pack->nrusers_)) );
-	return;
+	packslock_.readUnlock();
     }
-
-    //We lost our lock, so idx may have changed.
-    if ( !packs_.isPresent( pack ) )
-	{ pErrMsg("Double delete detected"); }
-
-    pack->setManager( 0 );
-    usrslckr.unlockNow();
-
-
-    mTrackDPMsg( BufferString("[DP]: release/delete ",pack->id()) );
-    packs_ -= pack;
-    delete pack;
 }
 
 
 void DataPackMgr::releaseAll( bool notif )
 {
-    if ( !notif )
-    {
-	mGetWriteLocker( rwlock_, wrlckr );
-	deepErase( packs_ );
-    }
-    else
-    {
-	for ( int idx=0; idx<packs_.size(); idx++ )
-	    release( packs_[idx]->id() );
-    }
 }
 
 
@@ -374,7 +481,10 @@ void DataPackMgr::releaseAll( bool notif )
 ret DataPackMgr::fn##Of( DataPack::ID dpid ) const \
 { \
     const int idx = indexOf( dpid ); if ( idx < 0 ) return 0; \
-    return packs_[idx]->fn(); \
+    const DataPack* pack = (const DataPack*) refPtr( packs_[idx].get().ptr() );\
+    ret res = pack ? pack->fn() : 0; \
+    unRefNoDeletePtr( pack ); \
+    return res; \
 }
 
 mDefDPMDataPackFn(const char*,name)
@@ -384,7 +494,9 @@ mDefDPMDataPackFn(float,nrKBytes)
 void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
 {
     const int idx = indexOf( dpid ); if ( idx < 0 ) return;
-    packs_[idx]->dumpInfo( iop );
+    const DataPack* pack = (const DataPack*) refPtr( packs_[idx].get().ptr() );
+    if ( pack ) pack->dumpInfo( iop );
+    unRefNoDeletePtr( pack );
 }
 
 
@@ -393,7 +505,7 @@ void DataPack::dumpInfo( IOPar& iop ) const
     iop.set( sKeyCategory(), category() );
     iop.set( sKey::Name(), name() );
     iop.set( "Pack.ID", id_ );
-    iop.set( "Nr users", nrusers_ );
+    iop.set( "Nr users", nrRefs() );
     const od_int64 nrkb = mCast(od_int64,nrKBytes());
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
 }

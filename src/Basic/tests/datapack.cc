@@ -18,7 +18,6 @@ public:
 		    : deletedflag_( deletedflag ) { deletedflag_ = false; }
 		~DataPackClass() { deletedflag_ = true; }
 
-    int		nrUsers() const { return nrusers_; }
     bool	hasManager() const { return manager_; }
 
     bool&	deletedflag_;
@@ -42,12 +41,12 @@ bool testDataPack()
 
     mRunStandardTest( dpc->hasManager(), "Manager set");
 
-    mRunStandardTest( dpc->nrUsers()==1, "Nr users after addAndObtain");
+    mRunStandardTest( dpc->nrRefs()==1, "Nr users after addAndObtain");
 
     int id = dpc->id();
 
     DataPack* dp = dpm.observe( id );
-    mRunStandardTest( dpc->nrUsers()==1, "Nr users after observation obtain");
+    mRunStandardTest( dpc->nrRefs()==1, "Nr users after observation obtain");
 
     mRunStandardTest( dp, "Return value from observation obtain");
 
@@ -57,7 +56,7 @@ bool testDataPack()
 	PtrMan<ConstDataPackRef<BufferString> > faultyref =
 	    new DataPackRef<BufferString>( dpm.obtain(id) );
 
-	mRunStandardTest( dpc->nrUsers()==2, "Nr users after second obtain");
+	mRunStandardTest( dpc->nrRefs()==2, "Nr users after second obtain");
 
 	mRunStandardTest( !faultyref->ptr(), "Refusal to give invalid cast");
 
@@ -66,10 +65,10 @@ bool testDataPack()
 	PtrMan<DataPackRef<DataPackClass> > goodref =
 		    new DataPackRef<DataPackClass>( dpm.obtain(id) );
 
-	mRunStandardTest( dpc->nrUsers()==3, "Nr users after third obtain");
+	mRunStandardTest( dpc->nrRefs()==3, "Nr users after third obtain");
 
 	faultyref = 0;
-	mRunStandardTest( dpc->nrUsers()==2,
+	mRunStandardTest( dpc->nrRefs()==2,
 			  "Nr users after ref goes out of scope");
 
 	//Note, this is not a standard way to create the ref, but I need to
@@ -77,13 +76,13 @@ bool testDataPack()
 	PtrMan<DataPackRef<DataPackClass> > goodref2 =
 	    new DataPackRef<DataPackClass>( *goodref );
 
-	mRunStandardTest( dpc->nrUsers()==3,
+	mRunStandardTest( dpc->nrRefs()==3,
 			 "Nr users after ref copy constructor.");
 
 	goodref = 0;
 	goodref2 = 0;
 
-	dp->release();
+	dp->unRef();
 	mRunStandardTest( deleted, "Release delete" );
 
 	dp = dpm.obtain( id );
@@ -102,10 +101,10 @@ bool testDataPack()
 	DataPackRef<DataPackClass> testref = 0;
 	testref = dparef;
 
-	mRunStandardTest( dpa->nrUsers()==2,
+	mRunStandardTest( dpa->nrRefs()==2,
 			 "Nr users after assignment operator");
 	testref = dpbref;
-	mRunStandardTest( dpa->nrUsers()==1,
+	mRunStandardTest( dpa->nrRefs()==1,
 			 "Nr users after second assignement operator");
     }
 

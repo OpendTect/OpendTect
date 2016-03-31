@@ -365,14 +365,19 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const FixedString dpname = DPM(dmid).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
 	{
-	    const int nrpacks = DPM(dmid).packs().size();
+	    TypeSet<DataPack::ID> ids;
+	    DPM(dmid).getPackIDs( ids );
+	    const int nrpacks = ids.size();
 	    for ( int idx=0; idx<nrpacks; idx++ )
 	    {
-		const int tmpdtpackid = DPM(dmid).packs()[idx]->id();
-		const FixedString tmpnm = DPM(dmid).nameOf(tmpdtpackid);
+		RefMan<DataPack> pack = DPM(dmid).get( ids[idx] );
+		if ( !pack )
+		    continue;
+
+		const FixedString tmpnm = pack->name().buf();
 		if ( tmpnm == as->userRef() )
 		{
-		    dpid = tmpdtpackid;
+		    dpid = pack->id();
 		    break;
 		}
 	    }

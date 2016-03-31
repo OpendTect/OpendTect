@@ -38,6 +38,7 @@ mClass(Basic) Atomic
 {
 public:
     		Atomic(T val=0);
+		Atomic(const Atomic<T>&);
 		~Atomic();
 
 		operator T() const { return get(); }
@@ -56,6 +57,11 @@ public:
     inline T	exchange(T newval);
     		/*!<Returns old value. */
 
+    inline void setIfLarger(T newval);
+		//!<Sets to newval if newval is larger than current value
+    inline void setIfSmaller(T newval);
+		//!<Sets to newval if newval is smaller than current value
+
 #if mODVersion < 700
     //Force developers to adapt code in od6
     inline bool setIfValueIs(T curval,T newval,T* actualvalptr);
@@ -69,10 +75,6 @@ public:
      current	value of 'val_'.
     */
 
-
-private:
-			Atomic(const Atomic<T>&)
-			{ }
     
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
@@ -232,7 +234,67 @@ public:
 };
 
 
+/*!
+ \brief Is an alternative to ReadWriteLock. It is a lock which causes a thread
+ trying to acquire it to simply wait in a loop ("spin") while repeatedly
+ checking if the lock is available. Because they avoid overhead from operating
+ system process re-scheduling or context switching, spinlocks are efficient if
+ threads are only likely to be blocked for a short period.
+ */
+
+mExpClass(Basic) SpinRWLock
+{
+public:
+			SpinRWLock();
+			/*\If recursive, mutex can be locked
+			 multiple times from the same thread without deadlock.
+			 It will be unlock when unLock has been called the same
+			 number of times as lock(). */
+			SpinRWLock(const SpinRWLock&);
+			~SpinRWLock();
+
+
+    void		readLock();
+    void		readUnlock();
+    void		writeLock();
+    void		writeUnlock();
+
+protected:
+    Atomic<int>		count_;
+
+public:
+    int			count() const	{ return count_; }
+			/*!<Only for debugging.  */
+};
+
+
 //Implementations
+
+
+template <class T>
+void Atomic<T>::setIfLarger( T newval )
+{
+    T oldval = *this;
+    do
+    {
+	if ( oldval>=newval )
+	    return;
+    }
+    while ( !setIfValueIs( oldval, newval, &oldval ) );
+}
+
+template <class T>
+void Atomic<T>::setIfSmaller( T newval )
+{
+    T oldval = *this;
+    do
+    {
+	if ( oldval<=newval )
+	    return;
+    }
+    while ( !setIfValueIs( oldval, newval, &oldval ) );
+}
+
 
 #ifdef __STDATOMICS__
 template <class T> inline
@@ -324,7 +386,13 @@ template <class T> inline
 Atomic<T>::Atomic( T val )
     : val_( val )
 {}
-    
+
+
+template <class T> inline
+Atomic<T>::Atomic( const Atomic<T>& val )
+    : val_( val.get() )
+{}
+
     
 template <class T> inline
 Atomic<T>::~Atomic<T>()
@@ -436,6 +504,14 @@ Atomic<T>::Atomic( T val )
 {
     *valptr_ = val;
 }
+
+
+template <class T> inline
+Atomic<T>::Atomic( const Atomic<T>& val )
+    : lock_( new Mutex )
+    , valptr_( values_ )
+{ *valptr_ = val.get(); }
+
 
 template <class T> inline
 const void* Atomic<T>::getStorage() const

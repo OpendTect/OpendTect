@@ -189,7 +189,7 @@ public:
 mExpClass(Basic) ObsPtrBase
 {
 public:
-				operator bool()  const;
+				operator bool() const;
     bool			operator!() const;
 protected:
 				ObsPtrBase();

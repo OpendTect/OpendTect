@@ -387,6 +387,71 @@ bool Threads::SpinLock::tryLock()
     return false;
 }
 
+
+
+Threads::SpinRWLock::SpinRWLock()
+    : count_( 0 )
+{
+    mSetupIttNotify( count_, "Threads::SpinRWLock" );
+}
+
+
+Threads::SpinRWLock::SpinRWLock( const Threads::SpinRWLock& oth )
+    : count_( 0 )
+
+{
+    mSetupIttNotify( count_, "Threads::SpinRWLock" );
+}
+
+
+Threads::SpinRWLock::~SpinRWLock()
+{
+    mDestroyIttNotify( count_ );
+}
+
+void Threads::SpinRWLock::readLock()
+{
+    mPrepareIttNotify( count_ );
+    int prevval = count_;
+    int newval;
+    do
+    {
+	if ( prevval == -1 ) //Writelocked
+	    prevval = 0;
+
+	newval = prevval+1;
+    } while ( !count_.setIfValueIs( prevval, newval, &prevval ) );
+
+    mIttNotifyAcquired( count_ );
+}
+
+
+void Threads::SpinRWLock::readUnlock()
+{
+    count_--;
+    mIttNotifyReleasing( count_ );
+}
+
+
+void Threads::SpinRWLock::writeLock()
+{
+    mPrepareIttNotify( count_ );
+    while ( !count_.setIfValueIs( 0, -1, 0 ) )
+    {}
+
+    mIttNotifyAcquired( count_ );
+}
+
+
+void Threads::SpinRWLock::writeUnlock()
+{
+    count_ = 0;
+
+    mIttNotifyReleasing( count_ );
+}
+
+
+
 #define mUnLocked	0
 #define mPermissive	-1
 #define mWriteLocked	-2

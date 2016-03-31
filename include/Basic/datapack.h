@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "threadlock.h"
 #include "od_iosfwd.h"
+#include "ptrman.h"
 
 class DataPackMgr;
 
@@ -31,23 +32,22 @@ class DataPackMgr;
 */
 
 mExpClass(Basic) DataPack : public NamedObject
+			  , public RefCount::Referenced
 {
 public:
+    typedef int				ID;
+    typedef MultiID			FullID;
 
-    typedef int		ID;
-    typedef MultiID	FullID;
     inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
     			DataPack( const char* categry )
 			    : NamedObject("<?>")
 			    , category_(categry)
-			    , nrusers_( 0 )
 			    , manager_( 0 )
 			    , id_(getNewID())	{}
 			DataPack( const DataPack& dp )
 			    : NamedObject( dp.name().buf() )
 			    , category_( dp.category_ )
-			    , nrusers_( 0 )
 			    , manager_( 0 )
 			    , id_(getNewID())	{}
     virtual		~DataPack()		{}
@@ -66,26 +66,25 @@ public:
 
     Threads::Lock&	updateLock() const	{ return updatelock_; }
 
-    void		release();
-    DataPack*		obtain();
+    /*mDeprecated*/ void	release();
+    /*mDeprecated*/ DataPack*	obtain();
 
 protected:
 
     void			setManager(const DataPackMgr*);
     const ID			id_;
     const BufferString		category_;
-    mutable int			nrusers_;
-    mutable Threads::Lock	nruserslock_;
+
     mutable Threads::Lock	updatelock_;
     const DataPackMgr*		manager_;
 
-    static ID		getNewID(); 	//!< ensures a global data pack ID
-    static float	sKb2MbFac();	//!< 1 / 1024
+    static ID			getNewID();  //!< ensures a global data pack ID
+    static float		sKb2MbFac(); //!< 1 / 1024
 
-    void		setCategory( const char* c )
-    			{ *const_cast<BufferString*>(&category_) = c; }
+    void			setCategory( const char* c )
+				{ *const_cast<BufferString*>(&category_) = c; }
 
-    friend class	DataPackMgr;
+    friend class		DataPackMgr;
 };
 
 
@@ -151,25 +150,14 @@ public:
     inline bool		haveID( const DataPack::FullID& fid ) const
 			{ return id() == fid.ID(0) && haveID( fid.ID(1) ); }
 
-    void		add(DataPack*);
-    			//!< The pack becomes mine
-    DataPack*		addAndObtain(DataPack*);
-    			/*!< The pack becomes mines. Pack is obtained
-			     during the lock, i.e. threadsafe. */
+    template <class T>
+    inline T*		add(T* p) { doAdd(p); return p; }
+    RefMan<DataPack>	get(DataPack::ID dpid) const;
 
-    inline DataPack*	obtain( DataPack::ID dpid )
-			{ return doObtain(dpid,false); }
-    inline const DataPack* obtain( DataPack::ID dpid ) const
-			{ return doObtain(dpid,false); }
-    inline DataPack*	observe( DataPack::ID dpid )
-			{ return doObtain(dpid,true); }
-    inline const DataPack* observe( DataPack::ID dpid ) const
-			{ return doObtain(dpid,true); }
-
-    void		release(DataPack::ID);
-    void		release( const DataPack* dp )
-    			{ if ( dp ) release( dp->id() ); }
-    void		releaseAll(bool donotify);
+    bool		ref(DataPack::ID dpid);
+			//Convenience. Will ref if it is found
+    bool		unRef(DataPack::ID dpid);
+			//Convenience. Will ref if it is found
 
     Notifier<DataPackMgr> newPack;		//!< Passed CallBacker* = Pack
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack
@@ -193,17 +181,20 @@ public:
     void		dumpInfo(od_ostream&) const;
     float		nrKBytes() const;
 
-    const ObjectSet<const DataPack>&	packs() const	{ return packs_; }
+    void		getPackIDs(TypeSet<DataPack::ID>&) const;
 
 protected:
+    void				doAdd(DataPack*);
 
-    ID				id_;
-    ObjectSet<const DataPack>	packs_;
+    mutable Threads::Atomic<int>	nrnull_;
+    mutable Threads::SpinRWLock		packslock_;
+    TypeSet<ObsPtr<DataPack> >		packs_;
 
-    DataPack*			doObtain(ID,bool) const;
-    int				indexOf(ID) const;
-    					//!<Object should be readlocked
-    mutable Threads::Lock	rwlock_;
+    ID					id_;
+
+    DataPack*				doObtain(ID,bool) const;
+    int					indexOf(ID) const;
+					//!<Object should be readlocked
 
     static Threads::Lock	mgrlistlock_;
     static ManagedObjectSet<DataPackMgr> mgrs_;
@@ -221,10 +212,28 @@ public:
     static DataPackMgr*	gtDPM(ID,bool);
     static void		dumpDPMs(od_ostream&);
 
+    /*mDeprecated*/ DataPack*		addAndObtain(DataPack*);
+					/*!< The pack becomes mines. Pack is
+					    obtained during the lock, i.e.
+					    threadsafe. */
+
+    /*mDeprecated*/ DataPack*		obtain( DataPack::ID dpid )
+					{ return doObtain(dpid,false); }
+    /*mDeprecated*/ const DataPack*	obtain( DataPack::ID dpid ) const
+					{ return doObtain(dpid,false); }
+    /*mDeprecated*/ DataPack*		observe( DataPack::ID dpid )
+					{ return doObtain(dpid,true); }
+    /*mDeprecated*/ const DataPack*	observe( DataPack::ID dpid ) const
+					{ return doObtain(dpid,true); }
+
+    /*mDeprecated*/ void		release(DataPack::ID);
+    /*mDeprecated*/ void		release( const DataPack* dp )
+					{ if ( dp ) release( dp->id() ); }
+    /*mDeprecated*/ void		releaseAll(bool donotify);
 };
 
 template <class T>
-mClass(Basic) ConstDataPackRef
+mClass(Basic) /*mDeprecated*/ ConstDataPackRef
 {
 public:
 				ConstDataPackRef(const DataPack* p);
@@ -281,7 +290,7 @@ protected:
  */
 
 template <class T>
-mClass(Basic) DataPackRef : public ConstDataPackRef<T>
+mClass(Basic) /*mDeprecated*/ DataPackRef : public ConstDataPackRef<T>
 {
 public:
 			DataPackRef(DataPack* p);
@@ -340,7 +349,7 @@ ConstDataPackRef<T>::ConstDataPackRef(const ConstDataPackRef<T>& dpr)
     : ptr_( dpr.ptr_ )
     , dp_( dpr.dp_ )
 {
-    if ( dp_ ) dp_->obtain();
+    if ( dp_ ) dp_->ref();
 }
 
 
@@ -352,7 +361,7 @@ ConstDataPackRef<T>::operator=(const ConstDataPackRef<T>& dpr)
     ptr_ = dpr.ptr_;
     dp_ = dpr.dp_;
 
-    if ( dp_ ) dp_->obtain();
+    if ( dp_ ) dp_->ref();
     return *this;
 }
 
@@ -363,7 +372,7 @@ void ConstDataPackRef<T>::releaseNow()
     ptr_ = 0;
     if ( dp_ )
     {
-	dp_->release();
+	dp_->unRef();
 	dp_ = 0;
     }
 }

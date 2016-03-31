@@ -545,10 +545,13 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 void uiVisDataPointSetDisplayMgr::clearDisplays()
 {
     DataPackMgr& dpm = DPM( DataPackMgr::PointID() );
-    for ( int dpidx=0; dpidx<dpm.packs().size(); dpidx++ )
+    TypeSet<DataPack::ID> packids;
+    dpm.getPackIDs( packids );
+
+    for ( int dpidx=0; dpidx<packids.size(); dpidx++ )
     {
-	const DataPack* datapack = dpm.packs()[dpidx];
-	mDynamicCastGet(const DataPointSet*,dps,datapack);
+	ConstRefMan<DataPack> datapack = dpm.get( packids[dpidx] );
+	mDynamicCastGet(const DataPointSet*,dps,datapack.ptr());
 	if ( !dps ) continue;
 	DispID id = getDisplayID( *dps );
 	removeDisplay( id );
