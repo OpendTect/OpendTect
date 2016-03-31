@@ -27,8 +27,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "ioman.h"
 #include "marchingcubes.h"
-#include "picksettr.h"
+#include "paralleltask.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "od_ostream.h"
 #include "seisdatapack.h"
 #include "settings.h"
@@ -834,6 +835,26 @@ int VolumeDisplay::getIsoSurfaceIdx( const mVisMCSurf* mcd ) const
 }
 
 
+mDefParallelCalc3Pars( PtrDataFlipper, tr("Flipping data"),
+	const float*, inpdata, float*, newdata, float, threshold )
+mDefParallelCalcBody( , newdata_[idx] = threshold_ - inpdata_[idx]; , )
+
+
+mDefParallelCalc3Pars( VSDataFlipper, tr("Flipping data"),
+	const ValueSeries<float>*, arrstor, ValueSeries<float>*, newstor,
+	float, threshold )
+mDefParallelCalcBody( ,
+	newstor_->setValue( idx, threshold_ - arrstor_->value(idx) ); , )
+
+mDefParallelCalc4Pars( ArrDataFlipper, tr("Flipping data"),
+	const Array3D<float>&, inpdata, Array3D<float>&, newdata,
+	float, threshold, int, n2 )
+mDefParallelCalcBody( ,
+        const int iidx = idx/n2_; const int iidy = idx%n2_;
+	newdata_.set( iidx, iidy, idx, threshold_-inpdata_.get(iidx,iidy,idx));
+	, )
+
+
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 {
     // TODO:: adapt to multi-attrib
@@ -862,8 +883,42 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	isosurfaces_[idx]->setScales( inlsampling, crlsampling, zsampling );
 
 	if ( isosurfsettings_[idx].mode_ )
-	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		    cache->data(), isosurfsettings_[idx].isovalue_, tr );
+	{
+	    const Array3D<float>& arr = cache->data();
+	    if ( !arr.isOK() )  return;
+
+	    const od_int64 size = arr.info().getTotalSz();
+	    PtrMan< Array3D<float> > newarr =
+		new Array3DImpl<float>(arr.info());
+	    if ( !newarr->isOK() )
+		return;
+
+	    const float threshold = isosurfsettings_[idx].isovalue_;
+	    const float* data = arr.getData();
+	    if ( data && newarr->getData() )
+	    {
+		PtrDataFlipper adf( size, data, newarr->getData(), threshold );
+		if ( !adf.execute() )
+		    return;
+	    }
+	    else if ( arr.getStorage() && newarr->getStorage() )
+	    {
+		VSDataFlipper vdf( size, arr.getStorage(), newarr->getStorage(),
+			threshold );
+		if ( !vdf.execute() )
+		    return;
+	    }
+	    else
+	    {
+		const int sz1 = arr.info().getSize(1);
+		const od_int64 hsz = arr.info().getSize(0) * sz1;
+		ArrDataFlipper adf( hsz, arr, *newarr, threshold, sz1 );
+		if ( !adf.execute() )
+		    return;
+	    }
+
+	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
+	}
 	else
 	{
 	    if ( !updateSeedBasedSurface( idx, tr ) )
