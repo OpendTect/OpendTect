@@ -457,7 +457,6 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		    seistrcpropchg.scale( *scaler );
 		}
 
-		const int zstartidx = trc.nearestSample( tkzs_.zsamp_.start );
 		const BinDataDesc trcdatadesc =
 			trc.data().getInterpreter(idc)->dataChar();
 		if ( storarr && dp_->getDataDesc()==trcdatadesc )
@@ -466,9 +465,6 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		    const int bytespersamp = databuf->bytesPerSample();
 		    const od_int64 offset =
 			arr.info().getOffset( 0, mCast(int,idx), 0 );
-
-		    const unsigned char* srcstartptr =
-			databuf->data() + zstartidx*bytespersamp;
 		    char* dststartptr = storarr + offset*bytespersamp;
 
 		    for ( int zidx=0; zidx<tkzs_.zsamp_.nrSteps()+1; zidx++ )
@@ -476,7 +472,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 			const float zval = tkzs_.zsamp_.atIndex( zidx );
 			const int trczidx = trc.nearestSample( zval );
 			const unsigned char* srcptr =
-				srcstartptr + trczidx*bytespersamp;
+				databuf->data() + trczidx*bytespersamp;
 			char* dstptr = dststartptr + zidx*bytespersamp;
 			// Checks if amplitude equals undef value of underlying
 			// data type as the array is initialized with undefs.
@@ -538,7 +534,6 @@ bool execute()
     const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
 
     const StepInterval<float>& zsamp = dp_.sampling().zsamp_;
-    const int zstartidx = trc_.nearestSample( zsamp.start );
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
     {
@@ -561,9 +556,6 @@ bool execute()
 	    const DataBuffer* databuf = trc_.data().getComponent( idcin );
 	    const int bytespersamp = databuf->bytesPerSample();
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
-
-	    const unsigned char* srcstartptr =
-			databuf->data() + zstartidx*bytespersamp;
 	    char* dststartptr = storarr + offset*bytespersamp;
 
 	    for ( int zidx=0; zidx<zsamp.nrSteps()+1; zidx++ )
@@ -573,7 +565,7 @@ bool execute()
 		const float zval = zsamp.atIndex( zidx );
 		const int trczidx = trc_.nearestSample( zval );
 		const unsigned char* srcptr =
-			srcstartptr + trczidx*bytespersamp;
+			databuf->data() + trczidx*bytespersamp;
 		char* dstptr = dststartptr + zidx*bytespersamp;
 		if ( memcmp(dstptr,srcptr,bytespersamp) )
 		    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
