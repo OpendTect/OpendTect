@@ -263,6 +263,8 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 }
 
 
+#define sEPSPixWidth 5.0f 
+
 #define mGetAuxAnnotIdx \
     uiODViewer2D* curvwr2d = find2DViewer( *meh ); \
     if ( !curvwr2d ) return; \
@@ -270,10 +272,11 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());\
     const Coord3 coord = curvwr.getCoord( wp );\
     if ( coord.isUdf() ) return;\
-    const float x1eps  = ((float)curvwr.posRange(true).step)*2.f; \
+    const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel(); \
+    const float x1eps  = mCast(float,wperpixel.x) * sEPSPixWidth; \
     const int x1auxposidx = \
 	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x), x1eps ); \
-    const float x2eps  = ((float)curvwr.posRange(false).step)*2.f; \
+    const float x2eps  = mCast(float,wperpixel.y) * sEPSPixWidth; \
     const int x2auxposidx = \
 	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y), x2eps );
 
@@ -294,9 +297,11 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	if ( selauxannot_.auxposidx_<0 )
 	{
 	    curvwr.rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
-	    MouseCursorManager::mgr()->setOverride(
-		    x1auxposidx>=0 ? MouseCursor::SplitH
-				   : MouseCursor::SplitV );
+	    MouseCursor::Shape mc = x1auxposidx>=0 ? MouseCursor::SplitH
+						   : MouseCursor::SplitV;
+	    if ( curvwr2d->geomID()!=Survey::GeometryManager::cUndefGeomID() )
+		mc = MouseCursor::PointingHand;
+	    MouseCursorManager::mgr()->setOverride( mc );
 	}
 
 	if ( x1auxposidx>=0 )
@@ -934,7 +939,7 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 
 
 Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
-	const uiODViewer2D* vwr2d, float intpos ) const
+	const uiODViewer2D* vwr2d, float pos ) const
 {
     Line2DInterSection::Point udfintpoint( Survey::GM().cUndefGeomID(),
 					   mUdf(int), mUdf(int) );
@@ -947,15 +952,20 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 
     const StepInterval<double> vwrxrg =
 	vwr2d->viewwin()->viewer().posRange( true );
-    const int intidx = vwrxrg.getIndex( intpos );
-    if ( intidx<0 )
+    const int posidx = vwrxrg.getIndex( pos );
+    if ( posidx<0 )
 	return udfintpoint;
+
     StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
-    const int inttrcnr = vwrtrcrg.atIndex( intidx );
+    const uiWorldPoint wperpixel =
+	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel(); 
+    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth; 
     for ( int idx=0; idx<int2d->size(); idx++ )
     {
 	const Line2DInterSection::Point& intpoint = int2d->getPoint( idx );
-	if ( mIsEqual(intpoint.mytrcnr,inttrcnr,2.0) )
+	const int inttrcidx = vwrtrcrg.getIndex( intpoint.mytrcnr );
+	const double inttrcpos = vwrxrg.atIndex( inttrcidx );
+	if ( mIsEqual(pos,inttrcpos,eps) )
 	    return intpoint;
     }
 
