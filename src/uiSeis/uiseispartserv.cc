@@ -491,12 +491,12 @@ void uiSeisPartServer::get2DZdomainAttribs( const char* linenm,
 
 void uiSeisPartServer::fillPar( IOPar& par ) const
 {
-    TypeSet<MultiID> mids;
-    Seis::PLDM().getIDs( mids );
-    for ( int idx=0; idx<mids.size(); idx++ )
+    const ObjectSet<Seis::PreLoadDataEntry>& pls = Seis::PLDM().getEntries();
+    for ( int idx=0; idx<pls.size(); idx++ )
     {
 	IOPar iop;
-	Seis::PreLoader spl( mids[idx] ); spl.fillPar( iop );
+	Seis::PreLoader spl( pls[idx]->mid_, pls[idx]->geomid_ );
+	spl.fillPar( iop );
 	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), idx );
 	par.mergeComp( iop, parkey );
     }
