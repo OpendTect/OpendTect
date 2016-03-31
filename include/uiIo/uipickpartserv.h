@@ -56,7 +56,7 @@ public:
     void			fetchHors(bool);
     Pick::Set*			loadSet(const MultiID&);
     bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
-    				//!< Load set(s) by user sel
+				//!< Load set(s) by user sel
     const Pick::Set*		createEmptySet(bool aspolygon);
     bool			create3DGenSet();
     bool			createRandom2DSet();
@@ -75,7 +75,7 @@ public:
     BinIDValueSet&			genDef()	{ return gendef_; }
     MultiID			pickSetID() const	{ return picksetid_; }
 
-    ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
+    ObjectSet<SurfaceInfo>&	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
     TrcKeySampling		selTrcKeySampling() const
 				{ return selhs_; }
@@ -84,17 +84,18 @@ public:
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
     TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
+    TypeSet<Pos::SurvID>&	getGeomIDs2D()		{ return geomids2d_; }
     TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
 
 protected:
 
     Pick::SetMgr&		psmgr_;
     uiPickSetMgr&		uipsmgr_;
-    BinIDValueSet& 		gendef_;
+    BinIDValueSet&		gendef_;
 
-    ObjectSet<SurfaceInfo> 	hinfos_;
+    ObjectSet<SurfaceInfo>	hinfos_;
     ObjectSet<MultiID>		selhorids_;
-    TrcKeySampling			selhs_;
+    TrcKeySampling		selhs_;
     Pick::Set*			ps_;
     MultiID			picksetid_;
     MultiID			horid_;
@@ -102,6 +103,7 @@ protected:
     TypeSet<BufferStringSet>	linenms_;
     BufferStringSet		selectlines_;
     TypeSet<Coord>		coords2d_;
+    TypeSet<Pos::GeomID>	geomids2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
 
     uiImpExpPickSet*		imppsdlg_;

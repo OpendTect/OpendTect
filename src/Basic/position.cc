@@ -385,6 +385,20 @@ double TrcKey::distTo( const TrcKey& trckey ) const
 }
 
 
+TrcKey& TrcKey::setGeomID( Pos::GeomID geomid )
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    if ( !geom || !geom->is2D() )
+	survid_ = geomid;
+    else
+    {
+	survid_ = Survey::GeometryManager::get2DSurvID();
+	pos_.inl() = geomid;
+    }
+    return *this;
+}
+
+
 TrcKey& TrcKey::setFrom( const Coord& crd )
 {
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );

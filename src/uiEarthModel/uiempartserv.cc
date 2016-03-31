@@ -1547,6 +1547,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 				  const BufferStringSet& selectlines,
 				  TypeSet<Coord>& coords,
+				  TypeSet<Pos::GeomID>& geomids,
 				  TypeSet< Interval<float> >& zrgs )
 {
     if ( !selhorids.size() ) return;
@@ -1590,6 +1591,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 		Interval<float> zrg( z1, issecondhor ? z2 : z1 );
 		zrgs += zrg;
 		coords += pos1;
+		geomids += geomid;
 	    }
 	}
     }

@@ -1379,6 +1379,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),
 				  pickserv_->selectLines(),
 				  pickserv_->getPos2D(),
+				  pickserv_->getGeomIDs2D(),
 				  pickserv_->getHor2DZRgs() );
     else if ( evid == uiPickPartServer::evFillPickSet() )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );

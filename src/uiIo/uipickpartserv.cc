@@ -274,7 +274,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 
     selectlines_ = rp.linenms_;
     deepErase( selhorids_ );
-    coords2d_.erase();
+    coords2d_.erase(); geomids2d_.erase();
     if ( rp.needhor_ )
     {
 	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
@@ -297,7 +297,10 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 	    const TypeSet<PosInfo::Line2DPos>& posns =
 				    geom2d->data().positions();
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
+	    {
 		coords2d_ += posns[ipos].coord_;
+		geomids2d_ += geom->getID();
+	    }
 	}
     }
 
@@ -310,7 +313,9 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
 	float val = (float) ( zrg.start +
 				  Stats::randGen().get() * zrg.width(false) );
-	ps += Pick::Location( coords2d_[posidx], val );
+	Pick::Location pl( coords2d_[posidx], val );
+	pl.setGeomID( geomids2d_[posidx] );
+	ps += pl;
     }
 
     return true;

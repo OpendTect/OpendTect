@@ -197,7 +197,10 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
 	const DataPointSet::Pos pos( dps_->pos(posidx) );
-	*ps += Pick::Location( pos.coord(), pos.z() );
+	Pick::Location pl( pos.coord(), pos.z() );
+	if ( dps_->is2D() )
+	    pl.setSurvID( pos.binid_.inl() );
+	*ps += pl;
     }
 
     return ps;

@@ -133,6 +133,7 @@ public:
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
+					TypeSet<Pos::SurvID>&,
 					TypeSet< Interval<float> >&);
 
     bool		storeObject(const EM::ObjectID&,

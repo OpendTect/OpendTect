@@ -404,6 +404,12 @@ static typename PicksType::size_type findIdx( const PicksType& picks,
 	    return idx;
     return -1;
 }
+Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
+{ return findIdx( *this, tk ); }
+Pick::List::size_type Pick::List::find( const TrcKey& tk ) const
+{ return findIdx( *this, tk ); }
+
+
 
 template <class PicksType>
 static typename PicksType::size_type getNearestLocation( const PicksType& ps,
@@ -435,6 +441,94 @@ static typename PicksType::size_type getNearestLocation( const PicksType& ps,
     }
     return ret;
 }
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
+{ return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true ); }
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
+						 bool ignorez ) const
+{ return getNearestLocation( *this, pos, ignorez ); }
+Pick::List::size_type Pick::List::nearestLocation( const Coord& pos ) const
+{ return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true ); }
+Pick::List::size_type Pick::List::nearestLocation( const Coord3& pos,
+						 bool ignorez ) const
+{ return getNearestLocation( *this, pos, ignorez ); }
+
+
+template <class PicksType>
+inline static Pos::GeomID getFirstgeomID( const PicksType& picks )
+{
+    return picks.isEmpty() ? false : picks.get(0).trcKey().geomID();
+}
+Pos::GeomID Pick::Set::firstgeomID() const { return getFirstgeomID(*this); }
+Pos::GeomID Pick::List::firstgeomID() const { return getFirstgeomID(*this); }
+
+
+template <class PicksType>
+inline static bool getHas2D( const PicksType& picks )
+{
+    const typename PicksType::size_type sz = picks.size();
+    if ( sz < 1 )
+	return false;
+    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
+	if ( picks.get(idx).is2D() )
+	    return true;
+    return false;
+}
+template <class PicksType>
+inline static bool getHasOnly2D( const PicksType& picks )
+{
+    const typename PicksType::size_type sz = picks.size();
+    if ( sz < 1 )
+	return false;
+    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
+	if ( picks.get(idx).is2D() )
+	    return false;
+    return true;
+}
+template <class PicksType>
+inline static bool getHas3D( const PicksType& picks )
+{
+    const typename PicksType::size_type sz = picks.size();
+    if ( sz < 1 )
+	return true;
+    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
+	if ( !picks.get(idx).is2D() )
+	    return true;
+    return false;
+}
+template <class PicksType>
+inline static bool getHasOnly3D( const PicksType& picks )
+{
+    const typename PicksType::size_type sz = picks.size();
+    if ( sz < 1 )
+	return true;
+    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
+	if ( picks.get(idx).is2D() )
+	    return false;
+    return true;
+}
+template <class PicksType>
+inline static bool getIsMultiGeom( const PicksType& picks )
+{
+    const typename PicksType::size_type sz = picks.size();
+    if ( sz < 2 )
+	return false;
+    const Pos::GeomID geomid0 = picks.get(0).geomID();
+    for ( typename PicksType::size_type idx=1; idx<sz; idx++ )
+	if ( picks.get(idx).geomID() != geomid0 )
+	    return true;
+    return false;
+}
+
+bool Pick::Set::isMultiGeom() const	{ return getIsMultiGeom(*this); }
+bool Pick::List::isMultiGeom() const	{ return getIsMultiGeom(*this); }
+bool Pick::Set::has2D() const		{ return getHas2D(*this); }
+bool Pick::List::has2D() const		{ return getHas2D(*this); }
+bool Pick::Set::has3D() const		{ return getHas3D(*this); }
+bool Pick::List::has3D() const		{ return getHas3D(*this); }
+bool Pick::Set::hasOnly2D() const	{ return getHasOnly2D(*this); }
+bool Pick::List::hasOnly2D() const	{ return getHasOnly2D(*this); }
+bool Pick::Set::hasOnly3D() const	{ return getHasOnly3D(*this); }
+bool Pick::List::hasOnly3D() const	{ return getHasOnly3D(*this); }
 
 
 // Pick::Set
@@ -445,7 +539,6 @@ Pick::Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
 {
-    pars_.set( sKey::SurveyID(), TrcKey::cUndefSurvID() );
 }
 
 
@@ -467,14 +560,6 @@ Pick::Set& Pick::Set::operator=( const Set& s )
     copy( s ); setName( s.name() );
     disp_ = s.disp_; pars_ = s.pars_;
     return *this;
-}
-
-
-Pos::SurvID Pick::Set::getSurvID() const
-{
-    Pos::SurvID survid( TrcKey::cUndefSurvID() );
-    return pars_.get(sKey::SurveyID(),survid) ? survid
-	 : Pick::getSurvID( *this );
 }
 
 
@@ -533,25 +618,6 @@ float Pick::Set::getXYArea() const
 	area *= (mFromFeetFactorF*mFromFeetFactorF);
 
     return area;
-}
-
-
-Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
-{
-    return findIdx( *this, tk );
-}
-
-
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
-{
-    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
-}
-
-
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
-						 bool ignorez ) const
-{
-    return getNearestLocation( *this, pos, ignorez );
 }
 
 
@@ -658,7 +724,20 @@ void Pick::Set::moveWithUndo( size_type idx, const Location& undoloc,
 }
 
 
+// Pick::List
+
+Pick::List& Pick::List::add( const Location& loc, bool mkcopy )
+{
+    if ( mkcopy )
+	*this += new Location( loc );
+    else
+	*this += const_cast<Location*>( &loc );
+    return *this;
+}
+
+
 // PickSetAscIO
+
 Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PickSet" );
@@ -729,33 +808,4 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
     }
 
     return true;
-}
-
-
-Pick::List& Pick::List::add( const Location& loc, bool mkcopy )
-{
-    if ( mkcopy )
-	*this += new Location( loc );
-    else
-	*this += const_cast<Location*>( &loc );
-    return *this;
-}
-
-
-Pick::List::size_type Pick::List::find( const TrcKey& tk ) const
-{
-    return findIdx( *this, tk );
-}
-
-
-Pick::List::size_type Pick::List::nearestLocation( const Coord& pos ) const
-{
-    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
-}
-
-
-Pick::List::size_type Pick::List::nearestLocation( const Coord3& pos,
-						 bool ignorez ) const
-{
-    return getNearestLocation( *this, pos, ignorez );
 }

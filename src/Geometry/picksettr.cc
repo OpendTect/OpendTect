@@ -152,13 +152,11 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
     {
 	IOPar iopar; iopar.getFrom( astrm );
 	ps.usePar( iopar );
-	const Pos::SurvID survid( ps.getSurvID() );
 
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
 	    Pick::Location loc;
-	    loc.setSurvID( survid, false );
 	    if ( loc.fromString(astrm.keyWord()) )
 		ps += loc;
 

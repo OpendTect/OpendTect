@@ -48,10 +48,12 @@ public:
 
     Disp		disp_;
     IOPar&		pars_;
-    inline bool		is2D() const;
-			//!< default is 3D
-    Pos::SurvID		getSurvID() const;
-			//!< pre-6.0.1 sets will return the survID of first loc
+    bool		isMultiGeom() const;
+    Pos::GeomID		firstgeomID() const;
+    bool		has2D() const;
+    bool		has3D() const;
+    bool		hasOnly2D() const;
+    bool		hasOnly3D() const;
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&) const;
@@ -96,8 +98,12 @@ public:
     inline void		addAll( const Pick::Set& ps )
 			{ const_cast<Pick::Set&>(ps).getLocations(*this); }
 
-    inline bool		is2D() const;
-    inline Pos::SurvID	getSurvID() const;
+    bool		isMultiGeom() const;
+    Pos::GeomID		firstgeomID() const;
+    bool		has2D() const;
+    bool		has3D() const;
+    bool		hasOnly2D() const;
+    bool		hasOnly3D() const;
     size_type		find(const TrcKey&) const;
     size_type		nearestLocation(const Coord&) const;
     size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
@@ -106,25 +112,6 @@ public:
     inline const Location& get( size_type idx ) const	{ return *(*this)[idx];}
 
 };
-
-
-template <class PicksType>
-inline bool is2D( const PicksType& picks )
-{
-    return TrcKey::is2D( picks.getSurvID() );
-}
-
-template <class PicksType>
-inline bool getSurvID( const PicksType& picks )
-{
-    return picks.isEmpty() ? false : picks.get(0).trcKey().survID();
-}
-
-inline bool Pick::Set::is2D() const		{ return Pick::is2D( *this ); }
-inline bool Pick::List::is2D() const		{ return Pick::is2D( *this ); }
-inline Pos::SurvID Pick::List::getSurvID() const
-{ return Pick::getSurvID( *this ); }
-
 
 } // namespace Pick
 

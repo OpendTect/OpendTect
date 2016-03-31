@@ -193,7 +193,7 @@ int nextStep()
     nrdone_++;
     if ( !prov_.toNextZ() )
 	return Finished();
- 
+
     const float curz = prov_.curZ();
     if ( mIsUdf(curz) )
 	return MoreToDo();
@@ -201,7 +201,10 @@ int nextStep()
     const Coord crd( prov_.curCoord() );
     dr_.pos_.set( crd );
     if ( !p3d_ )
+    {
 	dr_.pos_.nr_ = p2d_->curNr();
+	dr_.pos_.binid_.inl() = p2d_->curTrcKey().geomID();
+    }
     dr_.pos_.z_ = curz;
     if ( filt_ )
     {
@@ -224,7 +227,7 @@ int nextStep()
 }
 
     DataPointSet&		dps_;
-    ::Pos::Provider& 		prov_;
+    ::Pos::Provider&		prov_;
     const ::Pos::Provider3D*	p3d_;
     const ::Pos::Provider2D*	p2d_;
     const ::Pos::Filter*	filt_;
@@ -239,7 +242,7 @@ int nextStep()
 
 bool DataPointSet::extractPositions( ::Pos::Provider& prov,
 			    const ObjectSet<DataColDef>& dcds,
-			    const ::Pos::Filter* filt, 
+			    const ::Pos::Filter* filt,
 			    TaskRunner* tr )
 {
     for ( int idx=0; idx<dcds.size(); idx++ )
