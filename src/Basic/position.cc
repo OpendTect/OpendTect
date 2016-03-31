@@ -401,6 +401,28 @@ TrcKey::SurvID TrcKey::cUndefSurvID()
 }
 
 
+double TrcKey::distTo( const TrcKey& trckey ) const
+{
+    const Coord from = Survey::GM().toCoord( *this );
+    const Coord to = Survey::GM().toCoord( trckey );
+    return from.isUdf() || to.isUdf() ? mUdf(double) : from.distTo(to);
+}
+
+
+TrcKey& TrcKey::setGeomID( Pos::GeomID geomid )
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    if ( !geom || !geom->is2D() )
+	survid_ = geomid;
+    else
+    {
+	survid_ = Survey::GeometryManager::get2DSurvID();
+	pos_.inl() = geomid;
+    }
+    return *this;
+}
+
+
 TrcKey& TrcKey::setFrom( const Coord& crd )
 {
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );
@@ -423,15 +445,6 @@ TrcKey& TrcKey::setFrom( const Coord& crd )
 Coord TrcKey::getCoord() const
 {
     return Survey::Geometry::toCoord( *this );
-}
-
-
-
-double TrcKey::distTo( const TrcKey& trckey ) const
-{
-    const Coord from = Survey::GM().toCoord( *this );
-    const Coord to = Survey::GM().toCoord( trckey );
-    return from.isUdf() || to.isUdf() ? mUdf(double) : from.distTo(to);
 }
 
 

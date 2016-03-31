@@ -189,6 +189,13 @@ Pick::Location& Pick::Location::setTrcNr( Pos::TraceID tnr )
 }
 
 
+Pick::Location& Pick::Location::setGeomID( Pos::GeomID geomid )
+{
+    trckey_.setGeomID( geomid );
+    return *this;
+}
+
+
 Pick::Location& Pick::Location::setBinID( const BinID& bid, bool updcoord )
 {
     trckey_.setPosition( bid );
@@ -316,6 +323,7 @@ bool Pick::Location::fromString( const char* s )
     if ( !s || !*s )
 	return false;
 
+    // The location may start with the text_
     if ( *s == '"' )
     {
 	s++;
@@ -343,6 +351,7 @@ bool Pick::Location::fromString( const char* s )
     char* str = bufstr.getCStr();
     mSkipBlanks(str);
 
+    // Then, we always have the actual payload, the coordinate
     Coord3 posread;
     posread.x = getNextVal( str );
     posread.y = getNextVal( str );
@@ -352,6 +361,7 @@ bool Pick::Location::fromString( const char* s )
 
     pos_ = posread;
 
+    // Sometimes, we have a direction
     mSkipBlanks(str);
     const FixedString data( str );
     if ( data.count( '\t' ) > 1 )
@@ -369,32 +379,17 @@ bool Pick::Location::fromString( const char* s )
 	}
     }
 
+    // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
     mSkipBlanks(str);
+    const Pos::SurvID geomid = getNextInt( str );
+    const Survey::Geometry* geom = 0;
+    if ( !mIsUdf(geomid) )
+	geom = Survey::GM().getGeometry( geomid );
+    if ( !geom )
+	geom = &Survey::Geometry::default3D();
 
-    //Old files: trckey_ left undef
-    if ( !hasTrcKey() )
-	return true;
-    const Pos::SurvID survid( trckey_.survID() );
-    if ( survid == TrcKey::cUndefSurvID() || !str )
-	return true;
-
-    const int firstkey = getNextInt( str );
-    if ( trckey_.is2D() )
-    {
-	if ( Survey::GM().getGeometry(firstkey) )
-	    trckey_.setLineNr( firstkey );
-    }
-    else
-    {
-	if ( !Survey::GM().getGeometry3D(survid) )
-	    return false;
-
-	trckey_.setLineNr( firstkey );
-    }
-
-    trckey_.setTrcNr( getNextInt(str) );
-    if ( trckey_.position().isUdf() )
-	trckey_.setFrom( pos_ );
+    trckey_.setGeomID( geom->getID() );
+    trckey_.setFrom( pos_ );
 
     return true;
 }

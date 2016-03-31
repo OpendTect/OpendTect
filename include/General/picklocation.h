@@ -93,6 +93,7 @@ public:
     Location&		setDir(const Coord&);
     Location&		setLineNr(Pos::LineID);
     Location&		setTrcNr(Pos::LineID);
+    Location&		setGeomID(Pos::GeomID);
     Location&		setBinID(const BinID&,bool updcoord=false);
     Location&		setSurvID(Pos::SurvID,bool updfromcoord=true);
 

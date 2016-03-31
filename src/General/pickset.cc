@@ -443,7 +443,6 @@ Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
 {
-    pars_.set( sKey::SurveyID(), TrcKey::cUndefSurvID() );
 }
 
 
