@@ -21,6 +21,7 @@ class TaskRunner;
 class BufferStringSet;
 
 
+
 /*!
 \brief Provides I/O stream for file or system command.
 
@@ -76,8 +77,8 @@ public:
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
 
-    bool	isFile() const			{ return !iscomm_; }
-    bool	isCommand() const		{ return iscomm_; }
+    bool	isFile() const		{ return !iscomm_ && strmsrc_<0; }
+    bool	isCommand() const	{ return iscomm_; }
 
     static const char*	sStdIO();
     static const char*	sStdErr();
@@ -98,11 +99,25 @@ public:
 			    //!< If isid, unload all with this id
     static void		unLoadAll();
 
+    mExpClass(Basic) StreamSource
+    {
+    public:
+	enum Type		{ Read, Write, Edit };
+	virtual const char*	name() const			= 0;
+	virtual bool		supports(Type) const		= 0;
+	virtual bool		canHandle(const char*) const	= 0;
+	virtual bool		mustHandle( const char* s ) const
+				{ return canHandle(s); }
+	virtual bool		fill(StreamData&,Type) const	= 0;
+    };
+    static int		addStreamSource(StreamSource*);
+
 protected:
 
     BufferString	fname_;
     bool		iscomm_;
     BufferString	hostname_;
+    int			strmsrc_;
 
     static StreamData	makePLIStream(int);
     void		mkOSCmd(BufferString&) const;

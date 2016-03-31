@@ -108,6 +108,25 @@ static inline const char* remExecCmd()
 }
 
 
+//---- StreamSource management ----
+
+static ObjectSet<const StreamProvider::StreamSource> streamsources_;
+static const StreamProvider::StreamSource& streamSource( int idx )
+{ return *streamsources_[idx]; }
+int StreamProvider::addStreamSource( StreamSource* ss )
+{ streamsources_ += ss; return streamsources_.size() - 1; }
+
+static int getStrmSrc( const char* fnm )
+{
+    for ( int idx=0; idx<streamsources_.size(); idx++ )
+    {
+	if ( streamsources_[idx]->canHandle(fnm) )
+	    return idx;
+    }
+    return -1;
+}
+
+
 //---- Pre-loaded data ----
 
 
@@ -456,6 +475,7 @@ StreamData StreamProvider::makePLIStream( int plid )
 
 StreamProvider::StreamProvider( const char* inp )
     : iscomm_(false)
+    , strmsrc_(-1)
 {
     set( inp );
 }
@@ -464,7 +484,7 @@ StreamProvider::StreamProvider( const char* inp )
 void StreamProvider::set( const char* inp )
 {
     hostname_.setEmpty(); fname_.setEmpty();
-    iscomm_ = false;
+    iscomm_ = false; strmsrc_ = -1;
     if ( !inp || !*inp )
 	return;
 
@@ -481,8 +501,11 @@ void StreamProvider::set( const char* inp )
 
     mSkipBlanks( pwork );
     fname_ = pwork;
+    strmsrc_ = getStrmSrc( fname_ );
+    if ( strmsrc_ >= 0 )
+	return;
 
-    workstr = OS::MachineCommand::extractHostName( fname_.buf(), hostname_ );
+    workstr = OS::MachineCommand::extractHostName(fname_.buf(),hostname_);
 
     pwork = workstr.buf();
     mSkipBlanks( pwork );
@@ -500,12 +523,14 @@ void StreamProvider::setFileName( const char* fnm )
     iscomm_ = false;
     fname_.set( fnm );
     hostname_.setEmpty();
+    strmsrc_ = getStrmSrc( fname_ );
 }
 
 
 void StreamProvider::setCommand( const char* cmd, const char* hostnm )
 {
     iscomm_ = true;
+    strmsrc_ = -1;
     fname_.set( cmd );
     hostname_.set( hostnm );
 }
@@ -527,15 +552,15 @@ const char* StreamProvider::fullName() const
 #endif
 		.add( ":" );
     }
-    ret.add( fname_ );
 
+    ret.add( fname_ );
     return ret.buf();
 }
 
 
 void StreamProvider::addPathIfNecessary( const char* path )
 {
-    if ( isBad() || iscomm_ || !path || ! *path
+    if ( isBad() || iscomm_ || strmsrc_ >= 0 || !path || ! *path
       || fname_ == sStdIO() || fname_ == sStdErr() )
 	return;
 
@@ -544,6 +569,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
     {
 	fp.insert( path );
 	fname_ = fp.fullPath();
+	strmsrc_ = getStrmSrc( fname_ );
     }
 }
 
@@ -552,6 +578,8 @@ void StreamProvider::addPathIfNecessary( const char* path )
     StreamData retsd; \
     if ( iscomm_ ) \
 	retsd.setFileName( BufferString("@",fname_) ); \
+    else if ( strmsrc_ >= 0 ) \
+	retsd.setFileName( fname_.buf() ); \
     else \
 	retsd.setFileName( mkUnLinked(fname_.buf()) ); \
     if ( isBad() ) \
@@ -570,6 +598,14 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	const int plid = getPLID( retsd.fileName(), false );
 	if ( plid >= 0 )
 	    return makePLIStream( plid );
+    }
+
+    if ( strmsrc_ >= 0 )
+    {
+	const StreamSource& ss = streamSource( strmsrc_ );
+	if ( ss.fill(retsd,StreamSource::Read)
+	  || ss.mustHandle(retsd.fileName()) )
+	    return retsd;
     }
 
     if ( !iscomm_ )
@@ -625,6 +661,14 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	{ retsd.ostrm = &std::cout; return retsd; }
     else if ( fname_ == sStdErr() )
 	{ retsd.ostrm = &std::cerr; return retsd; }
+    else if ( strmsrc_ >= 0 )
+    {
+	const StreamSource& ss = streamSource( strmsrc_ );
+	const StreamSource::Type sstyp = editmode ? StreamSource::Edit
+						  : StreamSource::Write;
+	if ( ss.fill(retsd,sstyp) || ss.mustHandle(retsd.fileName()) )
+	    return retsd;
+    }
 
     if ( !iscomm_ )
     {
