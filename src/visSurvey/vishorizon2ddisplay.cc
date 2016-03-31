@@ -639,13 +639,15 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	}
 
     }
+
     if ( intsectpnts.size()==1 )
     {
 	visBase::MarkerSet* mkset = intersectmkset_.getParam(this);
 	const int mid = mkset->addPos( intsectpnts[0] );
 	mkset->getMaterial()->setColor( hor2d->preferredColor(), mid );
-	mkset->setScreenSize(
-		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_ );
+	const int sz =
+		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_;
+	mkset->setScreenSize( mCast(float,sz) );
     }
 }
 
