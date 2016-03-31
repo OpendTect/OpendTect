@@ -623,15 +623,16 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	}
 
     }
+
     if ( intsectpnts.size()==1 )
     {
 	const int mid = intersectmkset_->addPos( intsectpnts[0] );
 	intersectmkset_->getMaterial()->setColor( hor2d->preferredColor(),mid );
-	intersectmkset_->setScreenSize(
-		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_ );
+	const int sz =
+		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_;
+	intersectmkset_->setScreenSize( mCast(float,sz) );
     }
 }
-
 
 
 bool Horizon2DDisplay::calcLine2DIntersections(
