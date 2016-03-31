@@ -176,8 +176,9 @@ void MPEEditor::setMarkerSize(float nsz)
     markersize_ = nsz;
     for ( int idx=0; idx<draggers_.size(); idx++ )
 	draggermarkers_[idx]->setScreenSize( nsz );
-
-    patchmarkers_->setScreenSize( nsz );
+    
+    if ( patchmarkers_ )
+	patchmarkers_->setScreenSize( nsz );
 }
 
 
