@@ -21,28 +21,29 @@ class BufferStringSet;
 mExpClass(uiAttributes) uiAttrInpDlg : public uiDialog
 { mODTextTranslationClass(uiAttrInpDlg);
 public:
+			uiAttrInpDlg(uiParent*,
+				     const BufferStringSet& seisinpnms,
+				     const BufferStringSet& steeringinpnms,
+				     bool is2d);
+			//!<Use for multi input case
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
 				     bool issteer,bool is2d,
 				     const char* prevrefnm =0);
-			//!<Use for multi input case
-			uiAttrInpDlg(uiParent*,bool hasseis,
-				     bool hassteer,bool is2d);
-			//!<Use for single input case
+			//!<Use for single or multi input case - old fashioned
 			~uiAttrInpDlg();
 
     bool		is2D() const 		{ return is2d_ ; }
 
-    const char*		getSeisRef() const;
-    const char*		getSteerRef() const;
-    const char*		getSeisKey() const;
-    const char*		getSteerKey() const;
+    const char*		getSeisRef(int) const;
+    const char*		getSteerRef(int) const;
+    const char*		getSeisKey(int) const;
+    const char*		getSteerKey(int) const;
 
 protected:
 
-    uiSeisSel*		seisinpfld_;
-    uiSeisSel*		steerinpfld_;
+    ObjectSet<uiSeisSel>	seisinpflds_;
+    ObjectSet<uiSeisSel>	steerinpflds_;
 
-    bool		multiinpcube_;
     bool		is2d_;
 
     bool		acceptOK(CallBacker*);

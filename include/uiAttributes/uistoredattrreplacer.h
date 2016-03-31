@@ -70,7 +70,7 @@ protected:
 					   BufferStringSet&) const;
     void			getStoredIds();
     void			getStoredIds(const IOPar&);
-    void			handleSingleInput();
+    void			handleOneGoInputRepl();
     void			handleMultiInput();
     bool			hasInput(const Attrib::Desc&,
 					 const Attrib::DescID&) const;

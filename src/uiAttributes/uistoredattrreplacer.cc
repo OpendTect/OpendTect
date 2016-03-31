@@ -266,61 +266,75 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 
 void uiStoredAttribReplacer::go()
 {
-    const bool singleseissteer = noofseis_==1 && noofsteer_==1;
-    singleseissteer ? handleSingleInput() : handleMultiInput();
+    handleOneGoInputRepl();
     if ( attrset_ ) attrset_->removeUnused( true, false );
 }
 
 
-void uiStoredAttribReplacer::handleSingleInput()
+void uiStoredAttribReplacer::handleOneGoInputRepl()
 {
     if ( storedids_.isEmpty() ) return;
 
-    const bool hassteer = noofsteer_ > 0;
-    const bool hasseis = noofseis_ > 0;
-    const bool firstisdip = storedids_[0].has2Ids();
-    const int seisidx = firstisdip ? 1 : 0;
-    const int steeridx = firstisdip ? 0 : 1;
+    BufferStringSet seisinprefs;
+    TypeSet<int> seisinpidx;
+    BufferStringSet steerinprefs;
+    TypeSet<int> steerinpidx;
+    for ( int idx=0; idx<storedids_.size(); idx++ )
+    {
+	if ( storedids_[idx].has2Ids() )
+	{
+	    steerinprefs.add( storedids_[idx].storedref_ );
+	    steerinpidx += idx;
+	}
+	else
+	{
+	    seisinprefs.add( storedids_[idx].storedref_ );
+	    seisinpidx += idx;
+	}
+    }
 
-    uiAttrInpDlg dlg( parent_, hasseis, hassteer, is2d_ );
+    uiAttrInpDlg dlg( parent_, seisinprefs, steerinprefs, is2d_ );
     if ( !dlg.go() )
     {
 	if ( attrset_ ) attrset_->removeAll( true );
 	return;
     }
+    else if ( attrset_ )
+    {
+	Desc* ad = attrset_->getDesc( storedids_[0].firstid_ );
+	if ( !ad )
+	{
+	    uiMSG().error( tr("Cannot replace stored entries") );
+	    return;
+	}
+    }
 
-    if ( hasseis )
+    for ( int idx=0; idx<seisinprefs.size(); idx++ )
     {
 	if ( attrset_ )
 	{
-	    Desc* ad = attrset_->getDesc( storedids_[0].firstid_ );
-	    if ( !ad )
-	    {
-		uiMSG().error( tr("Cannot replace stored entries") );
-		return;
-	    }
-
-	    ad = attrset_->getDesc( storedids_[seisidx].firstid_ );
-	    ad->changeStoredID( dlg.getSeisKey() );
-	    ad->setUserRef( dlg.getSeisRef() );
+	    Desc* ad = attrset_->getDesc( storedids_[seisinpidx[idx]].firstid_);
+	    ad->changeStoredID( dlg.getSeisKey(idx) );
+	    ad->setUserRef( dlg.getSeisRef(idx) );
 	}
 	else
 	{
 	    if ( !iopar_ ) return;
-	    IOPar* descpar =
-		iopar_->subselect( storedids_[seisidx].firstid_.asInt() );
-	    setStoredKey( descpar, dlg.getSeisKey() );
-	    descpar->set( "UserRef", dlg.getSeisRef() );
-	    BufferString idstr; idstr+= storedids_[seisidx].firstid_.asInt();
+	    IOPar* descpar = iopar_->subselect(
+				storedids_[seisinpidx[idx]].firstid_.asInt() );
+	    setStoredKey( descpar, dlg.getSeisKey(idx) );
+	    descpar->set( "UserRef", dlg.getSeisRef(idx) );
+	    BufferString idstr;
+	    idstr+= storedids_[seisinpidx[idx]].firstid_.asInt();
 	    iopar_->mergeComp( *descpar, idstr );
 	}
     }
 
-    if ( hassteer )
+    for ( int idx=0; idx<steerinprefs.size(); idx++ )
     {
 	if ( attrset_ )
 	{
-	    StoredEntry storeentry = storedids_[steeridx];
+	    StoredEntry storeentry = storedids_[steerinpidx[idx]];
 	    const int ouputidx = attrset_->getDesc(
 		DescID( storeentry.firstid_.asInt(), false ))->selectedOutput();
 	    Desc* adsteerinl = 0;
@@ -342,24 +356,25 @@ void uiStoredAttribReplacer::handleSingleInput()
 
 	    if ( adsteerinl && adsteercrl )
 	    {
-		adsteerinl->changeStoredID( dlg.getSteerKey() );
-		BufferString bfstr = dlg.getSteerRef();
+		adsteerinl->changeStoredID( dlg.getSteerKey(idx) );
+		BufferString bfstr = dlg.getSteerRef(idx);
 		bfstr += "_inline_dip";
 		adsteerinl->setUserRef( bfstr.buf() );
 
-		adsteercrl->changeStoredID( dlg.getSteerKey() );
-		bfstr = dlg.getSteerRef();
+		adsteercrl->changeStoredID( dlg.getSteerKey(idx) );
+		bfstr = dlg.getSteerRef(idx);
 		bfstr += "_crline_dip";
 		adsteercrl->setUserRef( bfstr.buf() );
 	    }
 	}
 	else
-	    setSteerPar( storedids_[steeridx], dlg.getSteerKey(),
-			 dlg.getSteerRef() );
+	    setSteerPar( storedids_[steerinpidx[idx]], dlg.getSteerKey(idx),
+			 dlg.getSteerRef(idx) );
     }
 }
 
 
+//Not sure we ever want to use it?
 void uiStoredAttribReplacer::handleMultiInput()
 {
     BufferStringSet usrrefs;
@@ -400,12 +415,12 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    if ( attrset_ )
 	    {
 		Desc* ad = attrset_->getDesc( storedid );
-		BufferString seisref = dlg.getSeisRef();
+		BufferString seisref = dlg.getSeisRef(0);
 		if ( seisref.isEmpty() )
 		    removeDescsWithBlankInp( storedid );
 		else
 		{
-		    ad->changeStoredID( dlg.getSeisKey() );
+		    ad->changeStoredID( dlg.getSeisKey(0) );
 		    ad->setUserRef( seisref );
 		}
 	    }
@@ -413,8 +428,8 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    {
 		if ( !iopar_ ) return;
 		IOPar* descpar = iopar_->subselect( storedid.asInt() );
-		setStoredKey( descpar, dlg.getSeisKey() );
-		descpar->set( "UserRef", dlg.getSeisRef() );
+		setStoredKey( descpar, dlg.getSeisKey(0) );
+		descpar->set( "UserRef", dlg.getSeisRef(0) );
 		BufferString idstr; idstr+= storedid.asInt();
 		iopar_->mergeComp( *descpar, idstr );
 	    }
@@ -423,7 +438,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	{
 	    if ( attrset_ )
 	    {
-		BufferString steerref = dlg.getSteerRef();
+		BufferString steerref = dlg.getSteerRef(0);
 		if ( steerref.isEmpty() )
 		{
 		    removeDescsWithBlankInp( storedid );
@@ -452,19 +467,20 @@ void uiStoredAttribReplacer::handleMultiInput()
 
 		if ( adsteerinl && adsteercrl )
 		{
-		    adsteerinl->changeStoredID( dlg.getSteerKey() );
-		    BufferString bfstr = dlg.getSteerRef();
+		    adsteerinl->changeStoredID( dlg.getSteerKey(0) );
+		    BufferString bfstr = dlg.getSteerRef(0);
 		    bfstr += "_inline_dip";
 		    adsteerinl->setUserRef( bfstr.buf() );
 
-		    adsteercrl->changeStoredID( dlg.getSteerKey() );
-		    bfstr = dlg.getSteerRef();
+		    adsteercrl->changeStoredID( dlg.getSteerKey(0) );
+		    bfstr = dlg.getSteerRef(0);
 		    bfstr += "_crline_dip";
 		    adsteercrl->setUserRef( bfstr.buf() );
 		}
 	    }
 	    else
-		setSteerPar( storeentry, dlg.getSteerKey(), dlg.getSteerRef() );
+		setSteerPar( storeentry, dlg.getSteerKey(0),
+			     dlg.getSteerRef(0) );
 	}
     }
 

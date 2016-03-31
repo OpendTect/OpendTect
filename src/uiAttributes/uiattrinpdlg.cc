@@ -31,11 +31,10 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 		       issteer ? tr("Select Steering input")
 			       : tr("Select Seismic input"),
 				 mODHelpKey(mAttrInpDlgHelpID) ))
-    , multiinpcube_(true)
     , is2d_(is2d)
-    , seisinpfld_(0)
-    , steerinpfld_(0)
 {
+    seisinpflds_.erase();
+    steerinpflds_.erase();
     uiString infotxt = tr( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
 
@@ -61,8 +60,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
     if ( issteer )
     {
-	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, seltext );
-	steerinpfld_->attach( alignedBelow, txtfld );
+	steerinpflds_ += new uiSteerCubeSel( this, is2d, true, seltext );
+	steerinpflds_[0]->attach( alignedBelow, txtfld );
     }
     else
     {
@@ -70,42 +69,70 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 	sssu.seltxt( seltext );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
-	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
-	seisinpfld_->attach( alignedBelow, txtfld );
+	seisinpflds_ += new uiSeisSel( this, ioctxt, sssu );
+	seisinpflds_[0]->attach( alignedBelow, txtfld );
     }
 
 }
 
 
-uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
-       			    bool is2d )
+uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
+			    const BufferStringSet& steeringinpnms, bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
-	       hassteer ? (hasseis ? tr("Select Seismic & Steering input")
-			: tr("Select Steering input")) 
-                        : tr("Select Seismic input"),
-			  mODHelpKey(mAttrInpDlgHelpID) ))
-    , multiinpcube_(false)
+		 steeringinpnms.size()
+		    ? (seisinpnms.size() ? tr("Select Seismic & Steering input")
+					 : tr("Select Steering input"))	
+		    : tr("Select Seismic input"),
+		 mODHelpKey(mAttrInpDlgHelpID) ))
     , is2d_(is2d)
-    , seisinpfld_(0)
-    , steerinpfld_(0)
 {
-    uiSeisSel::Setup sssu( is2d, false );
-    if ( hasseis )
+    for ( int idx=0; idx<seisinpnms.size(); idx++ )
     {
-	sssu.seltxt( uiStrings::phrInput(
+	uiSeisSel::Setup sssu( is2d, false );
+	if ( seisinpnms.size()>1 )
+	{
+	    BufferString displaydatanm = seisinpnms.get(idx);
+	    displaydatanm.embed('"','"');
+	    sssu.seltxt( uiStrings::phrInput(toUiString("%1 %2")
+			   .arg(uiStrings::sVolDataName(is2d, !is2d, false))
+			   .arg(displaydatanm ) ) );
+	}
+	else
+	    sssu.seltxt( uiStrings::phrInput(
                                 uiStrings::sVolDataName(is2d, !is2d, false)) );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
-	seisinpfld_ = new uiSeisSel( this, ioctxt, sssu );
+	seisinpflds_ += new uiSeisSel( this, ioctxt, sssu );
     }
 
-    if ( hassteer )
+    for ( int idx=0; idx<steeringinpnms.size(); idx++ )
     {
-	steerinpfld_ = new uiSteerCubeSel( this, is2d, true, uiStrings::phrInput
-						     (uiStrings::sSteering()) );
-	if ( hasseis )
-	    steerinpfld_->attach( alignedBelow, seisinpfld_ );
+	uiString tmpstr;
+	if ( steeringinpnms.size()>1 )
+	{
+	    BufferString steerdatanm = steeringinpnms.get(idx);
+	    steerdatanm.remove("_inline_dip");
+	    steerdatanm.remove("_crline_dip");
+	    steerdatanm.embed('"','"');
+	    tmpstr = uiStrings::phrInput(toUiString("%1 %2")
+					   .arg(uiStrings::sSteering())
+					   .arg(steerdatanm) );
+	}
+	else
+	    tmpstr = uiStrings::phrInput( uiStrings::sSteering() );
+
+	steerinpflds_ += new uiSteerCubeSel( this, is2d, true, tmpstr );
     }
+
+    for ( int idx=1; idx<seisinpflds_.size(); idx++ )
+	seisinpflds_[idx]->attach( alignedBelow, seisinpflds_[idx-1] );
+
+    if ( steerinpflds_.size() && steerinpflds_[0] && seisinpflds_.size() )
+	steerinpflds_[0]->attach( alignedBelow,
+				  seisinpflds_[seisinpflds_.size()-1] );
+
+    for ( int idx=1; idx<steerinpflds_.size(); idx++ )
+	steerinpflds_[idx]->attach( alignedBelow, steerinpflds_[idx-1] );
 }
 
 
@@ -121,11 +148,13 @@ bool uiAttrInpDlg::acceptOK( CallBacker* )
     const uiString errmsg = uiStrings::phrSelect(tr("the input for the "
 								"attributes"));
 
-    if ( steerinpfld_ && !steerinpfld_->commitInput() && !multiinpcube_ )
-	mErrRetSelInp();
+    for ( int idx=0; idx<steerinpflds_.size(); idx++ )
+	if ( steerinpflds_[idx] && !steerinpflds_[idx]->commitInput() )
+	    mErrRetSelInp();
 
-    if ( seisinpfld_ && !seisinpfld_->commitInput() && !multiinpcube_ )
-	mErrRetSelInp();
+    for ( int idx=0; idx<seisinpflds_.size(); idx++ )
+	if ( seisinpflds_[idx] && !seisinpflds_[idx]->commitInput() )
+	    mErrRetSelInp();
 
     return true;
 }
@@ -136,22 +165,27 @@ uiAttrInpDlg::~uiAttrInpDlg()
 }
 
 
-const char* uiAttrInpDlg::getSeisRef() const
+const char* uiAttrInpDlg::getSeisRef( int idx ) const
 {
-    return seisinpfld_ ? seisinpfld_->getInput() : 0;
+    return seisinpflds_.size()>idx && seisinpflds_[idx]
+		? seisinpflds_[idx]->getInput() : 0;
 }
 
 
-const char* uiAttrInpDlg::getSteerRef() const
+const char* uiAttrInpDlg::getSteerRef( int idx ) const
 {
-    return steerinpfld_ ? steerinpfld_->getInput() : 0;
+    return steerinpflds_.size()>idx && steerinpflds_[idx]
+		? steerinpflds_[idx]->getInput() : 0;
 }
 
 
-const char* uiAttrInpDlg::getSeisKey() const
+const char* uiAttrInpDlg::getSeisKey( int idx ) const
 {
+    if ( seisinpflds_.size()<=idx || !seisinpflds_[idx] )
+	return 0;
+
     LineKey lk;
-    const IOObj* ioobj = seisinpfld_->ioobj( true );
+    const IOObj* ioobj = seisinpflds_[idx]->ioobj( true );
     if ( !ioobj )
 	return 0;
 
@@ -162,10 +196,13 @@ const char* uiAttrInpDlg::getSeisKey() const
 }
 
 
-const char* uiAttrInpDlg::getSteerKey() const
+const char* uiAttrInpDlg::getSteerKey( int idx ) const
 {
+    if ( steerinpflds_.size()<=idx || !steerinpflds_[idx] )
+	return 0;
+
     static LineKey lk;
-    const IOObj* ioobj = steerinpfld_->ioobj( true );
+    const IOObj* ioobj = steerinpflds_[idx]->ioobj( true );
     if ( !ioobj )
 	return 0;
 
