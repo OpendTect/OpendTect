@@ -206,16 +206,15 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     }
 
     comm += " 1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay locations")
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
 	const Coord3 pos = ps[idx].pos();
-	*sd.ostrm << pos.x << " " << pos.y << "\n";
+	procstrm << pos.x << " " << pos.y << "\n";
     }
 
-    sd.close();
     strm << "Done" << od_endl;
     return true;
 }
@@ -310,15 +309,14 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     }
 
     comm += " 1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay polylines")
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
 	const Coord3 pos = ps[idx].pos();
-	*sd.ostrm << pos.x << " " << pos.y << "\n";
+	procstrm << pos.x << " " << pos.y << "\n";
     }
-    sd.close();
 
     strm << "Done" << od_endl;
     return true;
@@ -432,8 +430,8 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     }
 
     comm += " 1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id_) );
@@ -447,10 +445,9 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 	    mErrStrmRet(BufferString("Cannot get location for ",ioobj->name()))
 
 	surfcoords += maploc;
-	*sd.ostrm << maploc.x << " " << maploc.y << " " << sz << "\n";
+	procstrm << maploc.x << " " << maploc.y << " " << sz << "\n";
     }
 
-    sd.close();
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel(), postlabel );
     if ( !postlabel )
@@ -478,18 +475,17 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     comm += " -D"; comm += dx; comm += "/"; comm += dy;
     comm += " -F+f12p,Sans,"; comm += outcolstr;
     comm += " -O -K 1>> "; comm += fileName( fnm );
-    sd = makeOStream( comm, strm );
-    if ( !sd.usable() )
+    procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() )
 	mErrStrmRet("Failed to post labels")
 
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	Coord pos = surfcoords[idx];
-	*sd.ostrm << pos.x << " " << pos.y << " " << fontsz << " " << 0 << " ";
-	*sd.ostrm << 4 << " " << alstr << " " << wellnms.get(idx) << "\n";
+	procstrm << pos.x << " " << pos.y << " " << fontsz << " " << 0 << " ";
+	procstrm << 4 << " " << alstr << " " << wellnms.get(idx) << "\n";
     }
 
-    sd.close();
     strm << "Done" << od_endl;
     return true;
 }

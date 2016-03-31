@@ -17,13 +17,14 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "iopar.h"
 #include "gmtdef.h"
+#include "od_ostream.h"
 
 class StreamData;
 
 mExpClass(GMT) GMTPar : public IOPar
 {
 public:
-    			GMTPar(const char* nm)
+			GMTPar(const char* nm)
 			    : IOPar(nm) {}
 			GMTPar(const IOPar& par)
 			    : IOPar(par) {}
@@ -33,8 +34,8 @@ public:
     virtual bool	fillLegendPar(IOPar&) const	{ return false; }
 
     BufferString        fileName(const char*) const;
-    bool		execCmd(const BufferString&,od_ostream& errstrm);
-    StreamData		makeOStream(const BufferString&,od_ostream& errstrm);
+    bool		execCmd(const BufferString&,od_ostream& logstrm);
+    od_ostream		makeOStream(const BufferString&,od_ostream& logstrm);
 };
 
 

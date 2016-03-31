@@ -86,21 +86,20 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     comm += "-UBL/"; comm += mapdim.start + xmargin; comm += "c/";
     comm += 0; comm += "c ";
     comm += "1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay title box")
 
-    *sd.ostrm << "H 16 4 " << maptitle.buf() << "\n";
-    *sd.ostrm << "G 0.5l" << "\n";
+    procstrm << "H 16 4 " << maptitle.buf() << "\n";
+    procstrm << "G 0.5l" << "\n";
     int scaleval = 1;
     get( ODGMT::sKeyMapScale(), scaleval );
-    *sd.ostrm << "L 10 4 C Scale  1:" << scaleval << "\n";
-    *sd.ostrm << "D 0 1p" << "\n";
+    procstrm << "L 10 4 C Scale  1:" << scaleval << "\n";
+    procstrm << "D 0 1p" << "\n";
     BufferStringSet remset;
     get( ODGMT::sKeyRemarks(), remset );
     for ( int idx=0; idx<remset.size(); idx++ )
-	*sd.ostrm << "L 12 4 C " << remset.get(idx) << "\n";
+	procstrm << "L 12 4 C " << remset.get(idx) << "\n";
 
-    sd.close();
     strm << "Done" << od_endl;
     return true;
 }
@@ -175,8 +174,8 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
     comm += nritems ? nritems : 1; comm += "c/BL ";
 
     comm += "1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed to overlay legend")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay legend")
 
     for ( int idx=0; idx<nritems; idx++ )
     {
@@ -255,11 +254,10 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 
 	legendstring += " "; legendstring += 1.3;
 	legendstring += " "; legendstring += namestr;
-	*sd.ostrm << legendstring << "\n";
-	*sd.ostrm << "G0.2c" << "\n";
+	procstrm << legendstring << "\n";
+	procstrm << "G0.2c" << "\n";
     }
 
-    sd.close();
     strm << "Done" << od_endl;
     return true;
 }

@@ -84,8 +84,8 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     comm += " -W"; comm += lsstr;
 
     comm += " 1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
@@ -97,16 +97,14 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	const PosInfo::Line2DData& geom = geom2d->data();
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
-	*sd.ostrm << "> " << geom2d->getName() << "\n";
+	procstrm << "> " << geom2d->getName() << "\n";
 
 	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
 	    Coord pos = posns[tdx].coord_;
-	    *sd.ostrm << pos.x << " " << pos.y << "\n";
+	    procstrm << pos.x << " " << pos.y << "\n";
 	}
     }
-
-    sd.close();
 
     if ( !postlabel )
     {
@@ -120,8 +118,8 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -F+f12p,Sans,"; comm += colstr;
     comm += " -O -K -N 1>> "; comm += fileName( fnm );
-    sd = makeOStream( comm, strm );
-    if ( !sd.usable() )
+    procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 
     for ( int idx=0; idx<geomids.size(); idx++ )
@@ -150,9 +148,9 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	if ( poststart )
 	{
 	    pos -= Coord( distfactor*dx, distfactor*dy );
-	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
-	    *sd.ostrm << rotangle << " " << 4;
-	    *sd.ostrm << " " << al.buf() << geom2d->getName() << "\n";
+	    procstrm << pos.x << " " << pos.y << " " << sz << " " ;
+	    procstrm << rotangle << " " << 4;
+	    procstrm << " " << al.buf() << geom2d->getName() << "\n";
 	}
 
 	bool poststop = false;
@@ -168,9 +166,9 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
-	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
-	    *sd.ostrm << rotangle << " " << 4;
-	    *sd.ostrm << " " << al.buf() << geom2d->getName() << "\n";
+	    procstrm << pos.x << " " << pos.y << " " << sz << " " ;
+	    procstrm << rotangle << " " << 4;
+	    procstrm << " " << al.buf() << geom2d->getName() << "\n";
 	}
 
 	bool postnrs = true;
@@ -191,14 +189,13 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 
-		*sd.ostrm << posc.x << " " << posc.y << " " << sz << " " ;
-		*sd.ostrm << perpangle << " " << 4;
-		*sd.ostrm << " " << "ML " << lbl.buf() << "\n";
+		procstrm << posc.x << " " << posc.y << " " << sz << " " ;
+		procstrm << perpangle << " " << 4;
+		procstrm << " " << "ML " << lbl.buf() << "\n";
 	    }
 	}
     }
 
-    sd.close();
     strm << "Done" << od_endl;
     return true;
 }
@@ -269,8 +266,8 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
     comm += " -W"; comm += lsstr;
 
     comm += " 1>> "; comm += fileName( fnm );
-    StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     for ( int idx=0; idx<inprls.size(); idx++ )
     {
@@ -278,15 +275,14 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	if ( !rdl || linenms.indexOf(rdl->name()) < 0 )
 	    continue;
 
-	*sd.ostrm << "> " << rdl->name() << "\n";
+	procstrm << "> " << rdl->name() << "\n";
 	for ( int tdx=0; tdx<rdl->nrNodes(); tdx++ )
 	{
 	    Coord posc = SI().transform( rdl->nodePosition(tdx) );
-	    *sd.ostrm << posc.x << " " << posc.y << "\n";
+	    procstrm << posc.x << " " << posc.y << "\n";
 	}
     }
 
-    sd.close();
     if ( !postlabel )
     {
 	strm << "Done" << od_endl;
@@ -299,8 +295,8 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -F+f12p,Sans,"; comm += colstr;
     comm += " -O -K -N 1>> "; comm += fileName( fnm );
-    sd = makeOStream( comm, strm );
-    if ( !sd.usable() )
+    procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 
     for ( int idx=0; idx<inprls.size(); idx++ )
@@ -320,12 +316,11 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	BufferString al = fabs(angle) > 90 ? "BR " : "BL ";
 	const float distfactor = xrg.width() / 100;
 	posc += Coord( -distfactor*dx, distfactor*dy );
-	*sd.ostrm << posc.x << " " << posc.y << " " << sz << " " ;
-	*sd.ostrm << rotangle << " " << 4;
-	*sd.ostrm << " " << al.buf() << rdl->name() << "\n";
+	procstrm << posc.x << " " << posc.y << " " << sz << " " ;
+	procstrm << rotangle << " " << 4;
+	procstrm << " " << al.buf() << rdl->name() << "\n";
     }
 
-    sd.close();
     strm << "Done" << od_endl;
     return true;
 }

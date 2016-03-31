@@ -163,8 +163,8 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     BufferString comm = "@blockmean "; comm += rstr;
     comm += " -I100 | surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
     comm += grd100fnm;
-    StreamData sdata = makeOStream( comm, strm );
-    if ( !sdata.usable() ) mErrStrmRet("Failed")
+    od_ostream procstrm = makeOStream( comm, strm );
+    if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TrcKeySamplingIterator iter( sd.rg );
     BinID bid;
@@ -182,11 +182,11 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 			      : hor->auxdata.getAuxDataVal( dataidx, posid );
 	if ( mIsUdf(val) ) continue;
 
-	*sdata.ostrm << pos.x << " " << pos.y << " " << val << "\n";
+	procstrm << pos.x << " " << pos.y << " " << val << "\n";
     }
 
+    procstrm.close();
     hor->unRef();
-    sdata.close();
     strm << "Done" << od_endl;
     strm << "Regridding 25 X 25 ...  ";
     comm = "grdsample ";
@@ -247,9 +247,9 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 
 
 #define mPrintCol( col, endchar ) \
-    *sd.ostrm << (int)col.r() << "\t"; \
-    *sd.ostrm << (int)col.g() << "\t"; \
-    *sd.ostrm << (int)col.b() << endchar;
+    procstrm << (int)col.r() << "\t"; \
+    procstrm << (int)col.g() << "\t"; \
+    procstrm << (int)col.b() << endchar;
 
 bool GMTContour::makeCPT( const char* cptfnm ) const
 {
@@ -263,10 +263,10 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 
     bool doflip = false;
     getYN( ODGMT::sKeyFlipColTab(), doflip );
-    StreamData sd = StreamProvider(cptfnm).makeOStream();
-    if ( !sd.usable() ) return false;
+    od_ostream procstrm( cptfnm );
+    if ( !procstrm.isOK() ) return false;
 
-    *sd.ostrm << "#COLOR_MODEL = RGB" << "\n";
+    procstrm << "#COLOR_MODEL = RGB" << "\n";
     const int nrsteps = rg.nrSteps();
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
@@ -275,21 +275,20 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	const Color col = seq.color( doflip ? 1 - frac : frac );
 	if ( idx )
 	{
-	    *sd.ostrm << val << "\t";
+	    procstrm << val << "\t";
 	    mPrintCol( col, "\n" );
 	}
 
 	if ( idx < nrsteps )
 	{
-	    *sd.ostrm << val << "\t";
+	    procstrm << val << "\t";
 	    mPrintCol( col, "\t" );
 	}
     }
 
     const Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
     const Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
-    *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, "\n" );
-    *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, "\n" );
-    sd.close();
+    procstrm << "B" << "\t";  mPrintCol( bgcol, "\n" );
+    procstrm << "F" << "\t";  mPrintCol( fgcol, "\n" );
     return true;
 }

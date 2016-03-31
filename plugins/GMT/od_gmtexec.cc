@@ -24,14 +24,13 @@ ________________________________________________________________________
 #define mErrFatalRet(msg) \
 { \
     strm << msg << od_newline; \
-    StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream(); \
+    od_ostream tmpstrm( tmpfp.fullPath() ); \
     outputfp.setFileName( ".gmtcommands4" ); \
     if ( File::exists(outputfp.fullPath()) ) \
 	StreamProvider( outputfp.fullPath() ).remove(); \
 	\
     File::changeDir( cwd.buf() ); \
-    *sd.ostrm << "Failed" << od_newline; \
-    sd.close(); \
+    tmpstrm << "Failed" << od_newline; \
     finishmsg_ = "Failed to create map"; \
     return false; \
 }
