@@ -31,6 +31,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
     bool                loadDefaultData();
     bool                selectLoadAttribute(const TypeSet<Pos::GeomID>&,
                              const char* attrnm=sKeyRightClick());
+    void		setTopAttribName(const char*);
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
     uiMenu*             replaceattritm_;

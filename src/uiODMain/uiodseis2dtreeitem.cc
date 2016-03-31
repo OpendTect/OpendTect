@@ -55,6 +55,9 @@ const char* uiODLine2DParentTreeItem::sKeyRightClick()
 { return "<right-click>"; }
 const char* uiODLine2DParentTreeItem::sKeyUnselected()
 { return "<Unselected>"; }
+static const char* sKeySelecting()
+{ return "<Selecting>"; }
+
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     : uiODTreeItem( tr("2D Line") )
@@ -190,6 +193,17 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 }
 
 
+void uiODLine2DParentTreeItem::setTopAttribName( const char* nm )
+{
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
+	if ( itm->nrChildren() > 0 )
+	    itm->getChild(itm->nrChildren()-1)->setName( toUiString(nm) );
+    }
+}
+
+
 bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 {
     TypeSet<Pos::GeomID> displayedgeomids;
@@ -231,10 +245,15 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
-	    itm->addAttribItem();
+	    const FixedString topattrnm = itm->nrChildren()<=0 ? "" :
+		itm->getChild(itm->nrChildren()-1)->name().getOriginalString();
+	    if ( topattrnm != sKeyRightClick() )
+		itm->addAttribItem();
 	}
 
-	selectLoadAttribute( displayedgeomids );
+	setTopAttribName( sKeySelecting() );
+	if ( !selectLoadAttribute(displayedgeomids,sKeySelecting()) )
+	    setTopAttribName( sKeyRightClick() );
     }
     else if ( replaceattritm_ && replaceattritm_->findAction(mnuid) )
     {
