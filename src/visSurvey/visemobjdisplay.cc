@@ -417,7 +417,7 @@ bool EMObjectDisplay::hasColor() const
 }
 
 
-void EMObjectDisplay::setOnlyAtSectionsDisplay(bool yn)
+void EMObjectDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
     displayonlyatsections_ = yn;
 
@@ -694,12 +694,12 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     if ( !pids ) return;
 
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
-    markerset->setMarkersSingleColor(
-	emobject_->getPosAttrMarkerStyle(attrib).color_ );
-    markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
-    markerset->setDisplayTransformation(transformation_);
-    markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
+
     markerset->clearMarkers();
+    markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
+    markerset->setMarkersSingleColor(
+	emobject_->getPosAttrMarkerStyle(attrib).color_);
+    markerset->setDisplayTransformation(transformation_);
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {
@@ -712,6 +712,9 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     markerset->turnAllMarkersOn( true );
     markerset->forceRedraw( true );
     markerset->getCoordinates()->removeAfter( pids->size()-1 );
+
+    if ( attrib==EM::EMObject::sSeedNode() && getEditor() )
+	getEditor()->setMarkerSize( markerset->getScreenSize() );
 }
 
 
@@ -804,7 +807,10 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
     if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
-    { 	unSelectAll();  return;  }
+    {
+	unSelectAll();
+	return;
+    }
 
     if ( !ctrldown_ )
 	unSelectAll();

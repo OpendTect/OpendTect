@@ -73,7 +73,7 @@ MPEEditor::~MPEEditor()
 
     unRefAndZeroPtr( patchmarkers_ );
     unRefAndZeroPtr( patchline_ );
- 
+
 }
 
 
@@ -174,10 +174,11 @@ void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 
 void MPEEditor::setMarkerSize(float nsz)
 {
+    markersize_ = nsz;
     for ( int idx=0; idx<draggers_.size(); idx++ )
 	draggermarkers_[idx]->setScreenSize( nsz );
 
-    markersize_ = nsz;
+    patchmarkers_->setScreenSize( nsz );
 }
 
 
@@ -426,6 +427,7 @@ void MPEEditor::displayPatch( const MPE::Patch* patch )
     setupPatchDisplay();
     if ( !patch ||!patchmarkers_ || !patchline_ )
 	return;
+
     cleanPatch();
     TypeSet<TrcKeyValue> path = patch->getPath();
     for ( int idx=0; idx<path.size(); idx++ )
