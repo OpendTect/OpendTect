@@ -178,7 +178,8 @@ void MPEEditor::setMarkerSize(float nsz)
     for ( int idx=0; idx<draggers_.size(); idx++ )
 	draggermarkers_[idx]->setScreenSize( nsz );
 
-    patchmarkers_->setScreenSize( nsz );
+    if ( patchmarkers_ )
+	patchmarkers_->setScreenSize( nsz );
 }
 
 
@@ -425,7 +426,7 @@ bool MPEEditor::clickCB( CallBacker* cb )
 void MPEEditor::displayPatch( const MPE::Patch* patch )
 {
     setupPatchDisplay();
-    if ( !patch ||!patchmarkers_ || !patchline_ )
+    if ( !patch || !patchmarkers_ || !patchline_ )
 	return;
 
     cleanPatch();
@@ -444,7 +445,7 @@ void MPEEditor::displayPatch( const MPE::Patch* patch )
 
 void MPEEditor::cleanPatch()
 {
-    if ( !patchline_ ||!patchmarkers_ )
+    if ( !patchline_ || !patchmarkers_ )
 	return;
 
     if ( patchline_->getCoordinates()==0 && patchmarkers_->size()==0 )
