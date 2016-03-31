@@ -39,6 +39,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
     uiMenu*             dispattritm_;
     uiMenu*             hideattritm_;
     uiMenu*             editcoltabitm_;
+    void		setTopAttribName(const char*);
 };
 
 
