@@ -43,7 +43,7 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 {
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
-    f3dpainter_->repaintdone_.notify( 
+    f3dpainter_->repaintdone_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	Fault3DFlatViewEditor::sowingFinishedCB );
@@ -52,6 +52,8 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
+    detachAllNotifiers();
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -69,7 +71,7 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 	meh_->doubleClick.remove(
 		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
-//	setMouseEventHandler( 0 );
+
     cleanActStkContainer();
     delete f3dpainter_;
     deepErase( markeridinfo_ );
@@ -78,6 +80,9 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 
 void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( meh_ == meh )
+	return;
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -112,7 +117,7 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
 	meh_->buttonReleased.notify(
 		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
-	meh_->doubleClick.remove(
+	meh_->doubleClick.notify(
 		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
 
@@ -195,7 +200,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
 	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
+	{
 	    selstickid = markeridinfo_[idx]->stickid_;
 	    break;
 	}
@@ -208,7 +213,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -235,7 +240,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -243,7 +248,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 	return;
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, emfss, 
+    mDynamicCastGet( const Geometry::FaultStickSet*, emfss,
 		     emf3d->sectionGeometry( sid ) );
     if ( !emfss ) return;
 
@@ -358,7 +363,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 	return;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -379,12 +384,12 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
 
     bool shdmakenewstick = false;
     EM::PosID pid;
-    Coord3 normal = getNormal( &pos ); 
+    Coord3 normal = getNormal( &pos );
     f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( shdmakenewstick, pid, pos, &normal );
 
     if ( pid.isUdf() || shdmakenewstick )
-	return; 
+	return;
 
     const int sticknr = pid.isUdf() ? mUdf(int) : pid.getRowCol().row();
 
@@ -432,7 +437,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
     {
 	if ( markeridinfo_[idx]->markerid_ == edidauxdataid )
-	{ 
+	{
 	    stickid = markeridinfo_[idx]->stickid_;
 	    break;
 	}
@@ -444,7 +449,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     if ( !emf3d ) return;
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
-    mDynamicCastGet( const Geometry::FaultStickSet*, fss, 
+    mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 		     emf3d->sectionGeometry( sid ) );
 
     RowCol rc;
@@ -496,7 +501,7 @@ void Fault3DFlatViewEditor::sowingFinishedCB( CallBacker* cb )
 
 void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
-    if ( !editor_->viewer().appearance().annot_.editable_ 
+    if ( !editor_->viewer().appearance().annot_.editable_
 	 || editor_->isSelActive() )
 	return;
 
@@ -521,7 +526,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     }
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return; 
+    if ( emid == -1 ) return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
@@ -547,11 +552,11 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     bool makenewstick =
 	(!mouseevent.ctrlStatus() && mouseevent.shiftStatus()) || makenewstick_;
     EM::PosID interactpid;
-    Coord3 normal = getNormal( &pos ); 
+    Coord3 normal = getNormal( &pos );
     f3deditor->setScaleVector( getScaleVector() );
     f3deditor->getInteractionInfo( makenewstick, interactpid, pos, &normal );
 
-    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
+    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus()
 	 && !mouseevent.shiftStatus() )
     {
 	//Remove knot/stick
@@ -584,7 +589,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	    f3dpainter_->enablePaint( true );
 
 	makenewstick_ = false;
-	Coord3 editnormal = getNormal( &pos ); 
+	Coord3 editnormal = getNormal( &pos );
 	if ( editnormal.isUdf() ) return;
 
 	const int insertsticknr = interactpid.isUdf()
