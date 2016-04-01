@@ -63,13 +63,13 @@ bool Referenced::tryRef() const
 }
 
 
-void Referenced::addObserver(ObsPtrBase* obs)
+void Referenced::addObserver(WeakPtrBase* obs)
 {
     refcount_.addObserver( obs );
 }
 
 
-void Referenced::removeObserver(ObsPtrBase* obs)
+void Referenced::removeObserver(WeakPtrBase* obs)
 {
     refcount_.removeObserver( obs );
 }
@@ -218,7 +218,7 @@ void Counter::clearAllObservers()
 }
 
 
-void Counter::addObserver( ObsPtrBase* obj )
+void Counter::addObserver( WeakPtrBase* obj )
 {
     observerslock_.lock();
     observers_.addIfNew( obj );
@@ -226,7 +226,7 @@ void Counter::addObserver( ObsPtrBase* obj )
 }
 
 
-void Counter::removeObserver( ObsPtrBase* obj )
+void Counter::removeObserver( WeakPtrBase* obj )
 {
     observerslock_.lock();
     observers_ -= obj;
@@ -234,11 +234,11 @@ void Counter::removeObserver( ObsPtrBase* obj )
 }
 
 
-ObsPtrBase::ObsPtrBase()
+WeakPtrBase::WeakPtrBase()
     : ptr_( 0 )
 {}
 
-void ObsPtrBase::clearPtr()
+void WeakPtrBase::clearPtr()
 {
     lock_.lock();
     ptr_ = 0;
@@ -246,7 +246,7 @@ void ObsPtrBase::clearPtr()
 }
 
 
-ObsPtrBase::operator bool() const
+WeakPtrBase::operator bool() const
 {
     lock_.lock();
     bool res = ptr_;
@@ -255,7 +255,7 @@ ObsPtrBase::operator bool() const
 }
 
 
-bool ObsPtrBase::operator!() const
+bool WeakPtrBase::operator!() const
 {
     lock_.lock();
     bool res = ptr_;
@@ -264,7 +264,7 @@ bool ObsPtrBase::operator!() const
 }
 
 
-void ObsPtrBase::set( Referenced* p )
+void WeakPtrBase::set( Referenced* p )
 {
     lock_.lock();
 

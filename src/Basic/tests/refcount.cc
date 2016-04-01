@@ -74,23 +74,23 @@ bool testRefCount()
 }
 
 
-bool testObsPtr()
+bool testWeakPtr()
 {
     bool deleted = false;
     ReferencedClass* refclass = new ReferencedClass( &deleted );
 
-    ObsPtr<ReferencedClass> obsptr = refclass;
+    WeakPtr<ReferencedClass> obsptr = refclass;
     mRunStandardTest( obsptr.get().ptr()==0,
 		      "Setting unreffed class should give NULL");
 
     RefMan<ReferencedClass> refman1 = new ReferencedClass( &deleted );
     obsptr = refman1;
 
-    mRunStandardTest( obsptr.get().ptr(), "ObsPtr is set" );
+    mRunStandardTest( obsptr.get().ptr(), "WeakPtr is set" );
 
     refman1 = 0;
 
-    mRunStandardTest( !obsptr.get().ptr(), "ObsPtr is is unset on last unref" );
+    mRunStandardTest( !obsptr.get().ptr(), "WeakPtr is is unset on last unref" );
 
     refman1 = new ReferencedClass( &deleted );
     obsptr = refman1;
@@ -99,7 +99,7 @@ bool testObsPtr()
     obsptr = refman2;
 
     refman1 = 0;
-    mRunStandardTest( obsptr.get().ptr(), "ObsPtr updates to new object." );
+    mRunStandardTest( obsptr.get().ptr(), "WeakPtr updates to new object." );
 
     return true;
 }
@@ -110,7 +110,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     if ( !testRefCount() ||
-	 !testObsPtr() )
+	 !testWeakPtr() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );

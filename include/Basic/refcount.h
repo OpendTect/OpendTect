@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "thread.h"
 
-template <class T> class ObsPtr;
+template <class T> class WeakPtr;
 template <class T> class RefMan;
 
 
@@ -98,7 +98,7 @@ template <class T> class RefMan;
      A* variable = new A;
      variable->ref();
 
-     ObsPtr<A> ptr = variable; //ptr is set
+     WeakPtr<A> ptr = variable; //ptr is set
      variable->unRef();        //ptr becomes null
   \endcode
 
@@ -107,7 +107,7 @@ template <class T> class RefMan;
 //!\cond
 namespace RefCount
 {
-class ObsPtrBase;
+class WeakPtrBase;
 
 /*! Actual implementation of the reference counting. Normally not used by
     application developers.  */
@@ -132,8 +132,8 @@ public:
 			//!<Don't use in production, for debugging
 
     void		clearAllObservers();
-    void		addObserver(ObsPtrBase* obj);
-    void		removeObserver(ObsPtrBase* obj);
+    void		addObserver(WeakPtrBase* obj);
+    void		removeObserver(WeakPtrBase* obj);
 
 			Counter() : count_( 0 ) {}
                         Counter(const Counter& a) : count_( 0 ) {}
@@ -141,7 +141,7 @@ public:
     static od_int32		cInvalidRefCount();
 
 private:
-    ObjectSet<ObsPtrBase>	observers_;
+    ObjectSet<WeakPtrBase>	observers_;
     Threads::SpinLock		observerslock_;
 
     Threads::Atomic<od_int32>	count_;
@@ -161,7 +161,7 @@ public:
 protected:
     virtual			~Referenced()			{}
 private:
-    friend			class ObsPtrBase;
+    friend			class WeakPtrBase;
     virtual void		refNotify() const		{}
     virtual void		unRefNotify() const		{}
     virtual void		unRefNoDeleteNotify() const	{}
@@ -178,21 +178,21 @@ public:
     bool			tryRef() const;
 				//!<Not for normal use. May become private
 
-    void			addObserver(ObsPtrBase* obs);
+    void			addObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
-    void			removeObserver(ObsPtrBase* obs);
+    void			removeObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
 
 };
 
 
-mExpClass(Basic) ObsPtrBase
+mExpClass(Basic) WeakPtrBase
 {
 public:
 				operator bool() const;
     bool			operator!() const;
 protected:
-				ObsPtrBase();
+				WeakPtrBase();
     void			set(Referenced*);
 
     friend class		Counter;
@@ -210,15 +210,15 @@ protected:
    you have to obtain it using get().
 */
 template <class T>
-mClass(Basic) ObsPtr : public RefCount::ObsPtrBase
+mClass(Basic) WeakPtr : public RefCount::WeakPtrBase
 {
 public:
-			ObsPtr(RefCount::Referenced* p = 0) { set(p); }
-			ObsPtr(const ObsPtr<T>& p) { set( p.get().ptr() ); }
-			ObsPtr(const RefMan<T>& p) { set( p.ptr() ); }
-			~ObsPtr() { set( 0 ); }
+			WeakPtr(RefCount::Referenced* p = 0) { set(p); }
+			WeakPtr(const WeakPtr<T>& p) { set( p.get().ptr() ); }
+			WeakPtr(const RefMan<T>& p) { set( p.ptr() ); }
+			~WeakPtr() { set( 0 ); }
 
-    ObsPtr<T>&		operator=(const ObsPtr<T>& p)
+    WeakPtr<T>&		operator=(const WeakPtr<T>& p)
 			{ set(p.get().ptr()); return *this; }
     RefMan<T>&		operator=(RefMan<T>& p)
 			{ set(p.ptr()); return p; }
@@ -258,7 +258,7 @@ mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
 //Implementations and legacy stuff below
 
 template <class T>
-RefMan<T> ObsPtr<T>::get() const
+RefMan<T> WeakPtr<T>::get() const
 {
     RefMan<T> res = 0;
     if ( ptr_ && ptr_->tryRef() )

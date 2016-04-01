@@ -188,7 +188,7 @@ protected:
 
     mutable Threads::Atomic<int>	nrnull_;
     mutable Threads::SpinRWLock		packslock_;
-    TypeSet<ObsPtr<DataPack> >		packs_;
+    TypeSet<WeakPtr<DataPack> >		packs_;
 
     ID					id_;
 
