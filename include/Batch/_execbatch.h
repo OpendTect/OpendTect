@@ -118,7 +118,7 @@ int Execute_batch( int* pargc, char** argv )
 #endif
 	logstrm << "Starting program: " << argv[0] << " " << bp.name() << "\n";
 	logstrm << "Processing on: " << HostData::localHostName() << "\n";
-	logstrm << "Process ID: " << GetPID() << "\n";
+	logstrm << "Process ID: " << pid << "\n";
 	allok = bp.go( logstrm );
     }
 
