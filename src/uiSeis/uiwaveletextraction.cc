@@ -148,7 +148,6 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
     if ( linesel2dfld_ )
     {
 	linesel2dfld_->setInput( seisselfld_->key() );
-	lineSelCB(0);
 	return;
     }
 
