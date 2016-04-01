@@ -350,6 +350,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	TypeSet<Chain::Connection> inputconnections;
 	chainexec_.web_.getConnections( currentstep->getID(), true,
 					inputconnections );
+	PosInfo::CubeData trcssampling;
 	for ( int idy=0; idy<inputconnections.size(); idy++ )
 	{
 	    const Step* outputstep = chainexec_.chain_.getStepFromID(
@@ -372,6 +373,8 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	    }
 
 	    currentstep->setInput( inputconnections[idy].inputslotid_, input );
+	    if ( input->getTrcsSampling() )
+		trcssampling.merge( *input->getTrcsSampling(), true );
 	}
 
 	TrcKeySampling stepoutputhrg;
@@ -390,6 +393,9 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
 	outcube->setSampling( csamp );
+	if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
+	    outcube->setTrcsSampling(new PosInfo::SortedCubeData(trcssampling));
+
 	if ( !outcube->addComponent( 0 ) )
 	{
 	    errmsg_ = "Cannot allocate enough memory.";

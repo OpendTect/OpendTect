@@ -732,11 +732,7 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
     //scaler_ won't be used with external dp, but setting it for consistency
 
     if ( dp.sampling().isDefined() )
-    {
-	TrcKeyZSampling cs( tkzs_ );
 	tkzs_ = dp.sampling();
-	tkzs_.limitTo( cs );
-    }
 
     dp.setSampling( tkzs_ );
 
