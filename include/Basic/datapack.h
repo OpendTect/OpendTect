@@ -156,6 +156,17 @@ public:
     template <class T>
     inline T*		add(T* p) { doAdd(p); return p; }
     RefMan<DataPack>	get(DataPack::ID dpid) const;
+    
+    template <class T>
+    inline RefMan<T>	getAndCast(DataPack::ID dpid) const;
+    			//!<Dynamic casts to T and returns results
+    
+    WeakPtr<DataPack>	getObserve(DataPack::ID dpid) const;
+    			/*!<Should be renamed to observe when old observe is
+                            gone. */
+    template <class T>
+    inline WeakPtr<T>	observeAndCast(DataPack::ID dpid) const;
+    			//!<Dynamic casts to T and returns results
 
     bool		ref(DataPack::ID dpid);
 			//Convenience. Will ref if it is found
@@ -235,8 +246,10 @@ public:
     /*mDeprecated*/ void		releaseAll(bool donotify);
 };
 
+
+
 template <class T>
-mClass(Basic) /*mDeprecated*/ ConstDataPackRef
+mClass(Basic) mDeprecated ConstDataPackRef
 {
 public:
 				ConstDataPackRef(const DataPack* p);
@@ -262,6 +275,8 @@ protected:
 
 /*! Provides safe&easy access to DataPack subclass.
 
+This class is legacy, and will be removed in due time. Use RefMan<T> instead.
+ 
   Obtains the pack, and releases it when it goes out of scope. Typically used
   to hold a datapack as a local variable. Will also work when there are
   multiple return points.
@@ -293,7 +308,7 @@ protected:
  */
 
 template <class T>
-mClass(Basic) /*mDeprecated*/ DataPackRef : public ConstDataPackRef<T>
+mClass(Basic) mDeprecated DataPackRef : public ConstDataPackRef<T>
 {
 public:
 			DataPackRef(DataPack* p);
@@ -318,18 +333,11 @@ mGlobal(Basic) DataPackMgr& DPM(const DataPack::FullID&);
 
 #define mObtainDataPack( var, type, mgrid, newid ) \
 { \
-    if ( var ) \
-    { \
-	DPM( mgrid ).release( var->id() ); \
-	var = 0; \
-    } \
- \
-    DataPack* __dp = DPM( mgrid ).obtain( newid ); \
-    mDynamicCastGet( type, __dummy, __dp ); \
-    if ( !__dummy && __dp ) \
-	 DPM( mgrid ).release( __dp->id() ); \
-    else \
-	var = __dummy; \
+    unRefAndZeroPtr( var ); \
+    \
+    RefMan<DataPack> __dp = DPM( mgrid ).get( newid ); \
+    mDynamicCastGet( type, __dummy, __dp.ptr() ); \
+    var = (type) refPtr( __dummy ); \
 }
 
 
@@ -338,6 +346,27 @@ type var = 0; \
 mObtainDataPack( var, type, mgrid, newid ); \
 
 //Implementations
+
+template <class T> inline
+RefMan<T> DataPackMgr::getAndCast(DataPack::ID dpid) const
+{
+    RefMan<DataPack> pack = get( dpid );
+    mDynamicCastGet( T*, casted, pack.ptr() );
+    return RefMan<T>( casted );
+}
+
+
+template <class T> inline
+WeakPtr<T> DataPackMgr::observeAndCast( DataPack::ID dpid ) const
+{
+    RefMan<DataPack> pack = get( dpid );
+    pack.setNoDelete( true );
+    
+    mDynamicCastGet( T*, casted, pack.ptr() );
+    return WeakPtr<T>( casted );
+}
+
+
 template <class T> inline
 ConstDataPackRef<T>::ConstDataPackRef(const DataPack* p)
     : dp_(const_cast<DataPack*>(p) )

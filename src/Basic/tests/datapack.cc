@@ -16,11 +16,27 @@ class DataPackClass : public BufferDataPack
 public:
 		DataPackClass(bool& deletedflag)
 		    : deletedflag_( deletedflag ) { deletedflag_ = false; }
-		~DataPackClass() { deletedflag_ = true; }
+		
 
     bool	hasManager() const { return manager_; }
 
     bool&	deletedflag_;
+protected:
+    		~DataPackClass() { deletedflag_ = true; }
+};
+
+class DataPackClass2 : public BufferDataPack
+{
+public:
+    		DataPackClass2(bool& deletedflag)
+                    : deletedflag_( deletedflag ) { deletedflag_ = false; }
+    
+    
+    bool	hasManager() const { return manager_; }
+    
+    bool&	deletedflag_;
+protected:
+    		~DataPackClass2() { deletedflag_ = true; }
 };
 
 
@@ -31,82 +47,52 @@ bool testDataPack()
     DataPackClass* dpc = new DataPackClass( deleted );
     mRunStandardTest( dpc->id()!=DataPack::cNoID(), "Id assignment");
 
-    delete dpc;
+    dpc->ref();
+    dpc->unRef();
+    
     mRunStandardTest( deleted, "Normal delete" );
 
     dpc = new DataPackClass( deleted );
 
     DataPackMgr& dpm = DPM(DataPackMgr::BufID());
-    dpm.addAndObtain( dpc );
+    dpm.add( dpc );
 
-    mRunStandardTest( dpc->hasManager(), "Manager set");
-
-    mRunStandardTest( dpc->nrRefs()==1, "Nr users after addAndObtain");
+    mRunStandardTest( !deleted && dpc->hasManager(), "Manager set");
+    mRunStandardTest( !deleted && dpc->nrRefs()==0, "Nr users after add");
 
     int id = dpc->id();
 
-    DataPack* dp = dpm.observe( id );
-    mRunStandardTest( dpc->nrRefs()==1, "Nr users after observation obtain");
+    WeakPtr<DataPack> wptr = dpm.getObserve( id );
+    mRunStandardTest( !deleted && dpc->nrRefs()==0,
+                     "Nr users after observe");
+    
+    WeakPtr<DataPackClass2> dpc2obs = dpm.observeAndCast<DataPackClass2>( id );
+    mRunStandardTest( !deleted && dpc->nrRefs()==0,
+                     "Nr users after observeAndCast of wrong class");
+    
+    
+    WeakPtr<DataPackClass> dpcobs = dpm.observeAndCast<DataPackClass>( id );
+    mRunStandardTest( !deleted && dpc->nrRefs()==0,
+                     "Nr users after observeAndCast of correct class");
 
-    mRunStandardTest( dp, "Return value from observation obtain");
 
-    {
-	//Note, this is not a standard way to create the ref, but I need to
-	//send them out of scope by will
-	PtrMan<ConstDataPackRef<BufferString> > faultyref =
-	    new DataPackRef<BufferString>( dpm.obtain(id) );
-
-	mRunStandardTest( dpc->nrRefs()==2, "Nr users after second obtain");
-
-	mRunStandardTest( !faultyref->ptr(), "Refusal to give invalid cast");
-
-	//Note, this is not a standard way to create the ref, but I need to
-	//send them out of scope by will
-	PtrMan<DataPackRef<DataPackClass> > goodref =
-		    new DataPackRef<DataPackClass>( dpm.obtain(id) );
-
-	mRunStandardTest( dpc->nrRefs()==3, "Nr users after third obtain");
-
-	faultyref = 0;
-	mRunStandardTest( dpc->nrRefs()==2,
-			  "Nr users after ref goes out of scope");
-
-	//Note, this is not a standard way to create the ref, but I need to
-	//send them out of scope by will
-	PtrMan<DataPackRef<DataPackClass> > goodref2 =
-	    new DataPackRef<DataPackClass>( *goodref );
-
-	mRunStandardTest( dpc->nrRefs()==3,
-			 "Nr users after ref copy constructor.");
-
-	goodref = 0;
-	goodref2 = 0;
-
-	dp->unRef();
-	mRunStandardTest( deleted, "Release delete" );
-
-	dp = dpm.obtain( id );
-	mRunStandardTest( !dp, "Refusal of returning released");
-
-    }
-    {
-	DataPackClass* dpa = new DataPackClass( deleted );
-	dpm.addAndObtain( dpa );
-	DataPackClass* dpb = new DataPackClass( deleted );
-	dpm.addAndObtain( dpb );
-
-	DataPackRef<DataPackClass> dparef = dpa;
-	DataPackRef<DataPackClass> dpbref = dpb;
-
-	DataPackRef<DataPackClass> testref = 0;
-	testref = dparef;
-
-	mRunStandardTest( dpa->nrRefs()==2,
-			 "Nr users after assignment operator");
-	testref = dpbref;
-	mRunStandardTest( dpa->nrRefs()==1,
-			 "Nr users after second assignement operator");
-    }
+    RefMan<DataPack> dp = dpm.get( id );
+    
+    mRunStandardTest( !deleted && dpc->nrRefs()==1,
+                      "Nr users after get");
+    
+    RefMan<DataPackClass> dpcman = dpm.getAndCast<DataPackClass>(id);
+    RefMan<DataPackClass2> fdp = dpm.getAndCast<DataPackClass2>(id);
+    
+    mRunStandardTest( !deleted && dpc->nrRefs()==2,
+                      "Nr users after getAndCast");
+    
+    
+    dp = 0;
+    dpcman = 0;
+    
+    mRunStandardTest( deleted && !wptr,
+                     "Weak pointer set to zero");
 
     return true;
 }

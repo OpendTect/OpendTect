@@ -416,7 +416,7 @@ public:
 					bool checkother=false) const;
     /*!< Obtains DataPack before returning the pointer. Has
      to be released after it is used. For convenience use
-     ConstDataPackRef which releases the DataPack in its
+     ConstRefMan which releases the DataPack in its
      destructor.
      \param checkother if true, the datapack of other
      display (i.e. variable density or wiggles) is returned
@@ -436,8 +436,9 @@ protected:
 
 private:
 
-    const FlatDataPack*		wvapack_;
-    const FlatDataPack*		vdpack_;
+    WeakPtr<FlatDataPack>	wvapack_;
+    WeakPtr<FlatDataPack>	vdpack_;
+
     TypeSet<Pos::GeomID>	geom2dids_;
 
 };

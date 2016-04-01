@@ -73,23 +73,6 @@ void DataPack::setManager( const DataPackMgr* mgr )
     manager_ = mgr;
 }
 
-/*
-void DataPack::release()
-{
-    unRef();
-}
-
-
-DataPack* DataPack::obtain()
-{
-    ref();
-
-    if ( !manager_ ) return 0;
-
-    return this;
-}
- */
-
 
 DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )
 {
@@ -228,6 +211,21 @@ RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
 }
 
 
+WeakPtr<DataPack> DataPackMgr::getObserve( DataPack::ID dpid ) const
+{
+    WeakPtr<DataPack> res = 0;
+    packslock_.readLock();
+    const int idx = indexOf( dpid );
+    if ( idx>=0 )
+        res = packs_[idx];
+    
+    packslock_.readUnlock();
+    
+    return res;
+}
+
+
+
 void DataPackMgr::getPackIDs(TypeSet<DataPack::ID>& ids) const
 {
     packslock_.readLock();
@@ -275,6 +273,7 @@ void DataPackMgr::doAdd( DataPack* dp )
     if ( !dp ) return;
 
     RefMan<DataPack> keeper = dp;
+    keeper.setNoDelete( true );
     dp->setManager( this );
 
     packslock_.writeLock();
@@ -370,9 +369,13 @@ bool DataPackMgr::unRef( DataPack::ID dpid )
 	packslock_.readUnlock();
 	if ( pack )
 	{
+            pack->unRef();
+            //We have reffed in the refman above
+            //Hence the 'real' number is actual refs -1
+            
 	    mTrackDPMsg( BufferString("[DP]: unRef ",pack->id(),
 			 BufferString(" nrusers=",pack->nrRefs()-1)) );
-	    pack->unRef();
+	    
 	}
 
 	res = true;
@@ -401,9 +404,15 @@ DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 	if ( !obs )
 	{
 	    res->ref();
+            //Real number of refs is one higher, as we have a refman in the
+            //function
 	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id(),
-			 BufferString(" nrusers=",res->nrRefs())) );
+			 BufferString(" nrusers=",res->nrRefs()-1)) );
 	}
+        else
+        {
+            pack.setNoDelete( true );
+        }
     }
     else
     {
@@ -459,10 +468,10 @@ void DataPackMgr::release( DataPack::ID dpid )
 	packslock_.readUnlock();
 	pack.ptr()->unRef();
 
-	if ( pack->nrRefs()>0 )
+	if ( pack->nrRefs()>1 ) //1 is our own ref
 	{
 	    mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
-				    BufferString(" nrusers=",pack->nrRefs())) );
+                         BufferString(" nrusers=",pack->nrRefs()-1)) );
 	    return;
 	}
     }

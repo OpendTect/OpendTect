@@ -218,8 +218,7 @@ public:
 			WeakPtr(const RefMan<T>& p) { set( p.ptr() ); }
 			~WeakPtr() { set( 0 ); }
 
-    WeakPtr<T>&		operator=(const WeakPtr<T>& p)
-			{ set(p.get().ptr()); return *this; }
+    inline WeakPtr<T>&	operator=(const WeakPtr<T>& p);
     RefMan<T>&		operator=(RefMan<T>& p)
 			{ set(p.ptr()); return p; }
     T*			operator=(T* p)
@@ -256,6 +255,17 @@ mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
 
 
 //Implementations and legacy stuff below
+
+
+template <class T>
+WeakPtr<T>& WeakPtr<T>::operator=(const WeakPtr<T>& p)
+{
+    RefMan<T> ptr = p.get();
+    ptr.setNoDelete(true);
+    set(ptr.ptr());
+    return *this;
+}
+
 
 template <class T>
 RefMan<T> WeakPtr<T>::get() const

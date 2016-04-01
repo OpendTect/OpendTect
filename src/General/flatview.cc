@@ -588,9 +588,9 @@ ConstRefMan<FlatDataPack>
 FlatView::Viewer::getPack( bool wva, bool checkother ) const
 {
     Threads::Locker locker( lock_ );
-    ConstRefMan<FlatDataPack> res = wva ? wvapack_ : vdpack_;
+    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
     if ( !res && checkother )
-	res = wva ? vdpack_ : wvapack_;
+	res = wva ? vdpack_.get() : wvapack_.get();
 
     return res;
 
@@ -601,10 +601,13 @@ const FlatDataPack* FlatView::Viewer::obtainPack(
 				bool wva, bool checkother ) const
 {
     Threads::Locker locker( lock_ );
-    const FlatDataPack* res = wva ? wvapack_ : vdpack_;
+    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
+
     if ( !res && checkother )
-	res = wva ? vdpack_ : wvapack_;
-    dpm_.addAndObtain( const_cast<FlatDataPack*>(res) );
+	res = wva ? vdpack_.get() : wvapack_.get();
+    
+    refPtr( res );
+    dpm_.add( const_cast<FlatDataPack*>(res.ptr()) );
     return res;
 }
 
@@ -652,7 +655,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	return;
     }
     else
-	(wva ? wvapack_ : vdpack_) = (FlatDataPack*)dpm_.observe( id );
+	(wva ? wvapack_ : vdpack_) = dpm_.observeAndCast<FlatDataPack>( id );
 
     ConstRefMan<FlatDataPack> fdp = getPack( wva );
     if ( !fdp ) return;
