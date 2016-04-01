@@ -39,8 +39,12 @@ uiMute::uiMute( uiParent* p, Mute* mute )
 				 mODHelpKey(mPreStackMuteHelpID)))
     , processor_(mute)
 {
+    uiIOObjSel::Setup mutesu( tr("Mute Definition") );
+    mutesu.optional(true);
+
     const IOObjContext ctxt = mIOObjContext( MuteDef );
-    mutedeffld_ = new uiIOObjSel( this, ctxt );
+    mutedeffld_ = new uiIOObjSel( this, ctxt, mutesu );
+    mutedeffld_->setChecked(true);
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
 			      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
@@ -64,7 +68,12 @@ bool uiMute::acceptOK( CallBacker* )
     if ( !ioobj )
     {
 	processor_->setEmptyMute();
-	return false;
+	if ( mutedeffld_->isChecked() )
+	{
+	    uiMSG().error(tr("Mute Definition field is empty. "
+		"Please provide the mute definition or uncheck the checkbox."));
+	    return false;
+	}
     }
 
     processor_->setMuteDefID( ioobj->key() );
