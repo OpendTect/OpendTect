@@ -102,6 +102,7 @@ public:
 
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int channel,int version=0) const;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
     void			setSelSpecs(int attrib,
 					   const TypeSet<Attrib::SelSpec>&);
     void			setDepthAsAttrib(int);
