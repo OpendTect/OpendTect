@@ -40,6 +40,8 @@ mExpClass(VolumeProcessing) Step
 {
 public:
 
+    typedef ConstRefMan<RegularSeisDataPack> CVolRef;
+    typedef RefMan<RegularSeisDataPack> VolRef;
     typedef int			ID;
     typedef int			InputSlotID;
     typedef int			OutputSlotID;
@@ -76,18 +78,18 @@ public:
 
     virtual void		setInput(InputSlotID,
 					 const RegularSeisDataPack*);
-    const RegularSeisDataPack*	getInput(InputSlotID) const;
+    CVolRef			getInput(InputSlotID) const;
     virtual void		setOutput(OutputSlotID,RegularSeisDataPack*,
 				      const TrcKeySampling&,
 				      const StepInterval<int>&);
-    const RegularSeisDataPack*	getOutput(OutputSlotID) const;
-    RegularSeisDataPack*		getOutput(OutputSlotID);
+    CVolRef			getOutput(OutputSlotID) const;
+    VolRef			getOutput(OutputSlotID);
 
     int				getOutputIdx(OutputSlotID) const;
     void			enableOutput(OutputSlotID);
 
-    const RegularSeisDataPack*	getOutput() const	{ return output_; }
-    RegularSeisDataPack*	getOutput()		{ return output_; }
+    CVolRef			getOutput() const	{ return output_; }
+    VolRef			getOutput()		{ return output_; }
 
     static od_int64		getBaseMemoryUsage(const TrcKeySampling&,
 						   const StepInterval<int>&);

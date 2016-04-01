@@ -200,8 +200,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     {
 	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
 	DataPack::FullID fid( getDPID() );
-	DataPackRef<SeisTrcBufDataPack> stbdtp =
-				DPM(fid).obtain( DataPack::getID(fid) );
+	RefMan<SeisTrcBufDataPack> stbdtp = DPM(fid).get(DataPack::getID(fid));
 	if ( !stbdtp ) return false;
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );
@@ -713,8 +712,7 @@ DataPack::FullID StorageProvider::getDPID() const
 SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 {
     DataPack::FullID fid( getDPID() );
-    DataPackRef<SeisTrcBufDataPack> stbdtp =
-				    DPM( fid ).obtain( DataPack::getID(fid) );
+    RefMan<SeisTrcBufDataPack> stbdtp = DPM( fid ).get( DataPack::getID(fid) );
 
     if ( !stbdtp )
 	return 0;

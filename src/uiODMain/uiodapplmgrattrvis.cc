@@ -277,8 +277,8 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 	}
 
 	DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-	ConstDataPackRef<SeisDataPack> seisdp =
-	    dpm.obtain( am_.visserv_->getDataPackID(visid,attrib) );
+	ConstRefMan<SeisDataPack> seisdp =
+	    dpm.get( am_.visserv_->getDataPackID(visid,attrib) );
 	const Scaler* scaler = seisdp ? seisdp->getScaler() : 0;
 	if ( scaler && !mapper.range_.isUdf() )
 	{

@@ -38,12 +38,12 @@ public:
 
 protected:
 
-    FlatDataPack*	computeAttrib();
-    Attrib::EngineMan*	createEngineMan();
-    virtual void	createAndDisplay2DViewer(FlatDataPack*);
-    FlatDataPack*	createFDPack(const Attrib::Data2DHolder&) const;
-    FlatDataPack*	createFDPack(Attrib::EngineMan*,
-	    			     Attrib::Processor*) const;
+    FlatDataPack*		computeAttrib();
+    Attrib::EngineMan*		createEngineMan();
+    virtual void		createAndDisplay2DViewer(FlatDataPack*);
+    RefMan<FlatDataPack>	createFDPack(const Attrib::Data2DHolder&) const;
+    RefMan<FlatDataPack>	createFDPack(Attrib::EngineMan*,
+					     Attrib::Processor*) const;
 
     virtual const char*		getProcName()	{ return "Computing attribute";}
     virtual const char*		getPackName()	{ return "Attribute pack"; }

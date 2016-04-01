@@ -789,8 +789,8 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 {
     if ( ginfo.isstored_ )
     {
-	DataPackRef<PreStack::Gather> gather =
-	    DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
+	RefMan<PreStack::Gather> gather =
+	    DPM(DataPackMgr::FlatID()).add( new PreStack::Gather );
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
 	if ( !storedpsmw ) return;
 	BufferString linename = storedpsmw->lineName();
@@ -1187,8 +1187,8 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     Interval<float> zrg( mUdf(float), 0 );
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    DataPackRef<PreStack::Gather> gather =
-	DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
+    RefMan<PreStack::Gather> gather =
+	DPM(DataPackMgr::FlatID()).add( new PreStack::Gather );
     MultiID mid = gatherinfo.mid_;
     BinID bid = gatherinfo.bid_;
     if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0))
@@ -1360,8 +1360,8 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstDataPackRef<PreStack::Gather> vdgather = dpm.obtain( ginfo.vddpid_ );
-    ConstDataPackRef<PreStack::Gather> wvagather = dpm.obtain( ginfo.wvadpid_ );
+    ConstRefMan<PreStack::Gather> vdgather = dpm.get( ginfo.vddpid_ );
+    ConstRefMan<PreStack::Gather> wvagather = dpm.get( ginfo.wvadpid_ );
 
     if ( !vdgather && !wvagather  )
     {
@@ -1503,10 +1503,8 @@ void uiViewer2DControl::applyProperties( CallBacker* )
     propChanged.trigger();
     ctabsel_->setCurrent( app_.ddpars_.vd_.ctab_.buf() );
 
-    ConstDataPackRef<FlatDataPack> vddatapack =
-		vwrs_[actvwridx]->obtainPack( false );
-    ConstDataPackRef<FlatDataPack> wvadatapack =
-		vwrs_[actvwridx]->obtainPack( true );
+    ConstRefMan<FlatDataPack> vddatapack = vwrs_[actvwridx]->getPack( false );
+    ConstRefMan<FlatDataPack> wvadatapack = vwrs_[actvwridx]->getPack( true );
     for( int ivwr=0; ivwr<vwridxs.size(); ivwr++ )
     {
 	const int vwridx = vwridxs[ivwr];

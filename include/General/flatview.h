@@ -345,14 +345,10 @@ public:
 			{ addPack( id ); usePack( wva, id, usedefs ); }
     void		clearAllPacks();
 
-    const FlatDataPack* obtainPack(bool wva,bool checkother=false) const;
-			/*!< Obtains DataPack before returning the pointer. Has
-			 to be released after it is used. For convenience use
-			 ConstDataPackRef which releases the DataPack in its
-			 destructor.
-			 \param checkother if true, the datapack of other
-			 display (i.e. variable density or wiggles) is returned
-			 if the specified display has no datapack. */
+    ConstRefMan<FlatDataPack>	getPack(bool wva,bool checkother=false) const;
+			/*\param checkother if true, the datapack of other
+			  display (i.e. variable density or wiggles) is returned
+			  if the specified display has no datapack. */
     bool		hasPack(bool wva) const
 			{ return packID(wva)!=DataPack::cNoID(); }
     DataPack::ID	packID(bool wva) const;
@@ -415,6 +411,17 @@ public:
     void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
 
     const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const { return geom2dids_; }
+
+    mDeprecated const FlatDataPack* obtainPack(bool wva,
+					bool checkother=false) const;
+    /*!< Obtains DataPack before returning the pointer. Has
+     to be released after it is used. For convenience use
+     ConstDataPackRef which releases the DataPack in its
+     destructor.
+     \param checkother if true, the datapack of other
+     display (i.e. variable density or wiggles) is returned
+     if the specified display has no datapack. */
+
 protected:
 
     TypeSet< ::DataPack::ID>	ids_;

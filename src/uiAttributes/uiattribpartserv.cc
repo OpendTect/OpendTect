@@ -653,16 +653,18 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     }
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstDataPackRef<RegularSeisDataPack> cache = dpm.obtain( cacheid );
-    const RegularSeisDataPack* newpack = createOutput( tkzs, cache.ptr() );
+    ConstRefMan<RegularSeisDataPack> cache =
+				(RegularSeisDataPack*) dpm.get( cacheid ).ptr();
+    RefMan<RegularSeisDataPack> newpack = createOutput( tkzs, cache.ptr() );
     if ( !newpack ) return DataPack::cNoID();
+    newpack.setNoDelete( true );
 
-    dpm.add( const_cast<RegularSeisDataPack*>(newpack) );
+    dpm.add( newpack.ptr() );
     return newpack->id();
 }
 
 
-const RegularSeisDataPack* uiAttribPartServer::createOutput(
+RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
@@ -702,7 +704,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
     bool success = true;
     PtrMan<Processor> process = 0;
-    RegularSeisDataPack* output = 0;
+    RefMan<RegularSeisDataPack> output = 0;
     if ( !atsamplepos )//note: 1 attrib computed at a time
     {
 	if ( !targetdesc ) return 0;
@@ -738,7 +740,6 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
 		    !output->data(0).getStorage() )
 	    {
-		delete output;
 		output = 0;
 	    }
 	    else
@@ -804,7 +805,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	}
 
 	output = const_cast<RegularSeisDataPack*>(
-			aem->getDataPackOutput(*process) );
+			aem->getDataPackOutput(*process).ptr() );
     }
 
     if ( output && !success )
@@ -812,7 +813,6 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	if ( !uiMSG().askGoOn(tr("Attribute loading/calculation aborted.\n"
 	    "Do you want to use the partially loaded/computed data?"), true ) )
 	{
-	    delete output;
 	    output = 0;
 	}
     }

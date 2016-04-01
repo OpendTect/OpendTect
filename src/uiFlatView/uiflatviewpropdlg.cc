@@ -194,8 +194,8 @@ void uiFlatViewDataDispPropTab::setDataNames()
     dispfld_->addItem( uiStrings::sNone() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	ConstDataPackRef<DataPack> dp =
-		dpm_.obtain( vwr_.availablePacks()[idx]);
+	ConstRefMan<DataPack> dp =
+		dpm_.get( vwr_.availablePacks()[idx]);
 	if ( dp )
 	{
 	    dispfld_->addItem( toUiString(dp->name()) );
@@ -269,7 +269,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     const BufferString datanm( dispfld_->text() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	ConstDataPackRef<DataPack> dp = dpm_.obtain(vwr_.availablePacks()[idx]);
+	ConstRefMan<DataPack> dp = dpm_.get(vwr_.availablePacks()[idx]);
 	if ( dp && dp->name() == datanm )
 	    vwr_.usePack( wva, dp->id(), false );
     }
@@ -372,7 +372,7 @@ uiFVWVAPropTab::~uiFVWVAPropTab()
 
 BufferString uiFVWVAPropTab::dataName() const
 {
-    ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack(true);
+    ConstRefMan<FlatDataPack> dp = vwr_.getPack(true);
     return BufferString( dp ? dp->name().str() : "" );
 }
 
@@ -475,7 +475,7 @@ uiFVVDPropTab::~uiFVVDPropTab()
 
 BufferString uiFVVDPropTab::dataName() const
 {
-    ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack(false);
+    ConstRefMan<FlatDataPack> dp = vwr_.getPack(false);
     return BufferString( dp ? dp->name().str() : "" );
 }
 

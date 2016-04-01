@@ -816,7 +816,7 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 
 const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 {
-    ConstDataPackRef<SeisTrcBufDataPack> tbdp = vwr_->obtainPack( true, true );
+    ConstRefMan<SeisTrcBufDataPack> tbdp = vwr_->getPack( true, true );
     if ( !tbdp )
     {
 	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );

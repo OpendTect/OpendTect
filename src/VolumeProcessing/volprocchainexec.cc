@@ -390,8 +390,8 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
 	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
 
-	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
-	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
+	RefMan<RegularSeisDataPack> outcube =
+	       DPM( DataPackMgr::SeisID() ).add( new RegularSeisDataPack( 0 ) );
 	outcube->setSampling( csamp );
 	if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
 	    outcube->setTrcsSampling(new PosInfo::SortedCubeData(trcssampling));
@@ -399,7 +399,6 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	if ( !outcube->addComponent( 0 ) )
 	{
 	    errmsg_ = "Cannot allocate enough memory.";
-	    outcube->release();
 	    return false;
 	}
 
@@ -408,7 +407,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 				stepoutputhrg, stepoutputzrg );
 
 	//The step should have reffed it, so we can forget it now.
-	outcube->release();
+	outcube = 0;
 
 	TypeSet<Chain::Connection> outputconnections;
 	chainexec_.web_.getConnections( currentstep->getID(),

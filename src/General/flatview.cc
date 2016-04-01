@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          July 2000
+ Author:	A.H. Bril
+ Date:		July 2000
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ const char* Annotation::sKeyShwAux()	   { return "Show aux data"; }
 const char* DataDispPars::sKeyVD()	{ return "VD"; }
 const char* DataDispPars::sKeyWVA()	{ return "WVA"; }
 const char* DataDispPars::sKeyShow()	{ return "Show"; }
-const char* DataDispPars::sKeyDispRg()  { return "Range"; }
-const char* DataDispPars::sKeyColTab()  { return "Color Table"; }
+const char* DataDispPars::sKeyDispRg()	{ return "Range"; }
+const char* DataDispPars::sKeyColTab()	{ return "Color Table"; }
 const char* DataDispPars::sKeyFlipSequence() { return "Flip Sequence"; }
 const char* DataDispPars::sKeyLinearInter()  { return "Linear Interpolation"; }
 const char* DataDispPars::sKeyBlocky()	 { return "Blocky"; }
@@ -488,7 +488,7 @@ void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( iswva );
+    ConstRefMan<FlatDataPack> dp = getPack( iswva );
     if ( !dp )
     {
 	iswva ? iop.removeWithKey( "Wiggle/VA data" )
@@ -518,7 +518,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
     if ( !fdp ) return Coord3::udf();
 
     const FlatPosData& pd = fdp->posData();
@@ -584,6 +584,19 @@ void FlatView::Viewer::addPack( DataPack::ID id )
 }
 
 
+ConstRefMan<FlatDataPack>
+FlatView::Viewer::getPack( bool wva, bool checkother ) const
+{
+    Threads::Locker locker( lock_ );
+    ConstRefMan<FlatDataPack> res = wva ? wvapack_ : vdpack_;
+    if ( !res && checkother )
+	res = wva ? vdpack_ : wvapack_;
+
+    return res;
+
+}
+
+
 const FlatDataPack* FlatView::Viewer::obtainPack(
 				bool wva, bool checkother ) const
 {
@@ -598,7 +611,7 @@ const FlatDataPack* FlatView::Viewer::obtainPack(
 
 DataPack::ID FlatView::Viewer::packID( bool wva ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> dp = getPack( wva );
     return dp ? dp->id() : ::DataPack::cNoID();
 }
 
@@ -641,7 +654,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
     else
 	(wva ? wvapack_ : vdpack_) = (FlatDataPack*)dpm_.observe( id );
 
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( wva );
+    ConstRefMan<FlatDataPack> fdp = getPack( wva );
     if ( !fdp ) return;
 
     if ( usedefs )
@@ -707,7 +720,7 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
 StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 {
     const bool wva = appearance().ddpars_.wva_.show_;
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva, true );
+    ConstRefMan<FlatDataPack> dp = getPack( wva, true );
     if ( !dp ) return StepInterval<double>(mUdf(double),mUdf(double),1);
     return dp->posData().range( forx1 );
 }

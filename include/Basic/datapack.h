@@ -66,9 +66,6 @@ public:
 
     Threads::Lock&	updateLock() const	{ return updatelock_; }
 
-    /*mDeprecated*/ void	release();
-    /*mDeprecated*/ DataPack*	obtain();
-
 protected:
 
     void			setManager(const DataPackMgr*);
@@ -85,6 +82,11 @@ protected:
 				{ *const_cast<BufferString*>(&category_) = c; }
 
     friend class		DataPackMgr;
+
+public:
+    mDeprecated void		release();
+    mDeprecated DataPack*	obtain();
+
 };
 
 
@@ -101,6 +103,7 @@ public:
 			    : DataPack(catgry)
 			    , buf_(b)
 			    , sz_(s)		{}
+
 			~BufferDataPack()	{ delete [] buf_; }
 
     char*		buf()			{ return buf_; }

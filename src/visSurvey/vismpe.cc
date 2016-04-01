@@ -842,8 +842,8 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 
 bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp =
-	DPM(DataPackMgr::SeisID()).obtain( engine_.getAttribCacheID(as_) );
+    ConstRefMan<RegularSeisDataPack> regsdp =
+	DPM(DataPackMgr::SeisID()).get( engine_.getAttribCacheID(as_) );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

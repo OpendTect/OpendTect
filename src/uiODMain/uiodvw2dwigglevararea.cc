@@ -182,7 +182,7 @@ void uiODVW2DWiggleVarAreaTreeItem::handleMenuCB( CallBacker* cb )
 void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true );
     if ( !dp ) return;
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
@@ -221,7 +221,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true );
     if ( !dp ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -261,7 +261,7 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
 			const bool steering, const bool stored )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true );
     if ( !dp ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();

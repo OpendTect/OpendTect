@@ -291,9 +291,10 @@ const char* EngineMan::getCurUserRef() const
 }
 
 
-const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
+RefMan<RegularSeisDataPack>
+    EngineMan::getDataPackOutput( const Processor& proc )
 {
-    RegularSeisDataPack* output = 0;
+    RefMan<RegularSeisDataPack> output = 0;
     if ( proc.outputs_.size()==1 && !cache_ )
     {
 	output = const_cast<RegularSeisDataPack*>(
@@ -334,7 +335,8 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
     }
 
     if ( !packset.isEmpty() )
-	output = const_cast<RegularSeisDataPack*>( getDataPackOutput(packset) );
+	output =
+	   const_cast<RegularSeisDataPack*>( getDataPackOutput(packset).ptr() );
 
     for ( int idx=packset.size()-1; idx>=0; idx-- )
 	dpm_.release( packset[idx] );
@@ -497,7 +499,7 @@ protected:
 };
 
 
-const RegularSeisDataPack* EngineMan::getDataPackOutput(
+RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
     if ( packset.isEmpty() ) return 0;

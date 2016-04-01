@@ -69,8 +69,8 @@ private:
     uiWorldRect			getBoundingBox(bool wva) const;
 
     FlatView::Appearance&	appearance_;
-    ConstDataPackRef<FlatDataPack> wvapack_;
-    ConstDataPackRef<FlatDataPack> vdpack_;
+    ConstRefMan<FlatDataPack>	wvapack_;
+    ConstRefMan<FlatDataPack>	vdpack_;
     uiWorldRect			boundingbox_;
     float			overlap_;
     int				workqueueid_;

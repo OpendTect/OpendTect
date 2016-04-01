@@ -45,8 +45,7 @@ void Vw2DHorizon2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<RegularFlatDataPack> regfdp =
-				vwr.obtainPack( true, true );
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.getPack( true, true );
 	if ( !regfdp || !regfdp->is2D() )
 	{
 	    horeds_ += 0;
@@ -111,8 +110,7 @@ void Vw2DHorizon2D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<RegularFlatDataPack> regfdp =
-				    vwr.obtainPack( true, true );
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.getPack( true, true );
 	if ( !regfdp ) continue;
 	if ( horeds_[ivwr] )
 	    horeds_[ivwr]->setMouseEventHandler(

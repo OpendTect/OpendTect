@@ -228,7 +228,7 @@ void AxesDrawer::updateViewRect()
 void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
-    ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     if ( !fdp || altdim0_<0 )
     {
 	uiGraphicsSceneAxisMgr::setWorldCoords( wr );

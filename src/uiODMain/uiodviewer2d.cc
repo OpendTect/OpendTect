@@ -225,7 +225,7 @@ void uiODViewer2D::setUpAux()
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( packid );
+    ConstRefMan<FlatDataPack> fdp = dpm.get( packid );
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
@@ -610,7 +610,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 				DataPack::ID dpid, int comp ) const
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstDataPackRef<SeisDataPack> seisdp = dpm.obtain( dpid );
+    ConstRefMan<SeisDataPack> seisdp = dpm.get( dpid );
     if ( !seisdp || !(comp<seisdp->nrComponents()) ) return dpid;
 
     const FixedString zdomainkey( seisdp->zDomain().key() );
@@ -625,7 +625,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 	transformer.setInterpolate( true );
 	transformer.execute();
 	if ( outputid != DataPack::cNoID() )
-	    seisdp = dpm.obtain( outputid );
+	    seisdp = dpm.get( outputid );
     }
 
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
@@ -653,8 +653,8 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
 
-    DataPackRef<DataPointSet> data =
-	DPM(DataPackMgr::PointID()).addAndObtain(new DataPointSet(false,true));
+    RefMan<DataPointSet> data =
+	DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
 
     ZAxisTransformPointGenerator generator( *datatransform_ );
     generator.setInput( tkzs );
@@ -688,8 +688,8 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     if ( !mapper.usePar(iop) )
 	return false;
 
-    ConstDataPackRef<SeisFlatDataPack> seisfdp =
-		viewwin()->viewer().obtainPack( wva );
+    ConstRefMan<SeisFlatDataPack> seisfdp =
+		viewwin()->viewer().getPack( wva );
     const Scaler* scaler = seisfdp ? seisfdp->getScaler() : 0;
     if ( scaler && !mapper.range_.isUdf() )
     {
@@ -881,7 +881,7 @@ void uiODViewer2D::usePar( const IOPar& iop )
     {
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
-	ConstDataPackRef<RegularSeisDataPack> regsdp = vwr.obtainPack( iswva );
+	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva );
 	if ( regsdp ) setPos( tkzs );
     }
 
@@ -956,7 +956,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	marker_->markerstyles_ += OD::MarkerStyle2D();
     }
 
-    ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = vwr.getPack( false, true );
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
     if ( !seisfdp && !mapdp ) return;

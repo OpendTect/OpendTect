@@ -827,7 +827,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
     if ( !regsdp ) return;
 
     updateTexOriginAndScale( attrib, regsdp->sampling() );
@@ -889,7 +889,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -959,7 +959,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

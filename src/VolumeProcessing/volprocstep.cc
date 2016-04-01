@@ -264,7 +264,7 @@ void VolProc::Step::setInput( InputSlotID slotid,
 }
 
 
-const RegularSeisDataPack* VolProc::Step::getInput( InputSlotID slotid ) const
+VolProc::Step::CVolRef VolProc::Step::getInput( InputSlotID slotid ) const
 {
     const int idx = inputslotids_.indexOf( slotid );
     return inputs_.validIdx(idx) ? inputs_[idx] : 0;
@@ -284,14 +284,14 @@ void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 }
 
 
-RegularSeisDataPack* VolProc::Step::getOutput( OutputSlotID slotid )
+VolProc::Step::VolRef VolProc::Step::getOutput( OutputSlotID slotid )
 {
     // TODO: implement using slotid
     return output_;
 }
 
 
-const RegularSeisDataPack* VolProc::Step::getOutput( OutputSlotID slotid ) const
+VolProc::Step::CVolRef VolProc::Step::getOutput( OutputSlotID slotid ) const
 {
     return const_cast<Step*>(this)->getOutput( slotid );
 }

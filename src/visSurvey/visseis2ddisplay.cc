@@ -423,7 +423,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    DataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    RefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
     if ( !regsdp ) return;
 
     updateTexOriginAndScale( attrib, regsdp->sampling() );
@@ -492,7 +492,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -871,7 +871,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

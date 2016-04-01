@@ -370,7 +370,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	return;
 
     bool pickinvd = true;
-    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
+    ConstRefMan<FlatDataPack> dp = vwr->getPack( !pickinvd );
     if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
@@ -763,8 +763,8 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
     if ( !emobj ) return;
 
     TypeSet<TrcKeyValue> path = patch->getPath();
-    ConstDataPackRef<FlatDataPack> fdp =
-	editor_->viewer().obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp =
+	editor_->viewer().getPack( true, true );
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     for ( int idx=0; idx<path.size(); idx++ )
     {
@@ -882,8 +882,8 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 
     BinID bid;
 
-    ConstDataPackRef<FlatDataPack> fdp =
-	editor_->viewer().obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp =
+	editor_->viewer().getPack( true, true );
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {

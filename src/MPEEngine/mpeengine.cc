@@ -626,8 +626,7 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
     const DataPack::ID dpid = getAttribCacheID( as );
-    ConstDataPackRef<SeisDataPack> regsdp = dpm_.obtain( dpid );
-    return regsdp;
+    return dpm_.haveID( dpid );
 }
 
 
@@ -649,18 +648,18 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    ConstDataPackRef<SeisDataPack> newdata= dpm_.obtain(cacheid);
+	    ConstRefMan<SeisDataPack> newdata= dpm_.get(cacheid);
 	    if ( newdata )
 	    {
-		dpm_.release( attribcachedatapackids_[idx] );
+		dpm_.unRef( attribcachedatapackids_[idx] );
 		attribcachedatapackids_[idx] = cacheid;
-		dpm_.obtain( cacheid );
+		newdata->ref();
 	    }
 	}
     }
     else if ( cacheid != DataPack::cNoID() )
     {
-	ConstDataPackRef<SeisDataPack> newdata = dpm_.obtain( cacheid );
+	ConstRefMan<SeisDataPack> newdata = dpm_.get( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -668,7 +667,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 		new CacheSpecs( as ) ;
 
 	    attribcachedatapackids_ += cacheid;
-	    dpm_.obtain( cacheid );
+	    newdata->ref();
 	}
     }
 
@@ -679,8 +678,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstDataPackRef<SeisDataPack> cache =
-				dpm_.obtain( getAttribCacheID(as) );
+    ConstRefMan<SeisDataPack> cache = dpm_.get( getAttribCacheID(as) );
     if ( !cache ) return false;
 
     mDynamicCastGet(const RegularSeisDataPack*,sdp,cache.ptr());
@@ -790,7 +788,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID pldpid = getAttribCacheID( specs[0] );
-    ConstDataPackRef<SeisDataPack> sdp = dpm.obtain( pldpid );
+    ConstRefMan<SeisDataPack> sdp = dpm.get( pldpid );
     if ( !sdp ) return DataPack::cNoID();
 
     const int globidx = sdp->getNearestGlobalIdx( tk );

@@ -776,7 +776,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
+    ConstRefMan<RandomSeisDataPack> randsdp = dpm.get( dpid );
     if ( !randsdp ) return;
 
     updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->getZRange() );
@@ -832,7 +832,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
+    ConstRefMan<RandomSeisDataPack> randsdp = dpm.get( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return;
 
@@ -1481,7 +1481,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
-    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
+    ConstRefMan<RandomSeisDataPack> randsdp = dpm.get( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 

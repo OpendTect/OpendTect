@@ -73,7 +73,7 @@ void DataPack::setManager( const DataPackMgr* mgr )
     manager_ = mgr;
 }
 
-
+/*
 void DataPack::release()
 {
     unRef();
@@ -88,6 +88,7 @@ DataPack* DataPack::obtain()
 
     return this;
 }
+ */
 
 
 DataPackMgr* DataPackMgr::gtDPM( DataPackMgr::ID dpid, bool crnew )

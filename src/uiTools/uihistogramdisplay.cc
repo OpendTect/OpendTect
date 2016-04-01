@@ -77,7 +77,7 @@ void uiHistogramDisplay::setEmpty()
 bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 {
     rc_.setEmpty();
-    ConstDataPackRef<DataPack> dp = DPM(dmid).obtain( dpid );
+    ConstRefMan<DataPack> dp = DPM(dmid).get( dpid );
     if ( !dp ) return false;
 
     if ( dmid == DataPackMgr::SeisID() )

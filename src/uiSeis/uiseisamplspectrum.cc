@@ -21,7 +21,7 @@ void uiSeisAmplSpectrum::setDataPackID( DataPack::ID dpid,
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
+	ConstRefMan<DataPack> datapack = DPM(dmid).get( dpid );
 	mDynamicCastGet(const SeisDataPack*,dp,datapack.ptr());
 	if ( dp )
 	{

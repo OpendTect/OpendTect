@@ -188,7 +188,7 @@ void uiFlatViewer::setInitialSize( const uiSize& sz )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( wva, true );
+    ConstRefMan<FlatDataPack> dp = getPack( wva, true );
     if ( !dp ) return uiWorldRect(0,0,1,1);
 
     const FlatPosData& pd = dp->posData();
@@ -233,7 +233,7 @@ uiWorldRect uiFlatViewer::boundingBox() const
 
 StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 {
-    ConstDataPackRef<FlatDataPack> dp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> dp = getPack( false, true );
     return dp ? dp->posData().range(forx1) : StepInterval<double>();
 }
 
@@ -295,8 +295,8 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
 
-    ConstDataPackRef<FlatDataPack> wvapack = obtainPack( true );
-    ConstDataPackRef<FlatDataPack> vdpack = obtainPack( false );
+    ConstRefMan<FlatDataPack> wvapack = getPack( true );
+    ConstRefMan<FlatDataPack> vdpack = getPack( false );
     bitmapdisp_->setDataPack( wvapack.ptr(), true );
     bitmapdisp_->setDataPack( vdpack.ptr(), false );
 
@@ -309,7 +309,7 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )
@@ -321,7 +321,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 
 void uiFlatViewer::setAnnotChoice( int sel )
 {
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true );
     if ( !fdp ) return;
 
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;

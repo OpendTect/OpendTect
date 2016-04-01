@@ -523,7 +523,7 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
 	return;
 
     bool pickinvd = true;
-    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
+    ConstRefMan<FlatDataPack> dp = vwr->getPack( !pickinvd );
     if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 

@@ -42,7 +42,6 @@ void BitMapMgr::init( const FlatDataPack* fdp, const FlatView::Appearance& app,
 {
     clearAll();
 
-    if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
     datapack_ = fdp;
 
     appearance_ = app;

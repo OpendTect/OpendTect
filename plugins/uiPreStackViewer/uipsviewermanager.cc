@@ -437,7 +437,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    ConstDataPackRef<FlatDataPack>fdp = DPM(DataPackMgr::FlatID()).obtain(dpid);
+    ConstRefMan<FlatDataPack> fdp = DPM(DataPackMgr::FlatID()).get(dpid);
     if ( !fdp ) return 0;
 
     vwr.setPack( false, dpid, true );
@@ -711,8 +711,8 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
     int nrsaved = 0;
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	ConstDataPackRef<PreStack::Gather> gather =
-			viewers2d_[idx]->viewer().obtainPack( false );
+	ConstRefMan<PreStack::Gather> gather =
+			viewers2d_[idx]->viewer().getPack( false );
 	if ( !gather )
 	    continue;
 

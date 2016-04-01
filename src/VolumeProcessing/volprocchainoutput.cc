@@ -312,11 +312,9 @@ int VolProc::ChainOutput::setNextChunk()
 
 bool VolProc::ChainOutput::openOutput()
 {
-    const RegularSeisDataPack* seisdp = chainexec_->getOutput();
+    VolProc::Step::CVolRef seisdp = chainexec_->getOutput();
     if ( !seisdp )
 	mErrRet( tr("No output data available") )
-    DPM( DataPackMgr::SeisID() ).obtain( seisdp->id() );
-    ConstDataPackRef<RegularSeisDataPack> seisdpcref = seisdp;
 
     PtrMan<IOObj> ioobj = IOM().get( outid_ );
     if ( !ioobj )

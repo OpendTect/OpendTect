@@ -266,7 +266,7 @@ od_int64 VelGriddingFromFuncTask::nrIterations() const
 bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 				      int thread )
 {
-    RegularSeisDataPack* output = task_.getStep().getOutput();
+    RefMan<RegularSeisDataPack> output = task_.getStep().getOutput();
     if ( !output || output->isEmpty() )
 	return false;
 

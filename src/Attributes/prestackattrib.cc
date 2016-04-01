@@ -388,8 +388,8 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	const PreStack::GatherSetDataPack* anglegsdp = 0;
 	if ( anglegsdpid_>= 0 )
 	{
-	    ConstDataPackRef<DataPack> angledp =
-		DPM( DataPackMgr::SeisID() ).obtain( anglegsdpid_ );
+	    ConstRefMan<DataPack> angledp =
+		DPM( DataPackMgr::SeisID() ).get( anglegsdpid_ );
 	    mDynamicCast( const PreStack::GatherSetDataPack*,anglegsdp,
 		    	  angledp.ptr() );
 	}

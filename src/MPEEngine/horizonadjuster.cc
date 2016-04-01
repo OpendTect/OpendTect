@@ -152,7 +152,7 @@ float HorizonAdjuster::similarityThreshold() const
 
 int HorizonAdjuster::nextStep()
 {
-    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    ConstRefMan<SeisDataPack> sdp = dpm_.get( datapackid_ );
     if ( !sdp || sdp->isEmpty() )
 	return ErrorOccurred();
 
@@ -206,7 +206,7 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 			     float& targetz ) const
 {
-    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    ConstRefMan<SeisDataPack> sdp = dpm_.get( datapackid_ );
     if ( !sdp || sdp->isEmpty() )
 	return false;
 

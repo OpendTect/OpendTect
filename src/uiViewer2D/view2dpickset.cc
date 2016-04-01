@@ -184,7 +184,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyPath& trckeys )
 
 void VW2DPickSet::drawAll()
 {
-    ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
+    ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true );
     if ( !fdp || !pickset_ ) return;
 
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());

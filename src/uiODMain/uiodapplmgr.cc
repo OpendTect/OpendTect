@@ -824,8 +824,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
         if ( auxdatanr>=0 )
 	{
-	    DataPackRef<DataPointSet> data =
-		dpm.addAndObtain( new DataPointSet(false,true) );
+	    RefMan<DataPointSet> data =
+		dpm.add( new DataPointSet(false,true) );
 	    TypeSet<float> shifts( 1, 0 );
 	    emserv_->getAuxData( emid, auxdatanr, *data, shifts[0] );
 	    setRandomPosData( visid, attrib, *data );
@@ -842,8 +842,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	return auxdatanr>=0;
     }
 
-    DataPackRef<DataPointSet> data =
-		dpm.addAndObtain( new DataPointSet(false,true) );
+    RefMan<DataPointSet> data =
+		dpm.add( new DataPointSet(false,true) );
     visserv_->getRandomPos( visid, *data );
     const int firstcol = data->nrCols();
     data->dataSet().add( new DataColDef(myas.userRef()) );

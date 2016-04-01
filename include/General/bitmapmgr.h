@@ -49,7 +49,7 @@ private:
     void				setup();
 
     mutable Threads::Lock		lock_;
-    ConstDataPackRef<FlatDataPack>	datapack_;
+    ConstRefMan<FlatDataPack>		datapack_;
     FlatView::Appearance&		appearance_;
     A2DBitMap*				bmp_;
     A2DBitMapPosSetup*			pos_;
