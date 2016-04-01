@@ -209,7 +209,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , dirmnuitem_(m3Dots(tr("Set Directions")))
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
-    , convertbodymnuitem_( tr("Convert to Body") )
+    , convertbodymnuitem_(tr("Convert to Body"))
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
