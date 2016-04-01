@@ -249,12 +249,12 @@ public:
 
 
 template <class T>
-mClass(Basic) mDeprecated ConstDataPackRef
+mClass(Basic) ConstDataPackRef
 {
 public:
-				ConstDataPackRef(const DataPack* p);
+    mDeprecated			ConstDataPackRef(const DataPack* p);
 				//!<Assumes p is obtained
-				ConstDataPackRef(const ConstDataPackRef<T>&);
+    mDeprecated			ConstDataPackRef(const ConstDataPackRef<T>&);
     virtual			~ConstDataPackRef()		{ releaseNow();}
 
     ConstDataPackRef<T>&	operator=(const ConstDataPackRef<T>&);
@@ -308,12 +308,12 @@ This class is legacy, and will be removed in due time. Use RefMan<T> instead.
  */
 
 template <class T>
-mClass(Basic) mDeprecated DataPackRef : public ConstDataPackRef<T>
+mClass(Basic) DataPackRef : public ConstDataPackRef<T>
 {
 public:
-			DataPackRef(DataPack* p);
+    mDeprecated		DataPackRef(DataPack* p);
 			//!<Assumes p is obtained
-			DataPackRef(const DataPackRef<T>&);
+    mDeprecated		DataPackRef(const DataPackRef<T>&);
 
     DataPackRef<T>&	operator=(const DataPackRef<T>&);
 
