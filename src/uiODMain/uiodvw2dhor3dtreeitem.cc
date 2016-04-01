@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsscene.h"
-#include "uirgbarraycanvas.h"
 #include "uimenu.h"
 #include "uimpe.h"
 #include "uimpepartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uirgbarraycanvas.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -57,10 +57,10 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 void uiODVw2DHor3DParentTreeItem::getNonLoadedTrackedHor3Ds(
 	TypeSet<EM::ObjectID>& emids )
 {
-    const int highesttrackerid = MPE::engine().highestTrackerID();
+    const int nrtracker = MPE::engine().nrTrackersAlive();
     TypeSet<EM::ObjectID> loadedemids;
     getLoadedHorizon3Ds( loadedemids );
-    for ( int idx=0; idx<=highesttrackerid; idx++ )
+    for ( int idx=0; idx<nrtracker; idx++ )
     {
 	MPE::EMTracker* tracker = MPE::engine().getTracker( idx );
 	if ( !tracker )
@@ -79,7 +79,7 @@ void uiODVw2DHor3DParentTreeItem::getNonLoadedTrackedHor3Ds(
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
     const bool cantrack =
-	!viewer2D()->hasZAxisTransform() && viewer2D()->isVertical(); 
+	!viewer2D()->hasZAxisTransform() && viewer2D()->isVertical();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
@@ -168,6 +168,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
+
 	if ( mnuid==mAddInAllIdx )
 	{
 	    addHorizon3Ds( emids );
@@ -301,7 +302,6 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
     : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(emid)
     , horview_(0)
-    , oldactivevolupdated_(false)
     , trackerefed_(false)
 {
     if ( MPE::engine().getTrackerByObject(emid_) != -1 )
@@ -313,7 +313,6 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( int id, bool )
     : uiODVw2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , horview_(0)
-    , oldactivevolupdated_(false)
     , trackerefed_(false)
 {
     displayid_ = id;
@@ -492,16 +491,6 @@ void uiODVw2DHor3DTreeItem::renameVisObj()
 }
 
 
-static void addAction( uiMenu& mnu, uiString txt, int id,
-			const char* icon=0, bool enab=true )
-{
-    uiAction* action = new uiAction( txt );
-    mnu.insertAction( action, id );
-    action->setEnabled( enab );
-    action->setIcon( icon );
-}
-
-
 #define mPropID		0
 #define mStartID	1
 #define mSettsID	2
@@ -519,7 +508,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 
-    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
 
     uiMenu* trackmnu = new uiMenu( uiStrings::sTracking() );
     mnu.addMenu( trackmnu );
@@ -544,6 +533,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
     {
+// TODO
     }
     else if ( mnuid == mSaveID )
     {
@@ -557,7 +547,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	ems->storeObject( emid_, savewithname );
 	const MultiID mid = ems->getStorageID(emid_);
 	mps->saveSetup( mid );
-	name_ = mToUiStringTodo(ems->getName( emid_ ));
+	name_ = ems->getName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	renameVisObj();
     }
@@ -580,12 +570,15 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mStartID )
     {
-	if ( mps->addTracker(emid_) == -1 )
+	const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj || mps->addTracker(emid_)==-1 )
 	    return false;
 
-	const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	MPE::engine().setActiveTracker( emid_ );
 	const EM::SectionID sid = emobj->sectionID( 0 );
 	mps->useSavedSetupDlg( emid_, sid );
+	if ( viewer2D() && viewer2D()->viewControl() )
+	    viewer2D()->viewControl()->setEditMode( true );
     }
     else if ( mnuid == mSettsID )
     {
@@ -593,16 +586,18 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	if ( emobj )
 	{
 	    const EM::SectionID sid = emobj->sectionID( 0 );
-	    applMgr()->mpeServer()->showSetupDlg( emid_, sid );
+	    mps->showSetupDlg( emid_, sid );
 	}
     }
     else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {
-	ems->askUserToSave( emid_, true );
+	if ( !ems->askUserToSave(emid_,true) )
+	    return true;
+
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
-	name_ = mToUiStringTodo(ems->getName( emid_ ));
+	name_ = ems->getName( emid_ );
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;
 	if ( mnuid == mRemoveAllID )

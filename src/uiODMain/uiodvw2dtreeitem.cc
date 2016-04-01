@@ -210,6 +210,16 @@ bool uiODVw2DTreeItem::handleStdSubMenu( int menuid )
 }
 
 
+void uiODVw2DTreeItem::addAction( uiMenu& mnu, uiString txt, int id,
+				  const char* icon, bool enab )
+{
+    uiAction* action = new uiAction( txt );
+    mnu.insertAction( action, id );
+    action->setEnabled( enab );
+    action->setIcon( icon );
+}
+
+
 void uiODVw2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )

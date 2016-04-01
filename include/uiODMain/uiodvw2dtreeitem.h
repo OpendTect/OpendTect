@@ -55,6 +55,9 @@ protected:
     uiODApplMgr*	applMgr();
     uiODViewer2D*	viewer2D();
 
+    void		addAction(uiMenu& mnu,uiString txt,int id,
+				  const char* icon=0,bool enab=true);
+
     virtual void	insertStdSubMenu(uiMenu&);
     virtual bool	handleStdSubMenu(int menuid);
 
