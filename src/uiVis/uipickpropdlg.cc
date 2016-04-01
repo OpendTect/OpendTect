@@ -23,11 +23,11 @@ ________________________________________________________________________
 
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
-    : uiMarkerStyleDlg( p, tr("Pick properties") )
+    : uiMarkerStyleDlg( p, tr("PickSet Display Properties") )
     , set_( set )
     , psd_( psd )
 {
-    setTitleText( tr("Specify picks style") );
+    setTitleText( uiString::emptyString() );
     usedrawstylefld_ = new uiCheckBox( this, tr("Connect picks") );
     const bool hasbody = psd && psd->isBodyDisplayed();
     const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
@@ -35,8 +35,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
     drawstylefld_ = new uiGenInput( this, tr("with"),
-				    BoolInpSpec( true, tr("Line"),
-                                    tr("Surface") ) );
+				   BoolInpSpec(true,tr("Line"),tr("Surface")) );
     drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
