@@ -136,7 +136,7 @@ public:
     inline float	getMaximumFrequency() const;
     inline int		getMaximumLength() const;
 
-    enum Extrapolation	{ NONE=0, ZERO=1, CONSTANT=2 };
+    enum Extrapolation	{ NONE=0, CONSTANT=1 };
     Extrapolation	getExtrapolation();
     void		setExtrapolation(Extrapolation);
 
@@ -152,7 +152,6 @@ protected:
     int			nsincm1_;
     int			ishift_;
     bool		extrapcst_;
-    bool		extrapzero_;
 
     static const float	snapdist;
 			//!< relative distance from a sample below which no
@@ -358,7 +357,15 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
 	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
 	    mAddVal(data_[idx],asinc[isinc],idx,out)
     }
-    else if ( extrapzero_ )
+    else if ( extrapcst_ )
+    {
+	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
+	{
+	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
+	    mAddVal(data_[idx1],asinc[isinc],idx,out)
+	}
+    }
+    else
     {
 	float sumweights = 0.f;
 	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
@@ -369,14 +376,6 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
 	    mAddValW(data_[idx],idx,asinc[isinc],out,sumweights)
 	}
 	if ( !mIsZero(sumweights,mDefEpsF) ) out /= sumweights;
-    }
-    else if ( extrapcst_ )
-    {
-	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
-	{
-	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
-	    mAddVal(data_[idx1],asinc[isinc],idx,out)
-	}
     }
 
     return mCast(RT,out);
@@ -447,7 +446,26 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 	    out += outx * asincxval;
 	}
     }
-    else if ( extrapzero_ )
+    else if ( extrapcst_ )
+    {
+	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
+	{
+	    outx = 0.;
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) )
+		continue;
+
+	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
+	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
+	    {
+		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
+		const od_int64 off = idx1*ny_+idy1;
+		mAddVal(data_[off],asincy[iysinc],off,outx)
+	    }
+	    out += outx * asincxval;
+	}
+    }
+    else
     {
 	double sumweights = 0., sumx;
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
@@ -469,25 +487,6 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 	    sumweights += sumx;
 	}
 	if ( !mIsZero(sumweights,mDefEps) ) out /= sumweights;
-    }
-    else if ( extrapcst_ )
-    {
-	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
-	{
-	    outx = 0.;
-	    const float asincxval = asincx[ixsinc];
-	    if ( mIsZero(asincxval,mDefEpsF) )
-		continue;
-
-	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
-	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
-	    {
-		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
-		const od_int64 off = idx1*ny_+idy1;
-		mAddVal(data_[off],asincy[iysinc],off,outx)
-	    }
-	    out += outx * asincxval;
-	}
     }
 
     return mCast(RT,out);
@@ -580,7 +579,36 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 	    out += asincxval * outx;
 	}
     }
-    else if ( extrapzero_ )
+    else if ( extrapcst_ )
+    {
+	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
+	{
+	    outx = 0.;
+	    const float asincxval = asincx[ixsinc];
+	    if ( mIsZero(asincxval,mDefEpsF) )
+		continue;
+
+	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
+	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
+	    {
+		outy = 0.;
+		const float asincyval = asincy[iysinc];
+		if ( mIsZero(asincyval,mDefEpsF) )
+		    continue;
+
+		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
+		for ( int izsinc=0,idz=idz0; izsinc<lsinc_; izsinc++,idz++ )
+		{
+		    const int idz1 = idz < 0 ? 0 : idz >= nz_ ? nz_-1 : idz;
+		    const od_int64 off = mGetOffset(idx1,idy1,idz1);
+		    mAddVal(data_[off],asincz[izsinc],off,outy)
+		}
+		outx += outy * asincyval;
+	    }
+	    out += asincxval * outx;
+	}
+    }
+    else
     {
 	double sumweights = 0., sumx, sumy;
 	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
@@ -610,35 +638,6 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 	    sumweights += sumx;
 	}
 	if ( !mIsZero(sumweights,mDefEps) ) out /= sumweights;
-    }
-    else if ( extrapcst_ )
-    {
-	for ( int ixsinc=0,idx=idx0; ixsinc<lsinc_; ixsinc++,idx++ )
-	{
-	    outx = 0.;
-	    const float asincxval = asincx[ixsinc];
-	    if ( mIsZero(asincxval,mDefEpsF) )
-		continue;
-
-	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
-	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
-	    {
-		outy = 0.;
-		const float asincyval = asincy[iysinc];
-		if ( mIsZero(asincyval,mDefEpsF) )
-		    continue;
-
-		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
-		for ( int izsinc=0,idz=idz0; izsinc<lsinc_; izsinc++,idz++ )
-		{
-		    const int idz1 = idz < 0 ? 0 : idz >= nz_ ? nz_-1 : idz;
-		    const od_int64 off = mGetOffset(idx1,idy1,idz1);
-		    mAddVal(data_[off],asincz[izsinc],off,outy)
-		}
-		outx += outy * asincyval;
-	    }
-	    out += asincxval * outx;
-	}
     }
 
     return mCast(RT,out);

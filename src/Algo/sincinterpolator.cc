@@ -171,7 +171,6 @@ SincInterpolator::SincInterpolator()
     , nsincm1_(-1)
     , ishift_(0)
     , extrapcst_(false)
-    , extrapzero_(false)
 {}
 
 
@@ -185,21 +184,12 @@ const float SincInterpolator::snapdist = 1e-4f;
 
 
 SincInterpolator::Extrapolation SincInterpolator::getExtrapolation()
-{
-    if ( extrapcst_ )
-	return CONSTANT;
-
-    if ( extrapzero_ )
-	return ZERO;
-
-    return NONE;
-}
+{ return extrapcst_ ? CONSTANT : NONE; }
 
 
 void SincInterpolator::setExtrapolation( Extrapolation et )
 {
     extrapcst_ = et == CONSTANT;
-    extrapzero_ = et == ZERO;
 }
 
 
