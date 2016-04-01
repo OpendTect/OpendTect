@@ -132,6 +132,9 @@ bool testPipeInput()
 bool testPipeOutput()
 {
     FixedString message = "OpendTect rules";
+    int num = 54637;
+    BufferString originpstr( message );
+    originpstr.add( " " ).add( num );
 
     BufferString command = "@";
 #ifdef __win__
@@ -146,7 +149,8 @@ bool testPipeOutput()
     mRunStandardTest( ostreamdata.ostrm,  "Creation of standard output stream");
     PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.ostrm);
 
-    *ostream << message;
+    *ostream << message << ' ';
+    *ostream << num;
     ostream->close();
 
     ostream = 0; //Deletes everything
@@ -160,7 +164,7 @@ bool testPipeOutput()
     istream.close();
     File::remove( tmpfnm );
 
-    mRunStandardTest( streaminput==message, "Pipe content check (Output)" );
+    mRunStandardTest( streaminput==originpstr, "Pipe content check (Output)" );
 
     return true;
 }
@@ -208,6 +212,6 @@ int main( int argc, char** argv )
 
 	doExit(1);
     }
- 
+
     return doExit( 0 );
 }
