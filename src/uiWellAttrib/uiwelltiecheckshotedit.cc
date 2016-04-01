@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
 #include "od_helpids.h"
+#include "sorting.h"
 
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
@@ -332,9 +333,6 @@ void uiCheckShotEdit::drawDrift()
     drawDahObj( &driftcurve_, true, false );
     drawDahObj( &newdriftcurve_, false, false );
 
-    if ( !viewcorrd2t_->isChecked() )
-	return;
-
     for ( int idx=0; idx<sz2; idx++ )
     {
 	const float dah = tkzs_->dah( idx );
@@ -346,6 +344,12 @@ void uiCheckShotEdit::drawDrift()
 	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
+   
+    const float stoppos = 
+	(tkzs_->dahRange().stop > orgd2t_->dahRange().stop) 
+	? tkzs_->dahRange().stop : orgd2t_->dahRange().stop;
+    Interval<float> finalrg( 0, stoppos );
+    driftdisplay_->setZRange( finalrg );
 }
 
 
@@ -368,16 +372,32 @@ void uiCheckShotEdit::applyCB( CallBacker* )
     }
 
     *d2t_ = *orgd2t_;
-    CheckShotCorr::calibrate( tmpcs, *d2t_ );
+    if( !isorgdrift )
+    {
+	for ( int idx=0; idx<newdriftcurve_.size(); idx++ )
+	{
+	    const float val = newdriftcurve_.value( idx );
+	    const float dah = (float) wd_.track().getPos( 
+						newdriftcurve_.dah(idx) ).z;
+	    d2t_->add(dah,val);
+	    
+	}
+	CheckShotCorr::calibrate( tmpcs, *d2t_ );
+	quickSort(d2t_->dahArr(),d2t_->size());
+	quickSort(d2t_->valArr(),d2t_->size());
+    }
+    else
+	CheckShotCorr::calibrate( tmpcs, *d2t_ );
 
     TypeSet<uiPoint> pts;
     uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
     for ( int idx=0; idx<d2t_->size(); idx++ )
     {
-	float val = d2t_->value( idx );
-	float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
+	const float val = d2t_->value( idx );
+	const float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
 	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
+
     if ( pts.isEmpty() ) return;
 
     d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
