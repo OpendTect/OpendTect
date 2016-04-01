@@ -66,6 +66,11 @@ IF ( BUILD_DOCUMENTATION )
     message( FATAL_ERROR 
       "Doxygen is needed to build the documentation. Please install it correctly")
   endif()
+
+  if ( NOT DOXYGEN_DOT_FOUND )
+    message( WARNING 
+      "Dot is not found, but is needed to make the documentation graphs. Please install it correctly")
+  endif()
 endif()
 
 if ( WIN32 )
