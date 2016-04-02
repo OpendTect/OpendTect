@@ -298,7 +298,9 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
 	return false;
     }
 
-    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+    RefMan<RegularSeisDataPack> sdp =
+	Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
+
     if ( !sdp )
     {
 	errmsg = tr("Seismic data is not preloaded yet");

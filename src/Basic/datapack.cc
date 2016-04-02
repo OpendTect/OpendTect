@@ -211,7 +211,7 @@ RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
 }
 
 
-WeakPtr<DataPack> DataPackMgr::getObserve( DataPack::ID dpid ) const
+WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
 {
     WeakPtr<DataPack> res = 0;
     packslock_.readLock();

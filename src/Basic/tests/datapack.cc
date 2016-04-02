@@ -62,7 +62,7 @@ bool testDataPack()
 
     int id = dpc->id();
 
-    WeakPtr<DataPack> wptr = dpm.getObserve( id );
+    WeakPtr<DataPack> wptr = dpm.observe( id );
     mRunStandardTest( !deleted && dpc->nrRefs()==0,
                      "Nr users after observe");
     

@@ -755,7 +755,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	if ( targetdesc && targetdesc->isStored() )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
-	    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+	    RefMan<RegularSeisDataPack> sdp =
+		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
 	    if ( sdp )
 	    {
 		ObjectSet<const RegularSeisDataPack> cubeset;
@@ -878,7 +879,9 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	: attrds->getDesc(targetspecs_[0].id());
 
     const MultiID mid( targetdesc->getStoredID() );
-    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+    RefMan<RegularSeisDataPack> sdp =
+	Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
+
     if ( sdp )
     {
 	BufferStringSet componentnames;
@@ -1098,9 +1101,10 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	if ( targetdesc )
 	{
 	    const MultiID mid( targetdesc->getStoredID() );
-	    mDynamicCastGet(const RegularSeisDataPack*,regsdp,
-			    Seis::PLDM().get(mid,geomid) );
-	    if ( regsdp ) return regsdp->id();
+	    RefMan<RegularSeisDataPack> sdp =
+		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid,geomid);
+
+	    if ( sdp ) return sdp->id();
 	}
     }
 

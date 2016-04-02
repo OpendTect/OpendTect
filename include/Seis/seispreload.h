@@ -93,35 +93,47 @@ public:
 mExpClass(Seis) PreLoadDataManager
 {
 public:
-    void		add(const MultiID&,DataPack*);
-    void		add(const MultiID&,Pos::GeomID,DataPack*);
-    void		remove(const MultiID&,Pos::GeomID =-1);
-    void		remove(int dpid);
-    void		removeAll();
+    void			add(const MultiID&,DataPack*);
+    void			add(const MultiID&,Pos::GeomID,DataPack*);
+    void			remove(const MultiID&,Pos::GeomID =-1);
+    void			remove(int dpid);
+    void			removeAll();
 
-    DataPack*		get(const MultiID&,Pos::GeomID =-1);
-    DataPack*		get(int dpid);
-    const DataPack*	get(const MultiID&,Pos::GeomID =-1) const;
-    const DataPack*	get(int dpid) const;
-    void		getInfo(const MultiID&,Pos::GeomID,
-				BufferString&) const;
+    RefMan<DataPack>		get(const MultiID&,Pos::GeomID =-1);
+    RefMan<DataPack>		get(int dpid);
+    ConstRefMan<DataPack>	get(const MultiID&,Pos::GeomID =-1) const;
+    ConstRefMan<DataPack>	get(int dpid) const;
+    template<class T>
+    inline RefMan<T>		getAndCast(const MultiID&,Pos::GeomID =-1);
 
-    void		getIDs(TypeSet<MultiID>&) const;
-    bool		isPresent(const MultiID&,Pos::GeomID =-1) const;
+    void			getInfo(const MultiID&,Pos::GeomID,
+					BufferString&) const;
+
+    void			getIDs(TypeSet<MultiID>&) const;
+    bool			isPresent(const MultiID&,Pos::GeomID =-1) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
 
 protected:
 
-    DataPackMgr&	dpmgr_;
-    ManagedObjectSet<PreLoadDataEntry> entries_;
+    DataPackMgr&			dpmgr_;
+    ManagedObjectSet<PreLoadDataEntry>	entries_;
 
 public:
-			PreLoadDataManager();
-			~PreLoadDataManager();
+					PreLoadDataManager();
+					~PreLoadDataManager();
 };
 
 mGlobal(Seis) PreLoadDataManager& PLDM();
+
+
+template <class T> inline
+RefMan<T> PreLoadDataManager::getAndCast(const MultiID& mid, Pos::GeomID gid)
+{
+    RefMan<DataPack> dp = get( mid, gid );
+    mDynamicCastGet( T*, casted, dp.ptr() );
+    return RefMan<T>( casted );
+}
 
 } // namespace Seis
 

@@ -265,7 +265,8 @@ void PreLoader::fillPar( IOPar& iop ) const
 
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,PLDM().get(mid_));
+    RefMan<DataPack> dp = PLDM().get(mid_);
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,dp.ptr());
     if ( regsdp )
     {
 	iop.set( sKeyUserType(), DataCharacteristics::toString(
@@ -394,7 +395,8 @@ void PreLoadDataManager::removeAll()
 }
 
 
-DataPack* PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
+RefMan<DataPack>
+PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
@@ -406,18 +408,18 @@ DataPack* PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
 }
 
 
-const DataPack* PreLoadDataManager::get( const MultiID& mid,
+ConstRefMan<DataPack> PreLoadDataManager::get( const MultiID& mid,
 					 Pos::GeomID geomid ) const
 { return const_cast<PreLoadDataManager*>(this)->get( mid, geomid ); }
 
 
-DataPack* PreLoadDataManager::get( int dpid )
+RefMan<DataPack> PreLoadDataManager::get( int dpid )
 {
-    return dpmgr_.haveID(dpid) ? dpmgr_.observe( dpid ) : 0;
+    return dpmgr_.haveID(dpid) ? dpmgr_.get( dpid ) : 0;
 }
 
 
-const DataPack* PreLoadDataManager::get( int dpid ) const
+ConstRefMan<DataPack> PreLoadDataManager::get( int dpid ) const
 { return const_cast<PreLoadDataManager*>(this)->get( dpid ); }
 
 

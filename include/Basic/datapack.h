@@ -161,9 +161,8 @@ public:
     inline RefMan<T>	getAndCast(DataPack::ID dpid) const;
     			//!<Dynamic casts to T and returns results
     
-    WeakPtr<DataPack>	getObserve(DataPack::ID dpid) const;
-    			/*!<Should be renamed to observe when old observe is
-                            gone. */
+    WeakPtr<DataPack>	observe(DataPack::ID dpid) const;
+
     template <class T>
     inline WeakPtr<T>	observeAndCast(DataPack::ID dpid) const;
     			//!<Dynamic casts to T and returns results
@@ -235,10 +234,6 @@ public:
 					{ return doObtain(dpid,false); }
     /*mDeprecated*/ const DataPack*	obtain( DataPack::ID dpid ) const
 					{ return doObtain(dpid,false); }
-    /*mDeprecated*/ DataPack*		observe( DataPack::ID dpid )
-					{ return doObtain(dpid,true); }
-    /*mDeprecated*/ const DataPack*	observe( DataPack::ID dpid ) const
-					{ return doObtain(dpid,true); }
 
     /*mDeprecated*/ void		release(DataPack::ID);
     /*mDeprecated*/ void		release( const DataPack* dp )
