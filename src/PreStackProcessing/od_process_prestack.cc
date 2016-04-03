@@ -267,7 +267,7 @@ bool BatchProgram::go( od_ostream& strm )
 		const BinID inputbid( curbid.inl()+relbid.inl()*step.inl(),
 				      curbid.crl()+relbid.crl()*step.crl() );
 
-		Gather* gather = 0;
+		RefMan<Gather> gather = 0;
 		const int bufidx = bids.indexOf( inputbid );
 		if ( bufidx!=-1 )
 		{
@@ -293,8 +293,11 @@ bool BatchProgram::go( od_ostream& strm )
 		    }
 
 		    bids += inputbid;
+
 		    gathers += gather;
-		    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
+		    gather->ref();
+
+		    DPM( DataPackMgr::FlatID() ).add( gather );
 		}
 
 		if ( !gather )
@@ -377,8 +380,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    if ( bids[idx].inl()<=obsoleteline )
 		    {
 			bids.removeSingle( idx );
-			DPM( DataPackMgr::FlatID() ).release(
-			    gathers.removeSingle(idx) );
+			unRefPtr( gathers.removeSingle(idx) );
 		    }
 		}
 	    }
@@ -395,8 +397,7 @@ bool BatchProgram::go( od_ostream& strm )
 		if ( bids[idx].crl()<=obsoletetrace )
 		{
 		    bids.removeSingle( idx );
-		    DPM( DataPackMgr::FlatID() ).release(
-			gathers.removeSingle(idx) );
+		    unRefPtr( gathers.removeSingle(idx) );
 		}
 	    }
 	}
@@ -408,8 +409,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     mMessage( "Threads closed; Writing finish status" );
 
-    for ( int idx=gathers.size()-1;  idx>=0; idx-- )
-	DPM( DataPackMgr::FlatID() ).release( gathers.removeSingle(idx) );
+    deepUnRef( gathers );
 
     if ( !comm_ )
     {
