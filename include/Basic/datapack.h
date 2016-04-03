@@ -154,7 +154,9 @@ public:
 			{ return id() == fid.ID(0) && haveID( fid.ID(1) ); }
 
     template <class T>
-    inline T*		add(T* p) { doAdd(p); return p; }
+    inline T*		add(T* p)		{ doAdd(p); return p; }
+    template <class T>
+    inline T*		add(RefMan<T>& p)	{ doAdd(p.ptr()); return p; }
     RefMan<DataPack>	get(DataPack::ID dpid) const;
     
     template <class T>
