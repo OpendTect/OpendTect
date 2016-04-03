@@ -38,7 +38,6 @@ public:
 				Gather();
 				Gather(const Gather&);
 				Gather(const FlatPosData&);
-    				~Gather();
 
     bool			is3D() const { return linename_.isEmpty(); }
 
@@ -122,6 +121,7 @@ public:
 				{ azimuths_ = azimuths; }
 
 protected:
+    				~Gather();
 
     MultiID			velocitymid_;
     MultiID			storagemid_;

@@ -654,7 +654,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( !ioobj )
 	    continue;
 
-	PreStack::Gather* gather = new PreStack::Gather;
+	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	int dpid;
 	if ( is3d && gather->readFrom(mid,bid,0) )
 	    dpid = gather->id();
@@ -662,12 +662,10 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	    dpid = gather->id();
 	else
 	{
-	    delete gather;
 	    continue;
 	}
 
 	DPM(DataPackMgr::FlatID()).add( gather );
-	DPM(DataPackMgr::FlatID()).obtain( dpid );
 
 	uiString title;
 	if ( is3d )
@@ -675,7 +673,6 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	else
 	    getSeis2DTitle( trcnr, mToUiStringTodo( name2d ), title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
-	DPM(DataPackMgr::FlatID()).release( gather );
 	if ( !viewwin )
 	    continue;
 

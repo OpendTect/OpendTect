@@ -970,15 +970,19 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    while ( tbufs.size() )
 	    {
 		PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-		PreStack::Gather* gather = new PreStack::Gather();
+		RefMan<PreStack::Gather> gather = new PreStack::Gather();
 		if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
-		    { delete gather; continue; }
+		    { continue; }
 
+		gather->ref();
 		gatherset += gather;
 	    }
 
 	    PreStack::GatherSetDataPack* dp =
 		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
+
+	    deepUnRef( gatherset );
+
 	    sd = new PreStackSyntheticData( synthgenpar, *dp );
 	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
 	    if ( rms )

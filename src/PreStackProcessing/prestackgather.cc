@@ -370,16 +370,16 @@ GatherSetDataPack::GatherSetDataPack( const char* categry,
     , gathers_( gathers )
 {
     for ( int gidx=0; gidx<gathers_.size(); gidx++ )
-	DPM(DataPackMgr::FlatID()).addAndObtain( gathers_[gidx] );
+    {
+	DPM(DataPackMgr::FlatID()).add( gathers_[gidx] );
+	gathers_[gidx]->ref();
+    }
 }
 
 
 GatherSetDataPack::~GatherSetDataPack()
 {
-    DataPackMgr* flatdpm = DataPackMgr::gtDPM( DataPackMgr::FlatID(), false );
-    if ( !flatdpm ) return; //FlatDPM already deleted
-    for ( int gidx=0; gidx<gathers_.size(); gidx++ )
-	flatdpm->release( gathers_[gidx] );
+    deepUnRef( gathers_ );
 }
 
 

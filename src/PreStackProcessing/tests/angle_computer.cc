@@ -150,7 +150,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<PreStack::Gather> angles = computer->computeAngles();
+    RefMan<PreStack::Gather> angles = computer->computeAngles();
     if ( !angles )
     {
 	od_cout() << "Computer did not succeed in making angle data\n";
@@ -236,7 +236,7 @@ bool testAnglesForDifferentSurveys()
 	    return false;
 	}
 
-	PtrMan<PreStack::Gather> angles = computer->computeAngles();
+	RefMan<PreStack::Gather> angles = computer->computeAngles();
 	if ( !angles )
 	{
 	    od_cout() << survnames[idx];

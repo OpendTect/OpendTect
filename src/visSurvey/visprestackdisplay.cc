@@ -208,18 +208,16 @@ DataPack::ID PreStackDisplay::preProcess()
 	    const BinID inputbid =
 		is3DSeis() ? bid_ + relbid*BinID(SI().inlStep(),SI().crlStep())
 			   : BinID(0,trcnr_) + relbid;
-	    PreStack::Gather* gather = new PreStack::Gather;
+	    RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	    if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,inputbid)) ||
 		 (!is3DSeis() && !gather->readFrom(ioobj_->key(),inputbid.crl(),
 						   seis2d_->getLineName(),0)) )
 	    {
-		delete gather;
 		continue;
 	    }
 
-	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
+	    DPM( DataPackMgr::FlatID() ).add( gather.ptr() );
 	    preprocmgr_.setInput( relbid, gather->id() );
-	    DPM( DataPackMgr::FlatID() ).release( gather );
 	}
     }
 
@@ -245,7 +243,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 
     bid_ = nb;
 
-    PtrMan<PreStack::Gather> gather = new PreStack::Gather;
+    RefMan<PreStack::Gather> gather = new PreStack::Gather;
     if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,nb) )
     {
 	mDefineStaticLocalObject( bool, shown3d, = false );
@@ -302,44 +300,43 @@ bool PreStackDisplay::updateData()
     }
 
     const bool haddata = flatviewer_->hasPack( false );
-    PreStack::Gather* gather = new PreStack::Gather;
+    RefMan<PreStack::Gather> gather = new PreStack::Gather;
 
-	DataPack::ID displayid = DataPack::cNoID();
-	if ( preprocmgr_.nrProcessors() )
-	{
-	    displayid = preProcess();
-	    delete gather;
-	}
-	else
-	{
+    DataPack::ID displayid = DataPack::cNoID();
+    if ( preprocmgr_.nrProcessors() )
+    {
+	displayid = preProcess();
+    }
+    else
+    {
 	if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,bid_)) ||
 	     (!is3DSeis() && !gather->readFrom(*ioobj_,*reader_,
-					       BinID(0,trcnr_))) )
-		delete gather;
-	    else
-	    {
-		DPM(DataPackMgr::FlatID()).add( gather );
-		displayid = gather->id();
-	    }
-	}
-
-	if ( displayid==DataPack::cNoID() )
-	{
-	    if ( haddata )
-	    {
-		flatviewer_->setVisible( false, false );
-		flatviewer_->setPack( false, DataPack::cNoID() );
-	    }
-	    else
-		dataChangedCB( 0 );
-
-	    return false;
-	}
+						   BinID(0,trcnr_))) )
+	{}
 	else
 	{
-	    flatviewer_->setVisible( false, true );
-	    flatviewer_->setPack( false, displayid, !haddata );
+	    DPM(DataPackMgr::FlatID()).add( gather.ptr() );
+	    displayid = gather->id();
 	}
+    }
+
+    if ( displayid==DataPack::cNoID() )
+    {
+	if ( haddata )
+	{
+	    flatviewer_->setVisible( false, false );
+	    flatviewer_->setPack( false, DataPack::cNoID() );
+	}
+	else
+	    dataChangedCB( 0 );
+
+	return false;
+    }
+    else
+    {
+	flatviewer_->setVisible( false, true );
+	flatviewer_->setPack( false, displayid, !haddata );
+    }
 
     turnOn( true );
     return true;
@@ -684,7 +681,7 @@ void PreStackDisplay::setTraceNr( int trcnr )
 	trcnr_ = trcnr;
     else
     {
-	PtrMan<PreStack::Gather> gather = new PreStack::Gather;
+	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	if ( !ioobj_ || !reader_ ||
 	     !gather->readFrom(*ioobj_,*reader_,BinID(0,trcnr)) )
 	{

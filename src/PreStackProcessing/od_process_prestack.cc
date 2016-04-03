@@ -254,7 +254,7 @@ bool BatchProgram::go( od_ostream& strm )
 	const BinID stepout = procman->getInputStepout();
 
 	int nrfound = 0;
-	Gather* sparegather = 0;
+	RefMan<Gather> sparegather = 0;
 	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 					   relbid.inl()++ )
 	{
@@ -306,7 +306,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    }
 	}
 
-	delete sparegather;
+	sparegather = 0;
 
 	if ( !needpsinput )
 	    procman->getProcessor(0)->retainCurBID( curbid );
