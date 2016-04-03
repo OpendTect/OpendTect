@@ -105,17 +105,13 @@ VolProc::Step::Step()
 
 VolProc::Step::~Step()
 {
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
-
-    DPM( DataPackMgr::SeisID() ).release( output_ );
+    deepUnRef( inputs_ );
 }
 
 
 void VolProc::Step::resetInput()
 {
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
+    deepUnRef( inputs_ );
 
     inputslotids_.erase();
     for ( int idx=0; idx<getNrInputs(); idx++ )
@@ -128,7 +124,6 @@ void VolProc::Step::resetInput()
 
 void VolProc::Step::releaseData()
 {
-    DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = 0;
 
     resetInput();
@@ -256,11 +251,9 @@ void VolProc::Step::setInput( InputSlotID slotid,
     if ( !inputs_.validIdx(idx) )
 	return;
 
-    if ( inputs_[idx] )
-	DPM( DataPackMgr::SeisID() ).release( inputs_[idx]->id() );
+    unRefPtr( inputs_[idx] );
     inputs_.replace( idx, dc );
-    if ( inputs_[idx] )
-	DPM( DataPackMgr::SeisID() ).obtain( inputs_[idx]->id() );
+    refPtr( inputs_[idx] );
 }
 
 
@@ -275,9 +268,8 @@ void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 		      const TrcKeySampling& hrg,
 		      const StepInterval<int>& zrg )
 {
-    DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = dc;
-    DPM( DataPackMgr::SeisID() ).addAndObtain( output_ );
+    DPM( DataPackMgr::SeisID() ).add( output_ );
 
     tks_ = hrg;
     zrg_ = zrg;

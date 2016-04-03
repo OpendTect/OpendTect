@@ -314,17 +314,13 @@ RefMan<RegularSeisDataPack>
     ObjectSet<const RegularSeisDataPack> packset;
     for ( int idx=0; idx<proc.outputs_.size(); idx++ )
     {
-	const RegularSeisDataPack* dp =
+        ConstRefMan<RegularSeisDataPack> dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
 	if ( !dp ) continue;
 
-	dpm_.addAndObtain( const_cast<RegularSeisDataPack*>(dp) );
-	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
-	{
-	    dpm_.release( dp->id() );
-	    continue;
-	}
-
+	dpm_.add( const_cast<RegularSeisDataPack*>( dp.ptr()) );
+	
+        dp->ref();
 	packset += dp;
     }
 
@@ -338,9 +334,8 @@ RefMan<RegularSeisDataPack>
 	output =
 	   const_cast<RegularSeisDataPack*>( getDataPackOutput(packset).ptr() );
 
-    for ( int idx=packset.size()-1; idx>=0; idx-- )
-	dpm_.release( packset[idx] );
-
+    deepUnRef( packset );
+    
     return output;
 }
 

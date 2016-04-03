@@ -147,7 +147,7 @@ protected:
 
 private:
 
-    RegularSeisDataPack*	output_;
+    RefMan<RegularSeisDataPack>	output_;
 
     void			setChain(Chain&);
 
