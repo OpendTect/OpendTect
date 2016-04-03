@@ -15,6 +15,17 @@ using namespace RefCount;
 
 #define mInvalidRefCount (-1)
 
+
+Referenced::~Referenced()
+{
+    if ( refcount_.count()!=mInvalidRefCount )
+    {
+	pErrMsg("It seems I'm deleted without an unref."
+		"I guess my destructor should be protected"
+		" on inheriting class" );
+    }
+}
+
 void Referenced::ref() const
 {
     refcount_.ref();

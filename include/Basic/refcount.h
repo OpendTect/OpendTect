@@ -159,7 +159,7 @@ public:
     void			unRefNoDelete() const;
 
 protected:
-    virtual			~Referenced()			{}
+    virtual			~Referenced();
 private:
     friend			class WeakPtrBase;
     virtual void		refNotify() const		{}
