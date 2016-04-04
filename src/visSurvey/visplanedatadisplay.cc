@@ -51,7 +51,7 @@ public:
     { return pdd_->updatePlanePos( endtkz_ ); }
 
 private:
-    RefMan<PlaneDataDisplay> pdd_;
+    PlaneDataDisplay*	  pdd_;
     const TrcKeyZSampling starttkz_;
     const TrcKeyZSampling endtkz_;
 };
