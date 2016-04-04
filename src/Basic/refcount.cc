@@ -14,17 +14,19 @@ ________________________________________________________________________
 using namespace RefCount;
 
 #define mInvalidRefCount (-1)
+#define mStartRefCount (-2)
 
 
 Referenced::~Referenced()
 {
-    if ( refcount_.count()!=mInvalidRefCount )
+    const od_int32 count = refcount_.count();
+    if ( count!=mStartRefCount && refcount_.count()!=mInvalidRefCount )
     {
-	pErrMsg("It seems I'm deleted without an unref."
-		"I guess my destructor should be protected"
-		" on inheriting class" );
+	pErrMsg("It seems I'm deleted without an unref on an object "
+		"that has been referenced." );
     }
 }
+
 
 void Referenced::ref() const
 {
@@ -91,8 +93,25 @@ void Referenced::removeObserver(WeakPtrBase* obs)
 # define mDeclareCounters	od_int32 oldcount = count_.get(), newcount;
 #endif
 
+
+
+Counter::Counter()
+    : count_( mStartRefCount )
+{}
+
+
+Counter::Counter(const Counter& a)
+    : count_( mStartRefCount )
+{}
+
+
 od_int32 Counter::cInvalidRefCount()
 { return mInvalidRefCount; }
+
+
+od_int32 Counter::cStartRefCount()
+{ return mStartRefCount; }
+
 
 void Counter::ref()
 {
@@ -109,6 +128,10 @@ void Counter::ref()
 #else
 	    newcount = 1; //Hoping for the best
 #endif
+	}
+	else if ( oldcount==mStartRefCount )
+	{
+	    newcount = 1;
 	}
 	else
 	{
@@ -128,6 +151,10 @@ bool Counter::tryRef()
 	if ( oldcount==mInvalidRefCount )
 	{
 	    return false;
+	}
+	else if ( oldcount==mStartRefCount )
+	{
+	    newcount = 1;
 	}
 	else
 	{
@@ -182,7 +209,7 @@ bool Counter::refIfReffed()
 	    return false; //Hoping for the best
 #endif
 	}
-	else if ( !oldcount )
+	else if ( oldcount==mStartRefCount )
 	    return false;
 
 	newcount = oldcount+1;

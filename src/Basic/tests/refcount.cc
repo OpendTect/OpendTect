@@ -48,7 +48,8 @@ bool testRefCount()
     bool deleted = false;
     ReferencedClass* refclass = new ReferencedClass( &deleted );
 
-    mRunTest( , refclass->refIfReffed()==false, false, 0 );
+    mRunTest( , refclass->refIfReffed()==false, false, 
+	      RefCount::Counter::cStartRefCount() );
     mRunTest( refclass->ref(), true, false, 1 );
     mRunTest( , refclass->refIfReffed()==true, false, 2 );
     mRunTest( refclass->unRef(), true, false, 1 );

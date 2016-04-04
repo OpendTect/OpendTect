@@ -135,10 +135,11 @@ public:
     void		addObserver(WeakPtrBase* obj);
     void		removeObserver(WeakPtrBase* obj);
 
-			Counter() : count_( 0 ) {}
-                        Counter(const Counter& a) : count_( 0 ) {}
+			Counter();
+                        Counter(const Counter& a);
 
-    static od_int32		cInvalidRefCount();
+    static od_int32	cInvalidRefCount();
+    static od_int32	cStartRefCount();
 
 private:
     ObjectSet<WeakPtrBase>	observers_;
