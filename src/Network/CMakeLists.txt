@@ -14,17 +14,19 @@ set ( QT_MOC_HEADERS
 set ( OD_MODULE_SOURCES
 	cvsaccess.cc
 	hostdata.cc
+	initnetwork.cc
 	issuereporter.cc
 	jobcommunic.cc
 	netreqconnection.cc
 	netreqpacket.cc
+	netserver.cc
+	netsocket.cc
 	oddlsite.cc
 	odnetworkaccess.cc
 	odnetworkreply.cc
 	svnaccess.cc
 	systeminfo.cc
-	netserver.cc
-	netsocket.cc
+	webstreamsource.cc
 )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc)
