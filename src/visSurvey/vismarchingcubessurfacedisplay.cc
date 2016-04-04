@@ -42,6 +42,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , displayintersections_( false )
     , model2displayspacetransform_( 0 )
     , intersectiontransform_( 0 )
+    , as_(1,Attrib::SelSpec())
     , validtexture_( false )
     , usestexture_( true )
     , isattribenabled_( true )
@@ -257,20 +258,27 @@ void MarchingCubesDisplay::setSelSpecs(
     SurveyObject::setSelSpecs( attrib, spec );
 
     if ( !attrib )
-	selspec_ = spec[0];
+	as_ = spec;
 }
 
 
 const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec(
 					int attrib, int version ) const
 {
-    return attrib ? 0 : &selspec_;
+    return attrib ? 0 : &as_[0];
+}
+
+
+const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
+							int attrib ) const
+{
+    return attrib ? 0 : &as_; 
 }
 
 
 #define mSetDataPointSet(nm) \
-    const bool attribselchange = FixedString(selspec_.userRef())!=nm; \
-    selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
+    const bool attribselchange = FixedString(as_[0].userRef())!=nm; \
+    as_[0].set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     DataPointSet* data = new DataPointSet(false,true); \
     DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
     getRandomPos( *data, 0 ); \
@@ -593,7 +601,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyUseTexture(), usestexture_ );
 
     IOPar attribpar;
-    selspec_.fillPar( attribpar ); //Right now only one attribute for the body
+    as_[0].fillPar( attribpar ); //Right now only one attribute for the body
 
     if ( canSetColTabSequence() && getColTabSequence( 0 ) )
     {
@@ -646,7 +654,7 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
     const IOPar* attribpar = par.subselect( sKeyAttribSelSpec() );
     if ( attribpar ) //Right now only one attribute for the body
     {
-	selspec_.usePar( *attribpar );
+	as_[0].usePar( *attribpar );
 
 	PtrMan<IOPar> seqpar = attribpar->subselect( sKeyColTabSequence() );
 	if ( seqpar )

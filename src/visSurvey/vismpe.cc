@@ -42,7 +42,7 @@ MPEDisplay::MPEDisplay()
     , dim_(0)
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
-    , as_(*new Attrib::SelSpec())
+    , as_(*new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
     , manipulated_(false)
     , movement( this )
     , boxDraggerStatusChange( this )
@@ -241,10 +241,10 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
     SurveyObject::setSelSpec( attrib, as );
 
-    if ( attrib  || as_ == as )
+    if ( attrib  || as_[0] == as )
 	return;
 
-    as_ = as;
+    as_[0] = as;
 
     // empty the cache first
     if ( volumecache_ )
@@ -270,18 +270,24 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 
 const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib, int version ) const
 {
+    return attrib ? 0 : &as_[0];
+}
+
+
+const TypeSet<Attrib::SelSpec>* MPEDisplay::getSelSpecs( int attrib ) const
+{
     return attrib ? 0 : &as_;
 }
 
 
 const char* MPEDisplay::getSelSpecUserRef() const
 {
-    if ( as_.id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as_[0].id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return sKey::None();
-    else if ( as_.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
+    else if ( as_[0].id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
 	return 0;
 
-    return as_.userRef();
+    return as_[0].userRef();
 }
 
 
@@ -686,7 +692,7 @@ void MPEDisplay::fillPar( IOPar& par ) const
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
 
-    as_.fillPar( par );
+    as_[0].fillPar( par );
     par.set( sKeyTransparency(), getDraggerTransparency() );
     par.setYN( sKeyBoxShown(), isBoxDraggerShown() );
 }
@@ -705,7 +711,7 @@ bool MPEDisplay::usePar( const IOPar& par )
     bool dispboxdragger = false;
     par.getYN( sKeyBoxShown(), dispboxdragger );
 
-    if ( as_.usePar( par ) )
+    if ( as_[0].usePar( par ) )
         updateSlice();
 
     turnOn( true );
@@ -843,7 +849,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
     ConstRefMan<RegularSeisDataPack> regsdp =
-	DPM(DataPackMgr::SeisID()).get( engine_.getAttribCacheID(as_) );
+	DPM(DataPackMgr::SeisID()).get( engine_.getAttribCacheID(as_[0]) );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
@@ -922,21 +928,21 @@ void MPEDisplay::updateSlice()
 {
     const TrcKeyZSampling displaycs = engine_.activeVolume();
 
-    if ( curtextureas_==as_ && curtexturecs_==displaycs )
+    if ( curtextureas_==as_[0] && curtexturecs_==displaycs )
     {
 	if ( !slices_.isEmpty() )
 	    slices_[0]->turnOn( true );
         return;
     }
 
-    if ( ! setDataPackID( 0, engine_.getAttribCacheID( as_ ), 0 ) )
+    if ( ! setDataPackID( 0, engine_.getAttribCacheID( as_[0] ), 0 ) )
     {
 	turnOnSlice( false );
 	curtexturecs_=0;
 	return;
     }
 
-    curtextureas_ = as_;
+    curtextureas_ = as_[0];
     curtexturecs_ = displaycs;
 
     turnOnSlice( true );
@@ -1257,7 +1263,7 @@ SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 
 int MPEDisplay::nrAttribs() const
 {
-    return ( as_.id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() ) ? 0 : 1;
+    return ( as_[0].id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() ) ? 0 : 1;
 }
 
 
@@ -1278,7 +1284,7 @@ bool MPEDisplay::addAttrib()
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->allowNull();
     userrefs_ += attrnms;
-    as_.set( "", Attrib::SelSpec::cAttribNotSel(), false, 0 );
+    as_[0].set( "", Attrib::SelSpec::cAttribNotSel(), false, 0 );
     channels_->addChannel();
     return true;
 }
@@ -1287,7 +1293,7 @@ bool MPEDisplay::addAttrib()
 bool MPEDisplay::removeAttrib( int attrib )
 {
     channels_->removeChannel( attrib );
-    as_.set( "", Attrib::SelSpec::cNoAttrib(), false, 0 );
+    as_[0].set( "", Attrib::SelSpec::cNoAttrib(), false, 0 );
     delete userrefs_.removeSingle( attrib );
     return true;
 }
