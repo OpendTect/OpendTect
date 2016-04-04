@@ -209,8 +209,11 @@ bool Counter::refIfReffed()
 	    return false; //Hoping for the best
 #endif
 	}
-	else if ( oldcount==mStartRefCount )
+	else if ( oldcount==mStartRefCount || !oldcount)
+	    //It can be zero only if unRefDontInvalidate has been called
+	{
 	    return false;
+	}
 
 	newcount = oldcount+1;
 
