@@ -468,8 +468,8 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 			      false, "" );
     setSelSpec( attrib, as );
 
-    DataPointSet* data = new DataPointSet( false, true );
-    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+    RefMan<DataPointSet> data = new DataPointSet( false, true );
+    DPM( DataPackMgr::PointID() ).add( data );
     getRandomPos( *data, 0 );
     DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
     data->dataSet().add( zvalsdef );
@@ -495,8 +495,6 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 
 	setRandomPosData( attrib, data, 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).release( data->id() );
 
     if ( !attribwasdepth )
     {

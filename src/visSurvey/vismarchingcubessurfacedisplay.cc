@@ -67,14 +67,8 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     getMaterial()->change.remove(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
-    for ( int idx=cache_.size()-1; idx>=0; idx-- )
-    {
-	if ( !cache_[idx] )
-	    continue;
-
-	DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
-	delete cache_[idx];
-    }
+    
+    deepUnRef( cache_ );
 
     if ( model2displayspacetransform_ )
 	model2displayspacetransform_->unRef();
@@ -279,14 +273,14 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 #define mSetDataPointSet(nm) \
     const bool attribselchange = FixedString(as_[0].userRef())!=nm; \
     as_[0].set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
-    DataPointSet* data = new DataPointSet(false,true); \
-    DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
+    RefMan<DataPointSet> data = new DataPointSet(false,true); \
+    DPM( DataPackMgr::PointID() ).add( data ); \
     getRandomPos( *data, 0 ); \
     DataColDef* isovdef = new DataColDef(nm); \
     data->dataSet().add( isovdef ); \
     BinIDValueSet& bivs = data->bivSet();  \
     if ( !data->size() || bivs.nrVals()!=3 ) \
-    { DPM( DataPackMgr::PointID() ).release( data->id() ); return;} \
+    { return; } \
     int valcol = data->dataSet().findColDef( *isovdef, \
 	    PosVecDataSet::NameExact ); \
     if ( valcol==-1 ) valcol = 1
@@ -355,8 +349,6 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	setColTabSequence( attrib, seq, 0 );
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).release( data->id() );
 }
 
 
@@ -380,8 +372,6 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	setColTabSequence( attrib, seq, 0 );
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).release( data->id() );
 }
 
 
@@ -415,7 +405,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     if ( attrib<0 )
 	return;
 
-    DataPointSet* ndps = dps ? new DataPointSet( *dps ) : 0;
+    RefMan<DataPointSet> ndps = dps ? new DataPointSet( *dps ) : 0;
     if ( !attrib && dps && displaysurface_ )
     {
 	displaysurface_->getShape()->setAttribData( *ndps, runner );
@@ -424,12 +414,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
     if ( cache_.validIdx(attrib) )
     {
-	if ( cache_[attrib] )
-	{
-	    DPM( DataPackMgr::PointID() ).release( cache_[attrib]->id() );
-	    delete cache_[attrib];
-	}
-
+        unRefPtr( cache_[attrib] );
 	cache_.replace(attrib,ndps);
     }
     else
@@ -439,8 +424,8 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 	cache_ += ndps;
     }
 
-    if ( cache_[attrib] )
-	DPM( DataPackMgr::PointID() ).obtain( cache_[attrib]->id() );
+    
+    refPtr( cache_[attrib] );
 
     validtexture_ = true;
     updateSingleColor();
