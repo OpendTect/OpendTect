@@ -59,7 +59,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
 	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
 
-    mInsertItem( helpmnu_, tr("Workflows"), mWorkflowsMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
 		 mShortcutsMnuItm, "?" );
