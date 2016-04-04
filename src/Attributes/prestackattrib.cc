@@ -380,8 +380,9 @@ bool PSAttrib::getAngleInputData()
 }
 
 
-bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
-			      DataPack::ID& curanglegatherid )
+bool PSAttrib::getGatherData( const BinID& bid,
+                              RefMan<PreStack::Gather>& resgather,
+			      RefMan<PreStack::Gather>& resanglegather )
 {
     if ( gatherset_.size() )
     {
@@ -394,8 +395,8 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 		    	  angledp.ptr() );
 	}
 
-	const PreStack::Gather* curgather = 0;
-	const PreStack::Gather* curanglegather = 0;
+	ConstRefMan<PreStack::Gather> curgather = 0;
+	ConstRefMan<PreStack::Gather> curanglegather = 0;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
 	    const bool hasanglegather =
@@ -412,23 +413,23 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	    }
 	}
 
-	if (!curgather ) return false;
+	if ( !curgather ) return false;
 
-	mDeclareAndTryAlloc( PreStack::Gather*, gather,
-				PreStack::Gather(*curgather ) );
+	mDeclareAndTryAlloc( RefMan<PreStack::Gather>, gather,
+                             PreStack::Gather(*curgather ) );
 
 	if ( !gather )
 	    return false;
 
-	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-	curgatherid = gather->id();
+	DPM(DataPackMgr::FlatID()).add( gather );
+	resgather = gather;
 
 	if ( curanglegather )
 	{
-	    mDeclareAndTryAlloc( PreStack::Gather*, anglegather,
+	    mDeclareAndTryAlloc( RefMan<PreStack::Gather>, anglegather,
 				 PreStack::Gather(*curanglegather ) );
 	    DPM(DataPackMgr::FlatID()).add( anglegather );
-	    curanglegatherid = anglegather->id();
+	    resanglegather = anglegather;
 	}
     }
     else
@@ -441,21 +442,22 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	    return false;
 
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-	curgatherid = gather->id();
+	resgather = gather;
+        resanglegather = 0;
     }
 
     return true;
 }
 
 
-DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
+RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 {
     if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
-	return -1;
+	return 0;
 
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
-    TypeSet<int> gatheridstoberemoved;
+    ObjectSet<PreStack::Gather> gatheridstoberemoved;
     const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
@@ -467,14 +469,17 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 		continue;
 
 	    const BinID bid = currentbid_+relpos+relbid*sistep;
-	    PreStack::Gather* gather = 0;
+	    RefMan<PreStack::Gather> gather = 0;
 	    if ( gatherset_.isEmpty() )
 	    {
 		gather = new PreStack::Gather;
 		if (!gather->readFrom(*psioobj_,*psrdr_,bid,component_) )
 		    continue;
-		DPM(DataPackMgr::FlatID()).addAndObtain( gather );
-		gatheridstoberemoved += gather->id();
+                
+		DPM(DataPackMgr::FlatID()).add( gather );
+                
+                gather->ref();
+		gatheridstoberemoved += gather;
 	    }
 	    else
 	    {
@@ -499,13 +504,13 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
     if ( !preprocessor_->process() )
     {
 	errmsg_ = preprocessor_->errMsg();
-	return -1;
+	return 0;
     }
 
-    for ( int idx=0; idx<gatheridstoberemoved.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( gatheridstoberemoved[idx] );
+    deepUnRef( gatheridstoberemoved );
 
-    return preprocessor_->getOutput();
+
+    return DPM(DataPackMgr::FlatID()).get(preprocessor_->getOutput());
 }
 
 
@@ -515,22 +520,21 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	return false;
 
     const BinID bid = currentbid_+relpos;
-    DataPack::ID curgatherid = -1;
-    DataPack::ID curanglegatherid = -1;
-    if ( !getGatherData(bid,curgatherid,curanglegatherid) )
+    RefMan<PreStack::Gather> curgather = 0;
+    RefMan<PreStack::Gather> curanglegather = 0;
+    if ( !getGatherData(bid,curgather,curanglegather) )
 	return false;
 
     if ( preprocessor_ && preprocessor_->nrProcessors() )
     {
-	DPM(DataPackMgr::FlatID()).release( curgatherid );
-	curgatherid = getPreProcessedID( relpos );
+	curgather = getPreProcessed( relpos );
     }
 
-    propcalc_->setGather( curgatherid );
+    propcalc_->setGather( curgather->id() );
     if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )
 	return false;
-    else if ( curanglegatherid >= 0 )
-	propcalc_->setAngleData( curanglegatherid );
+    else if ( curanglegather )
+	propcalc_->setAngleData( curanglegather->id() );
 
     return true;
 }
