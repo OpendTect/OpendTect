@@ -30,14 +30,12 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
-#include "visseis2ddisplay.h"
 
 
 #define mAddInAllIdx	0
@@ -45,7 +43,7 @@ ________________________________________________________________________
 #define mNewIdx		2
 
 uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
-    : uiODVw2DTreeItem( EMHorizon2DTranslatorGroup::sTypeName() )
+    : uiODVw2DTreeItem( tr("2D Horizon") )
 {
 }
 
@@ -79,7 +77,7 @@ void uiODVw2DHor2DParentTreeItem::getNonLoadedTrackedHor2Ds(
 
 bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 {
-    const bool hastransform = viewer2D()->hasZAxisTransform();
+    const bool cantrack = !viewer2D()->hasZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
@@ -92,19 +90,20 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
     if ( emids.isEmpty() )
     {
 	uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
-	newmenu->setEnabled( !hastransform );
+	newmenu->setEnabled( cantrack );
 	mnu.insertItem( newmenu, mNewIdx );
     }
     else
     {
 	uiMenu* trackmenu = new uiMenu( tr("Track") );
 	uiAction* newmenu = new uiAction( uiStrings::sNew() );
+	newmenu->setEnabled( cantrack );
 	trackmenu->insertItem( newmenu, mNewIdx );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
 	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
-	    trackexistingmnu->setEnabled( !hastransform );
+	    trackexistingmnu->setEnabled( cantrack );
 	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
 	}
 
@@ -236,8 +235,11 @@ void uiODVw2DHor2DParentTreeItem::addHorizon2Ds(
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
-	    MPE::engine().addTracker( emobj );
+	    const int trackid = MPE::engine().addTracker( emobj );
 	    MPE::engine().getEditor( emobj->id(), true );
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
+	    applMgr()->mpeServer()->enableTracking( trackid, true );
 	}
 
 	uiODVw2DHor2DTreeItem* childitem =
@@ -266,7 +268,9 @@ void uiODVw2DHor2DParentTreeItem::addNewTrackingHorizon2D( EM::ObjectID emid )
     }
 
     addChld( hortreeitem, false, false );
-    viewer2D()->viewControl()->setEditMode( true );
+    if ( viewer2D() && viewer2D()->viewControl() )
+	viewer2D()->viewControl()->setEditMode( true );
+
     hortreeitem->select();
 }
 
@@ -281,9 +285,9 @@ bool uiODVw2DHor2DParentTreeItem::init()
 
 
 uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem( uiString::emptyString() )
+    : uiODVw2DTreeItem(uiString::emptyString())
+    , emid_(emid)
     , horview_(0)
-    , emid_( emid )
     , trackerefed_(false)
 {
     if ( MPE::engine().getTrackerByObject(emid_) != -1 )
@@ -291,13 +295,13 @@ uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( const EM::ObjectID& emid )
 }
 
 
-uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int dispid, bool )
-    : uiODVw2DTreeItem( uiString::emptyString() )
+uiODVw2DHor2DTreeItem::uiODVw2DHor2DTreeItem( int id, bool )
+    : uiODVw2DTreeItem(uiString::emptyString())
+    , emid_(-1)
     , horview_(0)
-    , emid_( -1 )
     , trackerefed_(false)
 {
-    displayid_ = dispid;
+    displayid_ = id;
 }
 
 
@@ -427,10 +431,16 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 	case EM::EMObjectCallbackData::Undef:
 	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		displayMiniCtab();
-		break;
-	    }
+	{
+	    displayMiniCtab();
+	    break;
+	}
+	case EM::EMObjectCallbackData::NameChange:
+	{
+	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
+	    break;
+	}
 	default: break;
     }
 }
@@ -447,29 +457,51 @@ void uiODVw2DHor2DTreeItem::renameVisObj()
 }
 
 
+#define mPropID		0
+#define mStartID	1
+#define mSettsID	2
+#define mSaveID		3
+#define mSaveAsID	4
+#define mRemoveAllID	5
+#define mRemoveID	6
+
 bool uiODVw2DHor2DTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiAction* savemnu = new uiAction(m3Dots(uiStrings::sSave()));
-    mnu.insertItem( savemnu, 0 );
-    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
-			 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction( uiStrings::sSaveAs() ), 1 );
-    uiAction* cngsetup = new uiAction( sChangeSetup() );
-    mnu.insertItem( cngsetup, 2 );
-    cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove() );
-    removemenu->insertItem( new uiAction(tr("From all 2D Viewers")), 3 );
-    removemenu->insertItem( new uiAction(tr("Only from this 2D Viewer")), 4 );
-    mnu.insertItem( removemenu );
+    uiEMPartServer* ems = applMgr()->EMServer();
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    uiVisPartServer* vps = applMgr()->visServer();
+    if ( !ems || !mps || !vps ) return false;
 
-    applMgr()->mpeServer()->setCurrentAttribDescSet(
-				applMgr()->attrServer()->curDescSet(false) );
-    applMgr()->mpeServer()->setCurrentAttribDescSet(
-				applMgr()->attrServer()->curDescSet(true) );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+
+//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+
+    uiMenu* trackmnu = new uiMenu( uiStrings::sTracking() );
+    mnu.addMenu( trackmnu );
+    const bool hastracker = MPE::engine().getTrackerByObject(emid_) > -1;
+    addAction( *trackmnu, m3Dots(tr("Start Tracking")), mStartID,
+		0, !hastracker );
+    addAction( *trackmnu, m3Dots(tr("Change Settings")), mSettsID,
+		"seedpicksettings", hastracker );
+
+    const bool haschanged = ems->isChanged(emid_) && ems->isFullyLoaded(emid_);
+    addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
+    addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
+
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    mnu.addMenu( removemenu );
+    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
+    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
+
+    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
+    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 )
+    if ( mnuid == mPropID )
+    {
+// TODO
+    }
+    else if ( mnuid == mSaveID )
     {
 	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
 	if ( !savewithname )
@@ -478,50 +510,63 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	    savewithname = !ioobj;
 	}
 
-	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
-	applMgr()->mpeServer()->saveSetup( mid );
-	name_ = applMgr()->EMServer()->getUiName( emid_ );
+	ems->storeObject( emid_, savewithname );
+	const MultiID mid = ems->getStorageID(emid_);
+	mps->saveSetup( mid );
+	name_ = ems->getUiName( emid_ );
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	renameVisObj();
     }
-    else if ( mnuid == 1 )
+    else if ( mnuid == mSaveAsID )
     {
-	const MultiID oldmid = applMgr()->EMServer()->getStorageID(emid_);
-	applMgr()->mpeServer()->prepareSaveSetupAs( oldmid );
+	const MultiID oldmid = ems->getStorageID(emid_);
+	mps->prepareSaveSetupAs( oldmid );
 
 	MultiID storedmid;
-	applMgr()->EMServer()->storeObject( emid_, true, storedmid );
-	name_ = applMgr()->EMServer()->getUiName( emid_ );
+	ems->storeObject( emid_, true, storedmid );
+	name_ = ems->getUiName( emid_ );
 
-	const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+	const MultiID midintree = ems->getStorageID(emid_);
 	EM::EMM().getObject(emid_)->setMultiID( storedmid);
-	applMgr()->mpeServer()->saveSetupAs( storedmid );
+	mps->saveSetupAs( storedmid );
 	EM::EMM().getObject(emid_)->setMultiID( midintree );
 
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	renameVisObj();
     }
-    else if ( mnuid == 2 )
+    else if ( mnuid == mStartID )
+    {
+	const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj || mps->addTracker(emid_,Coord3::udf())==-1 )
+	    return false;
+
+	MPE::engine().setActiveTracker( emid_ );
+	const EM::SectionID sid = emobj->sectionID( 0 );
+	mps->useSavedSetupDlg( emid_, sid );
+	if ( viewer2D() && viewer2D()->viewControl() )
+	    viewer2D()->viewControl()->setEditMode( true );
+    }
+    else if ( mnuid == mSettsID )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
 	if ( emobj )
 	{
-	    const EM::SectionID sectionid =
-			emobj->sectionID( emobj->nrSections()-1 );
-	    applMgr()->mpeServer()->showSetupDlg( emid_, sectionid );
+	    const EM::SectionID sid = emobj->sectionID( 0 );
+	    mps->showSetupDlg( emid_, sid );
 	}
     }
-    else if ( mnuid==3 || mnuid==4 )
+    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {
-	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
+	if ( !ems->askUserToSave(emid_,true) )
 	    return true;
 
+	const int trackerid = mps->getTrackerID( emid_ );
+	if ( trackerid>= 0 )
+	    renameVisObj();
 	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
-	renameVisObj();
-	bool doremove =
-	    !applMgr()->viewer2DMgr().isItemPresent( parent_ ) || mnuid==4;
-	if ( mnuid==3 )
+	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
+			mnuid==mRemoveID;
+	if ( mnuid == mRemoveAllID )
 	    applMgr()->viewer2DMgr().removeHorizon2D( emid_ );
 	if ( doremove )
 	    parent_->removeChild( this );

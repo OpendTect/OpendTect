@@ -48,11 +48,12 @@ bool uiODVw2DPickSetParentTreeItem::init()
 { return uiODVw2DTreeItem::init(); }
 
 
+
 bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 0 );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), 1 );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 1 );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -64,7 +65,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 
     TypeSet<MultiID> pickmidstoadd;
     bool newpick = false;
-    if ( menuid == 0  )
+    if ( menuid == 1  )
     {
 	const Pick::Set* newps =
 	    applMgr()->pickServer()->createEmptySet( false );
@@ -74,7 +75,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 	pickmidstoadd += picksetmgr_.get( *newps );
 	newpick = true;
     }
-    else if ( menuid == 1 &&
+    else if ( menuid == 0 &&
 	      !applMgr()->pickServer()->loadSets(pickmidstoadd,false) )
 	return false;
 
@@ -263,45 +264,50 @@ bool uiODVw2DPickSetTreeItem::select()
     return true;
 }
 
+#define mPropID		0
+#define mSaveID		1
+#define mSaveAsID	2
+#define mRemoveID	3
+#define mDirectionID	4
 
 bool uiODVw2DPickSetTreeItem::showSubMenu()
 {
     const int setidx = Pick::Mgr().indexOf( pickset_ );
-    const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
+    const bool haschanged = setidx < 0 || Pick::Mgr().isChanged(setidx);
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction( m3Dots(uiStrings::sProperties())), 0 );
-    mnu.insertItem( new uiAction(m3Dots(tr("Set &direction"))), 1 );
-    uiAction* saveitm = new uiAction( m3Dots(uiStrings::sSave()) );
-    mnu.insertItem( saveitm, 2 );
-    saveitm->setEnabled( changed );
-    mnu.insertItem( new uiAction( uiStrings::sSaveAs() ), 3 );
-    mnu.insertItem( new uiAction(uiStrings::sRemove() ), 4 );
+    addAction( mnu, m3Dots(uiStrings::sProperties()), mPropID, "disppars" );
+    addAction( mnu, m3Dots(tr("Set Directions")), mDirectionID );
+    addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
+    addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
+    addAction( mnu, uiStrings::sRemove(), mRemoveID, "remove" );
 
     const int mnuid = mnu.exec();
     switch ( mnuid )
     {
-	case 0:{
+	case mPropID:
+	{
 	    uiPickPropDlg dlg( getUiParent(), pickset_, 0 );
 	    dlg.go();
-	    } break;
-	case 1:
+	} break;
+	case mDirectionID:
 	    applMgr()->setPickSetDirs( pickset_ );
 	    break;
-	case 2:
+	case mSaveID:
 	    applMgr()->storePickSet( pickset_ );
 	    break;
-	case 3:
+	case mSaveAsID:
 	    applMgr()->storePickSetAs( pickset_ );
 	    break;
-	case 4:
+	case mRemoveID:
+	{
 	    const int picksetidx  = picksetmgr_.indexOf( pickset_ );
 	    if ( picksetidx>=0 )
 	    {
 		if ( picksetmgr_.isChanged(picksetidx) )
 		{
 		    const int res = uiMSG().askSave(
-			tr("Pickset '%1' has been modified. "
+			tr("PickSet '%1' has been modified. "
 			   "Do you want to save it?").arg(pickset_.name()) );
 		    if ( res==-1 )
 			return false;
@@ -311,7 +317,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 
 		parent_->removeChild( this );
 	    }
-	    break;
+	} break;
     }
 
     return true;

@@ -48,11 +48,11 @@ uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
 bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
+    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
+    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
+    mnu.insertItem( addmenu );
     mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
-    uiMenu* loadmenu = new uiMenu( m3Dots(uiStrings::sAdd()) );
-    loadmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
-    loadmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
-    mnu.insertItem( loadmenu );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -352,23 +352,36 @@ void uiODVw2DFaultSS2DTreeItem::renameVisObj()
 }
 
 
+#define mPropID		0
+#define mSaveID		1
+#define mSaveAsID	2
+#define mRemoveAllID	3
+#define mRemoveID	4
+
 bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 {
+    uiEMPartServer* ems = applMgr()->EMServer();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiAction* savemnu = new uiAction( m3Dots(uiStrings::sSave()));
-    mnu.insertItem( savemnu, 0 );
-    savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
-			 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction( uiStrings::sSaveAs()), 1 );
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove() );
-    removemenu->insertItem( new uiAction(tr("From all 2D Viewers")), 2 );
-    removemenu->insertItem( new uiAction(tr("Only from this 2D Viewer")), 3 );
-    mnu.insertItem( removemenu );
+
+//    addAction( mnu, uiStrings::sProperties(), mPropID, "disppars", true );
+
+    const bool haschanged = ems->isChanged( emid_ );
+    addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
+    addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
+
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    mnu.addMenu( removemenu );
+    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
+    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 || mnuid == 1 )
+    if ( mnuid == mPropID )
     {
-	bool savewithname = (mnuid == 1) ||
+    // ToDo
+    }
+    else if ( mnuid==mSaveID || mnuid==mSaveAsID )
+    {
+	bool savewithname = (mnuid == mSaveAsID) ||
 			    (EM::EMM().getMultiID( emid_ ).isEmpty());
 	if ( !savewithname )
 	{
@@ -381,15 +394,16 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	renameVisObj();
     }
-    else if ( mnuid == 2 || mnuid == 3 )
+    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
-	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+
+	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	renameVisObj();
-	bool doremove =
-	    !applMgr()->viewer2DMgr().isItemPresent( parent_ ) || mnuid == 3;
-	if ( mnuid == 2 )
+	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
+			mnuid==mRemoveID;
+	if ( mnuid == mRemoveAllID )
 	{
 	    applMgr()->viewer2DMgr().removeFaultSS( emid_ );
 	    applMgr()->viewer2DMgr().removeFaultSS2D( emid_ );
