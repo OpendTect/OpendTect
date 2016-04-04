@@ -401,14 +401,15 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     , zsamp_(source.getZRange())
     , rdlid_(source.getRandomLineID())
 {
-    DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
+    source_.ref();
+    DPM(DataPackMgr::SeisID()).add(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
 }
 
 
 SeisFlatDataPack::~SeisFlatDataPack()
 {
-    DPM(DataPackMgr::SeisID()).release( source_.id() );
+    source_.unRef();
 }
 
 

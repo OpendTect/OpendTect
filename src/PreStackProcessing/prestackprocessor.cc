@@ -32,8 +32,8 @@ Processor::Processor( const char* nm )
 
 Processor::~Processor()
 {
-    freeArray( inputs_ );
-    freeArray( outputs_ );
+    deepUnRef( inputs_ );
+    deepUnRef( outputs_ );
 }
 
 
@@ -49,8 +49,8 @@ bool Processor::reset( bool force )
 {
     outputstepout_ = BinID(0,0);
 
-    freeArray( inputs_ );
-    freeArray( outputs_ );
+    deepUnRef( inputs_ );
+    deepUnRef( outputs_ );
     outputinterest_.erase();
 
     outputs_ += 0;
@@ -69,23 +69,17 @@ bool Processor::wantsInput( const BinID& bid ) const
 
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
-    Gather* input = 0;
-    mObtainDataPack( input, Gather*, DataPackMgr::FlatID(), id );
-
+    RefMan<Gather> input =
+    	DPM(DataPackMgr::FlatID()).getAndCast<Gather>(id);
+    
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );
     if ( offset>=inputs_.size() )
-    {
-	if ( input ) DPM( DataPackMgr::FlatID() ).release( input->id() );
 	return;
-    }
 
-    if ( inputs_[offset] )
-    {
-	DPM( DataPackMgr::FlatID() ).release( inputs_[offset]->id() );
-    }
-
+    unRefPtr( inputs_[offset] );
     inputs_.replace( offset, input );
+    refPtr( input );
 }
 
 
@@ -130,7 +124,7 @@ bool Processor::prepareWork()
     if ( !found && usesPreStackInput() )
 	return false;
 
-    freeArray( outputs_ );
+    deepUnRef( outputs_ );
 
     BinID inputstepout = getInputStepout();
     for ( int idx=-outputstepout_.inl(); idx<=outputstepout_.inl(); idx++ )
@@ -150,9 +144,11 @@ bool Processor::prepareWork()
 		    continue;
 		}
 
-		Gather* output = createOutputArray(*(inputs_[inputoffset]) );
+		RefMan<Gather> output =
+                	createOutputArray(*(inputs_[inputoffset]) );
 		outputs_ += output;
-		DPM( DataPackMgr::FlatID() ).addAndObtain( output );
+                output->ref();
+		DPM( DataPackMgr::FlatID() ).add( output );
 	    }
 	    else
 		outputs_ += 0;
@@ -165,7 +161,6 @@ bool Processor::prepareWork()
 
 Gather* Processor::createOutputArray( const Gather& input ) const
 { return new Gather(input); }
-
 
 
 int Processor::nrOffsets() const
@@ -413,14 +408,6 @@ bool ProcessManager::usePar( const IOPar& par )
     return true;
 }
 
-
-void Processor::freeArray( ObjectSet<Gather>& arr )
-{
-    for ( int idx=0; idx<arr.size(); idx++ )
-	DPM( DataPackMgr::FlatID() ).release( arr[idx] );
-
-    arr.erase();
-}
 
 
 }; //namespace

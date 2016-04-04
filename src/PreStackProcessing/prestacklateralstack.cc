@@ -46,7 +46,7 @@ LateralStack::~LateralStack()
 bool LateralStack::reset( bool force )
 {
     inputstepout_ = BinID(0,0);
-    freeArray( inputs_ );
+    deepUnRef( inputs_ );
     return Processor::reset( force );
 }
 
@@ -59,7 +59,7 @@ bool LateralStack::setPattern( const BinID& stepout, bool cross )
     patternstepout_ = stepout;
     iscross_ = cross;
 
-    freeArray( inputs_ );
+    deepUnRef( inputs_ );
     inputstepout_ = BinID(0,0);
 
     return true;

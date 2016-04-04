@@ -342,7 +342,6 @@ PreLoadDataManager::PreLoadDataManager()
 
 PreLoadDataManager::~PreLoadDataManager()
 {
-    dpmgr_.releaseAll( true );
 }
 
 
@@ -355,9 +354,10 @@ void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
 {
     if ( !dp ) return;
 
-    entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
-    dpmgr_.addAndObtain( dp );
+    dp->ref();
+    dpmgr_.add( dp );
 
+    entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
 }
 
 
@@ -378,7 +378,7 @@ void PreLoadDataManager::remove( int dpid )
 	if ( entries_[idx]->dpid_ == dpid )
 	{
 	    entries_.removeSingle( idx );
-	    dpmgr_.release( dpid );
+	    dpmgr_.unRef( dpid );
 	    return;
 	}
     }
@@ -389,7 +389,7 @@ void PreLoadDataManager::removeAll()
 {
     while ( entries_.size() )
     {
-	dpmgr_.release( entries_[0]->dpid_ );
+	dpmgr_.unRef( entries_[0]->dpid_ );
 	entries_.removeSingle( 0 );
     }
 }

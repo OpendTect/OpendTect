@@ -85,7 +85,7 @@ protected:
 
     BinIDValueSet*		bidvals_;
 
-    RegularSeisDataPack*	dp_;
+    PtrMan<RegularSeisDataPack>	dp_;
     TrcKeyZSampling		tkzs_;
 
     IOObj*			ioobj_;
@@ -187,7 +187,7 @@ protected:
     IOObj*			ioobj_;
     SeisTrcReader&		rdr_;
     Seis::SelData*		sd_;
-    RegularSeisDataPack*	dp_;
+    RefMan<RegularSeisDataPack>	dp_;
     TrcKeyZSampling		tkzs_;
     TypeSet<int>		components_;
     TypeSet<int>*		outcomponents_;

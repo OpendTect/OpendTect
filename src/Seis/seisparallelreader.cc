@@ -109,7 +109,6 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 
 ParallelReader::~ParallelReader()
 {
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete ioobj_;
     delete outcomponents_;
 }
@@ -129,9 +128,8 @@ bool ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
 
 void ParallelReader::setDataPack( RegularSeisDataPack* dp )
 {
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
     dp_ = dp;
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    DPM( DataPackMgr::SeisID() ).add( dp );
 }
 
 
@@ -174,7 +172,7 @@ bool ParallelReader::doPrepare( int nrthreads )
     {
 	dp_ = new RegularSeisDataPack(0);
 	dp_->setSampling( tkzs_ );
-	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+	DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
 
 	if ( !addComponents(*dp_,*ioobj_,components_,0) )
 	{
@@ -636,7 +634,6 @@ SequentialReader::~SequentialReader()
     delete outcomponents_;
     delete scaler_;
 
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
@@ -699,7 +696,7 @@ bool SequentialReader::init()
     mSetSelData()
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false), &dc_);
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
     dp_->setSampling( tkzs_ );
     dp_->setName( ioobj_->name() );
     if ( scaler_ && !scaler_->isEmpty() )
@@ -722,9 +719,10 @@ bool SequentialReader::init()
 bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
 {
     nrdone_ = 0;
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
+    
     dp_ = &dp;
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    
+    DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
 
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()

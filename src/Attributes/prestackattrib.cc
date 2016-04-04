@@ -441,7 +441,7 @@ bool PSAttrib::getGatherData( const BinID& bid,
 	if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
 	    return false;
 
-	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
+	DPM(DataPackMgr::FlatID()).add( gather );
 	resgather = gather;
         resanglegather = 0;
     }
