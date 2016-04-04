@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uifreqtaper.h"
+#include "uimsg.h"
 #include "uislider.h"
 
 #include "arrayndalgo.h"
@@ -282,7 +283,6 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    ,wvltattr_(new WaveletAttrib(wvlt))
 	    ,wvltsz_(wvlt.size())
 {
-
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
     timerange_.scale( SI().showZ2UserFactor() );
     const float maxfreq = 1.f / wvlt.sampleRate();
@@ -361,6 +361,13 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 
     const float maxfreq = freqrange_.stop * mCast(float,idxnoamp) /
 			  mCast(float,attrarrays_[1]->info().getSize(0));
+    if ( maxfreq > 1e6 )
+    {
+	uiMSG().error( tr("Invalid Nyquist frequency: %1\n"
+			  "The wavelet sampling rate may be too low.")
+			 .arg(maxfreq) );
+	return;
+    }
 
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
     {
