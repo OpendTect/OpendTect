@@ -62,6 +62,8 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
+    detachAllNotifiers();
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -79,7 +81,7 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 	meh_->doubleClick.remove(
 		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
     }
-//	setMouseEventHandler( 0 );
+
     cleanActStkContainer();
     delete f3dpainter_;
     deepErase( markeridinfo_ );
@@ -89,6 +91,9 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 
 void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( meh_ == meh )
+	return;
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(

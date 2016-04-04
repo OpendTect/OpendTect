@@ -65,6 +65,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
+    detachAllNotifiers();
     rdlids.removeParam( this );
     if ( meh_ )
     {
@@ -92,6 +93,9 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 
 void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( meh_ == meh )
+	return;
+
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
