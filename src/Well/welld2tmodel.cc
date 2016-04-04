@@ -457,30 +457,30 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
 	return mUdf(double);
 
     const double srddepth = -1. * SI().seismicReferenceDatum();
-    const Interval<double> vrepldepthrg( srddepth, wllheadz );
-    TypeSet<double> vels, thicknesses;
+    const Interval<double> vreplzrg( srddepth, wllheadz );
+    TypeSet<double> slownesses, thicknesses;
     for ( int idz=1; idz<zvals.size(); idz++ )
     {
-	Interval<double> velrg( zvals[idz-1], zvals[idz] );
-	if ( !velrg.overlaps(vrepldepthrg) )
+	Interval<double> zrg( zvals[idz-1], zvals[idz] );
+	if ( !zrg.overlaps(vreplzrg) )
 	    continue;
 
-	velrg.limitTo( vrepldepthrg );
-	const double thickness = velrg.width();
+	zrg.limitTo( vreplzrg );
+	const double thickness = zrg.width();
 	if ( thickness < mDefEpsZ )
 	    continue;
 
-	const double vel = ( tvals[idz] - tvals[idz-1] ) /
-			   ( zvals[idz] - zvals[idz-1] );
+	const double slowness = ( tvals[idz] - tvals[idz-1] ) /
+				( zvals[idz] - zvals[idz-1] );
 
-	if ( !validVelocityRange().includes(1./vel,false) )
+	if ( !validVelocityRange().includes(1./slowness,false) )
 	    continue;
 
-	vels += vel;
+	slownesses += slowness;
 	thicknesses += thickness;
     }
 
-    if ( vels.isEmpty() )
+    if ( slownesses.isEmpty() )
     {
 	if ( srddepth < wllheadz && !zvals.isEmpty() &&
 	     !tvals.isEmpty() && tvals[0] > mDefEpsT )
@@ -490,7 +490,8 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
     }
 
     Stats::ParallelCalc<double> velocitycalc( Stats::CalcSetup(true),
-					      vels.arr(), vels.size(),
+					      slownesses.arr(),
+					      slownesses.size(),
 					      thicknesses.arr() );
     velocitycalc.execute();
     const double avgslowness = velocitycalc.average();
