@@ -703,7 +703,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     if ( inputsz < 2 )
     {
 	mErrRet( tr("Input file does not contain at least two valid rows"
-		 "after resorting and removal of duplicated positions") );
+		 " after re-sorting and removal of duplicated positions") );
     }
 
     const Well::Track& track = wll.track();
