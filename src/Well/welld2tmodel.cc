@@ -7,13 +7,13 @@
 
 #include "welld2tmodel.h"
 
+#include "ailayer.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "mathfunc.h"
 #include "statparallelcalc.h"
 #include "statruncalc.h"
 #include "stratlevel.h"
-#include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "velocitycalc.h"
@@ -470,7 +470,13 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
 	if ( thickness < mDefEpsZ )
 	    continue;
 
-	vels += ( tvals[idz] - tvals[idz-1] ) / ( zvals[idz] - zvals[idz-1] );
+	const double vel = ( tvals[idz] - tvals[idz-1] ) /
+			   ( zvals[idz] - zvals[idz-1] );
+
+	if ( !validVelocityRange().includes(1./vel,false) )
+	    continue;
+
+	vels += vel;
 	thicknesses += thickness;
     }
 
