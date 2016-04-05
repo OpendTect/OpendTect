@@ -46,6 +46,8 @@ protected:
     uiArrowItem*        arrowitem1_;
     uiArrowItem*        arrowitem2_;
     uiBorder		extraborder_;
+
+    void		transformAndSetAuxAnnotation(bool forx1);
 };
 
 #endif

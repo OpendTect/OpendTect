@@ -122,12 +122,9 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
     axesdrawer_.setAuxLineStyle( annot.x1_.auxlinestyle_, true );
     axesdrawer_.setAuxLineStyle( annot.x1_.auxhllinestyle_, true, true );
     axesdrawer_.showAuxPositions( true, annot.x1_.showauxannot_ );
-    axesdrawer_.setAuxAnnotPositions( annot.x1_.auxannot_, true );
-
     axesdrawer_.setAuxLineStyle( annot.x2_.auxlinestyle_, false );
     axesdrawer_.setAuxLineStyle( annot.x2_.auxhllinestyle_, false, true );
     axesdrawer_.showAuxPositions( false, annot.x2_.showauxannot_ );
-    axesdrawer_.setAuxAnnotPositions( annot.x2_.auxannot_, false );
 
     axesdrawer_.setWorldCoords( wr_ );
     if ( !wr_.checkCorners(!annot.x1_.reversed_,annot.x2_.reversed_) )

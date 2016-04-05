@@ -489,6 +489,9 @@ bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 
 void SeisFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
 {
+    if ( !isVertical() )
+	return;
+
     for ( int idx=0; idx<tiflds_.size(); idx++ )
 	keys.add( SeisTrcInfo::toString(tiflds_[idx]) );
 }
@@ -636,9 +639,11 @@ void RegularFlatDataPack::setTrcInfoFlds()
 const char* RegularFlatDataPack::dimName( bool dim0 ) const
 {
     if ( dim0 && hassingletrace_ ) return sKey::Series();
-    if ( is2D() ) return dim0 ? "Distance" : "Z";
+    if ( is2D() ) return dim0 ? "Distance"
+			      : zDomain().userName().getFullString();
     return dim0 ? (dir_==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
-		: (dir_==TrcKeyZSampling::Z ? mKeyCrl : "Z");
+		: (dir_==TrcKeyZSampling::Z
+			? mKeyCrl : zDomain().userName().getFullString());
 }
 
 
