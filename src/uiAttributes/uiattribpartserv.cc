@@ -878,18 +878,21 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 	: attrds->getDesc(targetspecs_[0].id());
 
-    const MultiID mid( targetdesc->getStoredID() );
-    RefMan<RegularSeisDataPack> sdp =
-	Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
-
-    if ( sdp )
+    if ( targetdesc )
     {
-	BufferStringSet componentnames;
-	for ( int idx=0; idx<targetspecs_.size(); idx++ )
-	    componentnames.add( targetspecs_[idx].userRef() );
+	const MultiID mid( targetdesc->getStoredID() );
+	RefMan<RegularSeisDataPack> sdp =
+	    Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
 
-	return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg,
-						       &componentnames );
+	if ( sdp )
+	{
+	    BufferStringSet componentnames;
+	    for ( int idx=0; idx<targetspecs_.size(); idx++ )
+		componentnames.add( targetspecs_[idx].userRef() );
+
+	    return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg,
+							   &componentnames );
+	}
     }
 
     TypeSet<BinID> knots, path;
