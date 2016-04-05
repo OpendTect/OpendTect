@@ -52,7 +52,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     pwdfld_->setPasswordMode();
     pwdlabel_ = new uiLabel( this, tr("Password") );
     pwdlabel_->attach( leftOf, pwdfld_ );
-    savepwdfld_ = new uiCheckBox( this, tr("Save password") );
+    savepwdfld_ = new uiCheckBox( this, tr("Save password (plain text)") );
     savepwdfld_->attach( alignedBelow, pwdfld_ );
 
     initFromSettings();
