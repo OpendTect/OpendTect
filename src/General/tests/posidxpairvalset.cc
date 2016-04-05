@@ -99,6 +99,11 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
+
+    Pos::IdxPairValueSet ds_novals( 0, false );
+    float* vals = 0;
+    ds_novals.add( Pos::IdxPair(1000,2000), vals );
+
     Pos::IdxPairValueSet ds_nodup( 5, false );
     if ( !testAdd(ds_nodup,1.0f) )
 	ExitProgram( 1 );

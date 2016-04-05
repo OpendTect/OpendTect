@@ -190,6 +190,11 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
+    Pos::IdxPairDataSet ds_zeromanobj( 0, true, true );
+    ds_zeromanobj.add( Pos::IdxPair(1000,2000), 0 );
+    Pos::IdxPairDataSet ds_zero( 0, true, false );
+    ds_zero.add( Pos::IdxPair(1000,2000), 0 );
+
     ObjectSet<TstObj> objs;
     for ( unsigned short idx=0; idx<cNrObjs; idx++ )
 	objs += new TstObj( idx, 100+idx );

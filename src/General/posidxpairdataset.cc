@@ -63,7 +63,7 @@ bool Pos::IdxPairDataSet::ObjData::addObjSpace( bool mandata, ArrIdxType idx,
     } catch ( std::bad_alloc )
 	{ return false; }
 
-    if ( !mandata )
+    if ( !mandata || objsz < 1 )
 	return true;
 
     if ( !manageBufCapacity(objsz) )
@@ -195,7 +195,7 @@ void Pos::IdxPairDataSet::ObjData::decrObjSize( ObjSzType orgsz,
 bool Pos::IdxPairDataSet::ObjData::manageBufCapacity( ObjSzType objsz )
 {
     if ( objsz < 1 )
-	{ pErrMsg("Should not be called"); return true; }
+	{ delete buf_; buf_ = 0; bufsz_ = 0; return true; }
 
     const ArrIdxType needednrobjs = objs_.size();
     ArrIdxType curnrobjs = (ArrIdxType)(bufsz_ / objsz);

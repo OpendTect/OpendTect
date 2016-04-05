@@ -23,16 +23,20 @@ static TypeSet<float> udf_typeset_(64,mUdf(float));
 
 static const float* getUdfArr( int nrvals )
 {
+    if ( nrvals < 1 )
+	return 0;
+
     Threads::Locker lckr( udf_lock_ );
     if ( udf_typeset_.size() < nrvals )
 	udf_typeset_.setSize( nrvals, mUdf(float) );
+
     return udf_typeset_.arr();
 }
 
 
 static inline void setToUdf( float* arr, int nvals )
 {
-    if ( nvals == 0 )
+    if ( nvals < 1 )
 	return;
     else if ( !arr )
 	{ pFreeFnErrMsg("input arr should not be null"); return; }
@@ -384,7 +388,7 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 							float v1, float v2 )
 {
-    if ( nrvals_ == 0 )
+    if ( nrvals_ < 1 )
 	return add( ip );
     else if ( nrvals_ < 3 )
     {
@@ -490,7 +494,8 @@ void Pos::IdxPairValueSet::get( const SPos& spos, Pos::IdxPair& ip,
 
 void Pos::IdxPairValueSet::set( const SPos& spos, float v )
 {
-    if ( nrvals_ < 1 ) return;
+    if ( nrvals_ < 1 )
+	return;
 
     if ( nrvals_ == 1 )
 	set( spos, &v );
@@ -524,7 +529,8 @@ void Pos::IdxPairValueSet::set( const SPos& spos, float v1, float v2 )
 
 void Pos::IdxPairValueSet::set( const SPos& spos, const TypeSet<float>& v )
 {
-    if ( nrvals_ < 1 ) return;
+    if ( nrvals_ < 1 )
+	return;
 
     if ( nrvals_ <= v.size() )
 	set( spos, v.arr() );
