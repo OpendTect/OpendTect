@@ -289,6 +289,7 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 
 	attrsel->fillSelSpec( posdatasel_->selspec_ );
 	posdatasel_->selspec_.setUserRef( attrnm );
+	posdatasel_->selspec_.set2DFlag( is2D() );
     }
 
     return true;
