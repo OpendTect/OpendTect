@@ -270,7 +270,7 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
     {
 	const int annotposidx = xrg.getIndex( xannot[idx].pos_ );
 	auxannot[idx].pos_ = altdim0_>=0 && forx1
-	    ? fdp->getAltDim0Value(altdim0_,annotposidx)
+	    ? mCast(float,fdp->getAltDim0Value(altdim0_,annotposidx))
 	    : xannot[idx].pos_;
 
 	if ( isVertical(vwr_) && !forx1 )
