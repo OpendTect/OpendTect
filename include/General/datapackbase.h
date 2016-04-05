@@ -85,6 +85,7 @@ public:
 				//!< int,int = Array2D position
 				//!< if not overloaded, returns posData() (z=0)
 
+    virtual bool		isVertical() const	{ return true; }
     virtual bool		posDataIsCoord() const	{ return true; }
 				// Alternative positions for dim0
     virtual void		getAltDim0Keys(BufferStringSet&) const	{}

@@ -146,7 +146,7 @@ public:
 			{ xaxis ? xaxis_->setup().annotinint(dowant)
 				: yaxis_->setup().annotinint(dowant); }
     void		showAuxPositions(bool forx,bool yn);
-    void		setAuxAnnotPositions(const TypeSet<OD::PlotAnnotation>&,
+    virtual void	setAuxAnnotPositions(const TypeSet<OD::PlotAnnotation>&,
 						bool forx);
 
     virtual void	updateScene()

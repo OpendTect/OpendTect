@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
 #include "uigraphicsscene.h"
+#include "survinfo.h"
+#include "zaxistransform.h"
 
 #define mRemoveAnnotItem( item )\
 { view_.scene().removeItem( item ); delete item; item = 0; }
@@ -170,6 +172,11 @@ void AxesDrawer::updateViewRect()
 	if ( axis1nm_ ) axis1nm_->setVisible( false );
     }
 
+    uiString userfacstr = vwr_.hasZAxisTransform()
+	? vwr_.getZAxisTransform()->toZDomainInfo().uiUnitStr(true)
+	: SI().getUiZUnitString();
+    const bool usewva = !vwr_.isVisible( false );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     if ( showx2annot && !ad2.name_.isEmpty() && ad2.name_ != " " )
     {
 	const int left = rect.left();
@@ -185,12 +192,16 @@ void AxesDrawer::updateViewRect()
 	arrowitem2_->setPenColor( annot.color_ );
 	arrowitem2_->setTailHeadPos( from, to );
 	
+	uiString x2axisstr( toUiString(ad2.name_) );
+	if ( fdp && fdp->isVertical() )
+	    x2axisstr.append( userfacstr );
+
 	if ( !axis2nm_ )
 	    axis2nm_ = view_.scene().addItem(
-		    new uiTextItem(toUiString(ad2.name_),
+		    new uiTextItem(x2axisstr,
 				   mAlignment(Left,Top)) );
 	else
-	    axis2nm_->setText( toUiString(ad2.name_) );
+	    axis2nm_->setText( x2axisstr );
 
 	axis2nm_->setVisible( true );
 	axis2nm_->setTextColor( annot.color_ );
@@ -225,13 +236,51 @@ void AxesDrawer::updateViewRect()
 }
 
 
+void AxesDrawer::setAuxAnnotPositions(
+	const TypeSet<OD::PlotAnnotation>& xannot, bool forx1 )
+{
+    const bool usewva = !vwr_.isVisible( false );
+    ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
+    if ( !fdp )
+	return;
+
+    const float userfac = vwr_.hasZAxisTransform()
+	? vwr_.getZAxisTransform()->toZDomainInfo().userFactor()
+	: SI().showZ2UserFactor();
+    TypeSet<OD::PlotAnnotation> auxannot = xannot;
+    const StepInterval<double> xrg = fdp->posData().range( forx1 );
+    for ( int idx=0; idx<xannot.size(); idx++ )
+    {
+	const int annotposidx = xrg.getIndex( xannot[idx].pos_ );
+	auxannot[idx].pos_ = altdim0_>=0 && forx1
+	    ? fdp->getAltDim0Value(altdim0_,annotposidx)
+	    : xannot[idx].pos_;
+
+	if ( fdp->isVertical() && !forx1 )
+	    auxannot[idx].pos_ *= userfac;
+    }
+
+    uiGraphicsSceneAxisMgr::setAuxAnnotPositions( auxannot, forx1 );
+}
+
+
 void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
+    const float userfac = vwr_.hasZAxisTransform()
+	? vwr_.getZAxisTransform()->toZDomainInfo().userFactor()
+	: SI().showZ2UserFactor();
     if ( !fdp || altdim0_<0 )
     {
-	uiGraphicsSceneAxisMgr::setWorldCoords( wr );
+	uiWorldRect altwr = wr;
+	if ( fdp && fdp->isVertical() )
+	{
+	    altwr.setTop( altwr.top()*userfac );
+	    altwr.setBottom( altwr.bottom()*userfac );
+	}
+
+	uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 	return;
     }
 
@@ -248,7 +297,15 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     const float stopindex = dim0rg1.getfIndex( wr.right() );
     dim0rg2.start = altdim0start + dim0rg2.step*startindex;
     dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
-
-    const uiWorldRect altwr( dim0rg2.start,wr.top(),dim0rg2.stop,wr.bottom() );
+    Interval<double> dim1rg( wr.top(), wr.bottom() );
+    if ( fdp->isVertical() )
+    {
+	dim1rg.start *= userfac;
+	dim1rg.stop *= userfac;
+    }
+    
+    
+    const uiWorldRect altwr( dim0rg2.start, dim1rg.start,
+	    		     dim0rg2.stop, dim1rg.stop );
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 }

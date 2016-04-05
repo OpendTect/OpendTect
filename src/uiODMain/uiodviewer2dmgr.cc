@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emfault3d.h"
 #include "emfaultstickset.h"
+#include "flatposdata.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "posinfo2d.h"
@@ -287,6 +288,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	return;
 
     mGetAuxAnnotIdx
+    
     if ( !selauxannot_.isselected_ )
     {
 	if ( curvwr.appearance().annot_.editable_ ) return;
@@ -342,7 +344,8 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    selauxannot.txt_ = tr( "INL %1" ).arg( toString(mNINT32(newpos)) );
 	else if ( (vwr2ddir==TrcKeyZSampling::Inl && !selauxannot_.isx1_) ||
 		  (vwr2ddir==TrcKeyZSampling::Crl && !selauxannot_.isx1_) )
-	    selauxannot.txt_ = tr( "ZSlice %1" ).arg( toString(newpos) );
+	    selauxannot.txt_ = tr( "ZSlice %1" ).arg(
+		    toString(newpos*curvwr2d->zDomain().userFactor()) );
     }
 
     setAuxAnnotLineStyles( curvwr, true );
@@ -431,7 +434,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	}
 	else
 	{
-	    const int auxpos = mNINT32(selauxannot_.oldauxpos_);
+	    const int auxpos = mNINT32(selauxannot_.oldauxpos_); 
 	    const int newauxpos = mNINT32(auxannot[selannotidx].pos_);
 	    oldtkzs.hsamp_.setTrcRange( Interval<int>(auxpos,auxpos) );
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(newauxpos,newauxpos) );
@@ -471,6 +474,8 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
     mGetAuxAnnotIdx
 
+    float samplecrdz = mCast(float,coord.z);
+    SI().snapZ( samplecrdz );
     if ( meh->event().leftButton() )
     {
 	if ( curvwr.appearance().annot_.editable_ ||
@@ -496,7 +501,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
-	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
+	    intpoint2d = intersectingLineID( curvwr2d, mCast(float,wp.x) );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
@@ -512,7 +517,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	const uiString showcrltxt
 			= m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
 	const uiString showztxt = m3Dots(tr("Show Z-slice %1"))
-		.arg( mNINT32(coord.z*curvwr2d->zDomain().userFactor()) );
+		.arg( mNINT32(samplecrdz*curvwr2d->zDomain().userFactor()) );
 
 	const bool isflat = tkzs.isFlat();
 	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
@@ -549,7 +554,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 		l2ddata.distBetween( trcnrrg.start, intpoint2d.linetrcnr );
 	    if ( mIsUdf(trcdist) )
 		return;
-	    initialcentre = uiWorldPoint( mCast(double,trcdist), coord.z );
+	    initialcentre = uiWorldPoint( mCast(double,trcdist), samplecrdz );
 	    newtkzs.hsamp_.init( intpoint2d.line );
 	    newtkzs.hsamp_.setLineRange(
 		    Interval<int>(intpoint2d.line,intpoint2d.line) );
@@ -557,17 +562,17 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	else if ( menuid == 1 )
 	{
 	    newtkzs.hsamp_.setLineRange( Interval<int>(bid.inl(),bid.inl()) );
-	    initialcentre = uiWorldPoint( mCast(double,bid.crl()), coord.z );
+	    initialcentre = uiWorldPoint( mCast(double,bid.crl()), samplecrdz );
 	}
 	else if ( menuid == 2 )
 	{
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
-	    initialcentre = uiWorldPoint( mCast(double,bid.inl()), coord.z );
+	    initialcentre = uiWorldPoint( mCast(double,bid.inl()), samplecrdz );
 	}
 	else if ( menuid == 3 )
 	{
-	    newtkzs.zsamp_ = Interval<float>( mCast(float,coord.z),
-					      mCast(float,coord.z) );
+	    newtkzs.zsamp_ = Interval<float>( mCast(float,samplecrdz),
+					      mCast(float,samplecrdz) );
 	    initialcentre = uiWorldPoint( mCast(double,bid.inl()),
 					  mCast(double,bid.crl()) );
 	}
@@ -849,16 +854,20 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
-		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
-		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
+		    newannot.pos_ =
+			mCast(float,idxvwrtkzs.hsamp_.crlRange().start);
+		    newannot.txt_ =
+			tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start);
 		    intersecbid = BinID( tkzs.hsamp_.inlRange().start,
 			    		 mNINT32(newannot.pos_) );
 		    x1auxannot += newannot;
 		}
 		else
 		{
-		    newannot.pos_ = idxvwrtkzs.zsamp_.start;
-		    newannot.txt_ = tr( "ZSlice %1" ).arg(newannot.pos_);
+		    newannot.pos_ = mCast( float, idxvwrtkzs.zsamp_.start );
+		    newannot.txt_ =
+			tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start*
+					       SI().showZ2UserFactor() );
 		    x2auxannot += newannot;
 		}
 	    }
@@ -866,16 +875,21 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
-		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
+		    newannot.pos_ =
+			mCast( float, idxvwrtkzs.hsamp_.inlRange().start );
+		    newannot.txt_ =
+			tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start);
 		    x1auxannot += newannot;
 		    intersecbid = BinID( mNINT32(newannot.pos_),
 			    		 tkzs.hsamp_.crlRange().start );
 		}
 		else
 		{
-		    newannot.pos_ = idxvwrtkzs.zsamp_.start;
-		    newannot.txt_ = tr( "ZSlice %1" ).arg(newannot.pos_);
+		    newannot.pos_ =
+			mCast( float, idxvwrtkzs.zsamp_.start );
+		    newannot.txt_ =
+			tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start*
+					       SI().showZ2UserFactor() );
 		    x2auxannot += newannot;
 		}
 	    }
@@ -883,14 +897,18 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
-		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
+		    newannot.pos_ =
+			mCast( float, idxvwrtkzs.hsamp_.inlRange().start );
+		    newannot.txt_ =
+			tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start);
 		    x1auxannot += newannot;
 		}
 		else
 		{
-		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
-		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
+		    newannot.pos_ =
+			mCast( float, idxvwrtkzs.hsamp_.crlRange().start );
+		    newannot.txt_ =
+			tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start);
 		    x2auxannot += newannot;
 		}
 	    }
@@ -943,6 +961,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 {
     Line2DInterSection::Point udfintpoint( Survey::GM().cUndefGeomID(),
 					   mUdf(int), mUdf(int) );
+
     const int intsecidx = intersection2DIdx( vwr2d->geomID() );
     if ( intsecidx<0 )
 	return udfintpoint;

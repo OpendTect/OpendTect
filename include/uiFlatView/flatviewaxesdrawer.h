@@ -34,6 +34,8 @@ public:
     void		setWorldCoords(const uiWorldRect&);
     void		setExtraBorder(const uiBorder&);
     uiBorder		getAnnotBorder(bool withextraborders=true) const;
+    void		setAuxAnnotPositions(const TypeSet<OD::PlotAnnotation>&,
+	    				     bool forx);
 
 protected:
 

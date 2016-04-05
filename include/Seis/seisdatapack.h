@@ -130,7 +130,6 @@ public:
     bool			is2D() const
 				{ return source_.is2D(); }
 
-    virtual bool		isVertical() const			= 0;
     virtual const TrcKeyPath&	getPath() const				= 0;
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds

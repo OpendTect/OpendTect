@@ -183,7 +183,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
     app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = "TWT (s)";
+    app.annot_.x2_.name_ = "TWT (ms)";
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;
