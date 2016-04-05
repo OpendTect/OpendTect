@@ -71,6 +71,7 @@ list ( APPEND OD_MODULE_SOURCES
 	pickretriever.cc
 	pickset.cc
 	posimpexppars.cc
+	posidxpairdataset.cc
 	posidxpairvalset.cc
 	posinfodetector.cc
 	posvecdataset.cc
