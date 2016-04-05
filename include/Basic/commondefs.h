@@ -206,7 +206,7 @@ namespace Threads
 #endif
 }
 
-//! Macro that does something except the very first time reached
+//! Macro that does something except the very first time reached. The header file atomic.h must be included as it defines Threads::atomicSetIfValueIs.
 
 #define mIfNotFirstTime(act) \
 { \
