@@ -835,6 +835,8 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
 
 void ui3DViewerBody::setFocusCB( CallBacker* )
 {
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	 return;
     // Need focus to show mod key dependent act-mode cursors
     // or toggle between picking and positioning in act mode
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();

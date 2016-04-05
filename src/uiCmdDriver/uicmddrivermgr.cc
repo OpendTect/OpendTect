@@ -122,6 +122,9 @@ void uiCmdDriverMgr::closeDlg( CallBacker* )
 
 void uiCmdDriverMgr::keyPressedCB( CallBacker* )
 {
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
     const OD::ButtonState bs =
 			  OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
