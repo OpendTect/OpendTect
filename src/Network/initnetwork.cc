@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "webstreamsource.h"
+
+#include "atomic.h"
 #include "moddepmgr.h"
 
 
