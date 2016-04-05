@@ -149,7 +149,7 @@ bool testPipeOutput()
     mRunStandardTest( ostreamdata.ostrm,  "Creation of standard output stream");
     PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.ostrm);
 
-    *ostream << message << ' ';
+    *ostream << message << " ";
     *ostream << num;
     ostream->close();
 
