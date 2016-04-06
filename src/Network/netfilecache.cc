@@ -175,8 +175,8 @@ void Network::FileCache::getAt( FilePosType pos, BufType* out,
 	if ( blk )
 	{
 	    const FilePosType blockstart = blockStart( bidx );
-	    Interval<ChunkSizeType> wantedrg( pos-blockstart,
-					      lastpos-blockstart );
+	    Interval<ChunkSizeType> wantedrg( (ChunkSizeType)(pos-blockstart),
+					  (ChunkSizeType)(lastpos-blockstart) );
 	    Interval<ChunkSizeType> userg( blk->fillrg_ );
 	    if ( wantedrg.start > userg.start )
 		userg.start = wantedrg.start;
