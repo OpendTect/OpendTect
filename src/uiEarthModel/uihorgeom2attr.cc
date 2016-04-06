@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistrings.h"
 
+#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "emhorizon3d.h"
 #include "executor.h"
 #include "datapointset.h"
@@ -169,27 +171,49 @@ uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
     , colid_(colid)
     , isdelta_(isdel)
     , zfac_(zfac)
+    , horarray_(0)
+    , uimsg_(tr("Setting Z values"))
 {
     totnr_ = it_->approximateSize();
+    hor_.enableGeometryChecks( false );
+    hortks_ = hor_.range();
+    mDeclareAndTryAlloc( Array2D<float>*, arr,
+	    Array2DImpl<float>( hortks_.nrInl(), hortks_.nrCrl() ) );
+    if ( arr && !arr->isEmpty() )
+    {
+	arr->setAll( mUdf(float) );
+	horarray_ = arr;
+    }
+
 }
 
 ~uiHorAttr2GeomExec()
 {
     delete it_;
+    delete horarray_;
 }
 
-uiString uiMessage() const	{ return tr("Setting Z values"); }
+uiString uiMessage() const	{ return uimsg_; }
 uiString uiNrDoneText() const	{ return tr("Nodes done"); }
 od_int64 nrDone() const		{ return stepnr_ * 1000; }
 od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {
+    if ( !horarray_ )
+    {
+	uimsg_ = uiStrings::phrCannotCreate( tr("Array") );
+	return ErrorOccurred();
+    }
+
     for ( int idx=0; idx<1000; idx++ )
     {
 	const EM::PosID pid = it_->next();
 	if ( pid.objectID() == -1 )
+	{
+	    fillHorizonArray();
 	    return Finished();
+	}
  
 	const BinID bid = pid.getRowCol();
 	DataPointSet::RowID rid = dps_.findFirst( bid );
@@ -216,13 +240,26 @@ int nextStep()
 		    crd.z = newz;
 	    }
 	}
-	if ( mIsUdf(crd.z) )
-	    hor_.unSetPos( pid, false );
-	else
-	    hor_.setPos( pid, crd, false );
+
+	const int inlidx = hortks_.inlIdx( bid.inl() );
+	const int crlidx = hortks_.crlIdx( bid.crl() );
+	if ( !horarray_->info().validPos(inlidx,crlidx) )
+	    continue;
+	horarray_->set( inlidx, crlidx, mCast(float,crd.z) );
     }
     stepnr_++;
     return MoreToDo();
+}
+
+
+void fillHorizonArray()
+{
+    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 ) 
+				: hor_.geometry().addSection( 0, false );
+    Geometry::BinIDSurface* geom = hor_.geometry().sectionGeometry( sid );
+    geom->setArray( hortks_.start_, hortks_.step_, horarray_, true );
+    horarray_ = 0;
+    hor_.enableGeometryChecks( true );
 }
 
     EM::Horizon3D&		hor_;
@@ -233,7 +270,9 @@ int nextStep()
     od_int64			totnr_;
     bool			isdelta_;
     const float			zfac_;
-
+    Array2D<float>*		horarray_;
+    TrcKeySampling		hortks_;
+    uiString			uimsg_;
 };
 
 
