@@ -63,6 +63,7 @@ public:
     uiRect			getSceneRect() const;
     void			setSceneRect(const uiRect&);
     void			setSceneAlignment(const OD::Alignment&);
+    void			setScaleFactor(float,float);
 
     uiPoint			getCursorPos() const;
     void			getScaleFactor(float&,float&) const;

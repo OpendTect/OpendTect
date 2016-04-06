@@ -28,20 +28,17 @@ BaseMapObject::BaseMapObject( const char* nm )
 int BaseMapObject::nrShapes() const
 { return 0; }
 
-
 const char* BaseMapObject::getShapeName( int ) const
 { return 0; }
-
 
 void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 { }
 
+bool BaseMapObject::getBoundingBox( Coord& mincrd, Coord& maxcrd ) const
+{ return false; }
 
 OD::Alignment BaseMapObject::getAlignment( int shapeidx ) const
-{
-    return OD::Alignment();
-}
-
+{ return OD::Alignment(); }
 
 Color BaseMapObject::getColor() const
 {
@@ -58,10 +55,8 @@ Color BaseMapObject::getColor() const
 const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
 { return 0; }
 
-
 const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
 { return 0; }
-
 
 bool BaseMapObject::fillPar( IOPar& par ) const
 {
@@ -102,13 +97,8 @@ void BaseMapMarkers::setMarkerStyle( int, const OD::MarkerStyle2D& ms )
 }
 
 
-void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res) const
-{
-    res = positions_;
-}
-
+void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res ) const
+{ res = positions_; }
 
 void BaseMapMarkers::updateGeometry()
-{
-    changed.trigger();
-}
+{ changed.trigger(); }

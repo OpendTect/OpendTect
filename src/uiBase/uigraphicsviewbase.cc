@@ -248,7 +248,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
 	buttonstate_ = OD::MidButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonReleased( me );
-	
+
 	if ( midmousebutfordrag_ )
 	    setDragMode( NoDrag );
     }
@@ -640,7 +640,13 @@ uiPoint uiGraphicsViewBase::getCursorPos() const
 }
 
 
-void  uiGraphicsViewBase::getScaleFactor( float& scalex, float& scaley ) const
+void uiGraphicsViewBase::setScaleFactor( float scalex, float scaley )
+{
+    body_->setTransform( QTransform::fromScale(scalex,scaley) );
+}
+
+
+void uiGraphicsViewBase::getScaleFactor( float& scalex, float& scaley ) const
 {
     scalex = body_->transform().m11();
     scaley = body_->transform().m22();
