@@ -21,16 +21,9 @@ inline static bool isFtp( const OD::String& url )
 }
 
 
-
 void WebStreamSource::initClass()
 {
     StreamProvider::addStreamSource( new WebStreamSource );
-}
-
-
-WebStreamSource::WebStreamSource()
-{
-    // init netcomm
 }
 
 
@@ -47,34 +40,12 @@ bool WebStreamSource::canHandle( const char* fnm ) const
 }
 
 
-#include "filepath.h"
+WebStreamSource::WebStreamSource()
+{
+}
+
 
 bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
 {
-    const FixedString url( sd.fileName() );
-    const bool forread = typ == Read;
-    FilePath fp( url );
-    const BufferString filename = fp.fileName();
-    fp.setPath( "/tmp/web/" );
-
-    if ( isHttp(url) )
-    {
-	fp.setFileName( "http" ).add( filename );
-	const BufferString fullpath = fp.fullPath();
-	if ( forread )
-	    sd = StreamProvider(fullpath).makeIStream();
-	else
-	    sd = StreamProvider(fullpath).makeOStream();
-    }
-    else if ( isFtp(url) )
-    {
-	fp.setFileName( "ftp" ).add( filename );
-	const BufferString fullpath = fp.fullPath();
-	if ( forread )
-	    sd = StreamProvider(fullpath).makeIStream();
-	else
-	    sd = StreamProvider(fullpath).makeOStream();
-    }
-
-    return sd.usable();
+    return false;
 }

@@ -17,6 +17,7 @@ set ( OD_MODULE_SOURCES
 	initnetwork.cc
 	issuereporter.cc
 	jobcommunic.cc
+	netfilecache.cc
 	netreqconnection.cc
 	netreqpacket.cc
 	netserver.cc
