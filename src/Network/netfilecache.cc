@@ -20,7 +20,6 @@ Network::FileCache::blockStart( BlockIdxType bidx )
 Network::FileCache::Block::Block( SizeType sz )
     : buf_(0)
     , bufsz_(sz)
-    , fillrg_(0,-1)
 {
     try {
 	buf_ = new BufType[ bufsz_ ];
@@ -125,35 +124,13 @@ bool Network::FileCache::isAvailable( FilePosType pos,
     if ( nrbytes < 1 )
 	return pos < filesize_;
 
-    BlockIdxType bidx = blockIdx( pos );
-    const Block* blk = blocks_[bidx];
-    FilePosType blockstart = blockStart( bidx );
-    if ( !blk || !blk->hasFill()
-	      || blockstart + blk->fillrg_.stop < pos
-	      || blockstart + blk->fillrg_.start > pos )
-	return false;
-
-    const FilePosType lastpos = pos + nrbytes;
+    const FilePosType lastpos = pos + nrbytes - 1;
     const BlockIdxType lastbidx = blockIdx( lastpos );
-    for ( bidx++ ; bidx<=lastbidx; bidx++ )
+    for ( BlockIdxType bidx=blockIdx(pos); bidx<=lastbidx; bidx++ )
     {
-	blk = blocks_[bidx];
-	if ( !blk || !blk->hasFill() || blk->fillrg_.start > 0 )
+	if ( !blocks_[bidx] )
 	    return false;
-
-	if ( bidx != lastbidx )
-	{
-	    if ( blk->fillrg_.stop < blk->bufsz_ )
-		return false;
-	}
-	else
-	{
-	    blockstart = blockStart( bidx );
-	    if ( blockstart + blk->fillrg_.stop < lastpos )
-		return false;
-	}
     }
-
     return true;
 }
 
@@ -161,10 +138,13 @@ bool Network::FileCache::isAvailable( FilePosType pos,
 void Network::FileCache::getAt( FilePosType pos, BufType* out,
 				ChunkSizeType totalnrbytes ) const
 {
-    if ( !out )
+    if ( !out || totalnrbytes < 1 )
 	return;
     else if ( !isAvailable(pos,totalnrbytes) )
+    {
+	pErrMsg( "Not all data requested previously filled" );
 	OD::memZero( out, totalnrbytes );
+    }
 
     FilePosType outoffs = 0;
     const FilePosType lastpos = pos + totalnrbytes - 1;
@@ -177,15 +157,13 @@ void Network::FileCache::getAt( FilePosType pos, BufType* out,
 	    const FilePosType blockstart = blockStart( bidx );
 	    Interval<ChunkSizeType> wantedrg( (ChunkSizeType)(pos-blockstart),
 					  (ChunkSizeType)(lastpos-blockstart) );
-	    Interval<ChunkSizeType> userg( blk->fillrg_ );
-	    if ( wantedrg.start > userg.start )
-		userg.start = wantedrg.start;
-	    if ( wantedrg.stop < userg.stop )
-		userg.stop = wantedrg.stop;
+	    if ( wantedrg.start < 0 )
+		wantedrg.start = 0;
+	    if ( wantedrg.stop > blk->bufsz_-1 )
+		wantedrg.stop = blk->bufsz_-1;
 
-	    const ChunkSizeType nrbytes = userg.stop - userg.start + 1;
-	    if ( nrbytes > 0 ) // nrbytes can (and will) be negative often!
-		OD::memCopy( out+outoffs, blk->buf_+userg.start, nrbytes );
+	    const ChunkSizeType nrbytes = wantedrg.stop - wantedrg.start + 1;
+	    OD::memCopy( out+outoffs, blk->buf_+wantedrg.start, nrbytes );
 	}
 	outoffs += Block::cFullSize;
     }
@@ -193,15 +171,49 @@ void Network::FileCache::getAt( FilePosType pos, BufType* out,
 
 
 Network::FileCache::FileChunkSetType Network::FileCache::neededFill(
-		FilePosType pos, ChunkSizeType totalnrbytes ) const
+		FilePosType pos, ChunkSizeType nrbytes ) const
 {
+    if ( nrbytes < 1 )
+	nrbytes = 1;
+
     FileChunkSetType ret;
-    //TODO
+    const FilePosType lastpos = pos + nrbytes - 1;
+    const BlockIdxType lastbidx = blockIdx( lastpos );
+    for ( BlockIdxType bidx=blockIdx(pos); bidx<=lastbidx; bidx++ )
+    {
+	if ( !blocks_[bidx] )
+	{
+	    const FilePosType blockstart = blockStart( bidx );
+	    ret += FileChunkType( blockstart, blockstart+Block::cFullSize-1 );
+	}
+    }
+
     return ret;
 }
 
 
-void Network::FileCache::fill( FileChunkType chunk, const BufType* data )
+// Note: we expect full blocks only, but still prepare for other input
+
+bool Network::FileCache::fill( FileChunkType chunk, const BufType* data )
 {
-    //TODO
+    const BlockIdxType firstbidx = blockIdx( chunk.start );
+    const BlockIdxType lastbidx = blockIdx( chunk.stop );
+    FilePosType dataoffs = 0;
+
+    for ( BlockIdxType bidx=firstbidx; bidx<=lastbidx; bidx++ )
+    {
+	Block* blk = getBlock( bidx );
+	if ( !blk ) // mem full, exit all
+	    return false;
+
+	const FilePosType blockstart = blockStart( bidx );
+	const ChunkSizeType bufoffs = bidx != firstbidx ? 0
+				: (ChunkSizeType)(chunk.start - blockstart);
+	const ChunkSizeType nrbytes = bidx != lastbidx ? Block::cFullSize
+				: (ChunkSizeType)(chunk.stop - blockstart + 1);
+	OD::memCopy( blk->buf_+bufoffs, data+dataoffs, nrbytes );
+	dataoffs += nrbytes;
+    }
+
+    return true;
 }

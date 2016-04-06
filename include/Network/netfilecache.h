@@ -47,7 +47,8 @@ public:
 
 			// Stuff data
     FileChunkSetType	neededFill(FilePosType,ChunkSizeType) const;
-    void		fill(FileChunkType,const BufType*);
+    bool		fill(FileChunkType,const BufType*);
+			//!< if fail, memory was full; now the cache is cleared
 
 protected:
 
@@ -63,10 +64,6 @@ protected:
 
 	BufType*		buf_;
 	SizeType		bufsz_;
-	Interval<PosType>	fillrg_;
-
-	inline bool		hasFill() const
-				{ return fillrg_.stop >= fillrg_.start; }
 
 	static const SizeType	cFullSize;
     };
