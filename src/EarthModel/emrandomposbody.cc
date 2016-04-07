@@ -24,6 +24,7 @@ ___________________________________________________________________
 #include "pickset.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 namespace EM
 {
@@ -147,6 +148,9 @@ public:
 	IOPar pars;
 	rdposbody.fillPar( pars );
 	pars.set( RandomPosBodyReader::sKeyNrPositions(), totalNr() );
+	pars.set( sKey::ZUnit(),
+		  UnitOfMeasure::surveyDefZStorageUnit()->name() );
+
 	pars.putTo( astream );
     }
 

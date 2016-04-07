@@ -53,6 +53,7 @@ namespace sKey
     inline FixedString DateTime()	{ return "Date/Time"; }
     inline FixedString Default()	{ return "Default"; }
     inline FixedString Depth()		{ return "Depth"; }
+    inline FixedString DepthUnit()	{ return "Depth-Unit"; }
     inline FixedString Desc()		{ return "Description"; }
     inline FixedString EmptyString()	{ return ""; }
     inline FixedString Factor()		{ return "Factor"; }
@@ -134,6 +135,7 @@ namespace sKey
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
+    inline FixedString ZUnit()		{ return "Z-Unit"; }
 
     // Stats
     inline FixedString Average()	{ return "Average"; }

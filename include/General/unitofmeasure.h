@@ -77,9 +77,17 @@ public:
     void		setSource( Repos::Source s )	{ source_ = s; }
 
     static const UnitOfMeasure* surveyDefZUnit();
+				//!<Default unit in displays (ms,m,ft)
+    static const UnitOfMeasure* surveyDefZStorageUnit();
+				//!<Default unit in storage (s,m,ft)
     static const UnitOfMeasure* surveyDefTimeUnit();
+				//!<Default time unit in displays (ms)
     static const UnitOfMeasure* surveyDefDepthUnit();
+				//!<Default depth unit in displays (m,ft)
+    static const UnitOfMeasure* surveyDefDepthStorageUnit();
+				//!<Default depth unit in storage (m,ft)
     static const UnitOfMeasure* surveyDefVelUnit();
+				//!<Default velocity unit in displays (m/s,ft/s)
     static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefTimeUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefDepthUnitAnnot(bool symbol,bool withparens);

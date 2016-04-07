@@ -19,6 +19,15 @@
 static const char* filenamebase = "UnitsOfMeasure";
 static const char* sKeyUOM = "UOM";
 
+//Must match UoM data file
+static const char* secondsKey = "Seconds";
+static const char* millisecondsKey = "Milliseconds";
+static const char* feetKey = "Feet";
+static const char* meterKey = "Meter";
+static const char* ftpersecondKey = "Feet/second";
+static const char* mpersecondKey = "Meter/second";
+
+
 
 class UnitOfMeasureCurDefsMgr : public CallBacker
 {
@@ -115,21 +124,36 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::surveyDefZStorageUnit()
+{
+    return SI().zIsTime()
+	? UoMR().get(secondsKey)
+	: surveyDefDepthStorageUnit();
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 {
-    return UoMR().get( "Milliseconds" );
+    return UoMR().get( millisecondsKey );
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 {
-    return UoMR().get( SI().depthsInFeet() ? "Feet" : "Meter" );
+    return UoMR().get( SI().depthsInFeet() ? feetKey : meterKey );
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefDepthStorageUnit()
+{
+    return UoMR().get( SI().zDomain().isDepth() &&
+		       SI().depthsInFeet() ? feetKey : meterKey );
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefVelUnit()
 {
-    return UoMR().get( SI().depthsInFeet() ? "Feet/second" : "Meter/second" );
+    return UoMR().get( SI().depthsInFeet() ? ftpersecondKey : mpersecondKey );
 }
 
 
