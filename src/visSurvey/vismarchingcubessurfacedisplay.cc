@@ -69,11 +69,8 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
     for ( int idx=cache_.size()-1; idx>=0; idx-- )
     {
-	if ( !cache_[idx] )
-	    continue;
-
-	DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
-	delete cache_[idx];
+	if ( cache_[idx] )
+	    DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
     }
 
     if ( model2displayspacetransform_ )
@@ -416,10 +413,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     if ( cache_.validIdx(attrib) )
     {
 	if ( cache_[attrib] )
-	{
 	    DPM( DataPackMgr::PointID() ).release( cache_[attrib]->id() );
-	    delete cache_[attrib];
-	}
 
 	cache_.replace(attrib,ndps);
     }
