@@ -782,9 +782,10 @@ int HorizonSection::getNrTitles() const
 
 bool HorizonSection::checkTileIndex( int tidx ) const
 {
-    return tiles_.getData() && 
-	   tidx<tiles_.info().getTotalSz() && 
-	   tiles_.getData()[tidx];
+    const bool szok = tidx<tiles_.info().getTotalSz();
+    const bool dataok = tiles_.getData();
+    const bool titledataok = tiles_.getData()[tidx];
+    return szok && dataok && titledataok;
 }
 
 
