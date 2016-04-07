@@ -1059,6 +1059,12 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 }
 
 
+Color HorizonDisplay::getColor() const
+{
+    return nontexturecol_;
+}
+
+
 int HorizonDisplay::getChannelIndex( const char* nm ) const
 {
     for ( int idx=0; idx<nrAttribs(); idx++ )

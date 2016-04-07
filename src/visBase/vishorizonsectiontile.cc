@@ -703,7 +703,6 @@ bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3>& coords) const
 bool HorizonSectionTile::getResolutionTextureCoordinates(
     TypeSet<Coord>& coords) const
 {
-    if ( txunits_.size()==0 ) return false;
 
     coords.setEmpty();
 
