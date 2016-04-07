@@ -234,42 +234,102 @@ bool testSetCapacity()
 class TestClass
 {
     public:
-	TestClass(bool& deletedflag)
+	TestClass(int& deletedflag)
 	    : deleted_( deletedflag )
 	{}
 
     ~TestClass()
     {
-	deleted_ = true; 
+	deleted_++;
     }
 
-    bool& deleted_;
+    int& deleted_;
 };
 
 
 bool testManagedObjectSet()
 {
 
-    bool delflag = false;
+    int delcount = 0;
     {
 	ManagedObjectSet<ManagedObjectSet<TestClass> > set1;
 
-	TestClass* tc = new TestClass( delflag );
+	TestClass* tc = new TestClass( delcount );
 	ManagedObjectSet<TestClass>* set2 = new ManagedObjectSet<TestClass>();
 	set2->push( tc );
 	set1.push( set2 );
 
 	set1.erase();
-	mRunStandardTest( delflag, "Erasing nested managed objectsets" );
+	mRunStandardTest( delcount, "Erasing nested managed objectsets" );
 
-	delflag = false;
-	tc = new TestClass( delflag );
+	delcount = 0;
+	tc = new TestClass( delcount );
 	set2 = new ManagedObjectSet<TestClass>();
 	set2->push( tc );
 	set1.push( set2 );
     }
 
-    mRunStandardTest( delflag, "Deleting nested managed objectsets" );
+    mRunStandardTest( delcount, "Deleting nested managed objectsets" );
+
+    delcount = 0;
+    {
+	ManagedObjectSet<TestClass> set1;
+	set1 += new TestClass( delcount );
+
+	{
+	    ManagedObjectSet<TestClass> set2( set1 );
+	    mRunStandardTest( set1[0] != set2[0], "Copy constructor clones" );
+
+	    ManagedObjectSet<TestClass> set3 = set1;
+	    mRunStandardTest( set1[0] != set3[0],
+		    	      "Assignment at construct clones" );
+
+	    ManagedObjectSet<TestClass> set4;
+	    set4 = set1;
+	    mRunStandardTest( set1[0] != set4[0],
+		    	      "Assignment operator clones" );
+
+	}
+
+	mRunStandardTest( delcount==3,
+			  "Deleting after copy constructor - Part 1" );
+    }
+    mRunStandardTest( delcount==4,
+	    	      "Deleting after copy constructor - Part 2" );
+
+    delcount = 0;
+    {
+	ManagedObjectSet<TestClass> set1;
+	set1 += new TestClass( delcount );
+
+	{
+	    ManagedObjectSet<TestClass> set2;
+	    ObjectSet<TestClass>& set2ref = set2;
+	    set2ref = set1;
+
+	    mRunStandardTest( set1[0] != set2[0],
+		    	      "ObjectSet cast clones" );
+	}
+
+	mRunStandardTest( delcount==1,
+			  "Count after objectset cast construct" );
+    }
+
+    delcount = 0;
+    {
+	ManagedObjectSet<TestClass> set1;
+	set1 += new TestClass( delcount );
+
+	{
+	    ManagedObjectSet<TestClass> set2;
+	    ObjectSet<TestClass>& set1ref = set1;
+	    set2 = set1ref;
+
+	    mRunStandardTest( set1[0] != set2[0],
+		    	      "Set operation clones" );
+	}
+    }
+
     return true;
 }
 

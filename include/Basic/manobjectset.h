@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "objectset.h"
 
+//!Helper class to RefObjectSet and ManagedObjectSet
 template <class T>
 mClass(Basic) ManagedObjectSetBase : public ObjectSet<T>
 {
@@ -27,7 +28,6 @@ public:
 				/*!<Does not delete the entry. */
     inline virtual void		erase();
 
-    inline virtual ManagedObjectSetBase<T>& operator=(const ObjectSet<T>&);
     inline virtual ManagedObjectSetBase<T>& operator-=(T*);
 
 protected:
@@ -50,15 +50,18 @@ template <class T>
 mClass(Basic) ManagedObjectSet : public ManagedObjectSetBase<T>
 {
 public:
-
-    typedef int			size_type;
-    typedef T			object_type;
-
     inline			ManagedObjectSet();
+    				
     inline			ManagedObjectSet(const ManagedObjectSet<T>&);
+    				//Must be implemented as default
+				//copy constructor will call
+				//operator= before class is fully setup and 
+				//append is not in virtual table
+    				
+    inline			ManagedObjectSet(const ObjectSet<T>&);
 
-    inline ManagedObjectSet<T>&	operator =(const ObjectSet<T>&);
-    inline ManagedObjectSet<T>&	operator =(const ManagedObjectSet<T>&);
+    ManagedObjectSet<T>&	operator=(const ObjectSet<T>& os);
+
     inline virtual void		append(const ObjectSet<T>&);
 
 private:
@@ -67,7 +70,7 @@ private:
 };
 
 
-/*!ObjectSet for reference counte objects. All members are referenced
+/*!ObjectSet for reference counted objects. All members are referenced
    once when added to the set, and unreffed when removed from the set.
 */
 
@@ -76,11 +79,10 @@ template <class T>
 mClass(Basic) RefObjectSet : public ManagedObjectSetBase<T>
 {
 public:
-				RefObjectSet()
-				    : ManagedObjectSetBase<T>( unRef )
-				{}
+				RefObjectSet();
+				RefObjectSet(const ObjectSet<T>&);
 
-    inline RefObjectSet<T>&	operator =(const ObjectSet<T>&);
+    RefObjectSet<T>&		operator=(const ObjectSet<T>& os);
 
 private:
     virtual ObjectSet<T>&	doAdd(T* ptr);
@@ -150,17 +152,6 @@ T* ManagedObjectSetBase<T>::removeAndTake(int idx, bool kporder )
 }
 
 
-template <class T> inline
-ManagedObjectSetBase<T>&
-ManagedObjectSetBase<T>::operator =( const ObjectSet<T>& os )
-{
-    if ( &os != this )
-    { this->erase(); this->append( os ); }
-    return *this;
-}
-
-
-
 //ManagedObjectSet implementation
 
 template <class T> inline
@@ -170,28 +161,21 @@ ManagedObjectSet<T>::ManagedObjectSet()
 
 
 template <class T> inline
+ManagedObjectSet<T>::ManagedObjectSet( const ObjectSet<T>& t )
+    : ManagedObjectSetBase<T>(delFunc)
+{ *this = t; }
+
+
+template <class T> inline
 ManagedObjectSet<T>::ManagedObjectSet( const ManagedObjectSet<T>& t )
     : ManagedObjectSetBase<T>(delFunc)
 { *this = t; }
 
 
-
 template <class T> inline
-ManagedObjectSet<T>& ManagedObjectSet<T>::operator =( const ObjectSet<T>& os )
-{
-    ManagedObjectSetBase<T>::operator=( os );
-    return *this;
-}
+ManagedObjectSet<T>& ManagedObjectSet<T>::operator =(const ObjectSet<T>& os)
+{ ObjectSet<T>::operator=(os); return *this; }
 
-
-template <class T> inline
-ManagedObjectSet<T>& ManagedObjectSet<T>::operator =(
-					const ManagedObjectSet<T>& os )
-{
-    if ( &os != this )
-	deepCopy( *this, os );
-    return *this;
-}
 
 
 template <class T> inline
@@ -207,14 +191,21 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 }
 
 
+template <class T> inline
+RefObjectSet<T>::RefObjectSet()
+    : ManagedObjectSetBase<T>( unRef )
+{}
 
 
 template <class T> inline
-RefObjectSet<T>& RefObjectSet<T>::operator =( const ObjectSet<T>& os )
-{
-    ManagedObjectSetBase<T>::operator=( os );
-    return *this;
-}
+RefObjectSet<T>::RefObjectSet( const ObjectSet<T>& os )
+    : ManagedObjectSetBase<T>( unRef )
+{ *this = os; }
+
+
+template <class T> inline
+RefObjectSet<T>& RefObjectSet<T>::operator =(const ObjectSet<T>& os)
+{ ObjectSet<T>::operator=(os); return *this; }
 
 
 template <class T> inline
