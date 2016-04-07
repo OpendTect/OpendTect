@@ -313,6 +313,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	return;
 
     int eventid = -1;
+    pickedsobjid_ = -1;
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
@@ -327,11 +328,11 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	if ( so && so->allowsPicks() )
 	    pickedsobjid_ = eventid;
 
-	if ( eventid!=-1 )
+	if ( pickedsobjid_ != -1 )
 	    break;
     }
 
-    if ( eventid==-1 )
+    if ( eventid == -1 )
 	return;
 
     if ( waitsforpositionid_!=-1 || waitsfordirectionid_!=-1 )
@@ -647,15 +648,20 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
     else
 	sower_->alternateSowingOrder( false );
 
+    Pick::Location newloc( pos, dir );
+    const SurveyObject* so = getPickedSurveyObject();
+    if ( so )
+	newloc.setGeomID( so->getGeomID() );
+
     if ( insertpick )
     {
-	set_->insertWithUndo( locidx, Pick::Location(pos,dir) );
+	set_->insertWithUndo( locidx, newloc );
 	Pick::Mgr().undo().setUserInteractionEnd(
 	    Pick::Mgr().undo().currentEventID() );
     }
     else
     {
-	set_->appendWithUndo( Pick::Location(pos,dir) );
+	set_->appendWithUndo( newloc );
 	Pick::Mgr().undo().setUserInteractionEnd(
 	    Pick::Mgr().undo().currentEventID() );
 	locidx = set_->size()-1;
