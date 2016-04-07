@@ -165,6 +165,8 @@ protected:
     void			configSizeParameters();
     void			updateAutoResolution( const osg::CullStack* );
     HorizonSectionTile*		getTitle(int idx);
+    bool			checkTileIndex(int) const;
+
 
     void			setUpdateVar(bool& var,bool yn);
 				//! Will trigger redraw request if necessary
