@@ -247,9 +247,8 @@ bool TexturePanelStrip::getTextureDataInfo( int tidx,
     for ( int idx=0; idx<ps->getNumIndices(); idx++ )
 	texinfo.ps_ += ps->index( idx );
 
-    calcTextureCoordinates( texinfo.coords_, texinfo.texcoords_ );
+       return calcTextureCoordinates( tidx, texinfo.texcoords_ );
 
-    return true;
 }
 
 
@@ -267,6 +266,55 @@ bool TexturePanelStrip::getTextureInfo( int& width, int& height, int& pixsize )
 }
 
 
+bool TexturePanelStrip::calcTextureCoordinates( int geomidx, 
+    TypeSet<Coord>& coordout) const
+{
+    const std::vector<osgGeo::Vec2i>& origins = 
+	osgpanelstrip_->getCompositeCutoutOrigins();
+
+    const std::vector<osgGeo::Vec2i>& szs =
+	osgpanelstrip_->getCompositeCutoutSizes();
+
+    osgGeo::LayeredTexture* lytexture = osgpanelstrip_->getTexture();
+
+    if ( geomidx>=origins.size() || geomidx>=szs.size() || !lytexture )
+	return false;
+
+    const int width = lytexture->getCompositeTextureImage()->s();
+    const int height = lytexture->getCompositeTextureImage()->t();
+    
+    if ( width<=0 || height<=0 ) return false;
+
+    coordout.setEmpty();
+
+    const std::vector<osg::Geometry*> geometries = 
+	osgpanelstrip_->getGeoMetries();
+
+    if ( geomidx>=geometries.size() ) return false;
+
+    for ( int idx=0; idx<geometries[geomidx]->getNumTexCoordArrays(); idx++ )
+    {
+	const osg::Array* coords = geometries[geomidx]->getTexCoordArray(idx);
+	const osg::Vec2Array* vtxcoords =
+	    dynamic_cast<const osg::Vec2Array*>( coords );
+	if ( !vtxcoords )
+	    continue;
+	for ( int idy=0; idy<vtxcoords->size(); idy++ )
+	{
+	    const double x = vtxcoords->at(idy)[0]*szs[geomidx][0];
+	    const double y = vtxcoords->at(idy)[1]*szs[geomidx][1];
+
+	    Coord tcrd;
+	    tcrd.x = ( x+origins[geomidx][0] )/width;
+	    tcrd.y = ( y+origins[geomidx][1] )/height;
+	    coordout += tcrd;
+	}
+    }
+    
+    return true;
+}
+
+
 const unsigned char* TexturePanelStrip::getTextureData() const
 {
     osgGeo::LayeredTexture* lytexture = osgpanelstrip_->getTexture();
@@ -279,17 +327,6 @@ const unsigned char* TexturePanelStrip::getTextureData() const
 bool TexturePanelStrip::calcTextureCoordinates( TypeSet<Coord3>& coordin, 
 	TypeSet<Coord>& coordout ) const
 {
-    if ( coordin.size()==0 ) return false;
-    double minx = 0;
-    double xlen = 0;
-    double minz = 0;
-    double zlen = 0;
-    getMinAndLengthInfo( minx, xlen );
-    getMinAndLengthInfo( minz, zlen, true );
-
-    for ( int idy=0; idy<coordin.size(); idy++ )
-	coordout += getImageTextureCoord( coordin[idy],minx,xlen,minz,zlen );
-
     return true;
 }
 
@@ -297,13 +334,7 @@ bool TexturePanelStrip::calcTextureCoordinates( TypeSet<Coord3>& coordin,
 Coord TexturePanelStrip::getImageTextureCoord( const Coord3 dispcrd,
     double minx, double xlen, double minz, double zlen ) const
 {
-    const double xval = areTextureAxesSwapped() ? dispcrd[0] : dispcrd[1];
-    const double zval = dispcrd[2];
-
-    const double x = xlen==0 ? 0 : (xval-minx)/xlen;
-    const double z = zlen==0 ? 0 : (zval-minz)/zlen;
-
-    return Coord( x, z );
+    return Coord( 0, 0 );
 
 }
 
@@ -311,24 +342,4 @@ Coord TexturePanelStrip::getImageTextureCoord( const Coord3 dispcrd,
 void TexturePanelStrip::getMinAndLengthInfo( double& minval, double& len, 
     bool bz ) const
 {
-    double minv = FLT_MAX;
-    double maxv = -FLT_MAX;
-    if ( bz )
-    {
-	minval = osgpanelstrip_->getBottom();
-	len = osgpanelstrip_->getTop()-osgpanelstrip_->getBottom();
-	return;
-    }
-
-    for ( int idx = 0; idx<pathcoords_->size(); idx++ )
-    {
-	Coord3 dummy( (*pathcoords_)[idx],0.0 );
-	mVisTrans::transform( displaytrans_,dummy );
-	const double  val = areTextureAxesSwapped() ? dummy[0] : dummy[1];
-	minv = val<minv ? val : minv;
-	maxv = val>maxv ? val : maxv;
-    }
-
-    len = maxv-minv;
-    minval = minv;
 }
