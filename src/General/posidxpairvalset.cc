@@ -325,9 +325,9 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals )
 
 
 void Pos::IdxPairValueSet::extend( const Pos::IdxPairDelta& so,
-				   const Pos::IdxPairStep& sos )
+				   const Pos::IdxPairStep& sos, bool avoiddups )
 {
-    data_.extend( so, sos, initVals );
+    data_.extend( so, sos, avoiddups );
 }
 
 

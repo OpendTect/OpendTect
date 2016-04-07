@@ -124,7 +124,8 @@ public:
     inline void		randomSubselect( od_int64 maxsz )
 			{ data_.randomSubselect( maxsz ); }
 
-    void		extend(const IdxPairDelta& stepout,const IdxPairStep&);
+    void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
+	    			bool avoiddups=true);
     void		add(const PosInfo::CubeData&);
     inline void		remove( const SPos& spos )
 			{ data_.remove( spos ); }

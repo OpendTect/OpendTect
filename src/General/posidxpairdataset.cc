@@ -20,6 +20,8 @@
 }
 #define mErrRetMemFull() { mHandleMemFull(); return false; }
 
+#define mEmitSPospErrMsg() { pErrMsg( "SPos invalid" ); }
+
 static bool isnull = false;
 static bool isnotnull = true;
 
@@ -479,9 +481,20 @@ void Pos::IdxPairDataSet::copyStructureFrom( const IdxPairDataSet& oth )
 }
 
 
+bool Pos::IdxPairDataSet::isValid( SPos spos ) const
+{
+    if ( !spos.isValid() )
+       return false;
+    else if ( !frsts_.validIdx(spos.i) )
+	return false;
+
+    return scndsets_[spos.i]->validIdx( spos.j );
+}
+
+
 bool Pos::IdxPairDataSet::isValid( const IdxPair& ip ) const
 {
-    return find( ip ).isValid();
+    return isValid( find(ip) );
 }
 
 
@@ -578,22 +591,44 @@ bool Pos::IdxPairDataSet::prev( SPos& spos, bool skip_dup ) const
 
 const void* Pos::IdxPairDataSet::get( SPos spos, IdxPair& ip ) const
 {
-    if ( !spos.isValid() )
-	{ ip.setUdf(); return 0; }
-    ip = gtIdxPair( spos );
-    return gtObj( spos );
+    if ( spos.isValid() )
+    {
+	if ( !isValid(spos) )
+	    mEmitSPospErrMsg()
+	else
+	{
+	    ip = gtIdxPair( spos );
+	    return gtObj( spos );
+	}
+    }
+
+    ip.setUdf();
+    return 0;
 }
 
 
 Pos::IdxPair Pos::IdxPairDataSet::getIdxPair( SPos spos ) const
 {
-    return spos.isValid() ? gtIdxPair(spos) : IdxPair::udf();
+    if ( spos.isValid() )
+    {
+	if ( !isValid(spos) )
+	    mEmitSPospErrMsg()
+	else
+	    return gtIdxPair( spos );
+    }
+    return IdxPair::udf();
 }
 
 
 const void* Pos::IdxPairDataSet::getObj( SPos spos ) const
 {
-    return spos.isValid() ? gtObj(spos) : 0;
+    if ( spos.isValid() )
+    {
+	if ( isValid(spos) )
+	    return gtObj( spos );
+	mEmitSPospErrMsg()
+    }
+    return 0;
 }
 
 
@@ -627,7 +662,12 @@ Pos::IdxPairDataSet::SPos Pos::IdxPairDataSet::add( const Pos::IdxPair& ip,
 void Pos::IdxPairDataSet::set( SPos spos, const void* obj )
 {
     if ( spos.isValid() )
-	putObj( spos, obj );
+    {
+	if ( !isValid(spos) )
+	    mEmitSPospErrMsg()
+	else
+	    putObj( spos, obj );
+    }
 }
 
 
@@ -745,20 +785,17 @@ void Pos::IdxPairDataSet::removeDuplicateIdxPairs()
 
 void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
 				  const Pos::IdxPairStep& sostep,
-				  EntryCreatedFn crfn )
+				  bool avoiddups )
 {
     if ( (!so.first && !so.second) || (!sostep.first && !sostep.second) )
 	return;
 
-    IdxPairDataSet ds( *this );
-
-    const bool kpdup = allowdup_;
-    allowdup_ = false;
-
+    IdxPairDataSet toadd( objsz_, avoiddups, true );
     SPos spos;
-    while ( ds.next(spos) )
+    while ( next(spos) )
     {
-	IdxPair ip = ds.gtIdxPair( spos );
+	IdxPair ip = gtIdxPair( spos );
+	const void* obj = getObj( spos );
 	const IdxPair centralip( ip );
 	for ( int ifrstoffs=-so.first; ifrstoffs<=so.first; ifrstoffs++ )
 	{
@@ -769,20 +806,26 @@ void Pos::IdxPairDataSet::extend( const Pos::IdxPairDelta& so,
 		    continue;
 
 		ip.second = centralip.second + iscndoffs * sostep.second;
-		SPos newspos = ds.find( ip );
-		if ( newspos.isValid() )
-		    continue;
-		newspos = ds.add( ip );
-		if ( !newspos.isValid() )
-		    { mHandleMemFull(); return; }
-
-		if ( crfn )
-		    crfn( *this, newspos.i, newspos.j );
+		if ( avoiddups )
+		{
+		    SPos newspos = find( ip );
+		    if ( newspos.isValid() )
+			continue;
+		}
+		toadd.add( ip, obj );
 	    }
 	}
     }
 
-    allowdup_ = kpdup;
+    spos.reset();
+    while ( toadd.next(spos) )
+    {
+	const IdxPair ip = toadd.getIdxPair( spos );
+	const void* obj = toadd.getObj( spos );
+	const SPos newspos = add( ip, obj );
+	if ( !newspos.isValid() )
+	    { mHandleMemFull(); return; }
+    }
 }
 
 

@@ -120,6 +120,7 @@ public:
     SPos		findOccurrence(const IdxPair&,int occ=0) const;
     bool		next(SPos&,bool skip_duplicate_idxpairs=false) const;
     bool		prev(SPos&,bool skip_duplicate_idxpairs=false) const;
+    bool		isValid(SPos) const;
     bool		isValid(const IdxPair&) const;
 
     IdxPair		getIdxPair(SPos) const;
@@ -157,8 +158,7 @@ public:
     ArrIdxType		nrPos(ArrIdxType lineidx) const;
 
     void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
-				EntryCreatedFn fn=0);
-			    //!< Adds only IdxPair postions not yet in set
+	    			bool avoiddups=true);
     void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair postions not yet in set
     void		randomSubselect(GlobIdxType maxsz);
