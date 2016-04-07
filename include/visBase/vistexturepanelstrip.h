@@ -111,15 +111,8 @@ protected:
     PtrMan<TypeSet<Coord> >		pathcoords_;
     PtrMan<TypeSet<float> >		pathtexoffsets_;
 private:
-    bool			calcTextureCoordinates(TypeSet<Coord3>& coordin,
-					TypeSet<Coord>& coordout) const;
-    Coord			getImageTextureCoord(const Coord3 dispcrd,
-					double minx,double xlen,double minz,
-					double zlen) const;
-    void			getMinAndLengthInfo(double& minval,double& len,
-						    bool bz=false) const;
-
-
+    bool			calcTextureCoordinates(int,
+						       TypeSet<Coord>&)const;
 };
 
 };
