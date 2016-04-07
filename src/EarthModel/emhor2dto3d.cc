@@ -175,7 +175,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 
 void Hor2DTo3D::fillSections()
 {
-    const float mindist = SI().xyInFeet() ? 400. : 100.;
+    const float mindist = SI().xyInFeet() ? 400.0f : 100.0f;
     for ( int isd=0; isd<sd_.size(); isd++ )
     {
 	Coord lastpos = Coord::udf();
