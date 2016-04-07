@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "netfilecache.h"
 
-const Network::FileCache::Block::SizeType
+const Network::FileCache::BlockSizeType
 	Network::FileCache::Block::cFullSize = 2097152; // 2 MB
 inline Network::FileCache::FilePosType
 Network::FileCache::blockStart( BlockIdxType bidx )
@@ -45,12 +45,12 @@ Network::FileCache::FileCache( FileSizeType filesz )
 
     BlockIdxType nrblocks = (BlockIdxType)(filesize_ / Block::cFullSize);
     const_cast<FilePosType&>(lastblockpos_) = blockStart( nrblocks );
-    Block::SizeType lastblksz = (Block::SizeType)(filesize_ - lastblockpos_);
+    BlockSizeType lastblksz = (BlockSizeType)(filesize_ - lastblockpos_);
     if ( lastblksz > 0 )
         nrblocks++;
     else
 	lastblksz = Block::cFullSize;
-    const_cast<Block::SizeType&>(lastblocksz_) = lastblksz;
+    const_cast<BlockSizeType&>(lastblocksz_) = lastblksz;
 
     for ( BlockIdxType iblk=0; iblk<nrblocks; iblk++ )
 	blocks_ += 0;
@@ -102,7 +102,7 @@ void Network::FileCache::newBlockAdded()
 }
 
 
-Network::FileCache::Block::SizeType Network::FileCache::blockSize(
+Network::FileCache::BlockSizeType Network::FileCache::blockSize(
 						BlockIdxType iblk ) const
 {
     return iblk == blocks_.size() - 1 ? lastblocksz_ : Block::cFullSize;
@@ -198,7 +198,7 @@ Network::FileCache::FileChunkSetType Network::FileCache::neededFill(
 }
 
 
-bool Network::FileCache::haveBlock( BlockIdxType bidx ) const
+bool Network::FileCache::hasBlock( BlockIdxType bidx ) const
 {
     return blocks_.validIdx(bidx) && blocks_[bidx];
 }
