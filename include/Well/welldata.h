@@ -70,6 +70,7 @@ public:
     float		replvel;
     float		groundelev;
 
+    static const char*	sKeyDepthUnit();
     static const char*	sKeyUwid();
     static const char*	sKeyOper();
     static const char*	sKeyState();

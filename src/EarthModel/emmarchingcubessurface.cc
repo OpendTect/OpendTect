@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "od_iostream.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
 #include "emmanager.h"
 
 namespace EM
@@ -179,6 +180,8 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 	     surface.zSampling().start,surface.zSampling().step );
 
     par.set( sKey::Color(), surface.preferredColor() );
+    par.set( sKey::ZUnit(),
+	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
 
     par.putTo( astream );
 

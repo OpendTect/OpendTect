@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 
 // Keys for IOPars
+const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
 const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
 const char* Well::Info::sKeyOper()	{ return "Operator"; }
 const char* Well::Info::sKeyState()	{ return "State"; }

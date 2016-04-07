@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "polygon.h"
 #include "keystrs.h"
+#include "unitofmeasure.h"
 
 mDefSimpleTranslatorioContext( PickSet, Loc )
 mDefSimpleTranslatorSelector( PickSet )
@@ -159,6 +160,8 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     BufferString str;
     IOPar par;
     ps.fillPar( par );
+    par.set( sKey::ZUnit(),
+	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();

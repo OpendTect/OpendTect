@@ -175,6 +175,8 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
 	mErrRetStrmOper("write header (info/track)")
 
     ascostream astrm( strm );
+    astrm.put( Well::Info::sKeyDepthUnit(),
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.put( Well::Info::sKeyUwid(), wd_.info().uwid );
     astrm.put( Well::Info::sKeyOper(), wd_.info().oper );
     astrm.put( Well::Info::sKeyState(), wd_.info().state );
@@ -254,6 +256,8 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 	mErrRetStrmOper("write header (log)")
 
     ascostream astrm( strm );
+    astrm.put( Well::Info::sKeyDepthUnit(),
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.put( sKey::Name(), wl.name() );
     const bool haveunits = *wl.unitMeasLabel();
     const bool havepars = !wl.pars().isEmpty();
@@ -323,6 +327,8 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
 	mErrRetStrmOper("write header (markers)")
 
     ascostream astrm( strm );
+    astrm.put( Well::Info::sKeyDepthUnit(),
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     for ( int idx=0; idx<wd_.markers().size(); idx++ )
     {
 	BufferString basekey; basekey += idx+1;
@@ -370,6 +376,8 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
     astrm.put( sKey::Name(), d2t.name() );
     astrm.put( sKey::Desc(), d2t.desc );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
+    astrm.put( Well::Info::sKeyDepthUnit(),
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.newParagraph();
 
     for ( int idx=0; idx<d2t.size(); idx++ )

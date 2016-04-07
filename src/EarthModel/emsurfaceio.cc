@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "uistrings.h"
 
 #include <limits.h>
@@ -1604,6 +1605,9 @@ void dgbSurfaceWriter::finishWriting()
 	if ( idxcolstep && idxcolstep!=colrange_.step )
 	    par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
     }
+
+    par_->set( sKey::ZUnit(),
+	       UnitOfMeasure::surveyDefZStorageUnit()->name() );
 
     ascostream astream( strm );
     astream.newParagraph();
