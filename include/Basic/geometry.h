@@ -135,6 +135,7 @@ public:
     inline Point2D<T>	moveInside(const Point2D<T>&) const;
 
     inline void		include(const Rectangle<T>&);
+    inline void		include(const Point2D<T>&);
     inline void		limitTo(const Rectangle<T>&);
     inline void		translate(const Point2D<T>&);
 
@@ -876,6 +877,32 @@ inline void Rectangle<T>::include( const Rectangle<T>& r )
     {
 	if ( r.bottom() < bottom() ) bottomright_.y = r.bottom();
 	if ( r.top() > top() ) topleft_.y = r.top();
+    }
+}
+
+
+template <class T>
+inline void Rectangle<T>::include( const Point2D<T>& p )
+{
+    if ( revX() )
+    {
+	if ( mIsUdf(left()) || p.x > left() ) topleft_.x = p.x;
+	if ( mIsUdf(right()) || p.x < right() ) bottomright_.x = p.x;
+    }
+    else
+    {
+	if ( mIsUdf(left()) || p.x < left() ) topleft_.x = p.x;
+	if ( mIsUdf(right()) || p.x > right() ) bottomright_.x = p.x;
+    }
+    if ( revY() )
+    {
+	if ( mIsUdf(bottom()) || p.y > bottom() ) bottomright_.y = p.y;
+	if ( mIsUdf(top()) || p.y < top() ) topleft_.y = p.y;
+    }
+    else
+    {
+	if ( mIsUdf(bottom()) || p.y < bottom() ) bottomright_.y = p.y;
+	if ( mIsUdf(top()) || p.y > top() ) topleft_.y = p.y;
     }
 }
 
