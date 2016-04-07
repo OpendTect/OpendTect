@@ -45,7 +45,7 @@ public:
     enum smoothingType		{ None, MovingAverage, FFTFilter };
 				mDeclareEnumUtils(smoothingType)
 
-    virtual Gather*		computeAngles() = 0;
+    virtual RefMan<Gather>	computeAngles() = 0;
     virtual bool		isOK() const = 0;
     void			setTrcKey( const TrcKey& tk )
 				{ trckey_ = tk; }
@@ -71,7 +71,7 @@ protected:
                                 ~AngleComputer();
 
     bool			fillandInterpArray(Array2D<float>& angledata);
-    Gather*			computeAngleData();
+    RefMan<Gather>		computeAngleData();
     void			averageSmooth(Array2D<float>& angledata);
     void			fftSmooth(Array2D<float>& angledata);
     void			fftTimeSmooth(::FFTFilter& fftfilter,
@@ -107,7 +107,7 @@ public:
     bool			setMultiID(const MultiID&);
     bool			isOK() const { return velsource_; }
 
-    Gather*			computeAngles();
+    RefMan<Gather>		computeAngles();
 
 protected:
 		
@@ -159,7 +159,7 @@ public:
     bool			isOK() const
 				{ return curElasticModel().size(); }
 
-    Gather*			computeAngles();
+    RefMan<Gather>		computeAngles();
 
 protected:
 

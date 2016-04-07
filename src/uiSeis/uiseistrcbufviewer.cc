@@ -40,8 +40,6 @@ uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 
 void uiSeisTrcBufViewer::releaseDP()
 {
-    if ( dp_ )
-	DPM( DataPackMgr::FlatID() ).release( dp_->id() );
     dp_ = 0;
 }
 
@@ -65,7 +63,7 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
 	dp_ = new SeisTrcBufDataPack( tbuf, geom, type, cat, compnr );
     dp_->setName( dpname );
 
-    DPM( DataPackMgr::FlatID() ).addAndObtain( dp_ );
+    DPM( DataPackMgr::FlatID() ).add( dp_ );
     const FlatView::DataDispPars& ddpars = viewer().appearance().ddpars_;
     viewer().addPack( dp_->id() );
     if ( ddpars.wva_.show_ )

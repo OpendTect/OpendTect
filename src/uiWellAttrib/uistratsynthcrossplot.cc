@@ -544,13 +544,12 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 					  : mUdf(float);
     const Strat::Level& lvl = *evfld_->event().level();
     const Strat::Level* stoplvl = evfld_->event().downToLevel();
-    DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin, zstep,
-				 stoplvl );
+    RefMan<DataPointSet> dps =
+		getData( seisattrs, seqattrs, lvl, extrwin, zstep, stoplvl );
     if ( !dps )
 	return false;
 
-    DPM(DataPackMgr::PointID()).addAndObtain( dps );
+    DPM(DataPackMgr::PointID()).add( dps );
     launchCrossPlot( *dps, lvl, stoplvl, extrwin, zstep ); 
-    DPM(DataPackMgr::PointID()).release( dps->id() );
     return false;
 }

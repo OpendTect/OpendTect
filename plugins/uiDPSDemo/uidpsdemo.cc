@@ -53,10 +53,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 
 
 uiDPSDemo::~uiDPSDemo()
-{
-    if ( dps_ )
-	DPM(DataPackMgr::PointID()).release( dps_->id() );
-}
+{}
 
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
@@ -91,7 +88,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     dps_->dataSet().add( new DataColDef("Peakedness") );
     dps_->dataSet().add( new DataColDef("PeakSkew") );
     dps_->dataSet().add( new DataColDef("Frequency") );
-    DPM(DataPackMgr::PointID()).addAndObtain( dps_ );
+    DPM(DataPackMgr::PointID()).add( dps_ );
 
     hor->ref();
     const bool isok = getRandPositions(*hor,nrpts,*dps_);
@@ -216,8 +213,10 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 	    vals[1] = vals[2] = mUdf(float);
 	else
 	{
-	    const float vm1 = trc.getValue( z-trc.info().sampling_.step, icomp );
-	    const float v1  = trc.getValue( z+trc.info().sampling_.step, icomp );
+	    const float vm1 =
+		trc.getValue( z-trc.info().sampling_.step, icomp );
+	    const float v1  =
+		trc.getValue( z+trc.info().sampling_.step, icomp );
 	    vals[1] = (vm1 + v1) * .5f;
 	    vals[2] = vm1 - v1;
 	    vals[1] /= vals[0]; vals[2] /= vals[0];

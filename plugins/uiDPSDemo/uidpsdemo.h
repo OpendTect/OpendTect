@@ -38,11 +38,11 @@ public:
 
 protected:
 
-    DataPointSet*	dps_;
-    DataPointSetDisplayMgr* dpsdispmgr_;
-    uiIOObjSel*		horfld_;
-    uiSeisSel*		seisfld_;
-    uiGenInput*		nrptsfld_;
+    RefMan<DataPointSet>	dps_;
+    DataPointSetDisplayMgr*	dpsdispmgr_;
+    uiIOObjSel*			horfld_;
+    uiSeisSel*			seisfld_;
+    uiGenInput*			nrptsfld_;
 
     bool		acceptOK(CallBacker*);
     void		showSelPtsCB(CallBacker*);

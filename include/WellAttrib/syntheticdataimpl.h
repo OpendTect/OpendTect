@@ -121,7 +121,7 @@ public:
 
 protected:
 
-    PreStack::GatherSetDataPack*	angledp_;
+    RefMan<PreStack::GatherSetDataPack> angledp_;
     void				convertAngleDataToDegrees(
 	    					PreStack::Gather*) const;
 };

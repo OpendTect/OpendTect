@@ -96,7 +96,7 @@ protected:
     virtual void	setGather(const GatherInfo& pos)	{} 
     void		setGatherView(uiGatherDisplay*,
 	    			      uiGatherDisplayInfoHeader*);
-    PreStack::Gather*   getAngleGather(const PreStack::Gather& gather, 
+    RefMan<PreStack::Gather> getAngleGather(const PreStack::Gather& gather,
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
     DataPack::ID	getPreProcessedID(const GatherInfo&);
@@ -163,7 +163,7 @@ protected:
     void		setUpNewIDs();
     void		convAngleDataToDegrees(
 	    			PreStack::Gather* angledata) const;
-    DataPack::ID	getAngleData(DataPack::ID gatherid);
+    RefMan<PreStack::Gather> getAngleData(DataPack::ID gatherid);
     void		posDlgChgCB(CallBacker*);
     void		posSlcChgCB(CallBacker*);
 };

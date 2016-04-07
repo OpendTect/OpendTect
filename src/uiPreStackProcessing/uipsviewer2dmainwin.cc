@@ -326,7 +326,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 }
 
 
-PreStack::Gather* uiViewer2DMainWin::getAngleGather(
+RefMan<PreStack::Gather> uiViewer2DMainWin::getAngleGather(
 					    const PreStack::Gather& gather,
 					    const PreStack::Gather& angledata,
 					    const Interval<int>& anglerange )
@@ -338,7 +338,7 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
     anglefp.setRange( true, x1rg );
     anglefp.setRange( false, x2rg );
 
-    PreStack::Gather* anglegather = new PreStack::Gather ( anglefp );
+    RefMan<PreStack::Gather> anglegather = new PreStack::Gather ( anglefp );
     const int offsetsize = fp.nrPts( true );
     const int zsize = fp.nrPts( false );
 
@@ -1028,12 +1028,14 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 
 
-DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
+RefMan<PreStack::Gather>
+uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 {
-    if ( !hasangledata_ || !angleparams_ ) return -1;
-    DataPack* dp = DPM( DataPackMgr::FlatID() ).obtain( gatherid );
-    mDynamicCastGet(PreStack::Gather*,gather,dp);
-    if ( !gather ) return -1;
+    if ( !hasangledata_ || !angleparams_ ) return 0;
+    RefMan<PreStack::Gather> gather =
+	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( gatherid );
+
+    if ( !gather ) return 0;
     PreStack::VelocityBasedAngleComputer velangcomp;
     velangcomp.setMultiID( angleparams_->velvolmid_ );
     velangcomp.setRayTracer( angleparams_->raypar_ );
@@ -1041,21 +1043,21 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
     const FlatPosData& fp = gather->posData();
     velangcomp.setOutputSampling( fp );
     velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
-    PreStack::Gather* angledata = velangcomp.computeAngles();
-    if ( !angledata ) return -1;
+    RefMan<PreStack::Gather> angledata = velangcomp.computeAngles();
+    if ( !angledata ) return 0;
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );
     convAngleDataToDegrees( angledata );
-    DPM( DataPackMgr::FlatID() ).addAndObtain( angledata );
+    DPM( DataPackMgr::FlatID() ).add( angledata );
     if ( doanglegather_ )
     {
-	PreStack::Gather* anglegather =
+	RefMan<PreStack::Gather> anglegather =
 	     getAngleGather( *gather, *angledata, angleparams_->anglerange_ );
-	DPM( DataPackMgr::FlatID() ).addAndObtain( anglegather );
-	DPM( DataPackMgr::FlatID() ).release( angledata->id() );
-	return anglegather->id();
+	DPM( DataPackMgr::FlatID() ).add( anglegather );
+	return anglegather;
     }
-    return angledata->id();
+
+    return angledata;
 }
 
 
@@ -1199,13 +1201,12 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	    ppgatherid = getPreProcessedID( gatherinfo );
 
 	const int gatherid = ppgatherid>=0 ? ppgatherid : gather->id();
-	const int anglegatherid = getAngleData( gatherid );
-	gd->setVDGather( hasangledata_ ? anglegatherid : gatherid );
+	RefMan<PreStack::Gather> anglegather = getAngleData( gatherid );
+	gd->setVDGather( hasangledata_ ? anglegather->id() : gatherid );
 	gd->setWVAGather( hasangledata_ ? gatherid : -1 );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
-	DPM(DataPackMgr::FlatID()).release( anglegatherid );
     }
     else
 	gd->setVDGather( -1 );

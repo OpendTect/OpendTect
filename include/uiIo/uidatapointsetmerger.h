@@ -97,12 +97,12 @@ public:
     uiString			uiNrDoneText() const
     				{return uiStrings::phrJoinStrings(
 				uiStrings::sPosition(mPlural),tr("processed"));}
-    DataPointSet*		getNewDPS()		{ return newdps_; }
+    RefMan<DataPointSet>	getNewDPS()		{ return newdps_; }
 protected:
     DPSMergerProp		prop_;
-    DataPointSet*		mdps_;
-    DataPointSet*		sdps_;
-    DataPointSet*		newdps_;
+    RefMan<DataPointSet>	mdps_;
+    RefMan<DataPointSet>	sdps_;
+    RefMan<DataPointSet>	newdps_;
     int 			rowdone_;
 
     int 			nextStep();
@@ -122,8 +122,8 @@ public:
 				~uiDataPointSetMerger();
 protected:
 
-    DataPointSet*		mdps_;
-    DataPointSet*		sdps_;
+    RefMan<DataPointSet>	mdps_;
+    RefMan<DataPointSet>	sdps_;
     CtxtIOObj			ctio_;
 
     uiTable*			tbl_;

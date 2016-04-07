@@ -46,8 +46,8 @@ public:
     float				getTime(float dpt,int seqnr) const;
     float				getDepth(float time,int seqnr) const;
 
-    const DataPack&			getPack() const {return datapack_;}
-    DataPack&				getPack() 	{return datapack_;}
+    const DataPack&			getPack() const {return *datapack_;}
+    DataPack&				getPack()	{return *datapack_;}
 
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
     ObjectSet<const TimeDepthModel>	zerooffsd2tmodels_;
@@ -82,7 +82,7 @@ protected:
 
     void				removePack();
 
-    DataPack&				datapack_;
+   RefMan<DataPack>			datapack_;
 };
 
 

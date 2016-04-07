@@ -352,9 +352,9 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 }
 
 
-Gather* AngleComputer::computeAngleData()
+RefMan<Gather> AngleComputer::computeAngleData()
 {
-    Gather* gather = new Gather( outputsampling_ );
+    RefMan<Gather> gather = new Gather( outputsampling_ );
     Array2D<float>& angledata = gather->data();
 
     if ( needsraytracing_ )
@@ -418,7 +418,7 @@ bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 }
 
 
-Gather* VelocityBasedAngleComputer::computeAngles()
+RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 {
     ConstRefMan<Survey::Geometry> geom =
 	Survey::GM().getGeometry( trckey_.geomID() );
@@ -534,7 +534,7 @@ const RayTracer1D* ModelBasedAngleComputer::curRayTracer() const
 }
 
 
-Gather* ModelBasedAngleComputer::computeAngles()
+RefMan<Gather> ModelBasedAngleComputer::computeAngles()
 {
     return computeAngleData();
 }

@@ -55,7 +55,6 @@ public:
 
     bool			extractDPS();
     const DataPointSet*		getDPS() const;
-    void			releaseDPS();
     const Setup&		su() const		{ return setup_; }
 
 protected:
@@ -69,7 +68,7 @@ protected:
     uiGenInput*		logresamplfld_;
     uiMultiWellLogSel*	welllogselfld_;
     uiPosFilterSetSel*	posfiltfld_;
-    DataPointSet*	curdps_;
+    RefMan<DataPointSet> curdps_;
 
     void		adsChg();
     bool		extractWellData(const BufferStringSet&,

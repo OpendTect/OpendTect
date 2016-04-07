@@ -53,7 +53,7 @@ protected:
     ObjectSet<FlatView::AuxData> levelads_;
     FlatView::AuxData*	selseqad_;
 
-    FlatDataPack*	emptydp_;
+    RefMan<FlatDataPack> emptydp_;
     uiWorldRect		zoomwr_;
     Color		lvlcol_;
     int			dispprop_;

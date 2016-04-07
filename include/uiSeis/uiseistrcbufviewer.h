@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    SeisTrcBufDataPack*	dp_;
+    RefMan<SeisTrcBufDataPack>	dp_;
 
     void	setBuf(const SeisTrcBuf&,Seis::GeomType,
 		       const char*,const char* nm,int compnr,bool);

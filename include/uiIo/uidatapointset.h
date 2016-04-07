@@ -69,8 +69,8 @@ public:
 					      DataPointSetDisplayMgr* mgr=0);
 				~uiDataPointSet();
 
-    DataPointSet&		pointSet()	{ return dps_; }
-    const DataPointSet&		pointSet() const { return dps_; }
+    DataPointSet&		pointSet()	{ return *dps_; }
+    const DataPointSet&		pointSet() const { return *dps_; }
 
     bool			is2D() const;
     int				size() const	{ return drowids_.size(); }
@@ -142,7 +142,7 @@ public:
 
 protected:
 
-    DataPointSet&		dps_;
+    RefMan<DataPointSet>	dps_;
     Setup			setup_;
     float			zfac_;
     uiString			zunitnm_;

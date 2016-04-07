@@ -92,16 +92,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 #define mDPM DPM(DataPackMgr::PointID())
 
 uiWellLogExtractGrp::~uiWellLogExtractGrp()
-{
-    releaseDPS();
-}
-
-
-void uiWellLogExtractGrp::releaseDPS()
-{
-    mDPM.release( curdps_ );
-    curdps_ = 0;
-}
+{}
 
 
 const DataPointSet* uiWellLogExtractGrp::getDPS() const
@@ -281,11 +272,9 @@ bool uiWellLogExtractGrp::extractDPS()
     }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    if ( curdps_ )
-	releaseDPS();
     curdps_ =
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
-    mDPM.addAndObtain( curdps_ );
+    mDPM.add( curdps_ );
 
     const UnitOfMeasure* uom = UoMR().get( "Feet" );
     deepErase( dcds );

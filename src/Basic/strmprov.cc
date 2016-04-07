@@ -186,7 +186,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	else
 	{
 	    dp_ = new StreamProviderPreLoadDataPack( buf, bufsz, nm, id );
-	    DPM(DataPackMgr::BufID()).addAndObtain( dp_ );
+	    DPM(DataPackMgr::BufID()).add( dp_ );
 	}
     }
 
@@ -197,8 +197,6 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 ~StreamProviderPreLoadedData()
 {
     sd_.close();
-    if ( dp_ )
-	DPM(DataPackMgr::BufID()).release( dp_->id() );
 }
 
 const OD::String& fileName() const
@@ -245,15 +243,15 @@ bool isOK() const
     return dp_;
 }
 
-    const BufferString	id_;
-    StreamData		sd_;
-    BufferDataPack*	dp_;
-    int			chunkidx_;
-    od_int64		filesz_;
-    uiString		msg_;
-    BufferString	fnm_;
+    const BufferString		id_;
+    StreamData			sd_;
+    RefMan<BufferDataPack>	dp_;
+    int				chunkidx_;
+    od_int64			filesz_;
+    uiString			msg_;
+    BufferString		fnm_;
 
-    char		buf_[mPreLoadChunkSz];
+    char			buf_[mPreLoadChunkSz];
 
 };
 

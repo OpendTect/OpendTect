@@ -169,7 +169,7 @@ public:
 protected:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
-    ObjectSet<Gather>		gathers_;
+    RefObjectSet<Gather>	gathers_;
 };
 
 } // namespace PreStack

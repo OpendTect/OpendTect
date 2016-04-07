@@ -527,7 +527,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 {
     vwr_.appearance().ddpars_.show( false, false );
     emptydp_ = new FlatDataPack( "Layer Model", new Array2DImpl<float>(0,0) );
-    DPM( DataPackMgr::FlatID() ).addAndObtain( emptydp_ );
+    DPM( DataPackMgr::FlatID() ).add( emptydp_ );
     vwr_.setPack( true, emptydp_->id() );
     vwr_.setPack( false, emptydp_->id() );
 }
@@ -535,7 +535,6 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 
 uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 {
-    DPM( DataPackMgr::FlatID() ).release( emptydp_ );
     eraseAll();
     delete &lvlitms_;
     delete &logblcklineitms_;

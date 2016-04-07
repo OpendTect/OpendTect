@@ -33,10 +33,10 @@ DPSMerger::DPSMerger( const DPSMergerProp& prop )
     , rowdone_(-1)
     , prop_(prop)
 {
-    DataPack* mdp = DPM( DataPackMgr::PointID() ).obtain( prop.masterDPID() );
-    mDynamicCast(DataPointSet*,mdps_,mdp);
-    DataPack* sdp = DPM( DataPackMgr::PointID() ).obtain( prop.slaveDPID() );
-    mDynamicCast(DataPointSet*,sdps_,sdp);
+    mdps_ = DPM( DataPackMgr::PointID() )
+		.getAndCast<DataPointSet>( prop.masterDPID() );
+    sdps_ = DPM( DataPackMgr::PointID() )
+		.getAndCast<DataPointSet>( prop.slaveDPID() );
     newdps_ = new DataPointSet( *mdps_ );
 }
 
@@ -181,8 +181,8 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
 {
     setPrefHeight( 500 );
-    DPM( DataPackMgr::PointID() ).addAndObtain( mdps_ );
-    DPM( DataPackMgr::PointID() ).addAndObtain( sdps_ );
+    DPM( DataPackMgr::PointID() ).add( mdps_ );
+    DPM( DataPackMgr::PointID() ).add( sdps_ );
  
     uiString capt = uiStrings::phrMerge(tr("'%1' with '%2'")
 			       .arg(toUiString(mdps->name()))
@@ -266,10 +266,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 
 
 uiDataPointSetMerger::~uiDataPointSetMerger()
-{
-    DPM( DataPackMgr::PointID() ).release( mdps_->id() );
-    DPM( DataPackMgr::PointID() ).release( sdps_->id() );
-}
+{}
 
 
 void uiDataPointSetMerger::matchPolChangedCB( CallBacker* )

@@ -866,7 +866,7 @@ int nextStep()
     const TrcKey trckey( gather->getBinID() );
     anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
     anglecomputer_->setTrcKey( trckey );
-    PreStack::Gather* anglegather = anglecomputer_->computeAngles();
+    RefMan<PreStack::Gather> anglegather = anglecomputer_->computeAngles();
     convertAngleDataToDegrees( anglegather );
     TypeSet<float> azimuths;
     gather->getAzimuths( azimuths );
@@ -875,17 +875,17 @@ int nextStep()
     anglegather->setName( angledpnm );
     anglegather->setBinID( gather->getBinID() );
     anglegathers_ += anglegather;
-    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather );
+    DPM(DataPackMgr::FlatID()).add( anglegather );
     nrdone_++;
     return MoreToDo();
 }
 
-    const ObjectSet<RayTracer1D>&	rts_;
-    const ObjectSet<PreStack::Gather>&	gathers_;
-    const PreStackSyntheticData&	pssd_;
-    ObjectSet<PreStack::Gather>		anglegathers_;
-    PreStack::ModelBasedAngleComputer*	anglecomputer_;
-    od_int64				nrdone_;
+    const ObjectSet<RayTracer1D>&		rts_;
+    const RefObjectSet<PreStack::Gather>	gathers_;
+    const PreStackSyntheticData&		pssd_;
+    RefObjectSet<PreStack::Gather>		anglegathers_;
+    PreStack::ModelBasedAngleComputer*		anglecomputer_;
+    od_int64					nrdone_;
 
 };
 
@@ -1668,7 +1668,7 @@ void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
 
 SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
     : NamedObject(sgp.name_)
-    , datapack_(dp)
+    , datapack_(&dp)
     , id_(-1)
 {
 }
@@ -1685,15 +1685,13 @@ SyntheticData::~SyntheticData()
 void SyntheticData::setName( const char* nm )
 {
     NamedObject::setName( nm );
-    datapack_.setName( nm );
+    datapack_->setName( nm );
 }
 
 
 void SyntheticData::removePack()
 {
-    const DataPack::FullID dpid = datapackid_;
-    DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
-    DPM(packmgrid).release( dpid.ID(1) );
+    datapack_ = 0;
 }
 
 
@@ -1717,7 +1715,7 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 {
     useGenParams( sgp );
     DataPackMgr::ID pmid = DataPackMgr::FlatID();
-    DPM( pmid ).addAndObtain( &dp );
+    DPM( pmid ).add( &dp );
     datapackid_ = DataPack::FullID( pmid, dp.id());
 }
 
@@ -1733,54 +1731,46 @@ const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
 
 SeisTrcBufDataPack& PostStackSyntheticData::postStackPack()
 {
-    return static_cast<SeisTrcBufDataPack&>( datapack_ );
+    return static_cast<SeisTrcBufDataPack&>( *datapack_ );
 }
 
 
 const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
 {
-    return static_cast<const SeisTrcBufDataPack&>( datapack_ );
+    return static_cast<const SeisTrcBufDataPack&>( *datapack_ );
 }
 
 
 PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
-					     PreStack::GatherSetDataPack& dp)
+					      PreStack::GatherSetDataPack& dp)
     : SyntheticData(sgp,dp)
     , angledp_(0)
 {
     useGenParams( sgp );
     DataPackMgr::ID pmid = DataPackMgr::SeisID();
-    DPM( pmid ).addAndObtain( &dp );
+    DPM( pmid ).add( &dp );
     datapackid_ = DataPack::FullID( pmid, dp.id());
     ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
     {
-	DPM(DataPackMgr::FlatID()).obtain( gathers[idx]->id() );
 	gathers[idx]->setName( name() );
     }
 }
 
 
 PreStackSyntheticData::~PreStackSyntheticData()
-{
-    mDynamicCastGet(PreStack::GatherSetDataPack&,gsetdp,datapack_)
-    ObjectSet<PreStack::Gather>& gathers = gsetdp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-	DPM(DataPackMgr::FlatID()).release( gathers[idx] );
-    if ( angledp_ )
-	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
-}
+{}
 
 
 PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack()
 {
-    return static_cast<PreStack::GatherSetDataPack&>( datapack_ );
+    return static_cast<PreStack::GatherSetDataPack&>( *datapack_ );
 }
 
 
 const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
 {
-    return static_cast<const PreStack::GatherSetDataPack&>( datapack_ );
+    return static_cast<const PreStack::GatherSetDataPack&>( *datapack_ );
 }
 
 
@@ -1806,12 +1796,9 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 void PreStackSyntheticData::setAngleData(
 	const ObjectSet<PreStack::Gather>& ags )
 {
-    if ( angledp_ )
-	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
-
     BufferString angledpnm( name().buf(), " (Angle Gather)" );
     angledp_ = new PreStack::GatherSetDataPack( angledpnm, ags );
-    DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
+    DPM( DataPackMgr::SeisID() ).add( angledp_ );
 }
 
 
