@@ -87,7 +87,19 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
     if ( vwr.hasZAxisTransform() )
 	crd.z = vwr.getZAxisTransform()->transformBack( crd );
 
-    (*pickset_) += Pick::Location( crd );
+    Pick::Location newloc( crd );
+    ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
+    if ( dp )
+    {
+	mDynamicCastGet(const SeisFlatDataPack*,seisdp,dp.ptr())
+	if ( seisdp && seisdp->nrTrcs() )
+	{
+	    const TrcKey trckey = seisdp->getTrcKey( 0 );
+	    newloc.setGeomID( trckey.geomID() );
+	}
+    }
+
+    (*pickset_) += newloc;
     const int locidx = pickset_->size()-1;
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
 				 pickset_, locidx );
