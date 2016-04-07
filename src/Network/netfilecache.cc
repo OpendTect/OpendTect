@@ -70,8 +70,7 @@ void Network::FileCache::clearData()
 }
 
 
-Network::FileCache::Block* Network::FileCache::getBlock(
-					BlockIdxType iblk ) const
+Network::FileCache::Block* Network::FileCache::gtBlk( BlockIdxType iblk ) const
 {
     if ( !blocks_[iblk] )
     {
@@ -173,11 +172,18 @@ void Network::FileCache::getAt( FilePosType pos, BufType* out,
 Network::FileCache::FileChunkSetType Network::FileCache::neededFill(
 		FilePosType pos, ChunkSizeType nrbytes ) const
 {
-    if ( nrbytes < 1 )
-	nrbytes = 1;
-
     FileChunkSetType ret;
-    const FilePosType lastpos = pos + nrbytes - 1;
+    const FilePosType lastfilepos = lastFilePos();
+    if ( filesize_ < 1 || nrbytes < 1 || pos > lastfilepos )
+	return ret;
+
+    FilePosType lastpos = pos + nrbytes - 1;
+    if ( lastpos > lastfilepos )
+    {
+	lastpos = lastfilepos;
+	nrbytes = (ChunkSizeType)(lastpos - pos + 1);
+    }
+
     const BlockIdxType lastbidx = blockIdx( lastpos );
     for ( BlockIdxType bidx=blockIdx(pos); bidx<=lastbidx; bidx++ )
     {
@@ -192,6 +198,27 @@ Network::FileCache::FileChunkSetType Network::FileCache::neededFill(
 }
 
 
+bool Network::FileCache::haveBlock( BlockIdxType bidx ) const
+{
+    return blocks_.validIdx(bidx) && blocks_[bidx];
+}
+
+
+Network::FileCache::BufType* Network::FileCache::getBlock( BlockIdxType bidx )
+{
+    Block* ret = blocks_.validIdx(bidx) ? gtBlk( bidx ) : 0;
+    return ret ? ret->buf_ : 0;
+}
+
+
+const Network::FileCache::BufType* Network::FileCache::getBlock(
+						BlockIdxType bidx ) const
+{
+    const Block* ret = blocks_.validIdx(bidx) ? gtBlk( bidx ) : 0;
+    return ret ? ret->buf_ : 0;
+}
+
+
 // Note: we expect full blocks only, but still prepare for other input
 
 bool Network::FileCache::fill( FileChunkType chunk, const BufType* data )
@@ -202,7 +229,7 @@ bool Network::FileCache::fill( FileChunkType chunk, const BufType* data )
 
     for ( BlockIdxType bidx=firstbidx; bidx<=lastbidx; bidx++ )
     {
-	Block* blk = getBlock( bidx );
+	Block* blk = gtBlk( bidx );
 	if ( !blk ) // mem full, exit all
 	    return false;
 

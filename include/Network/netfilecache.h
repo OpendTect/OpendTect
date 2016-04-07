@@ -40,7 +40,9 @@ public:
     bool		isEmpty() const		    { return filesize_ < 1; }
     void		clearData();
 
-			// Use
+			// General access
+
+    			// Free-sized access
     FileSizeType	size() const		    { return filesize_; }
     bool		isAvailable(FilePosType,ChunkSizeType) const;
     void		getAt(FilePosType,BufType*,ChunkSizeType) const;
@@ -67,19 +69,32 @@ protected:
 
 	static const SizeType	cFullSize;
     };
+
+public:
+
+    // Block-based access
+
     typedef ObjectSet<Block>::size_type	BlockIdxType;
+    BlockIdxType	blockIdx(FilePosType) const;
+    static FilePosType	blockStart(BlockIdxType);
+    Block::SizeType	blockSize(BlockIdxType) const;
+
+    bool		haveBlock(BlockIdxType) const;
+    BufType*		getBlock(BlockIdxType);
+    const BufType*	getBlock(BlockIdxType) const;
+
+protected:
 
     const FileSizeType	filesize_;
     ObjectSet<Block>	blocks_;
     const Block::SizeType lastblocksz_;
     const FilePosType	lastblockpos_;
 
-    static FilePosType	blockStart(BlockIdxType);
-    Block::SizeType	blockSize(BlockIdxType) const;
     void		dismissBlock(BlockIdxType);
     void		newBlockAdded();
-    BlockIdxType	blockIdx(FilePosType) const;
-    Block*		getBlock(BlockIdxType) const;
+    Block*		gtBlk(BlockIdxType) const;
+    inline FilePosType	lastFilePos() const
+    			{ return lastblockpos_ + lastblocksz_ - 1; }
 
 };
 
