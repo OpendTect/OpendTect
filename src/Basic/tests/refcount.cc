@@ -10,6 +10,7 @@
 #include "objectset.h"
 #include "testprog.h"
 #include "refcount.h"
+#include "manobjectset.h"
 
 
 
@@ -91,7 +92,8 @@ bool testWeakPtr()
 
     refman1 = 0;
 
-    mRunStandardTest( !obsptr.get().ptr(), "WeakPtr is is unset on last unref" );
+    mRunStandardTest( !obsptr.get().ptr(),
+		      "WeakPtr is is unset on last unref" );
 
     refman1 = new ReferencedClass( &deleted );
     obsptr = refman1;
@@ -106,12 +108,94 @@ bool testWeakPtr()
 }
 
 
+bool testRefObjectSet()
+{
+    {
+	bool deleted1 = false, deleted2 = false;;
+	ObjectSet<ReferencedClass> normal_os;
+	normal_os += new ReferencedClass( &deleted1 );
+	normal_os += new ReferencedClass( &deleted2 );
+
+	mRunStandardTest( !deleted1 && !deleted2,
+			  "Normal objectsets not deleted");
+
+	{
+	    RefObjectSet<ReferencedClass> ref_os;
+	    ref_os = normal_os;
+
+	    mRunStandardTest( !deleted1 && !deleted2,
+			     "Not unreffed after adding to RefObjectSet");
+	}
+
+	mRunStandardTest( deleted1 && deleted2,
+			 "Unreffed after RefObjectSet goes out of scope");
+
+	normal_os.erase();
+    }
+    {
+	bool deleted1 = false, deleted2 = false;
+	RefObjectSet<ReferencedClass> ref_os;
+	ReferencedClass* referenced = new ReferencedClass( &deleted1 );
+	ref_os += referenced;
+	ref_os += new ReferencedClass( &deleted2 );
+
+	ref_os -= referenced;
+
+	mRunStandardTest( deleted1 && !deleted2, "Unreffed after -= operator");
+    }
+    {
+	bool deleted1 = false, deleted2 = false;
+	RefObjectSet<ReferencedClass> ref_os;
+
+	ref_os += new ReferencedClass( &deleted1 );
+	ref_os += new ReferencedClass( &deleted2 );
+
+	ref_os.swap( 0, 1 );
+	mRunStandardTest( !deleted1 && !deleted2,
+			 "No unref during swap");
+
+	ref_os.removeSingle( 0 );
+
+	mRunStandardTest( !deleted1 && deleted2,
+			  "Unref after swap and removeSingle");
+    }
+    {
+	bool deleted1 = false, deleted2 = false;
+	RefObjectSet<ReferencedClass> ref_os;
+
+	ref_os += new ReferencedClass( &deleted1 );
+	ref_os += new ReferencedClass( &deleted2 );
+
+	ref_os.removeRange( 0, 1);
+
+	mRunStandardTest( deleted1 && deleted2,
+			 "Unref after removeRange");
+    }
+    {
+        bool deleted1 = false, deleted2 = false;
+        RefObjectSet<ReferencedClass> ref_os;
+        
+        ref_os += new ReferencedClass( &deleted1 );
+        ref_os += new ReferencedClass( &deleted2 );
+
+        ref_os = RefObjectSet<ReferencedClass>();
+        
+        mRunStandardTest( deleted1 && deleted2,
+                         "Unref after whole set assignment");
+    }
+
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testRefCount() ||
-	 !testWeakPtr() )
+	!testWeakPtr() ||
+	!testRefObjectSet() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
