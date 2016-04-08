@@ -348,7 +348,8 @@ void uiGraphicsScene::setBackGroundColor( const Color& color )
 const Color uiGraphicsScene::backGroundColor() const
 {
     QColor color( odgraphicsscene_->backgroundBrush().color() );
-    return Color( color.red() , color.green(), color.blue() );
+    return Color( color.red() , color.green(),
+		  color.blue(), 255-color.alpha() );
 }
 
 
