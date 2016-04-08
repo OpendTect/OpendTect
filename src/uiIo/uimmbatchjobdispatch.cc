@@ -464,6 +464,9 @@ void uiMMBatchJobDispatcher::infoMsgAvail( CallBacker* )
 
 void uiMMBatchJobDispatcher::updateCurMachs()
 {
+    if ( !jobrunner_ )
+	return;
+
     BufferStringSet machs;
     jobrunner_->showMachStatus( machs );
     sort( machs );
