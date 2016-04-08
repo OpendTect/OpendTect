@@ -9,16 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "webstreamsource.h"
-
-
-inline static bool isHttp( const OD::String& url )
-{
-    return url.startsWith( "http://" ) || url.startsWith( "https://" );
-}
-inline static bool isFtp( const OD::String& url )
-{
-    return url.startsWith( "ftp://" );
-}
+#include <QUrl>
 
 
 void WebStreamSource::initClass()
@@ -30,7 +21,8 @@ void WebStreamSource::initClass()
 bool WebStreamSource::willHandle( const char* fnm )
 {
     const FixedString url( fnm );
-    return isHttp( url ) || isFtp( url );
+    return url.startsWith( "http://" ) || url.startsWith( "https://" )
+	|| url.startsWith( "ftp://" );
 }
 
 

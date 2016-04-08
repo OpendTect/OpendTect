@@ -458,7 +458,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		if ( storarr && dp_->getDataDesc()==trcdatadesc )
 		{
 		    const DataBuffer* databuf = trc.data().getComponent( idc );
-		    const int bytespersamp = databuf->bytesPerSample();
+		    const int bytespersamp = databuf->bytesPerElement();
 		    const od_int64 offset =
 			arr.info().getOffset( 0, mCast(int,idx), 0 );
 		    char* dststartptr = storarr + offset*bytespersamp;
@@ -550,7 +550,7 @@ bool execute()
 	if ( storarr && dp_.getDataDesc()==trcdatadesc )
 	{
 	    const DataBuffer* databuf = trc_.data().getComponent( idcin );
-	    const int bytespersamp = databuf->bytesPerSample();
+	    const int bytespersamp = databuf->bytesPerElement();
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
 	    char* dststartptr = storarr + offset*bytespersamp;
 
@@ -719,9 +719,9 @@ bool SequentialReader::init()
 bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
 {
     nrdone_ = 0;
-    
+
     dp_ = &dp;
-    
+
     DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
 
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );

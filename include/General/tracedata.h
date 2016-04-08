@@ -54,7 +54,7 @@ public:
 			{ return icomp >= nrcomp_ ? 0 : data_[icomp]->size(); }
     inline int		bytesPerSample( int icomp=0 ) const
 			{ return icomp >= nrcomp_ ? 1
-			       : data_[icomp]->bytesPerSample(); }
+			       : data_[icomp]->bytesPerElement(); }
     inline bool		isZero( int icomp=0 ) const
 			{ return icomp >= nrcomp_ || data_[icomp]->isZero(); }
 

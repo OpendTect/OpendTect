@@ -10,35 +10,21 @@
 #include "datachar.h"
 #include "scaler.h"
 #include "odmemory.h"
-#ifdef __mac__
-#include <malloc/malloc.h>
-#else
-#include <malloc.h>
-#endif
-
-
-bool RawDataArray::isZero() const
-{
-    if ( !data_ || !nelem_ || !bytes_ ) return true;
-
-    register const unsigned char* ptr = data_;
-    register const int totbytes = nelem_ * bytes_;
-    for ( register int idx=0; idx<totbytes; idx++ )
-        if ( *ptr++ ) return false;
-
-    return true;
-}
+#include <limits.h>
 
 
 DataBuffer::DataBuffer( int n, int byts, bool doinit )
-	: RawDataArray(byts)
+	: nelem_(0)
+	, data_(0)
+	, elembytes_(byts)
 {
     if ( n > 0 )
     {
-	mTryAlloc( data_, unsigned char [ n * bytes_ ] );
+	mTryAlloc( data_, unsigned char [ n * elembytes_ ] );
 	nelem_ = data_ ? n : 0;
     }
-    if ( doinit ) zero();
+    if ( doinit )
+	zero();
 }
 
 
@@ -52,47 +38,64 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 {
     if ( &tb != this )
     {
-	if ( bytes_*nelem_ != tb.bytes_*tb.nelem_ )
+	if ( totalBytes() != tb.totalBytes() )
 	{
-	    if ( bytes_ != tb.bytes_ )
+	    if ( elembytes_ != tb.elembytes_ )
 	    {
 		delete [] data_; data_ = 0;
-		bytes_ = tb.bytes_; nelem_ = 0;
+		elembytes_ = tb.elembytes_; nelem_ = 0;
 	    }
 	    reSize( tb.size() );
 	}
-	bytes_ = tb.bytes_;
+	elembytes_ = tb.elembytes_;
 	nelem_ = tb.nelem_;
-	if ( data_ ) OD::memCopy( data_, tb.data_, nelem_*bytes_ );
+	if ( data_ )
+	    OD::memCopy( data_, tb.data_, totalBytes() );
     }
 
     return *this;
 }
 
 
-void DataBuffer::reSize( int newsz, bool copy )
+bool DataBuffer::isZero() const
+{
+    if ( isEmpty() )
+	return true;
+
+    const unsigned char* endptr = data_ + totalBytes();
+    for ( const unsigned char* ptr=data_; ptr!=endptr; ptr++ )
+        if ( *ptr )
+	    return false;
+
+    return true;
+}
+
+
+void DataBuffer::reSize( size_type newsz, bool copy )
 {
     if ( newsz < 0 )
 	newsz = 0;
     if ( newsz == nelem_ )
 	return;
 
+    const od_int64 bps = elembytes_;
+
     if ( newsz == 0 || !copy || nelem_ < 0 )
     {
 	delete [] data_; data_ = 0;
 	if ( newsz )
-	    { mTryAlloc( data_, unsigned char [ newsz * bytes_ ] ); }
+	    { mTryAlloc( data_, unsigned char [ newsz * bps ] ); }
     }
     else
     {
 	unsigned char* olddata = data_;
-	mTryAlloc( data_, unsigned char [ newsz * bytes_ ] );
+	mTryAlloc( data_, unsigned char [ newsz * bps ] );
 	if ( data_ )
 	{
 	    OD::memCopy( data_, olddata,
-		    bytes_*(newsz > nelem_ ? nelem_ : newsz) );
+		    bps * (newsz > nelem_ ? nelem_ : newsz) );
 	    if ( nelem_ < newsz )
-		OD::memZero( data_+(nelem_*bytes_), bytes_ * (newsz - nelem_) );
+		OD::memZero( data_+(nelem_*bps), bps*(newsz - nelem_) );
 	}
 	delete [] olddata;
     }
@@ -100,34 +103,38 @@ void DataBuffer::reSize( int newsz, bool copy )
 }
 
 
-void DataBuffer::reByte( int n, bool copy )
+void DataBuffer::reByte( obj_size_type newsz, bool copy )
 {
-    if ( n < 1 ) n = 1;
-    if ( n == bytes_ ) return;
+    if ( newsz < 1 )
+	newsz = 1;
+    if ( newsz == elembytes_ )
+	return;
 
-    bytes_ = n;
-    n = nelem_;
+    elembytes_ = newsz;
+    int nrelem = nelem_;
     nelem_ = -1;
-    reSize( n, copy );
+    reSize( nrelem, copy );
 }
 
 
 void DataBuffer::zero()
 {
-    if ( data_ )
-    {
-	od_int64 sz = nelem_; sz *= bytes_;
-	OD::memZero( data_, sz );
-    }
+    OD::memZero( data_, totalBytes() );
+}
+
+
+bool DataBuffer::fitsInString() const
+{
+    return totalBytes()+1 <= INT_MAX;
 }
 
 
 BufferString DataBuffer::getString() const
 {
     BufferString ret;
-    if ( data_ )
+    if ( data_ && fitsInString() )
     {
-	const size_t totsz = (size_t)( nelem_ * bytes_ + 1 );
+	const size_t totsz = (size_t)( totalBytes() + 1 );
 	ret.setBufSize( totsz );
 	char* retptr = ret.getCStr();
 	OD::memCopy( retptr, data_, totsz-1 );
@@ -223,7 +230,7 @@ void TraceData::convertToFPs( bool pres )
 }
 
 
-bool TraceData::isValidComp( int icomp ) const 
+bool TraceData::isValidComp( int icomp ) const
 {
     return ( icomp>=0 && icomp<nrcomp_ && data_[icomp]->isOk() );
 }
