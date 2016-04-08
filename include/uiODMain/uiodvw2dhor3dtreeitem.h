@@ -23,7 +23,7 @@ class uiODViewer2D;
 mExpClass(uiODMain) uiODVw2DHor3DParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DHor3DParentTreeItem);
 public:
-    				uiODVw2DHor3DParentTreeItem();
+				uiODVw2DHor3DParentTreeItem();
 				~uiODVw2DHor3DParentTreeItem();
 
     bool			showSubMenu();
@@ -39,11 +39,11 @@ protected:
 
     bool			init();
     const char*			iconName() const;
-    bool                        handleSubMenu(int);
+    bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor3Ds(
-	    				TypeSet<EM::ObjectID>&);
+					TypeSet<EM::ObjectID>&);
 };
 
 
@@ -80,7 +80,7 @@ protected:
 
     void		updateSelSpec(const Attrib::SelSpec*,bool wva);
     void		updateCS(const TrcKeyZSampling&,bool upd);
-    void                checkCB(CallBacker*);
+    void		checkCB(CallBacker*);
     void		deSelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
@@ -89,11 +89,10 @@ protected:
 
     void		emobjChangeCB(CallBacker*);
 
-    EM::ObjectID        emid_;
+    EM::ObjectID	emid_;
     Vw2DHorizon3D*	horview_;
-    bool		oldactivevolupdated_;
     bool		trackerefed_;
-    void                emobjAbtToDelCB(CallBacker*);
+    void		emobjAbtToDelCB(CallBacker*);
 };
 
 #endif
