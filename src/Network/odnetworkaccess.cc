@@ -313,21 +313,33 @@ od_int64 FileDownloader::totalNr() const
 { return totalnr_/1024; }
 
 
-#define mBoundary "---------------------------193971182219750"
+// upload
 
+static const char* sFullContentBoundary = "-------742f683860774f225764f172";
+static const char* sContentBoundary = sFullContentBoundary + 2;
+static const char* sHttpEndStrNewline = "\"\r\n";
+static const char* sHttpNewline = sHttpEndStrNewline + 1;
 
-void addPars( BufferString& data, const IOPar& postvars )
+static void addContentStart( BufferString& httpstr, const char* contnm )
+{
+    httpstr.add( sFullContentBoundary ).add( sHttpNewline )
+	   .add( "Content-Disposition: form-data; name=\"" )
+	   .add( contnm ).add( "\"" );
+}
+static void addContentStop( BufferString& httpstr )
+{
+    httpstr.add( sFullContentBoundary );
+}
+static void addPars( BufferString& httpstr, const IOPar& postvars )
 {
     for ( int idx=0; idx<postvars.size(); idx++ )
     {
-	data.add( "--" ).add( mBoundary );
-	data.add( "\r\nContent-Disposition: form-data; name=\"");
-	data.add( postvars.getKey(idx).str() ).add( "\"\r\n\r\n" );
-	data.add( postvars.getValue(idx).str() ).add( "\r\n" );
+	addContentStart( httpstr, postvars.getKey(idx) );
+	httpstr.add( sHttpNewline )
+		.add( postvars.getValue(idx).str() )
+		.add( sHttpNewline );
     }
-
-    data.add( "--" ).add( mBoundary );
-    return;
+    addContentStop( httpstr );
 }
 
 
@@ -342,42 +354,48 @@ bool Network::uploadFile( const char* url, const char* localfname,
 			       .arg( localfname );
 	return false;
     }
+    const od_int64 filesize = File::getFileSize( localfname );
+    if ( filesize > INT_MAX )
+    {
+	errmsg = od_static_tr( "uploadFile", "%1\nFile too large for upload" )
+			       .arg( localfname );
+	return false;
+    }
 
-    BufferString bsdata;
-    bsdata.add( "--" ).add( mBoundary );
-    bsdata.add( "\r\nContent-Disposition: form-data; name=\"").add( ftype );
-    bsdata.add( "\"; filename=\"").add( remotefname ).add( "\"\r\n" );
-    bsdata.add( "Content-Type: application/octet-stream\r\n\r\n" );
+    BufferString startstr;
+    addContentStart( startstr, ftype );
+    startstr.add( "; filename=\"").add( remotefname ).add( sHttpEndStrNewline )
+	  .add( "Content-Type: application/octet-stream\r\n\r\n" );
+    BufferString stopstr( sHttpNewline );
+    addContentStart( stopstr, "upload" );
+    stopstr.add( "\r\n\r\nOpendTect\r\n" );
+    addPars( stopstr, postvars );
 
-    od_istream isd( localfname );
-    int size = File::getFileSize( localfname );
+    const int startsize = startstr.size();
+    const int stopsize = stopstr.size();
+    const od_int64 totalsize = startsize + filesize + stopsize;
+    if ( totalsize > INT_MAX )
+    {
+	errmsg = od_static_tr( "uploadFile",
+		    "%1\nFile just too large for upload" ).arg( localfname );
+	return false;
+    }
 
-    PtrMan<DataBuffer> databuffer = new DataBuffer( size+bsdata.size(),1 );
-    OD::memCopy( databuffer->data(), bsdata.buf(), bsdata.size() );
-    isd.getBin( databuffer->data() + bsdata.size(), size );
-    isd.close();
-    bsdata = ( "\r\n--" );
-    bsdata.add( mBoundary );
-    bsdata.add( "\r\nContent-Disposition: form-data; name=\"upload\"\r\n\r\n" );
-    bsdata.add( "Uploader\r\n" );
+    PtrMan<DataBuffer> databuffer = new DataBuffer( (int)totalsize, 1 );
+    DataBuffer::buf_type* buf = databuffer->data();
+    OD::memCopy( buf, startstr.str(), startsize );
+    od_istream inpstrm( localfname );
+    inpstrm.getBin( buf + startsize, filesize );
+    inpstrm.close();
+    OD::memCopy( buf + startsize + filesize, stopstr.str(), stopsize );
 
-    addPars( bsdata, postvars);
-    const int prev_size = databuffer->size();
-    databuffer->reSize( prev_size + bsdata.size() );
-    OD::memCopy( databuffer->data()+prev_size, bsdata.buf(), bsdata.size() );
-
-od_ostream dumpstrm( "/tmp/upl_dump.txt" );
-dumpstrm.addBin( databuffer->data(), databuffer->totalBytes() );
-dumpstrm.close();
-
-    BufferString header( "multipart/form-data; boundary=", mBoundary );
+    BufferString header( "multipart/form-data; boundary=", sContentBoundary );
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
-    if ( !res ) errmsg = up.uiMessage();
+    if ( !res )
+	errmsg = up.uiMessage();
     else if ( retmsg )
-    {
 	retmsg->setFrom( up.uiMessage().getQString() );
-    }
     return res;
 }
 
@@ -387,10 +405,10 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 			   uiString* retmsg)
 {
     BufferString data;
-    addPars( data, querypars);
+    addPars( data, querypars );
     DataBuffer db( data.size(), 1 );
     OD::memCopy( db.data(), data.buf(), data.size() );
-    BufferString header( "multipart/form-data; boundary=", mBoundary );
+    BufferString header( "multipart/form-data; boundary=", sContentBoundary );
     DataUploader up( url, db, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
