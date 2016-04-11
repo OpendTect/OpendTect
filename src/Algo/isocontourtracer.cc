@@ -428,9 +428,13 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
     finder.setSamplings( xsampling_, ysampling_ );
     if ( finder.executeParallel( multithread1 ) )
     {
-	const bool multithread2 = !Threads::WorkManager::twm().isWorkThread();
-	ContourTracer tracer( contours, crossings, edge_, bendpointeps_, 
-			      nrlargestonly_, minnrvertices_, closedonly );
+	const bool multithread2 = false;
+	// Line below leads to a freeze of the system. No clue why. Making the
+	// ContourTracer single threaded solves the problem for now.
+	//const bool multithread2 = !Threads::WorkManager::twm().isWorkThread();
+	ContourTracer tracer( contours,crossings,edge_,bendpointeps_,
+	    nrlargestonly_, minnrvertices_, closedonly );
+
 	tracer.setRanges( xrange_, yrange_ );
 	tracer.setSamplings( xsampling_, ysampling_ );
 	tracer.executeParallel( multithread2 );
