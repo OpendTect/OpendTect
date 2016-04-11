@@ -314,8 +314,8 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 {
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int pidy = (int)Math::Floor((double)idx/xsize_);
-	const int pidx = (int)idx - pidy*xsize_;
+	const int pidx = (int)Math::Floor((double)idx/ysize_);
+	const int pidy = (int)idx - pidx*ysize_;
 	for ( int phor=0; phor<=1; phor++ )
 	{
 	    const float pfrac = crossings_->get( pidx, pidy, phor );
