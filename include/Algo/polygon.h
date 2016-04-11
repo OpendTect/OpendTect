@@ -795,6 +795,9 @@ void ODPolygon<T>::keepBendPoints( float eps )
     const TypeSet<int>& bendpoints = finder.bendPoints();
 
     int bpidx = bendpoints.size()-extra-1;
+    if ( bpidx<0 )
+	return;
+
     for ( int vtxidx=sz-1; vtxidx>=0; vtxidx-- )
     {
 	if ( bpidx>=0 && vtxidx==bendpoints[bpidx]-extra )
@@ -803,7 +806,7 @@ void ODPolygon<T>::keepBendPoints( float eps )
 	    remove( vtxidx );
     }
 
-    if ( closed_ && poly_.first() != poly_.last() )
+    if ( closed_ && poly_.size()>1 && poly_.first() != poly_.last() )
 	poly_ += poly_.first();
 }
 
