@@ -232,6 +232,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
 	storedvolume_.hsamp_.start_.inl() = 0;
 	storedvolume_.hsamp_.stop_.inl() = 1;
+	storedvolume_.hsamp_.step_.inl() = 1;
 	storedvolume_.hsamp_.include( BinID( 0,0 ) );
 	storedvolume_.hsamp_.include( BinID( 0,SI().maxNrTraces(true) ) );
 	storedvolume_.hsamp_.step_.crl() = 1; // what else?
