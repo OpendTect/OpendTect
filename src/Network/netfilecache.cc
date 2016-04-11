@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 const Network::FileCache::BlockSizeType
 	Network::FileCache::Block::cFullSize = 2097152; // 2 MB
-inline Network::FileCache::FilePosType
+Network::FileCache::FilePosType
 Network::FileCache::blockStart( BlockIdxType bidx )
 { return ((FilePosType)bidx) * Block::cFullSize; }
 
