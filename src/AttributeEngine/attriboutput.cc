@@ -617,11 +617,12 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 
 bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
 {
-    const Interval<int> rg( seldata_->crlRange() );
-    tkzs.hsamp_.start_.crl() = rg.start; tkzs.hsamp_.stop_.crl() = rg.stop;
+    const StepInterval<int> rg( seldata_->crlRange() );
+    tkzs.hsamp_.setTrcRange( rg );
     const Interval<float> zrg( seldata_->zRange() );
     tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = seldata_->geomID();
+    const Pos::GeomID geomid = seldata_->geomID();
+    tkzs.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
     tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
     return true;
 }
