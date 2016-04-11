@@ -37,19 +37,17 @@ public:
     void	setFileName( const char* fn )	{ fname_ = fn; }
     const char*	fileName() const		{ return fname_; }
 
-    std::ios*	streamPtr()const;
+    std::ios*	streamPtr() const;
 
     std::istream* istrm;
     std::ostream* ostrm;
 
-protected:
+private:
 
     BufferString fname_;
 
-private:
+    inline void	initStrms()			{ istrm = 0; ostrm = 0; }
 
-    inline void	initStrms()
-		{ istrm = 0; ostrm = 0; }
     friend class StreamProvider;
 
 };

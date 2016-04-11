@@ -365,6 +365,11 @@ bool Network::uploadFile( const char* url, const char* localfname,
     const int prev_size = databuffer->size();
     databuffer->reSize( prev_size + bsdata.size() );
     OD::memCopy( databuffer->data()+prev_size, bsdata.buf(), bsdata.size() );
+
+od_ostream dumpstrm( "/tmp/upl_dump.txt" );
+dumpstrm.addBin( databuffer->data(), databuffer->totalBytes() );
+dumpstrm.close();
+
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();

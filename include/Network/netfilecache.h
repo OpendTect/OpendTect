@@ -70,8 +70,6 @@ protected:
 	static const SizeType	cFullSize;
     };
 
-public:
-
     // Block-based access
 
     typedef ObjectSet<Block>::size_type	BlockIdxType;
@@ -84,8 +82,6 @@ public:
     bool		hasBlock(BlockIdxType) const;
     BufType*		getBlock(BlockIdxType);
     const BufType*	getBlock(BlockIdxType) const;
-
-protected:
 
     const FileSizeType	filesize_;
     ObjectSet<Block>	blocks_;

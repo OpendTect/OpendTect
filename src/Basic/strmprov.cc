@@ -501,6 +501,9 @@ void StreamProvider::set( const char* inp )
 
     mSkipBlanks( pwork );
     fname_ = pwork;
+    if ( fname_.startsWith("file://",CaseInsensitive) )
+	{ pwork += 7; fname_ = pwork; }
+
     strmsrc_ = getStrmSrc( fname_ );
     if ( strmsrc_ >= 0 )
 	return;
