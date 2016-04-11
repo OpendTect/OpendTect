@@ -407,7 +407,7 @@ float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 
 TrcKeySampling Horizon3D::range() const
 {
-    TrcKeySampling hs( false );
+    TrcKeySampling hs;
     const SectionID sid = -1;
     hs.set( geometry().rowRange(sid), geometry().colRange(sid,-1) );
     return hs;

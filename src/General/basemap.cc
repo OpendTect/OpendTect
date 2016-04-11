@@ -34,7 +34,7 @@ const char* BaseMapObject::getShapeName( int ) const
 void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 { }
 
-bool BaseMapObject::getBoundingBox( Coord& mincrd, Coord& maxcrd ) const
+bool BaseMapObject::getBoundingBox( Geom::PosRectangle<double>& bbox ) const
 { return false; }
 
 OD::Alignment BaseMapObject::getAlignment( int shapeidx ) const

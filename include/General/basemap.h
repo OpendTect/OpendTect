@@ -54,7 +54,8 @@ public:
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
-    virtual bool		getBoundingBox(Coord& min, Coord& max) const;
+    virtual bool		getBoundingBox(
+					Geom::PosRectangle<double>&) const;
 				/*!<Returns the Coord range. */
     virtual OD::Alignment	getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }
