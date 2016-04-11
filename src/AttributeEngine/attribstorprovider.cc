@@ -620,10 +620,13 @@ bool StorageProvider::checkDesiredVolumeOK()
 	errmsg_.append( tr( "Z range is: %1-%2\n")
 		      .arg( storedvolume_.zsamp_.start )
 		      .arg( storedvolume_.zsamp_.stop ) );
+    if ( inlwrong || crlwrong || zwrong )
+	return false;
+
     if ( zstepwrong )
-	errmsg_ = tr("Z-Step is not correct. The maximum resampling allowed"
-                     " is a factor 100. Probably the data belongs to a"
-                     " different Z-Domain");
+	errmsg_ = tr("Z-Step is not correct. The maximum resampling "
+		     "allowed is a factor 100.\nProbably the data belongs to a"
+		     " different Z-Domain");
     return false;
 }
 
