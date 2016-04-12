@@ -21,7 +21,7 @@ bool testPing()
 {
     const char* url = "http://opendtect.org";
     uiString err;
-	
+
     mRunStandardTestWithError( Network::ping(url,err),
 				"Ping existant URL", err.getFullString() );
 
@@ -56,7 +56,7 @@ bool testDownloadToFile()
     mRunStandardTestWithError(
 	    Network::downloadFile( url, tempfile.fullPath(), err ),
 	    "Download to file", err.getFullString() );
-	    
+
     return true;
 }
 
@@ -94,14 +94,17 @@ bool testQueryUpload()
 
 bool testFileSizes()
 {
+    const char* url = "http://opendtect.org/dlsites.txt";
     od_int64 sizeremotefile=0,sizeofuploadedfile=0;
-    const char* url = "http://intranet/testing/ctest/test_file";
     uiString err;
+    Network::getRemoteFileSize( url, sizeremotefile, err );
+    tstStream() << url << " is " << sizeremotefile << " bytes" << od_endl;
+    url = "http://intranet/testing/ctest/test_file";
     Network::getRemoteFileSize( url, sizeremotefile, err );
     url = "http://intranet/testing/ctest/dumpuploads/test_file";
     Network::getRemoteFileSize( url, sizeofuploadedfile, err );
 
-   
+
     mRunStandardTestWithError(
 	    sizeofuploadedfile >= 0 && sizeremotefile >= 0 &&
 	    sizeofuploadedfile == sizeremotefile,
