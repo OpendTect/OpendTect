@@ -379,33 +379,52 @@ void uiBaseMap::updateTransform()
     const uiRect viewrect( 0, 0, (int)view_.scene().width(),
 				 (int)view_.scene().height() );
 
-    const double wrwidth = wr_.width();
-    const double wrheight = wr_.bottom() - wr_.top();
+    double wrwidth = wr_.width();
+    double wrheight = wr_.bottom() - wr_.top();
     if ( mIsZero(wrwidth,mDefEps) || mIsZero(wrheight,mDefEps) )
 	return;
 
+    bool fitwidth = true;
     double xscale = viewrect.width() / wrwidth;
     double yscale = -xscale;
     if ( yscale*wrheight > viewrect.height() )
     {
+	fitwidth = false;
 	yscale = viewrect.height() / wrheight;
 	xscale = -yscale;
     }
 
+    uiWorldRect newwr( wr_ );
+    uiRect newviewrect( viewrect );
+    if ( centerworlditem_ ) // Adjust wr_ to cover viewrect
+    {
+	if ( fitwidth )
+	{
+	    const double newwrheight = viewrect.height() / yscale;
+	    const double halfdiff = (newwrheight - wrheight) / 2;
+	    newwr.setTop( newwr.top() - halfdiff );
+	    newwr.setBottom( newwr.bottom() + halfdiff );
+	    wrheight = newwrheight;
+	}
+	else
+	{
+	    const double newwrwidth = viewrect.width() / xscale;
+	    const double halfdiff = (newwrwidth - wrwidth) / 2;
+	    newwr.setLeft( newwr.left() - halfdiff );
+	    newwr.setRight( newwr.right() + halfdiff );
+	    wrwidth = newwrwidth;
+	}
+    }
+    else // Adjust viewrect to cover wr_
+    {
+	newviewrect.setRight( mNINT32(xscale*wrwidth) );
+	newviewrect.setBottom( mNINT32(yscale*wrheight) );
+    }
 
-    const int pixwidth = mNINT32( xscale * wrwidth );
-    const int pixheight = mNINT32( yscale * wrheight );
+    w2ui_.set( newviewrect, newwr );
 
-    const double xshift =
-	centerworlditem_ ? (viewrect.width()-pixwidth) / 2. : 0;
-    const double yshift =
-	centerworlditem_ ? (viewrect.height()-pixheight) / 2. : 0;
-
-    const uiRect newviewrect( 0, 0, pixwidth, pixheight );
-    w2ui_.set( newviewrect, wr_ );
-
-    const double xpos = viewrect.left() - xscale*wr_.left() + xshift;
-    const double ypos = viewrect.top() - yscale*wr_.top() + yshift;
+    const double xpos = newviewrect.left() - xscale*newwr.left();
+    const double ypos = newviewrect.top() - yscale*newwr.top();
 
     worlditem_.setPos( uiWorldPoint(xpos,ypos) );
     worlditem_.setScale( (float)xscale, (float)yscale );

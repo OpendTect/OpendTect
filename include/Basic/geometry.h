@@ -135,6 +135,7 @@ public:
     inline Point2D<T>	moveInside(const Point2D<T>&) const;
 
     inline void		include(const Rectangle<T>&);
+    inline void		include(const Point2D<T>&);
     inline void		limitTo(const Rectangle<T>&);
     inline void		translate(const Point2D<T>&);
 
@@ -158,6 +159,7 @@ public:
     void		sortCorners(bool leftislow=true,bool topislow=true);
     inline Size2D<T>	size() const;
     inline void		zero();
+    inline bool		isDefined() const;
 
     inline Rectangle<T>& operator+=(const Point2D<T>&); // shifts
     inline Rectangle<T>& operator-=(const Point2D<T>&);
@@ -627,6 +629,11 @@ void Rectangle<T>::zero()
 
 
 template <class T> inline
+bool Rectangle<T>::isDefined() const
+{ return topleft_.isDefined() && bottomright_.isDefined(); }
+
+
+template <class T> inline
 Rectangle<T>& Rectangle<T>::operator +=( const Point2D<T>& p )
 { topleft_ += p; bottomright_ += p; return *this; }
 
@@ -852,6 +859,9 @@ inline void Rectangle<T>::translate(const Point2D<T> & trans )
 template <class T>
 inline void Rectangle<T>::include( const Rectangle<T>& r )
 {
+    if ( !r.isDefined() ) return;
+    if ( !isDefined() ) *this = r;
+
     if ( revX() )
     {
 	if ( r.left() > left() ) topleft_.x = r.left();
@@ -871,6 +881,35 @@ inline void Rectangle<T>::include( const Rectangle<T>& r )
     {
 	if ( r.bottom() < bottom() ) bottomright_.y = r.bottom();
 	if ( r.top() > top() ) topleft_.y = r.top();
+    }
+}
+
+
+template <class T>
+inline void Rectangle<T>::include( const Point2D<T>& p )
+{
+    if ( !p.isDefined() ) return;
+    if ( !isDefined() ) topleft_ = bottomright_ = p;
+
+    if ( revX() )
+    {
+	if ( p.x > left() ) topleft_.x = p.x;
+	if ( p.x < right() ) bottomright_.x = p.x;
+    }
+    else
+    {
+	if ( p.x < left() ) topleft_.x = p.x;
+	if ( p.x > right() ) bottomright_.x = p.x;
+    }
+    if ( revY() )
+    {
+	if ( p.y > bottom() ) bottomright_.y = p.y;
+	if ( p.y < top() ) topleft_.y = p.y;
+    }
+    else
+    {
+	if ( p.y < bottom() ) bottomright_.y = p.y;
+	if ( p.y > top() ) topleft_.y = p.y;
     }
 }
 
