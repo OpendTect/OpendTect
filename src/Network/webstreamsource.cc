@@ -217,7 +217,7 @@ webistreambuf( const char* url )
 
 inline FilePosType curPos() const
 {
-    return mgr_.blockStart( curbidx_ ) + gptr() - eback();
+    return curbidx_ < 0 ? 0 : (mgr_.blockStart( curbidx_ ) + gptr() - eback());
 }
 
 void setGPtrs( FilePosType newpos, bool isvalid )
@@ -292,6 +292,9 @@ virtual int underflow()
 
 virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
 {
+    if ( nrbytes < 1 )
+	return nrbytes;
+
     FilePosType curpos = curPos();
     FileCache::FileChunkSetType pintvs = mgr_.stillNeededDataFor( curpos,
 								  nrbytes );
