@@ -95,6 +95,12 @@ uiWellLogExtractGrp::~uiWellLogExtractGrp()
 {}
 
 
+void uiWellLogExtractGrp::releaseDPS()
+{
+    curdps_ = 0;
+}
+
+
 const DataPointSet* uiWellLogExtractGrp::getDPS() const
 { return curdps_; }
 

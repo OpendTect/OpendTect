@@ -54,6 +54,7 @@ public:
     void			getSelLogNames(BufferStringSet&);
 
     bool			extractDPS();
+    void			releaseDPS();
     const DataPointSet*		getDPS() const;
     const Setup&		su() const		{ return setup_; }
 
