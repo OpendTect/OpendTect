@@ -47,6 +47,21 @@ const char* not_implemented_str = "Not implemented";
 namespace File
 {
 
+static inline bool isWebURL( const char*& fnm )
+{
+    if ( !fnm || !*fnm )
+	return false;
+    mSkipBlanks( fnm );
+    const FixedString url( fnm );
+#define mUrlStartsWith(s) url.startsWith( s, CaseInsensitive )
+    if ( mUrlStartsWith( "file://" ) )
+	{ fnm += 7; return false; }
+    if ( mUrlStartsWith( "http://" ) || mUrlStartsWith( "https://" ) )
+	return true;
+    return false;
+}
+
+
 class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
@@ -150,7 +165,7 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const 
+    uiString		uiNrDoneText() const
 			{ return mToUiStringTodo( "Files removed" ); }
 
     int			nextStep();
@@ -171,7 +186,7 @@ int RecursiveDeleter::nextStep()
 {
     if ( nrdone_ >= totalnr_ )
 	return Finished();
-    
+
     fileidx_ = totalnr_ - ( nrdone_ + 1 );
     const BufferString& filename = filelist_.get( fileidx_ );
     bool res = true;
@@ -182,12 +197,12 @@ int RecursiveDeleter::nextStep()
 	    if ( isDirEmpty(filename) )
 		res = File::removeDir( filename );
 	}
-	else 
+	else
 	    res = File::removeDir( filename );
     }
     else if( File::exists(filename) )
 	res = File::remove( filename );
-    
+
     if ( !res )
     {
 	uiString msg( mToUiStringTodo("Failed to remove ") );
@@ -245,6 +260,9 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
+    if ( isWebURL(fnm) )
+	return 0;
+
     if ( !followlink && isLink(fnm) )
     {
         od_int64 filesize = 0;
@@ -278,6 +296,8 @@ bool exists( const char* fnm )
 {
     if ( !fnm )
 	return false;
+    if ( isWebURL(fnm) )
+	return od_istream(fnm).isOK();
 
 #ifndef OD_NO_QT
     return (*fnm == '@' && *(fnm+1)) || QFile::exists( fnm );
@@ -308,6 +328,9 @@ bool isDirEmpty( const char* dirnm )
 
 bool isFile( const char* fnm )
 {
+    if ( isWebURL(fnm) )
+	return true; //TODO web
+
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isFile();
@@ -324,6 +347,9 @@ bool isFile( const char* fnm )
 
 bool isDirectory( const char* fnm )
 {
+    if ( isWebURL(fnm) )
+	return false; //TODO web
+
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     if ( qfi.isDir() )
@@ -427,6 +453,9 @@ bool isHidden( const char* fnm )
 
 bool isReadable( const char* fnm )
 {
+    if ( isWebURL(fnm) )
+	return true; //TODO web
+
 #ifdef OD_NO_QT
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
@@ -443,6 +472,9 @@ bool isReadable( const char* fnm )
 
 bool isWritable( const char* fnm )
 {
+    if ( isWebURL(fnm) )
+	return true; //TODO web
+
 #ifdef OD_NO_QT
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
@@ -459,6 +491,9 @@ bool isWritable( const char* fnm )
 
 bool isExecutable( const char* fnm )
 {
+    if ( isWebURL(fnm) )
+	return false; //TODO web
+
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isReadable() && qfi.isExecutable();
@@ -477,6 +512,9 @@ bool isExecutable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
+    if ( isWebURL(fnm) )
+	return false; //TODO web
+
     HANDLE handle = CreateFileA( fnm,
 				 GENERIC_READ | GENERIC_WRITE,
 				 0,
@@ -506,6 +544,9 @@ bool createDir( const char* fnm )
 
 bool rename( const char* oldname, const char* newname )
 {
+    if ( isWebURL(oldname) )
+	return false; //TODO web
+
 #ifndef OD_NO_QT
     return QFile::rename( oldname, newname );
 #else
@@ -692,6 +733,9 @@ bool checkDirectory( const char* filenm, bool forread, uiString& errmsg )
 
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
+    if ( isWebURL(fnm) )
+	return true; //TODO web
+
 #ifdef OD_NO_QT
     return false;
 #else
@@ -715,6 +759,9 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
 
 bool makeExecutable( const char* fnm, bool yn )
 {
+    if ( isWebURL(fnm) )
+	return false; //TODO web
+
 #if ((defined __win__) || (defined OD_NO_QT) )
     return true;
 #else
