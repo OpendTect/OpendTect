@@ -134,42 +134,45 @@ bool Network::FileCache::isAvailable( FilePosType pos,
 }
 
 
-void Network::FileCache::getAt( FilePosType pos, BufType* out,
-				ChunkSizeType totalnrbytes ) const
+Network::FileCache::FileSizeType Network::FileCache::getAt( FilePosType pos,
+		BufType* out, FileSizeType totalnrbytes ) const
 {
     if ( !out || totalnrbytes < 1 )
-	return;
+	return 0;
     else if ( !isAvailable(pos,totalnrbytes) )
     {
 	pErrMsg( "Not all data requested previously filled" );
 	OD::memZero( out, totalnrbytes );
     }
 
-    FilePosType outoffs = 0;
+    FileSizeType byteshandled = 0;
     const FilePosType lastpos = pos + totalnrbytes - 1;
     const BlockIdxType lastbidx = blockIdx( lastpos );
     for ( BlockIdxType bidx=blockIdx(pos); bidx<=lastbidx; bidx++ )
     {
 	const Block* blk = blocks_[bidx];
+	FileSizeType nrbytes = Block::cFullSize;
 	if ( blk )
 	{
+	    Interval<ChunkSizeType> wantedrg( 0, blk->bufsz_-1 );
 	    const FilePosType blockstart = blockStart( bidx );
-	    Interval<ChunkSizeType> wantedrg( (ChunkSizeType)(pos-blockstart),
-					  (ChunkSizeType)(lastpos-blockstart) );
-	    if ( wantedrg.start < 0 )
-		wantedrg.start = 0;
-	    if ( wantedrg.stop > blk->bufsz_-1 )
-		wantedrg.stop = blk->bufsz_-1;
+	    const FilePosType blockend = blockstart + blk->bufsz_ - 1;
+	    if ( pos > blockstart )
+		wantedrg.start = (ChunkSizeType)(pos - blockstart);
+	    if ( lastpos < blockend )
+		wantedrg.stop = (ChunkSizeType)(lastpos - blockstart);
 
-	    const ChunkSizeType nrbytes = wantedrg.stop - wantedrg.start + 1;
-	    OD::memCopy( out+outoffs, blk->buf_+wantedrg.start, nrbytes );
+	    nrbytes = wantedrg.stop - wantedrg.start + 1;
+	    OD::memCopy( out+byteshandled, blk->buf_+wantedrg.start, nrbytes );
 	}
-	outoffs += Block::cFullSize;
+	byteshandled += nrbytes;
     }
+
+    return byteshandled;
 }
 
 
-Network::FileCache::FileChunkSetType Network::FileCache::neededFill(
+Network::FileCache::FileChunkSetType Network::FileCache::stillNeededDataFor(
 		FilePosType pos, ChunkSizeType nrbytes ) const
 {
     FileChunkSetType ret;
@@ -190,7 +193,10 @@ Network::FileCache::FileChunkSetType Network::FileCache::neededFill(
 	if ( !blocks_[bidx] )
 	{
 	    const FilePosType blockstart = blockStart( bidx );
-	    ret += FileChunkType( blockstart, blockstart+Block::cFullSize-1 );
+	    FilePosType blockend = blockstart + Block::cFullSize - 1;
+	    if ( blockend > lastfilepos )
+		blockend = lastfilepos;
+	    ret += FileChunkType( blockstart, blockend );
 	}
     }
 
@@ -221,7 +227,7 @@ const Network::FileCache::BufType* Network::FileCache::getBlock(
 
 // Note: we expect full blocks only, but still prepare for other input
 
-bool Network::FileCache::fill( FileChunkType chunk, const BufType* data )
+bool Network::FileCache::setData( FileChunkType chunk, const BufType* data )
 {
     const BlockIdxType firstbidx = blockIdx( chunk.start );
     const BlockIdxType lastbidx = blockIdx( chunk.stop );

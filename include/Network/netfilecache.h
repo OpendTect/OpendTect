@@ -42,14 +42,15 @@ public:
 
 			// General access
 
-			// Free-sized access
+			// Free-sized access of buffered data
     FileSizeType	size() const		    { return filesize_; }
     bool		isAvailable(FilePosType,ChunkSizeType) const;
-    void		getAt(FilePosType,BufType*,ChunkSizeType) const;
+    FileSizeType	getAt(FilePosType,BufType*,FileSizeType) const;
+			// returns actual nr bytes handled
 
-			// Stuff data
-    FileChunkSetType	neededFill(FilePosType,ChunkSizeType) const;
-    bool		fill(FileChunkType,const BufType*);
+			// Stuff data, presumably obtained from remote source
+    FileChunkSetType	stillNeededDataFor(FilePosType,ChunkSizeType) const;
+    bool		setData(FileChunkType,const BufType*);
 			//!< if fail, memory was full; now the cache is cleared
 
 protected:
@@ -70,6 +71,8 @@ protected:
 	static const SizeType	cFullSize;
     };
 
+public:
+
     // Block-based access
 
     typedef ObjectSet<Block>::size_type	BlockIdxType;
@@ -78,10 +81,14 @@ protected:
     BlockIdxType	blockIdx(FilePosType) const;
     static FilePosType	blockStart(BlockIdxType);
     BlockSizeType	blockSize(BlockIdxType) const;
+    inline bool		validBlockIdx( BlockIdxType bidx ) const
+			{ return blocks_.validIdx(bidx); }
 
     bool		hasBlock(BlockIdxType) const;
     BufType*		getBlock(BlockIdxType);
     const BufType*	getBlock(BlockIdxType) const;
+
+protected:
 
     const FileSizeType	filesize_;
     ObjectSet<Block>	blocks_;
