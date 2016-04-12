@@ -209,16 +209,17 @@ mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
 public:
 			BulkD2TModelAscIO(const Table::FormatDesc&,
 					  od_istream&);
+			~BulkD2TModelAscIO();
 
     static Table::FormatDesc*	getDesc();
-    bool			get(BufferString& wellnm,
-				    float& md,float& twt) const;
+    bool			get(BufferString& wellnm,float& md,float& twt);
     bool			identifierIsUWI() const;
 
 protected:
 
-    od_istream&	strm_;
-
+    od_istream&			strm_;
+    BufferStringSet		wells_;
+    ObjectSet<Data>		wellsdata_;
 };
 
 } // namespace Well

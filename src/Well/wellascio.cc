@@ -552,6 +552,10 @@ BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
 {}
 
 
+BulkD2TModelAscIO::~BulkD2TModelAscIO()
+{ deepUnRef( wellsdata_ ); }
+
+
 Table::FormatDesc* BulkD2TModelAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkDepthTimeModel" );
@@ -573,35 +577,44 @@ Table::FormatDesc* BulkD2TModelAscIO::getDesc()
 }
 
 
-bool BulkD2TModelAscIO::get( BufferString& wellnm,
-			     float& md, float& twt ) const
+bool BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
 {
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
-    if ( !ioobj ) return false;
-
     md = getFValue( 1 );
     twt = getFValue( 2 );
     if ( mIsUdf(md) || mIsUdf(twt) )
 	return false;
 
-    RefMan<Data> wd = MGR().get( ioobj->key() );
-    if ( wd->track().isEmpty() ) return false;
+    int wellidx = wells_.indexOf(wellnm);
+    if ( wellidx < 0 )
+    {
+	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
+	if ( !ioobj ) return false;
+
+	Data* wd = MGR().get( ioobj->key() );
+	if ( !wd || wd->track().isEmpty() ) return false;
+
+	wd->ref();
+	wellsdata_ += wd;
+
+	wells_.add( wellnm );
+	wellidx = wells_.size()-1;
+    }
 
     const int dpthopt = formOf( false, 0 );
     const int tmopt = formOf( false, 1 );
 
     if ( dpthopt == 0 )
-	md = mCast(float,wd->track().getPos(mCast(float,md)).z);
+	md = mCast(float,wellsdata_[wellidx]->track().getPos(md).z);
     if ( dpthopt == 2 )
 	md -= SI().seismicReferenceDatum();
     if ( dpthopt == 3 )
-	md -= wd->track().getKbElev();
+	md -= wellsdata_[wellidx]->track().getKbElev();
     if ( dpthopt == 4 )
-	md -= wd->info().groundelev;
+	md -= wellsdata_[wellidx]->info().groundelev;
     if ( tmopt == 1 )
 	twt *= 2;
 
