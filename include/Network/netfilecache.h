@@ -44,7 +44,7 @@ public:
 
 			// Free-sized access of buffered data
     FileSizeType	size() const		    { return filesize_; }
-    bool		isAvailable(FilePosType,ChunkSizeType) const;
+    bool		isAvailable(FilePosType,FileSizeType) const;
     FileSizeType	getAt(FilePosType,BufType*,FileSizeType) const;
 			// returns actual nr bytes handled
 

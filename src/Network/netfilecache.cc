@@ -118,7 +118,7 @@ Network::FileCache::BlockIdxType Network::FileCache::blockIdx(
 
 
 bool Network::FileCache::isAvailable( FilePosType pos,
-				      ChunkSizeType nrbytes ) const
+				      FileSizeType nrbytes ) const
 {
     if ( nrbytes < 1 )
 	return pos < filesize_;
