@@ -30,5 +30,5 @@ set ( OD_MODULE_SOURCES
 	webstreamsource.cc
 )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
-set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc)
+set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc webstreamsource )
 OD_INIT_MODULE()

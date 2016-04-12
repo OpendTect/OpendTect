@@ -35,7 +35,7 @@ public:
 
     uiString		errmsg_;
 
-    bool		fill(FileChunkSetType);
+    bool		fill(const FileChunkSetType&);
 
 private:
 
@@ -104,7 +104,7 @@ bool Network::FileDownloadMgr::fillSingle( FileChunkType pintv )
 }
 
 
-bool Network::FileDownloadMgr::fill( FileChunkSetType pintvs )
+bool Network::FileDownloadMgr::fill( const FileChunkSetType& pintvs )
 {
     const FileChunkSetType::size_type nrintv = pintvs.size();
     if ( nrintv < 1 )
@@ -114,15 +114,21 @@ bool Network::FileDownloadMgr::fill( FileChunkSetType pintvs )
 
     QEventLoop qevloop;
     ObjectSet<ODNetworkReply> replies;
+    ChunkSizeType maxsz = 0;
     for ( int ichunk=0; ichunk<nrintv; ichunk++ )
     {
-	QNetworkRequest qnr( url_ );
 	const FileChunkType pintv = pintvs[ichunk];
+	const ChunkSizeType intvsz = (ChunkSizeType)pintv.width() + 1;
+	if ( intvsz > maxsz )
+	    maxsz = intvsz;
+
+	QNetworkRequest qnr( url_ );
 	qnr.setAttribute( QNetworkRequest::HttpPipeliningAllowedAttribute,
 			  true );
 	BufferString hdrstr( "bytes=", pintv.start, "-" );
 	hdrstr.add( pintv.stop );
 	qnr.setRawHeader( "Range", hdrstr.str() );
+
 	replies += new ODNetworkReply( ODNA().get(qnr), &qevloop );
     }
 
@@ -145,7 +151,7 @@ bool Network::FileDownloadMgr::fill( FileChunkSetType pintvs )
     if ( haveerr )
 	return false;
 
-    char* databuf = new char[ Block::cFullSize ];
+    char* databuf = new char[ maxsz ];
     for ( int ichunk=0; ichunk<nrintv; ichunk++ )
     {
 	QNetworkReply& reply = *replies[ichunk]->qNetworkReply();
@@ -234,9 +240,9 @@ bool goTo( FilePosType newpos )
     if ( newpos >= mgr_.size() )
 	newpos = mgr_.size();
 
-    setGPtrs( newpos,
-	      mgr_.goTo(newpos,curbidx_) && mgr_.validBlockIdx(curbidx_) );
-    return newpos;
+    bool isvalid = mgr_.goTo(newpos,curbidx_) && mgr_.validBlockIdx(curbidx_);
+    setGPtrs( newpos, isvalid );
+    return isvalid;
 }
 
 virtual pos_type seekoff( off_type offs, ios_base::seekdir sd,
@@ -255,10 +261,10 @@ virtual pos_type seekpos( pos_type newpos, ios_base::openmode )
 {
     if ( goTo(newpos) )
 	return curPos();
-    return 0;
+    return -1;
 }
 
-int underflow()
+virtual int underflow()
 {
     char* curgptr = gptr();
     if ( !curgptr )
@@ -281,7 +287,7 @@ int underflow()
 	return char_traits<char>::eof();
     }
 
-    return (int)*curgptr;
+    return (int)(*gptr());
 }
 
 virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
