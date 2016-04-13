@@ -10,6 +10,8 @@
 #include "bufstringset.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
+#include "filepath.h"
+#include "keystrs.h"
 #include "globexpr.h"
 #include "iodir.h"
 #include "iodirentry.h"
@@ -708,4 +710,15 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 	    gids.removeSingle( idl );
 	}
     }
+}
+
+
+bool SeisIOObjInfo::getDisplayPars( IOPar& iop ) const
+{
+    if ( !ioobj_ )
+	return false;
+
+    FilePath fp( ioobj_->fullUserExpr(true) );
+    fp.setExtension( "par" );
+    return iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty();
 }
