@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
+#include "webfile.h"
 #include "filepath.h"
 #include "bufstringset.h"
 #include "dirlist.h"
@@ -47,17 +48,43 @@ const char* not_implemented_str = "Not implemented";
 namespace File
 {
 
-static inline bool isWebURL( const char*& fnm )
+static ExistsFn web_existsfn = 0;
+static GetSizeFn web_getsizefn = 0;
+static GetContentFn web_getcontentfn = 0;
+
+void setWebHandlers( ExistsFn existfn, GetSizeFn sizefn, GetContentFn contfn )
+{
+    if ( existfn )
+	web_existsfn = existfn;
+    if ( sizefn )
+	web_getsizefn = sizefn;
+    if ( contfn )
+	web_getcontentfn = contfn;
+}
+
+static inline bool isSane( const char*& fnm )
 {
     if ( !fnm || !*fnm )
 	return false;
     mSkipBlanks( fnm );
-    const FixedString url( fnm );
-#define mUrlStartsWith(s) url.startsWith( s, CaseInsensitive )
-    if ( mUrlStartsWith( "file://" ) )
+    return *fnm;
+}
+
+static inline bool fnmIsURI( const char*& fnm )
+{
+    if ( *fnm != 'f' && *fnm != 'h' && *fnm != 'F' && *fnm != 'H' )
+	return false;
+
+    const FixedString uri( fnm );
+#   define mURIStartsWith(s) uri.startsWith( s, CaseInsensitive )
+
+    if ( mURIStartsWith( "file://" ) )
 	{ fnm += 7; return false; }
-    if ( mUrlStartsWith( "http://" ) || mUrlStartsWith( "https://" ) )
+    if ( mURIStartsWith( "http://" )
+      || mURIStartsWith( "https://" )
+      || mURIStartsWith( "ftp://" ) )
 	return true;
+
     return false;
 }
 
@@ -217,17 +244,21 @@ int RecursiveDeleter::nextStep()
 
 
 Executor* getRecursiveCopier( const char* from, const char* to )
-{ return new RecursiveCopier( from, to ); }
+{ return isSane(from) && isSane(to) ? new RecursiveCopier( from, to ) : 0; }
 
 Executor* getRecursiveDeleter( const char* dirname,
 			       const BufferStringSet* externallist,
 			       bool filesonly )
-{ return new RecursiveDeleter( dirname, externallist, filesonly ); }
+{ return !isSane(dirname) ? 0
+       : new RecursiveDeleter( dirname, externallist, filesonly ); }
 
 
 void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 			    bool followlinks )
 {
+    if ( !isSane(dir) )
+	return;
+
     DirList files( dir, DirList::FilesOnly );
     for ( int idx=0; idx<files.size(); idx++ )
     {
@@ -260,8 +291,8 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
-    if ( isWebURL(fnm) )
-	return 0;
+    if ( isURI(fnm) )
+	return web_getsizefn ? (*web_getsizefn)( fnm ) : 0;
 
     if ( !followlink && isLink(fnm) )
     {
@@ -276,7 +307,7 @@ od_int64 getFileSize( const char* fnm, bool followlink )
         filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
 #endif
 
-        return filesize;
+	return filesize;
     }
 
 #ifndef OD_NO_QT
@@ -294,10 +325,10 @@ od_int64 getFileSize( const char* fnm, bool followlink )
 
 bool exists( const char* fnm )
 {
-    if ( !fnm )
+    if ( !isSane(fnm) )
 	return false;
-    if ( isWebURL(fnm) )
-	return od_istream(fnm).isOK();
+    else if ( fnmIsURI(fnm) )
+	return web_existsfn ? (*web_existsfn)( fnm ) : od_istream(fnm).isOK();
 
 #ifndef OD_NO_QT
     return (*fnm == '@' && *(fnm+1)) || QFile::exists( fnm );
@@ -316,6 +347,9 @@ bool isEmpty( const char* fnm )
 
 bool isDirEmpty( const char* dirnm )
 {
+    if ( !isSane(dirnm) || fnmIsURI(dirnm) )
+	return true;
+
 #ifndef OD_NO_QT
     const QDir qdir( dirnm );
     return qdir.entryInfoList(QDir::NoDotAndDotDot|
@@ -328,8 +362,10 @@ bool isDirEmpty( const char* dirnm )
 
 bool isFile( const char* fnm )
 {
-    if ( isWebURL(fnm) )
-	return true; //TODO web
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return true;
 
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
@@ -347,8 +383,10 @@ bool isFile( const char* fnm )
 
 bool isDirectory( const char* fnm )
 {
-    if ( isWebURL(fnm) )
-	return false; //TODO web
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return false;
 
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
@@ -374,6 +412,12 @@ bool isDirectory( const char* fnm )
 
     return S_ISDIR (st_buf.st_mode);
 #endif
+}
+
+
+bool isURI( const char*& fnm )
+{
+    return isSane(fnm) && fnmIsURI(fnm);
 }
 
 
@@ -409,6 +453,9 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
 
 bool isLink( const char* fnm )
 {
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
+
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isSymLink();
@@ -421,7 +468,8 @@ bool isLink( const char* fnm )
 
 void hide( const char* fnm, bool yn )
 {
-    if ( !exists(fnm) ) return;
+    if ( !isSane(fnm) || fnmIsURI(fnm) || !exists(fnm) )
+	return;
 
 #ifdef __win__
     const int attr = GetFileAttributes( fnm );
@@ -441,6 +489,9 @@ void hide( const char* fnm, bool yn )
 
 bool isHidden( const char* fnm )
 {
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
+
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
     return qfi.isHidden();
@@ -453,8 +504,10 @@ bool isHidden( const char* fnm )
 
 bool isReadable( const char* fnm )
 {
-    if ( isWebURL(fnm) )
-	return true; //TODO web
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return exists(fnm);
 
 #ifdef OD_NO_QT
     struct stat st_buf;
@@ -472,8 +525,10 @@ bool isReadable( const char* fnm )
 
 bool isWritable( const char* fnm )
 {
-    if ( isWebURL(fnm) )
-	return true; //TODO web
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return true;
 
 #ifdef OD_NO_QT
     struct stat st_buf;
@@ -491,8 +546,8 @@ bool isWritable( const char* fnm )
 
 bool isExecutable( const char* fnm )
 {
-    if ( isWebURL(fnm) )
-	return false; //TODO web
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
 
 #ifndef OD_NO_QT
     QFileInfo qfi( fnm );
@@ -512,8 +567,8 @@ bool isExecutable( const char* fnm )
 bool isFileInUse( const char* fnm )
 {
 #ifdef __win__
-    if ( isWebURL(fnm) )
-	return false; //TODO web
+    if ( isURI(fnm) )
+	return false;
 
     HANDLE handle = CreateFileA( fnm,
 				 GENERIC_READ | GENERIC_WRITE,
@@ -533,6 +588,9 @@ bool isFileInUse( const char* fnm )
 
 bool createDir( const char* fnm )
 {
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
+
 #ifndef OD_NO_QT
     QDir qdir; return qdir.mkpath( fnm );
 #else
@@ -544,8 +602,9 @@ bool createDir( const char* fnm )
 
 bool rename( const char* oldname, const char* newname )
 {
-    if ( isWebURL(oldname) )
-	return false; //TODO web
+    if ( !isSane(oldname) || isSane(newname)
+      || fnmIsURI(oldname) || fnmIsURI(newname) )
+	return false;
 
 #ifndef OD_NO_QT
     return QFile::rename( oldname, newname );
@@ -559,6 +618,9 @@ bool rename( const char* oldname, const char* newname )
 
 bool createLink( const char* fnm, const char* linknm )
 {
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
+
 #ifndef OD_NO_QT
 #ifdef __win__
     BufferString winlinknm( linknm );
@@ -578,7 +640,11 @@ bool createLink( const char* fnm, const char* linknm )
 
 bool saveCopy( const char* from, const char* to )
 {
-    if ( isDirectory(from) ) return false;
+    if ( !isSane(from) || !isSane(to) || fnmIsURI(from) || fnmIsURI(to) )
+	return false;
+
+    if ( isDirectory(from) )
+	return false;
     if ( !exists(to) )
 	return File::copy( from, to );
 
@@ -594,6 +660,9 @@ bool saveCopy( const char* from, const char* to )
 
 bool copy( const char* from, const char* to, uiString* errmsg )
 {
+    if ( !isSane(from) || !isSane(to) || fnmIsURI(from) || fnmIsURI(to) )
+	return false;
+
     if ( isDirectory(from) || isDirectory(to)  )
 	return copyDir( from, to, errmsg );
 
@@ -621,7 +690,10 @@ bool copy( const char* from, const char* to, uiString* errmsg )
 
 bool copyDir( const char* from, const char* to, uiString* errmsg )
 {
-    if ( !from || !exists(from) || !to || !*to || exists(to) )
+    if ( !isSane(from) || !isSane(to) || fnmIsURI(from) || fnmIsURI(to) )
+	return false;
+
+    if ( !exists(from) || exists(to) )
 	return false;
 
     uiString errmsgloc;
@@ -654,8 +726,8 @@ bool copyDir( const char* from, const char* to, uiString* errmsg )
 
 bool resize( const char* fnm, od_int64 newsz )
 {
-    if ( !fnm || !*fnm )
-	return true;
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
     else if ( newsz < 0 )
 	return remove( fnm );
 #ifndef OD_NO_QT
@@ -669,8 +741,10 @@ bool resize( const char* fnm, od_int64 newsz )
 
 bool remove( const char* fnm )
 {
-    if ( !fnm || !*fnm )
+    if ( !isSane(fnm) )
 	return true;
+    else if ( fnmIsURI(fnm) )
+	return false;
 #ifndef OD_NO_QT
     return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
 #else
@@ -682,6 +756,11 @@ bool remove( const char* fnm )
 
 bool removeDir( const char* dirnm )
 {
+    if ( !isSane(dirnm) )
+	return true;
+    else if ( fnmIsURI(dirnm) )
+	return false;
+
 #ifdef OD_NO_QT
     return false;
 #else
@@ -707,6 +786,8 @@ bool removeDir( const char* dirnm )
 
 bool changeDir( const char* dir )
 {
+    if ( !isSane(dir) || fnmIsURI(dir) )
+	return false;
 #ifdef __win__
     return _chdir( dir )==0;
 #else
@@ -715,9 +796,22 @@ bool changeDir( const char* dir )
 }
 
 
-bool checkDirectory( const char* filenm, bool forread, uiString& errmsg )
+bool checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 {
-    FilePath fp( filenm );
+    if ( !isSane(fnm) )
+    {
+	errmsg = od_static_tr( "FilecheckDirectory",
+			       "Please specify a directory name" );
+	return false;
+    }
+    else if ( fnmIsURI(fnm) )
+    {
+	errmsg = od_static_tr( "FilecheckDirectory",
+			       "Web addresses not supported (yet)" );
+	return false;
+    }
+
+    FilePath fp( fnm );
     BufferString dirnm( fp.pathOnly() );
 
     const bool success = forread ? isReadable( dirnm ) : isWritable( dirnm );
@@ -733,8 +827,10 @@ bool checkDirectory( const char* filenm, bool forread, uiString& errmsg )
 
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
-    if ( isWebURL(fnm) )
-	return true; //TODO web
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return true;
 
 #ifdef OD_NO_QT
     return false;
@@ -759,8 +855,10 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
 
 bool makeExecutable( const char* fnm, bool yn )
 {
-    if ( isWebURL(fnm) )
-	return false; //TODO web
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return !yn;
 
 #if ((defined __win__) || (defined OD_NO_QT) )
     return true;
@@ -774,6 +872,9 @@ bool makeExecutable( const char* fnm, bool yn )
 
 bool setPermissions( const char* fnm, const char* perms, bool recursive )
 {
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return false;
+
 #if ((defined __win__) || (defined OD_NO_QT) )
     return false;
 #else
@@ -788,12 +889,17 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
 
 bool getContent( const char* fnm, BufferString& bs )
 {
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return web_getcontentfn ? (*web_getcontentfn)( fnm, bs ) : false;
+
     bs.setEmpty();
     if ( !fnm || !*fnm ) return false;
 
     od_istream stream( fnm );
     if ( stream.isBad() )
-        return false;
+	return false;
 
     return !stream.isOK() ? true : stream.getAll( bs );
 }
@@ -834,36 +940,48 @@ BufferString getFileSizeString( const char* fnm )
 { return getFileSizeString( getKbSize(fnm) ); }
 
 
+#define mRetUnknown { ret.set( "<unknown>" ); return ret.buf(); }
+
+
 const char* timeCreated( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	mRetUnknown
+
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     ret = qfi.created().toString( fmt );
+    return ret.buf();
 #else
     pFreeFnErrMsg(not_implemented_str);
-    ret = "<unknown>";
+    mRetUnknown
 #endif
-    return ret.buf();
 }
 
 
 const char* timeLastModified( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	mRetUnknown
+
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     ret = qfi.lastModified().toString( fmt );
+    return ret.buf();
 #else
     pFreeFnErrMsg(not_implemented_str);
-    ret = "<unknown>";
+    mRetUnknown
 #endif
-    return ret.buf();
 }
 
 
 od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
+    if ( !isSane(fnm) || fnmIsURI(fnm) )
+	return 0;
+
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     return lastmodif ? qfi.lastModified().toTime_t() : qfi.created().toTime_t();
@@ -880,6 +998,11 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 
 const char* linkValue( const char* linknm )
 {
+    if ( !isSane(linknm) )
+	return "";
+    else if ( fnmIsURI(linknm) )
+	return linknm;
+
 #ifdef __win__
     return linkTarget( linknm );
 #else
@@ -897,6 +1020,11 @@ const char* linkValue( const char* linknm )
 
 const char* linkTarget( const char* linknm )
 {
+    if ( !isSane(linknm) )
+	return "";
+    else if ( fnmIsURI(linknm) )
+	return linknm;
+
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
     const QFileInfo qfi( linknm );

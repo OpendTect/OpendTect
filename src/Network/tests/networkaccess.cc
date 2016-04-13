@@ -36,14 +36,13 @@ bool testPing()
 bool testDownloadToBuffer()
 {
     const char* url = "http://opendtect.org/dlsites.txt";
-    DataBuffer* db = new DataBuffer(1000,4);
+    DataBuffer db( 1000, 4 );
     uiString err;
 
     mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
 		      "Download to buffer", err.getFullString() );
 
-    mRunStandardTest( db->size()==43,
-		      "Download to buffer size" );
+    mRunStandardTest( db.size()==43, "Download to buffer size" );
 
     return true;
 }

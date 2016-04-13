@@ -65,6 +65,7 @@ public:
 				//!< see also below.
     bool			forRead() const;
     bool			forWrite() const;
+    bool			isLocal() const;
 
     enum Ref			{ Abs, Rel, End };
     Pos				position() const;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "netfilecache.h"
 #include "odnetworkaccess.h"
 #include "odnetworkreply.h"
+#include "file.h"
 #include <streambuf>
 #ifndef OD_NO_QT
 # include <QEventLoop>
@@ -70,17 +71,13 @@ od_int64 Network::FileDownloadMgr::getSz( const char* fnm )
 
 bool Network::FileDownloadMgr::goTo( FilePosType& pos, BlockIdxType& bidx )
 {
+    bidx = blockIdx( pos );
     if ( pos >= size() )
-    {
 	pos = size();
-	bidx = blocks_.size();
-    }
-    else
-    {
-	bidx = blockIdx( pos );
-	if ( !hasBlock(bidx) && !fillBlock( bidx ) )
-	    return false;
-    }
+
+    if ( !hasBlock(bidx) && !fillBlock( bidx ) )
+	return false;
+
     return true;
 }
 
@@ -319,32 +316,12 @@ virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
 // WebStreamSource
 
 void WebStreamSource::initClass()
-{
-    StreamProvider::addStreamSource( new WebStreamSource );
-}
-
-
+{ StreamProvider::addStreamSource( new WebStreamSource ); }
 bool WebStreamSource::willHandle( const char* fnm )
-{
-    if ( !fnm || !*fnm )
-	return false;
-    mSkipBlanks( fnm );
-    const FixedString url( fnm );
-#define mUrlStartsWith(s) url.startsWith( s, CaseInsensitive )
-    return mUrlStartsWith( "http://" ) || mUrlStartsWith( "https://" )
-	|| mUrlStartsWith( "ftp://" );
-}
-
-
+{ return File::isURI( fnm ); }
 bool WebStreamSource::canHandle( const char* fnm ) const
-{
-    return willHandle( fnm );
-}
+{ return willHandle( fnm ); }
 
-
-WebStreamSource::WebStreamSource()
-{
-}
 
 bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
 {

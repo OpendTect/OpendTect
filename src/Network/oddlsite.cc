@@ -83,7 +83,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm,
     if ( !outfnm )
     {
 	databuf_ = new DataBuffer( 0, 1, true );
-	return Network::downloadToBuffer(fullURL(relfnm),databuf_,errmsg_,
+	return Network::downloadToBuffer(fullURL(relfnm),*databuf_,errmsg_,
 					 taskrunner);
     }
 

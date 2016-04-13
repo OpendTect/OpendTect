@@ -86,18 +86,20 @@ public:
     static BufferString	mkCleanPath(const char* path, Style fmt);
     static BufferString getTimeStampFileName(const char*ext=0);
 
+    const char*		dirSep() const;
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
 
 protected:
 
+    bool		isuri_;
     bool		isabs_;
     BufferString	prefix_;
     BufferStringSet	lvls_;
 
     void		addPart(const char*);
     void		compress(int sl=0);
-    void		trueDirIfLink();
+    void		conv2TrueDirIfLink();
 };
 
 

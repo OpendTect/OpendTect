@@ -11,6 +11,7 @@
 #include "compoundkey.h"
 #include "filepath.h"
 #include "fixedstring.h"
+#include "fixedstreambuf.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "strmoper.h"
@@ -18,6 +19,7 @@
 #include "perthreadrepos.h"
 #include "uistrings.h"
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string.h>
 
@@ -282,6 +284,20 @@ bool od_stream::forRead() const
 bool od_stream::forWrite() const
 {
     return sd_.ostrm;
+}
+
+
+bool od_stream::isLocal() const
+{
+    std::streambuf* sb = sd_.istrm ? sd_.istrm->rdbuf()
+		      : (sd_.ostrm ? sd_.ostrm->rdbuf() : 0);
+    if ( !sb )
+	return true;
+
+    mDynamicCastGet(std::filebuf*,sfb,sb)
+    mDynamicCastGet(std::stringbuf*,ssb,sb)
+    mDynamicCastGet(std::fixedstreambuf*,fsb,sb)
+    return sfb || ssb || fsb;
 }
 
 

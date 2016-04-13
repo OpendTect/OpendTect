@@ -9,6 +9,7 @@
 #include "testprog.h"
 #include "applicationdata.h"
 #include "od_iostream.h"
+#include "moddepmgr.h"
 
 
 static const char* smallfname = "http://intranet/testing/ctest/test_file";
@@ -106,12 +107,11 @@ static bool testReadBigFile()
 */
 
 
-#include "odnetworkaccess.h"
-
 int main(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app; // needed for QEventLoop
+    OD::ModDeps().ensureLoaded( "Network" );
 
     bool res = true;
 
@@ -122,6 +122,20 @@ int main(int argc, char** argv)
     if ( res && !testReadBigFile() )
 	res = false;
 */
+
+
+    od_istream dnstrm( "/dev/null" );
+    if ( !dnstrm.isLocal() )
+    {
+	tstStream(true) << "Stream should be local" << od_endl;
+	res = false;
+    }
+    od_istream wbstrm( "http://opendtect.org/dlsites.txt" );
+    if ( wbstrm.isLocal() )
+    {
+	tstStream(true) << "Stream should not be local" << od_endl;
+	res = false;
+    }
 
     ExitProgram( res ? 0 : 1 );
 }

@@ -27,13 +27,13 @@ namespace File
 {
 
 mGlobal(Basic) bool		exists(const char*);
-				/*!< note: existing but unreadable
-				     may be of little use */
 mGlobal(Basic) bool		isReadable(const char*);
 mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) bool		isDirEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
+mGlobal(Basic) bool		isURI(const char*&);
+				//!< if local, will remove 'file://'
 
 mGlobal(Basic) const char*	getCanonicalPath(const char*);
 mGlobal(Basic) const char*	getRelativePath(const char* reltodir,

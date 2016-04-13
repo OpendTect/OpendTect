@@ -30,6 +30,28 @@ ________________________________________________________________________
 #endif
 
 
+bool Network::exists( const char* url )
+{
+    od_int64 dum; uiString msg;
+    return getRemoteFileSize( url, dum, msg );
+}
+
+od_int64 Network::getFileSize( const char* url )
+{
+    od_int64 ret; uiString msg;
+    return getRemoteFileSize( url, ret, msg ) ? ret : 0;
+}
+
+bool Network::getContent( const char* url, BufferString& bs )
+{
+    uiString msg; DataBuffer dbuf(0,1);
+    if ( !downloadToBuffer(url,dbuf,msg) || !dbuf.fitsInString() )
+	return false;
+    bs = dbuf.getString();
+    return true;
+}
+
+
 bool Network::downloadFile( const char* url, const char* path,
 			    uiString& errmsg, TaskRunner* taskr )
 {
@@ -72,11 +94,11 @@ bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
 }
 
 
-bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
+bool Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
 				uiString& errmsg, TaskRunner* taskr )
 {
-    databuffer->reSize( 0, false );
-    databuffer->reByte( 1, false );
+    databuffer.reSize( 0, false );
+    databuffer.reByte( 1, false );
     FileDownloader dl( url, databuffer );
     const bool res = taskr ? taskr->execute( dl ) : dl.execute();
     if ( !res ) errmsg = dl.uiMessage();
@@ -121,7 +143,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
 { totalnr_ = getDownloadSize(); }
 
 
-FileDownloader::FileDownloader( const char* url, DataBuffer* db )
+FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     : qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
@@ -129,7 +151,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , osd_(0)
-    , databuffer_(db)
+    , databuffer_(&db)
 {
     urls_.add(url);
     totalnr_ = getDownloadSize();
