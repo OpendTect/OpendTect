@@ -287,6 +287,8 @@ protected:
     void			movingNodeInternal(int selnodeidx);
     void			finishNodeMoveInternal();
     void			geomNodeMoveCB( CallBacker*);
+    void			setNodePositions(const TypeSet<BinID>&,
+						 bool onlyinternal);
 };
 
 } // namespace visSurvey
