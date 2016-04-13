@@ -46,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
+#include "seisioobjinfo.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -690,10 +691,9 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     PtrMan<IOObj> ioobj = appl_.applMgr().attrServer()->getIOObj(selSpec(wva));
     if ( !ioobj ) return false;
 
-    FilePath fp( ioobj->fullUserExpr(true) );
-    fp.setExtension( "par" );
+    SeisIOObjInfo seisobj( ioobj );
     IOPar iop;
-    if ( !iop.read(fp.fullPath(),sKey::Pars()) || iop.isEmpty() )
+    if ( !seisobj.getDisplayPars(iop) )
 	return false;
 
     ColTab::MapperSetup mapper;

@@ -76,6 +76,7 @@ public:
     void		getComponentNames(BufferStringSet&,
 					  Pos::GeomID geomid=
 					  Survey::GM().cUndefGeomID()) const;
+    bool		getDisplayPars(IOPar&) const;
 
     mStruct(Seis) Opts2D
     {

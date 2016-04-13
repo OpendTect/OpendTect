@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "scaler.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
@@ -267,10 +268,9 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 
     if ( ioobj )
     {
-    	FilePath fp( ioobj->fullUserExpr(true) );
-    	fp.setExtension( "par" );
+	SeisIOObjInfo seisobj( ioobj );
 	IOPar iop;
-    	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
+	if ( seisobj.getDisplayPars( iop ) )
     	{
     	    const char* ctname = iop.find( sKey::Name() );
     	    seq = ColTab::Sequence( ctname );
