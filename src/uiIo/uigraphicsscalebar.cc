@@ -43,7 +43,8 @@ void uiScaleBarItem::initDefaultScale()
     lowermid_ = new uiRectItem;	    addChild( lowermid_ );
     lowerright_ = new uiRectItem;   addChild( lowerright_ );
 
-    const OD::Alignment cenbot = OD::Alignment( OD::Alignment::HCenter, OD::Alignment::Bottom );
+    const OD::Alignment cenbot = OD::Alignment( OD::Alignment::HCenter, 
+						OD::Alignment::Bottom );
     startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
     addChild( startnr_ );
     midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
@@ -113,7 +114,7 @@ void uiScaleBarItem::adjustValues()
     if ( worldwidth_ != vroundedtotenth )
     {
 	worldwidth_ = vroundedtotenth;
-	pxwidth_ = Math::Abs( w2ui_.toUiX(worldwidth_)-w2ui_.toUiX(0) );
-	pxwidth_ = mCast(int,pxwidth_/scalex);
+	pxwidth_ = mNINT32( Math::Abs( worldwidth_/
+                                       (w2ui_.worldPerPixel().x*scalex) ) );
     }
 }
