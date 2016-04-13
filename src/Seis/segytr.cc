@@ -184,6 +184,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     od_stream::Pos endpos = strm.endPosition();
     estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
 			/ (cTraceHeaderBytes + dataBytes()*innrsamples_));
+    if ( estnrtrcs_ < -1 )
+	estnrtrcs_ = -1;
     return true;
 }
 
