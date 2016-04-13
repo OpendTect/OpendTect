@@ -220,7 +220,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     setName( toUiString(rl_->name()) );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
-    setNodePositions( bids );
+    setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
 }
 
@@ -449,52 +449,41 @@ static bool decoincideNodes( const TypeSet<BinID>& nodes,
 bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 {
     TypeSet<BinID> uniquebids;
-   if ( !decoincideNodes( newbids, uniquebids ) ) return false;
-
-    if ( uniquebids.size() < 2 )
+    if ( !decoincideNodes(newbids,uniquebids) || uniquebids.size()<2 )
 	return false;
-    while ( nrNodes() > uniquebids.size() )
-	removeNode( nrNodes()-1 );
 
-    if ( uniquebids.size() > 50 ) // Workaround when having a lot of nodes
-    {				  // TODO: Make better fix
-	while ( nrNodes()>0 )
-	{
-	    nodes_.removeSingle( 0 );
-	    dragger_->removeKnot( 0 );
-	}
-
-	while ( rl_->nrNodes() > 0 )
-	    mUpdateRandomLineGeometry( removeNode(0) );
-
-	for ( int idx=0; idx<uniquebids.size(); idx++ )
-	{
-	    const BinID sbid = snapPosition( uniquebids[idx] );
-	    if ( checkPosition(sbid) )
-	    {
-		nodes_ += sbid;
-		dragger_->insertKnot( nodes_.size()-1,
-				      Coord(sbid.inl(), sbid.crl()) );
-		mUpdateRandomLineGeometry( addNode(sbid) );
-	    }
-	}
-
-	updatePanelStripPath();
-	moving_.trigger();
-	return true;
-    }
-
-    for ( int idx=0; idx<uniquebids.size(); idx++ )
-    {
-	const BinID bid = uniquebids[idx];
-
-	if ( idx < nrNodes() )
-	    setNodePos( idx, bid, false );
-	else
-	    rl_->addNode( bid );
-    }
-
+    setNodePositions( uniquebids, false );
     return true;
+}
+
+
+void RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& bids,
+					   bool onlyinternal )
+{
+    NotifyStopper movingnotifystopper( moving_ );
+
+    while ( nrNodes() > bids.size() )
+    {
+	if ( onlyinternal )
+	    removeNodeInternal( nrNodes()-1 );
+	else
+	    rl_->removeNode( nrNodes()-1 );
+    }
+
+    for ( int idx=0; idx<bids.size(); idx++ )
+    {
+	if ( idx < nrNodes() )
+	    setNodePos( idx, bids[idx], false );
+	else if ( onlyinternal )
+	    addNodeInternal( bids[idx] );
+	else
+	    rl_->addNode( bids[idx] );
+    }
+
+    updatePanelStripPath();
+
+    movingnotifystopper.restore();
+    moving_.trigger();
 }
 
 
@@ -1361,7 +1350,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
     TypeSet<BinID> positions;
     for ( int idx=0; idx<nrNodes(); idx++ )
 	positions += getNodePos( idx );
-    rtd->setNodePositions( positions );
+    rtd->setNodePositions( positions, false );
     rtd->lockGeometry( isGeometryLocked() );
     rtd->setZAxisTransform( datatransform_, taskr );
 

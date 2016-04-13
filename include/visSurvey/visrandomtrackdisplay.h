@@ -184,6 +184,9 @@ protected:
     void			movingNodeInternal(int selnodeidx);
     void			finishNodeMoveInternal();
 
+    void			setNodePositions(const TypeSet<BinID>&,
+						 bool onlyinternal);
+
     bool			getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
 
