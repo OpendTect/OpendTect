@@ -65,7 +65,7 @@ od_int64 nrIterations() const { return nrsamples_; }
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( !res_ ) return true;
-    return provider_.computeData( *res_, relpos_, mCast(int,start+z0_), 
+    return provider_.computeData( *res_, relpos_, mCast(int,start+z0_),
 				  mCast(int,stop-start+1), threadid );
 }
 
@@ -99,7 +99,7 @@ Provider* Provider::create( Desc& desc, uiString& errstr )
 }
 
 
-Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing, 
+Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 				    bool& issame, uiString& errstr )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
@@ -139,7 +139,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    else
 	    {
 		errstr = tr( "%1 for '%2' attribute.")
-		    	 .arg( errmsg ).arg( desc.userRef() );
+			 .arg( errmsg ).arg( desc.userRef() );
 	    }
 	}
 	else
@@ -151,7 +151,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     }
 
     newprov->ref();
-    
+
     if ( desc.selectedOutput()!=-1 && existing.isEmpty() )
 	newprov->enableOutput( desc.selectedOutput(), true );
 
@@ -162,8 +162,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	Desc* inputdesc = desc.getInput(idx);
 	if ( !inputdesc ) continue;
 
-	Provider* inputprovider = 
-	    		internalCreate( *inputdesc, existing, issame, errstr );
+	Provider* inputprovider =
+			internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
@@ -211,7 +211,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 Provider::Provider( Desc& nd )
     : desc_( nd )
     , desiredvolume_( 0 )
-    , possiblevolume_( 0 ) 
+    , possiblevolume_( 0 )
     , outputinterest_( nd.nrOutputs(), 0 )
     , reqbufferstepout_( 0, 0 )
     , desbufferstepout_( 0, 0 )
@@ -326,9 +326,9 @@ bool Provider::isOutputEnabled( int out ) const
 	return; \
 \
     if ( ns.inl() > prefix##bufferstepout_.inl() ) \
-    	prefix##bufferstepout_.inl() = ns.inl(); \
+	prefix##bufferstepout_.inl() = ns.inl(); \
     if ( ns.crl() > prefix##bufferstepout_.crl() ) \
-    	prefix##bufferstepout_.crl() = ns.crl();\
+	prefix##bufferstepout_.crl() = ns.crl();\
 }
 
 
@@ -452,13 +452,13 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 	    TypeSet<int> inputoutput;
 	    if ( !getInputOutput( inp, inputoutput ) )
 		continue;
-	    
+
 	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
 		if ( !inputs_[inp] ) continue;
 
 		computeDesInputCube(inp, out, inputcs, true);
-		if ( !inputs_[inp]->getPossibleVolume( idy, inputcs ) ) 
+		if ( !inputs_[inp]->getPossibleVolume( idy, inputcs ) )
 		    continue;
 
 		const BinID* stepout = reqStepout(inp,out);
@@ -489,7 +489,7 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 		    inputcs.zsamp_.start -= zrgsamp->start*refstep_;
 		    inputcs.zsamp_.stop -= zrgsamp->stop*refstep_;
 		}
-		
+
 		res.limitToWithUdf( inputcs );
 		isset = true;
 	    }
@@ -498,7 +498,7 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 
     if ( !possiblevolume_ )
 	possiblevolume_ = new TrcKeyZSampling;
-    
+
     possiblevolume_->hsamp_ = res.hsamp_;
     possiblevolume_->zsamp_ = res.zsamp_;
     return isset;
@@ -538,9 +538,9 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    }
 	}
     }
-    
+
     bool docheck = pos == BinID(-1,-1);
-    
+
     if ( is2D() )
 	prevtrcnr_ = currentbid_.crl();
 
@@ -553,13 +553,13 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	for ( int idx=0; idx<inputs_.size(); idx++ )
 	{
 	    if ( !inputs_[idx] ) continue;
-	    
+
 	    currentbid_ = inputs_[idx]->getCurrentPosition();
 	    trcinfobid_ = inputs_[idx]->getTrcInfoBid();
 	    if ( !docheck && currentbid_ == pos ) continue;
 	    if ( !docheck && trcinfobid_ != BinID(-1,-1) && trcinfobid_ == pos )
 		continue;
-	    
+
 	    needmove = true;
 	    const int res = inputs_[idx]->moveToNextTrace(pos, firstcheck);
 	    if ( res!=1 ) return res;
@@ -571,9 +571,9 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( !movinginputs.isPresent( inputs_[idx] ) )
 		movinginputs += inputs_[idx];
 	}
-	if ( !needmove || docheck ) 
+	if ( !needmove || docheck )
 	    docontinue = false;
-	
+
 	if ( !docheck && firstcheck )
 	{
 	    bool allok = true;
@@ -587,12 +587,12 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 		    break;
 		}
 	    }
-	    
+
 	    if ( !allok )
 	    {
 		BinID newstart( BinID(-1,-1) );
 		computeNewStartPos( newstart );
-	
+
 		pos = newstart;
 		firstcheck = false;
 		resetMoved();
@@ -610,10 +610,10 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    {
 		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
-		if ( prevbid.crl() +step.crl() <= 
+		if ( prevbid.crl() +step.crl() <=
 		     desiredvolume_->hsamp_.stop_.crl() )
 		    currentbid_.crl() = prevbid.crl() +step.crl();
-		else if ( prevbid.inl() +step.inl() <= 
+		else if ( prevbid.inl() +step.inl() <=
 			  desiredvolume_->hsamp_.stop_.inl())
 		{
 		    currentbid_.inl() = prevbid.inl() +step.inl();
@@ -679,7 +679,7 @@ void Provider::computeNewStartPos( BinID& newstart )
 	BinID inputbid(BinID(-1,-1));
 	if ( inputs_[idi] && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1) )
 	    inputbid = inputs_[idi]->getCurrentPosition();
-	
+
 	if ( inputbid == BinID(-1,-1) ) continue;
 	if ( newstart == BinID(-1,-1) )
 	{
@@ -688,13 +688,13 @@ void Provider::computeNewStartPos( BinID& newstart )
 	else
 	{
 	    if ( is2D() )
-		newstart = newstart.crl()<inputbid.crl() ? inputbid : newstart; 
+		newstart = newstart.crl()<inputbid.crl() ? inputbid : newstart;
 	    else
 	    {
-		newstart.inl() = step.inl()<0 ? 
+		newstart.inl() = step.inl()<0 ?
 			       mMIN(newstart.inl(),inputbid.inl()):
 			       mMAX(newstart.inl(),inputbid.inl());
-		newstart.crl() = step.crl()<0 ? 
+		newstart.crl() = step.crl()<0 ?
 			       mMIN(newstart.crl(),inputbid.crl()):
 			       mMAX(newstart.crl(),inputbid.crl());
 	    }
@@ -721,7 +721,7 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 		inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
 
 	    int res = comparePosAndAlign(movinginputs[inp1], inp1_is_on_newline,
-		      	    		 movinginputs[inp2], inp2_is_on_newline,
+					 movinginputs[inp2], inp2_is_on_newline,
 					 inp1moved );
 	    if ( res != 1 ) return res;
 
@@ -732,7 +732,7 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 	    }
 	}
     }
-    
+
     return 1;
 }
 
@@ -750,7 +750,7 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
 	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
 	int compres = -1;
-	
+
 	if ( seismscprov1 && seismscprov2 )
 	    compres = seismscprov1->comparePos( *seismscprov2 );
 	else if ( !needmscp1 || !needmscp2 )
@@ -773,7 +773,7 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 
 	bool bothnew = inp1_is_on_newline && inp2_is_on_newline;
 	if ( ( compres==-1 && !inp1_is_on_newline ) ||
-	     ( compres==-1 && bothnew ) || 
+	     ( compres==-1 && bothnew ) ||
 	     ( !bothnew && inp2_is_on_newline ) )
 	{
 	    inp1moved = true;
@@ -811,7 +811,7 @@ void Provider::updateCurrentInfo()
 	inputs_[idx]->updateCurrentInfo();
 	if ( currentbid_ != inputs_[idx]->getCurrentPosition() )
 	    currentbid_ = inputs_[idx]->getCurrentPosition();
-	if ( inputs_[idx]->getCurrentTrcInfo() && 
+	if ( inputs_[idx]->getCurrentTrcInfo() &&
 		curtrcinfo_ != inputs_[idx]->getCurrentTrcInfo() )
 	    curtrcinfo_ = inputs_[idx]->getCurrentTrcInfo();
 	if ( trcinfobid_ != inputs_[idx]->getTrcInfoBid() )
@@ -831,7 +831,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	else
 	    return false;
     }
-    
+
     if ( linebuffer_ )
     {
 	if ( doNotReUseDH() )
@@ -839,10 +839,10 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	    linebuffer_->removeAllExcept( currentbid_ );
 	    return true;
 	}
-	
+
 	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
-	dir.inl() *= step.inl()/abs(step.inl()); 
+	dir.inl() *= step.inl()/abs(step.inl());
 	dir.crl() *= step.crl()/abs(step.crl());
 	const BinID lastbid = currentbid_ - desbufferstepout_*step;
 	linebuffer_->removeBefore(lastbid, dir);
@@ -857,11 +857,11 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start/dz),
-	    			  mNINT32(possiblevolume_->zsamp_.stop/dz) );
+				  mNINT32(possiblevolume_->zsamp_.stop/dz) );
 
     const int nrintvs = intvs.size();
     if ( nrintvs < 1 )
-    	{ pErrMsg("Huh"); return; }
+	{ pErrMsg("Huh"); return; }
     const int nrinps = inputs_.size();
 
     Array2DImpl< BasicInterval<int> > inputranges( nrinps<1?1:nrinps, nrintvs );
@@ -965,7 +965,7 @@ void Provider::resetZIntervals()
     for ( int idx=localcomputezintervals_.size(); idx>0; idx-- )
 	localcomputezintervals_.removeSingle(idx-1);
 }
-    
+
 
 BinID Provider::getStepoutStep() const
 {
@@ -995,7 +995,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     const DataHolder* constres = getDataDontCompute(relpos);
     Interval<int> loczinterval( localcomputezintervals_[idi] );
-    if ( constres && constres->z0_ == loczinterval.start 
+    if ( constres && constres->z0_ == loczinterval.start
 	    && constres->nrsamples_ == loczinterval.width()+1 )
 	return constres;
 
@@ -1009,14 +1009,14 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	if ( outdata ) linebuffer_->removeDataHolder( currentbid_+relpos );
 	return 0;
     }
-    
+
     const int nrsamples = outdata->nrsamples_;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
 	while ( outdata->nrSeries()<=idx )
 	    outdata->add( true );
-	
-	if ( outputinterest_[idx]<=0 ) 
+
+	if ( outputinterest_[idx]<=0 )
 	{
 	    if ( outdata->series(idx) )
 		outdata->replace( idx, 0 );
@@ -1045,6 +1045,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 		return 0;
 	    }
 
+	    valptr->setAll( mUdf(float) );
 	    outdata->replace( idx, valptr );
 	}
     }
@@ -1204,7 +1205,7 @@ void Provider::setInput( int inp, Provider* np )
     inputs_[inp]->ref();
     if ( inputs_[inp]->desc_.isSteering() )
 	initSteering();
-    
+
     TypeSet<int> inputoutputs;
     if ( getInputOutput( inp, inputoutputs ) )
     {
@@ -1250,16 +1251,16 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 
 	Interval<int> zrgsamp(0,0);
 	mUseMargins(int,Samp,samp)
-	
+
 	zrg.include( Interval<float>( zrgsamp.start*refstep_,
-		    		      zrgsamp.stop*refstep_ ) );
+				      zrgsamp.stop*refstep_ ) );
 
 	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
 						 extraz_.stop + zrg.stop);
 	const_cast<Provider*>(inputs_[inp])->setSelData( seldata_ );
 	const_cast<Provider*>(inputs_[inp])->setExtraZ( extraz );
     }
-    
+
     if ( !desiredvolume_ )
 	const_cast<Provider*>(this)->desiredvolume_ = new TrcKeyZSampling(res);
 
@@ -1276,9 +1277,9 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 	const BinID* desstepout = desStepout( inp, out );
 	if ( desstepout )
 	{
-	    if ( stepout.inl() < desstepout->inl() ) 
+	    if ( stepout.inl() < desstepout->inl() )
 		stepout.inl() = desstepout->inl();
-	    if ( stepout.crl() < desstepout->crl() ) 
+	    if ( stepout.crl() < desstepout->crl() )
 		stepout.crl() = desstepout->crl();
 	}
 
@@ -1287,15 +1288,15 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 	res.hsamp_.stop_.inl() += stepout.inl() * inlstepoutfact;
 	res.hsamp_.stop_.crl() += stepout.crl() * crlstepoutfact;
     }
-   
+
     Interval<float> zrg(0,0);
     mUseMargins(float,,)
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep_, 
+    zrg.include(Interval<float>( zrgsamp.start*refstep_,
 				 zrgsamp.stop*refstep_ ));
-    
+
     res.zsamp_.start += zrg.start;
     res.zsamp_.stop += zrg.stop;
 }
@@ -1388,7 +1389,7 @@ void Provider::computeRefStep()
 	bool isstored = allexistingprov_[idx]->getZStepStoredData(step);
 	if ( isstored )
 	    refstep_ = ( refstep_ != 0 && refstep_ < step )? refstep_ : step;
-	    
+
     }
 }
 
@@ -1408,7 +1409,7 @@ void Provider::computeRefZ0()
 	float z0 = 0;
 	bool isstored = allexistingprov_[idx]->getZ0StoredData(z0);
 	if ( isstored )
-	    refz0_ = ( refz0_ < z0 )? refz0_ : z0;	    
+	    refz0_ = ( refz0_ < z0 )? refz0_ : z0;
     }
 }
 
@@ -1425,7 +1426,7 @@ void Provider::setCurLineName( const char* linename )
 {
     geomid_ = Survey::GM().getGeomID( linename );
     for ( int idx=0; idx<inputs_.size(); idx++ )
-    {   
+    {
 	if ( !inputs_[idx] ) continue;
 	inputs_[idx]->setCurLineName( linename );
     }
@@ -1498,12 +1499,12 @@ void Provider::setPossibleVolume( const TrcKeyZSampling& cs )
 
 
 float Provider::getRefStep() const
-{ 
+{
     return !mIsZero(refstep_,mDefEps) ? refstep_ : SI().zStep();
 }
 
 
-bool Provider::zIsTime() const 
+bool Provider::zIsTime() const
 { return SI().zIsTime(); }
 
 float Provider::inlDist() const
@@ -1528,7 +1529,7 @@ uiString Provider::errMsg() const
 	if ( inputs_[idx] && !inputs_[idx]->errMsg().isEmpty() )
 	    return inputs_[idx]->errMsg();
     }
-    
+
     return errmsg_;
 }
 
@@ -1559,7 +1560,7 @@ void Provider::resetDesiredVolume()
 {
     if ( desiredvolume_ )
     {
-	delete desiredvolume_; 
+	delete desiredvolume_;
 	desiredvolume_ = 0;
     }
     for ( int idx=0; idx<inputs_.size(); idx++ )
@@ -1680,7 +1681,7 @@ float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue; 
+	if ( !inputs_[idx] ) continue;
 	const float distval = inputs_[idx]->getDistBetwTrcs( ismax, linenm );
 	if ( !mIsUdf(distval) )
 	    return distval;
@@ -1764,7 +1765,7 @@ void Provider::stdPrepSteering( const BinID& so )
 
 float Provider::zFactor() const
 {
-    return (float) ( zIsTime() ?  ZDomain::Time() 
+    return (float) ( zIsTime() ?  ZDomain::Time()
 			       : ZDomain::Depth() ).userFactor();
 }
 
