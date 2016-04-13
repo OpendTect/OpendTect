@@ -154,8 +154,9 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	if ( nrsel == 1  )
 	    uiMSG().error( errormsgstr );
 	else
-	    uiMSG().error( tr("The following selections will not be loaded %1")
-			  .arg( errormsgstr ) );
+	    uiMSG().error(
+		    tr("The following selections will not be loaded:\n\n%1")
+		    .arg( errormsgstr ) );
     }
 
 }
