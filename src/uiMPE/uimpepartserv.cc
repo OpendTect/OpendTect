@@ -161,9 +161,6 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid )
 
 bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
-    if ( trackercurrentobject_ != -1 && !seedswithoutattribsel_ )
-	return false;
-
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;
     //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
@@ -332,7 +329,7 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* )
 }
 
 
-void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
+void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
 {
     cleanSetupDependents();
     seedswithoutattribsel_ = false;
@@ -499,6 +496,46 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
 
     MPE::engine().setActiveTracker( tracker );
     tracker->enable( yn );
+
+    if ( yn )
+    {
+	activetrackerid_ = trackerid;
+	trackercurrentobject_ =
+	    tracker->emObject() ? tracker->emObject()->id() : -1;
+	fillTrackerSettings( trackerid );
+    }
+}
+
+
+void uiMPEPartServer::fillTrackerSettings( int trackerid )
+{
+    if ( !setupgrp_ ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
+    if ( !emobj || !seedpicker ) return;
+
+    EM::SectionID sid = emobj->sectionID( 0 );
+    MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
+    if ( !sectracker ) return;
+
+    setupgrp_->setSectionTracker( sectracker );
+    setupgrp_->setMode( seedpicker->getTrackMode() );
+    setupgrp_->setColor( emobj->preferredColor() );
+    setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
+    setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
+						EM::EMObject::sSeedNode()) );
+
+    TypeSet<TrcKey> seeds;
+    seedpicker->getSeeds( seeds );
+    if ( !seeds.isEmpty() )
+    {
+	TrcKeyValue lastseed( seeds.last() );
+	mDynamicCastGet(EM::Horizon*,hor,emobj)
+	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
+	setupgrp_->setSeedPos( lastseed );
+    }
 }
 
 
@@ -558,6 +595,7 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
     setupgrp_->showGroupOnTop( grpnm );
     return true;
 }
+
 
 uiString uiMPEPartServer::sYesAskGoOnStr()
 {

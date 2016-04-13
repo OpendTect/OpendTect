@@ -63,6 +63,7 @@ public:
     void			useSavedSetupDlg(const EM::ObjectID&,
 						 const EM::SectionID&);
     MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
+    void			fillTrackerSettings(int trackerid);
 
     int				activeTrackerID() const;
 				/*!< returns the trackerid of the last event */
