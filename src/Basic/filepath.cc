@@ -51,6 +51,7 @@ FilePath& FilePath::operator =( const FilePath& fp )
     lvls_ = fp.lvls_;
     prefix_ = fp.prefix_;
     isabs_ = fp.isabs_;
+    isuri_ = fp.isuri_;
     return *this;
 }
 
