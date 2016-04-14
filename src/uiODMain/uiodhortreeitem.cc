@@ -196,10 +196,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     }
     else if ( mnuid == trackitmmgr_.getParam(this)->id )
     {
-	if ( !applMgr()->visServer()->
-			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
-	    return true;
-
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
@@ -434,7 +430,6 @@ bool uiODHorizonTreeItem::init()
 		mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
 		if ( emitm ) emitm->setDataPointSet( vals );
 	    }
-
 	}
 
 	if ( MPE::engine().getTrackerByObject(hor3d->id()) != -1 )
@@ -749,10 +744,6 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     }
     else if ( mnuid == 1 )
     {
-	if ( !applMgr()->visServer()->
-			clickablesInScene(EM::Horizon2D::typeStr(),sceneID()) )
-	    return true;
-
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 			applMgr()->attrServer()->curDescSet(true) );
