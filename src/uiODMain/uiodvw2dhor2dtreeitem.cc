@@ -148,7 +148,6 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	addNewTrackingHorizon2D( emid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon2D(
 		emid, viewer2D()->getSyncSceneID() );
-	MPE::engine().removeTracker( trackid );
 	mps->enableTracking( trackid, true );
     }
     else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
@@ -584,7 +583,7 @@ bool uiODVw2DHor2DTreeItem::select()
 
     if ( !trackerefed_ )
     {
-	if (  MPE::engine().getTrackerByObject(emid_) != -1 )
+	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
 	{
 	    MPE::engine().addTracker( EM::EMM().getObject(emid_) );
 	    MPE::engine().getEditor( emid_, true );
