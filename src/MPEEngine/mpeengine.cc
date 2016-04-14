@@ -447,7 +447,8 @@ int Engine::addTracker( EM::EMObject* emobj )
     trackeraddremove.trigger();
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-    hor3d->initTrackingArrays();
+    if ( hor3d )
+	hor3d->initTrackingArrays();
 
     return trackers_.size()-1;
 }
