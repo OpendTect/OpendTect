@@ -160,7 +160,7 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 	hs.limitTo( emhs );
     }
 
-    if ( horfld2_->commitInput() )
+    if ( !usesingle_ && horfld2_->commitInput() )
     {
 	EM::IOObjInfo eminfo( horctio2_.ioobj_->key() );
 	TrcKeySampling emhs;
