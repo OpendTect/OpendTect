@@ -91,7 +91,6 @@ protected:
 
     EM::ObjectID	emid_;
     Vw2DHorizon3D*	horview_;
-    bool		trackerefed_;
     void		emobjAbtToDelCB(CallBacker*);
 };
 

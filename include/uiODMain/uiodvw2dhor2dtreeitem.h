@@ -64,8 +64,8 @@ public:
     			uiODVw2DHor2DTreeItem(const EM::ObjectID&);
     			uiODVw2DHor2DTreeItem(int dispid,bool dummy);
 			~uiODVw2DHor2DTreeItem();
-    
-    bool		showSubMenu();			
+
+    bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }
     const Vw2DHorizon2D* vw2DObject() const	{ return horview_; }
@@ -77,7 +77,7 @@ protected:
 			{ return typeid(uiODVw2DHor2DParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
-    void                updateSelSpec(const Attrib::SelSpec*,bool wva);    
+    void                updateSelSpec(const Attrib::SelSpec*,bool wva);
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);
@@ -89,7 +89,6 @@ protected:
 
     EM::ObjectID	emid_;
     Vw2DHorizon2D*	horview_;
-    bool		trackerefed_;
 
     void		renameVisObj();
 };
