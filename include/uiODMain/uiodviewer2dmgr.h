@@ -191,6 +191,8 @@ public:
     void			addNewTempFault(EM::ObjectID mid,int sceneid);
     void			addNewTempFaultSS(EM::ObjectID mid,int sceneid);
     void			addNewTempFaultSS2D(EM::ObjectID mid,int scnid);
+
+    void			getVwr2DObjIDs(TypeSet<int>& vw2ids) const;
 };
 
 #endif

@@ -134,6 +134,16 @@ void Vw2DDataManager::deSelect( int id )
 }
 
 
+void Vw2DDataManager::getObjectIDs( TypeSet<int>& objids ) const
+{
+    ObjectSet<Vw2DDataObject> vw2dobjs;
+    getObjects( vw2dobjs );
+    objids.setSize( vw2dobjs.size(), -1 );
+    for ( int idx=0; idx<vw2dobjs.size(); idx++ )
+	objids[idx] = vw2dobjs[idx]->id();
+}
+
+
 void Vw2DDataManager::getObjects( ObjectSet<Vw2DDataObject>& objs ) const
 {
     objs.copy( objects_ );

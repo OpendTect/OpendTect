@@ -254,6 +254,7 @@ public:
     void			addNewTempFaultSS2D(EM::ObjectID emid);
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
 						TypeSet<int>& vw2ds) const;
+    void			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
 };
 
 #endif

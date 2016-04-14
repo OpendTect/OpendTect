@@ -63,6 +63,8 @@ protected:
 
     bool			similarObjectPresent(
 					const Vw2DDataObject*) const;
+public:
+    void			getObjectIDs(TypeSet<int>&) const;
 };
 
 #endif

@@ -1104,6 +1104,13 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 }
 
 
+void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getVwr2DObjIDs( vw2dobjids );
+}
+
+
 void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
 					TypeSet<int>& vw2dobjids ) const
 {
