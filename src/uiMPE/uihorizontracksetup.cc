@@ -157,6 +157,14 @@ void uiHorizonSetupGroup::initToolBar()
 }
 
 
+void uiHorizonSetupGroup::enableTracking( bool yn )
+{
+    toolbar_->setSensitive( yn );
+    if ( yn )
+	updateButtonSensitivity();
+}
+
+
 void uiHorizonSetupGroup::setMPEPartServer( uiMPEPartServer* mps )
 {
     mps_ = mps;

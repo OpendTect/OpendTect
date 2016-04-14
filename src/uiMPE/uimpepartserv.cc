@@ -500,6 +500,9 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
 
     MPE::engine().setActiveTracker( tracker );
     tracker->enable( yn );
+
+    mDynamicCastGet(MPE::uiHorizonSetupGroup*,horgrp,setupgrp_);
+    if ( horgrp ) horgrp->enableTracking( yn );
 }
 
 
@@ -559,6 +562,7 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
     setupgrp_->showGroupOnTop( grpnm );
     return true;
 }
+
 
 uiString uiMPEPartServer::sYesAskGoOnStr()
 {
