@@ -249,6 +249,7 @@ bool uiODPickSetTreeItem::init()
 	    set_.disp_.mkstyle_.size_= 3;
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
+	psd->fullRedraw();
     }
     else
     {
@@ -583,6 +584,7 @@ bool uiODPolygonTreeItem::init()
 	    set_.disp_.mkstyle_.size_ = 3;
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
+	psd->fullRedraw();
     }
     else
     {
