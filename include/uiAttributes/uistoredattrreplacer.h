@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "attribdescid.h"
 #include "bufstringset.h"
-#include "linekey.h"
+#include "multiid.h"
 #include "sets.h"
 #include "uistring.h"
 
@@ -27,35 +27,36 @@ namespace Attrib
 mExpClass(uiAttributes) uiStoredAttribReplacer
 { mODTextTranslationClass(uiStoredAttribReplacer);
 public:
-    				uiStoredAttribReplacer(uiParent*,
+				uiStoredAttribReplacer(uiParent*,
 						       Attrib::DescSet*);
-    				uiStoredAttribReplacer(uiParent*,IOPar*,
+				uiStoredAttribReplacer(uiParent*,IOPar*,
 						       bool is2d=false);
-    void 			go();
+    void			go();
 
 protected:
 
     struct StoredEntry
     {
-				StoredEntry( Attrib::DescID id1, LineKey lk,
-				       	     BufferString storedref )
+				StoredEntry(Attrib::DescID id1,
+					    const BufferString& mid,
+					    BufferString storedref )
 				    : firstid_(id1)
 				    , secondid_(Attrib::DescID::undef())
-				    , lk_(lk)
-       				    , storedref_(storedref)	{}
+				    , mid_(mid)
+				    , storedref_(storedref)	{}
 
 	bool			operator == ( const StoredEntry& a ) const
-	    			{ return firstid_ == a.firstid_
+				{ return firstid_ == a.firstid_
 				      && secondid_ == a.secondid_
-				      && lk_ == a.lk_
+				      && mid_ == a.mid_
 				      && storedref_ == a.storedref_; }
 
 	bool			has2Ids() const
 				{ return firstid_.isValid() &&
-				    	 secondid_.isValid(); }
+					 secondid_.isValid(); }
 	Attrib::DescID		firstid_;
 	Attrib::DescID		secondid_;
-	LineKey			lk_;
+	BufferString		mid_;
 	BufferStringSet		userrefs_;
 	BufferString		storedref_;
     };
@@ -63,7 +64,7 @@ protected:
     void			usePar(const IOPar&);
     void			setStoredKey(IOPar*,const char*);
     void			setSteerPar(StoredEntry,const char*,
-	    				    const char*);
+					    const char*);
     void			setUserRef(IOPar*,const char*);
     void			getUserRefs(const IOPar&);
     void			getUserRef(const Attrib::DescID&,
@@ -76,11 +77,11 @@ protected:
 					 const Attrib::DescID&) const;
     int				getOutPut(int descid);
     void			removeDescsWithBlankInp(const Attrib::DescID&);
-    Attrib::DescSet* 		attrset_;
+    Attrib::DescSet*		attrset_;
     IOPar*			iopar_;
     TypeSet<StoredEntry>	storedids_;
-    bool		 	is2d_;
-    uiParent*	 		parent_;
+    bool			is2d_;
+    uiParent*			parent_;
     int				noofsteer_;
     int				noofseis_;
     bool			multiinpcube_;

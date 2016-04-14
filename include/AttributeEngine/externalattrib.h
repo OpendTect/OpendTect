@@ -44,10 +44,11 @@ public:
 
     virtual RefMan<RegularSeisDataPack>	createAttrib(const TrcKeyZSampling&,
 					     DataPack::ID, TaskRunner*);
-    virtual bool			createAttrib(ObjectSet<BinIDValueSet>&,
-						     TaskRunner*);
-    virtual bool			createAttrib(const BinIDValueSet&,
-						     SeisTrcBuf&,TaskRunner*);
+
+    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
+					     TaskRunner*);
+    virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
+					     TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }
 

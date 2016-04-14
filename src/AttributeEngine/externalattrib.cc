@@ -33,15 +33,4 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 				  TaskRunner* )
 { return false; }
 
-
-RefMan<RegularSeisDataPack> ExtAttribCalc::createAttrib( const TrcKeyZSampling&,const LineKey&,
-					  TaskRunner* )
-{ return 0; }
-
-
-DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&,Pos::GeomID,
-					  TaskRunner* )
-{ return DataPack::cNoID(); }
-
-
 } // namespace Attrib

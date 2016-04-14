@@ -443,21 +443,21 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     data().subselpars_.setEmpty();
     if ( is2D() )
     {
-	BufferString linenm;
-	if ( !lnmfld_ )
-	    linenm = static_cast<uiSeis2DSubSel*>(subselfld_)->selectedLine();
+	Pos::GeomID geomid = mUdfGeomID;
+	if ( !isimp_ )
+	    geomid = static_cast<uiSeis2DSubSel*>(subselfld_)->selectedGeomID();
 	else
-	    linenm = lnmfld_->getInput();
-	if ( linenm.isEmpty() )
-	    mErrRet( uiStrings::phrEnter(tr("a line name")) )
-	if ( isimp_ )
 	{
-	    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );
+	    const BufferString linenm = lnmfld_->getInput();
+	    if ( linenm.isEmpty() )
+		mErrRet( uiStrings::phrEnter(tr("a line name")) )
+
+	    geomid = Geom2DImpHandler::getGeomID( linenm );
 	    if ( geomid == mUdfGeomID )
 		return false;
 	}
 
-	data().linekey_.setLineName( linenm );
+	data().geomid_ = geomid;
     }
 
     data().seiskey_ = ioobj->key();

@@ -45,8 +45,8 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
-	, linekey_(*new LineKey)
 	, geom_(gt)
+	, geomid_(mUdfGeomID)
 	, compidx_(0)
 {
     clear(true);
@@ -63,7 +63,6 @@ SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
 	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
-	, linekey_(*new LineKey)
 {
     *this = d;
 }
@@ -86,7 +85,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     remnull_ = d.remnull_;
     setScaler( d.scaler_ );
     setResampler( d.resampler_ );
-    linekey_ = d.linekey_;
+    geomid_ = d.geomid_;
     subselpars_ = d.subselpars_;
     compidx_ = d.compidx_;
 
@@ -98,7 +97,6 @@ SeisIOSimple::Data::~Data()
 {
     delete scaler_;
     delete resampler_;
-    delete &linekey_;
     delete &subselpars_;
 }
 
@@ -125,7 +123,7 @@ void SeisIOSimple::Data::clear( bool survchg )
 	return;
 
     subselpars_.setEmpty();
-    fname_ = GetDataDir(); seiskey_ = ""; linekey_ = "";
+    fname_ = GetDataDir(); seiskey_ = ""; geomid_ = mUdfGeomID;
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;
@@ -178,12 +176,9 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	return;
 
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-    if ( !data_.linekey_.isEmpty() )
-    {
-	Pos::GeomID geomid  =
-	    Survey::GM().getGeomID( data_.linekey_.lineName() );
-	seldata->setGeomID( geomid );
-    }
+    if ( data_.geomid_ != mUdfGeomID )
+	seldata->setGeomID( data_.geomid_ );
+
     sa->setSelData( seldata );
 
     uiString errmsg;

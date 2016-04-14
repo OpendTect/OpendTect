@@ -299,6 +299,13 @@ const char* uiSeis2DSubSel::selectedLine() const
 }
 
 
+Pos::GeomID uiSeis2DSubSel::selectedGeomID() const
+{
+    return multilnmsel_ ? multilnmsel_->geomID()
+			: singlelnmsel_->getInputGeomID();
+}
+
+
 void uiSeis2DSubSel::setSelectedLine( const char* nm )
 {
     if ( multilnmsel_ )

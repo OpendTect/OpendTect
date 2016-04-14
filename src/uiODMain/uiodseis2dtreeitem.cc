@@ -703,8 +703,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	}
 
 	uiTaskRunner uitr( ODMainWin() );
-	const LineKey lk( mFromUiStringTodo(s2d->name()) );
-	dp = calc->createAttrib( tkzs, lk, &uitr );
+	dpid = calc->createAttrib( tkzs, 0, &uitr );
     }
     else
     {

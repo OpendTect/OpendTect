@@ -101,6 +101,7 @@ public:
 
     bool		isSingLine() const;
     const char*		selectedLine() const;
+    Pos::GeomID		selectedGeomID() const;
     void		setSelectedLine(const char*);
 
     void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;

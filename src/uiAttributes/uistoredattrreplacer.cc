@@ -14,9 +14,12 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
+#include "ctxtioobj.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "bufstringset.h"
 #include "iopar.h"
-#include "linekey.h"
+#include "seis2dlineio.h"
 #include "varlenarray.h"
 #include <string.h>
 
@@ -119,38 +122,49 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	    if ( defstring[stridx] != '=')
 		continue;
 
-	    equalpos = stridx+1;
-	    spacepos = stridx+2;
-	    while ( spacepos<len && !iswspace(defstring[spacepos]) )
-		spacepos++;
-	    mAllocVarLenArr( char, storagestr, spacepos-equalpos+1 );
-	    strncpy( storagestr, &defstring[equalpos], spacepos-equalpos);
-	    storagestr[spacepos-equalpos] = 0;
-	    if ( storageidstr.addIfNew(storagestr) )
-	    {
-		const char* storedref = descpar->find(
-						Attrib::DescSet::userRefStr() );
-		storedids_ += StoredEntry( DescID(idx,false),
-					   LineKey(storagestr), storedref );
-	    }
-	    else
-	    {
-		for ( int idy=0; idy<storedids_.size(); idy++ )
-		{
-		    LineKey lk( storagestr );
-		    if ( lk == storedids_[idy].lk_ )
-		    {
-			int outprevlisted =
-				getOutPut(storedids_[idy].firstid_.asInt());
-			int outnowlisted = getOutPut(idx);
-			if ( outnowlisted != outprevlisted )
-			    storedids_[idy].secondid_ = DescID( idx, false );
+	    equalpos = stridx + 1;
+	}
 
-			break;
-		    }
+
+	spacepos = equalpos + 1;
+	while ( spacepos<len && !iswspace(defstring[spacepos]) )
+	    spacepos++;
+
+	BufferString storagemid( &defstring[equalpos] );
+	storagemid[spacepos-equalpos] = 0;
+	SeparString compstoragemid( storagemid, '|' );
+	if ( compstoragemid.size() > 1 ) // OD4 format 2D storage
+	{
+	    const IOObjContext ioctxt = mIOObjContext(SeisTrc2D);
+	    IOM().to( ioctxt.getSelKey() );
+	    PtrMan<IOObj> obj = IOM().getLocal( compstoragemid[1],
+						mTranslGroupName(SeisTrc) );
+	    if ( !obj ) continue;
+	    storagemid = obj->key();
+	}
+
+	if ( storageidstr.addIfNew(storagemid) )
+	{
+	    const char* storedref = descpar->find(
+					    Attrib::DescSet::userRefStr() );
+	    storedids_ += StoredEntry( DescID(idx,false), storagemid,
+				       storedref );
+	}
+	else
+	{
+	    for ( int idy=0; idy<storedids_.size(); idy++ )
+	    {
+		if ( storedids_[idy].mid_ == storagemid )
+		{
+		    int outprevlisted =
+			    getOutPut(storedids_[idy].firstid_.asInt());
+		    int outnowlisted = getOutPut(idx);
+		    if ( outnowlisted != outprevlisted )
+			storedids_[idy].secondid_ = DescID( idx, false );
+
+		    break;
 		}
 	    }
-	    break;
 	}
     }
 }
@@ -519,7 +533,7 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 
 void uiStoredAttribReplacer::getStoredIds()
 {
-    TypeSet<LineKey> linekeys;
+    BufferStringSet storageids;
     for ( int idx=0; idx<attrset_->size(); idx++ )
     {
 	const DescID descid = attrset_->getID( idx );
@@ -527,12 +541,12 @@ void uiStoredAttribReplacer::getStoredIds()
         if ( !ad || !ad->isStored() ) continue;
 
 	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
-	LineKey lk( keypar->getStringValue() );
-	if ( !linekeys.addIfNew(lk) )
+	BufferString storageid( keypar->getStringValue() );
+	if ( !storageids.addIfNew(storageid) )
 	{
 	    for ( int idy=0; idy<storedids_.size(); idy++ )
 	    {
-		if ( lk == storedids_[idy].lk_ )
+		if ( storageid == storedids_[idy].mid_ )
 		{
 		    int outprevlisted = attrset_->getDesc(
 				storedids_[idy].firstid_)->selectedOutput();
@@ -545,7 +559,7 @@ void uiStoredAttribReplacer::getStoredIds()
 	    }
 	}
 	else
-	    storedids_ += StoredEntry( descid, lk, ad->userRef() );
+	    storedids_ += StoredEntry( descid, storageid, ad->userRef() );
     }
 }
 
