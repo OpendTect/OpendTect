@@ -442,33 +442,6 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 }
 
 
-bool uiODVw2DHor3DTreeItem::select()
-{
-    if ( uitreeviewitem_->treeView() )
-	uitreeviewitem_->treeView()->clearSelection();
-
-    uitreeviewitem_->setSelected( true );
-
-    if ( !trackerefed_ )
-    {
-	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-	{
-	    MPE::engine().addTracker( EM::EMM().getObject(emid_) );
-	    MPE::engine().getEditor( emid_, true );
-	    trackerefed_ = true;
-	}
-    }
-
-    if ( horview_ )
-    {
-	viewer2D()->dataMgr()->setSelected( horview_ );
-	horview_->selected( isChecked() );
-    }
-
-    return true;
-}
-
-
 void uiODVw2DHor3DTreeItem::renameVisObj()
 {
     const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
@@ -606,8 +579,33 @@ void uiODVw2DHor3DTreeItem::checkCB( CallBacker* )
 }
 
 
+bool uiODVw2DHor3DTreeItem::select()
+{
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->clearSelection();
+
+    uitreeviewitem_->setSelected( true );
+
+    if ( horview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( horview_ );
+	horview_->selected( isChecked() );
+    }
+
+    const int trackeridx =
+	MPE::engine().getTrackerByObject( emid_ );
+    applMgr()->mpeServer()->enableTracking( trackeridx, true );
+
+    return true;
+}
+
+
 void uiODVw2DHor3DTreeItem::deSelCB( CallBacker* )
 {
+    const int trackeridx =
+	MPE::engine().getTrackerByObject( emid_ );
+    applMgr()->mpeServer()->enableTracking( trackeridx, false );
+
     //TODO handle on/off MOUSEEVENT
 }
 

@@ -464,7 +464,7 @@ void Engine::removeTracker( int idx )
 
     const int noofref = tracker->nrRefs();
     tracker->unRef();
-    showRefCountInfo( tracker );
+    showRefCountInfo( noofref>1 ? tracker : 0 );
     if ( noofref != 1 )
 	return;
 

@@ -497,6 +497,7 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
 
     MPE::engine().setActiveTracker( tracker );
     tracker->enable( yn );
+    if ( setupgrp_ ) setupgrp_->enableTracking( yn );
 
     if ( yn )
     {

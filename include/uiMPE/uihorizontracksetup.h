@@ -76,6 +76,7 @@ public:
 				{ bool b; return commitToTracker(b); }
     bool			commitToTracker(bool& fieldchange) const;
 
+    void			enableTracking(bool);
     void			showGroupOnTop(const char* grpnm);
 
     virtual void		setMPEPartServer(uiMPEPartServer*);
