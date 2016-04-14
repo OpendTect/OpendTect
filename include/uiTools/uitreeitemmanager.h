@@ -215,6 +215,8 @@ private:
 
     bool			addChildImpl(CallBacker*,uiTreeItem*,bool,bool);
 
+public:
+    void			updateSelTreeColumnText(int col);
 };
 
 mExpClass(uiTools) uiTreeItemRemover : public SequentialTask

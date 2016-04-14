@@ -201,6 +201,18 @@ bool uiTreeItem::allChildrenUnchecked() const
 }
 
 
+void uiTreeItem::updateSelTreeColumnText( int col )
+{
+    for ( int idx=0; idx>=0 && idx<children_.size(); idx++ )
+    {
+	if ( children_[idx]->isSelected() )
+	    children_[idx]->updateColumnText(col);
+	else
+	    children_[idx]->updateSelTreeColumnText( col );
+    }
+}
+
+
 void uiTreeItem::updateColumnText( int col )
 {
     for ( int idx=0; idx<children_.size(); idx++ )

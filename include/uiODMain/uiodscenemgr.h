@@ -223,6 +223,8 @@ protected:
     void			tileTimerCB(CallBacker*);
 
     friend class		uiODMain;
+
+    void			resetStatusBar(int id=-1);
 };
 
 /*! Settings Tab for mouse interaction. */

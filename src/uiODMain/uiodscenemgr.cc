@@ -499,17 +499,22 @@ void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
 }
 
 
+void uiODSceneMgr::resetStatusBar( int id )
+{
+    appl_.statusBar()->message( uiString::emptyString(), mPosField );
+    appl_.statusBar()->message( uiString::emptyString(), mValueField );
+    appl_.statusBar()->message(mToUiStringTodo(visServ().getInteractionMsg(id)),
+			       mNameField );
+    appl_.statusBar()->message( uiString::emptyString(), mStatusField );
+    appl_.statusBar()->setBGColor( mStatusField,
+				   appl_.statusBar()->getBGColor(mPosField) );
+}
+
+
 void uiODSceneMgr::updateStatusBar()
 {
     if ( visServ().isViewMode() )
-    {
-	appl_.statusBar()->message( uiString::emptyString(), mPosField );
-	appl_.statusBar()->message( uiString::emptyString(), mValueField );
-	appl_.statusBar()->message( uiString::emptyString(), mNameField );
-	appl_.statusBar()->message( uiString::emptyString(), mStatusField );
-	appl_.statusBar()->setBGColor( mStatusField,
-				   appl_.statusBar()->getBGColor(mPosField) );
-    }
+	resetStatusBar();
 
     const Coord3 xytpos = visServ().getMousePos();
     const bool haspos = xytpos.isDefined();
@@ -965,13 +970,7 @@ void uiODSceneMgr::setItemInfo( int id )
 {
     mDoAllScenes(itemmanager_,updateColumnText,cNameColumn());
     mDoAllScenes(itemmanager_,updateColumnText,cColorColumn());
-    appl_.statusBar()->message( uiString::emptyString(), mPosField );
-    appl_.statusBar()->message( uiString::emptyString(), mValueField );
-    appl_.statusBar()->message(mToUiStringTodo(visServ().getInteractionMsg(id)),
-				mNameField );
-    appl_.statusBar()->message( uiString::emptyString(), mStatusField );
-    appl_.statusBar()->setBGColor( mStatusField,
-				   appl_.statusBar()->getBGColor(mPosField) );
+    resetStatusBar( id );
 }
 
 
@@ -989,12 +988,16 @@ void uiODSceneMgr::updateSelectedTreeItem()
 
     if ( id != -1 )
     {
-	setItemInfo( id );
+	resetStatusBar( id );
 	//applMgr().modifyColorTable( id );
 	if ( !visServ().isOn(id) ) visServ().turnOn(id, true, true);
 	else if ( scenes_.size() != 1 && visServ().isSoloMode() )
 	    visServ().updateDisplay( true, id );
     }
+
+    mDoAllScenes(itemmanager_,updateSelection,id);
+    mDoAllScenes(itemmanager_,updateSelTreeColumnText,cNameColumn());
+    mDoAllScenes(itemmanager_,updateSelTreeColumnText,cColorColumn());
 
     if ( !applMgr().attrServer() )
 	return;
@@ -1014,10 +1017,6 @@ void uiODSceneMgr::updateSelectedTreeItem()
 		found = true;
 	    }
 	}
-
-	scene.itemmanager_->updateSelection( id );
-	scene.itemmanager_->updateColumnText( cNameColumn() );
-	scene.itemmanager_->updateColumnText( cColorColumn() );
     }
 
     if ( gotoact && !applMgr().attrServer()->attrSetEditorActive() )
