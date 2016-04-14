@@ -137,18 +137,22 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    emid = emids[emidx];
 
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
-	if ( emobj )
+	if ( !emobj )
 	{
-	    MPE::engine().addTracker( emobj );
-	    MPE::engine().setActiveTracker( emobj->id() );
+	// This will add the 3D scene item.
+	    const bool res = mps->addTracker( EM::Horizon3D::typeStr(),
+					      viewer2D()->getSyncSceneID() );
+	    if ( !res )
+		return true;
 	}
-	else if ( !mps->addTracker(EM::Horizon3D::typeStr(),
-				   viewer2D()->getSyncSceneID()) )
-	    return true;
 
-	const MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	if ( !tracker )
 	    return false;
+
+	emobj = tracker->emObject();
+	if ( emobj )
+	    MPE::engine().addTracker( emobj );
 
 	emid = tracker->objectID();
 	const int trackid = MPE::engine().getTrackerByObject( emid );
@@ -158,7 +162,6 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	addNewTrackingHorizon3D( emid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon3D(
 		emid, viewer2D()->getSyncSceneID() );
-	MPE::engine().removeTracker( trackid );
 	mps->enableTracking( trackid, true );
     }
     else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
@@ -244,12 +247,11 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
-	    const int trackid = MPE::engine().addTracker( emobj );
+	    const int trackeridx = MPE::engine().addTracker( emobj );
 	    MPE::engine().getEditor( emobj->id(), true );
 	    if ( viewer2D() && viewer2D()->viewControl() )
 		viewer2D()->viewControl()->setEditMode( true );
-	    MPE::engine().removeTracker( trackid );
-	    applMgr()->mpeServer()->enableTracking( trackid, true );
+	    applMgr()->mpeServer()->enableTracking( trackeridx, true );
 	}
 
 	uiODVw2DHor3DTreeItem* childitem =
@@ -275,11 +277,7 @@ void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
     uiODVw2DHor3DTreeItem* hortreeitem = new uiODVw2DHor3DTreeItem( emid );
     const int trackid = applMgr()->mpeServer()->getTrackerID( emid );
     if ( trackid>=0 )
-    {
-	EM::EMObject* emobj = EM::EMM().getObject( emid );
-	MPE::engine().addTracker( emobj );
 	MPE::engine().getEditor( emid, true );
-    }
 
     addChld( hortreeitem, false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
@@ -462,7 +460,7 @@ bool uiODVw2DHor3DTreeItem::select()
 
     if ( !trackerefed_ )
     {
-	if (  MPE::engine().getTrackerByObject(emid_) != -1 )
+	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
 	{
 	    MPE::engine().addTracker( EM::EMM().getObject(emid_) );
 	    MPE::engine().getEditor( emid_, true );
