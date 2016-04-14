@@ -89,7 +89,7 @@ static inline bool fnmIsURI( const char*& fnm )
 }
 
 
-static inline bool isLocalAndSane( const char* fnm )
+static inline bool isLocal( const char* fnm )
 {
     return isSane(fnm) && !fnmIsURI(fnm);
 }
@@ -353,7 +353,7 @@ bool isEmpty( const char* fnm )
 
 bool isDirEmpty( const char* dirnm )
 {
-    if ( !isLocalAndSane(dirnm) )
+    if ( !isLocal(dirnm) )
 	return true;
 
 #ifndef OD_NO_QT
@@ -459,7 +459,7 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
 
 bool isLink( const char* fnm )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
 
 #ifndef OD_NO_QT
@@ -474,7 +474,7 @@ bool isLink( const char* fnm )
 
 void hide( const char* fnm, bool yn )
 {
-    if ( !isLocalAndSane(fnm) || !exists(fnm) )
+    if ( !isLocal(fnm) || !exists(fnm) )
 	return;
 
 #ifdef __win__
@@ -495,7 +495,7 @@ void hide( const char* fnm, bool yn )
 
 bool isHidden( const char* fnm )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
 
 #ifndef OD_NO_QT
@@ -552,7 +552,7 @@ bool isWritable( const char* fnm )
 
 bool isExecutable( const char* fnm )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
 
 #ifndef OD_NO_QT
@@ -594,7 +594,7 @@ bool isFileInUse( const char* fnm )
 
 bool createDir( const char* fnm )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
 
 #ifndef OD_NO_QT
@@ -624,7 +624,7 @@ bool rename( const char* oldname, const char* newname )
 
 bool createLink( const char* fnm, const char* linknm )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
 
 #ifndef OD_NO_QT
@@ -646,7 +646,7 @@ bool createLink( const char* fnm, const char* linknm )
 
 bool saveCopy( const char* from, const char* to )
 {
-    if ( !isLocalAndSane(from) || !isLocalAndSane(to) )
+    if ( !isLocal(from) || !isLocal(to) )
 	return false;
 
     if ( isDirectory(from) )
@@ -666,7 +666,7 @@ bool saveCopy( const char* from, const char* to )
 
 bool copy( const char* from, const char* to, uiString* errmsg )
 {
-    if ( !isLocalAndSane(from) || !isLocalAndSane(to) )
+    if ( !isLocal(from) || !isLocal(to) )
 	return false;
 
     if ( isDirectory(from) || isDirectory(to)  )
@@ -696,7 +696,7 @@ bool copy( const char* from, const char* to, uiString* errmsg )
 
 bool copyDir( const char* from, const char* to, uiString* errmsg )
 {
-    if ( !isLocalAndSane(from) || !isLocalAndSane(to) )
+    if ( !isLocal(from) || !isLocal(to) )
 	return false;
 
     if ( !exists(from) || exists(to) )
@@ -732,7 +732,7 @@ bool copyDir( const char* from, const char* to, uiString* errmsg )
 
 bool resize( const char* fnm, od_int64 newsz )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
     else if ( newsz < 0 )
 	return remove( fnm );
@@ -792,7 +792,7 @@ bool removeDir( const char* dirnm )
 
 bool changeDir( const char* dir )
 {
-    if ( !isLocalAndSane(dir) )
+    if ( !isLocal(dir) )
 	return false;
 #ifdef __win__
     return _chdir( dir )==0;
@@ -878,7 +878,7 @@ bool makeExecutable( const char* fnm, bool yn )
 
 bool setPermissions( const char* fnm, const char* perms, bool recursive )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return false;
 
 #if ((defined __win__) || (defined OD_NO_QT) )
@@ -952,7 +952,7 @@ BufferString getFileSizeString( const char* fnm )
 const char* timeCreated( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	mRetUnknown
 
 #ifndef OD_NO_QT
@@ -969,7 +969,7 @@ const char* timeCreated( const char* fnm, const char* fmt )
 const char* timeLastModified( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	mRetUnknown
 
 #ifndef OD_NO_QT
@@ -985,7 +985,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 
 od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
-    if ( !isLocalAndSane(fnm) )
+    if ( !isLocal(fnm) )
 	return 0;
 
 #ifndef OD_NO_QT
