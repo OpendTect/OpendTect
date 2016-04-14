@@ -602,7 +602,7 @@ bool createDir( const char* fnm )
 
 bool rename( const char* oldname, const char* newname )
 {
-    if ( !isSane(oldname) || isSane(newname)
+    if ( !isSane(oldname) || !isSane(newname)
       || fnmIsURI(oldname) || fnmIsURI(newname) )
 	return false;
 
