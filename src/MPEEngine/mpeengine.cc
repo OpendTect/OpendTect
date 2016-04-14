@@ -13,15 +13,18 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "mpeengine.h"
 
 #include "arrayndimpl.h"
+#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "autotracker.h"
 #include "emeditor.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurface.h"
 #include "emtracker.h"
 #include "emundo.h"
+#include "envvars.h"
 #include "executor.h"
 #include "flatposdata.h"
 #include "geomelement.h"
@@ -284,15 +287,24 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
     const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
     if ( !as ) return false;
 
-    if ( !as->isStored() )
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
+    const Attrib::Desc* desc = ads ? ads->getDesc( as->id() ) : 0;
+    if ( !desc )
+    {
+	ads = Attrib::DSHolder().getDescSet( false, false );
+	desc = ads ? ads->getDesc( as->id() ) : 0;
+    }
+
+    const MultiID mid =
+	desc ? MultiID(desc->getStoredID(false)) : MultiID::udf();
+    if ( mid.isUdf() )
     {
 	errmsg = tr("Volume tracking can only be done on stored volumes.");
 	return false;
     }
 
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
-    if ( mid.isUdf() )
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
     {
 	errmsg = tr("Cannot find picked data in database");
 	return false;
@@ -393,30 +405,49 @@ void Engine::getAvailableTrackerTypes( BufferStringSet& res ) const
 { res = TrackerFactory().getNames(); }
 
 
-int Engine::addTracker( EM::EMObject* obj )
+static void showRefCountInfo( EMTracker* tracker )
 {
-    if ( !obj )
+    mDefineStaticLocalObject(bool,yn,= GetEnvVarYN("OD_DEBUG_TRACKERS"));
+    if ( yn )
+    {
+	EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
+	BufferString msg = emobj ? emobj->name() : "<unknown>";
+	msg.add( " - refcount=" ).add( tracker ? tracker->nrRefs() : -1 );
+	DBG::message( msg );
+    }
+}
+
+
+int Engine::addTracker( EM::EMObject* emobj )
+{
+    if ( !emobj )
 	mRetErr( "No valid object", -1 );
 
-    const int idx = getTrackerByObject( obj->id() );
+    const int idx = getTrackerByObject( emobj->id() );
 
     if ( idx != -1 )
     {
 	trackers_[idx]->ref();
+	showRefCountInfo( trackers_[idx] );
+	activetracker_ = trackers_[idx];
 	return idx;
     }
-	//mRetErr( "Object is already tracked", -1 );
 
-    EMTracker* tracker = TrackerFactory().create( obj->getTypeStr(), obj );
+    EMTracker* tracker = TrackerFactory().create( emobj->getTypeStr(), emobj );
     if ( !tracker )
 	mRetErr( "Cannot find this trackertype", -1 );
 
     tracker->ref();
+    showRefCountInfo( tracker );
+    activetracker_ = tracker;
     trackers_ += tracker;
     trackermgrs_ += 0;
     ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
     flatcubescontainer_ += flatcubes;
     trackeraddremove.trigger();
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    hor3d->initTrackingArrays();
 
     return trackers_.size()-1;
 }
@@ -430,13 +461,14 @@ void Engine::removeTracker( int idx )
     EMTracker* tracker = trackers_[idx];
     if ( !tracker ) return;
 
-    if ( activetracker_ == tracker )
-	activetracker_ = 0;
-
     const int noofref = tracker->nrRefs();
     tracker->unRef();
+    showRefCountInfo( tracker );
     if ( noofref != 1 )
 	return;
+
+    if ( activetracker_ == tracker )
+	activetracker_ = 0;
 
     trackers_.replace( idx, 0 );
     delete trackermgrs_.replace( idx, 0 );
@@ -796,7 +828,8 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     const int globidx = sdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
-    const int nrz = zintv.nrSteps() + 1;
+    StepInterval<float> zintv2 = zintv; zintv2.step = sdp->getZRange().step;
+    const int nrz = zintv2.nrSteps() + 1;
     Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     seeddata->setAll( mUdf(float) );
 
@@ -999,6 +1032,7 @@ void Engine::init()
 
     attribcachedatapackids_.erase();
     attribbkpcachedatapackids_.erase();
+    activevolume_.init( false );
 }
 
 
