@@ -143,8 +143,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
 	    {
-		 MPE::engine().addTracker( objs[idx] );
-		 applMgr()->visServer()->turnSeedPickingOn( true );
+		MPE::engine().addTracker( objs[idx] );
+		applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
 	    uiODHorizonTreeItem* itm =
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx,
@@ -157,10 +157,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     }
     else if ( mnuid == trackitem_.id )
     {
-	if ( !applMgr()->visServer()->
-			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
-	    return true;
-
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
@@ -706,10 +702,6 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     }
     else if ( mnuid == 1 )
     {
-	if ( !applMgr()->visServer()->
-			clickablesInScene(EM::Horizon2D::typeStr(),sceneID()) )
-	    return true;
-
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 			applMgr()->attrServer()->curDescSet(true) );
