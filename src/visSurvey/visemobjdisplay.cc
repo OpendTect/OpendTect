@@ -239,10 +239,7 @@ void EMObjectDisplay::removeEMStuff()
 	const int trackeridx =
 	    MPE::engine().getTrackerByObject(emobject_->id());
 	if ( trackeridx >= 0 )
-	{
-	    MPE::engine().removeTracker( trackeridx );
 	    MPE::engine().removeEditor(emobject_->id());
-	}
 
 	emobject_->unRef();
 	emobject_ = 0;

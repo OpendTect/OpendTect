@@ -95,6 +95,9 @@ public:
     int				getTrackerByObject(const char*) const;
     int				addTracker(EM::EMObject*);
     void			removeTracker(int idx);
+    void			refTracker(EM::ObjectID);
+    void			unRefTracker(EM::ObjectID,bool nodel=false);
+    bool			hasTracker(EM::ObjectID) const;
     Notifier<Engine>		trackeraddremove;
     void			setActiveTracker(const EM::ObjectID&);
     void			setActiveTracker(EMTracker*);

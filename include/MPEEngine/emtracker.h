@@ -63,7 +63,7 @@ public:
     virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
     SectionTracker*		cloneSectionTracker();
     SectionTracker*		getSectionTracker(EM::SectionID,
-	    					  bool create=false);
+						  bool create=false);
     virtual EMSeedPicker*	getSeedPicker(bool createifnotpresent=true)
 				{ return 0; }
     void 			applySetupAsDefault(const EM::SectionID);
@@ -74,7 +74,7 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-                                ~EMTracker();
+				~EMTracker();
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;

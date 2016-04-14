@@ -483,6 +483,41 @@ void Engine::removeTracker( int idx )
 }
 
 
+void Engine::refTracker( EM::ObjectID emid )
+{
+    const int idx = getTrackerByObject( emid );
+    if ( trackers_.validIdx(idx) && trackers_[idx] )
+    {
+	trackers_[idx]->ref();
+	showRefCountInfo( trackers_[idx] );
+    }
+}
+
+
+void Engine::unRefTracker( EM::ObjectID emid, bool nodelete )
+{
+    const int idx = getTrackerByObject( emid );
+    if ( !trackers_.validIdx(idx) || !trackers_[idx] )
+	return;
+
+    if ( nodelete )
+    {
+	trackers_[idx]->unRefNoDelete();
+	showRefCountInfo( trackers_[idx] );
+	return;
+    }
+
+    removeTracker( idx );
+}
+
+
+bool Engine::hasTracker( EM::ObjectID emid ) const
+{
+    const int idx = getTrackerByObject( emid );
+    return trackers_.validIdx(idx) && trackers_[idx];
+}
+
+
 int Engine::nrTrackersAlive() const
 {
     int nrtrackers = 0;
