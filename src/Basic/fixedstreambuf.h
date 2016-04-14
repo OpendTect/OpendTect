@@ -11,6 +11,8 @@ ________________________________________________________________________
 */
 
 #include <streambuf>
+#include <istream>
+#include <ostream>
 
 
 namespace std
@@ -107,6 +109,32 @@ virtual streamsize xsputn( const char_type* s, streamsize n )
     off_type	sz_;
     bool	mine_;
     off_type	newpos_;
+};
+
+class fixedistream : public istream
+{
+public:
+
+fixedistream( fixedstreambuf* sb )
+    : istream(sb)
+{}
+
+~fixedistream()
+{ delete rdbuf(); }
+
+};
+
+class fixedostream : public ostream
+{
+public:
+
+fixedostream( fixedstreambuf* sb )
+    : ostream(sb)
+{}
+
+~fixedostream()
+{ delete rdbuf(); }
+
 };
 
 } // namespace std

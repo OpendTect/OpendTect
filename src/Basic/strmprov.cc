@@ -466,7 +466,7 @@ StreamData StreamProvider::makePLIStream( int plid )
     StreamData ret; ret.setFileName( pld.fileName() );
     std::fixedstreambuf* fsb
 		= new std::fixedstreambuf( pld.dp_->buf(), pld.filesz_, false );
-    ret.istrm = new std::istream( fsb );
+    ret.istrm = new std::fixedistream( fsb );
     return ret;
 }
 

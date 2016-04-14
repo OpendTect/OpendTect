@@ -190,7 +190,7 @@ namespace std
 
 /*!\brief Adapter to use web services to access files */
 
-mClass(Basic) webistreambuf : public streambuf
+class webistreambuf : public streambuf
 {
 public:
 
@@ -312,6 +312,25 @@ virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
 
 };
 
+
+// webstreams
+
+
+/*!\brief Adapter to use web services to access files */
+
+class webistream : public istream
+{
+public:
+
+webistream( webistreambuf* sb )
+    : istream(sb)
+{}
+
+~webistream()
+{ delete rdbuf(); }
+
+};
+
 } // namespace std
 
 
@@ -328,10 +347,10 @@ bool WebStreamSource::canHandle( const char* fnm ) const
 bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
 {
     if ( typ == Read )
-	sd.istrm = new std::istream( new std::webistreambuf( sd.fileName() ) );
+	sd.istrm = new std::webistream( new std::webistreambuf(sd.fileName()) );
     /*
     else if ( typ == Write )
-	sd.ostrm = new std::ostream( new std::webostreambuf( sd.fileName() ) );
+	sd.ostrm = new std::webostream( new std::webostreambuf(sd.fileName()) );
     */
 
     return sd.usable();
