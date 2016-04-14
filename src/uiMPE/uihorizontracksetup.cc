@@ -450,6 +450,13 @@ void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
 	hor3d->setSelectionColor( selectioncolfld_->color() );
     else if ( cb==lockcolfld_ )
 	hor3d->setLockColor( lockcolfld_->color() );
+    else if ( cb==0 )
+    {
+	// set initial color to horizon
+	hor3d->setParentColor( parentcolfld_->color() );
+	hor3d->setSelectionColor( selectioncolfld_->color() );
+	hor3d->setLockColor( lockcolfld_->color() );
+    }
 }
 
 
@@ -505,6 +512,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 
     correlationgrp_->setSectionTracker( st );
     eventgrp_->setSectionTracker( st );
+    specColorChangeCB( 0 );
 }
 
 

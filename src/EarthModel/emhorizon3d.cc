@@ -862,7 +862,12 @@ const Color& Horizon3D::getSelectionColor() const
 { return selectioncolor_; }
 
 void Horizon3D::setLockColor( const Color& col )
-{ lockcolor_ = col; /*change.trigger();*/ }
+{ 
+    lockcolor_ = col; 
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockChange;
+    change.trigger( cbdata ); 
+}
 
 const Color& Horizon3D::getLockColor() const
 { return lockcolor_; }

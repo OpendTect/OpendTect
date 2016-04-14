@@ -137,12 +137,15 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 bool Horizon3DSeedPicker::removeSeed( const TrcKey& seed, bool environment,
 				      bool retrack )
 {
+    mGetHorizon( hor3d, false );
+
+    if ( !hor3d || hor3d->isNodeLocked(seed) )
+	return false;
+
     seedToBeAddedRemoved.trigger();
 
     if ( blockpicking_ )
 	return true;
-
-    mGetHorizon( hor3d, false );
 
     hor3d->setAttrib( seed, EM::EMObject::sSeedNode(), false, true );
 

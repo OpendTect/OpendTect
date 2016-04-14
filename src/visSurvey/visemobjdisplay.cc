@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "callback.h"
 #include "mousecursor.h"
 #include "polygon.h"
+#include "emhorizon3d.h"
 
 #include "visdrawstyle.h"
 #include "visevent.h"
@@ -570,6 +571,15 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 		triggermovement = true;
 	}
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    {
+	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
+	if ( hor3d )
+	{
+	    for ( int idx = 0; idx<posattribs_.size(); idx++ )
+		updatePosAttrib( posattribs_[idx] );
+	}
+    }
 
     if ( triggermovement )
 	hasmoved.trigger();
@@ -697,16 +707,24 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 
     markerset->clearMarkers();
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
-    markerset->setMarkersSingleColor(
-	emobject_->getPosAttrMarkerStyle(attrib).color_);
     markerset->setDisplayTransformation(transformation_);
 
+    mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
     for ( int idx=0; idx<pids->size(); idx++ )
     {
 	const Coord3 pos = emobject_->getPos( (*pids)[idx] );
 	if ( !pos.isDefined() )
 	    continue;
 	markerset->addPos( pos, false );
+	Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
+
+	if ( hor3d )
+	{
+	    const BinID pickedbid = SI().transform( pos );
+	    if ( hor3d->isNodeLocked(TrcKey(pickedbid)) )
+		 clr = hor3d->getLockColor();
+	}
+	markerset->getMaterial()->setColor( clr, idx );
     }
 
     markerset->turnAllMarkersOn( true );
