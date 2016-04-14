@@ -39,6 +39,7 @@ public:
 
     bool		isEmpty() const		    { return filesize_ < 1; }
     void		clearData();
+    void		setMinCacheSize(FileSizeType);
 
 			// General access
 
@@ -84,7 +85,7 @@ public:
     inline bool		validBlockIdx( BlockIdxType bidx ) const
 			{ return blocks_.validIdx(bidx); }
 
-    bool		hasBlock(BlockIdxType) const;
+    bool		isLiveBlock(BlockIdxType) const;
     BufType*		getBlock(BlockIdxType);
     const BufType*	getBlock(BlockIdxType) const;
 
@@ -92,12 +93,14 @@ protected:
 
     const FileSizeType	filesize_;
     ObjectSet<Block>	blocks_;
+    TypeSet<BlockIdxType> liveblockidxs_;
+    BlockIdxType	maxnrliveblocks_;
     const BlockSizeType	lastblocksz_;
     const FilePosType	lastblockpos_;
 
-    void		dismissBlock(BlockIdxType);
-    void		newBlockAdded();
     Block*		gtBlk(BlockIdxType) const;
+    void		dismissBlock(BlockIdxType);
+    void		handleNewLiveBlock(BlockIdxType);
     inline FilePosType	lastFilePos() const
 			{ return lastblockpos_ + lastblocksz_ - 1; }
 

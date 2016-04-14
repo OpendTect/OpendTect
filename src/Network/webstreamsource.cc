@@ -75,7 +75,7 @@ bool Network::FileDownloadMgr::goTo( FilePosType& pos, BlockIdxType& bidx )
     if ( pos >= size() )
 	pos = size();
 
-    if ( !hasBlock(bidx) && !fillBlock( bidx ) )
+    if ( !isLiveBlock(bidx) && !fillBlock( bidx ) )
 	return false;
 
     return true;
@@ -291,6 +291,8 @@ virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
 {
     if ( nrbytes < 1 )
 	return nrbytes;
+
+    mgr_.setMinCacheSize( nrbytes );
 
     FilePosType curpos = curPos();
     FileCache::FileChunkSetType pintvs = mgr_.stillNeededDataFor( curpos,

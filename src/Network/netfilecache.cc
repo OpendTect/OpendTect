@@ -10,6 +10,9 @@ ________________________________________________________________________
 
 #include "netfilecache.h"
 
+//! cache size unless more explicitly required
+static const Network::FileCache::BlockIdxType cStartMaxLiveBlocks = 10;
+
 const Network::FileCache::BlockSizeType
 	Network::FileCache::Block::cFullSize = 2097152; // 2 MB
 Network::FileCache::FilePosType
@@ -36,6 +39,7 @@ Network::FileCache::Block::~Block()
 
 Network::FileCache::FileCache( FileSizeType filesz )
     : filesize_(filesz)
+    , maxnrliveblocks_(cStartMaxLiveBlocks)
     , lastblocksz_(0)
     , lastblockpos_(0)
 {
@@ -63,10 +67,27 @@ Network::FileCache::~FileCache()
 }
 
 
+void Network::FileCache::dismissBlock( BlockIdxType iblk )
+{
+    delete blocks_[iblk];
+    blocks_.replace( iblk, 0 );
+}
+
+
 void Network::FileCache::clearData()
 {
     for ( BlockIdxType iblk=0; iblk<blocks_.size(); iblk++ )
 	dismissBlock( iblk );
+    liveblockidxs_.setEmpty();
+}
+
+
+void Network::FileCache::setMinCacheSize( FileSizeType csz )
+{
+    BlockIdxType reqnrblks = 2; // always keep first and last
+    reqnrblks += (BlockIdxType)(csz / Block::cFullSize) + 2;
+    if ( reqnrblks > maxnrliveblocks_ )
+	maxnrliveblocks_ = reqnrblks;
 }
 
 
@@ -80,25 +101,29 @@ Network::FileCache::Block* Network::FileCache::gtBlk( BlockIdxType iblk ) const
 	    { self.clearData(); return 0; }
 
 	self.blocks_.replace( iblk, newblock );
-	self.newBlockAdded();
+	self.handleNewLiveBlock( iblk );
     }
     return const_cast<Block*>( blocks_[iblk] );
 }
 
 
-void Network::FileCache::dismissBlock( BlockIdxType iblk )
+void Network::FileCache::handleNewLiveBlock( BlockIdxType addedblockidx )
 {
-    if ( blocks_[iblk] )
+    const BlockIdxType nrbidxs = liveblockidxs_.size();
+    if ( nrbidxs >= maxnrliveblocks_ )
     {
-	delete blocks_[iblk];
-	blocks_.replace( iblk, 0 );
+	for ( BlockIdxType iblk=0; iblk<nrbidxs; iblk++ )
+	{
+	    const BlockIdxType curbidx = liveblockidxs_[iblk];
+	    if ( curbidx != 0 && curbidx != blocks_.size()-1 )
+	    {
+		dismissBlock( iblk );
+		liveblockidxs_.removeSingle( iblk );
+		break;
+	    }
+	}
     }
-}
-
-
-void Network::FileCache::newBlockAdded()
-{
-    //TODO maybe dismiss oldest block. But keep special blocks (first, last)
+    liveblockidxs_ += addedblockidx;
 }
 
 
@@ -204,7 +229,7 @@ Network::FileCache::FileChunkSetType Network::FileCache::stillNeededDataFor(
 }
 
 
-bool Network::FileCache::hasBlock( BlockIdxType bidx ) const
+bool Network::FileCache::isLiveBlock( BlockIdxType bidx ) const
 {
     return blocks_.validIdx(bidx) && blocks_[bidx];
 }
