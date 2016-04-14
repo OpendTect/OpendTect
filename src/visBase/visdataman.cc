@@ -34,6 +34,7 @@ DataManager::DataManager()
     : freeid_( 0 )
     , selman_( *new SelectionManager )
     , removeallnotify( this )
+    , prevobjectidx_(0)
 { }
 
 
@@ -64,9 +65,19 @@ int DataManager::highestID() const
 
 DataObject* DataManager::getObject( int id ) 
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
+    const int sz = objects_.size();
+    int idx = prevobjectidx_;
+
+    for ( int count=0; count<sz; count++, idx++ )
     {
-	if ( objects_[idx]->id()==id ) return objects_[idx];
+	if ( idx >= sz )
+	    idx = 0;
+
+	if ( objects_[idx]->id() == id )
+	{
+	    prevobjectidx_ = idx;
+	    return objects_[idx];
+	}
     }
 
     return 0;

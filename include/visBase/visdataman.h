@@ -63,6 +63,7 @@ protected:
     void		removeObject( DataObject* );
 
     ObjectSet<DataObject>	objects_;
+    int				prevobjectidx_;
 
     int				freeid_;
     SelectionManager&		selman_;

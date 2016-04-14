@@ -172,6 +172,7 @@ protected:
 				uiODSceneMgr(uiODMain*);
 				~uiODSceneMgr();
     void			initMenuMgrDepObjs();
+    void			resetStatusBar(int id=-1);
 
     void			afterFinalise(CallBacker*);
 

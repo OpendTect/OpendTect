@@ -150,6 +150,7 @@ public:
 							and res is not set
 				*/
 
+    void			updateSelTreeColumnText(int col);
     virtual void		updateColumnText(int col);
     virtual void		updateCheckStatus();
 
