@@ -193,6 +193,10 @@ public:
     void			addNewTempFaultSS2D(EM::ObjectID mid,int scnid);
 
     void			getVwr2DObjIDs(TypeSet<int>& vw2ids) const;
+
+    void			getVWR2DDataGeomIDs(const uiODViewer2D*,
+						   TypeSet<Pos::GeomID>&) const;
+    void			surveyChangedCB(CallBacker*);
 };
 
 #endif

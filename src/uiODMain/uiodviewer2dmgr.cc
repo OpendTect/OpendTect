@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emfault3d.h"
 #include "emfaultstickset.h"
+#include "ioman.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "posinfo2d.h"
@@ -82,6 +83,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DFaultSSTreeItemFactory, 5500 );
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
 
+    IOM().surveyChanged.notify( mCB(this,uiODViewer2DMgr,surveyChangedCB) );
     uiodviewer2dmgrgeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
 
     BufferStringSet lnms;
@@ -102,6 +104,15 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 
     delete uiodviewer2dmgrgeom2dids_.getParam(this);
     uiodviewer2dmgrgeom2dids_.removeParam( this );
+}
+
+void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
+{
+    if ( l2dintersections_ )
+	deepErase( *l2dintersections_ );
+    deleteAndZeroPtr( l2dintersections_ );
+    deepErase( viewers2d_ );
+    uiodviewer2dmgrgeom2dids_.getParam(this)->erase();
 }
 
 
@@ -780,6 +791,46 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const TrcKeyZSampling& tkzs )
 }
 
 
+void uiODViewer2DMgr::getVWR2DDataGeomIDs(
+	const uiODViewer2D* vwr2d, TypeSet<Pos::GeomID>& commongids ) const
+{
+    commongids.erase();
+    if ( vwr2d->geomID()==Survey::GM().cUndefGeomID() )
+	return;
+
+    Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
+    Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
+    const Attrib::Desc* wvadesc =
+	ads2d->getDesc( vwr2d->selSpec(true).id() );
+    if ( !wvadesc )
+	wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
+    const Attrib::Desc* vddesc =
+	ads2d->getDesc( vwr2d->selSpec(false).id() );
+    if ( !vddesc )
+	vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );
+
+    if ( !wvadesc && !vddesc )
+	return;
+
+    const MultiID wvaid( wvadesc ? wvadesc->getStoredID(true)
+				 : vddesc->getStoredID(true) );
+    const MultiID vdmid( vddesc ? vddesc->getStoredID(true)
+				: wvadesc->getStoredID(true) );
+    const SeisIOObjInfo wvasi( wvaid );
+    const SeisIOObjInfo vdsi( vdmid );
+    BufferStringSet wvalnms, vdlnms;
+    wvasi.getLineNames( wvalnms );
+    vdsi.getLineNames( vdlnms );
+
+    for ( int lidx=0; lidx<wvalnms.size(); lidx++ )
+    {
+	const char* wvalnm = wvalnms.get(lidx).buf();
+	if ( vdlnms.isPresent(wvalnm) )
+	    commongids += Survey::GM().getGeomID( wvalnm );
+    }
+}
+
+
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
     const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
@@ -799,45 +850,16 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	const Line2DInterSection* intsect = (*l2dintersections_)[intscidx];
 	if ( !intsect )
 	    return;
-	Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
-	Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
-	const Attrib::Desc* wvadesc =
-	    ads2d->getDesc( vwr2d->selSpec(true).id() );
-	if ( !wvadesc )
-	    wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
-	const Attrib::Desc* vddesc =
-	    ads2d->getDesc( vwr2d->selSpec(false).id() );
-	if ( !vddesc )
-	    vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );
 
-	if ( !wvadesc && !vddesc )
-	    return;
-
-	const MultiID wvaid( wvadesc ? wvadesc->getStoredID(true)
-				     : vddesc->getStoredID(true) );
-	const MultiID vdmid( vddesc ? vddesc->getStoredID(true)
-				    : wvadesc->getStoredID(true) );
-	const SeisIOObjInfo wvasi( wvaid );
-	const SeisIOObjInfo vdsi( vdmid );
-	BufferStringSet wvalnms, vdlnms;
-	wvasi.getLineNames( wvalnms );
-	vdsi.getLineNames( vdlnms );
-	TypeSet<Pos::GeomID> commongids;
-
-	for ( int lidx=0; lidx<wvalnms.size(); lidx++ )
-	{
-	    const char* wvalnm = wvalnms.get(lidx).buf();
-	    if ( vdlnms.isPresent(wvalnm) )
-		commongids += Survey::GM().getGeomID( wvalnm );
-	}
-
+	TypeSet<Pos::GeomID> datagids;
+	getVWR2DDataGeomIDs( vwr2d, datagids );
 	const StepInterval<double> x1rg = vwr.posRange( true );
 	const StepInterval<int> trcrg = tkzs.hsamp_.trcRange();
 	for ( int intposidx=0; intposidx<intsect->size(); intposidx++ )
 	{
 	    const Line2DInterSection::Point& intpos =
 		intsect->getPoint( intposidx );
-	    if ( !commongids.isPresent(intpos.line) )
+	    if ( !datagids.isPresent(intpos.line) )
 		continue;
 
 	    PlotAnnotation newannot;
@@ -997,9 +1019,14 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     const uiWorldPoint wperpixel =
 	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel();
     const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;	
+    TypeSet<Pos::GeomID> datagids;
+    getVWR2DDataGeomIDs( vwr2d, datagids );
     for ( int idx=0; idx<int2d->size(); idx++ )
     {
 	const Line2DInterSection::Point& intpoint = int2d->getPoint( idx );
+	if ( !datagids.isPresent(intpoint.line) )
+	    continue;
+
 	const int inttrcidx = vwrtrcrg.getIndex( intpoint.mytrcnr );
 	const double inttrcpos = vwrxrg.atIndex( inttrcidx );
 	if ( mIsEqual(pos,inttrcpos,eps) )
