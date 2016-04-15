@@ -148,6 +148,10 @@ public:
     mDeprecated BinID&	step;
 
     void		shrinkTo(const TrcKeySampling& innertks);
+private:
+    bool		doLimitTo(StepInterval<int>&, const StepInterval<int>&,
+				  const bool ignoresteps,
+				  const bool nostephandling);
 };
 
 

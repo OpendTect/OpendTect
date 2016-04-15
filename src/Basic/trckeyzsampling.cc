@@ -339,6 +339,39 @@ bool TrcKeySampling::isEmpty() const
 { return nrLines() < 1 || nrTrcs() < 1; }
 
 
+bool TrcKeySampling::doLimitTo( StepInterval<int>& inp,
+				const StepInterval<int>& oth,
+				const bool ignoresteps,
+				const bool nostephandling )
+{
+    const bool invalidstep = inp.step == 0 || mIsUdf(inp.step)
+			    || oth.step == 0 || mIsUdf(oth.step);
+    if ( ignoresteps || invalidstep || nostephandling )
+    {
+	if ( oth.start > inp.start ) inp.start = oth.start;
+	if ( oth.stop < inp.stop ) inp.stop = oth.stop;
+    }
+    else
+    {
+	const int start_diff = inp.start - oth.start;
+	const int minstop = mMIN( inp.stop, oth.stop );
+	int common = inp.start;
+	if ( start_diff < 0 )
+	    common += inp.step * ((inp.step-start_diff-1)/inp.step);
+	while ( common <= minstop && (common-oth.start)%oth.step )
+	    common += inp.step;
+	if ( common > minstop )
+	    return false;
+
+	inp.start = common;
+	inp.step = Math::LCMOf( inp.step, oth.step );
+	inp.stop = common + inp.step * ((minstop-common)/inp.step);
+    }
+
+    return true;
+}
+
+
 void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
 {
     TrcKeySampling tks( h ); tks.normalise();
@@ -353,37 +386,24 @@ void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
 	return;
     }
 
-#define mLimitIC( ic ) \
-    const bool ic##invalidstep_ = step_.ic() == 0 || mIsUdf(step_.ic()) \
-			    || h.step_.ic() == 0 || mIsUdf(h.step_.ic()); \
-    const bool ic##nostep_handling = step_.ic() == h.step_.ic() && \
-			( ic##OK(tks.start_.ic()) || tks.ic##OK(start_.ic()) );\
-    if ( ignoresteps || ic##invalidstep_ || ic##nostep_handling ) \
-    { \
-	if ( tks.start_.ic() > start_.ic() ) start_.ic() = tks.start_.ic(); \
-	if ( tks.stop_.ic() < stop_.ic() ) stop_.ic() = tks.stop_.ic(); \
-    } \
-    else \
-    { \
-	const int start_diff = start_.ic() - h.start_.ic(); \
-	const int minstop_ = mMIN( stop_.ic(), h.stop_.ic() ); \
-	int common = start_.ic(); \
-	if ( start_diff < 0 ) \
-	    common += step_.ic() * ((step_.ic()-start_diff-1)/step_.ic()); \
-	while ( common <= minstop_ && (common-h.start_.ic())%h.step_.ic() ) \
-	    common += step_.ic(); \
-	if ( common > minstop_ ) \
-	{ \
-	    init( false ); \
-	    return; \
-	} \
-	start_.ic() = common; \
-	step_.ic() = Math::LCMOf( step_.ic(), h.step_.ic() ); \
-	stop_.ic() = common + step_.ic() * ((minstop_-common)/step_.ic()); \
+    StepInterval<int> inlrg = lineRange();
+    StepInterval<int> crlrg = trcRange();
+    const bool inlstephandling = inlrg.step == h.lineRange().step &&
+				 ( tks.lineOK(tks.lineRange().start) ||
+				   tks.lineOK(inlrg.start) );
+    const bool crlstephandling = crlrg.step == h.trcRange().step &&
+				 ( tks.trcOK(tks.trcRange().start) ||
+				   tks.trcOK(crlrg.start) );
+
+    if ( !doLimitTo( inlrg, tks.lineRange(), ignoresteps, inlstephandling ) ||
+	 !doLimitTo( crlrg, tks.trcRange(), ignoresteps, crlstephandling ) )
+    {
+	init( false );
+	return;
     }
 
-    mLimitIC(inl);
-    mLimitIC(crl);
+    setLineRange( inlrg );
+    setTrcRange( crlrg );
 }
 
 
