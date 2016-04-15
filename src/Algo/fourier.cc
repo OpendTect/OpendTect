@@ -4313,7 +4313,7 @@ void CC::initClass()
 {
     CC::factory().addCreator(createInstance,sFactoryKeyword(),
 			     sFactoryDisplayName());
-    legalInformation().addCreator( CC::legalInfo, "CWF/Seismic Unix");
+    legalInformation().addCreator( CC::legalInfo, "CWP/Seismic Unix");
 }
 
 } // namespace Fourier
