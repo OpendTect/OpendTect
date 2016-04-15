@@ -124,6 +124,8 @@ protected:
     bool			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
     void			snapshotCB(CallBacker*);
+    void			cleanUp(CallBacker*);
+
 };
 
 

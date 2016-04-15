@@ -84,6 +84,7 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
 
 uiTieWin::~uiTieWin()
 {
+    cleanUp(0);
     delete &stretcher_;
     delete infodlg_;
     delete drawer_;
@@ -486,14 +487,19 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 
 
 bool uiTieWin::rejectOK( CallBacker* )
-{
-    server_.d2TModelMgr().cancel();
+{   
     drawer_->enableCtrlNotifiers( false );
     close();
-    if ( Well::MGR().isLoaded( server_.wellID() ) )
-	Well::MGR().reload( server_.wellID() );
-
     return true;
+}
+
+
+void uiTieWin::cleanUp( CallBacker* )
+{
+    server_.d2TModelMgr().cancel();
+    if ( Well::MGR().isLoaded( server_.wellID() ) )
+        Well::MGR().reload( server_.wellID() );
+    return;    
 }
 
 
