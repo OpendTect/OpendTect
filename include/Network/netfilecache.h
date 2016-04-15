@@ -22,10 +22,9 @@ namespace Network
 
 /*!< Cache for files in blocks of a couple of MBs. Not MT protected. */
 
-mExpClass(Network) ReadCache
+mExpClass(Network) FileCache
 {
 public:
-
 
     typedef unsigned char		BufType;
     typedef int				ChunkSizeType;
@@ -34,27 +33,15 @@ public:
     typedef Interval<FilePosType>	FileChunkType;
     typedef TypeSet<FileChunkType>	FileChunkSetType;
 
-			ReadCache(FileSizeType);
-			~ReadCache();
+    virtual		~FileCache();
 
-    bool		isEmpty() const		    { return filesize_ < 1; }
-    void		clearData();
-    void		setMinCacheSize(FileSizeType);
-
-			// General access
-
-			// Free-sized access of buffered data
-    FileSizeType	size() const		    { return filesize_; }
-    bool		isAvailable(FilePosType,FileSizeType) const;
-    FileSizeType	getAt(FilePosType,BufType*,FileSizeType) const;
-			// returns actual nr bytes handled
-
-			// Stuff data, presumably obtained from remote source
-    FileChunkSetType	stillNeededDataFor(FilePosType,ChunkSizeType) const;
-    bool		setData(FileChunkType,const BufType*);
-			//!< if fail, memory was full; now the cache is cleared
+    FileSizeType	size() const;
+    bool		isEmpty() const		    { return size() < 1; }
+    virtual void	clearData()		    = 0;
 
 protected:
+
+			FileCache(FileSizeType);
 
     class Block
     {
@@ -91,18 +78,60 @@ public:
 
 protected:
 
-    const FileSizeType	filesize_;
     ObjectSet<Block>	blocks_;
-    TypeSet<BlockIdxType> liveblockidxs_;
-    BlockIdxType	maxnrliveblocks_;
     const BlockSizeType	lastblocksz_;
-    const FilePosType	lastblockpos_;
+    const FileSizeType	knownfilesize_;
 
     Block*		gtBlk(BlockIdxType) const;
     void		dismissBlock(BlockIdxType);
-    void		handleNewLiveBlock(BlockIdxType);
+    void		clearBlocks();
+    inline FilePosType	lastBlockPos() const
+			{ return blockStart(blocks_.size()-1); }
     inline FilePosType	lastFilePos() const
-			{ return lastblockpos_ + lastblocksz_ - 1; }
+			{ return lastBlockPos() + lastblocksz_ - 1; }
+
+    virtual void	handleNewLiveBlock(BlockIdxType)	{}
+
+};
+
+
+/*!< Read Cache.
+
+  When reading, we need some buffering to avoid lots of HTTP requests. The idea
+  if to stuff data into blocks, and keep track of the 'oldest' blocks so we can
+  dump them as we go (we'll haveto, otherwise we end up holding the entire
+  file in memory). As headers and trailers are often revisited, we will always
+  keep the first and last block.
+
+*/
+
+mExpClass(Network) ReadCache : public FileCache
+{
+public:
+
+			ReadCache(FileSizeType);
+			~ReadCache();
+
+    virtual void	clearData();
+
+    void		setMinCacheSize(FileSizeType);
+
+			// Free-sized access of buffered data
+    bool		isAvailable(FilePosType,FileSizeType) const;
+    FileSizeType	getAt(FilePosType,BufType*,FileSizeType) const;
+			// returns actual nr bytes handled
+
+			// Stuff data, presumably obtained from remote source
+    FileChunkSetType	stillNeededDataFor(FilePosType,ChunkSizeType) const;
+    bool		setData(FileChunkType,const BufType*);
+			//!< if fail, memory was full; now the cache is cleared
+
+protected:
+
+    TypeSet<BlockIdxType> liveblockidxs_;
+    BlockIdxType	maxnrliveblocks_;
+
+    virtual void	handleNewLiveBlock(BlockIdxType);
 
 };
 

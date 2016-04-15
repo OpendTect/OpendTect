@@ -227,7 +227,7 @@ void Network::FileDownloadMgr::getDataFromReplies(
 namespace Network
 {
 
-/*!\brief Adapter to use web services to access files */
+/*!\brief std::streambuf to for files on web servers */
 
 class webistreambuf : public std::streambuf
 {
@@ -357,7 +357,7 @@ virtual std::streamsize xsgetn( std::ios::char_type* buftofill,
 // webstreams
 
 
-/*!\brief Adapter to use web services to access files */
+/*!\brief Adapter using web services to access files as streams */
 
 class webistream : public std::istream
 {
@@ -383,7 +383,6 @@ bool WebStreamSource::willHandle( const char* fnm )
 { return File::isURI( fnm ); }
 bool WebStreamSource::canHandle( const char* fnm ) const
 { return willHandle( fnm ); }
-
 
 bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
 {

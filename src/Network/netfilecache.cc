@@ -10,17 +10,17 @@ ________________________________________________________________________
 
 #include "netfilecache.h"
 
-//! cache size unless more explicitly required
+//! read cache size unless more needed by a caller
 static const Network::ReadCache::BlockIdxType cStartMaxLiveBlocks = 10;
 
-const Network::ReadCache::BlockSizeType
-	Network::ReadCache::Block::cFullSize = 2097152; // 2 MB
-Network::ReadCache::FilePosType
-Network::ReadCache::blockStart( BlockIdxType bidx )
-{ return ((FilePosType)bidx) * Block::cFullSize; }
+const Network::FileCache::BlockSizeType
+	Network::FileCache::Block::cFullSize = 2097152; // 2 MB
+Network::FileCache::FilePosType
+Network::FileCache::blockStart( BlockIdxType bidx )
+{ return bidx < 0 ? 0 : ((FilePosType)bidx) * Block::cFullSize; }
 
 
-Network::ReadCache::Block::Block( SizeType sz )
+Network::FileCache::Block::Block( SizeType sz )
     : buf_(0)
     , bufsz_(sz)
 {
@@ -31,53 +31,148 @@ Network::ReadCache::Block::Block( SizeType sz )
 }
 
 
-Network::ReadCache::Block::~Block()
+Network::FileCache::Block::~Block()
 {
     delete [] buf_;
 }
 
 
-Network::ReadCache::ReadCache( FileSizeType filesz )
-    : filesize_(filesz)
-    , maxnrliveblocks_(cStartMaxLiveBlocks)
-    , lastblocksz_(0)
-    , lastblockpos_(0)
+Network::FileCache::FileCache( FileSizeType knownfilesz )
+    : knownfilesize_(knownfilesz)
+    , lastblocksz_(Block::cFullSize)
 {
     blocks_.allowNull( true );
-    if ( filesz < 1 )
+    if ( knownfilesz < 1 )
 	return;
 
-    BlockIdxType nrblocks = (BlockIdxType)(filesize_ / Block::cFullSize);
-    const_cast<FilePosType&>(lastblockpos_) = blockStart( nrblocks );
-    BlockSizeType lastblksz = (BlockSizeType)(filesize_ - lastblockpos_);
+    BlockIdxType nrblocks = (BlockIdxType)(knownfilesize_ / Block::cFullSize);
+    for ( BlockIdxType iblk=0; iblk<nrblocks; iblk++ )
+	blocks_ += 0;
+
+    FilePosType lastblockpos = blockStart( nrblocks );
+    BlockSizeType lastblksz = (BlockSizeType)(knownfilesize_ - lastblockpos);
     if ( lastblksz > 0 )
-        nrblocks++;
+        blocks_ += 0;
     else
 	lastblksz = Block::cFullSize;
     const_cast<BlockSizeType&>(lastblocksz_) = lastblksz;
 
-    for ( BlockIdxType iblk=0; iblk<nrblocks; iblk++ )
-	blocks_ += 0;
 }
 
 
-Network::ReadCache::~ReadCache()
+Network::FileCache::~FileCache()
 {
     deepErase( blocks_ );
 }
 
 
-void Network::ReadCache::dismissBlock( BlockIdxType iblk )
+Network::FileCache::FileSizeType Network::FileCache::size() const
 {
-    delete blocks_[iblk];
-    blocks_.replace( iblk, 0 );
+    if ( knownfilesize_ > 0 )
+	return knownfilesize_;
+
+    const BlockIdxType nrblocks = blocks_.size();
+    if ( nrblocks == 0 )
+	return 0;
+
+    FileSizeType ret = nrblocks - 1;
+    if ( ret > 0 )
+	ret *= Block::cFullSize;
+    ret += lastblocksz_;
+    return ret;
+}
+
+
+void Network::FileCache::dismissBlock( BlockIdxType iblk )
+{
+    if ( blocks_.validIdx(iblk) )
+    {
+	delete blocks_[iblk];
+	blocks_.replace( iblk, 0 );
+    }
+}
+
+
+void Network::FileCache::clearBlocks()
+{
+    for ( BlockIdxType iblk=0; iblk<blocks_.size(); iblk++ )
+	dismissBlock( iblk );
+}
+
+
+Network::FileCache::Block* Network::FileCache::gtBlk( BlockIdxType iblk ) const
+{
+    FileCache& self = *const_cast<FileCache*>( this );
+    while ( blocks_.size() <= iblk )
+	self.blocks_ += 0;
+
+    if ( !blocks_[iblk] )
+    {
+	Block* newblock = new Block( blockSize(iblk) );
+	if ( !newblock->buf_ ) // emergency: mem full
+	    { self.clearData(); return 0; }
+
+	self.blocks_.replace( iblk, newblock );
+	self.handleNewLiveBlock( iblk );
+    }
+
+    return self.blocks_[iblk];
+}
+
+
+Network::FileCache::BlockSizeType Network::FileCache::blockSize(
+						BlockIdxType iblk ) const
+{
+    return iblk == blocks_.size() - 1 ? lastblocksz_ : Block::cFullSize;
+}
+
+
+Network::FileCache::BlockIdxType Network::FileCache::blockIdx(
+						FilePosType pos ) const
+{
+    return (BlockIdxType)(pos / Block::cFullSize);
+}
+
+
+bool Network::FileCache::isLiveBlock( BlockIdxType bidx ) const
+{
+    return blocks_.validIdx(bidx) && blocks_[bidx];
+}
+
+
+Network::FileCache::BufType* Network::FileCache::getBlock( BlockIdxType bidx )
+{
+    Block* ret = blocks_.validIdx(bidx) ? gtBlk( bidx ) : 0;
+    return ret ? ret->buf_ : 0;
+}
+
+
+const Network::FileCache::BufType* Network::FileCache::getBlock(
+						BlockIdxType bidx ) const
+{
+    const Block* ret = blocks_.validIdx(bidx) ? gtBlk( bidx ) : 0;
+    return ret ? ret->buf_ : 0;
+}
+
+
+//---- Read Cache
+
+
+Network::ReadCache::ReadCache( FileSizeType knownfilesz )
+    : FileCache(knownfilesz)
+    , maxnrliveblocks_(cStartMaxLiveBlocks)
+{
+}
+
+
+Network::ReadCache::~ReadCache()
+{
 }
 
 
 void Network::ReadCache::clearData()
 {
-    for ( BlockIdxType iblk=0; iblk<blocks_.size(); iblk++ )
-	dismissBlock( iblk );
+    clearBlocks();
     liveblockidxs_.setEmpty();
 }
 
@@ -90,21 +185,6 @@ void Network::ReadCache::setMinCacheSize( FileSizeType csz )
 	maxnrliveblocks_ = reqnrblks;
 }
 
-
-Network::ReadCache::Block* Network::ReadCache::gtBlk( BlockIdxType iblk ) const
-{
-    if ( !blocks_[iblk] )
-    {
-	ReadCache& self = *const_cast<ReadCache*>( this );
-	Block* newblock = new Block( blockSize(iblk) );
-	if ( !newblock->buf_ ) // emergency: mem full
-	    { self.clearData(); return 0; }
-
-	self.blocks_.replace( iblk, newblock );
-	self.handleNewLiveBlock( iblk );
-    }
-    return const_cast<Block*>( blocks_[iblk] );
-}
 
 
 void Network::ReadCache::handleNewLiveBlock( BlockIdxType addedblockidx )
@@ -127,26 +207,11 @@ void Network::ReadCache::handleNewLiveBlock( BlockIdxType addedblockidx )
 }
 
 
-Network::ReadCache::BlockSizeType Network::ReadCache::blockSize(
-						BlockIdxType iblk ) const
-{
-    return iblk == blocks_.size() - 1 ? lastblocksz_ : Block::cFullSize;
-}
-
-
-Network::ReadCache::BlockIdxType Network::ReadCache::blockIdx(
-						FilePosType pos ) const
-{
-    return pos < lastblockpos_ ? (BlockIdxType)(pos / Block::cFullSize)
-			       : blocks_.size() - 1;
-}
-
-
 bool Network::ReadCache::isAvailable( FilePosType pos,
 				      FileSizeType nrbytes ) const
 {
     if ( nrbytes < 1 )
-	return pos < filesize_;
+	return pos < size();
 
     const FilePosType lastpos = pos + nrbytes - 1;
     const BlockIdxType lastbidx = blockIdx( lastpos );
@@ -202,7 +267,7 @@ Network::ReadCache::FileChunkSetType Network::ReadCache::stillNeededDataFor(
 {
     FileChunkSetType ret;
     const FilePosType lastfilepos = lastFilePos();
-    if ( filesize_ < 1 || nrbytes < 1 || pos > lastfilepos )
+    if ( size() < 1 || nrbytes < 1 || pos > lastfilepos )
 	return ret;
 
     FilePosType lastpos = pos + nrbytes - 1;
@@ -226,27 +291,6 @@ Network::ReadCache::FileChunkSetType Network::ReadCache::stillNeededDataFor(
     }
 
     return ret;
-}
-
-
-bool Network::ReadCache::isLiveBlock( BlockIdxType bidx ) const
-{
-    return blocks_.validIdx(bidx) && blocks_[bidx];
-}
-
-
-Network::ReadCache::BufType* Network::ReadCache::getBlock( BlockIdxType bidx )
-{
-    Block* ret = blocks_.validIdx(bidx) ? gtBlk( bidx ) : 0;
-    return ret ? ret->buf_ : 0;
-}
-
-
-const Network::ReadCache::BufType* Network::ReadCache::getBlock(
-						BlockIdxType bidx ) const
-{
-    const Block* ret = blocks_.validIdx(bidx) ? gtBlk( bidx ) : 0;
-    return ret ? ret->buf_ : 0;
 }
 
 
@@ -275,3 +319,6 @@ bool Network::ReadCache::setData( FileChunkType chunk, const BufType* data )
 
     return true;
 }
+
+
+//---- Write Cache
