@@ -1037,6 +1037,14 @@ bool uiODViewer2D::isItemPresent( const uiTreeItem* item ) const
 }
 
 
+void uiODViewer2D::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
+{
+    TypeSet<int> vw2dids;
+    datamgr_->getObjectIDs( vw2dids );
+    vw2dobjids.append( vw2dids );
+}
+
+
 void uiODViewer2D::getHor3DVwr2DIDs( EM::ObjectID emid,
 				     TypeSet<int>& vw2dobjids ) const
 {

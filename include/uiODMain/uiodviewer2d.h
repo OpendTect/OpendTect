@@ -144,6 +144,8 @@ public:
     Notifier<uiODViewer2D>	dataChanged;
     Notifier<uiODViewer2D>	posChanged;
 
+    void 			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
+
     //Horizon 3D
     void			getHor3DVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<int>& vw2dids) const;

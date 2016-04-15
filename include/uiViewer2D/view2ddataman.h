@@ -31,6 +31,7 @@ public:
     void                        removeAll();
 
     void			getObjects(ObjectSet<Vw2DDataObject>&) const;
+    void			getObjectIDs(TypeSet<int>&) const;
 
     const Vw2DDataObject*	getObject(int id) const;
     Vw2DDataObject*		getObject(int id);

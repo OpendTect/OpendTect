@@ -103,6 +103,7 @@ public:
     void			addNewTempFaultSS(EM::ObjectID mid,int sceneid);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
+    void			getVwr2DObjIDs(TypeSet<int>& vw2ids) const;
     //FaultStickSet2D
     void			getFaultSS2DVwr2DIDs( EM::ObjectID emid,
 						    TypeSet<int>& vw2ids) const;
@@ -151,6 +152,7 @@ protected:
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
+    void			surveyChangedCB(CallBacker*);
     void			viewObjAdded(CallBacker*);
     void			viewObjToBeRemoved(CallBacker*);
     void			viewWinClosedCB(CallBacker*);
@@ -172,6 +174,8 @@ protected:
     Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
 						   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
+    void			getVWR2DDataGeomIDs(const uiODViewer2D*,
+	    					TypeSet<Pos::GeomID>&) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
