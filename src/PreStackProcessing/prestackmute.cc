@@ -71,7 +71,7 @@ bool Mute::prepareWork()
 
 void Mute::setEmptyMute()
 {
-    id_ = MultiID();
+    id_ = MultiID::udf();
     while ( def_.size() )
 	def_.remove( 0 );
 }
