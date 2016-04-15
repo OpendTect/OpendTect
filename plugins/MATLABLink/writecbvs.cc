@@ -112,8 +112,8 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     const char* category = SeisDataPack::categoryStr(
 				tkzs.defaultDir()!=TrcKeyZSampling::Z, false );
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    DataPackRef<RegularSeisDataPack> output =
-	dpm.addAndObtain( new RegularSeisDataPack(category) );
+    RefMan<RegularSeisDataPack> output =
+	dpm.add( new RegularSeisDataPack(category) );
     output->setSampling( tkzs );
 
     TypeSet<int> cubeidxs;
