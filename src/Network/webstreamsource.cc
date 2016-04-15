@@ -26,28 +26,32 @@ ________________________________________________________________________
 namespace Network
 {
 
-class FileDownloadMgr : public FileCache
+class FileDownloadMgr : public ReadCache
 {
 public:
 
 			FileDownloadMgr(const char* fnm);
 
     bool		goTo(FilePosType&,BlockIdxType&);
+    bool		fill(const FileChunkSetType&);
 
     uiString		errmsg_;
-
-    bool		fill(const FileChunkSetType&);
 
 private:
 
 #ifndef OD_NO_QT
     const QUrl		url_;
 #endif
+    typedef ObjectSet<ODNetworkReply> ReplySet;
 
 
     od_int64		getSz(const char*);
     bool		fillBlock(BlockIdxType);
     bool		fillSingle(FileChunkType);
+    ChunkSizeType	getReplies(FileChunkSetType&,ReplySet&,QEventLoop&);
+    bool		waitForFinish(ReplySet&,QEventLoop&);
+    void		getDataFromReplies(const FileChunkSetType&,ReplySet&,
+					   ChunkSizeType);
 
 };
 
@@ -55,7 +59,7 @@ private:
 
 
 Network::FileDownloadMgr::FileDownloadMgr( const char* fnm )
-    : FileCache(getSz(fnm))
+    : ReadCache(getSz(fnm))
     , url_(fnm)
 {
 }
@@ -84,59 +88,90 @@ bool Network::FileDownloadMgr::goTo( FilePosType& pos, BlockIdxType& bidx )
 
 bool Network::FileDownloadMgr::fillBlock( BlockIdxType bidx )
 {
-    FileChunkType pintv( blockStart(bidx), 0 );
-    pintv.stop = pintv.start + blockSize(bidx) - 1;
-    return fillSingle( pintv );
+    FileChunkType chunk( blockStart(bidx), 0 );
+    chunk.stop = chunk.start + blockSize(bidx) - 1;
+    return fillSingle( chunk );
 }
 
 
-bool Network::FileDownloadMgr::fillSingle( FileChunkType pintv )
+bool Network::FileDownloadMgr::fillSingle( FileChunkType chunk )
 {
     if ( size() < 1 )
 	return false;
 
-    FileChunkSetType pintvs;
-    pintvs += pintv;
-    return fill( pintvs );
+    FileChunkSetType chunks;
+    chunks += chunk;
+    return fill( chunks );
 }
 
 
-bool Network::FileDownloadMgr::fill( const FileChunkSetType& pintvs )
+bool Network::FileDownloadMgr::fill( const FileChunkSetType& reqchunks )
 {
-    const FileChunkSetType::size_type nrintv = pintvs.size();
-    if ( nrintv < 1 )
+    if ( reqchunks.size() < 1 )
 	return true;
 
 #ifndef OD_NO_QT
 
+    FileChunkSetType chunks = reqchunks; ReplySet replies;
     QEventLoop qevloop;
-    ObjectSet<ODNetworkReply> replies;
+    const ChunkSizeType maxsz = getReplies( chunks, replies, qevloop );
+    if ( maxsz < 1 )
+	return true;
+    else if ( !waitForFinish(replies,qevloop) )
+	return false;
+
+    getDataFromReplies( chunks, replies, maxsz );
+
+#endif // !OD_NO_QT
+
+    return true;
+}
+
+
+Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
+	FileChunkSetType& chunks, ReplySet& replies, QEventLoop& qevloop )
+{
     ChunkSizeType maxsz = 0;
-    for ( int ichunk=0; ichunk<nrintv; ichunk++ )
+
+#ifndef OD_NO_QT
+    for ( int ichunk=0; ichunk<chunks.size(); ichunk++ )
     {
-	const FileChunkType pintv = pintvs[ichunk];
-	const ChunkSizeType intvsz = (ChunkSizeType)pintv.width() + 1;
-	if ( intvsz > maxsz )
+	const FileChunkType chunk = chunks[ichunk];
+	const ChunkSizeType intvsz = (ChunkSizeType)chunk.width() + 1;
+	if ( intvsz < 1 )
+	    { chunks.removeSingle(ichunk); ichunk--; continue; }
+	else if ( intvsz > maxsz )
 	    maxsz = intvsz;
 
 	QNetworkRequest qnr( url_ );
 	qnr.setAttribute( QNetworkRequest::HttpPipeliningAllowedAttribute,
 			  true );
-	BufferString hdrstr( "bytes=", pintv.start, "-" );
-	hdrstr.add( pintv.stop );
+	BufferString hdrstr( "bytes=", chunk.start, "-" );
+	hdrstr.add( chunk.stop );
 	qnr.setRawHeader( "Range", hdrstr.str() );
 
 	replies += new ODNetworkReply( ODNA().get(qnr), &qevloop );
     }
+#endif // !OD_NO_QT
 
+    return maxsz;
+}
+
+
+bool Network::FileDownloadMgr::waitForFinish( ReplySet& replies,
+					      QEventLoop& qevloop )
+{
     bool haveerr = false;
+
+#ifndef OD_NO_QT
+    const int nrreplies = replies.size();
     while ( true )
     {
 	qevloop.exec();
 	bool allfinished = true;
-	for ( int ichunk=0; ichunk<nrintv; ichunk++ )
+	for ( int ireply=0; ireply<nrreplies; ireply++ )
 	{
-	    const QNetworkReply& reply = *replies[ichunk]->qNetworkReply();
+	    QNetworkReply& reply = *replies[ireply]->qNetworkReply();
 	    if ( reply.error() != QNetworkReply::NoError )
 		{ haveerr = true; break; }
 	    else if ( !reply.isFinished() )
@@ -145,16 +180,23 @@ bool Network::FileDownloadMgr::fill( const FileChunkSetType& pintvs )
 	if ( haveerr || allfinished )
 	    break;
     }
-    if ( haveerr )
-	return false;
+#endif // !OD_NO_QT
 
+    return !haveerr;
+}
+
+
+void Network::FileDownloadMgr::getDataFromReplies(
+	const FileChunkSetType& chunks, ReplySet& replies, ChunkSizeType maxsz )
+{
+#ifndef OD_NO_QT
     char* databuf = new char[ maxsz ];
-    for ( int ichunk=0; ichunk<nrintv; ichunk++ )
+    for ( int ichunk=0; ichunk<chunks.size(); ichunk++ )
     {
 	QNetworkReply& reply = *replies[ichunk]->qNetworkReply();
 	ChunkSizeType nrbytes = (ChunkSizeType)reply.bytesAvailable();
-	FileChunkType pintv = pintvs[ichunk];
-	const int maxnrbytes = pintv.width() + 1;
+	FileChunkType chunk = chunks[ichunk];
+	const int maxnrbytes = chunk.width() + 1;
 	if ( nrbytes == 0 )
 	    { pErrMsg("Reply finished but no bytes available" ); continue; }
 
@@ -168,38 +210,34 @@ bool Network::FileDownloadMgr::fill( const FileChunkSetType& pintvs )
 	    else
 	    {
 		pErrMsg("Reply nr bytes < requested" );
-	        pintv.stop = pintv.start + nrbytes - 1;
+	        chunk.stop = chunk.start + nrbytes - 1;
 	    }
 	}
 
 	reply.read( databuf, nrbytes );
-	setData( pintv, (BufType*)databuf );
+	setData( chunk, (BufType*)databuf );
     }
     delete [] databuf;
-
 #endif // !OD_NO_QT
-
-    return true;
 }
 
 
 // webstreambufs
 
-namespace std
+namespace Network
 {
 
 /*!\brief Adapter to use web services to access files */
 
-class webistreambuf : public streambuf
+class webistreambuf : public std::streambuf
 {
 public:
 
-    typedef Network::FileCache		FileCache;
-    typedef FileCache::FileSizeType	FileSizeType;
-    typedef FileCache::FilePosType	FilePosType;
-    typedef FileCache::BufType		BufType;
-    typedef FileCache::BlockIdxType	BlockIdxType;
-    typedef FileCache::BlockSizeType	BlockSizeType;
+    typedef ReadCache::FileSizeType	FileSizeType;
+    typedef ReadCache::FilePosType	FilePosType;
+    typedef ReadCache::BufType		BufType;
+    typedef ReadCache::BlockIdxType	BlockIdxType;
+    typedef ReadCache::BlockSizeType	BlockSizeType;
 
 webistreambuf( const char* url )
     : mgr_(url)
@@ -242,19 +280,21 @@ bool goTo( FilePosType newpos )
     return isvalid;
 }
 
-virtual pos_type seekoff( off_type offs, ios_base::seekdir sd,
-			  ios_base::openmode which )
+virtual std::ios::pos_type seekoff( std::ios::off_type offs,
+				    std::ios_base::seekdir sd,
+				    std::ios_base::openmode which )
 {
-    pos_type newpos = offs;
-    if ( sd == ios_base::cur )
+    std::ios::pos_type newpos = offs;
+    if ( sd == std::ios_base::cur )
 	newpos = curPos() + offs;
-    else if ( sd == ios_base::end )
+    else if ( sd == std::ios_base::end )
 	newpos = mgr_.size() - offs;
 
     return seekpos( newpos, which );
 }
 
-virtual pos_type seekpos( pos_type newpos, ios_base::openmode )
+virtual std::ios::pos_type seekpos( std::ios::pos_type newpos,
+				    std::ios_base::openmode )
 {
     if ( goTo(newpos) )
 	return curPos();
@@ -269,7 +309,7 @@ virtual int underflow()
 	if ( curbidx_ < 0 )
 	    curbidx_ = -1;
 	else if ( !mgr_.validBlockIdx(curbidx_) )
-	    return char_traits<char>::eof();
+	    return std::char_traits<char>::eof();
     }
     else if ( curgptr < egptr() )
     {
@@ -281,13 +321,14 @@ virtual int underflow()
     if ( !mgr_.validBlockIdx(newbidx) || !goTo(mgr_.blockStart(newbidx)) )
     {
 	setGPtrs( 0 , false );
-	return char_traits<char>::eof();
+	return std::char_traits<char>::eof();
     }
 
     return (int)(*gptr());
 }
 
-virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
+virtual std::streamsize xsgetn( std::ios::char_type* buftofill,
+				std::streamsize nrbytes )
 {
     if ( nrbytes < 1 )
 	return nrbytes;
@@ -295,9 +336,9 @@ virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
     mgr_.setMinCacheSize( nrbytes );
 
     FilePosType curpos = curPos();
-    FileCache::FileChunkSetType pintvs = mgr_.stillNeededDataFor( curpos,
+    ReadCache::FileChunkSetType chunks = mgr_.stillNeededDataFor( curpos,
 								  nrbytes );
-    if ( !mgr_.fill(pintvs) )
+    if ( !mgr_.fill(chunks) )
 	return 0;
 
     nrbytes = mgr_.getAt( curpos, (BufType*)buftofill, nrbytes );
@@ -318,12 +359,12 @@ virtual streamsize xsgetn( char_type* buftofill, streamsize nrbytes )
 
 /*!\brief Adapter to use web services to access files */
 
-class webistream : public istream
+class webistream : public std::istream
 {
 public:
 
 webistream( webistreambuf* sb )
-    : istream(sb)
+    : std::istream(sb)
 {}
 
 ~webistream()
@@ -331,7 +372,7 @@ webistream( webistreambuf* sb )
 
 };
 
-} // namespace std
+} // namespace Network
 
 
 // WebStreamSource
@@ -347,10 +388,12 @@ bool WebStreamSource::canHandle( const char* fnm ) const
 bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
 {
     if ( typ == Read )
-	sd.istrm = new std::webistream( new std::webistreambuf(sd.fileName()) );
+	sd.istrm = new Network::webistream(
+			new Network::webistreambuf(sd.fileName()) );
     /*
     else if ( typ == Write )
-	sd.ostrm = new std::webostream( new std::webostreambuf(sd.fileName()) );
+	sd.ostrm = new Network::webostream(
+			new Network::webostreambuf(sd.fileName()) );
     */
 
     return sd.usable();

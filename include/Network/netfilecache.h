@@ -22,7 +22,7 @@ namespace Network
 
 /*!< Cache for files in blocks of a couple of MBs. Not MT protected. */
 
-mExpClass(Network) FileCache
+mExpClass(Network) ReadCache
 {
 public:
 
@@ -34,8 +34,8 @@ public:
     typedef Interval<FilePosType>	FileChunkType;
     typedef TypeSet<FileChunkType>	FileChunkSetType;
 
-			FileCache(FileSizeType);
-			~FileCache();
+			ReadCache(FileSizeType);
+			~ReadCache();
 
     bool		isEmpty() const		    { return filesize_ < 1; }
     void		clearData();
