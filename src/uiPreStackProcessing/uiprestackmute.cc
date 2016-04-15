@@ -44,7 +44,7 @@ uiMute::uiMute( uiParent* p, Mute* mute )
 
     const IOObjContext ctxt = mIOObjContext( MuteDef );
     mutedeffld_ = new uiIOObjSel( this, ctxt, mutesu );
-    mutedeffld_->setChecked(true);
+    mutedeffld_->setChecked(!mute || !mute->muteDefID().isUdf());
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
 			      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
@@ -54,7 +54,10 @@ uiMute::uiMute( uiParent* p, Mute* mute )
 	    			   FloatInpSpec() );
     taperlenfld_->attach( alignedBelow, topfld_ );
 
-    mutedeffld_->setInput( processor_->muteDefID() );
+    if( mutedeffld_->isChecked() )
+	mutedeffld_->setInput( processor_->muteDefID() );
+    else
+	mutedeffld_->setInputText( 0 );
     topfld_->setValue( !processor_->isTailMute() );
     taperlenfld_->setValue( processor_->taperLength() );
 }
@@ -64,8 +67,11 @@ bool uiMute::acceptOK( CallBacker* )
 {
     if ( !processor_ ) return true;
 
-    const IOObj* ioobj = mutedeffld_->ioobj();
-    if ( !ioobj )
+    const IOObj* ioobj = mutedeffld_->isChecked()  ? mutedeffld_->ioobj() : 0;
+
+    if ( ioobj ) 
+	processor_->setMuteDefID( ioobj->key() );
+    else
     {
 	processor_->setEmptyMute();
 	if ( mutedeffld_->isChecked() )
@@ -76,7 +82,6 @@ bool uiMute::acceptOK( CallBacker* )
 	}
     }
 
-    processor_->setMuteDefID( ioobj->key() );
     processor_->setTaperLength( taperlenfld_->getfValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
     return true;

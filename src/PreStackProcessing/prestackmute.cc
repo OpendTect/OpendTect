@@ -72,7 +72,7 @@ bool Mute::prepareWork()
 
 void Mute::setEmptyMute()
 {
-    id_ = MultiID();
+    id_ = MultiID::udf();
     while ( def_.size() )
 	def_.remove( 0 );
 }
@@ -100,8 +100,8 @@ bool Mute::setMuteDefID( const MultiID& mid )
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
     {
 	uiString errstr( tr( "Mute definition \" %1 \" cannot be read." )
-			.arg(ioobj->name()) );
-	errstr.append( errmsg_ );
+			.arg(ioobj->uiName()) );
+	errstr.append( errmsg_, true );
 	mErrRet( errstr );
     }
 
