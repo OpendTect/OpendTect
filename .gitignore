@@ -23,7 +23,6 @@ data/SequenceModels
 data/dgbAttribs/
 data/localizations/*.qm
 data/localizations/generated
->>>>>>> c95088e... [od] Numerous small changes.
 test/
 Contents/
 plugins/lux64
@@ -65,6 +64,7 @@ ipch
 #Doxygen stuff
 CMakeModules/Doxyfile
 doc/Programmer/Generated
+dtect/backoffice-server-upload.sh
 
 
 #CMakes stuff

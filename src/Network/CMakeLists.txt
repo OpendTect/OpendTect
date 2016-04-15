@@ -5,6 +5,11 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+if ( UNIX )
+    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/backoffice-server/upload.sh.in
+		    ${CMAKE_BINARY_DIR}/dtect/backoffice-server-upload.sh @ONLY )
+endif( UNIX )
+
 add_definitions( -DmNoAutoUiString )
 
 set ( OD_USEQT Network)
