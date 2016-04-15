@@ -24,10 +24,10 @@
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "od_helpids.h"
-#include "uilabel.h"
 
 
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
@@ -159,7 +159,7 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 	hs.limitTo( emhs );
     }
 
-    if ( horfld2_->commitInput() )
+    if ( !usesingle_ && horfld2_->commitInput() )
     {
 	EM::IOObjInfo eminfo( horctio2_.ioobj_->key() );
 	TrcKeySampling emhs;
