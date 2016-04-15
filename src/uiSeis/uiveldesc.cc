@@ -391,25 +391,30 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     if ( !rangefld_ )
 	return;
 
-    StepInterval<float> rg;
-    const StepInterval<float> zrg = SI().zRange(true);
+    const bool survistime = SI().zIsTime();
+    float seisrefdatum = SI().seismicReferenceDatum();
+    if ( survistime && SI().depthsInFeet() )
+	seisrefdatum *= mToFeetFactorF;
+
+    StepInterval<float> rg = SI().zRange( true );
     const Interval<float> topvelrg = velsel_->getVelocityTopRange();
     const Interval<float> botvelrg = velsel_->getVelocityBottomRange();
+    const int nrsamples = rg.nrSteps();
 
-    if ( t2d_ && SI().zIsTime() )
+    if ( t2d_ && survistime )
     {
-	rg.start = zrg.start * topvelrg.start / 2;
-	rg.stop = zrg.stop * botvelrg.stop / 2;
-	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
+	rg.start *= topvelrg.start/2;
+	rg.stop *= botvelrg.stop/2;
+	rg.step = (rg.stop-rg.start) / (nrsamples==0 ? 1 : nrsamples);
+	rg.shift( -seisrefdatum );
     }
-    else if ( !t2d_ && !SI().zIsTime() )
+    else if ( !t2d_ && !survistime )
     {
-	rg.start = 2 * zrg.start / topvelrg.stop;
-	rg.stop = 2 * zrg.stop / botvelrg.start;
-	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
+	rg.shift( seisrefdatum );
+	rg.start /= topvelrg.stop/2;
+	rg.stop /= botvelrg.start/2;
+	rg.step = (rg.stop-rg.start) / (nrsamples==0 ? 1 : nrsamples);
     }
-    else
-	rg = SI().zRange( true );
 
     rangefld_->setZRange( rg );
 }

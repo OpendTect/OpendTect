@@ -105,11 +105,7 @@ Interval<float> Time2DepthStretcher::getDefaultVAvg()
 {
     Interval<float> res( 1350, 4500 );
     if ( SI().depthsInFeet() )
-    {
-	res.start *= mToFeetFactorF;
-	res.stop *= mToFeetFactorF;
-    }
-
+	res.scale( mToFeetFactorF );
     return res;
 }
 
@@ -399,10 +395,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     float largestwidth = mUdf(float);
     for ( int idx=0; idx<voivols_.size(); idx++ )
     {
-	if ( !voidata_[idx] )
-	    continue;
-
-	if ( !voivols_[idx].hsamp_.includes( bid ) )
+	if ( !voidata_[idx] || !voivols_[idx].hsamp_.includes(bid) )
 	    continue;
 
 	const Interval<float> voirg = getTimeInterval( bid, idx );
@@ -474,10 +467,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     float largestwidth = mUdf(float);
     for ( int idx=0; idx<voivols_.size(); idx++ )
     {
-	if ( !voidata_[idx] )
-	    continue;
-
-	if ( !voivols_[idx].hsamp_.includes( bid ) )
+	if ( !voidata_[idx] || !voivols_[idx].hsamp_.includes(bid) )
 	    continue;
 
 	const Interval<float> voirg = getDepthInterval( bid, idx );
@@ -573,20 +563,23 @@ void Time2DepthStretcher::udfFill( ValueSeries<float>& res, int sz )
 }
 
 
-
 Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 {
-    Interval<float> res = SI().zRange(true);
-
     const bool survistime = SI().zIsTime();
+    float seisrefdatum = SI().seismicReferenceDatum();
+    if ( survistime && SI().depthsInFeet() )
+	seisrefdatum *= mToFeetFactorF;
 
+    Interval<float> res = SI().zRange(true);
     if ( survistime && !time )
     {
 	res.start *= topvavg_.start/2;
 	res.stop *= botvavg_.stop/2;
+	res.shift( -seisrefdatum );
     }
     else if ( !survistime && time )
     {
+	res.shift( seisrefdatum );
 	res.start /= topvavg_.stop/2;
 	res.stop /= botvavg_.start/2;
     }
@@ -690,25 +683,7 @@ void Depth2TimeStretcher::transformTrcBack(const TrcKey& trckey,
 
 Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 {
-    const Interval<float> topvavg = stretcher_->getVavgRg(true);
-    const Interval<float> botvavg = stretcher_->getVavgRg(false);
-
-    Interval<float> res = SI().zRange(true);
-
-    const bool survisdepth = !SI().zIsTime();
-
-    if ( survisdepth && !depth )
-    {
-	res.start /= (topvavg.stop/2);
-	res.stop /= (botvavg.start/2);
-    }
-    else if ( !survisdepth && depth )
-    {
-	res.start *= topvavg.stop/2;
-	res.stop *= botvavg.start/2;
-    }
-
-    return res;
+    return stretcher_->getZInterval( !depth );
 }
 
 
@@ -902,8 +877,11 @@ void LinearVelTransform::fillPar( IOPar& par ) const
 void LinearVelTransform::transformT2D( const SamplingData<float>& sd,
 				       int sz, float* res ) const
 {
-    if ( !computeLinearT2D( startvel_, dv_, -SI().seismicReferenceDatum(),
-			    sd, sz, res) )
+    float seisrefdatum = SI().seismicReferenceDatum();
+    if ( SI().zIsTime() && SI().depthsInFeet() )
+	seisrefdatum *= mToFeetFactorF;
+
+    if ( !computeLinearT2D( startvel_, dv_, -seisrefdatum, sd, sz, res ) )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	    res[idx] = mUdf(float);
@@ -914,8 +892,11 @@ void LinearVelTransform::transformT2D( const SamplingData<float>& sd,
 void LinearVelTransform::transformD2T(const SamplingData<float>& sd,
 				      int sz, float* res ) const
 {
-    if ( !computeLinearD2T( startvel_, dv_, -SI().seismicReferenceDatum(),
-			   sd, sz, res) )
+    float seisrefdatum = SI().seismicReferenceDatum();
+    if ( SI().zIsTime() && SI().depthsInFeet() )
+	seisrefdatum *= mToFeetFactorF;
+
+    if ( !computeLinearD2T( startvel_, dv_, -seisrefdatum, sd, sz, res ) )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	    res[idx] = mUdf(float);
@@ -944,7 +925,7 @@ void LinearT2DTransform::transformTrcBack( const TrcKey&,
 
 Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 {
-    Interval<float> zrg = SI().zRange( false );
+    Interval<float> zrg = SI().zRange( true );
     const bool survistime = SI().zIsTime();
     if ( time && survistime ) return zrg;
 
@@ -971,7 +952,7 @@ float LinearT2DTransform::getGoodZStep() const
 	return SI().zRange(true).step;
 
     const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( false ).nrSteps();
+    const int nrsamples = SI().zRange( true ).nrSteps();
     return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
 }
 
@@ -997,7 +978,7 @@ void LinearD2TTransform::transformTrcBack( const TrcKey&,
 
 Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 {
-    Interval<float> zrg = SI().zRange( false );
+    Interval<float> zrg = SI().zRange( true );
     const bool survistime = SI().zIsTime();
     if ( !survistime && depth )	return zrg;
 
@@ -1024,6 +1005,6 @@ float LinearD2TTransform::getGoodZStep() const
 	return SI().zRange(true).step;
 
     const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( false ).nrSteps();
+    const int nrsamples = SI().zRange( true ).nrSteps();
     return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
 }

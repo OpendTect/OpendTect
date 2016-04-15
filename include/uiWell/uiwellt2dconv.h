@@ -37,6 +37,7 @@ protected:
 
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
+    void			setZRangeCB(CallBacker*);
 
     uiIOObjSel* 		fld_;
     WellT2DTransform*		transform_;

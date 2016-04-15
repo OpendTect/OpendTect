@@ -355,10 +355,7 @@ bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
     const double hwdth = sz.width() * .5;
     const double hhght = sz.height() * .5;
 
-    Geom::Point2D<double> topleft( centre.x - hwdth, centre.y - hhght );
-    Geom::Point2D<double> botright( centre.x + hwdth, centre.y + hhght );
-    if ( ! ( bb.contains( topleft, 1e-6 ) && bb.contains( botright, 1e-6 ) ) )
-	return false;
-
-    return true;
+    const Geom::Point2D<double> topleft( centre.x-hwdth, centre.y-hhght );
+    const Geom::Point2D<double> botright( centre.x+hwdth, centre.y+hhght );
+    return bb.contains(topleft,1e-3) && bb.contains(botright,1e-3);
 }

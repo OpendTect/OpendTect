@@ -414,6 +414,10 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 			      ValueSeries<float>& res, int outputsz,
 			      const SamplingData<double>& zsamp, bool time)const
 {
+    float seisrefdatum = SI().seismicReferenceDatum();
+    if ( SI().zIsTime() && SI().depthsInFeet() )
+	seisrefdatum *= mToFeetFactorF;
+
     float* zrevvals = time ? times_ : depths_;
     if ( zrevvals )
     {
@@ -425,13 +429,13 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	    zrg.step = mUdf(double);
 	}
 	else
-	{
 	    zrg = sd_.interval( inpsz );
-	}
 
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
-	    const double z = zsamp.atIndex( idx );
+	    double z = zsamp.atIndex( idx );
+	    if ( time ) z += seisrefdatum;
+
 	    float zrev;
 	    if ( z <= zrg.start )
 	    {
@@ -464,6 +468,7 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 		zrev = IdxAble::interpolateReg( zrevvals, inpsz, zsample );
 	    }
 
+	    if ( !time ) zrev -= seisrefdatum;
 	    res.setValue( idx, zrev );
 	}
     }
@@ -472,7 +477,9 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	int zidx = 0;
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
-	    const double z = zsamp.atIndex( idx );
+	    double z = zsamp.atIndex( idx );
+	    if ( time ) z += seisrefdatum;
+
 	    float zrev;
 	    if ( z<=zvals[0] )
 	    {
@@ -499,6 +506,7 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 		zrev = (float) sd_.atIndex( relidx );
 	    }
 
+	    if ( !time ) zrev -= seisrefdatum;
 	    res.setValue( idx, zrev );
 	}
     }
