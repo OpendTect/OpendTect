@@ -908,12 +908,13 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
     else
 	depthdispfld_->setValue( !zinft );
 
-    const UnitOfMeasure* newdisplayuom = depthdispfld_->getBoolValue()
-				       ? UoMR().get( "Meter" )
-				       : UoMR().get( "Feet" );
+    const bool showdepthinft = !depthdispfld_->getBoolValue();
+    const UnitOfMeasure* newdisplayuom = !showdepthinft ? UoMR().get( "Meter" )
+							: UoMR().get( "Feet" );
     const float newsrduser = getConvertedValue( oldsrduser, prevdisplayuom,
 						newdisplayuom );
     refdatumfld_->setValue( newsrduser );
+    refdatumfld_->setTitleText( getSRDString(showdepthinft) );
     const UnitOfMeasure* datauom = zintime || !zinft ? UoMR().get( "Meter" )
 						     : UoMR().get( "Feet" );
     si_.setSeismicReferenceDatum( getConvertedValue(newsrduser,newdisplayuom,

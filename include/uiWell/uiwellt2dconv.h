@@ -29,14 +29,14 @@ public:
     ZAxisTransform*	getSelection();
     bool		canBeField() const	{ return true; }
 
-    bool		acceptOK();
-
     static void 	initClass();
 
 protected:
 
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
+    bool			acceptOK();
+    void			setZRangeCB(CallBacker*);
 
     uiIOObjSel* 		fld_;
     WellT2DTransform*		transform_;

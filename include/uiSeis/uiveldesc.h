@@ -119,8 +119,6 @@ protected:
 mExpClass(uiSeis) uiVelModelZAxisTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiVelModelZAxisTransform);
 public:
-    void			enableTargetSampling();
-    bool			acceptOK();
 
     ZAxisTransform*		getSelection();
 
@@ -131,8 +129,10 @@ public:
 protected:
 				uiVelModelZAxisTransform(uiParent*,bool);
 				~uiVelModelZAxisTransform();
+
     FixedString			getZDomain() const;
 
+    bool			acceptOK();
     void			setZRangeCB(CallBacker*);
 
     VelocityStretcher*		transform_;

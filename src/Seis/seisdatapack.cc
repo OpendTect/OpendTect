@@ -262,7 +262,7 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
 						const ZDomain::Info& zinfo,
 						const BufferStringSet& names )
 {
-    if ( !bivset || tkzs.nrZ()!=1 )
+    if ( !bivset || !tkzs.isDefined() || tkzs.nrZ()!=1 )
 	return DataPack::cNoID();
 
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(

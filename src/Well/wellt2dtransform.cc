@@ -12,8 +12,10 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "interpol1d.h"
+#include "binidvalue.h"
 #include "multiid.h"
 #include "position.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "wellman.h"
 #include "welld2tmodel.h"
@@ -63,10 +65,22 @@ bool WellT2DTransform::calcDepths()
 void WellT2DTransform::doTransform( const SamplingData<float>& sd,
 				    int ressz, float* res, bool back ) const
 {
+    const bool survistime = SI().zIsTime();
+    const bool depthsinfeet = SI().depthsInFeet();
+
     for ( int idx=0; idx<ressz; idx++ )
     {
 	float inp = sd.atIndex( idx );
-	res[idx] = back ? tdmodel_.getTime( inp ) : tdmodel_.getDepth( inp );
+	if ( back )
+	{
+	    if ( survistime && depthsinfeet ) inp *= mFromFeetFactorF;
+	    res[idx] = tdmodel_.getTime( inp );
+	}
+	else
+	{
+	    res[idx] = tdmodel_.getDepth( inp );
+	    if ( survistime && depthsinfeet ) res[idx] *= mToFeetFactorF;
+	}
     }
 }
 
@@ -90,20 +104,35 @@ void WellT2DTransform::transformTrcBack( const TrcKey&,
 
 float WellT2DTransform::getGoodZStep() const
 {
-    return mUdf(float); // Well::getDefaultVelocity() * SI().zStep();
+    if ( !SI().zIsTime() )
+	return SI().zRange(true).step;
+
+    const Interval<float> zrg = getZInterval( false );
+    const int nrsamples = SI().zRange( false ).nrSteps();
+    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
 }
 
 
 Interval<float> WellT2DTransform::getZInterval( bool time ) const
 {
-    const int sz = tdmodel_.size();
-    if ( sz < 1 )
-	return Interval<float>(0,0);
+    Interval<float> zrg = SI().zRange( true );
+    const bool survistime = SI().zIsTime();
+    if ( time && survistime ) return zrg;
 
-    return Interval<float>( time ? tdmodel_.getTime( 0 )
-				 : tdmodel_.getDepth( 0 ),
-			    time ? tdmodel_.getTime( sz-1 )
-				 : tdmodel_.getDepth( sz-1 ) );
+    const BinIDValue startbidval( 0, 0, zrg.start );
+    const BinIDValue stopbidval( 0, 0, zrg.stop );
+    if ( survistime && !time )
+    {
+	zrg.start = ZAxisTransform::transform( startbidval );
+	zrg.stop = ZAxisTransform::transform( stopbidval );
+    }
+    else if ( !survistime && time )
+    {
+	zrg.start = ZAxisTransform::transformBack( startbidval );
+	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+    }
+
+    return zrg;
 }
 
 

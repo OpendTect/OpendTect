@@ -11,9 +11,12 @@ ________________________________________________________________________
 #include "uiwellt2dconv.h"
 
 #include "uiioobjsel.h"
+#include "survinfo.h"
+#include "binidvalue.h"
 #include "welltransl.h"
 #include "wellt2dtransform.h"
 #include "uimsg.h"
+#include "uizrangeinput.h"
 #include "zdomain.h"
 
 
@@ -23,7 +26,10 @@ uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
 {
     fld_ = new uiIOObjSel( this, mIOObjContext(Well), 
 			   uiString::emptyString() );
+    fld_->selectionDone.notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
+
     setHAlignObj( fld_ );
+    postFinalise().notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
 }
 
 
@@ -35,25 +41,63 @@ uiWellT2DTransform::~uiWellT2DTransform()
 
 ZAxisTransform* uiWellT2DTransform::getSelection()
 {
-    return transform_;
-}
-
-
-bool uiWellT2DTransform::acceptOK()
-{
     unRefAndZeroPtr( transform_ );
 
-    const IOObj* ioobj = fld_->ioobj( false );
-    if ( !ioobj )
-	return false;
+    const IOObj* ioobj = fld_->ioobj( true );
+    if ( !ioobj ) return 0;
 
     transform_ = new WellT2DTransform( ioobj->key() );
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
     {
-	uiMSG().error( uiStrings::phrCannotCreate(tr("well-transform")) );
 	unRefAndZeroPtr( transform_ );
+	return 0;
+    }
+
+    return transform_;
+}
+
+
+void uiWellT2DTransform::setZRangeCB( CallBacker* )
+{
+    if ( !rangefld_ )
+	return;
+
+    if ( !rangechanged_ )
+    {
+	StepInterval<float> range( StepInterval<float>::udf() );
+	RefMan<ZAxisTransform> trans = getSelection();
+	if ( trans )
+	{
+	    range = trans->getZInterval( false );
+	    range.step = trans->getGoodZStep();
+	    if ( range.isUdf() ) range.setUdf();
+	}
+
+	rangefld_->setZRange( range );
+    }
+}
+
+
+bool uiWellT2DTransform::acceptOK()
+{
+    if ( !fld_->ioobj(false) )
 	return false;
+
+    if ( !transform_ )
+    {
+	uiMSG().error( uiStrings::phrCannotCreate(tr("well-transform")) );
+	return false;
+    }
+
+    if ( rangefld_ )
+    {
+	const StepInterval<float> range = rangefld_->getFZRange();
+	if ( range.isUdf() )
+	{
+	    uiMSG().error( tr("Z-Range is not set") );
+	    return false;
+	}
     }
 
     return true;

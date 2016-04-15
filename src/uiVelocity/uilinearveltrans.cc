@@ -60,6 +60,7 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
 
     setHAlignObj( velfld_ );
+    postFinalise().notify( mCB(this,uiLinearVelTransform,velChangedCB) );
 }
 
 
@@ -80,14 +81,9 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	RefMan<ZAxisTransform> trans = getSelection();
 	if ( trans )
 	{
-	    range = SI().zRange( true );
-	    const int nrsamples = range.nrSteps()>0 ? range.nrSteps() : 1;
-	    range.start = trans->transform( BinIDValue(0,0,range.start) );
-	    range.stop = trans->transform( BinIDValue(0,0,range.stop) );
-	    if ( range.isUdf() )
-		range.setUdf();
-	    else
-		range.step = range.width()/nrsamples;
+	    range = trans->getZInterval( false );
+	    range.step = trans->getGoodZStep();
+	    if ( range.isUdf() ) range.setUdf();
 	}
 
 	NotifyStopper stopper( rangefld_->valuechanging );
