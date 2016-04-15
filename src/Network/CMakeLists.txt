@@ -4,6 +4,11 @@
 # 	July 1995	A.H. Bril
 #_______________________________________________________________________________
 
+if ( UNIX )
+    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/backoffice-server/upload.sh.in
+		    ${CMAKE_BINARY_DIR}/dtect/backoffice-server-upload.sh @ONLY )
+endif( UNIX )
+
 set ( OD_USEQT Network)
 set ( OD_MODULE_DEPS General)
 

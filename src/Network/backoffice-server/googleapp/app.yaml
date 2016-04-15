@@ -1,0 +1,10 @@
+runtime: php55
+api_version: 1
+
+handlers:
+- url: /dlsites.php
+  script: dlsites.php
+- url: /dlsites.txt
+  script: dlsites.php
+- url: /crashreport.php
+  script: crashreport.php

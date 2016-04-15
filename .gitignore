@@ -69,6 +69,7 @@ ipch
 #Doxygen stuff
 CMakeModules/Doxyfile
 doc/Programmer/Generated
+dtect/backoffice-server-upload.sh
 
 
 #CMakes stuff
