@@ -161,7 +161,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 					.arg( ctio.ctxt_.trgroup_->typeName() );
 	else
 	    titletext = toUiString("%1 %2").arg(titletext)
-				   .arg( mToUiStringTodo( ctio.ctxt_.name() ) );
+				   .arg( toUiString( ctio.ctxt_.name() ) );
 
 	titletext = toUiString("%1 %2").arg(titletext)
 	         .arg( setup_.multisel_ ? tr("(s)") : uiString::emptyString() );
@@ -183,7 +183,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName() );
     else
-	captn = captn.arg( mToUiStringTodo(ctio.ctxt_.name()) );
+	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(
@@ -311,7 +311,8 @@ void uiIOObjSel::initRead()
 	fillEntries();
     }
 
-    fillDefault();
+    if( !workctio_.ioobj_ )
+	fillDefault();
     updateInput();
 }
 
