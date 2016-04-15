@@ -49,9 +49,8 @@ bool BatchProgram::go( od_ostream& strm )
 	return copier.go( &strm, false, true );
     }
 
-    outpar->removeWithKey( sKey::ID() );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"", outpar, uiString::emptyString() );
+				"", &pars(), uiString::emptyString() );
     stp->setProcPars( pars(), false );
     int compnr = -1; // all components
     inpar->get( sKey::Component(), compnr );
