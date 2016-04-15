@@ -377,18 +377,16 @@ void uiCheckShotEdit::applyCB( CallBacker* )
     {
 	for ( int idx=0; idx<newdriftcurve_.size(); idx++ )
 	{
-	    const float val = newdriftcurve_.value( idx );
-	    const float dah = (float) wd_.track().getPos( 
-						newdriftcurve_.dah(idx) ).z;
+	    const float dah = newdriftcurve_.dah( idx );
+	    const float drift = newdriftcurve_.value( idx );
+	    const float d2tval = d2t_->getTime( dah, wd_.track() );
+	    const float val = drift / SI().zDomain().userFactor() + d2tval;
 	    d2t_->add(dah,val);
-	    
+	    quickSort(d2t_->dahArr(),d2t_->size());
+	    quickSort(d2t_->valArr(),d2t_->size());
 	}
-	CheckShotCorr::calibrate( tmpcs, *d2t_ );
-	quickSort(d2t_->dahArr(),d2t_->size());
-	quickSort(d2t_->valArr(),d2t_->size());
     }
-    else
-	CheckShotCorr::calibrate( tmpcs, *d2t_ );
+    CheckShotCorr::calibrate( tmpcs, *d2t_ );
 
     TypeSet<uiPoint> pts;
     uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
