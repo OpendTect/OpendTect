@@ -310,7 +310,8 @@ void uiIOObjSel::initRead()
 	fillEntries();
     }
 
-    fillDefault();
+    if( !workctio_.ioobj_ )
+	fillDefault();
     updateInput();
 }
 
