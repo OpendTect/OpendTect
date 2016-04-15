@@ -157,7 +157,7 @@ void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 	hs.limitTo( emhs );
     }
 
-    if ( horfld2_->commitInput() )
+    if ( !usesingle_ && horfld2_->commitInput() )
     {
 	EM::IOObjInfo eminfo( horctio2_.ioobj->key() );
 	HorSampling emhs;
