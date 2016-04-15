@@ -36,8 +36,10 @@ public:
     virtual		~FileCache();
 
     FileSizeType	size() const;
-    bool		isEmpty() const		    { return size() < 1; }
-    virtual void	clearData()		    = 0;
+    bool		isEmpty() const			{ return size() < 1; }
+    virtual void	clearData()			= 0;
+
+    virtual void	setMinCacheSize(FileSizeType)	= 0;
 
 protected:
 
@@ -49,14 +51,14 @@ protected:
 
 	typedef ChunkSizeType	SizeType;
 	typedef SizeType	PosType;
-
-				Block(PosType);
-				~Block();
-
-	BufType*		buf_;
-	SizeType		bufsz_;
-
 	static const SizeType	cFullSize;
+
+			Block(PosType);
+			~Block();
+
+	BufType*	buf_;
+	SizeType	bufsz_;
+
     };
 
 public:
@@ -109,12 +111,11 @@ mExpClass(Network) ReadCache : public FileCache
 {
 public:
 
-			ReadCache(FileSizeType);
+			ReadCache(FileSizeType knownsize=0);
 			~ReadCache();
 
     virtual void	clearData();
-
-    void		setMinCacheSize(FileSizeType);
+    virtual void	setMinCacheSize(FileSizeType);
 
 			// Free-sized access of buffered data
     bool		isAvailable(FilePosType,FileSizeType) const;
@@ -130,6 +131,36 @@ protected:
 
     TypeSet<BlockIdxType> liveblockidxs_;
     BlockIdxType	maxnrliveblocks_;
+
+    virtual void	handleNewLiveBlock(BlockIdxType);
+
+};
+
+
+/*!< Write Cache.
+
+  When writing, we need a buffer to write data to. To allow jumping around a
+  bit, we'll have to retain the first block (so a header can be updated later),
+  and a couple of blocks before the last block. Therefore, the cache assumes
+  writing steadily on, with maybe going back to the first block, or one of the
+  near previous ones. Random jumping around may lead to bad stuff.
+
+*/
+
+mExpClass(Network) WriteCache : public FileCache
+{
+public:
+
+			WriteCache();
+			~WriteCache();
+
+    virtual void	clearData();
+    virtual void	setMinCacheSize(FileSizeType);
+
+
+protected:
+
+    BlockIdxType	nrblocksmem_;
 
     virtual void	handleNewLiveBlock(BlockIdxType);
 

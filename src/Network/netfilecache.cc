@@ -11,7 +11,9 @@ ________________________________________________________________________
 #include "netfilecache.h"
 
 //! read cache size unless more needed by a caller
-static const Network::ReadCache::BlockIdxType cStartMaxLiveBlocks = 10;
+static const Network::ReadCache::BlockIdxType cReadInitialNrLiveBlocks = 10;
+//! write cache buffer so write ptr can be moved back
+static const Network::WriteCache::BlockIdxType cWriteInitialNrBlocksMemory = 10;
 
 const Network::FileCache::BlockSizeType
 	Network::FileCache::Block::cFullSize = 2097152; // 2 MB
@@ -160,7 +162,7 @@ const Network::FileCache::BufType* Network::FileCache::getBlock(
 
 Network::ReadCache::ReadCache( FileSizeType knownfilesz )
     : FileCache(knownfilesz)
-    , maxnrliveblocks_(cStartMaxLiveBlocks)
+    , maxnrliveblocks_(cReadInitialNrLiveBlocks)
 {
 }
 
@@ -184,7 +186,6 @@ void Network::ReadCache::setMinCacheSize( FileSizeType csz )
     if ( reqnrblks > maxnrliveblocks_ )
 	maxnrliveblocks_ = reqnrblks;
 }
-
 
 
 void Network::ReadCache::handleNewLiveBlock( BlockIdxType addedblockidx )
@@ -266,11 +267,16 @@ Network::ReadCache::FileChunkSetType Network::ReadCache::stillNeededDataFor(
 		FilePosType pos, ChunkSizeType nrbytes ) const
 {
     FileChunkSetType ret;
-    const FilePosType lastfilepos = lastFilePos();
-    if ( size() < 1 || nrbytes < 1 || pos > lastfilepos )
+    if ( nrbytes < 1 )
 	return ret;
 
+    FilePosType lastfilepos = lastFilePos();
     FilePosType lastpos = pos + nrbytes - 1;
+    if ( lastfilepos < 1 )
+	lastfilepos = lastpos;
+    else if ( size() < 1 || pos > lastfilepos )
+	return ret;
+
     if ( lastpos > lastfilepos )
     {
 	lastpos = lastfilepos;
@@ -280,7 +286,7 @@ Network::ReadCache::FileChunkSetType Network::ReadCache::stillNeededDataFor(
     const BlockIdxType lastbidx = blockIdx( lastpos );
     for ( BlockIdxType bidx=blockIdx(pos); bidx<=lastbidx; bidx++ )
     {
-	if ( !blocks_[bidx] )
+	if ( !isLiveBlock(bidx) )
 	{
 	    const FilePosType blockstart = blockStart( bidx );
 	    FilePosType blockend = blockstart + Block::cFullSize - 1;
@@ -322,3 +328,37 @@ bool Network::ReadCache::setData( FileChunkType chunk, const BufType* data )
 
 
 //---- Write Cache
+
+
+Network::WriteCache::WriteCache()
+    : FileCache(0)
+    , nrblocksmem_(cWriteInitialNrBlocksMemory)
+{
+}
+
+
+Network::WriteCache::~WriteCache()
+{
+}
+
+
+void Network::WriteCache::clearData()
+{
+    clearBlocks();
+}
+
+
+void Network::WriteCache::handleNewLiveBlock( BlockIdxType addedblockidx )
+{
+    if ( addedblockidx > nrblocksmem_ + 1 )
+	dismissBlock( addedblockidx - nrblocksmem_ - 1 );
+}
+
+
+void Network::WriteCache::setMinCacheSize( FileSizeType csz )
+{
+    BlockIdxType reqnrblks = 1; // always keep first and last
+    reqnrblks += (BlockIdxType)(csz / Block::cFullSize) + 2;
+    if ( reqnrblks > nrblocksmem_ )
+	nrblocksmem_ = reqnrblks;
+}
