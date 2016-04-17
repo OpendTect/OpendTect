@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mpeengine.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
 #include "threadwork.h"
@@ -92,6 +93,8 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
     }
 
+    if ( MPE::engine().hasTracker(emid_) )
+	MPE::engine().unRefTracker( emid_ );
     delete uivisemobj_;
 }
 
@@ -106,6 +109,9 @@ bool uiODEarthModelSurfaceTreeItem::init()
 
     if ( !uiODDisplayTreeItem::init() )
 	return false;
+
+    if ( MPE::engine().hasTracker(emid_) )
+	MPE::engine().refTracker( emid_ );
 
     initNotify();
     return true;

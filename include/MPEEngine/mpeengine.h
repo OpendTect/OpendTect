@@ -202,6 +202,10 @@ public:
     void			setActivePath(const TrcKeyPath*);
     int				activeRandomLineID() const;
     void			setActiveRandomLineID(int);
+
+    void			refTracker(EM::ObjectID);
+    void			unRefTracker(EM::ObjectID,bool nodel=false);
+    bool			hasTracker(EM::ObjectID) const;
 };
 
 

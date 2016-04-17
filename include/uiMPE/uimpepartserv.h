@@ -167,6 +167,9 @@ protected:
 private:
     static uiString		sYesAskGoOnStr();
     static uiString		sNoAskGoOnStr();
+
+public:
+    void			fillTrackerSettings(int trackerid);
 };
 
 #endif

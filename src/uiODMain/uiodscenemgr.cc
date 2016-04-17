@@ -1227,9 +1227,6 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     else
 	return -1;
 
-    if (  MPE::engine().getTrackerByObject(obj->id()) != -1 )
-	MPE::engine().addTracker( obj );
-
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }

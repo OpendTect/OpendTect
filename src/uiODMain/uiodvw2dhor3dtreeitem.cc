@@ -138,14 +138,14 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    emid = emids[emidx];
 
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
-	if ( emobj )
+	if ( !emobj )
 	{
-	    MPE::engine().addTracker( emobj );
-	    MPE::engine().setActiveTracker( emobj->id() );
+	// This will add the 3D scene item.
+	    const bool res = mps->addTracker( EM::Horizon3D::typeStr(),
+					      viewer2D()->getSyncSceneID() );
+	    if ( !res )
+		return true;
 	}
-	else if ( !mps->addTracker(EM::Horizon3D::typeStr(),
-				   viewer2D()->getSyncSceneID()) )
-	    return true;
 
 	const MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	if ( !tracker )
@@ -159,7 +159,6 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	addNewTrackingHorizon3D( emid );
 	applMgr()->viewer2DMgr().addNewTrackingHorizon3D(
 		emid, viewer2D()->getSyncSceneID() );
-	MPE::engine().removeTracker( trackid );
 	mps->enableTracking( trackid, true );
     }
     else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
@@ -237,26 +236,26 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const bool istracking =
-	    MPE::engine().getTrackerByObject(emidstobeloaded[idx]) != -1;
-	if ( istracking )
+	const bool hastracker =
+	    MPE::engine().hasTracker( emidstobeloaded[idx] );
+	if ( hastracker )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
-	    const int trackid = MPE::engine().addTracker( emobj );
 	    MPE::engine().getEditor( emobj->id(), true );
 	    if ( viewer2D() && viewer2D()->viewControl() )
 		viewer2D()->viewControl()->setEditMode( true );
-	    MPE::engine().removeTracker( trackid );
-	    applMgr()->mpeServer()->enableTracking( trackid, true );
+	    const int trackeridx =
+		MPE::engine().getTrackerByObject( emidstobeloaded[idx] );
+	    applMgr()->mpeServer()->enableTracking( trackeridx, true );
 	}
 
 	uiODVw2DHor3DTreeItem* childitem =
 	    new uiODVw2DHor3DTreeItem( emidstobeloaded[idx] );
 	addChld( childitem, false, false);
-	if ( istracking )
+	if ( hastracker )
 	    childitem->select();
     }
 }
@@ -276,11 +275,7 @@ void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
     uiODVw2DHor3DTreeItem* hortreeitem = new uiODVw2DHor3DTreeItem( emid );
     const int trackid = applMgr()->mpeServer()->getTrackerID( emid );
     if ( trackid>=0 )
-    {
-	EM::EMObject* emobj = EM::EMM().getObject( emid );
-	MPE::engine().addTracker( emobj );
 	MPE::engine().getEditor( emid, true );
-    }
 
     addChld( hortreeitem, false, false );
     if ( viewer2D() && viewer2D()->viewControl() )
@@ -306,8 +301,8 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
     , oldactivevolupdated_(false)
     , trackerefed_(false)
 {
-    if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-	trackerefed_ = true;
+    if ( MPE::engine().hasTracker(emid_) )
+	MPE::engine().refTracker( emid_ );
 }
 
 
@@ -344,15 +339,11 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
     {
 	emobj->change.remove( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
 
-	if ( trackerefed_ )
+	EM::ObjectID emid = emobj->id();
+	if ( MPE::engine().hasTracker(emid) )
 	{
-	    const int trackeridx =
-				MPE::engine().getTrackerByObject( emobj->id() );
-	    if ( trackeridx >= 0 )
-	    {
-		MPE::engine().removeEditor( emobj->id() );
-		MPE::engine().removeTracker( trackeridx );
-	    }
+	    MPE::engine().removeEditor( emid );
+	    MPE::engine().unRefTracker( emid );
 	}
     }
 
@@ -453,33 +444,6 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	default: break;
     }
-}
-
-
-bool uiODVw2DHor3DTreeItem::select()
-{
-    if ( uitreeviewitem_->treeView() )
-	uitreeviewitem_->treeView()->deselectAll();
-
-    uitreeviewitem_->setSelected( true );
-
-    if ( !trackerefed_ )
-    {
-	if (  MPE::engine().getTrackerByObject(emid_) != -1 )
-	{
-	    MPE::engine().addTracker( EM::EMM().getObject(emid_) );
-	    MPE::engine().getEditor( emid_, true );
-	    trackerefed_ = true;
-	}
-    }
-
-    if ( horview_ )
-    {
-	viewer2D()->dataMgr()->setSelected( horview_ );
-	horview_->selected( isChecked() );
-    }
-
-    return true;
 }
 
 
@@ -620,8 +584,33 @@ void uiODVw2DHor3DTreeItem::checkCB( CallBacker* )
 }
 
 
+bool uiODVw2DHor3DTreeItem::select()
+{
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->deselectAll();
+
+    uitreeviewitem_->setSelected( true );
+
+    if ( horview_ )
+    {
+	viewer2D()->dataMgr()->setSelected( horview_ );
+	horview_->selected( isChecked() );
+    }
+
+    const int trackeridx =
+	MPE::engine().getTrackerByObject( emid_ );
+    applMgr()->mpeServer()->enableTracking( trackeridx, true );
+
+    return true;
+}
+
+
 void uiODVw2DHor3DTreeItem::deSelCB( CallBacker* )
 {
+    const int trackeridx =
+	MPE::engine().getTrackerByObject( emid_ );
+    applMgr()->mpeServer()->enableTracking( trackeridx, false );
+
     //TODO handle on/off MOUSEEVENT
 }
 
