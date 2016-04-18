@@ -55,6 +55,23 @@ private:
 
 };
 
+class FileUploadMgr : public WriteCache
+{
+public:
+
+			FileUploadMgr(const char* fnm);
+
+    uiString		errmsg_;
+
+private:
+
+#ifndef OD_NO_QT
+    const QUrl		url_;
+#endif
+    typedef ObjectSet<ODNetworkReply> ReplySet;
+
+};
+
 } // namespace Network
 
 
@@ -222,37 +239,84 @@ void Network::FileDownloadMgr::getDataFromReplies(
 }
 
 
+Network::FileUploadMgr::FileUploadMgr( const char* fnm )
+    : url_(fnm)
+{
+}
+
+
 // webstreambufs
 
 namespace Network
 {
 
-/*!\brief std::streambuf to for files on web servers */
+/*!\brief base streambuf class for the web stream bufs */
 
-class webistreambuf : public std::streambuf
+class webstreambuf : public std::streambuf
 {
 public:
 
-    typedef ReadCache::FileSizeType	FileSizeType;
-    typedef ReadCache::FilePosType	FilePosType;
-    typedef ReadCache::BufType		BufType;
-    typedef ReadCache::BlockIdxType	BlockIdxType;
-    typedef ReadCache::BlockSizeType	BlockSizeType;
+    typedef FileCache::FileSizeType	FileSizeType;
+    typedef FileCache::FilePosType	FilePosType;
+    typedef FileCache::BufType		BufType;
+    typedef FileCache::BlockIdxType	BlockIdxType;
+    typedef FileCache::BlockSizeType	BlockSizeType;
+
+webstreambuf()
+    : curbidx_(-1)
+{
+}
+
+virtual std::ios::pos_type seekoff( std::ios::off_type offs,
+				    std::ios_base::seekdir sd,
+				    std::ios_base::openmode which )
+{
+    std::ios::pos_type newpos = offs;
+    if ( sd == std::ios_base::cur )
+	newpos = curPos() + offs;
+    else if ( sd == std::ios_base::end )
+	newpos = cache().size() - offs;
+
+    return seekpos( newpos, which );
+}
+
+virtual std::ios::pos_type seekpos( std::ios::pos_type newpos,
+				    std::ios_base::openmode )
+{
+    if ( goTo(newpos) )
+	return curPos();
+    return -1;
+}
+
+inline int eofVal() const
+{
+    return std::char_traits<char>::eof();
+}
+
+    BlockIdxType		curbidx_;
+
+    virtual FileCache&		cache()			= 0;
+    virtual FilePosType		curPos() const		= 0;
+    virtual bool		goTo(FilePosType)	= 0;
+
+};
+
+
+/*!\brief std::streambuf to access files on web servers */
+
+class webistreambuf : public webstreambuf
+{
+public:
 
 webistreambuf( const char* url )
     : mgr_(url)
-    , curbidx_(-1)
 {
     setGPtrs( 0, false );
 }
 
 ~webistreambuf()
 {
-}
-
-inline FilePosType curPos() const
-{
-    return curbidx_ < 0 ? 0 : (mgr_.blockStart( curbidx_ ) + gptr() - eback());
+    // keep for easier debugging
 }
 
 void setGPtrs( FilePosType newpos, bool isvalid )
@@ -268,37 +332,21 @@ void setGPtrs( FilePosType newpos, bool isvalid )
     }
 }
 
-bool goTo( FilePosType newpos )
+virtual FilePosType curPos() const
+{
+    return curbidx_ < 0 ? 0 : (mgr_.blockStart( curbidx_ ) + gptr() - eback());
+}
+
+virtual bool goTo( FilePosType newpos )
 {
     if ( newpos < 0 )
 	newpos = 0;
-    if ( newpos >= mgr_.size() )
+    if ( mgr_.size() > 0 && newpos >= mgr_.size() )
 	newpos = mgr_.size();
 
     bool isvalid = mgr_.goTo(newpos,curbidx_) && mgr_.validBlockIdx(curbidx_);
     setGPtrs( newpos, isvalid );
     return isvalid;
-}
-
-virtual std::ios::pos_type seekoff( std::ios::off_type offs,
-				    std::ios_base::seekdir sd,
-				    std::ios_base::openmode which )
-{
-    std::ios::pos_type newpos = offs;
-    if ( sd == std::ios_base::cur )
-	newpos = curPos() + offs;
-    else if ( sd == std::ios_base::end )
-	newpos = mgr_.size() - offs;
-
-    return seekpos( newpos, which );
-}
-
-virtual std::ios::pos_type seekpos( std::ios::pos_type newpos,
-				    std::ios_base::openmode )
-{
-    if ( goTo(newpos) )
-	return curPos();
-    return -1;
 }
 
 virtual int underflow()
@@ -309,7 +357,7 @@ virtual int underflow()
 	if ( curbidx_ < 0 )
 	    curbidx_ = -1;
 	else if ( !mgr_.validBlockIdx(curbidx_) )
-	    return std::char_traits<char>::eof();
+	    return eofVal();
     }
     else if ( curgptr < egptr() )
     {
@@ -321,7 +369,7 @@ virtual int underflow()
     if ( !mgr_.validBlockIdx(newbidx) || !goTo(mgr_.blockStart(newbidx)) )
     {
 	setGPtrs( 0 , false );
-	return std::char_traits<char>::eof();
+	return eofVal();
     }
 
     return (int)(*gptr());
@@ -349,13 +397,102 @@ virtual std::streamsize xsgetn( std::ios::char_type* buftofill,
 }
 
     Network::FileDownloadMgr	mgr_;
-    BlockIdxType		curbidx_;
+    virtual FileCache&		cache()			{ return mgr_; }
+
+};
+
+/*!\brief std::streambuf to access files on web servers */
+
+class webostreambuf : public webstreambuf
+{
+public:
+
+webostreambuf( const char* url )
+    : mgr_(url)
+{
+    setPPtrs( 0, false );
+}
+
+~webostreambuf()
+{
+    // keep for easier debugging
+}
+
+void setPPtrs( FilePosType newpos, bool isvalid )
+{
+    if ( !isvalid )
+	setp( 0, 0 );
+    else
+    {
+	char* cbuf = (char*)mgr_.getBlock( curbidx_ );
+	setp( cbuf, cbuf + mgr_.blockSize(curbidx_) );
+	const FilePosType blockstart = mgr_.blockStart( curbidx_ );
+	if ( newpos > blockstart )
+	    pbump( newpos - blockstart );
+    }
+}
+
+virtual FilePosType curPos() const
+{
+    return curbidx_ < 0 ? 0 : (mgr_.blockStart( curbidx_ ) + pptr() - pbase());
+}
+
+virtual bool goTo( FilePosType newpos )
+{
+    if ( newpos < 0 )
+	newpos = 0;
+    //TODO
+    return false;
+}
+
+virtual int overflow( int toput )
+{
+    char* curpptr = pptr();
+    if ( !curpptr )
+    {
+	if ( curbidx_ < 0 )
+	    curbidx_ = -1;
+	else if ( !mgr_.validBlockIdx(curbidx_) )
+	{
+	    //TODO add block
+	    return eofVal();
+	}
+    }
+    else if ( curpptr < epptr() )
+    {
+	// overflow should not have been called?
+	*curpptr = (BufType)toput;
+	return toput;
+    }
+
+    int newbidx = curbidx_ + 1;
+    if ( !mgr_.validBlockIdx(newbidx) || !goTo(mgr_.blockStart(newbidx)) )
+    {
+	setPPtrs( 0, false );
+	return eofVal();
+    }
+
+    *pptr() = (BufType)toput;
+    return toput;
+}
+
+virtual std::streamsize xsputn( const std::ios::char_type* buftoput,
+				std::streamsize nrbytes )
+{
+    if ( nrbytes < 1 )
+	return nrbytes;
+
+    //TODO
+    return 0;
+}
+
+    Network::FileUploadMgr	mgr_;
+    virtual FileCache&		cache()			{ return mgr_; }
 
 };
 
 
 // webstreams
-
 
 /*!\brief Adapter using web services to access files as streams */
 
@@ -368,6 +505,22 @@ webistream( webistreambuf* sb )
 {}
 
 ~webistream()
+{ delete rdbuf(); }
+
+};
+
+
+/*!\brief Adapter using web services to write files as streams */
+
+class webostream : public std::ostream
+{
+public:
+
+webostream( webostreambuf* sb )
+    : std::ostream(sb)
+{}
+
+~webostream()
 { delete rdbuf(); }
 
 };
@@ -389,11 +542,9 @@ bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
     if ( typ == Read )
 	sd.istrm = new Network::webistream(
 			new Network::webistreambuf(sd.fileName()) );
-    /*
     else if ( typ == Write )
 	sd.ostrm = new Network::webostream(
 			new Network::webostreambuf(sd.fileName()) );
-    */
 
     return sd.usable();
 }
