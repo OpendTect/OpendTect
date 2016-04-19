@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiTextItem;
 template <class T> class Array2D;
+template <class T> class Array3D;
 namespace Stats { template <class T> class ParallelCalc; }
 
 class DataPointSet;
@@ -33,6 +34,7 @@ public:
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
+    void			setData(const Array3D<float>*);
     void			setData(const DataPointSet&);
 
     void			useDrawRange(bool yn);
@@ -44,15 +46,15 @@ public:
 					     Interval<float>,int N=-1);
 
     const Stats::ParallelCalc<float>&	getStatCalc()	{ return rc_; }
-    int                         nrInpVals() const       { return nrinpvals_; }
-    int				nrClasses() const       { return nrclasses_; }
+    int				nrInpVals() const	{ return nrinpvals_; }
+    int				nrClasses() const	{ return nrclasses_; }
     void			putN();
 
 protected:
 
     Stats::ParallelCalc<float>&	rc_;
-    int                         nrinpvals_;
-    int                         nrclasses_;
+    int				nrinpvals_;
+    int				nrclasses_;
     bool			withheader_;
     uiTextItem*			header_;
     uiTextItem*			nitm_;
