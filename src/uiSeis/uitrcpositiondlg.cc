@@ -148,7 +148,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	inlfld_->box()->setValue( cs.hsamp_.inlRange().snappedCenter() );
 	crlfld_->setInterval( cs.hsamp_.crlRange() );
 	crlfld_->setValue( cs.hsamp_.crlRange().snappedCenter() );
-	DPM( DataPackMgr::SeisID() ).release( dpfid.ID(1) );
+
 	zrg_ = cs.zsamp_;
     }
 
