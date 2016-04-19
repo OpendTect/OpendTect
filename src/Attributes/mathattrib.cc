@@ -215,8 +215,7 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 		case 2 :   inpvals += mCast( double, currentbid_.crl() ); break;
 		case 3 :   inpvals += SI().transform(currentbid_).x; break;
 		case 4 :   inpvals += SI().transform(currentbid_).y; break;
-		case 5 :   inpvals += mCast( double,
-					(z0+idx)*refstep_*zFactor() ); break;
+		case 5 :   inpvals += mCast( double,(z0+idx)*refstep_ ); break;
 	    }
 	    if ( specidx >=0 )
 	    {
