@@ -650,7 +650,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 
     for ( int idx=0; idx<objstobeloaded.size(); idx++ )
 	objstobeloaded[idx]->setBurstAlert( false );
-	deepUnRef( objstobeloaded );
+    deepUnRef( objstobeloaded );
 
 }
 
