@@ -3,6 +3,71 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+v6.0.2: April 19, 2016
+ * Introduced multiple horizon tracking in 2D Viewers
+ * Implemented compression for SEG-Y scan file offset table
+ * Fix for creating 2D seismic attribute using batch mode
+ * Fix for crash while saving sessions with unsaved PickSets
+ * Fix for importing 2D segy with option 'keep existing geometry'
+ * Fix for displaying new tracked horizon when restoring a session
+   with horizon displayed
+ * Fix for random line(s) display after session restore
+ * Fix for horizon intersection positions in 2D viewers
+ * 'Track New' option disabled for 2D Viewers where tracking is not possible
+ * Aborting of tracking now removes horizon from 2D Viewers
+ * Fix for crash while creating horizon data using 'Store Z as attribute'
+   option after removing horizon from horizon 3D manager
+ * Fix for saving pickset using 'Save as' option
+ * Fix for crash while displaying Texture attribute
+ * Fix for loading default random line in tree
+ * For for crash when closing OpendTect after 3D auto-track
+ * Fix for displaying seeds on random line when horizon displayed Only at
+   sections
+ * Fix for popping wrong error message while saving tracked horizon
+ * Fix for updating log names in well display properties window after
+   creating new log from rock physics
+ * Switched icons for compressing/extracting surveys to/from zip archives
+ * Fix for editing Well marker color
+ * Fix for grid lines being displayed on the last Inline/Crossline/Z section
+ * Fix for more than one items highlighted in the 2D viewer tree
+ * Fix for closing well properties window after removing well from tree
+ * Fix for seed size while interpreting 3D horizons in 2D viewers
+ * Fix for proper mouse cursor status in Thalweg tracker or Fingerprint
+   attribute
+ * Fix for problems while assigning attributes to variables in Mathematics
+   attribute
+ * Fix for Random line(made from polygon) Z-Range between 3D scene and
+   2D viewer
+ * Fix for saving 3D horizons when there are more than one horizons
+   in the tree
+ * Improvement in display speed for the "display at section" mode of horizons
+ * Fix for bulk import of well Time/Depth models
+ * Fix for displaying wavelet  in depth survey
+ * Fix for crash when extracting a horizon attribute data along wells for a
+   single marker
+ * Fix for tube display of 3D horizons displayed at sections
+ * Added missing options to extract data in crossplot
+ * Fix for crash while selecting multiple attribute components for volume
+ * Fix for crash when moving a random line after pre-loading
+   a multi-attribute cube
+ * Some improvements in fault and fault stick editor in 2dviewer
+ * Fix for crash while displaying picksets in 2d viewer
+ * Fix for adding a new column in cross-plot table
+ * Fix for colour Table range not auto-set when selecting ONE component
+   of multi-attribute cubes
+ * Fix for crash when closing the well tie window
+ * Fix for range field not updating while changing to other survey for "Create
+   horizons with constant Z" dialog
+ * Fix for saving of selection groups in crossplot
+ * Points within a selection in CrossPlot now have the color of the
+   selection group
+ * Fix for crash while displaying selectedness as overlay attribute in
+   crossplot
+ * Fix for problem in moving stratigraphic units
+ * Fix for 2D Horizon tracking issues outside the survey box.
+ * Fix for zero body volume
+ * Fix for 2D Horizon seeds no following 'Display at sections' mode
+
 v6.0.1: March 10, 2016
  * Added Presentation Maker plugin
  * Package removal is supported in installer
