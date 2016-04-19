@@ -316,9 +316,9 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( nrfound && procman->process() )
 	{
-	    const DataPack* dp =
-		DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
-	    mDynamicCastGet( const Gather*, gather, dp );
+            RefMan<PreStack::Gather> gather =
+            	DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>(procman->getOutput());
+
 	    if ( gather )
 	    {
 		const int nrtraces =
@@ -357,8 +357,6 @@ bool BatchProgram::go( od_ostream& strm )
 			mRetError(tr("\nCannot write output"));
 		    }
 		}
-
-		DPM(DataPackMgr::FlatID()).release( dp );
 	    }
 
 	    ++progressmeter;

@@ -22,6 +22,8 @@ ________________________________________________________________________
 # include <QUrl>
 #endif
 
+#include <iostream>
+
 
 namespace Network
 {

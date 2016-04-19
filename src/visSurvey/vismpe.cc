@@ -88,10 +88,8 @@ MPEDisplay::~MPEDisplay()
     detachAllNotifiers();
     setSceneEventCatcher( 0 );
 
-    DPM( DataPackMgr::SeisID() ).release( cacheid_ );
-    if ( volumecache_ )
-	DPM( DataPackMgr::SeisID() ).release( volumecache_ );
-
+    DPM( DataPackMgr::SeisID() ).unRef( cacheid_ );
+    
     TypeSet<int> children;
     getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
@@ -247,11 +245,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     as_[0] = as;
 
     // empty the cache first
-    if ( volumecache_ )
-    {
-	DPM(DataPackMgr::SeisID()).release( volumecache_ );
-	volumecache_ = 0;
-    }
+    volumecache_ = 0;
 
     channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 
@@ -775,20 +769,17 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( attrib != 0 || dpid == DataPack::cNoID() ) return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::SeisID() );
-    const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const RegularSeisDataPack*,cdp,datapack);
-
+    ConstRefMan<RegularSeisDataPack> cdp =
+    	dpman.getAndCast<RegularSeisDataPack>( dpid );
+    
     const bool res = setDataVolume( attrib, cdp, tr );
     if ( !res )
     {
-	dpman.release( dpid );
 	return false;
     }
 
     if ( volumecache_ != cdp )
     {
-	if (volumecache_ )
-	    dpman.release( volumecache_ );
 	volumecache_ = cdp;
     }
 
@@ -803,7 +794,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 	return false;
 
     DataPack::ID attrib_dpid = cdp->id();
-    DPM( DataPackMgr::SeisID() ).obtain( attrib_dpid );
+    DPM( DataPackMgr::SeisID() ).ref( attrib_dpid );
 
     //transform data if necessary.
     const char* zdomain = getSelSpec( attrib )->zDomainKey();
@@ -826,19 +817,19 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 	    return false;
 	}
 
-	DPM( DataPackMgr::SeisID() ).obtain( cdp->id() );
-	DPM( DataPackMgr::SeisID() ).release( attrib_dpid );
+	DPM( DataPackMgr::SeisID() ).ref( cdp->id() );
+	DPM( DataPackMgr::SeisID() ).unRef( attrib_dpid );
 	attrib_dpid = cdp->id();
     }
 
-    DPM(DataPackMgr::SeisID()).release( cacheid_ );
+    DPM(DataPackMgr::SeisID()).unRef( cacheid_ );
     cacheid_ = attrib_dpid;
 
     bool retval = updateFromCacheID( attrib, tr );
     if ( !retval )
 	channels_->turnOn( false );
 
-    DPM( DataPackMgr::SeisID() ).release( attrib_dpid );
+    DPM( DataPackMgr::SeisID() ).unRef( attrib_dpid );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 

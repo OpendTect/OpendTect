@@ -2125,11 +2125,11 @@ void HorizonDisplay::setDisplayDataPackIDs( int attrib,
 {
     TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).unRef( dpids[idx] );
 
     dpids = newdpids;
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).ref( dpids[idx] );
 }
 
 

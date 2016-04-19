@@ -29,12 +29,12 @@ public:
 
     void			setInput( const SeisDataPack* dp )
 				{ inputdp_ = dp; }
-    void			setOutput( DataPack::ID& dpid )
-				{ outputid_ = &dpid; dpid = DataPack::cNoID(); }
     void			setOutputZRange( const StepInterval<float>& zrg)
 				{ zrange_ = zrg; }
     void			setInterpolate( bool yn )
 				{ interpolate_ = yn; }
+    
+    RefMan<SeisDataPack>	getOutput() { return outputdp_; }
 
 protected:
 
@@ -49,8 +49,7 @@ protected:
     StepInterval<float>		zrange_;
 
     ConstRefMan<DataPack>	inputdp_;
-    SeisDataPack*		outputdp_;
-    DataPack::ID*		outputid_;
+    RefMan<SeisDataPack>	outputdp_;
 };
 
 #endif

@@ -124,6 +124,7 @@ mExpClass(General) MapDataPack : public FlatDataPack
 public:
 				MapDataPack(const char* cat,
 					    Array2D<float>*);
+    				//!<Array becomes mine
 				~MapDataPack();
 
     Array2D<float>&		data();

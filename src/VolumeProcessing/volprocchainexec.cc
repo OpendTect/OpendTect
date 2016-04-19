@@ -435,9 +435,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 }
 
 
-const RegularSeisDataPack* VolProc::ChainExecutor::Epoch::getOutput() const
+RegularSeisDataPack* VolProc::ChainExecutor::Epoch::getOutput() const
 {
-    return steps_[steps_.size()-1] ? steps_[steps_.size()-1]->getOutput() : 0;
+    return steps_[steps_.size()-1]
+        ? const_cast<RegularSeisDataPack*>(
+                                steps_[steps_.size()-1]->getOutput().ptr())
+        : 0;
 }
 
 
@@ -445,6 +448,12 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 {
     return outputdp_;
 }
+
+RegularSeisDataPack* VolProc::ChainExecutor::getOutput()
+{
+    return outputdp_;
+}
+
 
 
 #define mCleanUpAndRet( ret ) \

@@ -46,9 +46,9 @@ protected:
 					       SamplingData<float>&,
 					       int& nrsamp) const;
 
-    FlatView::Viewer&		viewer_;
-    const PreStack::Gather*	inputwvagather_;
-    const PreStack::Gather*	inputvdgather_;
+    FlatView::Viewer&			viewer_;
+    ConstRefMan<PreStack::Gather>	inputwvagather_;
+    ConstRefMan<PreStack::Gather>	inputvdgather_;
 };
 
 

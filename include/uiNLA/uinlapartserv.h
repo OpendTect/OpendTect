@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "bufstringset.h"
 #include "uistring.h"
+#include "ptrman.h"
 
 class DataPointSet;
 class DataPointSetDisplayMgr;
@@ -80,8 +81,8 @@ public:
     			// Following should be filled on events
     BufferStringSet&	inputNames()			{ return inpnms_; }
     const BufferStringSet& inputNames() const		{ return inpnms_; }
-    DataPointSet&	dps()				{ return gtDps(); }
-    const DataPointSet&	dps() const			{ return gtDps(); }
+    RefMan<DataPointSet>	dps()			{ return gtDps(); }
+    ConstRefMan<DataPointSet>	dps() const		{ return gtDps(); }
     IOPar&		storePars()			{ return storepars_; }
     const IOPar&	storePars() const		{ return storepars_; }
 
@@ -100,7 +101,7 @@ public:
 
 protected:
 
-    DataPointSet*	dps_;
+    RefMan<DataPointSet> dps_;
     uiDataPointSet*	uidps_;
     BufferStringSet	inpnms_;
     bool		is2d_;
@@ -125,7 +126,7 @@ protected:
 	void		fillCols(PosVecDataSet&,const int);
     };
 
-    DataPointSet&	gtDps() const;
+    RefMan<DataPointSet>	gtDps() const;
 
 };
 

@@ -63,18 +63,6 @@ PropCalc::~PropCalc()
 
 void PropCalc::removeGather()
 {
-    if ( gather_ )
-    {
-	DPM(DataPackMgr::FlatID()).release( gather_->id() );
-	gather_ = 0;
-    }
-
-    if ( angledata_ )
-    {
-	DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-	angledata_ = 0;
-    }
-
     delete [] innermutes_;
     innermutes_ = outermutes_ = 0;
 }
@@ -84,11 +72,10 @@ void PropCalc::setGather( DataPack::ID id )
 {
     removeGather();
 
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
-    mDynamicCastGet( Gather*, g, dp );
-    if ( g )
+    gather_ = DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>( id );
+
+    if ( gather_ )
     {
-	gather_ = g;
 	const int nroffsets = gather_->size( !gather_->offsetDim() );
 	mTryAlloc( innermutes_, int[nroffsets*2] );
 	if ( innermutes_ )
@@ -99,24 +86,12 @@ void PropCalc::setGather( DataPack::ID id )
 	    gather_->detectInnerMutes( innermutes_, 0 );
 	}
     }
-    else if ( dp )
-	DPM(DataPackMgr::FlatID()).release( id );
 }
 
 
 void PropCalc::setAngleData( DataPack::ID id )
 {
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
-    mDynamicCastGet( Gather*, angledata, dp );
-
-    if ( angledata )
-    {
-	if ( angledata_ )
-	    DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-	angledata_ = angledata;
-    }
-    else
-	DPM(DataPackMgr::FlatID()).release( id );
+    angledata_ = DPM(DataPackMgr::FlatID()).getAndCast<Gather>( id );
 }
 
 

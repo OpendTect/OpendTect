@@ -189,8 +189,9 @@ protected:
     visBase::DrawStyle*		polylineds_;
     visBase::TexturePanelStrip* panelstrip_;
 
-    TypeSet<DataPack::ID>	datapackids_;
-    TypeSet<DataPack::ID>	transfdatapackids_;
+    RefObjectSet<RegularSeisDataPack>	datapacks_;
+    RefObjectSet<RegularSeisDataPack>	transformedpacks_;
+
     MultiID			datasetid_;
 
     PosInfo::Line2DData&	geometry_;

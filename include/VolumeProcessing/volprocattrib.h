@@ -75,7 +75,8 @@ public:
 
     bool		setTargetSelSpec(const Attrib::SelSpec&);
 
-    virtual DataPack::ID createAttrib(const TrcKeyZSampling&,DataPack::ID,
+    virtual RefMan<RegularSeisDataPack>
+    			createAttrib(const TrcKeyZSampling&,DataPack::ID,
 				     TaskRunner*);
     virtual bool	createAttrib( ObjectSet<BinIDValueSet>& o,
 				      TaskRunner* trans )
@@ -85,7 +86,8 @@ public:
 			{ 
 			return Attrib::ExtAttribCalc::createAttrib(b,tb,trans); 
 			}
-    virtual DataPack::ID createAttrib( const TrcKeyZSampling& cs, 
+    virtual RefMan<RegularSeisDataPack>
+    			createAttrib( const TrcKeyZSampling& cs,
 				       const LineKey& lk, TaskRunner* trans )
 			{ return Attrib::ExtAttribCalc::createAttrib(
 						cs, lk, trans ); }

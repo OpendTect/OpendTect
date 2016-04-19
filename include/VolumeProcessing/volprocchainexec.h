@@ -36,6 +36,7 @@ public:
     bool			needsFullVolume() const;
 
     const RegularSeisDataPack*	getOutput() const;
+    RegularSeisDataPack*	getOutput();
     uiString			errMsg() const;
 
     virtual int			nextStep();
@@ -62,7 +63,7 @@ private:
 	Task&			getTask()		{ return taskgroup_; }
 
 	bool			needsStepOutput(Step::ID) const;
-	const RegularSeisDataPack* getOutput() const;
+	RegularSeisDataPack*	getOutput() const;
 
     private:
 
@@ -90,7 +91,7 @@ private:
     Chain::Web			web_;
     int				totalnrepochs_;
 
-    const RegularSeisDataPack*	outputdp_;
+    RegularSeisDataPack*	outputdp_;
 
 };
 

@@ -102,7 +102,6 @@ void uiStatsDisplay::setDataName( const char* nm )
 
 bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
-    TypeSet<float> valarr;
     if ( !histgramdisp_ ||
 	 (histgramdisp_ && !histgramdisp_->setDataPackID(dpid,dmid)) )
     {
@@ -114,13 +113,15 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 						.require(Stats::StdDev)
 						.require(Stats::RMS)) );
 
+        TypeSet<float> valarr;
+
 	DataPackMgr& dpman = DPM( dmid );
-	const DataPack* datapack = dpman.obtain( dpid );
+	ConstRefMan<DataPack> datapack = dpman.get( dpid );
 	if ( !datapack ) return false;
 
 	if ( dmid == DataPackMgr::SeisID() )
 	{
-	    mDynamicCastGet(const SeisDataPack*,sdp,datapack);
+	    mDynamicCastGet(const SeisDataPack*,sdp,datapack.ptr());
 	    const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
 	    if ( !arr3d ) return false;
 
@@ -130,8 +131,8 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	else if ( dmid == DataPackMgr::FlatID() )
 	{
 	    const Array2D<float>* array = 0;
-	    mDynamicCastGet(const FlatDataPack*,fdp,datapack);
-	    mDynamicCastGet(const MapDataPack*,mdp,datapack);
+	    mDynamicCastGet(const FlatDataPack*,fdp,datapack.ptr());
+	    mDynamicCastGet(const MapDataPack*,mdp,datapack.ptr());
 	    if ( mdp )
 		array = &mdp->rawData();
 	    else if ( fdp )
@@ -163,7 +164,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	}
 	else if ( dmid == DataPackMgr::SurfID() )
 	{
-	    mDynamicCastGet(const DataPointSet*,dpset,datapack)
+	    mDynamicCastGet(const DataPointSet*,dpset,datapack.ptr())
 	    if ( !dpset )
 		return false;
 
@@ -173,7 +174,10 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    rc.setValues( valarr.arr(), valarr.size() );
 	}
 	if ( !rc.execute() )
-	    { uiMSG().error( rc.errMsg() ); return false; }
+        {
+            uiMSG().error( rc.errMsg() );
+            return false;
+        }
 
 	setData( rc );
 	return false;

@@ -234,7 +234,7 @@ protected:
     visBase::Transformation*	voltrans_;
     ObjectSet<visBase::OrthogonalSlice>	slices_;
     DataPack::ID		cacheid_;
-    const RegularSeisDataPack*  volumecache_;
+    ConstRefMan<RegularSeisDataPack> volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;
     TrcKeyZSampling		csfromsession_;

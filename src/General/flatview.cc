@@ -580,7 +580,7 @@ void FlatView::Viewer::addPack( DataPack::ID id )
 {
     if ( ids_.isPresent(id) ) return;
     ids_ += id;
-    dpm_.obtain( id );
+    dpm_.ref( id );
 }
 
 

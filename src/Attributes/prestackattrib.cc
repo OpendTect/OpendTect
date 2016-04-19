@@ -457,7 +457,7 @@ RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
-    ObjectSet<PreStack::Gather> gatheridstoberemoved;
+    RefObjectSet<PreStack::Gather> tempgathers;
     const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
@@ -478,8 +478,7 @@ RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
                 
 		DPM(DataPackMgr::FlatID()).add( gather );
                 
-                gather->ref();
-		gatheridstoberemoved += gather;
+		tempgathers += gather;
 	    }
 	    else
 	    {
@@ -506,9 +505,6 @@ RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 	errmsg_ = preprocessor_->errMsg();
 	return 0;
     }
-
-    deepUnRef( gatheridstoberemoved );
-
 
     return DPM(DataPackMgr::FlatID()).get(preprocessor_->getOutput());
 }
@@ -551,8 +547,10 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	DataPack::FullID fid( fullidstr+1 );
 
-	DataPack* dtp = DPM( fid ).obtain( DataPack::getID(fid) );
-	mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
+        RefMan<PreStack::GatherSetDataPack> psgdtp =
+            DPM( fid ).getAndCast<PreStack::GatherSetDataPack>
+                                                    ( DataPack::getID(fid) );
+        
 	isondisc =  !psgdtp;
 	if ( isondisc )
 	    mErrRet(tr("Cannot obtain gathers kept in memory"))

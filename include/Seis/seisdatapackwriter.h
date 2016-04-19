@@ -48,8 +48,8 @@ public:
 private:
 
     TypeSet<int>			compidxs_;
-    MultiID			mid_;
-    const RegularSeisDataPack*	dp_;
+    MultiID				mid_;
+    ConstRefMan<RegularSeisDataPack>	dp_;
 
     int				nrdone_;
     int				totalnr_;
@@ -62,9 +62,6 @@ private:
     Interval<int>		zrg_;
 
     void			getPosInfo();
-    void			obtainDP();
-    void			releaseDP();
-
 };
 
 

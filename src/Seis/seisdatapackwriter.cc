@@ -36,7 +36,6 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , compidxs_( compidxs )
     , trc_( 0 )
 {
-    obtainDP();
     getPosInfo();
 
     if ( compidxs_.isEmpty() )
@@ -56,7 +55,6 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
 SeisDataPackWriter::~SeisDataPackWriter()
 {
-    releaseDP();
     delete trc_;
     delete writer_;
 }
@@ -92,26 +90,12 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
     {
-	releaseDP();
-	dp_ = &dp;
-	obtainDP();
+        dp_ = &dp;
     }
 
     getPosInfo();
     nrdone_ = 0;
     setSelection( dp_->sampling().hsamp_, zrg_ );
-}
-
-
-void SeisDataPackWriter::obtainDP()
-{
-    DPM( DataPackMgr::SeisID() ).obtain( dp_->id() );
-}
-
-
-void SeisDataPackWriter::releaseDP()
-{
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
 }
 
 

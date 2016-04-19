@@ -691,7 +691,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
     const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
     const TypeSet<Attrib::SelSpec>& as = *s2d->getSelSpecs( attribnr );
 
-    DataPack::ID dpid = DataPack::cNoID();
+    RefMan<DataPack> dp = 0;
     if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
@@ -704,18 +704,18 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 
 	uiTaskRunner uitr( ODMainWin() );
 	const LineKey lk( mFromUiStringTodo(s2d->name()) );
-	dpid = calc->createAttrib( tkzs, lk, &uitr );
+	dp = calc->createAttrib( tkzs, lk, &uitr );
     }
     else
     {
 	applMgr()->attrServer()->setTargetSelSpecs( as );
-	dpid = applMgr()->attrServer()->createOutput( tkzs, 0 );
+	dp = applMgr()->attrServer()->createOutput( tkzs );
     }
 
-    if ( dpid == DataPack::cNoID() )
+    if ( !dp )
 	return;
 
-    s2d->setDataPackID( attribnr, dpid, 0 );
+    s2d->setDataPackID( attribnr, dp->id(), 0 );
     s2d->showPanel( true );
 }
 

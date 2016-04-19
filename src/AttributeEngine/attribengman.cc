@@ -327,7 +327,7 @@ RefMan<RegularSeisDataPack>
     if ( cache_ )
     {
 	packset += cache_;
-	dpm_.obtain( cache_->id() );
+        cache_->ref();
     }
 
     if ( !packset.isEmpty() )
@@ -761,7 +761,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
     else if ( prev )
     {
 	cache_ = prev;
-	dpm_.obtain( cache_->id() );
+        cache_->ref();
 	const TrcKeyZSampling cachecs = cache_->sampling();
 	if ( mRg(h).step_ != tkzs_.hsamp_.step_
 	  || (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %

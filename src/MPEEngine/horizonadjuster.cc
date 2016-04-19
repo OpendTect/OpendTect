@@ -66,10 +66,10 @@ const Attrib::SelSpec* HorizonAdjuster::getAttributeSel( int idx ) const
 
 void HorizonAdjuster::reset()
 {
-    dpm_.release( datapackid_ );
+    dpm_.unRef( datapackid_ );
     datapackid_ = attribsel_ ? engine().getAttribCacheID(*attribsel_)
 			     : DataPack::cNoID();
-    dpm_.obtain( datapackid_ );
+    dpm_.ref( datapackid_ );
 }
 
 
@@ -337,9 +337,9 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
     if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
     *attribsel_ = as;
 
-    dpm_.release( datapackid_ );
+    dpm_.unRef( datapackid_ );
     datapackid_ = engine().getAttribCacheID( *attribsel_ );
-    dpm_.obtain( datapackid_ );
+    dpm_.ref( datapackid_ );
 }
 
 

@@ -40,7 +40,7 @@ protected:
     uiSlider*			possldr_;
     uiComboBox*			altdimnmflds_;
     uiGenInput*			posvalfld_;
-    FlatDataPack*		fdp_;
+    RefMan<FlatDataPack>	fdp_;
 
     void			sldrPosChangedCB(CallBacker*);
 };

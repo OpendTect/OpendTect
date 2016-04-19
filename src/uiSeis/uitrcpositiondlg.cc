@@ -37,8 +37,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     , possldr_( 0 )
     , posvalfld_( 0 )
 {
-    DataPack* dp = DPM( dpfid.ID(0) ).obtain( dpfid.ID(1) );
-    mDynamicCast(FlatDataPack*,fdp_,dp);
+    fdp_ = DPM( dpfid.ID(0) ).getAndCast<FlatDataPack>( dpfid.ID(1) );
     if ( !fdp_ )
     {
 	pErrMsg( "Have no flatdatapack, Cannot construct the class" );
@@ -67,7 +66,6 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
 
 uiFlatDPPosSel::~uiFlatDPPosSel()
 {
-    DPM( DataPackMgr::FlatID() ).release( fdp_ );
 }
 
 
@@ -110,16 +108,15 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	return;
     }
 
-    DataPack* dp = DPM( dpmid ).obtain( dpfid.ID(1) );
+    RefMan<DataPack> dp = DPM( dpmid ).get( dpfid.ID(1) );
     if ( dpmid == DataPackMgr::FlatID() )
     {
 	fdpposfld_ = new uiFlatDPPosSel( this, dpfid );
-	mDynamicCastGet(FlatDataPack*,fdp,dp);
+	mDynamicCastGet(FlatDataPack*,fdp,dp.ptr());
 	if ( !fdp )
 	{
 	    pErrMsg( "Could not find Flat DataPack" );
-	    DPM( dpmid ).release( dpfid.ID(1) );
-	    return;
+            return;
 	}
 
 	StepInterval<double> x2rg = fdp->posData().range( false );
@@ -130,12 +127,11 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     }
     else if ( dpmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(RegularSeisDataPack*,sdp,dp);
+	mDynamicCastGet(RegularSeisDataPack*,sdp,dp.ptr());
 	if ( !sdp )
 	{
 	    pErrMsg( "Could not find Cube DataPack" );
-	    DPM( dpmid ).release( dpfid.ID(1) );
-	    return;
+            return;
 	}
 
 	TrcKeyZSampling cs = sdp->sampling();
@@ -147,11 +143,9 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	inlfld_->box()->setValue( cs.hsamp_.inlRange().snappedCenter() );
 	crlfld_->setInterval( cs.hsamp_.crlRange() );
 	crlfld_->setValue( cs.hsamp_.crlRange().snappedCenter() );
-	DPM( DataPackMgr::SeisID() ).release( dpfid.ID(1) );
+
 	zrg_ = cs.zsamp_;
     }
-
-    DPM( dpmid ).release( dpfid.ID(1) );
 }
 
 

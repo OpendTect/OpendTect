@@ -281,11 +281,11 @@ protected:
 
     struct AttribData
     {
-					AttribData();
-					~AttribData();
+						AttribData();
+						~AttribData();
 
-	TypeSet<Attrib::SelSpec>*	as_;
-	const RegularSeisDataPack*	cache_;
+	TypeSet<Attrib::SelSpec>*		as_;
+	ConstRefMan<RegularSeisDataPack>	cache_;
     };
 
     ObjectSet<AttribData>	attribs_;

@@ -354,12 +354,12 @@ ChainOutputStorer( ChainOutput& co, const RegularSeisDataPack& dp )
     , dp_(dp)
     , work_(0)
 {
-    DPM( DataPackMgr::SeisID() ).obtain( dp_.id() );
+    dp_.ref();
 }
 
 ~ChainOutputStorer()
 {
-    DPM( DataPackMgr::SeisID() ).release( dp_.id() );
+    dp_.unRef();
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
 }

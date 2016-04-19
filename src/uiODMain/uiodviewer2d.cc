@@ -619,14 +619,12 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( datatransform_ && !alreadytransformed )
     {
-	DataPack::ID outputid = DataPack::cNoID();
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( seisdp.ptr() );
-	transformer.setOutput( outputid );
 	transformer.setInterpolate( true );
 	transformer.execute();
-	if ( outputid != DataPack::cNoID() )
-	    seisdp = dpm.get( outputid );
+	if ( transformer.getOutput() )
+            seisdp = transformer.getOutput();
     }
 
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());

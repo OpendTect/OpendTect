@@ -129,10 +129,10 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpm.release( datapackids_[idx] );
+	dpm.unRef( datapackids_[idx] );
 
     for ( int idx=0; idx<transfdatapackids_.size(); idx++ )
-	dpm.release( transfdatapackids_[idx] );
+	dpm.unRef( transfdatapackids_[idx] );
 
     dragger_->unRef();
     gridlines_->unRef();
@@ -767,17 +767,18 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				      TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    const DataPack* datapack = dpm.obtain( dpid );
-    mDynamicCastGet( const RegularSeisDataPack*, regsdp, datapack );
+    ConstRefMan<RegularSeisDataPack> regsdp =
+    	dpm.getAndCast<RegularSeisDataPack>( dpid );
+    
     if ( !regsdp || regsdp->isEmpty() )
     {
-	dpm.release( dpid );
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 	return false;
     }
 
-    dpm.release( datapackids_[attrib] );
+    dpm.unRef( datapackids_[attrib] );
     datapackids_[attrib] = dpid;
+    dpm.ref( dpid );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -815,9 +816,9 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 	bivset, tkzs, datatransform_->toZDomainInfo(), *userrefs_[attrib] );
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    dpm.release( transfdatapackids_[attrib] );
+    dpm.unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = dpid;
-    dpm.obtain( dpid );
+    dpm.ref( dpid );
 
     updateChannels( attrib, taskr );
 }
@@ -893,7 +894,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
-    DataPack::ID outputid = DataPack::cNoID();
+    RefMan<SeisDataPack> transformed = 0;
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
@@ -908,15 +909,19 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( regsdp.ptr() );
-	transformer.setOutput( outputid );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.setOutputZRange( tkzs.zsamp_ );
 	transformer.execute();
+        
+        transformed = transformer.getOutput();
     }
 
-    dpm.release( transfdatapackids_[attrib] );
-    transfdatapackids_[attrib] = outputid;
-    dpm.obtain( outputid );
+    dpm.unRef( transfdatapackids_[attrib] );
+    transfdatapackids_[attrib] = transformed
+    	? transformed->id()
+    	: DataPack::cNoID();
+    
+    refPtr( transformed );
 }
 
 

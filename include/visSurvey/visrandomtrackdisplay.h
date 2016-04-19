@@ -21,6 +21,8 @@ namespace visBase
     class TexturePanelStrip;
 }
 
+class RandomSeisDataPack;
+
 namespace Geometry
 {
     class RandomLine;
@@ -248,9 +250,10 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
     MouseCursor			mousecursor_;
 
-    int				selnodeidx_;
-    TypeSet<DataPack::ID>	datapackids_;
-    TypeSet<DataPack::ID>	transfdatapackids_;
+    int					selnodeidx_;
+    RefObjectSet<RandomSeisDataPack>	datapacks_;
+    RefObjectSet<RandomSeisDataPack>	transfdatapacks_;
+    
     TypeSet<BinID>		trcspath_;
     TrcKeyPath			tkpath_;
     				//TODO replace trcspath_ by tkpath_;

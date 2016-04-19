@@ -23,7 +23,6 @@ SeisDataPackZAxisTransformer::SeisDataPackZAxisTransformer(
     , interpolate_(true)
     , inputdp_(0)
     , outputdp_(0)
-    , outputid_(0)
 {
     transform_.ref();
     zrange_.setFrom( transform_.getZInterval(false) );
@@ -176,8 +175,6 @@ bool SeisDataPackZAxisTransformer::doFinish( bool success )
     outputdp_->setZDomain( transform_.toZDomainInfo() );
     outputdp_->setName( seisdp->name() );
     dpm_.add( outputdp_ );
-    if ( outputid_ )
-	*outputid_ = outputdp_->id();
 
     return true;
 }

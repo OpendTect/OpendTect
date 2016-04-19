@@ -628,13 +628,16 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
-		const DataPack::ID dpid =
+                RefMan<DataPack> dp =
 		    calc->createAttrib( cs, cacheid, &progm );
-		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
+
+		if ( !dp && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );
 		    return false;
 		}
+                
+                const DataPack::ID dpid = dp ? dp->id() : DataPack::cNoID();
 
 		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );
@@ -1614,12 +1617,12 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
     {
-	const DataPointSet& dps = nlaserv_->dps();
-	DataPointSet mcpicks( dps.is2D() );
-	for ( int irow=0; irow<dps.size(); irow++ )
+	RefMan<DataPointSet> dps = nlaserv_->dps();
+	DataPointSet mcpicks( dps->is2D() );
+	for ( int irow=0; irow<dps->size(); irow++ )
 	{
-	    if ( dps.group(irow) == 3 )
-		mcpicks.addRow( dps.dataRow(irow) );
+	    if ( dps->group(irow) == 3 )
+		mcpicks.addRow( dps->dataRow(irow) );
 	}
 	mcpicks.dataChanged();
 	pickserv_->setMisclassSet( mcpicks );

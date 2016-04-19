@@ -72,8 +72,6 @@ uiNLAPartServer::~uiNLAPartServer()
 {
     deepErase( inpnms_ );
     delete uidps_;
-    if ( dps_ )
-	mDPM.release( dps_->id() );
     delete &storepars_;
 }
 
@@ -513,7 +511,7 @@ bool uiNLAPartServer::doDPSDlg()
     uiDataPointSet::Setup su( uiStrings::sInputData(), true );
     su.isconst(false).allowretrieve(false).canaddrow(false);
     delete uidps_;
-    uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );
+    uidps_ = new uiDataPointSet( appserv().parent(), *dps(), su, dpsdispmgr_ );
     uidps_->setCtrlStyle( uiDialog::RunAndClose );
     uidps_->storePars() = storepars_;
     BufferStringSet bss;
@@ -527,15 +525,14 @@ bool uiNLAPartServer::doDPSDlg()
 
 #undef mErrRet
 #define mErrRet(rv) \
-{ if ( dps_ ) { mDPM.release( dps_->id() ); dps_ = 0; } return rv; }
+{ if ( dps_ ) { dps_ = 0; } return rv; }
 
 
-DataPointSet& uiNLAPartServer::gtDps() const
+RefMan<DataPointSet> uiNLAPartServer::gtDps() const
 {
     uiNLAPartServer& self = *const_cast<uiNLAPartServer*>( this );
     if ( dps_ && dps_->is2D() != is2d_ )
     {
-	mDPM.release( dps_->id() );
 	self.dps_ = 0;
     }
 
@@ -543,11 +540,10 @@ DataPointSet& uiNLAPartServer::gtDps() const
     {
 	self.dps_ = new DataPointSet( is2d_ );
 	self.dps_->setName( "<NLA train/test data>" );
-	mDPM.add( dps_ );
-	mDPM.obtain( dps_->id() );
+	mDPM.add( self.dps_ );
     }
 
-    return *dps_;
+    return dps_;
 }
 
 
@@ -585,8 +581,8 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	}
     }
 
-    dps().setEmpty();
-    uiString res = crdesc.prepareData( dpss, dps() );
+    dps()->setEmpty();
+    uiString res = crdesc.prepareData( dpss, *dps() );
     if ( res.isSet() ) mErrRet(res)
 
     // allow user to view and edit data
@@ -596,18 +592,18 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     bool allok = true;
     if ( crdesc.isdirect && !crdesc.design.classification )
     {
-	uiPrepNLAData pddlg( appserv().parent(), dps() );
+	uiPrepNLAData pddlg( appserv().parent(), *dps() );
 	allok = pddlg.go();
 	if ( allok )
 	{
-	    BinIDValueSet& bivset = dps().dataSet().data();
+	    BinIDValueSet& bivset = dps()->dataSet().data();
 	    const int targetcol = bivset.nrVals() - 1;
 	    NLADataPreparer dp( bivset, targetcol );
 	    dp.removeUndefs(); dp.limitRange( pddlg.rg_ );
 	    if ( pddlg.dobal_ )
 	    {
 		dp.balance( pddlg.bsetup_ );
-		dps().dataChanged();
+		dps()->dataChanged();
 	    }
 	}
     }

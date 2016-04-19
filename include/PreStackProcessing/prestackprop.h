@@ -90,10 +90,10 @@ protected:
 
     void		removeGather();
 
-    Gather*		gather_;
+    RefMan<Gather>	gather_;
     int*		innermutes_;
     int*		outermutes_;
-    Gather*		angledata_;
+    RefMan<Gather>	angledata_;
 
     Setup		setup_;
 };

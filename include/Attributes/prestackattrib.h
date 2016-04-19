@@ -127,7 +127,7 @@ protected:
     const DataHolder*		inputdata_;
     MultiID			velocityid_;
 
-    ObjectSet<PreStack::Gather>    gatherset_;
+    RefObjectSet<PreStack::Gather>    gatherset_;
 };
 
 }; // namespace Attrib

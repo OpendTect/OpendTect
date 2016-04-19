@@ -201,14 +201,15 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
+RefMan<RegularSeisDataPack>
+ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 						     DataPack::ID dpid,
 						     TaskRunner* taskrunner )
 {
     if ( !chain_ || !chain_->nrSteps() )
     {
 	errmsg_ = tr("There are no steps in the processing chain.");
-	return DataPack::cNoID();
+	return 0;
     }
 
     ChainExecutor executor( *chain_ );
@@ -220,7 +221,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
     if ( !executor.setCalculationScope(cs.hsamp_,zrg) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
-	return DataPack::cNoID();
+	return 0;
     }
 
     if ( !TaskRunner::execute(taskrunner,executor) )
@@ -231,15 +232,15 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 	    errmsg_ = tr("Error while calculating.");
     }
 
-    const RegularSeisDataPack* output = executor.getOutput();
+    RefMan<RegularSeisDataPack> output = executor.getOutput();
     if ( !output || output->isEmpty() )
     {
 	errmsg_ = tr("No output produced");
-	return DataPack::cNoID();
+	return 0;
     }
 
-    DPM( DataPackMgr::SeisID() ).obtain( output->id() );
-    return output->id();
+    DPM( DataPackMgr::SeisID() ).add( output );
+    return output;
 }
 
 

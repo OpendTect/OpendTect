@@ -436,12 +436,11 @@ void createSelFields( DataType type )
     }
     else if ( type==uiSelectPositionDlg::DataPack2D )
     {
-	DataPack* dp = DPM( dpfid_.ID(0)).obtain( dpfid_.ID(1) );
-	mDynamicCastGet(FlatDataPack*,fdp,dp);
+        RefMan<FlatDataPack> fdp =
+        	DPM( dpfid_.ID(0)).getAndCast<FlatDataPack>( dpfid_.ID(1) );
 	Interval<int> trcrglimits( 0, fdp->size(true) );
 	nrtrcinpspec.setLimits( trcrglimits );
 	nrtrcfld_->setValue( fdp->size(true) );
-	DPM( dpfid_.ID(0)).release( dpfid_.ID(1) );
     }
     else
     {
@@ -450,10 +449,10 @@ void createSelFields( DataType type )
 	TrcKeyZSampling cs;
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
-	    DataPack* dp = DPM( dpfid_.ID(0)).obtain( dpfid_.ID(1) );
-	    mDynamicCastGet(RegularSeisDataPack*,cdp,dp);
+            RefMan<RegularSeisDataPack> cdp =
+            	DPM(dpfid_.ID(0)).getAndCast<RegularSeisDataPack>(dpfid_.ID(1));
+
 	    cs = cdp->sampling();
-	    DPM( dpfid_.ID(0)).release( dpfid_.ID(1) );
 	}
 	else if ( type==uiSelectPositionDlg::Stored3D )
 	{
@@ -574,8 +573,9 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    cs = subseldlg.subVol();
 	else
 	{
-	    DataPack* dp = DPM(dpfid.ID(0)).obtain( dpfid.ID(1) );
-	    mDynamicCastGet(FlatDataPack*,fdp,dp);
+            RefMan<FlatDataPack> fdp =
+            	DPM(dpfid.ID(0)).getAndCast<FlatDataPack>( dpfid.ID(1) );
+
 	    if ( !fdp )
 	    {
 		pErrMsg( "No FlatDataPack found" );
@@ -593,7 +593,6 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 				     mCast(float,dzrg.stop),
 				     mCast(float,dzrg.step) );
 	    cs.zsamp_ = zrg;
-	    DPM(dpfid.ID(0)).release( dpfid.ID(1) );
 	}
 	nrtrcs = subseldlg.nrTrcs();
     }

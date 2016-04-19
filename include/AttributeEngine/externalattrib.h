@@ -22,6 +22,7 @@ class TrcKeyZSampling;
 class LineKey;
 class SeisTrcBuf;
 class TaskRunner;
+class RegularSeisDataPack;
 
 
 namespace Attrib
@@ -41,13 +42,14 @@ public:
     				/*!<\returns if this object can 
 				     compute it or not. */
 
-    virtual DataPack::ID	createAttrib(const TrcKeyZSampling&,
+    virtual RefMan<RegularSeisDataPack>	createAttrib(const TrcKeyZSampling&,
 					     DataPack::ID, TaskRunner*);
-    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
+    virtual bool			createAttrib(ObjectSet<BinIDValueSet>&,
 	    				     TaskRunner*);
-    virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
-					     TaskRunner*);
-    virtual DataPack::ID	createAttrib(const TrcKeyZSampling&,
+    virtual bool			createAttrib(const BinIDValueSet&,
+                                                SeisTrcBuf&,
+                                                TaskRunner*);
+    virtual RefMan<RegularSeisDataPack>	createAttrib(const TrcKeyZSampling&,
 	    				     const LineKey&,TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }
