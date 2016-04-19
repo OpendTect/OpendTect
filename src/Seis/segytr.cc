@@ -136,13 +136,13 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     if ( !txthead_ )
 	txthead_ = new SEGY::TxtHeader;
     if ( !strm.getBin(txthead_->txt_,SegyTxtHeaderLength) )
-	mErrRet( tr("Cannot read SEG-Y Text header") )
+	mErrRet( tr("Cannot read SEG-Y Textual header (aka 'EBCDIC header')") )
     txthead_->setAscii();
 
     const int revcodeentry = SEGY::BinHeader::EntryRevCode();
     unsigned char binheaderbuf[400];
     if ( !strm.getBin( binheaderbuf, SegyBinHeaderLength ) )
-	mErrRet( tr("Cannot read SEG-Y Text header") )
+	mErrRet( tr("Cannot read SEG-Y Binary header") )
     binhead_.setInput( binheaderbuf, filepars_.swapHdrs() );
     if ( binhead_.isSwapped() )
 	binhead_.unSwap();
@@ -183,8 +183,13 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     innrsamples_ = binhead_.nrSamples();
 
     od_stream::Pos endpos = strm.endPosition();
-    estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
-			/ (cTraceHeaderBytes + dataBytes()*innrsamples_));
+    if ( endpos < 0 )
+	estnrtrcs_ = -1;
+    else
+	estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
+			    / (cTraceHeaderBytes + dataBytes()*innrsamples_));
+    if ( estnrtrcs_ < -1 )
+	estnrtrcs_ = -1;
     return true;
 }
 
@@ -206,7 +211,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 	    msg.append("\n-> The file may not be SEG-Y, or byte-swapped");
     }
     else if ( nr == cSEGYWarnPos )
-    {	
+    {
 	if (nr<=1)
 	    msg.append( tr("Bad position found. Such traces are "
                 "ignored.\nFirst occurrence %1").arg(detail) );
@@ -523,8 +528,10 @@ bool SEGYSeisTrcTranslator::commitSelections_()
 
 bool SEGYSeisTrcTranslator::initRead_()
 {
-    if ( !readTapeHeader() || !readTraceHeadBuffer() )
+    if ( !readTapeHeader() )
 	return false;
+    else if ( !readTraceHeadBuffer() )
+	mErrRet(tr("Cannot find one full trace in the file."))
 
     if ( forcedrev_ == 0 )
 	trchead_.isrev0_ = true;

@@ -109,7 +109,7 @@ protected:
     void		setGeomType(const IOObj&);
     CtxtIOObj*		getCtio(bool) const;
 
-    uiSEGYDefDlg*	newdefdlg_;
+    uiSEGYDefDlg*	newdefdlg_; // no longer used, will disappear after 6.0
 };
 
 

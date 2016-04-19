@@ -69,7 +69,6 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
     , rev_(Rev0)
     , revpolnr_(2)
     , defdlg_(0)
-    , newdefdlg_(0)
     , examdlg_(0)
     , impdlg_(0)
     , scandlg_(0)
@@ -395,8 +394,12 @@ void uiSEGYRead::basicOptsGot()
     const int exrev = uiSEGYExamine::getRev( exsu, emsg );
     if ( exrev < 0 )
     {
-	rev_ = Rev0; uiMSG().error( emsg );
-	getBasicOpts(); newdefdlg_ = defdlg_;
+	rev_ = Rev0;
+	if ( emsg.isEmpty() )
+	    emsg.set( "Error trying to read traces from file." );
+	uiMSG().error( mToUiStringTodo(emsg) );
+	// Can't figure out (quickly) how to go on. Wizard will stop
+	// better than previously, when it crashed ...
 	return;
     }
 
@@ -482,8 +485,7 @@ void uiSEGYRead::setupImport()
 void uiSEGYRead::defDlgClose( CallBacker* )
 {
     basicOptsGot();
-    defdlg_ = newdefdlg_ ? newdefdlg_ : 0;
-    newdefdlg_ = 0;
+    defdlg_ = 0;
 }
 
 

@@ -109,6 +109,9 @@ static bool isVertical( const uiFlatViewer& vwr )
 {
     const bool usewva = !vwr.isVisible( false );
     ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( usewva, true );
+    if ( !fdp )
+	return true;
+
     FixedString x2dimnm( fdp->dimName(false) );
     BufferString zaxisnm;
     if ( !vwr.hasZAxisTransform() )

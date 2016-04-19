@@ -251,6 +251,9 @@ int uiSEGYExamine::getRev() const
 int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, BufferString& emsg )
 {
     PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
+    if ( !rdr && emsg.isEmpty() )
+	emsg.set( "Error opening file."
+	    "\nPlease check whether the file size is at least 3600 bytes." );
     return rdr ? getRev( *rdr ) : -1;
 }
 
