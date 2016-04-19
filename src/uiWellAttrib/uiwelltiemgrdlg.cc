@@ -543,7 +543,10 @@ bool uiTieWinMGRDlg::initSetup()
     wtsetup_.issonic_  = psflvp->altPropSelected();
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
-    WellTie::Setup::CorrTypeDef().parse( cscorrfld_->box()->text(),
+    if ( wtsetup_.useexistingd2tm_ )
+	wtsetup_.corrtype_ = WellTie::Setup::None;
+    else
+	WellTie::Setup::CorrTypeDef().parse( cscorrfld_->box()->text(),
 				       wtsetup_.corrtype_ );
 
     if ( !wvltfld_->getWavelet() )
