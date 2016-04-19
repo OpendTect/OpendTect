@@ -401,9 +401,10 @@ bool Pick::Location::fromString( const char* s )
 	{
 	    if ( mIsUdf(dirread.z) )
 		dirread.z = 0.;
-	    delete dir_;
-	    dir_ = new Sphere( dirread );
 	}
+
+	delete dir_;
+	dir_ = new Sphere( dirread );
     }
 
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
