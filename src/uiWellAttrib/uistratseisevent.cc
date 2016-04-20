@@ -76,7 +76,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	    nosteplbl_->attach( rightOf, usestepfld_ );
 	}
 
-	extrstepfld_ = new uiGenInput( this, uiStrings::sStep(), 
+	extrstepfld_ = new uiGenInput( this, uiStrings::sStep(),
 				       FloatInpSpec(defstep) );
 	extrstepfld_->setElemSzPol( uiObject::Small );
 	if ( usestepfld_ )
@@ -117,7 +117,8 @@ void uiStratSeisEvent::setLevel( const char* lvlnm )
 
 const char* uiStratSeisEvent::levelName() const
 {
-    return levelfld_ ? levelfld_->getName() : setup_.fixedlevel_->name().buf();
+    return levelfld_ ? levelfld_->getLevelName()
+		     : setup_.fixedlevel_->name().buf();
 }
 
 

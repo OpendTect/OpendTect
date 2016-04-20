@@ -6,146 +6,69 @@
 
 
 #include "namedobj.h"
-#include "string2.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include <ctype.h>
+
+mDefineInstanceCreatedNotifierAccess(NamedObject);
 
 
 NamedObject::NamedObject( const char* nm )
-    : linkedto_(0)
-    , delnotify_(0)
+    : name_(nm)
 {
-    name_ = new BufferString( nm );
-}
-
-
-NamedObject::NamedObject( const NamedObject* lnk )
-    : linkedto_(const_cast<NamedObject*>(lnk))
-    , name_(0)
-    , delnotify_(0)
-{
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 NamedObject::NamedObject( const NamedObject& oth )
-    : CallBacker(oth)
-    , linkedto_(oth.linkedto_)
-    , name_(0)
-    , delnotify_(0)
+    : name_(oth.name())
 {
-    if ( oth.name_ )
-	name_ = new BufferString( *oth.name_ );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 NamedObject::~NamedObject()
 {
-    if ( delnotify_ )
-    {
-	delnotify_->doCall( this, 0 );
-	delnotify_->unRef(); delnotify_ = 0;
-    }
-
-#ifdef __debug__
-    static BufferString delobj( "deleted object" );
-
-    if( name_ == &delobj )
-	{ pErrMsg("Multiple delete detected"); return; }
-
-    delete name_; name_ = &delobj;
-#else
-    delete name_; name_ = 0;
-#endif
+    sendDelNotif();
 }
 
 
-void NamedObject::setLinkedTo( NamedObject* oth )
+bool NamedObject::operator ==( const NamedObject& oth ) const
 {
-    if ( oth )
-	{ delete name_; name_ = 0; }
-    else if ( !name_ )
-	name_ = new BufferString;
-    linkedto_ = oth;
+    mLock4Access();
+    return name_ == oth.getName();
 }
 
 
-#define mMkDelnotif(obj) \
-{ obj->delnotify_ = new CallBackSet; obj->delnotify_->ref(); }
-
-void NamedObject::deleteNotify( const CallBack& c )
+BufferString NamedObject::getName() const
 {
-    if ( !c.willCall() ) return;
-    CallBack cb( c );
-    mDynamicCastGet(NamedObject*,o,cb.cbObj())
-    if ( !o ) return;
-
-    if ( !delnotify_ )
-	mMkDelnotif(this)
-    if ( !o->delnotify_ )
-	mMkDelnotif(o)
-
-    *o->delnotify_ += mCB(this,NamedObject,cbRem);
-    *delnotify_    += mCB(o,NamedObject,cbRem);
-    *delnotify_    += cb;
-}
-
-
-void NamedObject::stopDeleteNotify( NamedObject& o )
-{
-    cbRem( &o );
-    o.cbRem( this );
-}
-
-
-void NamedObject::cbRem( NamedObject* o )
-{
-    if ( !delnotify_ )
-	return;
-
-    for ( int idx=delnotify_->size()-1; idx>=0; idx-- )
-    {
-	CallBack cb = (*delnotify_)[idx];
-	if ( cb.cbObj() == o ) *delnotify_ -= cb;
-    }
+    mLock4Access();
+    return name_;
 }
 
 
 void NamedObject::setName( const char* nm )
 {
-    if ( linkedto_ )
-	linkedto_->setName( nm );
-    else
+    mLock4Access();
+    if ( name_ != nm )
     {
-	*name_ = nm;
-	name_->trimBlanks();
+	name_ = nm;
+	mSendChgNotif();
     }
 }
 
 
-void NamedObject::setCleanName( const char* nm )
+bool NamedObject::getNameFromPar( const IOPar& iop )
 {
-    if ( linkedto_ )
-	{ linkedto_->setCleanName(nm); return; }
+    BufferString myname( name() );
+    if ( !iop.get(sKey::Name(),myname) )
+	return false;
+    setName( myname );
+    return true;
+}
 
-    BufferString clnnm( nm );
-    clnnm.trimBlanks();
-    if ( clnnm.isEmpty() )
-	{ setName( clnnm ); return; }
 
-    char* ptr = clnnm.getCStr();
-    char* startptr = ptr;
-    if ( *ptr == '!' || *ptr == '#' || *ptr == '$' )
-	*ptr = '_';
-    else if ( *ptr == '\\' )
-	startptr++;
-
-    ptr++;
-    while ( *ptr )
-    {
-	if ( !isprint(*ptr) || *ptr == '\t' || *ptr == '\n'
-			    || *ptr == ':' || *ptr == '`' )
-	    *ptr = '_';
-	ptr++;
-    }
-
-    setName( startptr );
+void NamedObject::putNameInPar( IOPar& iop ) const
+{
+    iop.set( sKey::Name(), getName() );
 }

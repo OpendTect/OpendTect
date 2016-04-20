@@ -37,11 +37,11 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     : uiDialog(p,uiDialog::Setup(tr("Specify inputs"),
 		     tr("Network without attributes: definitions"),
 		     mNoHelpKey))
-    , attrset(ads)
-    , nrindir(indirinps.size())
+    , attrset_(ads)
+    , nrindir_(indirinps.size())
 {
     uiGroup* indirgrp = 0;
-    if ( nrindir )
+    if ( nrindir_ > 0 )
     {
 	indirgrp = new uiGroup( this, "Indirect attribs" );
 	const uiString txt = indirinps.size() > 1
@@ -76,10 +76,10 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 
 ~uiSelExternalAttrInps()
 {
-    for ( int idx=0; idx<sels.size(); idx++ )
+    for ( int idx=0; idx<sels_.size(); idx++ )
     {
-	delete sels[idx]->ctxtIOObj().ioobj_;
-	delete &sels[idx]->ctxtIOObj();
+	delete sels_[idx]->ctxtIOObj().ioobj_;
+	delete &sels_[idx]->ctxtIOObj();
     }
 }
 
@@ -88,8 +88,8 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 	    const BufferStringSet& inps )
 {
     uiLabel* lbl = new uiLabel( mkgrp, lbltxt );
-    uiGroup* fldgrp = new uiGroup( mkgrp, "sels" );
-    uiGroup* curgrp = new uiGroup( fldgrp, "sels1" );
+    uiGroup* fldgrp = new uiGroup( mkgrp, "fld grp" );
+    uiGroup* curgrp = new uiGroup( fldgrp, "cur grp" );
     mkgrp->setHAlignObj( fldgrp );
     fldgrp->setHAlignObj( curgrp );
     fldgrp->attach( centeredBelow, lbl );
@@ -104,7 +104,7 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 	newctio->ctxt_.forread_ = true;
 	if ( neednewgrp )
 	{
-	    uiGroup* newgrp = new uiGroup( fldgrp, "selsN" );
+	    uiGroup* newgrp = new uiGroup( fldgrp, BufferString("sels",idx) );
 	    newgrp->attach( rightOf, curgrp );
 	    curgrp = newgrp;
 	}
@@ -117,7 +117,7 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 
 	neednewgrp = !((idx+1) % maxnrselinrow);
 	newsel->selectionDone.notify( mCB(this,uiSelExternalAttrInps,cubeSel) );
-	sels += newsel;
+	sels_ += newsel;
 	prevsel = newsel;
     }
 }
@@ -126,19 +126,22 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 void cubeSel( CallBacker* cb )
 {
     mDynamicCastGet(uiIOObjSel*,cursel,cb)
-    if ( !cursel ) { pErrMsg("Huh"); return; }
+    if ( !cursel )
+	{ pErrMsg("Huh"); return; }
 
     cursel->commitInput();
     const IOObj* ioobj = cursel->ctxtIOObj().ioobj_;
-    if ( !ioobj ) return;
-    int curidx = indexOf( sels, cursel );
-    if ( curidx >= nrindir ) return;
+    if ( !ioobj )
+	return;
+    const int curidx = sels_.indexOf( cursel );
+    if ( curidx >= nrindir_ )
+	return;
 
     IOPar iopar;
     cursel->updateHistory( iopar );
-    for ( int idx=0; idx<nrindir; idx++ )
+    for ( int idx=0; idx<nrindir_; idx++ )
     {
-	uiIOObjSel& sel = *sels[idx];
+	uiIOObjSel& sel = *sels_[idx];
 	if ( &sel == cursel ) continue;
 	sel.getHistory( iopar );
 	if ( !sel.ctxtIOObj().ioobj_ )
@@ -152,9 +155,9 @@ void cubeSel( CallBacker* cb )
 
 bool acceptOK( CallBacker* )
 {
-    for ( int isel=0; isel<sels.size(); isel++ )
+    for ( int isel=0; isel<sels_.size(); isel++ )
     {
-	uiIOObjSel& sel = *sels[isel];
+	uiIOObjSel& sel = *sels_[isel];
 	sel.commitInput();
 	const IOObj* ioobj = sel.ctxtIOObj().ioobj_;
 	if ( !ioobj )
@@ -165,7 +168,7 @@ bool acceptOK( CallBacker* )
 	}
 
 	const DescID descid =
-		attrset->getID( sel.labelText().getFullString(), true );
+		attrset_->getID( sel.labelText().getFullString(), true );
 	if ( !descid.isValid() )
 	{
 	    const uiString msg =
@@ -176,18 +179,18 @@ bool acceptOK( CallBacker* )
 	    uiMSG().error( msg );
 	    return false;
 	}
-	Desc& ad = *attrset->getDesc( descid );
+	Desc& ad = *attrset_->getDesc( descid );
 	if ( ad.isStored() )
 	{
 //	    ad.setDefStr( ioobj->key(), false );
 	}
 	else
 	{
-	    const DescID inpid = attrset->getStoredID( ioobj->key(), 0, true );
+	    const DescID inpid = attrset_->getStoredID( ioobj->key(), 0, true );
 	    if ( !inpid.isValid() ) return false;
 
 	    for ( int iinp=0; iinp<ad.nrInputs(); iinp++ )
-		ad.setInput( iinp, attrset->getDesc(inpid) );
+		ad.setInput( iinp, attrset_->getDesc(inpid) );
 	}
     }
 
@@ -197,9 +200,9 @@ bool acceptOK( CallBacker* )
 
 protected:
 
-    DescSet*			attrset;
-    ObjectSet<uiIOObjSel>	sels;
-    int				nrindir;
+    DescSet*			attrset_;
+    ObjectSet<uiIOObjSel>	sels_;
+    const int			nrindir_;
 };
 
 

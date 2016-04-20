@@ -46,7 +46,7 @@ public:
 			~uiWellTrackDlg();
     static const uiString   sCkShotData();
     static const uiString   sTimeDepthModel();
-    
+
 protected:
 
     Well::Data&		wd_;
@@ -94,7 +94,7 @@ mExpClass(uiWell) uiD2TModelDlg : public uiDialog
 public:
 			uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
 			~uiD2TModelDlg();
-    
+
 protected:
 
     Well::Data&		wd_;
@@ -152,12 +152,12 @@ public:
 			~uiNewWellDlg();
 
     const Color&	getWellColor();
-    const char*		getName() const	{ return name_; }
+    const char*		getWellName() const	{ return wellname_; }
 
 protected:
 
     uiColorInput*	colsel_;
-    BufferString	name_;
+    BufferString	wellname_;
     BufferStringSet*	nms_;
 
     virtual bool	acceptOK(CallBacker*);

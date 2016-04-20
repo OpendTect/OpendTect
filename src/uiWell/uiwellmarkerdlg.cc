@@ -253,7 +253,7 @@ bool uiMarkerDlg::getFromScreen()
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
-    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 
+    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true,
 						    uiStrings::sEmptyString() );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     const int currentrow = table_->currentRow();
@@ -458,7 +458,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     if ( havelvl )
     {
 	table_->setColor( RowCol(irow,cColorCol), levelsel->getColor() );
-	table_->setText( RowCol(irow,cNameCol), levelsel->getName() );
+	table_->setText( RowCol(irow,cNameCol), levelsel->getLevelName() );
     }
 
     table_->setCellReadOnly( RowCol(irow,cNameCol), havelvl );

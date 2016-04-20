@@ -133,11 +133,13 @@ static QEventLoopReceiver* getQELR()
 //---- CallBacker
 
 CallBacker::CallBacker()
-{}
+{
+}
 
 
 CallBacker::CallBacker( const CallBacker& )
-{}
+{
+}
 
 
 CallBacker::~CallBacker()
@@ -606,8 +608,55 @@ void NotifyStopper::restore()
 mDefineInstanceCreatedNotifierAccess(Monitorable)
 
 Monitorable::Monitorable()
-    : objchgd_(this)
-    , objtobedel_(this)
+    : chgnotif_(this)
+    , delnotif_(this)
+    , delalreadytriggered_(false)
 {
     mTriggerInstanceCreatedNotifier();
+}
+
+
+Monitorable::~Monitorable()
+{
+    sendDelNotif();
+}
+
+
+Monitorable::Monitorable( const Monitorable& oth )
+    : CallBacker(oth)
+    , chgnotif_(this)
+    , delnotif_(this)
+    , delalreadytriggered_(false)
+{
+    // nothing to copy
+}
+
+
+
+Monitorable& Monitorable::operator =( const Monitorable& oth )
+{
+    if ( this != &oth )
+    {
+	CallBacker::operator =( oth );
+	// will copy nothing. no locking, no notification, nothing.
+    }
+    return *this;
+}
+
+
+void Monitorable::sendChgNotif( Monitorable::AccessLockHandler& hndlr )
+{
+    hndlr.locker_.unlockNow();
+    objectChanged().trigger();
+}
+
+
+void Monitorable::sendDelNotif()
+{
+    if ( !delalreadytriggered_ )
+    {
+	delalreadytriggered_ = true;
+	objectToBeDeleted().trigger();
+	// this should even work from ~Monitorable(), using delnotif_
+    }
 }

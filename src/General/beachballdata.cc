@@ -15,7 +15,7 @@ BallProperties BallProperties::get()const
 {
     //BallProperties bp( *this );
     BallProperties bp;
-    bp.setName( name_->buf() );
+    bp.setName( name() );
     bp.setRadius( radius_ );
     bp.setColor1( color1_ );
     bp.setColor2( color2_ );
@@ -27,7 +27,7 @@ BallProperties BallProperties::get()const
 
 void BallProperties::set( const BallProperties& bp )
 {
-    setName( bp.name() );    
+    setName( bp.name() );
     radius_ = bp.radius();
     color1_ = bp.color1();
     color2_ = bp.color2();
@@ -71,7 +71,7 @@ void BallProperties::setColor2( Color c )
     color2_ = c;
 }
 
-    
+
 Coord3 BallProperties::pos() const
 {
     return pos_;
@@ -102,7 +102,7 @@ BallProperties& BallProperties::operator = ( const BallProperties& bp )
 	return *this;
 
 //    this->NamedObject::operator = ( bp );
-    // Fix this! Crashes! Properly copy base class data! 
+    // Fix this! Crashes! Properly copy base class data!
     setName( bp.name() );
     radius_ = bp.radius();
     color1_ = bp.color1();
@@ -115,7 +115,7 @@ BallProperties& BallProperties::operator = ( const BallProperties& bp )
 
 bool BallProperties::operator == ( const BallProperties& bp ) const
 {
-    if ( radius_ == bp.radius() && color1_ == bp.color1() 
+    if ( radius_ == bp.radius() && color1_ == bp.color1()
 	 && color2_ == bp.color2() && pos_ == bp.pos()
 	 && elasticity_ == bp.elasticity() )
 	return NamedObject::operator ==( bp );
@@ -133,7 +133,7 @@ BallDynamics BallDynamics::get() const
 {
     //BallDynamics bd( *this );
     BallDynamics bd;
-    bd.setName( name_->buf() );
+    bd.setName( name() );
     bd.setSpeed( speed_ );
     bd.setDirectionVector( directionvec_ );
     return bd;
@@ -142,7 +142,7 @@ BallDynamics BallDynamics::get() const
 
 void BallDynamics::set( const BallDynamics&bd )
 {
-    setName( bd.name() );    
+    setName( bd.name() );
     speed_ = bd.speed();
     directionvec_ = bd.directionvector();
 }
@@ -159,7 +159,7 @@ void BallDynamics::setSpeed( const float& sp )
    speed_ = sp;
 }
 
-    
+
 Coord3 BallDynamics::directionvector() const
 {
     return directionvec_;

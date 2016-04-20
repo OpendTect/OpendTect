@@ -12,57 +12,35 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "callback.h"
+#include "monitor.h"
 #include "bufstring.h"
 
 
-/*!
-\brief Object with a name.
+/*!\brief Monitorable object with a name.  */
 
-  The NamedObject has a name and it can notify another NamedObject when it is
-  about to be deleted. The name may either be a string of the object itself,
-  or the name of another object, linked directly. This not only saves memory,
-  but allows for names that are fundamentally linked.
-
-  The name() function delivers a string that can be displayed to users in lists,
-  trees, etc, and it is usable as a key. For displaying as annotation, use
-  annotName(). This string is clean from keying details, just as users would
-  expect it on maps etc.
-
-*/
-
-mExpClass(Basic) NamedObject : public CallBacker
+mExpClass(Basic) NamedObject : public Monitorable
 {
 public:
 
 			NamedObject(const char* nm=0);
-			NamedObject(const NamedObject* linkedto);
 			NamedObject(const NamedObject&);
     virtual		~NamedObject();
-    void		setLinkedTo(NamedObject*);
-    bool		operator ==( const NamedObject& oth ) const
-			{ return name() == oth.name(); }
+    bool		operator ==(const NamedObject&) const;
 
-    virtual const OD::String& name() const
-			{ return name_ ? *name_ : linkedto_->name(); }
-    virtual const OD::String& annotName() const
-			{ return linkedto_ ? linkedto_->annotName() : name();}
-
+    virtual BufferString getName() const;
     virtual void	setName(const char*);
-    void		setCleanName(const char*); //!< cleans string first
 
-    void		deleteNotify(const CallBack&);
-    void		stopDeleteNotify(NamedObject&);
+    bool		getNameFromPar(const IOPar&);
+    void		putNameInPar(IOPar&) const;
+
+    mDeclInstanceCreatedNotifierAccess( NamedObject );
+
+			//! not MT-safe
+    virtual const OD::String& name() const	{ return name_; }
 
 protected:
 
-    BufferString*	name_;
-    NamedObject*	linkedto_;
-    CallBackSet*	delnotify_;
-
-private:
-
-    void		cbRem(NamedObject*);
+    BufferString	name_;
 
 };
 

@@ -600,7 +600,7 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 
 void SurveyInfo::updateDirName()
 {
-    if ( !name_  || name_->isEmpty() )
+    if ( name().isEmpty() )
 	return;
 
     dirname_ = name();

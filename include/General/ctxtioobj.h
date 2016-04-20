@@ -143,15 +143,16 @@ mExpClass(General) CtxtIOObj : public NamedObject
 public:
     mStartAllowDeprecatedSection
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
-			    : NamedObject(""), ctxt_(ct), ioobj_(o), iopar_(0)
-			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
-			{ setLinkedTo(&ctxt_); }
+			    : NamedObject(ct), ctxt_(ct), ioobj_(o)
+			      , iopar_(0), ctxt(ctxt_), ioobj(ioobj_)
+			      , iopar(iopar_)
+			{ if ( o ) setName(o->name()); }
 			CtxtIOObj( const CtxtIOObj& ct )
-			    : NamedObject(""), ctxt_(ct.ctxt_)
+			    : NamedObject(ct), ctxt_(ct.ctxt_)
 			    , ioobj_(ct.ioobj_?ct.ioobj_->clone():0)
 			    , iopar_(ct.iopar_?new IOPar(*ct.iopar_):0)
 			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
-			{ setLinkedTo(&ctxt_); }
+			{}
     mStopAllowDeprecatedSection
     void		destroyAll();
 

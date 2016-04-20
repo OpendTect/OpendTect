@@ -67,7 +67,7 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
     if ( colid_ < cp_.mincolid_ )
 	return;
 
-    renewAxis( toUiString(cp_.uidps_.userName(colid_)), &cp_.scene(), 
+    renewAxis( toUiString(cp_.uidps_.userName(colid_)), &cp_.scene(),
 	       cp_.width(), cp_.height(), 0 );
     handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
 }
@@ -119,7 +119,7 @@ float SelectionArea::selectedness( uiPoint pt ) const
 {
     if ( !isInside(pt) )
 	return mUdf(float);
- 
+
     if ( mIsUdf(maxdistest_) )
 	maxdistest_ = maxDisToBorder();
 
@@ -153,12 +153,12 @@ double SelectionArea::minDisToBorder( uiPoint pt ) const
     {
 	const int min_dist_vert_lines =
 	    (pt.x-rect_.left()) < (rect_.right()-pt.x) ? pt.x-rect_.left()
-	    					       : rect_.right()-pt.x;
+						       : rect_.right()-pt.x;
 	const int min_dist_hor_lines =
 	    (pt.y-rect_.top()) < (rect_.bottom()-pt.y) ? pt.y-rect_.top()
-	    					       : rect_.bottom()-pt.y;
+						       : rect_.bottom()-pt.y;
 	return min_dist_vert_lines > min_dist_hor_lines ? min_dist_hor_lines
-	    						: min_dist_vert_lines;
+							: min_dist_vert_lines;
     }
 
     return poly_.distTo( pt );
@@ -197,7 +197,7 @@ Interval<double> SelectionArea::getValueRange( bool forxaxis, bool alt ) const
 	{
 	    intv.start = worldrect_.bottom();
 	    intv.stop = worldrect_.top();
-	    
+
 	    if ( alt )
 	    {
 		intv.start = altworldrect_.bottom();
@@ -228,7 +228,7 @@ BufferStringSet SelectionArea::getAxisNames() const
 
 void SelectionGrp::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), name().buf() );
+    putNameInPar( par );
     BufferString colorstr;
     col_.fill( colorstr );
     par.set( sKey::Color(), colorstr );
@@ -240,13 +240,13 @@ void SelectionGrp::fillPar( IOPar& par ) const
 	BufferString selkey;
 	BufferStringSet attributes;
 	selkey.add( selidx );
-	
+
 	attributes.add( selarea.xaxisnm_ );
 	attributes.add(  selarea.yaxisnm_ );
 	if ( selarea.axistype_ == SelectionArea::Both )
 	    attributes.add( selarea.altyaxisnm_ );
 	par.set( IOPar::compKey(selkey,sKey::Attributes()), attributes );
-	
+
 	if ( selarea.isrectangle_ )
 	{
 	    uiWorldRect rect = selarea.worldrect_;
@@ -295,7 +295,7 @@ void SelectionGrp::fillPar( IOPar& par ) const
 
 void SelectionGrp::usePar( const IOPar& par )
 {
-    if ( !par.get(sKey::Name(),*name_) || !par.get(sKey::Color(),col_) )
+    if ( !getNameFromPar(par) || !par.get(sKey::Color(),col_) )
 	return;
 
     int nrselareas = 0;
@@ -310,7 +310,7 @@ void SelectionGrp::usePar( const IOPar& par )
 
 	BufferString rectstr = IOPar::compKey( selkey.str(), sKeyRect );
 	BufferString polygonstr = IOPar::compKey( selkey.str(), sKeyPoly );
-	    
+
 	int posidx = 0;
 	BufferString positionstr = IOPar::compKey( sKeyPos, posidx );
 
@@ -324,7 +324,7 @@ void SelectionGrp::usePar( const IOPar& par )
 
 	    par.get( IOPar::compKey(rectstr,positionstr), ptsrb );
 	    uiWorldRect rect( ptslt[0], ptslt[1], ptsrb[0], ptsrb[1] );
-	    
+
 	    SelectionArea selarea( true );
 	    selarea.id_ = selidx;
 	    selarea.worldrect_ = rect;
@@ -341,10 +341,10 @@ void SelectionGrp::usePar( const IOPar& par )
 	else if ( par.find(IOPar::compKey(polygonstr,positionstr)) )
 	{
 	    ODPolygon<double> worldpoly, altworldpoly;
-	    
+
 	    bool hasalt = false;
 	    while ( par.find(IOPar::compKey(polygonstr.buf(),
-			    		    positionstr.buf())) )
+					    positionstr.buf())) )
 	    {
 		TypeSet<double> pt;
 		par.get( IOPar::compKey(polygonstr,positionstr), pt );
@@ -536,10 +536,10 @@ void SelectionGrp::getInfo( uiString& info ) const
 	BufferStringSet axisnms = selarea.getAxisNames();
 
 	info.append(tr("Area Nr %1\n").arg( idx+1 ));
-	info.append(tr("Area Type : %1").arg(selarea.isrectangle_ ? 
+	info.append(tr("Area Type : %1").arg(selarea.isrectangle_ ?
                               tr("Rectangle \n") : tr("Polygon \n")));
 
-	range = selarea.getValueRange( true ); 
+	range = selarea.getValueRange( true );
 	info.append(tr("%1 (range) :%2, %3\n").arg(selarea.xaxisnm_)
               .arg(range.start).arg(range.stop));
 

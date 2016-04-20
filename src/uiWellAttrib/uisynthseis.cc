@@ -123,7 +123,7 @@ void uiSynthSeisGrp::setRayTracerType( const char* type )
 
 const char* uiSynthSeisGrp::getWaveletName() const
 {
-    return wvltfld_->getName();
+    return wvltfld_->getWvltName();
 }
 
 

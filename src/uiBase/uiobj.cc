@@ -41,7 +41,8 @@ uiParent::uiParent( const char* nm, uiParentBody* b )
 void uiParent::addChild( uiBaseObject& child )
 {
     mDynamicCastGet(uiBaseObject*,thisuiobj,this);
-    if ( thisuiobj && child == thisuiobj ) return;
+    if ( thisuiobj && &child == thisuiobj )
+	return;
     if ( !body() )
 	{ pErrMsg("uiParent has no body!"); return; }
 

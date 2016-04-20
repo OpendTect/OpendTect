@@ -16,6 +16,9 @@ ________________________________________________________________________
 
 /*!\brief Object that can be MT-safely monitored from cradle to grave.
 
+  Traditionally, the MVC concept was all about automatic updates. This can
+  still be done, but nowadays more important seems the integrity for MT.
+
   The instanceCreated() will tell you when *any* Monitorable is created. To
   make your class really monitorable, use mDeclInstanceCreatedNotifierAccess
   for your subclass, too. Note that you'll need to add
@@ -23,10 +26,11 @@ ________________________________________________________________________
   mDefineInstanceCreatedNotifierAccess(YourClassName) to a .cc.
 
   Similarly, you have to trigger the objectToBeDeleted() from your destructor.
-  This base class could do such a thing but then it's too late for many
-  purposes: the subclass part of the object is then already dead. Thus, this
-  base class destructor does *not* trigger the notifier as in:
-  objectToBeDeleted().trigger();
+  This base class will do such a thing but then it's too late for many
+  purposes: the subclass part of the object is then already dead. Thus, at
+  the beginning of the your destructor, call sendDelNotif().
+
+  For typical usage see NamedObject.
 
 */
 
@@ -34,13 +38,14 @@ mExpClass(Basic) Monitorable : public CallBacker
 {
 public:
 
-    virtual				~Monitorable()
-					{ /* nothing, see class comments! */ }
+					Monitorable(const Monitorable&);
+    virtual				~Monitorable();
+    Monitorable&			operator =(const Monitorable&);
 
     virtual Notifier<Monitorable>&	objectChanged()
-					{ return objchgd_; }
+					{ return chgnotif_; }
     virtual Notifier<Monitorable>&	objectToBeDeleted()
-					{ return objtobedel_; }
+					{ return delnotif_; }
     mDeclInstanceCreatedNotifierAccess(	Monitorable );
 					//!< defines static instanceCreated()
 
@@ -48,22 +53,34 @@ protected:
 
 				Monitorable();
 
-    Threads::Lock		editlock_;
-    Notifier<Monitorable>	objchgd_;
-    Notifier<Monitorable>	objtobedel_;
+    mutable Threads::Lock	accesslock_;
 
     //!\brief makes locking easier and safer (unlocks when it goes out of scope)
-    mExpClass(Basic) EditLocker
+    mExpClass(Basic) AccessLockHandler
     {
     public:
-				EditLocker( Monitorable& m )
-				    : locker_(m.editlock_)	    {}
+				AccessLockHandler( Monitorable& m )
+				    : locker_(m.accesslock_)	    {}
+				AccessLockHandler( const Monitorable& m )
+				    : locker_(m.accesslock_)	    {}
 	Threads::Locker		locker_;
     };
+
+    void			sendChgNotif(AccessLockHandler&);
+				//!< objectChanged called with released lock
+    void			sendDelNotif();
+
+private:
+
+    Notifier<Monitorable>	chgnotif_;
+    Notifier<Monitorable>	delnotif_;
+    bool			delalreadytriggered_;
+
 };
 
 //! For use in subclasses of Monitorable
-#define mLock4Edit() EditLocker editlocker_( *this )
+#define mLock4Access() AccessLockHandler accesslockhandler_( *this )
+#define mSendChgNotif() sendChgNotif( accesslockhandler_ )
 
 
 #endif

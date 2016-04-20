@@ -34,7 +34,7 @@ public:
 			~uiSeisWaveletSel();
     void		rebuildList();
 
-    const char*		getName() const;
+    const char*		getWvltName() const;
     const MultiID&	getID() const;
     Wavelet*		getWavelet() const;
     void		setInput(const char*);

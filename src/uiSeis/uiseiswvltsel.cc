@@ -32,7 +32,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     , newSelection(this)
 {
     uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, seltxt ? mToUiStringTodo(seltxt) : 
+	new uiLabeledComboBox( this, seltxt ? mToUiStringTodo(seltxt) :
 							uiStrings::sWavelet() );
     nmfld_ = lcb->box();
     uiObject* lastfld = lcb->attachObj();
@@ -106,7 +106,7 @@ void uiSeisWaveletSel::setInput( const MultiID& mid )
 }
 
 
-const char* uiSeisWaveletSel::getName() const
+const char* uiSeisWaveletSel::getWvltName() const
 {
     return nmfld_->text();
 }

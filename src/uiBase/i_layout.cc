@@ -52,16 +52,18 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy
 
 i_LayoutMngr::~i_LayoutMngr()
 {
+    detachAllNotifiers();
     delete &poptimer;
 }
 
 
 void i_LayoutMngr::addItem( i_LayoutItem* itm )
 {
-    if ( !itm ) return;
-
-    itm->deleteNotify( mCB(this,i_LayoutMngr,itemDel) );
-    childrenlist += itm;
+    if ( itm )
+    {
+	mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
+	childrenlist += itm;
+    }
 }
 
 
@@ -73,17 +75,19 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 */
 void i_LayoutMngr::addItem( QLayoutItem *qItem )
 {
-    if ( !qItem ) return;
-    addItem( new i_LayoutItem( *this, *qItem) );
+    if ( qItem )
+	addItem( new i_LayoutItem(*this,*qItem) );
 }
 
 
 void i_LayoutMngr::itemDel( CallBacker* cb )
 {
-    if ( !cb ) return;
+    if ( !cb )
+	return;
 
     i_LayoutItem* itm = static_cast<i_LayoutItem*>( cb );
-    if ( !itm) { pErrMsg("huh?"); return; }
+    if ( !itm )
+	{ pErrMsg("huh?"); return; }
 
     childrenlist -= itm;
 }
@@ -91,7 +95,8 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 
 QSize i_LayoutMngr::minimumSize() const
 {
-    if ( !mFinalised() ) return QSize(0,0);
+    if ( !mFinalised() )
+	return QSize(0,0);
 
     if ( !minimumDone )
     {
@@ -100,7 +105,6 @@ QSize i_LayoutMngr::minimumSize() const
     }
 
     uiRect mPos;
-
     if ( ismain )
     {
 	if ( managedBody.shrinkAllowed() )
@@ -136,14 +140,15 @@ QSize i_LayoutMngr::minimumSize() const
 	return QSize( hsz, vsz );
     }
 
-    mPos = curpos(minimum);
+    mPos = curpos( minimum );
     return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
 
 QSize i_LayoutMngr::sizeHint() const
 {
-    if ( !mFinalised() ) return QSize(0, 0);
+    if ( !mFinalised() )
+	return QSize(0, 0);
 
     if ( !preferredDone )
     {
@@ -187,7 +192,7 @@ QSize i_LayoutMngr::sizeHint() const
 const uiRect& i_LayoutMngr::curpos(LayoutMode lom) const
 {
     i_LayoutItem* managedItem =
-	    const_cast<i_LayoutItem*>(managedBody.layoutItem());
+	    const_cast<i_LayoutItem*>( managedBody.layoutItem() );
 
     return managedItem ? managedItem->curpos(lom) : layoutpos[lom];
 }

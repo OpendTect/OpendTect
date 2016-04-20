@@ -26,7 +26,7 @@ ________________________________________________________________________
 /*
 uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     : uiGroup(p,"Well display")
-    , setup_(s)	    
+    , setup_(s)
     , mandata_(w.data().multiID())
 {
     init( s );
@@ -103,7 +103,7 @@ void uiWellDisplay::init( const Setup& s )
 	    mAttachCB( wd.disp3dparschanged, uiWellDisplay::wdChgCB );
 	else
 	    mAttachCB( wd.disp2dparschanged, uiWellDisplay::wdChgCB );
-	wd.deleteNotify( mCB(this,uiWellDisplay,wdChgCB) );
+	mAttachCB( wd.objectToBeDeleted(), uiWellDisplay::wdChgCB );
     }
 
     if ( s.nobackground_ )
@@ -123,11 +123,6 @@ void uiWellDisplay::init( const Setup& s )
 uiWellDisplay::~uiWellDisplay()
 {
     detachAllNotifiers();
-    if ( haveWellData() )
-    {
-	Well::Data& wd = wellData();
-	wd.stopDeleteNotify( *this );
-    }
     delete control_;
 }
 
@@ -170,7 +165,7 @@ void uiWellDisplay::setDahData()
 }
 
 
-void uiWellDisplay::setDisplayProperties() 
+void uiWellDisplay::setDisplayProperties()
 {
     Well::Data* wd = haveWellData() ? &wellData() : 0;
     if ( !wd )
@@ -245,7 +240,13 @@ uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const MultiID& id,
 					mCB(this,uiWellDisplayWin,posChgCB) );
 
     if ( welldisp_->haveWellData() )
-	welldisp_->deleteNotify( mCB(this,uiWellDisplayWin,wdDelCB) );
+	mAttachCB(welldisp_->objectToBeDeleted(),uiWellDisplayWin::wdDelCB);
+}
+
+
+uiWellDisplayWin::~uiWellDisplayWin()
+{
+    detachAllNotifiers();
 }
 
 

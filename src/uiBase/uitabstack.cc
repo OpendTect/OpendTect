@@ -46,8 +46,9 @@ void uiTabStack::tabSel( CallBacker* cb )
 
     for ( int idx=0; idx<tabs.size(); idx++ )
     {
-	const bool disp = tabs[idx]->group() == selgrp;
-	tabs[idx]->group().display( disp );
+	uiGroup* grp = &tabs[idx]->group();
+	const bool disp = grp == selgrp;
+	grp->display( disp );
     }
 }
 
@@ -56,7 +57,7 @@ void uiTabStack::addTab( uiGroup* grp, const uiString& txt )
 {
     if ( !grp ) return;
 
-    const uiString tabcaption = !txt.isEmpty() ? txt 
+    const uiString tabcaption = !txt.isEmpty() ? txt
 						: toUiString(grp->name());
     uiTab* tab = new uiTab( *grp, tabcaption );
     tabbar_->addTab( tab );

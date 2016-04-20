@@ -1668,7 +1668,7 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
 	mErrRet( uiStrings::phrSpecify(tr("a new name.\n"
 		    "Wells can be removed in 'Manage wells'")) )
 
-    name_ = newnm;
+    wellname_ = newnm;
     return true;
 }
 

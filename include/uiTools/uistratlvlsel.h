@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiComboBox;
-namespace Strat { class Level; } 
+namespace Strat { class Level; }
 
 
 /*!\brief Selector for stratigraphic levels */
@@ -30,7 +30,7 @@ public:
 			~uiStratLevelSel();
 
     const Strat::Level*	selected() const;
-    const char*		getName() const;
+    const char*		getLevelName() const;
     Color		getColor() const;
     int			getID() const;
 

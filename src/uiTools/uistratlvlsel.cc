@@ -25,7 +25,7 @@ static void getLvlNms( BufferStringSet& bss, bool withudf )
 }
 
 
-uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf, 
+uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,
 							   const uiString& lbl )
     : uiGroup(p)
     , fld_(0)
@@ -64,7 +64,7 @@ const Strat::Level* uiStratLevelSel::selected() const
 }
 
 
-const char* uiStratLevelSel::getName() const
+const char* uiStratLevelSel::getLevelName() const
 {
     const Strat::Level* lvl = selected();
     return lvl && lvl->id() >= 0 ? lvl->name().buf() : "";

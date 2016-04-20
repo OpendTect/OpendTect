@@ -70,8 +70,7 @@ void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
-	if ( !itm ) continue;
-	if ( itm->getSet() == ps )
+	if ( itm && &itm->getSet() == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -433,8 +432,7 @@ void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
-	if ( !itm ) continue;
-	if ( itm->getSet() == ps )
+	if ( itm && &itm->getSet() == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );

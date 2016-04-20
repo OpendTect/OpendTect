@@ -38,7 +38,7 @@ public:
     mStruct(uiWell) Setup
     {
 				Setup()
-				    : nobackground_(false)  
+				    : nobackground_(false)
 				    , nologborder_(false)
 				    , noxannot_(false)
 				    , noyannot_(false)
@@ -52,8 +52,8 @@ public:
 	mDefSetupMemb(bool,xaxisinpercents)
 	mDefSetupMemb(bool,noyannot)
 	mDefSetupMemb(int,nologborder)
-	mDefSetupMemb(bool,withcontrol) //will add a control 
-	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars 
+	mDefSetupMemb(bool,withcontrol) //will add a control
+	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars
 
     };
 
@@ -68,15 +68,15 @@ public:
 				//!< can only be used if haveWellData() == true
 
     Interval<float>		zRange() const	{ return zrg_; }
-    void 			setZRange(Interval<float> zrg)
+    void			setZRange(Interval<float> zrg)
 				{ zrg_ = zrg; setDahData(); }
-    void 			setZIsTime( bool yn )
+    void			setZIsTime( bool yn )
 				{ zistime_ = yn; setDahData(); }
-    void 			setZInFeet( bool yn )
+    void			setZInFeet( bool yn )
 				{ dispzinft_ = yn; setDahData(); }
 
     void			setControl(uiWellDisplayControl&);
-    uiWellDisplayControl*	control() 	{ return control_; }
+    uiWellDisplayControl*	control()	{ return control_; }
     const uiWellDisplayControl*	control() const	{ return control_; }
     const Setup&		setup() const	{ return setup_; }
 
@@ -94,11 +94,11 @@ protected:
     bool			zistime_;
     bool			use3ddisp_;
     uiSize			size_;
-    const Setup 		setup_;
+    const Setup		setup_;
 
     ObjectSet<uiWellLogDisplay> logdisps_;
     uiWellDisplayControl*	control_;
-    uiWellStratDisplay*		stratdisp_; 
+    uiWellStratDisplay*		stratdisp_;
 
     void			setDahData();
     void			setDisplayProperties();
@@ -123,10 +123,11 @@ mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
 public :
 				uiWellDisplayWin(uiParent*,const MultiID&,
 						 bool withcontrol=true);
+				~uiWellDisplayWin();
 
-protected:                  
+protected:
 
-    uiWellDisplay* 		welldisp_;
+    uiWellDisplay*		welldisp_;
 
     void			wdDelCB(CallBacker*);
     void			posChgCB(CallBacker*);

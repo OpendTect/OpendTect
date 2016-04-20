@@ -610,7 +610,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 
     if ( wvasd )
     {
-	wvasd->setWavelet( wvltfld_->getName() );
+	wvasd->setWavelet( wvltfld_->getWvltName() );
 	currentwvasynthetic_ = wvasd;
 	if ( synthgendlg_ )
 	    synthgendlg_->updateWaveletName();
@@ -628,7 +628,7 @@ void uiStratSynthDisp::setCurrentWavelet()
     mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd);
     if ( vdsd && !prsd )
     {
-	vdsd->setWavelet( wvltfld_->getName() );
+	vdsd->setWavelet( wvltfld_->getWvltName() );
 	currentvdsynthetic_ = vdsd;
 	if ( vdsynthnm != wvasynthnm )
 	{
@@ -1267,7 +1267,7 @@ void uiStratSynthDisp::doModelChange()
 
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
-    
+
     showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );
@@ -1296,7 +1296,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
-    
+
      if ( curwvasdnm==synthnm )
 	 currentwvasynthetic_ = 0;
      if ( curvdsdnm==synthnm )
@@ -1307,7 +1307,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	mErrRet(curSS().errMsg(), return );
 
     showInfoMsg( false );
-        
+
     if ( altSS().hasElasticModels() )
     {
 	altSS().removeSynthetic( syntheticnm );
@@ -1502,7 +1502,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
-	
+
 	showInfoMsg( true );
     }
     updateSyntheticList( true );

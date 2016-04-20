@@ -191,6 +191,7 @@ public:
 			//!<Only for debugging purposes, don't use
 
 protected:
+
     void		detachAllNotifiers();
 			//!<Call from the destructor of your inherited object
 private:
@@ -200,6 +201,7 @@ private:
 
     ObjectSet<NotifierAccess>	attachednotifiers_;
     mutable Threads::Lock	attachednotifierslock_;
+
 };
 
 

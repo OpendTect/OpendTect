@@ -39,7 +39,7 @@ mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 
 static const IOObjContext::StdDirData stddirdata[] = {
     mStdDirD( "100010", "Seismics",
-    	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Seis)),
+	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Seis)),
     mStdDirD( "100020", "Surfaces",
 	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Surf) ),
     mStdDirD( "100030", "Locations",
@@ -250,7 +250,7 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 
 
 IOObjContext::IOObjContext( const IOObjContext& oth )
-    : NamedObject(oth.name())
+    : NamedObject(oth)
     , mInitRefs
 {
     *this = oth;

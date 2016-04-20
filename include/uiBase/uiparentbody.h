@@ -29,13 +29,15 @@ public:
 			    , finalised_( false )
 			{}
 
-    virtual		~uiParentBody()		{ deleteAllChildren(); }
+    virtual		~uiParentBody()
+			{ deleteAllChildren(); }
 
     virtual void	addChild( uiBaseObject& child )
-			{ 
+			{
 			    if ( children_.isPresent(&child ) )	return;
-			    children_ += &child; 
-			    child.deleteNotify(mCB(this,uiParentBody,childDel));
+			    children_ += &child;
+			    mAttachCB( child.objectToBeDeleted(),
+				       uiParentBody::childDel );
 			}
 
 			//! child becomes mine.
@@ -45,30 +47,31 @@ public:
 			    manageChld_(child,b);
 			}
 
-    virtual void	attachChild( constraintType tp, uiObject* child, 
+    virtual void	attachChild( constraintType tp, uiObject* child,
 				     uiObject* other, int margin,
 				     bool reciprocal ) =0;
 
     const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
 
     bool		finalised() const	{ return finalised_; }
-    virtual void 	finalise()		{ finaliseChildren(); }
-    void      		finaliseChildren();	// body: uiobj.cc
-    void      		clearChildren();	// body: uiobj.cc
+    virtual void	finalise()		{ finaliseChildren(); }
+    void		finaliseChildren();	// body: uiobj.cc
+    void		clearChildren();	// body: uiobj.cc
 
 			//! widget to be used as parent for QWidgets
     inline const mQtclass(QWidget*) managewidg() const	{ return managewidg_();}
 			//! widget to be used as parent for QWidgets
     inline mQtclass(QWidget*)	managewidg()
-    		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
+		    { return const_cast<mQtclass(QWidget*)>( managewidg_() ); }
 
 protected:
+
     void	deleteAllChildren()
 		{
 		    //avoid the problems from childDel() removal from
 		    //children_
 		    ObjectSet<uiBaseObject> childrencopy = children_;
-		    children_.erase(); 
+		    children_.erase();
 		    deepErase( childrencopy );
 		}
 

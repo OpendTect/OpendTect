@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "";
 #include "separstr.h"
 #include "strmprov.h"
 #include "od_iostream.h"
-#include "survinfo.h"
+#include "ioman.h"
 #include "timefun.h"
 #include "od_helpids.h"
 
@@ -204,9 +204,12 @@ bool getSelGrpSetNames( BufferStringSet& nms )
 
 static SGSelGrpManager* sgm = 0;
 
+struct SGSelGrpManDeleter : public CallBacker
+{
+void doDel( CallBacker* )
+{ delete sgm; sgm = 0; }
+};
 
-struct SGSelGrpManDeleter : public NamedObject
-{ void doDel( CallBacker* ) { delete sgm; sgm = 0; } };
 
 static SGSelGrpManager& SGM()
 {
@@ -214,10 +217,8 @@ static SGSelGrpManager& SGM()
     {
 	sgm = new SGSelGrpManager();
 	mDefineStaticLocalObject( SGSelGrpManDeleter, sgsmd, );
-	const_cast<SurveyInfo&>(SI()).deleteNotify(
-		mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
+	IOM().surveyToBeChanged.notify( mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
     }
-
     return *sgm;
 }
 

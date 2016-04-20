@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    i_LayoutMngr* 	loMngr();
+    i_LayoutMngr*	loMngr();
 
     uiGroupParentBody&	grpprntbody;
 
@@ -51,23 +51,23 @@ protected:
 
 class uiGroupObjBody  : public uiObjectBody, public QFrame
 {
-    friend class 		uiMainWin;
-    friend class 		uiDialog;
-    friend class 		i_LayoutMngr;
+    friend class		uiMainWin;
+    friend class		uiDialog;
+    friend class		i_LayoutMngr;
     friend class		i_uiGroupLayoutItem;
     friend			uiGroup* gtDynamicCastToGrp(QWidget*);
 public:
-    				uiGroupObjBody(uiGroupObj&,uiParent*,
+				uiGroupObjBody(uiGroupObj&,uiParent*,
 					       const char*);
 
-#define mHANDLE_OBJ     	uiGroupObj
+#define mHANDLE_OBJ	uiGroupObj
 #define mQWIDGET_BASE		QFrame
-#define mQWIDGET_BODY   	QFrame
-#include               		"i_uiobjqtbody.h"
+#define mQWIDGET_BODY	QFrame
+#include		"i_uiobjqtbody.h"
 
 public:
 
-    virtual void        	reDraw( bool deep );
+    virtual void	reDraw( bool deep );
     void			setPrntBody (uiGroupParentBody* pb)
 				    { prntbody_ = pb; }
 
@@ -89,21 +89,22 @@ protected:
 
 class uiGroupParentBody : public uiParentBody
 {
-    friend class 	uiMainWin;
-    friend class 	uiDialog;
-    friend class 	i_LayoutMngr;
+    friend class	uiMainWin;
+    friend class	uiDialog;
+    friend class	i_LayoutMngr;
     friend class	i_uiGroupLayoutItem;
     friend class	uiGroupObjBody;
     friend		uiGroup* gtDynamicCastToGrp( QWidget*);
 
 public:
-    			uiGroupParentBody(uiGroup&,uiGroupObjBody&,uiParent*,
+			uiGroupParentBody(uiGroup&,uiGroupObjBody&,uiParent*,
 					  const char* nm="uiGroupObjBody");
 
     virtual		~uiGroupParentBody()
 			{
 			    handle_.body_ = 0;
-			    if( loMngr) { delete loMngr; loMngr=0; }
+			    if( loMngr )
+				{ delete loMngr; loMngr=0; }
 			}
 
     void		setHSpacing( int space )
@@ -133,7 +134,7 @@ public:
 
 protected:
 
-    i_LayoutMngr* 	loMngr;
+    i_LayoutMngr*	loMngr;
 
     uiObject*		hcentreobj;
     uiObject*		halignobj;
@@ -157,9 +158,9 @@ protected:
 			}
 
     virtual const QWidget* qwidget_() const
-    						{ return objbody_.qwidget(); }
+						{ return objbody_.qwidget(); }
     virtual const QWidget* managewidg_() const
-    						{ return objbody_.qwidget();}
+						{ return objbody_.qwidget();}
 
     void		mngrDel( CallBacker* cb )
 			{
@@ -185,7 +186,7 @@ uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
     , objbody_( objbdy )
 {
     loMngr = new i_LayoutMngr( objbdy.qwidget(), nm, objbdy );
-    loMngr->deleteNotify( mCB(this,uiGroupParentBody,mngrDel) );
+    mAttachCB( loMngr->objectToBeDeleted(), uiGroupParentBody::mngrDel );
 }
 
 
@@ -292,8 +293,8 @@ void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
 
 
 // ----- uiGroupObjBody -----
-    uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
-	    			    const char* nm )
+uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
+				    const char* nm )
     : uiObjectBody( parnt, nm )
     , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
     , handle_( hndle )
@@ -634,13 +635,17 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
 
-    uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
-    body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
+    mAttachCB( uigrp_->objectToBeDeleted(), uiGroupObj::grpDel );
+    mAttachCB( body_->objectToBeDeleted(), uiGroupObj::bodyDel );
 }
 
 
 uiGroupObj::~uiGroupObj()
-{ if ( uigrp_ ) { uigrp_->grpobj_ = 0; delete uigrp_; }  }
+{
+    if ( uigrp_ )
+	{ uigrp_->grpobj_ = 0; delete uigrp_; }
+    detachAllNotifiers();
+}
 
 
 const ObjectSet<uiBaseObject>* uiGroupObj::childList() const
