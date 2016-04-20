@@ -32,7 +32,8 @@ public:
     bool			operator !=( const KeyboardEvent& ev ) const;
     static bool			isUnDo(const KeyboardEvent&);
     static bool			isReDo(const KeyboardEvent&);
-
+    static bool			isSave(const KeyboardEvent&);
+    static bool			isSaveAs(const KeyboardEvent&);
 };
 
 
