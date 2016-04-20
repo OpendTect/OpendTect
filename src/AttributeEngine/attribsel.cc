@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
@@ -175,12 +174,15 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
-		const LineKey lk( desc->userRef() );
-		const BufferString component = lk.attrName();
+		const StringPair usrref( desc->userRef() );
+		const BufferString component = usrref.first();
 		if ( component.isEmpty() )
 		    ncdesc->setUserRef( ioobj->name() );
 		else
-		    ncdesc->setUserRef( LineKey(ioobj->name(),component) );
+		{
+		    const StringPair compstr( ioobj->name(), component );
+		    ncdesc->setUserRef( compstr.getCompString() );
+		}
 	    }
 	}
 
@@ -266,7 +268,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );
-	    const BufferString usrref( desc ? desc->userRef() 
+	    const BufferString usrref( desc ? desc->userRef()
 					    : sKey::EmptyString().buf() );
 	    if ( !desc || usrref.isEmpty()
 	      || desc->attribName()==StorageProvider::attribName()
@@ -399,7 +401,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
 
 bool SelInfo::is2D( const char* defstr )
 {
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(LineKey(defstr).lineName().buf()));
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(defstr) );
     return ioobj ? SeisTrcTranslator::is2D(*ioobj,true) : false;
 }
 
@@ -408,7 +410,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(LineKey(defstr).lineName().buf()));
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(defstr) );
     if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
 	return;
 

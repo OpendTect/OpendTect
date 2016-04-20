@@ -57,12 +57,12 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     inpfld_->selectionDone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
     typefld_ = new uiGenInput( this, tr("Transform type"),
-	    		      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
+			      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
     typefld_->attach( alignedBelow, inpfld_ );
     typefld_->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
-	    		      DoubleInpIntervalSpec().setName("Z start",0)
+			      DoubleInpIntervalSpec().setName("Z start",0)
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, typefld_ );
 
@@ -73,7 +73,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     uiString lbl = uiStrings::phrOutput(uiStrings::phrJoinStrings(
 	uiStrings::sFrequency().toLower(), toUiString("(%1)")
-	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km") 
+	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km")
 	: tr("cycles/kft")))));
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
@@ -81,11 +81,11 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 1 );
     stepfld_->attach( rightTo, outpfld_ );
-    stepfld_->box()->valueChanged.notify( 
-	    			mCB(this,uiSpecDecompAttrib,stepChg) );
+    stepfld_->box()->valueChanged.notify(
+				mCB(this,uiSpecDecompAttrib,stepChg) );
 
-    waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(), 
-	    			 StringListInpSpec(CWT::WaveletTypeDef()) );
+    waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(),
+				 StringListInpSpec(CWT::WaveletTypeDef()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 
     stepChg(0);
@@ -203,7 +203,7 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
     mSetEnum( SpecDecomp::cwtwaveletStr(), waveletfld_->getIntValue() );
 
     const float freqscale = zIsTime() ? 1.f : 1000.f;
-    mSetFloat( SpecDecomp::deltafreqStr(), 
+    mSetFloat( SpecDecomp::deltafreqStr(),
 	       stepfld_->box()->getFValue()/freqscale );
 
     return true;
@@ -283,7 +283,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
     setPrevSel();
     positiondlg_->show();
     positiondlg_->windowClosed.notify(
-	    			mCB(this,uiSpecDecompAttrib,viewPanalCB) );
+				mCB(this,uiSpecDecompAttrib,viewPanalCB) );
 }
 
 
@@ -295,14 +295,10 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
 
     getPrevSel();
     DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
-    DescID specdecompid = createSpecDecompDesc( dset ); 
+    DescID specdecompid = createSpecDecompDesc( dset );
     const TrcKeyZSampling cs( positiondlg_->getTrcKeyZSampling() );
-
-    LineKey lk;
-    if ( dset->is2D() )
-	lk = LineKey( positiondlg_->getLineKey() );
-    panelview_->compAndDispAttrib(
-	    dset,specdecompid,cs,Survey::GM().getGeomID(lk.lineName().buf()));
+    panelview_->compAndDispAttrib( dset, specdecompid, cs,
+				   positiondlg_->geomID() );
 }
 
 
@@ -316,8 +312,7 @@ void uiSpecDecompAttrib::getPrevSel()
 
     if ( is2D() )
     {
-	const char* sellnm = positiondlg_->linesfld_->box()->text();
-	prevpar_.set( sKeyLineName(), sellnm );
+	prevpar_.set( sKey::GeomID(), positiondlg_->geomID() );
 	prevpar_.set( sKeyTrcNr(),
 		      positiondlg_->trcnrfld_->box()->getIntValue() );
 	return;
@@ -344,10 +339,15 @@ void uiSpecDecompAttrib::setPrevSel()
 
     if ( is2D() )
     {
-	BufferString lnm;
-	prevpar_.get( sKeyLineName(), lnm );
-	positiondlg_->linesfld_->box()->setText( lnm );
-	positiondlg_->linesfld_->box()->selectionChanged.trigger();
+	Pos::GeomID geomid;
+	if ( !prevpar_.get(sKey::GeomID(),geomid) )
+	{
+	    BufferString lnm;
+	    prevpar_.get( sKeyLineName(), lnm );
+	    geomid = Survey::GM().getGeomID( lnm );
+	}
+
+	positiondlg_->setGeomID( geomid );
 	int trcnr;
 	prevpar_.get( sKeyTrcNr(), trcnr );
 	positiondlg_->trcnrfld_->box()->setValue( trcnr );
@@ -362,7 +362,7 @@ void uiSpecDecompAttrib::setPrevSel()
 
 
 void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
-{                                                                               
+{
     if ( !is2D() ) return;
 
     Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
@@ -414,7 +414,7 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
     createHilbertDesc( dset, hilbid );
     if ( !newdesc->setInput( 1, dset->getDesc(hilbid)) )
 	return DescID::undef();
-    
+
     fillInSDDescParams( newdesc );
     newdesc->updateParams();
     newdesc->setUserRef( "spectral decomposition" );
@@ -434,7 +434,7 @@ Desc* uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
     newdesc->selectOutput( seloutidx );
     newdesc->setInput( inpidx, inpdesc );
     newdesc->setHidden( true );
-    BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref; 
+    BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );
     return newdesc;
 }

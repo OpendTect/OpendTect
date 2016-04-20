@@ -27,10 +27,8 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "linekey.h"
 #include "trckeyzsampling.h"
 #include "seispreload.h"
-#include "separstr.h"
 #include "survinfo.h"
 #include "zdomain.h"
 #include "datapack.h"
@@ -202,8 +200,8 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
 	    {
-		LineKey lk( desc->userRef() );
-		storcur = attrinf_->ioobjnms_.indexOf( lk.lineName() );
+		StringPair strpair( desc->userRef() );
+		storcur = attrinf_->ioobjnms_.indexOf( strpair.first() );
 		//2D attrib is set in cubeSel, called from doFinalize
 	    }
 	}

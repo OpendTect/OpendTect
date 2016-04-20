@@ -387,7 +387,6 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     {
 	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1);
 	txthead_->setUserInfo( pinfo_.usrinfo );
-	fileopts_.thdef_.linename = curlinekey_;
 	fileopts_.thdef_.pinfo = &pinfo_;
 	txthead_->setPosInfo( fileopts_.thdef_ );
 	txthead_->setStartPos( outsd_.start );

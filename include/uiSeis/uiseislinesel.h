@@ -129,6 +129,7 @@ public:
     const char*		getInput() const;
     Pos::GeomID		getInputGeomID() const;
     void		setInput(const char*);
+    void		setInputGeomID(Pos::GeomID);
     void		setDataSet(const MultiID&); //!< Only when forread
     void		fillWithAll();
 

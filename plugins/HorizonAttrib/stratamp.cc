@@ -115,10 +115,9 @@ int StratAmpCalc::init( const IOPar& pars )
     usesstored_ = storstr.isStartOf( defstring );
     if ( usesstored_)
     {
-	const LineKey lk( targetdesc->getValParam(
+	const StringPair strpair( targetdesc->getValParam(
 			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-	const MultiID key( lk.lineName() );
-	const BufferString attrnm = lk.attrName();
+	const MultiID key( strpair.first() );
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	rdr_ = new SeisTrcReader( seisobj );
 	TrcKeyZSampling cs;
@@ -129,9 +128,8 @@ int StratAmpCalc::init( const IOPar& pars )
     else
     {
 	uiString errmsg;
-	BufferString linename; //TODO: function used in 2d?
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
-	proc_ = attrengman->usePar( pars, *descset_, linename, errmsg );
+	proc_ = attrengman->usePar( pars, *descset_, 0, errmsg );
 	if ( !proc_ ) return -1;
     }
 

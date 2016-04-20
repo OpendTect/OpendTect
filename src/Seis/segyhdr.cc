@@ -17,7 +17,6 @@
 #include "math2.h"
 #include "envvars.h"
 #include "timefun.h"
-#include "linekey.h"
 #include "od_iostream.h"
 #include "posimpexppars.h"
 
@@ -200,10 +199,8 @@ void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
 
     if ( !thd.linename.isEmpty() )
     {
-	LineKey lk( thd.linename );
 	putAt( 4, 6, 20, "Line name:" );
-	putAt( 4, 20, 75, lk.lineName() );
-	putAt( 4, 45, 75, lk.attrName() );
+	putAt( 4, 20, 75, thd.linename );
     }
     if ( thd.pinfo )
     {

@@ -59,8 +59,6 @@ bool BatchProgram::go( od_ostream& strm )
     const bool hastrcsampling = trcsampling.usePar( pars() );
 
     BufferString linekey;
-    pars().get( ProcessManager::sKeyLineKey(), linekey );
-
     Seis::GeomType geomtype;
     if ( !Seis::getFromPar(pars(),geomtype) )
     {

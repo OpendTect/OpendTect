@@ -216,13 +216,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    Attrib::Desc* firststoreddsc = ads_->getFirstStored();
 	    if ( firststoreddsc )
 	    {
-		const LineKey lk( firststoreddsc->getValParam(
-			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-		BufferString linenm = lk.lineName();
-		if ( !linenm.isEmpty() && *linenm.buf() != '#' )
-		    mSetObjFld( LineKey(IOM().nameOf( linenm.buf() ),
-				todofld_->getInput()) )
-
 		PtrMan<IOObj> ioobj =
 			IOM().get( MultiID(firststoreddsc->getStoredID(true)) );
 		if ( ioobj )
@@ -507,11 +500,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	{
 	    BufferString storedid = desc->getStoredID();
 	    if ( !storedid.isEmpty() )
-	    {
-		LineKey lk( storedid.buf() );
-		iop.set( "Input Line Set", lk.lineName() );
-		linename = lk.lineName();
-	    }
+		iop.set( "Input Line Set", storedid );
 	}
     }
 

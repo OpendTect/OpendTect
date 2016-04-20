@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class TrcKeyZSampling;
-class LineKey;
 class SeisTrcBuf;
 class TaskRunner;
 class RegularSeisDataPack;

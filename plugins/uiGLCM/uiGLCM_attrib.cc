@@ -20,7 +20,6 @@
 #include "uistepoutsel.h"
 
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 
@@ -30,6 +29,7 @@
 #include "uicombobox.h"
 #include "seisioobjinfo.h"
 #include "ioobj.h"
+#include "uiseislinesel.h"
 #include "uiselsurvranges.h"
 #include "uitaskrunner.h"
 #include "attribprocessor.h"
@@ -243,17 +243,6 @@ bool uiGLCM_attrib::getInput( Desc& desc )
 
 void uiGLCM_attrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
-    {
-	const char* steertxt = steerfld_->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld_->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName() )
-		    steerfld_->clearInpField();
-	}
-    }
 }
 
 void uiGLCM_attrib::getEvalParams( TypeSet<EvalParam>& params ) const
@@ -282,13 +271,8 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 
     if ( is2d )
     {
-	SeisIOObjInfo objinfo( mid );
-	BufferStringSet linenames;
-	objinfo.getLineNames( linenames );
-	linesfld_ = new uiLabeledComboBox( this, tr("Analyisis on line") );
-	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( mToUiStringTodo(linenames.get(idx)) );
-
+	linesfld_ = new uiSeis2DLineNameSel( this, true );
+	linesfld_->setDataSet( mid );
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
     else
@@ -302,8 +286,8 @@ int nrTrcs()
 { return nrtrcfld_->getIntValue();
 }
 
-LineKey lineKey() const
-{ return LineKey( linesfld_ ? linesfld_->box()->text() : "", attribnm_ ); }
+Pos::GeomID geomID() const
+{ return linesfld_ ? linesfld_->getInputGeomID() : mUdfGeomID; }
 
 bool acceptOK(CallBacker*)
 {
@@ -331,7 +315,7 @@ protected:
 
     uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
-    uiLabeledComboBox*	linesfld_;
+    uiSeis2DLineNameSel*	linesfld_;
 };
 
 
@@ -360,13 +344,11 @@ void uiGLCM_attrib::analyseData( CallBacker* )
     {
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	seisinfo.getRanges(
-		Survey::GM().getGeomID(subseldlg.lineKey().lineName()),
-		trcrg, zrg );
+	const Pos::GeomID geomid = subseldlg.geomID();
+	seisinfo.getRanges( geomid, trcrg, zrg );
 	cs.hsamp_.setCrlRange( trcrg );
-	cs.hsamp_.setInlRange( Interval<int>(0,0) );
+	cs.hsamp_.setInlRange( StepInterval<int>(geomid,geomid,1) );
 	cs.zsamp_ = zrg;
-	lk = subseldlg.lineKey();
     }
     else
     {
@@ -376,13 +358,13 @@ void uiGLCM_attrib::analyseData( CallBacker* )
 
     const int nrtrcs = subseldlg.nrTrcs();
     SeisTrcBuf buf( true );
-    if ( readInputCube(buf,cs,nrtrcs,lk) )
+    if ( readInputCube(buf,cs,nrtrcs) )
 	determineMinMax( buf );
 }
 
 
 bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
-				      int nrtrcs, const LineKey& lk) const
+				      int nrtrcs ) const
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
@@ -399,7 +381,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     aem->setAttribSet( descset );
     aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
-	aem->setGeomID( Survey::GM().getGeomID(lk.lineName().buf()) );
+	aem->setGeomID( cs.hsamp_.start_.inl() );
 
     aem->setTrcKeyZSampling( cs );
     TypeSet<TrcKey> trckeys;

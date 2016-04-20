@@ -359,12 +359,12 @@ bool uiAttrDescEd::getOutput( Attrib::Desc& desc )
 bool uiAttrDescEd::getInputDPID( uiAttrSel* inpfld,
 				 DataPack::FullID& inpdpfid ) const
 {
-    LineKey lk( inpfld->getInput() );
+    StringPair inpstr( inpfld->getInput() );
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	DataPack::FullID dpfid = dpfids_[idx];
 	BufferString dpnm = DataPackMgr::nameOf( dpfid );
-	if ( lk.lineName() == dpnm )
+	if ( inpstr.first() == dpnm )
 	{
 	    inpdpfid = dpfid;
 	    return true;

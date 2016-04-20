@@ -89,12 +89,10 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 }
 
 
-DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
-			 const LineKey& lk )
+DZT::Importer::Importer( const char* fnm, const IOObj& ioobj, Pos::GeomID gid )
     : Executor("Importing DZT file")
     , nrdone_(0)
     , totalnr_(-1)
-    , lk_(lk)
     , wrr_(0)
     , databuf_(0)
     , di_(DataCharacteristics())
@@ -123,7 +121,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     wrr_ = new SeisTrcWriter( &ioobj );
     Seis::RangeSelData* rsd = new Seis::RangeSelData;
     rsd->setIsAll( true );
-    rsd->setGeomID( Survey::GM().getGeomID(lk.lineName()));
+    rsd->setGeomID( gid );
     wrr_ = new SeisTrcWriter( &ioobj );
     wrr_->setSelData( rsd );
 

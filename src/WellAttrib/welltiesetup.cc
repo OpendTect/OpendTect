@@ -51,7 +51,6 @@ void Setup::supportOldPar( const IOPar& iop )
 void Setup::usePar( const IOPar& iop )
 {
     iop.get( sKeySeisID, seisid_ );
-    LineKey lk;
     iop.get( sKeySeisLine, linenm_ );
     iop.get( sKeyVelLogName, vellognm_ );
     iop.get( sKeyDensLogName, denlognm_ );
@@ -59,9 +58,8 @@ void Setup::usePar( const IOPar& iop )
     iop.getYN( sKeyIsSonic, issonic_ );
     iop.getYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     CorrTypeDef().parse( sKeyCSCorrType(), corrtype_ );
-    iop.get( sKeySeisLineID, lk );
-    if ( linenm_.isEmpty() && !lk.lineName().isEmpty() ) //copy old key to new
-	linenm_ = lk.lineName();
+    if ( linenm_.isEmpty() && iop.hasKey(sKeySeisLineID) )
+	iop.get( sKeySeisLineID, linenm_ ); //backward compatibility
 
     supportOldPar( iop );
 }
@@ -77,8 +75,7 @@ void Setup::fillPar( IOPar& iop ) const
     iop.setYN( sKeyIsSonic, issonic_ );
     iop.setYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     iop.set( sKeyCSCorrType(), toString( corrtype_ ) );
-    const LineKey lk( linenm_, 0 );
-    iop.set( sKeySeisLineID, lk ); //backward compatibility
+    iop.set( sKeySeisLineID, linenm_ ); //backward compatibility
 }
 
 

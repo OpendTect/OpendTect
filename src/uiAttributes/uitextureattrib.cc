@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiseislinesel.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 #include "uibutton.h"
@@ -195,10 +196,9 @@ void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
-uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("data for analysis")),
 				 mNoDlgTitle,mNoHelpKey))
-    , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
 {
@@ -207,13 +207,8 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 
     if ( is2d )
     {
-	SeisIOObjInfo objinfo( mid );
-	BufferStringSet linenames;
-	objinfo.getLineNames( linenames );
-	linesfld_ = new uiLabeledComboBox( this, tr("Analysis on line:") );
-	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
-
+	linesfld_ = new uiSeis2DLineNameSel( this, true );
+	linesfld_->setDataSet( mid );
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
     else
@@ -226,8 +221,8 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 int nrTrcs()
 { return nrtrcfld_->getIntValue(); }
 
-LineKey lineKey() const
-{ return LineKey( linesfld_ ? linesfld_->box()->text() : "", attribnm_ ); }
+Pos::GeomID geomID() const
+{ return linesfld_ ? linesfld_->getInputGeomID() : mUdfGeomID; }
 
 bool acceptOK(CallBacker*)
 {
@@ -251,11 +246,9 @@ TrcKeyZSampling subVol() const
 
 protected:
 
-    BufferString	attribnm_;
-
-    uiGenInput*		nrtrcfld_;
-    uiSelSubvol*	subvolfld_;
-    uiLabeledComboBox*	linesfld_;
+    uiGenInput*			nrtrcfld_;
+    uiSelSubvol*		subvolfld_;
+    uiSeis2DLineNameSel*	linesfld_;
 };
 
 
@@ -265,16 +258,14 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    LineKey lk( inpdesc->getStoredID(true) );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesc->getStoredID(true)) );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Select a valid input") );
 	return;
     }
 
-    uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D(),
-				   lk.attrName() );
+    uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D() );
     if ( !subseldlg.go() )
 	return;
 
@@ -284,13 +275,11 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     {
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	seisinfo.getRanges(
-		Survey::GM().getGeomID(subseldlg.lineKey().lineName()),
-		trcrg, zrg );
+	const Pos::GeomID geomid = subseldlg.geomID();
+	seisinfo.getRanges( geomid, trcrg, zrg );
 	cs.hsamp_.setCrlRange( trcrg );
-	cs.hsamp_.setInlRange( Interval<int>(0,0) );
+	cs.hsamp_.setInlRange( StepInterval<int>(geomid,geomid,1) );
 	cs.zsamp_ = zrg;
-	lk = subseldlg.lineKey();
     }
     else
     {
@@ -300,13 +289,13 @@ void uiTextureAttrib::analyseCB( CallBacker* )
 
     const int nrtrcs = subseldlg.nrTrcs();
     SeisTrcBuf buf( true );
-    if ( readInpAttrib(buf,cs,nrtrcs,lk) )
+    if ( readInpAttrib(buf,cs,nrtrcs) )
 	calcAndSetMinMaxVal( buf );
 }
 
 
 bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
-				      int nrtrcs, const LineKey& lk) const
+				     int nrtrcs ) const
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
@@ -323,7 +312,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     aem->setAttribSet( descset );
     aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
-	aem->setGeomID( Survey::GM().getGeomID(lk.lineName().buf()) );
+	aem->setGeomID( cs.hsamp_.start_.inl() );
 
     aem->setTrcKeyZSampling( cs );
     TypeSet<TrcKey> trckeys;

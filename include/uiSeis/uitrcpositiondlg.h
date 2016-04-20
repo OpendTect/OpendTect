@@ -14,13 +14,12 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "multiid.h"
 #include "datapackbase.h"
 
 class uiLabeledSpinBox;
 class uiSpinBox;
-class uiLabeledComboBox;
+class uiSeis2DLineNameSel;
 class uiToolButton;
 class uiSlider;
 class uiComboBox;
@@ -47,19 +46,21 @@ protected:
 
 mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
 {  mODTextTranslationClass(uiTrcPositionDlg);
-public:                                                                         
+public:
 				uiTrcPositionDlg(uiParent*,
 						 const DataPack::FullID&);
 				uiTrcPositionDlg(uiParent*,const TrcKeyZSampling&,
-			      			 bool,const MultiID&);
+						 bool,const MultiID&);
 				~uiTrcPositionDlg();
 
     TrcKeyZSampling		getTrcKeyZSampling() const;
-    LineKey			getLineKey() const;
+    Pos::GeomID			geomID() const;
+    void			setGeomID(Pos::GeomID);
+
     uiLabeledSpinBox*		trcnrfld_;
     uiLabeledSpinBox*		inlfld_;
     uiSpinBox*			crlfld_;
-    uiLabeledComboBox*		linesfld_;
+    uiSeis2DLineNameSel*	linesfld_;
     uiFlatDPPosSel*		fdpposfld_;
     MultiID			mid_;
 
@@ -67,7 +68,6 @@ protected:
     void			lineSel(CallBacker*);
     void			getPosCB(CallBacker*);
     void			pickRetrievedCB(CallBacker*);
-    bool			getSelLineGeom(PosInfo::Line2DData&);
 
     StepInterval<float>		zrg_;
     uiToolButton*		getposbut_;

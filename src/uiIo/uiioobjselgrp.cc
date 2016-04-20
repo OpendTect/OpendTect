@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "linekey.h"
 #include "strmprov.h"
 #include "ioobjselectiontransl.h"
 #include "od_iostream.h"
@@ -224,8 +223,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     wrgrp->setHAlignObj( nmfld_ );
     wrgrp->attach( alignedBelow, topgrp_ );
 
-    LineKey lk( ctio_.name() );
-    const BufferString nm( lk.lineName() );
+    const BufferString nm( ctio_.name() );
     if ( !nm.isEmpty() )
     {
 	nmfld_->setText( nm );
@@ -423,8 +421,8 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     }
 
     // from here for write only
-    LineKey lk( nmfld_->text() );
-    const BufferString seltxt( lk.lineName() );
+    StringPair strpair( nmfld_->text() );
+    const BufferString seltxt( strpair.first() );
     int itmidx = ioobjnms_.indexOf( seltxt.buf() );
     if ( itmidx < 0 )
 	return createEntry( seltxt );

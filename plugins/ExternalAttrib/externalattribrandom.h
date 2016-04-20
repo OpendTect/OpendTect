@@ -29,22 +29,20 @@ mClass(ExternalAttrib) Random : public Attrib::ExtAttribCalc
 {
 public:
     static void			initClass();
-    				Random();
-    				~Random();
+				Random();
+				~Random();
 
     static const char*		sAttribName()	{ return "Random"; }
 
     bool			setTargetSelSpec(const Attrib::SelSpec&);
     DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID,
-	    				     TaskRunner*);
+					     TaskRunner*);
     const Attrib::DataCubes*	createAttrib(const CubeSampling&,
-	    				     const Attrib::DataCubes*);
+					     const Attrib::DataCubes*);
     bool			createAttrib(ObjectSet<BinIDValueSet>&,
-	    				     TaskRunner*);
+					     TaskRunner*);
     bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&,
-	    				     TaskRunner*);
-    DataPack::ID		createAttrib(const CubeSampling&,
-	    				     const LineKey&,TaskRunner*);
+					     TaskRunner*);
 
     bool			isIndexes() const;
 
@@ -62,7 +60,7 @@ protected:
 mClass(ExternalAttrib) RandomManager : public CallBacker
 {
 public:
-    		RandomManager();
+		RandomManager();
 		~RandomManager();
 
 protected:
@@ -81,7 +79,7 @@ mClass(ExternalAttrib) uiRandomTreeItem : public uiODDataTreeItem
 {
 public:
     static void		initClass();
-    			uiRandomTreeItem(const char* parenttype);
+			uiRandomTreeItem(const char* parenttype);
 
     static const char*	sKeyDefinition() { return "Random"; }
 

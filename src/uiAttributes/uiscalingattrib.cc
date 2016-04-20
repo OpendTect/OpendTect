@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "flatposdata.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
@@ -37,10 +36,10 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
-#include "uicombobox.h"
 #include "uigainanalysisdlg.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiseislinesel.h"
 #include "uiselsurvranges.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
@@ -373,7 +372,6 @@ public:
 uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
-    , attribnm_(0)
     , linesfld_(0)
     , subvolfld_(0)
     , dpfid_(dpfid)
@@ -389,10 +387,9 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
     createSelFields( is2d ? DataPack2D : DataPack3D );
 }
 
-uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
-    , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
     , mid_(mid)
@@ -403,8 +400,8 @@ uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 int nrTrcs()
 { return nrtrcfld_->getIntValue(); }
 
-LineKey lineKey() const
-{ return LineKey( linesfld_->box()->text(), attribnm_ ); }
+Pos::GeomID geomID() const
+{ return linesfld_->getInputGeomID(); }
 
 TrcKeyZSampling subVol() const
 {
@@ -425,13 +422,8 @@ void createSelFields( DataType type )
 
     if ( type==uiSelectPositionDlg::Stored2D )
     {
-	SeisIOObjInfo seisinfo( mid_ );
-	BufferStringSet linenames;
-	seisinfo.getLineNames( linenames );
-	linesfld_ = new uiLabeledComboBox(this, tr("Gain Analyisis on line:"));
-	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
-
+	linesfld_ = new uiSeis2DLineNameSel( this, true );
+	linesfld_->setDataSet( mid_ );
 	linesfld_->attach( alignedBelow, nrtrcfld_ );
     }
     else if ( type==uiSelectPositionDlg::DataPack2D )
@@ -477,13 +469,12 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    BufferString	attribnm_;
     DataPack::FullID	dpfid_;
     MultiID		mid_;
 
     uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
-    uiLabeledComboBox*	linesfld_;
+    uiSeis2DLineNameSel*	linesfld_;
 };
 
 
@@ -532,16 +523,14 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     int nrtrcs = 0;
     if ( !isinpindp )
     {
-	LineKey lk( inpdesccp->getStoredID(true) );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesccp->getStoredID(true)));
 	if ( !ioobj )
 	{
 	    uiMSG().error( tr("Select a valid input") );
 	    return;
 	}
 
-	uiSelectPositionDlg subseldlg( this, ioobj->key(), is2D(),
-				       lk.attrName() );
+	uiSelectPositionDlg subseldlg( this, ioobj->key(), is2D() );
 	if ( !subseldlg.go() )
 	    return;
 
@@ -550,8 +539,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    SeisIOObjInfo seisinfo( ioobj );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
-	    const Pos::GeomID geomid = Survey::GM().getGeomID(
-				    subseldlg.lineKey().lineName().buf() );
+	    const Pos::GeomID geomid = subseldlg.geomID();
 	    seisinfo.getRanges( geomid, trcrg, zrg );
 	    cs.hsamp_.setCrlRange( trcrg );
 	    cs.hsamp_.setInlRange( Interval<int>(0,0) );

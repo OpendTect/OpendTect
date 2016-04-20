@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "attribparambase.h"
 #include "attribfactory.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "survinfo.h"
 #include "ioobj.h"
 
@@ -174,11 +173,10 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 		    const char* idval;
 		    mGetStringFromDesc( (*tmpdesc), idval,
 					Attrib::StorageProvider::keyStr() )
-		    const LineKey lk( idval );
-		    BufferString bstring = lk.lineName();
-		    const char* linenm = bstring.buf();
-		    const MultiID mid( linenm+1 );
-		    if ( psdpfids_.isPresent( mid ) )
+		    const StringPair strpair( idval );
+		    BufferString bstring = strpair.first();
+		    const MultiID mid( bstring.buf()+1 );
+		    if ( psdpfids_.isPresent(mid) )
 			descset_.removeDesc( tmpdesc->id() );
 		}
 	    }

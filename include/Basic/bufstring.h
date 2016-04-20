@@ -251,4 +251,34 @@ inline BufferString& BufferString::setLim( double d, int maxnrchars )
 { setEmpty(); return addLim( d, maxnrchars ); }
 
 
+/*!
+\brief A StringPair has two strings, first() and second(). The getCompString() function concatanates the two strings with the pipe character ('|') in between.
+*/
+
+mExpClass(Basic) StringPair
+{
+public:
+
+			StringPair(const char* str1, const char* str2)
+			    : first_(str1), second_(str2) {}
+			StringPair(const char* compstr);
+
+    static char		separator() { return '|'; }
+
+    const BufferString&	first() const	{ return first_; }
+    BufferString&	first()		{ return first_; }
+    const BufferString&	second() const	{ return second_; }
+    BufferString&	second()	{ return second_; }
+
+    const OD::String&	getCompString() const;
+
+protected:
+
+    BufferString	first_;
+    BufferString	second_;
+
+};
+
+
+
 #endif

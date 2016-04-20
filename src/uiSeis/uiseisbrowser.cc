@@ -118,8 +118,9 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 			  .arg(Seis::nameOf(su.geom_))
 			  .arg(IOM().nameOf( su.id_ )))));
 
-	if ( !su.linekey_.isEmpty() )
-	    { lbltxt = toUiString("%1 - %2").arg(lbltxt).arg(su.linekey_); }
+	if ( su.geomid_ != mUdfGeomID )
+	    lbltxt = toUiString("%1 - %2").arg(lbltxt)
+					.arg(Survey::GM().getName(su.geomid_));
 	new uiLabel( this, lbltxt );
 	setCtrlStyle( CloseOnly );
 	return;
@@ -177,14 +178,12 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
     if ( is2d_ )
     {
 	Seis2DDataSet ds( *ioobj );
-	const int index = ds.indexOf( su.linekey_ );
-	if ( index < 0 )
-	    return false;
-
-	const OD::String& fnm = SeisCBVS2DLineIOProvider::getFileName( *ioobj,
-							ds.geomID(index) );
+	const OD::String& fnm =
+		SeisCBVS2DLineIOProvider::getFileName( *ioobj, su.geomid_ );
 	tr_ = CBVSSeisTrcTranslator::make( fnm, false,
 					   Seis::is2D(su.geom_), &emsg );
+	if ( !tr_ )
+	    return false;
 
 	const FixedString datatype = ds.dataType();
 	if ( datatype == sKey::Steering() )
@@ -598,11 +597,11 @@ void uiSeisBrowser::commitChanges()
 
 
 void uiSeisBrowser::doBrowse( uiParent* p, const IOObj& ioobj, bool is2d,
-			      const LineKey* lk )
+			      Pos::GeomID geomid )
 {
     uiSeisBrowser::Setup setup( ioobj.key(), is2d ? Seis::Line : Seis::Vol );
     setup.readonly( ioobj.implReadOnly() );
-    if ( lk ) setup.linekey( *lk );
+    setup.geomid( geomid );
     uiSeisBrowser dlg( p, setup, is2d );
     dlg.go();
 }

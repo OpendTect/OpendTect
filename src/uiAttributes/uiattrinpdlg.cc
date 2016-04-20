@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
+uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 			    bool issteer, bool is2d, const char* prevrefnm )
     : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
 		       issteer ? tr("Select Steering input")
@@ -41,7 +41,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     BufferString txt;
     for ( int idx=0; idx<refset.size(); idx++ )
 	{ txt += refset.get(idx); txt += "\n"; }
-    
+
     uiTextEdit* txtfld = new uiTextEdit( this, "File Info", true );
     txtfld->setPrefHeightInChar( 10 );
     txtfld->setPrefWidthInChar( 40 );
@@ -51,7 +51,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     uiString seltext = issteer
         ? uiStrings::phrInput(tr("SteeringCube"))
         : uiStrings::phrInput(uiStrings::sVolDataName(true, true, false) );
-    
+
     if ( prevrefnm )
     {
 	seltext = tr("%1\n (replacing '%2')").arg(seltext)
@@ -81,7 +81,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
     : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
 		 steeringinpnms.size()
 		    ? (seisinpnms.size() ? tr("Select Seismic & Steering input")
-					 : tr("Select Steering input"))	
+					 : tr("Select Steering input"))
 		    : tr("Select Seismic input"),
 		 mODHelpKey(mAttrInpDlgHelpID) ))
     , is2d_(is2d)
@@ -184,15 +184,11 @@ const char* uiAttrInpDlg::getSeisKey( int idx ) const
     if ( seisinpflds_.size()<=idx || !seisinpflds_[idx] )
 	return 0;
 
-    LineKey lk;
     const IOObj* ioobj = seisinpflds_[idx]->ioobj( true );
     if ( !ioobj )
 	return 0;
 
-    lk.setLineName( ioobj->key() );
-    mDeclStaticString( buf );
-    buf = is2D() ? lk : lk.lineName();
-    return buf;
+    return ioobj->key().buf();
 }
 
 
@@ -201,13 +197,9 @@ const char* uiAttrInpDlg::getSteerKey( int idx ) const
     if ( steerinpflds_.size()<=idx || !steerinpflds_[idx] )
 	return 0;
 
-    static LineKey lk;
     const IOObj* ioobj = steerinpflds_[idx]->ioobj( true );
     if ( !ioobj )
 	return 0;
 
-    lk.setLineName( ioobj->key() );
-    mDeclStaticString( buf );
-    buf = is2D() ? lk : lk.lineName();
-    return buf;
+    return ioobj->key().buf();
 }

@@ -227,8 +227,6 @@ public:
     void		enforceSurvinfoWrite( bool yn )
 			{ enforce_survinfo_write = yn; }
 
-    const LineKey&	curLineKey() const		{ return curlinekey_; }
-    void		setCurLineKey( const LineKey& lk ) { curlinekey_ = lk; }
     Pos::GeomID		curGeomID() const		{ return geomid_; }
     void		setCurGeomID( Pos::GeomID gid )	{ geomid_ = gid; }
 
@@ -263,7 +261,6 @@ protected:
     int					outnrsamples_;
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
-    LineKey				curlinekey_;
 
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,

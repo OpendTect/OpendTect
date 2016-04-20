@@ -52,7 +52,7 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     const char* attributelist_[] = { "Optimal similarity",
 					    "Optimal time gate", 0 };
     attributefld_ =
-	new uiGenInput( this, uiStrings::sOutput(), 
+	new uiGenInput( this, uiStrings::sOutput(),
                         StringListInpSpec(attributelist_) );
     attributefld_->valuechanged.notify(
 	    mCB(this, uiSimilaritybyAW, choiceSel) );
@@ -133,16 +133,4 @@ bool uiSimilaritybyAW::getInput( Desc& desc )
 
 void uiSimilaritybyAW::steerTypeSel( CallBacker* )
 {
-    if( is2D() && steerfld_->willSteer() && !inputfld_->isEmpty() )
-    {
-	const char* steertxt = steerfld_->text();
-	if( steertxt )
-	{
-            LineKey inp( inputfld_->getInput() );
-	    LineKey steer( steertxt );
-	    if( inp.lineName() != steer.lineName()
-	     && inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ) )
-		steerfld_->clearInpField();
-	}
-    }
 }

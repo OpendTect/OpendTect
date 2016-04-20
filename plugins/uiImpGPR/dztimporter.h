@@ -39,7 +39,7 @@ struct FileHeader
     inline int		traceNr( int trcidx ) const
 			{ return nrdef_.atIndex(trcidx); }
     inline int		nrBytesPerSample() const
-    			{ return bits / 8; }
+			{ return bits / 8; }
     inline int		nrBytesPerTrace() const
 			{ return nsamp * nrBytesPerSample(); }
     void		fillInfo(SeisTrcInfo&,int trcidx) const;
@@ -65,7 +65,7 @@ mClass(uiImpGPR) Importer : public ::Executor
 { mODTextTranslationClass(Importer);
 public:
 
-			Importer(const char* fnm,const IOObj&,const LineKey&);
+			Importer(const char* fnm,const IOObj&,Pos::GeomID);
 			~Importer();
 
     uiString		uiMessage() const	{ return msg_; }
@@ -83,14 +83,13 @@ protected:
     SeisTrc&		trc_;
     SeisTrcWriter*	wrr_;
     od_istream&		istream_;
-    LineKey		lk_;
 
     char*		databuf_;
     DataInterpreter<float> di_;
 
     od_int64		nrdone_;
     od_int64		totalnr_;
-    uiString	msg_;
+    uiString		msg_;
 
     int			closeAll();
 

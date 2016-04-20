@@ -11,7 +11,6 @@
 #include "datapack.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "ptrman.h"
 #include "position.h"
 
@@ -298,18 +297,15 @@ mParamClone( SeisStorageRefParam );
 
 bool SeisStorageRefParam::isOK() const
 {
-    const char* val = spec_->text(0);
-    const LineKey lk( val );
-
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( linenm && *linenm == '#' )
+    const StringPair compstr = spec_->text(0);
+    const BufferString storstr = compstr.first();
+    if ( !storstr.isEmpty() && storstr[0] == '#' )
     {
-	DataPack::FullID fid( linenm+1 );
+	DataPack::FullID fid( storstr.buf()+1 );
 	return DPM(fid).haveID( fid );
     }
 
-    const MultiID mid( bstring );
+    const MultiID mid( storstr );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     return ioobj;
 }

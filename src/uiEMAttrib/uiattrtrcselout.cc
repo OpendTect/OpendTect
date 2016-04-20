@@ -520,13 +520,9 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    desc = ads_->getFirstStored();
 	if ( desc )
 	{
-	    LineKey lk( desc->getStoredID(true) );
-	    if ( !lk.isEmpty() )
-	    {
-		PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
-		if ( ioobj )
-		    seissubselfld_->setInput( *ioobj );
-	    }
+	    PtrMan<IOObj> ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
+	    if ( ioobj )
+		seissubselfld_->setInput( *ioobj );
 	}
 
 	lineSel(0);

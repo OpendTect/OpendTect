@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "transl.h"
 
 #include "uimsg.h"
@@ -452,8 +451,8 @@ const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 
 void uiIOObjSel::obtainIOObj()
 {
-    LineKey lk( getInput() );
-    const BufferString inp( lk.lineName() );
+    StringPair strpair( getInput() );
+    const BufferString inp( strpair.first() );
     if ( inp.isEmpty() )
 	{ workctio_.setObj( 0 ); return; }
 
@@ -461,8 +460,8 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj_
-			      && workctio_.ioobj_->name()==inp.buf() )
+	if ( ( inp == itemusrnm || strpair.getCompString() == itemusrnm )
+		&& workctio_.ioobj_ && workctio_.ioobj_->name()==inp.buf() )
 	    return;
     }
 
@@ -551,8 +550,8 @@ return false; }
 
 bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 {
-    LineKey lk( getInput() );
-    const BufferString inp( lk.lineName() );
+    StringPair strpair( getInput() );
+    const BufferString inp( strpair.first() );
     if ( inp.isEmpty() )
     {
 	if ( !haveempty_ )
@@ -596,7 +595,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
 	mErrRet(tr("'%1' already exists as another object type."
 	       "\nPlease enter another name.").arg(getInput()))
-		    
+
     }
     if ( workctio_.ctxt_.forread_ )
 	return false;

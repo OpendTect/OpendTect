@@ -19,7 +19,6 @@ class uiLabel;
 class uiPushButton;
 class SeisTrcBuf;
 class TrcKeyZSampling;
-class LineKey;
 
 
 class uiGLCM_attrib : public uiAttrDescEd
@@ -32,13 +31,13 @@ public:
 protected:
 
     uiAttrSel*		inpfld_;
-    uiGenInput* 	attributefld_;
-    uiGenInput* 	numbergreyfld_;
-    uiGenInput* 	limitfld_;
-    uiGenInput* 	directfld_;
+    uiGenInput*	attributefld_;
+    uiGenInput*	numbergreyfld_;
+    uiGenInput*	limitfld_;
+    uiGenInput*	directfld_;
     uiStepOutSel*	stepoutfld_;
-    uiGenInput* 	samprangefld_;
-    uiGenInput* 	outputfld_;
+    uiGenInput*	samprangefld_;
+    uiGenInput*	outputfld_;
     uiSteeringSel*	steerfld_;
 
     void		GLCMattributeSel(CallBacker*);
@@ -46,7 +45,7 @@ protected:
 
     void		analyseData(CallBacker*);
     bool		readInputCube(SeisTrcBuf&, const TrcKeyZSampling&,
-				      int, const LineKey&) const;
+				      int) const;
     void		determineMinMax( const SeisTrcBuf&);
 
     bool		setParameters( const Attrib::Desc& );

@@ -795,11 +795,9 @@ bool Desc::isStoredInMem() const
 {
     if ( !isStored() ) return false;
 
-    const LineKey lk( getValParam(
+    const BufferString bs( getValParam(
 			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    return linenm && *linenm == '#';
+    return !bs.isEmpty() && bs[0] == '#';
 }
 
 

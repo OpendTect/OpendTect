@@ -1594,10 +1594,10 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
 
 #define mFakeCompName( searchfor, replaceby ) \
 { \
-    LineKey lkey( desc->userRef() ); \
-    if ( lkey.attrName() == searchfor ) \
-	lkey.setAttrName( replaceby );\
-    desc->setUserRef( lkey.buf() ); \
+    StringPair strpair( desc->userRef() ); \
+    if ( strpair.second() == searchfor ) \
+	strpair.second() = replaceby;\
+    desc->setUserRef( strpair.getCompString() ); \
 }
 
 bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
@@ -1673,10 +1673,10 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	//Trick for PreStack offsets displayed on the fly
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
-	    LineKey lkey( desc->userRef() );
+	    StringPair strpair( desc->userRef() );
             BufferString newnm = "offset index "; newnm += selectedcomps[idx];
-	    lkey.setAttrName( newnm );
-	    desc->setUserRef( lkey.buf() );
+	    strpair.second() = newnm;
+	    desc->setUserRef( strpair.getCompString() );
 	}
 
 	as.setRefFromID( *ads );

@@ -133,8 +133,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    // doesn't make much sense, but is better than nothing
 	    tkzs_.set2DDef();
 
-	    tkzs_.hsamp_.start_.inl() = tkzs_.hsamp_.stop_.inl() = 0;
-	    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+	    geomid_ = Survey::GM().getGeomID( linename );
+	    tkzs_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
 	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
 		StepInterval<int> trcrg( 0, 0, 1 );
@@ -145,7 +145,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    else
 	    {
 		mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-				 Survey::GM().getGeometry(geomid) );
+				 Survey::GM().getGeometry(geomid_) );
 		if ( geom2d )
 		{
 		    tkzs_.hsamp_.setCrlRange( geom2d->data().trcNrRange() );
@@ -155,12 +155,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	}
     }
 
-    //get attrib name from user reference for backward compatibility with 3.2.2
-    const Attrib::Desc* curdesc = attribset.getDesc( ids[0] );
-    BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
-    LineKey lkey( linename, attribname );
-
-    SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey, errmsg );
+    SeisTrcStorOutput* storeoutp = createOutput( iopar, geomid_, errmsg );
     if ( !storeoutp ) return 0;
 
     bool exttrctosi;
@@ -232,11 +227,6 @@ void EngineMan::setExecutorName( Executor* ex )
     ex->setName( nm );
 }
 
-
-SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
-					    const LineKey& lkey,
-					    uiString& errmsg )
-{ return createOutput( pars, Survey::GM().getGeomID(lkey.lineName()), errmsg); }
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    Pos::GeomID geomid,
@@ -323,7 +313,7 @@ RefMan<RegularSeisDataPack>
 	if ( !dp ) continue;
 
 	dpm_.add( const_cast<RegularSeisDataPack*>( dp.ptr()) );
-	
+
         dp->ref();
 	packset += dp;
     }
@@ -339,7 +329,7 @@ RefMan<RegularSeisDataPack>
 	   const_cast<RegularSeisDataPack*>( getDataPackOutput(packset).ptr() );
 
     deepUnRef( packset );
-    
+
     return output;
 }
 
@@ -990,9 +980,9 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !storeddesc )
 	return;
 
-    const LineKey lk( storeddesc->getValParam(
-			StorageProvider::keyStr())->getStringValue(0) );
-    const MultiID key( lk.lineName() );
+    const StringPair storkey( storeddesc->getValParam(
+			      StorageProvider::keyStr())->getStringValue(0) );
+    const MultiID key( storkey.first() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
 

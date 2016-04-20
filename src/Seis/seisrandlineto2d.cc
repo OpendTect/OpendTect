@@ -235,10 +235,8 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 
     outpobj_ = IOM().get( outpid );
     if ( !outpobj_ )
-	mNotOKRet("Error: Output lineset cannot be found")
+	mNotOKRet("Error: Output dataset cannot be found")
 
-    const char* attrnm = par.find( SeisRandLineTo2DGrid::sKeyOutpAttrib() );
-    outpattrib_ = attrnm && *attrnm ? attrnm : LineKey::sKeyDefAttrib();
     const char* parpref = par.find( SeisRandLineTo2DGrid::sKeyParPrefix() );
     parprefix_ = parpref && *parpref ? parpref : "Parallel";
     const char* perpref = par.find( SeisRandLineTo2DGrid::sKeyPerpPrefix() );

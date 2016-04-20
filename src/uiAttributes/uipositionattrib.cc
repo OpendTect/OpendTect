@@ -55,7 +55,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 				mCB(this,uiPositionAttrib,steerTypeSel) );
     steerfld->attach( alignedBelow, gatefld );
 
-    operfld = new uiGenInput( this, uiStrings::sOperator(), 
+    operfld = new uiGenInput( this, uiStrings::sOperator(),
                               StringListInpSpec(opstrs) );
     operfld->attach( alignedBelow, steerfld );
 
@@ -123,16 +123,4 @@ void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 void uiPositionAttrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld->willSteer() && !inpfld->isEmpty() )
-    {
-	const char* steertxt = steerfld->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName()
-	      && inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ) )
-		steerfld->clearInpField();
-	}
-    }
 }

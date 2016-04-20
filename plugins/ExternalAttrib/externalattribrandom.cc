@@ -109,11 +109,6 @@ bool Random::createAttrib(const BinIDValueSet&, SeisTrcBuf&, TaskRunner*)
 }
 
 
-DataPack::ID Random::createAttrib( const CubeSampling&, const LineKey&,
-				   TaskRunner*)
-{ return DataPack::cNoID(); }
-
-
 bool Random::isIndexes() const
 { return false; }
 

@@ -534,8 +534,8 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     if ( dsc->isStored() )
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
-	const LineKey lk( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName().buf()) );
+	const StringPair storkey( keypar->getStringValue() );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(storkey.first()) );
 	if ( ioobj.ptr() )
 	{
 	    BufferString tentativeuserref = (BufferString)ioobj->name();

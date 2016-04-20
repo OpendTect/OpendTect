@@ -114,7 +114,7 @@ uiDZTImporter( uiParent* p )
     zfacfld_ = new uiGenInput( this, tr("Z Factor"), FloatInpSpec(1) );
     zfacfld_->attach( alignedBelow, stepposfld_ );
 
-    lnmfld_ = new uiGenInput( this, uiStrings::phrOutput(mJoinUiStrs(sLine(), 
+    lnmfld_ = new uiGenInput( this, uiStrings::phrOutput(mJoinUiStrs(sLine(),
 							sName().toLower())) );
     lnmfld_->attach( alignedBelow, zfacfld_ );
 
@@ -161,7 +161,7 @@ bool acceptOK( CallBacker* )
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj ) return false;
 
-    DZT::Importer importer( fnm, *ioobj, LineKey(lnm) );
+    DZT::Importer importer( fnm, *ioobj, geomid );
     importer.fh_.nrdef_.start = nrdeffld_->getIntValue(0);
     importer.fh_.nrdef_.step = nrdeffld_->getIntValue(0);
     importer.fh_.cstart_ = startposfld_->getCoord();

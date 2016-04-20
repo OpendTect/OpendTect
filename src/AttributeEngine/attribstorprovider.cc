@@ -58,18 +58,18 @@ void StorageProvider::updateDesc( Desc& desc )
 void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 					       BufferStringSet* compnms )
 {
-    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
+    const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
 
-    BufferString linenm = lk.lineName();
-    if (  linenm.firstChar() == '#' )
+    const BufferString storstr = strpair.first();
+    if (  storstr.firstChar() == '#' )
     {
-	DataPack::FullID fid( linenm.buf()+1 );
+	DataPack::FullID fid( storstr.buf()+1 );
 	if ( !DPM(fid).haveID( fid ) )
 	    desc.setErrMsg( "Cannot find data in memory" );
 	return;
     }
 
-    const MultiID key( linenm );
+    const MultiID key( storstr );
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
     if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
@@ -171,12 +171,11 @@ StorageProvider::StorageProvider( Desc& desc )
     , useintertrcdist_(false)
     , ls2ddata_(0)
 {
-    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( linenm && *linenm == '#' )
+    const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
+    const BufferString storstr = strpair.first();
+    if (  storstr.firstChar() == '#' )
     {
-	DataPack::FullID fid( linenm+1 );
+	DataPack::FullID fid( storstr.buf()+1 );
 	isondisc_ =  !DPM(fid).haveID( fid );
     }
 }
@@ -210,8 +209,8 @@ bool StorageProvider::checkInpAndParsAtStart()
 	return true;
     }
 
-    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-    const MultiID mid( lk.lineName() );
+    const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
+    const MultiID mid( strpair.first() );
     if ( !isOK() ) return false;
     mscprov_ = new SeisMSCProvider( mid );
 
@@ -221,7 +220,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     const bool is2d = mscprov_->is2D();
     desc_.set2D( is2d );
     if ( !is2d )
-	SeisTrcTranslator::getRanges( mid, storedvolume_, lk );
+	SeisTrcTranslator::getRanges( mid, storedvolume_, 0 );
     else
     {
 	Seis2DDataSet* dset = mscprov_->reader().dataSet();
@@ -250,7 +249,8 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    }
 	    else
 	    {
-		storedvolume_.hsamp_.setLineRange(Interval<int>(geomid,geomid));
+		storedvolume_.hsamp_.setLineRange(
+					StepInterval<int>(geomid,geomid,1) );
 		storedvolume_.hsamp_.setTrcRange( trcrg );
 		storedvolume_.zsamp_ = zrg;
 		foundone = true;
@@ -702,13 +702,13 @@ bool StorageProvider::computeData( const DataHolder& output,
 
 DataPack::FullID StorageProvider::getDPID() const
 {
-    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( !linenm || *linenm != '#' )
+    const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
+
+    const BufferString storstr = strpair.first();
+    if (  storstr.firstChar() != '#' )
 	return 0;
 
-    DataPack::FullID fid( linenm+1 );
+    DataPack::FullID fid( storstr.buf()+1 );
     return fid;
 }
 

@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uistring.h"
 
-class LineKey;
 class uiGenInput;
 class uiListBox;
 

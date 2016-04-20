@@ -10,6 +10,8 @@
 #include "fixedstring.h"
 #include "iopar.h"
 #include "arrayndimpl.h"
+#include "perthreadrepos.h"
+#include "separstr.h"
 #include "string2.h"
 #include "globexpr.h"
 #include "uistring.h"
@@ -508,6 +510,23 @@ void BufferString::fill( char* output, int maxnrchar ) const
 	*output = 0;
     else
 	strncpy( output, buf_, maxnrchar );
+}
+
+
+StringPair::StringPair( const char* compstr )
+{
+    SeparString sepstr( compstr, separator() );
+    first() = sepstr[0];
+    second() = sepstr[1];
+}
+
+
+const OD::String& StringPair::getCompString() const
+{
+    mDeclStaticString( ret );
+    ret = first();
+    ret.add( separator() ).add( second() );
+    return ret;
 }
 
 

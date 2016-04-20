@@ -49,7 +49,7 @@ public:
     DataPack::ID		getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
-    virtual uiString		errMsg() const 
+    virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
 
     virtual void		fillPar(IOPar&) const			= 0;
@@ -177,7 +177,6 @@ public:
     uiString			errMsg() const	{ return errmsg_; }
 
     //Keys for od_process_prestack
-    static const char*		sKeyLineKey()	{ return sKey::LineKey(); }
     static const char*		sKeySetup(){ return "Processing Setup"; }
     static const char*		sKeyCDPRange(){ return "CDP Range"; }
     static const char*		sKeyInputData()	{ return "Input"; }

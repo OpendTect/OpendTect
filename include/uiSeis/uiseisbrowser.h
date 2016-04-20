@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "bufstringset.h"
-#include "linekey.h"
+#include "survgeom.h"
 #include "multiid.h"
 #include "position.h"
 #include "seistype.h"
@@ -46,7 +46,7 @@ public :
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(BinID,startpos)
 	mDefSetupMemb(float,startz)
-	mDefSetupMemb(LineKey,linekey)
+	mDefSetupMemb(Pos::GeomID,geomid)
 	mDefSetupMemb(bool,readonly)	//!< def: true
 
     };
@@ -73,7 +73,7 @@ public :
     void		setCompNr( int compnr )		{ compnr_ = compnr; }
 
     static void		doBrowse(uiParent*,const IOObj&,bool is2d,
-				 const LineKey* lk=0);
+				 Pos::GeomID geomid=mUdfGeomID);
 
 protected:
 

@@ -221,8 +221,8 @@ void uiSeis2DFileMan::browsePush( CallBacker* )
 {
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
 
-    const LineKey lk( linefld_->getText() );
-    uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linefld_->getText() );
+    uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, geomid );
 }
 
 

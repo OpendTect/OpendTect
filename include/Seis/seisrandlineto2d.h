@@ -84,7 +84,6 @@ protected:
 
     IOObj*		inpobj_;
     IOObj*		outpobj_;
-    BufferString	outpattrib_;
     BufferString	parprefix_;
     BufferString	perprefix_;
     double		gridspacing_;

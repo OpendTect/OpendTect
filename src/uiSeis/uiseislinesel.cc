@@ -484,6 +484,12 @@ Pos::GeomID uiSeis2DLineNameSel::getInputGeomID() const
 }
 
 
+void uiSeis2DLineNameSel::setInputGeomID( Pos::GeomID geomid )
+{
+    return setInput( Survey::GM().getName(geomid) );
+}
+
+
 void uiSeis2DLineNameSel::setInput( const char* nm )
 {
     if ( fld_->isPresent(nm) )

@@ -20,7 +20,6 @@ class uiSteeringSel;
 class uiStepOutSel;
 class SeisTrcBuf;
 class TrcKeyZSampling;
-class LineKey;
 
 mClass(uiTextureAttrib) uiTextureAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiTextureAttrib);
@@ -39,9 +38,9 @@ protected:
     uiGenInput*		globalminfld_;
     uiGenInput*		globalmaxfld_;
 
-    void		analyseCB(CallBacker*); 
-    bool		readInpAttrib(SeisTrcBuf&,const TrcKeyZSampling&,int,
-				      const LineKey&) const;
+    void		analyseCB(CallBacker*);
+    bool		readInpAttrib(SeisTrcBuf&,const TrcKeyZSampling&,
+				      int) const;
     void		calcAndSetMinMaxVal(const SeisTrcBuf&);
 
     bool		setParameters(const Attrib::Desc&);

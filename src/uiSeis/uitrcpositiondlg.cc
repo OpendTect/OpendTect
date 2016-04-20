@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
+#include "uiseislinesel.h"
 #include "uispinbox.h"
 #include "uislider.h"
 #include "uitoolbutton.h"
@@ -151,7 +152,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"), 
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
 				   uiStrings::sEmptyString(),
                                    mODHelpKey(mTrcPositionDlgHelpID) )
 				   .modal(false) )
@@ -164,16 +165,10 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 {
     if ( is2d )
     {
-	BufferStringSet linenames;
-	uiSeisIOObjInfo objinfo( mid );
-	objinfo.ioObjInfo().getLineNames( linenames );
-	uiString str = tr("Compute attribute on line:");
-	linesfld_ = new uiLabeledComboBox( this, str );
-	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
+	linesfld_ = new uiSeis2DLineNameSel( this, true );
+	linesfld_->setDataSet( mid );
+	linesfld_->nameChanged.notify( mCB(this,uiTrcPositionDlg,lineSel) );
 
-	linesfld_->box()->selectionChanged.notify(
-					mCB(this,uiTrcPositionDlg,lineSel) );
 	trcnrfld_ = new uiLabeledSpinBox( this, tr("at trace nr:") );
 	trcnrfld_->attach( alignedBelow, linesfld_ );
 	lineSel(0);
@@ -219,22 +214,6 @@ void uiTrcPositionDlg::getPosCB( CallBacker* )
 }
 
 
-bool uiTrcPositionDlg::getSelLineGeom( PosInfo::Line2DData& l2ddata )
-{
-    uiSeisIOObjInfo objinfo( mid_ );
-    const IOObj* obj = objinfo.ioObj();
-    if ( !obj ) return false;
-
-    const char* sellnm = linesfld_->box()->text();
-    const Survey::Geometry* geom = Survey::GM().getGeometry( sellnm );
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
-    if ( !geom2d )
-	return false;
-    l2ddata = geom2d->data();
-    return true;
-}
-
-
 void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 {
     getposbut_->setSensitive( true );
@@ -244,15 +223,18 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 
     if ( trcnrfld_ )
     {
-	PosInfo::Line2DData line2d;
-	if ( !getSelLineGeom( line2d ) )
+	Pos::GeomID geomid = linesfld_->getInputGeomID();
+	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
+	if ( !geom2d )
 	    return;
 
+	const PosInfo::Line2DData& line2d = geom2d->data();
 	PosInfo::Line2DPos l2dpos;
 	if ( !line2d.getPos( crd, l2dpos, SI().crlDistance() ) )
 	{
-	    uiString msg = tr("Please pick trace on line:%1")
-			 .arg(linesfld_->box()->text());
+	    uiString msg = tr("Please pick trace on line: %1")
+					.arg(geom2d->getName());
 	    uiMSG().message( msg );
 	    return;
 	}
@@ -268,13 +250,16 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 }
 
 
-LineKey uiTrcPositionDlg::getLineKey() const
+Pos::GeomID uiTrcPositionDlg::geomID() const
 {
-    LineKey lk;
-    if ( !linesfld_ ) return lk;
+    return linesfld_ ? linesfld_->getInputGeomID() : mUdfGeomID;
+}
 
-    lk.setLineName( linesfld_->box()->text() );
-    return lk;
+
+void uiTrcPositionDlg::setGeomID( Pos::GeomID geomid )
+{
+    if ( linesfld_ )
+	linesfld_->setInputGeomID( geomid );
 }
 
 
@@ -303,10 +288,13 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
 
 void uiTrcPositionDlg::lineSel( CallBacker* cb )
 {
-    PosInfo::Line2DData line2d;
-    if ( !getSelLineGeom( line2d ) )
+    SeisIOObjInfo si( mid_ );
+    StepInterval<int> trcrg;
+    StepInterval<float> zrg;
+    if ( !si.getRanges(linesfld_->getInputGeomID(),trcrg,zrg) )
 	return;
 
-    trcnrfld_->box()->setInterval( line2d.trcNrRange() );
-    trcnrfld_->box()->setValue( line2d.trcNrRange().snappedCenter() );
+    trcnrfld_->box()->setInterval( trcrg );
+    trcnrfld_->box()->setValue( trcrg.snappedCenter() );
+    zrg_ = zrg;
 }

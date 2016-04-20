@@ -35,11 +35,9 @@ public:
     bool		next();
     bool		isValid() const;
     void		reset();
-    void		getLineSet();
     int			nrLines() const			{ return nrlines_; }
     int			nrLinesDone() const		{ return lineidx_+1; }
     const char*		lineName() const;
-    int			lineSetIndex(const char* attrnm=0) const;
     const MultiID&	lineSetKey()			{ return curlsid_; }
 
     const Horizon2D*	horizon() const			{ return h2d_; }

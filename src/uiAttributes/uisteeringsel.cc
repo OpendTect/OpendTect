@@ -73,7 +73,7 @@ void uiSteeringSel::createFields()
     BufferStringSet steertyps;
     steertyps.add( "None" ).add( "Central" ).add( "Full" );
     if ( withconstdir_ ) steertyps.add ( "Constant direction" );
-    typfld_ = new uiGenInput( this, uiStrings::sSteering(), 
+    typfld_ = new uiGenInput( this, uiStrings::sSteering(),
                               StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
@@ -83,7 +83,7 @@ void uiSteeringSel::createFields()
 
     dirfld_ = new uiGenInput( this, uiStrings::sAzimuth(), FloatInpSpec() );
     dirfld_->attach( alignedBelow, typfld_ );
-    uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime() ? tr("(us/m)") 
+    uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime() ? tr("(us/m)")
 						            : tr("(degrees)"));
     dipfld_ = new uiGenInput( this, dipstr, FloatInpSpec() );
     dipfld_->attach( alignedBelow, dirfld_ );
@@ -290,7 +290,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     if ( !workctio_.ioobj_ )
 	return DescID::undef();
 
-    LineKey linekey( workctio_.ioobj_->key() );
+    const BufferString storkey( workctio_.ioobj_->key() );
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
@@ -300,7 +300,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 
 	const Param* keypar = desc->getParam( StorageProvider::keyStr() );
 	BufferString res; keypar->getCompositeValue( res );
-	if ( res == linekey )
+	if ( res == storkey )
 	    return descid;
     }
 
@@ -308,7 +308,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     desc->setHidden( true );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    keypar->setValue( linekey );
+    keypar->setValue( storkey );
 
     BufferString userref = workctio_.ioobj_->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
