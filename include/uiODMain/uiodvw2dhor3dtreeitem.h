@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+#include "uiodvw2demtreeitem.h"
 
 #include "emposid.h"
 
@@ -58,7 +58,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DHor3DTreeItem)
 public:
     			uiODVw2DHor3DTreeItem(const EM::ObjectID&);
@@ -89,7 +89,6 @@ protected:
 
     void		emobjChangeCB(CallBacker*);
 
-    EM::ObjectID	emid_;
     Vw2DHorizon3D*	horview_;
     void		emobjAbtToDelCB(CallBacker*);
 };
