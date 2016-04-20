@@ -211,17 +211,15 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 
 
 uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(uiString::emptyString())
-    , emid_(emid)
-    , fssview_(0)
+    : uiODVw2DEMTreeItem( emid )
+    , fssview_( 0 )
 {
 }
 
 
 uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
-    : uiODVw2DTreeItem(uiString::emptyString())
-    , emid_(-1)
-    , fssview_(0)
+    : uiODVw2DEMTreeItem( -1 )
+    , fssview_( 0 )
 {
     displayid_ = id;
 }
@@ -283,7 +281,9 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     mAttachCB( viewer2D()->viewControl()->editPushed(),
 	       uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
-
+    
+    uiODVw2DTreeItem::addKeyBoardEvent();
+    
     return true;
 }
 
@@ -340,17 +340,6 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 }
 
 
-void uiODVw2DFaultSS2DTreeItem::renameVisObj()
-{
-    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
-    TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( midintree, visobjids );
-    for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
-    applMgr()->visServer()->triggerTreeUpdate();
-}
-
-
 #define mPropID		0
 #define mSaveID		1
 #define mSaveAsID	2
@@ -380,18 +369,10 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     }
     else if ( mnuid==mSaveID || mnuid==mSaveAsID )
     {
-	bool savewithname = (mnuid == mSaveAsID) ||
-			    (EM::EMM().getMultiID( emid_ ).isEmpty());
-	if ( !savewithname )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
-	    savewithname = !ioobj;
-	}
-
-	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	name_ = applMgr()->EMServer()->getName( emid_ );
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	renameVisObj();
+	if ( mnuid==mSaveID )
+	    doSave();
+	if ( mnuid==mSaveAsID )
+	    doSaveAs();
     }
     else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {

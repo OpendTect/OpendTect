@@ -193,15 +193,13 @@ void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const EM::ObjectID& emid )
-    : uiODVw2DTreeItem(uiString::emptyString())
-    , emid_(emid)
+    : uiODVw2DEMTreeItem(emid)
     , faultview_(0)
 {}
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
-    : uiODVw2DTreeItem(uiString::emptyString())
-    , emid_(-1)
+    : uiODVw2DEMTreeItem(-1)
     , faultview_(0)
 {
     displayid_ = id;
@@ -260,6 +258,7 @@ bool uiODVw2DFaultTreeItem::init()
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DFaultTreeItem,deSelCB) );
 
+    uiODVw2DTreeItem::addKeyBoardEvent();
     return true;
 }
 
@@ -322,17 +321,6 @@ bool uiODVw2DFaultTreeItem::select()
 }
 
 
-void uiODVw2DFaultTreeItem::renameVisObj()
-{
-    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
-    TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( midintree, visobjids );
-    for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
-    applMgr()->visServer()->triggerTreeUpdate();
-}
-
-
 #define mPropID		0
 #define mSaveID		1
 #define mSaveAsID	2
@@ -362,18 +350,10 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
     }
     else if ( mnuid==mSaveID || mnuid==mSaveAsID )
     {
-	bool savewithname = (mnuid == mSaveAsID) ||
-			    (EM::EMM().getMultiID( emid_ ).isEmpty());
-	if ( !savewithname )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
-	    savewithname = !ioobj;
-	}
-
-	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	name_ = applMgr()->EMServer()->getName( emid_ );
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	renameVisObj();
+	if ( mnuid==mSaveID )
+	    doSave();
+	if ( mnuid==mSaveAsID )
+	    doSaveAs();
     }
     else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {

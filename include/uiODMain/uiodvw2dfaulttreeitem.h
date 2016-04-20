@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+#include "uiodvw2demtreeitem.h"
 
 #include "emposid.h"
 
@@ -56,7 +56,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DFaultTreeItem);
 public:
     			uiODVw2DFaultTreeItem(const EM::ObjectID&);
@@ -83,10 +83,7 @@ protected:
 
     void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
-
-    EM::ObjectID        emid_;
     VW2DFault*		faultview_;
-    void		renameVisObj();
 };
 
 

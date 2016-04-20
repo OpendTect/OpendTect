@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+#include "uiodvw2demtreeitem.h"
 #include "uistring.h"
 
 #include "emposid.h"
@@ -59,7 +59,7 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DFaultSS2DTreeItem);
 public:
     			uiODVw2DFaultSS2DTreeItem(const EM::ObjectID&);
@@ -86,9 +86,7 @@ protected:
     void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
 
-    EM::ObjectID	emid_;
     VW2DFaultSS2D*	fssview_;
-    void		renameVisObj();
 };
 
 
