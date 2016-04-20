@@ -175,7 +175,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
 		const StringPair usrref( desc->userRef() );
-		const BufferString component = usrref.first();
+		const BufferString component = usrref.second();
 		if ( component.isEmpty() )
 		    ncdesc->setUserRef( ioobj->name() );
 		else
