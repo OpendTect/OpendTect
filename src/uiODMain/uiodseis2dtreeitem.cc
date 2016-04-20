@@ -703,7 +703,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	}
 
 	uiTaskRunner uitr( ODMainWin() );
-	dpid = calc->createAttrib( tkzs, 0, &uitr );
+	dp = calc->createAttrib( tkzs, 0, &uitr );
     }
     else
     {
