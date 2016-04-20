@@ -68,6 +68,9 @@ public:
     bool		select();
     const MultiID&	pickMultiID() const;
     const VW2DPickSet*	vw2DObject() const	{ return vw2dpickset_; }
+    virtual void	doSave();
+    virtual void	doSaveAs();
+
 
 protected:
 

@@ -23,6 +23,11 @@ ________________________________________________________________________
 #include "uisetpickdirs.h"
 #include "uistrings.h"
 #include "uitreeview.h"
+#include "uiflatviewwin.h"
+#include "uiflatviewer.h"
+#include "uigraphicsview.h"
+#include "keyboardevent.h"
+
 #include "view2ddataman.h"
 #include "view2dpickset.h"
 
@@ -225,6 +230,7 @@ bool uiODVw2DPickSetTreeItem::init()
     displayMiniCtab();
     mAttachCB( checkStatusChange(), uiODVw2DPickSetTreeItem::checkCB );
     vw2dpickset_->drawAll();
+    uiODVw2DTreeItem::addKeyBoardEvent();
     return true;
 }
 
@@ -293,10 +299,10 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 	    applMgr()->setPickSetDirs( pickset_ );
 	    break;
 	case mSaveID:
-	    applMgr()->storePickSet( pickset_ );
+	    doSave();
 	    break;
 	case mSaveAsID:
-	    applMgr()->storePickSetAs( pickset_ );
+	    doSaveAs();
 	    break;
 	case mRemoveID:
 	{
@@ -320,6 +326,18 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     }
 
     return true;
+}
+
+
+void uiODVw2DPickSetTreeItem::doSave()
+{
+    applMgr()->storePickSet( pickset_ );
+}
+
+
+void uiODVw2DPickSetTreeItem::doSaveAs()
+{
+    applMgr()->storePickSetAs( pickset_ );
 }
 
 
