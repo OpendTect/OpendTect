@@ -47,6 +47,7 @@ set(OD_MODULE_SOURCES
 	uiodviewer2dposgrp.cc
 	uiodviewer2dposdlg.cc
 	uiodvw2dtreeitem.cc
+	uiodvw2demtreeitem.cc
 	uiodvw2dfaulttreeitem.cc
 	uiodvw2dfaultsstreeitem.cc
 	uiodvw2dfaultss2dtreeitem.cc
