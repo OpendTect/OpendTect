@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "posinfo2dsurv.h"
+#include "seisdatapack.h"
 
 namespace visBase
 {

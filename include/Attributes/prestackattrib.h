@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "prestackprop.h"
 #include "multiid.h"
 #include "datapack.h"
+#include "prestackgather.h"
 
 class SeisPSReader;
 class IOObj;

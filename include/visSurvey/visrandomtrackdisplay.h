@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
+#include "seisdatapack.h"
 
 namespace visBase
 {
