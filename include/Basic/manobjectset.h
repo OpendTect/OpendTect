@@ -83,6 +83,8 @@ public:
 				RefObjectSet(const ObjectSet<T>&);
 
     RefObjectSet<T>&		operator=(const ObjectSet<T>& os);
+    inline virtual T*		replace(int idx, T*);
+    inline virtual void		insertAt(T*,int idx);
 
 private:
     virtual ObjectSet<T>&	doAdd(T* ptr);
@@ -206,6 +208,22 @@ RefObjectSet<T>::RefObjectSet( const ObjectSet<T>& os )
 template <class T> inline
 RefObjectSet<T>& RefObjectSet<T>::operator =(const ObjectSet<T>& os)
 { ObjectSet<T>::operator=(os); return *this; }
+
+
+template <class T> inline
+T* RefObjectSet<T>::replace( int idx, T *ptr )
+{
+    refPtr( ptr );
+    return ManagedObjectSetBase<T>::replace(idx, ptr );
+}
+
+
+template <class T> inline
+void RefObjectSet<T>::insertAt( T *ptr, int idx )
+{
+    refPtr( ptr );
+    ManagedObjectSetBase<T>::insertAt( ptr, idx );
+}
 
 
 template <class T> inline
