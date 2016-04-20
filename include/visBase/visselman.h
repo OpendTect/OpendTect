@@ -14,8 +14,7 @@ ________________________________________________________________________
 
 
 #include "visbasemod.h"
-#include "callback.h"
-#include "sets.h"
+#include "notify.h"
 
 class SoSelection;
 class SoNode;
@@ -61,7 +60,7 @@ public:
     CNotifier<SelectionManager,int>	deselnotifier;
     CNotifier<SelectionManager,int>	updateselnotifier;
 
-    				// for implementing pick-based reselection
+				// for implementing pick-based reselection
     CNotifier<SelectionManager,int>	reselnotifier;
 
     void			fillPar(IOPar&,TypeSet<int>&) const {}

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "enums.h"
 #include "zdomain.h"
-#include "atomic.h"
+#include "notify.h"
 #include "survgeom3d.h"
 
 class ascostream;

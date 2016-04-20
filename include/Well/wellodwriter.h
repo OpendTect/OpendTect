@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "wellwriteaccess.h"
 #include "wellio.h"
 #include "od_iosfwd.h"
@@ -20,8 +19,6 @@ class IOObj;
 
 namespace Well
 {
-class Data;
-class Log;
 
 /*!\brief Writes Well::Data to OpendTect file storage. */
 

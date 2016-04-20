@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "namedobj.h"
+#include "notify.h"
 
 mFDQtclass(QTimer)
 mFDQtclass(QTimerComm)
@@ -43,9 +44,9 @@ public :
 protected:
     mQtclass(QTimer*)		timer_;
     mQtclass(QTimerComm*)		comm_;
-    ScriptPolicy	scriptpolicy_;		
+    ScriptPolicy	scriptpolicy_;
 
-public:	
+public:
 				// Not for casual use
 
     ScriptPolicy		scriptPolicy() const;

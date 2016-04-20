@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "bufstringset.h"
-#include "callback.h"
+#include "notify.h"
 #include "uistring.h"
 class uiListBox;
 class CtxtIOObj;

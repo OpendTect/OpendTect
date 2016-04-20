@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uiapplserv.h"
+#include "notify.h"
 #include "bufstringset.h"
 #include "uistring.h"
 

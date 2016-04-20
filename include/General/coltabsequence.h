@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "enums.h"
 #include "namedobj.h"
+#include "notify.h"
 #include "geometry.h"
 
 class BufferStringSet;
@@ -30,7 +31,7 @@ namespace ColTab
   including the 'user defined' ones. Users can overrule the standard ones.
 
   Sequences cannot be scaled, try the Mapper.
- 
+
  */
 
 mExpClass(General) Sequence : public NamedObject
@@ -49,7 +50,7 @@ public:
     bool		operator!=(const Sequence&) const;
 
     bool		isSys() const
-    			{ return type_==System; }
+			{ return type_==System; }
     Type		type() const		{ return type_; }
     void		setType( Type tp )	{ type_ = tp; }
 
@@ -66,7 +67,7 @@ public:
     Geom::Point2D<float> transparency( int idx ) const	{ return tr_[idx]; }
     float		transparencyAt(float) const;
     void		setTransparency(Geom::Point2D<float>);
-    			/*!<x goes from 0 to 1, trans from 0 to 255 */
+			/*!<x goes from 0 to 1, trans from 0 to 255 */
     void		changeTransparency(int,Geom::Point2D<float>);
     void		removeTransparencies();
     void		removeTransparencyAt(int);
@@ -74,18 +75,18 @@ public:
 
     int			nrSegments() const		{ return nrsegments_; }
     void		setNrSegments(int n)		{ nrsegments_ = n; }
-    			/*!<nrsegments > 0 divide the ctab in equally wide
+			/*!<nrsegments > 0 divide the ctab in equally wide
 			    nrsegments == 0 no segmentation
 			    nrsegments == -1 constant color between markers.*/
 
-		
+
     bool		isSegmentized() const		{ return nrsegments_; }
 
     void		changeColor(int,
-	    			    unsigned char,unsigned char,unsigned char);
+				    unsigned char,unsigned char,unsigned char);
     void		changePos(int,float);
     int			setColor(float pos, //!< Insert or change
-	    			 unsigned char,unsigned char,unsigned char);
+				 unsigned char,unsigned char,unsigned char);
     void		removeColor(int);
     void		removeAllColors();
     void		flipColor();
@@ -114,7 +115,7 @@ public:
     static const char*	sKeyCtbl();
     static const char*	sKeyNrSegments();
     static const char*  sKeyRainbow();
-    
+
 protected:
 
     TypeSet<float>		x_;
@@ -137,7 +138,7 @@ protected:
 /*!\brief Manages Sequences; reads/writes system or user-defined
 
   Has a singleton instance ColTab::SM().
- 
+
  */
 
 mExpClass(General) SeqMgr : public CallBacker
@@ -152,7 +153,7 @@ public:
     bool		get(const char*,Sequence&);
     void		getSequenceNames(BufferStringSet&);
     const Sequence*	getAny(const char* key) const;
-    			//!< returns with key, or a nice one anyway
+			//!< returns with key, or a nice one anyway
 
     void		set(const Sequence&); //!< if name not yet present, adds
     void		remove(int);
@@ -162,11 +163,11 @@ public:
     Notifier<SeqMgr>	seqAdded;
     Notifier<SeqMgr>	seqRemoved;
 
-    			~SeqMgr()	{}
+			~SeqMgr()	{}
 
 protected:
 
-    			SeqMgr();
+			SeqMgr();
 
 
     ObjectSet<Sequence>	seqs_;
@@ -175,7 +176,7 @@ protected:
 
     void		addFromPar(const IOPar&,bool);
     void		add( Sequence* seq )
-    			{ seqs_ += seq; seqAdded.trigger(); }
+			{ seqs_ += seq; seqAdded.trigger(); }
     void		readColTabs();
 };
 

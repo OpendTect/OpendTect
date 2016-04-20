@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "position.h"
 #include "ranges.h"
 #include "propertyref.h"
@@ -22,11 +22,7 @@ class BufferStringSet;
 namespace Well
 {
 
-class Log;
-
-/*!
-\brief Log set
-*/
+/*!\brief Log set */
 
 mExpClass(Well) LogSet
 {

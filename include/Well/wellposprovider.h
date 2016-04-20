@@ -12,21 +12,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "multiid.h"
 #include "posprovider.h"
 #include "callback.h"
 #include "trckeysampling.h"
 
-namespace Well { class Data; }
-
 
 namespace Pos
 {
 
-/*!
-\brief Volume/Area provider based on Wells.
-*/
+/*!\brief Volume/Area provider based on Wells.  */
 
 mExpClass(Well) WellProvider3D : public Provider3D
 			       , public CallBacker

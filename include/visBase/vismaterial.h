@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "visnodestate.h"
+#include "notify.h"
 #include "uistring.h"
 
 namespace osg {
@@ -36,7 +37,7 @@ namespace visBase
 mExpClass(visBase) Material : public NodeState
 { mODTextTranslationClass(Material);
 public:
-    			Material();
+			Material();
 
     Notifier<Material>	change;
 
@@ -105,13 +106,13 @@ public:
     void		detachGeometry(osg::Geometry*);
 
     void		setColorBindType(unsigned int);
-    
+
     const TypeSet<Color> getColors();
 
 private:
 			~Material();
 			//!Used when no array is present
-   void		    	updateOsgMaterial();
+   void			updateOsgMaterial();
 
     void		createOsgColorArray(int);
     void		setColorArray(osg::Array*);

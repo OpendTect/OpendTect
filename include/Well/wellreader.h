@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "ranges.h"
 #include "bufstring.h"
 #include "uistring.h"
@@ -22,7 +22,6 @@ class BufferStringSet;
 
 namespace Well
 {
-class Data;
 class ReadAccess;
 
 /*!\brief Reads Well::Data from any data store */

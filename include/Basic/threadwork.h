@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "genc.h"
 #include "objectset.h"
-#include "callback.h"
+#include "notify.h"
 #include "bufstringset.h"
 
 typedef bool (*StaticTaskFunction)();
@@ -107,7 +107,7 @@ public:
 
     Notifier<WorkManager>	isidle;
 
-    static Threads::WorkManager&	twm();
+    static Threads::WorkManager& twm();
 
     Notifier<WorkManager>	isShuttingDown;
     void			shutdown();

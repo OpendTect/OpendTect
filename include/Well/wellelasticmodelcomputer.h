@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "ailayer.h"
 #include "bufstringset.h"
 #include "ranges.h"
@@ -20,8 +20,6 @@ ________________________________________________________________________
 
 namespace Well
 {
-class Data;
-class Log;
 class LogSampler;
 
 /*!

@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "bufstringset.h"
 #include "ranges.h"
 #include "tableascio.h"
@@ -25,14 +25,8 @@ class UnitOfMeasure;
 
 namespace Well
 {
-class Data;
-class Track;
-class D2TModel;
-class MarkerSet;
 
-/*!
-\brief Imports files in LAS ( Log Ascii Standard ) format.
-*/
+/*!\brief Imports files in LAS ( Log Ascii Standard ) format.  */
 
 mExpClass(Well) LASImporter
 { mODTextTranslationClass(LASImporter);
@@ -91,9 +85,7 @@ protected:
 };
 
 
-/*!
-\brief Track Ascii I/O.
-*/
+/*!\brief Track Ascii I/O.  */
 
 mExpClass(Well) TrackAscIO : public Table::AscIO
 { mODTextTranslationClass(TrackAscIO);
@@ -122,9 +114,7 @@ protected:
 };
 
 
-/*!
-\brief D2TModel Ascii I/O.
-*/
+/*!\brief D2TModel Ascii I/O.  */
 
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
 { mODTextTranslationClass(D2TModelAscIO);
@@ -141,9 +131,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 };
 
 
-/*!
-\brief MarkerSet Ascii I/O.
-*/
+/*!\brief MarkerSet Ascii I/O.  */
 
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
 { mODTextTranslationClass(MarkerSetAscIO);
@@ -158,9 +146,7 @@ public:
 };
 
 
-/*!
-\brief Bulk WellTrack Ascii I/O.
-*/
+/*!\brief Bulk WellTrack Ascii I/O.  */
 
 mExpClass(Well) BulkTrackAscIO : public Table::AscIO
 { mODTextTranslationClass(BulkTrackAscIO);
@@ -178,9 +164,7 @@ protected:
 };
 
 
-/*!
-\brief Bulk MarkerSet Ascii I/O.
-*/
+/*!\brief Bulk MarkerSet Ascii I/O.  */
 
 mExpClass(Well) BulkMarkerAscIO : public Table::AscIO
 { mODTextTranslationClass(BulkMarkerAscIO);
@@ -199,9 +183,7 @@ protected:
 };
 
 
-/*!
-\brief Bulk D2TModel Ascii I/O.
-*/
+/*!\brief Bulk D2TModel Ascii I/O.  */
 
 mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
 { mODTextTranslationClass(BulkD2TModelAscIO);

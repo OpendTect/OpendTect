@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "multiid.h"
 #include "wellio.h"
+#include "welld2tmodel.h"
 #include "od_iosfwd.h"
 
 

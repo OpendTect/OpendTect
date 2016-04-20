@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 
 #include "attribsel.h"
-#include "callback.h"
+#include "notify.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "survgeom.h"
@@ -51,11 +51,11 @@ public:
     const TrcKeyZSampling&	activeVolume() const;
     void			setActiveVolume(const TrcKeyZSampling&);
     const TrcKeyPath*		activePath() const
-    				{ return rdmlinetkpath_; }
+				{ return rdmlinetkpath_; }
     void			setActivePath( const TrcKeyPath* tkp )
 				{ rdmlinetkpath_ = tkp; }
     int				activeRandomLineID() const
-    				{ return rdlid_; }
+				{ return rdlid_; }
     void			setActiveRandomLineID(  int rdlid )
 				{ rdlid_ = rdlid; }
     Notifier<Engine>		activevolumechange;

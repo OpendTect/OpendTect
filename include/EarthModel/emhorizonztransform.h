@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "zaxistransform.h"
+#include "notify.h"
 
 namespace EM
 {
@@ -30,12 +31,12 @@ mExpClass(EarthModel) HorizonZTransform : public ZAxisTransform
 { mODTextTranslationClass(HorizonZTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
-				  "HorizonZTransform", 
+				  "HorizonZTransform",
 				  toUiString(sFactoryKeyword()));
 
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 
-    			HorizonZTransform();
+			HorizonZTransform();
     void		setHorizon(const Horizon&);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
 				  int sz,float* res) const;

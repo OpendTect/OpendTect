@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "sets.h"
 #include "iopar.h"
-#include "callback.h"
+#include "notify.h"
 #include "bufstring.h"
 #include "task.h"
 #include "thread.h"

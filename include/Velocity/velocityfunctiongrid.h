@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "samplingdata.h"
 #include "thread.h"
+#include "notify.h"
 #include "velocityfunction.h"
 
 class BinIDValueSet;

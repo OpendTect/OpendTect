@@ -11,13 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "fontdata.h"
 #include "namedobj.h"
 #include "color.h"
 #include "ranges.h"
 #include "survinfo.h"
-
 #include "bufstringset.h"
 
 

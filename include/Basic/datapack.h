@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "manobjectset.h"
 #include "multiid.h"
-#include "threadlock.h"
+#include "notify.h"
 #include "od_iosfwd.h"
 #include "ptrman.h"
 
@@ -40,7 +40,7 @@ public:
 
     inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
-    			DataPack( const char* categry )
+			DataPack( const char* categry )
 			    : NamedObject("<?>")
 			    , category_(categry)
 			    , manager_( 0 )
@@ -62,7 +62,7 @@ public:
     static const char*	sKeyCategory();
     static ID		cNoID()			{ return 0; }
 
-    virtual bool	isOK() const 		{ return true; }
+    virtual bool	isOK() const		{ return true; }
 
     Threads::Lock&	updateLock() const	{ return updatelock_; }
 
@@ -98,7 +98,7 @@ mExpClass(Basic) BufferDataPack : public DataPack
 {
 public:
 
-    			BufferDataPack( char* b=0, od_int64 s=0,
+			BufferDataPack( char* b=0, od_int64 s=0,
 					const char* catgry="Buffer" )
 			    : DataPack(catgry)
 			    , buf_(b)
@@ -147,7 +147,7 @@ public:
 
     typedef int		ID;		//!< Each Mgr has its own ID
     inline static ID	getID( const DataPack::FullID& fid )
-    						{ return fid.ID(0); }
+						{ return fid.ID(0); }
 
     bool		haveID(DataPack::ID) const;
     inline bool		haveID( const DataPack::FullID& fid ) const
@@ -158,16 +158,16 @@ public:
     template <class T>
     inline T*		add(RefMan<T>& p)	{ doAdd(p.ptr()); return p; }
     RefMan<DataPack>	get(DataPack::ID dpid) const;
-    
+
     template <class T>
     inline RefMan<T>	getAndCast(DataPack::ID dpid) const;
-    			//!<Dynamic casts to T and returns results
-    
+			//!<Dynamic casts to T and returns results
+
     WeakPtr<DataPack>	observe(DataPack::ID dpid) const;
 
     template <class T>
     inline WeakPtr<T>	observeAndCast(DataPack::ID dpid) const;
-    			//!<Dynamic casts to T and returns results
+			//!<Dynamic casts to T and returns results
 
     bool		ref(DataPack::ID dpid);
 			//Convenience. Will ref if it is found
@@ -184,7 +184,7 @@ public:
     static ID		FlatID();	//!< Flat (N1xN2) data: 4
     static ID		SurfID();	//!< Surface (triangulated) data: 5
 
-    			// Convenience to get info without any obtain()
+			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;
     static const char*	nameOf(const DataPack::FullID&);
     const char*		categoryOf(DataPack::ID) const;
@@ -216,10 +216,10 @@ protected:
 
 public:
 
-    			DataPackMgr(ID);
+			DataPackMgr(ID);
 			//!< You can, but normally should not, construct
 			//!< a manager. In general, leave it to DPM().
-    			~DataPackMgr();
+			~DataPackMgr();
 			//!< Delete a DataPackMgr only when you have
 			//!< created it with the constructor.
 
@@ -273,7 +273,7 @@ protected:
 /*! Provides safe&easy access to DataPack subclass.
 
 This class is legacy, and will be removed in due time. Use RefMan<T> instead.
- 
+
   Obtains the pack, and releases it when it goes out of scope. Typically used
   to hold a datapack as a local variable. Will also work when there are
   multiple return points.
@@ -358,7 +358,7 @@ WeakPtr<T> DataPackMgr::observeAndCast( DataPack::ID dpid ) const
 {
     RefMan<DataPack> pack = get( dpid );
     pack.setNoDelete( true );
-    
+
     mDynamicCastGet( T*, casted, pack.ptr() );
     return WeakPtr<T>( casted );
 }

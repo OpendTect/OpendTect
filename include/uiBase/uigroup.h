@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiobj.h"
 #include "uiparent.h"
-#include "callback.h"
+#include "notify.h"
 
 
 class uiGroupBody;
@@ -52,19 +52,19 @@ protected:
 
 
 mExpClass(uiBase) uiGroup : public uiParent
-{ 	
+{
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;
 friend class		uiGroupObj;
 friend class		uiMainWin;
 friend class		uiTabStack;
 public:
-			uiGroup( uiParent* , const char* nm="uiGroup", 
+			uiGroup( uiParent* , const char* nm="uiGroup",
 				 bool manage=true );
     virtual		~uiGroup();
 
     inline operator	const uiGroupObj*() const { return grpobj_; }
-    inline operator	uiGroupObj*() 		{ return grpobj_; }
+    inline operator	uiGroupObj*()		{ return grpobj_; }
     inline operator	const uiObject&() const	{ return *grpobj_; }
     inline operator	uiObject&()		{ return *grpobj_; }
     inline uiObject*	attachObj()		{ return grpobj_; }
@@ -72,11 +72,11 @@ public:
     inline uiParent*	parent()		{ return grpobj_->parent(); }
     inline const uiParent* parent() const	{ return grpobj_->parent(); }
 
-    void		setHSpacing( int ); 
-    void		setVSpacing( int ); 
-    void		setSpacing( int s=0 )	
+    void		setHSpacing( int );
+    void		setVSpacing( int );
+    void		setSpacing( int s=0 )
 			{ setHSpacing(s); setVSpacing(s); }
-    void		setBorder( int ); 
+    void		setBorder( int );
 
     void		setFrame( bool yn=true );
     void		setNoBackGround();
@@ -91,7 +91,7 @@ public:
 			    { setHCenterObj(o->mainObject()); }
 
     //! internal use only. Tells the layout manager it's a toplevel mngr.
-    void		setIsMain( bool ); 
+    void		setIsMain( bool );
     virtual uiMainWin*	mainwin()
 			    { return mainObject() ? mainObject()->mainwin() :0;}
 

@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "namedobj.h"
+#include "notify.h"
 #include "uistring.h"
 
 class CtxtIOObj;

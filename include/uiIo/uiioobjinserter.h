@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "factory.h"
 #include "transl.h"
+#include "notify.h"
 
 class uiButton;
 class uiParent;

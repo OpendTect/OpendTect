@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "uiwellmod.h"
-#include "callback.h"
+#include "notify.h"
 #include "bufstring.h"
 
 class MouseEventHandler;
@@ -31,8 +31,8 @@ public:
     void			removeDahDisplay(uiWellDahDisplay&);
     void			clear();
 
-    bool			isMouseDown() const 	{ return ismousedown_;} 
-    void			setMouseDown(bool yn)   { ismousedown_ = yn; } 
+    bool			isMouseDown() const	{ return ismousedown_;}
+    void			setMouseDown(bool yn)   { ismousedown_ = yn; }
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed(bool);
 
@@ -42,13 +42,13 @@ public:
 
     void			setSelMarker(const Well::Marker*);
 
-    float			time() const 	{ return time_; }
+    float			time() const	{ return time_; }
     float			dah() const	{ return dah_; }
     float			xPos() const	{ return xpos_; }
     float			yPos() const	{ return ypos_; }
 
     MouseEventHandler*		mouseEventHandler();
-    
+
     Notifier<uiWellDisplayControl>  posChanged;
     Notifier<uiWellDisplayControl>  mousePressed;
     Notifier<uiWellDisplayControl>  mouseReleased;
@@ -58,27 +58,27 @@ public:
 protected:
 
     ObjectSet<uiWellDahDisplay> logdisps_;
-    uiWellDahDisplay* 		seldisp_;
+    uiWellDahDisplay*		seldisp_;
 
     BufferString                info_;
     bool			ismousedown_;
     bool			isctrlpressed_;
 
-    const Well::Marker* 	selmarker_;
-    const Well::Marker* 	lastselmarker_;
+    const Well::Marker*	selmarker_;
+    const Well::Marker*	lastselmarker_;
 
     void			highlightMarker(const Well::Marker&,bool);
-    MouseEventHandler& 		mouseEventHandler(int);
+    MouseEventHandler&		mouseEventHandler(int);
 
-    void 			getPosInfo(BufferString&) const;
-    float 			mousePos() const; 
-    
+    void			getPosInfo(BufferString&) const;
+    float			mousePos() const;
+
     float			time_;
     float			dah_;
     float			xpos_;
     float			ypos_;
 
-    void 			mouseMovedCB(CallBacker*);
+    void			mouseMovedCB(CallBacker*);
     void                        mousePressedCB(CallBacker*);
     void                        mouseReleasedCB(CallBacker*);
     void			setPosInfo(CallBacker*);

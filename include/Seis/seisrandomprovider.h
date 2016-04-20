@@ -14,7 +14,7 @@
 
 #include "seistrc.h"
 #include "binidvalset.h"
-#include "callback.h"
+#include "notify.h"
 #include "multidimstorage.h"
 #include "thread.h"
 #include "refcount.h"
@@ -78,7 +78,7 @@ protected:
 
 	SeisTrc*		trc_;
     protected:
-        			~TraceHolder();
+			~TraceHolder();
     };
 
     void				incomingTrace( CallBacker* );

@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "executor.h"
 #include "paralleltask.h"
 #include "bufstringset.h"
@@ -31,17 +31,8 @@ template <class T> class Array2DImpl;
 
 namespace Well
 {
-class Log;
-class Info;
-class D2TModel;
-class Data;
-class Track;
-class Marker;
-class MarkerSet;
 
-/*!
-\brief Parameters (zrg, sampling method) to extract well data.
-*/
+/*!\brief Parameters (zrg, sampling method) to extract well data.  */
 
 mExpClass(Well) ZRangeSelector
 { mODTextTranslationClass(ZRangeSelector);
@@ -110,9 +101,7 @@ protected:
 };
 
 
-/*!
-\brief ZRangeSelector to extract parameters.
-*/
+/*!\brief ZRangeSelector to extract parameters.  */
 
 mExpClass(Well) ExtractParams : public ZRangeSelector
 { mODTextTranslationClass(ExtractParams);
@@ -136,9 +125,7 @@ public:
 };
 
 
-/*!
-\brief Collects information about all wells in store.
-*/
+/*!\brief Collects information about all wells in store.  */
 
 mExpClass(Well) InfoCollector : public ::Executor
 { mODTextTranslationClass(InfoCollector);
@@ -151,8 +138,8 @@ public:
 
     int			nextStep();
     uiString		uiMessage() const	{ return curmsg_; }
-    uiString		uiNrDoneText() const	{ 
-						return tr("Wells inspected"); 
+    uiString		uiNrDoneText() const	{
+						return tr("Wells inspected");
 						}
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
@@ -292,9 +279,7 @@ protected:
 };
 
 
-/*!
-\brief Executor to sample Well::Track
-*/
+/*!\brief Executor to sample Well::Track */
 
 mExpClass(Well) SimpleTrackSampler : public Executor
 { mODTextTranslationClass(SimpleTrackSampler);

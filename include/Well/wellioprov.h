@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 
 #include "manobjectset.h"
 #include "wellreadaccess.h"

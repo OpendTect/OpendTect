@@ -13,8 +13,6 @@ ________________________________________________________________________
 
 #include "uiviewer2dmod.h"
 #include "callback.h"
-#include "refcount.h"
-
 #include "view2ddataman.h"
 
 class uiFlatViewWin;

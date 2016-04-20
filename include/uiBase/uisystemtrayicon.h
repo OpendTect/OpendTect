@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "callback.h"
+#include "notify.h"
 
 mFDQtclass(QSystemTrayIcon)
 mFDQtclass(QSystemTrayIconMessenger)

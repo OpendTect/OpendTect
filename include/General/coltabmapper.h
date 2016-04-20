@@ -12,10 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "enums.h"
 #include "coltab.h"
+#include "enums.h"
+#include "notify.h"
 #include "valseries.h"
-#include "threadlock.h"
 #include "varlenarray.h"
 
 #define mUndefColIdx    (nrsteps_)

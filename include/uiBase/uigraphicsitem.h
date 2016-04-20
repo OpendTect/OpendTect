@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "callback.h"
+#include "notify.h"
 #include "keyenum.h"
 #include "uigeom.h"
 #include "manobjectset.h"

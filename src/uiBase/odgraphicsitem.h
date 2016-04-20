@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include <QFont>
 
 #include "draw.h"
+#include "notify.h"
 
 class uiPixmap;
 

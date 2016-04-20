@@ -12,14 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "bufstring.h"
 class IOObj;
 
 namespace Well
 {
-class Data;
-class Log;
 class WriteAccess;
 
 /*!\brief Writes Well::Data to any data storage.

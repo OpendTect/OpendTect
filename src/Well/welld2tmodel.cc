@@ -67,8 +67,7 @@ bool Well::D2TModel::operator !=( const Well::D2TModel& d2t ) const
 
 bool Well::D2TModel::insertAtDah( float dh, float val )
 {
-    mWellDahObjInsertAtDah( dh, val, t_, true  );
-    return true;
+    return doInsertAtDah( dh, val, t_, true  );
 }
 
 

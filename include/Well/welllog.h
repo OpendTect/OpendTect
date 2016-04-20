@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "welldahobj.h"
 #include "ranges.h"
 #include "iopar.h"
@@ -22,8 +21,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-/*!
-\brief Well log
+/*!\brief Well log
 
   No regular sampling required, as in all DahObjs.
 

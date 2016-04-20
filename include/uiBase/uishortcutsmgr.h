@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "keyenum.h"
 #include "bufstringset.h"
+#include "notify.h"
 #include "uistring.h"
 
 mFDQtclass(QKeyEvent)
@@ -37,21 +38,21 @@ public:
 
     bool		set(const char* statestr,const char* keystr);
     BufferString	getKeySequenceStr() const;
-    
-    OD::ButtonState	state() const 		{ return state_; }
+
+    OD::ButtonState	state() const		{ return state_; }
     void		setState( OD::ButtonState bs )	{ state_ = bs; }
 
     //virtual: just to have the base class be polymorphic, allows dynamic cast
-    virtual int		key() const 		{ return key_; }
+    virtual int		key() const		{ return key_; }
     void		setKey( int k )		{ key_ = k; }
-    char 		asciiChar() const;
+    char		asciiChar() const;
     bool		isSimpleAscii() const;
 
     static const char**	sKeyKeyStrs();
     const char*		stateStr() const;
     const char*		keyStr() const;
 
-    			uiKeyDesc(mQtclass(QKeyEvent*));
+			uiKeyDesc(mQtclass(QKeyEvent*));
 
 protected:
 
@@ -67,17 +68,17 @@ mExpClass(uiBase) uiShortcutsList
 {
 public:
 
-    			uiShortcutsList( const uiShortcutsList& scl )
+			uiShortcutsList( const uiShortcutsList& scl )
 							{ *this = scl; }
-    			~uiShortcutsList() 		{ empty(); }
+			~uiShortcutsList() 		{ empty(); }
     uiShortcutsList&	operator =(const uiShortcutsList&);
     bool		write(bool usr=true) const;
 
     void		fillPar(IOPar&) const;
-    
-    ObjectSet<uiKeyDesc>& keyDescs()		{ return keydescs_; }	
-    const ObjectSet<uiKeyDesc>& keyDescs() const { return keydescs_; }	
-    BufferStringSet& 	names()			{ return names_; }
+
+    ObjectSet<uiKeyDesc>& keyDescs()		{ return keydescs_; }
+    const ObjectSet<uiKeyDesc>& keyDescs() const { return keydescs_; }
+    BufferStringSet&	names()			{ return names_; }
     const BufferStringSet&  names() const	{ return names_; }
     const uiKeyDesc*	keyDescOf(const char*) const;
     const char*		nameOf(const uiKeyDesc&) const;
@@ -88,17 +89,17 @@ public:
 protected:
 
     friend class	uiShortcutsMgr;
-    			uiShortcutsList(const char* selkey);
+			uiShortcutsList(const char* selkey);
 
     BufferString		selkey_;
     ObjectSet<uiKeyDesc>	keydescs_;
     BufferStringSet		names_;
 
     bool		getKeyValues(const IOPar&,int,
-	    			     BufferString&,BufferString&) const;
+				     BufferString&,BufferString&) const;
     bool		getSCNames(const IOPar&,int,BufferString&) const;
     bool		getSCProperties(const IOPar&,int,
-	    				uiString&,int&) const;
+					uiString&,int&) const;
 };
 
 
@@ -106,7 +107,7 @@ mExpClass(uiBase) uiShortcutsMgr : public CallBacker
 {
 public:
 			uiShortcutsMgr();
-    
+
     const uiShortcutsList& getList(const char* key) const;
     bool		setList(const uiShortcutsList&,bool usr=true);
 
@@ -126,12 +127,12 @@ protected:
 
 mExpClass(uiBase) uiExtraIntKeyDesc : public uiKeyDesc
 {
-public:			
+public:
 			uiExtraIntKeyDesc(const char* statestr=0,
 					  const char* keystr=0,
 					  int val=1);
 			uiExtraIntKeyDesc(const uiExtraIntKeyDesc&);
-			
+
     bool		operator==(const uiExtraIntKeyDesc& ev) const
 			{ return key_==ev.key_ && state_==ev.state_ &&
 			         val_==ev.val_; }

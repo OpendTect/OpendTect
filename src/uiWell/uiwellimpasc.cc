@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
 #include "wellwriter.h"

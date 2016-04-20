@@ -13,12 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "callback.h"
-
 #include "attribsel.h"
 #include "emposid.h"
 #include "position.h"
-#include "sets.h"
 #include "trckeysampling.h"
 #include "trckeyvalue.h"
 #include "uistring.h"
@@ -41,7 +38,7 @@ public:
     int			    addSeed(const TrcKeyValue&);
     void		    removeSeed(int);
     void		    clear();
-    
+
 protected:
                             ~Patch();
     EM::PosID               seedNode(int) const;
@@ -82,8 +79,8 @@ public:
     int			indexOf(const TrcKey&) const;
 
     virtual bool	removeSeed(const TrcKey&,
-	    			   bool enviromment=true,
-	    			   bool retrack=true)		{ return false;}
+				   bool enviromment=true,
+				   bool retrack=true)		{ return false;}
     virtual TrcKey	replaceSeed(const TrcKey&,const TrcKeyValue&)
 			{ return TrcKey::udf(); }
 
@@ -110,7 +107,7 @@ public:
     void		setSeedPickArea(const TrcKeySampling&);
     const TrcKeySampling& getSeedPickArea() const;
     EMTracker&		emTracker() const { return tracker_; }
-    bool		lineTrackDirection( BinID& dir, 
+    bool		lineTrackDirection( BinID& dir,
 				            bool perptotrackdir = false ) const;
     virtual bool	updatePatchLine(bool) { return false; }
     Undo&		horPatchUndo();

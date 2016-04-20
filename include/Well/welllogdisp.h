@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "ranges.h"
 #include "color.h"
 #include "bufstring.h"
@@ -20,27 +20,25 @@ ________________________________________________________________________
 namespace Well
 {
 
-/*!
-\brief Log display parameters.
-*/
+/*!\brief Log display parameters.  */
 
 mExpClass(Well) LogDisplayPars
 {
 public:
 			LogDisplayPars( const char* nm=0 )
 			    : name_(nm)
- 			    , cliprate_(mUdf(float))
+			    , cliprate_(mUdf(float))
 			    , range_(mUdf(float),mUdf(float))
-			    , nocliprate_(false)	
+			    , nocliprate_(false)
 			    , logarithmic_(false)
-			    , repeat_(1)	
+			    , repeat_(1)
 			    , repeatovlap_(mUdf(float))
-			    , seisstyle_(false)	
-			    , linecolor_(Color::White())	
+			    , seisstyle_(false)
+			    , linecolor_(Color::White())
 			    , logfill_(false)
-	    		    , logfillcolor_(Color::White())
+			    , logfillcolor_(Color::White())
 			    , seqname_("")
-       			    , singlfillcol_(false)				
+			    , singlfillcol_(false)
 						        {}
 			~LogDisplayPars()		{}
 
@@ -51,18 +49,16 @@ public:
     bool		seisstyle_;
     bool		nocliprate_;
     bool		logfill_;
-    int 		repeat_;
+    int		repeat_;
     float		repeatovlap_;
     Color		linecolor_;
     Color		logfillcolor_;
     const char*		seqname_;
-    bool 		singlfillcol_;
+    bool		singlfillcol_;
 };
 
 
-/*!
-\brief Log display parameter set.
-*/
+/*!\brief Log display parameter set.  */
 
 mExpClass(Well) LogDisplayParSet
 {
@@ -74,7 +70,7 @@ public:
 			    leftlogpar_ = new LogDisplayPars( "None" );
 			    rightlogpar_ = new LogDisplayPars( "None" );
 			}
-			~LogDisplayParSet()  
+			~LogDisplayParSet()
 			{
 			    delete leftlogpar_;
 			    delete rightlogpar_;

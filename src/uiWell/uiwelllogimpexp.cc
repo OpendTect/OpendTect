@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "wellman.h"
 #include "welltrack.h"
@@ -180,7 +181,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( nrexisting > 0 )
     {
 	uiString msg = tr("The following logs already exist and will not "
-	                  "be imported:\n\n%1\n\nPlease remove them before " 
+	                  "be imported:\n\n%1\n\nPlease remove them before "
 			  "import.").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
@@ -283,7 +284,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells ? 
+    outfld_ = new uiFileInput( this, multiwells ?
 			              mJoinUiStrs(sFile(),sDirectory())
 				    : uiStrings::phrOutput(uiStrings::sFile()),
 			      uiFileInput::Setup().forread(false)

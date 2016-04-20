@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "pickretriever.h"
 #include "position.h"
+#include "notify.h"
 
 namespace visSurvey { class Scene; }
 class uiVisPartServer;
@@ -21,7 +22,7 @@ class uiVisPartServer;
 mExpClass(uiVis) uiVisPickRetriever : public PickRetriever
 {
 public:
-    			uiVisPickRetriever(uiVisPartServer*);
+			uiVisPickRetriever(uiVisPartServer*);
     bool		enable(const TypeSet<int>* allowedscenes);
     NotifierAccess*	finished()		{ return &finished_; }
 
@@ -30,10 +31,10 @@ public:
     bool		waiting() const		{ return status_==Waiting; }
     const Coord3&	getPos() const		{ return pickedpos_; }
     int			getTrcNr() const	{ return pickedtrcnr_; }
-    Pos::GeomID		getGeomID() const  	{ return pickedgeomid_; }
+    Pos::GeomID		getGeomID() const	{ return pickedgeomid_; }
     int			getSceneID() const	{ return pickedscene_; }
     const TypeSet<int>&	getPickedObjIDs() const	{ return pickedobjids_; }
-    			
+
     void		addScene(visSurvey::Scene*);
     void		removeScene(visSurvey::Scene*);
 

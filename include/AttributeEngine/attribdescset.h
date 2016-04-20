@@ -14,10 +14,9 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 
 #include "attribdescid.h"
-#include "callback.h"
+#include "notify.h"
 #include "multiid.h"
 #include "separstr.h"
-#include "sets.h"
 #include "uistring.h"
 
 
@@ -30,9 +29,7 @@ namespace Attrib
 {
 class Desc; class DescSetup; class SelSpec;
 
-/*!
-\brief Set of attribute descriptions.
-*/
+/*!\brief Set of attribute descriptions.  */
 
 mExpClass(AttributeEngine) DescSet : public CallBacker
 { mODTextTranslationClass( Attrib::DescSet )

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "draw.h"
 #include "namedobj.h"
-#include "threadlock.h"
+#include "notify.h"
 
 namespace OD
 {

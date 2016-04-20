@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "bufstringset.h"
-#include "callback.h"
+#include "notify.h"
 
 class UndoEvent;
 
@@ -41,20 +41,20 @@ event until the next event with the UserInteraction flag set.
 mExpClass(Algo) Undo : public CallBacker
 {
 public:
-	    			Undo();
+				Undo();
     virtual			~Undo();
 
     void			removeAll();
     int				maxLength() const;
-    				/*!<Returns maximum number of userevents.
+				/*!<Returns maximum number of userevents.
 				    \note The actual number of events may
 				          be considerably higher since many
-				 	  events may be part of one single
-				 	  user event. */
+					  events may be part of one single
+					  user event. */
     void			setMaxLength(int);
     int				addEvent(UndoEvent* event,
-	    				 const char* description=0);
-    				/*!<\param event The new event (becomes mine).
+					 const char* description=0);
+				/*!<\param event The new event (becomes mine).
 				    \return the event id. */
     int				currentEventID() const;
     int				firstEventID() const;
@@ -71,7 +71,7 @@ public:
     void			setDesc(int eventid,const char* d);
     BufferString		unDoDesc() const;
     BufferString		reDoDesc() const;
-    				/*!\note takes redodesc with userinteraction */
+				/*!\note takes redodesc with userinteraction */
 
     bool			canUnDo() const;
     bool			unDo(int nrtimes=1,bool userinteraction=true);
@@ -83,6 +83,7 @@ public:
     Notifier<Undo>		undoredochange; //can**Do() or **DoDesc() change
 
 protected:
+
     int				indexOf(int eventid) const;
 
     void			removeOldEvents();
@@ -95,6 +96,7 @@ protected:
     int				userendscount_;
 
     Threads::Lock		addlock_;
+
 };
 
 
@@ -103,7 +105,7 @@ protected:
 mExpClass(Algo) UndoEvent
 {
 public:
-    				UndoEvent();
+				UndoEvent();
     virtual			~UndoEvent();
 
     BufferString		getDesc() const;
@@ -112,13 +114,15 @@ public:
     void			setUserInteractionEnd(bool=true);
     bool			isUserInteractionEnd() const;
 
-    virtual const char*		getStandardDesc() const	 	= 0;
+    virtual const char*		getStandardDesc() const		= 0;
     virtual bool		unDo()				= 0;
     virtual bool		reDo()				= 0;
 
 protected:
+
     BufferString*		desc_;
     bool			isuserinteractionend_;
+
 };
 
 
@@ -127,7 +131,9 @@ protected:
 mExpClass(Algo) BinIDUndoEvent : public UndoEvent
 {
 public:
+
     virtual const BinID&	getBinID() const;
+
 };
 
 

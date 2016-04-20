@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "color.h"
 #include "ranges.h"
 #include "namedobj.h"
@@ -23,10 +23,8 @@ class TaskRunner;
 
 namespace Well
 {
-class Track;
 
-/*!
-\brief Marker, should be attached to Strat level.
+/*!\brief Marker, should be attached to Strat level.
 
   Can be unattached, then uses the fallback name and color.
 */
@@ -176,7 +174,6 @@ public:
 			{ return const_cast<MarkerSet&>(markers_); }
 
 };
-
 
 
 } // namespace Well

@@ -13,11 +13,8 @@ ________________________________________________________________________
 
 
 #include "basicmod.h"
-#include "callback.h"
+#include "notify.h"
 #include "uistring.h"
-#include "threadlock.h"
-#include "objectset.h"
-#include "bufstring.h"
 #include "bufstringset.h"
 
 mFDQtclass(QTranslator);
@@ -53,7 +50,7 @@ public:
     const mQtclass(QLocale)*	getQLocale() const;
 
     bool			addLanguage(TextTranslatorLanguage*);
-    				//!<Returns false if it was not added.
+				//!<Returns false if it was not added.
 
 protected:
     friend class			TextTranslatorLanguage;

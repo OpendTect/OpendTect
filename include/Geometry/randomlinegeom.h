@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "notify.h"
 #include "ranges.h"
 #include "refcount.h"
 #include "trckeysampling.h"
@@ -31,7 +32,7 @@ mExpClass(Geometry) RandomLine : public NamedObject
                                , public RefCount::Referenced
 {
 public:
-    			RandomLine(const char* nm=0);
+			RandomLine(const char* nm=0);
 
     void		setSurvID(Pos::SurvID s) { survid_ = s; }
     Pos::SurvID		getSurvID() const { return survid_; }
@@ -53,9 +54,9 @@ public:
     const BinID&	nodePosition(int) const;
     void		allNodePositions(TypeSet<BinID>&) const;
     void		allNodePositions(TrcKeyPath&) const;
-    static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);	
+    static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
     static int		getNearestPathPosIdx(const TrcKeyPath&,
-	    				     const TrcKeyPath&,const TrcKey&);
+					     const TrcKeyPath&,const TrcKey&);
     static void		getPathBids(const TypeSet<BinID>& knots,
 				    Pos::SurvID,
 				    TypeSet<BinID>& path,
@@ -63,7 +64,7 @@ public:
 				    TypeSet<int>* segments=0);
 
     void		setZRange( const Interval<float>& rg )
-    			{ zrange_ = rg; zrangeChanged.trigger(); }
+			{ zrange_ = rg; zrangeChanged.trigger(); }
     Interval<float>	zRange() const		{ return zrange_; }
 
     void		setMultiID(const MultiID&);
@@ -93,7 +94,7 @@ public:
     const RandomLineSet* lineSet() const	{ return lset_; }
 
 protected:
-    			~RandomLine();
+			~RandomLine();
 
     Pos::SurvID		survid_;
 
@@ -114,7 +115,7 @@ mExpClass(Geometry) RandomLineSet
 {
 public:
 
-    			RandomLineSet();
+			RandomLineSet();
 			RandomLineSet(const RandomLine&,double dist,
 				      bool parallel);
 			//!< dist in XY units

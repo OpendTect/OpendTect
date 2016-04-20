@@ -13,8 +13,7 @@ ________________________________________________________________________
 
 
 #include "networkmod.h"
-#include "callback.h"
-#include "threadlock.h"
+#include "notify.h"
 #include "uistring.h"
 
 class BufferString;

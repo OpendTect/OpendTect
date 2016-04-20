@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "geometry.h"
 #include "position.h"
+#include "notify.h"
 #include "trckeyvalue.h"
 
 
@@ -29,7 +30,7 @@ public:
     enum		EventType { None=0, Move=87, Press=92, Release=93,
 				    EnterProximity=171, LeaveProximity=172 };
     EventType		eventtype_;
-    			// Use mouse event-type if possible. The two might
+			// Use mouse event-type if possible. The two might
 			// mismatch because of a QTabletEvent bug for Linux.
 
     enum		PointerType { UnknownPointer, Pen, Cursor, Eraser };
@@ -53,7 +54,7 @@ public:
     int			z_;
 
     int			postPressTime() const;
-    float 		postPressDist() const;
+    float		postPressDist() const;
     float		maxPostPressDist() const;
 
     static const TabletInfo*	currentState();
@@ -64,7 +65,7 @@ protected:
     float		maxpostpressdist_;
     Geom::Point2D<int>	globalpresspos_;
 
-    static TabletInfo&	latestState(); 	
+    static TabletInfo&	latestState();
     void		updatePressData();
 };
 
@@ -73,7 +74,7 @@ mExpClass(General) MouseEvent
 {
 public:
 
- 				MouseEvent( OD::ButtonState st=OD::NoButton,
+				MouseEvent( OD::ButtonState st=OD::NoButton,
 					    int xx=0, int yy=0, float aa=0 )
 				    : butstate_(st), pos_(xx,yy), angle_(aa)
 				    , pressed_(false), tabletinfo_(0)
@@ -96,7 +97,7 @@ public:
     int				x() const		{ return pos_.x; }
     int				y() const		{ return pos_.y; }
     float			angle() const		{ return angle_; }
-    				//!< used for wheel events
+				//!< used for wheel events
 
     bool			leftButton() const;
     bool			rightButton() const;
@@ -143,14 +144,14 @@ mouse or keyboard button are pressed through.
 void MyClass::handleMouseClick( CallBacker* cb )
 {
     if ( eventhandler_->isHandled() )
-    	return;
+	return;
 
     const MouseEvent& event = eventhandler_->event();
     if ( event.rightButton() && !event.leftButton() && !event.middleButton() &&
-    	 !event.ctrlStatus() && !event.altStatus() && !event.shiftStatus() )
+	 !event.ctrlStatus() && !event.altStatus() && !event.shiftStatus() )
     {
         eventhandler_->setHandled( true );
-    	//show and handle menu
+	//show and handle menu
     }
 }
 
@@ -161,8 +162,8 @@ void MyClass::handleMouseClick( CallBacker* cb )
 mExpClass(General) MouseEventHandler : public CallBacker
 {
 public:
-    				MouseEventHandler();
-    				~MouseEventHandler();
+				MouseEventHandler();
+				~MouseEventHandler();
 
     void			triggerMovement(const MouseEvent&);
     void			triggerButtonPressed(const MouseEvent&);
@@ -178,7 +179,7 @@ public:
 
     bool			hasEvent() const	{ return event_; }
     const MouseEvent&		event() const		{ return *event_; }
-    				/*!<\note only call in function triggered
+				/*!<\note only call in function triggered
 				     by an event from this class. */
 
     bool			isHandled() const	{ return ishandled_; }
@@ -201,7 +202,7 @@ protected:
 mExpClass(General) MouseCursorExchange : public CallBacker
 {
 public:
-    				MouseCursorExchange();
+				MouseCursorExchange();
     mExpClass(General) Info
     {
     public:
@@ -214,7 +215,7 @@ public:
 
     CNotifier<MouseCursorExchange,const Info&>	notifier;
 };
-    
+
 
 /*!\brief Stores event information from gesture event */
 mExpClass(General) GestureEvent
@@ -223,8 +224,8 @@ public:
 			    GestureEvent( int xx, int yy, float sc, float angl )
 			    : pos_(xx,yy),scale_(sc),angle_(angl)
 			    {}
-    
-        
+
+
     const Geom::Point2D<int>&	pos() const	    { return pos_; }
     int				x() const	    { return pos_.x; }
     int				y() const	    { return pos_.y; }
@@ -244,7 +245,7 @@ protected:
 };
 
 
-/*!\brief Handles gesture event and triggers notifier with GestureEventInfo 
+/*!\brief Handles gesture event and triggers notifier with GestureEventInfo
 
 The callback function should look like this. It also has isHandled()
 and setHandled() functions similar to the mouse events, to explicitly handle the
@@ -261,7 +262,7 @@ void MyClass::handlePinchEventCB( CallBacker* cb )
     const GestureEventInfo* gevinfo = evh->getPinchEventInfo();
     if ( !gevinfo )
 	return;
-    
+
     Geom::Point2D<int> pos = gevinfo->pos();
     // do some work
 
@@ -276,8 +277,8 @@ mExpClass(General) GestureEventHandler : public CallBacker
 public:
 				GestureEventHandler();
 				~GestureEventHandler();
-    
-   
+
+
     void			triggerPinchEvent(
 					    const GestureEvent& pinchevnt);
     //!<Only available during events
@@ -294,6 +295,6 @@ private:
 };
 
 
-			    
+
 
 #endif

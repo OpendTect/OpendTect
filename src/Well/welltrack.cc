@@ -11,6 +11,7 @@
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 
 
 Well::Track& Well::Track::operator =( const Track& t )

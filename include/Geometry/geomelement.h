@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "coord.h"
 #include "ranges.h"
-#include "callback.h"
+#include "notify.h"
 #include "uistring.h"
 
 typedef od_int64 GeomPosID;
@@ -27,28 +27,28 @@ namespace Geometry
 mExpClass(Geometry) Iterator
 { mODTextTranslationClass(Iterator);
 public:
-    virtual 			~Iterator()		{}
+    virtual			~Iterator()		{}
     virtual GeomPosID		next()			= 0;
-    				//!<returs -1 if not valid
+				//!<returs -1 if not valid
 };
 
 
 mExpClass(Geometry) Element : public CallBacker
 { mODTextTranslationClass(Element);
 public:
-    				Element();
+				Element();
     virtual			~Element();
     virtual Iterator*		createIterator() const			= 0;
 
     virtual void		getPosIDs(TypeSet<GeomPosID>&,
-	   				  bool noudf=true) const;
+					  bool noudf=true) const;
     virtual IntervalND<float>	boundingBox(bool approx) const;
     virtual Element*		clone() const				= 0;
     virtual uiString		errMsg() const;
 
     virtual Coord3	getPosition(GeomPosID) const			= 0;
     virtual bool	setPosition(GeomPosID,const Coord3&)		= 0;
-    virtual bool	isDefined(GeomPosID) const 			= 0;
+    virtual bool	isDefined(GeomPosID) const			= 0;
 
     virtual bool	isChanged() const		{ return ischanged_; }
     virtual void	resetChangedFlag()		{ ischanged_=false; }
@@ -59,7 +59,7 @@ public:
     CNotifier<Element,const TypeSet<GeomPosID>*>	nrpositionnotifier;
 
     void			blockCallBacks(bool yn,bool flush=true);
-    				/*!Block callbacks until further notice.
+				/*!Block callbacks until further notice.
 				   If blocked, lists of added/changed positions
 				   will accumulate changes, so they can be
 				   flushed when the block is turned off.

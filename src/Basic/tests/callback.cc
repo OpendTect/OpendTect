@@ -6,7 +6,7 @@
 -*/
 
 
-#include "callback.h"
+#include "notify.h"
 
 #include "applicationdata.h"
 #include "testprog.h"
@@ -192,7 +192,7 @@ public:
                 Threads::Work( mCB(this,InMainThreadTester,callBackFuncCB)) );
 
             CallBack::addToMainThread(mCB(this,InMainThreadTester,eventLoopCB));
-    	}
+	}
     }
 
     ~InMainThreadTester()

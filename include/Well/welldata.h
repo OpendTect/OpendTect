@@ -11,27 +11,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 
-#include "callback.h"
 #include "enums.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "position.h"
-#include "refcount.h"
-#include "sets.h"
+#include "notify.h"
 #include "uistring.h"
-#include "welld2tmodel.h"
 
 
 namespace Well
 {
 
-class Track;
-class LogSet;
-class Marker;
-class MarkerSet;
-class D2TModel;
 class DisplayProperties;
 
 

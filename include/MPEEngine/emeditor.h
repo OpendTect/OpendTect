@@ -13,11 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "callback.h"
+#include "notify.h"
 #include "emposid.h"
 #include "factory.h"
 #include "coord.h"
-#include "refcount.h"
 
 class BufferStringSet;
 
@@ -65,24 +64,24 @@ public:
 
     virtual const
     BufferStringSet*	getAlongMovingStyleNames() const { return 0; }
-    			/*!<\returns a list with names of the different
+			/*!<\returns a list with names of the different
 			     styles in which nodes can follow along the moved
 			     node. */
 
     virtual int		getAlongMovingStyle() const { return -1; }
-    			/*!<\returns the index of the style in the
+			/*!<\returns the index of the style in the
 			     list returned by getAlongMovingStyleNames(). */
     virtual void	setAlongMovingStyle(int index ) {}
-    			/*!<\param index refers to the
+			/*!<\param index refers to the
 			     list returned by getAlongMovingStyleNames(). */
 
     virtual void	getEditIDs(TypeSet<EM::PosID>&) const;
-    			/*!<Gives all nodes that can be moved. */
+			/*!<Gives all nodes that can be moved. */
     virtual bool	addEditID( const EM::PosID& );
-    			/*!<Add node for editing. Note that this may not be
+			/*!<Add node for editing. Note that this may not be
 			    possible, and false may be returned.  */
     virtual bool	removeEditID( const EM::PosID& );
-    			/*!<Remove editing node. Note that this may not be
+			/*!<Remove editing node. Note that this may not be
 			    possible, and false may be returned.  */
 
     virtual Coord3	getPosition(const EM::PosID&) const;
@@ -102,7 +101,7 @@ public:
     virtual Coord3	getDirection(const EM::PosID&) const;
 
     Notifier<ObjectEditor>	editpositionchange;
-    				/*!<Won't trigger on position-changes,
+				/*!<Won't trigger on position-changes,
 				    but when new edit positions are avaliable
 				    or editpositions has been removed */
 
@@ -112,7 +111,7 @@ protected:
 					~ObjectEditor();
 
     virtual bool			setPosition(const EM::PosID&,
-	    					    const Coord3&);
+						    const Coord3&);
     Geometry::ElementEditor*		getEditor( const EM::SectionID& );
     const Geometry::ElementEditor*	getEditor( const EM::SectionID& ) const;
     virtual Geometry::ElementEditor*	createEditor( const EM::SectionID& )=0;
@@ -121,9 +120,9 @@ protected:
     void				emSectionChange(CallBacker*);
 
     virtual void			getAlongMovingNodes( const EM::PosID&,
-	    				    TypeSet<EM::PosID>&,
+					    TypeSet<EM::PosID>&,
 					    TypeSet<float>* ) const;
-    					/*!<Gets the positions that are moved
+					/*!<Gets the positions that are moved
 					    along and their corresponding
 					    factors. */
 

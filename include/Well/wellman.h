@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "sets.h"
 #include "bufstring.h"
 
@@ -23,11 +23,7 @@ class BufferStringSet;
 namespace Well
 {
 
-class Data;
-
-/*!
-\brief Well manager
-*/
+/*!\brief Well manager */
 
 mExpClass(Well) Man
 {

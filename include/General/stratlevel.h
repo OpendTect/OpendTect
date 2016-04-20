@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "color.h"
 #include "repos.h"
-#include "objectset.h"
+#include "notify.h"
 class ascistream;
 class BufferStringSet;
 
@@ -80,8 +80,8 @@ public:
     virtual		~Level();
 
     const char*		checkName(const char*) const;
-    			//!< returns null if object can be renamed to it,
-    			//!< otherwise an error message
+			//!< returns null if object can be renamed to it,
+			//!< otherwise an error message
 
 };
 
@@ -110,21 +110,21 @@ public:
     const ObjectSet<Level>& levels() const	{ return lvls_; }
     void		setEmpty()		{ lvls_.erase(); }
 
-    inline bool 	isPresent( const char* nm ) const
-    			{ return gtIdxOf(nm,-1) >= 0; }
-    inline bool 	isPresent( Level::ID id ) const
-    			{ return gtIdxOf(0,id) >= 0; }
+    inline bool	isPresent( const char* nm ) const
+			{ return gtIdxOf(nm,-1) >= 0; }
+    inline bool	isPresent( Level::ID id ) const
+			{ return gtIdxOf(0,id) >= 0; }
     inline int		indexOf( const char* nm ) const
-    			{ return gtIdxOf(nm,-1); }
+			{ return gtIdxOf(nm,-1); }
     inline int		indexOf( Level::ID id ) const
-    			{ return gtIdxOf(0,id); }
-    
-    Level* 		get( const char* nm )		{ return gtLvl(nm,-1); }
-    const Level* 	get( const char* nm ) const	{ return gtLvl(nm,-1); }
-    Level* 		get( Level::ID id )		{ return gtLvl(0,id); }
-    const Level* 	get( Level::ID id ) const	{ return gtLvl(0,id); }
+			{ return gtIdxOf(0,id); }
 
-    Level* 		add( const char* lvlnm, const Color& c )
+    Level*		get( const char* nm )		{ return gtLvl(nm,-1); }
+    const Level*	get( const char* nm ) const	{ return gtLvl(nm,-1); }
+    Level*		get( Level::ID id )		{ return gtLvl(0,id); }
+    const Level*	get( Level::ID id ) const	{ return gtLvl(0,id); }
+
+    Level*		add( const char* lvlnm, const Color& c )
 						{ return set(lvlnm,c,-1); }
     Level*		insert( const char* lvlnm, const Color& c ,int idx=-1 )
 						{ return set(lvlnm,c,idx); }
@@ -132,14 +132,14 @@ public:
 						{ return set(lvlnm,c,-1); }
     void		remove(Level::ID);
 
-    Level* 		add(const Level&); //!< copy stuff, but new ID/name
-    void 		add(const BufferStringSet&,const TypeSet<Color>&);
+    Level*		add(const Level&); //!< copy stuff, but new ID/name
+    void		add(const BufferStringSet&,const TypeSet<Color>&);
 
     Notifier<LevelSet>	levelAdded;
     Notifier<LevelSet>	levelChanged;
     Notifier<LevelSet>	levelToBeRemoved;
     int			notifLvlIdx() const	{ return notiflvlidx_; }
-    			//!< if < 0 then more than one level have changed
+			//!< if < 0 then more than one level have changed
 
     bool		store(Repos::Source) const;
     bool		read(Repos::Source);

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 #include "visbasemod.h"
-#include "callback.h"
+#include "notify.h"
 #include "positionlist.h"
 #include "thread.h"
 #include "visdata.h"

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "refcount.h"
 #include "position.h"
-#include "callback.h"
+#include "notify.h"
 #include "bufstring.h"
 #include "uistring.h"
 
@@ -217,7 +217,7 @@ public:
 				    execute a queue, identified by this id. */
 
 protected:
-    				~MenuHandler();
+				~MenuHandler();
     void			assignItemID(MenuItem&);
     void			executeQueue();
 

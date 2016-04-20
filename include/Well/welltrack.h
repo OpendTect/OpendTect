@@ -12,18 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "welldahobj.h"
 #include "position.h"
 
 namespace Well
 {
 
-class Data;
-
-/*!
-\brief Well track
-*/
+/*!\brief Well track */
 
 mExpClass(Well) Track : public DahObj
 {

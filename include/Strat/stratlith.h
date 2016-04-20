@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "namedobj.h"
+#include "notify.h"
 #include "manobjectset.h"
 #include "color.h"
 class BufferStringSet;
@@ -23,7 +24,7 @@ namespace Strat
 {
 
 /*!\brief a name and an ID.
-  
+
   The reason we don't manage the ID is that user may have their own IDs. For
   example, it may correspond with a lithology log value.
 
@@ -72,7 +73,7 @@ public:
 mExpClass(Strat) LithologySet : public CallBacker
 {
 public:
-    			LithologySet()
+			LithologySet()
 			    : anyChange(this)	{}
 
     int			size() const		{ return lths_.size(); }
@@ -81,7 +82,7 @@ public:
     const Lithology&	getLith( int i ) const	{ return *lths_[i]; }
 
     int		indexOf( const char* nm ) const		{ return idxOf(nm,-2);}
-    bool	isPresent(const char* nm) const 	{ return gtLith(nm,-2);}
+    bool	isPresent(const char* nm) const	{ return gtLith(nm,-2);}
     int		indexOf( Lithology::ID id ) const	{ return idxOf(0,id);}
     bool	isPresent( Lithology::ID id ) const	{ return gtLith(0,id);}
 
@@ -109,10 +110,10 @@ public:
 
     void			setEmpty()		{ lths_.erase(); }
     const char*			add(Lithology*);
-    				//!< returns err msg, or null on success
+				//!< returns err msg, or null on success
 
     const ObjectSet<Lithology>&	lithologies() const	{ return lths_; }
-    ObjectSet<Lithology>&	lithologies()	 	{ return lths_; }
+    ObjectSet<Lithology>&	lithologies()		{ return lths_; }
 
 };
 

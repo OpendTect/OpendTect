@@ -12,15 +12,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
-#include "gendefs.h"
-class BufferStringSet;
+#include "wellcommon.h"
 
 
 namespace Well
 {
-class Data;
-class Log;
 
 /*!\brief Base class for object reading data from data store into Well::Data */
 

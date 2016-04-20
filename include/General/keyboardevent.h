@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "keyenum.h"
 #include "geometry.h"
+#include "notify.h"
 
 /*!
 \brief Keyboard event.
@@ -22,7 +23,7 @@ ________________________________________________________________________
 mExpClass(General) KeyboardEvent
 {
 public:
- 				KeyboardEvent();
+				KeyboardEvent();
 
     OD::KeyboardKey		key_;
     OD::ButtonState		modifier_;	//Alt/Ctrl/Shift++

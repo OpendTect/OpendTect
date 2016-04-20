@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
 #include "wellreadaccess.h"
 #include "wellio.h"
 #include "sets.h"
@@ -24,8 +23,6 @@ class IOObj;
 
 namespace Well
 {
-class Data;
-class Log;
 
 /*!\brief Reads Well::Data from OpendTect file store  */
 

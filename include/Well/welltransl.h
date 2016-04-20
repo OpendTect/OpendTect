@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
+#include "wellcommon.h"
 #include "transl.h"
 
 class Executor;
@@ -20,7 +20,6 @@ class DataPointSet;
 class BufferStringSet;
 class WellDataIOProvider;
 
-namespace Well { class Data; };
 
 /*!\brief Well TranslatorGroup */
 
@@ -34,7 +33,7 @@ public:
 };
 
 
-/*!  \brief Well Translator base class */
+/*!\brief Well Translator base class */
 
 mExpClass(Well) WellTranslator : public Translator
 {

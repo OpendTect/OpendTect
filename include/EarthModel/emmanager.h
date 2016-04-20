@@ -13,9 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "sets.h"
-#include "bufstring.h"
-#include "callback.h"
+#include "notify.h"
 #include "factory.h"
 #include "ptrman.h"
 #include "ranges.h"
@@ -63,23 +61,23 @@ public:
     EMObject*		createTempObject(const char* type);
 
     BufferString	objectName(const MultiID&) const;
-    			/*!<\returns the name of the object */
+			/*!<\returns the name of the object */
     const char*		objectType(const MultiID&) const;
-    			/*!<\returns the type of the object */
+			/*!<\returns the type of the object */
 
     ObjectID		getObjectID(const MultiID&) const;
-    			/*!<\note that the relationship between storage id 
+			/*!<\note that the relationship between storage id
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
     MultiID		getMultiID(const ObjectID&) const;
-    			/*!<\note that the relationship between storage id 
+			/*!<\note that the relationship between storage id
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
     void		burstAlertToAll(bool yn);
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
-	    			       TaskRunner*);
+				       TaskRunner*);
     bool		readDisplayPars(const MultiID&,IOPar&) const;
     bool		writeDisplayPars(const MultiID&,const IOPar&) const;
     bool		getSurfaceData(const MultiID&,SurfaceIOData&,
@@ -108,18 +106,18 @@ public:
     void		setEmpty();
 
     Executor*		objectLoader(const MultiID&,
-	    			     const SurfaceIODataSelection* =0);
+				     const SurfaceIODataSelection* =0);
     Executor*		objectLoader(const TypeSet<MultiID>&,
-	    			     const SurfaceIODataSelection* =0,
+				     const SurfaceIODataSelection* =0,
 				     TypeSet<MultiID>* idstobeloaded =0);
-        		/*!< idstobeloaded are the ids for which the objects 
+		/*!< idstobeloaded are the ids for which the objects
 			     will be actually loaded */
 
     EM::ObjectID	createObject(const char* type,const char* name);
-    			/*!< Creates a new object, saves it and loads it.
+			/*!< Creates a new object, saves it and loads it.
 			     Removes any loaded object with the same name!  */
 
-    			/*Interface from EMObject to report themselves */
+			/*Interface from EMObject to report themselves */
     void		addObject(EMObject*);
     void		removeObject(const EMObject*);
 

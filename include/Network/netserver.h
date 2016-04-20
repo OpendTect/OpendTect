@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "networkmod.h"
-#include "callback.h"
+#include "notify.h"
 #include "bufstring.h"
 
 mFDQtclass(QTcpSocket)

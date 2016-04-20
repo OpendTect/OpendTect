@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "networkmod.h"
-#include "callback.h"
+#include "notify.h"
 
 class QEventLoop;
 class QNetworkReply;

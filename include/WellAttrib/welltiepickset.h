@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "color.h"
 #include "valseriesevent.h"
+#include "notify.h"
 
 class SeisTrc;
 

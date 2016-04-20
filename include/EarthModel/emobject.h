@@ -13,14 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "bufstring.h"
-#include "callback.h"
+#include "notify.h"
 #include "trckeyzsampling.h"
 #include "draw.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "coord.h"
-#include "refcount.h"
 #include "uistring.h"
 
 class TrcKeyZSampling;
@@ -44,7 +42,7 @@ class EMManager;
 mExpClass(EarthModel) EMObjectCallbackData
 {
 public:
-    		EMObjectCallbackData()
+		EMObjectCallbackData()
 		    : pid0( 0, 0, 0 )
 		    , pid1( 0, 0, 0 )
 		    , attrib( -1 )
@@ -53,8 +51,8 @@ public:
 		{}
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
-   		 AttribChange, SectionChange, NameChange, SelectionChange,
-   		 LockChange, BurstAlert } event;
+		 AttribChange, SectionChange, NameChange, SelectionChange,
+		 LockChange, BurstAlert } event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
@@ -73,8 +71,8 @@ mExpClass(EarthModel) EMObjectIterator
 {
 public:
     virtual		~EMObjectIterator() {}
-    virtual EM::PosID	next() 		= 0;
-    			/*!<posid.objectID()==-1 when there are no more pids*/
+    virtual EM::PosID	next()		= 0;
+			/*!<posid.objectID()==-1 when there are no more pids*/
     virtual int		approximateSize() const	{ return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
@@ -117,20 +115,20 @@ public:
     virtual bool		isOK() const		{ return true; }
 
     void			setName( const char* nm )  { objname_ = nm; }
-    				/*!<The IOObj name overrules this */
+				/*!<The IOObj name overrules this */
     BufferString		name() const;
     uiString			uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
-    virtual int			nrSections() const 			= 0;
+    virtual int			nrSections() const			= 0;
     virtual SectionID		sectionID(int) const			= 0;
     virtual BufferString	sectionName(const SectionID&) const;
     virtual bool		canSetSectionName() const;
     virtual bool		setSectionName(const SectionID&,const char*,
-	    				       bool addtohistory);
+					       bool addtohistory);
     virtual int			sectionIndex(const SectionID&) const;
     virtual bool		removeSection(SectionID,bool hist )
-    					{ return false; }
+					{ return false; }
 
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
     Geometry::Element*		sectionGeometry(const SectionID&);
@@ -145,14 +143,14 @@ public:
 
     virtual Coord3		getPos(const EM::PosID&) const;
     virtual Coord3		getPos(const EM::SectionID&,
-	    			       const EM::SubID&) const;
+				       const EM::SubID&) const;
     virtual bool		isDefined(const EM::PosID&) const;
     virtual bool		isDefined(const EM::SectionID&,
 					  const EM::SubID&) const;
     virtual bool		setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory);
     virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-	    			       const Coord3&,bool addtohistory);
+				       const Coord3&,bool addtohistory);
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
     virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
@@ -164,24 +162,24 @@ public:
     virtual bool		isAtEdge(const EM::PosID&) const;
 
     void			changePosID(const EM::PosID& from,
-	    				    const EM::PosID& to,
+					    const EM::PosID& to,
 					    bool addtohistory);
-    				/*!<Tells the object that the node former known
+				/*!<Tells the object that the node former known
 				    as from is now called to. Function will also
 				    exchange set the position of to to the
 				    posion of from. */
 
     virtual void		getLinkedPos(const EM::PosID& posid,
 					  TypeSet<EM::PosID>&) const
-    					{ return; }
-    				/*!< Gives positions on the object that are
+					{ return; }
+				/*!< Gives positions on the object that are
 				     linked to the posid given
 				*/
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
 					       const TrcKeyZSampling* =0) const
 				{ return 0; }
-    				/*!< creates an iterator. If the sectionid is
+				/*!< creates an iterator. If the sectionid is
 				     -1, all sections will be traversed. */
 
     virtual int			nrPosAttribs() const;
@@ -191,7 +189,7 @@ public:
 						    bool addtohistory=true);
     virtual void		setPosAttrib(const EM::PosID&,
 				    int attr,bool yn,bool addtohistory=true);
-    				//!<Sets/unsets the posattrib depending on yn.
+				//!<Sets/unsets the posattrib depending on yn.
     virtual bool		isPosAttrib(const EM::PosID&,int attr) const;
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
@@ -202,9 +200,9 @@ public:
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
-	    				       TaskRunner*);
+					       TaskRunner*);
     void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
-	    					   const EM::SectionID&);
+						   const EM::SectionID&);
     void			removeAllUnSeedPos();
     const TrcKeyZSampling		getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
@@ -243,8 +241,8 @@ public:
 
 protected:
 				~EMObject();
-    				EMObject( EMManager& );
-    				//!<must be called after creation
+				EMObject( EMManager& );
+				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "thread.h"
 #include "objectset.h"
-#include "callback.h"
+#include "notify.h"
 #include "uistring.h"
 
 

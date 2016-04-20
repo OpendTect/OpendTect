@@ -11,18 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
-
+#include "wellcommon.h"
 #include "callback.h"
 #include "velocitycalc.h"
 #include "zaxistransform.h"
 
 
-namespace Well { class Data; }
-
-/*!
-\brief Time to depth transform for wells.
-*/
+/*!\brief Time to depth transform for wells.  */
 
 mExpClass(Well) WellT2DTransform : public ZAxisTransform
 				 , public CallBacker
@@ -37,10 +32,10 @@ public:
 
     bool			isOK() const;
     void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
+					  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
+					      const SamplingData<float>&,
 					      int sz,float* res) const;
     bool			canTransformSurv(Pos::SurvID) const
 				{ return true; }

@@ -335,8 +335,13 @@ void Well::Log::removeTopBottomUdfs()
 
 bool Well::Log::insertAtDah( float dh, float val )
 {
-    mWellDahObjInsertAtDah( dh, val, vals_, false );
-    if ( val < range_.start ) range_.start = val;
-    if ( val > range_.stop ) range_.stop = val;
+    if ( !doInsertAtDah(dh,val,vals_,false) )
+	return false;
+
+    if ( val < range_.start )
+	range_.start = val;
+    if ( val > range_.stop )
+	range_.stop = val;
+
     return true;
 }

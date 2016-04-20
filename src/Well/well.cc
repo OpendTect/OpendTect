@@ -155,6 +155,41 @@ void Well::DahObj::removeFromDahFrom( int fromidx, float extradah )
 }
 
 
+bool Well::DahObj::doInsertAtDah( float dh, float val, TypeSet<float>& vals,
+				bool ascendingvalonly )
+{
+    if ( mIsUdf(val) )
+	return false;
+
+    if ( dah_.isEmpty() || dh >= dah_[dah_.size()-1] )
+    {
+	if ( !dah_.isEmpty() && ascendingvalonly && val <= vals[dah_.size()-1] )
+	    return false;
+	dah_ += dh; vals += val;
+    }
+    else if ( dh < dah_[0] )
+    {
+	if ( ascendingvalonly && val >= vals[0] )
+	    return false;
+	dah_.insert( 0, dh );
+	vals.insert( 0, val );
+    }
+    else
+    {
+	const int insertidx = indexOf( dh );
+	if ( insertidx < 0 )
+	    return false;
+	if ( ascendingvalonly
+	    && (val <= vals[insertidx] || val >= vals[insertidx+1]) )
+	    return false;
+
+	dah_.insert( insertidx+1, dh );
+	vals.insert( insertidx+1, val );
+    }
+    return true;
+}
+
+
 Well::Data::Data( const char* nm )
     : info_(nm)
     , track_(*new Well::Track)

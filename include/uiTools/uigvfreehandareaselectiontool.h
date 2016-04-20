@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "callback.h"
+#include "notify.h"
 
 /*! \brief Tool that handles freehand selection of areas on graphics views.
 
@@ -52,7 +52,7 @@ protected:
     uiPolygonItem*	polygonselitem_;
     ODPolygon<int>&	odpolygon_;
 
-    
+
     bool		ispolygonmode_;
     bool		enabled_;
 

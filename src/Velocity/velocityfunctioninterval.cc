@@ -9,6 +9,7 @@
 
 #include "varlenarray.h"
 #include "velocitycalc.h"
+#include "notify.h"
 
 namespace Vel
 {
@@ -54,7 +55,7 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
     if ( !mIsVarLenArrOK(input) ) return false;
 
     const SamplingData<double> sd( z0, dz );
-    
+
     for ( int idx=0; idx<nr; idx++ )
     {
 	float z = (float) sd.atIndex( idx );

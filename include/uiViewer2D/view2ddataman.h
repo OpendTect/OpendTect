@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "callback.h"
+#include "notify.h"
 #include "factory.h"
 #include "emposid.h"
 
@@ -62,7 +62,7 @@ protected:
     static const char*		sKeyNrObjects()	{ return "Nr objects"; }
 
     bool			similarObjectPresent(
-	    				const Vw2DDataObject*) const;
+					const Vw2DDataObject*) const;
 };
 
 #endif

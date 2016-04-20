@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "fontdata.h"
 #include "uistring.h"
+#include "notify.h"
 
 class uiFont;
 class uiParent;

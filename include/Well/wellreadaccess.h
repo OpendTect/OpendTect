@@ -12,18 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
-#include "gendefs.h"
+#include "wellcommon.h"
 #include "uistrings.h"
 class BufferStringSet;
 
 
 namespace Well
 {
-class D2TModel;
-class Data;
-class Log;
-class Track;
 
 /*!\brief Base class for object reading data from data store into Well::Data */
 

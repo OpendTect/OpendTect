@@ -5,10 +5,10 @@
 -*/
 
 
-#include "callback.h"
+#include "monitor.h"
 #include "thread.h"
-#include "threadlock.h"
 #include "ptrman.h"
+
 
 #define mOneMilliSecond 0.001
 
@@ -130,8 +130,8 @@ static QEventLoopReceiver* getQELR()
 #endif // OD_NO_QT
 
 
+//---- CallBacker
 
-// CallBacker
 CallBacker::CallBacker()
 {}
 
@@ -294,8 +294,8 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 }
 
 
+//---- CallBack
 
-// CallBack
 void CallBack::initClass()
 {
 #ifndef OD_NO_QT
@@ -360,8 +360,8 @@ void CallBack::removeFromMainThread( const CallBacker* cber )
 }
 
 
+//---- CallBackSet
 
-// CallBackSet
 CallBackSet::CallBackSet()
     : lock_(true)
     , enabled_(true)
@@ -452,8 +452,8 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 }
 
 
+//---- NotifierAccess
 
-// NotifierAccess
 NotifierAccess::NotifierAccess( const NotifierAccess& na )
     : cber_( na.cber_ )
     , cbs_(*new CallBackSet(na.cbs_) )
@@ -578,7 +578,8 @@ void NotifierAccess::doTrigger( CallBackSet& cbs, CallBacker* c,
 
 
 
-// NotifyStopper
+//---- NotifyStopper
+
 NotifyStopper::NotifyStopper( NotifierAccess& na )
     : oldst_(na.disable())
     , thenotif_(na)
@@ -598,3 +599,15 @@ void NotifyStopper::disable()
 
 void NotifyStopper::restore()
 { thenotif_.cbs_.doEnable(oldst_);}
+
+
+//---- Monitorable
+
+mDefineInstanceCreatedNotifierAccess(Monitorable)
+
+Monitorable::Monitorable()
+    : objchgd_(this)
+    , objtobedel_(this)
+{
+    mTriggerInstanceCreatedNotifier();
+}

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "paralleltask.h"
+#include "notify.h"
 #include "coord.h"
 
 class MarchingCubesSurface;

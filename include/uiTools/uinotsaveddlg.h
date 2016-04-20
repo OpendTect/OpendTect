@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 
 #include "bufstring.h"
-#include "callback.h"
+#include "notify.h"
 #include "uistring.h"
 
 class uiNotSavedDlg;
@@ -69,18 +69,18 @@ void MyClass::saveCB( CallBacker* )
 \endcode
 */
 
-   
+
 mExpClass(uiTools) NotSavedPrompter : public CallBacker
 { mODTextTranslationClass(NotSavedPrompter);
 public:
     static NotSavedPrompter&	NSP(); //gives instance
 
     Notifier<NotSavedPrompter>	promptSaving;
-    				/*!<Will trigger from when users should save all
+				/*!<Will trigger from when users should save all
 				    unsaved objects, normally at survey change
 				    or shutdown. */
     int		queueID() const { return queueid_; }
-    		/*!<When OK is pressed (i.e. not cancel), a queue is executed.
+		/*!<When OK is pressed (i.e. not cancel), a queue is executed.
 		    If you want something to be executed, add it to this queue.
 	    */
 
@@ -97,7 +97,7 @@ public:
 
     void	addObject(const char* str,const CallBack& savecb,bool issaveas,
 			  const void* dataptr );
-    		/*!<Lets the object know that you have an object that should
+		/*!<Lets the object know that you have an object that should
 		    be added to the list of unsaved objects. Normally called
 		    when triggered by promptSaving.
 		    \param str	    Description of the object (e.g. "Horizon A")
@@ -105,13 +105,13 @@ public:
 		    \param issaveas true if savecb will prompt user for a name
 		    \param dataptr  Pointer that can be retrieved during savecb
 		*/
-				
-    bool 	isSaveAs() const;
+
+    bool	isSaveAs() const;
 		/*!<\returns the issaveas status of the currently active object
 		     \note Only valid during a call from a cb
 			   given in addObject() */
     const void*	getCurrentObjectData() const;
-    		/*!<\returns the dataptr of the currently active object.
+		/*!<\returns the dataptr of the currently active object.
 		    \note Only valid during a call from a cb given in
 			  addObject() */
     uiParent*	getParent();
@@ -121,20 +121,20 @@ public:
 			  addObject() */
 
     void	reportSuccessfullSave();
-    		/*!<Let the dialog know that the current object was successfully
+		/*!<Let the dialog know that the current object was successfully
 		    saved.
 		   \note Only valid during a call from a cb given in
 			  addObject() */
-    		
+
 		NotSavedPrompter();
 		~NotSavedPrompter() { detachAllNotifiers(); }
     bool	doTrigger(uiParent*,bool withcancel,const uiString& actiontype);
-    		//!<Invoke the system. Returns false if cancel has been pressed.
+		//!<Invoke the system. Returns false if cancel has been pressed.
 
 protected:
     friend class uiNotSavedDlg;
 
-    void  	closeQueueCB(CallBacker* cb);
+    void	closeQueueCB(CallBacker* cb);
 
     ObjectSet<NotSavedPrompterData>		objects_;
     uiNotSavedDlg*				dlg_;
