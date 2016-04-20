@@ -311,7 +311,7 @@ uiRenameDlg( uiParent* p, const char* nm )
     namefld_->setText( nm );
 }
 
-const char* getName()
+const char* getNewName()
 { return namefld_->text(); }
 
     uiGenInput*			namefld_;
@@ -327,9 +327,9 @@ void uiSGSelGrp::renameSelGrps( CallBacker* )
     if ( dlg.go() )
     {
 	const int idx = nms.indexOf( listfld_->getText() );
-	if ( mIsUdf(idx) || idx < 0 || !dlg.getName() )
+	if ( mIsUdf(idx) || idx < 0 || !dlg.getNewName() )
 	    return;
-	SGM().renameSelGrpSet( listfld_->getText(), dlg.getName() );
+	SGM().renameSelGrpSet( listfld_->getText(), dlg.getNewName() );
 	fillListBox();
     }
 }
