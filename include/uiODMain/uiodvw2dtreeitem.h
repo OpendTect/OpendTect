@@ -43,6 +43,8 @@ public:
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
 
+    void		addKeyBoardEvent();
+
 protected:
 
     virtual bool	init();
@@ -64,9 +66,12 @@ protected:
     virtual void	updateCS(const TrcKeyZSampling&,bool)	{}
     virtual void	updateSelSpec(const Attrib::SelSpec*,bool wva)	{}
     virtual void	dataTransformCB(CallBacker*)		{}
+    void		keyPressedCB(CallBacker*);
     virtual void	showAllChildren();
     virtual void	hideAllChildren();
     virtual void	removeAllChildren();
+    virtual void	doSave() {};
+    virtual void	doSaveAs() {};
 };
 
 

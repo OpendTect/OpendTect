@@ -11,6 +11,11 @@ ________________________________________________________________________
 #include "uiodvw2dtreeitem.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uiflatviewwin.h"
+#include "uiflatviewer.h"
+#include "uigraphicsview.h"
+#include "uivispartserv.h"
+
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitreeview.h"
@@ -159,6 +164,32 @@ bool uiODVw2DTreeItem::init()
     if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
 
     return uiTreeItem::init();
+}
+
+
+void uiODVw2DTreeItem::addKeyBoardEvent()
+{
+    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
+	mAttachCB( vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
+	uiODVw2DTreeItem::keyPressedCB );
+    }
+}
+
+
+void uiODVw2DTreeItem::keyPressedCB( CallBacker* cb )
+{
+    if ( !uitreeviewitem_->isSelected() )
+	return;
+
+    mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
+    if ( !keh || !keh->hasEvent() ) return;
+
+    if ( KeyboardEvent::isSave(keh->event()) )
+	doSave();
+    else if ( KeyboardEvent::isSaveAs(keh->event()) )
+	doSaveAs();
 }
 
 
