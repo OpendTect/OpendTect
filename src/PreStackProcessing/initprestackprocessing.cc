@@ -35,5 +35,7 @@ mDefModInitFn(PreStackProcessing)
     PreStack::AGC::initClass();
     PreStack::LateralStack::initClass();
     PreStack::AngleMute::initClass();
+#ifdef __debug__
     PreStack::TrimStatics::initClass();
+#endif
 }
