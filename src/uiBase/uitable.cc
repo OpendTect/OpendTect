@@ -118,6 +118,8 @@ public:
     QTableWidgetItem&	getRCItem(int,bool isrow);
 
 protected:
+    virtual void	contextMenuEvent(QContextMenuEvent*);
+    virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
     virtual void	keyPressEvent(QKeyEvent*);
 
@@ -211,6 +213,34 @@ QTableWidgetItem& uiTableBody::getRCItem( int idx, bool isrow )
 }
 
 
+void uiTableBody::contextMenuEvent( QContextMenuEvent* ev )
+{
+    if ( !ev ) return;
+
+    const QPoint evpos = ev->pos();
+    QTableWidgetItem* itm = itemAt( evpos );
+    handle_.setNotifiedCell( itm ? RowCol(itm->row(),itm->column())
+				 : RowCol(-1,-1) );
+    handle_.popupMenu(0);
+}
+
+
+void uiTableBody::mousePressEvent( QMouseEvent* ev )
+{
+    if ( !ev ) return;
+
+    if ( ev->button() == Qt::RightButton )
+	handle_.buttonstate_ = OD::RightButton;
+    else if ( ev->button() == Qt::LeftButton )
+	handle_.buttonstate_ = OD::LeftButton;
+    else
+	handle_.buttonstate_ = OD::NoButton;
+
+    QTableWidget::mousePressEvent( ev );
+    handle_.buttonstate_ = OD::NoButton;
+}
+
+
 void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
 {
     if ( !ev ) return;
@@ -222,7 +252,7 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
     else
 	handle_.buttonstate_ = OD::NoButton;
 
-    QAbstractItemView::mouseReleaseEvent( ev );
+    QTableWidget::mouseReleaseEvent( ev );
     handle_.buttonstate_ = OD::NoButton;
 }
 
@@ -370,6 +400,7 @@ void uiTableBody::setCellObject( const RowCol& rc, uiObject* obj )
 	return;
     }
 
+    getItem( rc );
     QWidget* qw = obj->body()->qwidget();
     setCellWidget( rc.row(), rc.col(), qw );
     cellobjects_ += new CellObject( qw, obj, rc );
@@ -472,7 +503,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , istablereadonly_(false)
     , seliscols_(false)
 {
-    rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
     setStretch( 2, 2 );
@@ -1274,6 +1304,11 @@ void uiTable::popupMenu( CallBacker* )
     if ( setup_.removeselallowed_ )
 	getSelected();
 
+    const int nrrows = nrRows();
+    const int nrcols = nrCols();
+    if ( (nrrows*nrcols)!=0 && cur.row()==-1 && cur.col()==-1 )
+	return;
+
     int inscolbef = 0;
     int delcol = 0;
     int delcols = 0;
@@ -1282,15 +1317,23 @@ void uiTable::popupMenu( CallBacker* )
     {
 	if ( setup_.insertcolallowed_ )
 	{
-	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
-				    toUiString(setup_.coldesc_), tr("before")));
-	    inscolbef = mnu->insertItem( new uiAction(itmtxt), 0 );
-	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
-				    toUiString(setup_.coldesc_), tr("after")));
-	    inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
+	    if ( nrcols==0 )
+	    {
+		itmtxt = uiStrings::phrInsert( toUiString(setup_.coldesc_) );
+		inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
+	    }
+	    else
+	    {
+		itmtxt = uiStrings::phrInsert( uiStrings::phrJoinStrings(
+				toUiString(setup_.coldesc_),tr("before")) );
+		inscolbef = mnu->insertItem( new uiAction(itmtxt), 0 );
+		itmtxt = uiStrings::phrInsert( uiStrings::phrJoinStrings(
+				toUiString(setup_.coldesc_),tr("after")) );
+		inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
+	    }
 	}
 
-	if ( setup_.removecolallowed_ && notifcols_.size() < 2 )
+	if ( nrcols>0 && setup_.removecolallowed_ && notifcols_.size() < 2 )
 	{
 	    itmtxt = uiStrings::phrRemove(toUiString(setup_.coldesc_));
 	    delcol = mnu->insertItem( new uiAction(itmtxt), 4 );
@@ -1312,15 +1355,23 @@ void uiTable::popupMenu( CallBacker* )
     {
 	if ( setup_.insertrowallowed_ )
 	{
-	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
-				    toUiString(setup_.rowdesc_), tr("before")));
-	    insrowbef = mnu->insertItem( new uiAction(itmtxt), 1 );
-	    itmtxt =  uiStrings::phrInsert(uiStrings::phrJoinStrings(
-				    toUiString(setup_.rowdesc_), tr("after")));
-	    insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
+	    if ( nrrows==0 )
+	    {
+		itmtxt = uiStrings::phrInsert( toUiString(setup_.rowdesc_) );
+		insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
+	    }
+	    else
+	    {
+		itmtxt =  uiStrings::phrInsert( uiStrings::phrJoinStrings(
+				toUiString(setup_.rowdesc_),tr("before")) );
+		insrowbef = mnu->insertItem( new uiAction(itmtxt), 1 );
+		itmtxt =  uiStrings::phrInsert( uiStrings::phrJoinStrings(
+				toUiString(setup_.rowdesc_),tr("after")) );
+		insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
+	    }
 	}
 
-	if ( setup_.removerowallowed_ && notifrows_.size() < 2 )
+	if ( nrrows>0 && setup_.removerowallowed_ && notifrows_.size() < 2 )
 	{
 	    itmtxt = toUiString("%1 %2").arg(tr("Remove")).
 					    arg(setup_.rowdesc_);
