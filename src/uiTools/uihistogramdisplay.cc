@@ -87,7 +87,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	if ( !seisdp || seisdp->isEmpty() ) return false;
 
 	const Array3D<float>* arr3d = &seisdp->data( 0 );
-	setData( arr3d->getData(), mCast(int,arr3d->info().getTotalSz()) );
+	setData( arr3d );
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
@@ -167,6 +167,36 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 	    valarr += val;
 	}
     }
+    rc_.setValues( valarr.arr(), valarr.size() );
+    updateAndDraw();
+}
+
+
+void uiHistogramDisplay::setData( const Array3D<float>* array )
+{
+    if ( !array )
+	{ rc_.setEmpty(); return; }
+
+    if ( array->getData() )
+    {
+	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
+	return;
+    }
+
+    const int sz0 = array->info().getSize( 0 );
+    const int sz1 = array->info().getSize( 1 );
+    const int sz2 = array->info().getSize( 2 );
+    TypeSet<float> valarr;
+    for ( int idx0=0; idx0<sz0; idx0++ )
+	for ( int idx1=0; idx1<sz1; idx1++ )
+	    for ( int idx2=0; idx2<sz2; idx2++ )
+	    {
+		const float val = array->get( idx0, idx1, idx2 );
+		if ( mIsUdf(val) ) continue;
+
+		valarr += val;
+	    }
+
     rc_.setValues( valarr.arr(), valarr.size() );
     updateAndDraw();
 }
