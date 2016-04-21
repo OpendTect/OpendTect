@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "webstreamsource.h"
 #include "netfilecache.h"
 #include "odnetworkaccess.h"
-#include "odnetworkreply.h"
+#include "odhttp.h"
 #include "file.h"
 #include <streambuf>
 #ifndef OD_NO_QT
@@ -41,10 +41,9 @@ public:
 
 private:
 
-#ifndef OD_NO_QT
-    const QUrl		url_;
-#endif
-    typedef ObjectSet<ODNetworkReply> ReplySet;
+    const BufferString	url_;
+
+    typedef RefObjectSet<Network::HttpRequestProcess> ReplySet;
 
 
     od_int64		getSz(const char*);
@@ -70,7 +69,7 @@ private:
 #ifndef OD_NO_QT
     const QUrl		url_;
 #endif
-    typedef ObjectSet<ODNetworkReply> ReplySet;
+    typedef ObjectSet<ODNetworkProcess> ReplySet;
 
 };
 
@@ -162,14 +161,12 @@ Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
 	else if ( intvsz > maxsz )
 	    maxsz = intvsz;
 
-	QNetworkRequest qnr( url_ );
-	qnr.setAttribute( QNetworkRequest::HttpPipeliningAllowedAttribute,
-			  true );
+	Network::HttpRequest req( url_ );
 	BufferString hdrstr( "bytes=", chunk.start, "-" );
 	hdrstr.add( chunk.stop );
-	qnr.setRawHeader( "Range", hdrstr.str() );
+	req.setRawHeader( "Range", hdrstr.str() );
 
-	replies += new ODNetworkReply( ODNA().get(qnr), &qevloop );
+	replies += Network::HttpRequestManager::instance().get(req);
     }
 #endif // !OD_NO_QT
 
@@ -190,8 +187,8 @@ bool Network::FileDownloadMgr::waitForFinish( ReplySet& replies,
 	bool allfinished = true;
 	for ( int ireply=0; ireply<nrreplies; ireply++ )
 	{
-	    QNetworkReply& reply = *replies[ireply]->qNetworkReply();
-	    if ( reply.error() != QNetworkReply::NoError )
+	    Network::HttpRequestProcess& reply = *replies[ireply];
+	    if ( reply.isError() )
 		{ haveerr = true; break; }
 	    else if ( !reply.isFinished() )
 		{ allfinished = false; break; }
@@ -212,8 +209,8 @@ void Network::FileDownloadMgr::getDataFromReplies(
     char* databuf = new char[ maxsz ];
     for ( int ichunk=0; ichunk<chunks.size(); ichunk++ )
     {
-	QNetworkReply& reply = *replies[ichunk]->qNetworkReply();
-	ChunkSizeType nrbytes = (ChunkSizeType)reply.bytesAvailable();
+	Network::HttpRequestProcess& reply = *replies[ichunk];
+	ChunkSizeType nrbytes = (ChunkSizeType)reply.downloadBytesAvailable();
 	FileChunkType chunk = chunks[ichunk];
 	const int maxnrbytes = chunk.width() + 1;
 	if ( nrbytes == 0 )

@@ -13,7 +13,7 @@ set ( OD_USEQT Network)
 set ( OD_MODULE_DEPS General)
 
 set ( QT_MOC_HEADERS
-	qnetworkaccessconn.h
+	i_odhttpconn.h
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
 set ( OD_MODULE_SOURCES
@@ -28,8 +28,8 @@ set ( OD_MODULE_SOURCES
 	netserver.cc
 	netsocket.cc
 	oddlsite.cc
+	odhttp.cc
 	odnetworkaccess.cc
-	odnetworkreply.cc
 	svnaccess.cc
 	systeminfo.cc
 	webstreamsource.cc

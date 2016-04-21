@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "odnetworkaccess.h"
+#include "odhttp.h"
 
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "odnetworkreply.h"
 #include "od_ostream.h"
 #include "od_istream.h"
 #include "separstr.h"
@@ -22,8 +22,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
-# include "qnetworkaccessconn.h"
-
 # include <QByteArray>
 # include <QEventLoop>
 # include <QNetworkProxy>
@@ -130,8 +128,7 @@ bool Network::ping( const char* url, uiString& msg )
 
 FileDownloader::FileDownloader( const BufferStringSet& urls,
 				const BufferStringSet& outputpaths )
-    : qeventloop_(0)
-    , odnr_(0)
+    : odnr_(0)
     , initneeded_(true)
     , msg_(uiString::emptyString())
     , nrdone_(0)
@@ -144,8 +141,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
 
 
 FileDownloader::FileDownloader( const char* url, DataBuffer& db )
-    : qeventloop_(0)
-    , odnr_(0)
+    : odnr_(0)
     , initneeded_(true)
     , msg_(uiString::emptyString())
     , nrdone_(0)
@@ -159,8 +155,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
 
 
 FileDownloader::FileDownloader( const char* url )
-    : qeventloop_(0)
-    , odnr_(0)
+    : odnr_(0)
     , initneeded_(true)
     , msg_(uiString::emptyString())
     , nrdone_(0)
@@ -174,8 +169,7 @@ FileDownloader::FileDownloader( const char* url )
 FileDownloader::~FileDownloader()
 {
 #ifndef OD_NO_QT
-    delete qeventloop_;
-    delete odnr_;
+
 #endif
     delete osd_;
 }
@@ -193,22 +187,17 @@ int FileDownloader::nextStep()
 	if ( !urls_.validIdx( nrfilesdownloaded_ ) )
 	    return Finished();
 
-	delete odnr_;
-	if ( !qeventloop_ )
-	    qeventloop_ = new QEventLoop();
-
-	odnr_ = new ODNetworkReply( ODNA().get(QNetworkRequest(QUrl(urls_.get
-				   (nrfilesdownloaded_).buf()))), qeventloop_ );
+	odnr_ = Network::HttpRequestManager::instance().get(
+		    Network::HttpRequest(urls_.get(nrfilesdownloaded_).buf()) );
     }
 
-    qeventloop_->exec();
-    if ( odnr_->qNetworkReply()->error() )
+    if ( odnr_->isError() )
 	return errorOccured();
 
-    if ( odnr_->qNetworkReply()->bytesAvailable() && !writeData() )
+    if ( odnr_->downloadBytesAvailable() && !writeData() )
 	return ErrorOccurred();
 
-    if ( odnr_->qNetworkReply()->isFinished() )
+    if ( odnr_->isFinished() )
     {
 	initneeded_ = true;
 	nrfilesdownloaded_++;
@@ -229,23 +218,19 @@ od_int64 FileDownloader::getDownloadSize()
     od_int64 totalbytes = 0;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
-	QNetworkReply* qnr = ODNA().head( QNetworkRequest
-						(QUrl(urls_.get(idx).buf())) );
-	delete odnr_;
-	QEventLoop qeventloop;
-	odnr_ = new ODNetworkReply( qnr, &qeventloop );
-	qeventloop.exec();
-	if ( odnr_->qNetworkReply()->error() )
+	odnr_ = Network::HttpRequestManager::instance().head(
+			    Network::HttpRequest( urls_.get(idx).buf()) );
+	odnr_->waitForFinish();
+
+	if ( odnr_->isError() )
 	    return errorOccured();
 
-	od_int64 filesize = odnr_->qNetworkReply()->header
-			    ( QNetworkRequest::ContentLengthHeader ).toInt();
+
+	od_int64 filesize = odnr_->getContentLengthHeader();
 	totalbytes += filesize;
-	while( !odnr_->qNetworkReply()->isFinished() )
-	    qeventloop.exec();
     }
 
-    delete odnr_; odnr_ = 0;
+    odnr_ = 0;
     return totalbytes;
 #else
     return 0;
@@ -256,9 +241,9 @@ od_int64 FileDownloader::getDownloadSize()
 bool FileDownloader::writeData()
 {
 #ifndef OD_NO_QT
-    od_int64 bytes = odnr_->qNetworkReply()->bytesAvailable();
+    od_int64 bytes = odnr_->downloadBytesAvailable();
     PtrMan<char> buffer = new char[bytes];
-    odnr_->qNetworkReply()->read( buffer, bytes );
+    bytes = odnr_->read( buffer, bytes );
     nrdone_ += bytes;
     if ( databuffer_ )
 	return writeDataToBuffer( buffer, bytes );
@@ -312,8 +297,7 @@ int FileDownloader::errorOccured()
 #ifndef OD_NO_QT
     msg_ = tr("Oops! Something went wrong.\n");
     if (odnr_)
-	msg_ = tr("Details: %1")
-	     .arg(qPrintable(odnr_->qNetworkReply()->errorString()));
+	msg_ = tr("Details: %1").arg( odnr_->errMsg() );
 #endif
     return ErrorOccurred();
 }
@@ -445,8 +429,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
 #ifndef OD_NO_QT
-    : data_(new QByteArray(mCast(const char*,data.data()),data.size()))
-    , qeventloop_(new QEventLoop())
+    : data_( data )
 #else
     : data_(0)
     , qeventloop_(0)
@@ -462,13 +445,7 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
 
 
 DataUploader::~DataUploader()
-{
-#ifndef OD_NO_QT
-    delete qeventloop_;
-    delete data_;
-#endif
-    delete odnr_;
-}
+{}
 
 
 int DataUploader::nextStep()
@@ -476,28 +453,24 @@ int DataUploader::nextStep()
 #ifndef OD_NO_QT
     if ( init_ )
     {
-	QNetworkRequest qrequest( QUrl(url_.buf()) );
-	qrequest.setHeader( QNetworkRequest::ContentTypeHeader, header_.buf() );
-	qrequest.setHeader( QNetworkRequest::ContentLengthHeader,data_->size());
-	delete odnr_;
-	odnr_ = new ODNetworkReply( ODNA().post(qrequest,*data_), qeventloop_ );
+	Network::HttpRequest req = Network::HttpRequest( url_ )
+				.contentType( header_ )
+				.postData( data_ );
+
+	odnr_ = Network::HttpRequestManager::instance().post(req);
 	init_ = false;
     }
 
-    qeventloop_->exec();
-
-    if ( odnr_->qNetworkReply()->error() )
+    if ( odnr_->isError() )
 	return errorOccured();
-    else if ( odnr_->qNetworkReply()->isFinished() )
+    else if ( odnr_->isFinished() )
     {
-	if ( odnr_->qNetworkReply() )
-	{
-	    odnr_->qNetworkReply()->waitForReadyRead( 500 );
-	    msg_.setFrom( QString( odnr_->qNetworkReply()->readAll() ) );
-	}
+	odnr_->waitForDownloadData( 500 );
+	msg_ = toUiString( odnr_->readAll() );
+
 	return Finished();
     }
-    else if ( odnr_->qNetworkReply()->isRunning() )
+    else if ( odnr_->isRunning() )
     {
 	nrdone_ = odnr_->getBytesUploaded();
 	totalnr_ = odnr_->getTotalBytesToUpload();
@@ -516,7 +489,7 @@ int DataUploader::errorOccured()
     msg_ = tr("Oops! Something went wrong.\n");
     if (odnr_)
 	msg_ = tr("Details: %1")
-	     .arg(qPrintable(odnr_->qNetworkReply()->errorString()));
+	     .arg( odnr_->errMsg() );
 #endif
     return ErrorOccurred();
 }
@@ -656,18 +629,3 @@ NetworkUserQuery* NetworkUserQuery::getNetworkUserQuery()
 {
     return inst_;
 }
-
-#ifndef OD_NO_QT
-QNetworkAccessManager& ODNA()
-{
-    mDefineStaticLocalObject( QNetworkAccessManager*, odna, = 0 );
-    if ( !odna )
-    {
-	odna = new QNetworkAccessManager();
-	Network::setHttpProxyFromSettings();
-    }
-
-    return *odna;
-}
-
-#endif

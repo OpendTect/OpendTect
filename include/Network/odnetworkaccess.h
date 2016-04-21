@@ -15,18 +15,19 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "executor.h"
 #include "uistring.h"
+#include "ptrman.h"
 
 class QByteArray;
 class QEventLoop;
 class QFile;
 class QNetworkAccessManager;
-class ODNetworkReply;
+class ODNetworkProcess;
 class DataBuffer;
 class od_ostream;
 
-
 namespace Network
 {
+    class HttpRequestProcess;
 
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
@@ -119,19 +120,18 @@ protected:
     bool		writeDataToFile(const char* buffer, int size);
     bool		writeDataToBuffer(const char* buffer, int size);
 
-    bool		initneeded_;
-    BufferStringSet	urls_;
-    BufferStringSet	saveaspaths_;
-    int			nrfilesdownloaded_;
-    DataBuffer*		databuffer_;
-    od_ostream*		osd_;
+    bool				initneeded_;
+    BufferStringSet			urls_;
+    BufferStringSet			saveaspaths_;
+    int					nrfilesdownloaded_;
+    DataBuffer*				databuffer_;
+    od_ostream*				osd_;
 
-    QEventLoop*		qeventloop_;
-    ODNetworkReply*	odnr_;
+    RefMan<Network::HttpRequestProcess> odnr_;
 
-    od_int64		nrdone_;
-    od_int64		totalnr_;
-    uiString		msg_;
+    od_int64				nrdone_;
+    od_int64				totalnr_;
+    uiString				msg_;
 };
 
 
@@ -151,19 +151,18 @@ public:
 
 protected:
 
-    int			errorOccured();
+    int					errorOccured();
 
-    bool		init_;
-    BufferString	url_;
-    BufferString	header_;
+    bool				init_;
+    BufferString			url_;
+    BufferString			header_;
 
-    QByteArray*		data_;
-    QEventLoop*		qeventloop_;
-    ODNetworkReply*	odnr_;
+    const DataBuffer&			data_;
+    RefMan<Network::HttpRequestProcess> odnr_;
 
-    od_int64		nrdone_;
-    od_int64		totalnr_;
-    uiString		msg_;
+    od_int64				nrdone_;
+    od_int64				totalnr_;
+    uiString				msg_;
 };
 
 
@@ -179,8 +178,5 @@ protected:
     static NetworkUserQuery*	inst_;
 };
 
-#ifndef OD_NO_QT
-mGlobal(Network) QNetworkAccessManager&  ODNA();
-#endif
 
 #endif

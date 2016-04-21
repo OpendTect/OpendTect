@@ -12,11 +12,12 @@ ________________________________________________________________________
 -*/
 
 
-#include "odnetworkaccess.h"
-#include "odnetworkreply.h"
+#include "odhttp.h"
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <ptrman.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -24,11 +25,11 @@ QT_BEGIN_NAMESPACE
 class QNetworkReplyConn : public QObject
 {
     Q_OBJECT
-    friend class ODNetworkReply; 
+    friend class Network::HttpRequestProcess;
 
 protected:
 
-QNetworkReplyConn( QNetworkReply* sndr, ODNetworkReply* rec )
+QNetworkReplyConn( QNetworkReply* sndr, Network::HttpRequestProcess* rec )
     : sender_(sndr), receiver_(rec)
 {
     connect( sender_, SIGNAL(downloadProgress(qint64,qint64)),
@@ -49,6 +50,8 @@ QNetworkReplyConn( QNetworkReply* sndr, ODNetworkReply* rec )
 	     this, SLOT(bytesWritten(qint64)) );
     connect( sender_, SIGNAL(readyRead()),
 	     this, SLOT(readyRead()) );
+    connect( sender_, SIGNAL(readChannelFinished()),
+	    this, SLOT(readChannelFinished()) );
 }
 
 private slots:
@@ -57,19 +60,29 @@ void downloadProgress(qint64 nrdone,qint64 totalnr)
 {}
 
 void error(QNetworkReply::NetworkError)
-{ receiver_->error.trigger(); }
+{
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( receiver ) receiver->error.trigger();
+}
 
 void finished()
-{ receiver_->finished.trigger(); }
+{
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( receiver ) receiver->finished.trigger();
+}
 
 void metaDataChanged()
 {}
 
 void uploadProgress(qint64 bytes,qint64 totalbytes)
 {
-    receiver_->setBytesUploaded( bytes );
-    receiver_->setTotalBytesToUpload( totalbytes );
-    receiver_->uploadProgress.trigger();
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( !receiver )
+	return;
+
+    receiver->setBytesUploaded( bytes );
+    receiver->setTotalBytesToUpload( totalbytes );
+    receiver->uploadProgress.trigger();
 }
 
 void aboutToClose()
@@ -82,12 +95,16 @@ void readChannelFinished()
 {}
 
 void readyRead()
-{ receiver_->readyRead.trigger(); }
+{
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( receiver ) receiver->downloadDataAvailable.trigger();
+}
+
 
 private:
 
-    QNetworkReply*		sender_;
-    ODNetworkReply*		receiver_;
+    QNetworkReply*				sender_;
+    WeakPtr<Network::HttpRequestProcess>	receiver_;
 
 };
 

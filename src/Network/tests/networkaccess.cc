@@ -15,7 +15,8 @@
 #include "applicationdata.h"
 
 
-FilePath tempfile;
+static FilePath tempfile;
+static BufferString prefix_;
 
 bool testPing()
 {
@@ -23,11 +24,12 @@ bool testPing()
     uiString err;
 
     mRunStandardTestWithError( Network::ping(url,err),
-				"Ping existant URL", err.getFullString() );
+				BufferString( prefix_, "Ping existant URL"),
+				err.getFullString() );
 
     const char* missingurl = "http://opendtect.org/thisfiledoesnotexist";
     mRunStandardTestWithError( Network::ping(missingurl,err)==false,
-	"Ping non-existant URL", err.getFullString() );
+	BufferString( prefix_, "Ping non-existant URL"), err.getFullString() );
 
     return true;
 }
@@ -40,9 +42,10 @@ bool testDownloadToBuffer()
     uiString err;
 
     mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
-		      "Download to buffer", err.getFullString() );
+	    BufferString( prefix_, "Download to buffer"), err.getFullString() );
 
-    mRunStandardTest( db.size()==43, "Download to buffer size" );
+    mRunStandardTest( db.size()==43,
+		      BufferString( prefix_, "Download to buffer size") );
 
     return true;
 }
@@ -54,7 +57,7 @@ bool testDownloadToFile()
     uiString err;
     mRunStandardTestWithError(
 	    Network::downloadFile( url, tempfile.fullPath(), err ),
-	    "Download to file", err.getFullString() );
+	    BufferString( prefix_, "Download to file"), err.getFullString() );
 
     return true;
 }
@@ -70,7 +73,7 @@ bool testFileUpload()
     mRunStandardTestWithError(
 	    Network::uploadFile(url, tempfile.fullPath(), remotefn, "dumpfile",
 				postvars, err ),
-	    "Upload file", err.getFullString());
+	    BufferString( prefix_, "Upload file"), err.getFullString());
 
     return true;
 }
@@ -85,7 +88,7 @@ bool testQueryUpload()
 		    "http://intranet/testing/ctest/php_do_not_delete_it_2.php";
     uiString err;
     mRunStandardTestWithError( Network::uploadQuery( url, querypars, err ),
-				"UploadQuery", err.getFullString() );
+		BufferString( prefix_, "UploadQuery"), err.getFullString() );
 
     return true;
 }
@@ -107,8 +110,49 @@ bool testFileSizes()
     mRunStandardTestWithError(
 	    sizeofuploadedfile >= 0 && sizeremotefile >= 0 &&
 	    sizeofuploadedfile == sizeremotefile,
-				       "TestFileSizes", err.getFullString() );
+	       BufferString( prefix_, "TestFileSizes"), err.getFullString() );
     return true;
+}
+
+bool runTests()
+{
+    if ( !testPing() )
+	return false;
+
+    if ( !testDownloadToBuffer() )
+	return false;
+
+    if ( !testDownloadToFile() )
+	return false;
+
+    if ( !testFileUpload() )
+	return false;
+
+    if ( !testQueryUpload() )
+	return false;
+
+    if ( !testFileSizes() )
+	return false;
+
+    return true;
+}
+
+static bool threadres;
+
+void threadCB(CallBacker*)
+{
+    prefix_ = "[From Thread] ";
+    threadres = runTests();
+    File::remove( tempfile.fullPath() );
+}
+
+
+void loopCB(CallBacker*)
+{
+    prefix_ = "[With eventloop] ";
+    const bool res = runTests();
+    File::remove( tempfile.fullPath() );
+    ApplicationData::exit( res ? 0 : 1 );
 }
 
 
@@ -117,33 +161,26 @@ int main(int argc, char** argv)
     mInitTestProg();
     ApplicationData app;
 
+    prefix_ = "[Without eventloop] ";
+
     tempfile = FilePath::getTempDir();
     mRunStandardTest( !tempfile.isEmpty(), "Temp-dir generation" );
 
     BufferString filename( toString(GetPID()), "_dlsites.txt" );
     tempfile.add( filename );
 
-    bool res = true;
-
-    if ( res && !testPing() )
-	res = false;
-
-    if ( res && !testDownloadToBuffer() )
-	res = false;
-
-    if ( res && !testDownloadToFile() )
-	res = false;
-
-    if ( res && !testFileUpload() )
-	res = false;
-
-    if ( res && !testQueryUpload() )
-	res = false;
-
-    if ( res && !testFileSizes() )
-	res = false;
-
+    bool res = runTests();
     File::remove( tempfile.fullPath() );
+    if ( !res )
+	ExitProgram( 1 );
 
-    ExitProgram( res ? 0 : 1 );
+    Threads::Thread thread( mSCB( threadCB ) );
+    thread.waitForFinish();
+
+    if ( !threadres )
+	ExitProgram( 1 );
+
+    CallBack::addToMainThread( mSCB( loopCB ) );
+    const int retval = app.exec();
+    ExitProgram( retval );
 }

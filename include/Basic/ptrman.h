@@ -197,12 +197,14 @@ public:
 
     template <class TT> inline	RefMan(const RefMan<TT>&);
     inline			RefMan(const RefMan<T>&);
+    inline			RefMan(const WeakPtr<T>&);
     inline			RefMan(T* = 0);
     inline RefMan<T>&		operator=( T* p )
 				{ this->set( p, true ); return *this; }
     template <class TT>
     inline RefMan<T>&		operator=(const RefMan<TT>&);
     inline RefMan<T>&		operator=(const RefMan<T>&);
+    inline RefMan<T>&		operator=(const WeakPtr<T>&);
 
     void			setNoDelete(bool yn);
 
@@ -475,6 +477,14 @@ RefMan<T>::RefMan( const RefMan<T>& p )
 {}
 
 
+template <class T> inline
+RefMan<T>::RefMan( const WeakPtr<T>& p )
+    : NonConstPtrManBase<T>( ref, unRef, 0 )
+{
+    *this = p;
+}
+
+
 template <class T>
 template <class TT> inline
 RefMan<T>::RefMan( const RefMan<TT>& p )
@@ -493,6 +503,13 @@ RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
 {
     this->set( const_cast<T*>(p.ptr()) );
     return *this;
+}
+
+
+template <class T> inline
+RefMan<T>& RefMan<T>::operator=( const WeakPtr<T>& p )
+{
+    return RefMan<T>::operator=( p.get() );
 }
 
 
