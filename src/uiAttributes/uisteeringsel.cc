@@ -334,8 +334,8 @@ void uiSteerAttrSel::setDesc( const Desc* desc )
     setDescSet( desc->descSet() );
 
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    const LineKey lk( keypar->getStringValue() );
-    const MultiID mid( lk.lineName() );
+    const StringPair storkey( keypar->getStringValue() );
+    const MultiID mid( storkey.first() );
     PtrMan<IOObj> ioob = IOM().get( mid );
     workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();
