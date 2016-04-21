@@ -40,14 +40,14 @@ class LatLong2Coord;
   at the bottom part of the class too for some more public functions.
 */
 
-mExpClass(Basic) SurveyInfo : public NamedObject
+mExpClass(Basic) SurveyInfo : public NamedMonitorable
 { mODTextTranslationClass(SurveyInfo);
 
     mGlobal(Basic) friend const SurveyInfo&	SI();
 
 
 public:
-			~SurveyInfo();
+
     bool		has2D() const;
     bool		has3D() const;
 
@@ -197,6 +197,7 @@ private:
 public:
 
 	// These fns are rarely used by non-specialist classes.
+			~SurveyInfo();
 
     void		setWorkRange(const TrcKeyZSampling&);
     Notifier<SurveyInfo> workRangeChg;
@@ -286,6 +287,8 @@ public:
 			/*!<Shortcut to popSI, with deletion of the object */
     static void		deleteOriginal();
 			/*!<Removes the first SI from the stack */
+
+    mDeclInstanceCreatedNotifierAccess(SurveyInfo);
 
 };
 

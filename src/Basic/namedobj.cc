@@ -10,57 +10,43 @@
 #include "keystrs.h"
 #include <ctype.h>
 
-mDefineInstanceCreatedNotifierAccess(NamedObject);
+mDefineInstanceCreatedNotifierAccess(NamedMonitorable);
 
 
 NamedObject::NamedObject( const char* nm )
     : name_(nm)
 {
-    mTriggerInstanceCreatedNotifier();
 }
 
 
 NamedObject::NamedObject( const NamedObject& oth )
-    : name_(oth.name())
+    : name_(oth.getName())
 {
-    mTriggerInstanceCreatedNotifier();
 }
 
 
 NamedObject::~NamedObject()
 {
-    sendDelNotif();
+}
+
+
+NamedObject& NamedObject::operator =( const NamedObject& oth )
+{
+    if ( this != &oth )
+	name_ = oth.getName();
+    return *this;
 }
 
 
 bool NamedObject::operator ==( const NamedObject& oth ) const
 {
-    mLock4Access();
     return name_ == oth.getName();
-}
-
-
-BufferString NamedObject::getName() const
-{
-    mLock4Access();
-    return name_;
-}
-
-
-void NamedObject::setName( const char* nm )
-{
-    mLock4Access();
-    if ( name_ != nm )
-    {
-	name_ = nm;
-	mSendChgNotif();
-    }
 }
 
 
 bool NamedObject::getNameFromPar( const IOPar& iop )
 {
-    BufferString myname( name() );
+    BufferString myname( getName() );
     if ( !iop.get(sKey::Name(),myname) )
 	return false;
     setName( myname );
@@ -71,4 +57,61 @@ bool NamedObject::getNameFromPar( const IOPar& iop )
 void NamedObject::putNameInPar( IOPar& iop ) const
 {
     iop.set( sKey::Name(), getName() );
+}
+
+
+NamedMonitorable::NamedMonitorable( const char* nm )
+    : NamedObject(nm)
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+NamedMonitorable::NamedMonitorable( const NamedMonitorable& oth )
+    : NamedObject(oth)
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+NamedMonitorable::~NamedMonitorable()
+{
+    sendDelNotif();
+}
+
+
+NamedMonitorable& NamedMonitorable::operator =( const NamedMonitorable& oth )
+{
+    if ( this != &oth )
+    {
+	mLock4Write();
+	name_ = oth.getName();
+    }
+    return *this;
+}
+
+
+bool NamedMonitorable::operator ==( const NamedMonitorable& oth ) const
+{
+    mLock4Read();
+    return name_ == oth.getName();
+}
+
+
+BufferString NamedMonitorable::getName() const
+{
+    mLock4Read();
+    return name_;
+}
+
+
+void NamedMonitorable::setName( const char* nm )
+{
+    mLock4Read();
+    if ( name_ != nm )
+    {
+	mLock2Write();
+	name_ = nm;
+	mSendChgNotif();
+    }
 }

@@ -31,10 +31,12 @@ template <class T> class ODPolygon;
 /*!Object that can be painted in a basemap. */
 
 
-mExpClass(General) BaseMapObject : public NamedObject
+mExpClass(General) BaseMapObject : public NamedMonitorable
 {
 public:
+
 				BaseMapObject(const char* nm);
+				~BaseMapObject();
 
     int				ID() const		{ return id_; }
 

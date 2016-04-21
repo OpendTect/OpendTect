@@ -44,6 +44,8 @@ const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 
+mDefineInstanceCreatedNotifierAccess(SurveyInfo);
+
 
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
@@ -376,12 +378,13 @@ SurveyInfo::SurveyInfo()
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
     tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
-    : NamedObject( si )
+    : NamedMonitorable( si )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
@@ -390,11 +393,14 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     , workRangeChg(this)
 {
     *this = si;
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 SurveyInfo::~SurveyInfo()
 {
+    sendDelNotif();
+
     delete &pars_;
     delete &ll2c_;
     delete &tkzs_;

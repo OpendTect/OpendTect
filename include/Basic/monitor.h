@@ -25,10 +25,12 @@ ________________________________________________________________________
   mTriggerInstanceCreatedNotifier() to the constructor, and add
   mDefineInstanceCreatedNotifierAccess(YourClassName) to a .cc.
 
-  Similarly, you have to trigger the objectToBeDeleted() from your destructor.
-  This base class will do such a thing but then it's too late for many
-  purposes: the subclass part of the object is then already dead. Thus, at
-  the beginning of the your destructor, call sendDelNotif().
+  Similarly, you have to trigger the objectToBeDeleted() at the start of your
+  destructor - if you do not have one, make one. For that, use sendDelNotif(),
+  it avoids double notifications; this base class will eventually do such a
+  thing but then it's too late for many purposes: the subclass part of the
+  object is then already dead. Thus, at the beginning of the your destructor,
+  call sendDelNotif().
 
   For typical usage see NamedObject.
 
@@ -55,14 +57,14 @@ protected:
 
     mutable Threads::Lock	accesslock_;
 
-    //!\brief makes locking easier and safer (unlocks when it goes out of scope)
+    //!\brief makes locking easier and safer
     mExpClass(Basic) AccessLockHandler
     {
     public:
-				AccessLockHandler( Monitorable& m )
-				    : locker_(m.accesslock_)	    {}
-				AccessLockHandler( const Monitorable& m )
-				    : locker_(m.accesslock_)	    {}
+				AccessLockHandler(const Monitorable& m,
+						  bool forread=true);
+	bool			convertToWrite()
+				{ return locker_.convertToWriteLock(); }
 	Threads::Locker		locker_;
     };
 
@@ -79,7 +81,9 @@ private:
 };
 
 //! For use in subclasses of Monitorable
-#define mLock4Access() AccessLockHandler accesslockhandler_( *this )
+#define mLock4Read() AccessLockHandler accesslockhandler_( *this )
+#define mLock4Write() AccessLockHandler accesslockhandler_( *this, false )
+#define mLock2Write() accesslockhandler_.convertToWrite()
 #define mSendChgNotif() sendChgNotif( accesslockhandler_ )
 
 

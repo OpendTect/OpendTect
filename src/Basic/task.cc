@@ -18,14 +18,18 @@
 
 
 Task::Task( const char* nm )
-    : NamedObject( nm )
+    : NamedMonitorable( nm )
     , workcontrolcondvar_( 0 )
     , control_( Task::Run )
-{}
+{
+}
 
 
 Task::~Task()
-{ delete workcontrolcondvar_; }
+{
+    sendDelNotif();
+    delete workcontrolcondvar_;
+}
 
 
 void Task::enableWorkControl( bool yn )

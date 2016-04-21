@@ -47,17 +47,19 @@ bool CmdRecStopper::isInStopperList( const uiBaseObject* obj )
 
 
 uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , finaliseStart_(this)
     , finaliseDone_(this)
-    , tobeDeleted(this)
     , cmdrecrefnr_(0)
     , body_(b)
-{}
+{
+}
 
 
 uiBaseObject::~uiBaseObject()
-{ tobeDeleted.trigger(); }
+{
+    sendDelNotif();
+}
 
 
 void uiBaseObject::finalise()

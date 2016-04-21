@@ -38,7 +38,7 @@ class LevelSet;
 
 */
 
-mExpClass(General) Level : public NamedObject
+mExpClass(General) Level : public NamedMonitorable
 {
 public:
 
@@ -56,7 +56,6 @@ public:
     void		setPars(const IOPar&);
 
     Notifier<Level>	changed;
-    Notifier<Level>	toBeRemoved;
 
     static const Level&	undef();
 

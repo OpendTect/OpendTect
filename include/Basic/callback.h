@@ -216,14 +216,14 @@ private:
   available.
 */
 
-template <class T>
+template <class PayLoadType>
 mClass(Basic) CBCapsule : public CallBacker
 {
 public:
-    CBCapsule( T d, CallBacker* c )
+    CBCapsule( PayLoadType d, CallBacker* c )
     : data(d), caller(c)	{}
 
-    T			data;
+    PayLoadType		data;
     CallBacker*		caller;
 };
 
@@ -251,16 +251,16 @@ public:
   \endcode
 */
 
-#define mCBCapsuleGet(T,var,cb) \
-CBCapsule<T>* var = dynamic_cast< CBCapsule<T>* >( cb );
+#define mCBCapsuleGet(PayLoadType,var,cb) \
+CBCapsule<PayLoadType>* var = dynamic_cast< CBCapsule<PayLoadType>* >( cb );
 
-#define mCBCapsuleUnpack(T,var,cb) \
-mCBCapsuleGet(T,cb##caps,cb) \
-T var = cb##caps->data
+#define mCBCapsuleUnpack(PayLoadType,var,cb) \
+mCBCapsuleGet(PayLoadType,cb##caps,cb) \
+PayLoadType var = cb##caps->data
 
-#define mCBCapsuleUnpackWithCaller(T,var,cber,cb) \
-mCBCapsuleGet(T,cb##caps,cb) \
-T var = cb##caps->data; \
+#define mCBCapsuleUnpackWithCaller(PayLoadType,var,cber,cb) \
+mCBCapsuleGet(PayLoadType,cb##caps,cb) \
+PayLoadType var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
 
 

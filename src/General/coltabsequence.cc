@@ -40,19 +40,17 @@ ColTab::Sequence::Sequence()
     , nrsegments_( 0 )
     , colorChanged(this)
     , transparencyChanged(this)
-    , toBeRemoved(this)
     , type_(User)
 {
 }
 
 
 ColTab::Sequence::Sequence( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , mInitStdMembs(Color::LightGrey(),Color::DgbColor())
     , nrsegments_( 0 )
     , colorChanged(this)
     , transparencyChanged(this)
-    , toBeRemoved(this)
     , type_(System)
 {
     bool res = false;
@@ -64,7 +62,7 @@ ColTab::Sequence::Sequence( const char* nm )
 
 
 ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
-    : NamedObject(ctab)
+    : NamedMonitorable(ctab)
     , r_(ctab.r_)
     , g_(ctab.g_)
     , b_(ctab.b_)
@@ -73,7 +71,6 @@ ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
     , type_(ctab.type_)
     , colorChanged( ctab.colorChanged )
     , transparencyChanged( ctab.transparencyChanged )
-    , toBeRemoved( ctab.toBeRemoved )
     , nrsegments_( ctab.nrsegments_ )
     , mInitStdMembs(ctab.undefcolor_,ctab.markcolor_)
 {
@@ -82,7 +79,7 @@ ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
 
 ColTab::Sequence::~Sequence()
 {
-    toBeRemoved.trigger( this );
+    sendDelNotif();
 }
 
 
@@ -572,7 +569,6 @@ void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
 	    newseq->setType( Sequence::Edited );
 	    Sequence* oldseq = seqs_[existidx];
 	    seqs_.replace( existidx, newseq );
-	    oldseq->toBeRemoved.trigger( oldseq );
 	    delete oldseq;
 	}
     }

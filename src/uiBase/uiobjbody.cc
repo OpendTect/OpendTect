@@ -27,7 +27,7 @@ mUseQtnamespace
 
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
-    , NamedObject( nm )
+    , NamedMonitorable( nm )
     , layoutItem_( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )
@@ -63,6 +63,8 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
 
 uiObjectBody::~uiObjectBody()
 {
+    sendDelNotif();
+
 #ifdef USE_DISPLAY_TIMER
     delete &displaytimer;
 #endif

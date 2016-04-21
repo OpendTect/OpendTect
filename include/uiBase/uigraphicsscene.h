@@ -33,7 +33,7 @@ class uiPolyLineItem;
 class uiRectItem;
 class uiObjectItem;
 
-mExpClass(uiBase) uiGraphicsScene : public NamedObject
+mExpClass(uiBase) uiGraphicsScene : public NamedMonitorable
 {
 public:
 				uiGraphicsScene(const char*);
@@ -101,8 +101,10 @@ public:
     static float		getDefaultPixelDensity();
 
     Notifier<uiGraphicsScene>	pixelDensityChange;
+    mDeclInstanceCreatedNotifierAccess(uiGraphicsScene);
 
     void			translateText();
+
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;

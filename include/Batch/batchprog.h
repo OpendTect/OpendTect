@@ -46,7 +46,7 @@ class StreamData;
   be accessed.
 */
 
-mClass(Prog) BatchProgram : public NamedObject
+mClass(Prog) BatchProgram : public NamedMonitorable
 { mODTextTranslationClass(BatchProgram);
     mGlobal(Batch) friend	BatchProgram& BP();
 
@@ -110,6 +110,7 @@ private:
 
     JobCommunic*	comm_;
     int			jobid_;
+
 };
 
 

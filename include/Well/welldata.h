@@ -99,7 +99,7 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public NamedObject, public RefCount::Referenced
+mExpClass(Well) Data : public ::NamedMonitorable, public RefCount::Referenced
 {
 public:
 
@@ -149,6 +149,7 @@ public:
     Notifier<Well::Data>	reloaded;
 
 protected:
+
 			~Data();
     void		prepareForDelete();
 
@@ -161,6 +162,7 @@ protected:
     MarkerSet&		markers_;
     DisplayProperties&	disp2d_;
     DisplayProperties&	disp3d_;
+
 };
 
 

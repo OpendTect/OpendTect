@@ -50,7 +50,7 @@ Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 
 
 Pick::SetMgr::SetMgr( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
     , setDispChanged(this)
@@ -64,6 +64,7 @@ Pick::SetMgr::SetMgr( const char* nm )
 
 Pick::SetMgr::~SetMgr()
 {
+    sendDelNotif();
     detachAllNotifiers();
     undo_.removeAll();
     delete &undo_;
@@ -536,7 +537,7 @@ mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
 Pick::Set::Set( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , pars_(*new IOPar)
 {
 }
@@ -550,6 +551,7 @@ Pick::Set::Set( const Set& s )
 
 Pick::Set::~Set()
 {
+    sendDelNotif();
     delete &pars_;
 }
 

@@ -27,7 +27,7 @@ namespace Pick
 
 /*!\brief Set of picks with something in common */
 
-mExpClass(General) Set : public NamedObject, public TypeSet<Location>
+mExpClass(General) Set : public NamedMonitorable, public TypeSet<Location>
 {
 public:
 

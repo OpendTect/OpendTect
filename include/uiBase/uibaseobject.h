@@ -24,7 +24,7 @@ mFDQtclass(QWidget)
     so, each widget has a relative position related to the others,
     as returned from getWidgetOrigin and getWidgetSpan. */
 
-mExpClass(uiBase) uiBaseObject : public NamedObject
+mExpClass(uiBase) uiBaseObject : public NamedMonitorable
 {
 public:
 				uiBaseObject(const char* nm, uiBody* = 0);
@@ -52,9 +52,6 @@ public:
 						 const char* msg=0);
     void			endCmdRecEvent(od_uint64 id,int refnr,
 					       const char* msg=0);
-
-    Notifier<uiBaseObject>	tobeDeleted;
-				//!< triggered in destructor
 
     virtual Notifier<uiBaseObject>& preFinalise()
 				{ return finaliseStart_; }

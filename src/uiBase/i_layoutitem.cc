@@ -43,6 +43,7 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
 
 i_LayoutItem::~i_LayoutItem()
 {
+    sendDelNotif();
     delete qlayoutitm;
 }
 

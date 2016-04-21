@@ -31,7 +31,7 @@ namespace Pick
 
  */
 
-mExpClass(General) SetMgr : public NamedObject
+mExpClass(General) SetMgr : public NamedMonitorable
 {
 public:
 

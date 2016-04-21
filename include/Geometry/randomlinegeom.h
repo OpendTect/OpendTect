@@ -28,10 +28,11 @@ namespace Geometry
 
 class RandomLineSet;
 
-mExpClass(Geometry) RandomLine : public NamedObject
+mExpClass(Geometry) RandomLine : public NamedMonitorable
                                , public RefCount::Referenced
 {
 public:
+
 			RandomLine(const char* nm=0);
 
     void		setSurvID(Pos::SurvID s) { survid_ = s; }
@@ -93,7 +94,10 @@ public:
     RandomLineSet*	lineSet()		{ return lset_; }
     const RandomLineSet* lineSet() const	{ return lset_; }
 
+    mDeclInstanceCreatedNotifierAccess(RandomLine);
+
 protected:
+
 			~RandomLine();
 
     Pos::SurvID		survid_;
@@ -107,7 +111,9 @@ protected:
     friend class	RandomLineSet;
 
 private:
+
     int			id_;
+
 };
 
 

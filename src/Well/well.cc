@@ -191,7 +191,8 @@ bool Well::DahObj::doInsertAtDah( float dh, float val, TypeSet<float>& vals,
 
 
 Well::Data::Data( const char* nm )
-    : info_(nm)
+    : NamedMonitorable(nm)
+    , info_(nm)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
     , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
@@ -209,12 +210,15 @@ Well::Data::Data( const char* nm )
     , reloaded(this)
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
-    lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
+    mAttachCB( lvlset.levelToBeRemoved, Data::levelToBeRemoved );
 }
 
 
 Well::Data::~Data()
 {
+    sendDelNotif();
+    detachAllNotifiers();
+
     delete &track_;
     delete &logs_;
     delete &disp2d_;
@@ -222,9 +226,6 @@ Well::Data::~Data()
     delete d2tmodel_;
     delete csmodel_;
     delete &markers_;
-
-    Strat::eLVLS().levelToBeRemoved.remove(
-				mCB(this, Well::Data, levelToBeRemoved ) );
 }
 
 

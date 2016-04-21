@@ -123,31 +123,29 @@ void Strat::setLVLS( LevelSet* ls )
 
 
 Strat::Level::Level( const char* nm, const Strat::LevelSet* ls )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , id_(-1)
     , lvlset_(ls)
     , pars_(*new IOPar)
     , changed(this)
-    , toBeRemoved(this)
 {
 }
 
 
 Strat::Level::Level( const Level& oth )
-    : NamedObject(oth)
+    : NamedMonitorable(oth)
     , id_(-1)
     , color_(oth.color_)
     , pars_(*new IOPar(oth.pars_))
     , lvlset_(oth.lvlset_)
     , changed(this)
-    , toBeRemoved(this)
 {
 }
 
 
 Strat::Level::~Level()
 {
-    toBeRemoved.trigger();
+    sendDelNotif();
     delete &pars_;
 }
 
@@ -183,7 +181,7 @@ void Strat::Level::setName( const char* nm )
     if ( checkName(nm) || name() == nm )
 	return;
 
-    NamedObject::setName(nm); changed.trigger();
+    NamedMonitorable::setName(nm); changed.trigger();
 }
 
 
@@ -247,8 +245,7 @@ Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
 
 Strat::LevelSet::~LevelSet()
 {
-    for ( int idx=0; idx<size(); idx++ )
-	lvls_[idx]->toBeRemoved.disable();
+    detachAllNotifiers();
     deepErase( lvls_ );
 }
 
@@ -281,8 +278,8 @@ void Strat::LevelSet::getLevelsFrom( const Strat::LevelSet& oth )
 void Strat::LevelSet::makeMine( Strat::Level& lvl )
 {
     lvl.lvlset_ = this;
-    lvl.changed.notify( mCB(this,LevelSet,lvlChgCB) );
-    lvl.toBeRemoved.notify( mCB(this,LevelSet,lvlRemCB) );
+    mAttachCB( lvl.changed, LevelSet::lvlChgCB );
+    mAttachCB( lvl.objectToBeDeleted(), LevelSet::lvlRemCB );
 }
 
 
@@ -326,7 +323,7 @@ Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
     else
     {
 	newlvl = new Level( *lvl );
-	newlvl->NamedObject::setName( newnm );
+	newlvl->NamedMonitorable::setName( newnm );
     }
 
     newlvl->id_ = ++lastlevelid_;
@@ -513,7 +510,7 @@ bool Strat::LevelSet::store( Repos::Source rsrc ) const
 }
 
 
-bool Strat::LevelSet::read( Repos::Source rsrc ) 
+bool Strat::LevelSet::read( Repos::Source rsrc )
 {
     Repos::FileProvider rfp( "StratLevels" );
     return readFrom( rfp.fileName(rsrc) );

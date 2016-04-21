@@ -45,7 +45,7 @@ TextureCoords::~TextureCoords()
 
 void TextureCoords::copyFrom( const TextureCoords& tc )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
 
     *mGetOsgVec2Arr(osgcoords_) = *mGetOsgVec2Arr(tc.osgcoords_);
 
@@ -69,7 +69,7 @@ void TextureCoords::setCoord( int idx, const Coord3& pos )
 
 void TextureCoords::setPositions( const Coord* pos, int sz, int start )
 {
-    Threads::Locker locker( lock_,Threads::Locker::WriteLock );
+    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
 
     for( int idx=0; idx<sz; idx++ )
 	 setPosWithoutLock( idx+start, pos[idx] );
@@ -167,7 +167,13 @@ void TextureCoords::removeCoord( int idx )
     if ( idx<0 || idx>=sz || mIsFreeIdx(idx) )
 	return;
 
-    locker.convertToWriteLock();
+    if ( !locker.convertToWriteLock() )
+    {
+	sz = mGetOsgVec2Arr(osgcoords_)->size();
+	if ( idx<0 || idx>=sz || mIsFreeIdx(idx) )
+	    return;
+    }
+
     (*mGetOsgVec2Arr(osgcoords_))[idx] = mFreeOsgVec2;
     nrfreecoords_++;
 
@@ -183,11 +189,12 @@ void TextureCoords::removeCoord( int idx )
 int TextureCoords::searchFreeIdx()
 {
     Threads::Locker locker( lock_ );
-    const int sz = mGetOsgVec2Arr(osgcoords_)->size();
+    int sz = mGetOsgVec2Arr(osgcoords_)->size();
 
     if ( nrfreecoords_ > 0 )
     {
-	locker.convertToWriteLock();
+	if ( !locker.convertToWriteLock() )
+	    sz = mGetOsgVec2Arr(osgcoords_)->size();
 
 	for ( int count=0; count<sz; count++ )
 	{

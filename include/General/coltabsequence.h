@@ -34,7 +34,7 @@ namespace ColTab
 
  */
 
-mExpClass(General) Sequence : public NamedObject
+mExpClass(General) Sequence : public NamedMonitorable
 {
 public:
 
@@ -97,7 +97,6 @@ public:
 
     Notifier<Sequence>	colorChanged;
     Notifier<Sequence>	transparencyChanged;
-    Notifier<Sequence>	toBeRemoved;
 
     const Color&	undefColor() const
 			{ return undefcolor_; }

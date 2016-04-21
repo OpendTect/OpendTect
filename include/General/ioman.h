@@ -35,7 +35,7 @@ There will be one IOMan available through the global function IOM(). Creating
 more instances is probably not a good idea.
 */
 
-mExpClass(General) IOMan : public NamedObject
+mExpClass(General) IOMan : public NamedMonitorable
 { mODTextTranslationClass(IOMan);
 public:
 

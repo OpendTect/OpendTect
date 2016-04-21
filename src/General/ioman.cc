@@ -42,7 +42,7 @@ IOMan& IOM()
 }
 
 IOMan::IOMan( const char* rd )
-	: NamedObject("IO Manager")
+	: NamedMonitorable("IO Manager")
 	, dirptr_(0)
 	, survchgblocked_(false)
 	, state_(IOMan::NeedInit)
@@ -247,6 +247,7 @@ void IOMan::reInit( bool dotrigger )
 
 IOMan::~IOMan()
 {
+    sendDelNotif();
     delete dirptr_;
 }
 

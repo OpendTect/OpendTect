@@ -54,8 +54,7 @@ void BatchProgram::deleteInstance()
 
 
 BatchProgram::BatchProgram()
-    : NamedObject("")
-    , stillok_(false)
+    : stillok_(false)
     , finishmsg_("Finished batch processing.")
     , inbg_(false)
     , sdout_(*new StreamData)

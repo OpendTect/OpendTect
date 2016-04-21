@@ -24,7 +24,7 @@ class resizeItem;
 class Timer;
 
 //!  internal enum used to determine in which direction a widget can be stretched and to check which outer limit must be checked
-enum stretchLimitTp { left=1, right=2, above=4, below=8, 
+enum stretchLimitTp { left=1, right=2, above=4, below=8,
                       rightLimit=16, bottomLimit=32 };
 
 
@@ -40,33 +40,33 @@ const int nLayoutMode = 3;
     This is our own layout manager for Qt. It manages widgets, etc. using
     constraints like "rightOf" etc.
 
-Because the i_LayoutMngr is a QLayout, it can be used by 
-QWidgets to automatically add new children to the manager when they are 
-constructed with a QWidget (with layout) as parent. 
+Because the i_LayoutMngr is a QLayout, it can be used by
+QWidgets to automatically add new children to the manager when they are
+constructed with a QWidget (with layout) as parent.
 
 The actual adding to a manager is is done using QEvents.
 Whenever a QObject inserts a new child, it posts a ChildInserted event
-to itself. However, a QLayout constructor installs an event filter on its 
-parent, and it registers itself to the parent as its layouter 
-(setWidgetLayout), so future calls to the parent's sizeHint(), etc. are 
+to itself. However, a QLayout constructor installs an event filter on its
+parent, and it registers itself to the parent as its layouter
+(setWidgetLayout), so future calls to the parent's sizeHint(), etc. are
 redirected to this new layoutmanager.
 
-If setAutoAdd() is called on a layoutmanager, and the layout manager is 
+If setAutoAdd() is called on a layoutmanager, and the layout manager is
 "topLevel", i.e. THE manager for a certain widget, then whenever a new
 widget is constructed with the manager's parent widget as parent,
-the new widget is automatically added (by Qt) to the manager by the manager's 
-eventfilter, using 'addItem( new QWidgetItem( w ) )'. 
+the new widget is automatically added (by Qt) to the manager by the manager's
+eventfilter, using 'addItem( new QWidgetItem( w ) )'.
 Unfortunately, Qt does not call addItem before the main application loop
-is running. This results to the problem that no attachments can be used until 
-the main loop is running when we let Qt handle the addItem() calls. 
-Therefore, we explicitily call addItem() on the correct layout manager at 
-construction uiObjects. AutoAdd is also enabled in case someone wants to 
-eses native Qt methods. (Multiple insertion is protected. Manager checks if 
+is running. This results to the problem that no attachments can be used until
+the main loop is running when we let Qt handle the addItem() calls.
+Therefore, we explicitily call addItem() on the correct layout manager at
+construction uiObjects. AutoAdd is also enabled in case someone wants to
+eses native Qt methods. (Multiple insertion is protected. Manager checks if
 widget already present).
 
 
 */
-class i_LayoutMngr : public mQtclass(QLayout), public NamedObject
+class i_LayoutMngr : public mQtclass(QLayout), public NamedMonitorable
 {
     friend class	i_LayoutItem;
     friend class	uiGroupParentBody;
@@ -76,23 +76,23 @@ public:
 				     const char* name,uiObjectBody& mngbdy);
 
     virtual		~i_LayoutMngr();
- 
-    virtual void 	addItem(mQtclass(QLayoutItem*));
-    void	 	addItem(i_LayoutItem*);
 
-    virtual mQtclass(QSize) 	sizeHint() const;
-    virtual mQtclass(QSize) 	minimumSize() const;
+    virtual void	addItem(mQtclass(QLayoutItem*));
+    void		addItem(i_LayoutItem*);
+
+    virtual mQtclass(QSize)	sizeHint() const;
+    virtual mQtclass(QSize)	minimumSize() const;
 
     virtual mQtclass(QLayoutItem*) itemAt(int idx) const;
     virtual mQtclass(QLayoutItem*) takeAt(int idx);
     virtual int		 count() const;
 
-    virtual void       	invalidate();
-    virtual void       	updatedAlignment(LayoutMode);
-    virtual void       	initChildLayout(LayoutMode);
+    virtual void	invalidate();
+    virtual void	updatedAlignment(LayoutMode);
+    virtual void	initChildLayout(LayoutMode);
 
-    bool 		attach(constraintType,mQtclass(QWidget&),
-	    		       mQtclass(QWidget*),int,
+    bool		attach(constraintType,mQtclass(QWidget&),
+			       mQtclass(QWidget*),int,
 			       bool reciprocal=true);
 
     const uiRect&	curpos(LayoutMode) const;
@@ -114,26 +114,26 @@ public:
     void		setBorderSpace(int s)	{ borderspc = s; }
 
     void		setIsMain( bool yn )	    { ismain = yn; }
-    void 		layoutChildren(LayoutMode,bool finalLoop=false);
+    void		layoutChildren(LayoutMode,bool finalLoop=false);
 
 private:
 
-    void 		setGeometry( const mQtclass(QRect&) );
- 
-    inline void 	doLayout( LayoutMode m, const mQtclass(QRect&) r ) const 
+    void		setGeometry( const mQtclass(QRect&) );
+
+    inline void	doLayout( LayoutMode m, const mQtclass(QRect&) r ) const
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
-    void 		doLayout( LayoutMode m, const mQtclass(QRect&) );
+    void		doLayout( LayoutMode m, const mQtclass(QRect&) );
 
-    void	 	itemDel( CallBacker* );
+    void		itemDel( CallBacker* );
 
-    void 		moveChildrenTo( int , int, LayoutMode );
-    void 		fillResizeList( ObjectSet<resizeItem>&, bool ); 
-    bool		tryToGrowItem( resizeItem&, const int, const int, 
+    void		moveChildrenTo( int , int, LayoutMode );
+    void		fillResizeList( ObjectSet<resizeItem>&, bool );
+    bool		tryToGrowItem( resizeItem&, const int, const int,
 				       int, int, const mQtclass(QRect&), int);
     void		resizeTo( const mQtclass(QRect&) );
     void		childrenCommitGeometrySet(bool);
 
-    uiRect 		childrenRect(LayoutMode);
+    uiRect		childrenRect(LayoutMode);
 
     ObjectSet<i_LayoutItem> childrenlist;
 
@@ -145,11 +145,11 @@ private:
     bool		prefposStored;
     bool		ismain;
 
-    int 		hspacing;
-    int 		vspacing;
-    int 		borderspc;
+    int		hspacing;
+    int		vspacing;
+    int		borderspc;
 
-    uiObjectBody& 	managedBody;
+    uiObjectBody&	managedBody;
 
     void		startPoptimer();
     void		popTimTick(CallBacker*);
@@ -159,4 +159,4 @@ private:
 
 };
 
-#endif 
+#endif

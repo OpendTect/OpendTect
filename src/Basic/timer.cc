@@ -17,7 +17,7 @@ ________________________________________________________________________
 mUseQtnamespace
 
 Timer::Timer( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , tick(this)
 #ifndef OD_NO_QT
     , timer_(new QTimer(0))
@@ -28,7 +28,9 @@ Timer::Timer( const char* nm )
 
 
 Timer::~Timer()
-{ 
+{
+    sendDelNotif();
+
 #ifndef OD_NO_QT
     if ( isActive() )
 	stop();
@@ -73,7 +75,7 @@ void Timer::start( int msec, bool sshot )
 }
 
 
-void Timer::stop() 
+void Timer::stop()
 {
 #ifndef OD_NO_QT
     timer_->stop();

@@ -19,18 +19,18 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-mClass(uiBase) uiParentBody : public uiBody, public NamedObject
+mClass(uiBase) uiParentBody : public uiBody, public NamedMonitorable
 {
 friend class uiObjectBody;
 public:
 			//uiParentBody( const char* nm = "uiParentBody")
 			uiParentBody( const char* nm )
-			    : NamedObject( nm )
+			    : NamedMonitorable( nm )
 			    , finalised_( false )
 			{}
 
     virtual		~uiParentBody()
-			{ deleteAllChildren(); }
+			{ sendDelNotif(); deleteAllChildren(); }
 
     virtual void	addChild( uiBaseObject& child )
 			{

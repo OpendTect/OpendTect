@@ -85,7 +85,7 @@ uiSEGYRead::~uiSEGYRead()
 {
     if ( examdlg_ )
     {
-        examdlg_->tobeDeleted.remove( mCB(this,uiSEGYRead,examDlgClose) );
+        examdlg_->objectToBeDeleted().remove(mCB(this,uiSEGYRead,examDlgClose));
         delete examdlg_;
     }
 
@@ -408,7 +408,7 @@ void uiSEGYRead::basicOptsGot()
     if ( exsu.nrtrcs_ > 0 )
     {
 	examdlg_ = new uiSEGYExamine( parent_, exsu );
-        examdlg_->tobeDeleted.notify( mCB(this,uiSEGYRead,examDlgClose) );
+        examdlg_->objectToBeDeleted().notify(mCB(this,uiSEGYRead,examDlgClose));
         mLaunchVWDialogOnly( examdlg_, uiSEGYRead, examDlgClose );
     }
 

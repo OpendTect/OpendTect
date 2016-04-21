@@ -19,11 +19,13 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "trigonometry.h"
 
+mDefineInstanceCreatedNotifierAccess(Geometry::RandomLine);
+
 namespace Geometry
 {
 
 RandomLine::RandomLine( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , nameChanged(this)
     , nodeChanged(this)
     , zrangeChanged(this)
@@ -39,11 +41,13 @@ RandomLine::RandomLine( const char* nm )
     id_ = oid++;
 
     RLM().add( this );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 RandomLine::~RandomLine()
 {
+    sendDelNotif();
     RLM().remove( this );
     id_ = -2;
 }
@@ -77,7 +81,7 @@ void RandomLine::insertNode( int idx, const BinID& bid )
 
 void RandomLine::setName( const char* nm )
 {
-    NamedObject::setName( nm );
+    NamedMonitorable::setName( nm );
     nameChanged.trigger();
 }
 

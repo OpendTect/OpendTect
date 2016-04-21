@@ -12,7 +12,7 @@
 #include "uistrings.h"
 
 BaseMapObject::BaseMapObject( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , changed(this)
     , leftClicked(this)
     , rightClicked(this)
@@ -22,6 +22,12 @@ BaseMapObject::BaseMapObject( const char* nm )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
     id_ = treeitmid++;
+}
+
+
+BaseMapObject::~BaseMapObject()
+{
+    sendDelNotif();
 }
 
 

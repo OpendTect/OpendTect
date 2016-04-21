@@ -35,6 +35,9 @@ ________________________________________________________________________
 #include <QString>
 #include <math.h>
 
+mDefineInstanceCreatedNotifierAccess(uiGraphicsScene);
+
+
 mUseQtnamespace
 
 class ODGraphicsScene : public QGraphicsScene
@@ -141,7 +144,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 
 
 uiGraphicsScene::uiGraphicsScene( const char* nm )
-    : NamedObject(nm)
+    : NamedMonitorable(nm)
     , mousehandler_(MouseEventHandler())
     , ismouseeventactive_(true)
     , odgraphicsscene_(new ODGraphicsScene(*this))
@@ -157,11 +160,14 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     BufferString queuename("Graphics Scene ", nm );
     queueid_ = Threads::WorkManager::twm().addQueue(
 	    Threads::WorkManager::Manual, queuename );
+
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 uiGraphicsScene::~uiGraphicsScene()
 {
+    sendDelNotif();
     removeAllItems();
     delete odgraphicsscene_;
     Threads::WorkManager::twm().removeQueue( queueid_, false );

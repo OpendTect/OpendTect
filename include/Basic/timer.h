@@ -22,9 +22,10 @@ mFDQtclass(QTimerComm)
 \brief Timer class.
 */
 
-mExpClass(Basic) Timer : public NamedObject
+mExpClass(Basic) Timer : public NamedMonitorable
 {
-public :
+public:
+
 			Timer(const char* nm="Timer");
     virtual		~Timer();
 
@@ -42,9 +43,10 @@ public :
     void		setScriptPolicy(ScriptPolicy);
 
 protected:
+
     mQtclass(QTimer*)		timer_;
-    mQtclass(QTimerComm*)		comm_;
-    ScriptPolicy	scriptpolicy_;
+    mQtclass(QTimerComm*)	comm_;
+    ScriptPolicy		scriptpolicy_;
 
 public:
 				// Not for casual use

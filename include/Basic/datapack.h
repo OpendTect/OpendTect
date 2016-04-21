@@ -31,7 +31,7 @@ class DataPackMgr;
   'Fault surface'
 */
 
-mExpClass(Basic) DataPack : public NamedObject
+mExpClass(Basic) DataPack : public NamedMonitorable
 			  , public RefCount::Referenced
 {
 public:
@@ -41,16 +41,16 @@ public:
     inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
 
 			DataPack( const char* categry )
-			    : NamedObject("<?>")
+			    : NamedMonitorable("<?>")
 			    , category_(categry)
 			    , manager_( 0 )
 			    , id_(getNewID())	{}
 			DataPack( const DataPack& dp )
-			    : NamedObject( dp.name().buf() )
+			    : NamedMonitorable( dp )
 			    , category_( dp.category_ )
 			    , manager_( 0 )
 			    , id_(getNewID())	{}
-    virtual		~DataPack()		{}
+    virtual		~DataPack()		{ sendDelNotif(); }
 
     ID			id() const		{ return id_; }
     FullID		fullID( int mgrid ) const { return FullID(mgrid,id()); }
@@ -84,6 +84,7 @@ protected:
     friend class		DataPackMgr;
 
 public:
+
     mDeprecated void		release();
     mDeprecated DataPack*	obtain();
 

@@ -218,9 +218,9 @@ WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
     const int idx = indexOf( dpid );
     if ( idx>=0 )
         res = packs_[idx];
-    
+
     packslock_.readUnlock();
-    
+
     return res;
 }
 
@@ -372,10 +372,10 @@ bool DataPackMgr::unRef( DataPack::ID dpid )
             pack->unRef();
             //We have reffed in the refman above
             //Hence the 'real' number is actual refs -1
-            
+
 	    mTrackDPMsg( BufferString("[DP]: unRef ",pack->id(),
 			 BufferString(" nrusers=",pack->nrRefs()-1)) );
-	    
+
 	}
 
 	res = true;

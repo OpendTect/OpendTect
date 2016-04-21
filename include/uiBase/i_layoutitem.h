@@ -21,30 +21,30 @@ ________________________________________________________________________
 mFDQtclass(QLayoutItem)
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedObject
-{   
+mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedMonitorable
+{
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
 #ifdef __debug__
     friend class		uiGroupParentBody;
 #endif
 
-public: 
+public:
 				i_LayoutItem(i_LayoutMngr&,
 					     mQtclass(QLayoutItem&));
     virtual			~i_LayoutItem();
 
     virtual int			horAlign(LayoutMode m ) const
 				    { return curpos(m).left(); }
-    virtual int			centre(LayoutMode m, bool hor=true) const 
-				    { 
-					if( hor ) return ( curpos(m).left() 
-					     + curpos(m).right() ) / 2; 
+    virtual int			centre(LayoutMode m, bool hor=true) const
+				    {
+					if( hor ) return ( curpos(m).left()
+					     + curpos(m).right() ) / 2;
 					return ( curpos(m).top()
                                              + curpos(m).bottom() ) / 2;
 				    }
 
-    virtual uiSize 		minimumsize() const 
+    virtual uiSize		minimumsize() const
 				{
 				    mQtclass(QSize) s =qwidget()->minimumSize();
 
@@ -53,8 +53,8 @@ public:
 				 }
 
     uiSize			prefSize() const
-				{ 
-				    if( prefSzDone ) 
+				{
+				    if( prefSzDone )
 				       { pErrMsg("PrefSize already done.");}
 				    else
 				    {
@@ -66,30 +66,30 @@ public:
 					if ( width==0 ) width = 1;
 					int height = ps.height();
 					if ( height==0 ) height = 1;
-					self->prefSz = 
+					self->prefSz =
 					    uiSize(width,height);
 				    }
 
 				    return prefSz;
 				}
 
-    virtual void       		invalidate();
-    virtual void       		updatedAlignment(LayoutMode)	{}
-    virtual void       		initChildLayout(LayoutMode)	{}
+    virtual void		invalidate();
+    virtual void		updatedAlignment(LayoutMode)	{}
+    virtual void		initChildLayout(LayoutMode)	{}
 
     uiSize			actualsize(bool include_border = true) const;
-    				//!< live objs: use uiObject::width() etc
+				//!< live objs: use uiObject::width() etc
 
-    inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
+    inline const i_LayoutMngr&	mngr() const 		{ return mngr_; }
 
-    inline const uiRect& 	curpos(LayoutMode m) const
+    inline const uiRect&	curpos(LayoutMode m) const
 				    { return layoutpos[m];}
     inline uiRect&		curpos(LayoutMode m)	{ return layoutpos[m];}
 
-    bool			inited() const 
-				{ 
-				    return minimum_pos_inited 
-					|| preferred_pos_inited; 
+    bool			inited() const
+				{
+				    return minimum_pos_inited
+					|| preferred_pos_inited;
 				}
 
 protected:
@@ -99,50 +99,50 @@ protected:
 
     uiRect			layoutpos[ nLayoutMode ];
 
-    int 			stretch( bool hor ) const;
+    int			stretch( bool hor ) const;
     virtual void		commitGeometrySet(bool);
 
-    void			initLayout( LayoutMode m, int mngrTop, 
+    void			initLayout( LayoutMode m, int mngrTop,
 							  int mngrLeft );
     bool			layout( LayoutMode m, const int, bool );
 
-    void			attach( constraintType, 
+    void			attach( constraintType,
 					i_LayoutItem *other, int margin,
 					bool reciprocal=true);
 
     virtual uiObject*		objLayouted()		{ return 0; }
     inline const uiObject*	objLayouted() const
-				{ 
+				{
 				    return const_cast<i_LayoutItem*>
-							(this)->objLayouted(); 
+							(this)->objLayouted();
 				}
 
     virtual uiObjectBody*	bodyLayouted()		{ return 0; }
     inline const uiObjectBody*	bodyLayouted() const
-				{ 
+				{
 				    return const_cast<i_LayoutItem*>
-							(this)->bodyLayouted(); 
+							(this)->bodyLayouted();
 				}
 
     inline mQtclass(QLayoutItem&)	qlayoutItm()    { return *qlayoutitm; }
     inline const mQtclass(QLayoutItem&)	qlayoutItm() const
-    					{ return *qlayoutitm; }
+					{ return *qlayoutitm; }
 
 				// Immediately delete me if you take my
 				// qlayoutitm !!
     inline mQtclass(QLayoutItem*)  takeQlayoutItm()
-    				   {
+				   {
 				       mQtclass(QLayoutItem*) ret = qlayoutitm;
 				       qlayoutitm = 0;
 				       return ret;
 				   }
 
     virtual const mQtclass(QWidget*)	qwidget_() const
-    					{ return qlayoutitm->widget(); }
+					{ return qlayoutitm->widget(); }
     virtual const mQtclass(QWidget*)	managewidg_() const
-    					{ return qlayoutitm->widget(); }
+					{ return qlayoutitm->widget(); }
 
-    inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
+    inline i_LayoutMngr&	mngr()			{ return mngr_; }
 
     bool			isAligned() const;
 
@@ -154,7 +154,7 @@ private:
     constraintList		constrList;
 
 #ifdef __debug__
-    int 			isPosOk( uiConstraint*, int, bool );
+    int			isPosOk( uiConstraint*, int, bool );
 #endif
     bool			prefSzDone;
     uiSize			prefSz;
@@ -174,10 +174,10 @@ public:
 
     virtual		~i_uiLayoutItem();
 
-    virtual uiSize 	minimumsize() const
-			    { 
+    virtual uiSize	minimumsize() const
+			    {
 				uiSize s = uiObjBody_.minimumsize();
-				if ( !mIsUdf(s.hNrPics()) )  
+				if ( !mIsUdf(s.hNrPics()) )
 				    return s;
 
 				return i_LayoutItem::minimumsize();

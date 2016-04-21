@@ -34,7 +34,7 @@ static const PosInfo::Line2DKey udfl2dkey(
 			mUdf(IdxPair::IdxType), mUdf(IdxPair::IdxType) );
 static bool cWriteAscii = false;
 static PosInfo::Survey2D* s2dpos_inst = 0;
-namespace PosInfo { struct Survey2DDeleter : public NamedObject {
+namespace PosInfo { struct Survey2DDeleter : public NamedMonitorable {
 	void doDel( CallBacker* ) { delete s2dpos_inst; s2dpos_inst = 0; } }; }
 
 

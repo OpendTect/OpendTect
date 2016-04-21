@@ -607,10 +607,19 @@ void NotifyStopper::restore()
 
 mDefineInstanceCreatedNotifierAccess(Monitorable)
 
+Monitorable::AccessLockHandler::AccessLockHandler( const Monitorable& obj,
+						   bool forread )
+    : locker_( obj.accesslock_, forread ? Threads::Locker::ReadLock
+					: Threads::Locker::WriteLock )
+{
+}
+
+
 Monitorable::Monitorable()
     : chgnotif_(this)
     , delnotif_(this)
     , delalreadytriggered_(false)
+    , accesslock_(Threads::Lock::MultiRead)
 {
     mTriggerInstanceCreatedNotifier();
 }
@@ -633,13 +642,9 @@ Monitorable::Monitorable( const Monitorable& oth )
 
 
 
-Monitorable& Monitorable::operator =( const Monitorable& oth )
+Monitorable& Monitorable::operator =( const Monitorable& )
 {
-    if ( this != &oth )
-    {
-	CallBacker::operator =( oth );
-	// will copy nothing. no locking, no notification, nothing.
-    }
+    // will copy nothing. no locking, no notification, nothing.
     return *this;
 }
 

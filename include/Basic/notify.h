@@ -114,13 +114,17 @@ mClass(Basic) Notifier : public NotifierAccess
 {
 public:
 
-    void		trigger( T& t )	{ trigger(&t); }
-
 			// Following functions are usually used by T class only:
 			Notifier( T* c )			{ cber_ = c; }
 
-    inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
-			{ doTrigger( cbs_, c ? c : cber_, exclude ); }
+    inline void		trigger()
+			{ doTrigger( cbs_, cber_, 0 ); }
+    inline void		trigger( T& t )
+			{ doTrigger( cbs_, &t, 0 ); }
+    inline void		trigger( CallBacker* c )
+			{ doTrigger( cbs_, c, 0 ); }
+    inline void		trigger( CallBacker* c, CallBacker* exclude )
+			{ doTrigger( cbs_, c, exclude ); }
 };
 
 
@@ -146,22 +150,31 @@ detachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )
   \endcode
 */
 
-template <class T,class C>
+template <class T,class PayLoad>
 mClass(Basic) CNotifier : public NotifierAccess
 {
 public:
-
-    void		trigger( C c, T& t )		{ trigger(c,&t); }
-
-// Following functions are usually used by T class only:
-
 			CNotifier( T* cb )	{ cber_ = cb; }
 
-    inline void		trigger( C c, CallBacker* cb=0 )
+    inline void		trigger( PayLoad pl )
 			{
-			    CBCapsule<C> caps( c, cb ? cb : cber_ );
+			    CBCapsule<PayLoad> caps( pl, cber_ );
 			    doTrigger( cbs_, &caps, 0 );
 			}
+
+    inline void		trigger( PayLoad pl, CallBacker* cb )
+			{
+			    if ( !cb )
+				trigger( pl );
+			    else
+			    {
+				CBCapsule<PayLoad> caps( pl, cb );
+				doTrigger( cbs_, &caps, 0 );
+			    }
+			}
+    inline void		trigger( PayLoad pl, T& t )
+			{ trigger(pl,&t); }
+
 };
 
 
