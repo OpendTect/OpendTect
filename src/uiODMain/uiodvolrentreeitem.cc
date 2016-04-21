@@ -280,10 +280,9 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 
 uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
-    , addmnuitem_(uiStrings::sAdd())
     , statisticsmnuitem_(m3Dots(uiStrings::sHistogram()))
-    , amplspectrummnuitem_( m3Dots(tr("Amplitude Spectrum")))
-    , addisosurfacemnuitem_(tr("Iso Surface"))
+    , amplspectrummnuitem_(m3Dots(tr("Amplitude Spectrum")))
+    , addisosurfacemnuitem_(m3Dots(tr("Create Iso Surface Body")))
 {
     statisticsmnuitem_.iconfnm = "histogram";
     amplspectrummnuitem_.iconfnm = "amplspectrum";
@@ -298,12 +297,8 @@ void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      true, false );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrummnuitem_,
 		      true, false );
-    if ( !istb )
-    {
-	mAddMenuItem( menu, &displaymnuitem_, true, false );
-	mAddMenuItem( &displaymnuitem_, &addmnuitem_, true, false );
-	mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
-    }
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &addisosurfacemnuitem_,
+		      true, false );
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
@@ -369,8 +364,27 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	uiDialog::Setup( tr("Iso value selection"), mNoDlgTitle,
                                 mODHelpKey(mVolrenTreeItemHelpID) ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,attribNr()) );
-	if ( dlg.go() )
-	    addChild( new uiODVolrenSubTreeItem(surfobjid), true );
+	if ( !dlg.go() )
+	{
+	    vd->removeChild( surfobjid );
+	    return;
+	}
+
+	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
+	    new visSurvey::MarchingCubesDisplay;
+
+	uiString newname = tr( "Iso %1").arg( vd->isoValue( mcs ) );
+	mcdisplay->setName( newname );
+
+	if ( !mcdisplay->setVisSurface(mcs) )
+	{
+	    vd->removeChild( surfobjid );
+	    return;
+	}
+
+	visserv->addObject( mcdisplay, sceneID(), true );
+	addChild(new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false);
+	vd->removeChild( surfobjid );
     }
 }
 
@@ -493,10 +507,10 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     if ( isosurface && isosurface->getSurface() )
     {
 	const float isoval = vd->isoValue(isosurface);
-    uiString coltext;
+	uiString coltext;
 	if ( !mIsUdf(isoval) )
-	coltext = toUiString(isoval);
-    uitreeviewitem_->setText( coltext, col );
+	    coltext = toUiString(isoval);
+	uitreeviewitem_->setText( coltext, col );
     }
 }
 
@@ -556,8 +570,8 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
 	    new visSurvey::MarchingCubesDisplay;
 
-    uiString newname = tr( "Iso %1").arg( vd->isoValue( isosurface ) );
-    mcdisplay->setName( newname );
+	uiString newname = tr( "Iso %1").arg( vd->isoValue( isosurface ) );
+	mcdisplay->setName( newname );
 
 	if ( !mcdisplay->setVisSurface( isosurface ) )
 	{

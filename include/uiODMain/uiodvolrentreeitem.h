@@ -53,7 +53,7 @@ public:
 protected:
 			~uiODVolrenTreeItem();
     bool		init();
-    uiString    	createDisplayName() const;
+    uiString	createDisplayName() const;
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
@@ -78,7 +78,6 @@ protected:
 
     MenuItem            statisticsmnuitem_;
     MenuItem            amplspectrummnuitem_;
-    MenuItem		addmnuitem_;
     MenuItem		addisosurfacemnuitem_;
 };
 
