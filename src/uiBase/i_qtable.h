@@ -42,7 +42,7 @@ i_tableMessenger( QTableWidget*  sndr, uiTable* receiver )
 	     this, SLOT(valueChanged(int,int)) );
 
     connect( sndr, SIGNAL(cellClicked(int,int)),
-	     this, SLOT(clicked(int,int)) );
+	     this, SLOT(cellClicked(int,int)) );
 
     connect( sndr, SIGNAL(cellPressed(int,int)),
 	     this, SLOT(cellPressed(int,int)) );
@@ -117,7 +117,7 @@ void valueChanged( int row, int col )
 }
 
 
-void clicked( int row, int col )
+void cellClicked( int row, int col )
 {
     receiver_->notifcell_ = RowCol(row,col);
     if ( receiver_->buttonstate_ == OD::RightButton )
