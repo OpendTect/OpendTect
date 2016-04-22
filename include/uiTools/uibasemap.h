@@ -39,6 +39,8 @@ public:
 
     uiGraphicsItem&		graphItem()		{ return graphitem_; }
     const uiGraphicsItem&	graphItem() const	{ return graphitem_; }
+    uiGraphicsItem&		labelItem()		{ return labelitem_; }
+
     virtual void		update();
     virtual void		updateStyle();
 
@@ -50,13 +52,16 @@ protected:
     void			leftClickCB(CallBacker*);
     void			rightClickCB(CallBacker*);
 
+    uiGraphicsItem&		labelitem_;
     uiGraphicsItem&		graphitem_;
     const uiWorld2Ui*		transform_;
 
     bool			changed_;
     BaseMapObject*		bmobject_;
+
 private:
-    void			addToGraphItem(uiGraphicsItem&);
+    void			add(uiGraphicsItem&);
+    void			addText(uiGraphicsItem&);
 };
 
 

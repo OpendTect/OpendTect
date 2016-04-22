@@ -23,6 +23,7 @@ ________________________________________________________________________
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
     , graphitem_(*new uiGraphicsItem)
+    , labelitem_(*new uiGraphicsItem)
     , changed_(false)
     , transform_(0)
 {
@@ -32,6 +33,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 	bmobject_->stylechanged.notify(
 		    mCB(this,uiBaseMapObject,changedStyleCB) );
 	graphitem_.setZValue( bmobject_->getDepth() );
+	labelitem_.setZValue( bmobject_->getDepth()-1 );
     }
     graphitem_.setAcceptHoverEvents( true );
 }
@@ -47,6 +49,7 @@ uiBaseMapObject::~uiBaseMapObject()
     }
 
     delete &graphitem_;
+    delete &labelitem_;
 }
 
 
@@ -58,7 +61,10 @@ const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
 
 void uiBaseMapObject::show( bool yn )
-{ graphitem_.setVisible( yn ); }
+{
+    graphitem_.setVisible( yn );
+    labelitem_.setVisible( yn );
+}
 
 bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
@@ -97,11 +103,17 @@ void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 { transform_ = w2ui; }
 
 
-void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
+void uiBaseMapObject::add( uiGraphicsItem& itm )
 {
     graphitem_.addChild( &itm );
     itm.leftClicked.notify( mCB(this,uiBaseMapObject,leftClickCB) );
     itm.rightClicked.notify( mCB(this,uiBaseMapObject,rightClickCB) );
+}
+
+
+void uiBaseMapObject::addText( uiGraphicsItem& itm )
+{
+    labelitem_.addChild( &itm );
 }
 
 
@@ -140,7 +152,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPolyLineItem* itm = new uiPolyLineItem();
 		    if ( !itm ) return;
-		    addToGraphItem( *itm );
+		    add( *itm );
 		}
 
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
@@ -167,7 +179,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPolygonItem* itm = new uiPolygonItem();
 		    if ( !itm ) return;
-		    addToGraphItem( *itm );
+		    add( *itm );
 		}
 
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
@@ -235,7 +247,7 @@ void uiBaseMapObject::update()
 		{
 		    uiMarkerItem* itm = new uiMarkerItem();
 		    if ( !itm ) return;
-		    addToGraphItem( *itm );
+		    add( *itm );
 		}
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
@@ -251,28 +263,28 @@ void uiBaseMapObject::update()
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
-	    while ( graphitem_.nrChildren()>itemnr )
+	    while ( labelitem_.nrChildren()>itemnr )
 	    {
 		mDynamicCastGet(uiTextItem*,itm,
-				graphitem_.getChild(itemnr));
+				labelitem_.getChild(itemnr));
 		if ( !itm )
-		    graphitem_.removeChild( graphitem_.getChild(itemnr), true );
+		    labelitem_.removeChild( labelitem_.getChild(itemnr), true );
 		else break;
 	    }
 
-	    if ( graphitem_.nrChildren()<=itemnr )
+	    if ( labelitem_.nrChildren()<=itemnr )
 	    {
 		uiTextItem* itm = new uiTextItem();
 		if ( !itm ) return;
-		addToGraphItem( *itm );
+		addText( *itm );
 	    }
 
-	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));
+	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(itemnr));
 	    if ( !itm ) return;
 	    itm->setText( toUiString(shapenm) );
 	    for( int crdidx=0; crdidx<crds.size(); crdidx++ )
 	    {
-		if( !mIsUdf(crds[crdidx]) ) 
+		if( !mIsUdf(crds[crdidx]) )
 		{
 		    itm->setPos( crds[crdidx] );
 		    break;
@@ -491,6 +503,7 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     if ( !uiobj ) return;
 
     worlditem_.addChild( &uiobj->graphItem() );
+    worlditem_.addChild( &uiobj->labelItem() );
     objects_ += uiobj;
     changed_ = true;
     if ( uiobj->getObject() )
