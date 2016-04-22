@@ -172,18 +172,10 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 
     if ( mnuid==0 )
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
-	ctio->ctxt_.forread_ = true;
-	ctio->fillDefault();
-	if ( !ctio->ioobj_ )
-	{
-	    uiODRandomLineTreeItem* itm =
-		    new uiODRandomLineTreeItem(-1, getType(mnuid) );
-	    addChild( itm, false );
-	    itm->displayDefaultData();
-	}
-	else
-	    load( *ctio->ioobj_, mnuid );
+	uiODRandomLineTreeItem* itm =
+		new uiODRandomLineTreeItem(-1, getType(mnuid) );
+	addChild( itm, false );
+	itm->displayDefaultData();
     }
     else if ( mnuid==1 )
     {
