@@ -18,7 +18,6 @@ Translators for seismic traces.
 #include "ctxtioobj.h"
 #include "samplingdata.h"
 #include "basiccompinfo.h"
-#include "linekey.h"
 
 class SeisTrc;
 class LinScaler;

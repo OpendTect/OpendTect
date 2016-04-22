@@ -14,7 +14,6 @@
 #include "emhorizon2d.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
 #include "visdataman.h"

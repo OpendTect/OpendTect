@@ -530,22 +530,6 @@ Pos::GeomID SeisTrcReader::geomID() const
 }
 
 
-class SeisTrcReaderLKProv : public GeomIDProvider
-{
-public:
-    SeisTrcReaderLKProv( const SeisTrcReader& r )
-				: rdr(r) {}
-    Pos::GeomID geomID() const	{ return rdr.geomID(); }
-    const SeisTrcReader&	rdr;
-};
-
-
-GeomIDProvider* SeisTrcReader::geomIDProvider() const
-{
-    return new SeisTrcReaderLKProv( *this );
-}
-
-
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf_->deepErase();

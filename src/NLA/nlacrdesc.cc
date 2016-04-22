@@ -10,7 +10,6 @@
 #include "datacoldef.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "posvecdataset.h"
 #include "datapointset.h"
 #include "ptrman.h"

@@ -122,7 +122,6 @@ bool StratSynthExporter::prepareWriter()
 	Survey::GM().getGeomID( linegeom_->lineName() );
     seldata->setGeomID( newgeomid );
     writer_->setSelData( seldata );
-    writer_->setAttrib( synthnm );
     return true;
 }
 
@@ -193,7 +192,7 @@ int StratSynthExporter::writePreStackTraces()
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
-    if ( posdone_ >= postobedone_ ) 
+    if ( posdone_ >= postobedone_ )
     {
 	cursdidx_++;
 	posdone_ = 0;

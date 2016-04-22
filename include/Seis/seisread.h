@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "seisstor.h"
-#include "linekey.h"
 #include "uistring.h"
 class SeisTrc;
 class Executor;
@@ -88,7 +87,6 @@ public:
     int			curLineIdx() const		{ return curlineidx; }
     StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
     Pos::GeomID		geomID() const;
-    GeomIDProvider*	geomIDProvider() const;
     int			getNrOffsets(int maxnrpostobechecked=10) const;
 
 protected:

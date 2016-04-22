@@ -39,7 +39,6 @@ ___________________________________________________________________
 #include "externalattrib.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"

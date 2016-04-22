@@ -209,8 +209,6 @@ bool SeisSingleTraceProc::nextReader()
 
     SeisTrcReader* currdr = rdrs_[currdridx_];
     currdr->prepareWork();
-    wrr_.setGeomIDProvider( currdr->geomIDProvider() );
-
     return true;
 }
 

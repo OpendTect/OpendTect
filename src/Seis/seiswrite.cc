@@ -28,15 +28,11 @@
 #include "uistrings.h"
 
 
-#define mCurGeomID (gidp_ \
-    ? gidp_->geomID() \
-    : (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID()))
+#define mCurGeomID (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID())
 
-
-SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
+SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, auxpars_(*new IOPar)
-	, gidp_(l)
 	, worktrc_(*new SeisTrc)
 	, linedata_(0)
 {
@@ -47,7 +43,6 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	: SeisStoreAccess(fnm,is_2d,isps)
 	, auxpars_(*new IOPar)
-	, gidp_(0)
 	, worktrc_(*new SeisTrc)
 	, linedata_(0)
 {
@@ -103,14 +98,6 @@ bool SeisTrcWriter::close()
 }
 
 
-void SeisTrcWriter::setGeomIDProvider( const GeomIDProvider* l )
-{
-    gidp_ = l;
-    delete linedata_;
-    linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
-}
-
-
 void SeisTrcWriter::setSelData( Seis::SelData* tsel )
 {
     SeisStoreAccess::setSelData( tsel );
@@ -137,10 +124,10 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 		.arg( ioobj_->uiName() );
 	return false;
     }
-    if ( is2d_ && !gidp_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
+    if ( is2d_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
     {
 	errmsg_ = tr("Internal: 2D seismic can only "
-		     "be stored if line key known");
+		     "be stored if line GeomID known");
 	return false;
     }
 

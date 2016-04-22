@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seisioobjinfo.h"

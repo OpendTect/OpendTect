@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "dataclipper.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"

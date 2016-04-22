@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "linekey.h"
 #include "ranges.h"
 #include "posinfo2dsurv.h"
 #include "uistring.h"
@@ -54,11 +53,11 @@ public:
     const Desc&			getDesc() const;
     Desc&			getDesc();
     const DataHolder*		getData(const BinID& relpos=BinID(0,0),
-	    				int idx=0);
+					int idx=0);
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 
     int				nrOutputs() const
-    				{ return outputinterest_.size(); }
+				{ return outputinterest_.size(); }
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
     void			setOutputInterestSize(bool preserve=false);
@@ -70,22 +69,22 @@ public:
     virtual void		setReqBufStepout(const BinID&,bool wait=false);
     virtual void		setDesBufStepout(const BinID&,bool wait=false);
     const BinID&		getReqBufStepout() const
-    				{ return reqbufferstepout_; }
+				{ return reqbufferstepout_; }
     const BinID&		getDesBufStepout() const
-    				{ return desbufferstepout_; }
+				{ return desbufferstepout_; }
     void			setDesiredVolume(const TrcKeyZSampling&);
-    				/*!< The desired volume is the ideal volume
+				/*!< The desired volume is the ideal volume
 				  required by the user*/
     const TrcKeyZSampling*		getDesiredVolume() const
 				{ return desiredvolume_; }
     void			resetDesiredVolume();
     void                        setPossibleVolume(const TrcKeyZSampling&);
-    				/*!< The possible volume is the volume that can
+				/*!< The possible volume is the volume that can
 				  really be computed taking care of all margins
 				  and stepouts*/
     virtual bool		getPossibleVolume(int outp,TrcKeyZSampling&);
     const TrcKeyZSampling*		getPossibleVolume() const
-    				{ return possiblevolume_; }
+				{ return possiblevolume_; }
     int				getTotalNrPos(bool);
     void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
@@ -93,15 +92,15 @@ public:
     virtual void		setGeomID(Pos::GeomID);
 
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
-	    					bool firstcheck = false);
-    				/*!<\retval -1	something went wrong
+						bool firstcheck = false);
+				/*!<\retval -1	something went wrong
 				    \retval  0  finished, no more positions
 				    \retval  1	arrived at new position
 				*/
     void			computeNewStartPos(BinID&);
     int				alignInputs(ObjectSet<Provider>&);
-    int 			comparePosAndAlign(Provider*,bool,Provider*,
-	    					   bool,bool);
+    int			comparePosAndAlign(Provider*,bool,Provider*,
+						   bool,bool);
     void			resetMoved();
     void                        resetZIntervals();
 
@@ -115,7 +114,7 @@ public:
 						const TypeSet<Interval<int> >&);
     const TypeSet< Interval<int> >&	localCompZIntervals() const;
 
-    void               		updateInputReqs(int input=-1);
+    void		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
     void			setUseSC()		{ useshortcuts_ = true;}
     void			setSelData(const Seis::SelData*);
@@ -124,21 +123,21 @@ public:
     void			setExactZ(const TypeSet<float>&);
 
     void			computeRefStep();
-    				/*!<If an attribute uses as inputs stored cubes
+				/*!<If an attribute uses as inputs stored cubes
 				with a different z step the smallest one will
 				be taken as reference step*/
     void			setRefStep(float step);
     float                       getRefStep() const;
 
     void			computeRefZ0();
-    				/*!<If an attribute uses as inputs stored cubes
+				/*!<If an attribute uses as inputs stored cubes
 				with a different z0 the smallest one will
 				be taken as reference z0*/
     void			setRefZ0(float z0);
     float                       getRefZ0() const	{ return refz0_; }
 
     virtual BinID		getStepoutStep() const;
-    ObjectSet<Provider>&	getInputs() 		{ return inputs_; }
+    ObjectSet<Provider>&	getInputs()		{ return inputs_; }
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
     uiString			errMsg() const;
 
@@ -146,33 +145,33 @@ public:
     virtual void		prepSteeringForStepout(const BinID&)	{}
 
     virtual bool		prepPriorToOutputSetup();
-    				/*!< returns whether the outputs plan acquired
+				/*!< returns whether the outputs plan acquired
 				  from the parameter file has to be overruled */
     virtual void		prepPriorToBoundsCalc();
-    				/*!< Z refstep is known now,
+				/*!< Z refstep is known now,
 				  this is meant to be used before possible-
 				  and desired- volumes are computed*/
     virtual void		prepareForComputeData();
-    				/*!< Everything is known now. */
+				/*!< Everything is known now. */
     static uiString		prepare(Desc&);
-    				//!< Must be called before getting
-    				//!< inputs/outputs etc. from a Desc
+				//!< Must be called before getting
+				//!< inputs/outputs etc. from a Desc
     virtual void		fillDataPackWithTrc(RegularSeisDataPack*) const
 				{}
 
     virtual void		setRdmPaths(TypeSet<BinID>* truepath,
-	    				    TypeSet<BinID>* snappedpath);
+					    TypeSet<BinID>* snappedpath);
 				//!<For directional attributes
 
-    				//!<Special case for attributes (like PreStack)
-   				//!<which inputs are not treated as normal
-    				//!<input cubes and thus not delivering
-    				//!<adequate cs automaticly
+				//!<Special case for attributes (like PreStack)
+				//!<which inputs are not treated as normal
+				//!<input cubes and thus not delivering
+				//!<adequate cs automaticly
     virtual void		updateCSIfNeeded(TrcKeyZSampling&) const {}
     virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool,
-	    					const char* linenm =0) const;
+						const char* linenm =0) const;
 
 protected:
 
@@ -180,25 +179,25 @@ protected:
                                 ~Provider();
 
     virtual bool		checkInpAndParsAtStart();
-    				/*!< Should be used for check _after_ inputs
+				/*!< Should be used for check _after_ inputs
 				  are set, for extra checks at other time
 				  use isOK()*/
 
     virtual SeisMSCProvider*	getMSCProvider(bool&) const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
 					       bool& issame,uiString&);
-    				/*!< Creates the provider needed and all its
+				/*!< Creates the provider needed and all its
 				  input providers*/
 
     virtual bool		getInputOutput(int input,TypeSet<int>&) const;
-    				/*!<Specifies the outputs needed for calculation
+				/*!<Specifies the outputs needed for calculation
 				among all those provided by the input data;
 				very usefull when steering used as input data*/
     virtual bool		getInputData(const BinID& relpos,int idx);
-    				/*!<Gets all imput data,
+				/*!<Gets all imput data,
 				including data for which a stepout is required*/
     virtual bool		preProcCommonToAllThreads(const DataHolder& out,
-	    						  const BinID& relpos)
+							  const BinID& relpos)
 				{ return true; }
 				/*!<Computes things that are common to all
 				  threads; typically initialization of class
@@ -209,30 +208,30 @@ protected:
 					    const BinID& relpos,
 					    int t0,int nrsamples,
 					    int threadidx) const	= 0;
-    				/*!<The system will use the algorithm specified
+				/*!<The system will use the algorithm specified
 				in this function to compute the attribute's
 				outputs. The results will be stored as
 				different series in the DataHolder output.
 				 \param threadid thread identifier that may
 				  be handy when using multiple threads. */
     int				getDataIndex(int input) const;
-    				/*!<Gets the index of the serie needed in the
+				/*!<Gets the index of the serie needed in the
 				input DataHolder*/
     void			fillInputRangesArray(
 					    Array2DImpl< BasicInterval<int> >&,
 					    int,const BasicInterval<int>&);
 
-    				// MultiThreading stuff
+				// MultiThreading stuff
     virtual bool		allowParallelComputation() const
-    				{ return false; }
-    virtual bool		setNrThreads( int idx ) 	{ return true; }
+				{ return false; }
+    virtual bool		setNrThreads( int idx )	{ return true; }
     virtual int			minTaskSize() const		{ return 25; }
     virtual bool		finalizeCalculation(bool scs)	{ return scs; }
-    				/*!<Called one all computeData have returned.
+				/*!<Called one all computeData have returned.
 				    \param scs is true if all computeData
 					   were successful. */
 
-    				// DataHolder stuff
+				// DataHolder stuff
     DataHolder*			getDataHolder(const BinID& relpos);
     void			removeDataHolder(const BinID& relpos);
     void			setInput(int input,Provider*);
@@ -243,17 +242,17 @@ protected:
     void			computeDesInputCube(int inp,int out,
 						    TrcKeyZSampling&,
 						    bool usestepout=true) const;
-    				/*!<The system uses the margin and stepout
+				/*!<The system uses the margin and stepout
 				requirements to compute the ideal desired
 				volume for each input*/
 
     void			setUsedMultTimes();
-    				/*!<The same provider can be used multiple times
+				/*!<The same provider can be used multiple times
 				which allows the attribute to be computed
 				only once*/
     bool			isUsedMultTimes()  { return isusedmulttimes_; }
     bool			isNew2DLine() const
-    				{ return prevtrcnr_ > currentbid_.crl(); }
+				{ return prevtrcnr_ > currentbid_.crl(); }
 
     virtual const BinID*	desStepout(int input,int output) const;
 				/*!<The system will
@@ -261,7 +260,7 @@ protected:
 				    desired stepout, but will not take the
 				    desired stepout into account when computing
 				    the volume that can be computed.
-    				    \returns the desired stepout on \a input if
+				    \returns the desired stepout on \a input if
 				    \a output is going to be computed, or NULL
 				    if no stepout is desired. */
     virtual const BinID*	reqStepout(int input,int output) const;
@@ -269,7 +268,7 @@ protected:
 				    will supply the attribute with the required
 				    stepout, and use it to compute the volume
 				    that can be computed.
-    				    \returns the required stepout on \a input if
+				    \returns the required stepout on \a input if
 				    \a output is going to be computed, or NULL
 				    if no stepout is required.  */
     virtual const Interval<float>* desZMargin(int input,int output) const;
@@ -281,7 +280,7 @@ protected:
 				    the desired gate, but will not take the
 				    desired gate into account when computing
 				    the volume that can be computed.
-    				    \returns the extra gate desired on
+				    \returns the extra gate desired on
 				    \a input if \a output is going to be
 				    computed, or NULL if no extra gate
 				    is desired. */
@@ -293,7 +292,7 @@ protected:
 				    system will supply the attribute with the
 				    required gate, and use it to compute the
 				    volume that can be computed.
-    				    \returns the extra gate required on
+				    \returns the extra gate required on
 				    \a input if \a output is going to be
 				    computed, or NULL if no extra gate
 				    is required. */
@@ -305,18 +304,18 @@ protected:
 				    desired gate, but will not take the
 				    desired gate into account when computing
 				    the volume that can be computed.
-    				    \returns the extra gate desired on
+				    \returns the extra gate desired on
 				    \a input if \a output is going to be
 				    computed, or NULL if no extra gate
 				    is desired. */
     virtual const Interval<int>* reqZSampMargin(int input,int output) const;
-    				/*!<The gate is specified in
+				/*!<The gate is specified in
 				    the trace samples, and is in addition to
 				    the gate specified in reqZMargin. The system
 				    will supply the attribute with the required
 				    gate, and use it to compute the volume
 				    that can be computed.
-    				    \returns the extra gate required on
+				    \returns the extra gate required on
 				    \a input if \a output is going to be
 				    computed, or NULL if no extra gate
 				    is required. */
@@ -332,15 +331,15 @@ protected:
 						      int inputidx,float sample,
 						      int z0) const;
     float			getInputValue(const DataHolder&,int inputidx,
-	    				      int sampleidx,int z0) const;
+					      int sampleidx,int z0) const;
     void			setOutputValue(const DataHolder& output,
-	    				       int outputidx,int sampleidx,
+					       int outputidx,int sampleidx,
 					       int z0,float val) const;
     float			getExtraZFromSampPos(float) const;
     float			getExtraZFromSampInterval(int,int) const;
     virtual bool		useInterTrcDist() const;
     float			getZAtSample(int idx) const
-    				{ return refz0_ + idx*refstep_; }
+				{ return refz0_ + idx*refstep_; }
 
     bool                        zIsTime() const;
     float			zFactor() const;
@@ -364,7 +363,7 @@ protected:
     TrcKeyZSampling*            possiblevolume_;
     TypeSet< Interval<int> >	localcomputezintervals_;
     ObjectSet<Provider>		allexistingprov_;
-    TypeSet<float>      	exactz_;//only used for outputs which require
+    TypeSet<float>	exactz_;//only used for outputs which require
                                         //data at exact z values not placed
                                         //at sample locations
 
@@ -374,14 +373,14 @@ protected:
     int				prevtrcnr_;
     Pos::GeomID			geomid_;
     const Seis::SelData*	seldata_;
-    Interval<float>     	extraz_;
+    Interval<float>	extraz_;
     const SeisTrcInfo*		curtrcinfo_;
     BinID                       trcinfobid_;
     bool			useshortcuts_;
 
     float			refz0_;
     float                       refstep_;
-    bool 			alreadymoved_;
+    bool			alreadymoved_;
 
     bool			isusedmulttimes_;
     bool			needinterp_;
@@ -421,7 +420,7 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
 
 #define mAttrStartInitClassWithDescAndDefaultsUpdate \
     Attrib::Desc* desc = new Attrib::Desc( attribName(), updateDesc,\
-	    				   updateDefaults ); \
+					   updateDefaults ); \
     desc->ref();
 
 #define mAttrStartInitClassWithDefaultsUpdate \

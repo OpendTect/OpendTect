@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
-#include "linekey.h"
 #include "seisioobjinfo.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
@@ -18,7 +17,7 @@ ________________________________________________________________________
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"), 
+	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"),
                                      uiStrings::sEmptyString(), mNoHelpKey) )
 	, compfld_(0)
 {

@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "uistring.h"
 
 namespace Attrib { class EngineMan; class DescSet;

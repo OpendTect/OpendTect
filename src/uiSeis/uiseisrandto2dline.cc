@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiseisrandto2dline.h"
 
 #include "ctxtioobj.h"
-#include "linekey.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "seisrandlineto2d.h"

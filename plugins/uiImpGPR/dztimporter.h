@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "executor.h"
 #include "datainterp.h"
-#include "linekey.h"
 #include "samplingdata.h"
 #include "position.h"
 class IOObj;

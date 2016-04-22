@@ -27,7 +27,6 @@ output cube's setup and extent.
 
 #include "seisstor.h"
 #include "fixedstring.h"
-#include "linekey.h"
 #include "uistring.h"
 class SeisTrc;
 class SeisPSWriter;
@@ -40,8 +39,7 @@ mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcWriter);
 public:
 
-			SeisTrcWriter(const IOObj*,
-				      const GeomIDProvider* r=0);
+			SeisTrcWriter(const IOObj*);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
 			SeisTrcWriter(const char*,bool is_2d,bool is_ps);
@@ -65,13 +63,8 @@ public:
     const SeisPSWriter*	psWriter() const		{ return pswriter_; }
 
 			// 2D only
-    const GeomIDProvider* geomIDProvider() const	{ return gidp_; }
-    void		setGeomIDProvider(const GeomIDProvider*);
     void		setSelData(Seis::SelData*);
-				//!< If no GeomIDProvider set,
 				//!< seldata's GeomID will be used
-    void		setAttrib( const char* a )	{ attribnm_ = a; }
-				//!< if set, overrules attrib in linekey
     void		setDataType( const char* dt )	{ datatype_ = dt; }
 
     void		setCrFrom( const char* str )	{ crfrom_ = str; }
@@ -99,11 +92,9 @@ protected:
     bool		start3DWrite(Conn*,const SeisTrc&);
 
     // 2D only
-    BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
     PosInfo::Line2DData* linedata_;
     Pos::GeomID		prevgeomid_;
-    const GeomIDProvider* gidp_;
     BufferString	datatype_;
     bool		next2DLine();
     bool		put2D(const SeisTrc&);

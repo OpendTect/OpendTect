@@ -27,7 +27,6 @@
 #include "iopar.h"
 #include "scaler.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "posimpexppars.h"
 #include "zdomain.h"
 #include "msgh.h"

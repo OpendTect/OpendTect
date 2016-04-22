@@ -18,7 +18,6 @@
 #include "ptrman.h"
 #include "survinfo.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "tableposprovider.h"
 #include "polyposprovider.h"
 #include "strmprov.h"

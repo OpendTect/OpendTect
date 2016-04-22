@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "nlamodel.h"
 #include "ptrman.h"
 #include "seistrctr.h"

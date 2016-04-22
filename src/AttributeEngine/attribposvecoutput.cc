@@ -17,14 +17,13 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "ptrman.h"
 #include "multiid.h"
 
 
 namespace Attrib
 {
-    
+
 PosVecOutputGen::PosVecOutputGen( const DescSet& as,
 				  const BufferStringSet& in,
 				  const ObjectSet<BinIDValueSet>& b,

@@ -37,7 +37,6 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
 #include "gridcreator.h"
-#include "linekey.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "seistrctr.h"

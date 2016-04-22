@@ -400,22 +400,6 @@ bool SeisTrcStorOutput::doInit()
 }
 
 
-
-class COGeomIDProvider : public GeomIDProvider
-{
-public:
-
-    COGeomIDProvider( Pos::GeomID geomid )
-    : geomid_( geomid ) {}
-
-Pos::GeomID geomID() const
-{ return geomid_; }
-
-Pos::GeomID geomid_;
-
-};
-
-
 void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 				     const SeisTrcInfo& info )
 {
@@ -505,9 +489,7 @@ bool SeisTrcStorOutput::writeTrc()
     if ( !storinited_ )
     {
 	SeisTrcTranslator* transl = 0;
-	if ( writer_->is2D() )
-	    writer_->setGeomIDProvider( new COGeomIDProvider(curGeomID()) );
-	else
+	if ( !writer_->is2D() )
 	{
 	    transl = writer_->seisTranslator();
 	    if ( transl )

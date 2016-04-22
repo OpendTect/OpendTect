@@ -17,20 +17,6 @@
 #include "survgeom2d.h"
 #include "ioobj.h"
 
-class Seis2DFrom3DGeomIDProvider : public GeomIDProvider
-{
-public:
-Seis2DFrom3DGeomIDProvider( const Seis2DFrom3DExtractor& extr )
-    : extr_(extr)
-{}
-
-Pos::GeomID geomID() const
-{ return extr_.curGeomID(); }
-
-const Seis2DFrom3DExtractor& extr_;
-};
-
-
 Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
 			const IOObj& cubein, const IOObj& dsout,
 			const TypeSet<Pos::GeomID>& geomids )
@@ -83,9 +69,6 @@ int Seis2DFrom3DExtractor::goToNextLine()
 	mErrRet(tr("Line geometry not available"))
 
     curtrcidx_ = 0;
-    const GeomIDProvider* gip = wrr_.geomIDProvider();
-    if ( !gip ) gip = new Seis2DFrom3DGeomIDProvider( *this );
-    wrr_.setGeomIDProvider( gip );
     return MoreToDo();
 }
 

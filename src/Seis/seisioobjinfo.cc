@@ -19,7 +19,6 @@
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"

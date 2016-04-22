@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 
 /*!
-\brief Key for a line in a line set.
+\brief Deprecated: If you want a class with a pair of strings use StringPair.
 */
 
 mExpClass(General) LineKey : public BufferString
@@ -39,20 +39,5 @@ public:
 
     static const char*	sKeyDefAttrib()		{ return ""; }
 };
-
-
-/*!
-\brief Class providing a current GeomID.
-*/
-
-mExpClass(General) GeomIDProvider
-{
-public:
-
-    virtual		~GeomIDProvider()		{}
-    virtual Pos::GeomID	geomID() const			= 0;
-
-};
-
 
 #endif
