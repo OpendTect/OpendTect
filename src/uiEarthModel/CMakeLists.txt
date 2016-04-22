@@ -10,6 +10,7 @@ set(OD_MODULE_SOURCES
 	uibodyposprovgroup.cc
 	uibodyregiondlg.cc
 	uibodyoperatordlg.cc
+	uibulkfaultimp.cc
 	uibulkhorizonimp.cc
 	uicalcpoly2horvol.cc
 	uichangesurfacedlg.cc

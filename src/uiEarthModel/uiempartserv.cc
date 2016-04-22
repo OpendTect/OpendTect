@@ -53,6 +53,7 @@ ________________________________________________________________________
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
+#include "uibulkfaultimp.h"
 #include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
 #include "uicreatehorizon.h"
@@ -99,6 +100,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , imphorgeomdlg_(0)
     , impbulkhordlg_(0)
     , impfltdlg_(0)
+    , impbulkfltdlg_(0)
     , impfss2ddlg_(0)
     , exphordlg_(0)
     , expfltdlg_(0)
@@ -133,6 +135,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete imphorattrdlg_; imphorattrdlg_ = 0;
     delete imphorgeomdlg_; imphorgeomdlg_ = 0;
     delete impfltdlg_; impfltdlg_ = 0;
+    delete impbulkfltdlg_; impbulkfltdlg_ = 0;
     delete impbulkhordlg_; impbulkhordlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
@@ -283,8 +286,16 @@ bool uiEMPartServer::export3DHorizon()
 }
 
 
-bool uiEMPartServer::importFault()
+bool uiEMPartServer::importFault( bool bulk )
 {
+    if ( bulk )
+    {
+	if ( !impbulkfltdlg_ )
+	    impbulkfltdlg_ = new uiBulkFaultImport( parent() );
+
+	return impbulkfltdlg_->go();
+    }
+
     if ( impfltdlg_ )
 	impfltdlg_->raise();
     else

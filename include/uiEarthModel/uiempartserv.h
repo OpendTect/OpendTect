@@ -28,6 +28,7 @@ class DataPointSet;
 class TrcKeySampling;
 class SurfaceInfo;
 class ZAxisTransform;
+class uiBulkFaultImport;
 class uiBulkHorizonImport;
 class uiCreateHorizon;
 class uiExportFault;
@@ -62,7 +63,7 @@ public:
     bool		import3DHorAttr();
     bool		export3DHorizon();
     bool		export2DHorizon();
-    bool		importFault();
+    bool		importFault(bool bulk);
     bool		importFaultStickSet();
     void		import2DFaultStickset();
     bool		exportFault();
@@ -197,8 +198,9 @@ protected:
     EM::EMManager&	em_;
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
-    uiBulkHorizonImport*	impbulkhordlg_;
+    uiBulkHorizonImport* impbulkhordlg_;
     uiImportFault3D*	impfltdlg_;
+    uiBulkFaultImport*	impbulkfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
     uiImportFaultStickSet2D*	impfss2ddlg_;
     uiExportHorizon*	exphordlg_;

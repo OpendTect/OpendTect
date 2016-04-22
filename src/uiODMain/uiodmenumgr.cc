@@ -335,7 +335,10 @@ void uiODMenuMgr::fillImportMenu()
 		 mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
-    mInsertPixmapItem( impfault, ascii, mImpFaultMnuItm, ascic );
+    uiMenu* impfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
+    mInsertItem( impfltasc, m3Dots(tr("Single Fault")), mImpFaultMnuItm );
+    mInsertItem( impfltasc, m3Dots(tr("Bulk Faults")), mImpFaultBulkMnuItm );
+    impfault->insertItem( impfltasc );
     if ( has2d )
 	mInsertPixmapItem( impfaultstick, m3Dots(tr("ASCII 2D")),
 		     mImpFaultSSAscii2DMnuItm, ascic );
@@ -1318,6 +1321,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;
     case mImpWvltAsciiMnuItm:		mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm:		mDoOp(Imp,Flt,0); break;
+    case mImpFaultBulkMnuItm:		mDoOp(Imp,Flt,1); break;
     case mImpFaultSSAscii3DMnuItm:	mDoOp(Imp,Fltss,0); break;
     case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Fltss,1); break;
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
