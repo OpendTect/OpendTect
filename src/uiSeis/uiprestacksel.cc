@@ -80,7 +80,10 @@ void uiPreStackSel::setInput( const MultiID& mid )
     if ( dpfids_.isEmpty() )
 	seisinpfld_->setInput( mid );
     else
-	datapackinpfld_->setInput( DataPackMgr::nameOf( mid ) );
+    {
+	const DataPack::FullID fid( mid.subID(0), mid.subID(1) );
+	datapackinpfld_->setInput( DataPackMgr::nameOf(fid) );
+    }
     selid_ = mid;
 }
 

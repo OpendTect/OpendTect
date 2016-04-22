@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "iostrm.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -43,7 +44,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
 		       mODHelpKey(mSeisImpCBVSHelpID)).modal(false))
     , outioobj_(0)
-    , tmpid_("100010.",IOObj::tmpID())
+    , tmpid_(IODir::getNewTmpKey(mIOObjContext(SeisTrc)))
 {
     setCtrlStyle( RunAndClose );
 

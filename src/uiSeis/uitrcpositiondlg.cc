@@ -38,12 +38,9 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     , possldr_( 0 )
     , posvalfld_( 0 )
 {
-    fdp_ = DPM( dpfid.ID(0) ).getAndCast<FlatDataPack>( dpfid.ID(1) );
+    fdp_ = DPM( dpfid.mgrID() ).getAndCast<FlatDataPack>( dpfid.packID() );
     if ( !fdp_ )
-    {
-	pErrMsg( "Have no flatdatapack, Cannot construct the class" );
-	return;
-    }
+	{ pErrMsg( "No flatdatapack, Cannot construct the class" ); return; }
 
     BufferStringSet altdimnms;
     fdp_->getAltDim0Keys( altdimnms );
@@ -102,23 +99,17 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     , crlfld_( 0 )
     , pickretriever_( 0 )
 {
-    const int dpmid = dpfid.ID( 0 );
+    const int dpmid = dpfid.mgrID();
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
-    {
-	pErrMsg( "Only Flat & Cube DataPacks supported" );
-	return;
-    }
+	{ pErrMsg( "Only Flat & Cube DataPacks supported" ); return; }
 
-    RefMan<DataPack> dp = DPM( dpmid ).get( dpfid.ID(1) );
+    RefMan<DataPack> dp = DPM( dpmid ).get( dpfid.packID() );
     if ( dpmid == DataPackMgr::FlatID() )
     {
 	fdpposfld_ = new uiFlatDPPosSel( this, dpfid );
 	mDynamicCastGet(FlatDataPack*,fdp,dp.ptr());
 	if ( !fdp )
-	{
-	    pErrMsg( "Could not find Flat DataPack" );
-            return;
-	}
+	    { pErrMsg( "Could not find Flat DataPack" ); return; }
 
 	StepInterval<double> x2rg = fdp->posData().range( false );
 	StepInterval<float> fzrg( mCast(float,x2rg.start),
@@ -130,10 +121,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     {
 	mDynamicCastGet(RegularSeisDataPack*,sdp,dp.ptr());
 	if ( !sdp )
-	{
-	    pErrMsg( "Could not find Cube DataPack" );
-            return;
-	}
+	    { pErrMsg( "Could not find Cube DataPack" ); return; }
 
 	TrcKeyZSampling cs = sdp->sampling();
 	uiString str = tr("Compute attribute at position:");

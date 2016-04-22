@@ -193,7 +193,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     prestackinpfld_->setInput( aps->psID() );
 
     const MultiID ppid = aps->preProcID();
-    if ( !ppid.isEmpty() && ppid.ID(0)!=0 )
+    if ( !ppid.isEmpty() && ppid.subID(0)!=0 )
     {
 	dopreprocessfld_->setValue( true );
 	preprocsel_->setSel( ppid );

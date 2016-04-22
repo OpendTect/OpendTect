@@ -175,8 +175,8 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 					Attrib::StorageProvider::keyStr() )
 		    const StringPair strpair( idval );
 		    BufferString bstring = strpair.first();
-		    const MultiID mid( bstring.buf()+1 );
-		    if ( psdpfids_.isPresent(mid) )
+		    const DataPack::FullID fid( bstring.buf()+1 );
+		    if ( psdpfids_.isPresent(fid) )
 			descset_.removeDesc( tmpdesc->id() );
 		}
 	    }
@@ -313,10 +313,10 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 
 	    Attrib::ValParam* vp = desc.getValParam(
 				Attrib::StorageProvider::keyStr() );
-	    const MultiID descid( vp->getStringValue(0) + 1 );
-	    if ( ( !desc.isPS() && !dpfids_.isPresent(descid)
+	    const DataPack::FullID dpfid( vp->getStringValue(0) + 1 );
+	    if ( ( !desc.isPS() && !dpfids_.isPresent(dpfid)
 			        && !psdpfids_.isEmpty() )
-		|| ( desc.isPS() && !psdpfids_.isPresent( descid )
+		|| ( desc.isPS() && !psdpfids_.isPresent(dpfid)
 				     && !dpfids_.size() ) )
 	    {
 		BufferString fidstr = "#";

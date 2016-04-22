@@ -67,6 +67,18 @@ public:
     inline SeparString&	add( T t )
 			{ return add( toString(t) ); }
 
+    SeparString&	set( const BufferStringSet& bss )
+			{ setEmpty(); return add( bss ); }
+    SeparString&	set( const SeparString& s )
+			{ setEmpty(); return add( s ); }
+    SeparString&	set( const char* unescapedstr )
+			{ setEmpty(); return add( unescapedstr ); }
+    inline SeparString&	set( const OD::String& ods )
+			{ return set( ods.buf() ); }
+    template <class T>
+    inline SeparString&	set( T t )
+			{ setEmpty(); return add( t ); }
+
     template <class T>
     inline SeparString&	operator +=( T t )	{ return add( t ); }
     template <class T>

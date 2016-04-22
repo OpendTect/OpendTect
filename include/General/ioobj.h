@@ -57,10 +57,15 @@ fullUserExpr().
 mExpClass(General) IOObj : public NamedObject
 {
 public:
+
+    typedef MultiID		Key;
+    typedef MultiID::SubID	SubID;
+
     uiString			uiName() const { return toUiString(name()); }
 
     IOObj*			clone() const;
-    virtual const MultiID&	key() const			{ return key_; }
+    virtual const Key&		key() const		{ return key_; }
+    virtual SubID		leafID() const		{ return key_.leafID();}
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
@@ -95,7 +100,7 @@ public:
     static bool			isKey(const char*);
 				//!< Returns whether given string may be a valid
 				//!< key
-    static bool			isSurveyDefault(const MultiID&);
+    static bool			isSurveyDefault(const Key&);
 				//!<Checks the 'Default.' entries in SI().pars()
     void			setSurveyDefault(const char* subsel = 0) const;
 				/*!<\param subsel may be a subselection lower
@@ -105,19 +110,22 @@ public:
     Translator*			createTranslator() const;
 				//!< returns a subclass of Translator according
 				//!< to the translator name and group.
-    void			acquireNewKeyIn(const MultiID&);
+    void			acquireNewKeyIn(const Key&);
 				//!< This will give the IOObj a new (free) ID
 
-    static int			tmpID()		{ return  999999; }
-    inline bool			isTmp() const	{return key_.leafID()==tmpID();}
+    inline bool			isTmp() const	{ return isTmpLeafID(leafID());}
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
 
+    static inline SubID		tmpLeafIDStart()	{ return 999999; }
+    static inline bool		isTmpLeafID( int id )
+				{ return id >= tmpLeafIDStart(); }
+
 protected:
 
     BufferString	dirnm_;
-    MultiID		key_;
+    Key			key_;
     BufferString	transl_;
     BufferString	group_;
 
@@ -127,14 +135,13 @@ protected:
     bool		put(ascostream&) const;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
-    int			myKey() const;
 
 private:
 
     friend class	IODir;
 
-    static IOObj*	produce(const char*,const char* nm=0,const char* ky=0,
-				bool initdefaults=true);
+    static IOObj*	produce(const char*,const char* nm,const MultiID& ky,
+				bool initdefaults);
     void		copyStuffFrom(const IOObj&);
 
     IOPar&		pars_;
@@ -149,8 +156,9 @@ public:
 
 };
 
-mGlobal(General) bool equalIOObj(const MultiID&,const MultiID&);
+mGlobal(General) bool equalIOObj(const IOObj::Key&,const IOObj::Key&);
 mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
 mGlobal(General) bool fullImplRemove(const IOObj&);
+
 
 #endif

@@ -21,6 +21,7 @@
 #include "iostrm.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "strmprov.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -50,7 +51,8 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	, is2d_(is_2d)
 	, psioprov_(0)
 {
-    IOStream iostrm( "_tmp_SeisStoreAccess", toString(IOObj::tmpID()) );
+    IOStream iostrm( "_tmp_SeisStoreAccess",
+	    		IODir::getNewTmpKey(mIOObjContext(SeisTrc)) );
     iostrm.setGroup( !isps ?
 	   ( is2d_ ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
 	 : ( is2d_ ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );

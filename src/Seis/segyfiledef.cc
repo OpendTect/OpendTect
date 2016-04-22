@@ -9,6 +9,7 @@
 #include "segyhdr.h"
 #include "iopar.h"
 #include "iostrm.h"
+#include "iodir.h"
 #include "oddirs.h"
 #include "file.h"
 #include "filepath.h"
@@ -55,24 +56,19 @@ static const char* allsegyfmtoptions[] = {
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
     IOStream* iostrm;
-    const BufferString seisdirky( mIOObjContext(SeisTrc).getSelKey() );
+    const MultiID dirky( mIOObjContext(SeisTrc).getSelKey() );
     if ( tmp )
-    {
-	MultiID idstr( seisdirky );
-	idstr.add( IOObj::tmpID() );
-	iostrm = new IOStream( usrStr(), idstr );
-    }
+	iostrm = new IOStream( usrStr(), IODir(dirky).newTmpKey() );
     else
     {
 	iostrm = new IOStream( usrStr() );
-	iostrm->acquireNewKeyIn( MultiID(seisdirky) );
+	iostrm->acquireNewKeyIn( dirky );
     }
 
     iostrm->fileSpec() = *this;
     iostrm->setGroup( SeisTrcTranslatorGroup::sGroupName() );
     iostrm->setTranslator( "SEG-Y" );
     iostrm->setDirName( "Seismics" );
-
     return iostrm;
 }
 

@@ -26,7 +26,10 @@ uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
 
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
-{ return ioobj.key().ID( 1 ); }
+{
+    return ioobj.leafID();
+}
+
 
 IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
 {
@@ -66,7 +69,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     if ( !data->read(strm,false) )
     { delete data; return 0; }
 
-    const Survey::Geometry::ID geomid = ioobj.key().ID( 1 );
+    const Survey::Geometry::ID geomid = ioobj.key().leafID();
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
@@ -83,7 +86,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     if ( !geom2d )
 	return false;
 
-    geom2d->setID( ioobj.key().ID(1) );
+    geom2d->setID( ioobj.key().leafID() );
     od_ostream strm( ioobj.fullUserExpr() );
     const bool res = !strm.isOK() ? false
 		   : geom2d->data().write( strm, false, true );

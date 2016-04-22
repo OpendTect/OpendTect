@@ -107,7 +107,7 @@ DataPackMgr& DPM( DataPackMgr::ID dpid )
 
 DataPackMgr& DPM( const DataPack::FullID& fid )
 {
-    const DataPackMgr::ID manid = fid.ID(0);
+    const DataPackMgr::ID manid = fid.subID( 0 );
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
@@ -120,13 +120,13 @@ DataPackMgr& DPM( const DataPack::FullID& fid )
 
 const char* DataPackMgr::nameOf( const DataPack::FullID& fid )
 {
-    return ::DPM(fid).nameOf( DataPack::getID(fid) );
+    return ::DPM(fid).nameOf( fid.packID() );
 }
 
 
 const char* DataPackMgr::categoryOf( const DataPack::FullID& fid )
 {
-    return ::DPM(fid).categoryOf( DataPack::getID(fid) );
+    return ::DPM(fid).categoryOf( fid.packID() );
 }
 
 

@@ -203,7 +203,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
     {
 	uiString msg( tr( "The survey %1 appears to be too old. "
 		"Please open this survey first in OpendTect 4.6 to update "
-		"its database before using it in OpendTect 5.0." )
+		"its database before using it in newer versions of OpendTect." )
 		.arg(IOM().surveyName()) );
 	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
 			     uiStrings::sExitOD() ) )
@@ -214,12 +214,13 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 
     if ( status == 1 )
     {
-	uiString msg( tr( "OpendTect v5.0 has a new and improved 2D database. "
-		"The database of survey '%1' will now be converted. "
-		"This may take some time depending on the amount of data. "
-		"Note that after the conversion you will still be able to use "
-		"this 2D data in older versions of OpendTect.")
-		.arg(IOM().surveyName()) );
+	uiString msg( tr(
+	    "The 2D seismic database of survey '%1' is still '4.6' or lower. "
+	    "It will now be converted. "
+	    "This may take some time depending on the amount of data. "
+	    "Note that after the conversion you will still be able to use "
+	    "this 2D data in older versions of OpendTect.")
+	    .arg(IOM().surveyName()) );
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
 					  tr("Select another survey"),
@@ -636,7 +637,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    uiMSG().error( calc->errmsg_ );
 		    return false;
 		}
-                
+
                 const DataPack::ID dpid = dp ? dp->id() : DataPack::cNoID();
 
 		res = dpid != DataPack::cNoID();

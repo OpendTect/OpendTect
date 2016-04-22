@@ -35,10 +35,21 @@ mExpClass(Basic) DataPack : public NamedMonitorable
 			  , public RefCount::Referenced
 {
 public:
-    typedef int				ID;
-    typedef MultiID			FullID;
 
-    inline static ID	getID( const FullID& fid )	{ return fid.ID(1); }
+    mExpClass(Basic) FullID : public MultiID
+    {
+    public:
+				FullID()			{}
+				FullID( const char* s )
+				    : MultiID(s)		{}
+				FullID( SubID mgrid, SubID packid )
+				    : MultiID(mgrid,packid)	{}
+	SubID			mgrID() const		{ return subID(0); }
+	SubID			packID() const		{ return subID(1); }
+    };
+
+    typedef FullID::SubID	ID;
+
 
 			DataPack( const char* categry )
 			    : NamedMonitorable("<?>")
@@ -148,11 +159,12 @@ public:
 
     typedef int		ID;		//!< Each Mgr has its own ID
     inline static ID	getID( const DataPack::FullID& fid )
-						{ return fid.ID(0); }
+						{ return fid.subID(0); }
 
     bool		haveID(DataPack::ID) const;
     inline bool		haveID( const DataPack::FullID& fid ) const
-			{ return id() == fid.ID(0) && haveID( fid.ID(1) ); }
+			{ return id() == fid.subID(0)
+			      && haveID( fid.subID(1) ); }
 
     template <class T>
     inline T*		add(T* p)		{ doAdd(p); return p; }

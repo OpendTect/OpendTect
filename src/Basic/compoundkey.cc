@@ -10,13 +10,13 @@
 #include "perthreadrepos.h"
 
 
-char* CompoundKey::fromKey( int keynr ) const
+char* CompoundKey::fromKey( IdxType keynr ) const
 {
     return fetchKeyPart( keynr, false );
 }
 
 
-char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
+char* CompoundKey::fetchKeyPart( IdxType keynr, bool parttobuf ) const
 {
     char* ptr = const_cast<char*>( impl_.buf() );
     if ( !ptr || (keynr<1 && !parttobuf) )
@@ -42,11 +42,11 @@ char* CompoundKey::fetchKeyPart( int keynr, bool parttobuf ) const
 }
 
 
-int CompoundKey::nrKeys() const
+CompoundKey::IdxType CompoundKey::nrKeys() const
 {
     if ( impl_.isEmpty() ) return 0;
 
-    int nrkeys = 1;
+    IdxType nrkeys = 1;
     const char* ptr = impl_;
     while ( true )
     {
@@ -61,13 +61,13 @@ int CompoundKey::nrKeys() const
 }
 
 
-BufferString CompoundKey::key( int idx ) const
+BufferString CompoundKey::key( IdxType idx ) const
 {
     return BufferString( fetchKeyPart(idx,true) );
 }
 
 
-void CompoundKey::setKey( int ikey, const char* s )
+void CompoundKey::setKey( IdxType ikey, const char* s )
 {
 					// example: "X.Y.Z", ikey=1, s="new"
 
@@ -93,7 +93,7 @@ CompoundKey CompoundKey::upLevel() const
 
     CompoundKey ret( *this );
 
-    int nrkeys = nrKeys();
+    const IdxType nrkeys = nrKeys();
     if ( nrkeys <= 1 )
 	ret.setEmpty();
     else
@@ -112,10 +112,10 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 }
 
 
-int MultiID::leafID() const
+MultiID::SubID MultiID::leafID() const
 {
     const char* ptr = lastOcc( impl_, '.' );
-    return toInt( ptr ? ptr+1 : (const char*)impl_ );
+    return ::toInt( ptr ? ptr+1 : str() );
 }
 
 
@@ -129,4 +129,10 @@ const MultiID& MultiID::udf()
 {
    mDefineStaticLocalObject( MultiID, _udf, (-1) );
    return _udf;
+}
+
+
+bool MultiID::isUdf() const
+{
+    return impl_.isEmpty() || impl_ == udf().impl_;
 }

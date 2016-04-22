@@ -392,7 +392,7 @@ bool PSAttrib::getGatherData( const BinID& bid,
 	    ConstRefMan<DataPack> angledp =
 		DPM( DataPackMgr::SeisID() ).get( anglegsdpid_ );
 	    mDynamicCast( const PreStack::GatherSetDataPack*,anglegsdp,
-		    	  angledp.ptr() );
+			  angledp.ptr() );
 	}
 
 	ConstRefMan<PreStack::Gather> curgather = 0;
@@ -475,9 +475,9 @@ RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 		gather = new PreStack::Gather;
 		if (!gather->readFrom(*psioobj_,*psrdr_,bid,component_) )
 		    continue;
-                
+
 		DPM(DataPackMgr::FlatID()).add( gather );
-                
+
 		tempgathers += gather;
 	    }
 	    else
@@ -545,12 +545,10 @@ void PSAttrib::prepPriorToBoundsCalc()
     const char* fullidstr = psid_.buf();
     if ( fullidstr && *fullidstr == '#' )
     {
-	DataPack::FullID fid( fullidstr+1 );
-
+	const DataPack::FullID fid( fullidstr+1 );
         RefMan<PreStack::GatherSetDataPack> psgdtp =
-            DPM( fid ).getAndCast<PreStack::GatherSetDataPack>
-                                                    ( DataPack::getID(fid) );
-        
+            DPM( fid ).getAndCast<PreStack::GatherSetDataPack>( fid.packID() );
+
 	isondisc =  !psgdtp;
 	if ( isondisc )
 	    mErrRet(tr("Cannot obtain gathers kept in memory"))

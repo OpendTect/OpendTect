@@ -166,7 +166,7 @@ const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
 const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
     if ( mid.nrKeys() == 2 )
-	return getGeometry( mid.ID(1) );
+	return getGeometry( mid.subID(1) );
 
     return 0;
 }

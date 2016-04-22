@@ -20,6 +20,7 @@
 #include "survinfo.h"
 #include "transl.h"
 #include "keystrs.h"
+#include "dateinfo.h"
 #include "perthreadrepos.h"
 
 class OwnedProducerList : public ObjectSet<const IOObjProducer>
@@ -98,7 +99,6 @@ void IOObj::copyFrom( const IOObj* obj )
 }
 
 
-static FileMultiString fms;
 
 IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 {
@@ -110,8 +110,17 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	return IOSubDir::get( astream, dirnm );
 
     BufferString nm( astream.keyWord() );
-    fms = astream.value();
-    MultiID objkey( dirky ); objkey += fms[0];
+    FileMultiString fms = astream.value();
+    const int dirid = toInt( dirky );
+    const int leafid = fms.getIValue( 0 );
+    MultiID objkey( dirid, leafid );
+    bool reject = dirid < 0 || leafid < 1;
+    if ( isTmpLeafID(leafid) )
+    {
+	const int dikey = fms.getIValue( 1 );
+	if ( dikey < DateInfo().key()-1 )
+	    reject = true;
+    }
     astream.next();
     BufferString groupnm( astream.keyWord() );
     fms = astream.value();
@@ -121,53 +130,63 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     {
 	TranslatorGroup& grp = TranslatorGroup::getGroup( groupnm );
 	if ( grp.groupName() != groupnm )
-	    return 0;
-	Translator* tr = grp.make( trlnm, true );
-	if ( !tr )
-	    return 0;
-
-	objtyp = tr->connType();
-	delete tr;
-    }
-
-    IOObj* objptr = produce( objtyp, nm, objkey, false );
-    if ( !objptr ) return 0;
-
-    objptr->setGroup( groupnm );
-    objptr->setTranslator( trlnm );
-
-    astream.next();
-    if ( *astream.keyWord() != '$' )
-	{ delete objptr; objptr = 0; }
-    else
-    {
-	if ( !objptr->getFrom(astream) || objptr->isBad() )
-	    { delete objptr; objptr = 0; }
+	    reject = true;
 	else
 	{
-	    while ( *astream.keyWord() == '#' )
+	    Translator* tr = grp.make( trlnm, true );
+	    if ( !tr )
+		reject = true;
+	    else
 	    {
-		objptr->pars_.set( astream.keyWord()+1, astream.value() );
-		astream.next();
+		objtyp = tr->connType();
+		delete tr;
 	    }
 	}
     }
 
-    while ( !atEndOfSection(astream) ) astream.next();
+    IOObj* objptr = produce( objtyp.str(), nm.str(), objkey, false );
+    if ( objptr )
+    {
+	objptr->setGroup( groupnm );
+	objptr->setTranslator( trlnm );
+
+	astream.next();
+	if ( *astream.keyWord() != '$' )
+	    reject = true;
+	else
+	{
+	    if ( !objptr->getFrom(astream) || objptr->isBad() )
+		reject = true;
+	    else
+	    {
+		while ( *astream.keyWord() == '#' )
+		{
+		    objptr->pars_.set( astream.keyWord()+1, astream.value() );
+		    astream.next();
+		}
+	    }
+	}
+    }
+
+    while ( !atEndOfSection(astream) )
+	astream.next();
+
+    if ( reject )
+	{ delete objptr; objptr = 0; }
     return objptr;
 }
 
 
-IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
+IOObj* IOObj::produce( const char* typ, const char* nm, const MultiID& ky,
 			bool gendef )
 {
-    if ( !nm || !*nm ) nm = "?";
-    MultiID ky( keyin );
-    if ( ky.isEmpty() )
-    {
-	pFreeFnErrMsg( "IOObj : Empty key given");
+    if ( !typ || !*typ )
 	return 0;
-    }
+
+    if ( !nm || !*nm )
+	nm = "?";
+    if ( ky.isEmpty() )
+	{ pFreeFnErrMsg( "IOObj : Empty key given"); return 0; }
 
     const ObjectSet<const IOObjProducer>& prods = getProducers();
     for ( int idx=0; idx<prods.size(); idx++ )
@@ -235,9 +254,16 @@ bool IOObj::put( ascostream& astream ) const
 {
     if ( !isSubdir() )
     {
-	astream.put( name(), myKey() );
-	fms = translator();
-	fms += connType();
+	FileMultiString fms;
+	if ( !isTmp() )
+	    astream.put( name(), leafID() );
+	else
+	{
+	    fms.set( leafID() );
+	    fms.add( DateInfo().key() );
+	    astream.put( name(), fms );
+	}
+	fms.set( translator() ).add( connType() );
 	astream.put( group(), fms );
     }
 
@@ -255,12 +281,6 @@ bool IOObj::put( ascostream& astream ) const
 }
 
 
-int IOObj::myKey() const
-{
-    return toInt( key_.key( key_.nrKeys()-1 ) );
-}
-
-
 bool IOObj::isProcTmp() const
 {
     return name().startsWith( "~Proc" );
@@ -269,7 +289,7 @@ bool IOObj::isProcTmp() const
 
 bool IOObj::isUserSelectable( bool forread ) const
 {
-    if ( myKey() < 2 || isSubdir() )
+    if ( leafID() < 2 || isSubdir() || isTmp() )
 	return false;
 
     PtrMan<Translator> tr = createTranslator();
@@ -322,8 +342,10 @@ bool areEqual( const IOObj* o1, const IOObj* o2 )
 
 static void mkStd( MultiID& ky )
 {
-    if ( ky.ID(ky.nrKeys()-1) == 1 ) ky = ky.upLevel();
-    if ( ky.isEmpty() ) ky = "0";
+    if ( ky.isEmpty() )
+	ky.set( "0" );
+    else if ( ky.leafID() == 1 )
+	ky.set( ky.upLevel() );
 }
 
 
@@ -379,7 +401,7 @@ const char* IOSubDir::fullUserExpr( bool ) const
 bool IOSubDir::putTo( ascostream& stream ) const
 {
     if ( isBad() ) return false;
-    const BufferString str( "@", myKey() );
+    const BufferString str( "@", leafID() );
     stream.put( str, name() );
     return true;
 }

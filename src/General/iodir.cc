@@ -13,13 +13,21 @@
 #include "iosubdir.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "ctxtioobj.h"
 #include "uistrings.h"
 
 
+static Threads::Lock static_read_lock;
+
+#define mInitVarList \
+	  isok_(false) \
+	, curid_(0) \
+	, curtmpid_(IOObj::tmpLeafIDStart())
+
 IODir::IODir( const char* dirnm )
-	: isok_(false)
-	, dirname_(dirnm)
-	, curid_(0)
+	: dirname_(dirnm)
+	, key_("")
+	, mInitVarList
 {
     if ( build() )
 	isok_ = true;
@@ -27,26 +35,39 @@ IODir::IODir( const char* dirnm )
 
 
 IODir::IODir()
-	: isok_(false)
-	, curid_(0)
+	: dirname_("")
+	, key_("")
+	, mInitVarList
 {
 }
 
 
+IODir::IODir( const IODir& oth )
+	: dirname_(oth.dirname_)
+	, key_(oth.key_)
+{
+    *this = oth;
+}
+
+
 IODir::IODir( const MultiID& ky )
-	: isok_(false)
-	, curid_(0)
+	: dirname_("")
+	, key_("")
+	, mInitVarList
 {
     IOObj* ioobj = getObj( ky, errmsg_ );
-    if ( !ioobj ) return;
-    dirname_ = ioobj->dirName();
-    FilePath fp( dirname_ );
+    if ( !ioobj )
+	return;
+
+    BufferString dirnm( ioobj->dirName() );
+    FilePath fp( dirnm );
     if ( !fp.isAbsolute() )
     {
-	fp.set( IOM().rootDir() ).add( dirname_ );
-	dirname_ = fp.fullPath();
+	fp.set( IOM().rootDir() ).add( dirnm );
+	dirnm = fp.fullPath();
     }
     delete ioobj;
+    const_cast<BufferString&>(dirname_).set( dirnm );
 
     if ( build() )
 	isok_ = true;
@@ -55,35 +76,98 @@ IODir::IODir( const MultiID& ky )
 
 IODir::~IODir()
 {
-    deepErase(objs_);
+    deepErase( objs_ );
+}
+
+
+IODir& IODir::operator =( const IODir& oth )
+{
+    if ( this != &oth )
+    {
+	Threads::Locker mylocker( oth.lock_ );
+	Threads::Locker othlocker( oth.lock_ );
+	const_cast<BufferString&>(dirname_).set( oth.dirname_ );
+	const_cast<MultiID&>(key_).set( oth.key_ );
+	isok_ = oth.isok_;
+	deepCopyClone( objs_, oth.objs_ );
+	curid_ = oth.curid_;
+	curtmpid_ = oth.curtmpid_;
+	errmsg_ = oth.errmsg_;
+    }
+    return *this;
+}
+
+
+void IODir::reRead()
+{
+    Threads::Locker locker( lock_ );
+    doReRead();
+}
+
+
+bool IODir::isBad() const
+{
+    Threads::Locker locker( lock_ );
+    return !isok_;
+}
+
+
+IODir::size_type IODir::size() const
+{
+    Threads::Locker locker( lock_ );
+    return objs_.size();
+}
+
+
+const IOObj* IODir::get( size_type idx ) const
+{
+    Threads::Locker locker( lock_ );
+    return objs_[idx];
+}
+
+
+const IOObj* IODir::get( const MultiID& ky ) const
+{
+    Threads::Locker locker( lock_ );
+    return doGet( ky );
 }
 
 
 bool IODir::build()
 {
+    Threads::Locker locker( static_read_lock );
     return doRead( dirname_, this, errmsg_ );
 }
 
 
 IOObj* IODir::getMain( const char* dirnm, uiString& errmsg )
 {
+    Threads::Locker locker( static_read_lock );
     return doRead( dirnm, 0, errmsg, 1 );
+}
+
+bool IODir::writeNow() const
+{
+    Threads::Locker locker( lock_ );
+    return doWrite();
 }
 
 
 const IOObj* IODir::main() const
 {
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    Threads::Locker locker( lock_ );
+    for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->myKey() == 1 ) return ioobj;
+	if ( ioobj->leafID() == 1 )
+	    return ioobj;
     }
     return 0;
 }
 
 
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, uiString& errmsg,
-		      int needid )
+		      SubID reqsubid )
 {
     SafeFileIO sfio( FilePath(dirnm,".omf").fullPath(), false );
     if ( !sfio.open(true) )
@@ -92,7 +176,7 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, uiString& errmsg,
 	return 0;
     }
 
-    IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, needid );
+    IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, reqsubid );
     if ( ret )
 	sfio.closeSuccess();
     else
@@ -113,24 +197,21 @@ void IODir::setDirName( IOObj& ioobj, const char* dirnm )
 }
 
 
-static Threads::Lock lock_;
-
 IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
-			IODir* dirptr, int needid )
+			IODir* dirptr, SubID reqsubid )
 {
-    Threads::Locker locker( lock_ );
-
     ascistream astream( strm );
     astream.next();
     FileMultiString fms( astream.value() );
     MultiID dirky( fms[0] );
-    if ( dirky == "0" ) dirky = "";
+    if ( dirky == "0" )
+	dirky = "";
     if ( dirptr )
     {
-	dirptr->key_ = dirky;
-	const int newid = fms.getIValue( 1 );
+	const_cast<MultiID&>(dirptr->key_) = dirky;
+	const SubID newid = fms.getIValue( 1 );
 	dirptr->curid_ = mIsUdf(newid) ? 0 : newid;
-	if ( dirptr->curid_ == IOObj::tmpID() )
+	if ( IOObj::isTmpLeafID(dirptr->curid_) )
 	    dirptr->curid_ = 1;
     }
     astream.next();
@@ -139,22 +220,32 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     while ( astream.type() != ascistream::EndOfFile )
     {
 	IOObj* obj = IOObj::get(astream,dirnm,dirky);
-	if ( !obj || obj->isBad() ) { delete obj; continue; }
+	if ( !obj || obj->isBad() )
+	    { delete obj; continue; }
 
 	MultiID ky( obj->key() );
-	int id = ky.ID( ky.nrKeys()-1 );
+	const SubID subid = ky.leafID();
 
 	if ( dirptr )
 	{
 	    retobj = obj;
-	    if ( id == 1 ) dirptr->setName( obj->name() );
-	    dirptr->addObj( obj, false );
-	    if ( id < 99999 && id > dirptr->curid_ )
-		dirptr->curid_ = id;
+	    if ( subid == 1 )
+		dirptr->setName( obj->name() );
+	    dirptr->doAddObj( obj, false );
+	    if ( IOObj::isTmpLeafID(subid) )
+	    {
+		if ( subid > dirptr->curtmpid_ )
+		    dirptr->curtmpid_ = subid;
+	    }
+	    else
+	    {
+		if ( subid > dirptr->curid_ )
+		    dirptr->curid_ = subid;
+	    }
 	}
 	else
 	{
-	    if ( id != needid )
+	    if ( subid != reqsubid )
 		delete obj;
 	    else
 		{ retobj = obj; break; }
@@ -169,14 +260,16 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 
 IOObj* IODir::getObj( const MultiID& ky, uiString& errmsg )
 {
+    Threads::Locker locker( static_read_lock );
+
     BufferString dirnm( IOM().rootDir() );
     if ( dirnm.isEmpty() )
 	return 0;
 
-    int nrkeys = ky.nrKeys();
-    for ( int idx=0; idx<nrkeys; idx++ )
+    size_type nrkeys = ky.nrKeys();
+    for ( size_type idx=0; idx<nrkeys; idx++ )
     {
-	int id = ky.ID( idx );
+	const SubID id = ky.subID( idx );
 	IOObj* ioobj = doRead( dirnm, 0, errmsg, id );
 	if ( !ioobj || idx == nrkeys-1 || !ioobj->isSubdir() )
 	    return ioobj;
@@ -189,12 +282,19 @@ IOObj* IODir::getObj( const MultiID& ky, uiString& errmsg )
 }
 
 
-const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
+const IOObj* IODir::get( const char* nm, const char* trgrpnm ) const
 {
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    Threads::Locker locker( lock_ );
+    return doGet( nm, trgrpnm );
+}
+
+
+const IOObj* IODir::doGet( const char* nm, const char* trgrpnm ) const
+{
+    for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->name() == ky )
+	if ( ioobj->name() == nm )
 	{
 	    if ( !trgrpnm || ioobj->group() == trgrpnm )
 		return ioobj;
@@ -204,9 +304,16 @@ const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
 }
 
 
-int IODir::indexOf( const MultiID& ky ) const
+IODir::size_type IODir::indexOf( const MultiID& ky ) const
 {
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    Threads::Locker locker( lock_ );
+    return gtIdxOf( ky );
+}
+
+
+IODir::size_type IODir::gtIdxOf( const MultiID& ky ) const
+{
+    for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
 	if ( ioobj->key() == ky )
@@ -223,39 +330,14 @@ bool IODir::isPresent( const MultiID& ky ) const
 }
 
 
-IOObj* IODir::get( const MultiID& ky )
+const IOObj* IODir::doGet( const MultiID& ky ) const
 {
-    const int idxof = indexOf( ky );
+    const size_type idxof = gtIdxOf( ky );
     return idxof < 0 ? 0 : objs_[idxof];
 }
 
 
-const IOObj* IODir::get( const MultiID& ky ) const
-{
-    const int idxof = indexOf( ky );
-    return idxof < 0 ? 0 : objs_[idxof];
-}
-
-
-bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
-{
-    if ( !dirnm || !*dirnm || !mainobj ) return false;
-    mainobj->key_ = ky;
-    mainobj->key_ += "1";
-    IODir dir;
-    dir.dirname_ = dirnm;
-    dir.key_ = ky;
-
-    dir.objs_ += mainobj;
-    dir.isok_ = true;
-    bool ret = dir.doWrite();
-    dir.objs_ -= mainobj;
-    dir.isok_ = false;
-    return ret;
-}
-
-
-void IODir::reRead()
+void IODir::doReRead()
 {
     IODir rdiodir( dirname_ );
     if ( rdiodir.isok_ && rdiodir.main() && rdiodir.size() > 1 )
@@ -264,6 +346,7 @@ void IODir::reRead()
 	objs_ = rdiodir.objs_;
 	rdiodir.objs_.erase();
 	curid_ = rdiodir.curid_;
+	curtmpid_ = rdiodir.curtmpid_;
 	isok_ = true;
     }
 }
@@ -271,11 +354,13 @@ void IODir::reRead()
 
 bool IODir::permRemove( const MultiID& ky )
 {
-    reRead();
-    if ( isBad() ) return false;
+    Threads::Locker locker( lock_ );
+    doReRead();
+    if ( !isok_ )
+	return false;
 
-    int sz = objs_.size();
-    for ( int idx=0; idx<sz; idx++ )
+    size_type sz = objs_.size();
+    for ( size_type idx=0; idx<sz; idx++ )
     {
 	IOObj* obj = objs_[idx];
 	if ( obj->key() == ky )
@@ -291,22 +376,29 @@ bool IODir::permRemove( const MultiID& ky )
 
 bool IODir::commitChanges( const IOObj* ioobj )
 {
+    if ( !ioobj )
+	return true;
+
+    Threads::Locker locker( lock_ );
+
     if ( ioobj->isSubdir() )
     {
-	IOObj* obj = get( ioobj->key() );
+	IOObj* obj = const_cast<IOObj*>( doGet(ioobj->key()) );
 	if ( obj != ioobj )
 	    obj->copyFrom( ioobj );
 	return doWrite();
     }
 
     IOObj* clone = ioobj->clone();
-    if ( !clone ) return false;
-    reRead();
-    if ( isBad() ) { delete clone; return false; }
+    if ( !clone )
+	return false;
+    doReRead();
+    if ( !isok_ )
+	{ delete clone; return false; }
 
-    int sz = objs_.size();
+    const size_type sz = objs_.size();
     bool found = false;
-    for ( int idx=0; idx<sz; idx++ )
+    for ( size_type idx=0; idx<sz; idx++ )
     {
 	IOObj* obj = objs_[idx];
 	if ( obj->key() == clone->key() )
@@ -324,16 +416,25 @@ bool IODir::commitChanges( const IOObj* ioobj )
 
 bool IODir::addObj( IOObj* ioobj, bool persist )
 {
+    Threads::Locker locker( lock_ );
+    return doAddObj( ioobj, persist );
+}
+
+
+bool IODir::doAddObj( IOObj* ioobj, bool persist )
+{
     if ( persist )
     {
-	reRead();
-	if ( isBad() ) return false;
+	doReRead();
+	if ( !isok_ )
+	    return false;
     }
 
-    if ( ioobj->key().isEmpty() || objs_[ioobj] || isPresent(ioobj->key()) )
-	ioobj->setKey( newKey() );
+    if ( ioobj->key().isEmpty() || objs_[ioobj] || gtIdxOf(ioobj->key())>0 )
+	ioobj->setKey( gtNewKey(curid_) );
 
-    ensureUniqueName( *ioobj );
+    doEnsureUniqueName( *ioobj );
+
     objs_ += ioobj;
     setDirName( *ioobj, dirName() );
 
@@ -341,12 +442,19 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 }
 
 
-bool IODir::ensureUniqueName( IOObj& ioobj )
+bool IODir::ensureUniqueName( IOObj& ioobj ) const
+{
+    Threads::Locker locker( lock_ );
+    return doEnsureUniqueName( ioobj );
+}
+
+
+bool IODir::doEnsureUniqueName( IOObj& ioobj ) const
 {
     BufferString nm( ioobj.name() );
 
-    int nr = 1;
-    while ( get(nm.buf(),ioobj.translator().buf()) )
+    size_type nr = 1;
+    while ( doGet(nm.buf(),ioobj.translator().buf()) )
     {
 	nr++;
 	nm.set( ioobj.name() ).add( " (" ).add( nr ).add( ")" );
@@ -372,14 +480,12 @@ bool IODir::wrOmf( od_ostream& strm ) const
     ascostream astream( strm );
     if ( !astream.putHeader( "Object Management file" ) )
 	mErrRet()
-    FileMultiString fms( key_.isEmpty() ? "0" : (const char*)key_ );
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    FileMultiString fms( key_.isEmpty() ? "0" : key_.str() );
+    for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
-	const MultiID currentkey = objs_[idx]->key();
-	int curleafid = currentkey.leafID();
-	if ( curleafid != IOObj::tmpID() && curleafid < 99999
-	  && curleafid > curid_ )
-	    curid_ = curleafid;
+	const SubID leafid = objs_[idx]->key().leafID();
+	if ( !IOObj::isTmpLeafID(leafid) && leafid > curid_ )
+	    curid_ = leafid;
     }
     fms += curid_;
     astream.put( "ID", fms );
@@ -391,7 +497,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
 	mErrRet()
 
     // Then the subdirs
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
@@ -399,7 +505,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
 	    mErrRet()
     }
     // Then the normal objs
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
@@ -436,8 +542,29 @@ bool IODir::doWrite() const
 
 MultiID IODir::newKey() const
 {
-    MultiID id = key_;
-    const_cast<IODir*>(this)->curid_++;
-    id += toString( curid_ );
-    return id;
+    Threads::Locker locker( lock_ );
+    return gtNewKey( curid_ );
+}
+
+
+MultiID IODir::newTmpKey() const
+{
+    Threads::Locker locker( lock_ );
+    return gtNewKey( curtmpid_ );
+}
+
+
+MultiID IODir::gtNewKey( const size_type& id ) const
+{
+    MultiID ret = key_;
+    const_cast<int&>(id)++;
+    ret.add( id );
+    return ret;
+}
+
+
+MultiID IODir::getNewTmpKey( const IOObjContext& ctxt )
+{
+    const IODir iodir( MultiID(ctxt.getSelKey()) );
+    return iodir.newTmpKey();
 }

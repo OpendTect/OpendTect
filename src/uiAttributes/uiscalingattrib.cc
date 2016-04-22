@@ -376,12 +376,9 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
     , subvolfld_(0)
     , dpfid_(dpfid)
 {
-    const int dpmid = dpfid.ID( 0 );
+    const int dpmid = dpfid_.mgrID();
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
-    {
-	pErrMsg( "Only Flat & Cube DataPacks supported" );
-	return;
-    }
+	{ pErrMsg( "Only Flat & Cube DataPacks supported" ); return; }
 
     const bool is2d = dpmid==DataPackMgr::FlatID();
     createSelFields( is2d ? DataPack2D : DataPack3D );
@@ -420,6 +417,8 @@ void createSelFields( DataType type )
     nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				nrtrcinpspec );
 
+    const DataPack::FullID::SubID mgrid = dpfid_.mgrID();
+    const DataPack::FullID::SubID dpid = dpfid_.packID();
     if ( type==uiSelectPositionDlg::Stored2D )
     {
 	linesfld_ = new uiSeis2DLineNameSel( this, true );
@@ -428,8 +427,7 @@ void createSelFields( DataType type )
     }
     else if ( type==uiSelectPositionDlg::DataPack2D )
     {
-        RefMan<FlatDataPack> fdp =
-        	DPM( dpfid_.ID(0)).getAndCast<FlatDataPack>( dpfid_.ID(1) );
+        RefMan<FlatDataPack> fdp = DPM(mgrid).getAndCast<FlatDataPack>( dpid );
 	Interval<int> trcrglimits( 0, fdp->size(true) );
 	nrtrcinpspec.setLimits( trcrglimits );
 	nrtrcfld_->setValue( fdp->size(true) );
@@ -442,7 +440,7 @@ void createSelFields( DataType type )
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
             RefMan<RegularSeisDataPack> cdp =
-            	DPM(dpfid_.ID(0)).getAndCast<RegularSeisDataPack>(dpfid_.ID(1));
+	DPM(mgrid).getAndCast<RegularSeisDataPack>(dpid);
 
 	    cs = cdp->sampling();
 	}
@@ -557,18 +555,15 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	uiSelectPositionDlg subseldlg( this, dpfid );
 	if ( !subseldlg.go() )
 	    return;
-	if ( dpfid.ID(0)==DataPackMgr::SeisID() )
+	if ( dpfid.mgrID() == DataPackMgr::SeisID() )
 	    cs = subseldlg.subVol();
 	else
 	{
             RefMan<FlatDataPack> fdp =
-            	DPM(dpfid.ID(0)).getAndCast<FlatDataPack>( dpfid.ID(1) );
+		DPM(dpfid.mgrID()).getAndCast<FlatDataPack>( dpfid.packID() );
 
 	    if ( !fdp )
-	    {
-		pErrMsg( "No FlatDataPack found" );
-		return;
-	    }
+		{ pErrMsg( "No FlatDataPack found" ); return; }
 
 	    StepInterval<double> dtrcrg = fdp->posData().range( true );
 	    Interval<int> trcrg( mCast(int,dtrcrg.start),

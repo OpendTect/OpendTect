@@ -778,11 +778,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     bool needstrigger = false;
     if ( !ioobj )
     {
-	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );
-	if ( mktmp )
-	    newkey.add( IOObj::tmpID() );
-
-	ioobj = crWriteIOObj( ctio, newkey, translidx );
+	const MultiID newky( mktmp ? dirptr_->newTmpKey() : dirptr_->newKey() );
+	ioobj = crWriteIOObj( ctio, newky, translidx );
 	if ( ioobj )
 	{
 	    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
@@ -955,7 +952,7 @@ bool SurveyDataTreePreparer::prepDirData()
     dd->desc_.replace( ':', ';' );
     dd->dirname_.clean();
 
-    int nr = dd->selkey_.ID( 0 );
+    int nr = dd->selkey_.subID( 0 );
     if ( nr <= 200000 )
     {
 	errmsg_ = tr("Invalid selection key passed for '%1'")
@@ -963,8 +960,8 @@ bool SurveyDataTreePreparer::prepDirData()
 	return false;
     }
 
-    dd->selkey_ = "";
-    dd->selkey_.setID( 0, nr );
+    dd->selkey_.setEmpty();
+    dd->selkey_.setSubID( 0, nr );
 
     return true;
 }

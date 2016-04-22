@@ -32,7 +32,7 @@ ________________________________________________________________________
   object is then already dead. Thus, at the beginning of the your destructor,
   call sendDelNotif().
 
-  For typical usage see NamedObject.
+  For typical usage see NamedMonitorable.
 
 */
 

@@ -265,7 +265,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     for ( int lhidx=0; lhidx<size; lhidx++ )
     {
 	const MultiID& mid = hpl.getMultiID( hornames.get( lhidx ) );
-	if ( mid < 0 )
+	if ( mid.isUdf() )
 	    continue;
 
 	BufferString key( "Hor." , lhidx, ".ID" );
