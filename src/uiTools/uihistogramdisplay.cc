@@ -138,6 +138,7 @@ void uiHistogramDisplay::setData( const DataPointSet& dpset )
 
 	valarr += val;
     }
+
     setData( valarr.arr(), valarr.size() );
 }
 
@@ -149,7 +150,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
     if ( array->getData() )
     {
-	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
+	setData( array->getData(), array->info().getTotalSz() );
 	return;
     }
 
@@ -178,7 +179,7 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
 
     if ( array->getData() )
     {
-	setData( array->getData(), mCast(int,array->info().getTotalSz()) );
+	setData( array->getData(), array->info().getTotalSz() );
 	return;
     }
 
@@ -201,7 +202,7 @@ void uiHistogramDisplay::setData( const Array3D<float>* array )
 }
 
 
-void uiHistogramDisplay::setData( const float* array, int sz )
+void uiHistogramDisplay::setData( const float* array, od_int64 sz )
 {
     if ( !array || sz < 1 )
 	{ rc_.setEmpty(); return; }

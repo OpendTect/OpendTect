@@ -32,7 +32,7 @@ public:
 
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
-    void			setData(const float*,int sz);
+    void			setData(const float*,od_int64 sz);
     void			setData(const Array2D<float>*);
     void			setData(const Array3D<float>*);
     void			setData(const DataPointSet&);
