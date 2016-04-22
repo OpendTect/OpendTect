@@ -338,8 +338,8 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	       ? uiStrings::phrSpecify(uiStrings::phrOutput(uiStrings::sName()))
 	       : uiString::emptyString()))
 
-    SamplingData<float> offset( offsfld_->getfValue(0),
-				offsfld_->getfValue(1) );
+    SamplingData<float> offset( offsfld_->getFValue(0),
+				offsfld_->getFValue(1) );
     if ( offset.isUdf() )
     {
 	uiMSG().error( tr("Please provide values for the offset start/step") );

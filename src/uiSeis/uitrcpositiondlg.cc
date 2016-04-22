@@ -269,14 +269,14 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
     if ( trcnrfld_ || fdpposfld_ )
     {
 	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
-			       : trcnrfld_->box()->getValue();
+			       : trcnrfld_->box()->getIntValue();
 	cs.hsamp_.set( cs.hsamp_.inlRange(),
 		       StepInterval<int>( trcnr, trcnr, 1 ) );
     }
     else
     {
-	int inlnr = inlfld_->box()->getValue();
-	int crlnr = crlfld_->getValue();
+	int inlnr = inlfld_->box()->getIntValue();
+	int crlnr = crlfld_->getIntValue();
 	cs.hsamp_.set( StepInterval<int>( inlnr, inlnr, 1 ),
 		    StepInterval<int>( crlnr, crlnr, 1 ) );
     }

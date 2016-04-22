@@ -568,7 +568,7 @@ void uiSeisBrowser::commitChanges()
         SeisTrc& trc = *tbuf_.get( pos.col() );
 	for ( pos.row()=0; pos.row()<nrsamples_; pos.row()++)
 	{
-	    const float tableval = tbl_->getfValue( pos );
+	    const float tableval = tbl_->getFValue( pos );
 	    const float trcval = trc.get( pos.row(), compnr_ );
 	    const float diff = tableval - trcval;
 	    if ( !mIsZero(diff,1e-6) )
@@ -789,7 +789,7 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
     if ( rc.row()<0 || rc.col()<0 ) return;
 
     SeisTrc* trace = tbuf_.get( rc.col() );
-    const float chgdval = tbl_->getfValue( rc );
+    const float chgdval = tbl_->getFValue( rc );
     trace->set( rc.row(), chgdval, compnr_ );
     if ( trcbufvwr_ )
 	trcbufvwr_->handleBufChange();
@@ -817,7 +817,7 @@ void uiSeisBrowser::chgCompNrCB( CallBacker* )
 
 void uiSeisBrowser::nrTracesChgCB( CallBacker* )
 {
-    const int nrtrcs = nrtrcsfld_->getValue();
+    const int nrtrcs = nrtrcsfld_->getIntValue();
     stepout_ = nrtrcs / 2;
     tbl_->clear();
     tbl_->setNrCols( nrtrcs );

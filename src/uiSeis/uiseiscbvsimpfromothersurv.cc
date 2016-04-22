@@ -50,7 +50,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     sep1->attach( stretchedBelow, subselfld_ );
 
     interpfld_ = new uiGenInput( this, tr("Interpolation"),
-			    BoolInpSpec( true, toUiString(interpols[0]), 
+			    BoolInpSpec( true, toUiString(interpols[0]),
 			    toUiString(interpols[1]) ) );
     interpfld_->valuechanged.notify(
 		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
@@ -112,7 +112,8 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
-    int cellsz = issinc_ ? cellsizefld_->box()->getValue() : 0;
+
+    const int cellsz = issinc_ ? cellsizefld_->box()->getIntValue() : 0;
     TrcKeyZSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );
     import_->setOutput( const_cast<IOObj&>(*outioobj) );
@@ -126,7 +127,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
     uiString msg = tr("CBVS cube successfully imported\n\n"
 		      "Do you want to import more cubes?");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(), 
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				 tr("No, close window") );
     return !ret;
 }

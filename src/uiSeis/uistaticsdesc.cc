@@ -104,14 +104,14 @@ bool uiStaticsDesc::get( StaticsDesc& res, bool disperr ) const
 
     if ( useconstantvelfld_->getBoolValue() )
     {
-	if ( mIsUdf(constantvelfld_->getfValue() ) )
+	if ( mIsUdf(constantvelfld_->getFValue() ) )
 	{
 	    if ( disperr )
 		uiMSG().error(tr("Statics Velocity not specified"));
 	    return false;
 	}
 
-	res.vel_ = constantvelfld_->getfValue();
+	res.vel_ = constantvelfld_->getFValue();
     }
     else
     {

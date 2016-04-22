@@ -121,10 +121,10 @@ FlatView::AuxData* uiFKSpectrum::initAuxData()
 
 
 float uiFKSpectrum::getMinValue() const
-{ return minfld_ ? minfld_->getfValue() : mUdf(float); }
+{ return minfld_ ? minfld_->getFValue() : mUdf(float); }
 
 float uiFKSpectrum::getMaxValue() const
-{ return maxfld_ ? maxfld_->getfValue() : mUdf(float); }
+{ return maxfld_ ? maxfld_->getFValue() : mUdf(float); }
 
 
 

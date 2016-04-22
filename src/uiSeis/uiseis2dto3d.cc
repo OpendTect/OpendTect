@@ -119,8 +119,8 @@ bool uiSeis2DTo3D::fillPar()
 	BufferString method = Seis2DTo3DImpl::sFactoryKeyword();
 
 	par.set(Seis2DTo3D::sKeyType(), method);
-    par.set(Seis2DTo3D::sKeyPow(), powfld_->getfValue() );
-    par.set(Seis2DTo3D::sKeyTaper(), taperfld_->getfValue() );
+    par.set(Seis2DTo3D::sKeyPow(), powfld_->getFValue() );
+    par.set(Seis2DTo3D::sKeyTaper(), taperfld_->getFValue() );
     par.setYN(Seis2DTo3D::sKeySmrtScale(), smrtscalebox_->isChecked() );
     jobSpec().pars_.mergeComp( par, sKey::Pars() );
     return true;

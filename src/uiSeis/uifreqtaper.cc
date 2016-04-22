@@ -224,7 +224,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     setSlopeFromFreq();
 
     const uiString tapertxt = tr("Slope (dB/Octave)");
-    varinpfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    varinpfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 							       FloatInpSpec() );
     varinpfld_->setTitleText ( tapertxt );
     varinpfld_->setValue( td1_.paramval_ );
@@ -273,7 +273,7 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
 {
     TaperData& td = mGetData();
     TaperData& drawerdata = mGetDrawerData();
-    Interval<float> newrg( inffreqfld_->getfValue(), supfreqfld_->getfValue());
+    Interval<float> newrg( inffreqfld_->getFValue(), supfreqfld_->getFValue());
 
     td.rg_ = newrg;
     td.refrg_ = newrg;
@@ -312,7 +312,7 @@ void uiFreqTaperGrp::sliderChanged( CallBacker* )
 void uiFreqTaperGrp::slopeChanged( CallBacker* )
 {
     TaperData& td = mGetData();
-    td.slope_ = varinpfld_->getfValue();
+    td.slope_ = varinpfld_->getFValue();
     setFreqFromSlope( td.slope_ );
     setPercentsFromFreq();
     taperChged(0);

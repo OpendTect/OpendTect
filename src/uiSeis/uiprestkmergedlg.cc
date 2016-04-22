@@ -368,8 +368,8 @@ bool uiPreStackOutputGroup::go()
     }
 
     SeisPSCopier copier( *inpioobj_, *outioobj, sd );
-    float ofsrgstart = offsrgfld_->getfValue( 0 );
-    float ofsrgstop = offsrgfld_->getfValue( 1 );
+    float ofsrgstart = offsrgfld_->getFValue( 0 );
+    float ofsrgstop = offsrgfld_->getFValue( 1 );
     if ( mIsUdf(ofsrgstart) )
 	ofsrgstart = 0;
     if ( SI().xyInFeet() )

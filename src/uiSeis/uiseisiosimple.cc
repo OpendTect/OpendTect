@@ -472,8 +472,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     data().havesd_ = havesdfld_->getBoolValue();
     if ( sdfld_ && !data().havesd_ )
     {
-	data().sd_.start = sdfld_->getfValue(0);
-	data().sd_.step = sdfld_->getfValue(1);
+	data().sd_.start = sdfld_->getFValue(0);
+	data().sd_.step = sdfld_->getFValue(1);
 	if ( SI().zIsTime() )
 	    { data().sd_.start *= 0.001; data().sd_.step *= 0.001; }
 	data().nrsamples_ = sdfld_->getIntValue(2);
@@ -528,9 +528,9 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     if ( isPS() && !data().haveoffs_ && offsdeffld_ )
     {
-	data().offsdef_.start = offsdeffld_->getfValue( 0 );
-	data().offsdef_.step = offsdeffld_->getfValue( 2 );
-	const float offsstop = offsdeffld_->getfValue( 1 );
+	data().offsdef_.start = offsdeffld_->getFValue( 0 );
+	data().offsdef_.step = offsdeffld_->getFValue( 2 );
+	const float offsstop = offsdeffld_->getFValue( 1 );
 	data().nroffsperpos_ =
 			data().offsdef_.nearestIndex( offsstop ) + 1;
     }

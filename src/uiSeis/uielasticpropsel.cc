@@ -76,7 +76,7 @@ void uiElasticPropSelGrp::uiSelInpGrp::selVarCB( CallBacker* )
 
 const char* uiElasticPropSelGrp::uiSelInpGrp::textOfVariable() const
 {
-    return isactive_ ? isconstant_ ? toString( ctefld_->getfValue() )
+    return isactive_ ? isconstant_ ? toString( ctefld_->getFValue() )
 				   : inpfld_->text()
 		     : 0;
 }
@@ -479,7 +479,7 @@ bool uiElasticPropSelDlg::openPropSel()
     sd.close();
 
     if ( !doRead( ctio_.ioobj_->key() ) )
-	mErrRet( tr("Unable to read elastic property selection"), 
+	mErrRet( tr("Unable to read elastic property selection"),
 		 return false; );
     return true;
 }

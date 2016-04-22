@@ -119,7 +119,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	    wvlt->setCenterSample( maxsamp );
     }
 
-    const float fac = scalefld_->getfValue();
+    const float fac = scalefld_->getFValue();
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 
@@ -150,7 +150,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 
     wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
 
-    addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ? 
+    addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ?
 				     uiStrings::sTime() : uiStrings::sDepth()),
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
