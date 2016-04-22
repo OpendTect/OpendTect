@@ -308,10 +308,12 @@ const OD::String& FilePath::fileName() const
 BufferString FilePath::baseName() const
 {
     BufferString ret = fileName();
+    if ( ret.isEmpty() )
+	return ret;
+
     char* ptr = ret.getCStr();
-    while ( *ptr && *ptr != '.' ) ptr++;
-    if ( !*ptr ) return ret;
-    *ptr++ = '\0';
+    char* lastdot = lastOcc( ptr, '.' );
+    if ( lastdot ) *lastdot = '\0';
     return ret;
 }
 
