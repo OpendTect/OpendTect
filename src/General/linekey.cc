@@ -56,6 +56,12 @@ BufferString LineKey::attrName() const
 }
 
 
+void LineKey::setLineName( const char* lnm )
+{ set( attrName() ); *this += "|"; *this += lnm; }
+
+void LineKey::setAttrName( const char* anm )
+{ set( lineName() ); *this += "|"; *this += anm; }
+
 void LineKey::fillPar( IOPar& iop, bool iopnm ) const
 {
     if ( !iopnm )
@@ -75,9 +81,12 @@ bool LineKey::usePar( const IOPar& iop, bool iopnm )
 	return false;
 
     if ( !iopnm )
-	*this = res;
+	set( res );
     else
-	*this = LineKey( iop.name(), res );
+    {
+	setLineName( iop.name() );
+	setAttrName( res );
+    }
 
     return true;
 }

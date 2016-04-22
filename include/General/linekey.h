@@ -22,21 +22,17 @@ mExpClass(General) LineKey : public BufferString
 {
 public:
 
-			LineKey( const char* lk=0 )
+    mDeprecated		LineKey( const char* lk=0 )
 				: BufferString(lk)	{}
-			LineKey(const char*,const char* attrnm);
-			LineKey( const IOPar& iop, bool liin )
+    mDeprecated		LineKey(const char*,const char* attrnm);
+    mDeprecated		LineKey( const IOPar& iop, bool liin )
 				{ usePar(iop,liin); }
     bool		operator ==(const LineKey&) const;
-    bool		operator ==( const char* lk ) const
-				{ return *this == LineKey(lk); }
 
     BufferString	lineName() const;
     BufferString	attrName() const;
-    void		setLineName( const char* lnm )
-				{ *this = LineKey( lnm, attrName() ); }
-    void		setAttrName( const char* anm )
-				{ *this = LineKey( lineName(), anm ); }
+    void		setLineName(const char* lnm);
+    void		setAttrName(const char* anm);
 
     void		fillPar(IOPar&,bool linename_is_iopar_name) const;
     bool		usePar(const IOPar&,bool linename_is_iopar_name);
@@ -46,7 +42,7 @@ public:
 
 
 /*!
-\brief Class providing a current line key.
+\brief Class providing a current GeomID.
 */
 
 mExpClass(General) GeomIDProvider
