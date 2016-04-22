@@ -259,10 +259,9 @@ void uiGLCM_attrib::getEvalParams( TypeSet<EvalParam>& params ) const
 class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
-uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Select data"),tr("For analysis"),
 				 mNoHelpKey))
-    , attribnm_(anm)
     , linesfld_(0)
     , subvolfld_(0)
 {
@@ -325,16 +324,14 @@ void uiGLCM_attrib::analyseData( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    LineKey lk( inpdesc->getStoredID(true) );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesc->getStoredID(true)) );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Select a valid input") );
 	return;
     }
 
-    uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D(),
-				   lk.attrName() );
+    uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D() );
     if ( !subseldlg.go() )
 	return;
 
