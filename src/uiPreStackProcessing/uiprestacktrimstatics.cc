@@ -124,7 +124,7 @@ void uiTrimStatics::changeCB( CallBacker* )
     const RowCol& rc = table_->notifiedCell();
     TypeSet<TrimStatics::Iteration>& its = processor_->getIterations();
     TrimStatics::Iteration& curit = its[rc.row()];
-    const float val = table_->getfValue( rc );
+    const float val = table_->getFValue( rc );
     if ( rc.col()==0 )	curit.ptoffsetrg_.start = val;
     if ( rc.col()==1 )	curit.ptoffsetrg_.stop = val;
     if ( rc.col()==2 )	curit.tsoffsetrg_.start = val;

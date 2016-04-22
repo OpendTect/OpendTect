@@ -85,7 +85,7 @@ bool uiAngleCompGrp::acceptOK()
     Interval<int> normalanglevalrange( 0, 90 );
     if ( isformute_ )
     {
-	params_.mutecutoff_ = anglefld_->getfValue();
+	params_.mutecutoff_ = anglefld_->getFValue();
 	if ( !normalanglevalrange.includes(params_.mutecutoff_,false) )
 	{
 	    uiMSG().error(uiStrings::phrSelect(tr("the mute cutoff between "
@@ -115,7 +115,7 @@ bool uiAngleCompGrp::acceptOK()
 void uiAngleCompGrp::advPushButCB( CallBacker* )
 {
     if (!advpardlg_)
-    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset_, 
+    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset_,
 								    isformute_);
     advpardlg_->updateFromParams();
     advpardlg_->go();
@@ -175,7 +175,7 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     smoothwinparamlbl_ = new uiLabel( this, toUiString("%") );
     smoothwinparamlbl_->attach( rightOf, smoothwinparamfld_ );
 
-    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"), 
+    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"),
 								FloatInpSpec());
     smoothwinlengthfld_->attach( alignedBelow, smoothwindowfld_ );
     smoothwinlengthlbl_ = new uiLabel( this, SI().getUiZUnitString(false) );
@@ -205,12 +205,12 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
     if ( isSmoothTypeMovingAverage() )
     {
 	iopar.set( PreStack::AngleComputer::sKeyWinLen(),
-		smoothwinlengthfld_->getfValue()/SI().zDomain().userFactor() );
+		smoothwinlengthfld_->getFValue()/SI().zDomain().userFactor() );
 	iopar.set( PreStack::AngleComputer::sKeyWinFunc(),
 		   smoothwindowfld_->text() );
 	if ( smoothwindowfld_->text() == CosTaperWindow::sName() )
 	{
-	    const float uservalue = smoothwinparamfld_->getfValue();
+	    const float uservalue = smoothwinparamfld_->getFValue();
 	    if ( !mIsUdf(uservalue) )
 		iopar.set( PreStack::AngleComputer::sKeyWinParam(),
 			   1 - uservalue / 100 );
@@ -219,9 +219,9 @@ bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
     else if ( isSmoothTypeFFTFilter() )
     {
 	iopar.set( PreStack::AngleComputer::sKeyFreqF3(),
-		   freqf3fld_->getfValue() );
+		   freqf3fld_->getFValue() );
 	iopar.set( PreStack::AngleComputer::sKeyFreqF4(),
-		   freqf4fld_->getfValue() );
+		   freqf4fld_->getFValue() );
     }
 
     return true;
@@ -359,11 +359,10 @@ bool uiAngleMute::acceptOK(CallBacker*)
 	return false;
 
     processor_->params().raypar_.setYN( RayTracer1D::sKeyReflectivity(), false);
-    processor_->params().taperlen_ = taperlenfld_->getfValue();
+    processor_->params().taperlen_ = taperlenfld_->getFValue();
     processor_->params().tail_ = !topfld_->getBoolValue();
 
     return true;
 }
 
-
-}; //namespace
+} // namespace PreStack

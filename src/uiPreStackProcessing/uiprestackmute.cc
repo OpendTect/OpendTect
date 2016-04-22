@@ -68,7 +68,7 @@ bool uiMute::acceptOK( CallBacker* )
 
     const IOObj* ioobj = mutedeffld_->isChecked()  ? mutedeffld_->ioobj() : 0;
 
-    if ( ioobj ) 
+    if ( ioobj )
 	processor_->setMuteDefID( ioobj->key() );
     else
     {
@@ -81,7 +81,7 @@ bool uiMute::acceptOK( CallBacker* )
 	}
     }
 
-    processor_->setTaperLength( taperlenfld_->getfValue() );
+    processor_->setTaperLength( taperlenfld_->getFValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
     return true;
 }
