@@ -103,7 +103,7 @@ void fillPars( ScaleBarPars& pars ) const
     pars.oninlcrl_ = objectfld_->getBoolValue();
     pars.orientation_ = pars.oninlcrl_ ? !horverfld_->getBoolValue()
 				       : !inlcrlfld_->getBoolValue();
-    double length = lengthfld_->getdValue();
+    double length = lengthfld_->getDValue();
     if ( pars.oninlcrl_ && pars.orientation_==1 ) length /= zinf_.userFactor();
     pars.length_ = length;
     pars.ls_ = linestylefld_->getStyle();
