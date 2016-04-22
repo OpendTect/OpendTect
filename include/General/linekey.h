@@ -22,8 +22,8 @@ mExpClass(General) LineKey : public BufferString
 {
 public:
 
-    mDeprecated		LineKey( const char* lk=0 )
-				: BufferString(lk)	{}
+    mDeprecated		LineKey()
+			    : BufferString("")	{}
     mDeprecated		LineKey(const char*,const char* attrnm);
     mDeprecated		LineKey( const IOPar& iop, bool liin )
 				{ usePar(iop,liin); }
