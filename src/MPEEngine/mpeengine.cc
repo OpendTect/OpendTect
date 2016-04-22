@@ -81,12 +81,12 @@ Engine::~Engine()
 {
     detachAllNotifiers();
 
+    deepErase( trackermgrs_ );
     deepUnRef( trackers_ );
     deepUnRef( editors_ );
     deepErase( attribcachespecs_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
-    deepErase( trackermgrs_ );
 
     for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribcachedatapackids_[idx] );
@@ -499,6 +499,9 @@ int Engine::addTracker( EM::EMObject* emobj )
 
 void Engine::removeTracker( int idx )
 {
+    if ( trackingInProgress() )
+	return;
+
     if ( !trackers_.validIdx(idx) )
 	return;
 
