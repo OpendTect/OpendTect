@@ -218,6 +218,8 @@ protected:
     uiSurfaceMan*	ma3dfaultdlg_;
     uiSurfaceMan*	manfssdlg_;
     uiSurfaceMan*	manbodydlg_;
+
+    void				displayOnCreateCB(CallBacker*);
 };
 
 #endif

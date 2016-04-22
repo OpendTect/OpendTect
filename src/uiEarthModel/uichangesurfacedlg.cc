@@ -27,7 +27,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
 
+static HiddenParam<uiChangeHorizonDlg, Notifier<uiChangeHorizonDlg>* >
+		horReadyFroDisplays( 0 );
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
                                         bool is2d, const uiString& txt )
@@ -39,6 +42,9 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
     , inputfld_( 0 )
     , parsgrp_( 0 )
 {
+    Notifier<uiChangeHorizonDlg>* notifier =
+	new Notifier<uiChangeHorizonDlg>( this );
+    horReadyFroDisplays.setParam( this, notifier );
     setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
@@ -48,12 +54,19 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
 	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 	    			 : EMHorizon3DTranslatorGroup::ioContext();
 	ctxt.forread_ = true;
-	inputfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrInvalid(
-				    uiStrings::sHorizon(1)) );
+	inputfld_ =
+	    new uiIOObjSel( this, ctxt,
+			    uiStrings::phrInput(uiStrings::sHorizon(1)) );
     }
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
     savefldgrp_->setSaveFieldName( "Save interpolated horizon" );
+}
+
+
+Notifier<uiChangeHorizonDlg>* uiChangeHorizonDlg::horReadyFroDisplay()
+{
+    return horReadyFroDisplays.getParam( this );
 }
 
 
@@ -74,6 +87,9 @@ void uiChangeHorizonDlg::attachPars()
 
 uiChangeHorizonDlg::~uiChangeHorizonDlg()
 {
+    Notifier<uiChangeHorizonDlg>* notifier = horReadyFroDisplays.getParam(this);
+    horReadyFroDisplays.removeParam( this );
+    delete notifier;
     if ( horizon_ ) horizon_->unRef();
 }
 
@@ -188,6 +204,9 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 
     if ( !doProcessing() )
 	return false;
+
+    if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
+	horReadyFroDisplays.getParam( this )->trigger();
 
     const bool res = savefldgrp_->saveHorizon();
     if ( res )

@@ -53,6 +53,8 @@ protected:
     uiHorSaveFieldGrp*          savefldgrp_;
 
     EM::Horizon*		horizon_;
+public:
+    Notifier<uiHorizonInterpolDlg>* horReadyFroDisplay();
 };
 
 

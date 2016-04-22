@@ -57,6 +57,9 @@ protected:
     virtual bool		fillUdfsOnly() const	{ return false;}
     virtual bool		needsFullSurveyArray() const { return false;}
     virtual const char*		undoText() const		{ return 0; }
+
+public:
+    Notifier<uiChangeHorizonDlg>* horReadyFroDisplay();
 };
 
 

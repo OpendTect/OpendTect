@@ -37,6 +37,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
+
+static HiddenParam<uiHorizonInterpolDlg, Notifier<uiHorizonInterpolDlg>* >
+	horReadyFroDisplays( 0 );
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
@@ -50,6 +54,9 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , savefldgrp_( 0 )
     , finished(this)
 {
+    Notifier<uiHorizonInterpolDlg>* notifier =
+	new Notifier<uiHorizonInterpolDlg>( this );
+    horReadyFroDisplays.setParam( this, notifier );
     if ( !hor )
 	setCtrlStyle( RunAndClose );
 
@@ -109,7 +116,18 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 {
     detachAllNotifiers();
+    Notifier<uiHorizonInterpolDlg>* notifier =
+	horReadyFroDisplays.getParam( this );
+    horReadyFroDisplays.removeParam( this );
+    delete notifier;
+
     if ( horizon_ ) horizon_->unRef();
+}
+
+
+Notifier<uiHorizonInterpolDlg>* uiHorizonInterpolDlg::horReadyFroDisplay()
+{
+    return horReadyFroDisplays.getParam( this );
 }
 
 
@@ -153,6 +171,9 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	return false;
 
     uiTaskRunner taskrunner( this );
+
+    if ( !savefldgrp_->getNewHorizon() )
+	hor3d->setBurstAlert( true );
 
     bool success = false;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
@@ -219,6 +240,12 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	hor3d->geometry().sectionGeometry(sid)->setArray(
 					    hs.start_, hs.step_, arr, true );
     }
+
+    if ( !savefldgrp_->getNewHorizon() )
+	hor3d->setBurstAlert( false );
+    if ( success &&
+	 (saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon()) )
+	horReadyFroDisplays.getParam(this)->trigger();
 
     return success;
 }
