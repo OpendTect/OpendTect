@@ -91,7 +91,7 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
-static HiddenParam< uiEMPartServer,uiBulkFaultImport* > impbulkfltdlg_(0);
+static HiddenParam< uiEMPartServer,uiBulkFaultImport* > impbulkfltdlgs_(0);
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -115,6 +115,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , manfssdlg_(0)
     , manbodydlg_(0)
 {
+    impbulkfltdlgs_.setParam( this, 0 );
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
@@ -129,6 +130,8 @@ uiEMPartServer::~uiEMPartServer()
     delete manfssdlg_;
     delete manbodydlg_;
     delete crhordlg_;
+    delete impbulkfltdlgs_.getParam( this );
+    impbulkfltdlgs_.removeParam( this );
 }
 
 
@@ -136,7 +139,10 @@ void uiEMPartServer::survChangedCB( CallBacker* )
 {
     delete imphorattrdlg_; imphorattrdlg_ = 0;
     delete imphorgeomdlg_; imphorgeomdlg_ = 0;
-    impbulkfltdlg_.removeParam( this ); impbulkfltdlg_.setParam( this, 0 );
+
+    delete impbulkfltdlgs_.getParam( this );
+    impbulkfltdlgs_.setParam( this, 0 );
+
     delete impfltdlg_; impfltdlg_ = 0;
     delete impbulkhordlg_; impbulkhordlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
@@ -290,10 +296,10 @@ bool uiEMPartServer::export3DHorizon()
 
 bool uiEMPartServer::importBulkFaults()
 {
-    if ( !impbulkfltdlg_.getParam(this) )
-	impbulkfltdlg_.setParam( this, new uiBulkFaultImport(parent()) );
+    if ( !impbulkfltdlgs_.getParam(this) )
+	impbulkfltdlgs_.setParam( this, new uiBulkFaultImport(parent()) );
 
-    return impbulkfltdlg_.getParam(this)->go();
+    return impbulkfltdlgs_.getParam(this)->go();
 }
 
 
