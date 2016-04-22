@@ -397,7 +397,7 @@ void uiSEGYFileManip::fillDefCalcs( int selidx )
 void uiSEGYFileManip::updTrcVals()
 {
     OD::memCopy( curhdrbuf_, inphdrbuf_, SegyTrcHeaderLength );
-    calcset_.reSetSeqNr( trcnrfld_->getValue() );
+    calcset_.reSetSeqNr( trcnrfld_->getIntValue() );
     calcset_.apply( curhdrbuf_, binhdr_.isSwapped() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
     {
@@ -593,7 +593,7 @@ od_int64 uiSEGYFileManip::traceBytes() const
 void uiSEGYFileManip::trcNrChg( CallBacker* )
 {
     const od_int64 tbyts = traceBytes();
-    od_stream::Pos offs = cFileHeaderSize + (trcnrfld_->getValue()-1) * tbyts;
+    od_stream::Pos offs = cFileHeaderSize + (trcnrfld_->getIntValue()-1)*tbyts;
     if ( offs >= filesize_ )
     {
 	const od_int64 nrtrcsinfile = (filesize_-cFileHeaderSize) / tbyts;
@@ -640,7 +640,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     if ( !plotall )
     {
 	DataInpSpec* spec = new IntInpIntervalSpec( trcrg_ );
-	uiGenInputDlg dlg(p, tr("Specify range"), tr("Trace range to plot"), 
+	uiGenInputDlg dlg(p, tr("Specify range"), tr("Trace range to plot"),
 									spec);
 	if ( !dlg.go() )
 	    { totalnr_ = -1; return; }
