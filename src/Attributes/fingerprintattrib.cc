@@ -171,8 +171,7 @@ FingerPrint::FingerPrint( Desc& dsc )
 
 bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 {
-    const int vectsz = refvector_.size();
-    while ( inputdata_.size() < vectsz )
+    while ( inputdata_.size() < inputs_.size() )
 	inputdata_ += 0;
 
     while ( dataidx_.size() < inputs_.size() )
@@ -187,20 +186,6 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 	dataidx_[idx] = getDataIndex( idx );
     }
 
-    int dataindex = inputs_.size();
-    for ( int idx=0; idx<weights_.size(); idx++ )
-    {
-	int nrtimes = weights_[idx]-1;
-	while ( nrtimes )
-	{
-	    inputdata_.replace( dataindex, inputdata_[idx] );
-	    if ( dataidx_.size()< vectsz )
-		dataidx_ += dataidx_[idx];
-	    nrtimes--;
-	    dataindex++;
-	}
-    }
-    
     return true;
 }
 
@@ -215,21 +200,30 @@ bool FingerPrint::usesTracePosition() const
 bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos, 
 			       int z0, int nrsamples, int threadid ) const
 {
-    if ( inputdata_.isEmpty() || !outputinterest_[0] ) return false;
+    if ( inputdata_.isEmpty() || !outputinterest_[0] ||
+	 weights_.size()!=inputdata_.size() )
+	return false;
 
     TypeSet<float> scaledlocal;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	TypeSet<float> localvals;
 	for ( int inpidx=0; inpidx<inputdata_.size(); inpidx++ )
-	    localvals += getInputValue( *inputdata_[inpidx], 
-		    			dataidx_[inpidx], idx, z0 );
+	{
+	    const float inputval = getInputValue( *inputdata_[inpidx],
+						  dataidx_[inpidx], idx, z0 );
+	    for ( int weight=0; weight<weights_[inpidx]; weight++ )
+		localvals += inputval;
+	}
 
 	scaledlocal.erase();
 	scaleVector( localvals, ranges_, scaledlocal );
 
-	const float val = similarity( scaledref_, scaledlocal,
-				      scaledref_.size() );
+	const int scaledrefsz = scaledref_.size();
+	if ( scaledlocal.size() != scaledrefsz )
+	    return false;	//Should never hapen, check to prevent crash
+
+	const float val = similarity( scaledref_, scaledlocal, scaledrefsz );
 	setOutputValue( output, 0, idx, z0, val );
     }
 

@@ -508,7 +508,13 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
     }
     calcobj_->setUserRefList( refset );
     if ( picksetbut_->isChecked() )
-	calcobj_->setValStatsType( statsfld_->getIntValue() );
+    {
+	//!< Count, StdDev, Variance, NormVariance not used, so skip them
+	const int statslistidx = statsfld_->getIntValue();
+	const int statstype = statslistidx +1 +	
+				( statslistidx +1< (int)Stats::StdDev ? 0 : 3);
+	calcobj_->setValStatsType( statstype );
+    }
 
     advanceddlg_->go();
 }
@@ -542,7 +548,13 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     calcobj_->setValRgSet( valuesset, true );
     calcobj_->setValRgSet( rangesset, false );
     if ( picksetbut_->isChecked() )
-	calcobj_->setValStatsType( statsfld_->getIntValue() );
+    {
+	//!< Count, StdDev, Variance, NormVariance not used, so skip them
+	const int statslistidx = statsfld_->getIntValue();
+	const int statstype = statslistidx +1 +	
+				( statslistidx +1< (int)Stats::StdDev ? 0 : 3);
+	calcobj_->setValStatsType( statstype );
+    }
 
     calcobj_->computeValsAndRanges();
 }

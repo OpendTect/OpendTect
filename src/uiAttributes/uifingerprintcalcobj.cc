@@ -219,9 +219,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     {
 	ObjectSet< Stats::RunCalc<float> > statsset;
 
-	Stats::Type styp = (Stats::Type)(statstype_ +
-				(statstype_ < (int)Stats::StdDev ? 0 : 1));
-			    //!< StdDev not used, so skip it
+	Stats::Type styp = (Stats::Type)statstype_;
 	fillInStats( valueset, statsset, styp );
 	
 	for ( int idx=0; idx<nrattribs; idx++ )
