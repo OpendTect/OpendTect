@@ -456,17 +456,28 @@ void uiEMPartServer::displayEMObject( const MultiID& mid )
 }
 
 
+void uiEMPartServer::displayOnCreateCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiHorizonInterpolDlg*,interpoldlg,cb);
+    mDynamicCastGet(uiFilterHorizonDlg*,filterdlg,cb);
+    if ( !interpoldlg && !filterdlg )
+	return;
+
+    uiHorSaveFieldGrp* horfldsavegrp = interpoldlg ? interpoldlg->saveFldGrp()
+						   : filterdlg->saveFldGrp();
+    if ( horfldsavegrp->displayNewHorizon() )
+	displayEMObject( horfldsavegrp->getNewHorizon()->multiID() );
+
+    horfldsavegrp->overwriteHorizon();
+}
+
+
 bool uiEMPartServer::fillHoles( const EM::ObjectID& emid, bool is2d )
 {
     mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid));
     uiHorizonInterpolDlg dlg( parent(), hor, is2d );
-    dlg.go();
-
-    if ( dlg.saveFldGrp()->displayNewHorizon() &&
-	 dlg.saveFldGrp()->getNewHorizon( ) )
-	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->multiID() );
-
-    return dlg.saveFldGrp()->overwriteHorizon();
+    dlg.horReadyFroDisplay.notify( mCB(this,uiEMPartServer,displayOnCreateCB) );
+    return dlg.go();
 }
 
 
@@ -474,13 +485,8 @@ bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
-    dlg.go();
-
-    if ( dlg.saveFldGrp()->displayNewHorizon() &&
-	 dlg.saveFldGrp()->getNewHorizon( ) )
-	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->multiID() );
-
-    return dlg.saveFldGrp()->overwriteHorizon();
+    dlg.horReadyFroDisplay.notify( mCB(this,uiEMPartServer,displayOnCreateCB) );
+    return dlg.go();
 }
 
 

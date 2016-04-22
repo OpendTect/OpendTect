@@ -48,6 +48,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , interpol1dsel_( 0 )
     , savefldgrp_( 0 )
     , finished(this)
+    , horReadyFroDisplay(this)
 {
     if ( !hor )
 	setCtrlStyle( RunAndClose );
@@ -153,6 +154,9 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     uiTaskRunner taskrunner( this );
 
+    if ( !savefldgrp_->getNewHorizon() )
+	hor3d->setBurstAlert( true );
+
     bool success = false;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
@@ -218,6 +222,12 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	hor3d->geometry().sectionGeometry(sid)->setArray(
 					    hs.start_, hs.step_, arr, true );
     }
+
+    if ( !savefldgrp_->getNewHorizon() )
+	hor3d->setBurstAlert( false );
+    if ( success &&
+	 (saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon()) )
+	horReadyFroDisplay.trigger();
 
     return success;
 }

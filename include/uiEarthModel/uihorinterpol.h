@@ -36,6 +36,7 @@ public:
     uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }
 
     Notifier<uiHorizonInterpolDlg> finished;
+    Notifier<uiHorizonInterpolDlg> horReadyFroDisplay;
 
 protected:
 

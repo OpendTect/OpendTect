@@ -32,6 +32,7 @@ public:
 						   bool is2d,const uiString&);
 				~uiChangeHorizonDlg();
     uiHorSaveFieldGrp*		saveFldGrp() const { return savefldgrp_; }
+    Notifier<uiChangeHorizonDlg> horReadyFroDisplay;
 
 protected:
 

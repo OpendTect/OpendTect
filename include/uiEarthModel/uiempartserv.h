@@ -191,6 +191,7 @@ protected:
 				      bool interp,DataPointSet& res);
     void		importReadyCB(CallBacker*);
     void		survChangedCB(CallBacker*);
+    void		displayOnCreateCB(CallBacker*);
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
