@@ -263,6 +263,8 @@ bool Texture::computeData( const DataHolder& output, const BinID& relpos,
 	glcm.setAll( 0 );
 
 	const int glcmcount = computeGLCM( idx, z0, glcm );
+	if ( !glcmcount )
+	    continue;
 
 	float con=0, dis=0, hom=0, asmom=0, ent=0, glcm_mean = 0;
 	for ( int m=0; m<glcmsize_; m++ )

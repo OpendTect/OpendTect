@@ -373,6 +373,9 @@ static void checkAndSetSymmetric( Interval<float>& range )
 
 void uiTextureAttrib::calcAndSetMinMaxVal( const SeisTrcBuf& bufs )
 {
+    if ( !bufs.size() )
+	return;
+
     const SeisTrc* seisttrc = bufs.get( 0 );
     TypeSet<float> vals;
     vals.setCapacity( bufs.size() * bufs.get(0)->size(), false );
