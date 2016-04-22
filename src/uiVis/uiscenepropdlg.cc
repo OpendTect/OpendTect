@@ -243,8 +243,8 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
     scene->getSceneColTab()->setLegendColor( annotcolfld_->color() );
     if ( separationdlg_ )
     {
-	scene_->getPolygonOffset()->setFactor( separationdlg_->getfValue(0) );
-	scene_->getPolygonOffset()->setUnits( separationdlg_->getfValue(1) );
+	scene_->getPolygonOffset()->setFactor( separationdlg_->getFValue(0) );
+	scene_->getPolygonOffset()->setUnits( separationdlg_->getFValue(1) );
     }
 }
 
@@ -306,8 +306,8 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 	    separationdlg_->getFld(1)->setValue( oldunits_ );
 	}
 
-	const float factor = separationdlg_->getfValue(0);
-	const float units = separationdlg_->getfValue(1);
+	const float factor = separationdlg_->getFValue(0);
+	const float units = separationdlg_->getFValue(1);
 
 	if ( !mIsUdf(factor) && factor>=1 &&
 	     !mIsUdf(units) && units>=1 )

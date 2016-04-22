@@ -101,7 +101,7 @@ void uiVisIsoSurfaceThresholdDlg::reDrawCB( CallBacker* )
 
 bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 {
-    if ( mIsUdf(thresholdfld_->getfValue()) )
+    if ( mIsUdf(thresholdfld_->getFValue()) )
     {
 	uiMSG().error( tr("Please define the threshhold.") );
 	return false;
@@ -141,7 +141,7 @@ bool uiVisIsoSurfaceThresholdDlg::revertChanges()
 void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 {
     const float oldthreshhold = vd_->isoValue( isosurfacedisplay_ );
-    const float newthreshhold = thresholdfld_->getfValue();
+    const float newthreshhold = thresholdfld_->getFValue();
     if ( mIsUdf(newthreshhold) )
 	return;
 
@@ -281,10 +281,10 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	initiallineitem_->setLine( valx, valytop, valx, valybottom );
     }
 
-    if ( !mIsUdf(thresholdfld_->getfValue()) )
+    if ( !mIsUdf(thresholdfld_->getFValue()) )
     {
 	ls.color_ = Color(0,255,0,0); 
-	const int valx = xAxis().getPix(thresholdfld_->getfValue());
+	const int valx = xAxis().getPix(thresholdfld_->getFValue());
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
 	    return;
