@@ -64,6 +64,7 @@ public:
     bool		export3DHorizon();
     bool		export2DHorizon();
     bool		importFault();
+    bool		importBulkFaults();
     bool		importFaultStickSet();
     void		import2DFaultStickset();
     bool		exportFault();

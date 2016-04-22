@@ -207,7 +207,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch( at )
 	{
 	mCase(Imp):
-	    am_.emserv_->importFault();
+	    if ( opt==0 ) am_.emserv_->importFault();
+	    if ( opt==1 ) am_.emserv_->importBulkFaults();
 	    break;
 	mCase(Exp):
 	    am_.emserv_->exportFault();

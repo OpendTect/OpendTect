@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -54,6 +55,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
+#include "uibulkfaultimp.h"
 #include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
 #include "uicreatehorizon.h"
@@ -89,6 +91,7 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
+static HiddenParam< uiEMPartServer,uiBulkFaultImport* > impbulkfltdlg_(0);
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -133,6 +136,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
 {
     delete imphorattrdlg_; imphorattrdlg_ = 0;
     delete imphorgeomdlg_; imphorgeomdlg_ = 0;
+    impbulkfltdlg_.removeParam( this ); impbulkfltdlg_.setParam( this, 0 );
     delete impfltdlg_; impfltdlg_ = 0;
     delete impbulkhordlg_; impbulkhordlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
@@ -281,6 +285,15 @@ bool uiEMPartServer::export3DHorizon()
 	exphordlg_ = new uiExportHorizon( parent() );
 
     return exphordlg_->go();
+}
+
+
+bool uiEMPartServer::importBulkFaults()
+{
+    if ( !impbulkfltdlg_.getParam(this) )
+	impbulkfltdlg_.setParam( this, new uiBulkFaultImport(parent()) );
+
+    return impbulkfltdlg_.getParam(this)->go();
 }
 
 
