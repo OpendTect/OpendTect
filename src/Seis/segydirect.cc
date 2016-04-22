@@ -545,7 +545,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
     FilePath fp( dirnm );
     BufferString nm( fp.fileName(), "^", toString(geomid) );
     fp.add( nm );
-    fp.setExtension( "sgydef" );
+    fp.setExtension( "sgydef", false );
     ret = fp.fullPath();
     return ret.buf();
 }

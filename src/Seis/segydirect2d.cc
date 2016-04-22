@@ -141,7 +141,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 	BufferString newfnm( newnm );
 	newfnm.add( mCapChar ).add( geomid );
 	fp.setFileName( newfnm );
-	fp.setExtension( sExtSEGDirect );
+	fp.setExtension( sExtSEGDirect, false );
 	if ( !File::rename(dl.fullPath(idx),fp.fullPath()) )
 	    ret = false;
     }

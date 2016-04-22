@@ -54,7 +54,7 @@ const OD::String& SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
     BufferString fnm = fp.fileName();
     fnm.add( mCapChar ).add( geomid );
     fp.add( fnm );
-    fp.setExtension( sExtCBVS );
+    fp.setExtension( sExtCBVS, false );
     ret = fp.fullPath();
     return ret;
 }
@@ -146,7 +146,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 	BufferString newfnm( newnm );
 	newfnm.add( mCapChar ).add( geomid );
 	fp.setFileName( newfnm );
-	fp.setExtension( sExtCBVS );
+	fp.setExtension( sExtCBVS, false );
 	if ( !File::rename(dl.fullPath(idx),fp.fullPath()) )
 	    ret = false;
 
