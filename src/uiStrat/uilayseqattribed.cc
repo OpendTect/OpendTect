@@ -25,11 +25,11 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 static uiString gtDlgUiTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
- { 
+{
      return od_static_tr("gtDlgUiTitle","%1 parameters for %2 attribute")
 		 .arg(isnew ? uiStrings::sDefine() : uiStrings::sEdit())
-		 .arg(lsa.LaySeqAttrib::prop_.name()); 
- }
+		 .arg(lsa.LaySeqAttrib::prop_.name());
+}
 
 
 uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
@@ -247,7 +247,7 @@ bool uiLaySeqAttribEd::getFromScreen()
     const int trfldidx = transformfld_->currentItem();
     const bool havetr = trfldidx > 0;
     const int tridx = havetr ? trfldidx - 1 : 0;
-    const float trval = havetr ? valfld_->getfValue() : mUdf(float);
+    const float trval = havetr ? valfld_->getFValue() : mUdf(float);
     if ( havetr
       && (trval == 0 || (tridx == (int)(Strat::LaySeqAttrib::Log) && trval<0)))
     {

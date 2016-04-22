@@ -688,8 +688,8 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units)
 	Strat::LeavedUnitRef* un =
 			new Strat::LeavedUnitRef( par, code );
 	un->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
-	Interval<float> rg( table_->getfValue( RowCol(idx,cStartCol) ),
-			    table_->getfValue( RowCol(idx,cStopCol) )  );
+	Interval<float> rg( table_->getFValue( RowCol(idx,cStartCol) ),
+			    table_->getFValue( RowCol(idx,cStopCol) )  );
 	un->setTimeRange( rg );
 	units += un;
     }

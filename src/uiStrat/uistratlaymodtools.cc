@@ -86,7 +86,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 
 int uiStratGenDescTools::nrModels() const
 {
-    return nrmodlsfld_->getValue();
+    return nrmodlsfld_->getIntValue();
 }
 
 
@@ -276,7 +276,7 @@ Color uiStratLayModEditTools::selLevelColor() const
 
 int uiStratLayModEditTools::dispEach() const
 {
-    return eachfld_ ? eachfld_->getValue() : 1;
+    return eachfld_ ? eachfld_->getIntValue() : 1;
 }
 
 
