@@ -113,6 +113,7 @@ uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     , text_(txt)
 {
     setIcon( pmnm );
+    useStyleSheet();
 }
 
 
@@ -123,6 +124,7 @@ uiMenu::uiMenu( const uiString& txt, const char* pmnm )
     , text_(txt)
 {
     setIcon( pmnm );
+    useStyleSheet();
 }
 
 
@@ -134,6 +136,7 @@ uiMenu::uiMenu( const MenuItem& itm )
 {
     setIcon( itm.iconfnm );
     addItems( itm.getItems() );
+    useStyleSheet();
 }
 
 
@@ -141,6 +144,13 @@ uiMenu::~uiMenu()
 {
     removeAllActions();
     delete qmenu_;
+}
+
+
+void uiMenu::useStyleSheet()
+{
+    if ( qmenu_ )
+	qmenu_->setStyleSheet( "QMenu { menu-scrollable: 1; }" );
 }
 
 

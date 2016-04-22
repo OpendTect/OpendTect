@@ -126,6 +126,7 @@ private:
     void		doInsertSeparator(mQtclass(QAction)* before);
     void		doRemoveAction(mQtclass(QAction)*);
     void		doClear();
+    void		useStyleSheet();
 
 public:
 			//! Not for casual use
