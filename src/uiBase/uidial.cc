@@ -247,7 +247,7 @@ void uiDialExtra::processInput()
 
 float uiDialExtra::editValue() const
 {
-    return editfld_ ? editfld_->getfValue() : mUdf(float);
+    return editfld_ ? editfld_->getFValue() : mUdf(float);
 }
 
 void uiDialExtra::editRetPress( CallBacker* )

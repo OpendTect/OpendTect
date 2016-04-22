@@ -227,7 +227,7 @@ void uiColorInput::dodrawSel( CallBacker* )
 #define mSetTranspFromFld(col) \
     if ( transpfld_ ) \
     { \
-	const float t = transpfld_->getValue() * 2.55; \
+	const float t = transpfld_->getFValue() * 2.55f; \
 	col.setTransparency( mRounded(unsigned char,t) ); \
     }
 
