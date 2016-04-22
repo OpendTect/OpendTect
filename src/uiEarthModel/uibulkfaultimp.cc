@@ -97,7 +97,9 @@ bool getData( BufferString& fltnm, Coord3& crd, int& sticknr )
 
 uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("Multiple Faults")),
-				 mNoDlgTitle,mNoHelpKey).modal(false))
+				 mNoDlgTitle,
+				 mODHelpKey(mBulkFaultImportHelpID))
+				.modal(false))
     , fd_(BulkFaultAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
