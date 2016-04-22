@@ -755,7 +755,7 @@ bool acceptOK( CallBacker* )
 	pos.set( posinpfld_->getCoord() );
     else
 	pos.set( posinpfld_->getBinID() );
-    pos.z_ = zinpfld_->getfValue();
+    pos.z_ = zinpfld_->getFValue();
 
     datarow_ =
 	DataPointSet::DataRow( pos, mCast( unsigned short,
@@ -783,9 +783,9 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	rowAdded.trigger();
 	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
 	{
-	    const double xval = tbl_->getdValue(RowCol(rownr,0));
-	    const double yval = tbl_->getdValue(RowCol(rownr,1));
-	    const double zval = tbl_->getdValue(RowCol(rownr,2));
+	    const double xval = tbl_->getDValue(RowCol(rownr,0));
+	    const double yval = tbl_->getDValue(RowCol(rownr,1));
+	    const double zval = tbl_->getDValue(RowCol(rownr,2));
 	    if ( showbids_ )
 	    {
 		const BinID bid( mCast(int,xval), mCast(int,yval) );
@@ -1164,7 +1164,7 @@ void uiDataPointSet::valChg( CallBacker* )
 
     if ( dcid >= 0 )
     {
-	float val = tbl_->getfValue( cell );
+	float val = tbl_->getFValue( cell );
 	const UnitOfMeasure* mu = dps_->colDef( dcid ).unit_;
 	afterchgdr_.data_[dcid] = mu ? mu->internalValue(val) : val;
     }
@@ -1181,7 +1181,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	if ( dcid == -1 )
 	{
 	    if ( !isDisp(false) ) { pErrMsg("Huh"); mRetErr; }
-	    pos.z_ = tbl_->getfValue( cell ) / zfac_;
+	    pos.z_ = tbl_->getFValue( cell ) / zfac_;
 	    poschgd = !mIsZero(pos.z_-beforechgdr_.pos_.z_,1e-6);
 	}
 	else
@@ -1191,12 +1191,12 @@ void uiDataPointSet::valChg( CallBacker* )
 	    if ( showbids_ )
 	    {
 		int& posval = ( dcid == -nrPosCols() ) ? bid.inl() : bid.crl();
-		posval = mCast(int,tbl_->getdValue(cell));
+		posval = mCast(int,tbl_->getDValue(cell));
 	    }
 	    else
 	    {
 		double& posval = ( dcid == -nrPosCols() ) ? crd.x : crd.y;
-		posval = tbl_->getdValue(cell);
+		posval = tbl_->getDValue(cell);
 	    }
 	    showbids_ ? pos.set( bid ) : pos.set( crd );
 	    poschgd = pos.binid_ != beforechgdr_.pos_.binid_;
@@ -1636,9 +1636,9 @@ void uiDataPointSet::removeHiddenRows()
     const uiTable::SelectionRange* selrange =
 	tbl_->selectedRanges()[0];
     Interval<float> valrange;
-    valrange.start = tbl_->getfValue(
+    valrange.start = tbl_->getFValue(
 	    RowCol(selrange->firstrow_,sortcol_) );
-    valrange.stop = tbl_->getfValue(
+    valrange.stop = tbl_->getFValue(
 	    RowCol(selrange->lastrow_,sortcol_) );
     for ( int drowid=0; drowid<dps_->size(); drowid++ )
     {

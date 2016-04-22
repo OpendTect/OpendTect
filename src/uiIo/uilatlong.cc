@@ -66,7 +66,7 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
 
-    swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) : 
+    swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) :
 					    uiStrings::sWest(true) );
     swfld_->attach( rightOf, secfld_ );
     swfld_->setHSzPol( uiObject::Small );
@@ -76,9 +76,9 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
 double uiLatLongDMSInp::value() const
 {
     int sign = swfld_->isChecked() ? -1 : 1;
-    const int d = sign * degfld_->getValue();
-    const int m = sign * minfld_->getValue();
-    const float s = sign * secfld_->getfValue();
+    const int d = sign * degfld_->getIntValue();
+    const int m = sign * minfld_->getIntValue();
+    const float s = sign * secfld_->getFValue();
     LatLong ll; ll.setDMS( islat_, d, m, s );
     return islat_ ? ll.lat_ : ll.lng_;
 }
@@ -156,8 +156,8 @@ void uiLatLongInp::get( LatLong& ll, bool isdec ) const
 {
     if ( isdec )
     {
-	ll.lat_ = latdecfld_->getdValue();
-	ll.lng_ = lngdecfld_->getdValue();
+	ll.lat_ = latdecfld_->getDValue();
+	ll.lng_ = lngdecfld_->getDValue();
     }
     else
     {
@@ -235,7 +235,7 @@ uiLatLong2CoordFileTransDlg( uiParent* p, const LatLong2Coord& ll2c )
 {
     uiFileInput::Setup fisu( uiFileDialog::Txt );
     fisu.forread( true ).exameditable( true );
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()), 
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
 									fisu );
 
     tollfld_ = new uiGenInput( this, tr("Transform"), BoolInpSpec( true,

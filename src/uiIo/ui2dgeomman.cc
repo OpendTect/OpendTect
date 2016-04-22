@@ -211,8 +211,8 @@ bool acceptOK( CallBacker* )
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
 	PosInfo::Line2DPos l2d( table_->getIntValue(RowCol(idx,0)) );
-	l2d.coord_.x = table_->getdValue( RowCol(idx,1) );
-	l2d.coord_.y = table_->getdValue( RowCol(idx,2) );
+	l2d.coord_.x = table_->getDValue( RowCol(idx,1) );
+	l2d.coord_.y = table_->getDValue( RowCol(idx,2) );
 	geomdata.add( l2d );
     }
 

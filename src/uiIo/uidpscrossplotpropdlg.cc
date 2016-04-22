@@ -153,7 +153,7 @@ bool acceptOK()
 	    axh->setRange( axflds.rgfld_->getFStepInterval() );
 	else
 	{
-	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
+	    float cr = axflds.percclipfld_->getFValue() * 0.01f;
 	    if ( cr < 0 || cr > 1 )
 	    {
 		uiMSG().error(tr("Clipping percentage must "

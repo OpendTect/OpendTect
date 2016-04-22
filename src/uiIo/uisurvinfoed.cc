@@ -729,9 +729,9 @@ bool uiSurveyInfoEditor::setCoords()
 bool uiSurveyInfoEditor::setRelation()
 {
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
-    xtr.a = x0fld_->getdValue();   ytr.a = y0fld_->getdValue();
-    xtr.b = xinlfld_->getdValue(); ytr.b = yinlfld_->getdValue();
-    xtr.c = xcrlfld_->getdValue(); ytr.c = ycrlfld_->getdValue();
+    xtr.a = x0fld_->getDValue();   ytr.a = y0fld_->getDValue();
+    xtr.b = xinlfld_->getDValue(); ytr.b = yinlfld_->getDValue();
+    xtr.c = xcrlfld_->getDValue(); ytr.c = ycrlfld_->getDValue();
     if ( !xtr.valid(ytr) )
     {
         uiMSG().error( tr("The transformation is not valid.") );
@@ -883,7 +883,7 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
     const bool showdepthinft = !depthdispfld_->getBoolValue();
     refdatumfld_->setTitleText( getSRDString(showdepthinft) );
-    float refdatum = refdatumfld_->getfValue();
+    float refdatum = refdatumfld_->getFValue();
     refdatum *= showdepthinft ? mToFeetFactorF : mFromFeetFactorF;
     refdatumfld_->setValue( refdatum );
 }

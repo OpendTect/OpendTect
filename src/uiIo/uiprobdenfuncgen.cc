@@ -104,7 +104,7 @@ uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
     choicefld_->addItem( tr("Create an editable PDF filled "
 			    "with Gaussian values"),
 			    "createsampledgaussianprdf"  );
-    choicefld_->addItem( tr("Create a full Gaussian PDF"), 
+    choicefld_->addItem( tr("Create a full Gaussian PDF"),
 			    "creategaussianprdf"  );
     choicefld_->addItem( tr("Create an empty PDF to edit by hand"),
 			    "createuniformprdf" );
@@ -130,7 +130,7 @@ void uiProbDenFuncGen::choiceSel( CallBacker* )
 bool uiProbDenFuncGen::acceptOK( CallBacker* )
 {
     const int choice = choicefld_->firstChecked();
-    const int nrdims = nrdimfld_->getValue();
+    const int nrdims = nrdimfld_->getIntValue();
 
     if ( choice == 1 )
     {
@@ -177,7 +177,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     {
 	for ( int idx=0; idx<nrdims_; idx++ )
 	{
-	    uiString lbltxt =  nrdims_ == 1 ? tr("Exp/Std") : 
+	    uiString lbltxt =  nrdims_ == 1 ? tr("Exp/Std") :
 							uiStrings::sDimension();
 	    if ( nrdims_ > 1 )
 		lbltxt = toUiString("%1 %2 %3").arg(lbltxt).arg(idx+1 )
@@ -201,9 +201,9 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 		      .arg(uiStrings::sCorrelation()), rightOf, expstdflds_[1]);
 	    if ( nrdims_ > 2 )
 	    {
-		mMkCorrFld( tr("%1 1 -> 3").arg(uiStrings::sCorrelation()), 
+		mMkCorrFld( tr("%1 1 -> 3").arg(uiStrings::sCorrelation()),
 						     alignedBelow, ccflds_[0] );
-		mMkCorrFld( tr("%1 2 -> 3").arg(uiStrings::sCorrelation()), 
+		mMkCorrFld( tr("%1 2 -> 3").arg(uiStrings::sCorrelation()),
 						     rightOf, ccflds_[1] );
 	    }
 	}
@@ -248,7 +248,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
 
 #define mGetCCValue(ifld) \
 { \
-    float cc = ccflds_[ifld]->getfValue(); \
+    float cc = ccflds_[ifld]->getFValue(); \
     if ( mIsUdf(cc) ) cc = 0; \
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() ) \
 	mErrRet( sUiGaussianCCRangeErrMsg() ) \
@@ -258,7 +258,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
 
 bool uiProbDenFuncGenSampled::getFromScreen()
 {
-    nrbins_= nrbinsfld_->getValue();
+    nrbins_= nrbinsfld_->getIntValue();
     od_int64 totalbins = nrbins_;
     totalbins = Math::IntPowerOf( totalbins, nrdims_ );
     if (totalbins > 100000
@@ -276,8 +276,8 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	    mErrRet(uiStrings::phrEnter(tr("a name for each variable")))
 
 	Interval<float> rg;
-	rg.start = rgflds_[idim]->getfValue(0);
-	rg.stop = rgflds_[idim]->getfValue(1);
+	rg.start = rgflds_[idim]->getFValue(0);
+	rg.stop = rgflds_[idim]->getFValue(1);
 	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
 	    mErrRet(tr("Please fill all variable ranges"))
 	rg.sort();
@@ -286,8 +286,8 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	if ( !isGauss() )
 	    continue;
 
-	float exp = expstdflds_[idim]->getfValue(0);
-	float stdev = expstdflds_[idim]->getfValue(1);
+	float exp = expstdflds_[idim]->getFValue(0);
+	float stdev = expstdflds_[idim]->getFValue(1);
 	if ( mIsUdf(exp) || mIsUdf(stdev) )
 	    mErrRet(tr("Please fill all expectations and standard deviations"))
 	exps_ += exp; stds_ += stdev;
@@ -351,7 +351,7 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 	spdf->getData().setAll( mUdf(float) );
 	if ( !isGauss() )
 	    return spdf;
-	
+
 	Gaussian2DProbDenFunc gpdf;
 	gpdf.exp0_ = exps_[0]; gpdf.std0_ = stds_[0];
 	gpdf.exp1_ = exps_[1]; gpdf.std1_ = stds_[1];

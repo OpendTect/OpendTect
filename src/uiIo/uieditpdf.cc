@@ -698,8 +698,8 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
     {
 	GaussianNDProbDenFunc::VarDef& vd = pdfnd_->vars_[idx];
 	vd.name_ = nmflds_[idx]->text();
-	vd.exp_ = expflds_[idx]->getfValue();
-	vd.std_ = stdflds_[idx]->getfValue();
+	vd.exp_ = expflds_[idx]->getFValue();
+	vd.std_ = stdflds_[idx]->getFValue();
 	varnms.add( vd.name_ );
     }
 
@@ -745,7 +745,7 @@ void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
 
 float uiEditGaussianProbDenFunc::getCC() const
 {
-    const float cc = ccfld_->getfValue();
+    const float cc = ccfld_->getFValue();
     if ( mIsUdf(cc) )
 	return 0;
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() )
@@ -804,8 +804,8 @@ bool uiEditGaussianProbDenFunc::commitChanges()
     for ( int idim=0; idim<nmflds_.size(); idim++ )
     {
 	const FixedString nm = nmflds_[idim]->text();
-	const float exp = expflds_[idim]->getfValue();
-	const float stdev = stdflds_[idim]->getfValue();
+	const float exp = expflds_[idim]->getFValue();
+	const float stdev = stdflds_[idim]->getFValue();
 	if ( nm.isEmpty() )
 	    mErrRet(uiStrings::phrEnter(tr("a name for all dimensions")))
 	else if (varnms.isPresent(nm))

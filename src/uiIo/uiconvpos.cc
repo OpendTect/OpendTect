@@ -124,7 +124,7 @@ void uiConvertPos::getCoord( CallBacker* )
 
 void uiConvertPos::getBinID( CallBacker* )
 {
-    Coord coord( xfld->getdValue(), yfld->getdValue() );
+    Coord coord( xfld->getDValue(), yfld->getDValue() );
     if ( coord == Coord::udf() )
     {
 	uiMSG().error( tr("Cannot convert this position") );
