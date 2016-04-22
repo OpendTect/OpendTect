@@ -110,7 +110,7 @@ public:
 				//!< This will give the IOObj a new (free) ID
 
     static int			tmpID()		{ return  999999; }
-    inline bool			isTmp() const	{return key_.leafID()==tmpID();}
+    inline bool			isTmp() const	{return key_.leafID()>=tmpID();}
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
