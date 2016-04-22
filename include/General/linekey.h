@@ -24,6 +24,8 @@ public:
 
     mDeprecated		LineKey()
 			    : BufferString("")	{}
+    mDeprecated		LineKey(const char* s)
+			    : BufferString(s)	{}
     mDeprecated		LineKey(const char*,const char* attrnm);
     mDeprecated		LineKey( const IOPar& iop, bool liin )
 				{ usePar(iop,liin); }
