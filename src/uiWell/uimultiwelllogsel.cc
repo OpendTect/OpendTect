@@ -197,8 +197,8 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     if ( selidx_ == cMarkersFld )
     {
 	mDefWMS;
-	params_->setTopMarker( wms->getText(true), abovefld_->getfValue(0,0) );
-	params_->setBotMarker( wms->getText(false), belowfld_->getfValue(0,0) );
+	params_->setTopMarker( wms->getText(true), abovefld_->getFValue(0,0) );
+	params_->setBotMarker( wms->getText(false), belowfld_->getFValue(0,0) );
     }
     else
     {
@@ -353,10 +353,10 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
 
     if ( dostep_ )
     {
-	float step = depthstepfld_->getfValue();
+	float step = depthstepfld_->getFValue();
 	if ( params().extractzintime_ )
 	{
-	    step = timestepfld_->getfValue();
+	    step = timestepfld_->getFValue();
 	    step /= ztimefac_;
 	}
 	params().zstep_ = step;
@@ -403,7 +403,7 @@ void uiMultiWellLogSel::init()
     const uiObject::SzPolicy vpol = uiObject::WideMax;
     const OD::ChoiceMode chmode =
 	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
-    uiListBox::Setup su( chmode, singlelog_ ? uiStrings::sLog() : 
+    uiListBox::Setup su( chmode, singlelog_ ? uiStrings::sLog() :
 							    uiStrings::sLogs(),
 			 singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
     logsfld_ = new uiListBox( this, su );

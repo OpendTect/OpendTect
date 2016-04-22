@@ -430,7 +430,7 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
 {
     const int nrcoords = coords.size();
     if ( nrcoords < 1 ) return;
-    float extradist = extendfld_->getfValue();
+    float extradist = extendfld_->getFValue();
     if ( extradist < 0.1 || extradist > 1e6 ) return;
     if ( SI().xyInFeet() )
 	extradist *= mFromFeetFactorF;

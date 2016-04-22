@@ -250,25 +250,25 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 
 double uiWellTrackDlg::getX( int row ) const
 {
-    return tbl_->getdValue( RowCol(row,cXCol) );
+    return tbl_->getDValue( RowCol(row,cXCol) );
 }
 
 
 double uiWellTrackDlg::getY( int row ) const
 {
-    return tbl_->getdValue( RowCol(row,cYCol) );
+    return tbl_->getDValue( RowCol(row,cYCol) );
 }
 
 
 double uiWellTrackDlg::getZ( int row ) const
 {
-    return mConvertVal(tbl_->getdValue( RowCol(row,cZCol) ),false);
+    return mConvertVal(tbl_->getDValue( RowCol(row,cZCol) ),false);
 }
 
 
 float uiWellTrackDlg::getMD( int row ) const
 {
-    return mConvertVal(tbl_->getfValue( RowCol(row,cMDTrackCol) ),false);
+    return mConvertVal(tbl_->getFValue( RowCol(row,cMDTrackCol) ),false);
 }
 
 
@@ -378,11 +378,11 @@ float getKbElev() const
     if ( !kbelevfld_->isChecked() )
 	return mUdf(float);
 
-    if ( mIsUdf(kbelevfld_->getfValue()) )
+    if ( mIsUdf(kbelevfld_->getFValue()) )
 	return 0;
 
     if ( zun )
-	return zun->internalValue( kbelevfld_->getfValue() );
+	return zun->internalValue( kbelevfld_->getFValue() );
 
     return mUdf(float);
 }
@@ -395,7 +395,7 @@ float getTD() const
 	return mUdf(float);
 
     if ( zun )
-	return zun->internalValue( tdfld_->getfValue() );
+	return zun->internalValue( tdfld_->getFValue() );
 
     return mUdf(float);
 }
@@ -527,7 +527,7 @@ void uiWellTrackDlg::updatePos( bool isx )
     if ( mIsUdf(surfacepos) && !track_.isEmpty() )
 	surfacepos = isx ? track_.pos(0).x : track_.pos(0).y;
 
-    const double newpos = posfld->getdValue();
+    const double newpos = posfld->getDValue();
     if ( mIsUdf(newpos) )
     {
 	uiMSG().error( uiStrings::phrEnter(tr("a valid coordinate")) );
@@ -569,7 +569,7 @@ void uiWellTrackDlg::updatePos( bool isx )
 
 void uiWellTrackDlg::updateKbElev( CallBacker* )
 {
-    float newkbelev = mConvertVal(kbelevfld_->getfValue(),false);
+    float newkbelev = mConvertVal(kbelevfld_->getFValue(),false);
     float kbelevorig = track_.isEmpty() ? 0.f : track_.getKbElev();
     if ( mIsUdf(newkbelev) )
     {
@@ -891,7 +891,7 @@ void uiD2TModelDlg::setDepthValue( int irow, int icol, float val )
 float uiD2TModelDlg::getDepthValue( int irow, int icol ) const
 {
     if ( icol == getTimeCol() ) return mUdf(float);
-    return mConvertVal( tbl_->getfValue( RowCol(irow,icol) ), false );
+    return mConvertVal( tbl_->getFValue( RowCol(irow,icol) ), false );
 }
 
 
@@ -908,7 +908,7 @@ void uiD2TModelDlg::setTimeValue( int irow, float val )
 
 float uiD2TModelDlg::getTimeValue( int irow ) const
 {
-    return mConvertTimeVal(tbl_->getfValue(RowCol(irow,getTimeCol())),false);
+    return mConvertTimeVal(tbl_->getFValue(RowCol(irow,getTimeCol())),false);
 }
 
 #define mGetVel(dah,d2t) \
@@ -1472,7 +1472,7 @@ void uiD2TModelDlg::updNow( CallBacker* )
 
 void uiD2TModelDlg::updReplVelNow( CallBacker* )
 {
-    const float replvel = mConvertVal(replvelfld_->getfValue(),false);
+    const float replvel = mConvertVal(replvelfld_->getFValue(),false);
     if ( mIsUdf(replvel) || replvel < 0.001f )
     {
 	uiMSG().error( uiStrings::phrEnter(tr("a valid %1")

@@ -275,7 +275,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 
     if ( depthchg )
     {
-	if ( mIsUdf(table_->getfValue(rc)) )
+	if ( mIsUdf(table_->getFValue(rc)) )
 	{
 	    uiMSG().error( uiStrings::phrEnter(tr("a valid number")) );
 	    table_->clearCell( rc );
@@ -325,7 +325,7 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 	for ( int idx=0; idx<depthcols.size(); idx++ )
 	{
 	    const RowCol rc( rowidx, depthcols[idx] );
-	    const float val = table_->getfValue( rc );
+	    const float val = table_->getFValue( rc );
 	    if ( mIsUdf(val) )
 		continue;
 
@@ -543,7 +543,7 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
     const float zfac = zFactor();
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
-	float dah = table_->getfValue( RowCol(rowidx,cDepthCol) );
+	float dah = table_->getFValue( RowCol(rowidx,cDepthCol) );
 	if ( mIsUdf(dah) )
 	    continue;
 
@@ -760,7 +760,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     const float kbelev = track_.getKbElev();
     const float zfac = zFactor();
 
-    float inval = table_->getfValue( rcin ) / zfac;
+    float inval = table_->getFValue( rcin ) / zfac;
     if ( istvd ) inval -= kbelev;
 
     Interval<float> trckrg( md2tvdss ? track_.dahRange() : track_.zRange() );
@@ -807,7 +807,7 @@ Well::Marker* uiMarkerDlg::getMarker( int row, bool fromname ) const
 	return 0;
 
     const char* markernm = table_->text(RowCol(row,cNameCol));
-    const float dah = table_->getfValue( RowCol(row,cDepthCol) );
+    const float dah = table_->getFValue( RowCol(row,cDepthCol) );
     if ( (fromname && (!markernm || !*markernm)) ||
 	 (!fromname && mIsUdf(dah)) )
 	return 0;

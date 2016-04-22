@@ -146,7 +146,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
 
-    lfi.undefval = udffld_->getfValue();
+    lfi.undefval = udffld_->getFValue();
 
     Interval<float> usrzrg = intvfld_->getFInterval();
     const bool zinft = !intvunfld_->getBoolValue();

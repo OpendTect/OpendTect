@@ -109,7 +109,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
-	float vel = velfld_->getfValue();
+	float vel = velfld_->getFValue();
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( SI().zIsTime() && SI().depthsInFeet() && zun )
 	    vel = zun->internalValue( vel );
@@ -164,7 +164,7 @@ BufferString uiD2TModelGroup::dataSourceName() const
 	ret.set( filefld_->fileName() );
     else
     {
-	ret.set( "[V=" ).add( velfld_->getfValue() ).add( " " );
+	ret.set( "[V=" ).add( velfld_->getFValue() ).add( " " );
 	ret.add( VelocityDesc::getVelUnit(true).getFullString() ).add( "]" );
     }
     return ret;

@@ -61,7 +61,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 {
     BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
-    if ( wellids.isEmpty() ) 
+    if ( wellids.isEmpty() )
 	mErrRet( uiStrings::phrSelect(tr("at least one well")) )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
@@ -385,7 +385,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    const Well::Log& inplog = *ld.inplogs_[idlog];
 	    Well::Log* outplog = new Well::Log( inplog );
 	    const int sz = inplog.size();
-	    const int gate = gatefld_->getValue();
+	    const int gate = gatefld_->getIntValue();
 	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) ) continue;
 
 	    ld.outplogs_ += outplog;
@@ -394,8 +394,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    if ( act == 0 )
 	    {
 		Stats::Grubbs sgb;
-		const float cutoff_grups = mCast( float,
-					    thresholdfld_->box()->getValue() );
+		const float cutoff_grups =
+			mCast( float,thresholdfld_->box()->getIntValue() );
 		TypeSet<int> grubbsidxs;
 		mAllocVarLenArr( float, gatevals, gate )
 		for ( int idx=gate/2; idx<sz-gate; idx+=gate  )
@@ -423,7 +423,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    float& grval = outp[gridx];
 		    if ( spkact == 2 )
 		    {
-			grval = replacespikevalfld_->getfValue();
+			grval = replacespikevalfld_->getFValue();
 		    }
 		    else if ( spkact == 1 )
 		    {
@@ -494,7 +494,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Smoother1D<float> sm;
 		sm.setInput( inp, sz );
 		sm.setOutput( outp );
-		const int winsz = gatefld_->getValue();
+		const int winsz = gatefld_->getIntValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
 		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
@@ -615,7 +615,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
     if ( rc.row()<0 || rc.row()>=log_.size() )
 	return;
 
-    const float newval = table_->getfValue( rc );
+    const float newval = table_->getFValue( rc );
     const float oldval = log_.value( rc.row() );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;

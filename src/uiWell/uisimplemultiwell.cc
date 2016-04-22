@@ -173,20 +173,20 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     , par_(p)
     , fd_("Simple multi-welldata")
 {
-    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(), 
+    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(),
 			       uiFileInput::Setup().withexamine(true)
 			       .examstyle(File::Table) );
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyKBElev() ); 
+    ti->setName( Well::Info::sKeyKBElev() );
     fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyTD() ); 
+    ti->setName( Well::Info::sKeyTD() );
     fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyGroundElev() ); 
+    ti->setName( Well::Info::sKeyGroundElev() );
     fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyReplVel(),
 				      Table::Optional );
@@ -301,8 +301,8 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 						 uiSMWCData& wcd )
 {
-    wcd.coord_.x = tbl_->getdValue( RowCol(irow,1) );
-    wcd.coord_.y = tbl_->getdValue( RowCol(irow,2) );
+    wcd.coord_.x = tbl_->getDValue( RowCol(irow,1) );
+    wcd.coord_.y = tbl_->getDValue( RowCol(irow,2) );
     if ( mIsUdf(wcd.coord_.x) || mIsUdf(wcd.coord_.y) )
     {
 	uiMSG().message(tr("No full coordinate for %1"
@@ -310,11 +310,11 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 	return false;
     }
 
-    wcd.elev_ = tbl_->getfValue( RowCol(irow,3) );
+    wcd.elev_ = tbl_->getFValue( RowCol(irow,3) );
     if ( mIsUdf(wcd.elev_) ) wcd.elev_ = 0;
     if ( zinft_ && zun_ ) wcd.elev_ = zun_->internalValue( wcd.elev_ );
 
-    wcd.td_ = tbl_->getfValue( RowCol(irow,4) );
+    wcd.td_ = tbl_->getFValue( RowCol(irow,4) );
     if ( wcd.td_ > 1e-6 && !mIsUdf(wcd.td_) )
     {
 	if ( zinft_ && zun_ ) wcd.td_ = zun_->internalValue( wcd.td_ );
@@ -328,7 +328,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 	wcd.td_ = survzstop - wcd.elev_;
     }
 
-    wcd.gl_ = tbl_->getfValue( RowCol(irow,5) );
+    wcd.gl_ = tbl_->getFValue( RowCol(irow,5) );
     if ( zinft_ && zun_ && !mIsUdf(wcd.gl_) )
 	wcd.gl_ = zun_->internalValue(  wcd.gl_ );
 
@@ -340,12 +340,12 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 {
     crwellids_.erase();
-    vel_ = velfld_ ? velfld_->getfValue() : getGUIDefaultVelocity();
+    vel_ = velfld_ ? velfld_->getFValue() : getGUIDefaultVelocity();
     if ( zinft_ && SI().zIsTime() && zun_ )
 	vel_ = zun_->internalValue( vel_ );
 
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
-	{ uiMSG().error(uiStrings::phrEnter(tr("a valid velocity"))); 
+	{ uiMSG().error(uiStrings::phrEnter(tr("a valid velocity")));
 								return false; }
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );

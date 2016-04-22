@@ -262,14 +262,14 @@ bool acceptOK( CallBacker* )
 
     if ( *replvelfld->text() )
     {
-	const float replvel = replvelfld->getfValue();
+	const float replvel = replvelfld->getFValue();
 	if ( !mIsUdf(replvel) && zun_ )
 	    info.replvel = zun_->internalValue( replvel );
     }
 
     if ( *gdelevfld->text() )
     {
-	const float gdevel = gdelevfld->getfValue();
+	const float gdevel = gdelevfld->getFValue();
 	if ( !mIsUdf(gdevel)  && zun_ )
 	    info.groundelev = zun_->internalValue( gdevel );
     }
@@ -333,13 +333,13 @@ bool uiWellImportAsc::doWork()
     if ( !outioobj )
 	return false;
 
-    float kbelev = kbelevfld_->getfValue();
+    float kbelev = kbelevfld_->getFValue();
     if ( mIsUdf(kbelev) )
 	kbelev = 0;
     else if ( zun_ )
 	kbelev = zun_->internalValue( kbelev );
 
-    float td = tdfld_->getfValue();
+    float td = tdfld_->getFValue();
     if ( !mIsUdf(td) && zun_ )
 	td = zun_->internalValue( td ) ;
 

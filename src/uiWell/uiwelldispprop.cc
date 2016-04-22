@@ -67,7 +67,7 @@ void uiWellDispProperties::putToScreen()
 
 void uiWellDispProperties::getFromScreen()
 {
-    props().size_ = szfld_->box()->getValue();
+    props().size_ = szfld_->box()->getIntValue();
     props().color_ = colfld_->color();
     doGetFromScreen();
 }
@@ -134,7 +134,7 @@ void uiWellTrackDispProperties::doGetFromScreen()
 {
     trackprops().dispbelow_ = dispbelowfld_->isChecked();
     trackprops().dispabove_ = dispabovefld_->isChecked();
-    trackprops().font_.setPointSize( nmsizefld_->box()->getValue() );
+    trackprops().font_.setPointSize( nmsizefld_->box()->getIntValue() );
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
     trackprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
@@ -300,9 +300,9 @@ void uiWellMarkersDispProperties::doPutToScreen()
 void uiWellMarkersDispProperties::doGetFromScreen()
 {
     mrkprops().shapeint_ = shapefld_->box()->currentItem();
-    mrkprops().cylinderheight_ = cylinderheightfld_->box()->getValue();
+    mrkprops().cylinderheight_ = cylinderheightfld_->box()->getIntValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
-    mrkprops().font_.setPointSize( nmsizefld_->box()->getValue() );
+    mrkprops().font_.setPointSize( nmsizefld_->box()->getIntValue() );
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
     mrkprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
@@ -527,7 +527,7 @@ void uiWellLogDispProperties::doGetFromScreen()
 {
     logprops().style_ = stylefld_->firstChecked();
     logprops().isdatarange_ = cliprangefld_->getBoolValue();
-    logprops().cliprate_ = clipratefld_->getfValue();
+    logprops().cliprate_ = clipratefld_->getFValue();
     if ( mIsUdf( logprops().cliprate_) || logprops().cliprate_ > 100 )
     {
 	logprops().cliprate_= 0.0;
@@ -550,8 +550,9 @@ void uiWellLogDispProperties::doGetFromScreen()
     logprops().isrightfill_ = ( fillidx == 2 || fillidx == 3 );
     logprops().seqname_ = coltablistfld_->text();
     logprops().iscoltabflipped_ = flipcoltabfld_->isChecked();
-    logprops().repeat_ = stylefld_->isChecked( 1 ) ? repeatfld_->getValue() : 1;
-    logprops().repeatovlap_ = mCast( float, ovlapfld_->getValue() );
+    logprops().repeat_ =
+	stylefld_->isChecked( 1 ) ? repeatfld_->getIntValue() : 1;
+    logprops().repeatovlap_ = mCast( float, ovlapfld_->getIntValue() );
     logprops().seiscolor_ = logprops().style_ == 1 ? seiscolorfld_->color()
 						 : fillcolorfld_->color();
     logprops().name_ = logsfld_->box()->text();
