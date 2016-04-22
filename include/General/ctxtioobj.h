@@ -156,6 +156,9 @@ public:
     mStopAllowDeprecatedSection
     void		destroyAll();
 
+    virtual void	setName(const char* nm)	{ ctxt_.setName(nm); }
+    virtual BufferString getName() const	{ return ctxt_.getName(); }
+
     void		setObj(IOObj*); //!< destroys previous
     void		setObj(const MultiID&); //!< destroys previous
     void		setPar(IOPar*); //!< destroys previous
