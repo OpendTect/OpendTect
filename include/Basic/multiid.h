@@ -61,8 +61,8 @@ public:
 
     inline MultiID&	set( const MultiID& oth )
 			{ *this = oth; return *this; }
-    inline MultiID&	set( const char* str )
-			{ *this = str; return *this; }
+    inline MultiID&	set( const char* s )
+			{ *this = s; return *this; }
     inline MultiID&	add( SubID id )
 			{ *this += toString(id); return *this; }
 
