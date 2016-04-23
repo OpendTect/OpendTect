@@ -299,16 +299,14 @@ RefMan<HttpRequestProcess> HttpRequestManager::access( const HttpRequest& req,
     curpostdata_ = req.postdata_;
     accesstype_ = accesstype;
 
-    eventloop_->exit();
+    if ( eventloop_ )
+	eventloop_->exit();
 
     while ( !stopflag_ && !curreply_ )
 	lock_.wait();
 
     if ( stopflag_ )
-    {
-	lock_.unLock();
-	return 0;
-    }
+	{ lock_.unLock(); return 0; }
 
     RefMan<HttpRequestProcess> res = curreply_;
     curreply_ = 0;
