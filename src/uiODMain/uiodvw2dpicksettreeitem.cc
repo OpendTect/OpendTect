@@ -27,6 +27,11 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 #include "view2dpickset.h"
 
+#include "uivispartserv.h"
+#include "uiflatviewwin.h"
+#include "uiflatviewer.h"
+#include "uigraphicsview.h"
+
 
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
     : uiODVw2DTreeItem( uiStrings::sPickSet() )
@@ -226,6 +231,14 @@ bool uiODVw2DPickSetTreeItem::init()
     displayMiniCtab();
     mAttachCB( checkStatusChange(), uiODVw2DPickSetTreeItem::checkCB );
     vw2dpickset_->drawAll();
+
+    for ( int ivwr = 0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	mAttachCB(vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
+	    uiODVw2DPickSetTreeItem::keyPressedCB);
+    }
+
     return true;
 }
 
@@ -346,6 +359,22 @@ void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 {
     if ( vw2dpickset_ )
 	vw2dpickset_->enablePainting( isChecked() );
+}
+
+
+void uiODVw2DPickSetTreeItem::keyPressedCB(CallBacker* cb)
+{
+    if ( !uitreeviewitem_->isSelected() )
+	return;
+
+    mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
+    if ( !keh || !keh->hasEvent() ) return;
+
+    if ( KeyboardEvent::isSave(keh->event()) )
+	applMgr()->storePickSet( pickset_ );
+
+    if ( KeyboardEvent::isSaveAs(keh->event()) )
+	applMgr()->storePickSetAs( pickset_ );
 }
 
 
