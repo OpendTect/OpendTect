@@ -16,6 +16,27 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitreeview.h"
 #include "zaxistransform.h"
+#include "emposid.h"
+#include "uiempartserv.h"
+#include "uimpepartserv.h"
+#include "uivispartserv.h"
+#include "uiflatviewwin.h"
+#include "uiflatviewer.h"
+#include "uigraphicsview.h"
+
+#include "uiodvw2dhor2dtreeitem.h"
+#include "uiodvw2dhor3dtreeitem.h"
+
+#include "mpeengine.h"
+#include "emmanager.h"
+#include "emobject.h"
+#include "ioman.h"
+#include "ptrman.h"
+
+#include "hiddenparam.h"
+
+
+static HiddenParam<uiODVw2DTreeItem,int> objid_( -1 );
 
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
@@ -145,7 +166,9 @@ uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
     : uiTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
-{}
+{
+    objid_.setParam( this, -1 );
+}
 
 
 uiODVw2DTreeItem::~uiODVw2DTreeItem()
@@ -153,6 +176,7 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
     detachAllNotifiers();
     if ( datatransform_ )
 	datatransform_->unRef();
+    objid_.removeParam( this );
 }
 
 
@@ -162,6 +186,34 @@ bool uiODVw2DTreeItem::init()
     if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
 
     return uiTreeItem::init();
+}
+
+
+void uiODVw2DTreeItem::addKeyBoardEvent( int id )
+{
+    for(int ivwr = 0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++)
+    {
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	mAttachCB(vwr.rgbCanvas().getKeyboardEventHandler().keyPressed,
+	    uiODVw2DTreeItem::keyPressedCB);
+    }
+    if ( id>=0 )
+	objid_.setParam( this, id );
+}
+
+
+void uiODVw2DTreeItem::keyPressedCB( CallBacker* cb )
+{
+    if ( !uitreeviewitem_->isSelected() )
+	return;
+
+    mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
+    if ( !keh || !keh->hasEvent() ) return;
+
+    if ( KeyboardEvent::isSave(keh->event()) )
+	doSave();
+    else if ( KeyboardEvent::isSaveAs(keh->event()) )
+	doSaveAs();
 }
 
 
@@ -354,4 +406,73 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
     }
 
     return 0;
+}
+
+
+void uiODVw2DTreeItem::doSave()
+{
+    if ( objid_.getParam( this )<0 )
+	return;
+
+    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    bool savewithname = false;
+    if ( !EM::EMM().getMultiID(emid).isEmpty() )
+	savewithname = !IOM().get( EM::EMM().getMultiID(emid) );
+    doStoreObject( savewithname );
+
+    if ( MPE::engine().hasTracker(emid) )
+    {
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	if ( mps ) 
+	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emid) );
+    }
+}
+
+
+void uiODVw2DTreeItem::doSaveAs()
+{
+    if ( objid_.getParam( this )<0 )
+	return;
+
+    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    doStoreObject( true );
+
+    if ( MPE::engine().hasTracker(emid) )
+    {
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	if ( mps ) 
+	{
+	   const MultiID oldmid = applMgr()->EMServer()->getStorageID( emid );
+	   mps->prepareSaveSetupAs( oldmid );
+	   mps->saveSetupAs( EM::EMM().getObject(emid)->multiID() );
+	}
+    }
+}
+
+
+void uiODVw2DTreeItem::doStoreObject( bool saveas )
+{
+    if ( objid_.getParam( this )<0 )
+	return;
+
+    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    applMgr()->EMServer()->storeObject( emid, saveas );
+    renameVisObj();
+}
+
+
+void uiODVw2DTreeItem::renameVisObj()
+{
+    if ( objid_.getParam( this )<0 )
+	return;
+
+    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    const MultiID midintree = applMgr()->EMServer()->getStorageID( emid );
+    TypeSet<int> visobjids;
+    applMgr()->visServer()->findObject( midintree, visobjids );
+    name_ = ::toUiString( applMgr()->EMServer()->getName( emid ) );
+    for ( int idx = 0; idx<visobjids.size(); idx++ )
+      applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+    uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
+    applMgr()->visServer()->triggerTreeUpdate();
 }

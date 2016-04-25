@@ -43,6 +43,8 @@ public:
     static bool		create(uiTreeItem*,int vwrvisid,int displayid);
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
+    void		addKeyBoardEvent( int id );
+
 
 protected:
 
@@ -68,6 +70,14 @@ protected:
     virtual void	showAllChildren();
     virtual void	hideAllChildren();
     virtual void	removeAllChildren();
+    void		keyPressedCB(CallBacker*);
+    void		doSave();
+    void		doSaveAs();
+    void		renameVisObj();
+
+private:
+    void		doStoreObject(bool);
+
 };
 
 
