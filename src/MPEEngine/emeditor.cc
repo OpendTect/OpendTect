@@ -43,9 +43,8 @@ ObjectEditor::~ObjectEditor()
 {
     CallBack::removeFromMainThread( this );
 
-    emobject.unRef();
     deepErase( geeditors );
-    sections.erase();
+    emobject.unRef();
 }
 
 

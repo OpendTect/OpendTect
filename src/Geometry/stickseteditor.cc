@@ -21,14 +21,13 @@ namespace Geometry
 StickSetEditor::StickSetEditor( Geometry::FaultStickSet& fss )
     : ElementEditor( fss )
 {
-    fss.nrpositionnotifier.notify( mCB(this,StickSetEditor,addedKnots) );
+    mAttachCB(  fss.nrpositionnotifier, StickSetEditor::addedKnots );
 }
 
 
 StickSetEditor::~StickSetEditor()
 {
-    FaultStickSet& fss = reinterpret_cast<FaultStickSet&>(element);
-    fss.nrpositionnotifier.remove( mCB(this,StickSetEditor,addedKnots) );
+    detachAllNotifiers();
 }
 
 
