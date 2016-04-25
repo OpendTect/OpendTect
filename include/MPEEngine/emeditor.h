@@ -48,7 +48,7 @@ mExpClass(MPEEngine) ObjectEditor : public CallBacker
 public:
 			ObjectEditor(EM::EMObject&);
 
-    const EM::EMObject&	emObject() const	{ return emobject; }
+    const EM::EMObject&	emObject() const	{ return *emobject_; }
 
     virtual void	startEdit( const EM::PosID& );
     virtual bool	setPosition(const Coord3&);
@@ -58,9 +58,9 @@ public:
     bool		getSnapAfterEdit() const;
     void		setSnapAfterEdit(bool yn);
 
-    void		addUser()		{ nrusers++; }
-    void		removeUser()		{ nrusers--; }
-    int			nrUsers()   const	{ return nrusers; }
+    void		addUser()		{ nrusers_++; }
+    void		removeUser()		{ nrusers_--; }
+    int			nrUsers()   const	{ return nrusers_; }
 
     virtual const
     BufferStringSet*	getAlongMovingStyleNames() const { return 0; }
@@ -128,23 +128,23 @@ protected:
 
     virtual void			cloneMovingNode()		{}
 
-    EM::EMObject&			emobject;
-    EM::PosID				movingnode;
-    Coord3				startpos;
-    TypeSet<EM::PosID>			changedpids;
-    TypeSet<EM::PosID>			alongmovingnodes;
-    TypeSet<Coord3>			alongmovingnodesstart;
-    TypeSet<float>			alongmovingnodesfactors;
+    RefMan<EM::EMObject>		emobject_;
+    EM::PosID				movingnode_;
+    Coord3				startpos_;
+    TypeSet<EM::PosID>			changedpids_;
+    TypeSet<EM::PosID>			alongmovingnodes_;
+    TypeSet<Coord3>			alongmovingnodesstart_;
+    TypeSet<float>			alongmovingnodesfactors_;
 
-    int					nrusers;
+    int					nrusers_;
 
 private:
-    ObjectSet<Geometry::ElementEditor>	geeditors;
-    TypeSet<EM::SectionID>		sections;
+    ObjectSet<Geometry::ElementEditor>	geeditors_;
+    TypeSet<EM::SectionID>		sections_;
 
-    bool				snapafterthisedit;
+    bool				snapafterthisedit_;
 
-    bool				snapafteredit;
+    bool				snapafteredit_;
 };
 
 mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );

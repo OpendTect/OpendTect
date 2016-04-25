@@ -270,7 +270,7 @@ const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
 
 bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet(EM::FaultStickSet*,emfss,&emobject);
+    mDynamicCastGet(EM::FaultStickSet*,emfss, emobject_.ptr());
     bool change = false;
     for ( int sectionidx=emfss->nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -494,11 +494,11 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 
 void FaultStickSetEditor::cloneMovingNode()
 {
-    setLastClicked( movingnode );
-    mDynamicCastGet( EM::FaultStickSet*, emfss, &emobject );
+    setLastClicked( movingnode_ );
+    mDynamicCastGet( EM::FaultStickSet*, emfss, emobject_.ptr() );
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
-    const EM::SectionID& sid = movingnode.sectionID();
-    const int sticknr = movingnode.getRowCol().row();
+    const EM::SectionID& sid = movingnode_.sectionID();
+    const int sticknr = movingnode_.getRowCol().row();
     Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
     const MultiID* pickedmid = fssg.pickedMultiID( sid, sticknr );
     const Pos::GeomID pickedgeomid = fssg.pickedGeomID( sid, sticknr );
@@ -506,13 +506,13 @@ void FaultStickSetEditor::cloneMovingNode()
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;
     getInteractionInfo( insertpid, pickedmid, pickednm, pickedgeomid,
-			startpos, &normal );
+			startpos_, &normal );
     if ( insertpid.isUdf() )
 	return;
 
-    if ( movingnode != insertpid )
+    if ( movingnode_ != insertpid )
     {
-	fssg.insertKnot( sid, insertpid.subID(), startpos, true );
+	fssg.insertKnot( sid, insertpid.subID(), startpos_, true );
 	return;
     }
 
@@ -527,7 +527,7 @@ void FaultStickSetEditor::cloneMovingNode()
 
 	if ( currc.toInt64() == insertpid.subID() )
 	{
-	    ObjectEditor::setPosition( prevpid, startpos );
+	    ObjectEditor::setPosition( prevpid, startpos_ );
 	    break;
 	}
 

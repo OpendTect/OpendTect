@@ -152,7 +152,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 
 bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet( EM::PolygonBody*, polygonsurf, &emobject );
+    mDynamicCastGet( EM::PolygonBody*, polygonsurf, emobject_.ptr() );
     if ( !polygonsurf )
 	return false;
 
@@ -305,16 +305,16 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     const StepInterval<int> colrg = surface->colRange( rc.row() );
     if ( colrg.isUdf() ) return false;
 	
-    const bool addtoundo = changedpids.indexOf(pid) == -1;
+    const bool addtoundo = changedpids_.indexOf(pid) == -1;
     if ( addtoundo )
-	changedpids += pid;
+	changedpids_ += pid;
 
     if ( colrg.nrSteps()<3 )
-	return emobject.setPos( pid, mpos, addtoundo );
+	return emobject_->setPos( pid, mpos, addtoundo );
 
     const int zscale =  SI().zDomain().userFactor();   
-    const int previdx = rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
-    const int nextidx = rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
+    const int previdx=rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
+    const int nextidx=rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
     
     Coord3 curpos = mpos; curpos.z *= zscale;
     Coord3 prevpos = surface->getKnot( RowCol(rc.row(), previdx) );
@@ -353,7 +353,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	}
     }
 
-    return emobject.setPos( pid, mpos, addtoundo );
+    return emobject_->setPos( pid, mpos, addtoundo );
 }
 
 
@@ -388,7 +388,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pt )
 	{
-	    sqdist = (float) mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist=(float) mCompareCoord(pt).sqDistTo(mCompareCoord(mousepos));
 	    if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
 		return;
 	}

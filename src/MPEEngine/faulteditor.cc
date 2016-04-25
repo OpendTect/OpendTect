@@ -371,7 +371,7 @@ const EM::PosID FaultEditor::getNearstStick( EM::SectionID& sid,
 
 bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet(EM::Fault3D*,fault,&emobject);
+    mDynamicCastGet(EM::Fault3D*,fault,emobject_.ptr());
     bool change = false;
     for ( int sectionidx=fault->nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -637,23 +637,23 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
 void FaultEditor::cloneMovingNode()
 {
-    setLastClicked( movingnode );
-    mDynamicCastGet( EM::Fault3D*, emfault, &emobject );
+    setLastClicked( movingnode_ );
+    mDynamicCastGet( EM::Fault3D*, emfault, emobject_.ptr() );
     EM::Fault3DGeometry& fg = emfault->geometry();
-    const EM::SectionID& sid = movingnode.sectionID();
-    const int sticknr = movingnode.getRowCol().row();
+    const EM::SectionID& sid = movingnode_.sectionID();
+    const int sticknr = movingnode_.getRowCol().row();
     Geometry::FaultStickSurface* fss = fg.sectionGeometry( sid );
 
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;
     bool makenewstick = false; 
-    getInteractionInfo( makenewstick, insertpid, startpos, &normal );
+    getInteractionInfo( makenewstick, insertpid, startpos_, &normal );
     if ( makenewstick || insertpid.isUdf() )
 	return;
 
-    if ( movingnode != insertpid )
+    if ( movingnode_ != insertpid )
     {
-	fg.insertKnot( sid, insertpid.subID(), startpos, true );
+	fg.insertKnot( sid, insertpid.subID(), startpos_, true );
 	return;
     }
 
@@ -668,7 +668,7 @@ void FaultEditor::cloneMovingNode()
 
 	if ( currc.toInt64() == insertpid.subID() )
 	{
-	    ObjectEditor::setPosition( prevpid, startpos );
+	    ObjectEditor::setPosition( prevpid, startpos_ );
 	    break;
 	}
 
