@@ -32,11 +32,11 @@ enum LaunchType	{ Wait4Finish, RunInBG };
 mExpClass(Basic) CommandExecPars
 {
 public:
-			CommandExecPars( bool isodprog=true )
+			CommandExecPars( bool isbatchprog=false )
 			    : needmonitor_(false)
 			    , createstreams_(false)
-			    , prioritylevel_(isodprog ? -1.0f : 0.0f)
-			    , launchtype_(isodprog?RunInBG:Wait4Finish)
+			    , prioritylevel_(isbatchprog ? -1.0f : 0.0f)
+			    , launchtype_(isbatchprog ? RunInBG : Wait4Finish)
 			    , isconsoleuiprog_(false)	{}
 
     mDefSetupClssMemb(CommandExecPars,bool,createstreams);

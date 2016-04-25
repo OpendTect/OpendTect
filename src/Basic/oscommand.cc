@@ -775,12 +775,12 @@ int OS::CommandLauncher::catchError()
 }
 
 
-static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog,
+static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isbatchprog,
 			 BufferString* stdoutput, BufferString* stderror )
 {
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
-    OS::CommandExecPars cp( isodprog );
+    OS::CommandExecPars cp( isbatchprog );
     cp.launchtype( ltyp ).createstreams( stdoutput || stderror );
     const bool ret = cl.execute( cp );
     if ( stdoutput )

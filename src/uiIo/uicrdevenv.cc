@@ -46,7 +46,7 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 	, workdirfld(0)
 	, basedirfld(0)
 {
-    const uiString titltxt = 
+    const uiString titltxt =
 	tr("For OpendTect development you'll need a %1 dir\n"
         "Please specify where this directory should be created.")
 	.arg(toUiString("$WORK"));
@@ -170,7 +170,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
       tr("The OpendTect window will FREEZE during this process\n"
       "- for upto a few minutes.\n\n"
       "Meanwhile, do you want to take a look at the developers documentation?");
-    
+
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
@@ -183,8 +183,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     char shortpath[1024];
     GetShortPathName(workdirnm.buf(),shortpath,1024);
     cmd += " "; cmd += shortpath;
-    
-    OS::CommandExecPars execpars( true );
+
+    OS::CommandExecPars execpars( false );
     execpars.launchtype( OS::Wait4Finish )
 	    .isconsoleuiprog( true );
     OS::MachineCommand mc( cmd );
