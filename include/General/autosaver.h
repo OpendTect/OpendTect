@@ -92,7 +92,7 @@ private:
 /*!\brief Auto-save manager. Singleton class. */
 
 mExpClass(General) AutoSaveMgr : public CallBacker
-{
+{ mODTextTranslationClass(AutoSaveMgr)
 public:
 
     void		add(AutoSaver*);
@@ -103,8 +103,12 @@ private:
 
 			AutoSaveMgr();
 
-    Timer*		timer_;
+    Timer&		timer_;
     ObjectSet<AutoSaver> savers_;
+    Threads::Lock	lock_;
+    int			nrcycles_; // one per second
+
+    void		timerTick(CallBacker*);
 
 };
 

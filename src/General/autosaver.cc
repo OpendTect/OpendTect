@@ -11,6 +11,7 @@
 #include "ioman.h"
 #include "iopar.h"
 #include "separstr.h"
+#include "timer.h"
 
 
 OD::AutoSaver::AutoSaver( const Monitorable& obj )
@@ -114,4 +115,50 @@ bool OD::AutoSaver::doWork( bool forcesave )
     }
 
     return true;
+}
+
+
+static OD::AutoSaveMgr* themgr_ = 0;
+static Threads::Lock themgrlock_;
+OD::AutoSaveMgr& OD::AutoSaveMgr::getInst()
+{
+    Threads::Locker locker( themgrlock_ );
+    if ( !themgr_ )
+	themgr_ = new OD::AutoSaveMgr;
+    return *themgr_;
+}
+
+
+OD::AutoSaveMgr::AutoSaveMgr()
+    : timer_(*new Timer)
+    , nrcycles_(0)
+{
+    timer_.tick.notify( mCB(this,AutoSaveMgr,timerTick) );
+    timer_.start( 1000, true );
+}
+
+
+void OD::AutoSaveMgr::add( AutoSaver* saver )
+{
+    Threads::Locker locker( lock_ );
+    savers_ += saver;
+}
+
+
+void OD::AutoSaveMgr::timerTick( CallBacker* )
+{
+    Threads::Locker locker( lock_ );
+
+    nrcycles_++;
+    for ( int idx=0; idx<savers_.size(); idx++ )
+    {
+	AutoSaver* saver = savers_[idx];
+	if ( saver->isFinished() )
+	    { delete savers_.removeSingle(idx); idx--; }
+	else if ( !saver->act(nrcycles_) )
+	    ErrMsg( BufferString("Auto-save failed:\n",
+				 saver->errMsg().getFullString()) );
+    }
+
+    timer_.start( 1000, true );
 }
