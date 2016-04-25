@@ -73,10 +73,3 @@ bool NamedMonitorable::operator ==( const NamedMonitorable& oth ) const
     mLock4Read();
     return name_ == oth.getName();
 }
-
-
-bool NamedMonitorable::operator >( const NamedObject& oth ) const
-{
-    mLock4Read();
-    return name_ > oth.getName();
-}

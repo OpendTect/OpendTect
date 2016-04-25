@@ -30,8 +30,6 @@ public:
     NamedObject&	operator =(const NamedObject&);
     bool		operator ==( const NamedObject& oth ) const
 			{ return name_ == oth.getName(); }
-    virtual bool	operator >( const NamedObject& oth ) const
-			{ return name_ > oth.getName(); }
 
     virtual const OD::String& name() const		{ return name_; }
     virtual BufferString getName() const		{ return name_; }
@@ -62,7 +60,6 @@ public:
     virtual		~NamedMonitorable();
     bool		operator ==(const NamedMonitorable&) const;
     bool		operator ==(const NamedObject&) const;
-    virtual bool	operator >(const NamedObject&) const;
 
     inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
     inline virtual	mImplSimpleMonitoredSet(setName,const char*,name_)
@@ -70,6 +67,13 @@ public:
     mDeclInstanceCreatedNotifierAccess( NamedMonitorable );
 
 };
+
+
+mGlobal(Basic) inline bool operator >( const NamedObject& obj1,
+				       const NamedObject& obj2 )
+{
+    return obj1.getName() > obj2.getName();
+}
 
 
 #endif
