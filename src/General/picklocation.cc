@@ -375,8 +375,9 @@ bool Pick::Location::fromString( const char* s )
 	{
 	    if ( mIsUdf(dirread.z) )
 		dirread.z = 0.;
-	    dir_ = Sphere( dirread );
 	}
+
+	dir_ = Sphere( dirread );
     }
 
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
