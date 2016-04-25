@@ -319,21 +319,7 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( int id, bool )
 
 uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 {
-    NotifierAccess* deselnotify = horview_ ? horview_->deSelection() : 0;
-    if ( deselnotify )
-	deselnotify->remove( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
-
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh =
-			&vwr.rgbCanvas().scene().getMouseEventHandler();
-	meh->buttonPressed.remove(
-		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
-	meh->buttonReleased.remove(
-		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
-    }
-
+         detachAllNotifiers();
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -378,7 +364,9 @@ bool uiODVw2DHor3DTreeItem::init()
 	horview_ = hd;
     }
 
-    emobj->change.notify( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
+     if ( emobj )
+	mAttachCB( emobj->change, uiODVw2DHor3DTreeItem::emobjChangeCB );
+
     displayMiniCtab();
 
     name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
@@ -389,12 +377,11 @@ bool uiODVw2DHor3DTreeItem::init()
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh =
-			&vwr.rgbCanvas().scene().getMouseEventHandler();
-	meh->buttonPressed.notify(
-		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
-	meh->buttonReleased.notify(
-		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
+	mAttachCB( vwr.rgbCanvas().scene().getMouseEventHandler().buttonPressed,
+	    uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB );
+
+	mAttachCB( vwr.rgbCanvas().scene().getMouseEventHandler().buttonPressed,
+	uiODVw2DHor3DTreeItem::mousePressInVwrCB );
     }
 
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
@@ -403,7 +390,8 @@ bool uiODVw2DHor3DTreeItem::init()
 
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
-	deselnotify->notify( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
+	mAttachCB( deselnotify, uiODVw2DHor3DTreeItem::deSelCB );
+    uiODVw2DTreeItem::addKeyBoardEvent( emid_ );
 
     return true;
 }
@@ -504,36 +492,11 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mSaveID )
     {
-	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
-	if ( !savewithname )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
-	    savewithname = !ioobj;
-	}
-
-	ems->storeObject( emid_, savewithname );
-	const MultiID mid = ems->getStorageID(emid_);
-	mps->saveSetup( mid );
-	name_ = ems->getUiName( emid_ );
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	renameVisObj();
+	doSave();
     }
     else if ( mnuid == mSaveAsID )
     {
-	const MultiID oldmid = ems->getStorageID(emid_);
-	mps->prepareSaveSetupAs( oldmid );
-
-	MultiID storedmid;
-	ems->storeObject( emid_, true, storedmid );
-	name_ = mToUiStringTodo(ems->getName( emid_ ));
-
-	const MultiID midintree = ems->getStorageID(emid_);
-	EM::EMM().getObject(emid_)->setMultiID( storedmid);
-	mps->saveSetupAs( storedmid );
-	EM::EMM().getObject(emid_)->setMultiID( midintree );
-
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	renameVisObj();
+	doSaveAs();
     }
     else if ( mnuid == mStartID )
     {

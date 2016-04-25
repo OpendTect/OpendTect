@@ -95,6 +95,8 @@ protected:
     bool		trackerefed_;
     void                emobjAbtToDelCB(CallBacker*);
     void		renameVisObj();
+			/*!<\don't use it. only for keep ABI.*/
+
 };
 
 #endif
