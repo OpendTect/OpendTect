@@ -20,6 +20,7 @@ list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc posidxpairdataset.c
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 list ( APPEND OD_MODULE_SOURCES
 	array2dbitmap.cc
+	autosaver.cc
 	basemap.cc
 	batchjobdispatch.cc
 	beachballdata.cc

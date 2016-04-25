@@ -22,11 +22,16 @@ mExpClass(Basic) NamedObject
 {
 public:
 
-			NamedObject(const char* nm=0);
-			NamedObject(const NamedObject&);
-    virtual		~NamedObject();
+			NamedObject( const char* nm=0 )
+			    : name_(nm)			{}
+			NamedObject( const NamedObject& oth )
+			    : name_(oth.getName())	{}
+    virtual		~NamedObject()			{}
     NamedObject&	operator =(const NamedObject&);
-    bool		operator ==(const NamedObject&) const;
+    bool		operator ==( const NamedObject& oth ) const
+			{ return name_ == oth.getName(); }
+    virtual bool	operator >( const NamedObject& oth ) const
+			{ return name_ > oth.getName(); }
 
     virtual const OD::String& name() const		{ return name_; }
     virtual BufferString getName() const		{ return name_; }
@@ -41,7 +46,8 @@ protected:
 
 };
 
-/*!\brief Monitorable object with a name.  */
+
+/*!\brief Monitorable object with a name. All but name() are MT-safe. */
 
 mExpClass(Basic) NamedMonitorable : public Monitorable
 				  , public NamedObject
@@ -56,9 +62,10 @@ public:
     virtual		~NamedMonitorable();
     bool		operator ==(const NamedMonitorable&) const;
     bool		operator ==(const NamedObject&) const;
+    virtual bool	operator >(const NamedObject&) const;
 
-    virtual BufferString getName() const;
-    virtual void	setName(const char*);
+    inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
+    inline virtual	mImplSimpleMonitoredSet(setName,const char*,name_)
 
     mDeclInstanceCreatedNotifierAccess( NamedMonitorable );
 

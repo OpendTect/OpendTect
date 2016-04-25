@@ -13,34 +13,11 @@
 mDefineInstanceCreatedNotifierAccess(NamedMonitorable);
 
 
-NamedObject::NamedObject( const char* nm )
-    : name_(nm)
-{
-}
-
-
-NamedObject::NamedObject( const NamedObject& oth )
-    : name_(oth.getName())
-{
-}
-
-
-NamedObject::~NamedObject()
-{
-}
-
-
 NamedObject& NamedObject::operator =( const NamedObject& oth )
 {
     if ( this != &oth )
 	name_ = oth.getName();
     return *this;
-}
-
-
-bool NamedObject::operator ==( const NamedObject& oth ) const
-{
-    return name_ == oth.getName();
 }
 
 
@@ -98,20 +75,8 @@ bool NamedMonitorable::operator ==( const NamedMonitorable& oth ) const
 }
 
 
-BufferString NamedMonitorable::getName() const
+bool NamedMonitorable::operator >( const NamedObject& oth ) const
 {
     mLock4Read();
-    return name_;
-}
-
-
-void NamedMonitorable::setName( const char* nm )
-{
-    mLock4Read();
-    if ( name_ != nm )
-    {
-	mLock2Write();
-	name_ = nm;
-	mSendChgNotif();
-    }
+    return name_ > oth.getName();
 }

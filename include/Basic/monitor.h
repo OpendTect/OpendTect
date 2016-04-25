@@ -72,6 +72,11 @@ protected:
 				//!< objectChanged called with released lock
     void			sendDelNotif();
 
+    template <class T>
+    inline T			getSimple(const T&) const;
+    template <class TMember,class TSetTo>
+    inline void			setSimple(TMember&,TSetTo);
+
 private:
 
     Notifier<Monitorable>	chgnotif_;
@@ -84,7 +89,38 @@ private:
 #define mLock4Read() AccessLockHandler accesslockhandler_( *this )
 #define mLock4Write() AccessLockHandler accesslockhandler_( *this, false )
 #define mLock2Write() accesslockhandler_.convertToWrite()
+#define mUnlockAllAccess() accesslockhandler_.locker_.unlockNow()
 #define mSendChgNotif() sendChgNotif( accesslockhandler_ )
+
+
+template <class T>
+inline T Monitorable::getSimple( const T& memb ) const
+{
+    mLock4Read();
+    return memb;
+}
+
+template <class TMember,class TSetTo>
+inline void Monitorable::setSimple( TMember& memb, TSetTo setto )
+{
+    mLock4Read();
+    if ( memb == setto )
+	return;
+    if ( mLock2Write() || !(memb == setto) )
+    {
+	memb = setto;
+	mSendChgNotif();
+    }
+}
+
+
+#define mImplSimpleMonitoredGet(fnnm,typ,memb) \
+    typ fnnm() const { return getSimple( memb ); }
+#define mImplSimpleMonitoredSet(fnnm,typ,memb) \
+    void fnnm( typ _set_to_ ) { setSimple( memb, _set_to_ ); }
+#define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb) \
+    pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
+    pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb)
 
 
 #endif
