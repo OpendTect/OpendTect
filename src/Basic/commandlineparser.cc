@@ -252,3 +252,28 @@ bool CommandLineParser::getVal( const char* key, BufferString& val,
     val.set( argv_[validx]->buf() );
     return true;
 }
+
+
+void CommandLineParser::addKey( const char* key, BufferString& cmd,
+				const char* valstr )
+{
+    if ( !cmd.isEmpty() )
+	cmd.addSpace();
+
+    BufferString tmpkey;
+    createKey( key, tmpkey );
+    cmd.add( tmpkey );
+    if ( !valstr )
+	return;
+
+    cmd.addSpace().add( valstr );
+}
+
+
+void CommandLineParser::addFilePath( const char* fp, BufferString& cmd )
+{
+    if ( !cmd.isEmpty() )
+	cmd.addSpace();
+
+    cmd.add( "\"" ).add( fp ).add( "\"" );
+}
