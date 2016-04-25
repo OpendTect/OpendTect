@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+
 
 #include "uiodrandlinetreeitem.h"
 
@@ -172,18 +172,10 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 
     if ( mnuid==0 )
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
-	ctio->ctxt_.forread_ = true;
-	ctio->fillDefault();
-	if ( !ctio->ioobj_ )
-	{
-	    uiODRandomLineTreeItem* itm =
-		    new uiODRandomLineTreeItem(-1, getType(mnuid) );
-	    addChild( itm, false );
-	    itm->displayDefaultData();
-	}
-	else
-	    load( *ctio->ioobj_, mnuid );
+	uiODRandomLineTreeItem* itm =
+		new uiODRandomLineTreeItem(-1, getType(mnuid) );
+	addChild( itm, false );
+	itm->displayDefaultData();
     }
     else if ( mnuid==1 )
     {
@@ -477,7 +469,9 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
-    if (  rtd->nrNodes() <= 0 ) return;
+    if ( !rtd || rtd->nrNodes() <= 0 )
+	return;
+
     const bool islocked = rtd->isGeometryLocked() || rtd->isLocked();
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &editnodesmnuitem_,
 		      !islocked, false );
@@ -512,7 +506,7 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 	}
 	else				// too many nodes for tree menu
 	    mAddInsertNodeMnuItm( -1,
-		    tr("<use right-click menu of random line in scene>") );
+			tr("<use right-click menu of random line in scene>") );
     }
 
     mAddMenuOrTBItem( istb, 0, menu, &saveasmnuitem_, true, false );
