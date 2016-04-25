@@ -76,7 +76,7 @@ public:
     const VW2DFaultSS2D* vw2DObject() const	{ return fssview_; }
 
 protected:
-
+    
     bool		init();
     const char*		parentType() const
 			{return typeid(uiODVw2DFaultSS2DParentTreeItem).name();}
@@ -93,6 +93,7 @@ protected:
     EM::ObjectID	emid_;
     VW2DFaultSS2D*	fssview_;
     void		renameVisObj();
+			/*!<\don't use it. only for keep ABI.*/
 };
 
 

@@ -285,6 +285,8 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     mAttachCB( viewer2D()->viewControl()->editPushed(),
 	       uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
 
+    uiODVw2DTreeItem::addKeyBoardEvent( emid_ );
+
     return true;
 }
 
@@ -381,18 +383,10 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     }
     else if ( mnuid==mSaveID || mnuid==mSaveAsID )
     {
-	bool savewithname = (mnuid == mSaveAsID) ||
-			    (EM::EMM().getMultiID( emid_ ).isEmpty());
-	if ( !savewithname )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
-	    savewithname = !ioobj;
-	}
-
-	applMgr()->EMServer()->storeObject( emid_, savewithname );
-	name_ = applMgr()->EMServer()->getUiName( emid_ );
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	renameVisObj();
+	if ( mnuid==mSaveID )
+	    doSave();
+	if ( mnuid==mSaveAsID )
+	    doSaveAs();
     }
     else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {
