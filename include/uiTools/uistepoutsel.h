@@ -97,11 +97,13 @@ public:
 				  const uiString& seltxt=uiStrings::sStepout());
 			~uiStepout3DSel() {}
 
-    int 		val(int dir) const;
+    int			getZVal() const; //nr samples
+    int			val(int dir) const;
+
+    void		setZVal(int);
     void		setVals(int,int,int);
     virtual void	setVals(int); //!< similar to 3x setVal
 
-    int 		getZVal() const; //nr samples
     void                setZInterval(StepInterval<int> zrg); //nr samples
 
     void		setZFieldName(const char*);

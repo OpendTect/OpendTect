@@ -177,6 +177,12 @@ int uiStepout3DSel::val( int dir ) const
 }
 
 
+void uiStepout3DSel::setZVal( int val3 )
+{
+    fld3_->setValue( val3 );
+}
+
+
 void uiStepout3DSel::setVals( int val1, int val2, int val3 )
 {
     fld1_->setValue( val1 );
