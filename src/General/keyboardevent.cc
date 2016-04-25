@@ -56,6 +56,26 @@ bool KeyboardEvent::isReDo( const KeyboardEvent& kbe )
 }
 
 
+bool KeyboardEvent::isSave( const KeyboardEvent& kbe )
+{
+    const OD::ButtonState bs =
+	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
+    return bs == OD::ControlButton && 
+	!OD::shiftKeyboardButton(bs) && 
+	kbe.key_==OD::KB_S && !kbe.isrepeat_;
+}
+
+
+bool KeyboardEvent::isSaveAs( const KeyboardEvent& kbe )
+{
+    const OD::ButtonState bs =
+	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
+    const bool ctrlplusshift = 
+	OD::ctrlKeyboardButton(bs) && OD::shiftKeyboardButton(bs) ;
+    return ctrlplusshift && kbe.key_==OD::KB_S && !kbe.isrepeat_;
+}
+
+
 KeyboardEventHandler::KeyboardEventHandler()
     : keyPressed(this)
     , keyReleased(this)
