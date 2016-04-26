@@ -279,10 +279,12 @@ bool testDetachBeforeRemoval()
 class NotifierOwner : public CallBacker
 {
 public:
+
     NotifierOwner()
 	: stopflag_( false ), seed_( 5323 )
     {
-	thread_ = new Threads::Thread( mCB(this,NotifierOwner,modifyNotifiers));
+	thread_ = new Threads::Thread( mCB(this,NotifierOwner,modifyNotifiers),
+					"NotifierOwner" );
     }
     ~NotifierOwner()
     {
@@ -355,7 +357,8 @@ public:
     ReceiversOwner( NotifierOwner& no )
 	: stopflag_( false ), seed_( 1234 ), notifierowner_( no )
     {
-	thread_ = new Threads::Thread(mCB(this,ReceiversOwner,modifyRecievers));
+	thread_ = new Threads::Thread(mCB(this,ReceiversOwner,modifyRecievers),
+					"ReceiversOwner" );
     }
 
     ~ReceiversOwner()

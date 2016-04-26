@@ -174,7 +174,7 @@ int main(int argc, char** argv)
     if ( !res )
 	ExitProgram( 1 );
 
-    Threads::Thread thread( mSCB( threadCB ) );
+    Threads::Thread thread( mSCB( threadCB ), "test_networkaccess thread" );
     thread.waitForFinish();
 
     if ( !threadres )

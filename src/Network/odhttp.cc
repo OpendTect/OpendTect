@@ -246,8 +246,10 @@ HttpRequestManager::HttpRequestManager()
     , stopflag_( false )
     , eventloop_( 0 )
 {
-    thread_ = new Threads::Thread(mCB(this,HttpRequestManager,threadFuncCB));
+    thread_ = new Threads::Thread( mCB(this,HttpRequestManager,threadFuncCB),
+				   "HttpRequestManager" );
 }
+
 
 HttpRequestManager::~HttpRequestManager()
 {

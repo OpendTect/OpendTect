@@ -193,7 +193,8 @@ public:
     bool sendPacketInOtherThread()
     {
 	sendres_ = false;
-	Threads::Thread thread( mCB(this,Tester,threadSend) );
+	Threads::Thread thread( mCB(this,Tester,threadSend),
+				"threadSend thread" );
 	thread.waitForFinish();
 	return sendres_;
     }

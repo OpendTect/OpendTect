@@ -89,8 +89,8 @@ bool testAtomic( const char* valtype )
     AtomicIncrementer<T> inc1( atomic, stopflag );
     AtomicIncrementer<T> inc2( atomic, stopflag );
 
-    Threads::Thread t1( mCB(&inc1,AtomicIncrementer<T>,doRun) );
-    Threads::Thread t2( mCB(&inc2,AtomicIncrementer<T>,doRun) );
+    Threads::Thread t1( mCB(&inc1,AtomicIncrementer<T>,doRun), "t1" );
+    Threads::Thread t2( mCB(&inc2,AtomicIncrementer<T>,doRun), "t2" );
 
     int count = 10000000;
     bool successfound = false, failurefound = false;
@@ -214,7 +214,7 @@ struct LockerTester : public CallBacker
 	, res_( false )
 	, hastried_( false )
 	, canunlock_( false )
-	, thread_( mCB( this, LockerTester, tryLock ) )
+	, thread_( mCB( this, LockerTester, tryLock ), "locktest thread" )
     {
 	hastriedlock_.lock();
 	while ( !hastried_ )

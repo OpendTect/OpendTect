@@ -277,14 +277,17 @@ protected:
 the function or CallBack to execute.
 
   The process that has created the thread must call destroy() or detach().
+
+  Try to give each thread a meaningful name, because the name will show up in
+  crash reports. If you really can't think of any, you can still pass null.
 */
 
 mExpClass(Basic) Thread
 {
 public:
 
-				Thread(void (*)(void*),const char* nm=0);
-				Thread(const CallBack&,const char* nm=0);
+				Thread(void (*)(void*),const char* nm);
+				Thread(const CallBack&,const char* nm);
     virtual			~Thread();
 
     const void*			threadID() const;
