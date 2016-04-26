@@ -52,6 +52,8 @@ bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
 	bothor_->ref();
     }
 
+    deleteAndZeroPtr( iter_ );
+
     return tophor_ && bothor_;
 }
 
@@ -75,7 +77,7 @@ bool HorizonModifier::getNextNode( BinID& bid )
 
 
 bool HorizonModifier::getNextNode3D( BinID& bid )
-{   
+{
     if ( !iter_ )
     {
 	TrcKeySampling hrg;
@@ -193,7 +195,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
     const EM::Horizon* statichor = topisstatic_ ? tophor_ : bothor_;
     EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
     const float extrashift = SI().zStep() / (topisstatic_ ? 4.f : -4.f);
-    
+
     if ( !is2d_ )
     {
 	mDynamicCastGet(const EM::Horizon3D*,statichor3d,statichor)
@@ -207,7 +209,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	dynamichor3d->setZ( bid, newz, false );
     }
     else
-    { 
+    {
 	mDynamicCastGet(const EM::Horizon2D*,statichor2d,statichor)
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !statichor2d || !dynamichor2d ) return;
@@ -233,7 +235,7 @@ void HorizonModifier::removeNode( const BinID& bid )
 	dynamichor->unSetPos( dynamichor->sectionID(0), subid, false );
     }
     else
-    { 
+    {
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !dynamichor2d ) return;
 
