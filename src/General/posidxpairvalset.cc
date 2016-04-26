@@ -315,8 +315,9 @@ bool Pos::IdxPairValueSet::setNrVals( int newnrvals )
     const int nrdiff = newnrvals - nrvals_;
 
     if ( nrdiff < 0 )
-	data_.decrObjSize( (-nrdiff)*sizeof(float) );
-    else if ( nrdiff > 0 && !data_.incrObjSize(nrdiff*sizeof(float)) )
+	data_.decrObjSize( (-nrdiff)*sizeof(float), -1 );
+    else if ( nrdiff > 0
+	   && !data_.incrObjSize(nrdiff*sizeof(float),-1,getUdfArr(nrdiff)) )
 	return false;
 
     const_cast<int&>(nrvals_) = newnrvals;

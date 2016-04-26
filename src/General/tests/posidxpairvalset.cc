@@ -67,6 +67,9 @@ static bool checkContents( Pos::IdxPairValueSet& ds )
     }
     chckDs( ds, BufferString("** After add col ",lastcol,":") );
 
+    ds.setNrVals( 1 );
+    chckDs( ds, "** After keep 1 row only:" );
+
     return true;
 }
 

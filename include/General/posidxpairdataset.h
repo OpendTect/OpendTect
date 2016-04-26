@@ -158,7 +158,7 @@ public:
     ArrIdxType		nrPos(ArrIdxType lineidx) const;
 
     void		extend(const IdxPairDelta& stepout,const IdxPairStep&,
-	    			bool avoiddups=true);
+				bool avoiddups=true);
     void		add(const PosInfo::CubeData&,EntryCreatedFn fn=0);
 			    //!< Adds only IdxPair postions not yet in set
     void		randomSubselect(GlobIdxType maxsz);
@@ -187,8 +187,8 @@ public:
     bool		setObjSize(ObjSzType sz,ObjSzType offs_in_objs=-1,
 				    const void* initwith=0);
 			// offs_in_objs < 0: operate at end
-    void		decrObjSize(ObjSzType,ObjSzType offs=-1);
-    bool		incrObjSize(ObjSzType,ObjSzType offs=-1,const void* =0);
+    void		decrObjSize(ObjSzType,ObjSzType offs);
+    bool		incrObjSize(ObjSzType,ObjSzType offs,const void* =0);
 
 protected:
 
