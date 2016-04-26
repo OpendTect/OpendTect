@@ -11,65 +11,98 @@ ________________________________________________________________________
 #include "uitextfile.h"
 #include "uimain.h"
 
+#include "commandlineparser.h"
+#include "file.h"
 #include "moddepmgr.h"
+#include "oscommand.h"
 #include "prog.h"
 
-#ifdef __win__
-# include "file.h"
-#endif
+
+static void printBatchUsage()
+{
+    od_ostream& strm = od_ostream::logStream();
+    strm << "Usage: " << "od_FileBrowser";
+    strm << " [OPTION]... [FILE]...\n";
+    strm << "Opens an examine window for a text file argument, ";
+    strm << "optionaly editable.\n";
+    strm << "Mandatory argument:\n";
+    strm << "\t --" << File::ViewPars::sKeyFile();
+    strm << "\tfilename (must be the full path)\n";
+    strm << "Optional arguments:\n";
+    strm << "\t --" << File::ViewPars::sKeyMaxLines() << "\tnrlines\n";
+    strm << "\t --" << File::ViewPars::sKeyStyle() << "\ttext|table|log|bin\n";
+    strm << "\t --" << File::ViewPars::sKeyEdit() << "\t\tAllow file edition\n";
+    strm << "\t --" << OS::MachineCommand::sKeyFG() << "\t\tRun in foreground";
+    strm << od_endl;
+}
+
+
+#define mErrRet() \
+{ \
+    printBatchUsage(); \
+    return ExitProgram( 1 ); \
+}
 
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    CommandLineParser clp;
+    const int nrargs = clp.nrArgs();
+    if ( nrargs < 1 )
+	mErrRet()
 
-    OD::ModDeps().ensureLoaded( "uiTools" );
-    int argidx = 1;
-    File::ViewPars vp;
-    bool dofork = true;
+    BufferString fnm;
+    if ( clp.hasKey(File::ViewPars::sKeyFile()) )
+	clp.getVal( File::ViewPars::sKeyFile(), fnm );
+    else if ( nrargs == 1 )
+	fnm.set( clp.getArg(0) );
 
-    while ( argc > argidx )
+    if ( fnm.isEmpty() )
+	mErrRet()
+
+#ifdef __win__
+    if ( File::isLink(fnm) )
+	fnm = const_cast<char*>(File::linkTarget(fnm));
+#endif
+
+    od_ostream& strm = od_ostream::logStream();
+    if ( !File::exists(fnm.str()) )
     {
-	const FixedString arg( argv[argidx]+2 );
-#define mArgIs(s) arg == #s
-	if ( mArgIs(edit) )
-	    vp.editable_ = true;
-	else if ( mArgIs(maxlines) )
-	    { argidx++; vp.maxnrlines_ = toInt(argv[argidx]); }
-	else if ( mArgIs(style) )
-	{
-	    argidx++; const BufferString stl( argv[argidx] );
-	    if ( stl == "table" )
-		vp.style_ = File::Table;
-	    else if ( stl == "log" )
-		vp.style_ = File::Log;
-	    else if ( stl == "bin" )
-		vp.style_ = File::Bin;
-	}
-	else if ( mArgIs(nofork) || mArgIs(fg) )
-	    dofork = false;
-	else if ( mArgIs(h) || mArgIs(help) )
-	{
-	    od_cout() << "Usage: " << argv[0]
-		<< " [--readonly|--maxlines nrlines|--style table|log|bin]"
-		   " [filename]\nNote: filename has to be with FULL path."
-		<< od_endl;
-	    return ExitProgram( 0 );
-	}
-	argidx++;
+	strm << "File " << fnm << " does not exists." << od_endl;
+	return ExitProgram( 1 );
     }
-    argidx--;
+    else if ( !File::isReadable(fnm.str()) )
+    {
+	strm << "File " << fnm << " is not readable." << od_endl;
+	return ExitProgram( 1 );
+    }
+    else if ( !File::isFile(fnm.str()) )
+    {
+	strm << "File " << fnm << " is not a file." << od_endl;
+	return ExitProgram( 1 );
+    }
+
+    File::ViewPars vp;
+    clp.getVal( File::ViewPars::sKeyMaxLines(), vp.maxnrlines_ );
+    vp.editable_ = clp.hasKey( File::ViewPars::sKeyEdit() );
+
+    BufferString stl;
+    if ( clp.getVal(File::ViewPars::sKeyStyle(),stl) )
+	File::ViewStyleDef().parse( stl.str(), vp.style_ );
+
+    bool dofork = true;
+    if ( clp.hasKey(OS::MachineCommand::sKeyFG()) )
+	dofork = false;
+#ifdef __mac__
+    dofork = false;
+#endif
 
     if ( dofork )
 	ForkProcess();
 
-    BufferString fnm = argidx > 0 ? argv[argidx] : "";
+    OD::ModDeps().ensureLoaded( "uiTools" );
 
     uiMain app( argc, argv );
-
-#ifdef __win__
-    if ( File::isLink( fnm ) )
-	fnm = const_cast<char*>(File::linkTarget(fnm));
-#endif
 
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
