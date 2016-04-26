@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class BinIDValueSet;
-namespace PosInfo { class CubeData; }
 
 /*!
 \brief SeisDataPack for 2D and 3D seismic data.
