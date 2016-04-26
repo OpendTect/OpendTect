@@ -28,8 +28,8 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     , result_(0)
     , is2d_(is2d)
     , message_(tr("Sorting"))
-{
-}
+    , taskrun_(0)
+{}
 
 
 HorizonSorter::~HorizonSorter()
@@ -37,6 +37,12 @@ HorizonSorter::~HorizonSorter()
     delete result_;
     delete iterator_;
     deepUnRef( horizons_ );
+}
+
+
+void HorizonSorter::setTaskRunner( TaskRunner& taskrun )
+{
+    taskrun_ = &taskrun;
 }
 
 
@@ -179,7 +185,13 @@ int HorizonSorter::nextStep()
     if ( !nrdone_ )
     {
 	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
-	if ( horreader ) horreader->execute();
+	if ( horreader )
+	{
+	    if ( taskrun_ )
+		taskrun_->execute( *horreader.ptr() );
+	    else
+		horreader->execute();
+	}
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
@@ -233,7 +245,7 @@ int HorizonSorter::nextStep()
 	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
 	    const EM::SubID subid = binid_.toInt64();
 	    if ( is2d_ )
-	    {	
+	    {
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 		if ( !hor2d ) continue;
 
