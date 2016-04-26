@@ -12,11 +12,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizonsorter.h"
 
 #include "arrayndimpl.h"
+#include "hiddenparam.h"
 #include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "uistrings.h"
+
+static HiddenParam<HorizonSorter,TaskRunner*> taskrunhorsortermgr_(0);
 
 
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
@@ -29,14 +33,22 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     , is2d_(is2d)
     , message_(tr("Sorting"))
 {
+    taskrunhorsortermgr_.setParam( this, 0 );
 }
 
 
 HorizonSorter::~HorizonSorter()
 {
+    taskrunhorsortermgr_.removeParam( this );
     delete result_;
     delete iterator_;
     deepUnRef( horizons_ );
+}
+
+
+void HorizonSorter::setTaskRunner( TaskRunner& taskrun )
+{
+    taskrunhorsortermgr_.setParam( this, &taskrun );
 }
 
 
@@ -179,14 +191,21 @@ int HorizonSorter::nextStep()
     if ( !nrdone_ )
     {
 	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
-	if ( horreader ) horreader->execute();
+	TaskRunner* taskrun = taskrunhorsortermgr_.getParam( this );
+	if ( horreader )
+	{
+	    if ( taskrun )
+		taskrun->execute( *horreader.ptr() );
+	    else
+		horreader->execute();
+	}
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
 	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
 	    EM::EMObject* emobj = EM::EMM().getObject( objid );
 	    if ( !emobj )
-		mErrRet( tr("Could not load all horizons") );
+		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 
 	    emobj->ref();
 	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
@@ -233,7 +252,7 @@ int HorizonSorter::nextStep()
 	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
 	    const EM::SubID subid = binid_.toInt64();
 	    if ( is2d_ )
-	    {	
+	    {
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 		if ( !hor2d ) continue;
 

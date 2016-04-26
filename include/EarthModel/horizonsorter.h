@@ -37,10 +37,12 @@ public:
 					      bool is2d=false);
 				~HorizonSorter();
 
+    void			setTaskRunner(TaskRunner&);
+
     void			getSortedList(TypeSet<MultiID>&);
     const TrcKeySampling&		getBoundingBox() const	{ return tks_; }
     int				getNrCrossings(const MultiID&,
-	    				       const MultiID&) const;
+					       const MultiID&) const;
 
     uiString			uiMessage() const;
     od_int64			totalNr() const;
