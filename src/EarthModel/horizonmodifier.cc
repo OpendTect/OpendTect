@@ -53,6 +53,8 @@ bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
 	bothor_->ref();
     }
 
+    deleteAndZeroPtr( iter_ );
+
     return tophor_ && bothor_;
 }
 
