@@ -117,6 +117,7 @@ public:
     static const char*	sKeyMasterHost()	{ return "masterhost"; }
     static const char*	sKeyMasterPort()	{ return "masterport"; }
     static const char*	sKeyBG()		{ return "bg"; }
+    static const char*	sKeyFG()		{ return "fg"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
 
 protected:

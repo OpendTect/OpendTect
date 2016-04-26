@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "webfile.h"
 #include "filepath.h"
 #include "bufstringset.h"
+#include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "perthreadrepos.h"
@@ -43,6 +44,16 @@ ________________________________________________________________________
 
 #define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
+
+
+mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
+{
+	"text",
+	"table",
+	"log",
+	"bin",
+	0
+};
 
 
 namespace File
@@ -1118,20 +1129,21 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     if ( !exists(fnm) )
 	return false;
 
-    BufferString cmd( "\"",
-		      FilePath(GetExecPlfDir(),"od_FileBrowser").fullPath(),
-		      "\"" );
-    if ( vp.style_ != Text )
-	cmd.add( " --style ")
-	   .add( vp.style_ == File::Table	? "table"
-	      : (vp.style_ == File::Log		? "log" : "bin") );
+    BufferString cmd;
+    CommandLineParser::addFilePath(
+		FilePath(GetExecPlfDir(),"od_FileBrowser").fullPath(), cmd );
+    CommandLineParser::addKey( ViewPars::sKeyFile(), cmd );
+    CommandLineParser::addFilePath( fnm, cmd );
+    CommandLineParser::addKey( ViewPars::sKeyMaxLines(), cmd,
+			       BufferString(::toString(vp.maxnrlines_) ).str());
+    CommandLineParser::addKey( ViewPars::sKeyStyle(), cmd,
+			       ViewStyleDef().getKeyForIndex(vp.style_) );
     if ( vp.editable_ )
-	cmd.add( " --edit" );
-    cmd.add( " --maxlines " ).add( vp.maxnrlines_ );
+	CommandLineParser::addKey( ViewPars::sKeyEdit(), cmd );
+
 #ifdef __mac__
-    cmd.add( " --nofork" );
+    CommandLineParser::addKey( OS::MachineCommand::FG(), cmd );
 #endif
-    cmd.add( " " ).add(" \" ").add( fnm ).add(" \" ");
 
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
     return cl.execute();
