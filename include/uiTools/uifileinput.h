@@ -119,6 +119,7 @@ protected:
     void		inputChg(CallBacker*);
     void		examineFile(CallBacker*);
     void		isFinalised(CallBacker*);
+    void		fnmEntered(CallBacker*);
 };
 
 
