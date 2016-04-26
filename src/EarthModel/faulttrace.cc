@@ -940,8 +940,11 @@ const FaultTrace* FaultTrcHolder::getTrc( int linenr, bool isinl ) const
 
 int FaultTrcHolder::indexOf( int linenr, bool isinl ) const
 {
-    return isinl ? hs_.inlIdx(linenr)
-		 : hs_.crlIdx(linenr) + ( hs_.nrCrl()==1 ? 0 : hs_.nrInl() );
+    if ( isinl )
+	return hs_.inlIdx(linenr);
+
+    const int crlidx = hs_.crlIdx(linenr);
+    return crlidx < 0 ? crlidx : crlidx + (hs_.nrCrl()==1 ? 0 : hs_.nrInl());
 }
 
 
