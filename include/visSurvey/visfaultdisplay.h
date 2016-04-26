@@ -284,6 +284,8 @@ protected:
     static const char*			sKeyUseTexture();
     static const char*			sKeyLineStyle();
     static const char*			sKeyZValues();
+
+    bool				isDisplayingSticksUseful() const;
 };
 
 };

@@ -545,13 +545,18 @@ void FaultDisplay::updatePanelDisplay()
 }
 
 
+bool FaultDisplay::isDisplayingSticksUseful() const
+{ return areIntersectionsDisplayed() || !areHorizonIntersectionsDisplayed(); }
+
+
 void FaultDisplay::updateStickDisplay()
 {
     if ( stickdisplay_ )
     {
 	setLineRadius( stickdisplay_ );
 
-	bool dodisplay = areSticksDisplayed();
+	bool dodisplay = areSticksDisplayed() && isDisplayingSticksUseful();
+
 	EM::Fault3D* fault3d = emFault();
 	if ( arePanelsDisplayedInFull() && fault3d && fault3d->nrSections() )
 	{
@@ -1134,12 +1139,13 @@ void FaultDisplay::showManipulator( bool yn )
 
 void FaultDisplay::updateManipulator()
 {
-    const bool show = showmanipulator_ && areSticksDisplayed();
+    const bool show = showmanipulator_ && areSticksDisplayed()
+				       && isDisplayingSticksUseful();
     if ( viseditor_ )
 	viseditor_->turnOn( show && !stickselectmode_ );
 
     if ( activestickmarker_ )
-	activestickmarker_->turnOn( show && !stickselectmode_);
+	activestickmarker_->turnOn( show && !stickselectmode_ );
     if ( scene_ )
 	scene_->blockMouseSelection( show );
 }
@@ -1326,7 +1332,6 @@ bool FaultDisplay::hasCache( int attrib ) const
 void FaultDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
     displayIntersections( yn );
-    displayHorizonIntersections( yn );
 }
 
 
@@ -1338,6 +1343,7 @@ void FaultDisplay::displayIntersections( bool yn )
 {
     displayintersections_ = yn;
     updateDisplay();
+    updateManipulator();
     showActiveStickMarker();
     displaymodechange.trigger();
 }
@@ -1372,6 +1378,7 @@ void FaultDisplay::displayHorizonIntersections( bool yn )
 {
     displayhorintersections_ = yn;
     updateDisplay();
+    updateManipulator();
     displaymodechange.trigger();
 }
 
