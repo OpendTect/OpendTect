@@ -28,12 +28,15 @@ static bool isnotnull = true;
 
 Pos::IdxPairDataSet::ObjData::ObjData( const ObjData& oth )
     : objs_(oth.objs_)
-    , bufsz_(oth.bufsz_)
+    , bufsz_(0)
     , buf_(0)
 {
     if ( oth.buf_ )
     {
-	buf_ = new BufType[ bufsz_ ];
+	BufType* newbuf = new BufType[ bufsz_ ];
+	// may throw here, then caller should catch
+	buf_ = newbuf;
+	bufsz_ = oth.bufsz_;
 	OD::memCopy( buf_, oth.buf_, bufsz_ );
     }
 }
