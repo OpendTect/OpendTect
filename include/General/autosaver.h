@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "monitor.h"
 #include "multiid.h"
 #include "uistring.h"
-class Timer;
 class IOObj;
 class IOStream;
 
@@ -72,8 +71,8 @@ protected:
     BufferString	prevfingerprint_;
     IOStream*		prevstoreioobj_;
     int			savenr_;
-    int			curclockseconds_;
     int			lastsaveclockseconds_;
+    mutable int		curclockseconds_;
     mutable uiString	errmsg_;
 
     bool		doWork(bool forcesave);
@@ -83,7 +82,8 @@ private:
     void		objDel(CallBacker*);
     void		removePrevStored();
 
-    bool		act(int);
+    bool		needsAct(int) const;
+    bool		act();
     friend class	AutoSaveMgr;
 
 };
@@ -103,12 +103,13 @@ private:
 
 			AutoSaveMgr();
 
-    Timer&		timer_;
     ObjectSet<AutoSaver> savers_;
-    Threads::Lock	lock_;
     int			nrcycles_; // one per second
+    Threads::Lock	lock_;
+    Threads::Thread	thread_;
 
-    void		timerTick(CallBacker*);
+    void		go(CallBacker*);
+    void		appExits(CallBacker*);
 
 };
 

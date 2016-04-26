@@ -12,6 +12,7 @@
 #include "iopar.h"
 #include "separstr.h"
 #include "timer.h"
+#include "msgh.h"
 
 
 OD::AutoSaver::AutoSaver( const Monitorable& obj )
@@ -60,18 +61,20 @@ void OD::AutoSaver::removePrevStored()
 }
 
 
-bool OD::AutoSaver::act( int clockseconds )
+bool OD::AutoSaver::needsAct( int clockseconds ) const
 {
     mLock4Read();
     if ( objdeleted_ || (!mLock2Write() && objdeleted_) )
-	return true;
+	return false;
 
     curclockseconds_ = clockseconds;
-    if ( curclockseconds_ - lastsaveclockseconds_ < nrseconds_ )
-	return true;
+    return curclockseconds_ - lastsaveclockseconds_ >= nrseconds_;
+}
 
-    lastsaveclockseconds_ = curclockseconds_;
-    return doWork( false );
+
+bool OD::AutoSaver::act()
+{
+    return isFinished() || doWork(false);
 }
 
 
@@ -90,6 +93,7 @@ bool OD::AutoSaver::doWork( bool forcesave )
     if ( objdeleted_ )
 	return true;
 
+    lastsaveclockseconds_ = curclockseconds_;
     const BufferString fingerprint( getFingerPrint() );
     if ( !forcesave && fingerprint == prevfingerprint_ )
 	return true;
@@ -130,11 +134,10 @@ OD::AutoSaveMgr& OD::AutoSaveMgr::getInst()
 
 
 OD::AutoSaveMgr::AutoSaveMgr()
-    : timer_(*new Timer)
-    , nrcycles_(0)
+    : nrcycles_(0)
+    , thread_(mCB(this,AutoSaveMgr,go),"AutoSave Manager")
 {
-    timer_.tick.notify( mCB(this,AutoSaveMgr,timerTick) );
-    timer_.start( 1000, true );
+    mAttachCB( IOM().applicationClosing, AutoSaveMgr::appExits );
 }
 
 
@@ -145,20 +148,35 @@ void OD::AutoSaveMgr::add( AutoSaver* saver )
 }
 
 
-void OD::AutoSaveMgr::timerTick( CallBacker* )
+void OD::AutoSaveMgr::appExits( CallBacker* )
+{
+    detachAllNotifiers();
+    thread_.waitForFinish();
+}
+
+
+void OD::AutoSaveMgr::go( CallBacker* )
 {
     Threads::Locker locker( lock_ );
 
-    nrcycles_++;
-    for ( int idx=0; idx<savers_.size(); idx++ )
+    const bool isverbose = DBG::isOn( DBG_IO );
+    while ( true )
     {
-	AutoSaver* saver = savers_[idx];
-	if ( saver->isFinished() )
-	    { delete savers_.removeSingle(idx); idx--; }
-	else if ( !saver->act(nrcycles_) )
-	    ErrMsg( BufferString("Auto-save failed:\n",
-				 saver->errMsg().getFullString()) );
+	nrcycles_++;
+	for ( int idx=0; idx<savers_.size(); idx++ )
+	{
+	    AutoSaver* saver = savers_[idx];
+	    if ( saver->isFinished() )
+		{ delete savers_.removeSingle(idx); idx--; }
+	    else if ( saver->needsAct(nrcycles_) )
+	    {
+		if ( !saver->act() )
+		    ErrMsg( BufferString("Auto-save failed:\n",
+					 saver->errMsg().getFullString()) );
+		else if ( isverbose )
+		    UsrMsg( BufferString("Auto-save succeeded for: ",
+					 saver->key()) );
+	    }
+	}
     }
-
-    timer_.start( 1000, true );
 }
