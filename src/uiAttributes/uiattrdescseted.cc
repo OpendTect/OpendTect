@@ -1185,6 +1185,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 	{
 	    delete oldioobj;
 	    setid_ = setctio_.ioobj_->key();
+	    objdlg.setDirToCurrentSurvey();
 	    replaceStoredAttr();
 	    newList( -1 );
 	    attrsetfld_->setText( sKeyNotSaved );
