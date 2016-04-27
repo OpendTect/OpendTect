@@ -365,7 +365,7 @@ void DataPackMgr::releaseAll( bool notif )
     }
     else
     {
-	for ( int idx=0; idx<packs_.size(); idx++ )
+	for ( int idx=packs_.size()-1; idx>=0; idx-- )
 	    release( packs_[idx]->id() );
     }
 }
