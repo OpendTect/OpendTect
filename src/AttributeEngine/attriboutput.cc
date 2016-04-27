@@ -489,7 +489,9 @@ bool SeisTrcStorOutput::writeTrc()
     if ( !storinited_ )
     {
 	SeisTrcTranslator* transl = 0;
-	if ( !writer_->is2D() )
+	if ( writer_->is2D() && seldata_ )
+	    writer_->setSelData( seldata_->clone() );
+	else
 	{
 	    transl = writer_->seisTranslator();
 	    if ( transl )

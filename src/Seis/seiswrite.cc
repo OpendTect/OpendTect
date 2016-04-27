@@ -124,7 +124,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 		.arg( ioobj_->uiName() );
 	return false;
     }
-    if ( is2d_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
+    if ( is2d_ && ( !seldata_ || seldata_->geomID() == mUdfGeomID ) )
     {
 	errmsg_ = tr("Internal: 2D seismic can only "
 		     "be stored if line GeomID known");

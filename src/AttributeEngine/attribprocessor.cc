@@ -165,6 +165,7 @@ void Processor::useFullProcess( int& res )
 void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 {
     BinID curbid = provider_->getCurrentPosition();
+    const Pos::GeomID geomid = provider_->getGeomID();
     if ( is2d_ && curtrcinfo )
     {
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
@@ -173,7 +174,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    curbid = curtrcinfo->binid;
 	else
 	{
-	    curbid.inl() = 0;
+	    curbid.inl() = geomid;
 	    curbid.crl() = curtrcinfo->nr_;
 	}
     }
@@ -185,7 +186,6 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	if ( is2d_ )
 	{
 	    mytrcinfo.nr_ = curbid.crl();
-	    const Pos::GeomID geomid = provider_->getGeomID();
 	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 			     Survey::GM().getGeometry(geomid) );
 	    PosInfo::Line2DPos pos2d;

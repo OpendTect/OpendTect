@@ -353,7 +353,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
     curtrcinfo_ = 0;
     const SeisTrcInfo& newti = trc->info();
-    currentbid_ = desc_.is2D()? BinID( 0, newti.nr_ ) : newti.binID();
+    currentbid_ = desc_.is2D()? BinID( geomid_, newti.nr_ ) : newti.binID();
     trcinfobid_ = newti.binID();
     if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
 	    || newti.binID() == startpos )
@@ -557,7 +557,7 @@ bool StorageProvider::set2DRangeSelData()
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
-	    StepInterval<int> rg( 0, 0, 1 );
+	    StepInterval<int> rg( geomid_, geomid_, 1 );
 	    seldata->setInlRange( rg );
 	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
 			trcrg.start : desiredvolume_->hsamp_.start_.crl();
