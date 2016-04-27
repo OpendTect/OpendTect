@@ -52,12 +52,15 @@ int BendPointFinder2DGeomSet::nextStep()
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 		    Survey::GM().getGeometry(geomids_[curidx_]))
     if ( !geom2d )
-	return ErrorOccurred();
+	return MoreToDo();
 
     const float avgtrcdist = geom2d->averageTrcDist();
+    if ( mIsUdf(avgtrcdist) || mIsZero(avgtrcdist,1e-3) )
+	return MoreToDo();
+
     BendPointFinder2DGeom bpfinder( geom2d->data().positions(), avgtrcdist );
     if ( !bpfinder.execute() )
-	return ErrorOccurred();
+	return MoreToDo();
 
     BendPoints* bp = new BendPoints;
     bp->geomid_ = geomids_[curidx_];
@@ -139,7 +142,7 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
 	    break;
 
 	geoms_ += geom2d;
-	lsintersections_ += 0;
+	lsintersections_ += new Line2DInterSection( bps[idx]->geomid_ );
     }
 }
 
@@ -208,18 +211,11 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 		    if ( interpos == Coord::udf() )
 			continue;
 
-		    Threads::Locker lckr( lock_ );
-		    if ( !lsintersections_[idx] )
-			lsintersections_.replace( idx,
-					new Line2DInterSection(geomid) );
-		    if ( !lsintersections_[lineidx] )
-			lsintersections_.replace( lineidx,
-					new Line2DInterSection(geomid2) );
-
 		    PosInfo::Line2DPos lpos1, lpos2;
 		    if ( curl2d.getPos(interpos,lpos1,mUdf(float)) &&
 			    l2d.getPos(interpos,lpos2,mUdf(float)) )
 		    {
+			Threads::Locker lckr( lock_ );
 			lsintersections_[idx]->addPoint( geomid2, lpos1.nr_,
 							 lpos2.nr_ );
 			lsintersections_[lineidx]->addPoint( geomid, lpos2.nr_,
