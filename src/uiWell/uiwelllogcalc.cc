@@ -645,6 +645,9 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
 	float formval = mUdf(float);
 	selectInpVals( noudfinpvals, interppol, inpvals );
+	if ( inpvals.isEmpty() )
+	    return false;
+
 	formval = form_.getValue( inpvals.arr(), false );
 	wlout.addValue( dah, formval );
     }
