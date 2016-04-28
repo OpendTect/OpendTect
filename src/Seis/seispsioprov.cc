@@ -4,12 +4,10 @@
  * DATE     : 21-1-1998
 -*/
 
-
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seispscubetr.h"
-#include "seispsfact.h"
 #include "seiscbvsps.h"
 #include "seisselection.h"
 #include "seisbuf.h"
@@ -23,6 +21,28 @@
 #include "iodir.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "uistrings.h"
+
+#include "seispsioprov.h"
+#include "seismulticubeps.h"
+#include "segydirecttr.h"
+
+defineTranslatorGroup(SeisPS3D,"Pre-Stack Seismics");
+mDefSimpleTranslatorSelector(SeisPS3D);
+uiString SeisPS3DTranslatorGroup::sTypeName( int num)
+{ return uiStrings::sVolDataName(false,true,true,false,false); }
+
+defineTranslator(CBVS,SeisPS3D,"CBVS");
+defineTranslator(MultiCube,SeisPS3D,"MultiCube");
+defineTranslator(SEGYDirect,SeisPS3D,mSEGYDirectTranslNm);
+
+defineTranslatorGroup(SeisPS2D,"2D Pre-Stack Seismics");
+mDefSimpleTranslatorSelector(SeisPS2D);
+uiString SeisPS2DTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sVolDataName(true,false,true,false,false); }
+
+defineTranslator(CBVS,SeisPS2D,"CBVS");
+defineTranslator(SEGYDirect,SeisPS2D,mSEGYDirectTranslNm);
 
 
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";

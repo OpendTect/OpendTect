@@ -163,6 +163,10 @@ void uiPickPartServer::fetchHors( bool is2d )
 
 bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
+    // Someone has actually implemented a PickSet loading manager ..
+    // !!!!HERE!!!!
+    // I am not going to figure out who, but it's ugly
+
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt_.forread_ = true;
     PickSetTranslator::fillConstraints( ctio->ctxt_, poly );
@@ -186,7 +190,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	if ( Pick::Mgr().indexOf(id) >= 0 )
 	{
 	    retval = true;
-	    continue; // No need to read again
+	    continue; // Already loaded, maybe changed, cannot load again!
 	}
 
 	Pick::Set* ps = new Pick::Set;

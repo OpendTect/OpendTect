@@ -50,7 +50,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
-#include "odsessionfact.h"
+#include "odsession.h"
 #include "odsysmem.h"
 #include "odver.h"
 #include "plugins.h"
@@ -60,9 +60,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timer.h"
 #include "visdata.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 #include <iostream>
+
+defineTranslatorGroup(ODSession,"Session setup");
+defineTranslator(dgb,ODSession,mDGBKey);
+uiString ODSessionTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sSession(num); }
 
 
 extern "C" const char* GetSettingsDataDir();

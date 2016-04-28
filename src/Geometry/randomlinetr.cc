@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "randomlinetr.h"
-#include "randomlinefact.h"
 #include "randomlinegeom.h"
 
 #include "ascstream.h"
@@ -21,11 +20,17 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 static const char* sKeyNrLines = "Nr Lines";
 
+
+defineTranslatorGroup(RandomLineSet,"RandomLine Geometry");
+defineTranslator(dgb,RandomLineSet,mDGBKey);
 mDefSimpleTranslatorSelector(RandomLineSet)
 mDefSimpleTranslatorioContext(RandomLineSet,Loc)
+uiString RandomLineSetTranslatorGroup::sTypeName( int num )
+{ return uiStrings::sRandomLine( num ); }
 
 
 bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
@@ -68,7 +73,7 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 				     const IOObj* ioobj, uiString& msg )
 {
     if ( !ioobj )
-	{ msg = uiStrings::phrCannotFind(tr("object in data base")); 
+	{ msg = uiStrings::phrCannotFind(tr("object in data base"));
 								return false; }
 
     PtrMan<RandomLineSetTranslator> trnsltr

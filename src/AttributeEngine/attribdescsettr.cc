@@ -8,7 +8,6 @@
 #include "attribdescsettr.h"
 
 #include "ascstream.h"
-#include "attrfact.h"
 #include "attribdescset.h"
 #include "bufstringset.h"
 #include "conn.h"
@@ -19,8 +18,18 @@
 #include "keystrs.h"
 #include "ptrman.h"
 #include "uistrings.h"
+#include "attribdescsettr.h"
+#include "uistrings.h"
 
-uiString AttribDescSetTranslator::readFromStream( ascistream& astream, 
+defineTranslatorGroup(AttribDescSet,"Attribute definitions");
+defineTranslator(dgb,AttribDescSet,mDGBKey);
+mDefSimpleTranslatorSelector(AttribDescSet);
+mDefSimpleTranslatorioContext(AttribDescSet, Attr );
+uiString AttribDescSetTranslatorGroup::sTypeName(int num)
+{ return uiStrings::sAttribute(num); }
+
+
+uiString AttribDescSetTranslator::readFromStream( ascistream& astream,
 				  Attrib::DescSet& ads, uiString& warningmsg )
 {
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )

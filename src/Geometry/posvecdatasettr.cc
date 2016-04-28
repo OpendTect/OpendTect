@@ -5,12 +5,17 @@
 -*/
 
 
-#include "posvecdatasetfact.h"
+#include "posvecdatasettr.h"
 #include "posvecdataset.h"
 #include "ioobj.h"
 
+
+defineTranslatorGroup(PosVecDataSet,"Positioned Vector Data");
+defineTranslator(od,PosVecDataSet,mdTectKey);
 mDefSimpleTranslatorioContext(PosVecDataSet,Feat)
 mDefSimpleTranslatorSelector(PosVecDataSet)
+uiString PosVecDataSetTranslatorGroup::sTypeName( int num )
+{ return tr( "Positioned Vector Data", 0, num ); }
 
 
 bool odPosVecDataSetTranslator::read( const IOObj& ioobj, PosVecDataSet& vds )

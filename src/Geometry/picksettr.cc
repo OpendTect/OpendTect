@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "picksetfact.h"
+#include "picksettr.h"
 #include "picksetmgr.h"
 #include "ctxtioobj.h"
 #include "binidvalset.h"
@@ -24,9 +24,15 @@ ________________________________________________________________________
 #include "polygon.h"
 #include "keystrs.h"
 #include "unitofmeasure.h"
+#include "uistrings.h"
 
+defineTranslatorGroup(PickSet,"PickSet Group");
+defineTranslator(dgb,PickSet,mDGBKey);
 mDefSimpleTranslatorioContext( PickSet, Loc )
 mDefSimpleTranslatorSelector( PickSet )
+uiString PickSetTranslatorGroup::sTypeName( int num)
+{ return uiStrings::sPickSet( num ); }
+
 
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  uiString& bs )

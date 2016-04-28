@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "mpesetup.h"
-#include "mpefact.h"
 #include "ptrman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -49,13 +48,15 @@ void Setup::fillPar( IOPar& par ) const
 
 // MPESetupTranslatorGroup --------------------------------------------------
 
+defineTranslatorGroup(MPESetup,"Tracking setup");
+defineTranslator(dgb,MPESetup,mDGBKey);
 mDefSimpleTranslatorSelector(MPESetup)
 mDefSimpleTranslatorioContext(MPESetup,Mdl)
-uiString MPESetupTranslatorGroup::sTypeName(int num)
+uiString MPESetupTranslatorGroup::sTypeName( int num )
 { return tr("Tracking setup",0,num ); }
 
 
-// MPESetupTranslator ---------------------------------------------------- 
+// MPESetupTranslator ----------------------------------------------------
 
 
 bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
@@ -70,7 +71,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	err = "Cannot open "; err += ioobj->fullUserExpr(true); 
+	err = "Cannot open "; err += ioobj->fullUserExpr(true);
 	return false;
     }
 
@@ -84,7 +85,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 				   uiString& err )
 {
-    if ( !ioobj ) { err = uiStrings::phrCannotFind(tr("object in data base")); 
+    if ( !ioobj ) { err = uiStrings::phrCannotFind(tr("object in data base"));
 								return false; }
 
     PtrMan<MPESetupTranslator> trnsltr =
@@ -94,7 +95,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true))); 
+	err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
 	return false;
     }
 
@@ -117,7 +118,7 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	err = "Cannot open "; err += ioobj->fullUserExpr(false); 
+	err = "Cannot open "; err += ioobj->fullUserExpr(false);
 	return false;
     }
 
