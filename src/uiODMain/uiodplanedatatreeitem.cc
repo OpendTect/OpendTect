@@ -190,7 +190,7 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 
     const Coord surfacecoord = wd.info().surfacecoord;
     const BinID bid = SI().transform( surfacecoord );
-    CubeSampling cs = pdd->getCubeSampling();
+    CubeSampling cs = pdd->getCubeSampling( true, true );
     if ( orient_ == OD::InlineSlice )
 	cs.hrg.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
     else
