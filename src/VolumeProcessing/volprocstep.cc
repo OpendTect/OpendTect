@@ -181,7 +181,7 @@ int VolProc::Step::getNrInputs() const
 
 int VolProc::Step::getInputSlotID( int idx ) const
 {
-    if ( !isInputPrevStep() )
+    if ( !isInputPrevStep() && !needsInput() )
 	return cUndefSlotID();
 
     if ( idx<0 || idx>=getNrInputs() )
