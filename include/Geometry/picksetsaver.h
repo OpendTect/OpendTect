@@ -21,7 +21,7 @@ class Set;
 
 /*!\brief Saveable for Pick::Set. */
 
-mExpClass(General) SetSaver : public OD::AutoSaveable
+mExpClass(Geometry) SetSaver : public OD::AutoSaveable
 {
 public:
 
