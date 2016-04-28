@@ -135,7 +135,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	while ( !atEndOfSection(astrm) )
 	{
 	    Pick::Location loc;
-	    loc.trckey_.setSurvID( survid );
+	    loc.setSurvID( survid );
 	    if ( loc.fromString(astrm.keyWord()) )
 		ps += loc;
 
@@ -256,7 +256,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
     for ( int ipck=0; ipck<ps->size(); ipck++ )
     {
 	crds += ((*ps)[ipck]).pos_;
-	tks += ((*ps)[ipck]).trckey_;
+	tks += ((*ps)[ipck]).trcKey();
     }
 
     delete createdps;
