@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          Jul 2010
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -40,6 +39,8 @@ public:
 
     uiGraphicsItem&		graphItem()		{ return graphitem_; }
     const uiGraphicsItem&	graphItem() const	{ return graphitem_; }
+    uiGraphicsItem&		labelItem();
+
     virtual void		update();
     virtual void		updateStyle();
 
@@ -56,8 +57,10 @@ protected:
 
     bool			changed_;
     BaseMapObject*		bmobject_;
+
 private:
     void			addToGraphItem(uiGraphicsItem&);
+    void			addLabel(uiGraphicsItem&);
 };
 
 

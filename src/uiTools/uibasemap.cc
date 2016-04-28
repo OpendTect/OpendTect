@@ -18,8 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 #include "uiworld2ui.h"
 
+#include "hiddenparam.h"
 #include "survinfo.h"
 
+static HiddenParam<uiBaseMapObject,uiGraphicsItem*> labelitems(0);
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
@@ -27,13 +29,16 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     , changed_(false)
     , transform_(0)
 {
+    labelitems.setParam( this, new uiGraphicsItem );
     if ( bmobject_ )
     {
 	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
 	bmobject_->stylechanged.notify(
 		    mCB(this,uiBaseMapObject,changedStyleCB) );
 	graphitem_.setZValue( bmobject_->getDepth() );
+	labelitems.getParam( this )->setZValue( bmobject_->getDepth()-1 );
     }
+
     graphitem_.setAcceptHoverEvents( true );
 }
 
@@ -48,6 +53,8 @@ uiBaseMapObject::~uiBaseMapObject()
     }
 
     delete &graphitem_;
+    delete labelitems.getParam( this );
+    labelitems.removeParam( this );
 }
 
 
@@ -59,11 +66,16 @@ const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
 
 void uiBaseMapObject::show( bool yn )
-{ graphitem_.setVisible( yn ); }
+{
+    graphitem_.setVisible( yn );
+    labelitems.getParam( this )->setVisible( yn );
+}
 
 bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
 
+uiGraphicsItem& uiBaseMapObject::labelItem()
+{ return *labelitems.getParam( this ); }
 
 void uiBaseMapObject::leftClickCB( CallBacker* cb )
 {
@@ -106,6 +118,12 @@ void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
 }
 
 
+void uiBaseMapObject::addLabel( uiGraphicsItem& itm )
+{
+    labelitems.getParam( this )->addChild( &itm );
+}
+
+
 void uiBaseMapObject::update()
 {
     if ( !bmobject_ ) return;
@@ -113,6 +131,8 @@ void uiBaseMapObject::update()
     Threads::Locker( bmobject_->lock_ );
 
     int itemnr = 0;
+    int labelitemnr = 0;
+    uiGraphicsItem* labelitem = labelitems.getParam( this );
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
 	TypeSet<Coord> crds;
@@ -140,7 +160,6 @@ void uiBaseMapObject::update()
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
 		    uiPolyLineItem* itm = new uiPolyLineItem();
-		    if ( !itm ) return;
 		    addToGraphItem( *itm );
 		}
 
@@ -167,7 +186,6 @@ void uiBaseMapObject::update()
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
 		    uiPolygonItem* itm = new uiPolygonItem();
-		    if ( !itm ) return;
 		    addToGraphItem( *itm );
 		}
 
@@ -235,7 +253,6 @@ void uiBaseMapObject::update()
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
 		    uiMarkerItem* itm = new uiMarkerItem();
-		    if ( !itm ) return;
 		    addToGraphItem( *itm );
 		}
 
@@ -252,28 +269,19 @@ void uiBaseMapObject::update()
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
-	    while ( graphitem_.nrChildren()>itemnr )
-	    {
-		mDynamicCastGet(uiTextItem*,itm,
-				graphitem_.getChild(itemnr));
-		if ( !itm )
-		    graphitem_.removeChild( graphitem_.getChild(itemnr), true );
-		else break;
-	    }
-
-	    if ( graphitem_.nrChildren()<=itemnr )
+	    if ( labelitem->nrChildren()<=labelitemnr )
 	    {
 		uiTextItem* itm = new uiTextItem();
-		if ( !itm ) return;
-		addToGraphItem( *itm );
+		addLabel( *itm );
 	    }
 
-	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));
+	    mDynamicCastGet(uiTextItem*,itm,labelitem->getChild(labelitemnr));
 	    if ( !itm ) return;
+
 	    itm->setText( toUiString(shapenm) );
 	    for( int crdidx=0; crdidx<crds.size(); crdidx++ )
 	    {
-		if( !mIsUdf(crds[crdidx]) ) 
+		if( !mIsUdf(crds[crdidx]) )
 		{
 		    itm->setPos( crds[crdidx] );
 		    break;
@@ -285,12 +293,15 @@ void uiBaseMapObject::update()
 	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
 	    itm->setRotation( angle );
 
-	    itemnr++;
+	    labelitemnr++;
 	}
     }
 
     while ( graphitem_.nrChildren()>itemnr )
 	graphitem_.removeChild( graphitem_.getChild(itemnr), true );
+
+    while ( labelitem->nrChildren()>labelitemnr )
+	labelitem->removeChild( labelitem->getChild(labelitemnr), true );
 }
 
 
@@ -492,6 +503,7 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     if ( !uiobj ) return;
 
     worlditem_.addChild( &uiobj->graphItem() );
+    worlditem_.addChild( &uiobj->labelItem() );
     objects_ += uiobj;
     changed_ = true;
     if ( uiobj->getObject() )
