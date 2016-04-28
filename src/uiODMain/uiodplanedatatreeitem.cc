@@ -198,7 +198,7 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 
     const Coord surfacecoord = wd.info().surfacecoord;
     const BinID bid = SI().transform( surfacecoord );
-    TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
+    TrcKeyZSampling cs = pdd->getTrcKeyZSampling( true, true );
     if ( orient_ == OD::InlineSlice )
 	cs.hsamp_.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
     else
