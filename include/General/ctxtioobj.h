@@ -156,6 +156,7 @@ public:
     mStopAllowDeprecatedSection
     void		destroyAll();
 
+    virtual const OD::String& name() const	{ return ctxt_.name(); }
     virtual void	setName(const char* nm)	{ ctxt_.setName(nm); }
     virtual BufferString getName() const	{ return ctxt_.getName(); }
 
