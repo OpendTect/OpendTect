@@ -153,6 +153,7 @@ public:
     bool			usePar(const IOPar&);
     visBase::TexturePanelStrip* getTexturePanelStrip() const 
 				{ return panelstrip_; }
+    bool			isSection() const { return true; }
 
 protected:
 				~Seis2DDisplay();

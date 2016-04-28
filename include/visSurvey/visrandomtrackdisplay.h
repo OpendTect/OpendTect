@@ -60,6 +60,7 @@ public:
 				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
+    bool			isSection() const { return true; }
 
     int				nrResolutions() const	{ return 3; }
     void			setResolution(int,TaskRunner*);

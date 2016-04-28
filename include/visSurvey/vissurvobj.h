@@ -342,6 +342,7 @@ public:
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const		{ return false;}
     virtual void		turnOnSelectionMode(bool) {};
+    virtual bool		isSection() const		{ return false;}
 
     static float		sDefMaxDist();
 

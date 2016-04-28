@@ -74,6 +74,7 @@ public:
 				{ return &movefinished_; }
 
     bool			allowMaterialEdit() const	{ return true; }
+    bool			isSection() const { return true; }
 
     int				nrResolutions() const;
     void			setResolution(int,TaskRunner*);
