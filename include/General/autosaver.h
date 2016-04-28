@@ -12,14 +12,18 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "monitor.h"
-#include "multiid.h"
-#include "uistring.h"
-class IOObj;
+#include "saveable.h"
 class IOStream;
 
 
-/*!\brief Object that with auto-save.
+
+namespace OD
+{
+
+class AutoSaveMgr;
+
+
+/*!\brief Object ready for auto-save by OD::AUTOSAVE().
 
   You need to provide a fingerprint of your state when asked (prepare for this
   coming from another thread). If the fingerprint differs from previous time,
@@ -32,48 +36,6 @@ class IOStream;
   saved the object, so next autosave can be postponed.
 
 */
-
-
-namespace OD
-{
-
-class AutoSaveMgr;
-
-
-/*!\brief Object that can be saved at any time. */
-
-mExpClass(General) Saveable : public Monitorable
-{
-public:
-
-			Saveable(const Monitorable&);
-			~Saveable();
-    const Monitorable&	monitored() const		{ return obj_; }
-
-    mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,key_)
-    inline		mImplSimpleMonitoredGet(isFinished,bool,objdeleted_)
-
-    virtual bool	store(const IOObj&) const;
-    uiString		errMsg() const		{ return errmsg_; }
-
-protected:
-
-    const Monitorable&	obj_;
-    MultiID		key_;
-    bool		objdeleted_;
-    mutable uiString	errmsg_;
-
-			// This function can be called from any thread
-    virtual bool	doStore(const IOObj&) const	= 0;
-
-private:
-
-    void		objDel(CallBacker*);
-
-};
-
-
-/*!\brief Object that can be added to OD::AUTOSAVE(). */
 
 mExpClass(General) AutoSaveable : public Saveable
 {
