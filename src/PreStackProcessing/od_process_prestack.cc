@@ -283,8 +283,9 @@ bool BatchProgram::go( od_ostream& strm )
 			gather = new Gather;
 		    }
 
+		    TrcKey tk( inputbid );
 		    if ( procman->needsPreStackInput() &&
-			 !gather->readFrom(*inputioobj,*reader,inputbid,0) )
+			 !gather->readFrom(*inputioobj,*reader,tk,0) )
 		    {
 			sparegather = gather;
 			gather = 0;
@@ -315,7 +316,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( nrfound && procman->process() )
 	{
             RefMan<PreStack::Gather> gather =
-            	DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>(procman->getOutput());
+	DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>(procman->getOutput());
 
 	    if ( gather )
 	    {

@@ -76,9 +76,9 @@ public:
 
 			// Cannot use name overloading: seems gcc prob
     SeisTrc*		getTrc( int trcnr, int nr=0 ) const
-			{ return getTrace( BinID(0,trcnr), nr ); }
+			{ return getTrace( BinID(geomid_,trcnr), nr ); }
     bool		getGath( int trcnr, SeisTrcBuf& b ) const
-			{ return getGather( BinID(0,trcnr), b ); }
+			{ return getGather( BinID(geomid_,trcnr), b ); }
 
     virtual const PosInfo::Line2DData&	posData() const		= 0;
 

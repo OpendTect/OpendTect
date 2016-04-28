@@ -438,7 +438,8 @@ bool PSAttrib::getGatherData( const BinID& bid,
 	if ( !gather )
 	    return false;
 
-	if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
+	TrcKey tk( bid );
+	if ( !gather->readFrom( *psioobj_, *psrdr_, tk, component_ ) )
 	    return false;
 
 	DPM(DataPackMgr::FlatID()).add( gather );
@@ -473,7 +474,8 @@ RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 	    if ( gatherset_.isEmpty() )
 	    {
 		gather = new PreStack::Gather;
-		if (!gather->readFrom(*psioobj_,*psrdr_,bid,component_) )
+		TrcKey tk( bid );
+		if (!gather->readFrom(*psioobj_,*psrdr_,tk,component_) )
 		    continue;
 
 		DPM(DataPackMgr::FlatID()).add( gather );

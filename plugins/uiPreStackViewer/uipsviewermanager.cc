@@ -255,7 +255,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
             ? toUiString( "%1/%2")
                 .arg( psv->getPosition().inl() ).arg( psv->getPosition().crl() )
             : toUiString( psv->getPosition().crl() );
-        
+
 	const uiString capt = tr( "Amplitude spectrum for %1 at %2" )
             .arg( psv->getObjectName() )
             .arg( pos );
@@ -656,14 +656,17 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
 	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	int dpid;
-	if ( is3d && gather->readFrom(mid,bid,0) )
-	    dpid = gather->id();
-	else if ( gather->readFrom( *ioobj, trcnr, name2d,0 ) )
+	TrcKey tk( bid );
+	if ( !is3d )
+	{
+	    tk.setGeomID( Survey::GM().getGeomID(name2d) );
+	    tk.setTrcNr( trcnr );
+	}
+
+	if ( gather->readFrom(mid,tk) )
 	    dpid = gather->id();
 	else
-	{
 	    continue;
-	}
 
 	DPM(DataPackMgr::FlatID()).add( gather );
 
@@ -717,8 +720,9 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 	viewers2d_[idx]->viewer().fillAppearancePar( viewerpar );
 	viewerpar.set( sKeyBinID(), gather->getBinID() );
 	viewerpar.set( sKeyMultiID(), gather->getStorageID() );
-	viewerpar.set( sKeyTraceNr(), gather->getSeis2DTraceNr() );
-	viewerpar.set( sKeyLineName(), gather->getSeis2DName() );
+	viewerpar.set( sKeyTraceNr(), gather->getTrcKey().trcNr() );
+	viewerpar.set( sKeyLineName(),
+			Survey::GM().getName(gather->getTrcKey().geomID()) );
 	viewerpar.setYN( sKeyIsVolumeData(), gather->is3D() );
 
 	BufferString key = sKeyViewerPrefix();

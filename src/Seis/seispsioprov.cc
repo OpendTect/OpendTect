@@ -28,7 +28,15 @@
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 
 
-SeisPS3DReader*	SeisPSIOProvider::get3DReader( const IOObj& ioobj,
+SeisPSReader* SeisPSIOProvider::getReader( const IOObj& ioobj,
+					   const TrcKey& tk ) const
+{
+    return tk.is2D() ? get2DReader(ioobj,tk.lineNr())
+		     : get2DReader(ioobj,tk.lineNr());
+}
+
+
+SeisPS3DReader* SeisPSIOProvider::get3DReader( const IOObj& ioobj,
 						int inl ) const
 { return make3DReader( ioobj.fullUserExpr(true), inl ); }
 SeisPS2DReader*	SeisPSIOProvider::get2DReader( const IOObj& ioobj,
@@ -112,6 +120,14 @@ bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     return prov ? prov->fetchLineNames( ioobj, linenms )
 		: false;
+}
+
+
+SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
+						  const TrcKey& tk ) const
+{
+    return tk.is2D() ? get2DReader(ioobj,tk.lineNr())
+		     : get2DReader(ioobj,tk.lineNr());
 }
 
 

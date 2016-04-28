@@ -56,7 +56,6 @@ Gather::Gather( const Gather& gather )
     , azimuths_( gather.azimuths_ )
     , velocitymid_( gather.velocitymid_ )
     , storagemid_( gather.storagemid_ )
-    , linename_( gather.linename_ )
     , staticsmid_( gather.staticsmid_ )
 {}
 
@@ -95,7 +94,7 @@ bool Gather::readFrom( const MultiID& mid, const TrcKey& tk, int comp,
 bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
 		       uiString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, tk.lineNr() );
+    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( ioobj, tk );
     if ( !rdr )
     {
 	if ( errmsg )
@@ -104,7 +103,6 @@ bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
 	return false;
     }
 
-    linename_.setEmpty();
     return readFrom( ioobj, *rdr, tk, comp, errmsg );
 }
 
@@ -113,67 +111,40 @@ bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
 bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
 		       uiString* errmsg )
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-    {
-	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
-	delete arr2d_; arr2d_ = 0;
-	return false;
-    }
-
-    return readFrom( *ioobj, bid, comp, errmsg );
+    TrcKey tk( bid );
+    return readFrom( mid, tk, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 		       uiString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl() );
-    if ( !rdr )
-    {
-	if ( errmsg )
-	    (*errmsg) = tr("This Prestack data store cannot be handled.");
-	delete arr2d_; arr2d_ = 0;
-	return false;
-    }
-
-    linename_.setEmpty();
-    trckey_.setSurvID( TrcKey::std3DSurvID() );
-    return readFrom( ioobj, *rdr, bid, comp, errmsg );
+    TrcKey tk( bid );
+    return readFrom( ioobj, tk, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const MultiID& mid, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-    {
-	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
-	delete arr2d_; arr2d_ = 0;
+    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+    if ( geomid == mUdfGeomID )
 	return false;
-    }
 
-    return readFrom( *ioobj, trcnr, linename, comp, errmsg );
+    TrcKey tk( geomid, trcnr );
+    return readFrom( mid, tk, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
-    if ( !rdr )
-    {
-	if ( errmsg )
-	    (*errmsg) = tr("This Prestack data store cannot be handled.");
-	delete arr2d_; arr2d_ = 0;
-	return false;
-    }
-
-    linename_ = linename;
     Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-    trckey_.setSurvID( TrcKey::std2DSurvID() );
-    return readFrom( ioobj, *rdr, BinID(geomid,tracenr), comp, errmsg );
+    if ( geomid == mUdfGeomID )
+	return false;
+
+    TrcKey tk( geomid, tracenr );
+    return readFrom( ioobj, tk, comp, errmsg );
 }
 
 
@@ -216,36 +187,8 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 		       int comp, uiString* errmsg )
 {
-    PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
-    if ( !rdr.getGather(bid,*tbuf) )
-    {
-	if ( errmsg ) (*errmsg) = rdr.errMsg();
-	delete arr2d_; arr2d_ = 0;
-	return false;
-    }
-    if ( !setFromTrcBuf( *tbuf, comp, true ) )
-       return false;
-
-    ioobj.pars().getYN(sKeyZisTime(),zit_);
-
-    velocitymid_.setEmpty();
-    GetVelocityVolumeTag( ioobj, velocitymid_ );
-    staticsmid_.setEmpty();
-    ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
-
-    offsetisangle_ = false;
-    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
-
-    iscorr_ = false;
-    if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
-	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
-
-    setBinID( bid );
-    setName( ioobj.name() );
-
-    storagemid_ = ioobj.key();
-
-    return true;
+    TrcKey tk( bid );
+    return readFrom( ioobj, rdr, tk, comp, errmsg );
 }
 
 
@@ -358,13 +301,6 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 	par.set( sKey::TraceNr(), trckey_.trcNr() );
     else
 	par.set( sKey::Position(), trckey_.position().toString() );
-}
-
-
-
-const char* Gather::getSeis2DName() const
-{
-    return linename_.isEmpty() ? 0 : linename_.buf();
 }
 
 

@@ -70,6 +70,8 @@ public:
 				// IOObj-based interface. Implementation
 				// defaults to the string-based using
 				// IOObj's fullUsrExpr.
+    virtual SeisPSReader*	getReader(const IOObj&,const TrcKey& tk) const;
+
     virtual SeisPS3DReader*	get3DReader(const IOObj&,
 					     int i=mUdf(int)) const;
     virtual SeisPS2DReader*	get2DReader(const IOObj&,Pos::GeomID) const;
@@ -132,6 +134,9 @@ public:
 
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
+
+    SeisPSReader*		getReader(const IOObj&,const TrcKey& tk) const;
+
     SeisPS3DReader*		get3DReader(const IOObj&,int i=mUdf(int)) const;
     SeisPSWriter*		get3DWriter(const IOObj&) const;
     void			mk3DPostStackProxy(IOObj&);

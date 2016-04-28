@@ -43,7 +43,7 @@ public:
 				PreStackDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PreStackDisplay,
-				    "PreStackDisplay", 
+				    "PreStackDisplay",
 				    toUiString(sFactoryKeyword()) );
 
     void			allowShading(bool yn);
@@ -83,7 +83,7 @@ public:
     bool			setSeis2DData(const IOObj* ioobj);
     bool			setSeis2DDisplay(Seis2DDisplay*,int trcnr);
     void			setTraceNr(int trcnr);
-    int				traceNr() const	  { return trcnr_; }
+    int				traceNr() const	  { return trckey_.trcNr(); }
     const char*			lineName() const;
 
     bool                        displayAutoWidth() const { return autowidth_; }
@@ -94,7 +94,7 @@ public:
     void			setFactor(float scale);
     float                       getWidth() { return width_; }
     void			setWidth(float width);
-    BinID			getBinID() const { return bid_; }
+    BinID			getBinID() const { return trckey_.position(); }
     virtual MultiID		getMultiID() const { return mid_; }
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
@@ -135,7 +135,7 @@ protected:
     void			draggerMotion(CallBacker*);
     void			finishedCB(CallBacker*);
 
-    BinID			bid_;
+    TrcKey			trckey_;
     BinID			draggerpos_;
     visBase::EventCatcher*	eventcatcher_;
     MouseCursor			mousecursor_;
@@ -146,7 +146,6 @@ protected:
     MultiID			mid_;
     PlaneDataDisplay*		section_;
     Seis2DDisplay*		seis2d_;
-    int				trcnr_;
     Coord			basedirection_;
     Coord			seis2dpos_;
     Coord			seis2dstoppos_;

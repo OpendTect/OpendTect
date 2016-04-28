@@ -51,16 +51,6 @@ public:
 					 const TrcKey&,int component=0,
 					 uiString* errmsg=0);
 
-    bool			readFrom(const MultiID&,const BinID&,
-					 int component=0,
-					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&,const BinID&,
-					 int component=0,
-					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&,SeisPSReader& rdr,
-					 const BinID&,int component=0,
-					 uiString* errmsg=0);
-
     const Coord&		getCoord() const	{ return coord_; }
     virtual Coord3		getCoord(int,int) const
 				{ return Coord3(coord_.x,coord_.y,0); }
@@ -78,27 +68,10 @@ public:
     void			setTrcKey(const TrcKey& tk )
 				{ trckey_ = tk; }
 
-				//for 3d only
-    const BinID&		getBinID() const
-				{ return trckey_.position(); }
-    void			setBinID( const BinID& bid )
-				{ trckey_.setPosition( bid ); }
-
     const MultiID&		getStoredID() const	{ return storagemid_; }
     const StepInterval<float>&	zRange() const		{ return zrg_; }
     void			setZRange( const StepInterval<float>& zrg )
 				{ zrg_ = zrg; }
-
-				//for 2D only.
-    bool			readFrom(const MultiID&, const int tracenr,
-					 const char* linename,int comp,
-					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&, const int tracenr,
-					 const char* linename,int comp,
-					 uiString* errmsg=0);
-    int				getSeis2DTraceNr() const
-				{ return trckey_.trcNr();}
-    const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }
 
@@ -137,6 +110,27 @@ public:
     void			setAzimuths( const TypeSet<float>& azimuths )
 				{ azimuths_ = azimuths; }
 
+				// Will be removed after this version.
+    mDeprecated bool		readFrom(const MultiID&,const BinID&,
+					 int component=0,
+					 uiString* errmsg=0);
+    mDeprecated bool		readFrom(const IOObj&,const BinID&,
+					 int component=0,
+					 uiString* errmsg=0);
+    mDeprecated bool		readFrom(const IOObj&,SeisPSReader& rdr,
+					 const BinID&,int component=0,
+					 uiString* errmsg=0);
+    mDeprecated bool		readFrom(const MultiID&, const int tracenr,
+					 const char* linename,int comp,
+					 uiString* errmsg=0);
+    mDeprecated bool		readFrom(const IOObj&, const int tracenr,
+					 const char* linename,int comp,
+					 uiString* errmsg=0);
+    const BinID&		getBinID() const
+				{ return trckey_.position(); }
+    void			setBinID( const BinID& bid )
+				{ trckey_.setPosition( bid ); }
+
 protected:
 				~Gather();
 
@@ -151,8 +145,6 @@ protected:
     Coord			coord_;
     TypeSet<float>		azimuths_;
     StepInterval<float>		zrg_;
-
-    BufferString		linename_;
 
 public:
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,

@@ -57,7 +57,7 @@ namespace PreStackView
 
 static const char* sKeySynthetic()	{ return "Synthteic"; }
 
-static void setAnnotationPars( FlatView::Annotation& annot ) 
+static void setAnnotationPars( FlatView::Annotation& annot )
 {
     annot.x1_.name_ = "Offset";
     annot.x1_.reversed_ = false;
@@ -794,12 +794,12 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
 	if ( !storedpsmw ) return;
 	BufferString linename = storedpsmw->lineName();
-	if (
-	   (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
-	    || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
-	{
+	TrcKey tk( ginfo.bid_ );
+	if ( is2D() )
+	    tk.setGeomID( Survey::GM().getGeomID(linename) );
+
+	if ( gather->readFrom(ginfo.mid_,tk) )
 	    preprocmgr_->setInput( relbid, gather->id() );
-	}
     }
     else
     {
@@ -1191,10 +1191,11 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
     RefMan<PreStack::Gather> gather =
 	DPM(DataPackMgr::FlatID()).add( new PreStack::Gather );
-    MultiID mid = gatherinfo.mid_;
-    BinID bid = gatherinfo.bid_;
-    if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0))
-	|| (!is2d_ && gather->readFrom(mid,bid)) )
+    TrcKey tk( gatherinfo.bid_ );
+    if ( is2D() )
+	tk.setGeomID( Survey::GM().getGeomID(linename_) );
+
+    if ( gather->readFrom(gatherinfo.mid_,tk) )
     {
 	DataPack::ID ppgatherid = -1;
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )

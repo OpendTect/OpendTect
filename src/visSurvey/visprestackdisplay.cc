@@ -53,12 +53,10 @@ PreStackDisplay::PreStackDisplay()
     , flatviewer_( visBase::FlatViewer::create() )
     , draggermoving( this )
     , draggerpos_( -1, -1 )
-    , bid_( -1, -1 )
     , mid_( 0 )
     , section_( 0 )
     , seis2d_( 0 )
     , factor_( 1 )
-    , trcnr_( -1 )
     , basedirection_( mUdf(float), mUdf(float) )
     , seis2dpos_( mUdf(float), mUdf(float) )
     , width_( mDefaultWidth )
@@ -205,16 +203,12 @@ DataPack::ID PreStackDisplay::preProcess()
 	    if ( !preprocmgr_.wantsInput(relbid) )
 		continue;
 
-	    const BinID inputbid =
-		is3DSeis() ? bid_ + relbid*BinID(SI().inlStep(),SI().crlStep())
-			   : BinID(0,trcnr_) + relbid;
+	    const BinID relpos = !is3DSeis() ? relbid
+			: relbid * BinID( SI().inlStep(), SI().crlStep() );
+	    trckey_.setPosition( trckey_.position() + relpos );
 	    RefMan<PreStack::Gather> gather = new PreStack::Gather;
-	    if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,inputbid)) ||
-		 (!is3DSeis() && !gather->readFrom(ioobj_->key(),inputbid.crl(),
-						   seis2d_->getLineName(),0)) )
-	    {
+	    if ( !gather->readFrom(*ioobj_,*reader_,trckey_) )
 		continue;
-	    }
 
 	    DPM( DataPackMgr::FlatID() ).add( gather.ptr() );
 	    preprocmgr_.setInput( relbid, gather->id() );
@@ -238,13 +232,13 @@ DataPack::ID PreStackDisplay::preProcess()
 
 bool PreStackDisplay::setPosition( const BinID& nb )
 {
-    if ( bid_==nb )
+    if ( trckey_.position()==nb )
 	return true;
 
-    bid_ = nb;
+    trckey_.setPosition( nb );
 
     RefMan<PreStack::Gather> gather = new PreStack::Gather;
-    if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,nb) )
+    if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,trckey_) )
     {
 	mDefineStaticLocalObject( bool, shown3d, = false );
 	mDefineStaticLocalObject( bool, resetpos, = true );
@@ -268,7 +262,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 	    }
 	    else
 	    {
-		bid_ = nearbid;
+		trckey_.setPosition( nearbid );
 		hasdata = true;
 	    }
         }
@@ -283,7 +277,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 	}
     }
 
-    draggerpos_ = bid_;
+    draggerpos_ = trckey_.position();
     draggermoving.trigger();
     dataChangedCB( 0 );
     return updateData();
@@ -292,8 +286,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 
 bool PreStackDisplay::updateData()
 {
-    if ( (is3DSeis() && (bid_.inl()==-1 || bid_.crl()==-1)) ||
-	 (!is3DSeis() && !seis2d_) || !ioobj_ || !reader_ )
+    if ( trckey_.isUdf() || (!is3DSeis() && !seis2d_) || !ioobj_ || !reader_ )
     {
 	turnOn(false);
 	return true;
@@ -309,11 +302,7 @@ bool PreStackDisplay::updateData()
     }
     else
     {
-	if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,bid_)) ||
-	     (!is3DSeis() && !gather->readFrom(*ioobj_,*reader_,
-						   BinID(0,trcnr_))) )
-	{}
-	else
+	if ( gather->readFrom(*ioobj_,*reader_,trckey_) )
 	{
 	    DPM(DataPackMgr::FlatID()).add( gather.ptr() );
 	    displayid = gather->id();
@@ -483,10 +472,7 @@ void PreStackDisplay::setWidth( float width )
 
 void PreStackDisplay::dataChangedCB( CallBacker* )
 {
-    if ( (!section_ && !seis2d_) || factor_<0 || width_<0 )
-	return;
-
-    if ( section_ && ( bid_.inl()<0 || bid_.crl()<0 ) )
+    if ( trckey_.isUdf() || (!section_ && !seis2d_) || factor_<0 || width_<0 )
 	return;
 
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
@@ -503,7 +489,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     if ( !offsetrange_.width() )
 	offsetrange_.stop = mDefaultWidth;
 
-    Coord startpos( bid_.inl(), bid_.crl() );
+    Coord startpos( trckey_.lineNr(), trckey_.trcNr() );
     if ( seis2d_ )
 	startpos = seis2dpos_;
 
@@ -561,7 +547,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
 
 const BinID& PreStackDisplay::getPosition() const
-{ return bid_; }
+{ return trckey_.position(); }
 
 
 bool PreStackDisplay::isOrientationInline() const
@@ -577,7 +563,7 @@ const visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay() const
 { return section_;}
 
 
-visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay() 
+visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay()
 { return section_;}
 
 
@@ -631,7 +617,7 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 
 void PreStackDisplay::sectionMovedCB( CallBacker* )
 {
-    BinID newpos = bid_;
+    BinID newpos = trckey_.position();
 
     if ( !section_ )
 	return;
@@ -674,16 +660,14 @@ bool PreStackDisplay::is3DSeis() const
 
 void PreStackDisplay::setTraceNr( int trcnr )
 {
-    if ( trcnr_==trcnr )
+    if ( trckey_.trcNr()==trcnr )
 	return;
 
-    if ( !seis2d_ )
-	trcnr_ = trcnr;
-    else
+    trckey_.setTrcNr( trcnr );
+    if ( seis2d_ )
     {
 	RefMan<PreStack::Gather> gather = new PreStack::Gather;
-	if ( !ioobj_ || !reader_ ||
-	     !gather->readFrom(*ioobj_,*reader_,BinID(0,trcnr)) )
+	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,trckey_))
 	{
 	    mDefineStaticLocalObject( bool, show2d, = false );
 	    mDefineStaticLocalObject( bool, resettrace, = true );
@@ -697,16 +681,18 @@ void PreStackDisplay::setTraceNr( int trcnr )
 
 	    if ( resettrace )
 	    {
-		trcnr_ = getNearTraceNr( trcnr );
-		if ( trcnr_==-1 )
+		int newtrcnr = getNearTraceNr( trcnr );
+		if ( newtrcnr==-1 )
 		{
 //		    uiMSG().warning("Can not read or no data at the section.");
-		    trcnr_ = trcnr; //If no data, we still display the panel.
+		    newtrcnr = trcnr; //If no data, we still display the panel.
 		}
+
+		trckey_.setTrcNr( newtrcnr );
 	    }
 	}
 	else
-	    trcnr_ = trcnr;
+	    trckey_.setTrcNr( trcnr );
     }
 
     draggermoving.trigger();
@@ -738,6 +724,7 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 
     seis2d_ = s2d;
     seis2d_->ref();
+    trckey_.setGeomID( seis2d_->getGeomID() );
 
     if ( seis2d_->id() > id() )
     {
@@ -751,13 +738,13 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 	 reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->getGeomID() );
 
     setTraceNr( trcnr );
-    if ( trcnr_<0 ) return false;
+    if ( trckey_.isUdf() ) return false;
 
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
     basedirection_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getNormal(trcnr_) ) - orig;
+	    seis2d_->getNormal(trckey_.trcNr()) ) - orig;
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getCoord(trcnr_) );
+	    seis2d_->getCoord(trckey_.trcNr()) );
 
     mAttachCB( seis2d_->getMovementNotifier(), PreStackDisplay::seis2DMovedCB );
 
@@ -767,14 +754,14 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 
 void PreStackDisplay::seis2DMovedCB( CallBacker* )
 {
-    if ( !seis2d_ || trcnr_<0 )
+    if ( !seis2d_ || trckey_.isUdf() )
 	return;
 
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
     basedirection_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getNormal(trcnr_) ) - orig;
+	    seis2d_->getNormal(trckey_.trcNr()) ) - orig;
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getCoord(trcnr_) );
+	    seis2d_->getCoord(trckey_.trcNr()) );
     dataChangedCB(0);
 }
 
@@ -830,9 +817,9 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 
     const OD::SliceType orientation = section_->getOrientation();
     bool showplane = false;
-    if ( orientation==OD::InlineSlice && newcrl!=bid_.crl() )
+    if ( orientation==OD::InlineSlice && newcrl!=trckey_.trcNr() )
         showplane = true;
-    else if ( orientation==OD::CrosslineSlice && newinl!=bid_.inl() )
+    else if ( orientation==OD::CrosslineSlice && newinl!=trckey_.lineNr() )
 	showplane = true;
 
     planedragger_->showPlane( showplane );
@@ -890,7 +877,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     if ( seis2d_ )
     {
 	info += "   Tracenr: ";
-	info += trcnr_;
+	info += trckey_.trcNr();
 	const double displaywidth = seis2dstoppos_.distTo(seis2dpos_);
 	const double curdist =
 	    SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
@@ -900,7 +887,8 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     else if ( section_ )
     {
 	const BinID bid = SI().transform( pos );
-	const float distance = Math::Sqrt((float)bid_.sqDistTo( bid ));
+	const float distance =
+			Math::Sqrt((float)trckey_.position().sqDistTo( bid ));
 
 	if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )
 	    return;
@@ -911,7 +899,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	else
 	    offset= cal*SI().crlDistance()+rg.start;
 
-	pos = Coord3( SI().transform( bid_ ), pos.z );
+	pos = Coord3( trckey_.getCoord(), pos.z );
     }
 
     int offsetsample = 0;
@@ -967,13 +955,13 @@ void PreStackDisplay::fillPar( IOPar& par ) const
     if ( section_ )
     {
 	par.set( sKeyParent(), section_->id() );
-	par.set( sKey::Position(), bid_ );
+	par.set( sKey::Position(), trckey_.position() );
     }
 
     if  ( seis2d_ )
     {
 	par.set( sKeyParent(), seis2d_->id() );
-	par.set( sKeyTraceNr(), trcnr_ );
+	par.set( sKeyTraceNr(), trckey_.trcNr() );
     }
 
     par.set( sKeyMultiID(), mid_ );
