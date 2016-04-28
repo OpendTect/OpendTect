@@ -40,7 +40,6 @@ Gather::Gather()
     : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(1,1) )
     , offsetisangle_( false )
     , iscorr_( false )
-    , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {}
@@ -51,7 +50,7 @@ Gather::Gather( const Gather& gather )
     : FlatDataPack( gather )
     , offsetisangle_( gather.offsetisangle_ )
     , iscorr_( gather.iscorr_ )
-    , binid_( gather.binid_ )
+    , trckey_( gather.trckey_ )
     , coord_( gather.coord_ )
     , zit_( gather.zit_ )
     , azimuths_( gather.azimuths_ )
@@ -67,7 +66,6 @@ Gather::Gather( const FlatPosData& fposdata )
         new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
     , offsetisangle_( false )
     , iscorr_( false )
-    , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {
@@ -77,6 +75,39 @@ Gather::Gather( const FlatPosData& fposdata )
 
 Gather::~Gather()
 {}
+
+
+bool Gather::readFrom( const MultiID& mid, const TrcKey& tk, int comp,
+		       uiString* errmsg )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+    {
+	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
+	delete arr2d_; arr2d_ = 0;
+	return false;
+    }
+
+    return readFrom( *ioobj, tk, comp, errmsg );
+}
+
+
+bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
+		       uiString* errmsg )
+{
+    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, tk.lineNr() );
+    if ( !rdr )
+    {
+	if ( errmsg )
+	    (*errmsg) = tr("This Prestack data store cannot be handled.");
+	delete arr2d_; arr2d_ = 0;
+	return false;
+    }
+
+    linename_.setEmpty();
+    return readFrom( ioobj, *rdr, tk, comp, errmsg );
+}
+
 
 
 bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
@@ -107,6 +138,7 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
     }
 
     linename_.setEmpty();
+    trckey_.setSurvID( TrcKey::std3DSurvID() );
     return readFrom( ioobj, *rdr, bid, comp, errmsg );
 }
 
@@ -139,8 +171,45 @@ bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
     }
 
     linename_ = linename;
+    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+    trckey_.setSurvID( TrcKey::std2DSurvID() );
+    return readFrom( ioobj, *rdr, BinID(geomid,tracenr), comp, errmsg );
+}
 
-    return readFrom( ioobj, *rdr, BinID(0,tracenr), comp, errmsg );
+
+bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
+		       int comp, uiString* errmsg )
+{
+    PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
+    if ( !rdr.getGather(tk.position(),*tbuf) )
+    {
+	if ( errmsg ) (*errmsg) = rdr.errMsg();
+	delete arr2d_; arr2d_ = 0;
+	return false;
+    }
+    if ( !setFromTrcBuf( *tbuf, comp, true ) )
+       return false;
+
+    ioobj.pars().getYN(sKeyZisTime(),zit_);
+
+    velocitymid_.setEmpty();
+    GetVelocityVolumeTag( ioobj, velocitymid_ );
+    staticsmid_.setEmpty();
+    ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
+
+    offsetisangle_ = false;
+    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
+
+    iscorr_ = false;
+    if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
+	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
+
+    trckey_ = tk;
+    setName( ioobj.name() );
+
+    storagemid_ = ioobj.key();
+
+    return true;
 }
 
 
@@ -171,7 +240,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
 	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
 
-    binid_ = bid;
+    setBinID( bid );
     setName( ioobj.name() );
 
     storagemid_ = ioobj.key();
@@ -261,7 +330,8 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
     zit_ = SI().zIsTime();
     coord_ = crd;
-    binid_ = SI().transform( coord_ );
+    const BinID binid = SI().transform( coord_ );
+    trckey_ = TrcKey( binid );
 
     return true;
 }
@@ -285,9 +355,9 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     if ( azimuths_.validIdx(idim0) )
 	par.set( sKey::Azimuth(), getAzimuth(idim0) );
     if ( !is3D() )
-	par.set( sKey::TraceNr(), binid_.crl() );
+	par.set( sKey::TraceNr(), trckey_.trcNr() );
     else
-	par.set( sKey::Position(), binid_.toString() );
+	par.set( sKey::Position(), trckey_.position().toString() );
 }
 
 

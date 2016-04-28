@@ -39,21 +39,31 @@ public:
 				Gather(const Gather&);
 				Gather(const FlatPosData&);
 
-    bool			is3D() const { return linename_.isEmpty(); }
+    bool			is3D() const	{ return !trckey_.is2D(); }
 
-    bool			readFrom(const MultiID&,const BinID&,
-	    				 int component=0,
+    bool			readFrom(const MultiID&,const TrcKey&,
+					 int component=0,
 					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&,const BinID&,
-	    				 int component=0,
+    bool			readFrom(const IOObj&,const TrcKey&,
+					 int component=0,
 					 uiString* errmsg=0);
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
-	    				 const BinID&,int component=0,
+					 const TrcKey&,int component=0,
+					 uiString* errmsg=0);
+
+    bool			readFrom(const MultiID&,const BinID&,
+					 int component=0,
+					 uiString* errmsg=0);
+    bool			readFrom(const IOObj&,const BinID&,
+					 int component=0,
+					 uiString* errmsg=0);
+    bool			readFrom(const IOObj&,SeisPSReader& rdr,
+					 const BinID&,int component=0,
 					 uiString* errmsg=0);
 
     const Coord&		getCoord() const	{ return coord_; }
     virtual Coord3		getCoord(int,int) const
-    				{ return Coord3(coord_.x,coord_.y,0); }
+				{ return Coord3(coord_.x,coord_.y,0); }
 
     void                        detectOuterMutes(int* depths,
 						 int taperlen=0) const;
@@ -64,23 +74,30 @@ public:
 	                        /*<!For each trace, try to detect the first
 				   inner-mute affected value. */
 
-    				//for 3d only
-    const BinID&		getBinID() const 	{ return binid_; }
-    void			setBinID( const BinID& bid ) 
-    				{ binid_ = bid; }
-    const MultiID&		getStoredID() const 	{ return storagemid_; }
-    const StepInterval<float>&	zRange() const 		{ return zrg_; }
+    const TrcKey&		getTrcKey() const	{ return trckey_; }
+    void			setTrcKey(const TrcKey& tk )
+				{ trckey_ = tk; }
+
+				//for 3d only
+    const BinID&		getBinID() const
+				{ return trckey_.position(); }
+    void			setBinID( const BinID& bid )
+				{ trckey_.setPosition( bid ); }
+
+    const MultiID&		getStoredID() const	{ return storagemid_; }
+    const StepInterval<float>&	zRange() const		{ return zrg_; }
     void			setZRange( const StepInterval<float>& zrg )
-    				{ zrg_ = zrg; }
+				{ zrg_ = zrg; }
 
 				//for 2D only.
-    bool			readFrom(const MultiID&, const int tracenr, 
-	    				 const char* linename,int comp,
+    bool			readFrom(const MultiID&, const int tracenr,
+					 const char* linename,int comp,
 					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&, const int tracenr, 
-	    				 const char* linename,int comp,
+    bool			readFrom(const IOObj&, const int tracenr,
+					 const char* linename,int comp,
 					 uiString* errmsg=0);
-    int				getSeis2DTraceNr() const { return binid_.crl();}
+    int				getSeis2DTraceNr() const
+				{ return trckey_.trcNr();}
     const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }
@@ -114,14 +131,14 @@ public:
 
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyStaticsID();
-    
+
     void			getAzimuths( TypeSet<float>& azimuths ) const
 				{ azimuths = azimuths_; }
     void			setAzimuths( const TypeSet<float>& azimuths )
 				{ azimuths_ = azimuths; }
 
 protected:
-    				~Gather();
+				~Gather();
 
     MultiID			velocitymid_;
     MultiID			storagemid_;
@@ -130,7 +147,7 @@ protected:
     bool			iscorr_;
 
     bool			zit_;
-    BinID			binid_;
+    TrcKey			trckey_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
     StepInterval<float>		zrg_;
@@ -150,8 +167,8 @@ public:
 mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
 {
 public:
-    				GatherSetDataPack(const char* ctgery,
-						  const ObjectSet<Gather>&); 
+				GatherSetDataPack(const char* ctgery,
+						  const ObjectSet<Gather>&);
 				~GatherSetDataPack();
 
     void			fill(Array2D<float>&,int offsetidx) const;
@@ -160,11 +177,11 @@ public:
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
-    virtual float 		nrKBytes() const 	{ return 0; }
+    virtual float		nrKBytes() const	{ return 0; }
 
     const Gather*		getGather(const BinID&) const;
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
-    ObjectSet<Gather>&		getGathers() 		{ return gathers_; }
+    ObjectSet<Gather>&		getGathers()		{ return gathers_; }
 
 protected:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
