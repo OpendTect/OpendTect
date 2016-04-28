@@ -184,8 +184,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     char shortpath[1024];
     GetShortPathName(workdirnm.buf(),shortpath,1024);
     cmd += " "; cmd += shortpath;
-    
-    OS::CommandExecPars execpars( true );
+
+    OS::CommandExecPars execpars( false );
     execpars.launchtype( OS::Wait4Finish )
 	    .isconsoleuiprog( true );
     OS::MachineCommand mc( cmd );
