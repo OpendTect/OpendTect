@@ -1014,10 +1014,13 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	    mousepos.z = datatransform_->transformBack( mousepos );
     }
 
-    if ( mousecursorexchange_ && mousepos.isDefined() )
+    if ( mousecursorexchange_ )
     {
-	const TrcKeyValue trckeyval( SI().transform(mousepos.coord()),
-				     mCast(float,mousepos.z) );
+	const TrcKeyValue trckeyval =
+	    mousepos.isDefined() ? TrcKeyValue(SI().transform(mousepos.coord()),
+						mCast(float,mousepos.z))
+				 : TrcKeyValue::udf();
+
 	MouseCursorExchange::Info info( trckeyval );
 	mousecursorexchange_->notifier.trigger( info, this );
     }
