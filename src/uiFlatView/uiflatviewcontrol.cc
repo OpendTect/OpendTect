@@ -306,11 +306,20 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 
     const int idx = getViewerIdx( meh, true );
     if ( idx<0 ) return;
-    if ( !vwrs_[idx]->needStatusBarUpdate() ) return;
-    const uiWorldPoint wp =
-	vwrs_[idx]->getWorld2Ui().transform( meh->event().pos() );
-    vwrs_[idx]->getAuxInfo( wp, infopars_ );
-    CBCapsule<IOPar> caps( infopars_, this );
+    uiFlatViewer* vwr = vwrs_[idx];
+    if ( !vwr->needStatusBarUpdate() ) return;
+
+    const Geom::Point2D<int> mousepos = meh->event().pos();
+    const uiWorldPoint wp = vwr->getWorld2Ui().transform( mousepos );
+    const bool isinsde = vwr->getViewRect().isInside( mousepos );
+    IOPar infopar;
+    if ( isinsde )
+    {
+	vwr->getAuxInfo( wp, infopars_ );
+	infopar = infopars_;
+    }
+
+    CBCapsule<IOPar> caps( infopar, this );
     infoChanged.trigger( &caps );
 }
 
