@@ -99,7 +99,8 @@ void Pick::Location::operator=( const Location& oth )
 
 bool Pick::Location::hasTrcKey() const
 {
-    return !trckey_.isUdf();
+    return !mIsUdf(trckey_.inl()) && !mIsUdf(trckey_.crl())
+	&& !mIsUdf(trckey_.survID());
 }
 
 
