@@ -157,11 +157,13 @@ void uiViewer3DPositionDlg::applBoxSel( CallBacker* c )
 
 void uiViewer3DPositionDlg::posChg( CallBacker* c )
 {
-    if ( applybox_->isChecked() &&
-	 viewer_.draggerPosition()==viewer_.getPosition() )
-    {
-	applyCB( c ); //This will adjust to the nearest position.
-    }
+    if ( !applybox_->isChecked() )
+	return;
+
+    if ( viewer_.is3DSeis() && viewer_.draggerPosition()!=viewer_.getPosition())
+	return;
+
+    applyCB( c ); //This will adjust to the nearest position.
 }
 
 
