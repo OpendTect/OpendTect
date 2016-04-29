@@ -25,7 +25,6 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
 
     float* d2tarr = d2t.valArr();
     float* daharr = d2t.dahArr();
-    const Interval<float>& dahrg = d2t.dahRange();
     bool found = false;
 
     sort_array( d2tarr, d2tsz );
