@@ -395,7 +395,8 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 	sectionids += res->sectionID( sels_.selsections[idx] );
 
     res->selSections( sectionids );
-    res->selAuxData( sels_.selvalues );
+    if ( !sels_.selvalues.isEmpty() )
+	res->selAuxData( sels_.selvalues );
 
     return res;
 }
