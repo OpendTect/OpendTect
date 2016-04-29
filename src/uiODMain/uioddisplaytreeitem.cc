@@ -374,7 +374,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
+    if ( !menu || menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1)
 	return;
 
     if ( mnuid==lockmnuitem_.id )
