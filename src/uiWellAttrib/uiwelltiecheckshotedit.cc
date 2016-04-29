@@ -345,22 +345,20 @@ void uiCheckShotEdit::drawDrift()
 	driftdisplay_->zPicks() += pd;
     }
    
-    const float stoppos = 
-	(tkzs_->dahRange().stop > orgd2t_->dahRange().stop) 
-	? tkzs_->dahRange().stop : orgd2t_->dahRange().stop;
-    Interval<float> finalrg( 0, stoppos );
-    driftdisplay_->setZRange( finalrg );
+    driftdisplay_->setZRange( d2tdisplay_->dahObjData(false).zrg_ );
 }
 
 
 void uiCheckShotEdit::applyCB( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
+    editbut_->setSensitive( !isorgdrift );
     const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_;
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
 
+    *d2t_ = *orgd2t_;
     Well::D2TModel tmpcs;
     for ( int idx=0; idx<driftcurve.size(); idx++ )
     {
@@ -370,41 +368,29 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 	const float csval = drift / SI().zDomain().userFactor() + d2tval;
 	tmpcs.add( dah, csval );
     }
+    
+    CheckShotCorr::calibrate( tmpcs, *d2t_ );
 
-    *d2t_ = *orgd2t_;
-    if( !isorgdrift )
+    if ( viewcorrd2t_->isChecked() )
     {
-	for ( int idx=0; idx<newdriftcurve_.size(); idx++ )
+	TypeSet<uiPoint> pts;
+	uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
+	for ( int idx=0; idx<d2t_->size(); idx++ )
 	{
-	    const float val = newdriftcurve_.value( idx );
-	    const float dah = (float) wd_.track().getPos( 
-						newdriftcurve_.dah(idx) ).z;
-	    d2t_->add(dah,val);
-	    
+	    const float val = d2t_->value( idx );
+	    const float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
+	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
 	}
-	CheckShotCorr::calibrate( tmpcs, *d2t_ );
-	quickSort(d2t_->dahArr(),d2t_->size());
-	quickSort(d2t_->valArr(),d2t_->size());
+
+	if ( pts.isEmpty() ) return;
+
+	d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
+	OD::LineStyle ls( OD::LineStyle::Solid, 2, Color::DgbColor() );
+	d2tlineitm_->setPenStyle( ls );
     }
-    else
-	CheckShotCorr::calibrate( tmpcs, *d2t_ );
-
-    TypeSet<uiPoint> pts;
-    uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
-    for ( int idx=0; idx<d2t_->size(); idx++ )
-    {
-	const float val = d2t_->value( idx );
-	const float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
-	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
-    }
-
-    if ( pts.isEmpty() ) return;
-
-    d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
-    OD::LineStyle ls( OD::LineStyle::Solid, 2, Color::DgbColor() );
-    d2tlineitm_->setPenStyle( ls );
 
     draw();
+    
 }
 
 
