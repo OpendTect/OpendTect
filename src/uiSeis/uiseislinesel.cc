@@ -774,17 +774,20 @@ void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
 {
     zrgs_.erase(); trcrgs_.erase();
     maxzrgs_.erase(); maxtrcrgs_.erase();
-    PtrMan<SeisIOObjInfo> si = datasetid ? new SeisIOObjInfo(*datasetid) : 0;
+    
+    PtrMan<IOObj> ioobj = datasetid ? IOM().get( *datasetid ) : 0;
+    PtrMan<Seis2DDataSet> dataset = ioobj ?  new Seis2DDataSet( *ioobj ) : 0;
+    
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
 	StepInterval<int> trcrg(0,0,1);
 	StepInterval<float> zrg = SI().zRange(false);
-	if ( si )
-	    si->getRanges( geomids_[idx], trcrg, zrg );
+	if ( dataset && !dataset->isEmpty() )
+	   dataset->getRanges( geomids_[idx], trcrg, zrg );
 	else
 	{
 	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			     Survey::GM().getGeometry(geomids_[idx]) );
+			     Survey::GM().getGeometry( geomids_[idx]) );
 	    if ( geom2d )
 	    {
 		trcrg = geom2d->data().trcNrRange();

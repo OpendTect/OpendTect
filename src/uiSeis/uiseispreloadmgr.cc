@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissubsel.h"
 #include "uiselsurvranges.h"
 #include "uisplitter.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -367,6 +368,8 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     }
 
     uiTaskRunner taskrunner( this );
+    TypeSet<TrcKeyZSampling> tkzss;
+    TypeSet<Pos::GeomID> loadgeomids;
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	const Pos::GeomID& geomid = geomids[idx];
@@ -379,16 +382,13 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 
 	ss2d->getSampling( tkzs, geomid );
 	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
-
-	PreLoader spl( key, geomid, &taskrunner );
-	if ( !spl.load(tkzs,dc.userType(),dlg.scalerfld_->getScaler()) )
-	{
-	    const uiString emsg = spl.errMsg();
-	    if ( !emsg.isEmpty() )
-		uiMSG().error( emsg );
-	}
+	loadgeomids += geomid;
+	tkzss += tkzs;
     }
 
+    PreLoader spl( key, -1, &taskrunner );
+    spl.load( tkzss, loadgeomids, dc.userType(), dlg.scalerfld_->getScaler() );
+      
     fullUpd( 0 );
 }
 
