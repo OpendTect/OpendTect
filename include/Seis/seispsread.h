@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "bufstring.h"
 #include "binid.h"
+#include "trckey.h"
 #include "uistring.h"
 
 
@@ -40,7 +41,10 @@ public:
     virtual void	usePar(const IOPar&)				{}
 
     virtual uiString	errMsg() const					= 0;
+
+    virtual SeisTrc*	getTrace(const TrcKey&,int nr=0) const;
     virtual SeisTrc*	getTrace(const BinID&,int nr=0) const;
+    virtual bool	getGather(const TrcKey&,SeisTrcBuf&) const	= 0;
     virtual bool	getGather(const BinID&,SeisTrcBuf&) const	= 0;
 
     virtual bool	getSampleNames(BufferStringSet&) const
@@ -76,9 +80,9 @@ public:
 
 			// Cannot use name overloading: seems gcc prob
     SeisTrc*		getTrc( int trcnr, int nr=0 ) const
-			{ return getTrace( BinID(geomid_,trcnr), nr ); }
+			{ return getTrace( TrcKey(geomid_,trcnr), nr ); }
     bool		getGath( int trcnr, SeisTrcBuf& b ) const
-			{ return getGather( BinID(geomid_,trcnr), b ); }
+			{ return getGather( TrcKey(geomid_,trcnr), b ); }
 
     virtual const PosInfo::Line2DData&	posData() const		= 0;
 

@@ -237,6 +237,16 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 }
 
 
+SeisTrc* SeisPSReader::getTrace( const TrcKey& tk, int trcidx ) const
+{
+    SeisTrcBuf buf( true );
+    if ( !getGather(tk,buf) || buf.size()<=trcidx )
+	return 0;
+
+    return buf.remove( trcidx );
+}
+
+
 SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 {
     SeisTrcBuf buf( true );

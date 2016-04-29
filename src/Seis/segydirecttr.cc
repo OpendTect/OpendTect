@@ -149,6 +149,15 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
 }
 
 
+SeisTrc* SEGYDirect3DPSReader::getTrace( const TrcKey& tk, int nr ) const
+{
+    SEGY::FileDataSet::TrcIdx ti =
+		def_.findOcc( Seis::PosKey(tk.position()), nr );
+    return ti.isValid() ?
+		getTrace(ti.filenr_,mCast(int,ti.trcidx_),tk.position()) : 0;
+}
+
+
 SeisTrc* SEGYDirect3DPSReader::getTrace( const BinID& bid, int nr ) const
 {
     SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid), nr );
@@ -156,25 +165,32 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( const BinID& bid, int nr ) const
 }
 
 
-bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
+bool SEGYDirect3DPSReader::getGather( const TrcKey& tk, SeisTrcBuf& tb ) const
 {
     if ( !errmsg_.isEmpty() )
 	return false;
 
-    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid), false );
+    SEGY::FileDataSet::TrcIdx ti =
+			def_.find( Seis::PosKey(tk.position()), false );
     if ( !ti.isValid() )
 	return false;
 
-    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid );
+    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), tk.position() );
     if ( !trc ) return false;
 
     tb.deepErase();
     for ( int itrc=1; trc; itrc++ )
     {
 	tb.add( trc );
-	trc = getTrace( bid, itrc );
+	trc = getTrace( tk.position(), itrc );
     }
     return true;
+}
+
+
+bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
+{
+    return getGather( TrcKey(bid), tb );
 }
 
 
@@ -237,30 +253,42 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 }
 
 
-SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
+SeisTrc* SEGYDirect2DPSReader::getTrace( const TrcKey& tk, int nr ) const
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl()), nr );
+    SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(tk.trcNr()), nr );
     return ti.isValid() ?
-	getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() ) : 0;
+	getTrace( ti.filenr_, mCast(int,ti.trcidx_), tk.trcNr() ) : 0;
 }
 
 
-bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
+SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
-    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl()), false );
+    return getTrace( TrcKey(bid.inl(),bid.crl()), nr );
+}
+
+
+bool SEGYDirect2DPSReader::getGather( const TrcKey& tk, SeisTrcBuf& tb ) const
+{
+    SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(tk.trcNr()), false );
     if ( !ti.isValid() )
 	return 0;
 
-    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() );
+    SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), tk.trcNr() );
     if ( !trc ) return false;
 
     tb.deepErase();
     for ( int itrc=1; trc; itrc++ )
     {
 	tb.add( trc );
-	trc = getTrace( bid, itrc );
+	trc = getTrace( tk, itrc );
     }
     return true;
+}
+
+
+bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
+{
+    return getGather( TrcKey(bid.inl(),bid.crl()), tb );
 }
 
 

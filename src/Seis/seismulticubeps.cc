@@ -236,13 +236,13 @@ void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
 }
 
 
-SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
+SeisTrc* MultiCubeSeisPSReader::getTrace( const TrcKey& tk, int nr ) const
 {
     if ( nr >= rdrs_.size() ) return 0;
 
     SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *rdrs_[nr] );
     SeisTrc* trc = new SeisTrc;
-    if ( !rdr.seisTranslator()->goTo(bid) )
+    if ( !rdr.seisTranslator()->goTo(tk.position()) )
 	{ delete trc; trc = 0; }
     else if ( !rdr.get(*trc) )
 	{ errmsg_ = rdr.errMsg(); delete trc; trc = 0; }
@@ -253,17 +253,29 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
 }
 
 
-bool MultiCubeSeisPSReader::getGather( const BinID& bid, SeisTrcBuf& buf ) const
+SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
+{
+    return getTrace( TrcKey(bid), nr );
+}
+
+
+bool MultiCubeSeisPSReader::getGather( const TrcKey& tk, SeisTrcBuf& buf ) const
 {
     buf.deepErase(); buf.setIsOwner( true );
     for ( int idx=0; idx<rdrs_.size(); idx++ )
     {
-	SeisTrc* newtrc = getTrace( bid, idx );
+	SeisTrc* newtrc = getTrace( tk.position(), idx );
 	if ( newtrc )
 	    buf.add( newtrc );
     }
 
     return buf.isEmpty() ? false : true;
+}
+
+
+bool MultiCubeSeisPSReader::getGather( const BinID& bid, SeisTrcBuf& buf ) const
+{
+    return getGather( TrcKey(bid), buf );
 }
 
 

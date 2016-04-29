@@ -27,7 +27,9 @@ public:
 			// Check errMsg() to see failure
 			~MultiCubeSeisPSReader();
 
+    SeisTrc*		getTrace(const TrcKey&,int) const;
     SeisTrc*		getTrace(const BinID&,int) const;
+    bool		getGather(const TrcKey&,SeisTrcBuf&) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     uiString		errMsg() const		{ return errmsg_; }
 

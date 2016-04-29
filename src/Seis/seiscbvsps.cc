@@ -503,10 +503,23 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 }
 
 
+SeisTrc* SeisCBVSPS3DReader::getTrace( const TrcKey& tk, int nr ) const
+{
+    return mkTr(tk.lineNr()) && goTo(tk.trcNr(),nr)
+	 ? getNextTrace( tk.position(), SI().transform(tk.position()) ) : 0;
+}
+
+
 SeisTrc* SeisCBVSPS3DReader::getTrace( const BinID& bid, int nr ) const
 {
     return mkTr(bid.inl()) && goTo(bid.crl(),nr)
 	 ? getNextTrace( bid, SI().transform(bid) ) : 0;
+}
+
+
+bool SeisCBVSPS3DReader::getGather( const TrcKey& tk, SeisTrcBuf& gath ) const
+{
+    return mkTr( tk.lineNr() ) && getGather( tk.trcNr(), gath );
 }
 
 
@@ -662,39 +675,49 @@ SeisCBVSPS2DReader::~SeisCBVSPS2DReader()
 }
 
 
-SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
+SeisTrc* SeisCBVSPS2DReader::getTrace( const TrcKey& tk, int nr ) const
 {
     if ( !tr_ ) return 0;
 
-    if ( !goTo(bid.crl(),nr) )
+    if ( !goTo(tk.trcNr(),nr) )
 	return 0;
 
-    SeisTrc* trc = readNewTrace( bid.crl() );
+    SeisTrc* trc = readNewTrace( tk.trcNr() );
     if ( !trc ) return 0;
-    trc->info().nr_ = trc->info().inl();
-    trc->info().setBinID( SI().transform(trc->info().coord_) );
+    trc->info().trckey_ = tk;
     return trc;
+}
+
+
+SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
+{
+    return getTrace( TrcKey(bid.inl(),bid.crl()), nr );
+}
+
+
+bool SeisCBVSPS2DReader::getGather( const TrcKey& tk, SeisTrcBuf& tbuf ) const
+{
+    if ( !prepGather(tk.trcNr(),tbuf) )
+	return false;
+
+    SeisTrc* trc = readNewTrace( tk.trcNr() );
+    if ( !trc ) return false;
+
+    while ( trc )
+    {
+	trc->info().trckey_ = tk;
+	tbuf.add( trc );
+
+	trc = readNewTrace( tk.trcNr() );
+    }
+
+    return true;
 }
 
 
 bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 {
-    if ( !prepGather(bid.crl(),tbuf) )
-	return false;
-
-    SeisTrc* trc = readNewTrace( bid.crl() );
-    if ( !trc ) return false;
-
-    while ( trc )
-    {
-	trc->info().nr_ = bid.crl();
-	trc->info().setBinID( SI().transform(trc->info().coord_) );
-	tbuf.add( trc );
-
-	trc = readNewTrace( bid.crl() );
-    }
-
-    return true;
+    return getGather( TrcKey(bid.inl(),bid.crl()), tbuf );
 }
 
 

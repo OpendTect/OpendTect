@@ -65,7 +65,9 @@ public:
 			// Check errMsg() to see failure
 			~SEGYDirect3DPSReader();
 
+    SeisTrc*		getTrace(const TrcKey&,int) const;
     SeisTrc*		getTrace(const BinID&,int) const;
+    bool		getGather(const TrcKey&,SeisTrcBuf&) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     uiString		errMsg() const		{ return errmsg_; }
 
@@ -97,7 +99,9 @@ public:
 			// Check errMsg() to see failure
 			~SEGYDirect2DPSReader();
 
+    SeisTrc*		getTrace(const TrcKey&,int) const;
     SeisTrc*		getTrace(const BinID&,int) const;
+    bool		getGather(const TrcKey&,SeisTrcBuf&) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     uiString		errMsg() const		{ return errmsg_; }
 

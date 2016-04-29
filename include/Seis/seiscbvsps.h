@@ -86,7 +86,9 @@ public:
 			~SeisCBVSPS3DReader();
     uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
+    SeisTrc*		getTrace(const TrcKey&,int) const;
     SeisTrc*		getTrace(const BinID&,int) const;
+    bool		getGather(const TrcKey&,SeisTrcBuf&) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
@@ -122,7 +124,9 @@ public:
 			~SeisCBVSPS2DReader();
     uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
+    SeisTrc*		getTrace(const TrcKey&,int) const;
     SeisTrc*		getTrace(const BinID&,int) const;
+    bool		getGather(const TrcKey&,SeisTrcBuf&) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
 
     const PosInfo::Line2DData& posData() const	{ return posdata_; }
