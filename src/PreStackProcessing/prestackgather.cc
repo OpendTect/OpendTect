@@ -152,7 +152,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 		       int comp, uiString* errmsg )
 {
     PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
-    if ( !rdr.getGather(tk.position(),*tbuf) )
+    if ( !rdr.getGather(tk,*tbuf) )
     {
 	if ( errmsg ) (*errmsg) = rdr.errMsg();
 	delete arr2d_; arr2d_ = 0;
