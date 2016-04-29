@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "picksettr.h"
 #include "picksetmgr.h"
-#include "picksetsaver.h"
 #include "ctxtioobj.h"
 #include "binidvalset.h"
 #include "datapointset.h"
@@ -321,27 +320,4 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     }
 
     return ret;
-}
-
-
-
-Pick::SetSaver::SetSaver( const Pick::Set& ps )
-    : OD::AutoSaveable(ps)
-{
-}
-
-
-BufferString Pick::SetSaver::getFingerPrint() const
-{
-    BufferString ret;
-    const Pick::Set& ps = pickSet();
-    ret.set( ps.size() );
-    //TODO size only is a bit crude, need some real stuff here
-    return ret;
-}
-
-
-bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
-{
-    return PickSetTranslator::store( pickSet(), &ioobj, errmsg_ );
 }

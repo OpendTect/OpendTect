@@ -16,16 +16,19 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
+#include "uitaskrunner.h"
 
 #include "binidvalset.h"
 #include "color.h"
 #include "datapointset.h"
+#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mousecursor.h"
 #include "picksetmgr.h"
 #include "picksettr.h"
+#include "picksetio.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
 #include "statrand.h"
@@ -132,28 +135,6 @@ void uiPickPartServer::mergePickSets( MultiID& mid )
 { uipsmgr_.mergeSets( mid ); }
 
 
-Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
-{
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    const int setidx = psmgr_.indexOf( mid );
-    if ( setidx<0 )
-    {
-	Pick::Set* ps = new Pick::Set;
-	uiString errmsg;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
-	{
-	    psmgr_.set( mid, ps );
-	    return ps;
-	}
-
-	delete ps;
-	return 0;
-    }
-
-    return &(psmgr_.get(setidx));
-}
-
-
 void uiPickPartServer::fetchHors( bool is2d )
 {
     deepErase( hinfos_ );
@@ -161,64 +142,57 @@ void uiPickPartServer::fetchHors( bool is2d )
 }
 
 
+Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
+{
+    TypeSet<MultiID> psids( 1, mid );
+    return doLoadSets(psids) ? &(psmgr_.get(mid)) : 0;
+}
+
+
 bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
-    // Someone has actually implemented a PickSet loading manager ..
-    // !!!!HERE!!!!
-    // I am not going to figure out who, but it's ugly
+    psids.setEmpty();
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt_.forread_ = true;
     PickSetTranslator::fillConstraints( ctio->ctxt_, poly );
-
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
     dlg.showAlwaysOnTop();
     if ( !dlg.go() )
 	return false;
+    TypeSet<MultiID> chosenids;
+    dlg.getChosen( chosenids );
+    if ( chosenids.isEmpty() )
+	return true;
 
-    uiStringSet errmsgs;
-    bool retval = false;
-    const int nrsel = dlg.nrChosen();
-    for ( int idx=0; idx<nrsel; idx++ )
+    if ( !doLoadSets(chosenids) && chosenids.isEmpty() )
+	return false;
+
+    psids = chosenids;
+    return true;
+}
+
+
+bool uiPickPartServer::doLoadSets( TypeSet<MultiID>& psids )
+{
+    Pick::SetLoader psloader( psids );
+    uiTaskRunner taskrunner( parent() );
+    Executor* ldrexec = psloader.getLoader();
+    taskrunner.execute( *ldrexec );
+    delete ldrexec;
+    psids = psloader.available();
+    const int nrerrmsg = psloader.errMsgs().size();
+    if ( !psloader.allOK() && nrerrmsg>0 )
     {
-	const MultiID id = dlg.chosenID(idx);
-	PtrMan<IOObj> ioobj = IOM().get( id );
-	if ( !ioobj ) continue;
-
-	psids += id;
-	if ( Pick::Mgr().indexOf(id) >= 0 )
-	{
-	    retval = true;
-	    continue; // Already loaded, maybe changed, cannot load again!
-	}
-
-	Pick::Set* ps = new Pick::Set;
-	uiString errmsg;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
-	{
-	    psmgr_.set( ioobj->key(), ps );
-	    psids.addIfNew( id );
-	    retval = true;
-	}
-	else
-	{
-	    delete ps;
-	    psmgr_.set( id, 0 ); //Remove from Mgr if present.
-
-	    uiString msg =
-		     uiStrings::phrJoinStrings( ioobj->uiName(), errmsg );
-	    errmsgs.add( msg );
-	}
+	const int nrps = psloader.requested().size();
+	uiMSG().errorWithDetails( psloader.errMsgs(),
+		tr("%1 occurred while loading %2")
+			.arg( uiStrings::sProblem(nrerrmsg) )
+			.arg( uiStrings::sPickSet(nrps) ) );
+	return false;
     }
-
-    if ( !errmsgs.isEmpty() )
-    {
-	uiString msg = tr("Some problems occurred while loading PickSets");
-	uiMSG().errorWithDetails( errmsgs, msg );
-    }
-
-    return retval;
+    return true;
 }
 
 

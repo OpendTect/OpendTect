@@ -123,6 +123,8 @@ public:
     //!<"<a> <b> <c>
     static uiString phrLoad(const uiString&);
     //!<"Load <string>"
+    static uiString phrLoading(const uiString&);
+    //!<"Loading <string>"
     static uiString phrManage(const uiString&);
     //!<"Manage <string>"
     static uiString phrMerge(const uiString&);
@@ -382,6 +384,7 @@ public:
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProbDensFunc(bool abbrevation=false, int num=1);
     static uiString sProgram()		{ return tr("Program"); }
+    static uiString sProblem(int num=1)	{ return tr("Problem",0,num); }
     static uiString sProperties();
     static uiString sRange(int num=1)	{ return tr("Range",0,1); }
     static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }

@@ -113,6 +113,7 @@ protected:
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
     bool                        mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
+    bool			doLoadSets(TypeSet<MultiID>&);
 };
 
 #endif

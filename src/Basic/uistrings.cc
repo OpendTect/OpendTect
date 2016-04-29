@@ -231,6 +231,9 @@ uiString uiStrings::phrStorageDir( const uiString& string )
 uiString uiStrings::phrLoad( const uiString& string )
 { return toUiString(joinstring).arg(sLoad()).arg(string); }
 
+uiString uiStrings::phrLoading( const uiString& string )
+{ return tr("Loading %1").arg(string); }
+
 uiString uiStrings::phrXcoordinate( const uiString& string )
 { return toUiString(joinstring).arg(sXcoordinate()).arg(string); }
 

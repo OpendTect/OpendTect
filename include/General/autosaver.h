@@ -52,7 +52,7 @@ public:
     virtual BufferString getFingerPrint() const		= 0;
 
     void		userSaveOccurred() const;
-    bool		saveNow() const			{ return doWork(true); }
+    bool		autoSaveNow() const	{ return doAutoSaveWork(true); }
 
     virtual bool	store(const IOObj&) const;
     virtual void	remove(const IOObj&) const;
@@ -60,19 +60,20 @@ public:
 protected:
 
     mutable BufferString prevfingerprint_;
-    mutable IOStream*	prevstoreioobj_;
-    mutable int		savenr_;
+    mutable IOStream*	prevautosaveioobj_;
+    mutable int		autosavenr_;
     mutable int		nrclocksecondsbetweensaves_;
     mutable int		lastsaveclockseconds_;
     mutable int		curclockseconds_;
 
-    bool		doWork(bool forcesave) const;
+    virtual void	initAutoSave() const;
+    bool		doAutoSaveWork(bool forcesave) const;
 
 private:
 
-    void		removePrevStored() const;
-    bool		needsAct(int) const;
-    bool		act() const;
+    void		removePrevAutoSaved() const;
+    bool		needsAutoSaveAct(int) const;
+    bool		autoSave() const;
     friend class	AutoSaveMgr;
 
 };

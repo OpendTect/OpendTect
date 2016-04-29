@@ -32,6 +32,7 @@ set(OD_MODULE_SOURCES
 		parametriccurve.cc
 		parametricsurface.cc
 		picksettr.cc
+		picksetio.cc
 		polygonsurface.cc
 		polygonsurfaceedit.cc
 		polyposprovider.cc

@@ -76,8 +76,8 @@ bool OD::Saveable::store( const IOObj& ioobj ) const
 OD::AutoSaveable::AutoSaveable( const Monitorable& obj )
     : Saveable(obj)
     , nrclocksecondsbetweensaves_(defaultNrSecondsBetweenSaves())
-    , savenr_(1)
-    , prevstoreioobj_(0)
+    , autosavenr_(1)
+    , prevautosaveioobj_(0)
 {
     mTriggerInstanceCreatedNotifier();
 }
@@ -87,7 +87,7 @@ OD::AutoSaveable::~AutoSaveable()
 {
     detachAllNotifiers();
     sendDelNotif();
-    delete prevstoreioobj_;
+    delete prevautosaveioobj_;
 }
 
 
@@ -107,19 +107,25 @@ void OD::AutoSaveable::remove( const IOObj& ioobj ) const
 }
 
 
-void OD::AutoSaveable::removePrevStored() const
+void OD::AutoSaveable::removePrevAutoSaved() const
 {
-    if ( !prevstoreioobj_ )
+    if ( !prevautosaveioobj_ )
 	return;
 
-    remove( *prevstoreioobj_ );
-    IOM().permRemove( prevstoreioobj_->key() );
-    delete prevstoreioobj_;
-    prevstoreioobj_ = 0;
+    remove( *prevautosaveioobj_ );
+    IOM().permRemove( prevautosaveioobj_->key() );
+    delete prevautosaveioobj_;
+    prevautosaveioobj_ = 0;
 }
 
 
-bool OD::AutoSaveable::needsAct( int clockseconds ) const
+void OD::AutoSaveable::initAutoSave() const
+{
+    prevfingerprint_ = getFingerPrint();
+}
+
+
+bool OD::AutoSaveable::needsAutoSaveAct( int clockseconds ) const
 {
     mLock4Read();
     if ( objdeleted_ || (!mLock2Write() && objdeleted_) )
@@ -131,21 +137,21 @@ bool OD::AutoSaveable::needsAct( int clockseconds ) const
 }
 
 
-bool OD::AutoSaveable::act() const
+bool OD::AutoSaveable::autoSave() const
 {
-    return isFinished() || doWork(false);
+    return isFinished() || doAutoSaveWork(false);
 }
 
 
 
 void OD::AutoSaveable::userSaveOccurred() const
 {
-    removePrevStored();
+    removePrevAutoSaved();
     lastsaveclockseconds_ = curclockseconds_ + 1;
 }
 
 
-bool OD::AutoSaveable::doWork( bool forcesave ) const
+bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
 {
     AccessLockHandler lockhandler( obj_ );	// locks the object
     mLock4Read();				// locks me
@@ -159,7 +165,7 @@ bool OD::AutoSaveable::doWork( bool forcesave ) const
 
     const IODir iodir( key_ );
     BufferString storenm( ".autosave_", key_, "_" );
-    storenm.add( savenr_++ );
+    storenm.add( autosavenr_++ );
     IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
     newstoreioobj->pars().update( sKey::CrFrom(), key_ );
     newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
@@ -173,8 +179,8 @@ bool OD::AutoSaveable::doWork( bool forcesave ) const
     else
     {
 	prevfingerprint_ = fingerprint;
-	removePrevStored();
-	prevstoreioobj_ = newstoreioobj;
+	removePrevAutoSaved();
+	prevautosaveioobj_ = newstoreioobj;
     }
 
     return true;
@@ -218,6 +224,7 @@ void OD::AutoSaveMgr::add( AutoSaveable* saver )
 
     mAttachCB( saver->objectToBeDeleted(), AutoSaveMgr::saverDel );
     Threads::Locker locker( lock_ );
+    saver->initAutoSave();
     savers_ += saver;
 }
 
@@ -336,8 +343,8 @@ void OD::AutoSaveMgr::go()
 	    AutoSaveable* saver = svrs[isvr];
 	    if ( saver->isFinished() )
 		finishedsvrs += saver;
-	    else if ( saver->needsAct(nrcycles) )
-		(saver->act() ? saveDone : saveFailed).trigger( saver );
+	    else if ( saver->needsAutoSaveAct(nrcycles) )
+		(saver->autoSave() ? saveDone : saveFailed).trigger( saver );
 	}
 
 	if ( !finishedsvrs.isEmpty() )
