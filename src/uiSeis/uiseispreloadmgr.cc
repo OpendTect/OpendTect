@@ -19,17 +19,24 @@
 #include "ioobj.h"
 #include "preloads.h"
 #include "ptrman.h"
+#include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "seisparallelreader.h"
 #include "seispreload.h"
 #include "seispsioprov.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
+#include "seistrc.h"
+#include "statrand.h"
 #include "survinfo.h"
 
 #include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
+#include "uimapperrangeeditor.h"
 #include "uimsg.h"
 #include "uiscaler.h"
 #include "uiseissel.h"
@@ -152,24 +159,24 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
 					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
 {
-    setCaption( geom==Vol ? tr("Pre-load 3D Data")
-				: tr("Pre-load 2D Data") );
+    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
+    setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
-    seissel_ = new uiSeisSel( this, ctxt, sssu );
+    seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
     seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 
     SelSetup selsu( geom ); selsu.multiline(true);
-    subselfld_ = uiSeisSubSel::get( this, selsu );
+    subselfld_ = uiSeisSubSel::get( leftgrp, selsu );
     subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
 
-    scalerfld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
+    scalerfld_ = new uiScaler( leftgrp, uiStrings::sEmptyString(), true );
     scalerfld_->attach( alignedBelow, subselfld_ );
     scalerfld_->setUnscaled();
 
-    typefld_ = new uiGenInput( this, tr("Load as"),
+    typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     typefld_->setValue( (int)DataCharacteristics::Auto );
@@ -180,7 +187,62 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
     typefld_->setSensitive( true );
 #endif
 
+    uiGroup* rightgrp = new uiGroup( this, "Right Group" );
+    rightgrp->attach( rightOf, leftgrp );
+    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces") );
+    uiPushButton* updatebut = new uiPushButton( rightgrp, tr("Update"), true );
+    updatebut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
+    updatebut->attach( rightTo, nrtrcsfld_ );
+    histfld_ = new uiMapperRangeEditor( rightgrp, -1 );
+    histfld_->attach( alignedBelow, nrtrcsfld_ );
+
     postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
+}
+
+
+void fillHist( CallBacker* )
+{
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( !ioobj ) return;
+
+    SeisIOObjInfo info( ioobj );
+    TrcKeyZSampling tkzs;
+    const bool res = info.getRanges( tkzs );
+    if ( !res ) return;
+
+    const od_int64 totalsz = tkzs.hsamp_.totalNr();
+    const int nr2add = nrtrcsfld_->getIntValue();
+    TypeSet<od_int64> gidxs( nr2add, -1 );
+    od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
+    for ( int idx=0; idx<nr2add; idx++ )
+    {
+	od_int64 vidx = Stats::randGen().getIndexFast( totalsz, randint );
+	gidxs[idx] = vidx;
+	randint *= mCast( int, vidx );
+    }
+
+    sort( gidxs );
+    SeisTrcBuf seisbuf( true );
+    SeisTrcReader rdr( ioobj );
+    rdr.prepareWork();
+    mDynamicCastGet(SeisTrcTranslator*,trl,rdr.translator())
+    if ( !trl ) return;
+
+    for ( int idx=0; idx<nr2add; idx++ )
+    {
+	const od_int64 gidx = gidxs[idx];
+	bool res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
+	if ( !res ) continue;
+
+	SeisTrc* trc = new SeisTrc;
+	res = rdr.get( *trc );
+	if ( !res ) continue;
+
+	seisbuf.add( trc );
+    }
+
+    SeisTrcBufArray2D array( &seisbuf, false, 0 );
+    histfld_->setData( &array );
 }
 
 
@@ -286,10 +348,12 @@ bool acceptOK( CallBacker* )
     return seissel_->ioobj();
 }
 
-    uiSeisSel*		seissel_;
-    uiSeisSubSel*	subselfld_;
-    uiScaler*		scalerfld_;
-    uiGenInput*		typefld_;
+    uiSeisSel*			seissel_;
+    uiSeisSubSel*		subselfld_;
+    uiScaler*			scalerfld_;
+    uiGenInput*			typefld_;
+    uiMapperRangeEditor*	histfld_;
+    uiGenInput*			nrtrcsfld_;
 };
 
 
