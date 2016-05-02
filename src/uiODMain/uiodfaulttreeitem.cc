@@ -65,7 +65,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( "Cannot add Faults to this scene" );
+	uiMSG().message( tr("Cannot add Faults to this scene") );
 	return false;
     }
 
