@@ -42,6 +42,8 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
 	    }
 
 	    if ( d2t.dah(insertidx) > cs.dah(idx) ) break;
+
+	    found = false;
 	}
 
 	if ( !found )
