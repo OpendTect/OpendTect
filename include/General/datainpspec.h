@@ -59,13 +59,13 @@ protected:
 */
 
 template<class T>
-mClass(General) DataTypeImpl : public DataType
+mClass(General) DataTypeImpl : public ::DataType
 { mODTextTranslationClass(DataTypeImpl)
 public:
 
 
 			DataTypeImpl( Form frm=normal )
-			    : DataType( rep__( (T)0 ), frm ) {}
+			    : ::DataType( rep__( (T)0 ), frm ) {}
 protected:
 
     inline Rep		rep__( int i )    const	{ return intTp; }
