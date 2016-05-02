@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "seistype.h"
 
 class BufferStringSet;
 class uiListBox;
@@ -26,6 +27,8 @@ mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
 { mODTextTranslationClass(uiSeisPreLoadMgr)
 public:
 			uiSeisPreLoadMgr(uiParent*);
+
+    void		pushAddButton(Seis::GeomType,const MultiID* mid=0);
 
 protected:
 
@@ -42,6 +45,8 @@ protected:
     void		unloadPush(CallBacker*);
     void		openPush(CallBacker*);
     void		savePush(CallBacker*);
+
+    MultiID		initmid_;
 };
 
 

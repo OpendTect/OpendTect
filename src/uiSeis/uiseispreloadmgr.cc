@@ -55,6 +55,7 @@ const char* cannotloadstr = "Cannot load ";
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),mNoDlgTitle,
 			mODHelpKey(mSeisPreLoadMgrHelpID) ))
+    , initmid_(MultiID::udf())
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
@@ -102,6 +103,20 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     spl->addGroup( infogrp );
 
     postFinalise().notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
+}
+
+
+void uiSeisPreLoadMgr::pushAddButton( Seis::GeomType tp, const MultiID* mid )
+{
+    initmid_ = mid ? *mid : MultiID::udf();
+    if ( tp == Seis::Vol )
+	cubeLoadPush(0);
+    else if ( tp == Seis::Line )
+	linesLoadPush(0);
+    else
+    {
+	pErrMsg( "Type not supported yet" );
+    }
 }
 
 
@@ -155,16 +170,19 @@ class uiSeisPreLoadSel : public uiDialog
 { mODTextTranslationClass(uiSeisPreLoadSel)
 public:
 
-uiSeisPreLoadSel( uiParent* p, GeomType geom )
+uiSeisPreLoadSel( uiParent* p, GeomType geom, const MultiID& input )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
 					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
 {
-    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
+
+    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
+    if ( !input.isUdf() )
+	seissel_->setInput( input );
     seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 
     SelSetup selsu( geom ); selsu.multiline(true);
@@ -182,19 +200,14 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
     typefld_->setValue( (int)DataCharacteristics::Auto );
     typefld_->attach( alignedBelow, scalerfld_ );
 
-#ifndef __debug__
-    scalerfld_->setSensitive( true );
-    typefld_->setSensitive( true );
-#endif
-
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
-    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces") );
+    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
     uiPushButton* updatebut = new uiPushButton( rightgrp, tr("Update"), true );
     updatebut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
     updatebut->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1 );
-    histfld_->attach( alignedBelow, nrtrcsfld_ );
+    histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
 
     postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 }
@@ -207,11 +220,12 @@ void fillHist( CallBacker* )
 
     SeisIOObjInfo info( ioobj );
     TrcKeyZSampling tkzs;
-    const bool res = info.getRanges( tkzs );
+    bool res = info.getRanges( tkzs );
     if ( !res ) return;
 
     const od_int64 totalsz = tkzs.hsamp_.totalNr();
-    const int nr2add = nrtrcsfld_->getIntValue();
+    const int nr2add = mMAX(1,nrtrcsfld_->getIntValue());
+
     TypeSet<od_int64> gidxs( nr2add, -1 );
     od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
     for ( int idx=0; idx<nr2add; idx++ )
@@ -231,7 +245,7 @@ void fillHist( CallBacker* )
     for ( int idx=0; idx<nr2add; idx++ )
     {
 	const od_int64 gidx = gidxs[idx];
-	bool res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
+	res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
 	if ( !res ) continue;
 
 	SeisTrc* trc = new SeisTrc;
@@ -359,7 +373,7 @@ bool acceptOK( CallBacker* )
 
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
-    uiSeisPreLoadSel dlg( this, Vol );
+    uiSeisPreLoadSel dlg( this, Vol, initmid_ );
     if ( !dlg.go() ) return;
 
     const IOObj* ioobj = dlg.seissel_->ioobj();
@@ -393,7 +407,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
 void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 {
-    uiSeisPreLoadSel dlg( this, Line );
+    uiSeisPreLoadSel dlg( this, Line, initmid_ );
     if ( !dlg.go() ) return;
 
     const IOObj* ioobj = dlg.seissel_->ioobj();
