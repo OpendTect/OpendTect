@@ -62,7 +62,7 @@ public:
 
     bool			enabled_;	//!<Turns on/off everything
     BufferString		name_;
-    OD::Alignment			namealignment_;
+    OD::Alignment		namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
     Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
@@ -78,9 +78,9 @@ public:
 				      excess points.
 				*/
 
-    OD::LineStyle			linestyle_;
+    OD::LineStyle		linestyle_;
     Color			fillcolor_;
-    OD::FillPattern			fillpattern_;
+    OD::FillPattern		fillpattern_;
     int				zvalue_; //!<overlay zvalue ( max=on top )
     MouseCursor			cursor_;
 
