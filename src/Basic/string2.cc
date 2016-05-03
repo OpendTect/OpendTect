@@ -49,7 +49,7 @@ static const char* getStringFromUInt( od_uint32 val, char* str )
 {
     mDeclStaticString( retstr );
     char* ret = str ? str : retstr.getCStr();
-    sprintf( ret, "%du", val );
+    sprintf( ret, "%u", val );
     return ret;
 }
 
