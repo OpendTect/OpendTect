@@ -117,29 +117,29 @@ void Pick::SetMgr::setID( int idx, const MultiID& mid )
 }
 
 
-void Pick::SetMgr::transfer( Set& set, SetMgr& oth )
+void Pick::SetMgr::transfer( Set& ps, SetMgr& oth )
 {
-    SetMgr* cursetmgr = &set.getSetMgr();
+    SetMgr* cursetmgr = &ps.getSetMgr();
     if ( cursetmgr == &oth )
 	return;
     else if ( cursetmgr != this )
-	cursetmgr->transfer( set, oth );
+	cursetmgr->transfer( ps, oth );
     else if ( &oth == this )
 	return;
     else
     {
 	// really transfer one of mine to another SetMgr
-	const int idxof = indexOf( set );
+	const int idxof = indexOf( ps );
 	if ( idxof < 0 )
-	    set.mgr_ = &oth;
+	    ps.mgr_ = &oth;
 	else
 	{
-	    setToBeRemoved.trigger( &set );
+	    setToBeRemoved.trigger( &ps );
 	    const MultiID setid = ids_[idxof];
 	    pss_.removeSingle( idxof );
 	    ids_.removeSingle( idxof );
 	    changed_.removeSingle( idxof );
-	    oth.set( setid, &set );
+	    oth.set( setid, &ps );
 	}
     }
 }
