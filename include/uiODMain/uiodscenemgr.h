@@ -48,10 +48,12 @@ public:
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
-		     const uiString& nm=uiString::emptyString());
+				    const uiString& nm=uiString::emptyString());
+				//!<Returns scene id
     void			setSceneName(int sceneid,const uiString&);
     uiString			getSceneName(int sceneid) const;
-				//!<Returns scene id
+    const ZDomain::Info*	zDomainInfo(int sceneid) const;
+
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
     CNotifier<uiODSceneMgr,int> treeAdded;
@@ -103,7 +105,9 @@ public:
     void			vWheelMoved(CallBacker*);
     void			dWheelMoved(CallBacker*);
 
-    int				askSelectScene() const; // returns sceneid
+    int				askSelectScene(const char* zdomfilt=0) const;
+				// returns sceneid
+
     const ui3DViewer*		get3DViewer(int sceneid) const;
     ui3DViewer*			get3DViewer(int sceneid);
     void			get3DViewers(ObjectSet<ui3DViewer>&);

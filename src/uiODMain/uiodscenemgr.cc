@@ -328,6 +328,9 @@ void uiODSceneMgr::setSceneName( int sceneid, const uiString& nm )
 uiString uiODSceneMgr::getSceneName( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->visServ().getObjectName( sceneid ); }
 
+const ZDomain::Info* uiODSceneMgr::zDomainInfo( int sceneid ) const
+{ return const_cast<uiODSceneMgr*>(this)->visServ().zDomainInfo( sceneid ); }
+
 
 void uiODSceneMgr::getScenePars( IOPar& iopar )
 {
@@ -744,12 +747,20 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
 }
 
 
-int uiODSceneMgr::askSelectScene() const
+int uiODSceneMgr::askSelectScene( const char* zdomkeyfilter ) const
 {
     uiStringSet scenenms; TypeSet<int> sceneids;
+    const FixedString zdomkey( zdomkeyfilter );
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	int sceneid = scenes_[idx]->itemmanager_->sceneID();
+	if ( !zdomkey.isEmpty() )
+	{
+	    const ZDomain::Info* zinfo = zDomainInfo( sceneid );
+	    if ( !zinfo || zdomkey != zinfo->key() )
+		continue;
+	}
+
 	sceneids += sceneid;
 	scenenms.add( getSceneName(sceneid) );
     }
