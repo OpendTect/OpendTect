@@ -32,6 +32,7 @@
 
 IOMan* IOMan::theinst_	= 0;
 static const MultiID emptykey( "" );
+static const MultiID rootkey( "1" );
 
 
 IOMan& IOM()
@@ -71,7 +72,7 @@ void IOMan::init()
 	return;
     }
 
-    if ( !to(emptykey,true) )
+    if ( !to(rootkey,true) )
     {
         FilePath surveyfp( GetDataDir(), ".omf" );
 	if ( !File::exists(surveyfp.fullPath().buf()) )
@@ -86,7 +87,7 @@ void IOMan::init()
 		return;
 	    }
 
-	    if ( !to(emptykey,true) )
+	    if ( !to(rootkey,true) )
 		return;
 	}
 	else if ( !File::isReadable(surveyfp.fullPath().buf()) )
@@ -102,13 +103,11 @@ void IOMan::init()
 
     state_ = Good;
     curlvl_ = 0;
-
-    if ( dirptr_->key().isUdf() ) return;
+    bool needwrite = false;
 
     int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = 0;
     const bool needsurvtype = !SI().survdatatypeknown_;
-    bool needwrite = false;
     FilePath rootfp( rootdir_, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
@@ -139,7 +138,7 @@ void IOMan::init()
 		SurveyInfo& si( const_cast<SurveyInfo&>(SI()) );
 		si.survdatatypeknown_ = true;
 		si.survdatatype_ = !has2d ? SurveyInfo::No2D
-						// thus also if nothing found
+					    // thus also if nothing found
 				 : (has3d ? SurveyInfo::Both2DAnd3D
 					  : SurveyInfo::Only2D);
 		si.write();
@@ -150,8 +149,8 @@ void IOMan::init()
 
 	// Oops, a data directory required is missing
 	// We'll try to recover by using the 'Basic Survey' in the app
-	FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
-			  "X" );
+	FilePath basicfp(
+		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()), "X" );
 	basicfp.setFileName( dd->dirnm_ );
 	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File::exists(basicdirnm) )
@@ -166,7 +165,8 @@ void IOMan::init()
 	{
 	    // This directory should have been in the survey.
 	    // It is not. If it is the seismic directory, we do not want to
-	    // continue. Otherwise, we want to copy the Basic Survey directory.
+	    // continue. Otherwise, we want to copy the Basic Survey
+	    // directory.
 	    if ( stdseltyp == IOObjContext::Seis )
 	    {
 		errmsg_ = tr("Corrupt survey: missing directory: %1")
@@ -177,9 +177,9 @@ void IOMan::init()
 	    else if ( !File::copy(basicdirnm,dirnm) )
 	    {
 		errmsg_ = tr("Cannot create directory: %1.\n"
-			     "You probably do not have write permissions in %2")
-			    .arg( dirnm )
-			    .arg( rootfp.pathOnly() );
+			 "You probably do not have write permissions in %2")
+			.arg( dirnm )
+			.arg( rootfp.pathOnly() );
 		state_ = Bad;
 		return;
 	    }
@@ -190,8 +190,9 @@ void IOMan::init()
 	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
 	iosd->key_ = dd->id_;
 	iosd->dirnm_ = rootdir_;
-	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id_) )
-					: dirptr_->main();
+	const IOObj* previoobj = prevdd
+			       ? dirptr_->get( MultiID(prevdd->id_) )
+			       : dirptr_->main();
 	int idxof = dirptr_->objs_.indexOf( (IOObj*)previoobj );
 	dirptr_->objs_.insertAfter( iosd, idxof );
 
@@ -202,7 +203,7 @@ void IOMan::init()
     if ( needwrite )
     {
 	dirptr_->doWrite();
-	to( emptykey, true );
+	to( rootkey, true );
     }
 
     Survey::GMAdmin().fillGeometries(0);
