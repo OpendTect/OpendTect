@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.0" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -532,9 +532,9 @@
     <message numerus="yes">
         <location line="+7"/>
         <source>Problem</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Problem</numerusform>
+            <numerusform>Problems</numerusform>
         </translation>
     </message>
     <message numerus="yes">
