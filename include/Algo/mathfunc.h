@@ -189,6 +189,13 @@ protected:
     yT			snapVal(xT) const;
     yT			interpVal(xT) const;
     yT			outsideVal(xT) const;
+
+public:
+
+    void		setXValue(int idx,xT x);
+			/*! Use with great care. You must ensure that the
+			    entire X-vector stays monotonic
+			 */
 };
 
 typedef BendPointBasedMathFunction<float,float> PointBasedMathFunction;
@@ -415,6 +422,16 @@ void BendPointBasedMathFunction<mXT,mYT>::add( mXT x, mYT y )
 	x_[idx] = prevx; y_[idx] = prevy;
 	prevx = tmpx; prevy = tmpy;
     }
+}
+
+
+template <class mXT, class mYT> inline
+void BendPointBasedMathFunction<mXT,mYT>::setXValue( int idx, mXT x )
+{
+    if ( idx<0 || idx >= size() )
+	return;
+
+    x_[idx] = x;
 }
 
 
