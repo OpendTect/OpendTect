@@ -15,7 +15,7 @@
 <context>
     <name>ODGMTProcFlowTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../plugins/GMT/gmtprocflow.cc" line="+18"/>
+        <location filename="../../../plugins/GMT/gmtprocflow.cc" line="+17"/>
         <source>GMT process flow</source>
         <translation>
             <numerusform>GMT process flow</numerusform>
@@ -26,7 +26,7 @@
 <context>
     <name>PosVecDataSetTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../include/Geometry/posvecdatasetfact.h" line="+21"/>
+        <location filename="../../../src/Geometry/posvecdatasettr.cc" line="+18"/>
         <source>Positioned Vector Data</source>
         <translation>
             <numerusform>Positioned Vector Data</numerusform>
@@ -37,7 +37,7 @@
 <context>
     <name>PreStackProcTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="+20"/>
+        <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="+19"/>
         <source>Prestack Processor</source>
         <translation>
             <numerusform>Prestack Processor</numerusform>
@@ -58,7 +58,7 @@
 <context>
     <name>TextTranslatorLanguage</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+59"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+58"/>
         <source>Language Name</source>
         <translation>
             <numerusform>English</numerusform>
@@ -69,7 +69,7 @@
 <context>
     <name>VolProcessingTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+22"/>
+        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+21"/>
         <source>Volume Processing Setup</source>
         <translation>
             <numerusform>Volume Processing Setup</numerusform>
@@ -80,7 +80,7 @@
 <context>
     <name>WellTie::uiSaveDataDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+169"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+168"/>
         <source>Cannot write log(s)</source>
         <translation>
             <numerusform>Cannot write log</numerusform>
@@ -109,7 +109,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+143"/>
+        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+142"/>
         <source>Unload checked horizon(s)?
 (This will not delete the file(s) from disk)</source>
         <translation>
@@ -133,7 +133,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+45"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+44"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -141,7 +141,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+215"/>
+        <location line="+218"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -313,7 +313,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+191"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+192"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
@@ -530,7 +530,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+7"/>
+        <source>Problem</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
         <source>Range</source>
         <translation>
             <numerusform>Range</numerusform>

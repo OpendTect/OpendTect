@@ -39,6 +39,7 @@ bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
 
 
 Pick::SetLoader::SetLoader( const MultiID& ky )
+    : setmgr_(0)
 {
     toload_ += ky;
 }
@@ -46,6 +47,7 @@ Pick::SetLoader::SetLoader( const MultiID& ky )
 
 Pick::SetLoader::SetLoader( const TypeSet<MultiID>& kys )
     : toload_(kys)
+    , setmgr_(0)
 {
 }
 
@@ -110,7 +112,8 @@ int Pick::SetLoaderExec::nextStep()
 	return MoreToDo();
     }
 
-    if ( Pick::Mgr().indexOf(id) >= 0 )
+    Pick::SetMgr& psmgr = loader_.getSetMgr();
+    if ( psmgr.indexOf(id) >= 0 )
     {
 	loader_.available_ += id;
 	return MoreToDo(); // Already loaded, maybe changed, cannot load again!
@@ -118,7 +121,6 @@ int Pick::SetLoaderExec::nextStep()
 
     Pick::Set* ps = new Pick::Set;
     uiString errmsg;
-    Pick::SetMgr& psmgr = Pick::Mgr();
     if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
     {
 	psmgr.set( ioobj->key(), ps );
@@ -139,6 +141,12 @@ int Pick::SetLoaderExec::nextStep()
 Executor* Pick::SetLoader::getLoader() const
 {
     return new SetLoaderExec( *this );
+}
+
+
+Pick::SetMgr& Pick::SetLoader::getSetMgr() const
+{
+    return setmgr_ ? *setmgr_ : Pick::Mgr();
 }
 
 

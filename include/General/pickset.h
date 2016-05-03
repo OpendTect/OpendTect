@@ -25,29 +25,32 @@ template <class T> class ODPolygon;
 namespace Pick
 {
 
-/*!\brief Set of picks with something in common */
+class SetMgr;
+
+
+/*!\brief Set of picks with something in common.
+
+  The Set can be managed by a SetMgr. You will have to ask the SetMgr to do
+  this, but you can designate the set to be part of a certain set manager.
+  By default, this designation is the Pick::Mgr().
+
+*/
 
 mExpClass(General) Set : public NamedMonitorable, public TypeSet<Location>
 {
 public:
 
-			Set(const char* nm=0);
+			Set(const char* nm=0,SetMgr* mgr=0);
 			Set(const Set&);
 			~Set();
-    Set&		operator =(const Set&);
+    Set&		operator =(const Set&); //!< will not change SetMgr
 
-    struct Disp
-    {
-	enum Connection { None, Open, Close };
-			mDeclareEnumUtils(Connection);
-			Disp() : connect_(None) {}
+    void		setSetMgr(SetMgr* mgr=0);
+			//!< null for Pick::Mgr(). Will only add to new mgr
+			//!< if set was already owned by its old mgr.
+    SetMgr&		getSetMgr() const;
+			//!< the SetMgr may not actually own this set (yet)
 
-	Connection		connect_;	//!< connect picks in set order
-	OD::MarkerStyle3D	mkstyle_;
-    };
-
-    Disp		disp_;
-    IOPar&		pars_;
     bool		isMultiGeom() const;
     Pos::GeomID		firstgeomID() const;
     bool		has2D() const;
@@ -78,10 +81,24 @@ public:
     inline Location&	get( size_type idx )		{ return (*this)[idx]; }
     inline const Location& get( size_type idx ) const	{ return (*this)[idx]; }
 
+    mExpClass(General) Disp
+    {
+    public:
+	enum Connection { None, Open, Close };
+			mDeclareEnumUtils(Connection);
+			Disp() : connect_(None) {}
+
+	Connection		connect_;	//!< connect picks in set order
+	OD::MarkerStyle3D	mkstyle_;
+    };
+    Disp		disp_;
+    IOPar&		pars_;
+
 private:
 
-    enum EventType      { Insert, PolygonClose, Remove, Move };
-    void		addUndoEvent(EventType,size_type,const Pick::Location&);
+    void		addUndoEvent(int,size_type,const Pick::Location&);
+    mutable SetMgr*	mgr_;
+    friend class	SetMgr;
 
 };
 

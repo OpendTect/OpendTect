@@ -19,13 +19,14 @@ class Executor;
 
 namespace Pick
 {
+class SetMgr;
 
 
 /*!\brief Loader for Pick::Set's. When done, sets should be available in
-  Pick::SetMgr.
+  the Pick::SetMgr of your choice.
 
-  Note that the Executor will never emit an error. It's up to you to display
-  error messages if they are available.
+  Note that the Executor will never fail. All error handling should be tied
+  to the SetLoader.
 
  */
 
@@ -36,11 +37,14 @@ public:
 			SetLoader(const MultiID&);
 			SetLoader(const TypeSet<MultiID>&);
 
-    Executor*		getLoader() const;
-    bool		load() const;
+    void		setSetMgr( SetMgr* m )	{ setmgr_ = m; }
+    SetMgr&		getSetMgr() const;
+
+    Executor*		getLoader() const;	//!< if need user feedback
+    bool		load() const;		//!< if you can wait for it
 
     bool		allOK() const
-    			{ return available_.size() == toload_.size(); }
+			{ return available_.size() == toload_.size(); }
 
     const uiStringSet&	errMsgs() const		{ return errmsgs_; }
     const TypeSet<MultiID>& requested() const	{ return toload_; }
@@ -51,6 +55,7 @@ protected:
     TypeSet<MultiID>	toload_;
     mutable TypeSet<MultiID> available_;
     mutable uiStringSet	errmsgs_;
+    mutable SetMgr*	setmgr_;
     friend class	SetLoaderExec;
 
 };

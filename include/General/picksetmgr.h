@@ -92,7 +92,6 @@ public:
     const Undo&		undo() const		{ return undo_; }
 
     static SetMgr&	getMgr(const char*);
-
 			SetMgr( const char* nm );
 			//!< creates an unmanaged SetMgr
 			//!< Normally you don't want that, use getMgr() instead
@@ -112,6 +111,10 @@ protected:
     void		survChg(CallBacker*);
     void		objRm(CallBacker*);
     void		removeAll();
+
+    void		transfer(Set&,SetMgr&);
+    friend class	Set;
+
 };
 
 inline SetMgr& Mgr();
