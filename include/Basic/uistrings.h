@@ -386,7 +386,7 @@ public:
     static uiString sProgram()		{ return tr("Program"); }
     static uiString sProblem(int num=1)	{ return tr("Problem",0,num); }
     static uiString sProperties();
-    static uiString sRange(int num=1)	{ return tr("Range",0,1); }
+    static uiString sRange(int num=1)	{ return tr("Range",0,num); }
     static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRed()		{ return tr("Red"); }
@@ -408,7 +408,7 @@ public:
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sScanning()		{ return tr("Scanning"); }
-    static uiString sScene(int num=1)	{ return tr("Scene",0,1); }
+    static uiString sScene(int num=1)	{ return tr("Scene",0,num); }
     static uiString sScenes()		{ return sScene(mPlural); }
     static uiString sSec()		{ return tr("sec"); }
     static uiString sSize()		{ return tr("Size"); }
