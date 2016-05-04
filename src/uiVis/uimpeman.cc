@@ -292,7 +292,7 @@ void uiMPEMan::handleAction( int res )
     case sDelete: deleteSelection(); break;
     case sUndo: undo(); break;
     case sRedo: redo(); break;
-    case sLock: if ( hor3d ) hor3d->lockAll(); break;
+    case sLock: lockAll(); break;
     case sUnlock: if ( hor3d ) hor3d->unlockAll(); break;
     case sShowLocked: if ( hd3d ) hd3d->showLocked( true ); break;
     case sHideLocked: if ( hd3d ) hd3d->showLocked( false ); break;
@@ -946,6 +946,16 @@ void uiMPEMan::redo()
 	 seedpicker->horPatchUndo().reDo();
 	 updatePatchDisplay();
     }
+}
+
+
+void uiMPEMan::lockAll()
+{
+    EM::Horizon3D* hor3d = getSelectedHorizon3D();
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
+    if ( hor3d ) hor3d->lockAll();
+    if ( hd && hd->lockedShown() )
+	hd->showLocked( true );
 }
 
 

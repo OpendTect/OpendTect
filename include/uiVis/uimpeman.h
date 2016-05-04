@@ -68,6 +68,7 @@ protected:
     void			stopTracking();
     void			changePolySelectionMode();
     void			showParentsPath();
+    void			lockAll();
     void			clearSelection();
     void			deleteSelection();
     void			undo();
