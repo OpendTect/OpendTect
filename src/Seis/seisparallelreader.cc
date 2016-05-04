@@ -341,28 +341,21 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
     , dc_(DataCharacteristics::Auto)
     , dpclaimed_(false)
     , scaler_(0)
+    , dp_(0)
 {
-    SeisIOObjInfo info( ioobj );
-    info.getDataChar( dc_ );
-    if ( !comps )
-    {
-	const int nrcomps = info.nrComponents( geomid );
-	for ( int idx=0; idx<nrcomps; idx++ )
-	    components_ += idx;
-    }
-    else
+    if ( comps )
 	components_ = *comps;
 
-    if ( !tkzs )
-    {
-	StepInterval<int> trcrg;
-	info.getRanges( geomid, trcrg, tkzs_.zsamp_ );
-	tkzs_.hsamp_.set( Interval<int>(geomid,geomid), trcrg );
-    }
-    else
+    if ( tkzs )
 	tkzs_ = *tkzs;
+    
+    totalnr_ = tkzs_.isEmpty() ? 1 : tkzs_.hsamp_.totalNr();
+}
 
-    totalnr_ = tkzs_.hsamp_.totalNr();
+
+bool ParallelReader2D::doPrepare( int )
+{
+    return init();
 }
 
 
@@ -370,6 +363,23 @@ bool ParallelReader2D::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
+   
+    info.getDataChar( dc_ );
+    if ( components_.isEmpty() )
+    {
+	const int nrcomps = info.nrComponents( geomid_ );
+	for ( int idx=0; idx<nrcomps; idx++ )
+	    components_ += idx;
+    }
+
+    if ( tkzs_.isEmpty() )
+    {
+	StepInterval<int> trcrg;
+	info.getRanges( geomid_, trcrg, tkzs_.zsamp_ );
+	tkzs_.hsamp_.set( Interval<int>(geomid_,geomid_), trcrg );
+    }
+
+    totalnr_ = tkzs_.hsamp_.totalNr();
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
     dp_->setSampling( tkzs_ );
@@ -377,7 +387,10 @@ bool ParallelReader2D::init()
 	dp_->setScaler( *scaler_ );
 
     if ( !addComponents(*dp_,*ioobj_,components_,0) )
+    {
+	dp_->unRef(); dp_ = 0; 
 	return false;
+    }
 
     msg_ = uiStrings::phrReading( ioobj_->uiName() );
 

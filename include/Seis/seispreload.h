@@ -46,6 +46,11 @@ public:
 				DataCharacteristics::UserType=
 					DataCharacteristics::Auto,
 				Scaler* =0) const;
+    bool		load(const TypeSet<TrcKeyZSampling>&,
+			     const TypeSet<Pos::GeomID>&,
+				DataCharacteristics::UserType=
+					DataCharacteristics::Auto,
+				Scaler* =0) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;

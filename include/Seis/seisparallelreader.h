@@ -119,6 +119,7 @@ public:
 
 protected:
     od_int64		nrIterations() const;
+    bool		doPrepare(int nrthreads);
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
 

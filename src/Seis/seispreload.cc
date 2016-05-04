@@ -139,6 +139,44 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 }
 
 
+bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
+		      const TypeSet<Pos::GeomID>& geomids,
+			 DataCharacteristics::UserType type,
+			 Scaler* scaler ) const
+{
+    mPrepIOObj();
+
+    TaskGroup taskgrp;
+    ObjectSet<ParallelReader2D> rdrs;
+    TypeSet<Pos::GeomID> loadedgeomids;
+    for ( int idx=0; idx<tkzss.size(); idx++ )
+    {
+	const TrcKeyZSampling& tkzs = tkzss[idx];
+	const Pos::GeomID& geomid = geomids[idx];
+ 
+	ParallelReader2D* rdr =
+	    new ParallelReader2D( *ioobj, geomid, tkzs.isDefined() ? &tkzs : 0);
+	rdr->setScaler( scaler ); rdr->setDataChar( type );
+	taskgrp.addTask( rdr );
+	loadedgeomids.add( geomid );
+	rdrs.add( rdr );
+    }
+
+    TaskRunner::execute( &trunnr, taskgrp );
+
+    for ( int idx=0; idx<rdrs.size(); idx++ )
+    {
+	ParallelReader2D& rdr = *rdrs[idx];
+	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
+	RegularSeisDataPack* dp = rdr.getDataPack();
+	if ( !dp ) continue;
+	PLDM().add( mid_, loadedgeomid, dp );
+    }
+  
+    return true;
+}
+
+
 bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
     mPrepIOObj();
