@@ -158,14 +158,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
  
 	ParallelReader2D* rdr =
 	    new ParallelReader2D( *ioobj, geomid, tkzs.isDefined() ? &tkzs : 0);
-	rdr->setScaler( scaler );
-	rdr->setDataChar( type );
-	if ( !rdr->init() )
-	{
-	    errmsg_ = rdr->uiMessage();
-	    continue;
-	}
-
+	rdr->setScaler( scaler ); rdr->setDataChar( type );
 	taskgrp.addTask( rdr );
 	loadedgeomids.add( geomid );
 	rdrs.add( rdr );
