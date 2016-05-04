@@ -71,6 +71,7 @@ set( OD_MODULE_SOURCES
 	legal.cc
 	math2.cc
 	moddepmgr.cc
+	monitor.cc
 	namedobj.cc
 	objdisposer.cc
 	od_iostream.cc

@@ -5,7 +5,7 @@
 -*/
 
 
-#include "monitor.h"
+#include "notify.h"
 #include "thread.h"
 #include "ptrman.h"
 
@@ -601,67 +601,3 @@ void NotifyStopper::disable()
 
 void NotifyStopper::restore()
 { thenotif_.cbs_.doEnable(oldst_);}
-
-
-//---- Monitorable
-
-mDefineInstanceCreatedNotifierAccess(Monitorable)
-
-Monitorable::AccessLockHandler::AccessLockHandler( const Monitorable& obj,
-						   bool forread )
-    : locker_( obj.accesslock_, forread ? Threads::Locker::ReadLock
-					: Threads::Locker::WriteLock )
-{
-}
-
-
-Monitorable::Monitorable()
-    : chgnotif_(this)
-    , delnotif_(this)
-    , delalreadytriggered_(false)
-    , accesslock_(Threads::Lock::MultiRead)
-{
-    mTriggerInstanceCreatedNotifier();
-}
-
-
-Monitorable::~Monitorable()
-{
-    sendDelNotif();
-}
-
-
-Monitorable::Monitorable( const Monitorable& oth )
-    : CallBacker(oth)
-    , chgnotif_(this)
-    , delnotif_(this)
-    , delalreadytriggered_(false)
-{
-    // nothing to copy
-}
-
-
-
-Monitorable& Monitorable::operator =( const Monitorable& )
-{
-    // will copy nothing. no locking, no notification, nothing.
-    return *this;
-}
-
-
-void Monitorable::sendChgNotif( Monitorable::AccessLockHandler& hndlr )
-{
-    hndlr.locker_.unlockNow();
-    objectChanged().trigger();
-}
-
-
-void Monitorable::sendDelNotif()
-{
-    if ( !delalreadytriggered_ )
-    {
-	delalreadytriggered_ = true;
-	objectToBeDeleted().trigger();
-	// this should even work from ~Monitorable(), using delnotif_
-    }
-}

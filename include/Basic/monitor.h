@@ -57,15 +57,18 @@ protected:
 
     mutable Threads::Lock	accesslock_;
 
-    //!\brief makes locking easier and safer
     mExpClass(Basic) AccessLockHandler
     {
     public:
-				AccessLockHandler(const Monitorable& m,
+				AccessLockHandler(const Monitorable&,
 						  bool forread=true);
-	bool			convertToWrite()
-				{ return locker_.convertToWriteLock(); }
-	Threads::Locker		locker_;
+				~AccessLockHandler();
+	bool			convertToWrite();
+	void			unlockNow()	{ locker_->unlockNow(); }
+    private:
+	const Monitorable&	obj_;
+	Threads::Locker*	locker_;
+	void			waitForMonitors();
     };
 
     void			sendChgNotif(AccessLockHandler&);
@@ -83,7 +86,31 @@ private:
     Notifier<Monitorable>	delnotif_;
     bool			delalreadytriggered_;
 
+    mutable Threads::Atomic<int> nrmonitors_;
+    friend class		MonitorLock;
+
 };
+
+
+/*!\brief protects a Monitorable against change while you need it as-is. */
+
+mExpClass(Basic) MonitorLock
+{
+public:
+    			MonitorLock(const Monitorable&);
+			~MonitorLock();
+
+    void		unlockNow();
+    void		reLock();
+
+protected:
+
+    const Monitorable&	obj_;
+    bool		needunlock_;
+
+};
+
+
 
 //! For use in subclasses of Monitorable
 #define mLock4Read() AccessLockHandler accesslockhandler_( *this )
@@ -106,7 +133,7 @@ inline void Monitorable::setSimple( TMember& memb, TSetTo setto )
     mLock4Read();
     if ( memb == setto )
 	return;
-    if ( mLock2Write() || !(memb == setto) )
+    if ( mLock2Write() && !(memb == setto) )
     {
 	memb = setto;
 	mSendChgNotif();
