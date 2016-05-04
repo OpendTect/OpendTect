@@ -593,11 +593,14 @@ void EngineMan::setTrcKeyZSampling( const TrcKeyZSampling& newcs )
 DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
 				  const DescSet* addtoset )
 {
+    if ( !nlamodel_ )
+    { errmsg = toUiString("Internal: No NLA Model"); return 0; }
+
     if ( attrspecs_.isEmpty() ) return 0;
     DescSet* descset = addtoset ? new DescSet( *addtoset )
 				: new DescSet( attrspecs_[0].is2D() );
 
-    if ( !addtoset && nlamodel_ && !descset->usePar(nlamodel_->pars()) )
+    if ( !addtoset && !descset->usePar(nlamodel_->pars()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;
@@ -1194,7 +1197,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     {
 	DescID nlaid( SelSpec::cNoAttrib() );
 	procattrset_ = createNLAADS( nlaid, errmsg );
-	if ( !errmsg.isEmpty() )
+	if ( !procattrset_ )
 	    mErrRet(errmsg)
 	outid = nlaid;
     }
