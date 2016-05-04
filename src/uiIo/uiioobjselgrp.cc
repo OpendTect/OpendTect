@@ -380,6 +380,8 @@ void uiIOObjSelGrp::setChosen( const TypeSet<MultiID>& mids )
     if ( mids.isEmpty() )
 	return;
 
+    NotifyStopper ns1( listfld_->selectionChanged );
+    NotifyStopper ns2( listfld_->itemChosen );
     if ( isMultiChoice() )
 	listfld_->chooseAll( false );
 
@@ -389,6 +391,8 @@ void uiIOObjSelGrp::setChosen( const TypeSet<MultiID>& mids )
 	if ( selidx >= 0 )
 	    listfld_->setChosen( selidx, true );
     }
+
+    selChg( 0 );
 }
 
 
@@ -845,6 +849,7 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
     TypeSet<MultiID> mids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
 	mids += MultiID( lbchoiceio_->chosenKeys().get(idx).buf() );
+    
     setChosen( mids );
 }
 
