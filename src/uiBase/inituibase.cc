@@ -28,6 +28,7 @@ mDefModInitFn(uiBase)
     FlareHelpProvider::initODHelp();
 
     DevDocHelp::initClass();
+    WebsiteHelp::initClass();
     uiRGBImageLoader::initClass();
 
 #ifdef mUseCrashDumper

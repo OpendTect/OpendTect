@@ -92,6 +92,7 @@ void FlareHelpProvider::initODHelp()
 }
 
 
+// DevDocHelp
 void DevDocHelp::initClass()
 {
     HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() );
@@ -127,12 +128,44 @@ void DevDocHelp::provideHelp( const char* arg ) const
 
 
 bool DevDocHelp::hasHelp( const char* arg ) const
-{
-    return !getUrl().isEmpty();
-}
+{ return !getUrl().isEmpty(); }
 
 
 HelpProvider* DevDocHelp::createInstance()
+{ return new DevDocHelp; }
+
+
+
+// WebsiteHelp
+void WebsiteHelp::initClass()
+{ HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() ); }
+
+HelpProvider* WebsiteHelp::createInstance()
+{ return new WebsiteHelp; };
+
+const char* WebsiteHelp::sKeyFactoryName()	{ return "website"; }
+const char* WebsiteHelp::sKeySupport()		{ return "support"; }
+const char* WebsiteHelp::sKeyAttribMatrix()	{ return "attribmatrix"; }
+
+void WebsiteHelp::provideHelp( const char* arg ) const
 {
-    return new DevDocHelp;
-};
+    const FixedString argstr = arg;
+    BufferString url;
+    if ( argstr == sKeyAttribMatrix() )
+	url = "https://opendtect.org/opendtect-attributes-matrix";
+    else if ( argstr == sKeySupport() )
+	url = "https://opendtect.org/index.php/support";
+
+    if ( url.isEmpty() )
+	uiMSG().error( tr("Cannot open website page") );
+    else
+	uiDesktopServices::openUrl( url );
+}
+
+
+bool WebsiteHelp::hasHelp( const char* arg ) const
+{
+    const FixedString argstr = arg;
+    return  argstr == sKeyAttribMatrix() ||
+	    argstr == sKeySupport();
+}

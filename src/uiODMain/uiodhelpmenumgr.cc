@@ -41,10 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 }
 
 
-static BufferString getSupportURL()
-{ return "http://opendtect.org/index.php/support"; }
-
-
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     : helpmnu_( mm->helpMnu() )
     , mnumgr_( mm )
@@ -60,6 +56,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
 
     mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("Attributes"), mAttribMatrixMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
 		 mShortcutsMnuItm, "?" );
@@ -101,11 +98,19 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	case mSupportMnuItm:
 	{
-	    uiDesktopServices::openUrl( getSupportURL() );
+	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+			       WebsiteHelp::sKeySupport() );
+	    HelpProvider::provideHelp( key );
 	} break;
 	case mWorkflowsMnuItm:
 	{
 	    HelpProvider::provideHelp( HelpKey("wf",0) );
+	} break;
+	case mAttribMatrixMnuItm:
+	{
+	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+			       WebsiteHelp::sKeyAttribMatrix() );
+	    HelpProvider::provideHelp( key );
 	} break;
 	case mShortcutsMnuItm:
 	{
@@ -153,49 +158,48 @@ uiString uiODHelpMenuMgr::getAboutString()
 	     "<a href=\"http://dgbes.com/index.php/products/licenses\">"
 	     "here</a>.<br>" );
     str.add( "</html>" );
-    return mToUiStringTodo(str);
+    return toUiString(str);
 }
 
 
 class uiODLegalInfo : public uiDialog
 { mODTextTranslationClass(uiODLegalInfo);
 public:
-    uiODLegalInfo(uiParent* p)
-	: uiDialog(p,
-		uiDialog::Setup(tr("Legal information"),
-				mNoDlgTitle, mNoHelpKey ))
-    {
-	uiLabel* label = new uiLabel(this,
-		tr("OpendTect has incorporated code from various "
-		   "open source projects that are licensed under different "
-		   "licenses." ) );
 
-	textsel_ = new uiGenInput( this, tr("Project"),
+uiODLegalInfo(uiParent* p)
+    : uiDialog(p,uiDialog::Setup(tr("Legal information"),
+				 mNoDlgTitle,mNoHelpKey))
+{
+    setCtrlStyle( CloseOnly );
+    uiLabel* label = new uiLabel( this,
+	    tr("OpendTect has incorporated code from various "
+	       "open source projects that are licensed under different "
+	       "licenses.") );
+
+    textsel_ = new uiGenInput( this, tr("Project"),
 		StringListInpSpec(legalInformation().getUserNames()) );
-	textsel_->valuechanged.notify( mCB( this, uiODLegalInfo,selChgCB ) );
-	textsel_->attach( alignedBelow, label );
+    textsel_->valuechanged.notify( mCB(this,uiODLegalInfo,selChgCB) );
+    textsel_->attach( alignedBelow, label );
 
-	textfld_ = new uiTextEdit(this);
-	textfld_->attach( alignedBelow, textsel_ );
+    textfld_ = new uiTextEdit( this );
+    textfld_->attach( alignedBelow, textsel_ );
 
-	selChgCB( 0 );
-    }
+    selChgCB( 0 );
+}
 
 private:
 
-    void selChgCB(CallBacker*)
-    {
-	const int sel = textsel_->getIntValue();
-	const BufferString key = legalInformation().getNames()[sel]->buf();
+void selChgCB( CallBacker* )
+{
+    const int sel = textsel_->getIntValue();
+    const BufferString key = legalInformation().getNames()[sel]->buf();
 
-	textfld_->setText("");
-
-	PtrMan<uiString> newtext = legalInformation().create( key );
-	if ( !newtext )
-	    return;
-
+    PtrMan<uiString> newtext = legalInformation().create( key );
+    if ( newtext )
 	textfld_->setText( *newtext );
-    }
+    else
+	textfld_->setText( "" );
+}
 
     uiGenInput*		textsel_;
     uiTextEdit*		textfld_;

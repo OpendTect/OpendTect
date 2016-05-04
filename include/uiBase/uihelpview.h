@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2014
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -55,7 +54,19 @@ private:
     void			provideHelp(const char* arg) const;
 };
 
+/*! HelpProvider for website pages */
+mExpClass(uiBase) WebsiteHelp : public HelpProvider
+{ mODTextTranslationClass(WebsiteHelp);
+public:
+    static void			initClass();
+    static const char*		sKeyFactoryName();
+    static const char*		sKeySupport();
+    static const char*		sKeyAttribMatrix();
 
-
+private:
+    static HelpProvider*	createInstance();
+    bool			hasHelp(const char* arg) const;
+    void			provideHelp(const char* arg) const;
+};
 
 #endif
