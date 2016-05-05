@@ -58,15 +58,16 @@ bool Poly2HorVol::setHorizon( const MultiID& mid, TaskRunner* tr )
 
 float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 {
-    if ( !hor_ || ! ps_ )
+    if ( !hor_ || !ps_ )
 	return mUdf(float);
 
     ODPolygon<float> poly;
     TrcKeySampling hs;
     TypeSet<Coord> pts; TypeSet<float> zvals;
+    MonitorLock ml( *ps_ );
     for ( int idx=0; idx<ps_->size(); idx++ )
     {
-	const Pick::Location& pl = (*ps_)[idx];
+	const Pick::Location pl = ps_->get( idx );
 	if ( !pl.hasPos() )
 	    continue;
 
@@ -78,6 +79,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	else
 	    hs.start_ = hs.stop_ = bid;
     }
+    ml.unlockNow();
 
     TriangulatedGridder2D grdr;
     grdr.setPoints( pts );

@@ -167,7 +167,7 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !psd || !psd->getSet() ) return;
     const Pick::Set& ps = *psd->getSet();
-    if ( ps.disp_.connect_ == Pick::Set::Disp::None )
+    if ( ps.connection() == Pick::Set::Disp::None )
 	{ uiMSG().error(tr("Can only export Polygons")); return; }
     if ( ps.size() < 3 )
 	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }

@@ -103,7 +103,7 @@ void uiPickSetMan::mkFileInfo()
 		if ( sz > 1 )
 		    txt += "s";
 	    }
-	    if ( !ispoly && ps[0].hasDir() )
+	    if ( !ispoly && ps.get(0).hasDir() )
 		txt += " (with directions)";
 
 	    if ( ispoly && sz > 2 )
@@ -117,11 +117,12 @@ void uiPickSetMan::mkFileInfo()
 		txt += ">";
 	}
 
-	Color col( ps.disp_.mkstyle_.color_ ); col.setTransparency( 0 );
+	const Pick::Set::Disp disp = ps.getDisp();
+	Color col( disp.mkstyle_.color_ ); col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
-	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.mkstyle_.size_ );
+	txt.add( "\nMarker size (pixels): " ).add( disp.mkstyle_.size_ );
 	txt.add( "\nMarker type: " );
-	txt.add(OD::MarkerStyle3D::TypeDef().getKey(ps.disp_.mkstyle_.type_));
+	txt.add(OD::MarkerStyle3D::TypeDef().getKey(disp.mkstyle_.type_));
     }
 
     txt.add( "\n" ).add( getFileInfo() );

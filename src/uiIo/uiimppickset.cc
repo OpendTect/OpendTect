@@ -175,14 +175,12 @@ bool uiImpExpPickSet::doImport()
     float constz = zchoice==1 ? constzfld_->getFValue() : 0;
     if ( SI().zIsTime() ) constz /= 1000;
 
-    ps.disp_.mkstyle_.color_ = colorfld_->color();
+    ps.setDispColor( colorfld_->color() );
     PickSetAscIO aio( fd_ );
     aio.get( strm, ps, zchoice==0, constz );
 
     if ( zchoice == 2 )
-    {
 	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
-    }
 
     const IOObj* objfldioobj = objfld_->ioobj();
     if ( !objfldioobj ) return false;
@@ -190,12 +188,12 @@ bool uiImpExpPickSet::doImport()
     const bool ispolygon = polyfld_->isChecked();
     if ( ispolygon )
     {
-	ps.disp_.connect_ = Pick::Set::Disp::Close;
+	ps.setConnection( Pick::Set::Disp::Close );
 	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
     }
     else
     {
-	ps.disp_.connect_ = Pick::Set::Disp::None;
+	ps.setConnection( Pick::Set::Disp::None );
 	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
     }
 
@@ -256,7 +254,7 @@ bool uiImpExpPickSet::doExport()
     BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
-	ps[locidx].toString( buf, true );
+	ps.get(locidx).toString( buf, true );
 	*sdo.ostrm << buf.buf() << '\n';
     }
 

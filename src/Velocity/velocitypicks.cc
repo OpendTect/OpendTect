@@ -397,7 +397,7 @@ bool Picks::store( const IOObj* ioobjarg )
     }
 
     ::Pick::Set ps( ioobj->name() );
-    ps.disp_.mkstyle_.color_ = color_;
+    ps.setDispColor( color_ );
     RowCol arrpos( 0, 0 );
     if ( picks_.isValidPos( arrpos ) )
     {
@@ -414,12 +414,14 @@ bool Picks::store( const IOObj* ioobjarg )
 	    if ( idx!=-1 )
 		pickloc.setText( BufferString("",idx) );
 
-	    ps += pickloc;
+	    ps.add( pickloc );
 	} while ( picks_.next(arrpos,false) );
     }
 
-    fillPar( ps.pars_ );
-    ps.pars_.set( sKey::Version(), 2 );
+    IOPar psiop( ps.pars() );
+    fillPar( psiop );
+    psiop.set( sKey::Version(), 2 );
+    ps.setPars( psiop );
 
     uiString errmsg;
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
@@ -794,18 +796,19 @@ bool Picks::load( const IOObj* ioobj )
 	return false;
     }
 
-    if ( !usePar( pickset.pars_ ) )
+    const IOPar psiop( pickset.pars() );
+    if ( !usePar(psiop) )
     {
 	if ( !usePar( ioobj->pars() ) ) //Old format
 	    return false;
     }
 
     int version = 1;
-    pickset.pars_.get( sKey::Version(), version );
+    psiop.get( sKey::Version(), version );
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location& ploc = pickset[idx];
+	const ::Pick::Location ploc = pickset.get( idx );
 	if ( !ploc.hasPos() || !ploc.hasDir() )
 	    continue;
 
@@ -826,7 +829,7 @@ bool Picks::load( const IOObj* ioobj )
 	picks_.add( &pick, bid );
     }
 
-    color_ = pickset.disp_.mkstyle_.color_;
+    color_ = pickset.dispColor();
 
     changed_ = false;
     change.trigger( BinID(-1,-1) );

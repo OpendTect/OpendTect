@@ -53,11 +53,11 @@ protected:
 						    bool startwasdefined,
 						    bool eraseonly=false);
 
-    void			extendSeedListEraseInBetween(
+    void			extendSeedSetEraseInBetween(
 				    bool wholeline,int startcol,
 				    bool startwasdefined,int step);
 
-    bool			retrackFromSeedList();
+    bool			retrackFromSeedSet();
     int				nrLineNeighbors(int colnr) const;
     bool			interpolateSeeds();
     TrcKeyZSampling		getTrackBox() const;

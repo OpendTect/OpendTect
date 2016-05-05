@@ -89,7 +89,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    {
 		for ( int idx=0; idx<ps.size(); idx++ )
 		{
-		    const Coord3 crd3 = ps[idx].pos();
+		    const Coord3 crd3 = ps.get(idx).pos();
 		    bvs.add( SI().transform(crd3), (float)crd3.z );
 		}
 	    }

@@ -26,7 +26,7 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( m3Dots(tr("Select image")) )
 {
-    defscale_ = mCast(float,set_->disp_.mkstyle_.size_);
+    defscale_ = mCast(float,set_->dispSize());
 }
 
 
@@ -53,7 +53,7 @@ bool ImageSubItem::init()
 			mCB(this,ImageSubItem,retrieveFileName) );
 
     BufferString filename;
-    set_->pars_.get( sKey::FileName(), filename );
+    set_->pars().get( sKey::FileName(), filename );
     if ( filename.isEmpty() )
     {
 	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );

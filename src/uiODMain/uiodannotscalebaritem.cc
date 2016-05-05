@@ -185,7 +185,7 @@ bool ScaleBarSubItem::init()
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
     if ( !ioobj ) return false;
 
-    ad->fromPar( set_->pars_ );
+    ad->fromPar( set_->pars() );
     return uiODAnnotSubItem::init();
 }
 
@@ -228,7 +228,7 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 	pars.orientation_ = ad->getOrientation();
 	pars.length_ = ad->getLength();
 	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,ad->getLineWidth(),
-			     set_->disp_.mkstyle_.color_);
+			     set_->dispColor());
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	uiScaleBarDialog dlg( getUiParent(), scene->zDomainInfo() );
 	dlg.setPars( pars );

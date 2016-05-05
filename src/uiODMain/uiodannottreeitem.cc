@@ -225,14 +225,15 @@ bool uiODAnnotTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnusel = mnu.exec();
-    if ( mnusel < 0 ) return false;
+    if ( mnusel < 0 )
+	return false;
 
     if ( mnusel == 0 )
     {
-    const uiString title = tr( "%1 Annotations").arg(typestr_);
-    uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
-			   new StringInpSpec );
-    dlg.setCaption( tr("Annotations") );
+	const uiString title = tr( "%1 Annotations").arg(typestr_);
+	uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
+			       new StringInpSpec );
+	dlg.setCaption( tr("Annotations") );
 
 	while ( true )
 	{
@@ -252,8 +253,9 @@ bool uiODAnnotTreeItem::showSubMenu()
 		return false;
 
 	    Pick::Set* set = new Pick::Set(txt);
-	    set->disp_.mkstyle_.color_ = getRandStdDrawColor();
-	    if ( defScale()!=-1 ) set->disp_.mkstyle_.size_ = defScale();
+	    set->setDispColor( getRandStdDrawColor() );
+	    if ( defScale()!=-1 )
+		set->setDispSize( defScale() );
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
 	    uiTreeItem* item = createSubItem( -1, *set );
@@ -264,7 +266,8 @@ bool uiODAnnotTreeItem::showSubMenu()
     else if ( mnusel == 1 )
     {
 	Pick::Set* ps = new Pick::Set;
-	if ( !readPicks(*ps) ) { delete ps; return false; }
+	if ( !readPicks(*ps) )
+	    { delete ps; return false; }
     }
     handleStandardItems( mnusel );
 
@@ -284,11 +287,11 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 	mDelCtioRet;
 
     if ( defScale()!=-1 )
-	ps.disp_.mkstyle_.size_= defScale();
+	ps.setDispSize( defScale() );
 
     uiString errmsg;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),errmsg) )
-    { uiMSG().error( errmsg ); mDelCtioRet; }
+	{ uiMSG().error( errmsg ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     if ( mgr.indexOf(dlg.ioObj()->key() ) == -1 )
@@ -305,7 +308,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
 uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     : set_( &set )
-    , defscale_(mCast(float,set.disp_.mkstyle_.size_))
+    , defscale_(mCast(float,set.dispSize()))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
@@ -395,7 +398,7 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
-	sliderfld->setValue( mCast(float,set_->disp_.mkstyle_.size_/defscale_));
+	sliderfld->setValue( mCast(float,set_->dispSize()/defscale_));
 	sliderfld->valueChanged.notify( mCB(this,uiODAnnotSubItem,scaleChg) );
 	dlg.go();
     }
@@ -428,7 +431,9 @@ void uiODAnnotSubItem::store() const
     ioobj->pars().set( sKey::Type(), managerName() );
     IOM().commitChanges( *ioobj );
 
-    fillStoragePar( set_->pars_ );
+    IOPar psiop( set_->pars() );
+    fillStoragePar( psiop );
+    set_->setPars( psiop );
     uiString errmsg;
     if ( !PickSetTranslator::store(*set_,ioobj,errmsg ) )
 	uiMSG().error( errmsg );
@@ -510,10 +515,10 @@ void uiODAnnotSubItem::setScale( float ns )
 
     const int newscale = mNINT32( ns );
     Pick::Set* set = ld->getSet();
-    if ( set->disp_.mkstyle_.size_==newscale )
+    if ( set->dispSize()==newscale )
 	return;
 
-    set->disp_.mkstyle_.size_ = newscale;
+    set->setDispSize( newscale );
 
     Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
 }
@@ -526,12 +531,11 @@ void uiODAnnotSubItem::setColor( Color nc )
     if ( !ld ) return;
 
     Pick::Set* set = ld->getSet();
-    if ( set->disp_.mkstyle_.color_==nc )
-	return;
-
-    set->disp_.mkstyle_.color_ = nc;
-
-    Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
+    if ( set->dispColor()!=nc )
+    {
+	set->setDispColor( nc );
+	Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
+    }
 }
 
 

@@ -27,7 +27,7 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
                                  mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)
 {
-    Color defcol( ps_.disp_.mkstyle_.color_ ); defcol.setTransparency( 150 );
+    Color defcol( ps_.dispColor() ); defcol.setTransparency( 150 );
     const OD::LineStyle ls( OD::LineStyle::Solid, 20, defcol );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
@@ -43,13 +43,17 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
 
 bool uiGoogleExportPolygon::acceptOK( CallBacker* )
 {
+    if ( ps_.isEmpty() )
+	{ uiMSG().error( tr("Polygon is empty") ); return false; }
     mCreateWriter( "Polygon", SI().name() );
 
     TypeSet<Coord> coords;
+    MonitorLock ml( ps_ );
     for ( int idx=0; idx<ps_.size(); idx++ )
-	coords += ps_[idx].pos();
+	coords += ps_.get(idx).pos();
     if ( !ps_.isPolygon() )
-	coords += ps_[0].pos();
+	coords += ps_.get(0).pos();
+    ml.unlockNow();
 
     const float reqwdth = lsfld_->getWidth() * 0.1f;
     wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );

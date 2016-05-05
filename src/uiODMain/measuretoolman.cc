@@ -160,8 +160,8 @@ void MeasureToolMan::addScene( int sceneid )
     psd->ref();
 
     Pick::Set* ps = new Pick::Set( "Measure picks" );
-    ps->disp_.connect_ = Pick::Set::Disp::Open;
-    ps->disp_.mkstyle_.color_ = Color( 255, 0, 0 );
+    ps->setConnection( Pick::Set::Disp::Open );
+    ps->setDispColor( Color( 255, 0, 0 ) );
     psd->setSet( ps );
     psd->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid), ps );
@@ -202,8 +202,10 @@ int MeasureToolMan::getActiveSceneID() const
 static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 {
     TypeSet<Coord3> crds;
+    MonitorLock ml( set );
     for ( int idx=0; idx<set.size(); idx++ )
-	crds += set[idx].pos();
+	crds += set.get(idx).pos();
+    ml.unlockNow();
 
     dlg.fill( crds );
 }
@@ -260,7 +262,7 @@ void MeasureToolMan::clearCB( CallBacker* )
 	Pick::Set* ps = displayobjs_[idx]->getSet();
 	if ( !ps ) continue;
 
-	ps->erase();
+	ps->setEmpty();
 	picksetmgr_.reportChange( this, *ps );
     }
 
@@ -279,8 +281,8 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 	if ( !ps ) continue;
 
 	OD::LineStyle ls( measuredlg_->getLineStyle() );
-	ps->disp_.mkstyle_.color_ = ls.color_;
-	ps->disp_.mkstyle_.size_ = ls.width_;
+	ps->setDispColor( ls.color_ );
+	ps->setDispSize( ls.width_ );
 	picksetmgr_.reportDispChange( this, *ps );
     }
 }

@@ -247,22 +247,22 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& start,
 {
     BinID dir;
     if ( !lineTrackDirection(dir) )
-	return retrackFromSeedList(); // track on Rdl
+	return retrackFromSeedSet(); // track on Rdl
 
     trackbounds_.erase();
     junctions_.erase();
 
     if ( engine().activeVolume().hsamp_.includes(start) )
     {
-	extendSeedListEraseInBetween( false, start, startwasdefined, -dir );
-	extendSeedListEraseInBetween( false, start, startwasdefined, dir );
+	extendSeedSetEraseInBetween( false, start, startwasdefined, -dir );
+	extendSeedSetEraseInBetween( false, start, startwasdefined, dir );
     }
     else
     {
 	// traverse whole active line
 	const BinID dummystart = engine().activeVolume().hsamp_.start_;
-	extendSeedListEraseInBetween( true, dummystart, false, -dir );
-	extendSeedListEraseInBetween( true, dummystart, false, dir );
+	extendSeedSetEraseInBetween( true, dummystart, false, -dir );
+	extendSeedSetEraseInBetween( true, dummystart, false, dir );
 
 	if ( trackmode_ != DrawBetweenSeeds )
 	    tracker_.snapPositions( seedlist_ );
@@ -271,7 +271,7 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& start,
     if ( eraseonly )
 	return true;
 
-    const bool res = retrackFromSeedList();
+    const bool res = retrackFromSeedSet();
     processJunctions();
 
     return res;
@@ -370,7 +370,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 }
 
 
-void Horizon3DSeedPicker::extendSeedListEraseInBetween(
+void Horizon3DSeedPicker::extendSeedSetEraseInBetween(
 				bool wholeline, const BinID& startbid,
 				bool startwasdefined, const BinID& dir )
 {
@@ -437,7 +437,7 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
 }
 
 
-bool Horizon3DSeedPicker::retrackFromSeedList()
+bool Horizon3DSeedPicker::retrackFromSeedSet()
 {
     if ( seedlist_.isEmpty() || blockpicking_ )
 	return true;

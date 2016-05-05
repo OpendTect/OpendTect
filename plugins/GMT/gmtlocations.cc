@@ -211,7 +211,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	const Coord3 pos = ps[idx].pos();
+	const Coord pos = ps.getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 
@@ -289,7 +289,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     BufferString comm = "@psxy ";
     BufferString str; mGetRangeProjString( str, "X" );
     comm += str; comm += " -O -K";
-    if ( ps.disp_.connect_ == Pick::Set::Disp::Close )
+    if ( ps.connection() == Pick::Set::Disp::Close )
 	comm += " -L";
 
     if ( drawline )
@@ -314,7 +314,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	const Coord3 pos = ps[idx].pos();
+	const Coord pos = ps.getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 

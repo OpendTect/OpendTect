@@ -26,6 +26,7 @@ BufferString Pick::SetSaver::getFingerPrint() const
 {
     BufferString ret;
     const Pick::Set& ps = pickSet();
+    MonitorLock ml( ps  );
     ret.set( ps.size() );
     //TODO size only is a bit crude, need some real stuff here
     return ret;

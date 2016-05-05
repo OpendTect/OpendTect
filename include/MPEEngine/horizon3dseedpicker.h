@@ -52,7 +52,7 @@ protected:
     bool		retrackOnActiveLine(const BinID& startbid,
 					    bool startwasdefined,
 					    bool eraseonly=false);
-    bool		retrackFromSeedList();
+    bool		retrackFromSeedSet();
     void		processJunctions();
     int			nrLateralNeighbors(const BinID& pid) const;
     int			nrLineNeighbors(const BinID& pid,
@@ -66,7 +66,7 @@ protected:
     const FaultTrcDataProvider* fltdataprov_;
 
 private:
-    void		extendSeedListEraseInBetween(
+    void		extendSeedSetEraseInBetween(
 			    bool wholeline,const BinID& startbid,
 			    bool startwasdefined,const BinID& dir );
 };

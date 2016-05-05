@@ -219,9 +219,10 @@ void RandomPosBody::copyFrom( const Pick::Set& ps )
     locations_.erase();
     ids_.erase();
 
+    MonitorLock ml( ps );
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	locations_ += ps[idx].pos();
+	locations_ += ps.get(idx).pos();
 	ids_ += idx;
     }
 }

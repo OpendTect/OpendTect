@@ -278,6 +278,10 @@ public:
 
     enum  Type	    { Insert, PolygonClose, Remove, Move };
 
+    // Constructor will be called from Pick::Set in write-locked state.
+    // you cannot use MT-protected methods like size() here, this is why
+    // the class is a friend of Pick::Set
+
 LocationUndoEvent( Type type, const MultiID& mid, int sidx,
 		      const Location& loc, SetMgr& mgr )
     : mgr_(mgr)
@@ -288,12 +292,13 @@ LocationUndoEvent( Type type, const MultiID& mid, int sidx,
 
     mid_ = mid;
     index_ = sidx;
-    Pick::Set& set = mgr_.get( mid_ );
+    const int idxof = mgr_.indexOf( mid_ );
+    Pick::Set* set = idxof < 0 ? 0 : &mgr_.get( mid_ );
 
     if ( type == Insert || type == PolygonClose )
     {
-	if ( &set && set.size()>index_ )
-	    loc_ = set[index_];
+	if ( set && set->locs_.size() > index_ )
+	    loc_ = set->locs_[ index_ ];
     }
     else if ( type == Remove )
     {
@@ -301,8 +306,8 @@ LocationUndoEvent( Type type, const MultiID& mid, int sidx,
     }
     else if ( type == Move )
     {
-	if ( &set && set.size()>index_ )
-	    loc_ = set[index_];
+	if ( set && set->locs_.size()>index_ )
+	    loc_ = set->locs_[ index_ ];
 	newloc_ = loc;
     }
 }
@@ -327,7 +332,7 @@ virtual bool unDo()
 	return false;
     Set& set = mgr_.get( setidx );
 
-    if ( set.disp_.connect_ == Pick::Set::Disp::Close
+    if ( set.connection() == Pick::Set::Disp::Close
       && index_ == set.size()-1 && type_ != Move )
 	type_ = PolygonClose;
 
@@ -340,8 +345,8 @@ virtual bool unDo()
 
     if ( type_ == Move )
     {
-       if ( &set && set.size()>index_  && loc_.pos().isDefined() )
-	   set[index_] = loc_;
+       if ( set.size()>index_  && loc_.pos().isDefined() )
+	   set.set( index_, loc_ );
     }
     else if ( type_ == Remove )
     {
@@ -350,12 +355,12 @@ virtual bool unDo()
     }
     else if ( type_ == Insert  )
     {
-	set.removeSingle( index_ );
+	set.remove( index_ );
     }
     else if ( type_ == PolygonClose )
     {
-	set.disp_.connect_ = Pick::Set::Disp::Open;
-	set.removeSingle(index_);
+	set.setConnection( Pick::Set::Disp::Open );
+	set.remove(index_);
     }
 
     mgr_.reportChange( 0, cd );
@@ -380,23 +385,23 @@ virtual bool reDo()
 
     if ( type_ == Move )
     {
-	if ( &set && set.size()>index_ && newloc_.pos().isDefined() )
-	    set[index_] = newloc_;
+	if ( set.size()>index_ && newloc_.pos().isDefined() )
+	    set.set( index_, newloc_ );
     }
     else if ( type_ == Remove )
     {
-	set.removeSingle( index_ );
+	set.remove( index_ );
     }
     else if ( type_ == Insert )
     {
 	if ( loc_.pos().isDefined() )
-	    set.insert( index_,loc_ );
+	    set.insert( index_, loc_ );
     }
     else if ( type_ == PolygonClose )
     {
 	if ( loc_.pos().isDefined() )
 	{
-	    set.disp_.connect_=Pick::Set::Disp::Close;
+	    set.setConnection( Pick::Set::Disp::Close );
 	    set.insert( index_, loc_ );
 	}
     }
@@ -418,160 +423,19 @@ virtual bool reDo()
 } // namespace Pick
 
 
-// Both Pick set types
-
-template <class PicksType>
-static typename PicksType::size_type findIdx( const PicksType& picks,
-	                                      const TrcKey& tk )
-{
-    const typename PicksType::size_type sz = picks.size();
-    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
-	if ( picks.get(idx).trcKey() == tk )
-	    return idx;
-    return -1;
-}
-Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
-{ return findIdx( *this, tk ); }
-Pick::List::size_type Pick::List::find( const TrcKey& tk ) const
-{ return findIdx( *this, tk ); }
-
-
-
-template <class PicksType>
-static typename PicksType::size_type getNearestLocation( const PicksType& ps,
-				    const Coord3& pos, bool ignorez )
-{
-    const typename PicksType::size_type sz = ps.size();
-    if ( sz < 2 )
-	return sz - 1;
-    if ( pos.isUdf() )
-	return 0;
-
-    typename PicksType::size_type ret = 0;
-    const Coord3& p0 = ps.get( ret ).pos();
-    double minsqdist = p0.isUdf() ? mUdf(double)
-		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
-
-    for ( typename PicksType::size_type idx=1; idx<sz; idx++ )
-    {
-	const Coord3& curpos = ps.get( idx ).pos();
-	if ( pos.isUdf() )
-	    continue;
-
-	const double sqdist = ignorez ? pos.sqHorDistTo( curpos )
-				      : pos.sqDistTo( curpos );
-	if ( sqdist == 0 )
-	    return idx;
-	else if ( sqdist < minsqdist )
-	    { minsqdist = sqdist; ret = idx; }
-    }
-    return ret;
-}
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
-{ return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true ); }
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
-						 bool ignorez ) const
-{ return getNearestLocation( *this, pos, ignorez ); }
-Pick::List::size_type Pick::List::nearestLocation( const Coord& pos ) const
-{ return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true ); }
-Pick::List::size_type Pick::List::nearestLocation( const Coord3& pos,
-						 bool ignorez ) const
-{ return getNearestLocation( *this, pos, ignorez ); }
-
-
-template <class PicksType>
-inline static Pos::GeomID getFirstgeomID( const PicksType& picks )
-{
-    return picks.isEmpty() ? false : picks.get(0).trcKey().geomID();
-}
-Pos::GeomID Pick::Set::firstgeomID() const { return getFirstgeomID(*this); }
-Pos::GeomID Pick::List::firstgeomID() const { return getFirstgeomID(*this); }
-
-
-template <class PicksType>
-inline static bool getHas2D( const PicksType& picks )
-{
-    const typename PicksType::size_type sz = picks.size();
-    if ( sz < 1 )
-	return false;
-    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
-	if ( picks.get(idx).is2D() )
-	    return true;
-    return false;
-}
-template <class PicksType>
-inline static bool getHasOnly2D( const PicksType& picks )
-{
-    const typename PicksType::size_type sz = picks.size();
-    if ( sz < 1 )
-	return false;
-    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
-	if ( picks.get(idx).is2D() )
-	    return false;
-    return true;
-}
-template <class PicksType>
-inline static bool getHas3D( const PicksType& picks )
-{
-    const typename PicksType::size_type sz = picks.size();
-    if ( sz < 1 )
-	return true;
-    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
-	if ( !picks.get(idx).is2D() )
-	    return true;
-    return false;
-}
-template <class PicksType>
-inline static bool getHasOnly3D( const PicksType& picks )
-{
-    const typename PicksType::size_type sz = picks.size();
-    if ( sz < 1 )
-	return true;
-    for ( typename PicksType::size_type idx=0; idx<sz; idx++ )
-	if ( picks.get(idx).is2D() )
-	    return false;
-    return true;
-}
-template <class PicksType>
-inline static bool getIsMultiGeom( const PicksType& picks )
-{
-    const typename PicksType::size_type sz = picks.size();
-    if ( sz < 2 )
-	return false;
-    const Pos::GeomID geomid0 = picks.get(0).geomID();
-    for ( typename PicksType::size_type idx=1; idx<sz; idx++ )
-	if ( picks.get(idx).geomID() != geomid0 )
-	    return true;
-    return false;
-}
-
-bool Pick::Set::isMultiGeom() const	{ return getIsMultiGeom(*this); }
-bool Pick::List::isMultiGeom() const	{ return getIsMultiGeom(*this); }
-bool Pick::Set::has2D() const		{ return getHas2D(*this); }
-bool Pick::List::has2D() const		{ return getHas2D(*this); }
-bool Pick::Set::has3D() const		{ return getHas3D(*this); }
-bool Pick::List::has3D() const		{ return getHas3D(*this); }
-bool Pick::Set::hasOnly2D() const	{ return getHasOnly2D(*this); }
-bool Pick::List::hasOnly2D() const	{ return getHasOnly2D(*this); }
-bool Pick::Set::hasOnly3D() const	{ return getHasOnly3D(*this); }
-bool Pick::List::hasOnly3D() const	{ return getHasOnly3D(*this); }
-
-
 // Pick::Set
 mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
 Pick::Set::Set( const char* nm, SetMgr* mgr )
     : NamedMonitorable(nm)
-    , pars_(*new IOPar)
     , mgr_(mgr)
 {
 }
 
 
 Pick::Set::Set( const Set& oth )
-    : pars_(*new IOPar)
-    , mgr_(0)
+    : mgr_(0)
 {
     *this = oth;
 }
@@ -580,7 +444,6 @@ Pick::Set::Set( const Set& oth )
 Pick::Set::~Set()
 {
     sendDelNotif();
-    delete &pars_;
 }
 
 
@@ -588,7 +451,10 @@ Pick::Set& Pick::Set::operator=( const Set& oth )
 {
     if ( &oth != this )
     {
-	copy( oth ); setName( oth.name() );
+	NamedMonitorable::operator =( oth );
+	mLock4Write();
+	AccessLockHandler lh( oth );
+	locs_.copy( oth.locs_ );
 	disp_ = oth.disp_; pars_ = oth.pars_;
 	// no copy of mgr_
     }
@@ -602,55 +468,161 @@ void Pick::Set::setSetMgr( SetMgr* newmgr )
 }
 
 
+#define mGetSetMgr() (mgr_ ? *mgr_ : Mgr())
+
 Pick::SetMgr& Pick::Set::getSetMgr() const
 {
-    return mgr_ ? *mgr_ : Mgr();
+    mLock4Read();
+    return mGetSetMgr();
 }
+
+
+Pick::Set::size_type Pick::Set::size() const
+{
+    mLock4Read();
+    return locs_.size();
+}
+
+
+bool Pick::Set::validIdx( size_type idx ) const
+{
+    mLock4Read();
+    return locs_.validIdx( idx );
+}
+
+
+Pick::Location Pick::Set::get( size_type idx ) const
+{
+    mLock4Read();
+    return locs_.validIdx(idx) ? locs_[idx] : Location::udf();
+}
+
+
+Coord Pick::Set::getPos( size_type idx ) const
+{
+    mLock4Read();
+    return locs_.validIdx(idx) ? locs_[idx].pos() : Coord::udf();
+}
+
+
+double Pick::Set::getZ( size_type idx ) const
+{
+    mLock4Read();
+    return locs_.validIdx(idx) ? locs_[idx].pos().z : mUdf(double);
+}
+
+
+#define mPrepRead(sz) \
+    mLock4Read(); \
+    const size_type sz = locs_.size()
 
 
 bool Pick::Set::isPolygon() const
 {
+    mLock4Read();
     const FixedString typ = pars_.find( sKey::Type() );
     return typ.isEmpty() ? disp_.connect_ != Set::Disp::None
 			 : typ == sKey::Polygon();
 }
 
 
+bool Pick::Set::isMultiGeom() const
+{
+    mPrepRead( sz );
+    if ( sz < 2 )
+	return false;
+    const Pos::GeomID geomid0 = locs_[0].geomID();
+    for ( size_type idx=1; idx<sz; idx++ )
+	if ( locs_[idx].geomID() != geomid0 )
+	    return true;
+    return false;
+}
+
+
+Pos::GeomID Pick::Set::firstGeomID() const
+{
+    mLock4Read();
+    return locs_.isEmpty() ? -1 : locs_[0].trcKey().geomID();
+}
+
+
+bool Pick::Set::has2D() const
+{
+    mPrepRead( sz );
+    if ( sz < 1 )
+	return false;
+    for ( size_type idx=0; idx<sz; idx++ )
+	if ( locs_[idx].is2D() )
+	    return true;
+    return false;
+}
+
+
+bool Pick::Set::has3D() const
+{
+    mPrepRead( sz );
+    if ( sz < 1 )
+	return true;
+    for ( size_type idx=0; idx<sz; idx++ )
+	if ( !locs_[idx].is2D() )
+	    return true;
+    return false;
+}
+
+
+bool Pick::Set::hasOnly2D() const
+{
+    mPrepRead( sz );
+    if ( sz < 1 )
+	return false;
+    for ( size_type idx=0; idx<sz; idx++ )
+	if ( !locs_[idx].is2D() )
+	    return false;
+    return true;
+}
+
+
+bool Pick::Set::hasOnly3D() const
+{
+    mPrepRead( sz );
+    if ( sz < 1 )
+	return true;
+    for ( size_type idx=0; idx<sz; idx++ )
+	if ( locs_[idx].is2D() )
+	    return false;
+    return true;
+}
+
+
 void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 {
-    const size_type sz = size();
+    mPrepRead( sz );
     for ( size_type idx=0; idx<sz; idx++ )
     {
-	const Coord c( (*this)[idx].pos() );
+	const Coord c( locs_[idx].pos() );
 	poly.add( Geom::Point2D<double>( c.x, c.y ) );
     }
 }
 
 
-void Pick::Set::getLocations( ObjectSet<Location>& locs )
-{
-    for ( size_type idx=0; idx<size(); idx++ )
-	locs += &((*this)[idx]);
-}
-
-
 void Pick::Set::getLocations( ObjectSet<const Location>& locs ) const
 {
-    for ( size_type idx=0; idx<size(); idx++ )
-	locs += &((*this)[idx]);
+    mPrepRead( sz );
+    for ( size_type idx=0; idx<sz; idx++ )
+	locs += &locs_[idx];
 }
 
 
 float Pick::Set::getXYArea() const
 {
-    const size_type sz = size();
+    mPrepRead( sz );
     if ( sz < 3 || disp_.connect_ == Disp::None )
 	return mUdf(float);
 
     TypeSet<Geom::Point2D<float> > posxy;
     for ( size_type idx=sz-1; idx>=0; idx-- )
     {
-	const Coord localpos = (*this)[idx].pos();
+	const Coord localpos = locs_[idx].pos();
 	posxy += Geom::Point2D<float>( (float)localpos.x, (float)localpos.y );
     }
 
@@ -666,8 +638,56 @@ float Pick::Set::getXYArea() const
 }
 
 
+Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
+{
+    mPrepRead( sz );
+    for ( size_type idx=0; idx<sz; idx++ )
+	if ( locs_[idx].trcKey() == tk )
+	    return idx;
+    return -1;
+}
+
+
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
+{
+    return nearestLocation( Coord3(pos.x,pos.y,0.f), true );
+}
+
+
+Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
+						 bool ignorez ) const
+{
+    mPrepRead( sz );
+    if ( sz < 2 )
+	return sz - 1;
+    if ( pos.isUdf() )
+	return 0;
+
+    size_type ret = 0;
+    const Coord3& p0 = locs_[ret].pos();
+    double minsqdist = p0.isUdf() ? mUdf(double)
+		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
+
+    for ( size_type idx=1; idx<sz; idx++ )
+    {
+	const Coord3& curpos = locs_[idx].pos();
+	if ( pos.isUdf() )
+	    continue;
+
+	const double sqdist = ignorez ? pos.sqHorDistTo( curpos )
+				      : pos.sqDistTo( curpos );
+	if ( sqdist == 0 )
+	    return idx;
+	else if ( sqdist < minsqdist )
+	    { minsqdist = sqdist; ret = idx; }
+    }
+    return ret;
+}
+
+
 void Pick::Set::fillPar( IOPar& par ) const
 {
+    mLock4Read();
     BufferString parstr;
     disp_.mkstyle_.toString( parstr );
     par.set( sKey::MarkerStyle(), parstr );
@@ -678,11 +698,14 @@ void Pick::Set::fillPar( IOPar& par ) const
 
 bool Pick::Set::usePar( const IOPar& par )
 {
+    mLock4Write();
     const bool v6_or_earlier = ( par.majorVersion()+par.minorVersion()*0.1 )>0
 	&& ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
 
     BufferString mkststr;
-    if ( !par.get(sKey::MarkerStyle(),mkststr) && v6_or_earlier )
+    if ( par.get(sKey::MarkerStyle(),mkststr) && v6_or_earlier )
+	disp_.mkstyle_.fromString( mkststr );
+    else
     {
 	BufferString colstr;
 	if ( par.get(sKey::Color(),colstr) )
@@ -691,22 +714,16 @@ bool Pick::Set::usePar( const IOPar& par )
 	int type = 0;
 	par.get( sKeyMarkerType(),type );
 	type++;
-	disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type) type;
-    }
-    else
-    {
-	disp_.mkstyle_.fromString( mkststr );
+	disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type)type;
     }
 
     bool doconnect;
     par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
-    if ( doconnect ) disp_.connect_ = Disp::Close;
-    else
-    {
-	if ( !Disp::ConnectionDef().parse(par.find(sKeyConnect),
-	     disp_.connect_) )
-	    disp_.connect_ = Disp::None;
-    }
+    if ( doconnect )
+	disp_.connect_ = Disp::Close;
+    else if ( !Disp::ConnectionDef().parse(par.find(sKeyConnect),
+					   disp_.connect_) )
+	disp_.connect_ = Disp::None;
 
     pars_ = par;
     pars_.removeWithKey( sKey::Color() );
@@ -718,10 +735,48 @@ bool Pick::Set::usePar( const IOPar& par )
 }
 
 
+void Pick::Set::updateInPar( const char* ky, const char* val )
+{
+    mLock4Write();
+    pars_.update( ky, val );
+}
+
+
+Pick::Set& Pick::Set::setEmpty()
+{
+    mLock4Read();
+    if ( locs_.isEmpty() )
+	return *this;
+
+    if ( mLock2Write() && !locs_.isEmpty() )
+    {
+	locs_.setEmpty();
+	mSendChgNotif();
+    }
+    return *this;
+}
+
+
+Pick::Set& Pick::Set::append( const Set& oth )
+{
+    if ( !oth.isEmpty() )
+    {
+	mLock4Write();
+	MonitorLock monlock( oth );
+	locs_.append( oth.locs_ );
+	monlock.unlockNow();
+	mSendChgNotif();
+    }
+    return *this;
+}
+
+
 void Pick::Set::addUndoEvent( int type, size_type idx, const Location& loc )
 {
-    SetMgr& mgr = getSetMgr();
-    if ( mgr.indexOf(*this) == -1 )
+    // Method will be called in write-locked state.
+    // do not use MT-rptected methods like size() here
+    SetMgr& mgr = mGetSetMgr();
+    if ( mgr.indexOf(*this) < 0 )
 	return;
 
     const MultiID mid = mgr.get(*this);
@@ -731,57 +786,115 @@ void Pick::Set::addUndoEvent( int type, size_type idx, const Location& loc )
 	const Location touse = type == LocationUndoEvent::Insert
 			     ? Location(Coord3::udf()) : loc;
 	LocationUndoEvent* undo = new LocationUndoEvent( undotype, mid, idx,
-						       touse, getSetMgr() );
+						       touse, mGetSetMgr() );
 	Pick::Mgr().undo().addEvent( undo, 0 );
     }
 }
 
 
 #define mAddUndoEvent(typ,idx,loc) \
-	addUndoEvent( (int)LocationUndoEvent::typ, idx, loc )
+    if ( withundo ) \
+	addUndoEvent( (int)LocationUndoEvent::typ, idx, loc ); \
+    mSendChgNotif()
 
 
-void Pick::Set::insertWithUndo( size_type idx, const Location& loc )
+Pick::Set& Pick::Set::add( const Location& loc, bool withundo )
 {
-    insert( idx, loc );
+    mLock4Write();
+    locs_ += loc;
+    mAddUndoEvent( Insert, locs_.size()-1, loc );
+    return *this;
+}
+
+
+Pick::Set& Pick::Set::insert( size_type idx, const Location& loc,
+			      bool withundo )
+{
+    mLock4Write();
+    locs_.insert( idx, loc );
     mAddUndoEvent( Insert, idx, loc );
- }
-
-
-void Pick::Set::appendWithUndo( const Location& loc )
-{
-    *this += loc;
-    mAddUndoEvent( Insert, size()-1, loc );
- }
-
-
-void Pick::Set::removeSingleWithUndo( size_type idx )
-{
-    const Location loc = (*this)[idx];
-    mAddUndoEvent( Remove, idx, loc );
-    removeSingle( idx );
+    return *this;
 }
 
 
-void Pick::Set::moveWithUndo( size_type idx, const Location& undoloc,
-				const Location& loc )
+Pick::Set& Pick::Set::set( size_type idx, const Location& loc, bool withundo )
 {
-    if ( size()<idx )
-	return;
-    (*this)[idx] = undoloc;
-    mAddUndoEvent( Move, idx, loc );
-    (*this)[idx] = loc;
+    mLock4Read();
+    if ( !locs_.validIdx(idx) || loc == locs_[idx] )
+	return *this;
+
+    if ( mLock2Write() && locs_.validIdx(idx) )
+    {
+	locs_[idx] = loc;
+	mAddUndoEvent( Move, idx, loc );
+    }
+
+    return *this;
 }
 
 
-// Pick::List
-
-Pick::List& Pick::List::add( const Location& loc, bool mkcopy )
+Pick::Set& Pick::Set::remove( size_type idx, bool withundo )
 {
-    if ( mkcopy )
-	*this += new Location( loc );
-    else
-	*this += const_cast<Location*>( &loc );
+    mLock4Read();
+    if ( !locs_.validIdx(idx) )
+	return *this;
+
+    if ( mLock2Write() && locs_.validIdx(idx) )
+    {
+	const Location loc = locs_[idx];
+	locs_.removeSingle( idx );
+	mAddUndoEvent( Remove, idx, loc );
+    }
+
+    return *this;
+}
+
+
+static inline bool coordUnchanged( Pick::Set::size_type idx,
+	const TypeSet<Pick::Location>& locs, const Coord& coord )
+{
+    return !locs.validIdx(idx) || locs[idx].pos().sqHorDistTo(coord) < 0.01;
+}
+
+
+Pick::Set& Pick::Set::setPos( size_type idx, const Coord& coord )
+{
+    mLock4Read();
+    if ( coordUnchanged(idx,locs_,coord) )
+	return *this;
+
+    if ( mLock2Write() && !coordUnchanged(idx,locs_,coord) )
+    {
+	locs_[idx].setPos( coord );
+	mSendChgNotif();
+    }
+
+    return *this;
+}
+
+
+
+static inline bool zUnchanged( Pick::Set::size_type idx,
+	const TypeSet<Pick::Location>& locs, double z )
+{
+    if ( !locs.validIdx(idx) )
+	return true;
+    const float zdiff = locs[idx].z() - z;
+    return mIsZero(zdiff,1e-6);
+}
+
+Pick::Set& Pick::Set::setZ( size_type idx, double z )
+{
+    mLock4Read();
+    if ( zUnchanged(idx,locs_,z) )
+	return *this;
+
+    if ( mLock2Write() && !zUnchanged(idx,locs_,z) )
+    {
+	locs_[idx].setZ( z );
+	mSendChgNotif();
+    }
+
     return *this;
 }
 
@@ -854,7 +967,7 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	    mPIEPAdj(Z,zread,true);
 	}
 
-	ps += Pick::Location( pos, zread );
+	ps.add( Pick::Location(pos,zread) );
     }
 
     return true;

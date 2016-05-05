@@ -141,13 +141,15 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
     TypeSet<DataPointSet::Pos> positions;
     DataPointSet dps( pts, dcds, ads_->is2D() );
+    MonitorLock ml( ps_ );
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
-	Pick::Location pl( ps_[idx] );
+	const Pick::Location pl( ps_.get(idx) );
 	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos()) );
 	dps.addRow( dtrow );
 	positions += dtrow.pos_;
     }
+    ml.unlockNow();
 
     dps.dataChanged();
     if ( !getAndCheckAttribSelection( dps ) )
@@ -158,11 +160,14 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	mErrRet( tr("Cannot calculate attributes at these positions") );
 
     //remark: removed possibility of variable vector length (radius = 1)
+    Pick::Set workps( ps_ );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	float phi = 0;
 	float theta = 0;
 	DataPointSet::RowID rid = dps.find( positions[idx] );
+	if ( rid < 0 )
+	    continue;
 
 	float inldip = dps.value( 0, rid )/2;
 	float crldip = dps.value( 1, rid )/2;
@@ -173,7 +178,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	SeparString dipvaluetext;
 	dipvaluetext += ::toString( inldip );
 	dipvaluetext += ::toString( crldip );
-	ps_[idx].setKeyedText( "Dip", dipvaluetext );
+	Pick::Location pl( workps.get(idx) );
+	pl.setKeyedText( "Dip", dipvaluetext );
 
 	if ( usesteering_ )
 	{
@@ -192,11 +198,14 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    else
 	    { phi = 0; theta = 0; }
 	}
+	pl.setDir( Sphere(1,theta,phi) );
 
-	ps_[idx].setDir( Sphere(1,theta,phi) );
+	workps.set( idx, pl );
     }
 
-    ps_.disp_.mkstyle_.type_ = OD::MarkerStyle3D::Plane;
+    OD::MarkerStyle3D mstyle = workps.markerStyle();
+    mstyle.type_ = OD::MarkerStyle3D::Plane;
+    ps_ = workps;
     Pick::Mgr().reportChange( this, ps_ );
     Pick::Mgr().reportDispChange( this, ps_ );
     return true;

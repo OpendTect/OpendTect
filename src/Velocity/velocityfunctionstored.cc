@@ -139,19 +139,17 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	const Coord3 pos( SI().transform(bid), vals[0] );
 	const Coord3 dir( vals[1], mUdf(float), mUdf(float) );
 	::Pick::Location pickloc( pos, dir );
-
-	ps += pickloc;
+	ps.add( pickloc );
     }
 
-    ps.pars_.setYN( sKeyZIsTime(), zit_ );
-    desc_.fillPar( ps.pars_ );
+    IOPar psiop( ps.pars() );
+    psiop.setYN( sKeyZIsTime(), zit_ );
+    desc_.fillPar( psiop );
+    ps.setPars( psiop );
 
     uiString errmsg;
     if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
-    {
-	errmsg_ = mFromUiStringTodo( errmsg );
-	return false;
-    }
+	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
 
     fillIOObjPar( ioobj->pars() );
 
@@ -185,8 +183,9 @@ bool StoredFunctionSource::load( const MultiID& velid )
     if ( !PickSetTranslator::retrieve(pickset,ioobj,errmsg) )
 	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
 
-    if ( !pickset.pars_.getYN( sKeyZIsTime(), zit_ ) ||
-	 !desc_.usePar( pickset.pars_ ) )
+    const IOPar psiop( pickset.pars() );
+    if ( !psiop.getYN( sKeyZIsTime(), zit_ ) ||
+	 !desc_.usePar( psiop ) )
 	return false;
 
     veldata_.setEmpty();
@@ -194,7 +193,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location& ploc = pickset[idx];
+	const ::Pick::Location ploc = pickset.get( idx );
 	if ( ploc.hasPos() && ploc.hasDir() )
 	{
 	    float vals[2];

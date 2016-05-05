@@ -118,7 +118,7 @@ bool uiPickSetMgr::pickSetsStored() const
 bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 {
     const bool ispoly =
-	ps.isPolygon() || ps.disp_.connect_ != Pick::Set::Disp::None;
+	ps.isPolygon() || ps.connection() != Pick::Set::Disp::None;
     const BufferString oldname = ps.name();
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( PickSet );
     ctio->ctxt_.forread_ = false;

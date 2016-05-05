@@ -29,7 +29,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
 {
-    defscale_ = mCast(float,set_->disp_.mkstyle_.size_);
+    defscale_ = mCast(float,set_->dispSize());
     propmnuitem_.iconfnm = "disppars";
 }
 
@@ -52,19 +52,21 @@ bool ArrowSubItem::init()
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
     if ( !ioobj ) return false;
 
+    const IOPar psiop( set_->pars() );
     if ( !ioobj->pars().get(sKeyArrowType(),arrowtype_) )
-	set_->pars_.get( sKeyArrowType(), arrowtype_ );
+	psiop.get( sKeyArrowType(), arrowtype_ );
     ad->setType( (visSurvey::ArrowDisplay::Type)arrowtype_ );
 
     int linewidth = 2;
     if ( !ioobj->pars().get(sKeyLineWidth(),linewidth) )
-	set_->pars_.get( sKeyLineWidth(), linewidth );
+	psiop.get( sKeyLineWidth(), linewidth );
     ad->setLineWidth( linewidth );
 
     //Read Old format orientation
+    Pick::Set workps( *set_ );
     for ( int idx=set_->size()-1; idx>=0; idx-- )
     {
-	Pick::Location& ploc( (*set_)[idx] );
+	Pick::Location ploc = workps.get( idx );
 	BufferString orientation;
 	if ( ploc.getKeyedText("O", orientation ) )
 	{
@@ -82,7 +84,9 @@ bool ArrowSubItem::init()
 	    ploc.setDir( dir );
 	}
 	ploc.setText( 0 );
+	workps.set( idx, ploc );
     }
+    *set_ = workps;
 
     return uiODAnnotSubItem::init();
 }
@@ -92,7 +96,7 @@ void ArrowSubItem::fillStoragePar( IOPar& par ) const
 {
     uiODAnnotSubItem::fillStoragePar( par );
     mDynamicCastGet(visSurvey::ArrowDisplay*,ad,visserv_->getObject(displayid_))
-    par.set( sKeyArrowType(), (int) ad->getType() );
+    par.set( sKeyArrowType(), (int)ad->getType() );
     par.set( sKeyLineWidth(), ad->getLineWidth() );
 }
 
@@ -120,17 +124,17 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 
 	uiArrowDialog dlg( getUiParent() );
-	dlg.setColor( set_->disp_.mkstyle_.color_ );
+	dlg.setColor( set_->dispColor() );
 	dlg.setArrowType( arrowtype_ );
 	mDynamicCastGet(visSurvey::ArrowDisplay*,
 			ad,visserv_->getObject(displayid_));
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
-	dlg.setScale( mCast(float,(set_->disp_.mkstyle_.size_/(defscale_))) );
+	dlg.setScale( mCast(float,(set_->dispSize()/(defscale_))) );
 	dlg.go();
-	if ( set_->disp_.mkstyle_.color_!=dlg.getColor() )
+	if ( set_->dispColor()!=dlg.getColor() )
 	{
-	    set_->disp_.mkstyle_.color_ = dlg.getColor();
+	    set_->setDispColor( dlg.getColor() );
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.reportDispChange( this, *set_ );
 	}

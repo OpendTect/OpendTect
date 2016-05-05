@@ -1634,7 +1634,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
     int idx = 0;
     while ( idx < ps.size() )
     {
-	const BinID bid = ps[idx].binID();
+	const BinID bid = ps.get( idx ).binID();
 	const EM::SubID subid = bid.toInt64();
 	double zval = hor->getPos( hor->sectionID(0), subid ).z;
 	if ( mIsUdf(zval) )
@@ -1644,10 +1644,10 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 	    if ( geom )
 		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
 	    if ( mIsUdf(zval) )
-		{ ps.removeSingle(idx); continue; }
+		{ ps.remove(idx); continue; }
 	}
 
-	ps[idx].setZ( zval );
+	ps.setZ( idx, zval );
 	idx++;
     }
 

@@ -118,6 +118,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 
     if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
     {
+	Pick::Set::Disp disp;
 	// In old format we can find mulitple pick sets. Just gather them all
 	// in the pick set
 	for ( int ips=0; !atEndOfSection(astrm); ips++ )
@@ -125,13 +126,13 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	    astrm.next();
 	    if ( astrm.hasKeyword(sKey::Color()) )
 	    {
-		ps.disp_.mkstyle_.color_.use( astrm.value() );
-		ps.disp_.mkstyle_.color_.setTransparency( 0 );
+		disp.mkstyle_.color_.use( astrm.value() );
+		disp.mkstyle_.color_.setTransparency( 0 );
 		astrm.next();
 	    }
 	    if ( astrm.hasKeyword(sKey::Size()) )
 	    {
-		ps.disp_.mkstyle_.size_ = astrm.getIValue();
+		disp.mkstyle_.size_ = astrm.getIValue();
 		astrm.next();
 	    }
 	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
@@ -139,7 +140,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 		// OD::MarkerStyle3D::Type used to start with -1. This has
 		// changed and thus a '+1' is needed to keep the same shapes
 		const int markertype = astrm.getIValue() + 1;
-		ps.disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type)markertype;
+		disp.mkstyle_.type_ = (OD::MarkerStyle3D::Type)markertype;
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) )
@@ -154,6 +155,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	    while ( !atEndOfSection(astrm) ) astrm.next();
 	    astrm.next();
 	}
+	ps.setDisp( disp );
     }
     else // New format
     {
@@ -165,7 +167,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	{
 	    Pick::Location loc;
 	    if ( loc.fromString(astrm.keyWord()) )
-		ps += loc;
+		ps.add( loc );
 
 	    astrm.next();
 	}
@@ -185,7 +187,7 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     if ( !astrm.isOK() )
 	return uiStrings::sCantOpenOutpFile();
 
-    BufferString str;
+    MonitorLock ml( ps );
     IOPar par;
     ps.fillPar( par );
     par.set( sKey::ZUnit(),
@@ -195,9 +197,11 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     od_ostream& strm = astrm.stream();
     for ( int iloc=0; iloc<ps.size(); iloc++ )
     {
-	ps[iloc].toString( str );
+	BufferString str;
+	ps.get( iloc ).toString( str );
 	strm << str << od_newline;
     }
+    ml.unlockNow();
 
     astrm.newParagraph();
     return astrm.isOK() ? uiStrings::sEmptyString()
@@ -273,11 +277,14 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 	    { delete createdps; return false; }
     }
 
+    MonitorLock ml( *ps );
     for ( int ipck=0; ipck<ps->size(); ipck++ )
     {
-	crds += ((*ps)[ipck]).pos();
-	tks += ((*ps)[ipck]).trcKey();
+	const Pick::Location pl( ps->get(ipck) );
+	crds += pl.pos();
+	tks += pl.trcKey();
     }
+    ml.unlockNow();
 
     delete createdps;
     return true;
@@ -314,7 +321,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     ODPolygon<float>* ret = new ODPolygon<float>;
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	const Pick::Location& pl = ps[idx];
+	const Pick::Location pl = ps.get( idx );
 	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
 	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
     }

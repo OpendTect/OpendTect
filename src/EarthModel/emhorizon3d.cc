@@ -929,11 +929,11 @@ const Color& Horizon3D::getSelectionColor() const
 { return selectioncolor_; }
 
 void Horizon3D::setLockColor( const Color& col )
-{ 
-    lockcolor_ = col; 
+{
+    lockcolor_ = col;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::LockChange;
-    change.trigger( cbdata ); 
+    change.trigger( cbdata );
 }
 
 const Color& Horizon3D::getLockColor() const
@@ -1170,9 +1170,10 @@ void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
 bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 					    Pick::Set& set ) const
 {
-    set.erase();
+    set.setEmpty();
     const Geometry::BinIDSurface* surf = sectionGeometry( sid );
-    if ( !surf ) return false;
+    if ( !surf )
+	return false;
 
     StepInterval<int> rowrg = rowRange( sid );
     StepInterval<int> colrg = colRange( sid, rowrg.start );
@@ -1194,7 +1195,8 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	if ( nodefound ) break;
     }
 
-    if ( !nodefound ) return false;
+    if ( !nodefound )
+	return false;
 
     const PosID firstposid = posid;
     while ( true )
@@ -1237,7 +1239,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	    break;
     }
 
-    set.disp_.connect_ = Pick::Set::Disp::Close;
+    set.setConnection( Pick::Set::Disp::Close );
     return set.size() ? true : false;
 }
 

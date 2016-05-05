@@ -141,7 +141,7 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 
 void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
 {
-    const int size = set_ ? set_->disp_.mkstyle_.size_ : 100;
+    const int size = set_ ? set_->dispSize() : 100;
 
     const Coord3 topleft(-size,0,size);
     const Coord3 bottomright(size,0,-size);
@@ -180,7 +180,7 @@ void ImageDisplay::removePosition( int idx )
 
 void ImageDisplay::updateCoords(CallBacker*)
 {
-    const int size = set_ ? set_->disp_.mkstyle_.size_: 100;
+    const int size = set_ ? set_->dispSize() : 100;
 
     const Coord3 topleft(-size,0,size);
     const Coord3 bottomright(size,0,-size);

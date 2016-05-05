@@ -246,7 +246,7 @@ bool uiPickPartServer::createRandom2DSet()
 }
 
 
-bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
+bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
@@ -293,7 +293,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 				  Stats::randGen().get() * zrg.width(false) );
 	Pick::Location pl( coords2d_[posidx], val );
 	pl.setGeomID( geomids2d_[posidx] );
-	ps += pl;
+	ps.add( pl );
     }
 
     return true;
@@ -306,11 +306,11 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
     const bool isnew = setidx < 0;
     Pick::Set* ps = isnew ? 0 : &psmgr_.get( setidx );
     if ( ps )
-	ps->erase();
+	ps->setEmpty();
     else
     {
 	ps = new Pick::Set( pickset.name() );
-	ps->disp_.mkstyle_.color_.set( 240, 0, 0 );
+	ps->setDispColor( Color(240,0,0) );
     }
 
     *ps = pickset;
@@ -332,17 +332,17 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     const bool isnew = setidx < 0;
     Pick::Set* ps = isnew ? 0 : &psmgr_.get( setidx );
     if ( ps )
-	ps->erase();
+	ps->setEmpty();
     else
     {
 	ps = new Pick::Set( sKeyMisClass );
-	ps->disp_.mkstyle_.color_.set( 240, 0, 0 );
+	ps->setDispColor( Color(240,0,0) );
     }
 
     for ( int idx=0; idx<dps.size(); idx++ )
     {
 	Coord crd = dps.coord( idx );
-	*ps += Pick::Location( crd.x, crd.y, dps.z(idx) );
+	ps->add( Pick::Location(crd.x,crd.y,dps.z(idx)) );
     }
 
     if ( isnew )

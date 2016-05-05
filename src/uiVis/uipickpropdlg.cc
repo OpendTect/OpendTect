@@ -30,7 +30,8 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     setTitleText( uiString::emptyString() );
     usedrawstylefld_ = new uiCheckBox( this, tr("Connect picks") );
     const bool hasbody = psd && psd->isBodyDisplayed();
-    const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
+    const bool hassty = hasbody
+		     || set_.connection()==Pick::Set::Disp::Close;
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
@@ -53,9 +54,9 @@ void uiPickPropDlg::drawSel( CallBacker* )
 
     if ( !usestyle )
     {
-	if ( set_.disp_.connect_==Pick::Set::Disp::Close )
+	if ( set_.connection() == Pick::Set::Disp::Close )
 	{
-	    set_.disp_.connect_ = Pick::Set::Disp::None;
+	    set_.setConnection( Pick::Set::Disp::None );
 	    Pick::Mgr().reportDispChange( this, set_ );
 	}
 
@@ -75,13 +76,13 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 
     if ( showline )
     {
-	set_.disp_.connect_ = Pick::Set::Disp::Close;
+	set_.setConnection( Pick::Set::Disp::Close );
 	Pick::Mgr().reportDispChange( this, set_ );
     }
     else
     {
 	if ( !psd_ ) return;
-	set_.disp_.connect_ = Pick::Set::Disp::None;
+	set_.setConnection( Pick::Set::Disp::None );
 	Pick::Mgr().reportDispChange( this, set_ );
 
 	if ( !psd_->getDisplayBody() )
@@ -92,36 +93,28 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 
 void uiPickPropDlg::doFinalise( CallBacker* )
 {
-    stylefld_->setMarkerStyle( set_.disp_.mkstyle_ );
+    stylefld_->setMarkerStyle( set_.markerStyle() );
 }
 
 
-void uiPickPropDlg::sliderMove( CallBacker* )
+void uiPickPropDlg::sliderMove( CallBacker* cb )
 {
-    OD::MarkerStyle3D style;
-    stylefld_->getMarkerStyle( style );
-
-    set_.disp_.mkstyle_.size_ = style.size_;
-    Pick::Mgr().reportDispChange( this, set_ );
+    typeSel( cb );
 }
 
 
 void uiPickPropDlg::typeSel( CallBacker* )
 {
-    OD::MarkerStyle3D style;
+    OD::MarkerStyle3D style( set_.markerStyle() );
     stylefld_->getMarkerStyle( style );
-
-    set_.disp_.mkstyle_.type_ = style.type_;
+    set_.setMarkerStyle( style );
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
 
-void uiPickPropDlg::colSel( CallBacker* )
+void uiPickPropDlg::colSel( CallBacker* cb )
 {
-    OD::MarkerStyle3D style;
-    stylefld_->getMarkerStyle( style );
-    set_.disp_.mkstyle_.color_ = style.color_;
-    Pick::Mgr().reportDispChange( this, set_ );
+    typeSel( cb );
 }
 
 

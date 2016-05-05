@@ -129,7 +129,7 @@ void uiDataPointSetPickDlg::initPickSet()
     psd_->ref();
 
     Pick::Set* ps = new Pick::Set( "DPS picks" );
-    ps->disp_.mkstyle_.color_ = Color( 255, 0, 0 );
+    ps->setDispColor( Color( 255, 0, 0 ) );
     psd_->setSet( ps );
     psd_->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid_), ps );
@@ -176,13 +176,13 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !pickset ) return;
 
     values_.erase();
-    pickset->erase();
+    pickset->setEmpty();
     DataPointSet newdps( pvds, false );
     for ( int idx=0; idx<newdps.size(); idx++ )
     {
 	const DataPointSet::Pos pos( newdps.pos(idx) );
 	Pick::Location loc( pos.coord(), pos.z() );
-	(*pickset) += loc;
+	pickset->add( loc );
 	values_ += newdps.value(0,idx);
     }
 
@@ -238,17 +238,19 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     dps_.setValue( 0, row, val );
     dps_.dataChanged();
 
-    Pick::Set* set = psd_ ? psd_->getSet() : 0;
+    const Pick::Set* set = psd_ ? psd_->getSet() : 0;
     if ( !set ) return;
 
     const DataPointSet::Pos pos( dps_.pos(row) );
     const Coord3 dpscrd( pos.coord(), pos.z() );
     double mindist = mUdf( double );
     int locidx = -1;
+    MonitorLock ml( *set );
     for ( int idx=0; idx<set->size(); idx++ )
     {
-	const double dst = dpscrd.distTo( (*set)[idx].pos() );
-	if ( dst > mindist ) continue;
+	const double dst = dpscrd.distTo( set->get(idx).pos() );
+	if ( dst > mindist )
+	    continue;
 
 	mindist = dst;
 	locidx = idx;
@@ -313,20 +315,19 @@ void uiDataPointSetPickDlg::updateDPS()
     dps_.clearData();
     const Pick::Set* set = psd_ ? psd_->getSet() : 0;
     if ( !set )
-    {
-	dps_.dataChanged();
-	return;
-    }
+	{ dps_.dataChanged(); return; }
 
+    MonitorLock ml( *set );
     for ( int idx=0; idx<set->size(); idx++ )
     {
 	DataPointSet::Pos pos;
-	const Pick::Location loc = (*set)[idx];
+	const Pick::Location loc = set->get( idx );
 	pos.set( loc.pos() );
 	DataPointSet::DataRow row( pos );
 	row.data_ += values_[idx];
 	dps_.addRow( row );
     }
+    ml.unlockNow();
 
     dps_.dataChanged();
 }

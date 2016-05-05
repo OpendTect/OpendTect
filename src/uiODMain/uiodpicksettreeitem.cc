@@ -244,8 +244,8 @@ bool uiODPickSetTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_.disp_.mkstyle_.size_>100 )
-	    set_.disp_.mkstyle_.size_= 3;
+	if ( set_.dispSize()>100 )
+	    set_.setDispSize( 3 );
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
 	psd->fullRedraw();
@@ -349,7 +349,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	emps->copyFrom( set_ );
-	emps->setPreferredColor( set_.disp_.mkstyle_.color_ );
+	emps->setPreferredColor( set_.dispColor() );
 	emps->setName( BufferString("Body from ",set_.name()) );
 	emps->setChangedFlag();
 
@@ -578,8 +578,8 @@ bool uiODPolygonTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_.disp_.mkstyle_.size_>100 )
-	    set_.disp_.mkstyle_.size_ = 3;
+	if ( set_.dispSize()>100 )
+	    set_.setDispSize( 3 );
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
 	psd->fullRedraw();
@@ -617,7 +617,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
 
-    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
+    if ( set_.connection() == Pick::Set::Disp::Open )
 	mAddMenuItem( menu, &closepolyitem_, true, false )
     else
 	mResetMenuItem( &closepolyitem_ );
@@ -647,11 +647,11 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    if ( set_.disp_.connect_==Pick::Set::Disp::Open
+    if ( set_.connection()==Pick::Set::Disp::Open
 	 && mnuid==closepolyitem_.id )
     {
 	menu->setIsHandled( true );
-	set_.disp_.connect_ = Pick::Set::Disp::Close;
+	set_.setConnection( Pick::Set::Disp::Close );
 	Pick::Mgr().reportDispChange( this, set_ );
     }
     else if ( mnuid==storemnuitem_.id )

@@ -334,16 +334,16 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 
     if ( colrg.includes(startcol,false) )
     {
-	extendSeedListEraseInBetween( false, startcol, startwasdefined,
+	extendSeedSetEraseInBetween( false, startcol, startwasdefined,
 				      -colrg.step );
-	extendSeedListEraseInBetween( false, startcol, startwasdefined,
+	extendSeedSetEraseInBetween( false, startcol, startwasdefined,
 				      colrg.step );
     }
     else
     {
 	// traverse whole active line
-	extendSeedListEraseInBetween( true, colrg.start, false, -colrg.step );
-	extendSeedListEraseInBetween( true, colrg.start-colrg.step, false,
+	extendSeedSetEraseInBetween( true, colrg.start, false, -colrg.step );
+	extendSeedSetEraseInBetween( true, colrg.start-colrg.step, false,
 				      colrg.step );
 
 	if ( trackmode_ != DrawBetweenSeeds )
@@ -355,13 +355,13 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
     if ( eraseonly )
 	return true;
 
-    res = retrackFromSeedList();
+    res = retrackFromSeedSet();
 
     return res;
 }
 
 
-void Horizon2DSeedPicker::extendSeedListEraseInBetween(
+void Horizon2DSeedPicker::extendSeedSetEraseInBetween(
 					    bool wholeline, int startcol,
 					    bool startwasdefined, int step )
 {
@@ -436,7 +436,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 }
 
 
-bool Horizon2DSeedPicker::retrackFromSeedList()
+bool Horizon2DSeedPicker::retrackFromSeedSet()
 {
     if ( seedlist_.isEmpty() )
 	return true;

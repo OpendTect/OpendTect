@@ -101,7 +101,7 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
 
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	const Coord3 pos = ps[idx].pos();
+	const Coord pos = ps.getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 

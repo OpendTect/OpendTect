@@ -92,12 +92,34 @@ private:
 };
 
 
-/*!\brief protects a Monitorable against change while you need it as-is. */
+/*!\brief protects a Monitorable against change.
+
+  Compare the locking with thread-locking tools:
+
+  1) The Monitorable has (should have) methods that have the effect of Atomic's.
+     You call a method, and are guaranteed the whole operation succeeds safely.
+
+  2) Sometimes operations on Monitorable's are dependent on each other. For
+     example, when you are iterating through a list. If changes in the list
+     (size of list, or elements changing) are unacceptable, you need a tool to
+     prevent any change. This is the MonitorLock.
+
+     Note that not releasing the lock will almost certainly stop the entire app,
+     therefore the MonitorLock will always release when it goes out of scope.
+     You always want to release asap, therefore you will often call unlockNow()
+     immediately when done.
+
+  Beware: you cannot use the MonitorLock and still change the object, a
+  DEADLOCK will be your reward. To write while reading, make a copy of the
+  object, change it, and assign the object to that. The assignment operator
+  of the object should be atomic again.
+
+ */
 
 mExpClass(Basic) MonitorLock
 {
 public:
-    			MonitorLock(const Monitorable&);
+			MonitorLock(const Monitorable&);
 			~MonitorLock();
 
     void		unlockNow();
