@@ -205,6 +205,8 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
     OD::MarkerStyle3D mstyle = workps.markerStyle();
     mstyle.type_ = OD::MarkerStyle3D::Plane;
+    workps.setMarkerStyle( mstyle );
+
     ps_ = workps;
     Pick::Mgr().reportChange( this, ps_ );
     Pick::Mgr().reportDispChange( this, ps_ );
