@@ -444,6 +444,12 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 		 maxholeszfld_->getIntValue() );
 
     const BinID step = stepfld_->getBinID();
+    if ( step.inl() <= 0 || step.crl() <= 0 )
+    {
+	uiMSG().error(
+	    uiStrings::phrEnter(tr("positive integer value for steps")) );
+	return false;
+    }
     par.set( Array2DInterpol::sKeyRowStep(), step.inl() );
     par.set( Array2DInterpol::sKeyColStep(), step.crl() );
 
