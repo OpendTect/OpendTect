@@ -405,11 +405,11 @@ int dgbSurfDataReader::nextStep()
     if ( interpreter ) \
     { \
 	char buf[sizeof(res)]; \
-	stream_->getBin( buf, sizeof(res) ); \
+	if ( !stream_->getBin(buf,sizeof(res)) ) return false; \
 	res = interpreter->get( buf, 0 ); \
     } \
     else \
-	stream_->get( res ); \
+    { if ( stream_->get(res).isBad() ) return false; } \
     return true;
 
 bool dgbSurfDataReader::readInt( int& res )
