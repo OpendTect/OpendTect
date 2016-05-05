@@ -879,7 +879,7 @@ static inline bool zUnchanged( Pick::Set::size_type idx,
 {
     if ( !locs.validIdx(idx) )
 	return true;
-    const float zdiff = locs[idx].z() - z;
+    const double zdiff = locs[idx].z() - z;
     return mIsZero(zdiff,1e-6);
 }
 
