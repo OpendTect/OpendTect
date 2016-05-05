@@ -184,6 +184,7 @@ protected:
 
     virtual bool		rightClick(uiTreeViewItem*);
     virtual bool		anyButtonClick(uiTreeViewItem*);
+    virtual bool		doubleClick(uiTreeViewItem*);
     virtual void		setTreeViewItem(uiTreeViewItem*);
     virtual void		removeItem(uiTreeViewItem*);
     virtual void		renameItem(uiTreeViewItem*);
@@ -254,6 +255,7 @@ protected:
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
     void		anyButtonClickCB(CallBacker*);
+    void		doubleClickCB(CallBacker*);
     void		itemRenamed(CallBacker*);
     void		handleSelectionChanged(bool frmbtclk);
 
