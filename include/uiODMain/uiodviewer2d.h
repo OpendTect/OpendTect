@@ -255,6 +255,13 @@ public:
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
 						TypeSet<int>& vw2ds) const;
     void			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
+
+    void			setupTrackingHorizon3D(EM::ObjectID);
+    void			setupTrackingHorizon2D(EM::ObjectID);
+    void			setupNewTempFault(EM::ObjectID emid);
+    void			setupNewTempFaultSS(EM::ObjectID emid);
+    void			setupNewTempFaultSS2D(EM::ObjectID emid);
+    void			setupNewPickSet(const MultiID&);
 };
 
 #endif

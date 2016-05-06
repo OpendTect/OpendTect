@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomposbodydisplay.h"
+#include "visselman.h"
 #include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
@@ -216,6 +217,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
+    mAttachCB( visBase::DM().selMan().selnotifier,
+	       uiODPickSetTreeItem::selChangedCB );
     propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
@@ -224,7 +227,17 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
+    detachAllNotifiers();
     Pick::Mgr().removeCBs( this );
+}
+
+
+void uiODPickSetTreeItem::selChangedCB( CallBacker* )
+{
+    if ( !isSelected() )
+	return;
+
+    visserv_->setCurInterObjID( displayid_ );
 }
 
 
@@ -580,6 +593,15 @@ void uiODPolygonTreeItem::setChg( CallBacker* cb )
 		    visserv_->getObject(displayid_));
     if ( psd ) psd->setName(mToUiStringTodo( ps->name() ) );
     updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
+void uiODPolygonTreeItem::selChangedCB( CallBacker* )
+{
+    if ( !isSelected() )
+	return;
+
+    visserv_->setCurInterObjID( displayid_ );
 }
 
 

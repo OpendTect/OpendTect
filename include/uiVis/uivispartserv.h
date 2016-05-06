@@ -211,6 +211,8 @@ public:
     int			getSelObjectId() const;
     int			getSelAttribNr() const;
     void		setSelObjectId(int visid,int attrib=-1);
+    void		setCurInterObjID(int visid);
+    int			getCurInterObjID() const;
     int			getSceneID(int visid) const;
     const ZDomain::Info* zDomainInfo(int sceneid) const;
 			/*!< Returns Z domain info of scene */

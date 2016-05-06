@@ -778,6 +778,8 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     if ( yn )
     {
 	visserv_->setViewMode( false );
+	if ( getSelectedDisplay() )
+	    visserv_->setCurInterObjID( getSelectedDisplay()->id() );
 
 	updateClickCatcher();
 	if ( clickcatcher_ )

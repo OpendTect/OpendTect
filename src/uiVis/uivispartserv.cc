@@ -61,6 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "zdomain.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
 
 
 int uiVisPartServer::evUpdateTree()			{ return 0; }
@@ -95,6 +96,7 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
+static HiddenParam<uiVisPartServer,int> curinterpobjids( -1 );
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -135,6 +137,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , topsetupgroupname_( 0 )
     , sceneeventsrc_(0)
 {
+    curinterpobjids.setParam( this, -1 );
     changematerialmnuitem_.iconfnm = "disppars";
 
     menu_.ref();
@@ -167,6 +170,7 @@ bool uiVisPartServer::sendVisEvent( int evid )
 
 uiVisPartServer::~uiVisPartServer()
 {
+    curinterpobjids.removeParam( this );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.remove(
@@ -2351,6 +2355,14 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
     eventattrib_ = obj->activeAttrbID();
     sendEvent( evColorTableChange() );
 }
+
+
+void uiVisPartServer::setCurInterObjID( int visid )
+{ curinterpobjids.setParam( this, visid ); }
+
+
+int uiVisPartServer::getCurInterObjID() const
+{ return curinterpobjids.getParam( this ); }
 
 
 uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )

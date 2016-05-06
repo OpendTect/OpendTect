@@ -45,6 +45,8 @@ protected:
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(
 					TypeSet<EM::ObjectID>&);
+public:
+    void			setupTrackingHorizon2D(EM::ObjectID emid);
 };
 
 

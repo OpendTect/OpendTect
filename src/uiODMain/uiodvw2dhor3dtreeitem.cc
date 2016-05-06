@@ -236,28 +236,50 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const bool hastracker =
-	    MPE::engine().hasTracker( emidstobeloaded[idx] );
+	const EM::ObjectID emid = emidstobeloaded[idx];
+	const bool hastracker = MPE::engine().hasTracker( emid );
 	if ( hastracker )
 	{
-	    EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
+	    EM::EMObject* emobj = EM::EMM().getObject( emid );
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
-	    MPE::engine().getEditor( emobj->id(), true );
+	    MPE::engine().getEditor( emid, true );
 	    if ( viewer2D() && viewer2D()->viewControl() )
 		viewer2D()->viewControl()->setEditMode( true );
-	    const int trackeridx =
-		MPE::engine().getTrackerByObject( emidstobeloaded[idx] );
+	    const int trackeridx = MPE::engine().getTrackerByObject( emid );
 	    applMgr()->mpeServer()->enableTracking( trackeridx, true );
 	}
 
 	uiODVw2DHor3DTreeItem* childitem =
 	    new uiODVw2DHor3DTreeItem( emidstobeloaded[idx] );
 	addChld( childitem, false, false);
-	if ( hastracker )
-	    childitem->select();
     }
+}
+
+void uiODVw2DHor3DParentTreeItem::setupTrackingHorizon3D( EM::ObjectID emid )
+{
+    if ( viewer2D() && !viewer2D()->isVertical() &&
+	 !viewer2D()->hasZAxisTransform() )
+	return;
+
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedHorizon3Ds( emidsloaded );
+    if ( !emidsloaded.isPresent(emid) )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DTreeItem*,hor3dtreeitm,getChild(idx))
+	if ( hor3dtreeitm && emid==hor3dtreeitm->emObjectID() )
+	{
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
+	    hor3dtreeitm->select();
+	    break;
+	}
+    }
+
 }
 
 

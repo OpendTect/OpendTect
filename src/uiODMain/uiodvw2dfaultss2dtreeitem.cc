@@ -172,12 +172,31 @@ void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 	    new uiODVw2DFaultSS2DTreeItem( emidstobeloaded[idx] );
 	addChld( childitem, false, false );
 	if ( editor )
-	{
 	    editor->addUser();
-	    viewer2D()->viewControl()->setEditMode( true );
-	    childitem->select();
-	}
     }
+}
+
+
+void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( EM::ObjectID emid )
+{
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedFaultSS2Ds( emidsloaded );
+    if ( !emidsloaded.isPresent(emid) )
+	return;
+
+    bool hasfss2d = false;
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSS2DTreeItem*,fss2dtreeitm,getChild(idx))
+	if ( !fss2dtreeitm || emid!=fss2dtreeitm->emObjectID() )
+	    continue;
+
+	hasfss2d = true;
+	fss2dtreeitm->select();
+    }
+
+    if ( viewer2D() && viewer2D()->viewControl() && hasfss2d )
+	viewer2D()->viewControl()->setEditMode( true );
 }
 
 
@@ -190,7 +209,8 @@ void uiODVw2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( EM::ObjectID emid )
 
     uiODVw2DFaultSS2DTreeItem* fss2ditem = new uiODVw2DFaultSS2DTreeItem( emid);
     addChld( fss2ditem,false, false );
-    viewer2D()->viewControl()->setEditMode( true );
+    if ( viewer2D() && viewer2D()->viewControl() )
+	viewer2D()->viewControl()->setEditMode( true );
     fss2ditem->select();
 }
 
@@ -282,8 +302,9 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     fssview_->draw();
 
-    mAttachCB( viewer2D()->viewControl()->editPushed(),
-	       uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
+    if ( viewer2D() && viewer2D()->viewControl() )
+	mAttachCB( viewer2D()->viewControl()->editPushed(),
+		   uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
 
     uiODVw2DTreeItem::addKeyBoardEvent( emid_ );
 
@@ -332,8 +353,10 @@ void uiODVw2DFaultSS2DTreeItem::enableKnotsCB( CallBacker* )
 
 bool uiODVw2DFaultSS2DTreeItem::select()
 {
-    uitreeviewitem_->setSelected( true);
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->deselectAll();
 
+    uitreeviewitem_->setSelected( true);
     if ( fssview_ )
     {
 	viewer2D()->dataMgr()->setSelected( fssview_ );

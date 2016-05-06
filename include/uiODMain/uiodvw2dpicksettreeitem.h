@@ -44,6 +44,9 @@ protected:
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     Pick::SetMgr&		picksetmgr_;
+
+public:
+    void			setupNewPickSet(const MultiID&);
 };
 
 

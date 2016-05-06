@@ -436,6 +436,7 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	if ( areSticksAccessible() )
 	    appl_.applMgr().visServer()->setViewMode( false );
 
+	appl_.applMgr().visServer()->setCurInterObjID( selid );
 	processOutputName();
 	enableToolbar( true );
 

@@ -71,6 +71,8 @@ protected:
     MenuItem		onlyatsectmnuitem_;
     MenuItem		convertbodymnuitem_;
     MenuItem		propertymnuitem_;
+
+    void		selChangedCB(CallBacker*);
 };
 
 
@@ -125,6 +127,8 @@ protected:
     MenuItem		onlyatsectmnuitem_;
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
+
+    void		selChangedCB(CallBacker*);
 };
 
 

@@ -174,12 +174,30 @@ void uiODVw2DFaultSSParentTreeItem::addFaultSSs(
 	    new uiODVw2DFaultSSTreeItem( emidstobeloaded[idx] );
 	addChld( childitem ,false, false );
 	if ( editor )
-	{
 	    editor->addUser();
-	    viewer2D()->viewControl()->setEditMode( true );
-	    childitem->select();
+    }
+}
+
+
+void uiODVw2DFaultSSParentTreeItem::setupNewTempFaultSS( EM::ObjectID emid )
+{
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedFaultSSs( emidsloaded );
+    if ( !emidsloaded.isPresent(emid) )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSSTreeItem*,fltsstreeitm,getChild(idx))
+	if ( fltsstreeitm && emid==fltsstreeitm->emObjectID() )
+	{
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
+	    fltsstreeitm->select();
+	    break;
 	}
     }
+
 }
 
 
@@ -192,7 +210,8 @@ void uiODVw2DFaultSSParentTreeItem::addNewTempFaultSS( EM::ObjectID emid )
 
     uiODVw2DFaultSSTreeItem* faulttreeitem = new uiODVw2DFaultSSTreeItem(emid);
     addChld( faulttreeitem,false, false );
-    viewer2D()->viewControl()->setEditMode( true );
+    if ( viewer2D() && viewer2D()->viewControl() )
+	viewer2D()->viewControl()->setEditMode( true );
     faulttreeitem->select();
 }
 
@@ -255,8 +274,9 @@ bool uiODVw2DFaultSSTreeItem::init()
 
     fssview_->draw();
 
-    mAttachCB( viewer2D()->viewControl()->editPushed(),
-	       uiODVw2DFaultSSTreeItem::enableKnotsCB );
+    if ( viewer2D() && viewer2D()->viewControl() )
+	mAttachCB( viewer2D()->viewControl()->editPushed(),
+		   uiODVw2DFaultSSTreeItem::enableKnotsCB );
 
     NotifierAccess* deselnotify =  fssview_->deSelection();
     if ( deselnotify )
@@ -315,6 +335,9 @@ void uiODVw2DFaultSSTreeItem::enableKnotsCB( CallBacker* )
 
 bool uiODVw2DFaultSSTreeItem::select()
 {
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->deselectAll();
+
     uitreeviewitem_->setSelected( true );
 
     if ( fssview_ )
