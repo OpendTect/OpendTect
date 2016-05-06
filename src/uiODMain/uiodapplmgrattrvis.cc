@@ -253,8 +253,6 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
     if ( !as || as->id().asInt() < 0 ) return;
 
-    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
-
     ColTab::Sequence seq( 0 );
     const ColTab::Sequence* ctseq =
 		am_.visserv_->getColTabSequence( visid, attrib );
@@ -265,6 +263,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
     if ( ctmap ) mapper = *ctmap;
 
+    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
     if ( ioobj )
     {
 	SeisIOObjInfo seisobj( ioobj );
