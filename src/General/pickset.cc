@@ -16,6 +16,7 @@
 #include "od_iostream.h"
 #include <ctype.h>
 
+mDefineInstanceCreatedNotifierAccess(Pick::Set)
 static const char* sKeyConnect = "Connect";
 
 
@@ -433,6 +434,7 @@ Pick::Set::Set( const char* nm, const char* cat )
     : NamedMonitorable(nm)
     , category_(cat)
 {
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -440,6 +442,7 @@ Pick::Set::Set( const Set& oth )
     : category_(oth.category_)
 {
     *this = oth;
+    mTriggerInstanceCreatedNotifier();
 }
 
 

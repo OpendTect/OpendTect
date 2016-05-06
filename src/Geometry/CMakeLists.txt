@@ -31,8 +31,9 @@ set(OD_MODULE_SOURCES
 		horizon3dtesselator.cc
 		parametriccurve.cc
 		parametricsurface.cc
-		picksettr.cc
 		picksetio.cc
+		picksetmanager.cc
+		picksettr.cc
 		polygonsurface.cc
 		polygonsurfaceedit.cc
 		polyposprovider.cc

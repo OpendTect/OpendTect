@@ -110,6 +110,8 @@ public:
     static ChangeType	cLocationRemove()	{ return 5; }
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
 
+    mDeclInstanceCreatedNotifierAccess(Set);
+
 protected:
 
     TypeSet<Location>	locs_;
