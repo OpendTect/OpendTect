@@ -17,6 +17,8 @@
 #include <ctype.h>
 
 mDefineInstanceCreatedNotifierAccess(Pick::Set)
+const Pick::Set Pick::Set::emptyset_;
+Pick::Set Pick::Set::dummyset_;
 static const char* sKeyConnect = "Connect";
 
 

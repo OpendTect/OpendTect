@@ -25,7 +25,7 @@ namespace OD
 /*!\brief Object that can be saved at any time. */
 
 mExpClass(General) Saveable : public Monitorable
-{
+{ mODTextTranslationClass(Saveable)
 public:
 
 			Saveable(const Monitorable&);
@@ -35,6 +35,7 @@ public:
     mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,key_,0)
     inline		mImplSimpleMonitoredGet(isFinished,bool,objdeleted_)
 
+    bool		save() const;
     virtual bool	store(const IOObj&) const;
     uiString		errMsg() const		{ return errmsg_; }
 

@@ -23,34 +23,32 @@ namespace Pick
 class Set;
 class SetSaver;
 
-/*!\brief Manages all stored Pick::Set's. */
+/*!\brief Manages all stored Pick::Set's.
+
+ If a set is not yet loaded, then it will be loaded by fetch(). If that fails,
+ the uiString error message is set to something non-empty.
+
+*/
 
 mExpClass(Geometry) SetManager : public Monitorable
 { mODTextTranslationClass(Pick::SetManager)
 public:
 
-    typedef ObjectSet<SetSaver>::size_type	size_type;
-    typedef size_type				IdxType;
+    typedef MultiID	SetID;
+
+			// Normal usage: get a set whether already loaded or not
+    Set&		fetch(const SetID&,uiString&);
+    uiString		save(const SetID&) const;
+    MultiID		getID(const Set&) const;
+
+    bool		add(const SetID&,Set*);
+    bool		isLoaded(const SetID&) const;
 
 			// Use MonitorLock when iterating
-    size_type		size() const;
-    Set&		get(IdxType);
-    const Set&		get(IdxType) const;
-    MultiID		id(IdxType) const;
-
-    IdxType		indexOf(const Set&) const;
-    IdxType		indexOf(const MultiID&) const;
-    Set*		get( const MultiID& i )		{ return find(i); }
-    const Set*		get( const MultiID& i ) const	{ return find(i); }
-    MultiID*		get( const Set& s ) const	{ return find(s); }
-
-    void		add(const MultiID&,Set*,bool autosave=false,
-						bool keepchgrecords=false);
-    void		set(const MultiID&,Set*); //!< removes, then adds
-    void		remove(const MultiID&);
-    void		changeSetID(const MultiID& from,const MultiID& to);
-
-    uiString		save(IdxType) const;
+    int			size() const;
+    Set&		get(int);
+    const Set&		get(int) const;
+    SetID		getID(int) const;
 
     CNotifier<SetManager,MultiID>	setToBeRemoved;
     CNotifier<SetManager,MultiID>	setAdded;
@@ -60,13 +58,16 @@ public:
     mExpClass(Geometry) ChangeEvent
     {
     public:
+
+	typedef Set::size_type	LocIdxType; // TODO not a safe key to a loc
+
 	enum Type	{ Create, Change, Delete };
 
-			ChangeEvent( Type t, IdxType i, const Location& loc )
+			ChangeEvent( Type t, LocIdxType i, const Location& loc )
 			    : type_(t), idx_(i), loc_(loc)	{}
 
 	Type		type_;
-	IdxType		idx_;
+	LocIdxType	idx_;
 	Location	loc_; // location at (=before) change
 
 	inline bool	operator==( const ChangeEvent& oth ) const
@@ -79,13 +80,13 @@ public:
 			    : setid_(id)		{}
 			~ChangeRecord()			{ deepErase(events_); }
 
-	MultiID		setid_;
-	ObjectSet<ChangeEvent>	events_;
+	const MultiID			setid_;
+	mutable ObjectSet<ChangeEvent>	events_;
     };
 
     void		broadcastChanges(const MultiID&);
-    void		broadcastChanges(const Set*);
-    CNotifier<SetManager,ChangeRecord>	newChangeRecord;
+    void		broadcastChanges(const Set&);
+    CNotifier<SetManager,ChangeRecord>	newChangeEvent;
 
 protected:
 
@@ -96,8 +97,7 @@ protected:
     ObjectSet<ChangeRecord>	records_;
 
     void		setEmpty();
-    Set*		find(const MultiID&) const;
-    MultiID*		find(const Set&) const;
+    int			gtIdx(const SetID&) const;
 
     void		iomEntryRemovedCB(CallBacker*);
     void		survChgCB(CallBacker*);

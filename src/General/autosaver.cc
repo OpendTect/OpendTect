@@ -67,6 +67,20 @@ void OD::Saveable::objDel( CallBacker* )
 }
 
 
+bool OD::Saveable::save() const
+{
+    PtrMan<IOObj> ioobj = IOM().get( key() );
+    if ( ioobj )
+	return store( *ioobj );
+
+    if ( key().isEmpty() )
+	errmsg_ = tr("Cannot save object without database key");
+    else
+	errmsg_ = tr("Cannot find database entry for: %1").arg(key());
+    return false;
+}
+
+
 bool OD::Saveable::store( const IOObj& ioobj ) const
 {
     return doStore( ioobj );

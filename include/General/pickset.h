@@ -111,6 +111,8 @@ public:
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
 
     mDeclInstanceCreatedNotifierAccess(Set);
+    static const Set&	emptySet()		{ return emptyset_; }
+    static Set&		dummySet()		{ return dummyset_; }
 
 protected:
 
@@ -118,6 +120,8 @@ protected:
     Disp		disp_;
     IOPar		pars_;
     const BufferString	category_;
+    static const Set	emptyset_;
+    static Set		dummyset_;
 
     void		addUndoEvent(int,IdxType,const Pick::Location&);
     friend class	LocationUndoEvent;
