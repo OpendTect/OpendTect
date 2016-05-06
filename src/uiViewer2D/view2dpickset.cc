@@ -46,7 +46,6 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 	picks_ += viewers_[idx]->createAuxData( "Picks" );
 
 	viewers_[idx]->addAuxData( picks_[idx] );
-	viewers_[idx]->appearance().annot_.editable_ = false;
 	mAttachCB( viewers_[idx]->dataChanged, VW2DPickSet::dataChangedCB );
 
 	auxids_ += editors_[idx]->addAuxData( picks_[idx], true );
@@ -92,7 +91,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
     if ( dp )
     {
 	mDynamicCastGet(const SeisFlatDataPack*,seisdp,dp.ptr())
-	if ( seisdp && seisdp->nrTrcs() )
+	if ( seisdp && seisdp->nrTrcs() && seisdp->is2D() )
 	{
 	    const TrcKey trckey = seisdp->getTrcKey( 0 );
 	    newloc.setGeomID( trckey.geomID() );
