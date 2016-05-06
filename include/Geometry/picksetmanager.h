@@ -64,17 +64,26 @@ public:
     {
     public:
 	enum Type	{ Create, Change, Delete };
+
+			ChangeEvent( Type t, IdxType i, const Location& loc )
+			    : type_(t), idx_(i), loc_(loc)	{}
+
 	Type		type_;
 	IdxType		idx_;
 	Location	loc_; // location at (=before) change
-	bool		operator==( const ChangeEvent& oth ) const
+
+	inline bool	operator==( const ChangeEvent& oth ) const
 			{ return type_==oth.type_ && idx_==oth.idx_; }
     };
     mExpClass(General) ChangeRecord
     {
     public:
-	MultiID		    setid_;
-	TypeSet<ChangeEvent> events_;
+			ChangeRecord( const MultiID& id )
+			    : setid_(id)		{}
+			~ChangeRecord()		{ deepErase(events_); }
+
+	MultiID		setid_;
+	ObjectSet<ChangeEvent>	events_;
     };
 
     void		broadcastChanges(const MultiID&);

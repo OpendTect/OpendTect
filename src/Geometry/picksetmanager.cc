@@ -66,7 +66,7 @@ void Pick::SetManager::add( const MultiID& ky, Set* newset, bool autosave,
     mAttachCB( newset->objectChanged(), Pick::SetManager::setChgCB );
 
     savers_ += saver;
-    records_ += keepchgrecords ? new ChangeRecord : 0;
+    records_ += keepchgrecords ? new ChangeRecord(ky) : 0;
     setAdded.trigger( ky );
 }
 
