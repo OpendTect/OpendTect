@@ -288,17 +288,26 @@ int HorizonScanner::nextStep()
     {
 	for ( int idx=0; idx<sections_.size(); idx++ )
 	{
+	    PosInfo::Detector* secdtctr = !idx ? &dtctor_
+		: new PosInfo::Detector( PosInfo::Detector::Setup(false) );
 	    const BinIDValueSet& bivs = *sections_[idx];
 	    BinID bid;
 	    BinIDValueSet::SPos pos;
 	    while ( bivs.next(pos) )
 	    {
 		bid = bivs.getBinID( pos );
-		dtctor_.add( SI().transform(bid), bid );
+		secdtctr->add( SI().transform(bid), bid );
+	    }
+
+	    secdtctr->finish();
+
+	    if ( idx )
+	    {
+		dtctor_.mergeResults( *secdtctr );
+		delete secdtctr;
 	    }
 	}
 
-	dtctor_.finish();
 	return Executor::Finished();
     }
 

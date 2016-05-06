@@ -154,6 +154,83 @@ bool PosInfo::Detector::finish()
 }
 
 
+void PosInfo::Detector::mergeResults( const PosInfo::Detector& oth )
+{
+    const StepInterval<int> inlrg = getRange( true );
+    int nrnewpos = 0;
+    for ( int idx=oth.lds_.size()-1; idx>=0; idx-- )
+    {
+	const LineData& othld = *(oth.lds_[idx]);
+	if ( othld.linenr_ < inlrg.start )
+	{
+	    lds_.insertAt( new LineData(othld), 0 );
+	    nrnewpos += othld.size(); continue;
+	}
+	else if ( othld.linenr_ > inlrg.stop )
+	{
+	    lds_.add( new LineData(othld) );
+	    nrnewpos += othld.size(); continue;
+	}
+
+	for ( int lidx=0; lidx<lds_.size(); lidx++ )
+	{
+	    if ( lds_[lidx]->linenr_ < othld.linenr_ )
+		continue;
+
+	    if ( lds_[lidx]->linenr_ < othld.linenr_ )
+	    {
+		lds_.insertAt( new LineData(othld), lidx );
+		nrnewpos += othld.size(); continue;
+	    }
+
+	    const int oldsize = lds_[lidx]->size();
+	    lds_[lidx]->merge( othld, true );
+	    nrnewpos += ( lds_[lidx]->size() - oldsize );
+	}
+    }
+
+    if ( oth.firstcbo_.binid_.inl() < firstcbo_.binid_.inl()
+	    || ( oth.firstcbo_.binid_.inl() == firstcbo_.binid_.inl()
+		&& oth.firstcbo_.binid_.crl() < firstcbo_.binid_.crl() ) )
+	firstcbo_ = oth.firstcbo_;
+
+    if ( oth.lastcbo_.binid_.inl() > lastcbo_.binid_.inl()
+	    || ( oth.lastcbo_.binid_.inl() == lastcbo_.binid_.inl()
+		&& oth.lastcbo_.binid_.crl() > lastcbo_.binid_.crl() ) )
+	lastcbo_ = oth.lastcbo_;
+
+    allstd_ = allstd_ && oth.allstd_; // can be improved
+    inlirreg_ = inlirreg_ || oth.inlirreg_;
+    crlirreg_ = crlirreg_ || oth.crlirreg_;
+
+#   define mChkMin(memb) if ( memb > oth.memb ) memb = oth.memb
+#   define mChkMax(memb) if ( memb < oth.memb ) memb = oth.memb
+    mChkMin(mincoord_.x); mChkMin(mincoord_.y);
+    mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
+    mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
+    mChkMin(start_.inl()); mChkMin(start_.crl());
+    mChkMax(stop_.inl()); mChkMax(stop_.crl());
+    mChkMin(distrg_.start); mChkMax(distrg_.stop);
+
+    const int mylen = llnstop_.binid_.inl() - llnstart_.binid_.inl();
+    const int othlen = oth.llnstop_.binid_.inl() - oth.llnstart_.binid_.inl();
+    if ( mylen < othlen )
+	{ llnstart_ = oth.llnstart_; llnstop_ = oth.llnstop_; }
+
+    if ( mIsUdf(firstduppos_.binid_.inl()) )
+	firstduppos_ = oth.firstduppos_;
+    if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
+	firstaltnroffs_ = oth.firstaltnroffs_;
+
+    if ( nruniquepos_+oth.nruniquepos_ > 0 )
+	avgdist_ = (avgdist_*nruniquepos_ + oth.avgdist_*oth.nruniquepos_)
+		 / (nruniquepos_+oth.nruniquepos_);
+
+    nrpos_ += nrnewpos;
+    nruniquepos_ += nrnewpos; // can be improved.
+}
+
+
 void PosInfo::Detector::appendResults( const PosInfo::Detector& oth )
 {
     deepAppend( lds_, oth.lds_ );

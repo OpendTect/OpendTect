@@ -84,6 +84,7 @@ public:
     bool		usable() const		{ return errmsg_.isEmpty(); }
     uiString		errMsg() const		{ return errmsg_; }
     void		appendResults(const Detector&); // after finish only
+    void		mergeResults(const Detector&); // after finish only
 
     int			nrPositions( bool uniq=true ) const
 			{ return uniq ? nruniquepos_ : nrpos_; }
