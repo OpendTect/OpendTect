@@ -34,6 +34,7 @@ public:
     void			removeHorizon2D(EM::ObjectID emid);
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
+    void			setupTrackingHorizon2D(EM::ObjectID emid);
 
 protected:
 

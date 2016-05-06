@@ -241,9 +241,29 @@ void uiODVw2DHor2DParentTreeItem::addHorizon2Ds(
 	uiODVw2DHor2DTreeItem* childitem =
 	    new uiODVw2DHor2DTreeItem( emidstobeloaded[idx] );
 	addChld( childitem, false, false );
-	if ( hastracker )
-	    childitem->select();
     }
+}
+
+
+void uiODVw2DHor2DParentTreeItem::setupTrackingHorizon2D( EM::ObjectID emid )
+{
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedHorizon2Ds( emidsloaded );
+    if ( !emidsloaded.isPresent(emid) )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DTreeItem*,hor2dtreeitm,getChild(idx))
+	if ( hor2dtreeitm && emid==hor2dtreeitm->emObjectID() )
+	{
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
+	    hor2dtreeitm->select();
+	    break;
+	}
+    }
+
 }
 
 
@@ -520,7 +540,6 @@ bool uiODVw2DHor2DTreeItem::select()
 	uitreeviewitem_->treeView()->clearSelection();
 
     uitreeviewitem_->setSelected( true );
-
     if ( horview_ )
     {
 	viewer2D()->dataMgr()->setSelected( horview_ );

@@ -33,6 +33,7 @@ public:
     void			removeFaultSS(EM::ObjectID);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID emid);
+    void			setupNewTempFaultSS(EM::ObjectID emid);
 
 protected:
 

@@ -68,16 +68,14 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
     handleStdSubMenu( menuid );
 
     TypeSet<MultiID> pickmidstoadd;
-    bool newpick = false;
+    const Pick::Set* newps = 0;
     if ( menuid == 1  )
     {
-	const Pick::Set* newps =
-	    applMgr()->pickServer()->createEmptySet( false );
+	newps = applMgr()->pickServer()->createEmptySet( false );
 	if ( !newps )
 	    return false;
 
 	pickmidstoadd += picksetmgr_.get( *newps );
-	newpick = true;
     }
     else if ( menuid == 0 &&
 	      !applMgr()->pickServer()->loadSets(pickmidstoadd,false) )
@@ -86,8 +84,22 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
     if ( !pickmidstoadd.isEmpty() )
 	addPickSets( pickmidstoadd );
 
-    if ( newpick )
-	viewer2D()->viewControl()->setEditMode( true );
+    if ( newps )
+    {
+	const MultiID& newpickmid = picksetmgr_.get( *newps );
+	for ( int idx=0; idx<nrChildren(); idx++ )
+	{
+	    mDynamicCastGet(uiODVw2DPickSetTreeItem*,picktreeitem,
+			    getChild(idx))
+	    if ( picktreeitem && picktreeitem->pickMultiID() == newpickmid )
+	    {
+		viewer2D()->viewControl()->setEditMode( true );
+		picktreeitem->select();
+		break;
+	    }
+
+	}
+    }
 
     return true;
 }
@@ -135,6 +147,29 @@ void uiODVw2DPickSetParentTreeItem::getLoadedPickSets(
 }
 
 
+void uiODVw2DPickSetParentTreeItem::setupNewPickSet(
+	const MultiID& pickid )
+{
+    TypeSet<MultiID> pickidsloaded;
+    getLoadedPickSets( pickidsloaded );
+    if ( !pickidsloaded.isPresent(pickid) )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetTreeItem*,picktreeitm,getChild(idx))
+	if ( picktreeitm && pickid==picktreeitm->pickMultiID() )
+	{
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
+	    picktreeitm->select();
+	    break;
+	}
+    }
+
+}
+
+
 void uiODVw2DPickSetParentTreeItem::addPickSets(
 	const TypeSet<MultiID>& pickids )
 {
@@ -158,7 +193,6 @@ void uiODVw2DPickSetParentTreeItem::addPickSets(
 	uiODVw2DPickSetTreeItem* childitm =
 	    new uiODVw2DPickSetTreeItem( picksetidx );
 	addChld( childitm, false, false);
-	childitm->select();
     }
 }
 
@@ -259,8 +293,10 @@ void uiODVw2DPickSetTreeItem::displayMiniCtab()
 
 bool uiODVw2DPickSetTreeItem::select()
 {
-    uitreeviewitem_->setSelected( true );
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->clearSelection();
 
+    uitreeviewitem_->setSelected( true );
     if ( vw2dpickset_ )
     {
 	viewer2D()->dataMgr()->setSelected( vw2dpickset_ );

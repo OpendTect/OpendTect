@@ -34,6 +34,7 @@ public:
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			removePickSet(const MultiID&);
     void			addPickSets(const TypeSet<MultiID>&);
+    void			setupNewPickSet(const MultiID&);
 
 protected:
 

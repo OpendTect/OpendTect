@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emeditor.h"
 #include "emfault3d.h"
 #include "emmanager.h"
+#include "emtracker.h"
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -158,22 +159,39 @@ void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
+	const EM::ObjectID emid = emidstobeloaded[idx];
+	const EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
-	MPE::ObjectEditor* editor =
-	    MPE::engine().getEditor( emobj->id(), false );
-	uiODVw2DFaultTreeItem* childitem =
-	    new uiODVw2DFaultTreeItem( emidstobeloaded[idx] );
+	MPE::ObjectEditor* editor = MPE::engine().getEditor( emobj->id(),false);
+	uiODVw2DFaultTreeItem* childitem = new uiODVw2DFaultTreeItem( emid );
 	addChld( childitem, false, false);
 	if ( editor )
-	{
 	    editor->addUser();
-	    viewer2D()->viewControl()->setEditMode( true );
-	    childitem->select();
+    }
+}
+
+
+void uiODVw2DFaultParentTreeItem::setupNewTempFault( EM::ObjectID emid )
+{
+    TypeSet<EM::ObjectID> emidsloaded;
+    getLoadedFaults( emidsloaded );
+    if ( !emidsloaded.isPresent(emid) )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultTreeItem*,flttreeitm,getChild(idx))
+	if ( flttreeitm && emid==flttreeitm->emObjectID() )
+	{
+	    if ( viewer2D() && viewer2D()->viewControl() )
+		viewer2D()->viewControl()->setEditMode( true );
+	    flttreeitm->select();
+	    break;
 	}
     }
+
 }
 
 
@@ -310,13 +328,16 @@ void uiODVw2DFaultTreeItem::enableKnotsCB( CallBacker* )
 
 bool uiODVw2DFaultTreeItem::select()
 {
+    if ( uitreeviewitem_->treeView() )
+	uitreeviewitem_->treeView()->clearSelection();
+    
     uitreeviewitem_->setSelected( true );
-
     if ( faultview_ )
     {
 	viewer2D()->dataMgr()->setSelected( faultview_ );
 	faultview_->selected();
     }
+
     return true;
 }
 

@@ -154,6 +154,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID);
+    void			setupTrackingHorizon3D(EM::ObjectID);
 
     //Horizon2D
     void			getHor2DVwr2DIDs(EM::ObjectID emid,
@@ -163,6 +164,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
+    void			setupTrackingHorizon2D(EM::ObjectID);
 
     //Fault
     void			getFaultVwr2DIDs(EM::ObjectID emid,
@@ -172,6 +174,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID emid);
+    void			setupNewTempFault(EM::ObjectID emid);
 
     //FaultStickeSet
     void			getFaultSSVwr2DIDs(EM::ObjectID emid,
@@ -181,6 +184,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID emid);
+    void			setupNewTempFaultSS(EM::ObjectID emid);
 
     //FaultStickeSet2D
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
@@ -190,6 +194,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID emid);
+    void			setupNewTempFaultSS2D(EM::ObjectID emid);
 
     //PickSets
     void			getPickSetVwr2DIDs(const MultiID& mid,
@@ -197,6 +202,7 @@ public:
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			addPickSets(const TypeSet<MultiID>&);
+    void			setupNewPickSet(const MultiID&);
 
 protected:
 

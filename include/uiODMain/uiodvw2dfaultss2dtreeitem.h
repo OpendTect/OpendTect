@@ -36,6 +36,7 @@ public:
     void			removeFaultSS2D(EM::ObjectID);
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID emid);
+    void			setupNewTempFaultSS2D(EM::ObjectID emid);
 
 protected:
 

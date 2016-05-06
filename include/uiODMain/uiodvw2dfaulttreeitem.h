@@ -34,6 +34,7 @@ public:
     void			removeFault(EM::ObjectID);
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID emid);
+    void			setupNewTempFault(EM::ObjectID emid);
 
 protected:
 

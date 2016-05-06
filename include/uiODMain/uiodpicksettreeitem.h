@@ -58,6 +58,7 @@ protected:
     void		setChg(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
+    void		selChangedCB(CallBacker*);
     const char*		parentType() const
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
@@ -111,6 +112,7 @@ protected:
     void		setChg(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
+    void		selChangedCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 

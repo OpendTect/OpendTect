@@ -710,10 +710,10 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
 void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 {
     const uiTreeViewItem* curitem =
-	treetp_ ? treetp_->getTreeView()->currentItem() : 0;
+	treetp_ ? treetp_->getTreeView()->selectedItem() : 0;
     if ( !curitem )
     {
-	viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, false );
+	viewstdcontrol_->editToolBar()->setSensitive(picksettingstbid_,false);
 	return;
     }
 
@@ -728,13 +728,15 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 	    break;
     }
 
-    viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, hortreeitm );
     if ( !hortreeitm )
+    {
+	viewstdcontrol_->editToolBar()->setSensitive( picksettingstbid_,false);
 	return;
+    }
 
     uiMPEPartServer* mpserv = appl_.applMgr().mpeServer();
     const int trackerid = mpserv->getTrackerID( hortreeitm->emObjectID() );
-    viewstdcontrol_->toolBar()->setSensitive(
+    viewstdcontrol_->editToolBar()->setSensitive(
 	    picksettingstbid_, trackerid==mpserv->activeTrackerID() );
 }
 
@@ -1103,6 +1105,24 @@ void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
+void uiODViewer2D::setupTrackingHorizon3D( EM::ObjectID emid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	{
+	    hor3dpitem->setupTrackingHorizon3D( emid );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		    picksettingstbid_, true );
+	}
+    }
+}
+
+
 void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;
@@ -1114,7 +1134,8 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 	if ( hor3dpitem )
 	{
 	    hor3dpitem->addNewTrackingHorizon3D( emid );
-	    viewstdcontrol_->toolBar()->setSensitive( picksettingstbid_, true );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		    picksettingstbid_, true );
 	}
     }
 }
@@ -1173,6 +1194,24 @@ void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 			treetp_->getChild(idx))
 	if ( hor2dpitem )
 	    hor2dpitem->addHorizon2Ds( emids );
+    }
+}
+
+
+void uiODViewer2D::setupTrackingHorizon2D( EM::ObjectID emid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+			treetp_->getChild(idx))
+	if ( hor2dpitem )
+	{
+	    hor2dpitem->setupTrackingHorizon2D( emid );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		     picksettingstbid_, true );
+	}
     }
 }
 
@@ -1248,6 +1287,24 @@ void uiODViewer2D::addFaults( const TypeSet<EM::ObjectID>& emids )
 }
 
 
+void uiODViewer2D::setupNewTempFault( EM::ObjectID emid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
+			treetp_->getChild(idx))
+	if ( faultpitem )
+	{
+	    faultpitem->setupNewTempFault( emid );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		     picksettingstbid_, false );
+	}
+    }
+}
+
+
 void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;
@@ -1317,6 +1374,25 @@ void uiODViewer2D::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 	    faultpitem->addFaultSSs( emids );
     }
 }
+
+
+void uiODViewer2D::setupNewTempFaultSS( EM::ObjectID emid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,fltsspitem,
+			treetp_->getChild(idx))
+	if ( fltsspitem )
+	{
+	    fltsspitem->setupNewTempFaultSS( emid );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		     picksettingstbid_, false );
+	}
+    }
+}
+
 
 
 void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
@@ -1390,6 +1466,24 @@ void uiODViewer2D::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
+void uiODViewer2D::setupNewTempFaultSS2D( EM::ObjectID emid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSS2DParentTreeItem*,fltsspitem,
+			treetp_->getChild(idx))
+	if ( fltsspitem )
+	{
+	    fltsspitem->setupNewTempFaultSS2D( emid );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		     picksettingstbid_, false );
+	}
+    }
+}
+
+
 void uiODViewer2D::addNewTempFaultSS2D( EM::ObjectID emid )
 {
     if ( !treetp_ ) return;
@@ -1458,5 +1552,23 @@ void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
 			treetp_->getChild(idx))
 	if ( pickitem )
 	    pickitem->addPickSets( mids );
+    }
+}
+
+
+void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickpitem,
+			treetp_->getChild(idx))
+	if ( pickpitem )
+	{
+	    pickpitem->setupNewPickSet( pickid );
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		     picksettingstbid_, false );
+	}
     }
 }
