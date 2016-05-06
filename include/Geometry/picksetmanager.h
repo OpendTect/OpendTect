@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
+#include "geometrymod.h"
 #include "pickset.h"
 #include "objectset.h"
 #include "multiid.h"
@@ -23,12 +23,9 @@ namespace Pick
 class Set;
 class SetSaver;
 
-/*!\brief Manages all stored Pick::Set's.
+/*!\brief Manages all stored Pick::Set's. */
 
-
-*/
-
-mExpClass(General) SetManager : public Monitorable
+mExpClass(Geometry) SetManager : public Monitorable
 { mODTextTranslationClass(Pick::SetManager)
 public:
 
@@ -60,7 +57,7 @@ public:
     CNotifier<SetManager,MultiID>	setDispChanged;
     CNotifier<SetManager,MultiID>	setContentChanged;
 
-    mExpClass(General) ChangeEvent
+    mExpClass(Geometry) ChangeEvent
     {
     public:
 	enum Type	{ Create, Change, Delete };
@@ -75,12 +72,12 @@ public:
 	inline bool	operator==( const ChangeEvent& oth ) const
 			{ return type_==oth.type_ && idx_==oth.idx_; }
     };
-    mExpClass(General) ChangeRecord
+    mExpClass(Geometry) ChangeRecord
     {
     public:
 			ChangeRecord( const MultiID& id )
 			    : setid_(id)		{}
-			~ChangeRecord()		{ deepErase(events_); }
+			~ChangeRecord()			{ deepErase(events_); }
 
 	MultiID		setid_;
 	ObjectSet<ChangeEvent>	events_;
