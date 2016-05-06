@@ -585,6 +585,12 @@ bool RadialBasisFunctionGridder2D::getWeights( const Coord& gridpoint,
 
     weights.setSize( sz, 0. );
     relevantpoints = usedpoints_;
+    if ( sz==1 )
+    {
+	weights[0] = getDetrendedValue( 0 );
+	return true;
+    }
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int index = relevantpoints[idx];
@@ -607,6 +613,8 @@ float RadialBasisFunctionGridder2D::getValue( const Coord& gridpoint,
     int exactpos;
     if ( isAtInputPos(gridpoint,exactpos) )
 	return (*values_)[exactpos];
+    else if ( values_->size() == 1 )
+	return (*values_)[0];
 
     TypeSet<double> weights;
     TypeSet<int> relevantpoints;
@@ -684,14 +692,25 @@ bool RadialBasisFunctionGridder2D::updateSolution()
 	b.set( idx, val );
     }
 
-    mDeclareAndTryAlloc(double*,x,double[sz])
-    solv_->apply( b.getData(), x );
-
     globalweights_ = new TypeSet<double>( sz, mUdf(float) );
-    for ( int idx=0; idx<sz; idx++ )
-	(*globalweights_)[idx] = x[idx];
+    if ( !globalweights_ )
+	return false;
 
-    delete [] x;
+    if ( sz == 1 )
+	(*globalweights_)[0] = 1.;
+    else
+    {
+	mDeclareAndTryAlloc(double*,x,double[sz])
+	if ( !x )
+	    return false;
+
+	solv_->apply( b.getData(), x );
+	for ( int idx=0; idx<sz; idx++ )
+	    (*globalweights_)[idx] = x[idx];
+
+	delete [] x;
+    }
+
     return true;
 }
 
