@@ -10,6 +10,7 @@
 #include "ascstream.h"
 #include "ctxtioobj.h"
 #include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "datapack.h"
 #include "file.h"
 #include "filepath.h"
@@ -215,6 +216,7 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom, const MultiID& input )
 
 void fillHist( CallBacker* )
 {
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     const IOObj* ioobj = seissel_->ioobj();
     if ( !ioobj ) return;
 
@@ -257,6 +259,19 @@ void fillHist( CallBacker* )
 
     SeisTrcBufArray2D array( &seisbuf, false, 0 );
     histfld_->setData( &array );
+
+    ColTab::Sequence seq;
+    ColTab::MapperSetup ms;
+    IOPar pars;
+    if ( info.getDisplayPars(pars) )
+    {
+	const char* seqnm = pars.find( sKey::Name() );
+	seq = ColTab::Sequence( seqnm );
+	ms.usePar( pars );
+    }
+
+    histfld_->setColTabSeq( seq );
+    histfld_->setColTabMapperSetup( ms );
 }
 
 
@@ -464,7 +479,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 
     PreLoader spl( key, -1, &taskrunner );
     spl.load( tkzss, loadgeomids, dc.userType(), dlg.scalerfld_->getScaler() );
-      
+
     fullUpd( 0 );
 }
 
