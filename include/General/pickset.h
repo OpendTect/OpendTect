@@ -26,51 +26,39 @@ template <class T> class ODPolygon;
 namespace Pick
 {
 
-class SetMgr;
 
-
-/*!\brief Set of picks with something in common.
-
-  The Set can be managed by a SetMgr. You will have to ask the SetMgr to do
-  this, but you can designate the set to be part of a certain set manager.
-  By default, this designation is the Pick::Mgr().
-
-*/
+/*!\brief Monitorable set of picks. */
 
 mExpClass(General) Set : public NamedMonitorable
 {
 public:
 
     typedef TypeSet<Location>::size_type    size_type;
+    typedef size_type	IdxType;
 
-			Set(const char* nm=0,SetMgr* mgr=0);
+			Set(const char* nm=0,const char* category=0);
 			Set(const Set&);
 			~Set();
-    Set&		operator =(const Set&); //!< will not change SetMgr
+    Set&		operator =(const Set&);
+    const char*		category() const		    { return category_;}
 
     size_type		size() const;
     inline bool		isEmpty() const			    { return size()<1; }
-    bool		validIdx(size_type) const;
-    Location		get(size_type) const;
-    Coord		getPos(size_type) const;
-    double		getZ(size_type) const;
+    bool		validIdx(IdxType) const;
+    Location		get(IdxType) const;
+    Coord		getPos(IdxType) const;
+    double		getZ(IdxType) const;
 
     Set&		setEmpty();
     Set&		append(const Set&);
-    Set&		set(size_type,const Location&,bool withundo=false);
+    Set&		set(IdxType,const Location&,bool withundo=false);
     Set&		add(const Location&,bool withundo=false);
-    Set&		insert(size_type,const Location&,bool withundo=false);
-    Set&		remove(size_type,bool withundo=false);
+    Set&		insert(IdxType,const Location&,bool withundo=false);
+    Set&		remove(IdxType,bool withundo=false);
     inline Set&		operator +=( const Location& loc )
 			{ return add( loc ); }
-    Set&		setPos(size_type,const Coord&);
-    Set&		setZ(size_type,double);
-
-    void		setSetMgr(SetMgr* mgr=0);
-			//!< null for Pick::Mgr(). Will only add to new mgr
-			//!< if set was already owned by its old mgr.
-    SetMgr&		getSetMgr() const;
-			//!< the SetMgr may not actually own this set (yet)
+    Set&		setPos(IdxType,const Coord&);
+    Set&		setZ(IdxType,double);
 
     bool		isPolygon() const;
     bool		isMultiGeom() const;
@@ -84,11 +72,11 @@ public:
     void		getLocations(ObjectSet<const Location>&) const;
     float		getXYArea() const;
 			//!<Only for closed polygons. Returns in m^2.
-    size_type		find(const TrcKey&) const;
-    size_type		nearestLocation(const Coord&) const;
-    size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
+    IdxType		find(const TrcKey&) const;
+    IdxType		nearestLocation(const Coord&) const;
+    IdxType		nearestLocation(const Coord3&,bool ignorez=false) const;
 
-    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_)
+    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cDispChange())
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		updateInPar(const char* ky,const char* val);
@@ -106,27 +94,30 @@ public:
 	Connection		connect_;	//!< connect picks in set order
 	OD::MarkerStyle3D	mkstyle_;
     };
-    mImplSimpleMonitoredGetSet(inline,getDisp,setDisp,Disp,disp_)
+    mImplSimpleMonitoredGetSet(inline,getDisp,setDisp,Disp,disp_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,connection,setConnection,
-				Disp::Connection,disp_.connect_)
+				Disp::Connection,disp_.connect_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,markerStyle,setMarkerStyle,
-				OD::MarkerStyle3D,disp_.mkstyle_)
+				OD::MarkerStyle3D,disp_.mkstyle_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,dispColor,setDispColor,
-				Color,disp_.mkstyle_.color_)
+				Color,disp_.mkstyle_.color_,cDispChange())
     mImplSimpleMonitoredGetSet(inline,dispSize,setDispSize,
-				int,disp_.mkstyle_.size_)
+				int,disp_.mkstyle_.size_,cDispChange())
 
-    static const char*	sKeyMarkerType()       { return "Marker Type"; }
+    static ChangeType	cDispChange()		{ return 2; }
+    static ChangeType	cLocationInsert()	{ return 3; }
+    static ChangeType	cLocationChange()	{ return 4; }
+    static ChangeType	cLocationRemove()	{ return 5; }
+    static const char*	sKeyMarkerType()	{ return "Marker Type"; }
 
 protected:
 
     TypeSet<Location>	locs_;
     Disp		disp_;
     IOPar		pars_;
-    mutable SetMgr*	mgr_;
+    const BufferString	category_;
 
-    void		addUndoEvent(int,size_type,const Pick::Location&);
-    friend class	SetMgr;
+    void		addUndoEvent(int,IdxType,const Pick::Location&);
     friend class	LocationUndoEvent;
 
 };

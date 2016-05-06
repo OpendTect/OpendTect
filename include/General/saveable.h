@@ -32,7 +32,7 @@ public:
 			~Saveable();
     const Monitorable&	monitored() const		{ return obj_; }
 
-    mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,key_)
+    mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,key_,0)
     inline		mImplSimpleMonitoredGet(isFinished,bool,objdeleted_)
 
     virtual bool	store(const IOObj&) const;

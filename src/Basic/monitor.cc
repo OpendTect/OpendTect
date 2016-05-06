@@ -88,10 +88,11 @@ Monitorable& Monitorable::operator =( const Monitorable& )
 }
 
 
-void Monitorable::sendChgNotif( Monitorable::AccessLockHandler& hndlr )
+void Monitorable::sendChgNotif( AccessLockHandler& hndlr, ChangeType ct,
+				SubIdxType subidx )
 {
     hndlr.unlockNow();
-    objectChanged().trigger();
+    objectChanged().trigger( FullChgType(ct,subidx) );
 }
 
 

@@ -60,10 +60,7 @@ NamedMonitorable::~NamedMonitorable()
 NamedMonitorable& NamedMonitorable::operator =( const NamedMonitorable& oth )
 {
     if ( this != &oth )
-    {
-	mLock4Write();
-	name_ = oth.getName();
-    }
+	setName( oth.getName() );
     return *this;
 }
 

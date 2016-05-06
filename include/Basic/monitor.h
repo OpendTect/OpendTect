@@ -32,6 +32,11 @@ ________________________________________________________________________
   object is then already dead. Thus, at the beginning of the your destructor,
   call sendDelNotif().
 
+  You can also monitor the object's changes. To make more precise event handling
+  possible, the change notifier will deliver an int with a change type. This
+  type can be specific for the Monitorable, and could be available with
+  symbolic constants in that class. The default is 0 - 'General change'.
+
   For typical usage see NamedMonitorable.
 
 */
@@ -40,11 +45,15 @@ mExpClass(Basic) Monitorable : public CallBacker
 {
 public:
 
+    typedef int				ChangeType;
+    typedef od_int64			SubIdxType;
+    typedef std::pair<ChangeType,SubIdxType> FullChgType;
+
 					Monitorable(const Monitorable&);
     virtual				~Monitorable();
     Monitorable&			operator =(const Monitorable&);
 
-    virtual Notifier<Monitorable>&	objectChanged()
+    virtual CNotifier<Monitorable,FullChgType>& objectChanged()
 					{ return chgnotif_; }
     virtual Notifier<Monitorable>&	objectToBeDeleted()
 					{ return delnotif_; }
@@ -71,18 +80,20 @@ protected:
 	void			waitForMonitors();
     };
 
-    void			sendChgNotif(AccessLockHandler&);
+    void			sendChgNotif(AccessLockHandler&,ChangeType,
+					     SubIdxType);
 				//!< objectChanged called with released lock
     void			sendDelNotif();
 
     template <class T>
     inline T			getSimple(const T&) const;
     template <class TMember,class TSetTo>
-    inline void			setSimple(TMember&,TSetTo);
+    inline void			setSimple(TMember&,TSetTo,ChangeType,
+					  SubIdxType);
 
 private:
 
-    Notifier<Monitorable>	chgnotif_;
+    CNotifier<Monitorable,FullChgType> chgnotif_;
     Notifier<Monitorable>	delnotif_;
     bool			delalreadytriggered_;
 
@@ -139,7 +150,7 @@ protected:
 #define mLock4Write() AccessLockHandler accesslockhandler_( *this, false )
 #define mLock2Write() accesslockhandler_.convertToWrite()
 #define mUnlockAllAccess() accesslockhandler_.locker_.unlockNow()
-#define mSendChgNotif() sendChgNotif( accesslockhandler_ )
+#define mSendChgNotif(typ,subidx) sendChgNotif(accesslockhandler_,typ,subidx)
 
 
 template <class T>
@@ -150,7 +161,8 @@ inline T Monitorable::getSimple( const T& memb ) const
 }
 
 template <class TMember,class TSetTo>
-inline void Monitorable::setSimple( TMember& memb, TSetTo setto )
+inline void Monitorable::setSimple( TMember& memb, TSetTo setto, int typ,
+				    SubIdxType subidx )
 {
     mLock4Read();
     if ( memb == setto )
@@ -158,18 +170,18 @@ inline void Monitorable::setSimple( TMember& memb, TSetTo setto )
     if ( mLock2Write() && !(memb == setto) )
     {
 	memb = setto;
-	mSendChgNotif();
+	mSendChgNotif( typ, subidx );
     }
 }
 
 
 #define mImplSimpleMonitoredGet(fnnm,typ,memb) \
     typ fnnm() const { return getSimple( memb ); }
-#define mImplSimpleMonitoredSet(fnnm,typ,memb) \
-    void fnnm( typ _set_to_ ) { setSimple( memb, _set_to_ ); }
-#define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb) \
+#define mImplSimpleMonitoredSet(fnnm,typ,memb,chgtyp) \
+    void fnnm( typ _set_to_ ) { setSimple( memb, _set_to_, chgtyp, 0 ); }
+#define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb,chgtyp) \
     pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
-    pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb)
+    pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
 
 
 #endif

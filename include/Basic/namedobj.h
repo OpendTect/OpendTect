@@ -62,9 +62,11 @@ public:
     bool		operator ==(const NamedObject&) const;
 
     inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
-    inline virtual	mImplSimpleMonitoredSet(setName,const char*,name_)
+    inline virtual	mImplSimpleMonitoredSet(setName,const char*,name_,1)
 
     mDeclInstanceCreatedNotifierAccess( NamedMonitorable );
+
+    static ChangeType	cNameChange()		{ return 1; }
 
 };
 

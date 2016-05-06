@@ -119,6 +119,7 @@ void Pick::SetMgr::setID( int idx, const MultiID& mid )
 
 void Pick::SetMgr::transfer( Set& ps, SetMgr& oth )
 {
+    /*
     SetMgr* cursetmgr = &ps.getSetMgr();
     if ( cursetmgr == &oth )
 	return;
@@ -142,6 +143,7 @@ void Pick::SetMgr::transfer( Set& ps, SetMgr& oth )
 	    oth.set( setid, &ps );
 	}
     }
+    */
 }
 
 
@@ -276,7 +278,7 @@ class LocationUndoEvent: public UndoEvent
 {
 public:
 
-    enum  Type	    { Insert, PolygonClose, Remove, Move };
+    enum  Type	    { Insert, PolygonClose, Remove, Change };
 
     // Constructor will be called from Pick::Set in write-locked state.
     // you cannot use MT-protected methods like size() here, this is why
@@ -304,7 +306,7 @@ LocationUndoEvent( Type type, const MultiID& mid, int sidx,
     {
 	loc_ = loc;
     }
-    else if ( type == Move )
+    else if ( type == Change )
     {
 	if ( set && set->locs_.size()>index_ )
 	    loc_ = set->locs_[ index_ ];
@@ -318,7 +320,7 @@ virtual const char* getStandardDesc() const
     {
     case Insert:	return "Insert";
     case Remove:	return "Remove";
-    case Move:		return "Move";
+    case Change:	return "Move";
     case PolygonClose:	return "Close Polygon";
     default:		{ pErrMsg("Huh"); return ""; }
     }
@@ -333,17 +335,17 @@ virtual bool unDo()
     Set& set = mgr_.get( setidx );
 
     if ( set.connection() == Pick::Set::Disp::Close
-      && index_ == set.size()-1 && type_ != Move )
+      && index_ == set.size()-1 && type_ != Change )
 	type_ = PolygonClose;
 
     SetMgr::ChangeData::Ev ev =
-	    type_ == Move   ? SetMgr::ChangeData::Changed
+	    type_ == Change ? SetMgr::ChangeData::Changed
 	: ( type_ == Remove ? SetMgr::ChangeData::Added
 			    : SetMgr::ChangeData::ToBeRemoved );
 
     SetMgr::ChangeData cd( ev, &set, index_ );
 
-    if ( type_ == Move )
+    if ( type_ == Change )
     {
        if ( set.size()>index_  && loc_.pos().isDefined() )
 	   set.set( index_, loc_ );
@@ -377,13 +379,13 @@ virtual bool reDo()
     Set& set = mgr_.get( setidx );
 
     SetMgr::ChangeData::Ev ev =
-		type_ == Move	? SetMgr::ChangeData::Changed
+		type_ == Change	? SetMgr::ChangeData::Changed
 	    : ( type_ == Remove ? SetMgr::ChangeData::ToBeRemoved
 				: SetMgr::ChangeData::Added );
 
     Pick::SetMgr::ChangeData cd( ev, &set, index_ );
 
-    if ( type_ == Move )
+    if ( type_ == Change )
     {
 	if ( set.size()>index_ && newloc_.pos().isDefined() )
 	    set.set( index_, newloc_ );
@@ -427,15 +429,15 @@ virtual bool reDo()
 mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
-Pick::Set::Set( const char* nm, SetMgr* mgr )
+Pick::Set::Set( const char* nm, const char* cat )
     : NamedMonitorable(nm)
-    , mgr_(mgr)
+    , category_(cat)
 {
 }
 
 
 Pick::Set::Set( const Set& oth )
-    : mgr_(0)
+    : category_(oth.category_)
 {
     *this = oth;
 }
@@ -456,24 +458,9 @@ Pick::Set& Pick::Set::operator=( const Set& oth )
 	AccessLockHandler lh( oth );
 	locs_.copy( oth.locs_ );
 	disp_ = oth.disp_; pars_ = oth.pars_;
-	// no copy of mgr_
+	// do not copy oth.category_;
     }
     return *this;
-}
-
-
-void Pick::Set::setSetMgr( SetMgr* newmgr )
-{
-    getSetMgr().transfer( *this, newmgr ? *newmgr : Mgr() );
-}
-
-
-#define mGetSetMgr() (mgr_ ? *mgr_ : Mgr())
-
-Pick::SetMgr& Pick::Set::getSetMgr() const
-{
-    mLock4Read();
-    return mGetSetMgr();
 }
 
 
@@ -751,7 +738,7 @@ Pick::Set& Pick::Set::setEmpty()
     if ( mLock2Write() && !locs_.isEmpty() )
     {
 	locs_.setEmpty();
-	mSendChgNotif();
+	mSendChgNotif( cLocationRemove(), mUdf(int));
     }
     return *this;
 }
@@ -765,7 +752,7 @@ Pick::Set& Pick::Set::append( const Set& oth )
 	MonitorLock monlock( oth );
 	locs_.append( oth.locs_ );
 	monlock.unlockNow();
-	mSendChgNotif();
+	mSendChgNotif( cLocationInsert(), mUdf(int) );
     }
     return *this;
 }
@@ -773,8 +760,11 @@ Pick::Set& Pick::Set::append( const Set& oth )
 
 void Pick::Set::addUndoEvent( int type, size_type idx, const Location& loc )
 {
+}
+
+/*
     // Method will be called in write-locked state.
-    // do not use MT-rptected methods like size() here
+    // do not use MT-protected methods like size() here
     SetMgr& mgr = mGetSetMgr();
     if ( mgr.indexOf(*this) < 0 )
 	return;
@@ -791,11 +781,13 @@ void Pick::Set::addUndoEvent( int type, size_type idx, const Location& loc )
     }
 }
 
+*/
+
 
 #define mAddUndoEvent(typ,idx,loc) \
     if ( withundo ) \
 	addUndoEvent( (int)LocationUndoEvent::typ, idx, loc ); \
-    mSendChgNotif()
+    mSendChgNotif( cLocation##typ(), idx )
 
 
 Pick::Set& Pick::Set::add( const Location& loc, bool withundo )
@@ -826,7 +818,7 @@ Pick::Set& Pick::Set::set( size_type idx, const Location& loc, bool withundo )
     if ( mLock2Write() && locs_.validIdx(idx) )
     {
 	locs_[idx] = loc;
-	mAddUndoEvent( Move, idx, loc );
+	mAddUndoEvent( Change, idx, loc );
     }
 
     return *this;
@@ -866,7 +858,7 @@ Pick::Set& Pick::Set::setPos( size_type idx, const Coord& coord )
     if ( mLock2Write() && !coordUnchanged(idx,locs_,coord) )
     {
 	locs_[idx].setPos( coord );
-	mSendChgNotif();
+	mSendChgNotif( cLocationChange(), idx );
     }
 
     return *this;
@@ -892,7 +884,7 @@ Pick::Set& Pick::Set::setZ( size_type idx, double z )
     if ( mLock2Write() && !zUnchanged(idx,locs_,z) )
     {
 	locs_[idx].setZ( z );
-	mSendChgNotif();
+	mSendChgNotif( cLocationChange(), idx );
     }
 
     return *this;

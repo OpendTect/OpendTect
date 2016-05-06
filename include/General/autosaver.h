@@ -37,6 +37,7 @@ class AutoSaveMgr;
 
 */
 
+
 mExpClass(General) AutoSaveable : public Saveable
 {
 public:
@@ -46,7 +47,7 @@ public:
 
     mImplSimpleMonitoredGetSet(inline,nrSecondsBetweenSaves,
 				      setNrSecondsBetweenSaves,
-				      int,nrclocksecondsbetweensaves_)
+				      int,nrclocksecondsbetweensaves_,0)
 
 			// These functions can be called from any thread
     virtual BufferString getFingerPrint() const		= 0;
@@ -131,7 +132,7 @@ public:
 };
 
 
-mGlobal(General) inline AutoSaveMgr& AUTOSAVE()
+mGlobal(General) inline AutoSaveMgr& AutoSaveMGR()
 { return AutoSaveMgr::getInst(); }
 
 
