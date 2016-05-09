@@ -265,7 +265,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );
-	    const BufferString usrref( desc ? desc->userRef() 
+	    const BufferString usrref( desc ? desc->userRef()
 					    : sKey::EmptyString().buf() );
 	    if ( !desc || usrref.isEmpty()
 	      || desc->attribName()==StorageProvider::attribName()
@@ -436,7 +436,7 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( zinf.isCompatibleWith(ioobj.pars()) )
+	if ( ioobj.isUserSelectable() && zinf.isCompatibleWith(ioobj.pars()) )
 	    nms.add( ioobj.name() );
     }
 
