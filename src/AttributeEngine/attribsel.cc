@@ -439,7 +439,7 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( zinf.isCompatibleWith(ioobj.pars()) )
+	if ( ioobj.isUserSelectable() && zinf.isCompatibleWith(ioobj.pars()) )
 	    nms.add( ioobj.name() );
     }
 
