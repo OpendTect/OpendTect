@@ -26,16 +26,13 @@ namespace visSurvey
     class MPEClickCatcher;
 }
 
-class uiPropertiesDialog;
 class uiVisPartServer;
-
 
 /*! \brief Dialog for tracking properties
 */
 mExpClass(uiVis) uiMPEMan : public CallBacker
 { mODTextTranslationClass(uiMPEMan)
 public:
-    friend class uiPropertiesDialog;
 				uiMPEMan(uiParent*,uiVisPartServer*);
 				~uiMPEMan();
 
