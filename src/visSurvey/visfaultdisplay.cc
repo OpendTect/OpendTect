@@ -211,8 +211,8 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 
 EM::Fault3D* FaultDisplay::emFault()
 { 
-    mDynamicCastGet( EM::Fault3D*, fss, fault_ );
-    return fss; 
+    mDynamicCastGet(EM::Fault3D*,flt,fault_);
+    return flt;	
 }
 
 
@@ -321,8 +321,8 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
 
-    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     fault_->sectionGeometry( fault_->sectionID(0)) );
+    mDynamicCastGet(Geometry::FaultStickSurface*,fss,
+		    fault_->sectionGeometry(fault_->sectionID(0)));
 
     paneldisplay_->setSurface( explicitpanels_ );
     explicitpanels_->setSurface( fss );
@@ -374,6 +374,7 @@ bool FaultDisplay::removeSelections( TaskRunner* taskr )
 {
     if ( !fault_ )
 	return false;
+
     fault_->geometry().removeSelectedSticks( true );
     fault_->setChangedFlag();
     return true;
@@ -817,7 +818,7 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
 	     : s3dgeom_->zScale() )
 
 
-void FaultDisplay::sowingFinishedCB(CallBacker*)
+void FaultDisplay::sowingFinishedCB( CallBacker* )
 {
     endstick_ = true;
 }
@@ -908,7 +909,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	}
     }
 
-    if ( locked_ || !pos.isDefined() || 
+    if ( locked_ || !pos.isDefined() ||
 	viseditor_->isDragging() )
 	return;
 
@@ -1112,7 +1113,7 @@ void FaultDisplay::updateActiveStickMarker()
     }
 
     RowCol rc( activestick_, 0 );
-    Geometry::PrimitiveSet* idxps = 
+    Geometry::PrimitiveSet* idxps =
 	Geometry::IndexedPrimitiveSet::create( false );
     idxps->ref();
 
@@ -1279,7 +1280,7 @@ void FaultDisplay::showSelectedSurfaceData()
 }
 
 
-const BufferStringSet* FaultDisplay::selectedSurfaceDataNames() 
+const BufferStringSet* FaultDisplay::selectedSurfaceDataNames()
 {
     EM::Fault3D* fault3d = emFault();
     return fault3d && fault3d->auxData()
@@ -1301,7 +1302,7 @@ void FaultDisplay::setResolution( int res, TaskRunner* taskr )
 
 
 bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
-	                          float& value ) const
+				  float& value ) const
 { return true; }
 
 
@@ -1363,7 +1364,7 @@ bool FaultDisplay::canDisplayIntersections() const
 	    mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
 	    mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
 	    mDynamicCastGet( RandomTrackDisplay*,rdtd,dataobj);
-	    if ( (plane && plane->isOn()) || 
+	    if ( (plane && plane->isOn()) ||
 		 (s2dd && s2dd->isOn())   ||
 		 (rdtd && rdtd->isOn()) )
 		return true;
@@ -1501,10 +1502,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	if ( !plane || !plane->isOn() )
 	{
 	    if ( !rdtd || !rdtd->isOn() )
-		continue;	
+		continue;
 	}
 
-	const TrcKeyZSampling cs = plane ? 
+	const TrcKeyZSampling cs = plane ?
 				   plane->getTrcKeyZSampling(true,true,-1) :
 				   rdtd->getTrcKeyZSampling(-1);
 
@@ -1600,7 +1601,7 @@ void FaultDisplay::setStickSelectMode( bool yn )
 
 
 void FaultDisplay::turnOnSelectionMode( bool yn )
-{ setStickSelectMode(yn); }
+{ setStickSelectMode( yn ); }
 
 
 void FaultDisplay::polygonFinishedCB( CallBacker* cb )
@@ -1637,7 +1638,7 @@ void FaultDisplay::updateEditorMarkers()
 	EM::Fault3D* fault3d = emFault();
 	if ( fault3d )
 	{
-	    Geometry::FaultStickSet* fs = 
+	    Geometry::FaultStickSet* fs =
 		fault3d->geometry().sectionGeometry(sid);
 	    viseditor_->turnOnMarker(pid,!fs->isStickHidden(sticknr,mSceneIdx));
 	}
@@ -1652,6 +1653,7 @@ void FaultDisplay::updateKnotMarkers()
 
     if ( getCurScene() != scene_ )
 	setCurScene( scene_ );
+
     updateStickMarkerSet();
 }
 
@@ -1718,12 +1720,12 @@ bool FaultDisplay::coincidesWithPlane(
 	    displaytransform_->transform( nmpos );
 
 	const Coord3 vec1 = fss.getEditPlaneNormal(sticknr).normalize();
-	const Coord3 vec2 = plane 
+	const Coord3 vec2 = plane
 			    ? plane->getNormal(Coord3()).normalize()
 			    : rdtd->getNormal( nmpos ).normalize();
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
 
-	const Coord3 planenormal = plane 
+	const Coord3 planenormal = plane
 				   ? plane->getNormal( Coord3::udf() )
 				   : rdtd->getNormal( nmpos );
 	const float onestepdist =
@@ -1733,16 +1735,16 @@ bool FaultDisplay::coincidesWithPlane(
 	float prevdist=-1;
 	Coord3 prevpos;
 
-	const StepInterval<int> colrg = fss.colRange(rc.row());
+	const StepInterval<int> colrg = fss.colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
 	    if ( displaytransform_ )
 		displaytransform_->transform( curpos );
 
-	    const float curdist = plane 
-				  ? plane->calcDist( curpos )
-				  : rdtd->calcDist( curpos );
+	    const float curdist = plane
+			? plane->calcDist( curpos )
+			: rdtd->calcDist( curpos );
 	    if ( curdist <= 0.5*onestepdist )
 	    {
 		res = res || coincidemode;
@@ -1753,8 +1755,8 @@ bool FaultDisplay::coincidesWithPlane(
 		const float frac = prevdist / (prevdist+curdist);
 		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
 		const float dist = plane
-		    ? plane->calcDist( interpos )
-		    : rdtd->calcDist( interpos );
+			? plane->calcDist( interpos )
+			: rdtd->calcDist( interpos );
 		if ( dist <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
@@ -1822,6 +1824,9 @@ void FaultDisplay::updateStickHiding()
 
 bool FaultDisplay::onSection( int sticknr )
 {
+    if ( !fault_ )
+	return false;
+
     for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
     {
 	EM::SectionID sid = fault_->sectionID( sidx );
