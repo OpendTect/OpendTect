@@ -63,6 +63,7 @@ public:
 
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		isEqual(const IOPar&,bool need_same_order=false) const;
+    bool		includes(const IOPar&) const;
     FixedString		getKey(int) const;
     FixedString		getValue(int) const;
     bool		setKey(int,const char*);

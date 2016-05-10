@@ -49,51 +49,61 @@ IOPar::IOPar( ascistream& astream )
 }
 
 
-IOPar::IOPar( const IOPar& iop )
-	: NamedObject(iop.name())
+IOPar::IOPar( const IOPar& oth )
+	: NamedObject(oth.name())
 	, keys_(*new BufferStringSet)
 	, vals_(*new BufferStringSet)
-        , minorversion_( iop.minorversion_ )
-        , majorversion_( iop.majorversion_ )
+        , minorversion_( oth.minorversion_ )
+        , majorversion_( oth.majorversion_ )
 {
-    for ( int idx=0; idx<iop.size(); idx++ )
-	add( iop.keys_.get(idx), iop.vals_.get(idx) );
+    for ( int idx=0; idx<oth.size(); idx++ )
+	add( oth.keys_.get(idx), oth.vals_.get(idx) );
 }
 
 
-IOPar& IOPar::operator =( const IOPar& iop )
+IOPar::~IOPar()
 {
-    if ( this != &iop )
+    setEmpty();
+    delete &keys_;
+    delete &vals_;
+}
+
+
+IOPar& IOPar::operator =( const IOPar& oth )
+{
+    if ( this != &oth )
     {
 	setEmpty();
-	setName( iop.name() );
-	for ( int idx=0; idx<iop.size(); idx++ )
-	    add( iop.keys_.get(idx), iop.vals_.get(idx) );
+	setName( oth.name() );
+	for ( int idx=0; idx<oth.size(); idx++ )
+	    add( oth.keys_.get(idx), oth.vals_.get(idx) );
     }
 
-    minorversion_ = iop.minorversion_;
-    majorversion_ = iop.majorversion_;
+    minorversion_ = oth.minorversion_;
+    majorversion_ = oth.majorversion_;
     return *this;
 }
 
 
-bool IOPar::isEqual( const IOPar& iop, bool worder ) const
+bool IOPar::isEqual( const IOPar& oth, bool worder ) const
 {
-    if ( &iop == this ) return true;
+    if ( &oth == this )
+	return true;
     const int sz = size();
-    if ( iop.size() != sz ) return false;
+    if ( oth.size() != sz )
+	return false;
 
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( worder )
 	{
-	    if ( iop.keys_.get(idx) != keys_.get(idx)
-	      || iop.vals_.get(idx) != vals_.get(idx) )
+	    if ( oth.keys_.get(idx) != keys_.get(idx)
+	      || oth.vals_.get(idx) != vals_.get(idx) )
 		return false;
 	}
 	else
 	{
-	    FixedString res = iop.find( getKey(idx) );
+	    FixedString res = oth.find( getKey(idx) );
 	    if ( res != getValue(idx) )
 		return false;
 	}
@@ -103,11 +113,20 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 }
 
 
-IOPar::~IOPar()
+bool IOPar::includes( const IOPar& oth ) const
 {
-    setEmpty();
-    delete &keys_;
-    delete &vals_;
+    const int othsz = oth.size();
+    if ( &oth == this || othsz == 0 )
+	return true;
+
+    for ( int idx=0; idx<othsz; idx++ )
+    {
+	FixedString res = find( oth.getKey(idx) );
+	if ( res != oth.getValue(idx) )
+	    return false;
+    }
+
+    return true;
 }
 
 
@@ -196,24 +215,24 @@ void IOPar::removeWithKeyPattern( const char* pattern )
 }
 
 
-void IOPar::merge( const IOPar& iopar )
+void IOPar::merge( const IOPar& oth )
 {
-    if ( &iopar == this ) return;
+    if ( &oth == this ) return;
 
-    for ( int idx=0; idx<iopar.size(); idx++ )
-	set( iopar.keys_.get(idx), iopar.vals_.get(idx) );
+    for ( int idx=0; idx<oth.size(); idx++ )
+	set( oth.keys_.get(idx), oth.vals_.get(idx) );
 }
 
 
-void IOPar::addFrom( const IOPar& iopar )
+void IOPar::addFrom( const IOPar& oth )
 {
-    if ( &iopar == this ) return;
+    if ( &oth == this ) return;
 
-    for ( int idx=0; idx<iopar.size(); idx++ )
+    for ( int idx=0; idx<oth.size(); idx++ )
     {
-	const char* ky = iopar.keys_.get( idx ).str();
+	const char* ky = oth.keys_.get( idx ).str();
 	if ( !isPresent(ky) )
-	    add( ky, iopar.vals_.get(idx) );
+	    add( ky, oth.vals_.get(idx) );
     }
 }
 
@@ -294,7 +313,7 @@ void IOPar::removeSubSelection( const char* kystr )
 }
 
 
-void IOPar::mergeComp( const IOPar& iopar, const char* ky )
+void IOPar::mergeComp( const IOPar& oth, const char* ky )
 {
     BufferString key( ky );
     char* ptr = key.getCStr() + key.size()-1;
@@ -302,15 +321,15 @@ void IOPar::mergeComp( const IOPar& iopar, const char* ky )
 	*ptr = '\0';
 
     const bool havekey = !key.isEmpty();
-    if ( !havekey && &iopar == this ) return;
+    if ( !havekey && &oth == this ) return;
 
     BufferString buf;
-    for ( int idx=0; idx<iopar.size(); idx++ )
+    for ( int idx=0; idx<oth.size(); idx++ )
     {
 	buf = key;
 	if ( havekey ) buf += ".";
-	buf += iopar.keys_.get(idx);
-	set( buf, iopar.vals_.get(idx) );
+	buf += oth.keys_.get(idx);
+	set( buf, oth.vals_.get(idx) );
     }
 }
 
