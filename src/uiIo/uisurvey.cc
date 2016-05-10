@@ -887,7 +887,7 @@ void uiSurvey::exportButPushed( CallBacker* )
 						.arg(survnm);
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,
-                    mODHelpKey(mSurveyexportButPushedHelpID) ));
+                    mODHelpKey(mSurveyCompressButPushedHelpID) ));
     uiFileInput* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
 		    uiStrings::phrOutput(tr("Destination"))),
 		    uiFileInput::Setup().directories(false).forread(false)
@@ -991,7 +991,7 @@ void uiSurvey::updateSurvList()
 
     const int idxofprevsel = dirfld_->indexOf( prevsel );
     const int idxofcursi = cursurvinfo_ ? dirfld_->indexOf(
-	    				cursurvinfo_->getDirName() ) : -1;
+					cursurvinfo_->getDirName() ) : -1;
     if ( idxofcursi >= 0 )
 	newselidx = idxofcursi;
     else if ( idxofprevsel >= 0 )
