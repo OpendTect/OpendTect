@@ -159,6 +159,7 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtoundo )
 {
+    Threads::Locker locker( setposlock_ );
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( uiString::emptyString() );
 

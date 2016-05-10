@@ -136,7 +136,7 @@ public:
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&,
 						  bool addtohistory=false);
-    const OD::LineStyle&		preferredLineStyle() const;
+    const OD::LineStyle&	preferredLineStyle() const;
     void			setPreferredLineStyle(const OD::LineStyle&);
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
@@ -204,7 +204,7 @@ public:
     void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
 						   const EM::SectionID&);
     void			removeAllUnSeedPos();
-    const TrcKeyZSampling		getRemovedPolySelectedPosBox();
+    const TrcKeyZSampling	getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
 
     CNotifier<EMObject,const EMObjectCallbackData&>	change;
@@ -257,7 +257,7 @@ protected:
     uiString			errmsg_;
 
     Color&			preferredcolor_;
-    OD::LineStyle&			preferredlinestyle_;
+    OD::LineStyle&		preferredlinestyle_;
     OD::MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
@@ -268,6 +268,7 @@ protected:
     bool			fullyloaded_;
     bool			locked_;
     int				burstalertcount_;
+    Threads::Lock		setposlock_;
 
     bool			insideselremoval_;
     bool			selremoving_;
