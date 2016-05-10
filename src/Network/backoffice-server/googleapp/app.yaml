@@ -8,3 +8,5 @@ handlers:
   script: dlsites.php
 - url: /crashreport.php
   script: crashreport.php
+- url: /docsites.php
+  script: docsites.php

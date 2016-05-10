@@ -27,7 +27,7 @@ $filearray['address'] = $address;
 $memcache = new Memcached;
 $uniquenr = $memcache->increment('uniquenr');
 
-$outputdir = "gs://opendtect-backend/dlsites/tmp/";
+$outputdir = "gs://opendtect-001.appspot.com/dlsites/tmp/";
 $filenamebase = "dlstats-".$datestring."-".$uniquenr;
 $filename = $filenamebase.".txt";
 
