@@ -50,7 +50,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , finished(this)
     , horReadyFroDisplay(this)
 {
-    if ( !hor )
+    //if ( !hor )
 	setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
@@ -277,6 +277,9 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	for ( int idx=0; idx<arr1d.size(); idx++ )
 	    usedhor2d->setArray1D( *arr1d[idx], sid,geom.geomID(idx),false);
     }
+
+    if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
+	horReadyFroDisplay.trigger();
 
     return true;
 }
