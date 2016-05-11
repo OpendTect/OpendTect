@@ -20,7 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "samplfunc.h"
 #include "seisbounds.h"
+#include "seisdatapack.h"
 #include "seisread.h"
+#include "seispreload.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -200,7 +202,11 @@ public:
 		    , velintime_( velintime )
 		    , voiintime_( voiintime )
 		    , nrdone_( 0 )
-		{}
+		    , seisdatapack_(0)
+		{
+		    mDynamicCast( const RegularSeisDataPack*,
+			seisdatapack_,Seis::PLDM().get(reader.ioObj()->key()) );
+		}
 protected:
 
     od_int64            totalNr() const
@@ -216,28 +222,41 @@ protected:
 	BinID curbid;
 	if ( !hiter_.next( curbid ) )
 	    return Finished();
-
+	
 	const od_int64 offset =
 	    arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
-				  readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
+				    readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
 
 	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
 
-	mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-			reader_.translator() );
-
-	SeisTrc velocitytrc;
-	if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
+	if ( !seisdatapack_ )
 	{
-	    Time2DepthStretcher::udfFill( arrvs, nrz );
-	    return MoreToDo();
+	    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
+			    reader_.translator() );
+
+	    SeisTrc velocitytrc;
+	    if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
+	    {
+		Time2DepthStretcher::udfFill( arrvs, nrz );
+		return MoreToDo();
+	    }
+
+	    const SeisTrcValueSeries trcvs( velocitytrc, 0 );
+	    tdc_.setVelocityModel( trcvs, velocitytrc.size(),
+				    velocitytrc.info().sampling, veldesc_,
+				    velintime_ );
 	}
+	else
+	{
+	    const int globidx = seisdatapack_->getGlobalIdx( curbid );
+	    const OffsetValueSeries<float>& dptrcvs =
+		seisdatapack_->getTrcStorage( 0, globidx );
 
-	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
-	tdc_.setVelocityModel( trcvs, velocitytrc.size(),
-				velocitytrc.info().sampling, veldesc_,
-				velintime_ );
-
+	    const SamplingData<float> sd = seisdatapack_->sampling().zrg;
+	    tdc_.setVelocityModel( dptrcvs,
+				   seisdatapack_->sampling().zsamp_.nrSteps()+1,
+				   sd, veldesc_, velintime_ );
+	}
 
 	nrdone_++;
 
@@ -268,6 +287,7 @@ protected:
     VelocityDesc        	veldesc_;
     bool                	velintime_;
     bool                	voiintime_;
+    const RegularSeisDataPack*	seisdatapack_;
 
     int                 	nrdone_;
 
