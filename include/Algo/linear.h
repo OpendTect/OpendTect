@@ -13,9 +13,10 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
+#include "coord.h"
 #include "mathfunc.h"
 namespace Geom { template <class T> class Point2D; }
-
+class Plane3;
 
 /*!
 \brief Steepness and intercept.
@@ -27,7 +28,7 @@ mClass(Algo) LineParameters : public MathFunction<T,T>
 public:
 		LineParameters( T i0=0, T i1=0 )
 		: a0(i0), ax(i1)		{}
- 
+
     inline T	getValue( T x ) const
 			{ return a0 + ax * x; }
     inline T	getXValue( T y ) const
@@ -36,7 +37,7 @@ public:
 			{ return (x + ax * (y - a0)) / (1 + ax * ax); }
     inline T	getValue( const T* x ) const
 			{ return getValue(*x); }
- 
+
     T		a0, ax;
 };
 
@@ -97,6 +98,25 @@ public:
     PlanePars	sd;		//!< Standard deviations in parameters
     float	corrcoeff;	//!< Correlation coefficient
 
+};
+
+/*! \brief Best fit plane based on 3D points */
+mExpClass(Algo) Plane3DFit
+{
+public:
+			Plane3DFit();
+
+    bool		compute(const TypeSet<Coord3>& points,Plane3& result);
+
+protected:
+
+    void		setScatterMatrix(float scattermatrix[3][3],
+					 int order[3]);
+    void		tqli(float d[3],float e[3],float z[3][3]);
+    void		tred2(float a[3][3],float d[3],float e[3]);
+
+    TypeSet<Coord3>	points_;
+    Coord3		centroid_;
 };
 
 
