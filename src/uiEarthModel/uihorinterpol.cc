@@ -175,7 +175,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->getNewHorizon() )
 	hor3d->setBurstAlert( true );
 
-    bool success = false;
+    uiStringSet errors;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
@@ -196,26 +196,33 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
 	if ( !arr->isOK() )
 	{
-	    uiString msg = tr("Not enough horizon data for section %1")
-                         .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    const uiString msg = tr("Not enough horizon data for section %1")
+				 .arg(sid+1);
+	    errors += msg;
+	    continue;
 	}
 
 	arr->setAll( mUdf(float) );
 
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	if ( !iterator )
+	{
+	    const uiString msg = tr("Internal: Cannot create Horizon iterator"
+				    " for section %1").arg(sid+1);
+	    errors += msg;
 	    continue;
+	}
 
 	while( true )
 	{
-	    EM::PosID posid = iterator->next();
+	    const EM::PosID posid = iterator->next();
 	    if ( posid.objectID() == -1 )
 		break;
-	    BinID bid = posid.getRowCol();
+
+	    const BinID bid = posid.getRowCol();
 	    if ( hs.includes(bid) )
 	    {
-		Coord3 pos = hor3d->getPos( posid );
+		const Coord3 pos = hor3d->getPos( posid );
 		arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()),
 			  (float) pos.z );
 	    }
@@ -223,26 +230,35 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 	if ( !interpolator->setArray2D(*arr,&taskrunner) )
 	{
-	    uiString msg = tr("Cannot setup interpolation on section %1")
-	                 .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    const uiString msg = tr("Cannot setup interpolation on section %1")
+				 .arg(sid+1);
+	    errors += msg;
+	    continue;
 	}
 
 	mDynamicCastGet(Task*,task,interpolator.ptr());
-	if ( !TaskRunner::execute(&taskrunner,*task) )
+	if ( !task || !TaskRunner::execute(&taskrunner,*task) )
 	{
-	    uiString msg = tr("Cannot interpolate section %1")
-	                 .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    const uiString msg = tr("Cannot interpolate section %1")
+				 .arg(sid+1);
+	    errors += msg;
+	    continue;
 	}
 
-	success = true;
 	hor3d->geometry().sectionGeometry(sid)->setArray(
 					    hs.start_, hs.step_, arr, true );
     }
 
+    const bool success = errors.isEmpty();
+    if ( !success )
+    {
+	const uiString firstmsg = tr("Horizon gridding failed.");
+	uiMSG().errorWithDetails( errors, firstmsg );
+    }
+
     if ( !savefldgrp_->getNewHorizon() )
 	hor3d->setBurstAlert( false );
+
     if ( success &&
 	 (saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon()) )
 	horReadyFroDisplays.getParam(this)->trigger();
