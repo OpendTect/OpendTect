@@ -1,10 +1,10 @@
 <?php
 
 /*+
- * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : May 2016
- * FUNCTION : Redirections for documentation
+  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+  AUTHOR   : K. Tingdahl
+  DATE     : May 2016
+  FUNCTION : Redirections for documentation
 
 Based on version number and module, the browser is redirected to the 
 correct URL.

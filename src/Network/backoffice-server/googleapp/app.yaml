@@ -10,3 +10,5 @@ handlers:
   script: crashreport.php
 - url: /docsites.php
   script: docsites.php
+- url: /processdlstats.php
+  script: processdlstats.php
