@@ -278,7 +278,7 @@ void Plane3DFit::tred2( float a[3][3], float d[3], float e[3] )
 		}
 
 		float f = a[i-1][l-1];
-		float g = f>0? -sqrt(h) : sqrt(h);
+		float g = f>0? -Math::Sqrt(h) : Math::Sqrt(h);
 		e[i-1] = scale*g;
 		h -= f*g;    /* now h is equation (11.2.4) */
 		a[i-1][l-1] = f-g;    /* store u in the ith row of a. */
@@ -373,7 +373,7 @@ void Plane3DFit::tqli( float d[3], float e[3], float z[3][3] )
 	    if( m!=l ) //Compain if iteration>30?
 	    {
 		float g = (d[l]-d[l-1])/(2.0f*e[l-1]); /* form shift */
-		float r = sqrt((g*g)+1.0f);
+		float r = Math::Sqrt((g*g)+1.0f);
 		g = d[m-1]-d[l-1]+e[l-1]/(g+SIGN(r,g)); /* this is dm-ks */
 		float s = 1.0;
 		float c = 1.0;
@@ -387,14 +387,14 @@ void Plane3DFit::tqli( float d[3], float e[3], float z[3][3] )
 		    if( fabs(f) >= fabs(g) )
 		    {
 			c = g/f;
-			r = sqrt((c*c)+1.0f);
+			r = Math::Sqrt((c*c)+1.0f);
 			e[i] = f*r;
 			c *= (s=1.0f/r);
 		    }
 		    else
 		    {
 			s = f/g;
-			r = sqrt((s*s)+1.0f);
+			r = Math::Sqrt((s*s)+1.0f);
 			e[i] = g*r;
 			s *= (c=1.0f/r);
 		    }
