@@ -277,6 +277,7 @@ const char* dimName( bool dim0 ) const
     return pdf_.dimName( dim0 ? 0 : 1 );
 }
 
+    bool		isVertical() const	{ return false; }
     const ProbDenFunc&	pdf_;
 };
 
