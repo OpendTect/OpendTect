@@ -259,7 +259,7 @@ bool uiODVw2DFaultTreeItem::init()
 	faultview_ = hd;
     }
 
-    emobj->change.notify( mCB(this,uiODVw2DFaultTreeItem,emobjChangeCB) );
+    mAttachCB( emobj->change, uiODVw2DFaultTreeItem::emobjChangeCB );
     displayMiniCtab();
 
     name_ = applMgr()->EMServer()->getName( emid_ );

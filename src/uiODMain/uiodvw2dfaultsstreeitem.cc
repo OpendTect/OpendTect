@@ -263,7 +263,7 @@ bool uiODVw2DFaultSSTreeItem::init()
 	fssview_ = hd;
     }
 
-    emobj->change.notify( mCB(this,uiODVw2DFaultSSTreeItem,emobjChangeCB) );
+    mAttachCB( emobj->change, uiODVw2DFaultSSTreeItem::emobjChangeCB );
     displayMiniCtab();
     name_ = applMgr()->EMServer()->getName( emid_ );
     uitreeviewitem_->setCheckable(true);
