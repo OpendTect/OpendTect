@@ -623,6 +623,9 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	{
 	    checkti = triangles_[ti].neighbors_[0];
 	    crdci = triangles_[ti].coordindices_[2];
+	    if ( checkti==cNoTriangle() || crdci<0 )
+		continue;
+
 	    if ( v0==0 && v1==1 )
 	    {
 		shared0 = triangles_[ti].coordindices_[0];
@@ -638,6 +641,9 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	{
 	    checkti = triangles_[ti].neighbors_[2];
 	    crdci = triangles_[ti].coordindices_[1];
+	    if ( checkti==cNoTriangle() || crdci<0 )
+		continue;
+
 	    if ( v0==0 && v1==2 )
 	    {
 		shared0 = triangles_[ti].coordindices_[2];
@@ -653,6 +659,9 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	{
 	    checkti = triangles_[ti].neighbors_[1];
 	    crdci = triangles_[ti].coordindices_[0];
+	    if ( checkti==cNoTriangle() || crdci<0 )
+		continue;
+
 	    if ( v0==1 && v1==2 )
 	    {
 		shared0 = triangles_[ti].coordindices_[1];
@@ -665,9 +674,6 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	    }
 	}
 
-	if ( checkti==cNoTriangle() )
-	    continue;
-
 	const int* checkcrds = triangles_[checkti].coordindices_;
 	int checkpt =cNoVertex();
 	for ( int idx=0; idx<3; idx++ )
@@ -679,8 +685,8 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	    }
 	}
 
-	if ( checkpt==cNoVertex() )
-	    { pErrMsg("Impossible case."); continue; }
+	if ( checkpt<0 )
+	    continue;
 
 	mMultiThread( coordlock_.readLock() );
 
