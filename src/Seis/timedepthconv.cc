@@ -19,7 +19,9 @@
 #include "keystrs.h"
 #include "samplfunc.h"
 #include "seisbounds.h"
+#include "seisdatapack.h"
 #include "seisread.h"
+#include "seispreload.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -199,7 +201,11 @@ public:
 		    , velintime_( velintime )
 		    , voiintime_( voiintime )
 		    , nrdone_( 0 )
-		{}
+		    , seisdatapack_(0)
+		{
+		    mDynamicCast( const RegularSeisDataPack*,
+		  seisdatapack_,Seis::PLDM().get(reader.ioObj()->key()).ptr() );
+		}
 protected:
 
     od_int64            totalNr() const
@@ -222,21 +228,34 @@ protected:
 
 	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
 
-	mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-			reader_.translator() );
-
-	SeisTrc velocitytrc;
-	if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
+	if ( !seisdatapack_ )
 	{
-	    Time2DepthStretcher::udfFill( arrvs, nrz );
-	    return MoreToDo();
+	    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
+			    reader_.translator() );
+
+	    SeisTrc velocitytrc;
+	    if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
+	    {
+		Time2DepthStretcher::udfFill( arrvs, nrz );
+		return MoreToDo();
+	    }
+
+	    const SeisTrcValueSeries trcvs( velocitytrc, 0 );
+	    tdc_.setVelocityModel( trcvs, velocitytrc.size(),
+				    velocitytrc.info().sampling_, veldesc_,
+				    velintime_ );
 	}
+	else
+	{
+	    const int globidx = seisdatapack_->getGlobalIdx( curbid );
+	    const OffsetValueSeries<float>& dptrcvs =
+		seisdatapack_->getTrcStorage( 0, globidx );
 
-	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
-	tdc_.setVelocityModel( trcvs, velocitytrc.size(),
-				velocitytrc.info().sampling_, veldesc_,
-				velintime_ );
-
+	    const SamplingData<float> sd = seisdatapack_->sampling().zsamp_;
+	    tdc_.setVelocityModel( dptrcvs,
+				   seisdatapack_->sampling().zsamp_.nrSteps()+1,
+				   sd, veldesc_, velintime_ );
+	}
 
 	nrdone_++;
 
@@ -260,15 +279,16 @@ protected:
 	return MoreToDo();
     }
 
-    TrcKeyZSampling	readcs_;
-    SeisTrcReader&	reader_;
-    Array3D<float>&	arr_;
-    TimeDepthConverter	tdc_;
-    VelocityDesc	veldesc_;
-    bool	velintime_;
-    bool	voiintime_;
+    TrcKeyZSampling        	readcs_;
+    SeisTrcReader&      	reader_;
+    Array3D<float>&     	arr_;
+    TimeDepthConverter  	tdc_;
+    VelocityDesc        	veldesc_;
+    bool                	velintime_;
+    bool                	voiintime_;
+    const RegularSeisDataPack*	seisdatapack_;
 
-    int	nrdone_;
+    int                 	nrdone_;
 
     SamplingData<double>	voisd_;
 
