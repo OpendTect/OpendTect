@@ -613,13 +613,19 @@ void Line3::closestPoint( const Line3& line, double& t_this,
     const Coord3 diff(x0_-line.x0_,y0_-line.y0_,z0_-line.z0_);
     const double d0 = dir0.dot(dir0);
     const double d1 = dir1.dot(dir1);
+    if ( mIsZero(d0,1e-8) || mIsZero(d1,1e-8) )
+    {
+	t_this = t_line = mUdf(double);
+	return;
+    }
+
     const double d01 = dir0.dot(dir1);
     const double di0 = diff.dot(dir0);
     const double di1 = diff.dot(dir1);
-    const double det = d01/d0 - d1/d01;
+    const double det = d01*d01-d0*d1;
 
-    t_line = mIsZero(det,1e-8) ? 0.5 : (di0/d0-di1/d01)/det;
-    t_this = (t_line*d01-di0)/d0;
+    t_this = mIsZero(det,1e-8) ? 0.0 : (di0*d1-di1*d01)/det;
+    t_line = (di1+t_this*d01)/d1;
 }
 
 
