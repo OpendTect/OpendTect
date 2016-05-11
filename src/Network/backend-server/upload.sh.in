@@ -9,4 +9,4 @@ if [ "${cmd}" = "" ]; then
     exit 1
 fi
 
-appcfg.py --no_cookies --noauth_local_webserver -A ${project} -V ${version} update @CMAKE_CURRENT_SOURCE_DIR@/backoffice-server/googleapp
+appcfg.py --no_cookies --noauth_local_webserver -A ${project} -V ${version} update @CMAKE_CURRENT_SOURCE_DIR@/backend-server/googleapp

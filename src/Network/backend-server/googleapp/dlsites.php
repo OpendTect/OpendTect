@@ -26,7 +26,7 @@ $datestring = date("Y-m-d\TH:i:s\Z");
 $filearray['date'] = $datestring;
 $filearray['address'] = $address;
 
-$task = new PushTask( '/processdlstats.php', $filearray );
+$task = new PushTask( '/backendscripts/processdlstats.php', $filearray );
 $task->add();
 
 echo "cloud.opendtect.org"."\n";

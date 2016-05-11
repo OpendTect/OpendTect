@@ -1,0 +1,12 @@
+runtime: php55
+api_version: 1
+
+handlers:
+- url: /backendscripts/dlsites.php
+  script: dlsites.php
+- url: /backendscripts/crashreport.php
+  script: crashreport.php
+- url: /backendscripts/docsites.php
+  script: docsites.php
+- url: /backendscripts/processdlstats.php
+  script: processdlstats.php
