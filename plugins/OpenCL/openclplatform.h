@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "gpuprog.h"
 #include "bufstringset.h"
 
+#define CL_USE_DEPRECATED_OPENCL_2_0_APIS
+
 #ifdef __mac__
 #include <OpenCL/cl.h>
 #else
