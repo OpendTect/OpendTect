@@ -1,7 +1,9 @@
 <?php
 
 header('Content-Type: text/plain');
-use google\appengine\api\modules\ModulesService;
+use google\appengine\api\taskqueue\PushTask;
+
+date_default_timezone_set( 'UTC' );
 
 
 $platform = "";
@@ -24,16 +26,8 @@ $datestring = date("Y-m-d\TH:i:s\Z");
 $filearray['date'] = $datestring;
 $filearray['address'] = $address;
 
-$memcache = new Memcached;
-$uniquenr = $memcache->increment('uniquenr');
-
-$outputdir = "gs://opendtect-001.appspot.com/dlsites/tmp/";
-$filenamebase = "dlstats-".$datestring."-".$uniquenr;
-$filename = $filenamebase.".txt";
-
-$outputfile = $outputdir.$filename;
-
-file_put_contents( $outputfile, json_encode( $filearray ) );
+$task = new PushTask( '/processdlstats.php', $filearray );
+$task->add();
 
 echo "cloud.opendtect.org"."\n";
 echo "download.opendtect.org"."\n";
