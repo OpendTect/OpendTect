@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 #include "manobjectset.h"
 #include "ptrman.h"
-
-#include <OpenCL/cl.h>
-#include <typeset.h>
+#include "typeset.h"
 
 
 using namespace OpenCL;
@@ -42,22 +40,22 @@ bool Platform::initClass()
     cl_uint nrplatforms;
     if ( clGetPlatformIDs( mMaxNrPlatforms, platformids, &nrplatforms )!=CL_SUCCESS )
         return true;
-    
+
     for ( int idx=0; idx<nrplatforms; idx++ )
     {
         mGetCLPropertyString( clGetPlatformInfo, platformids[idx], CL_PLATFORM_PROFILE, profile );
         if ( profile!="FULL_PROFILE" )
             continue;
-        
+
         mGetCLPropertyString( clGetPlatformInfo, platformids[idx], CL_PLATFORM_NAME, platformname );
         mGetCLPropertyString( clGetPlatformInfo, platformids[idx], CL_PLATFORM_VENDOR, vendor );
-        
+
         PtrMan<Platform> plf = new OpenCL::Platform;
-        
+
         plf->name_ = platformname;
         plf->vendor_ = vendor;
         plf->platformid_ = platformids[idx];
-        
+
         cl_uint nrdevices;
         cl_device_id deviceids[mMaxNrDevices];
         if ( clGetDeviceIDs( platformids[idx],
@@ -68,62 +66,62 @@ bool Platform::initClass()
         {
             continue;
         }
-        
+
         for ( int idy=0; idy<nrdevices; idy++ )
         {
             mGetCLDeviceProperty( CL_DEVICE_AVAILABLE, cl_bool, available );
             if ( !available )
                 continue;
-            
+
             mGetCLDeviceProperty( CL_DEVICE_COMPILER_AVAILABLE, cl_bool, hascompiler );
             if ( !hascompiler )
                 continue;
-            
-            
+
+
             mGetCLDeviceProperty( CL_DEVICE_IMAGE_SUPPORT, cl_bool, hasimagesupport );
             if ( !hasimagesupport )
                 continue;
-            
+
             mGetCLDeviceProperty( CL_DEVICE_GLOBAL_MEM_SIZE, cl_ulong, globalmem );
             mGetCLDeviceProperty( CL_DEVICE_MAX_MEM_ALLOC_SIZE, cl_ulong, maxallocmem );
-            
+
             mGetCLDeviceProperty( CL_DEVICE_IMAGE2D_MAX_HEIGHT , size_t, max2dheight );
             mGetCLDeviceProperty( CL_DEVICE_IMAGE2D_MAX_WIDTH, size_t, max2dwidth );
             mGetCLDeviceProperty( CL_DEVICE_IMAGE3D_MAX_DEPTH, size_t, max3ddepth );
             mGetCLDeviceProperty( CL_DEVICE_IMAGE3D_MAX_HEIGHT, size_t, max3dheight );
             mGetCLDeviceProperty( CL_DEVICE_IMAGE3D_MAX_WIDTH, size_t, max3dwidth );
-            
+
             mGetCLDeviceProperty( CL_DEVICE_TYPE, cl_device_type, devicetype );
-            
+
             mGetCLPropertyString( clGetDeviceInfo, deviceids[idy],  CL_DEVICE_NAME, devicename );
             mGetCLPropertyString( clGetDeviceInfo, deviceids[idy],  CL_DEVICE_VENDOR, devicevendor );
-            
+
             PtrMan<OpenCL::Device> device = new OpenCL::Device;
             device->deviceid_ = deviceids[idy];
             device->totalmem_ = globalmem;
             device->maxmemalloc_ = maxallocmem;
             device->max2Dsize_[0] = max2dheight;
             device->max2Dsize_[1] = max2dwidth;
-            
+
             device->max3Dsize_[0] = max3ddepth;
             device->max3Dsize_[1] = max3dheight;
             device->max3Dsize_[2] = max3dwidth;
             device->name_ = BufferString( devicevendor, " ", devicename );
             device->iscpu_ = devicetype==CL_DEVICE_TYPE_CPU;
-            
+
             plf->devices_ += device.set( 0, false );
         }
-        
+
         if ( !plf->devices_.size() )
             continue;
-        
+
          //Take over ptr
         platforms += plf.set( 0, false );
     }
-    
+
     GPU::setPlatforms( platforms );
     GPU::setContextCreatorFunction( Context::createContext );
-    
+
     return true;
 }
 
@@ -131,25 +129,25 @@ bool Platform::initClass()
 GPU::Context* Context::createContext( const TypeSet<int>& deviceids )
 {
     const ObjectSet<GPU::Platform>& platforms = GPU::Platform::getPlatforms();
-    
+
     TypeSet<cl_device_id> devices;
-    
+
     for ( int idx=0; idx<platforms.size(); idx++ )
     {
         const Platform* platform = (const Platform*) platforms[idx];
-        
+
         for ( int idy=0; idx<platform->devices_.size(); idy++ )
         {
             const Device* device = (const Device*) platform->devices_[idy];
-            
+
             if ( deviceids.isPresent( device->id_ ) )
                 devices += device->deviceid_;
         }
     }
-    
+
     if ( !devices.size() )
         return 0;
-    
+
     return new Context( devices );
 }
 
@@ -162,7 +160,7 @@ OpenCL::Context::Context( const TypeSet<cl_device_id>& devices )
                     devices.arr(),
                     pfn_notify,
                     this, &errorcode );
-    
+
     if ( checkForError( errorcode ) )
     {
         for ( int idx=0; idx<devices.size(); idx++ )
@@ -174,10 +172,10 @@ OpenCL::Context::Context( const TypeSet<cl_device_id>& devices )
             checkForError( errorcode );
             if ( !checkForError( errorcode ) )
                 return;
-            
+
             if ( !checkForError( clRetainCommandQueue( queue ) ) )
                 return;
-            
+
             queues_ += queue;
         }
     }
@@ -191,8 +189,8 @@ Context::~Context()
         clReleaseCommandQueue( queues_[idx] );
     }
 }
-    
-    
+
+
 bool Context::checkForError( cl_int errorcode )
 {
     switch ( errorcode )
@@ -222,11 +220,11 @@ bool Context::checkForError( cl_int errorcode )
             errmsg_ = tr("Invalid queue properties");
             break;
         default:
-            
+
             break;
-            
+
     };
-    
+
     return isOK();
 }
 
