@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class uiAutoRangeClipDlg;
 class uiColorTableCanvas;
+class uiColorTableMan;
 class uiLineEdit;
 
 
@@ -91,6 +92,7 @@ protected:
     uiLineEdit*		maxfld_;
     uiColorTableSel*	selfld_;
     uiAutoRangeClipDlg*	scalingdlg_;
+    uiColorTableMan*	managedlg_;
 
     bool		enabletrans_;
 

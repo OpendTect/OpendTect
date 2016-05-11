@@ -130,6 +130,9 @@ void doApply()
     ms_.type_ = doclipfld->getBoolValue()
 	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
 
+    if ( ms_.type_ == ColTab::MapperSetup::Auto )
+	ms_.range_ = Interval<float>::udf();
+
     Interval<float> cliprate = clipfld->getFInterval();
     cliprate.start = fabs( cliprate.start * 0.01f );
     cliprate.stop = fabs( cliprate.stop * 0.01f );
@@ -216,6 +219,7 @@ const char* uiColorTableSel::getCurrent() const
 	  seqChanged(this) \
 	, scaleChanged(this) \
 	, scalingdlg_(0) \
+	, managedlg_(0) \
 	, minfld_(0) \
 	, maxfld_(0) \
 	, enabmanage_(true)\
@@ -276,6 +280,8 @@ uiColorTable::~uiColorTable()
 {
     delete &coltabseq_;
     delete &mapsetup_;
+    delete scalingdlg_;
+    delete managedlg_;
 }
 
 
@@ -494,11 +500,16 @@ void uiColorTable::doManage( CallBacker* )
 {
     mDynamicCastGet( uiToolBar*, toolbar, parent_ );
     uiParent* dlgparent = toolbar ? toolbar->parent() : parent_;
-    uiColorTableMan coltabman( dlgparent, coltabseq_, enabletrans_ );
-    coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
-    coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
-    coltabman.setHistogram( histogram_ );
-    coltabman.go();
+    if ( !managedlg_ )
+    {
+	managedlg_ = new uiColorTableMan( dlgparent, coltabseq_, enabletrans_ );
+	managedlg_->tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
+	managedlg_->tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
+    }
+
+    managedlg_->setHistogram( histogram_ );
+    managedlg_->show();
+    managedlg_->raise();
 }
 
 
