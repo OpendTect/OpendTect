@@ -74,13 +74,38 @@ uiMdiArea::~uiMdiArea()
 { delete body_; }
 
 
-void uiMdiArea::tile()		{ body_->tileSubWindows(); }
-void uiMdiArea::cascade()	{ body_->cascadeSubWindows(); }
+void uiMdiArea::cascade()
+{ body_->cascadeSubWindows(); }
+
+
+void uiMdiArea::tile()
+{
+    body_->tileSubWindows();
+
+    // Fix case where QMdiArea::tileSubWindows() does not obey WindowOrder
+    QList<QMdiSubWindow*> windows = body_->subWindowList();
+    for ( int idx=0; idx<windows.count()-1; idx++ )
+    {
+	QMdiSubWindow* widget0 = windows.at( idx );
+	for ( int idy=idx+1; idy<windows.count(); idy++ )
+	{
+	    QMdiSubWindow* widget1 = windows.at( idy );
+	    const QRect rect0 = widget0->geometry();
+	    const QRect rect1 = widget1->geometry();
+	    if ( rect0.top()>rect1.top() ||
+		 (rect0.top()==rect1.top() && rect0.left()>rect1.left()) )
+	    {
+		widget0->setGeometry( rect1 );
+		widget1->setGeometry( rect0 );
+	    }
+	}
+    }
+}
 
 
 void uiMdiArea::tileVertical()
 {
-    tile();
+    body_->tileSubWindows();
     QList<QMdiSubWindow*> windows = body_->subWindowList();
 
     int nrvisiblewindows = 0;
@@ -114,7 +139,7 @@ void uiMdiArea::tileVertical()
 
 void uiMdiArea::tileHorizontal()
 {
-    tile();
+    body_->tileSubWindows();
     QList<QMdiSubWindow*> windows = body_->subWindowList();
 
     int nrvisiblewindows = 0;
