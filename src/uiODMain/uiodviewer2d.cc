@@ -724,8 +724,8 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
 void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 {
     const uiTreeViewItem* curitem =
-	treetp_ ? treetp_->getTreeView()->currentItem() : 0;
-    if ( !curitem )
+	treetp_ ? treetp_->getTreeView()->selectedItem() : 0;
+    if ( !curitem && viewstdcontrol_->editToolBar() )
     {
 	viewstdcontrol_->editToolBar()->setSensitive(picksettingstbid_,false);
 	return;
@@ -744,14 +744,17 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 
     if ( !hortreeitm )
     {
-	viewstdcontrol_->editToolBar()->setSensitive( picksettingstbid_,false);
+	if ( viewstdcontrol_->editToolBar() )
+	    viewstdcontrol_->editToolBar()->setSensitive(
+		    picksettingstbid_, false );
 	return;
     }
 
     uiMPEPartServer* mpserv = appl_.applMgr().mpeServer();
     const int trackerid = mpserv->getTrackerID( hortreeitm->emObjectID() );
-    viewstdcontrol_->editToolBar()->setSensitive(
-	    picksettingstbid_, trackerid==mpserv->activeTrackerID() );
+    if ( viewstdcontrol_->editToolBar() )
+	viewstdcontrol_->editToolBar()->setSensitive(
+		picksettingstbid_, trackerid==mpserv->activeTrackerID() );
 }
 
 
@@ -823,7 +826,8 @@ void uiODViewer2D::handleToolClick( CallBacker* cb )
 
 void uiODViewer2D::removeSelected( CallBacker* cb )
 {
-    if ( !viewstdcontrol_->editToolBar()->isOn(polyseltbid_) )
+    if ( !viewstdcontrol_->editToolBar() ||
+	 !viewstdcontrol_->editToolBar()->isOn(polyseltbid_) )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
@@ -1123,8 +1127,9 @@ void uiODViewer2D::setupTrackingHorizon3D( EM::ObjectID emid )
 	if ( hor3dpitem )
 	{
 	    hor3dpitem->setupTrackingHorizon3D( emid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, true );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			picksettingstbid_, true );
 	}
     }
 }
@@ -1141,8 +1146,9 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 	if ( hor3dpitem )
 	{
 	    hor3dpitem->addNewTrackingHorizon3D( emid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, true );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			picksettingstbid_, true );
 	}
     }
 }
@@ -1216,8 +1222,9 @@ void uiODViewer2D::setupTrackingHorizon2D( EM::ObjectID emid )
 	if ( hor2dpitem )
 	{
 	    hor2dpitem->setupTrackingHorizon2D( emid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, true );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			 picksettingstbid_, true );
 	}
     }
 }
@@ -1305,8 +1312,9 @@ void uiODViewer2D::setupNewTempFault( EM::ObjectID emid )
 	if ( faultpitem )
 	{
 	    faultpitem->setupNewTempFault( emid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, false );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			 picksettingstbid_, false );
 	}
     }
 }
@@ -1394,8 +1402,9 @@ void uiODViewer2D::setupNewTempFaultSS( EM::ObjectID emid )
 	if ( fltsspitem )
 	{
 	    fltsspitem->setupNewTempFaultSS( emid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, false );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			 picksettingstbid_, false );
 	}
     }
 }
@@ -1484,8 +1493,9 @@ void uiODViewer2D::setupNewTempFaultSS2D( EM::ObjectID emid )
 	if ( fltsspitem )
 	{
 	    fltsspitem->setupNewTempFaultSS2D( emid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, false );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			 picksettingstbid_, false );
 	}
     }
 }
@@ -1574,8 +1584,9 @@ void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
 	if ( pickpitem )
 	{
 	    pickpitem->setupNewPickSet( pickid );
-	    viewstdcontrol_->editToolBar()->setSensitive(
-		    picksettingstbid_, false );
+	    if ( viewstdcontrol_->editToolBar() )
+		viewstdcontrol_->editToolBar()->setSensitive(
+			 picksettingstbid_, false );
 	}
     }
 }
