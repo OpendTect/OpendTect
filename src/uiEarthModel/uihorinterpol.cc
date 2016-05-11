@@ -296,6 +296,9 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	    usedhor2d->setArray1D( *arr1d[idx], sid,geom.geomID(idx),false);
     }
 
+    if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
+	horReadyFroDisplays.getParam(this)->trigger();
+
     return true;
 }
 
