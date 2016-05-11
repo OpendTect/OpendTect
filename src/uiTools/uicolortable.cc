@@ -277,6 +277,7 @@ uiColorTable::~uiColorTable()
 {
     delete &coltabseq_;
     delete &mapsetup_;
+    delete scalingdlg_;
 }
 
 
