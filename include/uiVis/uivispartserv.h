@@ -266,6 +266,7 @@ public:
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
     static int			evMouseEvent();
     Notifier<uiVisPartServer>	mouseEvent;
+    Notifier<uiVisPartServer>*	planeMovedEventNotifer() const;
     const MouseEvent&		getMouseEvent() const	{ return mouseevent_; }
     void			setSceneEventHandled();
 

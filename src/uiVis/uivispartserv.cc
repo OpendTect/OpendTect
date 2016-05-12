@@ -63,6 +63,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 #include "hiddenparam.h"
 
+#include "hiddenparam.h"
 
 int uiVisPartServer::evUpdateTree()			{ return 0; }
 int uiVisPartServer::evSelection()			{ return 1; }
@@ -96,7 +97,9 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
+HiddenParam<uiVisPartServer,Notifier<uiVisPartServer>* > planeMovedEvent( 0 );
 static HiddenParam<uiVisPartServer,int> curinterpobjids( -1 );
+
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -154,6 +157,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
     PickRetriever::setInstance( pickretriever_ );
+    planeMovedEvent.setParam( this, new Notifier<uiVisPartServer>(this) );
 }
 
 
@@ -202,6 +206,15 @@ uiVisPartServer::~uiVisPartServer()
     delete dirlightdlg_;
 
     setMouseCursorExchange( 0 );
+
+    delete planeMovedEvent.getParam( this );
+    planeMovedEvent.removeParam( this );
+}
+
+
+Notifier<uiVisPartServer>* uiVisPartServer::planeMovedEventNotifer() const
+{
+    return planeMovedEvent.getParam( this );
 }
 
 
@@ -1505,6 +1518,7 @@ void uiVisPartServer::movePlaneAndCalcAttribs( int id,
     calculateAllAttribs( id );
     pdd->annotateNextUpdateStage( false );
     triggerTreeUpdate();
+    planeMovedEvent.getParam( this )->trigger();
 }
 
 
