@@ -46,7 +46,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
-
+#include "thread.h"
+#include "hiddenparam.h"
 
 
 using namespace visSurvey;
@@ -62,6 +63,7 @@ const char* HorizonDisplay::sKeyIntersectLineMaterialID()
 const char* HorizonDisplay::sKeySectionID()	{ return "Section ID"; }
 const char* HorizonDisplay::sKeyZValues()	{ return "Z values"; }
 
+static HiddenParam<HorizonDisplay,Threads::Mutex*> locker_( 0 );
 
 HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
@@ -117,6 +119,7 @@ HorizonDisplay::HorizonDisplay()
     int res = (int)resolution_;
     Settings::common().get( "dTect.Horizon.Resolution", res );
     resolution_ = (char)res;
+    locker_.setParam( this, new Threads::Mutex );
 }
 
 
@@ -153,6 +156,9 @@ HorizonDisplay::~HorizonDisplay()
 
     if ( selections_ ) selections_->unRef();
     if ( lockedpts_ ) lockedpts_->unRef();
+
+    delete locker_.getParam( this );
+    locker_.removeParam( this );
 }
 
 
@@ -736,8 +742,10 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	return;
     }
 
+    locker_.getParam(this)->lock();
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setTextureData( channel, data, sids_[idx], trans );
+    locker_.getParam(this)->unLock();
 
     //We should really scale here, and then update sections. This
     //works for single sections though.
@@ -1028,8 +1036,10 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	validtexture_ = false;
 	const EM::SectionID sid = cbdata.pid0.sectionID();
 	const int idx = sids_.indexOf( sid );
+	locker_.getParam(this)->lock();
 	if ( idx>=0 && idx<sections_.size() )
 	    sections_[idx]->inValidateCache(-1);
+	locker_.getParam(this)->unLock();
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
