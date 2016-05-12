@@ -195,12 +195,12 @@ void Plane3DFit::setScatterMatrix( float scattermatrix[3][3],  int order[3] )
     for( int idx=0; idx<points_.size(); idx++ )
     {
 	const Coord3 d = points_[idx] - centroid_;
-	scattermatrix[0][0] += d.x*d.x;
-	scattermatrix[0][1] += d.x*d.y;
-	scattermatrix[0][2] += d.x*d.z;
-	scattermatrix[1][1] += d.y*d.y;
-	scattermatrix[1][2] += d.y*d.z;
-	scattermatrix[2][2] += d.z*d.z;
+	scattermatrix[0][0] += mCast(float,d.x*d.x);
+	scattermatrix[0][1] += mCast(float,d.x*d.y);
+	scattermatrix[0][2] += mCast(float,d.x*d.z);
+	scattermatrix[1][1] += mCast(float,d.y*d.y);
+	scattermatrix[1][2] += mCast(float,d.y*d.z);
+	scattermatrix[2][2] += mCast(float,d.z*d.z);
     }
 
     scattermatrix[1][0]=scattermatrix[0][1];
