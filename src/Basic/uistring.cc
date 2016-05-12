@@ -455,6 +455,15 @@ const QString& uiString::fillQString( QString& res ) const
 }
 
 
+const BufferString& uiString::fillUTF8String( BufferString& res ) const
+{
+    QString qres;
+    fillQString( qres );
+    res.set( qres );
+    return res;
+}
+
+
 const QString& uiString::getQStringInternal() const
 {
 #ifndef OD_NO_QT

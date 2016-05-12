@@ -138,6 +138,9 @@ public:
 	/*!<Returns reference, so could be unsafe */
     const mQtclass(QString)&	fillQString(QString&) const;
 				/*!<Fully thread-safe. Returns input*/
+    const BufferString&		fillUTF8String(BufferString&) const;
+				/*!< Full string, with translation
+				    result. Returns input. */
 
     void			getHexEncoded(BufferString&) const;
 				/*!<Encodes translated string into a const char*

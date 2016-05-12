@@ -14,6 +14,7 @@
 #include "oddirs.h"
 
 #include <QString>
+#include <QByteArray>
 #include <QTranslator>
 
 
@@ -124,6 +125,24 @@ bool testArg()
 
     return true;
 }
+
+
+bool testUTF8()
+{
+    //Convert some chinese from base 64 to qstring. Then get the utf8 out.
+    //Expected values comes from an online conversion tool.
+    const QString input = QByteArray::fromBase64( QByteArray("5omL5py66Zi/6YeM") );
+    uiString uistring;
+    uistring.setFrom( input );
+    BufferString utf8;
+    uistring.fillUTF8String( utf8 );
+    const char expected[] = { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
+			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C };
+    mRunStandardTest( !strcmp( expected, utf8.buf() ), "UTF conversion" );
+
+    return true;
+}
+
 
 
 bool testSharedData()
@@ -284,7 +303,7 @@ int main( int argc, char** argv )
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings()
-	 || !testToLower() || !TestTranslator::testTranslation() )
+	 || !testToLower() || !TestTranslator::testTranslation() || testUTF8() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
