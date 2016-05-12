@@ -741,10 +741,10 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	return;
     }
 
-    locker_.lock();
+//    locker_.lock();
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setTextureData( channel, data, sids_[idx], trans );
-    locker_.unLock();
+//    locker_.unLock();
 
     //We should really scale here, and then update sections. This
     //works for single sections though.
@@ -1029,10 +1029,10 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	validtexture_ = false;
 	const EM::SectionID sid = cbdata.pid0.sectionID();
 	const int idx = sids_.indexOf( sid );
-	locker_.lock();
+//	locker_.lock();
 	if ( idx>=0 && idx<sections_.size() )
 	    sections_[idx]->inValidateCache(-1);
-	locker_.unLock();
+//	locker_.unLock();
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
@@ -2036,6 +2036,7 @@ void HorizonDisplay::doOtherObjectsMoved(
 void HorizonDisplay::otherObjectsMoved(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
+    Threads::Locker locker( updatelock_ );
     updateIntersectionLines( objs, whichobj );
     updateSectionSeeds( objs, whichobj );
 }
