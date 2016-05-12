@@ -85,8 +85,13 @@ void Element::blockCallBacks( bool yn, bool flush )
     if ( blockcbs_ && !flush )
 	return;
 
+    Threads::Locker poschglocker( poschglock_ );
     nrposchbuffer_.erase();
+    poschglocker.unlockNow();
+
+    Threads::Locker movementlocker( movementlock_ );
     movementbuffer_.erase();
+    movementlocker.unlockNow();
 }
 
 
