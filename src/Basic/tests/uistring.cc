@@ -136,9 +136,9 @@ bool testUTF8()
     uistring.setFrom( input );
     BufferString utf8;
     uistring.fillUTF8String( utf8 );
-    const char expected[] = { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
+    const unsigned char expected[] =  { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
 			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C };
-    mRunStandardTest( !strcmp( expected, utf8.buf() ), "UTF conversion" );
+    mRunStandardTest( !strcmp( (const char*)expected, utf8.buf() ), "UTF conversion" );
 
     return true;
 }
