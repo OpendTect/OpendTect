@@ -68,6 +68,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
     mAttachCB( IOM().surveyChanged, uiMPEMan::survChgCB );
+    mAttachCB( visserv_->planeMovedEvent, uiMPEMan::planeChangedCB );
 }
 
 
@@ -649,17 +650,34 @@ void uiMPEMan::seedClick( CallBacker* )
     }
     else
     {
+	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
+	const bool doerase = OD::ctrlKeyboardButton(eventinfo->buttonstate_);
 	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
+	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap ||
+	    doerase )
 	{
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
 	}
 	else if ( seedpicker->addSeed(seedpos,shiftclicked) )
-	    engine.updateFlatCubesContainer(newvolume,trackerid,true);
+	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
     }
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
+}
+
+
+void uiMPEMan::planeChangedCB( CallBacker* )
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if( !tracker ) return;
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker || !seedpicker->getPatch() || 
+	seedpicker->getPatch()->getPath().size()<=0 ) 
+	return;
+
+    seedpicker->endPatch( false );
+    cleanPatchDisplay();
 }
 
 
@@ -852,14 +870,10 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
-    {
-	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
-	const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
-	seedpicker->endPatch( doerase );
-	cleanPatchDisplay();
-    }
+    const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
+    const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
+    seedpicker->endPatch( doerase );
+    cleanPatchDisplay();
 }
 
 

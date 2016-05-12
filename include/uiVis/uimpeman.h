@@ -57,6 +57,7 @@ protected:
     void			keyEventCB(CallBacker*);
     void			mpeActionCalledCB(CallBacker*);
     void			mpeActionFinishedCB(CallBacker*);
+    void			planeChangedCB(CallBacker*);
     int				popupMenu();
     void			handleAction(int);
 

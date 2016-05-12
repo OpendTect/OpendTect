@@ -121,6 +121,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , nrscenesChange(this)
     , keyEvent(this)
     , mouseEvent(this)
+    , planeMovedEvent(this)
     , seltype_((int)visBase::PolygonSelection::Off)
     , multirgeditwin_(0)
     , mapperrgeditordisplayid_(-1)
@@ -1499,6 +1500,7 @@ void uiVisPartServer::movePlaneAndCalcAttribs( int id,
     calculateAllAttribs( id );
     pdd->annotateNextUpdateStage( false );
     triggerTreeUpdate();
+    planeMovedEvent.trigger();
 }
 
 

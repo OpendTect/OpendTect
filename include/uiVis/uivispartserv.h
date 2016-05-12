@@ -385,6 +385,7 @@ public:
     bool			isLocked(int id) const;
 
     bool			sendVisEvent(int);
+    Notifier<uiVisPartServer>	planeMovedEvent;
 
 protected:
 
