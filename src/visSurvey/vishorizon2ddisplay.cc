@@ -313,7 +313,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     while ( true )
     {
 	const int rowidx = getNextRow();
-	if ( mIsUdf(rc.row()) )
+	if ( mIsUdf(rowidx) )
 	    break;
 
 	rc.row() = rowidx;
@@ -340,7 +340,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		if ( zaxt_ )
-		    pos.z = zaxt_->transformTrc( TrcKey(geomid,rc.col()), zval);
+		    pos.z = zaxt_->transform( pos );
 
 		if ( !mIsUdf(pos.z) )
 		    positions += pos;
