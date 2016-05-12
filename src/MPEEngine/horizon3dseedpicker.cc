@@ -330,7 +330,8 @@ void Horizon3DSeedPicker::processJunctions()
 
 bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 {
-    if ( trackmode_ != DrawBetweenSeeds && trackmode_ != DrawAndSnap )
+    if ( trackmode_ != DrawBetweenSeeds && 
+	trackmode_ != DrawAndSnap && !doerase )
 	return false;
 
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;

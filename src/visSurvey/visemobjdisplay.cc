@@ -271,6 +271,13 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     bool res = updateFromEM( tr );
     restoresessupdate_ = false;
 
+    mDynamicCastGet( const EM::Horizon*, hor, emobject_ );
+    if ( hor && editor_ )
+    {
+	editor_->sower().setSequentSowMask( 
+	    true, OD::ButtonState(OD::LeftButton+OD::ControlButton) );
+    }
+
     return res;
 }
 

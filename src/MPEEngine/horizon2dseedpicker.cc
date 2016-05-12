@@ -209,7 +209,8 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 
 bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
 {
-    if ( trackmode_ != DrawBetweenSeeds && trackmode_ !=DrawAndSnap )
+    if ( trackmode_ != DrawBetweenSeeds && 
+	trackmode_ != DrawAndSnap && !doerase )
 	return false;
 
     TypeSet<TrcKeyValue> path = patch_->getPath();
