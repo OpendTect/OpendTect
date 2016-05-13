@@ -29,6 +29,7 @@ are not available as EnumDefImpl.
 
 A stand-alone EnumDef can be created as follows to create a combo box
 with all enums in Stats::Type without the average.
+Note: EnumDef is assumed to remain in memory.
 
 \code
 EnumDef def = Stats::TypeDef();
@@ -106,7 +107,7 @@ public:
   Normally, you'll have a class with an enum member. In that case, you'll want
   to use the EnumDef classes. These are normally almost hidden by a few
   simple macros:
-  * mDeclareEnumUtils(enm) will make sure the enum will have a string conversion.
+  * mDeclareEnumUtils(enm) will make sure the enum will have a string conversion
   * mDefineEnumUtils(clss,enm,prettynm) defines the names.
   * For namespaces, you can use mDeclareNameSpaceEnumUtils only
 
@@ -207,7 +208,7 @@ public:
     mExtern(mod) mDeprecated const char** enm##Names();\
     mExtern(mod) mDeprecated bool parseEnum(const IOPar&,const char*,enm&); \
     mExtern(mod) mDeprecated bool parseEnum(const char*,enm&); \
-    mExtern(mod) mDeprecated bool parseEnum##enm(const char*,enm&); /*legacy */  \
+    mExtern(mod) mDeprecated bool parseEnum##enm(const char*,enm&); /*legacy */\
     mExtern(mod) mDeprecated enm parseEnum##enm(const char*); \
     mExtern(mod) const char* toString(enm); \
     mExtern(mod) uiString toUiString(enm); \
