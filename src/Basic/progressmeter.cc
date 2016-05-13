@@ -83,7 +83,10 @@ void ProgressRecorder::skipProgress( bool yn )
 void ProgressRecorder::operator++()
 {
     mSetLock();
-    nrdone_++;
+    if ( forwardto_ )
+	++(*forwardto_);
+    else
+	nrdone_++;
 }
 
 
@@ -158,6 +161,8 @@ void TextStreamProgressMeter::reset()
 
 void TextStreamProgressMeter::setStarted()
 {
+    if ( skipprog_ ) return;
+
     if ( !inited_ )
     {
 	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";

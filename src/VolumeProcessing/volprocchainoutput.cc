@@ -64,6 +64,7 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
 void VolProc::ChainOutput::setProgressMeter( ProgressMeter* pm )
 {
     progresskeeper_.setForwardTo( pm );
+    progresskeeper_.skipProgress( true );
 }
 
 
@@ -193,6 +194,7 @@ int VolProc::ChainOutput::nextStep()
     }
 
     // no calculations going on, no storers left ...
+    progresskeeper_.skipProgress( true );
     return Finished();
 }
 
