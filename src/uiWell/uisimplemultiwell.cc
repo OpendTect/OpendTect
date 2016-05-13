@@ -189,7 +189,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( Well::Info::sKeyGroundElev() ); 
     fd_.bodyinfos_ += ti;
-    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyReplVel(),
+    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
 				      Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
