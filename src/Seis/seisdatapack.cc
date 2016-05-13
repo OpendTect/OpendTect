@@ -499,6 +499,9 @@ void SeisFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
 
 double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
+    if ( !tiflds_.validIdx(ikey) )
+	return posdata_.position( true, i0 );
+
     switch ( tiflds_[ikey] )
     {
 	case SeisTrcInfo::BinIDInl:	return SI().transform(
