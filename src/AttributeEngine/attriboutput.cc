@@ -211,7 +211,10 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 				     (idx+extrazsamp)*refstep, refstep )
 		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
 
-		const int zoutidx = (int)Math::Floor( idx-z0 );
+		int zoutidx = (int)Math::Floor( idx-z0 );
+		if ( zoutidx<0 ) //to prevent crash in case of rounding pb
+		    zoutidx = 0;
+
 		output_->data(desout).set( lineidx, trcidx, zoutidx, val );
 	    }
 	}
