@@ -57,7 +57,7 @@ HelpProvider* FlareHelpProvider::createInstance()
 }
 
 #define mHtmlFileName	"Default.htm"
-#define mBaseUrl	"http://www.opendtect.org/"
+#define mBaseUrl	"http://backend.opendtect.org/"
 
 static const char* fileprot = "file:///";
 
@@ -76,8 +76,10 @@ void FlareHelpProvider::initHelpSystem( const char* context, const char* path )
     else
     {
 	url = mBaseUrl;
+	url.add( "/backendscripts/docsites.php?version=" );
 	url.add( toString(mODVersion) );
-	url.add( "/doc/" ).add( subpath.fullPath(FilePath::Unix) );
+	url.add( "&module=" );
+	url.add( path );
     }
 
     FlareHelpProvider::initClass( context, url.str() );

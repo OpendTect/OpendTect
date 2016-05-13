@@ -172,8 +172,8 @@ bool System::IssueReporter::parseCommandLine()
 	return false;
     }
 
-    host_ = "http://opendtect.org";
-    path_ = "/relman/scripts/crashreport.php";
+    host_ = "http://backend.opendtect.org";
+    path_ = "/backendscripts/crashreport.php";
 
     const BufferString& filename = normalargs.get( 0 );
 

@@ -29,7 +29,6 @@ $filearray['address'] = $address;
 $task = new PushTask( '/backendscripts/processdlstats.php', $filearray );
 $task->add();
 
-echo "cloud.opendtect.org"."\n";
 echo "download.opendtect.org"."\n";
 
 ?>
