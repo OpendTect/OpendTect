@@ -157,6 +157,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->getNewHorizon() )
 	hor3d->setBurstAlert( true );
 
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     uiStringSet errors;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
@@ -231,6 +232,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 					    hs.start_, hs.step_, arr, true );
     }
 
+    MouseCursorManager::restoreOverride();
     const bool success = errors.isEmpty();
     if ( !success )
     {
