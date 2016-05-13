@@ -396,7 +396,7 @@ bool JobIOMgr::startProg( const char* progname,
     }
 
     OS::CommandLauncher cl( mc );
-    OS::CommandExecPars execpars;
+    OS::CommandExecPars execpars( true );
 #ifdef __unix__
     const StepInterval<int> nicerg(
 		    OS::CommandExecPars::cMachineUserPriorityRange( false ) );
