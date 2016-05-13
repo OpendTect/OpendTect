@@ -52,7 +52,7 @@ public:
 				{ return enabletextureinterp_; }
     bool			canEnableTextureInterpolation() const
 				{ return true; }
-    
+
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
     visBase::Material*		getMaterial();
@@ -250,12 +250,12 @@ private:
 
 	void			setPixelDensity(float);
 	void			setDisplayTransformation(const mVisTrans*);
-	void 			updateDataTransform(const TrcKeyZSampling&,
+	void			updateDataTransform(const TrcKeyZSampling&,
 						   ZAxisTransform*);
         void			setSceneEventCatcher(visBase::EventCatcher*);
         void			setMaterial(visBase::Material*);
 	RefMan<visBase::VertexShape> setLineStyle(const OD::LineStyle&);
-    				//Returns old line if replaced
+				//Returns old line if replaced
 
 
         visBase::VertexShape*		line_;
@@ -266,13 +266,13 @@ private:
     };
 
     IntersectionData*		getOrCreateIntersectionData(
-	    			     ObjectSet<IntersectionData>& pool );
-    				//!<Return data from pool or creates new
+				     ObjectSet<IntersectionData>& pool );
+				//!<Return data from pool or creates new
 
     void			traverseLine(const TrcKeyPath&,
                                              const TypeSet<Coord>&,
-	    				     const Interval<float>& zrg,
-                                 	     EM::SectionID,
+					     const Interval<float>& zrg,
+	     EM::SectionID,
 					     IntersectionData&) const;
                                 /*!<List of coordinates may be empty, coords
                                     will then be fetched from trckeys. */
@@ -283,12 +283,12 @@ private:
     bool			isValidIntersectionObject(
 				   const ObjectSet<const SurveyObject>&,
 				   int& objidx,int objid) const;
-				/*!<Check if the active object is one of 
+				/*!<Check if the active object is one of
 				planedata, z-slice, 2dline,..., if it is
-				get the the idx in the stored object 
+				get the the idx in the stored object
 				collection.*/
     ManagedObjectSet<IntersectionData>	intersectiondata_;
-    					//One per object we intersect with
+					//One per object we intersect with
 
     float				maxintersectionlinethickness_;
     visBase::Material*			intersectionlinematerial_;
@@ -316,6 +316,7 @@ private:
     bool				validtexture_;
     bool				displayintersectionlines_;
     bool				displaysurfacegrid_;
+    Threads::Lock			updatelock_;
 
     TypeSet<EM::SectionID>		oldsectionids_;
     TypeSet<StepInterval<int> >		olddisplayedrowranges_;
