@@ -176,8 +176,8 @@ mExpClass(General) ExpressionOperatorDescGroup
 {
 public:
 
-    BufferString			name_;
-    ObjectSet<ExpressionOperatorDesc>	opers_;
+    BufferString				name_;
+    ManagedObjectSet<ExpressionOperatorDesc>	opers_;
 
     static const ObjectSet<const ExpressionOperatorDescGroup>& supported();
 

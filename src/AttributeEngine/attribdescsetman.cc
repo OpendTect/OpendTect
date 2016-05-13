@@ -27,7 +27,10 @@ DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
     , destrondel_(destr)
 {
     if ( !ads_ )
+    {
 	ads_ = new DescSet(is2d_);
+	destrondel_ = true;
+    }
     else
 	fillHist();
 }
