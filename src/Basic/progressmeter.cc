@@ -84,7 +84,10 @@ void ProgressRecorder::skipProgress( bool yn )
 void ProgressRecorder::operator++()
 {
     mSetLock();
-    nrdone_++;
+    if (  forwardto_ )
+	++(*forwardto_);
+    else
+	nrdone_++;
 }
 
 
