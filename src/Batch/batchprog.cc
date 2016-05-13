@@ -86,6 +86,7 @@ void BatchProgram::init()
     clparser_->setKeyHasValue( sKeyMasterPort() );
     clparser_->setKeyHasValue( sKeyJobID() );
     clparser_->setKeyHasValue( sKeyDataDir() );
+    clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
 
     inbg_ = clparser_->hasKey( sKeyBG() );
 
@@ -110,7 +111,7 @@ void BatchProgram::init()
 
 	parfilnm = parfp.fullPath();
 	parfilnm.replace( '%', ' ' );
-	if ( File::exists( parfilnm ) )
+	if ( File::exists(parfilnm) )
 	    break;
 
 	parfilnm.setEmpty();
