@@ -630,27 +630,29 @@ Array2D<unsigned char>*				bidinplg_;
 
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog( p, Setup(tr("Region constructor"),tr("Boundary settings"),
-                        mODHelpKey(mBodyRegionDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Region constructor"),mNoDlgTitle,
+		       mODHelpKey(mBodyRegionDlgHelpID) ) )
     , singlehoradded_(false)
 {
     setCtrlStyle( RunAndClose );
 
-    subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
-		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
-		seltxt("Geometry boundary").withstep(false) );
+    subvolfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(!SI().has3D(),true)
+	.choicetype(uiPosSubSel::Setup::RangewithPolygon)
+	.seltxt("Geometry boundary").withstep(false) );
 
-    singlehorfld_ = new uiGenInput(this, uiStrings::sApply(), BoolInpSpec(false,
-		tr("Single horizon wrapping"), tr("Multiple horizon layers")) );
+    singlehorfld_ = new uiGenInput( this, uiStrings::sApply(),
+	BoolInpSpec(false,tr("Single horizon wrapping"),
+			  tr("Multiple horizon layers")) );
     singlehorfld_->attach( alignedBelow, subvolfld_ );
-    singlehorfld_->valuechanged.notify(mCB(this,uiBodyRegionDlg,horModChg));
+    singlehorfld_->valuechanged.notify( mCB(this,uiBodyRegionDlg,horModChg) );
 
     uiTable::Setup tsu( 4, 4 );
     uiGroup* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, singlehorfld_ );
     table_ = new uiTable( tblgrp, tsu.rowdesc("Boundary").defrowlbl(true),"Sf");
-    BufferStringSet lbls; lbls.add("Name").add("Region location").add(
-	    "Relative horizon shift").add(" ");
+    BufferStringSet lbls;
+    lbls.add("Name").add("Region location")
+	.add("Relative horizon shift").add(" ");
     table_->setColumnLabels( lbls );
     table_->setPrefWidth( 600 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -661,17 +663,17 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addhorbutton_->attach( rightOf, table_ );
 
-    addfltbutton_ = new uiPushButton( this, tr("Add fault"),
+    addfltbutton_ = new uiPushButton( tblgrp, tr("Add fault"),
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addfltbutton_->attach( alignedBelow, addhorbutton_ );
 
-    removebutton_ = new uiPushButton( this, uiStrings::sRemove(),
+    removebutton_ = new uiPushButton( tblgrp, uiStrings::sRemove(),
 	    mCB(this,uiBodyRegionDlg,removeSurfaceCB), false );
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );
 
     outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
-    outputfld_->attach( alignedBelow, table_ );
+    outputfld_->attach( alignedBelow, tblgrp );
 }
 
 
@@ -685,7 +687,7 @@ MultiID uiBodyRegionDlg::getBodyMid() const
 }
 
 
-void uiBodyRegionDlg::horModChg( CallBacker* cb )
+void uiBodyRegionDlg::horModChg( CallBacker* )
 {
     table_->clearTable();
     table_->selectRow( 0 );
