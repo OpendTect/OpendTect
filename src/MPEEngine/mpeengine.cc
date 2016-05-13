@@ -912,7 +912,8 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     const int globidx = sdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
-    const int nrz = zintv.nrSteps() + 1;
+    StepInterval<float> zintv2 = zintv; zintv2.step = sdp->getZRange().step;
+    const int nrz = zintv2.nrSteps() + 1;
     Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     seeddata->setAll( mUdf(float) );
 
