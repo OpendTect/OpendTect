@@ -150,6 +150,8 @@ void TextStreamProgressMeter::reset()
 
 void TextStreamProgressMeter::setStarted()
 {
+    if ( skipprog_ ) return;
+
     if ( !inited_ )
     {
 	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
