@@ -118,7 +118,7 @@ bool HorizonGridder::setFrom( float* data, od_int64 target,
 				    .require( Stats::Average ) );
 	for ( int idy=0; idy<curblock.size(); idy++ )
 	    calc.addValue( data[sources[curblock[idy]]],
-		    	   weights[curblock[idy]] );
+			   weights[curblock[idy]] );
 
 	const float calcz = (float) calc.average();
 	const BinID firstbid = hs_.atIndex( sources[curblock[0]] );
@@ -174,13 +174,8 @@ bool HorizonGridder::usePar( const IOPar& par )
 
 void InvDistHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
-    ConstRefMan<Survey::Geometry3D> geom = 
-	Survey::GM().getGeometry3D( hs.survid_ );
-    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step_.inl() );
-    setColStep( SI().crlDistance() * hs.step_.crl() );
-    setOrigin( hs.start_ );
+    Array2DInterpol::setSampling( hs );
 }
 
 
@@ -228,13 +223,8 @@ bool InvDistHor3DGridder::usePar( const IOPar& par )
 
 void TriangulationHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
-    ConstRefMan<Survey::Geometry3D> geom = 
-       Survey::GM().getGeometry3D( hs.survid_ );
-    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step_.inl() );
-    setColStep( SI().crlDistance() * hs.step_.crl() );
-    setOrigin( hs.start_ );
+    Array2DInterpol::setSampling( hs );
 }
 
 
@@ -282,13 +272,8 @@ bool TriangulationHor3DGridder::usePar( const IOPar& par )
 
 void ExtensionHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
-    ConstRefMan<Survey::Geometry3D> geom = 
-	Survey::GM().getGeometry3D( hs.survid_ );
-    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step_.inl() );
-    setColStep( SI().crlDistance() * hs.step_.crl() );
-    setOrigin( hs.start_ );
+    Array2DInterpol::setSampling( hs );
 }
 
 
@@ -316,13 +301,8 @@ bool ExtensionHor3DGridder::usePar( const IOPar& par )
 void ContinuousCurvatureHor3DGridder::setTrcKeySampling(
      const TrcKeySampling& hs )
 {
-    ConstRefMan<Survey::Geometry3D> geom = 
-	Survey::GM().getGeometry3D( hs.survid_ );
-    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( geom->inlDistance() * hs.step_.inl() );
-    setColStep( geom->crlDistance() * hs.step_.crl() );
-    setOrigin( hs.start_ );
+    Array2DInterpol::setSampling( hs );
 }
 
 

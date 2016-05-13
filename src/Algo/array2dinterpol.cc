@@ -14,8 +14,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
-#include "thread.h"
 #include "statruncalc.h"
+#include "thread.h"
+#include "trckeysampling.h"
 #include "trigonometry.h"
 
 
@@ -133,6 +134,14 @@ void Array2DInterpol::setColStep( float cs )
 
 void Array2DInterpol::setOrigin( const RowCol& rc )
 { origin_ = rc; }
+
+
+void Array2DInterpol::setSampling( const TrcKeySampling& hs )
+{
+    setRowStep( hs.lineDistance() );
+    setColStep( hs.trcDistance() );
+    setOrigin( hs.start_ );
+}
 
 Array2DInterpol::FillType Array2DInterpol::getFillType() const
 { return filltype_; }

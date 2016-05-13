@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "rowcol.h"
 
+class TrcKeySampling;
 template <class T> class Array2D;
 namespace Stats { class CalcSetup; }
 
@@ -42,6 +43,8 @@ public:
     void			setRowStep(float r);
     void			setColStep(float r);
     void			setOrigin(const RowCol&);
+    void			setSampling(const TrcKeySampling&);
+				//!< Set both steps and the origin
 
     void			setMaxHoleSize(float);
     float			getMaxHoleSize() const;

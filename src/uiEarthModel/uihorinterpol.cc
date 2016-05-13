@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 
 static HiddenParam<uiHorizonInterpolDlg, Notifier<uiHorizonInterpolDlg>* >
-	horReadyFroDisplays( 0 );
+	horReadyForDisplays( 0 );
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
@@ -56,7 +56,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 {
     Notifier<uiHorizonInterpolDlg>* notifier =
 	new Notifier<uiHorizonInterpolDlg>( this );
-    horReadyFroDisplays.setParam( this, notifier );
+    horReadyForDisplays.setParam( this, notifier );
     if ( !hor )
 	setCtrlStyle( RunAndClose );
 
@@ -117,8 +117,8 @@ uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 {
     detachAllNotifiers();
     Notifier<uiHorizonInterpolDlg>* notifier =
-	horReadyFroDisplays.getParam( this );
-    horReadyFroDisplays.removeParam( this );
+	horReadyForDisplays.getParam( this );
+    horReadyForDisplays.removeParam( this );
     delete notifier;
 
     if ( horizon_ ) horizon_->unRef();
@@ -127,7 +127,7 @@ uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 
 Notifier<uiHorizonInterpolDlg>* uiHorizonInterpolDlg::horReadyFroDisplay()
 {
-    return horReadyFroDisplays.getParam( this );
+    return horReadyForDisplays.getParam( this );
 }
 
 
@@ -175,6 +175,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->getNewHorizon() )
 	hor3d->setBurstAlert( true );
 
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     uiStringSet errors;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
@@ -249,6 +250,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 					    hs.start_, hs.step_, arr, true );
     }
 
+    MouseCursorManager::restoreOverride();
     const bool success = errors.isEmpty();
     if ( !success )
     {
@@ -261,7 +263,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     if ( success &&
 	 (saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon()) )
-	horReadyFroDisplays.getParam(this)->trigger();
+	horReadyForDisplays.getParam(this)->trigger();
 
     return success;
 }
@@ -313,7 +315,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
     }
 
     if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
-	horReadyFroDisplays.getParam(this)->trigger();
+	horReadyForDisplays.getParam(this)->trigger();
 
     return true;
 }
