@@ -252,7 +252,7 @@ protected:
 	    const OffsetValueSeries<float>& dptrcvs =
 		seisdatapack_->getTrcStorage( 0, globidx );
 
-	    const SamplingData<float> sd = seisdatapack_->sampling().zrg;
+	    const SamplingData<float> sd = seisdatapack_->sampling().zsamp_;
 	    tdc_.setVelocityModel( dptrcvs,
 				   seisdatapack_->sampling().zsamp_.nrSteps()+1,
 				   sd, veldesc_, velintime_ );
