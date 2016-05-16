@@ -172,6 +172,7 @@ protected:
     bool			definedv0_;
     bool			definedv1_;
     bool			zistime_;
+    float			seisrefdatum_;
     int				nrdone_;
 
     const IOObj&		obj_;

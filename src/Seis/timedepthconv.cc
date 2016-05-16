@@ -129,7 +129,7 @@ bool Time2DepthStretcher::usePar( const IOPar& par )
 
     MultiID vid;
     if ( par.get( VelocityDesc::sKeyVelocityVolume(), vid ) &&
-	          !setVelData( vid ) )
+		  !setVelData( vid ) )
 	return false;
 
     return true;
@@ -208,13 +208,13 @@ public:
 		}
 protected:
 
-    od_int64            totalNr() const
+    od_int64		totalNr() const
 			{return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl();}
-    od_int64            nrDone() const { return nrdone_; }
+    od_int64		nrDone() const { return nrdone_; }
     uiString	uiMessage() const { return tr("Reading velocity model"); };
     uiString	uiNrDoneText() const { return tr("Position read"); }
 
-    int                 nextStep()
+    int			nextStep()
     {
 	const int nrz = arr_.info().getSize( 2 );
 
@@ -279,16 +279,16 @@ protected:
 	return MoreToDo();
     }
 
-    TrcKeyZSampling        	readcs_;
-    SeisTrcReader&      	reader_;
-    Array3D<float>&     	arr_;
-    TimeDepthConverter  	tdc_;
-    VelocityDesc        	veldesc_;
-    bool                	velintime_;
-    bool                	voiintime_;
+    TrcKeyZSampling		readcs_;
+    SeisTrcReader&		reader_;
+    Array3D<float>&		arr_;
+    TimeDepthConverter		tdc_;
+    VelocityDesc		veldesc_;
+    bool			velintime_;
+    bool			voiintime_;
     const RegularSeisDataPack*	seisdatapack_;
 
-    int                 	nrdone_;
+    int				nrdone_;
 
     SamplingData<double>	voisd_;
 
@@ -465,7 +465,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     else
     {
 	Time2DepthStretcherProcessor proc( samplfunc, zrg,
-	               Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
+		       Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
 	proc.execute();
     }
 }
@@ -473,7 +473,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 
 void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
-				        int sz, float* res ) const
+					int sz, float* res ) const
 {
     if ( trckey.is2D() )
 	return;
@@ -536,7 +536,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     else
     {
 	Time2DepthStretcherProcessor proc( samplfunc, zrg,
-	               Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
+		       Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
 	proc.execute();
     }
 }
@@ -582,6 +582,25 @@ void Time2DepthStretcher::udfFill( ValueSeries<float>& res, int sz )
 }
 
 
+Interval<float>& getZRange( Interval<float>& zrg, float step, int userfac )
+{
+    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
+    zrg.stop = zrg.atIndex( stopidx, step );
+    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
+    return zrg;
+}
+
+
+float getZStep( const Interval<float>& zrg, int userfac )
+{
+    const int nrsteps = SI().zRange( true ).nrSteps();
+    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
+    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+    zstep /= userfac;
+    return zstep;
+}
+
+
 Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 {
     const bool survistime = SI().zIsTime();
@@ -603,7 +622,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 	res.stop /= botvavg_.start/2;
     }
 
-    return res;
+    return getZRange( res, getGoodZStep(), toZDomainInfo().userFactor() );;
 }
 
 
@@ -696,7 +715,7 @@ void Depth2TimeStretcher::transformTrc(const TrcKey& trckey,
 
 void Depth2TimeStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
-				        int sz, float* res ) const
+					int sz, float* res ) const
 { stretcher_->transformTrc( trckey, sd, sz, res ); }
 
 
@@ -733,6 +752,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , definedv0_( false )
     , definedv1_( false )
     , zistime_ ( SI().zIsTime() )
+    , seisrefdatum_( SI().seismicReferenceDatum() )
     , nrdone_( 0 )
 {
     reader_->prepareWork();
@@ -741,6 +761,8 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 
     hsiter_.setSampling(  subsel_ );
     zistime_ = ZDomain::isTime( input.pars() );
+    if ( zistime_ && SI().depthsInFeet() )
+	seisrefdatum_ *= mToFeetFactorF;
 }
 
 
@@ -823,13 +845,17 @@ int VelocityModelScanner::nextStep()
 
     if ( first!=-1 && last!=-1 && first!=last )
     {
-	const float firsttime = (float) sd.atIndex(first);
+	float firsttime = mCast(float,sd.atIndex(first));
+	if ( !zistime_ ) firsttime -= seisrefdatum_;
+
 	float v0 = -1;
-	if ( firsttime>0 )
-	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
-			  : ( resvs.value(first)>0.0001
-				  ?  2*firsttime/resvs.value(first)
-				  : 1500 );
+	if ( firsttime > 0 )
+	{
+	    float firstvalue = resvs.value( first );
+	    if ( zistime_ ) firstvalue += seisrefdatum_;
+	    v0 = zistime_ ? 2*firstvalue/firsttime
+			  : (firstvalue>1e-4 ? 2*firsttime/firstvalue : 1500);
+	}
 	else
 	{
 	    const float diff0 = resvs.value(first+1) - resvs.value(first);
@@ -847,10 +873,12 @@ int VelocityModelScanner::nextStep()
 		startavgvel_.include( v0 );
 	}
 
-	const float v1 = (float) (zistime_
-		? 2 * resvs.value(last) / sd.atIndex(last)
-		: 2 * sd.atIndex(last) / resvs.value(last));
+	float lasttime = mCast(float,sd.atIndex(last));
+	if ( !zistime_ ) lasttime -= seisrefdatum_;
+	float lastvalue = resvs.value( last );
+	if ( zistime_ ) lastvalue += seisrefdatum_;
 
+	const float v1 = zistime_ ? 2*lastvalue/lasttime : 2*lasttime/lastvalue;
 	if ( !definedv1_ )
 	{
 	    definedv1_ = true;
@@ -961,7 +989,7 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 	zrg.stop = ZAxisTransform::transformBack( stopbidval );
     }
 
-    return zrg;
+    return getZRange( zrg, getGoodZStep(), toZDomainInfo().userFactor() );
 }
 
 
@@ -970,9 +998,10 @@ float LinearT2DTransform::getGoodZStep() const
     if ( !SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( true ).nrSteps();
-    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
+    Interval<float> zrg = SI().zRange( true );
+    zrg.start = transform( BinIDValue(0,0,zrg.start) );
+    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    return getZStep( zrg, toZDomainInfo().userFactor() );
 }
 
 
@@ -999,7 +1028,7 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 {
     Interval<float> zrg = SI().zRange( true );
     const bool survistime = SI().zIsTime();
-    if ( !survistime && depth )	return zrg;
+    if ( !survistime && depth ) return zrg;
 
     BinIDValue startbidval( 0, 0, zrg.start );
     BinIDValue stopbidval( 0, 0, zrg.stop );
@@ -1014,7 +1043,7 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 	zrg.stop = ZAxisTransform::transform( stopbidval );
     }
 
-    return zrg;
+    return getZRange( zrg, getGoodZStep(), toZDomainInfo().userFactor() );
 }
 
 
@@ -1023,7 +1052,8 @@ float LinearD2TTransform::getGoodZStep() const
     if ( SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( true ).nrSteps();
-    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
+    Interval<float> zrg = SI().zRange( true );
+    zrg.start = transform( BinIDValue(0,0,zrg.start) );
+    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    return getZStep( zrg, toZDomainInfo().userFactor() );
 }
