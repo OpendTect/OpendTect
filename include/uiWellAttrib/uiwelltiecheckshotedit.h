@@ -108,6 +108,7 @@ protected:
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);
     void			drawDrift();
+    void			drawPoints();
     void			movePt();
     void			doInsertRemovePt();
 
@@ -123,6 +124,7 @@ protected:
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
+    void			reSizeCB(CallBacker*);
 };
 
 } // namespace WellTie

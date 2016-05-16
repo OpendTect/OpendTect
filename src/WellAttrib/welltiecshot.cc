@@ -33,8 +33,8 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
     for ( int idx=0; idx<cs.size(); idx++ )
     {
 	if ( mIsUdf(cs.dah(idx)) ) continue;
-	
-	for ( int insertidx=0; insertidx<d2t.size(); insertidx++ )
+	found = false;
+	for ( int insertidx=0; insertidx<d2tsz; insertidx++ )
 	{
 	    if ( mIsEqual(cs.dah(idx),d2t.dah(insertidx),1e-3) )
 	    {
@@ -42,9 +42,8 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
 		break;
 	    }
 
-	    if ( d2t.dah(insertidx) > cs.dah(idx) ) break;
-
-	    found = false;
+	    if ( d2t.dah(insertidx) > cs.dah(idx) ) 
+		break;
 	}
 
 	if ( !found )
