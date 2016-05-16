@@ -583,6 +583,25 @@ void Time2DepthStretcher::udfFill( ValueSeries<float>& res, int sz )
 }
 
 
+Interval<float>& getZRange( Interval<float>& zrg, float step, int userfac )
+{
+    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
+    zrg.stop = zrg.atIndex( stopidx, step );
+    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
+    return zrg;
+}
+
+
+float getZStep( const Interval<float>& zrg, int userfac )
+{
+    const int nrsteps = SI().zRange( true ).nrSteps();
+    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
+    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+    zstep /= userfac;
+    return zstep;
+}
+
+
 Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 {
     const bool survistime = SI().zIsTime();
@@ -604,7 +623,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 	res.stop /= botvavg_.start/2;
     }
 
-    return res;
+    return getZRange( res, getGoodZStep(), toZDomainInfo().userFactor() );;
 }
 
 
@@ -822,20 +841,28 @@ int VelocityModelScanner::nextStep()
 	}
     }
 
+    float seisrefdatum = SI().seismicReferenceDatum();
+    if ( zistime_ && SI().depthsInFeet() )
+	seisrefdatum *= mToFeetFactorF;
+
     if ( first!=-1 && last!=-1 && first!=last )
     {
-	const float firsttime = (float) sd.atIndex(first);
+	float firsttime = mCast(float,sd.atIndex(first));
+	if ( !zistime_ ) firsttime -= seisrefdatum;
+
 	float v0 = -1;
-    	if ( firsttime>0 )
-    	    v0 = zistime_ ? 2*resvs.value(first)/firsttime
-			  : ( resvs.value(first)>0.0001
-				  ?  2*firsttime/resvs.value(first)
-				  : 1500 );
-    	else
-    	{
-	    const float diff0 = resvs.value(first+1) - resvs.value(first); 
+	if ( firsttime > 0 )
+	{
+	    float firstvalue = resvs.value( first );
+	    if ( zistime_ ) firstvalue += seisrefdatum;
+	    v0 = zistime_ ? 2*firstvalue/firsttime
+			  : (firstvalue>1e-4 ? 2*firsttime/firstvalue : 1500);
+	}
+	else
+	{
+	    const float diff0 = resvs.value(first+1) - resvs.value(first);
 	    v0 = (float)( zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0);
-    	}
+	}
 
 	if ( v0 > 0 )
 	{
@@ -848,10 +875,12 @@ int VelocityModelScanner::nextStep()
 		startavgvel_.include( v0 );
 	}
 
-	const float v1 = (float) (zistime_
-		? 2 * resvs.value(last) / sd.atIndex(last)
-		: 2 * sd.atIndex(last) / resvs.value(last));
+	float lasttime = mCast(float,sd.atIndex(last));
+	if ( !zistime_ ) lasttime -= seisrefdatum;
+	float lastvalue = resvs.value( last );
+	if ( zistime_ ) lastvalue += seisrefdatum;
 
+	const float v1 = zistime_ ? 2*lastvalue/lasttime : 2*lasttime/lastvalue;
 	if ( !definedv1_ )
 	{
 	    definedv1_ = true;
@@ -962,7 +991,7 @@ Interval<float> LinearT2DTransform::getZInterval( bool time ) const
 	zrg.stop = ZAxisTransform::transformBack( stopbidval );
     }
 
-    return zrg;
+    return getZRange( zrg, getGoodZStep(), toZDomainInfo().userFactor() );
 }
 
 
@@ -971,9 +1000,10 @@ float LinearT2DTransform::getGoodZStep() const
     if ( !SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( true ).nrSteps();
-    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
+    Interval<float> zrg = SI().zRange( true );
+    zrg.start = transform( BinIDValue(0,0,zrg.start) );
+    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    return getZStep( zrg, toZDomainInfo().userFactor() );
 }
 
 
@@ -1015,7 +1045,7 @@ Interval<float> LinearD2TTransform::getZInterval( bool depth ) const
 	zrg.stop = ZAxisTransform::transform( stopbidval );
     }
 
-    return zrg;
+    return getZRange( zrg, getGoodZStep(), toZDomainInfo().userFactor() );
 }
 
 
@@ -1024,7 +1054,8 @@ float LinearD2TTransform::getGoodZStep() const
     if ( SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( true ).nrSteps();
-    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
+    Interval<float> zrg = SI().zRange( true );
+    zrg.start = transform( BinIDValue(0,0,zrg.start) );
+    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    return getZStep( zrg, toZDomainInfo().userFactor() );
 }

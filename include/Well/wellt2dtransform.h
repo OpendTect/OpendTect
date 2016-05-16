@@ -62,6 +62,8 @@ protected:
     Well::Data*			data_;
     TimeDepthModel		tdmodel_;
 
+    Interval<float>		getZRange(bool time) const;
+
     bool			calcDepths();
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;

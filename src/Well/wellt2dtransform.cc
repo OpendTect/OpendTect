@@ -108,13 +108,29 @@ float WellT2DTransform::getGoodZStep() const
     if ( !SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    const Interval<float> zrg = getZInterval( false );
-    const int nrsamples = SI().zRange( false ).nrSteps();
-    return zrg.width() / (nrsamples==0 ? 1 : nrsamples);
+    const Interval<float> zrg = getZRange( false );
+    const int userfac = toZDomainInfo().userFactor();
+    const int nrsteps = SI().zRange( false ).nrSteps();
+    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
+    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+    zstep /= userfac;
+    return zstep;
 }
 
 
 Interval<float> WellT2DTransform::getZInterval( bool time ) const
+{
+    Interval<float> zrg = getZRange( time );
+    const float step = getGoodZStep();
+    const int userfac = toZDomainInfo().userFactor();
+    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
+    zrg.stop = zrg.atIndex( stopidx, step );
+    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
+    return zrg;
+}
+
+
+Interval<float> WellT2DTransform::getZRange( bool time ) const
 {
     Interval<float> zrg = SI().zRange( true );
     const bool survistime = SI().zIsTime();
