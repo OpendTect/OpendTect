@@ -73,8 +73,8 @@ protected:
     virtual bool	update_( const DataInpSpec&)		=0;
 
 public:
-    /*mDeprecated*/ double	getdValue() const	{ return getDValue(); }
-    /*mDeprecated*/ float	getfValue() const	{ return getFValue(); }
+    mDeprecated double	getdValue() const	{ return getDValue(); }
+    mDeprecated float	getfValue() const	{ return getFValue(); }
 };
 
 
