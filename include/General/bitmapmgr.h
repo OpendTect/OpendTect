@@ -60,6 +60,8 @@ private:
 
     Geom::Size2D<int>			sz_;
     Geom::PosRectangle<double>		wr_;
+public:
+    A2DBitMapGenerator*			bitMapGen()	{ return gen_; }
 };
 
 

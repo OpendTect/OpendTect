@@ -221,7 +221,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 
 bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 {
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
     if ( !dp ) return false;
 
@@ -243,7 +243,14 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
     if ( dpid == DataPack::cNoID() ) return false;
 
     viewer2D()->setSelSpec( &selas, true );
-    viewer2D()->useStoredDispPars( true );
+    if ( !viewer2D()->useStoredDispPars(true) )
+    {
+	ColTab::MapperSetup& wvamapper =
+	    vwr.appearance().ddpars_.wva_.mappersetup_;
+	if ( wvamapper.type_ != ColTab::MapperSetup::Fixed )
+	    wvamapper.range_ = Interval<float>::udf();
+    }
+
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	FlatView::DataDispPars& ddpars =

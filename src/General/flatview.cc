@@ -355,7 +355,6 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( getYN, sKeyShow(), vd_.show_ );
     Interval<float> range;
     mIOPDoVD( get, sKeyDispRg(), range );
-    vd_.mappersetup_.range_ = range;
     mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
     mIOPDoVD( getYN, sKeyFlipSequence(), vd_.mappersetup_.flipseq_ );
     mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
@@ -363,9 +362,8 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     bool autoscale = true;
     mIOPDoVD( getYN, "Auto Scale", autoscale ); // legacy
     mIOPDoVD( getYN, sKeyAutoScale(), autoscale );
-    vd_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
-				       : ColTab::MapperSetup::Fixed;
-
+    vd_.mappersetup_.range_ = autoscale ? Interval<float>::udf() : range;
+    vd_.mappersetup_.setAutoScale( autoscale );
     mIOPDoVD( get, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
     vd_.mappersetup_.cliprate_.start *= 0.01;
     if ( mIsUdf(vd_.mappersetup_.cliprate_.stop) )
@@ -377,13 +375,12 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
     mIOPDoWVA( get, sKeyDispRg(), range );
-    wva_.mappersetup_.range_ = range;
+    wva_.mappersetup_.range_ = autoscale ? Interval<float>::udf() : range;
     mIOPDoWVA( getYN, sKeyBlocky(), wva_.blocky_ );
     autoscale = true;
     mIOPDoWVA( getYN, "Auto Scale", autoscale ); // legacy
     mIOPDoWVA( getYN, sKeyAutoScale(), autoscale );
-    wva_.mappersetup_.type_ = autoscale ? ColTab::MapperSetup::Auto
-					: ColTab::MapperSetup::Fixed;
+    wva_.mappersetup_.setAutoScale( autoscale );
     mIOPDoWVA( get, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( get, sKeyWiggCol(), wva_.wigg_ );
     mIOPDoWVA( get, sKeyRefLineCol(), wva_.refline_ );

@@ -146,6 +146,8 @@ protected:
 
 public:
     uiBitMapDisplay*	bitmapDisp()			{ return bitmapdisp_; }
+protected:
+    void			rangeUpdatedCB(CallBacker*);
 
 };
 

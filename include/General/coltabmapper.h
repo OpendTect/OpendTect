@@ -68,6 +68,8 @@ public:
     void			triggerAutoscaleChange();
     mutable Notifier<MapperSetup>	rangeChange;
     mutable Notifier<MapperSetup>	autoscaleChange;
+
+    void			setAutoScale(bool);
 };
 
 

@@ -974,6 +974,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper = dispparsmapper;
     else
     {
+	mapper.range_ = Interval<float>::udf();
 	const float cliprate = wva ? 0.0f : 0.025f;
 	mapper.cliprate_ = Interval<float>(cliprate,cliprate);
 	mapper.autosym0_ = true;

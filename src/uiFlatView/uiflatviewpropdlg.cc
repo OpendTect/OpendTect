@@ -284,7 +284,10 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     pars.show_ = doDisp();
     const int clip = useclipfld_->getIntValue();
     if ( clip != 0 )
+    {
 	pars.mappersetup_.type_ = ColTab::MapperSetup::Auto;
+	pars.mappersetup_.range_ = Interval<float>::udf();
+    }
 
     if ( !clip )
     {

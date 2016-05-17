@@ -81,6 +81,8 @@ private:
     uiBitMapDisplayTask*	basetask_;
 
     CallBack			finishedcb_;
+public:
+    Notifier<uiBitMapDisplay>*	rangeUpdated();
 };
 
 #endif

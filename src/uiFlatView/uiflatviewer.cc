@@ -57,6 +57,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
     bitmapdisp_ = new uiBitMapDisplay( appearance(), false );
+    bitmapdisp_->rangeUpdated()->notify( mCB(this,uiFlatViewer,rangeUpdatedCB));
     bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
     worldgroup_->add( bitmapdisp_->getDisplay() );
 
@@ -106,6 +107,11 @@ uiRect uiFlatViewer::getViewRect( bool withextraborders ) const
     return axesdrawer_.getViewRect( withextraborders );
 }
 
+
+void uiFlatViewer::rangeUpdatedCB( CallBacker* )
+{
+    dispParsChanged.trigger();
+}
 
 void uiFlatViewer::updateAuxDataCB( CallBacker* )
 {
