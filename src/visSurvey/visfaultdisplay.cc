@@ -209,9 +209,9 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 
 
 EM::Fault3D* FaultDisplay::emFault()
-{
-    mDynamicCastGet( EM::Fault3D*, fss, fault_ );
-    return fss;
+{ 
+    mDynamicCastGet(EM::Fault3D*,flt,fault_);
+    return flt; 
 }
 
 
@@ -320,8 +320,8 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
 
-    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		    fault_->sectionGeometry( fault_->sectionID(0)) );
+    mDynamicCastGet(Geometry::FaultStickSurface*,fss,
+		    fault_->sectionGeometry(fault_->sectionID(0)));
 
     paneldisplay_->setSurface( explicitpanels_ );
     explicitpanels_->setSurface( fss );
@@ -373,6 +373,7 @@ bool FaultDisplay::removeSelections( TaskRunner* taskr )
 {
     if ( !fault_ )
 	return false;
+
     fault_->geometry().removeSelectedSticks( true );
     fault_->setChangedFlag();
     return true;
@@ -825,7 +826,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( stickselectmode_ )
 	return stickSelectCB( cb );
 
-     if ( !fault_ || !faulteditor_ || !isOn() || eventcatcher_->isHandled() ||
+    if ( !fault_ || !faulteditor_ || !isOn() || eventcatcher_->isHandled() ||
 	 !isSelected() || !viseditor_ || !viseditor_->isOn() )
 	return;
 
@@ -878,7 +879,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     {
 	endstick_ = false;
 	if ( !activestickid_.isUdf() )
-	   faulteditor_->setLastClicked( activestickid_ );
+	    faulteditor_->setLastClicked( activestickid_ );
 	return;
     }
 
@@ -896,14 +897,14 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     if ( pid.isUdf() && !viseditor_->isDragging() )
     {
-	 EM::Fault3D* fault3d = emFault();
-	 EM::SectionID sid = fault3d->sectionID(0);
-	 EM::PosID npid = faulteditor_->getNearstStick( sid, pos, &editnormal );
-	 if ( !npid .isUdf() )
-	 {
-	     setActiveStick( npid  );
-	     activestickid_ = npid;
-	 }
+	EM::Fault3D* fault3d = emFault();
+	EM::SectionID sid = fault3d->sectionID(0);
+	EM::PosID npid = faulteditor_->getNearstStick( sid, pos, &editnormal );
+	if ( !npid.isUdf() )
+	{
+	    setActiveStick( npid );
+	    activestickid_ = npid;
+	}
     }
 
     if ( locked_ || !pos.isDefined() ||
@@ -928,11 +929,9 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    {
 		bool res;
 		const int rmstick = pid.getRowCol().row();
-
 		EM::Fault3D* fault3d = emFault();
 		if ( !fault3d ) return;
 		EM::Fault3DGeometry& f3dg = fault3d->geometry();
-
 		if ( f3dg.nrKnots(pid.sectionID(),rmstick)==1 )
 		    res = f3dg.removeStick( pid.sectionID(), rmstick, true );
 		else
@@ -1035,7 +1034,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
 
     EM::Fault3D* fault3d = emFault();
-    if (!fault3d ) return;
+    if ( !fault3d ) return;
 
     if ( cbdata.event == EM::EMObjectCallbackData::SectionChange )
     {
@@ -1113,7 +1112,7 @@ void FaultDisplay::updateActiveStickMarker()
 
     RowCol rc( activestick_, 0 );
     Geometry::PrimitiveSet* idxps =
-    Geometry::IndexedPrimitiveSet::create( false );
+	Geometry::IndexedPrimitiveSet::create( false );
     idxps->ref();
 
     for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col() += colrg.step )
@@ -1363,7 +1362,7 @@ bool FaultDisplay::canDisplayIntersections() const
 	    if ( (plane && plane->isOn()) ||
 		 (s2dd && s2dd->isOn())   ||
 		 (rdtd && rdtd->isOn()) )
-		 return true;
+		return true;
 	}
     }
 
@@ -1597,12 +1596,12 @@ void FaultDisplay::setStickSelectMode( bool yn )
 
 
 void FaultDisplay::turnOnSelectionMode( bool yn )
-{  setStickSelectMode( yn ); }
+{ setStickSelectMode( yn ); }
 
 
 void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 {
-   if ( !stickselectmode_ || !fault_ || !scene_ || !displaysticks_ ||
+    if ( !stickselectmode_ || !fault_ || !scene_ || !displaysticks_ ||
 	!isOn() || !isSelected())
 	return;
 
@@ -1647,8 +1646,9 @@ void FaultDisplay::updateKnotMarkers()
     if ( !fault_ || ( viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
 
-    if(getCurScene() != scene_)
-	setCurScene(scene_);
+    if ( getCurScene() != scene_ )
+	setCurScene( scene_ );
+
     updateStickMarkerSet();
 }
 
@@ -1737,9 +1737,9 @@ bool FaultDisplay::coincidesWithPlane(
 	    if ( displaytransform_ )
 		displaytransform_->transform( curpos );
 
-	   const float curdist = plane
-	    			 ? plane->calcDist( curpos )
-				 : rdtd->calcDist( curpos );
+	    const float curdist = plane
+			? plane->calcDist( curpos )
+			: rdtd->calcDist( curpos );
 	    if ( curdist <= 0.5*onestepdist )
 	    {
 		res = res || coincidemode;
@@ -1750,8 +1750,8 @@ bool FaultDisplay::coincidesWithPlane(
 		const float frac = prevdist / (prevdist+curdist);
 		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
 		const float dist = plane
-    				   ? plane->calcDist( interpos )
-				   : rdtd->calcDist( interpos );
+			? plane->calcDist( interpos )
+			: rdtd->calcDist( interpos );
 		if ( dist <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
@@ -1819,6 +1819,9 @@ void FaultDisplay::updateStickHiding()
 
 bool FaultDisplay::onSection( int sticknr )
 {
+    if ( !fault_ )
+	return false;
+
     for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
     {
 	EM::SectionID sid = fault_->sectionID( sidx );
@@ -1908,7 +1911,6 @@ bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     datapack->ref();
     datapackids_[attrib] = dpid;
     dpman.unRef( oldid );
-    
     return true;
 }
 
