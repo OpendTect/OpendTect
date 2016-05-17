@@ -725,9 +725,11 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
 {
     const uiTreeViewItem* curitem =
 	treetp_ ? treetp_->getTreeView()->selectedItem() : 0;
-    if ( !curitem && viewstdcontrol_->editToolBar() )
+    if ( !curitem )
     {
-	viewstdcontrol_->editToolBar()->setSensitive(picksettingstbid_,false);
+	if ( viewstdcontrol_->editToolBar() )
+	    viewstdcontrol_->editToolBar()->setSensitive( picksettingstbid_,
+							  false );
 	return;
     }
 
