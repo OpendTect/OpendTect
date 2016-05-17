@@ -377,7 +377,6 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
 void uiPreStackAttrib::gatherTypSel( CallBacker* )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    const bool iscomputeangle = useanglefld_->isChecked();
     uiString xlbl = tr("%1 range (empty=all)")
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
