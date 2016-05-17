@@ -1,3 +1,4 @@
+
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
@@ -152,7 +153,10 @@ float PropCalc::getVal( float z ) const
 
 	    float axisval = mUdf(float);
 	    if ( !useangle )
+	    {
 		axisval = gather_->getOffset( itrc );
+		axisval *= setup_.xscaler_;
+	    }
 	    else
 	    {
 		const float* angledata =

@@ -46,9 +46,19 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
+    gathertypefld_ = new uiGenInput( this, tr("Gather type"),
+			     StringListInpSpec(PSAttrib::GatherTypeDef()) );
+    gathertypefld_->attach( alignedBelow, prestackinpfld_ );
+    gathertypefld_->valuechanged.notify(
+				 mCB(this,uiPreStackAttrib,gatherTypSel) );
+
+    xrgfld_ = new uiGenInput( this, tr("Offset range (empty=all) "),
+	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
+    xrgfld_->attach( alignedBelow, gathertypefld_ );
+
     dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"),
                                        BoolInpSpec(false) );
-    dopreprocessfld_->attach( alignedBelow, prestackinpfld_ );
+    dopreprocessfld_->attach( alignedBelow, xrgfld_ );
     dopreprocessfld_->valuechanged.notify(
 	    mCB(this,uiPreStackAttrib,doPreProcSel) );
     preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), 0 );
@@ -70,21 +80,12 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     lsqtypefld_ = new uiGenInput( this, tr("AVO output"),
 		  StringListInpSpec(PreStack::PropCalc::LSQTypeDef()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
-
-    useanglefld_ = new uiCheckBox( this, tr("Use Angles") );
+    
+    useanglefld_ = new uiCheckBox( this, tr("Compute Angles") );
     useanglefld_->attach( rightOf, lsqtypefld_ );
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
-
-    gathertypefld_ = new uiGenInput( this, tr("Gather type"),
-			     StringListInpSpec(PSAttrib::GatherTypeDef()) );
-    gathertypefld_->attach( alignedBelow, stattypefld_ );
-    gathertypefld_->valuechanged.notify(
-				 mCB(this,uiPreStackAttrib,gatherTypSel) );
-
-    xrgfld_ = new uiGenInput( this, tr("Offset range (empty=all) "),
-	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
-    xrgfld_->attach( alignedBelow, gathertypefld_ );
-
+    useanglefld_->setChecked(false);
+    
     const uiString xlabel = SI().xyInFeet()?tr("feet     "):tr("meters    ");
     xrglbl_ = new uiLabel( this, xlabel );
     xrglbl_->attach( rightOf, xrgfld_ );
@@ -97,7 +98,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeDef())
 				      .setName("X") );
-    xaxistypefld_->attach( alignedBelow, xrgfld_ );
+    xaxistypefld_->attach( alignedBelow, lsqtypefld_ );
 
     valaxtypefld_ = new uiGenInput( this, tr("Amplitude transformations"),
 		     StringListInpSpec(PreStack::PropCalc::AxisTypeDef()) );
@@ -349,7 +350,7 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
     stattypefld_->display( isnorm );
     lsqtypefld_->display( !isnorm );
     xaxistypefld_->display( !isnorm );
-    angleTypSel( 0 );
+    gatherTypSel( 0 );
 }
 
 
@@ -360,28 +361,26 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
 	useanglefld_->setChecked( false );
 	useanglefld_->display( false );
     }
+    
+    const bool isoffset = gathertypefld_->getIntValue() == 0;
+    const bool iscomputeangle = useanglefld_->isChecked();
 
-    const bool useangle = useanglefld_->isChecked();
-    anglecompgrp_->display( useangle );
-    gathertypefld_->display( !useangle );
-    xrgfld_->display( !useangle );
-    xrglbl_->display( !useangle );
-    xunitfld_->display( !useangle );
-    xaxistypefld_->setSensitive( !useangle );
-    if ( useangle )
+    xrgfld_->setSensitive( !iscomputeangle );
+    xrglbl_->setSensitive( !iscomputeangle );
+    anglecompgrp_->display( isoffset && iscomputeangle );
+    xaxistypefld_->setSensitive( !iscomputeangle );
+    if ( iscomputeangle )
 	 xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
-    else
-	gatherTypSel( 0 );
 }
 
 
 void uiPreStackAttrib::gatherTypSel( CallBacker* )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
+    const bool iscomputeangle = useanglefld_->isChecked();
     uiString xlbl = tr("%1 range (empty=all)")
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
-    xunitfld_->display( !isoffset );
     if ( isoffset )
     	xrglbl_->setText( SI().getUiXYUnitString(false,false) );
     else
@@ -390,7 +389,14 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* )
 	gatherUnitSel( 0 );
     }
 
+    useanglefld_->display( isoffset );    
+    gathertypefld_->display( true );
+    xrgfld_->display( isoffset );
+    xrglbl_->display( isoffset );
+    xunitfld_->display( !isoffset );
     xaxistypefld_->setSensitive( isoffset );
+
+    angleTypSel(0);
 }
 
 
