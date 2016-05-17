@@ -27,6 +27,7 @@
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "separstr.h"
+#include "stattype.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -419,6 +420,28 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
     }
     if ( attribname == "Math" && odversion<500 )
 	handleOldMathExpression( descpar, defstring, odversion );
+
+    if ( attribname == "FingerPrint" )
+    {
+	BufferStringSet keys;
+	BufferStringSet vals;
+	Attrib::Desc::getKeysVals( defstring.buf(), keys, vals );
+	const int statkeyidx = keys.indexOf( "statstype" );
+	if ( statkeyidx<0 ) return;
+	if ( isNumberString( vals[statkeyidx]->buf(), true ) )
+	{
+	    const int var = toInt( vals[statkeyidx]->buf() );
+	    int statstype = var + 1;
+	    statstype += (statstype < (int)Stats::RMS ? 0 : 2);
+	    statstype += (statstype < (int)Stats::NormVariance ? 0 : 1);
+	    //!< Count, RMS, StdDev, NormVariance not used, so skip them
+	    BufferString basestr = "statstype=";
+	    BufferString initialstr( basestr, var );
+	    BufferString finalstr( basestr,
+				   Stats::TypeDef().getKeyForIndex(statstype) );
+	    defstring.replace( initialstr, finalstr );
+	}
+    }
 }
 
 

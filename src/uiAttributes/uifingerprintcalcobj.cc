@@ -225,13 +225,10 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     {
 	ObjectSet< Stats::RunCalc<float> > statsset;
 
-	Stats::Type styp = (Stats::Type)(statstype_ +
-				(statstype_ < (int)Stats::StdDev ? 0 : 1));
-			    //!< StdDev not used, so skip it
-	fillInStats( valueset, statsset, styp );
+	fillInStats( valueset, statsset, statstype_ );
 
 	for ( int idx=0; idx<nrattribs; idx++ )
-	    vals[idx] = (float) statsset[idx]->getValue(styp);
+	    vals[idx] = (float) statsset[idx]->getValue(statstype_);
 
 	deepErase( statsset );
     }

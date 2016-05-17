@@ -37,6 +37,7 @@ ________________________________________________________________________
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uicombobox.h"
 #include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
@@ -53,16 +54,6 @@ ________________________________________________________________________
 using namespace Attrib;
 
 static const int cInitNrRows = 4;
-
-static const char* statstrs[] =
-{
-	"Average",
-	"Median",
-	"Variance",
-	"Min",
-	"Max",
-	0
-};
 
 mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp())
 
@@ -98,6 +89,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , refposfld_(0)
     , linefld_(0)
+    , def_ ( *(new EnumDefImpl<Stats::Type> (Stats::TypeDef() ) ))
 {
     calcobj_ = new calcFingParsObject( this );
 
@@ -143,8 +135,16 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
 
-    statsfld_ = new uiGenInput( this, tr("PickSet statistic"),
-			       StringListInpSpec(statstrs) );
+    def_.remove( def_.getKey(Stats::Count) );
+    def_.remove( def_.getKey(Stats::RMS) );
+    def_.remove( def_.getKey(Stats::StdDev) );
+    def_.remove( def_.getKey(Stats::NormVariance) );
+    def_.remove( def_.getKey(Stats::Extreme) );
+    def_.remove( def_.getKey(Stats::Sum) );
+    def_.remove( def_.getKey(Stats::SqSum) );
+    def_.remove( def_.getKey(Stats::MostFreq) );
+
+    statsfld_ = new uiComboBox( this, def_, "PickSet statistic" );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
 
@@ -289,8 +289,27 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
 
-    mIfGetInt( FingerPrint::statstypeStr(), statsval,
-	       statsfld_->setValue(statsval) )
+    Attrib::ValParam* valparamstatsval = const_cast<Attrib::ValParam*>(
+				desc.getValParam(FingerPrint::statstypeStr()));
+    mDynamicCastGet(Attrib::EnumParam*,enumparamstatsval,valparamstatsval);
+    if ( enumparamstatsval )
+    {
+	int statsval;
+	if ( enumparamstatsval->isSet() )
+	    statsval = enumparamstatsval->getIntValue(0);
+	else
+	    statsval = enumparamstatsval->getDefaultIntValue(0);
+	statsfld_->setCurrentItem( FingerPrint::getStatsTypeString(statsval) );
+    }
+    else
+    {
+	//!< Old param files, prior to 6.2
+	int statstype = valparamstatsval->getIntValue(0) + 1;
+	statstype += (statstype < (int)Stats::RMS ? 0 : 2);
+	statstype += (statstype < (int)Stats::NormVariance ? 0 : 1);
+	//!< Count, RMS, StdDev, NormVariance not used, so skip them
+	statsfld_->setCurrentItem(Stats::TypeDef().getKeyForIndex(statstype) );
+    }
 
     refSel(0);
 
@@ -389,7 +408,8 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     }
     else if ( refgrpval == 2 )
     {
-	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
+	mSetEnum( FingerPrint::statstypeStr(),
+		  Stats::TypeDef().indexOf( statsfld_->currentItem() ) );
 	if ( picksetfld_->ioobj(true) )
 	    mSetString( FingerPrint::valpicksetStr(),
 			picksetfld_->key() )
@@ -507,7 +527,8 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
     }
     calcobj_->setUserRefList( refset );
     if ( picksetbut_->isChecked() )
-	calcobj_->setValStatsType( statsfld_->getIntValue() );
+	calcobj_->setValStatsType(
+			def_.getEnumForIndex(statsfld_->currentItem() ) );
 
     advanceddlg_->go();
 }
@@ -541,7 +562,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     calcobj_->setValRgSet( valuesset, true );
     calcobj_->setValRgSet( rangesset, false );
     if ( picksetbut_->isChecked() )
-	calcobj_->setValStatsType( statsfld_->getIntValue() );
+	calcobj_->setValStatsType( Stats::TypeDef().parse(statsfld_->text() ) );
 
     calcobj_->computeValsAndRanges();
 }

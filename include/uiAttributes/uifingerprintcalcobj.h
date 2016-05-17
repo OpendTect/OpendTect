@@ -38,7 +38,7 @@ public:
     void		setValues( TypeSet<float> vals ){ values_ = vals; }
     void		setRgRefPick(const char* pickid){ rgpickset_ = pickid; }
     void		setRgRefType( int type )	{ rgreftype_ = type; }
-    void		setValStatsType( int typ )	{ statstype_ = typ; }
+    void		setValStatsType( Stats::Type typ ) { statstype_ = typ; }
     
     TypeSet<int>	getWeights() const		{ return weights_; }
     TypeSet<float>	getValues() const		{ return values_; }
@@ -69,7 +69,7 @@ protected:
 
     BufferStringSet*	reflist_;
     DescSet*		attrset_;
-    int			statstype_;
+    Stats::Type		statstype_;
     TypeSet<float>	values_;
     TypeSet<int>	weights_;
     TypeSet< Interval<float> > ranges_;

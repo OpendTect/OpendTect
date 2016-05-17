@@ -13,12 +13,14 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "position.h"
 #include "multiid.h"
+#include "position.h"
+#include "stattype.h"
 
 class CtxtIOObj;
 class uiAttrSel;
 class uiTable;
+class uiComboBox;
 class uiLabel;
 class uiIOObjSel;
 class uiGenInput;
@@ -48,7 +50,7 @@ protected:
     uiRadioButton*	refposbut_;
     uiRadioButton*	picksetbut_;
     uiToolButton*	getposbut_;
-    uiGenInput*		statsfld_;
+    uiComboBox*		statsfld_;
     uiGenInput*		refposfld_;
     uiGenInput*		refpos2dfld_;
     uiGenInput*		refposzfld_;
@@ -58,6 +60,7 @@ protected:
    
     CtxtIOObj&		ctio_;
     ObjectSet<uiAttrSel> attribflds_;
+    EnumDefImpl<Stats::Type> def_;
 
     uiFPAdvancedDlg*	advanceddlg_;
     calcFingParsObject*	calcobj_;

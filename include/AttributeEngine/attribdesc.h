@@ -207,18 +207,19 @@ public:
     static const char*		sKeyCrlDipComp();
     static const char*		sKeyLineDipComp();
 
-protected:
-				~Desc();
-
-    bool			setInput_(int,Desc*);
-    Param*			findParam(const char* key);
-
     static void			getKeysVals(const char* defstr,
 				    BufferStringSet& keys,
 				    BufferStringSet& vals,
 				    const char* onlyneedkey=0);
 				/*!<Fills \akeys and \avals with pairs of
 				    parameters from the defstr. */
+
+
+protected:
+				~Desc();
+
+    bool			setInput_(int,Desc*);
+    Param*			findParam(const char* key);
 
     TypeSet<Seis::DataType>	outputtypes_;
     TypeSet<int>		outputtypelinks_;

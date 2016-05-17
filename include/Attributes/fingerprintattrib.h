@@ -59,6 +59,7 @@ public:
     static const char*		rgreftypeStr()	{ return "rgreftype"; }
 
     virtual bool		usesTracePosition() const;
+    static const char*		getStatsTypeString(int);
 
 protected:
     				~FingerPrint() {}
