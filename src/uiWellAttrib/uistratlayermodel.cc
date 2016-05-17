@@ -1096,6 +1096,14 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
 }
 
 
+void uiStratLayerModel::resetFluidRepl()
+{
+    lmp_.setUseEdited( false );
+    synthdisp_->setUseEdited( false );
+    moddisp_->setFluidReplOn( false );
+}
+
+
 void uiStratLayerModel::prepareFluidRepl()
 {
     lmp_.initEditing();
