@@ -496,7 +496,10 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	{ errmsg_ = toUiString("Empty command to execute"); return false; }
 
     if ( !mIsZero(pars.prioritylevel_,1e-2f) )
-	localcmd.add( " --priority " ).add( pars.prioritylevel_ );
+    {
+	CommandLineParser::addKey( CommandExecPars::sKeyPriority(), localcmd,
+			   BufferString(toString(pars.prioritylevel_) ).str() );
+    }
 
     bool ret = false;
     if ( pars.isconsoleuiprog_ )

@@ -57,6 +57,8 @@ public:
     void		fillPar(IOPar&) const;
     void		removeFromPar(IOPar&) const;
 
+    static const char*	sKeyPriority()	{ return "priority"; }
+
     static const StepInterval<int>	cMachineUserPriorityRange(bool iswin);
 			/*!< Restricted to OS-specific user available range
 			     Unix: 0-19 (0=normal)

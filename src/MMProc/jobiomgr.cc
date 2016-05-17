@@ -333,6 +333,7 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 // JobIOMgr
 JobIOMgr::JobIOMgr( int firstport, float prioritylevel )
     : iohdlr_(*new JobIOHandler(firstport))
+    , execpars_(true)
 {
     for ( int count=0; count<10 && !iohdlr_.ready(); count++ )
 	{ sleepSeconds( 0.1 ); }
