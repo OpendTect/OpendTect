@@ -706,7 +706,8 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
 
 void EMImplicitBodyProvider::fillPar( IOPar& iop ) const
 {
-    iop.set( mGetBodyKey("ID"), embody_->storageID() );
+    if ( embody_ )
+	iop.set( mGetBodyKey("ID"), embody_->storageID() );
     iop.setYN( sKeyUseInside(), useinside_ );
     if ( !useinside_ )
     {
