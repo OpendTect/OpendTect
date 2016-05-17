@@ -706,7 +706,8 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
 
 void EMImplicitBodyProvider::fillPar( IOPar& iop ) const
 {
-    iop.set( mGetBodyKey("ID"), embody_->storageID() );
+    if ( embody_ )
+	iop.set( mGetBodyKey("ID"), embody_->storageID() );
     iop.setYN( sKeyUseInside(), useinside_ );
     if ( !useinside_ )
     {
@@ -830,7 +831,7 @@ bool EMImplicitBodyProvider::toNextZ()
 	if ( !toNextPos() )
 	    return false;
     }
-	
+
     while ( !includes(curbid_,curz_) )
     {
 	curz_ += bb.zsamp_.step;
