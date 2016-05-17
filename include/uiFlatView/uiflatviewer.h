@@ -127,6 +127,7 @@ protected:
     void			updateAnnotCB(CallBacker*);
     void			updateBitmapCB(CallBacker*);
     void			updateAuxDataCB(CallBacker*);
+    void			rangeUpdatedCB(CallBacker*);
 
     uiWorldRect			getBoundingBox(bool wva) const;
     void			reSizeCB(CallBacker*);

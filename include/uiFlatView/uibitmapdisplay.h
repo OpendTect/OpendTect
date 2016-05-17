@@ -56,6 +56,7 @@ public:
     const uiWorldRect&	boundingBox() const;
     void		setBoundingBox(const uiWorldRect&);
     void		setDataPack(const FlatDataPack*,bool wva);
+    Notifier<uiBitMapDisplay> rangeUpdated;
 
 private:
 

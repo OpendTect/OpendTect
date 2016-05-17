@@ -64,6 +64,8 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     mAttachCB( vwr.dataChanged,uiODVW2DVariableDensityTreeItem::dataChangedCB );
+    mAttachCB( vwr.dispParsChanged,
+	       uiODVW2DVariableDensityTreeItem::dataChangedCB );
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( true );
@@ -280,7 +282,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 
 bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 {
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true );
     if ( !dp ) return false;
 
@@ -302,7 +304,14 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     if ( dpid == DataPack::cNoID() ) return false;
 
     viewer2D()->setSelSpec( &selas, false );
-    viewer2D()->useStoredDispPars( false );
+    if ( !viewer2D()->useStoredDispPars(false) )
+    {
+	ColTab::MapperSetup& vdmapper =
+	    vwr.appearance().ddpars_.vd_.mappersetup_;
+	if ( vdmapper.type_ != ColTab::MapperSetup::Fixed )
+	    vdmapper.range_ = Interval<float>::udf();
+    }
+
     const ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
     displayMiniCtab( &seq );
 

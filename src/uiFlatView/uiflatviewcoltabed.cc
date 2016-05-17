@@ -50,5 +50,7 @@ void uiFlatViewColTabEd::colTabChanged( CallBacker* )
 {
     vdpars_.ctab_ = uicoltab_.colTabSeq().name();
     uicoltab_.getDispPars( vdpars_ );
+    if ( vdpars_.mappersetup_.type_ != ColTab::MapperSetup::Fixed )
+	vdpars_.mappersetup_.range_ = Interval<float>::udf();
     colTabChgd.trigger();
 }

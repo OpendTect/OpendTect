@@ -54,6 +54,7 @@ public:
     bool			needsReClip(const MapperSetup&) const;
 				//!<Is new clip necessary if set to this
 
+    void			setAutoScale(bool);
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     static const char*		sKeyClipRate()	{ return "Clip Rate"; }

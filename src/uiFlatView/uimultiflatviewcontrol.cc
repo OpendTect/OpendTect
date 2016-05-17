@@ -57,6 +57,10 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	 activevwridx<0 )
 	return false;
     const uiWorldRect& wr = activevwr->curView();
+    float srdval = SI().seismicReferenceDatum();
+    if ( SI().depthsInFeet() )
+	srdval *= mToFeetFactorF;
+
     if ( d2tmodels_.isEmpty() )
     {
 	const uiWorldRect& masterbbox = activevwr->boundingBox();
@@ -89,17 +93,23 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		    		    mCast(float,wr.bottom()) );
 	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
 				      d2tmodels_[0]->getDepth(timerg.stop) );
+	    if ( !depthrg.isUdf() && SI().depthsInFeet() )
+		depthrg.scale( mToFeetFactorF );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];
 		Interval<double> curdepthrg( d2t.getDepth(timerg.start),
 					     d2t.getDepth(timerg.stop) );
 		if ( !curdepthrg.isUdf() )
+		{
+		    if ( SI().depthsInFeet() )
+			curdepthrg.scale( mToFeetFactorF );
 		    depthrg.include( curdepthrg );
+		}
 	    }
 
-	    if ( isFlattened() )
-		depthrg.shift( SI().seismicReferenceDatum() );
+	    if ( isFlattened() && !depthrg.isUdf() )
+		depthrg.shift( srdval );
 	    viewwr.setTop( depthrg.start );
 	    viewwr.setBottom( depthrg.stop );
 	}
@@ -108,7 +118,11 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	    Interval<float> depthrg( mCast(float,wr.top()),
 		    		     mCast(float,wr.bottom()) );
 	    if ( isFlattened() )
-		depthrg.shift( -SI().seismicReferenceDatum() );
+		depthrg.shift( -srdval );
+	    
+	    if ( SI().depthsInFeet() )
+		depthrg.scale( mFromFeetFactorF );
+
 	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
 				      d2tmodels_[0]->getTime(depthrg.stop) );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )

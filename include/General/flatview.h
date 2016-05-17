@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
-
+namespace ZDomain { class Def; }
 namespace FlatView
 {
 
@@ -332,6 +332,8 @@ public:
     bool		setZAxisTransform(ZAxisTransform*);
     bool		hasZAxisTransform() const
 			{ return datatransform_; }
+    void		setZDomain(const ZDomain::Def&);
+    const ZDomain::Info& zDomain() const;
 
     void		addPack(::DataPack::ID);
 			/*!< Adds to list and obtains the DataPack, but does not
@@ -428,6 +430,7 @@ protected:
     Appearance*			defapp_;
     DataPackMgr&		dpm_;
     ZAxisTransform*		datatransform_;
+    ZDomain::Info*		zdinfo_;
     FlatView_CB_Rcvr*		cbrcvr_;
     mutable Threads::Lock	lock_;
     bool			needstatusbarupd_;

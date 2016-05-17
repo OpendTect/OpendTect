@@ -172,9 +172,7 @@ void AxesDrawer::updateViewRect()
 	if ( axis1nm_ ) axis1nm_->setVisible( false );
     }
 
-    uiString userfacstr = vwr_.hasZAxisTransform()
-	? vwr_.getZAxisTransform()->toZDomainInfo().uiUnitStr(true)
-	: SI().getUiZUnitString();
+    uiString userfacstr = vwr_.zDomain().uiUnitStr(true);
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     if ( showx2annot && !ad2.name_.isEmpty() && ad2.name_ != " " )
@@ -244,9 +242,7 @@ void AxesDrawer::setAuxAnnotPositions(
     if ( !fdp )
 	return;
 
-    const float userfac = vwr_.hasZAxisTransform()
-	? vwr_.getZAxisTransform()->toZDomainInfo().userFactor()
-	: SI().showZ2UserFactor();
+    const float userfac = vwr_.zDomain().userFactor();
     TypeSet<OD::PlotAnnotation> auxannot = xannot;
     const StepInterval<double> xrg = fdp->posData().range( forx1 );
     for ( int idx=0; idx<xannot.size(); idx++ )
@@ -268,9 +264,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
-    const float userfac = vwr_.hasZAxisTransform()
-	? vwr_.getZAxisTransform()->toZDomainInfo().userFactor()
-	: SI().showZ2UserFactor();
+    const float userfac = vwr_.zDomain().userFactor();
     if ( !fdp || altdim0_<0 )
     {
 	uiWorldRect altwr = wr;

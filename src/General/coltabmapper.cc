@@ -110,7 +110,7 @@ ColTab::MapperSetup::MapperSetup()
     , autosym0_(defAutoSymmetry())
     , maxpts_(1000000)
     , nrsegs_(0)
-    , range_(Interval<float>(0,0))
+    , range_(Interval<float>::udf())
     , flipseq_( false )
     , rangeChange(this)
     , autoscaleChange(this)
@@ -224,9 +224,19 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 
     flipseq_ = false;
     par.getYN( sKeyFlipSeq(), flipseq_ );
+    if ( type_==Auto )
+	range_ = Interval<float>::udf();
 
     return par.get( sKeySymMidVal(), symmidval_ ) &&
 	   par.getYN( sKeyAutoSym(), autosym0_ );
+}
+
+
+void ColTab::MapperSetup::setAutoScale( bool yn )
+{
+    type_ = yn ? Auto : Fixed;
+    if ( type_==Auto )
+	range_ = Interval<float>::udf();
 }
 
 

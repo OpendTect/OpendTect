@@ -105,12 +105,13 @@ void BitMapMgr::setup()
     if ( !wva_ ) pars = &appearance_.ddpars_.vd_;
 
     gen_->pars().clipratio_ = pars->mappersetup_.cliprate_;
-    gen_->pars().midvalue_ = pars->mappersetup_.symmidval_;
+    gen_->pars().midvalue_ =
+	pars->mappersetup_.autosym0_ ? mUdf(float)
+				     : pars->mappersetup_.symmidval_;
     gen_->pars().nointerpol_ = pars->blocky_;
     gen_->pars().autoscale_ =
 	pars->mappersetup_.type_ == ColTab::MapperSetup::Auto;
-    if ( !gen_->pars().autoscale_ )
-	gen_->pars().scale_ = pars->mappersetup_.range_;
+    gen_->pars().scale_ = pars->mappersetup_.range_;
 }
 
 

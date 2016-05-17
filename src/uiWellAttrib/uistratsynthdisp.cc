@@ -183,7 +183,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
     app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = "TWT (ms)";
+    app.annot_.x2_.name_ = "TWT";
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;
@@ -971,6 +971,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper = dispparsmapper;
     else
     {
+	mapper.range_ = Interval<float>::udf();
 	const float cliprate = wva ? 0.0f : 0.025f;
 	mapper.cliprate_ = Interval<float>(cliprate,cliprate);
 	mapper.autosym0_ = true;

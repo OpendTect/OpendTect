@@ -43,6 +43,7 @@ public:
 			//!< fails only when isufficient memory
     const A2DBitMap*	bitMap() const			{ return bmp_; }
     const A2DBitMapGenerator*	bitMapGen() const	{ return gen_; }
+    A2DBitMapGenerator*		bitMapGen() { return gen_; }
 
 private:
 
