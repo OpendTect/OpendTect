@@ -158,7 +158,9 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     CallBack applycb( mCB(this,uiCheckShotEdit,applyCB) );
     driftchoicefld_->selectionChanged.notify( applycb );
     viewcorrd2t_->activated.notify( applycb );
+    d2tdisplay_->reSize.notify( mCB(this,uiCheckShotEdit,reSizeCB) );
 
+    drawDrift();
     applyCB(0);
 }
 
@@ -205,6 +207,12 @@ void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 
     movingpointidx_ = -1;
 }
+
+
+void uiCheckShotEdit::reSizeCB( CallBacker* )
+{
+    drawPoints();
+} 
 
 
 void uiCheckShotEdit::movePt()
@@ -306,10 +314,17 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
     dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor()
 					: Color::stdDrawColor(first ? 0 : 1);
-    dahdata.setData( d );
-    dahdata.xrev_ = false;
+    float startpos = SI().seismicReferenceDatum();
+    startpos = startpos != 0 ? -startpos : 0;
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
+    Interval<float> zrg( startpos, stoppos );
+    //zrg.scale( 1.0f/ SI().zDomain().userFactor() );
+    disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
-
+    dahdata.xrev_ = false;
+    dahdata.setData( d );
+    
     disp->reDraw();
 }
 
@@ -324,12 +339,12 @@ void uiCheckShotEdit::drawDrift()
     driftcurve_.setEmpty();
     for ( int idx=0; idx<maxsz; idx++ )
     {
-	const float dah = longermdl->dah( idx );
+	const float dah = longermdl->dah(idx);
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift );
-    }
+    }								  
     drawDahObj( &driftcurve_, true, false );
     drawDahObj( &newdriftcurve_, false, false );
 
@@ -344,33 +359,25 @@ void uiCheckShotEdit::drawDrift()
 	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
-   
-    driftdisplay_->setZRange( d2tdisplay_->dahObjData(false).zrg_ );
+    
+    float startpos = SI().seismicReferenceDatum();
+    startpos = startpos != 0 ? -startpos : 0;
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
+    
+    Interval<float> zrg( startpos, stoppos );
+    //zrg.scale( 1.0f/ SI().zDomain().userFactor() );
+    driftdisplay_->setZRange(zrg);
 }
 
 
-void uiCheckShotEdit::applyCB( CallBacker* )
+void uiCheckShotEdit::drawPoints()
 {
-    const bool isorgdrift = driftchoicefld_->currentItem() == 0;
-    editbut_->setSensitive( !isorgdrift );
-    const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_;
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
-
-    *d2t_ = *orgd2t_;
-    Well::D2TModel tmpcs;
-    for ( int idx=0; idx<driftcurve.size(); idx++ )
-    {
-	const float dah = driftcurve.dah( idx );
-	const float drift = driftcurve.value( idx );
-	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
-	const float csval = drift / SI().zDomain().userFactor() + d2tval;
-	tmpcs.add( dah, csval );
-    }
-    
-    CheckShotCorr::calibrate( tmpcs, *d2t_ );
-
+    const bool isorgdrift = driftchoicefld_->currentItem() == 0;
+    //Well::D2TModel* d2t(isorgdrift ? orgd2t_ : d2t_);
     if ( viewcorrd2t_->isChecked() )
     {
 	TypeSet<uiPoint> pts;
@@ -388,9 +395,29 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 	OD::LineStyle ls( OD::LineStyle::Solid, 2, Color::DgbColor() );
 	d2tlineitm_->setPenStyle( ls );
     }
+}
 
-    draw();
+
+void uiCheckShotEdit::applyCB( CallBacker* )
+{
+    const bool isorgdrift = driftchoicefld_->currentItem() == 0;
+    editbut_->setSensitive( !isorgdrift );
+    const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_;
+    Well::D2TModel tmpcs;
+    *d2t_ = *orgd2t_;
+
+    for ( int idx=0; idx<driftcurve.size(); idx++ )
+    {
+	const float dah = driftcurve.dah( idx );
+	const float drift = driftcurve.value( idx );
+	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
+	const float csval = drift / SI().zDomain().userFactor() + d2tval;
+	tmpcs.add( dah, csval );
+    }
     
+    CheckShotCorr::calibrate( tmpcs, *d2t_ );
+    drawPoints();
+    draw();
 }
 
 
