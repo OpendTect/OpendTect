@@ -800,7 +800,10 @@ void HorizonDisplay::createDisplayDataPacks(
 	mDeclareAndTryAlloc(MapDataPack*,mapdp,MapDataPack(catnm,bvsarr));
 	if ( !mapdp ) continue;
 
-	mapdp->setName( getSelSpec(channel,idx)->userRef() );
+	const Attrib::SelSpec* as = getSelSpec( channel, idx );
+	if ( as )
+	    mapdp->setName( as->userRef() );
+
 	mapdp->setProps( inlrg, crlrg, true, &dimnames );
 	DPM(DataPackMgr::FlatID()).add( mapdp );
 	dpids += mapdp->id();
