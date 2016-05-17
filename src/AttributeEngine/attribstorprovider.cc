@@ -384,6 +384,8 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 
     *possiblevolume_ = storedvolume_;
     globpv.limitTo( *possiblevolume_ );
+    if ( !isondisc_ )
+	globpv = *possiblevolume_;
     return !globpv.isEmpty();
 }
 

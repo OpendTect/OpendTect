@@ -438,9 +438,10 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	if ( is2d_ && possvol == globalcs )
 	{
 	    const Pos::GeomID geomid = provider_->getGeomID();
-	    possvol.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+	    const int lineid = geomid==Survey::GM().cUndefGeomID() ? 0 : geomid;
+	    possvol.hsamp_.setLineRange( StepInterval<int>(lineid,lineid,1) );
 	    possvol.hsamp_.setTrcRange( Interval<int>(0,INT_MAX/3*2) );
-					//unlikely;still, a limitation.
+					    //unlikely;still, a limitation.
 	    globalcs = possvol;
 	}
 
