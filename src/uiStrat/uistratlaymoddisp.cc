@@ -69,6 +69,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     vwr_.setInitialSize( uiSize(600,250) );
     vwr_.setStretch( 2, 2 );
     vwr_.disableStatusBarUpdate();
+    vwr_.setZDomain( ZDomain::Depth() );
     FlatView::Appearance& app = vwr_.appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -76,7 +77,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
     app.annot_.x1_.name_ = "Model Nr";
-    app.annot_.x2_.name_ = SI().depthsInFeet() ? "Depth (ft)" : "Depth (m)";
+    app.annot_.x2_.name_ = "Depth";
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.allowuserchange_ = false;
     app.ddpars_.wva_.allowuserchangedata_ = false;
@@ -502,6 +503,19 @@ void uiStratLayerModelDisp::doubleClicked( CallBacker* )
 
 //=========================================================================>>
 
+class LayerModelDataPack : public FlatDataPack
+{
+public:
+
+LayerModelDataPack()
+    : FlatDataPack( "Layer Model", new Array2DImpl<float>(0,0) )
+{}
+
+
+const char* dimName( bool dim0 ) const
+{ return dim0 ? "Model Nr" : "Depth"; }
+
+};
 
 uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 		uiStratLayModEditTools& t, const Strat::LayerModelProvider& l )
@@ -526,7 +540,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , allcontents_(false)
 {
     vwr_.appearance().ddpars_.show( false, false );
-    emptydp_ = new FlatDataPack( "Layer Model", new Array2DImpl<float>(0,0) );
+    emptydp_ = new LayerModelDataPack();
     DPM( DataPackMgr::FlatID() ).add( emptydp_ );
     vwr_.setPack( true, emptydp_->id() );
     vwr_.setPack( false, emptydp_->id() );
