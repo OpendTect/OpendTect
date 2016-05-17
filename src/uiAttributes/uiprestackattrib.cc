@@ -422,7 +422,6 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
 void uiPreStackAttrib::gatherTypSel( CallBacker* )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    const bool iscomputeangle = useanglefld_->isChecked();
     uiString xlbl = tr("%1 range (empty=all)")
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
@@ -433,8 +432,6 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* )
 	xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
 	gatherUnitSel( 0 );
     }
-
-    xaxistypefld_->setSensitive( isoffset );
 
     useanglefld_->display( isoffset );    
     gathertypefld_->display( true );
