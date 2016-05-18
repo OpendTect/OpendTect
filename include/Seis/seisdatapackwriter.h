@@ -60,6 +60,7 @@ private:
 
     TrcKeySampling		tks_;
     Interval<int>		zrg_;
+    bool			is2d_;
 
     void			getPosInfo();
 };

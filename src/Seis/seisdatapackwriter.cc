@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "posinfo.h"
 #include "seisdatapack.h"
+#include "seisselectionimpl.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -50,6 +51,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
+    is2d_ = writer_->is2D();
 }
 
 
@@ -107,6 +109,9 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
 			: mCast(int,hrg.totalNr());
+    Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
+    if ( writer_ )
+	writer_->setSelData( seldata );
 }
 
 
@@ -135,7 +140,6 @@ int SeisDataPackWriter::nextStep()
 
 	trc_->info().sampling_.start = dp_->sampling().zsamp_.start;
 	trc_->info().sampling_.step = dp_->sampling().zsamp_.step;
-	trc_->info().nr_ = 0;
 
 	BufferStringSet compnames;
 	compnames.add( dp_->getComponentName() );
@@ -156,6 +160,7 @@ int SeisDataPackWriter::nextStep()
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
 
     trc_->info().setBinID( currentpos );
+    trc_->info().nr_ = is2d_ ? currentpos.trcNr() : 0;
     trc_->info().coord_ = SI().transform( currentpos );
     const int inl = currentpos.inl();
     const int crl = currentpos.crl();
@@ -184,6 +189,5 @@ int SeisDataPackWriter::nextStep()
 	return ErrorOccurred();
 
     nrdone_++;
-    trc_->info().nr_++;
     return MoreToDo();
 }
