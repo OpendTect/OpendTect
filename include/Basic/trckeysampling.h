@@ -31,6 +31,8 @@ public:
 			TrcKeySampling(const TrcKeySampling&);
 			TrcKeySampling(Pos::GeomID);
 
+    bool		is2D() const	{ return TrcKey::is2D(survid_); }
+
     TrcKeySampling&	set(const Interval<int>& linerg,
 			    const Interval<int>& trcnrrg);
 			    //!< steps copied if available

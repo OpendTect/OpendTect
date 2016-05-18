@@ -38,6 +38,8 @@ public:
 			TrcKeyZSampling(const TrcKeyZSampling&);
 			TrcKeyZSampling(bool settoSI);
 
+    bool		is2D() const		{ return hsamp_.is2D(); }
+
     enum Dir		{ Inl=0, Crl=1, Z=2 };
     Dir			defaultDir() const;
 			//!< 'flattest' direction, i.e. direction with
