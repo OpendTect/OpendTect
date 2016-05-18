@@ -265,7 +265,9 @@ bool uiMathAttrib::setInput( const Desc& desc )
 			formfld_->inpFld(varinpidx)->selectSubInput(
 						inpdsc->selectedOutput()+1 );
 		    }
-
+		    else
+			formfld_->setNonSpecSubInputs(
+				BufferStringSet(), varinpidx );
 		    break;
 		}
 	}
