@@ -434,6 +434,7 @@ FlatView::Viewer& vwr_;
 
 static HiddenParam< FlatView::Viewer,TypeSet<Pos::GeomID>* >
 				     flatviewergeom2dids_( 0 );
+static HiddenParam< FlatView::Viewer,ZDomain::Info* > zdinfos( 0 );
 
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
@@ -444,6 +445,7 @@ FlatView::Viewer::Viewer()
     , vdpack_(0)
     , needstatusbarupd_(true)
 {
+    zdinfos.setParam( this, new ZDomain::Info(SI().zDomain()) );
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
     flatviewergeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
@@ -478,6 +480,22 @@ bool FlatView::Viewer::setZAxisTransform( ZAxisTransform* zat )
 	datatransform_->ref();
 
     return true;
+}
+
+
+void FlatView::Viewer::setZDomain( const ZDomain::Def& zdef )
+{
+    ZDomain::Info* prevzinfo = zdinfos.getParam( this );
+    zdinfos.removeParam( this );
+    delete prevzinfo;
+    zdinfos.setParam( this, new ZDomain::Info(zdef) );
+}
+
+
+const ZDomain::Info& FlatView::Viewer::zDomain() const
+{
+    return datatransform_ ? datatransform_->toZDomainInfo()
+			  : *zdinfos.getParam( this );
 }
 
 

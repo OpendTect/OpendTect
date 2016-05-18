@@ -113,17 +113,11 @@ static bool isVertical( const uiFlatViewer& vwr )
 	return true;
 
     FixedString x2dimnm( fdp->dimName(false) );
-    BufferString zaxisnm;
-    if ( !vwr.hasZAxisTransform() )
-	return stringStartsWithCI("Time",x2dimnm.buf()) ||
-	       stringStartsWithCI("TWT",x2dimnm.buf()) ||
-	       stringStartsWithCI("Z",x2dimnm.buf());
-    else
-    {
-	FixedString vwrzdomstr( vwr.getZAxisTransform()->toZDomainInfo().def_.
-				userName().getFullString() );
-	return x2dimnm == vwrzdomstr;
-    }
+    FixedString vwrzdomstr( vwr.zDomain().userName().getFullString() );
+    return x2dimnm == vwrzdomstr ||
+	   stringStartsWithCI("Time",x2dimnm.buf()) ||
+	   stringStartsWithCI("TWT",x2dimnm.buf()) ||
+	   stringStartsWithCI("Z",x2dimnm.buf());
 }
 
 
@@ -161,9 +155,7 @@ void AxesDrawer::updateViewRect()
     
     ArrowStyle arrowstyle;
     arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
-    uiString userfacstr = vwr_.hasZAxisTransform()
-	? vwr_.getZAxisTransform()->toZDomainInfo().uiUnitStr(true)
-	: SI().getUiZUnitString();
+    uiString userfacstr = vwr_.zDomain().uiUnitStr(true);
     if ( showx1annot && !ad1.name_.isEmpty() && ad1.name_ != " " )
     {
 	const int right = rect.right();
@@ -261,9 +253,7 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
     if ( !fdp )
 	return;
 
-    const float userfac = vwr_.hasZAxisTransform()
-	? vwr_.getZAxisTransform()->toZDomainInfo().userFactor()
-	: SI().showZ2UserFactor();
+    const float userfac = vwr_.zDomain().userFactor();
     const TypeSet<PlotAnnotation>& xannot =
 	forx1 ? vwr_.appearance().annot_.x1_.auxannot_
 	      : vwr_.appearance().annot_.x2_.auxannot_;
@@ -290,9 +280,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
     transformAndSetAuxAnnotation( true );
     transformAndSetAuxAnnotation( false );
-    const float userfac = vwr_.hasZAxisTransform()
-	? vwr_.getZAxisTransform()->toZDomainInfo().userFactor()
-	: SI().showZ2UserFactor();
+    const float userfac = vwr_.zDomain().userFactor();
 
     if ( !fdp || altdim0_<0 )
     {

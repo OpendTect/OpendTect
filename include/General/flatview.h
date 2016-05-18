@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
-
+namespace ZDomain { class Def; }
 namespace FlatView
 {
 
@@ -433,6 +433,9 @@ private:
     const FlatDataPack*		wvapack_;
     const FlatDataPack*		vdpack_;
 
+public:
+    void		setZDomain(const ZDomain::Def&);
+    const ZDomain::Info& zDomain() const;
 };
 
 } // namespace FlatView
