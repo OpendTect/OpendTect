@@ -162,10 +162,7 @@ void uiODViewer2DPosGrp::usePar( const IOPar& selpar )
     posdatasel_->usePar( selpar );
 
     if ( postypefld_)
-    {
 	postypefld_->box()->setText( mToPosTypeStr(posdatasel_->postype_) );
-	postypefld_->display( !posdatasel_->tkzs_.isFlat() );
-    }
 
     updateFlds();
 }
@@ -282,7 +279,6 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
     uiAttrSel* attrsel = is2D() ? inp2dfld_ : inp3dfld_;
     if ( attrsel && posdatasel_->selectdata_ )
     {
-	attrsel->processInput();
 	BufferString attrnm = attrsel->getAttrName();
 	if ( attrnm.isEmpty() )
 	    { mErrRet( tr("Please select a valid attribute") ) }
@@ -307,7 +303,12 @@ void uiODViewer2DPosGrp::updateDataSelFld()
 {
     uiAttrSel* attrsel = is2D() ? inp2dfld_ : inp3dfld_;
     if ( attrsel )
+    {
 	attrsel->display( posdatasel_->selectdata_ );
+	if ( posdatasel_->selspec_.id().isValid() )
+	    attrsel->setSelSpec( &posdatasel_->selspec_ );
+    }
+
 }
 
 
