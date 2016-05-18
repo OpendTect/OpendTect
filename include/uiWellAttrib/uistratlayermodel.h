@@ -83,6 +83,7 @@ public:
     void			displayFRResult(bool usefr,bool parschanged,
 						bool fwd);
     void			prepareFluidRepl();
+    void			resetFluidRepl();
 
     //Utility
     //SyntheticData*		getCurrentSyntheticData() const;
