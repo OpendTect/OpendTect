@@ -242,7 +242,7 @@ void AxesDrawer::setAuxAnnotPositions(
     if ( !fdp )
 	return;
 
-    const float userfac = vwr_.zDomain().userFactor();
+    const float userfac = (float)vwr_.zDomain().userFactor();
     TypeSet<OD::PlotAnnotation> auxannot = xannot;
     const StepInterval<double> xrg = fdp->posData().range( forx1 );
     for ( int idx=0; idx<xannot.size(); idx++ )
@@ -264,7 +264,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
-    const float userfac = vwr_.zDomain().userFactor();
+    const float userfac = (float)vwr_.zDomain().userFactor();
     if ( !fdp || altdim0_<0 )
     {
 	uiWorldRect altwr = wr;
