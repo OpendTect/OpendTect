@@ -213,7 +213,7 @@ void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 void uiCheckShotEdit::reSizeCB( CallBacker* )
 {
     drawPoints();
-} 
+}
 
 
 void uiCheckShotEdit::movePt()
@@ -316,14 +316,14 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
     dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor()
 					: Color::stdDrawColor(first ? 0 : 1);
     float startpos = -SI().seismicReferenceDatum();
-    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     Interval<float> zrg( startpos, stoppos );
     disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
     dahdata.xrev_ = false;
     dahdata.setData( d );
-    
+
     disp->reDraw();
 }
 
@@ -343,7 +343,7 @@ void uiCheckShotEdit::drawDrift()
 	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift );
-    }								  
+    }
     drawDahObj( &driftcurve_, true, false );
     drawDahObj( &newdriftcurve_, false, false );
 
@@ -358,11 +358,11 @@ void uiCheckShotEdit::drawDrift()
 	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
-    
+
     float startpos = -SI().seismicReferenceDatum();
-    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
-    
+
     Interval<float> zrg( startpos, stoppos );
     driftdisplay_->setZRange(zrg);
 }
@@ -373,8 +373,6 @@ void uiCheckShotEdit::drawPoints()
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
-    const bool isorgdrift = driftchoicefld_->currentItem() == 0;
-    //Well::D2TModel* d2t(isorgdrift ? orgd2t_ : d2t_);
     if ( viewcorrd2t_->isChecked() )
     {
 	TypeSet<uiPoint> pts;
@@ -411,7 +409,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 	const float csval = drift / SI().zDomain().userFactor() + d2tval;
 	tmpcs.add( dah, csval );
     }
-    
+
     CheckShotCorr::calibrate( tmpcs, *d2t_ );
     drawPoints();
     draw();
