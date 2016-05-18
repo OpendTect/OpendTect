@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        N. Hemstra
- Date:          October 2003
+ Author:	N. Hemstra
+ Date:		October 2003
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 					      .rowgrow(true)
 					      .defrowlbl("")
 					      .removeselallowed(false),
-		        "Well Track Table" );
+			"Well Track Table" );
     tbl_->setColumnLabels( trackcollbls );
     tbl_->setNrRows( nremptyrows );
     tbl_->setPrefWidth( 500 );
@@ -303,7 +303,7 @@ public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 	: uiDialog(p,uiDialog::Setup(tr("Import New Well Track"),mNoDlgTitle,
-                                     mODHelpKey(mWellTrackReadDlgHelpID)))
+				     mODHelpKey(mWellTrackReadDlgHelpID)))
 	, track_(track)
 	, fd_(fd)
 {
@@ -472,11 +472,12 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	const Coord3 newc( xval, yval, zval );
 	if ( !SI().isReasonable(newc) )
 	{
-	    uiString msg = tr("Found undefined values in row %1. "
-			      "Please enter valid values")
+	    uiString msg =
+		tr("The coordinate in row %1 seems to be far outside "
+		   "the survey.\nDo you want to continue?")
 			 .arg(idx + 1);
-	    uiMSG().message( msg );
-	    return false;
+	    const bool res = uiMSG().askGoOn( msg );
+	    if ( !res ) return false;
 	}
 
 	if ( idx > 0 && mIsUdf(dahval) )
@@ -792,7 +793,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	new uiPushButton( iobutgrp, uiStrings::sImport(),
 	    mCB(this,uiD2TModelDlg,readNew), false );
     new uiPushButton( iobutgrp, uiStrings::sExport(),
-        mCB(this,uiD2TModelDlg,expData), false );
+	mCB(this,uiD2TModelDlg,expData), false );
     if ( replvelfld_ )
 	iobutgrp->attach( ensureBelow, replvelfld_ );
     else
@@ -1626,7 +1627,7 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 //============================================================================
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
-        : uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
+	: uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
 				.inptxt(tr("New well name")) )
 {
     setHelpKey( mODHelpKey(mNewWellTrackDlgHelpID) );
