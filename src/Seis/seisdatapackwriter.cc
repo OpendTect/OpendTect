@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "scaler.h"
 #include "seisdatapack.h"
+#include "seisselectionimpl.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -63,6 +64,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
+    is2d_ = writer_->is2D();
 }
 
 
@@ -162,6 +164,14 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
 			: mCast(int,hrg.totalNr());
+    Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
+
+    // Workaround for v6.2. Not needed in later versions.
+    if ( is2d_ )
+	seldata->setGeomID( tks_.start_.lineNr() );
+
+    if ( writer_ )
+	writer_->setSelData( seldata );
 }
 
 
@@ -211,6 +221,8 @@ int SeisDataPackWriter::nextStep()
     if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
 	return MoreToDo();
 
+    trc_->info().setBinID( currentpos );
+    trc_->info().nr = is2d_ ? currentpos.trcNr() : 0;
     trc_->info().binid = currentpos;
     trc_->info().coord = hs.toCoord( currentpos );
     const int inlpos = hs.lineIdx( currentpos.inl() );
@@ -255,6 +267,5 @@ int SeisDataPackWriter::nextStep()
 	return ErrorOccurred();
 
     nrdone_++;
-    trc_->info().nr++;
     return MoreToDo();
 }

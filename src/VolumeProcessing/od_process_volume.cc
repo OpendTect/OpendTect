@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 
 #include "jobcommunic.h"
-#include "volprocchainoutput.h"
+#include "volprocprocessor.h"
 #include "moddepmgr.h"
 
 
@@ -25,21 +25,16 @@ bool BatchProgram::go( od_ostream& strm )
 	comm_->setTimeBetweenMsgUpdates( 5000 );
     }
 
-    PtrMan<VolProc::ChainOutput> vco = new VolProc::ChainOutput;
-    vco->usePar( pars() );
-    vco->setJobCommunicator( comm_ );
-    if ( !vco->go(strm) )
+    VolProc::Processor proc( pars() );
+    if ( !proc.run(strm,comm_) )
     {
 	if ( comm_ )
 	{
 	    comm_->setState( JobCommunic::JobError );
 	    comm_->sendState();
 	}
-
-	return false;
     }
 
-    vco = 0;
     if ( comm_ )
     {
 	comm_->setState( JobCommunic::Finished );

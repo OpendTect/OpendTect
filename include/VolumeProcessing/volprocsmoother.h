@@ -53,6 +53,7 @@ public:
     void		releaseData();
     bool		canInputAndOutputBeSame() const	{ return false; }
     bool		needsFullVolume() const { return true; }
+    bool		canHandle2D() const		{ return true; }
 
     Task*		createTask();
 

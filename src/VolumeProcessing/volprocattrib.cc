@@ -63,7 +63,7 @@ void VolProcAttrib::prepareForComputeData()
     chain_ = new VolProc::Chain();
     chain_->ref();
     uiString errmsg;
-    if ( !VolProcessingTranslator::retrieve(*chain_, ioobj, errmsg) )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
 	chain_->unRef();
 	chain_ = 0;
@@ -183,7 +183,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     chain_ = new Chain();
     chain_->ref();
     uiString errmsg;
-    if ( !VolProcessingTranslator::retrieve(*chain_, ioobj, errmsg) )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
 	chain_->unRef();
 	chain_ = 0;

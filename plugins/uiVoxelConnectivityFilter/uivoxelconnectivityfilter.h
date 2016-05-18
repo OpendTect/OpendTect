@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter : 
+mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter :
 public uiStepDialog
 { mODTextTranslationClass(uiVoxelConnectivityFilter);
 public:
@@ -34,9 +34,9 @@ public:
 
 protected:
 
-    				uiVoxelConnectivityFilter(uiParent*,
-					    VoxelConnectivityFilter*);
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+				uiVoxelConnectivityFilter(uiParent*,
+					    VoxelConnectivityFilter*,bool is2d);
+    static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
     bool			acceptOK(CallBacker*);
 
     void		updateFieldsCB(CallBacker*);

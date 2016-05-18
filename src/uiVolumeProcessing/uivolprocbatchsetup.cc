@@ -21,7 +21,7 @@
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipixmap.h"
-#include "uipossubsel.h"
+#include "uiseissubsel.h"
 #include "uiseissel.h"
 #include "uiveldesc.h"
 #include "uivolprocchain.h"
@@ -31,16 +31,17 @@
 namespace VolProc
 {
 
-uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
+uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup, bool is2d )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Create output"),
 				   mNoDlgTitle,
                                    mODHelpKey(mVolProcBatchSetupHelpID) ) )
     , chain_( 0 )
+    , is2d_( is2d )
 {
-    IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();
-    setupcontext.forread_ = true;
-    setupsel_ = new uiIOObjSel( this, setupcontext,
-	   			tr("Volume Builder setup") );
+    IOObjContext ctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
+			     : VolProcessingTranslatorGroup::ioContext();
+    ctxt.forread_ = true;
+    setupsel_ = new uiIOObjSel( this, ctxt, tr("Volume Builder setup") );
     if ( initialsetup )
 	setupsel_->setInput( *initialsetup );
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
@@ -50,12 +51,14 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
 
-    possubsel_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,true) );
-    possubsel_->attach( alignedBelow, setupsel_ );
+    const Seis::GeomType seistype = is2d ? Seis::Line : Seis::Vol;
+    Seis::SelSetup selsu( seistype ); selsu.multiline( true );
+    subsel_ = uiSeisSubSel::get( this, selsu );
+    subsel_->attach( alignedBelow, setupsel_ );
 
-    outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,false),
-	    			uiSeisSel::Setup(Seis::Vol) );
-    outputsel_->attach( alignedBelow, possubsel_ );
+    outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(seistype,false),
+				uiSeisSel::Setup(Seis::Vol) );
+    outputsel_->attach( alignedBelow, subsel_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, true, Batch::JobSpec::Vol );
     batchfld_->attach( alignedBelow, outputsel_ );
@@ -79,21 +82,20 @@ bool uiBatchSetup::retrieveChain()
 	chain_->ref();
     }
 
-    const IOObj* setupioobj = setupsel_->ioobj( true );
-    if ( !setupioobj || chain_->storageID()==setupioobj->key() )
+    const IOObj* ioobj = setupsel_->ioobj( true );
+    if ( !ioobj || chain_->storageID()==ioobj->key() )
 	return true;
 
     uiString errmsg;
     MouseCursorChanger mcc( MouseCursor::Wait );
-    const bool res =
-	VolProcessingTranslator::retrieve( *chain_, setupioobj, errmsg );
-    if ( !res )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
-	if ( chain_ ) chain_->unRef();
+	chain_->unRef();
 	chain_ = 0;
+	return false;
     }
 
-    return res;
+    return true;
 }
 
 
@@ -102,7 +104,7 @@ void uiBatchSetup::editPushCB( CallBacker* )
     if ( !retrieveChain() )
 	return;
 
-    uiChain dlg( this, *chain_, false );
+    uiChain dlg( this, *chain_, is2d_, false );
     if ( dlg.go() )
 	setupsel_->setInput( dlg.storageID() );
 }
@@ -131,9 +133,33 @@ bool uiBatchSetup::fillPar()
     par.set( "Output.0.Seismic.ID", outputioobj->key() );
     par.set( sKey::Target(), outputioobj->name() );
 
-    IOPar cspar;
-    possubsel_->fillPar( cspar );
-    par.mergeComp( cspar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    IOPar subselpar;
+    mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel_)
+    if ( subsel2d )
+    {
+	TypeSet<Pos::GeomID> geomids;
+	subsel2d->selectedGeomIDs( geomids );
+	subselpar.set( sKey::NrGeoms(), geomids.size() );
+	for ( int idx=0; idx<geomids.size(); idx++ )
+	{
+	    TrcKeyZSampling tkzs;
+	    subsel2d->getSampling( tkzs, geomids[idx] );
+	    IOPar tkzspar;
+	    tkzs.fillPar( tkzspar );
+	    subselpar.mergeComp( tkzspar, toString(idx) );
+	}
+    }
+    else
+    {
+	subselpar.set( sKey::NrGeoms(), 1 );
+	TrcKeyZSampling tkzs;
+	subsel_->getSampling( tkzs );
+	IOPar tkzspar;
+	tkzs.fillPar( tkzspar );
+	subselpar.mergeComp( tkzspar, toString(0) );
+    }
+
+    par.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     return true;
 }
 

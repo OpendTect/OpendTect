@@ -610,11 +610,10 @@ void uiODMenuMgr::fillProcMenu()
 	velitm->insertItem(
 	    new uiAction(m3Dots(tr("Velocity Conversion")),
 			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
-
-	csoitm_->insertItem(
-	    new uiAction(m3Dots(tr("Volume Builder")),
-			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
     }
+
+    add2D3DMenuItem( *csoitm_, "empty", tr("Volume Builder"),
+		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
     procmnu_->insertItem( csoitm_ );
 
@@ -964,11 +963,10 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		       mCB(appman,uiODApplMgr,seisOut2DCB),
 		       mCB(appman,uiODApplMgr,seisOut3DCB) );
 
-    if ( SI().has3D() )
-    {
-	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
-		tr("Volume Builder"),false,doVolProcCB);
-    }
+    add2D3DToolButton( *dtecttb_,VolProc::uiChain::pixmapFileName(),
+		tr("Volume Builder"),
+		mCB(appman,uiODApplMgr,doVolProc2DCB),
+		mCB(appman,uiODApplMgr,doVolProcCB) );
 
     const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
     uiMenu* mnu = new uiMenu();
@@ -1337,6 +1335,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSeisOut3DMnuItm:	applMgr().createVol(false,false); break;
     case mPSProc2DMnuItm:	applMgr().processPreStack(true); break;
     case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
+    case mVolProc2DMnuItm:	applMgr().createVolProcOutput(true); break;
+    case mVolProc3DMnuItm:	applMgr().createVolProcOutput(false); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;

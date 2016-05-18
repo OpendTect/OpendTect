@@ -47,11 +47,14 @@ public:
     float		getFixedValue() const	{ return fixedvalue_; }
     bool		getInterpolateUdfs() const {return interpolateundefs_;}
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+
+    virtual bool	areSamplesIndependent() const	{ return true; }
 
     bool		canInputAndOutputBeSame() const {return true;}
     bool		needsFullVolume() const		{return false;}
+    bool		canHandle2D() const		{ return true; }
 
     Task*		createTask();
 

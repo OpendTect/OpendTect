@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
+#include "uiodseis2dtreeitem.h"
 #include "uivispartserv.h"
 #include "vissurvobj.h"
 #include "volprocattrib.h"
@@ -136,14 +137,18 @@ bool uiDataTreeItem::selectSetup()
 {
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
 
-    const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
+    FixedString parenttype = parentType();
+    const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
+    IOObjContext ioctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
+				: VolProcessingTranslatorGroup::ioContext();
+    const CtxtIOObj ctxt( ioctxt, ioobj );
     uiIOObjSelDlg dlg( ODMainWin(), ctxt );
     if ( !dlg.go() || dlg.nrChosen() < 1 )
 	return false;
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
     uiString str;
-    if ( chain && VolProcessingTranslator::retrieve(*chain,ioobj,str) )
+    if ( VolProcessingTranslator::retrieve(*chain,ioobj,str) )
     {
 	if ( !chain->areSamplesIndependent() )
 	{

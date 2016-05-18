@@ -89,6 +89,8 @@ public:
 
     virtual bool		canInputAndOutputBeSame() const { return false;}
     virtual bool		needsFullVolume() const { return true; }
+    virtual bool		canHandle2D() const	{ return false; }
+
     const RegularSeisDataPack*	getOutput() const	{ return output_; }
     RegularSeisDataPack*	getOutput()		{ return output_; }
 
@@ -124,11 +126,13 @@ protected:
     virtual bool	computeBinID(const BinID&,int threadid) { return false;}
     virtual bool	prepareComp(int nrthreads)		{ return true;}
 
-    /* virtual od_int64 extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
-				const StepInterval<int>&) const { return 0; }
-	this function will be added after 6.0 */
+    Chain*		chain_;
 
-    Chain*				chain_;
+    // The memory needed on top of the 'base' memory usage. Can be 0.
+    virtual od_int64		extraMemoryUsage(OutputSlotID,
+						 const TrcKeySampling&,
+						 const StepInterval<int>&) const
+				{ return 0; }
 
     ObjectSet<const RegularSeisDataPack> inputs_;
     TypeSet<InputSlotID>		inputslotids_;

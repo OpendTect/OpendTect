@@ -1884,11 +1884,13 @@ void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(ODMainWin()); }
 
 void uiODApplMgr::doVolProcCB( CallBacker* )
-{ volprocserv_->doVolProc( 0 ); }
+{ volprocserv_->doVolProc( 0, 0, false ); }
+void uiODApplMgr::doVolProc2DCB( CallBacker* )
+{ volprocserv_->doVolProc( 0, 0, true ); }
 void uiODApplMgr::doVolProc( const MultiID& mid )
-{ volprocserv_->doVolProc( &mid ); }
-void uiODApplMgr::createVolProcOutput( CallBacker* )
-{ volprocserv_->createVolProcOutput(0); }
+{ volprocserv_->doVolProc( &mid, 0, false ); }
+void uiODApplMgr::createVolProcOutput( bool is2d )
+{ volprocserv_->createVolProcOutput( 0, is2d ); }
 
 bool uiODApplMgr::editNLA( bool is2d )
 { return attrvishandler_.editNLA( is2d ); }

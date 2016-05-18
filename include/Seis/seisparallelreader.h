@@ -155,6 +155,9 @@ public:
 			SequentialReader(const IOObj&,
 					 const TrcKeyZSampling* =0,
 					 const TypeSet<int>* components=0);
+			/*!< For 2D data, pass line GeomID as lineNr in
+			     TrcKeySampling
+			*/
 			~SequentialReader();
 
     void		setComponents( const TypeSet<int>& compnrs )
@@ -172,7 +175,6 @@ public:
     void		setDataChar(DataCharacteristics::UserType);
     void		setScaler(Scaler*); //!< Scaler becomes mine
 
-    bool		init();
     bool		setDataPack(RegularSeisDataPack&,od_ostream* strm=0);
 			/*!< No need for init if setDataPack is called
 			     Will allocate memory if not done already
@@ -188,11 +190,14 @@ public:
     od_int64		totalNr() const		{ return totalnr_; }
     int			nextStep();
 
+    bool		init();
+
 protected:
 
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
 
     IOObj*			ioobj_;
+    bool			is2d_;
     SeisTrcReader&		rdr_;
     Seis::SelData*		sd_;
     RegularSeisDataPack*	dp_;

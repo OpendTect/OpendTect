@@ -34,8 +34,8 @@ public:
 
 protected:
 
-			uiMatlabStep(uiParent*,MatlabStep*);
-    static uiStepDialog* createInstance(uiParent*,Step*);
+			uiMatlabStep(uiParent*,MatlabStep*,bool is2d);
+    static uiStepDialog* createInstance(uiParent*,Step*,bool is2d);
 
     void		fileSelCB(CallBacker*);
     void		loadCB(CallBacker*);

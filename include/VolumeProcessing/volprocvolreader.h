@@ -45,6 +45,7 @@ public:
 
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return false; }
+    bool		canHandle2D() const		{ return true; }
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,

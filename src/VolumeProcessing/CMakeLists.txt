@@ -20,6 +20,7 @@ set( OD_MODULE_SOURCES
 	volprocchainoutput.cc
 	volprochorinterfiller.cc
 	volproclateralsmoother.cc
+	volprocprocessor.cc
 	volprocsmoother.cc
 	volprocstatscomputer.cc
 	volprocsurfacelimitedfiller.cc

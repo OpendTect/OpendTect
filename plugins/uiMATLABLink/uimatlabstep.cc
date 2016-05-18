@@ -32,14 +32,15 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-uiStepDialog* uiMatlabStep::createInstance( uiParent* p, Step* step )
+uiStepDialog* uiMatlabStep::createInstance( uiParent* p, Step* step,
+					    bool is2d )
 {
     mDynamicCastGet(MatlabStep*,ms,step);
-    return ms ? new uiMatlabStep(p,ms) : 0;
+    return ms ? new uiMatlabStep(p,ms,is2d) : 0;
 }
 
-uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
-    : uiStepDialog(p,MatlabStep::sFactoryDisplayName(), step )
+uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step, bool is2d )
+    : uiStepDialog(p,MatlabStep::sFactoryDisplayName(), step, is2d )
     , fileloaded_(false)
 {
     const FilePath sofiledir = getSODefaultDir();

@@ -22,14 +22,15 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
-    : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr )
+uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr, bool is2d )
+    : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr, is2d )
     , volumereader_( vr )
 {
     setHelpKey( mODHelpKey(mVolumeReaderHelpID) );
 
-    seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
-				uiSeisSel::Setup(Seis::Vol) );
+    Seis::GeomType seistype = is2d ? Seis::Line : Seis::Vol;
+    seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(seistype,true),
+			      uiSeisSel::Setup(seistype) );
     if ( vr )
 	seissel_->setInput( vr->getVolumeID() );
     seissel_->selectionDone.notify( mCB(this,uiVolumeReader,volSel) );
@@ -52,12 +53,13 @@ void uiVolumeReader::volSel( CallBacker* )
 }
 
 
-uiStepDialog* uiVolumeReader::createInstance( uiParent* parent, Step* ps )
+uiStepDialog* uiVolumeReader::createInstance( uiParent* parent, Step* ps,
+					      bool is2d )
 {
     mDynamicCastGet( VolumeReader*, vr, ps );
     if ( !vr ) return 0;
 
-    return new uiVolumeReader( parent, vr );
+    return new uiVolumeReader( parent, vr, is2d );
 }
 
 

@@ -69,6 +69,7 @@ private:
     Interval<int>		zrg_;
     StepInterval<int>		cubezrgidx_;
     ObjectSet<Scaler>		compscalers_;
+    bool			is2d_;
 
     void			getPosInfo();
     void			obtainDP();

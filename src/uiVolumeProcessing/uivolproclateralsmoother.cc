@@ -22,31 +22,40 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
-    : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf )
+uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
+					bool is2d )
+    : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf, is2d )
     , smoother_( hf )
+    , inllenfld_(0)
 {
     setHelpKey( mODHelpKey(mLateralSmootherHelpID) );
     const Array2DFilterPars* pars = hf ? &hf->getPars() : 0;
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
+    const BinID step( SI().inlStep(), is2d ? 1 : SI().crlStep() );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup,
-			    uiStrings::phrInline(uiStrings::sStepout()), 0,
-			    "Inline_spinbox" );
+    if ( !is2d )
+    {
+	uiString linesolabel = uiStrings::phrJoinStrings( uiStrings::sInline(),
+							uiStrings::sStepout());
+	inllenfld_ = new uiLabeledSpinBox( stepoutgroup, linesolabel,
+					    0, "Inline_spinbox" );
+	inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
+	if ( pars )
+	    inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
+    }
 
-    const BinID step( SI().inlStep(), SI().crlStep() );
-    inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
-    if ( pars )
-	inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
-
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("Cross-line stepout"),0,
+    uiString trcsolabel = uiStrings::phrJoinStrings(
+		is2d ? uiStrings::sTraceNumber() : uiStrings::sCrossline(),
+		uiStrings::sStepout() );
+    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, trcsolabel, 0,
 				       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
     if ( pars )
 	crllenfld_->box()->setValue( step.crl()*pars->stepout_.col() );
-    crllenfld_->attach( alignedBelow, inllenfld_ );
+    if ( inllenfld_ )
+	crllenfld_->attach( alignedBelow, inllenfld_ );
 
     replaceudfsfld_ = new uiGenInput( stepoutgroup,
 	    tr("Overwrite undefined values"),
@@ -97,12 +106,13 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
 }
 
 
-uiStepDialog* uiLateralSmoother::createInstance( uiParent* parent, Step* ps )
+uiStepDialog* uiLateralSmoother::createInstance( uiParent* parent, Step* ps,
+						 bool is2d )
 {
     mDynamicCastGet( LateralSmoother*, hf, ps );
     if ( !hf ) return 0;
 
-    return new uiLateralSmoother( parent, hf );
+    return new uiLateralSmoother( parent, hf, is2d );
 }
 
 
@@ -117,10 +127,10 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 	? 1
 	: mUdf(float);
 
-    pars.stepout_.row() =
-	mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
+    pars.stepout_.row() = !inllenfld_ ? 0 :
+		mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
     pars.stepout_.col() =
-	mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
+		mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
     pars.filludf_ = replaceudfsfld_->getBoolValue();
 
     smoother_->setPars( pars );

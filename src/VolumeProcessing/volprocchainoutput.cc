@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 VolProc::ChainOutput::ChainOutput()
-    : Executor("")
+    : Executor("Volume Processing Output")
     , cs_(true)
     , chainid_(MultiID::udf())
     , chainpar_(0)
@@ -54,6 +54,15 @@ VolProc::ChainOutput::~ChainOutput()
     delete &progresskeeper_;
 }
 
+
+void VolProc::ChainOutput::setChainID( const MultiID& chainid )
+{ chainid_ = chainid; }
+
+void VolProc::ChainOutput::setOutputID( const MultiID& outid )
+{ outid_ = outid; }
+
+void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
+{ cs_ = tkzs; }
 
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {

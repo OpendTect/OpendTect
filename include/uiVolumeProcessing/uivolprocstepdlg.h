@@ -31,9 +31,10 @@ class Step;
 mExpClass(uiVolumeProcessing) uiStepDialog : public uiDialog
 { mODTextTranslationClass(uiStepDialog);
 public:
-    mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
+    mDefineFactory3ParamInClass(uiStepDialog,uiParent*,Step*,bool,factory);
 
-			uiStepDialog(uiParent*,const uiString&,Step*);
+			uiStepDialog(uiParent*,const uiString&,Step*,
+				     bool is2d=false);
     virtual bool	isOK() const		{ return true; }
 
 protected:
@@ -41,6 +42,7 @@ protected:
     uiTable*		multiinpfld_;
     uiGenInput*		namefld_;
     Step*		step_;
+    bool		is2d_;
 
     void		addMultiInputFld();
     void		addMultiInputFld(uiGroup*);
