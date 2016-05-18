@@ -348,7 +348,7 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 
     if ( tkzs )
 	tkzs_ = *tkzs;
-    
+
     totalnr_ = tkzs_.isEmpty() ? 1 : tkzs_.hsamp_.totalNr();
 }
 
@@ -363,7 +363,7 @@ bool ParallelReader2D::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
-   
+
     info.getDataChar( dc_ );
     if ( components_.isEmpty() )
     {
@@ -388,7 +388,7 @@ bool ParallelReader2D::init()
 
     if ( !addComponents(*dp_,*ioobj_,components_,0) )
     {
-	dp_->unRef(); dp_ = 0; 
+	dp_->unRef(); dp_ = 0;
 	return false;
     }
 
@@ -527,11 +527,12 @@ class ArrayFiller : public Task
 {
 public:
 ArrayFiller( SeisTrc& trc, const TypeSet<int>& components,
-	     const TypeSet<int>& outcomponents, RegularSeisDataPack& dp )
+	     const TypeSet<int>& outcomponents, RegularSeisDataPack& dp,
+	     bool is2d )
     : trc_(trc)
     , components_(components)
     , outcomponents_(outcomponents)
-    , dp_(dp)
+    , dp_(dp),is2d_(is2d)
 {}
 
 
@@ -540,8 +541,10 @@ ArrayFiller( SeisTrc& trc, const TypeSet<int>& components,
 
 bool execute()
 {
-    const int idx0 = dp_.sampling().hsamp_.lineIdx( trc_.info().inl() );
-    const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().crl() );
+    const int idx0 = is2d_ ? 0
+		: dp_.sampling().hsamp_.lineIdx( trc_.info().inl() );
+    const int idx1 = dp_.sampling().hsamp_.trcIdx( is2d_ ? trc_.info().nr_
+							 : trc_.info().crl() );
 
     const StepInterval<float>& zsamp = dp_.sampling().zsamp_;
 
@@ -602,6 +605,7 @@ protected:
     const TypeSet<int>&		components_;
     const TypeSet<int>&		outcomponents_;
     RegularSeisDataPack&	dp_;
+    bool			is2d_;
 };
 
 
@@ -617,24 +621,13 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , rdr_(*new SeisTrcReader(ioobj_))
     , dc_(DataCharacteristics::Auto)
     , initialized_(false)
+    , is2d_(false)
 {
-    SeisIOObjInfo info( ioobj );
-    info.getDataChar( dc_ );
-    if ( !comps )
-    {
-	const int nrcomps = info.nrComponents();
-	for ( int idx=0; idx<nrcomps; idx++ )
-	    components_ += idx;
-    }
-    else
+    if ( comps )
 	components_ = *comps;
 
-    info.getRanges( tkzs_ );
     if ( tkzs )
-	tkzs_.limitTo( *tkzs );
-
-    totalnr_ = tkzs_.hsamp_.totalNr();
-    nrdone_ = 0;
+	tkzs_ = *tkzs;
 
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
@@ -702,26 +695,71 @@ bool SequentialReader::init()
     if ( initialized_ )
 	return true;
 
-    nrdone_ = 0;
     msg_ = tr("Initializing reader");
-    const SeisIOObjInfo info( *ioobj_ );
+    SeisIOObjInfo info( ioobj_ );
     if ( !info.isOK() ) return false;
+    is2d_ = info.is2D();
+    info.getDataChar( dc_ );
+    if ( components_.isEmpty() )
+    {
+	const int nrcomps = info.nrComponents();
+	for ( int idx=0; idx<nrcomps; idx++ )
+	    components_ += idx;
+    }
+
+    if ( is2d_ && !TrcKey::is2D(tkzs_.hsamp_.survid_) )
+    {
+	pErrMsg("TrcKeySampling for 2D data needed with GeomID as lineNr");
+	return false;
+    }
+
+    if ( !dp_ )
+    {
+	if ( !is2d_ )
+	{
+	    TrcKeyZSampling storedtkzs;
+	    info.getRanges( storedtkzs );
+	    if ( tkzs_.isDefined() )
+		tkzs_. limitTo( storedtkzs );
+	    else
+		tkzs_ = storedtkzs;
+	}
+	else
+	{
+	    Pos::GeomID geomid = tkzs_.hsamp_.start_.lineNr();
+	    StepInterval<int> trcrg;
+	    StepInterval<float> zrg;
+	    if ( !info.getRanges(geomid,trcrg,zrg) )
+		return false;
+
+	    trcrg.limitTo( tkzs_.hsamp_.trcRange() );
+	    tkzs_.zsamp_.limitTo( zrg );
+	    tkzs_.hsamp_.setTrcRange( trcrg );
+	}
+
+	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false),
+					&dc_);
+	DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
+	dp_->setSampling( tkzs_ );
+	dp_->setName( ioobj_->name() );
+	if ( scaler_ && !scaler_->isEmpty() )
+	    dp_->setScaler( *scaler_ );
+
+	if ( !addComponents(*dp_,*ioobj_,components_,0) )
+	    return false;
+    }
+
+    if ( !is2d_ )
+    {
+	PosInfo::CubeData cubedata;
+	if ( rdr_.get3DGeometryInfo(cubedata) )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+    }
+
+    totalnr_ = tkzs_.hsamp_.totalNr();
+    nrdone_ = 0;
 
     mSetSelData()
-
-    dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false), &dc_);
-    DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
-    dp_->setSampling( tkzs_ );
-    dp_->setName( ioobj_->name() );
-    if ( scaler_ && !scaler_->isEmpty() )
-	dp_->setScaler( *scaler_ );
-
-    if ( !addComponents(*dp_,*ioobj_,components_,0) )
-	return false;
-
-    PosInfo::CubeData cubedata;
-    if ( rdr_.get3DGeometryInfo(cubedata) )
-	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
@@ -732,12 +770,8 @@ bool SequentialReader::init()
 
 bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
 {
-    nrdone_ = 0;
-
     dp_ = &dp;
-
     DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
-
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()
 	       ? dp.getScaler()->clone() : 0 );
@@ -745,22 +779,13 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
 
     if ( dp.sampling().isDefined() )
 	tkzs_ = dp.sampling();
+    else
+	dp_->setSampling( tkzs_ );
 
-    dp.setSampling( tkzs_ );
-
-    mSetSelData()
-
-    if ( dp.nrComponents() < components_.size() &&
+    if ( dp_->nrComponents() < components_.size() &&
 	 !addComponents(*dp_,*ioobj_,components_,strm) )
 	return false;
 
-    PosInfo::CubeData cubedata;
-    if ( rdr_.get3DGeometryInfo(cubedata) )
-	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
-
-    initialized_ = true;
-    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
-						  .arg( ioobj_->uiName() ) );
     return true;
 }
 
@@ -786,7 +811,8 @@ int SequentialReader::nextStep()
 
     const TypeSet<int>& outcomponents = outcomponents_
 				      ? *outcomponents_ : components_;
-    Task* task = new ArrayFiller( *trc, components_, outcomponents, *dp_ );
+    Task* task =
+	new ArrayFiller( *trc, components_, outcomponents, *dp_, is2d_ );
     Threads::WorkManager::twm().addWork(
 	Threads::Work(*task,true), 0, queueid_, false, false, true );
 

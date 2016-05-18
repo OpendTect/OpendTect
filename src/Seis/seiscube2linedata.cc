@@ -9,6 +9,7 @@
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "seisread.h"
+#include "seisselection.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -68,6 +69,9 @@ int Seis2DFrom3DExtractor::goToNextLine()
     if ( !curgeom2d_ )
 	mErrRet(tr("Line geometry not available"))
 
+    Seis::SelData* newseldata = Seis::SelData::get( Seis::Range );
+    newseldata->setGeomID( geomids_[curlineidx_] );
+    wrr_.setSelData( newseldata );
     curtrcidx_ = 0;
     return MoreToDo();
 }

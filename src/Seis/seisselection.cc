@@ -159,12 +159,16 @@ Seis::RangeSelData::RangeSelData( const TrcKeySampling& hs )
 {
     tkzs_.hsamp_ = hs;
     tkzs_.zsamp_ = SI().zRange(false);
+    if ( tkzs_.is2D() )
+	setGeomID( tkzs_.hsamp_.start_.lineNr() );
 }
 
 
 Seis::RangeSelData::RangeSelData( const TrcKeyZSampling& cs )
     : tkzs_(*new TrcKeyZSampling(cs))
 {
+    if ( tkzs_.is2D() )
+	setGeomID( tkzs_.hsamp_.start_.lineNr() );
 }
 
 
