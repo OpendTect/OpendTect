@@ -126,6 +126,38 @@ uiBulkFaultImport::~uiBulkFaultImport()
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
+<<<<<<< .mine
+struct FaultPars
+{
+FaultPars( const char* nm )
+    : name_(nm)	    {}
+
+void add( const Coord3& crd, int stickidx, int nodeidx )
+{
+    nodes_ += crd;
+    stickidxs_ += stickidx;
+    nodeidxs_ += nodeidx;
+}
+
+    BufferString	name_;
+    TypeSet<Coord3>	nodes_;
+    TypeSet<int>	stickidxs_;
+    TypeSet<int>	nodeidxs_;
+
+};
+
+static int getFaultIndex( const char* nm, const ObjectSet<FaultPars>& pars )
+{
+    for ( int idx=0; idx<pars.size(); idx++ )
+    {
+	if ( pars[idx]->name_ == nm )
+	    return idx;
+    }
+
+    return -1;
+}
+
+=======
 struct FaultPars
 {
 FaultPars( const char* nm )
