@@ -790,6 +790,9 @@ void HorizonDisplay::createDisplayDataPacks(
     const int shift = sidcol==-1 ?  nrfixedcols : nrfixedcols+1;
     const BinIDValueSet* cache =
 	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
+    if ( !cache )
+	return;
+
     const int nrversions = cache->nrVals()-shift;
 
     TypeSet<DataPack::ID> dpids;
