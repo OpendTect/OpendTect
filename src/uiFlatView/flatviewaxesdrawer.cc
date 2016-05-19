@@ -253,7 +253,7 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
     if ( !fdp )
 	return;
 
-    const float userfac = vwr_.zDomain().userFactor();
+    const float userfac = mCast(float,vwr_.zDomain().userFactor());
     const TypeSet<PlotAnnotation>& xannot =
 	forx1 ? vwr_.appearance().annot_.x1_.auxannot_
 	      : vwr_.appearance().annot_.x2_.auxannot_;
@@ -280,7 +280,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
     transformAndSetAuxAnnotation( true );
     transformAndSetAuxAnnotation( false );
-    const float userfac = vwr_.zDomain().userFactor();
+    const float userfac = mCast(float,vwr_.zDomain().userFactor());
 
     if ( !fdp || altdim0_<0 )
     {
