@@ -924,7 +924,7 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
 	CommandLineParser::addKey( ViewPars::sKeyEdit(), cmd );
 
 #ifdef __mac__
-    CommandLineParser::addKey( OS::MachineCommand::FG(), cmd );
+    CommandLineParser::addKey( OS::MachineCommand::sKeyFG(), cmd );
 #endif
 
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
