@@ -24,7 +24,7 @@ public:
 			mDefaultFactoryInstantiation( Step,
 				MatlabStep,
 				"MatlabStep",
-				"MATLAB" );
+				toUiString("MATLAB") )
 
     void		setSharedLibFileName(const char*);
     const char*		sharedLibFileName() const;
@@ -67,6 +67,5 @@ protected:
 };
 
 } // namespace VolProc
-
 
 #endif
