@@ -151,7 +151,8 @@ void LocationDisplay::fullRedraw( CallBacker* )
     if ( !set_ )
 	return;
 
-    if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
+    if ( datatransform_ && datatransform_->needsVolumeOfInterest() &&
+	 !set_->isEmpty() )
     {
 	TrcKeyZSampling cs( false );
 	MonitorLock ml1( *set_ );
@@ -166,12 +167,15 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	}
 	ml1.unlockNow();
 
-	if ( voiidx_<0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	if ( cs.isDefined() )
+	{
+	    if ( voiidx_<0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
 
-	datatransform_->loadDataIfMissing( voiidx_ );
+	    datatransform_->loadDataIfMissing( voiidx_ );
+	}
     }
 
     getMaterial()->setColor( set_->dispColor() );
