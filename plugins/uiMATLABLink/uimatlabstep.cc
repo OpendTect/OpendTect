@@ -43,30 +43,32 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
     , fileloaded_(false)
 {
     const FilePath sofiledir = getSODefaultDir();
-    filefld_ = new uiFileInput( this, "Select shared object file",
+    filefld_ = new uiFileInput( this, tr("Select shared object file"),
 				uiFileInput::Setup(uiFileDialog::Gen)
 				.filter(sofileflt)
 				.defseldir(sofiledir.fullPath()) );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
 
-    loadbut_ = new uiPushButton( this, uiStrings::sLoad(true),
+    loadbut_ = new uiPushButton( this, uiStrings::sLoad(),
 			mCB(this,uiMatlabStep,loadCB), true );
     loadbut_->setSensitive( false );
     loadbut_->attach( rightTo, filefld_ );
     uiSeparator* sep = new uiSeparator( this, "File Separator" );
     sep->attach( stretchedBelow, filefld_ );
 
-    addMultiInputFld();
-    multiinpfld_->attach( alignedBelow, filefld_ );
-    multiinpfld_->attach( ensureBelow, sep );
+    uiGroup* grp = new uiGroup( this, "Table Group" );
+    grp->attach( alignedBelow, filefld_ );
+    grp->attach( ensureBelow, sep );
 
-    partable_ = new uiTable( this, uiTable::Setup(5,2), "Parameter table" );
+    addMultiInputFld( grp );
+
+    partable_ = new uiTable( grp, uiTable::Setup(5,2), "Parameter table" );
     BufferStringSet lbls; lbls.add( "Parameter" ).add( "Value" );
     partable_->setColumnLabels( lbls );
     partable_->setColumnReadOnly( 0, true );
     partable_->attach( alignedBelow, multiinpfld_ );
 
-    addNameFld( partable_ );
+    addNameFld( grp );
 
     if ( !step ) return;
 
@@ -201,4 +203,3 @@ FilePath uiMatlabStep::getSODefaultDir()
 }
 
 } // namespace VolProc
-

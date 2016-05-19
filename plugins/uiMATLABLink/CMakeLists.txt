@@ -17,4 +17,3 @@ if ( NOT MATLAB_DIR STREQUAL "" )
     OD_INIT_MODULE()
 
 endif()
-
