@@ -49,15 +49,16 @@ uiStepDialog::uiStepDialog( uiParent* p, const uiString& stepnm, Step* step )
 }
 
 
-void uiStepDialog::addMultiInputFld()
+void uiStepDialog::addMultiInputFld( uiGroup* grp )
 {
     const int nrinp = step_->getNrInputs();
     if ( nrinp == 0 )
 	return;
 
+    uiParent* prnt = grp ? (uiParent*)grp : (uiParent*)this;
     const int nrrows = nrinp==-1 ? 2 : nrinp;
     uiTable::Setup ts( nrrows, 1 );
-    multiinpfld_ = new uiTable( this, ts, "Step inputs" );
+    multiinpfld_ = new uiTable( prnt, ts, "Step inputs" );
     multiinpfld_->setColumnLabel( 0, uiStrings::sInput() );
     initInputTable( nrinp );
 }

@@ -41,7 +41,7 @@ protected:
     uiGenInput*		namefld_;
     Step*		step_;
 
-    void		addMultiInputFld();
+    void		addMultiInputFld(uiGroup* grp=0);
     void		initInputTable(int nrinputs);
     void		setInputsFromWeb();
     void		getStepNames(BufferStringSet&) const;
