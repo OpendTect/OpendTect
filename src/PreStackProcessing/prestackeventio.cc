@@ -497,14 +497,14 @@ bool EventReader::readAuxData(const char* fnm)
     BufferString dipsourcestr;
     if ( par.get( sKeyPrimaryDipSource(), dipsourcestr ) )
     {
-	if ( primarydipsource.use( dipsourcestr.buf() ) )
+	if ( !primarydipsource.use(dipsourcestr.buf()) )
 	{
 	    errmsg_ = tr("Cannot parse primary dip-source");
 	    return false;
 	}
 
-	if ( !par.get( sKeySecondaryDipSource(), dipsourcestr ) ||
-	     !secondarydipsource.use( dipsourcestr.buf() ) )
+	if ( !par.get(sKeySecondaryDipSource(),dipsourcestr) ||
+	     !secondarydipsource.use(dipsourcestr.buf()) )
 	{
 	    errmsg_ = tr("Cannot parse secondary dip-source");
 	    return false;
