@@ -183,6 +183,8 @@ uiODLegalInfo(uiParent* p)
     textfld_ = new uiTextEdit( this );
     textfld_->attach( alignedBelow, textsel_ );
 
+    setCancelText( uiString::emptyString() );
+    setOkText( uiStrings::sClose() );
     selChgCB( 0 );
 }
 
