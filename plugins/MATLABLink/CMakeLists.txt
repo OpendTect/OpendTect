@@ -36,49 +36,50 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 
     OD_INIT_MODULE()
 
-
+    if ( EXISTS ${MATLAB_DIR}/bin/mex )
 # Macro for building mex files
-    macro ( MATLAB_EXEC_MEX PROG ARGS OUTDIR WORKDIR)
-	add_custom_command(
-		TARGET ${OD_MODULE_NAME} POST_BUILD
-		COMMAND ${MATLAB_DIR}/bin/mex
-		ARGS ${ARGS} -outdir ${OUTDIR} ${WORKDIR}/${PROG}
-					       ${WORKDIR}/matlabarray.cc
-		WORKING_DIRECTORY ${WORKDIR}
-		COMMENT "Mex-ing ${PROG}" VERBATIM )
-    endmacro()
+	macro ( MATLAB_EXEC_MEX PROG ARGS OUTDIR WORKDIR)
+	    add_custom_command(
+		    TARGET ${OD_MODULE_NAME} POST_BUILD
+		    COMMAND ${MATLAB_DIR}/bin/mex
+		    ARGS ${ARGS} -outdir ${OUTDIR} ${WORKDIR}/${PROG}
+						   ${WORKDIR}/matlabarray.cc
+		    WORKING_DIRECTORY ${WORKDIR}
+		    COMMENT "Mex-ing ${PROG}" VERBATIM )
+	endmacro()
 
-    set( MATLAB_PROGS
-	readcbvs.cc
-	writecbvs.cc
-	writesegyindex.cc
-    )
+	set( MATLAB_PROGS
+	    readcbvs.cc
+	    writecbvs.cc
+	    writesegyindex.cc
+	)
 
-    set( MATLAB_PROG_DEPS Basic Algo General Geometry
-			  MMProc Network NLA Seis AttributeEngine )
-    set( ARGS -D__${OD_PLFSUBDIR}__ )
-    foreach( MOD ${MATLAB_PROG_DEPS} )
-	foreach( INC ${OD_${MOD}_INCLUDEPATH} )
-	    list( APPEND ARGS -I${INC} )
+	set( MATLAB_PROG_DEPS Basic Algo General Geometry
+			      MMProc Network NLA Seis AttributeEngine )
+	set( ARGS -D__${OD_PLFSUBDIR}__ )
+	foreach( MOD ${MATLAB_PROG_DEPS} )
+	    foreach( INC ${OD_${MOD}_INCLUDEPATH} )
+		list( APPEND ARGS -I${INC} )
+	    endforeach()
 	endforeach()
-    endforeach()
 
-    set( ARGS ${ARGS} -L${OD_EXEC_OUTPUT_PATH} )
-    foreach( MOD ${MATLAB_PROG_DEPS} )
-	list( APPEND ARGS -l${MOD} )
-    endforeach()
+	set( ARGS ${ARGS} -L${OD_EXEC_OUTPUT_PATH} )
+	foreach( MOD ${MATLAB_PROG_DEPS} )
+	    list( APPEND ARGS -l${MOD} )
+	endforeach()
 
-    set( OUTDIR ${OpendTect_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
-    if ( NOT EXISTS ${OUTDIR} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTDIR} )
+	set( OUTDIR ${OpendTect_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
+	if ( NOT EXISTS ${OUTDIR} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTDIR} )
+	endif()
+
+	set( WORKDIR ${OpendTect_DIR}/plugins/${OD_MODULE_NAME} )
+	foreach ( PROG ${MATLAB_PROGS} )
+	    MATLAB_EXEC_MEX( "${PROG}" "${ARGS}" "${OUTDIR}" "${WORKDIR}" )
+	endforeach()
+
+	install( DIRECTORY ${OUTDIR} DESTINATION
+		 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
     endif()
-
-    set( WORKDIR ${OpendTect_DIR}/plugins/${OD_MODULE_NAME} )
-    foreach ( PROG ${MATLAB_PROGS} )
-	MATLAB_EXEC_MEX( "${PROG}" "${ARGS}" "${OUTDIR}" "${WORKDIR}" )
-    endforeach()
-
-    install( DIRECTORY ${OUTDIR} DESTINATION
-	     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
 endif()
 
