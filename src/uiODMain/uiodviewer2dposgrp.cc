@@ -454,6 +454,8 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
 	iop.get( sKeyRdmLineID(), rdmlineid_ );
 	iop.get( sKeyRdmLineMultiID(), rdmlinemultiid_ );
     }
+    else
+	rdmlinemultiid_.setUdf();
 
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );
