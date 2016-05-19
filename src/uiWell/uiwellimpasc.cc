@@ -234,20 +234,20 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
 
-    idfld = new uiGenInput( this, toUiString(Well::Info::sKeyUwid()),
+    idfld = new uiGenInput( this, Well::Info::sUwid(),
 			    StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
     idfld->attach( ensureBelow, horsep );
 
-    operfld = new uiGenInput( this, toUiString(Well::Info::sKeyOper()),
+    operfld = new uiGenInput( this, Well::Info::sOper(),
 			      StringInpSpec(info.oper) );
     operfld->attach( rightTo, idfld );
 
-    statefld = new uiGenInput( this, toUiString(Well::Info::sKeyState()),
+    statefld = new uiGenInput( this, Well::Info::sState(),
 			       StringInpSpec(info.state) );
     statefld->attach( alignedBelow, idfld );
 
-    countyfld = new uiGenInput( this, toUiString(Well::Info::sKeyCounty()),
+    countyfld = new uiGenInput( this, Well::Info::sCounty(),
 				StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }
