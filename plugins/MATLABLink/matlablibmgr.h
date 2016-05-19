@@ -76,4 +76,3 @@ protected:
 mGlobal(MATLABLink) MatlabLibMgr& MLM();
 
 #endif
-
