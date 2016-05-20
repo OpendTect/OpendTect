@@ -45,7 +45,7 @@ public:
 
 			Set(const char* nm=0,const char* category=0);
 			Set(const Set&);
-    Set&		operator =(const Set&);
+			mDeclMonitorableAssignment(Set);
 
     bool		isPolygon() const;
     void		setIsPolygon(bool yn=true);

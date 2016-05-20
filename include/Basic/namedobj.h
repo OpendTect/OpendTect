@@ -55,7 +55,7 @@ public:
 			NamedMonitorable(const char* nm=0);
 			NamedMonitorable(const NamedMonitorable&);
 			NamedMonitorable(const NamedObject&);
-    NamedMonitorable&	operator =(const NamedMonitorable&);
+			mDeclMonitorableAssignment(NamedMonitorable);
     NamedMonitorable&	operator =(const NamedObject&);
     virtual		~NamedMonitorable();
     bool		operator ==(const NamedMonitorable&) const;

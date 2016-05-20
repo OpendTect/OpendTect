@@ -48,29 +48,35 @@ ________________________________________________________________________
 	 doSomething( chgdata.subIdx() );
   }
 
+  Lastly, copying of Monitorables needs to be standard. For this, you want to
+  use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros.
+  Also, in the .cc file you have to implement a void copyClassData(const clss&)
+  function. It is called already locked, and should only copy the class' own
+  data.
+
 */
 
 mExpClass(Basic) Monitorable : public CallBacker
 {
 public:
 
-    typedef int				ChangeType;
-    typedef od_int64			SubIdxType;
-    typedef od_int64			DirtyCountType;
+    typedef int		ChangeType;
+    typedef od_int64	SubIdxType;
+    typedef od_int64	DirtyCountType;
 
     mExpClass(Basic) ChangeData : public std::pair<ChangeType,SubIdxType>
     {
     public:
-		    ChangeData( ChangeType typ, SubIdxType idx )
-			: std::pair<ChangeType,SubIdxType>(typ,idx) {}
+			ChangeData( ChangeType typ, SubIdxType idx )
+			    : std::pair<ChangeType,SubIdxType>(typ,idx) {}
 
-	ChangeType  changeType() const	{ return first; }
-	SubIdxType  subIdx() const	{ return second; }
+	ChangeType	changeType() const	{ return first; }
+	SubIdxType	subIdx() const		{ return second; }
     };
 
-					Monitorable(const Monitorable&);
-    virtual				~Monitorable();
-    Monitorable&			operator =(const Monitorable&);
+			Monitorable(const Monitorable&);
+    virtual		~Monitorable();
+    Monitorable&	operator =(const Monitorable&);
 
     virtual CNotifier<Monitorable,ChangeData>& objectChanged() const
 	{ return const_cast<Monitorable*>(this)->chgnotif_; }
@@ -79,51 +85,51 @@ public:
     mDeclInstanceCreatedNotifierAccess(	Monitorable );
 					//!< defines static instanceCreated()
 
-    void			touch() const		{ dirtycount_++; }
-    DirtyCountType		dirtyCount() const	{ return dirtycount_; }
-    void			setDirtyCount( DirtyCountType nr ) const
+    void		touch() const		{ dirtycount_++; }
+    DirtyCountType	dirtyCount() const	{ return dirtycount_; }
+    void		setDirtyCount( DirtyCountType nr ) const
 							{ dirtycount_ = nr; }
 
-    void			sendEntireObjectChangeNotification() const;
+    void		sendEntireObjectChangeNotification() const;
 
-    static ChangeType		cEntireObjectChangeType()	{ return -1; }
-    static SubIdxType		cEntireObjectChangeSubIdx()	{ return -1; }
-    static ChangeType		changeNotificationTypeOf(CallBacker*);
+    static ChangeType	cEntireObjectChangeType()	{ return -1; }
+    static SubIdxType	cEntireObjectChangeSubIdx()	{ return -1; }
+    static ChangeType	changeNotificationTypeOf(CallBacker*);
 
 protected:
 
-				Monitorable();
+			Monitorable();
 
-    mutable Threads::Lock	accesslock_;
+    mutable Threads::Lock accesslock_;
 
     mExpClass(Basic) AccessLockHandler
     {
     public:
-				AccessLockHandler(const Monitorable&,
+			AccessLockHandler(const Monitorable&,
 						  bool forread=true);
-				~AccessLockHandler();
-	bool			convertToWrite();
-	void			unlockNow()	{ locker_->unlockNow(); }
-	void			reLock()	{ locker_->reLock(); }
+			~AccessLockHandler();
+	bool		convertToWrite();
+	void		unlockNow()	{ locker_->unlockNow(); }
+	void		reLock()	{ locker_->reLock(); }
     private:
-	const Monitorable&	obj_;
-	Threads::Locker*	locker_;
-	void			waitForMonitors();
+	const Monitorable& obj_;
+	Threads::Locker* locker_;
+	void		waitForMonitors();
     };
 
-    void			sendChgNotif(AccessLockHandler&,ChangeType,
-					     SubIdxType) const;
+    void		copyAll(const Monitorable&);
+    void		sendChgNotif(AccessLockHandler&,ChangeType,
+				     SubIdxType) const;
 				//!< objectChanged called with released lock
-    void			sendDelNotif() const;
-    void			stopChangeNotifications() const
-				{ chgnotifblocklevel_++; }
-    void			resumeChangeNotifications() const;
+    void		sendDelNotif() const;
+    void		stopChangeNotifications() const
+			{ chgnotifblocklevel_++; }
+    void		resumeChangeNotifications() const;
 
     template <class T>
-    inline T			getMemberSimple(const T&) const;
+    inline T		getMemberSimple(const T&) const;
     template <class TMember,class TSetTo>
-    inline void			setMemberSimple(TMember&,TSetTo,ChangeType,
-					        SubIdxType);
+    inline void		setMemberSimple(TMember&,TSetTo,ChangeType,SubIdxType);
 
 private:
 
@@ -161,7 +167,8 @@ private:
   Beware: you cannot use the MonitorLock and still change the object, a
   DEADLOCK will be your reward. To write while reading, make a copy of the
   object, change it, and assign the object to that. The assignment operator
-  of the object should be 'atomic' again.
+  of the object should be 'atomic' again, thanks to the assignment operator
+  macros.
 
  */
 
@@ -221,6 +228,51 @@ protected:
 #define mLock2Write() accesslockhandler_.convertToWrite()
 #define mUnlockAllAccess() accesslockhandler_.unlockNow()
 #define mSendChgNotif(typ,subidx) sendChgNotif(accesslockhandler_,typ,subidx)
+#define mSendEntireObjChgNotif() \
+    mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeSubIdx() )
+
+
+/*!\brief For subclasses: declaration of assignment method that will emit
+  'Entire Object' notifications.
+
+  Because of the locking assignment operators are essential. These will
+  need to copy both the 'own' members aswell as base class members, and emit
+  the notification afterwards. For this, you have to implement a function that
+  copies only the class' own data (unlocked): void copyClassData(const clss&).
+
+  */
+
+#define mDeclMonitorableAssignment(clss) \
+    private: \
+        void	    copyClassData(const clss&); \
+    protected: \
+        void	    copyAll(const clss&); \
+    public: \
+	clss&	    operator =(const clss&)
+
+/*!\brief For subclasses: implementation of assignment method. You have to
+  implement the copyClassData function yourself. */
+
+#define mImplMonitorableAssignment(clss,baseclss) \
+clss& clss::operator =( const clss& oth ) \
+{ \
+    if ( &oth != this ) \
+    { \
+	mLock4Write(); \
+	AccessLockHandler lh( oth ); \
+	copyAll( oth ); \
+	touch(); \
+	mUnlockAllAccess(); \
+	sendEntireObjectChangeNotification(); \
+    } \
+    return *this; \
+} \
+\
+void clss::copyAll( const clss& oth ) \
+{ \
+    baseclss::copyAll( oth ); \
+    copyClassData( oth ); \
+}
 
 
 template <class T>

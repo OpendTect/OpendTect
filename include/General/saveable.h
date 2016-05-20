@@ -32,7 +32,8 @@ public:
 			Saveable(const Monitorable&);
 			Saveable(const Saveable&);
 			~Saveable();
-    Saveable&		operator =(const Saveable&);
+			mDeclMonitorableAssignment(Saveable);
+
     const Monitorable*	monitored() const;
     bool		monitoredAlive() const	{ return monitoredalive_; }
     void		setMonitored(const Monitorable&);

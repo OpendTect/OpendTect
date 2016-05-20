@@ -45,7 +45,7 @@ public:
 			AutoSaveable(const Monitorable&);
 			AutoSaveable(const AutoSaveable&);
 			~AutoSaveable();
-    AutoSaveable&	operator =(const AutoSaveable&);
+			mDeclMonitorableAssignment(AutoSaveable);
 
     mImplSimpleMonitoredGetSet(inline,nrSecondsBetweenSaves,
 				      setNrSecondsBetweenSaves,

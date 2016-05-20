@@ -67,22 +67,17 @@ OD::Saveable::~Saveable()
 }
 
 
-OD::Saveable& OD::Saveable::operator =( const Saveable& oth )
+mImplMonitorableAssignment(OD::Saveable,Monitorable)
+
+void OD::Saveable::copyClassData( const Saveable& oth )
 {
-    if ( this != &oth )
-    {
-	Monitorable::operator =( oth );
-	mLock4Write();
-	detachCBFromObj();
-	AccessLockHandler lh( oth );
-	monitored_ = oth.monitored_;
-	storekey_ = oth.storekey_;
-	ioobjpars_ = oth.ioobjpars_;
-	monitoredalive_ = oth.monitoredalive_;
-	errmsg_ = oth.errmsg_;
-	attachCBToObj();
-    }
-    return *this;
+    detachCBFromObj();
+    monitored_ = oth.monitored_;
+    storekey_ = oth.storekey_;
+    ioobjpars_ = oth.ioobjpars_;
+    monitoredalive_ = oth.monitoredalive_;
+    errmsg_ = oth.errmsg_;
+    attachCBToObj();
 }
 
 
@@ -209,25 +204,19 @@ OD::AutoSaveable::~AutoSaveable()
 }
 
 
-OD::AutoSaveable& OD::AutoSaveable::operator =( const AutoSaveable& oth )
-{
-    if ( this != &oth )
-    {
-	Saveable::operator =( oth );
-	AccessLockHandler lh( oth );
-	mLock4Write();
-	nrclocksecondsbetweenautosaves_ = oth.nrclocksecondsbetweenautosaves_;
-	lastautosaveclockseconds_ = oth.lastautosaveclockseconds_;
-	curclockseconds_ = oth.curclockseconds_;
-	delete lastautosaveioobj_;
-	if ( oth.lastautosaveioobj_ )
-	    lastautosaveioobj_ = new IOStream( *oth.lastautosaveioobj_ );
-	else
-	    lastautosaveioobj_ = 0;
-    }
-    return *this;
-}
+mImplMonitorableAssignment(OD::AutoSaveable,OD::Saveable)
 
+void OD::AutoSaveable::copyClassData( const AutoSaveable& oth )
+{
+    nrclocksecondsbetweenautosaves_ = oth.nrclocksecondsbetweenautosaves_;
+    lastautosaveclockseconds_ = oth.lastautosaveclockseconds_;
+    curclockseconds_ = oth.curclockseconds_;
+    delete lastautosaveioobj_;
+    if ( oth.lastautosaveioobj_ )
+	lastautosaveioobj_ = new IOStream( *oth.lastautosaveioobj_ );
+    else
+	lastautosaveioobj_ = 0;
+}
 
 
 bool OD::AutoSaveable::save() const

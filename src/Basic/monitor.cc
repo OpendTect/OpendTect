@@ -84,12 +84,18 @@ Monitorable::~Monitorable()
 }
 
 
-
-Monitorable& Monitorable::operator =( const Monitorable& )
+Monitorable& Monitorable::operator =( const Monitorable& oth )
 {
-    // copying nothing. no locking, monitors, notification - nothing.
-    touch();
+    // copyAll does nothing, so nothing here
     return *this;
+}
+
+
+void Monitorable::copyAll( const Monitorable& oth )
+{
+    // Copying nothing. No locking, monitors, notification - nothing.
+    // The function is here so subclasses can call it from their
+    // mImplMonitorableAssignment macro expansion.
 }
 
 

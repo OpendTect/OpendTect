@@ -44,18 +44,13 @@ Pick::Set::~Set()
 }
 
 
-Pick::Set& Pick::Set::operator=( const Set& oth )
+mImplMonitorableAssignment( Pick::Set, NamedMonitorable )
+
+void Pick::Set::copyClassData( const Set& oth )
 {
-    if ( &oth != this )
-    {
-	NamedMonitorable::operator =( oth );
-	mLock4Write();
-	AccessLockHandler lh( oth );
-	locs_.copy( oth.locs_ );
-	disp_ = oth.disp_;
-	pars_ = oth.pars_;
-    }
-    return *this;
+    locs_.copy( oth.locs_ );
+    disp_ = oth.disp_;
+    pars_ = oth.pars_;
 }
 
 
@@ -337,11 +332,9 @@ void Pick::Set::fillPar( IOPar& par ) const
 bool Pick::Set::usePar( const IOPar& par )
 {
     mLock4Write();
-    const bool v6_or_earlier = ( par.majorVersion()+par.minorVersion()*0.1 )>0
-	&& ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
 
     BufferString mkststr;
-    if ( par.get(sKey::MarkerStyle(),mkststr) && v6_or_earlier )
+    if ( par.get(sKey::MarkerStyle(),mkststr) )
 	disp_.mkstyle_.fromString( mkststr );
     else
     {
@@ -392,7 +385,7 @@ Pick::Set& Pick::Set::setEmpty()
 
     locs_.setEmpty();
 
-    mSendChgNotif( cLocationRemove(), mUdf(int) );
+    mSendEntireObjChgNotif();
     return *this;
 }
 
@@ -405,7 +398,7 @@ Pick::Set& Pick::Set::append( const Set& oth )
 	MonitorLock monlock( oth );
 	locs_.append( oth.locs_ );
 	monlock.unlockNow();
-	mSendChgNotif( cLocationInsert(), mUdf(int) );
+	mSendEntireObjChgNotif();
     }
     return *this;
 }
@@ -561,6 +554,8 @@ bool PickSetAscIO::isXY() const
 bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 			bool iszreq, float constz ) const
 {
+    ChangeNotifyBlocker cnb( ps );
+
     while ( true )
     {
 	int ret = getNextBodyVals( strm );

@@ -57,11 +57,11 @@ NamedMonitorable::~NamedMonitorable()
 }
 
 
-NamedMonitorable& NamedMonitorable::operator =( const NamedMonitorable& oth )
+mImplMonitorableAssignment(NamedMonitorable,Monitorable)
+
+void NamedMonitorable::copyClassData( const NamedMonitorable& oth )
 {
-    if ( this != &oth )
-	setName( oth.getName() );
-    return *this;
+    setName( oth.getName() );
 }
 
 
