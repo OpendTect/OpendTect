@@ -21,7 +21,7 @@
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipixmap.h"
-#include "uipossubsel.h"
+#include "uiseissubsel.h"
 #include "uiseissel.h"
 #include "uiveldesc.h"
 #include "uivolprocchain.h"
@@ -31,16 +31,17 @@
 namespace VolProc
 {
 
-uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
+uiBatchSetup::uiBatchSetup( uiParent* p, bool is2d, const IOObj* initialsetup )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Create output"),
 				   mNoDlgTitle,
                                    mODHelpKey(mVolProcBatchSetupHelpID) ) )
     , chain_( 0 )
+    , is2d_( is2d )
 {
-    IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();
-    setupcontext.forread_ = true;
-    setupsel_ = new uiIOObjSel( this, setupcontext,
-	   			tr("Volume Builder setup") );
+    IOObjContext ctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
+			     : VolProcessingTranslatorGroup::ioContext();
+    ctxt.forread_ = true;
+    setupsel_ = new uiIOObjSel( this, ctxt, tr("Volume Builder setup") );
     if ( initialsetup )
 	setupsel_->setInput( *initialsetup );
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
@@ -50,12 +51,13 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
 
-    possubsel_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,true) );
-    possubsel_->attach( alignedBelow, setupsel_ );
+    const Seis::GeomType seistype = is2d ? Seis::Line : Seis::Vol;
+    subsel_ = uiSeisSubSel::get( this, Seis::SelSetup(seistype) );
+    subsel_->attach( alignedBelow, setupsel_ );
 
-    outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,false),
-	    			uiSeisSel::Setup(Seis::Vol) );
-    outputsel_->attach( alignedBelow, possubsel_ );
+    outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(seistype,false),
+				uiSeisSel::Setup(Seis::Vol) );
+    outputsel_->attach( alignedBelow, subsel_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, true, Batch::JobSpec::Vol );
     batchfld_->attach( alignedBelow, outputsel_ );
@@ -131,7 +133,7 @@ bool uiBatchSetup::fillPar()
     par.set( "Output.0.Seismic.ID", outputioobj->key() );
 
     IOPar cspar;
-    possubsel_->fillPar( cspar );
+    subsel_->fillPar( cspar );
     par.mergeComp( cspar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     return true;
 }

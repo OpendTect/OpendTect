@@ -19,12 +19,12 @@ class IOObj;
 
 class uiBatchJobDispatcherSel;
 class uiIOObjSel;
-class uiPosSubSel;
+class uiSeisSubSel;
 class uiPushButton;
 class uiVelocityDesc;
 
 
-namespace VolProc 
+namespace VolProc
 {
 
 class Chain;
@@ -33,7 +33,8 @@ mExpClass(uiVolumeProcessing) uiBatchSetup : public uiDialog
 { mODTextTranslationClass(uiBatchSetup);
 
 public:
-                        uiBatchSetup(uiParent*,const IOObj* setupsel=0);
+                        uiBatchSetup(uiParent*,bool is2d,
+				     const IOObj* setupsel=0);
                         ~uiBatchSetup();
 
 protected:
@@ -44,10 +45,11 @@ protected:
 
     uiIOObjSel*		setupsel_;
     uiPushButton*	editsetup_;
-    uiPosSubSel*	possubsel_;
+    uiSeisSubSel*	subsel_;
     uiIOObjSel*		outputsel_;
     Chain*		chain_;
     uiBatchJobDispatcherSel* batchfld_;
+    bool		is2d_;
 
     void		setupSelCB(CallBacker*);
     void		editPushCB(CallBacker*);
