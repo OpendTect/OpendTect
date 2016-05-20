@@ -38,8 +38,17 @@ ________________________________________________________________________
   Monitorable, and could be available with symbolic constants in that class.
   The default is 0 - 'General change'.
 
-  For typical usage see NamedMonitorable.
-  Example unpacking change notifications:
+  For simple class variables, there are simple macros for get and set that
+  will lock and unlock right: mImplSimpleMonitoredGet, mImplSimpleMonitoredSet,
+  and the most common mImplSimpleMonitoredGetSet.
+
+  Locking for more complex things should be done using macros: mLock4Read,
+  mLock4Write, mLock2Write, and mUnlockAllAccess. After write (i.e. object
+  change) operations, you need to unlock and send the notification. Use
+  mSendChgNotif or mSendEntireObjChgNotif.
+
+  To handle change notifications, you'll want to unpack the capsule with one
+  of the macros mGetMonitoredChgData or mGetMonitoredChgDataDoAll. Example:
 
   void MyObj::chgCB( CallBacker* cb )
   {
@@ -48,11 +57,15 @@ ________________________________________________________________________
 	 doSomething( chgdata.subIdx() );
   }
 
-  Lastly, copying of Monitorables needs to be standard. For this, you want to
-  use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros.
-  Also, in the .cc file you have to implement a void copyClassData(const clss&)
-  function. It is called already locked, and should only copy the class' own
-  data.
+  Lastly, copying of Monitorables needs to be done right. For this, you want to
+  use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros:
+  these provide correct handling and even make your task easier than otherwise.
+  To make it work, in the .cc file you have to implement a void
+  copyClassData(const clss&) function. It is called already locked, and should
+  only copy the class' own data.
+
+  For typical subclass implementations see NamedMonitorable, or Pick::Set.
+  For usage, try visSurvey::LocationDisplay.
 
 */
 
@@ -147,6 +160,15 @@ private:
 };
 
 
+#define mImplSimpleMonitoredGet(fnnm,typ,memb) \
+    typ fnnm() const { return getMemberSimple( memb ); }
+#define mImplSimpleMonitoredSet(fnnm,typ,memb,chgtyp) \
+    void fnnm( typ _set_to_ ) { setMemberSimple( memb, _set_to_, chgtyp, 0 ); }
+#define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb,chgtyp) \
+    pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
+    pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
+
+
 /*!\brief protects a Monitorable against change.
 
   Compare the locking with thread-locking tools:
@@ -214,14 +236,6 @@ protected:
 };
 
 
-#define mGetMonitoredChgData(cb,chgdata,caller) \
-    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
-#define mGetMonitoredChgDataDoAll(cb,chgdata,caller,doallact) \
-    mGetMonitoredChgData(chgdata,caller,cb); \
-    if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \
-	{ doallact; }
-
-
 //! For use in subclasses of Monitorable
 #define mLock4Read() AccessLockHandler accesslockhandler_( *this )
 #define mLock4Write() AccessLockHandler accesslockhandler_( *this, false )
@@ -230,6 +244,14 @@ protected:
 #define mSendChgNotif(typ,subidx) sendChgNotif(accesslockhandler_,typ,subidx)
 #define mSendEntireObjChgNotif() \
     mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeSubIdx() )
+
+
+#define mGetMonitoredChgData(cb,chgdata,caller) \
+    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
+#define mGetMonitoredChgDataDoAll(cb,chgdata,caller,doallact) \
+    mGetMonitoredChgData(chgdata,caller,cb); \
+    if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \
+	{ doallact; }
 
 
 /*!\brief For subclasses: declaration of assignment method that will emit
@@ -297,15 +319,6 @@ inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto, int typ,
 	mSendChgNotif( typ, subidx );
     }
 }
-
-
-#define mImplSimpleMonitoredGet(fnnm,typ,memb) \
-    typ fnnm() const { return getMemberSimple( memb ); }
-#define mImplSimpleMonitoredSet(fnnm,typ,memb,chgtyp) \
-    void fnnm( typ _set_to_ ) { setMemberSimple( memb, _set_to_, chgtyp, 0 ); }
-#define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb,chgtyp) \
-    pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
-    pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
 
 
 #endif
