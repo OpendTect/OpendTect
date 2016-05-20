@@ -31,8 +31,9 @@ public:
 
     const char*		name() const			{ return "VolProc"; }
 
-    void		doVolProc(const MultiID*,const char* steptype=0);
-    void		createVolProcOutput(const IOObj*);
+    void		doVolProc(bool is2d,const MultiID*,
+				  const char* steptype=0);
+    void		createVolProcOutput(bool is2d,const IOObj*);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -41,7 +42,9 @@ protected:
 
     void		volprocchainDlgClosed(CallBacker*);
     VolProc::Chain*	volprocchain_;
+    VolProc::Chain*	volprocchain2d_;
     VolProc::uiChain*	volprocchaindlg_;
+    VolProc::uiChain*	volprocchaindlg2d_;
 };
 
 #endif

@@ -26,6 +26,8 @@ uiVolProcPartServer::uiVolProcPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , volprocchain_(0)
     , volprocchaindlg_(0)
+    , volprocchain2d_(0)
+    , volprocchaindlg2d_(0)
 {
 }
 
@@ -34,65 +36,77 @@ uiVolProcPartServer::~uiVolProcPartServer()
 {
     if ( volprocchain_ ) volprocchain_->unRef();
     delete volprocchaindlg_;
+    if ( volprocchain2d_ ) volprocchain2d_->unRef();
+    delete volprocchaindlg2d_;
 }
 
 
-void uiVolProcPartServer::doVolProc( const MultiID* mid, const char* steptype )
+void uiVolProcPartServer::doVolProc( bool is2d, const MultiID* mid,
+				     const char* steptype )
 {
-    if ( !volprocchain_ )
+    VolProc::Chain*& vprocchain = is2d ? volprocchain2d_ : volprocchain_;
+    VolProc::uiChain*& vprocdlg = is2d ? volprocchaindlg2d_ : volprocchaindlg_;
+
+    if ( !vprocchain )
     {
-	volprocchain_ = new VolProc::Chain;
-	volprocchain_->ref();
+	vprocchain = new VolProc::Chain;
+	vprocchain->ref();
     }
 
     PtrMan<IOObj> ioobj = mid ? IOM().get( *mid ) : 0;
     if ( ioobj )
     {
 	uiString errmsg;
-	if ( !VolProcessingTranslator::retrieve( *volprocchain_, ioobj,
-		errmsg ) )
+	const bool readsuccess = is2d ?
+	    VolProcessing2DTranslator::retrieve( *vprocchain, ioobj, errmsg )
+	    : VolProcessingTranslator::retrieve( *vprocchain, ioobj, errmsg);
+	if ( !readsuccess )
 	{
 	    uiString fms( uiStrings::phrCannotRead( ioobj->uiName() ) );
 	    if ( !errmsg.isEmpty() )
 		fms.append(errmsg);
 
 	    uiMSG().error( fms );
-	    volprocchain_->unRef();
-	    volprocchain_ = new VolProc::Chain;
-	    volprocchain_->ref();
+	    vprocchain->unRef();
+	    vprocchain = new VolProc::Chain;
+	    vprocchain->ref();
 	}
     }
 
-    if ( !volprocchaindlg_ )
+    if ( !vprocdlg )
     {
-	volprocchaindlg_ = new VolProc::uiChain( parent(), *volprocchain_,true);
-	volprocchaindlg_->windowClosed.notify(
-		mCB(this,uiVolProcPartServer,volprocchainDlgClosed) );
+	vprocdlg = new VolProc::uiChain( parent(), *vprocchain, is2d, true );
+	vprocdlg->windowClosed.notify(
+			mCB(this,uiVolProcPartServer,volprocchainDlgClosed) );
     }
     else
-	volprocchaindlg_->setChain( *volprocchain_ );
+	vprocdlg->setChain( *vprocchain );
 
-    volprocchaindlg_->raise();
-    volprocchaindlg_->show();
+    vprocdlg->raise();
+    vprocdlg->show();
     if ( steptype )
-	volprocchaindlg_->addStep( steptype );
+	vprocdlg->addStep( steptype );
 }
 
 
-void uiVolProcPartServer::volprocchainDlgClosed( CallBacker* )
+void uiVolProcPartServer::volprocchainDlgClosed( CallBacker* cb )
 {
-    if ( !volprocchaindlg_ || !volprocchaindlg_->saveButtonChecked() ||
-	 !volprocchain_ || volprocchaindlg_->uiResult()==0 )
+    mDynamicCastGet(VolProc::uiChain*,dlg,cb)
+    const bool is2d = dlg == volprocchaindlg2d_;
+    VolProc::Chain* vprocchain = is2d ? volprocchain2d_ : volprocchain_;
+    VolProc::uiChain* vprocdlg = is2d ? volprocchaindlg2d_ : volprocchaindlg_;
+    if ( !vprocdlg || !vprocdlg->saveButtonChecked() ||
+	 !vprocchain || vprocdlg->uiResult()==0 )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( volprocchain_->storageID() );
-    createVolProcOutput( ioobj );
+    PtrMan<IOObj> ioobj = IOM().get( vprocchain->storageID() );
+    createVolProcOutput( is2d, ioobj );
 }
 
 
-void uiVolProcPartServer::createVolProcOutput( const IOObj* sel )
+void uiVolProcPartServer::createVolProcOutput( bool is2d, const IOObj* sel )
 {
-    VolProc::uiBatchSetup dlg( parent(), sel );
+    VolProc::uiBatchSetup dlg( parent(), is2d, sel );
     dlg.go();
 }
 

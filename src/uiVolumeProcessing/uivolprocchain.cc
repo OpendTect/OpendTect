@@ -195,7 +195,7 @@ bool uiStepDialog::acceptOK( CallBacker* )
 
 
 // uiChain
-uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
+uiChain::uiChain( uiParent* p, Chain& chn, bool is2d, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Setup"),
 				   mNoDlgTitle, mODHelpKey(mChainHelpID) )
 	    .modal(!withprocessnow) )

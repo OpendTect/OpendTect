@@ -620,11 +620,10 @@ void uiODMenuMgr::fillProcMenu()
 	velitm->insertItem(
 	    new uiAction(m3Dots(tr("Velocity Conversion")),
 			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
-
-	csoitm_->insertItem(
-	    new uiAction(m3Dots(tr("Volume Builder")),
-			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
     }
+
+    add2D3DMenuItem( *csoitm_, "empty", tr("Volume Builder"),
+		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
     procmnu_->insertItem( csoitm_ );
 
@@ -1365,6 +1364,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSeisOut3DMnuItm:	applMgr().createVol(false,false); break;
     case mPSProc2DMnuItm:	applMgr().processPreStack(true); break;
     case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
+    case mVolProc2DMnuItm:	applMgr().createVolProcOutput(true); break;
+    case mVolProc3DMnuItm:	applMgr().createVolProcOutput(false); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;

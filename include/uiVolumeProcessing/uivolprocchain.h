@@ -33,7 +33,8 @@ mExpClass(uiVolumeProcessing) uiChain : public uiDialog
 { mODTextTranslationClass(uiChain);
 public:
 
-				uiChain(uiParent*,Chain&, bool withprocessnow);
+				uiChain(uiParent*,Chain&,bool is2d,
+					bool withprocessnow);
 				~uiChain();
 
     void			setChain(Chain&);

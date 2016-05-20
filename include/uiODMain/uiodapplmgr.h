@@ -102,6 +102,7 @@ public:
     void			editAttribSet(bool is2d);
     bool			editNLA(bool is2d);
     void			createVol(bool is2d,bool multiattrib);
+    void			createVolProcOutput(bool);
     void			doWellXPlot(CallBacker* =0);
 				//!< This plots between well and attrib
     void			doAttribXPlot(CallBacker* =0);
@@ -183,7 +184,6 @@ public:
     void			manSurvCB(CallBacker*);
     void			seisOut2DCB(CallBacker*);
     void			seisOut3DCB(CallBacker*);
-    void			createVolProcOutput(CallBacker*);
     void			editAttr2DCB(CallBacker*)
 				    { editAttribSet(true); }
     void			editAttr3DCB(CallBacker*)
