@@ -126,3 +126,119 @@ const char* dgbVolProcessingTranslator::write( const VolProc::Chain& chain,
     return astrm.isOK() ? 0
 	:  "Error during write to output Volume Processing setup file";
 }
+
+
+// 2D Stuff
+
+defineTranslatorGroup(VolProcessing2D,"2D Volume Processing Setup");
+defineTranslator(dgb,VolProcessing2D,mDGBKey);
+
+uiString VolProcessing2DTranslatorGroup::sTypeName(int num)
+{ return tr("Volume Processing Setup",0,num); }
+
+mDefSimpleTranslatorioContext(VolProcessing2D,Misc)
+mDefSimpleTranslatorSelector(VolProcessing2D);
+
+
+bool VolProcessing2DTranslator::retrieve( VolProc::Chain& vr,
+				    const IOObj* ioobj,
+				    uiString& bs )
+{
+    if ( !ioobj )
+    {
+	bs = uiStrings::phrCannotFindDBEntry(
+	   VolProcessing2DTranslatorGroup::sTypeName());
+	return false;
+    }
+    mDynamicCastGet(VolProcessing2DTranslator*,t,ioobj->createTranslator())
+    if ( !t )
+    {
+	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	return false;
+    }
+    PtrMan<VolProcessing2DTranslator> tr = t;
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+
+    bs = toUiString(tr->read( vr, *conn ));
+    if ( bs.isEmpty() )
+    {
+	vr.setStorageID( ioobj->key() );
+	return true;
+    }
+
+    return false;
+}
+
+
+bool VolProcessing2DTranslator::store( const VolProc::Chain& vr,
+				const IOObj* ioobj, uiString& bs )
+{
+    if ( !ioobj )
+    {
+	bs = uiStrings::phrCannotFindDBEntry(
+                 VolProcessing2DTranslatorGroup::sTypeName());
+	return false;
+    }
+    mDynamicCast(VolProcessing2DTranslator*,
+		 PtrMan<VolProcessing2DTranslator> tr,ioobj->createTranslator())
+    if ( !tr )
+    {
+	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	return false;
+    }
+
+    bs = uiString::emptyString();
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
+    if ( !conn )
+    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); }
+    else
+	bs = toUiString(tr->write( vr, *conn ));
+
+    return bs.isEmpty();
+}
+
+
+const char* dgbVolProcessing2DTranslator::read( VolProc::Chain& chain,
+					      Conn& conn )
+{
+    if ( !conn.forRead() || !conn.isStream() )
+	return "Internal error: bad connection";
+
+    ascistream astrm( ((StreamConn&)conn).iStream() );
+    if ( !astrm.isOK() )
+	return "Cannot read from input file";
+    if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing2D)) )
+	return "Input file is not a Volume Processing setup file";
+    if ( atEndOfSection(astrm) ) astrm.next();
+
+    IOPar par;
+    par.getFrom( astrm );
+    if ( par.isEmpty() )
+	return "Input file contains no data";
+    if ( !chain.usePar( par ) )
+	return chain.errMsg().getFullString();
+
+    return 0;
+}
+
+
+const char* dgbVolProcessing2DTranslator::write( const VolProc::Chain& chain,
+					   Conn& conn )
+{
+    if ( !conn.forWrite() || !conn.isStream() )
+	return "Internal error: bad connection";
+
+    ascostream astrm( ((StreamConn&)conn).oStream() );
+    astrm.putHeader( mTranslGroupName(VolProcessing2D) );
+    if ( !astrm.isOK() )
+	return "Cannot write to output Volume Processing setup file";
+
+    IOPar par;
+    chain.fillPar( par );
+    par.putTo( astrm );
+
+    return astrm.isOK() ? 0
+	:  "Error during write to output Volume Processing setup file";
+}

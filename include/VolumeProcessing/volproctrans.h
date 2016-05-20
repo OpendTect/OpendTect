@@ -10,7 +10,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "volumeprocessingmod.h"
 #include "transl.h"
 
@@ -27,12 +27,12 @@ mExpClass(VolumeProcessing) VolProcessingTranslatorGroup
 {   isTranslatorGroup(VolProcessing);
     mODTextTranslationClass(VolProcessingTranslatorGroup);
 public:
-    			mDefEmptyTranslatorGroupConstructor(VolProcessing)
+			mDefEmptyTranslatorGroupConstructor(VolProcessing)
 
     const char*		defExtension() const	{ return "vpsetup"; }
     static const char*	sKeyIsVolProcSetup()	{ return "VolProcSetup"; }
 
-    			//For od_process_volume par-files
+			//For od_process_volume par-files
     static const char*	sKeyChainID()		{ return "Chain ID"; }
     static const char*	sKeyOutputID()		{ return "Output ID"; }
 };
@@ -45,7 +45,7 @@ public:
 mExpClass(VolumeProcessing) VolProcessingTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(VolProcessing)
+			mDefEmptyTranslatorBaseConstructor(VolProcessing)
 
     virtual const char*	read(VolProc::Chain&,Conn&)		= 0;
 			//!< returns err msg or null on success
@@ -68,7 +68,65 @@ mExpClass(VolumeProcessing) dgbVolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,VolProcessing)
+			mDefEmptyTranslatorConstructor(dgb,VolProcessing)
+
+    const char*		read(VolProc::Chain&,Conn&);
+    const char*		write(const VolProc::Chain&,Conn&);
+
+};
+
+
+/*!
+\brief Translator implementation for 2D Volume Processing Setups.
+*/
+
+mExpClass(VolumeProcessing) VolProcessing2DTranslatorGroup
+				: public TranslatorGroup
+{   isTranslatorGroup(VolProcessing2D);
+    mODTextTranslationClass(VolProcessing2DTranslatorGroup);
+public:
+			mDefEmptyTranslatorGroupConstructor(VolProcessing2D)
+
+    const char*		defExtension() const	{ return "vpsetup"; }
+    static const char*	sKeyIsVolProcSetup()	{ return "VolProcSetup2D"; }
+
+			//For od_process_volume par-files
+    static const char*	sKeyChainID()		{ return "Chain ID"; }
+    static const char*	sKeyOutputID()		{ return "Output ID"; }
+};
+
+
+/*!
+\brief Volume Processing Translator
+*/
+
+mExpClass(VolumeProcessing) VolProcessing2DTranslator : public Translator
+{
+public:
+			mDefEmptyTranslatorBaseConstructor(VolProcessing2D)
+
+    virtual const char*	read(VolProc::Chain&,Conn&)		= 0;
+			//!< returns err msg or null on success
+    virtual const char*	write(const VolProc::Chain&,Conn&)	= 0;
+			//!< returns err msg or null on success
+
+    static bool		retrieve(VolProc::Chain&,const IOObj*,
+				 uiString&);
+    static bool		store(const VolProc::Chain&,const IOObj*,
+			      uiString&);
+};
+
+
+/*!
+\brief dgb Volume Processing Translator
+*/
+
+mExpClass(VolumeProcessing) dgbVolProcessing2DTranslator
+					: public VolProcessing2DTranslator
+{			     isTranslator(dgb,VolProcessing2D)
+public:
+
+			mDefEmptyTranslatorConstructor(dgb,VolProcessing2D)
 
     const char*		read(VolProc::Chain&,Conn&);
     const char*		write(const VolProc::Chain&,Conn&);

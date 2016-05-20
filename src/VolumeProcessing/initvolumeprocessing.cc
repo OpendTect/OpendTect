@@ -30,7 +30,9 @@ mDefModInitFn(VolumeProcessing)
     mIfNotFirstTime( return );
 
     VolProcessingTranslatorGroup::initClass();
+    VolProcessing2DTranslatorGroup::initClass();
     dgbVolProcessingTranslator::initClass();
+    dgbVolProcessing2DTranslator::initClass();
 
     VolProc::VolumeReader::initClass();
     VolProc::BodyFiller::initClass();
