@@ -311,7 +311,7 @@ bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
     if ( !monitoredalive_ )
 	return true;
 
-    const int dirtycount = monitored_->dirtyCount();
+    const DirtyCountType dirtycount = monitored_->dirtyCount();
     lastautosaveclockseconds_ = curclockseconds_;
     if ( !forcesave && (dirtycount == lastsavedirtycount_
 		     || dirtycount == lastautosavedirtycount_ ) )

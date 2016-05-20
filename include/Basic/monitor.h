@@ -84,9 +84,6 @@ public:
     void			setDirtyCount( DirtyCountType nr ) const
 							{ dirtycount_ = nr; }
 
-    void			stopChangeNotifications() const
-				{ changemonitorstoplevel_++; }
-    void			resumeChangeNotifications() const;
     void			sendEntireObjectChangeNotification() const;
 
     static ChangeType		cEntireObjectChangeType()	{ return -1; }
@@ -117,6 +114,9 @@ protected:
 					     SubIdxType) const;
 				//!< objectChanged called with released lock
     void			sendDelNotif() const;
+    void			stopChangeNotifications() const
+				{ changemonitorstoplevel_++; }
+    void			resumeChangeNotifications() const;
 
     template <class T>
     inline T			getMemberSimple(const T&) const;
@@ -135,6 +135,7 @@ private:
     mutable bool				delalreadytriggered_;
 
     friend class				MonitorLock;
+    friend class				ChangeNotifyBlocker;
 
 };
 
@@ -159,7 +160,7 @@ private:
   Beware: you cannot use the MonitorLock and still change the object, a
   DEADLOCK will be your reward. To write while reading, make a copy of the
   object, change it, and assign the object to that. The assignment operator
-  of the object should be atomic again.
+  of the object should be 'atomic' again.
 
  */
 
@@ -175,7 +176,32 @@ public:
 protected:
 
     const Monitorable&	obj_;
-    bool		needunlock_;
+    bool		unlocked_;
+
+};
+
+
+/*!\brief prevents change notifications coming out of a Monitorable.
+
+  Use to stop tons of change notifications going out. Will send an
+  'Entire object changed' event when it goes out of scope. To prevent that,
+  call unBlockNow(false) explicitly beforehand.
+
+*/
+
+mExpClass(Basic) ChangeNotifyBlocker
+{
+public:
+			ChangeNotifyBlocker(const Monitorable&);
+			~ChangeNotifyBlocker();
+
+    void		unBlockNow(bool send_entobj_notif=true);
+    void		reBlock();
+
+protected:
+
+    const Monitorable&	obj_;
+    bool		unblocked_;
 
 };
 

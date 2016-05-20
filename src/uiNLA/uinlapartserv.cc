@@ -102,17 +102,17 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	    if ( !ps )
 		return;
 
-	    DataPointSet* dps = new DataPointSet( is2d_ );
+	    DataPointSet* newdps = new DataPointSet( is2d_ );
 	    DataPointSet::DataRow dr;
 	    MonitorLock ml( *ps );
 	    for ( int idx=0; idx<ps->size(); idx++ )
 	    {
 		dr.pos_.set( ps->get(idx).pos() );
-		dps->addRow( dr );
+		newdps->addRow( dr );
 	    }
 	    ml.unlockNow();
-	    dps->dataChanged();
-	    dpss += dps;
+	    newdps->dataChanged();
+	    dpss += newdps;
 	}
     }
     else

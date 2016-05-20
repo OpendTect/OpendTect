@@ -135,7 +135,7 @@ void Monitorable::sendDelNotif() const
 
 MonitorLock::MonitorLock( const Monitorable& obj )
     : obj_(obj)
-    , needunlock_(true)
+    , unlocked_(false)
 {
     obj_.nrmonitors_++;
 }
@@ -143,7 +143,7 @@ MonitorLock::MonitorLock( const Monitorable& obj )
 
 MonitorLock::~MonitorLock()
 {
-    if ( needunlock_ )
+    if ( !unlocked_ )
     {
 	if ( obj_.nrmonitors_ < 1 )
 	    { pErrMsg(BufferString("Nr monitors == ",obj_.nrmonitors_)); }
@@ -155,9 +155,9 @@ MonitorLock::~MonitorLock()
 
 void MonitorLock::unlockNow()
 {
-    if ( needunlock_ )
+    if ( !unlocked_ )
     {
-	needunlock_ = false;
+	unlocked_ = true;
 	if ( obj_.nrmonitors_ > 0 )
 	    obj_.nrmonitors_--;
     }
@@ -166,9 +166,40 @@ void MonitorLock::unlockNow()
 
 void MonitorLock::reLock()
 {
-    if ( !needunlock_ )
+    if ( unlocked_ )
     {
-	needunlock_ = true;
+	unlocked_ = false;
 	obj_.nrmonitors_++;
     }
+}
+
+
+ChangeNotifyBlocker::ChangeNotifyBlocker( const Monitorable& obj )
+    : obj_(obj)
+    , unblocked_(true)
+{
+    reBlock();
+}
+
+
+ChangeNotifyBlocker::~ChangeNotifyBlocker()
+{
+    unBlockNow();
+}
+
+
+void ChangeNotifyBlocker::unBlockNow( bool sendnotif )
+{
+    if ( !unblocked_ )
+    {
+	obj_.resumeChangeNotifications();
+	unblocked_ = true;
+    }
+}
+
+
+void ChangeNotifyBlocker::reBlock()
+{
+    if ( unblocked_ )
+	obj_.stopChangeNotifications();
 }
