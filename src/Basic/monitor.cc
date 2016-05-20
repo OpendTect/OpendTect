@@ -52,7 +52,7 @@ bool Monitorable::AccessLockHandler::convertToWrite()
 Monitorable::Monitorable()
     : nrmonitors_(0)
     , dirtycount_(0)
-    , changemonitorstoplevel_(0)
+    , chgnotifblocklevel_(0)
     , chgnotif_(this)
     , delnotif_(this)
     , delalreadytriggered_(false)
@@ -65,7 +65,7 @@ Monitorable::Monitorable()
 Monitorable::Monitorable( const Monitorable& oth )
     : CallBacker(oth)
     , nrmonitors_(0)
-    , changemonitorstoplevel_(0)
+    , chgnotifblocklevel_(0)
     , dirtycount_(0)
     , chgnotif_(this)
     , delnotif_(this)
@@ -95,16 +95,16 @@ Monitorable& Monitorable::operator =( const Monitorable& )
 
 void Monitorable::resumeChangeNotifications() const
 {
-    if ( changemonitorstoplevel_ < 1 )
-	{ pErrMsg( "changemonitorstoplevel_ < 1 " ); }
+    if ( chgnotifblocklevel_ < 1 )
+	{ pErrMsg( "chgnotifblocklevel_ < 1 " ); }
     else
-	changemonitorstoplevel_--;
+	chgnotifblocklevel_--;
 }
 
 
 void Monitorable::sendEntireObjectChangeNotification() const
 {
-    if ( !changemonitorstoplevel_ )
+    if ( !chgnotifblocklevel_ )
 	objectChanged().trigger( ChangeData(cEntireObjectChangeType(),
 					    cEntireObjectChangeSubIdx()) );
 }
@@ -115,7 +115,7 @@ void Monitorable::sendChgNotif( AccessLockHandler& hndlr, ChangeType ct,
 {
     touch();
     hndlr.unlockNow();
-    if ( changemonitorstoplevel_ )
+    if ( chgnotifblocklevel_ )
 	return;
 
     objectChanged().trigger( ChangeData(ct,subidx) );
@@ -130,6 +130,13 @@ void Monitorable::sendDelNotif() const
 	objectToBeDeleted().trigger();
 	// this should even work from ~Monitorable(), using delnotif_
     }
+}
+
+
+Monitorable::ChangeType Monitorable::changeNotificationTypeOf( CallBacker* cb )
+{
+    mCBCapsuleUnpack( ChangeData, chgdata, cb );
+    return chgdata.changeType();
 }
 
 

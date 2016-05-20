@@ -230,10 +230,10 @@ void MeasureToolMan::sceneChanged( CallBacker* )
 }
 
 
-void MeasureToolMan::changeCB( CallBacker* inpcb )
+void MeasureToolMan::changeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, cb, inpcb );
-    mDynamicCastGet(Pick::Set*,ps,cb)
+    mGetMonitoredChgData( cb, chgdata, caller );
+    mDynamicCastGet(Pick::Set*,ps,caller)
     if ( !ps || chgdata.changeType() == Pick::Set::cDispChange() )
 	return;
 

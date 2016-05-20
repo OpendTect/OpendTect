@@ -563,7 +563,15 @@ void Pick::SetManager::setDelCB( CallBacker* cb )
 
 void Pick::SetManager::setChgCB( CallBacker* inpcb )
 {
-    mCBCapsuleUnpackWithCaller( ChangeData, chgdata, cb, inpcb );
+    mGetMonitoredChgData( inpcb, chgdata, cb );
+    const bool isentire = chgdata.changeType() == cEntireObjectChangeType();
+    if ( isentire )
+    {
+	AccessLockHandler alh( *this );
+	locevrecs_.setEmpty();
+	return;
+    }
+
     const bool isinsert = chgdata.changeType() == Set::cLocationInsert();
     const bool isremove = chgdata.changeType() == Set::cLocationRemove();
     if ( !isinsert && !isremove )

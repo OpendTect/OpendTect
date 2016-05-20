@@ -167,7 +167,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+	{ uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
     Pick::Set* pickset = pickSet();
     if ( !pickset )
@@ -189,9 +189,8 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
 
     updateDPS();
     updateTable();
-    changed_ = false;
     updateButtons();
-
+    changed_ = false;
     setCaption( ioobj->uiName() );
 }
 
@@ -273,32 +272,41 @@ void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 }
 
 
-void uiDataPointSetPickDlg::setChgCB( CallBacker* inpcb )
+void uiDataPointSetPickDlg::setChgCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, cb, inpcb );
+    mGetMonitoredChgData( cb, chgdata, caller );
     const Pick::Set* ps = pickSet();
-    if ( cb != ps )
+    if ( caller != ps )
 	{ pErrMsg("Huh"); return; }
 
     while ( values_.size() < ps->size() )
 	values_ += mUdf(float);
 
-    if ( chgdata.changeType() == Pick::Set::cLocationRemove() )
+    if ( chgdata.changeType() == Monitorable::cEntireObjectChangeType() )
     {
-	if ( ps->size() < 1 )
-	    values_.setEmpty();
-	else
+	while ( values_.size() > ps->size() )
+	    values_.removeSingle( values_.size()-1 );
+    }
+    else
+    {
+
+	if ( chgdata.changeType() == Pick::Set::cLocationRemove() )
 	{
-	    const int locidx = (int)chgdata.subIdx();
-	    if ( values_.validIdx(locidx) )
-		values_.removeSingle( locidx );
+	    if ( ps->size() < 1 )
+		values_.setEmpty();
+	    else
+	    {
+		const int locidx = (int)chgdata.subIdx();
+		if ( values_.validIdx(locidx) )
+		    values_.removeSingle( locidx );
+	    }
 	}
+	updateDPS();
+	updateTable();
+	updateButtons();
     }
 
     changed_ = true;
-    updateDPS();
-    updateTable();
-    updateButtons();
 }
 
 

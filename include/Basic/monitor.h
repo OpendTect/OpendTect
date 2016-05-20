@@ -41,9 +41,9 @@ ________________________________________________________________________
   For typical usage see NamedMonitorable.
   Example unpacking change notifications:
 
-  void MyObj::chgCB( CallBacker* inpcb )
+  void MyObj::chgCB( CallBacker* cb )
   {
-      mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, cb, inpcb );
+      mGetMonitoredChgDataDoAll( cb, chgdata, caller, return redrawAll() );
       if ( chgdata.changeType() == MonObj::cSomeChange() )
 	 doSomething( chgdata.subIdx() );
   }
@@ -88,6 +88,7 @@ public:
 
     static ChangeType		cEntireObjectChangeType()	{ return -1; }
     static SubIdxType		cEntireObjectChangeSubIdx()	{ return -1; }
+    static ChangeType		changeNotificationTypeOf(CallBacker*);
 
 protected:
 
@@ -115,7 +116,7 @@ protected:
 				//!< objectChanged called with released lock
     void			sendDelNotif() const;
     void			stopChangeNotifications() const
-				{ changemonitorstoplevel_++; }
+				{ chgnotifblocklevel_++; }
     void			resumeChangeNotifications() const;
 
     template <class T>
@@ -126,9 +127,9 @@ protected:
 
 private:
 
-    mutable Threads::Atomic<int>		nrmonitors_;
     mutable Threads::Atomic<DirtyCountType>	dirtycount_;
-    mutable Threads::Atomic<int>		changemonitorstoplevel_;
+    mutable Threads::Atomic<int>		nrmonitors_;
+    mutable Threads::Atomic<int>		chgnotifblocklevel_;
 
     mutable CNotifier<Monitorable,ChangeData>	chgnotif_;
     mutable Notifier<Monitorable>		delnotif_;
@@ -205,6 +206,13 @@ protected:
 
 };
 
+
+#define mGetMonitoredChgData(cb,chgdata,caller) \
+    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
+#define mGetMonitoredChgDataDoAll(cb,chgdata,caller,doallact) \
+    mGetMonitoredChgData(chgdata,caller,cb); \
+    if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \
+	{ doallact; }
 
 
 //! For use in subclasses of Monitorable

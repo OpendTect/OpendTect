@@ -486,7 +486,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 
 void LocationDisplay::setChgCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb );
+    mGetMonitoredChgData( cb, chgdata, caller );
 
     if ( chgdata.changeType() == Pick::Set::cDispChange() )
 	dispChg();
@@ -497,6 +497,9 @@ void LocationDisplay::setChgCB( CallBacker* cb )
 
 void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
 {
+    if ( chgdata.changeType() == Pick::Set::cEntireObjectChangeType() )
+	{ fullRedraw( 0 ); return; }
+
     const Pick::Set::IdxType locidx = (Pick::Set::IdxType)chgdata.subIdx();
     if ( chgdata.changeType() == Pick::Set::cLocationInsert() )
     {

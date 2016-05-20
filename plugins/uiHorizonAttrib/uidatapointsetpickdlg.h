@@ -37,6 +37,7 @@ protected:
     void		updateDPS();
     void		updateTable();
     void		updateButtons();
+    void		rebuildFromPS();
     virtual void	cleanUp();
 
     void		valChgCB(CallBacker*);
