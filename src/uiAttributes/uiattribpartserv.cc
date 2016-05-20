@@ -62,6 +62,7 @@ ________________________________________________________________________
 #include "uirgbattrseldlg.h"
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
+#include "uiseispartserv.h"
 #include "uitaskrunner.h"
 
 int uiAttribPartServer::evDirectShowAttr()	{ return 0; }
@@ -1274,10 +1275,15 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 					bool needext )
 {
     const DescSet* ds = DSHolder().getDescSet( is2d, true );
+    const DescSet* nonstoredds = DSHolder().getDescSet( is2d, false );
+    const Attrib::Desc* desc = 0;
+    if ( ds && ds->getDesc(as.id()) )
+	desc = ds->getDesc( as.id() );
+    else if ( nonstoredds && nonstoredds->getDesc(as.id()) )
+	desc = nonstoredds->getDesc( as.id() );
     SelInfo attrinf( ds, 0, is2d, DescID::undef(), issteer, issteer, multcomp );
 
-    const bool isstored = ds && ds->getDesc( as.id() )
-	? ds->getDesc( as.id() )->isStored() : false;
+    const bool isstored = desc ? desc->isStored() : false;
     BufferStringSet bfset = issteer ? attrinf.steerids_ : attrinf.ioobjids_;
 
     MenuItem* mnu = menu;
@@ -1420,6 +1426,70 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 
     zdomainmnuitem->enabled = zdomainmnuitem->nrItems();
     return zdomainmnuitem;
+}
+
+
+void uiAttribPartServer::filter2DMenuItems(
+	MenuItem& subitem, const Attrib::SelSpec& as, int geomid,
+	bool isstored, int steerpol )
+{
+    if ( geomid == Survey::GM().cUndefGeomID() )
+	return;
+
+    BufferStringSet childitemnms;
+    for ( int idx=0; idx<subitem.nrItems(); idx++ )
+	childitemnms.add( subitem.getItem(idx)->text.getFullString() );
+
+    subitem.removeItems();
+    FixedString linenm( Survey::GM().getName(geomid) );
+    BufferStringSet attribnms;
+    uiSeisPartServer::get2DStoredAttribs( linenm, attribnms, steerpol );
+    for ( int idx=0; idx<childitemnms.size(); idx++ )
+    {
+	FixedString childnm( childitemnms.get(idx).buf() );
+	if ( isstored )
+	{
+	    if ( attribnms.isPresent(childnm) )
+	    {
+		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		const bool docheck = childnm==as.userRef();
+		mAddMenuItem(&subitem,item,true,docheck);
+	    }
+	}
+	else
+	{
+	    const Attrib::DescSet* ds =
+		Attrib::DSHolder().getDescSet( true, as.isStored() );
+	    const Attrib::DescSet* activeds = ds;
+	    const Attrib::DescSet* altds =
+		Attrib::DSHolder().getDescSet( true, !as.isStored() );
+	    int descidx = ds->indexOf( childnm );
+	    if ( descidx<0 && altds )
+	    {
+		activeds = altds;
+		descidx = altds->indexOf( childnm );
+	    }
+
+	    if ( descidx<0 )
+		continue;
+
+	    const Attrib::Desc* desc = activeds->desc( descidx );
+	    if ( !desc )
+		continue;
+
+	    MultiID mid( desc->getStoredID(true) );
+	    PtrMan<IOObj> seisobj = IOM().get( mid );
+	    if ( !seisobj )
+		continue;
+
+	    if ( attribnms.isPresent(seisobj->name()) )
+	    {
+		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		const bool docheck = childnm==as.userRef();
+		mAddMenuItem(&subitem,item,true,docheck);
+	    }
+	}
+    }
 }
 
 

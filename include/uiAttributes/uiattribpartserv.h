@@ -153,6 +153,9 @@ public:
     void		fillInStoredAttribMenuItem(MenuItem*,bool,bool,
 						   const Attrib::SelSpec&,bool,
 						   bool needext=false);
+    void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
+	    				  int geomid, bool isstored,
+					  int steerpol );
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&,bool&);
     bool		handleMultiComp(const MultiID&,bool,bool,

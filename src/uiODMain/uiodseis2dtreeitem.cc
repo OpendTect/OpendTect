@@ -814,20 +814,23 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     for ( int idx=0; idx<datasets.size(); idx++ )
     {
 	FixedString nm = datasets.get(idx).buf();
-    MenuItem* item = new MenuItem(toUiString(nm));
+	MenuItem* item = new MenuItem(toUiString(nm));
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &storeditm_,item,true,docheck);
     }
 
-    mAddMenuItem( &selattrmnuitem_, &storeditm_, true, docheckparent );
+    mAddMenuItem( &selattrmnuitem_, &storeditm_, true, storeditm_.checked );
 
     MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true, false );
-    mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(), false );
+    attrserv->filter2DMenuItems( *attrmenu, as, s2d->getGeomID(), false, 2 );
+    mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(),
+	    	  attrmenu->checked );
 
     MenuItem* nla = attrserv->nlaAttribMenuItem( as, true, false );
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
+    // TODO attrserv->filter2DMenuItems( *nla, as, s2d->getGeomID(), false, 0 );
 
     BufferStringSet steerdatanames;
     seisserv->get2DStoredAttribs( objnm, steerdatanames, 1 );
@@ -836,7 +839,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
     {
 	FixedString nm = steerdatanames.get(idx).buf();
-    MenuItem* item = new MenuItem(toUiString(nm));
+	MenuItem* item = new MenuItem(toUiString(nm));
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &steeringitm_,item,true,docheck);
@@ -858,7 +861,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	    for ( int idx=0; idx<zattribnms.size(); idx++ )
 	    {
 		FixedString nm = zattribnms.get(idx).buf();
-	MenuItem* item = new MenuItem(toUiString(nm));
+		MenuItem* item = new MenuItem(toUiString(nm));
 		const bool docheck = isstored && nm==as.userRef();
 		if ( docheck ) docheckparent=true;
 		mAddManagedMenuItem( &zattritm_,item,true,docheck);
