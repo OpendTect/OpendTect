@@ -194,6 +194,8 @@ void ChangeNotifyBlocker::unBlockNow( bool sendnotif )
     {
 	obj_.resumeChangeNotifications();
 	unblocked_ = true;
+	if ( sendnotif )
+	    obj_.sendEntireObjectChangeNotification();
     }
 }
 
