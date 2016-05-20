@@ -12,6 +12,7 @@ _______________________________________________________________________
 
 #include "ui2dgeomman.h"
 #include "uiseissel.h"
+#include "uipicksettools.h"
 #include "uiseislinesel.h"
 #include "uiselsimple.h"
 #include "uigeninput.h"
@@ -26,8 +27,7 @@ _______________________________________________________________________
 #include "emhorizon2d.h"
 #include "ioman.h"
 #include "prestackgather.h"
-#include "picksettr.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "seisbufadapters.h"
@@ -227,9 +227,8 @@ void uiStratSynthExport::fillGeomGroup()
     coord1fld_->setValue( stopcoord.x, 0 );
     coord1fld_->setValue( stopcoord.y, 1 );
 
-    IOObjContext psctxt( mIOObjContext(PickSet) );
-    psctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    picksetsel_ = new uiIOObjSel( geomgrp_, psctxt, uiStrings::sPolygon() );
+    picksetsel_ = new uiPickSetIOObjSel( geomgrp_, true,
+					 uiPickSetIOObjSel::PolygonOnly );
     picksetsel_->attach( alignedBelow, geomsel_ );
     if ( haverl )
     {
@@ -377,21 +376,12 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	}
 	case Polygon:
 	{
-	    const IOObj* picksetobj = picksetsel_->ioobj();
-	    if ( !picksetobj )
-		mErrRet( tr("No pickset selected"), false )
-	    Pick::Set pickset;
-	    if ( Pick::Mgr().indexOf(picksetobj->key())>0 )
-		pickset = Pick::Mgr().get( picksetobj->key() );
-	    else
-	    {
-		uiString errmsg;
-		if ( !PickSetTranslator::retrieve(
-			    pickset,IOM().get(picksetobj->key()),errmsg) )
-		    mErrRet( errmsg, false )
-	    }
-	    for ( int idx=0; idx<pickset.size(); idx++ )
-		ptlist += pickset.get(idx).pos();
+	    ConstRefMan<Pick::Set> ps = picksetsel_->getPickSet();
+	    if ( !ps )
+		return false;
+	    MonitorLock ml( *ps );
+	    for ( int idx=0; idx<ps->size(); idx++ )
+		ptlist += ps->get(idx).pos();
 	    break;
 	}
 	case RandomLine:

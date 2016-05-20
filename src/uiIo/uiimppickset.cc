@@ -25,14 +25,14 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "picksettr.h"
 #include "randcolor.h"
 #include "od_istream.h"
-#include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "od_iostream.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -66,7 +66,8 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 {
     setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
 		     uiStrings::sClose() );
-    if ( import_ ) enableSaveButton( tr("Display after import") );
+    if ( import_ )
+	enableSaveButton( tr("Display after import") );
 
     const uiString tp = uiStrings::phrASCII( uiStrings::sFile() );
     uiString label = import_
@@ -169,63 +170,38 @@ bool uiImpExpPickSet::doImport()
     if ( !strm.isOK() )
 	mErrRet( uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()) )
 
-    const char* psnm = objfld_->getInput();
-    Pick::Set ps( psnm );
     const int zchoice = zfld_->box()->currentItem();
+    const char* psnm = objfld_->getInput();
     float constz = zchoice==1 ? constzfld_->getFValue() : 0;
-    if ( SI().zIsTime() ) constz /= 1000;
+    if ( SI().zIsTime() )
+	constz /= 1000;
 
-    ps.setDispColor( colorfld_->color() );
+    RefMan<Pick::Set> ps = new Pick::Set( psnm );
     PickSetAscIO aio( fd_ );
-    aio.get( strm, ps, zchoice==0, constz );
+    aio.get( strm, *ps, zchoice==0, constz );
+    if ( ps->isEmpty() )
+	mErrRet( tr("No valid picks found") )
+
+    const IOObj* ioobj = objfld_->ioobj();
+    if ( !ioobj )
+	return false;
 
     if ( zchoice == 2 )
-	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
+	serv_->fillZValsFrmHor( ps, horinpfld_->box()->currentItem() );
 
-    const IOObj* objfldioobj = objfld_->ioobj();
-    if ( !objfldioobj ) return false;
-    PtrMan<IOObj> ioobj = objfldioobj->clone();
+    IOPar ioobjpars( ioobj->pars() );
     const bool ispolygon = polyfld_->isChecked();
-    if ( ispolygon )
-    {
-	ps.setConnection( Pick::Set::Disp::Close );
-	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
-    }
-    else
-    {
-	ps.setConnection( Pick::Set::Disp::None );
-	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
-    }
-
-    if ( !IOM().commitChanges(*ioobj) )
-	mErrRet(IOM().errMsg())
-
-    uiString errmsg;
-    if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
+    ps->setIsPolygon( ispolygon );
+    ps->setDispColor( colorfld_->color() );
+    ps->setConnection( ispolygon ? Pick::Set::Disp::Close
+				 : Pick::Set::Disp::None );
+    uiString errmsg = Pick::SetMGR().store( *ps, ioobj->key() );
+    if ( !errmsg.isEmpty() )
 	mErrRet(errmsg);
 
     storedid_ = ioobj->key();
     if ( saveButtonChecked() )
-    {
-	Pick::SetMgr& psmgr = Pick::Mgr();
-	int setidx = psmgr.indexOf( storedid_ );
-	if ( setidx < 0 )
-	{
-	    Pick::Set* newps = new Pick::Set( ps );
-	    psmgr.set( storedid_, newps );
-	    setidx = psmgr.indexOf( storedid_ );
-	    importReady.trigger();
-	}
-	else
-	{
-	    Pick::Set& oldps = psmgr.get( setidx );
-	    oldps = ps;
-	    psmgr.reportChange( 0, oldps );
-	    psmgr.reportDispChange( 0, oldps );
-	}
-
-	psmgr.setUnChanged( setidx, true );
-    }
+	Pick::SetMGR().requestDisplayFor( storedid_ );
 
     return true;
 }
@@ -233,33 +209,30 @@ bool uiImpExpPickSet::doImport()
 
 bool uiImpExpPickSet::doExport()
 {
-    const IOObj* objfldioobj = objfld_->ioobj();
-    if ( !objfldioobj ) return false;
+    const IOObj* ioobj = objfld_->ioobj();
+    if ( !ioobj )
+	return false;
 
-    PtrMan<IOObj> ioobj = objfldioobj->clone();
-    uiString errmsg; Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,ioobj,errmsg) )
+    uiString errmsg;
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), errmsg );
+    if ( !ps )
 	mErrRet(errmsg)
 
     const char* fname = filefld_->fileName();
-    StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() )
-    {
-	sdo.close();
+    od_ostream strm( fname );
+    if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpen(uiStrings::phrOutput(
 		uiStrings::sFile())))
-    }
 
-    *sdo.ostrm << std::fixed;
+    strm.stdStream() << std::fixed;
     BufferString buf;
-    for ( int locidx=0; locidx<ps.size(); locidx++ )
+    for ( int locidx=0; locidx<ps->size(); locidx++ )
     {
-	ps.get(locidx).toString( buf, true );
-	*sdo.ostrm << buf.buf() << '\n';
+	ps->get(locidx).toString( buf, true );
+	strm << buf << od_newline;
     }
 
-    *sdo.ostrm << '\n';
-    sdo.close();
+    strm << od_endl;
     return true;
 }
 

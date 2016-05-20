@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "uivispartserv.h"
 #include "uifiledlg.h"
 #include "visimagedisplay.h"
@@ -26,7 +26,7 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( m3Dots(tr("Select image")) )
 {
-    defscale_ = mCast(float,set_->dispSize());
+    defscale_ = mCast(float,set_.dispSize());
 }
 
 
@@ -34,12 +34,12 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
 bool ImageSubItem::init()
 {
     visSurvey::ImageDisplay* id = 0;
-    if (  displayid_==-1 )
+    if ( displayid_==-1 )
     {
 	id = visSurvey::ImageDisplay::create();
 	visserv_->addObject( id, sceneID(), true );
 	displayid_ = id->id();
-    id->setName( name_ );
+	id->setName( name_ );
     }
     else
     {
@@ -53,16 +53,10 @@ bool ImageSubItem::init()
 			mCB(this,ImageSubItem,retrieveFileName) );
 
     BufferString filename;
-    set_->pars().get( sKey::FileName(), filename );
+    set_.pars().get( sKey::FileName(), filename );
     if ( filename.isEmpty() )
-    {
-	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	const int setidx = mgr.indexOf( *set_ );
-	PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-	if ( ioobj )
-	    ioobj->pars().get(sKey::FileName(), filename );
-    }
-
+	Pick::SetMGR().getIOObjPars( getSetID() )
+			    .get( sKey::FileName(), filename );
     if ( !filename.isEmpty() )
 	id->setFileName( filename.buf() );
 
@@ -72,7 +66,9 @@ bool ImageSubItem::init()
 
 
 const char* ImageSubItem::parentType() const
-{ return typeid(ImageParentItem).name(); }
+{
+    return typeid(ImageParentItem).name();
+}
 
 
 void ImageSubItem::fillStoragePar( IOPar& par ) const
@@ -115,7 +111,7 @@ void ImageSubItem::retrieveFileName( CallBacker* cb )
 }
 
 
-void ImageSubItem::updateColumnText(int col)
+void ImageSubItem::updateColumnText( int col )
 {
     if ( col!=1 )
 	uiODDisplayTreeItem::updateColumnText(col);
@@ -126,17 +122,15 @@ void ImageSubItem::selectFileName() const
 {
     mDynamicCastGet(visSurvey::ImageDisplay*,id,
 		    visserv_->getObject(displayid_))
-    if ( !id ) return;
+    if ( !id )
+	return;
 
     BufferString filename = id->getFileName();
     BufferString filter = "JPEG (*.jpg *.jpeg);;PNG (*.png)";
     uiFileDialog dlg( getUiParent(), true, filename, filter );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     filename = dlg.fileName();
-
-    id->setFileName(filename);
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    mgr.setUnChanged( setidx, false );
+    id->setFileName( filename );
 }

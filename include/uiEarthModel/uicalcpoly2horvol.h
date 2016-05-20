@@ -13,10 +13,11 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "pickset.h"
 class uiIOObjSel;
+class uiPickSetIOObjSel;
 class uiGenInput;
 class uiCheckList;
-namespace Pick	{ class Set; }
 namespace EM	{ class Horizon3D; }
 
 
@@ -35,7 +36,7 @@ protected:
     uiGroup*		mkStdGrp();
 
     const bool		zinft_;
-    
+
     void		haveChg(CallBacker*);
     void		calcReq(CallBacker*);
 
@@ -62,7 +63,7 @@ protected:
 
     const Pick::Set&	ps_;
     EM::Horizon3D*	hor_;
-    
+
     const Pick::Set*		getPickSet()	{ return &ps_; }
     const EM::Horizon3D*	getHorizon();
 
@@ -84,11 +85,11 @@ public:
 
 protected:
 
-    uiIOObjSel*		pssel_;
+    uiPickSetIOObjSel*	pssel_;
 
-    Pick::Set*		ps_;
+    ConstRefMan<Pick::Set> ps_;
     const EM::Horizon3D& hor_;
-    
+
     const Pick::Set*		getPickSet();
     const EM::Horizon3D*	getHorizon()	{ return &hor_; }
 

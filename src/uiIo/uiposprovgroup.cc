@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uipicksettools.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
@@ -167,12 +167,11 @@ void uiRangePosProvGroup::initClass()
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , ctio_(*mMkCtxtIOObj(PickSet))
     , zrgfld_(0)
     , stepfld_(0)
 {
-    ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    polyfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
+    polyfld_ = new uiPickSetIOObjSel( this, true,
+				      uiPickSetIOObjSel::PolygonOnly );
 
     uiGroup* attachobj = polyfld_;
     if ( su.withstep_ )
@@ -191,11 +190,6 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     setHAlignObj( polyfld_ );
 }
 
-
-uiPolyPosProvGroup::~uiPolyPosProvGroup()
-{
-    delete ctio_.ioobj_; delete &ctio_;
-}
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -253,9 +247,10 @@ void uiPolyPosProvGroup::setExtractionDefaults()
 
 bool uiPolyPosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !polyfld_->commitInput() || !ctio_.ioobj_ )
+    const IOObj* ioobj = polyfld_->ioobj( true );
+    if ( !ioobj )
 	return false;
-    ky = ctio_.ioobj_->key();
+    ky = ioobj->key();
     return true;
 }
 
@@ -275,7 +270,6 @@ void uiPolyPosProvGroup::initClass()
 uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , ctio_(*mMkCtxtIOObj(PickSet))
 {
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
@@ -284,7 +278,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 		    uiStrings::phrJoinStrings(uiStrings::sTable(),
 					      uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
-    psfld_ = new uiIOObjSel( this, ctio_ );
+    psfld_ = new uiPickSetIOObjSel( this, true );
     psfld_->attach( alignedBelow, selfld_ );
     tffld_ = new uiIOFileSelect( this, toUiString(sKey::FileName()), true,
 				 GetDataDir(), true );
@@ -347,9 +341,12 @@ void uiTablePosProvGroup::getSummary( BufferString& txt ) const
 
 bool uiTablePosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !selfld_->getBoolValue() || !psfld_->commitInput() )
+    if ( !selfld_->getBoolValue() )
 	return false;
-    ky = ctio_.ioobj_->key();
+    const IOObj* ioobj = psfld_->ioobj();
+    if ( !ioobj )
+	return false;
+    ky = ioobj->key();
     return true;
 }
 

@@ -557,8 +557,8 @@ void uiODApplMgr::setWorkingArea()
 void uiODApplMgr::selectWells( TypeSet<MultiID>& wellids )
 { wellserv_->selectWells( wellids ); }
 
-bool uiODApplMgr::storePickSets()
-{ return pickserv_->storePickSets(); }
+bool uiODApplMgr::storePickSets( int polyopt, const char* cat )
+{ return pickserv_->storePickSets(polyopt,cat); }
 
 bool uiODApplMgr::storePickSet( const Pick::Set& ps )
 { return pickserv_->storePickSet( ps ); }
@@ -575,9 +575,6 @@ bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 				     nlaserv_ ? &nlaserv_->getModel() : 0,
 				     velocity);
 }
-
-bool uiODApplMgr::pickSetsStored() const
-{ return pickserv_->pickSetsStored(); }
 
 
 bool uiODApplMgr::getNewData( int visid, int attrib )

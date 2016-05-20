@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "picksetmgr.h"
-#include "picksettr.h"
+#include "ctxtioobj.h"
+#include "picksetmanager.h"
 #include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -28,15 +28,21 @@ ________________________________________________________________________
 
 mCreateVw2DFactoryEntry( VW2DPickSet );
 
-VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
+VW2DPickSet::VW2DPickSet( const EM::ObjectID& psid, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
     , pickset_(0)
     , deselected_(this)
     , isownremove_(false)
 {
-    if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
-	pickset_ = &Pick::Mgr().get( picksetidx );
+    if ( psid > 0 )
+    {
+	MultiID setid( IOObjContext::getStdDirData(IOObjContext::Loc)->id_ );
+	setid.add( psid );
+	RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
+	if ( ps )
+	    setPickSet( ps );
+    }
 
     for ( int idx=0; idx<editors.size(); idx++ )
     {
@@ -53,9 +59,6 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 	mAttachCB( editors_[idx]->removeSelected, VW2DPickSet::pickRemoveCB );
 	mAttachCB( editors_[idx]->movementFinished, VW2DPickSet::pickAddChgCB );
     }
-
-    mAttachCB( Pick::Mgr().setChanged, VW2DPickSet::dataChangedCB );
-    mAttachCB( Pick::Mgr().locationChanged, VW2DPickSet::dataChangedCB );
 }
 
 
@@ -68,6 +71,19 @@ VW2DPickSet::~VW2DPickSet()
 	editors_[ivwr]->removeAuxData( auxids_[ivwr] );
     }
     deepErase( picks_ );
+}
+
+
+void VW2DPickSet::setPickSet( Pick::Set* ps )
+{
+    if ( pickset_ == ps )
+	return;
+    else if ( pickset_ )
+	mDetachCB( pickset_->objectChanged(), VW2DPickSet::dataChangedCB );
+
+    pickset_ = ps;
+    if ( pickset_ )
+	mAttachCB( pickset_->objectChanged(), VW2DPickSet::dataChangedCB );
 }
 
 
@@ -97,10 +113,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 	}
     }
 
-    const int locidx = pickset_->add( newloc ).size();
-    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
-				 pickset_, locidx );
-    Pick::Mgr().reportChange( 0, cd );
+    pickset_->add( newloc );
 }
 
 
@@ -110,7 +123,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
     if ( !editor || !pickset_ ) return;
 
     const int editoridx = editors_.indexOf( editor );
-    if ( editoridx<0 ) return;
+    if ( editoridx < 0 ) return;
 
     const TypeSet<int>&	selpts = editor->getSelPtIdx();
     const int selsize = selpts.size();
@@ -123,10 +136,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 
 	const int pickidx = picksetidxs_[locidx];
 	picksetidxs_.removeSingle( locidx );
-	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				     pickset_, pickidx );
 	pickset_->remove( pickidx );
-	Pick::Mgr().reportChange( 0, cd );
     }
 
     isownremove_ = false;
@@ -173,6 +183,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
 {
     if ( !pickset_ )
 	return;
+
     picksetidxs_.erase();
     MonitorLock ml( *pickset_ );
     for ( int idx=0; idx<pickset_->size(); idx++ )
@@ -187,6 +198,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyPath& trckeys )
 {
     if ( !pickset_ )
 	return;
+
     picksetidxs_.erase();
     MonitorLock ml( *pickset_ );
     for ( int idx=0; idx<pickset_->size(); idx++ )
@@ -336,22 +348,16 @@ bool VW2DPickSet::usePar( const IOPar& iop )
     MultiID mid;
     iop.get( sKeyMID(), mid );
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( Pick::Mgr().indexOf(ioobj->key()) >= 0 )
+    RefMan<Pick::Set> newps = Pick::SetMGR().fetchForEdit( mid );
+    if ( !newps )
 	return false;
-    Pick::Set* newps = new Pick::Set; uiString errmsg;
-    if ( PickSetTranslator::retrieve(*newps,ioobj,errmsg) )
-    {
-	Pick::Mgr().set( ioobj->key(), newps );
-	pickset_ = newps;
-	return true;
-    }
-    delete newps;
-    return false;
+
+    setPickSet( newps );
+    return true;
 }
 
 
-const MultiID VW2DPickSet::pickSetID() const
+MultiID VW2DPickSet::pickSetID() const
 {
-    return pickset_ ? Pick::Mgr().get( *pickset_ ) : -1;
+    return pickset_ ? Pick::SetMGR().getID( *pickset_ ) : MultiID::udf();
 }

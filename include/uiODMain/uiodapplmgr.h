@@ -153,11 +153,10 @@ public:
     bool			selectAttrib(int id,int attrib);
 
     // PickSets
-    bool			storePickSets();
+    bool			storePickSets(int polyopt,const char* cat=0);
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
     bool			setPickSetDirs(Pick::Set&);
-    bool			pickSetsStored() const;
 
     // Tool to exhange mouse-cursor information between windows
     MouseCursorExchange&	mouseCursorExchange();

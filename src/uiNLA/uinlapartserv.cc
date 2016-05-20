@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "nlacrdesc.h"
 #include "nladataprep.h"
 #include "od_helpids.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 #include "datapointset.h"
@@ -94,9 +94,26 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 
     if ( !crdesc.isdirect )
     {
-	uiString errmsg;
-	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, errmsg,
-						is2d_ );
+	for ( int idesc=0; idesc<crdesc.outids.size(); idesc++ )
+	{
+	    uiString errmsg;
+	    const MultiID setid( crdesc.outids.get(idesc) );
+	    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, errmsg );
+	    if ( !ps )
+		return;
+
+	    DataPointSet* dps = new DataPointSet( is2d_ );
+	    DataPointSet::DataRow dr;
+	    MonitorLock ml( *ps );
+	    for ( int idx=0; idx<ps->size(); idx++ )
+	    {
+		dr.pos_.set( ps->get(idx).pos() );
+		dps->addRow( dr );
+	    }
+	    ml.unlockNow();
+	    dps->dataChanged();
+	    dpss += dps;
+	}
     }
     else
     {

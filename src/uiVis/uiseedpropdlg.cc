@@ -27,15 +27,14 @@ void uiSeedPropDlg::doFinalise( CallBacker* )
 }
 
 
-void uiSeedPropDlg::sliderMove( CallBacker* )
+void uiSeedPropDlg::sizeChg( CallBacker* )
 {
     OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
-    if ( markerstyle_==style )
+    if ( markerstyle_ == style )
 	return;
 
     markerstyle_ = style;
-
     updateMarkerStyle();
 }
 

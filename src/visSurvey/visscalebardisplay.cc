@@ -133,9 +133,9 @@ void ScaleBarDisplay::zScaleCB( CallBacker* )
 { fullRedraw(); }
 
 
-void ScaleBarDisplay::dispChg( CallBacker* cb )
+void ScaleBarDisplay::dispChg()
 {
-    LocationDisplay::dispChg( cb );
+    LocationDisplay::dispChg();
     setColors( getMaterial()->getColor() );
 }
 

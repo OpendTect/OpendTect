@@ -122,6 +122,36 @@ protected:
 
 };
 
+
+mExpClass(General) LocationChangeEvent
+{
+public:
+
+    typedef int		IdxType;
+    enum Type		{ Create, Move, Delete };
+
+			LocationChangeEvent( IdxType i, const Location& from,
+					      const Location& to )
+			: type_(Move), idx_(i)
+			, prevloc_(from), loc_(to)	{}
+
+    Type		type_;
+    IdxType		idx_;
+    Location		loc_;
+    Location		prevloc_;
+
+    bool		isUdf() const	    { return idx_ < 0; }
+    static const LocationChangeEvent& udf();
+
+    inline bool		operator ==( const LocationChangeEvent& oth ) const
+			{
+			    return this == &oth ||
+			       (type_ == oth.type_ && idx_ == oth.idx_
+			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
+			}
+
+};
+
 } // namespace Pick
 
 #endif

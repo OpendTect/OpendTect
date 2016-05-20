@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "monitor.h"
 #include "multiid.h"
+#include "iopar.h"
 #include "uistring.h"
 class IOObj;
 
@@ -29,29 +30,42 @@ mExpClass(General) Saveable : public Monitorable
 public:
 
 			Saveable(const Monitorable&);
+			Saveable(const Saveable&);
 			~Saveable();
-    const Monitorable&	monitored() const		{ return obj_; }
+    Saveable&		operator =(const Saveable&);
+    const Monitorable*	monitored() const;
+    bool		monitoredAlive() const	{ return monitoredalive_; }
+    void		setMonitored(const Monitorable&);
 
-    mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,key_,0)
-    inline		mImplSimpleMonitoredGet(isFinished,bool,objdeleted_)
+    mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,storekey_,0)
+    mImplSimpleMonitoredGetSet(inline,ioObjPars,setIOObjPars,IOPar,ioobjpars_,0)
+			// The pars will be merge()'d with the IOObj's current
+    DirtyCountType	lastSavedDirtyCount() const
+			{ return lastsavedirtycount_; }
 
-    bool		save() const;
+    virtual bool	save() const;
     virtual bool	store(const IOObj&) const;
     uiString		errMsg() const		{ return errmsg_; }
+    bool		needsSave() const;
+    void		setNoSaveNeeded() const;
 
 protected:
 
-    const Monitorable&	obj_;
-    MultiID		key_;
-    bool		objdeleted_;
+    const Monitorable*	monitored_;
+    MultiID		storekey_;
+    IOPar		ioobjpars_;
     mutable uiString	errmsg_;
+    Threads::Atomic<bool> monitoredalive_;
+    mutable Threads::Atomic<DirtyCountType> lastsavedirtycount_;
 
 			// This function can be called from any thread
     virtual bool	doStore(const IOObj&) const	= 0;
 
 private:
 
-    void		objDel(CallBacker*);
+    void		attachCBToObj();
+    void		detachCBFromObj();
+    void		objDelCB(CallBacker*);
 
 };
 

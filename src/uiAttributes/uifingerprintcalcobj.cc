@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioman.h"
 #include "binidvalset.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "seis2ddata.h"
 #include "posinfo2d.h"
 #include "posinfo2dsurv.h"
@@ -116,39 +116,39 @@ void calcFingParsObject::setValRgSet( BinIDValueSet* positions, bool isvalset )
 
 BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 {
+    BinIDValueSet* retset = 0;
     if ( rgreftype_ == 1 )
     {
-	ObjectSet<BinIDValueSet> values;
-	BufferStringSet ioobjids;
-	ioobjids.add( getRgRefPick() );
+	const MultiID setid( getRgRefPick() );
 	uiString errmsg;
-	PickSetTranslator::createBinIDValueSets( ioobjids, values, errmsg );
-	if ( errmsg.isSet() )
-	{
-	    uiMSG().error( errmsg );
-	    return 0;
-	}
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, errmsg );
+	if ( !ps )
+	    { uiMSG().error( errmsg ); return 0; }
 
-	BinIDValueSet* rgset = new BinIDValueSet( *(values[0]) );
-	deepErase( values );
-	return rgset;
+	retset = new BinIDValueSet( 1, false );
+	MonitorLock ml( *ps );
+	for ( int idx=0; idx<ps->size(); idx++ )
+	{
+	    Pick::Location pl = ps->get( idx );
+	    retset->add( pl.binID(), pl.z() );
+	}
     }
     else if ( rgreftype_ == 2 )
     {
-	BinIDValueSet* rangesset = new BinIDValueSet( 2, true );
+	retset = new BinIDValueSet( 2, true );
 	if ( attrset_->is2D() )
 	{
 	    MultiID datasetid;
 	    findDataSetID( datasetid );
-	    create2DRandPicks( datasetid, rangesset );
+	    create2DRandPicks( datasetid, retset );
 	}
 	else
-	    create3DRandPicks( rangesset );
-
-	return rangesset;
+	    create3DRandPicks( retset );
     }
+    else
+	retset = new BinIDValueSet( 1, false );
 
-    return new BinIDValueSet( 1, false );
+    return retset;
 }
 
 

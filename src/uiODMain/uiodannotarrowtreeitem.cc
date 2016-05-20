@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "ioobj.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "trigonometry.h"
 #include "visarrowdisplay.h"
 #include "uiarrowdlg.h"
@@ -29,7 +29,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
 {
-    defscale_ = mCast(float,set_->dispSize());
+    defscale_ = mCast(float,set_.dispSize());
     propmnuitem_.iconfnm = "disppars";
 }
 
@@ -45,30 +45,30 @@ bool ArrowSubItem::init()
     }
 
     mDynamicCastGet(visSurvey::ArrowDisplay*,ad,visserv_->getObject(displayid_))
-    if ( !ad ) return false;
+    if ( !ad )
+	return false;
 
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
-
-    const IOPar psiop( set_->pars() );
-    if ( !ioobj->pars().get(sKeyArrowType(),arrowtype_) )
+    const MultiID setid = getSetID();
+    const IOPar psiop( set_.pars() );
+    const IOPar ioobjiop( Pick::SetMGR().getIOObjPars(setid) );
+    if ( !ioobjiop.get(sKeyArrowType(),arrowtype_) )
 	psiop.get( sKeyArrowType(), arrowtype_ );
     ad->setType( (visSurvey::ArrowDisplay::Type)arrowtype_ );
 
     int linewidth = 2;
-    if ( !ioobj->pars().get(sKeyLineWidth(),linewidth) )
+    if ( !ioobjiop.get(sKeyLineWidth(),linewidth) )
 	psiop.get( sKeyLineWidth(), linewidth );
     ad->setLineWidth( linewidth );
 
     //Read Old format orientation
-    Pick::Set workps( *set_ );
-    for ( int idx=set_->size()-1; idx>=0; idx-- )
+    RefMan<Pick::Set> workps = new Pick::Set( set_ );
+    BufferString orientation;
+    bool anychg = false;
+    for ( int idx=set_.size()-1; idx>=0; idx-- )
     {
-	Pick::Location ploc = workps.get( idx );
-	BufferString orientation;
-	if ( ploc.getKeyedText("O", orientation ) )
+	Pick::Location ploc = workps->get( idx );
+	bool havekyedtxt = ploc.getKeyedText("O",orientation);
+	if ( havekyedtxt )
 	{
 	    Sphere dir = ploc.dir();
 	    if ( orientation[0] == '2' )
@@ -83,10 +83,16 @@ bool ArrowSubItem::init()
 	    }
 	    ploc.setDir( dir );
 	}
-	ploc.setText( 0 );
-	workps.set( idx, ploc );
+	if ( havekyedtxt || !ploc.text().isEmpty() )
+	{
+	    ploc.setText( 0 );
+	    workps->set( idx, ploc );
+	    anychg = true;
+	}
     }
-    *set_ = workps;
+
+    if ( anychg ) // kept track to avoid unnecessary updates everywhere
+	set_ = *workps;
 
     return uiODAnnotSubItem::init();
 }
@@ -124,21 +130,16 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 
 	uiArrowDialog dlg( getUiParent() );
-	dlg.setColor( set_->dispColor() );
+	dlg.setColor( set_.dispColor() );
 	dlg.setArrowType( arrowtype_ );
 	mDynamicCastGet(visSurvey::ArrowDisplay*,
 			ad,visserv_->getObject(displayid_));
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
-	dlg.setScale( mCast(float,(set_->dispSize()/(defscale_))) );
+	dlg.setScale( mCast(float,(set_.dispSize()/(defscale_))) );
 	dlg.go();
-	if ( set_->dispColor()!=dlg.getColor() )
-	{
-	    set_->setDispColor( dlg.getColor() );
-	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	    mgr.reportDispChange( this, *set_ );
-	}
 
+	set_.setDispColor( dlg.getColor() );
 	arrowtype_ = dlg.getArrowType();
 	updateColumnText( 1 );
     }
@@ -158,8 +159,4 @@ void ArrowSubItem::propertyChange( CallBacker* cb )
 	ad,visserv_->getObject(displayid_));
     ad->setType( (visSurvey::ArrowDisplay::Type) arrowtype );
     ad->setLineWidth( dlg->getLineWidth() );
-
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    mgr.setUnChanged( setidx, false );
 }

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uipossubsel.h"
 #include "uiposfilterset.h"
+#include "uimarkerstyle.h"
 #include "uiposprovider.h"
 #include "uicolor.h"
 #include "uicombobox.h"
@@ -31,8 +32,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
-#include "pickset.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "posprovider.h"
 #include "randcolor.h"
 #include "survinfo.h"
@@ -40,60 +40,88 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "od_helpids.h"
 
-static int defnrpicks = 500;
+static int defnrpicks_ = 500;
+static int defsize_ = 3;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 				  "Between Horizons", 0 };
+static const OD::MarkerStyle3D::Type msnoneexcl[] = { OD::MarkerStyle3D::None };
 
 
-uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds )
+uiNewPickSetDlg::uiNewPickSetDlg( uiParent* p, bool ispoly, const char* cat )
     : uiDialog(p,uiDialog::Setup(
-			aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
+			ispoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
 			       : uiStrings::phrCreateNew(uiStrings::sPickSet()),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
-    , aspolygon_(aspoly)
-{
-    if ( addstdflds )
-	addStdFields( 0 );
-}
-
-
-void uiCreatePicks::addStdFields( uiObject* lastobject )
+    , ispolygon_(ispoly)
+    , category_(cat)
 {
     nmfld_ = new uiGenInput( this,
-		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
+		tr("Name for new %1").arg(ispolygon_ ? uiStrings::sPolygon() :
 						       uiStrings::sPickSet()) );
-    colsel_ = new uiColorInput( this,
-			      uiColorInput::Setup(getRandStdDrawColor()).
-			      lbltxt(uiStrings::sColor()) );
-    colsel_->attach( alignedBelow, nmfld_ );
-    if ( lastobject )
-	nmfld_->attach( alignedBelow, lastobject );
+
+    markerstylefld_ = new uiMarkerStyle3D( this, true, Interval<int>(1,99),
+			ispolygon_ ? 0 : 1, ispolygon_ ? 0 : msnoneexcl  );
+    OD::MarkerStyle3D mstyle;
+    mstyle.type_ = OD::MarkerStyle3D::Sphere;
+    mstyle.size_ = defsize_;
+    mstyle.color_ = getRandStdDrawColor();
+    markerstylefld_->setMarkerStyle( mstyle );
+    markerstylefld_->attach( alignedBelow, nmfld_ );
 }
 
 
-Pick::Set* uiCreatePicks::getPickSet() const
+void uiNewPickSetDlg::attachStdFlds( bool mineabove, uiGroup* grp )
 {
-    Pick::Set* ret = new Pick::Set( name_ );
-    ret->setDispColor( colsel_->color() );
-    ret->setConnection( aspolygon_ ? Pick::Set::Disp::Open
+    if ( mineabove )
+	nmfld_->attach( alignedBelow, grp );
+    else
+	grp->attach( alignedBelow, markerstylefld_ );
+}
+
+
+Pick::Set* uiNewPickSetDlg::getEmptyPickSet() const
+{
+    const BufferString nm( nmfld_->text() );
+    if ( Pick::SetMGR().nameExists(nm) )
+    {
+	uiMSG().error( tr("A Pick Set with that name already exists."
+			  "\nPlease choose another name.") );
+	return 0;
+    }
+
+    Pick::Set* ret = new Pick::Set( nm );
+    OD::MarkerStyle3D mstyle;
+    markerstylefld_->getMarkerStyle( mstyle );
+    ret->setMarkerStyle( mstyle );
+    ret->setConnection( ispolygon_ ? Pick::Set::Disp::Open
 				   : Pick::Set::Disp::None );
+    ret->setIsPolygon( ispolygon_ );
+    ret->setCategory( category_ );
     return ret;
 }
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiCreatePicks::acceptOK( CallBacker* )
+bool uiNewPickSetDlg::acceptOK( CallBacker* )
 {
-    name_.set( nmfld_->text() ).trimBlanks();
+    set_ = getEmptyPickSet();
+    if ( !set_ || !fillData(*set_) )
+	return false;
+
+    defsize_ = set_->dispSize();
+
+    uiString errmsg = Pick::SetMGR().store( *set_ );
+    if ( !errmsg.isEmpty() )
+	mErrRet( errmsg )
+
     return true;
 }
 
 
-uiGenPosPicks::uiGenPosPicks( uiParent* p )
-    : uiCreatePicks(p,false,false)
+uiGenPosPicksDlg::uiGenPosPicksDlg( uiParent* p )
+    : uiNewPickSetDlg(p,false)
     , posprovfld_(0)
-    , dps_(0)
 {
     uiPosProvider::Setup psu( false, true, true );
     psu .seltxt( tr("Generate locations by") )
@@ -110,26 +138,20 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, maxnrpickfld_ );
 
-    addStdFields( posfiltfld_->attachObj() );
+    attachStdFlds( true, posfiltfld_ );
 }
 
 
-uiGenPosPicks::~uiGenPosPicks()
+uiGenPosPicksDlg::~uiGenPosPicksDlg()
 {
-    delete dps_;
 }
 
 
 #define mSetCursor() MouseCursorManager::setOverride( MouseCursor::Wait )
 #define mRestorCursor() MouseCursorManager::restoreOverride()
 
-bool uiGenPosPicks::acceptOK( CallBacker* c )
+bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 {
-    if ( !posprovfld_ ) return true;
-
-    if ( !uiCreatePicks::acceptOK(c) )
-	return false;
-
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
 	mErrRet(toUiString("Internal: no Pos::Provider"))
@@ -144,18 +166,13 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( filt && !filt->initialize(&taskrunner) )
 	{ mRestorCursor(); return false; }
 
-    dps_ = new DataPointSet( prov->is2D() );
-    if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
+    DataPointSet dps( prov->is2D() );
+    if ( !dps.extractPositions(*prov,ObjectSet<DataColDef>(),filt,
 				 &taskrunner) )
-    {
-	delete dps_;
-	dps_ = 0;
 	return false;
-    }
-
     mRestorCursor();
 
-    const int dpssize = dps_->size();
+    const int dpssize = dps.size();
     int size = maxnrpickfld_->getIntValue();
     if ( dpssize < size )
 	size = dpssize;
@@ -167,27 +184,12 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 			  "\n\nDo you want to continue?")
 		     .arg(dpssize);
 	if ( !uiMSG().askGoOn(msg) )
-	{
-	    mRestorCursor();
-	    delete dps_; dps_ = 0;
 	    return false;
-	}
     }
 
-    if ( dps_->isEmpty() )
-    { delete dps_; dps_ = 0; mErrRet(tr("No matching locations found")) }
+    if ( dps.isEmpty() )
+	mErrRet(tr("No matching locations found"))
 
-    return true;
-}
-
-
-Pick::Set* uiGenPosPicks::getPickSet() const
-{
-    if ( dps_->isEmpty() ) return 0;
-
-    Pick::Set* ps = uiCreatePicks::getPickSet();
-    const int dpssize = dps_->size();
-    int size = maxnrpickfld_->getIntValue();
     const bool usemaxnrpicks = dpssize > size;
     if ( !usemaxnrpicks )
 	size = dpssize;
@@ -196,28 +198,28 @@ Pick::Set* uiGenPosPicks::getPickSet() const
     {
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
-	const DataPointSet::Pos pos( dps_->pos(posidx) );
+	const DataPointSet::Pos pos( dps.pos(posidx) );
 	Pick::Location pl( pos.coord(), pos.z() );
-	if ( dps_->is2D() )
+	if ( dps.is2D() )
 	    pl.setSurvID( pos.binid_.inl() );
-	*ps += pl;
+	ps.add( pl );
     }
 
-    return ps;
+    return true;
 }
 
 
 
-
-uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
-				    const BufferStringSet& lnms )
-    : uiCreatePicks(p,false,false)
+uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
+	const BufferStringSet& hornms, const BufferStringSet& lnms )
+    : uiNewPickSetDlg(p,false)
     , geomfld_(0)
     , hornms_(hornms)
     , linenms_(lnms)
+    , fillLocs(this)
 {
     nrfld_ = new uiGenInput( this, tr("Number of picks to generate"),
-		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
+		    IntInpSpec(defnrpicks_).setLimits(Interval<int>(1,10000)) );
 
     if ( hornms_.size() )
     {
@@ -226,12 +228,12 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
-						    uiGenRandPicks2D,hor1Sel));
+						uiGenRandPicks2DDlg,hor1Sel));
 	horsel2fld_ = new uiComboBox( this, "" );
 	horsel2fld_->addItem( uiStrings::sSelect()  );
 	horsel2fld_->addItems( hornms_ );
 	horsel2fld_->selectionChanged.notify( mCB(this,
-						 uiGenRandPicks2D,hor2Sel) );
+						 uiGenRandPicks2DDlg,hor2Sel) );
     }
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s)") );
@@ -244,7 +246,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 	geomfld_ = new uiGenInput( this, uiStrings::sGeometry(),
 				     StringListInpSpec(sGeoms2D) );
 	geomfld_->attach( alignedBelow, linenmfld_ );
-	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,geomSel) );
+	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks2DDlg,geomSel) );
 	horselfld_->attach( alignedBelow, geomfld_ );
 	horsel2fld_->attach( rightOf, horselfld_ );
     }
@@ -258,24 +260,24 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
     else zfld_->attach( alignedBelow, linenmfld_ );
 
-    addStdFields( zfld_->attachObj() );
-    preFinalise().notify( mCB(this,uiGenRandPicks2D,geomSel) );
+    attachStdFlds( true, zfld_ );
+    preFinalise().notify( mCB(this,uiGenRandPicks2DDlg,geomSel) );
 }
 
 
-void uiGenRandPicks2D::hor1Sel( CallBacker* cb )
+void uiGenRandPicks2DDlg::hor1Sel( CallBacker* cb )
 {
     horSel( horselfld_->box(), horsel2fld_ );
 }
 
 
-void uiGenRandPicks2D::hor2Sel( CallBacker* cb )
+void uiGenRandPicks2DDlg::hor2Sel( CallBacker* cb )
 {
     horSel( horsel2fld_, horselfld_->box() );
 }
 
 
-void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
+void uiGenRandPicks2DDlg::horSel( uiComboBox* sel, uiComboBox* tosel )
 {
     const char* nm = sel->text();
     const char* curnm = tosel->text();
@@ -291,8 +293,7 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
 }
 
 
-
-void uiGenRandPicks2D::geomSel( CallBacker* cb )
+void uiGenRandPicks2DDlg::geomSel( CallBacker* cb )
 {
     if ( !geomfld_ ) return;
 
@@ -303,7 +304,7 @@ void uiGenRandPicks2D::geomSel( CallBacker* cb )
 }
 
 
-void uiGenRandPicks2D::mkRandPars()
+void uiGenRandPicks2DDlg::mkRandPars()
 {
     randpars_.nr_ = nrfld_->getIntValue();
     randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
@@ -324,11 +325,8 @@ void uiGenRandPicks2D::mkRandPars()
 }
 
 
-bool uiGenRandPicks2D::acceptOK( CallBacker* c )
+bool uiGenRandPicks2DDlg::fillData( Pick::Set& ps )
 {
-    if ( !uiCreatePicks::acceptOK(c) )
-	return false;
-
     const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
     if ( choice )
     {
@@ -349,6 +347,8 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     }
 
     mkRandPars();
-    defnrpicks = randpars_.nr_;
-    return true;
+    defnrpicks_ = randpars_.nr_;
+
+    fillLocs.trigger();
+    return !ps.isEmpty();
 }

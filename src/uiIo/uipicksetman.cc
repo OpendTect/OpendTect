@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uipicksetman.h"
-#include "uipicksetmgr.h"
+#include "uipicksettools.h"
 
 #include "uibutton.h"
 #include "uiioobjselgrp.h"
@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "draw.h"
+#include "picksetmanager.h"
 #include "picksettr.h"
-#include "picksetmgr.h"
 #include "keystrs.h"
 #include "od_helpids.h"
 
@@ -71,53 +71,52 @@ void uiPickSetMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
-    Pick::Set ps;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,curioobj_,errmsg) )
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( curioobj_->key(), errmsg);
+    if ( !ps )
     {
-	BufferString msg( "Read error: '" );
-	msg.add( errmsg.getFullString() );
-	msg.add( "'" ).add( "\n<No specific info available>\n" );
+	txt.set( "Read error: '" );
+	txt.add( errmsg.getFullString() );
+	txt.add( "'" ).add( "\n<No specific info available>\n" );
     }
     else
     {
 	if ( !txt.isEmpty() )
 	    ErrMsg( txt );
 
-	FixedString typ = curioobj_->pars().find( sKey::Type() );
-	const bool ispoly = typ==sKey::Polygon();
-	const bool havetype = typ && *typ;
-	if ( havetype )
-	    txt.add( "Type: " ).add( typ );
 
-	const int sz = ps.size();
+	const bool ispoly = PickSetTranslator::isPolygon( *curioobj_ );
+	const BufferString cat = PickSetTranslator::getCategory( *curioobj_ );
+	txt.add( "Type: " );
+	if ( ispoly )
+	    txt.add( "Polygon" );
+	else if ( !cat.isEmpty() )
+	    txt.add( cat );
+	else
+	    txt.add( "Pick Set" );
+
+	MonitorLock ml( *ps );
+	const int sz = ps->size();
 	if ( sz < 1 )
-	    txt.add( havetype ? " <empty>" : "Empty Pick Set." );
+	    txt.add( "Empty Pick Set." );
 	else
 	{
-	    txt.add( havetype ? " <" : "Size: " );
-	    txt.add( sz );
-	    if ( havetype )
-	    {
-		txt.add( ispoly ? " vertice" : " pick" );
-		if ( sz > 1 )
-		    txt += "s";
-	    }
-	    if ( !ispoly && ps.get(0).hasDir() )
-		txt += " (with directions)";
-
+	    txt.add( " <" ).add( sz )
+	       .add( ispoly ? " vertice" : " pick" );
+	    if ( sz > 1 )
+		txt.add( "s" );
+	    if ( !ispoly && ps->get(0).hasDir() )
+		txt.add( " (with directions)" );
 	    if ( ispoly && sz > 2 )
 	    {
-		const float area = ps.getXYArea();
+		const float area = ps->getXYArea();
 		if ( !mIsUdf(area) )
 		    txt.add( ", area=" ).add( area );
 	    }
-
-	    if ( havetype )
-		txt += ">";
+	    txt.add( ">" );
 	}
 
-	const Pick::Set::Disp disp = ps.getDisp();
+	const Pick::Set::Disp disp = ps->getDisp();
 	Color col( disp.mkstyle_.color_ ); col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
 	txt.add( "\nMarker size (pixels): " ).add( disp.mkstyle_.size_ );
@@ -132,12 +131,11 @@ void uiPickSetMan::mkFileInfo()
 
 void uiPickSetMan::mergeSets( CallBacker* )
 {
-    uiPickSetMgr mgr( this, Pick::Mgr() );
-    MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
-    BufferStringSet chsnnms;
-    selgrp_->getChosen( chsnnms );
-    mgr.mergeSets( curkey, &chsnnms );
+    MultiID curid;
+    if ( curioobj_ )
+	curid = curioobj_->key();
 
-    if ( !curkey.isEmpty() )
-	selgrp_->fullUpdate( curkey );
+    uiMergePickSets dlg( this, curid );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( curid );
 }

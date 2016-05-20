@@ -77,25 +77,24 @@ public:
 protected:
 				~PickSetDisplay();
 
-    void			setPosition(int loc,const Pick::Location&);
-    void			setPosition(int idx,const Pick::Location&,
+    virtual void		setPosition(int loc,const Pick::Location&);
+    virtual void		setPosition(int idx,const Pick::Location&,
 					    bool add);
     Coord3			getPosition(int loc) const;
-    void			removePosition(int idx);
-    void			removeAll();
+    virtual void		removePosition(int idx);
+    virtual void		removeAll();
 
     void			setPolylinePos(int,const Coord3&);
     void			removePolylinePos(int);
 
     ::Quaternion		getDirection(const Pick::Location&) const;
 
-    void			dispChg(CallBacker*);
-    void			locChg(CallBacker*);
+    virtual void		dispChg();
+    virtual void		locChg(const Monitorable::ChangeData&);
 
-    int				clickedMarkerIndex(
+    virtual int			clickedMarkerIndex(
 					const visBase::EventInfo&) const;
-    bool			isMarkerClick(
-					const visBase::EventInfo&) const;
+    virtual bool		isMarkerClick(const visBase::EventInfo&) const;
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);

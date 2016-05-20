@@ -9,8 +9,7 @@
 
 #include "ioman.h"
 
-#include "picksetmgr.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "selector.h"
 
 #include "visevent.h"
@@ -57,7 +56,6 @@ LocationDisplay::LocationDisplay()
     , showall_( true )
     , set_( 0 )
     , manip_( this )
-    , picksetmgr_( 0 )
     , waitsfordirectionid_( -1 )
     , waitsforpositionid_( -1 )
     , datatransform_( 0 )
@@ -65,12 +63,9 @@ LocationDisplay::LocationDisplay()
     , voiidx_(-1)
     , undoloccoord_( Coord3(0,0,0) )
     , undomove_( false )
-    , storedmid_(MultiID::udf())
     , selectionmodel_(false)
     , ctrldown_(false)
 {
-    setSetMgr( &Pick::Mgr() );
-
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
 }
@@ -81,8 +76,8 @@ LocationDisplay::~LocationDisplay()
     detachAllNotifiers();
     setSceneEventCatcher( 0 );
 
-    if ( transformation_ ) transformation_->unRef();
-    setSetMgr( 0 );
+    if ( transformation_ )
+	transformation_->unRef();
 
     if ( datatransform_ )
     {
@@ -94,55 +89,33 @@ LocationDisplay::~LocationDisplay()
 
     removeChild( sower_->osgNode() );
     delete sower_;
-    sower_ = 0;
 }
 
 
 void LocationDisplay::setSet( Pick::Set* ps )
 {
-    if ( !ps )
+    if ( !ps || set_.ptr() == ps )
 	return;
 
     if ( set_ )
-    {
-	if ( set_!=ps )
-	{
-	    pErrMsg("Cannot set set_ twice");
-	}
-	return;
-    }
+	mDetachCB( set_->objectChanged() , LocationDisplay::setChgCB );
 
     set_ = ps;
     setName( toUiString(set_->name()) );
 
-    if ( picksetmgr_ )
-    {
-	const int setidx = picksetmgr_->indexOf( *set_ );
-	storedmid_ =  picksetmgr_->id( setidx );
-    }
-    else
-	storedmid_.setUdf();
-
     fullRedraw();
-
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
+
+    mAttachCB( ps->objectChanged() , LocationDisplay::setChgCB );
 }
 
 
-void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
+MultiID LocationDisplay::getMultiID() const
 {
-    if ( picksetmgr_ )
-	picksetmgr_->removeCBs( this );
-
-    picksetmgr_ = mgr;
-
-    if ( picksetmgr_ )
-    {
-	mAttachCB( picksetmgr_->locationChanged , LocationDisplay::locChg );
-	mAttachCB( picksetmgr_->setChanged, LocationDisplay::setChg );
-	mAttachCB( picksetmgr_->setDispChanged, LocationDisplay::dispChg );
-    }
+    if ( set_ )
+	return Pick::SetMGR().getID( *set_ );
+    return MultiID::udf();
 }
 
 
@@ -251,7 +224,6 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.type == visBase::MouseDoubleClick && sowerenabled )
     {
 	set_->setConnection( Pick::Set::Disp::Close );
-	dispChg( 0 );
 	return;
     }
 
@@ -267,11 +239,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    if ( dir.sqAbs()>=0 )
 	    {
 		pl.setDir( cartesian2Spherical(dir,true) );
-		Pick::SetMgr::ChangeData cd(
-			Pick::SetMgr::ChangeData::Changed,
-			set_, waitsfordirectionid_ );
 		set_->set( waitsfordirectionid_, pl );
-		picksetmgr_->reportChange( 0, cd );
 	    }
 	}
 
@@ -291,10 +259,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		const ::Sphere dir = pl.dir();
 		const Pick::Location undoloc( undoloccoord_, dir );
 		const Pick::Location newloc( newpos, dir );
-		set_->set( waitsforpositionid_, undoloc );
-		set_->set( waitsforpositionid_, newloc, true );
-		Pick::Mgr().undo().setUserInteractionEnd(
-		    Pick::Mgr().undo().currentEventID() );
+		// set_->set( waitsforpositionid_, undoloc );
+		set_->set( waitsforpositionid_, newloc );
 		undomove_ = false;
 	    }
 	    else
@@ -308,10 +274,6 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		pl.setPos( newpos );
 		set_->set( waitsforpositionid_, pl );
 	    }
-	    Pick::SetMgr::ChangeData cd(
-		    Pick::SetMgr::ChangeData::Changed,
-		    set_, waitsforpositionid_ );
-	    picksetmgr_->reportChange( 0, cd );
 	}
 
 	eventcatcher_->setHandled();
@@ -417,7 +379,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 				Coord3(normal.y,-normal.x,normal.z), true)
 			: Sphere( 1, 0, 0 );
 
-		    if ( addPick( newpos, dir, true ) )
+		    if ( addPick( newpos, dir ) )
 		    {
 			if ( hasDirection() )
 			{
@@ -522,63 +484,50 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 }
 
 
-void LocationDisplay::locChg( CallBacker* cb )
+void LocationDisplay::setChgCB( CallBacker* cb )
 {
-    mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
-    if ( !cd )
-    {
-	pErrMsg("Wrong pointer passed");
-	return;
-    }
-    else if ( cd->set_ != set_ )
-	return;
+    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb );
 
-    if ( cd->ev_==Pick::SetMgr::ChangeData::Added )
+    if ( chgdata.changeType() == Pick::Set::cDispChange() )
+	dispChg();
+    else
+	locChg( chgdata );
+}
+
+
+void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
+{
+    const Pick::Set::IdxType locidx = (Pick::Set::IdxType)chgdata.subIdx();
+    if ( chgdata.changeType() == Pick::Set::cLocationInsert() )
     {
-	Pick::Location loc = set_->get( cd->loc_ );
+	Pick::Location loc = set_->get( locidx );
 	if ( !transformPos( loc ) )
-	    invalidpicks_ += cd->loc_;
+	    invalidpicks_ += locidx;
 
-	setPosition( cd->loc_, loc, true );
+	setPosition( locidx, loc, true );
     }
-    else if ( cd->ev_==Pick::SetMgr::ChangeData::ToBeRemoved )
+    else if ( chgdata.changeType() == Pick::Set::cLocationRemove() )
     {
-	removePosition( cd->loc_ );
-	invalidpicks_ -= cd->loc_;
+	removePosition( locidx );
+	invalidpicks_ -= locidx;
     }
-    else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
+    else if ( chgdata.changeType() == Pick::Set::cLocationChange() )
     {
-	Pick::Location loc = set_->get( cd->loc_ );
+	Pick::Location loc = set_->get( locidx );
 	if ( transformPos( loc ) )
-	    invalidpicks_ -= cd->loc_;
+	    invalidpicks_ -= locidx;
 	else
 	{
-	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
-		invalidpicks_ += cd->loc_;
+	    if ( invalidpicks_.indexOf(locidx) < 0 )
+		invalidpicks_ += locidx;
 	}
 
-	setPosition( cd->loc_, loc );
+	setPosition( locidx, loc );
     }
 }
 
 
-void LocationDisplay::setChg( CallBacker* cb )
-{
-    mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps )
-    {
-	pErrMsg("Wrong pointer passed");
-	return;
-    }
-    else if ( ps != set_ )
-	return;
-
-    manip_.trigger();
-    fullRedraw();
-}
-
-
-void LocationDisplay::dispChg( CallBacker* )
+void LocationDisplay::dispChg()
 {
     if ( set_ )
 	getMaterial()->setColor( set_->dispColor() );
@@ -604,8 +553,7 @@ bool LocationDisplay::isPicking() const
 }
 
 
-bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
-			       bool notif )
+bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 {
     if ( selectionmodel_ ) return false;
 
@@ -664,27 +612,11 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	newloc.setGeomID( so->getGeomID() );
 
     if ( insertpick )
-    {
-	set_->insert( locidx, newloc, true );
-	Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
-    }
+	set_->insert( locidx, newloc );
     else
     {
-	set_->add( newloc, true );
-	Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
+	set_->add( newloc );
 	locidx = set_->size()-1;
-    }
-
-    if ( notif && picksetmgr_ )
-    {
-	if ( picksetmgr_->indexOf(*set_)==-1 )
-	    picksetmgr_->set( MultiID(), set_ );
-
-	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
-				     set_, locidx );
-	picksetmgr_->reportChange( 0, cd );
     }
 
     if ( !hasText() )
@@ -697,20 +629,9 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 }
 
 
-void LocationDisplay::removePick( int removeidx, bool setundo )
+void LocationDisplay::removePick( int removeidx )
 {
-    if ( !picksetmgr_ )
-	return;
-
-    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				 set_, removeidx );
-    set_->remove( removeidx, true );
-    if ( setundo )
-    {
-	Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
-    }
-    picksetmgr_->reportChange( 0, cd );
+    set_->remove( removeidx );
 }
 
 
@@ -723,14 +644,16 @@ BufferString LocationDisplay::getManipulationString() const
 
 
 void LocationDisplay::getObjectInfo( BufferString& info ) const
-{ info = getManipulationString(); }
+{
+    info = getManipulationString();
+}
 
 
 void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 				      Coord3& pos, BufferString& val,
 				      BufferString& info ) const
 {
-    val = "";
+    val.setEmpty();
     info = getManipulationString();
 }
 
@@ -738,24 +661,19 @@ void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 void LocationDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
-    if ( showall_ && invalidpicks_.isEmpty() ) return;
-
+    if ( showall_ && invalidpicks_.isEmpty() )
+	return;
+    // Ehhh? anything?
 }
 
 
 void LocationDisplay::setPosition( int idx, const Pick::Location& nl )
 {
-    if ( !set_ || idx<0 || idx>=set_->size() )
-	return;
-
-    set_->set( idx, nl );
 }
 
 
 void LocationDisplay::removePosition( int idx )
 {
-    if ( !set_ || idx<0 || idx>=set_->size() )
-	return;
 }
 
 
@@ -896,15 +814,11 @@ bool LocationDisplay::removeSelections( TaskRunner* taskr )
 	    const Pick::Location& loc = set_->get( idx );
 	    if ( selector->includes(loc.pos()) )
 	    {
-		removePick( idx, false );
+		removePick( idx );
 		changed = true;
 	    }
 	}
     }
-
-    if ( changed )
-	Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
     return changed;
 }
 
@@ -914,20 +828,16 @@ void LocationDisplay::fillPar( IOPar& par ) const
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
 
-    if ( !set_ )
-	return;
-
-    if ( picksetmgr_ )
-    {
-	const int setidx = picksetmgr_->indexOf( *set_ );
-	par.set( sKeyID(), setidx>=0 ? picksetmgr_->get(*set_) : "" );
-	par.set( sKeyMgrName(), picksetmgr_->name() );
-    }
-
     par.setYN( sKeyShowAll(), showall_ );
-    BufferString mkststr;
-    set_->markerStyle().toString( mkststr );
-    par.set( sKey::MarkerStyle(), mkststr );
+
+    if ( set_ )
+    {
+	par.set( sKeyID(), Pick::SetMGR().getID(*set_) );
+	par.set( sKeyMgrName(), set_->category() );
+	BufferString mkststr;
+	set_->markerStyle().toString( mkststr );
+	par.set( sKey::MarkerStyle(), mkststr );
+    }
 }
 
 
@@ -941,56 +851,37 @@ bool LocationDisplay::usePar( const IOPar& par )
     par.getYN( sKeyShowAll(), shwallpicks );
     showAll( shwallpicks );
 
-    BufferString setmgr;
-    if ( par.get(sKeyMgrName(),setmgr) )
-	setSetMgr( &Pick::SetMgr::getMgr(setmgr.buf()) );
-
-    if ( !par.get(sKeyID(),storedmid_) )
+    MultiID setid;
+    if ( !par.get(sKeyID(),setid) )
+	return false;
+    RefMan<Pick::Set> newps = Pick::SetMGR().fetchForEdit( setid );
+    if ( !newps )
 	return false;
 
-    const int setidx = picksetmgr_ ? picksetmgr_->indexOf( storedmid_ ) : -1;
-    if ( setidx==-1 )
+    const bool v6_or_earlier =
+	( par.majorVersion()+par.minorVersion()*0.1 )>0 &&
+	( par.majorVersion()+par.minorVersion()*0.1 )<=6;
+
+    Pick::Set::Disp disp = newps->getDisp();
+    if ( v6_or_earlier )
     {
-	mDeclareAndTryAlloc( Pick::Set*, newps, Pick::Set );
-
-	uiString errmsg;
-	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
-	if ( ioobj )
-	    PickSetTranslator::retrieve( *newps, ioobj, errmsg );
-
-	if ( !newps->name() || !*newps->name() )
-	    newps->setName( mFromUiStringTodo(name()) );
-
-	const bool v6_or_earlier =
-	    ( par.majorVersion()+par.minorVersion()*0.1 )>0 &&
-	    ( par.majorVersion()+par.minorVersion()*0.1 )<=6;
-
-	Pick::Set::Disp disp = newps->getDisp();
-	if ( v6_or_earlier )
-	{
-	    int markertype = 0;
-	    int pixsize = 3;
-	    par.get( sKeyMarkerType(), markertype );
-	    markertype ++;
-	    par.get( sKeyMarkerSize(), pixsize );
-	    disp.mkstyle_.type_=OD::MarkerStyle3D::Type(markertype);
-	    disp.mkstyle_.size_ = pixsize;
-	}
-	else
-	{
-	    BufferString mkststr;
-	    par.get( sKey::MarkerStyle(), mkststr );
-	    disp.mkstyle_.fromString( mkststr );
-	}
-	newps->setDisp( disp );
-
-	if ( picksetmgr_ )
-	    picksetmgr_->set( storedmid_, newps );
-	setSet( newps );
+	int markertype = 0;
+	int pixsize = 3;
+	par.get( sKeyMarkerType(), markertype );
+	markertype ++;
+	par.get( sKeyMarkerSize(), pixsize );
+	disp.mkstyle_.type_=OD::MarkerStyle3D::Type(markertype);
+	disp.mkstyle_.size_ = pixsize;
     }
     else
-	setSet( &picksetmgr_->get( storedmid_ ) );
+    {
+	BufferString mkststr;
+	par.get( sKey::MarkerStyle(), mkststr );
+	disp.mkstyle_.fromString( mkststr );
+    }
+    newps->setDisp( disp );
 
+    setSet( newps );
     return true;
 }
 

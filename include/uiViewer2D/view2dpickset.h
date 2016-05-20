@@ -16,15 +16,16 @@ ________________________________________________________________________
 #include "flatauxdataeditor.h"
 #include "trckeyzsampling.h"
 #include "view2ddata.h"
+#include "pickset.h"
 
 class uiFlatViewer;
 class uiFlatViewAuxDataEditor;
-namespace Pick { class Set; }
 
 
 mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
 {
 public:
+
     static VW2DPickSet* create(int id,uiFlatViewWin* win,
 			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
 			    mCreateVw2DDataObj(VW2DPickSet,id,win,ed);
@@ -34,7 +35,8 @@ public:
     void		clearPicks();
     void		enablePainting(bool yn);
     void		selected();
-    const MultiID	pickSetID() const;
+    MultiID		pickSetID() const;
+    void		setPickSet(Pick::Set*);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -49,7 +51,7 @@ protected:
     void		updateSetIdx(const TrcKeyZSampling&);
     void		updateSetIdx(const TrcKeyPath&);
 
-    Pick::Set*			pickset_;
+    RefMan<Pick::Set>		pickset_;
     bool			isselected_;
     Notifier<VW2DPickSet>	deselected_;
     bool			isownremove_;
@@ -59,6 +61,7 @@ protected:
     ObjectSet<FlatView::AuxData>	picks_;
     ObjectSet<uiFlatViewAuxDataEditor>	editors_;
     ObjectSet<uiFlatViewer>		viewers_;
+
 };
 
 #endif

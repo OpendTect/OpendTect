@@ -43,28 +43,30 @@ mExpClass(General) AutoSaveable : public Saveable
 public:
 
 			AutoSaveable(const Monitorable&);
+			AutoSaveable(const AutoSaveable&);
 			~AutoSaveable();
+    AutoSaveable&	operator =(const AutoSaveable&);
 
     mImplSimpleMonitoredGetSet(inline,nrSecondsBetweenSaves,
 				      setNrSecondsBetweenSaves,
-				      int,nrclocksecondsbetweensaves_,0)
+				      int,nrclocksecondsbetweenautosaves_,0)
 
 			// These functions can be called from any thread
-    virtual BufferString getFingerPrint() const		= 0;
 
     void		userSaveOccurred() const;
     bool		autoSaveNow() const	{ return doAutoSaveWork(true); }
 
+    virtual bool	save() const;
     virtual bool	store(const IOObj&) const;
     virtual void	remove(const IOObj&) const;
 
 protected:
 
-    mutable BufferString prevfingerprint_;
-    mutable IOStream*	prevautosaveioobj_;
+    mutable DirtyCountType lastautosavedirtycount_;
+    mutable IOStream*	lastautosaveioobj_;
     mutable int		autosavenr_;
-    mutable int		nrclocksecondsbetweensaves_;
-    mutable int		lastsaveclockseconds_;
+    mutable int		nrclocksecondsbetweenautosaves_;
+    mutable int		lastautosaveclockseconds_;
     mutable int		curclockseconds_;
 
     virtual void	initAutoSave() const;

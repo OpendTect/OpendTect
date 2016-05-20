@@ -24,9 +24,9 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODTreeItem
     mDefineItemMembers( PickSetParent, TreeItem, TreeTop );
     mShowMenu;
     mMenuOnAnyButton;
-    void addPickSet(Pick::Set*);
-    void setRemovedCB(CallBacker*);
-    ~uiODPickSetParentTreeItem();
+		~uiODPickSetParentTreeItem();
+    void	addPickSet(Pick::Set*);
+    void	removeSet(Pick::Set&);
 };
 
 
@@ -44,8 +44,8 @@ public:
 mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPickSetTreeItem)
 public:
-    			uiODPickSetTreeItem(int dispid,Pick::Set&);
-    			~uiODPickSetTreeItem();
+			uiODPickSetTreeItem(int dispid,Pick::Set&);
+			~uiODPickSetTreeItem();
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
@@ -55,12 +55,12 @@ protected:
     bool		init();
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void		setChg(CallBacker*);
+    void		setChgCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		selChangedCB(CallBacker*);
     const char*		parentType() const
-    			{ return typeid(uiODPickSetParentTreeItem).name(); }
+			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
     Pick::Set&		set_;
 
@@ -78,9 +78,11 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODTreeItem
     mDefineItemMembers( PolygonParent, TreeItem, TreeTop );
     mShowMenu;
     mMenuOnAnyButton;
-    ~uiODPolygonParentTreeItem();
-    void addPolygon(Pick::Set*);
-    void setRemovedCB(CallBacker*);
+
+		~uiODPolygonParentTreeItem();
+
+    void	addPolygon(Pick::Set*);
+    void	removeSet(Pick::Set&);
 };
 
 
@@ -109,7 +111,7 @@ protected:
     bool		init();
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void		setChg(CallBacker*);
+    void		setChgCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		selChangedCB(CallBacker*);

@@ -234,7 +234,7 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	    fnm.addSpace().add( wellnmsuffix );
 
 	const IOObj* presentobj = IOM().getLocal( fnm.buf(),
-						  ctxt.trgroup_->groupName() );
+						  ctxt.translatorGroupName() );
 	if ( !presentobj )
 	    continue;
 

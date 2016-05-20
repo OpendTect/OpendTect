@@ -38,6 +38,12 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 }
 
 
+IOStream::IOStream( const IOStream& oth )
+{
+    copyFrom( &oth );
+}
+
+
 void IOStream::setDirName( const char* dirnm )
 {
     IOObj::setDirName( dirnm );

@@ -7,7 +7,6 @@
 
 #include "vispicksetdisplay.h"
 
-#include "picksetmgr.h"
 #include "mousecursor.h"
 #include "visemobjdisplay.h"
 #include "vismarkerset.h"
@@ -21,6 +20,7 @@
 #include "visseis2ddisplay.h"
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
+#include "pickset.h"
 #include "callback.h"
 #include "separstr.h"
 
@@ -68,9 +68,6 @@ PickSetDisplay::~PickSetDisplay()
 	removeChild( polyline_->osgNode() );
 	unRefAndZeroPtr( polyline_ );
     }
-
-    Pick::SetMgr& mgr = Pick::Mgr();
-    mgr.undo().removeAll();
 }
 
 
@@ -136,16 +133,16 @@ bool PickSetDisplay::isPolygon() const
 { return set_ ? set_->isPolygon() : false; }
 
 
-void PickSetDisplay::locChg( CallBacker* cb )
+void PickSetDisplay::locChg( const Monitorable::ChangeData& chgdata )
 {
-    LocationDisplay::locChg( cb );
+    LocationDisplay::locChg( chgdata );
     setBodyDisplay();
     if ( markerset_ )
 	markerset_->forceRedraw( true );
 }
 
 
-void PickSetDisplay::dispChg( CallBacker* cb )
+void PickSetDisplay::dispChg()
 {
     if ( !markerset_ )
 	return;
@@ -171,7 +168,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	    fullRedraw(0);
     }
 
-    LocationDisplay::dispChg( cb );
+    LocationDisplay::dispChg();
     markerset_->setMarkersSingleColor( psdisp.mkstyle_.color_  );
     markerset_->forceRedraw( true );
     showLine( needLine() );
@@ -805,16 +802,10 @@ bool PickSetDisplay::removeSelections( TaskRunner* taskr )
     {
 	if ( pickselstatus_[idx] )
 	{
-	    Pick::SetMgr::ChangeData cd(
-		Pick::SetMgr::ChangeData::ToBeRemoved, set_,idx );
-	    set_->remove( idx, true );
-	    Pick::Mgr().reportChange( 0, cd );
+	    set_->remove( idx );
 	    changed = true;
 	}
     }
-
-    Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
 
     unSelectAll();
     return changed;

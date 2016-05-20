@@ -24,24 +24,26 @@ mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
 { mODTextTranslationClass(uiPickPropDlg);
 public:
 				uiPickPropDlg(uiParent* p,
-					      Pick::Set& set, 
+					      Pick::Set& set,
 					      visSurvey::PickSetDisplay* psd);
+				~uiPickPropDlg();
 
 protected:
 
     void			doFinalise(CallBacker*);
-    void			sliderMove(CallBacker*);
+    void			sizeChg(CallBacker*);
     void			typeSel(CallBacker*);
     void			colSel(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			drawStyleCB(CallBacker*);
     void			drawSel(CallBacker*);
-    
-    uiGenInput*         	drawstylefld_;			
-    uiCheckBox*         	usedrawstylefld_;			
+
+    uiGenInput*	drawstylefld_;
+    uiCheckBox*	usedrawstylefld_;
 
     Pick::Set&			set_;
     visSurvey::PickSetDisplay*	psd_;
+
 };
 
 #endif

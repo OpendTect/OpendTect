@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "survinfo.h"
 
 #include "uidialog.h"
@@ -30,19 +30,18 @@ ________________________________________________________________________
 
 struct ScaleBarPars
 {
-ScaleBarPars()
-    : oninlcrl_(true), orientation_(0), length_(1000)
-{}
+    ScaleBarPars()
+	: oninlcrl_(true), orientation_(0), length_(1000)   {}
 
-bool		oninlcrl_;
-int		orientation_;
-double		length_;
-OD::LineStyle	ls_;
+    bool		oninlcrl_;
+    int			orientation_;
+    double		length_;
+    OD::LineStyle	ls_;
 };
 
 
 class uiScaleBarDialog : public uiDialog
-{mODTextTranslationClass(uiScaleBarDialog);
+{ mODTextTranslationClass(uiScaleBarDialog);
 public:
 uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     : uiDialog(p,Setup(tr("Scale Bar Properties")
@@ -50,8 +49,6 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     , propertyChange(this)
     , zinf_(zinf)
 {
-    //setCtrlStyle( LeaveOnly );
-
     objectfld_ = new uiGenInput( this, tr("Picked on"),
 	BoolInpSpec(true,tr("Inl/Crl"),uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
@@ -173,19 +170,15 @@ bool ScaleBarSubItem::init()
 	visserv_->addObject( ad, sceneID(), true );
 	visserv_->setViewMode( false );
 	displayid_ = ad->id();
-    ad->setName( name_ );
+	ad->setName( name_ );
     }
 
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
 						visserv_->getObject(displayid_))
-    if ( !ad ) return false;
+    if ( !ad )
+	return false;
 
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
-
-    ad->fromPar( set_->pars() );
+    ad->fromPar( Pick::SetMGR().getIOObjPars(getSetID()) );
     return uiODAnnotSubItem::init();
 }
 
@@ -228,7 +221,7 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 	pars.orientation_ = ad->getOrientation();
 	pars.length_ = ad->getLength();
 	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,ad->getLineWidth(),
-			     set_->dispColor());
+			     set_.dispColor());
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	uiScaleBarDialog dlg( getUiParent(), scene->zDomainInfo() );
 	dlg.setPars( pars );
@@ -254,8 +247,4 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
     ad->setOrientation( pars.orientation_ );
     ad->setLineWidth( pars.ls_.width_ );
     ad->setLength( pars.length_ );
-
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    mgr.setUnChanged( setidx, false );
 }

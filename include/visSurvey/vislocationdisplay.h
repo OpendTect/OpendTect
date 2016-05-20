@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 
 class Sphere;
-namespace Pick { class Set; class Location; class SetMgr; }
+namespace Pick { class Set; class Location; }
 template <class T> class Selector;
 
 
@@ -28,7 +28,7 @@ class Sower;
 
 /*!\brief Used for displaying picksets of varying types.
   The class is not intended for standalone usage, but is a common ground for
-  picksets and other classes, where the inheriting classes knows about display
+  picksets and other classes, where the inheriting classes know about display
   shapes ++.
 */
 
@@ -38,13 +38,13 @@ mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
     friend class Sower;
 
 public:
+
     virtual void		setSet(Pick::Set*); // once!
-    void			setSetMgr(Pick::SetMgr*);
-    				/*!<Only used for notifications. */
+
     Pick::Set*			getSet()		{ return set_; }
     const Pick::Set*		getSet() const		{ return set_; }
 
-    MultiID			getMultiID() const	{ return storedmid_; }
+    MultiID			getMultiID() const;
 
     const char*			errMsg() const { return errmsg_.str(); }
 
@@ -54,11 +54,10 @@ public:
     virtual void		setOnlyAtSectionsDisplay(bool);
     virtual bool		displayedOnlyAtSections() const;
 
-
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
@@ -94,7 +93,7 @@ public:
 protected:
 				LocationDisplay();
     virtual void		setPosition(int idx,
-	    				    const Pick::Location&);
+					    const Pick::Location&);
     virtual void		setPosition(int idx,const Pick::Location&,
 					    bool add) {}
     virtual void		removePosition(int);
@@ -116,8 +115,8 @@ protected:
 
     virtual			~LocationDisplay();
 
-    bool			addPick(const Coord3&,const Sphere&,bool);
-    void			removePick(int,bool setundo=true);
+    bool			addPick(const Coord3&,const Sphere&);
+    void			removePick(int);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;
@@ -127,13 +126,13 @@ protected:
     const Coord3		getActivePlaneNormal(
 					      const visBase::EventInfo&) const;
 
-    void			pickCB(CallBacker* cb);
-    virtual void		locChg(CallBacker* cb);
-    virtual void		setChg(CallBacker* cb);
-    virtual void		dispChg(CallBacker* cb);
+    void			pickCB(CallBacker*);
+    void			setChgCB(CallBacker*);
 
-    Pick::Set*			set_;
-    Pick::SetMgr*		picksetmgr_;
+    virtual void		locChg(const Monitorable::ChangeData&);
+    virtual void		dispChg();
+
+    RefMan<Pick::Set>		set_;
     Notifier<LocationDisplay>	manip_;
     int				waitsfordirectionid_;
     int				waitsforpositionid_;
@@ -145,13 +144,11 @@ protected:
     int				pickedsobjid_; //!< Picked SurveyObject ID
     int				voiidx_;
     bool			ctrldown_;
-    ObjectSet< Selector<Coord3> >   selectors_;
+    ObjectSet< Selector<Coord3> > selectors_;
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
     ZAxisTransform*		datatransform_;
-
-    MultiID			storedmid_;
 
     static const char*		sKeyID();
     static const char*		sKeyMgrName();

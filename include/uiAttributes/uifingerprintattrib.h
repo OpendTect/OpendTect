@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "stattype.h"
 
-class CtxtIOObj;
 class uiAttrSel;
 class uiTable;
 class uiComboBox;
@@ -28,6 +27,7 @@ class uiRadioButton;
 class uiToolButton;
 class uiButtonGroup;
 class uiSeis2DLineSel;
+class uiPickSetIOObjSel;
 class BinIDValueSet;
 class PickRetriever;
 
@@ -54,11 +54,10 @@ protected:
     uiGenInput*		refposfld_;
     uiGenInput*		refpos2dfld_;
     uiGenInput*		refposzfld_;
-    uiIOObjSel*		picksetfld_;
+    uiPickSetIOObjSel*	picksetfld_;
     uiLabel*		manlbl_;
     uiSeis2DLineSel*	linefld_;
-   
-    CtxtIOObj&		ctio_;
+
     ObjectSet<uiAttrSel> attribflds_;
     EnumDefImpl<Stats::Type> def_;
 
@@ -88,7 +87,7 @@ protected:
 
     virtual bool	areUIParsOK();
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 

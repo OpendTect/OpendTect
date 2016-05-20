@@ -16,13 +16,13 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "pickset.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "survinfo.h"
 #include "veldesc.h"
 #include "unitofmeasure.h"
 
 #include "uiioobjsel.h"
+#include "uipicksettools.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uichecklist.h"
@@ -145,11 +145,12 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	, ps_(ps)
 	, hor_(0)
 {
+    ps_.ref();
     if ( ps_.size() < 3 )
-	{
-	    new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) );
-	    return;
-	}
+    {
+	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) );
+	return;
+    }
 
     horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
 				tr("Calculate to") );
@@ -163,6 +164,7 @@ uiCalcPolyHorVol::~uiCalcPolyHorVol()
 {
     if ( hor_ )
 	hor_->unRef();
+    ps_.unRef();
 }
 
 
@@ -201,17 +203,18 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	: uiCalcHorVol(p,tr("Volume estimation from horizon part") )
 	, ps_(0)
 	, hor_(h)
+	, pssel_(0)
 {
+    hor_.ref();
     if ( hor_.nrSections() < 1 )
     {
 	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1)));
 	return;
     }
 
-    IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    pssel_ = new uiIOObjSel( this, ctxt, uiStrings::phrCalculateFrom(
-			     uiStrings::sPolygon()));
+    uiIOObjSel::Setup su( uiStrings::phrCalculateFrom(uiStrings::sPolygon()) );
+    pssel_ = new uiPickSetIOObjSel( this, su,
+				    true, uiPickSetIOObjSel::PolygonOnly );
     pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
 
     mkStdGrp()->attach( alignedBelow, pssel_ );
@@ -220,26 +223,13 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 
 uiCalcHorPolyVol::~uiCalcHorPolyVol()
 {
-    delete ps_;
+    hor_.unRef();
 }
 
 
 void uiCalcHorPolyVol::psSel( CallBacker* cb )
 {
-    if ( ps_ ) delete ps_;
-    ps_ = 0;
-
-    const IOObj* ioobj = pssel_->ioobj( true );
-    if ( !ioobj ) return;
-
-    ps_ = new Pick::Set;
-    uiString errmsg;
-    if ( !PickSetTranslator::retrieve(*ps_,ioobj,errmsg) )
-    {
-	uiMSG().error( errmsg );
-	delete ps_; ps_ = 0;
-    }
-
+    ps_ = pssel_->getPickSet( true );
     haveChg( cb );
 }
 

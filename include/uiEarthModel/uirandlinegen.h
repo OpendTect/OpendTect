@@ -13,10 +13,11 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "multiid.h"
 
-class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;
+class uiPickSetIOObjSel;
 class uiCheckBox;
 class uiSelZRange;
 class uiLabeledSpinBox;
@@ -30,19 +31,14 @@ mExpClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
 { mODTextTranslationClass(uiGenRanLinesByContour);
 public:
 			uiGenRanLinesByContour(uiParent*);
-			~uiGenRanLinesByContour();
 
-    const char*		getNewSetID() const;
+    MultiID		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
 
-    CtxtIOObj&		horctio_;
-    CtxtIOObj&		polyctio_;
-    CtxtIOObj&		rlsctio_;
-
     uiIOObjSel*		infld_;
-    uiIOObjSel*		polyfld_;
+    uiPickSetIOObjSel*	polyfld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		contzrgfld_;
     uiGenInput*		relzrgfld_;
@@ -71,15 +67,11 @@ mExpClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
 { mODTextTranslationClass(uiGenRanLinesByShift);
 public:
 			uiGenRanLinesByShift(uiParent*);
-			~uiGenRanLinesByShift();
 
-    const char*		getNewSetID() const;
+    MultiID		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
-
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
 
     uiIOObjSel*		infld_;
     uiIOObjSel*		outfld_;
@@ -98,17 +90,13 @@ mExpClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
 { mODTextTranslationClass(uiGenRanLineFromPolygon);
 public:
 			uiGenRanLineFromPolygon(uiParent*);
-			~uiGenRanLineFromPolygon();
 
-    const char*		getNewSetID() const;
+    MultiID		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
-
-    uiIOObjSel*		infld_;
+    uiPickSetIOObjSel*	infld_;
     uiIOObjSel*		outfld_;
     uiSelZRange*	zrgfld_;
     uiCheckBox*		dispfld_;

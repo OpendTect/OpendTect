@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "keystrs.h"
-#include "pickset.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "strmprov.h"
 #include "uistrings.h"
 #include "welldata.h"
 #include "wellreader.h"
+#include "ctxtioobj.h"
 
 
 mDefineNameSpaceEnumUtils(ODGMT,Shape,"Shapes")
@@ -170,15 +170,13 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id;
     get( sKey::ID(), id );
-    const IOObj* setobj = IOM().get( id );
-    if ( !setobj )
-	mErrStrmRet(uiStrings::phrCannotFindDBEntry(uiStrings::sPolygon()))
 
-    strm << "Posting Locations " << setobj->name() << " ...  ";
-    Pick::Set ps;
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,errmsg) )
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+    if ( !ps )
 	mErrStrmRet( errmsg )
+
+    strm << "Posting Locations " << ps->name() << " ...  ";
 
     Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
@@ -209,9 +207,10 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     od_ostream procstrm = makeOStream( comm, strm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay locations")
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    MonitorLock ml( *ps );
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Coord pos = ps.getPos( idx );
+	const Coord pos = ps->getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 
@@ -264,17 +263,13 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 
 bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 {
-    MultiID id;
-    get( sKey::ID(), id );
-    const IOObj* setobj = IOM().get( id );
-    if ( !setobj )
-	mErrStrmRet(uiStrings::phrCannotFindDBEntry(uiStrings::sPolygon()))
-
-    strm << "Posting Polyline " << setobj->name() << " ...  ";
-    Pick::Set ps;
+    MultiID id; get( sKey::ID(), id );
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,errmsg) )
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+    if ( !ps )
 	mErrStrmRet(errmsg)
+
+    strm << "Posting Polyline " << ps->name() << " ...  ";
 
     OD::LineStyle ls;
     const char* lsstr = find( ODGMT::sKeyLineStyle() );
@@ -289,7 +284,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     BufferString comm = "@psxy ";
     BufferString str; mGetRangeProjString( str, "X" );
     comm += str; comm += " -O -K";
-    if ( ps.connection() == Pick::Set::Disp::Close )
+    if ( ps->connection() == Pick::Set::Disp::Close )
 	comm += " -L";
 
     if ( drawline )
@@ -312,9 +307,10 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     od_ostream procstrm = makeOStream( comm, strm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay polylines")
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    MonitorLock ml( *ps );
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Coord pos = ps.getPos( idx );
+	const Coord pos = ps->getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 

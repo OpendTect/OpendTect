@@ -28,7 +28,7 @@ mExpClass(visSurvey) ArrowDisplay : public visSurvey::LocationDisplay
 public:
     static ArrowDisplay*	create()
 				mCreateDataObj(ArrowDisplay);
-    				~ArrowDisplay();
+				~ArrowDisplay();
 
     void			setScene(visSurvey::Scene*);
 
@@ -53,10 +53,10 @@ protected:
 					const visBase::EventInfo& evi)const;
 
     void			zScaleCB(CallBacker*);
-    void			dispChg(CallBacker*);
-    
+    virtual void		dispChg();
+
     visBase::VisualObject*	createLocation() const;
-    bool			hasDirection() const { return true; }
+    virtual bool		hasDirection() const { return true; }
 
     void			updateLineIndices(visBase::Lines*) const;
 

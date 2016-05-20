@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "keystrs.h"
-#include "picksetmgr.h"
+#include "pickset.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 
@@ -43,7 +43,6 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
     mNoDlgTitle, mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
     , dps_(*new DataPointSet(false,false))
-    , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))
     , psd_(0)
     , changed_(false)
 {
@@ -83,15 +82,27 @@ uiDataPointSetPickDlg::~uiDataPointSetPickDlg()
 {
     visBase::DM().selMan().selnotifier.remove(
 			mCB(this,uiDataPointSetPickDlg,objSelCB) );
-    if ( psd_ ) cleanUp();
+    if ( psd_ )
+	cleanUp();
 }
 
 
 void uiDataPointSetPickDlg::winCloseCB( CallBacker* )
-{ cleanUp(); }
+{
+    cleanUp();
+}
+
 
 void uiDataPointSetPickDlg::objSelCB( CallBacker* cb )
-{ tb_->turnOn( pickbutid_, false ); }
+{
+    tb_->turnOn( pickbutid_, false );
+}
+
+
+Pick::Set* uiDataPointSetPickDlg::pickSet()
+{
+    return psd_ ? psd_->getSet() : 0;
+}
 
 
 void uiDataPointSetPickDlg::cleanUp()
@@ -109,17 +120,7 @@ void uiDataPointSetPickDlg::cleanUp()
 	psd_ = 0;
     }
 
-    picksetmgr_.locationChanged.remove(
-			mCB(this,uiDataPointSetPickDlg,locChgCB) );
-    picksetmgr_.setChanged.remove( mCB(this,uiDataPointSetPickDlg,pickCB) );
-}
-
-
-static MultiID getMultiID( int sceneid )
-{
-    // Create dummy multiid, I don't want to save these picks
-    BufferString mid( "9999.", sceneid );
-    return MultiID( mid.buf() );
+    detachAllNotifiers();
 }
 
 
@@ -131,11 +132,7 @@ void uiDataPointSetPickDlg::initPickSet()
     Pick::Set* ps = new Pick::Set( "DPS picks" );
     ps->setDispColor( Color( 255, 0, 0 ) );
     psd_->setSet( ps );
-    psd_->setSetMgr( &picksetmgr_ );
-    picksetmgr_.set( getMultiID(sceneid_), ps );
-    picksetmgr_.locationChanged.notify(
-			mCB(this,uiDataPointSetPickDlg,locChgCB) );
-    picksetmgr_.setChanged.notify( mCB(this,uiDataPointSetPickDlg,pickCB) );
+    mAttachCB( ps->objectChanged(), uiDataPointSetPickDlg::setChgCB );
 
     visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -172,8 +169,9 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
-    Pick::Set* pickset = psd_ ? psd_->getSet() : 0;
-    if ( !pickset ) return;
+    Pick::Set* pickset = pickSet();
+    if ( !pickset )
+	return;
 
     values_.erase();
     pickset->setEmpty();
@@ -186,7 +184,8 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
 	values_ += newdps.value(0,idx);
     }
 
-    if ( psd_ ) psd_->redrawAll();
+    if ( psd_ )
+	psd_->redrawAll();
 
     updateDPS();
     updateTable();
@@ -198,11 +197,15 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
 
 
 void uiDataPointSetPickDlg::saveCB( CallBacker* )
-{ doSave( false ); }
+{
+    doSave( false );
+}
 
 
 void uiDataPointSetPickDlg::saveasCB( CallBacker* )
-{ doSave( true ); }
+{
+    doSave( true );
+}
 
 
 void uiDataPointSetPickDlg::doSave( bool saveas )
@@ -238,8 +241,9 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     dps_.setValue( 0, row, val );
     dps_.dataChanged();
 
-    const Pick::Set* set = psd_ ? psd_->getSet() : 0;
-    if ( !set ) return;
+    const Pick::Set* set = pickSet();
+    if ( !set )
+	return;
 
     const DataPointSet::Pos pos( dps_.pos(row) );
     const Coord3 dpscrd( pos.coord(), pos.z() );
@@ -269,33 +273,27 @@ void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 }
 
 
-void uiDataPointSetPickDlg::locChgCB( CallBacker* cb )
+void uiDataPointSetPickDlg::setChgCB( CallBacker* inpcb )
 {
-    mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
-    if ( !cd || !psd_ || (cd->set_ != psd_->getSet()) )
-	return;
+    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, cb, inpcb );
+    const Pick::Set* ps = pickSet();
+    if ( cb != ps )
+	{ pErrMsg("Huh"); return; }
 
-    if ( cd->ev_ == Pick::SetMgr::ChangeData::Added )
-    {
+    while ( values_.size() < ps->size() )
 	values_ += mUdf(float);
-    }
-    else if ( cd->ev_ == Pick::SetMgr::ChangeData::ToBeRemoved )
+
+    if ( chgdata.changeType() == Pick::Set::cLocationRemove() )
     {
-	if ( values_.validIdx(cd->loc_) )
-	    values_.removeSingle( cd->loc_ );
+	if ( ps->size() < 1 )
+	    values_.setEmpty();
+	else
+	{
+	    const int locidx = (int)chgdata.subIdx();
+	    if ( values_.validIdx(locidx) )
+		values_.removeSingle( locidx );
+	}
     }
-    else if ( cd->ev_ == Pick::SetMgr::ChangeData::Changed )
-    {
-    }
-
-    pickCB( cb );
-}
-
-
-void uiDataPointSetPickDlg::pickCB( CallBacker* cb )
-{
-    mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
-    if ( !cd || !cd->set_ ) return;
 
     changed_ = true;
     updateDPS();
@@ -313,7 +311,7 @@ void uiDataPointSetPickDlg::updateButtons()
 void uiDataPointSetPickDlg::updateDPS()
 {
     dps_.clearData();
-    const Pick::Set* set = psd_ ? psd_->getSet() : 0;
+    const Pick::Set* set = pickSet();
     if ( !set )
 	{ dps_.dataChanged(); return; }
 

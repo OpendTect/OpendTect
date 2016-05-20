@@ -11,23 +11,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uidialog.h"
+#include "uinewpickset.h"
 #include "trckeyzsampling.h"
 #include "bufstringset.h"
 
 class uiComboBox;
-class uiColorInput;
 class uiPosSubSel;
-class uiGenInput;
 class uiLabeledComboBox;
 class uiListBox;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class DataPointSet;
-namespace Pick { class Set; }
 
-/*! \brief Dialog for creating (a) pick set(s) */
+/*! \brief Pars for generating random locations */
 
 mExpClass(uiIo) RandLocGenPars
 { mODTextTranslationClass(RandLocGenPars);
@@ -39,7 +35,7 @@ public:
 
     int			nr_;
     bool		needhor_;
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     Interval<float>	zrg_;
     int			horidx_;
     int			horidx2_;
@@ -47,60 +43,48 @@ public:
 };
 
 
-mExpClass(uiIo) uiCreatePicks : public uiDialog
-{ mODTextTranslationClass(uiCreatePicks);
+/*!\brief creates a Pick::Set with generated positions. */
+
+mExpClass(uiIo) uiGenPosPicksDlg : public uiNewPickSetDlg
+{ mODTextTranslationClass(uiGenPosPicksDlg);
 public:
-			uiCreatePicks(uiParent*,bool aspolygon=false,
-				      bool addstdfields=true);
-			~uiCreatePicks() {}
 
-    virtual Pick::Set*	getPickSet() const;	//!< Set is yours
-
-protected:
-
-    uiGenInput*		nmfld_;
-    uiColorInput*	colsel_;
-    BufferString	name_;
-
-    bool		aspolygon_;
-
-    virtual bool	acceptOK(CallBacker*);
-    virtual void	addStdFields(uiObject* lastobj=0);
-};
-
-
-mExpClass(uiIo) uiGenPosPicks : public uiCreatePicks
-{ mODTextTranslationClass(uiGenPosPicks);
-public:
-    			uiGenPosPicks(uiParent*);
-			~uiGenPosPicks();
-
-    virtual Pick::Set*	getPickSet() const;
+			uiGenPosPicksDlg(uiParent*);
+			~uiGenPosPicksDlg();
 
 protected:
 
     uiPosProvider*	posprovfld_;
     uiGenInput*		maxnrpickfld_;
     uiPosFilterSetSel*	posfiltfld_;
-    DataPointSet*	dps_;
 
-    bool		acceptOK(CallBacker*);
+    virtual bool	fillData(Pick::Set&);
+
 };
 
 
-mExpClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
-{ mODTextTranslationClass(uiGenRandPicks2D);
+/*!\brief creates a Pick::Set with random 2D positions.
+
+  Note that it will only make the RandLocGenPars, it will call you to fill the
+  locations (i.e. setting fillLocs is mandatory).
+
+*/
+
+mExpClass(uiIo) uiGenRandPicks2DDlg : public uiNewPickSetDlg
+{ mODTextTranslationClass(uiGenRandPicks2DDlg);
 public:
 
-    			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
-					 const BufferStringSet&);
+			uiGenRandPicks2DDlg(uiParent*,const BufferStringSet&,
+					    const BufferStringSet&);
 
     const RandLocGenPars& randPars() const	{ return randpars_; }
 
+    Notifier<uiGenRandPicks2DDlg>   fillLocs;
+
 protected:
 
-    RandLocGenPars		randpars_;
-    const BufferStringSet&	hornms_;
+    RandLocGenPars	randpars_;
+    const BufferStringSet& hornms_;
 
     uiGenInput*		nrfld_;
     uiGenInput*		geomfld_;
@@ -111,7 +95,7 @@ protected:
 
     BufferStringSet	linenms_;
 
-    bool		acceptOK(CallBacker*);
+    virtual bool	fillData(Pick::Set&);
     void		mkRandPars();
 
     void		geomSel(CallBacker*);

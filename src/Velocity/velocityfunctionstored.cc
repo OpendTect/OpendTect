@@ -12,11 +12,10 @@ ________________________________________________________________________
 #include "velocityfunctionstored.h"
 
 #include "binidvalset.h"
-#include "ioman.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "picksettr.h"
-#include "pickset.h"
+#include "picksetmanager.h"
 #include "sorting.h"
 #include "varlenarray.h"
 #include "velocitycalc.h"
@@ -118,17 +117,13 @@ void StoredFunctionSource::setData( const BinIDValueSet& bvs,
 
 bool StoredFunctionSource::store( const MultiID& velid )
 {
-    PtrMan<IOObj> ioobj = IOM().get( velid );
-    if ( !ioobj )
-	return false;
-
-    if ( velid!=mid_ )
+    if ( velid != mid_ )
     {
 	mid_ = velid;
 	//Trigger something?
     }
 
-    ::Pick::Set ps( ioobj->name() );
+    RefMan< ::Pick::Set > ps = new ::Pick::Set;
     BinIDValueSet::SPos arrpos;
 
     while ( veldata_.next(arrpos,false) )
@@ -139,26 +134,19 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	const Coord3 pos( SI().transform(bid), vals[0] );
 	const Coord3 dir( vals[1], mUdf(float), mUdf(float) );
 	::Pick::Location pickloc( pos, dir );
-	ps.add( pickloc );
+	ps->add( pickloc );
     }
 
-    IOPar psiop( ps.pars() );
+    IOPar psiop( ps->pars() );
     psiop.setYN( sKeyZIsTime(), zit_ );
     desc_.fillPar( psiop );
-    ps.setPars( psiop );
+    ps->setPars( psiop );
 
-    uiString errmsg;
-    if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
+    IOPar ioobjpars;
+    fillIOObjPar( ioobjpars );
+    uiString errmsg = ::Pick::SetMGR().store( *ps, mid_, &ioobjpars );
+    if ( !errmsg.isEmpty() )
 	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
-
-    fillIOObjPar( ioobj->pars() );
-
-    if ( !IOM().commitChanges(*ioobj) )
-    {
-	errmsg_ = mFromUiStringTodo(
-		    uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ));
-	return false;
-    }
 
     return true;
 }
@@ -174,16 +162,12 @@ void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 
 bool StoredFunctionSource::load( const MultiID& velid )
 {
-    PtrMan<IOObj> ioobj = IOM().get( velid );
-    if ( !ioobj )
-	return false;
-
-    ::Pick::Set pickset( ioobj->name() );
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(pickset,ioobj,errmsg) )
+    ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( velid, errmsg );
+    if ( !ps )
 	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
 
-    const IOPar psiop( pickset.pars() );
+    const IOPar psiop( ps->pars() );
     if ( !psiop.getYN( sKeyZIsTime(), zit_ ) ||
 	 !desc_.usePar( psiop ) )
 	return false;
@@ -191,9 +175,10 @@ bool StoredFunctionSource::load( const MultiID& velid )
     veldata_.setEmpty();
     veldata_.setNrVals( 2 );
 
-    for ( int idx=pickset.size()-1; idx>=0; idx-- )
+    MonitorLock ml( *ps );
+    for ( int idx=ps->size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location ploc = pickset.get( idx );
+	const ::Pick::Location ploc = ps->get( idx );
 	if ( ploc.hasPos() && ploc.hasDir() )
 	{
 	    float vals[2];

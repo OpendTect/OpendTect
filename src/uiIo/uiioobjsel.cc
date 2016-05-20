@@ -105,7 +105,17 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread_), \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
-    , selgrp_( 0 )
+    , selgrp_( 0 ) \
+    , crctio_( 0 )
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt )
+    : mConstructorInitListStart(ctxt)
+    , setup_(uiString::emptyString())
+{
+    crctio_ = new CtxtIOObj( ctxt );
+    init( *crctio_ );
+}
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
@@ -123,6 +133,13 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
     , setup_( su )
 {
     init( ctio );
+}
+
+
+uiIOObjSelDlg::~uiIOObjSelDlg()
+{
+    if ( crctio_ )
+	{ delete crctio_->ioobj_; delete crctio_; }
 }
 
 
@@ -213,8 +230,7 @@ void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
 #define mSelTxt(txt,ct) \
     !txt.isEmpty() ? txt \
 	: toUiString(ct.name().isEmpty() \
-	    ? ct.trgroup_->groupName().buf() \
-	    : ct.name().buf())
+	    ? ct.translatorGroupName().buf() : ct.name().buf())
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const uiString& txt)
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
@@ -467,7 +483,7 @@ void uiIOObjSel::obtainIOObj()
 
     const IODir iodir( workctio_.ctxt_.getSelKey() );
     const IOObj* ioob = iodir.get( inp.buf(),
-				   workctio_.ctxt_.trgroup_->groupName() );
+				   workctio_.ctxt_.translatorGroupName() );
     workctio_.setObj( ioob && workctio_.ctxt_.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
 }
@@ -484,7 +500,7 @@ void uiIOObjSel::processInput()
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
     const IODir iodir ( workctio_.ctxt_.getSelKey() );
-    return iodir.get( nm, workctio_.ctxt_.trgroup_->groupName() );
+    return iodir.get( nm, workctio_.ctxt_.translatorGroupName() );
 }
 
 
@@ -492,7 +508,7 @@ MultiID uiIOObjSel::validKey() const
 {
     const IODir iodir( workctio_.ctxt_.getSelKey() );
     const IOObj* ioob = iodir.get( getInput(),
-				   workctio_.ctxt_.trgroup_->groupName() );
+				   workctio_.ctxt_.translatorGroupName() );
 
     if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )
 	return ioob->key();

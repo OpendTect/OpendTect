@@ -30,9 +30,11 @@ public:
     static uiString	sScalebar() { return tr("Scale Bar"); }
 
 protected:
+
     bool		init();
     const char*		parentType() const;
     virtual bool	rightClick(uiTreeViewItem*);
+
 };
 
 
@@ -40,7 +42,7 @@ mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODAnnotTreeItemFactory);
 public:
     const char*		name() const   { return getName(); }
-    static const char*	getName()      
+    static const char*	getName()
 			{ return typeid(uiODAnnotTreeItemFactory).name();}
     uiTreeItem*		create() const { return new uiODAnnotParentTreeItem; }
     uiTreeItem*		create(int,uiTreeItem*) const;
@@ -52,27 +54,22 @@ mExpClass(uiODMain) uiODAnnotTreeItem : public uiODTreeItem
     typedef uiODTreeItem  inheritedClass;
 public:
 				uiODAnnotTreeItem(const uiString&);
-    				~uiODAnnotTreeItem();
+				~uiODAnnotTreeItem();
 
 				mMenuOnAnyButton;
 
 protected:
-    bool			readPicks(Pick::Set&);
+
     virtual const char*		parentType() const;
     virtual bool		init();
-    void			prepareForShutdown();
     virtual bool		showSubMenu();
-    virtual int			defScale() const 		{ return -1; }
+    virtual int			defScale() const		{ return -1; }
 
     virtual uiTreeItem*		createSubItem(int,Pick::Set&)	= 0;
-    virtual const char*		managerName() const		= 0;
-    virtual const char*		oldSelKey() const		= 0;
+    virtual const char*		getCategory() const		= 0;
 
-
-
-   void				setRemovedCB(CallBacker*);
-   void				addPickSet(Pick::Set* ps);
-   void				removePickSet(Pick::Set* ps);
+    Pick::Set*			makeNewSet(const char*) const;
+    Pick::Set*			readExistingSet() const;
 
    uiString			typestr_;
 };
@@ -82,23 +79,18 @@ protected:
 mExpClass(uiODMain) uiODAnnotSubItem : public uiODDisplayTreeItem
 {mODTextTranslationClass(uiODAnnotSubItem)
 public:
-    static bool		doesNameExist(const char*);
-    static char		createIOEntry(const char* nm,bool overwrite,
-	    			    MultiID&,const char* mannm);
-    			/*!<\retval -1 error
-			    \retval 0 name exists and overwrite is not set.
-			    \retval 1 success.
-			*/
-    Pick::Set*		getSet() { return set_; }
+
+    MultiID		getSetID() const;
+    Pick::Set&		getSet()			{ return set_; }
 
 protected:
-    			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
-			//!<Pickset becomes mine, if it's not in the mgr
+
+			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
     virtual		~uiODAnnotSubItem();
-    void		prepareForShutdown();
-    void		removeStuff();
+
+    void		prepareForShutdown()		{}
     bool		init();
-    virtual const char*	parentType() const		=0;
+    virtual const char*	parentType() const		= 0;
     virtual void	fillStoragePar(IOPar&) const	{}
 
     virtual void	clickCB(CallBacker*)		{}
@@ -108,34 +100,37 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
 
-    virtual bool	hasScale() const		{ return false; }
+    virtual bool	hasScale() const		= 0;
     virtual void	setScale(float);
     void		setColor(Color);
     void		scaleChg(CallBacker*);
 
     void		store() const;
-    void		storeAs( bool trywithoutdlg=false ) const;
+    void		storeAs() const;
 
-    virtual const char*	managerName() const		= 0;
+    virtual const char*	getCategory() const		= 0;
 
     float		defscale_;
 
     MenuItem		scalemnuitem_;
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;
-    Pick::Set*		set_;
+
+    Pick::Set&		set_;
+
 };
 
 
 mExpClass(uiODMain) ScaleBarSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ScaleBarSubItem);
 public:
-    			ScaleBarSubItem(Pick::Set&,int displayid=-1);
+			ScaleBarSubItem(Pick::Set&,int displayid=-1);
     bool		init();
-    static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
+    static const char*	sKeyCategory()		{ return "ScaleBarAnnotations";}
 
 protected:
-			~ScaleBarSubItem()	{ removeStuff(); }
+
+			~ScaleBarSubItem()	{}
 
     const char*		parentType() const;
     void		fillStoragePar(IOPar&) const;
@@ -144,7 +139,8 @@ protected:
     void		handleMenuCB(CallBacker*);
     void		propertyChange(CallBacker*);
 
-    const char*		managerName() const		{ return sKeyManager();}
+    virtual bool	hasScale() const	{ return false; }
+    virtual const char*	getCategory() const	{ return sKeyCategory();}
 
     MenuItem		propmnuitem_;
 
@@ -154,13 +150,13 @@ mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ArrowSubItem);
 public:
 
-    			ArrowSubItem(Pick::Set& pck,int displayid=-1);
+			ArrowSubItem(Pick::Set& pck,int displayid=-1);
     bool		init();
 
-    static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
+    static const char*	sKeyCategory()	{ return "ArrowAnnotations"; }
 
 protected:
-			~ArrowSubItem()	{ removeStuff(); }
+			~ArrowSubItem()	{}
     virtual const char*	parentType() const;
 
     void		fillStoragePar(IOPar&) const;
@@ -171,8 +167,8 @@ protected:
     MenuItem		propmnuitem_;
     int			arrowtype_;
 
-    bool		hasScale() const	{ return false; }
-    const char*		managerName() const	{ return sKeyManager(); }
+    virtual bool	hasScale() const	{ return false; }
+    virtual const char*	getCategory() const	{ return sKeyCategory();}
 
     static const char*		sKeyArrowType()	{ return "Arrow Type"; }
     static const char*		sKeyLineWidth()	{ return "Line width"; }
@@ -183,12 +179,14 @@ protected:
 mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ImageSubItem)
 public:
-    			ImageSubItem(Pick::Set&,int displayid=-1);
+			ImageSubItem(Pick::Set&,int displayid=-1);
     bool		init();
-    static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
+
+    static const char*	sKeyCategory()	{ return "ImageAnnotations"; }
 
 protected:
-			~ImageSubItem()	{ removeStuff(); }
+
+			~ImageSubItem()	{}
     const char*		parentType() const;
     void		fillStoragePar(IOPar&) const;
 
@@ -199,8 +197,8 @@ protected:
 
     void		updateColumnText(int col);
 
-    bool		hasScale() const		{ return true; }
-    const char*		managerName() const		{ return sKeyManager();}
+    virtual bool	hasScale() const	{ return true; }
+    virtual const char*	getCategory() const	{ return sKeyCategory();}
 
     void		selectFileName() const;
 
@@ -213,13 +211,12 @@ class type##ParentItem : public uiODAnnotTreeItem \
 { \
 public: \
 		type##ParentItem() \
-    		    : uiODAnnotTreeItem(typestr) {} \
+		    : uiODAnnotTreeItem(typestr) {} \
 protected: \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
-    		{ return new type##SubItem(pck,di); } \
-    const char*	managerName() const { return type##SubItem::sKeyManager(); } \
-    const char* oldSelKey() const { return typestr.getFullString().buf(); } \
-    int		defScale() const 	{ return defsz; } \
+		{ return new type##SubItem(pck,di); } \
+    const char*	getCategory() const { return type##SubItem::sKeyCategory(); } \
+    int		defScale() const	{ return defsz; } \
 }
 
 

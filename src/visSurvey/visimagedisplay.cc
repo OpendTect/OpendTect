@@ -100,7 +100,7 @@ void ImageDisplay::setSet( Pick::Set* set )
 
 
 void ImageDisplay::setScene( visSurvey::Scene* scene )
-{   
+{
     visSurvey::SurveyObject::setScene( scene );
     updateCoords();
 }
@@ -118,9 +118,9 @@ visBase::VisualObject* ImageDisplay::createLocation() const
 }
 
 
-void ImageDisplay::dispChg( CallBacker* cb )
+void ImageDisplay::dispChg()
 {
-    LocationDisplay::dispChg( cb );
+    LocationDisplay::dispChg();
     updateCoords();
 }
 

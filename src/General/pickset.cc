@@ -5,9 +5,7 @@
 -*/
 
 
-#include "picksetmgr.h"
-#include "ioman.h"
-#include "iopar.h"
+#include "pickset.h"
 #include "polygon.h"
 #include "survinfo.h"
 #include "tabledef.h"
@@ -22,426 +20,18 @@ Pick::Set Pick::Set::dummyset_;
 static const char* sKeyConnect = "Connect";
 
 
-// Pick::SetMgr
-Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
-{
-    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<SetMgr> >, mgrs, = 0 );
-    SetMgr* newmgr = 0;
-    if ( !mgrs )
-    {
-	mgrs = new ManagedObjectSet<SetMgr>;
-	newmgr = new SetMgr( 0 );
-	    // ensure the first mgr has the 'empty' name
-    }
-    else if ( (!nm || !*nm) )
-	return *((*mgrs)[0]);
-    else
-    {
-	for ( int idx=1; idx<mgrs->size(); idx++ )
-	{
-	    if ( (*mgrs)[idx]->name() == nm )
-		return *((*mgrs)[idx]);
-	}
-    }
-
-    if ( !newmgr )
-	newmgr = new SetMgr( nm );
-
-    *mgrs += newmgr;
-    return *newmgr;
-}
-
-
-Pick::SetMgr::SetMgr( const char* nm )
-    : NamedMonitorable(nm)
-    , locationChanged(this), setToBeRemoved(this)
-    , setAdded(this), setChanged(this)
-    , setDispChanged(this)
-    , undo_( *new Undo() )
-{
-    mAttachCB( IOM().entryRemoved, SetMgr::objRm );
-    mAttachCB( IOM().surveyToBeChanged, SetMgr::survChg );
-    mAttachCB( IOM().applicationClosing, SetMgr::survChg );
-}
-
-
-Pick::SetMgr::~SetMgr()
-{
-    sendDelNotif();
-    detachAllNotifiers();
-    undo_.removeAll();
-    delete &undo_;
-}
-
-
-void Pick::SetMgr::add( const MultiID& ky, Set* st )
-{
-    if ( !st )
-	{ pErrMsg("Huh"); return; }
-    pss_ += st; ids_ += ky; changed_ += false;
-    transfer( *st, *this );
-    setAdded.trigger( st );
-}
-
-
-void Pick::SetMgr::set( const MultiID& ky, Set* newset )
-{
-    Set* oldset = find( ky );
-    if ( !oldset )
-    {
-	if ( newset )
-	    add( ky, newset );
-    }
-    else if ( newset != oldset )
-    {
-	const int idx = pss_.indexOf( oldset );
-	//Must be removed from list before trigger, otherwise
-	//other users may remove it in calls invoked by the cb.
-	pss_.removeSingle( idx );
-	setToBeRemoved.trigger( oldset );
-	delete oldset;
-	ids_.removeSingle( idx );
-	changed_.removeSingle( idx );
-	if ( newset )
-	    add( ky, newset );
-    }
-}
-
-
-const MultiID& Pick::SetMgr::id( int idx ) const
-{
-    return ids_.validIdx(idx) ? ids_[idx] : MultiID::udf();
-}
-
-
-void Pick::SetMgr::setID( int idx, const MultiID& mid )
-{
-    ids_[idx] = mid;
-}
-
-
-void Pick::SetMgr::transfer( Set& ps, SetMgr& oth )
-{
-    /*
-    SetMgr* cursetmgr = &ps.getSetMgr();
-    if ( cursetmgr == &oth )
-	return;
-    else if ( cursetmgr != this )
-	cursetmgr->transfer( ps, oth );
-    else if ( &oth == this )
-	return;
-    else
-    {
-	// really transfer one of mine to another SetMgr
-	const int idxof = indexOf( ps );
-	if ( idxof < 0 )
-	    ps.mgr_ = &oth;
-	else
-	{
-	    setToBeRemoved.trigger( &ps );
-	    const MultiID setid = ids_[idxof];
-	    pss_.removeSingle( idxof );
-	    ids_.removeSingle( idxof );
-	    changed_.removeSingle( idxof );
-	    oth.set( setid, &ps );
-	}
-    }
-    */
-}
-
-
-int Pick::SetMgr::indexOf( const Set& st ) const
-{
-    return pss_.indexOf( &st );
-}
-
-
-int Pick::SetMgr::indexOf( const MultiID& ky ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( ky == ids_[idx] )
-	    return idx;
-    }
-    return -1;
-}
-
-
-int Pick::SetMgr::indexOf( const char* nm ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( pss_[idx]->name() == nm )
-	    return idx;
-    }
-    return -1;
-}
-
-
-Pick::Set* Pick::SetMgr::find( const MultiID& ky ) const
-{
-    const int idx = indexOf( ky );
-    return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
-}
-
-
-MultiID* Pick::SetMgr::find( const Set& st ) const
-{
-    const int idx = indexOf( st );
-    return idx < 0 ? 0 : const_cast<MultiID*>( &ids_[idx] );
-}
-
-
-Pick::Set* Pick::SetMgr::find( const char* nm ) const
-{
-    const int idx = indexOf( nm );
-    return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
-}
-
-
-void Pick::SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
-{
-    const int setidx = pss_.indexOf( cd.set_ );
-    if ( setidx >= 0 )
-    {
-	changed_[setidx] = true;
-	locationChanged.trigger( const_cast<ChangeData*>( &cd ), sender );
-    }
-}
-
-
-void Pick::SetMgr::reportChange( CallBacker* sender, const Set& s )
-{
-    const int setidx = pss_.indexOf( &s );
-    if ( setidx >= 0 )
-    {
-	changed_[setidx] = true;
-	setChanged.trigger( const_cast<Set*>(&s), sender );
-    }
-}
-
-
-void Pick::SetMgr::reportDispChange( CallBacker* sender, const Set& s )
-{
-    const int setidx = pss_.indexOf( &s );
-    if ( setidx >= 0 )
-    {
-	changed_[setidx] = true;
-	setDispChanged.trigger( const_cast<Set*>(&s), sender );
-    }
-}
-
-
-void Pick::SetMgr::removeCBs( CallBacker* cb )
-{
-    locationChanged.removeWith( cb );
-    setToBeRemoved.removeWith( cb );
-    setAdded.removeWith( cb );
-    setChanged.removeWith( cb );
-    setDispChanged.removeWith( cb );
-}
-
-
-void Pick::SetMgr::removeAll()
-{
-    for ( int idx=pss_.size()-1; idx>=0; idx-- )
-    {
-	Set* pset = pss_.removeSingle( idx );
-	setToBeRemoved.trigger( pset );
-	delete pset;
-    }
-}
-
-
-void Pick::SetMgr::survChg( CallBacker* )
-{
-    removeAll();
-    locationChanged.cbs_.erase();
-    setToBeRemoved.cbs_.erase();
-    setAdded.cbs_.erase();
-    setChanged.cbs_.erase();
-    setDispChanged.cbs_.erase();
-    ids_.erase();
-    changed_.erase();
-}
-
-
-void Pick::SetMgr::objRm( CallBacker* cb )
-{
-    mCBCapsuleUnpack(MultiID,ky,cb);
-    if ( indexOf(ky) >= 0 )
-	set( ky, 0 );
-}
-
-
-namespace Pick
-{
-
-class LocationUndoEvent: public UndoEvent
-{
-public:
-
-    enum  Type	    { Insert, PolygonClose, Remove, Change };
-
-    // Constructor will be called from Pick::Set in write-locked state.
-    // you cannot use MT-protected methods like size() here, this is why
-    // the class is a friend of Pick::Set
-
-LocationUndoEvent( Type type, const MultiID& mid, int sidx,
-		      const Location& loc, SetMgr& mgr )
-    : mgr_(mgr)
-{
-    type_ = type;
-    newloc_ = Coord3::udf();
-    loc_ = Coord3::udf();
-
-    mid_ = mid;
-    index_ = sidx;
-    const int idxof = mgr_.indexOf( mid_ );
-    Pick::Set* set = idxof < 0 ? 0 : &mgr_.get( mid_ );
-
-    if ( type == Insert || type == PolygonClose )
-    {
-	if ( set && set->locs_.size() > index_ )
-	    loc_ = set->locs_[ index_ ];
-    }
-    else if ( type == Remove )
-    {
-	loc_ = loc;
-    }
-    else if ( type == Change )
-    {
-	if ( set && set->locs_.size()>index_ )
-	    loc_ = set->locs_[ index_ ];
-	newloc_ = loc;
-    }
-}
-
-virtual const char* getStandardDesc() const
-{
-    switch ( type_ )
-    {
-    case Insert:	return "Insert";
-    case Remove:	return "Remove";
-    case Change:	return "Move";
-    case PolygonClose:	return "Close Polygon";
-    default:		{ pErrMsg("Huh"); return ""; }
-    }
-
-}
-
-virtual bool unDo()
-{
-    const int setidx = mgr_.indexOf( mid_ );
-    if ( setidx < 0 )
-	return false;
-    Set& set = mgr_.get( setidx );
-
-    if ( set.connection() == Pick::Set::Disp::Close
-      && index_ == set.size()-1 && type_ != Change )
-	type_ = PolygonClose;
-
-    SetMgr::ChangeData::Ev ev =
-	    type_ == Change ? SetMgr::ChangeData::Changed
-	: ( type_ == Remove ? SetMgr::ChangeData::Added
-			    : SetMgr::ChangeData::ToBeRemoved );
-
-    SetMgr::ChangeData cd( ev, &set, index_ );
-
-    if ( type_ == Change )
-    {
-       if ( set.size()>index_  && loc_.pos().isDefined() )
-	   set.set( index_, loc_ );
-    }
-    else if ( type_ == Remove )
-    {
-       if ( loc_.pos().isDefined() )
-	 set.insert( index_, loc_ );
-    }
-    else if ( type_ == Insert  )
-    {
-	set.remove( index_ );
-    }
-    else if ( type_ == PolygonClose )
-    {
-	set.setConnection( Pick::Set::Disp::Open );
-	set.remove(index_);
-    }
-
-    mgr_.reportChange( 0, cd );
-
-    return true;
-}
-
-
-virtual bool reDo()
-{
-    const int setidx = mgr_.indexOf( mid_ );
-    if ( setidx < 0 )
-	return false;
-    Set& set = mgr_.get( setidx );
-
-    SetMgr::ChangeData::Ev ev =
-		type_ == Change	? SetMgr::ChangeData::Changed
-	    : ( type_ == Remove ? SetMgr::ChangeData::ToBeRemoved
-				: SetMgr::ChangeData::Added );
-
-    Pick::SetMgr::ChangeData cd( ev, &set, index_ );
-
-    if ( type_ == Change )
-    {
-	if ( set.size()>index_ && newloc_.pos().isDefined() )
-	    set.set( index_, newloc_ );
-    }
-    else if ( type_ == Remove )
-    {
-	set.remove( index_ );
-    }
-    else if ( type_ == Insert )
-    {
-	if ( loc_.pos().isDefined() )
-	    set.insert( index_, loc_ );
-    }
-    else if ( type_ == PolygonClose )
-    {
-	if ( loc_.pos().isDefined() )
-	{
-	    set.setConnection( Pick::Set::Disp::Close );
-	    set.insert( index_, loc_ );
-	}
-    }
-
-    mgr_.reportChange( 0, cd );
-
-    return true;
-}
-
-    SetMgr&	mgr_;
-    Location	loc_;
-    Location	newloc_;
-    MultiID	mid_;
-    int		index_;
-    Type	type_;
-
-};
-
-} // namespace Pick
-
-
-// Pick::Set
 mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
 Pick::Set::Set( const char* nm, const char* cat )
     : NamedMonitorable(nm)
-    , category_(cat)
 {
+    setCategory( cat );
     mTriggerInstanceCreatedNotifier();
 }
 
 
 Pick::Set::Set( const Set& oth )
-    : category_(oth.category_)
 {
     *this = oth;
     mTriggerInstanceCreatedNotifier();
@@ -462,8 +52,8 @@ Pick::Set& Pick::Set::operator=( const Set& oth )
 	mLock4Write();
 	AccessLockHandler lh( oth );
 	locs_.copy( oth.locs_ );
-	disp_ = oth.disp_; pars_ = oth.pars_;
-	// do not copy oth.category_;
+	disp_ = oth.disp_;
+	pars_ = oth.pars_;
     }
     return *this;
 }
@@ -504,18 +94,61 @@ double Pick::Set::getZ( size_type idx ) const
 }
 
 
-#define mPrepRead(sz) \
-    mLock4Read(); \
-    const size_type sz = locs_.size()
-
-
 bool Pick::Set::isPolygon() const
 {
     mLock4Read();
+
     const FixedString typ = pars_.find( sKey::Type() );
-    return typ.isEmpty() ? disp_.connect_ != Set::Disp::None
-			 : typ == sKey::Polygon();
+    if ( typ.isEmpty() )
+	return disp_.connect_ != Set::Disp::None;
+
+    return typ == sKey::Polygon();
 }
+
+
+void Pick::Set::setIsPolygon( bool yn )
+{
+    mLock4Read();
+    const FixedString typ = pars_.find( sKey::Type() );
+    if ( (yn && typ == sKey::Polygon()) || (!yn && typ == sKey::PickSet()) )
+	return;
+
+    mLock2Write();
+    pars_.set( sKey::Type(), yn ? sKey::Polygon() : sKey::PickSet() );
+    mSendChgNotif( 0, mUdf(int) );
+}
+
+
+void Pick::Set::setCategory( const char* newcat )
+{
+    mLock4Read();
+    const FixedString curcat = pars_.find( sKey::Category() );
+    if ( curcat == newcat )
+	return;
+
+    mLock2Write();
+    pars_.update( sKey::Category(), newcat );
+    mSendChgNotif( 0, mUdf(int) );
+}
+
+
+BufferString Pick::Set::type() const
+{
+    mLock4Read();
+    return BufferString( pars_.find( sKey::Type() ) );
+}
+
+
+BufferString Pick::Set::category() const
+{
+    mLock4Read();
+    return BufferString( pars_.find( sKey::Category() ) );
+}
+
+
+#define mPrepRead(sz) \
+    mLock4Read(); \
+    const size_type sz = locs_.size()
 
 
 bool Pick::Set::isMultiGeom() const
@@ -591,17 +224,30 @@ void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
     mPrepRead( sz );
     for ( size_type idx=0; idx<sz; idx++ )
     {
-	const Coord c( locs_[idx].pos() );
-	poly.add( Geom::Point2D<double>( c.x, c.y ) );
+	const Coord coord( locs_[idx].pos() );
+	poly.add( Geom::Point2D<double>( coord.x, coord.y ) );
     }
 }
 
 
-void Pick::Set::getLocations( ObjectSet<const Location>& locs ) const
+void Pick::Set::getPolygon( ODPolygon<float>& poly ) const
 {
     mPrepRead( sz );
     for ( size_type idx=0; idx<sz; idx++ )
-	locs += &locs_[idx];
+    {
+	Coord coord( locs_[idx].pos() );
+	//TODO should pass a Geometry I presume
+	coord = SI().binID2Coord().transformBackNoSnap( coord );
+	poly.add( Geom::Point2D<float>( (float)coord.x, (float)coord.y ) );
+    }
+}
+
+
+void Pick::Set::getLocations( TypeSet<Coord>& coords ) const
+{
+    mPrepRead( sz );
+    for ( size_type idx=0; idx<sz; idx++ )
+	coords += locs_[idx].pos();
 }
 
 
@@ -703,10 +349,10 @@ bool Pick::Set::usePar( const IOPar& par )
 	if ( par.get(sKey::Color(),colstr) )
 	    disp_.mkstyle_.color_.use( colstr.buf() );
 	par.get( sKey::Size(),disp_.mkstyle_.size_ );
-	int type = 0;
-	par.get( sKeyMarkerType(),type );
-	type++;
-	disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type)type;
+	int pstype = 0;
+	par.get( sKeyMarkerType(), pstype );
+	pstype++;
+	disp_.mkstyle_.type_ = (OD::MarkerStyle3D::Type)pstype;
     }
 
     bool doconnect;
@@ -740,18 +386,20 @@ Pick::Set& Pick::Set::setEmpty()
     if ( locs_.isEmpty() )
 	return *this;
 
-    if ( mLock2Write() && !locs_.isEmpty() )
-    {
-	locs_.setEmpty();
-	mSendChgNotif( cLocationRemove(), mUdf(int));
-    }
+    mLock2Write();
+    if ( locs_.isEmpty() )
+	return *this;
+
+    locs_.setEmpty();
+
+    mSendChgNotif( cLocationRemove(), mUdf(int) );
     return *this;
 }
 
 
 Pick::Set& Pick::Set::append( const Set& oth )
 {
-    if ( !oth.isEmpty() )
+    if ( this != &oth && !oth.isEmpty() )
     {
 	mLock4Write();
 	MonitorLock monlock( oth );
@@ -763,85 +411,64 @@ Pick::Set& Pick::Set::append( const Set& oth )
 }
 
 
-void Pick::Set::addUndoEvent( int type, size_type idx, const Location& loc )
-{
-}
-
-/*
-    // Method will be called in write-locked state.
-    // do not use MT-protected methods like size() here
-    SetMgr& mgr = mGetSetMgr();
-    if ( mgr.indexOf(*this) < 0 )
-	return;
-
-    const MultiID mid = mgr.get(*this);
-    const LocationUndoEvent::Type undotype = (LocationUndoEvent::Type)type;
-    if ( !mid.isEmpty() )
-    {
-	const Location touse = type == LocationUndoEvent::Insert
-			     ? Location(Coord3::udf()) : loc;
-	LocationUndoEvent* undo = new LocationUndoEvent( undotype, mid, idx,
-						       touse, mGetSetMgr() );
-	Pick::Mgr().undo().addEvent( undo, 0 );
-    }
-}
-
-*/
-
-
-#define mAddUndoEvent(typ,idx,loc) \
-    if ( withundo ) \
-	addUndoEvent( (int)LocationUndoEvent::typ, idx, loc ); \
-    mSendChgNotif( cLocation##typ(), idx )
-
-
-Pick::Set& Pick::Set::add( const Location& loc, bool withundo )
+Pick::Set& Pick::Set::add( const Location& loc )
 {
     mLock4Write();
+
     locs_ += loc;
-    mAddUndoEvent( Insert, locs_.size()-1, loc );
+
+    mSendChgNotif( cLocationInsert(), locs_.size()-1 );
     return *this;
 }
 
 
-Pick::Set& Pick::Set::insert( size_type idx, const Location& loc,
-			      bool withundo )
+Pick::Set& Pick::Set::insert( size_type idx, const Location& loc )
 {
     mLock4Write();
+
     locs_.insert( idx, loc );
-    mAddUndoEvent( Insert, idx, loc );
+
+    mSendChgNotif( cLocationInsert(), idx );
     return *this;
 }
 
 
-Pick::Set& Pick::Set::set( size_type idx, const Location& loc, bool withundo )
+Pick::Set& Pick::Set::set( size_type idx, const Location& loc )
 {
     mLock4Read();
     if ( !locs_.validIdx(idx) || loc == locs_[idx] )
 	return *this;
 
-    if ( mLock2Write() && locs_.validIdx(idx) )
-    {
-	locs_[idx] = loc;
-	mAddUndoEvent( Change, idx, loc );
-    }
+    mLock2Write();
+    if ( !locs_.validIdx(idx) )
+	return *this;
 
+    locs_[idx] = loc;
+
+    mSendChgNotif( cLocationChange(), idx );
     return *this;
 }
 
 
-Pick::Set& Pick::Set::remove( size_type idx, bool withundo )
+Pick::Set& Pick::Set::remove( size_type idx )
 {
     mLock4Read();
     if ( !locs_.validIdx(idx) )
 	return *this;
 
-    if ( mLock2Write() && locs_.validIdx(idx) )
-    {
-	const Location loc = locs_[idx];
-	locs_.removeSingle( idx );
-	mAddUndoEvent( Remove, idx, loc );
-    }
+    // I guess there is no way to resolve this in current design
+    // We need to send the notification in an unlocked state, so the receiver
+    // can ask for the actual location. But, after the call we have no
+    // guarantee that we are removing the same location.
+
+    mSendChgNotif( cLocationRemove(), idx );
+    accesslockhandler_.reLock();
+
+    mLock2Write();
+    if ( !locs_.validIdx(idx) )
+	return *this;
+
+    locs_.removeSingle( idx );
 
     return *this;
 }
@@ -860,12 +487,13 @@ Pick::Set& Pick::Set::setPos( size_type idx, const Coord& coord )
     if ( coordUnchanged(idx,locs_,coord) )
 	return *this;
 
-    if ( mLock2Write() && !coordUnchanged(idx,locs_,coord) )
-    {
-	locs_[idx].setPos( coord );
-	mSendChgNotif( cLocationChange(), idx );
-    }
+    mLock2Write();
+    if ( coordUnchanged(idx,locs_,coord) )
+	return *this;
 
+    locs_[idx].setPos( coord );
+
+    mSendChgNotif( cLocationChange(), idx );
     return *this;
 }
 
@@ -886,12 +514,13 @@ Pick::Set& Pick::Set::setZ( size_type idx, double z )
     if ( zUnchanged(idx,locs_,z) )
 	return *this;
 
-    if ( mLock2Write() && !zUnchanged(idx,locs_,z) )
-    {
-	locs_[idx].setZ( z );
-	mSendChgNotif( cLocationChange(), idx );
-    }
+    mLock2Write();
+    if ( zUnchanged(idx,locs_,z) )
+	return *this;
 
+    locs_[idx].setZ( z );
+
+    mSendChgNotif( cLocationChange(), idx );
     return *this;
 }
 

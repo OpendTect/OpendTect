@@ -16,17 +16,52 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "multiid.h"
 #include "uistring.h"
+class IOObj;
+class IOObjContext;
 
 
 namespace Pick
 {
 class Set;
 class SetSaver;
+class SetManager;
+class SetLoaderExec;
+class SetLocEvRecord;
+
+/*!\brief access to the singleton Pick Set Manager */
+
+inline SetManager& SetMGR();
+
 
 /*!\brief Manages all stored Pick::Set's.
 
  If a set is not yet loaded, then it will be loaded by fetch(). If that fails,
  the uiString error message is set to something non-empty.
+
+ Undo events are kept for each Set separately.
+
+ Typical code for read:
+
+ uiString errmsg;
+ ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+ if ( !errmsg.isEmpty() )
+     { errmsg_ = errmsg;  return false; }
+
+ MonitorLock ml( *ps );
+ for ( int idx=0; idx<ps->size(); idx++ )
+ {
+     const Coord pos = ps->getPos( idx );
+     // etc.
+ }
+ ml.unlockNow();
+
+ Typical code for write:
+
+ RefMan<Pick::Set> ps = new Pick::Set;
+ fillPS( *ps );
+ uiString errmsg = Pick::SetMGR().store( *ps, id, &ioobjpars );
+ if ( !errmsg.isEmpty() )
+     { errmsg_ = errmsg;  return false; }
 
 */
 
@@ -34,70 +69,78 @@ mExpClass(Geometry) SetManager : public Monitorable
 { mODTextTranslationClass(Pick::SetManager)
 public:
 
-    typedef MultiID	SetID;
+    typedef ::MultiID			SetID;
+    typedef LocationChangeEvent		LocEvent;
 
-			// Normal usage: get a set whether already loaded or not
-    Set&		fetch(const SetID&,uiString&);
+    ConstRefMan<Set>	fetch(const SetID&,uiString&,
+				    const char* category=0) const;
+    RefMan<Set>		fetchForEdit(const SetID&,uiString&,
+				     const char* category=0);
+    ConstRefMan<Set>	fetch(const SetID&) const;
+    RefMan<Set>		fetchForEdit(const SetID&);
+
+    bool		nameExists(const char*) const;
+    uiString		store(const Set&,const IOPar* ioobjpars=0) const;
+			//!< uses name to decide whether to create or replace
+    uiString		store(const Set&,const SetID&,
+				const IOPar* ioobjpars=0) const;
+    uiString		save(const Set&) const;
     uiString		save(const SetID&) const;
-    MultiID		getID(const Set&) const;
+    uiString		saveAs(const SetID& curid,const SetID& newid) const;
+    bool		needsSave(const Set&) const;
+    bool		needsSave(const SetID&) const;
+    void		setNoSaveNeeded(const SetID&) const;
 
-    bool		add(const SetID&,Set*);
+    bool		isPolygon(const SetID&) const;
+    bool		hasCategory(const SetID&,const char*) const;
+    bool		isLoaded(const char*) const;
     bool		isLoaded(const SetID&) const;
+    SetID		getID(const char*) const;
+    SetID		getID(const Set&) const;
+    IOPar		getIOObjPars(const SetID&) const;
 
 			// Use MonitorLock when iterating
     int			size() const;
-    Set&		get(int);
-    const Set&		get(int) const;
+    ConstRefMan<Set>	get(int) const;
+    RefMan<Set>		getForEdit(int);
     SetID		getID(int) const;
+    IOPar		getIOObjPars(int) const;
 
-    CNotifier<SetManager,MultiID>	setToBeRemoved;
-    CNotifier<SetManager,MultiID>	setAdded;
-    CNotifier<SetManager,MultiID>	setDispChanged;
-    CNotifier<SetManager,MultiID>	setContentChanged;
 
-    mExpClass(Geometry) ChangeEvent
-    {
-    public:
+    CNotifier<SetManager,SetID>	SetAdded;
+    CNotifier<SetManager,SetID>	SetSaveNeeded;
+    CNotifier<SetManager,SetID>	SetDisplayRequested;
 
-	typedef Set::size_type	LocIdxType; // TODO not a safe key to a loc
+			// creation and destruction are recorded automagically
+    void		pushLocEvent(const SetID&,const LocEvent&);
+    LocEvent		popLocEvent(const SetID&);
 
-	enum Type	{ Create, Change, Delete };
-
-			ChangeEvent( Type t, LocIdxType i, const Location& loc )
-			    : type_(t), idx_(i), loc_(loc)	{}
-
-	Type		type_;
-	LocIdxType	idx_;
-	Location	loc_; // location at (=before) change
-
-	inline bool	operator==( const ChangeEvent& oth ) const
-			{ return type_==oth.type_ && idx_==oth.idx_; }
-    };
-    mExpClass(Geometry) ChangeRecord
-    {
-    public:
-			ChangeRecord( const MultiID& id )
-			    : setid_(id)		{}
-			~ChangeRecord()			{ deepErase(events_); }
-
-	const MultiID			setid_;
-	mutable ObjectSet<ChangeEvent>	events_;
-    };
-
-    void		broadcastChanges(const MultiID&);
-    void		broadcastChanges(const Set&);
-    CNotifier<SetManager,ChangeRecord>	newChangeEvent;
+    void		requestDisplayFor(const MultiID&);
+    void		handleUnsaved();
 
 protected:
+
+    typedef TypeSet<LocEvent>	LocEvRecord;
 
 				SetManager();
 				~SetManager();
 
     ObjectSet<SetSaver>		savers_;
-    ObjectSet<ChangeRecord>	records_;
+    ObjectSet<LocEvRecord>	locevrecs_;
 
+			// Tools for locked state
     void		setEmpty();
+    int			gtIdx(const char*) const;
     int			gtIdx(const SetID&) const;
+    int			gtIdx(const Set&) const;
+    Set*		gtSet(const SetID&) const;
+    template<class RT,class ST> RT doFetch(const SetID&,uiString&,
+					   const char* cat=0) const;
+    void		addCBsToSet(const Set&);
+    void		addLocEv(const SetID&,const LocEvent&);
+    uiString		doSave(const SetID&) const;
+
+    void		add(const Set&,const SetID&,const IOPar*,bool) const;
 
     void		iomEntryRemovedCB(CallBacker*);
     void		survChgCB(CallBacker*);
@@ -105,14 +148,16 @@ protected:
     void		setDelCB(CallBacker*);
     void		setChgCB(CallBacker*);
 
+    const IOObjContext&	ctxt_;
+    IOObj*		getIOObj(const char*) const;
+
 public:
 
     static SetManager&	getInstance();
     mDeclInstanceCreatedNotifierAccess(SetManager);
+    friend class	SetLoaderExec;
 
 };
-
-inline SetManager& SetMGR();
 
 } // namespace Pick
 

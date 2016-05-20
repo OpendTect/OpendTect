@@ -51,6 +51,8 @@ bool Monitorable::AccessLockHandler::convertToWrite()
 
 Monitorable::Monitorable()
     : nrmonitors_(0)
+    , dirtycount_(0)
+    , changemonitorstoplevel_(0)
     , chgnotif_(this)
     , delnotif_(this)
     , delalreadytriggered_(false)
@@ -63,6 +65,8 @@ Monitorable::Monitorable()
 Monitorable::Monitorable( const Monitorable& oth )
     : CallBacker(oth)
     , nrmonitors_(0)
+    , changemonitorstoplevel_(0)
+    , dirtycount_(0)
     , chgnotif_(this)
     , delnotif_(this)
     , delalreadytriggered_(false)
@@ -84,19 +88,41 @@ Monitorable::~Monitorable()
 Monitorable& Monitorable::operator =( const Monitorable& )
 {
     // copying nothing. no locking, monitors, notification - nothing.
+    touch();
     return *this;
 }
 
 
-void Monitorable::sendChgNotif( AccessLockHandler& hndlr, ChangeType ct,
-				SubIdxType subidx )
+void Monitorable::resumeChangeNotifications() const
 {
-    hndlr.unlockNow();
-    objectChanged().trigger( FullChgType(ct,subidx) );
+    if ( changemonitorstoplevel_ < 1 )
+	{ pErrMsg( "changemonitorstoplevel_ < 1 " ); }
+    else
+	changemonitorstoplevel_--;
 }
 
 
-void Monitorable::sendDelNotif()
+void Monitorable::sendEntireObjectChangeNotification() const
+{
+    if ( !changemonitorstoplevel_ )
+	objectChanged().trigger( ChangeData(cEntireObjectChangeType(),
+					    cEntireObjectChangeSubIdx()) );
+}
+
+
+void Monitorable::sendChgNotif( AccessLockHandler& hndlr, ChangeType ct,
+				SubIdxType subidx ) const
+{
+    touch();
+    hndlr.unlockNow();
+    if ( changemonitorstoplevel_ )
+	return;
+
+    objectChanged().trigger( ChangeData(ct,subidx) );
+}
+
+
+void Monitorable::sendDelNotif() const
 {
     if ( !delalreadytriggered_ )
     {

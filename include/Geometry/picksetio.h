@@ -14,19 +14,18 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "autosaver.h"
 #include "pickset.h"
+#include "ptrman.h"
 class Executor;
 
 
 namespace Pick
 {
-class SetMgr;
-
 
 /*!\brief Loader for Pick::Set's. When done, sets should be available in
-  the Pick::SetMgr of your choice.
+  the Pick::SetMGR().
 
   Note that the Executor will never fail. All error handling should be tied
-  to the SetLoader.
+  to the SetLoader object.
 
  */
 
@@ -37,8 +36,7 @@ public:
 			SetLoader(const MultiID&);
 			SetLoader(const TypeSet<MultiID>&);
 
-    void		setSetMgr( SetMgr* m )	{ setmgr_ = m; }
-    SetMgr&		getSetMgr() const;
+    void		setCategory( const char* cat )	{ category_ = cat; }
 
     Executor*		getLoader() const;	//!< if need user feedback
     bool		load() const;		//!< if you can wait for it
@@ -53,9 +51,9 @@ public:
 protected:
 
     TypeSet<MultiID>	toload_;
+    BufferString	category_;
     mutable TypeSet<MultiID> available_;
     mutable uiStringSet	errmsgs_;
-    mutable SetMgr*	setmgr_;
     friend class	SetLoaderExec;
 
 };
@@ -69,10 +67,8 @@ public:
 
 			SetSaver(const Pick::Set&);
 
-    const Pick::Set&	pickSet() const
-			{ return static_cast<const Pick::Set&>( monitored() ); }
-
-    virtual BufferString getFingerPrint() const;
+    ConstRefMan<Set>	pickSet() const;
+    void		setPickSet(const Set&);
 
 protected:
 

@@ -12,11 +12,11 @@ ________________________________________________________________________
 
 #include "uicreatepicks.h"
 #include "uiimppickset.h"
+#include "uipicksettools.h"
 #include "uiioobjseldlg.h"
-#include "uimsg.h"
 #include "uipicksetman.h"
-#include "uipicksetmgr.h"
 #include "uitaskrunner.h"
+#include "uimsg.h"
 
 #include "binidvalset.h"
 #include "color.h"
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mousecursor.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "picksettr.h"
 #include "picksetio.h"
 #include "posinfo2d.h"
@@ -46,8 +46,6 @@ int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , psmgr_(Pick::Mgr())
-    , uipsmgr_(*new uiPickSetMgr(parent(),psmgr_))
     , gendef_(*new BinIDValueSet(2,true))
     , selhs_(true)
     , ps_(0)
@@ -62,7 +60,6 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 uiPickPartServer::~uiPickPartServer()
 {
     detachAllNotifiers();
-    delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
     delete manpicksetsdlg_;
@@ -119,20 +116,78 @@ void uiPickPartServer::exportSet()
 }
 
 
-bool uiPickPartServer::storePickSets()
-{ return uipsmgr_.storeSets(); }
+bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
+{
+    // Store all sets that have changed
+    TypeSet<MultiID> setids;
+    MonitorLock ml( Pick::SetMGR() );
+    for ( int idx=0; idx<Pick::SetMGR().size(); idx++ )
+    {
+	const MultiID setid = Pick::SetMGR().getID( idx );
+	if ( !Pick::SetMGR().hasCategory(setid,cat) )
+	    continue;
+	if ( polyopt )
+	{
+	    const bool ispoly = Pick::SetMGR().isPolygon( setid );
+	    if ( (ispoly && polyopt<0) || (!ispoly && polyopt>0) )
+		continue;
+	}
+
+	if ( Pick::SetMGR().needsSave(setid) )
+	    setids += setid;
+    }
+    ml.unlockNow();
+    if ( setids.isEmpty() )
+	return true;
+
+    uiStringSet errmsgs;
+    for ( int idx=0; idx<setids.size(); idx++ )
+    {
+	uiString errmsg = Pick::SetMGR().save( setids[idx] );
+	if ( !errmsg.isEmpty() )
+	    errmsgs.add( errmsg );
+    }
+
+    if ( !errmsgs.isEmpty() )
+    {
+	errmsgs.insert( 0, tr("Problem saving changes.") );
+	uiMSG().errorWithDetails( errmsgs );
+	return false;
+    }
+
+    return true;
+}
+
 
 bool uiPickPartServer::storePickSet( const Pick::Set& ps )
-{ return uipsmgr_.storeSet( ps ); }
+{
+    Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
+    if ( setid.isUdf() )
+    {
+	uiMSG().error( tr("Internal: Reuest to store a set that has no ID") );
+	return false;
+    }
+
+    uiString errmsg = Pick::SetMGR().save( setid );
+    if ( !errmsg.isEmpty() )
+	{ uiMSG().error( errmsg ); return false; }
+
+    return true;
+}
+
 
 bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
-{ return uipsmgr_.storeSetAs( ps ); }
+{
+    uiMSG().error( mTODONotImplPhrase() );
+    return true;
+}
 
-bool uiPickPartServer::pickSetsStored() const
-{ return uipsmgr_.pickSetsStored(); }
 
 void uiPickPartServer::mergePickSets( MultiID& mid )
-{ uipsmgr_.mergeSets( mid ); }
+{
+    uiMergePickSets dlg( parent(), mid );
+    dlg.go();
+}
 
 
 void uiPickPartServer::fetchHors( bool is2d )
@@ -142,20 +197,22 @@ void uiPickPartServer::fetchHors( bool is2d )
 }
 
 
-Pick::Set* uiPickPartServer::loadSet( const MultiID& mid )
+RefMan<Pick::Set> uiPickPartServer::loadSet( const MultiID& mid )
 {
     TypeSet<MultiID> psids( 1, mid );
-    return doLoadSets(psids) ? &(psmgr_.get(mid)) : 0;
+    return doLoadSets(psids) ? Pick::SetMGR().fetchForEdit(mid) : 0;
 }
 
 
-bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
+bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
+				 const char* cat )
 {
     psids.setEmpty();
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-    ctio->ctxt_.forread_ = true;
-    PickSetTranslator::fillConstraints( ctio->ctxt_, poly );
+    uiPickSetIOObjSel::updateCtxt( ctio->ctxt_,
+		    poly ? uiPickSetIOObjSel::PolygonOnly
+			 : uiPickSetIOObjSel::NoPolygon, true, cat );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
     dlg.showAlwaysOnTop();
@@ -196,30 +253,21 @@ bool uiPickPartServer::doLoadSets( TypeSet<MultiID>& psids )
 }
 
 
-#define mHandleDlg() \
-    if ( !dlg.go() ) \
-	return 0; \
-    Pick::Set* newps = dlg.getPickSet();
-
-const Pick::Set* uiPickPartServer::createEmptySet( bool aspolygon )
+RefMan<Pick::Set> uiPickPartServer::createEmptySet( bool aspolygon )
 {
-    uiCreatePicks dlg( parent(), aspolygon );
-    mHandleDlg();
-    if ( newps )
-	uipsmgr_.storeNewSet( newps );
-    return newps;
+    uiNewPickSetDlg dlg( parent(), aspolygon );
+    return dlg.go() ? dlg.getSet() : 0;
 }
 
 
-bool uiPickPartServer::create3DGenSet()
+RefMan<Pick::Set> uiPickPartServer::create3DGenSet()
 {
-    uiGenPosPicks dlg( parent() );
-    mHandleDlg();
-    return newps ? uipsmgr_.storeNewSet( newps ) : false;
+    uiGenPosPicksDlg dlg( parent() );
+    return dlg.go() ? dlg.getSet() : 0;
 }
 
 
-bool uiPickPartServer::createRandom2DSet()
+RefMan<Pick::Set> uiPickPartServer::createRandom2DSet()
 {
     fetchHors( true );
     BufferStringSet hornms;
@@ -229,25 +277,25 @@ bool uiPickPartServer::createRandom2DSet()
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
     Survey::GM().getList( linenames, geomids, true );
-    uiGenRandPicks2D dlg( parent(), hornms, linenames );
     if ( linenames.isEmpty() )
     {
 	uiMSG().warning( tr("No 2D lines are available in this survey") );
-	return false;
+	return 0;
     }
 
-    mHandleDlg();
-    if ( !mkRandLocs2D(*newps,dlg.randPars()) )
-    { delete newps; newps = 0; }
-    if ( newps )
-	return uipsmgr_.storeNewSet( newps );
-
-    return false;
+    uiGenRandPicks2DDlg dlg( parent(), hornms, linenames );
+    mAttachCB( dlg.fillLocs, uiPickPartServer::mkRandLocs2D );
+    return dlg.go() ? dlg.getSet() : 0;
 }
 
 
-bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
+void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
 {
+    mDynamicCastGet(uiGenRandPicks2DDlg*,dlg,cb)
+    RefMan<Pick::Set> psref = dlg->getSet();
+    const RandLocGenPars& rp = dlg->randPars();
+    Pick::Set& ps = *psref;
+
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     selectlines_ = rp.linenms_;
@@ -283,11 +331,25 @@ bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
     }
 
     const int nrpos = coords2d_.size();
-    if ( !nrpos ) return false;
+    if ( nrpos < 1 )
+	return;
+
+    const bool needsubsel = nrpos > rp.nr_;
+    TypeSet<int> locsleft;
+    if ( needsubsel )
+	for ( int idx=0; idx<nrpos; idx++ )
+	    locsleft += idx;
 
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
-	const int posidx = Stats::randGen().getIndex( nrpos );
+	int posidx = ipt;
+	if ( needsubsel )
+	{
+	    const int llidx = Stats::randGen().getIndex( locsleft.size() );
+	    posidx = locsleft[llidx];
+	    locsleft.removeSingle( llidx );
+	}
+
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
 	float val = (float) ( zrg.start +
 				  Stats::randGen().get() * zrg.width(false) );
@@ -295,42 +357,14 @@ bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
 	pl.setGeomID( geomids2d_[posidx] );
 	ps.add( pl );
     }
-
-    return true;
-}
-
-
-void uiPickPartServer::setPickSet( const Pick::Set& pickset )
-{
-    const int setidx = psmgr_.indexOf( pickset.name() );
-    const bool isnew = setidx < 0;
-    Pick::Set* ps = isnew ? 0 : &psmgr_.get( setidx );
-    if ( ps )
-	ps->setEmpty();
-    else
-    {
-	ps = new Pick::Set( pickset.name() );
-	ps->setDispColor( Color(240,0,0) );
-    }
-
-    *ps = pickset;
-
-    if ( isnew )
-	uipsmgr_.storeNewSet( ps );
-    else
-    {
-	uipsmgr_.storeSet( *ps );
-	psmgr_.reportChange( 0, *ps );
-    }
 }
 
 
 void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 {
     const char* sKeyMisClass = "Misclassified [NN]";
-    int setidx = psmgr_.indexOf( sKeyMisClass );
-    const bool isnew = setidx < 0;
-    Pick::Set* ps = isnew ? 0 : &psmgr_.get( setidx );
+    Pick::SetManager::SetID id = Pick::SetMGR().getID( sKeyMisClass );
+    RefMan<Pick::Set> ps = id.isUdf() ? 0 : Pick::SetMGR().fetchForEdit( id );
     if ( ps )
 	ps->setEmpty();
     else
@@ -345,10 +379,7 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 	ps->add( Pick::Location(crd.x,crd.y,dps.z(idx)) );
     }
 
-    if ( isnew )
-	uipsmgr_.storeNewSet( ps );
-    else
-	uipsmgr_.storeSet( *ps );
+    Pick::SetMGR().store( *ps, id );
 }
 
 

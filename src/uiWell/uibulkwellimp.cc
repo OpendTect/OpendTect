@@ -168,7 +168,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
     {
 	RefMan<Well::Data> wd = wells_[idx];
 	PtrMan<IOObj> ioobj = IOM().getLocal(wd->name(),
-					     ctio->ctxt_.trgroup_->groupName());
+					     ctio->ctxt_.translatorGroupName());
 	if ( !ioobj )
 	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )

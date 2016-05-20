@@ -13,10 +13,9 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiposprovgroup.h"
-class CtxtIOObj;
 class TrcKeyZSampling;
 class uiGenInput;
-class uiIOObjSel;
+class uiPickSetIOObjSel;
 class uiSelSteps;
 class uiSelHRange;
 class uiSelZRange;
@@ -42,7 +41,7 @@ public:
     void		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiRangePosProvGroup(p,s); }
+			{ return new uiRangePosProvGroup(p,s); }
     static void		initClass();
 
 protected:
@@ -63,7 +62,6 @@ mExpClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
 public:
 			uiPolyPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);
-			~uiPolyPosProvGroup();
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
@@ -75,14 +73,12 @@ public:
     void		getZRange(StepInterval<float>&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiPolyPosProvGroup(p,s); }
+			{ return new uiPolyPosProvGroup(p,s); }
     static void		initClass();
 
 protected:
 
-    CtxtIOObj&		ctio_;
-
-    uiIOObjSel*		polyfld_;
+    uiPickSetIOObjSel*	polyfld_;
     uiSelSteps*		stepfld_;
     uiSelZRange*	zrgfld_;
 
@@ -105,15 +101,13 @@ public:
     bool		getFileName(BufferString&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiTablePosProvGroup(p,s); }
+			{ return new uiTablePosProvGroup(p,s); }
     static void		initClass();
 
 protected:
 
-    CtxtIOObj&		ctio_;
-
     uiGenInput*		selfld_;
-    uiIOObjSel*		psfld_;
+    uiPickSetIOObjSel*	psfld_;
     uiIOFileSelect*	tffld_;
 
     void		selChg(CallBacker*);

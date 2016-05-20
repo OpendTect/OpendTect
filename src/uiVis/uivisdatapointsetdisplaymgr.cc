@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uivisdatapointsetdisplaymgr.h"
 
 #include "uicombobox.h"
-#include "uicreatepicks.h"
+#include "uinewpickset.h"
 #include "uigeninput.h"
 #include "uiioobj.h"
 #include "uimaterialdlg.h"
@@ -179,22 +179,25 @@ Interval<float> getValRange() const
 };
 
 
-class uiCreatePicksDlg : public uiCreatePicks
-{ mODTextTranslationClass(uiCreatePicksDlg);
+class uiCreatePicksFromDPSData : public uiNewPickSetDlg
+{ mODTextTranslationClass(uiCreatePicksFromDPSData);
 public:
 
-uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiCreatePicks(p,false,false)
+uiCreatePicksFromDPSData( uiParent* p, const DataPointSetDisplayProp& dispprop,
+		  visSurvey::PointSetDisplay& psd )
+    : uiNewPickSetDlg(p,false)
     , selfld_( 0 )
     , rgfld_( 0 )
+    , dispprop_( dispprop )
+    , psd_( psd )
 {
-    if ( dispprop.showSelected() )
+    if ( dispprop_.showSelected() )
     {
 	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,
 						       tr("Selection Group"));
 	selfld_ = cbx->box();
-	BufferStringSet selgrpnms = dispprop.selGrpNames();
-	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
+	BufferStringSet selgrpnms = dispprop_.selGrpNames();
+	TypeSet<Color> selgrpcols = dispprop_.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
 	    selfld_->addItem( toUiString(selgrpnms[idx]->buf()) );
@@ -204,19 +207,21 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	    selfld_->setPixmap( idx, pixmap );
 	}
 
-	addStdFields( cbx->attachObj() );
+	attachStdFlds( true, cbx );
     }
     else
     {
 	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
 				 FloatInpIntervalSpec(false) );
-	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
-	addStdFields( rgfld_->attachObj() );
+	rgfld_->setValue( dispprop_.colMapperSetUp().range_ );
+	attachStdFlds( true, rgfld_ );
     }
 }
 
 int selGrpIdx() const
-{ return selfld_ ? selfld_->currentItem() : -1; }
+{
+    return selfld_ ? selfld_->currentItem() : -1;
+}
 
 Interval<float> getValRange() const
 {
@@ -224,8 +229,29 @@ Interval<float> getValRange() const
 		  : Interval<float>(mUdf(float),mUdf(float));
 }
 
-    uiComboBox*		selfld_;
-    uiGenInput*		rgfld_;
+bool fillData( Pick::Set& ps )
+{
+    const DataPointSet& data = *psd_.getDataPack();
+    const Interval<float> valrg( getValRange() );
+    for ( int rid=0; rid<data.size(); rid++ )
+    {
+	bool useloc = false;
+	if ( dispprop_.showSelected() )
+	    useloc = data.selGroup(rid) == selGrpIdx();
+	else
+	    useloc = valrg.includes( data.value(dispprop_.dpsColID(),rid),true);
+
+	if ( useloc )
+	    ps.add( Pick::Location(Coord3(data.coord(rid),data.z(rid))) );
+    }
+    return true;
+}
+
+    uiComboBox*				selfld_;
+    uiGenInput*				rgfld_;
+    const DataPointSetDisplayProp&	dispprop_;
+    visSurvey::PointSetDisplay&		psd_;
+
 };
 
 
@@ -277,39 +303,9 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == storepsmnuitem_.id )
     {
-	uiCreatePicksDlg dlg( visserv_.appserv().parent(), *dispprop_ );
-	if ( !dlg.go() )
-	    return;
-
-	Pick::Set& pickset = *dlg.getPickSet();
-
-	const DataPointSet* data = display->getDataPack();
-	for ( int rid=0; rid<data->size(); rid++ )
-	{
-	    bool useloc = false;
-	    if ( dispprop_->showSelected() )
-		useloc = data->selGroup(rid) == dlg.selGrpIdx();
-	    else
-		useloc = dlg.getValRange().includes(
-		      data->value(dispprop_->dpsColID(),rid),true);
-
-	    if ( useloc )
-		pickset +=
-		    Pick::Location( Coord3(data->coord(rid),data->z(rid)) );
-	}
-
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-	ctio->setName( pickset.name() );
-
-	if ( uiIOObj::fillCtio(*ctio,true) )
-	{
-	    uiString errmsg;
-	    if ( !PickSetTranslator::store(pickset,ctio->ioobj_,errmsg) )
-	    {
-		uiMSG().error( errmsg );
-		return;
-	    }
-	}
+	uiCreatePicksFromDPSData dlg( visserv_.appserv().parent(),
+				      *dispprop_, *display );
+	dlg.go();
     }
     else if ( mnuid == removemnuitem_.id )
     {

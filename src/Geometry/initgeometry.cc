@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "posvecdatasettr.h"
 #include "probdenfunctr.h"
 #include "randomlinetr.h"
+namespace Pick { void startSetCategoryFromTypeInOMFPutter(); }
 
 mDefModInitFn(Geometry)
 {
@@ -28,15 +29,17 @@ mDefModInitFn(Geometry)
     PosVecDataSetTranslatorGroup::initClass();
     ProbDenFuncTranslatorGroup::initClass();
     RandomLineSetTranslatorGroup::initClass();
-    
+
     dgbPickSetTranslator::initClass();
     odPosVecDataSetTranslator::initClass();
     odProbDenFuncTranslator::initClass();
     dgbRandomLineSetTranslator::initClass();
-    
+
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
 
     Geometry::PrimitiveSetCreator::setCreator(
 				new Geometry::PrimitiveSetCreatorDefImpl );
+
+    Pick::startSetCategoryFromTypeInOMFPutter();
 }

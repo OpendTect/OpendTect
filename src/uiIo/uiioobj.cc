@@ -112,7 +112,7 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     const BufferString nm = ctio.getName();
 
     const IODir iodir( ctio.ctxt_.getSelKey() );
-    const IOObj* existioobj = iodir.get( nm, ctio.ctxt_.trgroup_->groupName() );
+    const IOObj* existioobj = iodir.get( nm, ctio.ctxt_.translatorGroupName() );
     if ( !existioobj )
     {
 	ctio.setObj( 0 );

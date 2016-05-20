@@ -51,7 +51,7 @@ set( OD_MODULE_SOURCES
 	uiobjfileman.cc
 	uipickpartserv.cc
 	uipicksetman.cc
-	uipicksetmgr.cc
+	uipicksettools.cc
 	uiposfilterset.cc
 	uiposfiltgroup.cc
 	uiposprovider.cc

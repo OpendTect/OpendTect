@@ -15,8 +15,13 @@
 
 static char pipechar = '|';
 static char newlinechar = '\n';
-static const Pick::Location udflocation_( Coord3::udf() );
-const Pick::Location& Pick::Location::udf() { return udflocation_; }
+namespace Pick
+{
+    static const Location		udfloc_( Coord3::udf() );
+    static const LocationChangeEvent	udfchgev_( -1, udfloc_, udfloc_ );
+    const Location& Location::udf()	{ return udfloc_; }
+    const LocationChangeEvent& LocationChangeEvent::udf() { return udfchgev_; }
+}
 
 #define mInitPtrs \
       dir_(0) \

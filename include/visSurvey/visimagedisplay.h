@@ -27,16 +27,16 @@ mExpClass(visSurvey) ImageDisplay : public visSurvey::LocationDisplay
 {
 public:
     static ImageDisplay*	create()
-    				mCreateDataObj(ImageDisplay);
+				mCreateDataObj(ImageDisplay);
 
     bool			setFileName(const char*);
     const char*			getFileName() const;
     Notifier<ImageDisplay>	needFileName;
 
-    void			setSet(Pick::Set*);
+    virtual void		setSet(Pick::Set*);
 
-     void			setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*		getDisplayTransformation() const;
+    virtual void		setDisplayTransformation(const mVisTrans*);
+    virtual const mVisTrans*	getDisplayTransformation() const;
 
     void			setRGBImage(OD::RGBImage*);
 				//!< Will become mine
@@ -44,23 +44,23 @@ public:
 protected:
 
      visBase::VisualObject*	createLocation() const;
-     void			setPosition(int,const Pick::Location&);
+     virtual void		setPosition(int,const Pick::Location&);
      virtual void		setPosition(int idx,const Pick::Location&,
 					    bool add) {};
 
-     void			removePosition(int idx);
+     virtual void		removePosition(int idx);
      void			setImageDataFromFile(const char* fnm);
 
-     void			dispChg(CallBacker*);
+     virtual void		dispChg();
 
-     bool			hasDirection() const { return false; }
+     virtual bool		hasDirection() const { return false; }
 
-    				~ImageDisplay();
+				~ImageDisplay();
     void			setScene(visSurvey::Scene*);
     void			updateCoords(CallBacker* = 0);
     virtual int			clickedMarkerIndex(
 					const visBase::EventInfo& evi)const;
-    
+
     const mVisTrans*			displaytransform_;
     BufferString			imagefnm_;
     const OD::RGBImage*			rgbimage_;

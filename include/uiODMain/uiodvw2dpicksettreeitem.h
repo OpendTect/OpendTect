@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class VW2DPickSet;
 
-namespace Pick{ class Set; class SetMgr; }
+namespace Pick{ class Set; }
 
 
 
@@ -43,7 +43,8 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    Pick::SetMgr&		picksetmgr_;
+    void			setActive(const MultiID&);
+
 };
 
 
@@ -61,13 +62,12 @@ public:
 mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DPickSetTreeItem)
 public:
-			uiODVw2DPickSetTreeItem(int picksetid);
-			uiODVw2DPickSetTreeItem(int id,bool dummy);
+			uiODVw2DPickSetTreeItem(Pick::Set&);
 			~uiODVw2DPickSetTreeItem();
 
     bool		showSubMenu();
     bool		select();
-    const MultiID&	pickMultiID() const;
+    MultiID		pickSetID() const;
     const VW2DPickSet*	vw2DObject() const	{ return vw2dpickset_; }
     virtual void	doSave();
     virtual void	doSaveAs();
@@ -75,20 +75,19 @@ public:
 
 protected:
 
-    bool		init();
     const char*		parentType() const
 			{ return typeid(uiODVw2DPickSetParentTreeItem).name(); }
+    bool		init();
     bool		isSelectable() const			{ return true; }
 
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
-    void		displayChangedCB(CallBacker*);
+    void		setChangedCB(CallBacker*);
     void		displayMiniCtab();
-    void		removePickSetCB(CallBacker*);
 
-    Pick::SetMgr&	picksetmgr_;
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;
+
 };
 
 

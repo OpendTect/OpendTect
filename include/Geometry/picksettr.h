@@ -41,24 +41,11 @@ public:
     static bool		retrieve(Pick::Set&,const IOObj*,uiString&);
     static bool		store(const Pick::Set&,const IOObj*,uiString&);
 
-    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
-				    TypeSet<TrcKey>&,uiString& errmsg);
-			//!< Utility function
-    static void		createBinIDValueSets(const BufferStringSet& ioobjids,
-					     ObjectSet<BinIDValueSet>&,
-					     uiString& errmsg);
-			//!< Utility function
-    static void		createDataPointSets(const BufferStringSet&,
-					     ObjectSet<DataPointSet>&,
-					     uiString& errmsg,
-					     bool is2d,bool mini=false);
-			//!< Utility function
-    static ODPolygon<float>* getPolygon(const IOObj&,uiString& errmsg);
-			//!< Returns null on failure
-
-    static void		fillConstraints(IOObjContext&,bool ispoly);
+    static bool		isPolygon(const IOObj&);
+    static BufferString	getCategory(const IOObj&,Pick::Set* ps=0);
 
 protected:
+
     virtual uiString	read(Pick::Set&,Conn&)				= 0;
 			//!< returns err msg or null on success
     virtual uiString	write(const Pick::Set&,Conn&)			= 0;

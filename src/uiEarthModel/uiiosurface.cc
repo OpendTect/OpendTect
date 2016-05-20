@@ -97,7 +97,7 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 
 void uiIOSurface::mkRangeFld( bool multisubsel )
 {
-    BufferString username = ctio_->ctxt_.trgroup_->groupName();
+    BufferString username = ctio_->ctxt_.translatorGroupName();
     const bool is2d = username == EMHorizon2DTranslatorGroup::sGroupName();
 
     uiPosSubSel::Setup su( is2d, false );

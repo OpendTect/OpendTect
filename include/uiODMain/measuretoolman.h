@@ -46,9 +46,8 @@ protected:
 
     uiODMain&		appl_;
 
-    Pick::SetMgr&	picksetmgr_;
     TypeSet<int>	sceneids_;
-    ObjectSet<visSurvey::PickSetDisplay>	displayobjs_;
+    ObjectSet<visSurvey::PickSetDisplay> displayobjs_;
 
     uiMeasureDlg*	measuredlg_;
     int			butidx_;

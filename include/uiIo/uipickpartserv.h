@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "ranges.h"
 #include "multiid.h"
+#include "pickset.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -26,8 +27,6 @@ class RandLocGenPars;
 class SurfaceInfo;
 class uiImpExpPickSet;
 class uiPickSetMan;
-class uiPickSetMgr;
-namespace Pick { class Set; class SetMgr; }
 namespace PosInfo { class Line2DData; }
 
 
@@ -47,21 +46,21 @@ public:
     void			importSet();
     void			exportSet();
 
-    bool			storePickSets();
+    bool			storePickSets(int polyopt=0,const char* cat=0);
+					//!< 0=all, -1 no poly's, 1 only poly's
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
-    bool			pickSetsStored() const;
     void			mergePickSets(MultiID&);
 
     void			fetchHors(bool);
-    Pick::Set*			loadSet(const MultiID&);
-    bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
-				//!< Load set(s) by user sel
-    const Pick::Set*		createEmptySet(bool aspolygon);
-    bool			create3DGenSet();
-    bool			createRandom2DSet();
+    RefMan<Pick::Set>		loadSet(const MultiID&);
+    bool			loadSets(TypeSet<MultiID>&,bool polygons,
+					 const char* cat=0);
+					//!< You have to ref/unref the sets
+    RefMan<Pick::Set>		createEmptySet(bool aspolygon);
+    RefMan<Pick::Set>		create3DGenSet();
+    RefMan<Pick::Set>		createRandom2DSet();
     void			setMisclassSet(const DataPointSet&);
-    void			setPickSet(const Pick::Set&);
     void			fillZValsFrmHor(Pick::Set*,int);
 
     static int			evGetHorInfo2D();
@@ -89,8 +88,6 @@ public:
 
 protected:
 
-    Pick::SetMgr&		psmgr_;
-    uiPickSetMgr&		uipsmgr_;
     BinIDValueSet&		gendef_;
 
     ObjectSet<SurfaceInfo>	hinfos_;
@@ -112,8 +109,9 @@ protected:
 
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
-    bool                        mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
+    void                        mkRandLocs2D(CallBacker*);
     bool			doLoadSets(TypeSet<MultiID>&);
+
 };
 
 #endif

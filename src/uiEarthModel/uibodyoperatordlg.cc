@@ -278,10 +278,7 @@ void uiBodyOperatorDlg::itemClick( CallBacker* )
 
 void uiBodyOperatorDlg::bodySel( CallBacker* )
 {
-    CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
-    context.ctxt_.forread_ = true;
-
-    uiIOObjSelDlg dlg( parent(), context );
+    uiIOObjSelDlg dlg( parent(), mIOObjContext(EMBody) );
     if ( !dlg.go() || !dlg.ioObj() )
 	return;
 
@@ -413,7 +410,7 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 {
     setCtrlStyle( RunAndClose );
 
-    inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), 
+    inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody),
 				uiStrings::phrInput(uiStrings::sBody()));
     if ( ioobj )
 	inputfld_->setInput( *ioobj );

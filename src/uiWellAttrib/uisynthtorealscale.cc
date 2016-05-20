@@ -31,6 +31,7 @@
 #include "uislider.h"
 #include "uistratseisevent.h"
 #include "uiseissel.h"
+#include "uipicksettools.h"
 #include "uiseparator.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -170,10 +171,9 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
 
-    IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
-    polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
+    polyfld_ = new uiPickSetIOObjSel( this, polysu, true,
+				      uiPickSetIOObjSel::PolygonOnly );
     polyfld_->attach( alignedBelow, horfld_ );
 
     uiStratSeisEvent::Setup ssesu( true );
@@ -272,12 +272,11 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
 
     if ( polyfld_->isChecked() )
     {
-	const IOObj* ioobj = polyfld_->ioobj();
-	if ( !ioobj ) return false;
-	uiString errmsg;
-	polygon_ = PickSetTranslator::getPolygon( *ioobj, errmsg );
+	if ( !polyfld_->ioobj() )
+	    return false;
+	polygon_ = polyfld_->getSelectionPolygon();
 	if ( !polygon_ )
-	    mErrRetBool( errmsg );
+	    mErrRetBool( tr("Selection Polygon is empty") )
     }
 
     const IOObj* ioobj = horfld_->ioobj();
@@ -513,7 +512,7 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
     const float scalefac = finalscalefld_->getFValue();
     if ( mIsUdf(scalefac) )
-	{ uiMSG().error(uiStrings::phrEnter(tr("the scale factor"))); 
+	{ uiMSG().error(uiStrings::phrEnter(tr("the scale factor")));
 								return false; }
 
     const IOObj* ioobj = wvltfld_->ioobj();

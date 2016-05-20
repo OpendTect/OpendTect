@@ -198,7 +198,6 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 
     strm << "Done" << od_endl;
 
-    Pick::Set ps;
     BufferString finalgrd = fileName( fp.fullPath() );
     BufferString mapprojstr;
     mGetRangeProjString( mapprojstr, "X" );

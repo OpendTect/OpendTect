@@ -27,9 +27,16 @@ namespace Pick
 {
 
 
-/*!\brief Monitorable set of picks. */
+/*!\brief Monitorable set of picks.
+
+  A Pick::set is either a loose bunch of locations, or a connected set of
+  points: a polygon. Apart from this, a set may be labeled to be part of a
+  'category', like 'ArrowAnnotations'.
+
+*/
 
 mExpClass(General) Set : public NamedMonitorable
+		       , public RefCount::Referenced
 {
 public:
 
@@ -38,9 +45,13 @@ public:
 
 			Set(const char* nm=0,const char* category=0);
 			Set(const Set&);
-			~Set();
     Set&		operator =(const Set&);
-    const char*		category() const		    { return category_;}
+
+    bool		isPolygon() const;
+    void		setIsPolygon(bool yn=true);
+    void		setCategory(const char*);
+    BufferString	type() const; //!< sKey::Polygon() or sKey::PickSet()
+    BufferString	category() const;
 
     size_type		size() const;
     inline bool		isEmpty() const			    { return size()<1; }
@@ -51,16 +62,15 @@ public:
 
     Set&		setEmpty();
     Set&		append(const Set&);
-    Set&		set(IdxType,const Location&,bool withundo=false);
-    Set&		add(const Location&,bool withundo=false);
-    Set&		insert(IdxType,const Location&,bool withundo=false);
-    Set&		remove(IdxType,bool withundo=false);
+    Set&		set(IdxType,const Location&);
+    Set&		add(const Location&);
+    Set&		insert(IdxType,const Location&);
+    Set&		remove(IdxType);
     inline Set&		operator +=( const Location& loc )
 			{ return add( loc ); }
     Set&		setPos(IdxType,const Coord&);
     Set&		setZ(IdxType,double);
 
-    bool		isPolygon() const;
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
     bool		has2D() const;
@@ -68,15 +78,16 @@ public:
     bool		hasOnly2D() const;
     bool		hasOnly3D() const;
 
-    void		getPolygon(ODPolygon<double>&) const;
-    void		getLocations(ObjectSet<const Location>&) const;
+    void		getPolygon(ODPolygon<double>&) const; // coords
+    void		getPolygon(ODPolygon<float>&) const; // binids
+    void		getLocations(TypeSet<Coord>&) const;
     float		getXYArea() const;
 			//!<Only for closed polygons. Returns in m^2.
     IdxType		find(const TrcKey&) const;
     IdxType		nearestLocation(const Coord&) const;
     IdxType		nearestLocation(const Coord3&,bool ignorez=false) const;
 
-    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cDispChange())
+    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,0)
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		updateInPar(const char* ky,const char* val);
@@ -116,15 +127,13 @@ public:
 
 protected:
 
+			~Set();
+
     TypeSet<Location>	locs_;
     Disp		disp_;
     IOPar		pars_;
-    const BufferString	category_;
     static const Set	emptyset_;
     static Set		dummyset_;
-
-    void		addUndoEvent(int,IdxType,const Pick::Location&);
-    friend class	LocationUndoEvent;
 
 };
 

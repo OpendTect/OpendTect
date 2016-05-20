@@ -32,12 +32,21 @@ ________________________________________________________________________
   object is then already dead. Thus, at the beginning of the your destructor,
   call sendDelNotif().
 
-  You can also monitor the object's changes. To make more precise event handling
-  possible, the change notifier will deliver an int with a change type. This
-  type can be specific for the Monitorable, and could be available with
-  symbolic constants in that class. The default is 0 - 'General change'.
+  You can also monitor the object's changes. First of all, a dirtyCount() is
+  maintained. To make more precise event handling possible, the change notifier
+  will deliver an int with a change type. This type can be specific for the
+  Monitorable, and could be available with symbolic constants in that class.
+  The default is 0 - 'General change'.
 
   For typical usage see NamedMonitorable.
+  Example unpacking change notifications:
+
+  void MyObj::chgCB( CallBacker* inpcb )
+  {
+      mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, cb, inpcb );
+      if ( chgdata.changeType() == MonObj::cSomeChange() )
+	 doSomething( chgdata.subIdx() );
+  }
 
 */
 
@@ -47,18 +56,41 @@ public:
 
     typedef int				ChangeType;
     typedef od_int64			SubIdxType;
-    typedef std::pair<ChangeType,SubIdxType> FullChgType;
+    typedef od_int64			DirtyCountType;
+
+    mExpClass(Basic) ChangeData : public std::pair<ChangeType,SubIdxType>
+    {
+    public:
+		    ChangeData( ChangeType typ, SubIdxType idx )
+			: std::pair<ChangeType,SubIdxType>(typ,idx) {}
+
+	ChangeType  changeType() const	{ return first; }
+	SubIdxType  subIdx() const	{ return second; }
+    };
 
 					Monitorable(const Monitorable&);
     virtual				~Monitorable();
     Monitorable&			operator =(const Monitorable&);
 
-    virtual CNotifier<Monitorable,FullChgType>& objectChanged()
-					{ return chgnotif_; }
-    virtual Notifier<Monitorable>&	objectToBeDeleted()
-					{ return delnotif_; }
+    virtual CNotifier<Monitorable,ChangeData>& objectChanged() const
+	{ return const_cast<Monitorable*>(this)->chgnotif_; }
+    virtual Notifier<Monitorable>&	objectToBeDeleted() const
+	{ return const_cast<Monitorable*>(this)->delnotif_; }
     mDeclInstanceCreatedNotifierAccess(	Monitorable );
 					//!< defines static instanceCreated()
+
+    void			touch() const		{ dirtycount_++; }
+    DirtyCountType		dirtyCount() const	{ return dirtycount_; }
+    void			setDirtyCount( DirtyCountType nr ) const
+							{ dirtycount_ = nr; }
+
+    void			stopChangeNotifications() const
+				{ changemonitorstoplevel_++; }
+    void			resumeChangeNotifications() const;
+    void			sendEntireObjectChangeNotification() const;
+
+    static ChangeType		cEntireObjectChangeType()	{ return -1; }
+    static SubIdxType		cEntireObjectChangeSubIdx()	{ return -1; }
 
 protected:
 
@@ -74,6 +106,7 @@ protected:
 				~AccessLockHandler();
 	bool			convertToWrite();
 	void			unlockNow()	{ locker_->unlockNow(); }
+	void			reLock()	{ locker_->reLock(); }
     private:
 	const Monitorable&	obj_;
 	Threads::Locker*	locker_;
@@ -81,24 +114,27 @@ protected:
     };
 
     void			sendChgNotif(AccessLockHandler&,ChangeType,
-					     SubIdxType);
+					     SubIdxType) const;
 				//!< objectChanged called with released lock
-    void			sendDelNotif();
+    void			sendDelNotif() const;
 
     template <class T>
-    inline T			getSimple(const T&) const;
+    inline T			getMemberSimple(const T&) const;
     template <class TMember,class TSetTo>
-    inline void			setSimple(TMember&,TSetTo,ChangeType,
-					  SubIdxType);
+    inline void			setMemberSimple(TMember&,TSetTo,ChangeType,
+					        SubIdxType);
 
 private:
 
-    CNotifier<Monitorable,FullChgType> chgnotif_;
-    Notifier<Monitorable>	delnotif_;
-    bool			delalreadytriggered_;
+    mutable Threads::Atomic<int>		nrmonitors_;
+    mutable Threads::Atomic<DirtyCountType>	dirtycount_;
+    mutable Threads::Atomic<int>		changemonitorstoplevel_;
 
-    mutable Threads::Atomic<int> nrmonitors_;
-    friend class		MonitorLock;
+    mutable CNotifier<Monitorable,ChangeData>	chgnotif_;
+    mutable Notifier<Monitorable>		delnotif_;
+    mutable bool				delalreadytriggered_;
+
+    friend class				MonitorLock;
 
 };
 
@@ -154,20 +190,22 @@ protected:
 
 
 template <class T>
-inline T Monitorable::getSimple( const T& memb ) const
+inline T Monitorable::getMemberSimple( const T& memb ) const
 {
     mLock4Read();
     return memb;
 }
 
 template <class TMember,class TSetTo>
-inline void Monitorable::setSimple( TMember& memb, TSetTo setto, int typ,
-				    SubIdxType subidx )
+inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto, int typ,
+					  SubIdxType subidx )
 {
     mLock4Read();
     if ( memb == setto )
-	return;
-    if ( mLock2Write() && !(memb == setto) )
+	return; // common
+
+    mLock2Write();
+    if ( !(memb == setto) ) // someone may have beat me to it!
     {
 	memb = setto;
 	mSendChgNotif( typ, subidx );
@@ -176,9 +214,9 @@ inline void Monitorable::setSimple( TMember& memb, TSetTo setto, int typ,
 
 
 #define mImplSimpleMonitoredGet(fnnm,typ,memb) \
-    typ fnnm() const { return getSimple( memb ); }
+    typ fnnm() const { return getMemberSimple( memb ); }
 #define mImplSimpleMonitoredSet(fnnm,typ,memb,chgtyp) \
-    void fnnm( typ _set_to_ ) { setSimple( memb, _set_to_, chgtyp, 0 ); }
+    void fnnm( typ _set_to_ ) { setMemberSimple( memb, _set_to_, chgtyp, 0 ); }
 #define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb,chgtyp) \
     pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
     pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)

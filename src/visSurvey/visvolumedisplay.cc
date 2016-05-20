@@ -26,8 +26,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "ioman.h"
 #include "marchingcubes.h"
-#include "picksettr.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "od_ostream.h"
 #include "seisdatapack.h"
 #include "settings.h"
@@ -740,16 +739,10 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	 isosurfsettings_[idx].seedsid_.isEmpty() )
 	return false;
 
-    Pick::Set seeds;
-    if ( Pick::Mgr().indexOf(isosurfsettings_[idx].seedsid_)!=-1 )
-	seeds = Pick::Mgr().get( isosurfsettings_[idx].seedsid_ );
-    else
-    {
-	uiString errmsg;
-	if ( !PickSetTranslator::retrieve(seeds,
-		    IOM().get(isosurfsettings_[idx].seedsid_),errmsg) )
-	    return false;
-    }
+    ConstRefMan<Pick::Set> seeds
+		= Pick::SetMGR().fetch( isosurfsettings_[idx].seedsid_ );
+    if ( !seeds )
+	return false;
 
     // TODO: adapt to multi-attrib
     const Array3D<float>& data = attribs_[0]->cache_->data();
@@ -763,15 +756,17 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 
     TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
     cs.normalise();
-    for ( int seedidx=0; seedidx<seeds.size(); seedidx++ )
+    MonitorLock ml( *seeds );
+    for ( int seedidx=0; seedidx<seeds->size(); seedidx++ )
     {
-	const Pick::Location& seedloc = seeds.get( seedidx );
+	const Pick::Location& seedloc = seeds->get( seedidx );
 	const BinID bid = seedloc.binID();
 	const int i = cs.inlIdx( bid.inl() );
 	const int j = cs.crlIdx( bid.crl() );
 	const int k = cs.zIdx( seedloc.z() );
 	ff.addSeed( i, j, k );
     }
+    ml.unlockNow();
 
     if ( !ff.execute() )
 	return false;

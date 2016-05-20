@@ -20,7 +20,7 @@ class uiToolBar;
 class Array2DInterpol;
 class DataPointSet;
 
-namespace Pick { class SetMgr; }
+namespace Pick { class Set; }
 namespace visSurvey { class PickSetDisplay; }
 
 mClass(uiHorizonAttrib) uiDataPointSetPickDlg : public uiDialog
@@ -29,13 +29,16 @@ public:
 			uiDataPointSetPickDlg(uiParent*,int sceneid);
     virtual		~uiDataPointSetPickDlg();
 
+    Pick::Set*		pickSet();
+
 protected:
+
     void		initPickSet();
     void		updateDPS();
     void		updateTable();
     void		updateButtons();
     virtual void	cleanUp();
-    
+
     void		valChgCB(CallBacker*);
     void		rowClickCB(CallBacker*);
     void		pickModeCB(CallBacker*);
@@ -43,8 +46,7 @@ protected:
     void		saveCB(CallBacker*);
     void		saveasCB(CallBacker*);
     void		doSave(bool saveas);
-    void		pickCB(CallBacker*);
-    void		locChgCB(CallBacker*);
+    void		setChgCB(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		winCloseCB(CallBacker*);
     void		objSelCB(CallBacker*);
@@ -55,7 +57,6 @@ protected:
     DataPointSet&	dps_;
     TypeSet<float>	values_;
     visSurvey::PickSetDisplay* psd_;
-    Pick::SetMgr&	picksetmgr_;
     int			pickbutid_;
     int			savebutid_;
     bool		changed_;
@@ -85,7 +86,7 @@ protected:
     void		interpolateCB(CallBacker*);
     void		settCB(CallBacker*);
 
-    TrcKeySampling		tks_;
+    TrcKeySampling	tks_;
 };
 
 #endif

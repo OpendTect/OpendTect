@@ -49,7 +49,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
 #include "ptrman.h"
 #include "randomlinegeom.h"
 #include "sorting.h"
@@ -1121,24 +1121,23 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
     for ( int chidx=0; chidx<topitm.nrChildren(); chidx++ )
     {
 	const uiTreeItem* chlditm = topitm.getChild( chidx );
+	MultiID setid;
 	if ( poly )
 	{
 	    mDynamicCastGet(const uiODPolygonTreeItem*,polyitem,chlditm)
 	    if ( !polyitem )
 		continue;
-
-	    const MultiID& mid = Pick::Mgr().get( polyitem->getSet() );
-	    picks.addIfNew( mid );
+	    setid = Pick::SetMGR().getID( polyitem->getSet() );
 	}
 	else
 	{
 	    mDynamicCastGet(const uiODPickSetTreeItem*,pickitem,chlditm)
 	    if ( !pickitem )
 		continue;
-
-	    const MultiID& mid = Pick::Mgr().get( pickitem->getSet() );
-	    picks.addIfNew( mid );
+	    setid = Pick::SetMGR().getID( pickitem->getSet() );
 	}
+	if ( !setid.isUdf() )
+	    picks.addIfNew( setid );
     }
 }
 
@@ -1237,10 +1236,11 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 }
 
 
-int uiODSceneMgr::addPickSetItem( const MultiID& mid, int sceneid )
+int uiODSceneMgr::addPickSetItem( const MultiID& setid, int sceneid )
 {
-    Pick::Set* ps = applMgr().pickServer()->loadSet( mid );
-    if ( !ps ) return -1;
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
+    if ( !ps )
+	return -1;
 
     return addPickSetItem( *ps, sceneid );
 }

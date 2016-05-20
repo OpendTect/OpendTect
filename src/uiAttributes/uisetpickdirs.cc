@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "executor.h"
 #include "mousecursor.h"
-#include "picksetmgr.h"
+#include "pickset.h"
 #include "posidxpair2coord.h"
 #include "seistrctr.h"
 #include "separstr.h"
@@ -60,6 +60,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	, createdset_( 0 )
 	, velocity_(vel)
 {
+    ps_.ref();
     const bool is2d = ads_ ? ads_->is2D() : false;
 
     SelInfo attrselinfo( ads_, nlamdl_, is2d );
@@ -96,6 +97,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 
 uiSetPickDirs::~uiSetPickDirs()
 {
+    ps_.unRef();
     delete ads_;
     delete createdset_;
 }
@@ -160,7 +162,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	mErrRet( tr("Cannot calculate attributes at these positions") );
 
     //remark: removed possibility of variable vector length (radius = 1)
-    Pick::Set workps( ps_ );
+    RefMan<Pick::Set> workps = new Pick::Set( ps_ );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	float phi = 0;
@@ -178,7 +180,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	SeparString dipvaluetext;
 	dipvaluetext += ::toString( inldip );
 	dipvaluetext += ::toString( crldip );
-	Pick::Location pl( workps.get(idx) );
+	Pick::Location pl( workps->get(idx) );
 	pl.setKeyedText( "Dip", dipvaluetext );
 
 	if ( usesteering_ )
@@ -200,16 +202,14 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	pl.setDir( Sphere(1,theta,phi) );
 
-	workps.set( idx, pl );
+	workps->set( idx, pl );
     }
 
-    OD::MarkerStyle3D mstyle = workps.markerStyle();
+    OD::MarkerStyle3D mstyle = workps->markerStyle();
     mstyle.type_ = OD::MarkerStyle3D::Plane;
-    workps.setMarkerStyle( mstyle );
+    workps->setMarkerStyle( mstyle );
 
-    ps_ = workps;
-    Pick::Mgr().reportChange( this, ps_ );
-    Pick::Mgr().reportDispChange( this, ps_ );
+    ps_ = *workps;
     return true;
 }
 

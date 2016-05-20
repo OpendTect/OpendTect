@@ -22,12 +22,13 @@ ________________________________________________________________________
 
 #include "draw.h"
 #include "ioman.h"
-#include "picksetmgr.h"
+#include "picksetmanager.h"
+
+static const char* sKeyCategory = "MeasureTool";
 
 
 MeasureToolMan::MeasureToolMan( uiODMain& appl )
     : appl_(appl)
-    , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
 {
     butidx_ = appl.menuMgr().viewTB()->addButton( "measure",
@@ -44,7 +45,6 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     mAttachCB( scenemgr.activeSceneChanged, MeasureToolMan::sceneChanged );
     mAttachCB( visBase::DM().selMan().selnotifier, MeasureToolMan::objSelected);
     mAttachCB( IOM().surveyChanged, MeasureToolMan::surveyChanged );
-    mAttachCB( picksetmgr_.locationChanged, MeasureToolMan::changeCB );
 }
 
 
@@ -139,14 +139,6 @@ void MeasureToolMan::buttonClicked( CallBacker* cb )
 }
 
 
-static MultiID getMultiID( int sceneid )
-{
-    // Create dummy multiid, I don't want to save these picks
-    BufferString mid( "9999.", sceneid );
-    return MultiID( mid.buf() );
-}
-
-
 void MeasureToolMan::sceneAdded( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sceneid,cb);
@@ -159,12 +151,11 @@ void MeasureToolMan::addScene( int sceneid )
     visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay();
     psd->ref();
 
-    Pick::Set* ps = new Pick::Set( "Measure picks" );
+    Pick::Set* ps = new Pick::Set( "Measure picks", sKeyCategory );
     ps->setConnection( Pick::Set::Disp::Open );
     ps->setDispColor( Color( 255, 0, 0 ) );
     psd->setSet( ps );
-    psd->setSetMgr( &picksetmgr_ );
-    picksetmgr_.set( getMultiID(sceneid), ps );
+    mAttachCB( ps->objectChanged(), MeasureToolMan::changeCB );
 
     appl_.applMgr().visServer()->addObject( psd, sceneid, false );
     sceneids_ += sceneid;
@@ -239,13 +230,15 @@ void MeasureToolMan::sceneChanged( CallBacker* )
 }
 
 
-void MeasureToolMan::changeCB( CallBacker* cb )
+void MeasureToolMan::changeCB( CallBacker* inpcb )
 {
-    mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
-    if ( !cd || !cd->set_ ) return;
+    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, cb, inpcb );
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps || chgdata.changeType() == Pick::Set::cDispChange() )
+	return;
 
     if ( measuredlg_ )
-	giveCoordsToDialog( *cd->set_, *measuredlg_ );
+	giveCoordsToDialog( *ps, *measuredlg_ );
 }
 
 
@@ -260,10 +253,10 @@ void MeasureToolMan::clearCB( CallBacker* )
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
 	Pick::Set* ps = displayobjs_[idx]->getSet();
-	if ( !ps ) continue;
+	if ( !ps )
+	    continue;
 
 	ps->setEmpty();
-	picksetmgr_.reportChange( this, *ps );
     }
 
     if ( measuredlg_ )
@@ -278,12 +271,14 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
 	Pick::Set* ps = displayobjs_[idx]->getSet();
-	if ( !ps ) continue;
+	if ( !ps )
+	    continue;
 
 	OD::LineStyle ls( measuredlg_->getLineStyle() );
-	ps->setDispColor( ls.color_ );
-	ps->setDispSize( ls.width_ );
-	picksetmgr_.reportDispChange( this, *ps );
+	Pick::Set::Disp disp = ps->getDisp();
+	disp.mkstyle_.color_ = ls.color_;
+	disp.mkstyle_.size_ = ls.width_;
+	ps->setDisp( disp );
     }
 }
 

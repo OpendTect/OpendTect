@@ -7,8 +7,7 @@
 
 #include "tableposprovider.h"
 #include "keystrs.h"
-#include "pickset.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "od_istream.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -81,17 +80,15 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
     const char* res = iop.find( mGetTableKey("ID") );
     if ( res && *res )
     {
-	PtrMan<IOObj> ioobj = IOM().get( res );
-	if ( ioobj )
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( MultiID(res) );
+	if ( ps )
 	{
-	    uiString msg; Pick::Set ps;
-	    if ( PickSetTranslator::retrieve(ps,ioobj,msg) )
+	    MonitorLock ml( *ps );
+	    const Pick::Set::size_type sz = ps->size();
+	    for ( int idx=0; idx<sz; idx++ )
 	    {
-		for ( int idx=0; idx<ps.size(); idx++ )
-		{
-		    const Coord3 crd3 = ps.get(idx).pos();
-		    bvs.add( SI().transform(crd3), (float)crd3.z );
-		}
+		const Coord3 crd3 = ps->get(idx).pos();
+		bvs.add( SI().transform(crd3), (float)crd3.z );
 	    }
 	}
     }

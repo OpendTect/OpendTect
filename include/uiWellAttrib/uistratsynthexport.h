@@ -20,6 +20,7 @@ class uiGroup;
 class uiGenInput;
 class uiSeisSel;
 class uiIOObjSel;
+class uiPickSetIOObjSel;
 class uiSeis2DLineNameSel;
 class uiStratSynthOutSel;
 
@@ -31,7 +32,7 @@ mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
 public:
     enum GeomSel	{ StraightLine, Polygon, RandomLine, Existing };
 
-    			uiStratSynthExport(uiParent*,const StratSynth&);
+			uiStratSynthExport(uiParent*,const StratSynth&);
 			~uiStratSynthExport();
 
 
@@ -39,13 +40,13 @@ protected:
 
     uiGenInput*		crnewfld_;
     uiSeisSel*		linesetsel_;
-    uiGenInput* 	newlinenmfld_;
+    uiGenInput*	newlinenmfld_;
     uiSeis2DLineNameSel* existlinenmsel_;
     uiGroup*		geomgrp_;
     uiGenInput*		geomsel_;
     uiGenInput*		coord0fld_;
     uiGenInput*		coord1fld_;
-    uiIOObjSel*		picksetsel_;
+    uiPickSetIOObjSel*	picksetsel_;
     uiIOObjSel*		randlinesel_;
     uiStratSynthOutSel*	poststcksel_;
     uiStratSynthOutSel*	horsel_;
@@ -57,7 +58,7 @@ protected:
     ObjectSet<const SyntheticData> postsds_;
     ObjectSet<const SyntheticData> presds_;
     ObjectSet<StratSynthLevel> sslvls_;
-    
+
     BufferString	getWinTitle(const StratSynth&) const;
     GeomSel		selType() const;
     void		addPrePostFix(BufferString&) const;
@@ -67,7 +68,7 @@ protected:
     bool		createHor2Ds();
     bool		getGeometry(PosInfo::Line2DData&);
     void		create2DGeometry(const TypeSet<Coord>&,
-	    				 PosInfo::Line2DData&);
+					 PosInfo::Line2DData&);
 
     void		crNewChg(CallBacker*);
     void		geomSel(CallBacker*);

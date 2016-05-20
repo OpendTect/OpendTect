@@ -28,29 +28,32 @@ mClass(Algo) ODPolygon
 public:
 		ODPolygon()
 		    : closed_(true), udf_(Geom::Point2D<T>::udf())
-		    , xrg_(mUdf(T),mUdf(T)), yrg_(mUdf(T),mUdf(T))	{} 
-		
+		    , xrg_(mUdf(T),mUdf(T)), yrg_(mUdf(T),mUdf(T))	{}
+
 		ODPolygon(const TypeSet<Geom::Point2D<T> >& plg)
 		    : poly_(plg), closed_(true)
 		    , udf_(Geom::Point2D<T>::udf())
 		    , xrg_(mUdf(T),mUdf(T)), yrg_(mUdf(T),mUdf(T))	{}
 
+    template <class T2>
+    inline void	set(const ODPolygon<T2>&);
+
     void	erase();
     bool	isEmpty() const			{ return poly_.isEmpty(); }
-		
-    int 	size() const			{ return poly_.size(); }
-    bool 	validIdx(int idx) const		{ return poly_.validIdx(idx); }
+
+    int	size() const			{ return poly_.size(); }
+    bool	validIdx(int idx) const		{ return poly_.validIdx(idx); }
     void	setEmpty()			{ erase(); }
-    
+
     void	add(const Geom::Point2D<T>& vtx);
     void	remove(int idx);
     void	insert(int idx,const Geom::Point2D<T>& vtx);
 
     bool	isInside(const Geom::Point2D<T>&,
-	    		 bool inclborder,T eps) const;
-    
+			 bool inclborder,T eps) const;
+
     int		isInside(const ODPolygon& testpoly,T eps=0) const;
-    		/*  0: testpoly fully outside (borders don't touch)
+		/*  0: testpoly fully outside (borders don't touch)
 		    2: testpoly fully  inside (borders don't touch)
 		    1: all intermediate cases */
 
@@ -59,9 +62,9 @@ public:
     bool	windowOverlaps(const Interval<T>& xrange,
 			       const Interval<T>& yrange,T eps) const;
 
-    				// defined for closed polygon
+				// defined for closed polygon
     const Geom::Point2D<T>&	getVertex(int idx) const;
-    const Geom::Point2D<T>&	nextVertex(int idx) const; 
+    const Geom::Point2D<T>&	nextVertex(int idx) const;
     const Geom::Point2D<T>&	prevVertex(int idx) const;
 
     void	setClosed( bool yn )			{ closed_ = yn; }
@@ -79,8 +82,8 @@ public:
 
     void	convexHull();
     void	keepBendPoints(float eps);
-    
-    		// not for self-intersecting polygons
+
+		// not for self-intersecting polygons
     double	area() const		{ return fabs(sgnArea2<double>()/2.0); }
     bool	clockwise() const	{ return sgnArea2<T>()<0; }
     bool	anticlockwise() const	{ return sgnArea2<T>()>0; }
@@ -97,7 +100,7 @@ public:
 		{ return poly_.size()>plg.size(); }
 
 protected:
- 
+
     static int			doSegmentsMeet( const Geom::Point2D<T>& p1,
 				    const Geom::Point2D<T>& p2,
 				    const Geom::Point2D<T>& q1,
@@ -156,6 +159,17 @@ bool ODPolygon<T>::operator==( const ODPolygon<T>& poly ) const
 {
     if ( data() != poly.data() ) return false;
     return true;
+}
+
+
+template <class T> template <class T2>
+inline void ODPolygon<T>::set( const ODPolygon<T2>& oth )
+{
+    for ( int idx=0; idx<oth.size(); idx++ )
+    {
+	const Geom::Point2D<T2>& vtx = oth.getVertex( idx );
+	poly_ += Geom::Point2D<T>( (T)vtx.x, (T)vtx.y );
+    }
 }
 
 
@@ -362,7 +376,7 @@ int ODPolygon<T>::isInside( const ODPolygon& testpoly, T eps ) const
     if ( isInside(testpoly.poly_[0], false, eps) )
 	return 2;
 
-    return testpoly.isInside(poly_[0], false, eps) ? 1 : 0; 
+    return testpoly.isInside(poly_[0], false, eps) ? 1 : 0;
 }
 
 
@@ -376,7 +390,7 @@ void ODPolygon<T>::removeZeroLengths()
 	    remove(idx);
     }
 }
-	
+
 
 template <class T> inline
 bool ODPolygon<T>::isUTurn( int idx ) const
@@ -533,7 +547,7 @@ double ODPolygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
 }
 
 
-template <class T> 
+template <class T>
 template <class ST> inline
 ST ODPolygon<T>::sgnArea2() const
 {
@@ -544,10 +558,10 @@ ST ODPolygon<T>::sgnArea2() const
     {
 	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
-	area2 += (ST) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) - 
+	area2 += (ST) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) -
 			(pt2.x-pt0.x) * (pt1.y-pt0.y) );
     }
-    
+
     return area2;
 }
 
@@ -568,7 +582,7 @@ void ODPolygon<T>::convexHull()
 	const Geom::Point2D<T>& vtx = poly_[idx];
 	if ( vtx.x<pivot.x || (vtx.x==pivot.x && vtx.y<pivot.y) )
 	    pivot = vtx;
-    }	
+    }
 
     // Remove all pivot copies
     for ( int idx=size()-1; idx>=0; idx-- )
@@ -616,7 +630,7 @@ void ODPolygon<T>::convexHull()
     }
 
     poly_ += pivot;
-    
+
     xrg_.set( mUdf(T), mUdf(T) );
     yrg_.set( mUdf(T), mUdf(T) );
 }
@@ -632,7 +646,7 @@ void ODPolygon<T>::reverse()
 	poly_[idx] = poly_[sz-1-idx];
 	poly_[sz-1-idx] = temp;
     }
-    
+
     xrg_.set( mUdf(T), mUdf(T) );
     yrg_.set( mUdf(T), mUdf(T) );
 }
@@ -662,7 +676,7 @@ double ODPolygon<T>::distToSegment( const Geom::Point2D<T>& p1,
 	*fractionptr = frac;
 
     const Geom::Point2D<T> pointonseg( (T)(p1.x * (1-frac) + p2.x * frac),
-	    			       (T)(p1.y * (1-frac) + p2.y * frac) );
+				       (T)(p1.y * (1-frac) + p2.y * frac) );
     return refpt.distTo( pointonseg );
 }
 
@@ -718,11 +732,11 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
 	const Geom::Point2D<T>& pt = getVertex(idx);
 	poly.add( Geom::Point2D<double>(pt.x, pt.y) );
     }
-	
+
     double maxdist = 0.0;
     for ( int idx=0; idx<poly.size(); idx++ )
     {
-	Geom::Point2D<double> curpt = 
+	Geom::Point2D<double> curpt =
 	    (poly.prevVertex(idx)+poly.getVertex(idx)+poly.nextVertex(idx)) / 3;
 
 	if ( !poly.isInside(curpt, false, mDefEps) )
@@ -731,7 +745,7 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
 	double curdist = poly.distTo( curpt );
 	double gamma = 0.1 * upperbound;
 
-	for ( int step=0; step<100; step++ ) 
+	for ( int step=0; step<100; step++ )
 	{
 	    if ( curdist > maxdist )
 		maxdist = curdist;
@@ -767,7 +781,7 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
 	    curpt = nextpt;
 	    curdist = nextdist;
 	}
-    }	
+    }
     return maxdist;
 }
 
@@ -791,7 +805,7 @@ void ODPolygon<T>::keepBendPoints( float eps )
     }
 
     BendPointFinder2D finder( coords, eps );
-    finder.execute();    
+    finder.execute();
     const TypeSet<int>& bendpoints = finder.bendPoints();
 
     int bpidx = bendpoints.size()-extra-1;

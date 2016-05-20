@@ -22,6 +22,7 @@ class SeisTrcBuf;
 class TaskRunner;
 class uiSeisSel;
 class uiIOObjSel;
+class uiPickSetIOObjSel;
 class uiLabel;
 class uiGenInput;
 class uiStratSeisEvent;
@@ -32,7 +33,7 @@ namespace Strat { class SeisEvent; }
 
 
 /*!\brief To determine scaling of synthetics using real data.
- 
+
   Note: the input trc buf *must* have ref times in the trc.info().pick's.
 
  */
@@ -65,8 +66,8 @@ protected:
 
     uiSeisSel*		seisfld_;
     uiIOObjSel*		horfld_;
-    uiIOObjSel*		polyfld_;
     uiIOObjSel*		wvltfld_;
+    uiPickSetIOObjSel*	polyfld_;
     uiStratSeisEvent*	evfld_;
     uiGenInput*		finalscalefld_;
     uiLabel*		valislbl_;
@@ -76,7 +77,7 @@ protected:
     void		initWin(CallBacker*);
     void		setScaleFld(CallBacker*);
     void		goPush( CallBacker* )
-    			{ updSynthStats(); updRealStats(); }
+			{ updSynthStats(); updRealStats(); }
     bool		acceptOK(CallBacker*);
 
     bool		getEvent();

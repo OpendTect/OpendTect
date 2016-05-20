@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "picksettr.h"
-#include "picksetmgr.h"
+#include "pickset.h"
 #include "ctxtioobj.h"
 #include "binidvalset.h"
 #include "datapointset.h"
@@ -34,12 +34,55 @@ uiString PickSetTranslatorGroup::sTypeName( int num)
 { return uiStrings::sPickSet( num ); }
 
 
+// In earlier versions, 'Type' and 'Category' were mixed
+// We want to go to a situation where a pickset is
+// Type: either 'Polygon' or 'PickSet'
+// Category: empty, or things like 'ArrowAnnotations', 'Text', ...
+// This requires some juggling
+
+
+static bool getCatFromType( const IOPar& iop, BufferString& cat )
+{
+    FileMultiString fms;
+    iop.get( sKey::Type(), fms );
+    const int fmssz = fms.size();
+    for ( int idx=0; idx<fmssz; idx++ )
+    {
+	const BufferString typ = fms[idx];
+	if ( !typ.isEmpty() && typ != sKey::PickSet() && typ != sKey::Polygon())
+	{
+	    cat.set( typ );
+	    return true;
+	}
+    }
+    return false;
+}
+
+
+static bool getIsPolygon( const IOObj& ioobj, bool& ispoly )
+{
+    FileMultiString fms;
+    ioobj.pars().get( sKey::Type(), fms );
+    const int fmssz = fms.size();
+    ispoly = false;
+    for ( int idx=0; idx<fmssz; idx++ )
+    {
+	const BufferString typ = fms[idx];
+	if ( typ == sKey::PickSet() )
+	    return true;
+	else if ( typ == sKey::Polygon() )
+	    { ispoly = true; return true; }
+    }
+    return false;
+}
+
+
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
-				  uiString& bs )
+				  uiString& errmsg )
 {
     if ( !ioobj )
     {
-	bs = uiStrings::phrCannotFindDBEntry( ioobj->uiName() );
+	errmsg = uiStrings::phrCannotFindDBEntry( ioobj->uiName() );
 	return false;
     }
 
@@ -47,28 +90,60 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 		 ioobj->createTranslator());
     if ( !tr )
     {
-	bs = uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
+	errmsg = uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
 	return false;
     }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
 	return false;
     }
 
-    bs = tr->read( ps, *conn );
-    return bs.isEmpty();
+    errmsg = tr->read( ps, *conn );
+    if ( !errmsg.isEmpty() )
+	return false;
+
+    if ( FixedString(ps.category()).isEmpty() )
+	ps.setCategory( getCategory(*ioobj,&ps) );
+
+    bool ispoly = false;
+    if ( getIsPolygon(*ioobj,ispoly) )
+	ps.setIsPolygon( ispoly );
+
+    ps.setName( ioobj->name() );
+    return true;
+}
+
+
+bool PickSetTranslator::isPolygon( const IOObj& ioobj )
+{
+    bool ispoly = false;
+    getIsPolygon( ioobj, ispoly );
+    return ispoly;
+}
+
+
+BufferString PickSetTranslator::getCategory( const IOObj& ioobj, Pick::Set* ps )
+{
+    BufferString cat = ioobj.pars().find( sKey::Category() );
+    if ( cat.isEmpty() )
+    {
+	if ( !getCatFromType(ioobj.pars(),cat) && ps )
+	    getCatFromType( ps->pars(), cat );
+    }
+    return cat;
 }
 
 
 bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
-			       uiString& bs )
+			       uiString& errmsg )
 {
+    ConstRefMan<Pick::Set> psrefman( &ps ); // keep it alive
     if ( !ioobj )
     {
-	bs = uiStrings::phrCannotFindDBEntry( ioobj->uiName() );
+	errmsg = uiStrings::phrCannotFindDBEntry( ioobj->uiName() );
 	return false;
     }
 
@@ -76,27 +151,41 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 		 ioobj->createTranslator());
     if ( !tr )
     {
-	bs = uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
+	errmsg = uiStrings::phrSelectObjectWrongType( uiStrings::sPickSet() );
 	return false;
     }
 
-    bs = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ bs = uiStrings::phrCannotOpen( ioobj->uiName() ); }
-    else
-	bs = tr->write( ps, *conn );
-
-    FileMultiString pstype;
-    ioobj->pars().get( sKey::Type(), pstype );
-    if ( pstype.isEmpty() || pstype.size() > 1 )
     {
-	ioobj->pars().set( sKey::Type(), ps.isPolygon() ? sKey::Polygon()
-							: sKey::PickSet() );
-	IOM().commitChanges( *ioobj );
+	errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
+	return false;
     }
 
-    return bs.isEmpty();
+    errmsg = tr->write( ps, *conn );
+    if ( !errmsg.isEmpty() )
+	return false;
+
+    // Now that we have the set, make sure it gets a standard entry in the omf
+    bool needcommit = false;
+    const FixedString ioobjpstype = ioobj->pars().find(sKey::Type());
+    if ( ioobjpstype != ps.type() )
+    {
+	ioobj->pars().set( sKey::Type(), ps.type() );
+	needcommit = true;
+    }
+    const FixedString ioobjpscat = ioobj->pars().find( sKey::Category() );
+    if ( ioobjpscat != ps.category() )
+    {
+	ioobj->pars().set( sKey::Category(), ps.category() );
+	needcommit = true;
+    }
+
+    if ( needcommit )
+	IOM().commitChanges( *ioobj );
+    const_cast<Pick::Set&>(ps).setName( ioobj->name() );
+
+    return true;
 }
 
 
@@ -113,8 +202,6 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( atEndOfSection(astrm) )
 	return uiStrings::sNoValidData();
-
-    ps.setName( IOM().nameOf(conn.linkedTo()) );
 
     if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
     {
@@ -206,125 +293,4 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     astrm.newParagraph();
     return astrm.isOK() ? uiStrings::sEmptyString()
 			: uiStrings::phrCannotWrite( uiStrings::sPickSet() );
-}
-
-
-void PickSetTranslator::createBinIDValueSets(
-			const BufferStringSet& ioobjids,
-			ObjectSet<BinIDValueSet>& bivsets,
-			uiString& errmsg )
-{
-    for ( int idx=0; idx<ioobjids.size(); idx++ )
-    {
-	TypeSet<Coord3> crds;
-	TypeSet<TrcKey> tks;
-	if ( !getCoordSet(ioobjids.get(idx),crds,tks,errmsg) )
-	    continue;
-
-	BinIDValueSet* bs = new BinIDValueSet( 1, true );
-	bivsets += bs;
-
-	for ( int ipck=0; ipck<crds.size(); ipck++ )
-	    bs->add( tks[idx].binID(), mCast(float, crds[idx].z ) );
-    }
-}
-
-
-void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
-					     ObjectSet<DataPointSet>& dpss,
-					     uiString& errmsg, bool is2d,
-					     bool mini )
-{
-    for ( int idx=0; idx<ioobjids.size(); idx++ )
-    {
-	TypeSet<Coord3> crds; TypeSet<TrcKey> tks;
-	if ( !getCoordSet(ioobjids.get(idx),crds,tks,errmsg) )
-	    continue;
-
-	DataPointSet* dps = new DataPointSet( is2d, mini );
-	dpss += dps;
-
-	DataPointSet::DataRow dr;
-	for ( int ipck=0; ipck<crds.size(); ipck++ )
-	{
-	    dr.pos_ = crds[ipck];
-	    //TODO use tks[ipck] in some way;
-	    dps->addRow( dr );
-	}
-	dps->dataChanged();
-    }
-}
-
-
-bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
-				     TypeSet<TrcKey>& tks, uiString& errmsg )
-{
-    const MultiID key( id );
-    const int setidx = Pick::Mgr().indexOf( key );
-    const Pick::Set* ps = setidx < 0 ? 0 : &Pick::Mgr().get( setidx );
-    Pick::Set* createdps = 0;
-    if ( !ps )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( key );
-	if ( !ioobj )
-	{
-	    errmsg = uiStrings::phrCannotFindDBEntry( uiStrings::sPickSet() );
-	    return false;
-	}
-
-	ps = createdps = new Pick::Set;
-	if ( !retrieve(*createdps,ioobj,errmsg) )
-	    { delete createdps; return false; }
-    }
-
-    MonitorLock ml( *ps );
-    for ( int ipck=0; ipck<ps->size(); ipck++ )
-    {
-	const Pick::Location pl( ps->get(ipck) );
-	crds += pl.pos();
-	tks += pl.trcKey();
-    }
-    ml.unlockNow();
-
-    delete createdps;
-    return true;
-}
-
-
-void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
-{
-    if ( ispoly )
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    else
-    {
-	BufferString types = sKey::PickSet();
-	types += "`"; // Allow Type to be empty or missing
-	ctxt.toselect_.require_.set( sKey::Type(), types.buf() );
-    }
-}
-
-
-ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
-						 uiString& errmsg )
-{
-    Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,&ioobj,errmsg) )
-	return 0;
-
-    if ( ps.size() < 2 )
-    {
-	errmsg = tr( "Polygon '%1' contains less than 2 points" )
-		   .arg( ioobj.uiName() );
-	return 0;
-    }
-
-    ODPolygon<float>* ret = new ODPolygon<float>;
-    for ( int idx=0; idx<ps.size(); idx++ )
-    {
-	const Pick::Location pl = ps.get( idx );
-	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
-	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
-    }
-
-    return ret;
 }

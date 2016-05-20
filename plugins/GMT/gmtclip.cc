@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "pickset.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "strmdata.h"
 #include "od_ostream.h"
 
@@ -78,17 +77,13 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
 	return true;
     }
 
-    MultiID id;
-    get( sKey::ID(), id );
-    const IOObj* setobj = IOM().get( id );
-    if ( !setobj ) mErrStrmRet("Cannot find polygon")
-
-    strm << "Activating clipping with polygon " << setobj->name() << " ...  ";
-    Pick::Set ps;
+    MultiID id; get( sKey::ID(), id );
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,errmsg) )
-	mErrStrmRet( errmsg )
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+    if ( !ps )
+	mErrStrmRet(errmsg.getFullString())
 
+    strm << "Activating clipping with polygon " << ps->name() << " ...  ";
     bool clipoutside = false;
     getYN( ODGMT::sKeyClipOutside(), clipoutside );
     BufferString rangestr; mGetRangeProjString( rangestr, "X" );
@@ -99,9 +94,10 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    MonitorLock ml( *ps );
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Coord pos = ps.getPos( idx );
+	const Coord pos = ps->getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 

@@ -304,9 +304,23 @@ MultiID IOObjContext::getSelKey() const
 }
 
 
+FixedString IOObjContext::objectTypeName() const
+{
+    return translatorGroupName();
+}
+
+
+FixedString IOObjContext::translatorGroupName() const
+{
+    fillTrGroup();
+    return trgroup_->groupName();
+}
+
+
 void IOObjContext::fillTrGroup() const
 {
-    if ( trgroup_ ) return;
+    if ( trgroup_ )
+	return;
 
     pErrMsg("We should never be here");
 
@@ -328,7 +342,7 @@ void IOObjContext::fillTrGroup() const
 	mCase(Mdl,"EarthModel");
 	case IOObjContext::NLA:
 	    self.trgroup_ = &TranslatorGroup::getGroup( "NonLinear Analysis" );
-	    if ( trgroup_->groupName().isEmpty() )
+	    if ( translatorGroupName().isEmpty() )
 		self.trgroup_ = &TranslatorGroup::getGroup( "Neural network" );
 	default:
 	    self.trgroup_ = &TranslatorGroup::getGroup( "Seismic Data" );
@@ -337,29 +351,21 @@ void IOObjContext::fillTrGroup() const
 }
 
 
-const char* IOObjContext::objectTypeName() const
-{
-    const_cast<IOObjContext*>(this)->fillTrGroup(); // just to be safe
-    return trgroup_->groupName();
-}
-
-
 bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 {
-    if ( trgroup_ )
-    {
-	if ( !trgroup_->objSelector(ioobj.group()) )
-	    return false;
+    fillTrGroup();
 
-	// check if the translator is present at all
-	const ObjectSet<const Translator>& trs = trgroup_->templates();
-	for ( int idx=0; idx<trs.size(); idx++ )
-	{
-	    if ( trs[idx]->userName() == ioobj.translator() )
-		break;
-	    else if ( idx == trs.size()-1 )
-		return false;
-	}
+    if ( !trgroup_->objSelector(ioobj.group()) )
+	return false;
+
+    // check if the translator is present at all
+    const ObjectSet<const Translator>& trs = trgroup_->templates();
+    for ( int idx=0; idx<trs.size(); idx++ )
+    {
+	if ( trs[idx]->userName() == ioobj.translator() )
+	    break;
+	else if ( idx == trs.size()-1 )
+	    return false;
     }
 
     return toselect_.isGood( ioobj, forread_ );
@@ -373,7 +379,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
     fillTrGroup();
 
     IOStream* iostrm = new IOStream( name(), ky, false );
-    iostrm->setGroup( trgroup_->groupName() );
+    iostrm->setGroup( translatorGroupName() );
     iostrm->setTranslator( transl.userName() );
 
     const StdDirData* sdd = getStdDirData( stdseltype_ );

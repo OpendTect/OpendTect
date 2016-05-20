@@ -19,8 +19,8 @@ ________________________________________________________________________
 
 
 uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
-	    const Interval<int>& rg, int nrexcluded,
-	    const OD::MarkerStyle3D::Type* excluded )
+				  Interval<int> rg, int nrexcluded,
+				  const OD::MarkerStyle3D::Type* excluded )
     : uiGroup(p)
     , colselfld_( 0 )
     , markertypedef_( OD::MarkerStyle3D::TypeDef() )
@@ -46,33 +46,40 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
     StringListInpSpec str( markertypedef_ );
     typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
 
-    sliderfld_ = new uiSlider( this,
-	uiSlider::Setup(uiStrings::sSize()).withedit(true), "Slider Size" );
-    sliderfld_->setInterval( rg );
-    sliderfld_->attach( alignedBelow, typefld_ );
+    sizefld_ = new uiSlider( this,
+	uiSlider::Setup(uiStrings::sSize()).withedit(true), "Size" );
+    sizefld_->setInterval( rg );
+    sizefld_->setValue( 3 );
+    sizefld_->attach( alignedBelow, typefld_ );
 
     if ( withcolor )
     {
 	colselfld_ = new uiColorInput( this,
 		    uiColorInput::Setup(Color::White())
                     .lbltxt(uiStrings::sColor()) );
-	colselfld_->attach( alignedBelow, sliderfld_ );
+	colselfld_->attach( alignedBelow, sizefld_ );
     }
 
-    setHAlignObj( sliderfld_ );
+    setHAlignObj( sizefld_ );
 }
 
 
-NotifierAccess* uiMarkerStyle3D::sliderMove()
-{ return &sliderfld_->valueChanged; }
+NotifierAccess* uiMarkerStyle3D::sizeChange()
+{
+    return &sizefld_->valueChanged;
+}
 
 
 NotifierAccess* uiMarkerStyle3D::typeSel()
-{ return &typefld_->valuechanged; }
+{
+    return &typefld_->valuechanged;
+}
 
 
 NotifierAccess* uiMarkerStyle3D::colSel()
-{ return colselfld_ ? &colselfld_->colorChanged : 0; }
+{
+    return colselfld_ ? &colselfld_->colorChanged : 0;
+}
 
 
 void uiMarkerStyle3D::getMarkerStyle( OD::MarkerStyle3D& st ) const
@@ -84,15 +91,21 @@ void uiMarkerStyle3D::getMarkerStyle( OD::MarkerStyle3D& st ) const
 
 
 OD::MarkerStyle3D::Type uiMarkerStyle3D::getType() const
-{ return markertypedef_.getEnumForIndex( typefld_->getIntValue() ); }
+{
+    return markertypedef_.getEnumForIndex( typefld_->getIntValue() );
+}
 
 
 Color uiMarkerStyle3D::getColor() const
-{ return colselfld_ ? colselfld_->color() : Color::Black(); }
+{
+    return colselfld_ ? colselfld_->color() : Color::Black();
+}
 
 
 int uiMarkerStyle3D::getSize() const
-{ return sliderfld_->getIntValue(); }
+{
+    return sizefld_->getIntValue();
+}
 
 
 void uiMarkerStyle3D::setMarkerStyle( const OD::MarkerStyle3D& st )
@@ -104,5 +117,5 @@ void uiMarkerStyle3D::setMarkerStyle( const OD::MarkerStyle3D& st )
     typefld_->setValue( idx );
     if ( colselfld_ )
 	colselfld_->setColor( st.color_ );
-    sliderfld_->setValue( st.size_ );
+    sizefld_->setValue( st.size_ );
 }

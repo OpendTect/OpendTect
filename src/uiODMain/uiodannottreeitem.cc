@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
+#include "uipicksettools.h"
 #include "vislocationdisplay.h"
 #include "vissurvscene.h"
 
@@ -32,25 +33,23 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "picksetmgr.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include "ptrman.h"
 #include "uicolor.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
 
 
-//namespace Annotations
-//{
-
 
 uiODAnnotParentTreeItem::uiODAnnotParentTreeItem()
     : uiTreeItem( tr("Annotations") )
-{}
+{
+}
 
 
 uiODAnnotParentTreeItem::~uiODAnnotParentTreeItem()
-{}
+{
+}
 
 
 bool uiODAnnotParentTreeItem::rightClick( uiTreeViewItem* itm )
@@ -85,7 +84,9 @@ bool uiODAnnotParentTreeItem::init()
 
 
 const char* uiODAnnotParentTreeItem::parentType() const
-{ return typeid(uiODTreeTop).name(); }
+{
+    return typeid(uiODTreeTop).name();
+}
 
 
 // TreeItemFactory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -93,33 +94,6 @@ const char* uiODAnnotParentTreeItem::parentType() const
 uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 					      uiTreeItem* treeitem ) const
 {
-    visBase::DataObject* dataobj =
-	ODMainWin()->applMgr().visServer()->getObject(visid);
-    if ( !dataobj ) return 0;
-
-    mDynamicCastGet(visSurvey::LocationDisplay*,ld, dataobj );
-    if ( !ld ) return 0;
-
-    if ( treeitem->findChild( visid ) )
-	return 0;
-
-    const MultiID mid = ld->getMultiID();
-    const char* factoryname = 0;
-
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( factoryname );
-    int setidx = mgr.indexOf(mid);
-    if ( setidx==-1 )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	Pick::Set* ps = new Pick::Set;
-	uiString errmsg;
-	PickSetTranslator::retrieve(*ps,ioobj,errmsg);
-	mgr.set( mid, ps );
-
-	setidx = mgr.indexOf(mid);
-
-    }
-
     return 0;
 }
 
@@ -129,82 +103,24 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type )
     : uiODTreeItem(type)
     , typestr_(type)
-{ }
+{
+}
 
 
 uiODAnnotTreeItem::~uiODAnnotTreeItem()
-{}
+{
+}
 
 
 const char* uiODAnnotTreeItem::parentType() const
-{ return typeid(uiODAnnotParentTreeItem).name(); }
+{
+    return typeid(uiODAnnotParentTreeItem).name();
+}
 
 
 bool uiODAnnotTreeItem::init()
 {
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.setToBeRemoved.notify( mCB(this,uiODAnnotTreeItem,setRemovedCB));
     return true;
-}
-
-
-void uiODAnnotTreeItem::prepareForShutdown()
-{
-    Pick::SetMgr::getMgr( managerName() ).removeCBs( this );
-}
-
-
-void uiODAnnotTreeItem::addPickSet( Pick::Set* ps )
-{
-    if ( !ps ) return;
-
-    uiTreeItem* item = createSubItem( -1, *ps );
-    addChild( item, true );
-}
-
-
-void uiODAnnotTreeItem::removePickSet( Pick::Set* ps )
-{
-    if ( !ps ) return;
-    uiVisPartServer* visserv = applMgr()->visServer();
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[idx])
-	    if ( !itm ) continue;
-
-	const int displayid = itm->displayID();
-	mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    visserv->getObject(displayid));
-	if ( !ld ) continue;
-
-	if ( ld->getSet() == ps )
-	{
-	    applMgr()->visServer()->removeObject( displayid, sceneID() );
-	    uiTreeItem::removeChild( itm );
-	    return;
-	}
-    }
-}
-
-
-void uiODAnnotTreeItem::setRemovedCB( CallBacker* cb )
-{
-    mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps ) return;
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet(uiODAnnotSubItem*,itm,children_[idx])
-	    if ( !itm ) continue;
-	if ( itm->getSet() == ps )
-	{
-	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	    uiTreeItem::removeChild( itm );
-	    return;
-	}
-    }
-
 }
 
 
@@ -228,6 +144,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     if ( mnusel < 0 )
 	return false;
 
+    Pick::Set* newps = 0;
     if ( mnusel == 0 )
     {
 	const uiString title = tr( "%1 Annotations").arg(typestr_);
@@ -237,83 +154,88 @@ bool uiODAnnotTreeItem::showSubMenu()
 
 	while ( true )
 	{
-	    if ( !dlg.go() ) return false;
+	    if ( !dlg.go() )
+		return false;
 
 	    const char* txt = dlg.text();
-	    if ( !txt || !*txt ) continue;
+	    if ( !txt || !*txt )
+		continue;
 
-	    if ( uiODAnnotSubItem::doesNameExist( txt ) &&
-	         !uiMSG().askOverwrite(
+	    const bool exists = Pick::SetMGR().nameExists( txt );
+	    if ( exists && !uiMSG().askOverwrite(
 		 tr("An object with that name already "
 		    "exists.\nDo you wish to overwrite it?")))
 		continue;
 
-	    MultiID mid;
-	    if ( uiODAnnotSubItem::createIOEntry(txt,true,mid,managerName())!=1)
-		return false;
-
-	    Pick::Set* set = new Pick::Set(txt);
-	    set->setDispColor( getRandStdDrawColor() );
-	    if ( defScale()!=-1 )
-		set->setDispSize( defScale() );
-	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	    mgr.set( mid, set );
-	    uiTreeItem* item = createSubItem( -1, *set );
-	    addChild( item, true );
+	    newps = makeNewSet( txt );
 	    break;
 	}
     }
     else if ( mnusel == 1 )
     {
-	Pick::Set* ps = new Pick::Set;
-	if ( !readPicks(*ps) )
-	    { delete ps; return false; }
+	newps = readExistingSet();
     }
-    handleStandardItems( mnusel );
+    else
+    {
+	handleStandardItems( mnusel );
+	return true;
+    }
 
+    if ( !newps )
+	return false;
+
+    uiTreeItem* item = createSubItem( -1, *newps );
+    addChild( item, true );
     return true;
 }
 
 #define mDelCtioRet { delete ctio->ioobj_; delete ctio; return false; }
 
-
-bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
+Pick::Set* uiODAnnotTreeItem::makeNewSet( const char* nm ) const
 {
-    CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
-    ctio->ctxt_.forread_ = true;
-    ctio->ctxt_.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
-    uiIOObjSelDlg dlg( getUiParent(), *ctio );
-    if ( !dlg.go() || !dlg.ioObj() )
-	mDelCtioRet;
+    Pick::Set* ps = new Pick::Set( nm, getCategory() );
+    ps->setDispColor( getRandStdDrawColor() );
+    if ( defScale() >= 0 )
+	ps->setDispSize( defScale() );
 
-    if ( defScale()!=-1 )
-	ps.setDispSize( defScale() );
+    uiString errmsg = Pick::SetMGR().store( *ps );
+    if ( !errmsg.isEmpty() )
+	{ uiMSG().error( errmsg ); return 0; }
+
+    ps->ref();
+    return ps;
+}
+
+
+Pick::Set* uiODAnnotTreeItem::readExistingSet() const
+{
+    IOObjContext ctxt = uiPickSetIOObjSel::getCtxt( uiPickSetIOObjSel::AllSets,
+						    true, getCategory() );
+    uiIOObjSelDlg dlg( getUiParent(), ctxt );
+    if ( !dlg.go() || !dlg.ioObj() )
+	return 0;
 
     uiString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),errmsg) )
-	{ uiMSG().error( errmsg ); mDelCtioRet; }
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( dlg.ioObj()->key(),
+							errmsg );
+    if ( !errmsg.isEmpty() )
+	{ uiMSG().error( errmsg ); return 0; }
 
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    if ( mgr.indexOf(dlg.ioObj()->key() ) == -1 )
-    {
-	mgr.set( dlg.ioObj()->key(), &ps );
-	const int setidx = mgr.indexOf( ps );
-	mgr.setUnChanged( setidx );
-	addPickSet( &ps );
-    }
-    return true;
+    ps->ref(); // need to ref now because RefMan will go out of scope
+    return ps;
 }
 
 // SubItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
-    : set_( &set )
+    : set_( set )
     , defscale_(mCast(float,set.dispSize()))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
 {
-    name_ = toUiString(set_->name());
+    // no set_.ref() as it's already done by uiODAnnotTreeItem
+    name_ = toUiString( set_.name() );
     displayid_ = displayid;
 
     storemnuitem_.iconfnm = "save";
@@ -323,23 +245,7 @@ uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
 
 uiODAnnotSubItem::~uiODAnnotSubItem()
 {
-}
-
-
-void uiODAnnotSubItem::prepareForShutdown()
-{
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    if ( mgr.isChanged(setidx) )
-    {
-	uiString msg = tr("The annotation group %1 "
-			  "is not saved.\n\nDo you want to save it?")
-		     .arg(name());
-	if ( uiMSG().askSave(msg,false) )
-	    store();
-    }
-
-    removeStuff();
+    set_.unRef();
 }
 
 
@@ -348,18 +254,22 @@ bool uiODAnnotSubItem::init()
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
 		    visserv_->getObject(displayid_));
     if ( ld )
-    {
-	ld->setSetMgr( &Pick::SetMgr::getMgr( managerName()) );
-	ld->setSet( set_ );
-    }
+	ld->setSet( &set_ );
 
     return uiODDisplayTreeItem::init();
 }
 
 
+MultiID uiODAnnotSubItem::getSetID() const
+{
+    return Pick::SetMGR().getID( set_ );
+}
+
+
 void uiODAnnotSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    if ( !menu || menu->menuID()!=displayID() )
+    const MultiID setid = getSetID();
+    if ( !menu || menu->menuID()!=displayID() || setid.isUdf() )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
@@ -367,10 +277,8 @@ void uiODAnnotSubItem::createMenu( MenuHandler* menu, bool istb )
     if ( hasScale() )
 	mAddMenuOrTBItem(istb,0,menu,&scalemnuitem_,!islocked,false);
 
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
     mAddMenuOrTBItem(istb,menu,menu,&storemnuitem_,
-		     mgr.isChanged(setidx),false);
+		     Pick::SetMGR().needsSave(setid),false);
     mAddMenuOrTBItem(istb,0,menu,&storeasmnuitem_,true,false);
 }
 
@@ -385,11 +293,12 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
 		    visserv_->getObject(displayid_));
-    if ( !ld ) return;
+    if ( !ld )
+	return;
 
     if ( mnuid==scalemnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	uiDialog dlg( getUiParent(), uiDialog::Setup(tr("Set Size"),
                                                      uiStrings::sSize(),
 						     mNoHelpKey) );
@@ -398,18 +307,18 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
-	sliderfld->setValue( mCast(float,set_->dispSize()/defscale_));
+	sliderfld->setValue( mCast(float,set_.dispSize()/defscale_));
 	sliderfld->valueChanged.notify( mCB(this,uiODAnnotSubItem,scaleChg) );
 	dlg.go();
     }
     else if ( mnuid==storemnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	store();
     }
     else if ( mnuid==storeasmnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	storeAs();
 	updateColumnText( 0 );
     }
@@ -418,124 +327,39 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 
 void uiODAnnotSubItem::store() const
 {
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-
-    const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( !ioobj )
-    {
-	storeAs( true );
-	return;
-    }
-
-    ioobj->pars().set( sKey::Type(), managerName() );
-    IOM().commitChanges( *ioobj );
-
-    IOPar psiop( set_->pars() );
-    fillStoragePar( psiop );
-    set_->setPars( psiop );
-    uiString errmsg;
-    if ( !PickSetTranslator::store(*set_,ioobj,errmsg ) )
+    IOPar ioobjpars; fillStoragePar( ioobjpars );
+    uiString errmsg = Pick::SetMGR().store( set_, getSetID(), &ioobjpars );
+    if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
-    else
-	mgr.setUnChanged( setidx );
 }
 
 
-bool uiODAnnotSubItem::doesNameExist( const char* nm )
+void uiODAnnotSubItem::storeAs() const
 {
-    IOM().to( PickSetTranslatorGroup::ioContext().getSelKey() );
-    PtrMan<IOObj> local =
-	IOM().getLocal( nm, 0 );
-    return local;
-}
+    const char* nm = set_.name();
+    IOObjContext ctxt( uiPickSetIOObjSel::getCtxt(uiPickSetIOObjSel::AllSets,
+					    false,getCategory()) );
+    ctxt.setName( nm );
+    uiIOObjSelDlg dlg( getUiParent(), ctxt );
+    if ( !dlg.go() || !dlg.ioObj() )
+	return;
 
-
-char uiODAnnotSubItem::createIOEntry( const char* nm, bool overwrite,
-				    MultiID& mid, const char* mannm )
-{
-    if ( !overwrite && doesNameExist(nm) )
-	return 0;
-
-    CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-    ctio.ctxt_.forread_ = false;
-    ctio.ctxt_.toselect_.require_.set( sKey::Type(), mannm );
-    ctio.setName( nm );
-    ctio.fillObj();
-    if ( !ctio.ioobj_ )
-	return -1;
-
-    mid = ctio.ioobj_->key();
-    delete ctio.ioobj_;
-    return 1;
-}
-
-
-void uiODAnnotSubItem::storeAs( bool trywitoutdlg ) const
-{
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-
-    const char* nm = set_->name();
-    MultiID mid;
-
-    if ( trywitoutdlg )
-    {
-	const char res = createIOEntry( nm, false, mid, managerName() );
-	if ( res==-1 )
-	    return;
-	if ( res==0 )
-	{
-	    storeAs( false );
-	    return;
-	}
-    }
-    else
-    {
-	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-	ctio.ctxt_.forread_ = false;
-	ctio.ctxt_.toselect_.require_.set( sKey::Type(), managerName() );
-	ctio.setName( nm );
-	uiIOObjSelDlg dlg( getUiParent(), ctio );
-	if ( !dlg.go() )
-	    { delete ctio.ioobj_; return; }
-	mid = dlg.chosenID( 0 );
-    }
-
-    mgr.setID( setidx, mid );
-    store();
+    uiString errmsg = Pick::SetMGR().saveAs( getSetID(), dlg.ioObj()->key() );
+    if ( !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
 }
 
 
 void uiODAnnotSubItem::setScale( float ns )
 {
-    mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-		    visserv_->getObject(displayid_));
-    if ( !ld ) return;
-
     const int newscale = mNINT32( ns );
-    Pick::Set* set = ld->getSet();
-    if ( set->dispSize()==newscale )
-	return;
-
-    set->setDispSize( newscale );
-
-    Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
+    set_.setDispSize( newscale );
 }
 
 
 void uiODAnnotSubItem::setColor( Color nc )
 {
-    mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-		    visserv_->getObject(displayid_));
-    if ( !ld ) return;
-
-    Pick::Set* set = ld->getSet();
-    if ( set->dispColor()!=nc )
-    {
-	set->setDispColor( nc );
-	Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
-    }
+    set_.setDispColor( nc );
 }
 
 
@@ -545,16 +369,4 @@ void uiODAnnotSubItem::scaleChg( CallBacker* cb )
     if ( !slider ) return;
     const float newscale = defscale_ * slider->getValue();
     setScale( newscale );
-}
-
-
-void uiODAnnotSubItem::removeStuff()
-{
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    const int setidx = mgr.indexOf( *set_ );
-    if ( setidx >= 0 )
-    {
-	mgr.set( mgr.id(setidx), 0 );
-    }
-    mgr.removeCBs( this );
 }

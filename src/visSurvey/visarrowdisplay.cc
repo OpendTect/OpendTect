@@ -94,10 +94,10 @@ void ArrowDisplay::zScaleCB( CallBacker* )
 }
 
 
-void ArrowDisplay::dispChg( CallBacker* cb )
+void ArrowDisplay::dispChg()
 {
+    LocationDisplay::dispChg();
     fullRedraw();
-    LocationDisplay::dispChg( cb );
 }
 
 

@@ -14,7 +14,7 @@
 #include "ioobj.h"
 #include "ioman.h"
 #include "ptrman.h"
-#include "picksettr.h"
+#include "picksetmanager.h"
 #include <math.h>
 
 
@@ -144,11 +144,11 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
     ODPolygon<float>* ret = 0;
     if ( res && *res )
     {
-	PtrMan<IOObj> ioobj = IOM().get( res );
-	if ( ioobj )
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( MultiID(res) );
+	if ( ps )
 	{
-	    uiString errmsg;
-	    ret = PickSetTranslator::getPolygon(*ioobj,errmsg);
+	    ret = new ODPolygon<float>;
+	    ps->getPolygon( *ret );
 	}
     }
 

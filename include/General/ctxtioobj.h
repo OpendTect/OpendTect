@@ -107,7 +107,8 @@ public:
     static BufferString		getDataDirName(StdSelType);
 				//!< Including legacy names - smart
 
-    const char*		objectTypeName() const;
+    FixedString		objectTypeName() const;
+    FixedString		translatorGroupName() const;
     inline bool		hasStdSelKey() const	{ return stdseltype_ != None; }
     MultiID		getSelKey() const;
     IOStream*		crDefaultWriteObj(const Translator&,

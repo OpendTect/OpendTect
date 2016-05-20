@@ -19,14 +19,14 @@ mExpClass(uiVis) uiMarkerStyleDlg : public uiDialog
 { mODTextTranslationClass(uiMarkerStyleDlg);
 protected:
 
-    			uiMarkerStyleDlg(uiParent*,const uiString& title);
+			uiMarkerStyleDlg(uiParent*,const uiString& title);
 
     uiMarkerStyle3D*	stylefld_;
 
     bool		acceptOK(CallBacker*);
     virtual void	doFinalise(CallBacker*)		=0;
 
-    virtual void	sliderMove(CallBacker*)		=0;
+    virtual void	sizeChg(CallBacker*)		=0;
     virtual void	typeSel(CallBacker*)		=0;
     virtual void	colSel(CallBacker*)		=0;
 

@@ -44,55 +44,159 @@ static bool isActiveByDefault()
 
 
 OD::Saveable::Saveable( const Monitorable& obj )
-    : obj_(obj)
-    , objdeleted_(false)
+    : monitored_(&obj)
+    , monitoredalive_(true)
 {
-    mAttachCB( const_cast<Monitorable&>(obj).objectToBeDeleted(),
-	       Saveable::objDel );
+    attachCBToObj();
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+OD::Saveable::Saveable( const Saveable& oth )
+    : monitored_(oth.monitored_)
+{
+    *this = oth;
     mTriggerInstanceCreatedNotifier();
 }
 
 
 OD::Saveable::~Saveable()
 {
-    detachAllNotifiers();
+    detachCBFromObj();
     sendDelNotif();
 }
 
 
-void OD::Saveable::objDel( CallBacker* )
+OD::Saveable& OD::Saveable::operator =( const Saveable& oth )
 {
-    mLock4Write();
-    objdeleted_ = true;
+    if ( this != &oth )
+    {
+	Monitorable::operator =( oth );
+	mLock4Write();
+	detachCBFromObj();
+	AccessLockHandler lh( oth );
+	monitored_ = oth.monitored_;
+	storekey_ = oth.storekey_;
+	ioobjpars_ = oth.ioobjpars_;
+	monitoredalive_ = oth.monitoredalive_;
+	errmsg_ = oth.errmsg_;
+	attachCBToObj();
+    }
+    return *this;
+}
+
+
+void OD::Saveable::setMonitored( const Monitorable& obj )
+{
+    mLock4Read();
+    if ( monitored_ == &obj )
+	return;
+
+    mLock2Write();
+    detachCBFromObj();
+    monitored_ = &obj;
+    monitoredalive_ = true;
+    attachCBToObj();
+}
+
+
+void OD::Saveable::attachCBToObj()
+{
+    if ( monitoredalive_ )
+	mAttachCB( const_cast<Monitorable&>(*monitored_).objectToBeDeleted(),
+		   Saveable::objDelCB );
+}
+
+
+void OD::Saveable::detachCBFromObj()
+{
+    if ( monitoredalive_ )
+	mDetachCB( const_cast<Monitorable&>(*monitored_).objectToBeDeleted(),
+		   Saveable::objDelCB );
+}
+
+
+const Monitorable* OD::Saveable::monitored() const
+{
+    mLock4Read();
+    return monitored_;
+}
+
+
+void OD::Saveable::objDelCB( CallBacker* )
+{
+    monitoredalive_ = false;
 }
 
 
 bool OD::Saveable::save() const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key() );
-    if ( ioobj )
-	return store( *ioobj );
+    mLock4Read();
+    if ( !monitoredalive_ )
+	{ pErrMsg("Attempt to save already deleted object"); return true; }
 
-    if ( key().isEmpty() )
+    PtrMan<IOObj> ioobj = IOM().get( storekey_ );
+    if ( ioobj )
+    {
+	if ( !ioobj->pars().includes(ioobjpars_) )
+	{
+	    ioobj->pars().merge( ioobjpars_ );
+	    IOM().commitChanges( *ioobj );
+	    ioobj = IOM().get( storekey_ );
+	}
+	if ( store(*ioobj) )
+	{
+	    setNoSaveNeeded();
+	    return true;
+	}
+    }
+
+    if ( storekey_.isEmpty() )
 	errmsg_ = tr("Cannot save object without database key");
     else
-	errmsg_ = tr("Cannot find database entry for: %1").arg(key());
+	errmsg_ = tr("Cannot find database entry for: %1").arg(storekey_);
     return false;
+}
+
+
+bool OD::Saveable::needsSave() const
+{
+    return !monitoredalive_ ? false
+	 : lastsavedirtycount_ != monitored_->dirtyCount();
+}
+
+
+void OD::Saveable::setNoSaveNeeded() const
+{
+    if ( monitoredalive_ )
+	lastsavedirtycount_ = monitored_->dirtyCount();
 }
 
 
 bool OD::Saveable::store( const IOObj& ioobj ) const
 {
+    mLock4Read();
+    if ( !monitoredalive_ )
+	{ pErrMsg("Attempt to store already deleted object"); return true; }
     return doStore( ioobj );
 }
 
 
 OD::AutoSaveable::AutoSaveable( const Monitorable& obj )
     : Saveable(obj)
-    , nrclocksecondsbetweensaves_(defaultNrSecondsBetweenSaves())
+    , nrclocksecondsbetweenautosaves_(defaultNrSecondsBetweenSaves())
     , autosavenr_(1)
-    , prevautosaveioobj_(0)
+    , lastautosaveioobj_(0)
 {
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+OD::AutoSaveable::AutoSaveable( const AutoSaveable& oth )
+    : Saveable(oth)
+    , lastautosaveioobj_(0)
+{
+    *this = oth;
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -101,16 +205,47 @@ OD::AutoSaveable::~AutoSaveable()
 {
     detachAllNotifiers();
     sendDelNotif();
-    delete prevautosaveioobj_;
+    delete lastautosaveioobj_;
+}
+
+
+OD::AutoSaveable& OD::AutoSaveable::operator =( const AutoSaveable& oth )
+{
+    if ( this != &oth )
+    {
+	Saveable::operator =( oth );
+	AccessLockHandler lh( oth );
+	mLock4Write();
+	nrclocksecondsbetweenautosaves_ = oth.nrclocksecondsbetweenautosaves_;
+	lastautosaveclockseconds_ = oth.lastautosaveclockseconds_;
+	curclockseconds_ = oth.curclockseconds_;
+	delete lastautosaveioobj_;
+	if ( oth.lastautosaveioobj_ )
+	    lastautosaveioobj_ = new IOStream( *oth.lastautosaveioobj_ );
+	else
+	    lastautosaveioobj_ = 0;
+    }
+    return *this;
+}
+
+
+
+bool OD::AutoSaveable::save() const
+{
+    if ( !Saveable::save() )
+	return false;
+    if ( monitoredalive_ )
+	userSaveOccurred();
+    return true;
 }
 
 
 bool OD::AutoSaveable::store( const IOObj& ioobj ) const
 {
-    if ( !doStore(ioobj) )
+    if ( !Saveable::store(ioobj) )
 	return false;
-
-    userSaveOccurred();
+    if ( monitoredalive_ )
+	userSaveOccurred();
     return true;
 }
 
@@ -123,37 +258,39 @@ void OD::AutoSaveable::remove( const IOObj& ioobj ) const
 
 void OD::AutoSaveable::removePrevAutoSaved() const
 {
-    if ( !prevautosaveioobj_ )
+    if ( !lastautosaveioobj_ )
 	return;
 
-    remove( *prevautosaveioobj_ );
-    IOM().permRemove( prevautosaveioobj_->key() );
-    delete prevautosaveioobj_;
-    prevautosaveioobj_ = 0;
+    remove( *lastautosaveioobj_ );
+    IOM().permRemove( lastautosaveioobj_->key() );
+    delete lastautosaveioobj_;
+    lastautosaveioobj_ = 0;
 }
 
 
 void OD::AutoSaveable::initAutoSave() const
 {
-    prevfingerprint_ = getFingerPrint();
+    lastautosavedirtycount_ = monitoredalive_ ? monitored()->dirtyCount() : 0;
 }
 
 
 bool OD::AutoSaveable::needsAutoSaveAct( int clockseconds ) const
 {
-    mLock4Read();
-    if ( objdeleted_ || (!mLock2Write() && objdeleted_) )
+    if ( !monitoredalive_ )
+	return false;
+    mLock4Write();
+    if ( !monitoredalive_ )
 	return false;
 
     curclockseconds_ = clockseconds;
-    return curclockseconds_ - lastsaveclockseconds_
-	>= nrclocksecondsbetweensaves_;
+    return curclockseconds_ - lastautosaveclockseconds_
+	>= nrclocksecondsbetweenautosaves_;
 }
 
 
 bool OD::AutoSaveable::autoSave() const
 {
-    return isFinished() || doAutoSaveWork(false);
+    return !monitoredalive_ || doAutoSaveWork(false);
 }
 
 
@@ -161,40 +298,44 @@ bool OD::AutoSaveable::autoSave() const
 void OD::AutoSaveable::userSaveOccurred() const
 {
     removePrevAutoSaved();
-    lastsaveclockseconds_ = curclockseconds_ + 1;
+    lastautosaveclockseconds_ = curclockseconds_ + 1;
 }
 
 
 bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
 {
-    AccessLockHandler lockhandler( obj_ );	// locks the object
-    mLock4Read();				// locks me
-    if ( objdeleted_ )
+    if ( !monitoredalive_ )
 	return true;
 
-    lastsaveclockseconds_ = curclockseconds_;
-    const BufferString fingerprint( getFingerPrint() );
-    if ( !forcesave && fingerprint == prevfingerprint_ )
+    mLock4Write();
+    if ( !monitoredalive_ )
 	return true;
 
-    const IODir iodir( key_ );
-    BufferString storenm( ".autosave_", key_, "_" );
+    const int dirtycount = monitored_->dirtyCount();
+    lastautosaveclockseconds_ = curclockseconds_;
+    if ( !forcesave && (dirtycount == lastsavedirtycount_
+		     || dirtycount == lastautosavedirtycount_ ) )
+	return true;
+
+    const IODir iodir( storekey_ );
+    BufferString storenm( ".autosave_", storekey_, "_" );
     storenm.add( autosavenr_++ );
     IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
-    newstoreioobj->pars().update( sKey::CrFrom(), key_ );
+    newstoreioobj->pars().update( sKey::CrFrom(), storekey_ );
     newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
     newstoreioobj->updateCreationPars();
     if ( !doStore(*newstoreioobj) )
     {
 	delete newstoreioobj; newstoreioobj = 0;
-	prevfingerprint_.setEmpty();
+	lastautosavedirtycount_ = 0;
 	return false;
     }
     else
     {
-	prevfingerprint_ = fingerprint;
+	lastautosavedirtycount_ = monitoredalive_ ? monitored_->dirtyCount()
+						  : dirtycount;
 	removePrevAutoSaved();
-	prevautosaveioobj_ = newstoreioobj;
+	lastautosaveioobj_ = newstoreioobj;
     }
 
     return true;
@@ -355,7 +496,7 @@ void OD::AutoSaveMgr::go()
 	for ( int isvr=0; isvr<svrs.size(); isvr++ )
 	{
 	    AutoSaveable* saver = svrs[isvr];
-	    if ( saver->isFinished() )
+	    if ( !saver->monitoredAlive() )
 		finishedsvrs += saver;
 	    else if ( saver->needsAutoSaveAct(nrcycles) )
 		(saver->autoSave() ? saveDone : saveFailed).trigger( saver );

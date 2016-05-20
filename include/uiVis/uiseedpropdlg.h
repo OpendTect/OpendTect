@@ -28,7 +28,7 @@ protected:
 
     void		doFinalise(CallBacker*);
 
-    void		sliderMove(CallBacker*);
+    void		sizeChg(CallBacker*);
     void		typeSel(CallBacker*);
     void		colSel(CallBacker*);
     void		updateMarkerStyle();

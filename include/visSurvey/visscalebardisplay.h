@@ -26,7 +26,7 @@ mExpClass(visSurvey) ScaleBarDisplay : public LocationDisplay
 public:
     static ScaleBarDisplay*	create()
 				mCreateDataObj(ScaleBarDisplay);
-    				~ScaleBarDisplay();
+				~ScaleBarDisplay();
 
     void			setOnInlCrl(bool);
     bool			isOnInlCrl() const;
@@ -62,7 +62,7 @@ protected:
 					const visBase::EventInfo& evi)const;
 
     void			zScaleCB(CallBacker*);
-    void			dispChg(CallBacker*);
+    virtual void		dispChg();
 
     bool			oninlcrl_;
     int				orientation_;
