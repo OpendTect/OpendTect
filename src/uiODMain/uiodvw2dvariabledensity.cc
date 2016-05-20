@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uistrings.h"
+#include "uiseispartserv.h"
 #include "uitreeview.h"
 
 #include "attribdesc.h"
@@ -27,6 +28,7 @@ ________________________________________________________________________
 #include "attribdescsetsholder.h"
 #include "coltabsequence.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
@@ -250,33 +252,25 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( false, true );
     if ( !dp ) return;
 
+    uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
     MenuItem* subitem = 0;
-    applMgr()->attrServer()->resetMenuItems();
+    attrserv->resetMenuItems();
 
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
     const bool is2d = regfdp && regfdp->is2D();
+    Pos::GeomID geomid = viewer2D()->geomID();
+    subitem = attrserv->storedAttribMenuItem(as,is2d,false);
     if ( is2d )
-    {
-//	BufferString ln;
-//	dp2ddh->getLineName( ln );
-// TODO: Use lnm to get attributes for this line only
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,false);
-    }
-    else
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
+	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 0 );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    subitem = applMgr()->attrServer()->calcAttribMenuItem( as, is2d, true );
-    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
+    subitem = attrserv->calcAttribMenuItem( as, is2d, true );
     if ( is2d )
-    {
-//	BufferString ln;
-//	dp2ddh->getLineName( ln );
-// TODO: Use lnm to get attributes for this line only
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,true);
-    }
-    else
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true );
+	attrserv->filter2DMenuItems( *subitem, as, geomid, false, 2 );
+    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
+    subitem = attrserv->storedAttribMenuItem(as,is2d,true );
+    if ( is2d )
+	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 1 );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 }
 

@@ -839,11 +839,14 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &selattrmnuitem_, &storeditm_, true, docheckparent );
 
     MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true, false );
-    mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(), false );
+    attrserv->filter2DMenuItems( *attrmenu, as, s2d->getGeomID(), false, 2 );
+    mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(),
+		  attrmenu->checked );
 
     MenuItem* nla = attrserv->nlaAttribMenuItem( as, true, false );
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
+    // TODO attrserv->filter2DMenuItems( *nla, as, s2d->getGeomID(), false, 0 );
 
     BufferStringSet steerdatanames;
     seisserv->get2DStoredAttribs( objnm, steerdatanames, 1 );

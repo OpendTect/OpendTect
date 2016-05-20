@@ -188,33 +188,25 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
     MenuItem* subitem = 0;
-    applMgr()->attrServer()->resetMenuItems();
+    uiAttribPartServer* attrserv = applMgr()->attrServer();
+    attrserv->resetMenuItems();
 
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
     const bool is2d = regfdp && regfdp->is2D();
+    Pos::GeomID geomid = viewer2D()->geomID();
+    subitem = applMgr()->attrServer()->storedAttribMenuItem(as,is2d,false);
     if ( is2d )
-    {
-//	BufferString lnm;
-//	dp2ddh->getLineName( lnm );
-// TODO: Use lnm to get attributes for this line only
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,false);
-    }
-    else
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
+	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 0 );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 
     subitem = applMgr()->attrServer()->calcAttribMenuItem( as, is2d, true );
+    if ( is2d )
+	attrserv->filter2DMenuItems( *subitem, as, geomid, false, 2 );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 
+    subitem = applMgr()->attrServer()->storedAttribMenuItem(as,is2d,true);
     if ( is2d )
-    {
-//	BufferString lnm;
-//	dp2ddh->getLineName( lnm );
-// TODO: Use lnm to get attributes for this line only
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,true);
-    }
-    else
-	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true);
+	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 1 );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 }
 

@@ -259,6 +259,9 @@ private:
 public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    int rdlidx);
+    void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
+					  int geomid, bool isstored,
+					  int steerpol );
 };
 
 #endif
