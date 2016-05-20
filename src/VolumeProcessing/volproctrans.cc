@@ -134,7 +134,7 @@ defineTranslatorGroup(VolProcessing2D,"2D Volume Processing Setup");
 defineTranslator(dgb,VolProcessing2D,mDGBKey);
 
 uiString VolProcessing2DTranslatorGroup::sTypeName(int num)
-{ return tr("Volume Processing Setup",0,num); }
+{ return tr("2D Volume Processing Setup",0,num); }
 
 mDefSimpleTranslatorioContext(VolProcessing2D,Misc)
 mDefSimpleTranslatorSelector(VolProcessing2D);
@@ -210,7 +210,7 @@ const char* dgbVolProcessing2DTranslator::read( VolProc::Chain& chain,
     if ( !astrm.isOK() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing2D)) )
-	return "Input file is not a Volume Processing setup file";
+	return "Input file is not a 2D Volume Processing setup file";
     if ( atEndOfSection(astrm) ) astrm.next();
 
     IOPar par;
@@ -233,12 +233,12 @@ const char* dgbVolProcessing2DTranslator::write( const VolProc::Chain& chain,
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(VolProcessing2D) );
     if ( !astrm.isOK() )
-	return "Cannot write to output Volume Processing setup file";
+	return "Cannot write to output 2D Volume Processing setup file";
 
     IOPar par;
     chain.fillPar( par );
     par.putTo( astrm );
 
     return astrm.isOK() ? 0
-	:  "Error during write to output Volume Processing setup file";
+	:  "Error during write to output 2D Volume Processing setup file";
 }
