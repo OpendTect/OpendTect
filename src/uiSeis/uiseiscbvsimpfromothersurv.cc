@@ -119,11 +119,8 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     import_->setOutput( const_cast<IOObj&>(*outioobj) );
     uiTaskRunner taskrunner( this );
 
-    if ( TaskRunner::execute( &taskrunner, *import_ ) )
-    {
-	uiMSG().error(uiStrings::phrCannotImport(uiStrings::sData()));
+    if ( !TaskRunner::execute( &taskrunner, *import_ ) )
 	return false;
-    }
 
     uiString msg = tr("CBVS cube successfully imported\n\n"
 		      "Do you want to import more cubes?");
