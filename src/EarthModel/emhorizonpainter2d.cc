@@ -102,7 +102,7 @@ bool HorizonPainter2D::addPolyLine()
 	FlatView::AuxData* seedauxdata =
 	    viewer_.createAuxData( "Horizon2D Marker" );
 	seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
-	    				    : MouseCursor::Arrow;
+					    : MouseCursor::Arrow;
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
@@ -117,23 +117,21 @@ bool HorizonPainter2D::addPolyLine()
 
 	Marker2D* marker = 0;
 	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-	BinID bid;
-
-	while ( iter.next(bid) )
+	do
 	{
-	    int inlfromcs = bid.inl();
+	    TrcKey trk( iter.curTrcKey() );
 	    if ( hor2d->geometry().lineIndex( geomid_ ) < 0 )
 		continue;
 	    else
-		bid.inl() = hor2d->geometry().lineIndex( geomid_ );
+		trk.setGeomID( hor2d->geometry().lineIndex( geomid_ ) );
 
-	    const Coord3 crd = hor2d->getPos( sid, bid.toInt64() );
-	    EM::PosID posid( id_, sid, bid.toInt64() );
+	    const EM::SubID subid( trk.position().toInt64() );
+	    const Coord3 crd = hor2d->getPos( sid, subid );
+	    const EM::PosID posid( id_, sid, subid );
 
 	    if ( !crd.isDefined() )
 	    {
 		coorddefined = false;
-		bid.inl() = inlfromcs;
 		continue;
 	    }
 	    else if ( !coorddefined )
@@ -164,7 +162,7 @@ bool HorizonPainter2D::addPolyLine()
 		newmarker = false;
 	    }
 
-	    int idx = trcnos_.indexOf(bid.crl());
+	    int idx = trcnos_.indexOf( trk.trcNr() );
 	    if ( idx == -1 )
 		continue;
 
@@ -176,8 +174,7 @@ bool HorizonPainter2D::addPolyLine()
 		markerseeds_->marker_->poly_ +=
 		    FlatView::Point( distances_[idx], z );
 
-	    bid.inl() = inlfromcs;
-	}
+	} while ( iter.next() );
     }
 
     return true;
@@ -246,9 +243,9 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 	{
 	    for ( int idz=0; idz<intsect->size(); idz++ )
 	    {
-		const Line2DInterSection::Point& intpoint = 
+		const Line2DInterSection::Point& intpoint =
 		    intsect->getPoint(idz);
-		int trcnr = geomids[idy] != 
+		int trcnr = geomids[idy] !=
 		    geomid_ ? intpoint.linetrcnr : intpoint.mytrcnr;
 		if ( geomids[idy] != geomid_ )
 		{
@@ -256,7 +253,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 			continue;
 		}
 		float x = .0f;
-		Coord3 crd = hor2d->getPos( 
+		Coord3 crd = hor2d->getPos(
 		    EM::SectionID(sid), geomids[idy], trcnr );
 		ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
 		const float z = zat ? zat->transform(crd) : (float)crd.z;

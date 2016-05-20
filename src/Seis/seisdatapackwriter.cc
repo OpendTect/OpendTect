@@ -153,11 +153,8 @@ int SeisDataPackWriter::nextStep()
 	if ( transl ) transl->setComponentNames( compnames );
     }
 
-    BinID currentpos;
-    if ( !iterator_.next( currentpos ) )
-	return Finished();
-
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
+    const BinID currentpos( iterator_.curBinID() );
 
     trc_->info().setBinID( currentpos );
     trc_->info().nr_ = is2d_ ? currentpos.trcNr() : 0;
@@ -167,8 +164,8 @@ int SeisDataPackWriter::nextStep()
     if ( posinfo_ && !posinfo_->includes(inl,crl) )
 	return MoreToDo();
 
-    const int inlidx = hs.inlRange().nearestIndex( inl );
-    const int crlidx = hs.crlRange().nearestIndex( crl );
+    const int inlpos = hs.lineIdx( inl );
+    const int crlpos = hs.trcIdx( crl );
 
     for ( int idx=0; idx<compidxs_.size(); idx++ )
     {
@@ -178,7 +175,7 @@ int SeisDataPackWriter::nextStep()
 	    const int cubesample = zsample - cubezrgidx.start;
 
 	    const float value = cubezrgidx.includes( zsample, false )
-		? dp_->data(compidxs_[idx]).get(inlidx,crlidx,cubesample)
+		? dp_->data(compidxs_[idx]).get(inlpos,crlpos,cubesample)
 		: mUdf(float);
 
 	    trc_->set( zidx, value, idx );
@@ -189,5 +186,5 @@ int SeisDataPackWriter::nextStep()
 	return ErrorOccurred();
 
     nrdone_++;
-    return MoreToDo();
+    return iterator_.next() ? MoreToDo() : Finished();
 }

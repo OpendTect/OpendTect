@@ -68,9 +68,11 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_;
     data_.tkzs_.zsamp_.step = SI().zStep();
 
-    BinID bid;
-    while ( data_.hsit_->next( bid ) )
+    do
+    {
+	const BinID bid( data_.hsit_->curBinID() );
 	data_.tkzs_.hsamp_.include( SI().transform( b2c.transform( bid ) ) );
+    } while ( data_.hsit_->next() );
 
     if ( !SI().isInside(data_.tkzs_.hsamp_.start_,true)
 	&& !SI().isInside(data_.tkzs_.hsamp_.stop_,true) )
@@ -131,12 +133,13 @@ bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
 
 int SeisImpCBVSFromOtherSurvey::nextStep()
 {
-    if ( !data_.hsit_->next(data_.curbid_) )
+    if ( !data_.hsit_->next() )
 	return Executor::Finished();
 
     if ( !tr_ || !tr_->readMgr() )
 	return Executor::ErrorOccurred();
 
+    data_.curbid_ = data_.hsit_->curBinID();
     const Coord curcoord = SI().transform( data_.curbid_ );
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const BinID oldbid = b2c.transformBack( curcoord,

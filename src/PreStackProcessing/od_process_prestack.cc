@@ -208,10 +208,12 @@ bool BatchProgram::go( od_ostream& strm )
     }
     else
     {
-	if ( !hiter.next(curbid) )
+	if ( !hiter.next() )
 	{
 	    mRetError(tr("\nNo CDP's to process"));
 	}
+
+	curbid = hiter.curBinID();
 
 	step.inl() = SI().inlRange(true).step;
 	step.crl() = SI().crlRange(true).step;
@@ -316,7 +318,8 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( nrfound && procman->process() )
 	{
             RefMan<PreStack::Gather> gather =
-	DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>(procman->getOutput());
+	DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>(
+						procman->getOutput());
 
 	    if ( gather )
 	    {
@@ -365,9 +368,10 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( geomtype==Seis::VolPS )
 	{
 	    const int prevline = curbid.inl();
-	    if ( !hiter.next(curbid) )
+	    if ( !hiter.next() )
 		break;
 
+	    curbid = hiter.curBinID();
 	    if ( prevline!=curbid.inl() )
 	    {
 		const int obsoleteline =

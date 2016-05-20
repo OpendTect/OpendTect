@@ -93,14 +93,16 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
     const int nrsect = hor_->nrSections();
     TrcKeySamplingIterator iter( hs );
-    BinID bid; float totth = 0;
-    while ( iter.next(bid) )
+    float totth = 0;
+    do
     {
+	const TrcKey trk( iter.curTrcKey() );
+	const BinID bid( trk.position() );
 	if ( !poly.isInside(mPolyLoc(bid),true,1e-6) )
 	    continue;
 
 	const EM::SubID subid = bid.toInt64();
-	const Coord pos( hs.toCoord(bid) );
+	const Coord pos( trk.getCoord() );
 
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
@@ -124,7 +126,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	    if ( useneg || th > 0 )
 		{ totth += th; break; }
 	}
-    }
+    } while ( iter.next() );
 
     const float cellarea = SI().inlDistance() * hs.step_.inl()
 			 * SI().crlDistance() * hs.step_.crl();

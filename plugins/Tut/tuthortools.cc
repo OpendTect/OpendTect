@@ -55,7 +55,7 @@ od_int64 Tut::HorTool::totalNr() const
 }
 
 
-void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg, 
+void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg,
 				const StepInterval<int>& crlrg )
 {
     hs_.set( inlrg, crlrg );
@@ -87,19 +87,16 @@ void Tut::ThicknessCalculator::init( const char* attribname )
 
 int Tut::ThicknessCalculator::nextStep()
 {
-    BinID bid;
-    if ( !iter_->next(bid) )
-	return Executor::Finished();
-
     int nrsect = horizon1_->nrSections();
-    if ( horizon2_->nrSections() < nrsect ) nrsect = horizon2_->nrSections();
+    if ( horizon2_->nrSections() < nrsect )
+	nrsect = horizon2_->nrSections();
 
+    const EM::SubID subid( iter_->curBinID().toInt64() );
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
-	const EM::SubID subid = bid.toInt64();
 	const float z1 = (float) horizon1_->getPos( isect, subid ).z;
 	const float z2 = (float) horizon2_->getPos( isect, subid ).z;
-		        
+
 	float val = mUdf(float);
 	if ( !mIsUdf(z1) && !mIsUdf(z2) )
 	    val = fabs( z2 - z1 ) * usrfac_;
@@ -110,7 +107,7 @@ int Tut::ThicknessCalculator::nextStep()
     }
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return iter_->next() ? Executor::MoreToDo() : Executor::Finished();
 }
 
 
@@ -129,14 +126,14 @@ Tut::HorSmoother::HorSmoother()
 
 int Tut::HorSmoother::nextStep()
 {
-    BinID bid;
-    if ( !iter_->next(bid) )
+    if ( !iter_->next() )
 	return Executor::Finished();
 
     const int nrsect = horizon1_->nrSections();
     const int rad = weak_ ? 1 : 2;
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
+	const BinID bid( iter_->curBinID() );
 	float sum = 0; int count = 0;
 	for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
 	{

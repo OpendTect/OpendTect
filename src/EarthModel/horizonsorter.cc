@@ -228,13 +228,14 @@ int HorizonSorter::nextStep()
 		binid_.inl()++;
 	}
 
-	if ( ( !is2d_ && !iterator_->next(binid_) )
+	if ( ( !is2d_ && !iterator_->next() )
 	       || ( is2d_ && binid_.inl() >= geomids_.size() ) )
 	{
 	    sort();
 	    return Finished();
 	}
 
+	binid_ = iterator_->curBinID();
 	if ( is2d_ && binid_.inl() != previnl )
 	    binid_.crl() = trcrgs_[binid_.inl()].start;
 

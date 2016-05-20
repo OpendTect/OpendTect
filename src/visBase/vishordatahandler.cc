@@ -40,8 +40,8 @@ void HorizonSectionDataHandler::updateZAxisVOI()
     if( !horsection_ ) return;
 
     Geometry::BinIDSurface* geometry = horsection_->geometry_;
-    
-    if ( !geometry || zaxistransformvoi_==-1 )	
+
+    if ( !geometry || zaxistransformvoi_==-1 )
 	return;
 
     if ( !zaxistransform_ || !zaxistransform_->needsVolumeOfInterest() )
@@ -56,9 +56,9 @@ void HorizonSectionDataHandler::updateZAxisVOI()
     TrcKeySamplingIterator iter( cs.hsamp_ );
 
     bool first = true;
-    BinID curpos;
-    while ( iter.next(curpos) )
+    do
     {
+	const BinID curpos( iter.curBinID() );
 	const float depth = geometry->getKnot(RowCol(curpos),false).z;
 	if ( mIsUdf(depth) )
 	    continue;
@@ -70,7 +70,7 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 	}
 	else
 	    cs.zsamp_.include( depth );
-    }
+    } while ( iter.next() );
 
     if ( first ) return;
 
@@ -84,10 +84,10 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 
 void HorizonSectionDataHandler::setZAxisTransform( ZAxisTransform* zt )
 {
-    if ( zaxistransform_==zt ) 	return ;
+    if ( zaxistransform_==zt )	return ;
 
     removeZTransform();
-    if ( !zt ) 	return ;
+    if ( !zt )	return ;
 
     zaxistransform_ = zt;
     zaxistransform_->ref();
@@ -113,7 +113,7 @@ void HorizonSectionDataHandler::removeZTransform()
 
 
 void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
-    double zshift, int sectionid ) const 
+    double zshift, int sectionid ) const
 {
     if ( !horsection_ || !horsection_->geometry_ ) return;
 
@@ -127,14 +127,14 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
     if ( dtpntset.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
 	dtpntset.dataSet().add( new DataColDef(sidcol) );
 
-    const int sidcolidx =  dtpntset.dataSet().findColDef( 
+    const int sidcolidx =  dtpntset.dataSet().findColDef(
 	sidcol, PosVecDataSet::NameExact ) - dtpntset.nrFixedCols();
 
     BinIDValueSet& bivs = dtpntset.bivSet();
-    mAllocVarLenArr( float, vals, bivs.nrVals() ); 
+    mAllocVarLenArr( float, vals, bivs.nrVals() );
     for ( int idx=0; idx<bivs.nrVals(); idx++ )
 	vals[idx] = mUdf(float);
-     
+
     vals[sidcolidx+dtpntset.nrFixedCols()] = sectionid;
 
     const int nrknots = horsection_->geometry_->nrKnots();
@@ -144,14 +144,14 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 	const StepInterval<int> displayrrg = horsection_->displayrrg_;
 	const StepInterval<int> displaycrg = horsection_->displaycrg_;
 	if ( horsection_->userchangedisplayrg_ &&
-	    ( !displayrrg.includes(bid.inl(), false) || 
+	    ( !displayrrg.includes(bid.inl(), false) ||
 	      !displaycrg.includes(bid.crl(), false) ||
 	    ((bid.inl()-displayrrg.start)%displayrrg.step) ||
 	    ((bid.crl()-displaycrg.start)%displaycrg.step) ) )
 	    continue;
 
 	const Coord3 pos = horsection_->geometry_->getKnot(RowCol(bid),false);
-	if ( !pos.isDefined() ) 
+	if ( !pos.isDefined() )
 	    continue;
 
 	float zval = pos.z;

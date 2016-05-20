@@ -167,14 +167,14 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TrcKeySamplingIterator iter( sd.rg );
-    BinID bid;
     EM::SectionID sid = hor->sectionID( 0 );
     const float fac = mCast( float, SI().zDomain().userFactor() );
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
-    while ( iter.next(bid) )
+    do
     {
-	EM::PosID posid( hor->id(), sid, bid.toInt64() );
-	Coord3 pos = hor->getPos( posid );
+	const EM::SubID subid( iter.curBinID().toInt64() );
+	const EM::PosID posid( hor->id(), sid, subid );
+	const Coord3 pos( hor->getPos( posid ) );
 	if ( !pos.isDefined() )
 	    continue;
 
@@ -183,7 +183,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	if ( mIsUdf(val) ) continue;
 
 	procstrm << pos.x << " " << pos.y << " " << val << "\n";
-    }
+    } while ( iter.next() );
 
     procstrm.close();
     hor->unRef();

@@ -176,16 +176,16 @@ bool HorizonPainter3D::addPolyLine()
 	}
 
 	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-	while ( iter.next(bid) )
+	do
 	{
-	    int inlfromcs = bid.inl();
-	    const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
-	    EM::PosID posid( id_, sid, bid.toInt64() );
+	    const TrcKey trk( iter.curTrcKey() );
+	    const EM::SubID subid( trk.position().toInt64() );
+	    const Coord3 crd = hor3d->getPos( sid, subid );
+	    EM::PosID posid( id_, sid, subid );
 
 	    if ( !crd.isDefined() )
 	    {
 		coorddefined = false;
-		bid.inl() = inlfromcs;
 		continue;
 	    }
 	    else if ( !coorddefined )
@@ -200,9 +200,10 @@ bool HorizonPainter3D::addPolyLine()
 		newmarker = false;
 	    }
 
-	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
+	    if ( addDataToMarker(trk.position(),crd,posid,*hor3d,*marker) )
 		nrseeds_++;
-	}
+
+	} while ( iter.next() );
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -261,7 +262,7 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 	BinID intsecbid( isvwrinl ? tkzs_.hsamp_.inlRange().start
 				  : mNINT32(intsecpositions[ipos].pos_),
 			 isvwrinl ? mNINT32(intsecpositions[ipos].pos_)
-			 	  : tkzs_.hsamp_.crlRange().start );
+				  : tkzs_.hsamp_.crlRange().start );
 	if ( intsecbid == bid )
 	{
 	    isintersec = true;

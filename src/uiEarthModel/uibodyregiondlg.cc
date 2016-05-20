@@ -62,7 +62,7 @@ class BodyExtractorFromHorizons : public ParallelTask
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
@@ -159,7 +159,7 @@ class ImplicitBodyRegionExtractor : public ParallelTask
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
@@ -214,16 +214,19 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     {
 	bidinplg_ = new Array2DImpl<unsigned char>(tkzs_.nrInl(),tkzs_.nrCrl());
 
-	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-	BinID bid;
-	while( iter.next(bid) )
+	const TrcKeySampling& hrg = tkzs_.hsamp_;
+	TrcKeySamplingIterator iter( hrg );
+	do
 	{
-	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
-	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
+	    const TrcKey trk( iter.curTrcKey() );
+	    const int inl = trk.lineNr();
+	    const int crl = trk.trcNr();
+	    const int inlidx = hrg.lineIdx( inl );
+	    const int crlidx = hrg.trcIdx( crl );
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
-		    Geom::Point2D<float>( mCast(float,bid.inl()),
-					 mCast(float,bid.crl()) ),true,0.01 ) );
-	}
+		    Geom::Point2D<float>( mCast(float,inl),
+					 mCast(float,crl) ),true,0.01 ) );
+	} while ( iter.next() );
     }
 }
 
@@ -304,8 +307,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
 
-	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-	BinID bid;
 	ObjectSet<ODPolygon<float> > polygons;
 	for ( int idx=0; idx<fltsz; idx++ )
 	{
@@ -313,10 +314,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    getPolygon( idx, intersects[idx], *polygons[idx] );
 	}
 
-	while( iter.next(bid) )
+	const TrcKeySampling& hrg = tkzs_.hsamp_;
+	TrcKeySamplingIterator iter( hrg );
+	do
 	{
-	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
-	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
+	    const TrcKey trk( iter.curTrcKey() );
+	    const int inl = trk.lineNr();
+	    const int crl = trk.trcNr();
+	    const int inlidx = hrg.lineIdx( inl );
+	    const int crlidx = hrg.trcIdx( crl );
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
 		continue;
 
@@ -324,6 +330,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 
 	    bool infltrg = true;
+	    const BinID& bid = trk.position();
 	    for ( int idy=0; idy<fltsz; idy++ )
 	    {
 		infltrg = inFaultRange(bid,idy,*polygons[idy]);
@@ -365,12 +372,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    double val = curz < minz ? minz - curz :
 		( curz > maxz ? curz - maxz : -mMIN(curz-minz, maxz-curz) );
 	    res_.set( inlidx, crlidx, idz, (float) val );
-	}
+	} while ( iter.next() );
 
 	deepErase( polygons );
     }
 
     deepErase( intersects );
+
     return true;
 }
 

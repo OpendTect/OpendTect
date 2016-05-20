@@ -96,22 +96,43 @@ bool testIterator()
 {
     TrcKeySampling hrg;
     hrg.survid_ = TrcKey::std3DSurvID();
-    hrg.set( StepInterval<int>( 0, 2, 2 ), StepInterval<int>( 0, 2, 2 ) );
+    hrg.set( StepInterval<int>( 100, 102, 2 ),
+	     StepInterval<int>( 300, 306, 3 ) );
 
     TrcKeySamplingIterator iter( hrg );
-    BinID curbid;
+    TypeSet<BinID> bids;
+    bids += BinID(100,300);
+    bids += BinID(100,303);
+    bids += BinID(100,306);
+    bids += BinID(102,300);
+    bids += BinID(102,303);
+    bids += BinID(102,306);
 
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,0), "Initial call");
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,2), "Second call");
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,0), "Third call");
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,2), "Forth call");
-    mRunStandardTest( !iter.next(curbid) , "Final call");
+    int idx=0;
+    do
+    {
+	const BinID curbid( iter.curBinID() );
+	mRunStandardTest( curbid == bids[idx], "do-While loop calls" )
+	idx++;
+    } while ( iter.next() );
+
+    mRunStandardTest( idx == bids.size(),
+		      "All positions processed once using iterator" )
 
     iter.reset();
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,0), "Reset");
+    for ( int idy=0; idy<bids.size(); idy++, iter.next() )
+    {
+	const BinID curbid( iter.curBinID() );
+	mRunStandardTest( curbid == bids[idy], "For loop calls" )
+    }
 
-    iter.setNextPos( BinID(2,0) );
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,0), "setNextPos");
+    iter.reset();
+    BinID curbid = iter.curBinID();
+    mRunStandardTest( curbid==bids[0], "Reset");
+
+    iter.setCurrentPos( hrg.globalIdx(bids[4]) );
+    curbid = iter.curBinID();
+    mRunStandardTest( curbid==bids[4], "setCurrentPos");
 
     return true;
 }

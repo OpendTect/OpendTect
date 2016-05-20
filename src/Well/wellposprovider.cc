@@ -93,9 +93,9 @@ void WellProvider3D::setHS()
     hs_.start_.crl() -= crlext_;
     hs_.stop_.crl() += crlext_;
 
-    curbid_ = BinID::udf();
     hsitr_.setSampling( hs_ );
-    hsitr_.next( curbid_ );
+    curbid_ = hsitr_.curBinID();
+    hsitr_.next();
 }
 
 
@@ -129,12 +129,10 @@ bool WellProvider3D::toNextWell()
 
 bool WellProvider3D::toNextPos()
 {
+    curbid_ = hsitr_.curBinID();
     curz_ = zrg_.start;
 
-    if ( !hsitr_.next(curbid_) )
-	return toNextWell();
-
-    return true;
+    return hsitr_.next() ? true : toNextWell();
 }
 
 

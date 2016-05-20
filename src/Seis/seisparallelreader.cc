@@ -230,21 +230,18 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
         bidvalpos = bidvals_->getPos( start );
         if ( !bidvalpos.isValid() )
             return false;
-
-        curbid = bidvals_->getBinID( bidvalpos );
     }
     else
     {
 	iter.setSampling( tkzs_.hsamp_ );
-	iter.setNextPos( tkzs_.hsamp_.trcKeyAt(start) );
-	iter.next( curbid );
+	iter.setCurrentPos( start );
     }
 
     SeisTrc trc;
 
 #define mUpdateInterval 100
     int nrdone = 0;
-    for ( od_int64 idx=start; true; idx++, nrdone++ )
+    for ( od_int64 idx=start; idx<=stop; idx++, nrdone++ )
     {
 	if ( nrdone>mUpdateInterval )
 	{
@@ -254,6 +251,13 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( !shouldContinue() )
 		return false;
 	}
+
+	if ( ( bidvals_ && !bidvals_->next(bidvalpos,false) ) ||
+	     ( !bidvals_ && !iter.next() ) )
+	    return false;
+
+	curbid = bidvals_ ? bidvals_->getBinID( bidvalpos )
+			  : iter.curBinID();
 
         if ( translator->goTo( curbid )
 	  && reader->get( trc )
@@ -302,22 +306,6 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 		    }
 		}
             }
-        }
-
-        if ( idx==stop )
-            break;
-
-        if ( bidvals_ )
-        {
-            if ( !bidvals_->next(bidvalpos,false) )
-                return false;
-
-            curbid = bidvals_->getBinID( bidvalpos );
-        }
-        else
-        {
-            if ( !iter.next( curbid ) )
-                return false;
         }
     }
 

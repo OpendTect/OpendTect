@@ -93,7 +93,10 @@ bool HorizonModifier::getNextNode3D( BinID& bid )
 	iter_ = new TrcKeySamplingIterator( hrg );
     }
 
-    return iter_ ? iter_->next(bid) : false;
+    if ( iter_ )
+	bid = iter_->curBinID();
+
+    return iter_ ? iter_->next() : false;
 }
 
 

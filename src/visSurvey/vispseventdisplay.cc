@@ -419,7 +419,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
-    	    eventmarkerset_->turnAllMarkersOn( true );
+	    eventmarkerset_->turnAllMarkersOn( true );
 	    eventmarkerset_->forceRedraw( true );
 	}
 
@@ -517,9 +517,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     TypeSet<float> values;
 
-    BinID bid;
-    while ( iter.next(bid) )
+    do
     {
+	const BinID bid( iter.curBinID() );
 	PreStack::EventSet* eventset = eventman_ ?
 	    eventman_->getEvents( bid, true, false ) : 0;
 	if ( !eventset )
@@ -591,7 +591,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		    pao->lines_->getCoordinates()->addPos( pos );
 	    }
 
-    	    pao->markerset_->turnAllMarkersOn( true );
+	    pao->markerset_->turnAllMarkersOn( true );
 	    pao->markerset_->forceRedraw( true );
 
 	    const int size = pao->lines_ ? pao->lines_->getCoordinates()->size()
@@ -608,7 +608,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    }
 	}
 
-    }
+    } while ( iter.next() );
 
     if ( markercolor_ != Single )
     {
@@ -710,11 +710,10 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
 	deepUnRef( pao->eventsets_ );
 	TrcKeySamplingIterator iter( pao->tks_ );
 
-	BinID bid;
-	while( iter.next( bid ))
+	do
 	{
-	    eventman_->addReloadPosition( bid );
-	}
+	    eventman_->addReloadPosition( iter.curBinID() );
+	} while ( iter.next() );
     }
 
     deepErase( parentattached_ );

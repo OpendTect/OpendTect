@@ -124,9 +124,10 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     const TrcKeySampling hrg = output->sampling().hsamp_;
 
     TrcKeySamplingIterator iterator( hrg );
-    BinID bid;
-    while ( iterator.next( bid ) )
-	remainingbids_.add( bid );
+    do
+    {
+	remainingbids_.add( iterator.curBinID() );
+    } while ( iterator.next() );
 
     totalnr_ = hrg.totalNr();
 }

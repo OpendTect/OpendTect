@@ -234,7 +234,8 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 
     for ( int row=start.row(); row<=stop.row(); row+=rowstep )
     {
-	int idx = nrcols_*(row-startrow_)/rowstep+(start.col()-startcol_)/colstep;
+	int idx = nrcols_*(row-startrow_) / rowstep +
+		  (start.col()-startcol_) / colstep;
 	for ( int col=start.col(); col<=stop.col(); col+=colstep, idx++ )
 	{
 	    const float val = zvals_[idx];
@@ -250,7 +251,7 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 
 
 void EMObjectPosSelector::makeListGrow( const RowCol& start,
-    					     const RowCol& stop, int selresult )
+					     const RowCol& stop, int selresult )
 {
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
     if ( !ge ) return;
@@ -258,24 +259,23 @@ void EMObjectPosSelector::makeListGrow( const RowCol& start,
      mDynamicCastGet(const Geometry::RowColSurface*,surf,ge);
      if ( !surf ) return;
 
-    const StepInterval<int> rowrg( start.row(), stop.row(), surf->rowRange().step );
-    const StepInterval<int> colrg( start.col(), stop.col(), surf->colRange().step );
+    const StepInterval<int> rowrg( start.row(), stop.row(),
+				   surf->rowRange().step );
+    const StepInterval<int> colrg( start.col(), stop.col(),
+				   surf->colRange().step );
 
     TypeSet<EM::SubID> ids;
 
     TrcKeySampling trcsampling( true );
     trcsampling.set( rowrg, colrg );
     TrcKeySamplingIterator iter( trcsampling );
-
-    BinID bid;
-
-    iter.reset();
-    while( iter.next(bid) )
+    do
     {
+	const TrcKey trk( iter.curTrcKey() );
+	const EM::SubID subid( trk.position().toInt64() );
 	if ( selresult != 2 )     // not all inside
 	{
-	    const Coord3 crd =
-		emobj_.getPos( sectionid_, bid.toInt64() );
+	    const Coord3 crd = emobj_.getPos( sectionid_, subid );
 	    if ( !crd.isDefined() ) continue;
 
 	    bool found = false;
@@ -292,8 +292,8 @@ void EMObjectPosSelector::makeListGrow( const RowCol& start,
 	    if ( !found ) continue;
 	}
 
-	ids += bid.toInt64();
-    }
+	ids += subid;
+    } while ( iter.next() );
 
     lock_.lock();
     poslist_.append( ids );

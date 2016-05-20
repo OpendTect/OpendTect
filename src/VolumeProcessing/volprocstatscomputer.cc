@@ -139,7 +139,6 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 {
     //for now only median and shape Ellipse for dip filtering
     //We might reconsider the handling of undefs in corners
-    BinID curbid;
     const int incr = mCast( int, stop-start+1 );
     const int nrinlines = input_.info().getSize( 0 );
     const int nrcrosslines = input_.info().getSize( 1 );
@@ -147,8 +146,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     const int nrpos = positions_.size();
     TrcKeySamplingIterator iter;
     iter.setSampling( tkzsout_.hsamp_ );
-    iter.setNextPos( tkzsout_.hsamp_.trcKeyAt(start) );
-    iter.next( curbid );
+    iter.setCurrentPos( start );
     Stats::CalcSetup rcsetup;
     rcsetup.require( Stats::Median );
     const int statsz = nrpos * (nzsampextra_*2+1);
@@ -156,13 +154,16 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     mAllocLargeVarLenArr( float, values, statsz );
     const bool needmed = rcsetup.needMedian();
     const int midway = statsz/2;
-    for ( int idx=0; idx<incr; idx++ )
+    for ( int idx=0; idx<incr; idx++, iter.next(), addToNrDone(1) )
     {
-	int inpinlidx = tkzsin_.lineIdx( curbid.inl() );
-	int inpcrlidx = tkzsin_.trcIdx( curbid.crl() );
+	const TrcKey trk( iter.curTrcKey() );
+	const int inl = trk.lineNr();
+	const int crl = trk.trcNr();
+	const int inpinlidx = tkzsin_.lineIdx( inl );
+	const int inpcrlidx = tkzsin_.trcIdx( crl );
 
-	int outpinlidx = tkzsout_.lineIdx( curbid.inl() );
-	int outpcrlidx = tkzsout_.trcIdx( curbid.crl() );
+	const int outpinlidx = tkzsout_.lineIdx( inl );
+	const int outpcrlidx = tkzsout_.trcIdx( crl );
 
 	for ( int idz=0; idz<nrsamples; idz++ )
 	{
@@ -205,8 +206,6 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 
 	    output_.set( outpinlidx, outpcrlidx, idz, outval );
 	}
-	iter.next( curbid );
-	addToNrDone( 1 );
     }
 
     return true;

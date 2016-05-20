@@ -1168,30 +1168,60 @@ void TrcKeyZSampling::normalise()
 }
 
 
+
+TrcKeySamplingIterator::TrcKeySamplingIterator()
+    : tks_( true )
+    , totalnr_( tks_.totalNr() )
+    , curpos_(0)
+{}
+
+
+TrcKeySamplingIterator::TrcKeySamplingIterator( const TrcKeySampling& tks )
+{
+    setSampling( tks );
+}
+
+
+void TrcKeySamplingIterator::setSampling( const TrcKeySampling& tks )
+{
+#ifdef __debug__
+    if ( !tks.isDefined() )
+    {
+	pErrMsg("Initializing iterator with undefined TrcKeySampling");
+	DBG::forceCrash(true);
+    }
+#endif
+    tks_ = tks;
+    totalnr_ = tks_.totalNr();
+    curpos_ = 0;
+}
+
+
+bool TrcKeySamplingIterator::next() const
+{
+    curpos_++;
+
+    return curpos_ > -1 && curpos_ < totalnr_;
+}
+
+
 void TrcKeySamplingIterator::reset()
 {
     curpos_ = 0;
-    totalnr_ = tks_.totalNr();
 }
 
 
-bool TrcKeySamplingIterator::next( TrcKey& tk ) const
+TrcKey TrcKeySamplingIterator::curTrcKey() const
 {
-    const od_int64 mypos = curpos_++;
-    if ( mypos<0 || mypos>=totalnr_ )
-	return false;
+    const TrcKey trk( tks_.atIndex( curpos_ ) );
 
-    tk = tks_.atIndex( mypos );
-    return true;
+    return trk;
 }
 
 
-bool TrcKeySamplingIterator::next( BinID& res ) const
+BinID TrcKeySamplingIterator::curBinID() const
 {
-    const od_int64 mypos = curpos_++;
-    if ( mypos<0 || mypos>=totalnr_ )
-	return false;
+    const BinID bid( curTrcKey().position() );
 
-    res = tks_.atIndex( mypos );
-    return true;
+    return bid;
 }

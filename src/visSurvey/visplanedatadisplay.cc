@@ -633,11 +633,10 @@ void PlaneDataDisplay::getTraceKeyPath( TrcKeyPath& path,TypeSet<Coord>* ) const
     const TrcKeyZSampling trczs = getTrcKeyZSampling( true, true, 0 );
 
     TrcKeySamplingIterator iter( trczs.hsamp_ );
-    TrcKey curkey = TrcKey::udf();
-    while ( iter.next(curkey) )
+    do
     {
-	path += curkey;
-    }
+	path += iter.curTrcKey();
+    } while ( iter.next() );
 }
 
 
@@ -768,8 +767,8 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 {
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     ConstRefMan<RegularSeisDataPack> regsdp =
-    	dpm.getAndCast<RegularSeisDataPack>( dpid );
-    
+	dpm.getAndCast<RegularSeisDataPack>( dpid );
+
     if ( !regsdp || regsdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
@@ -912,15 +911,15 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.setOutputZRange( tkzs.zsamp_ );
 	transformer.execute();
-        
+
         transformed = transformer.getOutput();
     }
 
     dpm.unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = transformed
-    	? transformed->id()
-    	: DataPack::cNoID();
-    
+	? transformed->id()
+	: DataPack::cNoID();
+
     refPtr( transformed );
 }
 

@@ -119,58 +119,53 @@ int SeisPSMerger::nextStep()
     if ( readers_.isEmpty() )
 	return ErrorOccurred();
 
+    nrdone_ ++;
+
     const float offseps = 1e-6;
     SeisTrcBuf* gather = 0;
-    while ( true )
-    {
-	BinID curbid;
-	if ( !iter_->next(curbid) )
-	    return Finished();
+    const BinID curbid( iter_->curBinID() );
+    if ( sd_ && !sd_->isOK(curbid) )
+	return iter_->next() ? MoreToDo() : Finished();
 
-	if ( sd_ && !sd_->isOK(curbid) )
+    ManagedObjectSet<SeisTrcBuf> gatherset;
+    for ( int idx=0; idx<readers_.size(); idx++ )
+    {
+	gather = new SeisTrcBuf( true );
+	if ( !readers_[idx]->getGather(curbid,*gather) )
+	{
+	    delete gather; gather = 0;
+	    continue;
+	}
+
+	gatherset += gather;
+	if ( !dostack_ )
+	    break;
+    }
+
+    if ( gatherset.isEmpty() )
+	return iter_->next() ? MoreToDo() : Finished();
+
+    gather = gatherset[0];
+    if ( dostack_ && gatherset.size() > 1 )
+	stackGathers( *gather, gatherset );
+
+    for ( int tdx=0; tdx<gather->size(); tdx++ )
+    {
+	const SeisTrc& gathtrc = *gather->get( tdx );
+	const float offs = gathtrc.info().offset_;
+	if ( offs < offsrg_.start - offseps
+	  || offs > offsrg_.stop + offseps )
 	    continue;
 
-	nrdone_ ++;
-
-	ManagedObjectSet<SeisTrcBuf> gatherset;
-	for ( int idx=0; idx<readers_.size(); idx++ )
+	const SeisTrc* wrtrc = resampler_->get( gathtrc );
+	if ( wrtrc && !writer_->put(*wrtrc) )
 	{
-	    gather = new SeisTrcBuf( true );
-	    if ( !readers_[idx]->getGather(curbid,*gather) )
-	    {
-		delete gather; gather = 0;
-		continue;
-	    }
-
-	    gatherset += gather;
-	    if ( !dostack_ )
-		break;
+	    msg_ = writer_->errMsg();
+	    return ErrorOccurred();
 	}
-
-	if ( gatherset.isEmpty() ) continue;
-
-	gather = gatherset[0];
-	if ( dostack_ && gatherset.size() > 1 )
-	    stackGathers( *gather, gatherset );
-
-	for ( int tdx=0; tdx<gather->size(); tdx++ )
-	{
-	    const SeisTrc& gathtrc = *gather->get( tdx );
-	    const float offs = gathtrc.info().offset_;
-	    if ( offs < offsrg_.start - offseps
-	      || offs > offsrg_.stop + offseps )
-		continue;
-
-	    const SeisTrc* wrtrc = resampler_->get( gathtrc );
-	    if ( wrtrc && !writer_->put(*wrtrc) )
-	    {
-		msg_ = writer_->errMsg();
-		return ErrorOccurred();
-	    }
-	}
-
-	return MoreToDo();
     }
+
+    return iter_->next() ? MoreToDo() : Finished();
 }
 
 

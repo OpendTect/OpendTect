@@ -478,17 +478,17 @@ bool Seis2DTo3D::scaleArray()
     Stats::CalcSetup rcsetup;
     rcsetup.require( Stats::RMS );
     Stats::RunCalc<float> runcalc( rcsetup);
-    TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-    BinID bid;
+    const TrcKeySampling& hrg = tkzs_.hsamp_;
+    TrcKeySamplingIterator iter( hrg );
     float_complex* data = trcarr_->getData();
 
     const int nz = tkzs_.nrZ();
-
-    while ( iter.next(bid) )
+    do
     {
-	const int idx = tkzs_.hsamp_.inlIdx( bid.inl() );
-	const int idy = tkzs_.hsamp_.crlIdx( bid.crl() );
-	od_uint64 ipos = trcarr_->info().getOffset( idx, idy, 0 );
+	const TrcKey trk( iter.curTrcKey() );
+	const int inlpos = hrg.lineIdx( trk.lineNr() );
+	const int crlpos = hrg.trcIdx( trk.trcNr() );
+	od_uint64 ipos = trcarr_->info().getOffset( inlpos, crlpos, 0 );
 	for ( int idz=0; idz<nz; idz++ )
 	{
 	    const float_complex val = data[ipos+idz];
@@ -502,7 +502,8 @@ bool Seis2DTo3D::scaleArray()
 	    const float val = data[ipos+idz].real() * rmsmax_ / rms;
 	    data[ipos+idz] = float_complex(val,0.f);
 	}
-    }
+    } while ( iter.next() );
+
     return true;
 }
 
@@ -528,29 +529,31 @@ bool Seis2DTo3D::writeOutput()
 
     const TrcKeySampling& hrg = tkzs_.hsamp_;
     TrcKeySamplingIterator iter( hrg );
-    BinID binid;
     SeisTrc& trc( *seisbuf_.get(0) );
-
+    trc.info().setBinID( hrg.start_ );
     trc.info().sampling_ = tkzs_.zsamp_;
-    trc.info().setBinID( binid );
+    const int nrz = tkzs_.nrZ();
 
-    while( iter.next(binid) )
+    do
     {
-	const int idx = hrg.inlIdx(binid.inl());
-	const int idy = hrg.crlIdx(binid.crl());
+	const TrcKey trk( iter.curTrcKey() );
+	const int inlpos = hrg.lineIdx( trk.lineNr() );
+	const int crlpos = hrg.trcIdx( trk.trcNr() );
 
 	if ( nrdone_ != 0 )
 	    rdr_->get(trc);
 
-	trc.info().setBinID( binid );
-	for ( int idz=0; idz<tkzs_.nrZ(); idz++ )
+	trc.info().setBinID( trk.position() );
+	for ( int idz=0; idz<nrz; idz++ )
 	{
-	    const float val = trcarr_->get(idx,idy,idz).real();
+	    const float val = trcarr_->get(inlpos,crlpos,idz).real();
 	    trc.set( idz, val, nrdone_ );
 	}
 	if ( !wrr_->put(trc) )
 	    mErrRet( uiStrings::phrCannotWrite( uiStrings::sTrace(mPlural)));
-    }
+
+    } while ( iter.next() );
+
     return true;
 }
 

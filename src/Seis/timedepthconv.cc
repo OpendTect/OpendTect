@@ -209,25 +209,23 @@ public:
 protected:
 
     od_int64		totalNr() const
-			{return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl();}
+			{ return readcs_.hsamp_.totalNr(); }
     od_int64		nrDone() const { return nrdone_; }
     uiString	uiMessage() const { return tr("Reading velocity model"); };
     uiString	uiNrDoneText() const { return tr("Position read"); }
 
     int			nextStep()
     {
-	const int nrz = arr_.info().getSize( 2 );
-
-	BinID curbid;
-	if ( !hiter_.next( curbid ) )
-	    return Finished();
-
+	const TrcKey trk( hiter_.curTrcKey() );
+	const TrcKeySampling& hrg = readcs_.hsamp_;
 	const od_int64 offset =
-	    arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
-				  readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
+	    arr_.info().getOffset( hrg.lineIdx( trk.lineNr() ),
+				   hrg.trcIdx( trk.trcNr() ), 0 );
 
 	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
 
+	const BinID& curbid = trk.position();
+	const int nrz = arr_.info().getSize( 2 );
 	if ( !seisdatapack_ )
 	{
 	    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
@@ -237,7 +235,7 @@ protected:
 	    if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
 	    {
 		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
+		return hiter_.next() ? MoreToDo() : Finished();
 	    }
 
 	    const SeisTrcValueSeries trcvs( velocitytrc, 0 );
@@ -257,26 +255,13 @@ protected:
 				   sd, veldesc_, velintime_ );
 	}
 
+	if ( ( voiintime_ && !tdc_.calcDepths(arrvs,nrz,voisd_) ) ||
+	     (!voiintime_ && !tdc_.calcTimes(arrvs,nrz,voisd_) ) )
+	    Time2DepthStretcher::udfFill( arrvs, nrz );
+
 	nrdone_++;
 
-	if ( voiintime_ )
-	{
-	    if ( !tdc_.calcDepths(arrvs,nrz,voisd_) )
-	    {
-		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
-	    }
-	}
-	else
-	{
-	    if ( !tdc_.calcTimes(arrvs,nrz,voisd_) )
-	    {
-		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return MoreToDo();
-	    }
-	}
-
-	return MoreToDo();
+	return hiter_.next() ? MoreToDo() : Finished();
     }
 
     TrcKeyZSampling		readcs_;
@@ -774,8 +759,7 @@ VelocityModelScanner::~VelocityModelScanner()
 
 int VelocityModelScanner::nextStep()
 {
-    BinID curbid;
-    if ( !hsiter_.next( curbid ) )
+    if ( !hsiter_.next() )
     {
 	if ( startavgvel_.start<0 || stopavgvel_.start<0 )
 	{
@@ -796,6 +780,7 @@ int VelocityModelScanner::nextStep()
     nrdone_++;
 
     SeisTrc veltrace;
+    const BinID curbid( hsiter_.curBinID() );
     if ( !veltranslator->goTo(curbid) || !reader_->get(veltrace) )
 	return MoreToDo();
 
