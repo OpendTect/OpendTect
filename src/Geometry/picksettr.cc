@@ -101,6 +101,8 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 	return false;
     }
 
+    ChangeNotifyBlocker cnb( ps );
+
     errmsg = tr->read( ps, *conn );
     if ( !errmsg.isEmpty() )
 	return false;
