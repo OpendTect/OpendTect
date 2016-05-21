@@ -45,7 +45,7 @@ inline SetManager& SetMGR();
  uiString errmsg;
  ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
  if ( !errmsg.isEmpty() )
-     { errmsg_ = errmsg;  return false; }
+     { errmsg_ = errmsg; return false; }
 
  MonitorLock ml( *ps );
  for ( int idx=0; idx<ps->size(); idx++ )
@@ -59,9 +59,9 @@ inline SetManager& SetMGR();
 
  RefMan<Pick::Set> ps = new Pick::Set;
  fillPS( *ps );
- uiString errmsg = Pick::SetMGR().store( *ps, id, &ioobjpars );
+ uiString errmsg = Pick::SetMGR().store( *ps, id );
  if ( !errmsg.isEmpty() )
-     { errmsg_ = errmsg;  return false; }
+     { errmsg_ = errmsg; return false; }
 
 */
 
