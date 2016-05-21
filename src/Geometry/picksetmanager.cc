@@ -563,7 +563,7 @@ void Pick::SetManager::setDelCB( CallBacker* cb )
 
 void Pick::SetManager::setChgCB( CallBacker* inpcb )
 {
-    mGetMonitoredChgData( inpcb, chgdata, cb );
+    mGetMonitoredChgDataWithCaller( inpcb, chgdata, cb );
     const bool isentire = chgdata.changeType() == cEntireObjectChangeType();
     if ( isentire )
     {

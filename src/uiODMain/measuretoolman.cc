@@ -232,7 +232,7 @@ void MeasureToolMan::sceneChanged( CallBacker* )
 
 void MeasureToolMan::changeCB( CallBacker* cb )
 {
-    mGetMonitoredChgData( cb, chgdata, caller );
+    mGetMonitoredChgDataWithCaller( cb, chgdata, caller );
     mDynamicCastGet(Pick::Set*,ps,caller)
     if ( !ps || chgdata.changeType() == Pick::Set::cDispChange() )
 	return;

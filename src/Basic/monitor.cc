@@ -216,5 +216,8 @@ void ChangeNotifyBlocker::unBlockNow( bool sendnotif )
 void ChangeNotifyBlocker::reBlock()
 {
     if ( unblocked_ )
+    {
 	obj_.stopChangeNotifications();
+	unblocked_ = false;
+    }
 }

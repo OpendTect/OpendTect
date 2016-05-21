@@ -246,10 +246,12 @@ protected:
     mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeSubIdx() )
 
 
-#define mGetMonitoredChgData(cb,chgdata,caller) \
+#define mGetMonitoredChgData(cb,chgdata) \
+    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb )
+#define mGetMonitoredChgDataWithCaller(cb,chgdata,caller) \
     mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
-#define mGetMonitoredChgDataDoAll(cb,chgdata,caller,doallact) \
-    mGetMonitoredChgData(chgdata,caller,cb); \
+#define mGetMonitoredChgDataDoAll(cb,chgdata,doallact) \
+    mGetMonitoredChgData(chgdata,cb); \
     if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \
 	{ doallact; }
 

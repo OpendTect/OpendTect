@@ -486,7 +486,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 
 void LocationDisplay::setChgCB( CallBacker* cb )
 {
-    mGetMonitoredChgData( cb, chgdata, caller );
+    mGetMonitoredChgData( cb, chgdata );
 
     if ( chgdata.changeType() == Pick::Set::cDispChange() )
 	dispChg();

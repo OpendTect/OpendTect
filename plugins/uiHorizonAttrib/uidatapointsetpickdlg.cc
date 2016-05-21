@@ -274,7 +274,7 @@ void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 
 void uiDataPointSetPickDlg::setChgCB( CallBacker* cb )
 {
-    mGetMonitoredChgData( cb, chgdata, caller );
+    mGetMonitoredChgDataWithCaller( cb, chgdata, caller );
     const Pick::Set* ps = pickSet();
     if ( caller != ps )
 	{ pErrMsg("Huh"); return; }
