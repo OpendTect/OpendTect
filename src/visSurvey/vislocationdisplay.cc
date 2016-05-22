@@ -64,7 +64,7 @@ LocationDisplay::LocationDisplay()
     , datatransform_( 0 )
     , pickedsobjid_(-1)
     , voiidx_(-1)
-    , undoloccoord_( Coord3(0,0,0) )
+    , undoloccoord_( Coord3::udf() )
     , undomove_( false )
     , storedmid_(MultiID::udf())
     , selectionmodel_(false)
@@ -286,14 +286,17 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	{
 	    if ( eventinfo.type==visBase::MouseClick )
 	    {
-		const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
-		const Pick::Location undoloc( undoloccoord_, dir );
-		const Pick::Location newloc( newpos, dir );
-		set_->moveWithUndo(
-		    waitsforpositionid_, undoloc, newloc );
-		Pick::Mgr().undo().setUserInteractionEnd(
-		    Pick::Mgr().undo().currentEventID() );
-		undomove_ = false;
+		if ( undoloccoord_.isDefined() )
+		{
+		    const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
+		    const Pick::Location undoloc( undoloccoord_, dir );
+		    const Pick::Location newloc( newpos, dir );
+		    set_->moveWithUndo(
+			waitsforpositionid_, undoloc, newloc );
+		    Pick::Mgr().undo().setUserInteractionEnd(
+			Pick::Mgr().undo().currentEventID() );
+		    undomove_ = false;
+		}
 	    }
 	    else
 	    {
