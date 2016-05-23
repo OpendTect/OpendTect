@@ -21,7 +21,7 @@ template <class T> class ArrayND;
 
 
 class ArrayNDCopier : public ParallelTask
-{
+{ mODTextTranslationClass(ArrayNDCopier)
 public:
 			ArrayNDCopier(const ArrayND<float>&);
 			~ArrayNDCopier();
@@ -29,7 +29,7 @@ public:
 
     mxArray*		getMxArray()		{ return mxarr_; }
 
-    uiString		uiNrDoneText() const	{ return "Values copied"; }
+    uiString		uiNrDoneText() const	{ return tr("Values copied"); }
 
 protected:
 
@@ -44,12 +44,12 @@ protected:
 
 
 class mxArrayCopier : public ParallelTask
-{
+{ mODTextTranslationClass(mxArrayCopier)
 public:
 			mxArrayCopier(const mxArray&,ArrayND<float>&);
 			~mxArrayCopier();
     bool		init();
-    uiString		uiNrDoneText() const	{ return "Values copied"; }
+    uiString		uiNrDoneText() const	{ return tr("Values copied"); }
 
 protected:
 

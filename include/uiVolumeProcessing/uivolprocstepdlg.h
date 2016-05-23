@@ -43,6 +43,7 @@ protected:
     Step*		step_;
 
     void		addMultiInputFld();
+    void		addMultiInputFld(uiGroup*);
     void		initInputTable(int nrinputs);
     void		setInputsFromWeb();
     void		getStepNames(BufferStringSet&) const;

@@ -24,7 +24,7 @@ public:
 			mDefaultFactoryInstantiation( Step,
 				MatlabStep,
 				"MatlabStep",
-				"MATLAB" );
+				toUiString("MATLAB") )
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -68,4 +68,3 @@ protected:
 } // namespace VolProc
 
 #endif
-

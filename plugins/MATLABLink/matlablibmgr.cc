@@ -78,9 +78,9 @@ bool MatlabLibAccess::init()
     if ( !sla_->isOK() )
     {
 #ifdef __win__
-	errmsg_ = BufferString("Cannot load dll: ",shlibfnm_);
+	errmsg_ = tr("Cannot load dll: %1").arg( shlibfnm_ );
 #else
-	errmsg_ = sla_->errMsg();
+	errmsg_ = toUiString( sla_->errMsg() );
 #endif
 	return false;
     }
@@ -229,7 +229,7 @@ MatlabLibAccess*
 
 bool MatlabLibMgr::load( const char* libfnm )
 {
-    errmsg_ = "";
+    errmsg_ = uiString::emptyString();
     const FilePath fp( libfnm );
     const BufferString libnm = fp.fileName();
 
