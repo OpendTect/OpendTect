@@ -95,6 +95,6 @@ protected:
     ObjectSet<TypeSet<unsigned int> > knotstatus_;
 };
 
-};
+} // namespace Geometry
 
 #endif
