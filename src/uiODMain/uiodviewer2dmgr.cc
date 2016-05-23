@@ -99,6 +99,10 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 }
 
 
+int uiODViewer2DMgr::nr2DViewers() const
+{ return viewers2d_.size(); }
+
+
 void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
 {
     if ( l2dintersections_ )
