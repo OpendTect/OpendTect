@@ -75,7 +75,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 {
     datapacks_.allowNull();
     transfdatapacks_.allowNull();
-    
+
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
     int highestnamenr = 0;
@@ -148,8 +148,9 @@ RandomTrackDisplay::RandomTrackDisplay()
 		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
 		    mCast(float,SI().crlStep()) );
 
-    const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
-    const BinID stop(start.inl(), mNINT32(crlrange.stop) );
+    const BinID start( mNINT32(inlrange.snappedCenter()),
+		       mNINT32(crlrange.start) );
+    const BinID stop( start.inl(), mNINT32(crlrange.stop) );
 
     Geometry::RandomLine* rl =
 	new Geometry::RandomLine( mFromUiStringTodo(name()) );
@@ -157,8 +158,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     rl_->addNode( start );
     rl_->addNode( stop );
 
-    setDepthInterval( Interval<float>( survinterval.start,
-				       survinterval.stop ));
+    setDepthInterval(
+	Interval<float>(survinterval.start,survinterval.stop) );
     dragger_->setLimits(
 	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
 	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
@@ -634,10 +635,10 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 					TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    
+
     RefMan<RandomSeisDataPack> randsdp =
     	dpm.getAndCast<RandomSeisDataPack>(dpid);
-    
+
     if ( !randsdp || randsdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
