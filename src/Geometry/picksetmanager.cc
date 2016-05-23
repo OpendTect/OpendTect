@@ -343,8 +343,6 @@ void Pick::SetManager::add( const Set& newset, const SetID& id,
     if ( justloaded )
 	saver->setNoSaveNeeded();
 
-    //TODO OD::AutoSaveMGR().add( saver );
-
     SetManager& self = *const_cast<SetManager*>(this);
     mLock4Write();
     self.savers_ += saver;
@@ -353,6 +351,8 @@ void Pick::SetManager::add( const Set& newset, const SetID& id,
 
     self.addCBsToSet( newset );
     self.SetAdded.trigger( id );
+
+    //TODO OD::AutoSaveMGR().add( saver );
 }
 
 

@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iodir.h"
 
+mDefineInstanceCreatedNotifierAccess(Pick::SetSaver)
+
 
 namespace Pick
 {
@@ -75,6 +77,13 @@ void startSetCategoryFromTypeInOMFPutter()
 Pick::SetSaver::SetSaver( const Pick::Set& ps )
     : OD::AutoSaveable(ps)
 {
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Pick::SetSaver::~SetSaver()
+{
+    sendDelNotif();
 }
 
 
@@ -93,7 +102,11 @@ void Pick::SetSaver::setPickSet( const Set& ps )
 bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
 {
     ConstRefMan<Set> ps = pickSet();
-    return !ps || PickSetTranslator::store( *ps, &ioobj, errmsg_ );
+    if ( !ps )
+	return true;
+
+    MonitorLock ml( *ps );
+    return PickSetTranslator::store( *ps, &ioobj, errmsg_ );
 }
 
 

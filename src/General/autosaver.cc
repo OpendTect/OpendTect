@@ -73,25 +73,30 @@ void OD::Saveable::copyClassData( const Saveable& oth )
 {
     detachCBFromObj();
     monitored_ = oth.monitored_;
+    monitoredalive_ = oth.monitoredalive_;
     storekey_ = oth.storekey_;
     ioobjpars_ = oth.ioobjpars_;
-    monitoredalive_ = oth.monitoredalive_;
     errmsg_ = oth.errmsg_;
+    lastsavedirtycount_ = oth.lastsavedirtycount_;
     attachCBToObj();
 }
 
 
 void OD::Saveable::setMonitored( const Monitorable& obj )
 {
+    if ( this == &obj )
+	{ pErrMsg("Funny, but no go"); return; }
     mLock4Read();
     if ( monitored_ == &obj )
 	return;
 
+    AccessLockHandler alh( obj );
     mLock2Write();
     detachCBFromObj();
     monitored_ = &obj;
     monitoredalive_ = true;
     attachCBToObj();
+    mSendEntireObjChgNotif();
 }
 
 
@@ -259,7 +264,7 @@ void OD::AutoSaveable::removePrevAutoSaved() const
 
 void OD::AutoSaveable::initAutoSave() const
 {
-    lastautosavedirtycount_ = monitoredalive_ ? monitored()->dirtyCount() : 0;
+    lastautosavedirtycount_ = monitoredalive_ ? monitored()->dirtyCount() : -1;
 }
 
 
@@ -267,10 +272,8 @@ bool OD::AutoSaveable::needsAutoSaveAct( int clockseconds ) const
 {
     if ( !monitoredalive_ )
 	return false;
-    mLock4Write();
-    if ( !monitoredalive_ )
-	return false;
 
+    mLock4Write();
     curclockseconds_ = clockseconds;
     return curclockseconds_ - lastautosaveclockseconds_
 	>= nrclocksecondsbetweenautosaves_;
@@ -297,8 +300,6 @@ bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
 	return true;
 
     mLock4Write();
-    if ( !monitoredalive_ )
-	return true;
 
     const DirtyCountType dirtycount = monitored_->dirtyCount();
     lastautosaveclockseconds_ = curclockseconds_;
@@ -325,6 +326,8 @@ bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
 						  : dirtycount;
 	removePrevAutoSaved();
 	lastautosaveioobj_ = newstoreioobj;
+	if ( !monitoredalive_ )
+	    removePrevAutoSaved();
     }
 
     return true;
@@ -424,9 +427,9 @@ void OD::AutoSaveMgr::saverDel( CallBacker* cb )
     if ( !autosaver )
     {
 	if ( !cb )
-	    { pErrMsg( "Huh" ); return; }
-	pErrMsg( "Add a sendDelNotif() to your destructor" );
+	    { pErrMsg( "Add a sendDelNotif() to your destructor" ); return; }
 	autosaver = (AutoSaveable*)cb;
+	remove( autosaver );
     }
 }
 
@@ -444,11 +447,10 @@ void OD::AutoSaveMgr::remove( AutoSaveable* autosaver )
 
 void OD::AutoSaveMgr::appExits( CallBacker* )
 {
+    detachAllNotifiers();
     setEmpty();
     Threads::Locker locker( lock_ );
-    detachAllNotifiers();
     appexits_ = true;
-    locker.unlockNow();
 }
 
 

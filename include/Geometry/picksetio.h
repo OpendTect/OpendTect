@@ -66,9 +66,12 @@ mExpClass(Geometry) SetSaver : public OD::AutoSaveable
 public:
 
 			SetSaver(const Pick::Set&);
+			~SetSaver();
 
     ConstRefMan<Set>	pickSet() const;
     void		setPickSet(const Set&);
+
+    mDeclInstanceCreatedNotifierAccess(SetSaver);
 
 protected:
 

@@ -25,17 +25,8 @@ class AutoSaveMgr;
 
 /*!\brief Object ready for auto-save by OD::AUTOSAVE().
 
-  You need to provide a fingerprint of your state when asked (prepare for this
-  coming from another thread). If the fingerprint differs from previous time,
-  you will be asked to store. The IOObj you get will be a modified version
-  (always default local format). It will have a temporary IOObj ID.
-  The actual fingerprint is up to you. Just make the chance of accidental
-  match very low.
-
-  You should tell the object when the user has (in some way) successfully
-  saved the object, so next autosave can be postponed.
-
-*/
+  just adds some variables and tools needed for the autosaving.
+ */
 
 
 mExpClass(General) AutoSaveable : public Saveable
@@ -53,8 +44,8 @@ public:
 
 			// These functions can be called from any thread
 
-    void		userSaveOccurred() const;
     bool		autoSaveNow() const	{ return doAutoSaveWork(true); }
+    void		userSaveOccurred() const;
 
     virtual bool	save() const;
     virtual bool	store(const IOObj&) const;
