@@ -20,19 +20,19 @@ ________________________________________________________________________
    There should normally only be one instance in memory, and that should
    be accessed via PickRetriever::getInstance(). */
 
-mExpClass(General) PickRetriever : public CallBacker
-				 , public RefCount::Referenced
+mExpClass(General) PickRetriever : public RefCount::Referenced
+				 , public CallBacker
 {
 public:
-    				PickRetriever();
+				PickRetriever();
 
     virtual bool		enable(const TypeSet<int>* allowedsc)	= 0;
-    				/*!<Sets the object in a state where it's
+				/*!<Sets the object in a state where it's
 				    retrieving picks.
 				    \note if allowedsc is empty or null,
-				 	  picks are allowed in all scenes. */
+					  picks are allowed in all scenes. */
     virtual NotifierAccess*	finished()				= 0;
-    				/*!<Triggers when it does not look for pick
+				/*!<Triggers when it does not look for pick
 				    any longer. The outcome can be retrieved
 				    bu success(), getPos() and getSceneID(). */
     virtual void		reset()					= 0;
@@ -45,17 +45,17 @@ public:
     virtual const TypeSet<int>&	getPickedObjIDs() const			= 0;
 
     static PickRetriever*	getInstance();
-    				/*!<Main access function. */
+				/*!<Main access function. */
 
     static void			setInstance(PickRetriever*);
-    				/*!<Should normally only be called from
+				/*!<Should normally only be called from
 				    application initiation. */
     OD::ButtonState		buttonstate_;
     virtual int			unTransformedSceneID() const		= 0;
     virtual const ZAxisTransform* getZAxisTransform() const		= 0;
 
 protected:
-    				~PickRetriever();
+				~PickRetriever();
     static RefMan<PickRetriever> instance_;
 };
 

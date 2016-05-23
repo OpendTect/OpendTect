@@ -42,8 +42,8 @@ be moved, and in what manner.
    which are listed by getAlongMovingStyleNames().
 */
 
-mExpClass(MPEEngine) ObjectEditor : public CallBacker
-                                  , public RefCount::Referenced
+mExpClass(MPEEngine) ObjectEditor : public RefCount::Referenced
+				  , public CallBacker
 {
 public:
 			ObjectEditor(EM::EMObject&);

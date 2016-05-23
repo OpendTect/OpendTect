@@ -123,8 +123,8 @@ CallBack::callInMainThread( CallBack( this, ((CallBackFunction)(&func) ) ), 0)
 
 /*!\brief TypeSet of CallBacks with a few extras.  */
 
-mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
-                             , public RefCount::Referenced
+mExpClass(Basic) CallBackSet : public RefCount::Referenced
+			     , public TypeSet<CallBack>
 {
 public:
 		CallBackSet();

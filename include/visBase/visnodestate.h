@@ -20,11 +20,11 @@ namespace osg { class StateSet; class StateAttribute; }
 
 namespace visBase
 {
-    
+
 /*!Baseclass for objects manipulating the osg::StateSet. */
 
-mExpClass(visBase) NodeState : public CallBacker
-                             , public RefCount::Referenced
+mExpClass(visBase) NodeState : public RefCount::Referenced
+			     , public CallBacker
 {
 public:
 
@@ -34,18 +34,18 @@ public:
 
 protected:
 				NodeState();
-    				~NodeState();
-    
+				~NodeState();
+
     template <class T> T*	addAttribute(T* a) { doAdd(a); return a; }
     template <class T> void	removeAttribute(T* a) {doRemove(a);}
-    
+
 private:
-    
+
     void			doAdd(osg::StateAttribute*);
     void			doRemove(osg::StateAttribute*);
     virtual void		applyAttribute(osg::StateSet*,
 					       osg::StateAttribute*);
-    
+
     ObjectSet<osg::StateAttribute>	attributes_;
     ObjectSet<osg::StateSet>		statesets_;
 };

@@ -183,8 +183,8 @@ inserted into the menu.
     \endcode
 */
 
-mExpClass(General) MenuHandler : public MenuItemHolder
-                               , public RefCount::Referenced
+mExpClass(General) MenuHandler	: public RefCount::Referenced
+				, public MenuItemHolder
 {
 public:
 				MenuHandler( int id );

@@ -56,7 +56,7 @@ public:
     bool			operator==(const MarchingCubesModel&) const;
 
     bool			set(const Array3D<float>& arr,
-			    	    int i0,int i1, int i2,float threshold);
+				    int i0,int i1, int i2,float threshold);
 
     bool			isEmpty() const;
 
@@ -78,8 +78,8 @@ public:
 };
 
 
-mExpClass(Geometry) MarchingCubesSurface : public CallBacker
-                                         , public RefCount::Referenced
+mExpClass(Geometry) MarchingCubesSurface : public RefCount::Referenced
+					 , public CallBacker
 {
 public:
 			MarchingCubesSurface();

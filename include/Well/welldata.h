@@ -99,7 +99,8 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public ::NamedMonitorable, public RefCount::Referenced
+mExpClass(Well) Data : public RefCount::Referenced
+		     , public ::NamedMonitorable
 {
 public:
 

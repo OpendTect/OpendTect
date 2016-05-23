@@ -28,8 +28,8 @@ namespace Geometry
 
 class RandomLineSet;
 
-mExpClass(Geometry) RandomLine : public NamedMonitorable
-                               , public RefCount::Referenced
+mExpClass(Geometry) RandomLine	: public RefCount::Referenced
+				, public NamedMonitorable
 {
 public:
 

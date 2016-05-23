@@ -52,8 +52,8 @@ public:
 
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
-mExpClass(Velocity) Picks : public CallBacker
-			  , public RefCount::Referenced
+mExpClass(Velocity) Picks : public RefCount::Referenced
+			  , public CallBacker
 {
 public:
 			Picks();

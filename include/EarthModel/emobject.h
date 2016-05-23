@@ -103,7 +103,8 @@ public:
 \brief Base class for all EarthModel objects.
 */
 
-mExpClass(EarthModel) EMObject : public CallBacker, public RefCount::Referenced
+mExpClass(EarthModel) EMObject	: public RefCount::Referenced
+				, public CallBacker
 {
 public:
     const ObjectID&		id() const		{ return id_; }

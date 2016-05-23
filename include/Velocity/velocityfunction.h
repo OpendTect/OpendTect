@@ -41,7 +41,7 @@ mExpClass(Velocity) Function : public RefCount::Referenced
 {
 public:
 				Function(FunctionSource&);
-    const FunctionSource&	getSource() const 	{ return source_; }
+    const FunctionSource&	getSource() const	{ return source_; }
 
     virtual const VelocityDesc&	getDesc() const;
 
@@ -56,7 +56,7 @@ public:
     const StepInterval<float>&	getDesiredZ() const;
 
 protected:
-    virtual 			~Function();
+    virtual			~Function();
 
     virtual bool		computeVelocity(float z0, float dz, int nr,
 						float* res ) const	= 0;
@@ -77,8 +77,8 @@ private:
 /*!A source of Velocity functions of a certain sort. The FunctionSource
    can create Functions at certian BinID locations. */
 
-mExpClass(Velocity) FunctionSource : public CallBacker
-				   , public RefCount::Referenced
+mExpClass(Velocity) FunctionSource : public RefCount::Referenced
+				   , public CallBacker
 {
 public:
 				mDefineFactory1ParamInClass(
@@ -109,7 +109,7 @@ protected:
     void			removeFunction(const Function*);
 
     int				findFunction(const BinID&) const;
-    				//!<Caller must readlock before calling
+				//!<Caller must readlock before calling
 
 
     MultiID				mid_;

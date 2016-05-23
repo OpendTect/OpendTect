@@ -31,8 +31,8 @@ class DataPackMgr;
   'Fault surface'
 */
 
-mExpClass(Basic) DataPack : public NamedMonitorable
-			  , public RefCount::Referenced
+mExpClass(Basic) DataPack : public RefCount::Referenced
+			  , public NamedMonitorable
 {
 public:
 

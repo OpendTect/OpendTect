@@ -44,7 +44,7 @@ class NodeState;
 // OSG traversal bitmasks defined by OpendTect
 inline unsigned int cNoTraversalMask()			{ return 0; }
 inline unsigned int cAllTraversalMask()			{ return 0xFFFFFFFF; }
-inline unsigned int cEventTraversalMask() 		{ return 0x00000001; }
+inline unsigned int cEventTraversalMask()		{ return 0x00000001; }
 inline unsigned int cBBoxTraversalMask()		{ return 0x00000002; }
 
 inline unsigned int cActiveIntersecTraversalMask()	{ return 0x00000004; }
@@ -61,7 +61,8 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-mExpClass(visBase) DataObject : public CallBacker, public RefCount::Referenced
+mExpClass(visBase) DataObject	: public RefCount::Referenced
+				, public CallBacker
 {
 public:
 
@@ -95,26 +96,26 @@ public:
 				/*!<actively: mouse click/drag, key press, etc.
 				    passively: hovering (e.g. status info) */
 
-    virtual bool		rightClickable() const 	{ return selectable(); }
+    virtual bool		rightClickable() const	{ return selectable(); }
     virtual bool		selectable() const	{ return false; }
     void			select() const;
-    				/*<! Is here for convenience. Will rewire to
+				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
     void			deSelect() const;
-    				/*<! Is here for convenience. Will rewire to
+				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
     void			updateSel() const;
 				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
 
     virtual bool		isSelected() const;
-    virtual NotifierAccess*	selection() 		{ return 0; }
-    virtual NotifierAccess*	deSelection() 		{ return 0; }
+    virtual NotifierAccess*	selection()		{ return 0; }
+    virtual NotifierAccess*	deSelection()		{ return 0; }
     virtual NotifierAccess*	rightClicked()		{ return 0; }
     virtual const TypeSet<int>*	rightClickedPath() const{ return 0; }
 
     virtual void		setDisplayTransformation(const mVisTrans*);
-    				/*!< All positions going from the outside
+				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     with this transform. This enables us
 				     to have different coord-systems outside
@@ -123,7 +124,7 @@ public:
 				     in the vis.
 				 */
     virtual const mVisTrans*	getDisplayTransformation() const { return 0; }
-    				/*!< All positions going from the outside
+				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     with this transform. This enables us
 				     to have different coord-systems outside
@@ -132,7 +133,7 @@ public:
 				     in the vis.
 				 */
     virtual void		setRightHandSystem(bool yn)	{}
-    				/*!<Sets whether the coordinate system is
+				/*!<Sets whether the coordinate system is
 				    right or left handed. */
     virtual bool		isRightHandSystem() const	{ return true; }
 
@@ -143,7 +144,7 @@ public:
     virtual const char*		errMsg() const	{ return 0; }
 
     bool			serialize(const char* filename,
-	    				  bool binary=false);
+					  bool binary=false);
 
     void			setParent(DataObjectGroup* g) { parent_ = g; }
 
@@ -169,11 +170,11 @@ protected:
     friend class		SelectionManager;
     friend class		Scene;
     virtual void		triggerSel()				{}
-    				/*!<Is called everytime object is selected.*/
+				/*!<Is called everytime object is selected.*/
     virtual void		triggerDeSel()				{}
-    				/*!<Is called everytime object is deselected.*/
+				/*!<Is called everytime object is deselected.*/
     virtual void		triggerRightClick(const EventInfo* =0)	{}
-    
+
 				DataObject();
 
     DataObjectGroup*		parent_;
@@ -205,7 +206,7 @@ private:
 
 };
 
-#define mCreateDataObj(clss) 					\
+#define mCreateDataObj(clss)					\
 {								\
     return new clss;						\
 }								\
@@ -213,10 +214,10 @@ private:
 private:							\
     static visBase::DataObject* createInternal()		\
 				{ return new clss; }		\
-    clss& 			operator =(const clss&);	\
-    				clss(const clss&);		\
+    clss&			operator =(const clss&);	\
+				clss(const clss&);		\
 public:								\
-                        	clss();                        	\
+	clss();                        	\
     static void			initClass();			\
     static const char*		getStaticClassName();		\
     static const char*		sFactoryKeyword();		\

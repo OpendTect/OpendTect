@@ -18,8 +18,8 @@ ________________________________________________________________________
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mExpClass(uiViewer2D) Vw2DDataObject : public CallBacker
-				     , public RefCount::Referenced
+mExpClass(uiViewer2D) Vw2DDataObject : public RefCount::Referenced
+				     , public CallBacker
 {
 public:
 
