@@ -96,6 +96,7 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
     setAcceptDrops( true );
     viewport()->setAcceptDrops( true );
     setSelectionBehavior( QTreeWidget::SelectItems );
+    setExpandsOnDoubleClick( false );
     setMouseTracking( true );
 
     if ( header() )
