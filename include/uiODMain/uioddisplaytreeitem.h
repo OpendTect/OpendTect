@@ -53,6 +53,7 @@ protected:
     int			uiTreeViewItemType() const;
     virtual void	checkCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
+    virtual bool	doubleClick(uiTreeViewItem*);
     virtual bool	init();
 
     bool		isSelectable() const		{ return true; }

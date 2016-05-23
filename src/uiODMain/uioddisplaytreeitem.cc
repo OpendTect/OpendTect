@@ -251,6 +251,18 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
 }
 
 
+bool uiODDisplayTreeItem::doubleClick( uiTreeViewItem* item )
+{
+    if ( item != uitreeviewitem_ )
+	return uiTreeItem::doubleClick( item );
+
+    if ( !select() ) return false;
+
+    visserv_->setMaterial( displayID() );
+    return true;
+}
+
+
 void uiODDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 {
     visserv_->setOnlyAtSectionsDisplay( displayid_, yn );
