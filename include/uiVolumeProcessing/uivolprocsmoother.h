@@ -31,11 +31,11 @@ public:
 	    Smoother::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
-				uiSmoother(uiParent*,Smoother*);
+				uiSmoother(uiParent*,Smoother*,bool is2d);
 
 protected:
 
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 

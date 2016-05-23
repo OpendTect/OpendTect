@@ -31,16 +31,17 @@ void uiBodyFiller::initClass()
 }
 
 
-uiStepDialog* uiBodyFiller::createInstance( uiParent* parent, Step* step )
+uiStepDialog* uiBodyFiller::createInstance( uiParent* parent, Step* step,
+					    bool is2d )
 {
     mDynamicCastGet(BodyFiller*,bf,step);
-    return bf ? new uiBodyFiller( parent, bf ) : 0;
+    return bf ? new uiBodyFiller( parent, bf, is2d ) : 0;
 }
 
 
 
-uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf )
-    : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), bf )
+uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf, bool is2d )
+    : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), bf, is2d )
     , bodyfiller_( bf )
 {
     setHelpKey( mODHelpKey(mBodyFillerHelpID) );

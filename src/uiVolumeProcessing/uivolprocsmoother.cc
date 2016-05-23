@@ -25,8 +25,8 @@ namespace VolProc
 {
 
 
-uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
-    : uiStepDialog( p, Smoother::sFactoryDisplayName(), hf )
+uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
+    : uiStepDialog( p, Smoother::sFactoryDisplayName(), hf, is2d )
     , smoother_( hf )
 {
     setHelpKey( mODHelpKey(mVolumeSmootherHelpID) );
@@ -44,14 +44,14 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     stepoutgroup->attach( alignedBelow, label );
 
     inllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sInline(), 0,
-	    			  	"Inline_spinbox" );
+					"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(), step.inl() );
     inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
 
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sCrossline(), 0,
-	    			       "Crline_spinbox" );
+				       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl(), step.crl() );
     crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
     crllenfld_->attach( alignedBelow, inllenfld_ );
@@ -60,7 +60,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     uiString zlabel = tr("Vertical %1").arg( SI().getUiZUnitString(true) );
 
     zlenfld_ = new uiLabeledSpinBox( stepoutgroup, zlabel, 0,
-	    			     "Z_spinbox" );
+				     "Z_spinbox" );
     zlenfld_->box()->setInterval( (float) 0, (mMaxNrSteps/2)*zstep, zstep );
     zlenfld_->box()->setValue( zstep*(smoother_->zSz()/2) );
     zlenfld_->attach( alignedBelow, crllenfld_ );
@@ -70,12 +70,13 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
 }
 
 
-uiStepDialog* uiSmoother::createInstance( uiParent* parent, Step* ps )
+uiStepDialog* uiSmoother::createInstance( uiParent* parent, Step* ps,
+					  bool is2d )
 {
     mDynamicCastGet( Smoother*, hf, ps );
     if ( !hf ) return 0;
 
-    return new uiSmoother( parent, hf );
+    return new uiSmoother( parent, hf, is2d );
 }
 
 

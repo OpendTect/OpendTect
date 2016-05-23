@@ -29,8 +29,8 @@ public:
 		VolProc::BodyFiller::sFactoryDisplayName());
 
 protected:
-				uiBodyFiller(uiParent*,BodyFiller*);
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+				uiBodyFiller(uiParent*,BodyFiller*,bool is2d);
+    static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
 
     bool			acceptOK(CallBacker*);
     void			bodySel(CallBacker*);

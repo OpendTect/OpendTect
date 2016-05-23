@@ -25,8 +25,9 @@ namespace VolProc
 {
 
 uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
-					      WellLogInterpolator& hwi )
-    : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi )
+					      WellLogInterpolator& hwi,
+					      bool is2d )
+    : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi, is2d )
     , hwinterpolator_( hwi )
 {
     setHelpKey( mODHelpKey(mWellLogInterpolHelpID) );
@@ -99,10 +100,11 @@ void uiWellLogInterpolator::finaliseCB( CallBacker* )
 }
 
 
-uiStepDialog* uiWellLogInterpolator::createInstance( uiParent* p, Step* vs )
+uiStepDialog* uiWellLogInterpolator::createInstance( uiParent* p, Step* vs,
+						     bool is2d )
 {
     mDynamicCastGet( WellLogInterpolator*, wli, vs );
-    return wli ? new uiWellLogInterpolator( p, *wli ) : 0;
+    return wli ? new uiWellLogInterpolator( p, *wli, is2d ) : 0;
 }
 
 

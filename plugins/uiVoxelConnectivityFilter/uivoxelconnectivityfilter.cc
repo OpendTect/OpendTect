@@ -22,12 +22,12 @@ namespace VolProc
 {
 
 uiStepDialog* uiVoxelConnectivityFilter::createInstance( uiParent* p,
-							 Step* step )
+							 Step* step, bool is2d )
 {
     mDynamicCastGet( VoxelConnectivityFilter*, vcf, step );
-    return vcf 
-	?  new uiVoxelConnectivityFilter( p, vcf )
-	: 0; 
+    return vcf
+	?  new uiVoxelConnectivityFilter( p, vcf, is2d )
+	: 0;
 }
 
 
@@ -40,8 +40,8 @@ uiStepDialog* uiVoxelConnectivityFilter::createInstance( uiParent* p,
 
 
 uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
-	VoxelConnectivityFilter* step )
-    : uiStepDialog( p, VoxelConnectivityFilter::sFactoryDisplayName(), step )
+	VoxelConnectivityFilter* step, bool is2d )
+    : uiStepDialog(p,VoxelConnectivityFilter::sFactoryDisplayName(),step,is2d)
 {
     setHelpKey( mODHelpKey(mVoxelConnectivityFilterHelpID) );
     const char* cutofftypes[] = { "Values larger than", "Values less than",
@@ -91,7 +91,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 
     int minsz = mCast(int,step->getMinimumBodySize());
     if ( mIsUdf(minsz) ) minsz = mMinBodySize;
-    minbodysizefld_ = new uiGenInput( this, 
+    minbodysizefld_ = new uiGenInput( this,
                                       tr("Keep bodies larger than [voxels]"),
 				      IntInpSpec(minsz) );
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
@@ -119,7 +119,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     rejectoutputvalfld_->attach( alignedBelow, rejectoutputudffld_ );
 
     updateFieldsCB( 0 );
-    
+
     addNameFld( rejectoutputvalfld_ );
 }
 
@@ -164,7 +164,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	if ( cutofftypefld_->getIntValue()==mCutInside )
 	    range.sort( false );
     }
-    else 
+    else
     {
 	const float cutoffval = cutoffvalfld_->getFValue();
 	if ( mIsUdf(cutoffval) )

@@ -21,8 +21,9 @@
 namespace VolProc
 {
 
-uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
-    : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf )
+uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
+					bool is2d )
+    : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf, is2d )
     , smoother_( hf )
 {
     setHelpKey( mODHelpKey(mLateralSmootherHelpID) );
@@ -96,12 +97,13 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
 }
 
 
-uiStepDialog* uiLateralSmoother::createInstance( uiParent* parent, Step* ps )
+uiStepDialog* uiLateralSmoother::createInstance( uiParent* parent, Step* ps,
+						 bool is2d )
 {
     mDynamicCastGet( LateralSmoother*, hf, ps );
     if ( !hf ) return 0;
 
-    return new uiLateralSmoother( parent, hf );
+    return new uiLateralSmoother( parent, hf, is2d );
 }
 
 

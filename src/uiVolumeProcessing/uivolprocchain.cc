@@ -37,14 +37,17 @@ namespace VolProc
 const char* uiChain::sKeySettingKey()
 { return "dTect.ProcessVolumeBuilderOnOK"; }
 
-mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
+mImplFactory3Param( uiStepDialog, uiParent*, Step*, bool,
+		    uiStepDialog::factory );
 
 
 // uiStepDialog
-uiStepDialog::uiStepDialog( uiParent* p, const uiString& stepnm, Step* step )
+uiStepDialog::uiStepDialog( uiParent* p, const uiString& stepnm, Step* step,
+			    bool is2d )
     : uiDialog( p, uiDialog::Setup(tr("Edit step"),stepnm,mNoHelpKey) )
     , step_(step)
     , multiinpfld_(0)
+    , is2d_(is2d)
 {
 }
 
@@ -194,6 +197,22 @@ bool uiStepDialog::acceptOK( CallBacker* )
 }
 
 
+bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
+{
+    for ( int idx=0; idx<uiStepDialog::factory().size(); idx++ )
+    {
+	PtrMan<Step> step =
+	    Step::factory().create(uiStepDialog::factory().getNames().get(idx));
+	if ( !step || (is2d && step->canHandle2D()) )
+	    continue;
+
+	uinms.add( uiStepDialog::factory().getUserNames()[idx] );
+	nms.add( uiStepDialog::factory().getNames().get(idx) );
+    }
+
+    return nms.size();
+}
+
 // uiChain
 uiChain::uiChain( uiParent* p, Chain& chn, bool is2d, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Setup"),
@@ -211,17 +230,19 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool is2d, bool withprocessnow )
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
+    uiStringSet uinames;
+    getNamesFromFactory( uinames, factorysteptypes_, is2d_ );
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, tr("Available steps") );
     factorylist_ = new uiListBox( flowgrp, "Processing methods" );
-    factorylist_->addItems( uiStepDialog::factory().getUserNames() );
+    factorylist_->addItems( uinames );
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
     factorylist_->doubleClicked.notify( addcb );
 
     const int maxvsz = 15;
-    const int nrsteps = uiStepDialog::factory().size();
+    const int nrsteps = uinames.size();
     const int vsz = mMIN( nrsteps, maxvsz );
     factorylist_->box()->setPrefHeightInChar( vsz );
 
@@ -421,8 +442,7 @@ void uiChain::updateButtons()
 	    stepsel!=steplist_->size()-1 );
 
     const bool hasdlg = stepsel>=0 &&
-	uiStepDialog::factory().hasName(
-		chain_.getStep(stepsel)->factoryKeyword());
+	factorysteptypes_.isPresent( chain_.getStep(stepsel)->factoryKeyword());
 
     propertiesbutton_->setSensitive( hasdlg );
 }
@@ -434,7 +454,7 @@ bool uiChain::showPropDialog( int idx )
     if ( !step ) return false;
 
     PtrMan<uiStepDialog> dlg = uiStepDialog::factory().create(
-	    step->factoryKeyword(), this, step );
+				step->factoryKeyword(), this, step, is2d_ );
     if ( !dlg )
     {
 	uiMSG().error( tr("Internal error. Step cannot be created") );
@@ -514,8 +534,7 @@ void uiChain::addStepPush(CallBacker*)
     if ( sel == -1 )
 	return;
 
-    const char* steptype = uiStepDialog::factory().getNames()[sel]->buf();
-    addStep( steptype );
+    addStep( factorysteptypes_.get(sel) );
 }
 
 
@@ -530,7 +549,7 @@ void uiChain::addStep( const char* steptype )
 	    tr("The %1 cannot be used as an initial volume. "
 		"Please select one of the following as initial step:\n%2.")
 		.arg( step->factoryDisplayName() )
-		.arg( getPossibleInitialStepNames() ) );
+		.arg( getPossibleInitialStepNames(is2d_) ) );
 
 	delete step;
 	return;
@@ -629,7 +648,7 @@ void uiChain::propertiesCB( CallBacker* )
 }
 
 
-uiString uiChain::getPossibleInitialStepNames()
+uiString uiChain::getPossibleInitialStepNames( bool is2d )
 {
     mDefineStaticLocalObject( uiString, names, (uiString::emptyString()) );
 
@@ -642,6 +661,9 @@ uiString uiChain::getPossibleInitialStepNames()
 		uiStepDialog::factory().getNames()[idx]->buf();
 
 	    PtrMan<Step> step = Step::factory().create( steptype );
+	    if ( is2d && !step->canHandle2D() )
+		continue;
+
 	    if ( step->getNrInputs()>0 && step->needsInput() )
 		continue;
 

@@ -21,8 +21,8 @@
 namespace VolProc
 {
 
-uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
-    : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr )
+uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr, bool is2d )
+    : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr, is2d )
     , volumereader_( vr )
 {
     setHelpKey( mODHelpKey(mVolumeReaderHelpID) );
@@ -51,12 +51,13 @@ void uiVolumeReader::volSel( CallBacker* )
 }
 
 
-uiStepDialog* uiVolumeReader::createInstance( uiParent* parent, Step* ps )
+uiStepDialog* uiVolumeReader::createInstance( uiParent* parent, Step* ps,
+					      bool is2d )
 {
     mDynamicCastGet( VolumeReader*, vr, ps );
     if ( !vr ) return 0;
 
-    return new uiVolumeReader( parent, vr );
+    return new uiVolumeReader( parent, vr, is2d );
 }
 
 

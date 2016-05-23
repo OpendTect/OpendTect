@@ -34,10 +34,10 @@ public:
 
 protected:
 				uiWellLogInterpolator(uiParent*,
-						      WellLogInterpolator&);
+						WellLogInterpolator&,bool is2d);
 				~uiWellLogInterpolator();
 
-    static VolProc::uiStepDialog* createInstance(uiParent*,VolProc::Step*);
+    static VolProc::uiStepDialog* createInstance(uiParent*,VolProc::Step*,bool);
 
     void			finaliseCB(CallBacker*);
     bool			acceptOK(CallBacker*);

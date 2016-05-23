@@ -32,10 +32,11 @@ public:
 protected:
 
 
-				uiHorInterFiller(uiParent*,HorInterFiller*);
+				uiHorInterFiller(uiParent*,HorInterFiller*,
+						 bool is2d);
 				~uiHorInterFiller();
 
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
 
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);

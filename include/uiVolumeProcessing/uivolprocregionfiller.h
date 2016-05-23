@@ -36,10 +36,11 @@ public:
     static uiString		sGradientLabel();
 
 protected:
-				uiRegionFiller(uiParent*,RegionFiller*);
-   				~uiRegionFiller();
+				uiRegionFiller(uiParent*,RegionFiller*,
+						bool is2d);
+				~uiRegionFiller();
 
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
     uiGroup*			createVelGrp();
     void			statsPushCB(CallBacker*);
     void			startvalCB(CallBacker*);

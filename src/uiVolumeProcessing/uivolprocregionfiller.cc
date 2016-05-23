@@ -31,15 +31,16 @@ static const char* rcsID mUsedVar = "$Id: uivolprocregionfiller.cc 35352 2014-06
 namespace VolProc
 {
 
-uiStepDialog* uiRegionFiller::createInstance( uiParent* p, Step* step )
+uiStepDialog* uiRegionFiller::createInstance( uiParent* p, Step* step,
+					      bool is2d )
 {
     mDynamicCastGet(RegionFiller*,rf,step);
-    return rf ? new uiRegionFiller( p, rf ) : 0;
+    return rf ? new uiRegionFiller( p, rf, is2d ) : 0;
 }
 
 
-uiRegionFiller::uiRegionFiller( uiParent* p, RegionFiller* rf )
-    : uiStepDialog( p, RegionFiller::sFactoryDisplayName(), rf )
+uiRegionFiller::uiRegionFiller( uiParent* p, RegionFiller* rf, bool is2d )
+    : uiStepDialog( p, RegionFiller::sFactoryDisplayName(), rf, is2d )
     , regionfiller_( rf )
 {
     setHelpKey( mNoHelpKey );

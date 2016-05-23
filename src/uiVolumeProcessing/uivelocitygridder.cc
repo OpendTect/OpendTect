@@ -24,17 +24,19 @@
 namespace VolProc
 {
 
-uiStepDialog* uiVelocityGridder::createInstance( uiParent* p, Step* ro )
+uiStepDialog* uiVelocityGridder::createInstance( uiParent* p, Step* ro,
+						bool is2d )
 {
     mDynamicCastGet(VelocityGridder*,gridop,ro);
     if ( !gridop ) return 0;
 
-    return new uiVelocityGridder( p, gridop );
+    return new uiVelocityGridder( p, gridop, is2d );
 }
 
 
-uiVelocityGridder::uiVelocityGridder( uiParent* p, VelocityGridder* ro )
-    : uiStepDialog( p, VelocityGridder::sFactoryDisplayName(), ro )
+uiVelocityGridder::uiVelocityGridder( uiParent* p, VelocityGridder* ro,
+					bool is2d )
+    : uiStepDialog( p, VelocityGridder::sFactoryDisplayName(), ro, is2d )
     , operation_( ro )
 {
     setHelpKey( mODHelpKey(mVelocityGridderHelpID) );

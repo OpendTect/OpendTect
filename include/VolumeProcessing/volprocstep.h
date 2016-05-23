@@ -104,22 +104,23 @@ public:
 
     virtual Task*		createTask();
     virtual Task*		createTaskWithProgMeter(ProgressMeter*);
-    				//!< only called when needReportProgress()
+				//!< only called when needReportProgress()
     virtual uiString		errMsg() const
 				{ return uiString::emptyString(); }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    				// Processing properties
+				// Processing properties
     virtual bool		needsFullVolume() const		= 0;
     virtual bool		canInputAndOutputBeSame() const	= 0;
     virtual bool		areSamplesIndependent() const	= 0;
+    virtual bool		canHandle2D()			{ return false;}
     virtual bool		needsInput() const		{ return true; }
     virtual bool		prefersBinIDWise() const	{ return false;}
     virtual bool		needReportProgress()		{ return false;}
     virtual bool		isInputPrevStep() const
-    				{ return needsInput(); }
+				{ return needsInput(); }
 protected:
 
 				Step();
@@ -127,13 +128,13 @@ protected:
     // Only called if prefersBinIDWise() returns true
     virtual bool		prepareComp(int nrthreads)	{ return true;}
     virtual bool		computeBinID(const BinID&,int threadid)
-    								{ return false;}
+								{ return false;}
 
     // The memory needed on top of the 'base' memory usage. Can be 0.
     virtual od_int64		extraMemoryUsage(OutputSlotID,
 						 const TrcKeySampling&,
 						 const StepInterval<int>&) const
-    								= 0;
+								= 0;
 
     ID				id_;
     Chain*			chain_;

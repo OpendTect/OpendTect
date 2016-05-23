@@ -30,10 +30,11 @@
 namespace VolProc
 {
 
-uiStepDialog* uiSurfaceLimitedFiller::createInstance( uiParent* p, Step* step )
+uiStepDialog* uiSurfaceLimitedFiller::createInstance( uiParent* p, Step* step,
+						      bool is2d )
 {
     mDynamicCastGet(SurfaceLimitedFiller*,slf,step)
-    return slf ? new uiSurfaceLimitedFiller( p, slf ) : 0;
+    return slf ? new uiSurfaceLimitedFiller( p, slf, is2d ) : 0;
 }
 
 
@@ -44,8 +45,9 @@ static const int cColorCol = 2;
 
 
 uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
-						SurfaceLimitedFiller* slf )
-    : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), slf )
+						SurfaceLimitedFiller* slf,
+						bool is2d )
+    : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), slf, is2d )
     , surfacefiller_(slf)
     , table_(0)
 {
@@ -104,7 +106,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     const uiString gradientsurfdatalabel = SI().zDomain().isDepth()
 	? fromhorattribstr
 	: toUiString("%1 (/%2)").arg( fromhorattribstr )
-      				  .arg(uiStrings::sTimeUnitString(true));
+				  .arg(uiStrings::sTimeUnitString(true));
 
     usegradientfld_ = new uiGenInput( this, tr("Gradient"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),

@@ -33,10 +33,11 @@ public:
 		    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
 protected:
-				uiVelocityGridder(uiParent*,VelocityGridder*);
+				uiVelocityGridder(uiParent*,VelocityGridder*,
+						  bool is2d);
 
     bool			acceptOK(CallBacker*);
-    static uiStepDialog*	createInstance(uiParent*,VolProc::Step*);
+    static uiStepDialog*	createInstance(uiParent*,VolProc::Step*,bool);
 
     void			pickSelChange(CallBacker*);
     void			nameChangeCB(CallBacker*);

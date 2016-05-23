@@ -35,8 +35,9 @@ public:
 
 protected:
 
-				uiLateralSmoother(uiParent*,LateralSmoother*);
-    static uiStepDialog*	createInstance(uiParent*, Step*);
+				uiLateralSmoother(uiParent*,LateralSmoother*,
+						  bool is2d);
+    static uiStepDialog*	createInstance(uiParent*, Step*,bool is2d);
 
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);

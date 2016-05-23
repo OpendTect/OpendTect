@@ -40,10 +40,10 @@ public:
 protected:
 
 				uiSurfaceLimitedFiller(uiParent*,
-						       SurfaceLimitedFiller*);
+					SurfaceLimitedFiller*,bool is2d);
 				~uiSurfaceLimitedFiller();
 
-    static uiStepDialog*	createInstance(uiParent*,Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
     bool			acceptOK(CallBacker*);
 
     void			addSurfaceCB(CallBacker*);

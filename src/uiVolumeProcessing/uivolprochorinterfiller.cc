@@ -25,8 +25,8 @@
 namespace VolProc
 {
 
-uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
-    : uiStepDialog( p, HorInterFiller::sFactoryDisplayName(), hf )
+uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
+    : uiStepDialog( p, HorInterFiller::sFactoryDisplayName(), hf, is2d )
     , horinterfiller_( hf )
     , topctio_(mMkCtxtIOObj(EMHorizon3D))
     , bottomctio_(mMkCtxtIOObj(EMHorizon3D))
@@ -54,12 +54,12 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
 
     if ( hf->getBottomHorizonID() )
 	bottomctio_->setObj( *hf->getBottomHorizonID() );
-    bottomhorfld_ = new uiIOObjSel( this, *bottomctio_, 
+    bottomhorfld_ = new uiIOObjSel( this, *bottomctio_,
 				    uiStrings::sBottomHor() );
     bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
 
     usegradientfld_ = new uiGenInput( this, tr("Slope type"),
-	    BoolInpSpec(hf->usesGradient(), tr("Gradient") , 
+	    BoolInpSpec(hf->usesGradient(), tr("Gradient") ,
 			tr("Bottom value") ));
     usegradientfld_->attach( alignedBelow, bottomhorfld_ );
     usegradientfld_->valuechanged.notify(mCB(this,uiHorInterFiller,updateFlds));
@@ -97,12 +97,13 @@ void uiHorInterFiller::updateFlds( CallBacker* )
 }
 
 
-uiStepDialog* uiHorInterFiller::createInstance( uiParent* parent, Step* ps )
+uiStepDialog* uiHorInterFiller::createInstance( uiParent* parent, Step* ps,
+						bool is2d )
 {
     mDynamicCastGet( HorInterFiller*, hf, ps );
     if ( !hf ) return 0;
 
-    return new uiHorInterFiller( parent, hf );
+    return new uiHorInterFiller( parent, hf, is2d );
 }
 
 
