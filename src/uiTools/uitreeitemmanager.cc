@@ -90,6 +90,12 @@ bool uiTreeItem::anyButtonClick( uiTreeViewItem* item )
 
 bool uiTreeItem::doubleClick( uiTreeViewItem* item )
 {
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	if ( children_[idx]->doubleClick(item) )
+	    return true;
+    }
+
     return false;
 }
 
