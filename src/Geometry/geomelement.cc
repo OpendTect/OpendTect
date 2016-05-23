@@ -11,6 +11,7 @@
 
 namespace Geometry
 {
+
 Element::Element()
     : nrpositionnotifier( this )
     , movementnotifier( this )
@@ -161,4 +162,4 @@ void Element::triggerNrPosCh()
     ischanged_ = true;
 }
 
-}; //Namespace
+} // namespace Geometry
