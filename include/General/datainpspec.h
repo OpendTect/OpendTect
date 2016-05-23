@@ -123,8 +123,8 @@ public:
     virtual void	setValue(bool b,int idx=0);
 
     virtual int		getDefaultIntValue(int idx=0) const;
-    virtual double	getDefaultValue(int idx=0) const;
-    virtual float	getDefaultfValue(int idx=0) const;
+    virtual double	getDefaultDValue(int idx=0) const;
+    virtual float	getDefaultFValue(int idx=0) const;
     virtual bool	getDefaultBoolValue(int idx=0) const;
     virtual const char*	getDefaultStringValue(int idx=0) const;
 
@@ -151,8 +151,8 @@ private:
     static const char*	valuestr;
 
 public:
-    /*mDeprecated*/ double getdValue(int idx=0) const { return getDValue(idx); }
-    /*mDeprecated*/ float  getfValue(int idx=0) const { return getFValue(idx); }
+    mDeprecated double getdValue(int idx=0) const { return getDValue(idx); }
+    mDeprecated float  getfValue(int idx=0) const { return getFValue(idx); }
 };
 
 
@@ -211,10 +211,10 @@ public:
 
     virtual int		getDefaultIntValue(int idx=0) const
 			{ return (int)defaultValue(); }
-    virtual double	getDefaultValue(int idx=0) const
-			{ return defaultValue(); }
-    virtual float	getDefaultfValue(int idx=0) const
-			{ return ( float ) defaultValue(); }
+    virtual double	getDefaultDValue(int idx=0) const
+			{ return (double)defaultValue(); }
+    virtual float	getDefaultFValue(int idx=0) const
+			{ return (float)defaultValue(); }
 
     virtual void	setDefaultValue( int val, int idx=0 )
 			{ defaultvalue_ = (T)val; }
@@ -423,10 +423,10 @@ public:
 
     virtual int		getDefaultIntValue(int idx=0) const
 			{ return (int)defaultValue(idx); }
-    virtual double	getDefaultValue(int idx=0) const
-			{ return defaultValue(idx); }
-    virtual float	getDefaultfValue(int idx=0) const
-			{ return (float) defaultValue(idx); }
+    virtual double	getDefaultDValue(int idx=0) const
+			{ return (double)defaultValue(idx); }
+    virtual float	getDefaultFValue(int idx=0) const
+			{ return (float)defaultValue(idx); }
 
     virtual const char*	text( int idx=0 ) const
 			{

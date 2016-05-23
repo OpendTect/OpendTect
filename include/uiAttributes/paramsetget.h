@@ -103,7 +103,7 @@ if ( desc.getValParam(str) ) \
 {\
     float var = desc.getValParam(str)->getFValue(0);\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(str)->getDefaultfValue(0);\
+	var = desc.getValParam(str)->getDefaultFValue(0);\
     setfunc;\
 }
 
@@ -112,7 +112,7 @@ if ( desc.getValParam(str) ) \
 {\
     double var = desc.getValParam(str)->getDValue(0);\
     if ( mIsUdf(var) )\
-	var = desc.getValParam(str)->getDefaultdValue(0);\
+	var = desc.getValParam(str)->getDefaultDValue(0);\
     setfunc;\
 }
 

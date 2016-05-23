@@ -119,21 +119,15 @@ void DataInpSpec::setValue( bool b, int idx )
 
 
 int DataInpSpec::getDefaultIntValue( int idx ) const
-{
-    return mUdf(int);
-}
+{ return mUdf(int); }
 
 
-double DataInpSpec::getDefaultValue( int idx ) const
-{
-    return mUdf(double);
-}
+double DataInpSpec::getDefaultDValue( int idx ) const
+{ return mUdf(double); }
 
 
-float DataInpSpec::getDefaultfValue( int idx ) const
-{
-    return mUdf(float);
-}
+float DataInpSpec::getDefaultFValue( int idx ) const
+{ return mUdf(float); }
 
 
 bool DataInpSpec::getDefaultBoolValue( int idx ) const

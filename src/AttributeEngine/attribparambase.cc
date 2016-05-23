@@ -114,8 +114,8 @@ void ValParam::setDefaultValue( type val, int idx ) \
 { spec_->setDefaultValue( val, idx ); }
 
 mSetGetDefault(int,getDefaultIntValue,getDefaultIntValue)
-mSetGetDefault(float,getDefaultfValue,getDefaultfValue)
-mSetGetDefault(double,getDefaultdValue,getDefaultValue)
+mSetGetDefault(float,getDefaultFValue,getDefaultFValue)
+mSetGetDefault(double,getDefaultDValue,getDefaultDValue)
 mSetGetDefault(bool,getDefaultBoolValue,getDefaultBoolValue)
 mSetGetDefault(const char*,getDefaultStringValue,getDefaultStringValue)
 
@@ -155,4 +155,4 @@ void ValParam::fillDefStr( BufferString& res ) const
     res += val;
 }
 
-}; // namespace Attrib
+} // namespace Attrib
