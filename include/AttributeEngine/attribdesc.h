@@ -259,7 +259,7 @@ protected:
 {\
     var = __desc.getValParam(varstring)->getFValue(0); \
     if ( mIsUdf(var) )\
-        var = __desc.getValParam(varstring)->getDefaultfValue(0);\
+        var = __desc.getValParam(varstring)->getDefaultFValue(0);\
 }
 
 
@@ -267,7 +267,7 @@ protected:
 {\
     var = __desc.getValParam(varstring)->getDValue(0); \
     if ( mIsUdf(var) )\
-        var = __desc.getValParam(varstring)->getDefaultdValue(0);\
+        var = __desc.getValParam(varstring)->getDefaultDValue(0);\
 }
 
 
