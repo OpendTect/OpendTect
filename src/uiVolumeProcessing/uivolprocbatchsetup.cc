@@ -52,7 +52,8 @@ uiBatchSetup::uiBatchSetup( uiParent* p, bool is2d, const IOObj* initialsetup )
     editsetup_->attach( rightOf, setupsel_ );
 
     const Seis::GeomType seistype = is2d ? Seis::Line : Seis::Vol;
-    subsel_ = uiSeisSubSel::get( this, Seis::SelSetup(seistype) );
+    Seis::SelSetup selsu( seistype ); selsu.multiline( true );
+    subsel_ = uiSeisSubSel::get( this, selsu );
     subsel_->attach( alignedBelow, setupsel_ );
 
     outputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(seistype,false),
