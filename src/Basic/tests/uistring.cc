@@ -302,8 +302,8 @@ int main( int argc, char** argv )
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
-	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings()
-	 || !testToLower() || !TestTranslator::testTranslation() || testUTF8() )
+	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings() ||
+	 !testToLower() || !TestTranslator::testTranslation() || !testUTF8() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
