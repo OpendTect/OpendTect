@@ -35,8 +35,8 @@ namespace Pick
 
 */
 
-mExpClass(General) Set : public NamedMonitorable
-		       , public RefCount::Referenced
+mExpClass(General) Set	: public RefCount::Referenced
+			, public NamedMonitorable
 {
 public:
 
