@@ -53,17 +53,10 @@ bool Batch::SingleJobDispatcherRemote::launch()
 	remoteexec_.setEmpty();
 
     CommandString argstr( machine ? *machine : *localhost );
-    FilePath progfp( jobspec_.prognm_ );
     FilePath ioparfp;
     BufferString logfile;
     if ( remote )
     {
-	if ( unixtorunix )
-	{
-	    progfp.insert( GetExecPlfDir() );
-	    progfp = machine->convPath( HostData::Appl, progfp, localhost );
-	}
-
 	BufferString procdir( GetProcFileName( getTempBaseNm() ) );
 	procdir.add( "_" ).add( MMJob_getTempFileNr() );
 	MMJob_getTempFileNr()++;
@@ -96,8 +89,8 @@ bool Batch::SingleJobDispatcherRemote::launch()
     }
 
     BufferString cmd( unixtorunix
-			? progfp.fullPath( machine->pathStyle() ).str()
-			: progfp.fileName().str() );
+	? JobIOMgr::mkRexecCmd( jobspec_.prognm_.str(), *machine, *localhost )
+		: jobspec_.prognm_ );
 
     argstr.addFilePath( ioparfp );
     jobspec_.clargs_.add( argstr.string() );
