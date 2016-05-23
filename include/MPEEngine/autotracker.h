@@ -82,52 +82,6 @@ protected:
     Threads::Lock		getfreestlock_;
 };
 
-
-/*
-mExpClass(MPEEngine) AutoTracker : public Executor
-{ mODTextTranslationClass(AutoTracker)
-public:
-				AutoTracker(EMTracker&,const EM::SectionID&);
-				~AutoTracker();
-
-    void			setNewSeeds(const TypeSet<EM::PosID>&);
-    int				nextStep();
-    void			setTrackBoundary(const TrcKeyZSampling&);
-    void			unsetTrackBoundary();
-    od_int64			nrDone() const		{ return nrdone_; }
-    od_int64			totalNr() const		{ return totalnr_; }
-
-    virtual uiString		uiMessage() const;
-
-protected:
-    bool			addSeed(const EM::PosID&);
-    void			manageCBbuffer(bool block);
-    void			reCalculateTotalNr();
-    int				nrdone_;
-    int				totalnr_;
-    int				nrflushes_;
-    int				flushcntr_;
-    int 			stepcntallowedvar_;
-    int				stepcntapmtthesld_;
-
-    bool			burstalertactive_;
-
-    const EM::SectionID		sectionid_;
-    SortedTable<EM::SubID,char>	blacklist_;
-    TypeSet<EM::SubID>		currentseeds_;
-    EM::EMObject&		emobject_;
-    SectionTracker*		sectiontracker_;
-    SectionExtender*		extender_;
-    SectionAdjuster*		adjuster_;
-    Geometry::Element*		geomelem_;
-
-    Array2D<float>*		horizon3dundoinfo_;
-    RowCol			horizon3dundoorigin_;
-
-    uiString			execmsg_;
-};
-*/
-
 } // namespace MPE
 
 #endif

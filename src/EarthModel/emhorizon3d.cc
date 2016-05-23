@@ -573,8 +573,25 @@ Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 
 
 void Horizon3D::initAllAuxData( float val )
+{ auxdata.init( -1, false, val ); }
+
+
+void Horizon3D::initTrackingAuxData( float val )
 {
-    auxdata.init( -1, val );
+    BufferStringSet auxdatanames;
+    auxdatanames.add( "Amplitude" ).add( "Correlation" )
+		.add( "Seed Index" ).add("Tracking Order" );
+    for ( int idx=0; idx<auxdatanames.size(); idx++ )
+    {
+	const char* nm = auxdatanames.get(idx).buf();
+	int auxidx = -1;
+	if ( !auxdata.hasAuxDataName(nm) )
+	    auxidx = auxdata.addAuxData( nm );
+	else
+	    auxidx = auxdata.auxDataIndex( nm );
+
+	auxdata.init( auxidx, true, val );
+    }
 }
 
 

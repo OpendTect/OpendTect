@@ -12,9 +12,10 @@ ___________________________________________________________________
 
 #include "datapointset.h"
 #include "datacoldef.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizonztransform.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
@@ -321,6 +322,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    mps->useSavedSetupDlg( emid_, sectionid );
 	    uivisemobj_->checkTrackingStatus();
+	    addAuxDataItems();
 	    applMgr()->visServer()->triggerTreeUpdate();
 	    applMgr()->visServer()->turnSeedPickingOn( true );
 	}
@@ -347,19 +349,18 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==createflatscenemnuitem_.id )
     {
 	mDynamicCastGet(visSurvey::EMObjectDisplay*,
-			emd,visserv_->getObject(displayid_));
+			emd,visserv_->getObject(displayid_))
 	const EM::ObjectID objectid = emd->getObjectID();
 	mDynamicCastGet(const EM::Horizon*,horizon,
-			EM::EMM().getObject( objectid ) );
-
+			EM::EMM().getObject(objectid))
 	if ( !horizon ) return;
 
-    const uiString scenenm = tr("Flattened on '%1'").arg( horizon->uiName() );
-
+	const uiString scenenm =
+		tr("Flattened on '%1'").arg( horizon->uiName() );
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();
-    ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
+	ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
     }
 }
 
@@ -420,6 +421,32 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     const MultiID mid = ems->getStorageID(emid_);
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
+void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
+{
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    if ( !hor3d ) return;
+
+    BufferStringSet attrnms;
+    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
+	attrnms.add( hor3d->auxdata.auxDataName(idx) );
+
+    applMgr()->EMServer()->loadAuxData( emid_, attrnms, true );
+
+    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
+    {
+	DataPointSet dps( false, true );
+	float shift;
+	applMgr()->EMServer()->getAuxData( emid_, idx, dps, shift );
+	uiODDataTreeItem* itm = addAttribItem();
+	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,dataitm,itm);
+	if ( !dataitm ) continue;
+
+	dataitm->setDataPointSet( dps );
+	dataitm->setChecked( false, true );
+    }
 }
 
 

@@ -157,6 +157,7 @@ public:
     void			initAllAuxData(float val=mUdf(float));
     SurfaceAuxData&		auxdata;
 
+    void			initTrackingAuxData(float val=mUdf(float));
     void			initTrackingArrays();
     bool			saveParentArray();
     bool			readParentArray();

@@ -38,6 +38,7 @@ protected:
     void		handleMenuCB(CallBacker*);
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    void		addAuxDataItems();
 
     void		finishedEditingCB(CallBacker*);
     void		prepareForShutdown();
