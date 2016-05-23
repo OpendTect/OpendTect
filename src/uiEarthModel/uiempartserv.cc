@@ -724,6 +724,27 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
 }
 
 
+bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
+			const BufferStringSet& selattrnms, bool removeold )
+{
+    const MultiID mid = em_.getMultiID( id );
+    EM::IOObjInfo eminfo( mid );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
+
+    TypeSet<int> idxs;
+    for ( int idx=0; idx<selattrnms.size(); idx++ )
+    {
+	const int selidx = attrnms.indexOf( selattrnms.get(idx) );
+	if ( selidx < 0 ) continue;
+
+	idxs += idx;
+    }
+
+    return loadAuxData( id, idxs, removeold );
+}
+
+
 bool uiEMPartServer::storeFaultAuxData( const EM::ObjectID& id,
 	BufferString& auxdatanm, const Array2D<float>& data )
 {
