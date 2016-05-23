@@ -33,9 +33,10 @@ public:
 			uiGraphicsItem();
 			~uiGraphicsItem();
 
-    mQtclass(QGraphicsItem*)	qGraphicsItem()	{ return qgraphicsitem_; }
-    const mQtclass(QGraphicsItem*) qGraphicsItem()
-				   const { return qgraphicsitem_; }
+    mQtclass(QGraphicsItem*)		qGraphicsItem()
+					{ return qgraphicsitem_; }
+    const mQtclass(QGraphicsItem*)	qGraphicsItem() const
+					{ return qgraphicsitem_; }
 
     void		show();
     void		hide();
