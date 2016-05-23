@@ -83,6 +83,17 @@ public:
     static bool		mkIOParFile(const FilePath& basefnm,
 				    const HostData&,const IOPar&,
 				    FilePath&,BufferString& msg);
+    static BufferString mkRexecCmd(const char* prognm,
+				   const HostData& machine,
+				   const HostData& localhost);
+			/*!< Sets up the command to be executed with
+			     GetScriptDir()/exec_prog script.
+			     This latter ensures all the environment is
+			     restored on the remote machine ( rsh/ssh
+			     do NOT forward environment variables such as
+			     LD_LIBRARY_PATH ).
+			     */
+
 protected:
 
     JobIOHandler&	iohdlr_;
