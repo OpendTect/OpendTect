@@ -176,10 +176,9 @@ mExpClass(Basic) TrcKeySamplingIterator
 public:
 		TrcKeySamplingIterator() : tks_( true ) { reset(); }
 		TrcKeySamplingIterator( const TrcKeySampling& hs )
-		    : tks_(hs)	{ reset(); }
+		{ setSampling( hs ); }
 
-    void	setSampling( const TrcKeySampling& tks )
-		{ tks_ = tks; reset(); }
+    void	setSampling(const TrcKeySampling&);
 
     void	reset();
     void	setNextPos(const TrcKey& trk) { curpos_ = tks_.globalIdx(trk); }
@@ -187,7 +186,7 @@ public:
     bool	next(BinID&) const;
 
     od_int64	curIdx() const		     { return curpos_; }
-    TrcKey	curTrcKey() const 	     { return tks_.atIndex( curIdx() );}
+    TrcKey	curTrcKey() const	     { return tks_.atIndex( curIdx() );}
 
 protected:
 

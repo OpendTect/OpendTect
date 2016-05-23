@@ -152,7 +152,8 @@ void LocationDisplay::fullRedraw( CallBacker* )
     if ( !set_ )
 	return;
 
-    if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
+    if ( datatransform_ && datatransform_->needsVolumeOfInterest() &&
+	 !set_->isEmpty() )
     {
 	TrcKeyZSampling cs( false );
 	for ( int pidx=0; pidx<set_->size(); pidx++ )
@@ -164,12 +165,15 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    cs.zsamp_.include( zval, false );
 	}
 
-	if ( voiidx_<0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	if ( cs.isDefined() )
+	{
+	    if ( voiidx_<0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
 
-	datatransform_->loadDataIfMissing( voiidx_ );
+	    datatransform_->loadDataIfMissing( voiidx_ );
+	}
     }
 
     getMaterial()->setColor( set_->disp_.color_ );
@@ -915,7 +919,7 @@ void LocationDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    
+
     if ( !set_ ) return;
 
     if ( picksetmgr_ )

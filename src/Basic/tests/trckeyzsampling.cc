@@ -97,22 +97,25 @@ bool testIterator()
 {
     TrcKeySampling hrg;
     hrg.survid_ = TrcKey::std3DSurvID();
-    hrg.set( StepInterval<int>( 0, 2, 2 ), StepInterval<int>( 0, 2, 2 ) );
+    hrg.set( StepInterval<int>( 100, 102, 2 ),
+	     StepInterval<int>( 300, 306, 3 ) );
 
     TrcKeySamplingIterator iter( hrg );
     BinID curbid;
 
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,0), "Initial call");
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,2), "Second call");
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,0), "Third call");
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,2), "Forth call");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,300),"Initial call");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,303),"Second call");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,306), "Third call");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,300), "Forth call");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,303), "Fifth call");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,306), "Sixth call");
     mRunStandardTest( !iter.next(curbid) , "Final call");
 
     iter.reset();
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(0,0), "Reset");
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,300), "Reset");
 
-    iter.setNextPos( BinID(2,0) );
-    mRunStandardTest( iter.next(curbid) && curbid==BinID(2,0), "setNextPos");
+    iter.setNextPos( BinID(102,300) );
+    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,300), "setNextPos");
 
     return true;
 }

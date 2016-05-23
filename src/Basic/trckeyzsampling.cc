@@ -1171,6 +1171,21 @@ void TrcKeyZSampling::normalise()
 }
 
 
+
+void TrcKeySamplingIterator::setSampling( const TrcKeySampling& tks )
+{
+#ifdef __debug__
+    if ( !tks.isDefined() )
+    {
+	pErrMsg("Initializing iterator with undefined TrcKeySampling");
+	DBG::forceCrash(true);
+    }
+#endif
+    tks_ = tks;
+    reset();
+}
+
+
 void TrcKeySamplingIterator::reset()
 {
     curpos_ = 0;
