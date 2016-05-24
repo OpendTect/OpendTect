@@ -145,6 +145,8 @@ public:
     //!<"Rename <string>"
     static uiString phrSave(const uiString&);
     //!<"Save <string>"
+    static uiString phrSaveAs(const uiString&);
+    //!<"Save <string> as"
     static uiString phrSelect(const uiString& string);
     //!<"Select <string>"
     static uiString phrSelectObjectWrongType(const uiString& string);

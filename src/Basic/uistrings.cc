@@ -219,6 +219,9 @@ uiString uiStrings::phrWriting( const uiString& string )
 uiString uiStrings::phrSave( const uiString& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }
 
+uiString uiStrings::phrSaveAs( const uiString& string )
+{ return tr( "Save %1 as" ).arg( string ); }
+
 uiString uiStrings::phrShowIn( const uiString& string )
 { return toUiString(joinstring).arg(sShowIn()).arg(string); }
 
