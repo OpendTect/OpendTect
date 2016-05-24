@@ -577,6 +577,11 @@ bool execute()
 		// type knowing that array has been initialized with undefs
 		const float zval = zsamp.atIndex( zidx );
 		const int trczidx = trc_.nearestSample( zval );
+		if ( trczidx<0 || trczidx>trc_.size() )
+		{
+		    arr.set( idx0, idx1, zidx, mUdf(float) );
+		    continue;
+		}
 		const unsigned char* srcptr =
 			databuf->data() + trczidx*bytespersamp;
 		char* dstptr = dststartptr + zidx*bytespersamp;
