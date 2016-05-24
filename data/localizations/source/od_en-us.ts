@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -67,9 +67,20 @@
     </message>
 </context>
 <context>
+    <name>VolProcessing2DTranslatorGroup</name>
+    <message numerus="yes">
+        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+137"/>
+        <source>2D Volume Processing Setup</source>
+        <translation>
+            <numerusform>2D Volume Processing Setup</numerusform>
+            <numerusform>2D Volume Processing Setups</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>VolProcessingTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+21"/>
+        <location line="-116"/>
         <source>Volume Processing Setup</source>
         <translation>
             <numerusform>Volume Processing Setup</numerusform>
@@ -141,7 +152,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+218"/>
+        <location line="+221"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -313,7 +324,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+192"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+194"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
