@@ -28,7 +28,7 @@ namespace Attrib { class SelSpec; }
 mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODVw2DTreeItem)
 public:
-		uiODVw2DTreeItem(const uiString&);
+			uiODVw2DTreeItem(const uiString&);
 			~uiODVw2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);
@@ -59,6 +59,9 @@ protected:
 
     void		addAction(uiMenu& mnu,uiString txt,int id,
 				  const char* icon=0,bool enab=true);
+
+    uiMenu*		createAddMenu();
+    bool		isAddItem(int id,bool addall) const;
 
     virtual void	insertStdSubMenu(uiMenu&);
     virtual bool	handleStdSubMenu(int menuid);

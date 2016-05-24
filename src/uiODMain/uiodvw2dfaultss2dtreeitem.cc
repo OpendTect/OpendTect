@@ -47,10 +47,7 @@ uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
 bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
-    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
-    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
-    mnu.insertItem( addmenu );
+    mnu.insertItem( createAddMenu() );
     mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
@@ -77,14 +74,14 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 	applMgr()->viewer2DMgr().addNewTempFaultSS2D(
 		emo->id(), viewer2D()->getSyncSceneID() );
     }
-    else if ( mnuid == 1 || mnuid == 2 )
+    else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
-	if ( mnuid==1 )
+	if ( isAddItem(mnuid,true) )
 	{
 	    addFaultSS2Ds( emids );
 	    applMgr()->viewer2DMgr().addFaultSS2Ds( emids );

@@ -21,6 +21,9 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "zaxistransform.h"
 
+#define mAddIdx		0
+#define mAddInAllIdx	1
+
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
 
@@ -248,6 +251,23 @@ void uiODVw2DTreeItem::addAction( uiMenu& mnu, uiString txt, int id,
     mnu.insertAction( action, id );
     action->setEnabled( enab );
     action->setIcon( icon );
+}
+
+
+uiMenu* uiODVw2DTreeItem::createAddMenu()
+{
+    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
+    addAction( *addmenu, m3Dots(tr("Only in this 2D Viewer")), mAddIdx );
+    const int nrvwrs = applMgr()->viewer2DMgr().nr2DViewers();
+    addAction( *addmenu, m3Dots(tr("In all 2D Viewers")), mAddInAllIdx,
+	       0, nrvwrs>1 );
+    return addmenu;
+}
+
+
+bool uiODVw2DTreeItem::isAddItem( int id, bool addall ) const
+{
+    return addall ? id==mAddInAllIdx : id==mAddIdx;
 }
 
 

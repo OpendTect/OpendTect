@@ -38,10 +38,7 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 #include "view2dhorizon3d.h"
 
-
-#define mAddInAllIdx	0
-#define mAddIdx		1
-#define mNewIdx		2
+#define mNewIdx		10
 
 uiODVw2DHor3DParentTreeItem::uiODVw2DHor3DParentTreeItem()
     : uiODVw2DTreeItem( tr("3D Horizon") )
@@ -82,10 +79,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 	!viewer2D()->hasZAxisTransform() && viewer2D()->isVertical();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
-    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), mAddInAllIdx );
-    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), mAddIdx );
-    mnu.insertItem( addmenu );
+    mnu.insertItem( createAddMenu() );
 
     TypeSet<EM::ObjectID> emids;
     getNonLoadedTrackedHor3Ds( emids );
@@ -146,7 +140,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 		return true;
 	}
 
-	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+	const MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	if ( !tracker )
 	    return false;
 
@@ -160,7 +154,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 		emid, viewer2D()->getSyncSceneID() );
 	mps->enableTracking( trackid, true );
     }
-    else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
+    else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
@@ -168,7 +162,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 
-	if ( mnuid==mAddInAllIdx )
+	if ( isAddItem(mnuid,true) )
 	{
 	    addHorizon3Ds( emids );
 	    applMgr()->viewer2DMgr().addHorizon3Ds( emids );
