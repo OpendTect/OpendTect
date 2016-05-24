@@ -185,7 +185,6 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 
     if ( needcommit )
 	IOM().commitChanges( *ioobj );
-    const_cast<Pick::Set&>(ps).setName( ioobj->name() );
 
     return true;
 }

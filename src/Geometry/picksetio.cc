@@ -106,7 +106,12 @@ bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
 	return true;
 
     MonitorLock ml( *ps );
-    return PickSetTranslator::store( *ps, &ioobj, errmsg_ );
+    if ( !PickSetTranslator::store(*ps,&ioobj,errmsg_) )
+	return false;
+    ml.unlockNow();
+
+    ps.getNonConstPtr()->setName( ioobj.name() );
+    return true;
 }
 
 

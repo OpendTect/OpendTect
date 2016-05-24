@@ -49,12 +49,12 @@ public:
     inline void		erase() { set( 0, true ); }
 
     inline bool		setIfNull(T* p,bool takeover);
-    			/*!<If takeover==true, pointer will be deleted if
+			/*!<If takeover==true, pointer will be deleted if
 			    object was not set. */
 
-    typedef T* 		(*PointerCreator)();
+    typedef T*		(*PointerCreator)();
     inline T*		createIfNull(PointerCreator=createSingleObject<T>);
-    			/*!<If null, PointerCrator will be called to
+			/*!<If null, PointerCrator will be called to
 			    create new object.  */
 protected:
 
@@ -77,6 +77,8 @@ public:
     inline		operator const T*() const { return this->ptr_; }
     inline const T*	operator->() const	{ return this->ptr_; }
     inline const T&	operator*() const	{ return *this->ptr_; }
+    inline T*		getNonConstPtr() const
+			{ return const_cast<T*>(this->ptr()); }
 protected:
     typedef void	(*PtrFunc)(T*);
     inline		ConstPtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
@@ -93,10 +95,12 @@ public:
     inline		operator const T*() const { return this->ptr_; }
     inline const T*	operator->() const	{ return this->ptr_; }
     inline const T&	operator*() const	{ return *this->ptr_; }
-    inline T*		ptr() 			{ return this->ptr_; }
-    inline		operator T*() 		{ return this->ptr_; }
-    inline T*		operator ->() 		{ return this->ptr_; }
-    inline T&		operator *() 		{ return *this->ptr_; }
+    inline T*		ptr()			{ return this->ptr_; }
+    inline		operator T*()		{ return this->ptr_; }
+    inline T*		operator ->()		{ return this->ptr_; }
+    inline T&		operator *()		{ return *this->ptr_; }
+    inline T*		getNonConstPtr() const
+			{ return const_cast<T*>(this->ptr()); }
 protected:
     typedef void	(*PtrFunc)(T*);
     inline		NonConstPtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)

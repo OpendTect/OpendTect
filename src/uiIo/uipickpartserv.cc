@@ -164,7 +164,7 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
     Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
     if ( setid.isUdf() )
     {
-	uiMSG().error( tr("Internal: Reuest to store a set that has no ID") );
+	uiMSG().error( tr("Internal: Request to store a PickSet without ID") );
 	return false;
     }
 
@@ -176,9 +176,30 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
 }
 
 
+#define mObjSelType(ispoly) \
+	ispoly ? uiPickSetIOObjSel::PolygonOnly : uiPickSetIOObjSel::NoPolygon
+
 bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
 {
-    uiMSG().error( mTODONotImplPhrase() );
+    Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
+    if ( setid.isUdf() )
+    {
+	uiMSG().error( tr("Internal: Request to Save-As a PickSet without ID"));
+	return false;
+    }
+
+    IOObjContext ctxt( uiPickSetIOObjSel::getCtxt( mObjSelType(ps.isPolygon()),
+						    false, ps.category() ) );
+    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSaveAs(toUiString(ps.name())) );
+    uiIOObjSelDlg dlg( parent(), sdsu, ctxt );
+    dlg.showAlwaysOnTop();
+    if ( !dlg.go() || !dlg.ioObj() )
+	return false;
+
+    uiString errmsg = Pick::SetMGR().saveAs( setid, dlg.ioObj()->key() );
+    if ( !errmsg.isEmpty() )
+	{ uiMSG().error( errmsg ); return false; }
+
     return true;
 }
 
@@ -209,12 +230,10 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
 {
     psids.setEmpty();
 
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-    uiPickSetIOObjSel::updateCtxt( ctio->ctxt_,
-		    poly ? uiPickSetIOObjSel::PolygonOnly
-			 : uiPickSetIOObjSel::NoPolygon, true, cat );
+    IOObjContext ctxt( uiPickSetIOObjSel::getCtxt( mObjSelType(poly),
+						   true, cat ) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
+    uiIOObjSelDlg dlg( parent(), sdsu, ctxt );
     dlg.showAlwaysOnTop();
     if ( !dlg.go() )
 	return false;
