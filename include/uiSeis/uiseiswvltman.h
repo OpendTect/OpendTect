@@ -58,7 +58,7 @@ protected:
     void			reversePolarity(CallBacker*);
     void			rotatePhase(CallBacker*);
     void			taper(CallBacker*);
-    void			updateCB(CallBacker*);
+    void			wvltCreatedCB(CallBacker*);
     void			rotUpdateCB(CallBacker*);
 };
 
