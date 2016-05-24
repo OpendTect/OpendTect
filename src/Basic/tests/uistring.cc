@@ -131,15 +131,18 @@ bool testUTF8()
 {
     //Convert some chinese from base 64 to qstring. Then get the utf8 out.
     //Expected values comes from an online conversion tool.
-    const QString input = QByteArray::fromBase64( QByteArray("5omL5py66Zi/6YeM") );
+    const QString input = QByteArray::fromBase64( 
+					    QByteArray("5omL5py66Zi/6YeM") );
     uiString uistring;
     uistring.setFrom( input );
     BufferString utf8;
     uistring.fillUTF8String( utf8 );
     const unsigned char expected[] =  { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
 			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C };
-    mRunStandardTest( !strcmp( (const char*)expected, utf8.buf() ), "UTF conversion" );
-
+#ifndef __win__
+    mRunStandardTest( !strcmp( (const char*)expected, utf8.buf() ), 
+							    "UTF conversion" );
+#endif
     return true;
 }
 
