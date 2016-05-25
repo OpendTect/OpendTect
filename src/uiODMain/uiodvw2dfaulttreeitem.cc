@@ -49,7 +49,7 @@ bool uiODVw2DFaultParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( createAddMenu() );
-    mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sNew()), getNewItemID() );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -59,7 +59,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
-    if ( mnuid == 0 )
+    if ( mnuid == getNewItemID() )
     {
 	RefMan<EM::EMObject> emo =
 			EM::EMM().createTempObject( EM::Fault3D::typeStr() );
@@ -327,7 +327,7 @@ bool uiODVw2DFaultTreeItem::select()
 {
     if ( uitreeviewitem_->treeView() )
 	uitreeviewitem_->treeView()->clearSelection();
-    
+
     uitreeviewitem_->setSelected( true );
     if ( faultview_ )
     {

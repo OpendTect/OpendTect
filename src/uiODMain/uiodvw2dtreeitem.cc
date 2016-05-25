@@ -271,6 +271,10 @@ bool uiODVw2DTreeItem::isAddItem( int id, bool addall ) const
 }
 
 
+int uiODVw2DTreeItem::getNewItemID() const
+{ return mAddInAllIdx+1; }
+
+
 void uiODVw2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )

@@ -48,7 +48,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( createAddMenu() );
-    mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sNew()), getNewItemID() );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -58,7 +58,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
-    if ( mnuid == 0 )
+    if ( mnuid == getNewItemID() )
     {
 	RefMan<EM::EMObject> emo =
 		EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
@@ -298,9 +298,9 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     if ( viewer2D() && viewer2D()->viewControl() )
 	mAttachCB( viewer2D()->viewControl()->editPushed(),
 	       uiODVw2DFaultSS2DTreeItem::enableKnotsCB );
-    
+
     uiODVw2DTreeItem::addKeyBoardEvent();
-    
+
     return true;
 }
 

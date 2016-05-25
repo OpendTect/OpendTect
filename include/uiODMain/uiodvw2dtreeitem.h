@@ -62,6 +62,7 @@ protected:
 
     uiMenu*		createAddMenu();
     bool		isAddItem(int id,bool addall) const;
+    int			getNewItemID() const;
 
     virtual void	insertStdSubMenu(uiMenu&);
     virtual bool	handleStdSubMenu(int menuid);
@@ -73,8 +74,8 @@ protected:
     virtual void	showAllChildren();
     virtual void	hideAllChildren();
     virtual void	removeAllChildren();
-    virtual void	doSave() {};
-    virtual void	doSaveAs() {};
+    virtual void	doSave() {}
+    virtual void	doSaveAs() {}
 };
 
 
