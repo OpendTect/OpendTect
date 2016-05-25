@@ -297,7 +297,7 @@ void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 		      true, false );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrummnuitem_,
 		      true, false );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &addisosurfacemnuitem_,
+    mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &addisosurfacemnuitem_,
 		      true, false );
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
