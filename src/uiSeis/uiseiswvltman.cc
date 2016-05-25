@@ -94,7 +94,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 uiSeisWvltMan::~uiSeisWvltMan()
 {
     if ( wvltext_ )
-	wvltext_->extractionDone.remove( mCB(this,uiSeisWvltMan,updateCB) );
+	wvltext_->extractionDone.remove(
+				mCB(this,uiSeisWvltMan,wvltCreatedCB) );
 
     delete wvltext_;
 
@@ -167,7 +168,7 @@ void uiSeisWvltMan::extractPush( CallBacker* )
     }
 
     wvltext_ = new uiWaveletExtraction( parent(), is2d );
-    wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,updateCB) );
+    wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,wvltCreatedCB) );
     wvltext_->show();
 }
 
@@ -181,6 +182,11 @@ void uiSeisWvltMan::matchPush( CallBacker* )
 
 
 void uiSeisWvltMan::updateCB( CallBacker* )
+{
+}
+
+
+void uiSeisWvltMan::wvltCreatedCB( CallBacker* )
 {
     selgrp_->fullUpdate( wvltext_->storeKey() );
 }

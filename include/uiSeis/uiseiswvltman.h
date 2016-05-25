@@ -60,7 +60,13 @@ protected:
     void			rotatePhase(CallBacker*);
     void			taper(CallBacker*);
     void			updateCB(CallBacker*);
+				/* Do not use this function.
+				   It is replaced by
+				   'wvltCreatedCB(CallBacker*)'
+				   function. Because same function is
+				   defined in base class 'uiObjFileMan' */
     void			rotUpdateCB(CallBacker*);
+    void			wvltCreatedCB(CallBacker*);
 };
 
 #endif
