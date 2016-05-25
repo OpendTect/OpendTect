@@ -80,7 +80,6 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 #define mTimeGate 0.02f
 float PickSetMgr::findEvent( const SeisTrc& trc, float zpos ) const
 {
-    zpos *= 0.001;
     if ( evtype_ == VSEvent::None ) return zpos;
 
     const int maxidx = trc.size();
