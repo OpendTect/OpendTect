@@ -357,10 +357,9 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
     for ( int idx=0; idx<pickset.size(); idx++ )
     {
 	const Marker& pick = pickset[idx];
-	float zpos = pick.zpos_* SI().zDomain().userFactor();
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Solid, pick.size_, pick.color_ );
 	userpickauxdatas_[idx]->linestyle_ = ls;
-	drawMarker(userpickauxdatas_[idx], issynth, zpos );
+	drawMarker(userpickauxdatas_[idx], issynth, pick.zpos_ );
     }
 }
 
@@ -378,7 +377,7 @@ void uiTieView::drawHorizons()
 	horauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
 	const Marker& hor = horizons[idx];
-	float zval = hor.zpos_;
+	float zval = hor.zpos_*(1.f/SI().zDomain().userFactor());
 
 	BufferString mtxt( hor.name_ );
 	if ( !params_.disphorfullnames_ && mtxt.size() > 3 )
