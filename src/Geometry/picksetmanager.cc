@@ -8,6 +8,7 @@
 #include "picksetmanager.h"
 #include "picksetio.h"
 #include "picksettr.h"
+#include "autosaver.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "ioobj.h"
@@ -352,7 +353,7 @@ void Pick::SetManager::add( const Set& newset, const SetID& id,
     self.addCBsToSet( newset );
     self.SetAdded.trigger( id );
 
-    //TODO OD::AutoSaveMGR().add( saver );
+    //TODO OD::AutoSaveMGR().add( new OD::AutoSaver(*saver) );
 }
 
 

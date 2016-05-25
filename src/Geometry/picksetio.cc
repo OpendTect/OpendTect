@@ -75,7 +75,7 @@ void startSetCategoryFromTypeInOMFPutter()
 
 
 Pick::SetSaver::SetSaver( const Pick::Set& ps )
-    : OD::AutoSaveable(ps)
+    : OD::Saveable(ps)
 {
     mTriggerInstanceCreatedNotifier();
 }

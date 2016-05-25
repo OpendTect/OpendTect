@@ -41,14 +41,17 @@ public:
     mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,storekey_,0)
     mImplSimpleMonitoredGetSet(inline,ioObjPars,setIOObjPars,IOPar,ioobjpars_,0)
 			// The pars will be merge()'d with the IOObj's current
-    DirtyCountType	lastSavedDirtyCount() const
-			{ return lastsavedirtycount_; }
 
     virtual bool	save() const;
     virtual bool	store(const IOObj&) const;
     uiString		errMsg() const		{ return errmsg_; }
+
     bool		needsSave() const;
     void		setNoSaveNeeded() const;
+
+    DirtyCountType	lastSavedDirtyCount() const
+			{ return lastsavedirtycount_; }
+    DirtyCountType	curDirtyCount() const;
 
 protected:
 

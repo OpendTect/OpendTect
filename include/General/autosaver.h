@@ -12,7 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "saveable.h"
+#include "monitor.h"
+#include "uistring.h"
 class IOStream;
 
 
@@ -20,23 +21,21 @@ class IOStream;
 namespace OD
 {
 
+class Saveable;
 class AutoSaveMgr;
 
 
-/*!\brief Object ready for auto-save by OD::AUTOSAVE().
-
-  just adds some variables and tools needed for the autosaving.
- */
+/*!\brief Object ready for auto-save by OD::AUTOSAVE().  */
 
 
-mExpClass(General) AutoSaveable : public Saveable
+mExpClass(General) AutoSaver : public Monitorable
 {
 public:
 
-			AutoSaveable(const Monitorable&);
-			AutoSaveable(const AutoSaveable&);
-			~AutoSaveable();
-			mDeclMonitorableAssignment(AutoSaveable);
+			AutoSaver(const Saveable&);
+			AutoSaver(const AutoSaver&);
+			~AutoSaver();
+			mDeclMonitorableAssignment(AutoSaver);
 
     mImplSimpleMonitoredGetSet(inline,nrSecondsBetweenSaves,
 				      setNrSecondsBetweenSaves,
@@ -44,14 +43,13 @@ public:
 
 			// These functions can be called from any thread
 
+    bool		isActive() const;
     bool		autoSaveNow() const	{ return doAutoSaveWork(true); }
     void		userSaveOccurred() const;
 
-    virtual bool	save() const;
-    virtual bool	store(const IOObj&) const;
-    virtual void	remove(const IOObj&) const;
-
 protected:
+
+    const Saveable*	saver_;
 
     mutable DirtyCountType lastautosavedirtycount_;
     mutable IOStream*	lastautosaveioobj_;
@@ -68,6 +66,7 @@ private:
     void		removePrevAutoSaved() const;
     bool		needsAutoSaveAct(int) const;
     bool		autoSave() const;
+    void		saverDelCB(CallBacker*);
     friend class	AutoSaveMgr;
 
 };
@@ -89,7 +88,7 @@ public:
     int			nrSecondsBetweenSaves() const;
     void		setNrSecondsBetweenSaves(int);
 
-    void		add(AutoSaveable*);
+    void		add(AutoSaver*);
 
 			// triggered from mgr's thread. CB obj is the saver.
     Notifier<AutoSaveMgr> saveDone;
@@ -100,14 +99,14 @@ private:
 			AutoSaveMgr();
 			~AutoSaveMgr();
 
-    ObjectSet<AutoSaveable> savers_;
+    ObjectSet<AutoSaver> savers_;
     mutable Threads::Lock lock_;
     Threads::Thread*	thread_;
     bool		appexits_;
     bool		active_;
 
     void		appExits(CallBacker*);
-    void		saverDel(CallBacker*);
+    void		saverDelCB(CallBacker*);
     void		survChg( CallBacker* )	    { setEmpty(); }
 
     void		go();
@@ -118,7 +117,7 @@ public:
     // Probably not useful 4 u:
 
     static AutoSaveMgr&	getInst();		    // use OD::AUTOSAVE()
-    void		remove(AutoSaveable*);	    // done 4 u on destruction
+    void		remove(AutoSaver*);	    // done 4 u on destruction
     void		setEmpty();		    // why would u?
     Threads::Thread&	thread()		    { return *thread_; }
 

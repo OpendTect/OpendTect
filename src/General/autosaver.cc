@@ -6,6 +6,7 @@
 
 
 #include "autosaver.h"
+#include "saveable.h"
 #include "iodir.h"
 #include "iostrm.h"
 #include "ioman.h"
@@ -123,6 +124,14 @@ const Monitorable* OD::Saveable::monitored() const
 }
 
 
+Monitorable::DirtyCountType OD::Saveable::curDirtyCount() const
+{
+    mLock4Read();
+    return monitoredalive_ ? monitored_->dirtyCount()
+			   : lastsavedirtycount_.get();
+}
+
+
 void OD::Saveable::objDelCB( CallBacker* )
 {
     monitoredalive_ = false;
@@ -175,25 +184,25 @@ void OD::Saveable::setNoSaveNeeded() const
 
 bool OD::Saveable::store( const IOObj& ioobj ) const
 {
-    mLock4Read();
     if ( !monitoredalive_ )
 	{ pErrMsg("Attempt to store already deleted object"); return true; }
     return doStore( ioobj );
 }
 
 
-OD::AutoSaveable::AutoSaveable( const Monitorable& obj )
-    : Saveable(obj)
+OD::AutoSaver::AutoSaver( const Saveable& obj )
+    : saver_(&obj)
     , nrclocksecondsbetweenautosaves_(defaultNrSecondsBetweenSaves())
     , autosavenr_(1)
     , lastautosaveioobj_(0)
 {
+    mAttachCB( saver_->objectToBeDeleted(), OD::AutoSaver::saverDelCB );
     mTriggerInstanceCreatedNotifier();
 }
 
 
-OD::AutoSaveable::AutoSaveable( const AutoSaveable& oth )
-    : Saveable(oth)
+OD::AutoSaver::AutoSaver( const AutoSaver& oth )
+    : Monitorable(oth)
     , lastautosaveioobj_(0)
 {
     *this = oth;
@@ -201,18 +210,29 @@ OD::AutoSaveable::AutoSaveable( const AutoSaveable& oth )
 }
 
 
-OD::AutoSaveable::~AutoSaveable()
+OD::AutoSaver::~AutoSaver()
 {
-    detachAllNotifiers();
     sendDelNotif();
+    detachAllNotifiers();
     delete lastautosaveioobj_;
 }
 
 
-mImplMonitorableAssignment(OD::AutoSaveable,OD::Saveable)
-
-void OD::AutoSaveable::copyClassData( const AutoSaveable& oth )
+bool OD::AutoSaver::isActive() const
 {
+    mLock4Read();
+    return saver_ && saver_->monitoredAlive();
+}
+
+
+mImplMonitorableAssignment(OD::AutoSaver,Monitorable)
+
+void OD::AutoSaver::copyClassData( const AutoSaver& oth )
+{
+    if ( saver_ )
+	mDetachCB( saver_->objectToBeDeleted(), OD::AutoSaver::saverDelCB );
+
+    saver_ = oth.saver_;
     nrclocksecondsbetweenautosaves_ = oth.nrclocksecondsbetweenautosaves_;
     lastautosaveclockseconds_ = oth.lastautosaveclockseconds_;
     curclockseconds_ = oth.curclockseconds_;
@@ -221,58 +241,36 @@ void OD::AutoSaveable::copyClassData( const AutoSaveable& oth )
 	lastautosaveioobj_ = new IOStream( *oth.lastautosaveioobj_ );
     else
 	lastautosaveioobj_ = 0;
+    mAttachCB( saver_->objectToBeDeleted(), OD::AutoSaver::saverDelCB );
 }
 
 
-bool OD::AutoSaveable::save() const
+void OD::AutoSaver::saverDelCB( CallBacker* )
 {
-    if ( !Saveable::save() )
-	return false;
-    if ( monitoredalive_ )
-	userSaveOccurred();
-    return true;
+    saver_ = 0;
 }
 
 
-bool OD::AutoSaveable::store( const IOObj& ioobj ) const
-{
-    if ( !Saveable::store(ioobj) )
-	return false;
-    if ( monitoredalive_ )
-	userSaveOccurred();
-    return true;
-}
-
-
-void OD::AutoSaveable::remove( const IOObj& ioobj ) const
-{
-    ioobj.implRemove();
-}
-
-
-void OD::AutoSaveable::removePrevAutoSaved() const
+void OD::AutoSaver::removePrevAutoSaved() const
 {
     if ( !lastautosaveioobj_ )
 	return;
 
-    remove( *lastautosaveioobj_ );
+    lastautosaveioobj_->implRemove();
     IOM().permRemove( lastautosaveioobj_->key() );
     delete lastautosaveioobj_;
     lastautosaveioobj_ = 0;
 }
 
 
-void OD::AutoSaveable::initAutoSave() const
+void OD::AutoSaver::initAutoSave() const
 {
-    lastautosavedirtycount_ = monitoredalive_ ? monitored()->dirtyCount() : -1;
+    lastautosavedirtycount_ = saver_ ? saver_->curDirtyCount() : -1;
 }
 
 
-bool OD::AutoSaveable::needsAutoSaveAct( int clockseconds ) const
+bool OD::AutoSaver::needsAutoSaveAct( int clockseconds ) const
 {
-    if ( !monitoredalive_ )
-	return false;
-
     mLock4Write();
     curclockseconds_ = clockseconds;
     return curclockseconds_ - lastautosaveclockseconds_
@@ -280,41 +278,42 @@ bool OD::AutoSaveable::needsAutoSaveAct( int clockseconds ) const
 }
 
 
-bool OD::AutoSaveable::autoSave() const
+bool OD::AutoSaver::autoSave() const
 {
-    return !monitoredalive_ || doAutoSaveWork(false);
+    return !saver_ || doAutoSaveWork(false);
 }
 
 
 
-void OD::AutoSaveable::userSaveOccurred() const
+void OD::AutoSaver::userSaveOccurred() const
 {
     removePrevAutoSaved();
     lastautosaveclockseconds_ = curclockseconds_ + 1;
 }
 
 
-bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
+bool OD::AutoSaver::doAutoSaveWork( bool forcesave ) const
 {
-    if ( !monitoredalive_ )
+    if ( !saver_ )
 	return true;
 
     mLock4Write();
 
-    const DirtyCountType dirtycount = monitored_->dirtyCount();
+    const DirtyCountType dirtycount = saver_->curDirtyCount();
     lastautosaveclockseconds_ = curclockseconds_;
-    if ( !forcesave && (dirtycount == lastsavedirtycount_
+    if ( !forcesave && (dirtycount == saver_->lastSavedDirtyCount()
 		     || dirtycount == lastautosavedirtycount_ ) )
 	return true;
 
-    const IODir iodir( storekey_ );
-    BufferString storenm( ".autosave_", storekey_, "_" );
+    const MultiID saverkey( saver_->key() );
+    const IODir iodir( saverkey );
+    BufferString storenm( ".autosave_", saverkey, "_" );
     storenm.add( autosavenr_++ );
     IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
-    newstoreioobj->pars().update( sKey::CrFrom(), storekey_ );
+    newstoreioobj->pars().update( sKey::CrFrom(), saverkey );
     newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
     newstoreioobj->updateCreationPars();
-    if ( !doStore(*newstoreioobj) )
+    if ( !saver_->store(*newstoreioobj) )
     {
 	delete newstoreioobj; newstoreioobj = 0;
 	lastautosavedirtycount_ = 0;
@@ -322,11 +321,10 @@ bool OD::AutoSaveable::doAutoSaveWork( bool forcesave ) const
     }
     else
     {
-	lastautosavedirtycount_ = monitoredalive_ ? monitored_->dirtyCount()
-						  : dirtycount;
+	lastautosavedirtycount_ = saver_ ? saver_->curDirtyCount() : dirtycount;
 	removePrevAutoSaved();
 	lastautosaveioobj_ = newstoreioobj;
-	if ( !monitoredalive_ )
+	if ( !saver_ )
 	    removePrevAutoSaved();
     }
 
@@ -364,12 +362,12 @@ OD::AutoSaveMgr::~AutoSaveMgr()
 }
 
 
-void OD::AutoSaveMgr::add( AutoSaveable* saver )
+void OD::AutoSaveMgr::add( AutoSaver* saver )
 {
     if ( !saver )
 	return;
 
-    mAttachCB( saver->objectToBeDeleted(), AutoSaveMgr::saverDel );
+    mAttachCB( saver->objectToBeDeleted(), AutoSaveMgr::saverDelCB );
     Threads::Locker locker( lock_ );
     saver->initAutoSave();
     savers_ += saver;
@@ -421,20 +419,20 @@ void OD::AutoSaveMgr::setNrSecondsBetweenSaves( int nrsecs )
 }
 
 
-void OD::AutoSaveMgr::saverDel( CallBacker* cb )
+void OD::AutoSaveMgr::saverDelCB( CallBacker* cb )
 {
-    mDynamicCastGet(AutoSaveable*,autosaver,cb)
+    mDynamicCastGet(AutoSaver*,autosaver,cb)
     if ( !autosaver )
     {
 	if ( !cb )
 	    { pErrMsg( "Add a sendDelNotif() to your destructor" ); return; }
-	autosaver = (AutoSaveable*)cb;
+	autosaver = (AutoSaver*)cb;
 	remove( autosaver );
     }
 }
 
 
-void OD::AutoSaveMgr::remove( AutoSaveable* autosaver )
+void OD::AutoSaveMgr::remove( AutoSaver* autosaver )
 {
     Threads::Locker locker( lock_ );
     const int idxof = savers_.indexOf( autosaver );
@@ -467,7 +465,7 @@ void OD::AutoSaveMgr::go()
 
     while ( true )
     {
-	bool isactive; ObjectSet<AutoSaveable> svrs;
+	bool isactive; ObjectSet<AutoSaver> svrs;
 	Threads::Locker locker( lock_ );
 	    if ( appexits_ )
 		break;
@@ -483,11 +481,11 @@ void OD::AutoSaveMgr::go()
 	if ( !isactive )
 	    continue;
 
-	ObjectSet<AutoSaveable> finishedsvrs;
+	ObjectSet<AutoSaver> finishedsvrs;
 	for ( int isvr=0; isvr<svrs.size(); isvr++ )
 	{
-	    AutoSaveable* saver = svrs[isvr];
-	    if ( !saver->monitoredAlive() )
+	    AutoSaver* saver = svrs[isvr];
+	    if ( !saver->isActive() )
 		finishedsvrs += saver;
 	    else if ( saver->needsAutoSaveAct(nrcycles) )
 		(saver->autoSave() ? saveDone : saveFailed).trigger( saver );
@@ -498,7 +496,7 @@ void OD::AutoSaveMgr::go()
 	    locker.reLock();
 	    for ( int isvr=0; isvr<finishedsvrs.size(); isvr++ )
 	    {
-		AutoSaveable* saver = finishedsvrs[isvr];
+		AutoSaver* saver = finishedsvrs[isvr];
 		const int idxof = savers_.indexOf( saver );
 		if ( idxof >= 0 )
 		    delete savers_.removeSingle( idxof );

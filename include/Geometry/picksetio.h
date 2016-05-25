@@ -12,10 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "autosaver.h"
+#include "saveable.h"
 #include "pickset.h"
 #include "ptrman.h"
 class Executor;
+class IOObj;
 
 
 namespace Pick
@@ -61,7 +62,7 @@ protected:
 
 /*!\brief Saveable for Pick::Set. */
 
-mExpClass(Geometry) SetSaver : public OD::AutoSaveable
+mExpClass(Geometry) SetSaver : public OD::Saveable
 {
 public:
 
