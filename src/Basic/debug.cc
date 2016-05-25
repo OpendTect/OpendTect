@@ -326,17 +326,7 @@ public:
 			ErrMsgClass( const char* s, bool p )
 			: MsgClass(s,p?ProgrammerError:Error)	{}
 
-    static bool		printProgrammerErrs;
-
 };
-
-bool ErrMsgClass::printProgrammerErrs =
-# ifdef __debug__
-    true;
-# else
-    false;
-# endif
-
 
 
 namespace OD {
@@ -424,9 +414,6 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 
 void ErrMsg( const char* msg, bool progr )
 {
-    if ( progr && !ErrMsgClass::printProgrammerErrs )
-	return;
-
     if ( !MsgClass::theCB().willCall() )
     {
 	if ( progr )

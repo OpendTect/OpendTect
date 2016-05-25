@@ -27,10 +27,7 @@ inline const char* className( const T& t )
 }
 
 
-#ifdef __debug__
-
-
-  namespace OD {
+namespace OD {
       mGlobal(Basic) void programmerErrMsg(const char* msg,const char* cname,
 					   const char* fnm,int linenr);
 }
@@ -54,12 +51,5 @@ inline const char* className( const T& t )
     OD::programmerErrMsg( msg, __func__, __FILE__, __LINE__ )
     //!< Usual access point for programmer error messages in free functions
 
-#else
-
-# define pErrMsg(msg)
-# define pErrMsgOnce(msg)
-# define pFreeFnErrMsg(msg)
-
-#endif
 
 #endif
