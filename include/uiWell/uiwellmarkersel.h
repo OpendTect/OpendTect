@@ -115,6 +115,7 @@ protected:
 
     uiIOObjSelGrp*	wellselgrp_;
     uiListBox*		markersselgrp_;
+
 };
 
 #endif
