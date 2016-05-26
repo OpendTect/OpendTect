@@ -262,6 +262,9 @@ public:
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
 					  int geomid, bool isstored,
 					  int steerpol );
+protected:
+    void		snapToValidRandomTraces(TypeSet<BinID>& path,
+						const Attrib::Desc*);
 };
 
 #endif

@@ -455,8 +455,7 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	}
 
 	provider_->resetDesiredVolume();
-	globalcs.limitTo( possvol );
-
+	globalcs.adjustTo( possvol );
 	provider_->setDesiredVolume( globalcs );
     }
 }

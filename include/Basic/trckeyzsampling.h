@@ -105,6 +105,14 @@ public:
 
     void		shrinkTo(const TrcKeyZSampling& innertkzs,
 				 float releps=1e-4);
+			/*!< shrinks "this" tkzs up to but not across innertkzs
+			     boundaries. Result will be one step larger than
+			     limitTo(.) in case of non-matching steps. */
+    bool		adjustTo(const TrcKeyZSampling& availabletkzs,
+				 bool falsereturnsdummy=false);
+			/*!< adjusts the non-flat dimensions of the desired
+			     "this" tkzs to the availabletkzs for optimal
+			     texture data display. */
 };
 
 
