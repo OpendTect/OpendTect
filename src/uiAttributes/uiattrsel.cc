@@ -757,6 +757,8 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
 	return false;
 
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
+    if ( !desc ) return false;
+
     const MultiID mid( desc->getStoredID(true) );
     return SeisTrcTranslator::getRanges( mid, cs,
 					 desc->is2D() ? getInput() : 0 );
