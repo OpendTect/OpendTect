@@ -111,7 +111,7 @@ public:
     void		getWellNames(BufferStringSet&);
     void		getWellIDs(TypeSet<MultiID>&);
 
-private:
+protected:
 
     uiIOObjSelGrp*	wellselgrp_;
     uiListBox*		markersselgrp_;
