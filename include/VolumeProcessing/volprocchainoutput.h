@@ -39,6 +39,8 @@ public:
 
     void			setChainID(const MultiID&);
     void			setOutputID(const MultiID&);
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
+
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
     void			usePar(const IOPar&);
@@ -57,7 +59,7 @@ protected:
 
     MultiID			chainid_;
     MultiID			outid_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
 
     Chain*			chain_;
     ChainExecutor*		chainexec_;

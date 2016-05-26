@@ -115,7 +115,7 @@ public:
     virtual bool		needsFullVolume() const		= 0;
     virtual bool		canInputAndOutputBeSame() const	= 0;
     virtual bool		areSamplesIndependent() const	= 0;
-    virtual bool		canHandle2D()			{ return false;}
+    virtual bool		canHandle2D() const		{ return false;}
     virtual bool		needsInput() const		{ return true; }
     virtual bool		prefersBinIDWise() const	{ return false;}
     virtual bool		needReportProgress()		{ return false;}

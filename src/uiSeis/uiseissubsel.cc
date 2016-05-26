@@ -394,7 +394,7 @@ void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs,
 	geomid = singlelnmsel_->getInputGeomID();
 
     tkzs.set2DDef();
-    tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+    tkzs.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
     tkzs.hsamp_.setTrcRange( getTrcRange(geomid) );
     tkzs.zsamp_.setFrom( getZRange(geomid) );
 

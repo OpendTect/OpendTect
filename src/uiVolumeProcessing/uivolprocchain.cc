@@ -203,7 +203,7 @@ bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
     {
 	PtrMan<Step> step =
 	    Step::factory().create(uiStepDialog::factory().getNames().get(idx));
-	if ( !step || (is2d && step->canHandle2D()) )
+	if ( !step || (is2d && !step->canHandle2D()) )
 	    continue;
 
 	uinms.add( uiStepDialog::factory().getUserNames()[idx] );
@@ -214,11 +214,17 @@ bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
 }
 
 // uiChain
+
+
+#define mGetIOObjContext is2d_ ? VolProcessing2DTranslatorGroup::ioContext() \
+				: VolProcessingTranslatorGroup::ioContext();
+
 uiChain::uiChain( uiParent* p, Chain& chn, bool is2d, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Setup"),
 				   mNoDlgTitle, mODHelpKey(mChainHelpID) )
 	    .modal(!withprocessnow) )
     , chain_(chn)
+    , is2d_(is2d)
 {
     chain_.ref();
 
@@ -281,7 +287,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool is2d, bool withprocessnow )
 
     flowgrp->setHAlignObj( steplist_ );
 
-    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    IOObjContext ctxt = mGetIOObjContext;
     ctxt.forread_ = false;
 
     objfld_ = new uiIOObjSel( this, ctxt, tr("On OK, store As") );
@@ -382,7 +388,7 @@ bool uiChain::doSave()
 
 bool uiChain::doSaveAs()
 {
-    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    IOObjContext ctxt = mGetIOObjContext;
     ctxt.forread_ = false;
     uiIOObjSelDlg dlg( this, ctxt, tr("Volume Builder Setup") );
     if ( !dlg.go() || !dlg.nrChosen() )
@@ -471,7 +477,7 @@ bool uiChain::showPropDialog( int idx )
 
 void uiChain::readPush( CallBacker* )
 {
-    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    IOObjContext ctxt = mGetIOObjContext;
     ctxt.forread_ = true;
     uiIOObjSelDlg dlg( this, ctxt );
     dlg.selGrp()->setConfirmOverwrite( false );
@@ -479,7 +485,8 @@ void uiChain::readPush( CallBacker* )
 	return;
 
     uiString errmsg;
-    if ( VolProcessingTranslator::retrieve( chain_, dlg.ioObj(), errmsg ) )
+    const IOObj* ioobj = dlg.ioObj();
+    if ( VolProcessingTranslator::retrieve(chain_,ioobj,errmsg) )
     {
 	updObj( *dlg.ioObj() );
 	updateList();

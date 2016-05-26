@@ -23,7 +23,7 @@
 
 VolProc::ChainOutput::ChainOutput()
     : Executor("Volume Processing Output")
-    , cs_(true)
+    , tkzs_(true)
     , chain_(0)
     , chainexec_(0)
     , wrr_(0)
@@ -48,6 +48,15 @@ VolProc::ChainOutput::~ChainOutput()
 }
 
 
+void VolProc::ChainOutput::setChainID( const MultiID& chainid )
+{ chainid_ = chainid; }
+
+void VolProc::ChainOutput::setOutputID( const MultiID& outid )
+{ outid_ = outid; }
+
+void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
+{ tkzs_ = tkzs; }
+
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
     iop.get( VolProcessingTranslatorGroup::sKeyChainID(), chainid_ );
@@ -55,7 +64,7 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
     PtrMan<IOPar> subselpar = iop.subselect(
 	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     if ( subselpar )
-       cs_.usePar( *subselpar );
+       tkzs_.usePar( *subselpar );
 
     iop.get( "Output.0.Seismic.ID", outid_ );
 }
@@ -235,16 +244,16 @@ int VolProc::ChainOutput::setupChunking()
     createNewChainExec();
 
     const float zstep = chain_->getZStep();
-    outputzrg_ = StepInterval<int>( mNINT32(cs_.zsamp_.start/zstep),
-				 mNINT32(Math::Ceil(cs_.zsamp_.stop/zstep)),
-			   mMAX(mNINT32(Math::Ceil(cs_.zsamp_.step/zstep)),1) );
+    outputzrg_ = StepInterval<int>( mNINT32(tkzs_.zsamp_.start/zstep),
+				 mNINT32(Math::Ceil(tkzs_.zsamp_.stop/zstep)),
+			   mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
 
     // We will be writing while a new chunk will be calculated
     // Thus, we need to keep the output datapack alive while the next chunk
     // is calculated. Therefore, lets double the computed mem need:
 
-    od_uint64 nrbytes = 2 * chainexec_->computeMaximumMemoryUsage( cs_.hsamp_,
+    od_uint64 nrbytes = 2 * chainexec_->computeMaximumMemoryUsage( tkzs_.hsamp_,
 								   outputzrg_ );
     od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
 
@@ -269,8 +278,8 @@ int VolProc::ChainOutput::setupChunking()
     if ( needsplit )
     {
 	nrexecs_ = (int)(nrbytes / freemem) + 1;
-	if ( nrexecs_ > cs_.hsamp_.nrLines() )
-	    nrexecs_ = cs_.hsamp_.nrLines(); // and pray!
+	if ( nrexecs_ > tkzs_.hsamp_.nrLines() )
+	    nrexecs_ = tkzs_.hsamp_.nrLines(); // and pray!
     }
 
     neednextchunk_ = true;
@@ -291,7 +300,7 @@ int VolProc::ChainOutput::setNextChunk()
     if ( curexecnr_ > 0 )
 	createNewChainExec();
 
-    const TrcKeySampling hsamp( cs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
+    const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
 
     if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
     {
@@ -338,7 +347,7 @@ bool VolProc::ChainOutput::openOutput()
 	IOM().commitChanges( *ioobj );
 
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
-    wrr_->setSelection( cs_.hsamp_, outputzrg_ );
+    wrr_->setSelection( tkzs_.hsamp_, outputzrg_ );
     wrr_->enableWorkControl( workControlEnabled() );
     return true;
 }

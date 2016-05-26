@@ -57,10 +57,7 @@ void uiVolProcPartServer::doVolProc( bool is2d, const MultiID* mid,
     if ( ioobj )
     {
 	uiString errmsg;
-	const bool readsuccess = is2d ?
-	    VolProcessing2DTranslator::retrieve( *vprocchain, ioobj, errmsg )
-	    : VolProcessingTranslator::retrieve( *vprocchain, ioobj, errmsg);
-	if ( !readsuccess )
+	if ( !VolProcessingTranslator::retrieve(*vprocchain,ioobj,errmsg) )
 	{
 	    uiString fms( uiStrings::phrCannotRead( ioobj->uiName() ) );
 	    if ( !errmsg.isEmpty() )

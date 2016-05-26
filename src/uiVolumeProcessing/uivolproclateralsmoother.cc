@@ -25,6 +25,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
 					bool is2d )
     : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf, is2d )
     , smoother_( hf )
+    , crllenfld_(0)
 {
     setHelpKey( mODHelpKey(mLateralSmootherHelpID) );
     const Array2DFilterPars* pars = hf ? &hf->getPars() : 0;
@@ -32,28 +33,34 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup,
-			    uiStrings::phrInline(uiStrings::sStepout()), 0,
-			    "Inline_spinbox" );
+    uiString linesolabel = uiStrings::phrJoinStrings(
+		is2d ? uiStrings::sTraceNumber() : uiStrings::sInline(),
+		uiStrings::uiStrings::sStepout() );
+    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, linesolabel,
+					0, "Inline_spinbox" );
 
-    const BinID step( SI().inlStep(), SI().crlStep() );
+    const BinID step( is2d ? 1 : SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
     if ( pars )
 	inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("Cross-line stepout"),0,
-				       "Crline_spinbox" );
-    crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
-    if ( pars )
-	crllenfld_->box()->setValue( step.crl()*pars->stepout_.col() );
-    crllenfld_->attach( alignedBelow, inllenfld_ );
+    if ( !is2d )
+    {
+	crllenfld_ = new uiLabeledSpinBox( stepoutgroup,
+					   tr("Cross-line stepout"),0,
+					   "Crline_spinbox" );
+	crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
+	if ( pars )
+	    crllenfld_->box()->setValue( step.crl()*pars->stepout_.col() );
+	crllenfld_->attach( alignedBelow, inllenfld_ );
+    }
 
     replaceudfsfld_ = new uiGenInput( stepoutgroup,
 	    tr("Overwrite undefined values"),
 	    BoolInpSpec( pars && pars->filludf_ ));
-    replaceudfsfld_->attach( alignedBelow, crllenfld_ );
+    replaceudfsfld_->attach( alignedBelow, is2d ? inllenfld_ : crllenfld_ );
 
-    stepoutgroup->setHAlignObj( crllenfld_ );
+    stepoutgroup->setHAlignObj( inllenfld_ );
 
     ismedianfld_ = new uiGenInput( this, uiStrings::sType(),
 	    BoolInpSpec( pars && pars->type_==Stats::Median,
@@ -119,9 +126,9 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 	: mUdf(float);
 
     pars.stepout_.row() =
-	mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
-    pars.stepout_.col() =
-	mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
+		mNINT32(inllenfld_->box()->getFValue()/SI().inlStep() );
+    pars.stepout_.col() = !crllenfld_ ? 0 :
+		mNINT32(crllenfld_->box()->getFValue()/SI().crlStep() );
     pars.filludf_ = replaceudfsfld_->getBoolValue();
 
     smoother_->setPars( pars );

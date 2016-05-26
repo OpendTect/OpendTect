@@ -43,12 +43,13 @@ public:
     virtual bool		needsFullVolume() const		{ return false;}
     virtual bool		canInputAndOutputBeSame() const	{ return true; }
     virtual bool		areSamplesIndependent() const	{ return true; }
+    virtual bool		canHandle2D() const		{ return true; }
     virtual bool		needsInput() const		{ return false;}
 
 protected:
 
     virtual od_int64		extraMemoryUsage(OutputSlotID,
-	    				 const TrcKeySampling&,
+					 const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }

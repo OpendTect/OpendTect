@@ -82,21 +82,20 @@ bool uiBatchSetup::retrieveChain()
 	chain_->ref();
     }
 
-    const IOObj* setupioobj = setupsel_->ioobj( true );
-    if ( !setupioobj || chain_->storageID()==setupioobj->key() )
+    const IOObj* ioobj = setupsel_->ioobj( true );
+    if ( !ioobj || chain_->storageID()==ioobj->key() )
 	return true;
 
     uiString errmsg;
     MouseCursorChanger mcc( MouseCursor::Wait );
-    const bool res =
-	VolProcessingTranslator::retrieve( *chain_, setupioobj, errmsg );
-    if ( !res )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
-	if ( chain_ ) chain_->unRef();
+	chain_->unRef();
 	chain_ = 0;
+	return false;
     }
 
-    return res;
+    return true;
 }
 
 
@@ -133,9 +132,33 @@ bool uiBatchSetup::fillPar()
     // TODO: Make this more general, e.g remove all Attrib related keys
     par.set( "Output.0.Seismic.ID", outputioobj->key() );
 
-    IOPar cspar;
-    subsel_->fillPar( cspar );
-    par.mergeComp( cspar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    IOPar subselpar;
+    mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel_)
+    if ( subsel2d )
+    {
+	TypeSet<Pos::GeomID> geomids;
+	subsel2d->selectedGeomIDs( geomids );
+	subselpar.set( sKey::NrGeoms(), geomids.size() );
+	for ( int idx=0; idx<geomids.size(); idx++ )
+	{
+	    TrcKeyZSampling tkzs;
+	    subsel2d->getSampling( tkzs, geomids[idx] );
+	    IOPar tkzspar;
+	    tkzs.fillPar( tkzspar );
+	    subselpar.mergeComp( tkzspar, toString(idx) );
+	}
+    }
+    else
+    {
+	subselpar.set( sKey::NrGeoms(), 1 );
+	TrcKeyZSampling tkzs;
+	subsel_->getSampling( tkzs );
+	IOPar tkzspar;
+	tkzs.fillPar( tkzspar );
+	subselpar.mergeComp( tkzspar, toString(0) );
+    }
+
+    par.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     return true;
 }
 

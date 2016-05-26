@@ -7,7 +7,7 @@
 
 #include "batchprog.h"
 
-#include "volprocchainoutput.h"
+#include "volprocprocessor.h"
 #include "moddepmgr.h"
 
 
@@ -16,9 +16,8 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "VolumeProcessing" );
     OD::ModDeps().ensureLoaded( "Well" );
 
-    VolProc::ChainOutput vco;
-    vco.usePar( pars() );
-    if ( !vco.go(strm) )
+    VolProc::Processor proc( pars() );
+    if ( !proc.run(strm) )
 	return false;
 
     return true;

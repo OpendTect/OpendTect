@@ -27,7 +27,8 @@ uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
 : uiAttrDescEd(p, is2d, mODHelpKey(mVolProcAttribHelpID))
 
 {
-    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    IOObjContext ctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
+			     : VolProcessingTranslatorGroup::ioContext();
     ctxt.forread_ = true;
     setupfld_ = new uiIOObjSel( this, ctxt, tr("Volume Builder setup") );
 

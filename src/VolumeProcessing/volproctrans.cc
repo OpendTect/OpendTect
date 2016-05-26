@@ -34,18 +34,30 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 	   VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
-    mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
-    if ( !t )
-    {
-	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
-	return false;
-    }
-    PtrMan<VolProcessingTranslator> tr = t;
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
 
-    bs = toUiString(tr->read( vr, *conn ));
+    mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
+    if ( t )
+    {
+	PtrMan<VolProcessingTranslator> tr = t;
+	bs = toUiString( tr->read(vr,*conn) );
+    }
+    else
+    {
+	mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
+	if ( !t2 )
+	{
+	    bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	    return false;
+	}
+
+	PtrMan<VolProcessing2DTranslator> tr = t2;
+	bs = toUiString( tr->read(vr,*conn) );
+    }
+
     if ( bs.isEmpty() )
     {
 	vr.setStorageID( ioobj->key() );
@@ -65,20 +77,30 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
                  VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
-    mDynamicCast(VolProcessingTranslator*,PtrMan<VolProcessingTranslator> tr,
-		 ioobj->createTranslator())
-    if ( !tr )
-    {
-	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
-	return false;
-    }
 
     bs = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); }
+    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+
+    mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
+    if ( t )
+    {
+	PtrMan<VolProcessingTranslator> tr = t;
+	bs = toUiString( tr->write(vr,*conn) );
+    }
     else
-	bs = toUiString(tr->write( vr, *conn ));
+    {
+	mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
+	if ( !t2 )
+	{
+	    bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	    return false;
+	}
+
+	PtrMan<VolProcessing2DTranslator> tr = t2;
+	bs = toUiString( tr->write(vr,*conn) );
+    }
 
     return bs.isEmpty();
 }
@@ -144,59 +166,14 @@ bool VolProcessing2DTranslator::retrieve( VolProc::Chain& vr,
 				    const IOObj* ioobj,
 				    uiString& bs )
 {
-    if ( !ioobj )
-    {
-	bs = uiStrings::phrCannotFindDBEntry(
-	   VolProcessing2DTranslatorGroup::sTypeName());
-	return false;
-    }
-    mDynamicCastGet(VolProcessing2DTranslator*,t,ioobj->createTranslator())
-    if ( !t )
-    {
-	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
-	return false;
-    }
-    PtrMan<VolProcessing2DTranslator> tr = t;
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
-
-    bs = toUiString(tr->read( vr, *conn ));
-    if ( bs.isEmpty() )
-    {
-	vr.setStorageID( ioobj->key() );
-	return true;
-    }
-
-    return false;
+    return VolProcessingTranslator::retrieve( vr, ioobj, bs );
 }
 
 
 bool VolProcessing2DTranslator::store( const VolProc::Chain& vr,
 				const IOObj* ioobj, uiString& bs )
 {
-    if ( !ioobj )
-    {
-	bs = uiStrings::phrCannotFindDBEntry(
-                 VolProcessing2DTranslatorGroup::sTypeName());
-	return false;
-    }
-    mDynamicCast(VolProcessing2DTranslator*,
-		 PtrMan<VolProcessing2DTranslator> tr,ioobj->createTranslator())
-    if ( !tr )
-    {
-	bs = uiStrings::phrCannotOpen( ioobj->uiName() );
-	return false;
-    }
-
-    bs = uiString::emptyString();
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); }
-    else
-	bs = toUiString(tr->write( vr, *conn ));
-
-    return bs.isEmpty();
+    return VolProcessingTranslator::store( vr, ioobj, bs );
 }
 
 
@@ -209,8 +186,8 @@ const char* dgbVolProcessing2DTranslator::read( VolProc::Chain& chain,
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
 	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing2D)) )
-	return "Input file is not a 2D Volume Processing setup file";
+    if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing)) )
+	return "Input file is not a Volume Processing setup file";
     if ( atEndOfSection(astrm) ) astrm.next();
 
     IOPar par;

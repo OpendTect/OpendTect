@@ -27,8 +27,9 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr, bool is2d )
 {
     setHelpKey( mODHelpKey(mVolumeReaderHelpID) );
 
-    seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
-				uiSeisSel::Setup(Seis::Vol) );
+    Seis::GeomType seistype = is2d ? Seis::Line : Seis::Vol;
+    seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(seistype,true),
+			      uiSeisSel::Setup(seistype) );
     if ( vr )
 	seissel_->setInput( vr->getVolumeID() );
     seissel_->selectionDone.notify( mCB(this,uiVolumeReader,volSel) );

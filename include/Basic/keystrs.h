@@ -83,6 +83,7 @@ namespace sKey
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
     inline FixedString None()		{ return "None"; }
+    inline FixedString NrGeoms()	{ return "Nr Geometries";}
     inline FixedString NrItems()	{ return "Nr Items";}
     inline FixedString Offset()		{ return "Offset"; }
     inline FixedString Output()		{ return "Output"; }
