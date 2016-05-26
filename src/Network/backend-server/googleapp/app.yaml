@@ -1,5 +1,10 @@
 runtime: php55
 api_version: 1
+automatic_scaling:
+  min_idle_instances: 0
+  max_idle_instances: 1 
+  min_pending_latency: 500ms
+  max_pending_latency: automatic
 
 handlers:
 - url: /backendscripts/dlsites.php
