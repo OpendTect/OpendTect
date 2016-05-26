@@ -63,13 +63,13 @@ public:
     mutable Threads::Lock lock_;
     AutoSaver&		mgr_;
 
-    mutable DirtyCountType lastautosavedirtycount_;
-    mutable int		lastautosaveclockseconds_;
+    mutable DirtyCountType lastsavedirtycount_;
+    mutable int		lastsaveclockseconds_;
     mutable IOStream*	lastautosaveioobj_;
     mutable int		autosavenr_;
 
     bool		needsAutoSave() const;
-    bool		autoSave() const;
+    int			autoSave() const;
 
     void		removeIOObjAndData(IOStream*&) const;
     void		saverDelCB(CallBacker*);
@@ -83,8 +83,8 @@ public:
 OD::AutoSaveObj::AutoSaveObj( const Saveable& obj, AutoSaver& mgr )
     : saver_(&obj)
     , mgr_(mgr)
-    , lastautosavedirtycount_(-1)
-    , lastautosaveclockseconds_(mgr.curclockseconds_)
+    , lastsavedirtycount_(-1)
+    , lastsaveclockseconds_(mgr.curclockseconds_)
     , lastautosaveioobj_(0)
     , autosavenr_(1)
 {
@@ -128,21 +128,24 @@ void OD::AutoSaveObj::removeIOObjAndData( IOStream*& ioobj ) const
 bool OD::AutoSaveObj::needsAutoSave() const
 {
     Threads::Locker locker( lock_ );
-    return mgr_.curclockseconds_ - lastautosaveclockseconds_
+    return mgr_.curclockseconds_ - lastsaveclockseconds_
 	>= mgr_.nrclocksecondsbetweenautosaves_;
 }
 
 
-bool OD::AutoSaveObj::autoSave() const
+int OD::AutoSaveObj::autoSave() const
 {
     Threads::Locker locker( lock_ );
     if ( !saver_ || !saver_->monitoredAlive() )
 	return true;
 
-    const DirtyCountType dirtycount = saver_->curDirtyCount();
-    if ( dirtycount == saver_->lastSavedDirtyCount()
-      || dirtycount == lastautosavedirtycount_  )
-	return true;
+    const DirtyCountType curdirtycount = saver_->curDirtyCount();
+    const bool objusersaved = curdirtycount == saver_->lastSavedDirtyCount();
+    const bool objautosaved = curdirtycount == lastsavedirtycount_;
+    lastsavedirtycount_ = curdirtycount;
+    lastsaveclockseconds_ = mgr_.curclockseconds_;
+    if ( objusersaved || objautosaved )
+	return 0;
 
     const MultiID saverkey( saver_->key() );
     const IODir iodir( saverkey );
@@ -152,10 +155,9 @@ bool OD::AutoSaveObj::autoSave() const
     newstoreioobj->pars().update( sKey::CrFrom(), saverkey );
     newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
     newstoreioobj->updateCreationPars();
-    lastautosavedirtycount_ = dirtycount;
-    lastautosaveclockseconds_ = mgr_.curclockseconds_;
     if ( !saver_->store( *newstoreioobj ) )
     {
+	lastsavedirtycount_ = saver_->lastSavedDirtyCount();
 	removeIOObjAndData( newstoreioobj );
 	return false;
     }
@@ -309,7 +311,7 @@ void OD::AutoSaver::go()
 	const int mselapsed = Time::getMilliSeconds() - time0ms;
 	curclockseconds_ = mselapsed / 1000;
 	if ( curclockseconds_ == prevclockseconds )
-	    { Threads::sleep( 1000 - mselapsed % 1000 ); continue; }
+	    { Threads::sleep( (1000 - mselapsed % 1000) * 0.001 ); continue; }
 	prevclockseconds = curclockseconds_;
 	if ( !isactive )
 	    continue;
@@ -321,7 +323,13 @@ void OD::AutoSaver::go()
 	    if ( !asobj->isActive() )
 		finishedasobjs += asobj;
 	    else if ( asobj->needsAutoSave() )
-		(asobj->autoSave() ? saveDone : saveFailed).trigger( asobj );
+	    {
+		const int res = asobj->autoSave();
+		if ( res < 0 )
+		    saveFailed.trigger( asobj );
+		else if ( res > 0 )
+		    saveDone.trigger( asobj );
+	    }
 	}
 
 	if ( !finishedasobjs.isEmpty() )
