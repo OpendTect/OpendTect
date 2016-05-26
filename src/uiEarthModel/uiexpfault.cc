@@ -95,7 +95,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup().forread(false) );
-    outfld_->setDefaultExtension( "dat" );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else

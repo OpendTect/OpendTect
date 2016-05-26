@@ -44,7 +44,6 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
 
     outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup(0).forread(false) );
-    outfld_->setDefaultExtension( "dat" );
     outfld_->attach( alignedBelow, subsel_ );
 }
 

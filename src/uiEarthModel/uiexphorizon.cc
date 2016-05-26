@@ -98,7 +98,6 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 
     outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup().forread(false) );
-    outfld_->setDefaultExtension( "dat" );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );

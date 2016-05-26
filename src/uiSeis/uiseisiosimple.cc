@@ -282,8 +282,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 void uiSeisIOSimple::mkIsAscFld()
 {
     isascfld_ = new uiGenInput( this, tr("File type"),
-				BoolInpSpec(true,uiStrings::sASCII(),
-                                            tr("Binary")) );
+			BoolInpSpec(true,uiStrings::sASCII(),tr("Binary")) );
     isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
     isascfld_->setValue( data().isasc_ );
 }

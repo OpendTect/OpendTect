@@ -157,7 +157,6 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 
     outpfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 				uiFileInput::Setup().forread(false) );
-    outpfld_->setDefaultExtension( "dat" );
     outpfld_->attach( alignedBelow, addzfld_ );
 }
 

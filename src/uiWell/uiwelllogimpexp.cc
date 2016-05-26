@@ -295,7 +295,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 	outfld_->setFileName( IOM().rootDir() );
 	multiwellsnamefld_ = new uiGenInput( this, tr("File name suffix") );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
-	multiwellsnamefld_->setText( "logs.txt" );
+	multiwellsnamefld_->setText( "logs.dat" );
     }
 
     typeSel(0);
