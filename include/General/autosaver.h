@@ -12,75 +12,22 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "monitor.h"
+#include "notify.h"
 #include "uistring.h"
 class IOStream;
-
 
 
 namespace OD
 {
 
+class AutoSaveObj;
 class Saveable;
-class AutoSaveMgr;
 
 
-/*!\brief Object ready for auto-save by OD::AUTOSAVE().  */
+/*!\brief Auto-save manager. Singleton class.  Works from its own thread. */
 
-
-mExpClass(General) AutoSaver : public Monitorable
-{
-public:
-
-			AutoSaver(const Saveable&);
-			AutoSaver(const AutoSaver&);
-			~AutoSaver();
-			mDeclMonitorableAssignment(AutoSaver);
-
-    mImplSimpleMonitoredGetSet(inline,nrSecondsBetweenSaves,
-				      setNrSecondsBetweenSaves,
-				      int,nrclocksecondsbetweenautosaves_,0)
-
-			// These functions can be called from any thread
-
-    bool		isActive() const;
-    bool		autoSaveNow() const	{ return doAutoSaveWork(true); }
-    void		userSaveOccurred() const;
-
-protected:
-
-    const Saveable*	saver_;
-
-    mutable DirtyCountType lastautosavedirtycount_;
-    mutable IOStream*	lastautosaveioobj_;
-    mutable int		autosavenr_;
-    mutable int		nrclocksecondsbetweenautosaves_;
-    mutable int		lastautosaveclockseconds_;
-    mutable int		curclockseconds_;
-
-    virtual void	initAutoSave() const;
-    bool		doAutoSaveWork(bool forcesave) const;
-
-private:
-
-    void		removePrevAutoSaved() const;
-    bool		needsAutoSaveAct(int) const;
-    bool		autoSave() const;
-    void		saverDelCB(CallBacker*);
-    friend class	AutoSaveMgr;
-
-};
-
-
-/*!\brief Auto-save manager. Singleton class.
-
-  Work is done in its own thread.
-  Saveable will automatically be removed when they are deleted.
-
-  */
-
-mExpClass(General) AutoSaveMgr : public CallBacker
-{ mODTextTranslationClass(AutoSaveMgr)
+mExpClass(General) AutoSaver : public CallBacker
+{ mODTextTranslationClass(AutoSaver)
 public:
 
     bool		isActive(bool bydefault=false) const;
@@ -88,44 +35,48 @@ public:
     int			nrSecondsBetweenSaves() const;
     void		setNrSecondsBetweenSaves(int);
 
-    void		add(AutoSaver*);
+    void		add(const Saveable&);
 
 			// triggered from mgr's thread. CB obj is the saver.
-    Notifier<AutoSaveMgr> saveDone;
-    Notifier<AutoSaveMgr> saveFailed;
+    Notifier<AutoSaver> saveDone;
+    Notifier<AutoSaver> saveFailed;
 
 private:
 
-			AutoSaveMgr();
-			~AutoSaveMgr();
+			AutoSaver();
+			~AutoSaver();
 
-    ObjectSet<AutoSaver> savers_;
+    ObjectSet<AutoSaveObj> asobjs_;
     mutable Threads::Lock lock_;
     Threads::Thread*	thread_;
     bool		appexits_;
     bool		active_;
+    int			curclockseconds_;
+    int			nrclocksecondsbetweenautosaves_;
 
+    void		remove(AutoSaveObj*);
     void		appExits(CallBacker*);
-    void		saverDelCB(CallBacker*);
+    void		svrDelCB(CallBacker*);
     void		survChg( CallBacker* )	    { setEmpty(); }
 
     void		go();
     static inline void	goCB(CallBacker*);
 
+    friend class	AutoSaveObj;
+
 public:
 
     // Probably not useful 4 u:
 
-    static AutoSaveMgr&	getInst();		    // use OD::AUTOSAVE()
-    void		remove(AutoSaver*);	    // done 4 u on destruction
+    static AutoSaver&	getInst();		    // use OD::AUTOSAVE()
     void		setEmpty();		    // why would u?
     Threads::Thread&	thread()		    { return *thread_; }
 
 };
 
 
-mGlobal(General) inline AutoSaveMgr& AutoSaveMGR()
-{ return AutoSaveMgr::getInst(); }
+mGlobal(General) inline AutoSaver& AUTOSAVE()
+{ return AutoSaver::getInst(); }
 
 
 }; //namespace OD

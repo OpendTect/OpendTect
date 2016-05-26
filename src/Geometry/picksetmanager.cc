@@ -353,7 +353,7 @@ void Pick::SetManager::add( const Set& newset, const SetID& id,
     self.addCBsToSet( newset );
     self.SetAdded.trigger( id );
 
-    //TODO OD::AutoSaveMGR().add( new OD::AutoSaver(*saver) );
+    //TODO OD::AUTOSAVE().add( *saver );
 }
 
 

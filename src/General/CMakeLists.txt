@@ -79,6 +79,7 @@ list ( APPEND OD_MODULE_SOURCES
 	rangeposprovider.cc
 	raytracerrunner.cc
 	rockphysics.cc
+	saveable.cc
 	stratlevel.cc
 	survgeometrytransl.cc
 	tableascio.cc
