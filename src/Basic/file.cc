@@ -928,7 +928,8 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
 #endif
 
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
-    return cl.execute();
+    OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
+    return cl.execute( pars );
 }
 
 } // namespace File
