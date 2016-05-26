@@ -86,6 +86,7 @@ protected:
 
     void		updatePos(bool isx);
     bool		rowIsIncomplete(int) const;
+    bool		rowIsNotSet(int) const;
 };
 
 
