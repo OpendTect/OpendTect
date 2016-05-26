@@ -244,6 +244,9 @@ protected:
 					    const Attrib::SelSpec&,
 					    bool,bool,bool);
 
+    void		snapToValidRandomTraces(TypeSet<BinID>& path,
+						const Attrib::Desc*);
+
     static const char*	attridstr();
     BufferString	nlaname_;
 

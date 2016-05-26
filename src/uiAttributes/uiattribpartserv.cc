@@ -899,6 +899,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     TypeSet<BinID> knots, path;
     rdmline->allNodePositions( knots );
     rdmline->getPathBids( knots, rdmline->getSurvID(), path );
+    snapToValidRandomTraces( path, targetdesc );
     BinIDValueSet bidset( 2, false );
     for ( int idx = 0; idx<path.size(); idx++ )
 	bidset.add( path[idx],zrg.start,zrg.stop );
@@ -931,6 +932,40 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     newpack->setName( targetspecs_[0].userRef() );
     DPM(DataPackMgr::SeisID()).add( newpack );
     return newpack->id();
+}
+
+
+void uiAttribPartServer::snapToValidRandomTraces( TypeSet<BinID>& path,
+						  const Desc* targetdesc )
+{
+    if ( !targetdesc )
+	return;
+
+    uiString errmsg;
+    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
+    RefMan<Provider> tmpprov = Provider::create( *nonconsttargetdesc, errmsg );
+
+    TrcKeyZSampling tkzs( true );
+    if ( !tmpprov || !tmpprov->getPossibleVolume(-1,tkzs) )
+	return;
+
+    if ( tkzs.hsamp_.step_.lineNr()==1 && tkzs.hsamp_.step_.trcNr()==1 )
+	return;
+
+    for ( int idx=0; idx<path.size(); idx++ )
+    {
+	if ( tkzs.hsamp_.lineRange().includes(path[idx].lineNr(),true) &&
+	     tkzs.hsamp_.trcRange().includes(path[idx].trcNr(),true) )
+	{
+	    const int shiftedtogetnearestinl = path[idx].lineNr() +
+					       tkzs.hsamp_.step_.lineNr()/2;
+	    const int inlidx = tkzs.hsamp_.lineIdx( shiftedtogetnearestinl );
+	    const int shiftedtogetnearestcrl = path[idx].trcNr() +
+					       tkzs.hsamp_.step_.trcNr()/2;
+	    const int crlidx = tkzs.hsamp_.trcIdx( shiftedtogetnearestcrl );
+	    path[idx] = tkzs.hsamp_.atIndex( inlidx, crlidx );
+	}
+    }
 }
 
 

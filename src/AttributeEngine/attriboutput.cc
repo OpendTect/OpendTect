@@ -142,9 +142,8 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 
 void DataPackOutput::setPossibleVolume( const TrcKeyZSampling& possvol )
 {
-    dcsampling_ = possvol;
-    dcsampling_.limitTo( desiredvolume_ );
-    desiredvolume_ = dcsampling_;
+    desiredvolume_.adjustTo( possvol );
+    dcsampling_ = desiredvolume_;
 }
 
 

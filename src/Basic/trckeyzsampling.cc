@@ -1088,6 +1088,41 @@ void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
 }
 
 
+bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
+				bool falsereturnsdummy )
+{
+    TrcKeyZSampling clippedtkzs( availabletkzs );
+    clippedtkzs.limitTo( *this, true );
+
+    if ( !clippedtkzs.isDefined() || clippedtkzs.isEmpty() )
+    {
+	// To create dummy with a single undefined voxel
+	if ( falsereturnsdummy )
+	{
+	    hsamp_.stop_ = hsamp_.start_;
+	    zsamp_.stop = zsamp_.start;
+	}
+	else
+	    *this = clippedtkzs;
+
+	return false;
+    }
+
+    TrcKeyZSampling adjustedtkzs( availabletkzs );
+    adjustedtkzs.shrinkTo( *this );
+
+    if ( nrLines() == 1 )
+	adjustedtkzs.hsamp_.setLineRange( hsamp_.lineRange() );
+    if ( nrTrcs() == 1 )
+	adjustedtkzs.hsamp_.setTrcRange( hsamp_.trcRange() );
+    if ( nrZ() == 1 )
+	adjustedtkzs.zsamp_ = zsamp_;
+
+    *this = adjustedtkzs;
+    return true;
+}
+
+
 void TrcKeyZSampling::expand( int nrlines, int nrtrcs, int nrz )
 {
     hsamp_.expand( nrlines, nrtrcs );
