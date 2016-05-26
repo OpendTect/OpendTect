@@ -187,6 +187,7 @@ Processor* EngineMan::createProcessor( const DescSet& attribset,
     Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outid));
     if ( !targetdesc ) return 0;
 
+    targetdesc->updateParams();
     Processor* processor = new Processor( *targetdesc, linename, errmsg );
     if ( !processor->isOK() )
     {
