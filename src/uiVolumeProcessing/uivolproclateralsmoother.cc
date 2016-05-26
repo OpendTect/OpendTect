@@ -47,7 +47,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
 
     uiString trcsolabel = uiStrings::phrJoinStrings(
 		is2d ? uiStrings::sTraceNumber() : uiStrings::sCrossline(),
-		uiStrings::uiStrings::sStepout() );
+		uiStrings::sStepout() );
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, trcsolabel, 0,
 				       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
