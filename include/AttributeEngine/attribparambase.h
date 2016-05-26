@@ -140,10 +140,14 @@ protected:
     virtual bool		isEqual(const Param&) const;
 
 public:
-    mDeprecated float	getfValue(int idx=0) const
+    mDeprecated float		getfValue( int idx=0 ) const
 				{ return getFValue( idx ); }
-    mDeprecated double	getdValue(int idx=0) const
+    mDeprecated double		getdValue( int idx=0 ) const
 				{ return getDValue( idx ); }
+    mDeprecated float		getDefaultfValue( int idx=0 ) const
+				{ return getDefaultFValue( idx ); }
+    mDeprecated double		getDefaultdValue( int idx=0 ) const
+				{ return getDefaultDValue( idx ); }
 };
 
 } // namespace Attrib
