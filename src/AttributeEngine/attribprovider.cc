@@ -906,7 +906,8 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 		continue;
 	    inpranges += rg;
 	}
-	inputs_[inp]->addLocalCompZIntervals( inpranges );
+	if ( inpranges.size() )
+	    inputs_[inp]->addLocalCompZIntervals( inpranges );
     }
 }
 
