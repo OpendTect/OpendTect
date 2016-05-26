@@ -353,7 +353,7 @@ void Pick::SetManager::add( const Set& newset, const SetID& id,
     self.addCBsToSet( newset );
     self.SetAdded.trigger( id );
 
-    //TODO does this work?  OD::AUTOSAVE().add( *saver );
+    OD::AUTOSAVE().add( *saver );
 }
 
 

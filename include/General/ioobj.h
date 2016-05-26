@@ -148,7 +148,7 @@ private:
 
 public:
 
-    void		setKey( const char* nm )	{ key_ = nm; }
+    void		setKey( const Key& ky )		{ key_ = ky; }
     virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);

@@ -39,8 +39,9 @@ static void setIsActiveByDefault( bool yn )
 
 static bool isActiveByDefault()
 {
-    bool yn = true;
-    Settings::common().getYN( sKeyNrSecondsBetweenSaves, yn );
+    // TODO change default to true;
+    bool yn = false;
+    Settings::common().getYN( sKeyIsActiveByDefault, yn );
     return yn;
 }
 
@@ -149,22 +150,33 @@ int OD::AutoSaveObj::autoSave() const
 
     const MultiID saverkey( saver_->key() );
     const IODir iodir( saverkey );
+    const IOObj* orgioobj = iodir.get( saverkey );
+    if ( !orgioobj )
+	return 0;
+
     BufferString storenm( ".autosave_", saverkey, "_" );
     storenm.add( autosavenr_++ );
-    IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
+    const MultiID tmpkey( iodir.newTmpKey() );
+    IOStream* newstoreioobj = new IOStream( storenm, tmpkey, true );
+    newstoreioobj->copyFrom( orgioobj );
+    newstoreioobj->setKey( tmpkey );
+    newstoreioobj->setName( storenm );
+    newstoreioobj->genFileName();
     newstoreioobj->pars().update( sKey::CrFrom(), saverkey );
     newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
     newstoreioobj->updateCreationPars();
-    if ( !saver_->store( *newstoreioobj ) )
+
+    if ( !IOM().commitChanges(*newstoreioobj)
+      || !saver_->store(*newstoreioobj) )
     {
 	lastsavedirtycount_ = saver_->lastSavedDirtyCount();
 	removeIOObjAndData( newstoreioobj );
-	return false;
+	return -1;
     }
 
     removeIOObjAndData( lastautosaveioobj_ );
     lastautosaveioobj_ = newstoreioobj;
-    return true;
+    return 1;
 }
 
 
