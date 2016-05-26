@@ -479,6 +479,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
 	    uiFileInput::Setup(uiFileDialog::Gen)
 	    .withexamine(false).forread(false).filter(filefilter) );
     outfld_->setSelectMode( uiFileDialog::AnyFile );
+    outfld_->setDefaultExtension( "dat" );
     outfld_->attach( alignedBelow, inpfld_ );
 }
 

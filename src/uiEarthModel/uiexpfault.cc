@@ -65,7 +65,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     bool setchk = true;
     if ( SI().zIsTime() )
-	zbox_ = new uiGenInput( this, tr("Z in"), 
+	zbox_ = new uiGenInput( this, tr("Z in"),
 				BoolInpSpec(true,uiStrings::sMsec(),
 				uiStrings::sSec()) );
     else
@@ -87,15 +87,15 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     if ( mGet(typ,true,false) )
     {
-	linenmfld_ = new uiCheckBox( this, 
+	linenmfld_ = new uiCheckBox( this,
 				     tr("Write line name if picked on 2D") );
 	linenmfld_->setChecked( true );
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::phrASCII(
-			       uiStrings::sFile())),
+    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup().forread(false) );
+    outfld_->setDefaultExtension( "dat" );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
@@ -249,9 +249,9 @@ bool uiExportFault::acceptOK( CallBacker* )
     const bool res = writeAscii();
 
     if ( !res )	return false;
-    
+
     const IOObj* ioobj = ctio_.ioobj_;
-    
+
     const uiString tp =
       EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
 	? uiStrings::sFaultStickSet()

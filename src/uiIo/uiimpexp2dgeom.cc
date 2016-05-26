@@ -37,6 +37,7 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
 
     outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 			       uiFileInput::Setup().forread(false) );
+    outfld_->setDefaultExtension( "dat" );
     outfld_->attach( alignedBelow, geomfld_ );
 }
 

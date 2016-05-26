@@ -70,6 +70,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , exameditable_(setup.exameditable_)
     , confirmoverwrite_(setup.confirmoverwrite_)
     , objtype_(setup.objtype_)
+    , defaultext_("txt")
 {
     setFileName( setup.fnm );
     setWithSelect( true );
@@ -105,6 +106,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , confirmoverwrite_(true)
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
+    , defaultext_("txt")
 {
     setFileName( fnm );
     setWithSelect( true );

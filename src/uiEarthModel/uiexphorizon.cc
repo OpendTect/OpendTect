@@ -88,7 +88,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     unitsel_ = new uiUnitSel( this, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
-    headerfld_ = new uiGenInput( this, tr("Header"), 
+    headerfld_ = new uiGenInput( this, tr("Header"),
                                  StringListInpSpec(hdrtyps) );
     headerfld_->attach( alignedBelow, unitsel_ );
 
@@ -96,9 +96,9 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    outfld_ = new uiFileInput( this,
-	      uiStrings::sOutputASCIIFile(),
-	      uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
+			       uiFileInput::Setup().forread(false) );
+    outfld_->setDefaultExtension( "dat" );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );

@@ -42,15 +42,16 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outputfile_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-				   uiFileInput::Setup(0).forread(false) );
-    outputfile_->attach( alignedBelow, subsel_ );
+    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
+			       uiFileInput::Setup(0).forread(false) );
+    outfld_->setDefaultExtension( "dat" );
+    outfld_->attach( alignedBelow, subsel_ );
 }
 
 
 bool uiEventExport::acceptOK( CallBacker* )
 {
-    if ( !outputfile_->fileName() )
+    if ( !outfld_->fileName() )
     {
 	uiMSG().error(tr("No file selected"));
 	return false;
@@ -69,11 +70,11 @@ bool uiEventExport::acceptOK( CallBacker* )
 	return false;
     }
 
-    od_ostream strm( outputfile_->fileName() );
+    od_ostream strm( outfld_->fileName() );
     if ( !strm.isOK() )
     {
 	uiString msg = tr("%1 for writing").arg(uiStrings::phrCannotOpen(
-					 toUiString(outputfile_->fileName())));
+					 toUiString(outfld_->fileName())));
 	strm.addErrMsgTo( msg );
 	uiMSG().error( msg );
 	return false;

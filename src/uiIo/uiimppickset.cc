@@ -79,6 +79,8 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 					    .forread(import_) );
     if ( import_ )
 	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
+    else
+	filefld_->setDefaultExtension( "dat" );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread_ = !import_;
