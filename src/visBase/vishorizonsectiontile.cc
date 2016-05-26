@@ -208,13 +208,28 @@ void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
 {
     wireframedisplayed_ = ( ( type== WireFrame ) && yn ) ? true : false;
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-	tileresolutiondata_[res]->enableGeometryTypeDisplay( type, yn );
+    {
+	if ( !tileresolutiondata_.validIdx(res) )
+	    continue;
+
+        visBase::TileResolutionData* tileres = tileresolutiondata_[res];
+	if ( tileres )
+	    tileres->enableGeometryTypeDisplay( type, yn );
+    }
 }
 
-void HorizonSectionTile::setWireframeColor( Color& color)
+
+void HorizonSectionTile::setWireframeColor( Color& color )
 {
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-	tileresolutiondata_[res]->setWireframeColor( color );
+    {
+	if ( !tileresolutiondata_.validIdx(res) )
+	    continue;
+
+        visBase::TileResolutionData* tileres = tileresolutiondata_[res];
+	if ( tileres )
+	    tileres->setWireframeColor( color );
+    }
 }
 
 
