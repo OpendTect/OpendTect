@@ -23,11 +23,10 @@ namespace Table { class FormatDesc; }
 namespace PreStack
 {
 
-
 mExpClass(uiPreStackProcessing) uiEventImport : public uiDialog
 { mODTextTranslationClass(uiEventImport);
 public:
-    			uiEventImport(uiParent*);
+			uiEventImport(uiParent*);
 
 protected:
     bool		acceptOK(CallBacker*);
@@ -39,7 +38,6 @@ protected:
     uiIOObjSel*		outputfld_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif

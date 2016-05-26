@@ -42,8 +42,8 @@ uiEventImport::uiEventImport( uiParent* p )
 				uiFileInput::Setup(0).forread(true)
 						     .withexamine(true) );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
-                                      mODHelpKey(mTableImpDataSelpicksHelpID));
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
+				mODHelpKey(mTableImpDataSelpicksHelpID) );
     dataselfld_->attach( alignedBelow, filefld_ );
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
@@ -88,4 +88,4 @@ bool uiEventImport::acceptOK( CallBacker* )
     return !ret;
 }
 
-}; //namespace
+} // namespace PreStack
