@@ -166,10 +166,10 @@ static int findUglyRoundOff( char* str, bool isdouble )
 	    return -1;
     }
 
-    char* hit = firstOcc( decstartptr, isdouble ? "0000000" : "0000" );
+    char* hit = firstOcc( decstartptr, isdouble ? "0000000" : "00000" );
     if ( !hit )
     {
-	hit = firstOcc( decstartptr, isdouble ? "9999999" : "9999" );
+	hit = firstOcc( decstartptr, isdouble ? "9999999" : "99999" );
 	if ( !hit )
 	    return -1;
     }
