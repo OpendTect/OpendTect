@@ -186,8 +186,8 @@ const char* dgbVolProcessing2DTranslator::read( VolProc::Chain& chain,
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
 	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing)) )
-	return "Input file is not a Volume Processing setup file";
+    if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing2D)) )
+	return "Input file is not a 2D Volume Processing setup file";
     if ( atEndOfSection(astrm) ) astrm.next();
 
     IOPar par;
