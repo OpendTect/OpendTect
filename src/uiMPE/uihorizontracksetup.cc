@@ -207,10 +207,15 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
     toolbar_->setSensitive( undobutid_, EM::EMM().undo().canUnDo() );
     toolbar_->setSensitive( redobutid_, EM::EMM().undo().canReDo() );
 
+    EMTracker* tracker = engine().getActiveTracker();
     if ( trackbutid_ != -1 )
-    {
-	EMTracker* tracker = engine().getActiveTracker();
 	toolbar_->turnOn( trackbutid_, tracker ? tracker->isEnabled() : false );
+
+    if ( tracker )
+    {
+	EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
+	const bool canautotrack = seedpicker && seedpicker->nrSeeds();
+	toolbar_->setSensitive( startbutid_, canautotrack && invol && stopped );
     }
 }
 
