@@ -748,6 +748,9 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     BoolTypeSet isclass( outputinterest_.size(), true );
     if ( needinterp_ )
     {
+	ValueSeriesInterpolator<float>& intpol =
+	    const_cast<ValueSeriesInterpolator<float>&>(trc->interpolator());
+	intpol.udfval_ = mUdf(float);
 	checkClassType( trc, isclass );
 	extrazfromsamppos = getExtraZFromSampInterval( z0, data.nrsamples_ );
 	const_cast<DataHolder&>(data).extrazfromsamppos_ = extrazfromsamppos;
