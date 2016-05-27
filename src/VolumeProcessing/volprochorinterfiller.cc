@@ -8,7 +8,7 @@
 #include "volprochorinterfiller.h"
 
 #include "arrayndimpl.h"
-#include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "mousecursor.h"
 #include "multiid.h"
@@ -152,13 +152,23 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
          (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
 	return false;
 
+    //TODO: Rework EM::Horizon2D to avoid the manipulation below.
+    EM::SubID topsubid = bid.toInt64(), botsubid = bid.toInt64();
+    mDynamicCastGet(const EM::Horizon2D*,tophor2d,tophorizon_)
+    mDynamicCastGet(const EM::Horizon2D*,bothor2d,bottomhorizon_)
+    if ( tophor2d )
+	topsubid = BinID( tophor2d->geometry().lineIndex(bid.inl()), bid.crl() )
+			.toInt64();
+    if ( bothor2d )
+	botsubid = BinID( bothor2d->geometry().lineIndex(bid.inl()), bid.crl() )
+			.toInt64();
+
     const double topdepth = tophorizon_
-	? tophorizon_->getPos(tophorizon_->sectionID(0), bid.toInt64()).z
+	? tophorizon_->getPos( tophorizon_->sectionID(0), topsubid ).z
 	: SI().zRange(true).start;
 
     const double bottomdepth = bottomhorizon_
-	? bottomhorizon_->getPos(
-		bottomhorizon_->sectionID(0), bid.toInt64() ).z
+	? bottomhorizon_->getPos( bottomhorizon_->sectionID(0), botsubid ).z
 	: SI().zRange(true).stop;
 
     const SamplingData<double>

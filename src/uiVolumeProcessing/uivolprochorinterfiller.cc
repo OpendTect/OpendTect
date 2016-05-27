@@ -28,8 +28,8 @@ namespace VolProc
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     : uiStepDialog( p, HorInterFiller::sFactoryDisplayName(), hf, is2d )
     , horinterfiller_( hf )
-    , topctio_(mMkCtxtIOObj(EMHorizon3D))
-    , bottomctio_(mMkCtxtIOObj(EMHorizon3D))
+    , topctio_(is2d?mMkCtxtIOObj(EMHorizon2D):mMkCtxtIOObj(EMHorizon3D))
+    , bottomctio_(is2d?mMkCtxtIOObj(EMHorizon2D):mMkCtxtIOObj(EMHorizon3D))
 {
     setHelpKey( mODHelpKey(mHorInterFillerHelpID) );
 

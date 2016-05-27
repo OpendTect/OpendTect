@@ -68,6 +68,7 @@ public:
     virtual bool		areSamplesIndependent() const	{ return true; }
     virtual bool		needsInput() const		{ return false;}
     virtual bool		isInputPrevStep() const		{ return true; }
+    virtual bool		canHandle2D() const		{ return true; }
     virtual bool		prefersBinIDWise() const        { return true; }
 
 protected:
