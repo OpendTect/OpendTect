@@ -463,8 +463,17 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     bool needfill = false;
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	if ( rowIsIncomplete(idx) )
+	if ( rowIsNotSet(idx) )
 	    continue;
+
+	if ( rowIsIncomplete(idx) )
+	{
+	    uiString msg =
+		tr("X, Y, Z or MD is not set in row %1.\n"
+		   "Please enter a valid value or remove this row.").arg(idx+1);
+	    uiMSG().error( msg );
+	    return false;
+	}
 
 	const double xval = getX( idx );
 	const double yval = getY( idx );
@@ -473,11 +482,11 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	const Coord3 newc( xval, yval, zval );
 	if ( !SI().isReasonable(newc) )
 	{
-	    uiString msg = tr("Found undefined values in row %1. "
-			      "Please enter valid values")
-			 .arg(idx + 1);
-	    uiMSG().message( msg );
-	    return false;
+	    uiString msg =
+		tr("The coordinate in row %1 seems to be far outside "
+		   "the survey.\nDo you want to continue?").arg(idx+1);
+	    const bool res = uiMSG().askGoOn( msg );
+	    if ( !res ) return false;
 	}
 
 	if ( idx > 0 && mIsUdf(dahval) )
@@ -610,6 +619,13 @@ bool uiWellTrackDlg::rowIsIncomplete( int row ) const
 }
 
 
+bool uiWellTrackDlg::rowIsNotSet( int row ) const
+{
+    return mIsUdf(getX(row)) && mIsUdf(getY(row)) &&
+	   mIsUdf(getZ(row)) && mIsUdf(getMD(row));
+}
+
+
 bool uiWellTrackDlg::rejectOK( CallBacker* )
 {
     track_ = *orgtrack_;
@@ -662,6 +678,7 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
 
 void uiWellTrackDlg::exportCB( CallBacker* )
 {
+    updNow( 0 );
     if ( !track_.size() )
     {
 	uiMSG().message( tr("No data available to export") );
@@ -669,6 +686,7 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     }
 
     uiFileDialog fdlg( this, false, 0, 0, tr("File name for export") );
+    fdlg.setDefaultExtension( "dat" );
     fdlg.setDirectory( GetDataDir() );
     if ( !fdlg.go() )
 	return;

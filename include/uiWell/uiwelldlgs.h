@@ -47,7 +47,7 @@ public:
 			~uiWellTrackDlg();
     static const uiString   sCkShotData();
     static const uiString   sTimeDepthModel();
-    
+
 protected:
 
     Well::Data&		wd_;
@@ -87,6 +87,7 @@ protected:
 
     void		updatePos(bool isx);
     bool		rowIsIncomplete(int) const;
+    bool		rowIsNotSet(int) const;
 };
 
 
@@ -95,7 +96,7 @@ mExpClass(uiWell) uiD2TModelDlg : public uiDialog
 public:
 			uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
 			~uiD2TModelDlg();
-    
+
 protected:
 
     Well::Data&		wd_;
