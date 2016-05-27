@@ -46,21 +46,24 @@ private:
 			AutoSaver();
 			~AutoSaver();
 
-    ObjectSet<AutoSaveObj> asobjs_;
     mutable Threads::Lock lock_;
     Threads::Thread*	thread_;
-    bool		appexits_;
-    bool		active_;
+    ObjectSet<AutoSaveObj> asobjs_;
     int			curclockseconds_;
     int			nrclocksecondsbetweenautosaves_;
+    Threads::Atomic<bool> isactive_;
+    Threads::Atomic<bool> appexits_;
+    Threads::Atomic<bool> surveychanges_;
 
     void		remove(AutoSaveObj*);
-    void		appExits(CallBacker*);
+    void		appExitCB(CallBacker*);
     void		svrDelCB(CallBacker*);
-    void		survChg( CallBacker* )	    { setEmpty(); }
+    void		survChgCB(CallBacker*);
 
     void		go();
     static inline void	goCB(CallBacker*);
+
+    void		handleSurvChg();
 
     friend class	AutoSaveObj;
 
@@ -69,7 +72,7 @@ public:
     // Probably not useful 4 u:
 
     static AutoSaver&	getInst();		    // use OD::AUTOSAVE()
-    void		setEmpty();		    // why would u?
+    void		setEmpty();		    // try setActive(false)
     Threads::Thread&	thread()		    { return *thread_; }
 
 };

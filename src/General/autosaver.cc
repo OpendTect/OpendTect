@@ -156,12 +156,10 @@ int OD::AutoSaveObj::autoSave() const
 
     BufferString storenm( ".autosave_", saverkey, "_" );
     storenm.add( autosavenr_++ );
-    const MultiID tmpkey( iodir.newTmpKey() );
-    IOStream* newstoreioobj = new IOStream( storenm, tmpkey, true );
-    newstoreioobj->copyFrom( orgioobj );
-    newstoreioobj->setKey( tmpkey );
-    newstoreioobj->setName( storenm );
-    newstoreioobj->genFileName();
+    IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
+    newstoreioobj->setGroup( orgioobj->group() );
+    newstoreioobj->setTranslator( orgioobj->translator() );
+    newstoreioobj->pars() = orgioobj->pars();
     newstoreioobj->pars().update( sKey::CrFrom(), saverkey );
     newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
     newstoreioobj->updateCreationPars();
@@ -193,15 +191,16 @@ OD::AutoSaver& OD::AutoSaver::getInst()
 
 OD::AutoSaver::AutoSaver()
     : appexits_(false)
-    , active_(isActiveByDefault())
+    , surveychanges_(false)
+    , isactive_(isActiveByDefault())
     , curclockseconds_(-1)
     , nrclocksecondsbetweenautosaves_(defaultNrSecondsBetweenSaves())
     , saveDone(this)
     , saveFailed(this)
 {
-    mAttachCB( IOM().surveyToBeChanged, AutoSaver::setEmpty );
-    mAttachCB( IOM().applicationClosing, AutoSaver::appExits );
-    thread_ = new Threads::Thread( mSCB(AutoSaver::goCB), "AutoSave Manager");
+    mAttachCB( IOM().surveyToBeChanged, AutoSaver::survChgCB );
+    mAttachCB( IOM().applicationClosing, AutoSaver::appExitCB );
+    thread_ = new Threads::Thread( mSCB(AutoSaver::goCB), "AutoSaver");
 }
 
 
@@ -233,8 +232,7 @@ bool OD::AutoSaver::isActive( bool fordef ) const
     if ( fordef )
 	return isActiveByDefault();
 
-    Threads::Locker locker( lock_ );
-    return active_;
+    return isactive_;
 }
 
 
@@ -243,8 +241,7 @@ void OD::AutoSaver::setActive( bool yn, bool mkdef )
     if ( mkdef )
 	setIsActiveByDefault( yn );
 
-    Threads::Locker locker( lock_ );
-    active_ = yn;
+    isactive_ = yn;
 }
 
 
@@ -263,6 +260,21 @@ void OD::AutoSaver::setNrSecondsBetweenSaves( int nrsecs )
     setDefaultNrSecondsBetweenSaves( nrsecs );
     Threads::Locker locker( lock_ );
     nrclocksecondsbetweenautosaves_ = nrsecs;
+}
+
+
+void OD::AutoSaver::handleSurvChg()
+{
+    setEmpty();
+    surveychanges_ = false;
+}
+
+
+void OD::AutoSaver::survChgCB( CallBacker* )
+{
+    surveychanges_ = true;
+    Threads::Locker locker( lock_ );
+    deepErase( asobjs_ );
 }
 
 
@@ -290,11 +302,10 @@ void OD::AutoSaver::svrDelCB( CallBacker* cb )
 }
 
 
-void OD::AutoSaver::appExits( CallBacker* )
+void OD::AutoSaver::appExitCB( CallBacker* )
 {
     detachAllNotifiers();
     setEmpty();
-    Threads::Locker locker( lock_ );
     appexits_ = true;
 }
 
@@ -310,22 +321,26 @@ void OD::AutoSaver::go()
     const int time0ms = Time::getMilliSeconds();
     int prevclockseconds = curclockseconds_;
 
-    while ( true )
+    while ( !appexits_ )
     {
-	bool isactive; ObjectSet<AutoSaveObj> asobjs;
-	Threads::Locker locker( lock_ );
-	    if ( appexits_ )
-		break;
-	    isactive = active_;
-	    asobjs = asobjs_;
-	locker.unlockNow();
-
 	const int mselapsed = Time::getMilliSeconds() - time0ms;
 	curclockseconds_ = mselapsed / 1000;
 	if ( curclockseconds_ == prevclockseconds )
 	    { Threads::sleep( (1000 - mselapsed % 1000) * 0.001 ); continue; }
 	prevclockseconds = curclockseconds_;
-	if ( !isactive )
+
+	if ( !isactive_ || appexits_ || surveychanges_ )
+	{
+	    if ( surveychanges_ )
+		 handleSurvChg();
+	    continue;
+	}
+
+	ObjectSet<AutoSaveObj> asobjs;
+	Threads::Locker locker( lock_ );
+	asobjs = asobjs_;
+	locker.unlockNow();
+	if ( asobjs.isEmpty() )
 	    continue;
 
 	ObjectSet<AutoSaveObj> finishedasobjs;
@@ -336,13 +351,23 @@ void OD::AutoSaver::go()
 		finishedasobjs += asobj;
 	    else if ( asobj->needsAutoSave() )
 	    {
+		if ( appexits_ || surveychanges_ )
+		    break;
+
 		const int res = asobj->autoSave();
+
+		if ( appexits_ || surveychanges_ )
+		    break;
+
 		if ( res < 0 )
 		    saveFailed.trigger( asobj );
 		else if ( res > 0 )
 		    saveDone.trigger( asobj );
 	    }
 	}
+
+	if ( surveychanges_ )
+	    { handleSurvChg(); continue; }
 
 	if ( !finishedasobjs.isEmpty() )
 	{
