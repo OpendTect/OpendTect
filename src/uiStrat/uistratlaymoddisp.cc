@@ -471,9 +471,10 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 		z1 -= lvldpth;
 	    }
 
-	    if ( depth >= z0 && depth<= z1 )
+	    const int disppropidx = tools_.selPropIdx();
+	    if ( depth >= z0 && depth<= z1 &&
+		 seq.propertyRefs().validIdx(disppropidx) )
 	    {
-		const int disppropidx = tools_.selPropIdx();
 		const PropertyRef* pr = seq.propertyRefs()[disppropidx];
 		const float val = getLayerPropValue(lay,pr,disppropidx);
 		statusbarmsg.set( pr->name(), val );
