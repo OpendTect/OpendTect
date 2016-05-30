@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 
 #include "ui3dviewer.h"
+#include "uiautosaverdlg.h"
 #include "uicrdevenv.h"
 #include "uifiledlg.h"
 #include "uimenu.h"
@@ -851,6 +852,7 @@ void uiODMenuMgr::fillUtilMenu()
     settmnu_ = new uiMenu( &appl_, uiStrings::sSettings() );
     utilmnu_->insertItem( settmnu_ );
 
+    mInsertItem( settmnu_, m3Dots(tr("Auto-Save")), mSettAutoSaveMnuItm );
     mInsertItem( settmnu_, m3Dots(tr("Look and Feel")), mSettLkNFlMnuItm );
     mInsertItem( settmnu_, m3Dots(tr("Keyboard Shortcuts")),
 		 mSettShortcutsMnuItm);
@@ -1409,6 +1411,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
+
+    case mSettAutoSaveMnuItm: {
+	uiAutoSaverDlg dlg( &appl_ );
+	dlg.go();
+    } break;
 
     case mSettLkNFlMnuItm: {
 	uiSettingsDlg dlg( &appl_ );

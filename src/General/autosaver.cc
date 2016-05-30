@@ -17,6 +17,7 @@
 
 static const int defnrsecondsbetweensaves_ = 300;
 static const char* sKeyIsActiveByDefault = "AutoSave.Active";
+static const char* sKeyUseHiddenMode = "AutoSave.Hidden";
 static const char* sKeyNrSecondsBetweenSaves = "AutoSave.Cycle Time";
 
 
@@ -39,9 +40,20 @@ static void setIsActiveByDefault( bool yn )
 
 static bool isActiveByDefault()
 {
-    // TODO change default to true;
-    bool yn = false;
+    bool yn = false; // TODO change to true;
     Settings::common().getYN( sKeyIsActiveByDefault, yn );
+    return yn;
+}
+
+static void setUseHiddenModeByDefault( bool yn )
+{
+    Settings::common().setYN( sKeyUseHiddenMode, yn );
+}
+
+static bool useHiddenModeByDefault()
+{
+    bool yn = false;
+    Settings::common().getYN( sKeyUseHiddenMode, yn );
     return yn;
 }
 
@@ -58,19 +70,20 @@ public:
 			AutoSaveObj(const Saveable&,AutoSaver&);
 			~AutoSaveObj();
 
-    bool		isActive() const;
+    bool		isFinished() const;
 
     const Saveable*	saver_;
     mutable Threads::Lock lock_;
     AutoSaver&		mgr_;
+    mutable uiString	errmsg_;
 
-    mutable DirtyCountType lastsavedirtycount_;
+    mutable DirtyCountType lastautosavedirtycount_;
     mutable int		lastsaveclockseconds_;
     mutable IOStream*	lastautosaveioobj_;
     mutable int		autosavenr_;
 
-    bool		needsAutoSave() const;
-    int			autoSave() const;
+    bool		time4AutoSave() const;
+    int			autoSave(bool) const;
 
     void		removeIOObjAndData(IOStream*&) const;
     void		saverDelCB(CallBacker*);
@@ -84,7 +97,7 @@ public:
 OD::AutoSaveObj::AutoSaveObj( const Saveable& obj, AutoSaver& mgr )
     : saver_(&obj)
     , mgr_(mgr)
-    , lastsavedirtycount_(-1)
+    , lastautosavedirtycount_(-1)
     , lastsaveclockseconds_(mgr.curclockseconds_)
     , lastautosaveioobj_(0)
     , autosavenr_(1)
@@ -100,10 +113,10 @@ OD::AutoSaveObj::~AutoSaveObj()
 }
 
 
-bool OD::AutoSaveObj::isActive() const
+bool OD::AutoSaveObj::isFinished() const
 {
     Threads::Locker locker( lock_ );
-    return saver_ && saver_->monitoredAlive();
+    return !saver_ || !saver_->monitoredAlive();
 }
 
 
@@ -126,7 +139,7 @@ void OD::AutoSaveObj::removeIOObjAndData( IOStream*& ioobj ) const
 }
 
 
-bool OD::AutoSaveObj::needsAutoSave() const
+bool OD::AutoSaveObj::time4AutoSave() const
 {
     Threads::Locker locker( lock_ );
     return mgr_.curclockseconds_ - lastsaveclockseconds_
@@ -134,16 +147,27 @@ bool OD::AutoSaveObj::needsAutoSave() const
 }
 
 
-int OD::AutoSaveObj::autoSave() const
+int OD::AutoSaveObj::autoSave( bool hidden ) const
 {
     Threads::Locker locker( lock_ );
+    errmsg_.setEmpty();
     if ( !saver_ || !saver_->monitoredAlive() )
-	return true;
+	return 0;
 
     const DirtyCountType curdirtycount = saver_->curDirtyCount();
     const bool objusersaved = curdirtycount == saver_->lastSavedDirtyCount();
-    const bool objautosaved = curdirtycount == lastsavedirtycount_;
-    lastsavedirtycount_ = curdirtycount;
+    if ( !hidden )
+    {
+	if ( objusersaved )
+	    return 0;
+	if ( !saver_->save() )
+	    { errmsg_ = saver_->errMsg(); return -1; }
+	return 1;
+    }
+
+    const bool objautosaved = curdirtycount == lastautosavedirtycount_;
+    const DirtyCountType prevautosavedirtycount = lastautosavedirtycount_;
+    lastautosavedirtycount_ = curdirtycount;
     lastsaveclockseconds_ = mgr_.curclockseconds_;
     if ( objusersaved || objautosaved )
 	return 0;
@@ -167,7 +191,8 @@ int OD::AutoSaveObj::autoSave() const
     if ( !IOM().commitChanges(*newstoreioobj)
       || !saver_->store(*newstoreioobj) )
     {
-	lastsavedirtycount_ = saver_->lastSavedDirtyCount();
+	errmsg_ = saver_->errMsg();
+	lastautosavedirtycount_ = prevautosavedirtycount;
 	removeIOObjAndData( newstoreioobj );
 	return -1;
     }
@@ -193,6 +218,7 @@ OD::AutoSaver::AutoSaver()
     : appexits_(false)
     , surveychanges_(false)
     , isactive_(isActiveByDefault())
+    , usehiddenmode_(useHiddenModeByDefault())
     , curclockseconds_(-1)
     , nrclocksecondsbetweenautosaves_(defaultNrSecondsBetweenSaves())
     , saveDone(this)
@@ -227,21 +253,33 @@ void OD::AutoSaver::setEmpty()
 }
 
 
-bool OD::AutoSaver::isActive( bool fordef ) const
+bool OD::AutoSaver::isActive() const
 {
-    if ( fordef )
-	return isActiveByDefault();
-
+    Threads::Locker locker( lock_ );
     return isactive_;
 }
 
 
-void OD::AutoSaver::setActive( bool yn, bool mkdef )
+void OD::AutoSaver::setActive( bool yn )
 {
-    if ( mkdef )
-	setIsActiveByDefault( yn );
-
+    setIsActiveByDefault( yn );
+    Threads::Locker locker( lock_ );
     isactive_ = yn;
+}
+
+
+bool OD::AutoSaver::useHiddenMode() const
+{
+    Threads::Locker locker( lock_ );
+    return usehiddenmode_;
+}
+
+
+void OD::AutoSaver::setUseHiddenMode( bool yn )
+{
+    setUseHiddenModeByDefault( yn );
+    Threads::Locker locker( lock_ );
+    usehiddenmode_ = yn;
 }
 
 
@@ -347,14 +385,14 @@ void OD::AutoSaver::go()
 	for ( int iasobj=0; iasobj<asobjs.size(); iasobj++ )
 	{
 	    AutoSaveObj* asobj = asobjs[iasobj];
-	    if ( !asobj->isActive() )
+	    if ( asobj->isFinished() )
 		finishedasobjs += asobj;
-	    else if ( asobj->needsAutoSave() )
+	    else if ( asobj->time4AutoSave() )
 	    {
 		if ( appexits_ || surveychanges_ )
 		    break;
 
-		const int res = asobj->autoSave();
+		const int res = asobj->autoSave( usehiddenmode_ );
 
 		if ( appexits_ || surveychanges_ )
 		    break;

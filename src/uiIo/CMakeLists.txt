@@ -9,6 +9,7 @@ set( OD_MODULE_SOURCES
 	dpsdensitycalc.cc
 	ui2dgeomman.cc
 	ui2dsip.cc
+	uiautosaverdlg.cc
 	uibatchhostsdlg.cc
 	uibatchlaunch.cc
 	uibatchprogs.cc

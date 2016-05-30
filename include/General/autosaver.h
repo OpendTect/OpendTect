@@ -24,14 +24,28 @@ class AutoSaveObj;
 class Saveable;
 
 
-/*!\brief Auto-save manager. Singleton class.  Works from its own thread. */
+/*!\brief Auto-save manager. Singleton class. Works from its own thread.
+
+  Auto-Save can work in 2 modes: Hidden or !Hidden (visible?). When visible,
+  it will simply save as if user explicitly pressed a button or chose a menu
+  item to save.
+
+  Hidden mode means it will make a hidden back-up that can be retrieved after an
+  emergency (after power failure, server shutdown, maybe even OpendTect crash
+  (which never happens, but still :)) ).
+
+  The default is Not Hidden.
+
+*/
 
 mExpClass(General) AutoSaver : public CallBacker
 { mODTextTranslationClass(AutoSaver)
 public:
 
-    bool		isActive(bool bydefault=false) const;
-    void		setActive(bool,bool makedefault=true);
+    bool		isActive() const;
+    void		setActive(bool yn=true);
+    bool		useHiddenMode() const;
+    void		setUseHiddenMode(bool yn=true);
     int			nrSecondsBetweenSaves() const;
     void		setNrSecondsBetweenSaves(int);
 
@@ -50,8 +64,9 @@ private:
     Threads::Thread*	thread_;
     ObjectSet<AutoSaveObj> asobjs_;
     int			curclockseconds_;
+    bool		isactive_;
+    bool		usehiddenmode_;
     int			nrclocksecondsbetweenautosaves_;
-    Threads::Atomic<bool> isactive_;
     Threads::Atomic<bool> appexits_;
     Threads::Atomic<bool> surveychanges_;
 
