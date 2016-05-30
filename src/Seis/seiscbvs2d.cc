@@ -192,9 +192,9 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 	, totnr_(0)
 	, fname_(fnm)
 	, trcstep_(1)
-	, linenr_(CBVSIOMgr::getFileNr(fnm))
 	, trcsperstep_(ntps)
 {
+    geomid_ = getGeomIDFromFileName( fname_ );
     tr_ = gtTransl( fname_, false, &msg_ );
     if ( !tr_ ) return;
 
@@ -227,7 +227,8 @@ void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
     }
 
     trc->info().nr_ = tnr;
-    trc->info().setBinID( SI().transform(trc->info().coord_) );
+    TrcKey tk( geomid_, tnr );
+    trc->info().trckey_ = tk;
     tbuf_.add( trc );
 }
 

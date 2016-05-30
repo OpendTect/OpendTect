@@ -180,6 +180,7 @@ SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
 	, fname_(fnm)
 	, trcsperstep_(ntps)
 {
+    geomid_ = getGeomIDFromFileName( fname_ );
     tr_ = gtTransl( fname_ );
     if ( !tr_ ) return;
 
@@ -211,6 +212,8 @@ void SEGYDirect2DLineGetter::addTrc( SeisTrc* trc )
 	}
     }
 
+    TrcKey tk( geomid_, tnr );
+    trc->info().trckey_ = tk;
     tbuf_.add( trc );
 }
 

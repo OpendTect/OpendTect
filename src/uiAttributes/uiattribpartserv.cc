@@ -599,7 +599,7 @@ Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 
 
 EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
-					     const Pos::GeomID& geomid )
+					     Pos::GeomID geomid )
 {
     if ( targetspecs_.isEmpty() ||
 	 targetspecs_[0].id().asInt() == SelSpec::cNoAttrib().asInt())
@@ -607,6 +607,9 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 
     const bool istargetstored = targetspecs_[0].isStored();
     const bool is2d = targetspecs_[0].is2D();
+    if ( is2d && tkzs && geomid == mUdfGeomID )
+	geomid = tkzs->hsamp_.getGeomID();
+
     DescSet* curdescset = eDSHolder().getDescSet(is2d,istargetstored);
     if ( !curdescset )
 	{ pErrMsg("No attr set"); return 0; }
@@ -669,7 +672,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
-    PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
+    PtrMan<EngineMan> aem = createEngMan( &tkzs );
     if ( !aem ) return 0;
 
     bool atsamplepos = true;

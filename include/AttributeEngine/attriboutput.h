@@ -129,7 +129,7 @@ protected:
 				//(special cases with decimated cubes smaller
 				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
-    RegularSeisDataPack*	output_;
+    RefMan<RegularSeisDataPack>	output_;
     float			udfval_;
 
     void			init(float refstep,const BinDataDesc* bdd=0);

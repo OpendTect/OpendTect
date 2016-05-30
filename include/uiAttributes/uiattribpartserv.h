@@ -121,7 +121,7 @@ public:
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     TypeSet<BinID>*,TypeSet<BinID>*);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
-	    				    int rdlidx);
+					    int rdlidx);
     static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,
@@ -154,7 +154,7 @@ public:
 						   const Attrib::SelSpec&,bool,
 						   bool needext=false);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
-	    				  int geomid, bool isstored,
+					  int geomid, bool isstored,
 					  int steerpol );
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&,bool&);
@@ -218,7 +218,7 @@ protected:
     uiAttrVolOut*	dataattrdlg_;
 
     Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=0,
-			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());
+				Pos::GeomID geomid=Survey::GM().cUndefGeomID());
 
     void		directShowAttr(CallBacker*);
 

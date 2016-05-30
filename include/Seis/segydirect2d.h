@@ -97,6 +97,7 @@ protected:
     BufferString		fname_;
     SEGYSeisTrcTranslator*	tr_;
     const int			trcsperstep_;
+    Pos::GeomID			geomid_;
 
 };
 

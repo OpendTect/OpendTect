@@ -96,8 +96,8 @@ protected:
     BufferString		fname_;
     CBVSSeisTrcTranslator*	tr_;
     int				trcstep_;
-    const int			linenr_;
     const int			trcsperstep_;
+    Pos::GeomID			geomid_;
 
 };
 

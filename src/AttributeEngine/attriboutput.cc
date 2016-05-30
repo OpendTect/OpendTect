@@ -250,6 +250,7 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
     output_ = new RegularSeisDataPack( sKey::EmptyString(), bdd );
     output_->setSampling( dcsampling_ );
+    DPM(DataPackMgr::SeisID()).add( output_ );
     const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;
 }
 
