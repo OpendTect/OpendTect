@@ -10,7 +10,7 @@
 #include "arrayndimpl.h"
 #include "binidvalset.h"
 #include "emfault3d.h"
-#include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -304,7 +304,12 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    inputarr = 0;
     }
 
-    const od_int64 bidsq = bid.toInt64();
+    EM::SubID bidsq = bid.toInt64();
+    mDynamicCastGet(const EM::Horizon2D*,refhor2d,refhorizon_)
+    if ( refhor2d )
+	bidsq = BinID( refhor2d->geometry().lineIndex(bid.inl()), bid.crl() )
+			.toInt64();
+
     const double fixedz = userefz_ ? refz_ :
 	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z;
 
@@ -320,6 +325,11 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     for ( int idy=0; idy<hors_.size(); idy++ )
     {
 	if ( !hors_[idy] ) continue;
+
+	mDynamicCastGet(const EM::Horizon2D*,hor2d,hors_[idy])
+	if ( hor2d )
+	    bidsq = BinID( hor2d->geometry().lineIndex(bid.inl()), bid.crl() )
+			.toInt64();
 
 	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z;
 	if ( mIsUdf(horz[idy]) )

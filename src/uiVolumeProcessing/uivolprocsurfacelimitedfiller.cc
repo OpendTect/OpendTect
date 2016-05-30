@@ -50,6 +50,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), slf, is2d )
     , surfacefiller_(slf)
     , table_(0)
+    , usestartvalfld_(0),usegradientfld_(0),gradienttypefld_(0)
+    , startgridfld_(0),gradgridfld_(0)
 {
     setHelpKey( mODHelpKey(mSurfaceLimitedFillerHelpID) );
 
@@ -82,58 +84,68 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	addSurfaceTableEntry( *ioobj, false, dir );
     }
 
-    uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
-    const bool hasauxdata = auxdatainfo.mids_.size();
-    const uiString fromhorattribstr = tr("From Horizon Data");
-
-    usestartvalfld_ = new uiGenInput( this, tr("Start value"),
-	    BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
-                     uiStrings::sConstant(), fromhorattribstr ) );
-    usestartvalfld_->setSensitive( hasauxdata );
-    usestartvalfld_->valuechanged.notify(
-	    mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
-    usestartvalfld_->attach( ensureBelow, table_ );
     startvalfld_ = new uiGenInput( this, tr("Start value constant"),
 	    FloatInpSpec(surfacefiller_->getStartValue()) );
-    startvalfld_->attach( alignedBelow, usestartvalfld_ );
 
-    const MultiID* starthorid = surfacefiller_->getStartValueHorizonID();
-    const MultiID& startmid = starthorid ? *starthorid : "-1";
-    startgridfld_ = new uiHorizonAuxDataSel( this, startmid,
-	    slf->getStartAuxdataIdx(), &auxdatainfo );
-    startgridfld_->attach( alignedBelow, usestartvalfld_ );
-
-    const uiString gradientsurfdatalabel = SI().zDomain().isDepth()
-	? fromhorattribstr
-	: toUiString("%1 (/%2)").arg( fromhorattribstr )
-				  .arg(uiStrings::sTimeUnitString(true));
-
-    usegradientfld_ = new uiGenInput( this, tr("Gradient"),
-	    BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
-                     uiStrings::sConstant(), gradientsurfdatalabel ) );
-    usegradientfld_->setSensitive( hasauxdata );
-    usegradientfld_->valuechanged.notify(
-	    mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
-    usegradientfld_->attach( alignedBelow, startvalfld_ );
     float gradient = surfacefiller_->getGradient();
     if ( !mIsUdf(gradient) )
 	gradient /= SI().zDomain().userFactor();
     gradientfld_ = new uiGenInput( this, uiRegionFiller::sGradientLabel(),
 	    FloatInpSpec( gradient ) );
-    gradientfld_->attach( alignedBelow, usegradientfld_ );
 
-    const MultiID* gradhorid = surfacefiller_->getGradientHorizonID();
-    const MultiID& gradmid = gradhorid ? *gradhorid : "-1";
-    gradgridfld_ = new uiHorizonAuxDataSel( this, gradmid,
-	    slf->getGradAuxdataIdx(), &auxdatainfo );
-    gradgridfld_->attach( alignedBelow, usegradientfld_ );
+    if ( is2d_ )
+    {
+	startvalfld_->attach( ensureBelow, table_ );
+	gradientfld_->attach( alignedBelow, startvalfld_ );
+    }
+    else
+    {
+	uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
+	const bool hasauxdata = auxdatainfo.mids_.size();
+	const uiString fromhorattribstr = tr("From Horizon Data");
 
-    StringListInpSpec str;
-    str.addString( uiStrings::sVertical() );
-    //str.addString( uiStrings::sNormal() ); TODO
-    gradienttypefld_ = new uiGenInput( this, uiStrings::sType(), str );
-    gradienttypefld_->attach( rightOf, usegradientfld_ );
-    gradienttypefld_->display( false ); //!SI().zIsTime() );
+	usestartvalfld_ = new uiGenInput( this, tr("Start value"),
+		BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
+			 uiStrings::sConstant(), fromhorattribstr ) );
+	usestartvalfld_->setSensitive( hasauxdata );
+	usestartvalfld_->valuechanged.notify(
+		mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
+	usestartvalfld_->attach( ensureBelow, table_ );
+	startvalfld_->attach( alignedBelow, usestartvalfld_ );
+
+	const MultiID* starthorid = surfacefiller_->getStartValueHorizonID();
+	const MultiID& startmid = starthorid ? *starthorid : "-1";
+	startgridfld_ = new uiHorizonAuxDataSel( this, startmid,
+		slf->getStartAuxdataIdx(), &auxdatainfo );
+	startgridfld_->attach( alignedBelow, usestartvalfld_ );
+
+	const uiString gradientsurfdatalabel = SI().zDomain().isDepth()
+	    ? fromhorattribstr
+	    : toUiString("%1 (/%2)").arg( fromhorattribstr )
+				      .arg(uiStrings::sTimeUnitString(true));
+
+	usegradientfld_ = new uiGenInput( this, tr("Gradient"),
+		BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
+			 uiStrings::sConstant(), gradientsurfdatalabel ) );
+	usegradientfld_->setSensitive( hasauxdata );
+	usegradientfld_->valuechanged.notify(
+		mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
+	usegradientfld_->attach( alignedBelow, startvalfld_ );
+	gradientfld_->attach( alignedBelow, usegradientfld_ );
+
+	const MultiID* gradhorid = surfacefiller_->getGradientHorizonID();
+	const MultiID& gradmid = gradhorid ? *gradhorid : "-1";
+	gradgridfld_ = new uiHorizonAuxDataSel( this, gradmid,
+		slf->getGradAuxdataIdx(), &auxdatainfo );
+	gradgridfld_->attach( alignedBelow, usegradientfld_ );
+
+	StringListInpSpec str;
+	str.addString( uiStrings::sVertical() );
+	//str.addString( uiStrings::sNormal() ); TODO
+	gradienttypefld_ = new uiGenInput( this, uiStrings::sType(), str );
+	gradienttypefld_->attach( rightOf, usegradientfld_ );
+	gradienttypefld_->display( false ); //!SI().zIsTime() );
+    }
 
     uiString labl = tr("Reference %1")
 	.arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
@@ -150,7 +162,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    FloatInpSpec( refdepth ) );
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );
 
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
+    IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
+			     : EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = true;
     refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
@@ -171,7 +184,8 @@ uiSurfaceLimitedFiller::~uiSurfaceLimitedFiller()
 
 void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 {
-    PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
+    PtrMan<CtxtIOObj> allhorio = is2d_ ? mMkCtxtIOObj(EMHorizon2D)
+					: mMkCtxtIOObj(EMHorizon3D);
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, *allhorio );
     if ( !dlg.go() )
@@ -256,6 +270,9 @@ void uiSurfaceLimitedFiller::removeSurfaceCB( CallBacker* )
 
 void uiSurfaceLimitedFiller::useStartValCB( CallBacker* )
 {
+    if ( !usestartvalfld_ )
+	return;
+
     const bool useval = usestartvalfld_->getBoolValue();
     if ( !useval && !startgridfld_->nrHorizonsWithData() )
     {
@@ -272,6 +289,9 @@ void uiSurfaceLimitedFiller::useStartValCB( CallBacker* )
 
 void uiSurfaceLimitedFiller::useGradientCB( CallBacker* )
 {
+    if ( !usegradientfld_ )
+	return;
+
     const bool useval = usegradientfld_->getBoolValue();
     if ( !useval && !gradgridfld_->nrHorizonsWithData() )
     {
@@ -302,14 +322,17 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    const bool usestartval = usestartvalfld_->getBoolValue();
-    const bool usegradient = usegradientfld_->getBoolValue();
+    const bool usestartval = usestartvalfld_ ? usestartvalfld_->getBoolValue()
+					     : true;
+    const bool usegradient = usegradientfld_ ? usegradientfld_->getBoolValue()
+					     : true;
     const bool userefval = userefdepthfld_->getBoolValue();
 
     surfacefiller_->useStartValue( usestartval );
     surfacefiller_->useGradientValue( usegradient );
     surfacefiller_->useRefZValue( userefval );
-    surfacefiller_->setGradientVertical( !gradienttypefld_->getIntValue() );
+    surfacefiller_->setGradientVertical(
+	    gradienttypefld_ ? !gradienttypefld_->getIntValue() : false );
 
     TypeSet<char> sidesels;
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
