@@ -75,7 +75,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	 !clipperdata_.isEmpty() )
     {
 	TypeSet<float> datapts;
-	datapts.setCapacity( bmp.info().getTotalSz(), false );
+	datapts.setCapacity( mCast(int,bmp.info().getTotalSz()), false );
 	for ( int idx=0; idx<bmp.info().getSize(0); idx++ )
 	    for ( int idy=0; idy<bmp.info().getSize(1); idy++ )
 		datapts += (float)bmp.get( idx, idy );
