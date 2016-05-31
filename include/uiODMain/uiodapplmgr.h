@@ -190,7 +190,8 @@ public:
 				    { editAttribSet(false);}
     Notifier<uiODApplMgr>	attribSetChg;
 
-    void			doVolProcCB(CallBacker*);
+    void			doVolProc2DCB(CallBacker*);
+    void			doVolProc3DCB(CallBacker*);
     void			doVolProc(const MultiID&);
     void			tieWellToSeismic(CallBacker*);
     void			doWellLogTools(CallBacker*);

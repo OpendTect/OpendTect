@@ -1889,7 +1889,9 @@ void uiODApplMgr::launch2DViewer( CallBacker* )
 void uiODApplMgr::doLayerModeling( CallBacker* )
 { uiStratLayerModel::doBasicLayerModel(); }
 
-void uiODApplMgr::doVolProcCB( CallBacker* )
+void uiODApplMgr::doVolProc2DCB( CallBacker* )
+{ volprocserv_->doVolProc( true, 0 ); }
+void uiODApplMgr::doVolProc3DCB( CallBacker* )
 { volprocserv_->doVolProc( false, 0 ); }
 void uiODApplMgr::doVolProc( const MultiID& mid )
 { volprocserv_->doVolProc( false, &mid ); }

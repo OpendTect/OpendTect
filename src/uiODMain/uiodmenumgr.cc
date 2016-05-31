@@ -662,20 +662,29 @@ void uiODMenuMgr::fillAnalMenu()
 
 	analmnu_->insertItem( aitm );
 	analmnu_->insertSeparator();
+
+	uiMenu* vpitm = new uiMenu( &appl_, m3Dots(tr("Volume Builder")),
+				   VolProc::uiChain::pixmapFileName() );
+	mInsertPixmapItem( vpitm, m3Dots(uiStrings::s2D()), mVolProc2DMnuItm,
+			   VolProc::uiChain::pixmapFileName() );
+	mInsertPixmapItem( vpitm, m3Dots(uiStrings::s3D()), mVolProc3DMnuItm,
+			   VolProc::uiChain::pixmapFileName() );
+
+	analmnu_->insertItem( vpitm );
     }
     else
     {
 	mInsertPixmapItem( analmnu_, m3Dots(uiStrings::sAttribute(mPlural)),
 			   mEditAttrMnuItm, attrpm)
 	analmnu_->insertSeparator();
-    }
-
-    if ( survtype!=SurveyInfo::Only2D )
-    {
+	
 	analmnu_->insertItem( new uiAction( m3Dots(tr("Volume Builder")),
-				mCB(&applMgr(),uiODApplMgr,doVolProcCB),
+	    survtype != SurveyInfo::Only2D
+				    ? mCB(&applMgr(),uiODApplMgr,doVolProc3DCB)
+				    : mCB(&applMgr(),uiODApplMgr,doVolProc2DCB),
 				VolProc::uiChain::pixmapFileName() ) );
     }
+
 
     uiMenu* xplotmnu = new uiMenu( &appl_, tr("Cross-plot Data"),
 				   "xplot");
@@ -990,15 +999,10 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		       mCB(appman,uiODApplMgr,seisOut2DCB),
 		       mCB(appman,uiODApplMgr,seisOut3DCB) );
 
-    bool mUnusedVar has2d = true;
-    bool has3d = true;
-    mGet2D3D()
-
-    if ( has3d )
-    {
-	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
-		tr("Volume Builder"),false,doVolProcCB);
-    }
+    add2D3DToolButton( *dtecttb_,VolProc::uiChain::pixmapFileName(),
+		tr("Volume Builder"),
+		mCB(appman,uiODApplMgr,doVolProc2DCB),
+		mCB(appman,uiODApplMgr,doVolProc3DCB) );
 
     const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
     uiMenu* mnu = new uiMenu();
