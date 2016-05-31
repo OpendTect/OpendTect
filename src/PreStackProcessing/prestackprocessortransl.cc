@@ -44,7 +44,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 	msg = sSelObjNotPreStackProc();
 	return false;
     }
-    
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
@@ -77,15 +77,18 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    {
 	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-    }
     else
-    {
 	msg = ptrl->write( md, *conn );
+
+    if ( !msg.isEmpty() )
+    {
+	if ( conn )
+	    conn->rollback();
+	return false;
     }
-    
-    return msg.isEmpty();
+
+    return true;
 }
 
 

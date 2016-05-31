@@ -172,10 +172,13 @@ bool Wavelet::put( const IOObj* ioobj ) const
     Conn* connptr = ioobj->getConn( Conn::Write );
     if ( connptr && !connptr->isBad() )
     {
-	if ( trans->write( this, *connptr ) )
+	if ( trans->write(this,*connptr) )
 	    retval = true;
 	else
+	{
+	    connptr->rollback();
 	    ErrMsg( "Cannot write Wavelet" );
+	}
     }
     else
 	ErrMsg( "Cannot open Wavelet file for write" );

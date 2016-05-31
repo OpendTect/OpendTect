@@ -109,22 +109,28 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
 				BufferString& err )
 {
-    if ( !ioobj ) { err = "No object to store in data base"; return false; }
+    if ( !ioobj )
+	{ err = "No object to store in data base"; return false; }
 
     PtrMan<MPESetupTranslator> tr =
 		dynamic_cast<MPESetupTranslator*>(ioobj->createTranslator());
-    if ( !tr ) { err = "Selected object is not a Setup"; return false; }
+    if ( !tr )
+	{ err = "Selected object is not a Setup"; return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	err = "Cannot open "; err += ioobj->fullUserExpr(false);
+	err.set( "Cannot open " ).add( ioobj->fullUserExpr(false) );
 	return false;
     }
 
     err = tr->write( setup, *conn );
     bool rv = err.isEmpty();
-    if ( rv ) err = tr->warningMsg();
+    if ( rv )
+	err = tr->warningMsg();
+    else
+	conn->rollback();
+
     return rv;
 }
 

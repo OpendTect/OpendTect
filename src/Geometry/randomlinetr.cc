@@ -123,7 +123,10 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
 
     bs = tr->write( rdl, *conn );
-    return bs.isEmpty();
+    if ( !bs.isEmpty() )
+	{ conn->rollback(); return false; }
+
+    return true;
 }
 
 
@@ -140,11 +143,16 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-								  return false;}
+    {
+	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
+	return false;
+    }
 
-    msg = toUiString(trnsltr->write( rdl, *conn ));
-    return msg.isEmpty();
+    msg = toUiString( trnsltr->write( rdl, *conn ) );
+    if ( !msg.isEmpty() )
+	{ conn->rollback(); return false; }
+
+    return true;
 }
 
 static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,

@@ -189,10 +189,13 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 
 int nextStep()
 {
-    if ( !exec_ ) return ErrorOccurred();
+    if ( !exec_ )
+	return ErrorOccurred();
     const int res = exec_->doStep();
     if ( !res )
 	surface_.resetChangedFlag();
+    else if ( res < 0 )
+	conn_->rollback();
 
     return res;
 }

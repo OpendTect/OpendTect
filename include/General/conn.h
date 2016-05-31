@@ -26,12 +26,16 @@ class StreamConn;
   interface common to these connections.
 */
 
+#define mCloseRollBack true
+
+
 mExpClass(General) Conn
 {
 public:
 
     virtual		~Conn()			{}
     virtual void	close(bool failed=false) {}
+    inline void		rollback()		{ close( true ); }
 
     virtual bool	isBad() const		= 0;
     virtual const char*	creationMessage() const	{ return 0; }

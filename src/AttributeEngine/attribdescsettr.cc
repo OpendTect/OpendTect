@@ -133,8 +133,10 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     }
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
     IOM().commitChanges( *ioobj );
-    bs = toUiString(trans->write( ads, *conn ));
-    return bs.isEmpty();
+    bs = toUiString( trans->write(ads,*conn) );
+    if ( !bs.isEmpty() )
+	{ conn->rollback(); return false; }
+    return true;
 }
 
 

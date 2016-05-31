@@ -26,39 +26,39 @@ mDefSimpleTranslatorSelector(VolProcessing);
 
 bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 				    const IOObj* ioobj,
-				    uiString& bs )
+				    uiString& errmsg )
 {
     if ( !ioobj )
     {
-	bs = uiStrings::phrCannotFindDBEntry(
+	errmsg = uiStrings::phrCannotFindDBEntry(
 	   VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
 
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
     if ( t )
     {
 	PtrMan<VolProcessingTranslator> tr = t;
-	bs = toUiString( tr->read(vr,*conn) );
+	errmsg = toUiString( tr->read(vr,*conn) );
     }
     else
     {
 	mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
 	if ( !t2 )
 	{
-	    bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	    errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
 	    return false;
 	}
 
 	PtrMan<VolProcessing2DTranslator> tr = t2;
-	bs = toUiString( tr->read(vr,*conn) );
+	errmsg = toUiString( tr->read(vr,*conn) );
     }
 
-    if ( bs.isEmpty() )
+    if ( errmsg.isEmpty() )
     {
 	vr.setStorageID( ioobj->key() );
 	return true;
@@ -69,40 +69,44 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
 
 
 bool VolProcessingTranslator::store( const VolProc::Chain& vr,
-				const IOObj* ioobj, uiString& bs )
+				const IOObj* ioobj, uiString& errmsg )
 {
     if ( !ioobj )
     {
-	bs = uiStrings::phrCannotFindDBEntry(
+	errmsg = uiStrings::phrCannotFindDBEntry(
                  VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
 
-    bs = uiString::emptyString();
+    errmsg = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    { bs = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
+	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
 
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->createTranslator())
     if ( t )
     {
 	PtrMan<VolProcessingTranslator> tr = t;
-	bs = toUiString( tr->write(vr,*conn) );
+	errmsg = toUiString( tr->write(vr,*conn) );
     }
     else
     {
 	mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
 	if ( !t2 )
 	{
-	    bs = uiStrings::phrCannotOpen( ioobj->uiName() );
+	    errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
+	    conn->rollback();
 	    return false;
 	}
 
 	PtrMan<VolProcessing2DTranslator> tr = t2;
-	bs = toUiString( tr->write(vr,*conn) );
+	errmsg = toUiString( tr->write(vr,*conn) );
     }
 
-    return bs.isEmpty();
+    if ( !errmsg.isEmpty() )
+	{ conn->rollback(); return false; }
+
+    return true;
 }
 
 
@@ -164,16 +168,16 @@ mDefSimpleTranslatorSelector(VolProcessing2D);
 
 bool VolProcessing2DTranslator::retrieve( VolProc::Chain& vr,
 				    const IOObj* ioobj,
-				    uiString& bs )
+				    uiString& errmsg )
 {
-    return VolProcessingTranslator::retrieve( vr, ioobj, bs );
+    return VolProcessingTranslator::retrieve( vr, ioobj, errmsg );
 }
 
 
 bool VolProcessing2DTranslator::store( const VolProc::Chain& vr,
-				const IOObj* ioobj, uiString& bs )
+				const IOObj* ioobj, uiString& errmsg )
 {
-    return VolProcessingTranslator::store( vr, ioobj, bs );
+    return VolProcessingTranslator::store( vr, ioobj, errmsg );
 }
 
 

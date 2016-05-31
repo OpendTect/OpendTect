@@ -550,30 +550,33 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
     bool retval = false;
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( conn && !conn->isBad() )
+    if ( !conn || conn->isBad() || !conn->isStream() )
     {
-	if ( !conn->forWrite() || !conn->isStream() )
-	    return false;
-	StreamConn& strmconn = static_cast<StreamConn&>( *conn );
-	ascostream astream( strmconn.oStream() );
-	const BufferString head(
-			mTranslGroupName(ElasticPropSelection), " file" );
-	if ( !astream.putHeader( head ) ) return false;
-
-	IOPar iop;
-	for ( int idx=0; idx<size(); idx++ )
-	{
-	    iop.set( sKeyPropertyName, get(idx).name() );
-	    get(idx).formula().fillPar( iop );
-	    iop.putTo( astream ); iop.setEmpty();
-	}
-	if ( astream.isOK() )
-	    retval = true;
-	else
-	    ErrMsg( "Cannot write Elastic property selection" );
-    }
-    else
 	ErrMsg( "Cannot open elastic property selection file for write" );
+	return false;
+    }
+
+    StreamConn& strmconn = static_cast<StreamConn&>( *conn );
+    ascostream astream( strmconn.oStream() );
+    const BufferString head(
+		    mTranslGroupName(ElasticPropSelection), " file" );
+    if ( !astream.putHeader( head ) )
+	{ conn->rollback(); return false; }
+
+    IOPar iop;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	iop.set( sKeyPropertyName, get(idx).name() );
+	get(idx).formula().fillPar( iop );
+	iop.putTo( astream ); iop.setEmpty();
+    }
+    if ( astream.isOK() )
+	retval = true;
+    else
+    {
+	conn->rollback();
+	ErrMsg( "Error during write of Elastic property selection" );
+    }
 
     return retval;
 }

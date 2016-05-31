@@ -261,7 +261,10 @@ bool ODSessionTranslator::store( const ODSession& session,
     }
 
     err = toUiString(trans->write( session, *conn ) );
-    return err.isEmpty();
+    if ( !err.isEmpty() )
+	{ conn->rollback(); return false; }
+
+    return true;
 }
 
 

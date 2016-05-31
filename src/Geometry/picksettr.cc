@@ -159,14 +159,11 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    {
-	errmsg = uiStrings::phrCannotOpen( ioobj->uiName() );
-	return false;
-    }
+	{ errmsg = uiStrings::phrCannotOpen( ioobj->uiName() ); return false; }
 
     errmsg = tr->write( ps, *conn );
     if ( !errmsg.isEmpty() )
-	return false;
+	{ conn->rollback(); return false; }
 
     // Now that we have the set, make sure it gets a standard entry in the omf
     bool needcommit = false;

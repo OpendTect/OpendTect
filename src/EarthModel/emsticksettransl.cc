@@ -367,7 +367,7 @@ Executor* lmkEMStickSetTranslator::writer( const EM::StickSet& stickset,
 
 lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
 				     Conn* conn_, const char* formatfilename )
-    : Executor("StickReader")
+    : Executor("Stick Writer")
     , conn( conn_ )
     , stickset( stickset_ )
     , currentsticknr( 0 )
