@@ -316,8 +316,7 @@ static BufferString getWriteFnm( const char* fnm )
 	ret.set( inpfnm );
     else
     {
-	int itry = 0;
-	while ( true )
+	for ( int itry=1; ; itry++ )
 	{
 	    ret.set( inpfnm ).add( "_new" );
 	    if ( itry > 1 )
