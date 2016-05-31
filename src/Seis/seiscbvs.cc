@@ -157,7 +157,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( fnm == sp.fullName() )
 	fnm = StreamProvider::sStdIO();
 
-    conn_->close();
+    conn_->close( true );
     return true;
 }
 

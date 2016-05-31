@@ -303,3 +303,81 @@ void SafeFileIO::rmLock()
     if ( locked_ && File::exists(lockfnm_) )
 	File::remove( lockfnm_ );
 }
+
+
+
+static BufferString getWriteFnm( const char* fnm )
+{
+    const BufferString inpfnm( fnm );
+    BufferString ret;
+    if ( inpfnm.isEmpty() )
+	ret.set( od_stream::sStdIO() );
+    else if ( !File::exists(inpfnm) )
+	ret.set( inpfnm );
+    else
+    {
+	int itry = 0;
+	while ( true )
+	{
+	    ret.set( inpfnm ).add( "_new" );
+	    if ( itry > 1 )
+		ret.add( itry );
+	    if ( !File::exists(ret) )
+		break;
+	}
+    }
+    return ret;
+}
+
+
+SafeWriteHelper::SafeWriteHelper( const char* fnm, bool keepbak )
+    : fnm_(fnm)
+    , strm_(getWriteFnm(fnm))
+    , keepbak_(keepbak)
+    , closed_(false)
+{
+}
+
+
+SafeWriteHelper::~SafeWriteHelper()
+{
+    if ( !closed_ )
+	rollback();
+}
+
+
+void SafeWriteHelper::closeStream()
+{
+    strm_.close();
+    closed_ = true;
+}
+
+
+void SafeWriteHelper::rollback()
+{
+    closeStream();
+    if ( fnm_ != strm_.fileName() )
+	File::remove( strm_.fileName() );
+}
+
+
+bool SafeWriteHelper::commit()
+{
+    closeStream();
+    if ( fnm_ == strm_.fileName() )
+	return true;
+
+    const BufferString bakfnm( fnm_, ".bak" );
+    const bool havebak = File::rename( fnm_, bakfnm );
+    if ( !File::rename(strm_.fileName(),fnm_) )
+    {
+	if ( havebak )
+	    File::rename( bakfnm, fnm_ );
+	return false;
+    }
+
+    if ( havebak && !keepbak_ )
+	File::remove( bakfnm );
+
+    return true;
+}

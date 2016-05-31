@@ -52,7 +52,7 @@ static void setUseHiddenModeByDefault( bool yn )
 
 static bool useHiddenModeByDefault()
 {
-    bool yn = false;
+    bool yn = true;
     Settings::common().getYN( sKeyUseHiddenMode, yn );
     return yn;
 }
@@ -84,6 +84,7 @@ public:
 
     bool		time4AutoSave() const;
     int			autoSave(bool) const;
+    void		removeHiddenSaves();
 
     void		removeIOObjAndData(IOStream*&) const;
     void		saverDelCB(CallBacker*);
@@ -143,7 +144,7 @@ bool OD::AutoSaveObj::time4AutoSave() const
 {
     Threads::Locker locker( lock_ );
     return mgr_.curclockseconds_ - lastsaveclockseconds_
-	>= mgr_.nrclocksecondsbetweenautosaves_;
+	>= mgr_.nrclocksecondsbetweensaves_;
 }
 
 
@@ -203,6 +204,13 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 }
 
 
+void OD::AutoSaveObj::removeHiddenSaves()
+{
+    if ( lastautosaveioobj_ )
+	removeIOObjAndData( lastautosaveioobj_ );
+}
+
+
 static OD::AutoSaver* themgr_ = 0;
 static Threads::Lock themgrlock_;
 OD::AutoSaver& OD::AutoSaver::getInst()
@@ -220,7 +228,7 @@ OD::AutoSaver::AutoSaver()
     , isactive_(isActiveByDefault())
     , usehiddenmode_(useHiddenModeByDefault())
     , curclockseconds_(-1)
-    , nrclocksecondsbetweenautosaves_(defaultNrSecondsBetweenSaves())
+    , nrclocksecondsbetweensaves_(defaultNrSecondsBetweenSaves())
     , saveDone(this)
     , saveFailed(this)
 {
@@ -249,6 +257,9 @@ void OD::AutoSaver::add( const Saveable& saver )
 void OD::AutoSaver::setEmpty()
 {
     Threads::Locker locker( lock_ );
+
+    for ( int iasobj=0; iasobj<asobjs_.size(); iasobj++ )
+	asobjs_[iasobj]->removeHiddenSaves();
     deepErase( asobjs_ );
 }
 
@@ -286,7 +297,7 @@ void OD::AutoSaver::setUseHiddenMode( bool yn )
 int OD::AutoSaver::nrSecondsBetweenSaves() const
 {
     Threads::Locker locker( lock_ );
-    return nrclocksecondsbetweenautosaves_;
+    return nrclocksecondsbetweensaves_;
 }
 
 
@@ -297,7 +308,7 @@ void OD::AutoSaver::setNrSecondsBetweenSaves( int nrsecs )
 
     setDefaultNrSecondsBetweenSaves( nrsecs );
     Threads::Locker locker( lock_ );
-    nrclocksecondsbetweenautosaves_ = nrsecs;
+    nrclocksecondsbetweensaves_ = nrsecs;
 }
 
 

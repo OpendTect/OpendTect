@@ -31,7 +31,7 @@ mExpClass(General) Conn
 public:
 
     virtual		~Conn()			{}
-    virtual void	close()			{}
+    virtual void	close(bool failed=false) {}
 
     virtual bool	isBad() const		= 0;
     virtual const char*	creationMessage() const	{ return 0; }
@@ -88,8 +88,8 @@ public:
 			{ return conn_ && conn_->forRead(); }
     virtual bool	forWrite() const
 			{ return conn_ && conn_->forWrite(); }
-    virtual void	close()
-			{ if ( conn_ ) conn_->close(); }
+    virtual void	close( bool failed=false )
+			{ if ( conn_ ) conn_->close(failed); }
     virtual StreamConn*	getStream()
 			{ return conn_ ? conn_->getStream() : 0; }
 

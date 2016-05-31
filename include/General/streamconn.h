@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "conn.h"
 #include "od_iosfwd.h"
 #include "bufstring.h"
+class SafeWriteHelper;
 
 
 /*!
@@ -38,7 +39,7 @@ public:
     virtual bool	forRead() const;
     virtual bool	forWrite() const;
     virtual StreamConn*	getStream()		{ return this; }
-    virtual void	close();
+    virtual void	close(bool failed=false);
 
     void		setStream(od_istream*); //!< strm becomes all mine
     void		setStream(od_ostream*); //!< strm becomes all mine
@@ -58,6 +59,7 @@ public:
 private:
 
     od_stream*		strm_;
+    SafeWriteHelper*	writehelper_;
     bool		mine_;
 
     BufferString	creationmsg_;

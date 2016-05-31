@@ -97,4 +97,32 @@ protected:
 };
 
 
+
+/*!\brief Helps to write a new version of a file.
+   	  On write error rollback, otherwise commit.  */
+
+mExpClass(Basic) SafeWriteHelper
+{ mODTextTranslationClass(SafeWriteHelper);
+public:
+
+			SafeWriteHelper(const char*,bool keepbak=false);
+			~SafeWriteHelper();
+
+    od_ostream&		stream()		{ return strm_; }
+
+    bool		commit();
+    void		rollback();
+
+protected:
+
+    od_ostream		strm_;
+    bool		closed_;
+    const bool		keepbak_;
+    const BufferString	fnm_;
+
+    void		closeStream();
+
+};
+
+
 #endif

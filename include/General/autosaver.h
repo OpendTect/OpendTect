@@ -31,10 +31,10 @@ class Saveable;
   item to save.
 
   Hidden mode means it will make a hidden back-up that can be retrieved after an
-  emergency (after power failure, server shutdown, maybe even OpendTect crash
+  emergency (like power failure, server shutdown, maybe even an OpendTect crash
   (which never happens, but still :)) ).
 
-  The default is Not Hidden.
+  The default is Hidden.
 
 */
 
@@ -63,10 +63,10 @@ private:
     mutable Threads::Lock lock_;
     Threads::Thread*	thread_;
     ObjectSet<AutoSaveObj> asobjs_;
-    int			curclockseconds_;
     bool		isactive_;
     bool		usehiddenmode_;
-    int			nrclocksecondsbetweenautosaves_;
+    int			curclockseconds_;
+    int			nrclocksecondsbetweensaves_;
     Threads::Atomic<bool> appexits_;
     Threads::Atomic<bool> surveychanges_;
 

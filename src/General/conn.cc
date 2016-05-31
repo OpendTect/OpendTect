@@ -8,6 +8,7 @@
 
 #include "streamconn.h"
 #include "od_iostream.h"
+#include "safefileio.h"
 
 
 const bool Conn::Read = true;
@@ -16,20 +17,21 @@ const char* StreamConn::sType() { return "Stream"; }
 const char* XConn::sType() { return "X-Group"; }
 
 
-#define mInitList(s,ismine) strm_(s), mine_(ismine)
+#define mInitList(s,ismine) strm_(s), mine_(ismine), writehelper_(0)
 
 StreamConn::StreamConn() : mInitList(0,true) {}
 StreamConn::StreamConn( od_istream* s ) : mInitList(s,true) { fillCrMsg(s); }
 StreamConn::StreamConn( od_ostream* s ) : mInitList(s,true) { fillCrMsg(s); }
 StreamConn::StreamConn( od_istream& s ) : mInitList(&s,false) { fillCrMsg(&s); }
 StreamConn::StreamConn( od_ostream& s ) : mInitList(&s,false) { fillCrMsg(&s); }
+
 StreamConn::StreamConn( const char* fnm, bool forread ) : mInitList(0,false)
 { setFileName( fnm, forread ); }
 
 
 StreamConn::~StreamConn()
 {
-    close();
+    close( false );
 }
 
 
@@ -68,10 +70,20 @@ bool StreamConn::forWrite() const
 }
 
 
-void StreamConn::close()
+void StreamConn::close( bool failed )
 {
-    if ( strm_ && mine_ )
-	{ delete strm_; strm_ = 0; }
+    if ( !writehelper_ )
+    {
+	if ( strm_ && mine_ )
+	    { delete strm_; strm_ = 0; }
+    }
+    else
+    {
+	if ( failed )
+	    writehelper_->rollback();
+	else
+	    writehelper_->commit();
+    }
 }
 
 
@@ -99,7 +111,7 @@ od_ostream& StreamConn::oStream()
 
 void StreamConn::setFileName( const char* nm, bool forread )
 {
-    close();
+    close( true );
 
     mine_ = true;
     if ( forread )
@@ -120,7 +132,10 @@ void StreamConn::setFileName( const char* nm, bool forread )
 	    mine_ = false;
 	}
 	else
-	    strm_ = new od_ostream( nm );
+	{
+	    writehelper_ = new SafeWriteHelper( nm );
+	    strm_ = &writehelper_->stream();
+	}
     }
 
     fillCrMsg( strm_ );
