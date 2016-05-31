@@ -118,9 +118,9 @@ private:
 
 public:
 // deprecated, do not use
-    /*mDeprecated*/ int	getValue() const	{ return getIntValue(); }
-    /*mDeprecated*/ float	getfValue() const	{ return getFValue(); }
-    /*mDeprecated*/ double	getdValue() const	{ return getDValue(); }
+    mDeprecated int	getValue() const	{ return getIntValue(); }
+    mDeprecated float	getfValue() const	{ return getFValue(); }
+    mDeprecated double	getdValue() const	{ return getDValue(); }
 };
 
 
