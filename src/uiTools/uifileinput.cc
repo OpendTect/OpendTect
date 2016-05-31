@@ -71,6 +71,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , exameditable_(setup.exameditable_)
     , confirmoverwrite_(setup.confirmoverwrite_)
     , objtype_(setup.objtype_)
+    , defaultext_("dat")
 {
     setFileName( setup.fnm );
     setWithSelect( true );
@@ -90,6 +91,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 
     valuechanging.notify( mCB(this,uiFileInput,inputChg) );
     postFinalise().notify( mCB(this,uiFileInput,isFinalised) );
+    valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
 }
 
 
@@ -105,9 +107,11 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , confirmoverwrite_(true)
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
+    , defaultext_("dat")
 {
     setFileName( fnm );
     setWithSelect( true );
+    valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
 }
 
 
@@ -169,6 +173,21 @@ void uiFileInput::setDefaultExtension( const char* ext )
 void uiFileInput::inputChg( CallBacker* )
 {
     enableExamine( File::exists(fileName()) );
+}
+
+
+void uiFileInput::fnmEntered( CallBacker* )
+{
+    if ( forread_ || defaultext_.isEmpty() )
+	return;
+
+    FilePath fp( fileName() );
+    const FixedString ext = fp.extension();
+    if ( !ext.isEmpty() )
+	return;
+
+    fp.setExtension( defaultext_ );
+    setFileName( fp.fullPath() );
 }
 
 

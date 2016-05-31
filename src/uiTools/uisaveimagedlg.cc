@@ -221,6 +221,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 				    .defseldir(dirname_)
 				    .directories(false)
 				    .allowallextensions(false) );
+    fileinputfld_->setDefaultExtension( "jpg" );
     fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
