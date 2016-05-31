@@ -165,7 +165,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 StorageProvider::StorageProvider( Desc& desc )
     : Provider( desc )
     , mscprov_(0)
-    , status_( Nada )
+    , status_( None )
     , stepoutstep_(-1,0)
     , isondisc_(true)
     , useintertrcdist_(false)
@@ -193,7 +193,7 @@ StorageProvider::~StorageProvider()
 
 bool StorageProvider::checkInpAndParsAtStart()
 {
-    if ( status_!=Nada ) return false;
+    if ( status_!=None ) return false;
 
     if ( !isondisc_ )
     {
@@ -270,7 +270,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
     if ( alreadymoved_ )
 	return 1;
 
-    if ( status_==Nada && isondisc_ )
+    if ( status_==None && isondisc_ )
 	return -1;
 
     if ( status_==StorageOpened )
