@@ -16,12 +16,12 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "emposid.h"
+#include "flatview.h"
 #include "uivispartserv.h"
 
 class BufferStringSet;
 class Timer;
 class uiDockWin;
-class uiFlatViewWin;
 class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
@@ -147,10 +147,9 @@ public:
     int				add2DLineItem(const MultiID&,int sceneid=-1);
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
-    int				addZSliceItem(const TrcKeyZSampling&,
-					      int sceneid=-1);
-    int				addZSliceItem(const TrcKeyZSampling&,
-					      const Attrib::SelSpec&,
+    int				addZSliceItem(DataPack::ID,
+	    				      const Attrib::SelSpec&,
+					      const FlatView::DataDispPars::VD&,
 					      int sceneid=-1);
 
     void			removeTreeItem(int displayid);

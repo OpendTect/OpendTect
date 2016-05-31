@@ -506,7 +506,7 @@ void uiODApplMgr::addTimeDepthScene()
 	return;
     }
 
-    const uiString snm = tr( "%1 (using '%2'")
+    const uiString snm = tr("%1 (using '%2')")
 	    .arg( SI().zIsTime() ? sKey::Depth() : sKey::Time() )
 	    .arg( ztrans->factoryDisplayName() );
 

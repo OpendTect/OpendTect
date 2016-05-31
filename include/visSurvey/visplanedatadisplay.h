@@ -72,6 +72,8 @@ public:
     NotifierAccess*		getManipulationNotifier();
     NotifierAccess*		getMovementNotifier()
 				{ return &movefinished_; }
+    NotifierAccess*		getDataChangedNotifier()
+				{ return &datachanged_; }
 
     bool			allowMaterialEdit() const	{ return true; }
     bool			isSection() const { return true; }
@@ -214,6 +216,7 @@ protected:
     BinID				curicstep_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
+    Notifier<PlaneDataDisplay>		datachanged_;
 
     ZAxisTransform*			datatransform_;
     int					voiidx_;

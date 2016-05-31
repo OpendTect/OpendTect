@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
 #include "oduicommon.h"
+#include "datapack.h"
+#include "flatview.h"
 
 class uiSliceSelDlg;
 class TrcKeyZSampling;
@@ -36,6 +38,9 @@ public:
     bool		displayDefaultData();
     bool		displayGuidance();
     bool		displayDataFromDesc(const Attrib::DescID&,bool stored);
+    bool		displayDataFromDataPack(DataPack::ID,
+	    				     const Attrib::SelSpec&,
+					     const FlatView::DataDispPars::VD&);
     bool		displayDataFromOther(int visid);
 
     static uiString	sAddEmptyPlane();

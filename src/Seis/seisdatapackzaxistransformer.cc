@@ -169,12 +169,8 @@ bool SeisDataPackZAxisTransformer::doWork(
 
 bool SeisDataPackZAxisTransformer::doFinish( bool success )
 {
-    ConstRefMan<SeisDataPack> seisdp = dpm_.get( inputdp_->id() );
-    if ( !seisdp ) return false;
-
     outputdp_->setZDomain( transform_.toZDomainInfo() );
-    outputdp_->setName( seisdp->name() );
+    outputdp_->setName( inputdp_->name() );
     dpm_.add( outputdp_ );
-
     return true;
 }

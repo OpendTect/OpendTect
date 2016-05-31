@@ -69,6 +69,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , voiidx_(-1)
     , moving_(this)
     , movefinished_(this)
+    , datachanged_(this)
     , orientation_( OD::InlineSlice )
     , csfromsession_( false )
     , eventcatcher_( 0 )
@@ -781,6 +782,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
+    datachanged_.trigger();
     return true;
 }
 

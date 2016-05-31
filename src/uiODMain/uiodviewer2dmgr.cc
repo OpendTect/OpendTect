@@ -209,6 +209,26 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 }
 
 
+int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
+					const Attrib::SelSpec& as,
+					const FlatView::DataDispPars::VD& pars,
+					bool dowva )
+{
+    uiODViewer2D* vwr2d = &addViewer2D( -1 );
+    vwr2d->setSelSpec( &as, dowva );
+    vwr2d->setSelSpec( &as, !dowva );
+    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
+    vwr2d->setWinTitle( false );
+
+    uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
+    FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false; ddp.vd_ = pars;
+    vwr.handleChange( FlatView::Viewer::DisplayPars );
+    attachNotifiersAndSetAuxData( vwr2d );
+    return vwr2d->id_;
+}
+
+
 int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					bool dowva,
 					float initialx1pospercm,
