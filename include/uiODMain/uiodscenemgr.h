@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "emposid.h"
+#include "flatview.h"
 #include "uivispartserv.h"
 
 class BufferStringSet;
@@ -148,6 +149,10 @@ public:
 					      int sceneid=-1);
     int				addZSliceItem(const TrcKeyZSampling&,
 					      const Attrib::SelSpec&,
+					      int sceneid=-1);
+    int				addZSliceItem(DataPack::ID,
+					      const Attrib::SelSpec&,
+					      const FlatView::DataDispPars::VD&,
 					      int sceneid=-1);
 
     void			removeTreeItem(int displayid);

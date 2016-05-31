@@ -1351,6 +1351,23 @@ int uiODSceneMgr::addZSliceItem( const TrcKeyZSampling& tkzs,
 }
 
 
+int uiODSceneMgr::addZSliceItem( DataPack::ID dpid,
+				 const Attrib::SelSpec& sp,
+				 const FlatView::DataDispPars::VD& ddp,
+				 int sceneid )
+{
+    mGetOrAskForScene
+    uiODZsliceTreeItem* itm =
+	new uiODZsliceTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+
+    if ( !scene->itemmanager_->addChild(itm,false) )
+	return -1;
+
+    itm->displayDataFromDataPack( dpid, sp, ddp );
+    return itm->displayID();
+}
+
+
 void uiODSceneMgr::removeTreeItem( int displayid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )

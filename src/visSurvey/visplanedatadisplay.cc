@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndslice.h"
 #include "array2dresample.h"
 #include "datapointset.h"
+#include "hiddenparam.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
@@ -57,6 +58,8 @@ private:
 };
 
 
+HiddenParam<PlaneDataDisplay,Notifier<PlaneDataDisplay>* > datachanged_( 0 );
+
 mDefineEnumUtils(PlaneDataDisplay,SliceType,"Orientation")
 { "Inline", "Crossline", "Z-slice", 0 };
 
@@ -79,6 +82,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , originalresolution_( -1 )
     , undo_( *new Undo() )
 {
+    datachanged_.setParam(this,new Notifier<PlaneDataDisplay>(this));
     texturerect_ = visBase::TextureRectangle::create();
     addChild( texturerect_->osgNode() );
 
@@ -139,10 +143,17 @@ PlaneDataDisplay::~PlaneDataDisplay()
     dragger_->unRef();
     gridlines_->unRef();
 
+    Notifier<PlaneDataDisplay>* datachanged = datachanged_.getParam(this);
+    datachanged_.removeParam(this);
+    delete datachanged;
+
     undo_.removeAll();
     delete &undo_;
 }
 
+
+NotifierAccess* PlaneDataDisplay::getDataChangedNotifier()
+{ return datachanged_.getParam(this); }
 
 const Undo& PlaneDataDisplay::undo() const	{ return undo_; }
 Undo& PlaneDataDisplay::undo()			{ return undo_; }
@@ -784,6 +795,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
+    datachanged_.getParam(this)->trigger();
     return true;
 }
 

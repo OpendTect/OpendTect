@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescsetsholder.h"
 #include "attribsel.h"
+#include "coltabsequence.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "keystrs.h"
@@ -272,6 +273,20 @@ bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid,
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return res;
+}
+
+
+bool uiODPlaneDataTreeItem::displayDataFromDataPack( DataPack::ID dpid,
+					 const Attrib::SelSpec& as,
+					 const FlatView::DataDispPars::VD& ddp )
+{
+    visserv_->setSelSpec( displayid_, 0, as );
+    visserv_->setColTabMapperSetup( displayid_, 0, ddp.mappersetup_ );
+    visserv_->setColTabSequence( displayid_, 0, ColTab::Sequence(ddp.ctab_) );
+    visserv_->setDataPackID( displayid_, 0, dpid );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    return true;
 }
 
 

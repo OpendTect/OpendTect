@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "datapack.h"
 #include "emposid.h"
+#include "flatview.h"
 #include "geom2dintersections.h"
 #include "uigeom.h"
 #include "uigraphicsviewbase.h"
@@ -55,6 +56,10 @@ public:
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
 
+    int				displayIn2DViewer(DataPack::ID,
+					      const Attrib::SelSpec&,
+					      const FlatView::DataDispPars::VD&,
+					      bool wva);
     int				displayIn2DViewer(
 					Viewer2DPosDataSel&,bool wva,
 					float initialx1pospercm=mUdf(float),

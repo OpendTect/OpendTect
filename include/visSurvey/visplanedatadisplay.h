@@ -72,6 +72,7 @@ public:
     NotifierAccess*		getManipulationNotifier();
     NotifierAccess*		getMovementNotifier()
 				{ return &movefinished_; }
+    NotifierAccess*		getDataChangedNotifier();
 
     bool			allowMaterialEdit() const	{ return true; }
 
