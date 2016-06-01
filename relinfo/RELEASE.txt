@@ -3,6 +3,85 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+v6.0.3: June 1, 2016
+ * Fix for displaying geo bodies range information
+ * Fix for shortcut keys ctr-Z and ctrl-Y while tracking 2D horizon
+ * Disabled volume builder attribute for 2D line, horizon, fault and random line
+ * 2D Horizon tracker settings window now pops up on pressing tracking setup
+   button in 2D viewer
+ * Fix for crash while opening well properties window after editing well
+ * Fix for body shape painter if input is a polygon body
+ * Fix for multi item selection in 2D Viewer tree
+ * Fix for tracking 3D horizon after switching to another survey
+ * Fix for Show/Hide all options if more items are loaded in tree
+ * Fix for crash while clicking 'Recalculate' button in Attribute window
+ * Fix for crash on removing nodes using Ctrl-click while editing a well track
+ * Fix for Polygons being added as Picksets and Random lines being wrongly
+   named on session restore
+ * Improved mouse interaction at intersection of 2D lines in the 2D viewer
+ * Fix for pre-loading SEGY cube with non-default z-range
+ * Fix for session restore with 2D preloaded data
+ * Fix for some 2D horizon line style and seed issues on MAC platform
+ * Fix for running batch process remotely on a single machine
+ * Fix for adding attributes for multiple 2D lines
+ * Fixed GMT issues on Windows platform
+ * Fix for checkshot correction in tie well to seismics
+ * Fix for crash while closing OpendTect after resizing inline in 3D Horizon
+   flattened scene
+ * Fix for displaying wavelet in depth survey
+ * Enabled ctrl-click to remove seeds in manual tracking mode
+ * Fix for crash while saving horizon attributes as Z values
+ * Fix for marker direction display after restoring saved PickSet
+ * Fix for reading the inl/crl ranges while calculating stratal amplitude
+ * Improvements in Enable/Disable tracking toolbar and the Tracker
+   settings window
+ * Fix for copy cube within polygon using batch mode
+ * Fix for faulty display of the user picked depth to time model
+ * Fix for Time-Depth conversions when reference datum is in feet
+ * Fix for crash in classic wizard when selecting an invalid SEG-Y file
+ * Fix for empty histogram display if data is pre-loaded
+ * Fix for double warning messages while overwriting cube using volume builder
+   processing
+ * Fix for crash while closing OpendTect main window while the horizon
+   tracking is in progress
+ * Fix for crash in Fingerprint attribute
+ * Fix for crash while calculating data range for GLCM variance
+ * Added  'Bulk Faults' option for importing faults
+ * Fix for wrong results after velocity gridding
+ * Fix for loading default Random line if survey has only one Random line
+ * Fix for displaying current survey volumes while importing attribute set
+   from other survey
+ * Fix for crash in well log calculation using rock physics module
+ * Fix for flattened scene transformation problems
+ * Fix for missing Horizon Data while copying a newly tracked horizon
+ * Pre-loading 2D seismics made faster
+ * Fix for crash while changing the name using the virtual keyboard
+ * Fix for wrong scale display next to Synthetic seismic
+ * Fix for GUI issues in Body region constructor window
+ * Implemented Ctrl+Left-click+drag eraser in Section Auto-track mode
+ * Fix for step problem in tracking settings preview windows
+ * Fix for crash while adding 2D horizon to Depth scene
+ * Fix for crash in saving faults from 2D Viewer
+ * Fix for reversed orientation on ZSlice in 2D Viewer
+ * Selections are now colored on the basis of selection group colors in
+   crossplot
+ * Fix for intersection lines on changing annotation option in 2D Viewer
+ * Improvements in annotations of Zaxis in 2DViewer
+ * Fix for display of intersection lines of other 2D Lines in 2D Viewer on
+   changing the survey
+ * Fix for display on create for gridding & filtering of horizons
+ * Added a new interpolation algorithm 'Radial Basis Function' for
+   interpolating 2D horizons etc.
+ * Fix for erroneous Random line display on re-adding to the scene after
+   removing once
+ * Fix for interval velosity spikes after integrating sonic logs in Well tie
+   to seismic
+ * Fix for update of time-depth model after closing the well tie to
+   seismic window
+ * Fix for adding iso surface to a volume display
+ * The attribute list in the 'select attribute' menu is now scrollable to
+   accommodate large number of attributes/volumes
+
 v6.0.2: April 19, 2016
  * Introduced multiple horizon tracking in 2D Viewers
  * Implemented compression for SEG-Y scan file offset table
