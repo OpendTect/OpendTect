@@ -324,6 +324,9 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* )
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
 
+    if ( MPE::engine().nrTrackersAlive() > 0 )
+	return;
+
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
 	setupgrp_->mainwin()->close();
@@ -537,6 +540,13 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
 	mDynamicCastGet(EM::Horizon*,hor,emobj)
 	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
 	setupgrp_->setSeedPos( lastseed );
+    }
+
+    if ( setupgrp_->mainwin() )
+    {
+	const uiString caption =
+		tr("Horizon Tracking Settings - %1").arg( emobj->name() );
+	setupgrp_->mainwin()->setCaption( caption );
     }
 }
 
@@ -894,7 +904,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     }
 
     uiDialog* setupdlg  = new uiDialog( 0,
-		uiDialog::Setup(tr("Horizon Tracking Settings"),mNoDlgTitle,
+		uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->showAlwaysOnTop();
@@ -924,23 +934,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
     }
 
-    setupgrp_->setSectionTracker( sectracker );
-    setupgrp_->setMode( seedpicker->getTrackMode() );
-    setupgrp_->setColor( emobj->preferredColor() );
-    setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
-    setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
-						EM::EMObject::sSeedNode()) );
-
-    TypeSet<TrcKey> seeds;
-    seedpicker->getSeeds( seeds );
-    if ( !seeds.isEmpty() )
-    {
-	TrcKeyValue lastseed( seeds.last() );
-	mDynamicCastGet(EM::Horizon*,hor,emobj)
-	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
-	setupgrp_->setSeedPos( lastseed );
-    }
-
+    fillTrackerSettings( MPE::engine().getTrackerByObject(emobj->id()) );
     MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
