@@ -113,7 +113,7 @@ public:
     virtual bool		setZ(const TrcKey&,float z,bool addtohist);
     virtual bool		hasZ(const TrcKey&) const;
     virtual Coord3		getCoord(const TrcKey&) const;
-    virtual void		setAttrib(const TrcKey&,int attr,int yn,
+    virtual void		setAttrib(const TrcKey&,int attr,bool yn,
 					  bool addtohist);
     virtual bool		isAttrib(const TrcKey&,int attr) const;
 

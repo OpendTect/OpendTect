@@ -428,7 +428,7 @@ Coord3 Horizon2D::getCoord( const TrcKey& tk ) const
 }
 
 
-void Horizon2D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
+void Horizon2D::setAttrib( const TrcKey& tk, int attr, bool yn, bool addtohist )
 {
     const int lineidx = geometry().lineIndex( tk.geomID() );
     if ( lineidx<0 ) return;

@@ -384,7 +384,7 @@ Coord3 Horizon3D::getCoord( const TrcKey& tk ) const
 { return getPos( sectionID(0), tk.binID().toInt64() ); }
 
 
-void Horizon3D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
+void Horizon3D::setAttrib( const TrcKey& tk, int attr, bool yn, bool addtohist )
 {
     const PosID pid( id(), sectionID(0), tk.binID().toInt64() );
     setPosAttrib( pid, attr, yn, addtohist );

@@ -104,7 +104,7 @@ public:
     virtual bool		hasZ(const TrcKey&) const;
 				//!< Fast: checks only the first section
     virtual Coord3		getCoord(const TrcKey&) const;
-    virtual void		setAttrib(const TrcKey&,int attr,int yn,
+    virtual void		setAttrib(const TrcKey&,int attr,bool yn,
 					  bool addtohist);
     virtual bool		isAttrib(const TrcKey&,int attr) const;
 
