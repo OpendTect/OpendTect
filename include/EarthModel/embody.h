@@ -37,7 +37,7 @@ public:
     ImplicitBody		operator =(const ImplicitBody&);
 
     Array3D<float>*		arr_;
-    float			threshold_;//Any value below threshold is inside
+    float			threshold_;//Any value above threshold is inside
     TrcKeyZSampling		tkzs_; //has same size as arr_
 };
 

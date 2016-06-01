@@ -63,7 +63,7 @@ public:
     void		setInput(bool body0,const MultiID&);
     void		setInput(bool body0,BodyOperator*);
 			//!<BodyOperator becomes mine
-    BodyOperator*	getChildOprt( bool body0 ) const;
+    BodyOperator*	getChildOprt(bool body0) const;
     bool		getChildOprt(int freeid,BodyOperator&);
 
     void		setAction(Action);

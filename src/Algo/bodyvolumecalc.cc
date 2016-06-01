@@ -6,7 +6,7 @@
  * DATE		: April 2012
 
 
---------------------------------------------------------------------------- 
+---------------------------------------------------------------------------
 -*/
 
 
@@ -22,10 +22,10 @@ BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
 	const Array3D<float>& arr, float threshold, float velocityinmeter )
     : arr_(arr)
     , threshold_(threshold)
-    , volsum_(0)  
-    , lock_(true)  
+    , volsum_(0)
+    , lock_(true)
 {
-    const float zfactor = SI().zIsTime() ? velocityinmeter : 
+    const float zfactor = SI().zIsTime() ? velocityinmeter :
 	(SI().zInFeet() ? mFromFeetFactorF : 1);
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     unitvol_ = cs.hsamp_.step_.inl() * SI().inlDistance() * xyfactor *
@@ -51,8 +51,8 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     if ( mIsUdf(unitvol_) || mIsUdf(threshold_) )
 	return 0;
 
-    const int inlsz = arr_.info().getSize(0); 
-    const int crlsz = arr_.info().getSize(1); 
+    const int inlsz = arr_.info().getSize(0);
+    const int crlsz = arr_.info().getSize(1);
 
     float nrunits = 0;
     for ( int idx=0; idx<inlsz-1; idx++ )
@@ -62,14 +62,14 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 	    for ( int idz=(int) start; idz<=stop; idz++ )
 	    {
 		bool inside[8];
-		inside[0] = arr_.get(idx,idy,idz) <= threshold_;
-		inside[1] = arr_.get(idx,idy+1,idz) <= threshold_;
-		inside[2] = arr_.get(idx+1,idy+1,idz) <= threshold_;
-		inside[3] = arr_.get(idx+1,idy,idz) <= threshold_;
-		inside[4] = arr_.get(idx,idy,idz+1) <= threshold_;
-		inside[5] = arr_.get(idx,idy+1,idz+1) <= threshold_;
-		inside[6] = arr_.get(idx+1,idy+1,idz+1) <= threshold_;
-		inside[7] = arr_.get(idx+1,idy,idz+1) <= threshold_;
+		inside[0] = arr_.get(idx,idy,idz) >= threshold_;
+		inside[1] = arr_.get(idx,idy+1,idz) >= threshold_;
+		inside[2] = arr_.get(idx+1,idy+1,idz) >= threshold_;
+		inside[3] = arr_.get(idx+1,idy,idz) >= threshold_;
+		inside[4] = arr_.get(idx,idy,idz+1) >= threshold_;
+		inside[5] = arr_.get(idx,idy+1,idz+1) >= threshold_;
+		inside[6] = arr_.get(idx+1,idy+1,idz+1) >= threshold_;
+		inside[7] = arr_.get(idx+1,idy,idz+1) >= threshold_;
 		const char nrdftop = inside[0]+inside[1]+inside[2]+inside[3];
 		const char nrdfbas = inside[4]+inside[5]+inside[6]+inside[7];
 		if ( !nrdftop || !nrdfbas || nrdftop+nrdfbas<4 )
@@ -79,7 +79,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 		{
 		    nrunits += 1.0/6.0;
 		}
-		else if ( nrdftop==2 && nrdfbas==2 )  
+		else if ( nrdftop==2 && nrdfbas==2 )
 		{
 		    if ( (inside[0] && inside[1] && inside[4] && inside[5]) ||
 			 (inside[0] && inside[1] && inside[6] && inside[7]) ||
@@ -92,7 +92,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 			 (inside[2] && inside[3] && inside[4] && inside[5]) ||
 			 (inside[2] && inside[3] && inside[6] && inside[7]) )
 			continue;
-		    
+
 		    if ( (inside[0] && inside[2] && inside[5] && inside[7]) ||
 			 (inside[1] && inside[3] && inside[4] && inside[6]) )
 			nrunits += 1.0/3.0;
@@ -100,34 +100,34 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 			nrunits += 1.0/6.0;
 
 		}
-		else if ( (nrdftop==1 && nrdfbas==4) || 
+		else if ( (nrdftop==1 && nrdfbas==4) ||
 			  (nrdftop==4 && nrdfbas==1) )
 		{
 		    nrunits += 1.0/3.0;
 		}
-		else if ( (nrdftop==2 && nrdfbas==3) || 
+		else if ( (nrdftop==2 && nrdfbas==3) ||
 			  (nrdftop==3 && nrdfbas==2) )
 		{
 		    bool ishlf = false;
 		    if ( nrdftop==3 )
 		    {
-			if  ( ((!inside[0] || !inside[2]) && !inside[5] && 
-				    !inside[7]) || 
-			      ((!inside[1] || !inside[3]) && !inside[4] && 
+			if  ( ((!inside[0] || !inside[2]) && !inside[5] &&
+				    !inside[7]) ||
+			      ((!inside[1] || !inside[3]) && !inside[4] &&
 				    !inside[6]) )
 			    ishlf = true;
 		    }
 		    else
 		    {
-			if  ( ((!inside[4] || !inside[6]) && !inside[1] && 
-				    !inside[3]) || 
-			      ((!inside[5] || !inside[7]) && !inside[0] && 
+			if  ( ((!inside[4] || !inside[6]) && !inside[1] &&
+				    !inside[3]) ||
+			      ((!inside[5] || !inside[7]) && !inside[0] &&
 				    !inside[2]) )
 			    ishlf = true;
 		    }
 		    nrunits += (ishlf ? 0.5f : 1.0f/3.0f);
 		}
-		else if ( (nrdftop==2 && nrdfbas==4) || 
+		else if ( (nrdftop==2 && nrdfbas==4) ||
 			  (nrdftop==4 && nrdfbas==2) )
 		{
 		    const int shift = nrdftop==2  ? 0 : 4;
@@ -138,15 +138,15 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 			{
 			    if ( i==-1 )
 				i = k+shift;
-			    else 
+			    else
 				j = k+shift;
 			}
 		    }
 		    nrunits += (abs(i-j)==2 ? 2.0f/3.0f : 0.5f);
 		}
-		else if ( nrdftop==3 && nrdfbas==3 )  
+		else if ( nrdftop==3 && nrdfbas==3 )
 		{
-		    if ( (!inside[0] && !inside[4]) || 
+		    if ( (!inside[0] && !inside[4]) ||
 			 (!inside[1] && !inside[5]) ||
 			 (!inside[2] && !inside[6]) ||
 			 (!inside[3] && !inside[7]) )
@@ -154,7 +154,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 		    else
 			nrunits += 2.0/3.0;
 		}
-		else if ( (nrdftop==3 && nrdfbas==4) || 
+		else if ( (nrdftop==3 && nrdfbas==4) ||
 			  (nrdftop==4 && nrdfbas==3) )
 		{
 		    nrunits += 5.0/6.0;
@@ -166,7 +166,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
     }
-    
+
     Threads::Locker lckr( lock_ );
     volsum_ += unitvol_*nrunits;
     return true;

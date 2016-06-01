@@ -67,7 +67,7 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     getMaterial()->change.remove(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
-    
+
     deepUnRef( cache_ );
 
     if ( model2displayspacetransform_ )
@@ -266,7 +266,7 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec(
 const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 							int attrib ) const
 {
-    return attrib ? 0 : &as_; 
+    return attrib ? 0 : &as_;
 }
 
 
@@ -318,7 +318,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	float minz=0, maxz=0;
 	for ( int idz=0; idz<zsz; idz++ )
 	{
-	    if ( impbody_->arr_->get(inlidx,crlidx,idz)>impbody_->threshold_ )
+	    if ( impbody_->arr_->get(inlidx,crlidx,idz) < impbody_->threshold_ )
 		continue;
 
 	    const float curz = impbody_->tkzs_.zsamp_.atIndex(idz);
@@ -424,7 +424,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 	cache_ += ndps;
     }
 
-    
+
     refPtr( cache_[attrib] );
 
     validtexture_ = true;
