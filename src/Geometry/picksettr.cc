@@ -192,7 +192,7 @@ void PickSetTranslator::createBinIDValueSets(
 
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
-	    const Coord3& crd( crds[idx] );
+	    const Coord3& crd( crds[ipck] );
 	    bs->add( SI().transform(crd), (float) crd.z );
 	}
     }
