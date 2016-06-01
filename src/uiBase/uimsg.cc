@@ -91,7 +91,8 @@ QWidget* uiMsg::popParnt()
 
 bool uiMsg::toStatusbar( uiString msg, int fldidx, int msec )
 {
-    if ( !statusBar() ) return false;
+    if ( !statusBar() )
+	return false;
 
     statusBar()->message( msg, fldidx, msec );
     return true;
@@ -313,6 +314,29 @@ bool uiMsg::warning( const uiString& part1, const uiString& part2,
 }
 
 
+void uiMsg::warning( const uiRetVal& rv )
+{
+    uiString msg;
+    if ( rv.isMultiMessage() )
+	msg = rv.messages().cat();
+    else if ( rv.isError() )
+	msg = rv;
+    warning( msg );
+}
+
+
+void uiMsg::error( const uiRetVal& rv )
+{
+    if ( rv.isMultiMessage() )
+	errorWithDetails( rv.messages() );
+    else if ( rv.isError() )
+    {
+	uiString msg( rv );
+	error( msg );
+    }
+}
+
+
 bool uiMsg::error( const uiString& part1, const uiString& part2,
 		   const uiString& part3, bool withdontshowagain )
 {
@@ -521,7 +545,7 @@ bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 
 int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 			 const uiString& textyesinp, const uiString& textnoinp,
-       			 bool* notagain	)
+			 bool* notagain	)
 {
     const uiString yestxt = textyesinp.isEmpty()
 	? uiStrings::sYes()
@@ -533,7 +557,7 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 	? uiStrings::sCancel()
 	: cnclmsginp;
     return showMessageBox( Warning, popParnt(), text, yestxt, notxt, cncltxt,
-	    		   uiStrings::sEmptyString(), notagain );
+			   uiStrings::sEmptyString(), notagain );
 }
 
 

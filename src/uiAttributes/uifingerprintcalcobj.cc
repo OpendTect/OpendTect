@@ -120,10 +120,10 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     if ( rgreftype_ == 1 )
     {
 	const MultiID setid( getRgRefPick() );
-	uiString errmsg;
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, errmsg );
+	uiRetVal uirv = uiRetVal::OK();
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	if ( !ps )
-	    { uiMSG().error( errmsg ); return 0; }
+	    { uiMSG().error( uirv ); return 0; }
 
 	retset = new BinIDValueSet( 1, false );
 	MonitorLock ml( *ps );

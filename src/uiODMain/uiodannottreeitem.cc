@@ -215,11 +215,11 @@ Pick::Set* uiODAnnotTreeItem::readExistingSet() const
     if ( !dlg.go() || !dlg.ioObj() )
 	return 0;
 
-    uiString errmsg;
+    uiRetVal uirv = uiRetVal::OK();
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( dlg.ioObj()->key(),
-							errmsg );
-    if ( !errmsg.isEmpty() )
-	{ uiMSG().error( errmsg ); return 0; }
+							uirv );
+    if ( uirv.isError() )
+	{ uiMSG().error( uirv ); return 0; }
 
     ps->ref(); // need to ref now because RefMan will go out of scope
     return ps;

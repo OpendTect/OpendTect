@@ -74,19 +74,13 @@ ConstRefMan<Pick::Set> uiPickSetIOObjSel::getPickSet( bool emptyok ) const
     if ( !psioobj )
 	return 0;
 
-    uiString errmsg;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( psioobj->key(), errmsg );
-    if ( ps )
-    {
-	if ( !emptyok && ps->isEmpty() )
-	{
-	    errmsg = tr( "No locations found" );
-	    ps = 0;
-	}
-    }
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( psioobj->key(), uirv );
+    if ( ps && !emptyok && ps->isEmpty() )
+	{ uirv.set( tr("No locations found") ); ps = 0; }
 
-    if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+    if ( uirv.isError() )
+	uiMSG().error( uirv );
 
     return ps;
 }
@@ -98,19 +92,13 @@ RefMan<Pick::Set> uiPickSetIOObjSel::getPickSetForEdit( bool emptyok ) const
     if ( !psioobj )
 	return 0;
 
-    uiString errmsg;
-    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( psioobj->key(), errmsg);
-    if ( ps )
-    {
-	if ( !emptyok && ps->isEmpty() )
-	{
-	    errmsg = tr( "No locations found" );
-	    ps = 0;
-	}
-    }
+    uiRetVal uirv = uiRetVal::OK();
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( psioobj->key(), uirv );
+    if ( ps && !emptyok && ps->isEmpty() )
+	{ uirv = tr( "No locations found" ); ps = 0; }
 
-    if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+    if ( uirv.isError() )
+	uiMSG().error( uirv );
 
     return ps;
 }
@@ -165,9 +153,9 @@ bool uiMergePickSets::acceptOK( CallBacker* )
 	return false;
 
     const MultiID setid( outioobj->key() );
-    uiString errmsg = ::Pick::SetMGR().store( *ps, setid, &ioobjpars );
-    if ( !errmsg.isEmpty() )
-	{ uiMSG().error( errmsg ); return false; }
+    uiRetVal uirv = ::Pick::SetMGR().store( *ps, setid, &ioobjpars );
+    if ( uirv.isError() )
+	{ uiMSG().error( uirv ); return false; }
 
     setid_ = setid;
     return true;
@@ -183,10 +171,10 @@ RefMan<Pick::Set> uiMergePickSets::getMerged( IOPar& ioobjpars ) const
     for ( int idx=0; idx<inpids.size(); idx++ )
     {
 	const MultiID id = inpids[idx];
-	uiString errmsg;
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+	uiRetVal uirv = uiRetVal::OK();
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
 	if ( !ps )
-	    { uiMSG().error( errmsg ); return 0; }
+	    { uiMSG().error( uirv ); return 0; }
 
 	if ( idx == 0 )
 	{

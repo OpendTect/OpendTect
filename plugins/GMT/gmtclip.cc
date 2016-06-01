@@ -78,10 +78,10 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
     }
 
     MultiID id; get( sKey::ID(), id );
-    uiString errmsg;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )
-	mErrStrmRet(errmsg.getFullString())
+	mErrStrmRet(uirv.getText())
 
     strm << "Activating clipping with polygon " << ps->name() << " ...  ";
     bool clipoutside = false;

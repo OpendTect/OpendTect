@@ -171,10 +171,10 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     MultiID id;
     get( sKey::ID(), id );
 
-    uiString errmsg;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )
-	mErrStrmRet( errmsg )
+	mErrStrmRet( uirv.getText() )
 
     strm << "Posting Locations " << ps->name() << " ...  ";
 
@@ -205,7 +205,8 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 
     comm += " 1>> "; comm += fileName( fnm );
     od_ostream procstrm = makeOStream( comm, strm );
-    if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay locations")
+    if ( !procstrm.isOK() )
+	mErrStrmRet("Failed to overlay locations")
 
     MonitorLock ml( *ps );
     for ( int idx=0; idx<ps->size(); idx++ )
@@ -264,10 +265,10 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 {
     MultiID id; get( sKey::ID(), id );
-    uiString errmsg;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )
-	mErrStrmRet(errmsg)
+	mErrStrmRet( uirv.getText() )
 
     strm << "Posting Polyline " << ps->name() << " ...  ";
 

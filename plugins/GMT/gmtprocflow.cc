@@ -56,14 +56,7 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
     else
 	errmsg = tr->read( pf, *conn );
 
-    if ( !errmsg.isEmpty() )
-    {
-	if ( conn )
-	    conn->rollback();
-	return false;
-    }
-
-    return true;
+    return errmsg.isEmpty();
 }
 
 

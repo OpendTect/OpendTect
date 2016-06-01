@@ -93,7 +93,7 @@ public:
 		~uiString();
 
     uiString&	set(const char*);
-    bool	isSet() const			{ return !isEmpty(); }
+    inline bool	isSet() const			{ return !isEmpty(); }
     bool	isEmpty() const;
     void	setEmpty();
     uiString&	toLower(bool yn=true);
@@ -149,12 +149,16 @@ public:
 				//!Reads hex-data and sets the translated str.
 private:
 
-    char*	debugstr_;	/*<!< Contains getFullString() for easy debugging
-				      Only filled in in debug builds. */
+    inline			operator bool() const	{ return !isEmpty(); }
     bool			isCacheValid() const;
     const mQtclass(QString)&	getQStringInternal() const;
 
     friend class		uiStringData;
+
+    char*			debugstr_;
+				/*<!< Contains getFullString() for easy debuggin
+				      Only filled in in debug builds. */
+
     mutable uiStringData*	data_;
     mutable Threads::Lock	datalock_;	//!< Protects data_ variable
     static const uiString	emptystring_;
@@ -210,6 +214,9 @@ public:
 };
 
 
+
+/*\brief Set of uiStrings */
+
 mExpClass(Basic) uiStringSet : public TypeSet<uiString>
 { mODTextTranslationClass(uiStringSet);
 public:
@@ -224,6 +231,52 @@ public:
 		//!<Returns a string with "option1, option2, and/or option 3"
     void	fill(mQtclass(QStringList)&) const;
     uiString	cat(const char* sepstr="\n") const;
+};
+
+
+/*\brief allows returning status and accompanying user info.
+
+  This class helps us make sure there is always user info on errors. Therefore,
+  you will find a 'setIsOK' but not OK means setting a non-empty message.
+
+*/
+
+mExpClass(Basic) uiRetVal
+{
+public:
+
+			uiRetVal(const uiString&);
+			uiRetVal(const uiStringSet&);
+			uiRetVal(const uiRetVal&);
+    static uiRetVal	OK()		    { return ok_; }
+    uiRetVal&		operator =(const uiRetVal&);
+    uiRetVal&		operator =(const uiString&);
+    uiRetVal&		operator =(const uiStringSet&);
+			operator uiString() const;
+
+    bool		isOK() const;
+    inline bool		isError() const	    { return !isOK(); }
+    bool		isMultiMessage() const;
+    uiStringSet		messages() const;
+
+    uiRetVal&		setOK();
+    uiRetVal&		set(const uiRetVal&);
+    uiRetVal&		set(const uiString&);
+    uiRetVal&		set(const uiStringSet&);
+    uiRetVal&		add(const uiRetVal&);
+    uiRetVal&		add(const uiString&);
+    uiRetVal&		add(const uiStringSet&);
+
+    BufferString	getText() const;
+
+private:
+
+    uiStringSet		msgs_;
+    mutable Threads::Lock lock_;
+
+			uiRetVal()	    {}
+    static const uiRetVal ok_;
+
 };
 
 

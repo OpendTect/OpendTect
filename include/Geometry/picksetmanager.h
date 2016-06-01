@@ -35,17 +35,16 @@ inline SetManager& SetMGR();
 
 /*!\brief Manages all stored Pick::Set's.
 
- If a set is not yet loaded, then it will be loaded by fetch(). If that fails,
- the uiString error message is set to something non-empty.
+ If a set is not yet loaded, then it will be loaded by fetch().
 
  Undo events are kept for each Set separately.
 
  Typical code for read:
 
- uiString errmsg;
- ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, errmsg );
- if ( !errmsg.isEmpty() )
-     { errmsg_ = errmsg; return false; }
+ uiRetVal retval;
+ ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, retval );
+ if ( retval.isError() )
+     { errmsg_ = retval; return false; }
 
  MonitorLock ml( *ps );
  for ( int idx=0; idx<ps->size(); idx++ )
@@ -59,9 +58,9 @@ inline SetManager& SetMGR();
 
  RefMan<Pick::Set> ps = new Pick::Set;
  fillPS( *ps );
- uiString errmsg = Pick::SetMGR().store( *ps, id );
- if ( !errmsg.isEmpty() )
-     { errmsg_ = errmsg; return false; }
+ uiRetVal retval = Pick::SetMGR().store( *ps, id );
+ if ( retval.isError() )
+     { errmsg_ = retval; return false; }
 
 */
 
@@ -72,21 +71,21 @@ public:
     typedef ::MultiID			SetID;
     typedef LocationChangeEvent		LocEvent;
 
-    ConstRefMan<Set>	fetch(const SetID&,uiString&,
+    ConstRefMan<Set>	fetch(const SetID&,uiRetVal&,
 				    const char* category=0) const;
-    RefMan<Set>		fetchForEdit(const SetID&,uiString&,
+    RefMan<Set>		fetchForEdit(const SetID&,uiRetVal&,
 				     const char* category=0);
     ConstRefMan<Set>	fetch(const SetID&) const;
     RefMan<Set>		fetchForEdit(const SetID&);
 
     bool		nameExists(const char*) const;
-    uiString		store(const Set&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const Set&,const IOPar* ioobjpars=0) const;
 			//!< uses name to decide whether to create or replace
-    uiString		store(const Set&,const SetID&,
+    uiRetVal		store(const Set&,const SetID&,
 				const IOPar* ioobjpars=0) const;
-    uiString		save(const Set&) const;
-    uiString		save(const SetID&) const;
-    uiString		saveAs(const SetID& curid,const SetID& newid) const;
+    uiRetVal		save(const Set&) const;
+    uiRetVal		save(const SetID&) const;
+    uiRetVal		saveAs(const SetID& curid,const SetID& newid) const;
     bool		needsSave(const Set&) const;
     bool		needsSave(const SetID&) const;
     void		setNoSaveNeeded(const SetID&) const;
@@ -134,11 +133,11 @@ protected:
     int			gtIdx(const SetID&) const;
     int			gtIdx(const Set&) const;
     Set*		gtSet(const SetID&) const;
-    template<class RT,class ST> RT doFetch(const SetID&,uiString&,
+    template<class RT,class ST> RT doFetch(const SetID&,uiRetVal&,
 					   const char* cat=0) const;
     void		addCBsToSet(const Set&);
     void		addLocEv(const SetID&,const LocEvent&);
-    uiString		doSave(const SetID&) const;
+    uiRetVal		doSave(const SetID&) const;
 
     void		add(const Set&,const SetID&,const IOPar*,bool) const;
 

@@ -71,22 +71,17 @@ void uiPickSetMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
-    uiString errmsg;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( curioobj_->key(), errmsg);
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( curioobj_->key(), uirv );
     if ( !ps )
     {
-	txt.set( "Read error: '" );
-	txt.add( errmsg.getFullString() );
+	txt.set( "Read error: '" ).add( uirv.getText() );
 	txt.add( "'" ).add( "\n<No specific info available>\n" );
     }
     else
     {
-	if ( !txt.isEmpty() )
-	    ErrMsg( txt );
-
-
-	const bool ispoly = PickSetTranslator::isPolygon( *curioobj_ );
-	const BufferString cat = PickSetTranslator::getCategory( *curioobj_ );
+	const bool ispoly = ps->isPolygon();
+	const BufferString cat = ps->category();
 	txt.add( "Type: " );
 	if ( ispoly )
 	    txt.add( "Polygon" );

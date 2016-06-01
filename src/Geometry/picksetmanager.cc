@@ -63,7 +63,7 @@ void Pick::SetManager::setEmpty()
 
 
 template <class RefManType,class SetType>
-RefManType Pick::SetManager::doFetch( const SetID& id, uiString& errmsg,
+RefManType Pick::SetManager::doFetch( const SetID& id, uiRetVal& errmsg,
 				      const char* cat ) const
 {
     mLock4Read();
@@ -80,14 +80,13 @@ RefManType Pick::SetManager::doFetch( const SetID& id, uiString& errmsg,
 	return RefManType( gtSet(id) );		// now loaded
     }
 
-    errmsg = loader.errMsgs().first();
+    errmsg = loader.errMsgs();
     return RefManType( 0 );
 }
 
 
 void Pick::SetManager::setNoSaveNeeded( const SetID& id ) const
 {
-    uiString msg;
     mLock4Read();
     const int idx = gtIdx( id );
     if ( idx >= 0 )
@@ -97,13 +96,13 @@ void Pick::SetManager::setNoSaveNeeded( const SetID& id ) const
 
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const SetID& id ) const
 {
-    uiString msg;
+    uiRetVal msg = uiRetVal::OK();
     return doFetch<ConstRefMan<Set>,const Set>( id, msg );
 }
 
 
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const SetID& id,
-				    uiString& errmsg, const char* cat ) const
+				    uiRetVal& errmsg, const char* cat ) const
 {
     return doFetch<ConstRefMan<Set>,const Set>( id, errmsg, cat );
 }
@@ -111,19 +110,19 @@ ConstRefMan<Pick::Set> Pick::SetManager::fetch( const SetID& id,
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const SetID& id )
 {
-    uiString msg;
+    uiRetVal msg = uiRetVal::OK();
     return doFetch<RefMan<Set>,Set>( id, msg );
 }
 
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const SetID& id,
-				    uiString& errmsg, const char* cat )
+				    uiRetVal& errmsg, const char* cat )
 {
     return doFetch<RefMan<Set>,Set>( id, errmsg, cat );
 }
 
 
-uiString Pick::SetManager::doSave( const SetID& id ) const
+uiRetVal Pick::SetManager::doSave( const SetID& id ) const
 {
     const int idx = gtIdx( id );
     if ( idx >= 0 )
@@ -132,40 +131,40 @@ uiString Pick::SetManager::doSave( const SetID& id ) const
 	    return savers_[idx]->errMsg();
     }
 
-    return uiString::emptyString();
+    return uiRetVal::OK();
 }
 
 
-uiString Pick::SetManager::save( const Set& ps ) const
+uiRetVal Pick::SetManager::save( const Set& ps ) const
 {
     mLock4Read();
     const int idx = gtIdx( ps );
-    return idx<0 ? uiString::emptyString() : doSave( savers_[idx]->key() );
+    return idx<0 ? uiRetVal::OK() : doSave( savers_[idx]->key() );
 }
 
 
-uiString Pick::SetManager::save( const SetID& id ) const
+uiRetVal Pick::SetManager::save( const SetID& id ) const
 {
     mLock4Read();
     return doSave( id );
 }
 
 
-uiString Pick::SetManager::saveAs( const SetID& id, const SetID& newid ) const
+uiRetVal Pick::SetManager::saveAs( const SetID& id, const SetID& newid ) const
 {
     mLock4Read();
 
     const int idx = gtIdx( id );
     if ( idx < 0 )
-	{ pErrMsg("Save-As not loaded ID"); return uiString::emptyString(); }
+	{ pErrMsg("Save-As not loaded ID"); return uiRetVal::OK(); }
 
     SetSaver& svr = *const_cast<SetSaver*>( savers_[idx] );
     svr.setKey( newid );
-    uiString errmsg = doSave( newid );
-    if ( !errmsg.isEmpty() )
-	{ svr.setKey( id ); return errmsg; } // rollback
+    uiRetVal uirv = doSave( newid );
+    if ( uirv.isError() )
+	{ svr.setKey( id ); return uirv; } // rollback
 
-    return uiString::emptyString();
+    return uiRetVal::OK();
 }
 
 
@@ -285,7 +284,7 @@ bool Pick::SetManager::nameExists( const char* nm ) const
 }
 
 
-uiString Pick::SetManager::store( const Set& newset,
+uiRetVal Pick::SetManager::store( const Set& newset,
 				  const IOPar* ioobjpars ) const
 {
     const BufferString nm = newset.name();
@@ -306,7 +305,7 @@ uiString Pick::SetManager::store( const Set& newset,
 }
 
 
-uiString Pick::SetManager::store( const Set& newset, const SetID& id,
+uiRetVal Pick::SetManager::store( const Set& newset, const SetID& id,
 			      const IOPar* ioobjpars ) const
 {
     if ( id.isUdf() )

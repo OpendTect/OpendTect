@@ -213,10 +213,10 @@ bool uiImpExpPickSet::doExport()
     if ( !ioobj )
 	return false;
 
-    uiString errmsg;
-    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), errmsg );
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), uirv );
     if ( !ps )
-	mErrRet(errmsg)
+	mErrRet(uirv)
 
     const char* fname = filefld_->fileName();
     od_ostream strm( fname );

@@ -35,25 +35,27 @@ public:
 			const uiString& part2=uiString::emptyString(),
 			const uiString& part3=uiString::emptyString(),
 			bool withdontshowatain=false);
-    		/*!<If withdontshowgain is true, the user will be prompted
+		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
     bool	warning(const uiString&,
 			const uiString& part2=uiString::emptyString(),
 			const uiString& part3=uiString::emptyString(),
 			bool withdontshowatain=false);
-    		/*!<If withdontshowgain is true, the user will be prompted
+		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
+    void	warning(const uiRetVal&);
     bool	error(const uiString&,
 		      const uiString& part2=uiString::emptyString(),
 		      const uiString& part3=uiString::emptyString(),
 		      bool withdontshowgain=false);
-    		/*!<If withdontshowgain is true, the user will be prompted
+		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
+    void	error(const uiRetVal&);
     void	errorWithDetails(const FileMultiString&);
-    		/*!<If input has multiple parts, the first will be displayed
+		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
 		    'Details ...' button, separated by new lines. */
     void	errorWithDetails(const uiStringSet&,
@@ -72,25 +74,25 @@ public:
 		   option to not see this again, and the boolean will
 		   be filled in. */
     int		askSave(const uiString&,bool cancelbut=true);
-    		//!<\retval 0=Don't save 1=Save -1=Cancel
+		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		askRemove(const uiString&,bool cancelbut=false);
-    		//!<\retval 0=Don't remove 1=Remove -1=Cancel
+		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askContinue(const uiString&);
-    		//!<\retval 0=Abort 1=Continue
+		//!<\retval 0=Abort 1=Continue
     int		askOverwrite(const uiString&);
 		//!<\retval 0=Abort 1=Overwrite
     int		ask2D3D(const uiString&,bool cancelbut=false);
 		//!<\retval 0=3D 1=2D -1=Cancel
 
     bool	askGoOn(const uiString&,bool withyesno=true,
-	    		bool* dontaskagain=0);
-    		/*!<withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
+			bool* dontaskagain=0);
+		/*!<withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
 		   If dontaskagain is given, the user will have the
 		   option to not see this again, and the boolean will
 		   be filled in. */
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno,
-	    		bool* dontaskagain=0);
+			bool* dontaskagain=0);
 		/*!<If don't askagain is given, the user will have the
 		   option to not see this again, and the boolean will
 		   be filled in. */
@@ -101,13 +103,13 @@ public:
 			     bool* dontaskagain=0);
 
     static void setNextCaption(const uiString&);
-    		//!< Sets the caption for the next call to any of the msg fns
-    		//!< After that, caption will be reset to default
+		//!< Sets the caption for the next call to any of the msg fns
+		//!< After that, caption will be reset to default
 
     uiMainWin*	setMainWin(uiMainWin*);	//!< return old
 
     bool	toStatusbar(uiString,int fld=0,int msec=-1);
-    		//!< returns false if there is none
+		//!< returns false if there is none
     uiStatusBar* statusBar();
 
     void	about(const uiString&);
@@ -149,7 +151,7 @@ mGlobal(uiBase) uiMsg& uiMSG();
 mExpClass(uiBase) uiMsgMainWinSetter
 {
 public:
-    			uiMsgMainWinSetter( uiMainWin* np )
+			uiMsgMainWinSetter( uiMainWin* np )
 			    : isset_( np )
 			    , oldparent_( 0 )
 			{

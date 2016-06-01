@@ -57,7 +57,7 @@ static const QString emptyqstring;
 #endif
 
 class uiStringData : public RefCount::Referenced
-{ 
+{
   friend class uiString;
 public:
     uiStringData( const char* originalstring, const char* context,
@@ -730,96 +730,6 @@ bool uiString::operator==( const uiString& b ) const
 }
 
 
-uiStringSet::uiStringSet( const uiString* strings )
-{
-    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
-	add( strings[idx] );
-}
-
-
-void uiStringSet::fill( QStringList& qlist ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-	qlist.append( (*this)[idx].getQString() );
-}
-
-
-
-uiString uiStringSet::createOptionString( bool use_and,
-					  int maxnr, char space ) const
-{
-    BufferString glue;
-
-    const char* percentage = "%";
-    uiStringSet arguments;
-    const char spacestring[] = { space, 0 };
-
-    arguments += toUiString(spacestring);
-    bool firsttime = true;
-
-    int nritems = 0;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( (*this)[idx].isEmpty() )
-	    continue;
-
-	nritems++;
-	arguments += (*this)[idx];
-	if ( firsttime )
-	{
-	    glue.add( percentage );
-	    glue.add( arguments.size() );
-
-            firsttime = false;
-	}
-	else if ( idx==size()-1 )
-	{
-	    if ( size()==2 )
-		glue.add( use_and ? " and%1%" : " or%1%" );
-	    else
-		glue.add( use_and ? ", and%1%" : ", or%1%");
-
-	    glue.add( arguments.size() );
-	}
-	else
-	{
-	    glue.add(",%1%");
-	    glue.add( arguments.size() );
-
-	    if ( maxnr>1 && maxnr<=nritems )
-	    {
-		glue.add( ",%1...");
-		break;
-	    }
-	}
-    }
-
-    if ( glue.isEmpty() )
-	return uiString();
-
-    uiString res;
-    res.set( glue );
-
-    for ( int idx=0; idx<arguments.size(); idx++ )
-	res.arg( arguments[idx] );
-
-    return res;
-}
-
-
-uiString uiStringSet::cat( const char* sepstr ) const
-{
-    uiString str;
-    for (int idx=0; idx<size(); idx++)
-    {
-	if (idx)
-	    str.append( toUiString(sepstr) );
-    str.append((*this)[idx]);
-    }
-    return str;
-}
-
-
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
@@ -950,11 +860,223 @@ int uiString::size() const
 }
 
 
- uiString& uiString::addSpace( int nr )
- {
-     uiString spaces;
-     for(int i=0; i<nr; i++)
-	 spaces.append(toUiString(" "));
+uiString& uiString::addSpace( int nr )
+{
+    uiString spaces;
+    for( int i=0; i<nr; i++ )
+	spaces.append( toUiString(" ") );
 
-     return  (*this).append(spaces);
- }
+    return (*this).append( spaces );
+}
+
+
+uiStringSet::uiStringSet( const uiString* strings )
+{
+    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
+	add( strings[idx] );
+}
+
+
+void uiStringSet::fill( QStringList& qlist ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	qlist.append( (*this)[idx].getQString() );
+}
+
+
+
+uiString uiStringSet::createOptionString( bool use_and,
+					  int maxnr, char space ) const
+{
+    BufferString glue;
+
+    const char* percentage = "%";
+    uiStringSet arguments;
+    const char spacestring[] = { space, 0 };
+
+    arguments += toUiString(spacestring);
+    bool firsttime = true;
+
+    int nritems = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( (*this)[idx].isEmpty() )
+	    continue;
+
+	nritems++;
+	arguments += (*this)[idx];
+	if ( firsttime )
+	{
+	    glue.add( percentage );
+	    glue.add( arguments.size() );
+
+            firsttime = false;
+	}
+	else if ( idx==size()-1 )
+	{
+	    if ( size()==2 )
+		glue.add( use_and ? " and%1%" : " or%1%" );
+	    else
+		glue.add( use_and ? ", and%1%" : ", or%1%");
+
+	    glue.add( arguments.size() );
+	}
+	else
+	{
+	    glue.add(",%1%");
+	    glue.add( arguments.size() );
+
+	    if ( maxnr>1 && maxnr<=nritems )
+	    {
+		glue.add( ",%1...");
+		break;
+	    }
+	}
+    }
+
+    if ( glue.isEmpty() )
+	return uiString();
+
+    uiString res;
+    res.set( glue );
+
+    for ( int idx=0; idx<arguments.size(); idx++ )
+	res.arg( arguments[idx] );
+
+    return res;
+}
+
+
+uiString uiStringSet::cat( const char* sepstr ) const
+{
+    uiString str;
+    for (int idx=0; idx<size(); idx++)
+    {
+	if (idx)
+	    str.append( toUiString(sepstr) );
+    str.append((*this)[idx]);
+    }
+    return str;
+}
+
+
+
+const uiRetVal uiRetVal::ok_;
+
+uiRetVal::uiRetVal( const uiString& str )
+{ msgs_.add( str ); }
+
+uiRetVal::uiRetVal( const uiStringSet& strs )
+    : msgs_(strs)
+{}
+
+uiRetVal::uiRetVal( const uiRetVal& oth )
+    : msgs_(oth.msgs_)
+{}
+
+uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
+{ return set( oth ); }
+
+uiRetVal& uiRetVal::operator =( const uiString& str )
+{ return set( str ); }
+
+uiRetVal& uiRetVal::operator =( const uiStringSet& strs )
+{ return set( strs ); }
+
+
+uiRetVal::operator uiString() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.isEmpty() ? uiString::emptyString() : msgs_[0];
+}
+
+
+bool uiRetVal::isOK() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.isEmpty() || msgs_[0].isEmpty();
+}
+
+
+bool uiRetVal::isMultiMessage() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.size() > 1;
+}
+
+
+uiStringSet uiRetVal::messages() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_;
+}
+
+
+uiRetVal& uiRetVal::set( const uiRetVal& oth )
+{
+    if ( this != &oth )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_ = oth.msgs_;
+    }
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::set( const uiString& str )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.setEmpty();
+    msgs_.add( str );
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::set( const uiStringSet& strs )
+{
+    Threads::Locker locker( lock_ );
+    msgs_ = strs;
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiRetVal& oth )
+{
+    if ( this != &oth )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_.append( oth.msgs_ );
+    }
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiString& str )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.add( str );
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiStringSet& strs )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.append( strs );
+    return *this;
+}
+
+
+BufferString uiRetVal::getText() const
+{
+    uiString uistr;
+    if ( !isMultiMessage() )
+	uistr = *this;
+    else
+    {
+	Threads::Locker locker( lock_ );
+	uistr = msgs_.cat();
+    }
+
+    return BufferString( uistr.getFullString() );
+}

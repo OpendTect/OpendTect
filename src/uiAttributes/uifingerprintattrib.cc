@@ -593,9 +593,10 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	    return 0;
 	}
 
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), errmsg);
+	uiRetVal uirv = uiRetVal::OK();
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), uirv );
 	if ( !ps )
-	    return 0;
+	    { errmsg = uirv; return 0; }
 
 	 MonitorLock ml( *ps );
 	 for ( int idx=0; idx<ps->size(); idx++ )

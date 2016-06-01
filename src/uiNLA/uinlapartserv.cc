@@ -96,9 +96,9 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     {
 	for ( int idesc=0; idesc<crdesc.outids.size(); idesc++ )
 	{
-	    uiString errmsg;
+	    uiRetVal uirv = uiRetVal::OK();
 	    const MultiID setid( crdesc.outids.get(idesc) );
-	    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, errmsg );
+	    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	    if ( !ps )
 		return;
 

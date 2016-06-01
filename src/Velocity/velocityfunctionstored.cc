@@ -162,10 +162,10 @@ void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 
 bool StoredFunctionSource::load( const MultiID& velid )
 {
-    uiString errmsg;
-    ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( velid, errmsg );
+    uiRetVal uirv = uiRetVal::OK();
+    ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( velid, uirv );
     if ( !ps )
-	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
+	{ errmsg_ = uirv.getText(); return false; }
 
     const IOPar psiop( ps->pars() );
     if ( !psiop.getYN( sKeyZIsTime(), zit_ ) ||

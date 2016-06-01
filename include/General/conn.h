@@ -33,9 +33,9 @@ mExpClass(General) Conn
 {
 public:
 
-    virtual		~Conn()			{}
+    virtual		~Conn()			{ close(); }
     virtual void	close(bool failed=false) {}
-    inline void		rollback()		{ close( true ); }
+    inline void		rollback()		{ close( mCloseRollBack ); }
 
     virtual bool	isBad() const		= 0;
     virtual const char*	creationMessage() const	{ return 0; }
