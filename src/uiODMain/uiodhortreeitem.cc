@@ -371,9 +371,9 @@ bool uiODHorizonTreeItem::init()
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
     {
-	hd->setDepthAsAttrib( 0 );
 	if ( !applMgr()->isRestoringSession() )
 	{
+	    hd->setDepthAsAttrib( 0 );
 	    const int nrauxdata = hor3d->auxdata.nrAuxData();
 	    for ( int idx=0; idx<nrauxdata; idx++ )
 	    {
