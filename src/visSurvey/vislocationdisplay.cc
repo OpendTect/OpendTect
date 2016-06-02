@@ -61,7 +61,7 @@ LocationDisplay::LocationDisplay()
     , datatransform_( 0 )
     , pickedsobjid_(-1)
     , voiidx_(-1)
-    , undoloccoord_( Coord3(0,0,0) )
+    , undoloccoord_( Coord3::udf() )
     , undomove_( false )
     , selectionmodel_(false)
     , ctrldown_(false)
@@ -255,6 +255,17 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	{
 	    if ( eventinfo.type==visBase::MouseClick )
 	    {
+		if ( undoloccoord_.isDefined() )
+		{
+		    Pick::Location pl( set_->get(waitsfordirectionid_) );
+		    const ::Sphere dir = pl.dir();
+		    const Pick::Location undoloc( undoloccoord_, dir );
+		    const Pick::Location newloc( newpos, dir );
+		    set_->set( waitsforpositionid_, newloc );
+		 //   Pick::Mgr().undo().setUserInteractionEnd(
+			//Pick::Mgr().undo().currentEventID() );
+		    undomove_ = false;
+		}
 		Pick::Location pl( set_->get(waitsfordirectionid_) );
 		const ::Sphere dir = pl.dir();
 		const Pick::Location undoloc( undoloccoord_, dir );
