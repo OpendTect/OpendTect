@@ -151,6 +151,7 @@ void uiCorrelationGroup::setSectionTracker( SectionTracker* st )
 
 void uiCorrelationGroup::init()
 {
+    NotifyStopper ns1( usecorrfld_->valuechanged );
     usecorrfld_->setValue( !adjuster_->trackByValue() );
 
     const Interval<int> corrintv(
@@ -159,7 +160,10 @@ void uiCorrelationGroup::init()
 		mCast(int,adjuster_->similarityWindow().stop *
 			  SI().zDomain().userFactor()) );
 
+    NotifyStopper ns2( compwinfld_->valuechanging );
     compwinfld_->setValue( corrintv );
+
+    NotifyStopper ns3( corrthresholdfld_->box()->valueChanging );
     corrthresholdfld_->box()->setValue(
 				adjuster_->similarityThreshold()*100.f );
 
@@ -167,6 +171,8 @@ void uiCorrelationGroup::init()
     const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
     nrzfld_->setValue( dataintv );
     nrtrcsfld_->setValue( 5 );
+
+    selUseCorrelation(0);
 }
 
 
