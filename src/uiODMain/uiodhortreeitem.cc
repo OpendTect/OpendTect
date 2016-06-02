@@ -126,12 +126,15 @@ void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
 }
 
 
-static void setSectionDisplayRestoreForAllHors( const uiVisPartServer& visserv,
-						bool yn )
+static void setSectionDisplayRestoreForAllHors( bool yn )
 {
-    for ( int id=visserv.highestID(); id>=0; id-- )
+    TypeSet<int> ids;
+    visBase::DM().getIDs( typeid(visSurvey::HorizonDisplay), ids );
+
+    for ( int idx=0; idx<ids.size(); idx++ )
     {
-	mDynamicCastGet( visSurvey::HorizonDisplay*,hd,visserv.getObject(id) );
+	mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
+			 visBase::DM().getObject(ids[idx]) );
 	if ( hd )
 	    hd->setSectionDisplayRestore( yn );
     }
@@ -174,10 +177,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     handlehor3dmenumgr_.getParam( this )->trigger( mnuid );
     if ( mnuid == mAddIdx || mnuid==mAddAtSectIdx || mnuid==mAddCBIdx )
     {
-	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), true );
+	setSectionDisplayRestoreForAllHors( true );
 
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
+	bool needssorting = false;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
@@ -188,11 +192,15 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    uiODHorizonTreeItem* itm =
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx,
 					 mnuid==mAddAtSectIdx );
-	    addChld( itm, false, false );
+
+	    if ( addChld(itm,false,false) )
+		needssorting = true;
 	}
 	deepUnRef( objs );
 
-	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), false );
+	setSectionDisplayRestoreForAllHors( false );
+	if ( needssorting )
+	    sort();
     }
     else if ( mnuid == trackitmmgr_.getParam(this)->id )
     {
@@ -252,6 +260,8 @@ static uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
 
 void uiODHorizonParentTreeItem::sort()
 {
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     TypeSet<MultiID> mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -284,7 +294,6 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 					  bool downwards )
 {
     bool res = uiTreeItem::addChld( child, below, downwards );
-    if ( res ) sort();
     return res;
 }
 
@@ -730,6 +739,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true );
+	bool needssorting = false;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
@@ -737,10 +747,17 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		MPE::engine().addTracker( objs[idx] );
 		applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
-	    addChld( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
+
+	    if ( addChld(new uiODHorizon2DTreeItem(objs[idx]->id()),
+			 false,false) )
+	    {
+		needssorting = true;
+	    }
 	}
 
 	deepUnRef( objs );
+	if ( needssorting )
+	    sort();
     }
     else if ( mnuid == 1 )
     {
@@ -754,8 +771,11 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     else if ( mnuid == 2 )
     {
 	uiHor2DFrom3DDlg dlg( getUiParent() );
-	if( dlg.go() && dlg.doDisplay() )
-	    addChld( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true, false);
+	if ( dlg.go() && dlg.doDisplay() &&
+	     addChld(new uiODHorizon2DTreeItem(dlg.getEMObjID()),true,false) )
+	 {
+	      sort();
+	 }
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
@@ -779,6 +799,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 
 void uiODHorizon2DParentTreeItem::sort()
 {
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     TypeSet<MultiID> mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -811,7 +833,6 @@ bool uiODHorizon2DParentTreeItem::addChld( uiTreeItem* child, bool below,
 					    bool downwards )
 {
     bool res = uiTreeItem::addChld( child, below, downwards );
-    if ( res ) sort();
     return res;
 }
 

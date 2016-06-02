@@ -40,10 +40,10 @@ public:
 	MultiID			id_;
 	ObjectSet<const Node>	children_;
 
-	bool			hasChild(const Node*) const;
+	bool			hasChild(const Node* descendant) const;
 
 	void			fillPar(IOPar&) const;
-	void			fillChildren(const FileMultiString&i,
+	void			fillChildren(const FileMultiString&,
 						 const RelationTree&);
 
 	static const char*	sKeyChildIDs();
@@ -69,7 +69,7 @@ public:
     bool			getSorted(const TypeSet<MultiID>& unsortedids,
 	    				  TypeSet<MultiID>& sortedids ) const;
 
-    bool			read();
+    bool			read()			{ return read(true); }
     bool			write() const;
 
 protected:
@@ -80,6 +80,16 @@ protected:
     int				findNode(const MultiID&) const;
 
     static const char*		sKeyHorizonRelations();
+
+    bool			read(bool removeoutdated);
+
+public:
+    static bool			sortHorizons(bool is2d,
+					const TypeSet<MultiID>& unsortedids,
+					TypeSet<MultiID>& sortedids);
+				/*!< Much faster if you only need RelationTree
+				  for sorting and unsortedids is a small
+				  subset of all horizons in the survey. */
 };
 
 } // namespace EM
