@@ -26,6 +26,8 @@ ________________________________________________________________________
 static const int cQuickScanNrTrcsAtEnds = 225; // 2 times
 static const int cQuickScanNrTrcsInMiddle = 25; // 2 times
 // total max 500 traces per file
+static const int cQuickScanMaxNrTrcs4LineChg = 10000;
+// plus these 10000 worst-case for survey setup
 
 
 void SEGY::BasicFileInfo::init()
@@ -619,7 +621,7 @@ void SEGY::ScanInfo::ensureStepsFound( od_istream& strm,
 				DataClipSampler& clipsampler,
 				const OffsetCalculator& offscalc )
 {
-    while ( true )
+    for ( int itrc=0; itrc<cQuickScanMaxNrTrcs4LineChg; itrc++ )
     {
 	const bool haveinlstep = pidetector_->haveStep( true );
 	const bool havecrlstep = pidetector_->haveStep( false );
