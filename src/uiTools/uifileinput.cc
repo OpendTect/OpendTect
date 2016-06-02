@@ -87,6 +87,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     {
 	selmodset_ = true;
 	selmode_ = uiFileDialog::DirectoryOnly;
+	defaultext_.setEmpty();
     }
 
     valuechanging.notify( mCB(this,uiFileInput,inputChg) );
@@ -178,7 +179,9 @@ void uiFileInput::inputChg( CallBacker* )
 
 void uiFileInput::fnmEntered( CallBacker* )
 {
-    if ( forread_ || defaultext_.isEmpty() )
+    const bool isdir = selmode_==uiFileDialog::Directory ||
+		       selmode_==uiFileDialog::DirectoryOnly;
+    if ( isdir || forread_ || defaultext_.isEmpty() )
 	return;
 
     FilePath fp( fileName() );
@@ -240,7 +243,9 @@ void uiFileInput::doSelect( CallBacker* )
     else
     {
 	newfname = dlg->fileName();
-	if ( !forread_ && !defaultext_.isEmpty() )
+	const bool isdir = selmode_==uiFileDialog::Directory ||
+			   selmode_==uiFileDialog::DirectoryOnly;
+	if ( !forread_ && !defaultext_.isEmpty() && !isdir )
 	{
 	    FilePath fp( newfname );
 	    const FixedString ext = fp.extension();
