@@ -388,8 +388,7 @@ bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
 	return true;
 
     IOObjInfo info( list[0] );
-    EM::RelationTree reltree( info.is2DHorizon() );
-    return reltree.getSorted( list, sorted );
+    return RelationTree::sortHorizons( info.is2DHorizon(), list, sorted );
 }
 
 

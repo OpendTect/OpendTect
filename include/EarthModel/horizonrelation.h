@@ -37,12 +37,13 @@ public:
 				Node(const MultiID&);
 
 	MultiID			id_;
+	BufferString		datestamp_;
 	ObjectSet<const Node>	children_;
 
-	bool			hasChild(const Node*) const;
+	bool			hasChild(const Node* descendant) const;
 
 	void			fillPar(IOPar&) const;
-	void			fillChildren(const FileMultiString&i,
+	void			fillChildren(const FileMultiString&,
 						 const RelationTree&);
 
 	static const char*	sKeyChildIDs();
@@ -68,7 +69,14 @@ public:
     bool			getSorted(const TypeSet<MultiID>& unsortedids,
 	    				  TypeSet<MultiID>& sortedids ) const;
 
-    bool			read();
+    static bool			sortHorizons(bool is2d,
+				     const TypeSet<MultiID>& unsortedids,
+				     TypeSet<MultiID>& sortedids);
+				/*!< Much faster if you only need RelationTree
+				     for sorting and unsortedids is a small
+				     subset of all horizons in the survey. */
+
+    bool			read()			{ return read(true); }
     bool			write() const;
 
 protected:
@@ -77,6 +85,7 @@ protected:
     bool			is2d_;
 
     int				findNode(const MultiID&) const;
+    bool			read(bool removeoutdated);
 
     static const char*		sKeyHorizonRelations();
 };

@@ -620,6 +620,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( !as_.validIdx(channel) )
 	return;
 
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     Attrib::SelSpec& as = (*as_[channel])[0];
     const bool attribwasdepth = FixedString(as.userRef())==sKeyZValues();
     as.set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );

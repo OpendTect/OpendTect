@@ -32,12 +32,19 @@ RelationTree::Node::Node( const MultiID& id )
 {}
 
 
-bool RelationTree::Node::hasChild( const RelationTree::Node* node ) const
+bool RelationTree::Node::hasChild( const RelationTree::Node* descendant ) const
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
+    ObjectSet<const RelationTree::Node> nodes = children_;
+
+    for ( int idx=0; idx<nodes.size(); idx++ )
     {
-	if ( children_[idx] == node || children_[idx]->hasChild(node) )
-	    return true;
+	 for ( int idy=0; idy<nodes[idx]->children_.size(); idy++ )
+	 {
+	     if ( nodes[idx]->children_[idy] == descendant )
+		 return true;
+
+	     nodes.addIfNew( nodes[idx]->children_[idy] );
+	 }
     }
 
     return false;
@@ -238,7 +245,8 @@ static bool hasBeenModified( const MultiID& id, const char* datestamp )
     return Time::isEarlier( datestamp, moddate );
 }
 
-bool RelationTree::read()
+
+bool RelationTree::read( bool removeoutdated )
 {
     deepErase( nodes_ );
     IOPar par;
@@ -251,7 +259,7 @@ bool RelationTree::read()
     if ( !subpar )
 	return false;
 
-    for ( int idx=0; idx<1024; idx++ )
+    for ( int idx=0; idx<1000000; idx++ )
     {
 	MultiID id;
 	PtrMan<IOPar> nodepar = subpar->subselect( idx );
@@ -272,12 +280,15 @@ bool RelationTree::read()
 
 	RelationTree::Node* node = nodes_[idx];
 	node->fillChildren( fms, *this );
-	BufferString datestamp;
-	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),datestamp) )
+	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),
+			   node->datestamp_) )
 	    continue;
 
-	if ( hasBeenModified(node->id_,datestamp.buf()) )
+	if ( removeoutdated &&
+	     hasBeenModified(node->id_,node->datestamp_.buf()) )
+	{
 	    outdatednodes += node->id_;
+	}
     }
 
     for ( int idx=0; idx<outdatednodes.size(); idx++ )
@@ -322,5 +333,23 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
 
     return sortedids.size() > 1;
 }
+
+
+bool RelationTree::sortHorizons( bool is2d, const TypeSet<MultiID>& unsortedids,
+				 TypeSet<MultiID>& sortedids )
+{
+    RelationTree reltree( is2d, false );
+    reltree.read( false );
+
+    for ( int idx=0; idx<unsortedids.size(); idx++ )
+    {
+	const RelationTree::Node* node = reltree.getNode( unsortedids[idx] );
+	if ( node && hasBeenModified(node->id_,node->datestamp_.buf()) )
+	    reltree.removeNode( node->id_, false );
+    }
+
+    return reltree.getSorted( unsortedids, sortedids );
+}
+
 
 } // namespace EM
