@@ -758,23 +758,25 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 
     Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
     trcrange.widen( 0.001f * trc->info().sampling_.step );
-    for ( int idx=0; idx<data.nrsamples_; idx++ )
+    int compidx = -1;
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
-	int compidx = -1;
-	for ( int idy=0; idy<outputinterest_.size(); idy++ )
-	{
-	    if ( outputinterest_[idy] )
-	    {
-		compidx++;
-		const int compnr = desc_.is2D() ? idy : compidx;
-		const float val = trcrange.includes(curt,false) ?
-		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compnr)
-				  : trc->getValue(curt, compnr) )
-		   : mUdf(float);
+	if ( !outputinterest_[idx] )
+	    continue;
 
-		const_cast<DataHolder&>(data).series(idy)->setValue(idx,val);
-	    }
+	ValueSeries<float>* series = const_cast<DataHolder&>(data).series(idx);
+	const bool isclss = isclass[idx];
+	compidx++;
+
+    	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
+    	{
+    	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
+	    const int compnr = desc_.is2D() ? idx : compidx;
+	    const float val = trcrange.includes(curt,false) ?
+		(isclss ? trc->get(trc->nearestSample(curt),compnr)
+		  : trc->getValue(curt,compnr)) : mUdf(float);
+	    
+	    series->setValue( sampidx, val );
 	}
     }
 

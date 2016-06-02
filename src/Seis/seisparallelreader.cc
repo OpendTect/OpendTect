@@ -437,6 +437,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
     curbid = trl->readMgr()->binID();
 
     const Scaler* scaler = dp_->getScaler();
+    const int nrzsamples = tkzs_.zsamp_.nrSteps()+1;
     for ( int idc=0; idc<dp_->nrComponents(); idc++ )
     {
 	Array3D<float>& arr = dp_->data( idc );
@@ -465,7 +466,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 			arr.info().getOffset( 0, mCast(int,idx), 0 );
 		    char* dststartptr = storarr + offset*bytespersamp;
 
-		    for ( int zidx=0; zidx<tkzs_.zsamp_.nrSteps()+1; zidx++ )
+		    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 		    {
 			const float zval = tkzs_.zsamp_.atIndex( zidx );
 			const int trczidx = trc.nearestSample( zval );
@@ -482,7 +483,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 		}
 		else
 		{
-		    for ( int zidx=0; zidx<tkzs_.zsamp_.nrSteps()+1; zidx++ )
+		    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 		    {
 			const float zval = tkzs_.zsamp_.atIndex( zidx );
 			arr.set( 0, (int)idx, zidx, trc.getValue(zval,idc) );
@@ -538,6 +539,7 @@ bool execute()
     const StepInterval<float>& trczsamp = trc_.zRange();
     dpzsamp.limitTo( trczsamp );
     const int startidx = dp_.sampling().zsamp_.nearestIndex( dpzsamp.start );
+    const int nrzsamples = dpzsamp.nrSteps()+1;
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
     {
@@ -562,7 +564,7 @@ bool execute()
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
 	    char* dststartptr = storarr + offset*bytespersamp;
 
-	    for ( int zidx=0; zidx<dpzsamp.nrSteps()+1; zidx++ )
+	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
 		// Check if amplitude equals undef value of underlying data
 		// type knowing that array has been initialized with undefs
@@ -580,7 +582,7 @@ bool execute()
 	}
 	else
 	{
-	    for ( int zidx=0; zidx<dpzsamp.nrSteps()+1; zidx++ )
+	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
 		const float zval = dpzsamp.atIndex( zidx );
 		arr.set( idx0, idx1, zidx, trc_.getValue(zval,idcin) );
