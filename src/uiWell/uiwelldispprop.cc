@@ -690,8 +690,10 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
     filllogsfld_->box()->setEmpty();
     filllogsfld_->box()->addItems( lognames );
     if ( lognames.isPresent(curlognm) )
+    {
 	logsfld_->box()->setText( curlognm );
-
+	filllogsfld_->box()->setText( curlognm );
+    }
     logSel( 0 );
 }
 
