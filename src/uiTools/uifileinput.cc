@@ -82,10 +82,12 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 	examinebut_->setText(
 		exameditable_ ? uiStrings::sEdit() : uiStrings::sExamine() );
     }
+
     if ( setup.directories_ )
     {
 	selmodset_ = true;
 	selmode_ = uiFileDialog::DirectoryOnly;
+	defaultext_.setEmpty();
     }
 
     valuechanging.notify( mCB(this,uiFileInput,inputChg) );
@@ -239,7 +241,9 @@ void uiFileInput::doSelect( CallBacker* )
     else
     {
 	newfname = dlg->fileName();
-	if ( !forread_ && !defaultext_.isEmpty() )
+	const bool isdir = selmode_==uiFileDialog::Directory ||
+			   selmode_==uiFileDialog::DirectoryOnly;
+	if ( !forread_ && !defaultext_.isEmpty() && !isdir )
 	{
 	    FilePath fp( newfname );
 	    const FixedString ext = fp.extension();
