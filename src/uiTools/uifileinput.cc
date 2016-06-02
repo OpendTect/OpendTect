@@ -179,7 +179,7 @@ void uiFileInput::inputChg( CallBacker* )
 
 void uiFileInput::fnmEntered( CallBacker* )
 {
-    if ( forread_ || defaultext_.isEmpty() )
+    if ( forread_ || defaultext_.isEmpty() || inDirectorySelectMode() )
 	return;
 
     FilePath fp( fileName() );
@@ -241,9 +241,7 @@ void uiFileInput::doSelect( CallBacker* )
     else
     {
 	newfname = dlg->fileName();
-	const bool isdir = selmode_==uiFileDialog::Directory ||
-			   selmode_==uiFileDialog::DirectoryOnly;
-	if ( !forread_ && !defaultext_.isEmpty() && !isdir )
+	if ( !forread_ && !defaultext_.isEmpty() && !inDirectorySelectMode() )
 	{
 	    FilePath fp( newfname );
 	    const FixedString ext = fp.extension();
@@ -290,6 +288,28 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
     BufferString string = text();
     uiFileDialog::string2List( string, list );
+}
+
+
+uiFileDialog::Mode uiFileInput::selectMode() const
+{
+    return selmodset_ ? selmode_
+		      : (forread_ ? uiFileDialog::ExistingFile
+				  : uiFileDialog::AnyFile);
+}
+
+
+void uiFileInput::setSelectMode( uiFileDialog::Mode m )
+{
+    selmodset_ = true;
+    selmode_ = m;
+}
+
+
+bool uiFileInput::inDirectorySelectMode() const
+{
+    return selmode_ == uiFileDialog::Directory ||
+	   selmode_ == uiFileDialog::DirectoryOnly;
 }
 
 

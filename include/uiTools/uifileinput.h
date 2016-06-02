@@ -76,15 +76,9 @@ public:
     const char*		fileName() const;
     void		getFileNames(BufferStringSet&) const;
 
-    uiFileDialog::Mode	selectMode() const
-			{
-			    return selmodset_ ? selmode_
-				 : (forread_  ? uiFileDialog::ExistingFile
-					      : uiFileDialog::AnyFile);
-			}
-
-    void		setSelectMode( uiFileDialog::Mode m)
-			{ selmodset_ = true;  selmode_ = m; }
+    uiFileDialog::Mode	selectMode() const;
+    void		setSelectMode( uiFileDialog::Mode);
+    bool		inDirectorySelectMode() const;
 
     void		setSensitive(bool yn)	{ setChildrenSensitive(yn); }
     void		enableExamine(bool);
