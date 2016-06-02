@@ -69,6 +69,7 @@ protected:
     void		doubleClickedCB(CallBacker*);
     void		movementEndCB(CallBacker*);
     void		removePosCB(CallBacker*);
+    void		makePatchEnd(bool);
 
     void		handleMouseClicked(bool dbl);
     bool		checkSanity(EMTracker&,const EMSeedPicker&,
