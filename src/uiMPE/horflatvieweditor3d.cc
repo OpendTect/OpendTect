@@ -102,6 +102,7 @@ void HorizonFlatViewEditor3D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     curcs_ = cs;
     horpainter_->setTrcKeyZSampling( cs );
+    makePatchEnd( false );
 }
 
 
@@ -319,6 +320,8 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( editor_ )
     {
 	editor_->sower().reInitSettings();
+	editor_->sower().setSequentSowMask(
+	    true,OD::ButtonState(OD::LeftButton+OD::ControlButton) );
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
 	if ( editor_->sower().activate(prefcol, mouseevent) )
@@ -425,19 +428,32 @@ void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* cb )
     if ( seedpicker->getTrackMode()==EMSeedPicker::DrawBetweenSeeds ||
 	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
     {
-	const Patch* patch = seedpicker->getPatch();
-	if ( patch )
-	{
-	    TrcKeySampling tckpath;
-	    patch->getTrcKeySampling( tckpath );
-	    horpainter_->setUpdateTrcKeySampling( tckpath );
-	}
-	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( emobj )
-	    emobj->setBurstAlert( false );
-	seedpicker->endPatch( false );
-	updatePatchDisplay();
+	 makePatchEnd( false );
     }
+}
+
+
+void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
+{
+    MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
+    if ( !seedpicker )
+	return;
+
+    const Patch* patch = seedpicker->getPatch();
+    if ( !patch ) return;
+
+    TrcKeySampling tckpath;
+    patch->getTrcKeySampling( tckpath );
+    if ( tckpath.isEmpty() ) 
+	return;
+
+    horpainter_->setUpdateTrcKeySampling( tckpath );
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( emobj )
+	emobj->setBurstAlert( false );
+    seedpicker->endPatch( doerase );
+    updatePatchDisplay();
 }
 
 
@@ -551,29 +567,11 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
-    MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
-    if ( !seedpicker || !mehandler_ )
-	return;
+    const MouseEvent& mouseevent = mehandler_->event();
+    const bool doerase =
+	!mouseevent.shiftStatus() && mouseevent.ctrlStatus();
+    makePatchEnd( doerase );
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
-    {
-	const MouseEvent& mouseevent = mehandler_->event();
-	const bool doerase =
-	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
-	const Patch* patch = seedpicker->getPatch();
-	if ( patch )
-	{
-	    TrcKeySampling tckpath;
-	    patch->getTrcKeySampling( tckpath );
-	    horpainter_->setUpdateTrcKeySampling( tckpath );
-	}
-	EM::EMObject* emobj = EM::EMM().getObject(emid_);
-	if ( emobj )
-	    emobj->setBurstAlert( false );
-	seedpicker->endPatch( doerase );
-	updatePatchDisplay();
-    }
 }
 
 
@@ -693,9 +691,13 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 
+	const MouseEvent& mouseevent = mehandler_->event();
+	const bool doerase =
+	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
+
 	const TrcKeyValue tkv2( SI().transform(Coord(mev.x(),mev.y())), 0.f );
 	if ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
-	     spk.getTrackMode()==spk.DrawAndSnap )
+	     spk.getTrackMode()==spk.DrawAndSnap || doerase )
 	{
 	    spk.addSeedToPatch( tkv );
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
