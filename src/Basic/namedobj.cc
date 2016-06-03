@@ -61,7 +61,7 @@ mImplMonitorableAssignment(NamedMonitorable,Monitorable)
 
 void NamedMonitorable::copyClassData( const NamedMonitorable& oth )
 {
-    setName( oth.getName() );
+    name_ = oth.name_;
 }
 
 

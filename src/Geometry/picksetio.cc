@@ -105,10 +105,10 @@ bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
     if ( !ps )
 	return true;
 
-    MonitorLock ml( *ps );
-    if ( !PickSetTranslator::store(*ps,&ioobj,errmsg_) )
+    // Try to be real fast, only lock the set during in-mem copy
+    RefMan<Set> copiedset = new Set( *ps );
+    if ( !PickSetTranslator::store(*copiedset,&ioobj,errmsg_) )
 	return false;
-    ml.unlockNow();
 
     ps.getNonConstPtr()->setName( ioobj.name() );
     return true;
