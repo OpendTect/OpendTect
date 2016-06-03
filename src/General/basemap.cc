@@ -17,6 +17,7 @@ BaseMapObject::BaseMapObject( const char* nm )
     , leftClicked(this)
     , rightClicked(this)
     , stylechanged(this)
+    , zvaluechanged(this)
     , namechanged(this)
     , depth_(0)
 {
@@ -28,6 +29,13 @@ BaseMapObject::BaseMapObject( const char* nm )
 BaseMapObject::~BaseMapObject()
 {
     sendDelNotif();
+}
+
+
+void BaseMapObject::setDepth( int val )
+{
+    depth_ = val;
+    zvaluechanged.trigger();
 }
 
 
@@ -68,6 +76,7 @@ bool BaseMapObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name() );
     par.set( sKey::Type(), getType() );
+    par.set( sKey::Depth(), getDepth() );
     return true;
 }
 
@@ -79,6 +88,10 @@ bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
 	setName( nm );
     if ( par.get(sKey::Type(),type) )
 	setType( type );
+
+    int depth = 0;
+    if ( par.get(sKey::Depth(),depth) )
+	setDepth( depth );
 
     return true;
 }

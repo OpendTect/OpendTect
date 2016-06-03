@@ -29,11 +29,10 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 {
     if ( bmobject_ )
     {
-	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
-	bmobject_->stylechanged.notify(
-		    mCB(this,uiBaseMapObject,changedStyleCB) );
-	graphitem_.setZValue( bmobject_->getDepth() );
-	labelitem_.setZValue( bmobject_->getDepth()-1 );
+	mAttachCB( bmobject_->changed, uiBaseMapObject::changedCB );
+	mAttachCB( bmobject_->stylechanged, uiBaseMapObject::changedStyleCB );
+	mAttachCB( bmobject_->zvaluechanged, uiBaseMapObject::changedZValueCB );
+	changedZValueCB( 0 );
     }
     graphitem_.setAcceptHoverEvents( true );
 }
@@ -41,21 +40,13 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 
 uiBaseMapObject::~uiBaseMapObject()
 {
-    if ( bmobject_ )
-    {
-	bmobject_->changed.remove( mCB(this,uiBaseMapObject,changedCB) );
-	bmobject_->stylechanged.remove(
-		    mCB(this,uiBaseMapObject,changedStyleCB) );
-    }
-
+    detachAllNotifiers();
     delete &graphitem_;
     delete &labelitem_;
 }
 
-
-BaseMapObject* uiBaseMapObject::getObject()
-{ return bmobject_; }
-
+const char* uiBaseMapObject::getType() const
+{ return bmobject_ ? bmobject_->getType() : 0; }
 
 const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
@@ -96,6 +87,14 @@ void uiBaseMapObject::changedStyleCB( CallBacker* )
 {
     changed_ = true;
     updateStyle();
+}
+
+
+void uiBaseMapObject::changedZValueCB( CallBacker* )
+{
+    changed_ = true;
+    graphitem_.setZValue( bmobject_->getDepth() );
+    labelitem_.setZValue( bmobject_->getDepth() );
 }
 
 

@@ -46,7 +46,7 @@ public:
     virtual void		setType(const char* tp) { typenm_ = tp;}
     virtual const char*		getType() const		{ return typenm_; }
 
-    virtual void		setDepth(int val)	{ depth_ = val; }
+    virtual void		setDepth(int val);
     virtual int			getDepth() const	{ return depth_; }
 				/*!<Determines what should be painted ontop of
 				    what */
@@ -106,6 +106,7 @@ public:
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
     Notifier<BaseMapObject>			changed;
     Notifier<BaseMapObject>			stylechanged;
+    Notifier<BaseMapObject>			zvaluechanged;
     CNotifier<BaseMapObject,const uiString&>	namechanged;
 
 protected:

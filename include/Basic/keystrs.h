@@ -138,6 +138,7 @@ namespace sKey
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
     inline FixedString ZUnit()		{ return "Z-Unit"; }
+    inline FixedString ZValue()		{ return "Z value"; }
 
     // Stats
     inline FixedString Average()	{ return "Average"; }

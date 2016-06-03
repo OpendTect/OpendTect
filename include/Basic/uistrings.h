@@ -346,6 +346,8 @@ public:
     static uiString sModify();
     static uiString sMouse()		{ return tr("Mouse"); }
     static uiString sMove()		{ return tr("Move"); }
+    static uiString sMoveToBottom()	{ return tr("Move To Bottom"); }
+    static uiString sMoveToTop()	{ return tr("Move To Top"); }
     static uiString sMoveDown()		{ return tr("Move Down"); }
     static uiString sMoveUp()		{ return tr("Move Up"); }
     static uiString sMsec()		{ return tr("msec"); }
