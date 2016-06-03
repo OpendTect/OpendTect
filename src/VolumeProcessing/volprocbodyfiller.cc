@@ -249,7 +249,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 		const int bodyzidx =
 			implicitbody_->tkzs_.zsamp_.nearestIndex(z);
 		if ( bodyzidx<0 ||
-			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
+		     bodyzidx >= implicitbody_->arr_->info().getSize(2) )
 		    val = outsideval_;
 		else
 		{
@@ -259,7 +259,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 		    if ( mIsUdf(bodyval) )
 			val = mUdf(float);
 		    else
-			val = bodyval<implicitbody_->threshold_
+			val = bodyval >= implicitbody_->threshold_
 			    ? insideval_ : outsideval_;
 		}
 	    }

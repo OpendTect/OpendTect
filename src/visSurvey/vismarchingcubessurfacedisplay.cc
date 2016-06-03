@@ -312,7 +312,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	float minz=0, maxz=0;
 	for ( int idz=0; idz<zsz; idz++ )
 	{
-	    if ( impbody_->arr_->get(inlidx,crlidx,idz)>impbody_->threshold_ )
+	    if ( impbody_->arr_->get(inlidx,crlidx,idz) < impbody_->threshold_ )
 		continue;
 
 	    const float curz = impbody_->tkzs_.zsamp_.atIndex(idz);

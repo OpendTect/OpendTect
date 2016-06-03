@@ -19,15 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Geometry
 {
 
-ImplicitBodyPlaneIntersector::ImplicitBodyPlaneIntersector( 
+ImplicitBodyPlaneIntersector::ImplicitBodyPlaneIntersector(
 	const Array3D<float>& arr, const TrcKeyZSampling& cs, float threshold,
 	char dim, float icz, IndexedShape& ns )
     : output_( ns )
     , arr_( arr )
     , tkzs_( cs )
     , dim_( dim )
-    , inlcrlz_( icz )		
-    , threshold_( threshold )			       	
+    , inlcrlz_( icz )
+    , threshold_( threshold )
 {}
 
 
@@ -45,15 +45,17 @@ bool ImplicitBodyPlaneIntersector::compute()
 	    Array2DImpl<float>(sz0,sz1) );
     if ( !data ) return false;
 
-    const int pidx = !dim_ ? tkzs_.hsamp_.inlRange().nearestIndex((int)inlcrlz_) :
+    const int pidx = !dim_ ?
+	tkzs_.hsamp_.inlRange().nearestIndex((int)inlcrlz_) :
 	(dim_==1 ? tkzs_.hsamp_.crlRange().nearestIndex((int)inlcrlz_) :
-	 	   tkzs_.zsamp_.nearestIndex(inlcrlz_) );
-    const int psz = !dim_ ? tkzs_.nrInl() : (dim_==1 ? tkzs_.nrCrl() : tkzs_.nrZ());
+		   tkzs_.zsamp_.nearestIndex(inlcrlz_) );
+    const int psz = !dim_ ? tkzs_.nrInl()
+			  : (dim_==1 ? tkzs_.nrCrl() : tkzs_.nrZ());
     if ( pidx<0 || pidx>=psz ) return false;
-    
+
     data->setAll( mUdf(float) );
     Coord3List& crdlist = *output_.coordList();
-    const Coord3 normal = !dim_ ? Coord3(1,0,0) : 
+    const Coord3 normal = !dim_ ? Coord3(1,0,0) :
 	( dim_==1 ? Coord3(0,1,0) : Coord3(0,0,1) );
     mDynamicCastGet( ExplicitIndexedShape*, eis, &output_ );
     Coord3List* normallist = 0;
@@ -86,8 +88,8 @@ bool ImplicitBodyPlaneIntersector::compute()
 		val  = arr_.get( idx, idy, pidx );
 
 	    crdlist.add( Coord3(bid.inl(),bid.crl(),z) ); //Coord isInlCrl
-	    if ( val<threshold_ )
-    		data->set( idx, idy, val );
+	    if ( val >= threshold_ )
+		data->set( idx, idy, val );
 	}
     }
 

@@ -779,26 +779,24 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     if ( !ff.execute() )
 	return false;
 
-    if ( isosurfsettings_[idx].seedsaboveisoval_ )
+    if ( !isosurfsettings_[idx].seedsaboveisoval_ )
     {
-	const float outsideval = 1;
+	const float outsideval = -1.f;
 	const float threshold = isosurfsettings_[idx].isovalue_;
 	float* newdata = newarr.getData();
 	if ( newdata )
 	{
             for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
 		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval
-						    : threshold - newdata[idy];
+						    : threshold-newdata[idy];
 	}
         else if ( newarr.getStorage() )
         {
             ValueSeries<float>* newstor = newarr.getStorage();
             for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
             {
-		newstor->setValue(idy,
-                    mIsUdf(newstor->value(idy))
-                        ? outsideval
-                        : threshold - newstor->value(idy) );
+		newstor->setValue(idy, mIsUdf(newstor->value(idy))
+			? outsideval : threshold-newstor->value(idy) );
             }
 
         }
@@ -820,8 +818,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     }
 
     const float threshold = isosurfsettings_[idx].seedsaboveisoval_
-	? 0
-	: isosurfsettings_[idx].isovalue_;
+	? isosurfsettings_[idx].isovalue_ : 0;
 
     isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
 						    threshold, tr );

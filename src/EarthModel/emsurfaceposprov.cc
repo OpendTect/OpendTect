@@ -787,7 +787,7 @@ bool EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
     const int crlidx = tkzs_.crlIdx(bid.crl());
     const int zidx = tkzs_.zIdx(z);
     const bool inbody = imparr_->info().validPos(inlidx,crlidx,zidx) &&
-	imparr_->get(inlidx,crlidx,zidx)<=threshold_;
+	imparr_->get(inlidx,crlidx,zidx) >= threshold_;
 
     return useinside_==inbody;
 }

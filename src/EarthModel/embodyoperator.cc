@@ -31,8 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-#define mInsideVal	-1
-#define mOutsideVal	1
+#define mInsideVal	1
+#define mOutsideVal	-1
 #define mOnBodyVal	0
 
 class BodyOperatorArrayFiller: public ParallelTask
@@ -51,7 +51,8 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
     , action_( act )
 {}
 
-od_int64 nrIterations() const { return arr_.info().getTotalSz(); }
+float	 getThreshold() const	{ return 0.f; }
+od_int64 nrIterations() const	{ return arr_.info().getTotalSz(); }
 uiString uiMessage() const { return tr("Calculating implicit body operation"); }
 
 protected:
@@ -80,15 +81,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( b0_.arr_->info().validPos(id0[0],id0[1],id0[2]) )
 	{
 	    v0 = b0_.arr_->get( id0[0], id0[1], id0[2] );
-	    pos0 = (v0<b0_.threshold_) ? mInsideVal
-		 : (v0>b0_.threshold_ ? mOutsideVal : mOnBodyVal);
+	    pos0 = (v0>b0_.threshold_) ? mInsideVal
+		 : (v0<b0_.threshold_ ? mOutsideVal : mOnBodyVal);
 	}
 
 	if ( b1_.arr_->info().validPos(id1[0],id1[1],id1[2]) )
 	{
 	    v1 = b1_.arr_->get( id1[0], id1[1], id1[2] );
-	    pos1 = (v1<b1_.threshold_) ? mInsideVal
-		 : (v1>b1_.threshold_ ? mOutsideVal : mOnBodyVal);
+	    pos1 = (v1>b1_.threshold_) ? mInsideVal
+		 : (v1<b1_.threshold_ ? mOutsideVal : mOnBodyVal);
 	}
 
 	const float val = getVal( pos0, pos1, v0, v1 );
@@ -115,14 +116,14 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? (mMAX(v0,v1)) : mInsideVal;
+		res = useval ? mMAX(v0,v1)-b1_.threshold_ : mInsideVal;
 	    }
 	}
 	else if ( p1==mOnBodyVal )
 	{
 	    if ( action_==BodyOperator::Union )
 	    {
-		res = useval ? v0 : mInsideVal;
+		res = useval ? v0-b0_.threshold_ : mInsideVal;
 	    }
 	    else if ( action_==BodyOperator::IntSect )
 	    {
@@ -130,18 +131,18 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? b0_.threshold_+0.01f : mOutsideVal;
+		res = useval ? -0.01f : mOutsideVal;
 	    }
 	}
 	else
 	{
 	    if ( action_==BodyOperator::IntSect )
 	    {
-		res = useval ? v1 : mOutsideVal;
+		res = useval ? v1-b1_.threshold_ : mOutsideVal;
 	    }
 	    else
 	    {
-		res = useval ? v0 : mInsideVal;
+		res = useval ? v0-b0_.threshold_ : mInsideVal;
 	    }
 	}
     }
@@ -151,7 +152,7 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	{
 	    if ( action_==BodyOperator::Union )
 	    {
-		res = useval ? v1 : mInsideVal;
+		res = useval ? v1-b1_.threshold_ : mInsideVal;
 	    }
 	    else if ( action_==BodyOperator::IntSect )
 	    {
@@ -164,13 +165,16 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	}
 	else if ( p1==mOnBodyVal )
 	{
-	    res = mOnBodyVal;
+	    if ( action_==BodyOperator::Minus )
+		res = useval ? -0.01f : mOutsideVal;
+	    else
+		res = mOnBodyVal;
 	}
 	else
 	{
 	    if ( action_==BodyOperator::IntSect )
 	    {
-		res = useval ? v1 : mOutsideVal;
+		res = useval ? -0.01f : mOutsideVal;
 	    }
 	    else
 	    {
@@ -184,11 +188,11 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	{
 	    if ( action_==BodyOperator::Union )
 	    {
-		res = useval ? v1 : mInsideVal;
+		res = useval ? v1-b1_.threshold_ : mInsideVal;
 	    }
 	    else
 	    {
-		res = useval ? v0 : mOutsideVal;
+		res = useval ? v0-b0_.threshold_ : mOutsideVal;
 	    }
 	}
 	else if ( p1==mOnBodyVal )
@@ -199,12 +203,12 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	    }
 	    else
 	    {
-		res = useval ? v0 : mOutsideVal;
+		res = useval ? v0-b0_.threshold_ : mOutsideVal;
 	    }
 	}
 	else
 	{
-	    res = useval ? (mMIN(v0,v1)) : mOutsideVal;
+	    res = useval ? v0-b0_.threshold_ : mOutsideVal;
 	}
     }
 
@@ -346,10 +350,10 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int zidx=0; zidx<zsz; zidx++ )
 	    {
 		const float curz = zrg_.atIndex( zidx );
-		const float val = curz<segment.start ? segment.start-curz :
-		    ( curz>segment.stop ? curz-segment.stop :
-		      (nrintersections>2 ? 0 :
-		      -mMIN(curz-segment.start, segment.stop-curz)) );
+		const float val = curz<segment.start ? curz-segment.start :
+		    ( curz>segment.stop ? segment.stop-curz :
+		      (nrintersections>2 ? 0.f :
+		      mMIN(curz-segment.start, segment.stop-curz)) );
 		arr_.set( inlidx, crlidx, zidx, val );
 	    }
 	}
@@ -723,7 +727,7 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     arrfiller.execute();
 
     res->arr_ = arr;
-    res->threshold_ = 0;
+    res->threshold_ = arrfiller.getThreshold();
     res->tkzs_.hsamp_.start_ = BinID(newinlrg.start, newcrlrg.start);
     res->tkzs_.hsamp_.stop_ = BinID(newinlrg.stop, newcrlrg.stop);
     res->tkzs_.hsamp_.step_ = BinID(newinlrg.step, newcrlrg.step);
