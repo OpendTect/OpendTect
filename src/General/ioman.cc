@@ -901,12 +901,12 @@ int IOMan::levelOf( const char* dirnm ) const
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
     Threads::Locker lock( lock_ );
-    PtrMan<IOObj> clone = ioobj.clone();
-    to( clone->key() );
+    PtrMan<IOObj> ioobjclone = ioobj.clone();
+    to( ioobjclone->key() );
     if ( !dirptr_ )
 	return false;
 
-    if ( !dirptr_->commitChanges(clone) )
+    if ( !dirptr_->commitChanges(ioobjclone) )
     {
 	errmsg_ = dirptr_->errMsg();
 	return false;
