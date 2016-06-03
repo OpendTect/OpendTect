@@ -39,7 +39,7 @@ mExpClass(General) IOMan : public NamedMonitorable
 { mODTextTranslationClass(IOMan);
 public:
 
-    bool		isBad() const		{ return state_ != Good; }
+    bool		isBad() const;
     bool		isReady() const;
     uiString		errMsg() const		{ return errmsg_; }
 
@@ -110,12 +110,12 @@ public:
 			//!< At survey change, dir will automatically be added
 
     Notifier<IOMan>	newIODir;
-    Notifier<IOMan>	entryRemoved;	    //!< CallBacker: CBCapsule<MultiID>
-    Notifier<IOMan>	entryAdded;
     Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
     Notifier<IOMan>	surveyChanged;      //!< To restore OD to normal state
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
+    Notifier<IOMan>	entryRemoved;	    //!< CallBacker: CBCapsule<MultiID>
+    Notifier<IOMan>	entryAdded;
 
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
@@ -141,10 +141,13 @@ private:
     static IOMan*	theinst_;
     static void		setupCustomDataDirs(int,uiString& errmsg);
 
+			// Not locked:
+    inline bool		gtIsBad() const		{ return state_ != Good; }
     bool		setDir(const char*);
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
-    bool		to(const IOSubDir*,bool);
+    bool		goTo(const MultiID&,bool,AccessLockHandler&) const;
+    bool		goTo(const IOSubDir*,bool,AccessLockHandler&) const;
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
     friend class	SurveyDataTreePreparer;

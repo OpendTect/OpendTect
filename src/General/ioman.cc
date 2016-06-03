@@ -47,14 +47,13 @@ IOMan::IOMan( const char* rd )
 	, dirptr_(0)
 	, survchgblocked_(false)
 	, state_(IOMan::NeedInit)
-	, lock_(Threads::Lock(false))
 	, newIODir(this)
-	, entryRemoved(this)
-	, entryAdded(this)
 	, surveyToBeChanged(this)
 	, surveyChanged(this)
 	, afterSurveyChange(this)
 	, applicationClosing(this)
+	, entryRemoved(this)
+	, entryAdded(this)
 {
     rootdir_ = rd && *rd ? rd : GetDataDir();
     if ( !File::isDirectory(rootdir_) )
@@ -253,9 +252,17 @@ IOMan::~IOMan()
 }
 
 
+bool IOMan::isBad() const
+{
+    mLock4Read();
+    return gtIsBad();
+}
+
+
 bool IOMan::isReady() const
 {
-    return isBad() || !dirptr_ ? false : !dirptr_->key().isUdf();
+    mLock4Read();
+    return gtIsBad() || !dirptr_ ? false : !dirptr_->key().isUdf();
 }
 
 
@@ -439,22 +446,34 @@ bool IOMan::validSurveySetup( uiString& errmsg, uiString& warnmsg )
 
 bool IOMan::setRootDir( const char* dirnm )
 {
-    Threads::Locker lock( lock_ );
-    if ( !dirnm || rootdir_==dirnm ) return true;
-    if ( !File::isDirectory(dirnm) ) return false;
+    mLock4Read();
+    if ( !dirnm || rootdir_ == dirnm )
+	return true;
+    if ( !File::isDirectory(dirnm) )
+	return false;
+
+    mLock2Write();
     rootdir_ = dirnm;
-    return setDir( rootdir_ );
+    bool rv = setDir( rootdir_ );
+    mSendEntireObjChgNotif();
+    return rv;
 }
 
 
-bool IOMan::to( const IOSubDir* sd, bool forcereread )
+#define mGoTo(where,forcereread) goTo( where, forcereread, accesslockhandler_ )
+
+
+bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
+		    AccessLockHandler& accesslockhandler_ ) const
 {
-    if ( isBad() )
+    if ( gtIsBad() )
     {
-	if ( !to("0",true) || isBad() ) return false;
-	return to( sd, true );
+	if ( !mGoTo("0",true) || gtIsBad() )
+	    return false;
+	return forcereread ? false : mGoTo( sd, true );
     }
-    else if ( !forcereread )
+
+    if ( !forcereread )
     {
 	if ( !sd && curlvl_ == 0 )
 	    return true;
@@ -466,14 +485,22 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
     if ( !File::isDirectory(dirnm) )
 	return false;
 
-    return setDir( dirnm );
+    mLock2Write();
+    const bool rv = const_cast<IOMan*>(this)->setDir( dirnm );
+    touch();
+    mUnlockAllAccess();
+    const_cast<IOMan*>(this)->newIODir.trigger();
+    return rv;
 }
 
 
 MultiID IOMan::createNewKey( const MultiID& dirkey )
 {
-    Threads::Locker lock( lock_ );
-    if ( !to(dirkey,true) || !dirptr_ )
+    mLock4Read();
+    if ( !mGoTo(dirkey,true) )
+	return MultiID::udf();
+
+    if ( !dirptr_ )
 	return MultiID::udf();
 
     return dirptr_->newKey();
@@ -482,7 +509,14 @@ MultiID IOMan::createNewKey( const MultiID& dirkey )
 
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
-    Threads::Locker lock( lock_ );
+    mLock4Read();
+    return mGoTo( ky, forcereread );
+}
+
+
+bool IOMan::goTo( const MultiID& ky, bool forcereread,
+		    AccessLockHandler& accesslockhandler_ ) const
+{
     if ( rootdir_.isEmpty() )
 	return false;
 
@@ -512,16 +546,17 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 	return false;
     }
 
-    bool needtrigger = dirptr_;
+    mLock2Write();
+    bool sendnotif = dirptr_;
+    IOMan& self = *const_cast<IOMan*>( this );
     if ( dirptr_ )
-	delete dirptr_;
-    dirptr_ = newdir;
-    curlvl_ = levelOf( curDirName() );
+	delete self.dirptr_;
+    self.dirptr_ = newdir;
+    self.curlvl_ = levelOf( curDirName() );
+    mUnlockAllAccess();
 
-    lock.unlockNow();
-
-    if ( needtrigger )
-	newIODir.trigger();
+    if ( sendnotif )
+	{ touch(); self.newIODir.trigger(); }
 
     return true;
 }
@@ -529,20 +564,20 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
 IOObj* IOMan::get( const MultiID& k ) const
 {
-    Threads::Locker lock( lock_ );
     if ( !IOObj::isKey(k) )
 	return 0;
-
     MultiID ky( k );
     char* ptr = firstOcc( ky.getCStr(), '|' );
     if ( ptr ) *ptr = '\0';
     ptr = firstOcc( ky.getCStr(), ' ' );
     if ( ptr ) *ptr = '\0';
 
+    mLock4Read();
     if ( dirptr_ )
     {
 	const IOObj* ioobj = dirptr_->get( ky );
-	if ( ioobj ) return ioobj->clone();
+	if ( ioobj )
+	    return ioobj->clone();
     }
 
     return IODir::getObj( ky, errmsg_ );
@@ -552,20 +587,24 @@ IOObj* IOMan::get( const MultiID& k ) const
 IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
-    Threads::Locker lock( lock_ );
-    if ( isBad() || !tgname || !dirptr_ ) return 0;
+    mLock4Read();
+    if ( gtIsBad() || !tgname || !dirptr_ )
+	return 0;
 
     const IOObj* ioobj = 0;
     for ( int idx=0; idx<dirptr_->size(); idx++ )
     {
-	if ( dirptr_->get(idx)->group()==tgname )
+	if ( dirptr_->get(idx)->group() == tgname )
 	{
-	    if ( onlyifsingle && ioobj ) return 0;
+	    if ( onlyifsingle && ioobj )
+		return 0;
 
 	    ioobj = dirptr_->get( idx );
-	    if ( first && !onlyifsingle ) break;
+	    if ( first && !onlyifsingle )
+		break;
 	}
     }
+    mUnlockAllAccess();
 
     return ioobj ? ioobj->clone() : 0;
 }
@@ -585,11 +624,14 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 	return get( MultiID(oky.buf()) );
     }
 
+    mLock4Read();
     if ( dirptr_ )
     {
 	const IOObj* ioobj = dirptr_->get( objname, trgrpnm );
-	if ( ioobj ) return ioobj->clone();
+	if ( ioobj )
+	    return ioobj->clone();
     }
+    mUnlockAllAccess();
 
     if ( IOObj::isKey(objname) )
 	return get( MultiID(objname) );
@@ -602,11 +644,11 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 {
     if ( nrfound )
 	*nrfound = 0;
+    if ( !ctxt.trgroup_ )
+	return 0;
 
-    Threads::Locker lock( lock_ );
-    if ( !ctxt.trgroup_ ) return 0;
-
-    if ( !IOM().to(ctxt.getSelKey()) || !dirptr_ )
+    mLock4Read();
+    if ( !mGoTo(ctxt.getSelKey(),false) || !dirptr_ )
 	return 0;
 
     const ObjectSet<IOObj>& ioobjs = dirptr_->getObjs();
@@ -633,11 +675,12 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 			  const IOObjContext& ctxt,
 			  bool mknew, BufferString& errmsg ) const
 {
-    Threads::Locker lock( lock_ );
     BufferString basekey( bky );
-    if ( !basekey.isEmpty() ) basekey.add( "." );
+    if ( !basekey.isEmpty() )
+	basekey.add( "." );
     BufferString iopkey( basekey );
     iopkey.add( sKey::ID() );
+
     BufferString res = par.find( iopkey );
     if ( res.isEmpty() )
     {
@@ -652,20 +695,19 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	if ( !IOObj::isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
-	    if ( !IOM().to(ctio.ctxt_.getSelKey()) || !dirptr_ )
+	    mLock4Read();
+	    if ( !mGoTo(ctio.ctxt_.getSelKey(),false) )
+		return 0;
+	    if ( !dirptr_ )
 		return 0;
 	    const IOObj* ioob = dirptr_->get( res.buf(), 0 );
+	    mUnlockAllAccess();
 	    if ( ioob )
 		res = ioob->key();
 	    else if ( mknew )
 	    {
 		ctio.setName( res );
-		IOM().getEntry( ctio );
-		if ( ctio.ioobj_ )
-		{
-		    IOM().commitChanges( *ctio.ioobj_ );
-		    return ctio.ioobj_;
-		}
+		const_cast<IOMan*>(this)->getEntry( ctio );
 	    }
 	}
     }
@@ -680,7 +722,8 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 
 bool IOMan::isKey( const char* ky ) const
 {
-    if ( !ky || !*ky || !iswdigit(*ky) ) return false;
+    if ( !ky || !*ky || !iswdigit(*ky) )
+	return false;
 
     bool digitseen = false;
     while ( *ky )
@@ -700,13 +743,13 @@ bool IOMan::isKey( const char* ky ) const
 
 const char* IOMan::nameOf( const char* id ) const
 {
-    mDeclStaticString( ret );
     if ( !id || !*id || !IOObj::isKey(id) )
 	return id;
 
-    MultiID ky( id );
-    IOObj* ioobj = get( ky );
+    mDeclStaticString( ret );
     ret.setEmpty();
+
+    IOObj* ioobj = get( MultiID(id) );
     if ( !ioobj )
 	{ ret = "ID=<"; ret += id; ret += ">"; }
     else
@@ -721,40 +764,40 @@ const char* IOMan::nameOf( const char* id ) const
 
 const char* IOMan::curDirName() const
 {
+    mLock4Read();
     return dirptr_ ? dirptr_->dirName() : (const char*)rootdir_;
 }
 
 
 const MultiID& IOMan::key() const
 {
+    mLock4Read();
     return dirptr_ ? dirptr_->key() : emptykey;
 }
 
 
 bool IOMan::setDir( const char* dirname )
 {
-    Threads::Locker lock( lock_ );
-    if ( !dirname ) dirname = rootdir_;
+    if ( !dirname )
+	dirname = rootdir_;
     if ( !dirname || !*dirname )
 	return false;
 
     IODir* newdirptr = new IODir( dirname );
-    if ( !newdirptr ) return false;
-    if ( newdirptr->isBad() )
-    {
-	delete newdirptr;
+    if ( !newdirptr )
 	return false;
-    }
+    if ( newdirptr->isBad() )
+	{ delete newdirptr; return false; }
 
-    bool needtrigger = dirptr_;
+    mLock4Write();
+    bool sendnotif = dirptr_;
     delete dirptr_;
     dirptr_ = newdirptr;
     curlvl_ = levelOf( curDirName() );
+    mUnlockAllAccess();
 
-    lock.unlockNow();
-
-    if ( needtrigger )
-	newIODir.trigger();
+    if ( sendnotif )
+	{ touch(); newIODir.trigger(); }
 
     return true;
 }
@@ -766,8 +809,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     if ( ctio.ctxt_.name().isEmpty() )
 	return;
 
-    Threads::Locker lock( lock_ );
-    if ( !to(ctio.ctxt_.getSelKey()) || !dirptr_ )
+    mLock4Read();
+    if ( !mGoTo(ctio.ctxt_.getSelKey(),false) || !dirptr_ )
 	return;
 
     const IOObj* ioobj = dirptr_->get( ctio.ctxt_.name(),
@@ -790,10 +833,11 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     }
 
     ctio.setObj( ioobj ? ioobj->clone() : 0 );
-    lock.unlockNow();
+    mUnlockAllAccess();
 
     if ( needstrigger )
     {
+	touch();
 	CBCapsule<MultiID> caps( ioobj->key(), this );
 	entryAdded.trigger( &caps );
     }
@@ -902,15 +946,14 @@ bool IOMan::commitChanges( const IOObj& ioobj )
 {
     Threads::Locker lock( lock_ );
     PtrMan<IOObj> ioobjclone = ioobj.clone();
-    to( ioobjclone->key() );
+    mLock4Read();
+    mGoTo( ioobjclone->key(), false );
     if ( !dirptr_ )
 	return false;
 
+    mLock2Write();
     if ( !dirptr_->commitChanges(ioobjclone) )
-    {
-	errmsg_ = dirptr_->errMsg();
-	return false;
-    }
+	{ errmsg_ = dirptr_->errMsg(); return false; }
 
     return true;
 }
@@ -918,12 +961,12 @@ bool IOMan::commitChanges( const IOObj& ioobj )
 
 bool IOMan::permRemove( const MultiID& ky )
 {
-    Threads::Locker lock( lock_ );
+    mLock4Write();
     if ( !dirptr_ || !dirptr_->permRemove(ky) )
 	return false;
+    mUnlockAllAccess();
 
-    lock.unlockNow();
-
+    touch();
     CBCapsule<MultiID> caps( ky, this );
     entryRemoved.trigger( &caps );
     return true;
@@ -971,13 +1014,11 @@ bool SurveyDataTreePreparer::prepDirData()
 bool SurveyDataTreePreparer::prepSurv()
 {
     if ( IOM().isBad() )
-    {
-	errmsg_ = tr("Bad directory");
-	return false;
-    }
+	{ errmsg_ = tr("IO Manager in 'Bad' state"); return false; }
 
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
-    if ( ioobj ) return true;
+    if ( ioobj )
+	return true;
 
     IOM().toRoot();
     if ( IOM().isBad() )
@@ -986,6 +1027,7 @@ bool SurveyDataTreePreparer::prepSurv()
 	return false;
     }
 
+    MonitorLock ml( IOM() );
     IODir* topdir = IOM().dirptr_;
     if ( !topdir || !topdir->main() || topdir->main()->name() == "Appl dir" )
 	return true;
@@ -1011,11 +1053,9 @@ bool SurveyDataTreePreparer::prepSurv()
 
 bool SurveyDataTreePreparer::createDataTree()
 {
+    MonitorLock ml( IOM() );
     if ( !IOM().dirptr_ )
-    {
-	errmsg_ = tr("Invalid current survey");
-	return false;
-    }
+	{ errmsg_ = tr("Invalid current survey"); return false; }
 
     FilePath fp( IOM().dirptr_->dirName() );
     fp.add( dirdata_.dirname_ );
