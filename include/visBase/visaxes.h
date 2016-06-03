@@ -34,8 +34,10 @@ public:
     void			setPosition(float,float);
     void			setSize(float rad, float len);
     void			setAnnotationColor(const Color&);
+    void			setAnnotationText(int dim,const uiString&);
     void			setAnnotationTextSize(int);
     void			setAnnotationFont(const FontData&);
+    
     void			setMasterCamera(visBase::Camera*);
 
     virtual void		setPixelDensity(float dpi);

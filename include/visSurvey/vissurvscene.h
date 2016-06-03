@@ -112,7 +112,7 @@ public:
     void			setAnnotFont(const FontData&);
     const FontData&		getAnnotFont() const;
     void			setAnnotScale(const TrcKeyZSampling&);
-    const TrcKeyZSampling&		getAnnotScale() const;
+    const TrcKeyZSampling&	getAnnotScale() const;
     void			savePropertySettings();
 
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }

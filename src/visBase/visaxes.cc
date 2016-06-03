@@ -93,6 +93,13 @@ void Axes::setAnnotationTextSize( int size )
     axesnode_->setAnnotationTextSize(size*sizefactor);
     annottextsize_ = size;
 }
+    
+    
+void Axes::setAnnotationText( int dim, const uiString& str )
+{
+    ArrPtrMan<wchar_t> wchar = str.createWCharString();
+    axesnode_->setAnnotationText( dim, osgText::String(wchar.ptr()) );
+}
 
 
 void Axes::setAnnotationFont( const FontData& fd )

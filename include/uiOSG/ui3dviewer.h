@@ -111,6 +111,9 @@ public:
     const osgViewer::View*	getOsgViewerHudView() const;
     void			setScenesPixelDensity(float dpi);
     float			getScenesPixelDensity() const;
+    
+    void			updateZDomainInfo();
+    				//!<Call after domain change
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

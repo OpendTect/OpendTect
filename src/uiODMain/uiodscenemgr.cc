@@ -236,6 +236,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( name.isSet() ) setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
+    scn.vwr3d_->updateZDomainInfo();
 
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
     return sceneid;

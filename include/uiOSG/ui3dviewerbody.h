@@ -144,6 +144,8 @@ public:
     StereoType			getStereoType() const;
     void			setStereoOffset(float);
     float			getStereoOffset() const;
+    
+    void			updateZDomainInfo();
 
     void			setMapView(bool yn);
     bool			isMapView() const	{ return mapview_; }

@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "visaxes.h"
 #include "visscenecoltab.h"
 
@@ -328,6 +329,7 @@ void ui3DViewerBody::setupHUD()
 	hudscene_->addObject( axes_ );
 	if ( camera_ )
 	    axes_->setMasterCamera( camera_ );
+    
     }
 
     if ( !polygonselection_ )
@@ -927,15 +929,39 @@ void ui3DViewerBody::setSceneID( int sceneid )
     offscreenrenderswitch_->addChild( newscene->osgNode() );
 
     scene_ = newscene;
+    
     mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
-    mAttachCB( survscene->mousecursorchange, ui3DViewerBody::mouseCursorChg );
-
     if ( survscene )
+    {
+        mAttachCB(survscene->mousecursorchange,ui3DViewerBody::mouseCursorChg);
 	setAnnotColor( survscene->getAnnotColor() );
+    }
 
     if ( camera_ ) newscene->setCamera( camera_ );
 
     if ( swapcallback_ ) swapcallback_->scene_ = scene_;
+    
+    updateZDomainInfo();
+}
+
+
+
+void ui3DViewerBody::updateZDomainInfo()
+{
+    const uiString xyunit = SI().getUiXYUnitString(true,true);
+    
+    const uiString north = uiStrings::phrJoinStrings( uiStrings::sNorth(true),
+                                                      xyunit );
+    const uiString east = uiStrings::phrJoinStrings( uiStrings::sEast(true),
+                                                     xyunit );
+    axes_->setAnnotationText( 0, north );
+    axes_->setAnnotationText( 1, east );
+
+    mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
+    if ( survscene )
+    {
+        axes_->setAnnotationText( 2, survscene->zDomainInfo().getLabel() );
+    }
 }
 
 
@@ -1618,6 +1644,12 @@ void ui3DViewer::getAllKeyBindings( BufferStringSet& keys ) const
 void ui3DViewer::setKeyBindings( const char* keybindname )
 {
     osgbody_->keyBindMan().setKeyBindings( keybindname );
+}
+
+
+void ui3DViewer::updateZDomainInfo()
+{
+    osgbody_->updateZDomainInfo();
 }
 
 
