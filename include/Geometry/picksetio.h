@@ -68,6 +68,7 @@ public:
 
 			SetSaver(const Pick::Set&);
 			~SetSaver();
+			mDeclMonitorableAssignment(SetSaver);
 
     ConstRefMan<Set>	pickSet() const;
     void		setPickSet(const Set&);

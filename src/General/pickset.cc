@@ -33,7 +33,7 @@ Pick::Set::Set( const char* nm, const char* cat )
 
 Pick::Set::Set( const Set& oth )
 {
-    *this = oth;
+    copyAll( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

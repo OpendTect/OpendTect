@@ -87,6 +87,11 @@ Pick::SetSaver::~SetSaver()
 }
 
 
+void Pick::SetSaver::copyClassData( const SetSaver& oth )
+{
+}
+
+
 ConstRefMan<Pick::Set> Pick::SetSaver::pickSet() const
 {
     return ConstRefMan<Set>( static_cast<const Set*>( monitored() ) );

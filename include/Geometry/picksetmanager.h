@@ -154,6 +154,7 @@ public:
 
     static SetManager&	getInstance();
     mDeclInstanceCreatedNotifierAccess(SetManager);
+    SetManager*		clone() const		{ return 0; }
     friend class	SetLoaderExec;
 
 };

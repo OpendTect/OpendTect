@@ -90,6 +90,7 @@ public:
 			Monitorable(const Monitorable&);
     virtual		~Monitorable();
     Monitorable&	operator =(const Monitorable&);
+    virtual Monitorable* clone() const		= 0;
 
     virtual CNotifier<Monitorable,ChangeData>& objectChanged() const
 	{ return const_cast<Monitorable*>(this)->chgnotif_; }
@@ -173,8 +174,9 @@ private:
 
   Compare the locking with thread-locking tools:
 
-  1) The Monitorable has (should have) methods that have the effect of Atomic's.
-     You call a method, and are guaranteed the whole operation succeeds safely.
+  1) The Monitorable has (should have) methods that make a method call sort-of
+     atomic. You call it, and are guaranteed the whole operation succeeds safely
+     without interruption.
 
   2) Sometimes operations on Monitorable's are dependent on each other. For
      example, when you are iterating through a list. If changes in the list
@@ -183,8 +185,8 @@ private:
 
      Note that not releasing the lock will almost certainly stop the entire app,
      therefore the MonitorLock will always release when it goes out of scope.
-     You always want to release asap, therefore you will often call unlockNow()
-     immediately when done.
+     Most often though you want to release asap, therefore you'll often call
+     unlockNow() immediately when done.
 
   Beware: you cannot use the MonitorLock and still change the object, a
   DEADLOCK will be your reward. To write while reading, make a copy of the
@@ -259,23 +261,38 @@ protected:
 /*!\brief For subclasses: declaration of assignment method that will emit
   'Entire Object' notifications.
 
-  Because of the locking assignment operators are essential. These will
+  Because of the locking, assignment operators are essential. These will
   need to copy both the 'own' members aswell as base class members, and emit
   the notification afterwards. For this, you have to implement a function that
   copies only the class' own data (unlocked): void copyClassData(const clss&).
 
   */
 
-#define mDeclMonitorableAssignment(clss) \
+#define mDeclAbstractMonitorableAssignment(clss) \
     private: \
         void	    copyClassData(const clss&); \
     protected: \
         void	    copyAll(const clss&); \
     public: \
-	clss&	    operator =(const clss&)
+	clss&	    operator =(const clss&);
+
+/*!\brief For subclasses: like mDeclAbstractMonitorableAssignment but for
+  non-abstract subclasses. Adds the clone() method. */
+
+#define mDeclMonitorableAssignment(clss) \
+    mDeclAbstractMonitorableAssignment(clss); \
+    virtual clss* clone() const		{ return new clss( *this ); }
 
 /*!\brief For subclasses: implementation of assignment method. You have to
-  implement the copyClassData function yourself. */
+  implement the copyClassData function yourself, no locking at all. As in:
+
+  void MyClass::copyClassData( const MyClass& oth )
+  {
+      x_ = oth.x_;
+      y_ = oth.y_;
+  }
+
+  */
 
 #define mImplMonitorableAssignment(clss,baseclss) \
 clss& clss::operator =( const clss& oth ) \
