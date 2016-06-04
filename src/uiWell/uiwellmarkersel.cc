@@ -246,14 +246,19 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 				    const uiWellMarkersDlg::Setup& su )
     : uiDialog(p,uiDialog::Setup(tr("Select well markers"),
-		isMultiChoice( su.markerschoicemode_ ) ?
-		tr("Select markers from one or several wells")
-		: tr("Select a well marker"),
-                mODHelpKey(mWellMarkersDlgHelpID)))
+		isMultiChoice( su.markerschoicemode_ )
+		    ? tr("Select markers from one or more wells")
+		    : tr("Select a well marker"),
+		mODHelpKey(mWellMarkersDlgHelpID)))
 {
+    uiLabel* markerstxt =
+		new uiLabel( this, uiStrings::sMarker(mPlural) );
+    markerstxt->attach( leftBorder );
+
     markersselgrp_ = new uiListBox( this, "Markers", su.markerschoicemode_ );
     BufferStringSet markernms;
     Well::MGR().getMarkerNames( markernms );
+    markernms.sort();
     markersselgrp_->addItems( markernms );
 
     if ( !su.withwellfilter_ )
@@ -262,12 +267,14 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
     uiSeparator* sep = new uiSeparator( this, "Well to markers" );
     sep->attach( stretchedBelow, markersselgrp_ );
 
-    uiLabel* txt = new uiLabel( this, tr("For selected wells:") );
-    txt->attach( ensureBelow, sep );
-    txt->attach( alignedBelow, markersselgrp_ );
     wellselgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
-		      uiIOObjSelGrp::Setup(su.wellschoicemode_));
-    wellselgrp_->attach( alignedBelow, txt );
+				uiIOObjSelGrp::Setup(su.wellschoicemode_) );
+    wellselgrp_->attach( alignedBelow, markersselgrp_ );
+    wellselgrp_->attach( ensureBelow, sep );
+
+    uiLabel* txt = new uiLabel( this, uiStrings::sWells() );
+    txt->attach( leftBorder );
+    txt->attach( ensureBelow, sep );
 }
 
 
