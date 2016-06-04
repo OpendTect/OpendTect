@@ -1960,3 +1960,7 @@ void uiODApplMgr::MiscSurvInfo::refresh()
     zunit_ = SI().zUnit();
     zstep_ = SI().zStep();
 }
+
+
+bool uiODApplMgr::isRestoringSession() const
+{ return appl_.isRestoringSession(); }

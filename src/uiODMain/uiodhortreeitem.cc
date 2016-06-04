@@ -413,18 +413,15 @@ bool uiODHorizonTreeItem::init()
     }
 
     if ( hd ) hd->setOnlyAtSectionsDisplay( atsections_ );
-
-    // suppose attribute number is not 1 if it is restored from session
-    const bool isfromsession = hd ? hd->nrAttribs()!=1 : false;
     const bool res = uiODEarthModelSurfaceTreeItem::init();
     if ( !res ) return res;
 
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
     {
-	hd->setDepthAsAttrib( 0 );
-	if ( !isfromsession )
+	if ( !applMgr()->isRestoringSession() )
 	{
+	    hd->setDepthAsAttrib( 0 );
 	    const int nrauxdata = hor3d->auxdata.nrAuxData();
 	    for ( int idx=0; idx<nrauxdata; idx++ )
 	    {
