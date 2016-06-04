@@ -295,14 +295,21 @@ bool EventTracker::track()
 	    refampl = sampfunc.getValue( targetdepth_ );
 	}
 
-	const float threshold = refampl * (1-allowedvar_);
-	const bool res = snap( threshold );
+	const Interval<float> amplrg( refampl * (1-allowedvar_),
+				      refampl * (1+allowedvar_) );
+	const bool res = snap( amplrg );
 	if ( res )
 	{
-	    const SampledFunctionImpl<float,ValueSeries<float> >
-				sampfunc( *targetvs_, targetsize_);
-	    targetvalue_ = sampfunc.getValue( targetdepth_ );
-	    quality_ = (targetvalue_-threshold)/(refampl-threshold);
+	    if ( mIsUdf(targetvalue_) )
+	    {
+		const SampledFunctionImpl<float,ValueSeries<float> >
+				    sampfunc( *targetvs_, targetsize_);
+		targetvalue_ = sampfunc.getValue( targetdepth_ );
+	    }
+
+	    const float amplvar = Math::Abs(targetvalue_-refampl) / refampl;
+	    quality_ = 1 - (amplvar-allowedvar_)/allowedvar_;
+//	    quality_ = (targetvalue_-threshold)/(refampl-threshold);
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
 	}
@@ -551,6 +558,10 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
 
 bool EventTracker::snap( float threshold )
+{ return snap( Interval<float>(threshold,mUdf(float)) ); }
+
+
+bool EventTracker::snap( const Interval<float>& amplrg )
 {
     if ( targetdepth_< 0 || targetdepth_>=targetsize_ )
 	return false;
@@ -594,14 +605,15 @@ bool EventTracker::snap( float threshold )
 	bool uploopskip = false;
 	float uptroughampl;
 	ValueSeriesEvent<float,float> upevent =
-	    findExtreme(evfinder,uprg,threshold,upampl,uploopskip,uptroughampl);
+	    findExtreme(evfinder,uprg,amplrg,upampl,uploopskip,uptroughampl);
 
 	float dnampl;
 	bool dnloopskip = false;
 	float dntroughampl;
 	ValueSeriesEvent<float,float> dnevent =
-	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
+	    findExtreme(evfinder,dnrg,amplrg,dnampl,dnloopskip,dntroughampl);
 
+	const float& threshold = amplrg.start;
 	float troughthreshold = !mIsUdf(threshold) ? -0.1f*threshold : 0;
 	if ( evtype_==VSEvent::Min )
 	{
@@ -624,28 +636,41 @@ bool EventTracker::snap( float threshold )
 	{
 	    if ( uploopskip!=dnloopskip )
 	    {
-		eventpos = uploopskip && dnevent.pos<=dnbound
-		    ? dnevent.pos : upevent.pos;
+		const bool usednev = uploopskip && dnevent.pos<=dnbound;
+		eventpos = usednev ? dnevent.pos : upevent.pos;
+		targetvalue_ = usednev ? dnevent.val : upevent.val;
 	    }
 	    else
 	    {
 		if ( upampl==dnampl )
 		{
-		    if( fabs(upevent.pos-dnevent.pos)<1 )
+		    if ( fabs(upevent.pos-dnevent.pos)<1 )
+		    {
 			eventpos = (upevent.pos + dnevent.pos) / 2;
+			targetvalue_ = upevent.val;
+		    }
 		    else
 		    {
 			const float updiff = fabs( targetdepth_-upevent.pos );
 			const float dndiff = fabs( targetdepth_-dnevent.pos );
-			eventpos = updiff<dndiff ? upevent.pos : dnevent.pos;
+			const bool useupev = updiff<dndiff;
+			eventpos = useupev ? upevent.pos : dnevent.pos;
+			targetvalue_ = useupev ? upevent.val : dnevent.val;
 		    }
 		}
 		else
-		    eventpos = upampl>dnampl ? upevent.pos : dnevent.pos;
+		{
+		    const bool useupev = upampl>dnampl;
+		    eventpos = useupev ? upevent.pos : dnevent.pos;
+		    targetvalue_ = useupev ? upevent.val : dnevent.val;
+		}
 	    }
 	}
 	else
+	{
 	    eventpos = upfound ? upevent.pos : dnevent.pos;
+	    targetvalue_ = upfound ? upevent.val : dnevent.val;
+	}
 
     }
     else
@@ -658,16 +683,20 @@ bool EventTracker::snap( float threshold )
 	return false;
 
     targetdepth_ = eventpos;
-    const SampledFunctionImpl<float,ValueSeries<float> >
-			sampfunc( *targetvs_, targetsize_);
-    targetvalue_ = sampfunc.getValue( targetdepth_ );
+    if ( mIsUdf(targetvalue_) )
+    {
+	const SampledFunctionImpl<float,ValueSeries<float> >
+			    sampfunc( *targetvs_, targetsize_);
+	targetvalue_ = sampfunc.getValue( targetdepth_ );
+    }
+
     return true;
 }
 
 
 ValueSeriesEvent<float,float> EventTracker::findExtreme(
     const ValueSeriesEvFinder<float, float>& eventfinder,
-    const Interval<float>& rg, float threshold, float& avgampl,
+    const Interval<float>& rg, const Interval<float>& amplrg, float& avgampl,
     bool& hasloopskips, float& troughampl ) const
 {
     const SamplingData<float>& sd = eventfinder.samplingData();
@@ -681,9 +710,7 @@ ValueSeriesEvent<float,float> EventTracker::findExtreme(
 	if ( mIsUdf(ev.pos) )
 	    return ev;
 
-	if ( !mIsUdf(threshold) &&
-		( (evtype_==VSEvent::Min && ev.val>threshold) ||
-		    (evtype_==VSEvent::Max && ev.val<threshold)) )
+	if ( !amplrg.includes(ev.val,false) )
 	{
 	    occ++;
 	    continue;

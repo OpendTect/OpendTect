@@ -109,6 +109,7 @@ public:
 				       event within the permitted range. No
 				       amplitude threshold is used. */
     VSEvent::Type		trackEvent() const;
+    bool			snap(const Interval<float>& amplrg);
     bool			snap(float threshold);
 				/*!Snaps at nearest event that is in permitted
 				   range and where the amplitude meets the
@@ -159,7 +160,9 @@ protected:
 
     ValueSeriesEvent<float,float>
 			findExtreme(const ValueSeriesEvFinder<float, float>&,
-			const Interval<float>&,float,float&,bool&,float&) const;
+				const Interval<float>& zrg,
+				const Interval<float>& amplrg,float& avgampl,
+				bool& hasloopskips,float& troughampl) const;
     bool		findMaxSimilarity(int nrtests,int step,int nrgracetests,
 					 float& res,float& maxsim,
 					 bool& flatstart) const;
