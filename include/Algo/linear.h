@@ -110,10 +110,10 @@ public:
 
 protected:
 
-    void		setScatterMatrix(float scattermatrix[3][3],
+    void		setScatterMatrix(double scattermatrix[3][3],
 					 int order[3]);
-    void		tqli(float d[3],float e[3],float z[3][3]);
-    void		tred2(float a[3][3],float d[3],float e[3]);
+    void		tqli(double d[3],double e[3],double z[3][3]);
+    void		tred2(double a[3][3],double d[3],double e[3]);
 
     TypeSet<Coord3>	points_;
     Coord3		centroid_;

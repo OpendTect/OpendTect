@@ -96,7 +96,7 @@ void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
 
 /*3D best fit plane */
 Plane3DFit::Plane3DFit()
-    : centroid_(0,0,0)
+    : centroid_(0.0,0.0,0.0)
 {}
 
 
@@ -126,17 +126,17 @@ bool Plane3DFit::compute( const TypeSet<Coord3>& pts, Plane3& plane )
     if ( count>0 )
 	centroid_ /= count;
 
-    float scattermatrix[3][3];
+    double scattermatrix[3][3];
     int  order[3];
-    float diagonalmatrix[3];
-    float offdiagonalmatrix[3];
+    double diagonalmatrix[3];
+    double offdiagonalmatrix[3];
     setScatterMatrix( scattermatrix, order );
     tred2(scattermatrix,diagonalmatrix,offdiagonalmatrix);
     tqli(diagonalmatrix,offdiagonalmatrix,scattermatrix);
 
     /*Find the smallest eigenvalue first. */
-    float min = diagonalmatrix[0];
-    float max = diagonalmatrix[0];
+    double min = diagonalmatrix[0];
+    double max = diagonalmatrix[0];
     int minindex = 0;
     int middleindex = 0;
     int maxindex = 0;
@@ -187,20 +187,20 @@ bool Plane3DFit::compute( const TypeSet<Coord3>& pts, Plane3& plane )
 }
 
 
-void Plane3DFit::setScatterMatrix( float scattermatrix[3][3],  int order[3] )
+void Plane3DFit::setScatterMatrix( double scattermatrix[3][3],  int order[3] )
 {
     for ( int idx=0; idx<3; idx++ )
-	scattermatrix[idx][0]=scattermatrix[idx][1]=scattermatrix[idx][2]=0.f;
+	scattermatrix[idx][0]=scattermatrix[idx][1]=scattermatrix[idx][2]=0.0;
 
     for( int idx=0; idx<points_.size(); idx++ )
     {
 	const Coord3 d = points_[idx] - centroid_;
-	scattermatrix[0][0] += mCast(float,d.x*d.x);
-	scattermatrix[0][1] += mCast(float,d.x*d.y);
-	scattermatrix[0][2] += mCast(float,d.x*d.z);
-	scattermatrix[1][1] += mCast(float,d.y*d.y);
-	scattermatrix[1][2] += mCast(float,d.y*d.z);
-	scattermatrix[2][2] += mCast(float,d.z*d.z);
+	scattermatrix[0][0] += d.x*d.x;
+	scattermatrix[0][1] += d.x*d.y;
+	scattermatrix[0][2] += d.x*d.z;
+	scattermatrix[1][1] += d.y*d.y;
+	scattermatrix[1][2] += d.y*d.z;
+	scattermatrix[2][2] += d.z*d.z;
     }
 
     scattermatrix[1][0]=scattermatrix[0][1];
@@ -211,7 +211,7 @@ void Plane3DFit::setScatterMatrix( float scattermatrix[3][3],  int order[3] )
     order[1]=1;
     order[2]=2;
     int tempi;
-    float tempd;
+    double tempd;
     if ( scattermatrix[0][0] > scattermatrix[1][1] )
     {
 	tempd=scattermatrix[0][0];
@@ -254,13 +254,13 @@ void Plane3DFit::setScatterMatrix( float scattermatrix[3][3],  int order[3] )
 
 #define    SIGN(a,b)    ((b)<0? -fabs(a):fabs(a))
 
-void Plane3DFit::tred2( float a[3][3], float d[3], float e[3] )
+void Plane3DFit::tred2( double a[3][3], double d[3], double e[3] )
 {
     for( int i=3; i>=2; i-- )
     {
 	const int l=i-1;
-	float h=0.0;
-	float scale=0.0;
+	double h=0.0;
+	double scale=0.0;
 
 	if( l>1 )
 	{
@@ -277,8 +277,8 @@ void Plane3DFit::tred2( float a[3][3], float d[3], float e[3] )
 		    h += a[i-1][k-1]*a[i-1][k-1];   /*form sigma in h.*/
 		}
 
-		float f = a[i-1][l-1];
-		float g = f>0? -Math::Sqrt(h) : Math::Sqrt(h);
+		double f = a[i-1][l-1];
+		double g = f>0? -Math::Sqrt(h) : Math::Sqrt(h);
 		e[i-1] = scale*g;
 		h -= f*g;    /* now h is equation (11.2.4) */
 		a[i-1][l-1] = f-g;    /* store u in the ith row of a. */
@@ -300,7 +300,7 @@ void Plane3DFit::tred2( float a[3][3], float d[3], float e[3] )
 		    f+=e[j-1]*a[i-1][j-1];
 		}
 
-		float hh = f/(h+h); /* form K, equation (11.2.11) */
+		double hh = f/(h+h); /* form K, equation (11.2.11) */
 
 		/* form q and store in e overwriting p. */
 		for( int j=1; j<=l; j++ )
@@ -330,7 +330,7 @@ void Plane3DFit::tred2( float a[3][3], float d[3], float e[3] )
 	{
 	    for( int j=1; j<=l; j++ )
 	    {
-		float g=0.0;
+		double g=0.0;
 
 		/* use u and u/H stored in a to form P.Q */
 		for( int k=1; k<=l; k++ )
@@ -350,7 +350,7 @@ void Plane3DFit::tred2( float a[3][3], float d[3], float e[3] )
 }
 
 
-void Plane3DFit::tqli( float d[3], float e[3], float z[3][3] )
+void Plane3DFit::tqli( double d[3], double e[3], double z[3][3] )
 {
     for( int i=2; i<=3; i++ )
 	e[i-2]=e[i-1];    /* convenient to renumber the elements of e */
@@ -365,41 +365,41 @@ void Plane3DFit::tqli( float d[3], float e[3], float z[3][3] )
 	    {
 		/*Look for a single small subdiagonal element
 		  to split the matrix. */
-		float dd = fabs(d[m-1])+fabs(d[m]);
+		double dd = fabs(d[m-1])+fabs(d[m]);
 		if( fabs(e[m-1])+dd == dd )
 		    break;
 	    }
 
 	    if( m!=l ) //Compain if iteration>30?
 	    {
-		float g = (d[l]-d[l-1])/(2.0f*e[l-1]); /* form shift */
-		float r = Math::Sqrt((g*g)+1.0f);
+		double g = (d[l]-d[l-1])/(2.0*e[l-1]); /* form shift */
+		double r = Math::Sqrt((g*g)+1.0);
 		g = d[m-1]-d[l-1]+e[l-1]/(g+SIGN(r,g)); /* this is dm-ks */
-		float s = 1.0;
-		float c = 1.0;
-		float p = 0.0;
+		double s = 1.0;
+		double c = 1.0;
+		double p = 0.0;
 		for( int i=m-1; i>=l; i-- )
 		{
 		    /*A plane rotation as in the original QL, followed by
 		      Givens rotations to restore tridiagonal form.*/
-		    float f = s*e[i-1];
-		    float b = c*e[i-1];
+		    double f = s*e[i-1];
+		    double b = c*e[i-1];
 		    if( fabs(f) >= fabs(g) )
 		    {
 			c = g/f;
-			r = Math::Sqrt((c*c)+1.0f);
+			r = Math::Sqrt((c*c)+1.0);
 			e[i] = f*r;
-			c *= (s=1.0f/r);
+			c *= (s=1.0/r);
 		    }
 		    else
 		    {
 			s = f/g;
-			r = Math::Sqrt((s*s)+1.0f);
+			r = Math::Sqrt((s*s)+1.0);
 			e[i] = g*r;
-			s *= (c=1.0f/r);
+			s *= (c=1.0/r);
 		    }
 		    g = d[i]-p;
-		    r = (d[i-1]-g)*s+2.0f*c*b;
+		    r = (d[i-1]-g)*s+2.0*c*b;
 		    p = s*r;
 		    d[i] = g+p;
 		    g = c*r-b;
@@ -413,7 +413,7 @@ void Plane3DFit::tqli( float d[3], float e[3], float z[3][3] )
 		}
 		d[l-1] = d[l-1]-p;
 		e[l-1] = g;
-		e[m-1] = 0.0f;
+		e[m-1] = 0.0;
 	    }
 	} while( m != l );
     }
