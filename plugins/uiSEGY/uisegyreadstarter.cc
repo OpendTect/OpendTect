@@ -630,8 +630,8 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 
 void uiSEGYReadStarter::keepZChg( CallBacker* cb )
 {
-    loaddef_.filezsampling_ = keepzsampbox_ && keepzsampbox_->isChecked();
-    infofld_->showZSamplingSetting( !loaddef_.filezsampling_
+    loaddef_.usezsamplinginfile_ = keepzsampbox_ && keepzsampbox_->isChecked();
+    infofld_->showZSamplingSetting( !loaddef_.usezsamplinginfile_
 				    || filespec_.nrFiles() < 2 );
 
     if ( cb )
@@ -963,8 +963,8 @@ bool uiSEGYReadStarter::commit( bool permissive )
     }
 
     loaddef_.getFilePars( filepars_ );
-    loaddef_.filezsampling_ = keepzsampbox_ && keepzsampbox_->isChecked();
-    if ( loaddef_.filezsampling_ )
+    loaddef_.usezsamplinginfile_ = keepzsampbox_ && keepzsampbox_->isChecked();
+    if ( loaddef_.usezsamplinginfile_ )
 	filepars_.ns_ = 0;
 
     delete filereadopts_;
