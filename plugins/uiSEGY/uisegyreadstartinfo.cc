@@ -53,18 +53,19 @@ static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
 
 
 class uiSEGYByteNr : public uiComboBox
-{
+{ mODTextTranslationClass(uiSEGYByteNr);
 public:
 
 uiSEGYByteNr( uiParent* p, const char* nm )
     : uiComboBox(p,nm)
     , hdef_(SEGY::TrcHeader::hdrDef())
+    , nonefound_(false)
 {
 }
 
 SEGY::HdrEntry hdrEntry() const
 {
-    const int selidx = currentItem();
+    const int selidx = nonefound_ ? -1 : currentItem();
     SEGY::HdrEntry ret(0,0);
     if ( selidx >= 0 )
     {
@@ -76,6 +77,9 @@ SEGY::HdrEntry hdrEntry() const
 
 void setByteNr( short bnr )
 {
+    if ( isEmpty() || nonefound_ )
+	return;
+
     NotifyStopper ns( selectionChanged );
     if ( bnr%2 )
 	bnr--; // input was 'user' byte number
@@ -100,15 +104,26 @@ void setEntries( const SEGY::HdrEntryDataSet& ds )
     {
 	const int heidx = ds.idxs_[idx];
 	const SEGY::HdrEntry& he = *hdef_[ heidx ];
-	uiString txt( od_static_tr("setEnteries","%1 (byte %2) - \"%3\"")
+	uiString txt( tr("%1 (byte %2) - \"%3\"")
 		     .arg(he.name()).arg(he.bytepos_+1).arg(he.description()) );
 
 	addItem( txt ); heidxs_ += heidx;
     }
+
+    uiString ttip; nonefound_ = false;
+    if ( isEmpty() )
+    {
+	nonefound_ = true;
+	ttip = tr("The scan found invalid numbers in all possible fields for "
+		    "this entry.");
+	addItem( tr("<Nothing valid found>") );
+    }
+    setToolTip( ttip );
 }
 
     const SEGY::HdrDef&	hdef_;
     TypeSet<int>	heidxs_;
+    bool		nonefound_;
 
 };
 
@@ -196,7 +211,7 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     revfld_->selectionChanged.notify( revchgcb );
     mAdd2Tbl( revfld_, mRevRow, mUseCol );
 
-    BufferStringSet fmts( SEGY::FilePars::getFmts(false) );
+    BufferStringSet fmts( SEGY::FilePars::getFmts(true) );
     nrunswappedfmts_ = (short)fmts.size();
     BufferStringSet swpdfmts( SEGY::FilePars::getFmts(false) );
     swpdfmts.removeSingle( swpdfmts.size()-1 ); // 8-bits swapped makes no sense
@@ -682,24 +697,30 @@ void uiSEGYReadStartInfo::useLoadDef()
 
     revfld_->setCurrentItem( loaddef_.revision_ );
 
-    const char** fmts = SEGY::FilePars::getFmts(false);
-    const char* fmt = *fmts;
-    for ( short idx=0; fmt; idx++ )
+    if ( loaddef_.useformatinfile_ || loaddef_.format_ == 0 )
+	fmtfld_->setCurrentItem( 0 );
+    else
     {
-	fmt = fmts[idx];
-	if ( !fmt )
-	    { pErrMsg("Format not found"); break; }
-	else if ( (short)(*fmt - '0') == loaddef_.format_ )
+	const char** fmts = SEGY::FilePars::getFmts(false);
+	const char* fmt = *fmts;
+	for ( short idx=0; fmt; idx++ )
 	{
-	    short newidx = idx;
-	    if ( loaddef_.dataswapped_ )
+	    fmt = fmts[idx];
+	    if ( !fmt )
+		{ pErrMsg("Format not found"); break; }
+
+	    if ( (short)(*fmt - '0') == loaddef_.format_ )
 	    {
-		newidx += nrunswappedfmts_;
-		if ( newidx >= fmtfld_->size() )
-		    { pErrMsg("Huh"); newidx -= nrunswappedfmts_; }
+		int listidx = idx + 1;
+		if ( loaddef_.dataswapped_ )
+		{
+		    listidx += nrunswappedfmts_;
+		    if ( listidx >= fmtfld_->size() )
+			{ pErrMsg("Huh"); listidx -= nrunswappedfmts_; }
+		}
+		fmtfld_->setCurrentItem( listidx );
+		break;
 	    }
-	    fmtfld_->setCurrentItem( newidx );
-	    break;
 	}
     }
 
@@ -762,8 +783,15 @@ void uiSEGYReadStartInfo::fillLoadDef()
 {
     loaddef_.revision_ = revfld_->currentItem();
 
-    loaddef_.dataswapped_ = fmtfld_->currentItem() >= nrunswappedfmts_;
-    loaddef_.format_ = (short)(*fmtfld_->text() - '0');
+    const int fmtidx = fmtfld_->currentItem();
+    loaddef_.dataswapped_ = fmtidx > nrunswappedfmts_;
+    if ( fmtidx > 0 )
+	loaddef_.format_ = (short)(*fmtfld_->text() - '0');
+    else
+    {
+	loaddef_.format_ = 0;
+	loaddef_.useformatinfile_ = true;
+    }
 
     int newns = nsfld_->getIntValue();
     if ( newns > 0 )

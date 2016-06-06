@@ -195,7 +195,7 @@ void SEGY::LoadDef::reInit( bool alsohdef )
     trcnrdef_ = SamplingData<int>( 1000, 1 );
     psoffssrc_ = FileReadOpts::InFile;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
-    filezsampling_ = false;
+    usezsamplinginfile_ = useformatinfile_ = false;
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }
@@ -218,7 +218,8 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 	trcnrdef_ = oth.trcnrdef_;
 	psoffssrc_ = oth.psoffssrc_;
 	psoffsdef_ = oth.psoffsdef_;
-	filezsampling_ = oth.filezsampling_;
+	usezsamplinginfile_ = oth.usezsamplinginfile_;
+	useformatinfile_ = oth.useformatinfile_;
 	hdrdef_ = new TrcHeaderDef( *oth.hdrdef_ );
     }
     return *this;
@@ -227,7 +228,7 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 
 SEGY::LoadDef SEGY::LoadDef::getPrepared( od_istream& strm ) const
 {
-    if ( !filezsampling_ )
+    if ( !usezsamplinginfile_ && !useformatinfile_ )
 	return *this;
 
     od_stream_Pos orgpos = strm.position();
@@ -240,6 +241,7 @@ SEGY::LoadDef SEGY::LoadDef::getPrepared( od_istream& strm ) const
     LoadDef ret( *this );
     ret.ns_ = rddef.ns_;
     ret.sampling_ = rddef.sampling_;
+    ret.format_ = rddef.format_;
     return ret;
 }
 
@@ -298,8 +300,10 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 void SEGY::LoadDef::getFilePars( SEGY::FilePars& fpars ) const
 {
     BasicFileInfo::getFilePars( fpars );
-    if ( filezsampling_ )
+    if ( usezsamplinginfile_ )
 	fpars.ns_ = 0;
+    if ( useformatinfile_ )
+	fpars.fmt_ = 0;
 }
 
 
@@ -307,8 +311,8 @@ void SEGY::LoadDef::getFileReadOpts( SEGY::FileReadOpts& readopts ) const
 {
     readopts.thdef_ = *hdrdef_;
     readopts.coordscale_ = coordscale_;
-    readopts.timeshift_ = filezsampling_ ? mUdf(float) : sampling_.start;
-    readopts.sampleintv_ = filezsampling_ ? mUdf(float) : sampling_.step;
+    readopts.timeshift_ = usezsamplinginfile_ ? mUdf(float) : sampling_.start;
+    readopts.sampleintv_ = usezsamplinginfile_ ? mUdf(float) : sampling_.step;
     readopts.icdef_ = icvsxytype_;
     readopts.psdef_ = psoffssrc_;
     readopts.havetrcnrs_ = havetrcnrs_;

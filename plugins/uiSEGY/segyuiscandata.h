@@ -96,8 +96,8 @@ public:
     SamplingData<int>	trcnrdef_;
     FileReadOpts::PSDefType psoffssrc_;
     SamplingData<float>	psoffsdef_;
-    bool		filezsampling_;
-    bool		fileformat_;
+    bool		usezsamplinginfile_;
+    bool		useformatinfile_;
 
     TrcHeaderDef*	hdrdef_;
 
