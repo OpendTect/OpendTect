@@ -12,10 +12,59 @@ ________________________________________________________________________
 #include "segyhdr.h"
 #include "segyhdrdef.h"
 #include "od_istream.h"
+#include "settings.h"
 #include "survinfo.h"
 
-#define mMaxReasOffset 150000
-	// 150k feet is about 50 km
+static const char* sKeyPfx = "SEGY.Byte Selection";
+SEGY::HdrEntryConstraints hdrentryconstraints_;
+const SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get()
+{ return hdrentryconstraints_; }
+SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get4Edit()
+{ return hdrentryconstraints_; }
+
+
+
+SEGY::HdrEntryConstraints::HdrEntryConstraints()
+    : inlrg_(1,mUdf(int))
+    , crlrg_(1,mUdf(int))
+    , trcnrrg_(1,mUdf(int))
+    , xrg_(0.1,1.e10)
+    , yrg_(0.1,1.e10)
+    , offsrg_(0.f,100000.f)
+{
+    usePar( Settings::common() );
+}
+
+
+void SEGY::HdrEntryConstraints::save2Settings()
+{
+    fillPar( Settings::common() );
+    Settings::common().write();
+}
+
+
+#define mGetKey(ky) IOPar::compKey( sKeyPfx, #ky )
+
+void SEGY::HdrEntryConstraints::usePar( const IOPar& iop )
+{
+    iop.get( mGetKey(Inline), inlrg_ );
+    iop.get( mGetKey(Crossline), crlrg_ );
+    iop.get( mGetKey(TrcNr), trcnrrg_ );
+    iop.get( mGetKey(X), xrg_ );
+    iop.get( mGetKey(Y), yrg_ );
+    iop.get( mGetKey(Offset), offsrg_ );
+}
+
+
+void SEGY::HdrEntryConstraints::fillPar( IOPar& iop ) const
+{
+    iop.set( mGetKey(Inline), inlrg_ );
+    iop.set( mGetKey(Crossline), crlrg_ );
+    iop.set( mGetKey(TrcNr), trcnrrg_ );
+    iop.set( mGetKey(X), xrg_ );
+    iop.set( mGetKey(Y), yrg_ );
+    iop.set( mGetKey(Offset), offsrg_ );
+}
 
 
 void SEGY::HdrEntryDataSet::erase()
@@ -215,25 +264,33 @@ void SEGY::HdrEntryKeyData::add( const SEGY::TrcHeader& thdr, bool isswpd,
 
     mDoAllDSs( addRecord() );
 
+    const SEGY::HdrEntryConstraints& constr = SEGY::HdrEntryConstraints::get();
+#   define mRejectFromRange(entry,rg) \
+	if ( !constr.rg.includes(val,false) ) \
+	    entry.reject( ihe );
+
     for ( int ihe=0; ihe<nrhe; ihe++ )
     {
 	const HdrEntry& he = *hdrdef[ihe];
 
-	const int val = he.getValue( buf, isswpd );
-	if ( val <= 0 )
-	{
-	    inl_.reject( ihe ); crl_.reject( ihe ); trcnr_.reject( ihe );
-	    x_.reject( ihe ); y_.reject( ihe );
-	    if ( val == 0 )
-		refnr_.reject( ihe );
-	}
-	if ( val > mMaxReasOffset || val < -mMaxReasOffset )
-	    offs_.reject( ihe );
+	int val = he.getValue( buf, isswpd );
+	if ( val == 0 )
+	    refnr_.reject( ihe );
+
+	mRejectFromRange(inl_,inlrg_);
+	mRejectFromRange(crl_,crlrg_);
+	mRejectFromRange(trcnr_,trcnrrg_);
+	mRejectFromRange(x_,xrg_);
+	mRejectFromRange(y_,yrg_);
 
 	inl_.add( ihe, val ); crl_.add( ihe, val );
 	trcnr_.add( ihe, val ); refnr_.add( ihe, val );
 	x_.add( ihe, val ); y_.add( ihe, val );
-	offs_.add( ihe, val < 0 ? -val : val );
+
+	if ( val < 0 )
+	    val = -val;
+	mRejectFromRange(offs_,offsrg_);
+	offs_.add( ihe, val );
     }
 }
 
