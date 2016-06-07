@@ -568,11 +568,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
 	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
-	{
 	    updatePosAttrib(cbdata.attrib);
-	    if ( displayonlyatsections_ )
-		triggermovement = true;
-	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
     {
@@ -584,8 +580,11 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	}
     }
 
-    if ( triggermovement )
+    if ( displayonlyatsections_ )
+	setOnlyAtSectionsDisplay( true );
+    else if ( triggermovement )
 	hasmoved.trigger();
+
 }
 
 
