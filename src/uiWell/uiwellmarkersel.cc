@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "welltransl.h"
 
 #include "uicombobox.h"
-#include "uigeninput.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -253,12 +252,10 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		mODHelpKey(mWellMarkersDlgHelpID)))
 {
     markersselgrp_ = new uiListBox( this, "Markers", su.markerschoicemode_ );
-    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
     BufferStringSet markernms;
     Well::MGR().getMarkerNames( markernms );
     markernms.sort();
     markersselgrp_->addItems( markernms );
-    markersselgrp_->attach( alignedBelow, filtfld_ );
 
     uiLabel* markerstxt =
 		new uiLabel( this, uiStrings::sMarker(mPlural) );
