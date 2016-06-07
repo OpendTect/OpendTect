@@ -253,16 +253,22 @@ MultiID uiSeisPartServer::getDefault2DDataID() const
     else if ( seisidx >= 0 )
 	return ioobjs[seisidx]->key();
 
-    uiString msg = tr("No or no valid default 2D data found.\n"
-		      "You can set a default 2d data in the 'Manage Seismics' "
-		      "window.\n\nDo you want to go there now? ");
+    uiString msg = uiStrings::phrCannotFind(tr("valid default 2D data.\n"
+					       "Do you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
 	return false;
 
-    uiSeisPartServer* myself = const_cast<uiSeisPartServer*>(this);
-    myself->manageSeismics( 0, false );
-    return getDefault2DDataID();
+    uiIOObjSelDlg::Setup su( tr("Set default 2D seismic data") );
+    su.allowsetsurvdefault( false );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
+    uiIOObjSelDlg dlg( parent(), su, *ctio );
+    if ( !dlg.go() )
+	return MultiID::udf();
+
+    PtrMan<IOObj> seisobj = dlg.ioObj()->clone();
+    seisobj->setSurveyDefault();
+    return seisobj->key();
 }
 
 
@@ -295,17 +301,22 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
     if ( nrod3d == 1 )
 	return ioobjs[def3didx]->key();
 
-    uiString msg = tr("No or no valid default volume found."
-		      "You can set a default volume in the 'Manage Seismics' "
-		      "window.\n\nDo you want to go there now?\n"
-		      "(on 'No' an empty plane will be added)");
+    uiString msg = uiStrings::phrCannotFind( tr("valid default volume."
+						"Do you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
+	return MultiID::udf();
+
+    uiIOObjSelDlg::Setup su( tr("Set default seismic data") );
+    su.allowsetsurvdefault( false );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
+    uiIOObjSelDlg dlg( parent(), su, *ctio );
+    if ( !dlg.go() )
 	return false;
 
-    uiSeisPartServer* myself = const_cast<uiSeisPartServer*>(this);
-    myself->manageSeismics( 0, true );
-    return getDefaultDataID( false );
+    PtrMan<IOObj> seisobj = dlg.ioObj()->clone();
+    seisobj->setSurveyDefault();
+    return seisobj->key();
 }
 
 
