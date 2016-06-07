@@ -251,15 +251,15 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		    : tr("Select a well marker"),
 		mODHelpKey(mWellMarkersDlgHelpID)))
 {
+    uiLabel* markerstxt =
+		new uiLabel( this, uiStrings::sMarker(mPlural) );
+
     markersselgrp_ = new uiListBox( this, "Markers", su.markerschoicemode_ );
     BufferStringSet markernms;
     Well::MGR().getMarkerNames( markernms );
     markernms.sort();
     markersselgrp_->addItems( markernms );
-
-    uiLabel* markerstxt =
-		new uiLabel( this, uiStrings::sMarker(mPlural) );
-    markerstxt->attach( leftOf, markersselgrp_ );
+    markersselgrp_->attach( ensureRightOf, markerstxt );
 
     if ( !su.withwellfilter_ )
 	return;
