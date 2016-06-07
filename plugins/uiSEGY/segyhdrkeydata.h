@@ -23,6 +23,32 @@ namespace SEGY
 typedef TypeSet<int>	HdrEntryRecord;
 
 
+/*!\brief Set of constraints on various needed header values. */
+
+mExpClass(uiSEGY) HdrEntryConstraints
+{
+public:
+
+    			HdrEntryConstraints(); //!< gets from settigns
+    void		save2Settings();
+
+    Interval<int>	inlrg_;
+    Interval<int>	crlrg_;
+    Interval<int>	trcnrrg_;
+    Interval<double>	xrg_;
+    Interval<double>	yrg_;
+    Interval<float>	offsrg_;
+
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+    static const HdrEntryConstraints&	get();
+    static HdrEntryConstraints&		get4Edit();
+
+};
+
+
+
 /*!\brief Set of possibe headers for a certain key. */
 
 mExpClass(uiSEGY) HdrEntryDataSet : public TypeSet<HdrEntryRecord>
