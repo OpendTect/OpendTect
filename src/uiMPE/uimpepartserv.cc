@@ -544,6 +544,13 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
 	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
 	setupgrp_->setSeedPos( lastseed );
     }
+
+    if ( setupgrp_->mainwin() )
+    {
+	const uiString caption =
+		tr("Horizon Tracking Settings - %1").arg( emobj->name() );
+	setupgrp_->mainwin()->setCaption( caption );
+    }
 }
 
 
@@ -896,8 +903,8 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	delete mw;
     }
 
-    uiDialog* setupdlg	= new uiDialog( 0,
-		uiDialog::Setup(tr("Horizon Tracking Settings"),mNoDlgTitle,
+    uiDialog* setupdlg = new uiDialog( 0,
+		uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->showAlwaysOnTop();
@@ -905,7 +912,11 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg,
 						  emobj->getTypeStr() );
-    if ( !setupgrp_ ) return false;
+    if ( !setupgrp_ )
+    {
+	delete setupdlg;
+	return false;
+    }
 
     setupgrp_->setMPEPartServer( this );
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
@@ -923,23 +934,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	    seedpicker->setTrackMode( MPE::EMSeedPicker::TrackFromSeeds );
     }
 
-    setupgrp_->setSectionTracker( sectracker );
-    setupgrp_->setMode( seedpicker->getTrackMode() );
-    setupgrp_->setColor( emobj->preferredColor() );
-    setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
-    setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
-						EM::EMObject::sSeedNode()) );
-
-    TypeSet<TrcKey> seeds;
-    seedpicker->getSeeds( seeds );
-    if ( !seeds.isEmpty() )
-    {
-	TrcKeyValue lastseed( seeds.last() );
-	mDynamicCastGet(EM::Horizon*,hor,emobj)
-	lastseed.val_ = hor ? hor->getZ( lastseed.tk_ ) : mUdf(float);
-	setupgrp_->setSeedPos( lastseed );
-    }
-
+    fillTrackerSettings( MPE::engine().getTrackerByObject(emobj->id()) );
     MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
