@@ -332,7 +332,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     {
 	visBase::DataObject* dataobj =
 			visBase::DM().getObject( eventinfo.pickedobjids[idx] );
-	if ( dataobj == this )
+	if ( !dataobj || dataobj == this )
 	    continue;
 
 	if ( dataobj->isPickable() )
