@@ -83,6 +83,7 @@ protected:
     uiButton*		examinebut_;
     uiButton*		fullscanbut_;
     uiButton*		editbut_;
+    uiButton*		hdrentrysettsbut_;
     uiRadioButton*	useicbut_;
     uiRadioButton*	usexybut_;
     uiLineEdit*		coordscalefld_;
@@ -138,6 +139,7 @@ protected:
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);
     void		fullScanReq(CallBacker*);
+    void		editHdrEntrySettings(CallBacker*);
     void		runClassicImp(CallBacker*)	{ runClassic( true ); }
     void		runClassicLink(CallBacker*)	{ runClassic( false ); }
     void		defChg( CallBacker* )	{ forceRescan(); }

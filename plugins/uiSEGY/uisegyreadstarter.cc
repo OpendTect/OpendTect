@@ -58,8 +58,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
     : uiDialog(p,uiDialog::Setup(forsurvsetup
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
-	    imptyp ? uiString("Import %1").arg(imptyp->dispText())
-				: mNoDlgTitle, mTODOHelpKey ).nrstatusflds(1) )
+	    imptyp ? tr("Import %1").arg(imptyp->dispText())
+            : mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
     , filereadopts_(0)
     , typfld_(0)
     , useicbut_(0)
@@ -89,8 +89,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
 	.objtype( tr("SEG-Y") );
-    inpfld_ = new uiFileInput( topgrp_, "Input file(s) (*=wildcard)",
-				fisu );
+    inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
+			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 			         mCB(this,uiSEGYReadStarter,editFile), false );
@@ -148,21 +148,27 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
 void uiSEGYReadStarter::createTools()
 {
-    uiToolButton* openbut = new uiToolButton( midgrp_, "open",
+    uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
+    toolgrp->attach( rightOf, infofld_ );
+    uiToolButton* openbut = new uiToolButton( toolgrp, "open",
 				tr("Use Saved SEG-Y setup"),
 				mCB(this,uiSEGYReadStarter,readParsCB) );
     openbut->attach( rightOf, infofld_ );
-    uiToolButton* savebut = new uiToolButton( midgrp_, "save",
+    uiToolButton* savebut = new uiToolButton( toolgrp, "save",
 				tr("Store this setup"),
 				mCB(this,uiSEGYReadStarter,writeParsCB) );
     savebut->attach( rightOf, openbut );
 
-    fullscanbut_ = new uiToolButton( midgrp_, "fullscan",
+    fullscanbut_ = new uiToolButton( toolgrp, "fullscan",
 				    tr("Scan the entire input"),
 				    mCB(this,uiSEGYReadStarter,fullScanReq) );
     fullscanbut_->attach( alignedBelow, openbut );
+    hdrentrysettsbut_ = new uiToolButton( toolgrp, "settings",
+			    tr("Settings for byte location scanning"),
+			    mCB(this,uiSEGYReadStarter,editHdrEntrySettings) );
+    hdrentrysettsbut_->attach( rightOf, fullscanbut_ );
 
-    uiGroup* examinegrp = new uiGroup( midgrp_, "Examine group" );
+    uiGroup* examinegrp = new uiGroup( toolgrp, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
 				    uiString::emptyString(),
 				    mCB(this,uiSEGYReadStarter,examineCB) );
@@ -177,57 +183,57 @@ void uiSEGYReadStarter::createTools()
     examinegrp->attach( alignedBelow, fullscanbut_ );
     examinegrp->setFrame( true );
 
+    if ( imptypeFixed() && fixedimptype_.isVSP() )
+	return;
+
+    uiObject* lowest = examinegrp->attachObj();
+
     const bool imptypfixed = imptypeFixed();
     bool needicvsxy = !mForSurvSetup;
-    if ( imptypfixed && (fixedimptype_.isVSP() || fixedimptype_.is2D()) )
+    if ( imptypfixed && fixedimptype_.is2D() )
 	needicvsxy = false;
     if ( needicvsxy )
     {
 	const CallBack icvsxycb( mCB(this,uiSEGYReadStarter,icxyCB) );
-	useicbut_ = new uiRadioButton( midgrp_, tr("Use I/C"), icvsxycb );
+	useicbut_ = new uiRadioButton( toolgrp, tr("Use I/C"), icvsxycb );
 	useicbut_->setToolTip(
 	    tr("Select to use Inline/Crossline for positioning."
 		"\nX and Y will be calculated using the survey setup.\nPrefer "
 		"this if you have valid In- and Crossline numbers available."));
-	useicbut_->attach( alignedBelow, examinegrp );
+	useicbut_->attach( alignedBelow, lowest );
 
-	usexybut_ = new uiRadioButton( midgrp_, tr("Use (X,Y)"), icvsxycb );
+	usexybut_ = new uiRadioButton( toolgrp, tr("Use (X,Y)"), icvsxycb );
 	usexybut_->setToolTip(
 	    tr( "Select to use (X,Y) for positioning.\nInline/Crossline "
 		"will be calculated using the survey setup.\nOnly use this "
 		"option if you do not have valid In- and Crossline numbers.") );
 	usexybut_->attach( alignedBelow, useicbut_ );
+	lowest = usexybut_;
     }
 
-    if ( !imptypfixed || fixedimptype_.is2D() )
+    if ( !imptypeFixed() || fixedimptype_.is2D() )
     {
-	keepzsampbox_ = new uiCheckBox( midgrp_, tr("File Z's") );
+	keepzsampbox_ = new uiCheckBox( toolgrp, tr("File Z's") );
 	keepzsampbox_->setHSzPol( uiObject::Small );
 	keepzsampbox_->setToolTip(
 		tr("Use Z sampling as it appears in each SEG-Y file") );
 	keepzsampbox_->setChecked( false );
 	keepzsampbox_->activated.notify(
 			mCB(this,uiSEGYReadStarter,keepZChg) );
-	keepzsampbox_->attach( alignedBelow, examinegrp );
+	keepzsampbox_->attach( alignedBelow, lowest );
+	lowest = keepzsampbox_;
     }
 
-    if ( !imptypfixed || !fixedimptype_.isVSP() )
-    {
-	coordscalefld_ = new uiLineEdit( midgrp_, FloatInpSpec(), "CoordScale");
-	coordscalefld_->setHSzPol( uiObject::Small );
-	coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
-	    "the coordinate scaling in the trace headers."
-	    "\nAll coordinates read will then be multiplied by that factor." ));
-	coordscalefld_->setPlaceholderText( "scale XY" );
-	coordscalefld_->editingFinished.notify(
-				mCB(this,uiSEGYReadStarter,coordscaleChg) );
-	if ( usexybut_ )
-	    coordscalefld_->attach( alignedBelow, usexybut_ );
-	else if ( keepzsampbox_ )
-	    coordscalefld_->attach( alignedBelow, keepzsampbox_ );
-	else
-	    coordscalefld_->attach( alignedBelow, examinegrp );
-    }
+    coordscalefld_ = new uiLineEdit( toolgrp, FloatInpSpec(),"CoordScale");
+    coordscalefld_->setHSzPol( uiObject::Small );
+    coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
+	"the coordinate scaling in the trace headers."
+	"\nAll coordinates read will then be multiplied by that factor." ));
+    coordscalefld_->setPlaceholderText( tr("scale XY") );
+    coordscalefld_->editingFinished.notify(
+			    mCB(this,uiSEGYReadStarter,coordscaleChg) );
+    coordscalefld_->attach( alignedBelow, lowest );
+    lowest = coordscalefld_;
 }
 
 
@@ -247,7 +253,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
     clipfld_->setInterval( 0.f, 49.9f, 0.1f );
     clipfld_->setValue( 0.1f );
     clipfld_->setToolTip( tr("Percentage clip for display") );
-    clipfld_->setSuffix( uiString("%") );
+    clipfld_->setSuffix( toUiString("%") );
     clipfld_->setHSzPol( uiObject::Small );
     clipfld_->attach( rightOf, ampldisp_ );
     clipfld_->valueChanging.notify( adupcb );
@@ -390,9 +396,17 @@ void uiSEGYReadStarter::setToolStates()
     fullscanbut_->setSensitive( haveany );
     examinebut_->setToolTip( ismulti ? tr("Examine first input file")
 				     : tr("Examine input file") );
+    const SEGY::ImpType imptyp = impType();
+    if ( hdrentrysettsbut_ )
+    {
+	bool dodisp = !imptyp.isVSP();
+	if ( !imptyp.is2D() && !imptyp.isPS() && loaddef_.revision_ > 0 )
+	    dodisp= false;
+	hdrentrysettsbut_->display( dodisp );
+    }
     if ( keepzsampbox_ )
     {
-	keepzsampbox_->display( impType().is2D() && ismulti );
+	keepzsampbox_->display( imptyp.is2D() && ismulti );
 	keepZChg( 0 );
     }
     if ( useicbut_ )
@@ -437,8 +451,8 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     execoldbut->attach( leftTo, okbut );
     execoldbut->attach( leftBorder );
     uiMenu* mnu = new uiMenu;
-    mnu->insertAction( new uiAction("Import",impcb) );
-    mnu->insertAction( new uiAction("Link",linkcb) );
+    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
+    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
     execoldbut->setMenu( mnu );
 }
 
@@ -684,6 +698,65 @@ void uiSEGYReadStarter::coordscaleChg( CallBacker* cb )
 }
 
 
+class uiSEGYHdrEntrySettings : public uiDialog
+{ mODTextTranslationClass(uiSEGYHdrEntrySettings)
+public:
+
+uiSEGYHdrEntrySettings( uiParent* p )
+    : uiDialog(p,Setup(tr("SEG-Y byte location scanning settings"),
+			mNoDlgTitle,mTODOHelpKey).savebutton(true))
+{
+    const SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get();
+    inlrgfld_ = new uiGenInput( this, tr("Usable Inline Number range"),
+				IntInpIntervalSpec(hec.inlrg_) );
+    crlrgfld_ = new uiGenInput( this, tr("Usable Crossline Number range"),
+				IntInpIntervalSpec(hec.crlrg_) );
+    crlrgfld_->attach( alignedBelow, inlrgfld_ );
+    trcnrrgfld_ = new uiGenInput( this, tr("Usable 2D Trace Number range"),
+				IntInpIntervalSpec(hec.trcnrrg_) );
+    trcnrrgfld_->attach( alignedBelow, crlrgfld_ );
+    xrgfld_ = new uiGenInput( this, tr("Usable X-coordinate value range"),
+				DoubleInpIntervalSpec(hec.xrg_) );
+    xrgfld_->attach( alignedBelow, trcnrrgfld_ );
+    yrgfld_ = new uiGenInput( this, tr("Usable Y-coordinate value range"),
+				DoubleInpIntervalSpec(hec.yrg_) );
+    yrgfld_->attach( alignedBelow, xrgfld_ );
+    offsrgfld_ = new uiGenInput( this, tr("Usable Offset value range"),
+				FloatInpIntervalSpec(hec.offsrg_) );
+    offsrgfld_->attach( alignedBelow, yrgfld_ );
+}
+
+bool acceptOK( CallBacker* )
+{
+    SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get4Edit();
+    hec.inlrg_ = inlrgfld_->getIInterval();
+    hec.crlrg_ = crlrgfld_->getIInterval();
+    hec.trcnrrg_ = trcnrrgfld_->getIInterval();
+    hec.xrg_ = xrgfld_->getDInterval();
+    hec.yrg_ = yrgfld_->getDInterval();
+    hec.offsrg_ = offsrgfld_->getFInterval();
+    if ( saveButtonChecked() )
+	hec.save2Settings();
+    return true;
+}
+
+    uiGenInput*	inlrgfld_;
+    uiGenInput*	crlrgfld_;
+    uiGenInput*	trcnrrgfld_;
+    uiGenInput*	xrgfld_;
+    uiGenInput*	yrgfld_;
+    uiGenInput*	offsrgfld_;
+
+};
+
+
+void uiSEGYReadStarter::editHdrEntrySettings( CallBacker* cb )
+{
+    uiSEGYHdrEntrySettings dlg( this );
+    dlg.go();
+}
+
+
 void uiSEGYReadStarter::updateICvsXYButtons()
 {
     if ( !useicbut_ ) return;
@@ -786,7 +859,7 @@ void uiSEGYReadStarter::updateSurvMap()
 	}
     }
 
-    toStatusBar( stbarmsg );
+    toStatusBar( mToUiStringTodo(stbarmsg) );
     survmap_->setSurveyInfo( survinfo_ );
 }
 
@@ -856,7 +929,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 	if ( !File::exists(fnm) )
 	{
 	    if ( emiterr )
-		uiMSG().error( uiString(
+		uiMSG().error( tr(
 			    "SEG-Y file does not exist:\n%1").arg(fnm) );
 	    return false;
 	}
@@ -910,7 +983,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 
 #define mErrRetResetStream(str) { \
     strm.setPosition( firsttrcpos ); \
-    uiMSG().error( uiString(str).arg(strm.fileName()) ); \
+    uiMSG().error( str.arg(strm.fileName()) ); \
     return false; }
 
 bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
@@ -920,13 +993,13 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
     PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
     if ( !thdr )
-	mErrRetResetStream( "File:\n%1\nNo traces found" )
+	mErrRetResetStream( tr("File:\n%1\nNo traces found") )
 
     if ( bfi.ns_ < 1 )
 	bfi.ns_ = (int)thdr->nrSamples();
     if ( bfi.ns_ > mMaxReasonableNS )
 	mErrRetResetStream(
-	    "File:\n%1\nNo proper 'number of samples per trace' found" )
+	    tr("File:\n%1\nNo proper 'number of samples per trace' found") )
 
     if ( mIsUdf(bfi.sampling_.step) )
     {

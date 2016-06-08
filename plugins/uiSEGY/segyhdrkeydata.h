@@ -29,8 +29,8 @@ mExpClass(uiSEGY) HdrEntryConstraints
 {
 public:
 
-    			HdrEntryConstraints(); //!< gets from settigns
-    void		save2Settings();
+			HdrEntryConstraints(); //!< gets from settigns
+    void		save2Settings() const;
 
     Interval<int>	inlrg_;
     Interval<int>	crlrg_;
