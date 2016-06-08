@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "survinfo.h"
 
-static const char* sKeyPfx = "SEGY.Byte Selection";
+static const char* sKeyPfx = "SEGY.Usable Range";
 SEGY::HdrEntryConstraints hdrentryconstraints_;
 const SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get()
 { return hdrentryconstraints_; }
@@ -25,9 +25,9 @@ SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get4Edit()
 
 
 SEGY::HdrEntryConstraints::HdrEntryConstraints()
-    : inlrg_(1,mUdf(int))
-    , crlrg_(1,mUdf(int))
-    , trcnrrg_(1,mUdf(int))
+    : inlrg_(1,200000000)
+    , crlrg_(1,200000000)
+    , trcnrrg_(1,200000000)
     , xrg_(0.1,1.e10)
     , yrg_(0.1,1.e10)
     , offsrg_(0.f,100000.f)
@@ -36,7 +36,7 @@ SEGY::HdrEntryConstraints::HdrEntryConstraints()
 }
 
 
-void SEGY::HdrEntryConstraints::save2Settings()
+void SEGY::HdrEntryConstraints::save2Settings() const
 {
     fillPar( Settings::common() );
     Settings::common().write();
