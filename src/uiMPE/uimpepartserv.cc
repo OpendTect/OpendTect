@@ -903,7 +903,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	delete mw;
     }
 
-    uiDialog* setupdlg  = new uiDialog( 0,
+    uiDialog* setupdlg = new uiDialog( 0,
 		uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
