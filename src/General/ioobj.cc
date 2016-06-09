@@ -100,7 +100,8 @@ void IOObj::copyFrom( const IOObj* obj )
 
 
 
-IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
+IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky,
+       		   bool rejectoldtmps )
 {
     if ( atEndOfSection(astream) )
 	astream.next();
@@ -115,7 +116,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     const int leafid = fms.getIValue( 0 );
     MultiID objkey( dirid, leafid );
     bool reject = dirid < 0 || leafid < 1;
-    if ( isTmpLeafID(leafid) )
+    if ( rejectoldtmps && isTmpLeafID(leafid) )
     {
 	const int dikey = fms.getIValue( 1 );
 	if ( dikey < DateInfo().key()-1 )

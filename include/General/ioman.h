@@ -23,6 +23,7 @@ class CtxtIOObj;
 class IODir;
 class IOObj;
 class IOObjContext;
+class IOObjSelConstraints;
 class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
@@ -175,6 +176,10 @@ public:
 			     .od/survey file */
     static void		surveyParsChanged();
 			/*! Triggers the post-survey change notifiers */
+
+    void		findTempObjs(ObjectSet<IOObj>&,
+	    			const IOObjSelConstraints* cnstrts=0) const;
+    			//!< set filled with cloned ioobjs. Needs deepErase().
 
 };
 

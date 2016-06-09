@@ -29,7 +29,7 @@ IODir::IODir( const char* dirnm )
 	, key_("")
 	, mInitVarList
 {
-    if ( build() )
+    if ( build(false) )
 	isok_ = true;
 }
 
@@ -55,6 +55,13 @@ IODir::IODir( const MultiID& ky )
 	, key_("")
 	, mInitVarList
 {
+    init( ky, false );
+}
+
+
+
+void IODir::init( const MultiID& ky, bool inc_old_tmps )
+{
     IOObj* ioobj = getObj( ky, errmsg_ );
     if ( !ioobj )
 	return;
@@ -69,7 +76,7 @@ IODir::IODir( const MultiID& ky )
     delete ioobj;
     const_cast<BufferString&>(dirname_).set( dirnm );
 
-    if ( build() )
+    if ( build(inc_old_tmps) )
 	isok_ = true;
 }
 
@@ -133,10 +140,10 @@ const IOObj* IODir::get( const MultiID& ky ) const
 }
 
 
-bool IODir::build()
+bool IODir::build( bool inc_old_tmps )
 {
     Threads::Locker locker( static_read_lock );
-    return doRead( dirname_, this, errmsg_ );
+    return doRead( dirname_, this, errmsg_, -1, inc_old_tmps );
 }
 
 
@@ -167,7 +174,7 @@ const IOObj* IODir::main() const
 
 
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, uiString& errmsg,
-		      SubID reqsubid )
+		      SubID reqsubid, bool incl_old_tmp )
 {
     SafeFileIO sfio( FilePath(dirnm,".omf").fullPath(), false );
     if ( !sfio.open(true) )
@@ -176,7 +183,7 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, uiString& errmsg,
 	return 0;
     }
 
-    IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, reqsubid );
+    IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, reqsubid, incl_old_tmp );
     if ( ret )
 	sfio.closeSuccess();
     else
@@ -198,7 +205,7 @@ void IODir::setDirName( IOObj& ioobj, const char* dirnm )
 
 
 IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
-			IODir* dirptr, SubID reqsubid )
+			IODir* dirptr, SubID reqsubid, bool inc_old_tmps )
 {
     ascistream astream( strm );
     astream.next();
@@ -219,7 +226,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     IOObj* retobj = 0;
     while ( astream.type() != ascistream::EndOfFile )
     {
-	IOObj* obj = IOObj::get(astream,dirnm,dirky);
+	IOObj* obj = IOObj::get( astream, dirnm, dirky, !inc_old_tmps );
 	if ( !obj || obj->isBad() )
 	    { delete obj; continue; }
 
@@ -567,4 +574,21 @@ MultiID IODir::getNewTmpKey( const IOObjContext& ctxt )
 {
     const IODir iodir( MultiID(ctxt.getSelKey()) );
     return iodir.newTmpKey();
+}
+
+
+void IODir::getTmpIOObjs( const MultiID& ky, ObjectSet<IOObj>& ioobjs,
+			  const IOObjSelConstraints* cnstrnts )
+{
+    IODir iodir;
+    iodir.init( ky, true );
+    for ( int idx=0; idx<iodir.objs_.size(); idx++ )
+    {
+	const IOObj& ioobj = *iodir.objs_[idx];
+	if ( !ioobj.isTmp() )
+	    continue;
+
+	if ( !cnstrnts || cnstrnts->isGood(ioobj) )
+	    ioobjs += ioobj.clone();
+    }
 }

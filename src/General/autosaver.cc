@@ -183,10 +183,11 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     storenm.add( autosavenr_++ );
     IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
     newstoreioobj->setGroup( orgioobj->group() );
+    newstoreioobj->setDirName( orgioobj->dirName() );
     newstoreioobj->setTranslator( orgioobj->translator() );
     newstoreioobj->pars() = orgioobj->pars();
-    newstoreioobj->pars().update( sKey::CrFrom(), saverkey );
-    newstoreioobj->pars().update( sKey::CrInfo(), "Auto-saved" );
+    newstoreioobj->pars().set( sKey::CrFrom(), saverkey, orgioobj->name() );
+    newstoreioobj->pars().set( sKey::CrInfo(), "Auto-saved" );
     newstoreioobj->updateCreationPars();
 
     if ( !IOM().commitChanges(*newstoreioobj)

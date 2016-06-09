@@ -264,3 +264,15 @@ void SeparString::setSepChar( char newchar )
     *this = ss;
 }
 
+
+FileMultiString::FileMultiString( const char* s1, const char* s2,
+				  const char* s3, const char* s4 )
+    : SeparString(s1, separator() )
+{
+    if ( s2 )
+	*this += s2;
+    if ( s3 )
+	*this += s3;
+    if ( s4 )
+	*this += s4;
+}

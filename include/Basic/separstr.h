@@ -133,6 +133,8 @@ public:
 
 			FileMultiString(const char* escapedstr=0)
 			    : SeparString(escapedstr, separator() )	{}
+			FileMultiString(const char* s1,const char* s2,
+					const char* s3=0,const char*s4=0);
     template <class T>	FileMultiString( const T& t )
 			    : SeparString(t,separator())		{}
 

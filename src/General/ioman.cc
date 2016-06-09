@@ -1208,3 +1208,16 @@ bool IOMan::isValidSurveyDir( const char* d )
 
     return true;
 }
+
+
+void IOMan::findTempObjs( ObjectSet<IOObj>& ioobjs,
+			 const IOObjSelConstraints* cnstrts ) const
+{
+    for ( int iseltyp=0; iseltyp<(int)IOObjContext::None; iseltyp++ )
+    {
+	const IOObjContext::StdSelType st = (IOObjContext::StdSelType)iseltyp;
+	const IOObjContext::StdDirData* sdd = IOObjContext::getStdDirData( st );
+	if ( sdd )
+	    IODir::getTmpIOObjs( MultiID(sdd->id_), ioobjs, cnstrts );
+    }
+}

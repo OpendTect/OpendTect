@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uistring.h"
 class IOObj;
 class IOObjContext;
+class IOObjSelConstraints;
 
 
 /*\brief 'Directory' of IOObj objects.
@@ -92,12 +93,14 @@ private:
 
 			// No locks, lock if necessary
     void		doReRead();
-    static IOObj*	doRead(const char*,IODir*,uiString& errmsg,SubID id=-1);
-    static IOObj*	readOmf(od_istream&,const char*,IODir*,SubID);
+    static IOObj*	doRead(const char*,IODir*,uiString& errmsg,SubID,
+	    			bool incoldtmps=false);
+    static IOObj*	readOmf(od_istream&,const char*,IODir*,SubID,bool);
 
     static void		setDirName(IOObj&,const char*);
 
-    bool		build();
+    void		init(const MultiID&,bool);
+    bool		build(bool);
     bool		doAddObj(IOObj*,bool);
     bool		doWrite() const;
     bool		wrOmf(od_ostream&) const;
@@ -124,6 +127,8 @@ public:
     bool		addObj(IOObj*,bool immediate_store=true);
 				// usually done by IOM()
 				//!< after call, IOObj is mine
+    static void		getTmpIOObjs(const MultiID&,ObjectSet<IOObj>&,
+	    				const IOObjSelConstraints* c=0);
 
 };
 
