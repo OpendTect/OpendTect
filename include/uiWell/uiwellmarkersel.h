@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class uiComboBox;
+class uiGenInput;
 class uiIOObjSelGrp;
 class uiListBox;
 class BufferStringSet;
@@ -113,8 +114,12 @@ public:
 
 protected:
 
+    void		fltrMarkerNamesCB(CallBacker*);
+
+    BufferStringSet	markernms_;
     uiIOObjSelGrp*	wellselgrp_;
     uiListBox*		markersselgrp_;
+    uiGenInput*		filtfld_;
 
 };
 

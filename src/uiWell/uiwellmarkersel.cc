@@ -11,12 +11,14 @@ ________________________________________________________________________
 
 #include "uiwellmarkersel.h"
 
+#include "globexpr.h"
 #include "wellextractdata.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "welltransl.h"
 
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -251,25 +253,30 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		    : tr("Select a well marker"),
 		mODHelpKey(mWellMarkersDlgHelpID)))
 {
+    uiGroup* mrkrgrp = new uiGroup( this, "Marker group" );
     uiLabel* markerstxt =
-		new uiLabel( this, uiStrings::sMarker(mPlural) );
+		new uiLabel( mrkrgrp, uiStrings::sMarker(mPlural) );
 
-    markersselgrp_ = new uiListBox( this, "Markers", su.markerschoicemode_ );
-    BufferStringSet markernms;
-    Well::MGR().getMarkerNames( markernms );
-    markernms.sort();
-    markersselgrp_->addItems( markernms );
+    markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
+    Well::MGR().getMarkerNames( markernms_ );
+    markernms_.sort();
+    markersselgrp_->addItems( markernms_ );
+    filtfld_ = new uiGenInput( markersselgrp_, uiStrings::sFilter(), "*" );
+    filtfld_->updateRequested.notify(
+				mCB(this,uiWellMarkersDlg,fltrMarkerNamesCB) );
+    markersselgrp_->box()->attach( centeredBelow, filtfld_ );
     markersselgrp_->attach( ensureRightOf, markerstxt );
+    mrkrgrp->setHAlignObj( markersselgrp_ );
 
     if ( !su.withwellfilter_ )
 	return;
 
     uiSeparator* sep = new uiSeparator( this, "Well to markers" );
-    sep->attach( stretchedBelow, markersselgrp_ );
+    sep->attach( stretchedBelow, mrkrgrp );
 
     wellselgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
 				uiIOObjSelGrp::Setup(su.wellschoicemode_) );
-    wellselgrp_->attach( alignedBelow, markersselgrp_ );
+    wellselgrp_->attach( alignedBelow, mrkrgrp );
     wellselgrp_->attach( ensureBelow, sep );
 
     uiLabel* txt = new uiLabel( this, uiStrings::sWells() );
@@ -296,4 +303,36 @@ void uiWellMarkersDlg::getWellIDs( TypeSet<MultiID>& wllids )
 {
     if ( wellselgrp_ )
 	wellselgrp_->getChosen( wllids );
+}
+
+
+void uiWellMarkersDlg::fltrMarkerNamesCB( CallBacker* )
+{
+    markersselgrp_->setEmpty();
+    if ( markernms_.isEmpty() )
+	return;
+
+    BufferString filtstr = filtfld_->text();
+    if ( filtstr.isEmpty() || filtstr == "*" )
+    {
+	markersselgrp_->addItems( markernms_ );
+	return;
+    }
+
+    const int mrkrsz = markernms_.size();
+    GlobExpr ge( filtstr );
+    BufferStringSet filtmrkrnms;
+    for ( int midx=0; midx<mrkrsz; midx++ )
+    {
+	BufferString mrkrnm = markernms_.get( midx );
+	if ( !ge.matches(mrkrnm) )
+		continue;
+
+	filtmrkrnms.add( mrkrnm );
+    }
+
+    if ( filtmrkrnms.isEmpty() )
+	return;
+
+    markersselgrp_->addItems( filtmrkrnms );
 }
