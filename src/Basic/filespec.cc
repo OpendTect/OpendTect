@@ -85,10 +85,10 @@ const char* FileSpec::usrStr() const
 
 const char* FileSpec::fileName( int fidx ) const
 {
-    if ( fidx < 0 )
+    const int nrfnms = fnames_.size();
+    if ( fidx < 0 || nrfnms < 1 )
 	return "";
 
-    const int nrfnms = fnames_.size();
     if ( nrfnms > 1 )
 	return fidx < nrfnms ? fnames_.get( fidx ).buf() : "";
 
