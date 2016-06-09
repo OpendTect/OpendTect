@@ -461,6 +461,9 @@ bool IOMan::setRootDir( const char* dirnm )
 
 
 #define mGoTo(where,forcereread) goTo( where, forcereread, accesslockhandler_ )
+#define mSendNewIODirNotif() \
+    mSendChgNotif( cNewIODirChangeType(), 0 ); \
+    self.newIODir.trigger()
 
 
 bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
@@ -485,11 +488,10 @@ bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
     if ( !File::isDirectory(dirnm) )
 	return false;
 
+    IOMan& self = *const_cast<IOMan*>( this );
     mLock2Write();
-    const bool rv = const_cast<IOMan*>(this)->setDir( dirnm );
-    touch();
-    mUnlockAllAccess();
-    const_cast<IOMan*>(this)->newIODir.trigger();
+    const bool rv = self.setDir( dirnm );
+    mSendNewIODirNotif();
     return rv;
 }
 
@@ -511,6 +513,26 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 {
     mLock4Read();
     return mGoTo( ky, forcereread );
+}
+
+
+static int gtLevelOf( const char* dirnm, int startat )
+{
+    if ( !dirnm )
+	return 0;
+
+    const int lendir = FixedString(dirnm).size();
+    if ( lendir <= startat )
+	return 0;
+
+    int lvl = 0;
+    const char* ptr = ((const char*)dirnm) + startat;
+    while ( ptr )
+    {
+	ptr++; lvl++;
+	ptr = firstOcc( ptr, *FilePath::dirSep(FilePath::Local) );
+    }
+    return lvl;
 }
 
 
@@ -552,11 +574,12 @@ bool IOMan::goTo( const MultiID& ky, bool forcereread,
     if ( dirptr_ )
 	delete self.dirptr_;
     self.dirptr_ = newdir;
-    self.curlvl_ = levelOf( curDirName() );
-    mUnlockAllAccess();
+    self.curlvl_ = gtLevelOf( curDirName(), rootdir_.size() );
 
-    if ( sendnotif )
-	{ touch(); self.newIODir.trigger(); }
+    if ( !sendnotif )
+	{ mUnlockAllAccess(); }
+    else
+	{ mSendNewIODirNotif(); }
 
     return true;
 }
@@ -793,11 +816,12 @@ bool IOMan::setDir( const char* dirname )
     bool sendnotif = dirptr_;
     delete dirptr_;
     dirptr_ = newdirptr;
-    curlvl_ = levelOf( curDirName() );
-    mUnlockAllAccess();
+    curlvl_ = gtLevelOf( curDirName(), rootdir_.size() );
 
-    if ( sendnotif )
-	{ touch(); newIODir.trigger(); }
+    if ( !sendnotif )
+	{ mUnlockAllAccess(); }
+    else
+	{ IOMan& self = *this; mSendNewIODirNotif(); }
 
     return true;
 }
@@ -833,13 +857,13 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     }
 
     ctio.setObj( ioobj ? ioobj->clone() : 0 );
-    mUnlockAllAccess();
 
-    if ( needstrigger )
+    if ( !needstrigger )
+	mUnlockAllAccess();
+    else
     {
-	touch();
-	CBCapsule<MultiID> caps( ioobj->key(), this );
-	entryAdded.trigger( &caps );
+	mSendChgNotif( cEntryAddedChangeType(), -1 );
+	entryAdded.trigger( ioobj->key() );
     }
 }
 
@@ -922,29 +946,8 @@ bool IOMan::isPresent( const char* objname, const char* tgname ) const
 }
 
 
-int IOMan::levelOf( const char* dirnm ) const
-{
-    Threads::Locker lock( lock_ );
-    if ( !dirnm ) return 0;
-
-    int lendir = FixedString(dirnm).size();
-    int lenrootdir = rootdir_.size();
-    if ( lendir <= lenrootdir ) return 0;
-
-    int lvl = 0;
-    const char* ptr = ((const char*)dirnm) + lenrootdir;
-    while ( ptr )
-    {
-	ptr++; lvl++;
-	ptr = firstOcc( ptr, *FilePath::dirSep(FilePath::Local) );
-    }
-    return lvl;
-}
-
-
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
-    Threads::Locker lock( lock_ );
     PtrMan<IOObj> ioobjclone = ioobj.clone();
     mLock4Read();
     mGoTo( ioobjclone->key(), false );
@@ -966,9 +969,8 @@ bool IOMan::permRemove( const MultiID& ky )
 	return false;
     mUnlockAllAccess();
 
-    touch();
-    CBCapsule<MultiID> caps( ky, this );
-    entryRemoved.trigger( &caps );
+    mSendChgNotif( cEntryRemovedChangeType(), -1 );
+    entryRemoved.trigger( ky );
     return true;
 }
 

@@ -27,8 +27,7 @@ class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
 
-/*!
-\brief manages the 'Meta-'data store for the IOObj's.
+/*!\brief manages the 'Meta-'data store for the IOObj's.
 This info is read from the .omf files.
 
 There will be one IOMan available through the global function IOM(). Creating
@@ -109,13 +108,19 @@ public:
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
-    Notifier<IOMan>	newIODir;
     Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
     Notifier<IOMan>	surveyChanged;      //!< To restore OD to normal state
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
-    Notifier<IOMan>	entryRemoved;	    //!< CallBacker: CBCapsule<MultiID>
-    Notifier<IOMan>	entryAdded;
+
+    			// IOMan will send out Monitorable events, but also
+    			// these ones for convenience
+    Notifier<IOMan>	newIODir;
+    CNotifier<IOMan,MultiID> entryAdded;
+    CNotifier<IOMan,MultiID> entryRemoved;
+    static ChangeType	cNewIODirChangeType()		{ return 1; }
+    static ChangeType	cEntryAddedChangeType()		{ return 2; }
+    static ChangeType	cEntryRemovedChangeType()	{ return 3; }
 
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
@@ -130,8 +135,6 @@ private:
     int			curlvl_;
     mutable uiString	errmsg_;
     bool		survchgblocked_;
-    mutable Threads::Lock lock_;
-
 
     void		init();
     void		reInit(bool dotrigger);
@@ -144,14 +147,12 @@ private:
 			// Not locked:
     inline bool		gtIsBad() const		{ return state_ != Good; }
     bool		setDir(const char*);
-    int			levelOf(const char* dirnm) const;
-    int			curLevel() const	{ return curlvl_; }
     bool		goTo(const MultiID&,bool,AccessLockHandler&) const;
     bool		goTo(const IOSubDir*,bool,AccessLockHandler&) const;
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
     friend class	SurveyDataTreePreparer;
-    friend mGlobal(General)	IOMan&	IOM();
+    friend mGlobal(General) IOMan& IOM();
 
 public:
 
