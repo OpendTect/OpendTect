@@ -309,12 +309,12 @@ void uiWellImportAsc::doAdvOpt( CallBacker* )
 
 bool uiWellImportAsc::acceptOK( CallBacker* )
 {
-    if ( checkInpFlds() )
-    {
-	doWork();
-	wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
-	wd_.info().groundelev = mUdf(float);
-    }
+    if ( !checkInpFlds() )
+	return false;
+
+    doWork();
+    wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
+    wd_.info().groundelev = mUdf(float);
     uiString msg = tr("Well Track successfully imported."
 		      "\n\nDo you want to import more Well Tracks?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
