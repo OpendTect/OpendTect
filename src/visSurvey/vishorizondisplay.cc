@@ -1646,8 +1646,9 @@ void HorizonDisplay::updateIntersectionLines(
     if ( !horizon ) return;
 
     int objidx = -1;
-    const bool doall = whichobj==-1 || 
-	!isValidIntersectionObject( objs, objidx, whichobj );
+    const bool doall = whichobj==-1 || whichobj==id();
+    if ( !doall && !isValidIntersectionObject(objs,objidx,whichobj) )
+	return;
 
     ManagedObjectSet<IntersectionData> lines;
     if ( doall )
