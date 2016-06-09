@@ -1637,8 +1637,9 @@ void HorizonDisplay::updateIntersectionLines(
     if ( !horizon ) return;
 
     int objidx = -1;
-    const bool doall = whichobj==-1 ||
-	!isValidIntersectionObject( objs, objidx, whichobj );
+    const bool doall = whichobj==-1 || whichobj==id();
+    if ( !doall && !isValidIntersectionObject(objs,objidx,whichobj) )
+	return;
 
     ManagedObjectSet<IntersectionData> lines;
     if ( doall )
@@ -1691,7 +1692,7 @@ void HorizonDisplay::updateIntersectionLines(
 		    data = getOrCreateIntersectionData( lines );
 		    data->objid_ = vo->id();
 		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
-	    continue;
+		    continue;
 		}
 		else
 		{
