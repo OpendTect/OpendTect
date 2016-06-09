@@ -148,12 +148,9 @@ uiEventGroup::~uiEventGroup()
 }
 
 
-void uiEventGroup::updateSensitivity( bool doauto )
+void uiEventGroup::updateSensitivity( bool )
 {
-    thresholdtypefld_->setSensitive( doauto );
-    ampthresholdfld_->setSensitive( doauto );
-    if ( addstepbut_ )
-	addstepbut_->setSensitive( doauto );
+    selEventType( 0 );
 }
 
 
@@ -188,6 +185,8 @@ void uiEventGroup::selEventType( CallBacker* )
     const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
     thresholdtypefld_->setSensitive( thresholdneeded );
     ampthresholdfld_->setSensitive( thresholdneeded );
+    if ( addstepbut_ )
+	addstepbut_->setSensitive( thresholdneeded );
 }
 
 
