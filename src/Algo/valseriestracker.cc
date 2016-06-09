@@ -70,6 +70,7 @@ const char* EventTracker::sKeyTrackByValue()	{ return "Track by value"; }
 const char* EventTracker::sKeyTrackEvent()	{ return "Track event"; }
 const char* EventTracker::sKeyCompareMethod()	{ return "Compare method"; }
 const char* EventTracker::sKeyAttribID()	{ return "Attribute"; }
+const char* EventTracker::sKeySnapToEvent()	{ return "Snap to event"; }
 
 
 static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
@@ -116,6 +117,7 @@ EventTracker::EventTracker()
     , usesimilarity_( true )
     , similaritythreshold_( 0.8 )
     , normalizesimi_( false )
+    , dosnap_(true)
     , quality_( 1 )
     , rangestep_( 1 )
     , seedvs_(0)
@@ -261,13 +263,17 @@ void EventTracker::setSimilarityWindow( const Interval<float>& rg )
 const Interval<float>& EventTracker::similarityWindow() const
 { return similaritywin_; }
 
-
 void EventTracker::setSimilarityThreshold( float th )
 { similaritythreshold_ = th; }
 
-
 float EventTracker::similarityThreshold() const
 { return similaritythreshold_; }
+
+void EventTracker::setSnapToEvent( bool yn )
+{ dosnap_ = yn; }
+
+bool EventTracker::snapToEvent() const
+{ return dosnap_; }
 
 
 bool EventTracker::track()
@@ -295,8 +301,10 @@ bool EventTracker::track()
 	    refampl = sampfunc.getValue( targetdepth_ );
 	}
 
-	const Interval<float> amplrg( refampl * (1-allowedvar_),
-				      refampl * (1+allowedvar_) );
+	Interval<float> amplrg( refampl * (1-allowedvar_),
+				refampl * (1+allowedvar_) );
+	if ( evtype_==VSEvent::Min )
+	    amplrg.sort();
 	const bool res = snap( amplrg );
 	if ( res )
 	{
@@ -383,6 +391,9 @@ bool EventTracker::track()
 
     if ( targetdepth_<0 || mIsUdf(targetdepth_) )
 	return false;
+
+    if ( !dosnap_ )
+	return true;
 
     const int bestidx = mNINT32( targetdepth_ );
     return snap( (*targetvs_)[bestidx] );
@@ -558,7 +569,15 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
 
 bool EventTracker::snap( float threshold )
-{ return snap( Interval<float>(threshold,mUdf(float)) ); }
+{
+    if ( evtype_==VSEvent::Max )
+	return snap( Interval<float>(threshold,mUdf(float)) );
+
+    if ( evtype_==VSEvent::Min )
+	return snap( Interval<float>(-mUdf(float),threshold) );
+
+    return snap( Interval<float>(threshold,threshold) );
+}
 
 
 bool EventTracker::snap( const Interval<float>& amplrg )
@@ -766,6 +785,7 @@ void EventTracker::fillPar( IOPar& iopar ) const
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.set( sKeySimWindow(), similaritywin_ );
     iopar.set( sKeySimThreshold(), similaritythreshold_ );
+    iopar.setYN( sKeySnapToEvent(), dosnap_ );
     iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
     iopar.setYN( sKeyNormSimi(), normalizesimi_ );
 }
@@ -793,6 +813,7 @@ bool EventTracker::usePar( const IOPar& iopar )
     iopar.get( sKeySimWindow(),similaritywin_ );
     iopar.getYN( sKeyNormSimi(), normalizesimi_ );
     iopar.get( sKeySimThreshold(), similaritythreshold_ );
+    iopar.getYN( sKeySnapToEvent(), dosnap_ );
     bool trackbyvalue;
     if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )
 	usesimilarity_ = !trackbyvalue;

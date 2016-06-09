@@ -68,6 +68,8 @@ public:
     Interval<float>	similarityWindow() const;
     void		setSimilarityThreshold(float th);
     float		similarityThreshold() const;
+    void		setSnapToEvent(bool);
+    bool		snapToEvent() const;
 
     int			getNrAttributes() const;
     const Attrib::SelSpec* getAttributeSel(int idx) const;
