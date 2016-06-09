@@ -58,6 +58,7 @@ protected:
     uiGenInput*			usecorrfld_;
     uiGenInput*			compwinfld_;
     uiLabeledSpinBox*		corrthresholdfld_;
+    uiGenInput*			snapfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
 
