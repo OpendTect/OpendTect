@@ -41,6 +41,9 @@ protected:
 
     void		addStandardItems(uiMenu&);
     void		handleStandardItems(int mnuid);
+
+    void		setMoreObjectsToDoHint(bool yn);
+    bool		getMoreObjectsToDoHint() const;
 };
 
 

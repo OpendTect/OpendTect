@@ -2379,6 +2379,21 @@ int uiVisPartServer::getCurInterObjID() const
 { return curinterpobjids.getParam( this ); }
 
 
+void uiVisPartServer::setMoreObjectsToDoHint( int sceneid, bool yn )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    if ( scene )
+	scene->setMoreObjectsToDoHint( yn );
+}
+
+
+bool uiVisPartServer::getMoreObjectsToDoHint( int sceneid ) const
+{
+    const visSurvey::Scene* scene = getScene( sceneid );
+    return scene ? scene->getMoreObjectsToDoHint() : false;
+}
+
+
 uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
     : visserv(*p)
 {

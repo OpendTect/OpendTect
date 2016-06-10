@@ -183,7 +183,10 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 
     MouseCursorChanger uics( MouseCursor::Wait );
     for ( int idx=0; idx<oids.size(); idx++ )
+    {
+	setMoreObjectsToDoHint( idx<oids.size()-1 );
 	addChild( new uiODBodyDisplayTreeItem(oids[idx]), false );
+    }
 
     deepUnRef( objs );
 }

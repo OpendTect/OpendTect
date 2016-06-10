@@ -747,7 +747,10 @@ void uiTreeView::collapseAll()
     just one update to avoid flicker.
 */
 void uiTreeView::triggerUpdate()
-{ body_->updateGeometry(); }
+{
+    body_->updateGeometry();
+    body_->repaint();
+}
 
 
 bool uiTreeView::handleLongTabletPress()

@@ -478,6 +478,10 @@ protected:
     uiDirLightDlg*		dirlightdlg_;
 
     void			triggerObjectMoved(int id);
+
+public:
+    void			setMoreObjectsToDoHint(int sceneid,bool yn);
+    bool			getMoreObjectsToDoHint(int sceneid) const;
 };
 
 

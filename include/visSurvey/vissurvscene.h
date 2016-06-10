@@ -276,6 +276,9 @@ public:
 				    const visBase::EventInfo&, bool outerface,
 				    bool ignoreocclusion,
 				    bool inlcrlspace=true ) const;
+
+    void			setMoreObjectsToDoHint(bool yn);
+    bool			getMoreObjectsToDoHint() const;
 };
 
 } // namespace visSurvey

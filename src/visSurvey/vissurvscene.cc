@@ -69,6 +69,7 @@ static const char* sKeyBottomImage()	{ return "BottomImage"; }
 
 
 static HiddenParam<Scene,Threads::Lock*> updatelocks( 0 );
+static HiddenParam<Scene,char> moreobjectstodo_( 0 );
 
 Scene::Scene()
     : tempzstretchtrans_(0)
@@ -107,6 +108,7 @@ Scene::Scene()
     setup();
 
     updatelocks.setParam( this, new Threads::Lock );
+    moreobjectstodo_.setParam( this, false );
 }
 
 
@@ -438,7 +440,7 @@ void Scene::removeObject( int idx )
     else
 	inlcrlrotation_->removeObject( idx-tempzstretchtrans_->size() );
 
-    if ( so )
+    if ( so && !getMoreObjectsToDoHint() )
 	objectMoved(0);
 }
 
@@ -1470,6 +1472,13 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 
     return Coord3( s3dgeom->transform(bid), pos.z );
 }
+
+void Scene::setMoreObjectsToDoHint( bool yn )
+{ moreobjectstodo_.setParam( this, yn ); }
+
+
+bool Scene::getMoreObjectsToDoHint() const
+{ return moreobjectstodo_.getParam(this); }
 
 
 } // namespace visSurvey

@@ -161,7 +161,11 @@ bool uiODDisplayTreeItem::init()
 	}
     }
 
-    visserv_->setSelObjectId( displayid_ );
+    if ( getMoreObjectsToDoHint() )
+	 ODMainWin()->sceneMgr().getTree(sceneID())->triggerUpdate();
+    else
+	visserv_->setSelObjectId( displayid_ );
+
     setChecked( visserv_->isOn(displayid_) );
     checkStatusChange()->notify( mCB(this,uiODDisplayTreeItem,checkCB) );
     keyPressed()->notify( mCB(this,uiODDisplayTreeItem,keyPressCB) );

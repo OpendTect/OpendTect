@@ -109,6 +109,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 	    Well::Data* wd = Well::MGR().get( wellids[idx] ); \
 	    if ( !wd ) continue; \
 	    treeitm* itm = new treeitm( -1, uiODPlaneDataTreeItem::Empty ); \
+	    setMoreObjectsToDoHint( idx<wellids.size()-1 ); \
 	    addChild( itm, false ); \
 	    itm->setAtWellLocation( *wd ); \
 	    itm->displayDefaultData(); \
