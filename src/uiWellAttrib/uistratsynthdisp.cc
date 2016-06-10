@@ -566,7 +566,9 @@ void uiStratSynthDisp::drawLevel()
 	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
 				  : 0.0f;
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( currentwvasynthetic_, curd2tmodels, offset );
+    getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
+	    				 : currentvdsynthetic_, curd2tmodels,
+					 offset );
     if ( !curd2tmodels.isEmpty() && lvl )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
@@ -822,6 +824,15 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
 	return emptybuf;
     }
+
+    if ( tbdp->trcBuf().isEmpty() )
+	tbdp = vwr_->getPack( false, true );
+    
+    if ( !tbdp )
+    {
+	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
+	return emptybuf;
+    }
     return tbdp->trcBuf();
 }
 
@@ -909,6 +920,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	DPM( DataPackMgr::FlatID() ).add( dp );
 	vwr_->setPack( wva, dp->id(), !hadpack );
 	vwr_->setVisible( wva, false );
+	levelSnapChanged( 0 );
 	return;
     }
 
