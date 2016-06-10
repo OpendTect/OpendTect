@@ -336,6 +336,10 @@ bool Engine::prepareForRetrack()
     EM::EMObject* emobj = activetracker_->emObject();
     emobj->setBurstAlert( true );
     emobj->removeAllUnSeedPos();
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( hor3d ) hor3d->initAllAuxData();
+
     seedpicker->reTrack();
     emobj->setBurstAlert( false );
     return true;
