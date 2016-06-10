@@ -91,6 +91,7 @@ Scene::Scene()
     , botimg_( 0 )
     , posmodemanipdeselobjid_( -1 )
     , spacebarwaspressed_( false )
+    , moreobjectstodo_( false )
 {
     mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
@@ -428,7 +429,7 @@ void Scene::removeObject( int idx )
     else
 	inlcrlrotation_->removeObject( idx-tempzstretchtrans_->size() );
 
-    if ( so )
+    if ( so && !getMoreObjectsToDoHint() )
 	objectMoved(0);
 }
 
@@ -1465,6 +1466,14 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 
     return Coord3( s3dgeom->transform(bid), pos.z );
 }
+
+
+void Scene::setMoreObjectsToDoHint( bool yn )
+{ moreobjectstodo_ = yn; }
+
+
+bool Scene::getMoreObjectsToDoHint() const
+{ return moreobjectstodo_; }
 
 
 } // namespace visSurvey

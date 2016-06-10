@@ -281,6 +281,7 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
 	mDetachCB(
 	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
 	scene.itemmanager_->askContinueAndSaveIfNeeded( false );
+	visscene->setMoreObjectsToDoHint( true );
 	scene.itemmanager_->prepareForShutdown();
 	visServ().removeScene( scene.itemmanager_->sceneID() );
 	sceneClosed.trigger( scene.itemmanager_->sceneID() );

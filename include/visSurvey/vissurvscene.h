@@ -201,6 +201,9 @@ public:
 				    bool ignoreocclusion,bool inlcrlspace=true,
 				    BufferString* topbotstr=0 ) const;
 
+    void			setMoreObjectsToDoHint(bool yn);
+    bool			getMoreObjectsToDoHint() const;
+
     void			fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
@@ -262,6 +265,7 @@ protected:
 
     bool			ctshownusepar_;
     bool			usepar_;
+    bool			moreobjectstodo_;
     Threads::Lock		updatelock_;
 
     static const char*		sKeyShowAnnot();

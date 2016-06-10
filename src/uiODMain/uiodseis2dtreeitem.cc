@@ -223,7 +223,10 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	applMgr()->seisServer()->select2DLines( geomids, action );
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
+	{
+	    setMoreObjectsToDoHint( idx>0 );
 	    addChild( new uiOD2DLineTreeItem(geomids[idx]), false );
+	}
 	cursorchgr.restore();
 
 	if ( action==0 || geomids.isEmpty() ) return true;

@@ -132,7 +132,10 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	for ( int idx=0; idx<mids.size(); idx++ )
+	{
+	    setMoreObjectsToDoHint( idx<mids.size()-1 );
 	    addPickSet( Pick::SetMGR().fetchForEdit( mids[idx] ) );
+	}
     }
     else if ( mnuid==mGen3DIdx )
     {

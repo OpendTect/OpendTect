@@ -212,6 +212,7 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 
 	while ( children_.size() )
 	{
+	    setMoreObjectsToDoHint( children_.size()>1 );
 	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
 	    if ( !itm ) continue;
 	    itm->prepareForShutdown();
@@ -219,6 +220,17 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	    removeChild( itm );
 	}
     }
+}
+
+
+void uiODTreeItem::setMoreObjectsToDoHint( bool yn )
+{ applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
+
+
+bool uiODTreeItem::getMoreObjectsToDoHint() const
+{
+    uiODApplMgr* applmgr = const_cast<uiODTreeItem*>(this)->applMgr();
+    return applmgr->visServer()->getMoreObjectsToDoHint( sceneID() );
 }
 
 

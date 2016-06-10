@@ -130,7 +130,10 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	applMgr()->EMServer()->selectFaults( objs, false );
 	MouseCursorChanger mcc( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    setMoreObjectsToDoHint( idx<objs.size()-1 );
 	    addChild( new uiODFaultTreeItem(objs[idx]->id()), false );
+	}
 
 	deepUnRef( objs );
     }
@@ -446,7 +449,10 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	applMgr()->EMServer()->selectFaultStickSets( objs );
 	MouseCursorChanger uics( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    setMoreObjectsToDoHint( idx<objs.size()-1 );
 	    addChild( new uiODFaultStickSetTreeItem(objs[idx]->id()), false );
+	}
 	deepUnRef( objs );
     }
     else if ( mnuid == mNewMnuID )

@@ -109,6 +109,9 @@ public:
 			     If id==-1, it will give the ids of the
 			     scenes */
 
+    void		setMoreObjectsToDoHint(int sceneid,bool yn);
+    bool		getMoreObjectsToDoHint(int sceneid) const;
+
     bool		hasAttrib(int) const;
     enum AttribFormat	{ None, Cube, Traces, RandomPos, OtherFormat };
 			/*!\enum AttribFormat

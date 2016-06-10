@@ -142,9 +142,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
-	bool needssorting = false;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
+	    setMoreObjectsToDoHint( idx<objs.size()-1 );
+
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
 	    {
 		MPE::engine().addTracker( objs[idx] );
@@ -154,14 +155,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx,
 					 mnuid==mAddAtSectIdx );
 
-	    if ( addChld(itm,false,false) )
-		needssorting = true;
+	    addChld( itm, false, false );
 	}
 	deepUnRef( objs );
 
 	setSectionDisplayRestoreForAllHors( false );
-	if ( needssorting )
-	    sort();
     }
     else if ( mnuid == trackitem_.id )
     {
@@ -255,6 +253,9 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 					  bool downwards )
 {
     bool res = uiTreeItem::addChld( child, below, downwards );
+    if ( !getMoreObjectsToDoHint() )
+	sort();
+
     return res;
 }
 
@@ -697,25 +698,19 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true );
-	bool needssorting = false;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
+	    setMoreObjectsToDoHint( idx<objs.size()-1 );
+
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
 	    {
 		MPE::engine().addTracker( objs[idx] );
 		applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
-
-	    if ( addChld(new uiODHorizon2DTreeItem(objs[idx]->id()),
-			 false,false) )	
-	    {
-		needssorting = true;
-	    }
+	    addChld( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
 	}
 
 	deepUnRef( objs );
-	if ( needssorting )
-	    sort();
     }
     else if ( mnuid == 1 )
     {
@@ -729,11 +724,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     else if ( mnuid == 2 )
     {
 	uiHor2DFrom3DDlg dlg( getUiParent() );
-	if ( dlg.go() && dlg.doDisplay() &&
-	     addChld(new uiODHorizon2DTreeItem(dlg.getEMObjID()),true,false) )
-	{
-	    sort();
-	}
+	if ( dlg.go() && dlg.doDisplay() )
+	     addChld( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true, false);
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
@@ -791,6 +783,9 @@ bool uiODHorizon2DParentTreeItem::addChld( uiTreeItem* child, bool below,
 					    bool downwards )
 {
     bool res = uiTreeItem::addChld( child, below, downwards );
+    if ( !getMoreObjectsToDoHint() )
+	sort();
+
     return res;
 }
 

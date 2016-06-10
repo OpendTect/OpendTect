@@ -117,7 +117,10 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	for ( int idx=0; idx<emwellids.size(); idx++ )
+	{
+	    setMoreObjectsToDoHint( idx<emwellids.size()-1 );
 	    addChild(new uiODWellTreeItem(emwellids[idx]), false );
+	}
     }
 
     else if ( mnuid == cTieIdx )
