@@ -53,11 +53,9 @@ else
 
     if ( $?LD_LIBRARY_PATH ) then
 	setenv OD_SYSTEM_LIBRARY_PATH "${LD_LIBRARY_PATH}"
-	setenv LD_LIBRARY_PATH "${bindir}:${LD_LIBRARY_PATH}"
-    else if ( -d /usr/lib64 ) then
-	setenv LD_LIBRARY_PATH "${bindir}:/lib:/usr/lib64:/usr/lib"
+        setenv LD_LIBRARY_PATH "${bindir}:${OD_SYSTEM_LIBRARY_PATH}"
     else
-	setenv LD_LIBRARY_PATH "${bindir}:/lib:/usr/lib"
+	setenv LD_LIBRARY_PATH "${bindir}"
     endif
 
     # kludge for Fedora 8
