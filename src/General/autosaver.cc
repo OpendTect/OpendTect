@@ -13,12 +13,15 @@
 #include "settings.h"
 #include "separstr.h"
 #include "timefun.h"
-#include "msgh.h"
+#include "oddirs.h"
+#include "transl.h"
+#include "genc.h"
 
 static const int defnrsecondsbetweensaves_ = 300;
 static const char* sKeyIsActiveByDefault = "AutoSave.Active";
 static const char* sKeyUseHiddenMode = "AutoSave.Hidden";
 static const char* sKeyNrSecondsBetweenSaves = "AutoSave.Cycle Time";
+const char* OD::AutoSaver::sKeyAutosaved()	{ return "Auto-saved"; }
 
 
 static void setDefaultNrSecondsBetweenSaves( int nrsecs )
@@ -187,7 +190,10 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->setTranslator( orgioobj->translator() );
     newstoreioobj->pars() = orgioobj->pars();
     newstoreioobj->pars().set( sKey::CrFrom(), saverkey, orgioobj->name() );
-    newstoreioobj->pars().set( sKey::CrInfo(), "Auto-saved" );
+    newstoreioobj->pars().set( AutoSaver::sKeyAutosaved(), sKey::Yes() );
+    FileMultiString fms;
+    fms.add( GetLocalHostName() ).add( GetPID() );
+    newstoreioobj->pars().set( sKey::CrInfo(), fms );
     newstoreioobj->updateCreationPars();
 
     if ( !IOM().commitChanges(*newstoreioobj)
@@ -310,6 +316,36 @@ void OD::AutoSaver::setNrSecondsBetweenSaves( int nrsecs )
     setDefaultNrSecondsBetweenSaves( nrsecs );
     Threads::Locker locker( lock_ );
     nrclocksecondsbetweensaves_ = nrsecs;
+}
+
+
+bool OD::AutoSaver::restore( IOStream& iostrm, const char* newnm )
+{
+    const MultiID tmpky( iostrm.key() );
+
+    IOStream tmpiostrm( iostrm );
+    tmpiostrm.setName( newnm );
+    PtrMan<Translator> transl = iostrm.createTranslator();
+    if ( transl )
+	tmpiostrm.setExt( transl->defExtension() );
+    tmpiostrm.genFileName();
+    const BufferString newfnm( tmpiostrm.fullUserExpr(true) );
+    if ( iostrm.implRename(newfnm) )
+	iostrm.fileSpec().setFileName( newfnm );
+    iostrm.setName( newnm );
+    iostrm.pars().removeWithKey( sKey::CrFrom() );
+    iostrm.pars().removeWithKey( sKey::CrInfo() );
+    iostrm.pars().removeWithKey( sKeyAutosaved() );
+    iostrm.updateCreationPars();
+
+    iostrm.acquireNewKeyIn( tmpky.parent() );
+    if ( IOM().commitChanges(iostrm) )
+    {
+	IOM().permRemove( tmpky );
+	return true;
+    }
+
+    return false;
 }
 
 

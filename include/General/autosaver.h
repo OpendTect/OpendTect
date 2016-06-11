@@ -50,10 +50,13 @@ public:
     void		setNrSecondsBetweenSaves(int);
 
     void		add(const Saveable&);
+    bool		restore(IOStream&,const char* newnm);
 
 			// triggered from mgr's thread. CB obj is the saver.
     Notifier<AutoSaver> saveDone;
     Notifier<AutoSaver> saveFailed;
+
+    static const char*	sKeyAutosaved();
 
 private:
 

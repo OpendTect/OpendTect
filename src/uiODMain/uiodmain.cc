@@ -72,6 +72,8 @@ uiString ODSessionTranslatorGroup::sTypeName(int num)
 
 
 extern "C" const char* GetSettingsDataDir();
+void startAutoSaved2RealObjectRestorer();
+
 
 static uiODMain* manODMainWin( uiODMain* i )
 {
@@ -234,7 +236,9 @@ uiODMain::uiODMain( uiMain& a )
     memtimer_.start( 1000 );
 
     if ( !useallcpus )
-    cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
+	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
+
+    postFinalise().notify( mCB(this,uiODMain,afterStartupCB) );
 }
 
 
@@ -614,6 +618,12 @@ void uiODMain::handleStartupSession()
 void uiODMain::sessTimerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
+}
+
+
+void uiODMain::afterStartupCB( CallBacker* )
+{
+    startAutoSaved2RealObjectRestorer();
 }
 
 

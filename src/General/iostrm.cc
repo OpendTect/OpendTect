@@ -135,7 +135,10 @@ bool IOStream::implRename( const char* newnm, const CallBack* cb )
     if ( nrfiles != 1 )
 	return false;
 
-    return File::rename( fullUserExpr(true), newnm );
+    // need this, newnm may be same buf as fullUserExpr uses ...
+    const BufferString newfnm( newnm );
+    const BufferString oldfnm( fullUserExpr(true) );
+    return File::rename( oldfnm, newfnm );
 }
 
 

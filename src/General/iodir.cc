@@ -592,3 +592,12 @@ void IODir::getTmpIOObjs( const MultiID& ky, ObjectSet<IOObj>& ioobjs,
 	    ioobjs += ioobj.clone();
     }
 }
+
+
+MultiID IODir::dirKeyFor( const MultiID& ky )
+{
+    MultiID ret( ky.key(0) );
+    if ( toInt(ret) < 100000 )
+	ret.setEmpty();
+    return ret;
+}

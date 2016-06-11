@@ -81,9 +81,6 @@ static bool enabClusterProc()
 }
 
 
-void startAutoSaved2RealObjectRestorer();
-
-
 mDefModInitFn(uiIo)
 {
     mIfNotFirstTime( return );
@@ -101,6 +98,4 @@ mDefModInitFn(uiIo)
 	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettings::initClass();
-
-    startAutoSaved2RealObjectRestorer();
 }

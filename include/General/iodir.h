@@ -74,6 +74,7 @@ public:
     static MultiID	getNewTmpKey(const IOObjContext&);
     static IOObj*	getObj(const MultiID&,uiString& errmsg);
     static IOObj*	getMain(const char*,uiString& errmsg);
+    static MultiID	dirKeyFor(const MultiID&);
     MultiID		newTmpKey() const;
 
     uiString		errMsg() const		{ return errmsg_; }
@@ -94,7 +95,7 @@ private:
 			// No locks, lock if necessary
     void		doReRead();
     static IOObj*	doRead(const char*,IODir*,uiString& errmsg,SubID,
-	    			bool incoldtmps=false);
+				bool incoldtmps=false);
     static IOObj*	readOmf(od_istream&,const char*,IODir*,SubID,bool);
 
     static void		setDirName(IOObj&,const char*);
@@ -128,7 +129,7 @@ public:
 				// usually done by IOM()
 				//!< after call, IOObj is mine
     static void		getTmpIOObjs(const MultiID&,ObjectSet<IOObj>&,
-	    				const IOObjSelConstraints* c=0);
+					const IOObjSelConstraints* c=0);
 
 };
 

@@ -242,6 +242,7 @@ protected:
 #define mLock4Read() AccessLockHandler accesslockhandler_( *this )
 #define mLock4Write() AccessLockHandler accesslockhandler_( *this, false )
 #define mLock2Write() accesslockhandler_.convertToWrite()
+#define mReLock() accesslockhandler_.reLock()
 #define mUnlockAllAccess() accesslockhandler_.unlockNow()
 #define mSendChgNotif(typ,subidx) sendChgNotif(accesslockhandler_,typ,subidx)
 #define mSendEntireObjChgNotif() \

@@ -460,7 +460,8 @@ bool IOMan::setRootDir( const char* dirnm )
 }
 
 
-#define mGoTo(where,forcereread) goTo( where, forcereread, accesslockhandler_ )
+#define mGoTo(where,forcereread) \
+    goTo( where, forcereread, accesslockhandler_ )
 #define mSendNewIODirNotif() \
     mSendChgNotif( cNewIODirChangeType(), 0 ); \
     self.newIODir.trigger()
@@ -490,8 +491,10 @@ bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
 
     IOMan& self = *const_cast<IOMan*>( this );
     mLock2Write();
+
     const bool rv = self.setDir( dirnm );
     mSendNewIODirNotif();
+    mReLock();
     return rv;
 }
 
@@ -542,44 +545,32 @@ bool IOMan::goTo( const MultiID& ky, bool forcereread,
     if ( rootdir_.isEmpty() )
 	return false;
 
-    const bool issamedir = dirptr_ && ky == dirptr_->key();
+    const MultiID dirkey( IODir::dirKeyFor(ky) );
+    const bool issamedir = dirptr_ && dirkey == dirptr_->key();
     if ( !forcereread && issamedir )
 	return true;
-
-    MultiID dirkey;
-    IOObj* refioobj = IODir::getObj( ky, errmsg_ );
-    if ( refioobj )
-	dirkey = refioobj->isSubdir() ? ky : MultiID(ky.upLevel());
-    else
-    {
-	dirkey = ky.upLevel();
-	refioobj = IODir::getObj( dirkey, errmsg_ );
-	if ( !refioobj )
-	    dirkey = "";
-    }
-    delete refioobj;
 
     IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir_) : new IODir(dirkey);
     if ( !newdir || newdir->isBad() )
     {
 	if ( newdir )
 	    errmsg_ = newdir->errMsg();
-
 	return false;
     }
 
-    mLock2Write();
     bool sendnotif = dirptr_;
     IOMan& self = *const_cast<IOMan*>( this );
+    accesslockhandler_.convertToWrite();
     if ( dirptr_ )
 	delete self.dirptr_;
     self.dirptr_ = newdir;
     self.curlvl_ = gtLevelOf( curDirName(), rootdir_.size() );
 
-    if ( !sendnotif )
-	{ mUnlockAllAccess(); }
-    else
-	{ mSendNewIODirNotif(); }
+    if ( sendnotif )
+    {
+	mSendNewIODirNotif();
+	mReLock();
+    }
 
     return true;
 }
@@ -818,9 +809,7 @@ bool IOMan::setDir( const char* dirname )
     dirptr_ = newdirptr;
     curlvl_ = gtLevelOf( curDirName(), rootdir_.size() );
 
-    if ( !sendnotif )
-	{ mUnlockAllAccess(); }
-    else
+    if ( sendnotif )
 	{ IOMan& self = *this; mSendNewIODirNotif(); }
 
     return true;
@@ -858,9 +847,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 
     ctio.setObj( ioobj ? ioobj->clone() : 0 );
 
-    if ( !needstrigger )
-	mUnlockAllAccess();
-    else
+    if ( needstrigger )
     {
 	mSendChgNotif( cEntryAddedChangeType(), -1 );
 	entryAdded.trigger( ioobj->key() );
@@ -964,14 +951,27 @@ bool IOMan::commitChanges( const IOObj& ioobj )
 
 bool IOMan::permRemove( const MultiID& ky )
 {
-    mLock4Write();
-    if ( !dirptr_ || !dirptr_->permRemove(ky) )
-	return false;
-    mUnlockAllAccess();
+    const MultiID dirkey( IODir::dirKeyFor(ky) );
+    mLock4Read();
+    const bool issamedir = dirptr_ && dirkey == dirptr_->key();
+    bool removesucceeded;
+    if ( issamedir )
+    {
+	mLock2Write();
+	removesucceeded = dirptr_->permRemove( ky );
+    }
+    else
+    {
+	IODir iodir( dirkey );
+	removesucceeded = iodir.permRemove( ky );
+    }
+    if ( removesucceeded )
+    {
+	mSendChgNotif( cEntryRemovedChangeType(), -1 );
+	entryRemoved.trigger( ky );
+    }
 
-    mSendChgNotif( cEntryRemovedChangeType(), -1 );
-    entryRemoved.trigger( ky );
-    return true;
+    return removesucceeded;
 }
 
 
