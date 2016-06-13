@@ -396,10 +396,11 @@ void uiTieWin::applyPushed( CallBacker* cb )
     stretcher_.setTrack( &wd->track() );
     stretcher_.doWork( cb );
     server_.updateExtractionRange();
-    doWork( cb );
-    clearPicks( cb );
     if ( infodlg_ )
 	infodlg_->dtmodelChanged(0);
+
+    doWork( cb );
+    clearPicks( cb );
 
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
@@ -693,7 +694,6 @@ void uiInfoDlg::usePar( const IOPar& par )
 
     putToScreen();
     zrgChanged(0);
-    needNewEstimatedWvlt(0);
 }
 
 
