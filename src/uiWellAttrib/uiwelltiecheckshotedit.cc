@@ -319,7 +319,6 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
     const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     Interval<float> zrg( startpos, stoppos );
-    //zrg.scale( 1.0f/ SI().zDomain().userFactor() );
     disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
     dahdata.xrev_ = false;
@@ -360,13 +359,11 @@ void uiCheckShotEdit::drawDrift()
 	driftdisplay_->zPicks() += pd;
     }
     
-    float startpos = SI().seismicReferenceDatum();
-    startpos = startpos != 0 ? -startpos : 0;
+    float startpos = -SI().seismicReferenceDatum();
     const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     
     Interval<float> zrg( startpos, stoppos );
-    //zrg.scale( 1.0f/ SI().zDomain().userFactor() );
     driftdisplay_->setZRange(zrg);
 }
 
@@ -376,8 +373,6 @@ void uiCheckShotEdit::drawPoints()
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
-    //const bool isorgdrift = driftchoicefld_->currentItem() == 0;
-    //Well::D2TModel* d2t(isorgdrift ? orgd2t_ : d2t_);
     if ( viewcorrd2t_->isChecked() )
     {
 	TypeSet<uiPoint> pts;
@@ -426,8 +421,9 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
     if ( !d2t_ || d2t_->size() < 2)
 	mErrRet(tr("Depth/time model is too small and won't be saved"),
 		return false)
-
+  
     server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
+    server_.updateExtractionRange();
 
     return true;
 }
