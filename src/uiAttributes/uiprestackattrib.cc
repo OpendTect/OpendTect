@@ -400,31 +400,13 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
 }
 
 
-void uiPreStackAttrib::angleTypSel( CallBacker* )
-{
-    if ( is2D() )
-    {
-	useanglefld_->setChecked( false );
-	useanglefld_->display( false );
-    }
-    
-    const bool isoffset = gathertypefld_->getIntValue() == 0;
-    const bool iscomputeangle = useanglefld_->isChecked();
-
-    xrgfld_->setSensitive( !iscomputeangle );
-    xrglbl_->setSensitive( !iscomputeangle );
-    anglecompgrp_->display( isoffset && iscomputeangle );
-    if ( iscomputeangle )
-	 xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
-}
-
-
 void uiPreStackAttrib::gatherTypSel( CallBacker* )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    uiString xlbl = tr("%1 range (empty=all)")
-				      .arg(toUiString(gathertypefld_->text()));
-    xrgfld_->setTitleText( xlbl );
+    uiString xlbl = isoffset ? tr("Offset range (empty=all)") : 
+						tr("Angle range (empty=all)");
+
+    xrgfld_->setTitleText(xlbl);
     if ( isoffset )
     	xrglbl_->setText( SI().getUiXYUnitString(false,false) );
     else
@@ -435,12 +417,35 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* )
 
     useanglefld_->display( isoffset );    
     gathertypefld_->display( true );
-    xrgfld_->display( isoffset );
-    xrglbl_->display( isoffset );
     xunitfld_->display( !isoffset );
     xaxistypefld_->setSensitive( isoffset );
 
     angleTypSel(0);
+}
+
+
+void uiPreStackAttrib::angleTypSel( CallBacker* )
+{
+    if ( is2D() )
+    {
+	useanglefld_->setChecked( false );
+	useanglefld_->display( false );
+    }
+    
+    const bool isoffset = gathertypefld_->getIntValue() == 0;
+    const bool iscomputeangle = useanglefld_->isChecked();
+    const bool isnorm = calctypefld_->getIntValue() == 0;
+    
+    xrgfld_->setEmpty();
+    xrgfld_->setSensitive( !iscomputeangle );
+    xrglbl_->setSensitive( !iscomputeangle );
+    anglecompgrp_->display( isoffset && iscomputeangle );
+    xaxistypefld_->setSensitive( !iscomputeangle );
+
+    if ( iscomputeangle )
+	 xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
+    if ( !iscomputeangle && isoffset && !isnorm )
+	xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
 }
 
 
