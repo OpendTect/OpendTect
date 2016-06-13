@@ -373,9 +373,7 @@ void uiCheckShotEdit::drawPoints()
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
-//    const bool isorgdrift = driftchoicefld_->currentItem() == 0;
-//    Well::D2TModel* d2t(isorgdrift ? orgd2t_ : d2t_);
-    if ( viewcorrd2t_->isChecked() )
+if ( viewcorrd2t_->isChecked() )
     {
 	TypeSet<uiPoint> pts;
 	uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
@@ -425,6 +423,7 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
 		return false)
 
     server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
+	server_.updateExtractionRange();
 
     return true;
 }
