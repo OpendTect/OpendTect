@@ -613,7 +613,7 @@ for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 { \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
     SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
-    trcinfo.trckey_.setSurvID( TrcKey::stdSynthSurvID() ); \
+	trcinfo.trckey_.setSurvID( -100 ); \
     trcinfo.coord_ = SI().transform( bid ); \
     trcinfo.nr_ = trcidx+1; \
 } \
@@ -1003,7 +1003,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		mErrRet( tr(" input prestack synthetic data not found."),
 			 return 0 )
 	    CubeSampling cs( false );
-	    cs.hsamp_.survid_ = TrcKey::stdSynthSurvID();
+	    cs.hsamp_.survid_ = -100;
 	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
 	    {
 		const SeisTrc* trc = sd->getTrace( idx );
