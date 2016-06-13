@@ -291,4 +291,7 @@ void MeasureToolMan::surveyChanged( CallBacker* )
 {
     if ( measuredlg_ )
 	measuredlg_->close();
+
+    mAttachCBIfNotAttached( picksetmgr_.locationChanged,
+			    MeasureToolMan::changeCB );
 }
