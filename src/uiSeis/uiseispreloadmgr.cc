@@ -167,231 +167,12 @@ if ( !ioobj->implExists( true ) ) \
     return; \
 }
 
-class uiSeisPreLoadSel : public uiDialog
-{ mODTextTranslationClass(uiSeisPreLoadSel)
-public:
-
-uiSeisPreLoadSel( uiParent* p, GeomType geom, const MultiID& input )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
-					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
-{
-    setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
-
-    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
-    IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
-    uiSeisSel::Setup sssu( geom );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
-    seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
-    if ( !input.isUdf() )
-	seissel_->setInput( input );
-    seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
-
-    SelSetup selsu( geom ); selsu.multiline(true);
-    subselfld_ = uiSeisSubSel::get( leftgrp, selsu );
-    subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
-    subselfld_->attach( alignedBelow, seissel_ );
-
-    scalerfld_ = new uiScaler( leftgrp, uiStrings::sEmptyString(), true );
-    scalerfld_->attach( alignedBelow, subselfld_ );
-    scalerfld_->setUnscaled();
-
-    typefld_ = new uiGenInput( leftgrp, tr("Load as"),
-		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
-    typefld_->setValue( (int)DataCharacteristics::Auto );
-    typefld_->attach( alignedBelow, scalerfld_ );
-
-    uiGroup* rightgrp = new uiGroup( this, "Right Group" );
-    rightgrp->attach( rightOf, leftgrp );
-    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
-    uiPushButton* updatebut = new uiPushButton( rightgrp, tr("Update"), true );
-    updatebut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
-    updatebut->attach( rightTo, nrtrcsfld_ );
-    histfld_ = new uiMapperRangeEditor( rightgrp, -1 );
-    histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
-
-    postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
-}
-
-
-void fillHist( CallBacker* )
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    const IOObj* ioobj = seissel_->ioobj();
-    if ( !ioobj ) return;
-
-    SeisIOObjInfo info( ioobj );
-    TrcKeyZSampling tkzs;
-    bool res = info.getRanges( tkzs );
-    if ( !res ) return;
-
-    const od_int64 totalsz = tkzs.hsamp_.totalNr();
-    const int nr2add = mMAX(1,nrtrcsfld_->getIntValue());
-
-    TypeSet<od_int64> gidxs( nr2add, -1 );
-    od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
-    for ( int idx=0; idx<nr2add; idx++ )
-    {
-	od_int64 vidx = Stats::randGen().getIndexFast( totalsz, randint );
-	gidxs[idx] = vidx;
-	randint *= mCast( int, vidx );
-    }
-
-    sort( gidxs );
-    SeisTrcBuf seisbuf( true );
-    SeisTrcReader rdr( ioobj );
-    rdr.prepareWork();
-    mDynamicCastGet(SeisTrcTranslator*,trl,rdr.translator())
-    if ( !trl ) return;
-
-    for ( int idx=0; idx<nr2add; idx++ )
-    {
-	const od_int64 gidx = gidxs[idx];
-	res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
-	if ( !res ) continue;
-
-	SeisTrc* trc = new SeisTrc;
-	res = rdr.get( *trc );
-	if ( !res ) continue;
-
-	seisbuf.add( trc );
-    }
-
-    SeisTrcBufArray2D array( &seisbuf, false, 0 );
-    histfld_->setData( &array );
-
-    ColTab::Sequence seq;
-    ColTab::MapperSetup ms;
-    IOPar pars;
-    if ( info.getDisplayPars(pars) )
-    {
-	const char* seqnm = pars.find( sKey::Name() );
-	seq = ColTab::Sequence( seqnm );
-	ms.usePar( pars );
-    }
-
-    histfld_->setColTabSeq( seq );
-    histfld_->setColTabMapperSetup( ms );
-}
-
-
-void seisSel( CallBacker* )
-{
-    const IOObj* ioobj = seissel_->ioobj();
-    if ( !ioobj ) return;
-
-    typefld_->setValue( 0 );
-    subselfld_->setInput( *ioobj );
-    selChangeCB( 0 );
-}
-
-
-void selChangeCB( CallBacker* )
-{
-    updateScaleFld();
-    updateEstUsage();
-}
-
-
-void getDataChar( DataCharacteristics& dc )
-{
-    const DataCharacteristics::UserType type( (DataCharacteristics::UserType)
-					       typefld_->getIntValue() );
-    if ( type == DataCharacteristics::Auto )
-    {
-	SeisIOObjInfo info( seissel_->ioobj(true) );
-	info.getDataChar( dc );
-    }
-    else
-	dc = DataCharacteristics( type );
-}
-
-
-#define mGetExtremeVal( rg, positiveextreme ) \
-    ((samesign && positiveextreme^(rg.start>0)) ? 0 : \
-    (positiveextreme ? mMAX(rg.start,rg.stop) : mMIN(rg.start,rg.stop)));
-
-void updateScaleFld()
-{
-    double scale = 1.0;
-    SeisIOObjInfo info( seissel_->ioobj() );
-    DataCharacteristics dcstor; info.getDataChar( dcstor );
-    DataCharacteristics dc; getDataChar( dc );
-    if ( dc.getLimitValue(true) < dcstor.getLimitValue(true) )
-    {
-	ColTab::MapperSetup mapper;
-	FilePath fp( seissel_->ioobj()->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	IOPar iop;
-	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
-	    mapper.usePar( iop );
-
-	const Interval<float>& rg = mapper.range_;
-	if ( !rg.isUdf() )
-	{
-	    const bool samesign = (rg.start*rg.stop > 0);
-	    const float posextreme = mGetExtremeVal( rg, true );
-	    if ( !mIsZero(posextreme,mDefEpsF) )
-		scale = fabs( dc.getLimitValue(true)/posextreme );
-	    const float negextreme = mGetExtremeVal( rg, false );
-	    if ( dc.isSigned() && !mIsZero(negextreme,mDefEpsF) )
-		scale = mMIN(scale,fabs(dc.getLimitValue(false)/negextreme));
-	    if ( scale > 1.0 ) scale = 1.0;
-	}
-    }
-
-    scalerfld_->setInput( LinScaler(0.0,scale) );
-}
-
-
-void updateEstUsage()
-{
-    SeisIOObjInfo info(seissel_->ioobj() );
-    const int nrcomp = info.nrComponents();
-
-    uiString infotxt = uiStrings::phrData(tr("format on disk: "));
-    if ( nrcomp > 0 )
-    {
-	DataCharacteristics dc; info.getDataChar( dc );
-	const FixedString usertypestr =
-	    DataCharacteristics::toString( dc.userType() );
-	if ( usertypestr.size() > 4 )
-	    infotxt.append( usertypestr.buf()+4 );
-
-	getDataChar( dc );
-	const od_int64 nrs = subselfld_->expectedNrSamples();
-	const od_int64 nrt = subselfld_->expectedNrTraces();
-	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt.append( tr(". Estimated memory usage: ") )
-	       .append( File::getFileSizeString(nrbytes/1024) );
-    }
-    else
-	infotxt.append( "?" );
-
-    toStatusBar( infotxt );
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    return seissel_->ioobj();
-}
-
-    uiSeisSel*			seissel_;
-    uiSeisSubSel*		subselfld_;
-    uiScaler*			scalerfld_;
-    uiGenInput*			typefld_;
-    uiMapperRangeEditor*	histfld_;
-    uiGenInput*			nrtrcsfld_;
-};
-
-
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
     uiSeisPreLoadSel dlg( this, Vol, initmid_ );
     if ( !dlg.go() ) return;
 
-    const IOObj* ioobj = dlg.seissel_->ioobj();
+    const IOObj* ioobj = dlg.getIOObj();
     mCheckIOObjExistance( ioobj );
     const MultiID key = ioobj->key();
     if ( PLDM().isPresent(key) )
@@ -405,11 +186,11 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 	spl.unLoad();
     }
 
-    TrcKeyZSampling tkzs; dlg.subselfld_->getSampling( tkzs );
+    TrcKeyZSampling tkzs; dlg.getSampling( tkzs );
     DataCharacteristics dc; dlg.getDataChar( dc );
     PreLoader spl( key );
     uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
-    if ( !spl.load(tkzs,dc.userType(),dlg.scalerfld_->getScaler()) )
+    if ( !spl.load(tkzs,dc.userType(),dlg.getScaler()) )
     {
 	const uiString emsg = spl.errMsg();
 	if ( !emsg.isEmpty() )
@@ -425,17 +206,14 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     uiSeisPreLoadSel dlg( this, Line, initmid_ );
     if ( !dlg.go() ) return;
 
-    const IOObj* ioobj = dlg.seissel_->ioobj();
+    const IOObj* ioobj = dlg.getIOObj();
     mCheckIOObjExistance( ioobj );
-
-    mDynamicCastGet(uiSeis2DSubSel*,ss2d,dlg.subselfld_)
-    if ( !ss2d ) return;
 
     TrcKeyZSampling tkzs;
     DataCharacteristics dc; dlg.getDataChar( dc );
     TypeSet<Pos::GeomID> geomids;
-    ss2d->selectedGeomIDs( geomids );
-    const MultiID key = dlg.seissel_->key();
+    dlg.selectedGeomIDs( geomids );
+    const MultiID key = ioobj->key();
     TypeSet<Pos::GeomID> loadedgeomids;
     for ( int idx=0; idx<geomids.size(); idx++ )
 	if ( PLDM().isPresent(key,geomids[idx]) )
@@ -471,14 +249,14 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 	    spl.unLoad();
 	}
 
-	ss2d->getSampling( tkzs, geomid );
+	dlg.getSampling( tkzs, geomid );
 	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
 	loadgeomids += geomid;
 	tkzss += tkzs;
     }
 
     PreLoader spl( key, -1, &taskrunner );
-    spl.load( tkzss, loadgeomids, dc.userType(), dlg.scalerfld_->getScaler() );
+    spl.load( tkzss, loadgeomids, dc.userType(), dlg.getScaler() );
 
     fullUpd( 0 );
 }
@@ -665,3 +443,249 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 	mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
     alliop.putTo( astrm );
 }
+
+
+// uiSeisPreLoadSel
+uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
+				    const MultiID& input )
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
+					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
+{
+    setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
+
+    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
+    IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
+    uiSeisSel::Setup sssu( geom );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
+    if ( !input.isUdf() )
+	seissel_->setInput( input );
+    seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
+
+    SelSetup selsu( geom ); selsu.multiline(true);
+    subselfld_ = uiSeisSubSel::get( leftgrp, selsu );
+    subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
+    subselfld_->attach( alignedBelow, seissel_ );
+
+    scalerfld_ = new uiScaler( leftgrp, uiStrings::sEmptyString(), true );
+    scalerfld_->attach( alignedBelow, subselfld_ );
+    scalerfld_->setUnscaled();
+
+    typefld_ = new uiGenInput( leftgrp, tr("Load as"),
+		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
+    typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
+    typefld_->setValue( (int)DataCharacteristics::Auto );
+    typefld_->attach( alignedBelow, scalerfld_ );
+
+    uiGroup* rightgrp = new uiGroup( this, "Right Group" );
+    rightgrp->attach( rightOf, leftgrp );
+    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
+    uiPushButton* updatebut = new uiPushButton( rightgrp, tr("Update"), true );
+    updatebut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
+    updatebut->attach( rightTo, nrtrcsfld_ );
+    histfld_ = new uiMapperRangeEditor( rightgrp, -1 );
+    histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
+
+    postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
+}
+
+
+uiSeisPreLoadSel::~uiSeisPreLoadSel()
+{
+}
+
+
+const IOObj* uiSeisPreLoadSel::getIOObj() const
+{ return seissel_->getIOObj(); }
+
+
+void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs ) const
+{ subselfld_->getSampling( tkzs ); }
+
+
+void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
+				    Pos::GeomID geomid ) const
+{
+    mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
+    if ( !ss2d )
+    {
+	tkzs.setEmpty();
+	return;
+    }
+
+    ss2d->getSampling( tkzs, geomid );
+}
+
+
+void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+{
+}
+
+
+Scaler* uiSeisPreLoadSel::getScaler() const
+{ return scalerfld_->getScaler(); }
+
+
+void uiSeisPreLoadSel::fillHist( CallBacker* )
+{
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( !ioobj ) return;
+
+    SeisIOObjInfo info( ioobj );
+    TrcKeyZSampling tkzs;
+    bool res = info.getRanges( tkzs );
+    if ( !res ) return;
+
+    const od_int64 totalsz = tkzs.hsamp_.totalNr();
+    const int nr2add = mMAX(1,nrtrcsfld_->getIntValue());
+
+    TypeSet<od_int64> gidxs( nr2add, -1 );
+    od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
+    for ( int idx=0; idx<nr2add; idx++ )
+    {
+	od_int64 vidx = Stats::randGen().getIndexFast( totalsz, randint );
+	gidxs[idx] = vidx;
+	randint *= mCast( int, vidx );
+    }
+
+    sort( gidxs );
+    SeisTrcBuf seisbuf( true );
+    SeisTrcReader rdr( ioobj );
+    rdr.prepareWork();
+    mDynamicCastGet(SeisTrcTranslator*,trl,rdr.translator())
+    if ( !trl ) return;
+
+    for ( int idx=0; idx<nr2add; idx++ )
+    {
+	const od_int64 gidx = gidxs[idx];
+	res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
+	if ( !res ) continue;
+
+	SeisTrc* trc = new SeisTrc;
+	res = rdr.get( *trc );
+	if ( !res ) continue;
+
+	seisbuf.add( trc );
+    }
+
+    SeisTrcBufArray2D array( &seisbuf, false, 0 );
+    histfld_->setData( &array );
+
+    ColTab::Sequence seq;
+    ColTab::MapperSetup ms;
+    IOPar pars;
+    if ( info.getDisplayPars(pars) )
+    {
+	const char* seqnm = pars.find( sKey::Name() );
+	seq = ColTab::Sequence( seqnm );
+	ms.usePar( pars );
+    }
+
+    histfld_->setColTabSeq( seq );
+    histfld_->setColTabMapperSetup( ms );
+}
+
+
+void uiSeisPreLoadSel::seisSel( CallBacker* )
+{
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( !ioobj ) return;
+
+    typefld_->setValue( 0 );
+    subselfld_->setInput( *ioobj );
+    selChangeCB( 0 );
+}
+
+
+void uiSeisPreLoadSel::selChangeCB( CallBacker* )
+{
+    updateScaleFld();
+    updateEstUsage();
+}
+
+
+void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
+{
+    const DataCharacteristics::UserType type(
+		(DataCharacteristics::UserType)typefld_->getIntValue() );
+    if ( type == DataCharacteristics::Auto )
+    {
+	SeisIOObjInfo info( seissel_->ioobj(true) );
+	info.getDataChar( dc );
+    }
+    else
+	dc = DataCharacteristics( type );
+}
+
+
+#define mGetExtremeVal( rg, positiveextreme ) \
+    ((samesign && positiveextreme^(rg.start>0)) ? 0 : \
+    (positiveextreme ? mMAX(rg.start,rg.stop) : mMIN(rg.start,rg.stop)));
+
+void uiSeisPreLoadSel::updateScaleFld()
+{
+    double scale = 1.0;
+    SeisIOObjInfo info( seissel_->ioobj() );
+    DataCharacteristics dcstor; info.getDataChar( dcstor );
+    DataCharacteristics dc; getDataChar( dc );
+    if ( dc.getLimitValue(true) < dcstor.getLimitValue(true) )
+    {
+	ColTab::MapperSetup mapper;
+	FilePath fp( seissel_->ioobj()->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	IOPar iop;
+	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
+	    mapper.usePar( iop );
+
+	const Interval<float>& rg = mapper.range_;
+	if ( !rg.isUdf() )
+	{
+	    const bool samesign = (rg.start*rg.stop > 0);
+	    const float posextreme = mGetExtremeVal( rg, true );
+	    if ( !mIsZero(posextreme,mDefEpsF) )
+		scale = fabs( dc.getLimitValue(true)/posextreme );
+	    const float negextreme = mGetExtremeVal( rg, false );
+	    if ( dc.isSigned() && !mIsZero(negextreme,mDefEpsF) )
+		scale = mMIN(scale,fabs(dc.getLimitValue(false)/negextreme));
+	    if ( scale > 1.0 ) scale = 1.0;
+	}
+    }
+
+    scalerfld_->setInput( LinScaler(0.0,scale) );
+}
+
+
+void uiSeisPreLoadSel::updateEstUsage()
+{
+    SeisIOObjInfo info( seissel_->ioobj() );
+    const int nrcomp = info.nrComponents();
+
+    uiString infotxt = uiStrings::phrData(tr("format on disk: "));
+    if ( nrcomp > 0 )
+    {
+	DataCharacteristics dc; info.getDataChar( dc );
+	const FixedString usertypestr =
+	    DataCharacteristics::toString( dc.userType() );
+	if ( usertypestr.size() > 4 )
+	    infotxt.append( usertypestr.buf()+4 );
+
+	getDataChar( dc );
+	const od_int64 nrs = subselfld_->expectedNrSamples();
+	const od_int64 nrt = subselfld_->expectedNrTraces();
+	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
+	infotxt.append( tr(". Estimated memory usage: ") )
+	       .append( File::getFileSizeString(nrbytes/1024) );
+    }
+    else
+	infotxt.append( "?" );
+
+    toStatusBar( infotxt );
+}
+
+
+bool uiSeisPreLoadSel::acceptOK( CallBacker* )
+{
+    return seissel_->ioobj();
+}
+
