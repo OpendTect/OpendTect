@@ -469,7 +469,10 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 	if ( refprops_.isPresent(var) )
 	{
 	    const int pridx = refprops_.indexOf(var);
-	    val = vals[pridx];
+	    if ( pridx<0 || pridx>=sz )
+		val = mUdf(float);
+	    else
+		val = vals[pridx];
 	}
 	else if ( elasticprops_.isPresent(var) && ef.name() != var )
 	{
@@ -484,7 +487,7 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 	{
 	    const char* uoms = ef.units().get( idx ).buf();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uoms );
-	    val = uom ? uom->getSIValue( val ) : val;
+	    val = uom && !mIsUdf(val) ? uom->getSIValue( val ) : val;
 	}
 	expr->setVariableValue( idx, val );
     }

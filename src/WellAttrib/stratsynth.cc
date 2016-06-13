@@ -1437,30 +1437,40 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		    continue;
 
 		if ( incorrectpvel )
+		{
 		    needinterpolatedvel = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
 
 		if ( incorrectden )
+		{
 		    needinterpoltedden = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
+			msg.append( tr("'Density' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
 
 		if ( incorrectsvel )
+		{
 		    needinterpolatedsvel = true;
-
-		if ( !needinfo || infomsg_.isSet() )
-		    continue;
-
-		const UnitOfMeasure* uom = incorrectden
-					 ? UoMR().get( "Kg/m3" )
-					 : UoMR().get( "Meter/second" );
-		FixedString varstr( incorrectpvel ? "P-wave"
-						  : incorrectden ? "Density"
-						   : "S-wave" );
-		const float propval = incorrectpvel ? layer.vel_
-						    : incorrectden
-						     ? layer.den_
-						     : layer.svel_;
-		msg.append( tr("'%1' ( sample value: %2 %3 )").arg(varstr)
-			    .arg(toString(propval))
-			    .arg(uom ? uom->symbol() : "") );
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			msg.append( tr("'Swave' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
 	    }
 
 	    if ( infomsg_.isEmpty() )
