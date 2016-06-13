@@ -393,7 +393,12 @@ bool EventTracker::track()
 	return false;
 
     if ( !dosnap_ )
+    {
+	const SampledFunctionImpl<float,ValueSeries<float> >
+					sampfunc( *targetvs_, targetsize_ );
+	targetvalue_ = sampfunc.getValue( targetdepth_ );
 	return true;
+    }
 
     const int bestidx = mNINT32( targetdepth_ );
     return snap( (*targetvs_)[bestidx] );
@@ -705,7 +710,7 @@ bool EventTracker::snap( const Interval<float>& amplrg )
     if ( mIsUdf(targetvalue_) )
     {
 	const SampledFunctionImpl<float,ValueSeries<float> >
-			    sampfunc( *targetvs_, targetsize_);
+					sampfunc( *targetvs_, targetsize_ );
 	targetvalue_ = sampfunc.getValue( targetdepth_ );
     }
 
