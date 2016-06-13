@@ -23,6 +23,9 @@
 #include "dateinfo.h"
 #include "perthreadrepos.h"
 
+static const int cKpTmpObjsInDays = 7;
+
+
 class OwnedProducerList : public ObjectSet<const IOObjProducer>
 {
     public:
@@ -119,7 +122,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky,
     if ( rejectoldtmps && isTmpLeafID(leafid) )
     {
 	const int dikey = fms.getIValue( 1 );
-	if ( dikey < DateInfo().key()-1 )
+	if ( dikey < DateInfo().key()-cKpTmpObjsInDays )
 	    reject = true;
     }
     astream.next();

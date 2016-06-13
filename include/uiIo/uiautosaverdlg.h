@@ -22,11 +22,14 @@ mExpClass(uiIo) uiAutoSaverDlg : public uiDialog
 public:
                         uiAutoSaverDlg(uiParent*);
 
+    static bool		autoAskRestore();
+
 private:
 
     uiGenInput*		isactivefld_;
     uiGenInput*		usehiddenfld_;
     uiGenInput*		nrsecondsfld_;
+    uiGenInput*		autoaskfld_;
 
     void		isActiveCB(CallBacker*);
     bool		acceptOK(CallBacker*);

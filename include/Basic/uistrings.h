@@ -135,6 +135,9 @@ public:
     //!<"Open <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
+    static uiString phrPlsContactSupport(bool firstconsultdoc);
+    //!<"Please consult the documentation at ..."
+    //!<"\nOtherwise contact OpendTect support at ..."
     static uiString phrReading(const uiString&);
     //!<"Reading <string>"
     static uiString phrRemove(const uiString&);

@@ -172,9 +172,10 @@ bool acceptOK( CallBacker* )
 	if ( !descid.isValid() )
 	{
 	    const uiString msg =
-		tr( "There is a problem importing '%1'.\n"
-		    "Please contact support for possible workarounds.").
-		    arg( sel.labelText() );
+		tr( "There is a problem importing '%1'."
+		    "\nFor possible workarounds, %2")
+		    .arg( sel.labelText() )
+		    .arg( uiStrings::phrPlsContactSupport(true) );
 
 	    uiMSG().error( msg );
 	    return false;

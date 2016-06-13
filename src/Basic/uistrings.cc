@@ -189,6 +189,15 @@ uiString uiStrings::phrOpen( const uiString& string )
 uiString uiStrings::phrOutput( const uiString& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
+uiString uiStrings::phrPlsContactSupport( bool firstdoc )
+{
+    if ( !firstdoc )
+	return tr( "Please contact OpendTect support at support@dgbes.com." );
+    return tr( "Please consult the documentation at opendtect.org."
+	    "\nIf that fails you may want to contact OpendTect support at "
+	    "support@dgbes.com.");
+}
+
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
 

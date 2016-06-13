@@ -15,6 +15,14 @@ ________________________________________________________________________
 #include "settings.h"
 
 static const char* savemodes[] = { "Keep emergency copies", "Save", 0 };
+static const char* sKeyAutoAskRestore = "AutoSave.Confront Restore";
+
+bool uiAutoSaverDlg::autoAskRestore()
+{
+    bool yn = true;
+    Settings::common().getYN( sKeyAutoAskRestore, yn );
+    return yn;
+}
 
 
 uiAutoSaverDlg::uiAutoSaverDlg( uiParent* p )
@@ -36,6 +44,11 @@ uiAutoSaverDlg::uiAutoSaverDlg( uiParent* p )
     nrsecondsfld_ = new uiGenInput( this, tr("Save interval (seconds)"),
 			    IntInpSpec(autosaver.nrSecondsBetweenSaves()) );
     nrsecondsfld_->attach( alignedBelow, usehiddenfld_ );
+
+    autoaskfld_ = new uiGenInput( this,
+			tr("Present recoverable objects at startup"),
+			BoolInpSpec(autoAskRestore()) );
+    autoaskfld_->attach( alignedBelow, nrsecondsfld_ );
 
     postFinalise().notify( mCB(this,uiAutoSaverDlg,isActiveCB) );
 }
@@ -60,6 +73,10 @@ bool uiAutoSaverDlg::acceptOK( CallBacker* )
 	autosaver.setUseHiddenMode( usehiddenfld_->getIntValue() == 0 );
 	autosaver.setNrSecondsBetweenSaves( nrsecondsfld_->getIntValue() );
     }
+    if ( autoaskfld_->getBoolValue() )
+	Settings::common().setYN( sKeyAutoAskRestore, true );
+    else
+	Settings::common().removeWithKey( sKeyAutoAskRestore );
 
     Settings::common().write();
     return true;

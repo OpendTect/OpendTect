@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiautosaverestore.h"
+#include "uiautosaverdlg.h"
 #include "uiodmain.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uitextedit.h"
 #include "uiseparator.h"
 #include "uichecklist.h"
-#include "uiodmain.h"
 #include "uimsg.h"
 #include "ioman.h"
 #include "iostrm.h"
@@ -23,15 +24,44 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "od_helpids.h"
 #include "separstr.h"
+#include "genc.h"
+#include "oddirs.h"
 
 
-class uiAutoSave2RealObjDlg : public uiDialog
-{ mODTextTranslationClass(uiAutoSave2RealObjDlg)
+/*\brief Allows user to create proper objects from auto-saved copies */
+
+class AutoSaved2RealObjectRestorer : public CallBacker
+{ mODTextTranslationClass(AutoSaved2RealObjectRestorer)
 public:
 
-uiAutoSave2RealObjDlg( uiParent* p, IOObj& ioobj, bool havemore )
-    : uiDialog(p,uiDialog::Setup(tr("Restore Auto-Saved Object"),mNoDlgTitle,
-		    mTODOHelpKey))
+AutoSaved2RealObjectRestorer()
+{
+    doWork( 0 );
+    mAttachCB( IOM().surveyChanged, AutoSaved2RealObjectRestorer::doWork );
+}
+
+void doWork( CallBacker* )
+{
+    if ( uiAutoSaverDlg::autoAskRestore() )
+	uiAutoSave2RealObjDlg::run4All( GetLocalHostName(), GetUserNm() );
+}
+
+}; // class AutoSaved2RealObjectRestorer
+
+static AutoSaved2RealObjectRestorer* autosaved_2_realobj_restorer = 0;
+
+void startAutoSaved2RealObjectRestorer()
+{
+    autosaved_2_realobj_restorer = new AutoSaved2RealObjectRestorer;
+}
+
+
+
+uiAutoSave2RealObjDlg::uiAutoSave2RealObjDlg( uiParent* p, IOObj& ioobj,
+						int curidx, int totalnr )
+    : uiDialog(p,uiDialog::Setup(
+	    tr("Restore Auto-Saved Object (%1/%2)").arg(curidx).arg(totalnr),
+	    mNoDlgTitle,mTODOHelpKey))
     , ioobj_(ioobj)
 {
     const BufferString objtyp( ioobj_.group() );
@@ -57,14 +87,14 @@ uiAutoSave2RealObjDlg( uiParent* p, IOObj& ioobj, bool havemore )
 
     FileMultiString fms( ioobj.pars().find( sKey::CrInfo() ) );
     const BufferString hostnm( fms[0] );
-    const BufferString osusr( ioobj.pars().find(sKey::CrBy()) );
+    const BufferString usrnm( ioobj.pars().find(sKey::CrBy()) );
     const BufferString savedatetime( ioobj.pars().find(sKey::CrAt()) );
     const BufferString dtectusr( fms[2] );
     BufferString txt;
     txt.set( "Name: " ).add( orgnm )
        .add( "\nType: " ).add( objtyp )
        .add( "\nHost: " ).add( hostnm )
-       .add( "\nUser: " ).add( osusr );
+       .add( "\nUser: " ).add( usrnm );
     if ( !dtectusr.isEmpty() )
 	txt.add( " [" ).add( dtectusr ).add( "]" );
     txt.add( "\nWhen: " ).add( savedatetime );
@@ -78,7 +108,7 @@ uiAutoSave2RealObjDlg( uiParent* p, IOObj& ioobj, bool havemore )
     choicefld_->addItem( tr("[Restore] Save this %1 under a new name")
 			.arg(objtyp) );
     choicefld_->addItem( tr("[Delete] Delete this version of %1").arg(orgnm) );
-    if ( havemore )
+    if ( curidx<totalnr-1 )
 	choicefld_->addItem( tr("[Delete-All] Delete all auto-saved objects.")
 			    );
     choicefld_->addItem( tr("[Cancel] Postpone (upto 1 week after creation).")
@@ -94,43 +124,25 @@ uiAutoSave2RealObjDlg( uiParent* p, IOObj& ioobj, bool havemore )
 }
 
 
-void choiceSel( CallBacker* )
+void uiAutoSave2RealObjDlg::choiceSel( CallBacker* )
 {
     newnmfld_->display( choicefld_->firstChecked() == 0 );
 }
 
-bool acceptOK( CallBacker* )
+
+bool uiAutoSave2RealObjDlg::acceptOK( CallBacker* )
 {
     return true;
 }
 
-bool isCancel() const
+
+bool uiAutoSave2RealObjDlg::isCancel() const
 {
     return choicefld_->firstChecked() == choicefld_->size() - 1;
 }
 
-    IOObj&	ioobj_;
 
-    uiTextEdit*	infofld_;
-    uiCheckList* choicefld_;
-    uiGenInput*	newnmfld_;
-
-}; // end class uiAutoSave2RealObjDlg
-
-
-/*\brief Allows user to create proper objects from auto-saved copies */
-
-class AutoSaved2RealObjectRestorer : public CallBacker
-{ mODTextTranslationClass(AutoSaved2RealObjectRestorer)
-public:
-
-AutoSaved2RealObjectRestorer()
-{
-    doWork( 0 );
-    mAttachCB( IOM().surveyChanged, AutoSaved2RealObjectRestorer::doWork );
-}
-
-void doWork( CallBacker* )
+int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
 {
     ObjectSet<IOObj> ioobjs;
     IOObjSelConstraints cnstrts;
@@ -138,21 +150,42 @@ void doWork( CallBacker* )
     cnstrts.require_.set( "Auto-saved", sKey::Yes() );
     IOM().findTempObjs( ioobjs, &cnstrts );
     if ( ioobjs.isEmpty() )
-	return;
+	return 0;
 
+    const BufferString reqhostnm( hnm );
+    const BufferString requsrnm( unm );
+
+    const BufferString localhostnm( GetLocalHostName() );
     bool delall = false;
+    ObjectSet<IOObj> todoioobjs;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	IOObj& ioobj = *ioobjs[idx];
-	// FileMultiString fms( ioobj.pars().find( sKey::CrInfo() ) );
-	// const BufferString hostnm( fms[0] );
-	// const int pid( fms.getIValue(1) );
-	//TODO check pid (should not be running) and hostnm (should be same)
 
+	FileMultiString fms( ioobj.pars().find( sKey::CrInfo() ) );
+	const int pid( fms.getIValue(1) );
+	const BufferString hostnm( fms[0] );
+	if ( hostnm == localhostnm && pid == GetPID() )
+	    continue;
+	else if ( !reqhostnm.isEmpty() && reqhostnm != hostnm )
+	    continue;
+
+	fms.set( ioobj.pars().find( sKey::CrBy() ) );
+	const BufferString usrnm( fms[0] );
+	if ( !requsrnm.isEmpty() && usrnm != requsrnm )
+	    continue;
+
+	todoioobjs += &ioobj;
+    }
+
+    for ( int idx=0; idx<todoioobjs.size(); idx++ )
+    {
+	IOObj& ioobj = *todoioobjs[idx];
 	bool delthisone = false;
 	if ( !delall )
 	{
-	    uiAutoSave2RealObjDlg dlg( ODMainWin(), ioobj, idx<ioobjs.size()-1);
+	    uiAutoSave2RealObjDlg dlg( ODMainWin(), ioobj, idx,
+		    			todoioobjs.size() );
 	    if ( !dlg.go() || dlg.isCancel() )
 		break;
 
@@ -173,28 +206,25 @@ void doWork( CallBacker* )
     }
 
     deepErase( ioobjs );
+    return todoioobjs.size();
 }
 
-void doRestore( IOObj& ioobj, const char* newnm )
+
+void uiAutoSave2RealObjDlg::doRestore( IOObj& ioobj, const char* newnm )
 {
     mDynamicCastGet(IOStream*,iostrm,&ioobj);
     if ( !iostrm )
-	uiMSG().error( tr("Internal Error: Object has wrong type") );
-    else if ( !OD::AUTOSAVE().restore( *iostrm, newnm ) )
     {
-	uiString errmsg( tr("Failed to commit the restore process."
-	"\nYou may want to check your storage (write permissions, disk full)."
-	"\nOtherwise you may still be able to restore your work."
-	"\nPlease contact OpendTect support at support@dgbes.com." ) );
-	uiMSG().error( errmsg );
+	uiMSG().error( tr("Internal Error: Object has wrong type. %1")
+		.arg( uiStrings::phrPlsContactSupport(false) ) );
     }
-}
 
-}; // class AutoSaved2RealObjectRestorer
-
-static AutoSaved2RealObjectRestorer* autosaved_2_realobj_restorer = 0;
-
-void startAutoSaved2RealObjectRestorer()
-{
-    autosaved_2_realobj_restorer = new AutoSaved2RealObjectRestorer;
+    while ( !OD::AUTOSAVE().restore( *iostrm, newnm ) )
+    {
+	uiString msg( tr("Failed to commit the restore process."
+	"\nYou may want to check your storage (write permissions, disk full)."
+	"\nIf retry fails, %1" ).arg( uiStrings::phrPlsContactSupport(false)));
+	if ( !uiMSG().askGoOn(msg,tr("Retry restore"),tr("Cancel restore")) )
+	    break;
+    }
 }
