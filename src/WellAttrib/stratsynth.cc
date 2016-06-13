@@ -609,13 +609,11 @@ if ( !psattr ) \
 #define mCreateSeisBuf() \
 if ( !TaskRunner::execute(taskr_,*proc) ) \
     mErrRet( proc->uiMessage(), return 0 ) ; \
-const int crlstep = SI().crlStep(); \
-const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
-		  SI().crlRange(false).stop + crlstep ); \
 for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 { \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
     SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
+    trcinfo.trckey_.setSurvID( TrcKey::stdSynthSurvID() ); \
     trcinfo.coord_ = SI().transform( bid ); \
     trcinfo.nr_ = trcidx+1; \
 } \
@@ -1005,6 +1003,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		mErrRet( tr(" input prestack synthetic data not found."),
 			 return 0 )
 	    CubeSampling cs( false );
+	    cs.hsamp_.survid_ = TrcKey::stdSynthSurvID();
 	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
 	    {
 		const SeisTrc* trc = sd->getTrace( idx );
@@ -1438,30 +1437,40 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		    continue;
 
 		if ( incorrectpvel )
+		{
 		    needinterpolatedvel = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
 
 		if ( incorrectden )
+		{
 		    needinterpoltedden = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
+			msg.append( tr("'Density' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
 
 		if ( incorrectsvel )
+		{
 		    needinterpolatedsvel = true;
-
-		if ( !needinfo || infomsg_.isSet() )
-		    continue;
-
-		const UnitOfMeasure* uom = incorrectden
-					 ? UoMR().get( "Kg/m3" )
-					 : UoMR().get( "Meter/second" );
-		FixedString varstr( incorrectpvel ? "P-wave"
-						  : incorrectden ? "Density"
-						   : "S-wave" );
-		const float propval = incorrectpvel ? layer.vel_
-						    : incorrectden
-						     ? layer.den_
-						     : layer.svel_;
-		msg.append( tr("'%1' ( sample value: %2 %3 )").arg(varstr)
-			    .arg(toString(propval))
-			    .arg(uom ? uom->symbol() : "") );
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			msg.append( tr("'Swave' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
 	    }
 
 	    if ( infomsg_.isEmpty() )
