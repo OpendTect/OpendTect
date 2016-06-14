@@ -114,8 +114,8 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 
 MultiID::SubID MultiID::getIDAt( int lvl ) const
 {
-    const BufferString str( key(lvl) );
-    return str.isEmpty() ? 0 : str.toInt();
+    const BufferString idstr( key(lvl) );
+    return idstr.isEmpty() ? 0 : idstr.toInt();
 }
 
 
