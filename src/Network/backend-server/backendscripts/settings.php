@@ -7,6 +7,9 @@ ________________________________________________________________________
  Date:		Jun 2016
 ________________________________________________________________________
 
+The settings here are defaults only. Best practice is to copy this file
+to settings.local.php and put the changes there.
+
 -*/
 
 
@@ -32,7 +35,8 @@ $DLSITES_DB_USER = '';
 $DLSITES_DB_PW = '';
 
 //Override defaults if local file exists
-if(file_exists('settings.local.php'))
+$localsettingsfile = realpath(dirname(__FILE__))."/settings.local.php";
+if(file_exists( $localsettingsfile ))
 {
-    include_once( 'settings.local.php' );
+    include_once( $localsettingsfile );
 }
