@@ -68,6 +68,9 @@ $archivedir = $rootdir."/".$DLSITES_ARCHIVE_DIR."/";
 
 foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)   
 {  
+    if ( !file_exists( $file ) ) //It may be temporary renamed
+	continue;
+
     $inputdata = file_get_contents( $file );
 
     if ( $inputdata===false )
