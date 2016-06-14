@@ -13,9 +13,6 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uiparentbody.h"
 #include "uistrings.h"
-#ifdef __debug__
-#include "envvars.h"
-#endif
 
 #include "uibody.h"
 
@@ -24,6 +21,7 @@ ________________________________________________________________________
 #include <qtooltip.h>
 
 #ifdef __debug__
+#include "envvars.h"
 static int nodispatall_ = -1;
 #endif
 
@@ -38,8 +36,10 @@ uiStatusBarBody( uiStatusBar& hndl, uiMainWin* parnt, const char* nm,
 		 QStatusBar& sb)
 : uiBodyImpl<uiStatusBar,QStatusBar>( hndl, parnt, sb )
 {
+#ifdef __debug__
     if ( nodispatall_ == -1 )
 	nodispatall_ = GetEnvVarYN( "OD_DBG_NO_STATUSBAR_MSGS" ) ? 1 : 0;
+#endif
 }
 
 
