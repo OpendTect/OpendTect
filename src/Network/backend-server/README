@@ -1,0 +1,18 @@
+The backend server is running on a standard LAMP stack and
+offers the following services:
+
+* http://backoffice.opendtect.org/backendscripts/dlsites.php
+* http://backoffice.opendtect.org/backendscripts/dlsites.txt (legacy)
+
+  Gives the download sites of OpendTect. Used in the installer.
+
+* http://backoffice.opendtect.org/backendscripts/crashreport.php
+  
+  Accepts the crashreports from opendtect and sends them to crashreports@dgbes.com
+
+* http://backoffice.opendtect.org/backendscripts/docsites.php?version=VERSION&module=MODULE 
+  where VERSION is the OpendTect Version, e.g. "6.0.0 and
+	MODULE is the help module, e.g. "od_userdoc"
+
+
+
