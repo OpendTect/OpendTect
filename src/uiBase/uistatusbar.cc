@@ -13,12 +13,19 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uiparentbody.h"
 #include "uistrings.h"
+#ifdef __debug__
+#include "envvars.h"
+#endif
 
 #include "uibody.h"
 
 #include <qstatusbar.h>
 #include <qlabel.h>
 #include <qtooltip.h>
+
+#ifdef __debug__
+static int nodispatall_ = -1;
+#endif
 
 mUseQtnamespace
 
@@ -30,7 +37,10 @@ public:
 uiStatusBarBody( uiStatusBar& hndl, uiMainWin* parnt, const char* nm,
 		 QStatusBar& sb)
 : uiBodyImpl<uiStatusBar,QStatusBar>( hndl, parnt, sb )
-{}
+{
+    if ( nodispatall_ == -1 )
+	nodispatall_ = GetEnvVarYN( "OD_DBG_NO_STATUSBAR_MSGS" ) ? 1 : 0;
+}
 
 
 int size() const
@@ -39,6 +49,10 @@ int size() const
 
 void message( const uiString& msg, int idx, int msecs )
 {
+#ifdef __debug__
+    if ( nodispatall_ )
+	return;
+#endif
     if ( msgs_.validIdx(idx) && msgs_[idx] )
 	msgs_[idx]->setText(msg.getQString());
     else if ( !msg.isEmpty() )
@@ -243,6 +257,10 @@ void uiStatusBar::setTxtAlign( int idx, OD::Alignment::HPos hal )
 
 void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 {
+#ifdef __debug__
+    if ( nodispatall_ )
+	return;
+#endif
     if ( !body_->msgs_.validIdx(idx) ) return;
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());

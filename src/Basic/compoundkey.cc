@@ -112,6 +112,13 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 }
 
 
+MultiID::SubID MultiID::getIDAt( int lvl ) const
+{
+    const BufferString str( key(lvl) );
+    return str.isEmpty() ? 0 : str.toInt();
+}
+
+
 MultiID::SubID MultiID::leafID() const
 {
     const char* ptr = lastOcc( impl_, '.' );

@@ -56,6 +56,7 @@ public:
 			{ return key(idx).toInt(); }
     inline void		setSubID( IdxType idx, SubID id )
 			{ setKey( idx, toString(id) ); }
+    SubID		getIDAt(int lvl) const;
     SubID		leafID() const;
     MultiID		parent() const;
 

@@ -578,21 +578,14 @@ bool IOMan::goTo( const MultiID& ky, bool forcereread,
 
 IOObj* IOMan::get( const MultiID& k ) const
 {
-    if ( !IOObj::isKey(k) )
+    if ( !isKey(k) )
 	return 0;
+
     MultiID ky( k );
     char* ptr = firstOcc( ky.getCStr(), '|' );
     if ( ptr ) *ptr = '\0';
     ptr = firstOcc( ky.getCStr(), ' ' );
     if ( ptr ) *ptr = '\0';
-
-    mLock4Read();
-    if ( dirptr_ )
-    {
-	const IOObj* ioobj = dirptr_->get( ky );
-	if ( ioobj )
-	    return ioobj->clone();
-    }
 
     return IODir::getObj( ky, errmsg_ );
 }
@@ -647,7 +640,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
     }
     mUnlockAllAccess();
 
-    if ( IOObj::isKey(objname) )
+    if ( isKey(objname) )
 	return get( MultiID(objname) );
 
     return 0;
@@ -706,7 +699,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	    return 0;
 	}
 
-	if ( !IOObj::isKey(res.buf()) )
+	if ( !isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
 	    mLock4Read();
@@ -757,7 +750,7 @@ bool IOMan::isKey( const char* ky ) const
 
 const char* IOMan::nameOf( const char* id ) const
 {
-    if ( !id || !*id || !IOObj::isKey(id) )
+    if ( !id || !*id || !isKey(id) )
 	return id;
 
     mDeclStaticString( ret );
@@ -905,6 +898,9 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 
 IOObj* IOMan::get( const char* objname, const char* tgname ) const
 {
+    if ( !objname || !*objname )
+	return 0;
+
     for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )
     {
 	const TranslatorGroup& tgrp = *TranslatorGroup::groups()[itype];
@@ -923,6 +919,13 @@ IOObj* IOMan::get( const char* objname, const char* tgname ) const
     }
 
     return 0;
+}
+
+
+bool IOMan::isPresent( const MultiID& id ) const
+{
+    PtrMan<IOObj> obj = get( id );
+    return obj != 0;
 }
 
 

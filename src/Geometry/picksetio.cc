@@ -115,7 +115,9 @@ bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
     if ( !PickSetTranslator::store(*copiedset,&ioobj,errmsg_) )
 	return false;
 
-    ps.getNonConstPtr()->setName( ioobj.name() );
+    if ( storekey_ == ioobj.key() )
+	ps.getNonConstPtr()->setName( ioobj.name() );
+
     return true;
 }
 

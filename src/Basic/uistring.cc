@@ -987,7 +987,7 @@ uiRetVal& uiRetVal::operator =( const uiStringSet& strs )
 uiRetVal::operator uiString() const
 {
     Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() ? uiString::emptyString() : msgs_[0];
+    return msgs_.isEmpty() ? uiString::emptyString() : msgs_.cat();
 }
 
 

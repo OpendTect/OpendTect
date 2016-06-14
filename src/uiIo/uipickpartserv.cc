@@ -143,14 +143,20 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
     uiStringSet errmsgs;
     for ( int idx=0; idx<setids.size(); idx++ )
     {
-	uiString errmsg = Pick::SetMGR().save( setids[idx] );
-	if ( !errmsg.isEmpty() )
-	    errmsgs.add( errmsg );
+	const Pick::SetManager::SetID setid( setids[idx] );
+	if ( !Pick::SetMGR().canSave(setid) )
+	    doSaveAs( setid, 0 );
+	else
+	{
+	    uiRetVal uirv = Pick::SetMGR().save( setids[idx] );
+	    if ( uirv.isError() )
+		errmsgs.add( uirv );
+	}
     }
 
     if ( !errmsgs.isEmpty() )
     {
-	errmsgs.insert( 0, tr("Problem saving changes.") );
+	errmsgs.insert( 0, tr("Could not save (all) changes.") );
 	uiMSG().errorWithDetails( errmsgs );
 	return false;
     }
@@ -164,13 +170,15 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
     Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
     if ( setid.isUdf() )
     {
-	uiMSG().error( tr("Internal: Request to store a PickSet without ID") );
+	uiMSG().error( tr("Internal: Request to store an unmanaged PickSet") );
 	return false;
     }
+    else if ( !Pick::SetMGR().canSave(setid) )
+	return doSaveAs( setid, &ps );
 
-    uiString errmsg = Pick::SetMGR().save( setid );
-    if ( !errmsg.isEmpty() )
-	{ uiMSG().error( errmsg ); return false; }
+    uiRetVal uirv = Pick::SetMGR().save( setid );
+    if ( uirv.isError() )
+	{ uiMSG().error( uirv ); return false; }
 
     return true;
 }
@@ -184,13 +192,26 @@ bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
     Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
     if ( setid.isUdf() )
     {
-	uiMSG().error( tr("Internal: Request to Save-As a PickSet without ID"));
+	uiMSG().error( tr("Internal: Request to Save-As an unmanaged PickSet"));
 	return false;
     }
 
-    IOObjContext ctxt( uiPickSetIOObjSel::getCtxt( mObjSelType(ps.isPolygon()),
-						    false, ps.category() ) );
-    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSaveAs(toUiString(ps.name())) );
+    return doSaveAs( setid, &ps );
+}
+
+
+
+bool uiPickPartServer::doSaveAs( const MultiID& setid, const Pick::Set* ps )
+{
+    ConstRefMan<Pick::Set> psref;
+    if ( !ps )
+    {
+	psref = Pick::SetMGR().fetch( setid );
+	ps = psref;
+    }
+    IOObjContext ctxt( uiPickSetIOObjSel::getCtxt( mObjSelType(ps->isPolygon()),
+						    false, ps->category() ) );
+    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSaveAs(toUiString(ps->name())) );
     uiIOObjSelDlg dlg( parent(), sdsu, ctxt );
     dlg.showAlwaysOnTop();
     if ( !dlg.go() || !dlg.ioObj() )

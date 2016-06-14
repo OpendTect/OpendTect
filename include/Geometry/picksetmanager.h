@@ -79,6 +79,7 @@ public:
     RefMan<Set>		fetchForEdit(const SetID&);
 
     bool		nameExists(const char*) const;
+    bool		canSave(const SetID&) const;
     uiRetVal		store(const Set&,const IOPar* ioobjpars=0) const;
 			//!< uses name to decide whether to create or replace
     uiRetVal		store(const Set&,const SetID&,

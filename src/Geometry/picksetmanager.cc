@@ -284,6 +284,12 @@ bool Pick::SetManager::nameExists( const char* nm ) const
 }
 
 
+bool Pick::SetManager::canSave( const SetID& setid ) const
+{
+    return IOM().isPresent( setid );
+}
+
+
 uiRetVal Pick::SetManager::store( const Set& newset,
 				  const IOPar* ioobjpars ) const
 {

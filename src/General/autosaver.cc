@@ -359,8 +359,7 @@ void OD::AutoSaver::handleSurvChg()
 void OD::AutoSaver::survChgCB( CallBacker* )
 {
     surveychanges_ = true;
-    Threads::Locker locker( lock_ );
-    deepErase( asobjs_ );
+    setEmpty();
 }
 
 
@@ -379,8 +378,10 @@ void OD::AutoSaver::svrDelCB( CallBacker* cb )
     Threads::Locker locker( lock_ );
     for ( int iasobj=0; iasobj<asobjs_.size(); iasobj++ )
     {
-	if ( svr == asobjs_[iasobj]->saver_ )
+	AutoSaveObj& asobj = *asobjs_[iasobj];
+	if ( svr == asobj.saver_ )
 	{
+	    asobj.removeHiddenSaves();
 	    delete asobjs_.removeSingle( iasobj );
 	    return;
 	}

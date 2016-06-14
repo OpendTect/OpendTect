@@ -321,11 +321,11 @@ Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
 void Pick::Set::fillPar( IOPar& par ) const
 {
     mLock4Read();
+    par.merge( pars_ );
     BufferString parstr;
     disp_.mkstyle_.toString( parstr );
     par.set( sKey::MarkerStyle(), parstr );
     par.set( sKeyConnect, Disp::toString(disp_.connect_) );
-    par.merge( pars_ );
 }
 
 

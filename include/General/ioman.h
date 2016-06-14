@@ -57,6 +57,7 @@ public:
 				   BufferString& errmsg) const;
     IOObj*		get(const char* objname,const char* tgname) const;
 
+    bool		isPresent(const MultiID&) const;
     bool		isPresent(const char*,const char* tgname=0) const;
 			/*!< Use before creating a named object
 			    \param tgname: example:
@@ -114,8 +115,8 @@ public:
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
 
-    			// IOMan will send out Monitorable events, but also
-    			// these ones for convenience
+			// IOMan will send out Monitorable events, but also
+			// these ones for convenience
     Notifier<IOMan>	newIODir;
     CNotifier<IOMan,MultiID> entryAdded;
     CNotifier<IOMan,MultiID> entryRemoved;
@@ -178,8 +179,8 @@ public:
 			/*! Triggers the post-survey change notifiers */
 
     void		findTempObjs(ObjectSet<IOObj>&,
-	    			const IOObjSelConstraints* cnstrts=0) const;
-    			//!< set filled with cloned ioobjs. Needs deepErase().
+				const IOObjSelConstraints* cnstrts=0) const;
+			//!< set filled with cloned ioobjs. Needs deepErase().
 
 };
 

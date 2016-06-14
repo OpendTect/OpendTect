@@ -111,6 +111,7 @@ protected:
     void			importReadyCB(CallBacker*);
     void                        mkRandLocs2D(CallBacker*);
     bool			doLoadSets(TypeSet<MultiID>&);
+    bool			doSaveAs(const MultiID&,const Pick::Set*);
 
 };
 

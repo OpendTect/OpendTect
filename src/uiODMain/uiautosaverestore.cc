@@ -60,7 +60,7 @@ void startAutoSaved2RealObjectRestorer()
 uiAutoSave2RealObjDlg::uiAutoSave2RealObjDlg( uiParent* p, IOObj& ioobj,
 						int curidx, int totalnr )
     : uiDialog(p,uiDialog::Setup(
-	    tr("Restore Auto-Saved Object (%1/%2)").arg(curidx).arg(totalnr),
+	    tr("Restore Auto-Saved Object (%1/%2)").arg(curidx+1).arg(totalnr),
 	    mNoDlgTitle,mTODOHelpKey))
     , ioobj_(ioobj)
 {
@@ -185,7 +185,7 @@ int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
 	if ( !delall )
 	{
 	    uiAutoSave2RealObjDlg dlg( ODMainWin(), ioobj, idx,
-		    			todoioobjs.size() );
+					todoioobjs.size() );
 	    if ( !dlg.go() || dlg.isCancel() )
 		break;
 
