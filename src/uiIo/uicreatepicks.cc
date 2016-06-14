@@ -79,17 +79,34 @@ void uiNewPickSetDlg::attachStdFlds( bool mineabove, uiGroup* grp )
 }
 
 
-Pick::Set* uiNewPickSetDlg::getEmptyPickSet() const
+RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 {
     const BufferString nm( nmfld_->text() );
-    if ( Pick::SetMGR().nameExists(nm) )
+    bool isreplace = Pick::SetMGR().nameExists( nm );
+    RefMan<Pick::Set> ret;
+    if ( !isreplace )
+	ret = new Pick::Set( nm );
+    else
     {
-	uiMSG().error( tr("A Pick Set with that name already exists."
-			  "\nPlease choose another name.") );
-	return 0;
+	const MultiID setid = Pick::SetMGR().getID( nm );
+	uiString msg = tr("A Pick Set with that name already exists.\n");
+	if ( Pick::SetMGR().isLoaded( setid ) )
+	{
+	    msg.append( tr("You are currently using it."
+			"\nPlease enter a different name."), true );
+	    return ret;
+	}
+	msg.append( tr("Do you want to overwrite the existing data?"), true );
+	if ( !uiMSG().askGoOn( msg ) )
+	    return ret;
+
+	ret = Pick::SetMGR().fetchForEdit( Pick::SetMGR().getID(nm) );
+	if ( !ret )
+	    ret = new Pick::Set( nm );
+	else
+	    ret->setEmpty();
     }
 
-    Pick::Set* ret = new Pick::Set( nm );
     OD::MarkerStyle3D mstyle;
     markerstylefld_->getMarkerStyle( mstyle );
     ret->setMarkerStyle( mstyle );
@@ -97,6 +114,7 @@ Pick::Set* uiNewPickSetDlg::getEmptyPickSet() const
 				   : Pick::Set::Disp::None );
     ret->setIsPolygon( ispolygon_ );
     ret->setCategory( category_ );
+
     return ret;
 }
 
@@ -105,7 +123,8 @@ Pick::Set* uiNewPickSetDlg::getEmptyPickSet() const
 
 bool uiNewPickSetDlg::acceptOK( CallBacker* )
 {
-    set_ = getEmptyPickSet();
+    RefMan<Pick::Set> newset = getEmptyPickSet();
+    set_ = newset;
     if ( !set_ || !fillData(*set_) )
 	return false;
 

@@ -569,24 +569,25 @@ void Pick::SetManager::setDelCB( CallBacker* cb )
 
 void Pick::SetManager::setChgCB( CallBacker* inpcb )
 {
+
     mGetMonitoredChgDataWithCaller( inpcb, chgdata, cb );
     const bool isentire = chgdata.changeType() == cEntireObjectChangeType();
-    if ( isentire )
-    {
-	AccessLockHandler alh( *this );
-	locevrecs_.setEmpty();
-	return;
-    }
-
     const bool isinsert = chgdata.changeType() == Set::cLocationInsert();
     const bool isremove = chgdata.changeType() == Set::cLocationRemove();
-    if ( !isinsert && !isremove )
+    if ( !isentire && !isinsert && !isremove )
 	return;
 
     mHandleSetChgCBStart();
-
     const LocEvent::IdxType locidx = (LocEvent::IdxType)chgdata.subIdx();
     const SetID setid = savers_[idxof]->key();
+
+    if ( isentire )
+    {
+	mLock2Write();
+	locevrecs_[ idxof ]->setEmpty();
+	return;
+    }
+
     LocEvent ev( locidx, Location::udf(), Location::udf() );
     ev.type_ = isinsert ? LocationChangeEvent::Create
 			: LocationChangeEvent::Delete;

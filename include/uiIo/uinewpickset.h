@@ -44,7 +44,7 @@ protected:
     virtual bool	fillData(Pick::Set&)	    { return true; }
 
     bool		acceptOK(CallBacker*);
-    Pick::Set*		getEmptyPickSet() const;
+    RefMan<Pick::Set>	getEmptyPickSet() const;
 
 };
 
