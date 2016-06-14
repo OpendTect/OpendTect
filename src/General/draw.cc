@@ -27,7 +27,7 @@ mDefineEnumUtils(OD::Alignment,VPos,"OD::Alignment")
 { "Top", "Bottom", "Center", 0 };
 mDefineEnumUtils(OD::MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
-  "Horizontal line", "Vertical line", 0 };
+  "Horizontal line", "Vertical line", "Plane", "Triangle", "Arrow", 0 };
 mDefineEnumUtils(OD::MarkerStyle3D,Type,"Marker type")
 { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross",
   "Point", "Plane", 0 };
@@ -119,7 +119,7 @@ bool OD::MarkerStyle2D::operator==( const OD::MarkerStyle2D& b ) const
 }
 
 
-const OD::MarkerStyle2D& OD::MarkerStyle2D::operator=( 
+const OD::MarkerStyle2D& OD::MarkerStyle2D::operator=(
     const OD::MarkerStyle2D& a )
 {
     type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
@@ -138,10 +138,10 @@ OD::MarkerStyle3D::MarkerStyle3D(Type tp, int sz, Color col )
 
 void OD::MarkerStyle3D::toString( BufferString& bs ) const
 {
-    FileMultiString fms; 
-    fms = toString( type_ ); 
-    fms += size_; 
-    color_.fill( bs ); 
+    FileMultiString fms;
+    fms = toString( type_ );
+    fms += size_;
+    color_.fill( bs );
     fms += FileMultiString( bs );
     bs = fms;
 }
@@ -149,8 +149,8 @@ void OD::MarkerStyle3D::toString( BufferString& bs ) const
 
 void OD::MarkerStyle3D::fromString( const char* s, bool v6_or_earlier )
 {
-    FileMultiString fms( s ); 
-    TypeDef().parse( fms[0], type_ ); 
+    FileMultiString fms( s );
+    TypeDef().parse( fms[0], type_ );
 
     if ( v6_or_earlier )
     {
@@ -159,9 +159,9 @@ void OD::MarkerStyle3D::fromString( const char* s, bool v6_or_earlier )
 	    type_ = TypeDef().getEnumForIndex( typeidx );
     }
 
-    size_ = fms.getIValue(1); 
-    FileMultiString colfms( fms.from(2) ); 
-    color_.use( colfms ); 
+    size_ = fms.getIValue(1);
+    FileMultiString colfms( fms.from(2) );
+    color_.use( colfms );
 }
 
 
