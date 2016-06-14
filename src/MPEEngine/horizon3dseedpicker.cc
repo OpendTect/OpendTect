@@ -112,10 +112,11 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 		tracker_.snapPositions( propagatelist_ );
 
 	    addedseed_.val_ = hor3d->getZ( seed.tk_ );
-	    seedAdded.trigger();
 	}
 
 	hor3d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(), true, true );
+	if ( !drop || !pickedposwasdef )
+	    seedAdded.trigger();
 
 	// Loop may add new items to the tail of the propagate list.
 	for ( int idx=0; idx<propagatelist_.size() && !drop; idx++ )

@@ -215,7 +215,8 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
     {
 	EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
 	const bool canautotrack = seedpicker && seedpicker->nrSeeds();
-	toolbar_->setSensitive( startbutid_, canautotrack && invol && stopped );
+	toolbar_->setSensitive( startbutid_, canautotrack &&
+					     invol && stopped );
     }
 }
 
