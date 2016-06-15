@@ -31,7 +31,7 @@
 #include "uislider.h"
 #include "uistratseisevent.h"
 #include "uiseissel.h"
-#include "uipicksettools.h"
+#include "uipicksetsel.h"
 #include "uiseparator.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"

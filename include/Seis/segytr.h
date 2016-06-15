@@ -53,7 +53,7 @@ public:
     const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }
     void		setTxtHeader(SEGY::TxtHeader*);	//!< write; becomes mine
     void		setForcedRev( int rev )	{ forcedrev_ = rev; }
-    void		setForceRev0( bool yn )	{ forcedrev_ = 0; }
+    void		setForceRev0( bool yn )	{ forcedrev_ = yn ? 0 : 1; }
 
     int			dataBytes() const;
     int			forcedRev() const	{ return forcedrev_; }

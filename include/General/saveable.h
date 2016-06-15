@@ -30,7 +30,6 @@ mExpClass(General) Saveable : public Monitorable
 public:
 
 			Saveable(const Monitorable&);
-			Saveable(const Saveable&);
 			~Saveable();
 			mDeclAbstractMonitorableAssignment(Saveable);
 

@@ -12,7 +12,7 @@ _______________________________________________________________________
 
 #include "ui2dgeomman.h"
 #include "uiseissel.h"
-#include "uipicksettools.h"
+#include "uipicksetsel.h"
 #include "uiseislinesel.h"
 #include "uiselsimple.h"
 #include "uigeninput.h"

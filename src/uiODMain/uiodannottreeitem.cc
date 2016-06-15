@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "uipicksettools.h"
+#include "uipicksetsel.h"
 #include "vislocationdisplay.h"
 #include "vissurvscene.h"
 

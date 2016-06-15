@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
-#include "uipicksettools.h"
+#include "uipicksetsel.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "picksettr.h"
 #include "survinfo.h"
 
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,

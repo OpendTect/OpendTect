@@ -74,9 +74,17 @@ void startSetCategoryFromTypeInOMFPutter()
 } // namespace Pick
 
 
-Pick::SetSaver::SetSaver( const Pick::Set& ps )
+Pick::SetSaver::SetSaver( const Set& ps )
     : OD::Saveable(ps)
 {
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Pick::SetSaver::SetSaver( const SetSaver& oth )
+    : OD::Saveable(oth)
+{
+    copyAll( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -86,6 +94,8 @@ Pick::SetSaver::~SetSaver()
     sendDelNotif();
 }
 
+
+mImplMonitorableAssignment(Pick::SetSaver,OD::Saveable)
 
 void Pick::SetSaver::copyClassData( const SetSaver& oth )
 {

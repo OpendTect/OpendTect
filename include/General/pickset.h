@@ -44,7 +44,6 @@ public:
     typedef size_type	IdxType;
 
 			Set(const char* nm=0,const char* category=0);
-			Set(const Set&);
 			mDeclMonitorableAssignment(Set);
 
     bool		isPolygon() const;

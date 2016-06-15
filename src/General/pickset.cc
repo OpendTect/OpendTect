@@ -32,6 +32,7 @@ Pick::Set::Set( const char* nm, const char* cat )
 
 
 Pick::Set::Set( const Set& oth )
+    : NamedMonitorable(oth)
 {
     copyAll( oth );
     mTriggerInstanceCreatedNotifier();

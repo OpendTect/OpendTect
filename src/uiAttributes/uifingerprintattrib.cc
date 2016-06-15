@@ -36,12 +36,11 @@ ________________________________________________________________________
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uipicksettools.h"
+#include "uipicksetsel.h"
 #include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"

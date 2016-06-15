@@ -53,7 +53,6 @@ mExpClass(Basic) NamedMonitorable : public Monitorable
 public:
 
 			NamedMonitorable(const char* nm=0);
-			NamedMonitorable(const NamedMonitorable&);
 			NamedMonitorable(const NamedObject&);
 			mDeclMonitorableAssignment(NamedMonitorable);
     NamedMonitorable&	operator =(const NamedObject&);

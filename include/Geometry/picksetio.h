@@ -67,8 +67,8 @@ mExpClass(Geometry) SetSaver : public OD::Saveable
 public:
 
 			SetSaver(const Pick::Set&);
-			~SetSaver();
 			mDeclMonitorableAssignment(SetSaver);
+			~SetSaver();
 
     ConstRefMan<Set>	pickSet() const;
     void		setPickSet(const Set&);

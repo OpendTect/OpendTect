@@ -275,7 +275,8 @@ protected:
     protected: \
         void	    copyAll(const clss&); \
     public: \
-	clss&	    operator =(const clss&);
+		    clss(const clss&); \
+	clss&	    operator =(const clss&)
 
 /*!\brief For subclasses: like mDeclAbstractMonitorableAssignment but for
   non-abstract subclasses. Adds the clone() method. */

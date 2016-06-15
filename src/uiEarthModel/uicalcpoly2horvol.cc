@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 #include "uiioobjsel.h"
-#include "uipicksettools.h"
+#include "uipicksetsel.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uichecklist.h"
