@@ -1155,11 +1155,15 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 }
 
 
+bool TableOutput::useCoords( Pos::SurvID survid ) const
+{ return datapointset_.bivSet().survID() != survid; }
+
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
+    const bool usecoords = useCoords( info.trckey_.survID() );
     const Coord coord = info.coord_;
-    DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(coord)
+    DataPointSet::RowID rid = usecoords ? datapointset_.findFirst(coord)
 				      : datapointset_.findFirst(info.binID());
     if ( rid< 0 && datapointset_.is2D() )
     {
@@ -1195,7 +1199,9 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( info.binid != datapointset_.binID(idx) ) break;
+	const BinID trcbid = usecoords ? SI().transform(info.coord_)
+					: info.binid;
+	if ( trcbid != datapointset_.binID(idx) ) break;
 
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
@@ -1233,12 +1239,6 @@ bool TableOutput::wantsOutput( const BinID& bid ) const
 bool TableOutput::wantsOutput( const Coord& coord ) const
 {
     return datapointset_.findFirst( coord ) > -1;
-}
-
-
-bool TableOutput::useCoords() const
-{
-    return datapointset_.is2D();
 }
 
 

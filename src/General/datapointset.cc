@@ -24,6 +24,9 @@ const int DataPointSet::groupcol_ = 3;
 	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
 	, minimal_(mini)
 
+#define mSetSurvID(is2d) \
+    if (is2d) data_.data().setSurvID( TrcKey::std2DSurvID() );
+
 
 static int getCompacted( int selgrp, int grp )
 {
@@ -76,9 +79,10 @@ void DataPointSet::Pos::set( const Coord3& c )
 }
 
 
-Coord DataPointSet::Pos::coord() const
+Coord DataPointSet::Pos::coord( ::Pos::SurvID survid ) const
 {
-    Coord sc( SI().transform(binid_) );
+    TrcKey trckey( survid, binid_ );
+    Coord sc = trckey.getCoord();
     sc.x += offsx_; sc.y += offsy_;
     return sc;
 }
@@ -122,6 +126,7 @@ DataPointSet::DataPointSet( bool is2d, bool mini )
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
+    mSetSurvID(is2d)
 }
 
 
@@ -133,6 +138,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
+    mSetSurvID(is2d)
     init( pts, dcds );
 }
 
@@ -144,6 +150,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
+    mSetSurvID(is2d)
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<nms.size(); idx++ )
 	dcds += new DataColDef( nms.get(idx) );
@@ -203,7 +210,7 @@ int nextStep()
     if ( !p3d_ )
     {
 	dr_.pos_.nr_ = p2d_->curNr();
-	dr_.pos_.binid_.inl() = p2d_->curTrcKey().geomID();
+	dr_.pos_.binid_ = p2d_->curTrcKey().binID();
     }
     dr_.pos_.z_ = curz;
     if ( filt_ )
@@ -265,6 +272,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	, mAddMembs(is2d,mini)
 {
     initPVDS();
+    mSetSurvID(is2d)
     data_.pars() = pdvs.pars();
 
     const BinIDValueSet& bvs = pdvs.data();
@@ -308,18 +316,20 @@ DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 	, data_(*new PosVecDataSet)
 	, mAddMembs(dps.is2d_,dps.minimal_)
 {
+    mSetSurvID(dps.is2d_)
     data_.copyStructureFrom( dps.data_ );
     const int typ = filt.is2D() != dps.is2d_ ? -1 : (dps.is2d_ ? 1 : 0);
 
     mDynamicCastGet(const ::Pos::Filter3D*,f3d,&filt)
     mDynamicCastGet(const ::Pos::Filter2D*,f2d,&filt)
 
+    ::Pos::SurvID survid = dps.bivSet().survID();
     for ( RowID irow=0; irow<dps.size(); irow++ )
     {
 	DataRow dr( dps.dataRow(irow) );
 	bool inc = true;
 	if ( typ == -1 )
-	    inc = filt.includes( dr.pos_.coord(), dr.pos_.z_ );
+	    inc = filt.includes( dr.pos_.coord(survid), dr.pos_.z_ );
 	else if ( f3d )
 	    inc = f3d->includes( dr.pos_.binID(), dr.pos_.z_ );
 	else if ( f2d )
@@ -339,6 +349,7 @@ DataPointSet::DataPointSet( const DataPointSet& dps )
 	, mAddMembs(dps.is2d_,dps.minimal_)
 {
     data_ = dps.data_;
+    mSetSurvID(dps.is2d_)
     bvsidxs_ = dps.bvsidxs_;
 }
 
@@ -525,7 +536,7 @@ BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Coord::udf());
-    return pos(rid).coord();
+    return pos(rid).coord(bivSet().survID());
 }
 
 
@@ -871,7 +882,7 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     float mindist = mUdf(float);
     int resrowidx=-1;
     mGetZ( dpos.z_, zinxy );
-    Coord3 targetpos( dpos.coord(), zinxy );
+    Coord3 targetpos( dpos.coord(bivSet().survID()), zinxy );
     for ( int rowidx=0; rowidx<bvsidxs_.size(); rowidx++ )
     {
 	mGetZ( z(rowidx), zinxy );

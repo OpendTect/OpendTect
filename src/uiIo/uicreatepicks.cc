@@ -213,12 +213,13 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
     if ( !usemaxnrpicks )
 	size = dpssize;
 
+    Pos::SurvID survid = dps.bivSet().survID();
     for ( DataPointSet::RowID idx=0; idx<size; idx++ )
     {
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
 	const DataPointSet::Pos pos( dps.pos(posidx) );
-	Pick::Location pl( pos.coord(), pos.z() );
+	Pick::Location pl( pos.coord(survid), pos.z() );
 	if ( dps.is2D() )
 	    pl.setSurvID( pos.binid_.inl() );
 	ps.add( pl );

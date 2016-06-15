@@ -47,25 +47,25 @@ public:
     od_int64			nrDone() const;
     uiString			uiMessage() const;
     uiString			uiNrDoneText() const
-    				{ return tr("Positions processed"); }
+				{ return tr("Positions processed"); }
 
     void			addOutputInterest(int sel);
     bool			setZIntervals(TypeSet< Interval<int> >&,
-					      const BinID&,const Coord&);
+					      const TrcKey&,const Coord&);
     void			computeAndSetRefZStepAndZ0();
-    
+
     Notifier<Attrib::Processor>	moveonly;
 				/*!< triggered after a position is reached that
 				     requires no processing, e.g. during initial
 				     buffer fills. */
-    
-    const char*			getAttribName() const; 	
-    const char*			getAttribUserRef() const; 	
-    Provider*			getProvider() 		{ return provider_; }
-    ObjectSet<Output>   	outputs_;
+
+    const char*			getAttribName() const;
+    const char*			getAttribUserRef() const;
+    Provider*			getProvider()		{ return provider_; }
+    ObjectSet<Output>	outputs_;
 
     void			setRdmPaths(TypeSet<BinID>* truepath,
-	    				    TypeSet<BinID>* snappedpath);
+					    TypeSet<BinID>* snappedpath);
 				//for directional attributes
 
 protected:
@@ -81,7 +81,7 @@ protected:
     Provider*		provider_;
     int			nriter_;
     int			nrdone_;
-    bool 		is2d_;
+    bool		is2d_;
     TypeSet<int>	outpinterest_;
     uiString		errmsg_;
     bool		isinited_;

@@ -62,15 +62,15 @@ public:
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
 
-	bool		operator ==(const Pos& pos) const 
+	bool		operator ==(const Pos& pos) const
 			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
-			    	&& offsy_==pos.offsy_ && z_==pos.z_; }
+				&& offsy_==pos.offsy_ && z_==pos.z_; }
 	const BinID&	binID() const	{ return binid_; }
-	Coord		coord() const;
+	Coord		coord(::Pos::SurvID) const;
 	float		z() const	{ return z_; }
 
 	void		set( const BinID& bid )
-	    		{ binid_ = bid; offsx_ = offsy_ = 0; }
+			{ binid_ = bid; offsx_ = offsy_ = 0; }
 	void		set(const Coord&);
 	void		set(const Coord3&);
 
@@ -81,9 +81,9 @@ public:
 	float		binIDOffSet( bool inx ) const
 			{ return inx ? offsx_ : offsy_; }
 	void		setBinIDOffset( bool inx, float o )
-	    		{ (inx ? offsx_ : offsy_) = o; }
+			{ (inx ? offsx_ : offsy_) = o; }
 	void		setBinIDOffsets( float ox, float oy )
-	    		{ offsx_ = ox; offsy_ = oy; }
+			{ offsx_ = ox; offsy_ = oy; }
 
     protected:
 
@@ -94,7 +94,7 @@ public:
     };
 
     /*!\brief Data point with group. Group 0 means 'inactive',
-      	      it can never be selected. */
+	      it can never be selected. */
 
     mExpClass(General) DataRow
     {
@@ -106,17 +106,18 @@ public:
 			    : pos_(p), grp_((short)grp)
 							{ setSel( issel ); }
 
-	bool			operator ==(const DataRow& dr) const 
+	bool			operator ==(const DataRow& dr) const
 				{ return pos_==dr.pos_ && grp_==dr.grp_
-				    	&& data_==dr.data_; }
+					&& data_==dr.data_; }
 	const BinID&		binID() const		{ return pos_.binID(); }
-	Coord			coord() const		{ return pos_.coord(); }
+	Coord			coord(::Pos::SurvID survid) const
+				{ return pos_.coord(survid); }
 	const TypeSet<float>&	data() const		{ return data_; }
 	unsigned short		group() const;
 	bool			isSel() const		{ return grp_ > 0; }
 	bool			isInactive() const	{ return grp_ == 0; }
 	void			setSel( bool yn )
-	    			{ if ( (grp_ >= 0) != yn ) grp_ = -grp_; }
+				{ if ( (grp_ >= 0) != yn ) grp_ = -grp_; }
 	void			setGroup(unsigned short grp);
 	void			getBVSValues(TypeSet<float>&,bool is2d,
 					     bool ismini) const;
@@ -126,16 +127,16 @@ public:
 	short		grp_;
     };
 
-    			DataPointSet(const TypeSet<DataRow>&,
+			DataPointSet(const TypeSet<DataRow>&,
 				     const ObjectSet<DataColDef>&,
 				     bool is2d,bool minimal=false);
-    			DataPointSet(const TypeSet<DataRow>&,
+			DataPointSet(const TypeSet<DataRow>&,
 				     const BufferStringSet& valnms,
 				     bool is2d,bool minimal=false);
-    			DataPointSet(const PosVecDataSet&,bool is2d,
+			DataPointSet(const PosVecDataSet&,bool is2d,
 					bool minimal=false);
-    			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
-    			DataPointSet(const DataPointSet&);
+			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
+			DataPointSet(const DataPointSet&);
     virtual		~DataPointSet();
     DataPointSet&	operator =(const DataPointSet&);
     bool		is2D() const		{ return is2d_; }
@@ -152,7 +153,7 @@ public:
     ColID		indexOf(const char*) const;
     bool		validColID(ColID) const;
 
-    			// size, binID, coord, z and trcNr impl PointDataPack
+			// size, binID, coord, z and trcNr impl PointDataPack
     int			size() const		{ return bvsidxs_.size(); }
     BinID		binID(RowID) const;
     Coord		coord(RowID) const;
@@ -187,12 +188,12 @@ public:
     const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>
 					  (this)->bivSet(); }
     BinIDValueSet&	bivSet();
-    			//!< The idea is to manage vectors with the selection
-    			//!< mechanism. But if you really must remove
-    			//!< vectors, this may be your access point
+			//!< The idea is to manage vectors with the selection
+			//!< mechanism. But if you really must remove
+			//!< vectors, this may be your access point
     PosVecDataSet&	dataSet()		{ return data_; }
-    			//!< To add/remove columns. Never remove the position
-    			//!< columns!
+			//!< To add/remove columns. Never remove the position
+			//!< columns!
 
     DataPointSet*	getSubselected(int maxsz,
 			    const TypeSet<int>* selected_cols=0,
@@ -200,31 +201,31 @@ public:
 			    const ObjectSet<Interval<float> >* value_ranges=0)
 							const;
     void		randomSubselect(int maxsz);
-    
+
     int			bivSetIdx( ColID idx ) const
 						{ return idx+nrfixedcols_; }
 
     void		dataChanged()			{ calcIdxs(); }
-    			//!< When data modified, you want to call this.
-    			//!< all RowIDs may change
-    			//!< In case you want to change the definition of a col
+			//!< When data modified, you want to call this.
+			//!< all RowIDs may change
+			//!< In case you want to change the definition of a col
     void		addRow(const DataRow&);
-    			//!< When finished, you have to call dataChanged()
+			//!< When finished, you have to call dataChanged()
     bool		setRow(const DataRow&);
-    			//!< Can be add or change
-    			//!< Returns whether it's an add (see addRow)
+			//!< Can be add or change
+			//!< Returns whether it's an add (see addRow)
     RowID		getRowID(BinIDValueSet::SPos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
     BinIDValueSet::SPos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
 
-    			// Building from scratch
-    			DataPointSet(bool is2d,bool minimal=false);
+			// Building from scratch
+			DataPointSet(bool is2d,bool minimal=false);
     bool		extractPositions(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
 				     const ::Pos::Filter* f=0,
 				     TaskRunner* tr=0);
     void		addCol(const char* nm,const char* ref=0,
-	    			const UnitOfMeasure* un=0);
+				const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns
 
     // DataPack interface impl
@@ -242,7 +243,7 @@ protected:
 
     void		initPVDS();
     void		init(const TypeSet<DataRow>&,
-	    		     const ObjectSet<DataColDef>&);
+			     const ObjectSet<DataColDef>&);
     void		calcIdxs();
 
     static const int	groupcol_;

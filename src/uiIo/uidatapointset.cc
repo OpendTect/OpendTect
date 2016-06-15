@@ -777,8 +777,10 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
     if ( dlg.go() )
     {
 	addRow( dlg.datarow_ );
+	Pos::SurvID survid = dps_ ? dps_->bivSet().survID()
+				  : TrcKey::std3DSurvID();
 	const float newzval = dlg.datarow_.pos_.z_;
-	const Coord3 newcoord( dlg.datarow_.coord(), newzval );
+	const Coord3 newcoord( dlg.datarow_.coord(survid), newzval );
 	const BinID newbid( dlg.datarow_.binID() );
 	rowAdded.trigger();
 	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
@@ -1187,7 +1189,10 @@ void uiDataPointSet::valChg( CallBacker* )
 	else
 	{
 	    if ( !isDisp(true) ) { pErrMsg("Huh"); mRetErr; }
-	    BinID bid( pos.binID() ); Coord crd( pos.coord() );
+	    BinID bid( pos.binID() );
+	    Pos::SurvID survid = dps_ ? dps_->bivSet().survID()
+					: TrcKey::std3DSurvID();
+	    Coord crd( pos.coord(survid) );
 	    if ( showbids_ )
 	    {
 		int& posval = ( dcid == -nrPosCols() ) ? bid.inl() : bid.crl();
@@ -1226,7 +1231,7 @@ void uiDataPointSet::valChg( CallBacker* )
 
 void uiDataPointSet::eachChg( CallBacker* )
 {
-    if ( mIsUdf(plotpercentage_) ) return;
+    if ( mIsUdf(percentage_) ) return;
 
     float newpercentage = percfld_->getFValue();
     if ( newpercentage < 0 ) newpercentage = 0;

@@ -325,14 +325,19 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 		 tkzs_.hsamp_.stop_.crl() < bid.crl()
 		? 2 : 0;
     int rv = inlres + 256 * crlres;
-    if ( rv != 0 ) return rv;
+    if ( rv != 0 )
+	return rv;
 
     BinID step( tkzs_.hsamp_.step_.inl(), tkzs_.hsamp_.step_.crl() );
     if ( step.inl() < 1 ) step.inl() = 1;
     if ( step.crl() < 1 ) step.crl() = 1;
     inlres = (bid.inl() - tkzs_.hsamp_.start_.inl()) % step.inl() ? 1 : 0;
     crlres = (bid.crl() - tkzs_.hsamp_.start_.crl()) % step.crl() ? 1 : 0;
-    return inlres + 256 * crlres;
+    rv = inlres + 256 * crlres;
+    if ( rv != 0 )
+	return rv;
+
+    return rv;
 }
 
 

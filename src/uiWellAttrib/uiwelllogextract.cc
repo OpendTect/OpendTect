@@ -290,10 +290,11 @@ bool uiWellLogExtractGrp::extractDPS()
     for ( int idps=0; idps<dpss.size(); idps++ )
     {
 	DataPointSet& curdps = *dpss[idps];
+	Pos::SurvID survid = curdps.bivSet().survID();
 	for ( int idr=0; idr<curdps.size(); idr++ )
 	{
 	    dr = curdps.dataRow( idr );
-	    if ( filt && !filt->includes(dr.pos_.coord(),dr.pos_.z()) )
+	    if ( filt && !filt->includes(dr.pos_.coord(survid),dr.pos_.z()) )
 		continue;
 
 	    DataPointSet::DataRow newdr( dr );

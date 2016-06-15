@@ -202,14 +202,21 @@ bool Seis2DDataSet::getRanges( Pos::GeomID geomid, StepInterval<int>& sii,
 bool Seis2DDataSet::haveMatch( Pos::GeomID geomid,
 			       const BinIDValueSet& bivs ) const
 {
+    if ( TrcKey::is2D(bivs.survID()) )
+	return bivs.hasInl( geomid );
+
     const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
     if ( !geom2d ) return false;
 
+    geometry = Survey::GM().getGeometry( bivs.survID() );
+    mDynamicCastGet( const Survey::Geometry3D*, geom3d, geometry )
+    if ( !geom3d ) return false;
+
     const PosInfo::Line2DData& geom = geom2d->data();
     for ( int idx=0; idx<geom.positions().size(); idx++ )
     {
-	if ( bivs.includes( SI().transform(geom.positions()[idx].coord_) ) )
+	if ( bivs.includes( geom3d->transform(geom.positions()[idx].coord_) ) )
 	    return true;
     }
 

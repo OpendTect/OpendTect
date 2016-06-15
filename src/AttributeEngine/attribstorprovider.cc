@@ -229,6 +229,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	if ( !dset )
 	    mErrRet( tr("2D seismic data/No data set found") );
 
+	storedvolume_.set2DDef();
 	storedvolume_.hsamp_.start_.inl() = 0;
 	storedvolume_.hsamp_.stop_.inl() = 1;
 	storedvolume_.hsamp_.step_.inl() = 1;
@@ -353,8 +354,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
     curtrcinfo_ = 0;
     const SeisTrcInfo& newti = trc->info();
-    currentbid_ = desc_.is2D()? BinID( geomid_, newti.nr_ ) : newti.binID();
-    trcinfobid_ = newti.binID();
+    currentbid_ = trcinfobid_ = newti.binID();
     if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
 	    || newti.binID() == startpos )
     {
@@ -364,27 +364,55 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 }
 
 
-#define mAdjustToAvailStep( dir )\
-{\
-    if ( res.hsamp_.step_.dir>1 )\
-    {\
-	float remain =\
-	   ( possiblevolume_->hsamp_.start_.dir - res.hsamp_.start_.dir ) %\
-			res.hsamp_.step_.dir;\
-	if ( !mIsZero( remain, 1e-3 ) )\
-	    res.hsamp_.start_.dir = possiblevolume_->hsamp_.start_.dir + \
-				mNINT32(remain +0.5) *res.hsamp_.step_.dir;\
-    }\
+bool StorageProvider::getLine2DStoredVolume()
+{
+    if ( geomid_ == mUdfGeomID && desiredvolume_->is2D() )
+	geomid_ = desiredvolume_->hsamp_.getGeomID();
+
+    if ( geomid_ == mUdfGeomID )
+	return true;
+
+    Seis2DDataSet* dset = mscprov_->reader().dataSet();
+    if ( !dset )
+	mErrRet( tr("2D seismic data set not found") );
+
+    StepInterval<int> trcrg;
+    StepInterval<float> zrg;
+    if ( !dset->getRanges(geomid_,trcrg,zrg) )
+	mErrRet( tr("2D dataset %1 is not available for line %2")
+		.arg(dset->name()).arg(Survey::GM().getName(geomid_)) );
+
+    storedvolume_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
+    storedvolume_.hsamp_.setTrcRange( trcrg );
+    storedvolume_.zsamp_ = zrg;
+    return true;
 }
+
 
 bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 {
     if ( !possiblevolume_ )
 	possiblevolume_ = new TrcKeyZSampling;
 
+    const bool is2d = mscprov_->is2D();
+    if ( is2d && !getLine2DStoredVolume() )
+	return false;
+
     *possiblevolume_ = storedvolume_;
-    globpv.limitTo( *possiblevolume_ );
-    return !globpv.isEmpty();
+    if ( is2d == globpv.is2D() )
+	globpv.limitTo( *possiblevolume_ );
+
+    if ( globpv.isEmpty() )
+    {
+	const IOObj* dataobj = mscprov_->reader().ioObj();
+	const BufferString datanm = dataobj ? dataobj->name()
+					    : OD::String::empty();
+	errmsg_ = tr("Stored cube %1 is not available in the desired range")
+		  .arg(datanm);
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -768,14 +796,14 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	const bool isclss = isclass[idx];
 	compidx++;
 
-    	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
-    	{
-    	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
+	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
+	{
+	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
 	    const int compnr = desc_.is2D() ? idx : compidx;
 	    const float val = trcrange.includes(curt,false) ?
 		(isclss ? trc->get(trc->nearestSample(curt),compnr)
 		  : trc->getValue(curt,compnr)) : mUdf(float);
-	    
+
 	    series->setValue( sampidx, val );
 	}
     }

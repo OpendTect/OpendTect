@@ -167,17 +167,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     BinID curbid = provider_->getCurrentPosition();
     const Pos::GeomID geomid = provider_->getGeomID();
     if ( is2d_ && curtrcinfo )
-    {
-	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
-	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
-	if ( locoutp || taboutp )
-	    curbid = curtrcinfo->binid;
-	else
-	{
-	    curbid.inl() = geomid;
-	    curbid.crl() = curtrcinfo->nr_;
-	}
-    }
+	curbid = curtrcinfo->binID();
 
     SeisTrcInfo mytrcinfo;
     if ( !curtrcinfo )
@@ -190,7 +180,10 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 			     Survey::GM().getGeometry(geomid) );
 	    PosInfo::Line2DPos pos2d;
 	    if ( geom2d && geom2d->data().getPos(curbid.crl(),pos2d) )
+	    {
 		mytrcinfo.coord_ = pos2d.coord_;
+		mytrcinfo.trckey_.setSurvID( TrcKey::std2DSurvID() );
+	    }
 	    else
 	    {
 		mytrcinfo.coord_ = SI().transform( mytrcinfo.binID() );
@@ -202,7 +195,8 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     }
 
     TypeSet< Interval<int> > localintervals;
-    bool isset = setZIntervals( localintervals, curbid, curtrcinfo->coord_ );
+    bool isset = setZIntervals( localintervals, curtrcinfo->trckey_,
+				curtrcinfo->coord_ );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
@@ -411,22 +405,22 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
     else
     {
 	TrcKeyZSampling possvol;
-	if ( !possvol.includes(globalcs) )
+	if ( is2d_ || !possvol.includes(globalcs) )
 	    possvol = globalcs;
 
-	if ( is2d_ && possvol == globalcs )
+	if ( is2d_ && globalcs.is2D() )
 	{
-	    const Pos::GeomID geomid = provider_->getGeomID();
+	    const Pos::GeomID geomid = globalcs.hsamp_.getGeomID();
 	    possvol.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
-	    possvol.hsamp_.setTrcRange( Interval<int>(0,INT_MAX/3*2) );
-					//unlikely;still, a limitation.
 	    globalcs = possvol;
 	}
 
 	provider_->setDesiredVolume( possvol );
 	if ( !provider_->getPossibleVolume( -1, possvol ) )
 	{
-	    errmsg_ = tr("Not possible to output required attribute"
+	    errmsg_ = provider_->errMsg();
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = tr("Not possible to output required attribute"
                          " in this area.\nPlease confront stepouts/timegates"
 		         " with available data");
 	    return;
@@ -440,27 +434,27 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 
 
 bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
-			       const BinID& curbid, const Coord& curcoords )
+			       const TrcKey& curtrckey, const Coord& curcoords )
 {
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
+    const BinID& curbid = curtrckey.binID();
     TypeSet<float> exactz;
-    mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
     mDynamicCastGet( Trc2DVarZStorOutput*, trc2dvarzoutp, outputs_[0] );
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	bool wantout = outputs_[idx]->useCoords()
-				? outputs_[idx]->wantsOutput(curcoords)
-				: outputs_[idx]->wantsOutput(curbid);
+	const bool usecoords = outputs_[idx]->useCoords( curtrckey.survID() );
+	bool wantout = usecoords ? outputs_[idx]->wantsOutput(curcoords)
+				 : outputs_[idx]->wantsOutput(curbid);
 
-	if ( ( taboutp || trc2dvarzoutp ) && is2d_ )		//tmp patch
+	if ( trc2dvarzoutp && is2d_ )		//tmp patch
 	    wantout = true;
 
 	if ( !wantout || (curbid == prevbid_ && !is2d_) ) //!is2d = tmp patch
 	    continue;
 
 	const float refzstep = provider_->getRefStep();
-	TypeSet< Interval<int> > localzrange = outputs_[idx]->useCoords()
+	TypeSet< Interval<int> > localzrange = usecoords
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
 	if ( isset )
