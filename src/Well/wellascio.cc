@@ -38,7 +38,9 @@ Table::FormatDesc* TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( false );
+    Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
+    zti->setName( "Z (TVDSS)" );
+    fd->bodyinfos_ += zti;
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
 						   Table::Optional );
     ti->setPropertyType( PropertyRef::Dist );
@@ -470,7 +472,9 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
     fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
+    Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
+    zti->setName( "Z (TVDSS)" );
+    fd->bodyinfos_ += zti;
     Table::TargetInfo* mdti =
 	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
 				PropertyRef::Dist );
