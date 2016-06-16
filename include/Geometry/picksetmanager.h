@@ -108,15 +108,17 @@ public:
 
 
     CNotifier<SetManager,SetID>	SetAdded;
-    CNotifier<SetManager,SetID>	SetSaveNeeded;
-    CNotifier<SetManager,SetID>	SetDisplayRequested;
+    CNotifier<SetManager,SetID>	SetShowRequested;
+    CNotifier<SetManager,SetID>	SetHideRequested;
+    CNotifier<SetManager,SetID>	SetVanishRequested;
+    CNotifier<SetManager,SetID>	UnsavedSetLastCall;
 
 			// creation and destruction are recorded automagically
     void		pushLocEvent(const SetID&,const LocEvent&);
     LocEvent		popLocEvent(const SetID&);
 
-    void		requestDisplayFor(const MultiID&);
-    void		handleUnsaved();
+    enum DispOpt	{ Show, Hide, Vanish };
+    void		displayRequest(const MultiID&,DispOpt=Show);
 
 protected:
 
@@ -156,6 +158,7 @@ public:
     static SetManager&	getInstance();
     mDeclInstanceCreatedNotifierAccess(SetManager);
     SetManager*		clone() const		{ return 0; }
+    void		handleUnsavedLastCall();
     friend class	SetLoaderExec;
 
 };

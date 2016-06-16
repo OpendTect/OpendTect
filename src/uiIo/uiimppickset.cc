@@ -201,7 +201,7 @@ bool uiImpExpPickSet::doImport()
 
     storedid_ = ioobj->key();
     if ( saveButtonChecked() )
-	Pick::SetMGR().requestDisplayFor( storedid_ );
+	Pick::SetMGR().displayRequest( storedid_ );
 
     return true;
 }

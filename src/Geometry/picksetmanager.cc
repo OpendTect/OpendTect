@@ -36,8 +36,10 @@ Pick::SetManager& Pick::SetManager::getInstance()
 
 Pick::SetManager::SetManager()
     : SetAdded(this)
-    , SetDisplayRequested(this)
-    , SetSaveNeeded(this)
+    , SetShowRequested(this)
+    , SetHideRequested(this)
+    , SetVanishRequested(this)
+    , UnsavedSetLastCall(this)
     , ctxt_(*new IOObjContext(mIOObjContext(PickSet)))
 {
     mAttachCB( IOM().surveyToBeChanged, SetManager::survChgCB );
@@ -508,13 +510,18 @@ Pick::SetManager::LocEvent Pick::SetManager::popLocEvent( const SetID& id )
 }
 
 
-void Pick::SetManager::requestDisplayFor( const MultiID& setid )
+void Pick::SetManager::displayRequest( const MultiID& setid, DispOpt opt )
 {
-    SetDisplayRequested.trigger( setid );
+    switch ( opt )
+    {
+    case Show:		SetShowRequested.trigger( setid );	break;
+    case Hide:		SetHideRequested.trigger( setid );	break;
+    case Vanish:	SetVanishRequested.trigger( setid );	break;
+    }
 }
 
 
-void Pick::SetManager::handleUnsaved()
+void Pick::SetManager::handleUnsavedLastCall()
 {
     mLock4Read();
     for ( int idx=0; idx<savers_.size(); idx++ )
@@ -524,21 +531,21 @@ void Pick::SetManager::handleUnsaved()
 	    continue;
 
 	if ( savers_[idx]->lastSavedDirtyCount() != ps->dirtyCount() )
-	    SetSaveNeeded.trigger( savers_[idx]->key() );
+	    UnsavedSetLastCall.trigger( savers_[idx]->key() );
     }
 }
 
 
 void Pick::SetManager::survChgCB( CallBacker* )
 {
-    handleUnsaved();
+    handleUnsavedLastCall();
     setEmpty();
 }
 
 
 void Pick::SetManager::appExitCB( CallBacker* )
 {
-    handleUnsaved();
+    handleUnsavedLastCall();
 }
 
 
