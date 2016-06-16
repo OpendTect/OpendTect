@@ -218,7 +218,7 @@ void VW2DPickSet::drawAll()
 		BufferString dipval;
 		pl.getKeyedText( "Dip" , dipval );
 		SeparString dipstr( dipval );
-		float distance;
+		double distance = mUdf(double);
 		Coord bidf;
 		const TrcKeyZSampling& linetkzs = regfdp->sampling();
 		if ( !regfdp->is2D() )
