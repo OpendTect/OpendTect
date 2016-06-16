@@ -455,7 +455,6 @@ Pick::Set& Pick::Set::remove( size_type idx )
     // can ask for the actual location. But, after the call we have no
     // guarantee that we are removing the same location.
 
-    mSendChgNotif( cLocationRemove(), idx );
     accesslockhandler_.reLock();
 
     mLock2Write();
@@ -463,6 +462,7 @@ Pick::Set& Pick::Set::remove( size_type idx )
 	return *this;
 
     locs_.removeSingle( idx );
+    mSendChgNotif( cLocationRemove(), idx );
 
     return *this;
 }

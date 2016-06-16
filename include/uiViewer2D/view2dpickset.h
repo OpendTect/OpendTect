@@ -48,14 +48,10 @@ protected:
     void		dataChangedCB(CallBacker*);
     OD::MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
-    void		updateSetIdx(const TrcKeyZSampling&);
-    void		updateSetIdx(const TrcKeyPath&);
 
     RefMan<Pick::Set>		pickset_;
     bool			isselected_;
     Notifier<VW2DPickSet>	deselected_;
-    bool			isownremove_;
-    TypeSet<int>		picksetidxs_;
     TypeSet<int>		auxids_;
 
     ObjectSet<FlatView::AuxData>	picks_;

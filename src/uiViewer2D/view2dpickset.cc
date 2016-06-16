@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
+#include "posinfo2d.h"
 #include "uiflatviewer.h"
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
@@ -33,7 +35,6 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& psid, uiFlatViewWin* win,
     : Vw2DDataObject()
     , pickset_(0)
     , deselected_(this)
-    , isownremove_(false)
 {
     if ( psid > 0 )
     {
@@ -95,7 +96,8 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 	return;
 
     const uiFlatViewer& vwr = editor->getFlatViewer();
-    Coord3 crd = vwr.getCoord( editor->getSelPtPos() );
+    const FlatView::Point& selpt = editor->getSelPtPos();
+    Coord3 crd = vwr.getCoord( selpt );
     if ( !crd.isDefined() ) return;
 
     if ( vwr.hasZAxisTransform() )
@@ -108,8 +110,10 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 	mDynamicCastGet(const SeisFlatDataPack*,seisdp,dp.ptr())
 	if ( seisdp && seisdp->nrTrcs() && seisdp->is2D() )
 	{
-	    const TrcKey trckey = seisdp->getTrcKey( 0 );
-	    newloc.setGeomID( trckey.geomID() );
+	    const FlatPosData& pd = seisdp->posData();
+	    const IndexInfo ix = pd.indexInfo( true, selpt.x );
+	    const TrcKey trckey = seisdp->getTrcKey( ix.nearest_ );
+	    newloc.setTrcKey( trckey );
 	}
     }
 
@@ -119,27 +123,23 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 
 void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,cb);
+    mCBCapsuleGet(bool,caps,cb);
+    mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,caps->caller);
+
     if ( !editor || !pickset_ ) return;
 
     const int editoridx = editors_.indexOf( editor );
     if ( editoridx < 0 ) return;
 
     const TypeSet<int>&	selpts = editor->getSelPtIdx();
-    const int selsize = selpts.size();
-    isownremove_ = selsize == 1;
-    for ( int idx=0; idx<selsize; idx++ )
+    for ( int idx=0; idx<selpts.size(); idx++ )
     {
 	const int locidx = selpts[idx];
 	if ( !picks_[editoridx]->poly_.validIdx(locidx) )
 	    continue;
 
-	const int pickidx = picksetidxs_[locidx];
-	picksetidxs_.removeSingle( locidx );
-	pickset_->remove( pickidx );
+	pickset_->remove( locidx );
     }
-
-    isownremove_ = false;
 }
 
 
@@ -179,36 +179,6 @@ OD::MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 }
 
 
-void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
-{
-    if ( !pickset_ )
-	return;
-
-    picksetidxs_.erase();
-    MonitorLock ml( *pickset_ );
-    for ( int idx=0; idx<pickset_->size(); idx++ )
-    {
-	if ( cs.hsamp_.includes(pickset_->get(idx).binID()) )
-	    picksetidxs_ += idx;
-    }
-}
-
-
-void VW2DPickSet::updateSetIdx( const TrcKeyPath& trckeys )
-{
-    if ( !pickset_ )
-	return;
-
-    picksetidxs_.erase();
-    MonitorLock ml( *pickset_ );
-    for ( int idx=0; idx<pickset_->size(); idx++ )
-    {
-	if ( trckeys.isPresent(pickset_->get(idx).trcKey()) )
-	    picksetidxs_ += idx;
-    }
-}
-
-
 void VW2DPickSet::drawAll()
 {
     ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true );
@@ -218,14 +188,6 @@ void VW2DPickSet::drawAll()
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     if ( !regfdp && !randfdp )
-	return;
-
-    if ( regfdp )
-	updateSetIdx( regfdp->sampling() );
-    else if ( randfdp )
-	updateSetIdx( randfdp->getPath() );
-
-    if ( isownremove_ )
 	return;
 
     RefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
@@ -243,13 +205,12 @@ void VW2DPickSet::drawAll()
 	picks->poly_.erase();
 	picks->markerstyles_.erase();
 	OD::MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
-	const int nrpicks = picksetidxs_.size();
+	const int nrpicks = pickset_->size();
 	ConstRefMan<ZAxisTransform> zat = vwr.getZAxisTransform();
 	MonitorLock ml( *pickset_ );
 	for ( int idx=0; idx<nrpicks; idx++ )
 	{
-	    const int pickidx = picksetidxs_[idx];
-	    const Pick::Location pl = pickset_->get ( pickidx );
+	    const Pick::Location pl = pickset_->get ( idx );
 	    const Coord3& pos = pl.pos();
 	    const double z = zat ? zat->transform(pos) : pos.z;
 	    if ( regfdp && regfdp->isVertical() )
@@ -257,18 +218,56 @@ void VW2DPickSet::drawAll()
 		BufferString dipval;
 		pl.getKeyedText( "Dip" , dipval );
 		SeparString dipstr( dipval );
-		const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
-		const bool oninl =
-		    regfdp->sampling().defaultDir() == TrcKeyZSampling::Inl;
+		float distance;
+		Coord bidf;
+		const TrcKeyZSampling& linetkzs = regfdp->sampling();
+		if ( !regfdp->is2D() )
+		{
+		    if ( !linetkzs.hsamp_.includes(pl.binID()) )
+			continue;
+
+		    bidf = bid2crd.transformBackNoSnap( pos.coord() );
+		}
+		else
+		{
+		    Pos::GeomID geomid = linetkzs.hsamp_.getGeomID();
+		    int trcidx;
+		    if ( pl.hasTrcKey() )
+		    {
+			if ( pl.geomID() != geomid )
+			    continue;
+
+			trcidx = regfdp->getSourceDataPack().getGlobalIdx(
+				pl.trcKey() );
+		    }
+		    else
+		    {
+			mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+					Survey::GM().getGeometry(geomid) );
+			if ( !geom2d )
+			    continue;
+
+			trcidx = geom2d->data().nearestIdx( pos );
+		    }
+
+		    distance = regfdp->getAltDim0Value( -1, trcidx );
+		}
+
+		const bool oninl = regfdp->is2D() ||
+		    linetkzs.defaultDir() == TrcKeyZSampling::Inl;
 		const float dip = oninl ? dipstr.getFValue( 1 )
 					: dipstr.getFValue( 0 );
 		const float depth = (dip/1000000) * zfac;
 		const float xdiff = (float) ( curvw.width() *
-			  ( oninl ? SI().crlDistance() : SI().inlDistance() ) );
+			(regfdp->is2D() ? 1
+					: (oninl ? SI().crlDistance()
+						 : SI().inlDistance())) );
 		const float xfac = nrxpixels / xdiff;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
-		FlatView::Point point( oninl ? bidf.y:bidf.x, z );
+		FlatView::Point point( regfdp->is2D() ? distance
+						      : oninl ? bidf.y
+							      : bidf.x, z );
 		picks->poly_ += point;
 	    }
 	    else if ( regfdp && !regfdp->isVertical() )
@@ -284,6 +283,9 @@ void VW2DPickSet::drawAll()
 		const TrcKey trckey = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
 		const int bidindex = randfdp->getPath().indexOf( trckey );
+		if ( bidindex<0 )
+		    continue;
+
 		const double bidpos = flatposdata.position( true, bidindex );
 		FlatView::Point point( bidpos, z );
 		picks->poly_ += point;
