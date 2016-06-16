@@ -278,7 +278,6 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	if ( mIsUdf(table_->getFValue(rc)) )
 	{
 	    uiMSG().error( uiStrings::phrEnter(tr("a valid number")) );
-	    table_->clearCell( rc );
 	    return;
 	}
 	if ( !updateMarkerDepths(row,col==cDepthCol) )
@@ -290,7 +289,6 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	if ( !markernm || !*markernm )
 	{
 	    uiMSG().error( uiStrings::sEnterValidName() );
-	    table_->clearCell( rc );
 	    return;
 	}
     }
@@ -779,7 +777,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 	if ( marker )
 	    table_->setValue( rcin, getOldMarkerVal(marker) );
 	else
-	    table_->clearCell( rcin );
+	    table_->setText(rcin, uiStrings::sEmptyString());
 
 	mDelRet;
     }
