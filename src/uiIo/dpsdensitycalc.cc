@@ -29,7 +29,7 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    const ObjectSet<AxisParam>& axisdatas,
 				    ArrayND<float>& freqdata,
 				    CalcAreaType areatype )
-    : ParallelTask( "Calclulating Density" )
+    : ParallelTask( "Calculating Density" )
     , dps_( dps )
     , freqdata_( freqdata )
     , axisdatas_( axisdatas )
