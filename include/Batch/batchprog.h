@@ -46,7 +46,7 @@ class StreamData;
   be accessed.
 */
 
-mClass(Prog) BatchProgram : public NamedMonitorable
+mClass(Prog) BatchProgram : public NamedCallBacker
 { mODTextTranslationClass(BatchProgram);
     mGlobal(Batch) friend	BatchProgram& BP();
 

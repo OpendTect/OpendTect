@@ -48,25 +48,24 @@ public:
     bool		isDifferentFrom(const Level&) const;
 
     ID			id() const		{ return id_; }
-    Color		color() const		{ return color_; }
-    const IOPar&	pars() const		{ return pars_; }
-
     void		setName(const char*);
-    void		setColor(Color);
-    void		setPars(const IOPar&);
-
-    Notifier<Level>	changed;
+    mImplSimpleMonitoredGetSet(inline,color,setColor,Color,color_,cColChange())
+    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
 
     static const Level&	undef();
+    mDeclInstanceCreatedNotifierAccess(Level);
+
+    static ChangeType	cColChange()	{ return 2; }
+    static ChangeType	cParsChange()	{ return 3; }
 
 protected:
 
-			Level(const char* nm,const LevelSet*);
-			Level(const Level&);
+			Level(const char* nm,const LevelSet*,ID);
+			Level(const Level&,ID);
 
-    ID			id_;
+    const ID		id_;
     Color		color_;
-    IOPar&		pars_;
+    IOPar		pars_;
     const LevelSet*	lvlset_;
 
     void		fillPar(IOPar&) const;

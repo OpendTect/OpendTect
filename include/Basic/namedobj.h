@@ -45,6 +45,26 @@ protected:
 };
 
 
+/*!\brief CallBacker object with a name. Use if you want your object to be
+  able to send and receive CallBack's, but Monitorable is not an option.*/
+
+mExpClass(Basic) NamedCallBacker : public CallBacker
+				 , public NamedObject
+{
+public:
+			NamedCallBacker( const char* nm=0 )
+			    : NamedObject(nm)		{}
+			NamedCallBacker( const NamedCallBacker& oth )
+			    : NamedObject(oth)		{}
+    inline NamedCallBacker& operator =( const NamedCallBacker& oth )
+			{ NamedObject::operator =(oth); return *this; }
+    inline bool		operator ==( const NamedCallBacker& oth ) const
+			{ return name_ == oth.getName(); }
+    inline bool		operator ==( const NamedObject& oth ) const
+			{ return name_ == oth.getName(); }
+};
+
+
 /*!\brief Monitorable object with a name. All but name() are MT-safe. */
 
 mExpClass(Basic) NamedMonitorable : public Monitorable
@@ -55,10 +75,8 @@ public:
 			NamedMonitorable(const char* nm=0);
 			NamedMonitorable(const NamedObject&);
 			mDeclMonitorableAssignment(NamedMonitorable);
-    NamedMonitorable&	operator =(const NamedObject&);
     virtual		~NamedMonitorable();
     bool		operator ==(const NamedMonitorable&) const;
-    bool		operator ==(const NamedObject&) const;
 
     inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
     inline virtual	mImplSimpleMonitoredSet(setName,const char*,name_,1)

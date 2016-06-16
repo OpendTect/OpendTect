@@ -17,7 +17,7 @@ ________________________________________________________________________
 mUseQtnamespace
 
 Timer::Timer( const char* nm )
-    : NamedMonitorable(nm)
+    : NamedCallBacker(nm)
     , tick(this)
 #ifndef OD_NO_QT
     , timer_(new QTimer(0))
@@ -29,8 +29,6 @@ Timer::Timer( const char* nm )
 
 Timer::~Timer()
 {
-    sendDelNotif();
-
 #ifndef OD_NO_QT
     if ( isActive() )
 	stop();

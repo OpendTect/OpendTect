@@ -20,6 +20,8 @@
 #include "oddirs.h"
 #include "dirlist.h"
 
+mDefineInstanceCreatedNotifierAccess(Strat::Level);
+
 
 namespace Strat
 {
@@ -29,8 +31,7 @@ const Level& Level::undef()
     mDefineStaticLocalObject( PtrMan<Level>, lvl, = 0 );
     if ( !lvl )
     {
-	Level* newlvl = new Level( "Undefined", 0 );
-	newlvl->id_ = -1;
+	Level* newlvl = new Level( "Undefined", 0, -1 );
 	newlvl->color_ = Color::Black();
 
 	lvl.setIfNull(newlvl,true);
@@ -122,45 +123,46 @@ void Strat::setLVLS( LevelSet* ls )
 }
 
 
-Strat::Level::Level( const char* nm, const Strat::LevelSet* ls )
+Strat::Level::Level( const char* nm, const Strat::LevelSet* ls, ID newid )
     : NamedMonitorable(nm)
-    , id_(-1)
+    , id_(newid)
     , lvlset_(ls)
-    , pars_(*new IOPar)
-    , changed(this)
 {
+    mTriggerInstanceCreatedNotifier();
 }
 
 
-Strat::Level::Level( const Level& oth )
+Strat::Level::Level( const Level& oth, ID newid )
     : NamedMonitorable(oth)
-    , id_(-1)
+    , id_(newid)
     , color_(oth.color_)
-    , pars_(*new IOPar(oth.pars_))
+    , pars_(oth.pars_)
     , lvlset_(oth.lvlset_)
-    , changed(this)
 {
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 Strat::Level::~Level()
 {
     sendDelNotif();
-    delete &pars_;
 }
 
 
 bool Strat::Level::operator ==( const Level& lvl ) const
 {
+    mLock4Read();
     return id_ == -1 ? this == &lvl : id_ == lvl.id_;
 }
 
 
 bool Strat::Level::isDifferentFrom( const Level& lvl ) const
 {
-    if ( this == &lvl ) return false;
+    if ( this == &lvl )
+	return false;
 
-    return name() != lvl.name()
+    mLock4Read();
+    return name_ != lvl.name_
 	|| color_ != lvl.color_
 	|| pars_ != lvl.pars_;
 }
@@ -181,26 +183,13 @@ void Strat::Level::setName( const char* nm )
     if ( checkName(nm) || name() == nm )
 	return;
 
-    NamedMonitorable::setName(nm); changed.trigger();
-}
-
-
-void Strat::Level::setColor( Color c )
-{
-    if ( color_ != c )
-	{ color_ = c; changed.trigger(); }
-}
-
-
-void Strat::Level::setPars( const IOPar& iop )
-{
-    if ( pars_ != iop )
-	{ pars_ = iop; changed.trigger(); }
+    NamedMonitorable::setName(nm);
 }
 
 
 void Strat::Level::fillPar( IOPar& iop ) const
 {
+    mLock4Read();
     iop.set( sKey::ID(), id_ );
     iop.set( sKey::Name(), name() );
     iop.set( sKey::Color(), color_ );
@@ -210,14 +199,22 @@ void Strat::Level::fillPar( IOPar& iop ) const
 
 void Strat::Level::usePar( const IOPar& iop )
 {
-    iop.get( sKey::ID(), id_ );
-    BufferString nm; iop.get( sKey::Name(), nm ); setName( nm );
+    BufferString nm( name() );
+    iop.get( sKey::Name(), nm );
+    setName( nm );
+
+    mLock4Write();
+
+    ID newid = id_;
+    iop.get( sKey::ID(), newid );
+    const_cast<ID&>( id_ ) = newid;
     iop.get( sKey::Color(), color_ );
 
     pars_.merge( iop );
     pars_.removeWithKey( sKey::Name() );
     pars_.removeWithKey( sKey::Color() );
     pars_.removeWithKey( sKey::ID() );
+    mSendEntireObjChgNotif();
 }
 
 
@@ -278,7 +275,7 @@ void Strat::LevelSet::getLevelsFrom( const Strat::LevelSet& oth )
 void Strat::LevelSet::makeMine( Strat::Level& lvl )
 {
     lvl.lvlset_ = this;
-    mAttachCB( lvl.changed, LevelSet::lvlChgCB );
+    mAttachCB( lvl.objectChanged(), LevelSet::lvlChgCB );
     mAttachCB( lvl.objectToBeDeleted(), LevelSet::lvlRemCB );
 }
 
@@ -318,15 +315,15 @@ Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
     while ( isPresent(newnm.buf()) )
 	{ newnm = "<"; newnm.add(newnmbase).add( ++itry ).add( ">" ); }
 
+    const Level::ID newid = ++lastlevelid_;
     if ( !lvl )
-	newlvl = new Level( newnm, this );
+	newlvl = new Level( newnm, this, newid );
     else
     {
-	newlvl = new Level( *lvl );
+	newlvl = new Level( *lvl, newid );
 	newlvl->NamedMonitorable::setName( newnm );
     }
 
-    newlvl->id_ = ++lastlevelid_;
     const_cast<Strat::LevelSet*>(this)->makeMine( *newlvl );
     return newlvl;
 }
@@ -392,7 +389,8 @@ Strat::Level* Strat::LevelSet::set( const char* nm, const Color& col, int idx )
     }
     else
     {
-	if ( idx < 0 ) idx = size();
+	if ( idx < 0 )
+	    idx = size();
 	lvl = getNew();
 	lvl->setName( nm );
 	lvl->color_ = col;
@@ -433,12 +431,14 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
     while ( true )
     {
 	IOPar iop; iop.getFrom( astrm );
-	if ( iop.isEmpty() ) break;
-	if ( isold && iop.name() != "Level" ) continue;
+	if ( iop.isEmpty() )
+	    break;
+	if ( isold && iop.name() != "Level" )
+	    continue;
 
 	const int llid = lastlevelid_;
 	Level* lvl = getNew();
-	lastlevelid_ = llid; lvl->id_ = -1;
+	lastlevelid_ = llid;
 
 	lvl->usePar( iop );
 	if ( lvl->id() < 0 )

@@ -22,7 +22,7 @@ mFDQtclass(QTimerComm)
 \brief Timer class.
 */
 
-mExpClass(Basic) Timer : public NamedMonitorable
+mExpClass(Basic) Timer : public NamedCallBacker
 {
 public:
 

@@ -779,7 +779,7 @@ static void mkRelocMsg( const char* oldnm, const char* newnm,BufferString& msg )
 
 void StreamProvider::sendCBMsg( const CallBack* cb, const char* msg )
 {
-    NamedMonitorable nobj( msg );
+    NamedCallBacker nobj( msg );
     CBCapsule<const char*> caps( msg, &nobj );
     CallBack(*cb).doCall( &caps );
 }

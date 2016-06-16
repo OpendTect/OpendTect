@@ -43,7 +43,7 @@ static void setIsActiveByDefault( bool yn )
 
 static bool isActiveByDefault()
 {
-    bool yn = false; // TODO change to true;
+    bool yn = true;
     Settings::common().getYN( sKeyIsActiveByDefault, yn );
     return yn;
 }
