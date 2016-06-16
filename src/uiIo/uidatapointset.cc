@@ -1467,7 +1467,7 @@ bool uiDataPointSet::doSave()
     if ( !uidpss.go() ) return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    DataPointSet savedps( dps_ );
+    DataPointSet savedps( *dps_ );
     savedps.dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
 	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
