@@ -36,7 +36,7 @@ class uiPosSubSel;
 class uiStratLevelSel;
 
 
-namespace EM { class Surface; class SurfaceIODataSelection; 
+namespace EM { class Surface; class SurfaceIODataSelection;
 	       class SurfaceIOData;}
 
 
@@ -59,7 +59,7 @@ public:
     bool		haveAttrSel() const;
     uiIOObjSel*		getObjSel()		{ return objfld_; }
     uiPosSubSel*	getPosSubSel()		{ return rgfld_; }
-    
+
 protected:
 			uiIOSurface(uiParent*,bool forread,
 				    const char* type);
@@ -130,6 +130,8 @@ public:
     void		setColor(const Color&);
     Color		getColor() const;
     bool		replaceInTree()	const;
+
+    uiCheckBox*		getDisplayFld()		{ return displayfld_; }
 
 protected:
     void		stratLvlChg(CallBacker*);
