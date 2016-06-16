@@ -514,9 +514,19 @@ void Pick::SetManager::displayRequest( const MultiID& setid, DispOpt opt )
 {
     switch ( opt )
     {
-    case Show:		SetShowRequested.trigger( setid );	break;
-    case Hide:		SetHideRequested.trigger( setid );	break;
-    case Vanish:	SetVanishRequested.trigger( setid );	break;
+	case Show:
+	    SetShowRequested.trigger( setid );
+	break;
+	case Hide:
+	    SetHideRequested.trigger( setid );
+	break;
+	case Vanish:
+	{
+	    if ( needsSave(setid) )
+		UnsavedSetLastCall.trigger( setid );
+	    SetVanishRequested.trigger( setid );
+	}
+	break;
     }
 }
 
