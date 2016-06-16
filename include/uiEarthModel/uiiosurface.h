@@ -126,6 +126,8 @@ public:
     Color		getColor() const;
     bool		replaceInTree()	const;
 
+    uiCheckBox*		getDisplayFld()		{ return displayfld_; }
+
 protected:
     void		stratLvlChg(CallBacker*);
     void		ioDataSelChg(CallBacker*);
