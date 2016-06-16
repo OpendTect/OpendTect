@@ -511,7 +511,7 @@ void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
     if ( chgdata.changeType() == Pick::Set::cEntireObjectChangeType() )
 	{ fullRedraw( 0 ); return; }
 
-    const Pick::Set::IdxType locidx = (Pick::Set::IdxType)chgdata.subIdx();
+    const Pick::Set::IdxType locidx = (Pick::Set::IdxType)chgdata.ID();
     if ( chgdata.changeType() == Pick::Set::cLocationInsert() )
     {
 	Pick::Location loc = set_->get( locidx );

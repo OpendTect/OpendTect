@@ -365,8 +365,8 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     if ( !Pick::SetMGR().needsSave(set_) )
 	return true;
 
-    uiString warnstr = tr("This pickset has changed since the last save.\n\n"
-			  "Do you want to save it?");
+    uiString warnstr = tr("'%1' has changed since the last save."
+			    "\n\nDo you want to save it?").arg( set_.name() );
     const int retval = uiMSG().askSave( warnstr, withcancel );
     if ( retval == 0 )
 	return true;
@@ -648,8 +648,8 @@ bool uiODPolygonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     if ( !Pick::SetMGR().needsSave(set_) )
 	return true;
 
-    uiString warnstr = tr("This polygon has changed since the last save.\n\n"
-			  "Do you want to save it?");
+    uiString warnstr = tr("'%1' has changed since the last save."
+			    "\n\nDo you want to save it?").arg( set_.name() );
     const int retval = uiMSG().askSave( warnstr, withcancel );
     if ( retval == 0 )
 	return true;

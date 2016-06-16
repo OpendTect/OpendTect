@@ -54,7 +54,7 @@ ________________________________________________________________________
   {
       mGetMonitoredChgDataDoAll( cb, chgdata, caller, return redrawAll() );
       if ( chgdata.changeType() == MonObj::cSomeChange() )
-	 doSomething( chgdata.subIdx() );
+	 doSomething( chgdata.ID() );
   }
 
   Lastly, copying of Monitorables needs to be done right. For this, you want to
@@ -74,17 +74,17 @@ mExpClass(Basic) Monitorable : public CallBacker
 public:
 
     typedef int		ChangeType;
-    typedef od_int64	SubIdxType;
+    typedef od_int64	IDType;
     typedef od_int64	DirtyCountType;
 
-    mExpClass(Basic) ChangeData : public std::pair<ChangeType,SubIdxType>
+    mExpClass(Basic) ChangeData : public std::pair<ChangeType,IDType>
     {
     public:
-			ChangeData( ChangeType typ, SubIdxType idx )
-			    : std::pair<ChangeType,SubIdxType>(typ,idx) {}
+			ChangeData( ChangeType typ, IDType id )
+			    : std::pair<ChangeType,IDType>(typ,id) {}
 
 	ChangeType	changeType() const	{ return first; }
-	SubIdxType	subIdx() const		{ return second; }
+	IDType		ID() const		{ return second; }
     };
 
 			Monitorable(const Monitorable&);
@@ -107,7 +107,7 @@ public:
     void		sendEntireObjectChangeNotification() const;
 
     static ChangeType	cEntireObjectChangeType()	{ return -1; }
-    static SubIdxType	cEntireObjectChangeSubIdx()	{ return -1; }
+    static IDType	cEntireObjectChangeID()		{ return -1; }
     static ChangeType	changeNotificationTypeOf(CallBacker*);
 
 protected:
@@ -133,7 +133,7 @@ protected:
 
     void		copyAll(const Monitorable&);
     void		sendChgNotif(AccessLockHandler&,ChangeType,
-				     SubIdxType) const;
+				     IDType) const;
 				//!< objectChanged called with released lock
     void		sendDelNotif() const;
     void		stopChangeNotifications() const
@@ -143,7 +143,7 @@ protected:
     template <class T>
     inline T		getMemberSimple(const T&) const;
     template <class TMember,class TSetTo>
-    inline void		setMemberSimple(TMember&,TSetTo,ChangeType,SubIdxType);
+    inline void		setMemberSimple(TMember&,TSetTo,ChangeType,IDType);
 
 private:
 
@@ -244,9 +244,9 @@ protected:
 #define mLock2Write() accesslockhandler_.convertToWrite()
 #define mReLock() accesslockhandler_.reLock()
 #define mUnlockAllAccess() accesslockhandler_.unlockNow()
-#define mSendChgNotif(typ,subidx) sendChgNotif(accesslockhandler_,typ,subidx)
+#define mSendChgNotif(typ,id) sendChgNotif(accesslockhandler_,typ,id)
 #define mSendEntireObjChgNotif() \
-    mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeSubIdx() )
+    mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeID() )
 
 
 #define mGetMonitoredChgData(cb,chgdata) \
@@ -327,7 +327,7 @@ inline T Monitorable::getMemberSimple( const T& memb ) const
 
 template <class TMember,class TSetTo>
 inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto, int typ,
-					  SubIdxType subidx )
+					  IDType id )
 {
     mLock4Read();
     if ( memb == setto )
@@ -337,7 +337,7 @@ inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto, int typ,
     if ( !(memb == setto) ) // someone may have beat me to it!
     {
 	memb = setto;
-	mSendChgNotif( typ, subidx );
+	mSendChgNotif( typ, id );
     }
 }
 

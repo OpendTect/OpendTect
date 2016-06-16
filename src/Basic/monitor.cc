@@ -112,19 +112,19 @@ void Monitorable::sendEntireObjectChangeNotification() const
 {
     if ( !chgnotifblocklevel_ )
 	objectChanged().trigger( ChangeData(cEntireObjectChangeType(),
-					    cEntireObjectChangeSubIdx()) );
+					    cEntireObjectChangeID()) );
 }
 
 
 void Monitorable::sendChgNotif( AccessLockHandler& hndlr, ChangeType ct,
-				SubIdxType subidx ) const
+				IDType id ) const
 {
     touch();
     hndlr.unlockNow();
     if ( chgnotifblocklevel_ )
 	return;
 
-    objectChanged().trigger( ChangeData(ct,subidx) );
+    objectChanged().trigger( ChangeData(ct,id) );
 }
 
 

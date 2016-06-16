@@ -297,7 +297,7 @@ void uiDataPointSetPickDlg::setChgCB( CallBacker* cb )
 		values_.setEmpty();
 	    else
 	    {
-		const int locidx = (int)chgdata.subIdx();
+		const int locidx = (int)chgdata.ID();
 		if ( values_.validIdx(locidx) )
 		    values_.removeSingle( locidx );
 	    }
