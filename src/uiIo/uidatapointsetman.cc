@@ -83,8 +83,8 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     ctio.ctxt_.forread_ = true;
 
     uiString lbl = tr("%1 to merge with '%2'")
-	.arg(uiStrings::phrSelect(uiStrings::phrCrossPlot(uiStrings::sData()))
-	.arg(toUiString(dps->name())));
+	.arg(uiStrings::phrSelect(uiStrings::phrCrossPlot(uiStrings::sData())))
+	.arg(toUiString(dps->name()));
     uiIOObjSelDlg seldlg( this, ctio, lbl );
     if ( !seldlg.go() )
 	return;
