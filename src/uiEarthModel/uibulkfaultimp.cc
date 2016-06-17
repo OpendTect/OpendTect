@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uibulkfaultimp.h"
 
 #include "emfault3d.h"
+#include "emfaultstickset.h"
+#include "emfsstofault3d.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "od_istream.h"
@@ -42,8 +44,6 @@ static Table::FormatDesc* getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkFault" );
 
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-			StringInpSpec(sKey::FloatUdf()), Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Fault name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
@@ -98,6 +98,10 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx )
 };
 
 
+static const char* sKeyGeometric()	{ return "Geometric"; }
+static const char* sKeyIndexed()	{ return "Indexed"; }
+static const char* sKeyFileOrder()	{ return "File order"; }
+
 uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(tr("Multiple Faults")),
 				 mNoDlgTitle,
@@ -112,9 +116,16 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p )
 		      uiFileInput::Setup().withexamine(true)
 		      .examstyle(File::Table) );
 
+    BufferStringSet sticksortopt;
+    sticksortopt.add( sKeyGeometric() )
+		.add( sKeyIndexed() ).add( sKeyFileOrder() );
+    sortsticksfld_ = new uiGenInput( this, tr("Stick sorting"),
+				     StringListInpSpec(sticksortopt) );
+    sortsticksfld_->attach( alignedBelow, inpfld_ );
+
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
-                                    mODHelpKey(mTableImpDataSelwellsHelpID) );
-    dataselfld_->attach( alignedBelow, inpfld_ );
+				mODHelpKey(mTableImpDataSelwellsHelpID) );
+    dataselfld_->attach( alignedBelow, sortsticksfld_ );
 }
 
 
@@ -177,6 +188,76 @@ static void readInput( BulkFaultAscIO& aio, ObjectSet<FaultPars>& pars )
 }
 
 
+static void fillFaultSticks( FaultPars& pars, ObjectSet<EM::FaultStick>& sticks)
+{
+    const TypeSet<Coord3>& nodes = pars.nodes_;
+    const TypeSet<int>& stickidxs = pars.stickidxs_;
+    const TypeSet<int>& nodeidxs = pars.nodeidxs_;
+    const bool hasstickidx =
+	    !stickidxs.isEmpty() && !mIsUdf( stickidxs.first() );
+    const bool hasnodeidx =
+	    !nodeidxs.isEmpty() && !mIsUdf( nodeidxs.first() );
+
+    int prevstickidx = -mUdf(int);
+    int prevnodeidx = mUdf(int);
+    double prevz = mUdf(double);
+    const int nrnodes = nodes.size();
+    int mystickidx = -1;
+    for ( int nidx=0; nidx<nrnodes; nidx++ )
+    {
+	const Coord3& crd = nodes[nidx];
+	const int stickidx = stickidxs[nidx];
+	const int nodeidx = nodeidxs[nidx];
+	bool addnewstick = false;
+	if ( hasstickidx )
+	    addnewstick = stickidx != prevstickidx;
+	else if ( hasnodeidx )
+	    addnewstick = nodeidx < prevnodeidx;
+	else
+	    addnewstick = crd.z < prevz;
+
+	if ( addnewstick )
+	{
+	    mystickidx++;
+	    sticks += new EM::FaultStick( hasstickidx ? stickidx : mystickidx );
+	}
+
+	sticks[mystickidx]->crds_ += crd;
+
+	prevstickidx = stickidx;
+	prevnodeidx = nodeidx;
+    }
+}
+
+
+static EM::FaultStickSet* createFaultStickSet(
+				ObjectSet<EM::FaultStick>& sticks )
+{
+    mDynamicCastGet(EM::FaultStickSet*,emfss,
+	    EM::EMM().createTempObject(EM::FaultStickSet::typeStr()))
+    if ( !emfss ) return 0;
+
+    EM::SectionID sid = emfss->sectionID( 0 );
+    for ( int idx=0; idx<sticks.size(); idx++ )
+    {
+	EM::FaultStick* stick = sticks[idx];
+	if ( stick->crds_.isEmpty() )
+	    continue;
+
+	emfss->geometry().insertStick( sid, stick->stickidx_, 0,
+			stick->crds_[0], stick->getNormal(false), false );
+	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
+	{
+	    const RowCol rc( stick->stickidx_, crdidx );
+	    emfss->geometry().insertKnot( sid, rc.toInt64(),
+				       stick->crds_[crdidx], false );
+	}
+    }
+
+    return emfss;
+}
+
+
 bool uiBulkFaultImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
@@ -195,7 +276,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
     // TODO: Check if name exists, ask user to overwrite or give new name
     uiTaskRunner taskr( this );
-    const Coord3 normal( 0, 0, 1 );
+    ExecutorGroup saver( "Saving faults" );
     for ( int idx=0; idx<pars.size(); idx++ )
     {
 	EM::ObjectID eid = EM::EMM().createObject(
@@ -209,57 +290,24 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const TypeSet<Coord3>& nodes = pars[idx]->nodes_;
-	const TypeSet<int>& stickidxs = pars[idx]->stickidxs_;
-	const TypeSet<int>& nodeidxs = pars[idx]->nodeidxs_;
-	const bool hasstickidx =
-		!stickidxs.isEmpty() && !mIsUdf( stickidxs.first() );
-	const bool hasnodeidx =
-		!nodeidxs.isEmpty() && !mIsUdf( nodeidxs.first() );
+	ManagedObjectSet<EM::FaultStick> faultsticks;
+	fillFaultSticks( *pars[idx], faultsticks );
+	EM::FaultStickSet* emfss = createFaultStickSet( faultsticks );
+	if ( !emfss ) continue;
 
-	Geometry::FaultStickSet& flt = *emflt->geometry().sectionGeometry(0);
+	emfss->ref();
+	EM::FSStoFault3DConverter::Setup convsu;
+	convsu.sortsticks_ =
+		FixedString(sortsticksfld_->text()) == sKeyGeometric();
+	EM::FSStoFault3DConverter fsstof3d( convsu, *emfss, *emflt );
+	fsstof3d.convert( true );
 
-	int prevstickidx = -mUdf(int);
-	int prevnodeidx = mUdf(int);
-	double prevz = mUdf(double);
-	const int nrnodes = nodes.size();
-	int mystickidx = -1;
-	int mynodeidx = -1;
-	for ( int nidx=0; nidx<nrnodes; nidx++ )
-	{
-	    const Coord3& crd = nodes[nidx];
-	    const int stickidx = stickidxs[nidx];
-	    const int nodeidx = nodeidxs[nidx];
-	    bool addnewstick = false;
-	    if ( hasstickidx )
-		addnewstick = stickidx>prevstickidx;
-	    else if ( hasnodeidx )
-		addnewstick = nodeidx<prevnodeidx;
-	    else
-		addnewstick = crd.z < prevz;
-
-	    if ( addnewstick )
-	    {
-		mynodeidx = 0;
-		mystickidx++;
-		flt.insertStick( crd, normal, mystickidx );
-	    }
-	    else
-	    {
-		mynodeidx++;
-		const RowCol rc( mystickidx, mynodeidx );
-		flt.insertKnot( rc, crd );
-	    }
-
-	    prevstickidx = stickidx;
-	    prevnodeidx = nodeidx;
-	}
-
-	PtrMan<Executor> saver = emflt->saver();
-	if ( saver )
-	    TaskRunner::execute( &taskr, *saver );
+	saver.add( emflt->saver() );
+	emfss->unRef();
 	emobj->unRef();
     }
+
+    TaskRunner::execute( &taskr, saver );
 
     uiMSG().message( tr("Imported all faults from file %1").arg(fnm) );
     return false;
