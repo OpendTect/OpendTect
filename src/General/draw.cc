@@ -28,7 +28,7 @@ mDefineEnumUtils(Alignment,VPos,"Alignment")
 { "Top", "Bottom", "Center", 0 };
 mDefineEnumUtils(MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
-  "Horizontal line", "Vertical line", 0 };
+  "Horizontal line", "Vertical line", "Plane", "Triangle", "Arrow", 0 };
 mDefineEnumUtils(MarkerStyle3D,Type,"Marker type")
 { "None", "Cube","Cone", "Cylinder", "Sphere", "Arrow",
   "Cross", "Point", "Plane", 0 };
