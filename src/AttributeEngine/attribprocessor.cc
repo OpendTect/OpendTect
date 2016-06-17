@@ -412,6 +412,9 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	{
 	    const Pos::GeomID geomid = globalcs.hsamp_.getGeomID();
 	    possvol.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+	    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+	    if ( geom )
+		possvol.hsamp_.setTrcRange( geom->sampling().hsamp_.trcRange());
 	    globalcs = possvol;
 	}
 
@@ -421,8 +424,8 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	    errmsg_ = provider_->errMsg();
 	    if ( errmsg_.isEmpty() )
 		errmsg_ = tr("Not possible to output required attribute"
-                         " in this area.\nPlease confront stepouts/timegates"
-		         " with available data");
+			 " in this area.\nPlease confront stepouts/timegates"
+			 " with available data");
 	    return;
 	}
 
