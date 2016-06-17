@@ -567,6 +567,7 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
+    if ( !mehandler_ ) return;
     const MouseEvent& mouseevent = mehandler_->event();
     const bool doerase =
 	!mouseevent.shiftStatus() && mouseevent.ctrlStatus();

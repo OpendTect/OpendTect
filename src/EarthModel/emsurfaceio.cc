@@ -1612,6 +1612,7 @@ void dgbSurfaceWriter::finishWriting()
     ascostream astream( strm );
     astream.newParagraph();
     par_->putTo( astream );
+    surface_.saveDisplayPars();
 }
 
 
