@@ -595,7 +595,7 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 	return;
 
     mHandleSetChgCBStart();
-    const LocEvent::LocID locid( chgdata.ID() );
+    const LocEvent::LocID locid( (LocEvent::LocID)chgdata.ID() );
     const SetID setid = savers_[idxof]->key();
 
     if ( isentire )
