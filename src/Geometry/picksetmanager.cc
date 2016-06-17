@@ -595,7 +595,7 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 	return;
 
     mHandleSetChgCBStart();
-    const LocEvent::IdxType locidx = (LocEvent::IdxType)chgdata.ID();
+    const LocEvent::LocID locid( chgdata.ID() );
     const SetID setid = savers_[idxof]->key();
 
     if ( isentire )
@@ -605,13 +605,13 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 	return;
     }
 
-    LocEvent ev( locidx, Location::udf(), Location::udf() );
+    LocEvent ev( locid, Location::udf(), Location::udf() );
     ev.type_ = isinsert ? LocationChangeEvent::Create
 			: LocationChangeEvent::Delete;
     if ( isinsert )
-	ev.loc_ = ps->get( locidx );
+	ev.loc_ = ps->get( locid );
     else
-	ev.prevloc_ = ps->get( locidx );
+	ev.prevloc_ = ps->get( locid );
 
     mUnlockAllAccess();
     pushLocEvent( setid, ev );

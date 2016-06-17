@@ -1219,7 +1219,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
     while ( true )
     {
 	Coord3 pos = surf->getKnot( posid.getRowCol(), false );
-	set += Pick::Location( pos );
+	set.add( Pick::Location(pos) );
 
 	nodefound = false;
 	const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();

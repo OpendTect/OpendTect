@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "draw.h"
 #include "iopar.h"
-#include "tableascio.h"
 template <class T> class ODPolygon;
 
 
@@ -27,11 +26,15 @@ namespace Pick
 {
 
 
-/*!\brief Monitorable set of picks.
+/*!\brief Monitorable set of pick locations.
 
-  A Pick::set is either a loose bunch of locations, or a connected set of
+  A Pick::Set is either a loose bunch of locations, or a connected set of
   points: a polygon. Apart from this, a set may be labeled to be part of a
   'category', like 'ArrowAnnotations'.
+
+  In the near future, each location will get its own unique ID, the LocID. For
+  now, this ID is identical to the index in the list. This is not MT-safe. But
+  current code assumes LocID == IdxType.
 
 */
 
@@ -41,7 +44,8 @@ mExpClass(General) Set	: public RefCount::Referenced
 public:
 
     typedef TypeSet<Location>::size_type    size_type;
-    typedef size_type	IdxType;
+    typedef size_type			    IdxType;
+    typedef IdxType			    LocID; //TODO IdxType => IntegerID
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclMonitorableAssignment(Set);
@@ -54,21 +58,23 @@ public:
 
     size_type		size() const;
     inline bool		isEmpty() const			    { return size()<1; }
+    bool		validLocID(LocID) const;
     bool		validIdx(IdxType) const;
-    Location		get(IdxType) const;
-    Coord		getPos(IdxType) const;
-    double		getZ(IdxType) const;
+    LocID		locIDFor(IdxType) const;
+    IdxType		idxFor(LocID) const;
+
+    Location		get(LocID) const;
+    Coord		getPos(LocID) const;
+    double		getZ(LocID) const;
 
     Set&		setEmpty();
     Set&		append(const Set&);
-    Set&		set(IdxType,const Location&);
-    Set&		add(const Location&);
-    Set&		insert(IdxType,const Location&);
-    Set&		remove(IdxType);
-    inline Set&		operator +=( const Location& loc )
-			{ return add( loc ); }
-    Set&		setPos(IdxType,const Coord&);
-    Set&		setZ(IdxType,double);
+    Set&		set(LocID,const Location&);
+    LocID		insertBefore(LocID,const Location&);
+    LocID		add(const Location&);
+    Set&		remove(LocID);
+    Set&		setPos(LocID,const Coord&);
+    Set&		setZ(LocID,double);
 
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
@@ -82,9 +88,9 @@ public:
     void		getLocations(TypeSet<Coord>&) const;
     float		getXYArea() const;
 			//!<Only for closed polygons. Returns in m^2.
-    IdxType		find(const TrcKey&) const;
-    IdxType		nearestLocation(const Coord&) const;
-    IdxType		nearestLocation(const Coord3&,bool ignorez=false) const;
+    LocID		find(const TrcKey&) const;
+    LocID		nearestLocation(const Coord&) const;
+    LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
 
     mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,0)
     void		fillPar(IOPar&) const;
@@ -137,22 +143,6 @@ protected:
 };
 
 } // namespace Pick
-
-
-mExpClass(General) PickSetAscIO : public Table::AscIO
-{
-public:
-				PickSetAscIO( const Table::FormatDesc& fd )
-				    : Table::AscIO(fd)          {}
-
-    static Table::FormatDesc*   getDesc(bool iszreq);
-    static void			updateDesc(Table::FormatDesc&,bool iszreq);
-    static void                 createDescBody(Table::FormatDesc*,bool iszreq);
-
-    bool			isXY() const;
-    bool			get(od_istream&,Pick::Set&,bool iszreq,
-				    float zval) const;
-};
 
 
 #endif

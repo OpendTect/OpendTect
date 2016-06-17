@@ -626,7 +626,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 	newloc.setGeomID( so->getGeomID() );
 
     if ( insertpick )
-	set_->insert( locidx, newloc );
+	set_->insertBefore( locidx, newloc );
     else
     {
 	set_->add( newloc );

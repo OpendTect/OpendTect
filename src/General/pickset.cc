@@ -4,7 +4,7 @@
  * DATE     : Mar 2001 / Mar 2016
 -*/
 
-
+#include "picksetascio.h"
 #include "pickset.h"
 #include "polygon.h"
 #include "survinfo.h"
@@ -62,28 +62,48 @@ Pick::Set::size_type Pick::Set::size() const
 }
 
 
-bool Pick::Set::validIdx( size_type idx ) const
+bool Pick::Set::validLocID( LocID id ) const
+{
+    return validIdx( id );
+}
+
+
+bool Pick::Set::validIdx( IdxType idx ) const
 {
     mLock4Read();
     return locs_.validIdx( idx );
 }
 
 
-Pick::Location Pick::Set::get( size_type idx ) const
+Pick::Set::IdxType Pick::Set::idxFor( LocID id ) const
+{
+    // mLock4Read();
+    return id;
+}
+
+
+Pick::Set::LocID Pick::Set::locIDFor( IdxType idx ) const
+{
+    // mLock4Read();
+    return idx;
+}
+
+
+Pick::Location Pick::Set::get( LocID idx ) const
 {
     mLock4Read();
     return locs_.validIdx(idx) ? locs_[idx] : Location::udf();
 }
 
 
-Coord Pick::Set::getPos( size_type idx ) const
+Coord Pick::Set::getPos( LocID idx ) const
 {
     mLock4Read();
     return locs_.validIdx(idx) ? locs_[idx].pos() : Coord::udf();
 }
 
 
-double Pick::Set::getZ( size_type idx ) const
+double Pick::Set::getZ( LocID idx ) const
 {
     mLock4Read();
     return locs_.validIdx(idx) ? locs_[idx].pos().z : mUdf(double);
@@ -153,7 +173,7 @@ bool Pick::Set::isMultiGeom() const
     if ( sz < 2 )
 	return false;
     const Pos::GeomID geomid0 = locs_[0].geomID();
-    for ( size_type idx=1; idx<sz; idx++ )
+    for ( IdxType idx=1; idx<sz; idx++ )
 	if ( locs_[idx].geomID() != geomid0 )
 	    return true;
     return false;
@@ -172,7 +192,7 @@ bool Pick::Set::has2D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return false;
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
 	if ( locs_[idx].is2D() )
 	    return true;
     return false;
@@ -184,7 +204,7 @@ bool Pick::Set::has3D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return true;
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
 	if ( !locs_[idx].is2D() )
 	    return true;
     return false;
@@ -196,7 +216,7 @@ bool Pick::Set::hasOnly2D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return false;
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
 	if ( !locs_[idx].is2D() )
 	    return false;
     return true;
@@ -208,7 +228,7 @@ bool Pick::Set::hasOnly3D() const
     mPrepRead( sz );
     if ( sz < 1 )
 	return true;
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
 	if ( locs_[idx].is2D() )
 	    return false;
     return true;
@@ -218,7 +238,7 @@ bool Pick::Set::hasOnly3D() const
 void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 {
     mPrepRead( sz );
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
 	const Coord coord( locs_[idx].pos() );
 	poly.add( Geom::Point2D<double>( coord.x, coord.y ) );
@@ -229,10 +249,9 @@ void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
 void Pick::Set::getPolygon( ODPolygon<float>& poly ) const
 {
     mPrepRead( sz );
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
 	Coord coord( locs_[idx].pos() );
-	//TODO should pass a Geometry I presume
 	coord = SI().binID2Coord().transformBackNoSnap( coord );
 	poly.add( Geom::Point2D<float>( (float)coord.x, (float)coord.y ) );
     }
@@ -242,7 +261,7 @@ void Pick::Set::getPolygon( ODPolygon<float>& poly ) const
 void Pick::Set::getLocations( TypeSet<Coord>& coords ) const
 {
     mPrepRead( sz );
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
 	coords += locs_[idx].pos();
 }
 
@@ -254,7 +273,7 @@ float Pick::Set::getXYArea() const
 	return mUdf(float);
 
     TypeSet<Geom::Point2D<float> > posxy;
-    for ( size_type idx=sz-1; idx>=0; idx-- )
+    for ( IdxType idx=sz-1; idx>=0; idx-- )
     {
 	const Coord localpos = locs_[idx].pos();
 	posxy += Geom::Point2D<float>( (float)localpos.x, (float)localpos.y );
@@ -272,23 +291,23 @@ float Pick::Set::getXYArea() const
 }
 
 
-Pick::Set::size_type Pick::Set::find( const TrcKey& tk ) const
+Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
 {
     mPrepRead( sz );
-    for ( size_type idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
 	if ( locs_[idx].trcKey() == tk )
 	    return idx;
     return -1;
 }
 
 
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord& pos ) const
+Pick::Set::LocID Pick::Set::nearestLocation( const Coord& pos ) const
 {
     return nearestLocation( Coord3(pos.x,pos.y,0.f), true );
 }
 
 
-Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
+Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 						 bool ignorez ) const
 {
     mPrepRead( sz );
@@ -297,12 +316,12 @@ Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
     if ( pos.isUdf() )
 	return 0;
 
-    size_type ret = 0;
+    IdxType ret = 0;
     const Coord3& p0 = locs_[ret].pos();
     double minsqdist = p0.isUdf() ? mUdf(double)
 		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
 
-    for ( size_type idx=1; idx<sz; idx++ )
+    for ( IdxType idx=1; idx<sz; idx++ )
     {
 	const Coord3& curpos = locs_[idx].pos();
 	if ( pos.isUdf() )
@@ -405,29 +424,30 @@ Pick::Set& Pick::Set::append( const Set& oth )
 }
 
 
-Pick::Set& Pick::Set::add( const Location& loc )
+Pick::Set::LocID Pick::Set::add( const Location& loc )
 {
     mLock4Write();
 
     locs_ += loc;
 
-    mSendChgNotif( cLocationInsert(), locs_.size()-1 );
-    return *this;
+    const LocID locid = locs_.size()-1;
+    mSendChgNotif( cLocationInsert(), locid );
+    return locid;
 }
 
 
-Pick::Set& Pick::Set::insert( size_type idx, const Location& loc )
+Pick::Set::LocID Pick::Set::insertBefore( LocID idx, const Location& loc )
 {
     mLock4Write();
 
     locs_.insert( idx, loc );
 
     mSendChgNotif( cLocationInsert(), idx );
-    return *this;
+    return idx;
 }
 
 
-Pick::Set& Pick::Set::set( size_type idx, const Location& loc )
+Pick::Set& Pick::Set::set( LocID idx, const Location& loc )
 {
     mLock4Read();
     if ( !locs_.validIdx(idx) || loc == locs_[idx] )
@@ -444,7 +464,7 @@ Pick::Set& Pick::Set::set( size_type idx, const Location& loc )
 }
 
 
-Pick::Set& Pick::Set::remove( size_type idx )
+Pick::Set& Pick::Set::remove( LocID idx )
 {
     mLock4Read();
     if ( !locs_.validIdx(idx) )
@@ -468,14 +488,14 @@ Pick::Set& Pick::Set::remove( size_type idx )
 }
 
 
-static inline bool coordUnchanged( Pick::Set::size_type idx,
+static inline bool coordUnchanged( Pick::Set::IdxType idx,
 	const TypeSet<Pick::Location>& locs, const Coord& coord )
 {
     return !locs.validIdx(idx) || locs[idx].pos().sqHorDistTo(coord) < 0.01;
 }
 
 
-Pick::Set& Pick::Set::setPos( size_type idx, const Coord& coord )
+Pick::Set& Pick::Set::setPos( LocID idx, const Coord& coord )
 {
     mLock4Read();
     if ( coordUnchanged(idx,locs_,coord) )
@@ -493,7 +513,7 @@ Pick::Set& Pick::Set::setPos( size_type idx, const Coord& coord )
 
 
 
-static inline bool zUnchanged( Pick::Set::size_type idx,
+static inline bool zUnchanged( Pick::Set::IdxType idx,
 	const TypeSet<Pick::Location>& locs, double z )
 {
     if ( !locs.validIdx(idx) )
@@ -502,7 +522,7 @@ static inline bool zUnchanged( Pick::Set::size_type idx,
     return mIsZero(zdiff,1e-6);
 }
 
-Pick::Set& Pick::Set::setZ( size_type idx, double z )
+Pick::Set& Pick::Set::setZ( LocID idx, double z )
 {
     mLock4Read();
     if ( zUnchanged(idx,locs_,z) )

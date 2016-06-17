@@ -234,7 +234,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 		if ( !loc.fromString(astrm.keyWord()) )
 		    break;
 
-		ps += loc;
+		ps.add( loc );
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) ) astrm.next();
@@ -280,7 +280,7 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();
-    for ( int iloc=0; iloc<ps.size(); iloc++ )
+    for ( Pick::Set::IdxType iloc=0; iloc<ps.size(); iloc++ )
     {
 	BufferString str;
 	ps.get( iloc ).toString( str );

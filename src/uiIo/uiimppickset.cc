@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "picksetmanager.h"
 #include "picksettr.h"
+#include "picksetascio.h"
 #include "randcolor.h"
 #include "od_istream.h"
 #include "surfaceinfo.h"
