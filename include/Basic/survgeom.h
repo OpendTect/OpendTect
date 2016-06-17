@@ -132,6 +132,7 @@ public:
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
     TrcKey::SurvID		default3DSurvID() const;
+    TrcKey::SurvID		synthSurvID() const;
     static Geometry::ID		cUndefGeomID()	{ return mUdf(Geometry::ID); }
 
 protected:

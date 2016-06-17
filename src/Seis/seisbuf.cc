@@ -264,11 +264,12 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     int idx = startidx, pos = 0;
     while ( idx<sz && idx>=0 )
     {
-	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
+	if ( ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
 	    return idx;
-	else if ( is2d &&
+	/*TODO check & remove if unnecesary
+	  else if ( is2d &&
 		  ((SeisTrcBuf*)this)->get(idx)->info().nr_ == binid.crl() )
-	    return idx;
+	    return idx;*/
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
 	idx = startidx + pos;
@@ -302,12 +303,13 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int sz = size(); if ( sz < 2 ) return 0;
     BinID start = trcs_[0]->info().binID();
     BinID stop = trcs_[sz-1]->info().binID();
+    /*TODO check & remove if unnecesary
     if ( is2d )
     {
 	start.inl() = stop.inl() = 0;
 	start.crl() = trcs_[0]->info().nr_;
 	stop.crl() = trcs_[sz-1]->info().nr_;
-    }
+    }*/
 
     BinID dist( start.inl() - stop.inl(), start.crl() - stop.crl() );
     if ( !dist.inl() && !dist.crl() )

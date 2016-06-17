@@ -54,6 +54,7 @@ public:
     static const TrcKey& udf();
     static SurvID	std2DSurvID();
     static SurvID	std3DSurvID();
+    static SurvID	stdSynthSurvID();
     static SurvID	cUndefSurvID();
 
     double		distTo(const TrcKey&) const;

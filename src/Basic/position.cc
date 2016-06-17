@@ -371,6 +371,12 @@ TrcKey::SurvID TrcKey::std3DSurvID()
 }
 
 
+TrcKey::SurvID TrcKey::stdSynthSurvID()
+{
+    return Survey::GM().synthSurvID();
+}
+
+
 TrcKey::SurvID TrcKey::cUndefSurvID()
 {
     return Survey::GeometryManager::cUndefGeomID();

@@ -795,8 +795,9 @@ bool RaySynthGenerator::doPrepare( int )
     if ( !SynthGenBase::isInputOK() )
 	return mErrOccRet;
 
-    if ( aimodels_ && !SynthGenBase::getOutSamplingFromModel(
-				models,cursampling,applynmo_||zerooffset) )
+    if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
+						applynmo_||zerooffset) &&
+	  aimodels_ )
     {
 	Interval<float> modelsampling;
 	ElasticModel::getTimeSampling( *aimodels_, modelsampling );
@@ -1027,6 +1028,7 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
+	    trc->info().trckey_.setSurvID( TrcKey::stdSynthSurvID() );
 	    trc->info().setInl( bid0.inl() );
 	    trc->info().setCrl( bid0.crl() + imdl*crlstep );
 	    trc->info().nr_ = imdl+1;
@@ -1049,6 +1051,7 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
     for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
 	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
+	trc->info().trckey_.setSurvID( TrcKey::stdSynthSurvID() );
 	trc->info().setInl( bid0.inl() );
 	trc->info().setCrl( bid0.crl() + imdl*crlstep );
 	trc->info().nr_ = imdl+1;

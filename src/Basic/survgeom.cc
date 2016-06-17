@@ -21,6 +21,7 @@ namespace Survey
 {
 
 static Pos::GeomID cSIGeomID = -1;
+static Pos::GeomID cSyntheticSurveyID = -100;
 
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
@@ -138,6 +139,12 @@ TrcKey::SurvID GeometryManager::default3DSurvID() const
 	    return geometries_[idx]->getID();
 
     return cSIGeomID;
+}
+
+
+TrcKey::SurvID GeometryManager::synthSurvID() const
+{
+    return cSyntheticSurveyID;
 }
 
 

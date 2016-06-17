@@ -200,11 +200,13 @@ bool StorageProvider::checkInpAndParsAtStart()
 	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
 	DataPack::FullID fid( getDPID() );
 	RefMan<SeisTrcBufDataPack> stbdtp = DPM(fid).get(fid.packID());
-	if ( !stbdtp )
+	if ( !stbdtp || stbdtp->trcBuf().isEmpty() )
 	    return false;
 
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );
+	storedvolume_.hsamp_.survid_ =
+	    stbdtp->trcBuf().get( 0 )->info().trckey_.survID();
 	storedvolume_.hsamp_.setInlRange( si.inlrg );
 	storedvolume_.hsamp_.setCrlRange( si.crlrg );
 	storedvolume_.zsamp_ = si.zrg;
@@ -222,7 +224,10 @@ bool StorageProvider::checkInpAndParsAtStart()
     const bool is2d = mscprov_->is2D();
     desc_.set2D( is2d );
     if ( !is2d )
+    {
 	SeisTrcTranslator::getRanges( mid, storedvolume_, 0 );
+	storedvolume_.hsamp_.survid_ = TrcKey::std3DSurvID();
+    }
     else
     {
 	Seis2DDataSet* dset = mscprov_->reader().dataSet();
@@ -394,7 +399,7 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
     if ( !possiblevolume_ )
 	possiblevolume_ = new TrcKeyZSampling;
 
-    const bool is2d = mscprov_->is2D();
+    const bool is2d = mscprov_ && mscprov_->is2D();
     if ( is2d && !getLine2DStoredVolume() )
 	return false;
 
@@ -402,7 +407,12 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
     if ( is2d == globpv.is2D() )
 	globpv.limitTo( *possiblevolume_ );
 
-    if ( globpv.isEmpty() )
+    const bool issynthetic =
+	possiblevolume_->hsamp_.survid_ == TrcKey::stdSynthSurvID();
+    if ( issynthetic )
+	globpv = *possiblevolume_;
+
+    if ( globpv.isEmpty() && !issynthetic )
     {
 	const IOObj* dataobj = mscprov_->reader().ioObj();
 	const BufferString datanm = dataobj ? dataobj->name()

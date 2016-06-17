@@ -128,6 +128,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     }
 
     DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup(),false);
+    dps->bivSet().setSurvID( TrcKey::stdSynthSurvID() );
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return 0; }
 
