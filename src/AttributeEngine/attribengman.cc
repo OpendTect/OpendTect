@@ -83,36 +83,26 @@ void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
 
 
 Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
-			      const char* linename, uiString& errmsg )
+			      const char* linename, uiString& errmsg,
+			      int outidx )
 {
-    int outputidx = 0;
+    PtrMan<IOPar> outputpar =
+		iopar.subselect( IOPar::compKey(sKey::Output(),outidx) );
+    if ( !outputpar )
+	return 0;
+
     TypeSet<DescID> ids;
+    int attribidx = 0;
     while ( true )
     {
-	BufferString outpstr = IOPar::compKey( sKey::Output(), outputidx );
-	PtrMan<IOPar> outputpar = iopar.subselect( outpstr );
-	if ( !outputpar )
-	{
-	    if ( !outputidx )
-	    { outputidx++; continue; }
-	    else
-		break;
-	}
+	BufferString attribidstr =
+		    IOPar::compKey( sKey::Attributes(), attribidx );
+	int attribid;
+	if ( !outputpar->get(attribidstr,attribid) )
+	    break;
 
-	int attribidx = 0;
-	while ( true )
-	{
-	    BufferString attribidstr =
-			IOPar::compKey( sKey::Attributes(), attribidx );
-	    int attribid;
-	    if ( !outputpar->get(attribidstr,attribid) )
-		break;
-
-	    ids += DescID(attribid,false);
-	    attribidx++;
-	}
-
-	outputidx++;
+	ids += DescID(attribid,false);
+	attribidx++;
     }
 
     DescID evalid = createEvaluateADS( attribset, ids, errmsg );
@@ -120,7 +110,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     if ( !proc ) return 0;
 
     for ( int idx=1; idx<ids.size(); idx++ )
-	proc->addOutputInterest(idx);
+	proc->addOutputInterest( idx );
 
     PtrMan<IOPar> outpar =
 	iopar.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
@@ -155,13 +145,15 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	}
     }
 
-    SeisTrcStorOutput* storeoutp = createOutput( iopar, geomid_, errmsg );
+    SeisTrcStorOutput* storeoutp =
+		createOutput( iopar, geomid_, errmsg, outidx );
     if ( !storeoutp ) return 0;
 
-    bool exttrctosi;
-    BufferString basekey = IOPar::compKey( "Output",0 );
-    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtTrcToSI() ),
-		      exttrctosi) )
+    bool exttrctosi = false;
+    const BufferString basekey = IOPar::compKey( sKey::Output(), outidx );
+    const BufferString extkey =
+			IOPar::compKey( basekey, SeisTrc::sKeyExtTrcToSI() );
+    if ( iopar.getYN(extkey,exttrctosi) )
 	storeoutp->setTrcGrow( exttrctosi );
 
     BufferStringSet outnms;
@@ -231,20 +223,21 @@ void EngineMan::setExecutorName( Executor* ex )
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 					    Pos::GeomID geomid,
-					    uiString& errmsg )
+					    uiString& errmsg, int outidx )
 {
     const FixedString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr==sKey::Cube() )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( tkzs_, geomid );
-	outp->setGeometry(tkzs_);
-	const bool res = outp->doUsePar( pars );
+	outp->setGeometry( tkzs_ );
+	const bool res = outp->doUsePar( pars, outidx );
 	if ( !res )
 	{
-	    errmsg = mToUiStringTodo(outp->errMsg());
+	    errmsg = mToUiStringTodo( outp->errMsg() );
 	    delete outp; outp = 0;
 	}
+
 	return outp;
     }
 
@@ -1226,7 +1219,7 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 
     Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid_,
 							datapointset, outval );
-    attrout->doUsePar( pars );
+    attrout->doUsePar( pars, 0 );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
 

@@ -48,7 +48,7 @@ public:
     virtual		~EngineMan();
 
     Processor*		usePar(const IOPar&,DescSet&,
-			       const char* linename,uiString&);
+			       const char* linename,uiString&,int outputidx);
 
     static Processor*	createProcessor(const DescSet&,const char*,
 					const DescID&,uiString& errmsg);
@@ -57,7 +57,8 @@ public:
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
-    SeisTrcStorOutput*	createOutput(const IOPar&,Pos::GeomID,uiString&);
+    SeisTrcStorOutput*	createOutput(const IOPar&,Pos::GeomID,uiString&,
+				     int outidx);
 
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }

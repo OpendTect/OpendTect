@@ -73,16 +73,16 @@ public:
     virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
-    static const char*          cubekey();
-    static const char*          tskey();
-    static const char*          surfkey();
-    static const char*          scalekey();
-    static const char*          varzlinekey();
+    static const char*		cubekey();
+    static const char*		tskey();
+    static const char*		surfkey();
+    static const char*		scalekey();
+    static const char*		varzlinekey();
 
     virtual const char*		errMsg() const	{ return ""; }
 
 protected:
-                                ~Output();
+				~Output();
 
     Seis::SelData*		seldata_;
     TypeSet<int>		desoutputs_;
@@ -159,7 +159,7 @@ public:
     void			setGeometry( const TrcKeyZSampling& cs )
 				{ doSetGeometry(cs); }
 
-    bool			doUsePar(const IOPar&);
+    bool			doUsePar(const IOPar&,int outidx);
     virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&);
@@ -296,7 +296,7 @@ public:
 				mImplDefAttribOutputFns(Coord)
     virtual void		collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&);
-    void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
+    void			setPossibleBinIDDuplic() { arebiddupl_ = true; }
 
     //TODO : check where we want to put this: output?
     static const char*		filenamekey();
@@ -370,7 +370,7 @@ public:
 
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
-    void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
+    void			setPossibleBinIDDuplic() { arebiddupl_ = true; }
 
 protected:
     DataPointSet&		datapointset_;
@@ -384,12 +384,10 @@ protected:
 						  float,float*);
     bool			areBIDDuplicated() const;
     void			addLocalInterval(TypeSet<Interval<int> >&,
-					         TypeSet<float>&,
+						 TypeSet<float>&,
 						 int,float) const;
 };
 
-
 } // namespace Attrib
-
 
 #endif

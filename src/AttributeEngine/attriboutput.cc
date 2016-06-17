@@ -322,24 +322,22 @@ static bool isDataType( const char* reqtp )
 }
 
 
-bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
+bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
 {
     errmsg_ = uiString::emptyString();
-    PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
-    if ( !outppar )
-	outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );
-
+    PtrMan<IOPar> outppar =
+		pars.subselect( IOPar::compKey(sKey::Output(),outidx) );
     if ( !outppar )
     {
-	errmsg_ = uiStrings::phrCannotFind(tr(
-					  "Output keyword in parameter file"));
+	errmsg_ = uiStrings::phrCannotFind(
+			tr("Output.%1 keyword in parameter file").arg(outidx) );
 	return false;
     }
 
     const char* storid = outppar->find( seisidkey() );
-    if ( !setStorageID( storid ) )
+    if ( !setStorageID(storid) )
     {
-	errmsg_ = uiStrings::phrCannotFind(tr("output ID: %1").arg( storid ));
+	errmsg_ = uiStrings::phrCannotFind(tr("Output ID: %1").arg( storid ));
         return false;
     }
 
@@ -1184,6 +1182,13 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     }
 
     if ( rid<0 ) return;
+
+    if ( datapointset_.is2D() )
+    {
+	BinIDValueSet::SPos spos = datapointset_.bvsPos( rid );
+	float* vals = datapointset_.bivSet().getVals( spos );
+	vals[datapointset_.nrFixedCols()-1] = info.nr_;
+    }
 
     const int desnrvals = desoutputs_.size() + firstattrcol_;
     if ( datapointset_.nrCols() < desnrvals )

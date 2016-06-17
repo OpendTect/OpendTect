@@ -129,7 +129,7 @@ int StratAmpCalc::init( const IOPar& pars )
     {
 	uiString errmsg;
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
-	proc_ = attrengman->usePar( pars, *descset_, 0, errmsg );
+	proc_ = attrengman->usePar( pars, *descset_, 0, errmsg, 0 );
 	if ( !proc_ ) return -1;
     }
 
