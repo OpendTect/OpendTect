@@ -40,7 +40,7 @@ EMObject::EMObject( EMManager& emm )
     , change( this )
     , id_( -1 )
     , storageid_(MultiID::udf())
-    , preferredcolor_( *new Color(255,0,0) )
+    , preferredcolor_( *new Color(Color::Green()) )
     , changed_( false )
     , fullyloaded_( false )
     , locked_( false )
@@ -48,7 +48,7 @@ EMObject::EMObject( EMManager& emm )
     , selremoving_( false )
     , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
-	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::Green()))
+	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::White()))
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
