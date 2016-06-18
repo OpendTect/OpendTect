@@ -1187,7 +1187,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     {
 	BinIDValueSet::SPos spos = datapointset_.bvsPos( rid );
 	float* vals = datapointset_.bivSet().getVals( spos );
-	vals[datapointset_.nrFixedCols()-1] = info.nr_;
+	vals[datapointset_.nrFixedCols()-1] = mCast(float,info.nr_);
     }
 
     const int desnrvals = desoutputs_.size() + firstattrcol_;
